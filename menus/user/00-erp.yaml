@@ -634,13 +634,13 @@
   params:
     action: GoBD/filter
 - parent: general_ledger
-  id: general_ledger_cbob_transactions
-  name: CB/OB Transactions
+  id: year_end_closing
+  name: Year-end closing
   icon: cbob
   order: 470
   access: general_ledger
   params:
-    action: YearEndTransactions/filter
+    action: YearEndTransactions/form
 - parent: general_ledger
   id: general_ledger_reports
   name: Reports

@@ -30,6 +30,7 @@ __PACKAGE__->meta->columns(
   bin_id                                    => { type => 'integer' },
   bin_id_ignore_onhand                      => { type => 'integer' },
   businessnumber                            => { type => 'text' },
+  carry_over_account_chart_id               => { type => 'integer' },
   closedto                                  => { type => 'date' },
   cnnumber                                  => { type => 'text' },
   co_ustid                                  => { type => 'text' },
@@ -100,6 +101,7 @@ __PACKAGE__->meta->columns(
   itime                                     => { type => 'timestamp', default => 'now()' },
   language_id                               => { type => 'integer' },
   letternumber                              => { type => 'integer' },
+  loss_carried_forward_chart_id             => { type => 'integer' },
   max_future_booking_interval               => { type => 'integer', default => 360 },
   mtime                                     => { type => 'timestamp' },
   normalize_part_descriptions               => { type => 'boolean', default => 'true' },
@@ -114,6 +116,7 @@ __PACKAGE__->meta->columns(
   pdonumber                                 => { type => 'text' },
   ponumber                                  => { type => 'text' },
   precision                                 => { type => 'numeric', default => '0.01', not_null => 1, precision => 15, scale => 5 },
+  profit_carried_forward_chart_id           => { type => 'integer' },
   profit_determination                      => { type => 'text' },
   project_status_id                         => { type => 'integer' },
   project_type_id                           => { type => 'integer' },
@@ -195,9 +198,24 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { bin_id_ignore_onhand => 'id' },
   },
 
+  carry_over_account_chart => {
+    class       => 'SL::DB::Chart',
+    key_columns => { carry_over_account_chart_id => 'id' },
+  },
+
   currency => {
     class       => 'SL::DB::Currency',
     key_columns => { currency_id => 'id' },
+  },
+
+  loss_carried_forward_chart => {
+    class       => 'SL::DB::Chart',
+    key_columns => { loss_carried_forward_chart_id => 'id' },
+  },
+
+  profit_carried_forward_chart => {
+    class       => 'SL::DB::Chart',
+    key_columns => { profit_carried_forward_chart_id => 'id' },
   },
 
   project_status => {

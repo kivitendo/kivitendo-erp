@@ -60,5 +60,22 @@
    <td>[% P.chart.picker('defaults.workflow_po_ap_chart_id', SELF.defaults.workflow_po_ap_chart_id, type='AP_amount', choose=1, style=style) %]<td>
   </tr>
 
+  <tr>
+    <th align="right">[% LxERP.t8("Year-end closing") %]</th>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8("Carry over account for year-end closing") %]</td>
+   <td>[% P.chart.picker('defaults.carry_over_account_chart_id', SELF.defaults.carry_over_account_chart_id, category='A', choose=1, style=style) %]<td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Profit carried forward account") %]</td>
+   <td>[% P.chart.picker('defaults.profit_carried_forward_chart_id', SELF.defaults.profit_carried_forward_chart_id, category='A', choose=1, style=style) %]<td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Loss carried forward account") %]</td>
+   <td>[% P.chart.picker('defaults.loss_carried_forward_chart_id', SELF.defaults.loss_carried_forward_chart_id, category='A', choose=1, style=style) %]<td>
+  </tr>
 </table>
 </div>

@@ -25,6 +25,10 @@ Mittelgroße neue Features:
   die aus Workflows aus dem Quellauftrag entstanden sind, gleich dem Betrag
   des Quellauftrags ist.
 
+- Der Jahresabschluß wurde komplett überarbeitet, es wird nun zwischen
+  Bestands- und Erfolgskonten unterschieden und ein Gewinn- bzw. Verlustvortrag
+  übertragen.
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Mahnungen nach Abteilung filtern

@@ -4,312 +4,551 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use utf8; # Umlauts in hardcoded German default texts
 use DateTime;
 use SL::Locale::String qw(t8);
-use SL::ReportGenerator;
 use SL::Helper::Flash;
 use SL::DBUtils;
+use Data::Dumper;
+use List::Util qw(sum);
+use SL::ClientJS;
 
 use SL::DB::Chart;
 use SL::DB::GLTransaction;
 use SL::DB::AccTransaction;
-use SL::DB::Helper::AccountingPeriod qw(get_balance_starting_date);
-
-use SL::Presenter::Tag qw(checkbox_tag);
+use SL::DB::Employee;
+use SL::DB::Helper::AccountingPeriod qw(get_balance_starting_date get_balance_startdate_method_options);
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(charts charts9000 cbob_chart cb_date cb_startdate ob_date cb_reference ob_reference cb_description ob_description) ],
+  'scalar --get_set_init' => [ qw(cb_date cb_startdate ob_date) ],
 );
 
 __PACKAGE__->run_before('check_auth');
 
-sub action_filter {
+sub action_form {
   my ($self) = @_;
-  $self->ob_date(DateTime->today->truncate(to => 'year'))                  if !$self->ob_date;
-  $self->cb_date(DateTime->today->truncate(to => 'year')->add(days => -1)) if !$self->cb_date;
-  $self->ob_reference(t8('OB Transaction'))   if !$self->ob_reference;
-  $self->cb_reference(t8('CB Transaction'))   if !$self->cb_reference;
-  $self->ob_description(t8('OB Transaction')) if !$self->ob_description;
-  $self->cb_description(t8('CB Transaction')) if !$self->cb_description;
 
-  $self->setup_filter_action_bar;
-  $self->render('gl/yearend_filter',
-                title               => t8('CB/OB Transactions'),
-                make_title_of_chart => sub { $_[0]->accno.' '.$_[0]->description }
+  $self->cb_startdate($::locale->parse_date_to_object($self->get_balance_starting_date($self->cb_date)));
+
+  my $defaults         = SL::DB::Default->get;
+  my $carry_over_chart = SL::DB::Manager::Chart->find_by( id => $defaults->carry_over_account_chart_id     );
+  my $profit_chart     = SL::DB::Manager::Chart->find_by( id => $defaults->profit_carried_forward_chart_id );
+  my $loss_chart       = SL::DB::Manager::Chart->find_by( id => $defaults->loss_carried_forward_chart_id   );
+
+  $self->render('yearend/form',
+                title                            => t8('Year-end closing'),
+                carry_over_chart                 => $carry_over_chart,
+                profit_chart                     => $profit_chart,
+                loss_chart                       => $loss_chart,
+                balance_startdate_method_options => get_balance_startdate_method_options(),
                );
+};
 
-}
-
-sub action_list {
-  my ($self) = @_;
-  $main::lxdebug->enter_sub();
-
-  my $report     = SL::ReportGenerator->new(\%::myconfig, $::form);
-
-  $self->prepare_report($report);
-
-  $report->set_options(
-    output_format        => 'HTML',
-    raw_top_info_text    => $::form->parse_html_template('gl/yearend_top',    { SELF => $self }),
-    raw_bottom_info_text => $::form->parse_html_template('gl/yearend_bottom', { SELF => $self }),
-    allow_pdf_export     => 0,
-    allow_csv_export     => 0,
-    title                => $::locale->text('CB/OB Transactions'),
-  );
-
-  $self->setup_list_action_bar;
-  $report->generate_with_headers();
-  $main::lxdebug->leave_sub();
-}
-
-sub action_generate {
+sub action_year_end_bookings {
   my ($self) = @_;
 
-  if ($self->cb_date > $self->ob_date) {
-    flash ('error', $::locale->text('CB date #1 is higher than OB date #2. Please select again.', $self->cb_date, $self->ob_date));
-  } else {
-    my $cnt = $self->make_booking();
-    flash('info', $::locale->text('#1 CB transactions and #1 OB transactions generated.',$cnt)) if $cnt > 0;
+  $self->_parse_form;
+
+
+  eval {
+    _year_end_bookings( start_date => $self->cb_startdate,
+                        cb_date    => $self->cb_date,
+                      );
+    1;
+  } or do {
+    $self->js->flash('error', t8('Error while applying year-end bookings!') . ' ' . $@);
+    return $self->js->render;
+  };
+
+  my ($report_data, $profit_loss_sum) = _report(
+                                                cb_date    => $self->cb_date,
+                                                start_date => $self->cb_startdate,
+                                               );
+
+  my $html = $self->render('yearend/_charts', { layout  => 0 , process => 1, output => 0 },
+                 charts          => $report_data,
+                 profit_loss_sum => $profit_loss_sum,
+               );
+  return $self->js->flash('info', t8('Year-end bookings were successfully completed!'))
+               ->html('#charts', $html)
+               ->render;
+}
+
+sub action_get_start_date {
+  my ($self) = @_;
+
+  my $cb_date = $self->cb_date; # parse from form via init
+  unless ( $self->cb_date ) {
+    return $self->hide('#apply_year_end_bookings_button')
+                ->flash('error', t8('Year-end date missing'))
+                ->render;
   }
-  $self->action_list;
+
+  $self->cb_startdate($::locale->parse_date_to_object($self->get_balance_starting_date($self->cb_date, $::form->{'balance_startdate_method'})));
+
+  # $main::lxdebug->message(0, "found start date: ", $self->cb_startdate->to_kivitendo);
+
+  return $self->js->val('#cb_startdate', $self->cb_startdate->to_kivitendo)
+              ->show('#apply_year_end_bookings_button')
+              ->show('.startdate')
+              ->render;
 }
 
-sub check_auth {
-  $::auth->assert('general_ledger');
+sub action_update_charts {
+  my ($self) = @_;
+
+  $self->_parse_form;
+
+  my ($report_data, $profit_loss_sum) = _report(
+                                                cb_date   => $self->cb_date,
+                                                start_date => $self->cb_startdate,
+                                               );
+
+  $self->render('yearend/_charts', { layout  => 0 , process => 1 },
+                 charts          => $report_data,
+                 profit_loss_sum => $profit_loss_sum,
+               );
 }
 
 #
 # helpers
 #
 
-sub make_booking {
+sub _parse_form {
   my ($self) = @_;
-  $main::lxdebug->enter_sub();
-  my @ids = map { $::form->{"multi_id_$_"} } grep { $::form->{"multi_id_$_"} } (1..$::form->{rowcount});
-  my $cnt = 0;
-  $main::lxdebug->message(LXDebug->DEBUG2(),"generate for ".$::form->{cbob_chart}." # ".scalar(@ids)." charts");
-  if (scalar(@ids) && $::form->{cbob_chart}) {
-    my $carryoverchart = SL::DB::Manager::Chart->get_first(  query => [ id => $::form->{cbob_chart} ] );
-    my $charts = SL::DB::Manager::Chart->get_all(  query => [ id => \@ids ] );
-    foreach my $chart (@{ $charts }) {
-      $main::lxdebug->message(LXDebug->DEBUG2(),"chart_id=".$chart->id." accno=".$chart->accno);
-      my $balance = $self->get_balance($chart);
-      if ( $balance != 0 ) {
-        # SB
-        $self->gl_booking($balance,$self->cb_date,$::form->{cb_reference},$::form->{cb_description},$chart,$carryoverchart,0,1);
-        # EB
-        $self->gl_booking($balance,$self->ob_date,$::form->{ob_reference},$::form->{ob_description},$carryoverchart,$chart,1,0);
-        $cnt++;
-      }
-    }
-  }
-  $main::lxdebug->leave_sub();
-  return $cnt;
-}
 
-
-sub prepare_report {
-  my ($self,$report) = @_;
-  $main::lxdebug->enter_sub();
-  my $idx = 1;
-
-  my %column_defs = (
-    'ids'         => { raw_header_data => checkbox_tag("", id => "check_all",
-                                                                          checkall => "[data-checkall=1]"), 'align' => 'center' },
-    'chart'       => { text => $::locale->text('Account'), },
-    'description' => { text => $::locale->text('Description'), },
-    'saldo'       => { text => $::locale->text('Saldo'),  'align' => 'right'},
-    'sum_cb'      => { text => $::locale->text('Sum CB Transactions'), 'align' => 'right'},  ##close == Schluss
-    'sum_ob'      => { text => $::locale->text('Sum OB Transactions'), 'align' => 'right'},  ##open  == Eingang
-  );
-  my @columns      = qw(ids chart description saldo sum_cb sum_ob);
-  map { $column_defs{$_}->{visible} = 1 } @columns;
-
-  my $ob_next_date = $self->ob_date->clone();
-  $ob_next_date->add(years => 1)->add(days => -1);
-
+  # parse dates
   $self->cb_startdate($::locale->parse_date_to_object($self->get_balance_starting_date($self->cb_date)));
 
-  my @custom_headers = ();
-  # Zeile 1:
-  push @custom_headers, [
-      { 'text' => '   ', 'colspan' => 3 },
-      { 'text' => $::locale->text("Timerange")."<br />".$self->cb_startdate->to_kivitendo." - ".$self->cb_date->to_kivitendo, 'colspan' => 2, 'align' => 'center'},
-      { 'text' => $::locale->text("Timerange")."<br />".$self->ob_date->to_kivitendo." - ".$ob_next_date->to_kivitendo, 'align' => 'center'},
-    ];
+  die "cb_date must come after start_date" unless $self->cb_date > $self->cb_startdate;
 
-  # Zeile 2:
-  my @line_2 = ();
-  map { push @line_2 , $column_defs{$_} } grep { $column_defs{$_}->{visible} } @columns;
-  push @custom_headers, [ @line_2 ];
+}
 
-  $report->set_custom_headers(@custom_headers);
-  $report->set_columns(%column_defs);
-  $report->set_column_order(@columns);
+sub _year_end_bookings {
+  my (%params) = @_;
 
-  my $chart9actual = SL::DB::Manager::Chart->get_first( query => [ id => $self->cbob_chart ] );
-  $self->{cbob_chartaccno} = $chart9actual->accno.' '.$chart9actual->description;
+  my $start_date = delete $params{start_date};
+  my $cb_date    = delete $params{cb_date};
 
-  foreach my $chart (@{ $self->charts }) {
-    my $balance = $self->get_balance($chart);
-    if ( $balance != 0 ) {
-      my $chart_id = $chart->id;
-      my $row = { map { $_ => { 'data' => '' } } @columns };
-      $row->{ids}  = {
-        'raw_data' => checkbox_tag("multi_id_${idx}", value => $chart_id, "data-checkall" => 1),
-        'valign'   => 'center',
-        'align'    => 'center',
+  my $defaults         = SL::DB::Default->get;
+  my $carry_over_chart = SL::DB::Manager::Chart->find_by( id => $defaults->carry_over_account_chart_id     ) // die t8('No carry-over chart configured!');
+  my $profit_chart     = SL::DB::Manager::Chart->find_by( id => $defaults->profit_carried_forward_chart_id ) // die t8('No profit carried forward chart configured!');
+  my $loss_chart       = SL::DB::Manager::Chart->find_by( id => $defaults->loss_carried_forward_chart_id   ) // die t8('No profit and loss carried forward chart configured!');
+
+  my ($report_data, $profit_loss_sum) = _report(
+                                                start_date => $start_date,
+                                                cb_date    => $cb_date,
+                                               );
+
+  my @asset_accounts       = grep { $_->{account_type} eq 'asset_account' }       @{ $report_data };
+  my @profit_loss_accounts = grep { $_->{account_type} eq 'profit_loss_account' } @{ $report_data };
+
+  my $ob_date = $cb_date->clone->add(days => 1);
+
+  my ($credit_sum, $debit_sum) = (0,0);
+
+  my $employee_id = SL::DB::Manager::Employee->current->id;
+
+	# rather than having one gl transaction for each asset account, we group all
+  # the debit sums and credit sums for cb and ob bookings, so we will have 4 gl
+  # transactions:
+
+  # * cb for credit
+  # * cb for debit
+  # * ob for credit
+  # * ob for debit
+
+  my $db = SL::DB->client;
+  $db->with_transaction(sub {
+
+    ######### asset accounts ########
+    # need cb and ob transactions
+
+    my $debit_balance  = 0;
+    my $credit_balance = 0;
+
+    my $asset_cb_debit_entry = SL::DB::GLTransaction->new(
+      employee_id    => $employee_id,
+      transdate      => $cb_date,
+      reference      => 'SB ' . $cb_date->year,
+      description    => 'Automatische SB-Buchungen Bestandskonten Soll für ' . $cb_date->year,
+      ob_transaction => 0,
+      cb_transaction => 1,
+    );
+    my $asset_ob_debit_entry = SL::DB::GLTransaction->new(
+      employee_id    => $employee_id,
+      transdate      => $ob_date,
+      reference      => 'EB ' . $ob_date->year,
+      description    => 'Automatische EB-Buchungen Bestandskonten Haben für ' . $ob_date->year,
+      ob_transaction => 1,
+      cb_transaction => 0,
+    );
+    my $asset_cb_credit_entry = SL::DB::GLTransaction->new(
+      employee_id    => $employee_id,
+      transdate      => $cb_date,
+      reference      => 'SB ' . $cb_date->year,
+      description    => 'Automatische SB-Buchungen Bestandskonten Haben für ' . $cb_date->year,
+      ob_transaction => 0,
+      cb_transaction => 1,
+    );
+    my $asset_ob_credit_entry = SL::DB::GLTransaction->new(
+      employee_id    => $employee_id,
+      transdate      => $ob_date,
+      reference      => 'EB ' . $ob_date->year,
+      description    => 'Automatische EB-Buchungen Bestandskonten Soll für ' . $ob_date->year,
+      ob_transaction => 1,
+      cb_transaction => 0,
+    );
+    $asset_cb_debit_entry->transactions([]);
+    $asset_ob_debit_entry->transactions([]);
+    $asset_cb_credit_entry->transactions([]);
+    $asset_ob_credit_entry->transactions([]);
+
+    foreach my $asset_account ( @asset_accounts ) {
+      next if $asset_account->{amount_with_cb} == 0;
+
+      # create cb and ob acc_trans entry here, but decide which gl entry to add it to later
+      my $asset_cb_acc = SL::DB::AccTransaction->new(
+        transdate      => $cb_date,
+        ob_transaction => 0,
+        cb_transaction => 1,
+        chart_id       => $asset_account->{chart_id},
+        chart_link     => $asset_account->{chart_link},
+        tax_id         => 0,
+        taxkey         => 0,
+        amount         => - $asset_account->{amount_with_cb},
+      );
+      my $asset_ob_acc = SL::DB::AccTransaction->new(
+        transdate      => $ob_date,
+        ob_transaction => 1,
+        cb_transaction => 0,
+        chart_id       => $asset_account->{chart_id},
+        chart_link     => $asset_account->{chart_link},
+        tax_id         => 0,
+        taxkey         => 0,
+        amount         => $asset_account->{amount_with_cb},
+      );
+
+      if ( $asset_account->{amount_with_cb} < 0 ) {
+        $debit_balance += $asset_account->{amount_with_cb};
+        # $main::lxdebug->message(0, sprintf("adding accno %s with balance %s to debit", $asset_account->{accno}, $asset_account->{amount_with_cb}));
+
+        $asset_cb_debit_entry->add_transactions($asset_cb_acc);
+        $asset_ob_debit_entry->add_transactions($asset_ob_acc);
+      } else {
+        # $main::lxdebug->message(0, sprintf("adding accno %s with balance %s to credit", $asset_account->{accno}, $asset_account->{amount_with_cb}));
+        $credit_balance += $asset_account->{amount_with_cb};
+        $asset_cb_credit_entry->add_transactions($asset_cb_acc);
+        $asset_ob_credit_entry->add_transactions($asset_ob_acc);
       };
-      $row->{chart}->{data}       = $chart->accno;
-      $row->{description}->{data} = $chart->description;
-      if ( $balance > 0 ) {
-        $row->{saldo}->{data} = $::form->format_amount(\%::myconfig, $balance, 2)." H";
-      } elsif ( $balance < 0 )  {
-        $row->{saldo}->{data} = $::form->format_amount(\%::myconfig,-$balance, 2)." S";
-      } else {
-        $row->{saldo}->{data} = $::form->format_amount(\%::myconfig,0, 2)."  ";
-      }
-      my $sum_cb = 0;
-      foreach my $acc ( @{ SL::DB::Manager::AccTransaction->get_all(where => [ chart_id  => $chart->id, cb_transaction => 't',
-                                                                               transdate => { ge => $self->cb_startdate},
-                                                                               transdate => { le => $self->cb_date }
-                                                                             ]) }) {
-        $sum_cb += $acc->amount;
-      }
-      my $sum_ob = 0;
-      foreach my $acc ( @{ SL::DB::Manager::AccTransaction->get_all(where => [ chart_id  => $chart->id, ob_transaction => 't',
-                                                                               transdate => { ge => $self->ob_date},
-                                                                               transdate => { le => $ob_next_date }
-                                                                             ]) }) {
-        $sum_ob += $acc->amount;
-      }
-      if ( $sum_cb > 0 ) {
-        $row->{sum_cb}->{data} = $::form->format_amount(\%::myconfig, $sum_cb, 2)." H";
-      } elsif ( $sum_cb < 0 )  {
-        $row->{sum_cb}->{data} = $::form->format_amount(\%::myconfig,-$sum_cb, 2)." S";
-      } else {
-        $row->{sum_cb}->{data} = $::form->format_amount(\%::myconfig,0, 2)."  ";
-      }
-      if ( $sum_ob > 0 ) {
-        $row->{sum_ob}->{data} = $::form->format_amount(\%::myconfig, $sum_ob, 2)." H";
-      } elsif ( $sum_ob < 0 )  {
-        $row->{sum_ob}->{data} = $::form->format_amount(\%::myconfig,-$sum_ob, 2)." S";
-      } else {
-        $row->{sum_ob}->{data} = $::form->format_amount(\%::myconfig,0, 2)."  ";
-      }
-      $report->add_data($row);
-    }
-    $idx++;
-  }
+    };
 
-  $self->{row_count} = $idx;
-  $main::lxdebug->leave_sub();
+    my $debit_cb_acc = SL::DB::AccTransaction->new(
+      transdate      => $cb_date,
+      ob_transaction => 0,
+      cb_transaction => 1,
+      chart_id       => $carry_over_chart->id,
+      chart_link     => $carry_over_chart->link, # maybe leave chart_link empty?
+      tax_id         => 0,
+      taxkey         => 0,
+      amount         => $debit_balance,
+    );
+    my $debit_ob_acc = SL::DB::AccTransaction->new(
+      transdate      => $ob_date,
+      ob_transaction => 1,
+      cb_transaction => 0,
+      chart_id       => $carry_over_chart->id,
+      chart_link     => $carry_over_chart->link,
+      tax_id         => 0,
+      taxkey         => 0,
+      amount         => - $debit_balance,
+    );
+    my $credit_cb_acc = SL::DB::AccTransaction->new(
+      transdate      => $cb_date,
+      ob_transaction => 0,
+      cb_transaction => 1,
+      chart_id       => $carry_over_chart->id,
+      chart_link     => $carry_over_chart->link, # maybe leave chart_link empty?
+      tax_id         => 0,
+      taxkey         => 0,
+      amount         => $credit_balance,
+    );
+    my $credit_ob_acc = SL::DB::AccTransaction->new(
+      transdate      => $ob_date,
+      ob_transaction => 1,
+      cb_transaction => 0,
+      chart_id       => $carry_over_chart->id,
+      chart_link     => $carry_over_chart->link,
+      tax_id         => 0,
+      taxkey         => 0,
+      amount         => - $credit_balance,
+    );
+    $asset_cb_debit_entry->add_transactions($debit_cb_acc);
+    $asset_ob_debit_entry->add_transactions($debit_ob_acc);
+    $asset_cb_credit_entry->add_transactions($credit_cb_acc);
+    $asset_ob_credit_entry->add_transactions($credit_ob_acc);
+
+    $asset_cb_debit_entry->save if scalar @{ $asset_cb_debit_entry->transactions } > 1;
+    $asset_ob_debit_entry->save if scalar @{ $asset_ob_debit_entry->transactions } > 1;
+    $asset_cb_credit_entry->save if scalar @{ $asset_cb_credit_entry->transactions } > 1;
+    $asset_ob_credit_entry->save if scalar @{ $asset_ob_credit_entry->transactions } > 1;
+
+    #######  profit-loss accounts #######
+    # these only have a closing balance, the balance is transferred to the profit-loss account
+
+    # need to know if profit or loss first!
+    # use amount_with_cb, so it can be run several times. So sum may be 0 the second time.
+    my $profit_loss_sum = sum map { $_->{amount_with_cb} }
+                              grep { $_->{account_type} eq 'profit_loss_account' }
+                              @{$report_data};
+    my $pl_chart;
+    if ( $profit_loss_sum > 0 ) {
+      $pl_chart = $profit_chart;
+    } else {
+      $pl_chart = $loss_chart;
+    };
+
+    my $pl_debit_balance  = 0;
+    my $pl_credit_balance = 0;
+    # soll = debit, haben = credit
+    my $pl_cb_debit_entry = SL::DB::GLTransaction->new(
+      employee_id    => $employee_id,
+      transdate      => $cb_date,
+      reference      => 'SB ' . $cb_date->year,
+      description    => 'Automatische SB-Buchungen Erfolgskonten Soll für ' . $cb_date->year,
+      ob_transaction => 0,
+      cb_transaction => 1,
+    );
+    my $pl_cb_credit_entry = SL::DB::GLTransaction->new(
+      employee_id    => $employee_id,
+      transdate      => $cb_date,
+      reference      => 'SB ' . $cb_date->year,
+      description    => 'Automatische SB-Buchungen Erfolgskonten Haben für ' . $cb_date->year,
+      ob_transaction => 0,
+      cb_transaction => 1,
+    );
+    $pl_cb_debit_entry->transactions([]);
+    $pl_cb_credit_entry->transactions([]);
+
+    foreach my $profit_loss_account ( @profit_loss_accounts ) {
+      # $main::lxdebug->message(0, sprintf("found chart %s with balance %s", $profit_loss_account->{accno}, $profit_loss_account->{amount_with_cb}));
+
+      next if $profit_loss_account->{amount_with_cb} == 0;
+
+      my $debit_cb_acc = SL::DB::AccTransaction->new(
+        transdate      => $cb_date,
+        ob_transaction => 0,
+        cb_transaction => 1,
+        chart_id       => $profit_loss_account->{chart_id},
+        chart_link     => $profit_loss_account->{chart_link},
+        tax_id         => 0,
+        taxkey         => 0,
+        amount         => - $profit_loss_account->{amount_with_cb},
+      );
+      my $credit_cb_acc = SL::DB::AccTransaction->new(
+        transdate      => $cb_date,
+        ob_transaction => 0,
+        cb_transaction => 1,
+        chart_id       => $profit_loss_account->{chart_id},
+        chart_link     => $profit_loss_account->{chart_link},
+        tax_id         => 0,
+        taxkey         => 0,
+        amount         => $profit_loss_account->{amount_with_cb},
+      );
+      if ( { $profit_loss_account->{amount_with_cb} < 0 } ) {
+        $pl_debit_balance += $profit_loss_account->{amount_with_cb};
+         $pl_cb_debit_entry->add_transactions($debit_cb_acc);
+      } else {
+        $pl_credit_balance += $profit_loss_account->{amount_with_cb};
+         $pl_cb_credit_entry->add_transactions($credit_cb_acc);
+      };
+    };
+
+    my $debit_cb_acc = SL::DB::AccTransaction->new(
+      transdate      => $cb_date,
+      ob_transaction => 0,
+      cb_transaction => 1,
+      chart_id       => $pl_chart->id,
+      chart_link     => $pl_chart->link,
+      tax_id         => 0,
+      taxkey         => 0,
+      amount         => $pl_debit_balance,
+    );
+    my $credit_cb_acc = SL::DB::AccTransaction->new(
+      transdate      => $cb_date,
+      ob_transaction => 0,
+      cb_transaction => 1,
+      chart_id       => $pl_chart->id,
+      chart_link     => $pl_chart->link,
+      tax_id         => 0,
+      taxkey         => 0,
+      amount         => - $pl_credit_balance,
+    );
+    $pl_cb_debit_entry->add_transactions($debit_cb_acc);
+    $pl_cb_credit_entry->add_transactions($credit_cb_acc);
+
+    $pl_cb_debit_entry->save  if scalar @{ $pl_cb_debit_entry->transactions }  > 1;
+    $pl_cb_credit_entry->save if scalar @{ $pl_cb_credit_entry->transactions } > 1;
+
+    ######### profit-loss transfer #########
+    # and finally transfer the new balance of the profit-loss account via the carry-over account
+    # we want to use profit_loss_sum with cb!
+
+    my $carry_over_cb_entry = SL::DB::GLTransaction->new(
+      employee_id    => $employee_id,
+      transdate      => $cb_date,
+      reference      => 'SB ' . $cb_date->year,
+      description    => sprintf('Automatische SB-Buchung für %s %s',
+                                $profit_loss_sum >= 0 ? 'Gewinnvortrag' : 'Verlustvortrag',
+                                $cb_date->year,
+                               ),
+      ob_transaction => 0,
+      cb_transaction => 1,
+    );
+    my $carry_over_ob_entry = SL::DB::GLTransaction->new(
+      employee_id    => $employee_id,
+      transdate      => $ob_date,
+      reference      => 'EB ' . $ob_date->year,
+      description    => sprintf('Automatische EB-Buchung für %s %s',
+                                $profit_loss_sum >= 0 ? 'Gewinnvortrag' : 'Verlustvortrag',
+                                $ob_date->year,
+                               ),
+      ob_transaction => 1,
+      cb_transaction => 0,
+    );
+    $carry_over_cb_entry->transactions([]);
+    $carry_over_ob_entry->transactions([]);
+
+    my $carry_over_cb_acc_co = SL::DB::AccTransaction->new(
+      transdate      => $cb_date,
+      ob_transaction => 0,
+      cb_transaction => 1,
+      chart_id       => $carry_over_chart->id,
+      chart_link     => $carry_over_chart->link,
+      tax_id         => 0,
+      taxkey         => 0,
+      amount         => $profit_loss_sum,
+    );
+    my $carry_over_cb_acc_pl = SL::DB::AccTransaction->new(
+      transdate      => $cb_date,
+      ob_transaction => 0,
+      cb_transaction => 1,
+      chart_id       => $pl_chart->id,
+      chart_link     => $pl_chart->link,
+      tax_id         => 0,
+      taxkey         => 0,
+      amount         => - $profit_loss_sum,
+    );
+
+    $carry_over_cb_entry->add_transactions($carry_over_cb_acc_co);
+    $carry_over_cb_entry->add_transactions($carry_over_cb_acc_pl);
+    $carry_over_cb_entry->save if $profit_loss_sum != 0;
+
+    my $carry_over_ob_acc_co = SL::DB::AccTransaction->new(
+      transdate      => $ob_date,
+      ob_transaction => 1,
+      cb_transaction => 0,
+      chart_id       => $pl_chart->id,
+      chart_link     => $pl_chart->link,
+      tax_id         => 0,
+      taxkey         => 0,
+      amount         => $profit_loss_sum,
+    );
+    my $carry_over_ob_acc_pl = SL::DB::AccTransaction->new(
+      transdate      => $ob_date,
+      ob_transaction => 1,
+      cb_transaction => 0,
+      chart_id       => $carry_over_chart->id,
+      chart_link     => $carry_over_chart->link,
+      tax_id         => 0,
+      taxkey         => 0,
+      amount         => - $profit_loss_sum,
+    );
+
+    $carry_over_ob_entry->add_transactions($carry_over_ob_acc_co);
+    $carry_over_ob_entry->add_transactions($carry_over_ob_acc_pl);
+    $carry_over_ob_entry->save if $profit_loss_sum != 0;
+
+    my $consistency_query = <<SQL;
+select sum(amount)
+  from acc_trans
+ where     (ob_transaction is true or cb_transaction is true)
+       and (transdate = ? or transdate = ?)
+SQL
+     my ($sum) = my ($empty) = selectrow_query($::form, $db->dbh, $consistency_query,
+                                               $cb_date,
+                                               $ob_date
+                                              );
+     die "acc_trans transactions don't add up to zero" unless $sum == 0;
+
+    1;
+  }) or die $db->error;
 }
 
-sub get_balance {
-  $main::lxdebug->enter_sub();
-  my ($self,$chart) = @_;
+sub _report {
+  my (%params) = @_;
 
-  #$main::lxdebug->message(LXDebug->DEBUG2(),"get_balance from=".$self->cb_startdate->to_kivitendo." to=".$self->cb_date->to_kivitendo);
-  my $balance = $chart->get_balance(fromdate => $self->cb_startdate, todate => $self->cb_date);
-  $main::lxdebug->leave_sub();
-  return 0 if !defined $balance || $balance == 0;
-  return $balance;
+  my $start_date = delete $params{start_date};
+  my $cb_date    = delete $params{cb_date};
+
+  my $defaults = SL::DB::Default->get;
+  die "no carry over account defined"
+    unless defined $defaults->carry_over_account_chart_id
+           and $defaults->carry_over_account_chart_id > 0;
+
+  my $salden_query = <<SQL;
+select c.id as chart_id,
+       c.accno,
+       c.description,
+       c.link as chart_link,
+       c.category,
+       sum(a.amount) filter (where cb_transaction is false and ob_transaction is false) as amount,
+       sum(a.amount) filter (where ob_transaction is true                             ) as ob_amount,
+       sum(a.amount) filter (where cb_transaction is false                            ) as amount_without_cb,
+       sum(a.amount) filter (where cb_transaction is true                             ) as cb_amount,
+       sum(a.amount)                                                                    as amount_with_cb,
+       case when c.category = ANY( '{I,E}'     ) then 'profit_loss_account'
+            when c.category = ANY( '{A,C,L,Q}' ) then 'asset_account'
+                                                 else null
+            end                                                                         as account_type
+  from acc_trans a
+       inner join chart c on (c.id = a.chart_id)
+ where     a.transdate >= ?
+       and a.transdate <= ?
+       and a.chart_id != ?
+ group by c.id, c.accno, c.category
+ order by account_type, c.accno
+SQL
+
+  my $dbh = SL::DB->client->dbh;
+  my $report = selectall_hashref_query($::form, $dbh, $salden_query,
+                                       $start_date,
+                                       $cb_date,
+                                       $defaults->carry_over_account_chart_id,
+                                      );
+  # profit_loss_sum is the actual profit/loss for the year, without cb, use "amount_without_cb")
+  my $profit_loss_sum = sum map { $_->{amount_without_cb} }
+                            grep { $_->{account_type} eq 'profit_loss_account' }
+                            @{$report};
+
+  return ($report, $profit_loss_sum);
 }
 
-sub gl_booking {
-  my ($self, $amount, $transdate, $reference, $description, $konto, $gegenkonto, $ob, $cb) = @_;
-  $::form->get_employee();
-  my $employee_id = $::form->{employee_id};
-  $main::lxdebug->message(LXDebug->DEBUG2(),"employee_id=".$employee_id." ob=".$ob." cb=".$cb);
-  my $gl_entry = SL::DB::GLTransaction->new(
-    employee_id    => $employee_id,
-    transdate      => $transdate,
-    reference      => $reference,
-    description    => $description,
-    ob_transaction => $ob,
-    cb_transaction => $cb,
-  );
-  #$gl_entry->save;
-  my $kto_trans1 = SL::DB::AccTransaction->new(
-    trans_id       => $gl_entry->id,
-    transdate      => $transdate,
-    ob_transaction => $ob,
-    cb_transaction => $cb,
-    chart_id       => $gegenkonto->id,
-    chart_link     => $konto->link,
-    tax_id         => 0,
-    taxkey         => 0,
-    amount         => $amount,
-  );
-  #$kto_trans1->save;
-  my $kto_trans2 = SL::DB::AccTransaction->new(
-    trans_id       => $gl_entry->id,
-    transdate      => $transdate,
-    ob_transaction => $ob,
-    cb_transaction => $cb,
-    chart_id       => $konto->id,
-    chart_link     => $konto->link,
-    tax_id         => 0,
-    taxkey         => 0,
-    amount         => -$amount,
-  );
-  #$kto_trans2->save;
-  $gl_entry->add_transactions($kto_trans1);
-  $gl_entry->add_transactions($kto_trans2);
-  $gl_entry->save;
+#
+# auth
+#
+
+sub check_auth {
+  $::auth->assert('general_ledger');
 }
 
-sub init_cbob_chart     { $::form->{cbob_chart}                                    }
+
+#
+# inits
+#
+
 sub init_ob_date        { $::locale->parse_date_to_object($::form->{ob_date})      }
-sub init_ob_reference   { $::form->{ob_reference}                                  }
-sub init_ob_description { $::form->{ob_description}                                }
 sub init_cb_startdate   { $::locale->parse_date_to_object($::form->{cb_startdate}) }
 sub init_cb_date        { $::locale->parse_date_to_object($::form->{cb_date})      }
-sub init_cb_reference   { $::form->{cb_reference}                                  }
-sub init_cb_description { $::form->{cb_description}                                }
-
-sub init_charts9000 {
-  SL::DB::Manager::Chart->get_all(  query => [ accno => { like => '9%'}] );
-}
-
-sub init_charts {
-  # wie geht 'not like' in rose ?
-  SL::DB::Manager::Chart->get_all(  query => [ \ "accno not like '9%'"], sort_by => 'accno ASC' );
-}
-
-sub setup_filter_action_bar {
-  my ($self) = @_;
-
-  for my $bar ($::request->layout->get('actionbar')) {
-    $bar->add(
-      action => [
-        t8('Continue'),
-        submit    => [ '#filter_form', { action => 'YearEndTransactions/list' } ],
-        accesskey => 'enter',
-      ],
-    );
-  }
-}
-
-sub setup_list_action_bar {
-  my ($self) = @_;
-
-  for my $bar ($::request->layout->get('actionbar')) {
-    $bar->add(
-      action => [
-        t8('Post'),
-        submit    => [ '#form', { action => 'YearEndTransactions/generate' } ],
-        tooltip   => t8('generate cb/ob transactions for selected charts'),
-        confirm   => t8('Are you sure to generate cb/ob transactions?'),
-        accesskey => 'enter',
-      ],
-      action => [
-        t8('Back'),
-        call => [ 'kivi.history_back' ],
-      ],
-    );
-  }
-}
 
 1;
