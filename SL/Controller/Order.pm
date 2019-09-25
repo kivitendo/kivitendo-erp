@@ -777,6 +777,8 @@ sub action_unit_changed {
 sub action_add_item {
   my ($self) = @_;
 
+  delete $::form->{add_item}->{create_part_type};
+
   my $form_attr = $::form->{add_item};
 
   return unless $form_attr->{parts_id};
@@ -974,6 +976,62 @@ sub action_price_popup {
   my $item = $self->order->items_sorted->[$idx];
 
   $self->render_price_dialog($item);
+}
+
+# save the order in a session variable and redirect to the part controller
+sub action_create_part {
+  my ($self) = @_;
+
+  $::lxdebug->dump(0, "bb: form", $::form);
+  my $previousform = $::auth->save_form_in_session(non_scalars => 1);
+
+  my $callback     = $self->url_for(
+    action       => 'return_from_create_part',
+    type         => $self->type, # type is needed for check_auth on return
+    previousform => $previousform,
+  );
+
+  flash_later('info', t8('You are adding a new part while you are editing another document. You will be redirected to your document when saving the new part or aborting this form.'));
+
+  my @redirect_params = (
+    controller => 'Part',
+    action     => 'add',
+    part_type  => $::form->{add_item}->{create_part_type},
+    callback   => $callback,
+    show_abort => 1,
+  );
+
+  $self->redirect_to(@redirect_params);
+}
+
+sub action_return_from_create_part {
+  my ($self) = @_;
+
+  $self->{created_part} = SL::DB::Part->new(id => delete $::form->{new_parts_id})->load if $::form->{new_parts_id};
+
+  $::auth->restore_form_from_session(delete $::form->{previousform});
+
+  # set item ids to new fake id, to identify them as new items
+  foreach my $item (@{$self->order->items_sorted}) {
+    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  }
+
+  $self->recalc();
+  $self->get_unalterable_data();
+  $self->pre_render();
+
+  # trigger rendering values for second row/longdescription as hidden,
+  # because they are loaded only on demand. So we need to keep the values
+  # from the source.
+  $_->{render_second_row}      = 1 for @{ $self->order->items_sorted };
+  $_->{render_longdescription} = 1 for @{ $self->order->items_sorted };
+
+  $self->render(
+    'order/form',
+    title => $self->get_title_for('edit'),
+    %{$self->{template_args}}
+  );
+
 }
 
 # load the second row for one or more items

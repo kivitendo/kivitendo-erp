@@ -837,6 +837,13 @@ namespace('kivi.Order', function(ns) {
     follow_up_window();
   };
 
+  ns.create_part = function() {
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'Order/create_part' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
 });
 
 $(function() {

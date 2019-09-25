@@ -34,6 +34,8 @@ Mittelgroße neue Features:
    - Anzeige der Mails im Mahnbericht
    - DB-Trigger zum Löschen von Verknüpfungen beim Löschen einer
      Mahnung
+ - Neuer Order-Controller: Artikel können während der Erfassung eines
+   Angebots bzw. Auftrags erfasst werden.
 
 Kleinere neue Features und Detailverbesserungen:
   - Der Status geliefert bei Aufträgen kann mit oder ohne Dienstleistungen

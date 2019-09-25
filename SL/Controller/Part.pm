@@ -157,6 +157,14 @@ sub action_save {
   }
 }
 
+sub action_abort {
+  my ($self) = @_;
+
+  if ( $::form->{callback} ) {
+    $self->redirect_to($::form->unescape($::form->{callback}));
+  }
+}
+
 sub action_delete {
   my ($self) = @_;
 
@@ -1333,6 +1341,12 @@ sub _setup_form_action_bar {
                     :                    undef,
         ],
       ], # end of combobox "Save"
+
+      action => [
+        t8('Abort'),
+        submit   => [ '#ic', { action => "Part/abort" } ],
+        only_if  => !!$::form->{show_abort},
+      ],
 
       action => [
         t8('Delete'),
