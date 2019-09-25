@@ -267,6 +267,7 @@ sub produce_assembly {
   my $bin          = $params{bin} or Carp::croak("need target bin");
   my $chargenumber = $params{chargenumber};
   my $bestbefore   = $params{bestbefore};
+  my $oe_id        = $params{oe_id};
   my $comment      = $params{comment} // '';
 
   my $production_order_item = $params{production_order_item};
@@ -304,6 +305,7 @@ sub produce_assembly {
       trans_type   => $trans_type_out,
       shippingdate => $shippingdate,
       employee     => SL::DB::Manager::Employee->current,
+      oe_id        => $oe_id,
     );
   }
 
@@ -324,6 +326,7 @@ sub produce_assembly {
     comment           => $comment,
     prod              => $production_order_item,
     employee          => SL::DB::Manager::Employee->current,
+    oe_id             => $oe_id,
   );
 
   SL::DB->client->with_transaction(sub {
