@@ -8,6 +8,7 @@ use SL::Locale::String qw(t8);
 use SL::Helper::Flash qw(flash flash_later);
 use SL::Controller::PriceRuleMacro::Report;
 use SL::Controller::PriceRuleMacro::FullEditor;
+use SL::Controller::PriceRuleMacro::VisualEditor;
 use SL::Controller::Helper::ReportGenerator ();
 
 use Rose::Object::MakeMethods::Generic (
@@ -197,7 +198,7 @@ sub init_report {
 }
 
 sub init_editor {
-  SL::Controller::PriceRuleMacro::FullEditor->new(controller => $_[0]);
+  SL::Controller::PriceRuleMacro::VisualEditor->new(controller => $_[0]);
 }
 
 sub init_meta {
