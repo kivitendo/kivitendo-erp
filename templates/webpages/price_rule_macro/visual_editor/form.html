@@ -10,22 +10,31 @@
 [% PROCESS 'price_rule_macro/visual_editor/input_blocks.html' %]
 
 <style>
-  fieldset {
+  #price_rule_action_container {
+    overflow-x: scroll
   }
-  .price_rule_vertical_align {
+  .nowrap {
+    white-space: nowrap;
+  }
+
+  .price_rule_horizontal_block {
     display: flex;
-    flex-flow column;
-   // width: 100%;
+    flex-direction: row;
+    align-items: stretch;
   }
-  .price_rule_vertical_align div {
+  .price_rule_horizontal_block div {
+    flex-grow: 1;
+  }
+  .price_rule_vertical_block {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+  }
+  .price_rule_vertical_block div {
     flex-grow: 1;
   }
   .price_rule_element {
     display: flex;
-    flex-flow column;
-  }
-  .price_rule_element fieldset {
-    flex-grow: 1;
   }
 </style>
 
@@ -57,7 +66,9 @@
       </tr>
     </table>
 
+    <div id='price_rule_action_container'>
     [% PROCESS action_input item=SELF.price_rule_macro.parsed_definition.action prefix='price_rule_macro.action' %]
+    </div>
     [% L.hidden_tag('price_rule_macro.id', SELF.price_rule_macro.id) %]
   </div>
 </form>

@@ -242,8 +242,6 @@
   </fieldset>
 [%- END %]
 
-
-
 [%- BLOCK action_input %]
   [% FOR item IN item %]
   [%- SWITCH item.type %]
@@ -270,30 +268,41 @@
   </div>
 [%- END %]
 
+[%- BLOCK title_block %]
+  <fieldset class='price_rule_container [% class %]'>
+    <legend>[%- PROCESS remove_control %] [% title | html %]:</legend>
+    [% content %]
+  </fieldset>
+[%- END %]
+
+[%- BLOCK invisible_block %]
+  <div class='price_rule_container [% class %]'>
+    [% content %]
+  </div>
+[%- END %]
+
 [%- BLOCK action_container_and_input %]
   [% WRAPPER element %]
-  <fieldset class='price_rule_container'>
-    <legend>[%- PROCESS remove_control %] [% 'And' | $T8 %]:</legend>
+    [% WRAPPER invisible_block title=LxERP.t8('And') %]
       [% FOREACH row IN item.action %]
         [% INCLUDE action_input item=row prefix=prefix _ '[].action' %]
       [% END %]
     [%- INCLUDE add_action_element_control prefix=prefix _ '[].action' %]
-  </fieldset>
+  [%- END %]
  [% END %]
 [%- END %]
 
 [%- BLOCK action_conditional_action_input %]
   [% WRAPPER element %]
-  <fieldset class='price_rule_container price_rule_vertical_align'>
-    <legend>[%- PROCESS remove_control %] [% 'Conditional Action' | $T8 %]:</legend>
+    [% WRAPPER invisible_block title=LxERP.t8('Conditional Action') class='price_rule_horizontal_block' %]
       [% FOREACH row IN item.condition %]
         [% INCLUDE condition_element item=row prefix=prefix _ '[]' %]
       [% END %]
-    <div class='price_rule_action'>
+    <div class='price_rule_action price_rule_vertical_block'>
     [%- INCLUDE action_input item=item.action prefix=prefix _ '[].action' -%]
     </div>
     [%- INCLUDE add_action_element_control prefix=prefix _ '[].action' %]
-  </fieldset>
+  [%- END %]
  [% END %]
 [%- END %]
 
@@ -379,7 +388,7 @@
 
 [%- BLOCK price_scale_action_line_input %]
   [% WRAPPER element %]
-  <div>
+  <div class='nowrap'>
     [%- PROCESS remove_control %]
     [% 'Starting with (Price Scale Action)' | $T8 %]
     [% L.input_tag(prefix _ '[].min_as_number', item.min_as_number, class='numeric', 'data-validate'='number') %]
@@ -388,7 +397,7 @@
     [% L.input_tag(prefix _ '[].price_as_number', item.price_as_number, class='numeric', 'data-validate'='number') %]
     [% 'Discount' | $T8 %]
     [% L.input_tag(prefix _ '[].discount_as_number', item.discount_as_number, class='numeric', 'data-validate'='number') %] %
-  <div>
+  </div>
   [% END %]
 [%- END %]
 
