@@ -434,8 +434,8 @@ package SL::PriceRuleMacro::Definition {
 
   sub price_rules {
     my ($self) = @_;
-    my @price_rules = map { $_->price_rules } SL::MoreCommon::listify($self->action);
-    my @items       = map { $_->price_rule_items } SL::MoreCommon::listify($self->condition);
+    my @price_rules = map { $_->price_rules } SL::MoreCommon::listify($self->action // []);
+    my @items       = map { $_->price_rule_items } SL::MoreCommon::listify($self->condition // []);
 
     cross {
       my ($price_rule, $item_set) = @_;
@@ -495,6 +495,8 @@ package SL::PriceRuleMacro::Condition::ContainerAnd {
   }
 
   sub price_rule_items {
+    return if !$_[0]->condition || !@{$_[0]->condition};
+
     my $reduced = List::Util::reduce {
       [
         cross {
