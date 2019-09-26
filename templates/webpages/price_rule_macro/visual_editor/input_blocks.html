@@ -284,7 +284,7 @@
 
 [%- BLOCK action_conditional_action_input %]
   [% WRAPPER element %]
-  <fieldset class='price_rule_container price_rule_horizontal_container'>
+  <fieldset class='price_rule_container price_rule_vertical_align'>
     <legend>[%- PROCESS remove_control %] [% 'Conditional Action' | $T8 %]:</legend>
       [% FOREACH row IN item.condition %]
         [% INCLUDE condition_element item=row prefix=prefix _ '[]' %]
