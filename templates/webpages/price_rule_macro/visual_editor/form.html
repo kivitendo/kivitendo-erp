@@ -12,14 +12,20 @@
 <style>
   fieldset {
   }
-  .price_rule_horizontal_container {
+  .price_rule_vertical_align {
     display: flex;
-    flex-direction: row;
+    flex-flow column;
    // width: 100%;
   }
-  .horizontal-flex div {
-    display: inline-flex;
-    height: 100%;
+  .price_rule_vertical_align div {
+    flex-grow: 1;
+  }
+  .price_rule_element {
+    display: flex;
+    flex-flow column;
+  }
+  .price_rule_element fieldset {
+    flex-grow: 1;
   }
 </style>
 
