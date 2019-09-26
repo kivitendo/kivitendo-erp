@@ -43,6 +43,11 @@ sub action_load {
 
   $self->price_rule_macro->update_definition;
 
+  # an old macro with conditions? load the full editor
+  if ($self->price_rule_macro->parsed_definition->condition) {
+    $self->editor(SL::Controller::PriceRuleMacro::FullEditor->new(controller => $self));
+  }
+
   if ($::request->type eq 'json') {
     $self->render(\$self->price_rule_macro->json_definition, { process => 0, type => 'json'});
   } else {
