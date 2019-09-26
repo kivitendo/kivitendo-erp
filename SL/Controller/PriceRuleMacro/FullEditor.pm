@@ -29,7 +29,7 @@ sub action_add_line {
   die "type $::form->{type} does not have exactly one array element" unless 1 == scalar @array_elements;
 
   my $html = $self->controller->render(
-    \"[% PROCESS 'price_rule_macro/input_blocks.html' %][% PROCESS @{array_elements}_input %]",
+    \"[% PROCESS 'price_rule_macro/full_editor/input_blocks.html' %][% PROCESS @{array_elements}_input %]",
     { output => 0 },
     prefix => $::form->{prefix},
     item => SL::PriceRuleMacro::Element->new(type => @array_elements),
@@ -50,7 +50,7 @@ sub action_add_value {
   die 'invalid prefix'       unless $::form->{prefix}    =~ /^[_\w\[\]\.]+$/;
 
   my $html = $self->controller->render(
-    \"[% PROCESS 'price_rule_macro/input_blocks.html' %][% PROCESS condition_$::form->{type}_value_input %]",
+    \"[% PROCESS 'price_rule_macro/full_editor/input_blocks.html' %][% PROCESS condition_$::form->{type}_value_input %]",
     { output => 0 },
     prefix => $::form->{prefix},
   );
@@ -76,7 +76,7 @@ sub action_add_element {
   die 'invalid element_class' unless $known_element_classes{$::form->{element_class}};
 
   my $html = $self->controller->render(
-    \"[% PROCESS 'price_rule_macro/input_blocks.html' %][% PROCESS $::form->{element_class}_element %]",
+    \"[% PROCESS 'price_rule_macro/full_editor/input_blocks.html' %][% PROCESS $::form->{element_class}_element %]",
     { output => 0 },
     prefix => $::form->{prefix},
     item   => SL::PriceRuleMacro::Element->new(type => $::form->{type}),
@@ -91,7 +91,7 @@ sub action_add_element {
 
 sub render_form {
   my ($self) = @_;
-  $self->controller->render('price_rule_macro/form', price_rule_macro => $self->controller->price_rule_macro);
+  $self->controller->render('price_rule_macro/full_editor/form', price_rule_macro => $self->controller->price_rule_macro);
 }
 
 sub empty_price_rule_macro {
