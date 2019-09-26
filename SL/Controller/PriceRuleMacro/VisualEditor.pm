@@ -98,13 +98,15 @@ sub empty_price_rule_macro {
   SL::DB::PriceRuleMacro->new(
     definition => {
       priority => 3,
-      condition => {
-        type => 'container_and',
-        condition => [],
-      },
       action => {
         type => 'action_container_and',
-        action => [],
+        action => [
+          {
+            type => 'conditional_action',
+            condition => [  ],
+            action => [  ],
+          }
+        ],
       },
       format_version => SL::DB::PriceRuleMacro->latest_version,
     }
