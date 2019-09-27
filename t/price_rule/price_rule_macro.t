@@ -615,6 +615,74 @@ my @test_cases = (
   ],
   name => 'condition + parts price list',
 },
+{ json => qq'
+  {
+  "name": "SRV0815 Warengruppen -> Kundengruppen",
+  "priority": 3,
+  "obsolete": 0,
+    "type": "customer",
+  "format_version": $format_version,
+  "action": {
+    "type": "list_template_action",
+    "condition_type": "part",
+    "action_type": [ "discount" ],
+    "list_template_action_line": [
+      {
+        "id": 42,
+        "discount": 2.00
+      },
+      {
+        "id": 6345,
+        "discount": 3.00
+      },
+      {
+        "id": 2344,
+        "discount": 4.00
+      }
+    ]
+  }
+  }',
+  digest => [
+    '-2-part-42-',
+    '-3-part-6345-',
+    '-4-part-2344-',
+  ],
+  name => 'list template: part + discount',
+},
+{ json => qq'
+  {
+  "name": "SEV0815 Kundentyp-Rabatt",
+  "priority": 3,
+  "obsolete": 0,
+  "format_version": $format_version,
+    "type": "vendor",
+  "action": {
+    "type": "list_template_action",
+    "condition_type": "qty",
+    "action_type": [ "price" ],
+    "list_template_action_line": [
+        {
+          "min": 0.00,
+          "price": 1100.00
+        },
+        {
+          "min": 10.00,
+          "price": 1000.00
+        },
+        {
+          "min": 100,
+          "price": 900.00
+        }
+      ]
+    }
+  }',
+  digest => [
+     '1000--qtyge--10qtylt--100',
+     '1100--qtyge--0qtylt--10',
+     '900--qtyge--100'
+  ],
+  name => 'list template: qty + price',
+},
 );
 
 $::request->type('json');

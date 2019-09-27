@@ -236,6 +236,8 @@ my %classes = (
   price_scale_action_line => 'SL::PriceRuleMacro::Action::PriceScaleLine',
   parts_price_list_action => 'SL::PriceRuleMacro::Action::PartsPriceList',
   parts_price_list_action_line => 'SL::PriceRuleMacro::Action::PartsPriceListLine',
+  list_template_action  => 'SL::PriceRuleMacro::Action::ListTemplate',
+  list_template_action_line => 'SL::PriceRuleMacro::Action::ListTemplateLine',
 );
 my %r_classes = reverse %classes;
 
@@ -1177,6 +1179,122 @@ package SL::PriceRuleMacro::Action::PartsPriceListLine {
 
   sub description {
     SL::Locale::String::t8('Parts Price List Action Line (PriceRules)')
+  }
+}
+
+package SL::PriceRuleMacro::Action::ListTemplate {
+  our @ISA = ('SL::PriceRuleMacro::Action');
+  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+
+  sub elements {
+    qw(condition_type action_type list_template_action_line)
+  }
+
+  sub array_elements {
+    qw(list_template_action_line action_type)
+  }
+
+  sub has_action_type {
+    my ($self, $type) = @_;
+    grep { $_ eq $type } SL::MoreCommon::listify($self->action_type);
+  }
+
+  sub validate {
+    die "action of type '@{[ $_[0]->type ]}' needs a condition_type " unless $_[0]->condition_type;
+    die "action of type '@{[ $_[0]->type ]}' needs an action_type " unless SL::MoreCommon::listify($_[0]->action_type);
+  }
+
+  sub price_rules {
+    my ($self) = @_;
+
+    return unless $self->condition_type;
+
+    if ($self->condition_type =~ /^( part | customer | vendor )$/x) {
+      return $self->price_rules_id_like;
+    }
+
+    if ($self->condition_type =~ /^( qty | ve )$/x) {
+      return $self->price_rules_scale_like('value_num');
+    }
+
+    if ($self->condition_type =~ /^( reqdate | transdate )$/x) {
+      return $self->price_rules_scale_like('value_date');
+    }
+  }
+
+  sub price_rules_id_like {
+    my ($self) = @_;
+
+    map {
+      my $item  = SL::DB::PriceRuleItem->new(type => $self->condition_type, value_int => $_->id),
+      my @rules = $_->action_rules;
+
+      $_->{items} = [ $item ] for @rules;
+
+      @rules
+    } SL::MoreCommon::listify($self->list_template_action_line);
+  }
+
+  sub price_rules_scale_like {
+    my ($self, $accessor) = @_;
+
+    my @scales = reverse List::UtilsBy::nsort_by { $_->min } SL::MoreCommon::listify($self->list_template_action_line);
+
+    my $last_max = undef;
+    map {
+      my @items = grep { defined $_->$accessor }
+        SL::DB::PriceRuleItem->new(type => $self->condition_type, op => 'ge', $accessor => $_->min),
+        SL::DB::PriceRuleItem->new(type => $self->condition_type, op => 'lt', $accessor => $last_max);
+
+      $last_max = $_->min;
+      my @rules = $_->action_rules;
+
+      $_->{items} = \@items for @rules;
+
+      @rules
+    } @scales;
+  }
+
+  sub type {
+    'list_template_action'
+  }
+
+  sub description {
+    SL::Locale::String::t8('List Template Action (PriceRules)')
+  }
+
+  sub order {
+    400
+  }
+}
+
+package SL::PriceRuleMacro::Action::ListTemplateLine {
+  our @ISA = ('SL::PriceRuleMacro::Element');
+  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'numeric') for qw(min price discount reduction);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'date')    for qw(min);
+
+  sub action_rules {
+    my ($self) = @_;
+
+    my @rules;
+    push @rules, SL::DB::PriceRule->new(price     => $self->price)     if $self->price;
+    push @rules, SL::DB::PriceRule->new(discount  => $self->discount)  if $self->discount;
+    push @rules, SL::DB::PriceRule->new(reduction => $self->reduction) if $self->reduction;
+
+    @rules;
+  }
+
+  sub elements {
+    qw(min id price discount reduction)
+  }
+
+  sub type {
+    'list_template_action_line'
+  }
+
+  sub description {
+    SL::Locale::String::t8('List Template Action Line (PriceRules)')
   }
 }
 
