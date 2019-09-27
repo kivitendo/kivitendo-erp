@@ -253,6 +253,7 @@
     [%- CASE 'reduction_action' %][% PROCESS reduction_action_input %]
     [%- CASE 'price_scale_action' %][% PROCESS price_scale_action_input %]
     [%- CASE 'parts_price_list_action' %][% PROCESS parts_price_list_action_input %]
+    [%- CASE 'list_template_action' %][% PROCESS list_template_action_input %]
   [% END %]
   [% END %]
 [%- END %]
@@ -294,7 +295,7 @@
 
 [%- BLOCK action_conditional_action_input %]
   [% WRAPPER element %]
-    [% WRAPPER invisible_block title=LxERP.t8('Conditional Action') class='price_rule_horizontal_block' %]
+    [% WRAPPER invisible_block title=LxERP.t8('Conditional Action (PriceRules)') class='price_rule_horizontal_block' %]
       [% FOREACH row IN item.condition %]
         [% INCLUDE condition_element item=row prefix=prefix _ '[]' %]
       [% END %]
@@ -426,7 +427,74 @@
     [% L.input_tag(prefix _ '[].price_as_number', item.price_as_number, class='numeric', 'data-validate'='number') %]
     [% 'Discount' | $T8 %]
     [% L.input_tag(prefix _ '[].discount_as_number', item.discount_as_number, class='numeric', 'data-validate'='number') %] %
+  </div>
+[%- END %]
+[%- END %]
+
+[%- BLOCK list_template_action_input %]
+[% WRAPPER element %]
+<fieldset>
+  <legend>[%- PROCESS remove_control %] [% item.description | $T8 %]</legend>
   <div>
+    [% L.hidden_tag(prefix _ '[].condition_type', item.condition_type) %]
+    [% FOREACH row = item.action_type %]
+      [% L.hidden_tag(prefix _ '[].action_type[]', row) %]
+    [% END %]
+    [% FOREACH row = item.list_template_action_line %]
+      [% INCLUDE list_template_action_line_input parent=item item=row prefix=prefix _ '[].list_template_action_line' %]
+    [% END %]
+  </div>
+  [% INCLUDE add_action_line prefix=prefix _ '[].list_template_action_line' %]
+</fieldset>
+[%- END %]
+[%- END %]
+
+[%- BLOCK list_template_action_line_input %]
+  [% WRAPPER element %]
+  <div>
+    [%- PROCESS remove_control %]
+    [% IF parent.condition_type == 'part' %]
+      [% 'Part' | $T8 %] [% 'is' | $T8 %]
+      [% P.part.picker(prefix _ '[].id', item.id) %]
+    [% END %]
+    [% IF parent.condition_type == 'customer' %]
+      [% 'Customer' | $T8 %] [% 'is' | $T8 %]
+      [% P.customervendor.picker(prefix _ '[].id', item.id, type='customer') %]
+    [% END %]
+    [% IF parent.condition_type == 'vendor' %]
+      [% 'Vendor' | $T8 %] [% 'is' | $T8 %]
+      [% P.customervendor.picker(prefix _ '[].id', item.id, type='vendor') %]
+    [% END %]
+    [% IF parent.condition_type == 'qty' %]
+      [% 'Starting with (Price Scale Action)' | $T8 %]
+      [% L.input_tag(prefix _ '[].min_as_number', item.min_as_number, class='numeric', 'data-validate'='number') %]
+    [% END %]
+    [% IF parent.condition_type == 've' %]
+      [% 'Starting with (Price Scale Action)' | $T8 %]
+      [% L.input_tag(prefix _ '[].min_as_number', item.min_as_number, class='numeric', 'data-validate'='number') %]
+    [% END %]
+    [% IF parent.condition_type == 'transdate' %]
+      [% 'Starting with (Price Scale Action)' | $T8 %]
+      [% L.date_tag(prefix _ '[].min_as_date', item.min_as_date) %]
+    [% END %]
+    [% IF parent.condition_type == 'reqdate' %]
+      [% 'Starting with (Price Scale Action)' | $T8 %]
+      [% L.date_tag(prefix _ '[].min_as_date', item.min_as_date) %]
+    [% END %]
+    <span>&nbsp;</span>
+    [% IF parent.has_action_type('price') %]
+      [% 'Price' | $T8 %]
+      [% L.input_tag(prefix _ '[].price_as_number', item.price_as_number, class='numeric', 'data-validate'='number') %]
+    [% END %]
+    [% IF parent.has_action_type('discount') %]
+      [% 'Discount' | $T8 %]
+      [% L.input_tag(prefix _ '[].discount_as_number', item.discount_as_number, class='numeric', 'data-validate'='number') %] %
+    [% END %]
+    [% IF parent.has_action_type('reduction') %]
+      [% 'Reduced Master Data' | $T8 %]
+      [% L.input_tag(prefix _ '[].reduction_as_number', item.reduction_as_number, class='numeric', 'data-validate'='number') %]
+    [% END %]
+  </div>
 [%- END %]
 [%- END %]
 
