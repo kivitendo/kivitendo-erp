@@ -437,6 +437,8 @@ package SL::PriceRuleMacro::Definition {
     my @price_rules = map { $_->price_rules } SL::MoreCommon::listify($self->action // []);
     my @items       = map { $_->price_rule_items } SL::MoreCommon::listify($self->condition // []);
 
+    return @price_rules if !@items;
+
     cross {
       my ($price_rule, $item_set) = @_;
       my $new_rule = $_->clone_and_reset;
