@@ -1260,7 +1260,21 @@ package SL::PriceRuleMacro::Action::ListTemplate {
   }
 
   sub description {
-    SL::Locale::String::t8('List Template Action (PriceRules)')
+    my ($self) = @_;
+
+    {
+      ''         => SL::Locale::String::t8('List Template Action (PriceRules)'),
+      part       => SL::Locale::String::t8('Parts Price List Action (PriceRules)'),
+      customer   => SL::Locale::String::t8('Customer Price List Action (PriceRules)'),
+      vendor     => SL::Locale::String::t8('Vendor Price List Action (PriceRules)'),
+      business   => SL::Locale::String::t8('Business Price List Action (PriceRules)'),
+      partsgroup => SL::Locale::String::t8('Partsgroup Price List Action (PriceRules)'),
+      pricegroup => SL::Locale::String::t8('Pricegroup Price List Action (PriceRules)'),
+      qty        => SL::Locale::String::t8('Price Scale Action (PriceRules)'),
+      ve         => SL::Locale::String::t8('Ve Scale List Action (PriceRules)'),
+      transdate  => SL::Locale::String::t8('Transdate Scale Action (PriceRules)'),
+      reqdate    => SL::Locale::String::t8('Reqdate Scale Action (PriceRules)'),
+    }->{$self->condition_type};
   }
 
   sub order {
