@@ -24,7 +24,9 @@ sub action_add_line {
 
   my $meta = $self->controller->meta->{$::form->{type}} or die "unknown type $::form->{type}";
 
-  my @array_elements = $meta->{internal_class}->array_elements;
+  my @array_elements = grep {
+    $self->controller->meta->{$_}
+  } $meta->{internal_class}->array_elements;
 
   die "type $::form->{type} does not have exactly one array element" unless 1 == scalar @array_elements;
 
