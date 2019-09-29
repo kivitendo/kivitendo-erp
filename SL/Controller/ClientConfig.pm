@@ -18,6 +18,7 @@ use SL::Locale::String qw(t8);
 use SL::PriceSource::ALL;
 use SL::Template;
 use SL::Controller::TopQuickSearch;
+use SL::DB::Helper::AccountingPeriod qw(get_balance_startdate_method_options);
 use SL::Helper::ShippedQty;
 
 __PACKAGE__->run_before('check_auth');
@@ -188,11 +189,7 @@ sub init_profit_options {
 }
 
 sub init_balance_startdate_method_options {
-  [ { title => t8("After closed period"),                       value => "closed_to"                   },
-    { title => t8("Start of year"),                             value => "start_of_year"               },
-    { title => t8("All transactions"),                          value => "all_transactions"            },
-    { title => t8("Last opening balance or all transactions"),  value => "last_ob_or_all_transactions" },
-    { title => t8("Last opening balance or start of year"),     value => "last_ob_or_start_of_year"    }, ]
+  return SL::DB::Helper::AccountingPeriod::get_balance_startdate_method_options;
 }
 
 sub init_all_price_sources {

@@ -1,12 +1,23 @@
 package SL::DB::Helper::AccountingPeriod;
 
 use strict;
+use SL::Locale::String qw(t8);
 
 use parent qw(Exporter);
 use SL::DBUtils;
-our @EXPORT = qw(get_balance_starting_date);
+our @EXPORT = qw(get_balance_starting_date get_balance_startdate_method_options);
 
 use Carp;
+
+sub get_balance_startdate_method_options {
+  [
+    { title => t8("After closed period"),                       value => "closed_to"                   },
+    { title => t8("Start of year"),                             value => "start_of_year"               },
+    { title => t8("All transactions"),                          value => "all_transactions"            },
+    { title => t8("Last opening balance or all transactions"),  value => "last_ob_or_all_transactions" },
+    { title => t8("Last opening balance or start of year"),     value => "last_ob_or_start_of_year"    },
+  ]
+}
 
 sub get_balance_starting_date {
   my ($self,$asofdate) = @_;
@@ -105,6 +116,11 @@ SL::DB::Helper::AccountingPeriod - Helper functions for calculating dates relati
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<get_balance_startdate_method_options>
+
+Returns an arrayref of translated options for determining the startdate of a
+balance period or the yearend period. To be used as the options for a dropdown.
 
 =item C<get_balance_starting_date $date>
 
