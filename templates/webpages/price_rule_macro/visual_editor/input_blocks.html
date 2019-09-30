@@ -434,12 +434,16 @@
 [%- BLOCK list_template_action_input %]
 [% WRAPPER element %]
 <fieldset>
-  <legend>[%- PROCESS remove_control %] [% item.description | $T8 %]</legend>
+  <legend>[%- PROCESS remove_control %] [% item.description | $T8 %]
+    <span class="interact cursor-pointer list-template-price-toggle" data-field="price">€</span>
+    <span class="interact cursor-pointer list-template-price-toggle" data-field="discount">%</span>
+    <span class="interact cursor-pointer list-template-price-toggle" data-field="reduction">-</span>
+  </legend>
+  [% L.hidden_tag(prefix _ '[].condition_type', item.condition_type) %]
   <div>
-    [% L.hidden_tag(prefix _ '[].condition_type', item.condition_type) %]
-    [% FOREACH row = item.action_type %]
-      [% L.hidden_tag(prefix _ '[].action_type[]', row) %]
-    [% END %]
+    [% L.hidden_tag(prefix _ '[].action_type[]', 'price',     disabled=!item.has_action_type(row), class='hidden-price') %]
+    [% L.hidden_tag(prefix _ '[].action_type[]', 'discount',  disabled=!item.has_action_type(row), class='hidden-discount') %]
+    [% L.hidden_tag(prefix _ '[].action_type[]', 'reduction', disabled=!item.has_action_type(row), class='hidden-reduction') %]
     [% FOREACH row = item.list_template_action_line %]
       [% INCLUDE list_template_action_line_input parent=item item=row prefix=prefix _ '[].list_template_action_line' %]
     [% END %]
@@ -479,11 +483,11 @@
     [% END %]
     [% IF parent.condition_type == 'qty' %]
       [% 'Starting with (Price Scale Action)' | $T8 %]
-      [% L.input_tag(prefix _ '[].min_as_number', item.min_as_number, class='numeric', 'data-validate'='number') %]
+      [% L.input_tag(prefix _ '[].min_as_null_number', item.min_as_number, class='numeric', 'data-validate'='number') %]
     [% END %]
     [% IF parent.condition_type == 've' %]
       [% 'Starting with (Price Scale Action)' | $T8 %]
-      [% L.input_tag(prefix _ '[].min_as_number', item.min_as_number, class='numeric', 'data-validate'='number') %]
+      [% L.input_tag(prefix _ '[].min_as_null_number', item.min_as_number, class='numeric', 'data-validate'='number') %]
     [% END %]
     [% IF parent.condition_type == 'transdate' %]
       [% 'Starting with (Price Scale Action)' | $T8 %]
@@ -494,18 +498,18 @@
       [% L.date_tag(prefix _ '[].min_as_date', item.min_as_date) %]
     [% END %]
     <span>&nbsp;</span>
-    [% IF parent.has_action_type('price') %]
+    <span class='input-price' [% IF !parent.has_action_type('price') %]style="display:none"[% END %]>
       [% 'Price' | $T8 %]
-      [% L.input_tag(prefix _ '[].price_as_number', item.price_as_number, class='numeric', 'data-validate'='number') %]
-    [% END %]
-    [% IF parent.has_action_type('discount') %]
+      [% L.input_tag(prefix _ '[].price_as_null_number', item.price_as_number, class='numeric', 'data-validate'='number') %]
+    </span>
+    <span class='input-discount' [% IF !parent.has_action_type('discount') %]style="display:none"[% END %]>
       [% 'Discount' | $T8 %]
-      [% L.input_tag(prefix _ '[].discount_as_number', item.discount_as_number, class='numeric', 'data-validate'='number') %] %
-    [% END %]
-    [% IF parent.has_action_type('reduction') %]
+      [% L.input_tag(prefix _ '[].discount_as_null_number', item.discount_as_number, class='numeric', 'data-validate'='number') %] %
+    </span>
+    <span class='input-reduction' [% IF !parent.has_action_type('reduction') %]style="display:none"[% END %]>
       [% 'Reduced Master Data' | $T8 %]
-      [% L.input_tag(prefix _ '[].reduction_as_number', item.reduction_as_number, class='numeric', 'data-validate'='number') %]
-    [% END %]
+      [% L.input_tag(prefix _ '[].reduction_as_null_number', item.reduction_as_number, class='numeric', 'data-validate'='number') %]
+    </span>
   </div>
 [%- END %]
 [%- END %]
