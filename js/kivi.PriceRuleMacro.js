@@ -16,6 +16,8 @@ namespace('kivi.PriceRuleMacro', function(ns) {
         action: 'PriceRuleMacro/add_line',
         type: elem.data('element-type'),
         prefix: elem.data('prefix'),
+        "parent.action_type": elem.data('action_type'),
+        "parent.condition_type": elem.data('condition_type'),
         container: elem.prop('id')
       },
       kivi.eval_json_result

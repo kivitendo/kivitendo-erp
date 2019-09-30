@@ -441,14 +441,14 @@
   </legend>
   [% L.hidden_tag(prefix _ '[].condition_type', item.condition_type) %]
   <div>
-    [% L.hidden_tag(prefix _ '[].action_type[]', 'price',     disabled=!item.has_action_type(row), class='hidden-price') %]
-    [% L.hidden_tag(prefix _ '[].action_type[]', 'discount',  disabled=!item.has_action_type(row), class='hidden-discount') %]
-    [% L.hidden_tag(prefix _ '[].action_type[]', 'reduction', disabled=!item.has_action_type(row), class='hidden-reduction') %]
+    [% L.hidden_tag(prefix _ '[].action_type[]', 'price',     disabled=!item.has_action_type('price'),     class='hidden-price') %]
+    [% L.hidden_tag(prefix _ '[].action_type[]', 'discount',  disabled=!item.has_action_type('discount'),  class='hidden-discount') %]
+    [% L.hidden_tag(prefix _ '[].action_type[]', 'reduction', disabled=!item.has_action_type('reduction'), class='hidden-reduction') %]
     [% FOREACH row = item.list_template_action_line %]
       [% INCLUDE list_template_action_line_input parent=item item=row prefix=prefix _ '[].list_template_action_line' %]
     [% END %]
   </div>
-  [% INCLUDE add_action_line prefix=prefix _ '[].list_template_action_line' %]
+  [% INCLUDE add_action_line prefix=prefix _ '[].list_template_action_line', data={ condition_type=item.condition_type, action_type=item.action_type.json } %]
 </fieldset>
 [%- END %]
 [%- END %]
@@ -539,5 +539,5 @@
 [%- END %]
 
 [%- BLOCK add_action_line %]
-  <span class='interact cursor-pointer price_rule_macro_add_line' data-element-type='[% item.type | html %]' data-prefix='[% prefix | html %]'>[% 'Add line' | $T8 %]</span>
+  <span class='interact cursor-pointer price_rule_macro_add_line' data-element-type='[% item.type | html %]' data-prefix='[% prefix | html %]' [% FOREACH key IN data.keys %]data-[% key %]='[% data.$key | html %]'[% END %]>[% 'Add line' | $T8 %]</span>
 [%- END %]
