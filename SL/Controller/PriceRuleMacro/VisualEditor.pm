@@ -28,6 +28,8 @@ sub action_add_line {
     $self->controller->meta->{$_}
   } $meta->{internal_class}->array_elements;
 
+  my $parent = $meta->{internal_class}->new(%{ $::form->{parent} // {} });
+
   die "type $::form->{type} does not have exactly one array element" unless 1 == scalar @array_elements;
 
   my $html = $self->controller->render(
@@ -35,6 +37,7 @@ sub action_add_line {
     { output => 0 },
     prefix => $::form->{prefix},
     item => SL::PriceRuleMacro::Element->new(type => @array_elements),
+    parent => $parent,
   );
 
   $self->controller
