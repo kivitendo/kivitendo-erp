@@ -1210,7 +1210,7 @@ package SL::PriceRuleMacro::Action::ListTemplate {
 
   sub has_action_type {
     my ($self, $type) = @_;
-    grep { $_ eq $type } SL::MoreCommon::listify($self->action_type);
+    scalar grep { $_ eq $type } SL::MoreCommon::listify($self->action_type);
   }
 
   sub validate {

@@ -65,6 +65,13 @@ namespace('kivi.PriceRuleMacro', function(ns) {
     });
   };
 
+  ns.list_template_price_toggle = function() {
+    let $this    = $(this);
+    let field    = $this.data('field');
+    let $element = $this.closest('.price_rule_element');
+    $element.find('input.hidden-' + field).prop('disabled', function(i,v){ return !v; });
+    $element.find('span.input-' + field).toggle();
+  };
 
   ns.reinit_widgets = function() {
     kivi.run_once_for('span.price_rule_macro_remove_line', 'remove_line', function(elt) {
@@ -80,6 +87,9 @@ namespace('kivi.PriceRuleMacro', function(ns) {
     });
     kivi.run_once_for('span.price_rule_macro_add_element', 'add_element', function(elt) {
       $(elt).click(ns.add_element);
+    });
+    kivi.run_once_for('span.list-template-price-toggle', 'price_toggle', function(elt) {
+      $(elt).click(ns.list_template_price_toggle);
     });
     $('span.price_rule_price_type_help').click(ns.open_price_type_help_popup);
   };
