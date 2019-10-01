@@ -75,7 +75,7 @@ sub action_save {
       # set removes rules to obsolete
       $_->assign_attributes(obsolete => 1, price_rule_macro_id => undef) for @$remove;
 
-      $macro->definition($new_macro->definition);
+      $macro->definition($new_macro->update_definition);
       $macro->update_from_definition;
     } else {
       $macro = $new_macro;
