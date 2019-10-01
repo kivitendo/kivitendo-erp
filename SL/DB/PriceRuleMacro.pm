@@ -110,7 +110,10 @@ sub validate {
 sub definition {
   my ($self, $data) = @_;
 
-  $self->json_definition(SL::JSON::to_json($data)) if defined $data;
+  if (defined $data) {
+    $self->json_definition(SL::JSON::to_json($data));
+    $self->parsed_definition(undef);
+  }
   if (defined wantarray) {
     eval {
       SL::JSON::from_json($self->json_definition);
@@ -124,6 +127,8 @@ sub update_definition {
   my ($self) = @_;
   $self->definition($self->parsed_definition->as_tree);
   $self->definition->{$_} = $self->$_ for @dual_attributes;
+
+  $self->definition;
 }
 
 sub update_from_definition {
@@ -864,6 +869,8 @@ package SL::PriceRuleMacro::Action::ContainerAnd {
 
   sub validate {
     die "action of type '@{[ $_[0]->type ]}' needs at least one action"    unless SL::MoreCommon::listify($_[0]->action);
+
+    $_[0]->SUPER::validate;
   }
 
   sub price_rules {
@@ -898,6 +905,8 @@ package SL::PriceRuleMacro::ConditionalAction {
   sub validate {
     die "action of type '@{[ $_[0]->type ]}' needs at least one condition" unless SL::MoreCommon::listify($_[0]->condition);
     die "action of type '@{[ $_[0]->type ]}' needs at least one action"    unless SL::MoreCommon::listify($_[0]->action);
+
+    $_[0]->SUPER::validate;
   }
 
   sub price_rules {
@@ -1214,6 +1223,19 @@ package SL::PriceRuleMacro::Action::ListTemplate {
   }
 
   sub validate {
+    my ($self) = @_;
+    if ($self->condition_type =~ /^( qty | ve | reqdate | transdate )$/x) {
+      my $items = $self->list_template_action_line;
+
+      my @items = List::UtilsBy::sort_by {
+        $_->min
+      } grep {
+        defined $_->min && $_->min ne ''
+      } @$items;
+
+      $self->list_template_action_line(\@items);
+    }
+
     die "action of type '@{[ $_[0]->type ]}' needs a condition_type " unless $_[0]->condition_type;
     die "action of type '@{[ $_[0]->type ]}' needs an action_type " unless SL::MoreCommon::listify($_[0]->action_type);
   }
