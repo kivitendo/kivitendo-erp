@@ -1174,7 +1174,7 @@ sub _save_tax {
   $chart_categories .= 'E' if $form->{expense};
   $chart_categories .= 'C' if $form->{costs};
 
-  my @values = ($form->{taxkey}, $form->{taxdescription}, $form->{rate}, conv_i($form->{chart_id}), conv_i($form->{chart_id}), conv_i($form->{skonto_sales_chart_id}), conv_i($form->{skonto_purchase_chart_id}), $chart_categories);
+  my @values = ($form->{taxkey}, $form->{taxdescription}, $form->{rate}, conv_i($form->{chart_id}), conv_i($form->{skonto_sales_chart_id}), conv_i($form->{skonto_purchase_chart_id}), $chart_categories);
   if ($form->{id} ne "") {
     $query = qq|UPDATE tax SET
                   taxkey                   = ?,
