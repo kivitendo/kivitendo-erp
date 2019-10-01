@@ -2959,6 +2959,7 @@ $self->{texts} = {
   'Show the picture in the part form' => '',
   'Show the pictures in the result for search parts' => '',
   'Show the weights of articles and the total weight in orders, invoices and delivery notes?' => '',
+  'Show update button for positions in order forms' => '',
   'Show weights'                => '',
   'Show your TODO list after logging in' => '',
   'Show »not delivered qty/value« column in sales and purchase orders' => '',

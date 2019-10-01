@@ -213,6 +213,7 @@
                 <th class="listheading" nowrap width="3" >[%- 'position'     | $T8 %] </th>
                 <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
                 <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/close.png" alt="[%- LxERP.t8('delete item') %]"></th>
+                [%- IF SELF.show_update_button -%]
                 <th class="listheading" style='text-align:center' nowrap width="1">
                   [%- L.img_tag(src="image/rotate_cw.svg",
                                 alt=LxERP.t8('Update from master data'),
@@ -220,6 +221,7 @@
                                 onclick="if (!confirm('" _ LxERP.t8("Are you sure to update all positions from master data?") _ "')) return false; kivi.Order.update_all_rows_from_master_data();",
                                 id='update_from_master') %]
                 </th>
+                [%- END %]
                 <th id="partnumber_header_id"   class="listheading" nowrap width="15"><a href='#' onClick='javascript:kivi.Order.reorder_items("partnumber")'> [%- 'Partnumber'  | $T8 %]</a></th>
                 [%- IF SELF.search_cvpartnumber -%]
                 <th id="cvpartnumber_header_id" class="listheading" nowrap width="15"><a href='#' onClick='javascript:kivi.Order.reorder_items("cvpartnumber")' > [%- SELF.cv == "customer" ? LxERP.t8('Customer Part Number') : LxERP.t8('Model') %]</a></th>
@@ -240,7 +242,14 @@
             </thead>
 
             [%- FOREACH item = SELF.order.items_sorted %]
-              [%- PROCESS order/tabs/_row.html ITEM=item ID=(item.id||item.new_fake_id) TYPE=SELF.type ALL_PRICE_FACTORS=SELF.all_price_factors SEARCH_CVPARTNUMBER=SELF.search_cvpartnumber %]
+              [%- PROCESS order/tabs/_row.html
+                  ITEM=item
+                  ID=(item.id||item.new_fake_id)
+                  TYPE=SELF.type
+                  ALL_PRICE_FACTORS=SELF.all_price_factors
+                  SEARCH_CVPARTNUMBER=SELF.search_cvpartnumber
+                  SHOW_UPDATE_BUTTON=SELF.show_update_button
+              -%]
             [%- END %]
 
           </table>

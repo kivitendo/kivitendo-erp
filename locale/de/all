@@ -2959,6 +2959,7 @@ $self->{texts} = {
   'Show the picture in the part form' => 'Bild in Warenmaske anzeigen',
   'Show the pictures in the result for search parts' => 'Bilder in Suchergebnis für Stammdaten -> Berichte -> Waren anzeigen',
   'Show the weights of articles and the total weight in orders, invoices and delivery notes?' => 'Sollen Warengewichte und Gesamtgewicht in Aufträgen, Rechnungen und Lieferscheinen angezeigt werden?',
+  'Show update button for positions in order forms' => 'Aktualisieren-Knopf bei Positionen in Belegen anzeigen (neuer Auftrags-Controller)',
   'Show weights'                => 'Gewichte anzeigen',
   'Show your TODO list after logging in' => 'Aufgabenliste nach dem Anmelden anzeigen',
   'Show »not delivered qty/value« column in sales and purchase orders' => 'Spalte »Nicht gelieferte Menge/Wert« in Aufträgen anzeigen',

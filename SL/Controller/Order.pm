@@ -26,6 +26,7 @@ use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
 use SL::Helper::ShippedQty;
 use SL::Helper::UserPreferences::PositionsScrollbar;
+use SL::Helper::UserPreferences::UpdatePositions;
 
 use SL::Controller::Helper::GetModels;
 
@@ -40,7 +41,7 @@ use Sort::Naturally;
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(item_ids_to_delete) ],
- 'scalar --get_set_init' => [ qw(order valid_types type cv p multi_items_models all_price_factors search_cvpartnumber) ],
+ 'scalar --get_set_init' => [ qw(order valid_types type cv p multi_items_models all_price_factors search_cvpartnumber show_update_button) ],
 );
 
 
@@ -795,6 +796,7 @@ sub action_add_item {
                                      TYPE                => $self->type,
                                      ALL_PRICE_FACTORS   => $self->all_price_factors,
                                      SEARCH_CVPARTNUMBER => $self->search_cvpartnumber,
+                                     SHOW_UPDATE_BUTTON  => $self->show_update_button,
   );
 
   $self->js
@@ -823,6 +825,7 @@ sub action_add_item {
                                          TYPE                => $self->type,
                                          ALL_PRICE_FACTORS   => $self->all_price_factors,
                                          SEARCH_CVPARTNUMBER => $self->search_cvpartnumber,
+                                         SHOW_UPDATE_BUTTON  => $self->show_update_button,
       );
       $self->js
         ->append('#row_table_id', $row_as_html);
@@ -906,6 +909,7 @@ sub action_add_multi_items {
                                        TYPE                => $self->type,
                                        ALL_PRICE_FACTORS   => $self->all_price_factors,
                                        SEARCH_CVPARTNUMBER => $self->search_cvpartnumber,
+                                       SHOW_UPDATE_BUTTON  => $self->show_update_button,
     );
 
     $self->js->append('#row_table_id', $row_as_html);
@@ -1206,6 +1210,12 @@ sub init_search_cvpartnumber {
   $search_cvpartnumber = !!$user_prefs->get_purchase_search_makemodel()        if $self->cv eq 'vendor';
 
   return $search_cvpartnumber;
+}
+
+sub init_show_update_button {
+  my ($self) = @_;
+
+  !!SL::Helper::UserPreferences::UpdatePositions->new()->get_show_update_button();
 }
 
 sub init_p {

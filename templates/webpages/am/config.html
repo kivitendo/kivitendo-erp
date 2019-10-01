@@ -168,6 +168,12 @@
         [%- 'This also enables displaying a column with the customer partnumber (new order controller).' | $T8 %]
       </td>
      </tr>
+     <tr>
+      <th align="right">[% 'Show update button for positions in order forms' | $T8 %]</th>
+      <td>
+        [% L.yes_no_tag('positions_show_update_button', positions_show_update_button) %]
+      </td>
+     </tr>
      [%- END -%]
 
      <tr>

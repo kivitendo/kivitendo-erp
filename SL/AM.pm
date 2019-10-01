@@ -54,6 +54,7 @@ use SL::DB;
 use SL::GenericTranslations;
 use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::PartPickerSearch;
+use SL::Helper::UserPreferences::UpdatePositions;
 
 use strict;
 
@@ -541,6 +542,10 @@ sub sales_search_customer_partnumber {
   SL::Helper::UserPreferences::PartPickerSearch->new()->get_sales_search_customer_partnumber();
 }
 
+sub positions_show_update_button {
+  SL::Helper::UserPreferences::UpdatePositions->new()->get_show_update_button();
+}
+
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
@@ -574,6 +579,9 @@ sub save_preferences {
   }
   if (exists $form->{sales_search_customer_partnumber}) {
     SL::Helper::UserPreferences::PartPickerSearch->new()->store_sales_search_customer_partnumber($form->{sales_search_customer_partnumber})
+  }
+  if (exists $form->{positions_show_update_button}) {
+    SL::Helper::UserPreferences::UpdatePositions->new()->store_show_update_button($form->{positions_show_update_button})
   }
 
   $main::lxdebug->leave_sub();
