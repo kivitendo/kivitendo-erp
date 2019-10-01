@@ -1224,6 +1224,7 @@ package SL::PriceRuleMacro::Action::ListTemplate {
 
   sub validate {
     my ($self) = @_;
+
     if ($self->condition_type =~ /^( qty | ve | reqdate | transdate )$/x) {
       my $items = $self->list_template_action_line;
 
@@ -1231,6 +1232,14 @@ package SL::PriceRuleMacro::Action::ListTemplate {
         $_->min
       } grep {
         defined $_->min && $_->min ne ''
+      } @$items;
+
+      $self->list_template_action_line(\@items);
+    } else {
+      my $items = $self->list_template_action_line;
+
+      my @items = grep {
+        $_->id
       } @$items;
 
       $self->list_template_action_line(\@items);
