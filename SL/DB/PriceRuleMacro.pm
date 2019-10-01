@@ -391,6 +391,8 @@ package SL::PriceRuleMacro::Element {
 
     my @elements = List::UtilsBy::nsort_by {
       $all_meta->{$_}{internal_class}->order
+    } grep {
+      $all_meta->{$_}{internal_class}->order > 0
     } map {
       $all_meta->{$_}{abstract}
         ? @{ $all_meta->{$_}{can_be} }
@@ -1110,7 +1112,7 @@ package SL::PriceRuleMacro::Action::PriceScale {
   }
 
   sub order {
-    200
+    -1
   }
 }
 
@@ -1169,7 +1171,7 @@ package SL::PriceRuleMacro::Action::PartsPriceList {
   }
 
   sub order {
-    300
+    -1
   }
 }
 
