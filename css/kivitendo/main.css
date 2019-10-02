@@ -613,6 +613,47 @@ body > div.admin {
   padding-top: 24px;
 }
 
+
+/* price rule editor styling */
+#price_rule_action_container {
+  overflow-x: scroll;
+}
+#price_rule_macro fieldset {
+  font-weight: normal;
+}
+#price_rule_macro fieldset legend {
+  font-weight: bold;
+  white-space: nowrap;
+}
+#price_rule_macro .price_rule_horizontal_block {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+#price_rule_macro .price_rule_horizontal_block div {
+  flex-grow: 1;
+}
+#price_rule_macro .price_rule_vertical_block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+#price_rule_macro .price_rule_vertical_block div {
+  flex-grow: 1;
+}
+#price_rule_macro .price_rule_element {
+  display: flex;
+}
+#price_rule_macro .price_rule_macro_add_empty_block {
+  text-align: center;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+#price_rule_macro .price_rule_macro_add_empty_block:hover {
+  background-color: grey;
+}
+
+
 /* cke editor */
 .cke_top {
   padding: 0 !important;
