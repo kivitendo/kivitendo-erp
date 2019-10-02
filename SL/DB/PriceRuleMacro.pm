@@ -397,7 +397,7 @@ package SL::PriceRuleMacro::Element {
       $all_meta->{$_}{abstract}
         ? @{ $all_meta->{$_}{can_be} }
         : $_
-    } keys %{ $meta->{has_elements} };
+    } $element->type;
 
     @elements
   }
