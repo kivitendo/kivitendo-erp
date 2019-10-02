@@ -791,12 +791,9 @@ sub action_add_item {
 
   my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
   my $row_as_html = $self->p->render('order/tabs/_row',
-                                     ITEM                => $item,
-                                     ID                  => $item_id,
-                                     TYPE                => $self->type,
-                                     ALL_PRICE_FACTORS   => $self->all_price_factors,
-                                     SEARCH_CVPARTNUMBER => $self->search_cvpartnumber,
-                                     SHOW_UPDATE_BUTTON  => $self->show_update_button,
+                                     ITEM => $item,
+                                     ID   => $item_id,
+                                     SELF => $self,
   );
 
   $self->js
@@ -820,12 +817,9 @@ sub action_add_item {
       $self->get_item_cvpartnumber($item);
       my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
       my $row_as_html = $self->p->render('order/tabs/_row',
-                                         ITEM                => $item,
-                                         ID                  => $item_id,
-                                         TYPE                => $self->type,
-                                         ALL_PRICE_FACTORS   => $self->all_price_factors,
-                                         SEARCH_CVPARTNUMBER => $self->search_cvpartnumber,
-                                         SHOW_UPDATE_BUTTON  => $self->show_update_button,
+                                         ITEM => $item,
+                                         ID   => $item_id,
+                                         SELF => $self,
       );
       $self->js
         ->append('#row_table_id', $row_as_html);
@@ -904,12 +898,9 @@ sub action_add_multi_items {
     $self->get_item_cvpartnumber($item);
     my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
     my $row_as_html = $self->p->render('order/tabs/_row',
-                                       ITEM                => $item,
-                                       ID                  => $item_id,
-                                       TYPE                => $self->type,
-                                       ALL_PRICE_FACTORS   => $self->all_price_factors,
-                                       SEARCH_CVPARTNUMBER => $self->search_cvpartnumber,
-                                       SHOW_UPDATE_BUTTON  => $self->show_update_button,
+                                       ITEM => $item,
+                                       ID   => $item_id,
+                                       SELF => $self,
     );
 
     $self->js->append('#row_table_id', $row_as_html);

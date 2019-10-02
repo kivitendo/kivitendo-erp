@@ -32,7 +32,7 @@
                        LxERP.t8("X"),
                        confirm=LxERP.t8("Are you sure?")) %]
     </td>
-    [%- IF SHOW_UPDATE_BUTTON -%]
+    [%- IF SELF.show_update_button -%]
     <td align="center">
       [%- L.img_tag(src="image/rotate_cw.svg",
                     alt=LxERP.t8('Update from master data'),
@@ -44,7 +44,7 @@
     <td>
       <div name="partnumber">[% HTML.escape(ITEM.part.partnumber) %]</div>
     </td>
-    [%- IF SEARCH_CVPARTNUMBER -%]
+    [%- IF SELF.search_cvpartnumber -%]
     <td>
       <div name="cvpartnumber">[% HTML.escape(ITEM.cvpartnumber) %]</div>
     </td>
@@ -62,7 +62,7 @@
       [%- END -%]
       [%- L.button_tag("kivi.Order.show_longdescription_dialog(this)", LxERP.t8("L")) %]
     </td>
-    [%- IF (TYPE == "sales_order" || TYPE == "purchase_order") -%]
+    [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
     <td nowrap>
       [%- L.div_tag(LxERP.format_amount(ITEM.shipped_qty, 2, 0) _ ' ' _ ITEM.unit, name="shipped_qty", class="numeric") %]
     </td>
@@ -79,7 +79,7 @@
     </td>
     <td>
       [%- L.select_tag("order.orderitems[].price_factor_id",
-                       ALL_PRICE_FACTORS,
+                       SELF.all_price_factors,
                        default = ITEM.price_factor_id,
                        title_key = 'description',
                        with_empty = 1,
@@ -142,7 +142,7 @@
     <td colspan="100%">
       [%- IF MYCONFIG.show_form_details || ITEM.render_second_row %]
         <div name="second_row" data-loaded="1">
-          [%- PROCESS order/tabs/_second_row.html ITEM=ITEM TYPE=TYPE %]
+          [%- PROCESS order/tabs/_second_row.html ITEM=ITEM TYPE=SELF.type %]
         </div>
       [%- ELSE %]
         <div name="second_row" id="second_row_[% ID %]">
