@@ -37,6 +37,11 @@ Kleinere neue Features und Detailverbesserungen:
   Hier werden die Preisgruppenpreise angezeigt, falls einem Kunden eine
   Preisgruppe zugeordnet ist.
 
+- In der neuen Angebots-/Auftragsmaske (neuer Auftrags-Controller) kann
+  ein Update-Knopf angezeigt werden, der die Positionen aus den
+  Artikelstammdaten aktualisert (alle oder pro Position). Aktualisert werden
+  Preis, Beschreibung und Langtext. Das Feature kann in den
+  Benutzereinstellungen eingeschaltet werden.
 
 2019-08-07 - Release 3.5.4
 
