@@ -880,7 +880,7 @@ package SL::PriceRuleMacro::Action::ContainerAnd {
   }
 
   sub order {
-    400
+    -1
   }
 }
 
@@ -1319,7 +1319,7 @@ package SL::PriceRuleMacro::Action::ListTemplate {
   }
 
   sub order {
-    400
+    600
   }
 }
 
