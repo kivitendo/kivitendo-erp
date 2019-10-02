@@ -74,6 +74,7 @@ namespace('kivi.PriceRuleMacro', function(ns) {
         action: 'PriceRuleMacro/replace_element',
         type: $e.data('element-type'),
         prefix: $e.data('prefix'),
+        "params.condition_type": $e.data('condition-type'),
         element_class: $e.data('element-class'),
         container: elem.prop('id')
       },

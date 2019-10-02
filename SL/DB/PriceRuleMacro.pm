@@ -1211,6 +1211,13 @@ package SL::PriceRuleMacro::Action::ListTemplate {
     reqdate    => SL::Locale::String::t8('Reqdate Scale Action (PriceRules)'),
   );
 
+  # when creating an empty element, init action flags to price
+  sub init {
+    my $self = shift;
+    $self->SUPER::init(@_);
+    $self->action_type([ 'price' ]) unless $self->action_type;
+  }
+
   sub elements {
     qw(condition_type action_type list_template_action_line)
   }

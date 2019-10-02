@@ -483,7 +483,28 @@
 [%- END %]
 [%- END %]
 
+[%- BLOCK empty_list_template  %]
+  [% WRAPPER element %]
+    [% WRAPPER title_block title=LxERP.t8('Action') %]
+    <p>[% 'Choose a type:' | $T8 %]</p>
+      <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-class="action" data-element-type="list_template_action" data-condition-type="part">[% 'Parts Price List Action (PriceRules)' | $T8 %]</div>
+      <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-class="action" data-element-type="list_template_action" data-condition-type="customer">[% 'Customer Price List Action (PriceRules)' | $T8 %]</div>
+      <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-class="action" data-element-type="list_template_action" data-condition-type="vendor">[% 'Vendor Price List Action (PriceRules)' | $T8 %]</div>
+      <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-class="action" data-element-type="list_template_action" data-condition-type="business">[% 'Business Price List Action (PriceRules)' | $T8 %]</div>
+      <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-class="action" data-element-type="list_template_action" data-condition-type="partsgroup">[% 'Partsgroup Price List Action (PriceRules)' | $T8 %]</div>
+      <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-class="action" data-element-type="list_template_action" data-condition-type="pricegroup">[% 'Pricegroup Price List Action (PriceRules)' | $T8 %]</div>
+      <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-class="action" data-element-type="list_template_action" data-condition-type="qty">[% 'Price Scale Action (PriceRules)' | $T8 %]</div>
+      <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-class="action" data-element-type="list_template_action" data-condition-type="ve">[% 'Ve Scale List Action (PriceRules)' | $T8 %]</div>
+      <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-class="action" data-element-type="list_template_action" data-condition-type="transdate">[% 'Transdate Scale Action (PriceRules)' | $T8 %]</div>
+      <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-class="action" data-element-type="list_template_action" data-condition-type="reqdate">[% 'Reqdate Scale Action (PriceRules)' | $T8 %]</div>
+    [% END %]
+  [% END %]
+[% END %]
+
 [%- BLOCK list_template_action_input %]
+  [% IF !item.condition_type %]
+    [% PROCESS empty_list_template %]
+  [% ELSE %]
 [% WRAPPER element %]
 <fieldset>
   <legend>[%- PROCESS remove_control %] [% item.description | $T8 %]
@@ -492,7 +513,7 @@
     <span class="interact cursor-pointer list-template-price-toggle" data-field="reduction">⬇</span>
   </legend>
   [% L.hidden_tag(prefix _ '[].condition_type', item.condition_type) %]
-  <div>
+  <div class="price_rule_list_template_lines">
     [% L.hidden_tag(prefix _ '[].action_type[]', 'price',     disabled=!item.has_action_type('price'),     class='hidden-price') %]
     [% L.hidden_tag(prefix _ '[].action_type[]', 'discount',  disabled=!item.has_action_type('discount'),  class='hidden-discount') %]
     [% L.hidden_tag(prefix _ '[].action_type[]', 'reduction', disabled=!item.has_action_type('reduction'), class='hidden-reduction') %]
@@ -502,6 +523,7 @@
   </div>
   [% INCLUDE add_action_line prefix=prefix _ '[].list_template_action_line', data={ condition_type=item.condition_type, action_type=item.action_type.json } %]
 </fieldset>
+[%- END %]
 [%- END %]
 [%- END %]
 
