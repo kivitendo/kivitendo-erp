@@ -554,7 +554,7 @@
 
 [%- BLOCK add_element_control %]
   <span class='add-element-control' data-prefix='[% prefix | html %]' data-element-class='[% element_class | html %]'>
-    [% L.select_tag('', SELF.allowed_elements_for(item), class='element-type-select') %]
+    [% L.select_tag('', SELF.allowed_elements_for(element_class), class='element-type-select') %]
     <span class='price_rule_macro_add_element interact cursor-pointer'>[% 'Add element' | $T8 %]</span>
   </span>
 [%- END %]
