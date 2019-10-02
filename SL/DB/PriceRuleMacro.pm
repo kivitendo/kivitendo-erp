@@ -521,7 +521,7 @@ package SL::PriceRuleMacro::Condition::ContainerAnd {
   }
 
   sub order {
-    100
+    -1
   }
 }
 
@@ -550,7 +550,7 @@ package SL::PriceRuleMacro::Condition::ContainerOr {
   }
 
   sub order {
-    101
+    -1
   }
 }
 
