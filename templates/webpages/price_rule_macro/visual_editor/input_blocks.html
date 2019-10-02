@@ -529,7 +529,7 @@
 
 [%- BLOCK list_template_action_line_input %]
   [% WRAPPER element %]
-  <div>
+  <div class='nowrap'>
     [%- PROCESS remove_control %]
     [% IF parent.condition_type == 'part' %]
       [% 'Part' | $T8 %] [% 'is' | $T8 %]
