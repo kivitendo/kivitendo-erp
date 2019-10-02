@@ -35,19 +35,23 @@
 [%- END %]
 
 [%- BLOCK condition_container_and_input %]
+  [% WRAPPER element %]
   <fieldset class='price_rule_container price_rule_element'>
     <legend>[%- PROCESS remove_control %] [% 'And' | $T8 %]:</legend>
-    [%- INCLUDE condition_elements items=item.condition %]
+    [%- INCLUDE condition_elements items=item.condition, prefix=prefix _ '[].condition' %]
     [%- PROCESS add_condition_element_control %]
   </fieldset>
+  [%- END %]
 [%- END %]
 
 [%- BLOCK condition_container_or_input %]
+  [% WRAPPER element %]
   <fieldset class='price_rule_container'>
     <legend>[%- PROCESS remove_control %] [% 'Or' | $T8 %]:</legend>
-    [%- INCLUDE condition_elements items=item.condition %]
+    [%- INCLUDE condition_elements items=item.condition, prefix=prefix _ '[].condition' %]
     [%- PROCESS add_condition_element_control %]
   </fieldset>
+  [%- END %]
 [%- END %]
 
 [%- BLOCK condition_elements %]
@@ -57,13 +61,11 @@
 [%- END %]
 
 [%- BLOCK condition_element %]
-  <div class='price_rule_element'>
-    [% L.hidden_tag(prefix _ '.condition[+].type', item.type) %]
-    [% INCLUDE condition_input prefix=prefix _ '.condition[]' %]
-  </div>
+  [% INCLUDE condition_input %]
 [%- END %]
 
 [% BLOCK empty_condition %]
+  [% WRAPPER element %]
   [% WRAPPER title_block title=LxERP.t8('Condition') %]
     <p>[% 'Choose a type:' | $T8 %]</p>
 
@@ -71,9 +73,11 @@
       <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-type="[% row.0 %]" data-element-class="condition">[% row.1 | html %]</div>
     [% END %]
   [% END %]
+  [% END %]
 [% END %]
 
 [%- BLOCK condition_customer_input %]
+  [% WRAPPER element %]
   <fieldset>
    <legend>[%- PROCESS remove_control %] [% 'Customer' | $T8 %] [% 'is' | $T8 %]</legend>
      [% FOREACH id = item.id %]
@@ -81,16 +85,18 @@
      [% END %]
      [% PROCESS add_value %]
   </fieldset>
+  [% END %]
 [%- END %]
 
 [% BLOCK condition_customer_value_input %]
   <div class='price_rule_element'>
     [%- PROCESS remove_control %]
-    [% P.customer_vendor.picker(prefix _ '.id[]', id, type='customer') %]
+    [% P.customer_vendor.picker(prefix _ '[].id[]', id, type='customer') %]
   </div>
 [%- END %]
 
 [%- BLOCK condition_vendor_input %]
+  [% WRAPPER element %]
   <fieldset>
    <legend>[%- PROCESS remove_control %] [% 'Vendor' | $T8 %] [% 'is' | $T8 %]</legend>
      [% FOREACH id = item.id %]
@@ -98,16 +104,18 @@
      [% END %]
      [% PROCESS add_value %]
   </fieldset>
+  [% END %]
 [%- END %]
 
 [% BLOCK condition_vendor_value_input %]
   <div class='price_rule_element'>
     [%- PROCESS remove_control %]
-    [% P.customer_vendor.picker(prefix _ '.id[]', id, type='vendor') %]
+    [% P.customer_vendor.picker(prefix _ '[].id[]', id, type='vendor') %]
   </div>
 [%- END %]
 
 [%- BLOCK condition_business_input %]
+  [% WRAPPER element %]
   <fieldset>
     <legend>
      [%- PROCESS remove_control %]
@@ -119,16 +127,18 @@
      [% END %]
      [% PROCESS add_value %]
   </fieldset>
+  [%- END %]
 [%- END %]
 
 [%- BLOCK condition_business_value_input %]
   <div class='price_rule_element'>
     [%- PROCESS remove_control %]
-    [% P.business.picker(prefix _ '.id[]', id) %]
+    [% P.business.picker(prefix _ '[].id[]', id) %]
   </div>
 [%- END %]
 
 [%- BLOCK condition_part_input %]
+  [% WRAPPER element %]
   <fieldset>
     <legend>
      [%- PROCESS remove_control %]
@@ -139,13 +149,15 @@
      [% END %]
      [% PROCESS add_value %]
   </fieldset>
+  [%- END %]
 [%- END %]
 
 [%- BLOCK condition_part_value_input %]
-  <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.part.picker(prefix _ '.id[]', id) %]</div>
+  <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.part.picker(prefix _ '[].id[]', id) %]</div>
 [%- END %]
 
 [%- BLOCK condition_partsgroup_input %]
+  [% WRAPPER element %]
   <fieldset>
     <legend>
       [%- PROCESS remove_control %]
@@ -159,16 +171,18 @@
     </div>
      [% PROCESS add_value %]
   </fieldset>
+  [%- END %]
 [%- END %]
 
 [%- BLOCK condition_partsgroup_value_input %]
   <div class='price_rule_element'>
     [%- PROCESS remove_control %]
-    [% P.partsgroup.picker(prefix _ '.id[]', id) %]
+    [% P.partsgroup.picker(prefix _ '[].id[]', id) %]
   </div>
 [%- END %]
 
 [%- BLOCK condition_pricegroup_input %]
+  [% WRAPPER element %]
   <fieldset>
     <legend>
       [%- PROCESS remove_control %]
@@ -180,77 +194,88 @@
      [%- END %]
      [% PROCESS add_value %]
   </fieldset>
+  [%- END %]
 [%- END %]
 
 [%- BLOCK condition_pricegroup_value_input %]
   <div class='price_rule_element'>
     [%- PROCESS remove_control %]
-    [% P.pricegroup.picker(prefix _ '.id[]', id) %]
+    [% P.pricegroup.picker(prefix _ '[].id[]', id) %]
   </div>
 [%- END %]
 
 [%- BLOCK condition_ve_input %]
+  [% WRAPPER element %]
   <fieldset>
     <legend>
      [%- PROCESS remove_control %]
      [% 'Ve' | $T8 %]
     </legend>
     <div>
-      [% L.select_tag(prefix _ '.op', num_compare_ops, default=item.op) %]
-      [% L.input_tag(prefix _ '.num_as_number', item.num_as_number, "data-validate"='number') %]
+      [% L.select_tag(prefix _ '[].op', num_compare_ops, default=item.op) %]
+      [% L.input_tag(prefix _ '[].num_as_number', item.num_as_number, "data-validate"='number') %]
     </div>
   </fieldset>
+  [%- END %]
 [%- END %]
 
 [%- BLOCK condition_qty_input %]
+  [% WRAPPER element %]
   <fieldset>
     <legend>
       [%- PROCESS remove_control %]
       [% 'Quantity' | $T8 %]
     </legend>
     <div>
-      [% L.select_tag(prefix _ '.op', num_compare_ops, default=item.op) %]
-      [% L.input_tag(prefix _ '.num_as_number', item.num_as_number, "data-validate"='number') %]
+      [% L.select_tag(prefix _ '[].op', num_compare_ops, default=item.op) %]
+      [% L.input_tag(prefix _ '[].num_as_number', item.num_as_number, "data-validate"='number') %]
     </div>
   </fieldset>
+  [%- END %]
 [%- END %]
 
 [%- BLOCK condition_qty_range_input %]
+  [% WRAPPER element %]
   <fieldset>
    <legend>
      [%- PROCESS remove_control %]
      [% 'Quantity Range' | $T8 %]
    </legend>
-  [% L.input_tag(prefix _ '.min_as_number', item.min_as_number, "data-validate"='number') %]
+  [% L.input_tag(prefix _ '[].min_as_number', item.min_as_number, "data-validate"='number') %]
   [% 'To (range)' | $T8 %]
-  [% L.input_tag(prefix _ '.max_as_number', item.max_as_number, "data-validate"='number') %]
+  [% L.input_tag(prefix _ '[].max_as_number', item.max_as_number, "data-validate"='number') %]
   </fieldset>
+  [%- END %]
 [%- END %]
 
 [%- BLOCK condition_reqdate_input %]
+  [% WRAPPER element %]
   <fieldset>
     <legend>
       [%- PROCESS remove_control %]
       [% 'Reqdate' | $T8 %]
     </legend>
     <div>
-      [% L.select_tag(prefix _ '.op', date_compare_ops, default=item.op) %]
-      [% L.date_tag(prefix _ '.date_as_date', item.date) %]
+      [% L.select_tag(prefix _ '[].op', date_compare_ops, default=item.op) %]
+      [% L.date_tag(prefix _ '[].date_as_date', item.date) %]
     </div>
   </fieldset>
+  [%- END %]
 [%- END %]
 
 [%- BLOCK condition_transdate_input %]
+  [% WRAPPER element %]
   <fieldset>
     <legend>
       [%- PROCESS remove_control %]
       [% 'Transdate Record' | $T8 %]
     </legend>
     <div>
-      [% L.select_tag(prefix _ '.op', date_compare_ops, default=item.op) %]
-      [% L.date_tag(prefix _ '.date_as_date', item.date) %]
+      [% L.select_tag(prefix _ '[].op', date_compare_ops, default=item.op) %]
+      [% L.date_tag(prefix _ '[].date_as_date', item.date) %]
     </div>
   </fieldset>
+  [%- END %]
 [%- END %]
 
 [%- BLOCK action_input %]
@@ -308,7 +333,7 @@
 [%- BLOCK action_container_and_input %]
   [% WRAPPER element %]
     [% WRAPPER invisible_block title=LxERP.t8('And') %]
-      [% INCLUDE empty_action UNLESS item.action.size %]
+      [% INCLUDE empty_action prefix=prefix _ '[].action' UNLESS item.action.size %]
       [% FOREACH row IN item.action %]
         [% INCLUDE action_input item=row prefix=prefix _ '[].action' %]
       [% END %]
@@ -320,16 +345,18 @@
 [%- BLOCK action_conditional_action_input %]
   [% WRAPPER element %]
     [% WRAPPER invisible_block title=LxERP.t8('Conditional Action (PriceRules)') class='price_rule_horizontal_block' %]
-      [% INCLUDE empty_condition UNLESS item.condition.size %]
+      [% INCLUDE empty_condition prefix=prefix _ '[].condition' UNLESS item.condition.size %]
       [% FOREACH row IN item.condition %]
-        [% INCLUDE condition_element item=row prefix=prefix _ '[]' %]
+        [% INCLUDE condition_element item=row prefix=prefix _ '[].condition' %]
       [% END %]
-    <div class='price_rule_action price_rule_vertical_block'>
-    [%- INCLUDE action_input item=item.action prefix=prefix _ '[].action' -%]
-    </div>
-    [%- INCLUDE add_action_element_control prefix=prefix _ '[].action' %]
-  [%- END %]
- [% END %]
+      [% INCLUDE add_condition_element_control prefix=prefix _ '[].condition' %]
+      <div class='price_rule_action price_rule_vertical_block'>
+        [% INCLUDE empty_action prefix=prefix _ '[].action' UNLESS item.action.size %]
+        [%- INCLUDE action_input item=item.action prefix=prefix _ '[].action' -%]
+        [%- INCLUDE add_action_element_control prefix=prefix _ '[].action' %]
+      </div>
+    [%- END %]
+  [% END %]
 [%- END %]
 
 [%- BLOCK simple_action_input %]
@@ -545,11 +572,19 @@
 [%- END %]
 
 [% BLOCK add_condition_element_control %]
-[%#- PROCESS add_element_control element_class='condition' %]
+  [%#- PROCESS add_element_control element_class='condition' %]
+  [%- PROCESS add_empty_block_control element_class='condition' title=LxERP.t8('Add Condition Block') %]
 [% END %]
 
 [% BLOCK add_action_element_control %]
-[%#- PROCESS add_element_control element_class='action' %]
+  [%#- PROCESS add_element_control element_class='action' %]
+  [%- PROCESS add_empty_block_control element_class='action' title=LxERP.t8('Add Action Block') %]
+[% END %]
+
+[% BLOCK add_empty_block_control %]
+  <fieldset class='price_rule_macro_add_empty_block add-element-control' data-prefix='[% prefix | html %]' data-element-class='[% element_class | html %]' title="[% title | html %]">
+   <legend>+</legend>
+  </fieldset>
 [% END %]
 
 [%- BLOCK add_element_control %]

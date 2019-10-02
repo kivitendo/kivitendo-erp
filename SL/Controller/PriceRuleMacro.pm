@@ -26,7 +26,7 @@ __PACKAGE__->run_before('add_javascript');
 use SL::Helper::Object (
   delegate => [
     report => [ qw(action_list), @SL::Controller::Helper::ReportGenerator::EXPORT ],
-    editor => [ qw(empty_price_rule_macro render_form action_add_line action_add_value action_add_element) ],
+    editor => [ qw(empty_price_rule_macro render_form action_add_line action_add_value action_add_element action_replace_element) ],
   ],
 );
 
