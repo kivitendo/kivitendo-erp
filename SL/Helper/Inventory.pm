@@ -14,7 +14,7 @@ use SL::DBUtils qw(selectall_hashref_query selectrow_query);
 use SL::DB::TransferType;
 use SL::X;
 
-our @EXPORT_OK = qw(get_stock get_onhand allocate allocate_for_assembly produce_assembly);
+our @EXPORT_OK = qw(get_stock get_onhand allocate allocate_for_assembly produce_assembly check_constraints);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 sub _get_stock_onhand {
@@ -191,7 +191,6 @@ sub allocate {
     || $bin_whitelist{$b->{bin_id}}        <=> $bin_whitelist{$a->{bin_id}}       # then prefer wanted bins
     || $wh_whitelist{$b->{warehouse_id}}   <=> $wh_whitelist{$a->{warehouse_id}}  # then prefer wanted bins
   } @filtered_results;
-
   my @allocations;
   my $rest_qty = $qty;
 
@@ -220,6 +219,9 @@ sub allocate {
       msg => t8("can not allocate #1 units of #2, missing #3 units", $qty, $part->displayable_name, $rest_qty),
     );
   } else {
+    if ($params{constraints}) {
+      check_constraints($params{constraints},\@allocations);
+    }
     return @allocations;
   }
 }
@@ -247,6 +249,45 @@ sub allocate_for_assembly {
   }
 
   @allocations;
+}
+
+sub check_constraints {
+  my ($constraints, $allocations) = @_;
+  if ('CODE' eq ref $constraints) {
+    if (!$constraints->(@$allocations)) {
+      die SL::X::Inventory::Allocation->new(
+        error => 'allocation constraints failure',
+        msg => t8("Allocations didn't pass constraints"),
+      );
+    }
+  } else {
+    croak 'constraints needs to be a hashref' unless 'HASH' eq ref $constraints;
+
+    my %supported_constraints = (
+      bin_id       => 'bin_id',
+      warehouse_id => 'warehouse_id',
+      chargenumber => 'chargenumber',
+    );
+
+    for (keys %$constraints ) {
+      croak "unsupported constraint '$_'" unless $supported_constraints{$_};
+
+      my %whitelist = map { (ref $_ ? $_->id : $_) => 1 } listify($constraints->{$_});
+      my $accessor = $supported_constraints{$_};
+
+      if (any { !$whitelist{$_->$accessor} } @$allocations) {
+        my %error_constraints = (
+          bin_id       => t8('Bins'),
+          warehouse_id => t8('Warehouses'),
+          chargenumber => t8('Chargenumbers'),
+        );
+        die SL::X::Inventory::Allocation->new(
+          error => 'allocation constraints failure',
+          msg => t8("Allocations didn't pass constraints for #1",$error_constraints{$_}),
+        );
+      }
+    }
+  }
 }
 
 sub produce_assembly {
@@ -714,6 +755,45 @@ each of the following attributes to be set at creation time:
 C<chargenumber>, C<bestbefore>, C<reserve_for_id> and C<reserve_for_table> may
 be C<undef> (but must still be present at creation time). Instances are
 considered immutable.
+
+=head1 CONSTRAINTS
+
+  # whitelist constraints
+  ->allocate(
+    ...
+    constraints => {
+      bin_id       => \@allowed_bins,
+      chargenumber => \@allowed_chargenumbers,
+    }
+  );
+
+  # custom constraints
+  ->allocate(
+    constraints => sub {
+      # only allow chargenumbers with specific format
+      all { $_->chargenumber =~ /^ C \d{8} - \a{d2} $/x } @_
+
+      &&
+      # and must be all reservations
+      all { $_->reserve_for_id } @_;
+    }
+  )
+
+C<allocation> is "best effort" in nature. It will take the C<bin>,
+C<chargenumber> etc hints from the parameters, but will try it's bvest to
+fulfil the request anyway and only bail out if it is absolutely not possible.
+
+Sometimes you need to restrict allocations though. For this you can pass
+additional constraints to C<allocate>. A constraint serves as a whitelist.
+Every allocation must fulfil every constraint by having that attribute be one
+of the given values.
+
+In case even that is not enough, you may supply a custom check by passing a
+function that will be given the allocation objects.
+
+Note that both whitelists and constraints do not influence the order of
+allocations, which is done purely from the initial parameters. They only serve
+to reject allocations made in good faith which do fulfil required assertions.
 
 =head1 ERROR HANDLING
 
