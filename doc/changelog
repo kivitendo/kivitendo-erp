@@ -43,6 +43,10 @@ Kleinere neue Features und Detailverbesserungen:
   Preis, Beschreibung und Langtext. Das Feature kann in den
   Benutzereinstellungen eingeschaltet werden.
 
+- In der neuen Angebots-/Auftragsmaske (neuer Auftrags-Controller) ist die
+  Artikelnummer ein Link, der die Artikelstammdaten in einem neuen Tab öffnet.
+
+
 2019-08-07 - Release 3.5.4
 
 

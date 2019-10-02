@@ -42,7 +42,9 @@
     </td>
     [%- END -%]
     <td>
-      <div name="partnumber">[% HTML.escape(ITEM.part.partnumber) %]</div>
+      <div name="partnumber">
+        [%- P.link_tag(SELF.url_for(controller='Part', action='edit', 'part.id'=ITEM.part.id), ITEM.part.partnumber, target="_blank", title=LxERP.t8('Open in new window')) -%]
+      </div>
     </td>
     [%- IF SELF.search_cvpartnumber -%]
     <td>
