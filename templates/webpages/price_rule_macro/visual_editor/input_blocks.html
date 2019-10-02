@@ -30,6 +30,7 @@
     [%- CASE 'qty_range' %][% PROCESS condition_qty_range_input %]
     [%- CASE 'transdate' %][% PROCESS condition_transdate_input %]
     [%- CASE 'reqdate' %][% PROCESS condition_reqdate_input %]
+    [%- CASE %][% PROCESS empty_condition %]
   [% END %]
 [%- END %]
 
@@ -61,6 +62,16 @@
     [% INCLUDE condition_input prefix=prefix _ '.condition[]' %]
   </div>
 [%- END %]
+
+[% BLOCK empty_condition %]
+  [% WRAPPER title_block title=LxERP.t8('Condition') %]
+    <p>[% 'Choose a type:' | $T8 %]</p>
+
+    [% FOREACH row = SELF.allowed_elements_for('condition') %]
+      <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-type="[% row.0 %]" data-element-class="condition">[% row.1 | html %]</div>
+    [% END %]
+  [% END %]
+[% END %]
 
 [%- BLOCK condition_customer_input %]
   <fieldset>
@@ -254,6 +265,7 @@
     [%- CASE 'price_scale_action' %][% PROCESS price_scale_action_input %]
     [%- CASE 'parts_price_list_action' %][% PROCESS parts_price_list_action_input %]
     [%- CASE 'list_template_action' %][% PROCESS list_template_action_input %]
+    [%- CASE %][% PROCESS empty_action %]
   [% END %]
   [% END %]
 [%- END %]
@@ -261,6 +273,17 @@
 [%- BLOCK action_element %]
   [% INCLUDE action_input prefix=prefix %]
 [%- END %]
+
+[% BLOCK empty_action %]
+  [% WRAPPER element %]
+    [% WRAPPER title_block title=LxERP.t8('Action') %]
+    <p>[% 'Choose a type:' | $T8 %]</p>
+    [% FOREACH row = SELF.allowed_elements_for('action') %]
+      <div class="price_rule_macro_replace_element interact cursor-pointer" data-prefix="[% prefix | html %]" data-element-type="[% row.0 %]" data-element-class="action">[% row.1 | html %]</div>
+    [% END %]
+    [% END %]
+  [% END %]
+[% END %]
 
 [%- BLOCK element %]
   <div class='price_rule_element'>
@@ -285,6 +308,7 @@
 [%- BLOCK action_container_and_input %]
   [% WRAPPER element %]
     [% WRAPPER invisible_block title=LxERP.t8('And') %]
+      [% INCLUDE empty_action UNLESS item.action.size %]
       [% FOREACH row IN item.action %]
         [% INCLUDE action_input item=row prefix=prefix _ '[].action' %]
       [% END %]
@@ -296,6 +320,7 @@
 [%- BLOCK action_conditional_action_input %]
   [% WRAPPER element %]
     [% WRAPPER invisible_block title=LxERP.t8('Conditional Action (PriceRules)') class='price_rule_horizontal_block' %]
+      [% INCLUDE empty_condition UNLESS item.condition.size %]
       [% FOREACH row IN item.condition %]
         [% INCLUDE condition_element item=row prefix=prefix _ '[]' %]
       [% END %]
