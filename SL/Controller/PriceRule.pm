@@ -409,11 +409,11 @@ sub setup_search_action_bar {
         ],
         link => [
           t8('New Sales Price Rule'),
-          link => $self->url_for(action => 'new', 'price_rule.type' => 'customer', callback => $self->models->get_callback),
+          link => $self->url_for(controller => 'PriceRuleMacro', action => 'new', 'price_rule.type' => 'customer', callback => $self->models->get_callback),
         ],
         link => [
           t8('New Purchase Price Rule'),
-          link => $self->url_for(action => 'new', 'price_rule.type' => 'vendor', callback => $self->models->get_callback),
+          link => $self->url_for(controller => 'PriceRuleMacro', action => 'new', 'price_rule.type' => 'vendor', callback => $self->models->get_callback),
         ],
       ], # end of combobox "Add"
     );
