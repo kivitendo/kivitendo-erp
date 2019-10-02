@@ -94,6 +94,33 @@ sub action_add_element {
     ->render;
 }
 
+sub action_replace_element {
+  my ($self) = @_;
+
+  my %known_element_classes = (
+    condition => 1,
+    action    => 1,
+  );
+
+  die 'invalid container id'  unless $::form->{container} =~ /^[-\w]+$/;
+  die 'invalid type'          unless $::form->{type}      =~ /^\w+$/;
+  die 'invalid prefix'        unless $::form->{prefix}    =~ /^[_\w\[\]\.]+$/;
+  die 'invalid element_class' unless $known_element_classes{$::form->{element_class}};
+
+  my $html = $self->controller->render(
+    \"[% PROCESS 'price_rule_macro/visual_editor/input_blocks.html' %][% PROCESS $::form->{element_class}_element %]",
+    { output => 0 },
+    prefix => $::form->{prefix},
+    item   => SL::PriceRuleMacro::Element->new(type => $::form->{type}),
+  );
+
+  $self->controller
+    ->js
+    ->replaceWith('#' . $::form->{container}, $html)
+    ->reinit_widgets
+    ->render;
+}
+
 sub render_form {
   my ($self) = @_;
   $self->controller->render('price_rule_macro/visual_editor/form', price_rule_macro => $self->controller->price_rule_macro);
