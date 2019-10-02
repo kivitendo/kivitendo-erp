@@ -111,7 +111,7 @@ sub action_replace_element {
     \"[% PROCESS 'price_rule_macro/visual_editor/input_blocks.html' %][% PROCESS $::form->{element_class}_element %]",
     { output => 0 },
     prefix => $::form->{prefix},
-    item   => SL::PriceRuleMacro::Element->new(type => $::form->{type}),
+    item   => SL::PriceRuleMacro::Element->new(type => $::form->{type}, %{ $::form->{params} // {} }),
   );
 
   $self->controller
