@@ -17,6 +17,7 @@
 .position-absolute { position: absolute }
 
 .hidden { display: none; }
+.nowrap { white-space: nowrap; }
 
 /* media stuff */
 @media screen {   .noscreen { display: none } }
