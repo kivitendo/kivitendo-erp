@@ -364,7 +364,7 @@ sub _year_end_bookings {
       };
     };
 
-    my $debit_cb_acc = SL::DB::AccTransaction->new(
+    $debit_cb_acc = SL::DB::AccTransaction->new(
       transdate      => $cb_date,
       ob_transaction => 0,
       cb_transaction => 1,
@@ -374,7 +374,7 @@ sub _year_end_bookings {
       taxkey         => 0,
       amount         => $pl_debit_balance,
     );
-    my $credit_cb_acc = SL::DB::AccTransaction->new(
+    $credit_cb_acc = SL::DB::AccTransaction->new(
       transdate      => $cb_date,
       ob_transaction => 0,
       cb_transaction => 1,
