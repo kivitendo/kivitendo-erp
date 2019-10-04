@@ -149,7 +149,7 @@ sub _year_end_bookings {
 
   my $employee_id = SL::DB::Manager::Employee->current->id;
 
-	# rather than having one gl transaction for each asset account, we group all
+  # rather than having one gl transaction for each asset account, we group all
   # the debit sums and credit sums for cb and ob bookings, so we will have 4 gl
   # transactions:
 
