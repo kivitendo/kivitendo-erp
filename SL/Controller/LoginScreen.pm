@@ -58,7 +58,9 @@ sub action_login {
 
   %::myconfig      = $login ? $::auth->read_user(login => $login) : ();
   $::locale        = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
-  SL::Dispatcher::AuthHandler::User->new->handle;
+  my $auth_result  = SL::Dispatcher::AuthHandler::User->new->handle;
+
+  $::dispatcher->end_request unless $auth_result;
 
   $::request->layout(SL::Layout::Dispatcher->new(style => $::myconfig{menustyle}));
 
