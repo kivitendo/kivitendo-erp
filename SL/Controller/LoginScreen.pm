@@ -58,7 +58,7 @@ sub action_login {
 
   %::myconfig      = $login ? $::auth->read_user(login => $login) : ();
   $::locale        = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
-  my $auth_result  = SL::Dispatcher::AuthHandler::User->new->handle;
+  my $auth_result  = SL::Dispatcher::AuthHandler::User->new->handle(callback => $::form->{callback});
 
   $::dispatcher->end_request unless $auth_result;
 
@@ -181,7 +181,7 @@ sub init_default_client_id {
 sub show_login_form {
   my ($self, %params) = @_;
 
-  $self->render('login_screen/user_login', %params, version => SL::Version->get_version );
+  $self->render('login_screen/user_login', %params, version => SL::Version->get_version, callback => $::form->{callback});
 }
 
 1;

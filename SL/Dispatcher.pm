@@ -30,6 +30,7 @@ use SL::Common;
 use SL::Form;
 use SL::Helper::DateTime;
 use SL::InstanceConfiguration;
+use SL::MoreCommon qw(uri_encode);
 use SL::Template::Plugin::HTMLFixes;
 use SL::User;
 
@@ -291,8 +292,11 @@ sub handle_request {
     if (   (($script eq 'login') && !$action)
         || ($script eq 'admin')
         || (SL::Auth::SESSION_EXPIRED() == $session_result)) {
-      $self->handle_login_error(script => $script, error => 'session');
-
+      $self->handle_login_error(routing_type => $routing_type,
+                                script       => $script,
+                                controller   => $script_name,
+                                action       => $action,
+                                error        => 'session');
     }
 
     my %auth_result = $self->{auth_handler}->handle(
@@ -393,7 +397,19 @@ sub handle_login_error {
   my $action          = ($params{script} // '') =~ m/^admin/i ? 'Admin/login' : 'LoginScreen/user_login';
   $action            .= '&error=' . $params{error} if $params{error};
 
-  print $::request->cgi->redirect("controller.pl?action=${action}");
+  my $redirect_url = "controller.pl?action=${action}";
+
+  if ($action =~ m/LoginScreen\/user_login/) {
+    require SL::Controller::Base;
+    my $controller = SL::Controller::Base->new;
+
+    delete $params{error};
+    delete @{ $::form }{ grep { m/^\{AUTH\}/ } keys %{ $::form } };
+    my $callback   = $controller->url_for(%params, %{$::form});
+    $redirect_url .= '&callback=' . uri_encode($callback);
+  }
+
+  print $::request->cgi->redirect($redirect_url);
   $self->end_request;
 }
 

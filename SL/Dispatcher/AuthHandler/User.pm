@@ -43,10 +43,10 @@ sub handle {
 }
 
 sub _error {
-  my $self = shift;
+  my ($self, %param) = @_;
 
   $::auth->punish_wrong_login;
-  $::dispatcher->handle_login_error(error => 'password');
+  $::dispatcher->handle_login_error(%param, error => 'password');
 
   return 0;
 }

@@ -24,6 +24,7 @@
       <form method="post" name="loginscreen" action="controller.pl" target="_top">
 
        <input type="hidden" name="show_dbupdate_warning" value="1">
+       [% L.hidden_tag("callback", callback) %]
 
        <table width="100%">
         <tr>
