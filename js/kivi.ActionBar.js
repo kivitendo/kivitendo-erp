@@ -123,8 +123,7 @@ namespace('kivi.ActionBar', function(k){
   };
 
   k.setDisabled = function(e, tooltip) {
-    var $e   = $(e);
-    var data = $e.data('action');
+    var $e = $(e);
 
     $e.addClass(CLASSES.disabled);
 
