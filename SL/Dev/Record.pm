@@ -2,7 +2,20 @@ package SL::Dev::Record;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT_OK = qw(create_invoice_item create_sales_invoice create_credit_note create_order_item  create_sales_order create_purchase_order create_delivery_order_item create_sales_delivery_order create_purchase_delivery_order create_project create_department);
+our @EXPORT_OK = qw(create_invoice_item
+                    create_sales_invoice
+                    create_credit_note
+                    create_order_item
+                    create_sales_order
+                    create_purchase_order
+                    create_delivery_order_item
+                    create_sales_delivery_order
+                    create_purchase_delivery_order
+                    create_project create_department
+                    create_ap_transaction
+                    create_ar_transaction
+                    create_gl_transaction
+                   );
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use SL::DB::Invoice;
@@ -13,7 +26,12 @@ use SL::Dev::CustomerVendor qw(new_vendor new_customer);
 use SL::DB::Project;
 use SL::DB::ProjectStatus;
 use SL::DB::ProjectType;
+use SL::Form;
 use DateTime;
+use List::Util qw(sum);
+use Data::Dumper;
+use SL::Locale::String qw(t8);
+use SL::DATEV;
 
 my %record_type_to_item_type = ( sales_invoice        => 'SL::DB::InvoiceItem',
                                  credit_note          => 'SL::DB::InvoiceItem',
@@ -300,6 +318,383 @@ sub create_department {
   return $department;
 
 }
+
+sub create_ap_transaction {
+  my (%params) = @_;
+
+  my $vendor = delete $params{vendor};
+  if ( $vendor ) {
+    die "vendor missing or not a SL::DB::Vendor object" unless ref($vendor) eq 'SL::DB::Vendor';
+  } else {
+    # use default SL/Dev vendor if it exists, or create a new one
+    $vendor = SL::DB::Manager::Vendor->find_by(name => 'Testlieferant') // new_vendor->save;
+  };
+
+  my $taxincluded = $params{taxincluded} // 1;
+  delete $params{taxincluded};
+
+  my $bookings    = delete $params{bookings};
+  # default bookings
+  unless ( $bookings ) {
+    my $chart_postage   = SL::DB::Manager::Chart->find_by(description => 'Porto');
+    my $chart_telephone = SL::DB::Manager::Chart->find_by(description => 'Telefon');
+    $bookings = [
+                  {
+                    chart  => $chart_postage,
+                    amount => 1000,
+                  },
+                  {
+                    chart  => $chart_telephone,
+                    amount => $taxincluded ? 1190 : 1000,
+                  },
+                ]
+  };
+
+  # optional params:
+  my $project_id         = delete $params{globalproject_id};
+
+  # if amount or netamount are given, then it compares them to the final values, and dies if they don't match
+  my $expected_amount    = delete $params{amount};
+  my $expected_netamount = delete $params{netamount};
+
+  my $dec = delete $params{dec} // 2;
+
+  my $transdate  = delete $params{transdate} // DateTime->today;
+  die "transdate hat to be DateTime object" unless ref($transdate) eq 'DateTime';
+
+  my $ap_chart = delete $params{ap_chart} // SL::DB::Manager::Chart->find_by( accno => '1600' );
+  die "no ap_chart found or not an AP chart" unless $ap_chart and $ap_chart->link eq 'AP';
+
+  my $ap_transaction = SL::DB::PurchaseInvoice->new(
+    vendor_id        => $vendor->id,
+    invoice          => 0,
+    transactions     => [],
+    globalproject_id => $project_id,
+    invnumber        => delete $params{invnumber} // 'test ap_transaction',
+    notes            => delete $params{notes}     // 'test ap_transaction',
+    transdate        => $transdate,
+    taxincluded      => $taxincluded,
+    taxzone_id       => $vendor->taxzone_id, # taxzone_id shouldn't have any effect on ap transactions
+    currency_id      => $::instance_conf->get_currency_id,
+    type             => undef, # isn't set for ap
+    employee_id      => SL::DB::Manager::Employee->current->id,
+  );
+  # $ap_transaction->assign_attributes(%params) if %params;
+
+  foreach my $booking ( @{$bookings} ) {
+    my $chart = delete $booking->{chart};
+    die "illegal chart" unless ref($chart) eq 'SL::DB::Chart';
+
+    my $tax = _transaction_tax_helper($booking, $chart, $transdate); # will die if tax can't be found
+
+    $ap_transaction->add_ap_amount_row(
+      amount     => $booking->{amount}, # add_ap_amount_row expects the user input amount, does its own calculate_tax
+      chart      => $chart,
+      tax_id     => $tax->id,
+      project_id => $booking->{project_id},
+    );
+  }
+
+  my $acc_trans_sum = sum map { $_->amount  } grep { $_->chart_link =~ 'AP_amount' } @{$ap_transaction->transactions};
+  # $main::lxdebug->message(0, sprintf("accno: %s    amount: %s   chart_link: %s\n",
+  #                                    $_->amount,
+  #                                    $_->chart->accno,
+  #                                    $_->chart_link
+  #                                   )) foreach @{$ap_transaction->transactions};
+
+  # determine netamount and amount from the transactions that were added via bookings
+  $ap_transaction->netamount( -1 * sum map { $_->amount  } grep { $_->chart_link =~ 'AP_amount' } @{$ap_transaction->transactions} );
+  # $main::lxdebug->message(0, sprintf('found netamount %s', $ap_transaction->netamount));
+
+  my $taxamount = -1 * sum map { $_->amount  } grep { $_->chart_link =~ /tax/ } @{$ap_transaction->transactions};
+  $ap_transaction->amount( $ap_transaction->netamount + $taxamount );
+  # additional check, add up all transactions before AP-transaction is added
+  my $refamount = -1 * sum map { $_->amount  } @{$ap_transaction->transactions};
+  die "refamount = $refamount, ap_transaction->amount = " . $ap_transaction->amount unless $refamount == $ap_transaction->amount;
+
+  # if amount or netamount were passed as params, check if the values are still
+  # the same after recalculating them from the acc_trans entries
+  if (defined $expected_amount) {
+    die "amount doesn't match acc_trans amounts: $expected_amount != " . $ap_transaction->amount unless $expected_amount == $ap_transaction->amount;
+  }
+  if (defined $expected_netamount) {
+    die "netamount doesn't match acc_trans netamounts: $expected_netamount != " . $ap_transaction->netamount unless $expected_netamount == $ap_transaction->netamount;
+  }
+
+  $ap_transaction->create_ap_row(chart => $ap_chart);
+  $ap_transaction->save;
+  # $main::lxdebug->message(0, sprintf("created ap_transaction with invnumber %s and trans_id %s",
+  #                                     $ap_transaction->invnumber,
+  #                                     $ap_transaction->id));
+  return $ap_transaction;
+}
+
+sub create_ar_transaction {
+  my (%params) = @_;
+
+  my $customer = delete $params{customer};
+  if ( $customer ) {
+    die "customer missing or not a SL::DB::Customer object" unless ref($customer) eq 'SL::DB::Customer';
+  } else {
+    # use default SL/Dev vendor if it exists, or create a new one
+    $customer = SL::DB::Manager::Customer->find_by(name => 'Testkunde') // new_customer->save;
+  };
+
+  my $taxincluded = $params{taxincluded} // 1;
+  delete $params{taxincluded};
+
+  my $bookings    = delete $params{bookings};
+  # default bookings
+  unless ( $bookings ) {
+    my $chart_19 = SL::DB::Manager::Chart->find_by(accno => '8400');
+    my $chart_7  = SL::DB::Manager::Chart->find_by(accno => '8300');
+    my $chart_0  = SL::DB::Manager::Chart->find_by(accno => '8200');
+    $bookings = [
+                  {
+                    chart  => $chart_19,
+                    amount => $taxincluded ? 119 : 100,
+                  },
+                  {
+                    chart  => $chart_7,
+                    amount => $taxincluded ? 107 : 100,
+                  },
+                  {
+                    chart  => $chart_0,
+                    amount => 100,
+                  },
+                ]
+  };
+
+  # optional params:
+  my $project_id = delete $params{globalproject_id};
+
+  # if amount or netamount are given, then it compares them to the final values, and dies if they don't match
+  my $expected_amount    = delete $params{amount};
+  my $expected_netamount = delete $params{netamount};
+
+  my $dec = delete $params{dec} // 2;
+
+  my $transdate  = delete $params{transdate} // DateTime->today;
+  die "transdate hat to be DateTime object" unless ref($transdate) eq 'DateTime';
+
+  my $ar_chart = delete $params{ar_chart} // SL::DB::Manager::Chart->find_by( accno => '1400' );
+  die "no ar_chart found or not an AR chart" unless $ar_chart and $ar_chart->link eq 'AR';
+
+  my $ar_transaction = SL::DB::Invoice->new(
+    customer_id      => $customer->id,
+    invoice          => 0,
+    transactions     => [],
+    globalproject_id => $project_id,
+    invnumber        => delete $params{invnumber} // 'test ar_transaction',
+    notes            => delete $params{notes}     // 'test ar_transaction',
+    transdate        => $transdate,
+    taxincluded      => $taxincluded,
+    taxzone_id       => $customer->taxzone_id, # taxzone_id shouldn't have any effect on ar transactions
+    currency_id      => $::instance_conf->get_currency_id,
+    type             => undef, # isn't set for ar
+    employee_id      => SL::DB::Manager::Employee->current->id,
+  );
+  # $ar_transaction->assign_attributes(%params) if %params;
+
+  foreach my $booking ( @{$bookings} ) {
+    my $chart = delete $booking->{chart};
+    die "illegal chart" unless ref($chart) eq 'SL::DB::Chart';
+
+    my $tax = _transaction_tax_helper($booking, $chart, $transdate); # will die if tax can't be found
+
+    $ar_transaction->add_ar_amount_row(
+      amount     => $booking->{amount}, # add_ar_amount_row expects the user input amount, does its own calculate_tax
+      chart      => $chart,
+      tax_id     => $tax->id,
+      project_id => $booking->{project_id},
+    );
+  }
+
+  my $acc_trans_sum = sum map { $_->amount  } grep { $_->chart_link =~ 'AR_amount' } @{$ar_transaction->transactions};
+  # $main::lxdebug->message(0, sprintf("accno: %s    amount: %s   chart_link: %s\n",
+  #                                    $_->amount,
+  #                                    $_->chart->accno,
+  #                                    $_->chart_link
+  #                                   )) foreach @{$ar_transaction->transactions};
+
+  # determine netamount and amount from the transactions that were added via bookings
+  $ar_transaction->netamount( 1 * sum map { $_->amount  } grep { $_->chart_link =~ 'AR_amount' } @{$ar_transaction->transactions} );
+  # $main::lxdebug->message(0, sprintf('found netamount %s', $ar_transaction->netamount));
+
+  my $taxamount = 1 * sum map { $_->amount  } grep { $_->chart_link =~ /tax/ } @{$ar_transaction->transactions};
+  $ar_transaction->amount( $ar_transaction->netamount + $taxamount );
+  # additional check, add up all transactions before AP-transaction is added
+  my $refamount = 1 * sum map { $_->amount  } @{$ar_transaction->transactions};
+  die "refamount = $refamount, ar_transaction->amount = " . $ar_transaction->amount unless $refamount == $ar_transaction->amount;
+
+  # if amount or netamount were passed as params, check if the values are still
+  # the same after recalculating them from the acc_trans entries
+  if (defined $expected_amount) {
+    die "amount doesn't match acc_trans amounts: $expected_amount != " . $ar_transaction->amount unless $expected_amount == $ar_transaction->amount;
+  }
+  if (defined $expected_netamount) {
+    die "netamount doesn't match acc_trans netamounts: $expected_netamount != " . $ar_transaction->netamount unless $expected_netamount == $ar_transaction->netamount;
+  }
+
+  $ar_transaction->create_ar_row(chart => $ar_chart);
+  $ar_transaction->save;
+  # $main::lxdebug->message(0, sprintf("created ar_transaction with invnumber %s and trans_id %s",
+  #                                     $ar_transaction->invnumber,
+  #                                     $ar_transaction->id));
+  return $ar_transaction;
+}
+
+sub create_gl_transaction {
+  my (%params) = @_;
+
+  my $ob_transaction = delete $params{ob_transaction} // 0;
+  my $cb_transaction = delete $params{cb_transaction} // 0;
+  my $dec            = delete $params{rec} // 2;
+
+  my $taxincluded = defined $params{taxincluded} ? $params{taxincluded} : 1;
+
+  my $today      = DateTime->today_local;
+  my $transdate  = delete $params{transdate} // $today;
+
+  my $reference   = delete $params{reference}   // 'reference';
+  my $description = delete $params{description} // 'description';
+
+  my $department_id = delete $params{department_id};
+
+  my $bookings = delete $params{bookings};
+  unless ( $bookings && scalar @{$bookings} ) {
+    # default bookings if left empty
+    my $expense_chart = SL::DB::Manager::Chart->find_by(accno => '4660') or die "Can't find expense chart 4660\n"; # Reisekosten
+    my $cash_chart    = SL::DB::Manager::Chart->find_by(accno => '1000') or die "Can't find cash chart 1000\n";    # Kasse
+
+    $taxincluded = 0;
+
+    $reference   = 'Reise';
+    $description = 'Reise';
+
+    $bookings = [
+                  {
+                    chart  => $expense_chart, # has default tax of 19%
+                    credit => 84.03,
+                    taxkey => 9,
+                  },
+                  {
+                    chart  => $cash_chart,
+                    debit  => 100,
+                    taxkey => 0,
+                  },
+    ];
+  }
+
+  my $gl_transaction = SL::DB::GLTransaction->new(
+    reference      => $reference,
+    description    => $description,
+    transdate      => $transdate,
+    gldate         => $today,
+    taxincluded    => $taxincluded,
+    type           => undef,
+    ob_transaction => $ob_transaction,
+    cb_transaction => $cb_transaction,
+    storno         => 0,
+    storno_id      => undef,
+    transactions   => [],
+  );
+
+  my @acc_trans;
+  if ( scalar @{$bookings} ) {
+    # there are several ways of determining the tax:
+    # * tax_id : fetches SL::DB::Tax object via id (as used in dropdown in interface)
+    # * tax : SL::DB::Tax object (where $tax->id = tax_id)
+    # * taxkey : tax is determined from startdate
+    # * none of the above defined: use the default tax for that chart
+
+    foreach my $booking ( @{$bookings} ) {
+      my $chart = delete $booking->{chart};
+      die "illegal chart" unless ref($chart) eq 'SL::DB::Chart';
+
+      die t8('Empty transaction!')
+        unless $booking->{debit} or $booking->{credit}; # must exist and not be 0
+      die t8('Cannot post transaction with a debit and credit entry for the same account!')
+        if defined($booking->{debit}) and defined($booking->{credit});
+
+      my $tax = _transaction_tax_helper($booking, $chart, $transdate); # will die if tax can't be found
+
+      $gl_transaction->add_chart_booking(
+        chart      => $chart,
+        debit      => $booking->{debit},
+        credit     => $booking->{credit},
+        tax_id     => $tax->id,
+        source     => $booking->{source} // '',
+        memo       => $booking->{memo}   // '',
+        project_id => $booking->{project_id}
+      );
+    }
+  };
+
+  $gl_transaction->post;
+
+  return $gl_transaction;
+}
+
+sub _transaction_tax_helper {
+  # checks for hash-entries with key tax, tax_id or taxkey
+  # returns an SL::DB::Tax object
+  # can be used for booking hashref in ar_transaction, ap_transaction and gl_transaction
+  # will modify hashref, e.g. removing taxkey if tax_id was also supplied
+
+  my ($booking, $chart, $transdate) = @_;
+
+  die "_transaction_tax_helper: chart missing"     unless $chart && ref($chart) eq 'SL::DB::Chart';
+  die "_transaction_tax_helper: transdate missing" unless $transdate && ref($transdate) eq 'DateTime';
+
+  my $tax;
+
+  if ( defined $booking->{tax_id} ) { # tax_id may be 0
+    delete $booking->{taxkey}; # ignore any taxkeys that may have been added, tax_id has precedence
+    $tax = SL::DB::Tax->new(id => $booking->{tax_id})->load( with => [ 'chart' ] );
+  } elsif ( $booking->{tax} ) {
+    die "illegal tax entry" unless ref($booking->{tax}) eq 'SL::DB::Tax';
+    $tax = $booking->{tax};
+  } elsif ( defined $booking->{taxkey} ) {
+    # If a taxkey is given, find the taxkey entry for that chart that
+    # matches the stored taxkey and with the correct transdate. This will only work
+    # if kivitendo has that taxkey configured for that chart, i.e. it should barf if
+    # e.g. the bank chart is called with taxkey 3.
+
+    # example query:
+    #   select *
+    #     from taxkeys
+    #    where     taxkey_id = 3
+    #          and chart_id = (select id from chart where accno = '8400')
+    #          and startdate <= '2018-01-01'
+    # order by startdate desc
+    #    limit 1;
+
+    my $taxkey = SL::DB::Manager::TaxKey->get_first(
+      query        => [ and => [ chart_id  => $chart->id,
+                                 startdate => { le => $transdate },
+                                 taxkey    => $booking->{taxkey}
+                               ]
+                      ],
+      sort_by      => "startdate DESC",
+      limit        => 1,
+      with_objects => [ qw(tax) ],
+    );
+    die sprintf("Chart %s doesn't have a taxkey chart configured for taxkey %s", $chart->accno, $booking->{taxkey})
+      unless $taxkey;
+
+    $tax = $taxkey->tax;
+  } else {
+    # use default tax for that chart if neither tax_id, tax or taxkey were defined
+    my $active_taxkey = $chart->get_active_taxkey($transdate);
+    $tax = $active_taxkey->tax;
+    # $main::lxdebug->message(0, sprintf("found default taxrate %s for chart %s", $tax->rate, $chart->displayable_name));
+  };
+
+  die "no tax" unless $tax && ref($tax) eq 'SL::DB::Tax';
+  return $tax;
+};
+
 1;
 
 __END__
@@ -442,6 +837,154 @@ default value 'Test Department'.
 
 C<%params> should only contain alterable keys from the object Department.
 
+=head2 C<create_ap_transaction %PARAMS>
+
+Creates a new AP transaction (table ap, invoice = 0), and will try to add as
+many defaults as possible.
+
+Possible parameters:
+ * vendor (SL::DB::Vendor object, defaults to SL::Dev default vendor)
+ * taxincluded (0 or 1, defaults to 1)
+ * transdate (DateTime object, defaults to current date)
+ * bookings (arrayref for the charts to be booked, see examples below)
+ * amount (to check if final amount matches this amount)
+ * netamount (to check if final amount matches this amount)
+ * dec (number of decimals to round to, defaults to 2)
+ * ap_chart (SL::DB::Chart object, default to accno 1600)
+ * invnumber (defaults to 'test ap_transaction')
+ * notes (defaults to 'test ap_transaction')
+ * globalproject_id
+
+Currently doesn't support exchange rates.
+
+Minimal usage example, creating an AP transaction with a default vendor and
+default bookings (telephone, postage):
+
+  use SL::Dev::Record qw(create_ap_transaction);
+  my $invoice = create_ap_transaction();
+
+Create an AP transaction with a specific vendor and specific charts:
+
+  my $vendor = SL::Dev::CustomerVendor::new_vendor(name => 'My Vendor')->save;
+  my $chart_postage   = SL::DB::Manager::Chart->find_by(description => 'Porto');
+  my $chart_telephone = SL::DB::Manager::Chart->find_by(description => 'Telefon');
+
+  my $ap_transaction = create_ap_transaction(
+    vendor      => $vendor,
+    invnumber   => 'test invoice taxincluded',
+    taxincluded => 1,
+    amount      => 2190, # optional param for checking whether final amount matches
+    netamount   => 2000, # optional param for checking whether final netamount matches
+    bookings    => [
+                     {
+                       chart  => $chart_postage,
+                       amount => 1000,
+                     },
+                     {
+                       chart  => $chart_telephone,
+                       amount => 1190,
+                     },
+                   ]
+  );
+
+Or the same example with tax not included, but an old transdate and old taxrate (16%):
+
+  my $ap_transaction = create_ap_transaction(
+    vendor      => $vendor,
+    invnumber   => 'test invoice tax not included',
+    transdate   => DateTime->new(year => 2000, month => 10, day => 1),
+    taxincluded => 0,
+    amount      => 2160, # optional param for checking whether final amount matches
+    netamount   => 2000, # optional param for checking whether final netamount matches
+    bookings    => [
+                     {
+                       chart  => $chart_postage,
+                       amount => 1000,
+                     },
+                     {
+                       chart  => $chart_telephone,
+                       amount => 1000,
+                     },
+                 ]
+  );
+
+Don't use the default tax, e.g. postage with 19%:
+
+  my $tax_9          = SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.19);
+  my $chart_postage  = SL::DB::Manager::Chart->find_by(description => 'Porto');
+  my $ap_transaction = create_ap_transaction(
+    invnumber   => 'postage with tax',
+    taxincluded => 0,
+    bookings    => [
+                     {
+                       chart  => $chart_postage,
+                       amount => 1000,
+                       tax    => $tax_9,
+                     },
+                   ],
+  );
+
+=head2 C<create_ar_transaction %PARAMS>
+
+See C<create_ap_transaction>, except use customer instead of vendor.
+
+=head2 C<create_gl_transaction %PARAMS>
+
+Creates a new GL transaction (table gl), which is basically a wrapper around
+SL::DB::GLTransaction->new(...) and add_chart_booking and post, while setting
+as many defaults as possible.
+
+Possible parameters:
+
+ * taxincluded (0 or 1, defaults to 1)
+ * transdate (DateTime object, defaults to current date)
+ * dec (number of decimals to round to, defaults to 2)
+ * bookings (arrayref for the charts and taxes to be booked, see examples below)
+
+bookings must include a least:
+
+ * chart as an SL::DB::Chart object
+ * credit or debit, as positive numbers
+ * tax_id, tax (an SL::DB::Tax object) or taxkey (e.g. 9)
+
+Can't be used to create storno transactions.
+
+Minimal usage example, using all the defaults, creating a GL transaction with
+travel expenses:
+
+  use SL::Dev::Record qw(create_gl_transaction);
+  $gl_transaction = create_gl_transaction();
+
+Create a GL transaction with a specific charts and taxes (the default taxes for
+those charts are used if none are explicitly given in bookings):
+
+  my $cash           = SL::DB::Manager::Chart->find_by( description => 'Kasse'          );
+  my $betriebsbedarf = SL::DB::Manager::Chart->find_by( description => 'Betriebsbedarf' );
+  $gl_transaction = create_gl_transaction(
+    reference   => 'betriebsbedarf',
+    taxincluded => 1,
+    bookings    => [
+                     {
+                       chart  => $betriebsbedarf,
+                       memo   => 'foo 1',
+                       source => 'foo 1',
+                       credit => 119,
+                     },
+                     {
+                       chart  => $betriebsbedarf,
+                       memo   => 'foo 2',
+                       source => 'foo 2',
+                       credit => 119,
+                     },
+                     {
+                       chart  => $cash,
+                       debit  => 238,
+                       memo   => 'foo 1+2',
+                       source => 'foo 1+2',
+                     },
+                   ],
+  );
+
 
 =head1 BUGS
 
@@ -449,6 +992,6 @@ Nothing here yet.
 
 =head1 AUTHOR
 
-G. Richardson E<lt>grichardson@kivitendo-premium.deE<gt>
+G. Richardson E<lt>grichardson@kivitec.deE<gt>
 
 =cut
