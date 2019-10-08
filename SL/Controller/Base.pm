@@ -159,7 +159,8 @@ sub send_file {
 
   if ($::request->is_ajax || $params{ajax}) {
     my $octets = ref $file_name_or_content ? $file_name_or_content : \ do { local $/ = undef; <$file> };
-    $self->js->save_file(MIME::Base64::encode_base64($$octets), $content_type, $size, $attachment_name)->render;
+    $self->js->save_file(MIME::Base64::encode_base64($$octets), $content_type, $size, $attachment_name);
+    $self->js->render unless $params{js_no_render};
   } else {
     print $::form->create_http_response(content_type        => $content_type,
                                         content_disposition => 'attachment; filename="' . $attachment_name . '"',
