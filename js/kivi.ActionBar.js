@@ -107,20 +107,23 @@ namespace('kivi.ActionBar', function(k){
     }
   };
 
-  k.removeTooltip = function($e) {
+  k.removeTooltip = function(e) {
+    var $e = $(e);
     if ($e.hasClass('tooltipstered'))
       $e.tooltipster('destroy');
     $e.prop('title', '');
   };
 
-  k.setTooltip = function($e, tooltip) {
+  k.setTooltip = function(e, tooltip) {
+    var $e = $(e);
     if ($e.hasClass('tooltipstered'))
       $e.tooltipster('content', tooltip);
     else
       $e.tooltipster({ content: tooltip, theme: 'tooltipster-light' });
   };
 
-  k.setDisabled = function($e, tooltip) {
+  k.setDisabled = function(e, tooltip) {
+    var $e   = $(e);
     var data = $e.data('action');
 
     $e.addClass(CLASSES.disabled);
@@ -131,7 +134,8 @@ namespace('kivi.ActionBar', function(k){
       kivi.ActionBar.removeTooltip($e);
   };
 
-  k.setEnabled = function($e) {
+  k.setEnabled = function(e) {
+    var $e   = $(e);
     var data = $e.data('action');
 
     $e.removeClass(CLASSES.disabled);
