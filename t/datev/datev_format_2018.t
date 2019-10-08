@@ -183,54 +183,27 @@ cmp_deeply $sorted[1],     [ '535', 'S', 'EUR', '', '', '',
 
 my $expense_chart = SL::DB::Manager::Chart->find_by(accno => '4660'); # Reisekosten
 my $cash_chart    = SL::DB::Manager::Chart->find_by(accno => '1000'); # Kasse
-my $tax_chart     = SL::DB::Manager::Chart->find_by(accno => '1576'); # Vorsteuer
-my $tax_9         = SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.19) || die "No tax";
 
-my @acc_trans;
-push(@acc_trans, SL::DB::AccTransaction->new(
-                                      chart_id   => $expense_chart->id,
-                                      chart_link => $expense_chart->link,
-                                      amount     => -84.03,
-                                      transdate  => $today,
-                                      source     => '',
-                                      taxkey     => 9,
-                                      tax_id     => $tax_9->id,
-                                      project_id => $project->id,
-));
-push(@acc_trans, SL::DB::AccTransaction->new(
-                                      chart_id   => $tax_chart->id,
-                                      chart_link => $tax_chart->link,
-                                      amount     => -15.97,
-                                      transdate  => $today,
-                                      source     => '',
-                                      taxkey     => 9,
-                                      tax_id     => $tax_9->id,
-                                      project_id => $project->id,
-));
-push(@acc_trans, SL::DB::AccTransaction->new(
-                                      chart_id   => $cash_chart->id,
-                                      chart_link => $cash_chart->link,
-                                      amount     => 100,
-                                      transdate  => $today,
-                                      source     => '',
-                                      taxkey     => 0,
-                                      tax_id     => 0,
-));
-
-my $gl_transaction = SL::DB::GLTransaction->new(
+my $gl_transaction = create_gl_transaction(
   reference      => "Reise März 2018",
   description    => "Reisekonsten März 2018 / Ma Schmidt",
   transdate      => $today,
-  gldate         => $today,
-  employee_id    => SL::DB::Manager::Employee->current->id,
   taxincluded    => 1,
   type           => undef,
-  ob_transaction => 0,
-  cb_transaction => 0,
-  storno         => 0,
-  storno_id      => undef,
-  transactions   => \@acc_trans,
-)->save;
+  bookings       => [
+                      {
+                        chart  => $expense_chart,
+                        taxkey => 9,
+                        debit  => 100, # net 84.03
+                      },
+                      {
+                        chart  => $cash_chart,
+                        taxkey => 0,
+                        credit => 100,
+                      },
+                    ],
+);
+
 my $datev2 = SL::DATEV->new(
   dbh        => $dbh,
   trans_id   => $gl_transaction->id,
