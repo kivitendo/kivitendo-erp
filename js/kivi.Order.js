@@ -87,14 +87,6 @@ namespace('kivi.Order', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.download_pdf = function(pdf_filename, key) {
-    var data = [{ name: 'action',       value: 'Order/download_pdf' },
-                { name: 'type',         value: $('#type').val()     },
-                { name: 'pdf_filename', value: pdf_filename         },
-                { name: 'key',          value: key                  }];
-    $.download("controller.pl", data);
-  };
-
   ns.email = function(warn_on_duplicates) {
     if (warn_on_duplicates && !ns.check_duplicate_parts(kivi.t8("Do you really want to send by mail?"))) return;
     if (!ns.check_cv()) return;

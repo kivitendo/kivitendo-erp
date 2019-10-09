@@ -242,11 +242,8 @@ sub action_save_as_new {
 # print the order
 #
 # This is called if "print" is pressed in the print dialog.
-# If PDF creation was requested and succeeded, the pdf is stored in a session
-# file and the filename is stored as session value with an unique key. A
-# javascript function with this key is then called. This function calls the
-# download action below (action_download_pdf), which offers the file for
-# download.
+# If PDF creation was requested and succeeded, the pdf is offered for download
+# via send_file (which uses ajax in this case).
 sub action_print {
   my ($self) = @_;
 
@@ -298,16 +295,13 @@ sub action_print {
 
   if ($media eq 'screen') {
     # screen/download
-    my $sfile = SL::SessionFile::Random->new(mode => "w");
-    $sfile->fh->print($pdf);
-    $sfile->fh->close;
-
-    my $key = join('_', Time::HiRes::gettimeofday(), int rand 1000000000000);
-    $::auth->set_session_value("Order::print-${key}" => $sfile->file_name);
-
-    $self->js
-    ->run('kivi.Order.download_pdf', $pdf_filename, $key)
-    ->flash('info', t8('The PDF has been created'));
+    $self->js->flash('info', t8('The PDF has been created'));
+    $self->send_file(
+      \$pdf,
+      type         => SL::MIME->mime_type_from_ext($pdf_filename),
+      name         => $pdf_filename,
+      js_no_render => 1,
+    );
 
   } elsif ($media eq 'printer') {
     # printer
@@ -352,21 +346,6 @@ sub action_print {
     }
   }
   $self->js->render;
-}
-
-# offer pdf for download
-#
-# It needs to get the key for the session value to get the pdf file.
-sub action_download_pdf {
-  my ($self) = @_;
-
-  my $key = $::form->{key};
-  my $tmp_filename = $::auth->get_session_value("Order::print-${key}");
-  return $self->send_file(
-    $tmp_filename,
-    type => SL::MIME->mime_type_from_ext($::form->{pdf_filename}),
-    name => $::form->{pdf_filename},
-  );
 }
 
 # open the email dialog
