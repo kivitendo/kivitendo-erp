@@ -54,7 +54,7 @@ sub redirect_to {
     SL::Helper::Flash::delay_flash();
   }
 
-  return $self->render(SL::ClientJS->new->redirect_to($self->url_for(@_))) if $::request->is_ajax;
+  return $self->render(SL::ClientJS->new->redirect_to($url)) if $::request->is_ajax;
 
   print $::request->{cgi}->redirect($url);
 }
