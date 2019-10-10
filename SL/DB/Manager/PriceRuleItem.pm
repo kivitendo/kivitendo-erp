@@ -210,7 +210,7 @@ sub get_all_types {
 }
 
 sub ordered_types {
-  List::Util::uniq(grep({ $types{$_} } @{ $::instance_conf->get_price_rule_type_order }), @types);
+  List::Util::uniq(grep({ $types{$_} } @{ $::instance_conf->get_price_rule_type_order // [] }), @types);
 }
 
 sub get_types {
