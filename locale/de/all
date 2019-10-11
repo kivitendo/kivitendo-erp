@@ -3848,6 +3848,7 @@ $self->{texts} = {
   'View background job execution result' => 'Verlauf der Hintergrund-Job-Ausführungen anzeigen',
   'View sent email'             => 'Verschickte E-Mail anzeigen',
   'View warehouse content'      => 'Lagerbestand ansehen',
+  'View/edit all employees purchase documents' => 'Bearbeiten/ansehen der Einkaufsdokumente aller Mitarbeiter',
   'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
   'Von Konto: '                 => 'von Konto: ',
   'WHJournal'                   => 'Lagerbuchungen',

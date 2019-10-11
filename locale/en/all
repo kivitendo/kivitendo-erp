@@ -3847,6 +3847,7 @@ $self->{texts} = {
   'View background job execution result' => '',
   'View sent email'             => '',
   'View warehouse content'      => '',
+  'View/edit all employees purchase documents' => '',
   'View/edit all employees sales documents' => '',
   'Von Konto: '                 => '',
   'WHJournal'                   => 'Warehouse journal',
