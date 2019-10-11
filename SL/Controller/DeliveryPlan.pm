@@ -338,7 +338,7 @@ sub init_models {
 }
 
 sub init_all_edit_right {
-  $::auth->assert('sales_all_edit', 1)
+  return $_[0]->vc eq 'customer' ? $::auth->assert('sales_all_edit', 1) : $::auth->assert('purchase_all_edit', 1);
 }
 sub init_vc {
   return $::form->{vc} if ($::form->{vc} eq 'customer' || $::form->{vc} eq 'vendor') || croak "self (DeliveryPlan) has no vc defined";

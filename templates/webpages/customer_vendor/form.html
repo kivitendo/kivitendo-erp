@@ -16,13 +16,14 @@
 
   [%- INCLUDE 'common/flash.html' %]
 
+  [%- SET show_deliveries = ( SELF.cv.id && ((SELF.is_customer && AUTH.assert('sales_all_edit', 1)) || (SELF.is_vendor && AUTH.assert('purchase_all_edit', 1))) ) -%]
   <div class="tabwidget" id="customer_vendor_tabs">
     <ul>
       <li><a href="#billing">[% 'Billing Address' | $T8 %]</a></li>
       <li><a href="#bank">[% 'Bank account' | $T8 %]</a></li>
       <li><a href="#shipto">[% 'Shipping Address' | $T8 %]</a></li>
       <li><a href="#contacts">[% 'Contacts' | $T8 %]</a></li>
-      [% IF ( SELF.cv.id && AUTH.assert('sales_all_edit', 1) ) %]
+      [% IF show_deliveries %]
         <li><a href="#deliveries">[% 'Supplies' | $T8 %]</a></li>
 [%- IF INSTANCE_CONF.get_doc_storage %]
       <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=[% FORM.db == 'vendor' ? 'vendor' : 'customer' %]&object_id=[% SELF.cv.id %]">[% 'Attachments' | $T8 %]</a></li>
@@ -60,7 +61,7 @@
     [% PROCESS "customer_vendor/tabs/bank.html" %]
     [% PROCESS "customer_vendor/tabs/shipto.html" %]
     [% PROCESS "customer_vendor/tabs/contacts.html" %]
-    [% IF ( SELF.cv.id && AUTH.assert('sales_all_edit', 1) ) %]
+    [% IF show_deliveries %]
       [% PROCESS "customer_vendor/tabs/deliveries.html" %]
     [% END %]
     [% PROCESS "customer_vendor/tabs/vcnotes.html" %]

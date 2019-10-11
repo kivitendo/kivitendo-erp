@@ -129,7 +129,7 @@ sub transactions {
     push @where, "dord.$item = ?";
     push @values, conv_i($form->{$item});
   }
-  if (!$main::auth->assert('sales_all_edit', 1)) {
+  if ( !(($vc eq 'customer' && $main::auth->assert('sales_all_edit', 1)) || ($vc eq 'vendor' && $main::auth->assert('purchase_all_edit', 1))) ) {
     push @where, qq|dord.employee_id = (select id from employee where login= ?)|;
     push @values, $::myconfig{login};
   }

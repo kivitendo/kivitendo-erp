@@ -478,7 +478,8 @@ sub ap_transactions {
   # Permissions:
   # - Always return invoices & AP transactions for projects the employee has "view invoices" permissions for, no matter what the other rules say.
   # - Exclude AP transactions if no permissions for them exist.
-  # - Filter by employee if requested.
+  # - Limit to own invoices unless may edit all invoices.
+  # - If may edit all, allow filtering by employee.
   my (@permission_where, @permission_values);
 
   if ($::auth->assert('vendor_invoice_edit', 1)) {
@@ -486,9 +487,16 @@ sub ap_transactions {
       push @permission_where, "NOT invoice = 'f'"; # remove ap transactions from Purchase -> Reports -> Invoices
     }
 
-    if ($form->{employee_id}) {
+    if (!$::auth->assert('purchase_all_edit', 1)) {
+      # only show own invoices
       push @permission_where,  "a.employee_id = ?";
-      push @permission_values, conv_i($form->{employee_id});
+      push @permission_values, SL::DB::Manager::Employee->current->id;
+
+    } else {
+      if ($form->{employee_id}) {
+        push @permission_where,  "a.employee_id = ?";
+        push @permission_values, conv_i($form->{employee_id});
+      }
     }
   }
 

@@ -479,7 +479,8 @@ sub action_search_contact {
 sub action_get_delivery {
   my ($self) = @_;
 
-  $::auth->assert('sales_all_edit');
+  $::auth->assert('sales_all_edit')    if $self->is_customer();
+  $::auth->assert('purchase_all_edit') if $self->is_vendor();
 
   my $dbh = $::form->get_standard_dbh();
 
