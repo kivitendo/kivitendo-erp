@@ -61,7 +61,13 @@ sub render_price_dialog {
 #
 
 sub check_auth {
-  $::auth->assert('edit_prices');
+  if ($::form->{vc} eq 'customer') {
+    $::auth->assert('sales_edit_prices');
+  } elsif ($::form->{vc} eq 'vendor') {
+    $::auth->assert('purchase_edit_prices');
+  } else {
+    $::auth->assert('no_such_right');
+  }
 }
 
 sub init_record {
@@ -194,4 +200,3 @@ sub _make_record {
 }
 
 1;
-

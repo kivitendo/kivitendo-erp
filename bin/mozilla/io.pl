@@ -371,8 +371,9 @@ sub display_row {
       }
     }
 
-    my $edit_prices     = $main::auth->assert('edit_prices', 1) && (!$::form->{"active_price_source_$i"} || !$price || $price->editable);
-    my $edit_discounts  = $main::auth->assert('edit_prices', 1) && !$::form->{"active_discount_source_$i"};
+    my $right_to_edit_prices  = (!$is_purchase && $main::auth->assert('sales_edit_prices', 1)) || ($is_purchase && $main::auth->assert('purchase_edit_prices', 1));
+    my $edit_prices           = $right_to_edit_prices && (!$::form->{"active_price_source_$i"} || !$price || $price->editable);
+    my $edit_discounts        = $right_to_edit_prices && !$::form->{"active_discount_source_$i"};
     $column_data{sellprice}   = (!$edit_prices)
                                 ? $cgi->hidden(   -name => "sellprice_$i", -id => "sellprice_$i", -value => $sellprice_value) . $sellprice_value
                                 : $cgi->textfield(-name => "sellprice_$i", -id => "sellprice_$i", -size => 10, -class => "numeric", -value => $sellprice_value);
