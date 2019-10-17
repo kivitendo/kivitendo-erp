@@ -1231,6 +1231,18 @@ package SL::PriceRuleMacro::Action::ListTemplate {
     scalar grep { $_ eq $type } SL::MoreCommon::listify($self->action_type);
   }
 
+  sub action_type_from_lines {
+    my ($self) = @_;
+    return unless $self->list_template_action_line;
+
+    my %actions;
+    for my $line (SL::MoreCommon::listify($self->list_template_action_line)) {
+      defined($line->$_) and $actions{$_} //= 1 for qw(price discount reduction);
+    }
+
+    [ grep { $actions{$_} } qw(price discount reduction) ];
+  }
+
   sub validate {
     my ($self) = @_;
 
