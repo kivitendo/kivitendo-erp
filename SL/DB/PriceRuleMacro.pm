@@ -1249,7 +1249,7 @@ package SL::PriceRuleMacro::Action::ListTemplate {
     if ($self->condition_type =~ /^( qty | ve | reqdate | transdate )$/x) {
       my $items = $self->list_template_action_line;
 
-      my @items = List::UtilsBy::sort_by {
+      my @items = List::UtilsBy::nsort_by {
         $_->min
       } grep {
         defined $_->min && $_->min ne ''
