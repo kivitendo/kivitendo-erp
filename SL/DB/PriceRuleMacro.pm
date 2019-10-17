@@ -299,9 +299,9 @@ package SL::PriceRuleMacro::Element {
         my $type = $classes{$method};
         if ($type) {
           if ('ARRAY' eq ref $value) {
-            $self->$method([ map { $type->new(%$_) } @$value ]);
+            $self->$method([ map { 'HASH' eq ref $_ ? $type->new(%$_) : $_ } @$value ]);
           } else {
-            $self->$method($type->new(%$value));
+            $self->$method('HASH' eq ref $value ? $type->new(%$value) : $_);
           }
         } else {
           $self->$method($value);
