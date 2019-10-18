@@ -176,8 +176,8 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-
-  my @type_columns = map { $_->{type} } $self->get_all_used_types($self->models->finalize);
+  # compute effective columns on a copy of models, so not to get early finalize
+  my @type_columns = map { $_->{type} } $self->get_all_used_types($self->init_models->finalize);
   my @item_types  = map { $_->[0] } @{ $self->all_price_rule_item_types };
 
   my @columns     = (qw(name type priority), @item_types, qw(price reduction discount));
