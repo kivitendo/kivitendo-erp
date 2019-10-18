@@ -1649,10 +1649,11 @@ sub pre_render {
   $self->{positions_scrollbar_height} = SL::Helper::UserPreferences::PositionsScrollbar->new()->get_height();
 
   my $print_form = Form->new('');
-  $print_form->{type}      = $self->type;
-  $print_form->{printers}  = SL::DB::Manager::Printer->get_all_sorted;
-  $print_form->{languages} = SL::DB::Manager::Language->get_all_sorted;
-  $self->{print_options}   = SL::Helper::PrintOptions->get_print_options(
+  $print_form->{type}        = $self->type;
+  $print_form->{printers}    = SL::DB::Manager::Printer->get_all_sorted;
+  $print_form->{languages}   = SL::DB::Manager::Language->get_all_sorted;
+  $print_form->{language_id} = $self->order->language_id;
+  $self->{print_options}     = SL::Helper::PrintOptions->get_print_options(
     form => $print_form,
     options => {dialog_name_prefix => 'print_options.',
                 show_headers       => 1,
@@ -2144,10 +2145,6 @@ should be implemented.
 
 C<show_multi_items_dialog> does not use the currently inserted string for
 filtering.
-
-=item *
-
-The language selected in print or email dialog is not saved when the order is saved.
 
 =back
 

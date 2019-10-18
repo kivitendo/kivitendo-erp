@@ -51,6 +51,7 @@ namespace('kivi.Order', function(ns) {
     if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
 
     var data = $('#order_form').serializeArray();
+    data.push({ name: 'order.language_id', value: $('#language_id').val() }); // language from print options
     data.push({ name: 'action', value: 'Order/' + action });
 
     $.post("controller.pl", data, kivi.eval_json_result);
@@ -82,6 +83,7 @@ namespace('kivi.Order', function(ns) {
 
     var data = $('#order_form').serializeArray();
     data = data.concat($('#print_options_form').serializeArray());
+    data.push({ name: 'order.language_id', value: $('#language_id').val() }); // language from print options
     data.push({ name: 'action', value: 'Order/print' });
 
     $.post("controller.pl", data, kivi.eval_json_result);
@@ -147,6 +149,7 @@ namespace('kivi.Order', function(ns) {
     var data = $('#order_form').serializeArray();
     data = data.concat($('[name^="email_form."]').serializeArray());
     data = data.concat($('[name^="print_options."]').serializeArray());
+    data.push({ name: 'order.language_id', value: $('#language_id').val() }); // language from print options
     data.push({ name: 'action', value: 'Order/send_email' });
     $.post("controller.pl", data, kivi.eval_json_result);
   };
