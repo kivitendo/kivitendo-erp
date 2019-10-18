@@ -1019,8 +1019,14 @@ sub action_update_row_from_master_data {
 
     $self->js
       ->run('kivi.Order.update_sellprice', $item_id, $item->sellprice_as_number)
-      ->val('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].description"]', $item->description)
-      ->val('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].longdescription"]', $item->longdescription);
+      ->html('.row_entry:has(#item_' . $item_id . ') [name = "partnumber"] a', $item->part->partnumber)
+      ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].description"]', $item->description)
+      ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].longdescription"]', $item->longdescription);
+
+    if ($self->search_cvpartnumber) {
+      $self->get_item_cvpartnumber($item);
+      $self->js->html('.row_entry:has(#item_' . $item_id . ') [name = "cvpartnumber"]', $item->{cvpartnumber});
+    }
   }
 
   $self->recalc();
