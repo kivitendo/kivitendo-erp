@@ -1083,6 +1083,7 @@ sub _retrieve {
     my $transdate = $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
 
     $form->{taxzone_id} = 0 unless ($form->{taxzone_id});
+    unshift @values, ($form->{taxzone_id}) x 2;
 
     # retrieve individual items
     # this query looks up all information about the items
@@ -1105,8 +1106,8 @@ sub _retrieve {
          JOIN parts p ON (o.parts_id = p.id)
          JOIN oe ON (o.trans_id = oe.id)
          LEFT JOIN chart c1 ON ((SELECT inventory_accno_id                   FROM buchungsgruppen WHERE id=p.buchungsgruppen_id) = c1.id)
-         LEFT JOIN chart c2 ON ((SELECT tc.income_accno_id FROM taxzone_charts tc WHERE tc.taxzone_id = '$form->{taxzone_id}' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c2.id)
-         LEFT JOIN chart c3 ON ((SELECT tc.expense_accno_id FROM taxzone_charts tc WHERE tc.taxzone_id = '$form->{taxzone_id}' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c3.id)
+         LEFT JOIN chart c2 ON ((SELECT tc.income_accno_id  FROM taxzone_charts tc WHERE tc.taxzone_id = ? and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c2.id)
+         LEFT JOIN chart c3 ON ((SELECT tc.expense_accno_id FROM taxzone_charts tc WHERE tc.taxzone_id = ? and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c3.id)
          LEFT JOIN project pr ON (o.project_id = pr.id)
          LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id) | .
       ($form->{id}
