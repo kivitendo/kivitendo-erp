@@ -207,6 +207,7 @@ sub allocate {
         bestbefore        => $chunk->{bestbefore},
         reserve_for_id    => $chunk->{reserve_for_id},
         reserve_for_table => $chunk->{reserve_for_table},
+        oe_id             => undef,
       );
       $rest_qty -= $qty;
     }
@@ -346,7 +347,7 @@ sub produce_assembly {
       trans_type   => $trans_type_out,
       shippingdate => $shippingdate,
       employee     => SL::DB::Manager::Employee->current,
-      oe_id        => $oe_id,
+      oe_id        => $allocation->oe_id,
     );
   }
 
@@ -381,7 +382,7 @@ sub produce_assembly {
 }
 
 package SL::Helper::Inventory::Allocation {
-  my @attributes = qw(parts_id qty bin_id warehouse_id chargenumber bestbefore comment reserve_for_id reserve_for_table);
+  my @attributes = qw(parts_id qty bin_id warehouse_id chargenumber bestbefore comment reserve_for_id reserve_for_table oe_id);
   my %attributes = map { $_ => 1 } @attributes;
 
   for my $name (@attributes) {
@@ -463,6 +464,7 @@ SL::WH - Warehouse and Inventory API
     bestbefore        => undef,
     reserve_for_id    => undef,
     reserve_for_table => undef,
+    oe_id             => $my_document,
   );
 
   # produce_assembly:
@@ -750,11 +752,16 @@ each of the following attributes to be set at creation time:
 
 =item * reserve_for_table
 
+=item * oe_id
+
+Must be explicit set if the allocation needs also an (other) document.
+
 =back
 
-C<chargenumber>, C<bestbefore>, C<reserve_for_id> and C<reserve_for_table> may
+C<chargenumber>, C<bestbefore>, C<reserve_for_id>, C<reserve_for_table> and oe_id  may
 be C<undef> (but must still be present at creation time). Instances are
 considered immutable.
+
 
 =head1 CONSTRAINTS
 
