@@ -3407,6 +3407,14 @@ sub prepare_for_printing {
     $self->reformat_numbers($output_numberformat, $precision, @{ $field_list });
   }
 
+  # Translate units
+  if (($self->{language} // '') ne '') {
+    my $template_arrays = $self->{TEMPLATE_ARRAYS} || $self;
+    for my $idx (0..scalar(@{ $template_arrays->{unit} }) - 1) {
+      $template_arrays->{unit}->[$idx] = AM->translate_units($self, $self->{language}, $template_arrays->{unit}->[$idx], $template_arrays->{qty}->[$idx])
+    }
+  }
+
   $self->{template_meta} = {
     formname  => $self->{formname},
     language  => SL::DB::Manager::Language->find_by_or_create(id => $self->{language_id} || undef),
