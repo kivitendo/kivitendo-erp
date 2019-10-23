@@ -239,10 +239,10 @@ sub show_history {
 
   my $callback = build_std_url(qw(action longdescription trans_id_type input_name));
   my $restriction;
-  if ( $form->{trans_id_type} eq 'glid' ) {
-    $restriction = "AND ( snumbers LIKE 'invnumber%' OR what_done LIKE '%Buchungsnummer%' OR snumbers LIKE 'gltransaction%' OR snumbers LIKE 'emailjournal%' ) ";
-  } elsif ( $form->{trans_id_type} eq 'id' ) {
-    $restriction = " AND ( snumbers NOT LIKE 'invnumber_%' AND snumbers NOT LIKE 'gltransaction%' AND (what_done NOT LIKE '%Buchungsnummer%' OR what_done IS null))";
+  if ( $form->{trans_id_type} eq 'glid' ) { # for invoices
+    $restriction = "AND ( snumbers LIKE 'invnumber%' OR what_done LIKE '%Buchungsnummer%' OR snumbers LIKE 'gltransaction%' OR (snumbers LIKE 'emailjournal%' AND what_done ~ 'invoice|credit_note') ) ";
+  } elsif ( $form->{trans_id_type} eq 'id' ) { # for non invoices
+    $restriction = " AND ( snumbers NOT LIKE 'invnumber_%' AND snumbers NOT LIKE 'gltransaction%' AND (what_done NOT LIKE '%Buchungsnummer%' AND what_done NOT LIKE '%invoice%' OR what_done IS null))";
   } else {
     $restriction = '';
   };
