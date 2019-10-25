@@ -913,8 +913,12 @@ package SL::PriceRuleMacro::ConditionalAction {
 
   sub price_rules {
     my ($self) = @_;
-    my @price_rules = map { $_->price_rules }      SL::MoreCommon::listify($_[0]->action);
-    my @items       = map { $_->price_rule_items } SL::MoreCommon::listify($_[0]->condition);
+
+    # conditions are semantically AND-ed
+    my @items = SL::PriceRuleMacro::Condition::ContainerAnd->new(condition => $_[0]->condition)->price_rule_items;
+
+    # actions ar OR-ed
+    my @price_rules = map { $_->price_rules } SL::MoreCommon::listify($_[0]->action);
 
     my @rules = map {
       my $rule = $_;
