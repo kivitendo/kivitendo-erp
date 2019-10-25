@@ -52,8 +52,8 @@ sub customer_vendor_picker {
   croak 'Unknown value class'      if     $value && ref($value) && (ref($value) !~ m{^SL::DB::(?:Customer|Vendor)$});
 
   if ($value && !ref $value) {
-    my $class = $params{type} eq 'customer' ? 'SL::DB::Manager::Customer' : 'SL::DB::Manager::Vendor';
-    $value    = $class->find_by(id => $value);
+    my $class = $params{type} eq 'customer' ? 'SL::DB::Customer' : 'SL::DB::Vendor';
+    $value    = $class->load_cached($value);
   }
 
   my $id = delete($params{id}) || name_to_id($name);
