@@ -17,6 +17,7 @@ use SL::Locale::String;
 # use SL::Presenter::Pricegroup;
 
 use SL::DB::Helper::Attr;
+use SL::DBUtils qw(selectfirst_array_query);
 
 use List::Util ();
 use List::UtilsBy ();
@@ -157,7 +158,35 @@ sub init_parsed_definition {
 }
 
 sub in_use {
-  List::Util::any { $_->in_use } $_[0]->price_rules
+  my ($self) = @_;
+  # too slow, 3x number of compiled price rules Rose calls, 13s for 400 rules
+  #   List::Util::any { $_->in_use } $_[0]->price_rules
+
+  # get all active_price_rule specs
+  my $query = <<"SQL";
+  WITH sources(source) AS (
+      SELECT active_price_source FROM orderitems
+      UNION ALL
+      SELECT active_discount_source FROM orderitems
+      UNION ALL
+      SELECT active_price_source FROM delivery_order_items
+      UNION ALL
+      SELECT active_discount_source FROM delivery_order_items
+      UNION ALL
+      SELECT active_price_source FROM invoice
+      UNION ALL
+      SELECT active_discount_source FROM invoice
+  ),
+  active_price_rules(id) AS (
+    SELECT distinct substr(source, 13)::integer FROM sources WHERE source like 'price_rules/%'
+  )
+  SELECT COUNT(*) FROM price_rules
+  INNER JOIN active_price_rules ON (price_rules.id = active_price_rules.id)
+  WHERE price_rule_macro_id = ?
+SQL
+
+  my ($in_use) = selectfirst_array_query($::form, $self->db->dbh, $query, $self->id);
+  $in_use;
 }
 
 sub upgrade_version {
