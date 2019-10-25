@@ -222,19 +222,19 @@ or you can use it to safely calulate things.
 
 =item Error handling
 
-The original L<Rose::DB/do_transaction> gobbles up all execptions and expects
-the caller to manually check return value and error, and then to process all
-exceptions as strings. This is very fragile and generally a step backwards from
-proper exception handling.
+The original L<Rose::DB/do_transaction> gobbles up all exceptions and expects
+the caller to manually check the return value and error, and then to process
+all exceptions as strings. This is very fragile and generally a step backwards
+from proper exception handling.
 
-C<with_transaction> only gobbles up exception that are used to signal an
+C<with_transaction> only gobbles up exceptions that are used to signal an
 error in the transaction, and returns undef on those. All other exceptions
 bubble out of the transaction like normal, so that it is transparent to typoes,
 runtime exceptions and other generally wanted things.
 
 If you just use the snippet above, your code will catch everything related to
 the transaction aborting, but will not catch other errors that might have been
-thrown. The transaction will be rollbacked in both cases.
+thrown. The transaction will be rolled back in both cases.
 
 If you want to play nice in case your transaction is embedded in another
 transaction, just rethrow the error:
