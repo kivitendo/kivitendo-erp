@@ -399,12 +399,18 @@ sub handle_login_error {
 
   my $redirect_url = "controller.pl?action=${action}";
 
-  if ($action =~ m/LoginScreen\/user_login/) {
+  if (   $action =~ m/LoginScreen\/user_login/
+      && $params{action}
+      && 'get' eq lc($ENV{REQUEST_METHOD})
+  ) {
+
     require SL::Controller::Base;
     my $controller = SL::Controller::Base->new;
 
     delete $params{error};
+    delete $params{routing_type};
     delete @{ $::form }{ grep { m/^\{AUTH\}/ } keys %{ $::form } };
+
     my $callback   = $controller->url_for(%params, %{$::form});
     $redirect_url .= '&callback=' . uri_encode($callback);
   }
