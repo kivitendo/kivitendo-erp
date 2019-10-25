@@ -7,6 +7,9 @@ use Scalar::Util qw(weaken);
 use SL::Locale::String qw(t8);
 use SL::DB::PriceRuleMacro;
 
+use List::Util qw(uniq);
+use List::UtilsBy qw(partition_by);
+
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw() ],
   'scalar --get_set_init' => [ qw(
@@ -123,7 +126,37 @@ sub action_replace_element {
 
 sub render_form {
   my ($self) = @_;
+
+  $self->cache_presenter_objects;
+
   $self->controller->render('price_rule_macro/visual_editor/form', price_rule_macro => $self->controller->price_rule_macro);
+}
+
+sub cache_presenter_objects {
+  my ($self) = @_;
+  # to speed up hundreds of presenter accesses to common objects
+
+  my $macro = $self->controller->price_rule_macro;
+  my @rules = $macro->price_rules;
+
+  return unless @rules;
+
+  my $items = SL::DB::Manager::PriceRuleItem->get_all(
+    query => [
+      price_rules_id => [ map { $_->id } @rules ],
+    ]
+  );
+
+  my %items_by_type = partition_by { $_->type } @$items;
+
+  my @part_ids = uniq map { $_->value_int } @{ $items_by_type{part} // [] };
+  SL::DB::Part->load_cached(@part_ids) if @part_ids;
+
+  my @customer_ids = uniq map { $_->value_int } @{ $items_by_type{customer} // [] };
+  SL::DB::Customer->load_cached(@customer_ids) if @customer_ids;
+
+  my @vendor_ids = uniq map { $_->value_int } @{ $items_by_type{vendor} // [] };
+  SL::DB::Vendor->load_cached(@vendor_ids) if @vendor_ids;
 }
 
 sub empty_price_rule_macro {
