@@ -402,6 +402,7 @@ sub handle_login_error {
   if (   $action =~ m/LoginScreen\/user_login/
       && $params{action}
       && 'get' eq lc($ENV{REQUEST_METHOD})
+      && !_is_callback_blacklisted(map {$_ => $params{$_}} qw(routing_type script controller action) )
   ) {
 
     require SL::Controller::Base;
@@ -417,6 +418,48 @@ sub handle_login_error {
 
   print $::request->cgi->redirect($redirect_url);
   $self->end_request;
+}
+
+sub _is_callback_blacklisted {
+  my (%params) = @_;
+
+  # You can give a name only, then all actions are blackisted.
+  # Or you can give name and action, then only this action is blacklisted
+  # examples:
+  # {name => 'is',      action => 'edit'}
+  # {name => 'Project', action => 'edit'},
+  my @script_blacklist = (
+    {name => 'admin'},
+    {name => 'login'},
+  );
+
+  my @controller_blacklist = (
+    {name => 'Admin'},
+    {name => 'LoginScreen'},
+  );
+
+  my ($name, $blacklist);
+  if ('old' eq ($params{routing_type} // '')) {
+    $name      = $params{script};
+    $blacklist = \@script_blacklist;
+  } else {
+    $name      = $params{controller};
+    $blacklist = \@controller_blacklist;
+  }
+
+  foreach my $bl (@$blacklist) {
+    return 1 if _is_name_action_blacklisted($bl->{name}, $bl->{action}, $name, $params{action});
+  }
+
+  return;
+}
+
+sub _is_name_action_blacklisted {
+  my ($blacklisted_name, $blacklisted_action, $name, $action) = @_;
+
+  return 1 if ($name // '') eq $blacklisted_name && !$blacklisted_action;
+  return 1 if ($name // '') eq $blacklisted_name && ($action // '') eq $blacklisted_action;
+  return;
 }
 
 sub unrequire_bin_mozilla {
