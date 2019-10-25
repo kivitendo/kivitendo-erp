@@ -180,15 +180,19 @@ sub prepare_report {
   my @type_columns = map { $_->{type} } $self->get_all_used_types($self->init_models->finalize);
   my @item_types  = map { $_->[0] } @{ $self->all_price_rule_item_types };
 
-  my @columns     = (qw(name type priority), @item_types, qw(price reduction discount));
+  my @columns     = (qw(id name type priority), @item_types, qw(price reduction discount));
   my @sortable    = qw(name type priority price reduction discount);
 
   my %column_defs = (
-    name          => { obj_link => sub {
-      $_[0]->price_rule_macro_id
-        ? $self->url_for(controller => 'PriceRuleMacro', action => 'load', 'price_rule_macro.id' => $_[0]->price_rule_macro_id, callback => $callback)
-        : $self->url_for(action => 'edit', 'price_rule.id' => $_[0]->id, callback => $callback)
-    } },
+    id            => { sub => sub { $_[0]->id }, },
+    name          => {
+      obj_link => sub {
+        $_[0]->price_rule_macro_id
+          ? $self->url_for(controller => 'PriceRuleMacro', action => 'load', 'price_rule_macro.id' => $_[0]->price_rule_macro_id, callback => $callback)
+          : $self->url_for(action => 'edit', 'price_rule.id' => $_[0]->id, callback => $callback)
+      },
+      sub => sub { $_[0]->price_rule_macro_id ? $_[0]->price_rule_macro->name : $_[0]->name },
+    },
     priority      => { sub  => sub { $_[0]->priority_as_text } },
     price         => { sub  => sub { $_[0]->price_as_number } },
     reduction     => { sub  => sub { $_[0]->reduction_as_number } },
@@ -377,6 +381,7 @@ sub init_models {
   SL::Controller::Helper::GetModels->new(
     controller => $self,
     sorted => {
+      id       => t8('Number'),
       name     => t8('Name'),
       type     => t8('Type'),
       priority => t8('Priority'),
