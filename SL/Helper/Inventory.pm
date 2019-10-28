@@ -282,8 +282,11 @@ sub check_constraints {
           warehouse_id => t8('Warehouses'),
           chargenumber => t8('Chargenumbers'),
         );
+        my @allocs = grep { !$whitelist{$_->$accessor} } @$allocations;
         die SL::X::Inventory::Allocation->new(
-          error => 'allocation constraints failure',
+          accessor    => $accessor,
+          allocations => \@allocs,
+          error       => 'allocation constraints failure',
           msg => t8("Allocations didn't pass constraints for #1",$error_constraints{$_}),
         );
       }
