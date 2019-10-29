@@ -1,6 +1,6 @@
 # @tag: all_drafts_edit
 # @description: Zugriffsrecht auf alle Entwürfe
-# @depends: release_3_4_0
+# @depends: release_3_4_0 add_master_rights master_rights_position_gaps
 # @locales: Edit all drafts
 # @ignore: 0
 package SL::DBUpgrade2::Auth::all_drafts_edit;

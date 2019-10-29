@@ -1,6 +1,6 @@
 # @tag: purchase_letter_rights
 # @description: Neue Rechte für Lieferantenbriefe
-# @depends: release_3_2_0 sales_letter_rights
+# @depends: release_3_4_0 add_master_rights master_rights_position_gaps
 # @locales: Edit purchase letters
 # @locales: Show purchase letters report
 package SL::DBUpgrade2::Auth::purchase_letter_rights;
