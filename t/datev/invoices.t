@@ -243,7 +243,27 @@ $datev->generate_datev_data(use_pk => 1, from_to => $datev->fromto);
 $datev_lines = $datev->generate_datev_lines;
 
 note('testing purchase invoice');
-my $purchase_invoice = new_purchase_invoice();
+my $purchase_invoice = create_ap_transaction(
+  vendor      => $vendor,
+  invnumber   => 'ap1',
+  amount      => '226',
+  netamount   => '200',
+  transdate   => $date,
+  gldate      => $date,
+  itime       => $date, # make sure itime is 1.1., as gldatefrom tests for itime!
+  taxincluded => 0,
+  bookings    => [
+                   {
+                     chart  => SL::DB::Manager::Chart->find_by(accno => '3400'),
+                     amount => 100,
+                   },
+                   {
+                     chart  => SL::DB::Manager::Chart->find_by(accno => '3300'),
+                     amount => 100,
+                   },
+                 ],
+);
+
 $datev1 = SL::DATEV->new(
   dbh        => $purchase_invoice->db->dbh,
   trans_id   => $purchase_invoice->id,
@@ -302,6 +322,8 @@ cmp_deeply $datev1->generate_datev_lines, [
                                        ], "trans_id datev check purchase_invoice use_pk ok";
 
 note('testing gldatefrom');
+# test an order with transdate in january, but that was booked in march
+# gldatefrom in DATEV.pm checks for itime, not gldate!!!
 $datev = SL::DATEV->new(
   dbh        => $dbh,
   from       => $startdate,
@@ -322,108 +344,6 @@ cmp_deeply $datev->generate_datev_lines, [], "no bookings for January made after
 
 done_testing();
 clear_up();
-
-sub new_purchase_invoice {
-  # manually create a Kreditorenbuchung from scratch, ap + acc_trans bookings, as no helper exists yet, like $invoice->post.
-  # arap-Booking must come last in the acc_trans order
-  # this function was essentially copied from t/db_helper/payment.t, refactor once $purchase_invoice->post exists
-  my $currency_id = $::instance_conf->get_currency_id;
-  my $employee    = SL::DB::Manager::Employee->current                          || die "No employee";
-  my $taxzone     = SL::DB::Manager::TaxZone->find_by( description => 'Inland') || die "No taxzone";
-
-  my $purchase_invoice = SL::DB::PurchaseInvoice->new(
-    amount      => '226',
-    currency_id => $currency_id,
-    employee_id => $employee->id,
-    gldate      => $date,
-    invnumber   => "ap1",
-    invoice     => 0,
-    itime       => $date,
-    mtime       => $date,
-    netamount   => '200',
-    paid        => '0',
-    taxincluded => 0,
-    taxzone_id  => $taxzone->id,
-    transdate   => $date,
-    type        => 'invoice',
-    vendor_id   => $vendor->id,
-  )->save;
-
-  my $expense_chart  = SL::DB::Manager::Chart->find_by(accno => '3400');
-  my $expense_chart_booking= SL::DB::AccTransaction->new(
-    amount     => '-100',
-    chart_id   => $expense_chart->id,
-    chart_link => $expense_chart->link,
-    itime      => $date,
-    mtime      => $date,
-    source     => '',
-    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 9)->id,
-    taxkey     => 9,
-    transdate  => $date,
-    trans_id   => $purchase_invoice->id,
-  );
-  $expense_chart_booking->save;
-
-  my $tax_chart  = SL::DB::Manager::Chart->find_by(accno => '1576');
-  my $tax_chart_booking= SL::DB::AccTransaction->new(
-    amount     => '-19',
-    chart_id   => $tax_chart->id,
-    chart_link => $tax_chart->link,
-    itime      => $date,
-    mtime      => $date,
-    source     => '',
-    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 9)->id,
-    taxkey     => 0,
-    transdate  => $date,
-    trans_id   => $purchase_invoice->id,
-  );
-  $tax_chart_booking->save;
-  $expense_chart  = SL::DB::Manager::Chart->find_by(accno => '3300');
-  $expense_chart_booking= SL::DB::AccTransaction->new(
-    amount     => '-100',
-    chart_id   => $expense_chart->id,
-    chart_link => $expense_chart->link,
-    itime      => $date,
-    mtime      => $date,
-    source     => '',
-    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 8)->id,
-    taxkey     => 8,
-    transdate  => $date,
-    trans_id   => $purchase_invoice->id,
-  );
-  $expense_chart_booking->save;
-
-  $tax_chart  = SL::DB::Manager::Chart->find_by(accno => '1571');
-  $tax_chart_booking= SL::DB::AccTransaction->new(
-    trans_id   => $purchase_invoice->id,
-    chart_id   => $tax_chart->id,
-    chart_link => $tax_chart->link,
-    amount     => '-7',
-    transdate  => $date,
-    itime      => $date,
-    mtime      => $date,
-    source     => '',
-    taxkey     => 0,
-    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 8)->id,
-  );
-  $tax_chart_booking->save;
-  my $arap_chart  = SL::DB::Manager::Chart->find_by(accno => '1600');
-  my $arap_booking= SL::DB::AccTransaction->new(
-    trans_id   => $purchase_invoice->id,
-    chart_id   => $arap_chart->id,
-    chart_link => $arap_chart->link,
-    amount     => '226',
-    transdate  => $date,
-    itime      => $date,
-    mtime      => $date,
-    source     => '',
-    taxkey     => 0,
-    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id,
-  );
-  $arap_booking->save;
-
-  return $purchase_invoice;
-}
 
 sub clear_up {
   SL::DB::Manager::AccTransaction->delete_all(all => 1);
