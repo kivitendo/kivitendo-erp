@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 use lib 't';
 use Support::TestSetup;
@@ -56,6 +56,7 @@ if ( $inv ) {
   is($number_of_acc_trans                , 5                             , "number of transactions");
   is($inv->datepaid->to_kivitendo        , DateTime->today->to_kivitendo , "datepaid");
   is($inv->amount - $inv->paid           , 0                             , "paid = amount ");
+  is($inv->gldate->to_kivitendo, $inv->transactions->[0]->gldate->to_kivitendo, "gldate matches in ar and acc_trans");
 } else {
   ok 0, "couldn't find first invoice";
 }
@@ -92,7 +93,8 @@ sub _ar {
 
   my $amount       = $params{amount}       || croak "ar needs param amount";
   my $customer     = $params{customer}     || croak "ar needs param customer";
-  my $date         = $params{date}         || DateTime->today;
+  my $transdate    = $params{transdate}    || DateTime->today;
+  my $gldate       = $params{gldate}       || DateTime->today->add(days => 1);
   my $with_payment = $params{with_payment} || 0;
 
   # SL::DB::Invoice has a _before_save_set_invnumber hook, so we don't need to pass invnumber
@@ -100,7 +102,8 @@ sub _ar {
       invoice          => 0,
       amount           => $amount,
       netamount        => $amount,
-      transdate        => $date,
+      transdate        => $transdate,
+      gldate           => $gldate,
       taxincluded      => 'f',
       customer_id      => $customer->id,
       taxzone_id       => $customer->taxzone_id,
@@ -144,14 +147,16 @@ sub _ar_with_tax {
 
   my $amount       = $params{amount}       || croak "ar needs param amount";
   my $customer     = $params{customer}     || croak "ar needs param customer";
-  my $date         = $params{date}         || DateTime->today;
+  my $transdate    = $params{transdate}    || DateTime->today;
+  my $gldate       = $params{gldate}       || DateTime->today->add(days => 1);
   my $with_payment = $params{with_payment} || 0;
 
   my $invoice = SL::DB::Invoice->new(
     invoice          => 0,
     amount           => $amount,
     netamount        => $amount,
-    transdate        => $date,
+    transdate        => $transdate,
+    gldate           => $gldate,
     taxincluded      => 'f',
     customer_id      => $customer->id,
     taxzone_id       => $customer->taxzone_id,

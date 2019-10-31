@@ -362,6 +362,7 @@ sub add_ar_amount_row {
     chart_id   => $params{chart}->id,
     chart_link => $params{chart}->link,
     transdate  => $self->transdate,
+    gldate     => $self->gldate,
     taxkey     => $tax->taxkey,
     tax_id     => $tax->id,
     project_id => $params{project_id},
@@ -376,6 +377,7 @@ sub add_ar_amount_row {
        chart_id   => $tax->chart_id,
        chart_link => $tax->chart->link,
        transdate  => $self->transdate,
+       gldate     => $self->gldate,
        taxkey     => $tax->taxkey,
        tax_id     => $tax->id,
      );
