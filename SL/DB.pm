@@ -229,7 +229,7 @@ from proper exception handling.
 
 C<with_transaction> only gobbles up exceptions that are used to signal an
 error in the transaction, and returns undef on those. All other exceptions
-bubble out of the transaction like normal, so that it is transparent to typoes,
+bubble out of the transaction like normal, so that it is transparent to typos,
 runtime exceptions and other generally wanted things.
 
 If you just use the snippet above, your code will catch everything related to
