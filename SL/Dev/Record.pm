@@ -359,8 +359,12 @@ sub create_ap_transaction {
 
   my $dec = delete $params{dec} // 2;
 
-  my $transdate  = delete $params{transdate} // DateTime->today;
+  my $today      = DateTime->today_local;
+  my $transdate  = delete $params{transdate} // $today;
   die "transdate hat to be DateTime object" unless ref($transdate) eq 'DateTime';
+
+  my $gldate     = delete $params{gldate} // $today;
+  die "gldate hat to be DateTime object" unless ref($gldate) eq 'DateTime';
 
   my $ap_chart = delete $params{ap_chart} // SL::DB::Manager::Chart->find_by( accno => '1600' );
   die "no ap_chart found or not an AP chart" unless $ap_chart and $ap_chart->link eq 'AP';
@@ -373,6 +377,7 @@ sub create_ap_transaction {
     invnumber        => delete $params{invnumber} // 'test ap_transaction',
     notes            => delete $params{notes}     // 'test ap_transaction',
     transdate        => $transdate,
+    gldate           => $gldate,
     taxincluded      => $taxincluded,
     taxzone_id       => $vendor->taxzone_id, # taxzone_id shouldn't have any effect on ap transactions
     currency_id      => $::instance_conf->get_currency_id,
@@ -474,8 +479,12 @@ sub create_ar_transaction {
 
   my $dec = delete $params{dec} // 2;
 
-  my $transdate  = delete $params{transdate} // DateTime->today;
+  my $today      = DateTime->today_local;
+  my $transdate  = delete $params{transdate} // $today;
   die "transdate hat to be DateTime object" unless ref($transdate) eq 'DateTime';
+
+  my $gldate     = delete $params{gldate} // $today;
+  die "gldate hat to be DateTime object" unless ref($gldate) eq 'DateTime';
 
   my $ar_chart = delete $params{ar_chart} // SL::DB::Manager::Chart->find_by( accno => '1400' );
   die "no ar_chart found or not an AR chart" unless $ar_chart and $ar_chart->link eq 'AR';
@@ -488,6 +497,7 @@ sub create_ar_transaction {
     invnumber        => delete $params{invnumber} // 'test ar_transaction',
     notes            => delete $params{notes}     // 'test ar_transaction',
     transdate        => $transdate,
+    gldate           => $gldate,
     taxincluded      => $taxincluded,
     taxzone_id       => $customer->taxzone_id, # taxzone_id shouldn't have any effect on ar transactions
     currency_id      => $::instance_conf->get_currency_id,
@@ -555,6 +565,7 @@ sub create_gl_transaction {
 
   my $today      = DateTime->today_local;
   my $transdate  = delete $params{transdate} // $today;
+  my $gldate     = delete $params{gldate}    // $today;
 
   my $reference   = delete $params{reference}   // 'reference';
   my $description = delete $params{description} // 'description';
@@ -590,7 +601,7 @@ sub create_gl_transaction {
     reference      => $reference,
     description    => $description,
     transdate      => $transdate,
-    gldate         => $today,
+    gldate         => $gldate,
     taxincluded    => $taxincluded,
     type           => undef,
     ob_transaction => $ob_transaction,
