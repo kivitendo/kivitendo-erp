@@ -384,7 +384,8 @@ sub create_ap_transaction {
     type             => undef, # isn't set for ap
     employee_id      => SL::DB::Manager::Employee->current->id,
   );
-  # $ap_transaction->assign_attributes(%params) if %params;
+  # assign any parameters that weren't explicitly handled above, e.g. itime
+  $ap_transaction->assign_attributes(%params) if %params;
 
   foreach my $booking ( @{$bookings} ) {
     my $chart = delete $booking->{chart};
@@ -504,7 +505,8 @@ sub create_ar_transaction {
     type             => undef, # isn't set for ar
     employee_id      => SL::DB::Manager::Employee->current->id,
   );
-  # $ar_transaction->assign_attributes(%params) if %params;
+  # assign any parameters that weren't explicitly handled above, e.g. itime
+  $ar_transaction->assign_attributes(%params) if %params;
 
   foreach my $booking ( @{$bookings} ) {
     my $chart = delete $booking->{chart};
@@ -610,6 +612,8 @@ sub create_gl_transaction {
     storno_id      => undef,
     transactions   => [],
   );
+  # assign any parameters that weren't explicitly handled above, e.g. itime
+  $gl_transaction->assign_attributes(%params) if %params;
 
   my @acc_trans;
   if ( scalar @{$bookings} ) {
