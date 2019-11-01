@@ -106,7 +106,7 @@ sub action_update_contacts {
     return $self->js
       ->replaceWith(
         '#letter_cp_id',
-        SL::Presenter->get->select_tag('letter.cp_id', [], value_key => 'cp_id', title_key => 'full_name')
+        select_tag('letter.cp_id', [], value_key => 'cp_id', title_key => 'full_name')
       )
       ->render;
   }
