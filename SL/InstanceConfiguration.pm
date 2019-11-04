@@ -52,6 +52,16 @@ sub get_currencies {
   return @{ $self->currencies };
 }
 
+sub get_address {
+  # Compatibility function: back in the day there was only a single
+  # address field.
+  my ($self) = @_;
+
+  my $zipcode_city = join ' ', grep { $_ } ($self->get_address_zipcode, $self->get_address_city);
+
+  return join "\n", grep { $_ } ($self->get_address_street1, $self->get_address_street2, $zipcode_city, $self->get_address_country);
+}
+
 sub AUTOLOAD {
   our $AUTOLOAD;
 
