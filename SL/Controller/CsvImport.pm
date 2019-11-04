@@ -488,7 +488,7 @@ sub profile_from_form {
     $::form->{settings}->{sellprice_adjustment} = $::form->parse_amount(\%::myconfig, $::form->{settings}->{sellprice_adjustment});
   }
 
-  if ($self->type eq 'orders') {
+  if ($self->type eq 'orders' or $self->{type} eq 'ar_transactions') {
     $::form->{settings}->{max_amount_diff} = $::form->parse_amount(\%::myconfig, $::form->{settings}->{max_amount_diff});
   }
 
