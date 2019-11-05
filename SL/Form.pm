@@ -930,13 +930,6 @@ sub parse_template {
     $template_type  = 'HTML';
     $ext_for_format = 'html';
 
-  } elsif (($self->{"format"} =~ /xml/i) || (!$self->{"format"} && ($self->{"IN"} =~ /xml$/i))) {
-    $template_type  = 'XML';
-    $ext_for_format = 'xml';
-
-  } elsif ( $self->{"format"} =~ /elster(?:winston|taxbird)/i ) {
-    $template_type = 'XML';
-
   } elsif ( $self->{"format"} =~ /excel/i ) {
     $template_type  = 'Excel';
     $ext_for_format = 'xls';
