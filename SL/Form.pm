@@ -1119,8 +1119,8 @@ sub send_email {
   if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
     $mail->{content_type}   =  "text/html";
     $mail->{message}        =~ s/\r//g;
-    $mail->{message}        =~ s/\n/<br>\n/g;
-    $full_signature         =~ s/\n/<br>\n/g;
+    $mail->{message}        =~ s{\n}{<br>\n}g;
+    $full_signature         =~ s{\n}{<br>\n}g;
     $mail->{message}       .=  $full_signature;
 
     open(IN, "<", $self->{tmpfile})
@@ -1130,7 +1130,7 @@ sub send_email {
 
   } elsif (($self->{attachment_policy} // '') ne 'no_file') {
     my $attachment_name  =  $self->{attachment_filename}  || $self->{tmpfile};
-    $attachment_name     =~ s/\.(.+?)$/.${ext_for_format}/ if ($ext_for_format);
+    $attachment_name     =~ s{\.(.+?)$}{.${ext_for_format}} if ($ext_for_format);
 
     if (($self->{attachment_policy} // '') eq 'old_file') {
       my ( $attfile ) = SL::File->get_all(object_id   => $self->{id},
