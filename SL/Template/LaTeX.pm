@@ -530,7 +530,7 @@ sub _texinputs_path {
   my $exe_dir     = SL::System::Process::exe_dir();
   $templates_path = $exe_dir . '/' . $templates_path unless $templates_path =~ m{^/};
 
-  return join(':', grep({ $_ } ('.', $exe_dir . '/texmf', $templates_path, $ENV{TEXINPUTS})), '');
+  return join(':', grep({ $_ } ('.', $exe_dir . '/texmf', $exe_dir . '/users', $templates_path, $ENV{TEXINPUTS})), '');
 }
 
 sub convert_to_postscript {
@@ -652,11 +652,12 @@ sub uses_temp_file {
 sub parse_and_create_pdf {
   my ($class, $template_file_name, %params) = @_;
 
+  my $userspath                = delete($params{userspath}) || $::lx_office_conf{paths}->{userspath};
   my $keep_temp                = $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files};
   my ($tex_fh, $tex_file_name) = File::Temp::tempfile(
     'kivitendo-printXXXXXX',
     SUFFIX => '.tex',
-    DIR    => $::lx_office_conf{paths}->{userspath},
+    DIR    => $userspath,
     UNLINK => $keep_temp ? 0 : 1,,
   );
 
@@ -665,7 +666,7 @@ sub parse_and_create_pdf {
   my $local_form           = Form->new('');
   $local_form->{cwd}       = $old_wd;
   $local_form->{IN}        = $template_file_name;
-  $local_form->{tmpdir}    = $::lx_office_conf{paths}->{userspath};
+  $local_form->{tmpdir}    = $userspath;
   $local_form->{tmpfile}   = $tex_file_name;
   $local_form->{templates} = SL::DB::Default->get->templates;
 
@@ -676,7 +677,7 @@ sub parse_and_create_pdf {
 
   my $error;
   eval {
-    my $template = SL::Template::LaTeX->new(file_name => $template_file_name, form => $local_form);
+    my $template = SL::Template::LaTeX->new(file_name => $template_file_name, form => $local_form, userspath => $userspath);
     my $result   = $template->parse($tex_fh) && $template->convert_to_pdf;
 
     die $template->{error} unless $result;

@@ -47,6 +47,7 @@ use CGI;
 use Cwd;
 use Encode;
 use File::Copy;
+use File::Temp ();
 use IO::File;
 use Math::BigInt;
 use POSIX qw(strftime);
@@ -909,11 +910,18 @@ sub parse_template {
 
   local (*IN, *OUT);
 
-  my $defaults  = SL::DB::Default->get;
-  my $userspath = $::lx_office_conf{paths}->{userspath};
+  my $defaults        = SL::DB::Default->get;
 
-  $self->{"cwd"} = getcwd();
-  $self->{"tmpdir"} = $self->{cwd} . "/${userspath}";
+  my $keep_temp_files = $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files};
+  $self->{cwd}        = getcwd();
+  my $temp_dir        = File::Temp->newdir(
+    "kivitendo-print-XXXXXX",
+    DIR     => $self->{cwd} . "/" . $::lx_office_conf{paths}->{userspath},
+    CLEANUP => !$keep_temp_files,
+  );
+
+  my $userspath   = File::Spec->abs2rel($temp_dir->dirname);
+  $self->{tmpdir} = $temp_dir->dirname;
 
   my $ext_for_format;
 
@@ -973,7 +981,6 @@ sub parse_template {
 
   # OUT is used for the media, screen, printer, email
   # for postscript we store a copy in a temporary file
-  my $keep_temp_files = $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files};
 
   my ($temp_fh, $suffix);
   $suffix =  $self->{IN};
