@@ -420,7 +420,7 @@ sub _force_mandatory_packages {
   my ($self, @lines) = @_;
   my @new_lines;
 
-  my (%used_packages, $at_beginning_of_document);
+  my %used_packages;
   my @required_packages = qw(textcomp ulem);
   push @required_packages, 'embedfile' if $self->{pdf_a};
 
@@ -430,15 +430,27 @@ sub _force_mandatory_packages {
 
     } elsif (($line =~ m/\\documentclass/) && $self->{pdf_a}) {
       my $version = $self->{pdf_a}->{version}   // '3a';
-      my $meta    = $self->{pdf_a}->{meta_data} // {};
+
+      if ($self->{pdf_a}->{xmp}) {
+        my $xmp_file_name = $self->{userspath} . "/pdfa.xmp";
+        my $out           = IO::File->new($xmp_file_name, ">:encoding(utf-8)") || croak "Error creating ${xmp_file_name}: $!";
+        $out->print(Encode::encode('utf-8', $self->{pdf_a}->{xmp}));
+        $out->close;
+
+      } else {
+        my $meta = $self->{pdf_a}->{meta_data} // {};
+
+        push @new_lines, (
+          "\\RequirePackage{filecontents}\n",
+          "\\begin{filecontents*}{\\jobname.xmpdata}\n",
+          ($meta->{title}    ? sprintf("\\Title{%s}\n",    $meta->{title})    : ""),
+          ($meta->{author}   ? sprintf("\\Author{%s}\n",   $meta->{author})   : ""),
+          ($meta->{language} ? sprintf("\\Language{%s}\n", $meta->{language}) : ""),
+          "\\end{filecontents*}\n",
+        );
+      }
 
       push @new_lines, (
-        "\\RequirePackage{filecontents}\n",
-        "\\begin{filecontents*}{\\jobname.xmpdata}\n",
-        ($meta->{title}    ? sprintf("\\Title{%s}\n",    $meta->{title})    : ""),
-        ($meta->{author}   ? sprintf("\\Author{%s}\n",   $meta->{author})   : ""),
-        ($meta->{language} ? sprintf("\\Language{%s}\n", $meta->{language}) : ""),
-        "\\end{filecontents*}\n",
         $line,
         "\\usepackage[a-${version},mathxmp]{pdfx}[2018/12/22]\n",
         "\\usepackage[genericmode]{tagpdf}\n",
@@ -449,17 +461,14 @@ sub _force_mandatory_packages {
       next;
 
     } elsif ($line =~ m/\\begin\{document\}/) {
-      $at_beginning_of_document = 1;
       push @new_lines, map { "\\usepackage{$_}\n" } grep { !$used_packages{$_} } @required_packages;
+      push @new_lines, $line;
+      push @new_lines, map { $self->_embed_file_directive($_) } @{ $self->{pdf_attachments} // [] };
+
+      next;
     }
 
     push @new_lines, $line;
-
-    if ($at_beginning_of_document) {
-      $at_beginning_of_document = 0;
-
-      push @new_lines, map { $self->_embed_file_directive($_) } @{ $self->{pdf_attachments} // [] };
-    }
   }
 
   return @new_lines;
