@@ -11,9 +11,11 @@ use File::Basename;
 use File::Temp;
 use HTML::Entities ();
 use List::MoreUtils qw(any);
+use Scalar::Util qw(blessed);
 use Unicode::Normalize qw();
 
 use SL::DB::Default;
+use SL::System::Process;
 
 my %text_markup_replace = (
   b => 'textbf',
@@ -388,33 +390,79 @@ sub _parse_config_lines {
   }
 }
 
+sub _embed_file_directive {
+  my ($self, $file) = @_;
+
+  # { source      => $xmlfile,
+  #   name        => 'ZUGFeRD-invoice.xml',
+  #   description => $::locale->text('ZUGFeRD invoice'), }
+
+  my $file_name  =  blessed($file->{source}) && $file->{source}->can('filename') ? $file->{source}->filename : "" . $file->{source}->filename;
+  my $embed_name =  $file->{name} // $file_name;
+  $embed_name    =~ s{.*/}{};
+  my @options;
+
+  my $add_opt = sub {
+    my ($name, $value) = @_;
+    return if ($value // '') eq '';
+    push @options, sprintf('%s={%s}', $name, $value); # TODO: escaping
+  };
+
+ $add_opt->('ucfilespec',     $embed_name);
+ $add_opt->('desc',           $file->{description});
+ $add_opt->('afrelationship', $file->{relationship});
+ $add_opt->('mimetype',       $file->{mime_type});
+
+  return sprintf('\embedfile[%s]{%s}', join(',', @options), $file_name);
+}
+
 sub _force_mandatory_packages {
-  my $self  = shift;
-  my $lines = shift;
+  my ($self, @lines) = @_;
+  my @new_lines;
 
-  my (%used_packages, $document_start_line, $last_usepackage_line);
+  my (%used_packages, $at_beginning_of_document);
+  my @required_packages = qw(textcomp ulem);
+  push @required_packages, 'embedfile' if $self->{pdf_a};
 
-  foreach my $i (0 .. scalar @{ $lines } - 1) {
-    if ($lines->[$i] =~ m/\\usepackage[^\{]*{(.*?)}/) {
+  foreach my $line (@lines) {
+    if ($line =~ m/\\usepackage[^\{]*{(.*?)}/) {
       $used_packages{$1} = 1;
-      $last_usepackage_line = $i;
 
-    } elsif ($lines->[$i] =~ m/\\begin\{document\}/) {
-      $document_start_line = $i;
-      last;
+    } elsif (($line =~ m/\\documentclass/) && $self->{pdf_a}) {
+      my $version = $self->{pdf_a}->{version}   // '3a';
+      my $meta    = $self->{pdf_a}->{meta_data} // {};
 
+      push @new_lines, (
+        "\\RequirePackage{filecontents}\n",
+        "\\begin{filecontents*}{\\jobname.xmpdata}\n",
+        ($meta->{title}    ? sprintf("\\Title{%s}\n",    $meta->{title})    : ""),
+        ($meta->{author}   ? sprintf("\\Author{%s}\n",   $meta->{author})   : ""),
+        ($meta->{language} ? sprintf("\\Language{%s}\n", $meta->{language}) : ""),
+        "\\end{filecontents*}\n",
+        $line,
+        "\\usepackage[a-${version},mathxmp]{pdfx}[2018/12/22]\n",
+        "\\usepackage[genericmode]{tagpdf}\n",
+        "\\tagpdfsetup{activate-all}\n",
+        "\\hypersetup{pdfstartview=}\n",
+      );
+
+      next;
+
+    } elsif ($line =~ m/\\begin\{document\}/) {
+      $at_beginning_of_document = 1;
+      push @new_lines, map { "\\usepackage{$_}\n" } grep { !$used_packages{$_} } @required_packages;
+    }
+
+    push @new_lines, $line;
+
+    if ($at_beginning_of_document) {
+      $at_beginning_of_document = 0;
+
+      push @new_lines, map { $self->_embed_file_directive($_) } @{ $self->{pdf_attachments} // [] };
     }
   }
 
-  my $insertion_point = defined($document_start_line)  ? $document_start_line
-                      : defined($last_usepackage_line) ? $last_usepackage_line
-                      :                                  scalar @{ $lines } - 1;
-
-  foreach my $package (qw(textcomp ulem)) {
-    next if $used_packages{$package};
-    splice @{ $lines }, $insertion_point, 0, "\\usepackage{${package}}\n";
-    $insertion_point++;
-  }
+  return @new_lines;
 }
 
 sub parse {
@@ -431,7 +479,7 @@ sub parse {
   close(IN);
 
   $self->_parse_config_lines(\@lines);
-  $self->_force_mandatory_packages(\@lines) if (ref $self eq 'SL::Template::LaTeX');
+  @lines = $self->_force_mandatory_packages(@lines) if (ref $self eq 'SL::Template::LaTeX');
 
   my $contents = join("", @lines);
 
@@ -476,12 +524,21 @@ sub parse {
   }
 }
 
+sub _texinputs_path {
+  my ($self, $templates_path) = @_;
+
+  my $exe_dir     = SL::System::Process::exe_dir();
+  $templates_path = $exe_dir . '/' . $templates_path unless $templates_path =~ m{^/};
+
+  return join(':', grep({ $_ } ('.', $exe_dir . '/texmf', $templates_path, $ENV{TEXINPUTS})), '');
+}
+
 sub convert_to_postscript {
   my ($self) = @_;
   my ($form, $userspath) = ($self->{"form"}, $self->{"userspath"});
 
   # Convert the tex file to postscript
-  local $ENV{TEXINPUTS} = ".:" . $form->{cwd} . "/" . $form->{templates} . ":" . $ENV{TEXINPUTS};
+  local $ENV{TEXINPUTS} = $self->_texinputs_path($form->{templates});
 
   if (!chdir("$userspath")) {
     $self->{"error"} = "chdir : $!";
@@ -535,7 +592,7 @@ sub convert_to_pdf {
   my ($form, $userspath) = ($self->{"form"}, $self->{"userspath"});
 
   # Convert the tex file to PDF
-  local $ENV{TEXINPUTS} = ".:" . $form->{cwd} . "/" . $form->{templates} . ":" . $ENV{TEXINPUTS};
+  local $ENV{TEXINPUTS} = $self->_texinputs_path($form->{templates});
 
   if (!chdir("$userspath")) {
     $self->{"error"} = "chdir : $!";
