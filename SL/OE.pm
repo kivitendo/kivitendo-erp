@@ -100,6 +100,12 @@ sub transactions {
         FROM record_links rl1
         LEFT JOIN record_links rl2 ON (rl1.to_table = rl2.from_table AND rl1.to_id = rl2.from_id)
         WHERE rl1.from_table = 'oe' AND rl2.to_table = 'ar'
+        UNION
+        SELECT rl1.from_id, rl3.to_id
+        FROM record_links rl1
+        JOIN record_links rl2 ON (rl1.to_table = rl2.from_table AND rl1.to_id = rl2.from_id)
+        JOIN record_links rl3 ON (rl2.to_table = rl3.from_table AND rl2.to_id = rl3.from_id)
+        WHERE (rl1.from_table = 'oe') AND rl2.to_table = 'ar'
       ) rl
       LEFT JOIN ar ON ar.id = rl.to_id
 
