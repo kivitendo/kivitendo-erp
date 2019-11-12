@@ -377,8 +377,13 @@ SQL
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     $ref->{billed_amount}    = $billed_amount{$ref->{id}};
     $ref->{billed_netamount} = $billed_netamount{$ref->{id}};
-    $ref->{remaining_amount} = $ref->{amount} - $ref->{billed_amount};
-    $ref->{remaining_netamount} = $ref->{netamount} - $ref->{billed_netamount};
+    if ($ref->{billed_amount} < 0) { # case: credit note(s) higher than invoices
+      $ref->{remaining_amount} = $ref->{amount} + $ref->{billed_amount};
+      $ref->{remaining_netamount} = $ref->{netamount} + $ref->{billed_netamount};
+    } else {
+      $ref->{remaining_amount} = $ref->{amount} - $ref->{billed_amount};
+      $ref->{remaining_netamount} = $ref->{netamount} - $ref->{billed_netamount};
+    }
     $ref->{exchangerate} = 1 unless $ref->{exchangerate};
     push @{ $form->{OE} }, $ref if $ref->{id} != $id{ $ref->{id} };
     $id{ $ref->{id} } = $ref->{id};
