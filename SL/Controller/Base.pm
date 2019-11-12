@@ -75,6 +75,7 @@ sub render {
     header     => 1,
     layout     => 1,
     process    => 1,
+    status     => '200 ok',
   );
   $options->{$_} //= $defaults{$_} for keys %defaults;
   $options->{type} = lc $options->{type};
@@ -131,7 +132,8 @@ sub render {
                         :                              'application/json';
 
       print $::form->create_http_response(content_type => $content_type,
-                                          charset      => 'UTF-8');
+                                          charset      => 'UTF-8',
+                                          (status      => $options->{status}) x !!$options->{status});
     }
   }
 

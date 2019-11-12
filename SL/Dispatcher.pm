@@ -291,7 +291,7 @@ sub handle_request {
     if (   (($script eq 'login') && !$action)
         || ($script eq 'admin')
         || (SL::Auth::SESSION_EXPIRED() == $session_result)) {
-      $self->redirect_to_login(script => $script, error => 'session');
+      $self->handle_login_error(script => $script, error => 'session');
 
     }
 
@@ -360,8 +360,36 @@ sub handle_request {
   $::lxdebug->leave_sub;
 }
 
-sub redirect_to_login {
+sub reply_with_json_error {
   my ($self, %params) = @_;
+
+  my %errors = (
+    session  => { code => '401 Unauthorized',          text => 'session expired' },
+    password => { code => '401 Unauthorized',          text => 'incorrect username or password' },
+    action   => { code => '400 Bad request',           text => 'incorrect or missing action' },
+    access   => { code => '403 Forbidden',             text => 'no permissions for accessing this function' },
+    _default => { code => '500 Internal server error', text => 'general server-side error' },
+  );
+
+  my $error = $errors{$params{error}} // $errors{_default};
+  my $reply = SL::JSON::to_json({ status => 'failed', error => $error->{text} });
+
+  print $::request->cgi->header(
+    -type    => 'application/json',
+    -charset => 'utf-8',
+    -status  => $error->{code},
+  );
+
+  print $reply;
+
+  $self->end_request;
+}
+
+sub handle_login_error {
+  my ($self, %params) = @_;
+
+  return $self->reply_with_json_error(error => $params{error}) if $::request->type eq 'json';
+
   my $action          = ($params{script} // '') =~ m/^admin/i ? 'Admin/login' : 'LoginScreen/user_login';
   $action            .= '&error=' . $params{error} if $params{error};
 
@@ -432,7 +460,7 @@ sub _route_controller_request {
   eval {
     # Redirect simple requests to controller.pl without any GET/POST
     # param to the login page.
-    $self->redirect_to_login(error => 'action') if !$::form->{action};
+    $self->handle_login_error(error => 'action') if !$::form->{action};
 
     # Show an error if the »action« parameter doesn't match the
     # pattern »Controller/action«.
