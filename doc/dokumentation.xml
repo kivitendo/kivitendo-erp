@@ -1480,7 +1480,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
           <listitem>
             <para><literal>status</literal> berichtet, ob der Task-Server
             läuft.</para>
-          </listitem>
+          </listitem>yy
         </itemizedlist>
 
         <para>Der Task-Server wechselt beim Starten automatisch in das
@@ -1493,8 +1493,59 @@ systemctl enable kivitendo-task-server.service</programlisting>
         so startet dieser nach Beendigung automatisch erneut.</para>
 
       </sect2>
-    </sect1>
+      <sect2 id="Tasks konfigurieren">
+        <title>Exemplarische Konfiguration eines Hintergrund-Jobs, der die Jahreszahl in allen Nummernkreisen zum Jahreswechsel erhöht</title>
 
+        <para>Hintergrund-Jobs werden über System -> Hintergrund-Jobs und Task-Server -> Aktuelle Hintergrund-Jobs anzeigen -> Aktions-Knopf 'erfassen' angelegt. </para>
+        <para>Nachdem wir über das Menü dort angelangt sind, legen wir unseren exemplarischen Hintergrund-Jobs "Erhöhung der Nummernkreise" mit folgenden Werten an:</para>
+        <itemizedlist>
+          <listitem>
+            <para><literal>Aktiv:</literal> Hier ein 'Ja' auswählen</para>
+          </listitem>
+          <listitem>
+            <para><literal>Ausführungsart:</literal> 'wiederholte Ausführung' auswählen</para>
+          </listitem>
+          <listitem>
+            <para><literal>Paketname:</literal> 'SetNumberRange' auswählen</para>
+          </listitem>
+          <listitem>
+            <para><literal>Ausführungszeitplan:</literal> Hier entsprechend Werte wie in der crontab eingeben.</para><para>Syntax:</para>
+<programlisting>* * * * *
+┬ ┬ ┬ ┬ ┬
+│ │ │ │ │
+│ │ │ │ └──── Wochentag (0-7, Sonntag ist 0 oder 7)
+│ │ │ └────── Monat (1-12)
+│ │ └──────── Tag (1-31)
+│ └────────── Stunde (0-23)
+└──────────── Minute (0-59)  </programlisting>
+            <para>Die Sterne können folgende Werte haben:</para>
+            <programlisting>
+1 2 3 4 5
+
+1 = Minute (0-59)
+2 = Stunde (0-23)
+3 = Tag (0-31)
+4 = Monat (1-12)
+5 = Wochentag (0-7, Sonntag ist 0 oder 7)
+</programlisting>
+<para>Um die Ausführung auf eine Minute vor Sylvester zu setzen, müssen die folgenden Werte eingetragen werden:</para>
+<programlisting>59 23 31 12 *</programlisting>
+          </listitem>
+          <listitem>
+            <para><literal>Daten:</literal>In diesem Feld können optionale Parameter für den Hintergrund im JSON-Format gesetzt werden. Der Hintergrund-Job <literal>SetNumberRange</literal> akzeptiert zwei Variable nämlich <literal>digit_year</literal> sowieso <literal>multiplier</literal>.</para><para> <literal>digit_year</literal> kann zwei Werte haben entweder 2 oder 4, darüber wird gesteuert ob die Jahreszahl zwei oder vierstellig kodiert wird (für 2019, dann entweder 19 oder 2019). Der Standardwert ist vierstellig.</para><para> <literal>multiplier</literal> ist ein Vielfaches von 10, darüber wird die erste Nummer im Nummernkreis (die Anzahl der Stellen) wie folgt bestimmt:</para>
+<programlisting>
+multiplier     Nummernkreis 2020
+10        ->   20200
+100       ->   202000
+1000      ->   2020000
+</programlisting>
+<para>Wir gehen jetzt beispielhaft von einer letzten Rechnungsnummer von RE2019456 aus. Demnach sollte ab Januar 2020 die erste Nummer RE2020001 sein. Da der Task auch Präfixe berücksichtigt, kann dies mit folgenden JSON-kodierten Werten umgesetzt werden:</para>
+<literal>Daten:</literal><programlisting>multiplier: 100
+digits_year: 4</programlisting>
+          </listitem>
+        </itemizedlist>
+     </sect2>
+    </sect1>
     <sect1 id="Benutzerauthentifizierung-und-Administratorpasswort">
       <title>Benutzerauthentifizierung und Administratorpasswort</title>
 

@@ -2,6 +2,9 @@
 # Veränderungen von kivitendo #
 ###############################
 
+<<<<<<< HEAD
+2018-1X-XX - Release 3.5.3
+=======
 xxxx-xx-xx - Release x.x.x
 
 Mittelgroße neue Features:
@@ -37,16 +40,6 @@ Kleinere neue Features und Detailverbesserungen:
   Hier werden die Preisgruppenpreise angezeigt, falls einem Kunden eine
   Preisgruppe zugeordnet ist.
 
-- In der neuen Angebots-/Auftragsmaske (neuer Auftrags-Controller) kann
-  ein Update-Knopf angezeigt werden, der die Positionen aus den
-  Artikelstammdaten aktualisert (alle oder pro Position). Aktualisert werden
-  Preis, Beschreibung und Langtext. Das Feature kann in den
-  Benutzereinstellungen eingeschaltet werden.
-
-- In der neuen Angebots-/Auftragsmaske (neuer Auftrags-Controller) ist die
-  Artikelnummer ein Link, der die Artikelstammdaten in einem neuen Tab öffnet.
-
-- Neuer Hintergrund-Job, der die Jahreszahl in Nummernkreis jährlich hochsetzt
 
 2019-08-07 - Release 3.5.4
 
@@ -108,6 +101,7 @@ Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
 
 2019-01-03 - Release 3.5.3
+>>>>>>> f2f0fb505... Jahresabschluß - YearEndTransactions neu implementiert
 
 Mittelgroße neue Features:
 
@@ -145,59 +139,12 @@ Kleinere neue Features und Detailverbesserungen:
     Das Skonto-Datum hat Priorität vor der letzten Fälligkeit.
     Zusätzlich kann ein Puffer in Tagen vom Zahlungsziel abgezogen werden (Standard 0). Das Verhalten muss für jeden
     Mandanten unter Mandantenkonfiguration -> Features -> SEPA aktiv eingeschaltet werden.
-  - Schnellsuchen können auf Benutzerebene Programm->Benutzereinstellungen->Anzeigeoptionen konfiguriert werden.
-  - SelfTests erweitert: Warnungen bei sehr laxer Buchungskonfiguration und bei verwaisten abgeglichen Bank-Transaktionen
-  - DATEV-Export-Format konfigurierbar
-    In der Mandantenkonfiguration befindet sich jetzt eine Einstellung, welche die Kodierung des DATEV-Exports steuert.
-    DATEV erwartet CP1252. Kivitendo kann diese Kodierung so vom kivitendo Nutzer einfordern, alternativ nicht
-    vorhandenen Zeichen versuchen zu ersetzen oder die DATEV-Erwartung ignorieren und UTF-8 liefern.
-    Voreingestellt ist CP1252 mit Ersetzungen.
 
-Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+Bugfixes:
+- Bugfix #336 Beim Drucken mehrerer Rechnung aus dem Bericht heraus mit aktiviertem DMS bricht mit Fehlermeldung ab
+- Bugfix #359 get_payment_select_options_for_bank_transaction vereinfachen
 
-361 Ware erfassen nicht möglich im leeren Mandanten
-359 get_payment_select_options_for_bank_transaction vereinfachen
-358 segmentation fault in DBI.so beim versenden einer Rechnung per E-Mail
-357 Die Generierung einer periodische Rechnung mit der Periode einmalig sollte auch den Quell-Auftrag schliessen.
-356 Bei Zuweisung von zwei Kreditorengutschrift per Kontoauszug verbuchen, wird bei der zweiten Zuweisung das Vorzeichen gedreht
-355 Kontoauszug verbuchen -> Eine Bankbewegung mit zwei Skonto Rechnungen verknüpfen geht nicht
-354 Zahlungsbedingung falsch bei Verkausf-Lieferschein nach Rechnung
-353 Preisregeln Wenn Artikel gelöscht wird
-352 Beim Drucken mehrerer Rechnung aus dem Bericht heraus wird der Rabatt falsch berechnet
-351 Order-Controller: Angebot als neu speichern erzeugt kein neues Objekt
-350 Berichte->Projektbuchungen wirft Fehler bei ausgwählten Project
-349 Normalisierung Artikelbeschreibung und Artikellangtext (Bemerkung) funkioniert nicht mehr
-348 DatevExport kommt mit bestimmten Zeichen im Buchungstext nicht klar
-347 Dateimanagement -> Erzeugte Dokumente löschen -> Nein funktioniert nicht
-344 Internal Server Error (fallback Module fehlen)
-343 Kontoauszug verbuchen Skontoautomatik bei Verkaufsrechnungen defekt
-341 Auftrag: Warnung bei aktiven wiederkehrenden Rechnungen geht nicht mehr
-337 Standardlagerplatz bei Erzeugnissen ändern wirft Presenter-Fehler
-336 Beim Drucken mehrerer Rechnung aus dem Bericht heraus mit aktiviertem DMS bricht mit Fehlermeldung ab
-335 Fehler bei den Verknüpften Belegen wenn Verknüpfungsziel Pflichtenheft
-334 Sortierung Artikelstammdaten/Preisinformationen/Verkaufspreisinformation: Kundenauftrag
-333 Bericht Lagerentnahme: Lagerplatz lässt sich nicht auswählen
-332 Bug: Bericht Lagerbestand gibt Fehler beim einschliessen leerer Lagerplätze
-329 Konto mit identischem Folgekonto führt zu Endlosschlaufe
-323 Kontoauszug verbuchen. Kombination von Rechnungen und Gutschriften nicht möglich
-316 Verknüpfte Belege erlaubt keine manuelle Verknüpfung mit Kreditorenbuchungen
-315 EAN-Feld beim Einlagern ohne Funktion
-311 Task-Server-Start beim Booten
-306 unstable: Leerzeichen beim CKEditor im Pflichtenheft
-301 SelfTest Transactions - all_passed nicht gesetzt
-292 Verkaufsbericht filtert nicht mehr nach Warengruppe
-282 Artikelliste leer, wenn in der Schnellsuche mehrere Treffer vorgeschlagen und keiner ausgewählt ist.
-281 Falsche Lagerbewegungen beim Erstellen von Erzeugnissen, wenn Bestandteile vorhanden/nicht vorhanden
-279 Datenmodell der verknüpften Belege um E-Mail Verknüpfung erweitern
-265 Kontoauszug verbuchen bei negativer Kreditorenbuchung wird das Vorzeichen bei Zahlung umgedreht
-233 Memory-Bedarf des Taskservers steigt kontinuierlich an
-151 Berichte->Pflichtenheft Fehler ab commit #c44615e
-125 Neues Datevexportformat
-90 Benutzerdefinierte Variablen von Kunden werden bei Lieferanten mit gleicher id angezeigt
-86 Kunden bzw Lieferantenliste wird von anderem Mandanten angezeigt
-82 Berechnete Preiswerte von PTC weichen von oberflächen Werten aus den Masken ab
-28 Fehler beim Hinzufügen von Artikeln zu Erzeugnissen per Artikelauswahlseite
-22 Doppelte Minuse ( --) im Kundennamen erzeugen "leider" immer check_name problem bei freitext Auswahl
+
 
 2017-12-12 - Release 3.5.1
 

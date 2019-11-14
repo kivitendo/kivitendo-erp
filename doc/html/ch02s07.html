@@ -86,4 +86,32 @@ systemctl enable kivitendo-task-server.service</pre><p>Wenn Sie den Task-Server 
             läuft.</p></li></ul></div><p>Der Task-Server wechselt beim Starten automatisch in das
         kivitendo-Installationsverzeichnis.</p><p>Dieselben Optionen können auch für die SystemV-basierenden
         Runlevel-Scripte benutzt werden (siehe oben).</p><p>Wurde der Task-Server als systemd-Service eingerichtet (s.o.),
-        so startet dieser nach Beendigung automatisch erneut.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s06.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s08.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.6. Webserver-Konfiguration&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.8. Benutzerauthentifizierung und Administratorpasswort</td></tr></table></div></body></html>
+        so startet dieser nach Beendigung automatisch erneut.</p></div><div class="sect2" title="2.7.5. Exemplarische Konfiguration eines Hintergrund-Jobs, der die Jahreszahl in allen Nummernkreisen zum Jahreswechsel erhöht"><div class="titlepage"><div><div><h3 class="title"><a name="Tasks konfigurieren"></a>2.7.5. Exemplarische Konfiguration eines Hintergrund-Jobs, der die Jahreszahl in allen Nummernkreisen zum Jahreswechsel erhöht</h3></div></div></div><p>Hintergrund-Jobs werden über System -&gt; Hintergrund-Jobs und Task-Server -&gt; Aktuelle Hintergrund-Jobs anzeigen -&gt; Aktions-Knopf 'erfassen' angelegt. </p><p>Nachdem wir über das Menü dort angelangt sind, legen wir unseren exemplarischen Hintergrund-Jobs "Erhöhung der Nummernkreise" mit folgenden Werten an:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     <code class="literal">Aktiv:</code> Hier ein 'Ja' auswählen</p></li><li class="listitem"><p>
+                     <code class="literal">Ausführungsart:</code> 'wiederholte Ausführung' auswählen</p></li><li class="listitem"><p>
+                     <code class="literal">Paketname:</code> 'SetNumberRange' auswählen</p></li><li class="listitem"><p>
+                     <code class="literal">Ausführungszeitplan:</code> Hier entsprechend Werte wie in der crontab eingeben.</p><p>Syntax:</p><pre class="programlisting">* * * * *
+┬ ┬ ┬ ┬ ┬
+│ │ │ │ │
+│ │ │ │ └──── Wochentag (0-7, Sonntag ist 0 oder 7)
+│ │ │ └────── Monat (1-12)
+│ │ └──────── Tag (1-31)
+│ └────────── Stunde (0-23)
+└──────────── Minute (0-59)  </pre><p>Die Sterne können folgende Werte haben:</p><pre class="programlisting">
+1 2 3 4 5
+
+1 = Minute (0-59)
+2 = Stunde (0-23)
+3 = Tag (0-31)
+4 = Monat (1-12)
+5 = Wochentag (0-7, Sonntag ist 0 oder 7)
+</pre><p>Um die Ausführung auf eine Minute vor Sylvester zu setzen, müssen die folgenden Werte eingetragen werden:</p><pre class="programlisting">59 23 31 12 *</pre></li><li class="listitem"><p>
+                     <code class="literal">Daten:</code>In diesem Feld können optionale Parameter für den Hintergrund im JSON-Format gesetzt werden. Der Hintergrund-Job <code class="literal">SetNumberRange</code> akzeptiert zwei Variable nämlich <code class="literal">digit_year</code> sowieso <code class="literal">multiplier</code>.</p><p> 
+                     <code class="literal">digit_year</code> kann zwei Werte haben entweder 2 oder 4, darüber wird gesteuert ob die Jahreszahl zwei oder vierstellig kodiert wird (für 2019, dann entweder 19 oder 2019). Der Standardwert ist vierstellig.</p><p> 
+                     <code class="literal">multiplier</code> ist ein Vielfaches von 10, darüber wird die erste Nummer im Nummernkreis (die Anzahl der Stellen) wie folgt bestimmt:</p><pre class="programlisting">
+multiplier     Nummernkreis 2020
+10        -&gt;   20200
+100       -&gt;   202000
+1000      -&gt;   2020000
+</pre><p>Wir gehen jetzt beispielhaft von einer letzten Rechnungsnummer von RE2019456 aus. Demnach sollte ab Januar 2020 die erste Nummer RE2020001 sein. Da der Task auch Präfixe berücksichtigt, kann dies mit folgenden JSON-kodierten Werten umgesetzt werden:</p><code class="literal">Daten:</code><pre class="programlisting">multiplier: 100
+digits_year: 4</pre></li></ul></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s06.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s08.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.6. Webserver-Konfiguration&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.8. Benutzerauthentifizierung und Administratorpasswort</td></tr></table></div></body></html>

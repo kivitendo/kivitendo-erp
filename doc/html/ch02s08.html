@@ -7,9 +7,8 @@
         eigentlichen Finanzdaten hinterlegt sein. Diese beiden Datenbanken
         können, müssen aber nicht unterschiedlich sein.</p><p>Im einfachsten Fall gibt es für kivitendo nur eine einzige
         Datenbank, in der sowohl die Benutzerinformationen als auch die Daten
-        abgelegt werden.</p><p>Zusätzlich ermöglicht es kivitendo, dass die Benutzerpasswörter
-        entweder gegen die Authentifizierungsdatenbank oder gegen einen
-        LDAP-Server überprüft werden.</p><p>Welche Art der Passwortüberprüfung kivitendo benutzt und wie
+        abgelegt werden.</p><p>Zusätzlich ermöglicht es kivitendo, dass die Benutzerpasswörter gegen die Authentifizierungsdatenbank oder gegen einen oder
+        mehrere LDAP-Server überprüft werden.</p><p>Welche Art der Passwortüberprüfung kivitendo benutzt und wie
         kivitendo die Authentifizierungsdatenbank erreichen kann, wird in der
         Konfigurationsdatei <code class="filename">config/kivitendo.conf</code>
         festgelegt. Diese muss bei der Installation und bei einem Upgrade von
@@ -38,18 +37,20 @@
                      <code class="literal">password</code>
                   </span></dt><dd><p>Das Passwort für den Datenbankbenutzer</p></dd></dl></div><p>Die Datenbank muss noch nicht existieren. kivitendo kann sie
         automatisch anlegen (mehr dazu siehe unten).</p></div><div class="sect2" title="2.8.4. Passwortüberprüfung"><div class="titlepage"><div><div><h3 class="title"><a name="Passwort%C3%BCberpr%C3%BCfung"></a>2.8.4. Passwortüberprüfung</h3></div></div></div><p>kivitendo unterstützt Passwortüberprüfung auf zwei Arten: gegen
-        die Authentifizierungsdatenbank und gegen einen externen LDAP- oder
+        die Authentifizierungsdatenbank und gegen externe LDAP- oder
         Active-Directory-Server. Welche davon benutzt wird, regelt der
         Parameter <code class="varname">module</code> im Abschnitt
-        <code class="varname">[authentication]</code>.</p><p>Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank
-        gespeichert werden, so muss der Parameter <code class="varname">module</code>
-        den Wert <code class="literal">DB</code> enthalten. In diesem Fall können sowohl
-        der Administrator als auch die Benutzer selber ihre Passwörter in
-        kivitendo ändern.</p><p>Soll hingegen ein externer LDAP- oder Active-Directory-Server
-        benutzt werden, so muss der Parameter <code class="varname">module</code> auf
-        <code class="literal">LDAP</code> gesetzt werden. In diesem Fall müssen
-        zusätzliche Informationen über den LDAP-Server im Abschnitt
-        <code class="literal">[authentication/ldap]</code> angegeben werden:</p><div class="variablelist"><dl><dt><span class="term">
+        <code class="varname">[authentication]</code>.</p><p>Dieser Parameter listet die zu verwendenden Authentifizierungsmodule auf. Es muss mindestens ein Modul angegeben werden, es
+        können aber auch mehrere angegeben werden. Weiterhin ist es möglich, das LDAP-Modul mehrfach zu verwenden und für jede Verwendung
+        eine unterschiedliche Konfiguration zu nutzen, z.B. um einen Fallback-Server anzugeben, der benutzt wird, sofern der Hauptserver
+        nicht erreichbar ist.</p><p>Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank geprüft werden, so muss der Parameter
+        <code class="varname">module</code> das Modul <code class="literal">DB</code> enthalten. Sofern das Modul in der Liste enthalten ist, egal an welcher
+        Position, können sowohl der Administrator als auch die Benutzer selber ihre Passwörter in kivitendo ändern.</p><p>Wenn Passwörter gegen einen oder mehrere externe LDAP- oder Active-Directory-Server geprüft werden, so muss der Parameter
+        <code class="varname">module</code> den Wert <code class="literal">LDAP</code> enthalten. In diesem Fall müssen zusätzliche Informationen über den
+        LDAP-Server im Abschnitt <code class="literal">[authentication/ldap]</code> angegeben werden. Das Modul kann auch mehrfach angegeben werden,
+        wobei jedes Modul eine eigene Konfiguration bekommen sollte. Der Name der Konfiguration wird dabei mit einem Doppelpunkt getrennt an
+        den Modulnamen angehängt (<code class="literal">LDAP:Name-der-Konfiguration</code>). Der entsprechende Abschnitt in der Konfigurationsdatei
+        lautet dann <code class="literal">[authentication/Name-der-Konfiguration]</code>.</p><p>Die verfügbaren Parameter für die LDAP-Konfiguration lauten:</p><div class="variablelist"><dl><dt><span class="term">
                      <code class="literal">host</code>
                   </span></dt><dd><p>Der Rechnername oder die IP-Adresse des LDAP- oder
               Active-Directory-Servers. Diese Angabe ist zwingend
@@ -60,6 +61,11 @@
                   </span></dt><dd><p>Wenn Verbindungsverschlüsselung gewünscht ist, so diesen
               Wert auf ‘<code class="literal">1</code>’ setzen, andernfalls auf
               ‘<code class="literal">0</code>’ belassen</p></dd><dt><span class="term">
+                     <code class="literal">verify</code>
+                  </span></dt><dd><p>Wenn Verbindungsverschlüsselung gewünscht und der Parameter <em class="parameter"><code>tls</code></em> gesetzt ist, so gibt dieser
+              Parameter an, ob das Serverzertifikat auf Gültigkeit geprüft wird. Mögliche Werte sind <code class="literal">require</code> (Zertifikat
+              wird überprüft und muss gültig sei; dies ist der Standard) und <code class="literal">none</code> (Zertifikat wird nicht
+              überpfüft).</p></dd><dt><span class="term">
                      <code class="literal">attribute</code>
                   </span></dt><dd><p>Das LDAP-Attribut, in dem der Benutzername steht, den der
               Benutzer eingegeben hat. Für Active-Directory-Server ist dies
@@ -85,7 +91,9 @@
               z.B. ‘<code class="literal">cn=Martin
               Mustermann,cn=Users,dc=firmendomain</code>’ auch nur der
               volle Name des Benutzers eingegeben werden; in diesem Beispiel
-              also ‘<code class="literal">Martin Mustermann</code>’.</p></dd></dl></div></div><div class="sect2" title="2.8.5. Name des Session-Cookies"><div class="titlepage"><div><div><h3 class="title"><a name="Name-des-Session-Cookies"></a>2.8.5. Name des Session-Cookies</h3></div></div></div><p>Sollen auf einem Server mehrere kivitendo-Installationen
+              also ‘<code class="literal">Martin Mustermann</code>’.</p></dd><dt><span class="term">
+                     <code class="literal">timeout</code>
+                  </span></dt><dd><p>Timeout beim Verbindungsversuch, bevor der Server als nicht erreichbar gilt; Standardwert: 10</p></dd></dl></div></div><div class="sect2" title="2.8.5. Name des Session-Cookies"><div class="titlepage"><div><div><h3 class="title"><a name="Name-des-Session-Cookies"></a>2.8.5. Name des Session-Cookies</h3></div></div></div><p>Sollen auf einem Server mehrere kivitendo-Installationen
         aufgesetzt werden, so müssen die Namen der Session-Cookies für alle
         Installationen unterschiedlich sein. Der Name des Cookies wird mit dem
         Parameter <code class="varname">cookie_name</code> im Abschnitt
