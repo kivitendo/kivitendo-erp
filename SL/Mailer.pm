@@ -151,8 +151,6 @@ sub _create_attachment_part {
   my $file_id       = 0;
   my $email_journal = $::instance_conf->get_email_journal;
 
-  $::lxdebug->message(LXDebug->DEBUG2(), "mail5 att=" . $attachment . " email_journal=" . $email_journal . " id=" . $attachment->{id});
-
   if (ref($attachment) eq "HASH") {
     $attributes{filename}     = $attachment->{name};
     $file_id                  = $attachment->{id}   || '0';
@@ -176,8 +174,6 @@ sub _create_attachment_part {
 
   $attachment_content ||= ' ';
   $attributes{charset}  = $self->{charset} if $self->{charset} && ($attributes{content_type} =~ m{^text/});
-
-  $::lxdebug->message(LXDebug->DEBUG2(), "mail6 mtype=" . $attributes{content_type} . " filename=" . $attributes{filename});
 
   my $ent;
   if ( $attributes{content_type} eq 'message/rfc822' ) {
@@ -268,10 +264,6 @@ sub send {
 
     my $email = $self->_create_message;
 
-    #$::lxdebug->message(0, "message: " . $email->as_string);
-    # return "boom";
-
-    $::lxdebug->message(LXDebug->DEBUG2(), "mail1 from=".$self->{from}." to=".$self->{to});
     my $from_obj = (Email::Address->parse($self->{from}))[0];
 
     $self->{driver}->start_mail(from => $from_obj->address, to => [ $self->_all_recipients ]);
