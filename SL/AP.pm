@@ -556,6 +556,14 @@ sub ap_transactions {
     $where .= " AND a.transdate <= ?";
     push(@values, trim($form->{transdateto}));
   }
+  if ($form->{duedatefrom}) {
+    $where .= " AND a.duedate >= ?";
+    push(@values, trim($form->{duedatefrom}));
+  }
+  if ($form->{duedateto}) {
+    $where .= " AND a.duedate <= ?";
+    push(@values, trim($form->{duedateto}));
+  }
   if ($form->{open} || $form->{closed}) {
     unless ($form->{open} && $form->{closed}) {
       $where .= " AND a.amount <> a.paid" if ($form->{open});

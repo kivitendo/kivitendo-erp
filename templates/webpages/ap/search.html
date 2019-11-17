@@ -49,6 +49,14 @@
        [% L.date_tag('transdateto') %]
      </td>
     </tr>
+     <tr>
+      <th align=right nowrap>[% 'Due Date' | $T8 %]</th>
+      <td>
+       [% L.date_tag('duedatefrom') %]
+       [% 'Bis' | $T8 %]
+       [% L.date_tag('duedateto') %]
+     </td>
+    </tr>
    <input type=hidden name=sort value=transdate>
    </table>
     </td>
