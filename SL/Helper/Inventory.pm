@@ -4,7 +4,7 @@ use strict;
 use Carp;
 use DateTime;
 use Exporter qw(import);
-use List::Util qw(min);
+use List::Util qw(min sum);
 use List::UtilsBy qw(sort_by);
 use List::MoreUtils qw(any);
 
@@ -12,6 +12,7 @@ use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(listify);
 use SL::DBUtils qw(selectall_hashref_query selectrow_query);
 use SL::DB::TransferType;
+use SL::Helper::Number qw(_round_qty _qty);
 use SL::X;
 
 our @EXPORT_OK = qw(get_stock get_onhand allocate allocate_for_assembly produce_assembly check_constraints);
@@ -216,7 +217,7 @@ sub allocate {
   }
   if ($rest_qty > 0) {
     die SL::X::Inventory::Allocation->new(
-      error => t8('not enough to allocate'),
+      error => 'not enough to allocate',
       msg => t8("can not allocate #1 units of #2, missing #3 units", $qty, $part->displayable_name, $rest_qty),
     );
   } else {
@@ -282,12 +283,16 @@ sub check_constraints {
           warehouse_id => t8('Warehouses'),
           chargenumber => t8('Chargenumbers'),
         );
-        my @allocs = grep { !$whitelist{$_->$accessor} } @$allocations;
+        my @allocs = grep { $whitelist{$_->$accessor} } @$allocations;
+        my $needed = sum map { $_->qty } grep { !$whitelist{$_->$accessor} } @$allocations;
+        my $err    = t8("Cannot allocate parts.");
+        $err      .= ' '.t8('part \'#\'1 in bin \'#2\' only with qty #3 (need additional #4) and chargenumber \'#5\'.',
+              SL::DB::Part->load_cached($_->parts_id)->description,
+              SL::DB::Bin->load_cached($_->bin_id)->full_description,
+              _qty($_->qty), _qty($needed), $_->chargenumber ? $_->chargenumber : '--') for @allocs;
         die SL::X::Inventory::Allocation->new(
-          accessor    => $accessor,
-          allocations => \@allocs,
-          error       => 'allocation constraints failure',
-          msg => t8("Allocations didn't pass constraints for #1",$error_constraints{$_}),
+          error => 'allocation constraints failure',
+          msg   => $err,
         );
       }
     }
