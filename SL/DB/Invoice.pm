@@ -184,9 +184,16 @@ sub new_from {
 
   $args{payment_id} = ( $terms ? $terms->id : $source->payment_id);
 
-  if ($source->type =~ /_order$/) {
+  if ($source->type =~ /_delivery_order$/) {
+    $args{deliverydate} = $source->reqdate;
+    if (my $order = SL::DB::Manager::Order->find_by(ordnumber => $source->ordnumber)) {
+      $args{orddate}    = $order->transdate;
+    }
+
+  } elsif ($source->type =~ /_order$/) {
     $args{deliverydate} = $source->reqdate;
     $args{orddate}      = $source->transdate;
+
   } else {
     $args{quodate}      = $source->transdate;
   }
