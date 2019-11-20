@@ -429,32 +429,32 @@ SL::WH - Warehouse and Inventory API
 
   # See description for an intro to the concepts used here.
 
-  use SL::Helper::Inventory;
+  use SL::Helper::Inventory qw(:ALL);
 
   # stock, get "what's there" for a part with various conditions:
-  my $qty = SL::Helper::Inventory->get_stock(part => $part);                              # how much is on stock?
-  my $qty = SL::Helper::Inventory->get_stock(part => $part, date => $date);               # how much was on stock at a specific time?
-  my $qty = SL::Helper::Inventory->get_stock(part => $part, bin => $bin);                 # how is on stock in a specific bin?
-  my $qty = SL::Helper::Inventory->get_stock(part => $part, warehouse => $warehouse);     # how is on stock in a specific warehouse?
-  my $qty = SL::Helper::Inventory->get_stock(part => $part, chargenumber => $chargenumber); # how is on stock of a specific chargenumber?
+  my $qty = get_stock(part => $part);                              # how much is on stock?
+  my $qty = get_stock(part => $part, date => $date);               # how much was on stock at a specific time?
+  my $qty = get_stock(part => $part, bin => $bin);                 # how is on stock in a specific bin?
+  my $qty = get_stock(part => $part, warehouse => $warehouse);     # how is on stock in a specific warehouse?
+  my $qty = get_stock(part => $part, chargenumber => $chargenumber); # how is on stock of a specific chargenumber?
 
   # onhand, get "what's available" for a part with various conditions:
-  my $qty = SL::Helper::Inventory->get_onhand(part => $part);                              # how much is available?
-  my $qty = SL::Helper::Inventory->get_onhand(part => $part, date => $date);               # how much was available at a specific time?
-  my $qty = SL::Helper::Inventory->get_onhand(part => $part, bin => $bin);                 # how much is available in a specific bin?
-  my $qty = SL::Helper::Inventory->get_onhand(part => $part, warehouse => $warehouse);     # how much is available in a specific warehouse?
-  my $qty = SL::Helper::Inventory->get_onhand(part => $part, chargenumber => $chargenumber); # how much is availbale of a specific chargenumber?
-  my $qty = SL::Helper::Inventory->get_onhand(part => $part, reserve_for => $order);       # how much is available if you include this reservation?
+  my $qty = get_onhand(part => $part);                              # how much is available?
+  my $qty = get_onhand(part => $part, date => $date);               # how much was available at a specific time?
+  my $qty = get_onhand(part => $part, bin => $bin);                 # how much is available in a specific bin?
+  my $qty = get_onhand(part => $part, warehouse => $warehouse);     # how much is available in a specific warehouse?
+  my $qty = get_onhand(part => $part, chargenumber => $chargenumber); # how much is availbale of a specific chargenumber?
+  my $qty = get_onhand(part => $part, reserve_for => $order);       # how much is available if you include this reservation?
 
   # onhand batch mode:
-  my $data = SL::Helper::Inventory->get_onhand(
+  my $data = get_onhand(
     warehouse    => $warehouse,
     by           => [ qw(bin part chargenumber reserve_for) ],
     with_objects => [ qw(bin part) ],
   );
 
   # allocate:
-  my @allocations, SL::Helper::Inventory->allocate(
+  my @allocations, allocate(
     part         => $part,          # part_id works too
     qty          => $qty,           # must be positive
     chargenumber => $chargenumber,  # optional, may be arrayref. if provided these charges will be used first
@@ -464,7 +464,7 @@ SL::WH - Warehouse and Inventory API
   );
 
   # shortcut to allocate all that is needed for producing an assembly, will use chargenumbers as appropriate
-  my @allocations, SL::Helper::Inventory->allocate_for_assembly(
+  my @allocations, allocate_for_assembly(
     part         => $assembly,      # part_id works too
     qty          => $qty,           # must be positive
   );
@@ -483,7 +483,7 @@ SL::WH - Warehouse and Inventory API
   );
 
   # produce_assembly:
-  SL::Helper::Inventory->produce_assembly(
+  produce_assembly(
     part         => $part,           # target assembly
     qty          => $qty,            # qty
     allocations  => \@allocations,   # allocations to use. alternatively use "auto_allocate => 1,"
