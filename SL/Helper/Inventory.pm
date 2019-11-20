@@ -7,6 +7,7 @@ use Exporter qw(import);
 use List::Util qw(min sum);
 use List::UtilsBy qw(sort_by);
 use List::MoreUtils qw(any);
+use POSIX qw(ceil);
 
 use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(listify);
@@ -210,15 +211,15 @@ sub allocate {
         reserve_for_table => $chunk->{reserve_for_table},
         oe_id             => undef,
       );
-      $rest_qty -= $qty;
+      $rest_qty -=  _round_qty($qty);
     }
-
+    $rest_qty = _round_qty($rest_qty);
     last if $rest_qty == 0;
   }
   if ($rest_qty > 0) {
     die SL::X::Inventory::Allocation->new(
       error => 'not enough to allocate',
-      msg => t8("can not allocate #1 units of #2, missing #3 units", $qty, $part->displayable_name, $rest_qty),
+      msg => t8("can not allocate #1 units of #2, missing #3 units", _qty($qty), $part->displayable_name, _qty($rest_qty)),
     );
   } else {
     if ($params{constraints}) {
@@ -239,8 +240,13 @@ sub allocate_for_assembly {
   my %parts_to_allocate;
 
   for my $assembly ($part->assemblies) {
+    next if $assembly->part->dispotype eq 'no_stock';
+
+    my $tmpqty = $assembly->assembly_part->is_recipe   ? $assembly->qty * $qty / $assembly->assembly_part->scalebasis
+               : $assembly->part->unit eq 'Stck' ? ceil($assembly->qty * $qty)
+               : $assembly->qty * $qty;
     $parts_to_allocate{ $assembly->part->id } //= 0;
-    $parts_to_allocate{ $assembly->part->id } += $assembly->qty * $qty; # TODO recipe factor
+    $parts_to_allocate{ $assembly->part->id } += $tmpqty;
   }
 
   my @allocations;
