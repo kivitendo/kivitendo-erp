@@ -24,7 +24,10 @@ sub _get_stock_onhand {
 
   my $onhand_mode = !!$params{onhand};
 
-  my @selects = ('SUM(qty) as qty');
+  my @selects = (
+    'SUM(qty) AS qty',
+    'MIN(EXTRACT(epoch FROM inventory.itime)) AS itime',
+  );
   my @values;
   my @where;
   my @groups;
@@ -192,6 +195,7 @@ sub allocate {
     || exists $chargenumbers{$b->{chargenumber}}  <=> exists $chargenumbers{$a->{chargenumber}} # then prefer wanted chargenumbers
     || exists $bin_whitelist{$b->{bin_id}}        <=> exists $bin_whitelist{$a->{bin_id}}       # then prefer wanted bins
     || exists $wh_whitelist{$b->{warehouse_id}}   <=> exists $wh_whitelist{$a->{warehouse_id}}  # then prefer wanted bins
+    || $a->{itime}                                <=> $b->{itime}                               # and finally prefer earlier charges
   } @filtered_results;
   my @allocations;
   my $rest_qty = $qty;
