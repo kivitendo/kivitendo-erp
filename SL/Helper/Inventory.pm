@@ -209,7 +209,7 @@ sub allocate {
         bestbefore        => $chunk->{bestbefore},
         reserve_for_id    => $chunk->{reserve_for_id},
         reserve_for_table => $chunk->{reserve_for_table},
-        oe_id             => undef,
+        for_object_id     => undef,
       );
       $rest_qty -=  _round_qty($qty);
     }
@@ -323,7 +323,7 @@ sub produce_assembly {
   my $bin          = $params{bin} or Carp::croak("need target bin");
   my $chargenumber = $params{chargenumber};
   my $bestbefore   = $params{bestbefore};
-  my $oe_id        = $params{oe_id};
+  my $for_object_id = $params{for_object_id};
   my $comment      = $params{comment} // '';
 
   my $production_order_item = $params{production_order_item};
@@ -354,6 +354,7 @@ sub produce_assembly {
 
   my @transfers;
   for my $allocation (@$allocations) {
+    my $oe_id = delete $allocation->{for_object_id};
     push @transfers, SL::DB::Inventory->new(
       trans_id     => $trans_id,
       %$allocation,
@@ -361,7 +362,7 @@ sub produce_assembly {
       trans_type   => $trans_type_out,
       shippingdate => $shippingdate,
       employee     => SL::DB::Manager::Employee->current,
-      oe_id        => $allocation->oe_id,
+      oe_id        => $allocation->for_object_id,
     );
   }
 
@@ -382,7 +383,7 @@ sub produce_assembly {
     comment           => $comment,
     prod              => $production_order_item,
     employee          => SL::DB::Manager::Employee->current,
-    oe_id             => $oe_id,
+    oe_id             => $for_object_id,
   );
 
   SL::DB->client->with_transaction(sub {
@@ -396,7 +397,7 @@ sub produce_assembly {
 }
 
 package SL::Helper::Inventory::Allocation {
-  my @attributes = qw(parts_id qty bin_id warehouse_id chargenumber bestbefore comment reserve_for_id reserve_for_table oe_id);
+  my @attributes = qw(parts_id qty bin_id warehouse_id chargenumber bestbefore comment reserve_for_id reserve_for_table for_object_id);
   my %attributes = map { $_ => 1 } @attributes;
 
   for my $name (@attributes) {
@@ -478,7 +479,7 @@ SL::WH - Warehouse and Inventory API
     bestbefore        => undef,
     reserve_for_id    => undef,
     reserve_for_table => undef,
-    oe_id             => $my_document,
+    for_object_id     => $order->id,
   );
 
   # produce_assembly:
@@ -766,15 +767,18 @@ each of the following attributes to be set at creation time:
 
 =item * reserve_for_table
 
-=item * oe_id
+=item * for_object_id
 
-Must be explicit set if the allocation needs also an (other) document.
+If set the allocations will be marked as allocated for the given object.
+If these allocations are later used to produce an assembly, the resulting
+consuming transactions will be marked as belonging to the given object.
+The object may be an order, productionorder or other objects
 
 =back
 
-C<chargenumber>, C<bestbefore>, C<reserve_for_id>, C<reserve_for_table> and oe_id  may
-be C<undef> (but must still be present at creation time). Instances are
-considered immutable.
+C<chargenumber>, C<bestbefore>, C<reserve_for_id>, C<reserve_for_table> and
+C<for_object_id> may be C<undef> (but must still be present at creation time).
+Instances are considered immutable.
 
 
 =head1 CONSTRAINTS

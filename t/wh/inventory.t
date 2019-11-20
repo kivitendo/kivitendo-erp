@@ -89,7 +89,7 @@ is_deeply(\%{ $allocations[0] }, {
    reserve_for_table => undef,
    warehouse_id      => $wh->id,
    comment           => undef,
-   oe_id             => undef,
+   for_object_id     => undef,
  }, 'allocation works');
 
 # simple
