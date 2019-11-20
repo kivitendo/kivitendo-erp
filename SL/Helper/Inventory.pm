@@ -168,9 +168,9 @@ sub allocate {
   return () if $qty <= 0;
 
   my $results = get_stock(part => $part, by => 'for_allocate');
-  my %bin_whitelist = map { (ref $_ ? $_->id : $_) => 1 } listify($params{bin});
-  my %wh_whitelist  = map { (ref $_ ? $_->id : $_) => 1 } listify($params{warehouse});
-  my %chargenumbers = map { (ref $_ ? $_->id : $_) => 1 } listify($params{chargenumber});
+  my %bin_whitelist = map { (ref $_ ? $_->id : $_) => 1 } grep defined, listify($params{bin});
+  my %wh_whitelist  = map { (ref $_ ? $_->id : $_) => 1 } grep defined, listify($params{warehouse});
+  my %chargenumbers = map { (ref $_ ? $_->id : $_) => 1 } grep defined, listify($params{chargenumber});
   my %reserve_whitelist;
   if ($params{reserve_for}) {
     $reserve_whitelist{ $_->meta->table }{ $_->id } = 1 for listify($params{reserve_for});
