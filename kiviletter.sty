@@ -89,7 +89,7 @@ contents={\usebox\shippingAddressBox}
 	\seq_map_inline:Nn \l_kivi_PricingTable_seq {
 	\tabular{@{}p{\g_kivi_tab_pos_dim}p{\g_kivi_tab_id_dim}p{\g_kivi_tab_desc_dim}>{\raggedleft\arraybackslash}p{\g_kivi_tab_num_dim}*2{P<{\,\currency}}@{}}
 	##1
-	\endtabular
+	\endtabular\par\nointerlineskip
 	}
 	}
 }
