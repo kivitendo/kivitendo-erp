@@ -31,6 +31,16 @@
 \bool_new:N \l_kivi_tmp_bool
 \ExplSyntaxOff
 
-%TODO babel setup
+\newsavebox{\shippingAddressBox}
+
+
+\DeclareNewLayer[
+foreground,
+hoffset=\useplength{toaddrhpos},
+voffset=\dimexpr\useplength{toaddrvpos}+\useplength{toaddrheight}+\baselineskip,
+contents={\usebox\shippingAddressBox}
+]{kivitendo.shippingaddress}
+\DeclareNewPageStyleByLayers{kivitendo.letter.first}{kivitendo.shippingaddress}
+
 
 \endinput
