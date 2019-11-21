@@ -116,6 +116,7 @@ contents={\usebox\shippingAddressBox}
 \cs_new:Nn \kivi_save_LT@boxes: {
 	\clist_map_inline:nn {head, firsthead, foot, lastfoot} {
 	\box_gset_eq:cc {g_kivi_LT@##1_box} {LT@##1}
+	\box_gclear:c {LT@##1}
 	}
 }
 
