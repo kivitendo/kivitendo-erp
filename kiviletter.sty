@@ -42,5 +42,8 @@ contents={\usebox\shippingAddressBox}
 ]{kivitendo.shippingaddress}
 \DeclareNewPageStyleByLayers{kivitendo.letter.first}{kivitendo.shippingaddress}
 
+\setkomavar{backaddress}{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}
+\@setplength{locwidth}{6cm}
+\renewcommand*{\raggedsignature}{\raggedright}
 
 \endinput
