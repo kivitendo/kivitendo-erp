@@ -99,11 +99,12 @@ contents={\usebox\shippingAddressBox}
 \ExplSyntaxOff
 
 \if@kivi@infobox
+\newkomavar{locationtitle}
 \setkomavar{location}{
 	\begin{flushright}
 		\bfseries
 		\LARGE
-		\usekomavar{title}
+		\usekomavar{locationtitle}
 	\end{flushright}
 
 	\medskip
@@ -116,7 +117,17 @@ contents={\usebox\shippingAddressBox}
 	\end{tabularx}
 }
 \removereffields
+
+\ExplSyntaxOn
+\AtBeginLetter{
+	\ifkomavarempty{title}{}{
+		\exp_args:Nno\setkomavar{locationtitle}{\scr@title@var}
+		\setkomavar{title}{}
+	}
+}
+\ExplSyntaxOff
 \fi
+
 
 
 \renewcommand*{\raggedsignature}{\raggedright}
