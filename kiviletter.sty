@@ -81,8 +81,10 @@ contents={\usebox\shippingAddressBox}
 \newcolumntype{P}{>{\raggedleft\arraybackslash}p{\g_kivi_tab_price_dim}}
 
 %\if@kivi@faketable
-\RequirePackage{environ}
+\RequirePackage{tcolorbox}
+\tcbuselibrary{breakable, skins}
 \seq_new:N \l_kivi_PricingTable_seq
+\seq_new:N \g_kivi_extraDescription_seq
 \newcommand{\FakeTable}[1]{
 %	\tl_set:No \l_tmpa_tl {\BODY}
 	\endPricingTabular
@@ -90,15 +92,25 @@ contents={\usebox\shippingAddressBox}
 	\begingroup
 	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
 	\seq_map_inline:Nn \l_kivi_PricingTable_seq {
+	\seq_gclear:N \g_kivi_extraDescription_seq
 	\tabular{@{}p{\g_kivi_tab_pos_dim}p{\g_kivi_tab_id_dim}p{\g_kivi_tab_desc_dim}>{\raggedleft\arraybackslash}p{\g_kivi_tab_num_dim}*2{P<{\,\currency}}@{}}
 	##1
-	\endtabular\par\nointerlineskip
+	\endtabular
+	\seq_if_empty:NTF \g_kivi_extraDescription_seq
+	{\par\nointerlineskip}
+	{\par\nointerlineskip
+		\begin{tcolorbox}[left skip=\dim_eval:n {\g_kivi_tab_pos_dim+ \g_kivi_tab_id_dim +4\tabcolsep},right skip=\dim_eval:n {\g_kivi_tab_num_dim+ 2\g_kivi_tab_price_dim +6\tabcolsep}, breakable, blank]
+		\seq_use:N \g_kivi_extraDescription_seq {\newline}
+		\end{tcolorbox}
+	}
 	}
 	\endgroup
 	\PricingTabular
 }
+
+\newcommand*{\ExtraDescription}[1]{\seq_gput_right:Nn \g_kivi_extraDescription_seq {#1}}
 %\else
-\newenvironment{PricingTabular}{
+\newenvironment{PricingTabular}[1][]{
 	\begingroup
 	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
 	\CalcTabCols

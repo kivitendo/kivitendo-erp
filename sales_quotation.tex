@@ -144,10 +144,10 @@
 <%runningnumber%> &%
 <%number%> &%
 \textbf{<%description%>}%
-	<%if longdescription%> \newline\scriptsize <%longdescription%><%end longdescription%>%
-	<%if serialnumber%> \newline\scriptsize \seriennummer: <%serialnumber%><%end serialnumber%>%
-	<%if ean%> \newline\scriptsize \ean: <%ean%><%end ean%>%
-	<%if projectnumber%>\newline\scriptsize \projektnummer: <%projectnumber%><%end projectnumber%>%
+	<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
+	<%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
+	<%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
+	<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
 	&%
 	<%qty%> <%unit%> &%
 	<%sellprice%>&%
