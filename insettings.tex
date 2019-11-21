@@ -19,10 +19,27 @@
 % Hat man mehrere Mandanten muß man statt "Firma1" den Datenbanknamen seines
 % Mandanten eingeben.
 
-\IfSubStringInString{Firma1}{\kivicompany}{\newcommand{\identpath}{firma1}}{
-  \IfSubStringInString{Firma2}{\kivicompany}{\newcommand{\identpath}{firma2}}
-    {\newcommand{\identpath}{firma}} % sonst
-} % Ende Firma1
+\ExplSyntaxOn
+\int_set:Nn \l_kivi_tmp_int {1}
+\bool_set_true:N \l_kivi_tmp_bool
+\bool_while_do:Nn \l_kivi_tmp_bool {
+	\file_if_exist:nTF {firma\int_use:N \l_kivi_tmp_int/ident.tex}
+	{
+	\str_if_in:NnTF \kivicompany {Firma\int_use:N \l_kivi_tmp_int}
+		{
+		\newcommand*{\identpath}{firma\int_use:N \l_kivi_tmpa_int}
+		\bool_set_false:N \l_kivi_tmp_bool
+		}
+		{\int_incr:N \l_kivi_tmp_int}
+	}
+	{
+	\bool_set_false:N \l_kivi_tmp_bool
+	\newcommand*{\identpath}{firma}
+	}
+}
+
+\ExplSyntaxOff
+
 
 % Identität
 \input{\identpath/ident.tex}
