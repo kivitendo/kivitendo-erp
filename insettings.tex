@@ -51,6 +51,7 @@
 \str_if_in:NnT \lxcurrency {CHF} {\tl_gset:Nn \g_kivi_currency_tl {chf}}
 \tl_if_empty:NT  \g_kivi_currency_tl {\tl_gset:Nn  \g_kivi_currency_tl  {euro}}
 % wenn er es nicht kennt dann text übernehmen.
+% Problematisch mit Dateistruktur
 
 \input{\identpath/\g_kivi_currency_tl _account.tex}
 \ExplSyntaxOff
@@ -59,17 +60,6 @@
 % keine Absätze nach rechts einrücken
 \setlength\parindent{0pt}
 
-% Papierformat, Ränder, usw.
-\geometry{
-        a4paper,      % DINA4
-        %% left=19mm,    % Linker Rand
-        width=182mm,  % Textbreite
-        top=39mm,     % Abstand Textanfang von oben
-        head=44mm,     % Höhe des Kopfes
-        headsep=4mm, % Abstand Kopf zu Textanfang
-        bottom=30mm,  % Abstand von unten
-        % showframe,    % Rahmen zum Debuggen anzeigen
-}
 
 
 % Befehl f. normale Schriftart und -größe
@@ -78,7 +68,7 @@
 
 % Einstellungen f. Kopf und Fuss
 \pagestyle{scrheadings}
-\clearscrheadfoot
+\clearpairofpagestyles
 %\setheadwidth[20mm]{page} % Kopfzeile nach rechts verschieben
 %\setfootwidth[-39mm]{page} % Fusszeile verschieben
 
