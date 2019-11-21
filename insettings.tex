@@ -79,28 +79,30 @@
 % 4. Belegnummer {oder leer}
 % 5. Belegdatum {oder leer}
 % Beispiel: \ourhead{\kundennummer}{<%customernumber%>}{\angebot}{<%quonumber%>}{<%quodate%>}
+\setkomafont{pagehead}{\scriptsize}
 \newcommand{\ourhead}[5] {
 \chead{
-  \ifthenelse{\equal{\thepage}{1}}
-    {}% then
-    {\normalfont\fontfamily{cmss}\scriptsize
-      \ifthenelse{\equal{#1}{}}{}{#1: #2 \hspace{0.7cm}}{}
+  \ifnum\thepage=1
+  \else
+      \ifstr{#1}{}{}{#1: #2 \hspace{0.7cm}}
       #3
-      \ifthenelse{\equal{#4}{}}{}{~\nr: #4}
-      \ifthenelse{\equal{#5}{}}{}{\vom ~ #5}
-      \hspace{0.7cm} - \seite ~ \thepage/\pageref{LastPage} ~- }
-}%ende chead
+      \ifstr{#4}{}{}{~\nr: #4}
+      \ifstr{#5}{}{}{\vom ~ #5}
+      \hspace{0.7cm} - \seite ~ \thepage/\letterlastpage  ~-%
+  \fi
+}
 }
 
 % Firmenfuss
+\setkomafont{pagefoot}{\tiny}
 \cfoot{
-  {\normalfont\fontfamily{cmss} \tiny
+  {
      \begin{tabular}{p{5cm}p{4.5cm}lr}
         \firma                 & \email              & \textKontonummer & \kontonummer \\
         \strasse               & \homepage           & \textBank        & \bank \\
         \ort                   & \textUstid\ \ustid  & \textIban        & \iban \\
         \textTelefon~\telefon  & \finanzamt          & \textBic         & \bic \\
-        \ifthenelse{\equal{\fax}{}}{}{\textFax~\fax} & &\textBankleitzahl	& \bankleitzahl \\
+        \ifstr{\fax}{}{}{\textFax~\fax} & &\textBankleitzahl	& \bankleitzahl \\
      \end{tabular}
   }
 }
