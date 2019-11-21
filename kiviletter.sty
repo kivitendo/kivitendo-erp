@@ -1,7 +1,8 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{kiviletter}[2019/10/10 Letter Layouts for Kivitendo]
 
-\usepackage{iftex}
+\RequirePackage{expl3}
+\RequirePackage{iftex}
 % Schriftart, Eingabelayout der Tastatur
 \ifPDFTeX
 \RequirePackage[utf8]{inputenc}% Nur notwendig, wenn Basis älter als TL2018
