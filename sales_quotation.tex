@@ -1,3 +1,4 @@
+\PassOptionsToPackage{faketable}{kiviletter}
 \input{inheaders.tex}
 
 
@@ -124,7 +125,7 @@
 }
 \thispagestyle{kivitendo.letter.first}
 
-\angebotsformel\\
+\angebotsformel
 
 
 \begin{PricingTabular}
@@ -150,7 +151,7 @@
 	<%qty%> <%unit%> &
 	<%sellprice%>&
 	\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}
-			<%linetotal%>\\
+			<%linetotal%>\tabularnewline
 <%end number%>
 \end{PricingTabular}
 
@@ -175,6 +176,7 @@
 \closing{\gruesse}
 
 \begin{minipage}{\textwidth}
+\rule{\linewidth}{.2pt}\par
 \auftragerteilt\par\bigskip
 \nurort:\rule[-.5ex]{8cm}{.2pt}\ ,\den\ \rule[-.5ex]{5cm}{.2pt}\par\bigskip
 
