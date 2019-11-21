@@ -1,0 +1,96 @@
+% Sprachüberprüfung
+\ifthenelse{\equal{\lxlangcode}{EN}}{\input{english.tex}}{
+  \ifthenelse{\equal{\lxlangcode}{DE}}{\input{deutsch.tex}}{\input{deutsch.tex}}
+} % Ende EN
+
+
+% Mandanten-/Firmenabhängigkeiten
+
+% Pfad zu firmenspez. Angaben
+% Hat man mehrere Mandanten muß man statt "Firma1" den Datenbanknamen seines
+% Mandanten eingeben.
+
+\IfSubStringInString{Firma1}{\kivicompany}{\newcommand{\identpath}{firma1}}{
+  \IfSubStringInString{Firma2}{\kivicompany}{\newcommand{\identpath}{firma2}}
+    {\newcommand{\identpath}{firma}} % sonst
+} % Ende Firma1
+
+% Identität
+\input{\identpath/ident.tex}
+
+% Währungen/Konten
+\IfSubStringInString{USD}{\lxcurrency}{\input{\identpath/usd_account.tex}}{
+  \IfSubStringInString{CHF}{\lxcurrency}{\input{\identpath/chf_account.tex}}{
+    \IfSubStringInString{EUR}{\lxcurrency}{\input{\identpath/euro_account.tex}}{\input{\identpath/euro_account.tex}}
+  } % Ende CHF
+} % Ende USD
+
+% Briefkopf, Logo oder Briefpapier
+%%\IfSubStringInString{mail}{\lxmedia}{    % nur bei Mail
+  % Nur ein Logo oben rechts
+  \setlength{\wpYoffset}{130mm} % Verschiebung von der Mitte nach oben
+  \setlength{\wpXoffset}{-68mm} % Verschiebung von der Mitte nach rechts
+  \CenterWallPaper{0.2}{\identpath/briefkopf.png} % mit Skalierung
+  % oder ganzer Briefbogen als Hintergrund
+  %% \CenterWallPaper{1}{\identpath/briefbogen.pdf}
+%%} % Mail-Ende
+
+
+% keine Absätze nach rechts einrücken
+\setlength\parindent{0pt}
+
+% Papierformat, Ränder, usw.
+\geometry{
+        a4paper,      % DINA4
+        %% left=19mm,    % Linker Rand
+        width=182mm,  % Textbreite
+        top=39mm,     % Abstand Textanfang von oben
+        head=44mm,     % Höhe des Kopfes
+        headsep=4mm, % Abstand Kopf zu Textanfang
+        bottom=30mm,  % Abstand von unten
+        % showframe,    % Rahmen zum Debuggen anzeigen
+}
+
+
+% Befehl f. normale Schriftart und -größe
+\newcommand{\ourfont}{\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont}
+
+
+% Einstellungen f. Kopf und Fuss
+\pagestyle{scrheadings}
+\clearscrheadfoot
+%\setheadwidth[20mm]{page} % Kopfzeile nach rechts verschieben
+%\setfootwidth[-39mm]{page} % Fusszeile verschieben
+
+% Befehl f. laufende Kopfzeile:
+% 1. Text f. Kunden- oder Lieferantennummer (oder leer, wenn diese nicht ausgegeben werden soll)
+% 2. Kunden- oder Lieferantennummer (oder leer)
+% 3. Belegname {oder leer}
+% 4. Belegnummer {oder leer}
+% 5. Belegdatum {oder leer}
+% Beispiel: \ourhead{\kundennummer}{<%customernumber%>}{\angebot}{<%quonumber%>}{<%quodate%>}
+\newcommand{\ourhead}[5] {
+\chead{
+  \ifthenelse{\equal{\thepage}{1}}
+    {}% then
+    {\normalfont\fontfamily{cmss}\scriptsize
+      \ifthenelse{\equal{#1}{}}{}{#1: #2 \hspace{0.7cm}}{}
+      #3
+      \ifthenelse{\equal{#4}{}}{}{~\nr: #4}
+      \ifthenelse{\equal{#5}{}}{}{\vom ~ #5}
+      \hspace{0.7cm} - \seite ~ \thepage/\pageref{LastPage} ~- }
+}%ende chead
+}
+
+% Firmenfuss
+\cfoot{
+  {\normalfont\fontfamily{cmss} \tiny
+     \begin{tabular}{p{5cm}p{4.5cm}lr}
+        \firma                 & \email              & \textKontonummer & \kontonummer \\
+        \strasse               & \homepage           & \textBank        & \bank \\
+        \ort                   & \textUstid\ \ustid  & \textIban        & \iban \\
+        \textTelefon~\telefon  & \finanzamt          & \textBic         & \bic \\
+        \ifthenelse{\equal{\fax}{}}{}{\textFax~\fax} & &\textBankleitzahl	& \bankleitzahl \\
+     \end{tabular}
+  }
+}

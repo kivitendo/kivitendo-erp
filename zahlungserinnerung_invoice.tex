@@ -1,0 +1,123 @@
+\input{inheaders.tex}
+
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+\newcommand{\lxmedia} {<%media%>}
+\newcommand{\lxcurrency} {<%currency%>}
+\newcommand{\kivicompany} {<%employee_company%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+
+% laufende Kopfzeile:
+\ourhead{\kundennummer}{<%customernumber%>}{\rechnung}{<%invnumber%>}{<%invdate%>}
+
+
+\begin{document}
+
+\ourfont
+\begin{minipage}[t]{8cm}
+  \scriptsize
+
+  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
+  \normalsize
+
+  \vspace*{0.3cm}
+
+  <%name%>
+
+  <%if department_1%><%department_1%><%end if%>
+
+  <%if department_2%><%department_2%><%end if%>
+
+  <%cp_givenname%> <%cp_name%>
+
+  <%street%>
+
+  ~
+
+  <%zipcode%> <%city%>
+
+  <%country%>
+\end{minipage}
+\hfill
+\begin{minipage}[t]{6cm}
+  \hfill{\LARGE\textbf{\rechnung}}
+
+  \vspace*{0.2cm}
+
+  \hfill{\large\textbf{\nr ~<%invnumber%>}}
+
+  \vspace*{0.2cm}
+
+  \rechnungsdatum:\hfill <%invdate%>
+
+  \mahnung~\nr:\hfill <%dunning_id%>
+
+  \kundennummer:\hfill <%customernumber%>
+
+  \ansprechpartner:\hfill <%employee_name%>
+
+  <%if globalprojectnumber%> \projektnummer:\hfill <%globalprojectnumber%> <%end globalprojectnumber%>
+\end{minipage}
+
+\vspace*{1.5cm}
+
+\hfill
+
+% Anrede nach Geschlecht unterscheiden
+\ifthenelse{\equal{<%cp_name%>}{}}{\anrede}{
+  \ifthenelse{\equal{<%cp_gender%>}{f}}
+    {\anredefrau}{\anredeherr} <%cp_title%> <%cp_name%>,}\\
+
+\mahnungsrechnungsformel\\
+
+\vspace{0.5cm}
+
+
+\setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
+\setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
+\begin{longtable}{@{}p{7cm}@{\extracolsep{\fill}}r@{}}
+% Tabellenkopf
+\hline
+\textbf{\posten} & \textbf{\betrag} \\
+\hline\\
+\endhead
+
+% Tabellenkopf erste Seite
+\hline
+\textbf{\posten} & \textbf{\betrag} \\
+\hline\\[-0.5em]
+\endfirsthead
+
+% Tabellenende
+\\
+\multicolumn{2}{@{}r@{}}{\weiteraufnaechsterseite}
+\endfoot
+
+% Tabellenende letzte Seite
+\hline\\
+\multicolumn{1}{@{}l}{\schlussbetrag} & <%invamount%> \currency\\
+\hline\hline\\
+\endlastfoot
+
+% eigentliche Tabelle
+Mahngebühren & <%fee%> \currency \\
+Zinsen & <%interest%> \currency \\
+\\[-0.8em]
+
+\end{longtable}
+
+
+\vspace{0.2cm}
+
+\bitteZahlenBis~<%duedate%>.
+
+\vspace*{0.5cm}
+
+\gruesse \\ \\ \\
+  <%employee_name%>
+
+\end{document}

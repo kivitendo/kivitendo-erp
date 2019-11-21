@@ -1,0 +1,76 @@
+% config: use-template-toolkit=1
+% config: tag-style=$( )$
+$( USE KiviLatex )$
+$( USE P )$
+$( SET customer = letter.customer_vendor )$
+\input{inheaders.tex}
+$( KiviLatex.required_packages_for_html )$
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode}{$(template_meta.language.template_code)$}
+\newcommand{\lxmedia}{$(template_meta.media)$}
+\newcommand{\lxcurrency}{}
+\newcommand{\kivicompany}{$(employee_company)$}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+% laufende Kopfzeile:
+%\ourhead{}{}{$( KiviLatex.filter(letter.subject) )$}{$( KiviLatex.filter(letter.letternumber) )$}{$( KiviLatex.filter(letter.date.to_kivitendo) )$}
+\ourhead{}{}{}{}{}
+
+\begin{document}
+
+\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+
+\vspace*{1cm}
+
+\begin{minipage}{14cm}
+
+  $( KiviLatex.filter(customer.name) )$
+
+  $( KiviLatex.filter(letter.contact.formal_greeting) )$
+
+  $( KiviLatex.filter(customer.street) )$
+
+  $( KiviLatex.filter(customer.zipcode) )$ $( KiviLatex.filter(customer.city) )$
+
+  $( KiviLatex.filter(customer.country) )$
+
+\end{minipage}
+
+\vspace{2.5cm}
+\hfill $( KiviLatex.filter(letter.date.to_kivitendo) )$
+
+$( IF letter.reference )$
+\textbf{\ihrzeichen : $( KiviLatex.filter(letter.reference) )$}
+
+\vspace{1cm}
+$( END )$
+
+$( IF letter.subject )$
+\textbf{\betreff : $( KiviLatex.filter(letter.subject) )$}
+
+\vspace{1cm}
+$( END )$
+
+$( KiviLatex.filter(letter.greeting) )$
+
+\vspace{0.5cm}
+
+$( KiviLatex.filter_html(letter.body) )$
+
+\vspace{0.5cm}
+
+\begin{minipage}{6cm}
+
+\textbf{$( KiviLatex.filter(letter.employee.name) )$}
+
+\end{minipage}
+\begin{minipage}{6cm}
+
+\textbf{$( KiviLatex.filter(letter.salesman.name) )$}
+
+\end{minipage}
+
+\end{document}

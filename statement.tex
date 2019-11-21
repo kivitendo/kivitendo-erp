@@ -1,0 +1,108 @@
+\input{inheaders.tex}
+
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+\newcommand{\lxmedia} {<%media%>}
+\newcommand{\lxcurrency} {<%currency%>}
+\newcommand{\kivicompany} {<%employee_company%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+
+% laufende Kopfzeile:
+\ourhead{}{}{\sammelrechnung}{}{}
+
+
+\begin{document}
+
+\ourfont
+
+\begin{minipage}[t]{8cm}
+  \vspace*{1.0cm}
+
+  <%name%>
+
+  <%street%>
+
+  ~
+
+  <%zipcode%> <%city%>
+
+  <%country%>
+\end{minipage}
+\hfill
+\begin{minipage}[t]{6cm}
+  \hfill{\LARGE\textbf{\sammelrechnung}}
+
+  \vspace*{0.2cm}
+
+  \ansprechpartner:\hfill <%employee_name%>
+\end{minipage}
+
+\vspace*{1.5cm}
+
+\hfill
+
+% Anrede nach Geschlecht unterscheiden
+\ifthenelse{\equal{<%cp_name%>}{}}{\anrede}{
+  \ifthenelse{\equal{<%cp_gender%>}{f}}
+    {\anredefrau}{\anredeherr} <%cp_title%> <%cp_name%>,}\\
+
+\sammelrechnungsformel\\
+
+\vspace{0.5cm}
+
+
+%
+% - longtable kann innerhalb der Tabelle umbrechen
+% - da der Umbruch nicht von Lx-Office kontrolliert wird, kann man keinen
+%   Übertrag machen
+%
+\setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
+\setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
+\begin{longtable}{@{\extracolsep{\fill}}rrrrrrr@{}}
+% Tabellenkopf
+\hline
+\textbf{\rechnung~\nr} & \textbf{\datum} & \textbf{\faellig} &
+\textbf{\aktuell} & \textbf{\asDreissig} & \textbf{\asSechzig} & \textbf{\asNeunzig}\\
+\hline\\
+\endhead
+
+% Tabellenkopf erste Seite
+\hline
+\textbf{\rechnung~\nr} & \textbf{\datum} & \textbf{\faellig} &
+\textbf{\aktuell} & \textbf{\asDreissig} & \textbf{\asSechzig} & \textbf{\asNeunzig}\\
+\hline\\[-0.5em]
+\endfirsthead
+
+% Tabellenende
+\\
+\multicolumn{7}{@{}r@{}}{\weiteraufnaechsterseite}
+\endfoot
+
+% Tabellenende letzte Seite
+\hline\\
+\multicolumn{3}{@{}l}{\textbf{\zwischensumme}} & \textbf{<%c0total%>} & \textbf{<%c30total%>} & \textbf{<%c60total%>} & \textbf{<%c90total%>}\\
+\hline\\
+\multicolumn{6}{@{}l}{\textbf{\schlussbetrag}} & \textbf{<%total%>} \\
+\hline\hline\\
+\endlastfoot
+
+% eigentliche Tabelle
+<%foreach invnumber%>
+          <%invnumber%> & <%invdate%> & <%duedate%> &
+          <%c0%> & <%c30%> & <%c60%> & <%c90%> \\
+<%end invnumber%>
+
+\end{longtable}
+
+
+\vspace{0.2cm}
+
+\gruesse \\ \\ \\
+  <%employee_name%>
+
+\end{document}
+

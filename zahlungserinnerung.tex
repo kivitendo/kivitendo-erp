@@ -1,0 +1,126 @@
+\input{inheaders.tex}
+
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+\newcommand{\lxmedia} {<%media%>}
+\newcommand{\lxcurrency} {<%currency%>}
+\newcommand{\kivicompany} {<%employee_company%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+
+% laufende Kopfzeile:
+\ourhead{\kundennummer}{<%customernumber%>}{\mahnung}{<%dunning_id%>}{<%dunning%>}
+
+
+\begin{document}
+
+\ourfont
+\begin{minipage}[t]{8cm}
+  \scriptsize
+
+  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
+  \normalsize
+
+  \vspace*{0.3cm}
+
+  <%name%>
+
+  <%if department_1%><%department_1%><%end if%>
+
+  <%if department_2%><%department_2%><%end if%>
+
+  <%cp_givenname%> <%cp_name%>
+
+  <%street%>
+
+  ~
+
+  <%zipcode%> <%city%>
+
+  <%country%>
+\end{minipage}
+\hfill
+\begin{minipage}[t]{6cm}
+  \hfill{\LARGE\textbf{\mahnung}}
+
+  \vspace*{0.2cm}
+
+  <%if dunning_id%>\hfill{\large\textbf{\nr ~<%dunning_id%>}}<%end if%>
+
+  \vspace*{0.2cm}
+
+  \datum:\hfill <%dunning_date%>
+
+  \kundennummer:\hfill <%customernumber%>
+
+  \ansprechpartner:\hfill <%employee_name%>
+
+  \textTelefon \hfill <%employee_tel%>
+
+  \textEmail \hfill <%employee_email%>
+\end{minipage}
+
+\vspace*{1.5cm}
+
+\hfill
+
+% Anrede nach Geschlecht unterscheiden
+\ifthenelse{\equal{<%cp_name%>}{}}{\anrede}{
+  \ifthenelse{\equal{<%cp_gender%>}{f}}
+    {\anredefrau}{\anredeherr} <%cp_title%> <%cp_name%>,}\\
+
+\mahnungsformel\\
+
+\vspace{0.5cm}
+
+
+\setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
+\setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
+\begin{longtable}{@{}rr@{\extracolsep{\fill}}r@{}}
+% Tabellenkopf
+\hline
+\textbf{\rechnung~\nr} & \textbf{\datum} & \textbf{\betrag} \\
+\hline\\
+\endhead
+
+% Tabellenkopf erste Seite
+\hline
+\textbf{\rechnung~\nr} & \textbf{\datum} & \textbf{\betrag} \\
+\hline\\[-0.5em]
+\endfirsthead
+
+% Tabellenende
+\\
+\multicolumn{2}{@{}r@{}}{\weiteraufnaechsterseite}
+\endfoot
+
+% Tabellenende letzte Seite
+\hline\\
+\endlastfoot
+
+% eigentliche Tabelle
+<%foreach dn_invnumber%>
+    <%dn_invnumber%> & <%dn_transdate%> & <%dn_amount%> \currency \\[0.1cm]
+<%end dn_invnumber%>
+
+\end{longtable}
+
+\vspace{0.2cm}
+
+\bitteZahlenBis~<%dunning_duedate%>.
+
+
+\beruecksichtigtBis~<%dunning_date%>.
+
+
+\schonGezahlt
+
+\vspace*{0.5cm}
+
+\gruesse \\ \\ \\
+  <%employee_name%>
+
+\end{document}

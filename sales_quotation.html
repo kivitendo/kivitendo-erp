@@ -1,0 +1,226 @@
+
+<body bgcolor=ffffff>
+
+<table width=100%>
+<tr valign=bottom>
+  <td width=10>&nbsp;</td>
+  <td>
+
+  <table width=100%>
+  <tr valign=top>
+    <td>
+      <h4>
+      <%company%>
+      <br><%address%>
+      </h4>
+    </td>
+
+    <th><img src=http://localhost/lx-erp/lx-office-erp.png border=0 width=64 height=58></th>
+
+    <td align=right>
+      <h4>
+      Tel: <%tel%>
+      <br>Fax: <%fax%>
+      </h4>
+    </td>
+  </tr>
+
+<tr><td colspan=3>&nbsp;</td></tr>
+
+  <tr>
+    <th colspan=3>
+      <h4>A N G E B O T</h4>
+    </th>
+  </tr>
+
+  </table>
+
+  <table width=100% callspacing=0 cellpadding=0>
+
+  <tr>
+    <td>
+    <table width=100%>
+
+    <tr valign=top>
+      <td><%name%>
+      <br><%street%>
+      <br><%zipcode%>
+      <br><%city%>
+      <br><%country%>
+<br>
+<%if contact%>
+<br>Kontakt: <%contact%>
+<%end contact%>
+
+<%if customerphone%>
+<br>Tel: <%customerphone%>
+<%end customerphone%>
+
+<%if customerfax%>
+<br>Fax: <%customerfax%>
+<%end customerfax%>
+
+<%if email%>
+<br><%email%>
+<%end email%>
+      </td>
+
+    </tr>
+    </table>
+    </td>
+  </tr>
+
+  <tr><td>&nbsp;</td></tr>
+
+  <tr>
+    <td colspan=2>
+      <table width=100% border=1>
+        <tr>
+    <th width=17% align=left nowrap>Nummer</th>
+    <th width=17% align=left>Datum</th>
+    <th width=17% align=left>Gültig bis</th>
+    <th width=17% align=left nowrap>Kontakt</th>
+    <th width=17% align=left nowrap>Lagerplatz</th>
+    <th width=15% align=left nowrap>Lieferung mit</th>
+  </tr>
+
+  <tr>
+    <td><%quonumber%></td>
+    <td><%quodate%></td>
+    <td><%reqdate%></td>
+    <td><%employee%></td>
+    <td><%shippingpoint%></td>
+    <td><%shipvia%></td>
+  </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+
+  <tr>
+    <td>
+    <table width=100%>
+    <tr bgcolor=000000>
+      <th align=right><font color=ffffff>Nr.</th>
+      <th align=left><font color=ffffff>Artikelnummer</th>
+      <th align=left><font color=ffffff>Beschreibung</th>
+      <th><font color=ffffff>Menge</th>
+      <th>&nbsp;</th>
+      <th><font color=ffffff>Preis</th>
+      <th><font color=ffffff>Rabatt</th>
+      <th><font color=ffffff>Gesamtpreis</th>
+    </tr>
+
+<%foreach number%>
+    <tr valign=top>
+    <td align=right><%runningnumber%></td>
+
+      <td><%number%></td>
+      <td><%description%></td>
+      <td align=right><%qty%></td>
+      <td><%unit%></td>
+      <td align=right><%sellprice%></td>
+      <td align=right><%discount%></td>
+      <td align=right><%linetotal%></td>
+    </tr>
+<%end number%>
+
+    <tr>
+      <td colspan=8><hr noshade></td>
+    </tr>
+
+    <tr>
+<%if taxincluded%>
+      <th colspan=6 align=right>Gesamtbetrag netto</th>
+      <td colspan=2 align=right><%invtotal%></td>
+<%end taxincluded%>
+
+<%if not taxincluded%>
+      <th colspan=6 align=right>Zwischensumme</th>
+      <td colspan=2 align=right><%subtotal%></td>
+<%end taxincluded%>
+    </tr>
+
+<%foreach tax%>
+    <tr>
+      <th colspan=6 align=right><%taxdescription%> von <%taxbase%> @ <%taxrate%> %</th>
+      <td colspan=2 align=right><%tax%></td>
+    </tr>
+<%end tax%>
+
+<%if rounding%>
+      <th colspan=6 align=right>Rundung</th>
+      <td colspan=2 align=right><%rounding%></td>
+<%end rounding%>
+
+    <tr>
+      <td colspan=4>&nbsp;</td>
+      <td colspan=4><hr noshade></td>
+    </tr>
+
+    <tr>
+      <td colspan=4>&nbsp;
+<%if terms%>
+      Zahlungsziel <b><%terms%></b> Tage
+<%end terms%>
+      </td>
+      <th colspan=2 align=right>Gesamtbetrag brutto</th>
+      <th colspan=2 align=right><%quototal%></th>
+    </tr>
+
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+
+    </table>
+    </td>
+  </tr>
+
+<tr>
+  <td>
+  <table width=100%>
+    <tr valign=top>
+<%if notes%>
+      <td>Bemerkungen</td>
+      <td><%notes%></td>
+<%end notes%>
+      <td align=right>
+      Alle Preise in <b><%currency%></b> Euro
+      </td>
+    </tr>
+
+  </table>
+  </td>
+</tr>
+
+<tr><td>&nbsp;</td></tr>
+
+<tr>
+  <td>
+  <table width=100%>
+  <tr valign=top>
+    <td width=60%><font size=-3>
+    Spezialanfertigungen können nicht zurückgenommen werden.
+    </font>
+    </td>
+    <td width=40%>
+    X <hr noshade>
+    </td>
+  </tr>
+  </table>
+  </td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>
+
+

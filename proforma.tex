@@ -1,0 +1,176 @@
+\input{inheaders.tex}
+
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+\newcommand{\lxmedia} {<%media%>}
+\newcommand{\lxcurrency} {<%currency%>}
+\newcommand{\kivicompany} {<%employee_company%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+
+% laufende Kopfzeile:
+\ourhead{\kundennummer}{<%customernumber%>}{\proformarechnung}{<%ordnumber%>}{<%invdate%>}
+
+
+\begin{document}
+
+\ourfont
+\begin{minipage}[t]{8cm}
+  \scriptsize
+
+  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
+  \normalsize
+
+  \vspace*{0.3cm}
+
+  <%name%>
+
+  <%if department_1%><%department_1%><%end if%>
+
+  <%if department_2%><%department_2%><%end if%>
+
+  <%cp_givenname%> <%cp_name%>
+
+  <%street%>
+
+  ~
+
+  <%zipcode%> <%city%>
+
+  <%country%>
+\end{minipage}
+\hfill
+\begin{minipage}[t]{6cm}
+  \hfill{\LARGE\textbf{\proformarechnung}}
+
+  \vspace*{0.2cm}
+
+  \hfill{\large\textbf{\nr ~<%ordnumber%>}}
+
+  \vspace*{0.2cm}
+
+  \datum:\hfill <%orddate%>
+
+  \kundennummer:\hfill <%customernumber%>
+
+  <%if cusordnumber%>\ihreBestellnummer:\hfill <%cusordnumber%><%end if%>
+
+  <%if quonumber%>\angebot~\nr:\hfill <%quonumber%><%end if%>
+
+  \ansprechpartner:\hfill <%employee_name%>
+
+  \textTelefon \hfill <%employee_tel%>
+
+  \textEmail \hfill <%employee_email%>
+\end{minipage}
+
+<%if shiptoname%>
+  \vspace{0.8cm}
+  \scriptsize \underline{\abweichendeLieferadresse:}\\
+  \normalsize    <%shiptoname%>
+
+                 <%if shiptocontact%> <%shiptocontact%><%end if%>
+
+                 <%shiptodepartment_1%>
+
+                  <%shiptodepartment_2%>
+
+                  <%shiptostreet%>
+
+                  <%shiptozipcode%> <%shiptocity%>
+<%end if%>
+\vspace*{1.5cm}
+
+\hfill
+
+% Anrede nach Geschlecht unterscheiden
+\ifthenelse{\equal{<%cp_name%>}{}}{\anrede}{
+  \ifthenelse{\equal{<%cp_gender%>}{f}}
+    {\anredefrau}{\anredeherr} <%cp_title%> <%cp_name%>,}\\
+
+\auftragsformel\\
+
+\vspace{0.5cm}
+
+
+%
+% - longtable kann innerhalb der Tabelle umbrechen
+% - da der Umbruch nicht von Lx-Office kontrolliert wird, kann man keinen
+%   Übertrag machen
+% - Innerhalb des Langtextes <%longdescription%> wird nicht umgebrochen.
+%   Falls das gewünscht ist, \\ mit \renewcommand umschreiben (siehe dazu:
+%   http://www.lx-office.org/uploads/media/Lx-Office_Anwendertreffen_LaTeX-Druckvorlagen-31.01.2011_01.pdf)
+%
+\setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
+\setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
+\begin{longtable}{@{}rrp{7cm}@{\extracolsep{\fill}}rrr@{}}
+% Tabellenkopf
+\hline
+\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
+\hline\\
+\endhead
+
+% Tabellenkopf erste Seite
+\hline
+\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
+\hline\\[-0.5em]
+\endfirsthead
+
+% Tabellenende
+\\
+\multicolumn{6}{@{}r@{}}{\weiteraufnaechsterseite}
+\endfoot
+
+% Tabellenende letzte Seite
+\hline\\
+\multicolumn{5}{@{}l}{\nettobetrag} & <%subtotal%> \currency\\
+<%foreach tax%>
+\multicolumn{5}{@{}l}{<%taxdescription%>} & <%tax%> \currency\\
+<%end tax%>
+\multicolumn{5}{@{}l}{\textbf{\schlussbetrag}} &  \textbf{<%ordtotal%>} \currency\\
+\hline\hline\\
+\endlastfoot
+
+% eigentliche Tabelle
+<%foreach number%>
+          <%runningnumber%> &
+          <%number%> &
+          \textbf{<%description%>} &
+          \raggedleft <%qty%> <%unit%> &
+          <%sellprice%> \currency &
+          \ifthenelse{\equal{<%p_discount%>}{0}}{}{\sffamily\scriptsize{(-<%p_discount%> \%)}}
+          \ourfont{<%linetotal%> \currency} \\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden
+
+          <%if longdescription%> && \scriptsize <%longdescription%>\\<%end longdescription%>
+          <%if reqdate%> && \scriptsize \lieferdatum: <%reqdate%>\\<%end reqdate%>
+          <%if serialnumber%> && \scriptsize \seriennummer: <%serialnumber%>\\<%end serialnumber%>
+          <%if ean%> && \scriptsize \ean: <%ean%>\\<%end ean%>
+          <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>
+          \\[-0.8em]
+<%end number%>
+
+\end{longtable}
+
+
+\vspace{0.2cm}
+
+<%if notes%>
+        \vspace{5mm}
+        <%notes%>
+        \vspace{5mm}
+<%end if%>
+
+<%if reqdate%>
+\lieferungErfolgtAm ~<%reqdate%>. \\
+<%end if%>
+
+\textit{\auftragpruefen} \\ \\
+
+\gruesse \\ \\ \\
+  <%employee_name%>
+
+\end{document}
+

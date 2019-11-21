@@ -1,0 +1,94 @@
+%
+% Bemerkungen zum Vorlagensatz RB von
+% Richardson & Büren GmbH
+%
+% Hier wurden einige Ideen aufgegriffen, die in folgendem Vortrag
+% erwähnt wurden:
+% http://www.kivitendo-support.de/vortraege/Lx-Office%20Anwendertreffen%20LaTeX-Druckvorlagen-Teil3-finale.pdf
+%
+% Am Ende dieser Datei befindet sich ein Abschnitt "Quickstart", der die
+% Vorbereitungsschritte beschreibt, die bei diesem Druckvorlagensatz nötig
+% sind.
+%
+%
+% Aufbau:
+%   Die documentclass und alle usepackage-Anweisungen sind in
+%   'inheaders.tex' ausgelagert. Diese werden von allen Vorlagen via
+%   \input eingebunden.
+%
+%   Desweiteren sind einige Einstellungen und eigene Befehle, die alle
+%   Vorlagen verwenden, in 'insetting.tex' untergebracht. Auch diese
+%   werden mit \input eingebunden.
+%   Da in eingebundenen Dateien die kivitendo-Variablen nicht aufgelöst
+%   werden könnnen, werden die hier verwendeten Variablen in jedem
+%   Dokument vorher mit \newcommand neu definiert.
+%
+% Sprachen:
+%   In 'insettings.tex' wird anhand des verwendeten Sprachkürzels die
+%   Sprache unterschieden und eine entsprechende Übersetzungsdatei geladen,
+%   die Textbausteine  bzw. -Schnipsel enthält. Die Vorlagen verwenden nur
+%   diese Schnipsel. Im Moment werden die Vorlagenkürzel DE und EN in
+%   Benutzung mit den entsprechenden Übersetzungsdateien 'deutsch.tex'
+%   und 'english.tex' unterschieden.
+%
+% Mandanten / Firma:
+%   Um gleiche Vorlagen für verschiedene Firmen verwenden zu können, wird je
+%   nach dem Wert der Kivitendo-Variablen <%kivicompany%> ein
+%   Firmenverzeichnis ausgewählt (siehe 'insettings.tex'), in dem Briefkopf,
+%   Identitäten und Währungs-/Kontoeinstellungen hinterlegt sind.
+%   <%kivicompany%> enthält den Namen des verwendeten Mandantendaten.
+%   Ist kein Firmenname eingetragen, so wird das
+%   generische Unterverzeichnis 'firma' verwendet.
+%
+% Identitäten:
+%    In jedem Firmen-Unterverzeichnis soll eine Datei 'ident.tex'
+%    vorhanden sein, die mit \newcommand Werte für \telefon, \fax,
+%    \firma, \strasse, \ort, \ustid, \email und \homepage definiert.
+%
+% Währungen / Konten:
+%    Für jede Währung (siehe 'insettings.tex') soll eine Datei vorhanden
+%    sein, die das Währungssymbol (\currency) und folgende Angaben für
+%    ein Konto in dieser Währung enthält \kontonummer, \bank,
+%    \bankleitzahl, \bic und \iban.
+%    So kann in den Dokumenten je nach Währung ein anderes Konto
+%    angegeben werden.
+%    Nach demselben Schema können auch weitere, alternative Bankverbindungen
+%    angelegt werden, die dann in insettings.tex als Variable im
+%    unteren Abschnitt der Datei 'insettings.tex', Kommentar Fusszeile
+%    (cfoot) eingefügt werden.
+%
+% Briefbogen/Logos:
+%    Eine Hintergrundgrafik oder ein Logo kann in Abhängigkeit vom
+%    Medium (z.B. nur beim Verschicken mit E-Mail) eingebunden
+%    werden. Dies ist im Moment auskommentiert.
+%
+%    Desweiteren sind (auskommentierte) Beispiele enthalten für eine
+%    Grafik als Briefkopf, nur ein Logo, oder ein komplettes DinA4-PDF
+%    als Briefpapier.
+%
+% Fusszeile:
+%    Die Tabelle im Fuß verwendet die Angaben aus firma/ident.tex und
+%    firma/*_account.tex.
+%
+%
+% Tabellen:
+%    Als Tabellenumgebung wird longtable verwendet. Diese Umgebung
+%    kann in einer Tabelle umbrechen. Da aber der Umbruch nicht von
+%    kivitendo kontrolliert wird, kann man keinen Übertrag machen.
+%    Innerhalb des Langtextes <%longdescription%> wird nicht umgebrochen. Um
+%    dies zu erreichen kann z.B. per renewcommand das "\newline" umdefiniert
+%    werden.
+
+%
+% Quickstart (wo kann was angepasst werden?):
+%    insettings.tex : Pfad zu Angaben über Mandanten (default: firma)
+%                     Logo/Briefpapier
+%                     Seitenränder / Geometry
+%                     Aussehen Kopf/Fußzeile
+%    firma/*        : Angaben über Mandanten
+% Es muß mindestens eine Sprache angelegt werden!
+%    deutsch.tex    : Textschnipsel für Deutsch
+%                     Dafür eine Sprache mit Vorlagenkürzel DE anlegen
+%    english.tex    : Textschnipsel für Englisch
+%                     Dafür eine Sprache mit Vorlagenkürzel EN anlegen
+%
