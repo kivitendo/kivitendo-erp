@@ -115,14 +115,14 @@ contents={\usebox\shippingAddressBox}
 
 \cs_new:Nn \kivi_save_LT@boxes: {
 	\clist_map_inline:nn {head, firsthead, foot, lastfoot} {
-	\box_gset_eq:cc {g_kivi_LT@#1_box} {LT@#1}
+	\box_gset_eq:cc {g_kivi_LT@##1_box} {LT@##1}
 	}
 }
 
 \cs_new:Nn \kivi_restore_LT@boxes: {
 	\clist_map_inline:nn {head, firsthead, foot, lastfoot} {
-	\box_gset_eq:cc  {LT@#1} {g_kivi_LT@#1_box}
-	\box_gclear:c {g_kivi_LT@#1_box}
+	\box_gset_eq:cc  {LT@##1} {g_kivi_LT@##1_box}
+	\box_gclear:c {g_kivi_LT@##1_box}
 	}
 }
 
