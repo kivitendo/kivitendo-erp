@@ -80,18 +80,18 @@ contents={\usebox\shippingAddressBox}
 
 \newcolumntype{P}{>{\raggedleft\arraybackslash}p{\g_kivi_tab_price_dim}}
 
-\if@kivi@faketable
+%\if@kivi@faketable
 \RequirePackage{environ}
 \ExplSyntaxOn
 \seq_new:N \l_kivi_PricingTable_seq
-\NewEnviron{PricingTabular}{
+\NewDocumentCommand{\FakeTable}{m}{
 %	\tl_set:No \l_tmpa_tl {\BODY}
-	\seq_set_split:NnV \l_kivi_PricingTable_seq {\tabularnewline} \BODY
+	\seq_set_split:Nnn \l_kivi_PricingTable_seq {\tabularnewline} {#1}
 	\seq_show:N \l_kivi_PricingTable_seq
 }
 \ExplSyntaxOff
 
-\else
+%\else
 \newenvironment{PricingTabular}{
 	\begingroup
 	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
@@ -109,7 +109,7 @@ contents={\usebox\shippingAddressBox}
 	\endlongtable
 	\endgroup
 }
-\fi
+%\fi
 
 \ExplSyntaxOff
 

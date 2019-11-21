@@ -139,6 +139,7 @@
 	\bottomrule
 	\endlastfoot
 % eigentliche Tabelle
+\FakeTable{
 <%foreach number%>
 <%runningnumber%> &
 <%number%> &
@@ -153,6 +154,7 @@
 	\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}
 			<%linetotal%>\tabularnewline
 <%end number%>
+}
 \end{PricingTabular}
 
 <%if notes%>
