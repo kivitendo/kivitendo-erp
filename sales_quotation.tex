@@ -112,65 +112,33 @@
 
 \angebotsformel\\
 
-\vspace{0.5cm}
 
-
-%
-% - longtable kann innerhalb der Tabelle umbrechen
-% - da der Umbruch nicht von Lx-Office kontrolliert wird, kann man keinen
-%   Übertrag machen
-% - Innerhalb des Langtextes <%longdescription%> wird nicht umgebrochen.
-%   Falls das gewünscht ist, \\ mit \renewcommand umschreiben (siehe dazu:
-%   http://www.lx-office.org/uploads/media/Lx-Office_Anwendertreffen_LaTeX-Druckvorlagen-31.01.2011_01.pdf)
-%
-\setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
-\setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
-\begin{longtable}{@{}rrp{7cm}@{\extracolsep{\fill}}rrr@{}}
-% Tabellenkopf
-\hline
-\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
-\hline\\
-\endhead
-
-% Tabellenkopf erste Seite
-\hline
-\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
-\hline\\[-0.5em]
-\endfirsthead
-
-% Tabellenende
-\\
-\multicolumn{6}{@{}r@{}}{\weiteraufnaechsterseite}
-\endfoot
-
-% Tabellenende letzte Seite
-\hline\\
-\multicolumn{5}{@{}l}{\nettobetrag} & <%subtotal%> \currency\\
-<%foreach tax%>
-\multicolumn{5}{@{}l}{<%taxdescription%>} & <%tax%> \currency\\
-<%end tax%>
-\multicolumn{5}{@{}l}{\textbf{\schlussbetrag}} &  \textbf{<%ordtotal%>} \currency\\
-\hline\hline\\
-\endlastfoot
-
+\begin{PricingTabular}
+	% Tabellenende letzte Seite
+	\midrule
+	\multicolumn{5}{@{}l}{\nettobetrag} & <%subtotal%>\\
+	<%foreach tax%>
+	\multicolumn{5}{@{}l}{<%taxdescription%>} & <%tax%>\\
+	<%end tax%>
+	\multicolumn{5}{@{}l}{\bfseries\schlussbetrag} &  \textbf{<%ordtotal%>}\\
+	\bottomrule
+	\endlastfoot
 % eigentliche Tabelle
 <%foreach number%>
-          <%runningnumber%> &
-          <%number%> &
-          \textbf{<%description%>} &
-          \raggedleft <%qty%> <%unit%> &
-          <%sellprice%> \currency &
-          \ifthenelse{\equal{<%p_discount%>}{0}}{}{\sffamily\scriptsize{(-<%p_discount%> \%)}}
-          \ourfont{<%linetotal%> \currency} \\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden
-
-          <%if longdescription%> && \scriptsize <%longdescription%>\\<%end longdescription%>
-          <%if serialnumber%> && \scriptsize \seriennummer: <%serialnumber%>\\<%end serialnumber%>
-          <%if ean%> && \scriptsize \ean: <%ean%>\\<%end ean%>
-          <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>
-          \\[-0.8em]
+<%runningnumber%> &
+<%number%> &
+\textbf{<%description%>}
+	<%if longdescription%> \newline\scriptsize <%longdescription%><%end longdescription%>
+	<%if serialnumber%> \newline\scriptsize \seriennummer: <%serialnumber%><%end serialnumber%>
+	<%if ean%> \newline\scriptsize \ean: <%ean%><%end ean%>
+	<%if projectnumber%>\newline\scriptsize \projektnummer: <%projectnumber%><%end projectnumber%>
+	&
+	<%qty%> <%unit%> &
+	<%sellprice%>&
+	\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}
+			<%linetotal%>\\
 <%end number%>
-
-\end{longtable}
+\end{PricingTabular}
 
 <%if notes%>
   <%notes%>
