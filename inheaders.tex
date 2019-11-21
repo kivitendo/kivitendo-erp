@@ -1,28 +1,6 @@
 %Dokumentenklasse für DIN-Briefe auf A4
-\documentclass[a4paper]{scrartcl}[10pt]
+\documentclass[paper=a4,fontsize=10pt]{scrartcl}
+\usepackage{kiviletter}
 
-\usepackage{iftex}
-% Schriftart, Eingabelayout der Tastatur
-\ifPDFTeX
-\RequirePackage[utf8]{inputenc}% Nur notwendig, wenn Basis älter als TL2018
-\RequirePackage[T1]{fontenc}
-\else
-\RequirePackage{fontspec}
-\fi
-
-\usepackage{graphicx}
-
-\usepackage{longtable}
-\usepackage{tabularx}
-
-\ifPDFTeX
-\usepackage{eurosym}
-\DeclareUnicodeCharacter{20AC}{\euro}
-\fi
-
-\usepackage{substr}
-\usepackage{scrpage2}
-\usepackage{wallpaper} % Hintergrundbilder
-\usepackage{xcolor,colortbl}
-\usepackage{lastpage}
-\usepackage{geometry}
+%TODO babel setup
+\endinput
