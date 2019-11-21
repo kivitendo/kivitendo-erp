@@ -23,12 +23,17 @@
 <%salesman_name%>%
 }
 
-\setkomavar{offer}{<%quonumber%>}
 \setkomavar{date}{<%transdate%>}
 \setkomavar{customer}{<%customernumber%>}
 \setkomavar{fromname}{<%employee_name%>}
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
+\setkomavar{title}{
+	\angebot
+	\par
+	\medskip
+	\large\nr ~<%quonumber%>
+}
 
 %\begin{minipage}[t]{8cm}
 %  \scriptsize

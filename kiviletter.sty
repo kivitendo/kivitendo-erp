@@ -85,6 +85,29 @@ contents={\usebox\shippingAddressBox}
 
 \ExplSyntaxOff
 
+
+\setkomavar{location}{
+	\begin{flushright}
+		\bfseries
+		\LARGE
+		\usekomavar{title}
+%		\angebot
+%		\par
+%		\medskip
+%		\large\nr ~<%quonumber%>
+	\end{flushright}
+
+	\medskip
+	\begin{tabularx}{\linewidth}{@{}l<{:}>{\raggedright\arraybackslash}X@{}}
+		\datum&\usekomavar{date}\\%%<%transdate%>\\
+		\kundennummer&\usekomavar{customer}\\%<%customernumber%>\\
+		\ansprechpartner&\usekomavar{fromname}\\%<%employee_name%>\\
+		\textTelefon&\usekomavar{fromphone}\\%<%employee_tel%>\\
+		\textEmail&\usekomavar{fromemail}\\%<%employee_email%>
+	\end{tabularx}
+}
+
+
 \renewcommand*{\raggedsignature}{\raggedright}
 
 \endinput
