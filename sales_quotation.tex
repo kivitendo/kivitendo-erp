@@ -18,83 +18,92 @@
 \begin{document}
 
 \setkomavar{signature}{
-<%employee_company%>\ifhmode\\\fi<%salesman_name%>
+<%employee_company%>%
+\ifhmode\\\fi
+<%salesman_name%>%
 }
 
-\begin{minipage}[t]{8cm}
-  \scriptsize
+\setkomavar{offer}{<%quonumber%>}
+\setkomavar{date}{<%transdate%>}
+\setkomavar{customer}{<%customernumber%>}
+\setkomavar{fromname}{<%employee_name%>}
+\setkomavar{fromphone}{<%employee_tel%>}
+\setkomavar{fromemail}{<%employee_email%>}
 
-  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
-  \normalsize
-
-  \vspace*{0.3cm}
-
-  <%name%>
-
-  <%if department_1%><%department_1%><%end if%>
-
-  <%if department_2%><%department_2%><%end if%>
-
-  <%cp_givenname%> <%cp_name%>
-
-  <%street%>
-
-  ~
-
-  <%zipcode%> <%city%>
-
-  <%country%>
-\end{minipage}
-\hfill
-\begin{minipage}[t]{6cm}
-  \hfill{\LARGE\textbf{\angebot}}
-
-  \vspace*{0.2cm}
-
-  \hfill{\large\textbf{\nr ~<%quonumber%>}}
-
-  \vspace*{0.2cm}
-
-  \datum:\hfill <%transdate%>
-
-  \kundennummer:\hfill <%customernumber%>
-
-  \ansprechpartner:\hfill <%employee_name%>
-
-  \textTelefon \hfill <%employee_tel%>
-
-  \textEmail \hfill <%employee_email%>
-
-\end{minipage}
-
-<%if shiptoname%>
-  \vspace{0.8cm}
-  \scriptsize \underline{\abweichendeLieferadresse:}\\
-  \normalsize    <%shiptoname%>
-
-                 <%if shiptocontact%> <%shiptocontact%><%end if%>
-
-                 <%shiptodepartment_1%>
-
-                  <%shiptodepartment_2%>
-
-                  <%shiptostreet%>
-
-                  <%shiptozipcode%> <%shiptocity%>
-<%end if%>
-\vspace*{1.5cm}
-
-\hfill
+%\begin{minipage}[t]{8cm}
+%  \scriptsize
+%
+%  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
+%  \normalsize
+%
+%  \vspace*{0.3cm}
+%
+%  <%name%>
+%
+%  <%if department_1%><%department_1%><%end if%>
+%
+%  <%if department_2%><%department_2%><%end if%>
+%
+%  <%cp_givenname%> <%cp_name%>
+%
+%  <%street%>
+%
+%  ~
+%
+%  <%zipcode%> <%city%>
+%
+%  <%country%>
+%\end{minipage}
+%\hfill
+%\begin{minipage}[t]{6cm}
+%  \hfill{\LARGE\textbf{\angebot}}
+%
+%  \vspace*{0.2cm}
+%
+%  \hfill{\large\textbf{\nr ~<%quonumber%>}}
+%
+%  \vspace*{0.2cm}
+%
+%  \datum:\hfill <%transdate%>
+%
+%  \kundennummer:\hfill <%customernumber%>
+%
+%  \ansprechpartner:\hfill <%employee_name%>
+%
+%  \textTelefon \hfill <%employee_tel%>
+%
+%  \textEmail \hfill <%employee_email%>
+%
+%\end{minipage}
+%
+%<%if shiptoname%>
+%  \vspace{0.8cm}
+%  \scriptsize \underline{\abweichendeLieferadresse:}\\
+%  \normalsize    <%shiptoname%>
+%
+%                 <%if shiptocontact%> <%shiptocontact%><%end if%>
+%
+%                 <%shiptodepartment_1%>
+%
+%                  <%shiptodepartment_2%>
+%
+%                  <%shiptostreet%>
+%
+%                  <%shiptozipcode%> <%shiptocity%>
+%<%end if%>
+%\vspace*{1.5cm}
+%
+%\hfill
 
 
 \begin{letter}{
-  <%name%>\\
-  <%if department_1%><%department_1%><%end if%>\\
-  <%if department_2%><%department_2%><%end if%>\\
-  <%cp_givenname%> <%cp_name%>\\
-  <%street%>\\
-  <%zipcode%> <%city%>\\
-  <%country%>
+  <%name%>\strut\\
+  <%if department_1%><%department_1%>\\<%end if%>
+  <%if department_2%><%department_2%>\\<%end if%>
+  <%cp_givenname%> <%cp_name%>\strut\\
+  <%street%>\strut\\
+  <%zipcode%> <%city%>\strut\\
+  <%country%> \strut
 }
 
 % Anrede nach Geschlecht unterscheiden
