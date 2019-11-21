@@ -86,7 +86,12 @@ contents={\usebox\shippingAddressBox}
 \newcommand{\FakeTable}[1]{
 %	\tl_set:No \l_tmpa_tl {\BODY}
 	\seq_set_split:Nnn \l_kivi_PricingTable_seq {\tabularnewline} {#1}
-	\seq_show:N \l_kivi_PricingTable_seq
+	\seq_map_inline:Nn \l_kivi_PricingTable_seq {
+	\tabular{@{}p{\g_kivi_tab_pos_dim}p{\g_kivi_tab_id_dim}p{\g_kivi_tab_desc_dim}>{\raggedleft\arraybackslash}p{\g_kivi_tab_num_dim}*2{P<{\,\currency}}@{}}
+	##1
+	\endtabular
+	}
+	}
 }
 %\else
 \newenvironment{PricingTabular}{
