@@ -99,7 +99,7 @@ contents={\usebox\shippingAddressBox}
 	\seq_if_empty:NTF \g_kivi_extraDescription_seq
 	{\par\nointerlineskip}
 	{\par\nointerlineskip
-		\begin{tcolorbox}[left skip=\dim_eval:n {\g_kivi_tab_pos_dim+ \g_kivi_tab_id_dim +4\tabcolsep},right skip=\dim_eval:n {\g_kivi_tab_num_dim+ 2\g_kivi_tab_price_dim +6\tabcolsep}, breakable, blank]
+		\begin{tcolorbox}[left~skip=\dim_eval:n {\g_kivi_tab_pos_dim+ \g_kivi_tab_id_dim +4\tabcolsep},right~skip=\dim_eval:n {\g_kivi_tab_num_dim+ 2\g_kivi_tab_price_dim +6\tabcolsep}, breakable, blank]
 		\seq_use:N \g_kivi_extraDescription_seq {\newline}
 		\end{tcolorbox}
 	}
