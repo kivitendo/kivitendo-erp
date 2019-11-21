@@ -1,6 +1,15 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{kiviletter}[2019/10/10 Letter Layouts for Kivitendo]
 
+\newif\if@kivi@infobox
+\DeclareOption{reffields}{\@kivi@infoboxfalse}
+\DeclareOption{infobox}{\@kivi@infoboxtrue}
+\@kivi@infoboxtrue
+
+
+\ProcessOptions\relax
+
+
 \RequirePackage{expl3}
 \RequirePackage{iftex}
 % Schriftart, Eingabelayout der Tastatur
@@ -89,27 +98,25 @@ contents={\usebox\shippingAddressBox}
 
 \ExplSyntaxOff
 
-
+\if@kivi@infobox
 \setkomavar{location}{
 	\begin{flushright}
 		\bfseries
 		\LARGE
 		\usekomavar{title}
-%		\angebot
-%		\par
-%		\medskip
-%		\large\nr ~<%quonumber%>
 	\end{flushright}
 
 	\medskip
 	\begin{tabularx}{\linewidth}{@{}l<{:}>{\raggedright\arraybackslash}X@{}}
-		\datum&\usekomavar{date}\\%%<%transdate%>\\
-		\kundennummer&\usekomavar{customer}\\%<%customernumber%>\\
-		\ansprechpartner&\usekomavar{fromname}\\%<%employee_name%>\\
-		\textTelefon&\usekomavar{fromphone}\\%<%employee_tel%>\\
-		\textEmail&\usekomavar{fromemail}\\%<%employee_email%>
+		\datum&\usekomavar{date}\\
+		\kundennummer&\usekomavar{customer}\\
+		\ansprechpartner&\usekomavar{fromname}\\
+		\ifkomavarempty{fromphone}{\textTelefon&\usekomavar{fromphone}\\}
+		\ifkomavarempty{fromemail}{\textEmail&\usekomavar{fromemail}\\}
 	\end{tabularx}
 }
+\removereffields
+\fi
 
 
 \renewcommand*{\raggedsignature}{\raggedright}
