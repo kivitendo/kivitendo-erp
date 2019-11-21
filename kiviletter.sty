@@ -108,7 +108,7 @@ contents={\usebox\shippingAddressBox}
 	\PricingTabular
 }
 
-\newcommand*{\ExtraDescription}[1]{\seq_gput_right:Nn \g_kivi_extraDescription_seq {#1}}
+\newcommand{\ExtraDescription}[1]{\seq_gput_right:Nn \g_kivi_extraDescription_seq {#1}}
 %\else
 \newenvironment{PricingTabular}[1][]{
 	\begingroup
