@@ -17,6 +17,10 @@
 
 \begin{document}
 
+\setkomavar{signature}{
+<%employee_company%>\ifhmode\\\fi<%salesman_name%>
+}
+
 \begin{minipage}[t]{8cm}
   \scriptsize
 
@@ -82,10 +86,29 @@
 
 \hfill
 
+
+\begin{letter}{
+  <%name%>\\
+  <%if department_1%><%department_1%><%end if%>\\
+  <%if department_2%><%department_2%><%end if%>\\
+  <%cp_givenname%> <%cp_name%>\\
+  <%street%>\\
+  <%zipcode%> <%city%>\\
+  <%country%>
+}
+
 % Anrede nach Geschlecht unterscheiden
-\ifthenelse{\equal{<%cp_name%>}{}}{\anrede}{
-  \ifthenelse{\equal{<%cp_gender%>}{f}}
-    {\anredefrau}{\anredeherr} <%cp_title%> <%cp_name%>,}\\
+\opening{
+	\ifstr{<%cp_name%>}{}
+		{\anrede}
+		{
+		\ifstr{<%cp_gender%>}{f}
+			{\anredefrau}
+			{\anredeherr}
+			<%cp_title%> <%cp_name%>,
+		}
+}
+\thispagestyle{kivitendo.letter.first}
 
 \angebotsformel\\
 
@@ -149,10 +172,9 @@
 
 \end{longtable}
 
-
-space{5mm}
-        <%notes%>
-        \vspace{5mm}
+<%if notes%>
+  <%notes%>
+  \medskip
 <%end if%>
 
 <%if delivery_term%>
@@ -165,20 +187,18 @@ space{5mm}
 <%end if%>
 \angebotfragen
 
-~\\
 
-\angebotagb \\ \\
+\angebotagb
 
-\gruesse \\ \\ \\
-<%employee_company%>
+\closing{\gruesse}
 
-<%salesman_name%>\\\\
+\begin{minipage}{\textwidth}
+\auftragerteilt\par\bigskip
+\nurort:\rule[-.5ex]{8cm}{.2pt}\ ,\den\ \rule[-.5ex]{5cm}{.2pt}\par\bigskip
 
-\parbox[t]{175mm}{
+\unterschrift/\stempel:\rule[-.5ex]{6cm}{.2pt}
+\end{minipage}
 
-  \auftragerteilt\\\\
-  \nurort:\uline{\hspace*{8cm}}\ ,\den\ \uline{\hspace*{5cm}}\\\\\\\\\\
 
-  \unterschrift / \stempel:\uline{\hspace*{6cm}}
-}
+\end{letter}
 \end{document}
