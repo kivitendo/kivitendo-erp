@@ -65,9 +65,9 @@ contents={\usebox\shippingAddressBox}
 \dim_new:N \g_kivi_tab_id_dim
 \dim_gset:Nn \g_kivi_tab_id_dim {4em}
 \dim_new:N \g_kivi_tab_num_dim
-\dim_gset:Nn \g_kivi_tab_num_dim {4em}
+\dim_gset:Nn \g_kivi_tab_num_dim {5em}
 \dim_new:N \g_kivi_tab_price_dim
-\dim_gset:Nn \g_kivi_tab_price_dim {4em}
+\dim_gset:Nn \g_kivi_tab_price_dim {5em}
 \dim_new:N \g_kivi_tab_desc_dim
 
 \dim_new:N \g_kivi_tabcolsep_dim
@@ -85,7 +85,7 @@ contents={\usebox\shippingAddressBox}
 	\longtable{@{}p{\g_kivi_tab_pos_dim}p{\g_kivi_tab_id_dim}p{\g_kivi_tab_desc_dim}>{\raggedleft\arraybackslash}p{\g_kivi_tab_num_dim}*2{P<{\,\currency}}@{}}
 	% Tabellenkopf
 	\toprule
-	\bfseries\position & \bfseries\artikelnummer & \bfseries\bezeichnung & \bfseries\menge &\multicolumn{1}{P}{\bfseries\einzelpreis}&\multicolumn{1}{P}{\bfseries\gesamtpreis}\\
+	\bfseries\position & \bfseries\artikelnummer & \bfseries\bezeichnung & \bfseries\menge &\multicolumn{1}{P}{\bfseries\einzelpreis}&\multicolumn{1}{P@{}}{\bfseries\gesamtpreis}\\
 	\midrule
 	\endhead
 	\midrule
