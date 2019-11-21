@@ -112,8 +112,8 @@ contents={\usebox\shippingAddressBox}
 		\datum&\usekomavar{date}\\
 		\kundennummer&\usekomavar{customer}\\
 		\ansprechpartner&\usekomavar{fromname}\\
-		\ifkomavarempty{fromphone}{\textTelefon&\usekomavar{fromphone}\\}
-		\ifkomavarempty{fromemail}{\textEmail&\usekomavar{fromemail}\\}
+		\ifkomavarempty{fromphone}{}{\textTelefon&\usekomavar{fromphone}\\}
+		\ifkomavarempty{fromemail}{}{\textEmail&\usekomavar{fromemail}\\}
 	\end{tabularx}
 }
 \removereffields
