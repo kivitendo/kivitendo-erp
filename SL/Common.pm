@@ -539,16 +539,16 @@ sub copy_file_to_webdav_folder {
   foreach my $item (qw(tmpdir tmpfile type)){
     next if $form->{$item};
     $::lxdebug->message(LXDebug::WARN(), 'Missing parameter:' . $item);
-    $::form->error($::locale->text("Missing parameter for WebDAV file copy"));
+    $::lxdebug->leave_sub();
+    return $::locale->text("Missing parameter for WebDAV file copy");
   }
 
   my ($webdav_folder, $document_name) =  get_webdav_folder($form);
 
   if (! $webdav_folder){
-    $::lxdebug->leave_sub();
     $::lxdebug->message(LXDebug::WARN(), 'Cannot check correct WebDAV folder');
-    $::form->error($::locale->text("Cannot check correct WebDAV folder"));
-    return undef;
+    $::lxdebug->leave_sub();
+    return $::locale->text("Cannot check correct WebDAV folder")
   }
 
   $complete_path =  File::Spec->catfile($form->{cwd},  $webdav_folder);
@@ -562,7 +562,11 @@ sub copy_file_to_webdav_folder {
     chdir($current_dir);
   }
 
-  opendir my $dh, $complete_path or die "Could not open $complete_path: $!";
+  my $dh;
+  if (!opendir $dh, $complete_path) {
+    $::lxdebug->leave_sub();
+    return "Could not open $complete_path: $!";
+  }
 
   my ($newest_name, $newest_time);
   while ( defined( my $file = readdir( $dh ) ) ) {
@@ -590,7 +594,8 @@ sub copy_file_to_webdav_folder {
 
   if (!File::Copy::copy($current_file, $new_file)) {
     $::lxdebug->message(LXDebug::WARN(), "Copy file from $current_file to $new_file failed: $ERRNO");
-    $::form->error($::locale->text("Copy file from #1 to #2 failed: #3", $current_file, $new_file, $ERRNO));
+    $::lxdebug->leave_sub();
+    return $::locale->text("Copy file from #1 to #2 failed: #3", $current_file, $new_file, $ERRNO);
   }
 
   $::lxdebug->leave_sub();
