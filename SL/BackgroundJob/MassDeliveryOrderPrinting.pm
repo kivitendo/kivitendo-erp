@@ -12,7 +12,7 @@ use SL::SessionFile;
 use SL::Template;
 use SL::Helper::MassPrintCreatePDF qw(:all);
 use SL::Helper::CreatePDF qw(:all);
-use SL::Helper::File qw(store_pdf append_general_pdf_attachments);
+use SL::Helper::File qw(store_pdf append_general_pdf_attachments doc_storage_enabled);
 
 use constant WAITING_FOR_EXECUTION       => 0;
 use constant PRINTING_DELIVERY_ORDERS    => 1;
@@ -102,4 +102,3 @@ sub run {
 }
 
 1;
-
