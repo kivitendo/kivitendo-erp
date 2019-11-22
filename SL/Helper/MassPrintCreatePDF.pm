@@ -44,6 +44,8 @@ sub create_massprint_pdf {
   }
 
   $form->prepare_for_printing;
+
+  $form->{language}            = '_' . $form->{language};
   $form->{attachment_filename} = $form->generate_attachment_filename;
 
   my $pdf_filename = $self->create_pdf(%create_params);
