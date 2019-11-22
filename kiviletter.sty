@@ -60,6 +60,31 @@ contents={\usebox\shippingAddressBox}
 ]{kivitendo.shippingaddress}
 \DeclareNewPageStyleByLayers{kivitendo.letter.first}{kivitendo.shippingaddress}
 
+
+\ExplSyntaxOn
+\DeclareNewLayer[
+foreground,
+textarea,
+mode=picture,
+contents={\box_use:N \g_kivi_LT@head_box},
+align=tl,
+height=\box_ht:N \g_kivi_LT@head_box,
+]{kivitendo.TableHead}
+
+\DeclareNewLayer[
+foreground,
+textarea,
+mode=picture,
+addvoffset=\textheight,
+height=\box_ht:N \g_kivi_LT@foot_box,
+contents=\box_use:N \g_kivi_LT@foot_box,
+align=bl,
+]{kivitendo.TableFoot}
+\ExplSyntaxOff
+
+\DeclareNewPageStyleByLayers{kivitendo.letter.PricingTable}{kivitendo.TableHead, kivitendo.TableFoot}
+\DeclareNewPageStyleByLayers{kivitendo.letter.PricingTable.las}{kivitendo.TableHead}
+
 \setkomavar{backaddress}{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}
 \@setplength{locwidth}{6cm}
 
@@ -113,9 +138,38 @@ contents={\usebox\shippingAddressBox}
 	\kivi_restore_LT@boxes:
 }
 
-\clist_map_inline:nn {head, firsthead, foot, lastfoot} {
+
+\tl_new:N \g_kivi_Pricing_colspec_tl
+\tl_gset:Nn \g_kivi_Pricing_colspec_tl {@{}p{\g_kivi_tab_pos_dim}p{\g_kivi_tab_id_dim}p{\g_kivi_tab_desc_dim}>{\raggedleft\arraybackslash}p{\g_kivi_tab_num_dim}*2{P<{\,\currency}}@{}}
+
+
+\clist_map_inline:nn {head, foot, firsthead, lastfoot} {%TODO reduce
 	\box_new:c {g_kivi_LT@#1_box}
 }
+
+\AtBeginDocument{
+	\csname kivi_setup_LT_boxes:\endcsname
+}
+
+\cs_new:Nn \kivi_setup_LT_boxes: {
+	\CalcTabCols
+	\hbox_gset:Nn \g_kivi_LT@head_box {
+	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
+	\exp_args:NnV \use:n {\tabular[b]}\g_kivi_Pricing_colspec_tl
+	\toprule
+	\bfseries\position & \bfseries\artikelnummer & \bfseries\bezeichnung & \bfseries\menge &\multicolumn{1}{P}{\bfseries\einzelpreis}&\multicolumn{1}{P@{}}{\bfseries\gesamtpreis}\\
+	\midrule
+	\endtabular
+	}
+	\hbox_gset:Nn \g_kivi_LT@foot_box {
+	\begin{tabular*}{\textwidth}[b]{@{\extracolsep{\fill}}r@{}}
+	\midrule
+	\weiteraufnaechsterseite
+	\end{tabular*}
+	}
+}
+
+
 
 \cs_new:Nn \kivi_save_LT@boxes: {
 	\clist_map_inline:nn {head, firsthead, foot, lastfoot} {
