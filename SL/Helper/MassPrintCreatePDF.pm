@@ -2,6 +2,8 @@ package SL::Helper::MassPrintCreatePDF;
 
 use strict;
 
+use SL::Webdav;
+
 use Exporter 'import';
 our @EXPORT_OK = qw(create_massprint_pdf merge_massprint_pdf create_pdfs print_pdfs);
 our %EXPORT_TAGS = (
@@ -45,6 +47,23 @@ sub create_massprint_pdf {
   $form->{attachment_filename} = $form->generate_attachment_filename;
 
   my $pdf_filename = $self->create_pdf(%create_params);
+
+  if ($::instance_conf->get_webdav_documents && !$form->{preview}) {
+    my $webdav = SL::Webdav->new(
+      type     => $params{document}->type,
+      number   => $params{document}->record_number,
+    );
+    my $webdav_file = SL::Webdav::File->new(
+      webdav   => $webdav,
+      filename => $form->{attachment_filename},
+    );
+    eval {
+      $webdav_file->store(file => $pdf_filename);
+      1;
+    } or do {
+      push @{ $params{errors} }, $@ if exists $params{errors};
+    }
+  }
 
   if ( $::instance_conf->get_doc_storage && ! $form->{preview}) {
     $self->append_general_pdf_attachments(filepath => $pdf_filename, type => $form->{type} );
@@ -159,6 +178,15 @@ a tempory $form is used to set
 =back
 
 before printing is done
+
+Recognized parameters are (not a complete list):
+
+=over 2
+
+=item * C<errors> – optional. If given, it must be an array ref. This will be
+filled with potential errors.
+
+=back
 
 
 =head1 AUTHOR

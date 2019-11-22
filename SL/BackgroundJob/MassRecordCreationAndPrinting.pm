@@ -15,7 +15,6 @@ use SL::Locale::String qw(t8);
 use SL::Helper::MassPrintCreatePDF qw(:all);
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::File qw(store_pdf append_general_pdf_attachments doc_storage_enabled);
-use SL::Webdav;
 
 use constant WAITING_FOR_EXECUTION       => 0;
 use constant CONVERTING_DELIVERY_ORDERS  => 1;
@@ -104,32 +103,18 @@ sub convert_invoices_to_pdf {
   foreach my $invoice (@{ $self->{invoices} }) {
 
     eval {
+      my @errors = ();
       my %params = (
         variables => \%variables,
         return    => 'file_name',
         document  => $invoice,
+        errors    => \@errors,
       );
       push @pdf_file_names, $self->create_massprint_pdf(%params);
-
       $data->{num_printed}++;
 
-      # OLD WebDAV Code, may be deleted:
-      # copy file to webdav folder
-      if ($::instance_conf->get_webdav_documents) {
-        my $webdav = SL::Webdav->new(
-          type     => 'invoice',
-          number   => $invoice->invnumber,
-        );
-        my $webdav_file = SL::Webdav::File->new(
-          webdav   => $webdav,
-          filename => t8('Invoice') . '_' . $invoice->invnumber . '.pdf',
-        );
-        eval {
-          $webdav_file->store(file => $pdf_file_names[-1]);
-          1;
-        } or do {
-          push @{ $data->{print_errors} }, { id => $invoice->id, number => $invoice->invnumber, message => $@ };
-        }
+      if (scalar @errors) {
+        push @{ $data->{print_errors} }, { id => $invoice->id, number => $invoice->invnumber, message => join(', ', @errors) };
       }
 
       1;
