@@ -1932,6 +1932,9 @@ sub get_title_for {
 sub get_item_cvpartnumber {
   my ($self, $item) = @_;
 
+  return if !$self->search_cvpartnumber;
+  return if !$self->order->customervendor;
+
   if ($self->cv eq 'vendor') {
     my @mms = grep { $_->make eq $self->order->customervendor->id } @{$item->part->makemodels};
     $item->{cvpartnumber} = $mms[0]->model if scalar @mms;
