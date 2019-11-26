@@ -1037,9 +1037,10 @@ sub parse_template {
     copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
 
     if ($copy_to_webdav) {
-      my $error = Common::copy_file_to_webdav_folder($self);
-      chdir("$self->{cwd}");
-      $self->error($error) if $error;
+      if (my $error = Common::copy_file_to_webdav_folder($self)) {
+        chdir("$self->{cwd}");
+        $self->error($error);
+      }
     }
 
     if (!$self->{preview} && $self->doc_storage_enabled)
@@ -1056,9 +1057,10 @@ sub parse_template {
   }
 
   if ($copy_to_webdav) {
-    my $error = Common::copy_file_to_webdav_folder($self);
-    chdir("$self->{cwd}");
-    $self->error($error) if $error;
+    if (my $error = Common::copy_file_to_webdav_folder($self)) {
+      chdir("$self->{cwd}");
+      $self->error($error);
+    }
   }
 
   if ( !$self->{preview} && $ext_for_format eq 'pdf' && $self->doc_storage_enabled) {

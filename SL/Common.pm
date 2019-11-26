@@ -598,6 +598,7 @@ sub copy_file_to_webdav_folder {
     return $::locale->text("Copy file from #1 to #2 failed: #3", $current_file, $new_file, $ERRNO);
   }
 
+  return;
   $::lxdebug->leave_sub();
 }
 
