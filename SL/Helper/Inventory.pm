@@ -283,6 +283,7 @@ sub check_constraints {
 
     for (keys %$constraints ) {
       croak "unsupported constraint '$_'" unless $supported_constraints{$_};
+      next unless defined $constraints->{$_};
 
       my %whitelist = map { (ref $_ ? $_->id : $_) => 1 } listify($constraints->{$_});
       my $accessor = $supported_constraints{$_};
