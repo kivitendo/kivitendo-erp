@@ -264,7 +264,7 @@ align=bl,
 	}
 	\bool_gset_false:N \g_kivi_restore_geometry_bool
 }
-\ExplSyntaxOff
+%\ExplSyntaxOff
 
 \if@kivi@infobox
 \newkomavar{locationtitle}
@@ -274,19 +274,19 @@ align=bl,
 		\LARGE
 		\usekomavar{locationtitle}
 	\end{flushright}
-
+	\par
 	\medskip
 	\begin{tabularx}{\linewidth}{@{}l<{:}>{\raggedright\arraybackslash}X@{}}
 		\datum&\usekomavar{date}\\
 		\kundennummer&\usekomavar{customer}\\
-		\ansprechpartner&\usekomavar{fromname}\\
-		\ifkomavarempty{fromphone}{}{\textTelefon&\usekomavar{fromphone}\\}
-		\ifkomavarempty{fromemail}{}{\textEmail&\usekomavar{fromemail}\\}
+		\ansprechpartner&\usekomavar{fromname}
+		\ifkomavarempty{fromphone}{}{\\\textTelefon&\usekomavar{fromphone}}
+		\ifkomavarempty{fromemail}{}{\\\textEmail&\usekomavar{fromemail}}
 	\end{tabularx}
 }
 \removereffields
 
-\ExplSyntaxOn
+%\ExplSyntaxOn
 \AtBeginLetter{
 	\ifkomavarempty{title}{}{
 		\exp_args:Nno\setkomavar{locationtitle}{\scr@title@var}
