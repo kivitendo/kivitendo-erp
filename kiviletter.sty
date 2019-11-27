@@ -53,6 +53,7 @@
 \bool_new:N \l_kivi_tmp_bool
 \bool_new:N  \g_kivi_TableFoot_bool
 \dim_new:N \g_kivi_orig@textheight_dim
+\int_new:N \g_PricingTabular_firstpage_int
 \ExplSyntaxOff
 
 \newsavebox{\shippingAddressBox}
@@ -235,6 +236,7 @@ align=bl,
 	\Gm@changelayout
 	\begingroup
 	\def \@currenvir {PricingTabular*}\edef \@currenvline {\on@line }
+	\int_gset:Nn \g_PricingTabular_firstpage_int {\c@page}
 	\addtolength{\vsize}{-\box_ht:N \g_kivi_LT@foot_box}
 	\pagegoal\vsize
 	\widowpenalty0
@@ -246,7 +248,7 @@ align=bl,
 }
 
 \cs_new:cpn {endPricingTabular*} {
-	\thispagestyle{kivitendo.letter.PricingTable}
+	\int_compare:nNnF \g_PricingTabular_firstpage_int = \c@page {\thispagestyle{kivitendo.letter.PricingTable}}
 	\bool_gset_false:N \g_kivi_TableFoot_bool
 	\@nameuse{Gm@restore@@kivi.letter@default}
 	\Gm@changelayout
