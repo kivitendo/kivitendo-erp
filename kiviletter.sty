@@ -210,7 +210,7 @@ align=tl,
 	\begingroup
 	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
 	\CalcTabCols
-	\longtable{@{}p{\g_kivi_tab_pos_dim}p{\g_kivi_tab_id_dim}p{\g_kivi_tab_desc_dim}>{\raggedleft\arraybackslash}p{\g_kivi_tab_num_dim}*2{P<{\,\currency}}@{}}
+	\exp_args:NV \longtable \g_kivi_Pricing_colspec_tl
 	% Tabellenkopf
 	\toprule
 	\bfseries\position & \bfseries\artikelnummer & \bfseries\bezeichnung & \bfseries\menge &\multicolumn{1}{P}{\bfseries\einzelpreis}&\multicolumn{1}{P@{}}{\bfseries\gesamtpreis}\\
@@ -223,7 +223,6 @@ align=tl,
 	\endlongtable
 	\endgroup
 }
-%\fi
 
 \ExplSyntaxOff
 
