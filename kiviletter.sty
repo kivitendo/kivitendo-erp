@@ -92,17 +92,20 @@ align=bl,
 \AtBeginLetter{\dim_gset:Nn \g_kivi_orig@textheight_dim {\textheight}}
 \ExplSyntaxOff
 
+\newpairofpagestyles{kivitendo.letter}{}
+\renewcommand*{\letterpagestyle}{kivitendo.letter}
+
 \DeclareNewPageStyleByLayers{kivitendo.letter.PricingTable}{
 	kivitendo.TableHead,
 	kivitendo.TableFoot
-	scrheadings.head.odd,scrheadings.head.even,scrheadings.head.oneside,%
-	scrheadings.foot.odd,scrheadings.foot.even,scrheadings.foot.oneside,%
+	kivitendo.letter.head.odd,kivitendo.letter.head.even,kivitendo.letter.head.oneside,%
+	kivitendo.letter.foot.odd,kivitendo.letter.foot.even,kivitendo.letter.foot.oneside,%
 }
 \DeclareNewPageStyleByLayers{kivitendo.letter.first}{
 	kivitendo.shippingaddress,
 	kivitendo.TableFoot,
-	scrheadings.head.odd,scrheadings.head.even,scrheadings.head.oneside,%
-	scrheadings.foot.odd,scrheadings.foot.even,scrheadings.foot.oneside,%
+	kivitendo.letter.head.odd,kivitendo.letter.head.even,kivitendo.letter.head.oneside,%
+	kivitendo.letter.foot.odd,kivitendo.letter.foot.even,kivitendo.letter.foot.oneside,%
 }
 
 \setkomavar{backaddress}{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}
