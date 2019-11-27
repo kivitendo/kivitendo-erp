@@ -81,25 +81,28 @@
 %  \textEmail \hfill <%employee_email%>
 %
 %\end{minipage}
-%
-%<%if shiptoname%>
-%  \vspace{0.8cm}
-%  \scriptsize \underline{\abweichendeLieferadresse:}\\
-%  \normalsize    <%shiptoname%>
-%
-%                 <%if shiptocontact%> <%shiptocontact%><%end if%>
-%
-%                 <%shiptodepartment_1%>
-%
-%                  <%shiptodepartment_2%>
-%
-%                  <%shiptostreet%>
-%
-%                  <%shiptozipcode%> <%shiptocity%>
-%<%end if%>
-%\vspace*{1.5cm}
-%
-%\hfill
+
+<%if shiptoname%>
+\makeatletter
+  \begin{lrbox}\shippingAddressBox
+  \parbox{\useplength{toaddrwidth}}{
+	\backaddr@format{\scriptsize\usekomafont{backaddress}%
+		\strut abweichende Lieferadresse
+	}
+	\par\smallskip
+	\setlength{\parskip}{\z@}
+	\par
+	\normalsize
+	<%shiptoname%>\par
+        <%if shiptocontact%> <%shiptocontact%><%end if%>\par
+	<%shiptodepartment_1%>\par
+	<%shiptodepartment_2%>\par
+	<%shiptostreet%>\par
+	<%shiptozipcode%> <%shiptocity%>
+ }
+\end{lrbox}
+\makeatother
+<%end if%>
 
 
 \begin{letter}{
