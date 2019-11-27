@@ -166,6 +166,13 @@ align=tl,
 
 \AtBeginDocument{
 	\csname kivi_setup_LT_boxes:\endcsname
+	\geometry{a4paper,
+		hmargin=\g_kivi_margin_dim,
+		top=\dim_eval:n {\g_kivi_margin_dim + \box_ht:N \g_kivi_LT@head_box},
+		bottom=\dim_eval:n {\g_kivi_margin_dim + \box_ht:N \g_kivi_LT@foot_box},
+		heightrounded}
+	\savegeometry{kivi.letter@table}
+	\loadgeometry{kivi.letter@default}
 }
 
 \cs_new:Nn \kivi_setup_LT_boxes: {
