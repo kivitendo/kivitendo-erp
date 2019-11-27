@@ -36,14 +36,18 @@
 \DeclareUnicodeCharacter{20AC}{\euro}
 \fi
 
-\RequirePackage[fromlogo,fromalign=right]{scrletter}
+\RequirePackage[fromlogo,fromalign=right,
+	firstfoot=false,%Für einheitliche Randeinstellungen
+	]{scrletter}
 \LoadLetterOption{DIN}
 
 \usepackage{geometry}
 
-\geometry{a4paper,margin=\useplength{toaddrhpos}}
-
 \ExplSyntaxOn
+\dim_new:N \g_kivi_margin_dim
+\dim_gset:Nn \g_kivi_margin_dim {\useplength{toaddrhpos}}
+\geometry{a4paper,margin=\g_kivi_margin_dim,heightrounded}
+\savegeometry{kivi.letter@default}
 %Scratch variables
 \int_new:N \l_kivi_tmp_int
 \bool_new:N \l_kivi_tmp_bool
