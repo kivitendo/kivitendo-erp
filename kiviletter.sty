@@ -62,7 +62,7 @@
 \DeclareNewLayer[
 foreground,
 hoffset=\useplength{toaddrhpos},
-voffset=\dimexpr\useplength{toaddrvpos}+\useplength{toaddrheight}+\baselineskip,
+voffset=\dimexpr\useplength{toaddrvpos}+\useplength{toaddrheight}+2\baselineskip,
 contents={\usebox\shippingAddressBox}
 ]{kivitendo.shippingaddress}
 
@@ -95,10 +95,14 @@ align=bl,
 \DeclareNewPageStyleByLayers{kivitendo.letter.PricingTable}{
 	kivitendo.TableHead,
 	kivitendo.TableFoot
+	scrheadings.head.odd,scrheadings.head.even,scrheadings.head.oneside,%
+	scrheadings.foot.odd,scrheadings.foot.even,scrheadings.foot.oneside,%
 }
 \DeclareNewPageStyleByLayers{kivitendo.letter.first}{
 	kivitendo.shippingaddress,
-	kivitendo.TableFoot
+	kivitendo.TableFoot,
+	scrheadings.head.odd,scrheadings.head.even,scrheadings.head.oneside,%
+	scrheadings.foot.odd,scrheadings.foot.even,scrheadings.foot.oneside,%
 }
 
 \setkomavar{backaddress}{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}
@@ -294,6 +298,10 @@ align=bl,
 		\exp_args:Nno\setkomavar{locationtitle}{\scr@title@var}
 		\setkomavar{title}{}
 	}
+	\ifdim\ht\shippingAddressBox>\z@
+	\addtoplength{refvpos}{\ht\shippingAddressBox}
+	\addtoplength{refvpos}{2\baselineskip}
+	\fi
 }
 \ExplSyntaxOff
 \fi
