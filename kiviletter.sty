@@ -51,6 +51,7 @@
 %Scratch variables
 \int_new:N \l_kivi_tmp_int
 \bool_new:N \l_kivi_tmp_bool
+\dim_new:N \g_kivi_orig@textheight_dim
 \ExplSyntaxOff
 
 \newsavebox{\shippingAddressBox}
@@ -62,32 +63,40 @@ hoffset=\useplength{toaddrhpos},
 voffset=\dimexpr\useplength{toaddrvpos}+\useplength{toaddrheight}+\baselineskip,
 contents={\usebox\shippingAddressBox}
 ]{kivitendo.shippingaddress}
-\DeclareNewPageStyleByLayers{kivitendo.letter.first}{kivitendo.shippingaddress}
 
 
 \ExplSyntaxOn
 \DeclareNewLayer[
 foreground,
-textarea,
 mode=picture,
-contents={\box_use:N \g_kivi_LT@head_box},
+hoffset=\g_kivi_margin_dim,
+voffset=\g_kivi_margin_dim,
 align=tl,
 height=\box_ht:N \g_kivi_LT@head_box,
+contents={\box_use:N \g_kivi_LT@head_box},
 ]{kivitendo.TableHead}
 
 \DeclareNewLayer[
 foreground,
 textarea,
 mode=picture,
-addvoffset=\textheight,
+voffset=\dim_eval:n {\paperheight-\g_kivi_margin_dim-\box_ht:N \g_kivi_LT@foot_box},
 height=\box_ht:N \g_kivi_LT@foot_box,
-contents=\box_use:N \g_kivi_LT@foot_box,
-align=bl,
+contents=\bool_if:NT \g_kivi_TableFoot_bool {\box_use:N \g_kivi_LT@foot_box},
+align=tl,
 ]{kivitendo.TableFoot}
+
+\AtBeginLetter{\dim_gset:Nn \g_kivi_orig@textheight_dim {\textheight}}
 \ExplSyntaxOff
 
-\DeclareNewPageStyleByLayers{kivitendo.letter.PricingTable}{kivitendo.TableHead, kivitendo.TableFoot}
-\DeclareNewPageStyleByLayers{kivitendo.letter.PricingTable.las}{kivitendo.TableHead}
+\DeclareNewPageStyleByLayers{kivitendo.letter.PricingTable}{
+	kivitendo.TableHead,
+	kivitendo.TableFoot
+}
+\DeclareNewPageStyleByLayers{kivitendo.letter.first}{
+	kivitendo.shippingaddress,
+	kivitendo.TableFoot.first
+}
 
 \setkomavar{backaddress}{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}
 \@setplength{locwidth}{6cm}
