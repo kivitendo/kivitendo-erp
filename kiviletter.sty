@@ -186,10 +186,12 @@ align=tl,
 	\endtabular
 	}
 	\hbox_gset:Nn \g_kivi_LT@foot_box {
-	\begin{tabular*}{\textwidth}[b]{@{\extracolsep{\fill}}r@{}}
+	\raisebox{\depth}{
+	\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}r@{}}
 	\midrule
-	\weiteraufnaechsterseite
+	\strut\weiteraufnaechsterseite
 	\end{tabular*}
+	}
 	}
 }
 
