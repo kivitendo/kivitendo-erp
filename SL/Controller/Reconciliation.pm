@@ -183,9 +183,6 @@ sub action_reconcile_proposals {
     my $rec_group = SL::DB::Manager::ReconciliationLink->get_new_rec_group();
     my $bank_transaction = SL::DB::Manager::BankTransaction->find_by(id => $bt_id);
     $bank_transaction->cleared('1');
-    if ( $bank_transaction->isa('SL::DB::BankTransaction') ) {
-      $bank_transaction->invoice_amount($bank_transaction->amount);
-    }
     $bank_transaction->save;
     foreach my $acc_trans_id (@{ $::form->{proposal_list}->{$bt_id}->{BB} }) {
       SL::DB::ReconciliationLink->new(
