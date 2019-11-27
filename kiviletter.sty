@@ -76,14 +76,15 @@ height=\box_ht:N \g_kivi_LT@head_box,
 contents={\box_use:N \g_kivi_LT@head_box},
 ]{kivitendo.TableHead}
 
+
 \DeclareNewLayer[
 foreground,
 textarea,
 mode=picture,
-voffset=\dim_eval:n {\paperheight-\g_kivi_margin_dim-\box_ht:N \g_kivi_LT@foot_box},
+voffset=\dim_eval:n {\paperheight-\g_kivi_margin_dim},
 height=\box_ht:N \g_kivi_LT@foot_box,
 contents=\bool_if:NT \g_kivi_TableFoot_bool {\box_use:N \g_kivi_LT@foot_box},
-align=tl,
+align=bl,
 ]{kivitendo.TableFoot}
 
 \AtBeginLetter{\dim_gset:Nn \g_kivi_orig@textheight_dim {\textheight}}
@@ -95,7 +96,7 @@ align=tl,
 }
 \DeclareNewPageStyleByLayers{kivitendo.letter.first}{
 	kivitendo.shippingaddress,
-	kivitendo.TableFoot.first
+	kivitendo.TableFoot
 }
 
 \setkomavar{backaddress}{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}
@@ -238,6 +239,7 @@ align=tl,
 	\widowpenalty0
 	\clubpenalty0
 	\bool_gset_true:N \g_kivi_TableFoot_bool
+	\pagestyle{kivitendo.letter.PricingTable}
 	\leavevmode\box_use:N \g_kivi_LT@head_box
 	\par\nointerlineskip\ignorespaces
 }
