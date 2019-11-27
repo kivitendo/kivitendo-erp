@@ -224,6 +224,43 @@ align=tl,
 	\endgroup
 }
 
+\usepackage{afterpage}
+
+\cs_new:cpn {PricingTabular*}{
+	\bool_gset_true:N \g_kivi_inTable_bool
+	\endgroup
+	\@nameuse{Gm@restore@@kivi.letter@table}%
+	\Gm@changelayout
+	\begingroup
+	\def \@currenvir {PricingTabular*}\edef \@currenvline {\on@line }
+	\addtolength{\vsize}{-\box_ht:N \g_kivi_LT@foot_box}
+	\pagegoal\vsize
+	\widowpenalty0
+	\clubpenalty0
+	\bool_gset_true:N \g_kivi_TableFoot_bool
+	\leavevmode\box_use:N \g_kivi_LT@head_box
+	\par\nointerlineskip\ignorespaces
+}
+
+\cs_new:cpn {endPricingTabular*} {
+	\thispagestyle{kivitendo.letter.PricingTable}
+	\bool_gset_false:N \g_kivi_TableFoot_bool
+	\@nameuse{Gm@restore@@kivi.letter@default}
+	\Gm@changelayout
+	\bool_gset_true:N \g_kivi_restore_geometry_bool
+	\afterpage{
+		\kivi_conditional_restore_geometry:
+	}
+}
+
+\cs_new:Nn \kivi_conditional_restore_geometry: {
+	\bool_if:NT \g_kivi_restore_geometry_bool
+	{
+	\@nameuse{Gm@restore@@kivi.letter@default}
+	\Gm@changelayout
+	}
+	\bool_gset_false:N \g_kivi_restore_geometry_bool
+}
 \ExplSyntaxOff
 
 \if@kivi@infobox
