@@ -118,7 +118,7 @@ align=tl,
 	\dim_gset:Nn \g_kivi_tab_desc_dim {\textwidth-\g_kivi_tab_pos_dim -\g_kivi_tab_id_dim-\g_kivi_tab_num_dim - 2\g_kivi_tab_price_dim - 10\g_kivi_tabcolsep_dim}
 }
 
-\newcolumntype{P}{>{\raggedleft\arraybackslash}p{\g_kivi_tab_price_dim}}
+\newcolumntype{P}{>{\raggedleft\arraybackslash}p{\g_kivi_tab_price_dim}<{\,\currency}}
 
 %\if@kivi@faketable
 \RequirePackage{tcolorbox}
