@@ -128,16 +128,7 @@
 \angebotsformel
 
 
-\begin{PricingTabular}
-	% Tabellenende letzte Seite
-	\midrule
-	\multicolumn{5}{@{}l}{\nettobetrag} & <%subtotal%>\tabularnewline
-	<%foreach tax%>
-	\multicolumn{5}{@{}l}{<%taxdescription%>} & <%tax%>\tabularnewline
-	<%end tax%>
-	\multicolumn{5}{@{}l}{\bfseries\schlussbetrag} &  \textbf{<%ordtotal%>}\tabularnewline
-	\bottomrule
-	\endlastfoot
+\begin{PricingTabular*}
 % eigentliche Tabelle
 \FakeTable{
 <%foreach number%>%
@@ -155,7 +146,15 @@
 			<%linetotal%>\tabularnewline
 <%end number%>
 }
-\end{PricingTabular}
+	\begin{PricingTotal}
+	% Tabellenende letzte Seite
+	\nettobetrag & <%subtotal%>\\
+	<%foreach tax%>
+	%taxdescription%> & <%tax%>\\
+	<%end tax%>
+	\bfseries\schlussbetrag &  \bfseries <%ordtotal%>\\
+	\end{PricingTotal}
+\end{PricingTabular*}
 
 <%if notes%>
   <%notes%>
