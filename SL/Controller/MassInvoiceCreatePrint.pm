@@ -22,7 +22,7 @@ use SL::SessionFile;
 use SL::System::TaskServer;
 use Rose::Object::MakeMethods::Generic
 (
-  'scalar --get_set_init' => [ qw(invoice_models invoice_ids sales_delivery_order_models printers default_printer_id today) ],
+  'scalar --get_set_init' => [ qw(invoice_models invoice_ids sales_delivery_order_models printers default_printer_id today all_businesses) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -260,6 +260,10 @@ sub init_invoice_models {
 sub init_default_printer_id {
   my $pr = SL::DB::Manager::Printer->find_by(printer_description => $::locale->text("sales_invoice_printer"));
   return $pr ? $pr->id : undef;
+}
+
+sub init_all_businesses {
+  return SL::DB::Manager::Business->get_all_sorted;
 }
 
 sub setup {

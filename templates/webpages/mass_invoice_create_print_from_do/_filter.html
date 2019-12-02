@@ -14,6 +14,17 @@
      <td>[% L.input_tag('filter.customer.name:substr::ilike', filter.customer.name_substr__ilike, size = 20) %]</td>
     </tr>
     <tr>
+     <th align="right">[% LxERP.t8('Customer type') %]</th>
+     <td>
+      [% L.select_tag('filter.customer.business_id', SELF.all_businesses,
+                      default    => filter.customer.business_id
+                      title_key  => 'description',
+                      value_key  => 'id',
+                      with_empty => 1,
+                      style      => 'width: 200px') %]
+     </td>
+    </tr>
+    <tr>
      <th align="right">[% LxERP.t8('Delivery Order Date') %] [% LxERP.t8('From Date') %]</th>
      <td>[% L.date_tag('filter.transdate:date::ge', filter.transdate_date__ge) %]</td>
     </tr>
