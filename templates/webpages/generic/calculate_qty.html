@@ -35,24 +35,16 @@
  <script type="text/javascript">
    function calculate_qty() {
 [%- FOREACH row = VARIABLES %]
-     var [% row.name %] = parse_amount('[% MYCONFIG.numberformat %]', $('#calc_qty_form_id #[% row.name %]').val());
+     var [% row.name %] = kivi.parse_amount($('#calc_qty_form_id #[% row.name %]').val());
 [%- END %]
      var result = [% formel %];
-     result = number_format(result, 2, '[% MYCONFIG.numberformat %]');
+     result = number_format(result, 2, "[% MYCONFIG.numberformat %]");
      if (document.CalcQtyForm.input_id.value) {
        document.getElementById(document.CalcQtyForm.input_id.value).value = result;
      } else {
        document.getElementsByName(document.CalcQtyForm.input_name.value)[0].value = result;
      }
      $('#calc_qty_dialog').dialog('close');
-   }
-
-   function parse_amount(numberformat, amount) {
-     if (numberformat == '1.000,00' || numberformat == '1000,00')
-       amount = amount.replace(/\./g, "").replace(/,/, ".");
-     if (numberformat == "1'000.00")
-       amount = amount.replace(/\'/g, '');
-     return amount.replace(/,/g, '');
    }
 
    function number_format(number, precision, numberformat) {
