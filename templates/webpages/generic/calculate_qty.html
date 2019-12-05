@@ -38,7 +38,7 @@
      var [% row.name %] = kivi.parse_amount($('#calc_qty_form_id #[% row.name %]').val());
 [%- END %]
      var result = [% formel %];
-     result = number_format(result, 2, "[% MYCONFIG.numberformat %]");
+     result = kivi.format_amount(result, 2);
      if (document.CalcQtyForm.input_id.value) {
        document.getElementById(document.CalcQtyForm.input_id.value).value = result;
      } else {
@@ -47,32 +47,4 @@
      $('#calc_qty_dialog').dialog('close');
    }
 
-   function number_format(number, precision, numberformat) {
-     number = Math.round( number * Math.pow(10, precision) ) / Math.pow(10, precision);
-     var nf     = numberformat.replace(/\d/g, '').split('').reverse();
-     var sep    = nf[0];
-     var th_sep = nf[1];
-
-     str_number = number+"";
-     arr_int = str_number.split(".");
-     if(!arr_int[0]) arr_int[0] = "0";
-     if(!arr_int[1]) arr_int[1] = "";
-     if(arr_int[1].length < precision) {
-       nachkomma = arr_int[1];
-       for(i=arr_int[1].length+1; i <= precision; i++) {
-         nachkomma += "0";
-       }
-       arr_int[1] = nachkomma;
-     }
-     if(th_sep != "" && arr_int[0].length > 3) {
-       raw_arr_int = arr_int[0];
-       arr_int[0] = "";
-       for(j = 3; j < raw_arr_int.length ; j+=3) {
-         arr_int[0] = th_sep + raw_arr_int.slice(raw_arr_int.length - j, raw_arr_int.length - j + 3) +  arr_int[0] + "";
-       }
-       str_first = raw_arr_int.substr(0, (raw_arr_int.length % 3 == 0) ? 3 : (raw_arr_int.length % 3));
-       arr_int[0] = str_first + arr_int[0];
-     }
-     return arr_int[0] + sep + arr_int[1];
-   }
  </script>
