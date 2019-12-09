@@ -77,7 +77,7 @@ sub _get_stock_onhand {
   }
 
   if ($params{reserve_for}) {
-    my @objects = listify($params{chargenumber});
+    my @objects = listify($params{reserve_for});
     my @tokens;
     push @tokens, ( "(reserve_for_id = ? AND reserve_for_table = ?)") x @objects;
     push @values, map { ($_->id, $_->meta->table) } @objects;
