@@ -44,6 +44,13 @@
 % Identität
 \input{\identpath/ident.tex}
 
+%Setze Briefkopf-logo falls vorhanden
+\file_if_exist:nT {\identpath/briefkopf.png} {
+	\setkomavar{fromlogo}{
+		\includegraphics[width=.25\linewidth]{\identpath/briefkopf.png}
+	}
+}
+
 \ExplSyntaxOn
 % Währungen/Konten
 \tl_new:N \g_kivi_currency_tl
