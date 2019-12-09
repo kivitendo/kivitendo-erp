@@ -44,6 +44,8 @@
 % Identität
 \input{\identpath/ident.tex}
 
+\ExplSyntaxOn
+
 %Setze Briefkopf-logo falls vorhanden
 \file_if_exist:nT {\identpath/briefkopf.png} {
 	\setkomavar{fromlogo}{
@@ -51,7 +53,6 @@
 	}
 }
 
-\ExplSyntaxOn
 % Währungen/Konten
 \tl_new:N \g_kivi_currency_tl
 \str_if_in:NnT \lxcurrency {USD} {\tl_gset:Nn \g_kivi_currency_tl {usd}}
