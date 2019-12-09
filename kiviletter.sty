@@ -109,6 +109,15 @@ align=bl,
 }
 
 \setkomavar{backaddress}{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}
+
+\setkomavar{firsthead}{
+	\if@logo
+	\rlap{\usekomavar{fromlogo}}%
+	\fi
+}
+
+\setkomavar{fromlogo}{\includegraphics[width=.25\linewidth]{\identpath/briefkopf.png}}
+
 \@setplength{locwidth}{6cm}
 
 \ExplSyntaxOn
