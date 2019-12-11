@@ -49,6 +49,16 @@ Kleinere neue Features und Detailverbesserungen:
 - Neuer Hintergrund-Job, der die Jahreszahl in Nummernkreisen jährlich hochsetzt
   (Einstellung und Konfiguration s.a. Kapitel 2.7.5 Exemplarische Konf. Hintergrund-Job)
 
+- Weiterleitung zur Zielseite, wenn man ausgeloggt war und sich einloggt.
+  Falls z.B. der Timeout greift, man in der noch geöffneten kivi aber etwas
+  anklickt, so wird man zur Login-Seite weitergeleitet. Vorher landete man nach
+  dem login in einem solchen Fall auf der Startseite (Logo/Version/Todo-Liste).
+  Nun gelangt man zu der Seite, die man ursprünglich angeklickt hat (nur
+  POST-Requests).
+  Das kann z.B. auch dazu verwendet werden, jmd. einen Link in der kivi (z.B. zu
+  einem Auftrag) zu schicken. Wenn derjenige nicht eingeloggt ist, gelangt er
+  nach dem Login dennoch auf die Zielseite.
+
 2019-08-07 - Release 3.5.4
 
 
