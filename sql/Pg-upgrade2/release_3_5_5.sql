@@ -1,0 +1,3 @@
+-- @tag: release_3_5_5
+-- @description: Leeres Script, das alle Upgradescripte bis zum Release 3.5.5 voraussetzt, um ein fest definiertes Schema zu definieren.
+-- @depends: release_3_5_4 bank_transaction_acc_trans_remove_wrong_primary_key inventory_itime_parts_id_index add_node_id_to_background_jobs tax_removed_taxnumber bank_transactions_nuke_trailing_spaces_in_purpose remove_comma_aggregate_functions inventory_parts_id_index defaults_workflow_po_ap_chart_id defaults_year_end_charts

@@ -1,0 +1,3 @@
+-- @tag: release_3_5_5
+-- @description: Abhängigkeitsscript für Release 3.5.5
+-- @depends: release_3_5_4 master_rights_positions_fix
