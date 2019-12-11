@@ -59,6 +59,14 @@ Kleinere neue Features und Detailverbesserungen:
   einem Auftrag) zu schicken. Wenn derjenige nicht eingeloggt ist, gelangt er
   nach dem Login dennoch auf die Zielseite.
 
+Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+
+407 Test ./t/db_helper/with_transaction.t läuft nicht durch; Rose-Fehlermeldung nur "generic exception"
+406 abzurechnender (Netto-)Betrag bei Aufträgen rechnet falsch wenn Rechnungs-Gutschriften vorhanden sind
+379 Einkauf Lieferanten-Artikelnummer in zweiter (erster) Spalte anzeigen
+377 PartPicker-Suche im Einkauf um Hersteller-Artikelnummer erweitern        
+
+
 2019-08-07 - Release 3.5.4
 
 
