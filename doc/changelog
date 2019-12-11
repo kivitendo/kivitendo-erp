@@ -46,7 +46,8 @@ Kleinere neue Features und Detailverbesserungen:
 - In der neuen Angebots-/Auftragsmaske (neuer Auftrags-Controller) ist die
   Artikelnummer ein Link, der die Artikelstammdaten in einem neuen Tab öffnet.
 
-- Neuer Hintergrund-Job, der die Jahreszahl in Nummernkreis jährlich hochsetzt
+- Neuer Hintergrund-Job, der die Jahreszahl in Nummernkreisen jährlich hochsetzt
+  (Einstellung und Konfiguration s.a. Kapitel 2.7.5 Exemplarische Konf. Hintergrund-Job)
 
 2019-08-07 - Release 3.5.4
 
