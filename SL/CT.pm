@@ -84,6 +84,9 @@ sub search {
       "salesman"           => "e.name",
       "payment"            => "pt.description",
       "pricegroup"         => "pg.pricegroup",
+      "ustid"              => "ct.ustid",
+      "creditlimit"        => "ct.creditlimit",
+      "commercial_court"   => "ct.commercial_court",
     );
 
   $form->{sort} ||= "name";
@@ -98,7 +101,7 @@ sub search {
   }
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
-  if ($sortorder !~ /(business|id|discount|itime)/ && !$join_records) {
+  if ($sortorder !~ /(business|creditlimit|id|discount|itime)/ && !$join_records) {
     $sortorder  = "lower($sortorder) ${sortdir}";
   } else {
     $sortorder .= " ${sortdir}";
