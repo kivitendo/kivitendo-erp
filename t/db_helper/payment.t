@@ -11,7 +11,7 @@ use Support::TestSetup;
 use Test::Exception;
 use List::Util qw(sum);
 
-use SL::Dev::Record qw(create_invoice_item create_sales_invoice create_credit_note);
+use SL::Dev::Record qw(create_invoice_item create_sales_invoice create_credit_note create_ap_transaction);
 use SL::Dev::CustomerVendor qw(new_customer new_vendor);
 use SL::Dev::Part qw(new_part);
 use SL::DB::Buchungsgruppe;
@@ -33,7 +33,7 @@ my ($customer, $vendor, $currency_id, @parts, $buchungsgruppe, $buchungsgruppe7,
 my ($transdate1, $transdate2, $transdate3, $transdate4, $currency, $exchangerate, $exchangerate2, $exchangerate3, $exchangerate4);
 my ($ar_chart,$bank,$ar_amount_chart, $ap_chart, $ap_amount_chart, $fxloss_chart, $fxgain_chart);
 
-my $purchase_invoice_counter = 0; # used for generating purchase invnumber
+my $ap_transaction_counter = 0; # used for generating purchase invnumber
 
 Support::TestSetup::login();
 
@@ -45,8 +45,8 @@ test_default_invoice_two_items_19_7_tax_with_skonto();
 test_default_invoice_two_items_19_7_without_skonto();
 test_default_invoice_two_items_19_7_without_skonto_incomplete_payment();
 test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments();
-test_default_purchase_invoice_two_charts_19_7_without_skonto();
-test_default_purchase_invoice_two_charts_19_7_tax_partial_unrounded_payment_without_skonto();
+test_default_ap_transaction_two_charts_19_7_without_skonto();
+test_default_ap_transaction_two_charts_19_7_tax_partial_unrounded_payment_without_skonto();
 test_default_invoice_one_item_19_without_skonto_overpaid();
 test_credit_note_two_items_19_7_tax_tax_not_included();
 
@@ -56,13 +56,13 @@ test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_d
 test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_2cent();
 test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto();
 test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto_1cent();
-test_default_purchase_invoice_two_charts_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
+test_default_ap_transaction_two_charts_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
 
 # test cases: with_skonto_pt
 test_default_invoice_two_items_19_7_tax_with_skonto_50_50();
 test_default_invoice_four_items_19_7_tax_with_skonto_4x_25();
 test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple();
-test_default_purchase_invoice_two_charts_19_7_with_skonto();
+test_default_ap_transaction_two_charts_19_7_with_skonto();
 test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included();
 test_default_invoice_two_items_19_7_tax_with_skonto_tax_included();
 
@@ -238,88 +238,31 @@ sub init_state {
   $ap_amount_chart = SL::DB::Manager::Chart->find_by( accno => '3400' ); # Wareneingang 19%
 }
 
-sub new_purchase_invoice {
-  # my %params  = @_;
-  # manually create a Kreditorenbuchung from scratch, ap + acc_trans bookings, as no helper exists yet, like $invoice->post.
-  # arap-Booking must come last in the acc_trans order
-  $purchase_invoice_counter++;
+sub new_ap_transaction {
+  $ap_transaction_counter++;
 
-  my $purchase_invoice = SL::DB::PurchaseInvoice->new(
-    vendor_id   => $vendor->id,
-    invnumber   => 'newap ' . $purchase_invoice_counter ,
-    currency_id => $currency_id,
-    employee_id => $employee->id,
-    gldate      => $transdate1,
-    taxzone_id  => $taxzone->id,
-    transdate   => $transdate1,
-    invoice     => 0,
-    type        => 'invoice',
+  my $ap_transaction = create_ap_transaction(
+    vendor      => $vendor,
+    invnumber   => 'newap ' . $ap_transaction_counter,
     taxincluded => 0,
     amount      => '226',
     netamount   => '200',
-    paid        => '0',
-    # %params,
-  )->save;
+    gldate      => $transdate1,
+    taxzone_id  => $taxzone->id,
+    transdate   => $transdate1,
+    bookings    => [
+                     {
+                       chart => SL::DB::Manager::Chart->find_by(accno => '3400'),
+                       amount => 100,
+                     },
+                     {
+                       chart => SL::DB::Manager::Chart->find_by(accno => '3300'),
+                       amount => 100,
+                     },
+                   ],
+ );
 
-  my $expense_chart  = SL::DB::Manager::Chart->find_by(accno => '3400');
-  my $expense_chart_booking= SL::DB::AccTransaction->new(
-                                        trans_id   => $purchase_invoice->id,
-                                        chart_id   => $expense_chart->id,
-                                        chart_link => $expense_chart->link,
-                                        amount     => '-100',
-                                        transdate  => $transdate1,
-                                        source     => '',
-                                        taxkey     => 9,
-                                        tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 9)->id);
-  $expense_chart_booking->save;
-
-  my $tax_chart  = SL::DB::Manager::Chart->find_by(accno => '1576');
-  my $tax_chart_booking= SL::DB::AccTransaction->new(
-                                        trans_id   => $purchase_invoice->id,
-                                        chart_id   => $tax_chart->id,
-                                        chart_link => $tax_chart->link,
-                                        amount     => '-19',
-                                        transdate  => $transdate1,
-                                        source     => '',
-                                        taxkey     => 0,
-                                        tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 9)->id);
-  $tax_chart_booking->save;
-  $expense_chart  = SL::DB::Manager::Chart->find_by(accno => '3300');
-  $expense_chart_booking= SL::DB::AccTransaction->new(
-                                        trans_id   => $purchase_invoice->id,
-                                        chart_id   => $expense_chart->id,
-                                        chart_link => $expense_chart->link,
-                                        amount     => '-100',
-                                        transdate  => $transdate1,
-                                        source     => '',
-                                        taxkey     => 8,
-                                        tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 8)->id);
-  $expense_chart_booking->save;
-
-
-  $tax_chart  = SL::DB::Manager::Chart->find_by(accno => '1571');
-  $tax_chart_booking= SL::DB::AccTransaction->new(
-                                         trans_id   => $purchase_invoice->id,
-                                         chart_id   => $tax_chart->id,
-                                         chart_link => $tax_chart->link,
-                                         amount     => '-7',
-                                         transdate  => $transdate1,
-                                         source     => '',
-                                         taxkey     => 0,
-                                         tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 8)->id);
-  $tax_chart_booking->save;
-  my $arap_chart  = SL::DB::Manager::Chart->find_by(accno => '1600');
-  my $arap_booking= SL::DB::AccTransaction->new(trans_id   => $purchase_invoice->id,
-                                                chart_id   => $arap_chart->id,
-                                                chart_link => $arap_chart->link,
-                                                amount     => '226',
-                                                transdate  => $transdate1,
-                                                source     => '',
-                                                taxkey     => 0,
-                                                tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
-  $arap_booking->save;
-
-  return $purchase_invoice;
+  return $ap_transaction;
 }
 
 sub number_of_payments {
@@ -331,7 +274,7 @@ sub number_of_payments {
     if ( $transaction->chart_link =~ /(AR_paid|AP_paid)/ ) {
       $paid_amount += $transaction->amount ;
       $number_of_payments++;
-    };
+    }
   };
   return ($number_of_payments, $paid_amount);
 };
@@ -356,7 +299,7 @@ sub test_default_invoice_one_item_19_without_skonto {
     payment_id   => $payment_terms->id,
   );
 
-  my $purchase_invoice = new_purchase_invoice();
+  my $ap_transaction = new_ap_transaction();
 
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
@@ -390,7 +333,7 @@ sub test_default_invoice_one_item_19_without_skonto_overpaid {
     payment_id   => $payment_terms->id,
   );
 
-  my $purchase_invoice = new_purchase_invoice();
+  my $ap_transaction = new_ap_transaction();
 
 
   # default values
@@ -772,10 +715,10 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
 }
 
 # test 3 : two items, without skonto
-sub test_default_purchase_invoice_two_charts_19_7_without_skonto {
+sub test_default_ap_transaction_two_charts_19_7_without_skonto {
   my $title = 'default invoice, two items, 19/7% tax without skonto';
 
-  my $purchase_invoice = new_purchase_invoice();
+  my $ap_transaction = new_ap_transaction();
 
   my %params = ( chart_id => $bank_account->chart_id,
                  transdate => DateTime->today_local->to_kivitendo
@@ -784,10 +727,10 @@ sub test_default_purchase_invoice_two_charts_19_7_without_skonto {
   $params{amount} = '226'; # pass full amount
   $params{payment_type} = 'without_skonto';
 
-  $purchase_invoice->pay_invoice( %params );
+  $ap_transaction->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($purchase_invoice);
-  my $total = total_amount($purchase_invoice);
+  my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);
+  my $total = total_amount($ap_transaction);
 
   is($paid_amount,         226,     "${title}: paid amount");
   is($number_of_payments,    1,     "${title}: 1 AP_paid bookings");
@@ -795,10 +738,10 @@ sub test_default_purchase_invoice_two_charts_19_7_without_skonto {
 
 }
 
-sub test_default_purchase_invoice_two_charts_19_7_with_skonto {
+sub test_default_ap_transaction_two_charts_19_7_with_skonto {
   my $title = 'default invoice, two items, 19/7% tax without skonto';
 
-  my $purchase_invoice = new_purchase_invoice();
+  my $ap_transaction = new_ap_transaction();
 
   my %params = ( chart_id => $bank_account->chart_id,
                  transdate => DateTime->today_local->to_kivitendo
@@ -807,10 +750,10 @@ sub test_default_purchase_invoice_two_charts_19_7_with_skonto {
   # $params{amount} = '226'; # pass full amount
   $params{payment_type} = 'with_skonto_pt';
 
-  $purchase_invoice->pay_invoice( %params );
+  $ap_transaction->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($purchase_invoice);
-  my $total = total_amount($purchase_invoice);
+  my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);
+  my $total = total_amount($ap_transaction);
 
   is($paid_amount,         226,     "${title}: paid amount");
   is($number_of_payments,    3,     "${title}: 1 AP_paid bookings");
@@ -818,19 +761,19 @@ sub test_default_purchase_invoice_two_charts_19_7_with_skonto {
 
 }
 
-sub test_default_purchase_invoice_two_charts_19_7_tax_partial_unrounded_payment_without_skonto {
-  my $title = 'default purchase_invoice, two charts, 19/7% tax multiple payments with final difference as skonto';
+sub test_default_ap_transaction_two_charts_19_7_tax_partial_unrounded_payment_without_skonto {
+  my $title = 'default ap_transaction, two charts, 19/7% tax multiple payments with final difference as skonto';
 
   # check whether unrounded amounts passed via $params{amount} are rounded for without_skonto case
-  my $purchase_invoice = new_purchase_invoice();
-  $purchase_invoice->pay_invoice(
-                          amount       => ( $purchase_invoice->amount / 3 * 2),
+  my $ap_transaction = new_ap_transaction();
+  $ap_transaction->pay_invoice(
+                          amount       => ( $ap_transaction->amount / 3 * 2),
                           payment_type => 'without_skonto',
                           chart_id     => $bank_account->chart_id,
                           transdate    => DateTime->today_local->to_kivitendo
                          );
-  my ($number_of_payments, $paid_amount) = number_of_payments($purchase_invoice);
-  my $total = total_amount($purchase_invoice);
+  my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);
+  my $total = total_amount($ap_transaction);
 
   is($paid_amount,         150.67,   "${title}: paid amount");
   is($number_of_payments,       1,   "${title}: 1 AP_paid bookings");
@@ -838,32 +781,32 @@ sub test_default_purchase_invoice_two_charts_19_7_tax_partial_unrounded_payment_
 };
 
 
-sub test_default_purchase_invoice_two_charts_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto {
-  my $title = 'default purchase_invoice, two charts, 19/7% tax multiple payments with final difference as skonto';
+sub test_default_ap_transaction_two_charts_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto {
+  my $title = 'default ap_transaction, two charts, 19/7% tax multiple payments with final difference as skonto';
 
-  my $purchase_invoice = new_purchase_invoice();
+  my $ap_transaction = new_ap_transaction();
 
   # pay 2/3 and 1/5, leaves 3.83% to be used as Skonto
-  $purchase_invoice->pay_invoice(
-                          amount       => ( $purchase_invoice->amount / 3 * 2),
+  $ap_transaction->pay_invoice(
+                          amount       => ( $ap_transaction->amount / 3 * 2),
                           payment_type => 'without_skonto',
                           chart_id     => $bank_account->chart_id,
                           transdate    => DateTime->today_local->to_kivitendo
                          );
-  $purchase_invoice->pay_invoice(
-                          amount       => ( $purchase_invoice->amount / 5 ),
+  $ap_transaction->pay_invoice(
+                          amount       => ( $ap_transaction->amount / 5 ),
                           payment_type => 'without_skonto',
                           chart_id     => $bank_account->chart_id,
                           transdate    => DateTime->today_local->to_kivitendo
                          );
-  $purchase_invoice->pay_invoice(
+  $ap_transaction->pay_invoice(
                           payment_type => 'difference_as_skonto',
                           chart_id     => $bank_account->chart_id,
                           transdate    => DateTime->today_local->to_kivitendo
                          );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($purchase_invoice);
-  my $total = total_amount($purchase_invoice);
+  my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);
+  my $total = total_amount($ap_transaction);
 
   is($paid_amount,         226, "${title}: paid amount");
   is($number_of_payments,    4, "${title}: 1 AP_paid bookings");
