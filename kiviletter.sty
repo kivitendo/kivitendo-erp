@@ -42,6 +42,8 @@
 \LoadLetterOption{DIN}
 
 \newkomavar{transaction}
+\newkomavar[\lieferschein{}~\nr]{delivery}
+\newkomavar[\angebot{}~\nr]{quote}
 
 \usepackage{geometry}
 
@@ -295,7 +297,19 @@ align=bl,
 	\medskip
 	\begin{tabularx}{\linewidth}{@{}l<{:}>{\raggedright\arraybackslash}X@{}}
 		\usekomavar*{date}&\usekomavar{date}\\
+		\ifkomavarempty{myref}{}{
+			\usekomavar*{myref}&\usekomavar{myref}\\
+		}
 		\kundennummer&\usekomavar{customer}\\
+		\ifkomavarempty{yourref}{}{
+			\usekomavar*{yourref}&\usekomavar{yourref}\\
+		}
+		\ifkomavarempty{delivery}{}{
+			\usekomavar*{delivery}&\usekomavar{delivery}\\
+		}
+		\ifkomavarempty{quote}{}{
+			\usekomavar*{quote}&\usekomavar{quote}\\
+		}
 		\ansprechpartner&\usekomavar{fromname}
 		\ifkomavarempty{fromphone}{}{\\\textTelefon&\usekomavar{fromphone}}
 		\ifkomavarempty{fromemail}{}{\\\textEmail&\usekomavar{fromemail}}
