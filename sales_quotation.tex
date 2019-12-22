@@ -1,4 +1,3 @@
-\PassOptionsToPackage{faketable}{kiviletter}
 \input{inheaders.tex}
 
 
@@ -24,6 +23,8 @@
 <%salesman_name%>%
 }
 
+\setkomavar*{date}{\datum}
+
 \setkomavar{date}{<%transdate%>}
 \setkomavar{customer}{<%customernumber%>}
 \setkomavar{fromname}{<%employee_name%>}
@@ -33,6 +34,7 @@
 	\angebot~
 	\nr ~<%quonumber%>
 }
+
 \setkomavar{transaction}{<%transaction_description%>}
 
 <%if shiptoname%>

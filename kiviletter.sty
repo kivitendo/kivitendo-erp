@@ -294,7 +294,7 @@ align=bl,
 	\par
 	\medskip
 	\begin{tabularx}{\linewidth}{@{}l<{:}>{\raggedright\arraybackslash}X@{}}
-		\datum&\usekomavar{date}\\
+		\usekomavar*{date}&\usekomavar{date}\\
 		\kundennummer&\usekomavar{customer}\\
 		\ansprechpartner&\usekomavar{fromname}
 		\ifkomavarempty{fromphone}{}{\\\textTelefon&\usekomavar{fromphone}}
