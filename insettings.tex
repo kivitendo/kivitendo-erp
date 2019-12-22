@@ -53,11 +53,14 @@
 \tl_new:N \g_kivi_currency_tl
 \str_if_in:NnT \lxcurrency {USD} {\tl_gset:Nn \g_kivi_currency_tl {usd}}
 \str_if_in:NnT \lxcurrency {CHF} {\tl_gset:Nn \g_kivi_currency_tl {chf}}
-\tl_if_empty:NT  \g_kivi_currency_tl {\tl_gset:Nn  \g_kivi_currency_tl  {euro}}
-% wenn er es nicht kennt dann text übernehmen.
-% Problematisch mit Dateistruktur
-
-\input{\identpath/\g_kivi_currency_tl _account.tex}
+\str_if_in:NnT \lxcurrency {EUR} {\tl_gset:Nn \g_kivi_currency_tl {euro}}
+\tl_if_empty:NTF  \g_kivi_currency_tl {
+	\str_gset_eq:NN  \g_kivi_currency_tl  \lxcurrency
+	\input{\identpath/euro_account.tex}
+	\let\currency\g_kivi_currency_tl
+}{
+	\input{\identpath/\g_kivi_currency_tl _account.tex}
+}
 \ExplSyntaxOff
 
 
