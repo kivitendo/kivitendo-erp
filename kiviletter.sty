@@ -41,6 +41,8 @@
 	]{scrletter}
 \LoadLetterOption{DIN}
 
+\newkomavar{transaction}
+
 \usepackage{geometry}
 
 \ExplSyntaxOn
@@ -62,7 +64,7 @@
 \DeclareNewLayer[
 foreground,
 hoffset=\useplength{toaddrhpos},
-voffset=\dimexpr\useplength{toaddrvpos}+\useplength{toaddrheight}+2\baselineskip,
+voffset=\dimexpr\useplength{toaddrvpos}+\useplength{toaddrheight}+4\baselineskip,
 contents={\usebox\shippingAddressBox}
 ]{kivitendo.shippingaddress}
 
@@ -280,16 +282,15 @@ align=bl,
 	}
 	\bool_gset_false:N \g_kivi_restore_geometry_bool
 }
-%\ExplSyntaxOff
+
+
 
 \if@kivi@infobox
-\newkomavar{locationtitle}
 \setkomavar{location}{
-	\begin{flushright}
-		\bfseries
-		\LARGE
-		\usekomavar{locationtitle}
-	\end{flushright}
+	\ifkomavarempty{transaction}{}{
+	\bfseries
+	\usekomavar{transaction}
+	}
 	\par
 	\medskip
 	\begin{tabularx}{\linewidth}{@{}l<{:}>{\raggedright\arraybackslash}X@{}}
@@ -301,16 +302,10 @@ align=bl,
 	\end{tabularx}
 }
 \removereffields
-
-%\ExplSyntaxOn
 \AtBeginLetter{
-	\ifkomavarempty{title}{}{
-		\exp_args:Nno\setkomavar{locationtitle}{\scr@title@var}
-		\setkomavar{title}{}
-	}
 	\ifdim\ht\shippingAddressBox>\z@
 	\addtoplength{refvpos}{\ht\shippingAddressBox}
-	\addtoplength{refvpos}{2\baselineskip}
+	\addtoplength{refvpos}{4\baselineskip}
 	\fi
 }
 \ExplSyntaxOff
