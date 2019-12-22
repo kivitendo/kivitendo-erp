@@ -47,11 +47,7 @@
 \ExplSyntaxOn
 
 %Setze Briefkopf-logo falls vorhanden
-\file_if_exist:nT {\identpath/briefkopf.png} {
-	\setkomavar{fromlogo}{
-		\includegraphics[width=.25\linewidth]{\identpath/briefkopf.png}
-	}
-}
+\setkomavar{fromlogo}{\includegraphics[width=.25\linewidth]{\identpath/briefkopf}}
 
 % Währungen/Konten
 \tl_new:N \g_kivi_currency_tl
