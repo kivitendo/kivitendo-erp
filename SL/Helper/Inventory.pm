@@ -57,11 +57,13 @@ sub _get_stock_onhand {
   }
 
   if ($params{date}) {
+    Carp::croak("not DateTime ".$params{date}) unless ref($params{date}) eq 'DateTime';
     push @where, sprintf "shippingdate <= ?";
     push @values, $params{date};
   }
 
   if ($params{bestbefore}) {
+    Carp::croak("not DateTime ".$params{date}) unless ref($params{bestbefore}) eq 'DateTime';
     push @where, sprintf "bestbefore >= ?";
     push @values, $params{bestbefore};
   }
@@ -279,6 +281,7 @@ sub check_constraints {
       bin_id       => 'bin_id',
       warehouse_id => 'warehouse_id',
       chargenumber => 'chargenumber',
+      reserve_for  => 'reserve_for_id',
     );
 
     for (keys %$constraints ) {
@@ -290,9 +293,10 @@ sub check_constraints {
 
       if (any { !$whitelist{$_->$accessor} } @$allocations) {
         my %error_constraints = (
-          bin_id       => t8('Bins'),
-          warehouse_id => t8('Warehouses'),
-          chargenumber => t8('Chargenumbers'),
+          bin_id         => t8('Bins'),
+          warehouse_id   => t8('Warehouses'),
+          chargenumber   => t8('Chargenumbers'),
+          reserve_for    => t8('Reserve For'),
         );
         my @allocs = grep { $whitelist{$_->$accessor} } @$allocations;
         my $needed = sum map { $_->qty } grep { !$whitelist{$_->$accessor} } @$allocations;
