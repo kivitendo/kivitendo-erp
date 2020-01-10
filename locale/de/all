@@ -1835,6 +1835,7 @@ $self->{texts} = {
   'Local account number'        => 'Lokale Kontonummer',
   'Local bank account'          => 'Lokales Bankkonto',
   'Local bank code'             => 'Lokale Bankleitzahl',
+  'Lock'                        => 'Festschreibung',
   'Lock System'                 => 'System sperren',
   'Lock and unlock installation' => 'Installation sperren/entsperren',
   'Lock bookings'               => 'Buchungen festschreiben',

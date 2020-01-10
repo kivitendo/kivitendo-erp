@@ -1070,6 +1070,8 @@ sub generate_datev_lines {
       # $datev_data{buchungsschluessel} = !$datevautomatik ? $taxkey : "4";
       $datev_data{buchungsschluessel} = $taxkey;
     }
+    # set lock for each transaction
+    $datev_data{locked} = $self->locked;
 
     push(@datev_lines, \%datev_data) if $datev_data{umsatz};
   }
