@@ -18,68 +18,45 @@
 
 \begin{document}
 
-\begin{minipage}[t]{8cm}
-  \scriptsize
-  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
-  \normalsize
+\setkomavar{title}{
+	\lieferschein~
+	\nr~<%donumber%>
+}
+\setkomavar*{date}{\datum}
+\setkomavar{date}{<%dodate%>}
+<%if cusordnumber%>
+	\setkomavar*{yourref}{\unsereBestellnummer}
+	\setkomavar{yourref}{<%cusordnumber%>}
+<%end if%>
+<%if ordnumber%>\setkomavar{orderID}{<%ordnumber%>}<%end if%>
+\setkomavar{fromname}{<%employee_name%>}
+\setkomavar{fromphone}{<%employee_tel%>}
+\setkomavar{fromemail}{<%employee_email%>}
+<%if globalprojectnumber%>\setkomavar{projectID}{<%globalprojectnumber%}><%end globalprojectnumber%>
 
-  \vspace*{0.3cm}
-  \ifthenelse{\equal{<%shiptoname%>}{}}{ % KEINE ABWEICHENDE LIEFERADRESSE
+\setkomavar{transaction}{<%transaction_description%>}
 
-    <%name%>
 
-    <%street%>
-
-    ~
-
-    <%zipcode%> <%city%>
-
-    <%country%>
-
+\begin{letter}{
+  \ifstr{<%shiptoname%>}{}{ % KEINE ABWEICHENDE LIEFERADRESSE
+	<%name%>\strut\\
+	<%if department_1%><%department_1%>\\<%end if%>
+	<%if department_2%><%department_2%>\\<%end if%>
+	<%cp_givenname%> <%cp_name%>\strut\\
+	<%street%>\strut\\
+	<%zipcode%> <%city%>\strut\\
+	<%country%> \strut
   }{ % ABWEICHENDE LIEFERADRESSE (Aus Stammdaten oder Beleg)
+	<%shiptoname%>\strut\\
+	<%if shiptocontact%> <%shiptocontact%><%end if%>\strut\\
+	<%shiptodepartment_1%>\strut\\
+	<%shiptodepartment_2%>\strut\\
+	<%shiptostreet%>\strut\\
+	<%shiptozipcode%> <%shiptocity%>\strut
+	} % ende ifthenelse LIEFERADRESSE
+}
 
-    <%shiptoname%>
-
-    <%shiptostreet%>
-
-    ~
-
-    <%shiptozipcode%> <%shiptocity%>
-
-    <%shiptocountry%>
-  } % ende ifthenelse LIEFERADRESSE
-\end{minipage}
-
-
-\hfill
-\begin{minipage}[t]{6cm}
-  \hfill{\LARGE\textbf{\lieferschein}}
-
-  \vspace*{0.2cm}
-
-  \hfill{\large\textbf{\nr ~<%donumber%>}}
-
-  \vspace*{0.2cm}
-
-  \datum:\hfill <%dodate%>
-
-  \kundennummer:\hfill <%customernumber%>
-
-  <%if cusordnumber%>\ihreBestellnummer:\hfill <%cusordnumber%><%end if%>
-
-  <%if ordnumber%>\auftragsnummer:\hfill <%ordnumber%><%end if%>
-
-  \ansprechpartner:\hfill <%employee_name%>
-
-  \textTelefon \hfill <%employee_tel%>
-
-  \textEmail \hfill <%employee_email%>
-
-  <%if globalprojectnumber%> \projektnummer:\hfill <%globalprojectnumber%> <%end globalprojectnumber%>
-\end{minipage}
-
-\vspace*{1.5cm}
-
+\opening{}%muss existieren, damit seitenstil erzeugt wird.
 
 %
 % - longtable kann innerhalb der Tabelle umbrechen
@@ -136,13 +113,15 @@
 \vspace{0.2cm}
 
 <%if notes%>
-        \vspace{5mm}
-        <%notes%>
-        \vspace{5mm}
+<%notes%>
+\medskip
 <%end if%>
+
 
 <%if delivery_term%>
   \lieferung ~<%delivery_term.description_long%>\\
 <%end delivery_term%>
+
+\end{letter}
 
 \end{document}
