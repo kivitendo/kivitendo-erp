@@ -33,7 +33,7 @@
 \setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{
 	\angebot~
-	\nr ~<%quonumber%>
+	\nr~<%quonumber%>
 }
 
 \setkomavar{transaction}{<%transaction_description%>}
@@ -95,6 +95,7 @@
 <%number%> &%
 \textbf{<%description%>}%
 	<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
+	<%if reqdate%>\ExtraDescription{\lieferdatum: <%reqdate%>}<%end reqdate%>%
 	<%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
 	<%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
 	<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
