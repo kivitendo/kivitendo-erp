@@ -17,162 +17,110 @@
 
 
 \begin{document}
-
-\ourfont
-\begin{minipage}[t]{8cm}
-  \scriptsize
-
-  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
-  \normalsize
-
-  \vspace*{0.3cm}
-
-  <%name%>
-
-  <%if department_1%><%department_1%><%end if%>
-
-  <%if department_2%><%department_2%><%end if%>
-
-  <%cp_givenname%> <%cp_name%>
-
-  <%street%>
-
-  ~
-
-  <%zipcode%> <%city%>
-
-  <%country%>
-\end{minipage}
-\hfill
-\begin{minipage}[t]{6cm}
-  \hfill{\LARGE\textbf{\gutschrift}}
-
-  \vspace*{0.2cm}
-
-  \hfill{\large\textbf{\nr ~<%invnumber%>}}
-
-  \vspace*{0.2cm}
-
-  <%if invnumber_for_credit_note%> \fuerRechnung: \hfill <%invnumber_for_credit_note%> <%end if%>
-
-  \datum:\hfill <%invdate%>
-
-  \kundennummer:\hfill <%customernumber%>
-
-  <%if ordnumber%> \auftragsnummer:\hfill <%ordnumber%> <%end if%>
-
-  <%if cusordnumber%>\ihreBestellnummer:\hfill <%cusordnumber%><%end if%>
-
-  \ansprechpartner:\hfill <%employee_name%>
-
-  \textTelefon \hfill <%employee_tel%>
-
-  \textEmail \hfill <%employee_email%>
-
-  <%if globalprojectnumber%> \projektnummer:\hfill <%globalprojectnumber%> <%end globalprojectnumber%>
-\end{minipage}
+	
 
 <%if shiptoname%>
-  \vspace{0.8cm}
- % \hfill \fbox{\parbox{5.55cm}{%
- % \raggedright
-  \scriptsize \underline{\abweichendeLieferadresse:}\\
-  \normalsize    <%shiptoname%>
-
-                 <%if shiptocontact%> <%shiptocontact%><%end if%>
-
-                 <%shiptodepartment_1%>
-
-                  <%shiptodepartment_2%>
-
-                  <%shiptostreet%>
-
-                  <%shiptozipcode%> <%shiptocity%>
-%  }}
+\makeatletter
+\begin{lrbox}\shippingAddressBox
+	\parbox{\useplength{toaddrwidth}}{
+		\backaddr@format{\scriptsize\usekomafont{backaddress}%
+			\strut abweichende Lieferadresse
+		}
+		\par\smallskip
+		\setlength{\parskip}{\z@}
+		\par
+		\normalsize
+		<%shiptoname%>\par
+		<%if shiptocontact%> <%shiptocontact%><%end if%>\par
+		<%shiptodepartment_1%>\par
+		<%shiptodepartment_2%>\par
+		<%shiptostreet%>\par
+		<%shiptozipcode%> <%shiptocity%>
+	}
+\end{lrbox}
+\makeatother
 <%end if%>
-\vspace*{1.5cm}
 
-\hfill
+	
+\setkomavar{title}{
+	\gutschrift~
+	\nr ~<%invnumber%>
+}
+
+<%if invnumber_for_credit_note%>
+\setkomavar*{myref}{\fuerRechnung}
+\setkomavar{myref}{<%invnumber_for_credit_note%>}
+<%end if%>
+
+\setkomavar*{date}{\datum}
+
+\setkomavar{date}{<%transdate%>}
+\setkomavar{customer}{<%customernumber%>}
+\setkomavar{fromname}{<%employee_name%>}
+\setkomavar{fromphone}{<%employee_tel%>}
+\setkomavar{fromemail}{<%employee_email%>}
+	
+\begin{letter}{
+		<%name%>\strut\\
+		<%if department_1%><%department_1%>\\<%end if%>
+		<%if department_2%><%department_2%>\\<%end if%>
+		<%cp_givenname%> <%cp_name%>\strut\\
+		<%street%>\strut\\
+		<%zipcode%> <%city%>\strut\\
+		<%country%> \strut
+	}
 
 % Anrede nach Geschlecht unterscheiden
-\ifthenelse{\equal{<%cp_name%>}{}}{\anrede}{
-  \ifthenelse{\equal{<%cp_gender%>}{f}}
-    {\anredefrau}{\anredeherr} <%cp_title%> <%cp_name%>,}\\
+\opening{
+	\ifstr{<%cp_name%>}{}
+		{\anrede}
+		{
+			\ifstr{<%cp_gender%>}{f}
+				{\anredefrau}
+				{\anredeherr}
+				<%cp_title%> <%cp_name%>,
+			}
+		}
+\thispagestyle{kivitendo.letter.first}
 
-\gutschriftformel\\
 
-\vspace{0.5cm}
+\gutschriftformel
 
-
-%
-% - longtable kann innerhalb der Tabelle umbrechen
-% - da der Umbruch nicht von Lx-Office kontrolliert wird, kann man keinen
-%   Übertrag machen
-% - Innerhalb des Langtextes <%longdescription%> wird nicht umgebrochen.
-%   Falls das gewünscht ist, \\ mit \renewcommand umschreiben (siehe dazu:
-%   http://www.lx-office.org/uploads/media/Lx-Office_Anwendertreffen_LaTeX-Druckvorlagen-31.01.2011_01.pdf)
-%
-\setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
-\setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
-\begin{longtable}{@{}rrp{7cm}@{\extracolsep{\fill}}rrr@{}}
-% Tabellenkopf
-\hline
-\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
-\hline\\
-\endhead
-
-% Tabellenkopf erste Seite
-\hline
-\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
-\hline\\[-0.5em]
-\endfirsthead
-
-% Tabellenende
-\\
-\multicolumn{6}{@{}r@{}}{\weiteraufnaechsterseite}
-\endfoot
-
-% Tabellenende letzte Seite
-\hline\\
-\multicolumn{5}{@{}l}{\nettobetrag} & <%subtotal%> \currency\\
-<%foreach tax%>
-\multicolumn{5}{@{}l}{<%taxdescription%>} & <%tax%> \currency\\
-<%end tax%>
-\multicolumn{5}{@{}l}{\textbf{\schlussbetrag}} &  \textbf{<%invtotal%>} \currency\\
-\hline\hline\\
-\endlastfoot
-
+\begin{PricingTabular*}
 % eigentliche Tabelle
-<%foreach number%>
-          <%runningnumber%> &
-          <%number%> &
-          \textbf{<%description%>} &
-          \raggedleft <%qty%> <%unit%> &
-          <%sellprice%> \currency &
-          \ifthenelse{\equal{<%p_discount%>}{0}}{}{\sffamily\scriptsize{(-<%p_discount%> \%)}}
-          \ourfont{<%linetotal%> \currency} \\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden
-
-          <%if longdescription%> && \scriptsize <%longdescription%>\\<%end longdescription%>
-          <%if serialnumber%> && \scriptsize \seriennummer: <%serialnumber%>\\<%end serialnumber%>
-          <%if ean%> && \scriptsize \ean: <%ean%>\\<%end ean%>
-          <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>
-          \\[-0.8em]
-<%end number%>
-
-\end{longtable}
-
-
-\vspace{0.2cm}
+\FakeTable{
+	<%foreach number%>%
+	<%runningnumber%> &%
+	<%number%> &%
+	\textbf{<%description%>}%
+		<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
+		<%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
+		<%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
+		<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
+		&%
+		<%qty%> <%unit%> &%
+		<%sellprice%>&%
+		\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
+			<%linetotal%>\tabularnewline
+			<%end number%>
+	}
+	\begin{PricingTotal}
+		% Tabellenende letzte Seite
+		\nettobetrag & <%subtotal%>\\
+		<%foreach tax%>
+		<%taxdescription%> & <%tax%>\\
+		<%end tax%>
+		\bfseries\schlussbetrag &  \bfseries <%ordtotal%>\\
+	\end{PricingTotal}
+\end{PricingTabular*}
 
 <%if notes%>
-        \vspace{5mm}
-        <%notes%>
-        \vspace{5mm}
+<%notes%>
+\medskip
 <%end if%>
 
-\begin{minipage}{\textwidth}
-\gruesse \\ \\ \\
-  <%employee_name%>
-\end{minipage}
+\closing{\gruesse}
+
+\end{letter}
 
 \end{document}
