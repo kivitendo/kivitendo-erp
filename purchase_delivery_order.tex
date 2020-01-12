@@ -85,30 +85,7 @@
 %   Falls das gewünscht ist, \\ mit \renewcommand umschreiben (siehe dazu:
 %   http://www.lx-office.org/uploads/media/Lx-Office_Anwendertreffen_LaTeX-Druckvorlagen-31.01.2011_01.pdf)
 %
-\setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
-\setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
-\begin{longtable}{@{}rrp{10.7cm}@{\extracolsep{\fill}}@{}}
-% Tabellenkopf
-\hline
-\textbf{\position} & \textbf{\menge} & \textbf{\bezeichnung} \\
-\hline\\
-\endhead
-
-% Tabellenkopf erste Seite
-\hline
-\textbf{\position} & \textbf{\menge} & \textbf{\bezeichnung} \\
-\hline\\[-0.5em]
-\endfirsthead
-
-% Tabellenende
-\\
-\multicolumn{3}{@{}r@{}}{\weiteraufnaechsterseite}
-\endfoot
-
-% Tabellenende letzte Seite
-\hline\\
-\endlastfoot
-
+\begin{SimpleTabular}
 % eigentliche Tabelle
 <%foreach number%>
           <%runningnumber%> &
@@ -124,8 +101,7 @@
 
           \\[-0.8em]
 <%end number%>
-
-\end{longtable}
+\end{SimpleTabular}
 
 \vspace{0.2cm}
 
