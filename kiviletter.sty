@@ -44,6 +44,8 @@
 \newkomavar{transaction}
 \newkomavar[\lieferschein{}~\nr]{delivery}
 \newkomavar[\angebot{}~\nr]{quote}
+\newkomavar{orderID}
+\newkomavar{projectID}
 
 \usepackage{geometry}
 
@@ -313,6 +315,8 @@ align=bl,
 		\ansprechpartner&\usekomavar{fromname}
 		\ifkomavarempty{fromphone}{}{\\\textTelefon&\usekomavar{fromphone}}
 		\ifkomavarempty{fromemail}{}{\\\textEmail&\usekomavar{fromemail}}
+		\ifkomavarempty{projectID}{}{\\\projektnummer&\usekomavar{projectID}}
+		\ifkomavarempty{orderID}{}{\\\auftragsnummer&\usekomavar{orderID}}
 	\end{tabularx}
 }
 \removereffields
