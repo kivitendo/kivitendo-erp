@@ -18,7 +18,6 @@
 
 \begin{document}
 
-\ourfont
 \begin{minipage}[t]{8cm}
   \scriptsize
 
@@ -143,7 +142,7 @@
           \raggedleft <%qty%> <%unit%> &
           <%sellprice%> \currency &
           \ifthenelse{\equal{<%p_discount%>}{0}}{}{\sffamily\scriptsize{(-<%p_discount%> \%)}}
-          \ourfont{<%linetotal%> \currency} \\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden
+          <%linetotal%> \currency \\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden
 
           <%if longdescription%> && \scriptsize <%longdescription%>\\<%end longdescription%>
           <%if reqdate%> && \scriptsize \lieferdatum: <%reqdate%>\\<%end reqdate%>
