@@ -3,7 +3,8 @@
 $( USE KiviLatex )$
 $( USE P )$
 $( SET customer = letter.customer_vendor )$
-\input{inheaders.tex}
+\documentclass[paper=a4,fontsize=10pt]{scrartcl}
+\usepackage{kiviletter}
 $( KiviLatex.required_packages_for_html )$
 
 % Variablen, die in settings verwendet werden
