@@ -18,63 +18,48 @@
 
 \begin{document}
 
-\begin{minipage}[t]{8cm}
-  \scriptsize
+\setkomavar{title}{
+	\rechnung~
+	\nr ~<%invnumber%>
+}
+\setkomavar*{date}{\rechnungsdatum}
+\setkomavar{date}{<%invdate%>}
+\setkomavar*{myref}{\mahnung~\nr}
+\setkomavar{myref}{<%dunning_id%>}
+\setkomavar{customer}{<%customernumber%>}
+\setkomavar{fromname}{<%employee_name%>}
+\setkomavar{fromphone}{<%employee_tel%>}
+\setkomavar{fromemail}{<%employee_email%>}
+<%if globalprojectnumber%>
+	\setkomavar{projectID}{<%globalprojectnumber%>}
+<%end globalprojectnumber%>
+\setkomavar{transaction}{<%transaction_description%>}
 
-  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
-  \normalsize
-
-  \vspace*{0.3cm}
-
-  <%name%>
-
-  <%if department_1%><%department_1%><%end if%>
-
-  <%if department_2%><%department_2%><%end if%>
-
-  <%cp_givenname%> <%cp_name%>
-
-  <%street%>
-
-  ~
-
-  <%zipcode%> <%city%>
-
-  <%country%>
-\end{minipage}
-\hfill
-\begin{minipage}[t]{6cm}
-  \hfill{\LARGE\textbf{\rechnung}}
-
-  \vspace*{0.2cm}
-
-  \hfill{\large\textbf{\nr ~<%invnumber%>}}
-
-  \vspace*{0.2cm}
-
-  \rechnungsdatum:\hfill <%invdate%>
-
-  \mahnung~\nr:\hfill <%dunning_id%>
-
-  \kundennummer:\hfill <%customernumber%>
-
-  \ansprechpartner:\hfill <%employee_name%>
-
-  <%if globalprojectnumber%> \projektnummer:\hfill <%globalprojectnumber%> <%end globalprojectnumber%>
-\end{minipage}
-
-\vspace*{1.5cm}
-
-\hfill
+\begin{letter}{
+		<%name%>\strut\\
+		<%if department_1%><%department_1%>\\<%end if%>
+		<%if department_2%><%department_2%>\\<%end if%>
+		<%cp_givenname%> <%cp_name%>\strut\\
+		<%street%>\strut\\
+		<%zipcode%> <%city%>\strut\\
+		<%country%> \strut
+	}
 
 % Anrede nach Geschlecht unterscheiden
-\ifthenelse{\equal{<%cp_name%>}{}}{\anrede}{
-  \ifthenelse{\equal{<%cp_gender%>}{f}}
-    {\anredefrau}{\anredeherr} <%cp_title%> <%cp_name%>,}\\
+\opening{
+	\ifstr{<%cp_name%>}{}
+		{\anrede}
+		{
+			\ifstr{<%cp_gender%>}{f}
+				{\anredefrau}
+				{\anredeherr}
+				<%cp_title%> <%cp_name%>,
+		}
+}
+\thispagestyle{kivitendo.letter.first}
 
-\mahnungsrechnungsformel\\
+\mahnungsrechnungsformel
 
-\vspace{0.5cm}
 
 
 \setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
@@ -115,9 +100,8 @@ Zinsen & <%interest%> \currency \\
 
 \bitteZahlenBis~<%duedate%>.
 
-\vspace*{0.5cm}
+\closing{\gruesse}
 
-\gruesse \\ \\ \\
-  <%employee_name%>
+\end{letter}
 
 \end{document}
