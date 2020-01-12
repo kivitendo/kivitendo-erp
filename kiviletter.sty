@@ -6,9 +6,6 @@
 \DeclareOption{infobox}{\@kivi@infoboxtrue}
 \@kivi@infoboxtrue
 
-\newif\if@kivi@faketable
-\DeclareOption{faketable}{\@kivi@faketabletrue}
-
 \ProcessOptions\relax
 
 
@@ -246,6 +243,28 @@ align=bl,
 	\endlongtable
 	\endgroup
 }
+
+\RequirePackage{xltabular}
+
+
+\newenvironment{SimpleTabular}[1][\bfseries\position & \bfseries\menge & \bfseries\bezeichnung]
+{
+	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
+	\xltabular{\linewidth}{@{}rrX@{}}
+	\toprule
+	#1\\
+	\midrule\\\endhead
+	\midrule
+	\multicolumn{3}{@{}>{\raggedright}p{\linewidth}@{}}{\weiteraufnaechsterseite}\\
+	\endfoot
+	\bottomrule
+	\endlastfoot
+	\ignorespaces
+}{
+	\def\@currenvir{tabularx}
+	\endxltabular
+}
+
 
 \usepackage{afterpage}
 
