@@ -17,57 +17,46 @@
 
 
 \begin{document}
+\setkomavar*{date}{\datum}
 
-\ourfont
-\begin{minipage}[t]{8cm}
-  \scriptsize
+\setkomavar{date}{<%transdate%>}
+\setkomavar{customer}{<%customernumber%>}
+\setkomavar{fromname}{<%employee_name%>}
+\setkomavar{fromphone}{<%employee_tel%>}
+\setkomavar{fromemail}{<%employee_email%>}
+\setkomavar{title}{
+	\anfrage~
+	\nr ~<%quonumber%>
+}
+<%if globalprojectnumber%>
+	\setkomavar{projectID}{<%globalprojectnumber%>}
+<%end globalprojectnumber%>
+\setkomavar{transaction}{<%transaction_description%>}
 
-  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
-  \normalsize
-
-  \vspace*{0.3cm}
-
-  <%name%>
-
-  <%if department_1%><%department_1%><%end if%>
-
-  <%if department_2%><%department_2%><%end if%>
-
-  <%cp_givenname%> <%cp_name%>
-
-  <%street%>
-
-  ~
-
-  <%zipcode%> <%city%>
-
-  <%country%>
-\end{minipage}
-\hfill
-\begin{minipage}{6cm}
-  \rightline{\LARGE\textbf{\textit{\anfrage}}} \vspace*{0.2cm}
-  \rightline{\large\textbf{\textit{\nr ~<%quonumber%>%
-  }}} \vspace*{0.2cm}
-
-  \datum:\hfill <%transdate%>
-
-  \ansprechpartner:\hfill <%employee_name%>
-
-  <%if globalprojectnumber%> \projektnummer:\hfill <%globalprojectnumber%> <%end globalprojectnumber%>
-\end{minipage}
-
-\vspace*{1.5cm}
-
-\hfill
+\begin{letter}{
+		<%name%>\strut\\
+		<%if department_1%><%department_1%>\\<%end if%>
+		<%if department_2%><%department_2%>\\<%end if%>
+		<%cp_givenname%> <%cp_name%>\strut\\
+		<%street%>\strut\\
+		<%zipcode%> <%city%>\strut\\
+		<%country%> \strut
+	}
 
 % Anrede nach Geschlecht unterscheiden
-\ifthenelse{\equal{<%cp_name%>}{}}{\anrede}{
-  \ifthenelse{\equal{<%cp_gender%>}{f}}
-    {\anredefrau}{\anredeherr} <%cp_title%> <%cp_name%>,}\\
+\opening{
+	\ifstr{<%cp_name%>}{}
+		{\anrede}
+		{
+			\ifstr{<%cp_gender%>}{f}
+				{\anredefrau}
+				{\anredeherr}
+				<%cp_title%> <%cp_name%>,
+		}
+}
+\thispagestyle{kivitendo.letter.first}
 
-\anfrageformel\\
-
-\vspace*{0.5cm}
+\anfrageformel
 
 
 %
@@ -109,11 +98,10 @@
           \textbf{<%description%>} \\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden
 
           <%if longdescription%> && \scriptsize <%longdescription%>\\<%end longdescription%>
-          <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>
-
+%          <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>
           <%if make%>
             <%foreach make%>
-              \ifthenelse{\equal{<%make%>}{<%name%>}}{&& \artikelnummer: <%model%>\\}{}
+              \ifstr{<%make%>}{<%name%>}{&& \artikelnummer: <%model%>\\}{}
             <%end foreach%>
           <%end if%>
 
@@ -122,14 +110,11 @@
 
 \end{longtable}
 
-
-\vspace{0.2cm}
-
 <%if notes%>
-        \vspace{5mm}
-        <%notes%>
-        \vspace{5mm}
+<%notes%>
+\medskip
 <%end if%>
+
 
 <%if delivery_term%>
   \lieferung ~<%delivery_term.description_long%>\\
@@ -139,9 +124,10 @@
 \anfrageBenoetigtBis~<%reqdate%>.
 <%end if%>
 
-\anfragedanke\\
+\anfragedanke
 
-\gruesse \\ \\ \\
-  <%employee_name%>
+\closing{\gruesse}
+
+\end{letter}
 
 \end{document}
