@@ -18,41 +18,41 @@
 
 \begin{document}
 
-\begin{minipage}[t]{8cm}
-  \vspace*{1.0cm}
+\setkomavar{title}{
+	\sammelrechnung~
+	\nr~<%quonumber%>
+}
+\setkomavar{transaction}{<%transaction_description%>}
+\setkomavar{customer}{<%customernumber%>}
+\setkomavar{fromname}{<%employee_name%>}
+\setkomavar{fromphone}{<%employee_tel%>}
+\setkomavar{fromemail}{<%employee_email%>}
 
-  <%name%>
 
-  <%street%>
-
-  ~
-
-  <%zipcode%> <%city%>
-
-  <%country%>
-\end{minipage}
-\hfill
-\begin{minipage}[t]{6cm}
-  \hfill{\LARGE\textbf{\sammelrechnung}}
-
-  \vspace*{0.2cm}
-
-  \ansprechpartner:\hfill <%employee_name%>
-\end{minipage}
-
-\vspace*{1.5cm}
-
-\hfill
+\begin{letter}{
+		<%name%>\strut\\
+		<%if department_1%><%department_1%>\\<%end if%>
+		<%if department_2%><%department_2%>\\<%end if%>
+		<%cp_givenname%> <%cp_name%>\strut\\
+		<%street%>\strut\\
+		<%zipcode%> <%city%>\strut\\
+		<%country%> \strut
+	}
 
 % Anrede nach Geschlecht unterscheiden
-\ifthenelse{\equal{<%cp_name%>}{}}{\anrede}{
-  \ifthenelse{\equal{<%cp_gender%>}{f}}
-    {\anredefrau}{\anredeherr} <%cp_title%> <%cp_name%>,}\\
+\opening{
+	\ifstr{<%cp_name%>}{}
+		{\anrede}
+		{
+			\ifstr{<%cp_gender%>}{f}
+				{\anredefrau}
+				{\anredeherr}
+				<%cp_title%> <%cp_name%>,
+		}
+}
+\thispagestyle{kivitendo.letter.first}
 
-\sammelrechnungsformel\\
-
-\vspace{0.5cm}
-
+\sammelrechnungsformel
 
 %
 % - longtable kann innerhalb der Tabelle umbrechen
@@ -98,10 +98,9 @@
 \end{longtable}
 
 
-\vspace{0.2cm}
+\closing{\gruesse}
 
-\gruesse \\ \\ \\
-  <%employee_name%>
+\end{letter}
 
 \end{document}
 
