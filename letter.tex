@@ -22,56 +22,33 @@ $( KiviLatex.required_packages_for_html )$
 
 \begin{document}
 
-\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
-
-\vspace*{1cm}
-
-\begin{minipage}{14cm}
-
-  $( KiviLatex.filter(customer.name) )$
-
-  $( KiviLatex.filter(letter.contact.formal_greeting) )$
-
-  $( KiviLatex.filter(customer.street) )$
-
-  $( KiviLatex.filter(customer.zipcode) )$ $( KiviLatex.filter(customer.city) )$
-
-  $( KiviLatex.filter(customer.country) )$
-
-\end{minipage}
-
-\vspace{2.5cm}
-\hfill $( KiviLatex.filter(letter.date.to_kivitendo) )$
+\setkomavar{date}{$( KiviLatex.filter(letter.date.to_kivitendo) )$}
 
 $( IF letter.reference )$
-\textbf{\ihrzeichen : $( KiviLatex.filter(letter.reference) )$}
-
-\vspace{1cm}
+\setkomavar*{yourref}{\ihrzeichen}
+\setkomavar{yourref}{$( KiviLatex.filter(letter.reference) )$}
 $( END )$
 
 $( IF letter.subject )$
-\textbf{\betreff : $( KiviLatex.filter(letter.subject) )$}
-
-\vspace{1cm}
+\setkomavar{subject}{$( KiviLatex.filter(letter.subject) )$}
 $( END )$
 
-$( KiviLatex.filter(letter.greeting) )$
+\begin{letter}{
+		$( KiviLatex.filter(customer.name) )$\strut\\
+		$( KiviLatex.filter(letter.contact.formal_greeting) )$\strut\\
+		$( KiviLatex.filter(customer.street) )$\strut\\
+		$( KiviLatex.filter(customer.zipcode) )$ $( KiviLatex.filter(customer.city) )$\strut\\
+		$( KiviLatex.filter(customer.country) )$
+	}
 
-\vspace{0.5cm}
+\opening{$( KiviLatex.filter(letter.greeting) )$}
+
 
 $( KiviLatex.filter_html(letter.body) )$
 
-\vspace{0.5cm}
 
-\begin{minipage}{6cm}
+\closing{\gruesse}
 
-\textbf{$( KiviLatex.filter(letter.employee.name) )$}
-
-\end{minipage}
-\begin{minipage}{6cm}
-
-\textbf{$( KiviLatex.filter(letter.salesman.name) )$}
-
-\end{minipage}
+\end{letter}
 
 \end{document}
