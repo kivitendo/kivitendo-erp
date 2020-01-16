@@ -105,4 +105,16 @@
   </tr>
   </table>
 
+  <h2>Warehouse & Bin Picker</h2>
+
+  <table>
+   <tr>
+    <td>Warehouse picker</th>
+    <td>[% P.bin.warehousepicker('warehouse_id',undef, with_empty=1) %]</th>
+   </tr>
+   <tr>
+    <td>Bin picker</td>
+    <td>[% P.bin.picker('binpicker',undef, warehouse_field='warehouse_id') %]</td>
+   </tr>
+  </table>
 </div>

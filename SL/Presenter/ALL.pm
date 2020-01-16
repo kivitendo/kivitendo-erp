@@ -2,6 +2,7 @@ package SL::Presenter::ALL;
 
 use strict;
 
+use SL::Presenter::Bin;
 use SL::Presenter::Chart;
 use SL::Presenter::Country;
 use SL::Presenter::CustomerVendor;
@@ -32,6 +33,7 @@ use SL::Presenter::MaterialComponents;
 use SL::Presenter::Warehouse;
 
 our %presenters = (
+  bin                         => 'SL::Presenter::Bin',
   chart                       => 'SL::Presenter::Chart',
   country                     => 'SL::Presenter::Country',
   customer_vendor             => 'SL::Presenter::CustomerVendor',
