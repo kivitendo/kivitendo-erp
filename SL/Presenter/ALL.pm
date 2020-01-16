@@ -2,6 +2,7 @@ package SL::Presenter::ALL;
 
 use strict;
 
+use SL::Presenter::Bin;
 use SL::Presenter::Chart;
 use SL::Presenter::CustomerVendor;
 use SL::Presenter::DatePeriod;
@@ -30,6 +31,7 @@ use SL::Presenter::BankTransaction;
 use SL::Presenter::MaterialComponents;
 
 our %presenters = (
+  bin                         => 'SL::Presenter::Bin',
   chart                       => 'SL::Presenter::Chart',
   customer_vendor             => 'SL::Presenter::CustomerVendor',
   date_period                 => 'SL::Presenter::DatePeriod',
