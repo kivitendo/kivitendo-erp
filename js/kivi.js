@@ -413,6 +413,11 @@ namespace("kivi", function(ns) {
       $(elt).bind('change keyup', ns.filter_select);
     });
 
+    if (ns.BinPicker)
+      ns.run_once_for('input.bin_autocomplete', 'bin_picker', function(elt) {
+        kivi.BinPicker($(elt));
+      });
+
     var func = kivi.get_function_by_name('local_reinit_widgets');
     if (func)
       func();
