@@ -26,6 +26,7 @@ my %db_to_presenter_mapping = (
   Customer        => 'CustomerVendor',
   PurchaseInvoice => 'Invoice',
   Vendor          => 'CustomerVendor',
+  GLTransaction   => 'GL',
 );
 
 sub new {
