@@ -30,7 +30,7 @@ clear_up();
 # * also the default test client has the accounting method "cash" rather than "accrual"
 #   (Ist-versteuerung, rather than Soll-versteuerung)
 
-my $year = 2019;
+my $year = DateTime->today->year;
 
 note('configuring accounts');
 my $bank_account = SL::DB::BankAccount->new(
