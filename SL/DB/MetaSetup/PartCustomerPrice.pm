@@ -9,13 +9,15 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('part_customer_prices');
 
 __PACKAGE__->meta->columns(
-  customer_id         => { type => 'integer', not_null => 1 },
-  customer_partnumber => { type => 'text', default => '' },
-  id                  => { type => 'serial', not_null => 1 },
-  lastupdate          => { type => 'date', default => 'now()' },
-  parts_id            => { type => 'integer', not_null => 1 },
-  price               => { type => 'numeric', default => '0', precision => 15, scale => 5 },
-  sortorder           => { type => 'integer', default => '0' },
+  customer_id          => { type => 'integer', not_null => 1 },
+  customer_partnumber  => { type => 'text', default => '' },
+  id                   => { type => 'serial', not_null => 1 },
+  lastupdate           => { type => 'date', default => 'now()' },
+  part_description     => { type => 'text' },
+  part_longdescription => { type => 'text' },
+  parts_id             => { type => 'integer', not_null => 1 },
+  price                => { type => 'numeric', default => '0', precision => 15, scale => 5 },
+  sortorder            => { type => 'integer', default => '0' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
