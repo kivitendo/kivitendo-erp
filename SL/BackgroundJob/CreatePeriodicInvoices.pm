@@ -9,6 +9,7 @@ use DateTime::Format::Strptime;
 use English qw(-no_match_vars);
 use List::MoreUtils qw(uniq);
 
+use SL::Common;
 use SL::DB::AuthUser;
 use SL::DB::Default;
 use SL::DB::Order;
@@ -18,6 +19,7 @@ use SL::DB::PeriodicInvoicesConfig;
 use SL::Helper::CreatePDF qw(create_pdf find_template);
 use SL::Mailer;
 use SL::Util qw(trim);
+use SL::System::Process;
 
 sub create_job {
   $_[0]->create_standard_job('0 3 1 * *'); # first day of month at 3:00 am
@@ -329,6 +331,26 @@ sub _send_summary_email {
   $mail->send;
 }
 
+sub _store_pdf_in_webdav {
+  my ($self, $pdf_file_name, $invoice) = @_;
+
+  return unless $::instance_conf->get_webdav_documents;
+
+  my $form = Form->new('');
+
+  $form->{cwd}              = SL::System::Process->exe_dir;
+  $form->{tmpdir}           = ($pdf_file_name =~ m{(.+)/})[0];
+  $form->{tmpfile}          = ($pdf_file_name =~ m{.+/(.+)})[0];
+  $form->{format}           = 'pdf';
+  $form->{formname}         = 'invoice';
+  $form->{type}             = 'invoice';
+  $form->{vc}               = 'customer';
+  $form->{invnumber}        = $invoice->invnumber;
+  $form->{recipient_locale} = $invoice->language ? $invoice->language->template_code : '';
+
+  Common::copy_file_to_webdav_folder($form);
+}
+
 sub _print_invoice {
   my ($self, $data) = @_;
 
@@ -402,6 +424,8 @@ sub _email_invoice {
 
   eval {
     $pdf_file_name = $self->create_pdf(%create_params);
+
+    $self->_store_pdf_in_webdav($pdf_file_name, $data->{invoice});
 
     for (qw(email_subject email_body)) {
       _replace_vars(
