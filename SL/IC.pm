@@ -908,8 +908,10 @@ sub prepare_parts_for_printing {
 
   $query           = qq|SELECT
                         cp.parts_id,
-                        cp.customer_partnumber AS customer_model,
-                        c.name                 AS customer_make
+                        cp.customer_partnumber  AS customer_model,
+                        cp.part_description     AS cm_part_description,
+                        cp.part_longdescription AS cm_part_longdescription,
+                        c.name                  AS customer_make
                         FROM part_customer_prices cp
                         LEFT JOIN customer c ON (cp.customer_id = c.id)
                         WHERE cp.parts_id IN ($placeholders)|;
@@ -934,7 +936,7 @@ sub prepare_parts_for_printing {
   my %data    = selectall_as_map($form, $dbh, $query, 'id', \@columns, @part_ids);
 
   my %template_arrays;
-  map { $template_arrays{$_} = [] } (qw(make model mm_part_description customer_make customer_model), @columns);
+  map { $template_arrays{$_} = [] } (qw(make model mm_part_description customer_make customer_model cm_part_description cm_part_longdescription), @columns);
 
   foreach my $i (1 .. $rowcount) {
     my $id = $form->{"${prefix}${i}"};
@@ -957,10 +959,12 @@ sub prepare_parts_for_printing {
 
     push @{ $template_arrays{customer_make} },  [];
     push @{ $template_arrays{customer_model} }, [];
+    push @{ $template_arrays{cm_part_description} },     [];
+    push @{ $template_arrays{cm_part_longdescription} }, [];
 
     if ($customermodel{$id}) {
       foreach my $ref (@{ $customermodel{$id} }) {
-        push @{ $template_arrays{$_}->[-1] }, $ref->{$_} for qw(customer_make customer_model);
+        push @{ $template_arrays{$_}->[-1] }, $ref->{$_} for qw(customer_make customer_model cm_part_description cm_part_longdescription);
       }
     }
 
