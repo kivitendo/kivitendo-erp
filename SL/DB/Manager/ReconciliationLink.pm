@@ -21,7 +21,7 @@ sub get_new_rec_group {
 
   my ($max) = selectfirst_array_query($::form, $class->object_class->init_db->dbh, $query);
 
-  return $max + 1;
+  return ($max // 0) + 1;
 }
 
 1;
