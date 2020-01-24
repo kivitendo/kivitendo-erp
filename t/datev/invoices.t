@@ -89,9 +89,7 @@ cmp_deeply \@data_datev, [
                                          },
                                          {
                                            'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
-
-
-'buchungstext' => 'Testcustomer',
+                                           'buchungstext' => 'Testcustomer',
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '05.01.2017',
                                            'gegenkonto'   => '1400',
