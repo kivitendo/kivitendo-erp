@@ -73,6 +73,7 @@ cmp_deeply \@data_datev, [
                                            'konto'        => '1400',
                                            'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
                                            'kost2'        => 'Crowd-Funding September 2017',
+                                           'locked'       => undef,
                                            'umsatz'       => '249.9',
                                            'waehrung'     => 'EUR',
                                          },
@@ -84,6 +85,7 @@ cmp_deeply \@data_datev, [
                                            'konto'        => '1400',
                                            'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
                                            'kost2'        => 'Crowd-Funding September 2017',
+                                           'locked'       => undef,
                                            'umsatz'       => 535,
                                            'waehrung'     => 'EUR',
                                          },
@@ -97,6 +99,7 @@ cmp_deeply \@data_datev, [
                                            'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => '784.9',
+                                           'locked'       => undef,
                                            'waehrung'     => 'EUR',
                                          },
                                        ], "trans_id datev check ok";
@@ -114,6 +117,7 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => '249.9',
+                                           'locked'       => undef,
                                            'waehrung'     => 'EUR',
                                          },
                                          {
@@ -125,6 +129,7 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => 535,
+                                           'locked'       => undef,
                                            'waehrung'     => 'EUR',
                                          },
                                          {
@@ -136,6 +141,7 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => '784.9',
+                                           'locked'       => undef,
                                            'waehrung'     => 'EUR',
                                          },
                                        ], "trans_id datev check use_pk ok";
@@ -175,7 +181,7 @@ cmp_deeply($data_csv[1], [ '535', 'S', 'EUR', '', '', '', '1400', '8300', '', '0
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '' ]
+                     '', '', '1', '', '', '', '', '', '' ]
        );
 
 cmp_deeply($data_csv[0], [ '249,9', 'S', 'EUR', '', '', '', '1400', '8400', '', '0101', "\x{de} sales \x{a5}& i",
@@ -187,7 +193,7 @@ cmp_deeply($data_csv[0], [ '249,9', 'S', 'EUR', '', '', '', '1400', '8400', '', 
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '' ]
+                     '', '', '1', '', '', '', '', '', '' ]
        );
 cmp_deeply($data_csv[2], [ '784,9', 'S', 'EUR', '', '', '', '1200', '1400', '', '0501', "\x{de} sales \x{a5}& i",
                      '', '', 'Testcustomer', '', '', '', '', '', '', '', '',
@@ -198,7 +204,7 @@ cmp_deeply($data_csv[2], [ '784,9', 'S', 'EUR', '', '', '', '1200', '1400', '', 
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '' ]
+                     '', '', '1', '', '', '', '', '', '' ]
         );
 my $march_9 = DateTime->new(year => 2017, month =>  3, day => 9);
 my $invoice2 = create_sales_invoice(
@@ -278,6 +284,7 @@ cmp_deeply $datev1->generate_datev_lines, [
                                           'kost1'                  => undef,
                                           'kost2'                  => undef,
                                           'umsatz'                 => 119,
+                                          'locked'                 => undef,
                                           'waehrung'               => 'EUR'
                                         },
                                         {
@@ -289,6 +296,7 @@ cmp_deeply $datev1->generate_datev_lines, [
                                           'kost1'                  => undef,
                                           'kost2'                  => undef,
                                           'umsatz'                 => 107,
+                                          'locked'                 => undef,
                                           'waehrung'               => 'EUR'
                                         }
                                        ], "trans_id datev check purchase_invoice ok";
@@ -304,6 +312,7 @@ cmp_deeply $datev1->generate_datev_lines, [
                                           'kost1'                  => undef,
                                           'kost2'                  => undef,
                                           'umsatz'                 => 119,
+                                          'locked'                 => undef,
                                           'waehrung'               => 'EUR'
                                         },
                                         {
@@ -315,6 +324,7 @@ cmp_deeply $datev1->generate_datev_lines, [
                                           'kost1'                  => undef,
                                           'kost2'                  => undef,
                                           'umsatz'                 => 107,
+                                          'locked'                 => undef,
                                           'waehrung'               => 'EUR'
                                         }
                                        ], "trans_id datev check purchase_invoice use_pk ok";
