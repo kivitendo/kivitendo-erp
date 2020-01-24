@@ -482,7 +482,6 @@ my @kivitendo_to_datev = (
                             {
                               kivi_datev_name => 'not yet implemented',
                             },
-
                             {
                               kivi_datev_name => 'not yet implemented',
                             },
