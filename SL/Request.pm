@@ -308,7 +308,7 @@ sub read_cgi_input {
 
       $target->{$_} = $self->post_data->{$_} for keys %{ $self->post_data };
 
-    } elsif (($ENV{CONTENT_TYPE} // '') eq 'application/json') {
+    } elsif (($ENV{CONTENT_TYPE} // '') =~ m{^application/json}i) {
       $self->post_data(_parse_json_formdata($content));
 
     } else {
