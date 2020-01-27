@@ -134,6 +134,7 @@ my @kivitendo_to_datev = (
                                                        my ($text) = @_; check_encoding($text); },
                               valid_check     => sub { return 1 if     $::instance_conf->get_datev_export_format eq 'cp1252';
                                                        my ($text) = @_; check_encoding($text); },
+                              formatter       => sub { my ($input) = @_; return substr($input, 0, 60) },
                             },  # pos 14
                             {
                               kivi_datev_name => 'not yet implemented',
