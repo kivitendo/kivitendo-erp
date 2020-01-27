@@ -520,10 +520,6 @@ sub check_encoding {
   }
 }
 
-sub _kivitendo_to_datev {
-  @kivitendo_to_datev, ({ kivi_datev_name => 'not yet implemented' }) x (116 - @kivitendo_to_datev);
-}
-
 sub header {
   my ($self) = @_;
 
@@ -561,7 +557,7 @@ sub header {
   push @header, [ @header_row_1 ];
 
   # second header row, just the column names
-  push @header, [ map { $_->{csv_header_name} } _kivitendo_to_datev() ];
+  push @header, [ map { $_->{csv_header_name} } @kivitendo_to_datev ];
 
   return \@header;
 }
@@ -570,7 +566,6 @@ sub lines {
   my ($self) = @_;
 
   my (@array_of_datev, @warnings);
-  my @csv_columns = _kivitendo_to_datev();
 
   foreach my $row (@{ $self->datev_lines }) {
     my @current_datev_row;
@@ -578,7 +573,7 @@ sub lines {
     # 1. check all datev_lines and see if we have a defined value
     # 2. if we don't have a defined value set a default if exists
     # 3. otherwise die
-    foreach my $column (@csv_columns) {
+    foreach my $column (@kivitendo_to_datev) {
       if ($column->{kivi_datev_name} eq 'not yet implemented') {
         push @current_datev_row, '';
         next;
