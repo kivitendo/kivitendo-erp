@@ -161,6 +161,7 @@ sub clone_for_dump {
   my ($src, $dumped) = @_;
 
   return undef if !defined($src);
+  return $src  if !ref($src);
 
   $dumped ||= {};
   my $addr  = refaddr($src);
