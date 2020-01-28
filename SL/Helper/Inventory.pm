@@ -187,9 +187,9 @@ sub allocate {
   # sort results so that reserve_for is first, then chargenumbers, then wanted bins, then wanted warehouses
   my @sorted_results = sort {
        (!!$b->{reserve_for_id})    <=> (!!$a->{reserve_for_id})                   # sort by existing reserve_for_id first.
-    || $chargenumbers{$b->{chargenumber}}  <=> $chargenumbers{$a->{chargenumber}} # then prefer wanted chargenumbers
-    || $bin_whitelist{$b->{bin_id}}        <=> $bin_whitelist{$a->{bin_id}}       # then prefer wanted bins
-    || $wh_whitelist{$b->{warehouse_id}}   <=> $wh_whitelist{$a->{warehouse_id}}  # then prefer wanted bins
+    || exists $chargenumbers{$b->{chargenumber}}  <=> exists $chargenumbers{$a->{chargenumber}} # then prefer wanted chargenumbers
+    || exists $bin_whitelist{$b->{bin_id}}        <=> exists $bin_whitelist{$a->{bin_id}}       # then prefer wanted bins
+    || exists $wh_whitelist{$b->{warehouse_id}}   <=> exists $wh_whitelist{$a->{warehouse_id}}  # then prefer wanted bins
   } @filtered_results;
   my @allocations;
   my $rest_qty = $qty;
