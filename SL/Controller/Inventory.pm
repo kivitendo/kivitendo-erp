@@ -820,7 +820,7 @@ select unnest(ids)
 SQL
 
   my $objs  = SL::DB::Manager::Inventory->get_all(
-    query        => [ id => [ \"$query" ] ],
+    query        => [ id => [ \"$query" ] ],                           # " make emacs happy
     with_objects => [ 'parts', 'trans_type', 'bin', 'bin.warehouse' ], # prevent lazy loading in template
     sort_by      => 'itime DESC',
   );
