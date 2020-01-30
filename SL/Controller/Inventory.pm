@@ -953,7 +953,7 @@ sub _already_counted {
 
   my %bestbefore_filter;
   if ($::instance_conf->get_show_bestbefore) {
-    %bestbefore_filter = (bestbefore => $params{bestbefore});
+    %bestbefore_filter = (bestbefore => ($params{bestbefore} || undef));
   }
 
   SL::DB::Manager::Stocktaking->get_all(query => [and => [parts_id     => $part->id,
