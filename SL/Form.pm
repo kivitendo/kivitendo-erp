@@ -2071,26 +2071,6 @@ sub _get_projects {
   $main::lxdebug->leave_sub();
 }
 
-sub _get_shipto {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $dbh, $vc_id, $key) = @_;
-
-  $key = "all_shipto" unless ($key);
-
-  if ($vc_id) {
-    # get shipping addresses
-    my $query = qq|SELECT * FROM shipto WHERE trans_id = ?|;
-
-    $self->{$key} = selectall_hashref_query($self, $dbh, $query, $vc_id);
-
-  } else {
-    $self->{$key} = [];
-  }
-
-  $main::lxdebug->leave_sub();
-}
-
 sub _get_printers {
   $main::lxdebug->enter_sub();
 
@@ -2393,11 +2373,13 @@ sub get_lists {
   my $self = shift;
   my %params = @_;
 
+  croak "get_lists: shipto is no longer supported" if $params{shipto};
+
   my $dbh = $self->get_standard_dbh(\%main::myconfig);
   my ($sth, $query, $ref);
 
   my ($vc, $vc_id);
-  if ($params{contacts} || $params{shipto}) {
+  if ($params{contacts}) {
     $vc = 'customer' if $self->{"vc"} eq "customer";
     $vc = 'vendor'   if $self->{"vc"} eq "vendor";
     die "invalid use of get_lists, need 'vc'" unless $vc;
@@ -2406,10 +2388,6 @@ sub get_lists {
 
   if ($params{"contacts"}) {
     $self->_get_contacts($dbh, $vc_id, $params{"contacts"});
-  }
-
-  if ($params{"shipto"}) {
-    $self->_get_shipto($dbh, $vc_id, $params{"shipto"});
   }
 
   if ($params{"projects"} || $params{"all_projects"}) {
