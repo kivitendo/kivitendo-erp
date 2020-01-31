@@ -1876,6 +1876,12 @@ sub add_shipto {
 
   return if !$shipto;
 
+  # shiptocp_gender only makes sense, if any other shipto attribute is set.
+  # Because shiptocp_gender is set to 'm' by default in forms
+  # it must not be considered above to decide if shiptos has to be added or
+  # updated, but must be inserted or updated as well in case.
+  push(@values, $self->{shiptocp_gender});
+
   my $shipto_id = $self->{shipto_id};
 
   if ($self->{shipto_id}) {
