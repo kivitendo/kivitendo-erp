@@ -303,14 +303,16 @@ sub _post_add_acctrans {
     $chart_link = SL::DB::Manager::Chart->find_by(id => $chart_id)->{'link'};
     $chart_link ||= '';
 
-    SL::DB::AccTransaction->new(trans_id   => $self->id,
-                                chart_id   => $chart_id,
-                                amount     => $spec->{amount},
-                                tax_id     => $spec->{tax_id},
-                                taxkey     => $spec->{taxkey},
-                                project_id => $self->globalproject_id,
-                                transdate  => $self->transdate,
-                                chart_link => $chart_link)->save;
+    if ($spec->{amount} != 0) {
+      SL::DB::AccTransaction->new(trans_id   => $self->id,
+                                  chart_id   => $chart_id,
+                                  amount     => $spec->{amount},
+                                  tax_id     => $spec->{tax_id},
+                                  taxkey     => $spec->{taxkey},
+                                  project_id => $self->globalproject_id,
+                                  transdate  => $self->transdate,
+                                  chart_link => $chart_link)->save;
+    }
   }
 }
 
