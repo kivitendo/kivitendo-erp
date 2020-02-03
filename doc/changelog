@@ -5,6 +5,11 @@
 2020-xx-xx - Release x.x.x
 
 
+Mittelgroße neue Features:
+
+ - komplette Überarbeitung der Standard-LaTeX-Druckvorlagen von PeiTeX
+   S.a.: templates/print/marei/Readme.md
+
 2019-12-11 - Release 3.5.5
 
 Mittelgroße neue Features:
