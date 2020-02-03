@@ -1,0 +1,131 @@
+\documentclass[paper=a4,fontsize=10pt]{scrartcl}
+\usepackage{kiviletter}
+
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+\newcommand{\lxmedia} {<%media%>}
+\newcommand{\lxcurrency} {<%currency%>}
+\newcommand{\kivicompany} {<%employee_company%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+
+% laufende Kopfzeile:
+\ourhead{\kundennummer}{<%customernumber%>}{\proformarechnung}{<%ordnumber%>}{<%invdate%>}
+
+
+\begin{document}
+	
+\setkomavar{title}{
+	\proformarechnung~
+	\nr ~<%ordnumber%>
+}
+\setkomavar*{date}{\datum}
+
+\setkomavar{date}{<%orddate%>}
+\setkomavar{customer}{<%customernumber%>}
+<%if cusordnumber%>
+	\setkomavar*{yourref}{\ihreBestellnummer}
+	\setkomavar{yourref}{<%cusordnumber%>}
+<%end if%>
+<%if quonumber%>\setkomavar{quote}{<%quonumber%>}<%end if%>
+\setkomavar{fromname}{<%employee_name%>}
+\setkomavar{fromphone}{<%employee_tel%>}
+\setkomavar{fromemail}{<%employee_email%>}
+\setkomavar{transaction}{<%transaction_description%>}
+	
+<%if shiptoname%>
+\makeatletter
+\begin{lrbox}\shippingAddressBox
+	\parbox{\useplength{toaddrwidth}}{
+		\backaddr@format{\scriptsize\usekomafont{backaddress}%
+			\strut abweichende Lieferadresse
+		}
+		\par\smallskip
+		\setlength{\parskip}{\z@}
+		\par
+		\normalsize
+		<%shiptoname%>\par
+		<%if shiptocontact%> <%shiptocontact%><%end if%>\par
+		<%shiptodepartment_1%>\par
+		<%shiptodepartment_2%>\par
+		<%shiptostreet%>\par
+		<%shiptozipcode%> <%shiptocity%>
+	}
+\end{lrbox}
+\makeatother
+<%end if%>
+
+\begin{letter}{
+		<%name%>\strut\\
+		<%if department_1%><%department_1%>\\<%end if%>
+		<%if department_2%><%department_2%>\\<%end if%>
+		<%cp_givenname%> <%cp_name%>\strut\\
+		<%street%>\strut\\
+		<%zipcode%> <%city%>\strut\\
+		<%country%> \strut
+	}
+
+% Anrede nach Geschlecht unterscheiden
+\opening{
+	\ifstr{<%cp_name%>}{}
+		{\anrede}
+		{
+			\ifstr{<%cp_gender%>}{f}
+				{\anredefrau}
+				{\anredeherr}
+				<%cp_title%> <%cp_name%>,
+			}
+		}
+		\thispagestyle{kivitendo.letter.first}
+
+\auftragsformel
+ 
+\begin{PricingTabular*}
+\FakeTable{
+	<%foreach number%>%
+	<%runningnumber%> &%
+	<%number%> &%
+	\textbf{<%description%>}%
+	<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
+    <%if reqdate%>\ExtraDescription{\lieferdatum: <%reqdate%>}<%end reqdate%>
+	<%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
+	<%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
+	<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
+	&%
+	<%qty%> <%unit%> &%
+	<%sellprice%>&%
+	\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
+	<%linetotal%>\tabularnewline
+	<%end number%>
+}
+% Tabellenende letzte Seite
+	\begin{PricingTotal}
+	% Tabellenende letzte Seite
+	\nettobetrag & <%subtotal%>\\
+	<%foreach tax%>
+	<%taxdescription%> & <%tax%>\\
+	<%end tax%>
+	\bfseries\schlussbetrag &  \bfseries <%ordtotal%>\\
+\end{PricingTotal}
+\end{PricingTabular*}
+
+<%if notes%>
+<%notes%>
+\medskip
+<%end if%>
+
+<%if reqdate%>
+\lieferungErfolgtAm ~<%reqdate%>. \\
+<%end if%>
+
+\textit{\auftragpruefen}
+
+\closing{\gruesse}
+
+\end{letter}
+
+\end{document}
+

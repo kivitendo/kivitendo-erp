@@ -1,0 +1,119 @@
+%% insettings.tex
+%% Copyright 2019 Marei Peischl
+\ProvidesFile{insettings.tex}[2019/12/22 Konfigurationsdatei kivitendo ERP]
+% Sprachüberprüfung
+\RequirePackage[english, ngerman]{babel}
+\ifstr{\lxlangcode}{EN}{
+	\makeatletter
+	\main@language{english}
+	\makeatother
+	\input{english.tex}}{
+	\ifstr{\lxlangcode}{DE}{
+		\makeatletter
+		\main@language{ngerman}
+		\makeatother
+		\input{deutsch.tex}}{\input{deutsch.tex}}
+} % Ende EN
+
+
+% Mandanten-/Firmenabhängigkeiten
+
+% Pfad zu firmenspez. Angaben
+% Hat man mehrere Mandanten muß man statt "Firma1" den Datenbanknamen seines
+% Mandanten eingeben.
+
+\ExplSyntaxOn
+\int_set:Nn \l_kivi_tmp_int {1}
+\bool_set_true:N \l_kivi_tmp_bool
+\bool_while_do:Nn \l_kivi_tmp_bool {
+	\file_if_exist:nTF {firma\int_use:N \l_kivi_tmp_int/ident.tex}
+	{
+	\str_if_in:NnTF \kivicompany {Firma\int_use:N \l_kivi_tmp_int}
+		{
+		\newcommand*{\identpath}{firma\int_use:N \l_kivi_tmpa_int}
+		\bool_set_false:N \l_kivi_tmp_bool
+		}
+		{\int_incr:N \l_kivi_tmp_int}
+	}
+	{
+	\bool_set_false:N \l_kivi_tmp_bool
+	\newcommand*{\identpath}{firma}
+	}
+}
+
+\ExplSyntaxOff
+
+
+% Identität
+\input{\identpath/ident.tex}
+
+\ExplSyntaxOn
+
+%Setze Briefkopf-logo falls vorhanden
+\setkomavar{fromlogo}{\includegraphics[width=.25\linewidth]{\identpath/briefkopf}}
+
+% Währungen/Konten
+\tl_new:N \g_kivi_currency_tl
+\str_if_in:NnT \lxcurrency {USD} {\tl_gset:Nn \g_kivi_currency_tl {usd}}
+\str_if_in:NnT \lxcurrency {CHF} {\tl_gset:Nn \g_kivi_currency_tl {chf}}
+\str_if_in:NnT \lxcurrency {EUR} {\tl_gset:Nn \g_kivi_currency_tl {euro}}
+\tl_if_empty:NT  \g_kivi_currency_tl {
+	\tl_gset:Nn \g_kivi_currency_tl {default}
+	\edef \currency {\tl_to_str:N \lxcurrency}
+}
+
+\input{\identpath/\g_kivi_currency_tl _account.tex}
+
+\ExplSyntaxOff
+
+
+% keine Absätze nach rechts einrücken
+\setlength\parindent{0pt}
+
+
+
+% Befehl f. normale Schriftart und -größe
+\renewcommand*{\familydefault}{\sfdefault}
+\KOMAoptions{fontsize=10pt}
+
+% Einstellungen f. Kopf und Fuss
+\pagestyle{kivitendo.letter}
+%\setheadwidth[20mm]{page} % Kopfzeile nach rechts verschieben
+%\setfootwidth[-39mm]{page} % Fusszeile verschieben
+
+% Befehl f. laufende Kopfzeile:
+% 1. Text f. Kunden- oder Lieferantennummer (oder leer, wenn diese nicht ausgegeben werden soll)
+% 2. Kunden- oder Lieferantennummer (oder leer)
+% 3. Belegname {oder leer}
+% 4. Belegnummer {oder leer}
+% 5. Belegdatum {oder leer}
+% Beispiel: \ourhead{\kundennummer}{<%customernumber%>}{\angebot}{<%quonumber%>}{<%quodate%>}
+\setkomafont{pagehead}{\scriptsize}
+\newcommand{\ourhead}[5] {
+\chead{
+  \ifnum\thepage=1
+  \else
+      \ifstr{#1}{}{}{#1: #2 \hspace{0.7cm}}
+      #3
+      \ifstr{#4}{}{}{~\nr: #4}
+      \ifstr{#5}{}{}{\vom ~ #5}
+      \hspace{0.7cm} - \seite ~ \thepage/\letterlastpage  ~-%
+  \fi
+}
+}
+
+% Firmenfuss
+\setkomafont{pagefoot}{\tiny}
+\cfoot{
+  {
+     \begin{tabular}{p{5cm}p{4.5cm}lr}
+        \firma                 & \email              & \textKontonummer & \kontonummer \\
+        \strasse               & \homepage           & \textBank        & \bank \\
+        \ort                   & \textUstid\ \ustid  & \textIban        & \iban \\
+        \textTelefon~\telefon  & \finanzamt          & \textBic         & \bic \\
+        \ifstr{\fax}{}{}{\textFax~\fax} & &\textBankleitzahl	& \bankleitzahl \\
+     \end{tabular}
+  }
+}
+
+\endinput

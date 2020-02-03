@@ -1,0 +1,133 @@
+\documentclass[paper=a4,fontsize=10pt]{scrartcl}
+\usepackage{kiviletter}
+
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+\newcommand{\lxmedia} {<%media%>}
+\newcommand{\lxcurrency} {<%currency%>}
+\newcommand{\kivicompany} {<%employee_company%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+
+% laufende Kopfzeile:
+\ourhead{}{}{\anfrage}{<%quonumber%>}{<%transdate%>}
+
+
+\begin{document}
+\setkomavar*{date}{\datum}
+
+\setkomavar{date}{<%transdate%>}
+\setkomavar{customer}{<%customernumber%>}
+\setkomavar{fromname}{<%employee_name%>}
+\setkomavar{fromphone}{<%employee_tel%>}
+\setkomavar{fromemail}{<%employee_email%>}
+\setkomavar{title}{
+	\anfrage~
+	\nr ~<%quonumber%>
+}
+<%if globalprojectnumber%>
+	\setkomavar{projectID}{<%globalprojectnumber%>}
+<%end globalprojectnumber%>
+\setkomavar{transaction}{<%transaction_description%>}
+
+\begin{letter}{
+		<%name%>\strut\\
+		<%if department_1%><%department_1%>\\<%end if%>
+		<%if department_2%><%department_2%>\\<%end if%>
+		<%cp_givenname%> <%cp_name%>\strut\\
+		<%street%>\strut\\
+		<%zipcode%> <%city%>\strut\\
+		<%country%> \strut
+	}
+
+% Anrede nach Geschlecht unterscheiden
+\opening{
+	\ifstr{<%cp_name%>}{}
+		{\anrede}
+		{
+			\ifstr{<%cp_gender%>}{f}
+				{\anredefrau}
+				{\anredeherr}
+				<%cp_title%> <%cp_name%>,
+		}
+}
+\thispagestyle{kivitendo.letter.first}
+
+\anfrageformel
+
+
+%
+% - longtable kann innerhalb der Tabelle umbrechen
+% - da der Umbruch nicht von Lx-Office kontrolliert wird, kann man keinen
+%   Übertrag machen
+% - Innerhalb des Langtextes <%longdescription%> wird nicht umgebrochen.
+%   Falls das gewünscht ist, \\ mit \renewcommand umschreiben (siehe dazu:
+%   http://www.lx-office.org/uploads/media/Lx-Office_Anwendertreffen_LaTeX-Druckvorlagen-31.01.2011_01.pdf)
+%
+\setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
+\setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
+\begin{longtable}{@{}rrp{14cm}@{\extracolsep{\fill}}@{}}
+% Tabellenkopf
+\hline
+\textbf{\position} & \textbf{\menge} & \textbf{\bezeichnung} \\
+\hline\\
+\endhead
+
+% Tabellenkopf erste Seite
+\hline
+\textbf{\position} & \textbf{\menge} & \textbf{\bezeichnung} \\
+\hline\\[-0.5em]
+\endfirsthead
+
+% Tabellenende
+\\
+\multicolumn{3}{@{}r@{}}{\weiteraufnaechsterseite}
+\endfoot
+
+% Tabellenende letzte Seite
+\hline\\
+\endlastfoot
+
+% eigentliche Tabelle
+<%foreach number%>
+          <%runningnumber%> &
+          <%qty%> <%unit%> &
+          \textbf{<%description%>} \\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden
+
+          <%if longdescription%> && \scriptsize <%longdescription%>\\<%end longdescription%>
+%          <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>
+          <%if make%>
+            <%foreach make%>
+              \ifstr{<%make%>}{<%name%>}{&& \artikelnummer: <%model%>\\}{}
+            <%end foreach%>
+          <%end if%>
+
+          \\[-0.8em]
+<%end number%>
+
+\end{longtable}
+
+<%if notes%>
+<%notes%>
+\medskip
+<%end if%>
+
+
+<%if delivery_term%>
+  \lieferung ~<%delivery_term.description_long%>\\
+<%end delivery_term%>
+
+<%if reqdate%>
+\anfrageBenoetigtBis~<%reqdate%>.
+<%end if%>
+
+\anfragedanke
+
+\closing{\gruesse}
+
+\end{letter}
+
+\end{document}
