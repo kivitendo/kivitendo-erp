@@ -113,7 +113,7 @@ sub action_print {
     return $self->redirect_to(action => 'list_invoices');
   }
 
-  $self->download_or_print_documents(printer_id => $::form->{printer_id}, invoices => \@invoices);
+  $self->download_or_print_documents(printer_id => $::form->{printer_id}, invoices => \@invoices, bothsided => $::form->{bothsided});
 }
 
 sub action_create_print_all_start {
@@ -295,7 +295,7 @@ sub download_or_print_documents {
       });
 
     @pdf_file_names = $self->create_pdfs(%pdf_params);
-    my $merged_pdf  = $self->merge_pdfs(file_names => \@pdf_file_names);
+    my $merged_pdf  = $self->merge_pdfs(file_names => \@pdf_file_names, bothsided => $params{bothsided});
     unlink @pdf_file_names;
 
     if (!$params{printer_id}) {

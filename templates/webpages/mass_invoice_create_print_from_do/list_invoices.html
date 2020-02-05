@@ -59,10 +59,15 @@
 
   [% L.hidden_tag("action", "MassInvoiceCreatePrint/dispatch") %]
   [% L.hidden_tag("printer_id") %]
+  [% L.hidden_tag("bothsided") %]
  </form>
 
  [% IF SELF.printers.size %]
   <div id="print_options" class="hidden">
+   <p>
+     [% LxERP.t8("Print both sided") %]:
+     [% L.checkbox_tag('', id="print_options_bothsided") %]
+   </p>
    <p>
     [% LxERP.t8("Print destination") %]:
     [% SET  printers = [ { description=LxERP.t8("Download PDF, do not print") } ] ;

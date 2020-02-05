@@ -104,6 +104,7 @@ namespace('kivi.MassInvoiceCreatePrint', function(ns) {
     $('#print_options').dialog('close');
 
     $('#printer_id').val($('#print_options_printer_id').val());
+    $('#bothsided').val($('#print_options_bothsided').prop('checked') ? 1 : 0);
     $('#action').val('MassInvoiceCreatePrint/print');
 
     $('#report_form').submit();
