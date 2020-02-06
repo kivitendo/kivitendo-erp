@@ -117,11 +117,27 @@ namespace('kivi.PriceRuleMacro', function(ns) {
     $element.find('span.input-' + field).toggle();
   };
 
+  ns.remove_element_event = function(elt) {
+    ns.remove_element($(this).closest('.price_rule_element'));
+  };
+
+  ns.remove_element = function($element) {
+    let parent_element = $element.parents('.price_rule_element').get(0);
+
+    if (parent_element === undefined)
+      return;
+
+    $element.remove();
+
+    // if this was the last elemet in this subtree, remove the parent element too
+    if ($(parent_element).find('.price_rule_element').length === 0) {
+      ns.remove_element($(parent_element));
+    }
+  };
+
   ns.reinit_widgets = function() {
     kivi.run_once_for('span.price_rule_macro_remove_line', 'remove_line', function(elt) {
-      $(elt).click(function() {
-        $(this).closest('.price_rule_element').remove();
-      });
+      $(elt).click(ns.remove_element_event);
     });
     kivi.run_once_for('span.price_rule_macro_add_value', 'add_value', function(elt) {
       $(elt).click(ns.add_value);
