@@ -124,8 +124,10 @@ namespace('kivi.PriceRuleMacro', function(ns) {
   ns.remove_element = function($element) {
     let parent_element = $element.parents('.price_rule_element').get(0);
 
-    if (parent_element === undefined)
+    if (parent_element === undefined) {
+      $element.find('.price_rule_macro_add_empty_block').click();
       return;
+    }
 
     $element.remove();
 
