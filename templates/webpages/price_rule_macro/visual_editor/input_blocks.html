@@ -384,7 +384,7 @@
       [% 'Set price to' | $T8 %]
     </legend>
     <div>
-      [% L.input_tag(prefix _ '[].price_as_number', item.price_as_number, class='numeric', "data-validate"='number') %]
+      [% L.input_tag(prefix _ '[].price_as_number', item.price_as_number, class='numeric', "data-validate"='number') %]<span style="visibility:hidden"> %</span>
     </div>
   </fieldset>
 [%- END %]
@@ -412,7 +412,7 @@
       [% 'Reduce price by' | $T8 %]
     </legend>
     <div>
-      [% L.input_tag(prefix _ '[].reduction_as_number', item.reduction_as_number, class='numeric', "data-validate"='number') %]
+      [% L.input_tag(prefix _ '[].reduction_as_number', item.reduction_as_number, class='numeric', "data-validate"='number') %]<span style="visibility:hidden"> %</span>
     </div>
   </fieldset>
 [%- END %]
