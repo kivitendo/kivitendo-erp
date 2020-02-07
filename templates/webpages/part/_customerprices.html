@@ -19,7 +19,7 @@
         </thead>
         <tbody id="customerprice_rows">
         [% SET listrow = 0 %]
-        [%- FOREACH customerprice = SELF.part.customerprices %]
+        [%- FOREACH customerprice = SELF.part.customerprices_sorted %]
         [% listrow = listrow + 1 %]
         [% PROCESS 'part/_customerprice_row.html' customerprice=customerprice listrow=listrow %]
         [%- END %]
