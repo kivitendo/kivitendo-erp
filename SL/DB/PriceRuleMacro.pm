@@ -330,7 +330,7 @@ package SL::PriceRuleMacro::Element {
           if ('ARRAY' eq ref $value) {
             $self->$method([ map { 'HASH' eq ref $_ ? $type->new(%$_) : $_ } @$value ]);
           } else {
-            $self->$method('HASH' eq ref $value ? $type->new(%$value) : $_);
+            $self->$method('HASH' eq ref $value ? $type->new(%$value) : $value);
           }
         } else {
           $self->$method($value);
@@ -535,7 +535,7 @@ package SL::PriceRuleMacro::Condition::ContainerAnd {
   }
 
   sub price_rule_items {
-    return if !$_[0]->condition || !@{$_[0]->condition};
+    return unless my @conditions = grep defined, SL::MoreCommon::listify($_[0]->condition);
 
     my $reduced = List::Util::reduce {
       [
@@ -545,7 +545,7 @@ package SL::PriceRuleMacro::Condition::ContainerAnd {
       ]
     } map {
       [ $_->price_rule_items ]
-    } @{ $_[0]->condition // [] };
+    } @conditions;
     @$reduced;
   }
 
