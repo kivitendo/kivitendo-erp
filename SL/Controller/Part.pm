@@ -538,10 +538,12 @@ sub action_add_customerprice_row {
   my $position = scalar @{ $self->customerprices } + 1;
 
   my $cu = SL::DB::PartCustomerPrice->new(
-                      customer_id         => $customer->id,
-                      customer_partnumber => '',
-                      price               => 0,
-                      sortorder           => $position,
+                      customer_id          => $customer->id,
+                      customer_partnumber  => '',
+                      part_description     => '',
+                      part_longdescription => '',
+                      price                => 0,
+                      sortorder            => $position,
   ) or die "Can't create Customerprice object";
 
   my $row_as_html = $self->p->render(
@@ -994,6 +996,8 @@ sub parse_form_customerprices {
                                      id                   => $id,
                                      customer_id          => $customerprice->{customer_id},
                                      customer_partnumber  => $customerprice->{customer_partnumber} || '',
+                                     part_description     => $customerprice->{part_description},
+                                     part_longdescription => $customerprice->{part_longdescription},
                                      price                => $::form->parse_amount(\%::myconfig, $customerprice->{price_as_number}),
                                      sortorder            => $position,
                                    );
@@ -1129,11 +1133,13 @@ sub init_customerprices {
     next unless $customerprice->{customer_id};
     $position++;
     my $cu = SL::DB::PartCustomerPrice->new( # parts_id   => $self->part->id, # will be assigned by row add_customerprices
-                                    id                  => $customerprice->{id},
-                                    customer_partnumber => $customerprice->{customer_partnumber},
-                                    customer_id         => $customerprice->{customer_id} || '',
-                                    price               => $::form->parse_amount(\%::myconfig, $customerprice->{price_as_number} || 0),
-                                    sortorder           => $position,
+                                    id                   => $customerprice->{id},
+                                    customer_partnumber  => $customerprice->{customer_partnumber},
+                                    customer_id          => $customerprice->{customer_id} || '',
+                                    part_description     => $customerprice->{part_description},
+                                    part_longdescription => $customerprice->{part_longdescription},
+                                    price                => $::form->parse_amount(\%::myconfig, $customerprice->{price_as_number} || 0),
+                                    sortorder            => $position,
                                   ) or die "Can't create cu";
     # $cu->id($customerprice->{id}) if $customerprice->{id};
     push(@customerprice_array, $cu);

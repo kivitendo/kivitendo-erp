@@ -13,7 +13,9 @@
   <td><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]" class="dragdrop"></td>
   <td>[% customerprice.customer.customernumber | html %]</td>
   <td>[% customerprice.customer.name         | html %]</td>
-  <td>[% L.input_tag('customerprices[].customer_partnumber', customerprice.customer_partnumber, class='wi-mediumsmall', size=10) %]</td>
-  <td>[% L.input_tag('customerprices[].price_as_number'    , customerprice.price_as_number    , class="wi-small reformat_number numeric", size=10) %]</td>
-  <td>[% L.hidden_tag('customerprices[].lastupdate'        , customerprice.lastupdate.to_kivitendo) %][% customerprice.lastupdate.to_kivitendo | html %]</td>
+  <td>[% L.input_tag('customerprices[].customer_partnumber'     , customerprice.customer_partnumber , class='wi-mediumsmall', size=10) %]</td>
+  <td>[% L.input_tag('customerprices[].part_description'        , customerprice.part_description    , class='wi-mediumsmall', size=10) %]</td>
+  <td>[% L.areainput_tag('customerprices[].part_longdescription', customerprice.part_longdescription, class='wi-mediumsmall', size=10) %]</td>
+  <td>[% L.input_tag('customerprices[].price_as_number'         , customerprice.price_as_number     , class="wi-small reformat_number numeric", size=10) %]</td>
+  <td>[% L.hidden_tag('customerprices[].lastupdate'             , customerprice.lastupdate.to_kivitendo) %][% customerprice.lastupdate.to_kivitendo | html %]</td>
 </tr>
