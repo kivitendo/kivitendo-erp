@@ -366,11 +366,19 @@
       [%- PROCESS remove_control %]
       [% 'Simple Action' | $T8 %]
     </legend>
-    <div>
+    <div class='simple_action_input_content'>
       [% 'Set (set to)' | $T8 %]
-      [% L.select_tag(prefix _ '[].price_type', SELF.all_price_types, default=item.price_type) %]
+      [% L.select_tag(prefix _ '[].price_type', SELF.all_price_types, default=item.price_type, class='simple_action_input_price_type') %]
       [% 'to (set to)' | $T8 %]
-      [% L.input_tag(prefix _ '[].price_or_discount_as_number', item.price_or_discount_as_number, "data-validate"='number') %]
+      <span [% UNLESS item.price_type == '' || item.price_type == 0 %]style='display:none'[% END %] class="simple_action_input_price">
+        [% L.input_tag(prefix _ '[].price_as_number', item.price_as_number, "data-validate"='number', class="numeric") %]
+      </span>
+      <span [% UNLESS item.price_type == 1 %]style='display:none'[% END %] class="simple_action_input_reduction">
+        [% L.input_tag(prefix _ '[].reduction_as_number', item.reduction_as_number, "data-validate"='number', class="numeric") %]
+      </span>
+      <span [% UNLESS item.price_type == 2 %]style='display:none'[% END %] class="simple_action_input_discount">
+        [% L.input_tag(prefix _ '[].discount_as_number', item.discount_as_number, "data-validate"='number', class="numeric") %] %
+      </span>
     </div>
   </fieldset>
 [%- END %]

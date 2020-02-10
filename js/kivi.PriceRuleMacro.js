@@ -137,6 +137,25 @@ namespace('kivi.PriceRuleMacro', function(ns) {
     }
   };
 
+  ns.simple_action_input_price_type_changed = function(e) {
+    let $input = $(e.target);
+    let price_type = $input.val();
+    let $content = $input.parent('div.simple_action_input_content');
+    $content.children('.simple_action_input_price').hide();
+    $content.children('.simple_action_input_reduction').hide();
+    $content.children('.simple_action_input_discount').hide();
+
+    if (price_type === '0') {
+      $content.children('.simple_action_input_price').show();
+    }
+    if (price_type === '1') {
+      $content.children('.simple_action_input_reduction').show();
+    }
+    if (price_type === '2') {
+      $content.children('.simple_action_input_discount').show();
+    }
+  };
+
   ns.reinit_widgets = function() {
     kivi.run_once_for('span.price_rule_macro_remove_line', 'remove_line', function(elt) {
       $(elt).click(ns.remove_element_event);
@@ -158,6 +177,9 @@ namespace('kivi.PriceRuleMacro', function(ns) {
     });
     kivi.run_once_for('span.list-template-price-toggle', 'price_toggle', function(elt) {
       $(elt).click(ns.list_template_price_toggle);
+    });
+    kivi.run_once_for('select.simple_action_input_price_type', 'price_type_changed', function(elt) {
+      $(elt).change(ns.simple_action_input_price_type_changed);
     });
     $('span.price_rule_price_type_help').click(ns.open_price_type_help_popup);
   };
