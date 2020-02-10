@@ -93,6 +93,18 @@ my @version_upgrades = (
     );
 
   },
+  sub {
+    # 5: update simple_action to distinct slots again
+    _upgrade_node($_[0],
+      sub { $_[0]->{type} eq 'simple_action' && exists $_[0]->{price_or_discount} },
+      sub {
+        my $price_or_discount = delete $_[0]->{price_or_discount};
+        $_[0]->{price}     = $price_or_discount if $_[0]->{price_type} == SL::DB::Manager::PriceRule::PRICE_NEW();
+        $_[0]->{discount}  = $price_or_discount if $_[0]->{price_type} == SL::DB::Manager::PriceRule::PRICE_DISCOUNT();
+        $_[0]->{reduction} = $price_or_discount if $_[0]->{price_type} == SL::DB::Manager::PriceRule::PRICE_REDUCED_MASTER_DATA();
+      },
+    );
+  },
 );
 
 sub priority_as_text {
@@ -971,10 +983,10 @@ package SL::PriceRuleMacro::ConditionalAction {
 package SL::PriceRuleMacro::Action::Simple {
   our @ISA = ('SL::PriceRuleMacro::Action');
   Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
-  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'numeric') for qw(price_or_discount);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'numeric') for qw(price discount reduction);
 
   sub elements {
-    qw(price_type price_or_discount)
+    qw(price_type price discount reduction)
   }
 
   sub type {
@@ -987,20 +999,19 @@ package SL::PriceRuleMacro::Action::Simple {
 
   sub validate {
     die "action of type '@{[ $_[0]->type ]}' needs at least price"
-      if !defined $_[0]->price_or_discount;
+      if $_[0]->price_type == SL::DB::Manager::PriceRule::PRICE_NEW() && !defined $_[0]->price;
+    die "action of type '@{[ $_[0]->type ]}' needs at least discount"
+      if $_[0]->price_type == SL::DB::Manager::PriceRule::PRICE_DISCOUNT() && !defined $_[0]->discount;
+    die "action of type '@{[ $_[0]->type ]}' needs at least reduction"
+      if $_[0]->price_type == SL::DB::Manager::PriceRule::PRICE_REDUCED_MASTER_DATA() && !defined $_[0]->reduction;
   }
 
   sub price_rules {
     my ($self) = @_;
-    require SL::DB::PriceRule;
 
-    my %slots = (
-      SL::DB::Manager::PriceRule::PRICE_NEW()                 => 'price',
-      SL::DB::Manager::PriceRule::PRICE_DISCOUNT()            => 'discount',
-      SL::DB::Manager::PriceRule::PRICE_REDUCED_MASTER_DATA() => 'reduction',
-    );
-
-    SL::DB::PriceRule->new($slots{ $self->price_type } => $_[0]->price_or_discount);
+    return SL::DB::PriceRule->new(price     => $self->price)     if $self->price_type == SL::DB::Manager::PriceRule::PRICE_NEW();
+    return SL::DB::PriceRule->new(discount  => $self->discount)  if $self->price_type == SL::DB::Manager::PriceRule::PRICE_DISCOUNT();
+    return SL::DB::PriceRule->new(reduction => $self->reduction) if $self->price_type == SL::DB::Manager::PriceRule::PRICE_REDUCED_MASTER_DATA();
   }
 
   sub order {
