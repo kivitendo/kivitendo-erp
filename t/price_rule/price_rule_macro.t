@@ -458,7 +458,7 @@ my @test_cases = (
   qq'{
     "action": {
         "price_type": 0,
-        "price_or_discount": null,
+        "price": null,
         "type": "simple_action"
     },
     "condition": {
