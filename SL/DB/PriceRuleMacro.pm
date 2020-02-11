@@ -447,6 +447,10 @@ package SL::PriceRuleMacro::Element {
     SL::Locale::String::t8('Element')
   }
 
+  sub hidden {
+    # overwrite truish to hide an element from selection
+  }
+
   sub order {
     0
   }
