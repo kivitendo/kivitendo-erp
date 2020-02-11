@@ -125,7 +125,21 @@ namespace('kivi.PriceRuleMacro', function(ns) {
     let parent_element = $element.parents('.price_rule_element').get(0);
 
     if (parent_element === undefined) {
-      $element.find('.price_rule_macro_add_empty_block').click();
+      //$element.find('.price_rule_macro_add_empty_block').click();
+      let $last_elem = $element.find('.price_rule_macro_add_empty_block');
+      $last_elem.uniqueId();
+
+      $.post(
+        'controller.pl',
+        {
+          action: 'PriceRuleMacro/add_element',
+          type: 'conditional_action',
+          prefix: $last_elem.data('prefix'),
+          element_class: 'action',
+          container: $last_elem.prop('id')
+        },
+        kivi.eval_json_result
+      );
       return;
     }
 
