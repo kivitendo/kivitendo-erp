@@ -621,6 +621,12 @@ body > div.admin {
 #price_rule_macro fieldset {
   font-weight: normal;
 }
+#price_rule_macro .price_rule_action_element {
+  border-color: black;
+}
+#price_rule_macro .price_rule_condition_element {
+  /* nothing yet */
+}
 #price_rule_macro fieldset legend {
   font-weight: bold;
   white-space: nowrap;
