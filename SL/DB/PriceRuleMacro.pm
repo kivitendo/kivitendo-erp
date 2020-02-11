@@ -1018,6 +1018,11 @@ package SL::PriceRuleMacro::Action::Simple {
     return SL::DB::PriceRule->new(reduction => $self->reduction) if $self->price_type == SL::DB::Manager::PriceRule::PRICE_REDUCED_MASTER_DATA();
   }
 
+  sub hidden {
+    # for legacy only
+    1
+  }
+
   sub order {
     104
   }
