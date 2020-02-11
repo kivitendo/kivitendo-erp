@@ -28,7 +28,7 @@
              <tr>
               <th align="right">[% 'Part Description' | $T8 %]</th>
               <td>
-               [% L.areainput_tag("part.description", SELF.part.description, size=40) %]</td>
+               [% L.areainput_tag("part.description", SELF.part.description, size=40) %]
               </td>
              </tr>
              <tr>
@@ -112,7 +112,7 @@
           <tr>
            <th align="right">[% 'Price Factor' | $T8 %]</th>
            <td>
-            [%- L.select_tag('part.price_factor_id', SELF.all_price_factors, default=SELF.part.price_factor_id, title_key='description', value_key='id', with_empty=1) %]</td>
+            [%- L.select_tag('part.price_factor_id', SELF.all_price_factors, default=SELF.part.price_factor_id, title_key='description', value_key='id', with_empty=1) %]
            </td>
           </tr>
           [%- END %]
@@ -121,7 +121,7 @@
            <th align="right" nowrap="true">[% 'Unit' | $T8 %]</th>
            <td>
             [%- IF !SELF.part.id or SELF.part.orphaned # same logic as unit_changable %]
-            [%- L.select_tag('part.unit', SELF.all_units, default=SELF.part.unit, title_key='name', value_key='name') %]</td>
+            [%- L.select_tag('part.unit', SELF.all_units, default=SELF.part.unit, title_key='name', value_key='name') %]
             [%- ELSE %]
             [% L.hidden_tag('part.unit', SELF.part.unit) %] [% HTML.escape(SELF.part.unit) %]
             [%- END %]
