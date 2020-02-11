@@ -168,7 +168,11 @@ sub action_meta {
 sub allowed_elements_for {
   my ($self, $element) = @_;
 
-  [ map [ $_, $self->meta->{$_}{name} ], $self->meta->{$element}{internal_class}->new->allowed_elements ]
+  [
+    map [ $_, $self->meta->{$_}{name} ],
+    grep {
+      !$self->meta->{$_}{internal_class}->hidden
+    } $self->meta->{$element}{internal_class}->new->allowed_elements ]
 }
 
 sub reconcile_generated_price_sources {
