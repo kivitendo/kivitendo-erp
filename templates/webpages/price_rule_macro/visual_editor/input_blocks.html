@@ -467,9 +467,9 @@
 [% WRAPPER element %]
 <fieldset class='price_rule_action_element'>
   <legend>[%- PROCESS remove_control %] [% item.description | $T8 %]
-    <span class="interact cursor-pointer list-template-price-toggle" data-field="price">€</span>
-    <span class="interact cursor-pointer list-template-price-toggle" data-field="discount">%</span>
-    <span class="interact cursor-pointer list-template-price-toggle" data-field="reduction">⬇</span>
+    <span class="interact cursor-pointer list-template-price-toggle" title='[% 'Price'              | $T8 %]' data-field="price">€</span>
+    <span class="interact cursor-pointer list-template-price-toggle" title='[% 'Discount'           | $T8 %]' data-field="discount">%</span>
+    <span class="interact cursor-pointer list-template-price-toggle" title='[% 'Reduced Master Data'| $T8 %]' data-field="reduction">⬇</span>
   </legend>
   [% L.hidden_tag(prefix _ '[].condition_type', item.condition_type) %]
   <div class="price_rule_list_template_lines">
