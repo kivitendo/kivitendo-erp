@@ -361,11 +361,7 @@
 
 [%- BLOCK simple_action_input %]
   [% WRAPPER element %]
-  <fieldset>
-    <legend>
-      [%- PROCESS remove_control %]
-      [% 'Simple Action' | $T8 %]
-    </legend>
+   [% WRAPPER title_block title=LxERP.t8('Simple Action') %]
     <div class='simple_action_input_content'>
       [% 'Set (set to)' | $T8 %]
       [% L.select_tag(prefix _ '[].price_type', SELF.all_price_types, default=item.price_type, class='simple_action_input_price_type') %]
@@ -380,49 +376,37 @@
         [% L.input_tag(prefix _ '[].discount_as_number', item.discount_as_number, "data-validate"='number', class="numeric") %] %
       </span>
     </div>
-  </fieldset>
+ [%- END %]
 [%- END %]
 [%- END %]
 
 [%- BLOCK price_action_input %]
   [% WRAPPER element %]
-  <fieldset>
-    <legend>
-      [%- PROCESS remove_control %]
-      [% 'Set price to' | $T8 %]
-    </legend>
+   [% WRAPPER title_block title=LxERP.t8('Set price to') %]
     <div>
       [% L.input_tag(prefix _ '[].price_as_number', item.price_as_number, class='numeric', "data-validate"='number') %]<span style="visibility:hidden"> %</span>
     </div>
-  </fieldset>
+ [%- END %]
 [%- END %]
 [%- END %]
 
 [%- BLOCK discount_action_input %]
   [% WRAPPER element %]
-  <fieldset>
-    <legend>
-      [%- PROCESS remove_control %]
-      [% 'Set discount to' | $T8 %]
-    </legend>
+   [% WRAPPER title_block title=LxERP.t8('Set discount to') %]
     <div>
       [% L.input_tag(prefix _ '[].discount_as_number', item.discount_as_number, class='numeric', "data-validate"='number') %] %
     </div>
-  </fieldset>
+ [%- END %]
 [%- END %]
 [%- END %]
 
 [%- BLOCK reduction_action_input %]
   [% WRAPPER element %]
-  <fieldset>
-    <legend>
-      [%- PROCESS remove_control %]
-      [% 'Reduce price by' | $T8 %]
-    </legend>
+   [% WRAPPER title_block title=LxERP.t8('Reduce price by') %]
     <div>
       [% L.input_tag(prefix _ '[].reduction_as_number', item.reduction_as_number, class='numeric', "data-validate"='number') %]<span style="visibility:hidden"> %</span>
     </div>
-  </fieldset>
+[%- END %]
 [%- END %]
 [%- END %]
 
@@ -437,13 +421,12 @@
 
 [%- BLOCK price_scale_action_input %]
 [% WRAPPER element %]
-<fieldset>
-  <legend>[%- PROCESS remove_control %] [% 'Price Scale' | $T8 %]</legend>
+ [% WRAPPER title_block title=LxERP.t8('Price Scale') %]
   [% FOREACH row = item.price_scale_action_line %]
     [% INCLUDE price_scale_action_line_input item=row prefix=prefix _ '[].price_scale_action_line' %]
   [% END %]
   [% INCLUDE add_action_line prefix=prefix _ '[].price_scale_action_line' %]
-</fieldset>
+[%- END %]
 [%- END %]
 [%- END %]
 
@@ -464,15 +447,14 @@
 
 [%- BLOCK parts_price_list_action_input %]
 [% WRAPPER element %]
-<fieldset>
-  <legend>[%- PROCESS remove_control %] [% 'Parts Price List' | $T8 %]</legend>
+ [% WRAPPER title_block title=LxERP.t8('Parts Price List') %]
   <div>
     [% FOREACH row = item.parts_price_list_action_line %]
       [% INCLUDE parts_price_list_action_line_input item=row prefix=prefix _ '[].parts_price_list_action_line' %]
     [% END %]
   </div>
   [% INCLUDE add_action_line prefix=prefix _ '[].parts_price_list_action_line' %]
-</fieldset>
+[%- END %]
 [%- END %]
 [%- END %]
 
