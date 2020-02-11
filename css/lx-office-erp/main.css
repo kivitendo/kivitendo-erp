@@ -650,6 +650,7 @@ div.layout-actionbar .layout-actionbar-default-action {
 }
 #price_rule_macro .price_rule_macro_add_empty_block:hover {
   background-color: grey;
+  cursor: pointer;
 }
 
 
