@@ -9,6 +9,7 @@
     <td>
       <table id="makemodel_table">
         <thead>
+         <tr>
           <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/close.png" alt="[%- LxERP.t8('delete item') %]"></th>
           <th class="listheading">[% 'position'     | $T8 %]</th>
           <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
@@ -17,6 +18,7 @@
           <th class="listheading">[% 'Model'         | $T8 %]</th>
           <th class="listheading">[% 'Last Cost'     | $T8 %]</th>
           <th class="listheading">[% 'Updated'       | $T8 %]</th>
+         </tr>
         </thead>
         <tbody id="makemodel_rows">
         [% SET listrow = 0 %]

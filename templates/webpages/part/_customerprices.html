@@ -8,6 +8,7 @@
     <td>
       <table id="customerprice_table">
         <thead>
+         <tr>
           <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/close.png" alt="[%- LxERP.t8('delete item') %]"></th>
           <th class="listheading">[% 'position'     | $T8 %]</th>
           <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
@@ -16,6 +17,7 @@
           <th class="listheading">[% 'Customer Part Number' | $T8 %]</th>
           <th class="listheading">[% 'Customer Price'       | $T8 %]</th>
           <th class="listheading">[% 'Updated'              | $T8 %]</th>
+         </tr>
         </thead>
         <tbody id="customerprice_rows">
         [% SET listrow = 0 %]
