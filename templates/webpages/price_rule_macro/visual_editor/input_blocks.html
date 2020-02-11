@@ -36,21 +36,19 @@
 
 [%- BLOCK condition_container_and_input %]
   [% WRAPPER element %]
-  <fieldset class='price_rule_container price_rule_element'>
-    <legend>[%- PROCESS remove_control %] [% 'And' | $T8 %]:</legend>
+   [% WRAPPER title_block title=LxERP.t8('And') _ ':', class='price_rule_container price_rule_element' %]
     [%- INCLUDE condition_elements items=item.condition, prefix=prefix _ '[].condition' %]
     [%- PROCESS add_condition_element_control %]
-  </fieldset>
+   [%- END %]
   [%- END %]
 [%- END %]
 
 [%- BLOCK condition_container_or_input %]
   [% WRAPPER element %]
-  <fieldset class='price_rule_container'>
-    <legend>[%- PROCESS remove_control %] [% 'Or' | $T8 %]:</legend>
+   [% WRAPPER title_block title=LxERP.t8('Or') _ ':', class='price_rule_container' %]
     [%- INCLUDE condition_elements items=item.condition, prefix=prefix _ '[].condition' %]
     [%- PROCESS add_condition_element_control %]
-  </fieldset>
+   [%- END %]
   [%- END %]
 [%- END %]
 
@@ -78,13 +76,12 @@
 
 [%- BLOCK condition_customer_input %]
   [% WRAPPER element %]
-  <fieldset>
-   <legend>[%- PROCESS remove_control %] [% 'Customer' | $T8 %] [% 'is' | $T8 %]</legend>
+    [% WRAPPER title_block title=LxERP.t8('Customer') _ ' ' _ LxERP.t8('is') %]
      [% FOREACH id = item.id %]
        [% PROCESS condition_customer_value_input %]
      [% END %]
      [% PROCESS add_value %]
-  </fieldset>
+   [% END %]
   [% END %]
 [%- END %]
 
@@ -97,13 +94,12 @@
 
 [%- BLOCK condition_vendor_input %]
   [% WRAPPER element %]
-  <fieldset>
-   <legend>[%- PROCESS remove_control %] [% 'Vendor' | $T8 %] [% 'is' | $T8 %]</legend>
+    [% WRAPPER title_block title=LxERP.t8('Vendor') _ ' ' _ LxERP.t8('is') %]
      [% FOREACH id = item.id %]
        [% PROCESS condition_vendor_value_input %]
      [% END %]
      [% PROCESS add_value %]
-  </fieldset>
+   [% END %]
   [% END %]
 [%- END %]
 
@@ -116,17 +112,12 @@
 
 [%- BLOCK condition_business_input %]
   [% WRAPPER element %]
-  <fieldset>
-    <legend>
-     [%- PROCESS remove_control %]
-     [% 'Type of Business' | $T8 %]
-     [% 'is' | $T8 %]
-    </legend>
+    [% WRAPPER title_block title=LxERP.t8('Type of Business') _ ' ' _ LxERP.t8('is') %]
      [% FOREACH id = item.id %]
        [% PROCESS condition_business_value_input %]
      [% END %]
      [% PROCESS add_value %]
-  </fieldset>
+   [%- END %]
   [%- END %]
 [%- END %]
 
@@ -139,16 +130,12 @@
 
 [%- BLOCK condition_part_input %]
   [% WRAPPER element %]
-  <fieldset>
-    <legend>
-     [%- PROCESS remove_control %]
-     [% 'Part' | $T8 %] [% 'is' | $T8 %]
-    </legend>
+    [% WRAPPER title_block title=LxERP.t8('Part') _ ' ' _ LxERP.t8('is') %]
      [% FOREACH id = item.id %]
        [% PROCESS condition_part_value_input %]
      [% END %]
      [% PROCESS add_value %]
-  </fieldset>
+   [%- END %]
   [%- END %]
 [%- END %]
 
@@ -158,19 +145,14 @@
 
 [%- BLOCK condition_partsgroup_input %]
   [% WRAPPER element %]
-  <fieldset>
-    <legend>
-      [%- PROCESS remove_control %]
-      [% 'Partsgroup' | $T8 %]
-      [% 'is' | $T8 %]
-    </legend>
+    [% WRAPPER title_block title=LxERP.t8('Partsgroup') _ ' ' _ LxERP.t8('is') %]
     <div>
      [% FOREACH id = item.id %]
        [% PROCESS condition_partsgroup_value_input %]
      [%- END %]
     </div>
      [% PROCESS add_value %]
-  </fieldset>
+   [%- END %]
   [%- END %]
 [%- END %]
 
@@ -183,17 +165,12 @@
 
 [%- BLOCK condition_pricegroup_input %]
   [% WRAPPER element %]
-  <fieldset>
-    <legend>
-      [%- PROCESS remove_control %]
-      [% 'Pricegroup' | $T8 %]
-      [% 'is' | $T8 %]
-    </legend>
+    [% WRAPPER title_block title=LxERP.t8('Pricegroup') _ ' ' _ LxERP.t8('is') %]
      [% FOREACH id = item.id %]
        [% PROCESS condition_pricegroup_value_input %]
      [%- END %]
      [% PROCESS add_value %]
-  </fieldset>
+   [%- END %]
   [%- END %]
 [%- END %]
 
@@ -206,75 +183,55 @@
 
 [%- BLOCK condition_ve_input %]
   [% WRAPPER element %]
-  <fieldset>
-    <legend>
-     [%- PROCESS remove_control %]
-     [% 'Ve' | $T8 %]
-    </legend>
+    [% WRAPPER title_block title=LxERP.t8('Ve') %]
     <div>
       [% L.select_tag(prefix _ '[].op', num_compare_ops, default=item.op) %]
       [% L.input_tag(prefix _ '[].num_as_number', item.num_as_number, "data-validate"='number') %]
     </div>
-  </fieldset>
+   [%- END %]
   [%- END %]
 [%- END %]
 
 [%- BLOCK condition_qty_input %]
   [% WRAPPER element %]
-  <fieldset>
-    <legend>
-      [%- PROCESS remove_control %]
-      [% 'Quantity' | $T8 %]
-    </legend>
+    [% WRAPPER title_block title=LxERP.t8('Quantity') %]
     <div>
       [% L.select_tag(prefix _ '[].op', num_compare_ops, default=item.op) %]
       [% L.input_tag(prefix _ '[].num_as_number', item.num_as_number, "data-validate"='number') %]
     </div>
-  </fieldset>
+   [%- END %]
   [%- END %]
 [%- END %]
 
 [%- BLOCK condition_qty_range_input %]
   [% WRAPPER element %]
-  <fieldset>
-   <legend>
-     [%- PROCESS remove_control %]
-     [% 'Quantity Range' | $T8 %]
-   </legend>
+    [% WRAPPER title_block title=LxERP.t8('Quantity Range') %]
   [% L.input_tag(prefix _ '[].min_as_number', item.min_as_number, "data-validate"='number') %]
   [% 'To (range)' | $T8 %]
   [% L.input_tag(prefix _ '[].max_as_number', item.max_as_number, "data-validate"='number') %]
-  </fieldset>
+   [%- END %]
   [%- END %]
 [%- END %]
 
 [%- BLOCK condition_reqdate_input %]
   [% WRAPPER element %]
-  <fieldset>
-    <legend>
-      [%- PROCESS remove_control %]
-      [% 'Reqdate' | $T8 %]
-    </legend>
+   [% WRAPPER title_block title=LxERP.t8('Reqdate') %]
     <div>
       [% L.select_tag(prefix _ '[].op', date_compare_ops, default=item.op) %]
       [% L.date_tag(prefix _ '[].date_as_date', item.date) %]
     </div>
-  </fieldset>
+   [%- END %]
   [%- END %]
 [%- END %]
 
 [%- BLOCK condition_transdate_input %]
   [% WRAPPER element %]
-  <fieldset>
-    <legend>
-      [%- PROCESS remove_control %]
-      [% 'Transdate Record' | $T8 %]
-    </legend>
+   [% WRAPPER title_block title=LxERP.t8('Transdate Record') %]
     <div>
       [% L.select_tag(prefix _ '[].op', date_compare_ops, default=item.op) %]
       [% L.date_tag(prefix _ '[].date_as_date', item.date) %]
     </div>
-  </fieldset>
+   [%- END %]
   [%- END %]
 [%- END %]
 
