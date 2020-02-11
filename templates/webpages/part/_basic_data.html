@@ -219,17 +219,10 @@
      </td>
     </tr>
 
-<div id="pricegroups">
  [% PROCESS 'part/_pricegroup_prices.html' %]
-</div>
-
-<div id="customerprices">
  [% PROCESS 'part/_customerprices.html' %]
-</div>
 [%- UNLESS SELF.part.is_assembly %]
-<div id="makemodel">
  [% PROCESS 'part/_makemodel.html' %]
-</div>
 [% END %]
 
   <tr>
