@@ -336,6 +336,7 @@ sub setup_do_action_bar {
           t8('E Mail'),
           call   => [ 'kivi.SalesPurchase.show_email_dialog' ],
           checks => [ 'kivi.validate_form' ],
+          disabled => !$::form->{id} ? t8('This record has not been saved yet.') : undef,
         ],
       ], # end of combobox "Export"
 
