@@ -32,7 +32,9 @@
 \setkomavar{fromname}{<%employee_name%>}
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
-<%if globalprojectnumber%>\setkomavar{projectID}{<%globalprojectnumber%}><%end globalprojectnumber%>
+<%if globalprojectnumber%>
+  \setkomavar{projectID}{<%globalprojectnumber%>}
+<%end globalprojectnumber%>
 
 \setkomavar{transaction}{<%transaction_description%>}
 

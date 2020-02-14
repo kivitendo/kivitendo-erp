@@ -78,9 +78,6 @@
 
 % Einstellungen f. Kopf und Fuss
 \pagestyle{kivitendo.letter}
-%\setheadwidth[20mm]{page} % Kopfzeile nach rechts verschieben
-%\setfootwidth[-39mm]{page} % Fusszeile verschieben
-
 % Befehl f. laufende Kopfzeile:
 % 1. Text f. Kunden- oder Lieferantennummer (oder leer, wenn diese nicht ausgegeben werden soll)
 % 2. Kunden- oder Lieferantennummer (oder leer)
@@ -93,26 +90,28 @@
 \chead{
   \ifnum\thepage=1
   \else
+      \makebox[\textwidth]{
       \ifstr{#1}{}{}{#1: #2 \hspace{0.7cm}}
       #3
       \ifstr{#4}{}{}{~\nr: #4}
       \ifstr{#5}{}{}{\vom ~ #5}
       \hspace{0.7cm} - \seite ~ \thepage/\letterlastpage  ~-%
+      }
   \fi
 }
 }
 
-% Firmenfuss
+%% % Firmenfuss
 \setkomafont{pagefoot}{\tiny}
 \cfoot{
   {
-     \begin{tabular}{p{5cm}p{4.5cm}lr}
+     \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}p{5cm}p{4.5cm}lr@{}}
         \firma                 & \email              & \textKontonummer & \kontonummer \\
         \strasse               & \homepage           & \textBank        & \bank \\
         \ort                   & \textUstid\ \ustid  & \textIban        & \iban \\
         \textTelefon~\telefon  & \finanzamt          & \textBic         & \bic \\
         \ifstr{\fax}{}{}{\textFax~\fax} & &\textBankleitzahl	& \bankleitzahl \\
-     \end{tabular}
+     \end{tabular*}
   }
 }
 

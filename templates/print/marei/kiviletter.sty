@@ -11,6 +11,7 @@
 
 \RequirePackage{expl3}
 \RequirePackage{iftex}
+\KOMAoptions{fontsize=12pt}
 % Schriftart, Eingabelayout der Tastatur
 \ifPDFTeX
 \RequirePackage[utf8]{inputenc}% Nur notwendig, wenn Basis älter als TL2018
@@ -34,7 +35,8 @@
 \fi
 
 \RequirePackage[fromlogo,fromalign=right,
-	firstfoot=false,%Für einheitliche Randeinstellungen
+  firstfoot=false,%Für einheitliche Randeinstellungen
+  refline=nodate,
 	]{scrletter}
 \LoadLetterOption{DIN}
 
@@ -316,7 +318,7 @@ align=bl,
 	}
 	\par
 	\medskip
-	\begin{tabularx}{\linewidth}{@{}l<{:}>{\raggedright\arraybackslash}X@{}}
+	\begin{tabularx}{\useplength{locwidth}}{@{}l<{:}>{\raggedleft\arraybackslash}X@{}}
 		\usekomavar*{date}&\usekomavar{date}\\
 		\ifkomavarempty{myref}{}{
 			\usekomavar*{myref}&\usekomavar{myref}\\
