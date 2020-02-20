@@ -27,16 +27,14 @@ sub _fetch {
 
   foreach my $table (qw(session session_content)) {
     my $query = <<SQL;
-      SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS format_type, d.adsrc, a.attnotnull
-      FROM pg_attribute a
-      LEFT JOIN pg_attrdef d ON (a.attrelid = d.adrelid) AND (a.attnum = d.adnum)
-      WHERE (a.attrelid = 'auth.${table}'::regclass)
-        AND (a.attnum > 0)
-        AND NOT a.attisdropped
-      ORDER BY a.attnum
+      SELECT attname
+      FROM pg_attribute
+      WHERE (attrelid = 'auth.${table}'::regclass)
+        AND (attnum > 0)
+        AND NOT attisdropped
 SQL
 
-    $self->{info}->{$table} = { selectall_as_map($::form, $self->{auth}->dbconnect, $query, 'attname', [ qw(format_type adsrc attnotnull) ]) };
+    $self->{info}->{$table} = { selectall_as_map($::form, $self->{auth}->dbconnect, $query, 'attname', [ qw(attname) ]) };
   }
 
   return $self;
