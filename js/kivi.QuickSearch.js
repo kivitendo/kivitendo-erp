@@ -36,7 +36,7 @@ namespace('kivi', function(k){
         send_query('select_autocomplete', undefined, ui.item.id, kivi.eval_json_result);
       },
     });
-    $real.keydown(function(event){
+    $real.keypress(function(event){
       if (event.which == KEY.ENTER) {
         if ($real.val() !== '') {
           submit_search($real.val());
