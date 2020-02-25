@@ -99,8 +99,8 @@ sub action_ajax_autocomplete {
   $::form->{filter}{'all:substr:multi::ilike'} =~ s{[\(\)]+}{}g;
 
   # if someone types something, and hits enter, assume he entered the full name.
-  # if something matches, treat that as sole match
-  # unfortunately get_models can't do more than one per package atm, so we d it
+  # if something matches, treat that as the sole match
+  # unfortunately get_models can't do more than one per package atm, so we do it
   # the oldfashioned way.
   if ($::form->{prefer_exact}) {
     my $exact_matches;
