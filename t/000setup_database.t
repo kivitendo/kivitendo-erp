@@ -86,7 +86,7 @@ sub drop_and_create_database {
 sub report_success {
   $dbh->disconnect;
   $superuser_dbh->disconnect if $superuser_dbh;
-  ok(1, "Database has been setup sucessfully.");
+  ok(1, "Database has been set up successfully.");
   done_testing();
 }
 
