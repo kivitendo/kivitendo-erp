@@ -442,9 +442,9 @@ sub invoice_details {
         my $sortorder = "";
         if ($form->{groupitems}) {
           $sortorder =
-            qq|ORDER BY pg.partsgroup, a.id|;
+            qq|ORDER BY pg.partsgroup, a.position|;
         } else {
-          $sortorder = qq|ORDER BY a.id|;
+          $sortorder = qq|ORDER BY a.position|;
         }
 
         my $query =

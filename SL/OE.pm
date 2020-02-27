@@ -1528,9 +1528,9 @@ sub order_details {
         # get parts and push them onto the stack
         my $sortorder = "";
         if ($form->{groupitems}) {
-          $sortorder = qq|ORDER BY pg.partsgroup, a.id|;
+          $sortorder = qq|ORDER BY pg.partsgroup, a.position|;
         } else {
-          $sortorder = qq|ORDER BY a.id|;
+          $sortorder = qq|ORDER BY a.position|;
         }
 
         $query = qq|SELECT p.partnumber, p.description, p.unit, a.qty, | .
