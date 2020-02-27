@@ -1904,6 +1904,11 @@ sub _make_record_item {
       } else {
         $obj->$method($value);
       }
+
+      if ($method eq 'discount') {
+        $obj->discount($obj->discount / 100.0);
+      }
+
     } else {
       $obj->{__additional_form_attributes}{$method} = $value;
     }
