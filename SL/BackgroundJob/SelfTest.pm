@@ -188,14 +188,4 @@ SL::BackgroundJob::SelfTest - pluggable self testing
   use SL::BackgroundJob::SelfTest;
   SL::BackgroundJob::SelfTest->new->run;;
 
-=head1 DESCRIPTION
-
-
-
-=head1 FUNCTIONS
-
-=head1 BUGS
-
-=head1 AUTHOR
-
 =cut

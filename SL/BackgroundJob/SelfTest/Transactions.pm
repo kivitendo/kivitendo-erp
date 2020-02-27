@@ -801,10 +801,6 @@ SL::BackgroundJob::SelfTest::Transactions - base tests
 
 Several tests for data integrity.
 
-=head1 FUNCTIONS
-
-=head1 BUGS
-
 =head1 AUTHOR
 
 G. Richardson E<lt>information@richardson-bueren.deE<gt>
@@ -812,4 +808,3 @@ Jan Büren E<lt>information@richardson-bueren.deE<gt>
 Sven Schoeling E<lt>s.schoeling@linet-services.deE<gt>
 
 =cut
-
