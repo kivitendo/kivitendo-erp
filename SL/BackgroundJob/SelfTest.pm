@@ -26,7 +26,7 @@ use Rose::Object::MakeMethods::Generic (
    'add_full_diag'  => { interface => 'add', hash_key => 'full_diag' },
   ],
   scalar => [
-   qw(diag tester config aggreg),
+   qw(diag tester config aggreg module_nr),
   ],
 );
 
@@ -88,6 +88,9 @@ sub run_module {
   $module =~ s/[^\w:]//g;
   $module = "SL::BackgroundJob::SelfTest::$module";
 
+  # increase module nr
+  $self->module_nr(($self->module_nr || 0) + 1);
+
   # try to load module;
   (my $file = $module) =~ s|::|/|g;
   eval {
@@ -103,7 +106,7 @@ sub run_module {
   } or $self->add_errors($::locale->text('Could not load class #1, #2', $module, $@)) && return;
 
   $self->add_full_diag($output);
-  $self->{diag_per_module}{$module} = $output;
+  $self->{diag_per_module}{$self->module_nr . ': ' . $module} = $output;
 
   my $parser = TAP::Parser->new({ tap => $output});
   $parser->run;

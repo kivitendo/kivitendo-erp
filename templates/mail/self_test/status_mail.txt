@@ -15,7 +15,7 @@ Result: [% SELF.aggreg.get_status %]
 Full report:
 ------------
 
-[% FOREACH module = SELF.diag_per_module.keys %]
+[% FOREACH module = SELF.diag_per_module.keys.sort %]
 Module: [% module %]
 --------------------
 
