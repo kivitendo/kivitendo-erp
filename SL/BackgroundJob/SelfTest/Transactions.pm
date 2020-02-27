@@ -210,7 +210,7 @@ sub check_summe_stornobuchungen {
 
   my $query = qq|
     SELECT sum(amount) from ar a WHERE a.id IN
-      (SELECT id from ap where storno is true
+      (SELECT id from ar where storno is true
        AND a.transdate >= ? and a.transdate <= ?)|;
   my ($summe_stornobuchungen_ar) = selectfirst_array_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
 
