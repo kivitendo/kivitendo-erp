@@ -1030,9 +1030,9 @@ sub order_details {
       my $sortorder = "";
       if ($form->{groupitems}) {
         $sortorder =
-          qq|ORDER BY pg.partsgroup, a.oid|;
+          qq|ORDER BY pg.partsgroup, a.id|;
       } else {
-        $sortorder = qq|ORDER BY a.oid|;
+        $sortorder = qq|ORDER BY a.id|;
       }
 
       do_statement($form, $h_pg, $q_pg, conv_i($form->{"id_$i"}));

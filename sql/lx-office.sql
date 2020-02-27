@@ -3,7 +3,6 @@
 --
 
 --
--- TOC entry 5 (OID 1981863)
 -- Name: id; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -15,7 +14,6 @@ CREATE SEQUENCE id
 
 
 --
--- TOC entry 7 (OID 1981865)
 -- Name: glid; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -28,7 +26,6 @@ CREATE SEQUENCE glid
 
 
 --
--- TOC entry 13 (OID 1981867)
 -- Name: gl; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -49,7 +46,6 @@ CREATE TABLE gl (
 
 
 --
--- TOC entry 14 (OID 1981879)
 -- Name: chart; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -75,7 +71,6 @@ CREATE TABLE chart (
 
 
 --
--- TOC entry 15 (OID 1981890)
 -- Name: datev; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -92,7 +87,6 @@ CREATE TABLE datev (
 
 
 --
--- TOC entry 16 (OID 1981893)
 -- Name: gifi; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -103,7 +97,6 @@ CREATE TABLE gifi (
 
 
 --
--- TOC entry 17 (OID 1981898)
 -- Name: parts; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -142,11 +135,10 @@ CREATE TABLE parts (
     not_discountable boolean DEFAULT false,
     buchungsgruppen_id integer,
     payment_id integer
-) WITH OIDS;
+);
 
 
 --
--- TOC entry 18 (OID 1981915)
 -- Name: defaults; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -185,7 +177,6 @@ CREATE TABLE "defaults" (
 
 
 --
--- TOC entry 19 (OID 1981924)
 -- Name: audittrail; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -201,7 +192,6 @@ CREATE TABLE audittrail (
 
 
 --
--- TOC entry 20 (OID 1981930)
 -- Name: acc_trans; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -219,11 +209,10 @@ CREATE TABLE acc_trans (
     taxkey integer,
     itime timestamp without time zone DEFAULT now(),
     mtime timestamp without time zone
-) WITH OIDS;
+);
 
 
 --
--- TOC entry 21 (OID 1981944)
 -- Name: invoice; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -251,11 +240,10 @@ CREATE TABLE invoice (
     base_qty real,
     subtotal boolean DEFAULT false,
     longdescription text
-) WITH OIDS;
+);
 
 
 --
--- TOC entry 22 (OID 1981958)
 -- Name: vendor; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -306,7 +294,6 @@ CREATE TABLE vendor (
 
 
 --
--- TOC entry 23 (OID 1981969)
 -- Name: customer; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -357,7 +344,6 @@ CREATE TABLE customer (
 
 
 --
--- TOC entry 24 (OID 1981982)
 -- Name: contacts; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -387,7 +373,6 @@ CREATE TABLE contacts (
 
 
 --
--- TOC entry 25 (OID 1981991)
 -- Name: assembly; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -398,11 +383,10 @@ CREATE TABLE assembly (
     bom boolean,
     itime timestamp without time zone DEFAULT now(),
     mtime timestamp without time zone
-) WITH OIDS;
+);
 
 
 --
--- TOC entry 26 (OID 1981994)
 -- Name: ar; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -447,7 +431,6 @@ CREATE TABLE ar (
 
 
 --
--- TOC entry 27 (OID 1982012)
 -- Name: ap; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -484,7 +467,6 @@ CREATE TABLE ap (
 
 
 --
--- TOC entry 28 (OID 1982030)
 -- Name: partstax; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -497,7 +479,6 @@ CREATE TABLE partstax (
 
 
 --
--- TOC entry 29 (OID 1982033)
 -- Name: tax; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -514,7 +495,6 @@ CREATE TABLE tax (
 
 
 --
--- TOC entry 30 (OID 1982039)
 -- Name: customertax; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -527,7 +507,6 @@ CREATE TABLE customertax (
 
 
 --
--- TOC entry 31 (OID 1982042)
 -- Name: vendortax; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -540,7 +519,6 @@ CREATE TABLE vendortax (
 
 
 --
--- TOC entry 32 (OID 1982045)
 -- Name: oe; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -579,7 +557,6 @@ CREATE TABLE oe (
 
 
 --
--- TOC entry 33 (OID 1982058)
 -- Name: orderitems; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -605,11 +582,10 @@ CREATE TABLE orderitems (
     base_qty real,
     subtotal boolean DEFAULT false,
     longdescription text
-) WITH OIDS;
+);
 
 
 --
--- TOC entry 34 (OID 1982069)
 -- Name: exchangerate; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -624,7 +600,6 @@ CREATE TABLE exchangerate (
 
 
 --
--- TOC entry 35 (OID 1982072)
 -- Name: employee; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -649,7 +624,6 @@ CREATE TABLE employee (
 
 
 --
--- TOC entry 36 (OID 1982083)
 -- Name: shipto; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -674,7 +648,6 @@ CREATE TABLE shipto (
 
 
 --
--- TOC entry 37 (OID 1982089)
 -- Name: project; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -688,7 +661,6 @@ CREATE TABLE project (
 
 
 --
--- TOC entry 38 (OID 1982100)
 -- Name: partsgroup; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -697,11 +669,10 @@ CREATE TABLE partsgroup (
     partsgroup text,
     itime timestamp without time zone DEFAULT now(),
     mtime timestamp without time zone
-) WITH OIDS;
+);
 
 
 --
--- TOC entry 39 (OID 1982107)
 -- Name: makemodel; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -715,7 +686,6 @@ CREATE TABLE makemodel (
 
 
 --
--- TOC entry 40 (OID 1982113)
 -- Name: status; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -732,7 +702,6 @@ CREATE TABLE status (
 
 
 --
--- TOC entry 9 (OID 1982121)
 -- Name: invoiceid; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -745,7 +714,6 @@ CREATE SEQUENCE invoiceid
 
 
 --
--- TOC entry 11 (OID 1982123)
 -- Name: orderitemsid; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -759,7 +727,6 @@ CREATE SEQUENCE orderitemsid
 
 
 --
--- TOC entry 41 (OID 1982125)
 -- Name: warehouse; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -772,7 +739,6 @@ CREATE TABLE warehouse (
 
 
 --
--- TOC entry 42 (OID 1982134)
 -- Name: inventory; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -790,7 +756,6 @@ CREATE TABLE inventory (
 
 
 --
--- TOC entry 43 (OID 1982137)
 -- Name: department; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -804,7 +769,6 @@ CREATE TABLE department (
 
 
 --
--- TOC entry 44 (OID 1982145)
 -- Name: dpt_trans; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -817,7 +781,6 @@ CREATE TABLE dpt_trans (
 
 
 --
--- TOC entry 45 (OID 1982148)
 -- Name: business; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -833,7 +796,6 @@ CREATE TABLE business (
 
 
 --
--- TOC entry 46 (OID 1982158)
 -- Name: sic; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -847,7 +809,6 @@ CREATE TABLE sic (
 
 
 --
--- TOC entry 47 (OID 1982164)
 -- Name: license; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -864,7 +825,6 @@ CREATE TABLE license (
 
 
 --
--- TOC entry 48 (OID 1982174)
 -- Name: licenseinvoice; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -875,7 +835,6 @@ CREATE TABLE licenseinvoice (
 
 
 --
--- TOC entry 49 (OID 1982176)
 -- Name: pricegroup; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -886,7 +845,6 @@ CREATE TABLE pricegroup (
 
 
 --
--- TOC entry 50 (OID 1982184)
 -- Name: prices; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -898,7 +856,6 @@ CREATE TABLE prices (
 
 
 --
--- TOC entry 51 (OID 1982194)
 -- Name: finanzamt; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -927,7 +884,6 @@ CREATE TABLE finanzamt (
 
 
 --
--- TOC entry 157 (OID 1982885)
 -- Name: check_department(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -937,7 +893,6 @@ CREATE FUNCTION check_department() RETURNS "trigger"
 
 
 --
--- TOC entry 158 (OID 1982886)
 -- Name: del_department(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -947,7 +902,6 @@ CREATE FUNCTION del_department() RETURNS "trigger"
 
 
 --
--- TOC entry 159 (OID 1982887)
 -- Name: del_customer(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -957,7 +911,6 @@ CREATE FUNCTION del_customer() RETURNS "trigger"
 
 
 --
--- TOC entry 160 (OID 1982888)
 -- Name: del_vendor(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -967,7 +920,6 @@ CREATE FUNCTION del_vendor() RETURNS "trigger"
 
 
 --
--- TOC entry 161 (OID 1982889)
 -- Name: del_exchangerate(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -977,7 +929,6 @@ CREATE FUNCTION del_exchangerate() RETURNS "trigger"
 
 
 --
--- TOC entry 162 (OID 1982890)
 -- Name: check_inventory(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -987,7 +938,6 @@ CREATE FUNCTION check_inventory() RETURNS "trigger"
 
 
 --
--- TOC entry 163 (OID 1982968)
 -- Name: set_datevexport(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -997,7 +947,6 @@ CREATE FUNCTION set_datevexport() RETURNS "trigger"
 
 
 --
--- TOC entry 164 (OID 1982971)
 -- Name: set_mtime(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -1007,7 +956,6 @@ CREATE FUNCTION set_mtime() RETURNS "trigger"
 
 
 --
--- TOC entry 52 (OID 1983721)
 -- Name: language; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1022,7 +970,6 @@ CREATE TABLE "language" (
 
 
 --
--- TOC entry 53 (OID 1983730)
 -- Name: payment_terms; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1040,7 +987,6 @@ CREATE TABLE payment_terms (
 
 
 --
--- TOC entry 54 (OID 1983739)
 -- Name: translation; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1055,7 +1001,6 @@ CREATE TABLE translation (
 
 
 --
--- TOC entry 55 (OID 1983745)
 -- Name: units; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1068,7 +1013,6 @@ CREATE TABLE units (
 
 
 --
--- TOC entry 56 (OID 1983761)
 -- Name: rma; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1104,7 +1048,6 @@ CREATE TABLE rma (
 
 
 --
--- TOC entry 57 (OID 1983774)
 -- Name: rmaitems; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1132,7 +1075,6 @@ CREATE TABLE rmaitems (
 
 
 --
--- TOC entry 58 (OID 1983785)
 -- Name: printers; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1145,7 +1087,6 @@ CREATE TABLE printers (
 
 
 --
--- TOC entry 59 (OID 1983798)
 -- Name: tax_zones; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1156,7 +1097,6 @@ CREATE TABLE tax_zones (
 
 
 --
--- TOC entry 60 (OID 1983807)
 -- Name: buchungsgruppen; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1176,7 +1116,6 @@ CREATE TABLE buchungsgruppen (
 
 
 --
--- TOC entry 61 (OID 1983825)
 -- Name: dunning_config; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1199,7 +1138,6 @@ CREATE TABLE dunning_config (
 
 
 --
--- TOC entry 62 (OID 1983833)
 -- Name: dunning; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1216,7 +1154,6 @@ CREATE TABLE dunning (
 
 
 --
--- TOC entry 165 (OID 1983838)
 -- Name: set_priceupdate_parts(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -1226,7 +1163,6 @@ CREATE FUNCTION set_priceupdate_parts() RETURNS "trigger"
 
 
 --
--- TOC entry 63 (OID 1983846)
 -- Name: leads; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1237,7 +1173,6 @@ CREATE TABLE leads (
 
 
 --
--- TOC entry 64 (OID 1983849)
 -- Name: taxkeys; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1252,14 +1187,12 @@ CREATE TABLE taxkeys (
 
 
 --
--- Data for TOC entry 171 (OID 1981915)
 -- Name: defaults; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 INSERT INTO "defaults" ("version", "curr") VALUES ('2.4.0.0', 'EUR:USD');
 
 --
--- Data for TOC entry 204 (OID 1982194)
 -- Name: finanzamt; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -1952,7 +1885,6 @@ INSERT INTO finanzamt (fa_land_nr, fa_bufa_nr, fa_name, fa_strasse, fa_plz, fa_o
 
 
 --
--- Data for TOC entry 208 (OID 1983745)
 -- Name: units; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -1970,7 +1902,6 @@ INSERT INTO units (name, base_unit, factor, "type") VALUES ('ml', NULL, NULL, 'd
 
 
 --
--- Data for TOC entry 212 (OID 1983798)
 -- Name: tax_zones; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -1980,7 +1911,6 @@ INSERT INTO tax_zones (id, description) VALUES (2, 'EU ohne USt-ID Nummer');
 INSERT INTO tax_zones (id, description) VALUES (3, 'Außerhalb EU');
 
 --
--- TOC entry 143 (OID 1982173)
 -- Name: license_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1988,7 +1918,6 @@ CREATE INDEX license_id_key ON license USING btree (id);
 
 
 --
--- TOC entry 84 (OID 1982891)
 -- Name: acc_trans_trans_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1996,7 +1925,6 @@ CREATE INDEX acc_trans_trans_id_key ON acc_trans USING btree (trans_id);
 
 
 --
--- TOC entry 82 (OID 1982892)
 -- Name: acc_trans_chart_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2004,7 +1932,6 @@ CREATE INDEX acc_trans_chart_id_key ON acc_trans USING btree (chart_id);
 
 
 --
--- TOC entry 85 (OID 1982893)
 -- Name: acc_trans_transdate_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2012,7 +1939,6 @@ CREATE INDEX acc_trans_transdate_key ON acc_trans USING btree (transdate);
 
 
 --
--- TOC entry 83 (OID 1982894)
 -- Name: acc_trans_source_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2020,7 +1946,6 @@ CREATE INDEX acc_trans_source_key ON acc_trans USING btree (lower(source));
 
 
 --
--- TOC entry 110 (OID 1982895)
 -- Name: ap_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2028,7 +1953,6 @@ CREATE INDEX ap_id_key ON ap USING btree (id);
 
 
 --
--- TOC entry 115 (OID 1982896)
 -- Name: ap_transdate_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2036,7 +1960,6 @@ CREATE INDEX ap_transdate_key ON ap USING btree (transdate);
 
 
 --
--- TOC entry 111 (OID 1982897)
 -- Name: ap_invnumber_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2044,7 +1967,6 @@ CREATE INDEX ap_invnumber_key ON ap USING btree (lower(invnumber));
 
 
 --
--- TOC entry 112 (OID 1982898)
 -- Name: ap_ordnumber_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2052,7 +1974,6 @@ CREATE INDEX ap_ordnumber_key ON ap USING btree (lower(ordnumber));
 
 
 --
--- TOC entry 116 (OID 1982899)
 -- Name: ap_vendor_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2060,7 +1981,6 @@ CREATE INDEX ap_vendor_id_key ON ap USING btree (vendor_id);
 
 
 --
--- TOC entry 109 (OID 1982900)
 -- Name: ap_employee_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2068,7 +1988,6 @@ CREATE INDEX ap_employee_id_key ON ap USING btree (employee_id);
 
 
 --
--- TOC entry 103 (OID 1982901)
 -- Name: ar_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2076,7 +1995,6 @@ CREATE INDEX ar_id_key ON ar USING btree (id);
 
 
 --
--- TOC entry 108 (OID 1982902)
 -- Name: ar_transdate_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2084,7 +2002,6 @@ CREATE INDEX ar_transdate_key ON ar USING btree (transdate);
 
 
 --
--- TOC entry 104 (OID 1982903)
 -- Name: ar_invnumber_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2092,7 +2009,6 @@ CREATE INDEX ar_invnumber_key ON ar USING btree (lower(invnumber));
 
 
 --
--- TOC entry 105 (OID 1982904)
 -- Name: ar_ordnumber_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2100,7 +2016,6 @@ CREATE INDEX ar_ordnumber_key ON ar USING btree (lower(ordnumber));
 
 
 --
--- TOC entry 101 (OID 1982905)
 -- Name: ar_customer_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2108,7 +2023,6 @@ CREATE INDEX ar_customer_id_key ON ar USING btree (customer_id);
 
 
 --
--- TOC entry 102 (OID 1982906)
 -- Name: ar_employee_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2116,7 +2030,6 @@ CREATE INDEX ar_employee_id_key ON ar USING btree (employee_id);
 
 
 --
--- TOC entry 100 (OID 1982907)
 -- Name: assembly_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2124,7 +2037,6 @@ CREATE INDEX assembly_id_key ON assembly USING btree (id);
 
 
 --
--- TOC entry 74 (OID 1982908)
 -- Name: chart_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2132,7 +2044,6 @@ CREATE INDEX chart_id_key ON chart USING btree (id);
 
 
 --
--- TOC entry 71 (OID 1982909)
 -- Name: chart_accno_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2140,7 +2051,6 @@ CREATE UNIQUE INDEX chart_accno_key ON chart USING btree (accno);
 
 
 --
--- TOC entry 72 (OID 1982910)
 -- Name: chart_category_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2148,7 +2058,6 @@ CREATE INDEX chart_category_key ON chart USING btree (category);
 
 
 --
--- TOC entry 75 (OID 1982911)
 -- Name: chart_link_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2156,7 +2065,6 @@ CREATE INDEX chart_link_key ON chart USING btree (link);
 
 
 --
--- TOC entry 73 (OID 1982912)
 -- Name: chart_gifi_accno_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2164,7 +2072,6 @@ CREATE INDEX chart_gifi_accno_key ON chart USING btree (gifi_accno);
 
 
 --
--- TOC entry 96 (OID 1982913)
 -- Name: customer_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2172,7 +2079,6 @@ CREATE INDEX customer_id_key ON customer USING btree (id);
 
 
 --
--- TOC entry 118 (OID 1982914)
 -- Name: customer_customer_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2180,7 +2086,6 @@ CREATE INDEX customer_customer_id_key ON customertax USING btree (customer_id);
 
 
 --
--- TOC entry 95 (OID 1982915)
 -- Name: customer_customernumber_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2188,7 +2093,6 @@ CREATE INDEX customer_customernumber_key ON customer USING btree (customernumber
 
 
 --
--- TOC entry 97 (OID 1982916)
 -- Name: customer_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2196,7 +2100,6 @@ CREATE INDEX customer_name_key ON customer USING btree (name);
 
 
 --
--- TOC entry 94 (OID 1982917)
 -- Name: customer_contact_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2204,7 +2107,6 @@ CREATE INDEX customer_contact_key ON customer USING btree (contact);
 
 
 --
--- TOC entry 128 (OID 1982918)
 -- Name: employee_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2212,7 +2114,6 @@ CREATE INDEX employee_id_key ON employee USING btree (id);
 
 
 --
--- TOC entry 129 (OID 1982919)
 -- Name: employee_login_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2220,7 +2121,6 @@ CREATE UNIQUE INDEX employee_login_key ON employee USING btree (login);
 
 
 --
--- TOC entry 130 (OID 1982920)
 -- Name: employee_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2228,7 +2128,6 @@ CREATE INDEX employee_name_key ON employee USING btree (name);
 
 
 --
--- TOC entry 127 (OID 1982921)
 -- Name: exchangerate_ct_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2236,7 +2135,6 @@ CREATE INDEX exchangerate_ct_key ON exchangerate USING btree (curr, transdate);
 
 
 --
--- TOC entry 77 (OID 1982922)
 -- Name: gifi_accno_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2244,7 +2142,6 @@ CREATE UNIQUE INDEX gifi_accno_key ON gifi USING btree (accno);
 
 
 --
--- TOC entry 67 (OID 1982923)
 -- Name: gl_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2252,7 +2149,6 @@ CREATE INDEX gl_id_key ON gl USING btree (id);
 
 
 --
--- TOC entry 70 (OID 1982924)
 -- Name: gl_transdate_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2260,7 +2156,6 @@ CREATE INDEX gl_transdate_key ON gl USING btree (transdate);
 
 
 --
--- TOC entry 69 (OID 1982925)
 -- Name: gl_reference_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2268,7 +2163,6 @@ CREATE INDEX gl_reference_key ON gl USING btree (lower(reference));
 
 
 --
--- TOC entry 65 (OID 1982926)
 -- Name: gl_description_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2276,7 +2170,6 @@ CREATE INDEX gl_description_key ON gl USING btree (lower(description));
 
 
 --
--- TOC entry 66 (OID 1982927)
 -- Name: gl_employee_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2284,7 +2177,6 @@ CREATE INDEX gl_employee_id_key ON gl USING btree (employee_id);
 
 
 --
--- TOC entry 86 (OID 1982928)
 -- Name: invoice_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2292,7 +2184,6 @@ CREATE INDEX invoice_id_key ON invoice USING btree (id);
 
 
 --
--- TOC entry 88 (OID 1982929)
 -- Name: invoice_trans_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2300,7 +2191,6 @@ CREATE INDEX invoice_trans_id_key ON invoice USING btree (trans_id);
 
 
 --
--- TOC entry 121 (OID 1982930)
 -- Name: oe_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2308,7 +2198,6 @@ CREATE INDEX oe_id_key ON oe USING btree (id);
 
 
 --
--- TOC entry 124 (OID 1982931)
 -- Name: oe_transdate_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2316,7 +2205,6 @@ CREATE INDEX oe_transdate_key ON oe USING btree (transdate);
 
 
 --
--- TOC entry 122 (OID 1982932)
 -- Name: oe_ordnumber_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2324,7 +2212,6 @@ CREATE INDEX oe_ordnumber_key ON oe USING btree (lower(ordnumber));
 
 
 --
--- TOC entry 120 (OID 1982933)
 -- Name: oe_employee_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2332,7 +2219,6 @@ CREATE INDEX oe_employee_id_key ON oe USING btree (employee_id);
 
 
 --
--- TOC entry 126 (OID 1982934)
 -- Name: orderitems_trans_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2340,7 +2226,6 @@ CREATE INDEX orderitems_trans_id_key ON orderitems USING btree (trans_id);
 
 
 --
--- TOC entry 79 (OID 1982935)
 -- Name: parts_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2348,7 +2233,6 @@ CREATE INDEX parts_id_key ON parts USING btree (id);
 
 
 --
--- TOC entry 80 (OID 1982936)
 -- Name: parts_partnumber_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2356,7 +2240,6 @@ CREATE INDEX parts_partnumber_key ON parts USING btree (lower(partnumber));
 
 
 --
--- TOC entry 78 (OID 1982937)
 -- Name: parts_description_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2364,7 +2247,6 @@ CREATE INDEX parts_description_key ON parts USING btree (lower(description));
 
 
 --
--- TOC entry 117 (OID 1982938)
 -- Name: partstax_parts_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2372,7 +2254,6 @@ CREATE INDEX partstax_parts_id_key ON partstax USING btree (parts_id);
 
 
 --
--- TOC entry 90 (OID 1982939)
 -- Name: vendor_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2380,7 +2261,6 @@ CREATE INDEX vendor_id_key ON vendor USING btree (id);
 
 
 --
--- TOC entry 91 (OID 1982940)
 -- Name: vendor_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2388,7 +2268,6 @@ CREATE INDEX vendor_name_key ON vendor USING btree (name);
 
 
 --
--- TOC entry 93 (OID 1982941)
 -- Name: vendor_vendornumber_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2396,7 +2275,6 @@ CREATE INDEX vendor_vendornumber_key ON vendor USING btree (vendornumber);
 
 
 --
--- TOC entry 89 (OID 1982942)
 -- Name: vendor_contact_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2404,7 +2282,6 @@ CREATE INDEX vendor_contact_key ON vendor USING btree (contact);
 
 
 --
--- TOC entry 119 (OID 1982943)
 -- Name: vendortax_vendor_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2412,7 +2289,6 @@ CREATE INDEX vendortax_vendor_id_key ON vendortax USING btree (vendor_id);
 
 
 --
--- TOC entry 132 (OID 1982944)
 -- Name: shipto_trans_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2420,7 +2296,6 @@ CREATE INDEX shipto_trans_id_key ON shipto USING btree (trans_id);
 
 
 --
--- TOC entry 133 (OID 1982945)
 -- Name: project_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2428,7 +2303,6 @@ CREATE INDEX project_id_key ON project USING btree (id);
 
 
 --
--- TOC entry 107 (OID 1982946)
 -- Name: ar_quonumber_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2436,7 +2310,6 @@ CREATE INDEX ar_quonumber_key ON ar USING btree (lower(quonumber));
 
 
 --
--- TOC entry 114 (OID 1982947)
 -- Name: ap_quonumber_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2444,7 +2317,6 @@ CREATE INDEX ap_quonumber_key ON ap USING btree (lower(quonumber));
 
 
 --
--- TOC entry 138 (OID 1982948)
 -- Name: makemodel_parts_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2452,7 +2324,6 @@ CREATE INDEX makemodel_parts_id_key ON makemodel USING btree (parts_id);
 
 
 --
--- TOC entry 136 (OID 1982949)
 -- Name: makemodel_make_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2460,7 +2331,6 @@ CREATE INDEX makemodel_make_key ON makemodel USING btree (lower(make));
 
 
 --
--- TOC entry 137 (OID 1982950)
 -- Name: makemodel_model_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2468,7 +2338,6 @@ CREATE INDEX makemodel_model_key ON makemodel USING btree (lower(model));
 
 
 --
--- TOC entry 139 (OID 1982951)
 -- Name: status_trans_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2476,7 +2345,6 @@ CREATE INDEX status_trans_id_key ON status USING btree (trans_id);
 
 
 --
--- TOC entry 141 (OID 1982952)
 -- Name: department_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2484,7 +2352,6 @@ CREATE INDEX department_id_key ON department USING btree (id);
 
 
 --
--- TOC entry 125 (OID 1982953)
 -- Name: orderitems_id_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2492,7 +2359,6 @@ CREATE INDEX orderitems_id_key ON orderitems USING btree (id);
 
 
 --
--- TOC entry 68 (OID 1981877)
 -- Name: gl_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2501,7 +2367,6 @@ ALTER TABLE ONLY gl
 
 
 --
--- TOC entry 76 (OID 1981888)
 -- Name: chart_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2510,7 +2375,6 @@ ALTER TABLE ONLY chart
 
 
 --
--- TOC entry 81 (OID 1981913)
 -- Name: parts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2519,7 +2383,6 @@ ALTER TABLE ONLY parts
 
 
 --
--- TOC entry 87 (OID 1981952)
 -- Name: invoice_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2528,7 +2391,6 @@ ALTER TABLE ONLY invoice
 
 
 --
--- TOC entry 92 (OID 1981967)
 -- Name: vendor_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2537,7 +2399,6 @@ ALTER TABLE ONLY vendor
 
 
 --
--- TOC entry 98 (OID 1981980)
 -- Name: customer_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2546,7 +2407,6 @@ ALTER TABLE ONLY customer
 
 
 --
--- TOC entry 99 (OID 1981989)
 -- Name: contacts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2555,7 +2415,6 @@ ALTER TABLE ONLY contacts
 
 
 --
--- TOC entry 106 (OID 1982006)
 -- Name: ar_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2564,7 +2423,6 @@ ALTER TABLE ONLY ar
 
 
 --
--- TOC entry 113 (OID 1982024)
 -- Name: ap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2573,7 +2431,6 @@ ALTER TABLE ONLY ap
 
 
 --
--- TOC entry 123 (OID 1982056)
 -- Name: oe_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2582,7 +2439,6 @@ ALTER TABLE ONLY oe
 
 
 --
--- TOC entry 131 (OID 1982081)
 -- Name: employee_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2591,7 +2447,6 @@ ALTER TABLE ONLY employee
 
 
 --
--- TOC entry 134 (OID 1982096)
 -- Name: project_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2600,7 +2455,6 @@ ALTER TABLE ONLY project
 
 
 --
--- TOC entry 135 (OID 1982098)
 -- Name: project_projectnumber_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2609,7 +2463,6 @@ ALTER TABLE ONLY project
 
 
 --
--- TOC entry 140 (OID 1982132)
 -- Name: warehouse_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2618,7 +2471,6 @@ ALTER TABLE ONLY warehouse
 
 
 --
--- TOC entry 142 (OID 1982156)
 -- Name: business_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2627,7 +2479,6 @@ ALTER TABLE ONLY business
 
 
 --
--- TOC entry 144 (OID 1982171)
 -- Name: license_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2636,7 +2487,6 @@ ALTER TABLE ONLY license
 
 
 --
--- TOC entry 145 (OID 1982182)
 -- Name: pricegroup_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2645,7 +2495,6 @@ ALTER TABLE ONLY pricegroup
 
 
 --
--- TOC entry 146 (OID 1983728)
 -- Name: language_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2654,7 +2503,6 @@ ALTER TABLE ONLY "language"
 
 
 --
--- TOC entry 147 (OID 1983737)
 -- Name: payment_terms_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2663,7 +2511,6 @@ ALTER TABLE ONLY payment_terms
 
 
 --
--- TOC entry 148 (OID 1983747)
 -- Name: units_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2672,7 +2519,6 @@ ALTER TABLE ONLY units
 
 
 --
--- TOC entry 149 (OID 1983772)
 -- Name: rma_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2681,7 +2527,6 @@ ALTER TABLE ONLY rma
 
 
 --
--- TOC entry 150 (OID 1983791)
 -- Name: printers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2690,7 +2535,6 @@ ALTER TABLE ONLY printers
 
 
 --
--- TOC entry 151 (OID 1983813)
 -- Name: buchungsgruppen_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2699,7 +2543,6 @@ ALTER TABLE ONLY buchungsgruppen
 
 
 --
--- TOC entry 152 (OID 1983831)
 -- Name: dunning_config_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2708,7 +2551,6 @@ ALTER TABLE ONLY dunning_config
 
 
 --
--- TOC entry 153 (OID 1983836)
 -- Name: dunning_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2717,7 +2559,6 @@ ALTER TABLE ONLY dunning
 
 
 --
--- TOC entry 154 (OID 1983852)
 -- Name: taxkeys_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2726,7 +2567,6 @@ ALTER TABLE ONLY taxkeys
 
 
 --
--- TOC entry 219 (OID 1981940)
 -- Name: $1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2735,7 +2575,6 @@ ALTER TABLE ONLY acc_trans
 
 
 --
--- TOC entry 220 (OID 1981954)
 -- Name: $1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2744,7 +2583,6 @@ ALTER TABLE ONLY invoice
 
 
 --
--- TOC entry 221 (OID 1982008)
 -- Name: $1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2753,7 +2591,6 @@ ALTER TABLE ONLY ar
 
 
 --
--- TOC entry 222 (OID 1982026)
 -- Name: $1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2762,7 +2599,6 @@ ALTER TABLE ONLY ap
 
 
 --
--- TOC entry 223 (OID 1982065)
 -- Name: $1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2771,7 +2607,6 @@ ALTER TABLE ONLY orderitems
 
 
 --
--- TOC entry 224 (OID 1982186)
 -- Name: $1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2780,7 +2615,6 @@ ALTER TABLE ONLY prices
 
 
 --
--- TOC entry 225 (OID 1982190)
 -- Name: $2; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2789,7 +2623,6 @@ ALTER TABLE ONLY prices
 
 
 --
--- TOC entry 226 (OID 1983749)
 -- Name: $1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2798,7 +2631,6 @@ ALTER TABLE ONLY units
 
 
 --
--- TOC entry 227 (OID 1983781)
 -- Name: $1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2807,7 +2639,6 @@ ALTER TABLE ONLY rmaitems
 
 
 --
--- TOC entry 218 (OID 1984290)
 -- Name: $1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2816,7 +2647,6 @@ ALTER TABLE ONLY parts
 
 
 --
--- TOC entry 243 (OID 1982954)
 -- Name: check_department; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2827,7 +2657,6 @@ CREATE TRIGGER check_department
 
 
 --
--- TOC entry 247 (OID 1982955)
 -- Name: check_department; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2838,7 +2667,6 @@ CREATE TRIGGER check_department
 
 
 --
--- TOC entry 228 (OID 1982956)
 -- Name: check_department; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2849,7 +2677,6 @@ CREATE TRIGGER check_department
 
 
 --
--- TOC entry 252 (OID 1982957)
 -- Name: check_department; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2860,7 +2687,6 @@ CREATE TRIGGER check_department
 
 
 --
--- TOC entry 244 (OID 1982958)
 -- Name: del_department; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2871,7 +2697,6 @@ CREATE TRIGGER del_department
 
 
 --
--- TOC entry 248 (OID 1982959)
 -- Name: del_department; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2882,7 +2707,6 @@ CREATE TRIGGER del_department
 
 
 --
--- TOC entry 229 (OID 1982960)
 -- Name: del_department; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2893,7 +2717,6 @@ CREATE TRIGGER del_department
 
 
 --
--- TOC entry 254 (OID 1982961)
 -- Name: del_department; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2904,7 +2727,6 @@ CREATE TRIGGER del_department
 
 
 --
--- TOC entry 240 (OID 1982962)
 -- Name: del_customer; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2915,7 +2737,6 @@ CREATE TRIGGER del_customer
 
 
 --
--- TOC entry 236 (OID 1982963)
 -- Name: del_vendor; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2926,7 +2747,6 @@ CREATE TRIGGER del_vendor
 
 
 --
--- TOC entry 245 (OID 1982964)
 -- Name: del_exchangerate; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2937,7 +2757,6 @@ CREATE TRIGGER del_exchangerate
 
 
 --
--- TOC entry 249 (OID 1982965)
 -- Name: del_exchangerate; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2948,7 +2767,6 @@ CREATE TRIGGER del_exchangerate
 
 
 --
--- TOC entry 255 (OID 1982966)
 -- Name: del_exchangerate; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2959,7 +2777,6 @@ CREATE TRIGGER del_exchangerate
 
 
 --
--- TOC entry 253 (OID 1982967)
 -- Name: check_inventory; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2970,7 +2787,6 @@ CREATE TRIGGER check_inventory
 
 
 --
--- TOC entry 239 (OID 1982969)
 -- Name: customer_datevexport; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2981,7 +2797,6 @@ CREATE TRIGGER customer_datevexport
 
 
 --
--- TOC entry 238 (OID 1982970)
 -- Name: vendor_datevexport; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -2992,7 +2807,6 @@ CREATE TRIGGER vendor_datevexport
 
 
 --
--- TOC entry 241 (OID 1982972)
 -- Name: mtime_customer; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3003,7 +2817,6 @@ CREATE TRIGGER mtime_customer
 
 
 --
--- TOC entry 237 (OID 1982973)
 -- Name: mtime_vendor; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3014,7 +2827,6 @@ CREATE TRIGGER mtime_vendor
 
 
 --
--- TOC entry 246 (OID 1982974)
 -- Name: mtime_ar; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3025,7 +2837,6 @@ CREATE TRIGGER mtime_ar
 
 
 --
--- TOC entry 250 (OID 1982975)
 -- Name: mtime_ap; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3036,7 +2847,6 @@ CREATE TRIGGER mtime_ap
 
 
 --
--- TOC entry 230 (OID 1982976)
 -- Name: mtime_gl; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3047,7 +2857,6 @@ CREATE TRIGGER mtime_gl
 
 
 --
--- TOC entry 234 (OID 1982977)
 -- Name: mtime_acc_trans; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3058,7 +2867,6 @@ CREATE TRIGGER mtime_acc_trans
 
 
 --
--- TOC entry 256 (OID 1982978)
 -- Name: mtime_oe; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3069,7 +2877,6 @@ CREATE TRIGGER mtime_oe
 
 
 --
--- TOC entry 235 (OID 1982979)
 -- Name: mtime_invoice; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3080,7 +2887,6 @@ CREATE TRIGGER mtime_invoice
 
 
 --
--- TOC entry 257 (OID 1982980)
 -- Name: mtime_orderitems; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3091,7 +2897,6 @@ CREATE TRIGGER mtime_orderitems
 
 
 --
--- TOC entry 231 (OID 1982981)
 -- Name: mtime_chart; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3102,7 +2907,6 @@ CREATE TRIGGER mtime_chart
 
 
 --
--- TOC entry 251 (OID 1982982)
 -- Name: mtime_tax; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3113,7 +2917,6 @@ CREATE TRIGGER mtime_tax
 
 
 --
--- TOC entry 232 (OID 1982983)
 -- Name: mtime_parts; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3124,7 +2927,6 @@ CREATE TRIGGER mtime_parts
 
 
 --
--- TOC entry 259 (OID 1982984)
 -- Name: mtime_status; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3135,7 +2937,6 @@ CREATE TRIGGER mtime_status
 
 
 --
--- TOC entry 258 (OID 1982985)
 -- Name: mtime_partsgroup; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3146,7 +2947,6 @@ CREATE TRIGGER mtime_partsgroup
 
 
 --
--- TOC entry 260 (OID 1982986)
 -- Name: mtime_inventory; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3157,7 +2957,6 @@ CREATE TRIGGER mtime_inventory
 
 
 --
--- TOC entry 261 (OID 1982987)
 -- Name: mtime_department; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3168,7 +2967,6 @@ CREATE TRIGGER mtime_department
 
 
 --
--- TOC entry 242 (OID 1982988)
 -- Name: mtime_contacts; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3179,7 +2977,6 @@ CREATE TRIGGER mtime_contacts
 
 
 --
--- TOC entry 233 (OID 1983839)
 -- Name: priceupdate_parts; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -3187,5 +2984,3 @@ CREATE TRIGGER priceupdate_parts
     AFTER UPDATE ON parts
     FOR EACH ROW
     EXECUTE PROCEDURE set_priceupdate_parts();
-
-

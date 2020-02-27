@@ -75,7 +75,7 @@ CREATE TABLE delivery_order_items (
   FOREIGN KEY (parts_id)          REFERENCES parts (id),
   FOREIGN KEY (project_id)        REFERENCES project (id),
   FOREIGN KEY (price_factor_id)   REFERENCES price_factors (id)
-) WITH OIDS;
+);
 
 CREATE TRIGGER mtime_delivery_order_items_id BEFORE UPDATE ON delivery_order_items
     FOR EACH ROW EXECUTE PROCEDURE set_mtime();

@@ -2,6 +2,16 @@
 -- @description: Einführen einer ID-Spalte in acc_trans
 -- @depends: release_2_4_3 cb_ob_transaction
 
+-- INFO: Dieses Script hat früher die Spalte acc_trans_id aus der
+-- impliziten OID gesetzt. PostgreSQL 12 unterstützt aber keine OIDs
+-- mehr, daher wurde die OID hier entfernt. Das ist insofern auch kein
+-- Problem, weil dieses Upgrade-Script in Version 2.6.0 benutzt wurde,
+-- und direkte Updates auf die aktuelle kivitendo-Version von vor 3.0
+-- eh nicht mehr unterstützt werden.
+--
+-- Das Script muss aber trotzdem beim Anlegen neuer Datenbanken
+-- abgearbeitet werden und daher funktionieren.
+
 CREATE SEQUENCE acc_trans_id_seq;
 
 CREATE TABLE new_acc_trans (
@@ -23,13 +33,11 @@ CREATE TABLE new_acc_trans (
     mtime timestamp without time zone
 );
 
-INSERT INTO new_acc_trans (acc_trans_id, trans_id, chart_id, amount, transdate, gldate, source, cleared,
+INSERT INTO new_acc_trans (trans_id, chart_id, amount, transdate, gldate, source, cleared,
                            fx_transaction, ob_transaction, cb_transaction, project_id, memo, taxkey, itime, mtime)
-  SELECT oid, trans_id, chart_id, amount, transdate, gldate, source, cleared,
+  SELECT trans_id, chart_id, amount, transdate, gldate, source, cleared,
     fx_transaction, ob_transaction, cb_transaction, project_id, memo, taxkey, itime, mtime
   FROM acc_trans;
-
-SELECT setval('acc_trans_id_seq', (SELECT COALESCE((SELECT MAX(oid::integer) FROM acc_trans), 0) + 1));
 
 DROP TABLE acc_trans;
 ALTER TABLE new_acc_trans RENAME TO acc_trans;
