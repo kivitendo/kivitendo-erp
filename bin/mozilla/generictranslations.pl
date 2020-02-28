@@ -210,6 +210,48 @@ sub save_email_strings {
   $main::lxdebug->leave_sub();
 }
 
+sub edit_zugferd_notes {
+  $::auth->assert('config');
+
+  $::form->get_lists('languages' => 'LANGUAGES');
+
+  my $translation_list = GenericTranslations->list(translation_type => 'ZUGFeRD/notes');
+  my %translations     = map { ( ($_->{language_id} || 'default') => $_->{translation} ) } @{ $translation_list };
+
+  unshift @{ $::form->{LANGUAGES} }, { 'id' => 'default', };
+
+  foreach my $language (@{ $::form->{LANGUAGES} }) {
+    $language->{translation} = $translations{$language->{id}};
+  }
+
+  setup_generictranslations_edit_zugferd_notes_action_bar();
+
+  $::form->{title} = $::locale->text('Edit ZUGFeRD notes');
+  $::form->header;
+  print $::form->parse_html_template('generictranslations/edit_zugferd_notes');
+}
+
+sub save_zugferd_notes {
+  $::auth->assert('config');
+
+  $::form->get_lists('languages' => 'LANGUAGES');
+
+  unshift @{ $::form->{LANGUAGES} }, { };
+
+  foreach my $language (@{ $::form->{LANGUAGES} }) {
+    GenericTranslations->save(
+      translation_type => 'ZUGFeRD/notes',
+      translation_id   => undef,
+      language_id      => $language->{id},
+      translation      => $::form->{"translation__" . ($language->{id} || 'default')},
+    );
+  }
+
+  $::form->{message} = $::locale->text('The ZUGFeRD notes have been saved.');
+
+  edit_zugferd_notes();
+}
+
 sub setup_generictranslations_edit_greetings_action_bar {
   my %params = @_;
 
@@ -237,6 +279,7 @@ sub setup_generictranslations_edit_sepa_strings_action_bar {
     );
   }
 }
+
 sub setup_generictranslations_edit_email_strings_action_bar {
   my %params = @_;
 
@@ -245,6 +288,20 @@ sub setup_generictranslations_edit_email_strings_action_bar {
       action => [
         t8('Save'),
         submit    => [ '#form', { action => "save_email_strings" } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_generictranslations_edit_zugferd_notes_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => "save_zugferd_notes" } ],
         accesskey => 'enter',
       ],
     );

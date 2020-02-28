@@ -1253,6 +1253,13 @@
   params:
     action: edit_sepa_strings
 - parent: system_languages_and_translations
+  id: system_languages_and_translations_zugferd_notes
+  name: ZUGFeRD notes for each invoice
+  order: 450
+  module: generictranslations.pl
+  params:
+    action: edit_zugferd_notes
+- parent: system_languages_and_translations
   id: system_languages_and_translations_email_strings
   name: Preset email strings
   order: 500

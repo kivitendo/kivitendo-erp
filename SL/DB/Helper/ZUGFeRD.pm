@@ -6,6 +6,7 @@ use utf8;
 use parent qw(Exporter);
 our @EXPORT = qw(create_zugferd_data create_zugferd_xmp_data);
 
+use SL::DB::GenericTranslation;
 use SL::DB::Tax;
 use SL::DB::TaxKey;
 use SL::Helper::ISO3166;
@@ -15,7 +16,7 @@ use SL::Helper::UNECERecommendation20;
 use Carp;
 use Encode qw(encode);
 use List::MoreUtils qw(pairwise);
-use List::Util qw(sum);
+use List::Util qw(first sum);
 use Template;
 use XML::Writer;
 
@@ -308,6 +309,14 @@ sub _exchanged_document_context {
   #   </rsm:ExchangedDocumentContext>
 }
 
+sub _included_note {
+  my ($self, %params) = @_;
+
+  $params{xml}->startTag("ram:IncludedNote");
+  $params{xml}->dataElement("ram:Content", _u8($params{note}));
+  $params{xml}->endTag;
+}
+
 sub _exchanged_document {
   my ($self, %params) = @_;
 
@@ -328,18 +337,26 @@ sub _exchanged_document {
     $params{xml}->dataElement("ram:LanguageID", uc($1));
   }
 
-  if ($self->transaction_description) {
-    $params{xml}->startTag("ram:IncludedNote");
-    $params{xml}->dataElement("ram:Content", _u8($self->transaction_description));
-    $params{xml}->endTag;
-  }
+  my $std_notes = SL::DB::Manager::GenericTranslation->get_all(
+    where => [
+      translation_type => 'ZUGFeRD/notes',
+      or               => [
+        language_id    => undef,
+        language_id    => $self->language_id,
+      ],
+      '!translation'   => undef,
+      '!translation'   => '',
+    ],
+  );
+
+  my $std_note = first { $_->language_id == $self->language_id } @{ $std_notes };
+  $std_note  //= first { !defined $_->language_id }              @{ $std_notes };
 
   my $notes = $self->notes_as_stripped_html;
-  if ($notes) {
-    $params{xml}->startTag("ram:IncludedNote");
-    $params{xml}->dataElement("ram:Content", _u8($notes));
-    $params{xml}->endTag;
-  }
+
+  _included_note($self, %params, note => $self->transaction_description) if $self->transaction_description;
+  _included_note($self, %params, note => $notes)                         if $notes;
+  _included_note($self, %params, note => $std_note->translation)         if $std_note;
 
   $params{xml}->endTag;
   #   </rsm:ExchangedDocument>
