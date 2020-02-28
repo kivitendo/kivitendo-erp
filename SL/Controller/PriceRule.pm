@@ -396,6 +396,7 @@ sub init_models {
 
 sub setup_search_action_bar {
   my ($self, %params) = @_;
+  require SL::Controller::PriceRuleMacro;
 
   return if $::form->{inline};
 
@@ -421,6 +422,11 @@ sub setup_search_action_bar {
           link => $self->url_for(controller => 'PriceRuleMacro', action => 'new', 'price_rule.type' => 'vendor', callback => $self->models->get_callback),
         ],
       ], # end of combobox "Add"
+      link => [
+        t8('Simple Search'),
+        link => SL::Controller::PriceRuleMacro->url_for(action => 'list'),
+        tooltip => t8('Switch to simple search'),
+      ],
     );
   }
 }

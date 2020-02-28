@@ -104,6 +104,7 @@ sub make_filter_summary {
 
 sub setup_search_action_bar {
   my ($self, %params) = @_;
+  require SL::Controller::PriceRule;
 
   return if $::form->{inline};
 
@@ -133,6 +134,11 @@ sub setup_search_action_bar {
           link => $self->controller->url_for(action => 'new', 'price_rule_macro.type' => 'vendor', callback => $self->models->get_callback),
         ],
       ], # end of combobox "Add"
+      link => [
+        t8('Advanced Search'),
+        link => SL::Controller::PriceRule->url_for(action => 'list'),
+        tooltip => t8('Switch to advanced search'),
+      ],
     );
   }
 }
