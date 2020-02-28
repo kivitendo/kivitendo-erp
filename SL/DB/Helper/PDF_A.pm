@@ -57,6 +57,12 @@ sub create_pdf_a_print_options {
         author   => $author,
         language => $pdf_language,
       },
+      zugferd              => {
+        conformance_level  => 'EXTENDED',
+        document_file_name => 'ZUGFeRD-invoice.xml',
+        document_type      => 'INVOICE',
+        version            => '1.0',
+      },
     ),
   };
 }

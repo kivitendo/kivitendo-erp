@@ -1,6 +1,7 @@
 <?xpacket begin='' id='W5M0MpCehiHzreSzNTczkc9d' ?>
 
-<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 4.0-c316 44.253921, Sun Oct 01 2006 17:14:39">
+<x:xmpmeta xmlns:x="adobe:ns:meta/"
+           x:xmptk="Adobe XMP Core 4.0-c316 44.253921, Sun Oct 01 2006 17:14:39">
  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about=""
                    xmlns:pdfaExtension="http://www.aiim.org/pdfa/ns/extension/"
@@ -54,6 +55,41 @@
        </rdf:li>
       </rdf:Seq></pdfaSchema:property>
      </rdf:li>
+[% IF zugferd %]
+     <rdf:li rdf:parseType="Resource">
+      <pdfaSchema:schema>ZUGFeRD PDFA Extension Schema</pdfaSchema:schema>
+      <pdfaSchema:namespaceURI>urn:zugferd:pdfa:CrossIndustryDocument:invoice:2p0#</pdfaSchema:namespaceURI>
+      <pdfaSchema:prefix>fx</pdfaSchema:prefix>
+      <pdfaSchema:property>
+       <rdf:Seq>
+        <rdf:li rdf:parseType="Resource">
+         <pdfaProperty:name>DocumentFileName</pdfaProperty:name>
+         <pdfaProperty:valueType>Text</pdfaProperty:valueType>
+         <pdfaProperty:category>external</pdfaProperty:category>
+         <pdfaProperty:description>name of the embedded XML invoice file</pdfaProperty:description>
+        </rdf:li>
+        <rdf:li rdf:parseType="Resource">
+         <pdfaProperty:name>DocumentType</pdfaProperty:name>
+         <pdfaProperty:valueType>Text</pdfaProperty:valueType>
+         <pdfaProperty:category>external</pdfaProperty:category>
+         <pdfaProperty:description>INVOICE</pdfaProperty:description>
+        </rdf:li>
+        <rdf:li rdf:parseType="Resource">
+         <pdfaProperty:name>Version</pdfaProperty:name>
+         <pdfaProperty:valueType>Text</pdfaProperty:valueType>
+         <pdfaProperty:category>external</pdfaProperty:category>
+         <pdfaProperty:description>The actual version of the ZUGFeRD data</pdfaProperty:description>
+        </rdf:li>
+        <rdf:li rdf:parseType="Resource">
+         <pdfaProperty:name>ConformanceLevel</pdfaProperty:name>
+         <pdfaProperty:valueType>Text</pdfaProperty:valueType>
+         <pdfaProperty:category>external</pdfaProperty:category>
+         <pdfaProperty:description>The conformance level of the ZUGFeRD data</pdfaProperty:description>
+        </rdf:li>
+       </rdf:Seq>
+      </pdfaSchema:property>
+     </rdf:li>
+[% END %]
     </rdf:Bag>
    </pdfaExtension:schemas>
   </rdf:Description>
@@ -86,6 +122,16 @@
   </rdf:Description>
   <rdf:Description rdf:about="" xmlns:xmpRights = "http://ns.adobe.com/xap/1.0/rights/">
   </rdf:Description>
+
+[% IF zugferd %]
+  <rdf:Description xmlns:fx="urn:zugferd:pdfa:CrossIndustryDocument:invoice:2p0#"
+                   fx:ConformanceLevel="[% zugferd.conformance_level | xml %]"
+                   fx:DocumentFileName="[% zugferd.document_file_name | xml %]"
+                   fx:DocumentType="[% zugferd.document_type | xml %]"
+                   fx:Version="[% zugferd.version %]"
+                   rdf:about=""/>
+[% END %]
+
  </rdf:RDF>
 </x:xmpmeta>
 

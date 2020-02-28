@@ -1288,6 +1288,10 @@ sub print_form {
     $form->{TEMPLATE_DRIVER_OPTIONS}->{variable_content_types} = $form->get_variable_content_types();
   }
 
+  if ($form->{format} =~ m{pdf}) {
+    _maybe_attach_zugferd_data($form);
+  }
+
   $form->isblank("email", $locale->text('E-mail address missing!'))
     if ($form->{media} eq 'email');
   $form->isblank("${inv}date",
@@ -2109,4 +2113,26 @@ sub send_sales_purchase_email {
   flash_later('info', $::locale->text('The email has been sent.'));
 
   print $::form->redirect_header($script . '?action=edit&id=' . $::form->escape($id) . '&type=' . $::form->escape($type));
+}
+
+sub _maybe_attach_zugferd_data {
+  my ($form) = @_;
+
+  my $record = _make_record();
+
+  return if !$record || !$record->can('create_pdf_a_print_options') || !$record->can('create_zugferd_data');
+
+  my $xmlfile = File::Temp->new;
+  $xmlfile->print($record->create_zugferd_data);
+  $xmlfile->close;
+
+  $form->{TEMPLATE_DRIVER_OPTIONS}->{pdf_a}           = $record->create_pdf_a_print_options(zugferd_xmp_data => $record->create_zugferd_xmp_data);
+  $form->{TEMPLATE_DRIVER_OPTIONS}->{pdf_attachments} = [
+    { source       => $xmlfile,
+      name         => 'ZUGFeRD-invoice.xml',
+      description  => $::locale->text('ZUGFeRD invoice'),
+      relationship => '/Alternative',
+      mime_type    => 'text/xml',
+    }
+  ];
 }

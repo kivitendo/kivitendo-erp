@@ -3978,6 +3978,7 @@ $self->{texts} = {
   'Your download does not exist anymore. Please re-run the DATEV export assistant.' => 'Ihr Download existiert nicht mehr. Bitte starten Sie den DATEV-Exportassistenten erneut.',
   'Your import is being processed.' => 'Ihr Import wird verarbeitet',
   'Your target quantity will be added to the stocked quantity.' => 'Ihre gezählte Zielmenge wird zum Lagerbestand hinzugezählt.',
+  'ZUGFeRD invoice'             => 'ZUGFeRD-Rechnung',
   'Zeitraum'                    => 'Zeitraum',
   'Zero amount posting!'        => 'Buchung ohne Wert',
   'Zip'                         => 'PLZ',
