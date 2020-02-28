@@ -15,7 +15,7 @@ sub run {
 
   $self->_setup;
 
-  $self->tester->plan(tests => 32);
+  $self->tester->plan(tests => 34);
 
   $self->check_konten_mit_saldo_nicht_in_guv;
   $self->check_bilanzkonten_mit_pos_eur;
@@ -208,22 +208,35 @@ sub check_invnumbers_unique {
 sub check_summe_stornobuchungen {
   my ($self) = @_;
 
-  my $query = qq|
-    SELECT sum(amount) from ar a WHERE a.id IN
-      (SELECT id from ar where storno is true
-       AND a.transdate >= ? and a.transdate <= ?)|;
-  my ($summe_stornobuchungen_ar) = selectfirst_array_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
+  my %sums_canceled;
+  my %sums_storno;
+  foreach my $table (qw(ar ap)) {
+    # check invoices canceled (stornoed) in consideration period (corresponding stornos do not have to be in this period)
+    my $query = qq|
+      SELECT sum(amount) FROM $table WHERE id IN (
+        SELECT id FROM $table WHERE storno IS TRUE AND storno_id IS NULL AND transdate >= ? AND transdate <= ?
+        UNION
+        SELECT id FROM $table WHERE storno IS TRUE AND storno_id IS NOT NULL AND storno_id IN
+          (SELECT id FROM $table WHERE storno IS TRUE AND storno_id IS NULL AND transdate >= ? AND transdate <= ?)
+      )|;
+    ($sums_canceled{$table}) = selectfirst_array_query($::form, $self->dbh, $query, $self->fromdate, $self->todate, $self->fromdate, $self->todate);
 
-  $query = qq|
-    SELECT sum(amount) from ap a WHERE a.id IN
-      (SELECT id from ap where storno is true
-       AND a.transdate >= ? and a.transdate <= ?)|;
-  my ($summe_stornobuchungen_ap) = selectfirst_array_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
+    # check storno invoices in consideration period (corresponding canceled (stornoed) invoices do not have to be in this period)
+    $query = qq|
+      SELECT sum(amount) FROM $table WHERE id IN (
+        SELECT storno_id FROM $table WHERE storno IS TRUE AND storno_id IS NOT NULL AND transdate >= ? AND transdate <= ?
+        UNION
+        SELECT id FROM $table WHERE storno IS TRUE AND storno_id IS NOT NULL AND transdate >= ? AND transdate <= ?
+      )|;
+    ($sums_storno{$table}) = selectfirst_array_query($::form, $self->dbh, $query, $self->fromdate, $self->todate, $self->fromdate, $self->todate);
 
-  $self->tester->ok($summe_stornobuchungen_ap == 0, 'Summe aller Einkaufsrechnungen (stornos + stornierte) soll 0 sein');
-  $self->tester->ok($summe_stornobuchungen_ar == 0, 'Summe aller Verkaufsrechnungen (stornos + stornierte) soll 0 sein');
-  $self->tester->diag("Summe Verkaufsrechnungen (ar): $summe_stornobuchungen_ar") if $summe_stornobuchungen_ar;
-  $self->tester->diag("Summe Einkaufsrechnungen (ap): $summe_stornobuchungen_ap") if $summe_stornobuchungen_ap;
+    my $text_rg = ($table eq 'ar') ? 'Verkaufsrechnungen' : 'Einkaufsrechnungen';
+
+    $self->tester->ok($sums_canceled{$table} == 0, "Summe aller $text_rg (stornos + stornierte) soll 0 sein (für stornierte Rechnungen)");
+    $self->tester->ok($sums_storno  {$table} == 0, "Summe aller $text_rg (stornos + stornierte) soll 0 sein (für Storno-Rechnungen)");
+    $self->tester->diag("Summe $text_rg ($table) (für stornierte Rechnungen) : " . $sums_canceled{$table}) if $sums_canceled{$table} != 0;
+    $self->tester->diag("Summe $text_rg ($table) (für Storno-Rechnungen)     : " . $sums_storno  {$table}) if $sums_storno  {$table} != 0;
+  }
 }
 
 sub check_ar_paid {
