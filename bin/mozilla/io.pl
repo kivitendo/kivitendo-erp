@@ -2118,6 +2118,8 @@ sub send_sales_purchase_email {
 sub _maybe_attach_zugferd_data {
   my ($form) = @_;
 
+  return if !$::instance_conf->get_create_zugferd_invoices;
+
   my $record = _make_record();
 
   return if !$record || !$record->can('create_pdf_a_print_options') || !$record->can('create_zugferd_data');

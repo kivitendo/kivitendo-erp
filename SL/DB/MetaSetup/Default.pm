@@ -41,6 +41,7 @@ __PACKAGE__->meta->columns(
   coa                                       => { type => 'text' },
   company                                   => { type => 'text' },
   create_part_if_not_found                  => { type => 'boolean', default => 'false' },
+  create_zugferd_invoices                   => { type => 'boolean' },
   currency_id                               => { type => 'integer', not_null => 1 },
   customer_hourly_rate                      => { type => 'numeric', precision => 8, scale => 2 },
   customer_projects_only_in_sales           => { type => 'boolean', default => 'false', not_null => 1 },
