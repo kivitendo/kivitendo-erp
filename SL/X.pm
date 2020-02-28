@@ -27,6 +27,9 @@ use Exception::Class (
   'SL::X::DBUtilsError' => {
     isa                 => 'SL::X::DBError',
   },
+  'SL::X::ZUGFeRDValidation' => {
+    isa                 => 'SL::X::Base',
+  },
 );
 
 1;

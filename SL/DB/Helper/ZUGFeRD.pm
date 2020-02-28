@@ -15,7 +15,7 @@ use SL::Helper::UNECERecommendation20;
 
 use Carp;
 use Encode qw(encode);
-use List::MoreUtils qw(pairwise);
+use List::MoreUtils qw(any pairwise);
 use List::Util qw(first sum);
 use Template;
 use XML::Writer;
@@ -515,8 +515,41 @@ sub _supply_chain_trade_transaction {
   #   </rsm:SupplyChainTradeTransaction>
 }
 
+sub _validate_data {
+  my ($self) = @_;
+
+  my $prefix = $::locale->text('The ZUGFeRD invoice data cannot be generated because the data validation failed.') . ' ';
+
+  if (!$::instance_conf->get_co_ustid) {
+    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The VAT registration number is missing in the client configuration.'));
+  }
+
+  if (!$::instance_conf->get_company || any { my $get = "get_address_$_"; !$::instance_conf->$get } qw(street1 zipcode city)) {
+    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The company\'s address information is incomplete in the client configuration.'));
+  }
+
+  if ($::instance_conf->get_address_country && !SL::Helper::ISO3166::map_name_to_alpha_2_code($::instance_conf->get_address_country)) {
+    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The country from the company\'s address in the client configuration cannot be mapped to an ISO 3166-1 alpha 2 code.'));
+  }
+
+  if ($self->customer->country && !SL::Helper::ISO3166::map_name_to_alpha_2_code($self->customer->country)) {
+    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The country from the customer\'s address cannot be mapped to an ISO 3166-1 alpha 2 code.'));
+  }
+
+  if (!SL::Helper::ISO4217::map_currency_name_to_code($self->currency->name)) {
+    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The currency "#1" cannot be mapped to an ISO 4217 currency code.', $self->currency->name));
+  }
+
+  my $failed_unit = first { !SL::Helper::UNECERecommendation20::map_name_to_code($_) } map { $_->unit } @{ $self->items };
+  if ($failed_unit) {
+    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('One of the units used (#1) cannot be mapped to a known unit code from the UN/ECE Recommendation 20 list.', $failed_unit));
+  }
+}
+
 sub create_zugferd_data {
   my ($self) = @_;
+
+  _validate_data($self);
 
   my %ptc_data = $self->calculate_prices_and_taxes;
   my $output   = '';

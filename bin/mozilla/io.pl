@@ -2122,17 +2122,23 @@ sub _maybe_attach_zugferd_data {
 
   return if !$record || !$record->can('create_pdf_a_print_options') || !$record->can('create_zugferd_data');
 
-  my $xmlfile = File::Temp->new;
-  $xmlfile->print($record->create_zugferd_data);
-  $xmlfile->close;
+  eval {
+    my $xmlfile = File::Temp->new;
+    $xmlfile->print($record->create_zugferd_data);
+    $xmlfile->close;
 
-  $form->{TEMPLATE_DRIVER_OPTIONS}->{pdf_a}           = $record->create_pdf_a_print_options(zugferd_xmp_data => $record->create_zugferd_xmp_data);
-  $form->{TEMPLATE_DRIVER_OPTIONS}->{pdf_attachments} = [
-    { source       => $xmlfile,
-      name         => 'ZUGFeRD-invoice.xml',
-      description  => $::locale->text('ZUGFeRD invoice'),
-      relationship => '/Alternative',
-      mime_type    => 'text/xml',
-    }
-  ];
+    $form->{TEMPLATE_DRIVER_OPTIONS}->{pdf_a}           = $record->create_pdf_a_print_options(zugferd_xmp_data => $record->create_zugferd_xmp_data);
+    $form->{TEMPLATE_DRIVER_OPTIONS}->{pdf_attachments} = [
+      { source       => $xmlfile,
+        name         => 'ZUGFeRD-invoice.xml',
+        description  => $::locale->text('ZUGFeRD invoice'),
+        relationship => '/Alternative',
+        mime_type    => 'text/xml',
+      }
+    ];
+  };
+
+  if (my $e = SL::X::ZUGFeRDValidation->caught) {
+    $::form->error($e->message);
+  }
 }
