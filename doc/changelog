@@ -755,6 +755,7 @@ Mittelgroße neue Features:
  - komplette Überarbeitung der Standard-LaTeX-Druckvorlagen von PeiTeX
    S.a.: templates/print/marei/Readme.md
 
+<<<<<<< HEAD
  - Erstellung von ZUGFeRD 2.0 fähigen PDFs
  - Verarbeitung von ZUGFeRD 2.0 kompatiblen Eingangsrechnungen über
    Kreditorenbuchungsvorlagen
@@ -795,6 +796,8 @@ Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
 
 2019-12-11 - Release 3.5.5
+ - Warengruppen können nun verschachtelt angelegt werden, d.h. Warengruppen
+   können Untergruppen enthalten
 
 Mittelgroße neue Features:
 

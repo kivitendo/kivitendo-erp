@@ -1,0 +1,8 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%][% USE P %]
+[% FOREACH child = CHILDREN %]
+    <tr class="listrow" id="partsgroup_id_[% child.id %]">
+     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></td>
+     <td><a href="[% SELF.url_for(action='edit', id=child.id) %]">[% HTML.escape(child.partsgroup) %]</a></td>
+     <td>[% IF child.obsolete %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %]</td>
+  </tr>
+[% END %]
