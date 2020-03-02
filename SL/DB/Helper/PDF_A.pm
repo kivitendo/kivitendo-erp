@@ -11,7 +11,6 @@ use Template;
 sub _create_xmp_data {
   my ($self, %params) = @_;
 
-        use Cwd;
   my $template = Template->new({
     INTERPOLATE  => 0,
     EVAL_PERL    => 0,
@@ -45,17 +44,17 @@ sub create_pdf_a_print_options {
   $timestamp    =~ s{(..)$}{:$1};
 
   return {
-    version => '3b',
-    xmp     => _create_xmp_data(
+    version                => '3b',
+    xmp                    => _create_xmp_data(
       $self,
-      pdf_a_version     => '3',
-      pdf_a_conformance => 'B',
-      producer          => 'pdfTeX',
-      timestamp         => $timestamp, # 2019-11-05T15:26:20+01:00
-      meta_data => {
-        title    => $self->displayable_name,
-        author   => $author,
-        language => $pdf_language,
+      pdf_a_version        => '3',
+      pdf_a_conformance    => 'B',
+      producer             => 'pdfTeX',
+      timestamp            => $timestamp, # 2019-11-05T15:26:20+01:00
+      meta_data            => {
+        title              => $self->displayable_name,
+        author             => $author,
+        language           => $pdf_language,
       },
       zugferd              => {
         conformance_level  => 'EXTENDED',
