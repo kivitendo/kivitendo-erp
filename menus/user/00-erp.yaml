@@ -1219,8 +1219,7 @@
   name: Partsgroups
   order: 900
   params:
-    action: SimpleSystemSetting/list
-    type: parts_group
+    action: PartsGroup/list
 - parent: system
   id: system_part_classification
   name: Parts Classification

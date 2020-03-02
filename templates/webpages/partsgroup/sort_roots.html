@@ -1,0 +1,36 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE P -%][%- USE T8 -%]
+[% INCLUDE 'common/flash.html' %]
+
+<h1>[% HTML.escape(title) %]</h1>
+[% SET style="width: 400px" %]
+
+<table id="subgroups">
+ <thead>
+  <tr>
+    <th align="center"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
+    <th align="left">[% 'Partsgroups' | $T8 %]</th>
+    <th align="left">[% 'Obsolete'    | $T8 %]</th>
+  </tr>
+ </thead>
+
+ <tbody id="subgroups_table_body">
+  [% PROCESS 'partsgroup/_subgroups_table_body.html', CHILDREN = PARTSGROUPS %]
+  </tbody>
+</table>
+</div>
+
+[% L.sortable_element('#subgroups tbody', url=SELF.url_for(action='reorder'), with='partsgroup_id') %]
+
+[%- L.input_tag("new_partsgroup", '', "data-title"=LxERP.t8("Partsgroup")) %] [% L.button_tag("add_partsgroup()", LxERP.t8('Add')) %]
+
+<script type='text/javascript'>
+  function add_partsgroup() {
+    console.log('called add_part');
+    var data = {
+      action:          'PartsGroup/add_partsgroup',
+      // parent_id:       $('#id').val(),
+      partsgroup_name: $('#new_partsgroup').val()
+    };
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+</script>
