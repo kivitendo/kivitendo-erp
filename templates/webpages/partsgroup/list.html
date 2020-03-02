@@ -1,0 +1,26 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
+[%- INCLUDE 'common/flash.html' %]
+
+<h1>[% title %]</h1>
+
+<p>
+ <table id="partsgroup_list">
+  <thead>
+   <tr class="listheading">
+    <th>[% 'Partsgroup'      | $T8 %]</th>
+    <th>[% 'Number of parts' | $T8 %]</th>
+    <th>[% 'Obsolete'        | $T8 %]</th>
+   </tr>
+  </thead>
+
+  <tbody>
+   [%- FOREACH pg = PARTSGROUPS %]
+    <tr class="listrow" id="pg_id_[% pg.id %]">
+     <td style="padding-left:[% (pg.level) * 2 %]em"><a href="[% SELF.url_for(action='edit', id=pg.id) %]">[% HTML.escape(pg.partsgroup) %]
+[% # pg.level %]</a></td>
+    <td>[% pg.partscount | html %]</td>
+    <td>[% IF pg.obsolete %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %]</td>
+   [%- END %]
+  </tbody>
+ </table>
+</p>

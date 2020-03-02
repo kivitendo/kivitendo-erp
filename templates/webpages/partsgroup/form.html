@@ -1,0 +1,129 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE P -%][%- USE T8 -%]
+[% INCLUDE 'common/flash.html' %]
+
+<h1>[% HTML.escape(title) %]</h1>
+[% SET style="width: 400px" %]
+
+<form action="controller.pl" method="post" id="form">
+[%- L.hidden_tag("id", SELF.partsgroup.id) %]
+
+<table>
+  <tr>
+    <th align="right">[% 'Partsgroup' | $T8 %]</th>
+    <td>[%- L.input_tag("partsgroup.partsgroup", SELF.partsgroup.partsgroup, "data-validate"="required", "data-title"=LxERP.t8("Description")) %]</td>
+  </tr>
+  <tr>
+    <th align="right">[% 'Description' | $T8 %]</th>
+    <td>[%- L.textarea_tag("partsgroup.description", SELF.partsgroup.description, cols = 50 rows = 2, "data-title"=LxERP.t8("Description")) %]</td>
+  </tr>
+  <tr>
+    <th align="right">[% 'Obsolete' | $T8 %]</th>
+    <td>[% L.checkbox_tag('partsgroup.obsolete', checked = SELF.partsgroup.obsolete, for_submit=1) %]</td>
+  </tr>
+
+  [% IF SELF.partsgroup.id %]
+  <tr>
+    <th align="right">[% 'Parents' | $T8 %]</th>
+    <td>
+    [% FOREACH ancestor = SELF.partsgroup.ancestors %]
+      [% IF loop.last %]
+      [%- L.select_tag('partsgroup.parent_id', PARTSGROUPS, default=SELF.partsgroup.parent_id, title_key='indented_name', value_key='id', with_empty=1 style='width: 200px') %]
+      [% ELSE %]
+    <a href="[% SELF.url_for(action='edit', id=ancestor.id) %]">[% HTML.escape(ancestor.partsgroup) %]</a> ->
+      [% END %]
+    [% END %]
+    [% IF SELF.partsgroup.ancestors.size == 0 %]
+      [%- L.select_tag('partsgroup.parent_id', PARTSGROUPS, title_key='indented_name', value_key='id', with_empty=1 style='width: 200px') %]
+    [% END %]
+    </td>
+  </tr>
+  [% END %]
+ </table>
+
+</form>
+
+  [% IF SELF.partsgroup.id %]
+
+<h2>[% 'Subgroups' | $T8 %]</h2>
+<table id="subgroups">
+ <thead>
+  <tr>
+    <th align="center" width="1%"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
+    <th align="left">[% 'Subgroups' | $T8 %]</th>
+    <th align="left">[% 'Obsolete'  | $T8 %]</th>
+  </tr>
+ </thead>
+
+ <tbody id="subgroups_table_body">
+  [% PROCESS 'partsgroup/_subgroups_table_body.html', CHILDREN = SELF.partsgroup.children_sorted %]
+  </tbody>
+</table>
+
+[% L.sortable_element('#subgroups tbody', url=SELF.url_for(action='reorder'), with='partsgroup_id') %]
+
+[%- L.input_tag("new_partsgroup", '', "data-title"=LxERP.t8("Partsgroup")) %] [% L.button_tag("add_partsgroup()", LxERP.t8('Insert new')) %]
+
+<h2>[% 'Parts' | $T8 %]</h2>
+
+<form id="parts_form" name="parts_form">
+<table id="parts_in_partsgroup">
+ <table>
+  <thead>
+   <tr class="listheading">
+    <th>[% L.checkbox_tag("", id="check_all", checkall="[data-checkall=1]") %]</th>
+    <th>[% LxERP.t8("Part Number") %]</th>
+   </tr>
+  </thead>
+  <tbody id="parts_table_body">
+  [% PROCESS 'partsgroup/_parts_table_body.html', PARTS = SELF.partsgroup.parts %]
+  </tbody>
+</table>
+</form>
+
+<table>
+<body>
+<tr>
+ <th align="right">[% 'Partsgroup' | $T8 %]</th>
+ <td>[%- L.select_tag('selected_partsgroup', PARTSGROUPS, title_key='indented_name', value_key='id', with_empty=1 style='width: 200px') %]</td>
+ <td>[% L.button_tag('move_parts_to_partsgroup()', LxERP.t8('Move selected parts to partsgroup')) %]</td>
+</tr>
+</body>
+</table>
+
+<table>
+<tr>
+ <th align="right">[% 'Part' | $T8 %]</th>
+ <td>[% P.part.picker('add_part_id', '', style='width: 300px') %]</td>
+ <td>[% L.button_tag("add_part()", LxERP.t8('Insert new')) %]</td>
+</tr>
+</table>
+
+[% END %]
+
+<script type='text/javascript'>
+  function move_parts_to_partsgroup() {
+    var data = $('#parts_form').serializeArray();
+    data.push({ name: 'current_partsgroup_id',  value: '[% SELF.partsgroup.id %]' });
+    data.push({ name: 'selected_partsgroup_id', value: $("#selected_partsgroup").val() });
+    data.push({ name: 'action',                   value: 'PartsGroup/update_partsgroup_for_parts' });
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+
+  function add_part() {
+    var data = {
+      action:        'PartsGroup/add_part',
+      part_id:       $('#add_part_id').val(),
+      partsgroup_id: $('#id').val()
+    };
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+
+  function add_partsgroup() {
+    var data = {
+      action:          'PartsGroup/add_partsgroup',
+      parent_id:       $('#id').val(),
+      partsgroup_name: $('#new_partsgroup').val()
+    };
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+</script>
