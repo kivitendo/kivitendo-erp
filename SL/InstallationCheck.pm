@@ -19,6 +19,7 @@ BEGIN {
   { name => "parent",                              url => "http://search.cpan.org/~corion/",    debian => 'libparent-perl' },
   { name => "Algorithm::CheckDigits",              url => "http://search.cpan.org/~mamawe/",    debian => 'libalgorithm-checkdigits-perl' },
   { name => "Archive::Zip",    version => '1.16',  url => "http://search.cpan.org/~phred/",     debian => 'libarchive-zip-perl' },
+  { name => "CAM::PDF",                            url => "https://metacpan.org/pod/CAM::PDF",  debian => 'libcap-pdf-perl' },
   { name => "CGI",             version => '3.43',  url => "http://search.cpan.org/~leejo/",     debian => 'libcgi-pm-perl' }, # 4.09 is not core anymore (perl 5.20)
   { name => "Clone",                               url => "http://search.cpan.org/~rdf/",       debian => 'libclone-perl' },
   { name => "Config::Std",                         url => "http://search.cpan.org/~dconway/",   debian => 'libconfig-std-perl' },
@@ -62,6 +63,7 @@ BEGIN {
   { name => "Text::Iconv",     version => '1.2',   url => "http://search.cpan.org/~mpiotr/",    debian => 'libtext-iconv-perl' },
   { name => "Text::Unidecode",                     url => "http://search.cpan.org/~sburke/",    debian => 'libtext-unidecode-perl' },
   { name => "URI",             version => '1.35',  url => "http://search.cpan.org/~gaas/",      debian => 'liburi-perl' },
+  { name => "XML::LibXML",                         url => "https://metacpan.org/pod/XML::LibXML", debian => 'libxml-libxml-perl' },
   { name => "XML::Writer",     version => '0.602', url => "http://search.cpan.org/~josephw/",   debian => 'libxml-writer-perl' },
   { name => "YAML",            version => '0.62',  url => "http://search.cpan.org/~ingy/",      debian => 'libyaml-perl' },
 );
