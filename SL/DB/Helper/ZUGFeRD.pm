@@ -415,14 +415,12 @@ sub _seller_trade_party {
   }
 
   my $ustid_nr = $::instance_conf->get_co_ustid;
-  if ($ustid_nr) {
-    $ustid_nr = "DE$ustid_nr" unless $ustid_nr =~ m{^[A-Z]{2}};
-    #         <ram:SpecifiedTaxRegistration>
-    $params{xml}->startTag("ram:SpecifiedTaxRegistration");
-    $params{xml}->dataElement("ram:ID", _u8($ustid_nr), "schemeID" => "VA");
-    $params{xml}->endTag;
-    #         </ram:SpecifiedTaxRegistration>
-  }
+  $ustid_nr    = "DE$ustid_nr" unless $ustid_nr =~ m{^[A-Z]{2}};
+  #         <ram:SpecifiedTaxRegistration>
+  $params{xml}->startTag("ram:SpecifiedTaxRegistration");
+  $params{xml}->dataElement("ram:ID", _u8($ustid_nr), "schemeID" => "VA");
+  $params{xml}->endTag;
+  #         </ram:SpecifiedTaxRegistration>
 
   $params{xml}->endTag;
   #     </ram:SellerTradeParty>
