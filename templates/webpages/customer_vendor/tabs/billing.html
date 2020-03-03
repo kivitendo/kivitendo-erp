@@ -370,7 +370,7 @@
       <td>
         [% L.checkbox_tag('cv.order_lock', checked = SELF.cv.order_lock, for_submit=1) %]
       </td>
-      <th align="right">[% LxERP.t8("Create sales invoices with ZUGFeRD data") %]</td>
+      <th align="right">[% LxERP.t8("Create sales invoices with ZUGFeRD data") %]</th>
       <td>[% L.select_tag("cv.create_zugferd_invoices",
                           [ [ -1, LxERP.t8('Use settings from client configuration') ],
                             [ 0, LxERP.t8('Do not create ZUGFeRD invoices') ],
