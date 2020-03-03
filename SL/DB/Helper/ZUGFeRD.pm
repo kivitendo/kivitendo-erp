@@ -298,9 +298,12 @@ sub _exchanged_document_context {
 
   #   <rsm:ExchangedDocumentContext>
   $params{xml}->startTag("rsm:ExchangedDocumentContext");
-  $params{xml}->startTag("ram:TestIndicator");
-  $params{xml}->dataElement("udt:Indicator", "true"); # TODO: change to 'false'
-  $params{xml}->endTag;
+
+  if ($::instance_conf->get_create_zugferd_invoices == 2) {
+    $params{xml}->startTag("ram:TestIndicator");
+    $params{xml}->dataElement("udt:Indicator", "true");
+    $params{xml}->endTag;
+  }
 
   $params{xml}->startTag("ram:GuidelineSpecifiedDocumentContextParameter");
   $params{xml}->dataElement("ram:ID", "urn:cen.eu:en16931:2017#conformant#urn:zugferd.de:2p0:extended");
