@@ -22,6 +22,7 @@ __PACKAGE__->meta->columns(
   contact                   => { type => 'text' },
   contact_origin            => { type => 'text' },
   country                   => { type => 'text' },
+  create_zugferd_invoices   => { type => 'integer', default => '-1', not_null => 1 },
   creditlimit               => { type => 'numeric', default => '0', precision => 15, scale => 5 },
   currency_id               => { type => 'integer', not_null => 1 },
   customernumber            => { type => 'text' },

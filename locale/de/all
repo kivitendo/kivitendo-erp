@@ -3810,6 +3810,7 @@ $self->{texts} = {
   'Use fill up when calculating shipped quantities?' => 'Sollen nicht verlinkte Positionen abgeglichen werden?',
   'Use linked items'            => 'Verknüpfte Positionen verwenden',
   'Use master default bin for Default Transfer, if no default bin for the part is configured' => 'Standardlagerplatz für Ein- / Auslagern über Standard-Lagerplatz, falls für die Ware kein expliziter Lagerplatz konfiguriert ist',
+  'Use settings from client configuration' => 'Einstellungen aus Mandantenkonfiguration folgen',
   'Use this storage backend for all generated PDF-Files' => 'Verwende dieses Backend für generierte PDF-Dateien',
   'Use this storage backend for all uploaded attachments' => 'Verwende dieses Backend für hochgeladene Dateien',
   'Use this storage backend for uploaded images' => 'Verwende dieses Backend für hochgeladene Bilder',

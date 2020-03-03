@@ -317,7 +317,7 @@ sub _exchanged_document_context {
   #   <rsm:ExchangedDocumentContext>
   $params{xml}->startTag("rsm:ExchangedDocumentContext");
 
-  if ($::instance_conf->get_create_zugferd_invoices == 2) {
+  if ($self->customer->create_zugferd_invoices_for_this_customer == 2) {
     $params{xml}->startTag("ram:TestIndicator");
     $params{xml}->dataElement("udt:Indicator", "true");
     $params{xml}->endTag;

@@ -98,4 +98,12 @@ sub is_vendor   { 0 };
 sub payment_terms { goto &payment }
 sub number { goto &customernumber }
 
+sub create_zugferd_invoices_for_this_customer {
+  my ($self) = @_;
+
+  no warnings 'once';
+  return $::instance_conf->get_create_zugferd_invoices if $self->create_zugferd_invoices == -1;
+  return $self->create_zugferd_invoices;
+}
+
 1;
