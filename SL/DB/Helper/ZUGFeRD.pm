@@ -209,7 +209,7 @@ sub _taxes {
   }
 }
 
-sub _format_payment_terms_description {
+sub _calculate_payment_terms_values {
   my ($self) = @_;
 
   my (%vars, %amounts, %formatted_amounts);
@@ -243,9 +243,19 @@ sub _format_payment_terms_description {
     $formatted_amounts{$_} = $::form->format_amount(\%::myconfig, $amounts{$_}, 2);
   }
 
+  return (
+    vars              => \%vars,
+    amounts           => \%amounts,
+    formatted_amounts => \%formatted_amounts,
+  );
+}
+
+sub _format_payment_terms_description {
+  my ($self, %params) = @_;
+
   my $description = ($self->payment_terms->translated_attribute('description_long_invoice', $self->language_id) // '') || $self->payment_terms->description_long_invoice;
-  $description    =~ s{<\%$_\%>}{ $vars{$_} }ge              for keys %vars;
-  $description    =~ s{<\%$_\%>}{ $formatted_amounts{$_} }ge for keys %formatted_amounts;
+  $description    =~ s{<\%$_\%>}{ $params{vars}->{$_} }ge              for keys %{ $params{vars} };
+  $description    =~ s{<\%$_\%>}{ $params{formatted_amounts}->{$_} }ge for keys %{ $params{formatted_amounts} };
 
   return $description;
 }
@@ -255,10 +265,12 @@ sub _payment_terms {
 
   return unless $self->payment_terms;
 
+  my %payment_terms_vars = _calculate_payment_terms_values($self);
+
   #     <ram:SpecifiedTradePaymentTerms>
   $params{xml}->startTag("ram:SpecifiedTradePaymentTerms");
 
-  $params{xml}->dataElement("ram:Description", _u8(_format_payment_terms_description($self)));
+  $params{xml}->dataElement("ram:Description", _u8(_format_payment_terms_description($self, %payment_terms_vars)));
 
   #       <ram:DueDateDateTime>
   $params{xml}->startTag("ram:DueDateDateTime");
@@ -267,9 +279,12 @@ sub _payment_terms {
   #       </ram:DueDateDateTime>
 
   if ($self->payment_terms->percent_skonto && $self->payment_terms->terms_skonto) {
+    my $currency_id = _u8(SL::Helper::ISO4217::map_currency_name_to_code($self->currency->name) // 'EUR');
+
     #       <ram:ApplicableTradePaymentDiscountTerms>
     $params{xml}->startTag("ram:ApplicableTradePaymentDiscountTerms");
     $params{xml}->dataElement("ram:BasisPeriodMeasure", $self->payment_terms->terms_skonto, "unitCode" => "DAY");
+    $params{xml}->dataElement("ram:BasisAmount",        _r2($payment_terms_vars{amounts}->{invtotal}), currencyID => $currency_id);
     $params{xml}->dataElement("ram:CalculationPercent", _r2($self->payment_terms->percent_skonto * 100));
     $params{xml}->endTag;
     #       </ram:ApplicableTradePaymentDiscountTerms>
