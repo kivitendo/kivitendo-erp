@@ -368,6 +368,20 @@ sub _exchanged_document {
   #   </rsm:ExchangedDocument>
 }
 
+sub _specified_tax_registration {
+  my ($ustid_nr, %params) = @_;
+
+  return unless $ustid_nr;
+
+  $ustid_nr = "DE$ustid_nr" unless $ustid_nr =~ m{^[A-Z]{2}};
+
+  #         <ram:SpecifiedTaxRegistration>
+  $params{xml}->startTag("ram:SpecifiedTaxRegistration");
+  $params{xml}->dataElement("ram:ID", _u8($ustid_nr), "schemeID" => "VA");
+  $params{xml}->endTag;
+  #         </ram:SpecifiedTaxRegistration>
+}
+
 sub _seller_trade_party {
   my ($self, %params) = @_;
 
@@ -414,13 +428,7 @@ sub _seller_trade_party {
     #         </ram:PostalTradeAddress>
   }
 
-  my $ustid_nr = $::instance_conf->get_co_ustid;
-  $ustid_nr    = "DE$ustid_nr" unless $ustid_nr =~ m{^[A-Z]{2}};
-  #         <ram:SpecifiedTaxRegistration>
-  $params{xml}->startTag("ram:SpecifiedTaxRegistration");
-  $params{xml}->dataElement("ram:ID", _u8($ustid_nr), "schemeID" => "VA");
-  $params{xml}->endTag;
-  #         </ram:SpecifiedTaxRegistration>
+  _specified_tax_registration($::instance_conf->get_co_ustid, %params);
 
   $params{xml}->endTag;
   #     </ram:SellerTradeParty>
@@ -435,6 +443,7 @@ sub _buyer_trade_party {
   $params{xml}->dataElement("ram:Name", _u8($self->customer->name));
 
   _customer_postal_trade_address(%params, customer => $self->customer);
+  _specified_tax_registration($self->customer->ustid, %params);
 
   $params{xml}->endTag;
   #       </ram:BuyerTradeParty>
