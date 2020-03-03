@@ -148,7 +148,7 @@ sub _line_item {
 
   #   <ram:SpecifiedLineTradeDelivery>
   $params{xml}->startTag("ram:SpecifiedLineTradeDelivery");
-  $params{xml}->dataElement("ram:BilledQuantity", $params{item}->qty, "unitCode" => _unit_code($params{item}->unit));
+  $params{xml}->dataElement("ram:BilledQuantity", $params{item}->qty, unitCode => _unit_code($params{item}->unit));
   $params{xml}->endTag;
   #   </ram:SpecifiedLineTradeDelivery>
 
@@ -274,7 +274,7 @@ sub _payment_terms {
 
   #       <ram:DueDateDateTime>
   $params{xml}->startTag("ram:DueDateDateTime");
-  $params{xml}->dataElement("udt:DateTimeString", $self->duedate->strftime('%Y%m%d'), "format" => "102");
+  $params{xml}->dataElement("udt:DateTimeString", $self->duedate->strftime('%Y%m%d'), format => "102");
   $params{xml}->endTag;
   #       </ram:DueDateDateTime>
 
@@ -283,7 +283,7 @@ sub _payment_terms {
 
     #       <ram:ApplicableTradePaymentDiscountTerms>
     $params{xml}->startTag("ram:ApplicableTradePaymentDiscountTerms");
-    $params{xml}->dataElement("ram:BasisPeriodMeasure", $self->payment_terms->terms_skonto, "unitCode" => "DAY");
+    $params{xml}->dataElement("ram:BasisPeriodMeasure", $self->payment_terms->terms_skonto, unitCode => "DAY");
     $params{xml}->dataElement("ram:BasisAmount",        _r2($payment_terms_vars{amounts}->{invtotal}), currencyID => $currency_id);
     $params{xml}->dataElement("ram:CalculationPercent", _r2($self->payment_terms->percent_skonto * 100));
     $params{xml}->endTag;
@@ -302,7 +302,7 @@ sub _totals {
 
   $params{xml}->dataElement("ram:LineTotalAmount",     _r2($self->netamount));
   $params{xml}->dataElement("ram:TaxBasisTotalAmount", _r2($self->netamount));
-  $params{xml}->dataElement("ram:TaxTotalAmount",      _r2(sum(values %{ $params{ptc_data}->{taxes} })), "currencyID" => "EUR");
+  $params{xml}->dataElement("ram:TaxTotalAmount",      _r2(sum(values %{ $params{ptc_data}->{taxes} })), currencyID => "EUR");
   $params{xml}->dataElement("ram:GrandTotalAmount",    _r2($self->amount));
   $params{xml}->dataElement("ram:TotalPrepaidAmount",  _r2($self->paid));
   $params{xml}->dataElement("ram:DuePayableAmount",    _r2($self->amount - $self->paid));
@@ -350,7 +350,7 @@ sub _exchanged_document {
 
   #     <ram:IssueDateTime>
   $params{xml}->startTag("ram:IssueDateTime");
-  $params{xml}->dataElement("udt:DateTimeString", $self->transdate->strftime('%Y%m%d'), "format" => "102");
+  $params{xml}->dataElement("udt:DateTimeString", $self->transdate->strftime('%Y%m%d'), format => "102");
   $params{xml}->endTag;
   #     </ram:IssueDateTime>
 
@@ -392,7 +392,7 @@ sub _specified_tax_registration {
 
   #         <ram:SpecifiedTaxRegistration>
   $params{xml}->startTag("ram:SpecifiedTaxRegistration");
-  $params{xml}->dataElement("ram:ID", _u8($ustid_nr), "schemeID" => "VA");
+  $params{xml}->dataElement("ram:ID", _u8($ustid_nr), schemeID => "VA");
   $params{xml}->endTag;
   #         </ram:SpecifiedTaxRegistration>
 }
@@ -504,7 +504,7 @@ sub _applicable_header_trade_delivery {
   $params{xml}->startTag("ram:ActualDeliverySupplyChainEvent");
 
   $params{xml}->startTag("ram:OccurrenceDateTime");
-  $params{xml}->dataElement("udt:DateTimeString", ($self->deliverydate // $self->transdate)->strftime('%Y%m%d'), "format" => "102");
+  $params{xml}->dataElement("udt:DateTimeString", ($self->deliverydate // $self->transdate)->strftime('%Y%m%d'), format => "102");
   $params{xml}->endTag;
 
   $params{xml}->endTag;
