@@ -40,7 +40,7 @@
 use Carp;
 use CGI;
 use List::MoreUtils qw(any uniq apply);
-use List::Util qw(min max first);
+use List::Util qw(sum min max first);
 use List::UtilsBy qw(sort_by uniq_by);
 
 use SL::ClientJS;
@@ -1852,7 +1852,7 @@ sub _remove_billed_or_delivered_rows {
 # TODO: both of these are makeshift so that price sources can operate on rdbo objects. if
 # this ever gets rewritten in controller style, throw this out
 sub _make_record_item {
-  my ($row) = @_;
+  my ($row, %params) = @_;
 
   my $class = {
     sales_order             => 'OrderItem',
@@ -1922,6 +1922,11 @@ sub _make_record_item {
     $obj->part(SL::DB::Part->load_cached($::form->{"id_$row"}));
   }
 
+  if ($obj->can('qty')) {
+    $obj->qty(     $obj->qty      * $params{factor});
+    $obj->base_qty($obj->base_qty * $params{factor});
+  }
+
   return $obj;
 }
 
@@ -1940,6 +1945,8 @@ sub _make_record {
            : $::form->{vc} eq 'vendor'   ? 'PurchaseInvoice'
            : do { die 'unknown invoice type' };
   }
+
+  my $factor = $::form->{type} =~ m{credit_note} ? -1 : 1;
 
   return unless $class;
 
@@ -1971,11 +1978,20 @@ sub _make_record {
   my @items;
   for my $i (1 .. $::form->{rowcount}) {
     next unless $::form->{"id_$i"};
-    push @items, _make_record_item($i);
+    push @items, _make_record_item($i, factor => $factor);
   }
 
   $obj->items(@items) if @items;
   $obj->is_sales(!!$obj->customer_id) if $class eq 'SL::DB::DeliveryOrder';
+
+  if ($class eq 'SL::DB::Invoice') {
+    my $paid = $factor *
+      sum
+      map  { $::form->parse_amount(\%::myconfig, $::form->{$_}) }
+      grep { m{^paid_\d+$} }
+      keys %{ $::form };
+    $obj->paid($paid);
+  }
 
   return $obj;
 }
