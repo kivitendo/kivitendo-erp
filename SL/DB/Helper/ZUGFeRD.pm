@@ -50,7 +50,10 @@ sub _type_code {
   # 381 (Credit note)
   # 389 (Credit note, self billed invoice)
 
-  return $type eq 'credit_note' ? 381 : 380;
+  return $type eq 'credit_note'        ? 381
+       : $type eq 'invoice_storno'     ? 457
+       : $type eq 'credit_note_storno' ? 458
+       :                                 380;
 }
 
 sub _unit_code {
