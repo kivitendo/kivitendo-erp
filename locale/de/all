@@ -2429,6 +2429,7 @@ $self->{texts} = {
   'Preset email text for requests (rfq)' => 'Vorbelegter E-Mail-Text für Anfragen',
   'Preset email text for sales delivery orders' => 'Vorbelegter E-Mail-Text für Verkaufs-Lieferscheine',
   'Preset email text for sales invoices' => 'Vorbelegter E-Mail-Text für Rechnungen',
+  'Preset email text for sales invoices with direct debit' => 'Vorbelegter E-Mail-Text für Rechnungen mit Bankeinzug',
   'Preset email text for sales orders' => 'Vorbelegter E-Mail-Text für Aufträge',
   'Preset email text for sales quotations' => 'Vorbelegter E-Mail-Text für Angebote',
   'Preview'                     => 'Vorschau',

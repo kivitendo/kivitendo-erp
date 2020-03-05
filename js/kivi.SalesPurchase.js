@@ -270,6 +270,7 @@ namespace('kivi.SalesPurchase', function(ns) {
     var data = {
       action:      'show_sales_purchase_email_dialog',
       cp_id:       $('#cp_id').val(),
+      direct_debit: $('#direct_debit').prop('checked') ? 1 : 0,
       donumber:    $('#donumber').val(),
       format:      $('#format').val(),
       formname:    $('#formname').val(),

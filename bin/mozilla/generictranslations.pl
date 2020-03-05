@@ -18,6 +18,7 @@ my %mail_strings = (
   preset_text_sales_order                     => t8('Preset email text for sales orders'),
   preset_text_sales_delivery_order            => t8('Preset email text for sales delivery orders'),
   preset_text_invoice                         => t8('Preset email text for sales invoices'),
+  preset_text_invoice_direct_debit            => t8('Preset email text for sales invoices with direct debit'),
   preset_text_request_quotation               => t8('Preset email text for requests (rfq)'),
   preset_text_purchase_order                  => t8('Preset email text for purchase orders'),
   preset_text_periodic_invoices_email_body    => t8('Preset email body for periodic invoices'),

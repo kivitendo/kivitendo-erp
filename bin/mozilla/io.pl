@@ -2092,11 +2092,17 @@ sub show_sales_purchase_email_dialog {
   $::form->{language} = $::form->get_template_language(\%::myconfig);
   $::form->{language} = "_" . $::form->{language};
 
+  my %body_params = (record_email => $record_email);
+  if (($::form->{type} eq 'invoice') && $::form->{direct_debit}) {
+    $body_params{translation_type}          = "preset_text_invoice_direct_debit";
+    $body_params{fallback_translation_type} = "preset_text_invoice";
+  }
+
   my $email_form = {
     to                  => $email,
     cc                  => $email_cc,
     subject             => $::form->generate_email_subject,
-    message             => $::form->generate_email_body('record_email' => $record_email),
+    message             => $::form->generate_email_body(%body_params),
     attachment_filename => $::form->generate_attachment_filename,
     js_send_function    => 'kivi.SalesPurchase.send_email()',
   };
