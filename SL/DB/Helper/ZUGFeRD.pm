@@ -6,6 +6,7 @@ use utf8;
 use parent qw(Exporter);
 our @EXPORT = qw(create_zugferd_data create_zugferd_xmp_data);
 
+use SL::DB::BankAccount;
 use SL::DB::GenericTranslation;
 use SL::DB::Tax;
 use SL::DB::TaxKey;
@@ -174,6 +175,28 @@ sub _line_item {
 
   $params{xml}->endTag;
   # <ram:IncludedSupplyChainTradeLineItem>
+}
+
+sub _specified_trade_settlement_payment_means {
+  my ($self, %params) = @_;
+
+  #     <ram:SpecifiedTradeSettlementPaymentMeans>
+  $params{xml}->startTag('ram:SpecifiedTradeSettlementPaymentMeans');
+  $params{xml}->dataElement('ram:TypeCode', $self->direct_debit ? 59 : 58); # 59 = SEPA direct debit, 58 = SEPA credit transfer
+
+  if ($self->direct_debit) {
+    $params{xml}->startTag('ram:PayerPartyDebtorFinancialAccount');
+    $params{xml}->dataElement('ram:IBANID', $self->customer->iban);
+    $params{xml}->endTag;
+
+  } else {
+    $params{xml}->startTag('ram:PayeePartyCreditorFinancialAccount');
+    $params{xml}->dataElement('ram:IBANID', $params{bank_account}->iban);
+    $params{xml}->endTag;
+  }
+
+  $params{xml}->endTag;
+  #     </ram:SpecifiedTradeSettlementPaymentMeans>
 }
 
 sub _taxes {
@@ -520,6 +543,7 @@ sub _applicable_header_trade_settlement {
   $params{xml}->startTag("ram:ApplicableHeaderTradeSettlement");
   $params{xml}->dataElement("ram:InvoiceCurrencyCode", _u8(SL::Helper::ISO4217::map_currency_name_to_code($self->currency->name) // 'EUR'));
 
+  _specified_trade_settlement_payment_means($self, %params);
   _taxes($self, %params);
   _payment_terms($self, %params);
   _totals($self, %params);
@@ -546,6 +570,7 @@ sub _supply_chain_trade_transaction {
 sub _validate_data {
   my ($self) = @_;
 
+  my %result;
   my $prefix = $::locale->text('The ZUGFeRD invoice data cannot be generated because the data validation failed.') . ' ';
 
   if (!$::instance_conf->get_co_ustid) {
@@ -572,43 +597,54 @@ sub _validate_data {
   if ($failed_unit) {
     SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('One of the units used (#1) cannot be mapped to a known unit code from the UN/ECE Recommendation 20 list.', $failed_unit));
   }
+
+  if ($self->direct_debit) {
+    if (!$self->customer->iban) {
+      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The customer\'s bank account number (IBAN) is missing.'));
+    }
+
+  } else {
+    my $bank_accounts     = SL::DB::Manager::BankAccount->get_all;
+    $result{bank_account} = scalar(@{ $bank_accounts }) == 1 ? $bank_accounts->[0] : first { $_->use_for_zugferd } @{ $bank_accounts };
+
+    if (!$result{bank_account}) {
+      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('No bank account flagged for ZUGFeRD usage was found.'));
+    }
+  }
+
+  return %result;
 }
 
 sub create_zugferd_data {
-  my ($self) = @_;
+  my ($self)        = @_;
 
-  _validate_data($self);
+  my $output        = '';
 
-  my %ptc_data = $self->calculate_prices_and_taxes;
-  my $output   = '';
-  my $xml      = XML::Writer->new(
-    OUTPUT      => \$output,
-    DATA_MODE   => 1,
-    DATA_INDENT => 2,
-    ENCODING    => 'utf-8',
+  my %params        = _validate_data($self);
+  $params{ptc_data} = { $self->calculate_prices_and_taxes };
+  $params{xml}      = XML::Writer->new(
+    OUTPUT          => \$output,
+    DATA_MODE       => 1,
+    DATA_INDENT     => 2,
+    ENCODING        => 'utf-8',
   );
 
-  my %params = (
-    ptc_data => \%ptc_data,
-    xml      => $xml,
-  );
-
-  $xml->xmlDecl();
+  $params{xml}->xmlDecl();
 
   # <rsm:CrossIndustryInvoice>
-  $xml->startTag("rsm:CrossIndustryInvoice",
-                 "xmlns:a"   => "urn:un:unece:uncefact:data:standard:QualifiedDataType:100",
-                 "xmlns:rsm" => "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100",
-                 "xmlns:qdt" => "urn:un:unece:uncefact:data:standard:QualifiedDataType:10",
-                 "xmlns:ram" => "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100",
-                 "xmlns:xs"  => "http://www.w3.org/2001/XMLSchema",
-                 "xmlns:udt" => "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100");
+  $params{xml}->startTag("rsm:CrossIndustryInvoice",
+                         "xmlns:a"   => "urn:un:unece:uncefact:data:standard:QualifiedDataType:100",
+                         "xmlns:rsm" => "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100",
+                         "xmlns:qdt" => "urn:un:unece:uncefact:data:standard:QualifiedDataType:10",
+                         "xmlns:ram" => "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100",
+                         "xmlns:xs"  => "http://www.w3.org/2001/XMLSchema",
+                         "xmlns:udt" => "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100");
 
   _exchanged_document_context($self, %params);
   _exchanged_document($self, %params);
   _supply_chain_trade_transaction($self, %params);
 
-  $xml->endTag;
+  $params{xml}->endTag;
   # </rsm:CrossIndustryInvoice>
 
   return $output;

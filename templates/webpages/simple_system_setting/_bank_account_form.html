@@ -32,6 +32,10 @@
   <td>[% P.chart.picker('object.chart_id', SELF.object.chart_id, type='AR_paid,AP_paid', category='A,L,Q', choose=1, style=style, "data-validate"="required", "data-title"=LxERP.t8("Chart")) %]</td>
  </tr>
  <tr>
+  <th align="right">[% LxERP.t8('Use for ZUGFeRD') %]</th>
+  <td>[% L.checkbox_tag('object.use_for_zugferd', checked = SELF.object.use_for_zugferd, for_submit=1) %]</td>
+ </tr>
+ <tr>
   <th align="right">[% LxERP.t8('Obsolete') %]</th>
   <td>[% L.checkbox_tag('object.obsolete', checked = SELF.object.obsolete, for_submit=1) %]</td>
  </tr>
