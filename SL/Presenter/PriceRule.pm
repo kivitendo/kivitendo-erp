@@ -14,7 +14,8 @@ use SL::MoreCommon qw(listify);
 use SL::Locale::String qw(t8);
 
 use List::UtilsBy qw(sort_by nsort_by);
-use List::Util qw(first uniq);
+use List::Util qw(first);
+use List::MoreUtils qw(uniq);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(price_rule_type_summary);
