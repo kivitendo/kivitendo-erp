@@ -16,7 +16,7 @@ use SL::DBUtils qw();
 use SL::Helper::Flash;
 use SL::Locale::String;
 use Rose::DB::Object::QueryBuilder ();
-use List::Util qw(uniq);
+use List::MoreUtils qw(uniq);
 
 use Rose::Object::MakeMethods::Generic
 (

@@ -14,6 +14,7 @@ __PACKAGE__->make_manager_methods;
 
 use SL::Locale::String qw(t8);
 use List::Util qw();
+use List::MoreUtils qw();
 
 use SL::DB::CustomVariableConfig;
 
@@ -210,7 +211,7 @@ sub get_all_types {
 }
 
 sub ordered_types {
-  List::Util::uniq(grep({ $types{$_} } @{ $::instance_conf->get_price_rule_type_order // [] }), @types);
+  List::MoreUtils::uniq(grep({ $types{$_} } @{ $::instance_conf->get_price_rule_type_order // [] }), @types);
 }
 
 sub get_types {

@@ -7,7 +7,7 @@ use Scalar::Util qw(weaken);
 use SL::Locale::String qw(t8);
 use SL::DB::PriceRuleMacro;
 
-use List::Util qw(uniq);
+use List::MoreUtils qw(uniq);
 use List::UtilsBy qw(partition_by);
 
 use Rose::Object::MakeMethods::Generic (
