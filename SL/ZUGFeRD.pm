@@ -45,10 +45,10 @@ sub _extract_zugferd_invoice_xml {
         my $obj_node = $doc->dereference($any_num);
         my $content  = $doc->decodeOne($obj_node->{value}, 0) // '';
 
-        print "1\n";
+        #print "1\n";
 
         next if $content !~ m{<rsm:CrossIndustryInvoice};
-        print "2\n";
+        #print "2\n";
 
         my $dom = eval { XML::LibXML->load_xml(string => $content) };
         return $content if $dom && ($dom->documentElement->nodeName eq 'rsm:CrossIndustryInvoice');
