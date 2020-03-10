@@ -10,6 +10,7 @@ our @EXPORT_OK = qw(map_name_to_alpha_2_code);
 use List::Util qw(first);
 
 my @mappings = (
+  # space and time
   # areas
   [ 'MTK', qr{^(?:m²|qm|quadrat *meter|quadrat *metre)$}i ],
 
@@ -21,9 +22,10 @@ my @mappings = (
   # durations
   [ 'SEC', qr{^(?:s|sec|second|sek|sekunde)$}i ],
   [ 'MIN', qr{^min(?:ute)?$}i ],
-  [ 'MON', qr{^mon(?:th|at)?$}i ],
   [ 'HUR', qr{^(?:h(?:our)?|std(?:unde)?)$}i ],
   [ 'DAY', qr{^(?:day|tag)$}i ],
+  [ 'MON', qr{^mon(?:th|at|atlich)?$}i ],
+  [ 'ANN', qr{^(?:yearly|annually|jährlich|Jahr)?$}i ],
 
   # mass
   [ 'MGM', qr{^(?:mg|milli *gramm?)$}i ],
