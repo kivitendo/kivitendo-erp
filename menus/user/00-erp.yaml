@@ -642,6 +642,14 @@
   params:
     action: YearEndTransactions/form
 - parent: general_ledger
+  id: zugferd_import
+  name: ZugFeRD Import
+  icon: cbob
+  order: 485
+  access: ap_transactions
+  params:
+    action: ZUGFeRD/upload_zugferd
+- parent: general_ledger
   id: general_ledger_reports
   name: Reports
   icon: gl_report
