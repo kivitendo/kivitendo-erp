@@ -13,6 +13,7 @@ use SL::DB::TaxKey;
 use SL::Helper::ISO3166;
 use SL::Helper::ISO4217;
 use SL::Helper::UNECERecommendation20;
+use SL::VATIDNr;
 
 use Carp;
 use Encode qw(encode);
@@ -409,13 +410,9 @@ sub _exchanged_document {
 sub _specified_tax_registration {
   my ($ustid_nr, %params) = @_;
 
-  return unless $ustid_nr;
-
-  $ustid_nr = "DE$ustid_nr" unless $ustid_nr =~ m{^[A-Z]{2}};
-
   #         <ram:SpecifiedTaxRegistration>
   $params{xml}->startTag("ram:SpecifiedTaxRegistration");
-  $params{xml}->dataElement("ram:ID", _u8($ustid_nr), schemeID => "VA");
+  $params{xml}->dataElement("ram:ID", _u8(SL::VATIDNr->normalize($ustid_nr)), schemeID => "VA");
   $params{xml}->endTag;
   #         </ram:SpecifiedTaxRegistration>
 }
@@ -575,6 +572,10 @@ sub _validate_data {
 
   if (!$::instance_conf->get_co_ustid) {
     SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The VAT registration number is missing in the client configuration.'));
+  }
+
+  if (!SL::VATIDNr->validate($::instance_conf->get_co_ustid)) {
+    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text("The VAT ID number in the client configuration is invalid."));
   }
 
   if (!$::instance_conf->get_company || any { my $get = "get_address_$_"; !$::instance_conf->$get } qw(street1 zipcode city)) {
