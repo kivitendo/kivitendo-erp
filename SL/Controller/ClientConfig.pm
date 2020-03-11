@@ -20,6 +20,7 @@ use SL::Template;
 use SL::Controller::TopQuickSearch;
 use SL::DB::Helper::AccountingPeriod qw(get_balance_startdate_method_options);
 use SL::Helper::ShippedQty;
+use SL::VATIDNr;
 
 __PACKAGE__->run_before('check_auth');
 
@@ -97,6 +98,11 @@ sub action_save {
     } elsif (! -d "templates/print/" . $::form->{new_master_templates}) {
       push @errors, t8('The master templates where not found.');
     }
+  }
+
+  my $cleaned_ustid = SL::VATIDNr->clean($defaults->{co_ustid});
+  if ($cleaned_ustid && !SL::VATIDNr->validate($cleaned_ustid)) {
+    push @errors, t8("The VAT ID number '#1' is invalid.", $defaults->{co_ustid});
   }
 
   # Show form again if there were any errors. Nothing's been changed
