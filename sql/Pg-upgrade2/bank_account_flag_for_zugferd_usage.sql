@@ -11,4 +11,5 @@ SET use_for_zugferd = (
 ) = 1;
 
 ALTER TABLE bank_accounts
+ALTER COLUMN use_for_zugferd SET DEFAULT FALSE,
 ALTER COLUMN use_for_zugferd SET NOT NULL;
