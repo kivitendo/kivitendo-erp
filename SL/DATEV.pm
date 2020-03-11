@@ -37,6 +37,7 @@ use SL::DB;
 use SL::HTML::Util ();
 use SL::Iconv;
 use SL::Locale::String qw(t8);
+use SL::VATIDNr;
 
 use Data::Dumper;
 use DateTime;
@@ -1045,7 +1046,7 @@ sub generate_datev_lines {
         $datev_data{buchungstext} = $transaction->[$haben]->{'name'};
       }
       if (($transaction->[$haben]->{'ustid'} // '') ne "") {
-        $datev_data{ustid} = $transaction->[$haben]->{'ustid'};
+        $datev_data{ustid} = SL::VATIDNr->normalize($transaction->[$haben]->{'ustid'});
       }
       if (($transaction->[$haben]->{'duedate'} // '') ne "") {
         $datev_data{belegfeld2} = $transaction->[$haben]->{'duedate'};
@@ -1164,7 +1165,7 @@ sub kne_buchungsexport {
     $name =~ s/\ *$//;
     $kne_file->add_block("\x1E" . $name . "\x1C");
 
-    $kne_file->add_block("\xBA" . $kne->{'ustid'}    . "\x1C") if $kne->{'ustid'};
+    $kne_file->add_block("\xBA" . SL::VATIDNr->normalize($kne->{'ustid'}) . "\x1C") if $kne->{'ustid'};
 
     $kne_file->add_block("\xB3" . $kne->{'waehrung'} . "\x1C" . "\x79");
   };

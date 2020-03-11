@@ -11,6 +11,7 @@ use SL::DB::Chart;
 use SL::Helper::DateTime;
 use SL::Locale::String qw(t8);
 use SL::Util qw(trim);
+use SL::VATIDNr;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(datev_lines from to locked warnings) ],
@@ -240,14 +241,13 @@ my @kivitendo_to_datev = (
                               input_check     => sub {
                                                        my ($ustid) = @_;
                                                        return 1 if ('' eq $ustid);
-                                                       $ustid =~ s{\s+}{}g;
-                                                       return ($ustid =~ m/^CH|^[A-Z]{2}\w{5,13}$/);
+                                                       return SL::VATIDNr->validate($ustid);
                                                      },
                               formatter       => sub { my ($input) = @_; $input =~ s/\s//g; return $input },
                               valid_check     => sub {
                                                        my ($ustid) = @_;
                                                        return 1 if ('' eq $ustid);
-                                                       return ($ustid =~ m/^CH|^[A-Z]{2}\w{5,13}$/);
+                                                       return SL::VATIDNr->validate($ustid);
                                                      },
                             }, # pos 40
                             {
