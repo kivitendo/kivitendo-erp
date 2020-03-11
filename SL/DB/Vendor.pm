@@ -10,6 +10,7 @@ use SL::DB::MetaSetup::Vendor;
 use SL::DB::Manager::Vendor;
 use SL::DB::Helper::IBANValidation;
 use SL::DB::Helper::TransNumberGenerator;
+use SL::DB::Helper::VATIDNrValidation;
 use SL::DB::Helper::CustomVariables (
   module      => 'CT',
   cvars_alias => 1,
@@ -60,6 +61,7 @@ sub validate {
   my @errors;
   push @errors, $::locale->text('The vendor name is missing.') if !$self->name;
   push @errors, $self->validate_ibans;
+  push @errors, $self->validate_vat_id_numbers;
 
   return @errors;
 }

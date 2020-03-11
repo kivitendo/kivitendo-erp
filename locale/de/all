@@ -3197,6 +3197,7 @@ $self->{texts} = {
   'The SQL query can be parameterized with variables named as follows: <%name%>.' => 'Die SQL-Abfrage kann mittels Variablen wie folgt parametrisiert werden: <%Variablenname%>.',
   'The SQL query does not contain any parameter that need to be configured.' => 'Die SQL-Abfrage enthält keine Parameter, die angegeben werden müssten.',
   'The URL is missing.'         => 'URL fehlt',
+  'The VAT ID number \'#1\' is invalid.' => 'Die UStID-Nummer »#1« ist ungültig.',
   'The VAT registration number is missing in the client configuration.' => 'Die Umsatzsteuer-ID-Nummer fehlt in der Mandantenkonfiguration.',
   'The WebDAV feature has been used.' => 'Das WebDAV-Feature wurde benutzt.',
   'The XMP metadata does not declare the ZUGFeRD data.' => 'Die XMP-Metadaten enthalten keine ZUGFeRD-Deklaration.',
