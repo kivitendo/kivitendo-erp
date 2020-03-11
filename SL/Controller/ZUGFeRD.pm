@@ -5,6 +5,7 @@ use parent qw(SL::Controller::Base);
 use SL::DB::RecordTemplate;
 use SL::Locale::String qw(t8);
 use SL::Helper::DateTime;
+use SL::VATIDNr;
 use SL::ZUGFeRD;
 
 use XML::LibXML;
@@ -40,11 +41,42 @@ sub action_import_zugferd {
   die t8("No VAT Info for this ZUGFeRD invoice," .
          " please ask your vendor to add this for his ZUGFeRD data.") unless $ustid;
 
-  $ustid     =~ s/^\s+|\s+$//g;
+  $ustid = SL::VATIDNr->normalize($ustid);
 
   # 1.1 check if we a have a vendor with this VAT-ID (vendor.ustid)
   my $vc     = $dom->findnodes('//ram:SellerTradeParty/ram:Name')->string_value;
-  my $vendor = SL::DB::Manager::Vendor->find_by(ustid => $ustid);
+  my $vendor = SL::DB::Manager::Vendor->find_by(
+    ustid => $ustid,
+    or    => [
+      obsolete => undef,
+      obsolete => 0,
+    ]);
+
+  if (!$vendor) {
+    # 1.2 If no vendor with the exact VAT ID number is found, the
+    # number might be stored slightly different in the database
+    # (e.g. with spaces breaking up groups of numbers). Iterate over
+    # all existing vendors with VAT ID numbers, normalize their
+    # representation and compare those.
+
+    my $vendors = SL::DB::Manager::Vendor->get_all(
+      where => [
+        '!ustid' => undef,
+        '!ustid' => '',
+        or       => [
+          obsolete => undef,
+          obsolete => 0,
+        ],
+      ]);
+
+    foreach my $other_vendor (@{ $vendors }) {
+      next unless SL::VATIDNr->normalize($other_vendor->ustid) eq $ustid;
+
+      $vendor = $other_vendor;
+      last;
+    }
+  }
+
   die t8("Please add a valid VAT-ID for this vendor: " . $vc) unless (ref $vendor eq 'SL::DB::Vendor');
 
   # 2. check if we have a ap record template for this vendor (TODO only the oldest template is choosen)
