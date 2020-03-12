@@ -86,7 +86,8 @@ dbupgrade2_tool.pl [options]
                          upgrade file your \$EDITOR will be called with it.
     --apply=tag          Applies the database upgrades \'tag\' and all
                          upgrades it depends on. If \'--apply\' is used
-                         then the option \'--user\' must be used as well.
+                         then the option \'--user\' and \'--client\' must be
+                         used as well. Use \'--apply=ALL\' to apply all.
     --applied            List the applied database upgrades for the
                          database that the user given with \'--user\' uses.
     --unapplied          List the database upgrades that haven\'t been applied
