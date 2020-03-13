@@ -10,6 +10,7 @@ use SL::DB::MetaSetup::Customer;
 use SL::DB::Manager::Customer;
 use SL::DB::Helper::IBANValidation;
 use SL::DB::Helper::TransNumberGenerator;
+use SL::DB::Helper::VATIDNrValidation;
 use SL::DB::Helper::CustomVariables (
   module      => 'CT',
   cvars_alias => 1,
@@ -61,6 +62,7 @@ sub validate {
   my @errors;
   push @errors, $::locale->text('The customer name is missing.') if !$self->name;
   push @errors, $self->validate_ibans;
+  push @errors, $self->validate_vat_id_numbers;
 
   return @errors;
 }
@@ -97,5 +99,13 @@ sub is_customer { 1 };
 sub is_vendor   { 0 };
 sub payment_terms { goto &payment }
 sub number { goto &customernumber }
+
+sub create_zugferd_invoices_for_this_customer {
+  my ($self) = @_;
+
+  no warnings 'once';
+  return $::instance_conf->get_create_zugferd_invoices if $self->create_zugferd_invoices == -1;
+  return $self->create_zugferd_invoices;
+}
 
 1;

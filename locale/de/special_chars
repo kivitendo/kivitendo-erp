@@ -27,12 +27,6 @@ order=< > \n
 >=&gt;
 \n=<br>
 
-[Template/XML]
-order=< > \n
-<=&lt;
->=&gt;
-\n=<br>
-
 [Template/LaTeX]
 order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © ~ \xad \xa0 ➔ → ← ↔ ↕ | − ≤ ≥ ‐ ​ Ω μ Δ ‑
 \\=\\textbackslash\s

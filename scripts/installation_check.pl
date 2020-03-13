@@ -13,6 +13,7 @@ BEGIN {
 
 use strict;
 use Getopt::Long;
+use List::MoreUtils qw(uniq);
 use Pod::Usage;
 use Term::ANSIColor;
 use Text::Wrap;
@@ -156,7 +157,12 @@ sub check_template_dir {
 
   print_header("Checking LaTeX Dependencies for Master Templates '$dir'");
   kpsewhich($path, 'cls', $_) for SL::InstallationCheck::classes_from_latex($path, '\documentclass');
-  kpsewhich($path, 'sty', $_) for SL::InstallationCheck::classes_from_latex($path, '\usepackage');
+
+  my @sty = sort { $a cmp $b } uniq (
+    SL::InstallationCheck::classes_from_latex($path, '\usepackage'),
+    qw(textcomp ulem pdfx embedfile)
+  );
+  kpsewhich($path, 'sty', $_) for @sty;
 }
 
 our $mastertemplate_path = './templates/print/';

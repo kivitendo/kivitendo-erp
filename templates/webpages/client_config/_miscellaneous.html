@@ -2,7 +2,7 @@
 [% SET style="width: 400px" %]
 <div id="miscellaneous">
  <table>
-  <tr><td class="listheading" colspan="4">[% LxERP.t8("Company settings") %]</td></tr>
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Company name and address") %]</td></tr>
 
   <tr>
    <td align="right">[% LxERP.t8("Company name") %]</td>
@@ -10,9 +10,29 @@
   </tr>
 
   <tr>
-   <td align="right" valign="top">[% LxERP.t8("Address") %]</td>
-   <td valign="top">[% L.textarea_tag('defaults.address', SELF.defaults.address, style=style, rows=4) %]</td>
+   <td align="right" valign="top">[% LxERP.t8("Street 1") %]</td>
+   <td>[% L.input_tag('defaults.address_street1', SELF.defaults.address_street1, style=style) %]</td>
   </tr>
+
+  <tr>
+   <td align="right" valign="top">[% LxERP.t8("Street 2") %]</td>
+   <td>[% L.input_tag('defaults.address_street2', SELF.defaults.address_street2, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right" valign="top">[% LxERP.t8("Zipcode and city") %]</td>
+   <td>
+     [% L.input_tag('defaults.address_zipcode', SELF.defaults.address_zipcode, size=8) %]
+     [% L.input_tag('defaults.address_city', SELF.defaults.address_city, size=30) %]
+   </td>
+  </tr>
+
+  <tr>
+   <td align="right" valign="top">[% LxERP.t8("Country") %]</td>
+   <td>[% L.input_tag('defaults.address_country', SELF.defaults.address_country, style=style) %]</td>
+  </tr>
+
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Company settings") %]</td></tr>
 
   <tr>
    <td align="right" valign="top">[% LxERP.t8("Signature") %]</td>

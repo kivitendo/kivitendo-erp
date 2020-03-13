@@ -17,6 +17,7 @@ use SL::Common;
 use SL::DB::Language;
 use SL::DB::Printer;
 use SL::MoreCommon;
+use SL::System::Process;
 use SL::Template;
 use SL::Template::LaTeX;
 
@@ -39,15 +40,22 @@ sub create_pdf {
 sub create_parsed_file {
   my ($class, %params) = @_;
 
-  my $userspath      = $::lx_office_conf{paths}->{userspath};
+  my $keep_temp_files = $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files};
+  my $userspath       = SL::System::Process::exe_dir() . "/" . $::lx_office_conf{paths}->{userspath};
+  my $temp_dir        = File::Temp->newdir(
+    "kivitendo-print-XXXXXX",
+    DIR     => $userspath,
+    CLEANUP => !$keep_temp_files,
+  );
+
   my $vars           = $params{variables} || {};
   my $form           = Form->new('');
   $form->{$_}        = $vars->{$_} for keys %{$vars};
   $form->{format}    = lc($params{format} || 'pdf');
-  $form->{cwd}       = getcwd();
+  $form->{cwd}       = SL::System::Process::exe_dir();
   $form->{templates} = $::instance_conf->get_templates;
   $form->{IN}        = $params{template};
-  $form->{tmpdir}    = $form->{cwd} . '/' . $userspath;
+  $form->{tmpdir}    = $temp_dir->dirname;
   my $tmpdir         = $form->{tmpdir};
   my ($suffix)       = $params{template} =~ m{\.(.+)};
 
@@ -55,7 +63,7 @@ sub create_parsed_file {
     'kivitendo-printXXXXXX',
     SUFFIX => ".${suffix}",
     DIR    => $form->{tmpdir},
-    UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
+    UNLINK => !$keep_temp_files,
   );
 
   $form->{tmpfile} = $tmpfile;
@@ -87,7 +95,7 @@ sub create_parsed_file {
   my ($volume, $directory, $file_name) = File::Spec->splitpath($form->{tmpfile});
   my $full_file_name                   = File::Spec->catfile($tmpdir, $file_name);
   if (($params{return} || 'content') eq 'file_name') {
-    my $new_name = File::Spec->catfile($tmpdir, 'keep-' . $form->{tmpfile});
+    my $new_name = File::Spec->catfile($userspath, 'keep-' . $form->{tmpfile});
     rename $full_file_name, $new_name;
 
     $form->cleanup;

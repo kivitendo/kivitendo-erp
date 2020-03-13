@@ -47,6 +47,7 @@ use CGI;
 use Cwd;
 use Encode;
 use File::Copy;
+use File::Temp ();
 use IO::File;
 use Math::BigInt;
 use POSIX qw(strftime);
@@ -909,11 +910,18 @@ sub parse_template {
 
   local (*IN, *OUT);
 
-  my $defaults  = SL::DB::Default->get;
-  my $userspath = $::lx_office_conf{paths}->{userspath};
+  my $defaults        = SL::DB::Default->get;
 
-  $self->{"cwd"} = getcwd();
-  $self->{"tmpdir"} = $self->{cwd} . "/${userspath}";
+  my $keep_temp_files = $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files};
+  $self->{cwd}        = getcwd();
+  my $temp_dir        = File::Temp->newdir(
+    "kivitendo-print-XXXXXX",
+    DIR     => $self->{cwd} . "/" . $::lx_office_conf{paths}->{userspath},
+    CLEANUP => !$keep_temp_files,
+  );
+
+  my $userspath   = File::Spec->abs2rel($temp_dir->dirname);
+  $self->{tmpdir} = $temp_dir->dirname;
 
   my $ext_for_format;
 
@@ -929,13 +937,6 @@ sub parse_template {
   } elsif (($self->{"format"} =~ /html/i) || (!$self->{"format"} && ($self->{"IN"} =~ /html$/i))) {
     $template_type  = 'HTML';
     $ext_for_format = 'html';
-
-  } elsif (($self->{"format"} =~ /xml/i) || (!$self->{"format"} && ($self->{"IN"} =~ /xml$/i))) {
-    $template_type  = 'XML';
-    $ext_for_format = 'xml';
-
-  } elsif ( $self->{"format"} =~ /elster(?:winston|taxbird)/i ) {
-    $template_type = 'XML';
 
   } elsif ( $self->{"format"} =~ /excel/i ) {
     $template_type  = 'Excel';
@@ -980,7 +981,6 @@ sub parse_template {
 
   # OUT is used for the media, screen, printer, email
   # for postscript we store a copy in a temporary file
-  my $keep_temp_files = $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files};
 
   my ($temp_fh, $suffix);
   $suffix =  $self->{IN};
@@ -1119,8 +1119,8 @@ sub send_email {
   if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
     $mail->{content_type}   =  "text/html";
     $mail->{message}        =~ s/\r//g;
-    $mail->{message}        =~ s/\n/<br>\n/g;
-    $full_signature         =~ s/\n/<br>\n/g;
+    $mail->{message}        =~ s{\n}{<br>\n}g;
+    $full_signature         =~ s{\n}{<br>\n}g;
     $mail->{message}       .=  $full_signature;
 
     open(IN, "<", $self->{tmpfile})
@@ -1130,7 +1130,7 @@ sub send_email {
 
   } elsif (($self->{attachment_policy} // '') ne 'no_file') {
     my $attachment_name  =  $self->{attachment_filename}  || $self->{tmpfile};
-    $attachment_name     =~ s/\.(.+?)$/.${ext_for_format}/ if ($ext_for_format);
+    $attachment_name     =~ s{\.(.+?)$}{.${ext_for_format}} if ($ext_for_format);
 
     if (($self->{attachment_policy} // '') eq 'old_file') {
       my ( $attfile ) = SL::File->get_all(object_id   => $self->{id},

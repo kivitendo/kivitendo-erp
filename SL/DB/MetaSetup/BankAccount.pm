@@ -21,6 +21,7 @@ __PACKAGE__->meta->columns(
   reconciliation_starting_balance => { type => 'numeric', precision => 15, scale => 5 },
   reconciliation_starting_date    => { type => 'date' },
   sortkey                         => { type => 'integer', not_null => 1 },
+  use_for_zugferd                 => { type => 'boolean', default => 'false', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

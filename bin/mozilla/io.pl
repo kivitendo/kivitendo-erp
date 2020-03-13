@@ -40,7 +40,7 @@
 use Carp;
 use CGI;
 use List::MoreUtils qw(any uniq apply);
-use List::Util qw(min max first);
+use List::Util qw(sum min max first);
 use List::UtilsBy qw(sort_by uniq_by);
 
 use SL::ClientJS;
@@ -1288,6 +1288,10 @@ sub print_form {
     $form->{TEMPLATE_DRIVER_OPTIONS}->{variable_content_types} = $form->get_variable_content_types();
   }
 
+  if ($form->{format} =~ m{pdf}) {
+    _maybe_attach_zugferd_data($form);
+  }
+
   $form->isblank("email", $locale->text('E-mail address missing!'))
     if ($form->{media} eq 'email');
   $form->isblank("${inv}date",
@@ -1848,7 +1852,7 @@ sub _remove_billed_or_delivered_rows {
 # TODO: both of these are makeshift so that price sources can operate on rdbo objects. if
 # this ever gets rewritten in controller style, throw this out
 sub _make_record_item {
-  my ($row) = @_;
+  my ($row, %params) = @_;
 
   my $class = {
     sales_order             => 'OrderItem',
@@ -1896,12 +1900,19 @@ sub _make_record_item {
       if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
         $obj->${\"$method\_as_date"}($value);
       } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Numeric|Float|DoublePrecsion)$/) {
-        $obj->${\"$method\_as_number"}($value);
+        $obj->${\"$method\_as_number"}(($value // '') eq '' ? undef : $value);
       } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::Boolean$/) {
         $obj->$method(!!$value);
+      } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Big)?(?:Int(?:eger)?|Serial)$/) {
+        $obj->$method(($value // '') eq '' ? undef : $value * 1);
       } else {
         $obj->$method($value);
       }
+
+      if ($method eq 'discount') {
+        $obj->discount($obj->discount / 100.0);
+      }
+
     } else {
       $obj->{__additional_form_attributes}{$method} = $value;
     }
@@ -1909,6 +1920,11 @@ sub _make_record_item {
 
   if ($::form->{"id_$row"}) {
     $obj->part(SL::DB::Part->load_cached($::form->{"id_$row"}));
+  }
+
+  if ($obj->can('qty')) {
+    $obj->qty(     $obj->qty      * $params{factor});
+    $obj->base_qty($obj->base_qty * $params{factor});
   }
 
   return $obj;
@@ -1930,6 +1946,8 @@ sub _make_record {
            : do { die 'unknown invoice type' };
   }
 
+  my $factor = $::form->{type} =~ m{credit_note} ? -1 : 1;
+
   return unless $class;
 
   $class = 'SL::DB::' . $class;
@@ -1947,9 +1965,11 @@ sub _make_record {
     if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
       $obj->${\"$method\_as_date"}($::form->{$method});
     } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Numeric|Float|DoublePrecsion)$/) {
-      $obj->${\"$method\_as_number"}($::form->{$method});
+      $obj->${\"$method\_as_number"}(($::form->{$method} // '') eq '' ? undef : $::form->{$method});
     } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::Boolean$/) {
       $obj->$method(!!$::form->{$method});
+    } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Big)?(?:Int(?:eger)?|Serial)$/) {
+      $obj->$method(($::form->{$method} // '') eq '' ? undef : $::form->{$method} * 1);
     } else {
       $obj->$method($::form->{$method});
     }
@@ -1958,11 +1978,20 @@ sub _make_record {
   my @items;
   for my $i (1 .. $::form->{rowcount}) {
     next unless $::form->{"id_$i"};
-    push @items, _make_record_item($i);
+    push @items, _make_record_item($i, factor => $factor);
   }
 
   $obj->items(@items) if @items;
   $obj->is_sales(!!$obj->customer_id) if $class eq 'SL::DB::DeliveryOrder';
+
+  if ($class eq 'SL::DB::Invoice') {
+    my $paid = $factor *
+      sum
+      map  { $::form->parse_amount(\%::myconfig, $::form->{$_}) }
+      grep { m{^paid_\d+$} }
+      keys %{ $::form };
+    $obj->paid($paid);
+  }
 
   return $obj;
 }
@@ -2100,4 +2129,37 @@ sub send_sales_purchase_email {
   flash_later('info', $::locale->text('The email has been sent.'));
 
   print $::form->redirect_header($script . '?action=edit&id=' . $::form->escape($id) . '&type=' . $::form->escape($type));
+}
+
+sub _maybe_attach_zugferd_data {
+  my ($form) = @_;
+
+  my $record = _make_record();
+
+  return if !$record
+    || !$record->can('customer')
+    || !$record->customer
+    || !$record->can('create_pdf_a_print_options')
+    || !$record->can('create_zugferd_data')
+    || !$record->customer->create_zugferd_invoices_for_this_customer;
+
+  eval {
+    my $xmlfile = File::Temp->new;
+    $xmlfile->print($record->create_zugferd_data);
+    $xmlfile->close;
+
+    $form->{TEMPLATE_DRIVER_OPTIONS}->{pdf_a}           = $record->create_pdf_a_print_options(zugferd_xmp_data => $record->create_zugferd_xmp_data);
+    $form->{TEMPLATE_DRIVER_OPTIONS}->{pdf_attachments} = [
+      { source       => $xmlfile,
+        name         => 'ZUGFeRD-invoice.xml',
+        description  => $::locale->text('ZUGFeRD invoice'),
+        relationship => '/Alternative',
+        mime_type    => 'text/xml',
+      }
+    ];
+  };
+
+  if (my $e = SL::X::ZUGFeRDValidation->caught) {
+    $::form->error($e->message);
+  }
 }

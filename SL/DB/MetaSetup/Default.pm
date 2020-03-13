@@ -10,7 +10,11 @@ __PACKAGE__->meta->table('defaults');
 
 __PACKAGE__->meta->columns(
   accounting_method                         => { type => 'text' },
-  address                                   => { type => 'text' },
+  address_city                              => { type => 'text' },
+  address_country                           => { type => 'text' },
+  address_street1                           => { type => 'text' },
+  address_street2                           => { type => 'text' },
+  address_zipcode                           => { type => 'text' },
   allow_new_purchase_delivery_order         => { type => 'boolean', default => 'true', not_null => 1 },
   allow_new_purchase_invoice                => { type => 'boolean', default => 'true', not_null => 1 },
   allow_sales_invoice_from_sales_order      => { type => 'boolean', default => 'true', not_null => 1 },
@@ -37,6 +41,7 @@ __PACKAGE__->meta->columns(
   coa                                       => { type => 'text' },
   company                                   => { type => 'text' },
   create_part_if_not_found                  => { type => 'boolean', default => 'false' },
+  create_zugferd_invoices                   => { type => 'integer' },
   currency_id                               => { type => 'integer', not_null => 1 },
   customer_hourly_rate                      => { type => 'numeric', precision => 8, scale => 2 },
   customer_projects_only_in_sales           => { type => 'boolean', default => 'false', not_null => 1 },

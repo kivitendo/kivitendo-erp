@@ -428,7 +428,8 @@
   libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl\
   libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl\
   libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
-  libdatetime-event-cron-perl libexception-class-perl
+  libdatetime-event-cron-perl libexception-class-perl libcam-pdf-perl \
+  libxml-libxml-perl
 </programlisting>
 <para>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</para>
           <note id="ubuntu-universe">

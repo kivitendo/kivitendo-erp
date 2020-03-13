@@ -7,6 +7,7 @@ use File::Slurp;
 use Test::More;
 
 my %default_columns;
+my %compatibility_functions = map { ($_ => 1) } qw(address);
 
 sub read_default_columns {
   my $content   =  read_file('SL/DB/MetaSetup/Default.pm');
@@ -23,7 +24,7 @@ sub test_file_content {
   my $content = read_file($file);
 
   while ($content =~ m{(?:INSTANCE_CONF\.|\$(?:main)?::instance_conf->)get_([a-z0-9_]+)}gi) {
-    ok($default_columns{$1}, "'get_${1}' is a valid method call on \$::instance_conf in $file");
+    ok($default_columns{$1} || $compatibility_functions{$1}, "'get_${1}' is a valid method call on \$::instance_conf in $file");
   }
 }
 

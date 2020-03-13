@@ -223,6 +223,15 @@
    <td>[% L.yes_no_tag("defaults.order_warn_no_deliverydate", SELF.defaults.order_warn_no_deliverydate) %]</td>
    <td>[% LxERP.t8("If enabled a warning will be shown in sales and purchase orders if there the delivery date is empty.") %]</td>
   </tr>
+  <tr>
+   <td align="right">[% LxERP.t8("Create sales invoices with ZUGFeRD data") %]</td>
+   <td>[% L.select_tag("defaults.create_zugferd_invoices", [ [ 0, LxERP.t8('Do not create ZUGFeRD invoices') ], [ 1, LxERP.t8('Create ZUGFeRD invoices') ], [ 2, LxERP.t8('Create ZUGFeRD invoices in test mode') ] ],
+                       default=SELF.defaults.create_zugferd_invoices) %]</td>
+   <td>
+     [% LxERP.t8("If enabled ZUGFeRD-conformant sales invoice PDFs will be created.") %]
+     [% LxERP.t8("If the test mode is enabled, the ZUGFeRD invoices will be flagged so that they're only fit to be used for testing purposes.") %]
+   </td>
+  </tr>
 
   <tr><td class="listheading" colspan="4">[% LxERP.t8("E-mail") %]</td></tr>
 
