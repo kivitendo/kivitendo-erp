@@ -198,6 +198,8 @@ sub action_reconcile_proposals {
       }
       $counter++;
     }
+
+  1;
   }) or die t8('Unable to reconcile, database transaction failure');
 
   flash('ok', t8('#1 proposal(s) saved.', $counter));
@@ -386,6 +388,8 @@ sub _reconcile {
         $rec_link->save;
       }
     }
+
+  1;
   }) or die t8('Unable to reconcile, database transaction failure');
 }
 
