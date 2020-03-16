@@ -23,11 +23,12 @@ clear_up();
 my $d = SL::DB::Default->get;
 $d->update_attributes(datev_export_format => 'cp1252');
 
+my $ustid           = 'DE123456788';
 my $buchungsgruppe7 = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 7%') || die "No accounting group for 7\%";
 my $date            = DateTime->new(year => 2017, month =>  7, day => 19);
 my $department      = create_department(description => 'Kästchenweiße heiße Preise');
 my $project         = create_project(projectnumber => 2017, description => '299');
-my $customer        = new_customer(name => 'Test customer', ustid => 'DE12345678')->save();
+my $customer        = new_customer(name => 'Test customer', ustid => $ustid)->save();
 my $part1 = new_part(partnumber => '19', description => 'Part 19%')->save;
 my $part2 = new_part(
   partnumber         => '7',
@@ -153,7 +154,7 @@ cmp_deeply $sorted[0],    [ '1963,5', 'S', 'EUR', '', '', '',
                             '', '', 'Test customer', '', '', '', '', '', '',
                             '', '', '', '', '', '', '', '', '',
                             '', '', '', '', '', '', '', "K\x{e4}stchen",
-                            '299', '','DE12345678', '', '', '',
+                            '299', '', $ustid, '', '', '',
                             '', '', '', '', '', '', '', '', '',
                             '', '', '', '', '', '', '', '', '',
                             '', '', '', '', '', '', '', '', '',
@@ -169,7 +170,7 @@ cmp_deeply $sorted[1],     [ '535', 'S', 'EUR', '', '', '',
                             '', '', 'Test customer', '', '', '', '', '', '',
                             '', '', '', '', '', '', '', '', '',
                             '', '', '', '', '', '', '', "K\x{e4}stchen",
-                            '299', '','DE12345678', '', '', '',
+                            '299', '', $ustid, '', '', '',
                             '', '', '', '', '', '', '', '', '',
                             '', '', '', '', '', '', '', '', '',
                             '', '', '', '', '', '', '', '', '',
