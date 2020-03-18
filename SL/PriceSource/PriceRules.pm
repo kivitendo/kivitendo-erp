@@ -46,7 +46,7 @@ sub price_from_source {
 
   my $rule = SL::DB::Manager::PriceRule->find_by(id => $spec);
 
-  return SL::PriceSource::Discount->new(
+  return SL::PriceSource::Price->new(
     price_source => $self,
     missing      => t8('The price rule for this price does not exist anymore'),
   ) if !$rule;
