@@ -483,6 +483,12 @@ sub check_skonto_configuration {
   foreach my $transaction (@{ $self->transactions }) {
     # find all transactions with an AR_amount or AP_amount link
     my $tax = SL::DB::Manager::Tax->get_first( where => [taxkey => $transaction->taxkey, id => $transaction->tax_id ]);
+
+    # acc_trans entries for the taxes (chart_link == A[RP]_tax) often
+    # have combinations of taxkey & tax_id that don't exist in
+    # tax. Those must be skipped.
+    next if !$tax && ($transaction->chart_link !~ m{A[RP]_amount});
+
     croak "no tax for taxkey " . $transaction->{taxkey} unless ref $tax;
 
     $transaction->{chartlinks} = { map { $_ => 1 } split(m/:/, $transaction->chart_link) };
