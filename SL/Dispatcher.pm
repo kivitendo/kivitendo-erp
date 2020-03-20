@@ -19,7 +19,6 @@ use IO::File;
 use List::MoreUtils qw(all);
 use List::Util qw(first);
 use POSIX qw(setlocale);
-use SL::ArchiveZipFixes;
 use SL::Auth;
 use SL::Dispatcher::AuthHandler;
 use SL::LXDebug;
@@ -50,8 +49,6 @@ sub new {
   my $self           = bless {}, $class;
   $self->{interface} = lc($interface || 'cgi');
   $self->{auth_handler} = SL::Dispatcher::AuthHandler->new;
-
-  SL::ArchiveZipFixes->apply_fixes;
 
   # Initialize character type locale to be UTF-8 instead of C:
   foreach my $locale (qw(de_DE.UTF-8 en_US.UTF-8)) {
