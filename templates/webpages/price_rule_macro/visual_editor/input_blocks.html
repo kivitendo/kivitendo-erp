@@ -63,7 +63,7 @@
 [%- END %]
 
 [% BLOCK empty_condition %]
-  [% WRAPPER element %]
+  [% WRAPPER element item={} %]
   [% WRAPPER condition_title_block title=LxERP.t8('Condition') %]
     <p>[% 'Choose a type:' | $T8 %]</p>
 
@@ -257,7 +257,7 @@
 [%- END %]
 
 [% BLOCK empty_action %]
-  [% WRAPPER element %]
+  [% WRAPPER element item={} %]
     [% WRAPPER action_title_block title=LxERP.t8('Action') %]
     <p>[% 'Choose a type:' | $T8 %]</p>
     [% FOREACH row = SELF.allowed_elements_for('action') %]
