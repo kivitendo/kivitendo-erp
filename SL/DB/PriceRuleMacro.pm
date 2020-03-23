@@ -354,7 +354,7 @@ package SL::PriceRuleMacro::Element {
   }
 
   sub elements {
-    die 'needs to be implemented';
+    die SL::Locale::String::t8x('Element is not typed')
   }
 
   sub abstract {
@@ -608,12 +608,16 @@ package SL::PriceRuleMacro::IdCondition {
   }
 
   sub validate {
-    die "condition of type '@{[ $_[0]->type ]}' needs an id" unless $_[0]->id;
+    die $_[0]->empty_error // "condition of type '@{[ $_[0]->type ]}' needs an id" unless $_[0]->id;
 
     # automatically purge invalid ids
     if ('ARRAY' eq ref $_[0]->id) {
       $_[0]->id([ grep { $_ * 1 > 0 } @{ $_[0]->id } ])
     }
+  }
+
+  sub empty_error {
+
   }
 
   sub array_elements {
@@ -636,6 +640,10 @@ package SL::PriceRuleMacro::Condition::Customer {
     SL::Locale::String::t8('Customer')
   }
 
+  sub empty_error {
+    SL::Locale::String::t8x('Empty customer rules are not allowed')
+  }
+
   sub order {
     200
   }
@@ -650,6 +658,10 @@ package SL::PriceRuleMacro::Condition::Vendor {
 
   sub description {
     SL::Locale::String::t8('Vendor')
+  }
+
+  sub empty_error {
+    SL::Locale::String::t8x('Empty vendor rules are not allowed')
   }
 
   sub order {
@@ -668,6 +680,10 @@ package SL::PriceRuleMacro::Condition::Business {
     SL::Locale::String::t8('Business')
   }
 
+  sub empty_error {
+    SL::Locale::String::t8x('Empty business rules are not allowed')
+  }
+
   sub order {
     202
   }
@@ -682,6 +698,10 @@ package SL::PriceRuleMacro::Condition::Part {
 
   sub description {
     SL::Locale::String::t8('Part')
+  }
+
+  sub empty_error {
+    SL::Locale::String::t8x('Empty part rules are not allowed')
   }
 
   sub order {
@@ -700,6 +720,10 @@ package SL::PriceRuleMacro::Condition::Partsgroup {
     SL::Locale::String::t8('Partsgroup')
   }
 
+  sub empty_error {
+    SL::Locale::String::t8x('Empty partsgroup rules are not allowed')
+  }
+
   sub order {
     211
   }
@@ -714,6 +738,10 @@ package SL::PriceRuleMacro::Condition::Pricegroup {
 
   sub description {
     SL::Locale::String::t8('Pricegroup')
+  }
+
+  sub empty_error {
+    SL::Locale::String::t8x('Empty pricegroup rules are not allowed')
   }
 
   sub order {
@@ -739,8 +767,8 @@ package SL::PriceRuleMacro::Condition::Ve {
   }
 
   sub validate {
-    die "condition of type '@{[ $_[0]->type ]}' needs an op" unless $_[0]->op;
-    die "condition of type '@{[ $_[0]->type ]}' needs a num" unless defined $_[0]->num;
+    die SL::Locale::String::t8x("condition of type 've' needs an op") unless $_[0]->op;
+    die SL::Locale::String::t8x("condition of type 've' needs a num") unless defined $_[0]->num;
   }
 
   sub price_rule_items {
@@ -770,8 +798,8 @@ package SL::PriceRuleMacro::Condition::Qty {
   }
 
   sub validate {
-    die "condition of type '@{[ $_[0]->type ]}' needs an op" unless $_[0]->op;
-    die "condition of type '@{[ $_[0]->type ]}' needs a num" unless defined $_[0]->num;
+    die SL::Locale::String::t8x("condition of type 'qty' needs an op") unless $_[0]->op;
+    die SL::Locale::String::t8x("condition of type 'qty' needs a num") unless defined $_[0]->num;
   }
 
   sub price_rule_items {
@@ -801,7 +829,7 @@ package SL::PriceRuleMacro::Condition::QtyRange {
   }
 
   sub validate {
-    die "condition of type '@{[ $_[0]->type ]}' needs at least min or max" if !defined $_[0]->min && !defined $_[0]->max;
+    die SL::Locale::String::t8x("condition of type 'qty_range' needs at least min or max") if !defined $_[0]->min && !defined $_[0]->max;
   }
 
   sub price_rule_items {
@@ -836,8 +864,8 @@ package SL::PriceRuleMacro::DateCondition {
   }
 
   sub validate {
-    die "condition of type '@{[ $_[0]->type ]}' needs an op" unless $_[0]->op;
-    die "condition of type '@{[ $_[0]->type ]}' needs a date" unless defined $_[0]->date;
+    die SL::Locale::String::t8x("condition of type 'date' needs an op") unless $_[0]->op;
+    die SL::Locale::String::t8x("condition of type 'date' needs a date") unless defined $_[0]->date;
   }
 
   sub price_rule_items {
@@ -915,7 +943,7 @@ package SL::PriceRuleMacro::Action::ContainerAnd {
   }
 
   sub validate {
-    die "action of type '@{[ $_[0]->type ]}' needs at least one action"    unless SL::MoreCommon::listify($_[0]->action);
+    die SL::Locale::String::t8x("action of type 'container_and' needs at least one action") unless SL::MoreCommon::listify($_[0]->action);
 
     $_[0]->SUPER::validate;
   }
@@ -950,8 +978,8 @@ package SL::PriceRuleMacro::ConditionalAction {
   }
 
   sub validate {
-    die "action of type '@{[ $_[0]->type ]}' needs at least one condition" unless SL::MoreCommon::listify($_[0]->condition);
-    die "action of type '@{[ $_[0]->type ]}' needs at least one action"    unless SL::MoreCommon::listify($_[0]->action);
+    die SL::Locale::String::t8x("action of type 'conditional_action' needs at least one condition") unless SL::MoreCommon::listify($_[0]->condition);
+    die SL::Locale::String::t8x("action of type 'conditional_action' needs at least one action")    unless SL::MoreCommon::listify($_[0]->action);
 
     $_[0]->SUPER::validate;
   }
@@ -1002,11 +1030,11 @@ package SL::PriceRuleMacro::Action::Simple {
   }
 
   sub validate {
-    die "action of type '@{[ $_[0]->type ]}' needs at least price"
+    die SL::Locale::String::t8x("action of type 'simple_action' needs at least price")
       if $_[0]->price_type == SL::DB::Manager::PriceRule::PRICE_NEW() && !defined $_[0]->price;
-    die "action of type '@{[ $_[0]->type ]}' needs at least discount"
+    die SL::Locale::String::t8x("action of type 'simple_action' needs at least discount")
       if $_[0]->price_type == SL::DB::Manager::PriceRule::PRICE_DISCOUNT() && !defined $_[0]->discount;
-    die "action of type '@{[ $_[0]->type ]}' needs at least reduction"
+    die SL::Locale::String::t8x("action of type 'simple_action' needs at least reduction")
       if $_[0]->price_type == SL::DB::Manager::PriceRule::PRICE_REDUCED_MASTER_DATA() && !defined $_[0]->reduction;
   }
 
@@ -1046,7 +1074,7 @@ package SL::PriceRuleMacro::Action::Price {
   }
 
   sub validate {
-    die "action of type '@{[ $_[0]->type ]}' needs at least price"
+    die SL::Locale::String::t8x("action of type 'price_action' needs at least price")
       if !defined $_[0]->price;
   }
 
@@ -1077,7 +1105,7 @@ package SL::PriceRuleMacro::Action::Discount {
   }
 
   sub validate {
-    die "action of type '@{[ $_[0]->type ]}' needs at least discount"
+    die SL::Locale::String::t8x("action of type 'discount_action' needs at least discount")
       if !defined $_[0]->discount;
   }
 
@@ -1108,7 +1136,7 @@ package SL::PriceRuleMacro::Action::Reduction {
   }
 
   sub validate {
-    die "action of type '@{[ $_[0]->type ]}' needs at least reduction"
+    die SL::Locale::String::t8x("action of type 'reduction_action' needs at least reduction")
       if !defined $_[0]->reduction;
   }
 
@@ -1319,8 +1347,8 @@ package SL::PriceRuleMacro::Action::ListTemplate {
       $self->list_template_action_line(\@items);
     }
 
-    die "action of type '@{[ $_[0]->type ]}' needs a condition_type " unless $_[0]->condition_type;
-    die "action of type '@{[ $_[0]->type ]}' needs an action_type " unless SL::MoreCommon::listify($_[0]->action_type);
+    die SL::Locale::String::t8x("action of type 'list_template_action' needs a condition_type") unless $_[0]->condition_type;
+    die SL::Locale::String::t8x("action of type 'list_template_action' needs an action_type") unless SL::MoreCommon::listify($_[0]->action_type);
   }
 
   sub price_rules {
