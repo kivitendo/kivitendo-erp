@@ -142,6 +142,11 @@ submitting. Beware that this will destroy the form if the user uses the browser
 history to jump back to this page, so ony use parametrized submits for post
 submits that redirect on completion.
 
+=item * C<< ajax_submit => [ $selector, \%params ] >>
+
+The same as C<submit> but instead submits the form selector with a ajax POST
+request, and evaluations the response with C<kivi.eval_json_result>.
+
 =item * C<< link => $url >>
 
 On click, will load the given url.

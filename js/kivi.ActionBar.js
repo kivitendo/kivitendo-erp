@@ -31,7 +31,7 @@ namespace('kivi.ActionBar', function(k){
       $(obj.toggle).on('click', toggler);
 
       var data = $(this.topAction).data('action') || {};
-      if (!data.call && !data.submit)
+      if (!data.call && !data.submit && !data.ajax_submit)
         $(this.topAction).on('click', toggler);
     }
   };
@@ -178,7 +178,7 @@ namespace('kivi.ActionBar', function(k){
       }
     }
 
-    if (data.call || data.submit || data.link) {
+    if (data.call || data.submit || data.ajax_submit || data.link || data.ajax) {
       $e.click(function(event) {
         var $hidden, key, func, check;
         if ($e.hasClass(CLASSES.disabled)) {
@@ -203,8 +203,9 @@ namespace('kivi.ActionBar', function(k){
           func.apply(document, data.call.slice(1));
         }
         if (data.submit) {
-          var form   = data.submit[0];
-          var params = data.submit[1];
+          let form   = data.submit[0];
+          let params = data.submit[1];
+
           for (key in params) {
             $('[name=' + key + ']').remove();
             $hidden = $('<input type=hidden>');
@@ -213,6 +214,20 @@ namespace('kivi.ActionBar', function(k){
             $(form).append($hidden);
           }
           $(form).submit();
+        }
+        if (data.ajax_submit) {
+          let form   = data.ajax_submit[0];
+          let params = data.ajax_submit[1];
+          let url = $(form).attr('action');
+
+          kivi.submit_ajax_form(url, form, params);
+        }
+        if (data.ajax) {
+          $.ajax({
+            url:     'controller.pl',
+            data:    data.ajax,
+            success: kivi.eval_json_result
+          });
         }
         if (data.link) {
           window.location.href = data.link;
