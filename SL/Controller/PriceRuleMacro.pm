@@ -56,59 +56,33 @@ sub action_load {
   }
 }
 
-sub action_save {
+sub action_save_api {
   my ($self) = @_;
 
-  my $error;
-  my ($macro, $new_macro);
-
-  eval {
-    $macro     = $self->price_rule_macro;
-    $new_macro = $self->from_form;
-
-    my @price_sources;
-    my ($keep, $add, $remove);
-
-    if ($macro->id) {
-      ($keep, $add, $remove) = $self->reconcile_generated_price_sources($macro, $new_macro);
-
-      # set removes rules to obsolete
-      $_->assign_attributes(obsolete => 1, price_rule_macro_id => undef) for @$remove;
-
-      $macro->definition($new_macro->update_definition);
-      $macro->update_from_definition;
-    } else {
-      $macro = $new_macro;
-      ($keep, $add, $remove) = ([], [ $macro->parsed_definition->price_rules ], []);
-    }
-
-    $macro->copy_attributes_to_price_rules(@$keep, @$add);
-
-    $macro->db->with_transaction(sub {
-      $_->save for @$remove;
-
-      $macro->update_definition;
-      $macro->save;
-      $macro->load;
-
-      for (@$keep, @$add) {
-        $_->price_rule_macro_id($macro->id);
-        $_->items($_->items); # male sure rose knows to add the rule items
-        $_->save(cascade => 1);
-      }
-      1;
-    }) or do {
-      die $macro->db->error;
-    }
-  } or do {
-    $error = $@ // $macro->db->error;
-  };
+  my ($macro, $error) = $self->_save;
 
   if ($::request->type eq 'json') {
     if ($error) {
       return $self->render(\SL::JSON::to_json({ error => $error }), { process => 0, type => 'json' });
     } else {
       return $self->render(\SL::JSON::to_json({ id => $macro->id }), { process => 0, type => 'json' });
+    }
+  } else {
+    die 'not supported';
+  }
+}
+
+sub action_save {
+  my ($self) = @_;
+
+  my ($macro, $error) = $self->_save;
+
+  if ($::request->type eq 'json') {
+    if ($error) {
+      $self->js->flash('error', $error)->render;
+    } else {
+      $self->flash_later('info', t8('Price Rule saved.'));
+      $self->js->redirect_to(action => 'load', price_rule_macro => { id => $macro->id })->render;
     }
   } else {
     if ($error) {
@@ -163,6 +137,57 @@ sub action_meta {
 }
 
 ### internal
+
+sub _save {
+  my ($self) = @_;
+
+  my $error;
+  my ($macro, $new_macro);
+
+  eval {
+    $macro     = $self->price_rule_macro;
+    $new_macro = $self->from_form;
+
+    my @price_sources;
+    my ($keep, $add, $remove);
+
+    if ($macro->id) {
+      ($keep, $add, $remove) = $self->reconcile_generated_price_sources($macro, $new_macro);
+
+      # set removes rules to obsolete
+      $_->assign_attributes(obsolete => 1, price_rule_macro_id => undef) for @$remove;
+
+      $macro->definition($new_macro->update_definition);
+      $macro->update_from_definition;
+    } else {
+      $macro = $new_macro;
+      ($keep, $add, $remove) = ([], [ $macro->parsed_definition->price_rules ], []);
+    }
+
+    $macro->copy_attributes_to_price_rules(@$keep, @$add);
+
+    $macro->db->with_transaction(sub {
+      $_->save for @$remove;
+
+      $macro->update_definition;
+      $macro->save;
+      $macro->load;
+
+      for (@$keep, @$add) {
+        $_->price_rule_macro_id($macro->id);
+        $_->items($_->items); # male sure rose knows to add the rule items
+        $_->save(cascade => 1);
+      }
+      1;
+    }) or do {
+      die $macro->db->error;
+    }
+  } or do {
+    $error = $@ // $macro->db->error;
+  };
+
+  return ($macro, $error);
+}
 
 # todo: make this clean and in model/presenter
 sub allowed_elements_for {
@@ -242,7 +267,7 @@ sub setup_form_action_bar {
       combobox => [
         action => [
           t8('Save'),
-          submit         => [ 'form', { action => 'PriceRuleMacro/save' } ],
+          ajax_submit    => [ 'form', { action => 'PriceRuleMacro/save.json' } ],
           checks         => [ 'kivi.validate_form' ],
           accesskey      => 'alt+S',
           accesskey_body => 1,
