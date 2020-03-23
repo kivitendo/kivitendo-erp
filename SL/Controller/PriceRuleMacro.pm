@@ -79,7 +79,7 @@ sub action_save {
 
   if ($::request->type eq 'json') {
     if ($error) {
-      $self->js->flash('error', $error)->render;
+      die $error;
     } else {
       $self->flash_later('info', t8('Price Rule saved.'));
       $self->js->redirect_to(action => 'load', price_rule_macro => { id => $macro->id })->render;
