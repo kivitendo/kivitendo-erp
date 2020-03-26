@@ -10,6 +10,14 @@ Mittelgroße neue Features:
  - komplette Überarbeitung der Standard-LaTeX-Druckvorlagen von PeiTeX
    S.a.: templates/print/marei/Readme.md
 
+ - Erstellung von ZUGFeRD 2.0 fähigen PDFs
+ - Verarbeitung von ZUGFeRD 2.0 kompatiblen Eingangsrechnungen über
+   Kreditorenbuchungsvorlagen
+
+Kleinere neue Features und Detailverbesserungen:
+
+ - Suche nach Erzeugnissen über die dort verbauten Artikel
+
 Administrative Änderungen
 
   - Die zwei Perl-Module "CAM::PDF" und "XML::LibXML" werden nun benötigt.
