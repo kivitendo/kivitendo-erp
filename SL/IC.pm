@@ -526,6 +526,22 @@ sub all_parts {
     push @bind_vars, @cvar_values;
   }
 
+  # simple search for assemblies by items used in assemblies
+  if ($form->{bom} eq '2' && $form->{l_assembly}) {
+    # nuke where clause and bind vars
+    $where_clause = ' 1=1 AND p.id in (SELECT id from assembly where parts_id IN ' .
+                    ' (select id from parts where 1=1 AND ';
+    @bind_vars    = ();
+    # use only like filter for items used in assemblies
+    foreach (@like_filters) {
+      next unless $form->{$_};
+      $form->{"l_$_"} = '1'; # show the column
+      $where_clause .= " $_ ILIKE ? ";
+      push @bind_vars,    like($form->{$_});
+    }
+    $where_clause .='))';
+  }
+
   my $query = <<"  SQL";
     SELECT DISTINCT $select_clause
     FROM parts p

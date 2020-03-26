@@ -2803,6 +2803,7 @@ $self->{texts} = {
   'Search AR Aging'             => 'Offene Forderungen',
   'Search bank transactions'    => 'Filter für Bankbuchungen',
   'Search contacts'             => 'Personensuche',
+  'Search for Items used in Assemblies' => 'Suche nach in Erzeugnissen verbauten Artikeln',
   'Search parts by customer partnumber in sales order forms' => 'Artikel nach Kunden-Art.-Nr. in Verkaufsbelegen suchen',
   'Search parts by vendor partnumber (model) in purchase order forms' => 'Artikel nach Lieferanten-Art.-Nr. in Einkaufsbelegen suchen',
   'Search term'                 => 'Suchbegriff',
