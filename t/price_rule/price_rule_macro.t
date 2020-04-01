@@ -419,7 +419,7 @@ my @test_cases = (
     "priority": "3",
     "type": "customer"
   }',
-  dies_ok => qr/condition of type 'vendor' needs an id/,
+  throws_ok => 'SL::X::String',
   name => 'missing id in vendor condition',
 },
 { json =>
@@ -451,7 +451,7 @@ my @test_cases = (
     "priority": "3",
     "type": "customer"
   }',
-  dies_ok => qr/condition of type 've' needs an op/,
+  throws_ok => 'SL::X::String',
   name => 'missing op in ve condition',
 },
 { json =>
@@ -485,7 +485,7 @@ my @test_cases = (
     "priority": "3",
     "type": "customer"
   }',
-  dies_ok => qr/action of type 'simple_action' needs at least/,
+  throws_ok => 'SL::X::String',
   name => 'missing price/discount/reduction in action',
 },
 { json =>
@@ -694,6 +694,8 @@ for my $case (@test_cases) {
 
   if ($case->{dies_ok}) {
     throws_ok { $m->validate } $case->{dies_ok}, "$case->{name}: expect exeption";
+  } elsif ($case->{throws_ok}) {
+    throws_ok { $m->validate } $case->{throws_ok}, "$case->{name}: expect exeption";
   } else {
     is_deeply $m->definition, $m->parsed_definition->as_tree, "$case->{name}: parse_definition and as_tree roundtrip"
       unless $case->{no_roundtrip};
@@ -717,7 +719,7 @@ for my $case (@test_cases) {
 
       my $result;
       eval {
-        my $json_result = $c->action_save;
+        my $json_result = $c->action_save_api;
         $result         = SL::JSON::from_json("$json_result");
         ok $result->{id}, "$case->{name}: save (got id: $result->{id})";
         diag("error: $json_result") unless $result->{id};
