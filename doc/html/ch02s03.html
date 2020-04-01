@@ -40,23 +40,29 @@ git checkout `git tag -l | egrep -ve "(alpha|beta|rc)" | tail -1`</pre><p>
         3.4.1 nach 3.5: </p><pre class="programlisting">
 $ git clone https://github.com/kivitendo/kivitendo-erp.git
 $ cd kivitendo-erp/
-$ git checkout release-3.4.1     # das ist der aktuelle release, den wir wollen
-$ git add templates/fullhouse    # das sind unsere druckvorlagen inkl. produktbilder
-$ git commit -m "juhu tolle ändernungen"
+$ git checkout release-3.4.1                # das ist ein alter release aus dem wir starten ...
+$ git checkout -b meine_eigene_änderungen   # unser lokaler branch - unabhängig von allen anderen
+$ git add templates/mein_druck              # das sind unsere druckvorlagen inkl. produktbilder
+$ git commit -m "juhu tolle änderungen"
+
 [meine_aenderungen 1d89e41] juhu tolle ändernungen
  4 files changed, 380 insertions(+)
- create mode 100644 templates/fullhouse/img/webdav/tesla.png
- create mode 100644 templates/fullhouse/mahnung.tex
- create mode 100644 templates/fullhouse/zahlungserinnerung_zwei.tex
- create mode 100644 templates/fullhouse/zahlungserinnerung_zwei_invoice.tex
+ create mode 100644 templates/mein_druck/img/webdav/tesla.png
+ create mode 100644 templates/mein_druck/mahnung.tex
+ create mode 100644 templates/mein_druck/zahlungserinnerung_zwei.tex
+ create mode 100644 templates/mein_druck/zahlungserinnerung_zwei_invoice.tex
 
 # 5 Jahre später ...
+# webserver abschalten!
 
-$ git fetch
-$ git rebase --onto release-3.5.0 release-3.4.1 meine_aenderungen
+$ git checkout master
+$ git pull                                  # oder git fetch und danach ein stable release tag auswählen (s.o.)
+$ git checkout meine_eigenen_änderungen
+$ git rebase master
+
 Zunächst wird der Branch zurückgespult, um Ihre Änderungen
 darauf neu anzuwenden ...
-Wende an: juhu tolle ändernungen
-$ service apache2 restart
+Wende an: juhu tolle änderungen
+$ service apache2 restart                   # webserver starten!
 </pre><p>
             </p></td></tr></table></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s02.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s04.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.2. Benötigte Software und Pakete&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.4. kivitendo-Konfigurationsdatei</td></tr></table></div></body></html>
