@@ -81,8 +81,8 @@ sub action_save {
     if ($error) {
       die $error;
     } else {
-      $self->flash_later('info', t8('Price Rule saved.'));
-      $self->js->redirect_to(action => 'load', price_rule_macro => { id => $macro->id })->render;
+      flash_later('info', t8('Price Rule saved.'));
+      $self->js->redirect_to($self->url_for(action => 'load', price_rule_macro => { id => $macro->id }))->render;
     }
   } else {
     if ($error) {
