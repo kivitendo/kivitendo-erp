@@ -419,7 +419,7 @@ my @test_cases = (
     "priority": "3",
     "type": "customer"
   }',
-  throws_ok => 'SL::X::String',
+  throws_ok => [ 'SL::X::String', qr/Empty vendor rules are not allowed/ ],
   name => 'missing id in vendor condition',
 },
 { json =>
@@ -451,7 +451,7 @@ my @test_cases = (
     "priority": "3",
     "type": "customer"
   }',
-  throws_ok => 'SL::X::String',
+  throws_ok => [ 'SL::X::String', qr/condition of type 've' needs an op/ ],
   name => 'missing op in ve condition',
 },
 { json =>
@@ -485,7 +485,7 @@ my @test_cases = (
     "priority": "3",
     "type": "customer"
   }',
-  throws_ok => 'SL::X::String',
+  throws_ok => [ 'SL::X::String', qr/action of type 'simple_action' needs at least price/ ],
   name => 'missing price/discount/reduction in action',
 },
 { json =>
@@ -685,6 +685,24 @@ my @test_cases = (
 },
 );
 
+# this is a lean t8x version of Test::Exception::throws_ok
+sub throws_t8x_ok(&$$$) {
+  my ( $coderef, $class, $regex, $description ) = @_;
+  my $exception = Test::Exception::_try_as_caller( $coderef );
+  my $ok_class  = $exception->isa($class);
+  my $ok_text   = eval { $exception->getProperty('msg')->untranslated =~ m/$regex/ };
+  my $ok        = $ok_class && $ok_text;
+
+  my $Tester = Test::Builder->new;
+
+  $Tester->ok( $ok, $description );
+  unless ( $ok ) {
+      $Tester->diag( "expecting t8x exception with text: $regex" );
+      $Tester->diag( "found: ", eval { $exception->getProperty('msg')->untranslated });
+  };
+  return $ok;
+}
+
 $::request->type('json');
 open my $stdout_fh, '>', \my $stdout or die;
 
@@ -695,7 +713,8 @@ for my $case (@test_cases) {
   if ($case->{dies_ok}) {
     throws_ok { $m->validate } $case->{dies_ok}, "$case->{name}: expect exeption";
   } elsif ($case->{throws_ok}) {
-    throws_ok { $m->validate } $case->{throws_ok}, "$case->{name}: expect exeption";
+    my ($class, $regex) = @{ $case->{throws_ok} };
+    throws_t8x_ok { $m->validate } $class, $regex, "$case->{name}: expect exeption";
   } else {
     is_deeply $m->definition, $m->parsed_definition->as_tree, "$case->{name}: parse_definition and as_tree roundtrip"
       unless $case->{no_roundtrip};
