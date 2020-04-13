@@ -28,6 +28,10 @@
     [% L.checkbox_tag('selectall_email', checkall='INPUT[name*=email_]', checked=all_email) %]
     <label for="selectall_email">[% 'eMail?' | $T8 %]</label>
    </th>
+   <th class="listheading">
+    [% L.checkbox_tag('selectall_include_invoices', checkall='INPUT[name*=include_invoice_]', checked=all_include_invoices) %]
+    <label for="selectall_include_invoices">[% 'Include original Invoices?' | $T8 %]</label>
+   </th>
 
    <th class="listheading">[% 'Customername' | $T8 %]</th>
    <th class="listheading">[% 'Department' | $T8 %]</th>
@@ -63,6 +67,7 @@
 
      <td><input type="checkbox" name="active_[% loop.count %]" value="1" [% IF row.active %]checked[% END %]></td>
      <td><input type="checkbox" name="email_[% loop.count %]" value="1" [% IF row.email %]checked[% END %]></td>
+     <td><input type="checkbox" name="include_invoice_[% loop.count %]" value="1" [% IF row.include_invoices %]checked[% END %]></td>
      <td><input type="hidden" name="customername_[% loop.count %]" size="6" value="[% HTML.escape(row.customername) %]">[% HTML.escape(row.customername) %]</td>
      <td><input type="hidden" name="department_[% loop.count %]" size="6" value="[% HTML.escape(row.departmentname) %]">[% HTML.escape(row.departmentname) %]</td>
      <td><input type="hidden" name="language_id_[% loop.count %]" size="6" value="[% HTML.escape(row.language_id) %]">[% HTML.escape(row.language) %]</td>

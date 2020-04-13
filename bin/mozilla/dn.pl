@@ -226,6 +226,7 @@ sub save_dunning {
                           "customer_id"            => $form->{"customer_id_$i"},
                           "language_id"            => $form->{"language_id_$i"},
                           "next_dunning_config_id" => $form->{"next_dunning_config_id_$i"},
+                          "print_invoice"          => $form->{"include_invoice_$i"},
                           "email"                  => $form->{"email_$i"}, };
     }
 

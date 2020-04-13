@@ -1653,6 +1653,7 @@ $self->{texts} = {
   'Include in drop-down menus'  => 'In Aufklappmenü aufnehmen',
   'Include invalid warehouses ' => 'Ungültige Lager berücksichtigen',
   'Include invoices with direct debit' => 'Inklusive Rechnungen mit Lastschrifteinzug',
+  'Include original Invoices?'  => 'Original-Rechnung hinzufügen?',
   'Includeable in reports'      => 'In Berichten anzeigbar',
   'Included in reports by default' => 'In Berichten standardmäßig enthalten',
   'Including'                   => 'Enthaltene',

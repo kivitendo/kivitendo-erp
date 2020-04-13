@@ -51,6 +51,8 @@ use SL::TransNumber;
 use SL::Util qw(trim);
 use SL::DB;
 
+use File::Copy;
+
 use strict;
 
 sub get_config {
@@ -338,7 +340,7 @@ sub _save_dunning {
 
   my @invoice_ids;
   my ($next_dunning_config_id, $customer_id);
-  my $send_email = 0;
+  my ($send_email, $print_invoice) = (0, 0);
 
   foreach my $row (@{ $rows }) {
     push @invoice_ids, $row->{invoice_id};
@@ -348,7 +350,8 @@ sub _save_dunning {
     @values = ($row->{next_dunning_config_id}, $row->{invoice_id});
     do_statement($form, $h_update_ar, $q_update_ar, @values);
 
-    $send_email |= $row->{email};
+    $send_email       |= $row->{email};
+    $print_invoice    |= $row->{print_invoice};
 
     my $next_config_id = conv_i($row->{next_dunning_config_id});
     my $invoice_id     = conv_i($row->{invoice_id});
@@ -371,6 +374,9 @@ sub _save_dunning {
   $self->print_invoice_for_fees($myconfig, $form, $dunning_id, $dbh);
   $self->print_dunning($myconfig, $form, $dunning_id, $dbh);
 
+  if ($print_invoice) {
+    $self->print_original_invoices($myconfig, $form, $_, $dbh) for @invoice_ids;
+  }
 
   if ($send_email) {
     $self->send_email($myconfig, $form, $dunning_id, $dbh);
@@ -1074,6 +1080,45 @@ sub set_customer_cvars {
     $form->{"cp_cvar_$_->{name}"} = $_->{value} for @{ $custom_variables };
   }
 
+}
+
+sub print_original_invoices {
+  my ($self, $myconfig, $form, $invoice_id) = @_;
+  # get one invoice as object and print to pdf
+  my $invoice = SL::DB::Invoice->new(id => $invoice_id)->load;
+
+  die "Invalid invoice object" unless ref($invoice) eq 'SL::DB::Invoice';
+
+  my $print_form          = Form->new('');
+  $print_form->{type}     = 'invoice';
+  $print_form->{formname} = 'invoice',
+  $print_form->{format}   = 'pdf',
+  $print_form->{media}    = 'file';
+  # no language override, should always be the object's language
+  $invoice->flatten_to_form($print_form, format_amounts => 1);
+  $print_form->prepare_for_printing;
+
+  my $filename = SL::Helper::CreatePDF->create_pdf(
+                   template  => 'invoice.tex',
+                   variables => $print_form,
+                   return    => 'file_name',
+  );
+
+  my $spool       = $::lx_office_conf{paths}->{spool};
+  my ($volume, $directory, $file_name) = File::Spec->splitpath($filename);
+  my $full_file_name                   = File::Spec->catfile($spool, $file_name);
+
+  move($filename, $full_file_name) or die "The move operation failed: $!";
+
+  # form get_formname_translation should use language_id_$i
+  my $saved_reicpient_locale = $form->{recipient_locale};
+  $form->{recipient_locale}  = $invoice->language;
+
+  push @{ $form->{DUNNING_PDFS} }, $file_name;
+  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'path' => "${spool}/$file_name",
+                                           'name' => $form->get_formname_translation('invoice') . "_" . $invoice->invnumber . ".pdf" };
+
+  $form->{recipient_locale}  = $saved_reicpient_locale;
 }
 
 1;
