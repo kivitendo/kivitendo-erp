@@ -3740,6 +3740,7 @@ $self->{texts} = {
   'UStVa'                       => 'UStVa',
   'UStVa Einstellungen'         => 'UStVa Einstellungen',
   'Unable to book transactions for bank purpose #1' => 'Konnte die Transaktion für den Bank-Verwendungszweck #1 nicht erfolgreich durchführen.',
+  'Unable to reconcile, database transaction failure' => 'Abgleich konnte nicht durchgeführt werden: Datenbank-Transaktionsfehler',
   'Unbalanced Ledger'           => 'Bilanzfehler',
   'Unchecked custom variables will not appear in orders and invoices.' => 'Unmarkierte Variablen werden für diesen Artikel nicht in Aufträgen und Rechnungen angezeigt.',
   'Undo SEPA exports'           => 'SEPA-Exporte rückgängig machen',
