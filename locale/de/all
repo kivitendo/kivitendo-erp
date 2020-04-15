@@ -350,6 +350,7 @@ $self->{texts} = {
   'At least one Perl module that kivitendo ERP requires for running is not installed on your system.' => 'Mindestes ein Perl-Modul, das kivitendo ERP zur Ausführung benötigt, ist auf Ihrem System nicht installiert.',
   'At least one of the columns #1, customer, customernumber, customer_gln, vendor, vendornumber, vendor_gln (depending on the target table) is required for matching the entry to an existing customer or vendor.' => 'Mindestens eine der Spalten #1, customer, customernumber, customer_gln, vendor, vendornumber, vendor_gln (von Zieltabelle abhängig) wird benötigt, um einen Eintrag einem bestehenden Kunden bzw. Lieferanten zuzuordnen.',
   'At most'                     => 'Höchstens',
+  'At position'                 => 'An Position',
   'At the moment the transaction looks like this:' => 'Aktuell sieht die Buchung wie folgt aus:',
   'Attach PDF:'                 => 'PDF anhängen',
   'Attached Filename'           => 'Name des Dateianhangs',

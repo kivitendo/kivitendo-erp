@@ -18,6 +18,8 @@
 <div id='multi_items_result'></div>
 <hr>
 
+[% 'At position' | $T8 %]
+[% L.input_tag('multi_items.position', '', size = 5, class="numeric") %]</td>
 [% L.button_tag('kivi.Order.add_multi_items()', LxERP.t8('Continue'), id='multi_items_dialog_continue_button') %]
 <a href="#" onclick="kivi.Order.close_multi_items_dialog();">[%- LxERP.t8("Cancel") %]</a>
 

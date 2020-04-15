@@ -775,8 +775,13 @@ sub action_add_item {
                                      SELF => $self,
   );
 
-  $self->js
-    ->append('#row_table_id', $row_as_html);
+  if ($::form->{insert_before_item_id}) {
+    $self->js
+      ->before ('.row_entry:has(#item_' . $::form->{insert_before_item_id} . ')', $row_as_html);
+  } else {
+    $self->js
+      ->append('#row_table_id', $row_as_html);
+  }
 
   if ( $item->part->is_assortment ) {
     $form_attr->{qty_as_number} = 1 unless $form_attr->{qty_as_number};
@@ -800,17 +805,23 @@ sub action_add_item {
                                          ID   => $item_id,
                                          SELF => $self,
       );
-      $self->js
-        ->append('#row_table_id', $row_as_html);
+      if ($::form->{insert_before_item_id}) {
+        $self->js
+          ->before ('.row_entry:has(#item_' . $::form->{insert_before_item_id} . ')', $row_as_html);
+      } else {
+        $self->js
+          ->append('#row_table_id', $row_as_html);
+      }
     };
   };
 
   $self->js
     ->val('.add_item_input', '')
     ->run('kivi.Order.init_row_handlers')
-    ->run('kivi.Order.row_table_scroll_down')
     ->run('kivi.Order.renumber_positions')
     ->focus('#add_item_parts_id_name');
+
+  $self->js->run('kivi.Order.row_table_scroll_down') if !$::form->{insert_before_item_id};
 
   $self->js_redisplay_amounts_and_taxes;
   $self->js->render();
@@ -882,15 +893,22 @@ sub action_add_multi_items {
                                        SELF => $self,
     );
 
-    $self->js->append('#row_table_id', $row_as_html);
+    if ($::form->{insert_before_item_id}) {
+      $self->js
+        ->before ('.row_entry:has(#item_' . $::form->{insert_before_item_id} . ')', $row_as_html);
+    } else {
+      $self->js
+        ->append('#row_table_id', $row_as_html);
+    }
   }
 
   $self->js
     ->run('kivi.Order.close_multi_items_dialog')
     ->run('kivi.Order.init_row_handlers')
-    ->run('kivi.Order.row_table_scroll_down')
     ->run('kivi.Order.renumber_positions')
     ->focus('#add_item_parts_id_name');
+
+  $self->js->run('kivi.Order.row_table_scroll_down') if !$::form->{insert_before_item_id};
 
   $self->js_redisplay_amounts_and_taxes;
   $self->js->render();

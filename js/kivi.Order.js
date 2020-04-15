@@ -339,6 +339,9 @@ namespace('kivi.Order', function(ns) {
     $('.row_entry [name="position"]').each(function(idx, elt) {
       $(elt).html(idx+1);
     });
+    $('.row_entry').each(function(idx, elt) {
+      $(elt).data("position", idx+1);
+    });
   };
 
   ns.reorder_items = function(order_by) {
@@ -374,14 +377,33 @@ namespace('kivi.Order', function(ns) {
     ns.renumber_positions();
   };
 
+  ns.get_insert_before_item_id = function(wanted_pos) {
+    if (wanted_pos === '') return;
+
+    var insert_before_item_id;
+    // selection by data does not seem to work if data is changed at runtime
+    // var elt = $('.row_entry [data-position="' + wanted_pos + '"]');
+    $('.row_entry').each(function(idx, elt) {
+      if ($(elt).data("position") == wanted_pos) {
+        insert_before_item_id = $(elt).find('[name="orderitem_ids[+]"]').val();
+        return false;
+      }
+    });
+
+    return insert_before_item_id;
+  };
+
   ns.add_item = function() {
     if ($('#add_item_parts_id').val() === '') return;
     if (!ns.check_cv()) return;
 
     $('#row_table_id thead a img').remove();
 
+    var insert_before_item_id = ns.get_insert_before_item_id($('#add_item_position').val());
+
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/add_item' });
+    data.push({ name: 'action', value: 'Order/add_item' },
+              { name: 'insert_before_item_id', value: insert_before_item_id });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -439,12 +461,12 @@ namespace('kivi.Order', function(ns) {
   ns.multi_items_dialog_disable_continue = function() {
     // disable keydown-event and continue button to prevent
     // impatient users to add parts multiple times
-    $('#multi_items_result input').off("keydown");
+    $('#multi_items_result input, #multi_items_position').off("keydown");
     $('#multi_items_dialog_continue_button').prop('disabled', true);
   };
 
   ns.multi_items_dialog_enable_continue = function()  {
-    $('#multi_items_result input').keydown(function(event) {
+    $('#multi_items_result input, #multi_items_position').keydown(function(event) {
       if(event.keyCode == 13) {
         event.preventDefault();
         ns.add_multi_items();
@@ -475,9 +497,12 @@ namespace('kivi.Order', function(ns) {
 
     ns.multi_items_dialog_disable_continue();
 
+    var insert_before_item_id = ns.get_insert_before_item_id($('#multi_items_position').val());
+
     var data = $('#order_form').serializeArray();
     data = data.concat($('#multi_items_form').serializeArray());
-    data.push({ name: 'action', value: 'Order/add_multi_items' });
+    data.push({ name: 'action', value: 'Order/add_multi_items' },
+              { name: 'insert_before_item_id', value: insert_before_item_id });
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
