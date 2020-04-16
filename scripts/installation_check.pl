@@ -234,7 +234,12 @@ sub check_aqbanking {
     my ($label,$version)  = split /:/,$shell_out;
     if ( $label && $label eq ' AqBanking-CLI' ) {
       chop $version;
-      print_line($line, $version, 'green');
+      my ($number_version) = $version =~ /(\d+)/;
+      if ($number_version < 6) {
+        print_line($line, "Requires at least version 6, current version is " . $version, 'red');
+      } else {
+        print_line($line, $version, 'green');
+      }
     } else {
       print_line($line, 'not installed','red');
       my %modinfo = ( name => 'aqbanking' );

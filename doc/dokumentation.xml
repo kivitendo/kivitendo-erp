@@ -555,7 +555,7 @@ cpan HTML::Restrict</programlisting>
 
         <itemizedlist>
       <listitem>
-            <para><literal>aqbanking-tools</literal> Für das Parsen des MT940 Bankformats</para>
+            <para><literal>aqbanking-tools</literal> Für das Parsen des MT940 Bankformats (Version 6 oder höher)</para>
           </listitem>
           <listitem>
             <para><literal>poppler-utils</literal> 'pdfinfo' zum Erkennen der Seitenanzahl bei der PDF-Generierung</para>

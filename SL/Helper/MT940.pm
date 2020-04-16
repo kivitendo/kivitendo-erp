@@ -22,7 +22,7 @@ sub convert_mt940_data {
   my $aqbin = $::lx_office_conf{applications}->{aqbanking};
   die "Can't find aqbanking-cli, please check your configuration file.\n" unless -f $aqbin;
   my $cmd = "$aqbin --cfgdir=\"" . $sfile->get_path . "\" import --importer=\"swift\" --profile=\"SWIFT-MT940\" -f " .
-          $sfile->get_path . "/$import_filename | $aqbin --cfgdir=\"" . $sfile->get_path . "\" listtrans --exporter=\"csv\" --profile=kivi 2> /dev/null ";
+          $sfile->get_path . "/$import_filename | $aqbin --cfgdir=\"" . $sfile->get_path . "\" export --profile=kivi 2> /dev/null ";
 
   my $converted_data = '"empty";"local_bank_code";"local_account_number";"remote_bank_code";"remote_account_number";"transdate";"valutadate";"amount";'.
     '"currency";"remote_name";"remote_name_1";"purpose";"purpose1";"purpose2";"purpose3";"purpose4";"purpose5";"purpose6";"purpose7";"purpose8";"purpose9";'.
