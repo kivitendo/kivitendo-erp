@@ -16,6 +16,7 @@
     <th class="listheading">[% 'eMail Send?' | $T8 %]</th>
 <!--     <th class="listheading">[% 'Auto Send?' | $T8 %]</th>  -->
     <th class="listheading">[% 'Create invoice?' | $T8 %]</th>
+    <th class="listheading">[% 'Include original Invoices?' | $T8 %]</th>
     <th class="listheading">[% 'Fristsetzung' | $T8 %]</th>
     <th class="listheading">[% 'Duedate +Days' | $T8 %]</th>
     <th class="listheading">[% 'Fee' | $T8 %]</th>
@@ -45,6 +46,7 @@
 
 <!--      <td><input type="checkbox" name="auto_[% DUNNING_it.count %]" value="1" [% IF row.auto %]checked[% END %]></td> -->
      <td><input type="checkbox" name="create_invoices_for_fees_[% DUNNING_it.count %]" value="1" [% IF row.create_invoices_for_fees %]checked[% END %]></td>
+     <td><input type="checkbox" name="print_original_invoice_[% DUNNING_it.count %]" value="1" [% IF row.print_original_invoice %]checked[% END %]></td>
      <td><input name="payment_terms_[% DUNNING_it.count %]" size="3" value="[% HTML.escape(row.payment_terms) %]"></td>
      <td><input name="terms_[% DUNNING_it.count %]" size="3" value="[% HTML.escape(row.terms) %]"></td>
      <td><input name="fee_[% DUNNING_it.count %]" size="5" value="[% HTML.escape(row.fee) %]"></td>
@@ -76,6 +78,7 @@
 
 <!--     <td><input type="checkbox" name="auto_[% rowcount %]" value="1" checked></td> -->
     <td><input type="checkbox" name="create_invoices_for_fees_[% rowcount %]" value="1" checked></td>
+    <td><input type="checkbox" name="print_original_invoice_[% DUNNING_it.count %]" value="1" [% IF row.print_original_invoice %]checked[% END %]></td>
     <td><input name="payment_terms_[% rowcount %]" size="3"></td>
     <td><input name="terms_[% rowcount %]" size="3"></td>
     <td><input name="fee_[% rowcount %]" size="5"></td>

@@ -111,7 +111,8 @@ sub _save_config {
                  $form->{"template_$i"}, $form->{"fee_$i"}, $form->{"interest_rate_$i"},
                  $form->{"active_$i"} ? 't' : 'f', $form->{"auto_$i"} ? 't' : 'f', $form->{"email_$i"} ? 't' : 'f',
                  $form->{"email_attachment_$i"} ? 't' : 'f', conv_i($form->{"payment_terms_$i"}), conv_i($form->{"terms_$i"}),
-                 $form->{"create_invoices_for_fees_$i"} ? 't' : 'f');
+                 $form->{"create_invoices_for_fees_$i"} ? 't' : 'f',
+                 $form->{"print_original_invoice_$i"} ? 't' : 'f');
       if ($form->{"id_$i"}) {
         $query =
           qq|UPDATE dunning_config SET
@@ -120,7 +121,8 @@ sub _save_config {
                template = ?, fee = ?, interest_rate = ?,
                active = ?, auto = ?, email = ?,
                email_attachment = ?, payment_terms = ?, terms = ?,
-               create_invoices_for_fees = ?
+               create_invoices_for_fees = ?,
+               print_original_invoice = ?
              WHERE id = ?|;
         push(@values, conv_i($form->{"id_$i"}));
       } else {
@@ -128,8 +130,9 @@ sub _save_config {
           qq|INSERT INTO dunning_config
                (dunning_level, dunning_description, email_subject, email_body,
                 template, fee, interest_rate, active, auto, email,
-                email_attachment, payment_terms, terms, create_invoices_for_fees)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+                email_attachment, payment_terms, terms, create_invoices_for_fees,
+                print_original_invoice)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
       }
       do_query($form, $dbh, $query, @values);
     }
@@ -597,7 +600,7 @@ sub get_invoices {
 
          nextcfg.dunning_description AS next_dunning_description,
          nextcfg.id AS next_dunning_config_id,
-         nextcfg.terms, nextcfg.active, nextcfg.email
+         nextcfg.terms, nextcfg.active, nextcfg.email, nextcfg.print_original_invoice
 
        FROM ar a
 

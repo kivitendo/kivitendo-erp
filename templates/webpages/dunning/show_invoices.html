@@ -5,6 +5,7 @@
 
 [% SET all_active = 1 %][% FOREACH row = DUNNINGS %][% IF !row.active %][% SET all_active = 0 %][% LAST %][% END %][% END %]
 [% SET all_email = 1 %][% FOREACH row = DUNNINGS %][% IF !row.email %][% SET all_email = 0 %][% LAST %][% END %][% END %]
+[% SET all_include_invoices = 1 %][% FOREACH row = DUNNINGS %][% IF !row.print_original_invoice %][% SET all_include_invoices = 0 %][% LAST %][% END %][% END %]
  <form name="Form" method="post" action="dn.pl" id="form">
 
   <h2>[% LxERP.t8("Print options") %]</h2>
@@ -67,7 +68,7 @@
 
      <td><input type="checkbox" name="active_[% loop.count %]" value="1" [% IF row.active %]checked[% END %]></td>
      <td><input type="checkbox" name="email_[% loop.count %]" value="1" [% IF row.email %]checked[% END %]></td>
-     <td><input type="checkbox" name="include_invoice_[% loop.count %]" value="1" [% IF row.include_invoices %]checked[% END %]></td>
+     <td><input type="checkbox" name="include_invoice_[% loop.count %]" value="1" [% IF row.print_original_invoice %]checked[% END %]></td>
      <td><input type="hidden" name="customername_[% loop.count %]" size="6" value="[% HTML.escape(row.customername) %]">[% HTML.escape(row.customername) %]</td>
      <td><input type="hidden" name="department_[% loop.count %]" size="6" value="[% HTML.escape(row.departmentname) %]">[% HTML.escape(row.departmentname) %]</td>
      <td><input type="hidden" name="language_id_[% loop.count %]" size="6" value="[% HTML.escape(row.language_id) %]">[% HTML.escape(row.language) %]</td>
