@@ -1102,9 +1102,14 @@ sub print_original_invoices {
   $print_form->prepare_for_printing;
 
   my $filename = SL::Helper::CreatePDF->create_pdf(
-                   template  => 'invoice.tex',
-                   variables => $print_form,
-                   return    => 'file_name',
+                   template               => 'invoice.tex',
+                   variables              => $print_form,
+                   return                 => 'file_name',
+                   variable_content_types => {
+                     longdescription => 'html',
+                     partnotes       => 'html',
+                     notes           => 'html',
+                   },
   );
 
   my $spool       = $::lx_office_conf{paths}->{spool};
