@@ -85,7 +85,7 @@ sub invoice_transactions {
   $where .= " AND i.assemblyitem is not true ";
 
   # filter allowed parameters for mainsort and subsort as passed by POST
-  my @databasefields = qw(description customername country partsgroup business salesman month);
+  my @databasefields = qw(description customername country partsgroup business salesman month shipvia);
   my ($mainsort) = grep { /^$form->{mainsort}$/ } @databasefields;
   my ($subsort) = grep { /^$form->{subsort}$/ } @databasefields;
   die "illegal parameter for mainsort or subsort" unless $mainsort and $subsort;
