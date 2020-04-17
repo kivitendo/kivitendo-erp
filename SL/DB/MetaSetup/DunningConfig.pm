@@ -22,6 +22,7 @@ __PACKAGE__->meta->columns(
   id                       => { type => 'integer', not_null => 1, sequence => 'id' },
   interest_rate            => { type => 'numeric', precision => 15, scale => 5 },
   payment_terms            => { type => 'integer' },
+  print_original_invoice   => { type => 'boolean' },
   template                 => { type => 'text' },
   terms                    => { type => 'integer' },
 );
