@@ -146,6 +146,7 @@ my %kivitendo_package_names = (
   follow_ups                     => 'follow_up',
   generic_translations           => 'generic_translation',
   gl                             => 'GLTransaction',
+  greetings                      => 'greeting',
   history_erp                    => 'history',
   inventory                      => 'inventory',
   invoice                        => 'invoice_item',
