@@ -5378,7 +5378,7 @@ digits_year: 4</programlisting>
               <term><varname>longdescription</varname></term>
 
               <listitem>
-                <para>Langtext</para>
+                <para>Langtext, vorbelegt mit dem Feld Bemerkungen der entsprechenden Ware</para>
               </listitem>
             </varlistentry>
 
