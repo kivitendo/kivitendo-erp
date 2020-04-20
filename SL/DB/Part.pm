@@ -61,6 +61,7 @@ __PACKAGE__->meta->add_relationships(
     type         => 'one to many',
     class        => 'SL::DB::AssortmentItem',
     column_map   => { id => 'assortment_id' },
+    manager_args => { sort_by => 'position' },
   },
   history_entries   => {
     type            => 'one to many',
