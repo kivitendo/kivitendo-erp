@@ -9,6 +9,7 @@ use SL::JSON;
 use SL::DBUtils;
 use SL::Helper::Flash;
 use SL::Locale::String;
+use SL::Util qw(trim);
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Controller::Helper::ParseFilter;
@@ -17,6 +18,7 @@ use SL::DB::Customer;
 use SL::DB::Vendor;
 use SL::DB::Business;
 use SL::DB::Employee;
+use SL::DB::Greeting;
 use SL::DB::Language;
 use SL::DB::TaxZone;
 use SL::DB::Note;
@@ -161,6 +163,11 @@ sub _save {
     $::dispatcher->end_request;
   }
 
+  $self->{cv}->greeting(trim $self->{cv}->greeting);
+  my $save_greeting  = $self->{cv}->greeting
+                    && $::instance_conf->get_vc_greetings_use_textfield
+                    && SL::DB::Manager::Greeting->get_all_count(where => [description => $self->{cv}->greeting]) == 0;
+
   my $db = $self->{cv}->db;
 
   $db->with_transaction(sub {
@@ -185,6 +192,8 @@ sub _save {
     }
 
     $self->{cv}->save(cascade => 1);
+
+    SL::DB::Greeting->new(description => $self->{cv}->greeting)->save if $save_greeting;
 
     $self->{contact}->cp_cv_id($self->{cv}->id);
     if( $self->{contact}->cp_name ne '' || $self->{contact}->cp_givenname ne '' ) {
@@ -922,21 +931,11 @@ sub _pre_render {
 
   $self->{all_employees} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
-  $query =
-    'SELECT DISTINCT(greeting)
-     FROM customer
-     WHERE greeting IS NOT NULL AND greeting != \'\'
-     UNION
-       SELECT DISTINCT(greeting)
-       FROM vendor
-       WHERE greeting IS NOT NULL AND greeting != \'\'
-     ORDER BY greeting';
-  $self->{all_greetings} = [
-    map(
-      { $_->{greeting}; }
-      selectall_hashref_query($::form, $dbh, $query)
-    )
-  ];
+  $self->{all_greetings} = SL::DB::Manager::Greeting->get_all_sorted();
+  if ($self->{cv}->id && $self->{cv}->greeting && !grep {$self->{cv}->greeting eq $_->description} @{$self->{all_greetings}}) {
+    unshift @{$self->{all_greetings}}, (SL::DB::Greeting->new(description => $self->{cv}->greeting));
+  }
+
 
   $query =
     'SELECT DISTINCT(cp_title) AS title

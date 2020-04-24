@@ -54,8 +54,12 @@
       <th align="right" nowrap>[% 'Greeting' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('cv.greeting', SELF.cv.greeting) %]
-        [% L.select_tag('cv_greeting_select', SELF.all_greetings, default = SELF.cv.greeting, with_empty = 1, onchange = '$("#cv_greeting").val(this.value);') %]
+        [%- IF INSTANCE_CONF.get_vc_greetings_use_textfield -%]
+          [% L.input_tag('cv.greeting', SELF.cv.greeting) %]
+          [% L.select_tag('cv_greeting_select', SELF.all_greetings, default = SELF.cv.greeting, value_key = 'description', title_key = 'description', with_empty = 1, onchange = '$("#cv_greeting").val(this.value);') %]
+        [%- ELSE -%]
+          [% L.select_tag('cv.greeting', SELF.all_greetings, default = SELF.cv.greeting, value_key = 'description', title_key = 'description', with_empty = 1) %]
+        [%- END -%]
       </td>
     </tr>
 
