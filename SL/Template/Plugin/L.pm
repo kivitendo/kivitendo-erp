@@ -304,9 +304,13 @@ JAVASCRIPT
     $filter    .= ".map(function(idx, str) { return str.replace('$params{with}_', ''); })";
 
     my $params_js = $params{params} ? qq| + ($params{params})| : '';
+    my $ajax_return = '';
+    if ($params{ajax_return}) {
+      $ajax_return = 'kivi.eval_json_result';
+    }
 
     $stop_event = <<JAVASCRIPT;
-        \$.post('$params{url}'${params_js}, { '${as}[]': \$(\$('${selector}').sortable('toArray'))${filter}.toArray() });
+        \$.post('$params{url}'${params_js}, { '${as}[]': \$(\$('${selector}').sortable('toArray'))${filter}.toArray() }, $ajax_return);
 JAVASCRIPT
   }
 
@@ -566,8 +570,12 @@ C<%params> can contain the following entries:
 =item C<url>
 
 The URL to POST an AJAX request to after a dragged element has been
-dropped. The AJAX request's return value is ignored. If given then
+dropped. The AJAX request's return value is ignored by default. If given then
 C<$params{with}> must be given as well.
+
+=item C<ajax_return>
+
+If trueish then the AJAX request's return is accepted.
 
 =item C<with>
 
