@@ -65,6 +65,16 @@ my %supported_types = (
     },
   },
 
+  greeting => {
+    class  => 'Greeting',
+    auth   => 'config',
+    titles => {
+      list => t8('Greetings'),
+      add  => t8('Add greeting'),
+      edit => t8('Edit greeting'),
+    },
+  },
+
   language => {
     # Make locales.pl happy: $self->render("simple_system_setting/_language_form")
     class  => 'Language',

@@ -1162,6 +1162,13 @@
     action: SimpleSystemSetting/list
     type: price_factor
 - parent: system
+  id: system_greetings
+  name: Greetings
+  order: 1250
+  params:
+    action: SimpleSystemSetting/list
+    type: greeting
+- parent: system
   id: system_departments
   name: Departments
   order: 1300
