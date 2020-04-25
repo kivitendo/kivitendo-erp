@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{kiviletter}[2019/10/10 Letter Layouts for Kivitendo]
+\ProvidesPackage{kiviletter}[2020/04/24 Letter Layouts for Kivitendo]
 
 \newif\if@kivi@infobox
 \DeclareOption{reffields}{\@kivi@infoboxfalse}
@@ -16,6 +16,7 @@
 \ifPDFTeX
 \RequirePackage[utf8]{inputenc}% Nur notwendig, wenn Basis älter als TL2018
 \RequirePackage[T1]{fontenc}
+\RequirePackage{lmodern}
 \else
 \RequirePackage{fontspec}
 \fi
