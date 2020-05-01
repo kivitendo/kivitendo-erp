@@ -346,6 +346,16 @@ sub _save_dunning {
   my ($send_email, $print_invoice) = (0, 0);
 
   foreach my $row (@{ $rows }) {
+    if ($row->{credit_note}) {
+      my $i = $row->{row};
+      %{ $form->{LIST_CREDIT_NOTES}{$row->{customer_id}}{$row->{invoice_id}} } = (
+        open_amount => $form->{"open_amount_$i"},
+        amount      => $form->{"amount_$i"},
+        invnumber   => $form->{"invnumber_$i"},
+        invdate     => $form->{"invdate_$i"},
+      );
+      next;
+    }
     push @invoice_ids, $row->{invoice_id};
     $next_dunning_config_id = $row->{next_dunning_config_id};
     $customer_id            = $row->{customer_id};
@@ -364,6 +374,9 @@ sub _save_dunning {
                $next_config_id, $next_config_id);
     do_statement($form, $h_insert_dunning, $q_insert_dunning, @values);
   }
+  # die this transaction, because for this customer only credit notes are
+  # selected ...
+  return unless $customer_id;
 
   $h_update_ar->finish();
   $h_insert_dunning->finish();
@@ -580,6 +593,7 @@ sub get_invoices {
   if (!$form->{l_include_direct_debit}) {
     $where .= qq| AND NOT COALESCE(a.direct_debit, FALSE) |;
   }
+  my $paid = ($form->{l_include_credit_notes}) ? "WHERE (a.paid <> a.amount)" : "WHERE (a.paid < a.amount)";
 
   $query =
     qq|SELECT
@@ -628,9 +642,8 @@ sub get_invoices {
          WHERE (d2.trans_id      = a.id)
            AND (d2.dunning_level = cfg.dunning_level)
        ))
-
-       WHERE (a.paid < a.amount)
-         AND (a.duedate < current_date)
+        $paid
+        AND (a.duedate < current_date)
 
        $where
 
@@ -641,7 +654,7 @@ sub get_invoices {
 
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     next if ($ref->{pastdue} < $ref->{terms});
-
+    $ref->{credit_note} = 1 if ($ref->{amount} < 0 && $form->{l_include_credit_notes});
     $ref->{interest} = $form->round_amount($ref->{interest}, 2);
     push(@{ $form->{DUNNINGS} }, $ref);
   }
@@ -869,6 +882,14 @@ sub print_dunning {
   }
   $sth->finish();
 
+  # if we have some credit notes to add, do a safety check on the first customer id
+  # and add one entry for each credit note
+  if ($form->{LIST_CREDIT_NOTES} && $form->{LIST_CREDIT_NOTES}->{$form->{TEMPLATE_ARRAYS}->{"dn_customer_id"}[0]}) {
+    my $first_customer_id = $form->{TEMPLATE_ARRAYS}->{"dn_customer_id"}[0];
+    while ( my ($cred_id, $value) = each(%{ $form->{LIST_CREDIT_NOTES}->{$first_customer_id} } ) ) {
+      map { push @{ $form->{TEMPLATE_ARRAYS}->{"dn_$_"} }, $value->{$_} } keys %{ $value };
+    }
+  }
   $query =
     qq|SELECT
          c.id AS customer_id, c.name,         c.street,       c.zipcode,   c.city,
@@ -918,8 +939,16 @@ sub print_dunning {
   $form->{interest_rate}     = $form->format_amount($myconfig, $ref->{interest_rate} * 100);
   $form->{fee}               = $form->format_amount($myconfig, $ref->{fee}, 2);
   $form->{total_interest}    = $form->format_amount($myconfig, $form->round_amount($ref->{total_interest}, 2), 2);
-  $form->{total_open_amount} = $form->format_amount($myconfig, $form->round_amount($ref->{total_open_amount}, 2), 2);
-  $form->{total_amount}      = $form->format_amount($myconfig, $form->round_amount($ref->{fee} + $ref->{total_interest} + $ref->{total_open_amount}, 2), 2);
+  my $total_open_amount      = $ref->{total_open_amount};
+  if ($form->{l_include_credit_notes}) {
+    # a bit stupid, but redo calc because of credit notes
+    $total_open_amount      = 0;
+    foreach my $amount (@{ $form->{TEMPLATE_ARRAYS}->{dn_open_amount} }) {
+      $total_open_amount += $form->parse_amount($myconfig, $amount, 2);
+    }
+  }
+  $form->{total_open_amount} = $form->format_amount($myconfig, $form->round_amount($total_open_amount, 2), 2);
+  $form->{total_amount}      = $form->format_amount($myconfig, $form->round_amount($ref->{fee} + $ref->{total_interest} + $total_open_amount, 2), 2);
 
   $::form->format_dates($output_dateformat, $output_longdates,
     qw(dn_dunning_date dn_dunning_duedate dn_transdate dn_duedate

@@ -209,7 +209,7 @@ sub save_dunning {
 
   my $saved_language_id = $form->{language_id};
 
-  if ($form->{groupinvoices}) {
+  if ($form->{groupinvoices} || $form->{l_include_credit_notes}) {
     my %dunnings_for;
 
     for my $i (1 .. $form->{rowcount}) {
@@ -223,6 +223,7 @@ sub save_dunning {
 
       push @{ $level }, { "row"                    => $i,
                           "invoice_id"             => $form->{"inv_id_$i"},
+                          "credit_note"            => $form->{"credit_note_$i"},
                           "customer_id"            => $form->{"customer_id_$i"},
                           "language_id"            => $form->{"language_id_$i"},
                           "next_dunning_config_id" => $form->{"next_dunning_config_id_$i"},
