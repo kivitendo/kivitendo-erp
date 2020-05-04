@@ -90,7 +90,7 @@ sub action_destroy {
     flash_later('error', $::locale->text('The project is in use and cannot be deleted.'));
   }
 
-  $self->redirect_to(action => 'search');
+  $self->redirect_to(action => 'list');
 }
 
 sub action_ajax_autocomplete {
