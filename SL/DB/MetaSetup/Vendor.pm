@@ -39,6 +39,7 @@ __PACKAGE__->meta->columns(
   language_id      => { type => 'integer' },
   mtime            => { type => 'timestamp' },
   name             => { type => 'text', not_null => 1 },
+  natural_person   => { type => 'boolean', default => 'false' },
   notes            => { type => 'text' },
   obsolete         => { type => 'boolean', default => 'false' },
   payment_id       => { type => 'integer' },

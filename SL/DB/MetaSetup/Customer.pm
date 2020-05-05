@@ -49,6 +49,7 @@ __PACKAGE__->meta->columns(
   mandator_id               => { type => 'text' },
   mtime                     => { type => 'timestamp' },
   name                      => { type => 'text', not_null => 1 },
+  natural_person            => { type => 'boolean', default => 'false' },
   notes                     => { type => 'text' },
   obsolete                  => { type => 'boolean', default => 'false' },
   order_lock                => { type => 'boolean', default => 'false' },
