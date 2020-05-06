@@ -4169,6 +4169,7 @@ $self->{texts} = {
   'month'                       => '',
   'monthly'                     => '',
   'more'                        => '',
+  'natural person'              => '',
   'netto'                       => '',
   'never'                       => '',
   'new order controller'        => '',

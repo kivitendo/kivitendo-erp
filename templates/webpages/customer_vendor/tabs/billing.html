@@ -70,6 +70,8 @@
 
       <td>
         [% L.input_tag('cv.name', SELF.cv.name) %]
+        <label for="cv_natural_person">[% 'natural person' | $T8 %]</label>
+        [% L.checkbox_tag('cv.natural_person', checked = SELF.cv.natural_person, for_submit=1) %]
       </td>
     </tr>
 

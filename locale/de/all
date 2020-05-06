@@ -4170,6 +4170,7 @@ $self->{texts} = {
   'month'                       => 'Monatliche Abgabe',
   'monthly'                     => 'monatlich',
   'more'                        => 'mehr',
+  'natural person'              => 'natürliche Person',
   'netto'                       => 'netto',
   'never'                       => 'niemals',
   'new order controller'        => 'Neuer Auftrags-Controller',
