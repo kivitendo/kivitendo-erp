@@ -75,10 +75,11 @@
 		<%country%> \strut
 	}
 
-% Anrede nach Geschlecht unterscheiden
+% Bei Kontaktperson Anrede nach Geschlecht unterscheiden.
+% Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
 \opening{
 	\ifstr{<%cp_name%>}{}
-		{\anrede}
+		{<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede<%end if%>}
 		{
 			\ifstr{<%cp_gender%>}{f}
 				{\anredefrau}

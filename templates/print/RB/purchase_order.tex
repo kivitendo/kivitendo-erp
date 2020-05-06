@@ -80,8 +80,10 @@
 
 \hfill
 
-% Anrede nach Geschlecht unterscheiden
-\ifthenelse{\equal{<%cp_name%>}{}}{\anrede}{
+% Bei Kontaktperson Anrede nach Geschlecht unterscheiden.
+% Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
+\ifthenelse{\equal{<%cp_name%>}{}}{
+  <%if natural_person%><%greeting%> <%name%>,<%else%>\anrede<%end if%>}{
   \ifthenelse{\equal{<%cp_gender%>}{f}}
     {\anredefrau}{\anredeherr} <%cp_title%> <%cp_name%>,}\\
 
