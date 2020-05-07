@@ -893,7 +893,7 @@ sub _storno {
   $storno_row->{netamount} *= -1;
   $storno_row->{paid}       = $storno_row->{amount};
 
-  delete @$storno_row{qw(itime mtime)};
+  delete @$storno_row{qw(itime mtime gldate)};
 
   $query = sprintf 'INSERT INTO ap (%s) VALUES (%s)', join(', ', keys %$storno_row), join(', ', map '?', values %$storno_row);
   do_query($form, $dbh, $query, (values %$storno_row));
@@ -913,7 +913,7 @@ sub _storno {
   }
 
   for my $row (@$rowref) {
-    delete @$row{qw(itime mtime link acc_trans_id)};
+    delete @$row{qw(itime mtime link acc_trans_id gldate)};
     $query = sprintf 'INSERT INTO acc_trans (%s) VALUES (%s)', join(', ', keys %$row), join(', ', map '?', values %$row);
     $row->{trans_id}   = $new_id;
     $row->{amount}    *= -1;
