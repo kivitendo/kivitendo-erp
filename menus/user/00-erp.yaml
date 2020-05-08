@@ -1190,6 +1190,13 @@
     action: SimpleSystemSetting/list
     type: contact_title
 - parent: system
+  id: system_contact_departments
+  name: Contact Departments
+  order: 1430
+  params:
+    action: SimpleSystemSetting/list
+    type: contact_department
+- parent: system
   id: system_project_types
   name: Project Types
   order: 1600

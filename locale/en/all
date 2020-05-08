@@ -667,6 +667,7 @@ $self->{texts} = {
   'Confirm!'                    => '',
   'Confirmation'                => '',
   'Contact'                     => '',
+  'Contact Departments'         => '',
   'Contact Person'              => '',
   'Contact Person (database ID)' => '',
   'Contact Person (name)'       => '',

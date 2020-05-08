@@ -667,6 +667,7 @@ $self->{texts} = {
   'Confirm!'                    => 'Bestätigen Sie!',
   'Confirmation'                => 'Auftragsbestätigung',
   'Contact'                     => 'Kontakt',
+  'Contact Departments'         => 'Abteilungen von Ansprechpersonen',
   'Contact Person'              => 'Ansprechperson',
   'Contact Person (database ID)' => 'Ansprechperson (Datenbank-ID)',
   'Contact Person (name)'       => 'Ansprechperson (Name)',
