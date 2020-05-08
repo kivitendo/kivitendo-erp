@@ -4599,6 +4599,15 @@ digits_year: 4</programlisting>
             </varlistentry>
 
             <varlistentry>
+              <term><varname>natural_person</varname></term>
+
+              <listitem>
+                <para>Flag "natürliche Person"; Siehe auch
+                <xref linkend="dokumentenvorlagen-und-variablen.anrede"/></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
               <term><varname>payment_description</varname></term>
 
               <listitem>
@@ -6497,6 +6506,21 @@ Beschreibung: &lt;%description%&gt;
         <para>Der Befehl <command>&lt;bullet&gt;</command> funktioniert
         momentan auch nur in Latex-Vorlagen.</para>
       </sect2>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.anrede"
+             xreflabel="Hinweise zur Anrede">
+        <title>Hinweise zur Anrede</title>
+
+        <para>Das Flag "natürliche Person"
+        (<varname>natural_person</varname>) aus den Kunden- oder
+        Lieferantenstammdaten kann in den Druckvorlagen zusammen mit
+        dem Feld "Anrede" (<varname>greeting</varname>) z.B. dafür
+        verwendet werden, die Anrede zwischen einer allgemeinen und
+        einer persönlichen Anrede zu unterscheiden.
+        <programlisting>&lt;%if natural_person%&gt;&lt;%greeting%&gt; &lt;%name%&gt;&lt;%else%&gt;Sehr geehrte Damen und Herren&lt;%end if%&gt;</programlisting>
+        </para>
+      </sect2>
+
     </sect1>
 
     <sect1 id="excel-templates">

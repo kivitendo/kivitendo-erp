@@ -17,7 +17,9 @@ Mittelgroße neue Features:
 Kleinere neue Features und Detailverbesserungen:
 
  - Suche nach Erzeugnissen über die dort verbauten Artikel
-
+ - neues Flag "natürliche Person" bei Kunden/Lieferanten welches z.B. in den
+   Druckvorlagen für eine Weiche für die Anrede verwendet werden kann.
+ 
 Administrative Änderungen
 
   - Die zwei Perl-Module "CAM::PDF" und "XML::LibXML" werden nun benötigt.

@@ -221,6 +221,10 @@
                      </span></dt><dd><p>Sprache</p></dd><dt><span class="term">
                         <code class="varname">name</code>
                      </span></dt><dd><p>Firmenname</p></dd><dt><span class="term">
+                        <code class="varname">natural_person</code>
+                     </span></dt><dd><p>Flag "natürliche Person"; Siehe auch
+                <a class="xref" href="ch03s03.html#dokumentenvorlagen-und-variablen.anrede" title="3.3.13. Hinweise zur Anrede">Hinweise zur Anrede</a>
+                        </p></dd><dt><span class="term">
                         <code class="varname">payment_description</code>
                      </span></dt><dd><p>Name der Zahlart</p></dd><dt><span class="term">
                         <code class="varname">payment_terms</code>
@@ -613,7 +617,7 @@
                         <code class="varname">invdate</code>
                      </span></dt><dd><p>Rechnungsdatum</p></dd><dt><span class="term">
                         <code class="varname">invnumber</code>
-                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5966"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
+                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5977"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
           Rechnung. Allerdings heißen die Variablen, die mit
           <code class="varname">inv</code> beginnen, jetzt anders. Bei den Angeboten
           fangen sie mit <code class="varname">quo</code> für "quotation" an:
@@ -782,4 +786,12 @@ Beschreibung: &lt;%description%&gt;
         (HTML oder PDF über LaTeX) umgesetzt.</p><p>Die unterstützen Formatierungen sind:</p><div class="variablelist"><dl><dt><span class="term">&lt;b&gt;Text&lt;/b&gt;</span></dt><dd><p>Text wird in Fettdruck gesetzt.</p></dd><dt><span class="term">&lt;i&gt;Text&lt;/i&gt;</span></dt><dd><p>Text wird kursiv gesetzt.</p></dd><dt><span class="term">&lt;u&gt;Text&lt;/u&gt;</span></dt><dd><p>Text wird unterstrichen.</p></dd><dt><span class="term">&lt;s&gt;Text&lt;/s&gt;</span></dt><dd><p>Text wird durchgestrichen. Diese Formatierung ist nicht
               bei der Ausgabe als PDF über LaTeX verfügbar.</p></dd><dt><span class="term">&lt;bullet&gt;</span></dt><dd><p>Erzeugt einen ausgefüllten Kreis für Aufzählungen (siehe
               unten).</p></dd></dl></div><p>Der Befehl <span class="command"><strong>&lt;bullet&gt;</strong></span> funktioniert
-        momentan auch nur in Latex-Vorlagen.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch03s02.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch03.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch03s04.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">3.2. Bankerweiterung&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;3.4. Excel-Vorlagen</td></tr></table></div></body></html>
+        momentan auch nur in Latex-Vorlagen.</p></div><div class="sect2" title="3.3.13. Hinweise zur Anrede"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.anrede"></a>3.3.13. Hinweise zur Anrede</h3></div></div></div><p>Das Flag "natürliche Person"
+        (<code class="varname">natural_person</code>) aus den Kunden- oder
+        Lieferantenstammdaten kann in den Druckvorlagen zusammen mit
+        dem Feld "Anrede" (<code class="varname">greeting</code>) z.B. dafür
+        verwendet werden, die Anrede zwischen einer allgemeinen und
+        einer persönlichen Anrede zu unterscheiden.
+        </p><pre class="programlisting">&lt;%if natural_person%&gt;&lt;%greeting%&gt; &lt;%name%&gt;&lt;%else%&gt;Sehr geehrte Damen und Herren&lt;%end if%&gt;</pre><p>
+        
+            </p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch03s02.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch03.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch03s04.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">3.2. Bankerweiterung&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;3.4. Excel-Vorlagen</td></tr></table></div></body></html>
