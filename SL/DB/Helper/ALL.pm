@@ -27,6 +27,7 @@ use SL::DB::Buchungsgruppe;
 use SL::DB::Business;
 use SL::DB::Chart;
 use SL::DB::Contact;
+use SL::DB::ContactTitle;
 use SL::DB::CsvImportProfile;
 use SL::DB::CsvImportProfileSetting;
 use SL::DB::CsvImportReport;
