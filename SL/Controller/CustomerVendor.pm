@@ -17,6 +17,7 @@ use SL::Controller::Helper::ParseFilter;
 use SL::DB::Customer;
 use SL::DB::Vendor;
 use SL::DB::Business;
+use SL::DB::ContactDepartment;
 use SL::DB::ContactTitle;
 use SL::DB::Employee;
 use SL::DB::Greeting;
@@ -165,14 +166,19 @@ sub _save {
   }
 
   $self->{cv}->greeting(trim $self->{cv}->greeting);
-  my $save_greeting      = $self->{cv}->greeting
+  my $save_greeting           = $self->{cv}->greeting
     && $::instance_conf->get_vc_greetings_use_textfield
     && SL::DB::Manager::Greeting->get_all_count(where => [description => $self->{cv}->greeting]) == 0;
 
   $self->{contact}->cp_title(trim($self->{contact}->cp_title));
-  my $save_contact_title = $self->{contact}->cp_title
+  my $save_contact_title      = $self->{contact}->cp_title
     && $::instance_conf->get_contact_titles_use_textfield
     && SL::DB::Manager::ContactTitle->get_all_count(where => [description => $self->{contact}->cp_title]) == 0;
+
+  $self->{contact}->cp_abteilung(trim($self->{contact}->cp_abteilung));
+  my $save_contact_department = $self->{contact}->cp_abteilung
+    && $::instance_conf->get_contact_departments_use_textfield
+    && SL::DB::Manager::ContactDepartment->get_all_count(where => [description => $self->{contact}->cp_abteilung]) == 0;
 
   my $db = $self->{cv}->db;
 
@@ -203,7 +209,8 @@ sub _save {
 
     $self->{contact}->cp_cv_id($self->{cv}->id);
     if( $self->{contact}->cp_name ne '' || $self->{contact}->cp_givenname ne '' ) {
-      SL::DB::ContactTitle->new(description => $self->{contact}->cp_title)->save if $save_contact_title;
+      SL::DB::ContactTitle     ->new(description => $self->{contact}->cp_title)    ->save if $save_contact_title;
+      SL::DB::ContactDepartment->new(description => $self->{contact}->cp_abteilung)->save if $save_contact_department;
 
       $self->{contact}->save(cascade => 1);
     }
@@ -951,6 +958,13 @@ sub _pre_render {
     }
   }
 
+  $self->{all_contact_departments} = SL::DB::Manager::ContactDepartment->get_all_sorted();
+  foreach my $contact (@{ $self->{cv}->contacts }) {
+    if ($contact->cp_abteilung && !grep {$contact->cp_abteilung eq $_->description} @{$self->{all_contact_departments}}) {
+      unshift @{$self->{all_contact_departments}}, (SL::DB::ContactDepartment->new(description => $contact->cp_abteilung));
+    }
+  }
+
   $self->{all_currencies} = SL::DB::Manager::Currency->get_all();
 
   $self->{all_languages} = SL::DB::Manager::Language->get_all();
@@ -986,18 +1000,6 @@ sub _pre_render {
   if ($self->{cv}->is_customer) {
     $self->{all_pricegroups} = SL::DB::Manager::Pricegroup->get_all_sorted(query => [ or => [ id => $self->{cv}->pricegroup_id, obsolete => 0 ] ]);
   }
-
-  $query =
-    'SELECT DISTINCT(cp_abteilung) AS department
-     FROM contacts
-     WHERE cp_abteilung IS NOT NULL AND cp_abteilung != \'\'
-     ORDER BY cp_abteilung';
-  $self->{all_departments} = [
-    map(
-      { $_->{department}; }
-      selectall_hashref_query($::form, $dbh, $query)
-    )
-  ];
 
   $self->{contacts} = $self->{cv}->contacts;
   $self->{contacts} ||= [];

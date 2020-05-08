@@ -58,8 +58,12 @@
       <th align="right" nowrap>[% 'Department' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('contact.cp_abteilung', SELF.contact.cp_abteilung, size = 40) %]
-        [% L.select_tag('contact_cp_abteilung_select', SELF.all_departments, default = SELF.contact.cp_abteilung,  with_empty = 1, onchange = '$("#contact_cp_abteilung").val(this.value);') %]
+        [%- IF INSTANCE_CONF.get_contact_departments_use_textfield -%]
+          [% L.input_tag('contact.cp_abteilung', SELF.contact.cp_abteilung, size = 40) %]
+          [% L.select_tag('contact_cp_abteilung_select', SELF.all_contact_departments, default = SELF.contact.cp_abteilung, value_key = 'description', title_key = 'description', with_empty = 1, onchange = '$("#contact_cp_abteilung").val(this.value);') %]
+        [%- ELSE -%]
+          [% L.select_tag('contact.cp_abteilung', SELF.all_contact_departments, default = SELF.contact.cp_abteilung, value_key = 'description', title_key = 'description', with_empty = 1) %]
+        [%- END -%]
       </td>
     </tr>
 

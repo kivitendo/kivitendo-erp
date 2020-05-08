@@ -70,6 +70,7 @@ namespace('kivi.CustomerVendor', function(ns) {
       if ( contactId ) {
         $('#action_delete_contact').show();
         $('#contact_cp_title_select').val(contact['cp_title']);
+        $('#contact_cp_abteilung_select').val(contact['cp_abteilung']);
       } else {
         $('#action_delete_contact').hide();
         $('#contact_cp_title_select, #contact_cp_abteilung_select').val('');

@@ -40,6 +40,7 @@ __PACKAGE__->meta->columns(
   co_ustid                                  => { type => 'text' },
   coa                                       => { type => 'text' },
   company                                   => { type => 'text' },
+  contact_departments_use_textfield         => { type => 'boolean' },
   contact_titles_use_textfield              => { type => 'boolean' },
   create_part_if_not_found                  => { type => 'boolean', default => 'false' },
   create_zugferd_invoices                   => { type => 'integer' },
