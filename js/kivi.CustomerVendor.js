@@ -67,10 +67,13 @@ namespace('kivi.CustomerVendor', function(ns) {
 
       kivi.CustomerVendor.setCustomVariablesFromAJAJ(data.contact_cvars, 'contact_cvars_');
 
-      if ( contactId )
+      if ( contactId ) {
         $('#action_delete_contact').show();
-      else
+        $('#contact_cp_title_select').val(contact['cp_title']);
+      } else {
         $('#action_delete_contact').hide();
+        $('#contact_cp_title_select, #contact_cp_abteilung_select').val('');
+      }
       if (data.contact.disable_cp_main === 1)
         $("#contact_cp_main").prop("disabled", true);
       else
@@ -79,7 +82,6 @@ namespace('kivi.CustomerVendor', function(ns) {
         params.onFormSet();
     });
 
-    $('#contact_cp_title_select, #contact_cp_abteilung_select').val('');
   };
 
   var mapSearchStmts = [

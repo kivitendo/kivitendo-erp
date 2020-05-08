@@ -17,6 +17,7 @@ use SL::Controller::Helper::ParseFilter;
 use SL::DB::Customer;
 use SL::DB::Vendor;
 use SL::DB::Business;
+use SL::DB::ContactTitle;
 use SL::DB::Employee;
 use SL::DB::Greeting;
 use SL::DB::Language;
@@ -164,9 +165,14 @@ sub _save {
   }
 
   $self->{cv}->greeting(trim $self->{cv}->greeting);
-  my $save_greeting  = $self->{cv}->greeting
-                    && $::instance_conf->get_vc_greetings_use_textfield
-                    && SL::DB::Manager::Greeting->get_all_count(where => [description => $self->{cv}->greeting]) == 0;
+  my $save_greeting      = $self->{cv}->greeting
+    && $::instance_conf->get_vc_greetings_use_textfield
+    && SL::DB::Manager::Greeting->get_all_count(where => [description => $self->{cv}->greeting]) == 0;
+
+  $self->{contact}->cp_title(trim($self->{contact}->cp_title));
+  my $save_contact_title = $self->{contact}->cp_title
+    && $::instance_conf->get_contact_titles_use_textfield
+    && SL::DB::Manager::ContactTitle->get_all_count(where => [description => $self->{contact}->cp_title]) == 0;
 
   my $db = $self->{cv}->db;
 
@@ -197,6 +203,8 @@ sub _save {
 
     $self->{contact}->cp_cv_id($self->{cv}->id);
     if( $self->{contact}->cp_name ne '' || $self->{contact}->cp_givenname ne '' ) {
+      SL::DB::ContactTitle->new(description => $self->{contact}->cp_title)->save if $save_contact_title;
+
       $self->{contact}->save(cascade => 1);
     }
 
@@ -936,18 +944,12 @@ sub _pre_render {
     unshift @{$self->{all_greetings}}, (SL::DB::Greeting->new(description => $self->{cv}->greeting));
   }
 
-
-  $query =
-    'SELECT DISTINCT(cp_title) AS title
-     FROM contacts
-     WHERE cp_title IS NOT NULL AND cp_title != \'\'
-     ORDER BY cp_title';
-  $self->{all_titles} = [
-    map(
-      { $_->{title}; }
-      selectall_hashref_query($::form, $dbh, $query)
-    )
-  ];
+  $self->{all_contact_titles} = SL::DB::Manager::ContactTitle->get_all_sorted();
+  foreach my $contact (@{ $self->{cv}->contacts }) {
+    if ($contact->cp_title && !grep {$contact->cp_title eq $_->description} @{$self->{all_contact_titles}}) {
+      unshift @{$self->{all_contact_titles}}, (SL::DB::ContactTitle->new(description => $contact->cp_title));
+    }
+  }
 
   $self->{all_currencies} = SL::DB::Manager::Currency->get_all();
 
