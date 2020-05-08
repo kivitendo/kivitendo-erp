@@ -56,6 +56,16 @@ my %supported_types = (
     ],
   },
 
+  contact_title => {
+    class  => 'ContactTitle',
+    auth   => 'config',
+    titles => {
+      list => t8('Contact Titles'),
+      add  => t8('Add title'),
+      edit => t8('Edit title'),
+    },
+  },
+
   department => {
     class  => 'Department',
     titles => {

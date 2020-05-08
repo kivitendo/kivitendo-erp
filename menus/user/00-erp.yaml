@@ -1183,6 +1183,13 @@
     action: SimpleSystemSetting/list
     type: business
 - parent: system
+  id: system_contact_titles
+  name: Contact Titles
+  order: 1420
+  params:
+    action: SimpleSystemSetting/list
+    type: contact_title
+- parent: system
   id: system_project_types
   name: Project Types
   order: 1600
