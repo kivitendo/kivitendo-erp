@@ -19,7 +19,12 @@ Kleinere neue Features und Detailverbesserungen:
  - Suche nach Erzeugnissen über die dort verbauten Artikel
  - neues Flag "natürliche Person" bei Kunden/Lieferanten welches z.B. in den
    Druckvorlagen für eine Weiche für die Anrede verwendet werden kann.
- 
+ - eigene Tabellen für Anrede von Kunden/Lieferanten und Titel und Abteilung
+   von Ansprechpersonen. Auswahl in Mandantenkonfiguration, ob in den Stammdaten
+   nur eine Auswahlliste angezeifgt werden soll, oder wie bisher Freitext-Feld
+   und Auwahlliste. Anrede, Titel und Abteilung können im System-Menü bearbeitet
+   werden.
+
 Administrative Änderungen
 
   - Die zwei Perl-Module "CAM::PDF" und "XML::LibXML" werden nun benötigt.
