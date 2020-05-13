@@ -205,7 +205,7 @@ within another C<with_transaction>, whereas L<Rose::DB/do_transaction> can not.
 =item Return values
 
 C<with_transaction> adopts the behaviour of C<eval> in that it returns the
-result of the inner block, and C<undef> if an error occured. This way you can
+result of the inner block, and C<undef> if an error occurred. This way you can
 use the same pattern you would normally use with C<eval> for
 C<with_transaction>:
 

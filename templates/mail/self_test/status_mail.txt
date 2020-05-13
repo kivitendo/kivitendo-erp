@@ -1,7 +1,7 @@
 kivitendo selftest report.
 
 [% IF errors %]
-  General error(s) have occured.
+  General error(s) have occurred.
   [% errors %]
 [% END %]
 

@@ -151,7 +151,7 @@ sub action_delete {
   my ($self, %params) = @_;
 
   if (!$self->letter->delete) {
-    flash('error', t8('An error occured. Letter could not be deleted.'));
+    flash('error', t8('An error occurred. Letter could not be deleted.'));
     return $self->action_update;
   }
 

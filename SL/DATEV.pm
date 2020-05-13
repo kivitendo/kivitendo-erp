@@ -1634,7 +1634,7 @@ Forces a garbage collection on previous exports which will delete all exports th
 
 =item errors
 
-Returns a list of errors that occured. If no errors occured, the export was a success.
+Returns a list of errors that occurred. If no errors occurred, the export was a success.
 
 =item export
 

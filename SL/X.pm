@@ -22,7 +22,7 @@ use Exception::Class (
   'SL::X::DBRoseError'  => {
     isa                 => 'SL::X::DBError',
     fields              => [ qw(class metaobject object) ],
-    defaults            => { error_template => [ '\'%s\' in object of type \'%s\' occured', qw(db_error class) ] },
+    defaults            => { error_template => [ '\'%s\' in object of type \'%s\' occurred', qw(db_error class) ] },
   },
   'SL::X::DBUtilsError' => {
     isa                 => 'SL::X::DBError',
