@@ -21,8 +21,8 @@ Kleinere neue Features und Detailverbesserungen:
    Druckvorlagen für eine Weiche für die Anrede verwendet werden kann.
  - eigene Tabellen für Anrede von Kunden/Lieferanten und Titel und Abteilung
    von Ansprechpersonen. Auswahl in Mandantenkonfiguration, ob in den Stammdaten
-   nur eine Auswahlliste angezeifgt werden soll, oder wie bisher Freitext-Feld
-   und Auwahlliste. Anrede, Titel und Abteilung können im System-Menü bearbeitet
+   nur eine Auswahlliste angezeigt werden soll, oder wie bisher Freitext-Feld
+   und Auswahlliste. Anrede, Titel und Abteilung können im System-Menü bearbeitet
    werden.
 
 Administrative Änderungen
@@ -43,7 +43,7 @@ Mittelgroße neue Features:
 
 - Neuer Workflow Lieferantenauftrag->Kreditorenbuchung: Für jedes Aufwandskonto
   der Positionen im Lieferantenauftrag wird eine Zeile in der Kreditorenbuchung
-  erstellt. Gebucht wird standardmäßig auf des entsprechende Aufwandskonto. In
+  erstellt. Gebucht wird standardmäßig auf das entsprechende Aufwandskonto. In
   der Mandantenkonfiguration kann unter Standardkonten ein Konto ausgewählt
   werden, auf das dann alle Zeilen gebucht werden.
   Die Steuern werden übernommen, sofern diese für das ausgewählte Aufwandskonto
@@ -66,7 +66,7 @@ Kleinere neue Features und Detailverbesserungen:
 
 - In der neuen Angebots-/Auftragsmaske (neuer Auftrags-Controller) kann
   ein Update-Knopf angezeigt werden, der die Positionen aus den
-  Artikelstammdaten aktualisert (alle oder pro Position). Aktualisert werden
+  Artikelstammdaten aktualisiert (alle oder pro Position). Aktualisiert werden
   Preis, Beschreibung und Langtext. Das Feature kann in den
   Benutzereinstellungen eingeschaltet werden.
 
