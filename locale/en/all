@@ -1284,6 +1284,7 @@ $self->{texts} = {
   'Error message from the webshop api:' => '',
   'Error when saving: #1'       => '',
   'Error while applying year-end bookings!' => '',
+  'Error while creating project with project number of new order number, project number #1 already exists!' => '',
   'Error with default taxzone'  => '',
   'Error!'                      => '',
   'Error: #1'                   => '',

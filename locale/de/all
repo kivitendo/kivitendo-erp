@@ -1284,6 +1284,7 @@ $self->{texts} = {
   'Error message from the webshop api:' => 'Fehlermeldung der Webshop Api',
   'Error when saving: #1'       => 'Fehler beim Speichern: #1',
   'Error while applying year-end bookings!' => 'Fehler beim Durchführen der Abschlußbuchungen!',
+  'Error while creating project with project number of new order number, project number #1 already exists!' => 'Fehler beim Erstellen eines Projekts mit der Projektnummer der neuen Auftragsnummer, Projektnummer #1 existiert bereits!',
   'Error with default taxzone'  => 'Ungültige Standardsteuerzone',
   'Error!'                      => 'Fehler!',
   'Error: #1'                   => 'Fehler: #1',

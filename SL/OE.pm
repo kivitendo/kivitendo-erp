@@ -610,6 +610,9 @@ sub _save {
         require SL::DB::Customer;
         my $customer = SL::DB::Manager::Customer->find_by(id => $form->{customer_id});
         die "Can't find customer" unless $customer;
+        die $main::locale->text("Error while creating project with project number of new order number, project number #1 already exists!", $form->{ordnumber})
+          if SL::DB::Manager::Project->find_by(projectnumber => $form->{ordnumber});
+
         my $new_project = SL::DB::Project->new(
           projectnumber     => $form->{ordnumber},
           description       => $customer->name,
