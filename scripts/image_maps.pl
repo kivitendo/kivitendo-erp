@@ -25,7 +25,7 @@ my @images;
 for my $filename (sort @files) {
    my $image = `$identify_bin $filename`;
    if (!defined $image) {
-     warn "warning: could not identify image '$filename'. skpping...";
+     warn "warning: could not identify image '$filename'. skipping...";
      next;
    }
   $image =~ /^(?<filename>\S+) \s (?<type>\S+) \s (?<width>\d+) x (?<height>\d+)/x;
