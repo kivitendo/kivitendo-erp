@@ -88,7 +88,7 @@ sub calculate_invoice_dates {
 
   my $period_len = $self->get_billing_period_length;
   my $cur_date   = ($self->first_billing_date || $self->start_date)->clone;
-  my $end_date   = $self->terminated ? $self->end_date : undef;
+  my $end_date   = $self->terminated || !$self->extend_automatically_by ? $self->end_date : undef;
   $end_date    //= DateTime->today_local->add(years => 100);
   my $start_date = $params{past_dates} ? undef                              : $self->get_previous_billed_period_start_date;
   $start_date    = $start_date         ? $start_date->clone->add(days => 1) : $cur_date->clone;
