@@ -1381,6 +1381,13 @@
     action: CsvImport/new
     profile.type: orders
 - parent: system_import_csv
+  id: system_import_csv_delivery_orders
+  name: Delivery Orders
+  order: 720
+  params:
+    action: CsvImport/new
+    profile.type: delivery_orders
+- parent: system_import_csv
   id: system_import_csv_ar_transactions
   name: AR Transactions
   order: 800

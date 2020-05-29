@@ -141,16 +141,18 @@
     [%- LxERP.t8('One of the columns "qty" or "target_qty" must be given. If "target_qty" is given, the quantity to transfer for each transfer will be calculate, so that the quantity for this part, warehouse and bin will result in the given "target_qty" after each transfer.') %]
    </p>
 
-[%- ELSIF SELF.type == 'orders' OR SELF.type == 'ar_transactions' %]
+[%- ELSIF SELF.type == 'orders' OR SELF.type == 'delivery_orders' OR SELF.type == 'ar_transactions' %]
    <p>
     [1]:
     [% LxERP.t8('The column "datatype" must be present and must be at the same position / column in each data set. The values must be the row names (see settings) for order and item data respectively.') %]
    </p>
-   <p>
-    [2]:
-    [%- LxERP.t8('Amount and net amount are calculated by kivitendo. "verify_amount" and "verify_netamount" can be used for sanity checks.') %]<br>
-    [%- LxERP.t8('If amounts differ more than "Maximal amount difference" (see settings), this item is marked as invalid.') %]<br>
-   </p>
+   [%- IF SELF.type == 'orders' OR SELF.type == 'ar_transactions' %]
+    <p>
+     [2]:
+     [%- LxERP.t8('Amount and net amount are calculated by kivitendo. "verify_amount" and "verify_netamount" can be used for sanity checks.') %]<br>
+     [%- LxERP.t8('If amounts differ more than "Maximal amount difference" (see settings), this item is marked as invalid.') %]<br>
+    </p>
+   [%- END %]
 [%- END %][%# IF SELF.type == … %]
 
    <p>
@@ -266,6 +268,8 @@
  [%- INCLUDE 'csv_import/_form_inventories.html' %]
 [%- ELSIF SELF.type == 'orders' %]
  [%- INCLUDE 'csv_import/_form_orders.html' %]
+[%- ELSIF SELF.type == 'delivery_orders' %]
+ [%- INCLUDE 'csv_import/_form_delivery_orders.html' %]
 [%- ELSIF SELF.type == 'ar_transactions' %]
  [%- INCLUDE 'csv_import/_form_artransactions.html' %]
 [%- ELSIF SELF.type == 'bank_transactions' %]

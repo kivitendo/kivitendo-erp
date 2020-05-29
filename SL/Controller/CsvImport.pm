@@ -20,13 +20,14 @@ use SL::Controller::CsvImport::Inventory;
 use SL::Controller::CsvImport::Shipto;
 use SL::Controller::CsvImport::Project;
 use SL::Controller::CsvImport::Order;
+use SL::Controller::CsvImport::DeliveryOrder;
 use SL::Controller::CsvImport::ARTransaction;
 use SL::JSON;
 use SL::Controller::CsvImport::BankTransaction;
 use SL::BackgroundJob::CsvImport;
 use SL::System::TaskServer;
 
-use List::MoreUtils qw(none);
+use List::MoreUtils qw(any none);
 use List::Util qw(min);
 
 use parent qw(SL::Controller::Base);
@@ -306,7 +307,7 @@ sub check_auth {
 sub check_type {
   my ($self) = @_;
 
-  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts inventories customers_vendors addresses contacts projects orders bank_transactions ar_transactions);
+  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts inventories customers_vendors addresses contacts projects orders delivery_orders bank_transactions ar_transactions);
   $self->type($::form->{profile}->{type});
 }
 
@@ -353,11 +354,12 @@ sub render_inputs {
             : $self->type eq 'inventories'       ? $::locale->text('CSV import: inventories')
             : $self->type eq 'projects'          ? $::locale->text('CSV import: projects')
             : $self->type eq 'orders'            ? $::locale->text('CSV import: orders')
+            : $self->type eq 'delivery_orders'   ? $::locale->text('CSV import: delivery orders')
             : $self->type eq 'bank_transactions' ? $::locale->text('CSV import: bank transactions')
             : $self->type eq 'ar_transactions'   ? $::locale->text('CSV import: ar transactions')
             : die;
 
-  if ($self->{type} eq 'customers_vendors' or $self->{type} eq 'orders' or $self->{type} eq 'ar_transactions' ) {
+  if ( any { $_ eq $self->{type} } qw(customers_vendors orders delivery_orders ar_transactions) ) {
     $self->all_taxzones(SL::DB::Manager::TaxZone->get_all_sorted(query => [ obsolete => 0 ]));
   };
 
@@ -721,6 +723,7 @@ sub init_worker {
        : $self->{type} eq 'inventories'       ? SL::Controller::CsvImport::Inventory->new(@args)
        : $self->{type} eq 'projects'          ? SL::Controller::CsvImport::Project->new(@args)
        : $self->{type} eq 'orders'            ? SL::Controller::CsvImport::Order->new(@args)
+       : $self->{type} eq 'delivery_orders'   ? SL::Controller::CsvImport::DeliveryOrder->new(@args)
        : $self->{type} eq 'bank_transactions' ? SL::Controller::CsvImport::BankTransaction->new(@args)
        : $self->{type} eq 'ar_transactions'   ? SL::Controller::CsvImport::ARTransaction->new(@args)
        :                                        die "Program logic error";

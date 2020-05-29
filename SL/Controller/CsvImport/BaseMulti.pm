@@ -94,6 +94,17 @@ sub run {
   $::myconfig{numberformat} = $old_numberformat;
 }
 
+sub init_manager_class {
+  my ($self) = @_;
+
+  my @manager_classes;
+  foreach my $class (@{ $self->class }) {
+    $class =~ m/^SL::DB::(.+)/;
+    push @manager_classes, "SL::DB::Manager::" . $1;
+  }
+  $self->manager_class(\@manager_classes);
+}
+
 sub add_columns {
   my ($self, $row_ident, @columns) = @_;
 
