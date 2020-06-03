@@ -103,23 +103,45 @@ contents={\usebox\shippingAddressBox}
 \@setplength{locwidth}{6cm}
 
 \ExplSyntaxOn
-\dim_new:N \g_kivi_tab_pos_dim
-\dim_gset:Nn \g_kivi_tab_pos_dim {3.5ex}
-\dim_new:N \g_kivi_tab_id_dim
-\dim_gset:Nn \g_kivi_tab_id_dim {4em}
-\dim_new:N \g_kivi_tab_num_dim
-\dim_gset:Nn \g_kivi_tab_num_dim {5em}
-\dim_new:N \g_kivi_tab_price_dim
-\dim_gset:Nn \g_kivi_tab_price_dim {7em}
-\dim_new:N \g_kivi_tab_desc_dim
+\dim_new:N \l_kivi_tab_desc_dim
+\bool_new:N \l_kivi_col_desc_bool
+\bool_set_true:N \l_kivi_col_desc_bool 
+
+\clist_map_inline:nn {pos, id, amount, price, pricetotal} {
+	\bool_new:c {l_kivi_col_#1_bool}
+	\dim_new:c {l_kivi_tab_#1_dim}
+	\keys_define:nn {kivi/PricingTable} {
+		#1 .choice:,
+		#1 / true .code:n = \bool_set_true:c {l_kivi_col_#1_bool},
+		#1 / false .code:n = \bool_set_false:c {l_kivi_col_#1_bool},
+		#1  /unknown .code:n = {\bool_set_true:c {l_kivi_col_#1_bool}\dim_set:cn {g_kivi_tab_#1_dim} {##1}},
+		#1 .default:n = true,
+		#1 .initial:n = true,
+	}
+}
+
+% set default values for colwidth
+\dim_set:Nn \l_kivi_tab_pos_dim {3.5ex}
+\dim_set:Nn \l_kivi_tab_id_dim {4em}
+\dim_set:Nn \l_kivi_tab_amount_dim {5em}
+\dim_set:Nn \l_kivi_tab_price_dim {7em}
+\dim_set:Nn \l_kivi_tab_pricetotal_dim {7em}
 
 \dim_new:N \g_kivi_tabcolsep_dim
 \dim_gset:Nn \g_kivi_tabcolsep_dim {.5\tabcolsep}
-\newcommand*{\CalcTabCols}{
-	\dim_gset:Nn \g_kivi_tab_desc_dim {\textwidth-\g_kivi_tab_pos_dim -\g_kivi_tab_id_dim-\g_kivi_tab_num_dim - 2\g_kivi_tab_price_dim - 10\g_kivi_tabcolsep_dim}
+
+\cs_new:Nn \__kivi_calc_desc_column: {
+	\dim_gset:Nn \l_kivi_tab_desc_dim {
+		\textwidth
+		\bool_if:NT \l_kivi_col_pos_bool {-\l_kivi_tab_pos_dim -2\g_kivi_tabcolsep_dim}
+		\bool_if:NT \l_kivi_col_id_bool {-\l_kivi_tab_id_dim -2\g_kivi_tabcolsep_dim}
+		\bool_if:NT \l_kivi_col_amount_bool {-\l_kivi_tab_amount_dim -2\g_kivi_tabcolsep_dim}
+		\bool_if:NT \l_kivi_col_pricetotal_bool  {-\l_kivi_tab_pricetotal_dim -2\g_kivi_tabcolsep_dim}
+		\bool_if:NT \l_kivi_col_price_bool  {-\l_kivi_tab_price_dim -2\g_kivi_tabcolsep_dim}
+	}
 }
 
-\newcolumntype{P}{>{\raggedleft\arraybackslash}p{\g_kivi_tab_price_dim}<{\,\currency}}
+\newcolumntype{P}{>{\raggedleft\arraybackslash}p{\l_kivi_tab_price_dim}<{\,\currency}}
 
 \RequirePackage{tcolorbox}
 \tcbuselibrary{breakable, skins}
@@ -163,25 +185,30 @@ contents={\usebox\shippingAddressBox}
 
 
 \seq_new:N \l_kivi_PricingTable_seq
+\seq_new:N \l_kivi_columns_seq
 \seq_new:N \g_kivi_extraDescription_seq
 \newcommand{\FakeTable}[1]{
 	\par
-	\CalcTabCols
 	\seq_set_split:Nnn \l_kivi_PricingTable_seq {\tabularnewline} {#1}
 	\begingroup
 	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
 	\seq_map_inline:Nn \l_kivi_PricingTable_seq {
+		\seq_set_split:Nnn  \l_kivi_columns_seq {&} {##1}
 	\seq_gclear:N \g_kivi_extraDescription_seq
-	\exp_args:NnV \use:n {\tabular[t]}\g_kivi_Pricing_colspec_tl
-	##1
+	\exp_args:Nnx \use:n {\tabular[t]}\g_kivi_Pricing_colspec_tl
+		\seq_pop_left:NN \__l_FakeTable_columns_seq \l_tmpa_tl
+		\seq_item:Nn \l_kivi_columns_seq {\l_tmpa_tl}
+		\seq_map_inline:Nn \__l_FakeTable_columns_seq {
+			&\seq_item:Nn \l_kivi_columns_seq {####1}
+		}
 	\endtabular
 	\seq_if_empty:NTF \g_kivi_extraDescription_seq
 	{\par\nointerlineskip}
 	{\par\nointerlineskip
 	\begin{tcolorbox}[
 		empty,
-		left=\dim_eval:n {\g_kivi_tab_pos_dim+ \g_kivi_tab_id_dim +4\g_kivi_tabcolsep_dim},
-		right=\dim_eval:n {\g_kivi_tab_num_dim+ 2\g_kivi_tab_price_dim +6\g_kivi_tabcolsep_dim},top=0pt,bottom=0pt,
+		left=\dim_eval:n {\l_kivi_tab_pos_dim+ \l_kivi_tab_id_dim +4\g_kivi_tabcolsep_dim},
+		right=\dim_eval:n {\l_kivi_tab_num_dim+ 2\l_kivi_tab_price_dim +6\g_kivi_tabcolsep_dim},top=0pt,bottom=0pt,
 		boxsep=0pt,
 		breakable,
 		lines~before~break=1,
@@ -195,51 +222,76 @@ contents={\usebox\shippingAddressBox}
 }
 
 
+\seq_new:N  \__l_FakeTable_columns_seq
+\cs_new:Nn \__kivi_setup_FakeTable: {
+	\seq_clear:N \__l_FakeTable_columns_seq
+	\bool_if:NT \l_kivi_col_pos_bool {\seq_put_right:Nn \__l_FakeTable_columns_seq {1}}
+	\bool_if:NT \l_kivi_col_id_bool  {\seq_put_right:Nn \__l_FakeTable_columns_seq {2}}
+	\bool_if:NT \l_kivi_col_desc_bool  {\seq_put_right:Nn \__l_FakeTable_columns_seq {3}}
+	\bool_if:NT \l_kivi_col_amount_bool {\seq_put_right:Nn \__l_FakeTable_columns_seq {4}}
+	\bool_if:NT \l_kivi_col_pricetotal_bool   {\seq_put_right:Nn \__l_FakeTable_columns_seq {5}}
+	\bool_if:NT \l_kivi_col_price_bool   {\seq_put_right:Nn \__l_FakeTable_columns_seq {6}}
+}
+
 \tl_new:N \g_kivi_Pricing_colspec_tl
-\tl_gset:Nn \g_kivi_Pricing_colspec_tl {@{}p{\g_kivi_tab_pos_dim}p{\g_kivi_tab_id_dim}p{\g_kivi_tab_desc_dim}>{\raggedleft\arraybackslash}p{\g_kivi_tab_num_dim}*2{P}@{}}
+\tl_gset:Nn \g_kivi_Pricing_colspec_tl {
+	@{}
+	\bool_if:NT \l_kivi_col_pos_bool {p{\l_kivi_tab_pos_dim}}
+	\bool_if:NT \l_kivi_col_id_bool {p{\l_kivi_tab_id_dim}}
+	p{\l_kivi_tab_desc_dim}
+	\bool_if:NT \l_kivi_col_amount_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_amount_dim}}}
+	\bool_if:NT \l_kivi_col_price_bool {>{\raggedleft\arraybackslash}p{\l_kivi_tab_price_dim}<{\,\currency}}
+	\bool_if:NT \l_kivi_col_pricetotal_bool {>{\raggedleft\arraybackslash}p{\l_kivi_tab_pricetotal_dim}<{\,\currency}}
+	@{}
+}
 
 
 \clist_map_inline:nn {head, foot, firsthead, lastfoot} {%TODO reduce
 	\box_new:c {g_kivi_LT@#1_box}
 }
 
-
-\cs_new:Nn \kivi_setup_LT_boxes: {
-	\CalcTabCols
+\cs_new:Nn \__kivi_setup_LT_boxes: {
+	\__kivi_calc_desc_column:
 	\hbox_gset:Nn \g_kivi_LT@head_box {
-	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
-	\exp_args:NnV \use:n {\tabular[b]}\g_kivi_Pricing_colspec_tl
-	\toprule
-	\bfseries\position & \bfseries\artikelnummer & \bfseries\bezeichnung & \bfseries\menge &\multicolumn{1}{P}{\bfseries\einzelpreis}&\multicolumn{1}{P@{}}{\bfseries\gesamtpreis}\\
-	\midrule
-	\endtabular
+		\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
+		\exp_args:Nnx \use:n {\tabular[b]}\g_kivi_Pricing_colspec_tl
+		\toprule
+		\bool_if:NT \l_kivi_col_pos_bool {\bfseries\position &}
+		\bool_if:NT \l_kivi_col_id_bool {\bfseries\artikelnummer &}
+		\bfseries\bezeichnung
+		\bool_if:NT \l_kivi_col_amount_bool {&\bfseries\menge}
+		\bool_if:NT \l_kivi_col_price_bool { &\multicolumn{1}{>{\raggedleft}p{\l_kivi_tab_price_dim}}{\bfseries\einzelpreis}}
+		\bool_if:NT \l_kivi_col_pricetotal_bool {&\multicolumn{1}{>{\raggedleft}p{\l_kivi_tab_pricetotal_dim}@{}}{\bfseries\gesamtpreis}}\\
+		\\
+		\midrule\\[-\dp\strutbox]
+		\endtabular
 	}
 	\hbox_gset:Nn \g_kivi_LT@foot_box {
-	\raisebox{\depth}{
-	\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}r@{}}
-	\midrule
-	\strut\weiteraufnaechsterseite
-	\end{tabular*}
-	}
+		\raisebox{\depth}{
+			\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}r@{}}
+				\midrule
+				\strut\weiteraufnaechsterseite
+			\end{tabular*}
+		}
 	}
 }
 
 
 %Macht es sinn hier eine Variante zu machen, in der alle Spalten Belegbar sind?
 \newenvironment{PricingTotal}{
-	\tabular[t]{@{}p{\dim_eval:n {\linewidth-\g_kivi_tab_price_dim-2\tabcolsep}}P@{}}
+	\tabular[t]{@{}p{\dim_eval:n {\linewidth-\l_kivi_tab_price_dim-2\tabcolsep}}P@{}}
 	\midrule
 }{
 	\bottomrule\endtabular
 }
 
 \newcommand{\ExtraDescription}[1]{\seq_gput_right:Nn \g_kivi_extraDescription_seq {#1}}
-%\else
+
 \newenvironment{PricingTabular}[1][]{
 	\begingroup
 	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
-	\CalcTabCols
-	\exp_args:NV \longtable \g_kivi_Pricing_colspec_tl
+	\__kivi_calc_desc_column:
+	\exp_args:Nx \longtable \g_kivi_Pricing_colspec_tl
 	% Tabellenkopf
 	\toprule
 	\bfseries\position & \bfseries\artikelnummer & \bfseries\bezeichnung & \bfseries\menge &\multicolumn{1}{P}{\bfseries\einzelpreis}&\multicolumn{1}{P@{}}{\bfseries\gesamtpreis}\\
