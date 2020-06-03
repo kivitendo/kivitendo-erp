@@ -240,8 +240,8 @@ contents={\usebox\shippingAddressBox}
 	\bool_if:NT \l_kivi_col_id_bool {p{\l_kivi_tab_id_dim}}
 	p{\l_kivi_tab_desc_dim}
 	\bool_if:NT \l_kivi_col_amount_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_amount_dim}}}
-	\bool_if:NT \l_kivi_col_price_bool {>{\raggedleft\arraybackslash}p{\l_kivi_tab_price_dim}<{\,\currency}}
-	\bool_if:NT \l_kivi_col_pricetotal_bool {>{\raggedleft\arraybackslash}p{\l_kivi_tab_pricetotal_dim}<{\,\currency}}
+	\bool_if:NT \l_kivi_col_price_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_price_dim}<{\,\currency}}}
+	\bool_if:NT \l_kivi_col_pricetotal_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_pricetotal_dim}<{\,\currency}}}
 	@{}
 }
 
@@ -376,8 +376,8 @@ contents={\usebox\shippingAddressBox}
 \removereffields
 \AtBeginLetter{
 	\ifdim\ht\shippingAddressBox>\z@
-	\addtoplength{refvpos}{\dimexpr\ht\shippingAddressBox+\dp\shippingAddressBox}
-	\addtoplength{refvpos}{4\baselineskip}%sep between address boxes
+	\@addtoplength{refvpos}{\dimexpr\ht\shippingAddressBox+\dp\shippingAddressBox}
+	\@addtoplength{refvpos}{4\baselineskip}%sep between address boxes
 	\fi
 }
 \ExplSyntaxOff
