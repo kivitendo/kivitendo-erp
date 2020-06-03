@@ -59,7 +59,6 @@
 \bool_new:N \l_kivi_tmp_bool
 \bool_new:N  \g_kivi_TableFoot_bool
 \dim_new:N \g_kivi_orig@textheight_dim
-\int_new:N \g_PricingTabular_firstpage_int
 \ExplSyntaxOff
 
 \newsavebox{\shippingAddressBox}
@@ -74,27 +73,6 @@ contents={\usebox\shippingAddressBox}
 
 
 \ExplSyntaxOn
-\DeclareNewLayer[
-foreground,
-mode=picture,
-hoffset=\g_kivi_margin_dim,
-voffset=\g_kivi_margin_dim,
-align=tl,
-height=\box_ht:N \g_kivi_LT@head_box,
-contents={\box_use:N \g_kivi_LT@head_box},
-]{kivitendo.TableHead}
-
-
-\DeclareNewLayer[
-foreground,
-textarea,
-mode=picture,
-voffset=\dim_eval:n {\paperheight-\g_kivi_margin_dim},
-height=\box_ht:N \g_kivi_LT@foot_box,
-contents=\bool_if:NT \g_kivi_TableFoot_bool {\box_use:N \g_kivi_LT@foot_box},
-align=bl,
-]{kivitendo.TableFoot}
-
 \AtBeginLetter{\dim_gset:Nn \g_kivi_orig@textheight_dim {\textheight}}
 \ExplSyntaxOff
 
@@ -143,9 +121,47 @@ align=bl,
 
 \newcolumntype{P}{>{\raggedleft\arraybackslash}p{\g_kivi_tab_price_dim}<{\,\currency}}
 
-%\if@kivi@faketable
 \RequirePackage{tcolorbox}
 \tcbuselibrary{breakable, skins}
+
+\tcb@new@skin{kivi@LT}{base@unbroken,%
+	frame~engine=empty,interior~titled~engine=empty,interior~engine=empty,segmentation~engine=empty,title~engine=empty,%
+	skin~first=kivi@LT@first,skin~middle=kivi@LT@middle,skin~last=kivi@LT@last,
+	underlay~first~and~middle={
+		\node[anchor=north]  at (interior.north)  {\csname box_use:c\endcsname  {g_kivi_LT@head_box}};
+		\node[anchor=south]  at (interior.south)  {\csname box_use:c\endcsname  {g_kivi_LT@foot_box}};
+	},
+	underlay~unbroken~and~last={
+	\node[anchor=north]  at (interior.north)  {\csname box_use:c\endcsname  {g_kivi_LT@head_box}};
+	},
+	boxsep=0pt,
+	boxrule=0pt,
+	left=0pt,
+	right=0pt,
+	bottom=\box_ht:N  \g_kivi_LT@foot_box+\box_dp:N  \g_kivi_LT@foot_box,
+	top=\box_ht:N  \g_kivi_LT@head_box+\box_dp:N  \g_kivi_LT@head_box,
+	parbox=false,
+}
+
+\tcb@new@skin{kivi@LT@first}{base@first,%
+	frame~engine=empty,interior~titled~engine=empty,interior~engine=empty,segmentation~engine=empty,title~engine=empty,%
+	skin~first=kivi@LT@first,skin~middle=kivi@LT@middle,skin~last=kivi@LT@middle,
+}
+
+\tcb@new@skin{kivi@LT@middle}{base@middle,%
+	frame~engine=empty,interior~titled~engine=empty,interior~engine=empty,segmentation~engine=empty,title~engine=empty,%
+	skin~first=kivi@LT@middle,skin~middle=kivi@LT@middle,skin~last=kivi@LT@middle,
+}
+
+\tcb@new@skin{kivi@LT@last}{base@last,%
+	frame~engine=empty,interior~titled~engine=empty,interior~engine=empty,segmentation~engine=empty,title~engine=empty,%
+	skin~first=kivi@LT@middle,skin~middle=kivi@LT@middle,skin~last=kivi@LT@last,
+}
+
+\tcbset{kivi@LT/.style={skin=kivi@LT}}%
+
+
+
 \seq_new:N \l_kivi_PricingTable_seq
 \seq_new:N \g_kivi_extraDescription_seq
 \newcommand{\FakeTable}[1]{
@@ -187,16 +203,6 @@ align=bl,
 	\box_new:c {g_kivi_LT@#1_box}
 }
 
-\AtBeginDocument{
-	\csname kivi_setup_LT_boxes:\endcsname
-	\geometry{a4paper,
-		hmargin=\g_kivi_margin_dim,
-		top=\dim_eval:n {\g_kivi_margin_dim + \box_ht:N \g_kivi_LT@head_box},
-		bottom=\dim_eval:n {\g_kivi_margin_dim + \box_ht:N \g_kivi_LT@foot_box},
-		heightrounded}
-	\savegeometry{kivi.letter@table}
-	\loadgeometry{kivi.letter@default}
-}
 
 \cs_new:Nn \kivi_setup_LT_boxes: {
 	\CalcTabCols
@@ -268,46 +274,15 @@ align=bl,
 	\endxltabular
 }
 
-
-\usepackage{afterpage}
-
-\cs_new:cpn {PricingTabular*}{
+\newenvironment{PricingTabular*}[1][]{
 	\bool_gset_true:N \g_kivi_inTable_bool
-	\endgroup
-	\@nameuse{Gm@restore@@kivi.letter@table}%
-	\Gm@changelayout
-	\begingroup
-	\def \@currenvir {PricingTabular*}\edef \@currenvline {\on@line }
-	\int_gset:Nn \g_PricingTabular_firstpage_int {\c@page}
-	\addtolength{\vsize}{-\box_ht:N \g_kivi_LT@foot_box}
-	\pagegoal\vsize
-	\widowpenalty0
-	\clubpenalty0
-	\bool_gset_true:N \g_kivi_TableFoot_bool
-	\pagestyle{kivitendo.letter.PricingTable}
-	\leavevmode\box_use:N \g_kivi_LT@head_box
-	\par\nointerlineskip\ignorespaces
-}
+	\tl_if_empty:nF {#1} {\keys_set:nn {kivi/PricingTable} {#1}}
+	\__kivi_setup_LT_boxes:
+	\__kivi_setup_FakeTable:
+	\PricingTabularBox\ignorespaces
+}{\endPricingTabularBox}
 
-\cs_new:cpn {endPricingTabular*} {
-	\int_compare:nNnF \g_PricingTabular_firstpage_int = \c@page {\thispagestyle{kivitendo.letter.PricingTable}}
-	\bool_gset_false:N \g_kivi_TableFoot_bool
-	\@nameuse{Gm@restore@@kivi.letter@default}
-	\Gm@changelayout
-	\bool_gset_true:N \g_kivi_restore_geometry_bool
-	\afterpage{
-		\kivi_conditional_restore_geometry:
-	}
-}
-
-\cs_new:Nn \kivi_conditional_restore_geometry: {
-	\bool_if:NT \g_kivi_restore_geometry_bool
-	{
-	\@nameuse{Gm@restore@@kivi.letter@default}
-	\Gm@changelayout
-	}
-	\bool_gset_false:N \g_kivi_restore_geometry_bool
-}
+\newtcolorbox{PricingTabularBox}{breakable,skin=kivi@LT}
 
 
 
