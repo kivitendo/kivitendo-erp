@@ -326,6 +326,11 @@ contents={\usebox\shippingAddressBox}
 	\endxltabular
 }
 
+%PricingTabular* kann automatisch spalten ignorieren
+% \begin{PricingTabular*}[id=false]
+% deaktiviert damit die Spalte der Produktnummer
+% analog ist dies für pos, amount, price, pricetotal möglich.
+% Die Spalte der Bezeichnung ist nicht deaktivierbar
 \newenvironment{PricingTabular*}[1][]{
 	\bool_gset_true:N \g_kivi_inTable_bool
 	\tl_if_empty:nF {#1} {\keys_set:nn {kivi/PricingTable} {#1}}

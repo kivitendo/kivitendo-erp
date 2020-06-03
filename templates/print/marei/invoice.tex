@@ -95,7 +95,11 @@
 <%end if%>
 
 
-
+%PricingTabular* kann automatisch spalten ignorieren
+% \begin{PricingTabular*}[id=false]
+% deaktiviert damit die Spalte der Produktnummer
+% analog ist dies für pos, amount, price, pricetotal möglich.
+% Die Spalte der Bezeichnung ist nicht deaktivierbar
 \begin{PricingTabular*}
 % eigentliche Tabelle
 \FakeTable{
