@@ -1,7 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{kiviletter}[2020/04/24 Letter Layouts for Kivitendo]
 
-
 \newif\if@kivi@infobox
 \DeclareOption{reffields}{\@kivi@infoboxfalse}
 \DeclareOption{infobox}{\@kivi@infoboxtrue}
@@ -69,7 +68,7 @@
 \DeclareNewLayer[
 foreground,
 hoffset=\useplength{toaddrhpos},
-voffset=\dimexpr\useplength{toaddrvpos}+\useplength{toaddrheight}+4\baselineskip,
+voffset=\dimexpr\useplength{toaddrvpos}+\useplength{toaddrheight}+4\baselineskip,%sep to shippingaddressbox
 contents={\usebox\shippingAddressBox}
 ]{kivitendo.shippingaddress}
 
@@ -345,8 +344,8 @@ align=bl,
 \removereffields
 \AtBeginLetter{
 	\ifdim\ht\shippingAddressBox>\z@
-	\addtoplength{refvpos}{\ht\shippingAddressBox}
-	\addtoplength{refvpos}{4\baselineskip}
+	\addtoplength{refvpos}{\dimexpr\ht\shippingAddressBox+\dp\shippingAddressBox}
+	\addtoplength{refvpos}{4\baselineskip}%sep between address boxes
 	\fi
 }
 \ExplSyntaxOff
