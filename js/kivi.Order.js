@@ -162,7 +162,7 @@ namespace('kivi.Order', function(ns) {
     $('#nr_in_title').html($(elt).val());
   };
 
-  ns.reload_cv_dependant_selections = function() {
+  ns.reload_cv_dependent_selections = function() {
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/customer_vendor_changed' });
 
@@ -786,9 +786,9 @@ namespace('kivi.Order', function(ns) {
 
 $(function() {
   if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
-    $('#order_customer_id').change(kivi.Order.reload_cv_dependant_selections);
+    $('#order_customer_id').change(kivi.Order.reload_cv_dependent_selections);
   } else {
-    $('#order_vendor_id').change(kivi.Order.reload_cv_dependant_selections);
+    $('#order_vendor_id').change(kivi.Order.reload_cv_dependent_selections);
   }
 
   if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {

@@ -145,7 +145,7 @@ $modules{$_->{name}} ||= { status => 'required' } for @SL::InstallationCheck::re
 $modules{$_->{name}} ||= { status => 'optional' } for @SL::InstallationCheck::optional_modules;
 $modules{$_->{name}} ||= { status => 'developer' } for @SL::InstallationCheck::developer_modules;
 
-# build transitive closure for documented dependancies
+# build transitive closure for documented dependencies
 my $changed = 1;
 while ($changed) {
   $changed = 0;
@@ -249,7 +249,7 @@ This module is included in C<modules/*>. Don't worry about it.
 =item required
 
 This module is documented in C<SL:InstallationCheck> to be necessary, or is a
-dependancy of one of these. Everything alright.
+dependency of one of these. Everything alright.
 
 =item !missing
 

@@ -82,7 +82,7 @@ if ($check{a}) {
 $| = 1;
 
 if (!SL::LxOfficeConf->read(undef, 'may fail')) {
-  print_header('Could not load the config file. If you have dependancies from any features enabled in the configuration these will still show up as optional because of this. Please rerun this script after installing the dependancies needed to load the configuration.')
+  print_header('Could not load the config file. If you have dependencies from any features enabled in the configuration these will still show up as optional because of this. Please rerun this script after installing the dependencies needed to load the configuration.')
 } else {
   SL::InstallationCheck::check_for_conditional_dependencies();
 }
@@ -122,7 +122,7 @@ EOL
 
 Standard check done, everything is OK and up to date. Have a look at the --help
 section of this script to see some more advanced checks for developer and
-optional dependancies, as well as LaTeX packages you might need.
+optional dependencies, as well as LaTeX packages you might need.
 EOL
   }
 }
@@ -270,7 +270,7 @@ sub check_module {
       $role{optional} ? 'It is OPTIONAL for kivitendo but RECOMMENDED for improved functionality.'
     : $role{required} ? 'It is NEEDED by kivitendo and must be installed.'
     : $role{devel}    ? 'It is OPTIONAL for kivitendo and only useful for developers.'
-    :                   'It is not listed as a dependancy yet. Please tell this the developers.';
+    :                   'It is not listed as a dependency yet. Please tell this the developers.';
 
   my @source_texts = module_source_texts($module);
   local $" = $/;
@@ -340,7 +340,7 @@ __END__
 
 =head1 NAME
 
-scripts/installation_check.pl - check kivitendo dependancies
+scripts/installation_check.pl - check kivitendo dependencies
 
 =head1 SYNOPSIS
 
@@ -372,11 +372,11 @@ No color output. Helpful to avoid terminal escape problems.
 
 =item C<-d, --devel>
 
-Probe for perl developer dependancies. (Used for console  and tags file)
+Probe for perl developer dependencies. (Used for console  and tags file)
 
 =item C<--no-devel>
 
-Don't probe for perl developer dependancies. (Useful in combination with --all)
+Don't probe for perl developer dependencies. (Useful in combination with --all)
 
 =item C<-h, --help>
 
@@ -408,7 +408,7 @@ Don't probe for LaTeX document classes and packages in master templates. (Useful
 
 =item C<-v. --verbose>
 
-Print additional info for missing dependancies
+Print additional info for missing dependencies
 
 =item C<-i, --install-command>
 
