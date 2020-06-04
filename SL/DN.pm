@@ -1128,6 +1128,9 @@ sub print_original_invoices {
   $print_form->{media}    = 'file';
   # no language override, should always be the object's language
   $invoice->flatten_to_form($print_form, format_amounts => 1);
+  for my $i (1 .. $print_form->{rowcount}) {
+    $print_form->{"sellprice_$i"} = $print_form->{"fxsellprice_$i"};
+  }
   $print_form->prepare_for_printing;
 
   my $filename = SL::Helper::CreatePDF->create_pdf(
