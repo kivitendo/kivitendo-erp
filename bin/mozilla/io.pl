@@ -919,7 +919,6 @@ sub order {
 
       $item->price_factor_id(undef) if !$item->price_factor_id;
       $item->project_id(undef)      if !$item->project_id;
-      $item->discount($item->discount/100.0);
 
       # autovivify all cvars that are not in the form (cvars_by_config can do it).
       # workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
