@@ -29,12 +29,14 @@ sub make {
 
 sub _make_by_type {
   my ($package, $name, $type) = @_;
-  _as_number ($package, $name, places => -2) if $type =~ /numeric | real | float/xi;
-  _as_percent($package, $name, places =>  2) if $type =~ /numeric | real | float/xi;
-  _as_number ($package, $name, places =>  0) if $type =~ /int/xi;
-  _as_date   ($package, $name)               if $type =~ /date | timestamp/xi;
-  _as_timestamp($package, $name)             if $type =~ /timestamp/xi;
-  _as_bool_yn($package, $name)               if $type =~ /bool/xi;
+  _as_number     ($package, $name, places => -2) if $type =~ /numeric | real | float/xi;
+  _as_null_number($package, $name, places => -2) if $type =~ /numeric | real | float/xi;
+  _as_percent    ($package, $name, places =>  2) if $type =~ /numeric | real | float/xi;
+  _as_number     ($package, $name, places =>  0) if $type =~ /int/xi;
+  _as_null_number($package, $name, places =>  0) if $type =~ /int/xi;
+  _as_date       ($package, $name)               if $type =~ /date | timestamp/xi;
+  _as_timestamp  ($package, $name)             if $type =~ /timestamp/xi;
+  _as_bool_yn    ($package, $name)               if $type =~ /bool/xi;
 }
 
 sub _as_number {
@@ -51,6 +53,23 @@ sub _as_number {
     $self->$attribute($::form->parse_amount(\%::myconfig, $string)) if @_ > 1;
 
     return $::form->format_amount(\%::myconfig, $self->$attribute, $params{places});
+  };
+}
+
+sub _as_null_number {
+  my $package     = shift;
+  my $attribute   = shift;
+  my %params      = @_;
+
+  $params{places} = 2 if !defined($params{places});
+
+  no strict 'refs';
+  *{ $package . '::' . $attribute . '_as_null_number' } = sub {
+    my ($self, $string) = @_;
+
+    $self->$attribute($string eq '' ? undef : $::form->parse_amount(\%::myconfig, $string)) if @_ > 1;
+
+    return defined $self->$attribute ? $::form->format_amount(\%::myconfig, $self->$attribute, $params{places}) : '';
   };
 }
 

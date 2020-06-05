@@ -1,4 +1,4 @@
-use Test::More tests => 32;
+use Test::More tests => 44;
 
 use lib 't';
 
@@ -23,6 +23,18 @@ is($p->sellprice_as_number, '2,30');
 is($p->sellprice_as_number('2,3442'), '2,3442');
 is($p->sellprice, 2.3442);
 is($p->sellprice_as_number, '2,3442');
+is($p->listprice_as_null_number('2,30'), '2,30');
+is($p->listprice, 2.30);
+is($p->listprice_as_null_number, '2,30');
+is($p->listprice_as_null_number('2,3442'), '2,3442');
+is($p->listprice, 2.3442);
+is($p->listprice_as_null_number, '2,3442');
+is($p->listprice_as_null_number(''), '');
+is($p->listprice, undef);
+is($p->listprice_as_null_number, '');
+is($p->listprice_as_null_number('0'), '0,00');
+is($p->listprice, 0);
+is($p->listprice_as_null_number, '0,00');
 
 my $o = new_ok 'SL::DB::Order';
 is($o->reqdate_as_date('11.12.2007'), '11.12.2007');
@@ -59,4 +71,3 @@ is $o->closed_as_bool_yn, 'Nein', 'bool 2';
 # defaults according to the database
 $i->taxincluded(undef);
 is $i->taxincluded_as_bool_yn, '', 'bool 3';
-
