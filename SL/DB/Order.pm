@@ -125,10 +125,10 @@ sub exchangerate {
 
   return 1 if $self->currency_id == $::instance_conf->get_currency_id;
 
-  # unable to determine if sales or purchase
-  return undef if !$self->has_customervendor;
-
-  my $rate = $self->is_sales ? 'buy' : 'sell';
+  my $rate = (any { $self->is_type($_) } qw(sales_quotation sales_order))      ? 'buy'
+           : (any { $self->is_type($_) } qw(request_quotation purchase_order)) ? 'sell'
+           : undef;
+  return if !$rate;
 
   if (defined $val) {
     croak t8('exchange rate has to be positive') if $val <= 0;
