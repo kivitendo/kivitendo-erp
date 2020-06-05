@@ -201,7 +201,7 @@ namespace('kivi.Order', function(ns) {
           } else {
             rate_text.text('');
             rate_input.prop('disabled', false);
-            rate_input.show().val(0);
+            rate_input.show().val('');
           }
           $('#exchangerate_settings').show();
         } else {
