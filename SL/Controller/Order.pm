@@ -930,9 +930,8 @@ sub action_recalc_amounts_and_taxes {
 
 sub action_update_exchangerate {
   my ($self) = @_;
-  my $data = {};
 
-  $data = {
+  my $data = {
     is_standard   => $self->order->currency_id == $::instance_conf->get_currency_id,
     currency_name => $self->order->currency->name,
     exchangerate  => $self->order->exchangerate_as_null_number,
@@ -1374,9 +1373,9 @@ sub make_order {
     setup_order_from_cv($order);
   }
 
-  my $form_orderitems               = delete $::form->{order}->{orderitems};
-  my $form_periodic_invoices_config = delete $::form->{order}->{periodic_invoices_config};
-  my $exchangerate_as_null_number   = delete $::form->{order}->{exchangerate_as_null_number};
+  my $form_orderitems                  = delete $::form->{order}->{orderitems};
+  my $form_periodic_invoices_config    = delete $::form->{order}->{periodic_invoices_config};
+  my $form_exchangerate_as_null_number = delete $::form->{order}->{exchangerate_as_null_number};
 
   $order->assign_attributes(%{$::form->{order}});
 
@@ -1386,7 +1385,7 @@ sub make_order {
   }
 
   # set exchangerate after transdate and currency_id
-  $order->assign_attributes(exchangerate_as_null_number => $exchangerate_as_null_number) if $order->currency_id;
+  $order->assign_attributes(exchangerate_as_null_number => $form_exchangerate_as_null_number) if $order->currency_id;
 
   # remove deleted items
   $self->item_ids_to_delete([]);
@@ -2124,8 +2123,6 @@ java script functions
 =over 4
 
 =item * testing
-
-=item * currency
 
 =item * credit limit
 
