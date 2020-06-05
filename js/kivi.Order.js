@@ -829,7 +829,7 @@ $(function() {
   }
 
   $('#order_currency_id').change(kivi.Order.update_exchangerate);
-  $('#order_transdate').change(kivi.Order.update_exchangerate);
+  $('#order_transdate_as_date').change(kivi.Order.update_exchangerate);
 
   if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
     $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.sellprice, -2)) });
