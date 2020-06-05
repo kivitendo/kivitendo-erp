@@ -175,6 +175,11 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.update_exchangerate = function(event) {
+    if (!ns.check_cv()) {
+      $('#order_currency_id').val($('#old_currency_id').val());
+      return;
+    }
+
     var rate_input = $('#order_exchangerate_as_null_number');
     rate_input.prop('disabled', true);
 

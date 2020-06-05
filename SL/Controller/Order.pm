@@ -689,11 +689,13 @@ sub action_customer_vendor_changed {
     ->replaceWith('#business_info_row',      $self->build_business_info_row)
     ->val(        '#order_taxzone_id',       $self->order->taxzone_id)
     ->val(        '#order_taxincluded',      $self->order->taxincluded)
+    ->val(        '#order_currency_id',      $self->order->currency_id)
     ->val(        '#order_payment_id',       $self->order->payment_id)
     ->val(        '#order_delivery_term_id', $self->order->delivery_term_id)
     ->val(        '#order_intnotes',         $self->order->intnotes)
     ->val(        '#language_id',            $self->order->$cv_method->language_id)
-    ->focus(      '#order_' . $self->cv . '_id');
+    ->focus(      '#order_' . $self->cv . '_id')
+    ->run('kivi.Order.update_exchangerate');
 
   $self->js_redisplay_amounts_and_taxes;
   $self->js_redisplay_cvpartnumbers;
@@ -1507,7 +1509,7 @@ sub new_item {
 sub setup_order_from_cv {
   my ($order) = @_;
 
-  $order->$_($order->customervendor->$_) for (qw(taxzone_id payment_id delivery_term_id));
+  $order->$_($order->customervendor->$_) for (qw(taxzone_id payment_id delivery_term_id currency_id));
 
   $order->intnotes($order->customervendor->notes);
 
