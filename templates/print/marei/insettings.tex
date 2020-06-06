@@ -102,17 +102,28 @@
 }
 
 %% % Firmenfuss
+% Das speichern als Box ermöglicht es, die Höhe automatisch anzupassen:
 \setkomafont{pagefoot}{\tiny}
-\cfoot{
-  {
-     \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}p{5cm}p{4.5cm}lr@{}}
-        \firma                 & \email              & \textKontonummer & \kontonummer \\
-        \strasse               & \homepage           & \textBank        & \bank \\
-        \ort                   & \textUstid\ \ustid  & \textIban        & \iban \\
-        \textTelefon~\telefon  & \finanzamt          & \textBic         & \bic \\
-        \ifstr{\fax}{}{}{\textFax~\fax} & &\textBankleitzahl	& \bankleitzahl \\
-     \end{tabular*}
-  }
-}
+
+%Box generieren, um die Höhe des Fußres zu kennen
+\newsavebox\footerbox
+\begin{lrbox}\footerbox
+	\usekomafont{pagefoot}%
+     \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}p{5cm}p{4.5cm}lr@{}}%
+	\firma                 & \email              & \textKontonummer & \kontonummer \\
+	\strasse               & \homepage           & \textBank        & \bank \\
+	\ort                   & \textUstid\ \ustid  & \textIban        & \iban \\
+	\textTelefon~\telefon  & \finanzamt          & \textBic         & \bic \\
+	\ifstr{\fax}{}{}{\textFax~\fax} & &\textBankleitzahl	& \bankleitzahl
+	\end{tabular*}
+\end{lrbox}
+
+%Fußhöhe auf Höhe der Box
+\setlength{\footheight}{\dimexpr\ht\footerbox+\dp\footerbox}
+\geometry{bottom=\dimexpr\csname g_kivi_margin_dim\endcsname +\footheight}
+\savegeometry{kivi.letter@default}
+
+%Box in den Fuß eintragen:
+\cfoot{\usebox\footerbox}
 
 \endinput
