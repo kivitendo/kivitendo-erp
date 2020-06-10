@@ -12,8 +12,20 @@
     }
   });
 
+  function parentScroll(e) {
+    var position = e.$.getAttribute("position"),
+        excludeStaticParent = position === "absolute";
+    return e.getParents().filter( function(parent) {
+      var style = window.getComputedStyle(parent.$);
+      if ( excludeStaticParent && style.position === "static" )
+        return false;
+      return (/(auto|scroll)/).test( style['overflow'] + style["overflow-y"] + style["overflow-x"] );
+    });
+  };
+
   function attach( editor ) {
-    var config = editor.config;
+    var config = editor.config,
+        parent = parentScroll(editor.element);
 
     var resize = function (width, height) {
       var editable;
@@ -99,6 +111,10 @@
     editor.on( 'focus', function( evt ) {
       layout( evt );
     } );
+
+    parent.forEach(function(e){
+      e.on('scroll', function (evt) { layout(evt) });
+    });
 
     editor.on( 'blur', function() {
       float_space.hide();
