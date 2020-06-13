@@ -1207,7 +1207,7 @@ sub _save_tax {
                   chart_categories,
                   id
                 )
-                VALUES (?, ?, ?, ?, (SELECT accno FROM chart WHERE id = ?), ?, ?,  ?, ?)|;
+                VALUES (?, ?, ?, ?, ?, ?,  ?, ?)|;
   }
   push(@values, $form->{id});
   do_query($form, $dbh, $query, @values);

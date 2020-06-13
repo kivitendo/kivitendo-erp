@@ -1225,7 +1225,9 @@ sub save_tax {
   $form->{translations} = { map { $_ =~ '^translation_(\d+)'; $1 => $form->{$_} } @translation_keys };
 
   AM->save_tax(\%myconfig, \%$form);
-  $form->redirect($locale->text('Tax saved!'));
+  flash_later('info', $locale->text("Tax saved!"));
+
+  print $form->redirect_header('am.pl?action=list_tax');
 
   $main::lxdebug->leave_sub();
 }
