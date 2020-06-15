@@ -727,10 +727,7 @@ sub update {
 
   for my $i (1 .. $form->{paidaccounts}) {
     next unless $form->{"paid_$i"};
-    map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(paid exchangerate);
-    if (!$form->{"forex_$i"}) {   #read exchangerate from input field (not hidden)
-      $form->{exchangerate} = $form->{"exchangerate_$i"};
-    }
+    map { $form->{"${_}_$i"}   = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(paid exchangerate);
     $form->{"forex_$i"}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy');
     $form->{"exchangerate_$i"} = $form->{"forex_$i"} if $form->{"forex_$i"};
   }
