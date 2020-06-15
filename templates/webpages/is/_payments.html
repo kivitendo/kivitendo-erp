@@ -89,14 +89,14 @@
   [% SET forex        = 'forex_'        _ i %]
   [% SET exchangerate = 'exchangerate_' _ i %]
   [% IF $forex %]
-        <input type="hidden" name="exchangerate_[% i %]" value="[% LxERP.format_amount($exchangerate, 2) %]">
-        [% LxERP.format_amount($forex, 2) %]
+        <input type="hidden" name="exchangerate_[% i %]" value="[% LxERP.format_amount($exchangerate, 5) %]">
+        [% LxERP.format_amount($forex, 5) %]
   [% ELSE %]
      [% IF $changeable %]
-        <input name="exchangerate_[% i %]" size="10" value="[% LxERP.format_amount($exchangerate, 2, 1) %]">
+        <input name="exchangerate_[% i %]" size="10" value="[% LxERP.format_amount($exchangerate, 5, 1) %]">
      [% ELSE %]
-        <input type="hidden" name="exchangerate_[% i %]" value="[% LxERP.format_amount($exchangerate, 2, 1) %]">
-        [% LxERP.format_amount($exchangerate, 2, 1) %]
+        <input type="hidden" name="exchangerate_[% i %]" value="[% LxERP.format_amount($exchangerate, 5, 1) %]">
+        [% LxERP.format_amount($exchangerate, 5, 1) %]
      [% END %]
   [% END %]
         <input type="hidden" name="forex_[% i %]" value="[% $forex %]">
