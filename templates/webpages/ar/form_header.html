@@ -271,9 +271,9 @@
 [%- IF show_exch %]
          <td align=center>
     [%- IF row.forex || !row.changeable%]
-          <input type=hidden name="exchangerate_[% loop.count %]" value='[% row.exchangerate | html %]'>[% row.exchangerate | html %]
+          <input type=hidden name="exchangerate_[% loop.count %]" value="[%- LxERP.format_amount(row.exchangerate, 5, 1) -%]">[%- LxERP.format_amount(row.exchangerate, 5, 1) -%]
     [%- ELSE %]
-          <input name="exchangerate_[% loop.count %]" size=10 value='[% row.exchangerate | html %]'>
+          <input name="exchangerate_[% loop.count %]" size=10 value="[%- LxERP.format_amount(row.exchangerate, 5, 1) -%]">
     [%- END %]
           <input type=hidden name="forex_[% loop.count %]" value='[% row.forex | html %]'>
          </td>
