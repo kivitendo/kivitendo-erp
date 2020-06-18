@@ -134,14 +134,14 @@ sub _post_transaction {
     $query =
       qq|UPDATE ar set
            invnumber = ?, ordnumber = ?, transdate = ?, customer_id = ?,
-           taxincluded = ?, amount = ?, duedate = ?, paid = ?,
+           taxincluded = ?, amount = ?, duedate = ?, deliverydate = ?, paid = ?,
            currency_id = (SELECT id FROM currencies WHERE name = ?),
            netamount = ?, notes = ?, department_id = ?,
            employee_id = ?, storno = ?, storno_id = ?, globalproject_id = ?,
            direct_debit = ?
          WHERE id = ?|;
     my @values = ($form->{invnumber}, $form->{ordnumber}, conv_date($form->{transdate}), conv_i($form->{customer_id}), $form->{taxincluded} ? 't' : 'f', $form->{amount},
-                  conv_date($form->{duedate}), $form->{paid},
+                  conv_date($form->{duedate}), conv_date($form->{deliverydate}), $form->{paid},
                   $form->{currency},
                   $form->{netamount}, $form->{notes}, conv_i($form->{department_id}),
                   conv_i($form->{employee_id}), $form->{storno} ? 't' : 'f', $form->{storno_id},

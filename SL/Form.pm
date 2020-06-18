@@ -2683,7 +2683,7 @@ sub create_links {
   if ($self->{id}) {
     $query =
       qq|SELECT
-           a.cp_id, a.invnumber, a.transdate, a.${table}_id, a.datepaid,
+           a.cp_id, a.invnumber, a.transdate, a.${table}_id, a.datepaid, a.deliverydate,
            a.duedate, a.ordnumber, a.taxincluded, (SELECT cu.name FROM currencies cu WHERE cu.id=a.currency_id) AS currency, a.notes,
            a.mtime, a.itime,
            a.intnotes, a.department_id, a.amount AS oldinvtotal,

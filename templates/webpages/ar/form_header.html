@@ -142,6 +142,10 @@
                 <td>[% L.date_tag('duedate', duedate) %]</td>
               </tr>
               <tr>
+                <th align=right nowrap>[% 'Delivery Date' | $T8 %]</th>
+                <td>[% L.date_tag('deliverydate', deliverydate) %]</td>
+              </tr>
+              <tr>
                 <th align=right nowrap>[% 'Project Number' | $T8 %]</th>
                 <td>[% L.select_tag('globalproject_id', ALL_PROJECTS, title_key = 'projectnumber', default = globalproject_id, with_empty = 1, onChange = "document.getElementById('update_button').click();") %]</td>
               </tr>
