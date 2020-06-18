@@ -575,7 +575,7 @@ sub generate_datev_data {
        UNION ALL
 
        SELECT ac.acc_trans_id, ac.transdate, ac.gldate, ac.trans_id,gl.id, ac.amount, ac.taxkey, ac.memo,
-         gl.reference AS invnumber, NULL AS duedate, ac.amount as umsatz, NULL as deliverydate, gl.itime::date,
+         gl.reference AS invnumber, NULL AS duedate, ac.amount as umsatz, gl.deliverydate, gl.itime::date,
          gl.description AS name, NULL as ustid, '' AS vcname, NULL AS customer_id, NULL AS vendor_id,
          c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          FALSE AS invoice,
@@ -1050,6 +1050,9 @@ sub generate_datev_lines {
       }
       if (($transaction->[$haben]->{'duedate'} // '') ne "") {
         $datev_data{belegfeld2} = $transaction->[$haben]->{'duedate'};
+      }
+      if (($transaction->[$haben]->{'deliverydate'} // '') ne "") {
+        $datev_data{leistungsdatum} = $transaction->[$haben]->{'deliverydate'};
       }
     }
     $datev_data{umsatz} = abs($umsatz); # sales invoices without tax have a different sign???

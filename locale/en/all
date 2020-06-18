@@ -2300,6 +2300,7 @@ $self->{texts} = {
   'Payables'                    => '',
   'Payment'                     => '',
   'Payment / Delivery Options'  => '',
+  'Payment Date'                => '',
   'Payment Reminder'            => '',
   'Payment Terms'               => '',
   'Payment Terms missing in row ' => '',

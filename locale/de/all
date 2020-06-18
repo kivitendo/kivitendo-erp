@@ -2300,6 +2300,7 @@ $self->{texts} = {
   'Payables'                    => 'Verbindlichkeiten',
   'Payment'                     => 'Zahlungsausgang',
   'Payment / Delivery Options'  => 'Zahlungs- und Lieferoptionen',
+  'Payment Date'                => 'Leistungsdatum',
   'Payment Reminder'            => 'Zahlungserinnerung',
   'Payment Terms'               => 'Zahlungsbedingungen',
   'Payment Terms missing in row ' => 'Zahlungsfrist fehlt in Zeile ',

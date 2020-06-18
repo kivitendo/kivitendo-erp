@@ -478,8 +478,15 @@ my @kivitendo_to_datev = (
                               valid_check     => sub { my ($check) = @_; return ($check =~ m/^(0|1)$/) },
                             },  # pos 114
                             {
-                              kivi_datev_name => 'not yet implemented',
-                            },
+                              kivi_datev_name => 'leistungsdatum',
+                              csv_header_name => t8('Payment Date'),
+                              max_length      => 8,
+                              type            => 'Date',
+                              default         => '',
+                              input_check     => sub { my ($check) = @_; return  1 if ('' eq $check); return (ref (DateTime->from_kivitendo($check)) eq 'DateTime') },
+                              formatter       => sub { my ($input) = @_; return '' if ('' eq $input); return DateTime->from_kivitendo($input)->strftime('%d%m%Y') },
+                              valid_check     => sub { my ($check) = @_; return  1 if ('' eq $check); return ($check =~ m/^[0-9]{8}$/) },
+                            },  # pos 115
                             {
                               kivi_datev_name => 'not yet implemented',
                             },
