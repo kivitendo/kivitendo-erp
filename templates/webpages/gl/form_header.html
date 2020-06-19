@@ -67,7 +67,7 @@
             <table>
               <tr>
                 <th align=right width=50% nowrap>[% 'Transdate' | $T8 %]</th>
-                <td>[% L.date_tag('transdate', transdate, readonly=readonly) %]</td>
+                <td align=left>[% L.date_tag('transdate', transdate, readonly=readonly) %]</td>
               </tr>
             </table>
           </td>
@@ -80,19 +80,27 @@
           <table>
               <tr>
                 <th align=right width=50%>[% 'Gldate' | $T8 %]</th>
-                <td align=left>[% L.date_tag('gldate', gldate, readonly=1) %]</td>
+                [%-# hidden img to keep alignment -%]
+                <td align=left>[% L.date_tag('gldate', gldate, readonly=1) %]<img class="ui-datepicker-trigger" src="image/calendar.png" alt="..." title="..." style='visibility:hidden'></td>
               </tr>
             </table>
           </td>
         </tr>
 [%- END %]
 
-[%- IF ALL_DEPARTMENTS %]
+        [% SET departments_style = "";
+           SET departments_style = "style='visibility:hidden'" IF ALL_DEPARTMENTS.size == 0 %]
         <tr>
-          <th align=right nowrap>[% 'Department' | $T8 %]</th>
-          <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1) %]</td>
+          <th [%- departments_style -%]align=right nowrap>[% 'Department' | $T8 %]</th>
+          <td [%- departments_style -%]>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1) %]</td>
+          <td align=left>
+            <table>
+              <tr>
+                <th align=right width=50% nowrap>[% 'Delivery Date' | $T8 %]</th>
+                <td align=left>[% L.date_tag('deliverydate', deliverydate) %]</td>
+              </tr>
+            </table>
         </tr>
-[%- END %]
 
         <tr>
           <th align=right width=1%>[% 'Description' | $T8 %]</th>
