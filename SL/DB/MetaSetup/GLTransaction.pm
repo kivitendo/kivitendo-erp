@@ -10,6 +10,7 @@ __PACKAGE__->meta->table('gl');
 
 __PACKAGE__->meta->columns(
   cb_transaction => { type => 'boolean' },
+  deliverydate   => { type => 'date' },
   department_id  => { type => 'integer' },
   description    => { type => 'text' },
   employee_id    => { type => 'integer' },
