@@ -54,7 +54,7 @@ sub calculate_prices_and_taxes {
   $self->netamount(  0);
   $self->marge_total(0);
 
-  SL::DB::Manager::Chart->cache_taxkeys(date => $self->transdate);
+  SL::DB::Manager::Chart->cache_taxkeys(date => $self->deliverydate // $self->transdate);
 
   my $idx = 0;
   foreach my $item (@{ $self->items_sorted }) {
@@ -110,7 +110,7 @@ sub _calculate_item {
 
   $data->{invoicediff} += $sellprice * (1 - $item->discount) * $item->qty * $data->{exchangerate} / $item->price_factor - $linetotal if $self->taxincluded;
 
-  my $taxkey     = $part->get_taxkey(date => $self->transdate, is_sales => $data->{is_sales}, taxzone => $self->taxzone_id);
+  my $taxkey     = $part->get_taxkey(date => $self->deliverydate // $self->transdate, is_sales => $data->{is_sales}, taxzone => $self->taxzone_id);
   my $tax_rate   = $taxkey->tax->rate;
   my $tax_amount = undef;
 
