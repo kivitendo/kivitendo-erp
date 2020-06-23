@@ -802,6 +802,7 @@ sub display_rows {
   my %charts_by_id  = map { ($_->{id} => $_) } @{ $::form->{ALL_CHARTS} };
   my $default_chart = $::form->{ALL_CHARTS}[0];
   my $transdate     = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
+  my $deliverydate  = $::form->{deliverydate} ? DateTime->from_kivitendo($::form->{deliverydate}) : undef;
 
   my ($source, $memo, $source_hidden, $memo_hidden);
   for my $i (1 .. $form->{rowcount}) {
@@ -825,7 +826,9 @@ sub display_rows {
     $accno_id    = $chart->{id};
     my ($first_taxchart, $default_taxchart, $taxchart_to_use);
 
-    foreach my $item ( GL->get_active_taxes_for_chart($accno_id, $transdate) ) {
+
+    my $taxdate = $deliverydate ? $deliverydate : $transdate;
+    foreach my $item ( GL->get_active_taxes_for_chart($accno_id, $taxdate) ) {
       my $key             = $item->id . "--" . $item->rate;
       $first_taxchart   //= $item;
       $default_taxchart   = $item if $item->{is_default};
@@ -1482,8 +1485,9 @@ sub continue {
 }
 
 sub get_tax_dropdown {
-  my $transdate    = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
-  my @tax_accounts = GL->get_active_taxes_for_chart($::form->{accno_id}, $transdate);
+  my $transdate    = $::form->{transdate}    ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
+  my $deliverydate = $::form->{deliverydate} ? DateTime->from_kivitendo($::form->{deliverydate}) : undef;
+  my @tax_accounts = GL->get_active_taxes_for_chart($::form->{accno_id}, $deliverydate // $transdate);
   my $html         = $::form->parse_html_template("gl/update_tax_accounts", { TAX_ACCOUNTS => \@tax_accounts });
 
   print $::form->ajax_response_header, $html;
