@@ -85,6 +85,12 @@ sub is_type {
   return shift->type eq shift;
 }
 
+sub deliverydate {
+  # oe doesn't have deliverydate, but PTC checks for deliverydate or transdate to determine tax
+  # oe can't deal with deviating tax rates, but at least make sure PTC doesn't barf
+  return shift->transdate;
+}
+
 sub displayable_type {
   my $type = shift->type;
 
