@@ -156,6 +156,9 @@ sub test_default_invoice_one_item_19_tax_not_included() {
     taxes                                        => {
       $tax->chart_id                             => 1.11,
     },
+    taxes_by_tax_id                              => {
+      $tax->id                                   => 1.1115,
+    },
     items                                        => [
       { linetotal                                => 5.85,
         linetotal_cost                           => 4.83,
@@ -193,6 +196,7 @@ sub test_default_invoice_two_items_19_7_tax_not_included() {
   # item 2:
   # sellprice 9.714 * qty 1.2 = 11.6568 rounded 11.66
   # 7%(11.6568) = 0.815976; rounded = 0.82
+  # 7%(11.66)   = 0.8162
   # total rounded = 12.48
 
   # lastcost 5.473 * qty 1.2 = 6.5676; rounded 6.57
@@ -237,6 +241,10 @@ sub test_default_invoice_two_items_19_7_tax_not_included() {
     taxes                                         => {
       $tax->chart_id                              => 1.11,
       $tax7->chart_id                             => 0.82,
+    },
+    taxes_by_tax_id                               => {
+      $tax->id                                    => 1.1115,
+      $tax7->id                                   => 0.8162,
     },
     items                                        => [
       { linetotal                                => 5.85,
@@ -341,6 +349,9 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
     taxes                                        => {
       $tax->chart_id                             => 2.9,
     },
+    taxes_by_tax_id                              => {
+      $tax->id                                   => 2.89750,
+    },
     items                                        => [
       { linetotal                                => 5.27,
         linetotal_cost                           => 1.93,
@@ -409,6 +420,9 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount() {
     taxes                                        => {
       $tax->chart_id                             => 0.66,
     },
+    taxes_by_tax_id                              => {
+      $tax->id                                   => 0.66310,
+    },
     items                                        => [
       { linetotal                                => 3.49,
         linetotal_cost                           => 0,
@@ -458,6 +472,9 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_huge_qty
     exchangerate                                 => 1,
     taxes                                        => {
       $tax->chart_id                             => 1843,
+    },
+    taxes_by_tax_id                              => {
+      $tax->id                                   => 1843,
     },
     items                                        => [
       { linetotal                                => 9700,
@@ -519,6 +536,9 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_big_qty_
     exchangerate                                 => 1,
     taxes                                        => {
       $tax->chart_id                             => 12.84,
+    },
+    taxes_by_tax_id                              => {
+      $tax->id                                   => 12.8364,
     },
     items                                        => [
       { linetotal                                => 67.56,

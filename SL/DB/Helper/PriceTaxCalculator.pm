@@ -30,6 +30,7 @@ sub calculate_prices_and_taxes {
                units_by_name       => \%units_by_name,
                price_factors_by_id => \%price_factors_by_id,
                taxes               => { },
+               taxes_by_tax_id     => { },
                amounts             => { },
                amounts_cogs        => { },
                allocated           => { },
@@ -65,7 +66,7 @@ sub calculate_prices_and_taxes {
 
   return $self unless wantarray;
 
-  return map { ($_ => $data{$_}) } qw(taxes amounts amounts_cogs allocated exchangerate assembly_items items rounding);
+  return map { ($_ => $data{$_}) } qw(taxes taxes_by_tax_id amounts amounts_cogs allocated exchangerate assembly_items items rounding);
 }
 
 sub _get_exchangerate {
@@ -124,6 +125,8 @@ sub _calculate_item {
   if ($taxkey->tax->chart_id) {
     $data->{taxes}->{ $taxkey->tax->chart_id } ||= 0;
     $data->{taxes}->{ $taxkey->tax->chart_id }  += $tax_amount;
+    $data->{taxes_by_tax_id}->{ $taxkey->tax_id } ||= 0;
+    $data->{taxes_by_tax_id}->{ $taxkey->tax_id }  += $tax_amount;
   } elsif ($tax_amount) {
     die "tax_amount != 0 but no chart_id for taxkey " . $taxkey->id . " tax " . $taxkey->tax->id;
   }
@@ -338,6 +341,11 @@ In array context a hash with the following keys is returned:
 =item C<taxes>
 
 A hash reference with the calculated taxes. The keys are chart IDs,
+the values the calculated taxes.
+
+=item C<taxes_by_tax_id>
+
+A hash reference with the calculated taxes. The keys are tax IDs,
 the values the calculated taxes.
 
 =item C<amounts>
