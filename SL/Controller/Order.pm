@@ -30,7 +30,7 @@ use SL::Helper::UserPreferences::UpdatePositions;
 
 use SL::Controller::Helper::GetModels;
 
-use List::Util qw(first);
+use List::Util qw(first sum0);
 use List::UtilsBy qw(sort_by uniq_by);
 use List::MoreUtils qw(any none pairwise first_index);
 use English qw(-no_match_vars);
@@ -1512,16 +1512,15 @@ sub recalc {
   $self->order->currency_id($::instance_conf->get_currency_id());
 
   my %pat = $self->order->calculate_prices_and_taxes();
+
   $self->{taxes} = [];
-  foreach my $tax_chart_id (keys %{ $pat{taxes} }) {
-    my $tax = SL::DB::Manager::Tax->find_by(chart_id => $tax_chart_id);
+  foreach my $tax_id (keys %{ $pat{taxes_by_tax_id} }) {
+    my $netamount = sum0 map { $pat{amounts}->{$_}->{amount} } grep { $pat{amounts}->{$_}->{tax_id} == $tax_id } keys %{ $pat{amounts} };
 
-    my @amount_keys = grep { $pat{amounts}->{$_}->{tax_id} == $tax->id } keys %{ $pat{amounts} };
-    push(@{ $self->{taxes} }, { amount    => $pat{taxes}->{$tax_chart_id},
-                                netamount => $pat{amounts}->{$amount_keys[0]}->{amount},
-                                tax       => $tax });
+    push(@{ $self->{taxes} }, { amount    => $pat{taxes_by_tax_id}->{$tax_id},
+                                netamount => $netamount,
+                                tax       => SL::DB::Tax->new(id => $tax_id)->load });
   }
-
   pairwise { $a->{linetotal} = $b->{linetotal} } @{$self->order->items_sorted}, @{$pat{items}};
 }
 
