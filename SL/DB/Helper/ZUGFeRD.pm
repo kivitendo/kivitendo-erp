@@ -214,7 +214,6 @@ sub _taxes {
     $info->{taxkey}    //= SL::DB::TaxKey->load_cached($item->{taxkey_id});
     $info->{tax}       //= SL::DB::Tax->load_cached($info->{taxkey}->tax_id);
     $info->{linetotal}  += $item->{linetotal};
-    $info->{tax_amount} += $item->{tax_amount};
   }
 
   foreach my $taxkey_id (sort keys %taxkey_info) {
@@ -223,7 +222,7 @@ sub _taxes {
 
     #     <ram:ApplicableTradeTax>
     $params{xml}->startTag("ram:ApplicableTradeTax");
-    $params{xml}->dataElement("ram:CalculatedAmount",      _r2($params{ptc_data}->{taxes}->{$info->{tax}->{chart_id}}));
+    $params{xml}->dataElement("ram:CalculatedAmount",      _r2($params{ptc_data}->{taxes_by_tax_id}->{$info->{taxkey}->tax_id}));
     $params{xml}->dataElement("ram:TypeCode",              "VAT");
     $params{xml}->dataElement("ram:BasisAmount",           _r2($info->{linetotal}));
     $params{xml}->dataElement("ram:CategoryCode",          $tax_info{code});
