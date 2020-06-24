@@ -153,7 +153,7 @@ sub test_default_invoice_one_item_19_tax_not_included() {
       [],
     ],
     exchangerate                                 => 1,
-    taxes                                        => {
+    taxes_by_chart_id                            => {
       $tax->chart_id                             => 1.11,
     },
     taxes_by_tax_id                              => {
@@ -238,7 +238,7 @@ sub test_default_invoice_two_items_19_7_tax_not_included() {
       [], [],
     ],
     exchangerate                                  => 1,
-    taxes                                         => {
+    taxes_by_chart_id                             => {
       $tax->chart_id                              => 1.11,
       $tax7->chart_id                             => 0.82,
     },
@@ -346,7 +346,7 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
       [], [], [],
     ],
     exchangerate                                 => 1,
-    taxes                                        => {
+    taxes_by_chart_id                            => {
       $tax->chart_id                             => 2.9,
     },
     taxes_by_tax_id                              => {
@@ -417,7 +417,7 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount() {
       [],
     ],
     exchangerate                                 => 1,
-    taxes                                        => {
+    taxes_by_chart_id                            => {
       $tax->chart_id                             => 0.66,
     },
     taxes_by_tax_id                              => {
@@ -470,7 +470,7 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_huge_qty
       [],
     ],
     exchangerate                                 => 1,
-    taxes                                        => {
+    taxes_by_chart_id                            => {
       $tax->chart_id                             => 1843,
     },
     taxes_by_tax_id                              => {
@@ -534,7 +534,7 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_big_qty_
       [],
     ],
     exchangerate                                 => 1,
-    taxes                                        => {
+    taxes_by_chart_id                            => {
       $tax->chart_id                             => 12.84,
     },
     taxes_by_tax_id                              => {

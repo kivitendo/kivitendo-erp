@@ -29,7 +29,7 @@ sub calculate_prices_and_taxes {
                last_incex_chart_id => undef,
                units_by_name       => \%units_by_name,
                price_factors_by_id => \%price_factors_by_id,
-               taxes               => { },
+               taxes_by_chart_id   => { },
                taxes_by_tax_id     => { },
                amounts             => { },
                amounts_cogs        => { },
@@ -66,7 +66,7 @@ sub calculate_prices_and_taxes {
 
   return $self unless wantarray;
 
-  return map { ($_ => $data{$_}) } qw(taxes taxes_by_tax_id amounts amounts_cogs allocated exchangerate assembly_items items rounding);
+  return map { ($_ => $data{$_}) } qw(taxes_by_chart_id taxes_by_tax_id amounts amounts_cogs allocated exchangerate assembly_items items rounding);
 }
 
 sub _get_exchangerate {
@@ -123,10 +123,10 @@ sub _calculate_item {
   }
 
   if ($taxkey->tax->chart_id) {
-    $data->{taxes}->{ $taxkey->tax->chart_id } ||= 0;
-    $data->{taxes}->{ $taxkey->tax->chart_id }  += $tax_amount;
-    $data->{taxes_by_tax_id}->{ $taxkey->tax_id } ||= 0;
-    $data->{taxes_by_tax_id}->{ $taxkey->tax_id }  += $tax_amount;
+    $data->{taxes_by_chart_id}->{ $taxkey->tax->chart_id } ||= 0;
+    $data->{taxes_by_chart_id}->{ $taxkey->tax->chart_id }  += $tax_amount;
+    $data->{taxes_by_tax_id}->{ $taxkey->tax_id }          ||= 0;
+    $data->{taxes_by_tax_id}->{ $taxkey->tax_id }           += $tax_amount;
   } elsif ($tax_amount) {
     die "tax_amount != 0 but no chart_id for taxkey " . $taxkey->id . " tax " . $taxkey->tax->id;
   }
@@ -183,10 +183,10 @@ sub _calculate_amounts {
   my ($self, $data, %params) = @_;
 
   my $tax_diff = 0;
-  foreach my $chart_id (keys %{ $data->{taxes} }) {
-    my $rounded                  = _round($data->{taxes}->{$chart_id} * $data->{exchangerate}, 2);
-    $tax_diff                   += $data->{taxes}->{$chart_id} * $data->{exchangerate} - $rounded if $self->taxincluded;
-    $data->{taxes}->{$chart_id}  = $rounded;
+  foreach my $chart_id (keys %{ $data->{taxes_by_chart_id} }) {
+    my $rounded                              = _round($data->{taxes_by_chart_id}->{$chart_id} * $data->{exchangerate}, 2);
+    $tax_diff                               += $data->{taxes_by_chart_id}->{$chart_id} * $data->{exchangerate} - $rounded if $self->taxincluded;
+    $data->{taxes_by_chart_id}->{$chart_id}  = $rounded;
   }
 
   $self->netamount(sum map { $_->{amount} } values %{ $data->{amounts} });
@@ -202,7 +202,7 @@ sub _calculate_amounts {
 
   _dbg("Sna " . $self->netamount . " idiff " . $data->{invoicediff} . " tdiff ${tax_diff}");
 
-  my $tax              = sum values %{ $data->{taxes} };
+  my $tax              = sum values %{ $data->{taxes_by_chart_id} };
   $amount              = $netamount + $tax;
   my $grossamount      = _round($amount, 2, 1);
   $data->{rounding}    = _round($grossamount - $amount, 2);
@@ -338,10 +338,10 @@ In array context a hash with the following keys is returned:
 
 =over 2
 
-=item C<taxes>
+=item C<taxes_by_chart_id>
 
 A hash reference with the calculated taxes. The keys are chart IDs,
-the values the calculated taxes.
+the values the rounded calculated taxes.
 
 =item C<taxes_by_tax_id>
 

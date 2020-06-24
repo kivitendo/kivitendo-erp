@@ -275,7 +275,7 @@ sub post {
 
     $self->_post_add_acctrans($data{amounts_cogs});
     $self->_post_add_acctrans($data{amounts});
-    $self->_post_add_acctrans($data{taxes});
+    $self->_post_add_acctrans($data{taxes_by_chart_id});
 
     $self->_post_add_acctrans({ $params{ar_id} => $self->amount * -1 });
 
