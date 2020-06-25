@@ -133,7 +133,7 @@ sub setup_displayable_columns {
                                  { name => 'projectnumber', description => $::locale->text('Project (number)')       },
                                  { name => 'project',       description => $::locale->text('Project (description)')  },
                                  { name => 'amount',        description => $::locale->text('Amount')                 },
-                                 { name => 'chart',         description => $::locale->text('Account number')         },
+                                 { name => 'accno',         description => $::locale->text('Account number')         },
                                  { name => 'taxkey',        description => $::locale->text('Taxkey')                 },
                                 );
 }
