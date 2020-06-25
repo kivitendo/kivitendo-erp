@@ -160,14 +160,17 @@ sub check_objects {
 
   my $i = 0;
   my $num_data = scalar @{ $self->controller->data };
+  my $invoice_entry;
 
   foreach my $entry (@{ $self->controller->data }) {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
     if ($entry->{raw_data}->{datatype} eq $self->_ar_column) {
       $self->handle_invoice($entry);
+      $invoice_entry = $entry;
     } elsif ($entry->{raw_data}->{datatype} eq $self->_transaction_column ) {
-      $self->handle_transaction($entry);
+      die "Cannot process transaction row without an invoice row" if !$invoice_entry;
+      $self->handle_transaction($entry, $invoice_entry);
     } else {
       die "unknown datatype";
     };
@@ -288,24 +291,23 @@ sub handle_invoice {
 }
 
 sub check_taxkey {
-  my ($self, $entry, $chart) = @_;
+  my ($self, $entry, $invoice_entry, $chart) = @_;
 
   die "check_taxkey needs chart object as an argument" unless ref($chart) eq 'SL::DB::Chart';
   # problem: taxkey is not unique in table tax, normally one of those entries is chosen directly from a dropdown
   # so we check if the chart has an active taxkey, and if it matches the taxkey from the import, use the active taxkey
   # if the chart doesn't have an active taxkey, use the first entry from Tax that matches the taxkey
 
-  my $object = $entry->{object};
+  my $object         = $entry->{object};
+  my $invoice_object = $invoice_entry->{object};
+
   unless ( defined $entry->{raw_data}->{taxkey} ) {
     push @{ $entry->{errors} }, $::locale->text('Error: taxkey missing'); # don't just assume 0, force taxkey in import
     return 0;
   };
 
-  my $tax;
-
-  if ( $entry->{raw_data}->{taxkey} == $chart->get_active_taxkey->tax->taxkey ) {
-    $tax = $chart->get_active_taxkey->tax;
-  } else {
+  my $tax = $chart->get_active_taxkey($invoice_object->deliverydate // $invoice_object->transdate // DateTime->today_local)->tax;
+  if ( $entry->{raw_data}->{taxkey} != $tax->taxkey ) {
    # assume there is only one tax entry with that taxkey, can't guess
     $tax = SL::DB::Manager::Tax->get_first( where => [ taxkey => $entry->{raw_data}->{taxkey} ]);
   };
@@ -340,7 +342,7 @@ sub check_amounts {
 };
 
 sub handle_transaction {
-  my ($self, $entry) = @_;
+  my ($self, $entry, $invoice_entry) = @_;
 
   # Prepare acc_trans data. amount is dealt with in add_transactions_to_ar
 
@@ -355,7 +357,7 @@ sub handle_transaction {
       return 0;
     };
 
-    if ( $self->check_taxkey($entry, $chart_obj) ) {
+    if ( $self->check_taxkey($entry, $invoice_entry, $chart_obj) ) {
       # do nothing, taxkey was assigned, just continue
     } else {
       # missing taxkey, don't do anything
