@@ -501,7 +501,7 @@ sub form_header {
     my $item = shift;
     return [
       $item->{id} .'--'. $item->{rate},
-      $item->{taxdescription} .' '. ($item->{rate} * 100) .' %',
+      $item->{taxkey} . ' - ' . $item->{taxdescription} .' '. ($item->{rate} * 100) .' %',
     ];
   };
 

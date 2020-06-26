@@ -835,7 +835,7 @@ sub display_rows {
       $taxchart_to_use    = $item if $key eq $form->{"taxchart_$i"};
 
       push(@taxchart_values, $key);
-      $taxchart_labels{$key} = $item->taxdescription . " " . $item->rate * 100 . ' %';
+      $taxchart_labels{$key} = $item->taxkey . " - " . $item->taxdescription . " " . $item->rate * 100 . ' %';
     }
 
     $taxchart_to_use    //= $default_taxchart // $first_taxchart;
