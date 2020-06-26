@@ -234,6 +234,92 @@ cmp_deeply($data_csv[0], [ '100', 'S', 'EUR', '', '', '', '4660', '1000', 9, '17
                      '', '', '1', '', '', '', '', '', '', ]
        );
 
+
+# check deliverydate
+$invoice->deliverydate(DateTime->new(year => 2017, month =>  7, day => 18));
+$invoice->save();
+
+$datev1 = SL::DATEV->new(
+  dbh        => $dbh,
+  trans_id   => $invoice->id,
+);
+
+$datev1->from($startdate);
+$datev1->to($enddate);
+$datev1->generate_datev_data;
+$datev1->generate_datev_lines;
+
+$datev_csv = SL::DATEV::CSV->new(datev_lines  => $datev1->generate_datev_lines,
+                                 from         => $startdate,
+                                 to           => $enddate,
+                                 locked       => $datev1->locked,
+);
+@sorted    = sort { $a->[0] cmp $b->[0] } @{ $datev_csv->lines };
+cmp_deeply $sorted[0],    [ '1963,5', 'S', 'EUR', '', '', '',
+                            '1400', '8400', '', '1907', 'meine muh',
+                            '', '', 'Test customer', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', "K\x{e4}stchen",
+                            '299', '', $ustid, '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '1', '18072017',
+                            '', '', '', '', '',
+                          ];
+cmp_deeply $sorted[1],     [ '535', 'S', 'EUR', '', '', '',
+                             '1400', '8300', '', '1907','meine muh',
+                            '', '', 'Test customer', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', "K\x{e4}stchen",
+                            '299', '', $ustid, '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '1', '18072017',
+                            '', '', '', '', '',
+                          ];
+
+$gl_transaction->deliverydate(DateTime->new(year => 2017, month =>  7, day => 18));
+$gl_transaction->save;
+
+$datev1 = SL::DATEV->new(
+  dbh        => $dbh,
+  trans_id   => $gl_transaction->id,
+);
+
+$datev1->from($startdate);
+$datev1->to($enddate);
+$datev1->generate_datev_data;
+
+$datev_csv   = SL::DATEV::CSV->new(datev_lines  => $datev1->generate_datev_lines,
+                                   from         => $startdate,
+                                   to           => $enddate,
+                                   locked       => $datev1->locked,
+);
+
+@sorted      = sort { $a->[0] cmp $b->[0] } @{ $datev_csv->lines };
+cmp_deeply($sorted[0], [ '100', 'S', 'EUR', '', '', '', '4660', '1000', 9, '1703', 'Reise März 2',
+                         '', '', 'Reisekonsten März 2018 / Ma Schmidt', '', '', '', '', '', '', '', '',
+                         '', '', '', '', '', '', '', '', '', '', '', '', '',
+                         '', '', '', '', '', '', '', '', '', '', '',
+                         '', '', '', '', '', '', '', '', '', '', '', '', '',
+                         '', '', '', '', '', '', '', '', '', '', '', '', '',
+                         '', '', '', '', '', '', '', '', '', '', '', '', '',
+                         '', '', '', '', '', '', '', '', '', '', '', '', '',
+                         '', '', '', '', '', '', '', '', '', '', '', '', '',
+                         '', '', '1', '18072017', '', '', '', '', '', ]
+);
+
+
 # TODO warnings are not yet tested
 # currently most of the valid_checks are senseless because of
 # the strict input_checks before. Maybe something like encoding mismatch of invnumber,
