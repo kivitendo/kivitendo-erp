@@ -34,6 +34,9 @@ IF ( select coa from defaults ) = 'Germany-DATEV-SKR03EU' THEN
   INSERT INTO chart (accno, description, charttype, category, link, taxkey_id, pos_bwa, pos_bilanz, pos_eur, datevautomatik)
          VALUES ('8732','Gewährte Skonti 5% USt','A', 'I', 'AR_paid', 2, 1, null,1, 't');
 
+  INSERT INTO chart (accno, description, charttype, category, link, taxkey_id, pos_bwa, pos_bilanz, pos_eur, datevautomatik)
+         VALUES ('3732','Erhaltene Skonti 5 % Vorsteuer','A', 'E', 'AP_paid', 8, 4, null, null, 't');
+
   -- SKR03
   -- datev reactivated the previously reserved chart 1775 in 2020, but it still exists in kivitendo (at least for SKR03) with a taxkey starting from 2007 and pointing to the existing automatic tax chart 1775
   -- so we don't need to to anything!

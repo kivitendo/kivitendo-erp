@@ -14,10 +14,12 @@ use SL::DB::Vendor;
 use SL::DB::Invoice;
 use SL::DB::GLTransaction;
 use SL::DB::Part;
+use SL::DB::PaymentTerm;
 use SL::DBUtils qw(selectall_hashref_query);
 use SL::Dev::Record qw(:ALL);
 use SL::Dev::CustomerVendor qw(new_customer new_vendor);
 use SL::Dev::Part qw(new_part);
+use SL::Dev::Payment qw(create_payment_terms);
 use Data::Dumper;
 
 Support::TestSetup::login();
