@@ -1,4 +1,4 @@
-use Test::More tests => 38;
+use Test::More tests => 46;
 use Test::Deep qw(cmp_deeply);
 
 use strict;
@@ -13,6 +13,7 @@ use SL::DB::Customer;
 use SL::DB::Vendor;
 use SL::DB::Invoice;
 use SL::DB::GLTransaction;
+use SL::DB::AccTransaction;
 use SL::DB::Part;
 use SL::DB::PaymentTerm;
 use SL::DBUtils qw(selectall_hashref_query);
@@ -24,8 +25,6 @@ use Data::Dumper;
 
 Support::TestSetup::login();
 my $dbh = SL::DB->client->dbh;
-
-my $test_kontenrahmen = 'skr03';
 
 clear_up();
 
@@ -50,47 +49,52 @@ my ($income_19_accno, $income_7_accno);
 my ($ar_accno, $ap_accno);
 my ($chart_reisekosten_accno, $chart_cash_accno, $chart_bank_accno);
 
+my ($skonto_5, $skonto_16, $skonto_7, $skonto_19); # store acc_trans entries during tests
+
+my $test_kontenrahmen = $::instance_conf->get_coa eq 'Germany-DATEV-SKR04EU' ? 'skr04' : 'skr03';
 
 if ( $test_kontenrahmen eq 'skr03' ) {
 
   is(SL::DB::Default->get->coa, 'Germany-DATEV-SKR03EU', "coa SKR03 ok");
 
-  $chart_vst_19 = '1776';
-  $chart_vst_16 = '1775';
-  $chart_vst_5  = '1773';
-  $chart_vst_7  = '1771';
+  $chart_ust_19 = '1776';
+  $chart_ust_16 = '1775';
+  $chart_ust_5  = '1773';
+  $chart_ust_7  = '1771';
 
-  $chart_ust_19 = '1576';
-  $chart_ust_16 = '1575';
-  $chart_ust_5  = '1568';
-  $chart_ust_7  = '1571';
+  $chart_vst_19 = '1576';
+  $chart_vst_16 = '1575';
+  $chart_vst_5  = '1568';
+  $chart_vst_7  = '1571';
 
   $income_19_accno = '8400';
   $income_7_accno  = '8300';
 
   $chart_reisekosten_accno = 4660;
   $chart_cash_accno        = 1000;
+  $chart_bank_accno        = 1200;
 
   $ar_accno = 1400;
   $ap_accno = 1600;
 
 } elsif ( $test_kontenrahmen eq 'skr04') { # skr04 - test can be ran manually by running t/000setup_database.t with coa for SKR04
   is(SL::DB::Default->get->coa, 'Germany-DATEV-SKR04EU', "coa SKR04 ok");
-  $chart_ust_19 = '1406';
-  $chart_ust_16 = '1405';
-  $chart_ust_5  = '1403';
-  $chart_ust_7  = '1401';
+  $chart_vst_19 = '1406';
+  $chart_vst_16 = '1405';
+  $chart_vst_5  = '1403';
+  $chart_vst_7  = '1401';
 
-  $chart_vst_19 = '3806';
-  $chart_vst_16 = '3805';
-  $chart_vst_5  = '3803';
-  $chart_vst_7  = '3801';
+  $chart_ust_19 = '3806';
+  $chart_ust_16 = '3805';
+  $chart_ust_5  = '3803';
+  $chart_ust_7  = '3801';
 
   $income_19_accno = '4400';
   $income_7_accno  = '4300';
 
   $chart_reisekosten_accno = 6650;
   $chart_cash_accno        = 1600;
+  $chart_bank_accno        = 1800;
 
   $ar_accno = 1200;
   $ap_accno = 3300;
@@ -111,19 +115,22 @@ my $chart_income_7   = SL::DB::Manager::Chart->find_by(accno => $income_7_accno)
 
 my $chart_reisekosten = SL::DB::Manager::Chart->find_by(accno => $chart_reisekosten_accno) or die;
 my $chart_cash        = SL::DB::Manager::Chart->find_by(accno => $chart_cash_accno) or die;
+my $chart_bank        = SL::DB::Manager::Chart->find_by(accno => $chart_bank_accno) or die;
+
+my $payment_terms = create_payment_terms();
 
 is(defined SL::DB::Manager::Tax->find_by(taxkey => 2, rate => 0.05), 1, "tax for taxkey 2 with 5% was created ok");
-is(defined SL::DB::Manager::Tax->find_by(taxkey => 3, rate => 0.16, chart_id => $tax_vst_16->id), 1, "new sales tax for taxkey 3 with 16% exists ok");
-is(defined SL::DB::Manager::Tax->find_by(taxkey => 3, rate => 0.19, chart_id => $tax_vst_19->id), 1, "old sales tax for taxkey 3 with 19% exists ok");
-is(defined SL::DB::Manager::Tax->find_by(taxkey => 5, rate => 0.16, chart_id => $tax_vst_16->id), 1, "new sales tax for taxkey 5 with 16% exists ok");
+is(defined SL::DB::Manager::Tax->find_by(taxkey => 3, rate => 0.16, chart_id => $tax_ust_16->id), 1, "new sales tax for taxkey 3 with 16% exists ok");
+is(defined SL::DB::Manager::Tax->find_by(taxkey => 3, rate => 0.19, chart_id => $tax_ust_19->id), 1, "old sales tax for taxkey 3 with 19% exists ok");
+is(defined SL::DB::Manager::Tax->find_by(taxkey => 5, rate => 0.16, chart_id => $tax_ust_16->id), 1, "new sales tax for taxkey 5 with 16% exists ok");
 
-is(defined SL::DB::Manager::Tax->find_by(taxkey => 7, rate => 0.16, chart_id => $tax_ust_16->id), 1, "old purchase tax for taxkey 7 with 16% exists ok");
-# is(defined SL::DB::Manager::Tax->find_by(taxkey => 8, rate => 0.07, chart_id => $tax_ust_16->id), 1, "old purchase tax for taxkey 7 with 16% exists ok");
-is(defined SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.19, chart_id => $tax_ust_19->id), 1, "old purchase tax for taxkey 9 with 19% exists ok");
-is(defined SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.16, chart_id => $tax_ust_16->id), 1, "new purchase tax for taxkey 9 with 16% exists ok");
+# is(defined SL::DB::Manager::Tax->find_by(taxkey => 7, rate => 0.16, chart_id => $tax_ust_16->id), 1, "old purchase tax for taxkey 7 with 16% exists ok");
+is(defined SL::DB::Manager::Tax->find_by(taxkey => 8, rate => 0.07, chart_id => $tax_vst_7->id ), 1, "purchase tax for taxkey 8 with 7% exists ok");
+is(defined SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.19, chart_id => $tax_vst_19->id), 1, "old purchase tax for taxkey 9 with 19% exists ok");
+is(defined SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.16, chart_id => $tax_vst_16->id), 1, "new purchase tax for taxkey 9 with 16% exists ok");
 
-my $vendor   = new_vendor(  name => 'Testvendor')->save;
-my $customer = new_customer(name => 'Testcustomer')->save;
+my $vendor   = new_vendor(  name => 'Testvendor',   payment_id => $payment_terms->id)->save;
+my $customer = new_customer(name => 'Testcustomer', payment_id => $payment_terms->id)->save;
 
 # cmp_ok($chart_income_7->get_active_taxkey($date_2020_1)->tax->rate, '==', 0.07, "get_active_taxkey rate for 8300 in 2020_1 ok");
 # cmp_ok($chart_income_7->get_active_taxkey($date_2020_2)->tax->rate, '==', 0.05, "get_active_taxkey rate for 8300 in 2020_2 ok");
@@ -238,11 +245,11 @@ note('ap transactions');
 # would select the entries from the dropdown, as they may differ from the
 # default, so we have to pass the tax we want to create_ap_transaction
 
-my $tax_9_16_old = SL::DB::Manager::Tax->find_by(taxkey => 7, rate => 0.16, chart_id => $tax_ust_16->id);
-my $tax_9_19     = SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.19, chart_id => $tax_ust_19->id);
-my $tax_9_16     = SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.16, chart_id => $tax_ust_16->id);
-my $tax_8_7      = SL::DB::Manager::Tax->find_by(taxkey => 8, rate => 0.07, chart_id => $tax_ust_7->id);
-my $tax_8_5      = SL::DB::Manager::Tax->find_by(taxkey => 8, rate => 0.05, chart_id => $tax_ust_5->id);
+my $tax_9_16_old = SL::DB::Manager::Tax->find_by(taxkey => 7, rate => 0.16, chart_id => $tax_vst_16->id);
+my $tax_9_19     = SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.19, chart_id => $tax_vst_19->id) or die "missing 9_19";
+my $tax_9_16     = SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.16, chart_id => $tax_vst_16->id) or die "missing 9_16";
+my $tax_8_7      = SL::DB::Manager::Tax->find_by(taxkey => 8, rate => 0.07, chart_id => $tax_vst_7->id)  or die "missing 8_7";
+my $tax_8_5      = SL::DB::Manager::Tax->find_by(taxkey => 8, rate => 0.05, chart_id => $tax_vst_5->id)  or die "missing 8_5";
 
 # simulate user selecting the "correct" taxes in dropdown:
 my $ap_transaction_2006   = create_ap_transaction_for_date('2006',   $date_2006,   undef, $tax_9_16_old, $tax_8_7);
@@ -317,7 +324,7 @@ is(SL::DB::Manager::GLTransaction->get_all_count(), 4, "4 gltransactions created
 my $result = &get_account_balances;
 # print Dumper($result);
 is_deeply( &get_account_balances,
- [
+        [
           # {
           #   'accno' => '1000',
           #   # 'description' => 'Kasse',
@@ -392,6 +399,52 @@ is_deeply( &get_account_balances,
         'account balances after invoices'
 );
 
+note('testing payments with skonto');
+
+my %params = ( chart_id     => $chart_bank->id,
+               payment_type => 'with_skonto_pt',
+             );
+
+$sales_invoice_2020_2->pay_invoice( %params,
+                                    amount    => $sales_invoice_2020_2->amount_less_skonto,
+                                    transdate => $date_2020_2->to_kivitendo,
+                                  );
+
+
+$skonto_5 = SL::DB::Manager::AccTransaction->find_by(trans_id => $sales_invoice_2020_2->id, amount => -5.25);
+like($skonto_5->chart->description, qr/Skonti.*5/, "sales_invoice 2020_2 paid in 2020_2 - skonto 5% ok");
+$skonto_16 = SL::DB::Manager::AccTransaction->find_by(trans_id => $sales_invoice_2020_2->id, amount => -5.80);
+like($skonto_16->chart->description, qr/Skonti.*16/, "sales_invoice 2020_2 paid in 2020_2 - skonto 16% ok");
+
+$sales_invoice_2020_1->pay_invoice( %params,
+                                    amount    => $sales_invoice_2020_1->amount_less_skonto,
+                                    transdate => $date_2020_2->to_kivitendo,
+                                  );
+$skonto_7 = SL::DB::Manager::AccTransaction->find_by(trans_id => $sales_invoice_2020_1->id, amount => -5.35);
+like($skonto_7->chart->description, qr/Skonti.*7/, "sales_invoice 2020_1 paid with skonto in 2020_2 - skonto 7% ok");
+$skonto_19 = SL::DB::Manager::AccTransaction->find_by(trans_id => $sales_invoice_2020_1->id, amount => -5.95);
+like($skonto_19->chart->description, qr/Skonti.*19/, "sales_invoice 2020_1 paid with skonto in 2020_2 - skonto 19% ok");
+
+$ap_transaction_2020_1->pay_invoice( %params,
+                                     amount    => $ap_transaction_2020_1->amount_less_skonto,
+                                     transdate => $date_2020_2->to_kivitendo,
+                                   );
+$skonto_7 = SL::DB::Manager::AccTransaction->find_by(trans_id => $ap_transaction_2020_1->id, amount => 5.35);
+like($skonto_7->chart->description, qr/Skonti.*7/, "ap transaction 2020_1 paid with skonto in 2020_2 - skonto 7% ok");
+$skonto_19 = SL::DB::Manager::AccTransaction->find_by(trans_id => $ap_transaction_2020_1->id, amount => 5.95);
+like($skonto_19->chart->description, qr/Skonti.*19/, "ap transaction 2020_1 paid with skonto in 2020_2 - skonto 19% ok");
+
+
+$ap_transaction_2020_2->pay_invoice( %params,
+                                     amount    => $ap_transaction_2020_2->amount_less_skonto,
+                                     transdate => $date_2021->to_kivitendo,
+                                   );
+$skonto_5 = SL::DB::Manager::AccTransaction->find_by(trans_id => $ap_transaction_2020_2->id, amount => 5.25);
+like($skonto_5->chart->description, qr/Skonti.*5/, "ap transaction 2020_2 paid in 2021 - skonto 5% ok");
+
+$skonto_16 = SL::DB::Manager::AccTransaction->find_by(trans_id => $ap_transaction_2020_2->id, amount => 5.80);
+like($skonto_16->chart->description, qr/Skonti.*16/, "sales_invoice 2020_2 paid in 2021 - skonto 16% ok");
+
 clear_up();
 
 done_testing();
@@ -408,6 +461,7 @@ sub create_invoice_for_date {
     transdate    => $transdate,
     customer     => $customer,
     deliverydate => $deliverydate,
+    payment_terms => $payment_terms,
     taxincluded  => 0,
     invoiceitems => [ create_invoice_item(part => $part1, qty => 10, sellprice => 10),
                       create_invoice_item(part => $part2, qty => 10, sellprice => 10),
@@ -451,6 +505,7 @@ sub create_ap_transaction_for_date {
     taxincluded  => 0,
     transdate    => $transdate,
     deliverydate => $deliverydate,
+    payment_id   => $payment_terms->id,
     ap_chart     => SL::DB::Manager::Chart->find_by(accno => $ap_accno), # pass ap_chart, as it is hardcoded for SKR03 in SL::Dev::Record
     bookings     => [
                      {
@@ -539,6 +594,7 @@ sub clear_up {
   SL::DB::Manager::Part->delete_all(all => 1);
   SL::DB::Manager::Customer->delete_all(all => 1);
   SL::DB::Manager::Vendor->delete_all(all => 1);
+  SL::DB::Manager::PaymentTerm->delete_all(all => 1);
 };
 
 1;
