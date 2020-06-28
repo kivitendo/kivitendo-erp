@@ -30,7 +30,11 @@ clear_up();
 # * also the default test client has the accounting method "cash" rather than "accrual"
 #   (Ist-versteuerung, rather than Soll-versteuerung)
 
-my $year = DateTime->today->year;
+# hardcode for 2019, as this will break in 2020 due to change in tax (19/16 and 7/5) because we check for account sums
+# can be changed back to current year in 2021
+my $year = 2019; # DateTime->today->year;
+my $start_of_year = DateTime->new(year => $year, month => 01, day => 01);
+my $booking_date  = DateTime->new(year => $year, month => 12, day => 22);
 
 note('configuring accounts');
 my $bank_account = SL::DB::BankAccount->new(
@@ -81,6 +85,7 @@ $dbh->do('UPDATE defaults SET loss_carried_forward_chart_id   = ' . $loss_accoun
 note('creating transactions');
 my $ar_transaction = create_ar_transaction(
   taxincluded => 0,
+  transdate   => $booking_date,
   bookings    => [
                    {
                      chart  => $income_chart, # income 19%, taxkey 3
@@ -91,13 +96,14 @@ my $ar_transaction = create_ar_transaction(
   
 $ar_transaction->pay_invoice(
                               chart_id     => $bank_account->chart_id,
-                              transdate    => DateTime->today_local->to_kivitendo,
                               amount       => $ar_transaction->amount,
+                              transdate    => $booking_date->to_kivitendo,
                               payment_type => 'without_skonto',
                             );
 
 my $ar_transaction2 = create_ar_transaction(
   taxincluded => 1,
+  transdate   => $booking_date,
   bookings    => [
                    {
                      chart  => $income_chart, # income 19%, taxkey 3
@@ -108,6 +114,7 @@ my $ar_transaction2 = create_ar_transaction(
 
 my $ap_transaction = create_ap_transaction(
   taxincluded => 0,
+  transdate   => $booking_date,
   bookings    => [
                    {
                      chart  => SL::DB::Manager::Chart->find_by( accno => '3400' ), # Wareneingang 19%, taxkey 9
@@ -116,8 +123,7 @@ my $ap_transaction = create_ap_transaction(
                  ],
 );
 
-
-gl_booking(40, "01.01.$year", 'foo', 'bar', $bank, $privateinlagen, 1, 0);
+gl_booking(40, $start_of_year, 'foo', 'bar', $bank, $privateinlagen, 1, 0);
 
 is(SL::DB::Manager::AccTransaction->get_all_count(                                ), 13, 'acc_trans transactions created ok');
 is(SL::DB::Manager::AccTransaction->get_all_count(where => [ ob_transaction => 1 ]),  2, 'acc_trans ob_transactions created ok');
@@ -392,8 +398,8 @@ is_deeply( &get_final_balances,
 # adjust that profit-loss-carry-over # chart, rather than creating a new entry
 # for the loss.
 
-gl_booking(10, "22.12.$year", 'foo', 'bar', $cash, $bank, 0, 0);
-gl_booking(5,  "22.12.$year", 'foo', 'bar', $betriebsbedarf, $cash, 0, 0);
+gl_booking(10, $booking_date, 'foo', 'bar', $cash, $bank, 0, 0);
+gl_booking(5,  $booking_date, 'foo', 'bar', $betriebsbedarf, $cash, 0, 0);
 
 SL::Controller::YearEndTransactions::_year_end_bookings( start_date => $start_date,
                                                          cb_date    => $cb_date,
@@ -620,12 +626,12 @@ sub gl_booking {
   # wrapper around SL::Dev::Record::create_gl_transaction for quickly creating transactions
   my ($amount, $date, $reference, $description, $gegenkonto, $konto, $ob, $cb) = @_;
 
-  my $transdate = $::locale->parse_date_to_object($date);
+  # my $transdate = $::locale->parse_date_to_object($date);
 
   return create_gl_transaction(
     ob_transaction => $ob,
     cb_transaction => $cb,
-    transdate      => $transdate,
+    transdate      => $date,
     reference      => $reference,
     description    => $description,
     bookings       => [
