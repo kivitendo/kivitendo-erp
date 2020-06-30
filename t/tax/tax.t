@@ -1,4 +1,4 @@
-use Test::More tests => 46;
+use Test::More tests => 48;
 use Test::Deep qw(cmp_deeply);
 
 use strict;
@@ -107,8 +107,8 @@ my $tax_vst_7  = SL::DB::Manager::Chart->find_by(accno => $chart_vst_7 ) or die;
 
 my $tax_ust_19 = SL::DB::Manager::Chart->find_by(accno => $chart_ust_19) or die; # 19%
 my $tax_ust_16 = SL::DB::Manager::Chart->find_by(accno => $chart_ust_16) or die; # 16%
-my $tax_ust_5  = SL::DB::Manager::Chart->find_by(accno => $chart_ust_5) or die;  #  5%
-my $tax_ust_7  = SL::DB::Manager::Chart->find_by(accno => $chart_ust_7) or die;  #  7%
+my $tax_ust_5  = SL::DB::Manager::Chart->find_by(accno => $chart_ust_5)  or die; #  5%
+my $tax_ust_7  = SL::DB::Manager::Chart->find_by(accno => $chart_ust_7)  or die; #  7%
 
 my $chart_income_19  = SL::DB::Manager::Chart->find_by(accno => $income_19_accno) or die;
 my $chart_income_7   = SL::DB::Manager::Chart->find_by(accno => $income_7_accno) or die;
@@ -122,7 +122,7 @@ my $payment_terms = create_payment_terms();
 is(defined SL::DB::Manager::Tax->find_by(taxkey => 2, rate => 0.05), 1, "tax for taxkey 2 with 5% was created ok");
 is(defined SL::DB::Manager::Tax->find_by(taxkey => 3, rate => 0.16, chart_id => $tax_ust_16->id), 1, "new sales tax for taxkey 3 with 16% exists ok");
 is(defined SL::DB::Manager::Tax->find_by(taxkey => 3, rate => 0.19, chart_id => $tax_ust_19->id), 1, "old sales tax for taxkey 3 with 19% exists ok");
-is(defined SL::DB::Manager::Tax->find_by(taxkey => 5, rate => 0.16, chart_id => $tax_ust_16->id), 1, "new sales tax for taxkey 5 with 16% exists ok");
+# is(defined SL::DB::Manager::Tax->find_by(taxkey => 5, rate => 0.16, chart_id => $tax_ust_16->id), 1, "new sales tax for taxkey 5 with 16% exists ok");
 
 # is(defined SL::DB::Manager::Tax->find_by(taxkey => 7, rate => 0.16, chart_id => $tax_ust_16->id), 1, "old purchase tax for taxkey 7 with 16% exists ok");
 is(defined SL::DB::Manager::Tax->find_by(taxkey => 8, rate => 0.07, chart_id => $tax_vst_7->id ), 1, "purchase tax for taxkey 8 with 7% exists ok");
@@ -132,9 +132,9 @@ is(defined SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.16, chart_id => 
 my $vendor   = new_vendor(  name => 'Testvendor',   payment_id => $payment_terms->id)->save;
 my $customer = new_customer(name => 'Testcustomer', payment_id => $payment_terms->id)->save;
 
-# cmp_ok($chart_income_7->get_active_taxkey($date_2020_1)->tax->rate, '==', 0.07, "get_active_taxkey rate for 8300 in 2020_1 ok");
-# cmp_ok($chart_income_7->get_active_taxkey($date_2020_2)->tax->rate, '==', 0.05, "get_active_taxkey rate for 8300 in 2020_2 ok");
-# cmp_ok($chart_income_7->get_active_taxkey($date_2021  )->tax->rate, '==', 0.07, "get_active_taxkey rate for 8300 in 2021   ok");
+cmp_ok($chart_income_7->get_active_taxkey($date_2020_1)->tax->rate, '==', 0.07, "get_active_taxkey rate for 8300 in 2020_1 ok");
+cmp_ok($chart_income_7->get_active_taxkey($date_2020_2)->tax->rate, '==', 0.05, "get_active_taxkey rate for 8300 in 2020_2 ok");
+cmp_ok($chart_income_7->get_active_taxkey($date_2021  )->tax->rate, '==', 0.07, "get_active_taxkey rate for 8300 in 2021   ok");
 cmp_ok($chart_income_7->get_active_taxkey($date_2020_1)->tax->rate, '==', 0.07, "get_active_taxkey rate for $income_7_accno in 2020_1 ok");
 cmp_ok($chart_income_7->get_active_taxkey($date_2020_2)->tax->rate, '==', 0.05, "get_active_taxkey rate for $income_7_accno in 2020_2 ok");
 cmp_ok($chart_income_7->get_active_taxkey($date_2021  )->tax->rate, '==', 0.07, "get_active_taxkey rate for $income_7_accno in 2021   ok");
@@ -245,17 +245,17 @@ note('ap transactions');
 # would select the entries from the dropdown, as they may differ from the
 # default, so we have to pass the tax we want to create_ap_transaction
 
-my $tax_9_16_old = SL::DB::Manager::Tax->find_by(taxkey => 7, rate => 0.16, chart_id => $tax_vst_16->id);
+# my $tax_9_16_old = SL::DB::Manager::Tax->find_by(taxkey => 7, rate => 0.16, chart_id => $tax_vst_16->id);
 my $tax_9_19     = SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.19, chart_id => $tax_vst_19->id) or die "missing 9_19";
 my $tax_9_16     = SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.16, chart_id => $tax_vst_16->id) or die "missing 9_16";
 my $tax_8_7      = SL::DB::Manager::Tax->find_by(taxkey => 8, rate => 0.07, chart_id => $tax_vst_7->id)  or die "missing 8_7";
 my $tax_8_5      = SL::DB::Manager::Tax->find_by(taxkey => 8, rate => 0.05, chart_id => $tax_vst_5->id)  or die "missing 8_5";
 
 # simulate user selecting the "correct" taxes in dropdown:
-my $ap_transaction_2006   = create_ap_transaction_for_date('2006',   $date_2006,   undef, $tax_9_16_old, $tax_8_7);
-my $ap_transaction_2020_1 = create_ap_transaction_for_date('2020_1', $date_2020_1, undef, $tax_9_19,     $tax_8_7);
-my $ap_transaction_2020_2 = create_ap_transaction_for_date('2020_2', $date_2020_2, undef, $tax_9_16,     $tax_8_5);
-my $ap_transaction_2021   = create_ap_transaction_for_date('2021',   $date_2021,   undef, $tax_9_19,     $tax_8_7);
+my $ap_transaction_2006   = create_ap_transaction_for_date('2006',   $date_2006,   undef, $tax_9_16, $tax_8_7);
+my $ap_transaction_2020_1 = create_ap_transaction_for_date('2020_1', $date_2020_1, undef, $tax_9_19, $tax_8_7);
+my $ap_transaction_2020_2 = create_ap_transaction_for_date('2020_2', $date_2020_2, undef, $tax_9_16, $tax_8_5);
+my $ap_transaction_2021   = create_ap_transaction_for_date('2021',   $date_2021,   undef, $tax_9_19, $tax_8_7);
 
 
 is($ap_transaction_2006->amount,   223, '2006    ap transaction has 16% and 7% tax ok'); # 116 + 7
