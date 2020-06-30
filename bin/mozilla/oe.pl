@@ -652,7 +652,7 @@ sub form_header {
         taxpart taxservice taxaccounts cursor_fokus
         show_details useasnew),
         @custom_hiddens,
-        map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} ];  # deleted: discount
+        map { $_.'_rate', $_.'_description', $_.'_taxnumber', $_.'_tax_id' } split / /, $form->{taxaccounts} ];  # deleted: discount
 
   $TMPL_VAR->{$_} = $type_check_vars{$_} for keys %type_check_vars;
 

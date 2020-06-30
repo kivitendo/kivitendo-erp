@@ -451,7 +451,7 @@ sub form_header {
     shiptoemail shiptodepartment_1 shiptodepartment_2 message email subject cc bcc taxaccounts cursor_fokus
     convert_from_do_ids convert_from_oe_ids convert_from_ap_ids show_details gldate useasnew
   ), @custom_hiddens,
-  map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
+  map { $_.'_rate', $_.'_description', $_.'_taxnumber', $_.'_tax_id' } split / /, $form->{taxaccounts}];
 
   $TMPL_VAR{payment_terms_obj} = get_payment_terms_for_invoice();
   $form->{duedate}             = $TMPL_VAR{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{duedate})->to_kivitendo if $TMPL_VAR{payment_terms_obj};

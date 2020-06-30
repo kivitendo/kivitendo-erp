@@ -1660,7 +1660,7 @@ sub relink_accounts {
   $form->{"taxaccounts"} =~ s/\s*$//;
   $form->{"taxaccounts"} =~ s/^\s*//;
   foreach my $accno (split(/\s*/, $form->{"taxaccounts"})) {
-    map({ delete($form->{"${accno}_${_}"}); } qw(rate description taxnumber));
+    map({ delete($form->{"${accno}_${_}"}); } qw(rate description taxnumber tax_id)); # add tax_id ?
   }
   $form->{"taxaccounts"} = "";
 
