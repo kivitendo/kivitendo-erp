@@ -135,7 +135,7 @@ sub cache_taxkeys {
   my $rows = selectall_hashref_query($::form, $::form->get_standard_dbh, <<"", $date);
     SELECT DISTINCT ON (chart_id) chart_id, startdate, id
     FROM taxkeys
-    WHERE startdate < ?
+    WHERE startdate <= ?
     ORDER BY chart_id, startdate DESC;
 
   for (@$rows) {
