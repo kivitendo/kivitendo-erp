@@ -325,7 +325,7 @@ sub _totals {
 
   $params{xml}->dataElement("ram:LineTotalAmount",     _r2($self->netamount));
   $params{xml}->dataElement("ram:TaxBasisTotalAmount", _r2($self->netamount));
-  $params{xml}->dataElement("ram:TaxTotalAmount",      _r2(sum(values %{ $params{ptc_data}->{taxes} })), currencyID => "EUR");
+  $params{xml}->dataElement("ram:TaxTotalAmount",      _r2(sum(values %{ $params{ptc_data}->{taxes_by_tax_id} })), currencyID => "EUR");
   $params{xml}->dataElement("ram:GrandTotalAmount",    _r2($self->amount));
   $params{xml}->dataElement("ram:TotalPrepaidAmount",  _r2($self->paid));
   $params{xml}->dataElement("ram:DuePayableAmount",    _r2($self->amount - $self->paid));
