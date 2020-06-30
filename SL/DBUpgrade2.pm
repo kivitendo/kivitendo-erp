@@ -56,9 +56,10 @@ sub parse_dbupdate_controls {
     $file =~ s|.*/||;
 
     my $control = {
-      "priority" => 1000,
-      "depends"  => [],
-      "locales"  => [],
+      priority    => 1000,
+      depends     => [],
+      required_by => [],
+      locales     => [],
     };
 
     while (<IN>) {
@@ -71,8 +72,8 @@ sub parse_dbupdate_controls {
       my @fields = split(/\s*:\s*/, $_, 2);
       next unless (scalar(@fields) == 2);
 
-      if ($fields[0] eq "depends") {
-        push(@{$control->{"depends"}}, split(/\s+/, $fields[1]));
+      if ($fields[0] =~ m{^(?:depends|required_by)$}) {
+        push(@{$control->{$fields[0]}}, split(/\s+/, $fields[1]));
       } elsif ($fields[0] eq "locales") {
         push @{$control->{locales}}, $fields[1];
       } else {
@@ -100,7 +101,7 @@ sub parse_dbupdate_controls {
 
     delete @{$control}{qw(depth applied)};
 
-    my @unknown_keys = grep { !m{^ (?: depends | description | file | ignore | locales | may_fail | priority | superuser_privileges | tag ) $}x } keys %{ $control };
+    my @unknown_keys = grep { !m{^ (?: depends | required_by | description | file | ignore | locales | may_fail | priority | superuser_privileges | tag ) $}x } keys %{ $control };
     if (@unknown_keys) {
       _control_error($form, $file_name, sprintf($locale->text("Unknown control fields: #1", join(' ', sort({ lc $a cmp lc $b } @unknown_keys)))));
     }
@@ -112,6 +113,15 @@ sub parse_dbupdate_controls {
     $all_controls{$control->{"tag"}} = $control;
 
     close(IN);
+  }
+
+  foreach my $name (keys %all_controls) {
+    my $control = $all_controls{$name};
+
+    foreach my $dependency (@{ delete $control->{required_by} }) {
+      _control_error($form, $control->{"file"}, sprintf($locale->text("Unknown dependency '%s'."), $dependency)) if (!defined($all_controls{$dependency}));
+      push @{ $all_controls{$dependency}->{depends} }, $name;
+    }
   }
 
   foreach my $control (values(%all_controls)) {
