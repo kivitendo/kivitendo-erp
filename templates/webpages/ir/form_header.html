@@ -154,6 +154,7 @@
            <span id="duedate_fixed"[% IF !payment_terms_obj.auto_calculation %] style="display:none"[% END %]>[% HTML.escape(duedate) %]</span>
           </td>
         </tr>
+        <tr>
           <th align="right">[% 'Delivery Date' | $T8 %]</th>
           <td>[% L.date_tag('deliverydate', deliverydate) %]</td>
         </tr>
