@@ -1,6 +1,6 @@
 -- @tag: konjunkturpaket_2020_SKR04
 -- @description: Anpassung des Deutschen DATEV-Kontenrahmen für SKR04 Konjunkturpaket
--- @depends: release_3_5_5
+-- @depends: release_3_5_5 remove_double_tax_entries_skr04
 -- @ignore: 0
 
 DO $$
