@@ -94,6 +94,7 @@ namespace('kivi.Order', function(ns) {
     if (!ns.check_cv()) return;
 
     var data = $('#order_form').serializeArray();
+    data.push({ name: 'order.language_id', value: $('#language_id').val() }); // language from print options
     data.push({ name: 'action', value: 'Order/show_email_dialog' });
 
     $.post("controller.pl", data, kivi.eval_json_result);
