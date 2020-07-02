@@ -4044,6 +4044,7 @@ $self->{texts} = {
   'You should create a backup of the database before proceeding because the backup might not be reversible.' => '',
   'You\'re not editing a file.' => '',
   'You\'ve already chosen the following limitations:' => '',
+  'Your Order'                  => '',
   'Your PostgreSQL installationen does not use Unicode as its encoding. This is not supported anymore.' => '',
   'Your Reference'              => '',
   'Your TODO list'              => '',

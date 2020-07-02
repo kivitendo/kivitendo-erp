@@ -376,11 +376,11 @@ sub action_save_and_show_email_dialog {
 
   my $form = Form->new;
   $form->{$self->nr_key()}  = $self->order->number;
+  $form->{cusordnumber}     = $self->order->cusordnumber;
   $form->{formname}         = $self->type;
   $form->{type}             = $self->type;
   $form->{language}         = '_' . $self->order->language->template_code if $self->order->language;
   $form->{language_id}      = $self->order->language->id                  if $self->order->language;
-  $form->{cusordnumber}     = $self->order->cusordnumber;
   $form->{format}           = 'pdf';
 
   $email_form->{subject}             = $form->generate_email_subject();

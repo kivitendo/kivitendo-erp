@@ -280,6 +280,7 @@ namespace('kivi.SalesPurchase', function(ns) {
       language_id: $('#language_id').val(),
       media:       'email',
       ordnumber:   $('#ordnumber').val(),
+      cusordnumber: $('#cusordnumber').val(),
       rowcount:    $('#rowcount').val(),
       quonumber:   $('#quonumber').val(),
       type:        $('#type').val(),

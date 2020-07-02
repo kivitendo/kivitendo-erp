@@ -1270,6 +1270,20 @@ sub get_formname_translation {
   return $formname_translations{$formname};
 }
 
+sub get_cusordnumber_translation {
+  $main::lxdebug->enter_sub();
+  my ($self, $formname) = @_;
+
+  $formname ||= $self->{formname};
+
+  $self->{recipient_locale} ||=  Locale->lang_to_locale($self->{language});
+  local $::locale = Locale->new($self->{recipient_locale});
+
+
+  $main::lxdebug->leave_sub();
+  return $main::locale->text('Your Order');
+}
+
 sub get_number_prefix_for_type {
   $main::lxdebug->enter_sub();
   my ($self) = @_;
@@ -1343,6 +1357,10 @@ sub generate_email_subject {
 
   if ($subject && $self->{"${prefix}number"}) {
     $subject .= " " . $self->{"${prefix}number"}
+  }
+
+  if ($self->{cusordnumber}) {
+    $subject = $self->get_cusordnumber_translation() . ' ' . $self->{cusordnumber} . ' / ' . $subject;
   }
 
   $main::lxdebug->leave_sub();
