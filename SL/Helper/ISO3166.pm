@@ -29,7 +29,7 @@ my @alpha_2_mappings = (
   [ 'BA', qr{^(?:BA|Bosnia and Herzegovina)$}i ],
   [ 'BB', qr{^(?:BB|Barbados)$}i ],
   [ 'BD', qr{^(?:BD|Bangladesh)$}i ],
-  [ 'BE', qr{^(?:BE|Belgium)$}i ],
+  [ 'BE', qr{^(?:BE|Belgium|Belgien)$}i ],
   [ 'BF', qr{^(?:BF|Burkina Faso)$}i ],
   [ 'BG', qr{^(?:BG|Bulgaria)$}i ],
   [ 'BH', qr{^(?:BH|Bahrain)$}i ],
