@@ -373,6 +373,7 @@ sub action_show_email_dialog {
   $form->{type}             = $self->type;
   $form->{language}         = '_' . $self->order->language->template_code if $self->order->language;
   $form->{language_id}      = $self->order->language->id                  if $self->order->language;
+  $form->{cusordnumber}     = $self->order->cusordnumber;
   $form->{format}           = 'pdf';
 
   $email_form->{subject}             = $form->generate_email_subject();
