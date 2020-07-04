@@ -106,7 +106,7 @@ sub get_account {
 
     # get the taxkeys of the account
     $form->{ACCOUNT_TAXKEYS} = [];
-    foreach my $taxkey ( @{ $chart_obj->taxkeys } ) {
+    foreach my $taxkey ( sort { $b->startdate <=> $a->startdate } @{ $chart_obj->taxkeys } ) {
       push @{ $form->{ACCOUNT_TAXKEYS} }, { id             => $taxkey->id,
                                             chart_id       => $taxkey->chart_id,
                                             tax_id         => $taxkey->tax_id,

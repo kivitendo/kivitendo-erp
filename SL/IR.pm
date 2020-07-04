@@ -1071,7 +1071,7 @@ sub retrieve_invoice {
     # get tax rates and description
     my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
     $query =
-      qq|SELECT c.accno, t.taxdescription, t.rate,
+      qq|SELECT c.accno, t.taxdescription, t.rate, t.id as tax_id,
                 c.accno as taxnumber   -- taxnumber is same as accno, but still accessed as taxnumber in code
          FROM tax t
          LEFT JOIN chart c ON (c.id = t.chart_id)
@@ -1098,6 +1098,7 @@ sub retrieve_invoice {
         $form->{"$ptr->{accno}_rate"}         = $ptr->{rate};
         $form->{"$ptr->{accno}_description"}  = $ptr->{taxdescription};
         $form->{"$ptr->{accno}_taxnumber"}    = $ptr->{taxnumber};
+        $form->{"$ptr->{accno}_tax_id"}       = $ptr->{tax_id};
         $form->{taxaccounts}                 .= "$ptr->{accno} ";
       }
 
@@ -1341,7 +1342,7 @@ sub retrieve_item {
     # get tax rates and description
     my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
     $query =
-      qq|SELECT c.accno, t.taxdescription, t.rate, c.accno as taxnumber
+      qq|SELECT c.accno, t.taxdescription, t.rate, c.accno as taxnumber, t.id as tax_id
          FROM tax t
          LEFT JOIN chart c on (c.id = t.chart_id)
          WHERE t.id IN
@@ -1372,6 +1373,7 @@ sub retrieve_item {
         $form->{"$ptr->{accno}_rate"}         = $ptr->{rate};
         $form->{"$ptr->{accno}_description"}  = $ptr->{taxdescription};
         $form->{"$ptr->{accno}_taxnumber"}    = $ptr->{taxnumber};
+        $form->{"$ptr->{accno}_tax_id"}       = $ptr->{tax_id};
         $form->{taxaccounts}                 .= "$ptr->{accno} ";
       }
 

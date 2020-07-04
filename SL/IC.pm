@@ -806,7 +806,7 @@ sub retrieve_accounts {
 SQL
 
   my $query_tax = <<SQL;
-    SELECT c.accno, t.taxdescription AS description, t.rate,
+    SELECT c.accno, t.taxdescription AS description, t.id as tax_id, t.rate,
            c.accno as taxnumber
     FROM tax t
     LEFT JOIN chart c ON c.id = t.chart_id
@@ -838,7 +838,7 @@ SQL
     $form->{"taxaccounts_$index"} = $ref->{"accno"};
     $form->{"taxaccounts"} .= "$ref->{accno} "if $form->{"taxaccounts"} !~ /$ref->{accno}/;
 
-    $form->{"$ref->{accno}_${_}"} = $ref->{$_} for qw(rate description taxnumber);
+    $form->{"$ref->{accno}_${_}"} = $ref->{$_} for qw(rate description taxnumber tax_id);
   }
 
   $sth_tax->finish;
