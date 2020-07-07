@@ -30,9 +30,8 @@ clear_up();
 # * also the default test client has the accounting method "cash" rather than "accrual"
 #   (Ist-versteuerung, rather than Soll-versteuerung)
 
-# hardcode for 2019, as this will break in 2020 due to change in tax (19/16 and 7/5) because we check for account sums
-# can be changed back to current year in 2021
-my $year = 2019; # DateTime->today->year;
+# use 2019 instead of 2020 because of tax changes in Germany (19/16 and 7/5) because we check for account sums
+my $year = 2019 if DateTime->today_local->year == 2020;
 my $start_of_year = DateTime->new(year => $year, month => 01, day => 01);
 my $booking_date  = DateTime->new(year => $year, month => 12, day => 22);
 
@@ -97,7 +96,7 @@ my $ar_transaction = create_ar_transaction(
 $ar_transaction->pay_invoice(
                               chart_id     => $bank_account->chart_id,
                               amount       => $ar_transaction->amount,
-                              transdate    => $booking_date->to_kivitendo,
+                              transdate    => $booking_date,
                               payment_type => 'without_skonto',
                             );
 
