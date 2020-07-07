@@ -39,13 +39,13 @@ sub reset_state {
                           )->save;
 }
 
-sub save_shorcontroller_to_string {
+sub save_shopcontroller_to_string {
 
   my $output;
   open(my $outputFH, '>', \$output) or die "OUTPUT";
   my $oldFH = select $outputFH;
-  my $shor_controller = SL::Controller::ShopOrder->new;
-  $shor_controller->action_transfer;
+  my $shop_controller = SL::Controller::ShopOrder->new;
+  $shop_controller->action_transfer;
 
   select $oldFH;
   close $outputFH;
@@ -57,7 +57,7 @@ sub test_transfer {
   $::form->{import_id} = $params{import_id};
   $::form->{customer} =  $params{customer};
   my $test_name = 'Test Controller Action Transfer';
-  save_shorcontroller_to_string();
+  save_shopcontroller_to_string();
   my @links_record = RecordLinks->get_links( 'from_table' => 'shop_orders',
                                             'from_id'    => $params{import_id},
                                             'to_table'   => 'oe',
