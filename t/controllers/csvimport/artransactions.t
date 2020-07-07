@@ -26,10 +26,15 @@ use SL::DB::Chart;
 use SL::DB::AccTransaction;
 
 my ($customer, $currency_id, $employee, $taxzone, $project, $department);
+my ($transdate, $transdate_string);
 
 sub reset_state {
   # Create test data
   my %params = @_;
+
+  $transdate = DateTime->today_local;
+  $transdate->set_year(2019) if $transdate->year == 2020; # hardcode for 2019 in 2020, because of tax rate change in Germany
+  $transdate_string = $transdate->to_kivitendo;
 
   $params{$_} ||= {} for qw(buchungsgruppe customer tax);
 
@@ -96,6 +101,7 @@ sub test_import {
 
 ##### manually create an ar transaction from scratch, testing the methods
 $::myconfig{numberformat} = '1000.00';
+$::myconfig{dateformat}   = 'dd.mm.yyyy';
 my $old_locale = $::locale;
 # set locale to en so we can match errors
 $::locale = Locale->new('en');
@@ -109,7 +115,7 @@ my $ar = SL::DB::Invoice->new(
   currency_id  => $currency_id,
   taxincluded  => 'f',
   customer_id  => $customer->id,
-  transdate    => DateTime->today,
+  transdate    => $transdate,
   employee_id  => SL::DB::Manager::Employee->current->id,
   transactions => [],
 );
@@ -138,7 +144,7 @@ is scalar @{$ar->transactions}, 3, 'manual invoice has 3 acc_trans entries';
 
 $ar->pay_invoice(  chart_id      => SL::DB::Manager::Chart->find_by(accno => '1200')->id, # bank
                    amount        => $ar->open_amount,
-                   transdate     => DateTime->now->to_kivitendo,
+                   transdate     => $transdate,
                    payment_type  => 'without_skonto',  # default if not specified
                   );
 $result = $ar->validate_acc_trans(debug => 0);
@@ -152,10 +158,10 @@ my ($entries, $entry, $file);
 # to debug errors in certain tests, run after test_import:
 #   die Dumper($entry->{errors});
 ##### basic test
-$file = \<<EOL;
-datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart
+$file = \<<"EOL";
+datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart,transdate
 datatype,accno,amount,taxkey
-"Rechnung",960,4,1,"invoice 1",f,1400
+"Rechnung",960,4,1,"invoice 1",f,1400,"$transdate_string"
 "AccTransaction",8400,159.48,3
 EOL
 $entries = test_import($file);
@@ -172,10 +178,10 @@ is $entry->{object}->amount, '189.78', 'ar amount tax not included is 189.78';
 is $entry->{object}->netamount, '159.48', 'ar netamount tax not included is 159.48';
 
 ##### test for duplicate invnumber
-$file = \<<EOL;
-datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart
+$file = \<<"EOL";
+datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart,transdate
 datatype,accno,amount,taxkey
-"Rechnung",960,4,1,"invoice 1",f,1400
+"Rechnung",960,4,1,"invoice 1",f,1400,"$transdate_string"
 "AccTransaction",8400,159.48,3
 EOL
 $entries = test_import($file);
@@ -184,10 +190,10 @@ $entry->{object}->validate_acc_trans;
 is $entry->{errors}->[0], 'Error: invnumber already exists', 'detects verify_amount differences';
 
 ##### test for no invnumber given
-$file = \<<EOL;
-datatype,customer_id,taxzone_id,currency_id,taxincluded,archart
+$file = \<<"EOL";
+datatype,customer_id,taxzone_id,currency_id,taxincluded,archart,transdate
 datatype,accno,amount,taxkey
-"Rechnung",960,4,1,f,1400
+"Rechnung",960,4,1,f,1400,"$transdate_string"
 "AccTransaction",8400,159.48,3
 EOL
 $entries = test_import($file);
@@ -196,10 +202,10 @@ $entry->{object}->validate_acc_trans;
 is $entry->{object}->invnumber =~ /^\d+$/, 1, 'invnumber assigned automatically';
 
 ##### basic test without amounts in Rechnung, only specified in AccTransaction
-$file = \<<EOL;
-datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart
+$file = \<<"EOL";
+datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart,transdate
 datatype,accno,amount,taxkey
-"Rechnung",960,4,1,"invoice 1 no amounts",f,1400
+"Rechnung",960,4,1,"invoice 1 no amounts",f,1400,"$transdate_string"
 "AccTransaction",8400,159.48,3
 EOL
 $entries = test_import($file);
@@ -214,10 +220,10 @@ is $::form->round_amount($entry->{object}->transactions->[0]->amount, 2), '159.4
 is $::form->round_amount($entry->{object}->transactions->[0]->amount, 2), 159.48, 'invoice 1 ar amount is 159.48';
 
 ##### basic test: credit_note
-$file = \<<EOL;
-datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart
+$file = \<<"EOL";
+datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart,transdate
 datatype,accno,amount,taxkey
-"Rechnung",960,4,1,"credit note",f,1400
+"Rechnung",960,4,1,"credit note",f,1400,"$transdate_string"
 "AccTransaction",8400,-159.48,3
 EOL
 $entries = test_import($file);
@@ -233,10 +239,10 @@ is $entry->{object}->amount, '-189.78', 'credit note amount tax not included is 
 is $entry->{object}->netamount, '-159.48', 'credit note netamount tax not included is 159.48';
 
 #### verify_amount differs: max_amount_diff = 0.02, 189.80 is ok, 189.81 is not
-$file = \<<EOL;
-datatype,customer_id,verify_amount,verify_netamount,taxzone_id,currency_id,invnumber,taxincluded,archart
+$file = \<<"EOL";
+datatype,customer_id,verify_amount,verify_netamount,taxzone_id,currency_id,invnumber,taxincluded,archart,transdate
 datatype,accno,amount,taxkey
-"Rechnung",960,189.81,159.48,4,1,"invoice amounts differing",f,1400
+"Rechnung",960,189.81,159.48,4,1,"invoice amounts differing",f,1400,"$transdate_string"
 "AccTransaction",8400,159.48,3
 EOL
 $entries = test_import($file);
@@ -244,10 +250,10 @@ $entry = $entries->[0];
 is $entry->{errors}->[0], 'Amounts differ too much', 'detects verify_amount differences';
 
 #####  direct debit
-$file = \<<EOL;
-datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,direct_debit,archart
+$file = \<<"EOL";
+datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,direct_debit,archart,transdate
 datatype,accno,amount,taxkey
-"Rechnung",960,4,1,"invoice with direct debit",f,t,1400
+"Rechnung",960,4,1,"invoice with direct debit",f,t,1400,"$transdate_string"
 "AccTransaction",8400,159.48,3
 EOL
 
@@ -257,10 +263,10 @@ $entry->{object}->validate_acc_trans;
 is $entry->{object}->direct_debit, '1', 'direct debit';
 
 #### tax included
-$file = \<<EOL;
-datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart
+$file = \<<"EOL";
+datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart,transdate
 datatype,accno,amount,taxkey
-"Rechnung",960,4,1,"invoice 1 tax included no amounts",t,1400
+"Rechnung",960,4,1,"invoice 1 tax included no amounts",t,1400,"$transdate_string"
 "AccTransaction",8400,189.78,3
 EOL
 
@@ -273,10 +279,10 @@ is $::form->round_amount($entry->{object}->netamount, 2), '159.48', 'taxincluded
 is $::form->round_amount($entry->{object}->transactions->[0]->amount, 2), '159.48', 'taxincluded acc_trans netamount';
 
 #### multiple tax included
-$file = \<<EOL;
-datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart
+$file = \<<"EOL";
+datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart,transdate
 datatype,accno,amount,taxkey
-"Rechnung",960,4,1,"invoice multiple tax included",t,1400
+"Rechnung",960,4,1,"invoice multiple tax included",t,1400,"$transdate_string"
 "AccTransaction",8400,94.89,3
 "AccTransaction",8400,94.89,3
 EOL
