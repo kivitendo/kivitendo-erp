@@ -16,11 +16,15 @@ use SL::Controller::ShopOrder;
 use Data::Dumper;
 
 my ($shop, $shop_order, $shop_part, $part, $customer, $employee);
+my ($transdate);
 
 sub reset_state {
   my %params = @_;
 
   clear_up();
+
+  $transdate = DateTime->today_local;
+  $transdate->set_year(2019) if $transdate->year == 2020; # use year 2019 in 2020, because of tax rate change in Germany
 
   $shop = new_shop->save;
   $part = new_part->save;
@@ -73,7 +77,9 @@ my $shop_trans_id = 1;
 
 $shop_order = new_shop_order(
   shop              => $shop,
+  transfer_date     => $transdate,
   shop_trans_id     => $shop_trans_id,
+  order_date        => $transdate->datetime,
   amount            => 59.5,
   billing_lastname  => 'Schmidt',
   billing_firstname => 'Sven',
@@ -141,7 +147,7 @@ is($shop->description   , 'testshop' , 'shop description ok');
 is($shop_order->shop_id , $shop->id  , "shop_id ok");
 
 note('testing convert_to_sales_order');
-my $order = $shop_order->convert_to_sales_order(employee => $employee, customer => $customer);
+my $order = $shop_order->convert_to_sales_order(employee => $employee, customer => $customer, transdate => $shop_order->order_date);
 $order->calculate_prices_and_taxes;
 $order->save;
 

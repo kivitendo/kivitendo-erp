@@ -26,8 +26,9 @@ __PACKAGE__->meta->initialize;
 sub convert_to_sales_order {
   my ($self, %params) = @_;
 
-  my $customer = delete $params{customer};
-  my $employee = delete $params{employee};
+  my $customer  = delete $params{customer};
+  my $employee  = delete $params{employee};
+  my $transdate = delete $params{transdate} // DateTime->today_local;
   croak "param customer is missing" unless ref($customer) eq 'SL::DB::Customer';
   croak "param employee is missing" unless ref($employee) eq 'SL::DB::Employee';
 
@@ -98,7 +99,7 @@ sub convert_to_sales_order {
       taxzone_id              => $customer->taxzone_id,
       currency_id             => $customer->currency_id,
       transaction_description => $shop->transaction_description,
-      transdate               => DateTime->today_local
+      transdate               => $transdate,
     );
      return $order;
    }else{
