@@ -110,10 +110,11 @@ sub init_state {
 
   clear_up();
 
-  $transdate1 = DateTime->today;
-  $transdate2 = DateTime->today->add(days => 1);
-  $transdate3 = DateTime->today->add(days => 2);
-  $transdate4 = DateTime->today->add(days => 3);
+  $transdate1 = DateTime->today_local;
+  $transdate1->set_year(2019) if $transdate1->year == 2020; # hardcode for 2019 in 2020, because of tax rate change in Germany
+  $transdate2 = $transdate1->clone->add(days => 1);
+  $transdate3 = $transdate1->clone->add(days => 2);
+  $transdate4 = $transdate1->clone->add(days => 3);
 
   $buchungsgruppe  = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 19%') || croak "No accounting group";
   $buchungsgruppe7 = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 7%')  || croak "No accounting group for 7\%";
@@ -294,6 +295,7 @@ sub test_default_invoice_one_item_19_without_skonto {
   my $title = 'default invoice, one item, 19% tax, without_skonto';
   my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
   my $invoice = create_sales_invoice(
+    transdate    => $transdate1,
     taxincluded  => 0,
     invoiceitems => [ $item ],
     payment_id   => $payment_terms->id,
@@ -303,7 +305,7 @@ sub test_default_invoice_one_item_19_without_skonto {
 
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo
+                 transdate => $transdate1,
                );
 
   $params{amount} = '6.96';
@@ -329,6 +331,7 @@ sub test_default_invoice_one_item_19_without_skonto_overpaid {
   my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
   my $invoice = create_sales_invoice(
     taxincluded  => 0,
+    transdate    => $transdate1,
     invoiceitems => [ $item ],
     payment_id   => $payment_terms->id,
   );
@@ -338,7 +341,7 @@ sub test_default_invoice_one_item_19_without_skonto_overpaid {
 
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo
+                 transdate => $transdate1,
                );
 
   $params{amount} = '16.96';
@@ -369,13 +372,14 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto {
   my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
   my $invoice = create_sales_invoice(
     taxincluded  => 0,
+    transdate    => $transdate1,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
   );
 
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo
+                 transdate => $transdate1,
                );
 
   $params{payment_type} = 'with_skonto_pt';
@@ -400,6 +404,7 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_tax_included {
   my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
   my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
   my $invoice = create_sales_invoice(
+    transdate    => $transdate1,
     taxincluded  => 1,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
@@ -407,7 +412,7 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_tax_included {
 
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo
+                 transdate => $transdate1,
                );
 
   $params{payment_type} = 'with_skonto_pt';
@@ -437,6 +442,7 @@ sub test_default_invoice_two_items_19_7_without_skonto {
   my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
   my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
   my $invoice = create_sales_invoice(
+    transdate    => $transdate1,
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
@@ -444,7 +450,7 @@ sub test_default_invoice_two_items_19_7_without_skonto {
 
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo
+                 transdate => $transdate1,
                );
 
   $params{amount} = '19.44'; # pass full amount
@@ -471,6 +477,7 @@ sub test_default_invoice_two_items_19_7_without_skonto_incomplete_payment {
   my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
   my $invoice = create_sales_invoice(
     taxincluded  => 0,
+    transdate    => $transdate1,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
   );
@@ -478,7 +485,7 @@ sub test_default_invoice_two_items_19_7_without_skonto_incomplete_payment {
   $invoice->pay_invoice( amount       => '9.44',
                          payment_type => 'without_skonto',
                          chart_id     => $bank_account->chart_id,
-                         transdate    => DateTime->today_local->to_kivitendo,
+                         transdate    => $transdate1,
                        );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
@@ -499,6 +506,7 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments {
   my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
   my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
   my $invoice = create_sales_invoice(
+    transdate    => $transdate1,
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
@@ -507,11 +515,11 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments {
   $invoice->pay_invoice( amount       => '9.44',
                          payment_type => 'without_skonto',
                          chart_id     => $bank_account->chart_id,
-                         transdate    => DateTime->today_local->to_kivitendo
+                         transdate    => $transdate1,
                        );
   $invoice->pay_invoice( amount       => '10.00',
                          chart_id     => $bank_account->chart_id,
-                         transdate    => DateTime->today_local->to_kivitendo
+                         transdate    => $transdate1,
                        );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
@@ -534,6 +542,7 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
   my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
   my $invoice = create_sales_invoice(
     taxincluded  => 0,
+    transdate    => $transdate1,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
   );
@@ -541,17 +550,17 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
   $invoice->pay_invoice( amount       => '9.44',
                          payment_type => 'without_skonto',
                          chart_id     => $bank_account->chart_id,
-                         transdate    => DateTime->today_local->to_kivitendo
+                         transdate    => $transdate1,
                        );
   $invoice->pay_invoice( amount       => '8.73',
                          payment_type => 'without_skonto',
                          chart_id     => $bank_account->chart_id,
-                         transdate    => DateTime->today_local->to_kivitendo
+                         transdate    => $transdate1,
                        );
   $invoice->pay_invoice( amount       => $invoice->open_amount,
                          payment_type => 'difference_as_skonto',
                          chart_id     => $bank_account->chart_id,
-                         transdate    => DateTime->today_local->to_kivitendo
+                         transdate    => $transdate1,
                        );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
@@ -578,6 +587,7 @@ sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fi
   my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
   my $invoice = create_sales_invoice(
     taxincluded  => 0,
+    transdate    => $transdate1,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
   );
@@ -585,12 +595,12 @@ sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fi
   $invoice->pay_invoice( amount       => '19.42',
                          payment_type => 'without_skonto',
                          chart_id     => $bank_account->chart_id,
-                         transdate    => DateTime->today_local->to_kivitendo
+                         transdate    => $transdate1,
                        );
   $invoice->pay_invoice( amount       => $invoice->open_amount,
                          payment_type => 'difference_as_skonto',
                          chart_id     => $bank_account->chart_id,
-                         transdate    => DateTime->today_local->to_kivitendo
+                         transdate    => $transdate1,
                        );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
@@ -613,6 +623,7 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
   my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
   my $invoice = create_sales_invoice(
     taxincluded  => 0,
+    transdate    => $transdate1,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
   );
@@ -620,12 +631,12 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
   $invoice->pay_invoice( amount       => '19.42',
                          payment_type => 'without_skonto',
                          chart_id     => $bank_account->chart_id,
-                         transdate    => DateTime->today_local->to_kivitendo
+                         transdate    => $transdate1,
                        );
   $invoice->pay_invoice( amount       => $invoice->open_amount,
                          payment_type => 'difference_as_skonto',
                          chart_id     => $bank_account->chart_id,
-                         transdate    => DateTime->today_local->to_kivitendo
+                         transdate    => $transdate1,
                        );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
@@ -646,13 +657,14 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
   my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
   my $invoice = create_sales_invoice(
     taxincluded  => 0,
+    transdate    => $transdate1,
     invoiceitems => [ $item ],
     payment_id   => $payment_terms->id,
   );
 
   # default values
   my %params = ( chart_id  => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo
+                 transdate => $transdate1,
                );
 
   $params{amount}       = '2.32';
@@ -685,13 +697,14 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
   my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
   my $invoice = create_sales_invoice(
     taxincluded  => 0,
+    transdate    => $transdate1,
     invoiceitems => [ $item ],
     payment_id   => $payment_terms->id,
   );
 
   # default values
   my %params = ( chart_id  => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo
+                 transdate => $transdate1,
                );
 
   $params{amount}       = '6.95';
@@ -721,7 +734,7 @@ sub test_default_ap_transaction_two_charts_19_7_without_skonto {
   my $ap_transaction = new_ap_transaction();
 
   my %params = ( chart_id => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo
+                 transdate => $transdate1,
                );
 
   $params{amount} = '226'; # pass full amount
@@ -744,7 +757,7 @@ sub test_default_ap_transaction_two_charts_19_7_with_skonto {
   my $ap_transaction = new_ap_transaction();
 
   my %params = ( chart_id => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo
+                 transdate => $transdate1,
                );
 
   # $params{amount} = '226'; # pass full amount
@@ -770,7 +783,7 @@ sub test_default_ap_transaction_two_charts_19_7_tax_partial_unrounded_payment_wi
                           amount       => ( $ap_transaction->amount / 3 * 2),
                           payment_type => 'without_skonto',
                           chart_id     => $bank_account->chart_id,
-                          transdate    => DateTime->today_local->to_kivitendo
+                          transdate    => $transdate1,
                          );
   my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);
   my $total = total_amount($ap_transaction);
@@ -791,18 +804,18 @@ sub test_default_ap_transaction_two_charts_19_7_tax_without_skonto_multiple_paym
                           amount       => ( $ap_transaction->amount / 3 * 2),
                           payment_type => 'without_skonto',
                           chart_id     => $bank_account->chart_id,
-                          transdate    => DateTime->today_local->to_kivitendo
+                          transdate    => $transdate1,
                          );
   $ap_transaction->pay_invoice(
                           amount       => ( $ap_transaction->amount / 5 ),
                           payment_type => 'without_skonto',
                           chart_id     => $bank_account->chart_id,
-                          transdate    => DateTime->today_local->to_kivitendo
+                          transdate    => $transdate1,
                          );
   $ap_transaction->pay_invoice(
                           payment_type => 'difference_as_skonto',
                           chart_id     => $bank_account->chart_id,
-                          transdate    => DateTime->today_local->to_kivitendo
+                          transdate    => $transdate1,
                          );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);
@@ -822,13 +835,14 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_50_50 {
   my $item2   = create_invoice_item(part => $parts[3], qty => 1);
   my $invoice = create_sales_invoice(
     taxincluded  => 0,
+    transdate    => $transdate1,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
   );
 
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo
+                 transdate => $transdate1,
                );
 
   $params{amount} = $invoice->amount_less_skonto;
@@ -857,13 +871,14 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25 {
   my $item4   = create_invoice_item(part => $parts[3], qty => 0.5);
   my $invoice = create_sales_invoice(
     taxincluded  => 0,
+    transdate    => $transdate1,
     invoiceitems => [ $item1, $item2, $item3, $item4 ],
     payment_id   => $payment_terms->id,
   );
 
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo
+                 transdate => $transdate1,
                );
 
   $params{amount} = $invoice->amount_less_skonto;
@@ -891,13 +906,14 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included {
   my $item4   = create_invoice_item(part => $parts[3], qty => 0.5);
   my $invoice = create_sales_invoice(
     taxincluded  => 1,
+    transdate    => $transdate1,
     invoiceitems => [ $item1, $item2, $item3, $item4 ],
     payment_id   => $payment_terms->id,
   );
 
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo
+                 transdate => $transdate1,
                );
 
   $params{amount} = $invoice->amount_less_skonto;
@@ -928,6 +944,7 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple {
   my $item4   = create_invoice_item(part => $parts[3], qty => 0.5);
   my $invoice = create_sales_invoice(
     taxincluded  => 0,
+    transdate    => $transdate1,
     invoiceitems => [ $item1, $item2, $item3, $item4 ],
     payment_id   => $payment_terms->id,
   );
@@ -935,11 +952,11 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple {
   $invoice->pay_invoice( amount       => '90',
                          payment_type => 'without_skonto',
                          chart_id     => $bank_account->chart_id,
-                         transdate => DateTime->today_local->to_kivitendo
+                         transdate => $transdate1,
                        );
   $invoice->pay_invoice( payment_type => 'difference_as_skonto',
                          chart_id     => $bank_account->chart_id,
-                         transdate    => DateTime->today_local->to_kivitendo
+                         transdate    => $transdate1,
                        );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
@@ -1384,13 +1401,14 @@ sub test_credit_note_two_items_19_7_tax_tax_not_included {
   my $item2   = create_invoice_item(part => $parts[1], qty => 3);
   my $invoice = create_credit_note(
     invnumber    => 'cn1',
+    transdate    => $transdate1,
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],
   );
 
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
-                 transdate => DateTime->today_local->to_kivitendo,
+                 transdate => $transdate1,
                );
 
   $params{amount}       = $invoice->amount,
