@@ -25,6 +25,7 @@ use SL::DB::Unit;
 use SL::Dev::ALL qw(:ALL);
 
 my ($customer, $employee, $payment_do, $unit, @parts, $department);
+my ($transdate);
 
 my $VISUAL_TEST = 0;  # just a sleep to click around
 
@@ -39,6 +40,9 @@ sub reset_state {
   my %params = @_;
 
   clear_up();
+
+  $transdate = DateTime->today_local;
+  $transdate->set_year(2019) if $transdate->year == 2020; # use year 2019 in 2020, because of tax rate change in Germany
 
   $unit     = SL::DB::Manager::Unit->find_by(name => 'kg') || die "Can't find unit 'kg'";
   $customer = new_customer()->save;
@@ -91,6 +95,7 @@ reset_state();
 # we create L20199 with two items
 my $do1 = create_sales_delivery_order(
   'department_id' => $department->id,
+  'transdate'     => $transdate,
   'donumber'      => 'L20199',
   'employee_id'   => $employee->id,
   'intnotes'      => 'some intnotes',
@@ -144,7 +149,7 @@ is (SL::DB::Manager::DeliveryOrderItem->get_all_count(where => [ delivery_order_
 
 
 # convert this do to invoice
-my $invoice = $do1->convert_to_invoice();
+my $invoice = $do1->convert_to_invoice(transdate => $transdate);
 
 sleep (300) if $VISUAL_TEST; # we can do a real visual test via gui login
 # test invoice afterwards
@@ -233,7 +238,6 @@ foreach ( $do1_item1->id, $do1_item2->id ) {
 clear_up();
 
 1;
-
 
 # vim: ft=perl
 # set emacs to perl mode
