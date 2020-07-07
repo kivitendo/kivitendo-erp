@@ -24,6 +24,7 @@ use SL::DB::Unit;
 use SL::DB::TaxZone;
 
 my ($customer, @parts, $buchungsgruppe, $buchungsgruppe7, $unit, $employee, $tax, $tax7, $taxzone);
+my ($transdate);
 
 sub clear_up {
   SL::DB::Manager::Order->delete_all(all => 1);
@@ -92,6 +93,7 @@ sub new_invoice {
   my %params  = @_;
 
   return create_sales_invoice(
+    transdate   => $transdate,
     taxzone_id  => $taxzone->id,
     %params,
   );
@@ -117,7 +119,7 @@ sub test_default_invoice_one_item_19_tax_not_included() {
     invoiceitems => [ $item ],
   );
 
-  my $taxkey = $item->part->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id);
+  my $taxkey = $item->part->get_taxkey(date => $transdate, is_sales => 1, taxzone => $invoice->taxzone_id);
 
   # sellprice 2.34 * qty 2.5 = 5.85
   # 19%(5.85) = 1.1115; rounded = 1.11
@@ -181,8 +183,8 @@ sub test_default_invoice_two_items_19_7_tax_not_included() {
     invoiceitems => [ $item1, $item2 ],
   );
 
-  my $taxkey1 = $item1->part->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id);
-  my $taxkey2 = $item2->part->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id);
+  my $taxkey1 = $item1->part->get_taxkey(date => $transdate, is_sales => 1, taxzone => $invoice->taxzone_id);
+  my $taxkey2 = $item2->part->get_taxkey(date => $transdate, is_sales => 1, taxzone => $invoice->taxzone_id);
 
   # item 1:
   # sellprice 2.34 * qty 2.5 = 5.85
@@ -275,7 +277,7 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
     invoiceitems => [ $item1, $item2, $item3 ],
   );
 
-  my %taxkeys = map { ($_->id => $_->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id)) } uniq map { $_->part } ($item1, $item2, $item3);
+  my %taxkeys = map { ($_->id => $_->get_taxkey(date => $transdate, is_sales => 1, taxzone => $invoice->taxzone_id)) } uniq map { $_->part } ($item1, $item2, $item3);
 
   # item 1:
   # discount = sellprice 5.55 * discount (0.05) = 0.2775; rounded 0.28
@@ -385,7 +387,7 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount() {
     invoiceitems => [ $item ],
   );
 
-  my %taxkeys = map { ($_->id => $_->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id)) } uniq map { $_->part } ($item);
+  my %taxkeys = map { ($_->id => $_->get_taxkey(date => $transdate, is_sales => 1, taxzone => $invoice->taxzone_id)) } uniq map { $_->part } ($item);
 
   # 6 parts for 0.60 with 3% discount
   #
@@ -444,7 +446,7 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_huge_qty
     invoiceitems => [ $item ],
   );
 
-  my %taxkeys = map { ($_->id => $_->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id)) } uniq map { $_->part } ($item);
+  my %taxkeys = map { ($_->id => $_->get_taxkey(date => $transdate, is_sales => 1, taxzone => $invoice->taxzone_id)) } uniq map { $_->part } ($item);
 
   my $title = 'default invoice, one item, 19% tax not included, rounding, discount, huge qty';
   my %data  = $invoice->calculate_prices_and_taxes;
@@ -497,7 +499,7 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_big_qty_
     invoiceitems => [ $item ],
   );
 
-  my %taxkeys = map { ($_->id => $_->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id)) } uniq map { $_->part } ($item);
+  my %taxkeys = map { ($_->id => $_->get_taxkey(date => $transdate, is_sales => 1, taxzone => $invoice->taxzone_id)) } uniq map { $_->part } ($item);
 
   # item 1:
   # discount = sellprice 0.007 * discount (0.035) = 0.000245; rounded 0.00
@@ -554,6 +556,9 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_big_qty_
 
 
 Support::TestSetup::login();
+
+$transdate = DateTime->today_local;
+$transdate->set_year(2019) if $transdate->year == 2020; # use year 2019 in 2020, because of tax rate change in Germany
 
 test_default_invoice_one_item_19_tax_not_included();
 test_default_invoice_two_items_19_7_tax_not_included();
