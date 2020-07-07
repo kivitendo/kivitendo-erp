@@ -34,10 +34,7 @@ my ($customer, $vendor, $currency_id, $unit, $tax, $tax0, $tax7, $tax_9, $paymen
 my ($currency);
 my ($ar_chart,$bank,$ar_amount_chart, $ap_chart, $ap_amount_chart);
 my ($ar_transaction, $ap_transaction);
-
-my $dt    = DateTime->new(year => 2019, month => 1, day => 12);
-my $dt_5  = DateTime->new(year => 2019, month => 1, day => 17);
-my $dt_10 = DateTime->new(year => 2019, month => 1, day => 22);
+my ($dt, $dt_5, $dt_10, $year);
 
 sub clear_up {
 
@@ -120,6 +117,11 @@ sub reset_state {
 
   clear_up();
 
+  $year  = DateTime->today_local->year;
+  $year  = 2019 if $year == 2020; # use year 2019 in 2020, because of tax rate change in Germany
+  $dt    = DateTime->new(year => $year, month => 1, day => 12);
+  $dt_5  = $dt->clone->add(days => 5);
+  $dt_10 = $dt->clone->add(days => 10);
 
   $tax             = SL::DB::Manager::Tax->find_by(taxkey => 3, rate => 0.19, %{ $params{tax} }) || croak "No tax";
   $tax7            = SL::DB::Manager::Tax->find_by(taxkey => 2, rate => 0.07)                    || croak "No tax for 7\%";
