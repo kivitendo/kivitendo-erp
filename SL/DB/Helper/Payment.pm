@@ -58,10 +58,10 @@ sub pay_invoice {
   }
 
   my $transdate_obj;
-  if (ref($params{transdate} eq 'DateTime')) {
+  if (ref($params{transdate}) eq 'DateTime') {
     $transdate_obj = $params{transdate};
   } else {
-   $transdate_obj = $::locale->parse_date_to_object($params{transdate});
+    $transdate_obj = $::locale->parse_date_to_object($params{transdate});
   };
   croak t8('Illegal date') unless ref $transdate_obj;
 
