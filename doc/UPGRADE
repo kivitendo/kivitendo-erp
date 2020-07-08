@@ -27,6 +27,10 @@ Details hierzu auch in der Dokumentation (HTML oder Dokumentation.pdf).
 
 Bitte wie immer vor den Anmelden an der Weboberfläche 'scripts/installation_check.pl -v' ausführen.
 
+Es sollten mindestens zwei Perl-Module "CAM::PDF" und "XML::LibXML" dort erscheinen, falls noch nicht installiert.
+
+Diese Version ist ferner mit Postgres Datenbanken ab Version 12 kompatibel, da die Abhängigkeit von oids entfernt wurde.
+
 Sicherheitshinweis:
 
 Für git-Installation sollte geprüft werden ob das Verzeichnis .git/ für den Webserver auslesbar ist.

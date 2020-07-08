@@ -164,6 +164,10 @@
           </listitem>
 
           <listitem>
+            <para><literal>CAM::PDF</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>CGI</literal></para>
           </listitem>
 
@@ -351,10 +355,16 @@
           </listitem>
 
           <listitem>
+            <para><literal>XML::LibXML</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>YAML::XS</literal> oder <literal>YAML</literal></para>
           </listitem>
         </itemizedlist>
 
+
+        <para>Seit Version größer v3.5.6 sind die folgenden Pakete hinzugekommen: <literal>XML::LibXML</literal>, <literal>CAM::PDF</literal></para>
         <para>Seit Version größer v3.5.3 sind die folgenden Pakete hinzugekommen: <literal>Exception::Class</literal></para>
 
         <para>Seit Version größer v3.5.1 sind die folgenden Pakete hinzugekommen: <literal>Set::Infinite</literal>,

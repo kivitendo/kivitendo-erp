@@ -26,6 +26,10 @@ Kleinere neue Features und Detailverbesserungen:
    nur eine Auswahlliste angezeigt werden soll, oder wie bisher Freitext-Feld
    und Auswahlliste. Anrede, Titel und Abteilung können im System-Menü bearbeitet
    werden.
+- Kompatibel mit Postgres Version 12 (keine Abhängigkeit von oids mehr)
+- Leistungszeitraum (Periode) durchgängig in allen Buchungsmasken verfügbar und
+  im DATEV-Export als neues Feld vorhanden
+- Automatische Kontenrahmen-Anpassungen für Konjunkturpaket des Bundes ab 1.7.2020
 
 Administrative Änderungen
 
