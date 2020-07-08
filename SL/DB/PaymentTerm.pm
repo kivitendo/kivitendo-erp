@@ -35,7 +35,7 @@ sub calc_date {
   }
 
   my $terms           = ($params{terms} // 'net') eq 'discount' ? 'terms_skonto' : 'terms_netto';
-  my $date            = $reference_date->add(days => $self->$terms);
+  my $date            = $reference_date->clone->add(days => $self->$terms);
 
   my $dow             = $date->day_of_week;
   $date               = $date->add(days => 8 - $dow) if $dow > 5;
