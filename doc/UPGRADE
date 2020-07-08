@@ -4,6 +4,35 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v3.5.6
+
+In dieser Version sind die Mehrwertsteueranpassungen für den SKR03 und SKR04
+ab 1.7.2020 vorhanden. Wer diese Anpassungen schon manuell eingestellt hat, sollte
+die Upgrade-Skripte deaktivieren.
+Dies betrifft diese drei Skripte "sql/Pg-upgrade2/konjunkturpaket_2020*"
+
+Folgender sed-Einzeiler erledigt das:
+
+ sed -i 's/ignore: 0/ignore: 1/g' sql/Pg-upgrade2/konjunkturpaket_2020*
+
+Alternativ sollte die Datenbank-Upgrade-Skripte gegen einen Testdatenbestand ausgeführt werden
+und der kivitendo Dienstleisters Ihres Vertrauens griffbereit.
+
+Weitere Änderungen:
+
+Für den MT940-Import erwartet kivitendo aqbanking ab Version 6.
+
+Für die Erzeugung von ZUGFeRD 2.0 fähigen PDFs wird ein aktuelles TexLive ab Version 2018 benötigt.
+Details hierzu auch in der Dokumentation (HTML oder Dokumentation.pdf).
+
+Bitte wie immer vor den Anmelden an der Weboberfläche 'scripts/installation_check.pl -v' ausführen.
+
+Sicherheitshinweis:
+
+Für git-Installation sollte geprüft werden ob das Verzeichnis .git/ für den Webserver auslesbar ist.
+Gleiches gilt für alle Installation für den Ordner config/, der die Datei kivitendo.conf beinhaltet.
+Sollte dies bei Eurer Installation der Fall sein, bitte die aktualisierte Dokumentation im Abschnitt Webserver beachten.
+
 
 Upgrade auf v3.5.4
 
