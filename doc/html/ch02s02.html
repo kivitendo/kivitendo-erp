@@ -5,8 +5,7 @@
         diese Version im speziellen auf Debian und Ubuntu, grundsätzlich wurde
         bei der Auswahl der Pakete aber darauf Rücksicht genommen, dass es
         ohne große Probleme auf den derzeit aktuellen verbreiteten
-        Distributionen läuft.</p><p>Anfang 2019 sind das folgende Systeme, von denen bekannt ist,
-        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian</p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>8.0 "Jessie"</p></li><li class="listitem"><p>9.0 "Stretch"</p></li><li class="listitem"><p>10.0 "Buster"</p></li></ul></div></li><li class="listitem"><p>16.04 "Xenial Xerus" LTS und 18.04 "Bionic Beaver" LTS
+        Distributionen läuft.</p><p>Mitte 2020 (ab Version 3.5.6) empfehlen wir:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian</p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>10.0 "Buster"</p></li><li class="listitem"><p>11.0 "Bullseye"</p></li></ul></div></li><li class="listitem"><p>20.04 "Focal Fossa" LTS
           </p></li><li class="listitem"><p>openSUSE 15.0</p></li><li class="listitem"><p>Fedora 29</p></li></ul></div></div><div class="sect2" title="2.2.2. Benötigte Perl-Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.2.2. Benötigte Perl-Pakete installieren</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
         Apache) und ein Datenbankserver (PostgreSQL) in einer aktuellen
         Version (s.a. Liste der unterstützten Betriebssysteme)
@@ -138,7 +137,7 @@
         sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
         zukünftigen Version aber aus dem Paket entfernt werden. Es wird
         empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
-        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e548"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten
+        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e545"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten
           Pakete als Debian-Pakete zur Verfügung. Sie können mit
           folgendem Befehl installiert werden:</p><pre class="programlisting">apt install  apache2 libarchive-zip-perl libclone-perl \
   libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
@@ -161,7 +160,7 @@
 </p><pre class="programlisting">add-apt-repository universe</pre><p>
                   </p></td></tr></table></div><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left"><a name="build-essential"></a>Anmerkung</th></tr><tr><td align="left" valign="top"><p>Für ältere Ubuntu/Debians müßen einige Pakete per CPAN installiert werden.
           Das geht bspw. für das benötige Paket HTML::Restrict mit:</p><pre class="programlisting">apt-get install build-essential
-cpan HTML::Restrict</pre></td></tr></table></div></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e568"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
+cpan HTML::Restrict</pre></td></tr></table></div></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e565"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">dnf install httpd mod_fcgid postgresql-server postgresql-contrib\
   perl-Algorithm-CheckDigits perl-Archive-Zip perl-CPAN perl-Class-XSAccessor \
@@ -173,7 +172,7 @@ cpan HTML::Restrict</pre></td></tr></table></div></div><div class="sect3" title=
   perl-Params-Validate perl-Regexp-IPv6 perl-Rose-DB perl-Rose-DB-Object \
   perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer \
-  perl-YAML perl-libwww-perl</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e575"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung.</p><p>Dies setzt voraus, das eben die erforderlichen Repositories dem System bekannt gemacht worden sind.</p><p>Um zusätzliche Repositories für die Installation zur Verfügung zu stellen, kann man diese mit YaST oder auch in einem Terminal auf der Konsole bekannt geben. Wir beschränken uns hier mit der Eingabe auf der Konsole. Da wahrscheinlich für die Administration eine SSH-Verbindung zum Server benutzt wird.</p><p>Dazu geben wir folgenden Befehl ein:</p><pre class="programlisting">zypper addrepo -f \
+  perl-YAML perl-libwww-perl</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e572"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung.</p><p>Dies setzt voraus, das eben die erforderlichen Repositories dem System bekannt gemacht worden sind.</p><p>Um zusätzliche Repositories für die Installation zur Verfügung zu stellen, kann man diese mit YaST oder auch in einem Terminal auf der Konsole bekannt geben. Wir beschränken uns hier mit der Eingabe auf der Konsole. Da wahrscheinlich für die Administration eine SSH-Verbindung zum Server benutzt wird.</p><p>Dazu geben wir folgenden Befehl ein:</p><pre class="programlisting">zypper addrepo -f \
   http://download.opensuse.org/repositories/devel:languages:perl/openSUSE_Leap_15.0/ \
   "devel:languages:perl"
           </pre><pre class="programlisting">zypper addrepo -f \
@@ -218,7 +217,7 @@ cpan HTML::Restrict</pre></td></tr></table></div></div><div class="sect3" title=
   texlive-upca
           </pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
           werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan DateTime::event::Cron DateTime::Set FCGI \
-  HTML::Restrict PBKDF2::Tiny Rose::Db::Object Set::Infinite</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e631"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+  HTML::Restrict PBKDF2::Tiny Rose::Db::Object Set::Infinite</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e628"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
                      <code class="literal">aqbanking-tools</code> Für das Parsen des MT940 Bankformats (Version 6 oder höher)</p></li><li class="listitem"><p>
                      <code class="literal">poppler-utils</code> 'pdfinfo' zum Erkennen der Seitenanzahl bei der PDF-Generierung</p></li><li class="listitem"><p>
                      <code class="literal">Postgres Trigram-Index</code> Für datenbankoptimierte Suchanfragen. Bspw. im Paket <code class="literal">postgresql-contrib</code> enthalten</p></li></ul></div><p>Debian und Ubuntu: </p><pre class="programlisting">apt install aqbanking-tools postgresql-contrib poppler-utils</pre><p>

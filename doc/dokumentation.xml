@@ -106,8 +106,7 @@
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</para>
 
-        <para>Anfang 2019 sind das folgende Systeme, von denen bekannt ist,
-        dass kivitendo auf ihnen läuft:</para>
+        <para>Mitte 2020 (ab Version 3.5.6) empfehlen wir:</para>
 
         <itemizedlist>
           <listitem>
@@ -115,19 +114,16 @@
 
             <itemizedlist>
               <listitem>
-                <para>8.0 "Jessie"</para>
-              </listitem>
-              <listitem>
-                <para>9.0 "Stretch"</para>
-              </listitem>
-              <listitem>
                 <para>10.0 "Buster"</para>
+              </listitem>
+              <listitem>
+                <para>11.0 "Bullseye"</para>
               </listitem>
             </itemizedlist>
           </listitem>
 
           <listitem>
-            <para>16.04 "Xenial Xerus" LTS und 18.04 "Bionic Beaver" LTS
+            <para>20.04 "Focal Fossa" LTS
           </para>
           </listitem>
 
