@@ -35,7 +35,18 @@ Sicherheitshinweis:
 
 Für git-Installation sollte geprüft werden ob das Verzeichnis .git/ für den Webserver auslesbar ist.
 Gleiches gilt für alle Installation für den Ordner config/, der die Datei kivitendo.conf beinhaltet.
-Sollte dies bei Eurer Installation der Fall sein, bitte die aktualisierte Dokumentation im Abschnitt Webserver beachten.
+Die Standard-Konfiguration des Apache2 Webservers sollte letzteres verhindern, aber wir weisen darauf hin
+dies einmal zu überprüfen.
+
+Ab dieser Version wird eine globale .htaccess ausgeliefert die beide Verzeichnisse mittels rewrite sichert.
+Dafür muss einmalig das Modul rewrite für den Apache, bspw. mit "a2enmode rewrite" aktiviert werden.
+Regeldetails:
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule .*(\.git|config).*$ - [F,NC]
+</IfModule>
+
 
 
 Upgrade auf v3.5.4

@@ -1128,6 +1128,10 @@ Alias /kivitendo-erp/ /var/www/kivitendo-erp/
             <listitem>
               <para>Apache 2.4.29 (Ubuntu 18.04 LTS) und mod_fcgid</para>
             </listitem>
+             <listitem>
+              <para>Apache 2.4.41 (Ubuntu 20.04 LTS) und mod_fcgid</para>
+            </listitem>
+
           </itemizedlist>
 
           <para>Als Perl Backend wird das Modul <filename>FCGI.pm</filename>
@@ -1268,6 +1272,26 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
 
        <programlisting>SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1</programlisting>
       </sect2>
+      <sect2>
+       <title>Aktivierung von mod_rewrite/directory_match für git basierte Installationen</title>
+
+       <para>
+        Aufgrund von aktuellen (Mitte 2020) Sicherheitswarnungen für git basierte Webanwendungen ist die mitausgelieferte .htaccess
+        restriktiver geworden und verhindert somit das Auslesen von git basierten Daten.
+        Für debian/ubuntu muss das Modul mod_rewrite einmalig so aktiviert werden:
+        <programlisting>a2enmod rewrite</programlisting>
+        Alternativ und für Installationen ohne Apache ist folgender Artikel interessant:
+        <ulink url="https://www.cyberscan.io/blog/git-luecke">git-lücke</ulink>.
+        Anstelle des dort beschriebenen DirectoryMatch für Apache2 würden wir etwas weitergehend auch noch das Verzeichnis config miteinbeziehen
+        sowie ferner auch die Möglichkeit nicht ausschließen, dass es in Unterverzeichnissen auch noch .git Repositories geben kann.
+        Die Empfehlung für Apache 2.4 wäre damit:
+        <programlisting>
+        &lt;DirectoryMatch "(\.git|config)/"&gt;
+          Require all denied
+        &lt;/DirectoryMatch&gt;</programlisting>
+       </para>
+      </sect2>
+
 
       <sect2>
         <title>Weitergehende Konfiguration</title>

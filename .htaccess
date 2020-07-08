@@ -8,3 +8,9 @@
 #  # Apache 2.4
 #  Require ip 192.168
 #</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule .*(\.git|config).*$ - [F,NC]
+</IfModule>
+
