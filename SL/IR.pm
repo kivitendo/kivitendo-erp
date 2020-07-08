@@ -549,6 +549,7 @@ SQL
     if ($form->{currency} ne $defaultcurrency) && !$exchangerate;
 
 # record acc_trans transactions
+  my $taxdate = $form->{deliverydate} ? $form->{deliverydate} : $form->{invdate};
   foreach my $trans_id (keys %{ $form->{amount} }) {
     foreach my $accno (keys %{ $form->{amount}{$trans_id} }) {
       $form->{amount}{$trans_id}{$accno} = $form->round_amount($form->{amount}{$trans_id}{$accno}, 2);
@@ -575,7 +576,7 @@ SQL
                    ORDER BY startdate DESC LIMIT 1),
                   (SELECT link FROM chart WHERE accno = ?))|;
       @values = ($trans_id, $accno, $form->{amount}{$trans_id}{$accno},
-                 conv_date($form->{invdate}), $accno, conv_date($form->{invdate}), $project_id, $accno, conv_date($form->{invdate}), $accno);
+                 conv_date($form->{invdate}), $accno, conv_date($taxdate), $project_id, $accno, conv_date($taxdate), $accno);
       do_query($form, $dbh, $query, @values);
     }
   }
