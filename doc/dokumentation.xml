@@ -7328,6 +7328,148 @@ document_path = /var/local/kivi_documents
         url="https://developers.shopware.com/developers-guide/rest-api/">https://developers.shopware.com/developers-guide/rest-api/</ulink></para>
       </sect2>
     </sect1>
+	<sect1 id="features.zugferd">
+		<title>ZUGFeRD Rechnungen</title>
+		<sect2 id="features.zugferd.preamble">
+			<title>Vorbedingung</title>
+         <para>
+          Für die Erstellung von ZUGFeRD PDFs wird TexLive2018 oder höher benötigt.
+         </para>
+        <note>
+         <para>
+          Wer kein TexLive2018 oder höher installieren kann, kann eine lokale Umgebung nur für kivitendo wie folgt erzeugen:
+         </para>
+        <programlisting>
+        1. Download des offiziellen Installers von https://www.tug.org/texlive/quickinstall.html
+
+        2. Installer ausführen, Standard-Ort für Installation belassen, evtl. ein paar Pakete abwählen, installieren lassen
+
+        3. Ein kleine Script »run_pdflatex.sh« anlegen, das den PATH auf das  Installationsverezichnis setzt und pdflatex ausführt:
+
+        ------------------------------------------------------------
+        #!/bin/bash
+
+        export PATH=/usr/local/texlive/2020/bin/x86_64-linux:$PATH
+        hash -r
+
+        exec pdflatex $@
+        ------------------------------------------------------------
+
+        4. In config/kivitendo.conf den Parameter »latex« auf den Pfad zu »run_pdflatex.sh« setzen
+
+        5. Webserver neu starten
+        </programlisting>
+      </note>
+    </sect2>
+		<sect2 id="features.zugferd.summary">
+			<title>Übersicht</title>
+
+			<para>Mit der Version 3.5.6 bietet kivitendo die Möglichkeit ZUGFeRD
+			Rechnungen zu erstellen, sowie auch  ZUGFeRD Rechnungen direkt in
+			kivitendo einzulesen. </para>
+
+			<para>Bei  ZUGFeRD Rechnungen handelt es sich um eine PDF Datei in
+			der eine XML-Datei eingebettet ist. Der Aufbau der XML-Datei ist
+			standardisiert und ermöglicht so den Austausch zwischen
+			den verschiedenen Softwareprodukten. Kivitendo setzt mit der
+			Version 3.5.6 den ZUGFeRD 2.1 Standard um.</para>
+
+			<para>Weiter Details zu ZUGFeRD sind unter diesem Link zu finden:
+			<ulink>https://www.ferd-net.de/standards/was-ist-zugferd/index.html</ulink>
+      </para>
+		</sect2>
+
+		<sect2 id="features.zugferd.create_zugferd_bills">
+
+			<title>Erstellen von ZUGFeRD Rechnungen in Kivitendo</title>
+			<para>Für die Erstellung von ZUGFeRD Rechnungen bedarf es in
+			kivitendo zwei Dinge:</para>
+
+			<orderedlist>
+
+				<listitem>
+					<para>Die Erstellung muss in der Mandantenkonfiguration
+					aktiviert sein</para>
+				</listitem>
+
+				<listitem>
+					<para>Beim mindestens einem Bankkonto muss die Option
+					„Nutzung von ZUGFeRD“ aktiviert sein</para>
+				</listitem>
+
+			</orderedlist>
+			<sect3>
+				<title>Mandantenkonfiguration</title>
+
+				<para>Die Einstellung für die Erstellung von ZUGFeRD Rechnungen
+				erfolgt unter „System“ → „Mandatenkonfiguration“ → „Features“.
+				Im Abschnitt „Einkauf und Verkauf“ finden Sie die Einstellung
+				„Verkaufsrechnungen mit ZUGFeRD-Daten erzeugen“.
+				Hier besteht die Auswahl zwischen:</para>
+
+				<itemizedlist>
+					<listitem>
+						<para>ZUGFeRD-Rechnungen erzeugen</para>
+					</listitem>
+
+					<listitem>
+						<para>ZUGFeRD-Rechnungen im Testmodus erzeugen</para>
+					</listitem>
+
+					<listitem>
+						<para>Keine ZUGFeRD Rechnungen erzeugen</para>
+					</listitem>
+
+				</itemizedlist>
+
+				<para>Rechnungen die als PDF erzeugt werden, werden je nach
+				Einstellung nun im ZUGFeRD Format ausgegeben.</para>
+
+			</sect3>
+
+			<sect3>
+				<title>Konfiguration der Bankkonten</title>
+
+				<para>Unter „System → Bankonten“ muss bei mindestens einem
+				Bankkonto die Option „Nutzung mit ZUGFeRD“ auf „Ja“ gestellt
+				werden.</para>
+			</sect3>
+
+		</sect2>
+
+		<sect2 id="features.zugferd.read_zugferd_bills">
+
+			<title>Einlesen von ZUGFeRD Rechnungen in Kivitendo</title>
+
+			<para>Es lassen sich auch Rechnungen von Kreditoren, die im
+			ZUGFeRD Format erstellt wurden im Kivitendo importieren.
+			Hierfür müssen auch zwei Voraussetzungen erfüllt werden:
+			</para>
+
+			<orderedlist>
+
+				<listitem>
+					<para>Beim Lieferanten muss die Umsatzsteuer-ID und das
+					Bankkonto hinterlegt sein</para>
+				</listitem>
+
+				<listitem>
+					<para>Für den Kreditoren muss eine Buchungsvorlage existieren.</para>
+				</listitem>
+
+			</orderedlist>
+
+			<para>Wenn diese Voraussetzungen erfüllt sind, kann die Rechnung
+			über „Finanzbuchhaltung“ → „ZUGFeRD Import“ über die „Durchsuchen“
+			Schaltfläche ausgewählt werden und über die Schaltfläche „Import“
+			eingeladen werden. Es öffnet sich daraufhin die Kreditorenbuchung.
+			Die auslesbaren Daten aus dem eingebetteten XML der PDF Datei
+			werden in der Kreditorenbuchung ergänzt.</para>
+
+		</sect2>
+
+	</sect1>
+
   </chapter>
 
   <chapter>
