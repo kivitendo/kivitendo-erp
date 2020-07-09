@@ -17,7 +17,7 @@
         export PATH=/usr/local/texlive/2020/bin/x86_64-linux:$PATH
         hash -r
 
-        exec pdflatex $@
+        exec pdflatex &quot;$@&quot;
         ------------------------------------------------------------
 
         4. In config/kivitendo.conf den Parameter »latex« auf den Pfad zu »run_pdflatex.sh« setzen
