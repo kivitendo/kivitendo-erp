@@ -1051,7 +1051,9 @@ sub generate_datev_lines {
       if (($transaction->[$haben]->{'duedate'} // '') ne "") {
         $datev_data{belegfeld2} = $transaction->[$haben]->{'duedate'};
       }
-      if (($transaction->[$haben]->{'deliverydate'} // '') ne "") {
+      if (($transaction->[$haben]->{'deliverydate'} // '') ne "" &&
+          $transaction->[$haben]->{'link'} !~ m/_paid/           &&
+          $transaction->[$soll]->{'link'}  !~ m/_paid/              ) {
         $datev_data{leistungsdatum} = $transaction->[$haben]->{'deliverydate'};
       }
     }
