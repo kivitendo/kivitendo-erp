@@ -15,8 +15,8 @@ Folgender sed-Einzeiler erledigt das:
 
  sed -i 's/ignore: 0/ignore: 1/g' sql/Pg-upgrade2/konjunkturpaket_2020*
 
-Alternativ sollte die Datenbank-Upgrade-Skripte gegen einen Testdatenbestand ausgeführt werden
-und der kivitendo Dienstleisters Ihres Vertrauens griffbereit.
+Alternativ sollten die Datenbank-Upgrade-Skripte gegen einen Testdatenbestand ausgeführt werden
+und der kivitendo-Dienstleister Ihres Vertrauens griffbereit sein.
 
 Weitere Änderungen:
 
@@ -25,7 +25,7 @@ Für den MT940-Import erwartet kivitendo aqbanking ab Version 6.
 Für die Erzeugung von ZUGFeRD 2.0 fähigen PDFs wird ein aktuelles TexLive ab Version 2018 benötigt.
 Details hierzu auch in der Dokumentation (HTML oder Dokumentation.pdf).
 
-Bitte wie immer vor den Anmelden an der Weboberfläche 'scripts/installation_check.pl -v' ausführen.
+Bitte wie immer vor dem Anmelden an der Weboberfläche 'scripts/installation_check.pl -v' ausführen.
 
 Es sollten mindestens zwei Perl-Module "CAM::PDF" und "XML::LibXML" dort erscheinen, falls noch nicht installiert.
 

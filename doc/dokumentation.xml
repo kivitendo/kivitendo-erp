@@ -7454,7 +7454,7 @@ document_path = /var/local/kivi_documents
 			<sect3>
 				<title>Konfiguration der Bankkonten</title>
 
-				<para>Unter „System → Bankonten“ muss bei mindestens einem
+				<para>Unter „System → Bankkonten“ muss bei mindestens einem
 				Bankkonto die Option „Nutzung mit ZUGFeRD“ auf „Ja“ gestellt
 				werden.</para>
 			</sect3>
@@ -7466,7 +7466,7 @@ document_path = /var/local/kivi_documents
 			<title>Einlesen von ZUGFeRD Rechnungen in Kivitendo</title>
 
 			<para>Es lassen sich auch Rechnungen von Kreditoren, die im
-			ZUGFeRD Format erstellt wurden im Kivitendo importieren.
+			ZUGFeRD Format erstellt wurden, nach Kivitendo importieren.
 			Hierfür müssen auch zwei Voraussetzungen erfüllt werden:
 			</para>
 
