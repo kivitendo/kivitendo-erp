@@ -137,6 +137,16 @@
         <th align="right" nowrap>[% 'Stock Qty for Date' | $T8 %]:</th>
         <td>[% L.date_tag('date') %]</td>
        </tr>
+        <tr>
+        <th align="right">
+          [% "basis for stock value" | $T8 %]:
+        </th>
+        <td align="left">
+         [% L.radio_button_tag("stock_value_basis", value='purchase_price', checked=1, label=LxERP.t8('Purchase price')) %]
+         [% L.radio_button_tag("stock_value_basis", value='list_price',     checked=0, label=LxERP.t8('List Price')) %]
+        </td>
+       </tr>
+
       </table>
      </td>
     </tr>
@@ -171,7 +181,7 @@
         [% END %]
        </tr>
 
-       <tr><td colspan="4"><hr noshade height="1"></td></tr>
+       <tr><td colspan="6"><hr noshade height="1"></td></tr>
 
        <tr>
         <td align="right"><input name="subtotal" id="subtotal" class="checkbox" type="checkbox" value="Y"></td>
@@ -190,17 +200,6 @@
         <td align="right"><input name="l_list_price" id="l_list_price" class="checkbox" type="checkbox" value="Y"></td>
         <td nowrap><label for="l_list_price">[% 'List Price' | $T8 %]</label></td>
        </tr>
-
-       <tr>
-        <td colspan="2" align="right">
-         [% L.radio_button_tag("stock_value_basis", value='purchase_price', checked=1, label=LxERP.t8('Purchase price')) %]
-         [% L.radio_button_tag("stock_value_basis", value='list_price',     checked=0, label=LxERP.t8('List Price')) %]
-        </td>
-        <td align="right">
-          [% "basis for stock value" | $T8 %]
-        </td>
-       </tr>
-
       </table>
      </td>
     </tr>
