@@ -1849,6 +1849,7 @@ $self->{texts} = {
   'List Printers'               => 'Drucker anzeigen',
   'List Transactions'           => 'Buchungsliste',
   'List Users, Clients and User Groups' => 'Benutzer, Mandanten und Benutzergruppen anzeigen',
+  'List all rows'               => 'Alle Reihen anzeigen',
   'List current background jobs' => 'Aktuelle Hintergrund-Jobs anzeigen',
   'List export'                 => 'Export anzeigen',
   'List of bank collections'    => 'Bankeinzugsliste',

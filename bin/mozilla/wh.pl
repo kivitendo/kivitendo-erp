@@ -835,7 +835,7 @@ sub generate_report {
   $form->{report_generator_output_format} = 'HTML' if !$form->{report_generator_output_format};
 
   # manual paginating
-  my $allrows        = !!($form->{report_generator_output_format} ne 'HTML') ;
+  my $allrows        = $form->{report_generator_output_format} eq 'HTML' ? $form->{allrows} : 1;
   my $page           = $::form->{page} || 1;
   my $pages          = {};
   $pages->{per_page} = $::form->{per_page} || 20;
