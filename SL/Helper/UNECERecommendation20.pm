@@ -25,6 +25,7 @@ my @mappings = (
   [ 'HUR', qr{^(?:h(?:our)?|std(?:unde)?)$}i ],
   [ 'DAY', qr{^(?:day|tag)$}i ],
   [ 'MON', qr{^mon(?:th|at|atlich)?$}i ],
+  [ 'QAN', qr{^quart(?:er|al|alsweise)?$}i ],
   [ 'ANN', qr{^(?:yearly|annually|jährlich|Jahr)?$}i ],
 
   # mass
