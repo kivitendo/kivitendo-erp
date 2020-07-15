@@ -128,7 +128,7 @@
           </listitem>
 
           <listitem>
-            <para>openSUSE 15.0</para>
+            <para>openSUSE Leap 15.x und SUSE Linux Enterprise Server 15 GA</para>
           </listitem>
 
           <listitem>
@@ -465,14 +465,15 @@
         </sect3>
 
         <sect3>
-          <title>openSUSE</title>
+          <title>openSUSE Leap 15.x und SUSE Linux Enterprise Server 15 GA</title>
 
-          <para>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung.</para>
-          <para>Dies setzt voraus, das eben die erforderlichen Repositories dem System bekannt gemacht worden sind.</para>
-          <para>Um zusätzliche Repositories für die Installation zur Verfügung zu stellen, kann man diese mit YaST oder auch in einem Terminal auf der Konsole bekannt geben. Wir beschränken uns hier mit der Eingabe auf der Konsole. Da wahrscheinlich für die Administration eine SSH-Verbindung zum Server benutzt wird.</para>
+          <para>Für openSUSE Leap 15.x stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung.</para>
+          <para>Damit diese installiert werden können, muß das System die erforderlichen Repositories kennen und Zugriff über das Internet darauf haben.</para>
+          <para>Daher machen wir die Repositories dem System bekannt.</para>
+          <para>Um die zusätzlichen Repositories für die Installation zur Verfügung zu stellen, kann man diese mit YaST oder auch in einem Terminal auf der Konsole bekannt geben. Wir beschränken uns hier mit der Eingabe auf der Konsole. In den allermeisten Fällen verwenden die Administratoren eine sichere SSH-Verbindung zum zu administrierenden Server.</para>
           <para>Dazu geben wir folgenden Befehl ein:</para>
           <programlisting>zypper addrepo -f \
-  http://download.opensuse.org/repositories/devel:languages:perl/openSUSE_Leap_15.0/ \
+  http://download.opensuse.org/repositories/devel:languages:perl/openSUSE_Leap_15.2/ \
   "devel:languages:perl"
           </programlisting>
           <programlisting>zypper addrepo -f \
@@ -489,12 +490,14 @@
           <para>Sollte zypper eine Meldung ausgeben, ob der Repositorie Key abgelehnt, nicht vertraut oder für immer akzeptiert werden soll, ist die Beantwortung durch drücken der "i" Taste am besten geeignet. Wer noch mehr über zypper erfahren möchte, kann sich einmal die zypper Hilfe anschauen.</para>
           <programlisting>zypper --help</programlisting>
           <note>
-          <para>Offiziell wird von openSUSE nur noch Versionen ab 15.0 unterstützt. Die SuSE Macher haben ab Version 15.0 einen größen Umbau in der Verwaltung der Pakete vorgenommen, das heißt, der Paketumfang ist der SLES 15 als kleinsten Nenner angepasst. Dies gilt besonders der openSUE Distribution. Es gibt ja einmal die openSUSE Distri und die Professionelle SLES Version. Dadurch sind viele Pakete aus dem Repositorie enfernt worden, aber auch viele auf aktuellen Stand gehalten.</para>
+          <para>Offiziell wird von openSUSE nur noch Versionen ab 15.2 unterstützt. Die SuSE Macher haben ab Version 15.x einen großen Umbau in der Verwaltung der Pakete vorgenommen, das heißt, der Paketumfang ist der SLES 15 als Programmunterbau angepasst. Dies gilt besonders der openSUSE Distribution. Es gibt ja einmal die openSUSE Distri und die Professionelle SLES Version. Dadurch sind viele Pakete aus dem ursprünglich nur für die openSUSE geltenen Repositorie enfernt worden, aber auch viele auf aktuellem Stand gehalten.</para>
           </note>
-          <para>Das überprüfen wir mit YaST. Sollte openSUSE bis zur Version 15.0 zum Einsatz kommen und der Administrator bei der Installation der Distribution die KDE Oberfläche aktiviert hat, loggen wir uns am Server direkt ein, starten das Verwaltungsprogram in einer Konsole wie folgt:</para>
+          <para>Ab openSUSE Leap 15.x kann man die Distribution auch als reine Text Version, also ohne KDE Oberfläche aufsetzen. Vorteil hierbei ist, dass weniger Balast und unnötige Pakte installiert werden.</para>
+          <para>Bei openSUSE Versionen bis 15.x, also 10.x, 11.x, 12.x, 13.x hatte der Administrator die Möglichkeit, bei der Installation der Distribution die KDE Oberfläche zu aktivieren. In dieser Konstellation hat man die Möglichkeit, eine VNC Verbindung vom administrativen Client zu verwenden. Ist das nicht eingerichtet, arbeitet der Admin dann direkt am Bildschirm des Servers. Nun loggen wir uns am Server direkt ein, starten Yast2 in einer Konsole wie folgt:</para>
           <para>yast2 return.</para>
-          <para>Oder über die Menüführung wie folgt: Ein Klick auf das runde Icon, ganz links unten in der Menüleiste dann die Maus Verfahren auf System und YaST.</para>
-          <para>Sie können mit folgendem Befehl installiert werden:</para>
+          <para>Oder über die Menüführung wie folgt: Ein Klick auf das runde Icon, ganz links unten in der Menüleiste, dann die Maus verfahren auf System und YaST.</para>
+          <para>Im weiteren Verlauf der Installation, beschränken wir uns mit dem Installations Werkzeug zypper. Zypper ist ein Komandozeilen basiertes Installations Tool, welches bei openSUSE Standard ist. Zypper weist ein etwas eigenartiges Verhalten auf, dass sich in etwa wie folgt darstellt. Hat man die Repositories eingerichtet, kann man diese mit Yast als auch mit Zypper benutzen, setzt man einen Befehl wie etwa: zypper up ab, so findet zypper mehr neuere Programmversionen als Yast. Ich habe im allgemeinen noch keine Nachteile damit erlebt.</para>
+          <para>Programmpakete können mit folgendem Befehl installiert werden:</para>
           <para>zypper install Paketname</para>
           <para>Es wird empfohlen zusätzliche Pakete nicht direkt mit CPAN zu installieren, da man diese auch über andere Repositories beziehen kann, die bei openSUSE zur Verfügung stehen. Dadurch hat man den Vorteil, dass die Pakete mit YaST verwaltet werden, also wieder deinstalliert oder durch neuere ersetzt werden können. Zudem kann man auch noch eventuelle Bugs an openSUSE senden und diese dem Maintainer melden.</para>
 
@@ -528,7 +531,7 @@
   perl-Test-LongString perl-File-Find-Rule
           </programlisting>
 
-          <para>Zusätzlich müssen einige Pakete für den Umgang mit Latex installiert werden. Die Latex Module barcodes sind nützliche Helfer um auch Barcodes im Dokument zu plazieren, der Vollständigkeit halber hier für die Installation mit angegeben.
+          <para>Zusätzlich müssen einige Pakete für den Umgang mit Latex installiert werden. Die Latex Module barcodes sind nützliche Helfer um auch Barcodes im Dokument zu platzieren, der Vollständigkeit halber hier für die Installation mit angegeben.
               Dazu können Sie die folgenden Befehle nutzen:</para>
 
           <programlisting>zypper install texlive-wallpaper texlive-colortbl \
@@ -543,7 +546,7 @@
           </programlisting>
 
           <para>Zusätzlich müssen einige Pakete aus dem CPAN installiert
-          werden. Dazu können Sie die folgenden Befehle nutzen:</para>
+          werden. Dazu können Sie die folgenden Befehle anwenden:</para>
 
           <programlisting>cpan DateTime::event::Cron DateTime::Set FCGI \
   HTML::Restrict PBKDF2::Tiny Rose::Db::Object Set::Infinite</programlisting>
