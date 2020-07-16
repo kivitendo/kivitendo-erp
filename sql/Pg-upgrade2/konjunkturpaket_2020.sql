@@ -49,14 +49,14 @@ IF ( select coa from defaults ) ~ 'DATEV' THEN
 --   (13, 0.19, 0.16, null, null);
 
 
-create temp table temp_taxkey_conversions (taxkey int, old_rate numeric, old_chart text, new_rate numeric, new_chart text);
+  create temp table temp_taxkey_conversions (taxkey int, old_rate numeric, old_chart text, new_rate numeric, new_chart text);
 
-IF ( select coa from defaults ) = 'Germany-DATEV-SKR03EU' THEN
-  insert into temp_taxkey_conversions (taxkey, old_rate, old_chart, new_rate, new_chart)
-  values (9, 0.19, '1576', 0.16, '1575'),
-         (8, 0.07, '1571', 0.05, '1568'),
-         (3, 0.19, '1776', 0.16, '1575'),
-         (2, 0.07, '1771', 0.05, '1775');
+  IF ( select coa from defaults ) = 'Germany-DATEV-SKR03EU' THEN
+    insert into temp_taxkey_conversions (taxkey, old_rate, old_chart, new_rate, new_chart)
+    values (9, 0.19, '1576', 0.16, '1575'),
+           (8, 0.07, '1571', 0.05, '1568'),
+           (3, 0.19, '1776', 0.16, '1575'),
+           (2, 0.07, '1771', 0.05, '1775');
          --1776 => 19%
          --1775 => 16%
          --1775 =>  5%
@@ -199,11 +199,12 @@ IF ( select coa from defaults ) = 'Germany-DATEV-SKR03EU' THEN
 
     -- RAISE NOTICE 'inserted 2 taxkeys for chart % with taxkey %', (select accno from chart where id = current_taxkey.chart_id), current_taxkey.taxkey_id;
   END LOOP;  --
-END IF; -- DATEV coa
+
+  drop table temp_taxkey_conversions;
+
+END IF;
 
 END $$;
-
-drop table temp_taxkey_conversions;
 
 -- select * from taxkeys where startdate >= '2020-01-01';
 -- rollback;
