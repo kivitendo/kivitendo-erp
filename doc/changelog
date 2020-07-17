@@ -37,6 +37,18 @@ Administrative Änderungen
 
   - Die zwei Perl-Module "CAM::PDF" und "XML::LibXML" werden nun benötigt.
 
+Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+
+436 Kontoauszug verbuchen fehlerhafter Rechnungsbetrag 16%/19% Mehrwertsteuer
+430 Steuer erfassen wirft SQL-Bind Fehler
+428 alte/falsche Tabellen in LaTex-Vorlagen, die package filecontents u. lxtable verwenden
+266 Kontenabgleich mit Bank ist nicht Transaktionssicher
+415 Inkompatibilitäten mit postgres 12
+418 Angebote/Aufträge (alte Maske)/Lieferscheine E-Mail ohne vorher speichern kaputt
+416 Tests datev
+411 Massenerstellen Rechnungen aus Lieferscheinen: Pflege-Commit verloren gegangen
+
+
 2019-12-11 - Release 3.5.5
 
 Mittelgroße neue Features:
