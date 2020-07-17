@@ -30,6 +30,8 @@ Kleinere neue Features und Detailverbesserungen:
  - Leistungszeitraum (Periode) durchgängig in allen Buchungsmasken verfügbar und
    im DATEV-Export als neues Feld vorhanden
  - Automatische Kontenrahmen-Anpassungen für Konjunkturpaket des Bundes ab 1.7.2020
+ - die Einfüge-Position beim Hinzufügen von Artikeln in der neuen Angebots-/Auftragsmaske
+   (neuer Auftrags-Controller) kann angegeben werden
 
 Administrative Änderungen
 
