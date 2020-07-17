@@ -164,7 +164,7 @@ IF ( select coa from defaults ) ~ 'DATEV' THEN
       END IF;
       -- RAISE NOTICE 'current_taxkey.rate = %, desired rate = %, looking for taxkey_id %', current_taxkey.rate, _rate, _taxkey_ids[1];
 
-			-- if a chart was created way after 2007 and only ever configured for
+      -- if a chart was created way after 2007 and only ever configured for
       -- 19%, never 16%, which is the case for SKR04 and taxkey 13, there will only be 3
       -- taxkeys per chart after adding the two new ones
 
