@@ -4,7 +4,6 @@ use strict;
 
 use parent qw(Rose::Object);
 
-use Clone qw(clone);
 use SL::File::Backend;
 use SL::File::Object;
 use SL::DB::History;
@@ -78,7 +77,7 @@ sub get_all_versions {
       for my $version (2..$maxversion) {
         $main::lxdebug->message(LXDebug->DEBUG2(), "clone for version=".($maxversion-$version+1));
         eval {
-          my $clone = clone($fileobj);
+          my $clone = $fileobj->clone;
           $clone->version($maxversion-$version+1);
           $clone->newest(0);
           $main::lxdebug->message(LXDebug->DEBUG2(), "clone version=".$clone->version." mtime=". $clone->mtime);

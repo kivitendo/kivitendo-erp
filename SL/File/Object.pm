@@ -124,6 +124,10 @@ sub loaded_db_file {  # so, dass wir die nur einmal laden.
   $_[0]->db_file;
 }
 
+sub clone {
+  bless +{ %{ $_[0] } }, __PACKAGE__;
+}
+
 
 sub init_db_file { die 'must always have a db file'; }
 sub init_loaded  { 0 }
