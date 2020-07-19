@@ -47,7 +47,12 @@ Regeldetails:
   RewriteRule .*(\.git|config).*$ - [F,NC]
 </IfModule>
 
-
+Ferner wurde ein Security-Audit der kivitendo Version 3.1 veröffentlicht.
+Hierfür empfehlen wir den Ausarbeitung eines Sicherheitskonzept mit einem kivitendo Partner Eurer Wahl.
+Falls dies nicht möglich sein sollte, weisen wir darauf hin, dass ein SQL-Backup tages- und wochenaktuell
+für einen etwaigen Restore zu Verfügung stehen sollte. Ferner besteht die Gefahr, dass angemeldete
+Benutzer Formfelder mißbrauchen können, Abhilfe schafft hier zum Beispiel der Einsatz von modsecurity unter
+Apache2 (https://doxsec.wordpress.com/2017/06/11/using-modsecurity-web-application-firewall-to-prevent-sql-injection-and-xss-using-blocking-rules/)
 
 Upgrade auf v3.5.4
 

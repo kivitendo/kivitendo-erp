@@ -1309,6 +1309,19 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
         url="https://mozilla.github.io/server-side-tls/ssl-config-generator/">
         SSL-Konfigurations-Generator</ulink>.</para>
       </sect2>
+      <sect3>
+        <title>Aktivierung von Apache2 modsecurity</title>
+
+        <para>Aufgrund des OpenSource Charakters ist kivitendo nicht "out of the box" sicher.
+  Organisatorisch empfehlen wir hier die enge Zusammenarbeit mit einem kivitendo Partner der auch in der
+Lage ist weiterführende Fragen in Bezug auf Datenschutz und Datensicherheit zu beantworten.
+Unabhängig davon empfehlen wir im Webserver Bereich die Aktivierung und Konfiguration des Moduls modsecurity für den Apache2, damit
+XSS und SQL-Injections verhindert werden.</para>
+<para> Als Idee hierfür sei dieser Blog-Eintrag genannt:
+<ulink url="https://doxsec.wordpress.com/2017/06/11/using-modsecurity-web-application-firewall-to-prevent-sql-injection-and-xss-using-blocking-rules/">
+        Test Apache2 modsecurity for SQL Injection</ulink>.</para>
+      </sect3>
+
     </sect1>
 
     <sect1 id="config.task-server">
