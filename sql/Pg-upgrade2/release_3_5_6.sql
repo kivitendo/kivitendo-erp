@@ -1,0 +1,3 @@
+-- @tag: release_3_5_6
+-- @description: Leeres Script, das alle Upgradescripte bis zum Release 3.5.6 voraussetzt, um ein fest definiertes Schema zu definieren.
+-- @depends: release_3_5_5 dunning_config_print_original_invoice customer_vendor_add_natural_person bank_account_flag_for_zugferd_usage defaults_contact_departments_use_textfield konjunkturpaket_2020 contact_departments_own_table defaults_vc_greetings_use_textfield greetings_own_table defaults_contact_titles_use_textfield contact_titles_own_table remove_taxkey_15_17_skr04 defaults_zugferd_test_mode defaults_split_address gl_add_deliverydate customer_create_zugferd_invoices

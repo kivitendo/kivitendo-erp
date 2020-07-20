@@ -1,0 +1,3 @@
+-- @tag: release_3_5_6
+-- @description: Abhängigkeitsscript für Release 3.5.6
+-- @depends: release_3_5_5
