@@ -49,7 +49,7 @@ __PACKAGE__->meta->add_relationship(
   },
 );
 
-SL::DB::Helper::Attr::make(__PACKAGE__, exchangerate => 'numeric');
+SL::DB::Helper::Attr::make(__PACKAGE__, daily_exchangerate => 'numeric');
 
 __PACKAGE__->meta->initialize;
 
@@ -120,7 +120,7 @@ sub is_sales {
   return !!shift->customer_id;
 }
 
-sub exchangerate {
+sub daily_exchangerate {
   my ($self, $val) = @_;
 
   return 1 if $self->currency_id == $::instance_conf->get_currency_id;
@@ -494,6 +494,30 @@ Returns one of the following string types:
 =head2 C<is_type TYPE>
 
 Returns true if the order is of the given type.
+
+=head2 C<daily_exchangerate $val>
+
+Gets or sets the exchangerate object's value. This is the value from the
+table C<exchangerate> depending on the order's currency, the transdate and
+if it is a sales or purchase order.
+
+The order object (respectively the table C<oe>) has an own column
+C<exchangerate> which can be get or set with the accessor C<exchangerate>.
+
+The idea is to drop the legacy table C<exchangerate> in the future and to
+give all relevant tables it's own C<exchangerate> column.
+
+So, this method is here if you need to access the "legacy" exchangerate via
+an order object.
+
+=over 4
+
+=item C<$val>
+
+(optional) If given, the exchangerate in the "legacy" table is set to this
+value, depending on currency, transdate and sales or purchase.
+
+=back
 
 =head2 C<convert_to_delivery_order %params>
 
