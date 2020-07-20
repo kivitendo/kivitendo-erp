@@ -48,7 +48,7 @@ Regeldetails:
 </IfModule>
 
 Ferner wurde ein Security-Audit der kivitendo Version 3.1 veröffentlicht.
-Hierfür empfehlen wir den Ausarbeitung eines Sicherheitskonzept mit einem kivitendo Partner Eurer Wahl.
+Hierfür empfehlen wir die Ausarbeitung eines Sicherheitskonzept mit einem kivitendo Partner Eurer Wahl.
 Falls dies nicht möglich sein sollte, weisen wir darauf hin, dass ein SQL-Backup tages- und wochenaktuell
 für einen etwaigen Restore zu Verfügung stehen sollte. Ferner besteht die Gefahr, dass angemeldete
 Benutzer Formfelder mißbrauchen können, Abhilfe schafft hier zum Beispiel der Einsatz von modsecurity unter
