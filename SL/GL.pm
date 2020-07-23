@@ -773,12 +773,22 @@ sub get_chart_balances {
 }
 
 sub get_active_taxes_for_chart {
-  my ($self, $chart_id, $transdate) = @_;
+  my ($self, $chart_id, $transdate, $tax_id) = @_;
 
   my $chart         = SL::DB::Chart->new(id => $chart_id)->load;
   my $active_taxkey = $chart->get_active_taxkey($transdate);
+
+  my $where = [ chart_categories => { like => '%' . $chart->category . '%' } ];
+
+  if ( defined $tax_id && $tax_id >= 0 ) {
+    $where = [ or => [ chart_categories => { like => '%' . $chart->category . '%' },
+                       id               => $tax_id
+                     ]
+             ];
+  }
+
   my $taxes         = SL::DB::Manager::Tax->get_all(
-    where   => [ chart_categories => { like => '%' . $chart->category . '%' }],
+    where   => $where,
     sort_by => 'taxkey, rate',
   );
 
@@ -789,3 +799,45 @@ sub get_active_taxes_for_chart {
 }
 
 1;
+
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::GL - some useful GL functions
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<get_active_taxes_for_chart>
+
+Returns a list of taxes for a certain chart and date to be used for dropdowns,
+for e.g. ar/ap/gl records.
+
+The possible entries are filtered by the charttype of the tax, i.e. only taxes
+whose chart_categories match the category of the chart will be shown.
+
+In the case of existing records, e.g. when opening an old ar record, due to
+changes in the configurations the desired tax might not be available in the
+dropdown anymore. If we are loading an old record and know its tax_id (from
+acc_trans), we can pass $tax_id as the third parameter and be sure that the
+original tax always appears in the dropdown.
+
+=back
+
+=head1 TODO
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+G. Richardson E<lt>grichardson@kivitec.de<gt>
+
+=cut
