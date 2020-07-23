@@ -428,7 +428,11 @@ sub form_header {
     my (%taxchart_labels, @taxchart_values, $default_taxchart, $taxchart_to_use);
     my $amount_chart_id = $form->{"AR_amount_chart_id_$i"} // $default_ar_amount_chart_id;
 
-    foreach my $item ( GL->get_active_taxes_for_chart($amount_chart_id, $transdate) ) {
+    my $used_tax_id;
+    if ( $form->{"taxchart_$i"} ) {
+      ($used_tax_id) = split(/--/, $form->{"taxchart_$i"});
+    }
+    foreach my $item ( GL->get_active_taxes_for_chart($amount_chart_id, $transdate, $used_tax_id) ) {
       my $key             = $item->id . "--" . $item->rate;
       $first_taxchart   //= $item;
       $default_taxchart   = $item if $item->{is_default};

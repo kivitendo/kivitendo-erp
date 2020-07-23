@@ -480,9 +480,13 @@ sub form_header {
     $form->{"tax_$i"} = $form->format_amount(\%myconfig, $form->{"tax_$i"}, 2);
 
     my ($default_taxchart, $taxchart_to_use);
+    my $used_tax_id;
+    if ( $form->{"taxchart_$i"} ) {
+      ($used_tax_id) = split(/--/, $form->{"taxchart_$i"});
+    }
     my $amount_chart_id = $form->{"AP_amount_chart_id_$i"} || $default_ap_amount_chart_id;
-    my @taxcharts       = GL->get_active_taxes_for_chart($amount_chart_id, $transdate);
 
+    my @taxcharts       = GL->get_active_taxes_for_chart($amount_chart_id, $transdate, $used_tax_id);
     foreach my $item (@taxcharts) {
       my $key             = $item->id . "--" . $item->rate;
       $first_taxchart   //= $item;

@@ -826,9 +826,13 @@ sub display_rows {
     $accno_id    = $chart->{id};
     my ($first_taxchart, $default_taxchart, $taxchart_to_use);
 
+    my $used_tax_id;
+    if ( $form->{"taxchart_$i"} ) {
+      ($used_tax_id) = split(/--/, $form->{"taxchart_$i"});
+    }
 
     my $taxdate = $deliverydate ? $deliverydate : $transdate;
-    foreach my $item ( GL->get_active_taxes_for_chart($accno_id, $taxdate) ) {
+    foreach my $item ( GL->get_active_taxes_for_chart($accno_id, $taxdate, $used_tax_id) ) {
       my $key             = $item->id . "--" . $item->rate;
       $first_taxchart   //= $item;
       $default_taxchart   = $item if $item->{is_default};
