@@ -11,6 +11,9 @@
 [% IF (FORM.type == "purchase_order" || FORM.type == "request_quotation") %]
   [% SET price_editable = AUTH.assert('purchase_edit_prices', 1) %]
 [% END %]
+[% SET exfactor = price_source.record.exchangerate ? 1 / price_source.record.exchangerate : 1 %]
+[% SET exnoshow = price_source.record.currency_id==INSTANCE_CONF.get_currency_id %]
+[% SET places   = exnoshow ? -2 : 5 %]
   <h2>[% 'Prices' | $T8 %]</h2>
 
   <table>
@@ -18,6 +21,9 @@
     <th></th>
     <th>[% 'Price Source' | $T8 %]</th>
     <th>[% 'Price' | $T8 %]</th>
+    <th [%- IF exnoshow -%]style='display:none'[%- END %]>
+      [% 'Price' | $T8 -%]/[%- price_source.record.currency.name %]
+    </th>
     <th>[% 'Best Price' | $T8 %]</th>
     <th>[% 'Details' | $T8 %]</th>
    </tr>
@@ -29,20 +35,24 @@
 [%- END %]
     <td>[% 'None (PriceSource)' | $T8 %]</td>
     <td>-</td>
+    <td [%- IF exnoshow -%]style='display:none'[%- END %]>-</td>
     <td></td>
     <td></td>
    </tr>
    [%- FOREACH price IN price_source.available_prices %]
     <tr class='listrow'>
 [%- IF price_source.record_item.active_price_source != price.source %]
-     <td>[% L.button_tag('kivi.Order.update_price_source(\'' _ FORM.item_id _ '\', \'' _ price.source _ '\', \'' _ price.source_description _ '\', \'' _ LxERP.format_amount(price.price, -2) _ '\', ' _ price_editable _ ')', LxERP.t8('Select')) %]</td>
+     <td>[% L.button_tag('kivi.Order.update_price_source(\'' _ FORM.item_id _ '\', \'' _ price.source _ '\', \'' _ price.source_description _ '\', \'' _ LxERP.format_amount(price.price * exfactor, places) _ '\', ' _ price_editable _ ')', LxERP.t8('Select')) %]</td>
 [%- ELSIF price_source.record_item.sellprice * 1 != price.price * 1 %]
-     <td>[% L.button_tag('kivi.Order.update_price_source(\'' _ FORM.item_id _ '\', \'' _ price.source _ '\', \'' _ price.source_description _ '\', \'' _ LxERP.format_amount(price.price, -2) _ '\', ' _ price_editable _ ')', LxERP.t8('Update Price')) %]</td>
+     <td>[% L.button_tag('kivi.Order.update_price_source(\'' _ FORM.item_id _ '\', \'' _ price.source _ '\', \'' _ price.source_description _ '\', \'' _ LxERP.format_amount(price.price * exfactor, places) _ '\', ' _ price_editable _ ')', LxERP.t8('Update Price')) %]</td>
 [%- ELSE %]
     <td><b>[% 'Selected' | $T8 %]</b></td>
 [% END %]
      <td>[% price.source_description | html %]</td>
      <td>[% price.price_as_number %]</td>
+     <td [%- IF exnoshow -%]style='display:none'[%- END %]>
+       [% LxERP.format_amount(price.price * exfactor, places) %]
+     </td>
 [% IF price.source == best_price.source %]
      <td align='center'>&#x2022;</td>
 [% ELSE %]
