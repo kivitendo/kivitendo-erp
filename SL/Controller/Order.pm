@@ -934,7 +934,7 @@ sub action_update_exchangerate {
   my $data = {
     is_standard   => $self->order->currency_id == $::instance_conf->get_currency_id,
     currency_name => $self->order->currency->name,
-    exchangerate  => $self->order->exchangerate_as_null_number,
+    exchangerate  => $self->order->daily_exchangerate_as_null_number,
   };
 
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
@@ -1375,7 +1375,6 @@ sub make_order {
 
   my $form_orderitems                  = delete $::form->{order}->{orderitems};
   my $form_periodic_invoices_config    = delete $::form->{order}->{periodic_invoices_config};
-  my $form_exchangerate_as_null_number = delete $::form->{order}->{exchangerate_as_null_number};
 
   $order->assign_attributes(%{$::form->{order}});
 
@@ -1383,9 +1382,6 @@ sub make_order {
     my $periodic_invoices_config = $order->periodic_invoices_config || $order->periodic_invoices_config(SL::DB::PeriodicInvoicesConfig->new);
     $periodic_invoices_config->assign_attributes(%$periodic_invoices_config_attrs);
   }
-
-  # set exchangerate after transdate and currency_id
-  $order->assign_attributes(exchangerate_as_null_number => $form_exchangerate_as_null_number) if $order->currency_id;
 
   # remove deleted items
   $self->item_ids_to_delete([]);

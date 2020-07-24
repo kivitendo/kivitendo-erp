@@ -42,7 +42,7 @@ sub flatten_to_form {
                             ($vc eq 'customer')? 'c_vendor_id': 'v_customer_id');
   my @vc_prefixed_fields = qw(email fax notes number phone);
 
-  _copy($self,                          $form, '',              '', 1, qw(amount netamount marge_total marge_percent container_remaining_weight container_remaining_volume paid));
+  _copy($self,                          $form, '',              '', 1, qw(amount netamount marge_total marge_percent container_remaining_weight container_remaining_volume paid exchangerate));
   _copy($self->$vc,                     $form, '',              '', 0, @vc_fields);
   _copy($self->$vc,                     $form, $vc,             '', 0, @vc_prefixed_fields);
   _copy($self->contact,                 $form, '',              '', 0, grep { /^cp_/    } map { $_->name } SL::DB::Contact->meta->columns) if _has($self, 'cp_id');

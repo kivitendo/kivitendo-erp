@@ -56,6 +56,7 @@ use SL::PriceSource;
 use SL::Presenter::Part;
 
 use SL::DB::Contact;
+use SL::DB::Currency;
 use SL::DB::Customer;
 use SL::DB::Default;
 use SL::DB::Language;
@@ -910,9 +911,18 @@ sub order {
   _order();
 
   if ($::instance_conf->get_feature_experimental_order) {
+
+    # At this point, the record is saved and the exchangerate contains
+    # an unformatted value. _make_record uses RDBO attributes (i.e. _as_number)
+    # to assign values and thus expects an formatted value.
+    $::form->{exchangerate} = $::form->format_amount(\%::myconfig, $::form->{exchangerate});
+
     my $order = _make_record();
-    $order->globalproject_id(undef) if !$order->globalproject_id;
-    $order->payment_id(undef)       if !$order->payment_id;
+
+    $order->currency(SL::DB::Currency->new(name => $::form->{currency})->load) if $::form->{currency};
+    $order->globalproject_id(undef)                                            if !$order->globalproject_id;
+    $order->payment_id(undef)                                                  if !$order->payment_id;
+
     my $row = 1;
     foreach my $item (@{$order->items_sorted}) {
       $item->custom_variables([]);

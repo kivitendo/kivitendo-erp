@@ -174,6 +174,13 @@ namespace('kivi.Order', function(ns) {
     $(event.target).val(kivi.format_amount(kivi.parse_amount($(event.target).val()), -2));
   };
 
+  ns.reformat_number_as_null_number = function(event) {
+    if ($(event.target).val() === '') {
+      return;
+    }
+    ns.reformat_number(event);
+  };
+
   ns.update_exchangerate = function(event) {
     if (!ns.check_cv()) {
       $('#order_currency_id').val($('#old_currency_id').val());
@@ -181,7 +188,15 @@ namespace('kivi.Order', function(ns) {
     }
 
     var rate_input = $('#order_exchangerate_as_null_number');
-    rate_input.prop('disabled', true);
+    // unset exchangerate if currency changed
+    if ($('#order_currency_id').val() !== $('#old_currency_id').val()) {
+      rate_input.val('');
+    }
+
+    // only set exchangerate if unset
+    if (rate_input.val() !== '') {
+      return;
+    }
 
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/update_exchangerate' });
@@ -194,17 +209,14 @@ namespace('kivi.Order', function(ns) {
       success: function(data){
         if (!data.is_standard) {
           $('#currency_name').text(data.currency_name);
-          var rate_text = $('#exchangerate_text');
           if (data.exchangerate) {
-            rate_text.text(data.exchangerate);
-            rate_input.hide();
+            rate_input.val(data.exchangerate);
           } else {
-            rate_text.text('');
-            rate_input.prop('disabled', false);
-            rate_input.show().val('');
+            rate_input.val('');
           }
           $('#exchangerate_settings').show();
         } else {
+          rate_input.val('');
           $('#exchangerate_settings').hide();
         }
         if ($('#order_currency_id').val() != $('#old_currency_id').val() ||
@@ -891,5 +903,7 @@ $(function() {
     }
     return false;
   });
+
+  $('.reformat_number_as_null_number').change(kivi.Order.reformat_number_as_null_number);
 
 });
