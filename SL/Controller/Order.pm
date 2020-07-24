@@ -1044,8 +1044,10 @@ sub action_update_row_from_master_data {
       $price_src = $price_source->best_price
                  ? $price_source->best_price
                  : $price_source->price_from_source("");
+      $price_src->price($::form->round_amount($price_src->price / $self->order->exchangerate, 5)) if $self->order->exchangerate;
       $price_src->price(0) if !$price_source->best_price;
     }
+
 
     $item->sellprice($price_src->price);
     $item->active_price_source($price_src);
@@ -1463,8 +1465,9 @@ sub new_item {
     $price_src->price($item->sellprice);
   } else {
     $price_src = $price_source->best_price
-           ? $price_source->best_price
-           : $price_source->price_from_source("");
+               ? $price_source->best_price
+               : $price_source->price_from_source("");
+    $price_src->price($::form->round_amount($price_src->price / $record->exchangerate, 5)) if $record->exchangerate;
     $price_src->price(0) if !$price_source->best_price;
   }
 
