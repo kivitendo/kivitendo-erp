@@ -1364,8 +1364,9 @@ sub make_order {
   # order here solves this problem.
   my $order;
   $order   = SL::DB::Order->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
-  $order ||= SL::DB::Order->new(orderitems => [],
-                                quotation  => (any { $self->type eq $_ } (sales_quotation_type(), request_quotation_type())));
+  $order ||= SL::DB::Order->new(orderitems  => [],
+                                quotation   => (any { $self->type eq $_ } (sales_quotation_type(), request_quotation_type())),
+                                currency_id => $::instance_conf->get_currency_id());
 
   my $cv_id_method = $self->cv . '_id';
   if (!$::form->{id} && $::form->{$cv_id_method}) {
@@ -1527,8 +1528,6 @@ sub setup_order_from_cv {
 # Using the PriceTaxCalculator. Store linetotals in the item objects.
 sub recalc {
   my ($self) = @_;
-
-  $self->order->currency_id($::instance_conf->get_currency_id()) unless $self->order->currency_id;
 
   my %pat = $self->order->calculate_prices_and_taxes();
 
