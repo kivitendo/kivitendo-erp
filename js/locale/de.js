@@ -143,7 +143,7 @@ namespace("kivi").setupLocale({
 "Wrong number format (#1)":"Falsches Zahlenformat (#1)",
 "Wrong time format (#1)":"Falsches Zeitformat (#1)",
 "Yes":"Ja",
-"You have changed the currency or exchange rate. Please update prices.":"Währungswechsel/Kurswechsel haben Einfluss auf den Preis der Position. Überprüfen Sie diesen oder aktualisieren Sie den Preis über \"Artikel aktualisieren\".",
+"You have changed the currency or exchange rate. Please check prices.":"Die Währung oder der Wechselkurs hat sich geändert. Bitte überprüfen Sie die Preise.",
 "filename has not uploadable characters ":"Bitte Dateinamen ändern. Er hat für den Upload nicht verwendbare Sonderzeichen ",
 "filesize too big: ":"Datei zu groß: ",
 "flat-rate position":"Pauschalposition",

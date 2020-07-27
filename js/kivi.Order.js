@@ -204,7 +204,7 @@ namespace('kivi.Order', function(ns) {
         }
         if ($('#order_currency_id').val() != $('#old_currency_id').val() ||
             !data.is_standard && data.exchangerate != $('#old_exchangerate').val()) {
-          kivi.display_flash('warning', kivi.t8('You have changed the currency or exchange rate. Please update prices.'));
+          kivi.display_flash('warning', kivi.t8('You have changed the currency or exchange rate. Please check prices.'));
         }
         $('#old_currency_id').val($('#order_currency_id').val());
         $('#old_exchangerate').val(data.exchangerate);
@@ -214,7 +214,7 @@ namespace('kivi.Order', function(ns) {
 
   ns.exchangerate_changed = function(event) {
     if (kivi.parse_amount($('#order_exchangerate_as_null_number').val()) != kivi.parse_amount($('#old_exchangerate').val())) {
-      kivi.display_flash('warning', kivi.t8('You have changed the currency or exchange rate. Please update prices.'));
+      kivi.display_flash('warning', kivi.t8('You have changed the currency or exchange rate. Please check prices.'));
       $('#old_exchangerate').val($('#order_exchangerate_as_null_number').val());
     }
   };
