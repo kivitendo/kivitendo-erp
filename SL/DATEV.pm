@@ -1051,9 +1051,19 @@ sub generate_datev_lines {
       if (($transaction->[$haben]->{'duedate'} // '') ne "") {
         $datev_data{belegfeld2} = $transaction->[$haben]->{'duedate'};
       }
-      if (($transaction->[$haben]->{'deliverydate'} // '') ne "" &&
-          $transaction->[$haben]->{'link'} !~ m/_paid/           &&
-          $transaction->[$soll]->{'link'}  !~ m/_paid/              ) {
+
+      # if deliverydate exists, add it to datev export if it is
+      # * an ar/ap booking that is not a payment
+      # * a gl booking
+      if (    ($transaction->[$haben]->{'deliverydate'} // '') ne ''
+           && (
+                (    $transaction->[$haben]->{'table'} =~ /^(ar|ap)$/
+                  && $transaction->[$haben]->{'link'}  !~ m/_paid/
+                  && $transaction->[$soll]->{'link'}   !~ m/_paid/
+                )
+                || $transaction->[$haben]->{'table'} eq 'gl'
+              )
+         ) {
         $datev_data{leistungsdatum} = $transaction->[$haben]->{'deliverydate'};
       }
     }

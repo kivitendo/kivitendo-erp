@@ -28,6 +28,7 @@ my $buchungsgruppe7 = SL::DB::Manager::Buchungsgruppe->find_by(description => 'S
 my $date            = DateTime->new(year => 2017, month =>  7, day => 19);
 my $department      = create_department(description => 'Kästchenweiße heiße Preise');
 my $project         = create_project(projectnumber => 2017, description => '299');
+my $bank            = SL::DB::Manager::Chart->find_by(description => 'Bank') || die 'Can\'t find chart "Bank"';
 my $customer        = new_customer(name => 'Test customer', ustid => $ustid)->save();
 my $part1 = new_part(partnumber => '19', description => 'Part 19%')->save;
 my $part2 = new_part(
@@ -51,7 +52,7 @@ my $invoice = create_sales_invoice(
 );
 
 # lets make a boom
-# generate_datev_* doesnt care about encoding but
+# generate_datev_* doesn't care about encoding but
 # csv_buchungsexport does! all arabic will be deleted
 # and no string will be left as invnumber
 
@@ -61,9 +62,8 @@ my $datev1 = SL::DATEV->new(
 );
 
 my $startdate = DateTime->new(year => 2017, month =>  1, day =>  1);
-my $enddate   = DateTime->new(year => 2017, month =>  12, day => 31);
+my $enddate   = DateTime->new(year => 2017, month => 12, day => 31);
 my $today     = DateTime->new(year => 2017, month =>  3, day => 17);
-
 
 $datev1->from($startdate);
 $datev1->to($enddate);
@@ -122,6 +122,13 @@ ok($die_message2 =~ m/Falscher Feldwert 'ݗݘݰݶmuh' für Feld 'belegfeld1' bei
 $invoice->invnumber('meine muh');
 $invoice->save();
 
+$invoice->pay_invoice(chart_id      => $bank->id,
+                      amount        => $invoice->open_amount,
+                      transdate     => $invoice->transdate->clone->add(days => 10),
+                      memo          => 'foobar',
+                      source        => 'barfoo',
+                     );
+
 my $datev4 = SL::DATEV->new(
   dbh        => $dbh,
   trans_id   => $invoice->id,
@@ -148,47 +155,73 @@ eval {
 ok(!($die_message3), 'no die message');
 ok(scalar @{ $datev_csv4->warnings } == 0, 'no warnings');
 
-my @sorted =  sort { $a->[0] cmp $b->[0] } @{ $lines_aref };
-cmp_deeply $sorted[0],    [ '1963,5', 'S', 'EUR', '', '', '',
-                            '1400', '8400', '', '1907', 'meine muh',
-                            '', '', 'Test customer', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', "K\x{e4}stchen",
-                            '299', '', $ustid, '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '1', '',
-                            '', '', '', '', '',
-                          ];
-cmp_deeply $sorted[1],     [ '535', 'S', 'EUR', '', '', '',
-                             '1400', '8300', '', '1907','meine muh',
-                            '', '', 'Test customer', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', "K\x{e4}stchen",
-                            '299', '', $ustid, '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '1', '',
-                            '', '', '', '', '',
-                          ];
+
+note('testing invoice without deliverydate');
+my @sorted =  sort { $a->[0] cmp $b->[0] } @{ $lines_aref }; # sort by string-comparison of amount
+cmp_deeply $sorted[0],
+           [ '1963,5', 'S', 'EUR', '', '', '',
+             '1400', '8400', '', '1907', 'meine muh',
+             '', '', 'Test customer', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', "K\x{e4}stchen",
+             '299', '', $ustid, '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '1', '',
+             '', '', '', '', '',
+           ],
+           'invoice without deliverydate 19% tax export ok';
+cmp_deeply $sorted[2],
+           [ '535', 'S', 'EUR', '', '', '',
+             '1400', '8300', '', '1907','meine muh',
+             '', '', 'Test customer', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', "K\x{e4}stchen",
+             '299', '', $ustid, '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '1', '',
+             '', '', '', '', '',
+           ],
+           'invoice without deliverydate 16% tax export ok';
+cmp_deeply $sorted[1],
+           [ '2498,5', 'S', 'EUR', '', '', '',
+             '1200', '1400', '', '2907','meine muh',
+             '', '', 'Test customer', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', "K\x{e4}stchen",
+             '299', '', $ustid, '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '1', '',
+             '', '', '', '', '',
+           ],
+           'invoice without deliverydate payment export ok';
+
 # create one haben buchung with GLTransaction today
 
 my $expense_chart = SL::DB::Manager::Chart->find_by(accno => '4660'); # Reisekosten
 my $cash_chart    = SL::DB::Manager::Chart->find_by(accno => '1000'); # Kasse
 
+note('testing gl transaction without deliverydate');
 my $gl_transaction = create_gl_transaction(
   reference      => "Reise März 2018",
-  description    => "Reisekonsten März 2018 / Ma Schmidt",
+  description    => "Reisekosten März 2018 / Ma Schmidt",
   transdate      => $today,
   taxincluded    => 1,
   type           => undef,
@@ -222,20 +255,23 @@ my $datev_csv3  = SL::DATEV::CSV->new(datev_lines  => $datev2->generate_datev_li
                                      );
 
 my @data_csv    = sort { $a->[0] cmp $b->[0] } @{ $datev_csv3->lines };
-cmp_deeply($data_csv[0], [ '100', 'S', 'EUR', '', '', '', '4660', '1000', 9, '1703', 'Reise März 2',
-                     '', '', 'Reisekonsten März 2018 / Ma Schmidt', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '1', '', '', '', '', '', '', ]
-       );
+cmp_deeply($data_csv[0],
+           [ '100', 'S', 'EUR', '', '', '', '4660', '1000', 9, '1703', 'Reise März 2',
+             '', '', 'Reisekosten März 2018 / Ma Schmidt', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '1', '', '', '', '', '', '',
+           ],
+           'gl datev export without delivery date ok');
 
 
-# check deliverydate
+note('testing same invoice, but with deliverydate');
+# 8400 and 8300 should have deliverydate in datev, payment should not
 $invoice->deliverydate(DateTime->new(year => 2017, month =>  7, day => 18));
 $invoice->save();
 
@@ -255,39 +291,64 @@ $datev_csv = SL::DATEV::CSV->new(datev_lines  => $datev1->generate_datev_lines,
                                  locked       => $datev1->locked,
 );
 @sorted    = sort { $a->[0] cmp $b->[0] } @{ $datev_csv->lines };
-cmp_deeply $sorted[0],    [ '1963,5', 'S', 'EUR', '', '', '',
-                            '1400', '8400', '', '1907', 'meine muh',
-                            '', '', 'Test customer', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', "K\x{e4}stchen",
-                            '299', '', $ustid, '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '1', '18072017',
-                            '', '', '', '', '',
-                          ];
-cmp_deeply $sorted[1],     [ '535', 'S', 'EUR', '', '', '',
-                             '1400', '8300', '', '1907','meine muh',
-                            '', '', 'Test customer', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', "K\x{e4}stchen",
-                            '299', '', $ustid, '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '', '',
-                            '', '', '', '', '', '', '', '1', '18072017',
-                            '', '', '', '', '',
-                          ];
+cmp_deeply $sorted[0],
+           [ '1963,5', 'S', 'EUR', '', '', '',
+             '1400', '8400', '', '1907', 'meine muh',
+             '', '', 'Test customer', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', "K\x{e4}stchen",
+             '299', '', $ustid, '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '1', '18072017',
+             '', '', '', '', '',
+           ],
+           'invoice with deliverydate 19% tax export ok';
 
+cmp_deeply $sorted[2],
+           [ '535', 'S', 'EUR', '', '', '',
+             '1400', '8300', '', '1907','meine muh',
+             '', '', 'Test customer', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', "K\x{e4}stchen",
+             '299', '', $ustid, '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '1', '18072017',
+             '', '', '', '', '',
+           ],
+           'invoice with deliverydate 16% tax export ok';
+
+cmp_deeply $sorted[1],
+           [ '2498,5', 'S', 'EUR', '', '', '',
+             '1200', '1400', '', '2907','meine muh',
+             '', '', 'Test customer', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', "K\x{e4}stchen",
+             '299', '', $ustid, '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '1', '',
+             '', '', '', '', '',
+           ],
+           'invoice with deliverydate payment export ok';
+
+note('testing same gl transaction with deliverydate');
 $gl_transaction->deliverydate(DateTime->new(year => 2017, month =>  7, day => 18));
 $gl_transaction->save;
 
@@ -307,18 +368,19 @@ $datev_csv   = SL::DATEV::CSV->new(datev_lines  => $datev1->generate_datev_lines
 );
 
 @sorted      = sort { $a->[0] cmp $b->[0] } @{ $datev_csv->lines };
-cmp_deeply($sorted[0], [ '100', 'S', 'EUR', '', '', '', '4660', '1000', 9, '1703', 'Reise März 2',
-                         '', '', 'Reisekonsten März 2018 / Ma Schmidt', '', '', '', '', '', '', '', '',
-                         '', '', '', '', '', '', '', '', '', '', '', '', '',
-                         '', '', '', '', '', '', '', '', '', '', '',
-                         '', '', '', '', '', '', '', '', '', '', '', '', '',
-                         '', '', '', '', '', '', '', '', '', '', '', '', '',
-                         '', '', '', '', '', '', '', '', '', '', '', '', '',
-                         '', '', '', '', '', '', '', '', '', '', '', '', '',
-                         '', '', '', '', '', '', '', '', '', '', '', '', '',
-                         '', '', '1', '', '', '', '', '', '', ]
-);
-
+cmp_deeply($sorted[0],
+           [ '100', 'S', 'EUR', '', '', '', '4660', '1000', 9, '1703', 'Reise März 2',
+             '', '', 'Reisekosten März 2018 / Ma Schmidt', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '', '',
+             '', '', '1', '18072017', '', '', '', '', '',
+           ],
+          'testing gl transaction with delivery date datev export ok');
 
 # TODO warnings are not yet tested
 # currently most of the valid_checks are senseless because of
