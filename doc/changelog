@@ -2,6 +2,16 @@
 # Veränderungen von kivitendo #
 ###############################
 
+2020-xx-xx - Release x.x.x
+
+
+Mittelgroße neue Features:
+
+ - Währung und Wechselkurs können in der (neuen/experimentellen)
+   Angebots-/Auftrags-Maske angegeben werden. Der Wechselkurs wird hier
+   pro Beleg (und nicht pro Tag) gespeichert.
+
+
 2020-07-20 - Release 3.5.6
 
 
