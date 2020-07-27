@@ -202,9 +202,6 @@ namespace('kivi.Order', function(ns) {
         } else {
           $('#exchangerate_settings').hide();
         }
-        console.log(data.is_standard);
-        console.log(data.exchangerate);
-        console.log($('#old_exchangerate').val());
         if ($('#order_currency_id').val() != $('#old_currency_id').val() ||
             !data.is_standard && data.exchangerate != $('#old_exchangerate').val()) {
           kivi.display_flash('warning', kivi.t8('You have changed the currency or exchange rate. Please update prices.'));
