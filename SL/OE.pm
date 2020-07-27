@@ -121,9 +121,10 @@ sub transactions {
     qq|  o.closed, o.delivered, o.quonumber, o.cusordnumber, o.shippingpoint, o.shipvia, | .
     qq|  o.transaction_description, | .
     qq|  o.marge_total, o.marge_percent, | .
+    qq|  o.exchangerate, | .
     qq|  o.itime::DATE AS insertdate, | .
     qq|  department.description as department, | .
-    qq|  ex.$rate AS exchangerate, | .
+    qq|  ex.$rate AS daily_exchangerate, | .
     qq|  pt.description AS payment_terms, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, s.name AS salesman, | .
@@ -384,7 +385,8 @@ SQL
       $ref->{remaining_amount} = $ref->{amount} - $ref->{billed_amount};
       $ref->{remaining_netamount} = $ref->{netamount} - $ref->{billed_netamount};
     }
-    $ref->{exchangerate} = 1 unless $ref->{exchangerate};
+    $ref->{exchangerate} ||= $ref->{daily_exchangerate};
+    $ref->{exchangerate} ||= 1;
     push @{ $form->{OE} }, $ref if $ref->{id} != $id{ $ref->{id} };
     $id{ $ref->{id} } = $ref->{id};
   }
