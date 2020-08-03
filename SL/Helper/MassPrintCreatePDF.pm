@@ -25,8 +25,8 @@ sub create_massprint_pdf {
   my ($self, %params) = @_;
   my $form = Form->new('');
   my %create_params = (
-      variables => $form,
-      return    => 'file_name',
+    variables => $form,
+    return    => 'file_name',
   );
   ## find_template may return a list !
   $create_params{template} = $self->find_template(name => $params{variables}->{formname}, printer_id => $params{printer_id});

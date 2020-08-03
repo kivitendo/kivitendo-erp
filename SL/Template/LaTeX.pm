@@ -408,10 +408,10 @@ sub _embed_file_directive {
     push @options, sprintf('%s={%s}', $name, $value); # TODO: escaping
   };
 
- $add_opt->('ucfilespec',     $embed_name);
- $add_opt->('desc',           $file->{description});
- $add_opt->('afrelationship', $file->{relationship});
- $add_opt->('mimetype',       $file->{mime_type});
+  $add_opt->('ucfilespec',     $embed_name);
+  $add_opt->('desc',           $file->{description});
+  $add_opt->('afrelationship', $file->{relationship});
+  $add_opt->('mimetype',       $file->{mime_type});
 
   return sprintf('\embedfile[%s]{%s}', join(',', @options), $file_name);
 }
