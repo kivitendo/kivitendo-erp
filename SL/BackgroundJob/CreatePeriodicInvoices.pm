@@ -409,6 +409,7 @@ sub _email_invoice {
     template               => scalar($self->find_template(name => 'invoice', language => $language)),
     variables              => Form->new(''),
     return                 => 'file_name',
+    record                 => $data->{invoice},
     variable_content_types => {
       longdescription => 'html',
       partnotes       => 'html',

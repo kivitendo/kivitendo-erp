@@ -11,6 +11,7 @@ use File::Temp  ();
 use File::Copy qw(move);
 use List::MoreUtils qw(uniq);
 use List::Util qw(first);
+use Scalar::Util qw(blessed);
 use String::ShellQuote ();
 
 use SL::Common;
@@ -20,6 +21,7 @@ use SL::MoreCommon;
 use SL::System::Process;
 use SL::Template;
 use SL::Template::LaTeX;
+use SL::X;
 
 use Exporter 'import';
 our @EXPORT_OK = qw(create_pdf merge_pdfs find_template);
@@ -69,6 +71,16 @@ sub create_parsed_file {
   $form->{tmpfile} = $tmpfile;
   (undef, undef, $form->{template_meta}{tmpfile}) = File::Spec->splitpath($tmpfile);
 
+  my %driver_options;
+  eval {
+    %driver_options = _maybe_attach_zugferd_data($params{record});
+  };
+
+  if (my $e = SL::X::ZUGFeRDValidation->caught) {
+    $form->cleanup;
+    die $e->message;
+  }
+
   my $parser               = SL::Template::create(
     type                   => ($params{template_type} || 'LaTeX'),
     source                 => $form->{IN},
@@ -76,6 +88,7 @@ sub create_parsed_file {
     myconfig               => \%::myconfig,
     userspath              => $tmpdir,
     variable_content_types => $params{variable_content_types},
+    %driver_options,
   );
 
   my $result = $parser->parse($temp_fh);
@@ -248,6 +261,35 @@ sub find_template {
   my $template = first { -f ($path . "/$_") } @template_files;
 
   return wantarray ? ($template, @template_files) : $template;
+}
+
+sub _maybe_attach_zugferd_data {
+  my ($record) = @_;
+
+  return if !blessed($record)
+    || !$record->can('customer')
+    || !$record->customer
+    || !$record->can('create_pdf_a_print_options')
+    || !$record->can('create_zugferd_data')
+    || !$record->customer->create_zugferd_invoices_for_this_customer;
+
+  my $xmlfile = File::Temp->new;
+  $xmlfile->print($record->create_zugferd_data);
+  $xmlfile->close;
+
+  my %driver_options = (
+    pdf_a           => $record->create_pdf_a_print_options(zugferd_xmp_data => $record->create_zugferd_xmp_data),
+    pdf_attachments => [
+      { source       => $xmlfile,
+        name         => 'ZUGFeRD-invoice.xml',
+        description  => $::locale->text('ZUGFeRD invoice'),
+        relationship => '/Alternative',
+        mime_type    => 'text/xml',
+      }
+    ],
+  );
+
+  return %driver_options;
 }
 
 1;
