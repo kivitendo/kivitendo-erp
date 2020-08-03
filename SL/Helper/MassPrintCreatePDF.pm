@@ -26,6 +26,7 @@ sub create_massprint_pdf {
   my $form = Form->new('');
   my %create_params = (
     variables => $form,
+    record    => $params{document},
     return    => 'file_name',
   );
   ## find_template may return a list !
