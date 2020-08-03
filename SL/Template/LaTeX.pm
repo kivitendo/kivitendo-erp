@@ -400,6 +400,10 @@ sub _embed_file_directive {
   my $file_name  =  blessed($file->{source}) && $file->{source}->can('filename') ? $file->{source}->filename : "" . $file->{source}->filename;
   my $embed_name =  $file->{name} // $file_name;
   $embed_name    =~ s{.*/}{};
+
+  my $embed_name_ascii = $::locale->quote_special_chars('filenames', $embed_name);
+  $embed_name_ascii    =~ s{[^a-z0-9!@#$%^&*(){}[\],.+'"=_-]+}{}gi;
+
   my @options;
 
   my $add_opt = sub {
@@ -408,6 +412,7 @@ sub _embed_file_directive {
     push @options, sprintf('%s={%s}', $name, $value); # TODO: escaping
   };
 
+  $add_opt->('filespec',       $embed_name_ascii);
   $add_opt->('ucfilespec',     $embed_name);
   $add_opt->('desc',           $file->{description});
   $add_opt->('afrelationship', $file->{relationship});
