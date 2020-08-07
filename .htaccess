@@ -11,6 +11,6 @@
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteRule .*(\.git|config).*$ - [F,NC]
+  RewriteRule .*/(\.git|config)/.*$ - [F,NC]
 </IfModule>
 
