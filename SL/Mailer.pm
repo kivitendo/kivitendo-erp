@@ -248,11 +248,12 @@ sub send {
   # Set defaults & headers
   $self->{charset}        =  'UTF-8';
   $self->{content_type} ||=  "text/plain";
-  $self->{headers}        =  [
+  $self->{headers}      ||=  [];
+  push @{ $self->{headers} }, (
     Subject               => $self->{subject},
     'Message-ID'          => '<' . $self->_create_message_id . '>',
     'X-Mailer'            => "kivitendo " . SL::Version->get_version,
-  ];
+  );
   $self->{mail_attachments} = [];
   $self->{content_by_name}  = $::instance_conf->get_email_journal == 1 && $::instance_conf->get_doc_files;
 
