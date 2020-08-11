@@ -814,11 +814,12 @@ SL::GL - some useful GL functions
 
 =over 4
 
-=item C<get_active_taxes_for_chart>
+=item C<get_active_taxes_for_chart> $transdate $tax_id
 
-Returns a list of taxes for a certain chart and date to be used for dropdowns,
-for e.g. ar/ap/gl records.
+Returns a list of valid taxes for a certain chart.
 
+If the optional param transdate exists one entry in the returning list
+may get the attribute C<is_default> for this specific tax-dependant date.
 The possible entries are filtered by the charttype of the tax, i.e. only taxes
 whose chart_categories match the category of the chart will be shown.
 
@@ -828,6 +829,7 @@ dropdown anymore. If we are loading an old record and know its tax_id (from
 acc_trans), we can pass $tax_id as the third parameter and be sure that the
 original tax always appears in the dropdown.
 
+The functions returns an array which may be used for building dropdowns in ar/ap/gl code.
 =back
 
 =head1 TODO
