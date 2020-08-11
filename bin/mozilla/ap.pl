@@ -428,8 +428,7 @@ sub form_header {
                                     "old_id"    => \@old_project_ids },
                    "charts"    => { "key"       => "ALL_CHARTS",
                                     "transdate" => $form->{transdate} },
-                   "taxcharts" => { "key"       => "ALL_TAXCHARTS",
-                                    "module"    => "AP" },);
+                  );
 
   map(
     { $_->{link_split} = [ split(/:/, $_->{link}) ]; }
