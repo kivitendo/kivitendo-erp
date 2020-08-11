@@ -412,11 +412,14 @@ sub form_header {
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
 
   $::request->layout->add_javascripts("autocomplete_chart.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js", "kivi.File.js", "kivi.RecordTemplate.js", "kivi.AR.js", "kivi.CustomerVendor.js", "kivi.Validator.js");
-
-  my $transdate = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
+  # get the correct date for tax
+  my $transdate    = $::form->{transdate}    ? DateTime->from_kivitendo($::form->{transdate})    : DateTime->today_local;
+  my $deliverydate = $::form->{deliverydate} ? DateTime->from_kivitendo($::form->{deliverydate}) : undef;
+  my $taxdate      = $deliverydate ? $deliverydate : $transdate;
+  # helpers for loop
   my $first_taxchart;
-
   my @transactions;
+
   for my $i (1 .. $form->{rowcount}) {
     my $transaction = {
       amount     => $form->{"amount_$i"},
@@ -431,7 +434,7 @@ sub form_header {
     if ( $form->{"taxchart_$i"} ) {
       ($used_tax_id) = split(/--/, $form->{"taxchart_$i"});
     }
-    foreach my $item ( GL->get_active_taxes_for_chart($amount_chart_id, $transdate, $used_tax_id) ) {
+    foreach my $item ( GL->get_active_taxes_for_chart($amount_chart_id, $taxdate, $used_tax_id) ) {
       my $key             = $item->id . "--" . $item->rate;
       $first_taxchart   //= $item;
       $default_taxchart   = $item if $item->{is_default};

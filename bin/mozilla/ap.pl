@@ -468,8 +468,11 @@ sub form_header {
   setup_ap_display_form_action_bar();
 
   $form->header();
-
-  my $transdate = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
+  # get the correct date for tax
+  my $transdate    = $::form->{transdate}    ? DateTime->from_kivitendo($::form->{transdate})    : DateTime->today_local;
+  my $deliverydate = $::form->{deliverydate} ? DateTime->from_kivitendo($::form->{deliverydate}) : undef;
+  my $taxdate      = $deliverydate ? $deliverydate : $transdate;
+  # helper for loop
   my $first_taxchart;
 
   for my $i (1 .. $form->{rowcount}) {
@@ -485,7 +488,7 @@ sub form_header {
     }
     my $amount_chart_id = $form->{"AP_amount_chart_id_$i"} || $default_ap_amount_chart_id;
 
-    my @taxcharts       = GL->get_active_taxes_for_chart($amount_chart_id, $transdate, $used_tax_id);
+    my @taxcharts       = GL->get_active_taxes_for_chart($amount_chart_id, $taxdate, $used_tax_id);
     foreach my $item (@taxcharts) {
       my $key             = $item->id . "--" . $item->rate;
       $first_taxchart   //= $item;
