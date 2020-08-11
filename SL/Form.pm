@@ -2113,36 +2113,6 @@ sub _get_charts {
   $main::lxdebug->leave_sub();
 }
 
-sub _get_taxcharts {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $dbh, $params) = @_;
-
-  my $key = "all_taxcharts";
-  my @where;
-
-  if (ref $params eq 'HASH') {
-    $key = $params->{key} if ($params->{key});
-    if ($params->{module} eq 'AR') {
-      push @where, 'chart_categories ~ \'[ACILQ]\'';
-
-    } elsif ($params->{module} eq 'AP') {
-      push @where, 'chart_categories ~ \'[ACELQ]\'';
-    }
-
-  } elsif ($params) {
-    $key = $params;
-  }
-
-  my $where = @where ? ' WHERE ' . join(' AND ', map { "($_)" } @where) : '';
-
-  my $query = qq|SELECT * FROM tax $where ORDER BY taxkey, rate|;
-
-  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
-
-  $main::lxdebug->leave_sub();
-}
-
 sub _get_taxzones {
   $main::lxdebug->enter_sub();
 
@@ -2395,10 +2365,6 @@ sub get_lists {
 
   if ($params{"charts"}) {
     $self->_get_charts($dbh, $params{"charts"});
-  }
-
-  if ($params{"taxcharts"}) {
-    $self->_get_taxcharts($dbh, $params{"taxcharts"});
   }
 
   if ($params{"taxzones"}) {

@@ -387,8 +387,7 @@ sub form_header {
                                     "old_id"    => \@old_project_ids },
                    "charts"    => { "key"       => "ALL_CHARTS",
                                     "transdate" => $form->{transdate} },
-                   "taxcharts" => { "key"       => "ALL_TAXCHARTS",
-                                    "module"    => "AR" },);
+                  );
 
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
