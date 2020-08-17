@@ -2,6 +2,11 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 ===================================================
 
 
+Die Abwärtskompatibilität zur Lagermengen-Berechnung in Lieferscheinen wurde
+aufgehoben. Wer nicht mit Workflows arbeitet (nicht empfohlen) muss diese
+explizit in der Mandantenkonfiguration wieder aktivieren.
+
+
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
 Upgrade auf v3.5.6
