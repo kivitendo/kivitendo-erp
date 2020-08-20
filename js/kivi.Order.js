@@ -164,6 +164,7 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.reload_cv_dependent_selections = function() {
+    $('#order_shipto_id').val('');
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/customer_vendor_changed' });
 
@@ -843,6 +844,12 @@ namespace('kivi.Order', function(ns) {
 
     calculate_qty_selection_dialog("", input_id, "", formula_id);
     return true;
+  };
+
+  ns.edit_custom_shipto = function() {
+    if (!ns.check_cv()) return;
+
+    kivi.SalesPurchase.edit_custom_shipto();
   };
 
 });

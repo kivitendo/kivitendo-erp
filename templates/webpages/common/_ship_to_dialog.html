@@ -57,6 +57,18 @@
  [% L.button_tag("kivi.SalesPurchase.copy_shipto_address()", LxERP.t8("Copy")) %]
 </p>
 
+[% IF cs_obj ;
+  fields = ['shiptoname', 'shiptodepartment_1', 'shiptodepartment_2',
+            'shiptostreet', 'shiptozipcode', 'shiptocity', 'shiptocountry',
+            'shiptogln', 'shiptocontact', 'shiptocp_gender', 'shiptophone',
+            'shiptofax', 'shiptoemail'] ;
+  FOREACH field = fields ;
+      $field = cs_obj.$field ;
+  END ;
+END ;
+'' %]
+
+
 <table>
  <tr class="listheading">
   <th></th>
@@ -145,7 +157,7 @@
 </table>
 
 <p>
- [% L.button_tag("kivi.SalesPurchase.submit_custom_shipto()", LxERP.t8("Apply")) %]
+ [% L.button_tag("kivi.SalesPurchase.submit_custom_shipto('" _ id_selector _ "')", LxERP.t8("Apply")) %]
  [% L.button_tag("kivi.SalesPurchase.reset_shipto_fields()", LxERP.t8("Reset")) %]
  [% L.button_tag("kivi.SalesPurchase.clear_shipto_fields()", LxERP.t8("Clear fields")) %]
  [% L.button_tag("\$('#shipto_dialog').dialog('close');", LxERP.t8("Abort")) %]

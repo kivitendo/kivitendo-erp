@@ -170,8 +170,9 @@ namespace('kivi.SalesPurchase', function(ns) {
     $('#shiptoname').focus();
   };
 
-  this.submit_custom_shipto = function() {
-    $('#shipto_id').val('');
+  this.submit_custom_shipto = function(id_selector) {
+    id_selector = id_selector || '#shipto_id';
+    $(id_selector).val('');
     $('#shipto_dialog').data('confirmed', true);
     $('#shipto_dialog').dialog('close');
   };

@@ -31,15 +31,21 @@
                                 style='width: 300px') %]</td>
           </tr>
 
-          <tr id='shipto_row' [%- IF !SELF.order.${SELF.cv}.shipto.size %]style='display:none'[%- END %]>
+          <tr>
             <th align="right">[% 'Shipping Address' | $T8 %]</th>
-            <td>[% L.select_tag('order.shipto_id',
-                                SELF.order.${SELF.cv}.shipto,
-                                default=SELF.order.shipto_id,
-                                title_key='displayable_id',
-                                value_key='shipto_id',
-                                with_empty=1,
-                                style='width: 300px') %]</td>
+            <td>
+              <span id='shipto_selection' [%- IF !SELF.order.${SELF.cv}.shipto.size %]style='display:none'[%- END %]>
+                [% shiptos = [ { shipto_id => "", displayable_id => LxERP.t8("No/individual shipping address") } ] ;
+                   L.select_tag('order.shipto_id',
+                                 shiptos.import(SELF.order.${SELF.cv}.shipto),
+                                 default=SELF.order.shipto_id,
+                                 title_key='displayable_id',
+                                 value_key='shipto_id',
+                                 with_empty=0,
+                                 style='width: 300px') %]
+              </span>
+              [% L.button_tag("kivi.Order.edit_custom_shipto()", LxERP.t8("Custom shipto")) %]
+            </td>
           </tr>
 
           [%- PROCESS order/tabs/_business_info_row.html SELF=SELF %]

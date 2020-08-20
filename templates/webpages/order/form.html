@@ -13,6 +13,8 @@
   </form>
 </div>
 
+<div id="shipto_dialog" class="hidden"></div>
+
 <form method="post" action="controller.pl" id="order_form">
   [% L.hidden_tag('callback',             FORM.callback) %]
   [% L.hidden_tag('type',                 FORM.type) %]
@@ -41,5 +43,15 @@
     <div id="ui-tabs-1">
       [%- LxERP.t8("Loading...") %]
     </div>
+
+    <div id="shipto_inputs" class="hidden">
+      [%- PROCESS 'common/_ship_to_dialog.html'
+        vc_obj=SELF.order.customervendor
+        cs_obj=SELF.order.custom_shipto
+        cvars=SELF.order.custom_shipto.cvars_by_config
+        id_selector='#order_shipto_id' %]
+    </div>
+
   </div>
+
 </form>

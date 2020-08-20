@@ -4,7 +4,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash_later);
-use SL::Presenter::Tag qw(select_tag hidden_tag);
+use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
 use SL::PriceSource;
@@ -21,6 +21,7 @@ use SL::DB::PartsGroup;
 use SL::DB::Printer;
 use SL::DB::Language;
 use SL::DB::RecordLink;
+use SL::DB::Shipto;
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
@@ -40,7 +41,7 @@ use Sort::Naturally;
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(item_ids_to_delete) ],
+ scalar => [ qw(item_ids_to_delete is_custom_shipto_to_delete) ],
  'scalar --get_set_init' => [ qw(order valid_types type cv p multi_items_models all_price_factors search_cvpartnumber show_update_button) ],
 );
 
@@ -676,9 +677,9 @@ sub action_customer_vendor_changed {
   }
 
   if ($self->order->$cv_method->shipto && scalar @{ $self->order->$cv_method->shipto } > 0) {
-    $self->js->show('#shipto_row');
+    $self->js->show('#shipto_selection');
   } else {
-    $self->js->hide('#shipto_row');
+    $self->js->hide('#shipto_selection');
   }
 
   $self->js->val( '#order_salesman_id',      $self->order->salesman_id)        if $self->order->is_sales;
@@ -686,6 +687,7 @@ sub action_customer_vendor_changed {
   $self->js
     ->replaceWith('#order_cp_id',            $self->build_contact_select)
     ->replaceWith('#order_shipto_id',        $self->build_shipto_select)
+    ->replaceWith('#shipto_inputs  ',        $self->build_shipto_inputs)
     ->replaceWith('#business_info_row',      $self->build_business_info_row)
     ->val(        '#order_taxzone_id',       $self->order->taxzone_id)
     ->val(        '#order_taxincluded',      $self->order->taxincluded)
@@ -1291,13 +1293,29 @@ sub build_contact_select {
 sub build_shipto_select {
   my ($self) = @_;
 
-  select_tag('order.shipto_id', [ $self->order->{$self->cv}->shipto ],
-    value_key  => 'shipto_id',
-    title_key  => 'displayable_id',
-    default    => $self->order->shipto_id,
-    with_empty => 1,
-    style      => 'width: 300px',
+  select_tag('order.shipto_id',
+             [ {displayable_id => t8("No/individual shipping address"), shipto_id => ''}, $self->order->{$self->cv}->shipto ],
+             value_key  => 'shipto_id',
+             title_key  => 'displayable_id',
+             default    => $self->order->shipto_id,
+             with_empty => 0,
+             style      => 'width: 300px',
   );
+}
+
+# build the inputs for the cusom shipto dialog
+#
+# Needed, if customer/vendor changed.
+sub build_shipto_inputs {
+  my ($self) = @_;
+
+  my $content = $self->p->render('common/_ship_to_dialog',
+                                 vc_obj      => $self->order->customervendor,
+                                 cs_obj      => $self->order->custom_shipto,
+                                 cvars       => $self->order->custom_shipto->cvars_by_config,
+                                 id_selector => '#order_shipto_id');
+
+  div_tag($content, id => 'shipto_inputs');
 }
 
 # render the info line for business
@@ -1349,6 +1367,12 @@ sub load_order {
   return if !$::form->{id};
 
   $self->order(SL::DB::Order->new(id => $::form->{id})->load);
+
+  # Add an empty custom shipto to the order, so that the dialog can render the cvar inputs.
+  # You need a custom shipto object to call cvars_by_config to get the cvars.
+  $self->order->custom_shipto(SL::DB::Shipto->new(module => 'OE', custom_variables => [])) if !$self->order->custom_shipto;
+
+  return $self->order;
 }
 
 # load or create a new order object
@@ -1367,7 +1391,7 @@ sub make_order {
   $order   = SL::DB::Order->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
   $order ||= SL::DB::Order->new(orderitems  => [],
                                 quotation   => (any { $self->type eq $_ } (sales_quotation_type(), request_quotation_type())),
-                                currency_id => $::instance_conf->get_currency_id());
+                                currency_id => $::instance_conf->get_currency_id(),);
 
   my $cv_id_method = $self->cv . '_id';
   if (!$::form->{id} && $::form->{$cv_id_method}) {
@@ -1379,6 +1403,8 @@ sub make_order {
   my $form_periodic_invoices_config    = delete $::form->{order}->{periodic_invoices_config};
 
   $order->assign_attributes(%{$::form->{order}});
+
+  $self->setup_custom_shipto_from_form($order, $::form);
 
   if (my $periodic_invoices_config_attrs = $form_periodic_invoices_config ? SL::YAML::Load($form_periodic_invoices_config) : undef) {
     my $periodic_invoices_config = $order->periodic_invoices_config || $order->periodic_invoices_config(SL::DB::PeriodicInvoicesConfig->new);
@@ -1521,6 +1547,30 @@ sub setup_order_from_cv {
 
 }
 
+# setup custom shipto from form
+#
+# The dialog returns form variables starting with 'shipto' and cvars starting
+# with 'shiptocvar_'.
+# Mark it to be deleted if a shipto from master data is selected
+# (i.e. order has a shipto).
+# Else, update or create a new custom shipto. If the fields are empty, it
+# will not be saved on save.
+sub setup_custom_shipto_from_form {
+  my ($self, $order, $form) = @_;
+
+  if ($order->shipto) {
+    $self->is_custom_shipto_to_delete(1);
+  } else {
+    my $custom_shipto = $order->custom_shipto || $order->custom_shipto(SL::DB::Shipto->new(module => 'OE', custom_variables => []));
+
+    my $shipto_cvars  = {map { my ($key) = m{^shiptocvar_(.+)}; $key => delete $form->{$_}} grep { m{^shiptocvar_} } keys %$form};
+    my $shipto_attrs  = {map {                                  $_   => delete $form->{$_}} grep { m{^shipto}      } keys %$form};
+
+    $custom_shipto->assign_attributes(%$shipto_attrs);
+    $custom_shipto->cvar_by_name($_)->value($shipto_cvars->{$_}) for keys %$shipto_cvars;
+  }
+}
+
 # recalculate prices and taxes
 #
 # Using the PriceTaxCalculator. Store linetotals in the item objects.
@@ -1588,6 +1638,12 @@ sub save {
   my $db     = $self->order->db;
 
   $db->with_transaction(sub {
+    # delete custom shipto if it is to be deleted or if it is empty
+    if ($self->order->custom_shipto && ($self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty)) {
+      $self->order->custom_shipto->delete if $self->order->custom_shipto->shipto_id;
+      $self->order->custom_shipto(undef);
+    }
+
     SL::DB::OrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete || []};
     $self->order->save(cascade => 1);
 
@@ -2131,8 +2187,6 @@ java script functions
 =item * price sources: little symbols showing better price / better discount
 
 =item * select units in input row?
-
-=item * custom shipto address
 
 =item * check for direct delivery (workflow sales order -> purchase order)
 
