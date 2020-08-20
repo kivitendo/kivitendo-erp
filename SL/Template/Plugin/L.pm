@@ -82,6 +82,7 @@ sub link                     { return _call_presenter('link_tag',               
 sub input_number_tag         { return _call_presenter('input_number_tag',         @_); }
 sub textarea_tag             { return _call_presenter('textarea_tag',             @_); }
 sub date_tag                 { return _call_presenter('date_tag',                 @_); }
+sub div_tag                  { return _call_presenter('div_tag',                  @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name, $unique) = @_;
@@ -116,11 +117,6 @@ sub radio_button_tag {
   $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
 
   return $code;
-}
-
-sub div_tag {
-  my ($self, $content, @slurp) = @_;
-  return $self->html_tag('div', $content, @slurp);
 }
 
 sub ul_tag {
