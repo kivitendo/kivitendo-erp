@@ -1729,7 +1729,7 @@ sub pre_render {
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 
   $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery
-                                                         edit_periodic_invoices_config calculate_qty);
+                                                         edit_periodic_invoices_config calculate_qty kivi.Validator);
   $self->setup_edit_action_bar;
 }
 
@@ -1748,7 +1748,7 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', 'save', $::instance_conf->get_order_warn_duplicate_parts,
                                                     $::instance_conf->get_order_warn_no_deliverydate,
                                                                                                       ],
-          checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'] ],
         ],
         action => [
           t8('Save as new'),

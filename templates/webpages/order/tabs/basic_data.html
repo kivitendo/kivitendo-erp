@@ -85,7 +85,7 @@
 
           <tr>
             <th align="right">[% 'Transaction description' | $T8 %]</th>
-            <td>[% L.input_tag('order.transaction_description', SELF.order.transaction_description, style='width: 300px') %]</td>
+            <td>[% L.input_tag('order.transaction_description', SELF.order.transaction_description, 'data-validate'=INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : '', style='width: 300px') %]</td>
           </tr>
 
           <tr>
