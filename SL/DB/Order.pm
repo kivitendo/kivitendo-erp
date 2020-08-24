@@ -57,6 +57,7 @@ __PACKAGE__->attr_html('notes');
 __PACKAGE__->attr_sorted('items');
 
 __PACKAGE__->before_save('_before_save_set_ord_quo_number');
+__PACKAGE__->before_save('_before_save_create_new_project');
 
 # hooks
 
@@ -70,6 +71,30 @@ sub _before_save_set_ord_quo_number {
   my $field = $self->quotation ? 'quonumber' : 'ordnumber';
   $self->create_trans_number if !$self->$field;
 
+  return 1;
+}
+sub _before_save_create_new_project {
+  my ($self) = @_;
+
+  # force new project, if not set yet
+  if ($::instance_conf->get_order_always_project && !$self->globalproject_id && ($self->type eq 'sales_order')) {
+
+    die t8("Error while creating project with project number of new order number, project number #1 already exists!", $self->ordnumber)
+      if SL::DB::Manager::Project->find_by(projectnumber => $self->ordnumber);
+
+    eval {
+      my $new_project = SL::DB::Project->new(
+          projectnumber     => $self->ordnumber,
+          description       => $self->customer->name,
+          customer_id       => $self->customer->id,
+          active            => 1,
+          project_type_id   => $::instance_conf->get_project_type_id,
+          project_status_id => $::instance_conf->get_project_status_id,
+          );
+       $new_project->save;
+       $self->globalproject_id($new_project->id);
+    } or die t8('Could not create new project #1', $@);
+  }
   return 1;
 }
 
