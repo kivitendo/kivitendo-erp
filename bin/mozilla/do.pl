@@ -466,11 +466,6 @@ sub form_header {
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.File kivi.MassDeliveryOrderPrint kivi.SalesPurchase kivi.Part kivi.CustomerVendor kivi.Validator ckeditor/ckeditor ckeditor/adapters/jquery kivi.io));
 
-  my @custom_hidden;
-  push @custom_hidden, map { "shiptocvar_" . $_->name } @{ SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'ShipTo' ]) };
-
-  $::form->{HIDDENS} = [ map { +{ name => $_, value => $::form->{$_} } } (@custom_hidden) ];
-
   setup_do_action_bar();
 
   $form->header();
@@ -501,8 +496,15 @@ sub form_footer {
   $form->{PRINT_OPTIONS}      = setup_sales_purchase_print_options();
   $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
+  my $shipto_cvars       = SL::DB::Shipto->new->cvars_by_config;
+  foreach my $var (@{ $shipto_cvars }) {
+    my $name = "shiptocvar_" . $var->config->name;
+    $var->value($form->{$name}) if exists $form->{$name};
+  }
+
   print $form->parse_html_template('do/form_footer',
-    {transfer_default         => ($::instance_conf->get_transfer_default)});
+    {transfer_default => ($::instance_conf->get_transfer_default),
+     shipto_cvars     => $shipto_cvars});
 
   $main::lxdebug->leave_sub();
 }
