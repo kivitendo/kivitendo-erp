@@ -830,6 +830,7 @@ acc_trans), we can pass $tax_id as the third parameter and be sure that the
 original tax always appears in the dropdown.
 
 The functions returns an array which may be used for building dropdowns in ar/ap/gl code.
+
 =back
 
 =head1 TODO
