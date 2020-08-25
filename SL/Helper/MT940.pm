@@ -15,9 +15,15 @@ sub convert_mt940_data {
   $sfile->fh->print($mt940_data);
   $sfile->fh->close;
 
+  # create needed dir structure for aqbanking 5.x and 6.x
   my $todir = $sfile->get_path . '/imexporters/csv/profiles';
   mkpath $todir;
+  die "Cannot create $todir" unless -d $todir;
+
   File::Copy::copy('users/aqbanking.conf', $todir.'/kivi.conf');
+  die "Cannot create local aqbanking conf " unless -f $todir.'/kivi.conf';
+
+  mkpath $sfile->get_path . '/settings6/aqbanking';
 
   my $aqbin = $::lx_office_conf{applications}->{aqbanking};
   die "Can't find aqbanking-cli, please check your configuration file.\n" unless -f $aqbin;
