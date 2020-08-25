@@ -819,7 +819,7 @@ SL::GL - some useful GL functions
 Returns a list of valid taxes for a certain chart.
 
 If the optional param transdate exists one entry in the returning list
-may get the attribute C<is_default> for this specific tax-dependant date.
+may get the attribute C<is_default> for this specific tax-dependent date.
 The possible entries are filtered by the charttype of the tax, i.e. only taxes
 whose chart_categories match the category of the chart will be shown.
 
