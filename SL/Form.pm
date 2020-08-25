@@ -3268,19 +3268,6 @@ sub prepare_for_printing {
     $self->{"employee_${_}"} = $defaults->$_   for qw(address businessnumber co_ustid company duns sepa_creditor_id taxnumber);
   }
 
-  # Load shipping address from database. If shipto_id is set then it's
-  # one from the customer's/vendor's master data. Otherwise look an a
-  # customized address linking back to the current record.
-  my $shipto_module = $self->{type} =~ /_delivery_order$/                                             ? 'DO'
-                    : $self->{type} =~ /sales_order|sales_quotation|request_quotation|purchase_order/ ? 'OE'
-                    :                                                                                   'AR';
-  my $shipto        = $self->{shipto_id} ? SL::DB::Shipto->new(shipto_id => $self->{shipto_id})->load
-                    :                      SL::DB::Manager::Shipto->get_first(where => [ module => $shipto_module, trans_id => $self->{id} ]);
-  if ($shipto) {
-    $self->{$_} = $shipto->$_ for grep { m{^shipto} } map { $_->name } @{ $shipto->meta->columns };
-    $self->{"shiptocvar_" . $_->config->name} = $_->value_as_text for @{ $shipto->cvars_by_config };
-  }
-
   my $language = $self->{language} ? '_' . $self->{language} : '';
 
   my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates);
