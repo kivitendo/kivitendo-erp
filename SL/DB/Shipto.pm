@@ -3,6 +3,9 @@ package SL::DB::Shipto;
 use strict;
 
 use Carp;
+use List::MoreUtils qw(all);
+
+use SL::Util qw(trim);
 
 use SL::DB::MetaSetup::Shipto;
 use SL::DB::Manager::Shipto;
@@ -15,6 +18,7 @@ our @SHIPTO_VARIABLES = qw(shiptoname shiptostreet shiptozipcode shiptocity ship
                            shiptophone shiptofax shiptoemail shiptodepartment_1 shiptodepartment_2);
 
 __PACKAGE__->meta->initialize;
+
 
 sub displayable_id {
   my $self = shift;
@@ -38,6 +42,15 @@ sub used {
   return SL::DB::Manager::Order->get_all_count(query => [ shipto_id => $self->shipto_id ])
       || SL::DB::Manager::Invoice->get_all_count(query => [ shipto_id => $self->shipto_id ])
       || SL::DB::Manager::DeliveryOrder->get_all_count(query => [ shipto_id => $self->shipto_id ]);
+}
+
+sub is_empty {
+  my ($self) = @_;
+
+  # todo: consider cvars
+  my @fields_to_consider = grep { !m{^ (?: itime | mtime | shipto_id | trans_id | shiptocp_gender | module ) $}x } map {$_->name} $self->meta->columns;
+
+  return all { trim($self->$_) eq '' } @fields_to_consider;
 }
 
 sub detach {
@@ -87,6 +100,18 @@ SL::DB::Shipto - Database model for shipping addresses
   }
 
 =head1 FUNCTIONS
+
+=over 4
+
+=item C<is_empty>
+
+Returns truish if all fields to consider are empty, falsish if not.
+Fields are trimmed before the test is performed.
+C<shiptocp_gender> is not considered because in forms this is usually
+a selection with 'm' as default value.
+CVar fields are not considered by now.
+
+=back
 
 =over 4
 
