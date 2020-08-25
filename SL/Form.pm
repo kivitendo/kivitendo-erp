@@ -1898,10 +1898,10 @@ sub add_shipto {
                      shiptocountry = ?,
                      shiptogln = ?,
                      shiptocontact = ?,
-                     shiptocp_gender = ?,
                      shiptophone = ?,
                      shiptofax = ?,
                      shiptoemail = ?
+                     shiptocp_gender = ?,
                    WHERE shipto_id = ?|;
     do_query($self, $dbh, $query, @values, $self->{shipto_id});
   } else {
@@ -1915,10 +1915,10 @@ sub add_shipto {
                      shiptocountry = ? AND
                      shiptogln = ? AND
                      shiptocontact = ? AND
-                     shiptocp_gender = ? AND
                      shiptophone = ? AND
                      shiptofax = ? AND
                      shiptoemail = ? AND
+                     shiptocp_gender = ? AND
                      module = ? AND
                      trans_id = ?|;
     my $insert_check = selectfirst_hashref_query($self, $dbh, $query, @values, $module, $id);
@@ -1926,7 +1926,7 @@ sub add_shipto {
       my $insert_query =
         qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2,
                                shiptostreet, shiptozipcode, shiptocity, shiptocountry, shiptogln,
-                               shiptocontact, shiptocp_gender, shiptophone, shiptofax, shiptoemail, module)
+                               shiptocontact, shiptophone, shiptofax, shiptoemail, shiptocp_gender, module)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
       do_query($self, $dbh, $insert_query, $id, @values, $module);
 
