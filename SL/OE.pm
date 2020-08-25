@@ -625,7 +625,7 @@ sub _save {
         );
         $new_project->save;
         $form->{"globalproject_id"} = $new_project->id;
-      };
+      }
 
       CVar->get_non_editable_ic_cvars(form               => $form,
                                       dbh                => $dbh,

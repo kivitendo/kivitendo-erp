@@ -1451,7 +1451,7 @@ sub transfer_out {
 
   my (@errors, @transfers);
 
-  # do nothing, if transfer default is not requeseted at all
+  # do nothing, if transfer default is not requested at all
   if (!$::instance_conf->get_transfer_default) {
     $::lxdebug->leave_sub;
     return \@errors;
