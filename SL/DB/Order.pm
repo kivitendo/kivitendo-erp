@@ -58,6 +58,8 @@ __PACKAGE__->attr_sorted('items');
 
 __PACKAGE__->before_save('_before_save_set_ord_quo_number');
 __PACKAGE__->before_save('_before_save_create_new_project');
+__PACKAGE__->before_save('_before_save_remove_empty_custom_shipto');
+__PACKAGE__->before_save('_before_save_set_custom_shipto_module');
 
 # hooks
 
@@ -95,6 +97,23 @@ sub _before_save_create_new_project {
        $self->globalproject_id($new_project->id);
     } or die t8('Could not create new project #1', $@);
   }
+  return 1;
+}
+
+
+sub _before_save_remove_empty_custom_shipto {
+  my ($self) = @_;
+
+  $self->custom_shipto(undef) if $self->custom_shipto && $self->custom_shipto->is_empty;
+
+  return 1;
+}
+
+sub _before_save_set_custom_shipto_module {
+  my ($self) = @_;
+
+  $self->custom_shipto->module('OE') if $self->custom_shipto;
+
   return 1;
 }
 
