@@ -46,11 +46,19 @@ sub flatten_to_form {
   _copy($self->$vc,                     $form, '',              '', 0, @vc_fields);
   _copy($self->$vc,                     $form, $vc,             '', 0, @vc_prefixed_fields);
   _copy($self->contact,                 $form, '',              '', 0, grep { /^cp_/    } map { $_->name } SL::DB::Contact->meta->columns) if _has($self, 'cp_id');
-  _copy($self->shipto,                  $form, '',              '', 0, grep { /^shipto/ } map { $_->name } SL::DB::Shipto->meta->columns)  if _has($self, 'shipto_id');
   _copy($self->globalproject,           $form, 'globalproject', '', 0, qw(number description))                                             if _has($self, 'globalproject_id');
   _copy($self->employee,                $form, 'employee_',     '', 0, map { $_->name } SL::DB::Employee->meta->columns)                   if _has($self, 'employee_id');
   _copy($self->salesman,                $form, 'salesman_',     '', 0, map { $_->name } SL::DB::Employee->meta->columns)                   if _has($self, 'salesman_id');
   _copy($self->acceptance_confirmed_by, $form, 'acceptance_confirmed_by_', '', 0, map { $_->name } SL::DB::Employee->meta->columns)        if _has($self, 'acceptance_confirmed_by_id');
+
+  # Copy selected shipto to form, if set. Else, copy custom shipto, if set.
+  my $shipto = _has($self, 'shipto_id')     ? $self->shipto
+             : _has($self, 'custom_shipto') ? $self->custom_shipto
+             : undef;
+  if ($shipto) {
+    _copy($shipto,                  $form, '',            '', 0, grep { m{^shipto(?!_id$)} } map { $_->name } SL::DB::Shipto->meta->columns);
+    _copy_custom_variables($shipto, $form, 'shiptocvar_', '');
+  }
 
   _handle_user_data($self, $form);
 
@@ -132,7 +140,7 @@ sub _copy {
 sub _copy_custom_variables {
   my ($src, $form, $prefix, $postfix, $cvar_validity) = @_;
 
-  my $obj = (any { ref($src) eq $_ } qw(SL::DB::OrderItem SL::DB::DeliveryOrderItem SL::DB::InvoiceItem SL::DB::Contact))
+  my $obj = (any { ref($src) eq $_ } qw(SL::DB::OrderItem SL::DB::DeliveryOrderItem SL::DB::InvoiceItem SL::DB::Contact SL::DB::Shipto))
           ? $src
           : $src->customervendor;
 
