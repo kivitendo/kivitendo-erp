@@ -35,9 +35,13 @@
 
 package WH;
 
+use Carp qw(croak);
+
 use SL::AM;
 use SL::DBUtils;
+use SL::DB::Inventory;
 use SL::Form;
+use SL::Locale::String qw(t8);
 use SL::Util qw(trim);
 
 use warnings;
@@ -56,7 +60,6 @@ sub transfer {
   require SL::DB::TransferType;
   require SL::DB::Part;
   require SL::DB::Employee;
-  require SL::DB::Inventory;
 
   my $employee   = SL::DB::Manager::Employee->find_by(login => $::myconfig{login});
   my ($now)      = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT current_date|);
@@ -1127,6 +1130,21 @@ $main::lxdebug->enter_sub();
   return ($max_qty_parts, $error);
 }
 
+sub get_wh_and_bin_for_charge {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  croak t8('Need charge number!') unless $params{chargenumber};
+
+  my $inv_item= SL::DB::Manager::Inventory->get_first(where => [chargenumber => $params{chargenumber} ]);
+
+  croak t8("Invalid charge number: #1", $params{chargenumber}) unless (ref $inv_item eq 'SL::DB::Inventory');
+
+  $main::lxdebug->leave_sub();
+  return ($inv_item->warehouse_id, $inv_item->bin_id, $inv_item->chargenumber);
+}
 1;
 
 __END__
@@ -1279,6 +1297,15 @@ The typical params would be:
     'qty'              => $form->{qty},
     'comment'          => $form->{comment}
   );
+
+
+=head2 get_wh_and_bin_for_charge C<$params{chargenumber}>
+
+Gets the first inventory entry with the mandatory chargenumber: C<$params{chargenumber}>.
+Croaks if the chargenumber is missing or no entry currently exists.
+From the found inventory entry the following values and in this order are returned:
+C<warehouse_id>, C<bin_id>, C<chargenumber>.
+
 
 =head3 Prerequisites
 

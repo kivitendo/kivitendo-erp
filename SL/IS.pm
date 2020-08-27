@@ -1461,26 +1461,54 @@ sub transfer_out {
 
   foreach my $i (1 .. $form->{rowcount}) {
     next if !$form->{"id_$i"};
-    my ($err, $wh_id, $bin_id) = _determine_wh_and_bin($dbh, $::instance_conf,
-                                                       $form->{"id_$i"},
-                                                       $form->{"qty_$i"},
-                                                       $form->{"unit_$i"});
-    if (!@{ $err } && $wh_id && $bin_id) {
-      push @transfers, {
-        'parts_id'         => $form->{"id_$i"},
-        'qty'              => $form->{"qty_$i"},
-        'unit'             => $form->{"unit_$i"},
-        'transfer_type'    => 'shipped',
-        'src_warehouse_id' => $wh_id,
-        'src_bin_id'       => $bin_id,
-        'project_id'       => $form->{"project_id_$i"},
-        'invoice_id'       => $form->{"invoice_id_$i"},
-        'comment'          => $::locale->text("Default transfer invoice"),
-      };
-    }
 
+    my ($err, $wh_id, $bin_id, $chargenumber);
+
+    if ($::instance_conf->get_sales_serial_eq_charge) {
+      next unless $form->{"serialnumber_$i"};
+      my @serials = split(" ", $form->{"serialnumber_$i"});
+      if (scalar @serials != $form->{"qty_$i"}) {
+        push @errors, $::locale->text("Cannot transfer #1 qty with #2 serial number(s)", $form->{"qty_$i"}, scalar @serials);
+        last;
+      }
+      foreach my $serial (@serials) {
+        ($wh_id, $bin_id, $chargenumber) = WH->get_wh_and_bin_for_charge(chargenumber => $serial);
+
+        push @transfers, {
+            'parts_id'         => $form->{"id_$i"},
+            'qty'              => 1,
+            'unit'             => $form->{"unit_$i"},
+            'transfer_type'    => 'shipped',
+            'src_warehouse_id' => $wh_id,
+            'src_bin_id'       => $bin_id,
+            'chargenumber'     => $chargenumber,
+            'project_id'       => $form->{"project_id_$i"},
+            'invoice_id'       => $form->{"invoice_id_$i"},
+            'comment'          => $::locale->text("Default transfer invoice with charge number"),
+        };
+      }
+      $err = []; # error handling uses @errors direct
+    } else {
+      ($err, $wh_id, $bin_id)    = _determine_wh_and_bin($dbh, $::instance_conf,
+                                                         $form->{"id_$i"},
+                                                         $form->{"qty_$i"},
+                                                         $form->{"unit_$i"});
+      if (!@{ $err } && $wh_id && $bin_id) {
+        push @transfers, {
+          'parts_id'         => $form->{"id_$i"},
+          'qty'              => $form->{"qty_$i"},
+          'unit'             => $form->{"unit_$i"},
+          'transfer_type'    => 'shipped',
+          'src_warehouse_id' => $wh_id,
+          'src_bin_id'       => $bin_id,
+          'project_id'       => $form->{"project_id_$i"},
+          'invoice_id'       => $form->{"invoice_id_$i"},
+          'comment'          => $::locale->text("Default transfer invoice"),
+        };
+      }
+    }
     push @errors, @{ $err };
-  }
+  } # end form rowcount
 
   if (!@errors) {
     WH->transfer(@transfers);
