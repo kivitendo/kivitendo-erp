@@ -81,6 +81,16 @@
    </td>
   </tr>
   <tr>
+   <td align="right">[% LxERP.t8('Match Sales Invoice Serial numbers with inventory charge numbers?') %]</td>
+   <td>
+    [% L.yes_no_tag('defaults.sales_serial_eq_charge', SELF.defaults.sales_serial_eq_charge) %]
+   </td>
+   <td>
+   [% LxERP.t8('If one or more space separated serial numbers are assigned in a sales invoice, match the charge number of the inventory item. Assumes that Serial Number and Charge Number have 1:1 relation. Otherwise throw a error message for the default sales invoice transfer.') %]
+   </td>
+  </tr>
+
+  <tr>
    <td align="right">[% LxERP.t8('Use default warehouse for assembly transfer') %]</td>
    <td>
     [% L.yes_no_tag('defaults.transfer_default_warehouse_for_assembly', SELF.defaults.transfer_default_warehouse_for_assembly) %]
