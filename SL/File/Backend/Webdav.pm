@@ -167,7 +167,7 @@ my %model_to_number = (
   GLTransaction   => 'reference',
   ShopImage       => 'partnumber',
   Customer        => 'customernumber',
-  Vendor          => 'vendor',
+  Vendor          => 'vendornumber',
 );
 
 sub webdav_path {
