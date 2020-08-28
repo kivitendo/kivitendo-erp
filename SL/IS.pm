@@ -1462,7 +1462,7 @@ sub transfer_out {
   foreach my $i (1 .. $form->{rowcount}) {
     next if !$form->{"id_$i"};
 
-    my ($err, $wh_id, $bin_id, $chargenumber);
+    my ($err, $qty, $wh_id, $bin_id, $chargenumber);
 
     if ($::instance_conf->get_sales_serial_eq_charge) {
       next unless $form->{"serialnumber_$i"};
@@ -1472,8 +1472,11 @@ sub transfer_out {
         last;
       }
       foreach my $serial (@serials) {
-        ($wh_id, $bin_id, $chargenumber) = WH->get_wh_and_bin_for_charge(chargenumber => $serial);
-
+        ($qty, $wh_id, $bin_id, $chargenumber) = WH->get_wh_and_bin_for_charge(chargenumber => $serial);
+        if (!$qty) {
+          push @errors, $::locale->text("Not enough in stock for the serial number #1", $serial);
+          last;
+        }
         push @transfers, {
             'parts_id'         => $form->{"id_$i"},
             'qty'              => 1,

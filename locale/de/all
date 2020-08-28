@@ -2123,6 +2123,7 @@ $self->{texts} = {
   'Not Discountable'            => 'Nicht rabattierfähig',
   'Not delivered'               => 'Nicht geliefert',
   'Not done yet'                => 'Noch nicht fertig',
+  'Not enough in stock for the serial number #1' => 'Nicht genug auf Lager von der Seriennummer #1',
   'Not obsolete'                => 'Gültig',
   'Note'                        => 'Hinweis',
   'Note that parameter names must not be quoted.' => 'Beachten Sie, dass Parameternamen nicht in Anführungszeichen stehen dürfen.',

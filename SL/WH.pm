@@ -1135,15 +1135,25 @@ sub get_wh_and_bin_for_charge {
 
   my $self     = shift;
   my %params   = @_;
+  my %bin_qty;
 
   croak t8('Need charge number!') unless $params{chargenumber};
 
-  my $inv_item= SL::DB::Manager::Inventory->get_first(where => [chargenumber => $params{chargenumber} ]);
+  my $inv_items = SL::DB::Manager::Inventory->get_all(where => [chargenumber => $params{chargenumber} ]);
 
-  croak t8("Invalid charge number: #1", $params{chargenumber}) unless (ref $inv_item eq 'SL::DB::Inventory');
+  croak t8("Invalid charge number: #1", $params{chargenumber}) unless (ref @{$inv_items}[0] eq 'SL::DB::Inventory');
+  # add all qty for one bin and add wh_id
+  ($bin_qty{$_->bin_id}{qty}, $bin_qty{$_->bin_id}{wh}) = ($bin_qty{$_->bin_id}{qty} + $_->qty, $_->warehouse_id) for @{ $inv_items };
+
+  while (my ($bin, $value) = each (%bin_qty)) {
+    if ($value->{qty} > 0) {
+      $main::lxdebug->leave_sub();
+      return ($value->{qty}, $value->{wh}, $bin, $params{chargenumber});
+    }
+  }
 
   $main::lxdebug->leave_sub();
-  return ($inv_item->warehouse_id, $inv_item->bin_id, $inv_item->chargenumber);
+  return undef;
 }
 1;
 
@@ -1301,10 +1311,11 @@ The typical params would be:
 
 =head2 get_wh_and_bin_for_charge C<$params{chargenumber}>
 
-Gets the first inventory entry with the mandatory chargenumber: C<$params{chargenumber}>.
+Gets the current qty from the inventory entries with the mandatory chargenumber: C<$params{chargenumber}>.
 Croaks if the chargenumber is missing or no entry currently exists.
-From the found inventory entry the following values and in this order are returned:
-C<warehouse_id>, C<bin_id>, C<chargenumber>.
+If there is one bin and warehouse with a positive qty, this fields are returned:
+C<qty> C<warehouse_id>, C<bin_id>, C<chargenumber>.
+Otherwise returns undef.
 
 
 =head3 Prerequisites
