@@ -84,6 +84,9 @@
       <tr>
        <th align="right" nowrap>[% 'Shop article' | $T8 %]</th>
        <td>[% L.yes_no_tag('shop', shop, default='', with_empty=1, empty_title='---', style=style) %]</td>
+       <th align="right" nowrap>[% 'Notes' | $T8 %]</th>
+       <td>[% L.input_tag("notes", "", style=style) %]</td>
+
       </tr>
 
       <tr>
