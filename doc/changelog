@@ -12,6 +12,14 @@ Mittelgroße neue Features:
    pro Beleg (und nicht pro Tag) gespeichert.
 
 
+Kleinere neue Features und Detailverbesserungen:
+
+ - Beim automatischen Auslagern über die Verkaufsrechnung kann zusätzlich
+   ein Auslagern über das Attribut Seriennummer entspricht Chargennummer
+   gemacht werden. Falls die Beleg-Seriennummer nicht auslagerbar ist wird
+   eine entsprechende Fehlermeldung generiert (einstellbar in der Mandanten-
+   konfiguration).
+
 2020-07-20 - Release 3.5.6
 
 
