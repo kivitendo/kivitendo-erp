@@ -26,6 +26,9 @@
       [% IF show_deliveries %]
         <li><a href="#deliveries">[% 'Supplies' | $T8 %]</a></li>
       [% END %]
+      [%- IF INSTANCE_CONF.get_webdav %]
+        <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
+      [%- END %]
       [%- IF INSTANCE_CONF.get_doc_storage %]
         <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=[% FORM.db == 'vendor' ? 'vendor' : 'customer' %]&object_id=[% SELF.cv.id %]">[% 'Attachments' | $T8 %]</a></li>
       [%- END %]
@@ -64,6 +67,7 @@
     [% IF show_deliveries %]
       [% PROCESS "customer_vendor/tabs/deliveries.html" %]
     [% END %]
+    [% PROCESS 'webdav/_list.html' %]
     [% PROCESS "customer_vendor/tabs/vcnotes.html" %]
     [% IF ( cv_cvars.size ) %]
       [% PROCESS "customer_vendor/tabs/custom_variables.html" %]

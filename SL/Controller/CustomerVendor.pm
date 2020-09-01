@@ -10,6 +10,7 @@ use SL::DBUtils;
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::Util qw(trim);
+use SL::Webdav;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Controller::Helper::ParseFilter;
@@ -1046,6 +1047,21 @@ sub _pre_render {
       ],
     );
   }
+
+  if ($self->{cv}->number && $::instance_conf->get_webdav) {
+    my $webdav = SL::Webdav->new(
+      type     => $self->is_customer ? 'customer'
+                : $self->is_vendor   ? 'vendor'
+                : undef,
+      number   => $self->{cv}->number,
+    );
+    my @all_objects = $webdav->get_all_objects;
+    @{ $self->{template_args}->{WEBDAV} } = map { { name => $_->filename,
+                                                    type => t8('File'),
+                                                    link => File::Spec->catfile($_->full_filedescriptor),
+                                                } } @all_objects;
+  }
+
   $self->{template_args} ||= {};
 
   $::request->{layout}->add_javascripts('kivi.CustomerVendor.js');

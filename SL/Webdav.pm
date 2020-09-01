@@ -32,6 +32,8 @@ my %type_to_path = (
   letter                  => 'briefe',
   general_ledger          => 'dialogbuchungen',
   accounts_payable        => 'kreditorenbuchungen',
+  customer                => 'kunden',
+  vendor                  => 'lieferanten',
 );
 
 sub get_all_files {
