@@ -115,9 +115,9 @@
 <%qty%> <%unit%> &%
 <%sellprice%>&%
 \ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
-<%linetotal%>\tabularnewline
-<%end number%>
-}
+<%linetotal%>\tabularnewline%
+<%end number%>%
+}%
 \begin{PricingTotal}
 % Tabellenende letzte Seite
 \nettobetrag & <%subtotal%>\\
