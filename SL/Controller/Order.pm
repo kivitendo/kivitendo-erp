@@ -1692,12 +1692,29 @@ sub workflow_sales_or_purchase_order {
                        : $::form->{type} eq sales_order_type()       ? purchase_order_type()
                        : '';
 
+  # check for direct delivery
+  # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
+  my $custom_shipto;
+  if (   $::form->{type} eq sales_order_type() && $destination_type eq purchase_order_type()
+      && $::form->{use_shipto} && $self->order->shipto) {
+    $custom_shipto = $self->order->shipto->clone('SL::DB::Order');
+  }
+
   $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
   $self->{converted_from_oe_id} = delete $::form->{id};
 
   # set item ids to new fake id, to identify them as new items
   foreach my $item (@{$self->order->items_sorted}) {
     $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  }
+
+  if ($::form->{type} eq sales_order_type() && $destination_type eq purchase_order_type()) {
+    if ($::form->{use_shipto}) {
+      $self->order->custom_shipto($custom_shipto) if $custom_shipto;
+    } else {
+      # remove any custom shipto if not wanted
+      $self->order->custom_shipto(SL::DB::Shipto->new(module => 'OE', custom_variables => []));
+    }
   }
 
   # change form type
@@ -1825,8 +1842,8 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and Purchase Order'),
-          submit   => [ '#order_form', { action => "Order/purchase_order" } ],
-          only_if  => (any { $self->type eq $_ } (sales_order_type(), request_quotation_type())),
+          call      => [ 'kivi.Order.purchase_order_check_for_direct_delivery' ],
+          only_if   => (any { $self->type eq $_ } (sales_order_type(), request_quotation_type())),
         ],
         action => [
           t8('Save and Delivery Order'),

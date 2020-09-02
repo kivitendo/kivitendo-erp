@@ -852,6 +852,71 @@ namespace('kivi.Order', function(ns) {
     kivi.SalesPurchase.edit_custom_shipto();
   };
 
+  ns.purchase_order_check_for_direct_delivery = function() {
+    if ($('#type').val() != 'sales_order') {
+      kivi.submit_form_with_action($('#order_form'), 'Order/purchase_order');
+    }
+
+    var empty = true;
+    var shipto;
+    if ($('#order_shipto_id').val() !== '') {
+      empty = false;
+      shipto = $('#order_shipto_id option:selected').text();
+    } else {
+      $('#shipto_inputs [id^="shipto"]').each(function(idx, elt) {
+        if (!empty)                                     return true;
+        if (/^shipto_to_copy/.test($(elt).prop('id')))  return true;
+        if (/^shiptocp_gender/.test($(elt).prop('id'))) return true;
+        if (/^shiptocvar_/.test($(elt).prop('id')))     return true;
+        if ($(elt).val() !== '') {
+          empty = false;
+          return false;
+        }
+      });
+      var shipto_elements = [];
+      $([$('#shiptoname').val(), $('#shiptostreet').val(), $('#shiptozipcode').val(), $('#shiptocity').val()]).each(function(idx, elt) {
+        if (elt !== '') shipto_elements.push(elt);
+      });
+      shipto = shipto_elements.join('; ');
+    }
+
+    var use_it = false;
+    if (!empty) {
+      ns.direct_delivery_dialog(shipto);
+    } else {
+      kivi.submit_form_with_action($('#order_form'), 'Order/purchase_order');
+    }
+  };
+
+  ns.direct_delivery_callback = function(accepted) {
+    $('#direct-delivery-dialog').dialog('close');
+
+    if (accepted) {
+      $('<input type="hidden" name="use_shipto">').appendTo('#order_form').val('1');
+    }
+
+    kivi.submit_form_with_action($('#order_form'), 'Order/purchase_order');
+  };
+
+  ns.direct_delivery_dialog = function(shipto) {
+    $('#direct-delivery-dialog').remove();
+
+    var text1 = kivi.t8('You have entered or selected the following shipping address for this customer:');
+    var text2 = kivi.t8('Do you want to carry this shipping address over to the new purchase order so that the vendor can deliver the goods directly to your customer?');
+    var html  = '<div id="direct-delivery-dialog"><p>' + text1 + '</p><p>' + shipto + '</p><p>' + text2 + '</p>';
+    html      = html + '<hr><p>';
+    html      = html + '<input type="button" value="' + kivi.t8('Yes') + '" size="30" onclick="kivi.Order.direct_delivery_callback(true)">';
+    html      = html + '&nbsp;';
+    html      = html + '<input type="button" value="' + kivi.t8('No')  + '" size="30" onclick="kivi.Order.direct_delivery_callback(false)">';
+    html      = html + '</p></div>';
+    $(html).hide().appendTo('#order_form');
+
+    kivi.popup_dialog({id: 'direct-delivery-dialog',
+                       dialog: {title:  kivi.t8('Carry over shipping address'),
+                                height: 300,
+                                width:  500 }});
+  };
+
 });
 
 $(function() {
