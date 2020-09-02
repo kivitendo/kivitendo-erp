@@ -1822,13 +1822,11 @@ sub setup_edit_action_bar {
           t8('Save and Sales Order'),
           submit   => [ '#order_form', { action => "Order/sales_order" } ],
           only_if  => (any { $self->type eq $_ } (sales_quotation_type(), purchase_order_type())),
-          disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
         action => [
           t8('Save and Purchase Order'),
           submit   => [ '#order_form', { action => "Order/purchase_order" } ],
           only_if  => (any { $self->type eq $_ } (sales_order_type(), request_quotation_type())),
-          disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
         action => [
           t8('Save and Delivery Order'),
