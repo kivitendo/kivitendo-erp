@@ -24,34 +24,98 @@ use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(connector url) ],
 );
 
+sub get_one_order {
+  my ($self, $ordnumber) = @_;
+
+  my $dbh       = SL::DB::client;
+  my $of        = 0;
+  my $url       = $self->url;
+  my $data      = $self->connector->get($url . "api/orders/$ordnumber?useNumberAsId=true");
+  my @errors;
+
+  my %fetched_orders;
+  if ($data->is_success && $data->content_type eq 'application/json'){
+    my $data_json = $data->content;
+    my $import    = SL::JSON::decode_json($data_json);
+    my $shoporder = $import->{data};
+    $dbh->with_transaction( sub{
+      $self->import_data_to_shop_order($import);
+      1;
+    })or do {
+      push @errors,($::locale->text('Saving failed. Error message from the database: #1', $dbh->error));
+    };
+
+    if(!@errors){
+      $of++;
+    }else{
+      flash_later('error', $::locale->text('Database errors: #1', @errors));
+    }
+    %fetched_orders = (shop_description => $self->config->description, number_of_orders => $of);
+  } else {
+    my %error_msg  = (
+      shop_id          => $self->config->id,
+      shop_description => $self->config->description,
+      message          => "Error: $data->status_line",
+      error            => 1,
+    );
+    %fetched_orders = %error_msg;
+  }
+
+  return \%fetched_orders;
+}
+
 sub get_new_orders {
   my ($self, $id) = @_;
 
   my $url              = $self->url;
-  my $ordnumber        = $self->config->last_order_number + 1;
+  my $last_order_number = $self->config->last_order_number;
   my $otf              = $self->config->orders_to_fetch;
   my $of               = 0;
-  my $orders_data      = $self->connector->get($url . "api/orders?limit=$otf&filter[0][property]=number&filter[0][expression]=>&filter[0][value]=" . $self->config->last_order_number);
-  my $orders_data_json = $orders_data->content;
-  my $orders_import    = SL::JSON::decode_json($orders_data_json);
+  my $last_data      = $self->connector->get($url . "api orders/$last_order_number?useNumberAsId=true");
+  my $last_data_json = $last_data->content;
+  my $last_import    = SL::JSON::decode_json($last_data_json);
 
-  if ($orders_import->{success}){
+  my $orders_data      = $self->connector->get($url . "api/orders?limit=$otf&filter[1][property]=status&filter[1][value]=0&filter[0][property]=id&filter[0][expression]=>&filter[0][value]=" . $last_import->{data}->{id});
+
+  my $dbh = SL::DB->client;
+  my @errors;
+  my %fetched_orders;
+  if ($orders_data->is_success && $orders_data->content_type eq 'application/json'){
+    my $orders_data_json = $orders_data->content;
+    my $orders_import    = SL::JSON::decode_json($orders_data_json);
     foreach my $shoporder(@{ $orders_import->{data} }){
 
       my $data      = $self->connector->get($url . "api/orders/" . $shoporder->{id});
       my $data_json = $data->content;
       my $import    = SL::JSON::decode_json($data_json);
 
-      $self->import_data_to_shop_order($import);
+      $dbh->with_transaction( sub{
+          $self->import_data_to_shop_order($import);
 
-      $self->config->assign_attributes( last_order_number => $ordnumber);
-      $self->config->save;
-      $ordnumber++;
-      $of++;
+          $self->config->assign_attributes( last_order_number => $shoporder->{number});
+          $self->config->save;
+          1;
+      })or do {
+        push @errors,($::locale->text('Saving failed. Error message from the database: #1', $dbh->error));
+      };
+
+      if(!@errors){
+        $of++;
+      }else{
+        flash_later('error', $::locale->text('Database errors: #1', @errors));
+      }
     }
+    %fetched_orders = (shop_description => $self->config->description, number_of_orders => $of);
+  } else {
+    my %error_msg  = (
+      shop_id          => $self->config->id,
+      shop_description => $self->config->description,
+      message          => "Error: $orders_data->status_line",
+      error            => 1,
+    );
+    %fetched_orders = %error_msg;
   }
-  my $shop           = $self->config->description;
-  my %fetched_orders = (shop_id => $self->config->description, number_of_orders => $of);
+
   return \%fetched_orders;
 }
 
@@ -62,7 +126,8 @@ sub import_data_to_shop_order {
   $shop_order->save;
   my $id = $shop_order->id;
 
-  my @positions = sort { Sort::Naturally::ncmp($a->{"partnumber"}, $b->{"partnumber"}) } @{ $import->{data}->{details} };
+  my @positions = sort { Sort::Naturally::ncmp($a->{"articleNumber"}, $b->{"articleNumber"}) } @{ $import->{data}->{details} };
+  #my @positions = sort { Sort::Naturally::ncmp($a->{"partnumber"}, $b->{"partnumber"}) } @{ $import->{data}->{details} };
   my $position = 1;
   my $active_price_source = $self->config->price_source;
   #Mapping Positions
@@ -82,14 +147,14 @@ sub import_data_to_shop_order {
     $pos_insert->save;
     $position++;
   }
-  $shop_order->{positions} = $position-1;
+  $shop_order->positions($position-1);
 
   my $customer = $shop_order->get_customer;
 
   if(ref($customer)){
     $shop_order->kivi_customer_id($customer->id);
-    $shop_order->save;
   }
+  $shop_order->save;
 }
 
 sub map_data_to_shoporder {
@@ -103,6 +168,7 @@ sub map_data_to_shoporder {
 
   my $shop_id      = $self->config->id;
   my $tax_included = $self->config->pricetype;
+
   # Mapping to table shoporders. See http://community.shopware.com/_detail_1690.html#GET_.28Liste.29
   my %columns = (
     amount                  => $import->{data}->{invoiceAmount},
@@ -219,7 +285,7 @@ sub update_part {
   die unless ref($shop_part) eq 'SL::DB::ShopPart';
 
   my $url = $self->url;
-  my $part = SL::DB::Part->new(id => $shop_part->{part_id})->load;
+  my $part = SL::DB::Part->new(id => $shop_part->part_id)->load;
 
   # CVARS to map
   my $cvars = { map { ($_->config->name => { value => $_->value_as_text, is_valid => $_->is_valid }) } @{ $part->cvars_by_config } };
@@ -238,7 +304,7 @@ sub update_part {
   my %shop_data;
 
   if($todo eq "price"){
-    %shop_data = ( mainDetail => { number   => $part->{partnumber},
+    %shop_data = ( mainDetail => { number   => $part->partnumber,
                                    prices   =>  [ { from             => 1,
                                                     price            => $price,
                                                     customerGroupKey => 'EK',
@@ -247,13 +313,13 @@ sub update_part {
                                   },
                  );
   }elsif($todo eq "stock"){
-    %shop_data = ( mainDetail => { number   => $part->{partnumber},
-                                   inStock  => $part->{onhand},
+    %shop_data = ( mainDetail => { number   => $part->partnumber,
+                                   inStock  => $part->onhand,
                                  },
                  );
   }elsif($todo eq "price_stock"){
-    %shop_data =  ( mainDetail => { number   => $part->{partnumber},
-                                    inStock  => $part->{onhand},
+    %shop_data =  ( mainDetail => { number   => $part->partnumber,
+                                    inStock  => $part->onhand,
                                     prices   =>  [ { from             => 1,
                                                      price            => $price,
                                                      customerGroupKey => 'EK',
@@ -262,15 +328,15 @@ sub update_part {
                                    },
                    );
   }elsif($todo eq "active"){
-    %shop_data =  ( mainDetail => { number   => $part->{partnumber},
+    %shop_data =  ( mainDetail => { number   => $part->partnumber,
                                    },
-                    active => ($part->{partnumber} == 1 ? 0 : 1),
+                    active => ($part->partnumber == 1 ? 0 : 1),
                    );
   }elsif($todo eq "all"){
   # mapping to shopware still missing attributes,metatags
-    %shop_data =  (   name              => $part->{description},
-                      mainDetail        => { number   => $part->{partnumber},
-                                             inStock  => $part->{onhand},
+    %shop_data =  (   name              => $part->description,
+                      mainDetail        => { number   => $part->partnumber,
+                                             inStock  => $part->onhand,
                                              prices   =>  [ {          from   => 1,
                                                                        price  => $price,
                                                             customerGroupKey  => 'EK',
@@ -280,12 +346,12 @@ sub update_part {
                                              #attribute => { attr1  => $cvars->{CVARNAME}->{value}, } , #HowTo handle attributes
                                        },
                       supplier          => 'AR', # Is needed by shopware,
-                      descriptionLong   => $shop_part->{shop_description},
+                      descriptionLong   => $shop_part->shop_description,
                       active            => $shop_part->active,
                       images            => [ @upload_img ],
                       __options_images  => { replace => 1, },
                       categories        => [ @cat ],
-                      description       => $shop_part->{shop_description},
+                      description       => $shop_part->shop_description,
                       categories        => [ @cat ],
                       tax               => $taxrate,
                     )
@@ -298,7 +364,7 @@ sub update_part {
   my $upload_content;
   my $upload;
   my ($import,$data,$data_json);
-  my $partnumber = $::form->escape($part->{partnumber});#shopware don't accept / in articlenumber
+  my $partnumber = $::form->escape($part->partnumber);#shopware don't accept / in articlenumber
   # Shopware RestApi sends an erroremail if configured and part not found. But it needs this info to decide if update or create a new article
   # LWP->post = create LWP->put = update
     $data       = $self->connector->get($url . "api/articles/$partnumber?useNumberAsId=true");
@@ -306,7 +372,7 @@ sub update_part {
     $import     = SL::JSON::decode_json($data_json);
   if($import->{success}){
     #update
-    my $partnumber  = $::form->escape($part->{partnumber});#shopware don't accept / in articlenumber
+    my $partnumber  = $::form->escape($part->partnumber);#shopware don't accept / in articlenumber
     $upload         = $self->connector->put($url . "api/articles/$partnumber?useNumberAsId=true", Content => $dataString);
     my $data_json   = $upload->content;
     $upload_content = SL::JSON::decode_json($data_json);
@@ -318,7 +384,7 @@ sub update_part {
   }
   # don't know if this is needed
   if(@upload_img) {
-    my $partnumber = $::form->escape($part->{partnumber});#shopware don't accept / in articlenumber
+    my $partnumber = $::form->escape($part->partnumber);#shopware don't accept / in articlenumber
     my $imgup      = $self->connector->put($url . "api/generatearticleimages/$partnumber?useNumberAsId=true");
   }
 
@@ -377,7 +443,13 @@ for more information.
 
 =over 4
 
+=item C<get_one_order>
+
+Fetches one order specified by ordnumber
+
 =item C<get_new_orders>
+
+Fetches new order by parameters from shop configuration
 
 =item C<import_data_to_shop_order>
 

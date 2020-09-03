@@ -7,7 +7,7 @@ use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(config) ],
 );
 
-sub get_order      { die 'get_order needs to be implemented' }
+sub get_one_order  { die 'get_one_order needs to be implemented' }
 
 sub get_new_orders { die 'get_order needs to be implemented' }
 
@@ -38,7 +38,7 @@ __END__
 
 =over 4
 
-=item C<get_order>
+=item C<get_one_order>
 
 =item C<get_new_orders>
 
