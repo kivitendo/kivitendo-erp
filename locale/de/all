@@ -699,6 +699,7 @@ $self->{texts} = {
   'Correct taxkey'              => 'Richtiger Steuerschlüssel',
   'Cost Center'                 => 'Kostenstelle',
   'Costs'                       => 'Kosten',
+  'Could not create new project #1' => 'Neues Projekt #1 kann nicht angelegt werden',
   'Could not extract ZUGFeRD data, data and error message:' => 'Konnte keine ZUGFeRD Daten extrahieren, folgende Fehlermeldung und das PDF:',
   'Could not find an entry for this part in the pricegroup.' => 'Konnte keine Eintrag für diesen Artikel in der Preisgruppe finden.',
   'Could not load class #1 (#2): "#3"' => 'Konnte Klasse #1 (#2) nicht laden: "#3"',
