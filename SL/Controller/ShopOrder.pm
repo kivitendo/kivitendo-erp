@@ -29,33 +29,45 @@ sub action_get_orders {
   my ( $self ) = @_;
   my $orders_fetched;
   my $new_orders;
-  my %new_order;
-  my $active_shops = SL::DB::Manager::Shop->get_all(query => [ obsolete => 0 ]);
-  foreach my $shop_config ( @{ $active_shops } ) {
-    my $shop = SL::Shop->new( config => $shop_config );
-    my $connect = $shop->check_connectivity;
 
-    if( !$connect->{success} ){
-      %new_order  = (
-        number_of_orders => $connect->{data}->{version},
-        shop_id          => $shop->config->description,
-        error            => 1,
-     );
-     $new_orders = \%new_order;
-    }else{
+  my $type = $::form->{type};
+  if ( $type eq "get_next" ) {
+    my $active_shops = SL::DB::Manager::Shop->get_all(query => [ obsolete => 0 ]);
+    foreach my $shop_config ( @{ $active_shops } ) {
+      my $shop = SL::Shop->new( config => $shop_config );
+
       $new_orders = $shop->connector->get_new_orders;
+      push @{ $orders_fetched }, $new_orders ;
     }
-    push @{ $orders_fetched }, $new_orders ;
+
+  } elsif ( $type eq "get_one" ) {
+    my $shop_id = $::form->{shop_id};
+    my $shop_ordernumber = $::form->{shop_ordernumber};
+
+    if ( $shop_id && $shop_ordernumber ){
+      my $shop_config = SL::DB::Manager::Shop->get_first(query => [ id => $shop_id, obsolete => 0 ]);
+      my $shop = SL::Shop->new( config => $shop_config );
+      unless ( SL::DB::Manager::ShopOrder->get_all_count( query => [ shop_ordernumber => $shop_ordernumber, shop_id => $shop_id, obsolete => 'f' ] )) {
+        my $connect = $shop->check_connectivity;
+        $new_orders = $shop->connector->get_one_order($shop_ordernumber);
+        push @{ $orders_fetched }, $new_orders ;
+      } else {
+        flash_later('error', t8('From shop "#1" :  Number: #2 #3 ', $shop->config->description, $shop_ordernumber, t8('Shoporder with this ordernumber is already fetched')));
+      }
+    } else {
+        flash_later('error', t8('Shop or ordernumber not selected.'));
+    }
   }
 
   foreach my $shop_fetched(@{ $orders_fetched }) {
     if($shop_fetched->{error}){
-      flash_later('error', t8('From shop "#1" :  #2 ', $shop_fetched->{shop_id}, $shop_fetched->{number_of_orders},));
+      flash_later('error', t8('From shop "#1" :  #2 ', $shop_fetched->{shop_description}, $shop_fetched->{message},));
     }else{
-      flash_later('info', t8('From shop #1 :  #2 shoporders have been fetched.', $shop_fetched->{shop_id}, $shop_fetched->{number_of_orders},));
+      flash_later('info', t8('From shop #1 :  #2 shoporders have been fetched.', $shop_fetched->{description}, $shop_fetched->{number_of_orders},));
     }
   }
-  $self->redirect_to(controller => "ShopOrder", action => 'list');
+
+  $self->redirect_to(controller => "ShopOrder", action => 'list', filter => { 'transferred:eq_ignore_empty' => 0, obsolete => 0 });
 }
 
 sub action_list {
@@ -70,13 +82,7 @@ sub action_list {
                                                     );
 
   foreach my $shop_order(@{ $shop_orders }){
-
-    my $open_invoices = SL::DB::Manager::Invoice->get_all_count(
-      query => [customer_id => $shop_order->{kivi_customer_id},
-              paid => {lt_sql => 'amount'},
-      ],
-    );
-    $shop_order->{open_invoices} = $open_invoices;
+    $shop_order->{open_invoices} = $shop_order->check_for_open_invoices;
   }
   $self->_setup_list_action_bar;
   $self->render('shop_order/list',
@@ -102,6 +108,14 @@ sub action_show {
 
 }
 
+sub action_customer_assign_to_shoporder {
+  my ($self) = @_;
+
+  $self->shop_order->assign_attributes( kivi_customer => $::form->{customer} );
+  $self->shop_order->save;
+  $self->redirect_to(controller => "ShopOrder", action => 'show', id => $self->shop_order->id);
+}
+
 sub action_delete_order {
   my ( $self ) = @_;
 
@@ -115,7 +129,7 @@ sub action_undelete_order {
 
   $self->shop_order->obsolete(0);
   $self->shop_order->save;
-  $self->redirect_to(controller => "ShopOrder", action => 'show', id => $self->shop_order->id);
+  $self->redirect_to(controller => "ShopOrder", action => 'list', filter => { 'transferred:eq_ignore_empty' => 0, obsolete => 0 });
 }
 
 sub action_transfer {
@@ -172,9 +186,10 @@ sub action_mass_transfer {
   )->set_data(
      shop_order_record_ids       => [ @shop_orders ],
      num_order_created           => 0,
+     num_order_failed            => 0,
      num_delivery_order_created  => 0,
      status                      => SL::BackgroundJob::ShopOrderMassTransfer->WAITING_FOR_EXECUTION(),
-     conversion_errors         => [ ],
+     conversion_errors         => [],
    )->update_next_run_at;
 
    SL::System::TaskServer->new->wake_up;
@@ -278,10 +293,17 @@ sub _setup_list_action_bar {
           t8('Search'),
           submit    => [ '#shoporders', { action => "ShopOrder/list" } ],
         ],
-         link => [
-          t8('Shoporders'),
-          link => [ $self->url_for(action => 'get_orders') ],
-          tooltip => t8('New shop orders'),
+        combobox => [
+          link => [
+            t8('Shoporders'),
+            call    => [ 'kivi.ShopOrder.get_orders_next' ],
+            tooltip => t8('New shop orders'),
+          ],
+          action => [
+            t8('Get one order'),
+            call    => [ 'kivi.ShopOrder.get_one_order_setup', id => "get_one" ],
+            tooltip => t8('Get one order by shopordernumber'),
+          ],
         ],
         'separator',
         action => [

@@ -171,6 +171,16 @@ SQL
   return $customers;
 }
 
+sub check_for_open_invoices {
+  my ($self) = @_;
+    my $open_invoices = SL::DB::Manager::Invoice->get_all_count(
+      query => [customer_id => $self->{kivi_customer_id},
+              paid => {lt_sql => 'amount'},
+      ],
+    );
+  return $open_invoices;
+}
+
 sub get_customer{
   my ($self, %params) = @_;
   my $shop = SL::DB::Manager::Shop->find_by(id => $self->shop_id);
