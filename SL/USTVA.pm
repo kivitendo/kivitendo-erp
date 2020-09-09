@@ -530,7 +530,7 @@ sub ustva {
       attribute   => 'position',
       dec_places  => '2',
   });
-
+  push @category_cent, ("pos_ustva_811b_kivi", "pos_ustva_861b_kivi");
   if ( $form->{coa} eq 'Germany-DATEV-SKR03EU' or $form->{coa} eq 'Germany-DATEV-SKR04EU') {
       push @category_cent, qw(Z43  Z45  Z53  Z54  Z62  Z65  Z67);
   }
@@ -541,7 +541,7 @@ sub ustva {
       attribute   => 'position',
       dec_places  => '0',
   });
-
+  push @category_euro, ("pos_ustva_81b_kivi", "pos_ustva_86b_kivi");
   @{$form->{category_cent}} = @category_cent;
   @{$form->{category_euro}} = @category_euro;
   $form->{decimalplaces} *= 1;
@@ -687,7 +687,7 @@ sub get_accounts_ustva {
          SUM( ac.amount *
             -- Bezahlt / Rechnungssumme
            (
-             SELECT SUM(acc.amount)
+             SELECT SUM(acc.amount), t.rate
              FROM acc_trans acc
              INNER JOIN chart c ON (acc.chart_id   =   c.id
                                     AND c.link   like  '%AR_paid%')
@@ -705,6 +705,7 @@ sub get_accounts_ustva {
        FROM acc_trans ac
        LEFT JOIN chart c ON (c.id  = ac.chart_id)
        LEFT JOIN ar      ON (ar.id = ac.trans_id)
+       LEFT JOIN tax t   ON (t.id = ac.tax_id)
        LEFT JOIN taxkeys tk ON (
          tk.id = (
            SELECT id FROM taxkeys
@@ -716,7 +717,7 @@ sub get_accounts_ustva {
        )
        WHERE
        $acc_trans_where
-       GROUP BY tk.pos_ustva
+       GROUP BY tk.pos_ustva, t.rate
     |;
 
   } elsif ($form->{accounting_method} eq 'accrual') {
@@ -728,10 +729,11 @@ sub get_accounts_ustva {
        -- Alle Einnahmen AR und pos_ustva erfassen
        SELECT
          - sum(ac.amount) AS amount,
-         tk.pos_ustva
+         tk.pos_ustva, t.rate
        FROM acc_trans ac
        JOIN chart c ON (c.id = ac.chart_id)
        JOIN ar ON (ar.id = ac.trans_id)
+       JOIN tax t ON (t.id = ac.tax_id)
        JOIN taxkeys tk ON (
          tk.id = (
            SELECT id FROM taxkeys
@@ -743,7 +745,7 @@ sub get_accounts_ustva {
        $dpt_join
        WHERE 1 = 1
        $where
-       GROUP BY tk.pos_ustva
+       GROUP BY tk.pos_ustva, t.rate
   |;
 
   } else {
@@ -761,10 +763,11 @@ sub get_accounts_ustva {
 
        SELECT
          sum(ac.amount) AS amount,
-         tk.pos_ustva
+         tk.pos_ustva, t.rate
        FROM acc_trans ac
        JOIN ap ON (ap.id = ac.trans_id )
        JOIN chart c ON (c.id = ac.chart_id)
+       JOIN tax t ON (t.id = ac.tax_id)
        LEFT JOIN taxkeys tk ON (
            tk.id = (
              SELECT id FROM taxkeys
@@ -778,16 +781,17 @@ sub get_accounts_ustva {
        WHERE
        1=1
        $where
-       GROUP BY tk.pos_ustva
+       GROUP BY tk.pos_ustva, t.rate
 
      UNION -- Einnahmen direkter gl Buchungen erfassen
 
        SELECT sum
          ( - ac.amount) AS amount,
-         tk.pos_ustva
+         tk.pos_ustva, t.rate
        FROM acc_trans ac
        JOIN chart c ON (c.id = ac.chart_id)
        JOIN gl a ON (a.id = ac.trans_id)
+       JOIN tax t ON (t.id = ac.tax_id)
        LEFT JOIN taxkeys tk ON (
          tk.id = (
            SELECT id FROM taxkeys
@@ -801,17 +805,18 @@ sub get_accounts_ustva {
        $dpt_join
        WHERE 1 = 1
        $where
-       GROUP BY tk.pos_ustva
+       GROUP BY tk.pos_ustva, t.rate
 
 
      UNION -- Ausgaben direkter gl Buchungen erfassen
 
        SELECT sum
          (ac.amount) AS amount,
-         tk.pos_ustva
+         tk.pos_ustva, t.rate
        FROM acc_trans ac
        JOIN chart c ON (c.id = ac.chart_id)
        JOIN gl a ON (a.id = ac.trans_id)
+       JOIN tax t ON (t.id = ac.tax_id)
        LEFT JOIN taxkeys tk ON (
          tk.id = (
            SELECT id FROM taxkeys
@@ -825,7 +830,7 @@ sub get_accounts_ustva {
        $dpt_join
        WHERE 1 = 1
        $where
-       GROUP BY tk.pos_ustva
+       GROUP BY tk.pos_ustva, t.rate
 
   |;
 
@@ -845,6 +850,24 @@ sub get_accounts_ustva {
     next unless $ref->{$category};
     $ref->{amount} *= -1;
     $form->{ $ref->{$category} } += $ref->{amount};
+
+    # umsatzsteuer 16% temp
+    if ($ref->{rate} == 0.16 && $ref->{pos_ustva} ne '66') {
+      if ($ref->{pos_ustva} eq '35') {
+        $form->{"pos_ustva_81b_kivi"} += $ref->{amount};
+      } elsif ($ref->{pos_ustva} eq '36') {
+        $form->{"pos_ustva_811b_kivi"} += $ref->{amount};
+      } else { die "Kein pos_ustva Eintrag!" . Dumper($ref); }
+    }
+    # umsatzsteuer 5% temp
+    if ($ref->{rate} == 0.05 && $ref->{pos_ustva} ne '66') {
+      if ($ref->{pos_ustva} eq '35') {
+        $form->{"pos_ustva_86b_kivi"} += $ref->{amount};
+      } elsif ($ref->{pos_ustva} eq '36') {
+        $form->{"pos_ustva_861b_kivi"} += $ref->{amount};
+      } else { die "Kein pos_ustva Eintrag!" . Dumper($ref); }
+    }
+
   }
 
   $sth->finish;

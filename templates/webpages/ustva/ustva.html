@@ -125,6 +125,22 @@ Vorsteuerabzug. </b><br />Ums&auml;tze nach &sect; 4 Nr. 8 bis 20 UStG</td>
       <td class="spalte"><span class="nodis">(Spalte 86 rechts)</span></td>
       <td class="betrag">[%pos_ustva_861%]</td>
     </tr>
+[% IF pos_ustva_81b_kivi || pos_ustva_86b_kivi %]
+    <tr>
+      <td class="text2">zum Steuersatz von 16 v.H.(2020 Konjunktur)</td>
+      <td class="spalte ausfuellen"><span class="nodis">(Spalte </span>81b-kivi<span class="nodis">)</span></td>
+      <td class="betrag ausfuellen" width="70">[%pos_ustva_81b_kivi%]<br></td>
+      <td class="spalte"><span class="nodis">(Informativ)</span></td>
+      <td class="betrag">[%pos_ustva_811b_kivi%]</td>
+    </tr>
+    <tr>
+      <td class="text2">zum Steuersatz von 5 v.H.(2020 Konjunktur)</td>
+      <td class="spalte ausfuellen"><span class="nodis">(Spalte </span>86b-kivi<span class="nodis">)</span></td>
+      <td class="betrag ausfuellen" width="70">[%pos_ustva_86b_kivi%]<br></td>
+      <td class="spalte"><span class="nodis">(Informativ)</span></td>
+      <td class="betrag">[%pos_ustva_861b_kivi%]</td>
+    </tr>
+[%END%]
     <tr>
       <td class="text2">andere Steuers&auml;tze</td>
       <td class="spalte ausfuellen"><span class="nodis"></span>35 <span class="nodis"></span></td>
