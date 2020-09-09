@@ -460,10 +460,7 @@ sub query_finanzamt {
 sub process_query {
   $main::lxdebug->enter_sub();
 
-  # Copyright D. Simander -> SL::Form under Gnu GPL.
   my ($form, $dbh, $filename) = @_;
-
-  #  return unless (-f $filename);
 
   open my $FH, "<", "$filename" or $form->error("$filename : $!\n");
   my $query = "";
@@ -594,7 +591,7 @@ sub ustva {
 
   # Fixme: Wird auch noch für Oesterreich gebraucht,
   # weil kein eigenes Ausgabeformular
-  # sotte aber aus der allgeméinen Steuerberechnung verschwinden
+  # sollte aber aus der allgemeinen Steuerberechnung verschwinden
   #
   # Berechnung der USTVA Formularfelder laut Bogen 207
   #
