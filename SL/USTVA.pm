@@ -845,7 +845,7 @@ sub get_accounts_ustva {
   $sth->execute || $form->dberror($query);
 
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    # Bug 365 solved?!
+    next unless $ref->{$category};
     $ref->{amount} *= -1;
     $form->{ $ref->{$category} } += $ref->{amount};
   }

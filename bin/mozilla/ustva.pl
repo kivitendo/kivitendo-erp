@@ -702,9 +702,8 @@ sub generate_ustva {
 
   } else  # Outputformat for generic output
   {
-
+    die ("not used anymore");
     $form->{USTVA} = [];
-
     if ( $form->{format} eq 'generic') { # Formatierungen für HTML Ausgabe
 
       my $rec_ref = {};
@@ -733,7 +732,7 @@ sub generate_ustva {
   $form->{templates} = "doc" if ( $form->{type} eq 'help' );
 
   if ($form->{format} eq 'generic'){
-
+    die ("not used anymore");
     $form->header();
 
     my $template_ref = {
@@ -743,6 +742,7 @@ sub generate_ustva {
     print($form->parse_html_template('ustva/generic_taxreport', $template_ref));
 
   } elsif ( $form->{format} eq 'elstertaxbird' ) {
+   die ("not used anymore");
    $form->parse_template(\%myconfig);
   } else
   {
