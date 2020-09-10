@@ -568,7 +568,7 @@ sub ustva {
 
   # Germany
 
-  if ( $form->{coa} eq 'Germany-DATEV-SKR03EU' or $form->{coa} eq 'Germany-DATEV-SKR04EU'){
+  if ( $form->{coa} eq 'Germany-DATEV-SKR03EU' or $form->{coa} eq 'Germany-DATEV-SKR04EU') {
 
     # 16%/19% Umstellung
     # Umordnen der Kennziffern
@@ -687,7 +687,7 @@ sub get_accounts_ustva {
          SUM( ac.amount *
             -- Bezahlt / Rechnungssumme
            (
-             SELECT SUM(acc.amount), t.rate
+             SELECT SUM(acc.amount), t.rate, c.accno
              FROM acc_trans acc
              INNER JOIN chart c ON (acc.chart_id   =   c.id
                                     AND c.link   like  '%AR_paid%')
@@ -717,7 +717,7 @@ sub get_accounts_ustva {
        )
        WHERE
        $acc_trans_where
-       GROUP BY tk.pos_ustva, t.rate
+       GROUP BY tk.pos_ustva, t.rate, c.accno
     |;
 
   } elsif ($form->{accounting_method} eq 'accrual') {
@@ -729,7 +729,7 @@ sub get_accounts_ustva {
        -- Alle Einnahmen AR und pos_ustva erfassen
        SELECT
          - sum(ac.amount) AS amount,
-         tk.pos_ustva, t.rate
+         tk.pos_ustva, t.rate, c.accno
        FROM acc_trans ac
        JOIN chart c ON (c.id = ac.chart_id)
        JOIN ar ON (ar.id = ac.trans_id)
@@ -745,7 +745,7 @@ sub get_accounts_ustva {
        $dpt_join
        WHERE 1 = 1
        $where
-       GROUP BY tk.pos_ustva, t.rate
+       GROUP BY tk.pos_ustva, t.rate, c.accno
   |;
 
   } else {
@@ -763,7 +763,7 @@ sub get_accounts_ustva {
 
        SELECT
          sum(ac.amount) AS amount,
-         tk.pos_ustva, t.rate
+         tk.pos_ustva, t.rate, c.accno
        FROM acc_trans ac
        JOIN ap ON (ap.id = ac.trans_id )
        JOIN chart c ON (c.id = ac.chart_id)
@@ -781,13 +781,13 @@ sub get_accounts_ustva {
        WHERE
        1=1
        $where
-       GROUP BY tk.pos_ustva, t.rate
+       GROUP BY tk.pos_ustva, t.rate, c.accno
 
      UNION -- Einnahmen direkter gl Buchungen erfassen
 
        SELECT sum
          ( - ac.amount) AS amount,
-         tk.pos_ustva, t.rate
+         tk.pos_ustva, t.rate, c.accno
        FROM acc_trans ac
        JOIN chart c ON (c.id = ac.chart_id)
        JOIN gl a ON (a.id = ac.trans_id)
@@ -805,14 +805,14 @@ sub get_accounts_ustva {
        $dpt_join
        WHERE 1 = 1
        $where
-       GROUP BY tk.pos_ustva, t.rate
+       GROUP BY tk.pos_ustva, t.rate, c.accno
 
 
      UNION -- Ausgaben direkter gl Buchungen erfassen
 
        SELECT sum
          (ac.amount) AS amount,
-         tk.pos_ustva, t.rate
+         tk.pos_ustva, t.rate, c.accno
        FROM acc_trans ac
        JOIN chart c ON (c.id = ac.chart_id)
        JOIN gl a ON (a.id = ac.trans_id)
@@ -830,7 +830,7 @@ sub get_accounts_ustva {
        $dpt_join
        WHERE 1 = 1
        $where
-       GROUP BY tk.pos_ustva, t.rate
+       GROUP BY tk.pos_ustva, t.rate, c.accno
 
   |;
 
@@ -845,28 +845,41 @@ sub get_accounts_ustva {
   my $sth = $dbh->prepare($query);
 
   $sth->execute || $form->dberror($query);
-
+  # ugly, but we need to use static accnos
+  my $accno_five    = 3803; # SKR04
+  my $accno_sixteen = 3805; # SKR04
+  if ($form->{coa} eq 'Germany-DATEV-SKR03EU') {
+    $accno_five    = 1773;
+    $accno_sixteen = 1775;
+  }
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     next unless $ref->{$category};
     $ref->{amount} *= -1;
     $form->{ $ref->{$category} } += $ref->{amount};
 
-    # umsatzsteuer 16% temp
-    if ($ref->{rate} == 0.16 && $ref->{pos_ustva} ne '66') {
-      if ($ref->{pos_ustva} eq '35') {
+    # umsatzsteuer 16% pos 35
+    if ($ref->{pos_ustva} eq '35') {
+      if ($ref->{rate} == 0.16) {
         $form->{"pos_ustva_81b_kivi"} += $ref->{amount};
-      } elsif ($ref->{pos_ustva} eq '36') {
+      } elsif ($ref->{rate} == 0.05) {
+        $form->{"pos_ustva_86b_kivi"} += $ref->{amount};
+      } else {die ("No valid tax rate for pos 35"); }
+    }
+    if ($ref->{pos_ustva} eq '36') {
+      if ($ref->{accno} eq $accno_sixteen) {
         $form->{"pos_ustva_811b_kivi"} += $ref->{amount};
-      } else { die "Kein pos_ustva Eintrag!" . Dumper($ref); }
+      } elsif ($ref->{accno} eq $accno_five) {
+        $form->{"pos_ustva_861b_kivi"} += $ref->{amount};
+      } else { die "No valid accno for pos 36"; }
     }
     # umsatzsteuer 5% temp
-    if ($ref->{rate} == 0.05 && $ref->{pos_ustva} ne '66') {
-      if ($ref->{pos_ustva} eq '35') {
-        $form->{"pos_ustva_86b_kivi"} += $ref->{amount};
-      } elsif ($ref->{pos_ustva} eq '36') {
-        $form->{"pos_ustva_861b_kivi"} += $ref->{amount};
-      } else { die "Kein pos_ustva Eintrag!" . Dumper($ref); }
-    }
+    #if ($ref->{rate} == 0.05 && $ref->{pos_ustva} ne '66') {
+    #  if ($ref->{pos_ustva} eq '35') {
+    #    $form->{"pos_ustva_86b_kivi"} += $ref->{amount};
+    #  } elsif ($ref->{pos_ustva} eq '36') {
+    #    $form->{"pos_ustva_861b_kivi"} += $ref->{amount};
+    #  } else { die "Kein pos_ustva Eintrag!" . Dumper($ref); }
+    #}
 
   }
 
