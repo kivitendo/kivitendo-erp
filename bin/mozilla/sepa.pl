@@ -102,10 +102,11 @@ sub bank_transfer_create {
   my $arap_id        = $vc eq 'customer' ? 'ar_id' : 'ap_id';
   my $invoices       = SL::SEPA->retrieve_open_invoices(vc => $vc);
 
-  # load all open invoices (again), but grep out the ones that were selected with checkboxes beforehand ($_->selected). At this stage we again have all the invoice information, including dropdown with payment_type options
-  # all the information from retrieve_open_invoices is then ADDED to what was passed via @{ $form->{bank_transfers} }
-  # parse amount from the entry in the form, but take skonto_amount from PT again
-  # the map inserts the values of invoice_map directly into the array of hashes
+  # Load all open invoices (again), but grep out the ones that were selected with checkboxes beforehand ($_->selected).
+  # At this stage we again have all the invoice information, including dropdown with payment_type options.
+  # All the information from retrieve_open_invoices is then ADDED to what was passed via @{ $form->{bank_transfers} }.
+  # Parse amount from the entry in the form, but take skonto_amount from PT again.
+  # The map inserts the values of invoice_map directly into the array of hashes.
   my %selected_ids   = map { ($_ => 1) } @{ $form->{ids} || [] };
   my %invoices_map   = map { $_->{id} => $_ } @{ $invoices };
   my @bank_transfers =
