@@ -249,6 +249,7 @@ $self->{texts} = {
   'Administration'              => 'Administration',
   'Administration area'         => 'Administration',
   'Advance turnover tax return' => 'Umsatzsteuervoranmeldung',
+  'Advance turnover tax return only valid for SKR03 or SKR04' => 'UstVA nur für Standardkontenrahmen SKR03 oder SKR04 möglich.',
   'After closed period'         => 'Ab geschlossenem Zeitraum',
   'Aktion'                      => 'Aktion',
   'All'                         => 'Alle',

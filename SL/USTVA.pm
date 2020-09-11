@@ -26,6 +26,7 @@
 
 package USTVA;
 
+use Data::Dumper;
 use List::Util qw(first);
 
 use SL::DB;
@@ -523,6 +524,9 @@ sub ustva {
 
   $form->{coa} = $::instance_conf->get_coa;
 
+  unless ($form->{coa} eq 'Germany-DATEV-SKR03EU' or $form->{coa} eq 'Germany-DATEV-SKR04EU') {
+    croak t8("Advance turnover tax return only valid for SKR03 or SKR04");
+  }
   my @category_cent = USTVA->report_variables({
       myconfig    => $myconfig,
       form        => $form,
@@ -834,10 +838,6 @@ sub get_accounts_ustva {
 
   |;
 
-  my @accno;
-  my $accno;
-  my $ref;
-
   # Show all $query in Debuglevel LXDebug::QUERY
   my $callingdetails = (caller (0))[3];
   $main::lxdebug->message(LXDebug->QUERY(), "$callingdetails \$query=\n $query");
@@ -846,41 +846,46 @@ sub get_accounts_ustva {
 
   $sth->execute || $form->dberror($query);
   # ugly, but we need to use static accnos
-  my $accno_five    = 3803; # SKR04
-  my $accno_sixteen = 3805; # SKR04
+  my ($accno_five, $accno_sixteen, $corr);
+
   if ($form->{coa} eq 'Germany-DATEV-SKR03EU') {
-    $accno_five    = 1773;
-    $accno_sixteen = 1775;
-  }
+    $accno_five     = 1773;
+    $accno_sixteen  = 1775;
+  } elsif (($form->{coa} eq 'Germany-DATEV-SKR04EU')) {
+    $accno_five     = 3803; # SKR04
+    $accno_sixteen  = 3805; # SKR04
+  } else {die "wrong call"; }
+
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     next unless $ref->{$category};
+    $corr = 0;
     $ref->{amount} *= -1;
-    $form->{ $ref->{$category} } += $ref->{amount};
-
-    # umsatzsteuer 16% pos 35
+    # USTVA Pos 35
     if ($ref->{pos_ustva} eq '35') {
       if ($ref->{rate} == 0.16) {
         $form->{"pos_ustva_81b_kivi"} += $ref->{amount};
       } elsif ($ref->{rate} == 0.05) {
         $form->{"pos_ustva_86b_kivi"} += $ref->{amount};
-      } else {die ("No valid tax rate for pos 35"); }
+      } elsif ($ref->{rate} == 0.19) {
+        # pos_ustva says 16, but rate says 19
+        # (pos_ustva should be tax dependant and not taxkeys dependant)
+        # correction hotfix for this case:
+        # bookings exists with 19% ->
+        # move 19% bookings to the 19% position
+        # Dont rely on dates of taxkeys
+        $corr = 1;
+        $form->{"81"} += $ref->{amount};
+      } else {die ("No valid tax rate for pos 35" . Dumper($ref)); }
     }
+    # USTVA Pos 36 (Steuerkonten)
     if ($ref->{pos_ustva} eq '36') {
-      if ($ref->{accno} eq $accno_sixteen) {
+      if ($ref->{accno} =~ /^$accno_sixteen/) {
         $form->{"pos_ustva_811b_kivi"} += $ref->{amount};
-      } elsif ($ref->{accno} eq $accno_five) {
+      } elsif ($ref->{accno} =~ /^$accno_five/) {
         $form->{"pos_ustva_861b_kivi"} += $ref->{amount};
-      } else { die "No valid accno for pos 36"; }
+      } else { die ("No valid accno for pos 36" . Dumper($ref)); }
     }
-    # umsatzsteuer 5% temp
-    #if ($ref->{rate} == 0.05 && $ref->{pos_ustva} ne '66') {
-    #  if ($ref->{pos_ustva} eq '35') {
-    #    $form->{"pos_ustva_86b_kivi"} += $ref->{amount};
-    #  } elsif ($ref->{pos_ustva} eq '36') {
-    #    $form->{"pos_ustva_861b_kivi"} += $ref->{amount};
-    #  } else { die "Kein pos_ustva Eintrag!" . Dumper($ref); }
-    #}
-
+  $form->{ $ref->{$category} } += $ref->{amount} unless $corr;
   }
 
   $sth->finish;
