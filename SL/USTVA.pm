@@ -868,7 +868,7 @@ sub get_accounts_ustva {
         $form->{"pos_ustva_86b_kivi"} += $ref->{amount};
       } elsif ($ref->{rate} == 0.19) {
         # pos_ustva says 16, but rate says 19
-        # (pos_ustva should be tax dependant and not taxkeys dependant)
+        # (pos_ustva should be tax dependent and not taxkeys dependent)
         # correction hotfix for this case:
         # bookings exists with 19% ->
         # move 19% bookings to the 19% position
