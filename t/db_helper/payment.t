@@ -763,6 +763,7 @@ sub test_default_ap_transaction_two_charts_19_7_with_skonto {
   # $params{amount} = '226'; # pass full amount
   $params{payment_type} = 'with_skonto_pt';
 
+  $ap_transaction->payment_terms($ap_transaction->vendor->payment);
   $ap_transaction->pay_invoice( %params );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);

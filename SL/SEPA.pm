@@ -29,13 +29,6 @@ sub retrieve_open_invoices {
 
   my $mandate  = $params{vc} eq 'customer' ? " AND COALESCE(vc.mandator_id, '') <> '' AND vc.mandate_date_of_signature IS NOT NULL " : '';
 
-  # in query: for customers, use payment terms from invoice, for vendors use
-  # payment terms from vendor settings
-  # currently there is no option in vendor invoices for setting payment terms,
-  # so the vendor settings are always used
-
-  my $payment_term_type = $params{vc} eq 'customer' ? "${arap}" : 'vc';
-
   # open_amount is not the current open amount according to bookkeeping, but
   # the open amount minus the SEPA transfer amounts that haven't been closed yet
   my $query =
@@ -63,7 +56,7 @@ sub retrieve_open_invoices {
                   GROUP BY sei.${arap}_id)
          AS open_transfers ON (${arap}.id = open_transfers.${arap}_id)
 
-       LEFT JOIN payment_terms pt ON (${payment_term_type}.payment_id = pt.id)
+       LEFT JOIN payment_terms pt ON (${arap}.payment_id = pt.id)
 
        WHERE ${arap}.amount > (COALESCE(open_transfers.amount, 0) + ${arap}.paid)
 
@@ -591,7 +584,3 @@ Returns undef if the deletion was successfully.
 Otherwise the function just dies with a short notice of the id.
 
 =cut
-
-
-
-

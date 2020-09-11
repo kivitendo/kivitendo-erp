@@ -338,21 +338,9 @@ sub skonto_date {
 
   my $self = shift;
 
-  my $is_sales = ref($self) eq 'SL::DB::Invoice';
-
-  my $skonto_date;
-
-  if ( $is_sales ) {
-    return undef unless ref $self->payment_terms;
-    return undef unless $self->payment_terms->terms_skonto > 0;
-    $skonto_date = DateTime->from_object(object => $self->transdate)->add(days => $self->payment_terms->terms_skonto);
-  } else {
-    return undef unless ref $self->vendor->payment_terms;
-    return undef unless $self->vendor->payment_terms->terms_skonto > 0;
-    $skonto_date = DateTime->from_object(object => $self->transdate)->add(days => $self->vendor->payment_terms->terms_skonto);
-  };
-
-  return $skonto_date;
+  return undef unless ref $self->payment_terms;
+  return undef unless $self->payment_terms->terms_skonto > 0;
+  return DateTime->from_object(object => $self->transdate)->add(days => $self->payment_terms->terms_skonto);
 };
 
 sub reference_account {
@@ -442,19 +430,11 @@ sub remaining_skonto_days {
 sub percent_skonto {
   my $self = shift;
 
-  my $is_sales = ref($self) eq 'SL::DB::Invoice';
-
   my $percent_skonto = 0;
 
-  if ( $is_sales ) {
-    return undef unless ref $self->payment_terms;
-    return undef unless $self->payment_terms->percent_skonto > 0;
-    $percent_skonto = $self->payment_terms->percent_skonto;
-  } else {
-    return undef unless ref $self->vendor->payment_terms;
-    return undef unless $self->vendor->payment_terms->terms_skonto > 0;
-    $percent_skonto = $self->vendor->payment_terms->percent_skonto;
-  };
+  return undef unless ref $self->payment_terms;
+  return undef unless $self->payment_terms->percent_skonto > 0;
+  $percent_skonto = $self->payment_terms->percent_skonto;
 
   return $percent_skonto;
 };
@@ -540,8 +520,7 @@ sub skonto_charts {
   # TODO: check whether there are negative values in invoice / acc_trans ... credited items
 
   # don't check whether skonto applies, because user may want to override this
-  # return undef unless $self->percent_skonto;  # for is_sales
-  # return undef unless $self->vendor->payment_terms->percent_skonto;  # for purchase
+  # return undef unless $self->percent_skonto;
 
   my $is_sales = ref($self) eq 'SL::DB::Invoice';
 
@@ -905,12 +884,11 @@ Example (1200 is the AR account for SKR04):
 =item C<percent_skonto>
 
 Returns the configured skonto percentage of the payment terms of an invoice,
-e.g. 0.02 for 2%. Payment terms come from invoice settings for ar, from vendor
-settings for ap.
+e.g. 0.02 for 2%. Payment terms come from invoice settingssettings for ap.
 
 =item C<amount_less_skonto>
 
-If the invoice has a payment term (via ar for sales, via vendor for purchase),
+If the invoice has a payment term,
 calculate the amount to be paid in the case of skonto.  This doesn't check,
 whether skonto applies (i.e. skonto doesn't wasn't exceeded), it just subtracts
 the configured percentage (e.g. 2%) from the total amount.
