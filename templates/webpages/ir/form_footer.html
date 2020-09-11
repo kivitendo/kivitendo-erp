@@ -23,6 +23,12 @@
          <td>
            <table>
              <tr>
+               <th align="right">[% 'Payment Terms' | $T8 %]</th>
+               <td>[% L.select_tag('payment_id', payment_terms, default = payment_id, title_key = 'description', with_empty = 1, style="width: 250px") %]
+                 <script type='text/javascript'>$('#payment_id').change(function(){ kivi.SalesPurchase.set_duedate_on_reference_date_change("invdate"); })</script>
+               </td>
+             </tr>
+             <tr>
                <th align="right">[% 'Delivery Terms' | $T8 %] </th>
                <td>
                  [% L.select_tag('delivery_term_id', ALL_DELIVERY_TERMS, default = delivery_term_id, with_empty = 1, title_key = 'description', style = 'width: 250px') %]
