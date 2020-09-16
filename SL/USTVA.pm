@@ -875,6 +875,12 @@ sub get_accounts_ustva {
         # Dont rely on dates of taxkeys
         $corr = 1;
         $form->{"81"} += $ref->{amount};
+      }  elsif ($ref->{rate} == 0.07) {
+        # pos_ustva says 5, but rate says 7
+        # see comment above:
+        # Dont rely on dates of taxkeys
+        $corr = 1;
+        $form->{"86"} += $ref->{amount};
       } else {die ("No valid tax rate for pos 35" . Dumper($ref)); }
     }
     # USTVA Pos 36 (Steuerkonten)
