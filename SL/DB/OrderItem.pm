@@ -2,11 +2,8 @@ package SL::DB::OrderItem;
 
 use strict;
 
-use List::Util qw(sum);
-
 use SL::DB::MetaSetup::OrderItem;
 use SL::DB::Manager::OrderItem;
-use SL::DB::DeliveryOrderItemsStock;
 use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::RecordItem;
@@ -93,5 +90,3 @@ Alias for L</shipped_qty>.
 G. Richardson E<lt>grichardson@kivitendo-premium.deE<gt>
 
 =cut
-
-
