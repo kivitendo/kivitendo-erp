@@ -324,7 +324,10 @@ contents={\usebox\shippingAddressBox}
 
 %Macht es sinn hier eine Variante zu machen, in der alle Spalten Belegbar sind?
 \newenvironment{PricingTotal}{
-	\tabular[t]{@{}p{\dim_eval:n {\linewidth-\l_kivi_tab_price_dim-2\tabcolsep}}P@{}}
+	\par
+	\vspace{-\ht\strutbox}
+	\unskip
+	\tabular[t]{@{}p{\dim_eval:n {\linewidth-\l_kivi_tab_pricetotal_dim-2\tabcolsep}}P{\l_kivi_tab_pricetotal_dim}@{}}
 	\midrule
 }{
 	\bottomrule\endtabular
