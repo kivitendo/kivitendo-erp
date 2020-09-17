@@ -308,20 +308,7 @@ contents={\usebox\shippingAddressBox}
 	\hbox_gset:Nn \g_kivi_LT@head_box {
 		\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
 		\exp_args:Nnx \use:n {\tabular[b]}\g_kivi_Pricing_colspec_tl
-		\toprule
-		\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_header_currency:
-		\bool_set_false:N \l_tmpa_bool
-		\clist_map_inline:Nn \g_kivi_pricingtable_col_clist	{
-			\bool_if:cT {l_kivi_col_##1_bool} {
-			\bool_if:NT \l_tmpa_bool {&}
-			\bool_set_true:N \l_tmpa_bool
-				\usekomafont{PricingTableHeader}
-				\prop_item:cn {l_kivi_col_##1_prop} {header}
-			}
-		}
-		\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_body_currency:
-		\\
-		\midrule
+		\__kivi_PricingTabular_header:
 		\endtabular
 	}
 	\hbox_gset:Nn \g_kivi_LT@foot_box {
@@ -351,9 +338,7 @@ contents={\usebox\shippingAddressBox}
 	\__kivi_calc_desc_column:
 	\exp_args:Nx \longtable \g_kivi_Pricing_colspec_tl
 	% Tabellenkopf
-	\toprule
-	\bfseries\position & \bfseries\artikelnummer & \bfseries\bezeichnung & \bfseries\menge &\multicolumn{1}{P}{\bfseries\einzelpreis}&\multicolumn{1}{P@{}}{\bfseries\gesamtpreis}\\
-	\midrule
+	\__kivi_PricingTabular_header:
 	\endhead
 	\midrule
 	\multicolumn{6}{@{}r@{}}{\weiteraufnaechsterseite}\\
@@ -361,6 +346,23 @@ contents={\usebox\shippingAddressBox}
 }{
 	\endlongtable
 	\endgroup
+}
+
+\cs_set:Nn \__kivi_PricingTabular_header: {
+	\toprule
+	\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_header_currency:
+	\bool_set_false:N \l_tmpa_bool
+	\clist_map_inline:Nn \g_kivi_pricingtable_col_clist	{
+		\bool_if:cT {l_kivi_col_##1_bool} {
+			\bool_if:NT \l_tmpa_bool {&}
+			\bool_set_true:N \l_tmpa_bool
+			\usekomafont{PricingTableHeader}
+			\prop_item:cn {l_kivi_col_##1_prop} {header}
+		}
+	}
+	\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_body_currency:
+	\\
+	\midrule
 }
 
 \RequirePackage{xltabular}
