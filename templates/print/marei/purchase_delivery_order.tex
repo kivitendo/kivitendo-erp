@@ -26,54 +26,54 @@
 
   \vspace*{0.3cm}
 
-  <%name%>
+  <%name%>%
 
-  <%if department_1%><%department_1%><%end if%>
+  <%if department_1%><%department_1%><%end if%>%
 
-  <%if department_2%><%department_2%><%end if%>
+  <%if department_2%><%department_2%><%end if%>%
 
-  <%cp_givenname%> <%cp_name%>
+  <%cp_givenname%> <%cp_name%>%
 
-  <%street%>
+  <%street%>%
 
   ~
 
-  <%zipcode%> <%city%>
+  <%zipcode%> <%city%>%
 
-  <%country%>
+  <%country%>%
 \end{minipage}
 \hfill
 \begin{minipage}{6cm}
   \rightline{\LARGE\textbf{\textit{\einkaufslieferschein}}} \vspace*{0.2cm}
-  \rightline{\large\textbf{\textit{\nr ~<%donumber%>
+  \rightline{\large\textbf{\textit{\nr ~<%donumber%>%
   }}} \vspace*{0.2cm}
 
-  \datum:\hfill <%dodate%>
+  \datum:\hfill <%dodate%>%
 
-  <%if cusordnumber%>\unsereBestellnummer:\hfill <%cusordnumber%><%end if%>
+  <%if cusordnumber%>\unsereBestellnummer:\hfill <%cusordnumber%><%end if%>%
 
-  <%if ordnumber%>\auftragsnummer:\hfill <%ordnumber%><%end if%>
+  <%if ordnumber%>\auftragsnummer:\hfill <%ordnumber%><%end if%>%
 
-  \ansprechpartner:\hfill <%employee_name%>
+  \ansprechpartner:\hfill <%employee_name%>%
 
-  <%if globalprojectnumber%> \projektnummer:\hfill <%globalprojectnumber%> <%end globalprojectnumber%>
+  <%if globalprojectnumber%> \projektnummer:\hfill <%globalprojectnumber%> <%end globalprojectnumber%>%
 \end{minipage}
 
-<%if shiptoname%>
+<%if shiptoname%>%
   \vspace{0.8cm}
   \scriptsize \underline{\abweichendeLieferadresse:}\\
-  \normalsize    <%shiptoname%>
+  \normalsize    <%shiptoname%>%
 
-                 <%if shiptocontact%> <%shiptocontact%><%end if%>
+                 <%if shiptocontact%> <%shiptocontact%><%end if%>%
 
-                 <%shiptodepartment_1%>
+                 <%shiptodepartment_1%>%
 
-                  <%shiptodepartment_2%>
+                  <%shiptodepartment_2%>%
 
-                  <%shiptostreet%>
+                  <%shiptostreet%>%
 
-                  <%shiptozipcode%> <%shiptocity%>
-<%end if%>
+                  <%shiptozipcode%> <%shiptocity%>%
+<%end if%>%
 \vspace*{1.5cm}
 
 
@@ -87,32 +87,32 @@
 %
 \begin{SimpleTabular}
 % eigentliche Tabelle
-<%foreach number%>
+<%foreach number%>%
           <%runningnumber%> &
           <%qty%> <%unit%> &
           \textbf{<%description%>} \\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden
 
-          <%if longdescription%> && \scriptsize <%longdescription%>\\<%end longdescription%>
-          <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>
-          <%if reqdate%> && \scriptsize \lieferdatum: <%reqdate%>\\<%end reqdate%>
-          <%if serialnumber%> && \scriptsize \seriennummer: <%serialnumber%>\\<%end serialnumber%>
-          <%if ean%> && \scriptsize \ean: <%ean%>\\<%end ean%>
-          <%foreach si_number%><%if si_chargenumber%> && \scriptsize \charge: <%si_chargenumber%> <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end if%> <%si_qty%>~<%si_unit%><%end si_chargenumber%>\\<%end si_number%>
+          <%if longdescription%> && \scriptsize <%longdescription%>\\<%end longdescription%>%
+          <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>%
+          <%if reqdate%> && \scriptsize \lieferdatum: <%reqdate%>\\<%end reqdate%>%
+          <%if serialnumber%> && \scriptsize \seriennummer: <%serialnumber%>\\<%end serialnumber%>%
+          <%if ean%> && \scriptsize \ean: <%ean%>\\<%end ean%>%
+          <%foreach si_number%><%if si_chargenumber%> && \scriptsize \charge: <%si_chargenumber%> <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end if%> <%si_qty%>~<%si_unit%><%end si_chargenumber%>\\<%end si_number%>%
 
           \\[-0.8em]
-<%end number%>
+<%end number%>%
 \end{SimpleTabular}
 
 \vspace{0.2cm}
 
-<%if notes%>
+<%if notes%>%
         \vspace{5mm}
-        <%notes%>
+        <%notes%>%
         \vspace{5mm}
-<%end if%>
+<%end if%>%
 
-<%if delivery_term%>
+<%if delivery_term%>%
   \lieferung ~<%delivery_term.description_long%>\\
-<%end delivery_term%>
+<%end delivery_term%>%
 
 \end{document}

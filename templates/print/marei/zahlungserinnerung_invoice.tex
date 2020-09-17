@@ -20,7 +20,7 @@
 
 \setkomavar{title}{
 	\rechnung~
-	\nr ~<%invnumber%>
+	\nr ~<%invnumber%>%
 }
 \setkomavar*{date}{\rechnungsdatum}
 \setkomavar{date}{<%invdate%>}
@@ -30,15 +30,15 @@
 \setkomavar{fromname}{<%employee_name%>}
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
-<%if globalprojectnumber%>
+<%if globalprojectnumber%>%
 	\setkomavar{projectID}{<%globalprojectnumber%>}
-<%end globalprojectnumber%>
+<%end globalprojectnumber%>%
 \setkomavar{transaction}{<%transaction_description%>}
 
 \begin{letter}{
 		<%name%>\strut\\
-		<%if department_1%><%department_1%>\\<%end if%>
-		<%if department_2%><%department_2%>\\<%end if%>
+		<%if department_1%><%department_1%>\\<%end if%>%
+		<%if department_2%><%department_2%>\\<%end if%>%
 		<%cp_givenname%> <%cp_name%>\strut\\
 		<%street%>\strut\\
 		<%zipcode%> <%city%>\strut\\

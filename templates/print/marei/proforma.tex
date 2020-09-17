@@ -20,23 +20,23 @@
 	
 \setkomavar{title}{
 	\proformarechnung~
-	\nr ~<%ordnumber%>
+	\nr ~<%ordnumber%>%
 }
 \setkomavar*{date}{\datum}
 
 \setkomavar{date}{<%orddate%>}
 \setkomavar{customer}{<%customernumber%>}
-<%if cusordnumber%>
+<%if cusordnumber%>%
 	\setkomavar*{yourref}{\ihreBestellnummer}
 	\setkomavar{yourref}{<%cusordnumber%>}
-<%end if%>
-<%if quonumber%>\setkomavar{quote}{<%quonumber%>}<%end if%>
+<%end if%>%
+<%if quonumber%>\setkomavar{quote}{<%quonumber%>}<%end if%>%
 \setkomavar{fromname}{<%employee_name%>}
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{transaction}{<%transaction_description%>}
 	
-<%if shiptoname%>
+<%if shiptoname%>%
 \makeatletter
 \begin{lrbox}\shippingAddressBox
 	\parbox{\useplength{toaddrwidth}}{
@@ -52,16 +52,16 @@
 		<%shiptodepartment_1%>\par
 		<%shiptodepartment_2%>\par
 		<%shiptostreet%>\par
-		<%shiptozipcode%> <%shiptocity%>
+		<%shiptozipcode%> <%shiptocity%>%
 	}
 \end{lrbox}
 \makeatother
-<%end if%>
+<%end if%>%
 
 \begin{letter}{
 		<%name%>\strut\\
-		<%if department_1%><%department_1%>\\<%end if%>
-		<%if department_2%><%department_2%>\\<%end if%>
+		<%if department_1%><%department_1%>\\<%end if%>%
+		<%if department_2%><%department_2%>\\<%end if%>%
 		<%cp_givenname%> <%cp_name%>\strut\\
 		<%street%>\strut\\
 		<%zipcode%> <%city%>\strut\\
@@ -91,7 +91,7 @@
 	<%number%> &%
 	\textbf{<%description%>}%
 	<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
-    <%if reqdate%>\ExtraDescription{\lieferdatum: <%reqdate%>}<%end reqdate%>
+    <%if reqdate%>\ExtraDescription{\lieferdatum: <%reqdate%>}<%end reqdate%>%
 	<%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
 	<%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
 	<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
@@ -100,27 +100,27 @@
 	<%sellprice%>&%
 	\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
 	<%linetotal%>\tabularnewline
-	<%end number%>
+	<%end number%>%
 }
 % Tabellenende letzte Seite
 	\begin{PricingTotal}
 	% Tabellenende letzte Seite
 	\nettobetrag & <%subtotal%>\\
-	<%foreach tax%>
+	<%foreach tax%>%
 	<%taxdescription%> & <%tax%>\\
-	<%end tax%>
+	<%end tax%>%
 	\bfseries\schlussbetrag &  \bfseries <%ordtotal%>\\
 \end{PricingTotal}
 \end{PricingTabular*}
 
-<%if notes%>
-<%notes%>
+<%if notes%>%
+<%notes%>%
 \medskip
-<%end if%>
+<%end if%>%
 
-<%if reqdate%>
+<%if reqdate%>%
 \lieferungErfolgtAm ~<%reqdate%>. \\
-<%end if%>
+<%end if%>%
 
 \textit{\auftragpruefen}
 

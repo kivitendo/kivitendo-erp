@@ -28,13 +28,13 @@
 
 \parbox{\textwidth}{
   \parbox[b]{.42\textwidth}{%
-    <%company%>
+    <%company%>%
 
-    <%address%>
+    <%address%>%
   }\hfill
   \begin{tabular}[b]{rr@{}}
   Tel & <%tel%>\\
-  Fax & <%fax%>
+  Fax & <%fax%>%
   \end{tabular}
 
   \rule[1.5ex]{\textwidth}{0.5pt}
@@ -51,7 +51,7 @@
 <%street%> \\
 <%zipcode%> \\
 <%city%> \\
-<%country%>
+<%country%>%
 }
 \parbox[t]{.4\textwidth}{
 \textbf{Lieferanschrift}
@@ -61,7 +61,7 @@
 <%shiptostreet%> \\
 <%shiptozipcode%> \\
 <%shiptocity%> \\
-<%shiptocountry%>
+<%shiptocountry%>%
 }
 \hfill
 
@@ -74,23 +74,23 @@
 
 \begin{tabularx}{\textwidth}{*{6}{|X}|} \hline
   \textbf{BestellNr. \#} & \textbf{Datum} & \textbf{Kontakt}
-  <%if warehouse%>
+  <%if warehouse%>%
   & \textbf{Lager}
-  <%end warehouse%>
+  <%end warehouse%>%
   & \textbf{Lagerplatz} & \textbf{Lieferung mit} \\ [0.5em]
   \hline
 
-  <%ordnumber%>
-  <%if shippingdate%>
-  & <%shippingdate%>
-  <%end shippingdate%>
-  <%if not shippingdate%>
-  & <%orddate%>
-  <%end shippingdate%>
-  & <%employee%>
-  <%if warehouse%>
-  & <%warehouse%>
-  <%end warehouse%>
+  <%ordnumber%>%
+  <%if shippingdate%>%
+  & <%shippingdate%>%
+  <%end shippingdate%>%
+  <%if not shippingdate%>%
+  & <%orddate%>%
+  <%end shippingdate%>%
+  & <%employee%>%
+  <%if warehouse%>%
+  & <%warehouse%>%
+  <%end warehouse%>%
   & <%shippingpoint%> & <%shipvia%> \\
   \hline
 \end{tabularx}
@@ -100,10 +100,10 @@
 \begin{tabularx}{\textwidth}{@{}rlXllrrll@{}}
   \textbf{Pos} & \textbf{Nummer} & \textbf{Beschreibung} & \textbf{Seriennumner} & & \textbf{Menge} & \textbf{Erh} & & \textbf{Lagerplatz} \\
 
-<%foreach number%>
+<%foreach number%>%
   <%runningnumber%> & <%number%> & <%description%> & <%serialnumber%> &
   <%deliverydate%> & <%qty%> & <%ship%> & <%unit%> & <%bin%> \\
-<%end number%>
+<%end number%>%
 \end{tabularx}
 
 

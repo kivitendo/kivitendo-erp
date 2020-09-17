@@ -24,24 +24,24 @@
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{
-	\rechnung~ \nr ~<%invnumber%>
+	\rechnung~ \nr ~<%invnumber%>%
 }
-<%if ordnumber%>
+<%if ordnumber%>%
 \setkomavar*{myref}{\auftragsnummer}
 \setkomavar{myref}{<%ordnumber%>}
-<%end if%>
-<%if cusordnumber%>
+<%end if%>%
+<%if cusordnumber%>%
 \setkomavar*{yourref}{\ihreBestellnummer}
 \setkomavar{yourref}{<%cusordnumber%>}
-<%end if%>
-<%if donumber%>
+<%end if%>%
+<%if donumber%>%
   \setkomavar{delivery}{<%donumber%>}
-<%end if%>
-<%if quonumber%>
+<%end if%>%
+<%if quonumber%>%
 \setkomavar{quote}{<%quonumber%>}
-<%end if%>
+<%end if%>%
 
-<%if shiptoname%>
+<%if shiptoname%>%
 \makeatletter
 \begin{lrbox}\shippingAddressBox
 	\parbox{\useplength{toaddrwidth}}{
@@ -57,18 +57,18 @@
 		<%shiptodepartment_1%>\par
 		<%shiptodepartment_2%>\par
 		<%shiptostreet%>\par
-		<%shiptozipcode%> <%shiptocity%>
+		<%shiptozipcode%> <%shiptocity%>%
 	}
 \end{lrbox}
 \makeatother
-<%end if%>
+<%end if%>%
 
 \begin{document}
 
 \begin{letter}{
 		<%name%>\strut\\
-		<%if department_1%><%department_1%>\\<%end if%>
-		<%if department_2%><%department_2%>\\<%end if%>
+		<%if department_1%><%department_1%>\\<%end if%>%
+		<%if department_2%><%department_2%>\\<%end if%>%
 		<%cp_givenname%> <%cp_name%>\strut\\
 		<%street%>\strut\\
 		<%zipcode%> <%city%>\strut\\
@@ -89,10 +89,10 @@
 		}
 \thispagestyle{kivitendo.letter.first}
 
-<%if notes%>
-        <%notes%>
+<%if notes%>%
+        <%notes%>%
         \vspace{0.5cm}
-<%end if%>
+<%end if%>%
 
 
 %PricingTabular* kann automatisch spalten ignorieren
@@ -121,9 +121,9 @@
 \begin{PricingTotal}
 % Tabellenende letzte Seite
 \nettobetrag & <%subtotal%>\\
-<%foreach tax%>
+<%foreach tax%>%
 <%taxdescription%> & <%tax%>\\
-<%end tax%>
+<%end tax%>%
 \bfseries\schlussbetrag &  \bfseries <%invtotal%>\\
 \end{PricingTotal}
 \end{PricingTabular*}
@@ -136,15 +136,15 @@
 	\lieferungErfolgtAm ~<%deliverydate%>.
 }\\
 
-<%if payment_terms%>
+<%if payment_terms%>%
   \zahlung ~<%payment_terms%>\\
-<%end payment_terms%>
+<%end payment_terms%>%
 
-<%if delivery_term%>
+<%if delivery_term%>%
   \lieferung ~<%delivery_term.description_long%>\\
-<%end delivery_term%>
+<%end delivery_term%>%
 
-<%if ustid%>\ihreustid ~<%ustid%>.\\<%end if%>
+<%if ustid%>\ihreustid ~<%ustid%>.\\<%end if%>%
 
 \ifnum<%taxzone_id%>=1
     \steuerfreiEU\\  % EU mit USt-ID Nummer

@@ -29,13 +29,13 @@
 
 \parbox{\textwidth}{
   \parbox[b]{.42\textwidth}{
-    <%company%>
+    <%company%>%
 
-    <%address%>
+    <%address%>%
   }\hfill
   \begin{tabular}[b]{rr@{}}
   Tel & <%tel%>\\
-  Fax & <%fax%>
+  Fax & <%fax%>%
   \end{tabular}
 
   \rule[1.5ex]{\textwidth}{0.5pt}
@@ -57,20 +57,20 @@
 <%shiptostreet%> \\
 <%shiptozipcode%> \\
 <%shiptocity%> \\
-<%shiptocountry%>
+<%shiptocountry%>%
 }
 \parbox[t]{.4\textwidth}{
-  <%shiptocontact%>
+  <%shiptocontact%>%
 
-  <%if shiptophone%>
-  Tel: <%shiptophone%>
-  <%end shiptophone%>
+  <%if shiptophone%>%
+  Tel: <%shiptophone%>%
+  <%end shiptophone%>%
 
-  <%if shiptofax%>
-  Fax: <%shiptofax%>
-  <%end shiptofax%>
+  <%if shiptofax%>%
+  Fax: <%shiptofax%>%
+  <%end shiptofax%>%
 
-  <%shiptoemail%>
+  <%shiptoemail%>%
 }
 \hfill
 
@@ -83,22 +83,22 @@
 
 \begin{tabularx}{\textwidth}{*{6}{|X}|} \hline
   \textbf{BestellNr. \#} & \textbf{Datum} & \textbf{Kontakt}
-  <%if warehouse%>
+  <%if warehouse%>%
   & \textbf{Lager}
-  <%end warehouse%>
+  <%end warehouse%>%
   & \textbf{Lagerplatz} & \textbf{Lieferung mit} \\ [0.5em]
   \hline
-  <%ordnumber%>
-  <%if shippingdate%>
-  & <%shippingdate%>
-  <%end shippingdate%>
-  <%if not shippingdate%>
-  & <%orddate%>
-  <%end shippingdate%>
-  & <%employee%>
-  <%if warehouse%>
-  & <%warehouse%>
-  <%end warehouse%>
+  <%ordnumber%>%
+  <%if shippingdate%>%
+  & <%shippingdate%>%
+  <%end shippingdate%>%
+  <%if not shippingdate%>%
+  & <%orddate%>%
+  <%end shippingdate%>%
+  & <%employee%>%
+  <%if warehouse%>%
+  & <%warehouse%>%
+  <%end warehouse%>%
   & <%shippingpoint%> & <%shipvia%> \\
   \hline
 \end{tabularx}
@@ -108,10 +108,10 @@
 \begin{tabular*}{\textwidth}{@{}rlp{\descrwidth}@{\extracolsep\fill}rcll@{}}
   \textbf{Pos} & \textbf{Nummer} & \textbf{Beschreibung} &
   \textbf{Menge} & \textbf{Lagerausgang} & & \textbf{Lagerplatz} \\
-<%foreach number%>
+<%foreach number%>%
   <%runningnumber%> & <%number%> & <%description%> &
   <%qty%> & [\hspace{1cm}] & <%unit%> & <%bin%> \\
-<%end number%>
+<%end number%>%
 \end{tabular*}
 
 

@@ -26,17 +26,17 @@
 \setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{
 	\anfrage~
-	\nr ~<%quonumber%>
+	\nr ~<%quonumber%>%
 }
-<%if globalprojectnumber%>
+<%if globalprojectnumber%>%
 	\setkomavar{projectID}{<%globalprojectnumber%>}
-<%end globalprojectnumber%>
+<%end globalprojectnumber%>%
 \setkomavar{transaction}{<%transaction_description%>}
 
 \begin{letter}{
 		<%name%>\strut\\
-		<%if department_1%><%department_1%>\\<%end if%>
-		<%if department_2%><%department_2%>\\<%end if%>
+		<%if department_1%><%department_1%>\\<%end if%>%
+		<%if department_2%><%department_2%>\\<%end if%>%
 		<%cp_givenname%> <%cp_name%>\strut\\
 		<%street%>\strut\\
 		<%zipcode%> <%city%>\strut\\
@@ -93,37 +93,37 @@
 \endlastfoot
 
 % eigentliche Tabelle
-<%foreach number%>
+<%foreach number%>%
           <%runningnumber%> &
           <%qty%> <%unit%> &
           \textbf{<%description%>} \\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden
 
-          <%if longdescription%> && \scriptsize <%longdescription%>\\<%end longdescription%>
-%          <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>
-          <%if make%>
-            <%foreach make%>
+          <%if longdescription%> && \scriptsize <%longdescription%>\\<%end longdescription%>%
+%          <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>%
+          <%if make%>%
+            <%foreach make%>%
               \ifstr{<%make%>}{<%name%>}{&& \artikelnummer: <%model%>\\}{}
-            <%end foreach%>
-          <%end if%>
+            <%end foreach%>%
+          <%end if%>%
 
           \\[-0.8em]
-<%end number%>
+<%end number%>%
 
 \end{longtable}
 
-<%if notes%>
-<%notes%>
+<%if notes%>%
+<%notes%>%
 \medskip
-<%end if%>
+<%end if%>%
 
 
-<%if delivery_term%>
+<%if delivery_term%>%
   \lieferung ~<%delivery_term.description_long%>\\
-<%end delivery_term%>
+<%end delivery_term%>%
 
-<%if reqdate%>
+<%if reqdate%>%
 \anfrageBenoetigtBis~<%reqdate%>.
-<%end if%>
+<%end if%>%
 
 \anfragedanke
 

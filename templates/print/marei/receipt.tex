@@ -21,7 +21,7 @@
 \fontfamily{cmss}\fontsize{9pt}{9pt}\selectfont
 
 \parbox[t]{12cm}{
-  <%company%>
+  <%company%>%
 
   <%address%>}
 \hfill
@@ -33,36 +33,36 @@
 
 \vspace{0.5cm}
 
-\hfill <%datepaid%> \makebox[2cm]{\hfill} <%amount%>
+\hfill <%datepaid%> \makebox[2cm]{\hfill} <%amount%>%
 
 \vspace{0.5cm}
 
-<%name%>
+<%name%>%
 
-<%street%>
+<%street%>%
 
-<%zipcode%>
+<%zipcode%>%
 
-<%city%>
+<%city%>%
 
-<%country%>
+<%country%>%
 
 \vspace{2.8cm}
 
-<%company%>
+<%company%>%
 
 \vspace{0.5cm}
 
-<%name%> \hfill <%datepaid%> \hfill <%source%>
+<%name%> \hfill <%datepaid%> \hfill <%source%>%
 
 \vspace{0.5cm}
 \begin{tabularx}{\textwidth}{lXrr@{}}
 \textbf{Rechnung} & \textbf{Ausgestellt}
   & \textbf{Fällig} & \textbf{Verrechnet} \\
-<%foreach invnumber%>
+<%foreach invnumber%>%
 <%invnumber%> & <%invdate%> \dotfill
   & <%due%> & <%paid%> \\
-<%end invnumber%>
+<%end invnumber%>%
 \end{tabularx}
 
 \vfill

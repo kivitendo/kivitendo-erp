@@ -19,7 +19,7 @@
 \begin{document}
 	
 
-<%if shiptoname%>
+<%if shiptoname%>%
 \makeatletter
 \begin{lrbox}\shippingAddressBox
 	\parbox{\useplength{toaddrwidth}}{
@@ -35,22 +35,22 @@
 		<%shiptodepartment_1%>\par
 		<%shiptodepartment_2%>\par
 		<%shiptostreet%>\par
-		<%shiptozipcode%> <%shiptocity%>
+		<%shiptozipcode%> <%shiptocity%>%
 	}
 \end{lrbox}
 \makeatother
-<%end if%>
+<%end if%>%
 
 	
 \setkomavar{title}{
 	\gutschrift~
-	\nr ~<%invnumber%>
+	\nr ~<%invnumber%>%
 }
 
-<%if invnumber_for_credit_note%>
+<%if invnumber_for_credit_note%>%
 \setkomavar*{myref}{\fuerRechnung}
 \setkomavar{myref}{<%invnumber_for_credit_note%>}
-<%end if%>
+<%end if%>%
 
 \setkomavar*{date}{\datum}
 
@@ -62,8 +62,8 @@
 	
 \begin{letter}{
 		<%name%>\strut\\
-		<%if department_1%><%department_1%>\\<%end if%>
-		<%if department_2%><%department_2%>\\<%end if%>
+		<%if department_1%><%department_1%>\\<%end if%>%
+		<%if department_2%><%department_2%>\\<%end if%>%
 		<%cp_givenname%> <%cp_name%>\strut\\
 		<%street%>\strut\\
 		<%zipcode%> <%city%>\strut\\
@@ -103,22 +103,22 @@
 		<%sellprice%>&%
 		\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
 			<%linetotal%>\tabularnewline
-			<%end number%>
+			<%end number%>%
 	}
 	\begin{PricingTotal}
 		% Tabellenende letzte Seite
 		\nettobetrag & <%subtotal%>\\
-		<%foreach tax%>
+		<%foreach tax%>%
 		<%taxdescription%> & <%tax%>\\
-		<%end tax%>
+		<%end tax%>%
 		\bfseries\schlussbetrag &  \bfseries <%ordtotal%>\\
 	\end{PricingTotal}
 \end{PricingTabular*}
 
-<%if notes%>
-<%notes%>
+<%if notes%>%
+<%notes%>%
 \medskip
-<%end if%>
+<%end if%>%
 
 \closing{\gruesse}
 
