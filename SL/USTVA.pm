@@ -691,7 +691,7 @@ sub get_accounts_ustva {
          SUM( ac.amount *
             -- Bezahlt / Rechnungssumme
            (
-             SELECT SUM(acc.amount), t.rate, c.accno
+             SELECT SUM(acc.amount)
              FROM acc_trans acc
              INNER JOIN chart c ON (acc.chart_id   =   c.id
                                     AND c.link   like  '%AR_paid%')
@@ -699,13 +699,12 @@ sub get_accounts_ustva {
               1=1
               $ARwhere
               AND acc.trans_id = ac.trans_id
-              )
-           /
+              )           /
            (
             SELECT amount FROM ar WHERE id = ac.trans_id
            )
          ) AS amount,
-         tk.pos_ustva
+         tk.pos_ustva,  t.rate, c.accno
        FROM acc_trans ac
        LEFT JOIN chart c ON (c.id  = ac.chart_id)
        LEFT JOIN ar      ON (ar.id = ac.trans_id)
