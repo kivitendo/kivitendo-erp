@@ -350,7 +350,7 @@ sub action_print {
 }
 
 # open the email dialog
-sub action_show_email_dialog {
+sub action_save_and_show_email_dialog {
   my ($self) = @_;
 
   my $errors = $self->save();
@@ -1884,7 +1884,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and E-mail'),
-          call => [ 'kivi.Order.email', $::instance_conf->get_order_warn_duplicate_parts ],
+          call => [ 'kivi.Order.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts ],
         ],
         action => [
           t8('Download attachments of all parts'),

@@ -28,7 +28,7 @@ namespace('kivi.Order', function(ns) {
     }
 
     if (pos.length > 0) {
-      question = question || kivi.t8("Do you really want to save?");
+      question = question || kivi.t8("Do you really want to continue?");
       return confirm(kivi.t8("There are duplicate parts at positions") + "\n"
                      + pos.join(', ') + "\n"
                      + question);
@@ -85,17 +85,6 @@ namespace('kivi.Order', function(ns) {
     data = data.concat($('#print_options_form').serializeArray());
     data.push({ name: 'order.language_id', value: $('#language_id').val() }); // language from print options
     data.push({ name: 'action', value: 'Order/print' });
-
-    $.post("controller.pl", data, kivi.eval_json_result);
-  };
-
-  ns.email = function(warn_on_duplicates) {
-    if (warn_on_duplicates && !ns.check_duplicate_parts(kivi.t8("Do you really want to send by mail?"))) return;
-    if (!ns.check_cv()) return;
-
-    var data = $('#order_form').serializeArray();
-    data.push({ name: 'order.language_id', value: $('#language_id').val() }); // language from print options
-    data.push({ name: 'action', value: 'Order/show_email_dialog' });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
