@@ -430,7 +430,7 @@ ns.renumber = function(opt) {
   $('#rs-dialog-confirm').remove();
 
   var text1   = kivi.t8('Re-numbering all sections and function blocks in the order they are currently shown cannot be undone.');
-  var text2   = kivi.t8('Do you really want do continue?');
+  var text2   = kivi.t8('Do you really want to continue?');
   var $dialog = $('<div id="rs-dialog-confirm"><p>' + text1 + '</p><p>' + text2 + '</p></div>').hide().appendTo('body');
   var buttons = {};
 
