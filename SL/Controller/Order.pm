@@ -353,6 +353,13 @@ sub action_print {
 sub action_show_email_dialog {
   my ($self) = @_;
 
+  my $errors = $self->save();
+
+  if (scalar @{ $errors }) {
+    $self->js->flash('error', $_) foreach @{ $errors };
+    return $self->js->render();
+  }
+
   my $cv_method = $self->cv;
 
   if (!$self->order->$cv_method) {
