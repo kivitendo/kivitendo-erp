@@ -269,23 +269,23 @@ namespace('kivi.SalesPurchase', function(ns) {
 
     var vc   = $('#vc').val();
     var data = {
-      action:      'show_sales_purchase_email_dialog',
-      cp_id:       $('#cp_id').val(),
+      action:       'show_sales_purchase_email_dialog',
+      cp_id:        $('#cp_id').val(),
       direct_debit: $('#direct_debit').prop('checked') ? 1 : 0,
-      donumber:    $('#donumber').val(),
-      format:      $('#format').val(),
-      formname:    $('#formname').val(),
-      id:          $('#id').val(),
-      invnumber:   $('#invnumber').val(),
-      language_id: $('#language_id').val(),
-      media:       'email',
-      ordnumber:   $('#ordnumber').val(),
+      donumber:     $('#donumber').val(),
+      format:       $('#format').val(),
+      formname:     $('#formname').val(),
+      id:           $('#id').val(),
+      invnumber:    $('#invnumber').val(),
+      language_id:  $('#language_id').val(),
+      media:        'email',
+      ordnumber:    $('#ordnumber').val(),
       cusordnumber: $('#cusordnumber').val(),
-      rowcount:    $('#rowcount').val(),
-      quonumber:   $('#quonumber').val(),
-      type:        $('#type').val(),
-      vc:          vc,
-      vc_id:       $('#' + vc + '_id').val(),
+      rowcount:     $('#rowcount').val(),
+      quonumber:    $('#quonumber').val(),
+      type:         $('#type').val(),
+      vc:           vc,
+      vc_id:        $('#' + vc + '_id').val(),
     };
 
     $('[name^=id_],[name^=partnumber_]').each(function(idx, elt) {
