@@ -16,9 +16,9 @@
       <tr class="listrow[% loop.count % 2 %]">
         <td>[% row.date_part | html %]</td>
         <td>[% row.count | html %]</td>
-        <td>[%- LxERP.format_amount(row.amount,2) %]</td>
-        <td>[%- LxERP.format_amount(row.netamount,2) %]</td>
-        <td>[%- LxERP.format_amount(row.paid,2) %]</td>
+        <td class="numeric">[%- LxERP.format_amount(row.amount,2) %]</td>
+        <td class="numeric">[%- LxERP.format_amount(row.netamount,2) %]</td>
+        <td class="numeric">[%- LxERP.format_amount(row.paid,2) %]</td>
       </tr>
       [% END %]
 

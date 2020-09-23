@@ -23,7 +23,7 @@
               [% END %][% HTML.escape(row.quonumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
         [%- END -%]
         <td>[% row.transdate.to_kivitendo | html %]</td>
-        <td>[%- LxERP.format_amount(row.amount, 2) %]</td>
+        <td class="numeric">[%- LxERP.format_amount(row.amount, 2) %]</td>
         <td>[% row.reqdate.to_kivitendo | html %]</td>
         <td>[% row.transaction_description %]</td>
       </tr>
