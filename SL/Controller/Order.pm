@@ -452,6 +452,7 @@ sub action_send_email {
     $::form->{tmpdir}  = $sfile->get_path; # for Form::cleanup which may be called in Form::send_email
   }
 
+  $::form->{id} = $self->order->id; # this is used in SL::Mailer to create a linked record to the mail
   $::form->send_email(\%::myconfig, 'pdf');
 
   # internal notes
