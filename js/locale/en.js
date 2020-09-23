@@ -46,8 +46,6 @@ namespace("kivi").setupLocale({
 "Do you really want to delete this record template?":"",
 "Do you really want to print?":"",
 "Do you really want to revert to this version?":"",
-"Do you really want to save?":"",
-"Do you really want to send by mail?":"",
 "Do you really want to unimport the selected documents?":"",
 "Do you want to carry this shipping address over to the new purchase order so that the vendor can deliver the goods directly to your customer?":"",
 "Do you want to set the account number \"#1\" to \"#2\" and the name \"#3\" to \"#4\"?":"",
