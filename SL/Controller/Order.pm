@@ -468,11 +468,15 @@ sub action_send_email {
 
   $self->order->update_attributes(intnotes => $intnotes);
 
-  $self->js
-      ->val('#order_intnotes', $intnotes)
-      ->run('kivi.Order.close_email_dialog')
-      ->flash('info', t8('The email has been sent.'))
-      ->render($self);
+  flash_later('info', t8('The email has been sent.'));
+
+  my @redirect_params = (
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
+
+  $self->redirect_to(@redirect_params);
 }
 
 # open the periodic invoices config dialog
