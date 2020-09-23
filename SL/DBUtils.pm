@@ -92,7 +92,7 @@ sub dump_query {
   my $self_filename = 'SL/DBUtils.pm';
   my $filename      = $self_filename;
   my ($caller_level, $line, $subroutine);
-  while ($filename eq $self_filename) {
+  while ($filename =~ m{$self_filename$}) {
     (undef, $filename, $line, $subroutine) = caller $caller_level++;
   }
 
