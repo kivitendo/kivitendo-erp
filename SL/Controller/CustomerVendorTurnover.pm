@@ -43,7 +43,6 @@ sub action_list_turnover {
   }
   my $open_items;
   if (@{$open_invoices}) {
-    return $self->render(\'', { type => 'json' }) unless scalar @{$open_invoices};
     $open_items = $self->_list_open_items($open_invoices);
   }
   my $open_orders = $self->_get_open_orders;
