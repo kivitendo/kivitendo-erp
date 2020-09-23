@@ -1,6 +1,6 @@
 -- @tag: konjunkturpaket_2020_SKR03-korrekturen
 -- @description: Steuerkonten haben selber keine Steuerautomatik. USTVA-Felder korrigieren
--- @depends: konjunkturpaket_2020_SKR03
+-- @depends: konjunkturpaket_2020_SKR03 konjunkturpaket_2020
 -- @ignore: 0
 
 DO $$
