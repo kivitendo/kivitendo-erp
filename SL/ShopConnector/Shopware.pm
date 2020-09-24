@@ -265,13 +265,22 @@ sub get_categories {
   my @daten      = @{$import->{data}};
   my %categories = map { ($_->{id} => $_) } @daten;
 
+  my @categories_tree;
   for(@daten) {
+    # ignore root with id=1
+    if( $_->{id} == 1) {
+      next;
+    }
     my $parent = $categories{$_->{parentId}};
-    $parent->{children} ||= [];
-    push @{$parent->{children}},$_;
+    if($parent && $parent->{id} != 1) {
+      $parent->{children} ||= [];
+      push @{$parent->{children}},$_;
+    } else {
+      push @categories_tree, $_;
+    }
   }
 
-  return \@daten;
+  return \@categories_tree;
 }
 
 sub get_version {
