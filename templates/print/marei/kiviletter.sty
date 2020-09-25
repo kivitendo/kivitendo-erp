@@ -294,6 +294,7 @@ contents={\usebox\shippingAddressBox}
 }
 
 \cs_new:Nn \__kivi_tab_column_currency: {\,\currency}
+\def\tabcurrency{\__kivi_tab_column_currency:}
 \cs_set:Nn \__kivi_tab_column_header_currency: {}
 \cs_set_eq:NN \__kivi_tab_column_body_currency:  \__kivi_tab_column_currency:
 
@@ -400,14 +401,17 @@ contents={\usebox\shippingAddressBox}
 	\tl_put_right:Nn \l_kivi_SimpleTabular_colspec_tl {@{}}
 	\tl_put_left:Nn \l_kivi_SimpleTabular_colspec_tl {@{}}
 	\exp_args:NnV \xltabular{\linewidth}\l_kivi_SimpleTabular_colspec_tl
-	\toprule
-	\l_kivi_SimpleTabular_headline_tl\\
-	\midrule
+		\toprule
+		\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_header_currency:
+		\l_kivi_SimpleTabular_headline_tl
+		\\
+		\noalign{\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_body_currency:}
+		\midrule
 	\endhead
-	\midrule
-	\rlap{\makebox[\textwidth][r]{\weiteraufnaechsterseite}}\\
+		\midrule
+		\rlap{\makebox[\textwidth][r]{\weiteraufnaechsterseite}}\\
 	\endfoot
-	\bottomrule
+		\bottomrule
 	\endlastfoot
 	\ignorespaces
 }{
