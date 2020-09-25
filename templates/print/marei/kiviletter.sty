@@ -243,6 +243,7 @@ contents={\usebox\shippingAddressBox}
 	\seq_set_split:Nnn \l_kivi_PricingTable_seq {\tabularnewline} {#1}
 	\seq_remove_all:Nn \l_kivi_PricingTable_seq {}
 	\begingroup
+	\let\ExtraDescription\__kivi_addExtraDescription:n
 	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
 	\seq_map_inline:Nn \l_kivi_PricingTable_seq {
 		\seq_set_split:Nnn  \l_kivi_columns_seq {&} {##1}
@@ -339,7 +340,13 @@ contents={\usebox\shippingAddressBox}
 	\endtabular
 }
 
-\newcommand{\ExtraDescription}[1]{\seq_gput_right:Nn \g_kivi_extraDescription_seq {#1}}
+
+\newcommand*\ExtraDescription{
+	\PackageError{kiviletter}{The~command~\string\ExtraDescription\space~may~be~only~used~inside~the~\string\FakeTable\space~environment.}{See~documentation~for~details}
+}
+
+
+\cs_new:Nn \__kivi_addExtraDescription:n {\seq_gput_right:Nn \g_kivi_extraDescription_seq {#1}}
 
 \newenvironment{PricingTabular}[1][]{
 	\begingroup
