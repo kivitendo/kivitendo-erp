@@ -57,12 +57,13 @@
 
 \mahnungsformel
 
-\begin{SimpleTabular}[\bfseries\rechnung~\nr&\bfseries\datum&\bfseries\betrag]
+\begin{SimpleTabular}[headline=\bfseries\rechnung~\nr&\bfseries\datum&\bfseries\betrag,colspec=rXr<{\tabcurrency}]
 % eigentliche Tabelle
 <%foreach dn_invnumber%>%
-    <%dn_invnumber%> & <%dn_transdate%> & <%dn_amount%> \currency \\[0.1cm]
+    <%dn_invnumber%> & <%dn_transdate%> & <%dn_amount%> \\[0.1cm]
 <%end dn_invnumber%>%
 \end{SimpleTabular}
+
 
 \vspace{0.2cm}
 

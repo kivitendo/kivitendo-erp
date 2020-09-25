@@ -61,41 +61,12 @@
 
 \mahnungsrechnungsformel
 
-
-
-\setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
-\setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
-\begin{longtable}{@{}p{7cm}@{\extracolsep{\fill}}r@{}}
-% Tabellenkopf
-\hline
-\textbf{\posten} & \textbf{\betrag} \\
-\hline\\
-\endhead
-
-% Tabellenkopf erste Seite
-\hline
-\textbf{\posten} & \textbf{\betrag} \\
-\hline\\[-0.5em]
-\endfirsthead
-
-% Tabellenende
-\\
-\multicolumn{2}{@{}r@{}}{\weiteraufnaechsterseite}
-\endfoot
-
-% Tabellenende letzte Seite
-\hline\\
-\multicolumn{1}{@{}l}{\schlussbetrag} & <%invamount%> \currency\\
-\hline\hline\\
-\endlastfoot
-
-% eigentliche Tabelle
-Mahngebühren & <%fee%> \currency \\
-Zinsen & <%interest%> \currency \\
-\\[-0.8em]
-
-\end{longtable}
-
+\begin{SimpleTabular}[colspec=Xr<{\tabcurrency},headline={\bfseries\posten& \bfseries\betrag}]
+	Mahngebühren & <%fee%> \\
+	Zinsen & <%interest%> \\
+	\midrule[\heavyrulewidth]
+	\multicolumn{1}{@{}l}{\schlussbetrag}& <%invamount%>\\
+\end{SimpleTabular}
 
 \vspace{0.2cm}
 
