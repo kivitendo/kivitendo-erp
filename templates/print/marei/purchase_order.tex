@@ -16,23 +16,26 @@
 \ourhead{}{}{\bestellung}{<%ordnumber%>}{<%orddate%>}
 
 
-\begin{document}
+\setkomavar*{date}{\datum}
+\setkomavar{date}{<%orddate%>}
 
+\setkomavar{fromname}{<%employee_name%>}
+\setkomavar{fromphone}{<%employee_tel%>}
+\setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{
 	\bestellung~
 	\nr~<%ordnumber%>%
 }
-\setkomavar*{date}{\datum}
-\setkomavar{date}{<%orddate%>}
+
 <%if cusordnumber%>%
-\setkomavar*{yourref}{\unsereBestellnummer}
-\setkomavar{yourref}{<%cusordnumber%>}
+	\setkomavar*{yourref}{\unsereBestellnummer}
+	\setkomavar{yourref}{<%cusordnumber%>}
 <%end if%>%
-<%if quonumber%>\setkomavar{quote}{<%quonumber%>}<%end if%>%
-\setkomavar{fromname}{<%employee_name%>}
-\setkomavar{fromphone}{<%employee_tel%>}
-\setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{transaction}{<%transaction_description%>}
+
+<%if quonumber%>
+	\setkomavar{quote}{<%quonumber%>}
+<%end if%>%
 
 <%if shiptoname%>%
 \makeatletter
@@ -56,6 +59,7 @@
 \makeatother
 <%end if%>%
 
+\begin{document}
 
 \begin{letter}{
 		<%name%>\strut\\
@@ -71,13 +75,13 @@
 % Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
 \opening{
 	\ifstr{<%cp_name%>}{}
-		{<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede<%end if%>}
-		{
+	{<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede<%end if%>}
+	{
 		\ifstr{<%cp_gender%>}{f}
 			{\anredefrau}
 			{\anredeherr}
 			<%cp_title%> <%cp_name%>,
-		}
+	}
 }
 \thispagestyle{kivitendo.letter.first}
 
@@ -86,7 +90,7 @@
 \begin{PricingTabular*}
 	% eigentliche Tabelle
 	\FakeTable{
-		<%foreach number%>%
+	<%foreach number%>%
 		<%runningnumber%> &%
 		<%number%> &%
 		\textbf{<%description%>}%
@@ -100,15 +104,15 @@
 		<%sellprice%>&%
 		\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
 		<%linetotal%>\tabularnewline
-		<%end number%>%
-	}
-	\begin{PricingTotal}
+	<%end number%>%
+	}%
+	\begin{PricingTotal}%
 		% Tabellenende letzte Seite
-		\nettobetrag & <%subtotal%>\\
+		\nettobetrag & <%subtotal%>\\%
 		<%foreach tax%>%
-		<%taxdescription%> & <%tax%>\\
+		<%taxdescription%> & <%tax%>\\%
 		<%end tax%>%
-		\bfseries\schlussbetrag &  \bfseries <%ordtotal%>\\
+		\bfseries\schlussbetrag &  \bfseries <%ordtotal%>\\%
 	\end{PricingTotal}
 \end{PricingTabular*}
 

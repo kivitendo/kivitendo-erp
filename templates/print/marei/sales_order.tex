@@ -16,25 +16,26 @@
 \ourhead{\kundennummer}{<%customernumber%>}{\auftragsbestaetigung}{<%ordnumber%>}{<%orddate%>}
 
 
-\begin{document}
-\setkomavar{title}{
-	\auftragsbestaetigung~
-	\nr~<%ordnumber%>%
-}
+
 \setkomavar*{date}{\datum}
 \setkomavar{date}{<%orddate%>}
-<%if cusordnumber%>%
-\setkomavar*{yourref}{\ihreBestellnummer}
-\setkomavar{yourref}{<%cusordnumber%>}
-<%end if%>%
-<%if quonumber%>\setkomavar{quote}{<%quonumber%>}<%end if%>%
 \setkomavar{customer}{<%customernumber%>}
 \setkomavar{fromname}{<%employee_name%>}
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
+\setkomavar{title}{
+	\auftragsbestaetigung~
+	\nr~<%ordnumber%>%
+}
+<%if cusordnumber%>%
+	\setkomavar*{yourref}{\ihreBestellnummer}
+	\setkomavar{yourref}{<%cusordnumber%>}
+<%end if%>%
 \setkomavar{transaction}{<%transaction_description%>}
 
-
+<%if quonumber%>
+	\setkomavar{quote}{<%quonumber%>}
+<%end if%>%
 
 <%if shiptoname%>%
 \makeatletter
@@ -57,6 +58,8 @@
 \end{lrbox}
 \makeatother
 <%end if%>%
+
+\begin{document}
 
 \begin{letter}{
 		<%name%>\strut\\
@@ -87,7 +90,7 @@
 \begin{PricingTabular*}
 	% eigentliche Tabelle
 	\FakeTable{
-		<%foreach number%>%
+	<%foreach number%>%
 		<%runningnumber%> &%
 		<%number%> &%
 		\textbf{<%description%>}%
@@ -101,15 +104,15 @@
 		<%sellprice%>&%
 		\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
 		<%linetotal%>\tabularnewline
-		<%end number%>%
-	}
-	\begin{PricingTotal}
+	<%end number%>%
+	}%
+	\begin{PricingTotal}%
 		% Tabellenende letzte Seite
-		\nettobetrag & <%subtotal%>\\
+		\nettobetrag & <%subtotal%>\\%
 		<%foreach tax%>%
-		<%taxdescription%> & <%tax%>\\
+		<%taxdescription%> & <%tax%>\\%
 		<%end tax%>%
-		\bfseries\schlussbetrag &  \bfseries <%ordtotal%>\\
+		\bfseries\schlussbetrag &  \bfseries <%ordtotal%>\\%
 	\end{PricingTotal}
 \end{PricingTabular*}
 
@@ -133,4 +136,3 @@
 \end{letter}
 
 \end{document}
-

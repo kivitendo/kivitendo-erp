@@ -15,25 +15,25 @@
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\rechnung}{<%invnumber%>}{<%invdate%>}
 
-
-\begin{document}
-
-\setkomavar{title}{
-	\rechnung~
-	\nr ~<%invnumber%>%
-}
 \setkomavar*{date}{\rechnungsdatum}
 \setkomavar{date}{<%invdate%>}
-\setkomavar*{myref}{\mahnung~\nr}
-\setkomavar{myref}{<%dunning_id%>}
 \setkomavar{customer}{<%customernumber%>}
 \setkomavar{fromname}{<%employee_name%>}
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
+\setkomavar{title}{
+	\rechnung~
+	\nr ~<%invnumber%>%
+}
+\setkomavar*{myref}{\mahnung~\nr}
+\setkomavar{myref}{<%dunning_id%>}
 <%if globalprojectnumber%>%
 	\setkomavar{projectID}{<%globalprojectnumber%>}
 <%end globalprojectnumber%>%
 \setkomavar{transaction}{<%transaction_description%>}
+
+\begin{document}
+
 
 \begin{letter}{
 		<%name%>\strut\\
@@ -68,7 +68,7 @@
 	\multicolumn{1}{@{}l}{\schlussbetrag}& <%invamount%>\\
 \end{SimpleTabular}
 
-\vspace{0.2cm}
+\smallskip
 
 \bitteZahlenBis~<%duedate%>.
 

@@ -15,11 +15,7 @@
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\mahnung}{<%dunning_id%>}{<%dunning%>}
 
-
-\begin{document}
-
 \setkomavar*{date}{\datum}
-
 \setkomavar{date}{<%dunning_date%>}
 \setkomavar{customer}{<%customernumber%>}
 \setkomavar{fromname}{<%employee_name%>}
@@ -30,6 +26,8 @@
 	<%if dunning_id%>~\nr~<%dunning_id%><%end if%>%
 }
 \setkomavar{transaction}{<%transaction_description%>}
+
+\begin{document}
 
 \begin{letter}{
 		<%name%>\strut\\
@@ -65,7 +63,7 @@
 \end{SimpleTabular}
 
 
-\vspace{0.2cm}
+\smallskip
 
 \bitteZahlenBis~<%dunning_duedate%>.
 

@@ -84,14 +84,15 @@
 
 \auftragsformel
  
-\begin{PricingTabular*}
-\FakeTable{
+\begin{PricingTabular*}%
+% eigentliche Tabelle
+\FakeTable{%
 	<%foreach number%>%
 	<%runningnumber%> &%
 	<%number%> &%
 	\textbf{<%description%>}%
 	<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
-    <%if reqdate%>\ExtraDescription{\lieferdatum: <%reqdate%>}<%end reqdate%>%
+	<%if reqdate%>\ExtraDescription{\lieferdatum: <%reqdate%>}<%end reqdate%>%
 	<%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
 	<%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
 	<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
@@ -99,18 +100,17 @@
 	<%qty%> <%unit%> &%
 	<%sellprice%>&%
 	\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
-	<%linetotal%>\tabularnewline
+	<%linetotal%>\tabularnewline%
 	<%end number%>%
-}
-% Tabellenende letzte Seite
-	\begin{PricingTotal}
-	% Tabellenende letzte Seite
-	\nettobetrag & <%subtotal%>\\
+}%
+\begin{PricingTotal}%
+	% Tabellenende letzte Seite%
+	\nettobetrag & <%subtotal%>\\%
 	<%foreach tax%>%
-	<%taxdescription%> & <%tax%>\\
+	<%taxdescription%> & <%tax%>\\%
 	<%end tax%>%
-	\bfseries\schlussbetrag &  \bfseries <%ordtotal%>\\
-\end{PricingTotal}
+	\bfseries\schlussbetrag &  \bfseries <%invtotal%>\\%
+\end{PricingTotal}%
 \end{PricingTabular*}
 
 <%if notes%>%

@@ -15,9 +15,7 @@
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\rechnung}{<%invnumber%>}{<%invdate%>}
 
-
 \setkomavar*{date}{\rechnungsdatum}
-
 \setkomavar{date}{<%invdate%>}
 \setkomavar{customer}{<%customernumber%>}
 \setkomavar{fromname}{<%employee_name%>}
@@ -27,16 +25,17 @@
 	\rechnung~ \nr ~<%invnumber%>%
 }
 <%if ordnumber%>%
-\setkomavar*{myref}{\auftragsnummer}
-\setkomavar{myref}{<%ordnumber%>}
+	\setkomavar*{myref}{\auftragsnummer}
+	\setkomavar{myref}{<%ordnumber%>}
 <%end if%>%
 <%if cusordnumber%>%
-\setkomavar*{yourref}{\ihreBestellnummer}
-\setkomavar{yourref}{<%cusordnumber%>}
+	\setkomavar*{yourref}{\ihreBestellnummer}
+	\setkomavar{yourref}{<%cusordnumber%>}
 <%end if%>%
 <%if donumber%>%
-  \setkomavar{delivery}{<%donumber%>}
+	\setkomavar{delivery}{<%donumber%>}
 <%end if%>%
+
 <%if quonumber%>%
 \setkomavar{quote}{<%quonumber%>}
 <%end if%>%
@@ -85,8 +84,8 @@
 				{\anredefrau}
 				{\anredeherr}
 				<%cp_title%> <%cp_name%>,
-			}
 		}
+	}
 \thispagestyle{kivitendo.letter.first}
 
 <%if notes%>%
@@ -108,32 +107,32 @@
 % id = false, % deaktiviert die Spalte der Artikelnummer
 % amount = 1cm, % Setzt die Breite der Mengenspalte auf 1cm
 % desc/header = Artikelbeschreibung, %Ändert die Überschrift der Bezeichnunsspalte in „Artikelbeschreibung”
-\begin{PricingTabular*}
-% eigentliche Tabelle
-\FakeTable{
-<%foreach number%>%
-<%runningnumber%> &%
-<%number%> &%
-\textbf{<%description%>}%
-<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
-<%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
-<%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
-<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
-&%
-<%qty%> <%unit%> &%
-<%sellprice%>&%
-\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
-<%linetotal%>\tabularnewline%
-<%end number%>%
-}%
-\begin{PricingTotal}
-% Tabellenende letzte Seite
-\nettobetrag & <%subtotal%>\\
-<%foreach tax%>%
-<%taxdescription%> & <%tax%>\\
-<%end tax%>%
-\bfseries\schlussbetrag &  \bfseries <%invtotal%>\\
-\end{PricingTotal}
+\begin{PricingTabular*}%
+	% eigentliche Tabelle
+	\FakeTable{%
+	<%foreach number%>%
+		<%runningnumber%> &%
+		<%number%> &%
+		\textbf{<%description%>}%
+		<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
+		<%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
+		<%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
+		<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
+		&%
+		<%qty%> <%unit%> &%
+		<%sellprice%>&%
+		\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
+		<%linetotal%>\tabularnewline%
+	<%end number%>%
+	}%
+	\begin{PricingTotal}%
+		% Tabellenende letzte Seite
+		\nettobetrag & <%subtotal%>\\%
+		<%foreach tax%>%
+		<%taxdescription%> & <%tax%>\\%
+		<%end tax%>%
+		\bfseries\schlussbetrag &  \bfseries <%invtotal%>\\%
+	\end{PricingTotal}%
 \end{PricingTabular*}
 
 \vspace{0.2cm}
@@ -163,7 +162,6 @@
 \fi
 
 \closing{\gruesse}
-
 
 \end{letter}
 

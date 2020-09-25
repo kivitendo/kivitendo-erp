@@ -15,9 +15,23 @@
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\gutschrift}{<%invnumber%>}{<%invdate%>}
 
+\setkomavar*{date}{\datum}
+\setkomavar{date}{<%transdate%>}	
+\setkomavar{customer}{<%customernumber%>}
+\setkomavar{fromname}{<%employee_name%>}
+\setkomavar{fromphone}{<%employee_tel%>}
+\setkomavar{fromemail}{<%employee_email%>}
+\setkomavar{title}{
+	\gutschrift~
+	\nr ~<%invnumber%>%
+}
 
-\begin{document}
-	
+<%if invnumber_for_credit_note%>%
+	\setkomavar*{myref}{\fuerRechnung}
+	\setkomavar{myref}{<%invnumber_for_credit_note%>}
+<%end if%>%
+
+
 
 <%if shiptoname%>%
 \makeatletter
@@ -41,25 +55,8 @@
 \makeatother
 <%end if%>%
 
-	
-\setkomavar{title}{
-	\gutschrift~
-	\nr ~<%invnumber%>%
-}
+\begin{document}
 
-<%if invnumber_for_credit_note%>%
-\setkomavar*{myref}{\fuerRechnung}
-\setkomavar{myref}{<%invnumber_for_credit_note%>}
-<%end if%>%
-
-\setkomavar*{date}{\datum}
-
-\setkomavar{date}{<%transdate%>}
-\setkomavar{customer}{<%customernumber%>}
-\setkomavar{fromname}{<%employee_name%>}
-\setkomavar{fromphone}{<%employee_tel%>}
-\setkomavar{fromemail}{<%employee_email%>}
-	
 \begin{letter}{
 		<%name%>\strut\\
 		<%if department_1%><%department_1%>\\<%end if%>%
@@ -80,8 +77,8 @@
 				{\anredefrau}
 				{\anredeherr}
 				<%cp_title%> <%cp_name%>,
-			}
 		}
+	}
 \thispagestyle{kivitendo.letter.first}
 
 
@@ -91,9 +88,9 @@
 % eigentliche Tabelle%
 \FakeTable{%
 	<%foreach number%>%
-	<%runningnumber%> &%
-	<%number%> &%
-	\textbf{<%description%>}%
+		<%runningnumber%> &%
+		<%number%> &%
+		\textbf{<%description%>}%
 		<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
 		<%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
 		<%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
@@ -102,8 +99,8 @@
 		<%qty%> <%unit%> &%
 		<%sellprice%>&%
 		\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
-			<%linetotal%>\tabularnewline
-			<%end number%>%
+		<%linetotal%>\tabularnewline%
+	<%end number%>%
 	}%
 	\begin{PricingTotal}%
 		% Tabellenende letzte Seite
