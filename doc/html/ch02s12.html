@@ -14,8 +14,8 @@
             </p><pre class="programlisting">zypper install texlive-collection-latex texlive-collection-latexextra \
   texlive-collection-latexrecommended texlive-collection-langgerman \
   texlive-collection-langenglish</pre><p>
-         </p><p>kivitendo bringt drei alternative Vorlagensätze mit:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>RB</p></li><li class="listitem"><p>f-tex</p></li><li class="listitem"><p>rev-odt</p></li></ul></div><p>Der ehemalige Druckvorlagensatz "Standard" wurde mit der Version
-      3.3 entfernt, da er nicht mehr gepflegt wurde.</p><div class="sect2" title="2.12.1. Vorlagenverzeichnis anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagenverzeichnis-anlegen"></a>2.12.1. Vorlagenverzeichnis anlegen</h3></div></div></div><p>Es lässt sich ein initialer Vorlagensatz erstellen. Die
+         </p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top">kivitendo erwartet eine aktuelle TeX Live Umgebung, um PDF/A zu erzeugen. Aktuelle Distributionen von 2020 erfüllen diese. Überprüfbar ist dies mit dem Aufruf des installation_check.pl mit Parameter -l: <pre class="programlisting">scripts/installations_check.pl -l</pre></td></tr></table></div><p>kivitendo bringt drei alternative Vorlagensätze mit:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>RB</p></li><li class="listitem"><p>marei</p></li><li class="listitem"><p>rev-odt</p></li></ul></div><p>Der ehemalige Druckvorlagensatz "f-tex" wurde mit der Version
+      3.6 entfernt, da er nicht mehr gepflegt wird.</p><div class="sect2" title="2.12.1. Vorlagenverzeichnis anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagenverzeichnis-anlegen"></a>2.12.1. Vorlagenverzeichnis anlegen</h3></div></div></div><p>Es lässt sich ein initialer Vorlagensatz erstellen. Die
         LaTeX-System-Abhängigkeiten hierfür kann man prüfen mit:</p><pre class="programlisting">./scripts/installation_check.pl -lv</pre><p>Der Angemeldete Benutzer muss in einer Gruppe sein, die über das
         Recht "Konfiguration -&gt; Mandantenverwaltung" verfügt. Siehe auch
         <a class="xref" href="ch02s09.html#Gruppen-anlegen" title="2.9.4. Gruppen anlegen">Abschnitt&nbsp;2.9.4, „Gruppen anlegen“</a>.</p><p>Im Userbereich lässt sich unter: "<span class="guimenu">System</span>
@@ -24,7 +24,7 @@
         Druckvorlagen aus Vorlagensatz erstellen" auswählen.</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
                      <code class="option">Vorlagen auswählen</code>: Wählen Sie hier den
             Vorlagensatz aus, der kopiert werden soll
-            (<code class="filename">RB</code>, <code class="filename">f-tex</code> oder
+            (<code class="filename">RB</code>, <code class="filename">marei</code> oder
             <code class="filename">odt-rev</code>.)</p></li><li class="listitem"><p>
                      <code class="option">Neuer Name</code>: Der Verzeichnisname für den
             neuen Vorlagensatz. Dieser kann im Rahmen der üblichen Bedingungen
@@ -44,102 +44,7 @@
             werden, z.B. für Kopf- und Fußzeilen, und Infos wie
             Bankdaten</p></li><li class="listitem"><p>mehrere vordefinierte Varianten für
             Logos/Hintergrundbilder</p></li><li class="listitem"><p>Berücksichtigung für Steuerzonen "EU mit USt-ID Nummer" oder
-            "Außerhalb EU"</p></li></ul></div></div><div class="sect2" title="2.12.3. f-tex"><div class="titlepage"><div><div><h3 class="title"><a name="f-tex"></a>2.12.3. f-tex</h3></div></div></div><p>Ein Vorlagensatz, der in wenigen Minuten alle Dokumente zur
-        Verfügung stellt.</p><div class="sect3" title="2.12.3.1. Feature-Übersicht"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-Feature-%C3%9Cbersicht"></a>2.12.3.1. Feature-Übersicht</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Keine Redundanz. Es wird ein- und dieselbe LaTeX-Vorlage
-              für alle briefartigen Dokumente verwendet. Also Angebot,
-              Rechnung, Proformarechnung, Lieferschein, aber eben nicht für
-              Paketaufkleber etc.</p></li><li class="listitem"><p>Leichte Anpassung an das Firmen-Layout durch Verwendung
-              eines Hintergrund-PDFs. Dieses kann leicht mit dem eigenen
-              Lieblingsprogramm erstellt werden (Openoffice, Inkscape, Gimp,
-              Adobe*)</p></li><li class="listitem"><p>Hintergrund-PDF umschaltbar auf "nur erste Seite"
-              (Standard) oder "alle Seiten" (Option
-              "<code class="option">bgPdfFirstPageOnly</code>" in Datei
-              <code class="filename">letter.lco</code>)</p></li><li class="listitem"><p>Hintergrund-PDF für Ausdruck auf bereits bedrucktem
-              Briefpapier abschaltbar. Es wird dann nur bei per E-Mail
-              versendeten Dokumenten eingebunden (Option
-              "<code class="option">bgPdfEmailOnly</code>" in Datei
-              <code class="filename">letter.lco</code>).</p></li><li class="listitem"><p>Nutzung der Layout-Funktionen von LaTeX für Seitenumbruch,
-              Wiederholung von Kopfzeilen, Zwischensummen etc. (danke an
-              Kai-Martin Knaak für die Vorarbeit)</p></li><li class="listitem"><p>Anzeige des Empfängerlandes im Adressfeld nur, wenn es vom
-              Land des eigenen Unternehmens abweicht (also die Rechnung das
-              Land verlässt).</p></li><li class="listitem"><p>Multisprachfähig leicht um weitere Sprachen zu erweitern,
-              alle Übersetzungen in der Datei
-              <code class="filename">translatinos.tex</code>.</p></li><li class="listitem"><p>Auflistung von Bruttopreisen für Endverbraucher.</p></li></ul></div></div><div class="sect3" title="2.12.3.2. Die Installation"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-Installation"></a>2.12.3.2. Die Installation</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Vorlagenverzeichnis mit Option f-tex anlegen, siehe: <a class="xref" href="ch02s12.html#Vorlagenverzeichnis-anlegen" title="2.12.1. Vorlagenverzeichnis anlegen">Vorlagenverzeichnis anlegen</a>. Das Vorlagensystem
-              funktioniert jetzt schon, hat allerdings noch einen
-              Beispiel-Briefkopf.</p></li><li class="listitem"><p>Erstelle eine pdf-Hintergrund Datei und verlinke sie nach
-              <code class="filename">./letter_head.pdf</code>.</p></li><li class="listitem"><p>Editiere den Bereich "<code class="option">settings</code>" in der
-              datei <code class="filename">letter.lco</code>.</p></li></ul></div><p>oder etwas detaillierter:</p><p>Es wird eine Datei <code class="filename">sample.lco</code> erstellt
-          und diese nach <code class="filename">letter.lco</code> verlinkt. Eigentlich
-          ist dies die Datei die für die firmenspezifischen Anpassungen
-          gedacht ist. Da die Einstiegshürde in LaTeX nicht ganz niedrig ist,
-          wird in dieser Datei auf ein Hintergrund-PDF verwiesen. Ich empfehle
-          über dieses PDF die persönlichen Layoutanpassungen vorzunehmen und
-          <code class="filename">sample.lco</code> unverändert zu lassen. Die Anpassung
-          über eine <code class="filename">*.lco</code>-Datei, die letztlich auf
-          <code class="filename">letter.lco</code> verlinkt ist ist aber auch
-          möglich.</p><p>Es wird eine Datei <code class="filename">sample_head.pdf</code> mit
-          ausgeliefert, diese wird nach <code class="filename">letter_head.pdf</code>
-          verlinkt. Damit gibt es schon mal eine funktionsfähige Vorlage.
-          Schau Dir nach Abschluss der Installation die Datei
-          <code class="filename">sample_head.pdf</code> an und erstelle ein
-          entsprechendes PDF passend zum Briefkopf Deiner Firma, diese dann im
-          Template Verzeichniss ablegen und statt
-          <code class="filename">sample_head.pdf</code> nach
-          <code class="filename">letter_head.pdf</code> verlinken.</p><p>Letzlich muss <code class="filename">letter_head.pdf</code> auf das
-          passende Hintergrund-PDF verweisen, welches gewünschten Briefkopf
-          enthält.</p><p>Es wird eine Datei <code class="filename">mydata.tex.example</code>
-          ausgeliefert, die nach <code class="filename">mytdata.tex</code> verlinkt
-          ist. Bei verwendetem Hintergrund-PDF wird nur der Eintrag für das
-          Land verwendet. Die Datei muss also nicht angefasst werden. Die
-          anderen Werte sind für das Modul 'lp' (Label Print in erp - zur Zeit
-          nicht im öffentlichen Zweig).</p><p>Alle Anpassungen zum Briefkopf, Fusszeilen, Firmenlogos, etc.
-          sollten über die Hintergrund-PDF-Datei oder die
-          <code class="filename">*.lco</code>-Datei erfolgen.</p></div><div class="sect3" title="2.12.3.3. f-tex Funktionsübersicht"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-Funktions%C3%BCbersicht"></a>2.12.3.3. f-tex Funktionsübersicht</h4></div></div></div><p>Das Konzept von kivitendo sieht vor, für jedes Dokument
-          (Auftragsbestätigung, Lieferschein, Rechnung, etc.) eine
-          LaTeX-Vorlage vorzuhalten, dies ist sehr wartungsunfreundlich. Auch
-          das Einlesen einer einheitlichen Quelle für den Briefkopf bringt nur
-          bedingte Vorteile, da hier leicht die Pflege der Artikel-Tabellen
-          aus dem Ruder läuft. Bei dem vorliegenden Ansatz wird für alle
-          briefartigen Dokumente mit Artikel-Tabellen eine einheitliche
-          LaTeX-Vorlage verwendet, welche über Codeweichen die Besonderheiten
-          der jeweiligen Dokumente berücksichtigt:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Tabellen mit oder ohne Preis</p></li><li class="listitem"><p>Sprache der Tabellenüberschriften etc.</p></li><li class="listitem"><p>Anpassung der Bezugs-Zeile (z.B. Rechnungsnummer versus
-              Angebotsnummer)</p></li><li class="listitem"><p>Darstellung von Brutto oder Netto-Preisen in der
-              Auflistung (Endverbraucher versus gewerblicher Kunde)</p></li></ul></div><p>Nachteil:</p><p>LaTeX hat ohnehin eine sehr steile Lehrnkurve. Die Datei
-          <code class="filename">letter.tex</code> ist sehr komplex und verstärkt damit
-          diesen Effekt noch einmal erheblich. Wer LaTeX-Erfahrung hat, oder
-          geübt ist Scriptsparachen nachzuvollziehen kann natürlich auch
-          innerhalb der Tabellendarstellung gut persönliche Anpassungen
-          vornehmen. Aber man kann sich hier bei Veränderungen sehr schnell
-          heftig in den Fuss schiessen.</p><p>Wer nicht so tief in die Materie einsteigen will oder leicht
-          zu frustrieren ist, sollte sein Hintergrund-PDF auf Basis der
-          mitglieferten Datei <code class="filename">sample_head.pdf</code> erstellen,
-          und sich an der Form der dargestellten Tabellen, wie sie
-          ausgeliefert werden, erfreuen.</p><p>Kleiner Tipp: Nicht zu viel auf einmal wollen, lieber kleine,
-          kontinuierliche Schritte gehen.</p></div><div class="sect3" title="2.12.3.4. Bruttopreise für Endverbraucher"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-Bruttopreise"></a>2.12.3.4. Bruttopreise für Endverbraucher</h4></div></div></div><p>Der auszuweisende Bruttopreis wird innerhalb der
-          LaTeX-Umgebung berechnet. Es gibt zwar ein Feld, um bei Aufträgen
-          "alle Preise Brutto" auszuwählen, aber:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>hierfür müssen die Preise auch in Brutto in der Datenbank
-              stehen (ja - das lässt sich über die Preisgruppen und die
-              Zuordung einer Default-Preisgruppe handhaben)</p></li><li class="listitem"><p>man darf beim Anlegen des Vorgangs nicht vergessen, dieses
-              Häkchen zu setzen. (Das ist in der Praxis, wenn man sowohl
-              Endverbraucher als auch Gewerbekunden beliefert, der eigentliche
-              Knackpunkt)</p></li></ul></div><p>Es gibt mit f-tex eine weitere Alternative. Die Information ob
-          Brutto oder Nettorechnung wird mit den Zahlarten verknüpft.
-          Zahlarten bei denen Rechnungen, Angebote, etc, in Brutto ausgegeben
-          werden sollen, enden mit "_E" (für Endverbraucher). Falls identische
-          Zahlarten für Gewerbekunden und Endverbraucher vorhanden sind, legt
-          man diese einfach doppelt an (einmal mit der Namensendung "_E").
-          Gewinn:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Die Entscheidung, ob Nettopreise ausgewiesen werden, ist
-              nicht mehr fix mit einer Preisliste verbunden.</p></li><li class="listitem"><p>Die Default-Zahlart kann im Kundendatensatz hinterlegt
-              werden, und man muss nicht mehr daran denken, "alle Preise
-              Netto" auszuwählen.</p></li><li class="listitem"><p>Die Entscheidung, ob Netto- oder Bruttopreise ausgewiesen
-              werden, kann direkt beim Drucken revidiert werden, ohne dass
-              sich der Auftragswert ändert.</p></li></ul></div></div><div class="sect3" title="2.12.3.5. Lieferadressen"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-lieferadressen"></a>2.12.3.5. Lieferadressen</h4></div></div></div><p>In Lieferscheinen kommen <code class="varname">shipto*</code>-Variablen
-          im Adressfeld zum Einsatz. Wenn die
-          <code class="varname">shipto*</code>-Variable leer ist, wird die entsprechende
-          Adressvariable eingesetzt. Wenn also die Lieferadresse in Straße,
-          Hausnummer und Ort abweicht, müssen auch nur diese Felder in der
-          Lieferadresse ausgefüllt werden. Für den Firmenname wird der Wert
-          der Hauptadresse angezeigt.</p></div></div><div class="sect2" title="2.12.4. Der Druckvorlagensatz rev-odt"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-rev-odt"></a>2.12.4. Der Druckvorlagensatz rev-odt</h3></div></div></div><p>Hierbei handelt es sich um einen Dokumentensatz der mit
+            "Außerhalb EU"</p></li></ul></div></div><div class="sect2" title="2.12.3. Der Druckvorlagensatz rev-odt"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-rev-odt"></a>2.12.3. Der Druckvorlagensatz rev-odt</h3></div></div></div><p>Hierbei handelt es sich um einen Dokumentensatz der mit
         odt-Vorlagen erstellt wurde. Es gibt in dem Verzeichnis eine
         Readme-Datei, die eventuell aktueller als die Dokumentation hier ist.
         Die odt-Vorlagen in diesem Verzeichnis "rev-odt" wurden von revamp-it,
@@ -166,7 +71,7 @@
         die verrechneten Mahngebühren und Verzugszinsen.</p><p>Zur Zeit gibt es in kivitendo noch keine Möglichkeit,
         odt-Vorlagen bei Briefen und Pflichtenheften einzusetzen.
         Entsprechende Vorlagen sind deshalb nicht vorhanden.</p><p>Fehlermeldungen, Anregungen und Wünsche bitte senden an:
-        empfang@revamp-it.ch</p></div><div class="sect2" title="2.12.5. Allgemeine Hinweise zu LaTeX Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="allgemeine-hinweise-zu-latex"></a>2.12.5. Allgemeine Hinweise zu LaTeX Vorlagen</h3></div></div></div><p>In den allermeisten Installationen sollte das Drucken jetzt
+        empfang@revamp-it.ch</p></div><div class="sect2" title="2.12.4. Allgemeine Hinweise zu LaTeX Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="allgemeine-hinweise-zu-latex"></a>2.12.4. Allgemeine Hinweise zu LaTeX Vorlagen</h3></div></div></div><p>In den allermeisten Installationen sollte das Drucken jetzt
         schon funktionieren. Sollte ein Fehler auftreten, wirft TeX sehr lange
         Fehlerbeschreibungen, der eigentliche Fehler ist immer die erste
         Zeile, die mit einem Ausrufezeichen anfängt. Häufig auftretende Fehler

@@ -121,7 +121,7 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</pre>
         sowie ferner auch die Möglichkeit nicht ausschließen, dass es in Unterverzeichnissen auch noch .git Repositories geben kann.
         Die Empfehlung für Apache 2.4 wäre damit:
         </p><pre class="programlisting">
-        &lt;DirectoryMatch "(\.git|config)/"&gt;
+        &lt;DirectoryMatch "/(\.git|config)/"&gt;
           Require all denied
         &lt;/DirectoryMatch&gt;</pre><p>
        

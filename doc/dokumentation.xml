@@ -2189,24 +2189,23 @@ digits_year: 4</programlisting>
   texlive-collection-latexrecommended texlive-collection-langgerman \
   texlive-collection-langenglish</programlisting></para>
 
+      <note>kivitendo erwartet eine aktuelle TeX Live Umgebung, um PDF/A zu erzeugen. Aktuelle Distributionen von 2020 erfüllen diese. Überprüfbar ist dies mit dem Aufruf des installation_check.pl mit Parameter -l: <programlisting>scripts/installations_check.pl -l</programlisting> </note>
       <para>kivitendo bringt drei alternative Vorlagensätze mit:</para>
 
       <itemizedlist>
         <listitem>
           <para>RB</para>
         </listitem>
-
         <listitem>
-          <para>f-tex</para>
+          <para>marei</para>
         </listitem>
-
         <listitem>
           <para>rev-odt</para>
         </listitem>
       </itemizedlist>
 
-      <para>Der ehemalige Druckvorlagensatz "Standard" wurde mit der Version
-      3.3 entfernt, da er nicht mehr gepflegt wurde.</para>
+      <para>Der ehemalige Druckvorlagensatz "f-tex" wurde mit der Version
+      3.6 entfernt, da er nicht mehr gepflegt wird.</para>
 
       <sect2 id="Vorlagenverzeichnis-anlegen"
              xreflabel="Vorlagenverzeichnis anlegen">
@@ -2230,7 +2229,7 @@ digits_year: 4</programlisting>
           <listitem>
             <para><option>Vorlagen auswählen</option>: Wählen Sie hier den
             Vorlagensatz aus, der kopiert werden soll
-            (<filename>RB</filename>, <filename>f-tex</filename> oder
+            (<filename>RB</filename>, <filename>marei</filename> oder
             <filename>odt-rev</filename>.)</para>
           </listitem>
 
@@ -2288,247 +2287,7 @@ digits_year: 4</programlisting>
         </itemizedlist>
       </sect2>
 
-      <sect2 id="f-tex">
-        <title>f-tex</title>
-
-        <para>Ein Vorlagensatz, der in wenigen Minuten alle Dokumente zur
-        Verfügung stellt.</para>
-
-        <sect3 id="f-tex-Feature-Übersicht">
-          <title>Feature-Übersicht</title>
-
-          <itemizedlist>
-            <listitem>
-              <para>Keine Redundanz. Es wird ein- und dieselbe LaTeX-Vorlage
-              für alle briefartigen Dokumente verwendet. Also Angebot,
-              Rechnung, Proformarechnung, Lieferschein, aber eben nicht für
-              Paketaufkleber etc.</para>
-            </listitem>
-
-            <listitem>
-              <para>Leichte Anpassung an das Firmen-Layout durch Verwendung
-              eines Hintergrund-PDFs. Dieses kann leicht mit dem eigenen
-              Lieblingsprogramm erstellt werden (Openoffice, Inkscape, Gimp,
-              Adobe*)</para>
-            </listitem>
-
-            <listitem>
-              <para>Hintergrund-PDF umschaltbar auf "nur erste Seite"
-              (Standard) oder "alle Seiten" (Option
-              "<option>bgPdfFirstPageOnly</option>" in Datei
-              <filename>letter.lco</filename>)</para>
-            </listitem>
-
-            <listitem>
-              <para>Hintergrund-PDF für Ausdruck auf bereits bedrucktem
-              Briefpapier abschaltbar. Es wird dann nur bei per E-Mail
-              versendeten Dokumenten eingebunden (Option
-              "<option>bgPdfEmailOnly</option>" in Datei
-              <filename>letter.lco</filename>).</para>
-            </listitem>
-
-            <listitem>
-              <para>Nutzung der Layout-Funktionen von LaTeX für Seitenumbruch,
-              Wiederholung von Kopfzeilen, Zwischensummen etc. (danke an
-              Kai-Martin Knaak für die Vorarbeit)</para>
-            </listitem>
-
-            <listitem>
-              <para>Anzeige des Empfängerlandes im Adressfeld nur, wenn es vom
-              Land des eigenen Unternehmens abweicht (also die Rechnung das
-              Land verlässt).</para>
-            </listitem>
-
-            <listitem>
-              <para>Multisprachfähig leicht um weitere Sprachen zu erweitern,
-              alle Übersetzungen in der Datei
-              <filename>translatinos.tex</filename>.</para>
-            </listitem>
-
-            <listitem>
-              <para>Auflistung von Bruttopreisen für Endverbraucher.</para>
-            </listitem>
-          </itemizedlist>
-        </sect3>
-
-        <sect3 id="f-tex-Installation">
-          <title>Die Installation</title>
-
-          <itemizedlist>
-            <listitem>
-              <para>Vorlagenverzeichnis mit Option f-tex anlegen, siehe: <xref
-              linkend="Vorlagenverzeichnis-anlegen"/>. Das Vorlagensystem
-              funktioniert jetzt schon, hat allerdings noch einen
-              Beispiel-Briefkopf.</para>
-            </listitem>
-
-            <listitem>
-              <para>Erstelle eine pdf-Hintergrund Datei und verlinke sie nach
-              <filename>./letter_head.pdf</filename>.</para>
-            </listitem>
-
-            <listitem>
-              <para>Editiere den Bereich "<option>settings</option>" in der
-              datei <filename>letter.lco</filename>.</para>
-            </listitem>
-          </itemizedlist>
-
-          <para>oder etwas detaillierter:</para>
-
-          <para>Es wird eine Datei <filename>sample.lco</filename> erstellt
-          und diese nach <filename>letter.lco</filename> verlinkt. Eigentlich
-          ist dies die Datei die für die firmenspezifischen Anpassungen
-          gedacht ist. Da die Einstiegshürde in LaTeX nicht ganz niedrig ist,
-          wird in dieser Datei auf ein Hintergrund-PDF verwiesen. Ich empfehle
-          über dieses PDF die persönlichen Layoutanpassungen vorzunehmen und
-          <filename>sample.lco</filename> unverändert zu lassen. Die Anpassung
-          über eine <filename>*.lco</filename>-Datei, die letztlich auf
-          <filename>letter.lco</filename> verlinkt ist ist aber auch
-          möglich.</para>
-
-          <para>Es wird eine Datei <filename>sample_head.pdf</filename> mit
-          ausgeliefert, diese wird nach <filename>letter_head.pdf</filename>
-          verlinkt. Damit gibt es schon mal eine funktionsfähige Vorlage.
-          Schau Dir nach Abschluss der Installation die Datei
-          <filename>sample_head.pdf</filename> an und erstelle ein
-          entsprechendes PDF passend zum Briefkopf Deiner Firma, diese dann im
-          Template Verzeichniss ablegen und statt
-          <filename>sample_head.pdf</filename> nach
-          <filename>letter_head.pdf</filename> verlinken.</para>
-
-          <para>Letzlich muss <filename>letter_head.pdf</filename> auf das
-          passende Hintergrund-PDF verweisen, welches gewünschten Briefkopf
-          enthält.</para>
-
-          <para>Es wird eine Datei <filename>mydata.tex.example</filename>
-          ausgeliefert, die nach <filename>mytdata.tex</filename> verlinkt
-          ist. Bei verwendetem Hintergrund-PDF wird nur der Eintrag für das
-          Land verwendet. Die Datei muss also nicht angefasst werden. Die
-          anderen Werte sind für das Modul 'lp' (Label Print in erp - zur Zeit
-          nicht im öffentlichen Zweig).</para>
-
-          <para>Alle Anpassungen zum Briefkopf, Fusszeilen, Firmenlogos, etc.
-          sollten über die Hintergrund-PDF-Datei oder die
-          <filename>*.lco</filename>-Datei erfolgen.</para>
-        </sect3>
-
-        <sect3 id="f-tex-Funktionsübersicht">
-          <title>f-tex Funktionsübersicht</title>
-
-          <para>Das Konzept von kivitendo sieht vor, für jedes Dokument
-          (Auftragsbestätigung, Lieferschein, Rechnung, etc.) eine
-          LaTeX-Vorlage vorzuhalten, dies ist sehr wartungsunfreundlich. Auch
-          das Einlesen einer einheitlichen Quelle für den Briefkopf bringt nur
-          bedingte Vorteile, da hier leicht die Pflege der Artikel-Tabellen
-          aus dem Ruder läuft. Bei dem vorliegenden Ansatz wird für alle
-          briefartigen Dokumente mit Artikel-Tabellen eine einheitliche
-          LaTeX-Vorlage verwendet, welche über Codeweichen die Besonderheiten
-          der jeweiligen Dokumente berücksichtigt:</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>Tabellen mit oder ohne Preis</para>
-            </listitem>
-
-            <listitem>
-              <para>Sprache der Tabellenüberschriften etc.</para>
-            </listitem>
-
-            <listitem>
-              <para>Anpassung der Bezugs-Zeile (z.B. Rechnungsnummer versus
-              Angebotsnummer)</para>
-            </listitem>
-
-            <listitem>
-              <para>Darstellung von Brutto oder Netto-Preisen in der
-              Auflistung (Endverbraucher versus gewerblicher Kunde)</para>
-            </listitem>
-          </itemizedlist>
-
-          <para>Nachteil:</para>
-
-          <para>LaTeX hat ohnehin eine sehr steile Lehrnkurve. Die Datei
-          <filename>letter.tex</filename> ist sehr komplex und verstärkt damit
-          diesen Effekt noch einmal erheblich. Wer LaTeX-Erfahrung hat, oder
-          geübt ist Scriptsparachen nachzuvollziehen kann natürlich auch
-          innerhalb der Tabellendarstellung gut persönliche Anpassungen
-          vornehmen. Aber man kann sich hier bei Veränderungen sehr schnell
-          heftig in den Fuss schiessen.</para>
-
-          <para>Wer nicht so tief in die Materie einsteigen will oder leicht
-          zu frustrieren ist, sollte sein Hintergrund-PDF auf Basis der
-          mitglieferten Datei <filename>sample_head.pdf</filename> erstellen,
-          und sich an der Form der dargestellten Tabellen, wie sie
-          ausgeliefert werden, erfreuen.</para>
-
-          <para>Kleiner Tipp: Nicht zu viel auf einmal wollen, lieber kleine,
-          kontinuierliche Schritte gehen.</para>
-        </sect3>
-
-        <sect3 id="f-tex-Bruttopreise">
-          <title>Bruttopreise für Endverbraucher</title>
-
-          <para>Der auszuweisende Bruttopreis wird innerhalb der
-          LaTeX-Umgebung berechnet. Es gibt zwar ein Feld, um bei Aufträgen
-          "alle Preise Brutto" auszuwählen, aber:</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>hierfür müssen die Preise auch in Brutto in der Datenbank
-              stehen (ja - das lässt sich über die Preisgruppen und die
-              Zuordung einer Default-Preisgruppe handhaben)</para>
-            </listitem>
-
-            <listitem>
-              <para>man darf beim Anlegen des Vorgangs nicht vergessen, dieses
-              Häkchen zu setzen. (Das ist in der Praxis, wenn man sowohl
-              Endverbraucher als auch Gewerbekunden beliefert, der eigentliche
-              Knackpunkt)</para>
-            </listitem>
-          </itemizedlist>
-
-          <para>Es gibt mit f-tex eine weitere Alternative. Die Information ob
-          Brutto oder Nettorechnung wird mit den Zahlarten verknüpft.
-          Zahlarten bei denen Rechnungen, Angebote, etc, in Brutto ausgegeben
-          werden sollen, enden mit "_E" (für Endverbraucher). Falls identische
-          Zahlarten für Gewerbekunden und Endverbraucher vorhanden sind, legt
-          man diese einfach doppelt an (einmal mit der Namensendung "_E").
-          Gewinn:</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>Die Entscheidung, ob Nettopreise ausgewiesen werden, ist
-              nicht mehr fix mit einer Preisliste verbunden.</para>
-            </listitem>
-
-            <listitem>
-              <para>Die Default-Zahlart kann im Kundendatensatz hinterlegt
-              werden, und man muss nicht mehr daran denken, "alle Preise
-              Netto" auszuwählen.</para>
-            </listitem>
-
-            <listitem>
-              <para>Die Entscheidung, ob Netto- oder Bruttopreise ausgewiesen
-              werden, kann direkt beim Drucken revidiert werden, ohne dass
-              sich der Auftragswert ändert.</para>
-            </listitem>
-          </itemizedlist>
-        </sect3>
-
-        <sect3 id="f-tex-lieferadressen">
-          <title>Lieferadressen</title>
-
-          <para>In Lieferscheinen kommen <varname>shipto*</varname>-Variablen
-          im Adressfeld zum Einsatz. Wenn die
-          <varname>shipto*</varname>-Variable leer ist, wird die entsprechende
-          Adressvariable eingesetzt. Wenn also die Lieferadresse in Straße,
-          Hausnummer und Ort abweicht, müssen auch nur diese Felder in der
-          Lieferadresse ausgefüllt werden. Für den Firmenname wird der Wert
-          der Hauptadresse angezeigt.</para>
-        </sect3>
-      </sect2>
-
-      <sect2 id="Vorlagen-rev-odt">
+     <sect2 id="Vorlagen-rev-odt">
         <title>Der Druckvorlagensatz rev-odt</title>
 
         <para>Hierbei handelt es sich um einen Dokumentensatz der mit
