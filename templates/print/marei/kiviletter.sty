@@ -438,7 +438,7 @@ contents={\usebox\shippingAddressBox}
 
 \if@kivi@infobox
 \setkomavar{location}{
-	\ifkomavarempty{transaction}{}{
+	\Ifkomavarempty{transaction}{}{
 	\bfseries
 	\usekomavar{transaction}
 	}
@@ -446,24 +446,24 @@ contents={\usebox\shippingAddressBox}
 	\medskip
 	\begin{tabularx}{\useplength{locwidth}}{@{}l<{:}>{\raggedleft\arraybackslash}X@{}}
 		\usekomavar*{date}&\usekomavar{date}\\
-		\ifkomavarempty{myref}{}{
+		\Ifkomavarempty{myref}{}{
 			\usekomavar*{myref}&\usekomavar{myref}\\
 		}
 		\kundennummer&\usekomavar{customer}\\
-		\ifkomavarempty{yourref}{}{
+		\Ifkomavarempty{yourref}{}{
 			\usekomavar*{yourref}&\usekomavar{yourref}\\
 		}
-		\ifkomavarempty{delivery}{}{
+		\Ifkomavarempty{delivery}{}{
 			\usekomavar*{delivery}&\usekomavar{delivery}\\
 		}
-		\ifkomavarempty{quote}{}{
+		\Ifkomavarempty{quote}{}{
 			\usekomavar*{quote}&\usekomavar{quote}\\
 		}
-		\ifkomavarempty{orderID}{}{\auftragsnummer&\usekomavar{orderID}\\}
-		\ifkomavarempty{projectID}{}{\projektnummer&\usekomavar{projectID}\\}
+		\Ifkomavarempty{orderID}{}{\auftragsnummer&\usekomavar{orderID}\\}
+		\Ifkomavarempty{projectID}{}{\projektnummer&\usekomavar{projectID}\\}
 		\ansprechpartner&\usekomavar{fromname}
-		\ifkomavarempty{fromphone}{}{\\\textTelefon&\usekomavar{fromphone}}
-		\ifkomavarempty{fromemail}{}{\\\textEmail&\usekomavar{fromemail}}
+		\Ifkomavarempty{fromphone}{}{\\\textTelefon&\usekomavar{fromphone}}
+		\Ifkomavarempty{fromemail}{}{\\\textEmail&\usekomavar{fromemail}}
 	\end{tabularx}
 }
 \removereffields
@@ -473,10 +473,14 @@ contents={\usebox\shippingAddressBox}
 	\@addtoplength{refvpos}{4\baselineskip}%sep between address boxes
 	\fi
 }
-\ExplSyntaxOff
+
 \fi
 
+%Fallback for older KOMA-Script-Versions
+\cs_if_exist:NF \Ifstr {\let\Ifstr\ifstr}
+\cs_if_exist:NF \Ifkomavarempty {\let\Ifkomavarempty\ifkomavarempty}
 
+\ExplSyntaxOff
 
 \renewcommand*{\raggedsignature}{\raggedright}
 

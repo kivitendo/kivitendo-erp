@@ -71,10 +71,10 @@
 % Bei Kontaktperson Anrede nach Geschlecht unterscheiden.
 % Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
 \opening{
-	\ifstr{<%cp_name%>}{}
+	\Ifstr{<%cp_name%>}{}
 		{<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede<%end if%>}
 		{
-			\ifstr{<%cp_gender%>}{f}
+			\Ifstr{<%cp_gender%>}{f}
 				{\anredefrau}
 				{\anredeherr}
 				<%cp_title%> <%cp_name%>,
@@ -99,7 +99,7 @@
 	&%
 	<%qty%> <%unit%> &%
 	<%sellprice%>&%
-	\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
+	\Ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
 	<%linetotal%>\tabularnewline%
 	<%end number%>%
 }%

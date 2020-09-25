@@ -3,12 +3,12 @@
 \ProvidesFile{insettings.tex}[2019/12/22 Konfigurationsdatei kivitendo ERP]
 % Sprachüberprüfung
 \RequirePackage[english, ngerman]{babel}
-\ifstr{\lxlangcode}{EN}{
+\Ifstr{\lxlangcode}{EN}{
 	\makeatletter
 	\main@language{english}
 	\makeatother
 	\input{english.tex}}{
-	\ifstr{\lxlangcode}{DE}{
+	\Ifstr{\lxlangcode}{DE}{
 		\makeatletter
 		\main@language{ngerman}
 		\makeatother
@@ -91,10 +91,10 @@
   \ifnum\thepage=1
   \else
       \makebox[\textwidth]{
-      \ifstr{#1}{}{}{#1: #2 \hspace{0.7cm}}
+      \Ifstr{#1}{}{}{#1: #2 \hspace{0.7cm}}
       #3
-      \ifstr{#4}{}{}{~\nr: #4}
-      \ifstr{#5}{}{}{\vom ~ #5}
+      \Ifstr{#4}{}{}{~\nr: #4}
+      \Ifstr{#5}{}{}{\vom ~ #5}
       \hspace{0.7cm} - \seite ~ \thepage/\letterlastpage  ~-%
       }
   \fi
@@ -116,7 +116,7 @@
 	\strasse               & \homepage           & \textBank        & \bank \\
 	\ort                   & \textUstid\ \ustid  & \textIban        & \iban \\
 	\textTelefon~\telefon  & \finanzamt          & \textBic         & \bic \\
-	\ifstr{\fax}{}{}{\textFax~\fax} & &\textBankleitzahl	& \bankleitzahl
+	\Ifstr{\fax}{}{}{\textFax~\fax} & &\textBankleitzahl	& \bankleitzahl
 	\end{tabular*}
 \end{lrbox}
 
