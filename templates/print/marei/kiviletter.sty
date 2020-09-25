@@ -386,14 +386,24 @@ contents={\usebox\shippingAddressBox}
 
 \RequirePackage{xltabular}
 
+\keys_define:nn {kivi/SimpleTabular} {
+	colspec .tl_set:N =\l_kivi_SimpleTabular_colspec_tl,
+	colspec .initial:n = {rrX},
+	headline .tl_set:N = \l_kivi_SimpleTabular_headline_tl,
+	headline .initial:n = {\bfseries\position & \bfseries\menge & \bfseries\bezeichnung},
+}
 
-\newenvironment{SimpleTabular}[1][\bfseries\position & \bfseries\menge & \bfseries\bezeichnung]
+\newenvironment{SimpleTabular}[1][]
 {
+	\tl_if_in:nnTF {#1} {=} {\keys_set:nn {kivi/SimpleTabular} {#1}} {\tl_if_empty:nF {#1} {\tl_set:Nn \l_kivi_SimpleTabular_headline_tl {#1}}}
 	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
-	\xltabular{\linewidth}{@{}rrX@{}}
+	\tl_put_right:Nn \l_kivi_SimpleTabular_colspec_tl {@{}}
+	\tl_put_left:Nn \l_kivi_SimpleTabular_colspec_tl {@{}}
+	\exp_args:NnV \xltabular{\linewidth}\l_kivi_SimpleTabular_colspec_tl
 	\toprule
-	#1\\
-	\midrule\\\endhead
+	\l_kivi_SimpleTabular_headline_tl\\
+	\midrule
+	\endhead
 	\midrule
 	\rlap{\makebox[\textwidth][r]{\weiteraufnaechsterseite}}\\
 	\endfoot
