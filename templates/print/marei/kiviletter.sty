@@ -205,6 +205,7 @@ contents={\usebox\shippingAddressBox}
 	},
 	underlay~unbroken~and~last={
 	\node[anchor=north]  at (interior.north)  {\csname box_use:c\endcsname  {g_kivi_LT@head_box}};
+	\node[anchor=south]  at (interior.south)  {\csname box_use:c\endcsname  {g_kivi_LT@lastfoot_box}};
 	},
 	boxsep=0pt,
 	boxrule=0pt,
@@ -316,6 +317,13 @@ contents={\usebox\shippingAddressBox}
 			\end{tabular*}
 		}
 	}
+	\hbox_gset:Nn \g_kivi_LT@lastfoot_box {
+		\raisebox{\dimexpr\depth+\baselineskip}[0pt][0pt]{
+			\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}r@{}}
+				\bottomrule
+			\end{tabular*}
+		}
+	}
 }
 
 
@@ -327,13 +335,14 @@ contents={\usebox\shippingAddressBox}
 	\tabular[t]{@{}p{\dim_eval:n {\linewidth-\l_kivi_tab_pricetotal_dim-2\tabcolsep}}P{\l_kivi_tab_pricetotal_dim}@{}}
 	\midrule
 }{
-	\bottomrule\endtabular
+	\endtabular
 }
 
 \newcommand{\ExtraDescription}[1]{\seq_gput_right:Nn \g_kivi_extraDescription_seq {#1}}
 
 \newenvironment{PricingTabular}[1][]{
 	\begingroup
+	\tl_if_empty:nF {#1} {\keys_set:nn {kivi/PricingTable} {#1}}
 	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
 	\__kivi_calc_desc_column:
 	\exp_args:Nx \longtable \g_kivi_Pricing_colspec_tl
@@ -343,6 +352,8 @@ contents={\usebox\shippingAddressBox}
 	\midrule
 	\multicolumn{6}{@{}r@{}}{\weiteraufnaechsterseite}\\
 	\endfoot
+	\bottomrule
+	\endlastfoot
 }{
 	\endlongtable
 	\endgroup
@@ -392,7 +403,6 @@ contents={\usebox\shippingAddressBox}
 % analog ist dies für pos, amount, price, pricetotal möglich.
 % Die Spalte der Bezeichnung ist nicht deaktivierbar
 \newenvironment{PricingTabular*}[1][]{
-	\bool_gset_true:N \g_kivi_inTable_bool
 	\tl_if_empty:nF {#1} {\keys_set:nn {kivi/PricingTable} {#1}}
 	\__kivi_setup_LT_boxes:
 	\__kivi_setup_FakeTable:
