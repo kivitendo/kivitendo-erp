@@ -87,9 +87,9 @@
 
 \gutschriftformel
 
-\begin{PricingTabular*}
-% eigentliche Tabelle
-\FakeTable{
+\begin{PricingTabular*}%
+% eigentliche Tabelle%
+\FakeTable{%
 	<%foreach number%>%
 	<%runningnumber%> &%
 	<%number%> &%
@@ -104,15 +104,15 @@
 		\ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
 			<%linetotal%>\tabularnewline
 			<%end number%>%
-	}
-	\begin{PricingTotal}
+	}%
+	\begin{PricingTotal}%
 		% Tabellenende letzte Seite
-		\nettobetrag & <%subtotal%>\\
+		\nettobetrag & <%subtotal%>\\%
 		<%foreach tax%>%
-		<%taxdescription%> & <%tax%>\\
+		<%taxdescription%> & <%tax%>\\%
 		<%end tax%>%
-		\bfseries\schlussbetrag &  \bfseries <%ordtotal%>\\
-	\end{PricingTotal}
+		\bfseries\schlussbetrag &  \bfseries <%ordtotal%>\\%
+	\end{PricingTotal}%
 \end{PricingTabular*}
 
 <%if notes%>%
