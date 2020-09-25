@@ -56,8 +56,87 @@ Währungen / Konten:
     Fusszeile:
     Die Tabelle im Fuß verwendet die Angaben aus firma/ident.tex und
     firma/*_account.tex.
+
+## Seitenstil/Basislayout:
+
         
 ## Tabellen:
+
+Die Tabellenstruktur wurde komplett überarbeitet. Der Vorlagensatz verfügt über Tabellen, die automatisch die Breite der Textbreite anpassen und zusätzlich Seitenumbrüche erlauben.
+
+### SimpleTabular
+
+Der einfache Tabellentyp ist die Umgebung `SimpleTabular`. die ist eine Tabelle basieren auf dem xltabular-Paket, die die sich der Textbreite anpasst. Sie wird in den Dateien *zahlungserinnerung_invoice.tex*, *zahlungserinnerung.tex* und *statement.tex* verwendet.
+
+Sie verfügt über ein optionales Argument um die Spaltenkonfiguration und die Kopfzeile anzupassen. Die Voreinstellung (also ohne optionales Argument) entspricht der, der folgenden Angabe:
+
+```
+\begin{SimpleTabular}[colspec=rrX,headline={\bfseries\position & \bfseries\menge & \bfseries\bezeichnung}]
+
+```
+
+#### Kopfzeile
+Die Kopfzeile wird über den Optionsschlüssel headline angepasst. Entsprechend dem LaTeX-Standard werden Tabellen Spalten mit `&` getrennt. `\bfseries` setzt den Tabellenkopf zusätzlich in Fettschrift.
+
+#### Spaltenkonfiguration (fortgeschrittene Nutzer)
+Die voreingestellte Spaltenkonfiguration entspricht `rrX`, also zwei rechtsbündigen Spalten und einer Blocksatzspalte, die die restliche Breite einnimmt. Soll von dieser Spaltenkonfiguration abgewichen werden, steht der Optionsschlüssel `colspec` zur Verfügung. Das folgende Beispiel tauscht die beiden rechtsbündigen Spalten in linksbündige:
+
+```
+\begin{SimpleTabular}[colspec=llX]
+
+```
+Als Spaltentypen sind Konfigurationen aus den folgenden Einträgen am sinnvollsten:
+* `l`, `r`, `c`: Linksbündig, rechtsbündig, zentriert. Spaltenbreite passt sich dem Inhalt an.
+* `X`: Blocksatz, Spaltenbreite füllt den übrigen Platz auf. Bei mehreren `X`-Spalten wird gleichmäßig aufgeteilt
+
+Zusätzlich ist es möglich die Währung automatisch in der Spalte zu ergänzen.
+Der Mechanismus ist so kontruiert, dass diese nicht in der Kopfzeile sondern lediglich in den Inhaltszeilen eingefügt wird.
+In diesem Fall wird die Spaltenspezifikation durch `<{\tabcurrency}` ergänzt.
+Eine rechtsbündige Spalte mit Währungsangabe wird somit durch `r<{\tabcurrency}` erzeugt.
+
+
+#### PricingTabular
+
+`PricingTabular` wurde entwickelt um Tabellen für Rechnungen vereinfacht erstellen zu können.
+Die Voreinstellung verfügt über die Spalten `pos`, `id`, `desc`, `amount`, `price`, `pricetotal'.
+Alle Spalten, außer der Spalte `desc` haben eine Feste Breite.
+
+Die Einstellungen können Entweder als Optionales Argument zu `\begin{PricingTabular}[<Optionen>]` vorgenommen werden oder über das Makro `\SetupPricingTabular{<Optionen>}` für alle folgenden Umgebungen gesetzt werden.
+
+
+##### Spaltenbreiten
+
+Die Spaltenbreiten werden angepasst indem der Spaltenname verwendet wird.
+Um die Positionsspalte zu ändern ist somit die Option `pos=<Breite>` notwendig.
+Hier können alle Längenangaben verwendet werden, die LaTeX versteht. (cm, mm, em, ex, …)
+
+Die Spaltenbreite der Spalte `desc` für die Artikelbeschreibung nimmt dabei jeweils den übrigen Platz ein.
+
+#### Kopfzeileneinträge
+
+Die Kopfzeileneinträge werden über die Option `<Spaltenname>/header=<Neue Beschriftung>` angepasst.
+Vorbelegt ist die Konfiguration: 
+
+```
+\SetupPricingTabular{
+	pos/header=\position,
+	id/header=\artikelnummer,
+	desc/header=\bezeichnung,
+	amount/header=\menge,
+	price/header=\einzelpreis,
+	pricetotal/header=\gesamtpreis
+}
+```
+
+#### Reihenfolge/Anzahl der Spalten ändern
+
+Die Reihenfolge wurde über die Option `columns` festgelegt.
+Soll daher eine Tabelle mit nur drei Spalten und lediglich bestehend aus Produktnummer, Beschreibung und Menge genutzt werden, ist dies mit der Option `columns={id,desc,amount}` möglich.
+
+Einzelne Spalten können auch über `<Spaltenname>=false` abgeschaltet werden. Dies ist z.B. dann hilfreich, wenn die Angabe einer Produktnummer aus platzgründen nicht sinnvoll ist (`id=false`).
+
+
+
 
 
  Quickstart (wo kann was angepasst werden?):
