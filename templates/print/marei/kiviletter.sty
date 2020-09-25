@@ -260,6 +260,7 @@ contents={\usebox\shippingAddressBox}
 	\begingroup
 	\setlength{\hsize}{\dimexpr\l_kivi_tab_desc_dim+\l_kivi_tab_desc_leftskip_dim}
 	\setlength{\leftskip}{\l_kivi_tab_desc_leftskip_dim}
+	\usekomafont{extraDescription}
 	\seq_use:Nn \g_kivi_extraDescription_seq {\\}
 	\par\nointerlineskip
 	\endgroup
@@ -456,5 +457,7 @@ contents={\usebox\shippingAddressBox}
 
 
 \renewcommand*{\raggedsignature}{\raggedright}
+
+\newkomafont{extraDescription}{}
 
 \endinput
