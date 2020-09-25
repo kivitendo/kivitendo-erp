@@ -350,7 +350,7 @@ contents={\usebox\shippingAddressBox}
 	\__kivi_PricingTabular_header:
 	\endhead
 	\midrule
-	\multicolumn{6}{@{}r@{}}{\weiteraufnaechsterseite}\\
+	\rlap{\makebox[\textwidth][r]{\weiteraufnaechsterseite}}\\
 	\endfoot
 	\bottomrule
 	\endlastfoot
@@ -387,7 +387,7 @@ contents={\usebox\shippingAddressBox}
 	#1\\
 	\midrule\\\endhead
 	\midrule
-	\multicolumn{3}{@{}>{\raggedright}p{\linewidth}@{}}{\weiteraufnaechsterseite}\\
+	\rlap{\makebox[\textwidth][r]{\weiteraufnaechsterseite}}\\
 	\endfoot
 	\bottomrule
 	\endlastfoot
