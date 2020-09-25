@@ -333,6 +333,7 @@ sub new_from {
 
   if ( $is_abbr_any->(qw(sopo poso)) ) {
     $args{ordnumber} = undef;
+    $args{quonumber} = undef;
     $args{reqdate}   = DateTime->today_local->next_workday();
     $args{employee}  = SL::DB::Manager::Employee->current;
   }
