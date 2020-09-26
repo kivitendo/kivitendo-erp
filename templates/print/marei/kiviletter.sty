@@ -395,8 +395,8 @@ contents={\usebox\shippingAddressBox}
 	headline .initial:n = {\bfseries\position & \bfseries\menge & \bfseries\bezeichnung},
 }
 
-\newcommand*{\SetupSimpleTabular}{\keys_set:nn {kivi/SimpleTabular} {#1}}
-\newcommand*{\SetupPricingTabular}{\keys_set:nn {kivi/PricingTable} {#1}}
+\newcommand*{\SetupSimpleTabular}[1]{\keys_set:nn {kivi/SimpleTabular} {#1}}
+\newcommand*{\SetupPricingTabular}[1]{\keys_set:nn {kivi/PricingTable} {#1}}
 
 \newenvironment{SimpleTabular}[1][]
 {
