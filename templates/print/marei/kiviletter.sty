@@ -252,7 +252,7 @@ contents={\usebox\shippingAddressBox}
 	\setlength{\leftskip}{\l_kivi_tab_desc_leftskip_dim}
 	\usekomafont{extraDescription}
 	\seq_use:Nn \g_kivi_extraDescription_seq {\\}
-	\par\nointerlineskip
+	\par
 	\endgroup
 	}
 	}
@@ -383,21 +383,28 @@ contents={\usebox\shippingAddressBox}
 	headline .initial:n = {\bfseries\position & \bfseries\menge & \bfseries\bezeichnung},
 }
 
+\newcommand*{\SetupSimpleTabular}[1]{\keys_set:nn {kivi/SimpleTabular} {#1}}
+\newcommand*{\SetupPricingTabular}[1]{\keys_set:nn {kivi/PricingTable} {#1}}
+
 \newenvironment{SimpleTabular}[1][]
 {
 	\tl_if_in:nnTF {#1} {=} {\keys_set:nn {kivi/SimpleTabular} {#1}} {\tl_if_empty:nF {#1} {\tl_set:Nn \l_kivi_SimpleTabular_headline_tl {#1}}}
 	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
+	\dim_set:Nn \parskip {\c_zero_dim}
 	\tl_put_right:Nn \l_kivi_SimpleTabular_colspec_tl {@{}}
 	\tl_put_left:Nn \l_kivi_SimpleTabular_colspec_tl {@{}}
 	\exp_args:NnV \xltabular{\linewidth}\l_kivi_SimpleTabular_colspec_tl
-	\toprule
-	\l_kivi_SimpleTabular_headline_tl\\
-	\midrule
+		\toprule
+		\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_header_currency:
+		\l_kivi_SimpleTabular_headline_tl
+		\\
+		\noalign{\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_body_currency:}
+		\midrule
 	\endhead
-	\midrule
-	\rlap{\makebox[\textwidth][r]{\weiteraufnaechsterseite}}\\
+		\midrule
+		\rlap{\makebox[\textwidth][r]{\weiteraufnaechsterseite}}\\
 	\endfoot
-	\bottomrule
+		\bottomrule
 	\endlastfoot
 	\ignorespaces
 }{
