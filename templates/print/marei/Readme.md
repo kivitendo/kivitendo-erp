@@ -1,20 +1,20 @@
 
-# Bemerkungen zum Vorlagensatz von Marei Peischl
+# Bemerkungen zum Vorlagensatz
 ### © 2020 by Marei Peischl (peiTeX TeXnical Solutions)
 
 ## Quickstart (wo kann was angepasst werden?):
 
-   insettings.tex : Pfad zu Angaben über Mandanten (default: firma)
+  * insettings.tex : Pfad zu Angaben über Mandanten (default: firma)
                      Logo/Briefpapier
                      Layout der Kopf/Fußzeile
 		     innerhalb dieser Datei werden auch die folgenden Dateien geladen:
 		         firma/ident.tex        : Angaben über Mandanten
 			 firma/<währungskürzel>_account.tex
-			 
- Es muß mindestens eine Sprache angelegt werden!
-    deutsch.tex    : Textschnipsel für Deutsch
+
+* Es muß mindestens eine Sprache angelegt werden!
+  -  deutsch.tex    : Textschnipsel für Deutsch
                      Dafür eine Sprache mit Vorlagenkürzel DE anlegen
-    english.tex    : Textschnipsel für Englisch
+  -  english.tex    : Textschnipsel für Englisch
                      Dafür eine Sprache mit Vorlagenkürzel EN anlegen
 
 
@@ -29,57 +29,57 @@ Mandantenspezifische Konfiguration findet sich in der Datei *insettings.tex* und
 
 ### Struktur der Basisdatei (je Dokumententyp eine)
 
-	1. Dokumentenklasse
-	2. *kiviletter.sty*
-	3. Einstellungen, die über Variablen gesetzt werden: Mandant, Währung, Sprache
-	4. `\input{insettings.tex}` Anteil der spezifischen Anpassungen, die von den Variablen unter 2. abhängig sind. Geladen werden darin die Dateien:
-		- Sprache: lädt die entsprechende Sprachdatei, falls DE -> *deutsch.tex*, falls EN *englisch.tex* und setzt die babel Optionen. Die Datei enthält Übersetzungen von Einzelbegriffen und Textbausteinen.
-		- Lädt die Konfigurationsdatei, ohne spezielle Mandanten ist der Suchpfad zur Konfiguration der Unterordner *firma/*
-			* Lädt die Datei *ident.tex*, sowie die Abbildung Briefkopf.
+1. Dokumentenklasse
+2. *kiviletter.sty*
+3. Einstellungen, die über Variablen gesetzt werden: Mandant, Währung, Sprache
+4. `\input{insettings.tex}` Anteil der spezifischen Anpassungen, die von den Variablen unter 2. abhängig sind. Geladen werden darin die Dateien:
+   - Sprache: lädt die entsprechende Sprachdatei, falls DE -> *deutsch.tex*, falls EN *englisch.tex* und setzt die babel Optionen. Die Datei enthält Übersetzungen von Einzelbegriffen und Textbausteinen.
+   - Lädt die Konfigurationsdatei, ohne spezielle Mandanten ist der Suchpfad zur Konfiguration der Unterordner *firma/*
+   - Lädt die Datei *ident.tex*, sowie die Abbildung Briefkopf.
 		
 #### Mandanten / Firma:
 
-    Um gleiche Vorlagen für verschiedene Firmen verwenden zu können, wird je
-    nach dem Wert der Kivitendo-Variablen `<%kivicompany%>` ein
-    Firmenverzeichnis ausgewählt (siehe *insettings.tex'), in dem Briefkopf,
-    Identitäten und Währungs-/Kontoeinstellungen hinterlegt sind.
-    `<%kivicompany%>` enthält den Namen des verwendeten Mandantendaten.
-    Ist kein Firmenname eingetragen, so wird das
-    generische Unterverzeichnis *firma* verwendet.
+Um gleiche Vorlagen für verschiedene Firmen verwenden zu können, wird je
+nach dem Wert der Kivitendo-Variablen `<%kivicompany%>` ein
+Firmenverzeichnis ausgewählt (siehe *insettings.tex'), in dem Briefkopf,
+Identitäten und Währungs-/Kontoeinstellungen hinterlegt sind.
+`<%kivicompany%>` enthält den Namen des verwendeten Mandantendaten.
+Ist kein Firmenname eingetragen, so wird das
+generische Unterverzeichnis *firma* verwendet.
 
 #### Identitäten:
 
-    In jedem Firmen-Unterverzeichnis soll eine Datei 'ident.tex'
-    vorhanden sein, die mit \newcommand Werte für \telefon, \fax,
-    \firma, \strasse, \ort, \ustid, \email und \homepage definiert.
+In jedem Firmen-Unterverzeichnis soll eine Datei *ident.tex*
+vorhanden sein, die mit `\newcommand` Werte für \telefon, `\fax`,
+`\firma`, `\strasse`, `\ort`, `\ustid`, `\email` und `\homepage` definiert.
 
 #### Währungen / Konten:
-    Für jede Währung (siehe *insettings.tex*) soll eine Datei vorhanden
-    sein, die das Währungssymbol (`\currency`) und folgende Angaben für
-    ein Konto in dieser Währung enthält `\kontonummer`, `\bank`,
-    `\bankleitzahl`, `\bic` und `\iban`.
-    So kann in den Dokumenten je nach Währung ein anderes Konto
-    angegeben werden.
-    Nach demselben Schema können auch weitere, alternative Bankverbindungen
-    angelegt werden, die dann in *insettings.tex* als Variable in der Fußzeile eingefügt werden.
+Für jede Währung (siehe *insettings.tex*) soll eine Datei vorhanden
+sein, die das Währungssymbol (`\currency`) und folgende Angaben für
+ein Konto in dieser Währung enthält `\kontonummer`, `\bank`,
+`\bankleitzahl`, `\bic` und `\iban`.
+So kann in den Dokumenten je nach Währung ein anderes Konto
+angegeben werden.
+Nach demselben Schema können auch weitere, alternative Bankverbindungen
+angelegt werden, die dann in *insettings.tex* als Variable in der Fußzeile eingefügt werden.
     
 #### Briefbogen/Logos:
-    Eine Hintergrundgrafik oder ein Logo kann in Abhängigkeit vom
-    Medium (z.B. nur beim Verschicken mit E-Mail) eingebunden
-    werden.
-    
-    Desweiteren sind (auskommentierte) Beispiele enthalten für eine
-    Grafik als Briefkopf, nur ein Logo, oder ein komplettes DinA4-PDF
-    als Briefpapier.
+Eine Hintergrundgrafik oder ein Logo kann in Abhängigkeit vom
+Medium (z.B. nur beim Verschicken mit E-Mail) eingebunden
+werden.
+
+Desweiteren sind (auskommentierte) Beispiele enthalten für eine
+Grafik als Briefkopf, nur ein Logo, oder ein komplettes DinA4-PDF
+als Briefpapier.
     
 #### Fusszeile:
-    Die Tabelle im Fuß verwendet die Angaben aus *firma/ident.tex* und
-    *firma/*_account.tex*. Ihre Struktur wird in der *insettings.tex* definiert.
+Die Tabelle im Fuß verwendet die Angaben aus *firma/ident.tex* und
+*firma/*_account.tex*. Ihre Struktur wird in der *insettings.tex* definiert.
 
 #### Seitenstil/Basislayout:
-   Das Seitenlayout wird über scrlayer-scrpage bestimmt. Es existieren in der Datei *insettings.tex* einige Hinweise zu den Anpassungen. Die Basiskonfiguration ist ebenfalls dort eingetragen.
+Das Seitenlayout wird über scrlayer-scrpage bestimmt. Es existieren in der Datei *insettings.tex* einige Hinweise zu den Anpassungen. Die Basiskonfiguration ist ebenfalls dort eingetragen.
 
-   Die Kopfzeile unterscheidet sich von Dokumententyp zu Dokumententyp leicht, da diese über Datenbankvariablen befüllt wird. Hierfür wird das Makro `\ourhead` definiert. Diese Definition kann ebenfalls über die *insettings.tex* geändert werden.
+Die Kopfzeile unterscheidet sich von Dokumententyp zu Dokumententyp leicht, da diese über Datenbankvariablen befüllt wird. Hierfür wird das Makro `\ourhead` definiert. Diese Definition kann ebenfalls über die *insettings.tex* geändert werden.
         
 ### Tabellen:
 
