@@ -48,59 +48,85 @@
 	fontsize=10pt,
 	parskip=half-,% Absatzkennzeichnung durch Abstand statt Einzug
 }
+% Hier ist es auch möglich zusätzliche Schriftarten zu laden.
+% 
+% - Falls pdfLaTeX verwendet wird, findet man unter https://www.tug.org/FontCatalogue/ eine gute *bersicht, wie die Schrifteen geladen werden.
+%
+% In diesem Beispiel wird lediglich auf eine Serifenlose Schriftart umgestellt.
 \renewcommand*{\familydefault}{\sfdefault}
-\KOMAoptions{fontsize=10pt}
+% - Falls XeLaTeX/LuaLaTeX verwendet wird, kann mit fontspec über den Namen eine Installierte Systemschriftart verwendet werden.
+% \usepackage{fontspec}
+% \setmainfont{Schriftart}
+% ggf. muss dann die Änderung von \familydefault entfernt werden.
 
 % Einstellungen f. Kopf und Fuss
 \pagestyle{kivitendo.letter}
-% Befehl f. laufende Kopfzeile:
+
+
+% Beginn Anpassungen der Kopfzeile:
+\setkomafont{pagehead}{\scriptsize}
+% Das Standardformat setzt in der Kopfzeile die folgende Reihenfolge:
+%
 % 1. Text f. Kunden- oder Lieferantennummer (oder leer, wenn diese nicht ausgegeben werden soll)
 % 2. Kunden- oder Lieferantennummer (oder leer)
 % 3. Belegname {oder leer}
 % 4. Belegnummer {oder leer}
 % 5. Belegdatum {oder leer}
 % Beispiel: \ourhead{\kundennummer}{<%customernumber%>}{\angebot}{<%quonumber%>}{<%quodate%>}
-\setkomafont{pagehead}{\scriptsize}
+% Eine Anpassunge ist über Änderung dieses Makros möglich oder über direktes Befüllen der Felder 
+% % \ifoot{<inhalt innen/links>}\cfoot{<inhalt zentriert>}\ofoot{<inhalt außen/rechts>}
+% dann sollte jedoch darauf geachtet werden, dass das Makro in den einzelnen Vorlagen aufgerufen wird und daher definiert sein sollte. 
 \newcommand{\ourhead}[5] {
-\chead{
-  \ifnum\thepage=1
-  \else
-      \makebox[\textwidth]{
-      \Ifstr{#1}{}{}{#1: #2 \hspace{0.7cm}}
-      #3
-      \Ifstr{#4}{}{}{~\nr: #4}
-      \Ifstr{#5}{}{}{\vom ~ #5}
-      \hspace{0.7cm} - \seite ~ \thepage/\letterlastpage  ~-%
-      }
-  \fi
-}
+	\chead{
+	  \makebox[\textwidth]{
+	  \Ifstr{#1}{}{}{#1: #2 \hspace{0.7cm}}
+	  #3
+	  \Ifstr{#4}{}{}{~\nr: #4}
+	  \Ifstr{#5}{}{}{\vom ~ #5}
+	  \hspace{0.7cm} - \seite ~ \thepage/\letterlastpage  ~-%
+	  }
+	}
 }
 
+%Ende Anpassungen der Kopfzeile
 
-\normalfont % damit die footerbox schon in der standard-schriftart gebaut wird.
-%% % Firmenfuss
-% Das speichern als Box ermöglicht es, die Höhe automatisch anzupassen:
-\setkomafont{pagefoot}{\tiny}
 
-%Box generieren, um die Höhe des Fußres zu kennen
+%Beginn Anpassungen der Fußzeile:
+%Der folgende Block passt die Fußzeile so an, dass sich der untere Rand automatisch anpasst. Der Inhaltsteil ist entsprechend markiert, anstatt dieser Anpassungen ist es auch möglich den Fuß über die KOMA-Script-Makros 
+% \ifoot{<inhalt innen/links>}\cfoot{<inhalt zentriert>}\ofoot{<inhalt außen/rechts>}
+% anzupassen.
+\normalfont %Basisschriftart aktivieren, damit der Fuß entsprechend gebaut wird.
+\setkomafont{pagefoot}{\tiny} %Kleine schriftart für den Fußblock
+
+%Box generieren, um die Höhe des Fußes zu kennen, damit ist eine automatische Anpassung des unteren Randes möglich
 \newsavebox\footerbox
 \begin{lrbox}\footerbox
 	\usekomafont{pagefoot}%
-     \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}p{5cm}p{4.5cm}lr@{}}%
-	\firma                 & \email              & \textKontonummer & \kontonummer \\
-	\strasse               & \homepage           & \textBank        & \bank \\
-	\ort                   & \textUstid\ \ustid  & \textIban        & \iban \\
-	\textTelefon~\telefon  & \finanzamt          & \textBic         & \bic \\
-	\Ifstr{\fax}{}{}{\textFax~\fax} & &\textBankleitzahl	& \bankleitzahl
+	% Anfang des eigentlichen Inhaltes der Fußzeile
+     \begin{tabular*}{\textwidth}[t]{@{\extracolsep{\fill}}p{.25\linewidth}p{.25\linewidth}r@{\extracolsep{0pt}\hspace{2\tabcolsep}}l@{}}%
+	\firma                 & \email              & \textKontonummer			 & \kontonummer \\
+	\strasse               & \homepage           & \textBank        		 & \bank \\
+	\ort                   & \textUstid\ \ustid  & \textIban        		 & \iban \\
+	\textTelefon~\telefon  & \finanzamt          & \textBic         		 & \bic \\
+	\Ifstr{\fax}{}{}{\textFax~\fax} & 			 &\textBankleitzahl			 & \bankleitzahl
 	\end{tabular*}
+	% Ende des Fußzeileninhaltes.
 \end{lrbox}
 
-%Fußhöhe auf Höhe der Box
-\setlength{\footheight}{\dimexpr\ht\footerbox+\dp\footerbox}
-\geometry{bottom=\dimexpr\csname g_kivi_margin_dim\endcsname +\footheight}
-\savegeometry{kivi.letter@default}
+%Box in den Fuß eintragen, durch die zusätzliche Angabe in der eckigen Klammer, wird die Fußzeile auch auf der ersten Seite verwendet, falls für die erste Seite eine unterschiedliche Fußzeile verwendet werden soll, ist es möglich den obigen Mechanismus mit einem anderen Makronamen als footerbox zu kopieren
+\cfoot[\usebox\footerbox]{\usebox\footerbox}
 
-%Box in den Fuß eintragen:
-\cfoot{\usebox\footerbox}
+%Fußhöhe auf Höhe der Box
+%Automatische Anpassung des unteren Randes
+\setlength{\footheight}{\dimexpr\ht\footerbox+\dp\footerbox}
+\setlength{\footskip}{\dimexpr\footheight+\baselineskip}
+\geometry{
+	includefoot,
+%	bottom=1cm,% Falls der untere Rand kleiner sein soll, als die Seitenränder.
+% 	Weitere Anpassungen der Ränder sind hier ebenfalls möglich
+}
+
+% Ende Anpassungen der Fußzeile
+
 
 \endinput
