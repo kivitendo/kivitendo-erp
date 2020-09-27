@@ -283,6 +283,7 @@ contents={\usebox\shippingAddressBox}
 }
 
 \cs_new:Nn \__kivi_tab_column_currency: {\,\currency}
+\def\tabcurrency{\__kivi_tab_column_currency:}
 \cs_set:Nn \__kivi_tab_column_header_currency: {}
 \cs_set_eq:NN \__kivi_tab_column_body_currency:  \__kivi_tab_column_currency:
 
@@ -320,8 +321,7 @@ contents={\usebox\shippingAddressBox}
 
 %Macht es sinn hier eine Variante zu machen, in der alle Spalten Belegbar sind?
 \newenvironment{PricingTotal}{
-	\par
-	\vspace{-\ht\strutbox}
+	\par\nointerlineskip
 	\unskip
 	\tabular[t]{@{}p{\dim_eval:n {\linewidth-\l_kivi_tab_pricetotal_dim-2\tabcolsep}}P{\l_kivi_tab_pricetotal_dim}@{}}
 	\midrule
@@ -339,6 +339,7 @@ contents={\usebox\shippingAddressBox}
 
 \newenvironment{PricingTabular}[1][]{
 	\begingroup
+	\dim_set:Nn \parskip {\c_zero_dim}
 	\tl_if_empty:nF {#1} {\keys_set:nn {kivi/PricingTable} {#1}}
 	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
 	\__kivi_calc_desc_column:
@@ -413,6 +414,7 @@ contents={\usebox\shippingAddressBox}
 	\tl_if_empty:nF {#1} {\keys_set:nn {kivi/PricingTable} {#1}}
 	\__kivi_setup_LT_boxes:
 	\__kivi_setup_FakeTable:
+	\dim_set:Nn \parskip {\c_zero_dim}
 	\PricingTabularBox\ignorespaces
 }{\endPricingTabularBox}
 
@@ -457,9 +459,42 @@ contents={\usebox\shippingAddressBox}
 	\@addtoplength{refvpos}{4\baselineskip}%sep between address boxes
 	\fi
 }
-\ExplSyntaxOff
+
 \fi
 
+\newcommand*{\setupIdentpath}[1]{
+	\int_set:Nn \l_kivi_tmp_int {1}
+	\bool_set_true:N \l_kivi_tmp_bool
+	\bool_while_do:Nn \l_kivi_tmp_bool {
+		\file_if_exist:nTF {firma\int_use:N \l_kivi_tmp_int/ident.tex}
+		{
+			\exp_args:Nf \str_if_in:nnTF {#1} {Firma\int_use:N \l_kivi_tmp_int}
+			{
+				\newcommand*{\identpath}{firma\int_use:N \l_kivi_tmpa_int}
+				\bool_set_false:N \l_kivi_tmp_bool
+			}
+			{\int_incr:N \l_kivi_tmp_int}
+		}
+		{
+			\bool_set_false:N \l_kivi_tmp_bool
+			\newcommand*{\identpath}{firma}
+		}
+	}
+}
+
+\newcommand*{\setupCurrencyConfig}[2]{
+	\tl_new:N \g_kivi_currency_tl
+	\exp_args:Nf \str_if_in:nnT {#2} {USD} {\tl_gset:Nn \g_kivi_currency_tl {usd}}
+	\exp_args:Nf \str_if_in:nnT {#2} {CHF} {\tl_gset:Nn \g_kivi_currency_tl {chf}}
+	\exp_args:Nf \str_if_in:nnT {#2} {EUR} {\tl_gset:Nn \g_kivi_currency_tl {euro}}
+	\tl_if_empty:NT  \g_kivi_currency_tl {
+		\tl_gset:Nn \g_kivi_currency_tl {default}
+		\edef \currency {\tl_to_str:N \lxcurrency}
+	}
+	\input{#1/\g_kivi_currency_tl _account.tex}
+}
+
+\ExplSyntaxOff
 
 
 \renewcommand*{\raggedsignature}{\raggedright}

@@ -18,61 +18,28 @@
 
 % Mandanten-/Firmenabhängigkeiten
 
-% Pfad zu firmenspez. Angaben
-% Hat man mehrere Mandanten muß man statt "Firma1" den Datenbanknamen seines
-% Mandanten eingeben.
+% Pfad zu firmenspez. Angaben, sofern kein Unterordner mit dem Datenbanknamen des Mandanten in der Vorlage existiert, wird der Unterordner „firma“ verwendet. Der Datenbankname ist ab hier im Makro \identpath gespeichert
+\setupIdentpath{\kivicompany}
 
-\ExplSyntaxOn
-\int_set:Nn \l_kivi_tmp_int {1}
-\bool_set_true:N \l_kivi_tmp_bool
-\bool_while_do:Nn \l_kivi_tmp_bool {
-	\file_if_exist:nTF {firma\int_use:N \l_kivi_tmp_int/ident.tex}
-	{
-	\str_if_in:NnTF \kivicompany {Firma\int_use:N \l_kivi_tmp_int}
-		{
-		\newcommand*{\identpath}{firma\int_use:N \l_kivi_tmpa_int}
-		\bool_set_false:N \l_kivi_tmp_bool
-		}
-		{\int_incr:N \l_kivi_tmp_int}
-	}
-	{
-	\bool_set_false:N \l_kivi_tmp_bool
-	\newcommand*{\identpath}{firma}
-	}
-}
-
-\ExplSyntaxOff
-
-
-% Identität
+% Lade die Konfiguration aus dem entsprechenden Unterordner
 \input{\identpath/ident.tex}
 
-\ExplSyntaxOn
 
 %Setze Briefkopf-logo falls vorhanden
 \setkomavar{fromlogo}{\includegraphics[width=.25\linewidth]{\identpath/briefkopf}}
 
 % Währungen/Konten
-\tl_new:N \g_kivi_currency_tl
-\str_if_in:NnT \lxcurrency {USD} {\tl_gset:Nn \g_kivi_currency_tl {usd}}
-\str_if_in:NnT \lxcurrency {CHF} {\tl_gset:Nn \g_kivi_currency_tl {chf}}
-\str_if_in:NnT \lxcurrency {EUR} {\tl_gset:Nn \g_kivi_currency_tl {euro}}
-\tl_if_empty:NT  \g_kivi_currency_tl {
-	\tl_gset:Nn \g_kivi_currency_tl {default}
-	\edef \currency {\tl_to_str:N \lxcurrency}
-}
-
-\input{\identpath/\g_kivi_currency_tl _account.tex}
-
-\ExplSyntaxOff
-
-
-% keine Absätze nach rechts einrücken
-\setlength\parindent{0pt}
-
+% Die Konfiguration bedindet sich in der Datei 
+% \identpath/<euro/chf/usd/default>_account.tex
+\setupCurrencyConfig{\identpath}{\lxcurrency}
 
 
 % Befehl f. normale Schriftart und -größe
+
+\KOMAoptions{
+	fontsize=10pt,
+	parskip=half-,% Absatzkennzeichnung durch Abstand statt Einzug
+}
 \renewcommand*{\familydefault}{\sfdefault}
 \KOMAoptions{fontsize=10pt}
 
