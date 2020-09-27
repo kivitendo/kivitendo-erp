@@ -50,7 +50,6 @@
 \dim_new:N \g_kivi_margin_dim
 \dim_gset:Nn \g_kivi_margin_dim {\useplength{toaddrhpos}}
 \geometry{a4paper,margin=\g_kivi_margin_dim,heightrounded}
-\savegeometry{kivi.letter@default}
 %Scratch variables
 \int_new:N \l_kivi_tmp_int
 \bool_new:N \l_kivi_tmp_bool
@@ -68,25 +67,14 @@ voffset=\dimexpr\useplength{toaddrvpos}+\useplength{toaddrheight}+4\baselineskip
 contents={\usebox\shippingAddressBox}
 ]{kivitendo.shippingaddress}
 
-
-\ExplSyntaxOn
-\AtBeginLetter{\dim_gset:Nn \g_kivi_orig@textheight_dim {\textheight}}
-\ExplSyntaxOff
-
 \newpairofpagestyles{kivitendo.letter}{}
+
 \renewcommand*{\letterpagestyle}{kivitendo.letter}
 
-\DeclareNewPageStyleByLayers{kivitendo.letter.PricingTable}{
-	kivitendo.TableHead,
-	kivitendo.TableFoot
-	kivitendo.letter.head.odd,kivitendo.letter.head.even,kivitendo.letter.head.oneside,%
-	kivitendo.letter.foot.odd,kivitendo.letter.foot.even,kivitendo.letter.foot.oneside,%
-}
 \DeclareNewPageStyleByLayers{kivitendo.letter.first}{
 	kivitendo.shippingaddress,
-	kivitendo.TableFoot,
-	kivitendo.letter.head.odd,kivitendo.letter.head.even,kivitendo.letter.head.oneside,%
-	kivitendo.letter.foot.odd,kivitendo.letter.foot.even,kivitendo.letter.foot.oneside,%
+	plain.kivitendo.letter.head.odd,plain.kivitendo.letter.head.even,plain.kivitendo.letter.head.oneside,%
+	plain.kivitendo.letter.foot.odd,plain.kivitendo.letter.foot.even,plain.kivitendo.letter.foot.oneside,%
 }
 
 \setkomavar{backaddress}{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}
@@ -193,7 +181,6 @@ contents={\usebox\shippingAddressBox}
 
 \newcolumntype{P}[1]{>{\raggedleft\arraybackslash}p{#1}<{\__kivi_tab_column_currency:}}
 
-
 \RequirePackage{tcolorbox}
 \tcbuselibrary{breakable, skins}
 
@@ -244,6 +231,7 @@ contents={\usebox\shippingAddressBox}
 	\seq_set_split:Nnn \l_kivi_PricingTable_seq {\tabularnewline} {#1}
 	\seq_remove_all:Nn \l_kivi_PricingTable_seq {}
 	\begingroup
+	\setlength{\parskip}{\c_zero_dim}
 	\let\ExtraDescription\__kivi_addExtraDescription:n
 	\setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
 	\seq_map_inline:Nn \l_kivi_PricingTable_seq {
@@ -264,7 +252,7 @@ contents={\usebox\shippingAddressBox}
 	\setlength{\leftskip}{\l_kivi_tab_desc_leftskip_dim}
 	\usekomafont{extraDescription}
 	\seq_use:Nn \g_kivi_extraDescription_seq {\\}
-	\par
+	\par\nointerlineskip
 	\endgroup
 	}
 	}
@@ -295,7 +283,6 @@ contents={\usebox\shippingAddressBox}
 }
 
 \cs_new:Nn \__kivi_tab_column_currency: {\,\currency}
-\def\tabcurrency{\__kivi_tab_column_currency:}
 \cs_set:Nn \__kivi_tab_column_header_currency: {}
 \cs_set_eq:NN \__kivi_tab_column_body_currency:  \__kivi_tab_column_currency:
 
@@ -395,9 +382,6 @@ contents={\usebox\shippingAddressBox}
 	headline .initial:n = {\bfseries\position & \bfseries\menge & \bfseries\bezeichnung},
 }
 
-\newcommand*{\SetupSimpleTabular}[1]{\keys_set:nn {kivi/SimpleTabular} {#1}}
-\newcommand*{\SetupPricingTabular}[1]{\keys_set:nn {kivi/PricingTable} {#1}}
-
 \newenvironment{SimpleTabular}[1][]
 {
 	\tl_if_in:nnTF {#1} {=} {\keys_set:nn {kivi/SimpleTabular} {#1}} {\tl_if_empty:nF {#1} {\tl_set:Nn \l_kivi_SimpleTabular_headline_tl {#1}}}
@@ -405,17 +389,14 @@ contents={\usebox\shippingAddressBox}
 	\tl_put_right:Nn \l_kivi_SimpleTabular_colspec_tl {@{}}
 	\tl_put_left:Nn \l_kivi_SimpleTabular_colspec_tl {@{}}
 	\exp_args:NnV \xltabular{\linewidth}\l_kivi_SimpleTabular_colspec_tl
-		\toprule
-		\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_header_currency:
-		\l_kivi_SimpleTabular_headline_tl
-		\\
-		\noalign{\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_body_currency:}
-		\midrule
+	\toprule
+	\l_kivi_SimpleTabular_headline_tl\\
+	\midrule
 	\endhead
-		\midrule
-		\rlap{\makebox[\textwidth][r]{\weiteraufnaechsterseite}}\\
+	\midrule
+	\rlap{\makebox[\textwidth][r]{\weiteraufnaechsterseite}}\\
 	\endfoot
-		\bottomrule
+	\bottomrule
 	\endlastfoot
 	\ignorespaces
 }{
@@ -441,7 +422,7 @@ contents={\usebox\shippingAddressBox}
 
 \if@kivi@infobox
 \setkomavar{location}{
-	\Ifkomavarempty{transaction}{}{
+	\ifkomavarempty{transaction}{}{
 	\bfseries
 	\usekomavar{transaction}
 	}
@@ -449,24 +430,24 @@ contents={\usebox\shippingAddressBox}
 	\medskip
 	\begin{tabularx}{\useplength{locwidth}}{@{}l<{:}>{\raggedleft\arraybackslash}X@{}}
 		\usekomavar*{date}&\usekomavar{date}\\
-		\Ifkomavarempty{myref}{}{
+		\ifkomavarempty{myref}{}{
 			\usekomavar*{myref}&\usekomavar{myref}\\
 		}
 		\kundennummer&\usekomavar{customer}\\
-		\Ifkomavarempty{yourref}{}{
+		\ifkomavarempty{yourref}{}{
 			\usekomavar*{yourref}&\usekomavar{yourref}\\
 		}
-		\Ifkomavarempty{delivery}{}{
+		\ifkomavarempty{delivery}{}{
 			\usekomavar*{delivery}&\usekomavar{delivery}\\
 		}
-		\Ifkomavarempty{quote}{}{
+		\ifkomavarempty{quote}{}{
 			\usekomavar*{quote}&\usekomavar{quote}\\
 		}
-		\Ifkomavarempty{orderID}{}{\auftragsnummer&\usekomavar{orderID}\\}
-		\Ifkomavarempty{projectID}{}{\projektnummer&\usekomavar{projectID}\\}
+		\ifkomavarempty{orderID}{}{\auftragsnummer&\usekomavar{orderID}\\}
+		\ifkomavarempty{projectID}{}{\projektnummer&\usekomavar{projectID}\\}
 		\ansprechpartner&\usekomavar{fromname}
-		\Ifkomavarempty{fromphone}{}{\\\textTelefon&\usekomavar{fromphone}}
-		\Ifkomavarempty{fromemail}{}{\\\textEmail&\usekomavar{fromemail}}
+		\ifkomavarempty{fromphone}{}{\\\textTelefon&\usekomavar{fromphone}}
+		\ifkomavarempty{fromemail}{}{\\\textEmail&\usekomavar{fromemail}}
 	\end{tabularx}
 }
 \removereffields
@@ -476,14 +457,10 @@ contents={\usebox\shippingAddressBox}
 	\@addtoplength{refvpos}{4\baselineskip}%sep between address boxes
 	\fi
 }
-
+\ExplSyntaxOff
 \fi
 
-%Fallback for older KOMA-Script-Versions
-\cs_if_exist:NF \Ifstr {\let\Ifstr\ifstr}
-\cs_if_exist:NF \Ifkomavarempty {\let\Ifkomavarempty\ifkomavarempty}
 
-\ExplSyntaxOff
 
 \renewcommand*{\raggedsignature}{\raggedright}
 
