@@ -461,6 +461,14 @@ sub locked {
  }
  return $self->{locked};
 }
+sub imported {
+ my $self = shift;
+
+ if (@_) {
+   $self->{imported} = $_[0];
+ }
+ return $self->{imported};
+}
 
 sub generate_datev_data {
   $main::lxdebug->enter_sub();
@@ -513,6 +521,10 @@ sub generate_datev_data {
   if ( $self->use_pk ) {
     $ar_accno = "CASE WHEN ac.chart_link = 'AR' THEN ct.customernumber ELSE c.accno END as accno";
     $ap_accno = "CASE WHEN ac.chart_link = 'AP' THEN ct.vendornumber   ELSE c.accno END as accno";
+  }
+  my $gl_imported;
+  if ( !$self->imported ) {
+    $gl_imported = " AND NOT imported";
   }
 
   my $query    =
@@ -597,6 +609,7 @@ sub generate_datev_data {
          $trans_id_filter
          $gl_itime_filter
          $gl_department_id_filter
+         $gl_imported
          $filter
 
        ORDER BY trans_id, acc_trans_id|;

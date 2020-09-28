@@ -16,6 +16,7 @@ __PACKAGE__->meta->columns(
   employee_id    => { type => 'integer' },
   gldate         => { type => 'date', default => 'now' },
   id             => { type => 'integer', not_null => 1, sequence => 'glid' },
+  imported       => { type => 'boolean', default => 'false' },
   itime          => { type => 'timestamp', default => 'now()' },
   mtime          => { type => 'timestamp' },
   notes          => { type => 'text' },

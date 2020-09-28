@@ -119,6 +119,7 @@ sub export3 {
     );
     $data{use_pk} = $::form->{use_pk};
     $data{locked} = $::form->{locked};
+    $data{imported} = $::form->{imported};
   } else {
     die 'invalid exporttype';
   }
