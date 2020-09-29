@@ -26,6 +26,7 @@
 
 package USTVA;
 
+use Carp;
 use Data::Dumper;
 use List::Util qw(first);
 
@@ -33,6 +34,7 @@ use SL::DB;
 use SL::DBUtils;
 use SL::DB::Default;
 use SL::DB::Finanzamt;
+use SL::Locale::String qw(t8);
 
 use utf8;
 use strict;
