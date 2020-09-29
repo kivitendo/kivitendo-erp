@@ -1,71 +1,54 @@
-\documentclass[twoside]{scrartcl}
-\usepackage[frame]{xy}
-\usepackage{tabularx}
-\usepackage[utf8]{inputenc}
-\setlength{\voffset}{0.4cm}
-\setlength{\hoffset}{-2.0cm}
-\setlength{\topmargin}{0cm}
-\setlength{\headheight}{0.0cm}
-\setlength{\headsep}{1cm}
-\setlength{\topskip}{0pt}
-\setlength{\oddsidemargin}{1.0cm}
-\setlength{\evensidemargin}{1.0cm}
-\setlength{\textwidth}{17cm}
-\setlength{\textheight}{24.5cm}
-\setlength{\footskip}{1cm}
-\setlength{\parindent}{0pt}
-\renewcommand{\baselinestretch}{1}
+\documentclass[paper=a4]{scrartcl}
+\usepackage[reffields,backaddress=false]{kiviletter}
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+\newcommand{\lxmedia} {<%media%>}
+\newcommand{\lxcurrency} {<%currency%>}
+\newcommand{\kivicompany} {<%employee_company%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+\KOMAoptions{fontsize=9pt}
+
+
+\setplength{firstheadvpos}{4cm}
+
+\setkomavar{firsthead}{
+	\noindent\begin{tabular}[t]{@{}l@{}}
+		<%company%>\strut\\
+		<%address%>
+	\end{tabular}
+	\hfill
+	<%source%>\par
+	\medskip
+	<%text\_amount%> \dotfill <%decimal%>/100 \par\smallskip
+	\hfill <%datepaid%> \hspace{2cm}\strut<%amount%>
+}
+
+
 \begin{document}
 
+\begin{letter}{
+		<%name%>\ifhmode\\\fi
+		<%street%>\ifhmode\\\fi
+		<%zipcode%> <%city%>\ifhmode\\\fi
+		<%country%>%
+	}
 
-\fontfamily{cmss}\fontsize{9pt}{9pt}\selectfont
-
-\parbox[t]{12cm}{
-  <%company%>%
-
-  <%address%>}
-\hfill
-\parbox[t]{6cm}{\hfill <%source%>}
-
-\vspace*{0.6cm}
-
-<%text_amount%> \dotfill <%decimal%>/100 \makebox[0.5cm]{\hfill}
-
-\vspace{0.5cm}
-
-\hfill <%datepaid%> \makebox[2cm]{\hfill} <%amount%>%
-
-\vspace{0.5cm}
-
-<%name%>%
-
-<%street%>%
-
-<%zipcode%>%
-
-<%city%>%
-
-<%country%>%
-
-\vspace{2.8cm}
-
-<%company%>%
-
-\vspace{0.5cm}
+\opening{<%company%>}
+\pagestyle{empty}
 
 <%name%> \hfill <%datepaid%> \hfill <%source%>%
 
-\vspace{0.5cm}
-\begin{tabularx}{\textwidth}{lXrr@{}}
-\textbf{Rechnung} & \textbf{Ausgestellt}
-  & \textbf{Fällig} & \textbf{Verrechnet} \\
+\begin{SimpleTabular}[colspec=lXrr,headline={\bfseries\rechnung&\bfseries\ausgestellt&\bfseries\faellig&\bfseries\verrechnet}]
 <%foreach invnumber%>%
-<%invnumber%> & <%invdate%> \dotfill
-  & <%due%> & <%paid%> \\
+<%invnumber%> & <%invdate%> & <%due%> & <%paid%> \\
 <%end invnumber%>%
-\end{tabularx}
+\end{SimpleTabular}
 
-\vfill
+\end{letter}
 
 \end{document}
 
