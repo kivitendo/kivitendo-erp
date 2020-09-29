@@ -1,113 +1,88 @@
-\documentclass[twoside]{scrartcl}
-\usepackage[frame]{xy}
-\usepackage{tabularx}
-\usepackage[utf8]{inputenc}
-\usepackage{graphicx}
-\setlength{\voffset}{0.5cm}
-\setlength{\hoffset}{-2.0cm}
-\setlength{\topmargin}{0cm}
-\setlength{\headheight}{0.5cm}
-\setlength{\headsep}{1cm}
-\setlength{\topskip}{0pt}
-\setlength{\oddsidemargin}{1.0cm}
-\setlength{\evensidemargin}{1.0cm}
-\setlength{\textwidth}{17cm}
-\setlength{\textheight}{24.7cm}
-\setlength{\footskip}{1cm}
-\setlength{\parindent}{0pt}
-\renewcommand{\baselinestretch}{1}
+\documentclass[twoside,parskip=half-]{scrartcl}
+\usepackage[reffields,backaddress=false,addrfield=topaligned]{kiviletter}
 
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+\KOMAoptions{fontsize=10pt}
 \begin{document}
 
-\pagestyle{myheadings}
-\thispagestyle{empty}
+\setkomavar{title}{Lagerliste}
 
-\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
 
-\vspace*{-1.3cm}
-
-\parbox{\textwidth}{
-  \parbox[b]{.42\textwidth}{%
-    <%company%>%
-
-    <%address%>%
-  }\hfill
-  \begin{tabular}[b]{rr@{}}
-  Tel & <%tel%>\\
-  Fax & <%fax%>%
-  \end{tabular}
-
-  \rule[1.5ex]{\textwidth}{0.5pt}
+\setkomavar{firsthead}{
+	\normalsize
+	\noindent\begin{tabular}[t]{@{}l@{}}
+		<%company%>\strut\\
+		<%address%>
+	\end{tabular}
+	\hfill
+ \begin{tabular}[t]{rr@{}}
+		Tel & <%tel%>\\
+		Fax & <%fax%>%
+	\end{tabular}
+	\rule{\linewidth}{\heavyrulewidth}
 }
 
-\vspace*{0.5cm}
+\makeatletter
+\setkomavar{location}{
+		\backaddr@format{\scriptsize\usekomafont{backaddress}%
+			\strut\lieferanschrift
+		}
+		\par\medskip\setlength{\parskip}{\z@}
+		\normalsize
+		<%shiptoname%>\par
+		<%if shiptocontact%> <%shiptocontact%><%end if%>\par
+		<%shiptodepartment_1%>\par
+		<%shiptodepartment_2%>\par
+		<%shiptostreet%>\par
+		<%shiptozipcode%> <%shiptocity%>%
+	}
+\makeatother
 
-\parbox[t]{1cm}{\hfill}
-\parbox[t]{.5\textwidth}{
-\textbf{Von}
-\vspace{0.7cm}
+\begin{letter}{
+		<%name%>\ifhmode\\\fi
+		<%street%>\ifhmode\\\fi
+		<%zipcode%> <%city%>\ifhmode\\\fi
+		<%country%>
+	}
 
-<%name%> \\
-<%street%> \\
-<%zipcode%> \\
-<%city%> \\
-<%country%>%
-}
-\parbox[t]{.4\textwidth}{
-\textbf{Lieferanschrift}
-\vspace{0.7cm}
+\opening{}
 
-<%shiptoname%> \\
-<%shiptostreet%> \\
-<%shiptozipcode%> \\
-<%shiptocity%> \\
-<%shiptocountry%>%
-}
-\hfill
-
-\vspace{1cm}
-
-\textbf{L A G E R L I S T E}
-\hfill
-
-\vspace{1cm}
-
-\begin{tabularx}{\textwidth}{*{6}{|X}|} \hline
-  \textbf{BestellNr. \#} & \textbf{Datum} & \textbf{Kontakt}
+\begin{SimpleTabular}[colspec=*6X,headline={\bfseries\bestellnummer&\bfseries\datum&\bfseries\kontakt
   <%if warehouse%>%
-  & \textbf{Lager}
+  &\bfseries\lager%
   <%end warehouse%>%
-  & \textbf{Lagerplatz} & \textbf{Lieferung mit} \\ [0.5em]
-  \hline
+  &\bfseries\lagerplatz&\bfseries\lieferungMit}]
 
   <%ordnumber%>%
+  &%
   <%if shippingdate%>%
-  & <%shippingdate%>%
+	<%shippingdate%>%
   <%end shippingdate%>%
   <%if not shippingdate%>%
-  & <%orddate%>%
+	<%orddate%>%
   <%end shippingdate%>%
   & <%employee%>%
   <%if warehouse%>%
   & <%warehouse%>%
   <%end warehouse%>%
   & <%shippingpoint%> & <%shipvia%> \\
-  \hline
-\end{tabularx}
+\end{SimpleTabular}
 
-\vspace{1cm}
+\bigskip
 
-\begin{tabularx}{\textwidth}{@{}rlXllrrll@{}}
-  \textbf{Pos} & \textbf{Nummer} & \textbf{Beschreibung} & \textbf{Seriennumner} & & \textbf{Menge} & \textbf{Erh} & & \textbf{Lagerplatz} \\
-
+\begin{SimpleTabular}[colspec=rlXllrrll,headline={\bfseries\position&\bfseries\nummer&\bfseries\beschreibung&\bfseries\seriennummer & &\bfseries\menge&\bfseries\erh&&\bfseries\lagerplatz}]
 <%foreach number%>%
   <%runningnumber%> & <%number%> & <%description%> & <%serialnumber%> &
   <%deliverydate%> & <%qty%> & <%ship%> & <%unit%> & <%bin%> \\
 <%end number%>%
-\end{tabularx}
+\end{SimpleTabular}
 
-
-\rule{\textwidth}{2pt}
+\end{letter}
 
 \end{document}
 
