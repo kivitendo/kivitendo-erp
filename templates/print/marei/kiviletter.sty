@@ -2,9 +2,13 @@
 \ProvidesPackage{kiviletter}[2020/04/24 Letter Layouts for Kivitendo]
 
 \newif\if@kivi@infobox
+\newif\if@kivi@footer
 \DeclareOption{reffields}{\@kivi@infoboxfalse}
 \DeclareOption{infobox}{\@kivi@infoboxtrue}
+\DeclareOption{nofooter}{\@kivi@footerfalse}
+\DeclareOption{footer}{\@kivi@footertrue}
 \@kivi@infoboxtrue
+\@kivi@footertrue
 
 \DeclareOption*{\PassOptionsToPackage{\CurrentOption}{scrletter}}
 

@@ -12,7 +12,6 @@
 		\main@language{ngerman}
 		\input{deutsch.tex}}{\input{deutsch.tex}}
 } % Ende EN
-\makeatother
 
 % Mandanten-/Firmenabhängigkeiten
 
@@ -37,7 +36,10 @@
 % Währungen/Konten
 % Die Konfiguration bedindet sich in der Datei 
 % \identpath/<euro/chf/usd/default>_account.tex
-\setupCurrencyConfig{\identpath}{\lxcurrency}
+
+\@ifundefined{lxcurrency}{}{
+	\setupCurrencyConfig{\identpath}{\lxcurrency}
+}
 
 
 % Befehl f. normale Schriftart und -größe
@@ -97,6 +99,8 @@
 \setkomafont{pagefoot}{\tiny} %Kleine schriftart für den Fußblock
 
 %Box generieren, um die Höhe des Fußes zu kennen, damit ist eine automatische Anpassung des unteren Randes möglich
+\if@kivi@footer
+
 \newsavebox\footerbox
 \begin{lrbox}\footerbox
 	\usekomafont{pagefoot}%
@@ -124,7 +128,8 @@
 % 	Weitere Anpassungen der Ränder sind hier ebenfalls möglich
 }
 
+\fi
 % Ende Anpassungen der Fußzeile
 
-
+\makeatother
 \endinput
