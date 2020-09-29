@@ -3,18 +3,16 @@
 \ProvidesFile{insettings.tex}[2019/12/22 Konfigurationsdatei kivitendo ERP]
 % Sprachüberprüfung
 \RequirePackage[english, ngerman]{babel}
+
+\makeatletter
 \Ifstr{\lxlangcode}{EN}{
-	\makeatletter
 	\main@language{english}
-	\makeatother
 	\input{english.tex}}{
 	\Ifstr{\lxlangcode}{DE}{
-		\makeatletter
 		\main@language{ngerman}
-		\makeatother
 		\input{deutsch.tex}}{\input{deutsch.tex}}
 } % Ende EN
-
+\makeatother
 
 % Mandanten-/Firmenabhängigkeiten
 
