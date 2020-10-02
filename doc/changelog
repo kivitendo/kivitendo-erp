@@ -2,15 +2,17 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2020-xx-xx - Release x.x.x
+2020-10-02 - Release 3.5.6.1
 
 
 Mittelgroße neue Features:
 
+ - USTVA: Konjunkturpaket erwarte Pos. 35 und Pos. 36 für Voranmeldung
  - Währung und Wechselkurs können in der (neuen/experimentellen)
    Angebots-/Auftrags-Maske angegeben werden. Der Wechselkurs wird hier
    pro Beleg (und nicht pro Tag) gespeichert.
-
+ - individuelle Lieferadresse in der (neuen/experimentellen) Angebots-/
+   Auftrags-Maske
 
 Kleinere neue Features und Detailverbesserungen:
 
@@ -19,6 +21,14 @@ Kleinere neue Features und Detailverbesserungen:
    gemacht werden. Falls die Beleg-Seriennummer nicht auslagerbar ist wird
    eine entsprechende Fehlermeldung generiert (einstellbar in der Mandanten-
    konfiguration).
+ - Zahlungsbedingungen auch in Ek-Rechnung angeben können
+
+
+Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+438 individuelle Lieferadresse gerät beim Speichern durcheinander
+358 segmentation fault in DBI.so beim versenden einer Rechnung per E-Mail
+365 Neuer Order Controller "Individuelle Lieferadresse fehlt"
+ 35 Zahlungsbedingungen bei Lieferanten nicht in EK-Rechnung
 
 2020-07-20 - Release 3.5.6
 
