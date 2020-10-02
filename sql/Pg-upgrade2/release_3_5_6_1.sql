@@ -1,0 +1,3 @@
+-- @tag: release_3_5_6_1
+-- @description: Leeres Script, das alle Upgradescripte bis zum Release 3.5.6.1 voraussetzt, um ein fest definiertes Schema zu definieren.
+-- @depends: release_3_5_6 konjunkturpaket_2020_SKR04-korrekturen exchangerate_in_oe ap_set_payment_term_from_vendor konjunkturpaket_2020_SKR03-korrekturen alter_default_shipped_qty_config delete_cvars_on_trans_deletion_add_shipto transfer_out_serial_charge_number
