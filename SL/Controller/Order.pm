@@ -1815,7 +1815,7 @@ sub pre_render {
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 
   $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery
-                                                         edit_periodic_invoices_config calculate_qty kivi.Validator);
+                                                         edit_periodic_invoices_config calculate_qty kivi.Validator follow_up);
   $self->setup_edit_action_bar;
 }
 
@@ -1907,6 +1907,18 @@ sub setup_edit_action_bar {
         disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         only_if  => $deletion_allowed,
       ],
+
+      combobox => [
+        action => [
+          t8('more')
+        ],
+        action => [
+          t8('Follow-Up'),
+          call     => [ 'kivi.Order.follow_up_window' ],
+          disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
+          only_if  => $::auth->assert('productivity'),
+        ],
+      ], # end of combobox "more"
     );
   }
 }
