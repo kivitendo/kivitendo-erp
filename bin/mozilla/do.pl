@@ -323,6 +323,10 @@ sub setup_do_action_bar {
         t8('Invoice'),
         submit => [ '#form', { action => "invoice" } ],
         disabled => !$::form->{id} ? t8('This record has not been saved yet.') : undef,
+        confirm  => $::form->{delivered}                                                                         ? undef
+                  : ($::form->{vc} eq 'customer' && $::instance_conf->get_sales_delivery_order_check_stocked)    ? t8('This record has not been stocked out. Proceed?')
+                  : ($::form->{vc} eq 'vendor'   && $::instance_conf->get_purchase_delivery_order_check_stocked) ? t8('This record has not been stocked in. Proceed?')
+                  :                                                                                                undef,
       ],
 
       combobox => [

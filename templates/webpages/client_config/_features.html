@@ -239,6 +239,18 @@
    <td>[% LxERP.t8("If enabled a warning will be shown in sales and purchase orders if there the delivery date is empty.") %]</td>
   </tr>
   <tr>
+   <td align="right">[% LxERP.t8("For sales delivery orders, warn on workflow to invoice if not stocked out") %]</td>
+   <td>[% L.yes_no_tag("defaults.sales_delivery_order_check_stocked", SELF.defaults.sales_delivery_order_check_stocked) %]</td>
+   <td>[% LxERP.t8("If enabled a warning will be shown in sales delivery orders on workflow to invoices if positions are not stocked out.") %]</td>
+  </tr>
+  <tr>
+  <tr>
+   <td align="right">[% LxERP.t8("For purchase delivery orders, warn on workflow to invoice if not stocked in") %]</td>
+   <td>[% L.yes_no_tag("defaults.purchase_delivery_order_check_stocked", SELF.defaults.purchase_delivery_order_check_stocked) %]</td>
+   <td>[% LxERP.t8("If enabled a warning will be shown in purchase delivery orders on workflow to invoices if positions are not stocked in.") %]</td>
+  </tr>
+  <tr>
+  <tr>
    <td align="right">[% LxERP.t8("Create sales invoices with ZUGFeRD data") %]</td>
    <td>[% L.select_tag("defaults.create_zugferd_invoices", [ [ 0, LxERP.t8('Do not create ZUGFeRD invoices') ], [ 1, LxERP.t8('Create ZUGFeRD invoices') ], [ 2, LxERP.t8('Create ZUGFeRD invoices in test mode') ] ],
                        default=SELF.defaults.create_zugferd_invoices) %]</td>
