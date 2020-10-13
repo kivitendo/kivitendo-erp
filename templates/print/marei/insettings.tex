@@ -18,10 +18,6 @@
 % Pfad zu firmenspez. Angaben, sofern kein Unterordner mit dem Datenbanknamen des Mandanten in der Vorlage existiert, wird der Unterordner „firma“ verwendet. Der Datenbankname ist ab hier im Makro \identpath gespeichert
 \setupIdentpath{\kivicompany}
 
-% Lade die Konfiguration aus dem entsprechenden Unterordner
-\input{\identpath/ident.tex}
-
-
 %Setze Briefkopf-logo falls vorhanden
 \setkomavar{fromlogo}{\includegraphics[width=.25\linewidth]{\identpath/briefkopf}}
 
@@ -31,6 +27,9 @@
 %]{background}
 %\AddLayersToPageStyle{kivitendo.letter.first}{background}%Hintergrund für die erste Seite aktivieren
 %\AddLayersToPageStyle{kivitendo.letter}{background}% Hintergrund für die übrigen Briefseiten aktivieren.
+
+% Lade die Konfiguration aus dem entsprechenden Unterordner
+\input{\identpath/ident.tex}
 
 
 % Währungen/Konten
