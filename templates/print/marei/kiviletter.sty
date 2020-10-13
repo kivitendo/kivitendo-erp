@@ -154,33 +154,44 @@ contents={\usebox\shippingAddressBox}
 \dim_new:N \g_kivi_tabcolsep_dim
 \dim_gset:Nn \g_kivi_tabcolsep_dim {.5\tabcolsep}
 
+\prg_new_conditional:Nnn \kivi_if_Price_col:n {T} {
+	\prop_get:cnN {l_kivi_col_#1_prop} {colspec} \l_tmpa_tl
+	\tl_if_eq:NnTF \l_tmpa_tl {Price}
+		{\prg_return_true:}
+		{\prg_return_false:}
+}
+
+
 \cs_new:Nn \__kivi_calc_desc_column: {
 	\dim_zero:N \l_kivi_tab_desc_leftskip_dim
 	\dim_zero:N \l_kivi_tab_desc_dim
 	\bool_set_false:N \l_tmpa_bool
+	\tl_gclear:N \g_kivi_Pricing_colspec_tl
 	\clist_map_inline:Nn \g_kivi_pricingtable_col_clist {
 		\tl_if_eq:nnTF {##1} {desc}  {
 			\dim_set:Nn \l_kivi_tab_desc_dim {
 				\textwidth-\l_kivi_tab_desc_leftskip_dim
 			}
 			\bool_set_true:N \l_tmpa_bool
-		
+			\tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {p{\l_kivi_tab_desc_dim}}
 		}{
-			\bool_if:NTF \l_tmpa_bool {
-				\bool_if:cT {l_kivi_col_##1_bool} {
+			\bool_if:cT {l_kivi_col_##1_bool} {
+				\bool_if:NTF \l_tmpa_bool {
 					\dim_sub:Nn \l_kivi_tab_desc_dim {
 						\dim_use:c {l_kivi_tab_##1_dim}+2\g_kivi_tabcolsep_dim
 					}
-				}
-			}{
-				\bool_if:cT {l_kivi_col_##1_bool} {
+				}{
 					\dim_add:Nn \l_kivi_tab_desc_leftskip_dim {
 						\dim_use:c {l_kivi_tab_##1_dim}+2\g_kivi_tabcolsep_dim
 					}
 				}
+				\tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {>{\raggedleft\arraybackslash}p{\dim_use:c {l_kivi_tab_##1_dim}}}
+				\kivi_if_Price_col:nT {##1} {\tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {<{\__kivi_tab_column_currency:}}}
 			}
 		}
 	}
+	\tl_gput_left:Nn \g_kivi_Pricing_colspec_tl {@{}}
+	\tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {@{}}
 }
 
 \newcolumntype{P}[1]{>{\raggedleft\arraybackslash}p{#1}<{\__kivi_tab_column_currency:}}
