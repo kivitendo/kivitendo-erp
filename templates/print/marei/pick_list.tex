@@ -43,12 +43,12 @@
 
 \setkomavar{backaddress}{\lieferanschrift}
 
-\begin{letter}{
+\begin{letter}{\strut%
 	<%shiptoname%>\ifhmode\\\fi
 	<%shiptostreet%>\ifhmode\\\fi
 	<%shiptozipcode%>\ifhmode\\\fi
 	<%shiptocity%>\ifhmode\\\fi
-	<%shiptocountry%>
+	<%shiptocountry%>%
 }
 
 \opening{}
@@ -59,7 +59,6 @@
   &\bfseries\lager%
   <%end warehouse%>%
   &\bfseries\lagerplatz&\bfseries\lieferungMit}]
-
   <%ordnumber%>%
   &%
   <%if shippingdate%>%
@@ -77,11 +76,11 @@
 
 \bigskip
 
-\begin{SimpleTabular}[colspec=rlXrcll,headline={\bfseries\position&\bfseries\nummer&\bfseries\beschreibung&\bfseries\menge&\bfseries\lagerausgang&&\bfseries\lagerplatz}]
-<%foreach number%>
-<%runningnumber%> & <%number%> & <%description%> &
-<%qty%> & [\hspace{1cm}] & <%unit%> & <%bin%> \\
-<%end number%>
+\begin{SimpleTabular}[colspec=rlXrcll,headline={\bfseries\position&\bfseries\nummer&\bfseries\beschreibung&\bfseries\menge&\bfseries\lagerausgang&&\bfseries\lagerplatz}]%
+<%foreach number%>%
+<%runningnumber%> & <%number%> & <%description%> &%
+<%qty%> & [\hspace{1cm}] & <%unit%> & <%bin%> \\%
+<%end number%>%
 \end{SimpleTabular}
 
 \end{letter}
