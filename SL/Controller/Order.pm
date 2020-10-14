@@ -1916,7 +1916,7 @@ sub setup_edit_action_bar {
           t8('Follow-Up'),
           call     => [ 'kivi.Order.follow_up_window' ],
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
-          only_if  => $::auth->assert('productivity'),
+          only_if  => $::auth->assert('productivity', 1),
         ],
       ], # end of combobox "more"
     );
