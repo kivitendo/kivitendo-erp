@@ -68,33 +68,14 @@ sub _get_stock_onhand {
     push @values, $params{bestbefore};
   }
 
-  # reserve_warehouse
-  if ($params{onhand} && !$params{warehouse}) {
-    push @where, 'NOT warehouse.forreserve';
-  }
-
-  # reserve_for
-  if ($params{onhand} && !$params{reserve_for}) {
-    push @where, 'reserve_for_id IS NULL AND reserve_for_table IS NULL';
-  }
-
-  if ($params{reserve_for}) {
-    my @objects = listify($params{reserve_for});
-    my @tokens;
-    push @tokens, ( "(reserve_for_id = ? AND reserve_for_table = ?)") x @objects;
-    push @values, map { ($_->id, $_->meta->table) } @objects;
-    push @where, '(' . join(' OR ', @tokens) . ')';
-  }
-
   # by
   my %allowed_by = (
     part          => [ qw(parts_id) ],
-    bin           => [ qw(bin_id inventory.warehouse_id warehouse.forreserve)],
-    warehouse     => [ qw(inventory.warehouse_id warehouse.forreserve) ],
+    bin           => [ qw(bin_id inventory.warehouse_id)],
+    warehouse     => [ qw(inventory.warehouse_id) ],
     chargenumber  => [ qw(chargenumber) ],
     bestbefore    => [ qw(bestbefore) ],
-    reserve_for   => [ qw(reserve_for_id reserve_for_table) ],
-    for_allocate  => [ qw(parts_id bin_id inventory.warehouse_id warehouse.forreserve chargenumber bestbefore reserve_for_id reserve_for_table) ],
+    for_allocate  => [ qw(parts_id bin_id inventory.warehouse_id chargenumber bestbefore) ],
   );
 
   if ($params{by}) {
@@ -123,7 +104,6 @@ sub _get_stock_onhand {
     part         => 'SL::DB::Manager::Part',
     bin          => 'SL::DB::Manager::Bin',
     warehouse    => 'SL::DB::Manager::Warehouse',
-    reserve_for  => undef,
   );
 
   my %slots = (
@@ -144,7 +124,7 @@ sub _get_stock_onhand {
 
         $_->{$with_object} = $objects_by_id{$_->{$slot}} for @$results;
       } else {
-        # need to fetch all reserve_for_table partitions
+        # need to fetch all partitions
       }
     }
   }
@@ -185,29 +165,14 @@ sub allocate {
   my %bin_whitelist = map { (ref $_ ? $_->id : $_) => 1 } grep defined, listify($params{bin});
   my %wh_whitelist  = map { (ref $_ ? $_->id : $_) => 1 } grep defined, listify($params{warehouse});
   my %chargenumbers = map { (ref $_ ? $_->id : $_) => 1 } grep defined, listify($params{chargenumber});
-  my %reserve_whitelist;
-  if ($params{reserve_for}) {
-    $reserve_whitelist{ $_->meta->table }{ $_->id } = 1 for listify($params{reserve_for});
-  }
 
-  # filter the results. we don't want:
-  # - negative amounts
-  # - bins that are reserve but not in the white-list of warehouses or bins
-  # - reservations that are not white-listed
-
-  my @filtered_results = grep {
-       (!$_->{forreserve} || $bin_whitelist{$_->{bin_id}} || $wh_whitelist{$_->{warehouse_id}})
-    && (!$_->{reserve_for_id} || $reserve_whitelist{ $_->{reserve_for_table} }{ $_->{reserve_for_id} })
-  } @$results;
-
-  # sort results so that reserve_for is first, then chargenumbers, then wanted bins, then wanted warehouses
+  # sort results so that chargenumbers are matched first, then wanted bins, then wanted warehouses
   my @sorted_results = sort {
-       (!!$b->{reserve_for_id})    <=> (!!$a->{reserve_for_id})                   # sort by existing reserve_for_id first.
-    || exists $chargenumbers{$b->{chargenumber}}  <=> exists $chargenumbers{$a->{chargenumber}} # then prefer wanted chargenumbers
+       exists $chargenumbers{$b->{chargenumber}}  <=> exists $chargenumbers{$a->{chargenumber}} # then prefer wanted chargenumbers
     || exists $bin_whitelist{$b->{bin_id}}        <=> exists $bin_whitelist{$a->{bin_id}}       # then prefer wanted bins
     || exists $wh_whitelist{$b->{warehouse_id}}   <=> exists $wh_whitelist{$a->{warehouse_id}}  # then prefer wanted bins
     || $a->{itime}                                <=> $b->{itime}                               # and finally prefer earlier charges
-  } @filtered_results;
+  } @$results;
   my @allocations;
   my $rest_qty = $qty;
 
@@ -222,8 +187,6 @@ sub allocate {
         warehouse_id      => $chunk->{warehouse_id},
         chargenumber      => $chunk->{chargenumber},
         bestbefore        => $chunk->{bestbefore},
-        reserve_for_id    => $chunk->{reserve_for_id},
-        reserve_for_table => $chunk->{reserve_for_table},
         for_object_id     => undef,
       );
       $rest_qty -=  _round_number($qty, 5);
@@ -290,7 +253,6 @@ sub check_constraints {
       bin_id       => 'bin_id',
       warehouse_id => 'warehouse_id',
       chargenumber => 'chargenumber',
-      reserve_for  => 'reserve_for_id',
     );
 
     for (keys %$constraints ) {
@@ -305,7 +267,6 @@ sub check_constraints {
           bin_id         => t8('Bins'),
           warehouse_id   => t8('Warehouses'),
           chargenumber   => t8('Chargenumbers'),
-          reserve_for    => t8('Reserve For'),
         );
         my @allocs = grep { $whitelist{$_->$accessor} } @$allocations;
         my $needed = sum map { $_->qty } grep { !$whitelist{$_->$accessor} } @$allocations;
@@ -347,10 +308,6 @@ sub produce_assembly {
   my $production_order_item = $params{production_order_item};
   my $invoice               = $params{invoice};
   my $project               = $params{project};
-  my $reserve_for           = $params{reserve_for};
-
-  my $reserve_for_id    = $reserve_for ? $reserve_for->id          : undef;
-  my $reserve_for_table = $reserve_for ? $reserve_for->meta->table : undef;
 
   my $shippingdate = $params{shippingsdate} // DateTime->now_local;
 
@@ -393,8 +350,6 @@ sub produce_assembly {
     warehouse         => $bin->warehouse_id,
     chargenumber      => $chargenumber,
     bestbefore        => $bestbefore,
-    reserve_for_id    => $reserve_for_id,
-    reserve_for_table => $reserve_for_table,
     shippingdate      => $shippingdate,
     project           => $project,
     invoice           => $invoice,
@@ -415,7 +370,7 @@ sub produce_assembly {
 }
 
 package SL::Helper::Inventory::Allocation {
-  my @attributes = qw(parts_id qty bin_id warehouse_id chargenumber bestbefore comment reserve_for_id reserve_for_table for_object_id);
+  my @attributes = qw(parts_id qty bin_id warehouse_id chargenumber bestbefore comment for_object_id);
   my %attributes = map { $_ => 1 } @attributes;
 
   for my $name (@attributes) {
@@ -462,12 +417,11 @@ SL::WH - Warehouse and Inventory API
   my $qty = get_onhand(part => $part, bin => $bin);                 # how much is available in a specific bin?
   my $qty = get_onhand(part => $part, warehouse => $warehouse);     # how much is available in a specific warehouse?
   my $qty = get_onhand(part => $part, chargenumber => $chargenumber); # how much is availbale of a specific chargenumber?
-  my $qty = get_onhand(part => $part, reserve_for => $order);       # how much is available if you include this reservation?
 
   # onhand batch mode:
   my $data = get_onhand(
     warehouse    => $warehouse,
-    by           => [ qw(bin part chargenumber reserve_for) ],
+    by           => [ qw(bin part chargenumber) ],
     with_objects => [ qw(bin part) ],
   );
 
@@ -477,7 +431,6 @@ SL::WH - Warehouse and Inventory API
     qty          => $qty,           # must be positive
     chargenumber => $chargenumber,  # optional, may be arrayref. if provided these charges will be used first
     bestbefore   => $datetime,      # optional, defaults to today. items with bestbefore prior to that date wont be used
-    reserve_for  => $object,        # optional, may be arrayref. if provided the qtys reserved for these objects will be used first
     bin          => $bin,           # optional, may be arrayref. if provided
   );
 
@@ -495,8 +448,6 @@ SL::WH - Warehouse and Inventory API
     warehouse_id      => $bin_obj->warehouse_id,
     chargenumber      => '1823772365',
     bestbefore        => undef,
-    reserve_for_id    => undef,
-    reserve_for_table => undef,
     for_object_id     => $order->id,
   );
 
@@ -514,7 +465,6 @@ SL::WH - Warehouse and Inventory API
 
     # links, all optional
     production_order_item => $item,
-    reserve_for           => $object,
   );
 
 =head1 DESCRIPTION
@@ -528,13 +478,13 @@ use it to get an overview over the actual contents of the inventory.
 
 The first problem has spawned several dozen small functions in the program that
 try to implement that, and those usually miss some details. They may ignore
-reservations, or reserve warehouses, or bestbefore times.
+reservations, or bestbefore times.
 
 To get this cleaned up a bit this code introduces two concepts: stock and onhand.
 
 Stock is defined as the actual contents of the inventory, everything that is
-there. Onhand is what is available, which means things that are stocked and not
-reserved and not expired.
+there. Onhand is what is available, which means things that are stocked
+and not expired.
 
 The two new functions C<get_stock> and C<get_onhand> encapsulate these principles and
 allow simple access with some optional filters for chargenumbers or warehouses.
@@ -564,11 +514,6 @@ L</"ALLOCATION DATA STRUCTURE">).
 Note: this is only intended to cover the scenarios described above. For other cases:
 
 =over 4
-
-=item *
-
-If you need the reserved amount for an order use C<SL::DB::Helper::Reservation>
-instead.
 
 =item *
 
@@ -635,22 +580,12 @@ mode when C<by> is given.
 
 =item * get_onhand PARAMS
 
-Returns for single parts how much is available in the inventory. That excludes:
-reserved quantities, reserved warehouses and stock with expired bestbefore.
+Returns for single parts how much is available in the inventory. That excludes
+stock with expired bestbefore.
 
-It takes all options of L</get_stock> but treats some of the differently and has some additional ones:
+It takes all options of L</get_stock> and has some additional ones:
 
 =over 4
-
-=item * warehouse
-
-Usually C<onhand> will not include results from warehouses with the C<reserve>
-flag. However giving an explicit list of warehouses will include there in the
-search, as well as all others.
-
-=item * reserve_for
-
-=item * reserve_warehouse
 
 =item * bestbefore
 
@@ -682,15 +617,10 @@ Optional.
 
 Datetime. Optional.
 
-=item * reserve_for
-
-Needs to be a rose object, where id and table can be extracted. Optional.
-
 =back
 
 Tries to allocate the required quantity using what is currently onhand. If
-given any of C<bin>, C<warehouse>, C<chargenumber>, C<reserve_for>
-
+given any of C<bin>, C<warehouse>, C<chargenumber>
 
 =item * allocate_for_assembly PARAMS
 
@@ -721,15 +651,13 @@ If this is given, part is optional in the parameters
 
 =item * bestbefore
 
-=item * reserve_for
-
 =back
 
 Note: If you want to use the returned data to create allocations you I<need> to
 enable all of these. To make this easier a special shortcut exists
 
 In this mode, C<with_objects> can be used to load C<warehouse>, C<bin>,
-C<parts>, and the C<reserve_for> objects in one go, just like with Rose. They
+C<parts>  objects in one go, just like with Rose. They
 need to be present in C<by> before that though.
 
 =head1 ALLOCATION ALGORITHM
@@ -741,10 +669,6 @@ In general allocate will try to make the request happen, and will use the
 provided charges up first, and then tap everything else. If you need to only
 I<exactly> use the provided charges, you'll need to craft the allocations
 yourself. See L</"ALLOCATION DATA STRUCTURE"> for that.
-
-If C<reserve_for> is given, those will be used up first too.
-
-If C<reserved_warehouse> is given, those will be used up second.
 
 If C<chargenumber> is given, those will be used up next.
 
@@ -781,10 +705,6 @@ each of the following attributes to be set at creation time:
 
 =item * bestbefore
 
-=item * reserve_for_id
-
-=item * reserve_for_table
-
 =item * for_object_id
 
 If set the allocations will be marked as allocated for the given object.
@@ -794,9 +714,8 @@ The object may be an order, productionorder or other objects
 
 =back
 
-C<chargenumber>, C<bestbefore>, C<reserve_for_id>, C<reserve_for_table> and
-C<for_object_id> may be C<undef> (but must still be present at creation time).
-Instances are considered immutable.
+C<chargenumber>, C<bestbefore> and C<for_object_id> may be C<undef> (but must
+still be present at creation time). Instances are considered immutable.
 
 
 =head1 CONSTRAINTS
@@ -817,8 +736,8 @@ Instances are considered immutable.
       all { $_->chargenumber =~ /^ C \d{8} - \a{d2} $/x } @_
 
       &&
-      # and must be all reservations
-      all { $_->reserve_for_id } @_;
+      # and must all have a bestbefore date
+      all { $_->bestbefore } @_;
     }
   )
 
