@@ -116,16 +116,13 @@ sub _get_stock_onhand {
     for my $with_object (listify($params{with_objects})) {
       Carp::croak("unknown with_object $with_object") if !exists $with_objects{$with_object};
 
-      if (my $manager = $with_objects{$with_object}) {
-        my $slot = $slots{$with_object};
-        next if !(my @ids = map { $_->{$slot} } @$results);
-        my $objects = $manager->get_all(query => [ id => \@ids ]);
-        my %objects_by_id = map { $_->id => $_ } @$objects;
+      my $manager = $with_objects{$with_object};
+      my $slot = $slots{$with_object};
+      next if !(my @ids = map { $_->{$slot} } @$results);
+      my $objects = $manager->get_all(query => [ id => \@ids ]);
+      my %objects_by_id = map { $_->id => $_ } @$objects;
 
-        $_->{$with_object} = $objects_by_id{$_->{$slot}} for @$results;
-      } else {
-        # need to fetch all partitions
-      }
+      $_->{$with_object} = $objects_by_id{$_->{$slot}} for @$results;
     }
   }
 
