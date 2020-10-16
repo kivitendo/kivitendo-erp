@@ -6,7 +6,6 @@ use lib 't';
 use SL::Dev::Part qw(new_part new_assembly);
 use SL::Dev::Inventory qw(create_warehouse_and_bins set_stock);
 use SL::Dev::Record qw(create_sales_order);
-use SL::DB::Helper::Reservation qw(make_reservation);
 
 use_ok 'Support::TestSetup';
 use_ok 'SL::DB::Bin';
@@ -58,20 +57,6 @@ WH->transfer({
 is(SL::Helper::Inventory::get_stock(part => $assembly1), "60.00000", 'normal get_stock works');
 is(SL::Helper::Inventory::get_onhand(part => $assembly1), "60.00000", 'normal get_onhand works');
 
-# reserve some of it, get_stock, get_onhand
-
-my $order = create_sales_order(save => 1);
-
-make_reservation(
-  part        => $assembly1,
-  bin         => $bin1,
-  reserve_for => $order,
-  qty         => 25,
-);
-
-is(WH->get_stock_(part => $assembly1), "60.00000", 'normal get_stock works');
-is(WH->get_onhand_(part => $assembly1), "35.00000", 'normal get_onhand works');
-
 # allocate some stuff
 
 my @allocations = SL::Helper::Inventory::allocate(
@@ -85,16 +70,12 @@ is_deeply(\%{ $allocations[0] }, {
    chargenumber      => '',
    parts_id          => $assembly1->id,
    qty               => 12,
-   reserve_for_id    => undef,
-   reserve_for_table => undef,
    warehouse_id      => $wh->id,
    comment           => undef,
    for_object_id     => undef,
  }, 'allocation works');
 
 # simple
-
-# with reservation
 
 # more than exists
 
