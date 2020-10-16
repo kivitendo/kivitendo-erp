@@ -217,8 +217,7 @@ sub allocate_for_assembly {
   for my $assembly ($part->assemblies) {
     next if $assembly->part->dispotype eq 'no_stock';
 
-    my $tmpqty = $assembly->assembly_part->is_recipe   ? $assembly->qty * $qty / $assembly->assembly_part->scalebasis
-               : $assembly->part->unit eq 'Stck' ? ceil($assembly->qty * $qty)
+    my $tmpqty = $assembly->part->unit eq 'Stck' ? ceil($assembly->qty * $qty)
                : $assembly->qty * $qty;
     $parts_to_allocate{ $assembly->part->id } //= 0;
     $parts_to_allocate{ $assembly->part->id } += $tmpqty;
@@ -302,7 +301,6 @@ sub produce_assembly {
   my $for_object_id = $params{for_object_id};
   my $comment      = $params{comment} // '';
 
-  my $production_order_item = $params{production_order_item};
   my $invoice               = $params{invoice};
   my $project               = $params{project};
 
@@ -318,7 +316,7 @@ sub produce_assembly {
   if (!$params{no_check_allocations} && !$params{auto_allocate}) {
     my %allocations_by_part = map { $_->parts_id  => $_->qty } @$allocations;
     for my $assembly ($part->assemblies) {
-      $allocations_by_part{ $assembly->parts_id } -= $assembly->qty * $qty; # TODO recipe factor
+      $allocations_by_part{ $assembly->parts_id } -= $assembly->qty * $qty;
     }
 
     die "allocations are insufficient for production" if any { $_ < 0 } values %allocations_by_part;
@@ -351,7 +349,6 @@ sub produce_assembly {
     project           => $project,
     invoice           => $invoice,
     comment           => $comment,
-    prod              => $production_order_item,
     employee          => SL::DB::Manager::Employee->current,
     oe_id             => $for_object_id,
   );
@@ -461,7 +458,6 @@ SL::WH - Warehouse and Inventory API
     comment      => $comment,       # optional
 
     # links, all optional
-    production_order_item => $item,
   );
 
 =head1 DESCRIPTION
