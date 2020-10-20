@@ -4,7 +4,11 @@
 \usepackage{german}
 \usepackage{graphicx}
 \usepackage{ifthen}
-\usepackage[utf8]{inputenc}
+\usepackage{iftex}
+\ifPDFTeX
+	\usepackage[utf8]{inputenc}
+	\usepackage[T1]{fontenc}
+\fi
 \usepackage{latexsym}
 \usepackage{longtable}
 \usepackage{textcomp}
@@ -43,8 +47,12 @@
 }
 
 %% Standardschrift
-\newcommand{\defaultfont}{\fontfamily{cmss}\fontsize{10pt}{12pt}\fontseries{m}\selectfont}
-\renewcommand{\familydefault}{cmss}
+\newcommand{\defaultfont}{\normalfont}
+\renewcommand{\familydefault}{\sfdefault}
+\ifPDFTeX
+\else
+\usepackage{fontspec}
+\fi
 
 %% Checkboxen
 \newsavebox{\checkedbox}
