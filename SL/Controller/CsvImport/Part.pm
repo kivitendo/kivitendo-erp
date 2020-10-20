@@ -692,7 +692,9 @@ sub handle_makemodel {
 sub set_various_fields {
   my ($self, $entry) = @_;
 
-  $entry->{object}->priceupdate(DateTime->now_local);
+  my $object = $entry->{object_to_save} || $entry->{object};
+
+  $object->priceupdate(DateTime->now_local);
 }
 
 sub init_profile {
@@ -713,7 +715,6 @@ sub save_objects {
   my $without_number = [ grep { $_->{object}->partnumber eq '####' } @{ $self->controller->data } ];
 
   map { $_->{object}->partnumber('') } @{ $without_number };
-
   $self->SUPER::save_objects(data => $with_number);
   $self->SUPER::save_objects(data => $without_number);
 }
