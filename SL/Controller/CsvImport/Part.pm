@@ -561,7 +561,7 @@ sub check_partsgroup {
 
   # Check whether or not part group ID is valid.
   if ($object->partsgroup_id && !$self->partsgroups_by->{id}->{ $object->partsgroup_id }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid parts group');
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid parts group id #1', $object->partsgroup_id);
     return 0;
   }
 
@@ -570,7 +570,7 @@ sub check_partsgroup {
     my $pg = $self->partsgroups_by->{partsgroup}->{ $entry->{raw_data}->{partsgroup} };
 
     if (!$pg) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid parts group');
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid parts group name #1',  $entry->{raw_data}->{partsgroup});
       return 0;
     }
 
