@@ -45,8 +45,13 @@
 \newkomavar{transaction}
 \newkomavar[\lieferschein{}~\nr]{delivery}
 \newkomavar[\angebot{}~\nr]{quote}
-\newkomavar{orderID}
-\newkomavar{projectID}
+\newkomavar[\auftragsnummer]{orderID}
+\newkomavar[\projektnummer]{projectID}
+\setkomavar*{fromphone}{\textTelefon}
+\setkomavar*{fromemail}{\textEmail}
+\setkomavar*{fromfax}{\textFax}
+\setkomavar*{customer}{\kundennummer}
+
 
 \usepackage{geometry}
 
@@ -441,9 +446,41 @@ contents={\usebox\shippingAddressBox}
 
 \newtcolorbox{PricingTabularBox}{breakable,skin=kivi@LT}
 
-
-
 \if@kivi@infobox
+
+	\def\locationsep{:}
+
+	\NewDocumentCommand{\locationentry}{som}{
+		\Ifkomavarempty{#3}{}{
+		\IfBooleanTF {#1} {
+			\strut
+			\IfNoValueTF {#2}
+				{\usekomavar*{#3}}
+				{#2}
+			\locationsep
+			\hfill\strut\space
+			\hbox_set:Nn \l_tmpa_box {\usekomavar{#3}}
+			\dim_compare:nTF {\box_wd:N \l_tmpa_box>\linewidth}
+				{\newline\hspace*{\fill}\llap}
+				{\hspace*{\fill}}
+				{\box_use:N \l_tmpa_box\strut}
+		}{
+			\@hangfrom{\strut
+				\IfNoValueTF {#2}
+					{\usekomavar*{#3}}
+					{#2}\locationsep~
+			}{
+				\parbox[t]{\dimexpr\linewidth-\hangindent}{
+					\raggedleft
+					\usekomavar{#3}\strut
+				}
+			}
+		}
+		}
+		\par
+	}
+
+
 \setkomavar{location}{
 	\Ifkomavarempty{transaction}{}{
 	\bfseries
@@ -451,27 +488,19 @@ contents={\usebox\shippingAddressBox}
 	}
 	\par
 	\medskip
-	\begin{tabularx}{\useplength{locwidth}}{@{}l<{:}>{\raggedleft\arraybackslash}X@{}}
-		\usekomavar*{date}&\usekomavar{date}\\
-		\Ifkomavarempty{myref}{}{
-			\usekomavar*{myref}&\usekomavar{myref}\\
-		}
-		\kundennummer&\usekomavar{customer}\\
-		\Ifkomavarempty{yourref}{}{
-			\usekomavar*{yourref}&\usekomavar{yourref}\\
-		}
-		\Ifkomavarempty{delivery}{}{
-			\usekomavar*{delivery}&\usekomavar{delivery}\\
-		}
-		\Ifkomavarempty{quote}{}{
-			\usekomavar*{quote}&\usekomavar{quote}\\
-		}
-		\Ifkomavarempty{orderID}{}{\auftragsnummer&\usekomavar{orderID}\\}
-		\Ifkomavarempty{projectID}{}{\projektnummer&\usekomavar{projectID}\\}
-		\ansprechpartner&\usekomavar{fromname}
-		\Ifkomavarempty{fromphone}{}{\\\textTelefon&\usekomavar{fromphone}}
-		\Ifkomavarempty{fromemail}{}{\\\textEmail&\usekomavar{fromemail}}
-	\end{tabularx}
+	\parbox{\useplength{locwidth}}{
+		\locationentry{date}
+		\locationentry{myref}
+		\locationentry{customer}
+		\locationentry{yourref}
+		\locationentry{delivery}
+		\locationentry{quote}
+		\locationentry{orderID}
+		\locationentry{projectID}
+		\locationentry[\ansprechpartner]{fromname}
+		\locationentry{fromphone}
+		\locationentry*{fromemail}
+	}
 }
 \removereffields
 \AtBeginLetter{
