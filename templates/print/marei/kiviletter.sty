@@ -16,25 +16,26 @@
 
 
 \RequirePackage{expl3}
+\RequirePackage{xparse}
 \RequirePackage{iftex}
 \KOMAoptions{fontsize=12pt}
 % Schriftart, Eingabelayout der Tastatur
 \ifPDFTeX
-\RequirePackage[utf8]{inputenc}% Nur notwendig, wenn Basis älter als TL2018
-\RequirePackage[T1]{fontenc}
-\RequirePackage{lmodern}
+	\RequirePackage[utf8]{inputenc}% Nur notwendig, wenn Basis älter als TL2018
+	\RequirePackage[T1]{fontenc}
+	\RequirePackage{lmodern}
+
+	\RequirePackage{eurosym}
+	\DeclareUnicodeCharacter{20AC}{\euro}
 \else
-\RequirePackage{fontspec}
+	\RequirePackage{fontspec}
 \fi
 
 \RequirePackage{xltabular}
 \RequirePackage{booktabs}
 \RequirePackage{graphicx}
 
-\ifPDFTeX
-\RequirePackage{eurosym}
-\DeclareUnicodeCharacter{20AC}{\euro}
-\fi
+
 
 \RequirePackage[fromlogo,fromalign=right,
   firstfoot=false,%Für einheitliche Randeinstellungen
@@ -302,7 +303,7 @@ contents={\usebox\shippingAddressBox}
 	@{}
 }
 
-\cs_new:Nn \__kivi_tab_column_currency: {\,\currency}
+\cs_new_protected:Nn \__kivi_tab_column_currency: {\,\currency}
 \def\tabcurrency{\__kivi_tab_column_currency:}
 \cs_set:Nn \__kivi_tab_column_header_currency: {}
 \cs_set_eq:NN \__kivi_tab_column_body_currency:  \__kivi_tab_column_currency:

@@ -5,6 +5,7 @@
 \usepackage{graphicx}
 \usepackage{ifthen}
 \usepackage{iftex}
+%Compilerunabhängigkeit
 \ifPDFTeX
 	\usepackage[utf8]{inputenc}
 	\usepackage[T1]{fontenc}
@@ -46,9 +47,9 @@
   \setlength{\footskip}{0.9cm}
 }
 
-%% Standardschrift
-\newcommand{\defaultfont}{\normalfont}
-\renewcommand{\familydefault}{\sfdefault}
+%% Standardschrift Compilerunabhängig
+\newcommand*{\defaultfont}{\normalfont}
+\renewcommand*{\familydefault}{\sfdefault}
 \ifPDFTeX
 \else
 \usepackage{fontspec}
