@@ -707,10 +707,10 @@ sub update {
       $form->{debitlock} = 1;
     }
     if ($debitcredit && $credittax) {
-      $form->{"taxchart_$i"} = "$notax_id--0.00";
+      $form->{"taxchart_$i"} = "$notax_id--0.00000";
     }
     if (!$debitcredit && $debittax) {
-      $form->{"taxchart_$i"} = "$notax_id--0.00";
+      $form->{"taxchart_$i"} = "$notax_id--0.00000";
     }
     $amount =
       ($form->{"debit_$i"} == 0)
@@ -718,7 +718,7 @@ sub update {
       : $form->{"debit_$i"};
     my $j = $#a;
     if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
-      $form->{"taxchart_$i"} = "$notax_id--0.00";
+      $form->{"taxchart_$i"} = "$notax_id--0.00000";
       $form->{"tax_$i"}      = 0;
     }
     my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
@@ -1253,17 +1253,17 @@ sub post_transaction {
       $form->{debitlock} = 1;
     }
     if ($debitcredit && $credittax) {
-      $form->{"taxchart_$i"} = "$notax_id--0.00";
+      $form->{"taxchart_$i"} = "$notax_id--0.00000";
     }
     if (!$debitcredit && $debittax) {
-      $form->{"taxchart_$i"} = "$notax_id--0.00";
+      $form->{"taxchart_$i"} = "$notax_id--0.00000";
     }
     my $amount = ($form->{"debit_$i"} == 0)
             ? $form->{"credit_$i"}
             : $form->{"debit_$i"};
     my $j = $#a;
     if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
-      $form->{"taxchart_$i"} = "$notax_id--0.00";
+      $form->{"taxchart_$i"} = "$notax_id--0.00000";
       $form->{"tax_$i"}      = 0;
     }
     my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
