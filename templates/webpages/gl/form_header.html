@@ -48,83 +48,50 @@
   <tr height="5"></tr>
   <tr>
     <td>
-      <table width=100%>
+      <table>
         <tr>
           <td colspan="6" align="left">[% 'Previous transnumber text' | $T8 %] [% previous_id  %] . [% 'Previous transdate text' | $T8 %] [% previous_gldate %]</td>
         </tr>
         <tr>
-          <th align=right>[% 'Reference' | $T8 %]</th>
+          <th align="right">[% 'Reference' | $T8 %]</th>
           <td>[% L.input_tag('reference', reference,  size=20, readonly=readonly) %]</td>
-          <td align=left>
-            <table>
-              <tr>
-                <th align=right width=50% nowrap>[% 'Transdate' | $T8 %]</th>
-                <td align=left>[% L.date_tag('transdate', transdate, readonly=readonly) %]</td>
-              </tr>
-            </table>
-          </td>
+          <th align="right">[% 'Transdate' | $T8 %]</th>
+          <td>[% L.date_tag('transdate', transdate, readonly=readonly) %]</td>
         </tr>
 [%- IF id %]
         <tr>
-          <th align=right>[% 'ID' | $T8 %]</th>
+          <th align="right">[% 'ID' | $T8 %]</th>
           <td>[% L.input_tag('id', id,  size=20, readonly=readonly) %]</td>
-          <td align=left>
-          <table>
-              <tr>
-                <th align=right width=50%>[% 'Gldate' | $T8 %]</th>
-                [%-# hidden img to keep alignment -%]
-                <td align=left>[% L.date_tag('gldate', gldate, readonly=1) %]<img class="ui-datepicker-trigger" src="image/calendar.png" alt="..." title="..." style='visibility:hidden'></td>
-              </tr>
-            </table>
-          </td>
+          <th align="right">[% 'Gldate' | $T8 %]</th>
+          <td>[% L.date_tag('gldate', gldate, readonly=1) %]<img class="ui-datepicker-trigger" src="image/calendar.png" alt="..." title="..." style='visibility:hidden'></td>
         </tr>
 [%- END %]
 
         [% SET departments_style = "";
            SET departments_style = "style='visibility:hidden'" IF ALL_DEPARTMENTS.size == 0 %]
         <tr>
-          <th [%- departments_style -%]align=right nowrap>[% 'Department' | $T8 %]</th>
+          <th [%- departments_style -%]align="right">[% 'Department' | $T8 %]</th>
           <td [%- departments_style -%]>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1) %]</td>
-          <td align=left>
-            <table>
-              <tr>
-                <th align=right width=50% nowrap>[% 'Delivery Date' | $T8 %]</th>
-                <td align=left>[% L.date_tag('deliverydate', deliverydate) %]</td>
-              </tr>
-            </table>
+          <th align=right>[% 'Delivery Date' | $T8 %]</th>
+          <td>[% L.date_tag('deliverydate', deliverydate) %]</td>
         </tr>
-
         <tr>
-          <th align=right width=1%>[% 'Description' | $T8 %]</th>
-          <td width=1%>[% L.areainput_tag('description', description, cols=50, readonly=readonly) %]</td>
-          <td>
-            <table>
-              <tr>
-                <th align=left>[% 'MwSt. inkl.' | $T8 %]</th>
-                <td>[% L.checkbox_tag('taxincluded', checked=taxincluded) %]</td>
-              </tr>
-            </table>
-         </td>
-[%- IF id %]
-          <td align=left>
-            <table width=100%>
-              <tr>
-                <th align=right width=50%>[% 'Mitarbeiter' | $T8 %]</th>
-                <td align=left>[% L.input_tag('employee', employee, size=20, readonly=readonly) %]</td>
-              </tr>
-            </table>
-          </td>
-[%- END %]
+          <th align="right">[% 'Description' | $T8 %]</th>
+          <td>[% L.areainput_tag('description', description, cols=50, readonly=readonly) %]</td>
+          <th align="right">[% 'MwSt. inkl.' | $T8 %]</th>
+          <td>[% L.checkbox_tag('taxincluded', checked=taxincluded) %]</td>
         </tr>
+[%- IF id %]
+        <tr>
+          <th align="right">[% 'Mitarbeiter' | $T8 %]</th>
+          <td>[% L.input_tag('employee', employee, size=20, readonly=readonly) %]</td>
+        </tr>
+[%- END %]
 
       <tr>
        <td colspan=4>
-        <table>
-         <tr>
-          <td>[% 'OB Transaction' | $T8 %] [% L.checkbox_tag('ob_transaction' checked=ob_transaction) %]</td>
-          <td>[% 'CB Transaction' | $T8 %] [% L.checkbox_tag('cb_transaction' checked=cb_transaction) %]</td>
-         </tr>
-        </table>
+         [% 'OB Transaction' | $T8 %] [% L.checkbox_tag('ob_transaction' checked=ob_transaction) %]
+         [% 'CB Transaction' | $T8 %] [% L.checkbox_tag('cb_transaction' checked=cb_transaction) %]
        </td>
       </tr>
       <tr>
