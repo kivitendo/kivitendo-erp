@@ -673,7 +673,7 @@ sub update {
   my $zerotaxes  = selectall_hashref_query($form, $dbh, "SELECT id FROM tax WHERE rate = 0", );
 
   my @flds =
-    qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
+    qw(accno_id debit credit projectnumber fx_transaction source memo tax taxchart);
 
   for my $i (1 .. $form->{rowcount}) {
     $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) for qw(debit credit tax);
@@ -1213,7 +1213,7 @@ sub post_transaction {
   my ($notax_id) = selectrow_query($form, $dbh, "SELECT id FROM tax WHERE taxkey = 0 LIMIT 1", );
   my $zerotaxes  = selectall_hashref_query($form, $dbh, "SELECT id FROM tax WHERE rate = 0", );
 
-  my @flds = qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
+  my @flds = qw(accno_id debit credit projectnumber fx_transaction source memo tax taxchart);
 
   for my $i (1 .. $form->{rowcount}) {
     next if $form->{"debit_$i"} eq "" && $form->{"credit_$i"} eq "";
