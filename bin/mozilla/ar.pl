@@ -604,7 +604,7 @@ sub update {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
 
-  my @flds  = qw(amount AR_amount projectnumber oldprojectnumber project_id);
+  my @flds  = qw(amount AR_amount_chart_id projectnumber oldprojectnumber project_id taxchart tax);
   my $count = 0;
   my @a     = ();
 
