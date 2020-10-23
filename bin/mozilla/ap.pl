@@ -937,8 +937,6 @@ sub search {
 
   $form->{title} = $locale->text('Vendor Invoices & AP Transactions');
 
-  $form->get_lists(projects => { "key" => "ALL_PROJECTS", "all" => 1 });
-
   $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
   # constants and subs for template
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
