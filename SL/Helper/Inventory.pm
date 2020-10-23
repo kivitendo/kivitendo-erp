@@ -62,9 +62,13 @@ sub _get_stock_onhand {
     push @values, $params{date};
   }
 
+  if (!$params{bestbefore} && $onhand_mode && default_show_bestbefore()) {
+    $params{bestbefore} = DateTime->now_local;
+  }
+
   if ($params{bestbefore}) {
     Carp::croak("not DateTime ".$params{date}) unless ref($params{bestbefore}) eq 'DateTime';
-    push @where, sprintf "bestbefore >= ?";
+    push @where, sprintf "(bestbefore IS NULL OR bestbefore >= ?)";
     push @values, $params{bestbefore};
   }
 
@@ -96,7 +100,10 @@ sub _get_stock_onhand {
     LEFT JOIN warehouse ON bin.warehouse_id = warehouse.id
     $where
     $group_by
-    HAVING SUM(qty) > 0
+
+  if ($onhand_mode) {
+    $query .= ' HAVING SUM(qty) > 0';
+  }
 
   my $results = selectall_hashref_query($::form, SL::DB->client->dbh, $query, @values);
 
@@ -175,6 +182,8 @@ sub allocate {
 
   for my $chunk (@sorted_results) {
     my $qty = min($chunk->{qty}, $rest_qty);
+
+    # since allocate operates on stock, this also ensures that no negative stock results are used
     if ($qty > 0) {
       push @allocations, SL::Helper::Inventory::Allocation->new(
         parts_id          => $chunk->{parts_id},
@@ -363,6 +372,10 @@ sub produce_assembly {
   @transfers;
 }
 
+sub default_show_bestbefore {
+  $::instance_conf->get_show_bestbefore
+}
+
 package SL::Helper::Inventory::Allocation {
   my @attributes = qw(parts_id qty bin_id warehouse_id chargenumber bestbefore comment for_object_id);
   my %attributes = map { $_ => 1 } @attributes;
@@ -471,13 +484,19 @@ use it to get an overview over the actual contents of the inventory.
 
 The first problem has spawned several dozen small functions in the program that
 try to implement that, and those usually miss some details. They may ignore
-reservations, or bestbefore times.
+bestbefore times, comments, ignore negative quantities etc.
 
 To get this cleaned up a bit this code introduces two concepts: stock and onhand.
 
-Stock is defined as the actual contents of the inventory, everything that is
-there. Onhand is what is available, which means things that are stocked
-and not expired.
+=over 4
+
+=item * Stock is defined as the actual contents of the inventory, everything that is
+there.
+
+=item * Onhand is what is available, which means things that are stocked,
+not expired and not reserved for other uses.
+
+=back
 
 The two new functions C<get_stock> and C<get_onhand> encapsulate these principles and
 allow simple access with some optional filters for chargenumbers or warehouses.
@@ -488,11 +507,11 @@ To address the safe assembly creation a new function has been added.
 C<allocate> will try to find the requested quantity of a part in the inventory
 and will return allocations of it which can then be used to create the
 assembly. Allocation will happen with the C<onhand> semantics defined above,
-meaning that by default no reservations or expired goods will be used. The
-caller can supply hints of what shold be used and in those cases chargenumber
-and reservations will be used up as much as possible first.  C<allocate> will
-always try to fulfil the request even beyond those. Should the required amount
-not be stocked, allocate will throw an exception.
+meaning that by default no expired goods will be used. The caller can supply
+hints of what shold be used and in those cases chargenumbers will be used up as
+much as possible first. C<allocate> will always try to fulfil the request even
+beyond those. Should the required amount not be stocked, allocate will throw an
+exception.
 
 C<produce_assembly> has been rewritten to only accept parameters about the
 target of the production, and requires allocations to complete the request. The
@@ -510,9 +529,9 @@ Note: this is only intended to cover the scenarios described above. For other ca
 
 =item *
 
-If you need actual inventory objects because of record links, prod_id links or
-something like that load them directly. And strongly consider redesigning that,
-because it's really fragile.
+If you need actual inventory objects because of record links or something like
+that load them directly. And strongly consider redesigning that, because it's
+really fragile.
 
 =item *
 
@@ -576,11 +595,14 @@ mode when C<by> is given.
 Returns for single parts how much is available in the inventory. That excludes
 stock with expired bestbefore.
 
-It takes all options of L</get_stock> and has some additional ones:
+It takes the same options as L</get_stock>.
 
 =over 4
 
 =item * bestbefore
+
+If given, will only return stock with a bestbefore at or after the given date.
+Optional. Must be L<DateTime> object.
 
 =back
 
@@ -756,13 +778,23 @@ C<allocate> and C<produce_assembly> will throw exceptions if the request can
 not be completed. The usual reason will be insufficient onhand to allocate, or
 insufficient allocations to process the request.
 
+=head1 KNOWN PROBLEMS
+
+  * It's not currently possible to identify allocations between requests, for
+    example for presenting the user possible allocations and then actually using
+    them on the next request.
+  * It's not currently possible to give C<allocate> prior constraints.
+    Currently all constraints are treated as hints (and will be preferred) but
+    the internal ordering of the hints is fixed and more complex preferentials
+    are not supported.
+  * bestbefore handling is untested
+
 =head1 TODO
 
   * define and describe error classes
   * define wrapper classes for stock/onhand batch mode return values
-  * handle extra arguments in produce: shippingdate, project, oe
+  * handle extra arguments in produce: shippingdate, project
   * clean up allocation helper class
-  * with objects for reservations
   * document no_ check
   * tests
 
