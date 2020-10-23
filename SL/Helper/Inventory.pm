@@ -224,12 +224,8 @@ sub allocate_for_assembly {
   my %parts_to_allocate;
 
   for my $assembly ($part->assemblies) {
-    next if $assembly->part->dispotype eq 'no_stock';
-
-    my $tmpqty = $assembly->part->unit eq 'Stck' ? ceil($assembly->qty * $qty)
-               : $assembly->qty * $qty;
     $parts_to_allocate{ $assembly->part->id } //= 0;
-    $parts_to_allocate{ $assembly->part->id } += $tmpqty;
+    $parts_to_allocate{ $assembly->part->id } += $assembly->qty * $qty;
   }
 
   my @allocations;
