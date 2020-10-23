@@ -497,7 +497,7 @@ not expired and not reserved for other uses.
 The two new functions C<get_stock> and C<get_onhand> encapsulate these principles and
 allow simple access with some optional filters for chargenumbers or warehouses.
 Both of them have a batch mode that can be used to get these information to
-supllement smiple reports.
+supplement simple reports.
 
 To address the safe assembly creation a new function has been added.
 C<allocate> will try to find the requested quantity of a part in the inventory
