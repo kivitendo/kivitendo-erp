@@ -330,14 +330,12 @@ sub produce_assembly {
   my @transfers;
   for my $allocation (@$allocations) {
     my $oe_id = delete $allocation->{for_object_id};
-    push @transfers, SL::DB::Inventory->new(
+    push @transfers, $allocation->transfer_object(
       trans_id     => $trans_id,
-      %$allocation,
       qty          => -$allocation->qty,
       trans_type   => $trans_type_out,
       shippingdate => $shippingdate,
       employee     => SL::DB::Manager::Employee->current,
-      oe_id        => $allocation->for_object_id,
     );
   }
 
@@ -375,6 +373,9 @@ sub default_show_bestbefore {
 package SL::Helper::Inventory::Allocation {
   my @attributes = qw(parts_id qty bin_id warehouse_id chargenumber bestbefore comment for_object_id);
   my %attributes = map { $_ => 1 } @attributes;
+  my %mapped_attributes = (
+    for_object_id => 'oe_id',
+  );
 
   for my $name (@attributes) {
     no strict 'refs';
@@ -390,6 +391,18 @@ package SL::Helper::Inventory::Allocation {
     Carp::croak("$_ must be positive")  for grep { !($params{$_} > 0) } qw(parts_id qty bin_id);
 
     bless { %params }, $class;
+  }
+
+  sub transfer_object {
+    my ($self, %params) = @_;
+
+    SL::DB::Inventory->new(
+      (map {
+        my $attr = $mapped_attributes{$_} // $_;
+        $attr => $self->{$attr}
+      } @attributes),
+      %params,
+    );
   }
 }
 
@@ -725,9 +738,12 @@ The object may be an order, productionorder or other objects
 
 =back
 
-C<chargenumber>, C<bestbefore> and C<for_object_id> may be C<undef> (but must
-still be present at creation time). Instances are considered immutable.
+C<chargenumber>, C<bestbefore> and C<for_object_id> and C<comment> may be
+C<undef> (but must still be present at creation time). Instances are considered
+immutable.
 
+Allocations also provide the method C<transfer_object> which will create a new
+C<SL::DB::Inventory> bject with all the playload.
 
 =head1 CONSTRAINTS
 
