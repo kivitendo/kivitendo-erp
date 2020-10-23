@@ -170,7 +170,7 @@
               <tr>
                 <th align="right" nowrap>[% 'Project Number' | $T8 %]</th>
                 <td>
-                  [% L.select_tag('globalproject_id', ALL_PROJECTS, with_empty = 1, default = globalproject_id, value_key = 'id', title_key = 'projectnumber', onChange = "document.getElementById('update_button').click();") %]
+                  [% P.project.picker('globalproject_id', globalproject_id, onchange="document.getElementById('update_button').click();") %]
                 </td>
               </tr>
             </table>
@@ -212,7 +212,7 @@
             </td>
             <td>
               [% temp = "project_id_"_ i %]
-              [% L.select_tag(temp, ALL_PROJECTS, with_empty = 1, default = loop.last ? globalproject_id : $temp, value_key = 'id', title_key = 'projectnumber') %]
+              [% P.project.picker(temp, loop.last ? globalproject_id : $temp) %]
             </td>
           </tr>
         [% END %]
@@ -351,7 +351,7 @@
             <td align="center">
               [% temp = "paid_project_id_"_ i %]
               [% IF( changeable ) %]
-                [% L.select_tag(temp, ALL_PROJECTS, with_empty = 1, default = $temp, value_key = 'id', title_key = 'projectnumber') %]
+                [% P.project.picker(temp, $temp) %]
               [% ELSE %]
                 <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
                 [% temp = "label"_ temp %]

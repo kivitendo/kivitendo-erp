@@ -413,20 +413,7 @@ sub form_header {
 
   $form->{creditremaining_plus} = ($form->{creditremaining} =~ /-/) ? "0" : "1";
 
-  my @old_project_ids = ();
-  map(
-    {
-      if ($form->{"project_id_$_"}) {
-        push(@old_project_ids, $form->{"project_id_$_"});
-      }
-    }
-    (1..$form->{"rowcount"})
-  );
-
-  $form->get_lists("projects"  => { "key"       => "ALL_PROJECTS",
-                                    "all"       => 0,
-                                    "old_id"    => \@old_project_ids },
-                   "charts"    => { "key"       => "ALL_CHARTS",
+  $form->get_lists("charts"    => { "key"       => "ALL_CHARTS",
                                     "transdate" => $form->{transdate} },
                   );
 
@@ -437,10 +424,7 @@ sub form_header {
 
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
-  my %project_labels = ();
-  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
-    $project_labels{$item->{id}} = $item->{projectnumber};
-  }
+  my %project_labels = map { $_->id => $_->projectnumber }  @{ SL::DB::Manager::Project->get_all };
 
   my %charts;
   my $default_ap_amount_chart_id;
@@ -459,7 +443,7 @@ sub form_header {
   my $follow_up_vc         = $form->{vendor_id} ? SL::DB::Vendor->load_cached($form->{vendor_id})->name : '';
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js", "kivi.RecordTemplate.js", "kivi.File.js", "kivi.AP.js", "kivi.CustomerVendor.js", "kivi.Validator.js");
+  $::request->layout->add_javascripts("autocomplete_chart.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js", "kivi.RecordTemplate.js", "kivi.File.js", "kivi.AP.js", "kivi.CustomerVendor.js", "kivi.Validator.js", "autocomplete_project.js");
   # $form->{totalpaid} is used by the action bar setup to determine
   # whether or not canceling is allowed. Therefore it must be
   # calculated prior to the action bar setup.
