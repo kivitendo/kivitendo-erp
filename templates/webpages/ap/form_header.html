@@ -308,7 +308,7 @@
             [% temp = "paid_"_ i %]
             <td align="center">
               [% IF( changeable ) %]
-                <input name="[% temp %]" size="11" data-validate="number" class="numeric" value="[% $temp | html %]">
+                <input name="[% temp %]" size="11" data-validate="number" class="numeric" value="[% $temp | html %]", id=[%- "payment_" _ temp -%]">
               [% ELSE %]
                 [% $temp | html %]
                 <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
@@ -388,5 +388,5 @@
 <hr size="3" noshade>
 
 <script type='text/javascript'>
- $('#ap_set_to_paid_missing').click(function(){ $('input[name^="paid_"]:last').val('[% LxERP.format_amount(paid_missing, 2) %]') });
+ $('#ap_set_to_paid_missing').click(function(){ $('input[id^="payment_paid_"]:last').val('[% LxERP.format_amount(paid_missing, 2) %]') });
 </script>
