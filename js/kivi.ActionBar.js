@@ -56,7 +56,7 @@ namespace('kivi.ActionBar', function(k){
           case 'enter': return 13;
           default:
             if (val.length == 1) {
-              return val.charChodeAt(0);
+              return val.charCodeAt(0);
             } else if (val % 1 === 0) {
               return val;
             } else {
