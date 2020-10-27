@@ -308,7 +308,7 @@
             [% temp = "paid_"_ i %]
             <td align="center">
               [% IF( changeable ) %]
-                <input name="[% temp %]" size="11" data-validate="number" class="numeric" value="[% $temp | html %]", id=[%- "payment_" _ temp -%]">
+                <input name="[% temp %]" size="11" data-validate="number" class="numeric" value="[% $temp | html %]" id="[%- 'payment_' _ temp -%]">
               [% ELSE %]
                 [% $temp | html %]
                 <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
