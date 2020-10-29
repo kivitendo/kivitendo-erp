@@ -28,7 +28,7 @@ order=< > \n
 \n=<br>
 
 [Template/LaTeX]
-order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © ~ \xad \xa0 ➔ → ← ↔ ↕ | − ≤ ≥ ‐ ​ Ω μ Δ ‑
+order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © ~ \xad \xa0 ➔ → ← ↔ ↕ | − ≤ ≥ ‐ ​ Ω μ Δ λ Ø ø ‑
 \\=\\textbackslash\s
 <pagebreak>=
 "=''
@@ -71,6 +71,9 @@ _=\\_
 μ={\\textmu}
 Δ=$\\Delta$
 Ω=$\\Omega$
+λ=$\\lambda$
+ø={\\o}
+Ø={\\O}
 ~={\\raisebox{0.5ex}{\\texttildelow}}
 ‑={}-{}
 
