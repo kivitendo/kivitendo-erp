@@ -67,6 +67,13 @@ use strict;
 
 # end of main
 
+sub _zugferd_settings {
+  return ([ -1, $::locale->text('Use settings from client configuration') ],
+          [  0, $::locale->text('Do not create ZUGFeRD invoices') ],
+          [  1, $::locale->text('Create ZUGFeRD invoices') ],
+          [  2, $::locale->text('Create ZUGFeRD invoices in test mode') ]);
+}
+
 sub search {
   $main::lxdebug->enter_sub();
 
@@ -88,6 +95,8 @@ sub search {
                                                                            'include_value'  => 'Y');
 
   $form->{title}    = $form->{IS_CUSTOMER} ? $locale->text('Customers') : $locale->text('Vendors');
+
+  $form->{ZUGFERD_SETTINGS} = [ _zugferd_settings() ];
 
   setup_ct_search_action_bar();
 
@@ -141,6 +150,9 @@ sub list_names {
     push @options, $locale->text('Orphaned');
   }
 
+  my @zugferd_settings_list = _zugferd_settings();
+  my $zugferd_filter        = $form->{create_zugferd_invoices} eq '' ? undef : $zugferd_settings_list[$form->{create_zugferd_invoices} + 1]->[1];
+
   push @options, $locale->text('Name') . " : $form->{name}"                                       if $form->{name};
   push @options, $locale->text('Contact') . " : $form->{contact}"                                 if $form->{contact};
   push @options, $locale->text('Number') . qq| : $form->{"$form->{db}number"}|                    if $form->{"$form->{db}number"};
@@ -152,6 +164,7 @@ sub list_names {
   push @options, $locale->text('Billing/shipping address (country)') . " : $form->{addr_country}" if $form->{addr_country};
   push @options, $locale->text('Billing/shipping address (GLN)')     . " : $form->{addr_gln}"     if $form->{addr_gln};
   push @options, $locale->text('Quick Search')                       . " : $form->{all}"          if $form->{all};
+  push @options, $locale->text('ZUGFeRD settings')                   . " : $zugferd_filter"       if $zugferd_filter;
 
   if ($form->{business_id}) {
     my $business = SL::DB::Manager::Business->find_by(id => $form->{business_id});
@@ -219,6 +232,7 @@ sub list_names {
     'creditlimit'       => { 'text' => $locale->text('Credit Limit'), },
     'ustid'             => { 'text' => $locale->text('VAT ID'), },
     'commercial_court'  => { 'text' => $locale->text('Commercial court'), },
+    create_zugferd_invoices => { text => $locale->text('ZUGFeRD settings'), },
     %column_defs_cvars,
   );
 

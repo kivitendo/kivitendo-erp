@@ -4064,6 +4064,7 @@ $self->{texts} = {
   'ZUGFeRD import'              => 'ZUGFeRD Import',
   'ZUGFeRD invoice'             => 'ZUGFeRD-Rechnung',
   'ZUGFeRD notes for each invoice' => 'ZUGFeRD-Notizen für jede Rechnung',
+  'ZUGFeRD settings'            => 'ZUGFeRD-Einstellungen',
   'Zeitraum'                    => 'Zeitraum',
   'Zero amount posting!'        => 'Buchung ohne Wert',
   'Zip'                         => 'PLZ',

@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [%- USE L %]
-[%- USE HTML %]
+[%- USE HTML %][%- USE LxERP -%]
 <h1>[% title %]</h1>
 
  <form method="post" action="ct.pl" name="Form" id="form">
@@ -60,6 +60,13 @@
     </td>
    </tr>
    [% END %]
+
+[% IF IS_CUSTOMER %]
+   <tr>
+     <th align="right" nowrap>[% LxERP.t8("ZUGFeRD settings") %]</th>
+     <td>[% L.select_tag('create_zugferd_invoices', ZUGFERD_SETTINGS, with_empty = 1) %]</td>
+   </tr>
+[% END %]
 
    [% IF IS_CUSTOMER && ALL_SALESMEN.size %]
    <tr>

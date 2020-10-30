@@ -239,6 +239,11 @@ sub search {
     push @values, ("%$_%")x2 for @tokens;
   }
 
+  if (($form->{create_zugferd_invoices} // '') ne '') {
+    $where .= qq| AND (ct.create_zugferd_invoices = ?)|;
+    push @values, $form->{create_zugferd_invoices};
+  }
+
   # Nur Kunden finden, bei denen ich selber der Verkäufer bin
   # Gilt nicht für Lieferanten
   if ($cv eq 'customer' &&   !$main::auth->assert('customer_vendor_all_edit', 1)) {
