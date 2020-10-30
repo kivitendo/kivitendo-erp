@@ -365,10 +365,13 @@ sub create_order {
   my @orderitems = map { $self->create_order_item(                section => $_,         language_id => $customer->language_id) } @{ $params{sections} };
   my @add_items  = map { $self->create_additional_part_order_item(additional_part => $_, language_id => $customer->language_id) } @{ $params{additional_parts} };
   my $employee   = SL::DB::Manager::Employee->current;
+  my $reqdate    = !$::form->{quotation} ? undef
+                 : $customer->payment_id ? $customer->payment->calc_date
+                 :                         DateTime->today_local->next_workday(extra_days => $::instance_conf->get_reqdate_interval)->to_kivitendo;
   my $order      = SL::DB::Order->new(
     globalproject_id        => $self->requirement_spec->project_id,
     transdate               => DateTime->today_local,
-    reqdate                 => $::form->{quotation} && $customer->payment_id ? $customer->payment->calc_date : undef,
+    reqdate                 => $reqdate,
     quotation               => !!$::form->{quotation},
     orderitems              => [ @orderitems, @add_items ],
     customer_id             => $customer->id,
