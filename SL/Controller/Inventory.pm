@@ -704,7 +704,7 @@ sub init_stocktaking_cutoff_date {
   my $now    = DateTime->now_local;
   my $cutoff = DateTime->new(year => $now->year, month => 12, day => 31);
   if ($now->month < 1) {
-    $cutoff->substract(years => 1);
+    $cutoff->subtract(years => 1);
   }
   return $cutoff;
 }
