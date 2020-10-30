@@ -48,7 +48,7 @@ is tue->add_businessdays(businessweek => 6, days => 9), tue->add(days => 10), "t
 is tue->add_businessdays(businessweek => 6, days => 8), tue->add(days => 9), "tue + 8 => thu (date) (6dw)";
 
 
-# same with substract
+# same with subtract
 
 is mon->subtract_businessdays(days => 5)->day_of_week, 1, "mon - 5 => mon";
 is mon->subtract_businessdays(days => 12)->day_of_week, 4, "mon - 12 => thu";
