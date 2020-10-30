@@ -52,6 +52,7 @@ puchase
 puhs
 sekf
 seperat
+substract
 sucess
 unkown
 varsion
