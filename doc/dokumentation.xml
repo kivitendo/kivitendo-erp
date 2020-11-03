@@ -430,7 +430,7 @@
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
   libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl\
-  postgresql-contrib aqbanking-tools poppler-utils libhtml-restrict-perl\
+  postgresql-contrib poppler-utils libhtml-restrict-perl\
   libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl\
   libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl\
   libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
@@ -557,9 +557,6 @@
         <title>Andere Pakete installieren</title>
 
         <itemizedlist>
-      <listitem>
-            <para><literal>aqbanking-tools</literal> Für das Parsen des MT940 Bankformats (Version 6 oder höher)</para>
-          </listitem>
           <listitem>
             <para><literal>poppler-utils</literal> 'pdfinfo' zum Erkennen der Seitenanzahl bei der PDF-Generierung</para>
           </listitem>
@@ -567,9 +564,9 @@
             <para><literal>Postgres Trigram-Index</literal> Für datenbankoptimierte Suchanfragen. Bspw. im Paket <literal>postgresql-contrib</literal> enthalten</para>
           </listitem>
         </itemizedlist>
-        <para>Debian und Ubuntu: <programlisting>apt install aqbanking-tools postgresql-contrib poppler-utils</programlisting></para>
-        <para>Fedora: <programlisting>dnf install aqbanking poppler-utils postgresql-contrib</programlisting></para>
-        <para>openSUSE: <programlisting>zypper install aqbanking-tools poppler-tools</programlisting></para>
+        <para>Debian und Ubuntu: <programlisting>apt install postgresql-contrib poppler-utils</programlisting></para>
+        <para>Fedora: <programlisting>dnf install poppler-utils postgresql-contrib</programlisting></para>
+        <para>openSUSE: <programlisting>zypper install poppler-tools</programlisting></para>
       </sect2>
     </sect1>
 

@@ -172,10 +172,6 @@ latex = pdflatex
 # binary.
 python_uno = python
 
-# Location of the aqbanking binary to use when converting MT940 files
-# into the kivitendo import format
-aqbanking = /usr/bin/aqbanking-cli
-
 [environment]
 # Add the following paths to the PATH environment variable.
 path = /usr/local/bin:/usr/X11R6/bin:/usr/X11/bin

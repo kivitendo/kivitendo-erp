@@ -95,7 +95,6 @@ if ($check{r}) {
 if ($check{o}) {
   print_header('Checking Optional Modules');
   check_module($_, optional => 1) for @SL::InstallationCheck::optional_modules;
-  check_aqbanking();
 }
 if ($check{d}) {
   print_header('Checking Developer Modules');
@@ -239,31 +238,6 @@ sub check_pdfinfo {
     my %modinfo = ( debian => 'poppler-utils' );
     push @missing_modules, \%modinfo;
 
-  }
-}
-
-sub check_aqbanking {
-  my $aqbin = $::lx_office_conf{applications}->{aqbanking};
-  if ( !$aqbin ) {
-    print_line('Looking for aqbanking executable', 'not configured','red');
-  }
-  else {
-    my $line = "Looking for aqbanking executable '".$aqbin."'";
-    my $shell_out = `$aqbin versions 2>&1 | grep AqBanking-CLI 2> /dev/null`;
-    my ($label,$version)  = split /:/,$shell_out;
-    if ( $label && $label eq ' AqBanking-CLI' ) {
-      chop $version;
-      my ($number_version) = $version =~ /(\d+)/;
-      if ($number_version < 6) {
-        print_line($line, "Requires at least version 6, current version is " . $version, 'red');
-      } else {
-        print_line($line, $version, 'green');
-      }
-    } else {
-      print_line($line, 'not installed','red');
-      my %modinfo = ( name => 'aqbanking' );
-      push @missing_modules, \%modinfo;
-    }
   }
 }
 
