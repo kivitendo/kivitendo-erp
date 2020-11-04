@@ -2,6 +2,15 @@
 # Veränderungen von kivitendo #
 ###############################
 
+20??-??-?? - Release ?.?.?
+
+Mittelgroße neue Features:
+
+ - Der Import von Bankauszuügen im MT940-Format wurde komplett neu
+   geschrieben. Das externe Programm AQBanking wird nun nicht mehr
+   benötigt.
+
+
 2020-10-02 - Release 3.5.6.1
 
 
