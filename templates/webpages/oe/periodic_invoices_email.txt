@@ -21,3 +21,19 @@ Bei folgenden Auftragsnummern, wurde die Konfiguration auf inaktiv (Periodenwahl
 
 [% FOREACH disabled_order = DISABLED_ORDERS %][% disabled_order %] [% END %]
 [%- END %]
+[% IF PRINTED_FAILED.size %]
+
+Beim Drucken der folgenden Rechnungen gab es Fehler:
+
+[% FOREACH invoice = PRINTED_FAILED %]
+* [% invoice.0.invnumber %]: [% invoice.1 %]
+[% END %]
+[% END %]
+[% IF EMAILED_FAILED.size %]
+
+Beim Versand der folgenden Rechnungen per E-Mail gab es Fehler:
+
+[% FOREACH invoice = EMAILED_FAILED %]
+* [% invoice.0.invnumber %]: [% invoice.1 %]
+[% END %]
+[% END %]

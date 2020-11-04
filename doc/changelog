@@ -27,6 +27,16 @@ Kleinere neue Features und Detailverbesserungen:
    Variablen im Betreff & Text der E-Mails genutzt werden
    (z.B. <%invnumber%> für die Rechnungsnummer oder
    <%transaction_description%> für die Vorgangsbezeichnung).
+ - Wiederkehrende Rechnungen: die optionale Zusammenfassungs-E-Mail
+   enthält nun auch eine Auflistung von Rechnungsnummern, für die das
+   automatische Drucken oder der automatische Versand per E-Mail
+   fehlgeschlagen ist zusammen mit der jeweils aufgetretenen
+   Fehlermeldung.
+ - Wiederkehrende Rechnungen: für die Empfangsadresse der optionalen
+   Zusammenfassungs-E-Mail kann in der Konfiguration nun anstelle
+   eines Loginnamens auch eine E-Mail-Adresse verwendet werden. Es ist
+   nicht nötig, dass diese Adresse einem der Anwenderkonten zugeordnet
+   ist.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 97 Benutzer löschen unter System->Benutzer funktioniert nicht

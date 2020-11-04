@@ -220,15 +220,18 @@ email_subject  = kivitendo Task-Server: Hintergrundjob fehlgeschlagen
 email_template = templates/webpages/task_server/failure_notification_email.txt
 
 [periodic_invoices]
-# The user name a report about the posted and printed invoices is sent
-# to.
-send_email_to  = mb
+# The user name or email address a report about the posted and printed
+# invoices is sent to.
+send_email_to  =
 # The "From:" header for said email.
 email_from     = kivitendo Daemon <root@localhost>
 # The subject for said email.
 email_subject  = Benachrichtigung: automatisch erstellte Rechnungen
 # The template file used for the email's body.
 email_template = templates/webpages/oe/periodic_invoices_email.txt
+# Whether to always send the mail (0), or only if there were errors
+# (1).
+send_for_errors_only = 0
 
 [self_test]
 

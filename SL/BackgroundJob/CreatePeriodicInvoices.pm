@@ -29,7 +29,8 @@ sub run {
   my $self        = shift;
   $self->{db_obj} = shift;
 
-  $self->{job_errors} = [];
+  $self->{$_} = [] for qw(job_errors posted_invoices printed_invoices printed_failed emailed_invoices emailed_failed disabled_orders);
+
   if (!$self->{db_obj}->db->with_transaction(sub {
     1;                          # make Emacs happy
 
@@ -40,7 +41,7 @@ sub run {
       _log_msg("Periodic invoice configuration ID " . $config->id . " extended through " . $new_end_date->strftime('%d.%m.%Y') . "\n") if $new_end_date;
     }
 
-    my (@new_invoices, @invoices_to_print, @invoices_to_email, @disabled_orders);
+    my (@invoices_to_print, @invoices_to_email);
 
     _log_msg("Number of configs: " . scalar(@{ $configs}));
 
@@ -61,7 +62,7 @@ sub run {
 
         _log_msg("Invoice " . $data->{invoice}->invnumber . " posted for config ID " . $config->id . ", period start date " . $::locale->format_date(\%::myconfig, $date) . "\n");
 
-        push @new_invoices,      $data;
+        push @{ $self->{posted_invoices} }, $data->{invoice};
         push @invoices_to_print, $data if $config->print;
         push @invoices_to_email, $data if $config->send_email;
 
@@ -69,7 +70,7 @@ sub run {
         if ($inactive_ordnumber) {
           # disable one time configs and skip eventual invoices
           _log_msg("Order " . $inactive_ordnumber . " deavtivated \n");
-          push @disabled_orders, $inactive_ordnumber;
+          push @{ $self->{disabled_orders} }, $inactive_ordnumber;
           last;
         }
       }
@@ -78,12 +79,7 @@ sub run {
     foreach my $inv ( @invoices_to_print ) { $self->_print_invoice($inv); }
     foreach my $inv ( @invoices_to_email ) { $self->_email_invoice($inv); }
 
-    $self->_send_summary_email(
-      [ map { $_->{invoice} } @new_invoices      ],
-      [ map { $_->{invoice} } @invoices_to_print ],
-      [ map { $_->{invoice} } @invoices_to_email ],
-                               \@disabled_orders  ,
-    );
+    $self->_send_summary_email;
 
       1;
     })) {
@@ -293,14 +289,20 @@ sub _calculate_dates {
 }
 
 sub _send_summary_email {
-  my ($self, $posted_invoices, $printed_invoices, $emailed_invoices,
-      $disabled_orders) = @_;
+  my ($self) = @_;
   my %config = %::lx_office_conf;
 
-  return if !$config{periodic_invoices} || !$config{periodic_invoices}->{send_email_to} || !scalar @{ $posted_invoices };
+  return if !$config{periodic_invoices} || !$config{periodic_invoices}->{send_email_to} || !scalar @{ $self->{posted_invoices} };
 
-  my $user  = SL::DB::Manager::AuthUser->find_by(login => $config{periodic_invoices}->{send_email_to});
-  my $email = $user ? $user->get_config_value('email') : undef;
+  return if $config{periodic_invoices}->{send_for_errors_only} && !@{ $self->{printed_failed} } && !@{ $self->{emailed_failed} };
+
+  my $email = $config{periodic_invoices}->{send_email_to};
+  if ($email !~ m{\@}) {
+    my $user = SL::DB::Manager::AuthUser->find_by(login => $email);
+    $email   = $user ? $user->get_config_value('email') : undef;
+  }
+
+  _log_msg("_send_summary_email: about to send to '" . ($email || '') . "'");
 
   return unless $email;
 
@@ -314,13 +316,10 @@ sub _send_summary_email {
 
   my $email_template = $config{periodic_invoices}->{email_template};
   my $filename       = $email_template || ( (SL::DB::Default->get->templates || "templates/webpages") . "/oe/periodic_invoices_email.txt" );
-  my %params         = ( POSTED_INVOICES  => $posted_invoices,
-                         PRINTED_INVOICES => $printed_invoices,
-                         EMAILED_INVOICES => $emailed_invoices,
-                         DISABLED_ORDERS  => $disabled_orders );
+  my %params         = map { (uc($_) => $self->{$_}) } qw(posted_invoices printed_invoices printed_failed emailed_invoices emailed_failed disabled_orders);
 
   my $output;
-  $template->process($filename, \%params, \$output);
+  $template->process($filename, \%params, \$output) || die $template->error;
 
   my $mail              = Mailer->new;
   $mail->{from}         = $config{periodic_invoices}->{email_from};
@@ -379,9 +378,11 @@ sub _print_invoice {
   $form->throw_on_error(sub {
     eval {
       $form->parse_template(\%::myconfig);
+      push @{ $self->{printed_invoices} }, $invoice;
       1;
     } or do {
       push @{ $self->{job_errors} }, $EVAL_ERROR->error;
+      push @{ $self->{printed_failed} }, [ $invoice, $EVAL_ERROR->error ];
     };
   });
 }
@@ -440,6 +441,7 @@ sub _email_invoice {
     }
 
     my $global_bcc = SL::DB::Default->get->global_bcc;
+    my $overall_error;
 
     for my $recipient (@recipients) {
       my $mail             = Mailer->new;
@@ -457,13 +459,20 @@ sub _email_invoice {
 
       my $error        = $mail->send;
 
-      push @{ $self->{job_errors} }, $error if $error;
+      if ($error) {
+        push @{ $self->{job_errors} }, $error;
+        push @{ $self->{emailed_failed} }, [ $data->{invoice}, $error ];
+        $overall_error = 1;
+      }
     }
+
+    push @{ $self->{emailed_invoices} }, $data->{invoice} unless $overall_error;
 
     1;
 
   } or do {
     push @{ $self->{job_errors} }, $EVAL_ERROR;
+    push @{ $self->{emailed_failed} }, [ $data->{invoice}, $EVAL_ERROR ];
   };
 
   unlink $pdf_file_name if $pdf_file_name;
