@@ -1464,8 +1464,7 @@ sub transfer_out {
 
     my ($err, $qty, $wh_id, $bin_id, $chargenumber);
 
-    if ($::instance_conf->get_sales_serial_eq_charge) {
-      next unless $form->{"serialnumber_$i"};
+    if ($::instance_conf->get_sales_serial_eq_charge && $form->{"serialnumber_$i"}) {
       my @serials = split(" ", $form->{"serialnumber_$i"});
       if (scalar @serials != $form->{"qty_$i"}) {
         push @errors, $::locale->text("Cannot transfer #1 qty with #2 serial number(s)", $form->{"qty_$i"}, scalar @serials);
