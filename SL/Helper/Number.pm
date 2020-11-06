@@ -6,17 +6,18 @@ use List::Util qw(max min);
 use Config;
 
 our @EXPORT_OK = qw(
-  _total       _round_total
-  _number      _round_number
+  _format_number _round_number
+  _format_total  _round_total
   _parse_number
 );
-our %EXPORT_TAGS = (all => \@EXPORT_OK);
+our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
-sub _number {
-  my ($myconfig, $amount, $places, $dash) = @_;
-  $amount ||= 0;
-  $dash   ||= '';
-  my $neg = $amount < 0;
+sub _format_number {
+  my ($amount, $places, %params) = @_;
+  $amount        ||= 0;
+  my $dash         = $params{dash} // '';
+  my $numberformat = $params{numberformat} // $::myconfig{numberformat};
+  my $neg          = $amount < 0;
   my $force_places = defined $places && $places >= 0;
 
   $amount = _round_number($amount, abs $places) if $force_places;
@@ -29,7 +30,7 @@ sub _number {
 
   $amount =~ s/0*$// unless defined $places && $places == 0;             # cull trailing 0s
 
-  my @d = map { s/\d//g; reverse split // } my $tmp = $myconfig->{numberformat}; # get delim chars
+  my @d = reverse $numberformat =~ /(\D)/g;                              # get delim chars
   my @p = split(/\./, $amount);                                          # split amount at decimal point
 
   $p[0] =~ s/\B(?=(...)*$)/$d[1]/g if $d[1];                             # add 1,000 delimiters
@@ -57,6 +58,7 @@ sub _round_number {
   $places //= 0;
 
   if ($adjust) {
+    no warnings 'once';
     my $precision = $::instance_conf->get_precision || 0.01;
     return _round_number( _round_number($amount / $precision, 0) * $precision, $places);
   }
@@ -95,17 +97,19 @@ sub _round_number {
 }
 
 sub _parse_number {
-  my ($myconfig, $amount) = @_;
+  my ($amount, %params) = @_;
 
   return 0 if !defined $amount || $amount eq '';
 
-  if (   ($myconfig->{numberformat} eq '1.000,00')
-      || ($myconfig->{numberformat} eq '1000,00')) {
+  my $numberformat = $params{numberformat} // $::myconfig{numberformat};
+
+  if (   ($numberformat eq '1.000,00')
+      || ($numberformat eq '1000,00')) {
     $amount =~ s/\.//g;
     $amount =~ s/,/\./g;
   }
 
-  if ($myconfig->{numberformat} eq "1'000.00") {
+  if ($numberformat eq "1'000.00") {
     $amount =~ s/\'//g;
   }
 
@@ -120,9 +124,8 @@ sub _parse_number {
   return scalar(eval($amount)) * 1 ;
 }
 
-sub _total    { _number(\%::myconfig, $_[0], 2)  }
-
-sub _round_total    { _round_number($_[0], 2) }
+sub _format_total    { _format_number($_[0], 2, @_[1..$#_])  }
+sub _round_total    { _round_number($_[0], 2, @_[1..$#_]) }
 
 1;
 
@@ -138,17 +141,22 @@ SL::Helper::Number - number formating functions formerly sitting in SL::Form
 
   use SL::Helper::Number qw(all);
 
-  my $str       = _number(\%::myconfig, $val, 2);
-  my $total     = _total($val);     # rounded to 2
+  my $str       = _format_number($val, 2); # round to 2
+  my $str       = _format_number($val, 2, %::myconfig);                # also works, is implied
+  my $str       = _format_number($val, 2, numberformat => '1.000,00'); # with custom numberformat
+  my $total     = _format_total($val);     # round to 2
+  my $total     = _format_total($val, numberformat => '1.000,00');
 
-  my $val       = _parse_number(\%::myconfig, $str);
+  my $val       = _parse_number($str);                             # parse with the current numberformat
+  my $val       = _parse_number($str, numberformat => '1.000,00'); # parse with the current numberformat
 
-  my $str       = _round_number(\%::myconfig, $val, 2);
+  my $str       = _round_number($val, 2);
   my $total     = _round_total($val);     # rounded to 2
 
 =head1 DESCRIPTION
 
-This package contains all the number parsing/formating functions that were previously in SL::Form.
+This package contains all the number parsing/formating functions that were
+previously in SL::Form.
 
 Instead of invoking them as methods on C<$::form> these are pure functions.
 
@@ -156,33 +164,32 @@ Instead of invoking them as methods on C<$::form> these are pure functions.
 
 =over 4
 
-=item * C<_number MYCONFIG VALUE PLACES DASH>
+=item * C<_format_number VALUE PLACES PARAMS>
 
-The old C<SL::Form::format_amount>. C<MYCONFIG> is expected to be a hashref
-with a C<numberformat> entry. Usually C<\%::myconfig> will be passed.
+The old C<SL::Form::format_amount> with a different signature.
 
 The value is expected to be a numeric value, but undef and empty string will be
 vivified to 0 for convinience. Bigints are supported.
 
 For the semantics of places, see L</PLACES>.
 
-The dash parameter allows to change the formatting of positive and negative
-numbers to alternative ones. If C<-> is given for dash, negative numbers will
+If C<params> contains a dash parameter, it will change the formatting of
+positive/negative numbers. If C<-> is given for dash, negative numbers will
 instead be formatted with prentheses. If C<DRCR> is given, the numbers will be
 formatted absolute, but suffixed with the localized versions of C<DR> and
 C<CR>.
 
-=item * _total
+=item * _format_total
 
 A curried version used for formatting ledger entries. C<myconfig> is set from the
 current user, C<places> is set to 2. C<dash> is left empty.
 
-=item * _parse_number MYCONFIG VALUE
+=item * _parse_number VALUE PARAMS
 
-Parses expressions into numbers. C<MYCONFIG> is expected to be a hashref
-with a C<numberformat> entry.
+Parses expressions into numbers. C<PARAMS> may contain C<numberformat> just
+like with C<L/_format_amount>.
 
-Also implements basic arithmetic interprtation, so that C<2 * 1400> is
+Also implements basic arithmetic interpretation, so that C<2 * 1400> is
 interpreted as 2800.
 
 =item * _round_number VALUE PLACES
@@ -210,7 +217,7 @@ Places can be:
 
 In that case a representation is chosen that looks sufficiently human. For
 example C<1/10> equals C<.1000000000000000555> but will be displayed as the
-localzed version of 0.1.
+localized version of 0.1.
 
 =item * 0
 

@@ -700,7 +700,10 @@ sub sort_columns {
 }
 #
 
-sub format_amount { shift; goto &SL::Helper::Number::_number; }
+sub format_amount {
+  my ($self, $myconfig, $amount, $places, $dash) = @_;
+  SL::Helper::Number::_format_number($amount, $places, %$myconfig, dash => $dash);
+}
 
 sub format_amount_units {
   $main::lxdebug->enter_sub();
@@ -787,7 +790,10 @@ sub format_string {
 
 #
 
-sub parse_amount { shift; goto &SL::Helper::Number::_parse_number; }
+sub parse_amount {
+  my ($self, $myconfig, $amount) = @_;
+  SL::Helper::Number::_parse_number($amount, %$myconfig);
+}
 
 sub round_amount { shift; goto &SL::Helper::Number::_round_number; }
 
