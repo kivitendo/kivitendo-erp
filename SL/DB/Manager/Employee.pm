@@ -31,6 +31,8 @@ sub update_entries_for_authorized_users {
   my %employees_by_login = map { ($_->login => $_) } @{ $class->get_all };
 
   require SL::DB::AuthClient;
+  no warnings 'once';
+
   foreach my $user (@{ SL::DB::AuthClient->new(id => $::auth->client->{id})->load->users || [] }) {
     my $user_config = $user->config_values;
     my $employee    = $employees_by_login{$user->login} || SL::DB::Employee->new(login => $user->login);
