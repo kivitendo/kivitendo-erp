@@ -35,7 +35,24 @@ sub action_edit {
 sub action_save {
   my ($self, %params) = @_;
 
-  $self->{employee}->save;
+  SL::DB->client->with_transaction(sub {
+    1;
+
+    $self->{employee}->save;
+
+    if ($self->{employee}->deleted) {
+      my $auth_user = SL::DB::Manager::AuthUser->get_first(login => $self->{employee}->login);
+      if ($auth_user) {
+        SL::DB::Manager::AuthClientUser->delete_all(
+          where => [
+            client_id => $::auth->client->{id},
+            user_id   => $auth_user->id,
+          ]);
+      }
+    }
+
+    1;
+  });
 
   flash('info', $::locale->text('Employee #1 saved!', $self->{employee}->safe_name));
 
