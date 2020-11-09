@@ -27,7 +27,7 @@ sub test_format {
   }
 
   # test _format_total
-  if ($places == 2) {
+  if (($places // 0) == 2) {
     is (_format_total($amount, numberformat => $numberformat, dash => $dash), $expected, "$comment - explicit");
 
     {
@@ -61,8 +61,6 @@ test_format('1.00045', 1.00045, -5, '1,000.00', undef, 'negative places 2');
 test_format('1.00', 1, -2, '1,000.00', undef, 'negative places 3');
 
 # bugs amd edge cases
-$config->{numberformat} = '1.000,00';
-
 test_format('0,00005', 0.00005, undef, '1.000,00', undef, 'messing with small numbers and no precision');
 test_format('0', undef, undef, '1.000,00', undef, 'undef');
 test_format('0', '', undef, '1.000,00', undef, 'empty string');
