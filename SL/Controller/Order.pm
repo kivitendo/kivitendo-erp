@@ -1037,11 +1037,12 @@ sub action_update_row_from_master_data {
   my ($self) = @_;
 
   foreach my $item_id (@{ $::form->{item_ids} }) {
-    my $idx  = first_index { $_ eq $item_id } @{ $::form->{orderitem_ids} };
-    my $item = $self->order->items_sorted->[$idx];
+    my $idx   = first_index { $_ eq $item_id } @{ $::form->{orderitem_ids} };
+    my $item  = $self->order->items_sorted->[$idx];
+    my $texts = get_part_texts($item->part, $self->order->language_id);
 
-    $item->description($item->part->description);
-    $item->longdescription($item->part->notes);
+    $item->description($texts->{description});
+    $item->longdescription($texts->{longdescription});
 
     my $price_source = SL::PriceSource->new(record_item => $item, record => $self->order);
 
