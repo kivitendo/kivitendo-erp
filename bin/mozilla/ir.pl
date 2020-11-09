@@ -935,7 +935,7 @@ sub post {
       $form->save_history;
     }
     # /saving the history
-    $form->{callback} = 'ir.pl?action=add';
+    $form->{callback} = 'ir.pl?action=edit&id=' . $form->{id};
     $form->redirect(  $locale->text('Invoice')
                   . " $form->{invnumber} "
                   . ", " . $locale->text('ID')
