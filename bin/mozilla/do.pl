@@ -421,6 +421,7 @@ sub form_header {
                    "business_types" => "ALL_BUSINESS_TYPES",
     );
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
+  $form->{ALL_LANGUAGES}   = SL::DB::Manager::Language->get_all_sorted;
 
   # Projects
   my @old_project_ids = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});

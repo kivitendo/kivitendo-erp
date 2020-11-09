@@ -186,6 +186,15 @@
         [%- END %]
        </tr>
 
+       [%- IF ALL_LANGUAGES.size %]
+       <tr>
+        <th align="right" nowrap>[% 'Language' | $T8 %]</th>
+        <td colspan="3">
+         [% L.select_tag('language_id', ALL_LANGUAGES, default = language_id, title_key = 'description', with_empty = 1, style = 'width: 250px' )%]
+        </td>
+       </tr>
+       [%- END %]
+
        [%- IF ALL_DEPARTMENTS.size %]
        <tr>
         <th align="right" nowrap>[% 'Department' | $T8 %]</th>
