@@ -73,6 +73,15 @@
             </td>
           </tr>
 
+[%- IF SELF.all_languages.size %]
+          <tr>
+            <th align="right">[% 'Language' | $T8 %]</th>
+            <td>
+              [% L.select_tag('order.language_id', SELF.all_languages, default=SELF.order.language_id, title_key='description', with_empty=1, style='width:300px') %]
+            </td>
+          </tr>
+[%- END %]
+
 [%- IF SELF.all_departments.size %]
           <tr>
             <th align="right">[% 'Department' | $T8 %]</th>

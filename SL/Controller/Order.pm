@@ -273,22 +273,19 @@ sub action_print {
     return $self->js->flash('error', t8('Media \'#1\' is not supported yet/anymore.', $media))->render;
   }
 
-  my $language;
-  $language = SL::DB::Language->new(id => $::form->{print_options}->{language_id})->load if $::form->{print_options}->{language_id};
-
   # create a form for generate_attachment_filename
   my $form   = Form->new;
   $form->{$self->nr_key()}  = $self->order->number;
   $form->{type}             = $self->type;
   $form->{format}           = $format;
   $form->{formname}         = $formname;
-  $form->{language}         = '_' . $language->template_code if $language;
+  $form->{language}         = '_' . $self->order->language->template_code if $self->order->language;
   my $pdf_filename          = $form->generate_attachment_filename();
 
   my $pdf;
   my @errors = generate_pdf($self->order, \$pdf, { format     => $format,
                                                    formname   => $formname,
-                                                   language   => $language,
+                                                   language   => $self->order->language,
                                                    groupitems => $groupitems });
   if (scalar @errors) {
     return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
@@ -431,14 +428,11 @@ sub action_send_email {
   $::form->{media}  = 'email';
 
   if (($::form->{attachment_policy} // '') !~ m{^(?:old_file|no_file)$}) {
-    my $language;
-    $language = SL::DB::Language->new(id => $::form->{print_options}->{language_id})->load if $::form->{print_options}->{language_id};
-
     my $pdf;
     my @errors = generate_pdf($self->order, \$pdf, {media      => $::form->{media},
                                                     format     => $::form->{print_options}->{format},
                                                     formname   => $::form->{print_options}->{formname},
-                                                    language   => $language,
+                                                    language   => $self->order->language,
                                                     groupitems => $::form->{print_options}->{groupitems}});
     if (scalar @errors) {
       return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render($self);
@@ -708,7 +702,7 @@ sub action_customer_vendor_changed {
     ->val(        '#order_payment_id',       $self->order->payment_id)
     ->val(        '#order_delivery_term_id', $self->order->delivery_term_id)
     ->val(        '#order_intnotes',         $self->order->intnotes)
-    ->val(        '#language_id',            $self->order->$cv_method->language_id)
+    ->val(        '#order_language_id',      $self->order->$cv_method->language_id)
     ->focus(      '#order_' . $self->cv . '_id')
     ->run('kivi.Order.update_exchangerate');
 
@@ -1760,6 +1754,7 @@ sub pre_render {
   $self->{all_taxzones}               = SL::DB::Manager::TaxZone->get_all_sorted();
   $self->{all_currencies}             = SL::DB::Manager::Currency->get_all_sorted();
   $self->{all_departments}            = SL::DB::Manager::Department->get_all_sorted();
+  $self->{all_languages}              = SL::DB::Manager::Language->get_all_sorted();
   $self->{all_employees}              = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->employee_id,
                                                                                               deleted => 0 ] ],
                                                                            sort_by => 'name');
@@ -1777,8 +1772,6 @@ sub pre_render {
   my $print_form = Form->new('');
   $print_form->{type}        = $self->type;
   $print_form->{printers}    = SL::DB::Manager::Printer->get_all_sorted;
-  $print_form->{languages}   = SL::DB::Manager::Language->get_all_sorted;
-  $print_form->{language_id} = $self->order->language_id;
   $self->{print_options}     = SL::Helper::PrintOptions->get_print_options(
     form => $print_form,
     options => {dialog_name_prefix => 'print_options.',
