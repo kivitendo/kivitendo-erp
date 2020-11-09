@@ -586,10 +586,11 @@ namespace('kivi.Order', function(ns) {
 
     if (!longdescription_elt.length) {
       var data = [
-        { name: 'action',   value: 'Order/get_item_longdescription'                          },
-        { name: 'type',     value: $('#type').val()                                          },
-        { name: 'item_id',  value: $(row).find('[name="order.orderitems[+].id"]').val()      },
-        { name: 'parts_id', value: $(row).find('[name="order.orderitems[].parts_id"]').val() }
+        { name: 'action',      value: 'Order/get_item_longdescription'                          },
+        { name: 'type',        value: $('#type').val()                                          },
+        { name: 'language_id', value: $('#order_language_id').val()                             },
+        { name: 'item_id',     value: $(row).find('[name="order.orderitems[+].id"]').val()      },
+        { name: 'parts_id',    value: $(row).find('[name="order.orderitems[].parts_id"]').val() }
       ];
 
       $.ajax({

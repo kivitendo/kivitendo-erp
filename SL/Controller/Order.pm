@@ -22,6 +22,7 @@ use SL::DB::Printer;
 use SL::DB::Language;
 use SL::DB::RecordLink;
 use SL::DB::Shipto;
+use SL::DB::Translation;
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
@@ -1005,7 +1006,7 @@ sub action_get_item_longdescription {
   if ($::form->{item_id}) {
     $longdescription = SL::DB::OrderItem->new(id => $::form->{item_id})->load->longdescription;
   } elsif ($::form->{parts_id}) {
-    $longdescription = SL::DB::Part->new(id => $::form->{parts_id})->load->notes;
+    $longdescription = get_part_texts($::form->{parts_id}, $::form->{language_id})->{longdescription};
   }
   $_[0]->render(\ $longdescription, { type => 'text' });
 }
@@ -1459,9 +1460,13 @@ sub make_item {
   $item ||= SL::DB::OrderItem->new(custom_variables => []);
 
   $item->assign_attributes(%$attr);
-  $item->longdescription($item->part->notes)                     if $is_new && !defined $attr->{longdescription};
-  $item->project_id($record->globalproject_id)                   if $is_new && !defined $attr->{project_id};
-  $item->lastcost($record->is_sales ? $item->part->lastcost : 0) if $is_new && !defined $attr->{lastcost_as_number};
+
+  if ($is_new) {
+    my $texts = get_part_texts($item->part, $record->language_id);
+    $item->longdescription($texts->{longdescription})              if !defined $attr->{longdescription};
+    $item->project_id($record->globalproject_id)                   if !defined $attr->{project_id};
+    $item->lastcost($record->is_sales ? $item->part->lastcost : 0) if !defined $attr->{lastcost_as_number};
+  }
 
   return $item;
 }
@@ -1533,7 +1538,9 @@ sub new_item {
   # saved. Adding empty custom_variables to new orderitem here solves this problem.
   $new_attr{custom_variables} = [];
 
-  $item->assign_attributes(%new_attr);
+  my $texts = get_part_texts($part, $record->language_id, description => $new_attr{description}, longdescription => $new_attr{longdescription});
+
+  $item->assign_attributes(%new_attr, %{ $texts });
 
   return $item;
 }
@@ -2067,6 +2074,30 @@ sub get_item_cvpartnumber {
     my @cps = grep { $_->customer_id eq $self->order->customervendor->id } @{$item->part->customerprices};
     $item->{cvpartnumber} = $cps[0]->customer_partnumber if scalar @cps;
   }
+}
+
+sub get_part_texts {
+  my ($part_or_id, $language_or_id, %defaults) = @_;
+
+  my $part        = ref($part_or_id)     ? $part_or_id         : SL::DB::Part->load_cached($part_or_id);
+  my $language_id = ref($language_or_id) ? $language_or_id->id : $language_or_id;
+  my $texts       = {
+    description     => $defaults{description}     // $part->description,
+    longdescription => $defaults{longdescription} // $part->notes,
+  };
+
+  return $texts unless $language_id;
+
+  my $translation = SL::DB::Manager::Translation->get_first(
+    where => [
+      parts_id    => $part->id,
+      language_id => $language_id,
+    ]);
+
+  $texts->{description}     = $translation->translation     if $translation && $translation->translation;
+  $texts->{longdescription} = $translation->longdescription if $translation && $translation->longdescription;
+
+  return $texts;
 }
 
 sub sales_order_type {
