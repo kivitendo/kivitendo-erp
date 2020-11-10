@@ -10,6 +10,22 @@ Mittelgroße neue Features:
    geschrieben. Das externe Programm AQBanking wird nun nicht mehr
    benötigt.
 
+Kleinere neue Features und Detailverbesserungen:
+
+ - Neuer Order-Controller: Unterstütztung für Übersetzungen von
+   Artikeln wurde implementiert.
+ - Einkaufs-/Verkaufsbelege: die Belegsprache ist nun als Auswahl
+   direkt in der Hauptmaske vorhanden und nicht mehr in den
+   Druckeinstellungen versteckt.
+ - Einkaufsrechnungen: wenn das direkte Anlegen von Einkaufsrechnungen
+   in der Mandantenkonfiguration deaktiviert war, gab es eine
+   Fehlermeldung nach dem Verbuchen von Einkaufsrechnungen, weil auf
+   die Maske zum Erfassen einer weiteren neuen Einkaufsrechnung
+   weitergeleitet wurde.
+
+Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+97 Benutzer löschen unter System->Benutzer funktioniert nicht
+
 
 2020-10-02 - Release 3.5.6.1
 
