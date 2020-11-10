@@ -156,7 +156,7 @@ sub new_from {
   my (@columns, @item_columns, $item_parent_id_column, $item_parent_column);
 
   if (ref($source) eq 'SL::DB::Order') {
-    @columns      = qw(quonumber delivery_customer_id delivery_vendor_id);
+    @columns      = qw(quonumber delivery_customer_id delivery_vendor_id tax_point);
     @item_columns = qw(subtotal);
 
     $item_parent_id_column = 'trans_id';
