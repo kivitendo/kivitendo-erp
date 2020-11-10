@@ -6,7 +6,7 @@
 
 Mittelgroße neue Features:
 
- - Der Import von Bankauszuügen im MT940-Format wurde komplett neu
+ - Der Import von Bankauszügen im MT940-Format wurde komplett neu
    geschrieben. Das externe Programm AQBanking wird nun nicht mehr
    benötigt.
 
