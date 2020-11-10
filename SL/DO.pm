@@ -511,7 +511,7 @@ SQL
   $query =
     qq|UPDATE delivery_orders SET
          donumber = ?, ordnumber = ?, cusordnumber = ?, transdate = ?, vendor_id = ?,
-         customer_id = ?, reqdate = ?,
+         customer_id = ?, reqdate = ?, tax_point = ?,
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, closed = ?,
          delivered = ?, department_id = ?, language_id = ?, shipto_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?,
@@ -522,7 +522,7 @@ SQL
   @values = ($form->{donumber}, $form->{ordnumber},
              $form->{cusordnumber}, conv_date($form->{transdate}),
              conv_i($form->{vendor_id}), conv_i($form->{customer_id}),
-             conv_date($form->{reqdate}), $form->{shippingpoint}, $form->{shipvia},
+             conv_date($form->{reqdate}), conv_date($form->{tax_point}), $form->{shippingpoint}, $form->{shipvia},
              $restricter->process($form->{notes}), $form->{intnotes},
              $form->{closed} ? 't' : 'f', $form->{delivered} ? "t" : "f",
              conv_i($form->{department_id}), conv_i($form->{language_id}), conv_i($form->{shipto_id}),
@@ -693,7 +693,7 @@ sub retrieve {
   # so if any of these infos is important (or even different) for any item,
   # it will be killed out and then has to be fetched from the item scope query further down
   $query =
-    qq|SELECT dord.cp_id, dord.donumber, dord.ordnumber, dord.transdate, dord.reqdate,
+    qq|SELECT dord.cp_id, dord.donumber, dord.ordnumber, dord.transdate, dord.reqdate, dord.tax_point,
          dord.shippingpoint, dord.shipvia, dord.notes, dord.intnotes,
          e.name AS employee, dord.employee_id, dord.salesman_id,
          dord.${vc}_id, cv.name AS ${vc},

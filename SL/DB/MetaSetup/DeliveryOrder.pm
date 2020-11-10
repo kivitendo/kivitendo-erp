@@ -35,6 +35,7 @@ __PACKAGE__->meta->columns(
   shippingpoint           => { type => 'text' },
   shipto_id               => { type => 'integer' },
   shipvia                 => { type => 'text' },
+  tax_point               => { type => 'date' },
   taxincluded             => { type => 'boolean' },
   taxzone_id              => { type => 'integer', not_null => 1 },
   transaction_description => { type => 'text' },
