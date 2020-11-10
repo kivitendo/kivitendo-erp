@@ -22,6 +22,11 @@ Kleinere neue Features und Detailverbesserungen:
    Fehlermeldung nach dem Verbuchen von Einkaufsrechnungen, weil auf
    die Maske zum Erfassen einer weiteren neuen Einkaufsrechnung
    weitergeleitet wurde.
+ - Wiederkehrende Rechnung: beim automatischen Versand erzeugter
+   Rechnungen per E-Mail können nun auch Rechnungsattribute als
+   Variablen im Betreff & Text der E-Mails genutzt werden
+   (z.B. <%invnumber%> für die Rechnungsnummer oder
+   <%transaction_description%> für die Vorgangsbezeichnung).
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 97 Benutzer löschen unter System->Benutzer funktioniert nicht

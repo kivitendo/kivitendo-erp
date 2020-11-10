@@ -3667,6 +3667,11 @@ digits_year: 4</programlisting>
         bis zu welchem Monat und Jahr die aktuelle Abrechnungsperiode dauert:
         <literal>Abrechnungszeitrum: &lt;%period_start_date FORMAT=%m/%Y%&gt;
         bis &lt;%period_end_date FORMAT=%m/%Y%&gt;</literal></para>
+
+        <para>Beim automatischen Versand der Rechnugen via E-Mail können neben diesen speziellen Variablen auch einige Eigenschaften der
+        Rechnung selber als Variablen im Betreff &amp; dem Text der E-Mails genutzt werden. Beispiele sind
+        <varname>&lt;%invnumber%&gt;</varname> für die Rechnungsnummber oder <varname>&lt;transaction_description%&gt;</varname> für die
+        Vorgangsbezeichnung. Diese Variablen stehen beim Erzeugen der Rechnung logischerweise noch nicht zur Verfügung.</para>
       </sect2>
 
       <sect2 id="features.periodic-invoices.reports">

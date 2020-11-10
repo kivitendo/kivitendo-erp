@@ -152,10 +152,7 @@ sub _replace_vars {
     $key               = $::locale->unquote_special_chars('html', $key) if $sub_fmt eq 'html';
     my $new_value;
 
-    if (!$params{vars}->{$key}) {
-      $new_value = '';
-
-    } elsif ($format) {
+    if ($params{vars}->{$key} && $format) {
       $format    = $::locale->unquote_special_chars('html', $format) if $sub_fmt eq 'html';
 
       $new_value = DateTime::Format::Strptime->new(
@@ -164,11 +161,15 @@ sub _replace_vars {
         time_zone   => 'local',
       )->format_datetime($params{vars}->{$key}->[0]);
 
-    } else {
+    } elsif ($params{vars}->{$key}) {
       $new_value = $params{vars}->{$1}->[1]->($params{vars}->{$1}->[0]);
+
+    } elsif ($params{invoice} && $params{invoice}->can($key)) {
+      $new_value = $params{invoice}->$key;
     }
 
-    $new_value = $::locale->quote_special_chars('html', $new_value) if $sub_fmt eq 'html';
+    $new_value //= '';
+    $new_value   = $::locale->quote_special_chars('html', $new_value) if $sub_fmt eq 'html';
 
     $new_value;
 
@@ -431,6 +432,7 @@ sub _email_invoice {
     for (qw(email_subject email_body)) {
       _replace_vars(
         object           => $data->{config},
+        invoice          => $data->{invoice},
         vars             => $data->{time_period_vars},
         attribute        => $_,
         attribute_format => 'text'
