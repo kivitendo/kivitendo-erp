@@ -238,8 +238,14 @@
            <span id="duedate_fixed"[% IF !payment_terms_obj.auto_calculation %] style="display:none"[% END %]>[% HTML.escape(duedate) %]</span>
           </td>
         </tr>
+[%- END %]
         <tr>
-        <th align="right" nowrap>[% 'Delivery Order Number' | $T8 %]</th>
+          <th align="right" nowrap>[% LxERP.t8('Tax point') %]</th>
+          <td nowrap>[% L.date_tag('tax_point', tax_point, id='tax_point') %]</td>
+        </tr>
+[%- IF !is_type_credit_note %]
+        <tr>
+          <th align="right" nowrap>[% 'Delivery Order Number' | $T8 %]</th>
           <td colspan="3"><input size='11' name="donumber" id="donumber" value="[% HTML.escape(donumber) %]"></td>
         </tr>
 [%- END %]

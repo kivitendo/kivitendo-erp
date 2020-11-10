@@ -549,7 +549,7 @@ SQL
     if ($form->{currency} ne $defaultcurrency) && !$exchangerate;
 
 # record acc_trans transactions
-  my $taxdate = $form->{deliverydate} ? $form->{deliverydate} : $form->{invdate};
+  my $taxdate = $form->{tax_point} || $form->{deliverydate} || $form->{invdate};
   foreach my $trans_id (keys %{ $form->{amount} }) {
     foreach my $accno (keys %{ $form->{amount}{$trans_id} }) {
       $form->{amount}{$trans_id}{$accno} = $form->round_amount($form->{amount}{$trans_id}{$accno}, 2);
@@ -735,7 +735,7 @@ SQL
                 orddate      = ?, quodate     = ?, vendor_id     = ?, amount       = ?,
                 netamount    = ?, paid        = ?, duedate       = ?, deliverydate = ?,
                 invoice      = ?, taxzone_id  = ?, notes         = ?, taxincluded  = ?,
-                intnotes     = ?, storno_id   = ?, storno        = ?,
+                intnotes     = ?, storno_id   = ?, storno        = ?, tax_point    = ?,
                 cp_id        = ?, employee_id = ?, department_id = ?, delivery_term_id = ?,
                 payment_id   = ?,
                 currency_id = (SELECT id FROM currencies WHERE name = ?),
@@ -746,7 +746,7 @@ SQL
       conv_date($form->{orddate}), conv_date($form->{quodate}),     conv_i($form->{vendor_id}),               $amount,
                 $netamount,                  $form->{paid},        conv_date($form->{duedate}),     conv_date($form->{deliverydate}),
             '1',                             $taxzone_id, $restricter->process($form->{notes}),               $form->{taxincluded} ? 't' : 'f',
-                $form->{intnotes},           conv_i($form->{storno_id}),     $form->{storno}      ? 't' : 'f',
+                $form->{intnotes},           conv_i($form->{storno_id}),     $form->{storno}      ? 't' : 'f', conv_date($form->{tax_point}),
          conv_i($form->{cp_id}),      conv_i($form->{employee_id}), conv_i($form->{department_id}), conv_i($form->{delivery_term_id}),
          conv_i($form->{payment_id}),
                 $form->{"currency"},
@@ -1002,7 +1002,7 @@ sub retrieve_invoice {
 
   # retrieve invoice
   $query = qq|SELECT cp_id, invnumber, transdate AS invdate, duedate,
-                orddate, quodate, deliverydate, globalproject_id,
+                orddate, quodate, deliverydate, tax_point, globalproject_id,
                 ordnumber, quonumber, paid, taxincluded, notes, taxzone_id, storno, gldate,
                 mtime, itime,
                 intnotes, (SELECT cu.name FROM currencies cu WHERE cu.id=ap.currency_id) AS currency, direct_debit,
@@ -1022,7 +1022,7 @@ sub retrieve_invoice {
   delete $ref->{id};
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-  my $transdate  = $form->{invdate} ? $dbh->quote($form->{invdate}) : "current_date";
+  my $transdate  = $form->{tax_point} ? $dbh->quote($form->{tax_point}) :$form->{invdate} ? $dbh->quote($form->{invdate}) : "current_date";
 
   my $taxzone_id = $form->{taxzone_id} * 1;
   $taxzone_id = SL::DB::Manager::TaxZone->get_default->id unless SL::DB::Manager::TaxZone->find_by(id => $taxzone_id);

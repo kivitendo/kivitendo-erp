@@ -1037,7 +1037,7 @@ SQL
 
   $project_id = conv_i($form->{"globalproject_id"});
   # entsprechend auch beim Bestimmen des Steuerschlüssels in Taxkey.pm berücksichtigen
-  my $taxdate = $form->{deliverydate} ? $form->{deliverydate} : $form->{invdate};
+  my $taxdate = $form->{tax_point} ||$form->{deliverydate} || $form->{invdate};
 
   foreach my $trans_id (keys %{ $form->{amount_cogs} }) {
     foreach my $accno (keys %{ $form->{amount_cogs}{$trans_id} }) {
@@ -1312,7 +1312,7 @@ SQL
 
   $query = qq|UPDATE ar set
                 invnumber   = ?, ordnumber     = ?, quonumber     = ?, cusordnumber  = ?,
-                transdate   = ?, orddate       = ?, quodate       = ?, customer_id   = ?,
+                transdate   = ?, orddate       = ?, quodate       = ?, tax_point     = ?, customer_id   = ?,
                 amount      = ?, netamount     = ?, paid          = ?,
                 duedate     = ?, deliverydate  = ?, invoice       = ?, shippingpoint = ?,
                 shipvia     = ?,                    notes         = ?, intnotes      = ?,
@@ -1327,7 +1327,7 @@ SQL
                 delivery_term_id = ?
               WHERE id = ?|;
   @values = (          $form->{"invnumber"},           $form->{"ordnumber"},             $form->{"quonumber"},          $form->{"cusordnumber"},
-             conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}),    conv_i($form->{"customer_id"}),
+             conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}), conv_date($form->{tax_point}), conv_i($form->{"customer_id"}),
                        $amount,                        $netamount,                       $form->{"paid"},
              conv_date($form->{"duedate"}),  conv_date($form->{"deliverydate"}),    '1',                                $form->{"shippingpoint"},
                        $form->{"shipvia"},                                $restricter->process($form->{"notes"}),       $form->{"intnotes"},
@@ -2012,7 +2012,7 @@ sub _retrieve_invoice {
       qq|SELECT
            a.invnumber, a.ordnumber, a.quonumber, a.cusordnumber,
            a.orddate, a.quodate, a.globalproject_id,
-           a.transdate AS invdate, a.deliverydate, a.paid, a.storno, a.storno_id, a.gldate,
+           a.transdate AS invdate, a.deliverydate, a.tax_point, a.paid, a.storno, a.storno_id, a.gldate,
            a.shippingpoint, a.shipvia, a.notes, a.intnotes, a.taxzone_id,
            a.duedate, a.taxincluded, (SELECT cu.name FROM currencies cu WHERE cu.id=a.currency_id) AS currency, a.shipto_id, a.cp_id,
            a.employee_id, a.salesman_id, a.payment_id,
@@ -2055,7 +2055,8 @@ sub _retrieve_invoice {
     $sth->finish;
     map { $form->{$_} =~ s/ +$//g } qw(printed emailed queued);
 
-    my $transdate = $form->{deliverydate} ? $dbh->quote($form->{deliverydate})
+    my $transdate = $form->{tax_point}    ? $dbh->quote($form->{tax_point})
+                  : $form->{deliverydate} ? $dbh->quote($form->{deliverydate})
                   : $form->{invdate}      ? $dbh->quote($form->{invdate})
                   :                         "current_date";
 

@@ -609,6 +609,12 @@ sub mark_as_paid {
   $self->update_attributes(paid => $self->amount);
 }
 
+sub effective_tax_point {
+  my ($self) = @_;
+
+  return $self->tax_point || $self->deliverydate || $self->transdate;
+}
+
 1;
 
 __END__

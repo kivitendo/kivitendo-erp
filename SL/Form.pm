@@ -3229,7 +3229,7 @@ sub prepare_for_printing {
 
   # Format dates.
   $self->format_dates($output_dateformat, $output_longdates,
-                      qw(invdate orddate quodate pldate duedate reqdate transdate shippingdate deliverydate validitydate paymentdate datepaid
+                      qw(invdate orddate quodate pldate duedate reqdate transdate tax_point shippingdate deliverydate validitydate paymentdate datepaid
                          transdate_oe deliverydate_oe employee_startdate employee_enddate),
                       grep({ /^(?:datepaid|transdate_oe|reqdate|deliverydate|deliverydate_oe|transdate)_\d+$/ } keys(%{$self})));
 

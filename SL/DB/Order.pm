@@ -144,6 +144,12 @@ sub deliverydate {
   return shift->transdate;
 }
 
+sub effective_tax_point {
+  my ($self) = @_;
+
+  return $self->tax_point || $self->transdate;
+}
+
 sub displayable_type {
   my $type = shift->type;
 

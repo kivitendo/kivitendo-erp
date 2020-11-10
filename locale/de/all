@@ -3177,6 +3177,7 @@ $self->{texts} = {
   'Tax deleted!'                => 'Steuer gelöscht!',
   'Tax number'                  => 'Steuernummer',
   'Tax paid'                    => 'Vorsteuer',
+  'Tax point'                   => 'Leistungsdatum',
   'Tax rate'                    => 'Steuersatz',
   'Tax saved!'                  => 'Steuer gespeichert!',
   'Tax zone'                    => 'Steuerzone',

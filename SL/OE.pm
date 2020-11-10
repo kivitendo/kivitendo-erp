@@ -743,7 +743,7 @@ SQL
   $query =
     qq|UPDATE oe SET
          ordnumber = ?, quonumber = ?, cusordnumber = ?, transdate = ?, vendor_id = ?,
-         customer_id = ?, amount = ?, netamount = ?, reqdate = ?, taxincluded = ?,
+         customer_id = ?, amount = ?, netamount = ?, reqdate = ?, tax_point = ?, taxincluded = ?,
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, currency_id = (SELECT id FROM currencies WHERE name=?), closed = ?,
          delivered = ?, proforma = ?, quotation = ?, department_id = ?, language_id = ?,
          taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,delivery_term_id = ?,
@@ -754,7 +754,7 @@ SQL
   @values = ($form->{ordnumber} || '', $form->{quonumber},
              $form->{cusordnumber}, conv_date($form->{transdate}),
              conv_i($form->{vendor_id}), conv_i($form->{customer_id}),
-             $amount, $netamount, conv_date($reqdate),
+             $amount, $netamount, conv_date($reqdate), conv_date($form->{tax_point}),
              $form->{taxincluded} ? 't' : 'f', $form->{shippingpoint},
              $form->{shipvia}, $restricter->process($form->{notes}), $form->{intnotes},
              $form->{currency}, $form->{closed} ? 't' : 'f',
@@ -1017,7 +1017,7 @@ sub _retrieve {
            o.taxincluded, o.shippingpoint, o.shipvia, o.notes, o.intnotes,
            (SELECT cu.name FROM currencies cu WHERE cu.id=o.currency_id) AS currency, e.name AS employee, o.employee_id, o.salesman_id,
            o.${vc}_id, cv.name AS ${vc}, o.amount AS invtotal,
-           o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber,
+           o.closed, o.reqdate, o.tax_point, o.quonumber, o.department_id, o.cusordnumber,
            o.mtime, o.itime,
            d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
            o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id,
@@ -1096,7 +1096,7 @@ sub _retrieve {
       map { $form->{$_} =~ s/ +$//g } qw(printed emailed queued);
     }    # if !@ids
 
-    my $transdate = $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
+    my $transdate = $form->{tax_point} ? $dbh->quote($form->{tax_point}) : $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
 
     $form->{taxzone_id} = 0 unless ($form->{taxzone_id});
     unshift @values, ($form->{taxzone_id}) x 2;

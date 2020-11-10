@@ -1409,7 +1409,7 @@ sub print_form {
 
   # Format dates.
   format_dates($output_dateformat, $output_longdates,
-               qw(invdate orddate quodate pldate duedate reqdate transdate
+               qw(invdate orddate quodate pldate duedate reqdate transdate tax_point
                   shippingdate deliverydate validitydate paymentdate
                   datepaid transdate_oe transdate_do transdate_quo deliverydate_oe dodate
                   employee_startdate employee_enddate
