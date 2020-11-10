@@ -23,6 +23,7 @@ __PACKAGE__->meta->columns(
   reference      => { type => 'text' },
   storno         => { type => 'boolean', default => 'false' },
   storno_id      => { type => 'integer' },
+  tax_point      => { type => 'date' },
   taxincluded    => { type => 'boolean' },
   transdate      => { type => 'date', default => 'now' },
   type           => { type => 'text' },

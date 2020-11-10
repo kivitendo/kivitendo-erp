@@ -72,21 +72,21 @@
         <tr>
           <th [%- departments_style -%]align="right">[% 'Department' | $T8 %]</th>
           <td [%- departments_style -%]>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1) %]</td>
-          <th align=right>[% 'Delivery Date' | $T8 %]</th>
-          <td>[% L.date_tag('deliverydate', deliverydate) %]</td>
+          <th align=right>[% 'Tax point' | $T8 %]</th>
+          <td>[% L.date_tag('tax_point', tax_point) %]</td>
         </tr>
         <tr>
           <th align="right">[% 'Description' | $T8 %]</th>
           <td>[% L.areainput_tag('description', description, cols=50, readonly=readonly) %]</td>
+          <th align=right>[% 'Delivery Date' | $T8 %]</th>
+          <td>[% L.date_tag('deliverydate', deliverydate) %]</td>
+        </tr>
+        <tr>
+          <th align="right">[%- IF id %][% 'Mitarbeiter' | $T8 %][% END %]</th>
+          <td>[%- IF id %][% L.input_tag('employee', employee, size=20, readonly=readonly) %][% END %]</td>
           <th align="right">[% 'MwSt. inkl.' | $T8 %]</th>
           <td>[% L.checkbox_tag('taxincluded', checked=taxincluded) %]</td>
         </tr>
-[%- IF id %]
-        <tr>
-          <th align="right">[% 'Mitarbeiter' | $T8 %]</th>
-          <td>[% L.input_tag('employee', employee, size=20, readonly=readonly) %]</td>
-        </tr>
-[%- END %]
 
       <tr>
        <td colspan=4>

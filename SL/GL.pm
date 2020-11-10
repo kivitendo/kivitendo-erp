@@ -123,12 +123,12 @@ sub _post_transaction {
   $query =
     qq|UPDATE gl SET
          reference = ?, description = ?, notes = ?,
-         transdate = ?, deliverydate = ?, department_id = ?, taxincluded = ?,
+         transdate = ?, deliverydate = ?, tax_point = ?, department_id = ?, taxincluded = ?,
          storno = ?, storno_id = ?, ob_transaction = ?, cb_transaction = ?
        WHERE id = ?|;
 
   @values = ($form->{reference}, $form->{description}, $form->{notes},
-             conv_date($form->{transdate}), conv_date($form->{deliverydate}), conv_i($form->{department_id}), $form->{taxincluded} ? 't' : 'f',
+             conv_date($form->{transdate}), conv_date($form->{deliverydate}), conv_date($form->{tax_point}), conv_i($form->{department_id}), $form->{taxincluded} ? 't' : 'f',
              $form->{storno} ? 't' : 'f', conv_i($form->{storno_id}), $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f',
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
@@ -637,7 +637,7 @@ sub transaction {
 
   if ($form->{id}) {
     $query =
-      qq|SELECT g.reference, g.description, g.notes, g.transdate, g.deliverydate,
+      qq|SELECT g.reference, g.description, g.notes, g.transdate, g.deliverydate, g.tax_point,
            g.storno, g.storno_id,
            g.department_id, d.description AS department,
            e.name AS employee, g.taxincluded, g.gldate,
