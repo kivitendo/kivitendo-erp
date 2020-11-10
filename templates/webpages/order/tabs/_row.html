@@ -59,9 +59,7 @@
                      ITEM.description,
                      size='40',
                      style='width: 300px') %]
-      [%- IF ITEM.render_longdescription -%]
-        [%- L.hidden_tag("order.orderitems[].longdescription", ITEM.longdescription) %]
-      [%- END -%]
+      [%- L.hidden_tag("order.orderitems[].longdescription", ITEM.longdescription) %]
       [%- L.button_tag("kivi.Order.show_longdescription_dialog(this)", LxERP.t8("L")) %]
     </td>
     [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]

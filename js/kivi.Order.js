@@ -580,41 +580,15 @@ namespace('kivi.Order', function(ns) {
     var position            = $(row).find('[name="position"]').html();
     var partnumber          = $(row).find('[name="partnumber"]').html();
     var description_elt     = $(row).find('[name="order.orderitems[].description"]');
-    var description         = description_elt.val();
     var longdescription_elt = $(row).find('[name="order.orderitems[].longdescription"]');
-    var longdescription;
-
-    if (!longdescription_elt.length) {
-      var data = [
-        { name: 'action',      value: 'Order/get_item_longdescription'                          },
-        { name: 'type',        value: $('#type').val()                                          },
-        { name: 'language_id', value: $('#order_language_id').val()                             },
-        { name: 'item_id',     value: $(row).find('[name="order.orderitems[+].id"]').val()      },
-        { name: 'parts_id',    value: $(row).find('[name="order.orderitems[].parts_id"]').val() }
-      ];
-
-      $.ajax({
-        url:      'controller.pl',
-        data:     data,
-        method:   "GET",
-        async:    false,
-        dataType: 'text',
-        success:  function(val) {
-          longdescription = val;
-        }
-      });
-    } else {
-      longdescription = longdescription_elt.val();
-    }
 
     var params = {
       runningnumber:           position,
       partnumber:              partnumber,
-      description:             description,
-      default_longdescription: longdescription,
+      description:             description_elt.val(),
+      default_longdescription: longdescription_elt.val(),
       set_function:            function(val) {
-        longdescription_elt.remove();
-        $('<input type="hidden" name="order.orderitems[].longdescription">').insertAfter(description_elt).val(val);
+        longdescription_elt.val(val);
       }
     };
 

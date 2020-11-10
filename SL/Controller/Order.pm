@@ -94,11 +94,10 @@ sub action_edit {
     foreach my $item (@{$self->order->items_sorted}) {
       $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
     }
-    # trigger rendering values for second row/longdescription as hidden,
-    # because they are loaded only on demand. So we need to keep the values
-    # from the source.
-    $_->{render_second_row}      = 1 for @{ $self->order->items_sorted };
-    $_->{render_longdescription} = 1 for @{ $self->order->items_sorted };
+    # trigger rendering values for second row as hidden, because they
+    # are loaded only on demand. So we need to keep the values from
+    # the source.
+    $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
   }
 
   $self->recalc();
@@ -995,22 +994,6 @@ sub action_price_popup {
   $self->render_price_dialog($item);
 }
 
-# get the longdescription for an item if the dialog to enter/change the
-# longdescription was opened and the longdescription is empty
-#
-# If this item is new, get the longdescription from Part.
-# Otherwise get it from OrderItem.
-sub action_get_item_longdescription {
-  my $longdescription;
-
-  if ($::form->{item_id}) {
-    $longdescription = SL::DB::OrderItem->new(id => $::form->{item_id})->load->longdescription;
-  } elsif ($::form->{parts_id}) {
-    $longdescription = get_part_texts($::form->{parts_id}, $::form->{language_id})->{longdescription};
-  }
-  $_[0]->render(\ $longdescription, { type => 'text' });
-}
-
 # load the second row for one or more items
 #
 # This action gets the html code for all items second rows by rendering a template for
@@ -1742,11 +1725,10 @@ sub workflow_sales_or_purchase_order {
   $self->get_unalterable_data();
   $self->pre_render();
 
-  # trigger rendering values for second row/longdescription as hidden,
-  # because they are loaded only on demand. So we need to keep the values
-  # from the source.
-  $_->{render_second_row}      = 1 for @{ $self->order->items_sorted };
-  $_->{render_longdescription} = 1 for @{ $self->order->items_sorted };
+  # trigger rendering values for second row as hidden, because they
+  # are loaded only on demand. So we need to keep the values from the
+  # source.
+  $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
 
   $self->render(
     'order/form',
@@ -2318,10 +2300,6 @@ filtering.
 
 How to expand/collapse second row. Now it can be done clicking the icon or
 <shift>-up/down.
-
-=item *
-
-Possibility to change longdescription in input row?
 
 =item *
 
