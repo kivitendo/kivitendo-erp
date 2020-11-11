@@ -6,7 +6,15 @@
 
 [%- INCLUDE 'common/flash.html' %]
 
-<script type="text/javascript" src="js/show_form_details.js"></script>
+<script type="text/javascript">
+  <!--
+  function copy_debit_to_credit() {
+    var txt = document.getElementsByName('debit_1')[0].value;
+    document.getElementsByName('credit_2')[0].value = txt;
+  };
+  //-->
+  </script>
+  <script type="text/javascript" src="js/show_form_details.js"></script>
 <script type="text/javascript" src="js/follow_up.js"></script>
 <script type="text/javascript" src="js/kivi.Draft.js"></script>
 

@@ -922,18 +922,20 @@ sub display_rows {
     my $projectnumber_hidden = qq|
     <input type="hidden" name="project_id_$i" value="$form->{"project_id_$i"}">|;
 
-    my $balance = $form->format_amount(\%::myconfig, $balances{$accno_id} // 0, 2, 'DRCR');
+    my $copy2credit = $i == 1 ? 'onkeyup="copy_debit_to_credit()"' : '';
+    my $balance     = $form->format_amount(\%::myconfig, $balances{$accno_id} // 0, 2, 'DRCR');
 
     # if we have a bt_chart_id we disallow changing the amount of the bank account
     if ($form->{bt_chart_id}) {
       $debitreadonly = $creditreadonly = "readonly" if ($form->{"accno_id_$i"} eq $form->{bt_chart_id});
+      $copy2credit   = '' if $i == 1;   # and disallow copy2credit
     }
 
     print qq|<tr valign=top>
     $accno
     <td id="chart_balance_$i" align="right">${balance}</td>
     $fx_transaction
-    <td><input name="debit_$i" size="8" value="$form->{"debit_$i"}" accesskey=$i $debitreadonly></td>
+    <td><input name="debit_$i" size="8" value="$form->{"debit_$i"}" accesskey=$i $copy2credit $debitreadonly></td>
     <td><input name="credit_$i" size=8 value="$form->{"credit_$i"}" $creditreadonly></td>
     <td><input type="hidden" name="tax_$i" value="$form->{"tax_$i"}">$form->{"tax_$i"}</td>
     $tax_ddbox|;
