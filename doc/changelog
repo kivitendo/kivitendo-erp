@@ -12,7 +12,7 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
- - Neuer Order-Controller: Unterstütztung für Übersetzungen von
+ - Neuer Order-Controller: Unterstützung für Übersetzungen von
    Artikeln wurde implementiert.
  - Einkaufs-/Verkaufsbelege: die Belegsprache ist nun als Auswahl
    direkt in der Hauptmaske vorhanden und nicht mehr in den
