@@ -139,7 +139,10 @@
         bis zu welchem Monat und Jahr die aktuelle Abrechnungsperiode dauert:
         <code class="literal">Abrechnungszeitrum: &lt;%period_start_date FORMAT=%m/%Y%&gt;
         bis &lt;%period_end_date FORMAT=%m/%Y%&gt;</code>
-            </p></div><div class="sect2" title="3.1.4. Auflisten"><div class="titlepage"><div><div><h3 class="title"><a name="features.periodic-invoices.reports"></a>3.1.4. Auflisten</h3></div></div></div><p>Unter Verkauf-&gt;Berichte-&gt;Aufträge finden sich zwei neue
+            </p><p>Beim automatischen Versand der Rechnugen via E-Mail können neben diesen speziellen Variablen auch einige Eigenschaften der
+        Rechnung selber als Variablen im Betreff &amp; dem Text der E-Mails genutzt werden. Beispiele sind
+        <code class="varname">&lt;%invnumber%&gt;</code> für die Rechnungsnummber oder <code class="varname">&lt;transaction_description%&gt;</code> für die
+        Vorgangsbezeichnung. Diese Variablen stehen beim Erzeugen der Rechnung logischerweise noch nicht zur Verfügung.</p></div><div class="sect2" title="3.1.4. Auflisten"><div class="titlepage"><div><div><h3 class="title"><a name="features.periodic-invoices.reports"></a>3.1.4. Auflisten</h3></div></div></div><p>Unter Verkauf-&gt;Berichte-&gt;Aufträge finden sich zwei neue
         Checkboxen, "Wiederkehrende Rechnungen aktiv" und "Wiederkehrende
         Rechnungen inaktiv", mit denen man sich einen Überglick über die
         wiederkehrenden Rechnungen verschaffen kann.</p></div><div class="sect2" title="3.1.5. Erzeugung der eigentlichen Rechnungen"><div class="titlepage"><div><div><h3 class="title"><a name="features.periodic-invoices.task-server"></a>3.1.5. Erzeugung der eigentlichen Rechnungen</h3></div></div></div><p>Die zeitliche und periodische Überprüfung, ob eine
