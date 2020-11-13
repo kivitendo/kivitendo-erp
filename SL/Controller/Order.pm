@@ -262,6 +262,7 @@ sub action_print {
   my $formname    = $::form->{print_options}->{formname};
   my $copies      = $::form->{print_options}->{copies};
   my $groupitems  = $::form->{print_options}->{groupitems};
+  my $printer_id  = $::form->{print_options}->{printer_id};
 
   # only pdf and opendocument by now
   if (none { $format eq $_ } qw(pdf opendocument opendocument_pdf)) {
@@ -286,6 +287,7 @@ sub action_print {
   my @errors = generate_pdf($self->order, \$pdf, { format     => $format,
                                                    formname   => $formname,
                                                    language   => $self->order->language,
+                                                   printer_id => $printer_id,
                                                    groupitems => $groupitems });
   if (scalar @errors) {
     return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
@@ -433,6 +435,7 @@ sub action_send_email {
                                                     format     => $::form->{print_options}->{format},
                                                     formname   => $::form->{print_options}->{formname},
                                                     language   => $self->order->language,
+                                                    printer_id => $::form->{print_options}->{printer_id},
                                                     groupitems => $::form->{print_options}->{groupitems}});
     if (scalar @errors) {
       return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render($self);
@@ -1917,6 +1920,7 @@ sub generate_pdf {
   $print_form->{format}      = $params->{format}   || 'pdf';
   $print_form->{media}       = $params->{media}    || 'file';
   $print_form->{groupitems}  = $params->{groupitems};
+  $print_form->{printer_id}  = $params->{printer_id};
   $print_form->{media}       = 'file'                             if $print_form->{media} eq 'screen';
 
   $order->language($params->{language});
@@ -1935,7 +1939,7 @@ sub generate_pdf {
     extension   => $template_ext,
     email       => $print_form->{media} eq 'email',
     language    => $params->{language},
-    printer_id  => $print_form->{printer_id},  # todo
+    printer_id  => $print_form->{printer_id},
   );
 
   if (!defined $template_file) {
