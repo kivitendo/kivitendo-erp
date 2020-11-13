@@ -2242,8 +2242,6 @@ java script functions
 
 =item * check for direct delivery (workflow sales order -> purchase order)
 
-=item * language / part translations
-
 =item * access rights
 
 =item * display weights
