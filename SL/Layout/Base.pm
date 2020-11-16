@@ -3,6 +3,7 @@ package SL::Layout::Base;
 use strict;
 use parent qw(Rose::Object);
 
+use File::Slurp qw(read_file);
 use List::MoreUtils qw(uniq);
 use Time::HiRes qw();
 
@@ -19,6 +20,7 @@ use Rose::Object::MakeMethods::Generic (
 
 use SL::Menu;
 use SL::Presenter;
+use SL::System::Process;
 
 my %menu_cache;
 
@@ -42,8 +44,21 @@ sub get {
 }
 
 sub init_auto_reload_resources_param {
-  return '' unless $::lx_office_conf{debug}->{auto_reload_resources};
-  return sprintf('?rand=%d-%d-%d', Time::HiRes::gettimeofday(), int(rand 1000000000000));
+  return sprintf('?rand=%d-%d-%d', Time::HiRes::gettimeofday(), int(rand 1000000000000)) if $::lx_office_conf{debug}->{auto_reload_resources};
+
+  my $git_dir = SL::System::Process::exe_dir() . '/.git';
+
+  return '' unless -d $git_dir;
+
+  my $content = eval { scalar(read_file($git_dir . '/HEAD')) };
+
+  return '' unless ($content // '') =~ m{\Aref: ([^\r\n]+)};
+
+  $content = eval { scalar(read_file($git_dir . '/' . $1)) };
+
+  return '' unless ($content // '') =~ m{\A([0-9a-fA-F]+)};
+
+  return '?rand=' . $1;
 }
 
 ##########################################
