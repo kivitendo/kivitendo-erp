@@ -162,7 +162,7 @@ contents={\usebox\shippingAddressBox}
 
 \prg_new_conditional:Nnn \kivi_if_Price_col:n {T} {
 	\prop_get:cnN {l_kivi_col_#1_prop} {colspec} \l_tmpa_tl
-	\tl_if_eq:NnTF \l_tmpa_tl {Price}
+	\exp_args:NV \tl_if_eq:nnTF \l_tmpa_tl {Price}
 		{\prg_return_true:}
 		{\prg_return_false:}
 }
@@ -191,7 +191,7 @@ contents={\usebox\shippingAddressBox}
 						\dim_use:c {l_kivi_tab_##1_dim}+2\g_kivi_tabcolsep_dim
 					}
 				}
-				\tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {>{\raggedleft\arraybackslash}p{\dim_use:c {l_kivi_tab_##1_dim}}}
+				\tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {K{\dim_use:c {l_kivi_tab_##1_dim}}}
 				\kivi_if_Price_col:nT {##1} {\tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {<{\__kivi_tab_column_currency:}}}
 			}
 		}
@@ -200,7 +200,8 @@ contents={\usebox\shippingAddressBox}
 	\tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {@{}}
 }
 
-\newcolumntype{P}[1]{>{\raggedleft\arraybackslash}p{#1}<{\__kivi_tab_column_currency:}}
+\newcolumntype{K}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{P}[1]{K{#1}<{\__kivi_tab_column_currency:}}
 
 \RequirePackage{tcolorbox}
 \tcbuselibrary{breakable, skins}
