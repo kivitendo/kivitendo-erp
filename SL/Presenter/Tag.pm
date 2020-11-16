@@ -113,6 +113,8 @@ sub select_tag {
 
   $collection         = [] if defined($collection) && !ref($collection) && ($collection eq '');
 
+  my $with_filter     = delete($attributes{with_filter});
+  my $fil_placeholder = delete($attributes{filter_placeholder});
   my $value_key       = delete($attributes{value_key})   || 'id';
   my $title_key       = delete($attributes{title_key})   || $value_key;
   my $default_key     = delete($attributes{default_key}) || 'selected';
@@ -208,7 +210,28 @@ sub select_tag {
     } @{ $collection };
   }
 
-  html_tag('select', $code, %attributes, name => $name);
+  my $select_html = html_tag('select', $code, %attributes, name => $name);
+
+  if ($with_filter) {
+    my $input_style;
+
+    if (($attributes{style} // '') =~ m{width: *(\d+) *px}i) {
+      $input_style = "width: " . ($1 - 22) . "px";
+    }
+
+    my $input_html = html_tag(
+      'input', undef,
+      autocomplete     => 'off',
+      type             => 'text',
+      id               => $attributes{id} . '_filter',
+      'data-select-id' => $attributes{id},
+      (placeholder     => $fil_placeholder) x !!$fil_placeholder,
+      (style           => $input_style)     x !!$input_style,
+    );
+    $select_html = html_tag('div', $input_html . $select_html, class => "filtered_select");
+  }
+
+  return $select_html;
 }
 
 sub checkbox_tag {

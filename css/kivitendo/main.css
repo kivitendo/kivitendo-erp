@@ -614,3 +614,25 @@ body > div.admin {
 .cke_button {
   padding: 0px; 6px !important;
 }
+
+/* selects with text filters */
+div.filtered_select input, div.filtered_select select {
+  display: block;
+}
+
+div.filtered_select input {
+  background-image: url(../../image/glass14x14.png);
+  background-repeat: no-repeat;
+  background-position: 2px 2px;
+  border-radius: 0px;
+  border: solid #a0a0a0 1px;
+  border-bottom: none;
+  padding: 0px;
+  padding-left: 20px;
+  margin: 0;
+  width: 500px;
+}
+
+div.filtered_select select {
+  width: 522px;
+}

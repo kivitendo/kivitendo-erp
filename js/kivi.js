@@ -350,6 +350,19 @@ namespace("kivi", function(ns) {
       editor.on('instanceReady', function() { ns.focus_ckeditor($e); });
   };
 
+  ns.filter_select = function() {
+    var $input  = $(this);
+    var $select = $('#' + $input.data('select-id'));
+    var filter  = $input.val().toLocaleLowerCase();
+
+    $select.find('option').each(function() {
+      if ($(this).text().toLocaleLowerCase().indexOf(filter) != -1)
+        $(this).show();
+      else
+        $(this).hide();
+    });
+  };
+
   ns.reinit_widgets = function() {
     ns.run_once_for('.datepicker', 'datepicker', function(elt) {
       $(elt).datepicker();
@@ -369,6 +382,9 @@ namespace("kivi", function(ns) {
         kivi.ChartPicker($(elt));
       });
 
+    ns.run_once_for('div.filtered_select input', 'filtered_select', function(elt) {
+      $(elt).bind('change keyup', ns.filter_select);
+    });
 
     var func = kivi.get_function_by_name('local_reinit_widgets');
     if (func)
