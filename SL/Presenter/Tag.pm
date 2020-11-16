@@ -111,6 +111,8 @@ sub select_tag {
 
   _set_id_attribute(\%attributes, $name);
 
+  $collection         = [] if defined($collection) && !ref($collection) && ($collection eq '');
+
   my $value_key       = delete($attributes{value_key})   || 'id';
   my $title_key       = delete($attributes{title_key})   || $value_key;
   my $default_key     = delete($attributes{default_key}) || 'selected';
