@@ -8,6 +8,8 @@ use strict;
 use SL::DB::MetaSetup::TimeRecordingType;
 use SL::DB::Manager::TimeRecordingType;
 
+use SL::DB::Helper::ActsAsList;
+
 __PACKAGE__->meta->initialize;
 
 1;
