@@ -6,3 +6,15 @@
   params:
     action: SimpleSystemSetting/list
     type: time_recording_type
+- parent: productivity
+  id: productivity_time_recording
+  name: Time Recording
+  order: 350
+  params:
+    action: TimeRecording/edit
+- parent: productivity_reports
+  id: productivity_reports_time_recording
+  name: Time Recording
+  order: 300
+  params:
+    action: TimeRecording/list

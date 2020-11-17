@@ -1,0 +1,41 @@
+[% USE L %]
+[% USE P %]
+[% USE T8 %]
+[% USE LxERP %]
+
+<h1>[% title %]</h1>
+
+[%- INCLUDE 'common/flash.html' %]
+
+<form method="post" action="controller.pl" id="form">
+  [% P.hidden_tag('id',       SELF.time_recording.id) %]
+  [% L.hidden_tag('callback', FORM.callback) %]
+
+  <table>
+    <thead class="listheading">
+      <th>[% 'Start' | T8 %]</th>
+      <th>[% 'End' | T8 %]</th>
+      <th>[% 'Customer' | T8 %]</th>
+      <th>[% 'Type' | T8 %]</th>
+      <th>[% 'Project' | T8 %]</th>
+      <th>[% 'Description' | T8 %]</th>
+    </thead>
+    <tbody valign="top">
+      <td>
+        [% P.date_tag('start_date',  SELF.start_date, "data-validate"="required", "data-title"=LxERP.t8('Start date'), onchange='kivi.TimeRecording.set_end_date()') %]<br>
+        [% P.input_tag('start_time', SELF.start_time, type="time", "data-validate"="required", "data-title"=LxERP.t8('Start time')) %]
+        [% P.button_tag('kivi.TimeRecording.set_current_date_time("start")', LxERP.t8('now')) %]
+      </td>
+      <td>
+        [% P.date_tag('end_date',  SELF.end_date) %]<br>
+        [% P.input_tag('end_time', SELF.end_time, type="time") %]
+        [% P.button_tag('kivi.TimeRecording.set_current_date_time("end")', LxERP.t8('now')) %]
+      </td>
+      <td>[% P.customer_vendor.picker('time_recording.customer_id', SELF.time_recording.customer_id, type='customer', style='width: 300px', "data-validate"="required", "data-title"=LxERP.t8('Customer')) %]</td>
+      <td>[% P.select_tag('time_recording.type_id', SELF.all_time_recording_types, default=SELF.time_recording.type.id, with_empty=1, title_key='abbreviation') %]</td>
+      <td>[% P.project.picker('time_recording.project_id', SELF.time_recording.project_id, style='width: 300px') %]</td>
+      <td>[% L.textarea_tag('time_recording.description', SELF.time_recording.description, wrap="soft", style="width: 350px; height: 150px", class="texteditor", "data-validate"="required", "data-title"=LxERP.t8('Description')) %]</td>
+    </tbody>
+  </table>
+
+</form>
