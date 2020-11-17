@@ -134,6 +134,8 @@ use SL::DB::Tax;
 use SL::DB::TaxKey;
 use SL::DB::TaxZone;
 use SL::DB::TaxzoneChart;
+use SL::DB::TimeRecording;
+use SL::DB::TimeRecordingType;
 use SL::DB::TodoUserConfig;
 use SL::DB::TransferType;
 use SL::DB::Translation;
