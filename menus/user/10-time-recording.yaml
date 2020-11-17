@@ -1,0 +1,8 @@
+---
+- parent: system
+  id: system_time_recording_types
+  name: Time Recording Types
+  order: 2370
+  params:
+    action: SimpleSystemSetting/list
+    type: time_recording_type

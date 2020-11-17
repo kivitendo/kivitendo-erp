@@ -268,6 +268,21 @@ my %supported_types = (
     ],
   },
 
+  time_recording_type => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_time_recording_type_form")
+    class  => 'TimeRecordingType',
+    auth   => 'config',
+    titles => {
+      list => t8('Time Recording Types'),
+      add  => t8('Add time recording type'),
+      edit => t8('Edit time recording type'),
+    },
+    list_attributes => [
+      { method => 'abbreviation', title => t8('Abbreviation') },
+      { method => 'description',  title => t8('Description') },
+      { method => 'obsolete',     title => t8('Obsolete'), formatter => sub { $_[0]->obsolete ? t8('yes') : t8('no') } },
+    ],
+  },
 );
 
 my @default_list_attributes = (
