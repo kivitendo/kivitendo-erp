@@ -2,6 +2,7 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %]
+[%- USE P %]
 [%- USE JavaScript -%]
 
 <div id="billing">
@@ -156,7 +157,7 @@
       <th align="right" nowrap>[% 'E-mail' | $T8 %]</th>
 
       <td>
-        [% L.input_tag_trim('cv.email', SELF.cv.email, size = 45) %]
+        [% P.input_email_tag('cv.email', SELF.cv.email, size = 45) %]
       </td>
     </tr>
 
