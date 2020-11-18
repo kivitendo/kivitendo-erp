@@ -662,6 +662,15 @@ namespace("kivi", function(ns) {
     $input.parent().replaceWith($area);
     $area.focus();
   };
+
+  ns.set_cursor_position = function(selector, position) {
+    var $input = $(selector);
+    if (position === 'end')
+      position = $input.val().length;
+
+    $input.prop('selectionStart', position);
+    $input.prop('selectionEnd',   position);
+  };
 });
 
 kivi = namespace('kivi');
