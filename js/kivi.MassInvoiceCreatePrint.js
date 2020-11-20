@@ -21,9 +21,6 @@ namespace('kivi.MassInvoiceCreatePrint', function(ns) {
   };
 
   this.submitMassCreationForm = function() {
-    if (!kivi.MassInvoiceCreatePrint.checkDeliveryOrderSelection())
-      return false;
-
     $('body').addClass('loading');
     kivi.submit_form_with_action('form', 'MassInvoiceCreatePrint/create_invoices');
     return false;
