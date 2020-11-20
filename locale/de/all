@@ -3377,6 +3377,7 @@ $self->{texts} = {
   'The first reason is that kivitendo contained a bug which resulted in the wrong taxkeys being recorded for transactions in which two entries are posted for the same chart with different taxkeys.' => 'Der erste Grund war ein Fehler in kivitendo, der dazu führte, dass bei einer Transaktion, bei der zwei Buchungen mit unterschiedlichen Steuerschlüsseln auf dasselbe Konto durchgeführt wurden, die falschen Steuerschlüssel gespeichert wurden.',
   'The follow-up date is missing.' => 'Das Wiedervorlagedatum fehlt.',
   'The following currencies have been used, but they are not defined:' => 'Die folgenden Währungen wurden benutzt, sind aber nicht ordnungsgemäß in der Datenbank eingetragen:',
+  'The following delivery orders could not be processed because they are already closed: #1' => 'Die folgenden Lieferscheine konnten nicht verarbeitet werden, da sie bereits geschlossen sind: #1',
   'The following drafts have been saved and can be loaded.' => 'Die folgenden Entwürfe wurden gespeichert und können geladen werden.',
   'The following groups are valid for this client' => 'Die folgenden Gruppen sind für diesen Mandanten gültig',
   'The following is only a preview.' => 'Das Folgende ist nur eine Vorschau.',

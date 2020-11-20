@@ -58,13 +58,23 @@ sub action_create_invoices {
 
   my $db = SL::DB::Invoice->new->db;
   my @invoices;
+  my @already_closed_delivery_orders;
 
   if (!$db->with_transaction(sub {
     foreach my $id (@sales_delivery_order_ids) {
       my $delivery_order    = SL::DB::DeliveryOrder->new(id => $id)->load;
 
-      my $invoice = $delivery_order->convert_to_invoice() || die $db->error;
-      push @invoices, $invoice;
+      # Only process open delivery orders. In this list should only be open
+      # delivery orders, but if the user clicked browser back, a new creation
+      # of invoices for delivery orders which are closed now can be triggered.
+      # Prevent this.
+      if ($delivery_order->closed) {
+        push @already_closed_delivery_orders, $delivery_order;
+
+      } else {
+        my $invoice = $delivery_order->convert_to_invoice() || die $db->error;
+        push @invoices, $invoice;
+      }
     }
 
     1;
@@ -76,7 +86,13 @@ sub action_create_invoices {
   my $key = sprintf('%d-%d', Time::HiRes::gettimeofday());
   $::auth->set_session_value("MassInvoiceCreatePrint::ids-${key}" => [ map { $_->id } @invoices ]);
 
-  flash_later('info', t8('The invoices have been created. They\'re pre-selected below.'));
+  if (@already_closed_delivery_orders) {
+    my $dos_list = join ' ', map { $_->donumber } @already_closed_delivery_orders;
+    flash_later('error', t8('The following delivery orders could not be processed because they are already closed: #1', $dos_list));
+  }
+
+  flash_later('info', t8('The invoices have been created. They\'re pre-selected below.')) if @invoices;
+
   $self->redirect_to(action => 'list_invoices', ids => $key);
 }
 
@@ -89,6 +105,11 @@ sub action_list_invoices {
   if ($::form->{ids}) {
     my $key = 'MassInvoiceCreatePrint::ids-' . $::form->{ids};
     $self->invoice_ids($::auth->get_session_value($key) || []);
+
+    # Prevent models->get to retrieve any invoices if session key is there
+    # but no ids are given.
+    $self->invoice_ids([0]) if !@{$self->invoice_ids};
+
     $self->invoice_models->add_additional_url_params(ids => $::form->{ids});
   }
 
