@@ -20,11 +20,6 @@ namespace('kivi.MassInvoiceCreatePrint', function(ns) {
     return false;
   };
 
-  this.submitMassCreationForm = function() {
-    kivi.submit_form_with_action('form', 'MassInvoiceCreatePrint/create_invoices');
-    return false;
-  };
-
   this.createPrintAllInitialize = function() {
     kivi.popup_dialog({
       id: 'create_print_all_dialog',

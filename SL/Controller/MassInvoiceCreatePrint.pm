@@ -377,7 +377,7 @@ sub setup_list_sales_delivery_orders_action_bar {
         ],
         action => [
           t8("Create and print invoices for all selected delivery orders"),
-          call      => [ 'kivi.MassInvoiceCreatePrint.submitMassCreationForm' ],
+          submit    => [ 'form', { action => 'MassInvoiceCreatePrint/create_invoices' } ],
           disabled  => !$params{num_rows} ? $::locale->text('The report doesn\'t contain entries.') : undef,
           only_if   => $params{show_creation_buttons},
           checks    => [ 'kivi.MassInvoiceCreatePrint.checkDeliveryOrderSelection' ],
