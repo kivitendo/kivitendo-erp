@@ -38,6 +38,7 @@ sub set_defaults {
                        escape_char  => '"',
                        charset      => 'CP850',
                        numberformat => $::myconfig{numberformat},
+                       dateformat   => $::myconfig{dateformat},
                        duplicates   => 'no_check',
                       );
 

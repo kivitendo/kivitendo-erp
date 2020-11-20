@@ -181,6 +181,13 @@
    </tr>
 
    <tr>
+    <th align="right">[%- LxERP.t8('Date Format') %]:</th>
+    <td colspan="10">
+     [% L.select_tag('settings.dateformat', ['dd.mm.yyyy', 'yyyy-mm-dd', 'dd/mm/yyyy', 'mm/dd/yyyy' ], default = SELF.profile.get('dateformat'), style = 'width: 300px') %]
+    </td>
+   </tr>
+
+   <tr>
     <th align="right">[%- LxERP.t8('Charset') %]:</th>
     <td colspan="10">[% L.select_tag('settings.charset', SELF.all_charsets, default = SELF.profile.get('charset'), style = 'width: 300px') %]</td>
    </tr>
