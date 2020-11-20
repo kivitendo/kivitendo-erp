@@ -680,7 +680,7 @@ sub handle_makemodel {
     }
   }
 
-  $entry->{part}->makemodels([ $entry->{part}->makemodels_sorted, @new_makemodels ]) if @new_makemodels;
+  $entry->{part}->makemodels([ @{$entry->{part}->makemodels_sorted}, @new_makemodels ]) if @new_makemodels;
 
   # reindex makemodels
   my $i = 0;
