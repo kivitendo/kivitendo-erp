@@ -1010,7 +1010,7 @@ sub ar_transactions {
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   @columns =
-    qw(ids transdate id type invnumber ordnumber cusordnumber name netamount tax amount paid
+    qw(ids transdate id type invnumber ordnumber cusordnumber donumber deliverydate name netamount tax amount paid
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
        marge_total marge_percent globalprojectnumber customernumber country ustid taxzone
        payment_terms charts customertype direct_debit dunning_description department);
@@ -1037,6 +1037,8 @@ sub ar_transactions {
     'invnumber'               => { 'text' => $locale->text('Invoice'), },
     'ordnumber'               => { 'text' => $locale->text('Order'), },
     'cusordnumber'            => { 'text' => $locale->text('Customer Order Number'), },
+    'donumber'                => { 'text' => $locale->text('Delivery Order'), },
+    'deliverydate'            => { 'text' => $locale->text('Delivery Date'), },
     'name'                    => { 'text' => $locale->text('Customer'), },
     'netamount'               => { 'text' => $locale->text('Amount'), },
     'tax'                     => { 'text' => $locale->text('Tax'), },
@@ -1067,7 +1069,7 @@ sub ar_transactions {
     %column_defs_cvars,
   );
 
-  foreach my $name (qw(id transdate duedate invnumber ordnumber cusordnumber name datepaid employee shippingpoint shipvia transaction_description direct_debit department)) {
+  foreach my $name (qw(id transdate duedate invnumber ordnumber cusordnumber donumber deliverydate name datepaid employee shippingpoint shipvia transaction_description direct_debit department)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
