@@ -7,6 +7,7 @@ use English qw(-no_match_vars);
 use Rose::DB::Object;
 use Rose::DB::Object::Constants qw();
 use List::MoreUtils qw(any pairwise);
+use List::Util qw(first);
 
 use SL::DB;
 use SL::DB::Helper::Attr;
@@ -103,6 +104,50 @@ sub update_attributes {
   $self->assign_attributes(@_)->save;
 
   return $self;
+}
+
+sub update_collection {
+  my ($self, $attribute, $entries) = @_;
+
+  my $self_primary_key = "" . ($self->meta->primary_key_columns)[0];
+
+  croak "\$self hasn't been saved yet" if !$self->$self_primary_key;
+
+  my $relationship = first { $_->name eq $attribute } @{ $self->meta->relationships };
+
+  croak "No relationship found for attribute '$attribute'" if !$relationship;
+
+  my @primary_key_columns = $relationship->class->meta->primary_key_columns;
+
+  croak "Classes with multiple primary key columns are not supported" if scalar(@primary_key_columns) > 1;
+
+  my $class             = $relationship->class;
+  my $manager_class     = "SL::DB::Manager::" . substr($class, 8);
+  my $other_primary_key = "" . $primary_key_columns[0];
+  my $column_map        = $relationship->column_map;
+  my @new_entries       = @{ $entries          // [] };
+  my @existing_entries  = @{ $self->$attribute // [] };
+  my @to_delete         = grep { my $value = $_->$other_primary_key; !any { $_->{$other_primary_key} == $value } @new_entries } @existing_entries;
+
+  $_->delete for @to_delete;
+
+  foreach my $entry (@new_entries) {
+    if (!$entry->{$other_primary_key}) {
+      my $new_instance = $class->new(%{ $entry });
+
+      foreach my $self_attribute (keys %{ $column_map }) {
+        my $other_attribute = $column_map->{$self_attribute};
+        $new_instance->$other_attribute($self->$self_attribute);
+      }
+
+      $new_instance->save;
+
+      next;
+    }
+
+    my $existing = first { $_->$other_primary_key == $entry->{$other_primary_key} } @existing_entries;
+    $existing->update_attributes(%{ $entry }) if $existing;
+  }
 }
 
 sub call_sub {
@@ -317,6 +362,28 @@ C<NULL> in the database).
 Assigns the attributes from C<%attributes> by calling the
 C<assign_attributes> function and saves the object afterwards. Returns
 the object itself.
+
+=item C<update_collection $attribute, $entries, %params>
+
+Updates a one-to-many relationship named C<$attribute> to match the
+entries in C<$entries>. C<$entries> is supposed to be an array ref of
+hash refs.
+
+For each hash ref in C<$entries> that does not contain a field for the
+relationship's primary key column, this function creates a new entry
+in the database with its attributes set to the data in the entry.
+
+For each hash ref in C<$entries> that contains a field for the
+relationship's primary key column, this function looks up the
+corresponding entry in C<$self-&gt;$attribute> & updates its
+attributes with the data in the entry.
+
+All objects in C<$self-&gt;$attribute> for which no corresponding
+entry exists in C<$entries> are deleted by calling the object's
+C<delete> method.
+
+In all cases the relationship itself C<$self-&gt;$attribute> is not
+changed.
 
 =item _get_manager_class
 
