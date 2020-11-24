@@ -7,17 +7,18 @@ __PACKAGE__->meta->setup(
   columns => [
     dummy => { type => 'numeric', precision => 2, scale => 12 },
     inty  => { type => 'integer' },
+    miny  => { type => 'integer' },
   ]
 );
 
 use SL::DB::Helper::AttrDuration;
 
 __PACKAGE__->attr_duration('dummy');
-__PACKAGE__->attr_duration_minutes('inty');
+__PACKAGE__->attr_duration_minutes('inty', 'miny');
 
 package main;
 
-use Test::More tests => 120;
+use Test::More tests => 130;
 use Test::Exception;
 
 use strict;
@@ -217,6 +218,22 @@ is($item->inty,                    181,    'write as_duration_string 03:1 read r
 is($item->inty_as_minutes,         1,      'write as_duration_string 03:1 read as_minutes');
 is($item->inty_as_hours,           3,      'write as_duration_string 03:1 read as_hours');
 is($item->inty_as_duration_string, "3:01", 'write as_duration_string 03:1 read as_duration_string');
+
+local %::myconfig = (numberformat => "1.000,00");
+
+$item = new_item(miny_in_hours => 2.5);
+is($item->miny,                    150,    'write in_hours 2.5 read raw');
+is($item->miny_as_minutes,         30,     'write in_hours 2.5 read as_minutes');
+is($item->miny_as_hours,           2,      'write in_hours 2.5 read as_hours');
+is($item->miny_in_hours,           2.5,    'write in_hours 2.5 read in_hours');
+is($item->miny_in_hours_as_number, '2,50', 'write in_hours 2.5 read in_hours_as_number');
+
+$item = new_item(miny_in_hours_as_number => '4,25');
+is($item->miny,                    255,    'write in_hours_as_number 4,25 read raw');
+is($item->miny_as_minutes,         15,     'write in_hours_as_number 4,25 read as_minutes');
+is($item->miny_as_hours,           4,      'write in_hours_as_number 4,25 read as_hours');
+is($item->miny_in_hours,           4.25,   'write in_hours_as_number 4,25 read in_hours');
+is($item->miny_in_hours_as_number, '4,25', 'write in_hours_as_number 4,25 read in_hours_as_number');
 
 # Parametervalidierung
 throws_ok { new_item()->inty_as_duration_string('invalid') } qr/invalid.*format/i, 'invalid duration format';

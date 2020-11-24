@@ -116,6 +116,22 @@ sub _make_minutes {
     my $as_minutes = "${attribute}_as_minutes";
     return defined($self->$attribute) ? sprintf('%d:%02d', $self->$as_hours, $self->$as_minutes) : undef;
   };
+
+  *{ $package . '::' . $attribute . '_in_hours' } = sub {
+    my ($self, $value) = @_;
+
+    $self->$attribute(int($value * 60 + 0.5)) if @_ > 1;
+    return $self->$attribute / 60.0;
+  };
+
+  *{ $package . '::' . $attribute . '_in_hours_as_number' } = sub {
+    my ($self, $value) = @_;
+
+    my $sub = "${attribute}_in_hours";
+
+    $self->$sub($::form->parse_amount(\%::myconfig, $value)) if @_ > 1;
+    return $::form->format_amount(\%::myconfig, $self->$sub, 2);
+  };
 }
 
 1;
@@ -233,6 +249,17 @@ Access only the hours. Returns an integer value.
 Access the full value as a formatted string in the form C<h:mm>,
 e.g. C<1:30> for the value 90 minutes. Parsing such a string is
 supported, too.
+
+=item C<attribute_in_hours [$new_value]>
+
+Access the full value but convert to and from hours when
+reading/writing the value.
+
+=item C<attribute_in_hours_as_number [$new_value]>
+
+Access the full value but convert to and from hours when
+reading/writing the value. The value is formatted to/parsed from the
+user's number format.
 
 =back
 
