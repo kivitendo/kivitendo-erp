@@ -435,7 +435,7 @@ sub _seller_trade_party {
   #         <ram:DefinedTradeContact>
   $params{xml}->startTag("ram:DefinedTradeContact");
 
-  $params{xml}->dataElement("ram:PersonName", _u8($sales_person_cfg{name} || $sales_person_cfg{login}));
+  $params{xml}->dataElement("ram:PersonName", _u8($sales_person->safe_name));
 
   if ($sales_person_cfg{tel}) {
     $params{xml}->startTag("ram:TelephoneUniversalCommunication");
