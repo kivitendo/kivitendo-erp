@@ -58,6 +58,7 @@ use SL::DB::DeliveryTerm;
 use SL::ReportGenerator;
 use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(uri_encode);
+use SL::ZUGFeRD;
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -69,9 +70,7 @@ use strict;
 
 sub _zugferd_settings {
   return ([ -1, $::locale->text('Use settings from client configuration') ],
-          [  0, $::locale->text('Do not create ZUGFeRD invoices') ],
-          [  1, $::locale->text('Create ZUGFeRD invoices') ],
-          [  2, $::locale->text('Create ZUGFeRD invoices in test mode') ]);
+          @SL::ZUGFeRD::customer_settings);
 }
 
 sub search {
@@ -164,7 +163,7 @@ sub list_names {
   push @options, $locale->text('Billing/shipping address (country)') . " : $form->{addr_country}" if $form->{addr_country};
   push @options, $locale->text('Billing/shipping address (GLN)')     . " : $form->{addr_gln}"     if $form->{addr_gln};
   push @options, $locale->text('Quick Search')                       . " : $form->{all}"          if $form->{all};
-  push @options, $locale->text('ZUGFeRD settings')                   . " : $zugferd_filter"       if $zugferd_filter;
+  push @options, $locale->text('Factur-X/ZUGFeRD settings')          . " : $zugferd_filter"       if $zugferd_filter;
 
   if ($form->{business_id}) {
     my $business = SL::DB::Manager::Business->find_by(id => $form->{business_id});
@@ -232,7 +231,7 @@ sub list_names {
     'creditlimit'       => { 'text' => $locale->text('Credit Limit'), },
     'ustid'             => { 'text' => $locale->text('VAT ID'), },
     'commercial_court'  => { 'text' => $locale->text('Commercial court'), },
-    create_zugferd_invoices => { text => $locale->text('ZUGFeRD settings'), },
+    create_zugferd_invoices => { text => $locale->text('Factur-X/ZUGFeRD settings'), },
     %column_defs_cvars,
   );
 

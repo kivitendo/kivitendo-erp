@@ -2166,8 +2166,8 @@ sub _maybe_attach_zugferd_data {
     $form->{TEMPLATE_DRIVER_OPTIONS}->{pdf_a}           = $record->create_pdf_a_print_options(zugferd_xmp_data => $record->create_zugferd_xmp_data);
     $form->{TEMPLATE_DRIVER_OPTIONS}->{pdf_attachments} = [
       { source       => $xmlfile,
-        name         => 'ZUGFeRD-invoice.xml',
-        description  => $::locale->text('ZUGFeRD invoice'),
+        name         => 'factur-x.xml',
+        description  => $::locale->text('Factur-X/ZUGFeRD invoice'),
         relationship => '/Alternative',
         mime_type    => 'text/xml',
       }

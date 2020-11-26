@@ -35,7 +35,7 @@ my %supported_types = (
       { method => 'bank',                                      title => t8('Bank'), },
       { method => 'bank_code',                                 title => t8('Bank code'), },
       { method => 'bic',                                       title => t8('BIC'), },
-      {                                                        title => t8('Use for ZUGFeRD'), formatter => sub { $_[0]->use_for_zugferd ? t8('yes') : t8('no') } },
+      {                                                        title => t8('Use for Factur-X/ZUGFeRD'), formatter => sub { $_[0]->use_for_zugferd ? t8('yes') : t8('no') } },
       { method => 'reconciliation_starting_date_as_date',      title => t8('Date'),    align => 'right' },
       { method => 'reconciliation_starting_balance_as_number', title => t8('Balance'), align => 'right' },
     ],

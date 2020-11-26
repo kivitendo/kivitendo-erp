@@ -14,6 +14,7 @@ use SL::Helper::ISO3166;
 use SL::Helper::ISO4217;
 use SL::Helper::UNECERecommendation20;
 use SL::VATIDNr;
+use SL::ZUGFeRD qw(:PROFILES);
 
 use Carp;
 use Encode qw(encode);
@@ -23,6 +24,13 @@ use Template;
 use XML::Writer;
 
 my @line_names = qw(LineOne LineTwo LineThree);
+
+my %standards_ids = (
+  PROFILE_FACTURX_EXTENDED() => 'urn:cen.eu:en16931:2017#conformant#urn:factur-x.eu:1p0:extended',
+sub _is_profile {
+  my ($self, @profiles) = @_;
+  return any { $self->{_zugferd}->{profile} == $_ } @profiles;
+}
 
 sub _u8 {
   my ($value) = @_;
@@ -340,14 +348,14 @@ sub _exchanged_document_context {
   #   <rsm:ExchangedDocumentContext>
   $params{xml}->startTag("rsm:ExchangedDocumentContext");
 
-  if ($self->customer->create_zugferd_invoices_for_this_customer == 2) {
+  if ($self->{_zugferd}->{test_mode}) {
     $params{xml}->startTag("ram:TestIndicator");
     $params{xml}->dataElement("udt:Indicator", "true");
     $params{xml}->endTag;
   }
 
   $params{xml}->startTag("ram:GuidelineSpecifiedDocumentContextParameter");
-  $params{xml}->dataElement("ram:ID", "urn:cen.eu:en16931:2017#conformant#urn:zugferd.de:2p0:extended");
+  $params{xml}->dataElement("ram:ID", $standards_ids{ $self->{_zugferd}->{profile} });
   $params{xml}->endTag;
   $params{xml}->endTag;
   #   </rsm:ExchangedDocumentContext>
@@ -608,7 +616,7 @@ sub _validate_data {
     $result{bank_account} = scalar(@{ $bank_accounts }) == 1 ? $bank_accounts->[0] : first { $_->use_for_zugferd } @{ $bank_accounts };
 
     if (!$result{bank_account}) {
-      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('No bank account flagged for ZUGFeRD usage was found.'));
+      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('No bank account flagged for Factur-X/ZUGFeRD usage was found.'));
     }
   }
 
@@ -617,6 +625,11 @@ sub _validate_data {
 
 sub create_zugferd_data {
   my ($self)        = @_;
+  $self->{_zugferd} = { SL::ZUGFeRD->convert_customer_setting($self->customer->create_zugferd_invoices_for_this_customer) };
+
+  if (!$standards_ids{ $self->{_zugferd}->{profile} }) {
+    croak "Profile '" . $self->{_zugferd}->{profile} . "' is not supported";
+  }
 
   my $output        = '';
 
@@ -655,7 +668,7 @@ sub create_zugferd_xmp_data {
 
   return {
     conformance_level  => 'EXTENDED',
-    document_file_name => 'ZUGFeRD-invoice.xml',
+    document_file_name => 'factur-x.xml',
     document_type      => 'INVOICE',
     version            => '1.0',
   };

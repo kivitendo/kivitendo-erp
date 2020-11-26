@@ -57,8 +57,8 @@
      </rdf:li>
 [% IF zugferd %]
      <rdf:li rdf:parseType="Resource">
-      <pdfaSchema:schema>ZUGFeRD PDFA Extension Schema</pdfaSchema:schema>
-      <pdfaSchema:namespaceURI>urn:zugferd:pdfa:CrossIndustryDocument:invoice:2p0#</pdfaSchema:namespaceURI>
+      <pdfaSchema:schema>Factur-X PDFA Extension Schema</pdfaSchema:schema>
+      <pdfaSchema:namespaceURI>urn:factur-x:pdfa:CrossIndustryDocument:invoice:1p0#</pdfaSchema:namespaceURI>
       <pdfaSchema:prefix>fx</pdfaSchema:prefix>
       <pdfaSchema:property>
        <rdf:Seq>
@@ -78,13 +78,13 @@
          <pdfaProperty:name>Version</pdfaProperty:name>
          <pdfaProperty:valueType>Text</pdfaProperty:valueType>
          <pdfaProperty:category>external</pdfaProperty:category>
-         <pdfaProperty:description>The actual version of the ZUGFeRD data</pdfaProperty:description>
+         <pdfaProperty:description>The actual version of the Factur-X/ZUGFeRD data</pdfaProperty:description>
         </rdf:li>
         <rdf:li rdf:parseType="Resource">
          <pdfaProperty:name>ConformanceLevel</pdfaProperty:name>
          <pdfaProperty:valueType>Text</pdfaProperty:valueType>
          <pdfaProperty:category>external</pdfaProperty:category>
-         <pdfaProperty:description>The conformance level of the ZUGFeRD data</pdfaProperty:description>
+         <pdfaProperty:description>The conformance level of the Factur-X/ZUGFeRD data</pdfaProperty:description>
         </rdf:li>
        </rdf:Seq>
       </pdfaSchema:property>
@@ -124,7 +124,7 @@
   </rdf:Description>
 
 [% IF zugferd %]
-  <rdf:Description xmlns:fx="urn:zugferd:pdfa:CrossIndustryDocument:invoice:2p0#"
+  <rdf:Description xmlns:fx="urn:factur-x:pdfa:CrossIndustryDocument:invoice:1p0#"
                    fx:ConformanceLevel="[% zugferd.conformance_level | xml %]"
                    fx:DocumentFileName="[% zugferd.document_file_name | xml %]"
                    fx:DocumentType="[% zugferd.document_type | xml %]"

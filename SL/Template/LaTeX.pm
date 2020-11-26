@@ -394,8 +394,8 @@ sub _embed_file_directive {
   my ($self, $file) = @_;
 
   # { source      => $xmlfile,
-  #   name        => 'ZUGFeRD-invoice.xml',
-  #   description => $::locale->text('ZUGFeRD invoice'), }
+  #   name        => 'factur-x.xml',
+  #   description => $::locale->text('Factur-X/ZUGFeRD invoice'), }
 
   my $file_name  =  blessed($file->{source}) && $file->{source}->can('filename') ? $file->{source}->filename : "" . $file->{source}->filename;
   my $embed_name =  $file->{name} // $file_name;

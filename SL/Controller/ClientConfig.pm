@@ -21,12 +21,13 @@ use SL::Controller::TopQuickSearch;
 use SL::DB::Helper::AccountingPeriod qw(get_balance_startdate_method_options);
 use SL::Helper::ShippedQty;
 use SL::VATIDNr;
+use SL::ZUGFeRD;
 
 __PACKAGE__->run_before('check_auth');
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_price_sources h_unit_name available_quick_search_modules available_shipped_qty_item_identity_fields
-                                  all_project_statuses all_project_types
+                                  all_project_statuses all_project_types zugferd_settings
                                   posting_options payment_options accounting_options inventory_options profit_options balance_startdate_method_options
                                   displayable_name_specs_by_module) ],
 );
@@ -166,6 +167,7 @@ sub init_all_templates   { +{ SL::Template->available_templates }               
 sub init_h_unit_name     { first { SL::DB::Manager::Unit->find_by(name => $_) } qw(Std h Stunde)                         }
 sub init_all_project_types    { SL::DB::Manager::ProjectType->get_all_sorted                                             }
 sub init_all_project_statuses { SL::DB::Manager::ProjectStatus->get_all_sorted                                           }
+sub init_zugferd_settings     { \@SL::ZUGFeRD::customer_settings                                                         }
 
 sub init_posting_options {
   [ { title => t8("never"),           value => 0           },

@@ -227,7 +227,7 @@ sub edit_zugferd_notes {
 
   setup_generictranslations_edit_zugferd_notes_action_bar();
 
-  $::form->{title} = $::locale->text('Edit ZUGFeRD notes');
+  $::form->{title} = $::locale->text('Edit Factur-X/ZUGFeRD notes');
   $::form->header;
   print $::form->parse_html_template('generictranslations/edit_zugferd_notes');
 }
@@ -248,7 +248,7 @@ sub save_zugferd_notes {
     );
   }
 
-  $::form->{message} = $::locale->text('The ZUGFeRD notes have been saved.');
+  $::form->{message} = $::locale->text('The Factur-X/ZUGFeRD notes have been saved.');
 
   edit_zugferd_notes();
 }

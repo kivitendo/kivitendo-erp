@@ -643,7 +643,7 @@
     action: YearEndTransactions/form
 - parent: general_ledger
   id: zugferd_import
-  name: ZugFeRD Import
+  name: Factur-X/ZUGFeRD import
   icon: cbob
   order: 485
   access: ap_transactions
@@ -1283,7 +1283,7 @@
     action: edit_sepa_strings
 - parent: system_languages_and_translations
   id: system_languages_and_translations_zugferd_notes
-  name: ZUGFeRD notes for each invoice
+  name: Factur-X/ZUGFeRD notes for each invoice
   order: 450
   module: generictranslations.pl
   params:

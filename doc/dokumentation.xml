@@ -7261,7 +7261,7 @@ document_path = /var/local/kivi_documents
 			</orderedlist>
 
 			<para>Wenn diese Voraussetzungen erfüllt sind, kann die Rechnung
-			über „Finanzbuchhaltung“ → „ZUGFeRD Import“ über die „Durchsuchen“
+			über „Finanzbuchhaltung“ → „Factur-X-/ZUGFeRD-Import“ über die „Durchsuchen“
 			Schaltfläche ausgewählt werden und über die Schaltfläche „Import“
 			eingeladen werden. Es öffnet sich daraufhin die Kreditorenbuchung.
 			Die auslesbaren Daten aus dem eingebetteten XML der PDF Datei

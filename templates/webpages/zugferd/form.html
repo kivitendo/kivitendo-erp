@@ -6,10 +6,9 @@
  <div class="listtop">[% FORM.title %]</div>
 
  <p>
- [% "Import a ZUGFeRD file:" | $T8 %]
+ [% "Import a Factur-X/ZUGFeRD file:" | $T8 %]
  </p>
 
  <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
     [% L.input_tag('file', '', type => 'file', accept => '.pdf') %]
  </form>
-

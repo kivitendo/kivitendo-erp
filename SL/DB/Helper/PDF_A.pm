@@ -58,7 +58,7 @@ sub create_pdf_a_print_options {
       },
       zugferd              => {
         conformance_level  => 'EXTENDED',
-        document_file_name => 'ZUGFeRD-invoice.xml',
+        document_file_name => 'factur-x.xml',
         document_type      => 'INVOICE',
         version            => '1.0',
       },

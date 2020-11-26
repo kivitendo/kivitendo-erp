@@ -11,6 +11,7 @@ use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::Util qw(trim);
 use SL::Webdav;
+use SL::ZUGFeRD;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Controller::Helper::ParseFilter;
@@ -40,7 +41,7 @@ use SL::DB::Order;
 use Data::Dumper;
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(customer_models vendor_models) ],
+  'scalar --get_set_init' => [ qw(customer_models vendor_models zugferd_settings) ],
 );
 
 # safety
@@ -1233,6 +1234,13 @@ sub init_vendor_models {
       vendornumber => t8('Vendor Number'),
     },
   );
+}
+
+sub init_zugferd_settings {
+  return [
+    [ -1, t8('Use settings from client configuration') ],
+    @SL::ZUGFeRD::customer_settings,
+  ],
 }
 
 sub _new_customer_vendor_object {
