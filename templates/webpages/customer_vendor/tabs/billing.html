@@ -242,6 +242,13 @@
     </tr>
 
     <tr>
+      [% IF ( SELF.all_currencies.size ) %]
+        <th align="right">[% 'Currency' | $T8 %]</th>
+        <td>
+          [% L.select_tag('cv.currency_id', SELF.all_currencies, title_key = 'name', value_key = 'id', default = SELF.cv.currency_id) %]
+        </td>
+      [% END %]
+
       <th align="right">[% 'Tax Number / SSN' | $T8 %]</th>
 
       <td>
@@ -255,19 +262,6 @@
       <td>
         [% L.input_tag('cv.ustid', SELF.cv.ustid, size = 20 ) %]
       </td>
-
-
-      [%- IF ( SELF.is_vendor() ) %]
-        <th align="right">[% 'Customer Number' | $T8 %]</th>
-        <td>
-          [% L.input_tag('cv.v_customer_id', SELF.cv.v_customer_id, size = 10) %]
-        </td>
-      [%- ELSE %]
-        <th align="right">[% 'our vendor number at customer' | $T8 %]</th>
-        <td>
-          [% L.input_tag('cv.c_vendor_id', SELF.cv.c_vendor_id, size = 10) %]
-        </td>
-      [%- END %]
     </tr>
 
     <tr>
@@ -276,13 +270,23 @@
         <td>
           [% L.input_tag('cv.commercial_court', SELF.cv.commercial_court, size = 20) %]
         </td>
-      [% END %]
-      [% IF ( SELF.all_currencies.size ) %]
-        <th align="right">[% 'Currency' | $T8 %]</th>
+
+        <th align="right">[% 'our vendor number at customer' | $T8 %]</th>
         <td>
-          [% L.select_tag('cv.currency_id', SELF.all_currencies, title_key = 'name', value_key = 'id', default = SELF.cv.currency_id) %]
+          [% L.input_tag('cv.c_vendor_id', SELF.cv.c_vendor_id, size = 20) %]
         </td>
-      [% END %]
+
+        <th align="right">[% 'Our routing id at customer' | $T8 %]</th>
+        <td>
+          [% L.input_tag('cv.c_vendor_routing_id', SELF.cv.c_vendor_routing_id, size = 20) %]
+        </td>
+
+      [%- ELSE %]
+        <th align="right">[% 'Customer Number' | $T8 %]</th>
+        <td>
+          [% L.input_tag('cv.v_customer_id', SELF.cv.v_customer_id, size = 20) %]
+        </td>
+      [%- END %]
     </tr>
     <tr>
       [% IF ( !INSTANCE_CONF.get_vertreter ) %]

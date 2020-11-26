@@ -2253,6 +2253,7 @@ $self->{texts} = {
   'Others'                      => 'Andere',
   'Otherwise the variable is only available for printing.' => 'Andernfalls steht die Variable nur beim Ausdruck zur Verfügung.',
   'Otherwise you can simply check create warehouse and bins and define a name for the warehouse (Bins will be created automatically) and then continue' => 'Andernfalls einfach <b>"Automatisches Zuweisen der Lagerplätze"</b>  anhaken und einen Namen für das Lager vergeben, bzw. per Auswahl auswählen (Lagerplätze werden dann automatisch hinzugefügt) danach auf weiter',
+  'Our routing id at customer'  => 'Unsere Leitweg-ID beim Kunden',
   'Out of balance transaction!' => 'Buchung ist nicht ausgeglichen!',
   'Out of balance!'             => 'Summen stimmen nicht überein!',
   'Output Number Format'        => 'Zahlenformat (Ausgabe)',
