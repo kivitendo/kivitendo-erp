@@ -477,7 +477,7 @@ sub _buyer_trade_party {
   $params{xml}->dataElement("ram:Name", _u8($self->customer->name));
 
   _customer_postal_trade_address(%params, customer => $self->customer);
-  _specified_tax_registration($self->customer->ustid, %params);
+  _specified_tax_registration($self->customer->ustid, %params) if $self->customer->ustid;
 
   $params{xml}->endTag;
   #       </ram:BuyerTradeParty>
