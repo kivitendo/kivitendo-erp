@@ -27,6 +27,9 @@ my @line_names = qw(LineOne LineTwo LineThree);
 
 my %standards_ids = (
   PROFILE_FACTURX_EXTENDED() => 'urn:cen.eu:en16931:2017#conformant#urn:factur-x.eu:1p0:extended',
+  PROFILE_XRECHNUNG()        => 'urn:cen.eu:en16931:2017#compliant#urn:xoev-de:kosit:standard:xrechnung_2.0',
+);
+
 sub _is_profile {
   my ($self, @profiles) = @_;
   return any { $self->{_zugferd}->{profile} == $_ } @profiles;
@@ -288,6 +291,17 @@ sub _format_payment_terms_description {
   $description    =~ s{<\%$_\%>}{ $params{vars}->{$_} }ge              for keys %{ $params{vars} };
   $description    =~ s{<\%$_\%>}{ $params{formatted_amounts}->{$_} }ge for keys %{ $params{formatted_amounts} };
 
+  if (_is_profile($self, PROFILE_XRECHNUNG())) {
+    my @terms;
+
+    if ($self->payment_terms->terms_skonto && ($self->payment_terms->percent_skonto * 1)) {
+      push @terms, sprintf("#SKONTO#TAGE=\%d#PROZENT=\%.2f#\n", $self->payment_terms->terms_skonto, $self->payment_terms->percent_skonto * 100);
+    }
+
+    $description =~ s{#}{_}g;
+    $description =  join('', @terms) . $description;
+  }
+
   return $description;
 }
 
@@ -309,7 +323,9 @@ sub _payment_terms {
   $params{xml}->endTag;
   #       </ram:DueDateDateTime>
 
-  if ($self->payment_terms->percent_skonto && $self->payment_terms->terms_skonto) {
+  if (   _is_profile($self, PROFILE_FACTURX_EXTENDED())
+      && $self->payment_terms->percent_skonto
+      && $self->payment_terms->terms_skonto) {
     my $currency_id = _u8(SL::Helper::ISO4217::map_currency_name_to_code($self->currency->name) // 'EUR');
 
     #       <ram:ApplicableTradePaymentDiscountTerms>
@@ -376,7 +392,7 @@ sub _exchanged_document {
   $params{xml}->startTag("rsm:ExchangedDocument");
 
   $params{xml}->dataElement("ram:ID",       _u8($self->invnumber));
-  $params{xml}->dataElement("ram:Name",     _u8(_type_name($self)));
+  $params{xml}->dataElement("ram:Name",     _u8(_type_name($self))) if _is_profile($self, PROFILE_FACTURX_EXTENDED());
   $params{xml}->dataElement("ram:TypeCode", _u8(_type_code($self)));
 
   #     <ram:IssueDateTime>
@@ -385,7 +401,9 @@ sub _exchanged_document {
   $params{xml}->endTag;
   #     </ram:IssueDateTime>
 
-  if ($self->language && (($self->language->template_code // '') =~ m{^(de|en)}i)) {
+  if (   _is_profile($self, PROFILE_FACTURX_EXTENDED())
+      && $self->language
+      && (($self->language->template_code // '') =~ m{^(de|en)}i)) {
     $params{xml}->dataElement("ram:LanguageID", uc($1));
   }
 
@@ -507,6 +525,8 @@ sub _applicable_header_trade_agreement {
   #     <ram:ApplicableHeaderTradeAgreement>
   $params{xml}->startTag("ram:ApplicableHeaderTradeAgreement");
 
+  $params{xml}->dataElement("ram:BuyerReference", _u8($self->customer->c_vendor_routing_id)) if $self->customer->c_vendor_routing_id;
+
   _seller_trade_party($self, %params);
   _buyer_trade_party($self, %params);
 
@@ -617,6 +637,12 @@ sub _validate_data {
 
     if (!$result{bank_account}) {
       SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('No bank account flagged for Factur-X/ZUGFeRD usage was found.'));
+    }
+  }
+
+  if (_is_profile($self, PROFILE_XRECHNUNG())) {
+    if (!$self->customer->c_vendor_routing_id) {
+      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The value \'our routing id at customer\' must be set in the customer\'s master data for profile #1.', 'XRechnung 2.0'));
     }
   }
 

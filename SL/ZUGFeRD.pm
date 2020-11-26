@@ -12,11 +12,12 @@ use XML::LibXML;
 use SL::Locale::String qw(t8);
 
 use parent qw(Exporter);
-our @EXPORT_PROFILES = qw(PROFILE_FACTURX_EXTENDED);
+our @EXPORT_PROFILES = qw(PROFILE_FACTURX_EXTENDED PROFILE_XRECHNUNG);
 our @EXPORT_OK       = (@EXPORT_PROFILES);
 our %EXPORT_TAGS     = (PROFILES => \@EXPORT_PROFILES);
 
 use constant PROFILE_FACTURX_EXTENDED => 0;
+use constant PROFILE_XRECHNUNG        => 1;
 
 use constant RES_OK                              => 0;
 use constant RES_ERR_FILE_OPEN                   => 1;
@@ -29,6 +30,8 @@ our @customer_settings = (
   [ 0,                                  t8('Do not create Factur-X/ZUGFeRD invoices')                                    ],
   [ PROFILE_FACTURX_EXTENDED() * 2 + 1, t8('Create with profile \'Factur-X 1.0.05/ZUGFeRD 2.1.1 extended\'')             ],
   [ PROFILE_FACTURX_EXTENDED() * 2 + 2, t8('Create with profile \'Factur-X 1.0.05/ZUGFeRD 2.1.1 extended\' (test mode)') ],
+  [ PROFILE_XRECHNUNG()        * 2 + 1, t8('Create with profile \'XRechnung 2.0.0\'')                                    ],
+  [ PROFILE_XRECHNUNG()        * 2 + 2, t8('Create with profile \'XRechnung 2.0.0\' (test mode)')                        ],
 );
 
 sub convert_customer_setting {
