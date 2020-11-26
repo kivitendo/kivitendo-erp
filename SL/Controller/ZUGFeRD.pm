@@ -77,7 +77,7 @@ sub action_import_zugferd {
     }
   }
 
-  die t8("Please add a valid VAT-ID for this vendor: " . $vc) unless (ref $vendor eq 'SL::DB::Vendor');
+  die t8("Please add a valid VAT-ID for this vendor: #1", $vc) unless (ref $vendor eq 'SL::DB::Vendor');
 
   # 2. check if we have a ap record template for this vendor (TODO only the oldest template is choosen)
   my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $vendor->id]);
