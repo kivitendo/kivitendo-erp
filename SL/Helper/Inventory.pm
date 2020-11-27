@@ -388,9 +388,9 @@ SL::WH - Warehouse and Inventory API
   # stock, get "what's there" for a part with various conditions:
   my $qty = get_stock(part => $part);                              # how much is on stock?
   my $qty = get_stock(part => $part, date => $date);               # how much was on stock at a specific time?
-  my $qty = get_stock(part => $part, bin => $bin);                 # how is on stock in a specific bin?
-  my $qty = get_stock(part => $part, warehouse => $warehouse);     # how is on stock in a specific warehouse?
-  my $qty = get_stock(part => $part, chargenumber => $chargenumber); # how is on stock of a specific chargenumber?
+  my $qty = get_stock(part => $part, bin => $bin);                 # how much is on stock in a specific bin?
+  my $qty = get_stock(part => $part, warehouse => $warehouse);     # how much is on stock in a specific warehouse?
+  my $qty = get_stock(part => $part, chargenumber => $chargenumber); # how much is on stock of a specific chargenumber?
 
   # onhand, get "what's available" for a part with various conditions:
   my $qty = get_onhand(part => $part);                              # how much is available?
@@ -407,7 +407,7 @@ SL::WH - Warehouse and Inventory API
   );
 
   # allocate:
-  my @allocations, allocate(
+  my @allocations = allocate(
     part         => $part,          # part_id works too
     qty          => $qty,           # must be positive
     chargenumber => $chargenumber,  # optional, may be arrayref. if provided these charges will be used first
@@ -416,12 +416,12 @@ SL::WH - Warehouse and Inventory API
   );
 
   # shortcut to allocate all that is needed for producing an assembly, will use chargenumbers as appropriate
-  my @allocations, allocate_for_assembly(
+  my @allocations = allocate_for_assembly(
     part         => $assembly,      # part_id works too
     qty          => $qty,           # must be positive
   );
 
-  # create allocation manually, bypassing checks, all of these need to be passed, even undefs
+  # create allocation manually, bypassing checks. all of these need to be passed, even undefs
   my $allocation = SL::Helper::Inventory::Allocation->new(
     part_id           => $part->id,
     qty               => 15,
@@ -443,15 +443,13 @@ SL::WH - Warehouse and Inventory API
     chargenumber => $chargenumber,  # optional
     bestbefore   => $datetime,      # optional
     comment      => $comment,       # optional
-
-    # links, all optional
   );
 
 =head1 DESCRIPTION
 
 New functions for the warehouse and inventory api.
 
-The WH api currently has three large shortcomings. It is very hard to just get
+The WH api currently has three large shortcomings: It is very hard to just get
 the current stock for an item, it's extremely complicated to use it to produce
 assemblies while ensuring that no stock ends up negative, and it's very hard to
 use it to get an overview over the actual contents of the inventory.
@@ -468,7 +466,7 @@ To get this cleaned up a bit this code introduces two concepts: stock and onhand
 there.
 
 =item * Onhand is what is available, which means things that are stocked,
-not expired and not reserved for other uses.
+not expired and not in any other way reserved for other uses.
 
 =back
 
@@ -491,7 +489,7 @@ C<produce_assembly> has been rewritten to only accept parameters about the
 target of the production, and requires allocations to complete the request. The
 allocations can be supplied manually, or can be generated automatically.
 C<produce_assembly> will check whether enough allocations are given to create
-the recipe, but will not check whether the allocations are backed. If the
+the assembly, but will not check whether the allocations are backed. If the
 allocations are not sufficient or if the auto-allocation fails an exception
 is returned. If you need to produce something that is not in the inventory, you
 can bypass those checks by creating the allocations yourself (see
@@ -765,13 +763,14 @@ insufficient allocations to process the request.
     the internal ordering of the hints is fixed and more complex preferentials
     are not supported.
   * bestbefore handling is untested
+  * interaction with config option "transfer_default_ignore_onhand" is
+    currently undefined (and implicitly ignores it)
 
 =head1 TODO
 
   * define and describe error classes
   * define wrapper classes for stock/onhand batch mode return values
   * handle extra arguments in produce: shippingdate, project
-  * clean up allocation helper class
   * document no_ check
   * tests
 
@@ -781,6 +780,6 @@ None yet :)
 
 =head1 AUTHOR
 
-Sven Schöling E<lt>sven.schoeling@opendynamic.deE<gt>
+Sven Schöling E<lt>sven.schoeling@googlemail.comE<gt>
 
 =cut
