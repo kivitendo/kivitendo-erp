@@ -370,10 +370,11 @@ sub date_tag {
   $::request->layout->add_javascripts('kivi.Validator.js');
   $::request->presenter->need_reinit_widgets($params{id});
 
+  $params{'data-validate'} = join(' ', "date", grep { $_ } (delete $params{'data-validate'}));
+
   input_tag(
     $name, blessed($value) ? $value->to_lxoffice : $value,
     size   => 11,
-    "data-validate" => "date",
     %params,
     %class, @onchange,
   );
