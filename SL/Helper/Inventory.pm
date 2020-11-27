@@ -14,6 +14,7 @@ use SL::MoreCommon qw(listify);
 use SL::DBUtils qw(selectall_hashref_query selectrow_query);
 use SL::DB::TransferType;
 use SL::Helper::Number qw(_format_number _round_number);
+use SL::Helper::Inventory::Allocation;
 use SL::X;
 
 our @EXPORT_OK = qw(get_stock get_onhand allocate allocate_for_assembly produce_assembly check_constraints);
@@ -368,42 +369,6 @@ sub produce_assembly {
 
 sub default_show_bestbefore {
   $::instance_conf->get_show_bestbefore
-}
-
-package SL::Helper::Inventory::Allocation {
-  my @attributes = qw(parts_id qty bin_id warehouse_id chargenumber bestbefore comment for_object_id);
-  my %attributes = map { $_ => 1 } @attributes;
-  my %mapped_attributes = (
-    for_object_id => 'oe_id',
-  );
-
-  for my $name (@attributes) {
-    no strict 'refs';
-    *{"SL::Helper::Inventory::Allocation::$name"} = sub { $_[0]{$name} };
-  }
-
-  sub new {
-    my ($class, %params) = @_;
-
-    Carp::croak("missing attribute $_") for grep { !exists $params{$_}     } @attributes;
-    Carp::croak("unknown attribute $_") for grep { !exists $attributes{$_} } keys %params;
-    Carp::croak("$_ must be set")       for grep { !$params{$_} } qw(parts_id qty bin_id);
-    Carp::croak("$_ must be positive")  for grep { !($params{$_} > 0) } qw(parts_id qty bin_id);
-
-    bless { %params }, $class;
-  }
-
-  sub transfer_object {
-    my ($self, %params) = @_;
-
-    SL::DB::Inventory->new(
-      (map {
-        my $attr = $mapped_attributes{$_} // $_;
-        $attr => $self->{$attr}
-      } @attributes),
-      %params,
-    );
-  }
 }
 
 1;
