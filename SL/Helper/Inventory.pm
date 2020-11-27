@@ -152,14 +152,8 @@ sub get_onhand {
 sub allocate {
   my (%params) = @_;
 
-  die SL::X::Inventory::Allocation->new(
-    error => 'allocate needs a part',
-    msg => t8("Method allocate needs the parameter 'part'"),
-  ) unless $params{part};
-  die SL::X::Inventory::Allocation->new(
-    error => 'allocate needs a qty',
-    msg => t8("Method allocate needs the parameter 'qty'"),
-  ) unless $params{qty};
+  croak('allocate needs a qty') unless $params{part};
+  croak('allocate needs a qty') unless $params{qty};
 
   my $part = $params{part};
   my $qty  = $params{qty};
