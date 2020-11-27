@@ -792,13 +792,6 @@ sub display_rows {
   $form->{totaldebit}  = 0;
   $form->{totalcredit} = 0;
 
-  my %project_labels = ();
-  my @project_values = ("");
-  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
-    push(@project_values, $item->{"id"});
-    $project_labels{$item->{"id"}} = $item->{"projectnumber"};
-  }
-
   my %charts_by_id  = map { ($_->{id} => $_) } @{ $::form->{ALL_CHARTS} };
   my $default_chart = $::form->{ALL_CHARTS}[0];
   my $transdate     = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
@@ -914,13 +907,8 @@ sub display_rows {
       }
     }
 
-    my $projectnumber =
-      NTI($cgi->popup_menu('-name' => "project_id_$i",
-                           '-values' => \@project_values,
-                           '-labels' => \%project_labels,
-                           '-default' => $form->{"project_id_$i"} ));
-    my $projectnumber_hidden = qq|
-    <input type="hidden" name="project_id_$i" value="$form->{"project_id_$i"}">|;
+    my $projectnumber = SL::Presenter::Project::picker("project_id_$i", $form->{"project_id_$i"});
+    my $projectnumber_hidden = SL::Presenter::Tag::hidden_tag("project_id_$i", $form->{"project_id_$i"});
 
     my $copy2credit = $i == 1 ? 'onkeyup="copy_debit_to_credit()"' : '';
     my $balance     = $form->format_amount(\%::myconfig, $balances{$accno_id} // 0, 2, 'DRCR');
@@ -1099,16 +1087,15 @@ sub form_header {
 
   my ($init) = @_;
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "kivi.File.js", "kivi.GL.js", "kivi.RecordTemplate.js");
+  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_project.js", "kivi.File.js", "kivi.GL.js", "kivi.RecordTemplate.js");
 
-  my @old_project_ids = grep { $_ } map{ $::form->{"project_id_$_"} } 1..$::form->{rowcount};
+  my @old_project_ids     = grep { $_ } map{ $::form->{"project_id_$_"} } 1..$::form->{rowcount};
+  my @conditions          = @old_project_ids ? (id => \@old_project_ids) : ();
+  $::form->{ALL_PROJECTS} = SL::DB::Manager::Project->get_all_sorted(query => [ or => [ active => 1, @conditions ]]);
 
-  $::form->get_lists("projects"  => { "key"       => "ALL_PROJECTS",
-                                    "all"       => 0,
-                                    "old_id"    => \@old_project_ids },
-
-                   "charts"    => { "key"       => "ALL_CHARTS",
-                                    "transdate" => $::form->{transdate} });
+  $::form->get_lists(
+    "charts"    => { "key" => "ALL_CHARTS", "transdate" => $::form->{transdate} },
+  );
 
   # we cannot book on charttype header
   @{ $::form->{ALL_CHARTS} } = grep { $_->{charttype} ne 'H' }  @{ $::form->{ALL_CHARTS} };
