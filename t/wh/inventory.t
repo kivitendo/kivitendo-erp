@@ -278,7 +278,7 @@ sub create_standard_stock {
 }
 
 
-reset();
+reset_db();
 
 done_testing();
 
