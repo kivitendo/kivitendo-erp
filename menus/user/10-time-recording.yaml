@@ -3,6 +3,7 @@
   id: system_time_recording_types
   name: Time Recording Types
   order: 2370
+  access: config
   params:
     action: SimpleSystemSetting/list
     type: time_recording_type
@@ -10,11 +11,13 @@
   id: productivity_time_recording
   name: Time Recording
   order: 350
+  access: time_recording
   params:
     action: TimeRecording/edit
 - parent: productivity_reports
   id: productivity_reports_time_recording
   name: Time Recording
   order: 300
+  access: time_recording
   params:
     action: TimeRecording/list

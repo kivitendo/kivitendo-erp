@@ -23,7 +23,7 @@ use Rose::Object::MakeMethods::Generic
 
 
 # safety
-#__PACKAGE__->run_before('check_auth');
+__PACKAGE__->run_before('check_auth');
 
 #
 # actions
@@ -136,6 +136,10 @@ sub init_all_time_recording_types {
 
 sub init_all_employees {
   SL::DB::Manager::Employee->get_all_sorted;
+}
+
+sub check_auth {
+  $::auth->assert('time_recording');
 }
 
 sub prepare_report {
