@@ -14,7 +14,13 @@ use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::TransNumberGenerator;
 
-use List::Util qw(first);
+use SL::DB::Part;
+use SL::DB::Unit;
+
+use SL::Helper::Number qw(_format_total _round_total);
+
+use List::Util qw(first notall);
+use List::MoreUtils qw(any);
 
 __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many',
                                                     class        => 'SL::DB::DeliveryOrderItem',
@@ -172,6 +178,92 @@ sub new_from {
   return $delivery_order;
 }
 
+sub new_from_time_recordings {
+  my ($class, $sources, %params) = @_;
+
+  croak("Unsupported object type in sources")                                      if any { ref($_) ne 'SL::DB::TimeRecording' }            @$sources;
+  croak("Cannot create delivery order from source records of different customers") if any { $_->customer_id != $sources->[0]->customer_id } @$sources;
+
+  my %args = (
+    is_sales    => 1,
+    delivered   => 1,
+    customer_id => $sources->[0]->customer_id,
+    taxzone_id  => $sources->[0]->customer->taxzone_id,
+    currency_id => $sources->[0]->customer->currency_id,
+    employee_id => SL::DB::Manager::Employee->current->id,
+    salesman_id => SL::DB::Manager::Employee->current->id,
+    items       => [],
+  );
+  my $delivery_order = $class->new(%args);
+  $delivery_order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
+
+  # - one item per part (article)
+  # - qty is sum of duration
+  # - description goes to item longdescription
+  #  - ordered and summed by date
+  #  - each description goes to an ordered list
+  #  - (as time recording descriptions are formatted text by now, use stripped text)
+  #  - merge same descriptions (todo)
+  #
+
+  ### config
+  my $default_partnummer = 6;
+  my $default_part_id    = SL::DB::Manager::Part->find_by(partnumber => $default_partnummer)->id;
+
+  # check parts and collect entries
+  my %part_by_part_id;
+  my $entries;
+  foreach my $source (@$sources) {
+    my $part_id  = $source->part_id ? $source->part_id
+                 : $default_part_id ? $default_part_id
+                 : undef;
+
+    die 'article not found for entry "' . $source->displayable_times . '"' if !$part_id;
+
+    if (!$part_by_part_id{$part_id}) {
+      $part_by_part_id{$part_id} = SL::DB::Part->new(id => $part_id)->load;
+      die 'article unit must be time based for entry "' . $source->displayable_times . '"' if !$part_by_part_id{$part_id}->unit_obj->is_time_based;
+    }
+
+    my $date = $source->start_time->to_kivitendo;
+    $entries->{$part_id}->{$date}->{duration} += _round_total($source->duration_in_hours);
+    $entries->{$part_id}->{$date}->{content}  .= '<li>' . $source->description_as_stripped_html . '</li>';
+    $entries->{$part_id}->{$date}->{date_obj}  = $source->start_time; # for sorting
+  }
+
+  my $h_unit = SL::DB::Manager::Unit->find_h_unit;
+
+  my @keys = sort { $part_by_part_id{$a}->partnumber cmp $part_by_part_id{$b}->partnumber } keys %$entries;
+  foreach my $key (@keys) {
+    my $qty = 0;
+    my $longdescription = '';
+
+    my @dates = sort { $entries->{$key}->{$a}->{date_obj} <=> $entries->{$key}->{$b}->{date_obj} } keys %{$entries->{$key}};
+    foreach my $date (@dates) {
+      my $entry = $entries->{$key}->{$date};
+
+      $qty             += $entry->{duration};
+      $longdescription .= $date . ' <strong>' . _format_total($entry->{duration}) . ' h</strong>';
+      $longdescription .= '<ul>';
+      $longdescription .= $entry->{content};
+      $longdescription .= '</ul>';
+    }
+
+    my $item = SL::DB::DeliveryOrderItem->new(
+      parts_id        => $part_by_part_id{$key}->id,
+      description     => $part_by_part_id{$key}->description,
+      qty             => $qty,
+      unit_obj        => $h_unit,
+      sellprice       => $part_by_part_id{$key}->sellprice,
+      longdescription => $longdescription,
+    );
+
+    $delivery_order->add_items($item);
+  }
+
+  return $delivery_order;
+}
+
 sub customervendor {
   $_[0]->is_sales ? $_[0]->customer : $_[0]->vendor;
 }
@@ -298,6 +390,31 @@ falsish value will be skipped.
 An optional hash reference. If it exists then it is passed to C<new>
 allowing the caller to set certain attributes for the new delivery
 order.
+
+=back
+
+=item C<new_from_time_recordings $sources, %params>
+
+Creates a new C<SL::DB::DeliveryOrder> instace from the time recordings
+given as C<$sources>. All time recording entries must belong to the same
+customer. Time recordings are sorted by article and date. For each article
+a new delivery order item is created. If no article is associated with an
+entry, a default article will be used (hard coded).
+Entries of the same date (for each article) are summed together and form a
+list entry in the long description of the item.
+
+The created delivery order object will be returnd but not saved.
+
+C<$sources> must be an array reference of C<SL::DB::TimeRecording> instances.
+
+C<%params> can include the following options:
+
+=over 2
+
+=item C<attributes>
+
+An optional hash reference. If it exists then it is used to set
+attributes of the newly created delivery order object.
 
 =back
 
