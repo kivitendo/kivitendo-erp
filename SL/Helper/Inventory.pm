@@ -152,8 +152,8 @@ sub get_onhand {
 sub allocate {
   my (%params) = @_;
 
-  croak('allocate needs a qty') unless $params{part};
-  croak('allocate needs a qty') unless $params{qty};
+  croak('allocate needs a part') unless $params{part};
+  croak('allocate needs a qty')  unless $params{qty};
 
   my $part = $params{part};
   my $qty  = $params{qty};
