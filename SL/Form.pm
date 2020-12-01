@@ -382,11 +382,11 @@ sub create_http_response {
     my $session_cookie_value = $main::auth->get_session_id();
 
     if ($session_cookie_value) {
-      $session_cookie = $cgi->cookie('-name'   => $main::auth->get_session_cookie_name(),
-                                     '-value'  => $session_cookie_value,
-                                     '-path'   => $uri->path,
-                                     '-expire' => '+' . ($::lx_office_conf{authentication}->{session_timeout} // 60) . 'm',
-                                     '-secure' => $::request->is_https);
+      $session_cookie = $cgi->cookie('-name'    => $main::auth->get_session_cookie_name(),
+                                     '-value'   => $session_cookie_value,
+                                     '-path'    => $uri->path,
+                                     '-expires' => '+' . $::auth->{session_timeout} . 'm',
+                                     '-secure'  => $::request->is_https);
     }
   }
 
