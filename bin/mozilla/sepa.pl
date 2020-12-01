@@ -749,7 +749,7 @@ sub setup_sepa_edit_transfer_action_bar {
         accesskey => 'enter',
         tooltip   => t8('Post payments for selected invoices'),
         checks    => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
-        only_if   => $params{show_post_payments_button},
+        disabled  => $params{show_post_payments_button} ? undef : t8('All payments have already been posted.'),
       ],
       action => [
         t8('Payment list'),
@@ -757,7 +757,7 @@ sub setup_sepa_edit_transfer_action_bar {
         accesskey => 'enter',
         tooltip   => t8('Download list of payments as PDF'),
         checks    => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
-        not_if    => $params{show_post_payments_button},
+        disabled  => $params{show_post_payments_button} ? t8('All payments must be posted before the payment list can be downloaded.') : undef,
       ],
     );
   }
