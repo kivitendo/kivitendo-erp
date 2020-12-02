@@ -19,8 +19,9 @@ use constant FILE_TARGET   => 0;
 use constant STDERR_TARGET => 1;
 
 use Data::Dumper;
+use List::MoreUtils qw(all);
 use POSIX qw(strftime getpid);
-use Scalar::Util qw(blessed refaddr weaken);
+use Scalar::Util qw(blessed refaddr weaken looks_like_number);
 use Time::HiRes qw(gettimeofday tv_interval);
 use SL::Request ();
 use SL::YAML;
@@ -231,8 +232,14 @@ sub dump_sql_result {
     map { $column_lengths{$_} = length $row->{$_} if (length $row->{$_} > $column_lengths{$_}) } keys %{ $row };
   }
 
+  my %alignment;
+  foreach my $column (keys %column_lengths) {
+    my $all_look_like_number = all { (($_->{$column} // '') eq '') || looks_like_number($_->{$column}) } @{ $results };
+    $alignment{$column}      = $all_look_like_number ? '' : '-';
+  }
+
   my @sorted_names = sort keys %column_lengths;
-  my $format       = join '|', map { '%' . $column_lengths{$_} . 's' } @sorted_names;
+  my $format       = join '|', map { '%'  . $alignment{$_} . $column_lengths{$_} . 's' } @sorted_names;
 
   $prefix .= ' ' if $prefix;
 
