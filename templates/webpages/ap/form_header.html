@@ -238,19 +238,20 @@
     </tr>
     <tr>
       <td>
-        <table width="100%">
-        <tr>
-          <th align="left" width="1%">[% 'Notes' | $T8 %]</th>
-          <td align="left">
-            <textarea name="notes" rows="[% textarea_rows %]" cols="50" wrap="soft" [% readonly %]>[% notes | html %]</textarea>
-          </td>
-
-          <th align="left" width=1%>[% 'Notes for vendor' | $T8 %]</th>
-          <td align="left">
-            <textarea name="intnotes" rows="[% textarea_rows %]" cols="50" wrap="soft" readonly>[% intnotes | html %]</textarea>
-          </td>
-        </tr>
-      </table>
+        <table>
+          <tr>
+           <th align="left">[% 'Notes' | $T8 %]</th>
+           <th align="left">[% 'Internal Notes' | $T8 %]</th>
+          </tr>
+          <tr valign="top">
+           <td>
+            [% L.textarea_tag("notes", notes, wrap="soft", rows=textarea_rows, cols=50, readonly=readonly) %]
+           </td>
+           <td>
+            [% L.textarea_tag("intnotes", intnotes, wrap="soft", rows=textarea_rows, cols=50, readonly=readonly) %]
+           </td>
+          <tr>
+        </table>
     </td>
   </tr>
   <tr>
