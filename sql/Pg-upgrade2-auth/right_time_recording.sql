@@ -8,3 +8,8 @@ INSERT INTO auth.master_rights (position, name, description, category)
           'time_recording',
           'Create, edit and list time recordings',
           FALSE);
+
+INSERT INTO auth.group_rights (group_id, "right", granted)
+  SELECT id, 'time_recording', true
+  FROM auth.group
+  WHERE name = 'Vollzugriff';
