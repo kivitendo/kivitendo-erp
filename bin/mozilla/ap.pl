@@ -451,7 +451,7 @@ sub form_header {
   my $follow_up_vc         = $form->{vendor_id} ? SL::DB::Vendor->load_cached($form->{vendor_id})->name : '';
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js", "kivi.RecordTemplate.js", "kivi.File.js", "kivi.AP.js", "kivi.CustomerVendor.js", "kivi.Validator.js", "autocomplete_project.js");
+  $::request->layout->add_javascripts("autocomplete_chart.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.SalesPurchase.js", "kivi.GL.js", "kivi.RecordTemplate.js", "kivi.File.js", "kivi.AP.js", "kivi.CustomerVendor.js", "kivi.Validator.js", "autocomplete_project.js");
   # $form->{totalpaid} is used by the action bar setup to determine
   # whether or not canceling is allowed. Therefore it must be
   # calculated prior to the action bar setup.
