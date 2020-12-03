@@ -48,6 +48,7 @@ use SL::DB::Chart;
 use SL::DB::Currency;
 use SL::DB::Default;
 use SL::DB::Order;
+use SL::DB::PaymentTerm;
 use SL::DB::PurchaseInvoice;
 use SL::DB::RecordTemplate;
 use SL::DB::Tax;
@@ -252,7 +253,12 @@ sub add {
   $form->{transdate} = $form->{initial_transdate};
 
   if ($form->{vendor_id}) {
-    my $last_used_ap_chart = SL::DB::Vendor->load_cached($form->{vendor_id})->last_used_ap_chart;
+    my $vendor = SL::DB::Vendor->load_cached($form->{vendor_id});
+
+    # set initial payment terms
+    $form->{payment_id} = $vendor->payment_id;
+
+    my $last_used_ap_chart = $vendor->last_used_ap_chart;
     $form->{"AP_amount_chart_id_1"} = $last_used_ap_chart->id if $last_used_ap_chart;
   }
 
@@ -556,6 +562,7 @@ sub form_header {
   print $form->parse_html_template('ap/form_header', {
     today => DateTime->today,
     currencies => SL::DB::Manager::Currency->get_all_sorted,
+    payment_terms => SL::DB::Manager::PaymentTerm->get_all_sorted(query => [ or => [ obsolete => 0, id => $::form->{payment_id}*1 ]]),
   });
 
   $main::lxdebug->leave_sub();
@@ -656,8 +663,14 @@ sub update {
 
   if (($form->{previous_vendor_id} || $form->{vendor_id}) != $form->{vendor_id}) {
     IR->get_vendor(\%::myconfig, $form);
+
+    my $vendor = SL::DB::Vendor->load_cached($form->{vendor_id});
+
+    # reset payment to new vendor
+    $form->{payment_id} = $vendor->payment_id;
+
     if (($form->{rowcount} == 1) && ($form->{amount_1} == 0)) {
-      my $last_used_ap_chart = SL::DB::Vendor->load_cached($form->{vendor_id})->last_used_ap_chart;
+      my $last_used_ap_chart = $vendor->last_used_ap_chart;
       $form->{"AP_amount_chart_id_1"} = $last_used_ap_chart->id if $last_used_ap_chart;
     }
   }

@@ -242,6 +242,7 @@
           <tr>
            <th align="left">[% 'Notes' | $T8 %]</th>
            <th align="left">[% 'Internal Notes' | $T8 %]</th>
+           <th align="left">[% 'Payment Terms' | $T8 %]</th>
           </tr>
           <tr valign="top">
            <td>
@@ -249,6 +250,9 @@
            </td>
            <td>
             [% L.textarea_tag("intnotes", intnotes, wrap="soft", rows=textarea_rows, cols=50, readonly=readonly) %]
+           </td>
+           <td>
+             [% L.select_tag('payment_id', payment_terms, default=payment_id, title_key='description', with_empty=1, style="width: 250px") %]
            </td>
           <tr>
         </table>
