@@ -2246,7 +2246,7 @@ sub _remove_full_delivered_rows {
     next unless $::form->{"id_$row"};
     my $base_factor = SL::DB::Manager::Unit->find_by(name => $::form->{"unit_$row"})->base_factor;
     my $base_qty = $::form->parse_amount(\%::myconfig, $::form->{"qty_$row"}) *  $base_factor;
-    my $ship_qty = $::form->parse_amount(\%::myconfig, $::form->{"ship_$row"}) *  $base_factor;
+    my $ship_qty = $::form->{"ship_$row"} *  $base_factor;
     #$main::lxdebug->message(LXDebug->DEBUG2(),"shipto=".$ship_qty." qty=".$base_qty);
 
     if (!$ship_qty || ($ship_qty < $base_qty)) {
