@@ -224,10 +224,17 @@ sub _create_periodic_invoice {
 
     $invoice = SL::DB::Invoice->new_from($order);
 
+    my $tax_point = ($invoice->tax_point // $time_period_vars->{period_end_date}->[0])->clone;
+
+    while ($tax_point < $period_start_date) {
+      $tax_point->add(months => $config->get_billing_period_length);
+    }
+
     my $intnotes  = $invoice->intnotes ? $invoice->intnotes . "\n\n" : '';
     $intnotes    .= "Automatisch am " . $invdate->to_lxoffice . " erzeugte Rechnung";
 
     $invoice->assign_attributes(deliverydate => $period_start_date,
+                                tax_point    => $tax_point,
                                 intnotes     => $intnotes,
                                 employee     => $order->employee, # new_from sets employee to import user
                                 direct_debit => $config->direct_debit,

@@ -156,7 +156,7 @@ sub new_from {
   my (@columns, @item_columns, $item_parent_id_column, $item_parent_column);
 
   if (ref($source) eq 'SL::DB::Order') {
-    @columns      = qw(quonumber delivery_customer_id delivery_vendor_id);
+    @columns      = qw(quonumber delivery_customer_id delivery_vendor_id tax_point);
     @item_columns = qw(subtotal);
 
     $item_parent_id_column = 'trans_id';
@@ -173,7 +173,7 @@ sub new_from {
   $terms = $source->customer->payment_terms if !defined $terms && $source->customer;
 
   my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes salesman_id cusordnumber ordnumber department_id
-                                                cp_id language_id taxzone_id globalproject_id transaction_description currency_id delivery_term_id), @columns),
+                                                cp_id language_id taxzone_id tax_point globalproject_id transaction_description currency_id delivery_term_id), @columns),
                transdate   => $params{transdate} // DateTime->today_local,
                gldate      => DateTime->today_local,
                duedate     => $terms ? $terms->calc_date(reference_date => DateTime->today_local) : DateTime->today_local,
@@ -607,6 +607,12 @@ sub mark_as_paid {
   my ($self) = @_;
 
   $self->update_attributes(paid => $self->amount);
+}
+
+sub effective_tax_point {
+  my ($self) = @_;
+
+  return $self->tax_point || $self->deliverydate || $self->transdate;
 }
 
 1;

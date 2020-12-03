@@ -139,9 +139,17 @@ sub is_type {
 }
 
 sub deliverydate {
-  # oe doesn't have deliverydate, but PTC checks for deliverydate or transdate to determine tax
-  # oe can't deal with deviating tax rates, but at least make sure PTC doesn't barf
-  return shift->transdate;
+  # oe doesn't have deliverydate, but it does have reqdate.
+  # But this has a different meaning for sales quotations.
+  # deliverydate can be used to determine tax if tax_point isn't set.
+
+  return $_[0]->reqdate if $_[0]->type ne 'sales_quotation';
+}
+
+sub effective_tax_point {
+  my ($self) = @_;
+
+  return $self->tax_point || $self->deliverydate || $self->transdate;
 }
 
 sub displayable_type {
@@ -322,7 +330,7 @@ sub new_from {
 
   my %args = ( map({ ( $_ => $source->$_ ) } qw(amount cp_id currency_id cusordnumber customer_id delivery_customer_id delivery_term_id delivery_vendor_id
                                                 department_id employee_id exchangerate globalproject_id intnotes marge_percent marge_total language_id netamount notes
-                                                ordnumber payment_id quonumber reqdate salesman_id shippingpoint shipvia taxincluded taxzone_id
+                                                ordnumber payment_id quonumber reqdate salesman_id shippingpoint shipvia taxincluded tax_point taxzone_id
                                                 transaction_description vendor_id
                                              )),
                quotation => !!($destination_type =~ m{quotation$}),

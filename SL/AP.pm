@@ -139,14 +139,14 @@ sub _post_transaction {
 
     $query = qq|UPDATE ap SET invnumber = ?,
                 transdate = ?, ordnumber = ?, vendor_id = ?, taxincluded = ?,
-                amount = ?, duedate = ?, deliverydate = ?, paid = ?, netamount = ?,
+                amount = ?, duedate = ?, deliverydate = ?, tax_point = ?, paid = ?, netamount = ?,
                 currency_id = (SELECT id FROM currencies WHERE name = ?), notes = ?, department_id = ?, storno = ?, storno_id = ?,
                 globalproject_id = ?, direct_debit = ?
                WHERE id = ?|;
     @values = ($form->{invnumber}, conv_date($form->{transdate}),
                   $form->{ordnumber}, conv_i($form->{vendor_id}),
                   $form->{taxincluded} ? 't' : 'f', $form->{invtotal},
-                  conv_date($form->{duedate}), conv_date($form->{deliverydate}),
+                  conv_date($form->{duedate}), conv_date($form->{deliverydate}), conv_date($form->{tax_point}),
                   $form->{invpaid}, $form->{netamount},
                   $form->{currency}, $form->{notes},
                   conv_i($form->{department_id}), $form->{storno},

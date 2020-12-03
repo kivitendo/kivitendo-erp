@@ -517,7 +517,7 @@ sub generate_datev_data {
 
   my $query    =
     qq|SELECT ac.acc_trans_id, ac.transdate, ac.gldate, ac.trans_id,ar.id, ac.amount, ac.taxkey, ac.memo,
-         ar.invnumber, ar.duedate, ar.amount as umsatz, ar.deliverydate, ar.itime::date,
+         ar.invnumber, ar.duedate, ar.amount as umsatz, COALESCE(ar.tax_point, ar.deliverydate) AS deliverydate, ar.itime::date,
          ct.name, ct.ustid, ct.customernumber AS vcnumber, ct.id AS customer_id, NULL AS vendor_id,
          $ar_accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ar.invoice,
@@ -546,7 +546,7 @@ sub generate_datev_data {
        UNION ALL
 
        SELECT ac.acc_trans_id, ac.transdate, ac.gldate, ac.trans_id,ap.id, ac.amount, ac.taxkey, ac.memo,
-         ap.invnumber, ap.duedate, ap.amount as umsatz, ap.deliverydate, ap.itime::date,
+         ap.invnumber, ap.duedate, ap.amount as umsatz, COALESCE(ap.tax_point, ap.deliverydate) AS deliverydate, ap.itime::date,
          ct.name, ct.ustid, ct.vendornumber AS vcnumber, NULL AS customer_id, ct.id AS vendor_id,
          $ap_accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ap.invoice,
@@ -575,7 +575,7 @@ sub generate_datev_data {
        UNION ALL
 
        SELECT ac.acc_trans_id, ac.transdate, ac.gldate, ac.trans_id,gl.id, ac.amount, ac.taxkey, ac.memo,
-         gl.reference AS invnumber, NULL AS duedate, ac.amount as umsatz, gl.deliverydate, gl.itime::date,
+         gl.reference AS invnumber, NULL AS duedate, ac.amount as umsatz, COALESCE(gl.tax_point, gl.deliverydate) AS deliverydate, gl.itime::date,
          gl.description AS name, NULL as ustid, '' AS vcname, NULL AS customer_id, NULL AS vendor_id,
          c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          FALSE AS invoice,

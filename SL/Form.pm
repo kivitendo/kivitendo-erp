@@ -2567,7 +2567,7 @@ sub create_links {
     $query =
       qq|SELECT
            a.cp_id, a.invnumber, a.transdate, a.${table}_id, a.datepaid, a.deliverydate,
-           a.duedate, a.ordnumber, a.taxincluded, (SELECT cu.name FROM currencies cu WHERE cu.id=a.currency_id) AS currency, a.notes,
+           a.duedate, a.tax_point, a.ordnumber, a.taxincluded, (SELECT cu.name FROM currencies cu WHERE cu.id=a.currency_id) AS currency, a.notes,
            a.mtime, a.itime,
            a.intnotes, a.department_id, a.amount AS oldinvtotal,
            a.paid AS oldtotalpaid, a.employee_id, a.gldate, a.type,
@@ -3230,7 +3230,7 @@ sub prepare_for_printing {
 
   # Format dates.
   $self->format_dates($output_dateformat, $output_longdates,
-                      qw(invdate orddate quodate pldate duedate reqdate transdate shippingdate deliverydate validitydate paymentdate datepaid
+                      qw(invdate orddate quodate pldate duedate reqdate transdate tax_point shippingdate deliverydate validitydate paymentdate datepaid
                          transdate_oe deliverydate_oe employee_startdate employee_enddate),
                       grep({ /^(?:datepaid|transdate_oe|reqdate|deliverydate|deliverydate_oe|transdate)_\d+$/ } keys(%{$self})));
 

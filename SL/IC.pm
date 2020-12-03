@@ -739,37 +739,14 @@ sub retrieve_accounts {
 
   # transdate madness.
   my $transdate = "";
-  if ($form->{type} eq "invoice" or $form->{type} eq "credit_note") {
+  if (($form->{type} eq "invoice") or ($form->{type} eq "credit_note") or ($form->{script} eq 'ir.pl')) {
     # use deliverydate for sales and purchase invoice, if it exists
     # also use deliverydate for credit notes
-    if (!$form->{deliverydate}) {
-      $transdate = $form->{invdate};
-    } else {
-      $transdate = $form->{deliverydate};
-    }
-  } elsif ($form->{script} eq 'ir.pl') {
-    # when a purchase invoice is opened from the report of purchase invoices
-    # $form->{type} isn't set, but $form->{script} is, not sure why this is or
-    # whether this distinction matters in some other scenario. Otherwise one
-    # could probably take out this elsif and add a
-    # " or $form->{script} eq 'ir.pl' "
-    # to the above if-statement
-    if (!$form->{deliverydate}) {
-      $transdate = $form->{invdate};
-    } else {
-      $transdate = $form->{deliverydate};
-    }
-  } elsif (($form->{type} eq "credit_note") and $form->{deliverydate}) {
-    # if credit_note has a deliverydate, use this instead of invdate
-    # useful for credit_notes of invoices from an old period with different tax
-    # if there is no deliverydate then invdate is used, old default (see next elsif)
-    # Falls hier der Stichtag für Steuern anders bestimmt wird,
-    # entsprechend auch bei Taxkeys.pm anpassen
-    $transdate = $form->{deliverydate};
-  } elsif (($form->{type} eq "credit_note") || ($form->{script} eq 'ir.pl')) {
-    $transdate = $form->{invdate};
+    $transdate = $form->{tax_point} || $form->{deliverydate} || $form->{invdate};
   } else {
-    $transdate = $form->{transdate};
+    my $deliverydate;
+    $deliverydate = $form->{reqdate} if any { $_ eq $form->{type} } qw(sales_order request_quotation purchase_order);
+    $transdate = $form->{tax_point} || $deliverydate || $form->{transdate};
   }
 
   if ($transdate eq "") {

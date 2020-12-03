@@ -186,16 +186,21 @@
             <td>[% L.date_tag('order.transdate_as_date', SELF.order.transdate_as_date) %]</td>
           </tr>
 
+          <tr>
+            <th width="70%" align="right" nowrap>[% 'Tax point' | $T8 %]</th>
+            <td>[% L.date_tag('order.tax_point_as_date', SELF.order.tax_point_as_date, class="recalc") %]</td>
+          </tr>
+
           [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
-            [%- SET reqdate_txt = 'Reqdate' -%]
+            [%- SET reqdate_txt = 'Reqdate'; SET reqdate_class = 'recalc' -%]
           [%- ELSIF SELF.type == "sales_quotation" -%]
-            [%- SET reqdate_txt = 'Valid until' -%]
+            [%- SET reqdate_txt = 'Valid until'; SET reqdate_class = '' -%]
           [%- ELSE -%]
-            [%- SET reqdate_txt = 'Required by' -%]
+            [%- SET reqdate_txt = 'Required by'; SET reqdate_class = 'recalc' -%]
           [%- END -%]
           <tr>
             <th width="70%" align="right" nowrap>[% reqdate_txt | $T8 %]</th>
-            <td>[% L.date_tag('order.reqdate_as_date', SELF.order.reqdate_as_date) %]</td>
+            <td>[% L.date_tag('order.reqdate_as_date', SELF.order.reqdate_as_date, class=reqdate_class) %]</td>
           </tr>
 
           [%- IF SELF.type == "sales_quotation" -%]
