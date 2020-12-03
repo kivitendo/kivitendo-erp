@@ -328,7 +328,7 @@ sub display_row {
       $ship_qty          /= ( $all_units->{$form->{"unit_$i"}}->{factor} || 1 );
 
       $column_data{ship}  = $form->format_amount(\%myconfig, $form->round_amount($ship_qty, 2) * 1) . ' ' . $form->{"unit_$i"}
-      . $cgi->hidden(-name => "ship_$i", -value => $form->format_amount(\%myconfig, $form->{"ship_$i"}, $qty_dec));
+      . $cgi->hidden(-name => "ship_$i", -value => $form->{"ship_$i"}, $qty_dec);
 
       my $ship_missing_qty    = $form->{"qty_$i"} - $ship_qty;
       my $ship_missing_amount = $form->round_amount($ship_missing_qty * $form->{"sellprice_$i"} * (100 - $form->{"discount_$i"}) / 100 / $price_factor, 2);
