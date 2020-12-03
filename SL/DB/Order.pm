@@ -437,7 +437,7 @@ sub new_from_multi {
 
   # set this entries to undef that yield different information
   my %attributes;
-  foreach my $attr (qw(ordnumber transdate reqdate taxincluded shippingpoint
+  foreach my $attr (qw(ordnumber transdate reqdate tax_point taxincluded shippingpoint
                        shipvia notes closed delivered reqdate quonumber
                        cusordnumber proforma transaction_description
                        order_probability expected_billing_date)) {
