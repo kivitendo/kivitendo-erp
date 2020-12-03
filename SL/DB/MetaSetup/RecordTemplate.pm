@@ -23,6 +23,7 @@ __PACKAGE__->meta->columns(
   notes          => { type => 'text' },
   ob_transaction => { type => 'boolean', default => 'false', not_null => 1 },
   ordnumber      => { type => 'text' },
+  payment_id     => { type => 'integer' },
   project_id     => { type => 'integer' },
   reference      => { type => 'text' },
   show_details   => { type => 'boolean', default => 'false', not_null => 1 },
@@ -60,6 +61,11 @@ __PACKAGE__->meta->foreign_keys(
   employee => {
     class       => 'SL::DB::Employee',
     key_columns => { employee_id => 'id' },
+  },
+
+  payment => {
+    class       => 'SL::DB::PaymentTerm',
+    key_columns => { payment_id => 'id' },
   },
 
   project => {
