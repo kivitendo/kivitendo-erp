@@ -12,6 +12,9 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+ - Einkaufs-/Verkaufsbelege und Buchungsmasken: Neues Feld Leistungsdatum,
+   welches die Steuerberechnung beeinflusst. I.d.R. gilt für die Steuer:
+   Leistungsdatum. Wenn leer, dann Lieferdatum; wenn leer, dann Belegdatum.
  - Neuer Order-Controller: Unterstützung für Übersetzungen von
    Artikeln wurde implementiert.
  - Einkaufs-/Verkaufsbelege: die Belegsprache ist nun als Auswahl
