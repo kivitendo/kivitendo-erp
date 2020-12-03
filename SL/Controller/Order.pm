@@ -581,27 +581,10 @@ sub action_get_has_active_periodic_invoices {
 sub action_save_and_delivery_order {
   my ($self) = @_;
 
-  my $errors = $self->save();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
-
-  my $text = $self->type eq sales_order_type()       ? $::locale->text('The order has been saved')
-           : $self->type eq purchase_order_type()    ? $::locale->text('The order has been saved')
-           : $self->type eq sales_quotation_type()   ? $::locale->text('The quotation has been saved')
-           : $self->type eq request_quotation_type() ? $::locale->text('The rfq has been saved')
-           : '';
-  flash_later('info', $text);
-
-  my @redirect_params = (
+  $self->save_and_redirect_to(
     controller => 'oe.pl',
     action     => 'oe_delivery_order_from_order',
-    id         => $self->order->id,
   );
-
-  $self->redirect_to(@redirect_params);
 }
 
 # save the order and redirect to the frontend subroutine for a new
@@ -609,27 +592,10 @@ sub action_save_and_delivery_order {
 sub action_save_and_invoice {
   my ($self) = @_;
 
-  my $errors = $self->save();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
-
-  my $text = $self->type eq sales_order_type()       ? $::locale->text('The order has been saved')
-           : $self->type eq purchase_order_type()    ? $::locale->text('The order has been saved')
-           : $self->type eq sales_quotation_type()   ? $::locale->text('The quotation has been saved')
-           : $self->type eq request_quotation_type() ? $::locale->text('The rfq has been saved')
-           : '';
-  flash_later('info', $text);
-
-  my @redirect_params = (
+  $self->save_and_redirect_to(
     controller => 'oe.pl',
     action     => 'oe_invoice_from_order',
-    id         => $self->order->id,
   );
-
-  $self->redirect_to(@redirect_params);
 }
 
 # workflow from sales quotation to sales order
@@ -646,27 +612,10 @@ sub action_purchase_order {
 sub action_save_and_ap_transaction {
   my ($self) = @_;
 
-  my $errors = $self->save();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
-
-  my $text = $self->type eq sales_order_type()       ? $::locale->text('The order has been saved')
-           : $self->type eq purchase_order_type()    ? $::locale->text('The order has been saved')
-           : $self->type eq sales_quotation_type()   ? $::locale->text('The quotation has been saved')
-           : $self->type eq request_quotation_type() ? $::locale->text('The rfq has been saved')
-           : '';
-  flash_later('info', $text);
-
-  my @redirect_params = (
+  $self->save_and_redirect_to(
     controller => 'ap.pl',
     action     => 'add_from_purchase_order',
-    id         => $self->order->id,
   );
-
-  $self->redirect_to(@redirect_params);
 }
 
 # set form elements in respect to a changed customer or vendor
@@ -2109,6 +2058,26 @@ sub nr_key {
        : $_[0]->type eq sales_quotation_type()   ? 'quonumber'
        : $_[0]->type eq request_quotation_type() ? 'quonumber'
        : '';
+}
+
+sub save_and_redirect_to {
+  my ($self, %params) = @_;
+
+  my $errors = $self->save();
+
+  if (scalar @{ $errors }) {
+    $self->js->flash('error', $_) foreach @{ $errors };
+    return $self->js->render();
+  }
+
+  my $text = $self->type eq sales_order_type()       ? $::locale->text('The order has been saved')
+           : $self->type eq purchase_order_type()    ? $::locale->text('The order has been saved')
+           : $self->type eq sales_quotation_type()   ? $::locale->text('The quotation has been saved')
+           : $self->type eq request_quotation_type() ? $::locale->text('The rfq has been saved')
+           : '';
+  flash_later('info', $text);
+
+  $self->redirect_to(%params, id => $self->order->id);
 }
 
 1;
