@@ -139,15 +139,17 @@ sub is_type {
 }
 
 sub deliverydate {
-  # oe doesn't have deliverydate, but PTC checks for deliverydate or transdate to determine tax
-  # oe can't deal with deviating tax rates, but at least make sure PTC doesn't barf
-  return shift->transdate;
+  # oe doesn't have deliverydate, but it does have reqdate.
+  # But this has a different meaning for sales quotations.
+  # deliverydate can be used to determine tax if tax_point isn't set.
+
+  return $_[0]->reqdate if $_[0]->type ne 'sales_quotation';
 }
 
 sub effective_tax_point {
   my ($self) = @_;
 
-  return $self->tax_point || $self->transdate;
+  return $self->tax_point || $self->deliverydate || $self->transdate;
 }
 
 sub displayable_type {

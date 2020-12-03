@@ -744,7 +744,9 @@ sub retrieve_accounts {
     # also use deliverydate for credit notes
     $transdate = $form->{tax_point} || $form->{deliverydate} || $form->{invdate};
   } else {
-    $transdate = $form->{tax_point} || $form->{transdate};
+    my $deliverydate;
+    $deliverydate = $form->{reqdate} if any { $_ eq $form->{type} } qw(sales_order request_quotation purchase_order);
+    $transdate = $form->{tax_point} || $deliverydate || $form->{transdate};
   }
 
   if ($transdate eq "") {
