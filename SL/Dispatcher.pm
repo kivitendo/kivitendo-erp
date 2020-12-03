@@ -101,6 +101,7 @@ sub pre_request_initialization {
     path   => $::request->request_base_uri->path,
     secure => $::request->is_https,
     expires => '+' . $::auth->{session_timeout} . 'm',
+    samesite => 'strict',
   );
 
   if ($params{client}) {

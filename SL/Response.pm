@@ -34,6 +34,7 @@ my %cookie_args = (
   domain    => 1,
   path      => 1,
   expires   => 1,
+  samesite  => 1,
   "max-age" => 1,
   secure    => 0,
   HttpOnly  => 0,
