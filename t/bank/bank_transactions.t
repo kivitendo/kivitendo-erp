@@ -1227,4 +1227,36 @@ sub test_closedto {
 
 }
 
+sub test_skonto_exact_ap_transaction {
+
+  my $testname = 'test_skonto_exact_ap_transaction';
+
+  $ap_transaction = test_ap_transaction(invnumber => 'ap transaction skonto',
+                                        payment_id => $payment_terms->id,
+                                       );
+
+  my $bt = create_bank_transaction(record        => $ap_transaction,
+                                   bank_chart_id => $bank->id,
+                                   transdate     => $dt,
+                                   valutadate    => $dt,
+                                   amount        => $ap_transaction->amount_less_skonto
+                                  ) or die "Couldn't create bank_transaction";
+
+  $::form->{invoice_ids} = {
+    $bt->id => [ $ap_transaction->id ]
+  };
+  $::form->{invoice_skontos} = {
+    $bt->id => [ 'with_skonto_pt' ]
+  };
+
+  save_btcontroller_to_string();
+
+  $ap_transaction->load;
+  $bt->load;
+  is($ap_transaction->paid   , '119.00000' , "$testname: ap transaction skonto was paid");
+  is($ap_transaction->closed , 1           , "$testname: ap transaction skonto is closed");
+  is($bt->invoice_amount     , '113.05000' , "$testname: bt invoice amount was assigned");
+
+};
+
 1;
