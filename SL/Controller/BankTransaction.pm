@@ -206,13 +206,10 @@ sub gather_bank_transactions_and_proposals {
   # to qualify as a proposal there has to be
   # * agreement >= 5  TODO: make threshold configurable in configuration
   # * there must be only one exact match
-  # * depending on whether sales or purchase the amount has to have the correct sign (so Gutschriften don't work?)
   my $proposal_threshold = 5;
   my @otherproposals = grep {
        ($_->{agreement} >= $proposal_threshold)
     && (1 == scalar @{ $_->{proposals} })
-    && (@{ $_->{proposals} }[0]->is_sales ? abs(@{ $_->{proposals} }[0]->amount - $_->amount) < 0.01
-                                          : abs(@{ $_->{proposals} }[0]->amount + $_->amount) < 0.01)
   } @{ $bank_transactions };
 
   push @proposals, @otherproposals;
