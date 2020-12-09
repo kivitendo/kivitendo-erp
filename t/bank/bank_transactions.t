@@ -764,7 +764,7 @@ sub test_neg_ap_transaction {
                                                                );
 
   my ($agreement, $rule_matches) = $bt->get_agreement_with_invoice($invoice);
-  is($agreement, 15, "points for negative ap transaction ok");
+  is($agreement, 16, "points for negative ap transaction ok");
 
   $::form->{invoice_ids} = {
     $bt->id => [ $invoice->id ]

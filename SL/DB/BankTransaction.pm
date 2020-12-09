@@ -162,11 +162,12 @@ sub get_agreement_with_invoice {
   }
 
   #check sign
-  if ( $invoice->is_sales && $self->amount < 0 ) {
+  if ( $invoice->is_sales && $self->amount < 0 ) { # TODO debit note
     $agreement += $points{wrong_sign};
     $rule_matches .= 'wrong_sign(' . $points{'wrong_sign'} . ') ';
   }
-  if ( ! $invoice->is_sales && $self->amount > 0 ) {
+  if (( !$invoice->is_sales && $invoice->amount > 0 && $self->amount > 0)  ||
+      ( !$invoice->is_sales && $invoice->amount < 0 && $self->amount < 0)     ) { # credit note
     $agreement += $points{wrong_sign};
     $rule_matches .= 'wrong_sign(' . $points{'wrong_sign'} . ') ';
   }
