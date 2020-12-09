@@ -12,6 +12,7 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+ - Inventur-Makse: Part-Picker sucht auch nach Lieferanten-Artikelnummer
  - Einkaufs-/Verkaufsbelege und Buchungsmasken: Neues Feld Leistungsdatum,
    welches die Steuerberechnung beeinflusst. I.d.R. gilt für die Steuer:
    Leistungsdatum. Wenn leer, dann Lieferdatum; wenn leer, dann Belegdatum.
