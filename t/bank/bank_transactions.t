@@ -711,8 +711,8 @@ sub test_credit_note {
                                                                 transdate     => $dt_10,
                                                                );
   my ($agreement, $rule_matches) = $bt->get_agreement_with_invoice($credit_note);
-  is($agreement, 13, "points for credit note ok");
-  is($rule_matches, 'remote_account_number(3) exact_amount(4) wrong_sign(-1) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus14(2) ', "rules_matches for credit note ok");
+  is($agreement, 14, "points for credit note ok");
+  is($rule_matches, 'remote_account_number(3) exact_amount(4) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus14(2) ', "rules_matches for credit note ok");
 
   $::form->{invoice_ids} = {
     $bt->id => [ $credit_note->id ]

@@ -79,7 +79,7 @@ sub get_agreement_with_invoice {
     payment_within_30_days      => 1,
     remote_account_number       => 3,
     skonto_exact_amount         => 5,
-    wrong_sign                  => -1,
+    wrong_sign                  => -4,
     sepa_export_item            => 5,
     batch_sepa_transaction      => 20,
   );
@@ -162,12 +162,13 @@ sub get_agreement_with_invoice {
   }
 
   #check sign
-  if ( $invoice->is_sales && $self->amount < 0 ) { # TODO debit note
+  if (( $invoice->is_sales && $invoice->amount > 0 && $self->amount < 0 ) ||
+      ( $invoice->is_sales && $invoice->amount < 0 && $self->amount > 0 )     ) { # sales credit note
     $agreement += $points{wrong_sign};
     $rule_matches .= 'wrong_sign(' . $points{'wrong_sign'} . ') ';
   }
   if (( !$invoice->is_sales && $invoice->amount > 0 && $self->amount > 0)  ||
-      ( !$invoice->is_sales && $invoice->amount < 0 && $self->amount < 0)     ) { # credit note
+      ( !$invoice->is_sales && $invoice->amount < 0 && $self->amount < 0)     ) { # purchase credit note
     $agreement += $points{wrong_sign};
     $rule_matches .= 'wrong_sign(' . $points{'wrong_sign'} . ') ';
   }
