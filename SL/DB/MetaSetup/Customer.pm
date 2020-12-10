@@ -16,6 +16,7 @@ __PACKAGE__->meta->columns(
   bic                       => { type => 'text' },
   business_id               => { type => 'integer' },
   c_vendor_id               => { type => 'text' },
+  c_vendor_routing_id       => { type => 'text' },
   cc                        => { type => 'text' },
   city                      => { type => 'text' },
   commercial_court          => { type => 'text' },

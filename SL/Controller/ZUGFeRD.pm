@@ -17,7 +17,7 @@ sub action_upload_zugferd {
   my ($self, %params) = @_;
 
   $self->setup_zugferd_action_bar;
-  $self->render('zugferd/form', title => $::locale->text('ZUGFeRD import'));
+  $self->render('zugferd/form', title => $::locale->text('Factur-X/ZUGFeRD import'));
 }
 
 sub action_import_zugferd {
@@ -31,15 +31,15 @@ sub action_import_zugferd {
   if ($info->{result} != SL::ZUGFeRD::RES_OK()) {
     # An error occurred; log message from parser:
     $::lxdebug->message(LXDebug::DEBUG1(), "Could not extract ZUGFeRD data, error message: " . $info->{message});
-    die t8("Could not extract ZUGFeRD data, data and error message:") . $info->{message};
+    die t8("Could not extract Factur-X/ZUGFeRD data, data and error message:") . $info->{message};
   }
   # valid ZUGFeRD metadata
   my $dom   = XML::LibXML->load_xml(string => $info->{invoice_xml});
 
   # 1. check if ZUGFeRD SellerTradeParty has a VAT-ID
   my $ustid = $dom->findnodes('//ram:SellerTradeParty/ram:SpecifiedTaxRegistration')->string_value;
-  die t8("No VAT Info for this ZUGFeRD invoice," .
-         " please ask your vendor to add this for his ZUGFeRD data.") unless $ustid;
+  die t8("No VAT Info for this Factur-X/ZUGFeRD invoice," .
+         " please ask your vendor to add this for his Factur-X/ZUGFeRD data.") unless $ustid;
 
   $ustid = SL::VATIDNr->normalize($ustid);
 
@@ -77,7 +77,7 @@ sub action_import_zugferd {
     }
   }
 
-  die t8("Please add a valid VAT-ID for this vendor: " . $vc) unless (ref $vendor eq 'SL::DB::Vendor');
+  die t8("Please add a valid VAT-ID for this vendor: #1", $vc) unless (ref $vendor eq 'SL::DB::Vendor');
 
   # 2. check if we have a ap record template for this vendor (TODO only the oldest template is choosen)
   my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $vendor->id]);

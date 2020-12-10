@@ -9,12 +9,41 @@ use Data::Dumper;
 use List::Util qw(first);
 use XML::LibXML;
 
+use SL::Locale::String qw(t8);
+
+use parent qw(Exporter);
+our @EXPORT_PROFILES = qw(PROFILE_FACTURX_EXTENDED PROFILE_XRECHNUNG);
+our @EXPORT_OK       = (@EXPORT_PROFILES);
+our %EXPORT_TAGS     = (PROFILES => \@EXPORT_PROFILES);
+
+use constant PROFILE_FACTURX_EXTENDED => 0;
+use constant PROFILE_XRECHNUNG        => 1;
+
 use constant RES_OK                              => 0;
 use constant RES_ERR_FILE_OPEN                   => 1;
 use constant RES_ERR_NO_XMP_METADATA             => 2;
 use constant RES_ERR_NO_XML_INVOICE              => 3;
 use constant RES_ERR_NOT_ZUGFERD                 => 4;
 use constant RES_ERR_UNSUPPORTED_ZUGFERD_VERSION => 5;
+
+our @customer_settings = (
+  [ 0,                                  t8('Do not create Factur-X/ZUGFeRD invoices')                                    ],
+  [ PROFILE_FACTURX_EXTENDED() * 2 + 1, t8('Create with profile \'Factur-X 1.0.05/ZUGFeRD 2.1.1 extended\'')             ],
+  [ PROFILE_FACTURX_EXTENDED() * 2 + 2, t8('Create with profile \'Factur-X 1.0.05/ZUGFeRD 2.1.1 extended\' (test mode)') ],
+  [ PROFILE_XRECHNUNG()        * 2 + 1, t8('Create with profile \'XRechnung 2.0.0\'')                                    ],
+  [ PROFILE_XRECHNUNG()        * 2 + 2, t8('Create with profile \'XRechnung 2.0.0\' (test mode)')                        ],
+);
+
+sub convert_customer_setting {
+  my ($class, $customer_setting) = @_;
+
+  return () if ($customer_setting <= 0) || ($customer_setting >= scalar(@customer_settings));
+
+  return (
+    profile   => int(($customer_setting - 1) / 2),
+    test_mode => ($customer_setting - 1) % 2,
+  );
+}
 
 sub _extract_zugferd_invoice_xml {
   my $doc        = shift;
@@ -109,11 +138,16 @@ sub extract_from_pdf {
     next unless $ns;
 
     if ($ns->getData =~ m{urn:zugferd:pdfa:CrossIndustryDocument:invoice:2p0}) {
-      $zugferd_version = '2p0';
+      $zugferd_version = 'zugferd:2p0';
       last;
     }
 
-    if ($ns->getData =~ m{zugferd}i) {
+    if ($ns->getData =~ m{urn:factur-x:pdfa:CrossIndustryDocument:invoice:1p0}) {
+      $zugferd_version = 'factur-x:1p0';
+      last;
+    }
+
+    if ($ns->getData =~ m{zugferd|factur-x}i) {
       $zugferd_version = 'unsupported';
       last;
     }
@@ -122,14 +156,14 @@ sub extract_from_pdf {
   if (!$zugferd_version) {
     return {
       result  => RES_ERR_NOT_ZUGFERD(),
-      message => $::locale->text('The XMP metadata does not declare the ZUGFeRD data.'),
+      message => $::locale->text('The XMP metadata does not declare the Factur-X/ZUGFeRD data.'),
     };
   }
 
-  if ($zugferd_version !~ m{^2p}) {
+  if ($zugferd_version eq 'unsupported') {
     return {
       result  => RES_ERR_UNSUPPORTED_ZUGFERD_VERSION(),
-      message => $::locale->text('The ZUGFeRD version used is not supported.'),
+      message => $::locale->text('The Factur-X/ZUGFeRD version used is not supported.'),
     };
   }
 
@@ -138,7 +172,7 @@ sub extract_from_pdf {
   if (!defined $invoice_xml) {
     return {
       result  => RES_ERR_NO_XML_INVOICE(),
-      message => $::locale->text('The ZUGFeRD XML invoice was not found.'),
+      message => $::locale->text('The Factur-X/ZUGFeRD XML invoice was not found.'),
     };
   }
 
@@ -159,7 +193,7 @@ __END__
 
 =head1 NAME
 
-SL::ZUGFeRD - Helper functions for dealing with PDFs containing ZUGFeRD invoice data
+SL::ZUGFeRD - Helper functions for dealing with PDFs containing Factur-X/ZUGFeRD invoice data
 
 =head1 SYNOPSIS
 
@@ -182,10 +216,11 @@ SL::ZUGFeRD - Helper functions for dealing with PDFs containing ZUGFeRD invoice 
 
 =item C<extract_from_pdf> C<$file_name>
 
-Opens an existing PDF in the file system and tries to extract ZUGFeRD
-invoice data from it. First it'll parse the XMP metadata and look for
-the ZUGFeRD declaration inside. If the declaration isn't found or the
-declared version isn't 2p0, an error is returned.
+Opens an existing PDF in the file system and tries to extract
+Factur-X/ZUGFeRD invoice data from it. First it'll parse the XMP
+metadata and look for the Factur-X/ZUGFeRD declaration inside. If the
+declaration isn't found or the declared version isn't 2p0, an error is
+returned.
 
 Otherwise it'll continue to look through all embedded files in the
 PDF. The first embedded XML file with a root node of
@@ -198,7 +233,7 @@ can be one of the following constants:
 
 =item C<RES_OK> (0): parsing was OK; the returned hash will also
 contain the keys C<xmp_metadata> and C<invoice_xml> which will contain
-the XML text of the metadata & the ZUGFeRD invoice.
+the XML text of the metadata & the Factur-X/ZUGFeRD invoice.
 
 =item C<RES_ERR_…> (all values E<gt> 0): parsing failed; the hash will
 also contain a key C<message> which contains a human-readable
