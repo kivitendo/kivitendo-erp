@@ -75,7 +75,7 @@ sub render {
     header     => 1,
     layout     => 1,
     process    => 1,
-    status     => '200 ok',
+    status     => 200,
   );
   $options->{$_} //= $defaults{$_} for keys %defaults;
   $options->{type} = lc $options->{type};
