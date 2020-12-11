@@ -16,7 +16,7 @@
       [% L.hidden_tag('translations[+].language_id', language.id) %]
       [% HTML.escape(language.description) %]
     </td>
-    <td>[% L.input_tag("translations[].translation", translation.translation) %]</td>
+    <td>[% L.areainput_tag("translations[].translation", translation.translation, size=40) %]</td>
     <td>[% L.textarea_tag("translations[].longdescription", P.restricted_html(translation.longdescription), id="translations_longdescription_" _ language_id, class="texteditor", style="width: 500px; height: 100px") %]</td>
    </tr>
   [%- END %]
