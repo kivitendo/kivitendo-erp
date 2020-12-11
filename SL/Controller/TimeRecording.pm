@@ -43,6 +43,11 @@ my %sort_columns = (
 sub action_list {
   my ($self, %params) = @_;
 
+  $::form->{filter} //=  {
+    staff_member_id       => SL::DB::Manager::Employee->current->id,
+    "start_time:date::ge" => DateTime->now_local->add(weeks => -2)->to_kivitendo,
+  };
+
   $self->setup_list_action_bar;
   $self->make_filter_summary;
   $self->prepare_report;
