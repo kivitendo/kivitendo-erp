@@ -135,7 +135,7 @@ sub init_all_time_recording_types {
 }
 
 sub init_all_employees {
-  SL::DB::Manager::Employee->get_all_sorted;
+  SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
 }
 
 sub check_auth {
