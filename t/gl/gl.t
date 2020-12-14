@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 4;
+use Test::More tests => 8;
 
 use lib 't';
 use Support::TestSetup;
@@ -252,6 +252,124 @@ is_deeply(&get_account_balances,
             {
               'accno' => '4980',
               'sum' => '-800.12000'
+            }
+          ],
+          "chart balances ok"
+         );
+
+note "testing automatic tax 19%";
+
+my $gl_transaction_7 = SL::DB::GLTransaction->new(
+  reference   => 'betriebsbedarf tax not included',
+  description => 'bar',
+  taxincluded => 0,
+  transdate   => DateTime->new(year => 2019, month => 12, day => 30),
+);
+
+$gl_transaction_7->add_chart_booking(%{$_}) foreach (
+    {
+      chart  => $betriebsbedarf,
+      debit  => 100,
+    },
+    {
+      chart  => $betriebsbedarf,
+      debit  => 100,
+    },
+    {
+      chart  => $betriebsbedarf,
+      debit  => 100,
+      tax_id => $tax_0->id,
+    },
+    {
+      chart  => $cash,
+      credit => 338,
+    },
+);
+$gl_transaction_7->post;
+
+is(SL::DB::Manager::GLTransaction->get_all_count(), 9, "gl transactions created ok");
+is_deeply(&get_account_balances,
+          [
+            {
+              'accno' => '1000',
+              'sum' => '1328.14000'
+            },
+            {
+              'accno' => '1200',
+              'sum' => '-100.00000'
+            },
+            {
+              'accno' => '1571',
+              'sum' => '-14.00000'
+            },
+            {
+              'accno' => '1576',
+              'sum' => '-114.02000'
+            },
+            {
+              'accno' => '4980',
+              'sum' => '-1100.12000'
+            }
+          ],
+          "chart balances ok"
+         );
+
+note "testing automatic tax 16%";
+
+my $gl_transaction_8 = SL::DB::GLTransaction->new(
+  reference   => 'betriebsbedarf tax not included',
+  description => 'bar',
+  taxincluded => 0,
+  transdate   => DateTime->new(year => 2020, month => 12, day => 31),
+);
+
+$gl_transaction_8->add_chart_booking(%{$_}) foreach (
+    {
+      chart  => $betriebsbedarf,
+      debit  => 100,
+    },
+    {
+      chart  => $betriebsbedarf,
+      debit  => 100,
+    },
+    {
+      chart  => $betriebsbedarf,
+      debit  => 100,
+      tax_id => $tax_0->id,
+    },
+    {
+      chart  => $cash,
+      credit => 332,
+    },
+);
+$gl_transaction_8->post;
+
+is(SL::DB::Manager::GLTransaction->get_all_count(), 10, "gl transactions created ok");
+is_deeply(&get_account_balances,
+          [
+            {
+              'accno' => '1000',
+              'sum' => '1660.14000'
+            },
+            {
+              'accno' => '1200',
+              'sum' => '-100.00000'
+            },
+            {
+              'accno' => '1571',
+              'sum' => '-14.00000'
+            },
+            {
+              'accno' => '1575',
+              'sum' => '-32.00000'
+            },
+            {
+              'accno' => '1576',
+              'sum' => '-114.02000'
+            },
+            {
+              'accno' => '4980',
+              'sum' => '-1400.12000'
             }
           ],
           "chart balances ok"
