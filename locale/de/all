@@ -2159,7 +2159,6 @@ $self->{texts} = {
   'Notes (translation for #1)'  => 'Bemerkungen (Übersetzung für #1)',
   'Notes (will appear on hard copy)' => 'Bemerkungen',
   'Notes for customer'          => 'Bemerkungen beim Kunden',
-  'Notes for vendor'            => 'Bemerkungen beim Lieferanten',
   'Nothing has been selected for removal.' => 'Es wurde nichts für eine Entnahme ausgewählt.',
   'Nothing has been selected for transfer.' => 'Es wurde nichts zum Umlagern ausgewählt.',
   'Nothing selected!'           => 'Es wurde nichts ausgewählt!',
