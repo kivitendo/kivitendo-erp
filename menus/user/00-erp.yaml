@@ -1007,11 +1007,11 @@
   name: Productivity
   icon: productivity
   order: 900
-  access: productivity
 - parent: productivity
   id: productivity_show_todo_list
   name: Show TODO list
   order: 100
+  access: productivity
   module: todo.pl
   params:
     action: show_todo_list
@@ -1019,6 +1019,7 @@
   id: productivity_add_follow_up
   name: Add Follow-Up
   order: 200
+  access: productivity
   module: fu.pl
   params:
     action: add
@@ -1026,6 +1027,7 @@
   id: productivity_edit_access_rights
   name: Edit Access Rights
   order: 300
+  access: productivity
   module: fu.pl
   params:
     action: edit_access_rights
@@ -1037,6 +1039,7 @@
   id: productivity_reports_follow_ups
   name: Follow-Ups
   order: 100
+  access: productivity
   module: fu.pl
   params:
     action: search
@@ -1044,6 +1047,7 @@
   id: productivity_reports_email_journal
   name: Email journal
   order: 200
+  access: email_journal
   module: controller.pl
   icon: mail_journal
   params:
