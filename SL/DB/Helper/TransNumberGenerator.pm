@@ -98,7 +98,7 @@ sub get_next_trans_number {
   my $range_table    = ($business ? $business : SL::DB::Default->get)->load(for_update => 1);
 
   my $start_number   = $range_table->$number_range_column;
-  $start_number      = $range_table->articlenumber if ($number_range_column =~ /^(assemblynumber|assortmentnumber)$/) && (length($start_number) < 1);
+  $start_number      = $range_table->articlenumber if ($number_range_column =~ /^(assemblynumber|assortmentnumber)$/) && (length($start_number)//0 < 1);
   my $sequence       = SL::PrefixedNumber->new(number => $start_number // 0);
 
   if (!$fill_holes_in_range) {
