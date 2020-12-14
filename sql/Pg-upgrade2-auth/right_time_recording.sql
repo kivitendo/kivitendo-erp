@@ -4,7 +4,7 @@
 -- @locales: Create, edit and list time recordings
 
 INSERT INTO auth.master_rights (position, name, description, category)
-  VALUES ((SELECT position + 10 FROM auth.master_rights WHERE name = 'productivity'),
+  VALUES ((SELECT position + 50 FROM auth.master_rights WHERE name = 'email_employee_readall'),
           'time_recording',
           'Create, edit and list time recordings',
           FALSE);
