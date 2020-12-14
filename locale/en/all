@@ -2529,6 +2529,7 @@ $self->{texts} = {
   'Production'                  => 'Production',
   'Production (typeabbreviation)' => 'W',
   'Productivity'                => '',
+  'Productivity (TODO list, Follow-Ups)' => '',
   'Profit'                      => '',
   'Profit and loss accounts'    => '',
   'Profit carried forward account' => '',
