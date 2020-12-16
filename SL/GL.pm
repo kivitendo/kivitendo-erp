@@ -328,10 +328,15 @@ sub all_transactions {
     push(@apvalues, $project_id, $project_id);
   }
 
-  my ($project_columns, $project_join);
+  my ($project_columns,            $project_join);
+  my ($arap_globalproject_columns, $arap_globalproject_join);
+  my ($gl_globalproject_columns);
   if ($form->{"l_projectnumbers"}) {
-    $project_columns = qq|, ac.project_id, pr.projectnumber|;
-    $project_join = qq|LEFT JOIN project pr ON (ac.project_id = pr.id)|;
+    $project_columns            = qq|, ac.project_id, pr.projectnumber|;
+    $project_join               = qq|LEFT JOIN project pr ON (ac.project_id = pr.id)|;
+    $arap_globalproject_columns = qq|, a.globalproject_id, globalpr.projectnumber AS globalprojectnumber|;
+    $arap_globalproject_join    = qq|LEFT JOIN project globalpr ON (a.globalproject_id = globalpr.id)|;
+    $gl_globalproject_columns   = qq|, NULL AS globalproject_id, '' AS globalprojectnumber|;
   }
 
   if ($form->{accno}) {
@@ -384,7 +389,7 @@ sub all_transactions {
         ac.amount, c.accno, g.notes, t.chart_id,
         d.description AS department,
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
-        $project_columns
+        $project_columns $gl_globalproject_columns
         $columns_for_sorting{gl}
       FROM gl g
       LEFT JOIN employee e ON (g.employee_id = e.id)
@@ -402,11 +407,12 @@ sub all_transactions {
         ac.amount, c.accno, a.notes, t.chart_id,
         d.description AS department,
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
-        $project_columns
+        $project_columns $arap_globalproject_columns
         $columns_for_sorting{arap}
       FROM ar a
       LEFT JOIN employee e ON (a.employee_id = e.id)
-      LEFT JOIN department d ON (a.department_id = d.id),
+      LEFT JOIN department d ON (a.department_id = d.id)
+      $arap_globalproject_join,
       acc_trans ac $project_join, customer ct, chart c
       LEFT JOIN tax t ON (t.chart_id=c.id)
       WHERE $arwhere
@@ -421,11 +427,12 @@ sub all_transactions {
         ac.amount, c.accno, a.notes, t.chart_id,
         d.description AS department,
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
-        $project_columns
+        $project_columns $arap_globalproject_columns
         $columns_for_sorting{arap}
       FROM ap a
       LEFT JOIN employee e ON (a.employee_id = e.id)
-      LEFT JOIN department d ON (a.department_id = d.id),
+      LEFT JOIN department d ON (a.department_id = d.id)
+      $arap_globalproject_join,
       acc_trans ac $project_join, vendor ct, chart c
       LEFT JOIN tax t ON (t.chart_id=c.id)
       WHERE $apwhere
@@ -491,7 +498,8 @@ sub all_transactions {
       }
 
       $ref->{"projectnumbers"} = {};
-      $ref->{"projectnumbers"}->{$ref->{"projectnumber"}} = 1 if ($ref->{"projectnumber"});
+      $ref->{"projectnumbers"}->{$ref->{"projectnumber"}}       = 1 if ($ref->{"projectnumber"});
+      $ref->{"projectnumbers"}->{$ref->{"globalprojectnumber"}} = 1 if ($ref->{"globalprojectnumber"});
 
       $balance = $ref->{amount};
 
@@ -547,7 +555,8 @@ sub all_transactions {
       $balance =
         (int($balance * 100000) + int(100000 * $ref2->{amount})) / 100000;
 
-      $ref->{"projectnumbers"}->{$ref2->{"projectnumber"}} = 1 if ($ref2->{"projectnumber"});
+      $ref->{"projectnumbers"}->{$ref2->{"projectnumber"}}       = 1 if ($ref2->{"projectnumber"});
+      $ref->{"projectnumbers"}->{$ref2->{"globalprojectnumber"}} = 1 if ($ref2->{"globalprojectnumber"});
 
       if ($ref2->{chart_id} > 0) { # all tax accounts, following lines
         if ($ref2->{amount} < 0) {
