@@ -422,7 +422,7 @@ sub generate_report {
     transdate      gldate   id      reference      description
     notes          source   doccnt  debit          debit_accno
     credit         credit_accno     debit_tax      debit_tax_accno
-    credit_tax     credit_tax_accno projectnumbers balance employee
+    credit_tax     credit_tax_accno balance        projectnumbers employee
   );
 
   # add employee here, so that variable is still known and passed in url when choosing a different sort order in resulting table
