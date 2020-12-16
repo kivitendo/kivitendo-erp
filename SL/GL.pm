@@ -356,6 +356,7 @@ sub all_transactions {
     'reference'    => [ qw(lower_reference id)   ],
     'description'  => [ qw(lower_description id) ],
     'accno'        => [ qw(accno transdate id)   ],
+    'department'   => [ qw(department transdate id)   ],
     );
   my %lowered_columns =  (
     'reference'       => { 'gl' => 'g.reference',   'arap' => 'a.invnumber', },
@@ -381,11 +382,13 @@ sub all_transactions {
         ac.acc_trans_id, g.id, 'gl' AS type, FALSE AS invoice, g.reference, ac.taxkey, c.link,
         g.description, ac.transdate, ac.gldate, ac.source, ac.trans_id,
         ac.amount, c.accno, g.notes, t.chart_id,
+        d.description AS department,
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns
         $columns_for_sorting{gl}
       FROM gl g
-      LEFT JOIN employee e ON (g.employee_id = e.id),
+      LEFT JOIN employee e ON (g.employee_id = e.id)
+      LEFT JOIN department d ON (g.department_id = d.id),
       acc_trans ac $project_join, chart c
       LEFT JOIN tax t ON (t.chart_id = c.id)
       WHERE $glwhere
@@ -397,11 +400,13 @@ sub all_transactions {
       SELECT ac.acc_trans_id, a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
         ct.name, ac.transdate, ac.gldate, ac.source, ac.trans_id,
         ac.amount, c.accno, a.notes, t.chart_id,
+        d.description AS department,
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns
         $columns_for_sorting{arap}
       FROM ar a
-      LEFT JOIN employee e ON (a.employee_id = e.id),
+      LEFT JOIN employee e ON (a.employee_id = e.id)
+      LEFT JOIN department d ON (a.department_id = d.id),
       acc_trans ac $project_join, customer ct, chart c
       LEFT JOIN tax t ON (t.chart_id=c.id)
       WHERE $arwhere
@@ -414,11 +419,13 @@ sub all_transactions {
       SELECT ac.acc_trans_id, a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
         ct.name, ac.transdate, ac.gldate, ac.source, ac.trans_id,
         ac.amount, c.accno, a.notes, t.chart_id,
+        d.description AS department,
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns
         $columns_for_sorting{arap}
       FROM ap a
-      LEFT JOIN employee e ON (a.employee_id = e.id),
+      LEFT JOIN employee e ON (a.employee_id = e.id)
+      LEFT JOIN department d ON (a.department_id = d.id),
       acc_trans ac $project_join, vendor ct, chart c
       LEFT JOIN tax t ON (t.chart_id=c.id)
       WHERE $apwhere

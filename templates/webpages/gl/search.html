@@ -93,6 +93,10 @@
                     <td>[% 'Source' | $T8 %]</td>
                     <td align=right><input name="l_accno" class=checkbox type=checkbox value=Y checked></td>
                     <td>[% 'Account' | $T8 %]</td>
+                    [%- IF ALL_DEPARTMENTS %]
+                      <td align=right><input name="l_department" class=checkbox type=checkbox value=Y></td>
+                      <td>[% 'Department' | $T8 %]</td>
+                    [%- END %]
                   </tr>
                   <tr>
                     <td align=right><input name="l_projectnumbers" class=checkbox type=checkbox value=Y></td>

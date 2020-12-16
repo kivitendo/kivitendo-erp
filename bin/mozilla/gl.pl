@@ -422,7 +422,8 @@ sub generate_report {
     transdate      gldate   id      reference      description
     notes          source   doccnt  debit          debit_accno
     credit         credit_accno     debit_tax      debit_tax_accno
-    credit_tax     credit_tax_accno balance        projectnumbers employee
+    credit_tax     credit_tax_accno balance        projectnumbers
+    department     employee
   );
 
   # add employee here, so that variable is still known and passed in url when choosing a different sort order in resulting table
@@ -481,10 +482,11 @@ sub generate_report {
     'credit_tax_accno' => { 'text' => $locale->text('Credit Tax Account'), },
     'balance'          => { 'text' => $locale->text('Balance'), },
     'projectnumbers'   => { 'text' => $locale->text('Project Numbers'), },
+    'department'       => { 'text' => $locale->text('Department'), },
     'employee'         => { 'text' => $locale->text('Employee'), },
   );
 
-  foreach my $name (qw(id transdate gldate reference description debit_accno credit_accno debit_tax_accno credit_tax_accno)) {
+  foreach my $name (qw(id transdate gldate reference description debit_accno credit_accno debit_tax_accno credit_tax_accno department)) {
     my $sortname                = $name =~ m/accno/ ? 'accno' : $name;
     my $sortdir                 = $sortname eq $form->{sort} ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $callback . "&sort=$sortname&sortdir=$sortdir";
@@ -572,7 +574,7 @@ sub generate_report {
     $row->{balance}->{data}        = $data;
     $row->{projectnumbers}->{data} = join ", ", sort { lc($a) cmp lc($b) } keys %{ $ref->{projectnumbers} };
 
-    map { $row->{$_}->{data} = $ref->{$_} } qw(id reference description notes gldate employee);
+    map { $row->{$_}->{data} = $ref->{$_} } qw(id reference description notes gldate employee department);
 
     map { $row->{$_}->{data} = \@{ $rows{$_} }; } qw(transdate debit credit debit_accno credit_accno debit_tax_accno credit_tax_accno source);
 
