@@ -835,12 +835,14 @@ The functions returns an array which may be used for building dropdowns in ar/ap
 
 =head1 TODO
 
+Nothing here yet.
+
 =head1 BUGS
 
 Nothing here yet.
 
 =head1 AUTHOR
 
-G. Richardson E<lt>grichardson@kivitec.de<gt>
+G. Richardson E<lt>grichardson@kivitec.deE<gt>
 
 =cut
