@@ -128,13 +128,13 @@ sub report_generator_list_objects {
   for my $obj (@{ $params{objects} || [] }) {
     my %data = map {
       my $def = $column_defs->{$_};
-      $_ => {
-        raw_data => $def->{raw_data} ? $def->{raw_data}->($obj) : '',
-        data     => $def->{sub}      ? $def->{sub}->($obj)
-                  : $obj->can($_)    ? $obj->$_
-                  :                    $obj->{$_},
-        link     => $def->{obj_link} ? $def->{obj_link}->($obj) : '',
-      },
+      my $tmp;
+      $tmp->{raw_data} = $def->{raw_data} ? $def->{raw_data}->($obj) : '';
+      $tmp->{data}     = $def->{sub}      ? $def->{sub}->($obj)
+                       : $obj->can($_)    ? $obj->$_
+                       :                    $obj->{$_};
+      $tmp->{link}     = $def->{obj_link} ? $def->{obj_link}->($obj) : '';
+      $_ => $tmp;
     } @columns;
 
     $params{data_callback}->(\%data) if $params{data_callback};
