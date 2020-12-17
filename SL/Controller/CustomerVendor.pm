@@ -92,7 +92,11 @@ sub action_add {
   my ($self) = @_;
 
   $self->_pre_render();
-  $self->{cv}->assign_attributes(hourly_rate => $::instance_conf->get_customer_hourly_rate) if $self->{cv}->is_customer;
+
+  if ($self->{cv}->is_customer) {
+    $self->{cv}->assign_attributes(hourly_rate => $::instance_conf->get_customer_hourly_rate);
+    $self->{cv}->salesman_id(SL::DB::Manager::Employee->current->id) if !$::auth->assert('customer_vendor_all_edit', 1);
+  }
 
   $self->render(
     'customer_vendor/form',
