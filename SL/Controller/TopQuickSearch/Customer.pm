@@ -6,7 +6,7 @@ use SL::DB::Customer;
 
 use SL::Locale::String qw(t8);
 
-sub auth { 'customer_vendor_edit' }
+sub auth { undef }
 
 sub name { 'customer' }
 

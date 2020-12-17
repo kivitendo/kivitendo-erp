@@ -244,13 +244,6 @@ sub search {
     push @values, $form->{create_zugferd_invoices};
   }
 
-  # Nur Kunden finden, bei denen ich selber der Verkäufer bin
-  # Gilt nicht für Lieferanten
-  if ($cv eq 'customer' &&   !$main::auth->assert('customer_vendor_all_edit', 1)) {
-    $where .= qq| AND ct.salesman_id = (select em.id from employee em where em.login = ?)|;
-    push(@values, $::myconfig{login});
-  }
-
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',
                                                             'trans_id_field' => 'ct.id',
                                                             'filter'         => $form);

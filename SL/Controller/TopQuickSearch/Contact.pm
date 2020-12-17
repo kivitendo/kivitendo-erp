@@ -8,7 +8,7 @@ use SL::DB::Vendor;
 use SL::DBUtils qw(selectfirst_array_query like);
 use SL::Locale::String qw(t8);
 
-sub auth { 'customer_vendor_edit' }
+sub auth { undef }
 
 sub name { 'contact' }
 

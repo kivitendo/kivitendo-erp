@@ -6,9 +6,6 @@ use parent qw(SL::Controller::Base);
 use SL::DB::Customer;
 use SL::JSON;
 
-# safety
-__PACKAGE__->run_before(sub { $::auth->assert('customer_vendor_edit') });
-
 sub action_get_hourly_rate {
   my ($self, %params) = @_;
 

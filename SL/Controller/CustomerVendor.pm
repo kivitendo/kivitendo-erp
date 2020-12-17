@@ -41,16 +41,11 @@ use SL::DB::Order;
 use Data::Dumper;
 
 use Rose::Object::MakeMethods::Generic (
+  scalar                  => [ qw(user_has_edit_rights) ],
   'scalar --get_set_init' => [ qw(customer_models vendor_models zugferd_settings) ],
 );
 
 # safety
-__PACKAGE__->run_before(
-  sub {
-    $::auth->assert('customer_vendor_edit');
-  },
-  except => [ qw(ajaj_autocomplete) ],
-);
 __PACKAGE__->run_before(
   '_instantiate_args',
   only => [
@@ -81,26 +76,7 @@ __PACKAGE__->run_before(
 );
 
 # make sure this comes after _load_customer_vendor
-__PACKAGE__->run_before(
-  '_check_customer_vendor_all_edit',
-  only => [
-    'edit',
-    'show',
-    'update',
-    'delete',
-    'save',
-    'save_and_ap_transaction',
-    'save_and_ar_transaction',
-    'save_and_close',
-    'save_and_invoice',
-    'save_and_order',
-    'save_and_quotation',
-    'save_and_rfq',
-    'delete',
-    'delete_contact',
-    'delete_shipto',
-  ]
-);
+__PACKAGE__->run_before('_check_auth');
 
 __PACKAGE__->run_before(
   '_create_customer_vendor',
@@ -656,7 +632,6 @@ sub action_ajaj_autocomplete {
     if (1 == scalar @{ $exact_matches = $manager->get_all(
       query => [
         obsolete => 0,
-        (salesman_id => SL::DB::Manager::Employee->current->id) x !$::auth->assert('customer_vendor_all_edit', 1),
         or => [
           name    => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
           $number => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
@@ -912,15 +887,31 @@ sub _load_customer_vendor {
   }
 }
 
-sub _check_customer_vendor_all_edit {
-  my ($self) = @_;
+sub _may_access_action {
+  my ($self, $action)   = @_;
 
-  unless ($::auth->assert('customer_vendor_all_edit', 1)) {
-    die($::locale->text("You don't have the rights to edit this customer.") . "\n")
-      if $self->{cv}->is_customer and
-         SL::DB::Manager::Employee->current->id != $self->{cv}->salesman_id;
-  };
-};
+  my $is_new            = !$self->{cv} || !$self->{cv}->id;
+  my $is_own_customer   = !$is_new
+                       && $self->{cv}->is_customer
+                       && (SL::DB::Manager::Employee->current->id == $self->{cv}->salesman_id);
+  my $has_edit_rights   = $::auth->assert('customer_vendor_all_edit', 1);
+  $has_edit_rights    ||= $::auth->assert('customer_vendor_edit',     1) && ($is_new || $is_own_customer);
+  my $needs_edit_rights = $action =~ m{^(?:add|save|delete|update)};
+
+  $self->user_has_edit_rights($has_edit_rights);
+
+  return 1 if $has_edit_rights;
+  return 0 if $needs_edit_rights;
+  return 1;
+}
+
+sub _check_auth {
+  my ($self, $action) = @_;
+
+  if (!$self->_may_access_action($action)) {
+    $::auth->deny_access;
+  }
+}
 
 sub _create_customer_vendor {
   my ($self) = @_;
@@ -1075,6 +1066,10 @@ sub _pre_render {
 sub _setup_form_action_bar {
   my ($self) = @_;
 
+  my $no_rights = $self->user_has_edit_rights ? undef
+                : $self->{cv}->is_customer    ? t8("You don't have the rights to edit this customer.")
+                :                               t8("You don't have the rights to edit this vendor.");
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       combobox => [
@@ -1083,11 +1078,13 @@ sub _setup_form_action_bar {
           submit    => [ '#form', { action => "CustomerVendor/save" } ],
           checks    => [ 'check_taxzone_and_ustid' ],
           accesskey => 'enter',
+          disabled  => $no_rights,
         ],
         action => [
           t8('Save and Close'),
           submit => [ '#form', { action => "CustomerVendor/save_and_close" } ],
           checks => [ 'check_taxzone_and_ustid' ],
+          disabled => $no_rights,
         ],
       ], # end of combobox "Save"
 
@@ -1097,31 +1094,37 @@ sub _setup_form_action_bar {
           t8('Save and AP Transaction'),
           submit => [ '#form', { action => "CustomerVendor/save_and_ap_transaction" } ],
           checks => [ 'check_taxzone_and_ustid' ],
+          disabled => $no_rights,
         ]) x !!$self->is_vendor,
         (action => [
           t8('Save and AR Transaction'),
           submit => [ '#form', { action => "CustomerVendor/save_and_ar_transaction" } ],
           checks => [ 'check_taxzone_and_ustid' ],
+          disabled => $no_rights,
         ]) x !$self->is_vendor,
         action => [
           t8('Save and Invoice'),
           submit => [ '#form', { action => "CustomerVendor/save_and_invoice" } ],
           checks => [ 'check_taxzone_and_ustid' ],
+          disabled => $no_rights,
         ],
         action => [
           t8('Save and Order'),
           submit => [ '#form', { action => "CustomerVendor/save_and_order" } ],
           checks => [ 'check_taxzone_and_ustid' ],
+          disabled => $no_rights,
         ],
         (action => [
           t8('Save and RFQ'),
           submit => [ '#form', { action => "CustomerVendor/save_and_rfq" } ],
           checks => [ 'check_taxzone_and_ustid' ],
+          disabled => $no_rights,
         ]) x !!$self->is_vendor,
         (action => [
           t8('Save and Quotation'),
           submit => [ '#form', { action => "CustomerVendor/save_and_quotation" } ],
           checks => [ 'check_taxzone_and_ustid' ],
+          disabled => $no_rights,
         ]) x !$self->is_vendor,
       ], # end of combobox "Workflow"
 
@@ -1131,7 +1134,7 @@ sub _setup_form_action_bar {
         confirm  => t8('Do you really want to delete this object?'),
         disabled => !$self->{cv}->id    ? t8('This object has not been saved yet.')
                   : !$self->is_orphaned ? t8('This object has already been used.')
-                  :                       undef,
+                  :                       $no_rights,
       ],
 
       'separator',
@@ -1214,9 +1217,6 @@ sub init_customer_models {
       },
       customernumber => t8('Customer Number'),
     },
-    query => [
-     ( salesman_id => SL::DB::Manager::Employee->current->id) x !$::auth->assert('customer_vendor_all_edit', 1),
-    ],
   );
 }
 
