@@ -122,7 +122,7 @@ sub get_agreement_with_invoice {
 
   # compare open amount, preventing double points when open amount = invoice amount
   if ( $invoice->amount != $invoice->open_amount && abs(abs($invoice->open_amount) - abs($self->amount)) < 0.01 &&
-         $::form->format_amount(\%::myconfig,abs($invoice->amount_less_skonto),2) eq
+         $::form->format_amount(\%::myconfig,abs($invoice->open_amount),2) eq
          $::form->format_amount(\%::myconfig,abs($self->amount),2)
        ) {
     $agreement += $points{exact_open_amount};
