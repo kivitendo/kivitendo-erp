@@ -1,4 +1,4 @@
-use Test::More tests => 289;
+use Test::More tests => 291;
 
 use strict;
 
@@ -541,6 +541,17 @@ sub test_partial_payment {
   is($ar_transaction->paid , '100.00000' , "$testname: 'salesinv partial payment' was partially paid");
   is($bt->invoice_amount   , '100.00000' , "$testname: bt invoice amount was assigned partially paid amount");
 
+  # addon test partial payment full point match
+  my $bt2 = create_bank_transaction(record        => $ar_transaction,
+                                    bank_chart_id => $bank->id,
+                                    transdate     => $dt,
+                                    valutadate    => $dt,
+                                    amount        => 19
+                                   ) or die "Couldn't create bank_transaction";
+
+  my ($agreement, $rule_matches) = $bt2->get_agreement_with_invoice($ar_transaction);
+  is($agreement, 15, "points for exact partial payment ok");
+  is($rule_matches, 'remote_account_number(3) exact_open_amount(4) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) ', "rules_matches for exact partial payment ok");
 };
 
 sub test_full_workflow_ar_multiple_inv_skonto_reconciliate_and_undo {
