@@ -123,6 +123,7 @@ sub transactions {
     qq|  o.marge_total, o.marge_percent, | .
     qq|  o.exchangerate, | .
     qq|  o.itime::DATE AS insertdate, | .
+    qq|  o.intnotes, | .
     qq|  department.description as department, | .
     qq|  ex.$rate AS daily_exchangerate, | .
     qq|  pt.description AS payment_terms, | .
@@ -296,6 +297,11 @@ SQL
     push @values, conv_date($form->{expected_billing_date_to});
   }
 
+  if ($form->{intnotes}) {
+    $query .= qq| AND o.intnotes ILIKE ?|;
+    push(@values, like($form->{intnotes}));
+  }
+
   if ($form->{parts_partnumber}) {
     $query .= <<SQL;
       AND EXISTS (
@@ -363,6 +369,7 @@ SQL
     "taxzone"                 => "tz.description",
     "payment_terms"           => "pt.description",
     "department"              => "department.description",
+    "intnotes"                => "o.intnotes",
   );
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
     $sortorder = $allowed_sort_columns{$form->{sort}} . " ${sortdir}"  . ", o.itime ${sortdir}";

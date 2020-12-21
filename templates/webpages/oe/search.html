@@ -77,6 +77,10 @@
     </tr>
     [%- END %]
     <tr>
+     <th align="right">[% 'Internal Notes' | $T8 %]</th>
+     <td>[% L.input_tag('intnotes', '', style=style) %]</td>
+    </tr>
+    <tr>
      <th align="right">[% IF is_order %][% 'Order Date' | $T8 %][% ELSE %][% 'Quotation Date' | $T8 %][% END %] [% 'From' | $T8 %]</th>
      <td>
        [% L.date_tag('transdatefrom') %]
@@ -270,6 +274,10 @@
         <td>
          <input name="l_salesman" id="l_salesman" class="checkbox" type="checkbox" value="Y">
          <label for="l_salesman">[% 'Salesman' | $T8 %]</label>
+        </td>
+        <td>
+         <input name="l_intnotes" id="l_intnotes" class="checkbox" type="checkbox" value="Y">
+         <label for="l_intnotes">[% 'Internal Notes' | $T8 %]</label>
         </td>
        </tr>
 [% IF type == 'sales_quotation' %]

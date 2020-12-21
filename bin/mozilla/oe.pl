@@ -1035,7 +1035,7 @@ sub orders {
     "country",                 "shippingpoint",
     "taxzone",                 "insertdate",
     "order_probability",       "expected_billing_date", "expected_netamount",
-    "payment_terms",
+    "payment_terms",           "intnotes",
   );
 
   # only show checkboxes if gotten here via sales_order form.
@@ -1084,7 +1084,7 @@ sub orders {
                                                         reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
                                                         business_id shippingpoint taxzone_id reqdate_unset_or_old insertdatefrom insertdateto
                                                         order_probability_op order_probability_value expected_billing_date_from expected_billing_date_to
-                                                        parts_partnumber parts_description all department_id);
+                                                        parts_partnumber parts_description all department_id intnotes);
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
   my   @keys_for_url = grep { $form->{$_} } @hidden_variables;
@@ -1129,10 +1129,11 @@ sub orders {
     'expected_billing_date'   => { 'text' => $locale->text('Exp. bill. date'), },
     'expected_netamount'      => { 'text' => $locale->text('Exp. netamount'), },
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
+    'intnotes'                => { 'text' => $locale->text('Internal Notes'), },
     %column_defs_cvars,
   );
 
-  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone insertdate payment_terms department)) {
+  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone insertdate payment_terms department intnotes)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -1163,6 +1164,7 @@ sub orders {
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                       if $form->{ordnumber};
   push @options, $locale->text('Customer Order Number')   . " : $form->{cusordnumber}"                    if $form->{cusordnumber};
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                           if $form->{notes};
+  push @options, $locale->text('Internal Notes')          . " : $form->{intnotes}"                        if $form->{intnotes};
   push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"         if $form->{transaction_description};
   push @options, $locale->text('Quick Search')            . " : $form->{all}"                             if $form->{all};
   push @options, $locale->text('Shipping Point')          . " : $form->{shippingpoint}"                   if $form->{shippingpoint};
