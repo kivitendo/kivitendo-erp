@@ -125,7 +125,7 @@
 [%- IF CT_CUSTOM_VARIABLES.size %]
     <tr>
       <td></td>
-      <td colspan=4 align=left><b>[% 'Custom variables for module' | $T8 %]: [%'Customers and vendors' | $T8 %]</td>
+      <td colspan=4 align=left><b>[% 'Custom variables for module' | $T8 %]: [%'Customers and vendors' | $T8 %]</b></td>
     </tr>
     [% CT_CUSTOM_VARIABLES_FILTER_CODE %]
 [%- END %]
@@ -201,7 +201,7 @@
        <tr>
         <td>
          <input name="l_name" id="l_name" class="checkbox" type="checkbox" value="Y" checked>
-         <label for="l_name">[% HTML.escape(vclabel) %]
+         <label for="l_name">[% HTML.escape(vclabel) %]</label>
         </td>
         <td>
          <input name="l_employee" id="l_employee" class="checkbox" type="checkbox" value="Y" checked>
@@ -258,7 +258,7 @@
          <label for="l_transaction_description">[% 'Transaction description' | $T8 %]</label>
         </td>
         <td>
-         [%- L.checkbox_tag('l_department', label => LxERP.t8('Department')) %]</td>
+         [%- L.checkbox_tag('l_department', label => LxERP.t8('Department')) %]
         </td>
 
        </tr>
@@ -291,7 +291,7 @@
         </td>
        </tr>
        <tr>
-        <td colspan=4 align=left><b>[% HTML.escape(vclabel) %]</td>
+        <td colspan=4 align=left><b>[% HTML.escape(vclabel) %]</b></td>
        </tr>
        <tr>
         <td>
