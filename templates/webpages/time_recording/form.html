@@ -2,6 +2,7 @@
 [% USE P %]
 [% USE T8 %]
 [% USE LxERP %]
+[% USE HTML %]
 
 <h1>[% title %]</h1>
 
@@ -19,6 +20,7 @@
       <th>[% 'Type' | $T8 %]</th>
       <th>[% 'Project' | $T8 %]</th>
       <th>[% 'Description' | $T8 %]</th>
+      <th>[% 'Mitarbeiter' | $T8 %]</th>
     </thead>
     <tbody valign="top">
       <td>
@@ -35,6 +37,17 @@
       <td>[% P.select_tag('time_recording.type_id', SELF.all_time_recording_types, default=SELF.time_recording.type.id, with_empty=1, title_key='abbreviation') %]</td>
       <td>[% P.project.picker('time_recording.project_id', SELF.time_recording.project_id, style='width: 300px') %]</td>
       <td>[% L.textarea_tag('time_recording.description', SELF.time_recording.description, wrap="soft", style="width: 350px; height: 150px", class="texteditor", "data-validate"="required", "data-title"=LxERP.t8('Description')) %]</td>
+      <td>
+        [%- IF SELF.can_edit_all -%]
+          [% L.select_tag('time_recording.staff_member_id', SELF.all_employees,
+                           default    => SELF.time_recording.staff_member_id,
+                           title_key  => 'safe_name',
+                           value_key  => 'id',
+                           style      => 'width: 200px') %]
+        [%- ELSE -%]
+          [% SELF.time_recording.staff_member.safe_name | html %]
+        [%- END -%]
+      </td>
     </tbody>
   </table>
 

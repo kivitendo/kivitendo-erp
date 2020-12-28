@@ -121,8 +121,11 @@ sub init_time_recording {
     }
   }
 
-  $attributes{employee_id}     = SL::DB::Manager::Employee->current->id;
+  # do not overwright staff member if you do not have the right
+  delete $attributes{staff_member_id} if !$_[0]->can_edit_all;
   $attributes{staff_member_id} = SL::DB::Manager::Employee->current->id if $is_new;
+
+  $attributes{employee_id}     = SL::DB::Manager::Employee->current->id;
 
   $time_recording->assign_attributes(%attributes);
 
