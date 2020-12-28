@@ -211,7 +211,7 @@ sub prepare_report {
   $report->set_options_from_form;
 
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
-  #$self->models->add_additional_url_params();
+  $self->models->add_additional_url_params(filter => $::form->{filter});
   $self->models->finalize;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => [keys %sort_columns]);
 
