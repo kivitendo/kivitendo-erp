@@ -102,8 +102,9 @@ sub action_delete {
 }
 
 sub init_time_recording {
-  my $time_recording = ($::form->{id}) ? SL::DB::TimeRecording->new(id => $::form->{id})->load
-                                       : SL::DB::TimeRecording->new(start_time => DateTime->now_local);
+  my $is_new         = !$::form->{id};
+  my $time_recording = $is_new ? SL::DB::TimeRecording->new(start_time => DateTime->now_local)
+                               : SL::DB::TimeRecording->new(id => $::form->{id})->load;
 
   my %attributes = %{ $::form->{time_recording} || {} };
 
@@ -119,7 +120,8 @@ sub init_time_recording {
     }
   }
 
-  $attributes{staff_member_id} = $attributes{employee_id} = SL::DB::Manager::Employee->current->id;
+  $attributes{employee_id}     = SL::DB::Manager::Employee->current->id;
+  $attributes{staff_member_id} = SL::DB::Manager::Employee->current->id if $is_new;
 
   $time_recording->assign_attributes(%attributes);
 
