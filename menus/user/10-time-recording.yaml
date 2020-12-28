@@ -1,4 +1,11 @@
 ---
+- parent: system
+  id: system_time_recording_articles
+  name: Time Recording Articles
+  order: 2370
+  params:
+    action: SimpleSystemSetting/list
+    type: time_recording_article
 - parent: productivity
   id: productivity_time_recording
   name: Time Recording

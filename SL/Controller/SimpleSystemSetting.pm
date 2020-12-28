@@ -268,6 +268,20 @@ my %supported_types = (
     ],
   },
 
+  time_recording_article => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_time_recording_article_form")
+    class  => 'TimeRecordingArticle',
+    auth   => 'config',
+    titles => {
+      list => t8('Time Recording Articles'),
+      add  => t8('Add time recording article'),
+      edit => t8('Edit time recording article'),
+    },
+    list_attributes => [
+      { title => t8('Article'), formatter => sub { $_[0]->part->displayable_name } },
+    ],
+  },
+
 );
 
 my @default_list_attributes = (
