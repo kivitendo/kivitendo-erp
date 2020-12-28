@@ -17,6 +17,7 @@ __PACKAGE__->meta->columns(
   id              => { type => 'serial', not_null => 1 },
   itime           => { type => 'timestamp', default => 'now()', not_null => 1 },
   mtime           => { type => 'timestamp', default => 'now()', not_null => 1 },
+  part_id         => { type => 'integer' },
   payroll         => { type => 'boolean', default => 'false' },
   project_id      => { type => 'integer' },
   staff_member_id => { type => 'integer', not_null => 1 },
@@ -36,6 +37,11 @@ __PACKAGE__->meta->foreign_keys(
   employee => {
     class       => 'SL::DB::Employee',
     key_columns => { employee_id => 'id' },
+  },
+
+  part => {
+    class       => 'SL::DB::Part',
+    key_columns => { part_id => 'id' },
   },
 
   project => {
