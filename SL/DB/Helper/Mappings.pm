@@ -214,7 +214,6 @@ my %kivitendo_package_names = (
   taxkeys                        => 'tax_key',
   tax_zones                      => 'tax_zone',
   taxzone_charts                 => 'taxzone_chart',
-  time_recording_types           => 'time_recording_type',
   time_recordings                => 'time_recording',
   todo_user_config               => 'todo_user_config',
   transfer_type                  => 'transfer_type',

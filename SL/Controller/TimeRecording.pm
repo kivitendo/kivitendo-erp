@@ -18,7 +18,7 @@ use SL::ReportGenerator;
 use Rose::Object::MakeMethods::Generic
 (
 # scalar                  => [ qw() ],
- 'scalar --get_set_init' => [ qw(time_recording models all_time_recording_types all_employees can_view_all can_edit_all) ],
+ 'scalar --get_set_init' => [ qw(time_recording models all_employees can_view_all can_edit_all) ],
 );
 
 
@@ -34,7 +34,6 @@ my %sort_columns = (
   start_time   => t8('Start'),
   end_time     => t8('End'),
   customer     => t8('Customer'),
-  type         => t8('Type'),
   project      => t8('Project'),
   description  => t8('Description'),
   staff_member => t8('Mitarbeiter'),
@@ -151,12 +150,8 @@ sub init_models {
     sorted         => \%sort_columns,
     disable_plugin => 'paginated',
     query          => \@where,
-    with_objects   => [ 'customer', 'type', 'project', 'staff_member', 'employee' ],
+    with_objects   => [ 'customer', 'project', 'staff_member', 'employee' ],
   );
-}
-
-sub init_all_time_recording_types {
-  SL::DB::Manager::TimeRecordingType->get_all_sorted(query => [obsolete => 0]);
 }
 
 sub init_all_employees {
@@ -181,7 +176,7 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns  = qw(start_time end_time customer type project description staff_member duration);
+  my @columns  = qw(start_time end_time customer project description staff_member duration);
 
   my %column_defs = (
     start_time   => { text => t8('Start'),        sub => sub { $_[0]->start_time_as_timestamp },
@@ -189,7 +184,6 @@ sub prepare_report {
     end_time     => { text => t8('End'),          sub => sub { $_[0]->end_time_as_timestamp },
                       obj_link => sub { $self->url_for(action => 'edit', 'id' => $_[0]->id, callback => $self->models->get_callback) }  },
     customer     => { text => t8('Customer'),     sub => sub { $_[0]->customer->displayable_name } },
-    type         => { text => t8('Type'),         sub => sub { $_[0]->type && $_[0]->type->abbreviation } },
     project      => { text => t8('Project'),      sub => sub { $_[0]->project && $_[0]->project->displayable_name } },
     description  => { text => t8('Description'),  sub => sub { $_[0]->description_as_stripped_html },
                       raw_data => sub { $_[0]->description_as_restricted_html }, # raw_data only used for html(?)

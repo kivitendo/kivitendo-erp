@@ -21,7 +21,6 @@ __PACKAGE__->meta->columns(
   project_id      => { type => 'integer' },
   staff_member_id => { type => 'integer', not_null => 1 },
   start_time      => { type => 'timestamp', not_null => 1 },
-  type_id         => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -47,11 +46,6 @@ __PACKAGE__->meta->foreign_keys(
   staff_member => {
     class       => 'SL::DB::Employee',
     key_columns => { staff_member_id => 'id' },
-  },
-
-  type => {
-    class       => 'SL::DB::TimeRecordingType',
-    key_columns => { type_id => 'id' },
   },
 );
 
