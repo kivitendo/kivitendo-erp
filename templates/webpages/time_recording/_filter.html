@@ -26,6 +26,8 @@
     <th align="right">[% 'Customer Number' | $T8 %]</th>
     <td>[% L.input_tag('filter.customer.customernumber:substr::ilike', filter.customer.customernumber_substr__ilike, size = 20) %]</td>
   </tr>
+
+  [%- IF SELF.can_view_all -%]
   <tr>
    <th align="right">[% 'Mitarbeiter' | $T8 %]</th>
    <td>
@@ -37,6 +39,8 @@
                      style      => 'width: 200px') %]
    </td>
   </tr>
+  [%- END -%]
+
  </table>
 
 [% L.hidden_tag('sort_by', FORM.sort_by) %]

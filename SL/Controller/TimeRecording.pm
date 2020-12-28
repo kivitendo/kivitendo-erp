@@ -18,7 +18,7 @@ use SL::ReportGenerator;
 use Rose::Object::MakeMethods::Generic
 (
 # scalar                  => [ qw() ],
- 'scalar --get_set_init' => [ qw(time_recording models all_time_recording_types all_employees) ],
+ 'scalar --get_set_init' => [ qw(time_recording models all_time_recording_types all_employees can_view_all) ],
 );
 
 
@@ -126,11 +126,21 @@ sub init_time_recording {
   return $time_recording;
 }
 
+sub init_can_view_all {
+  $::auth->assert('time_recording_show_all', 1) || $::auth->assert('time_recording_edit_all', 1)
+}
+
 sub init_models {
+  my ($self) = @_;
+
+  my @where;
+  push @where, (staff_member_id => SL::DB::Manager::Employee->current->id) if !$self->can_view_all;
+
   SL::Controller::Helper::GetModels->new(
     controller     => $_[0],
     sorted         => \%sort_columns,
     disable_plugin => 'paginated',
+    query          => \@where,
     with_objects   => [ 'customer', 'type', 'project', 'staff_member', 'employee' ],
   );
 }
