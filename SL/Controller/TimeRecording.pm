@@ -18,12 +18,13 @@ use SL::ReportGenerator;
 use Rose::Object::MakeMethods::Generic
 (
 # scalar                  => [ qw() ],
- 'scalar --get_set_init' => [ qw(time_recording models all_time_recording_types all_employees can_view_all) ],
+ 'scalar --get_set_init' => [ qw(time_recording models all_time_recording_types all_employees can_view_all can_edit_all) ],
 );
 
 
 # safety
 __PACKAGE__->run_before('check_auth');
+__PACKAGE__->run_before('check_auth_edit', only => [ qw(edit save delete) ]);
 
 #
 # actions
@@ -132,6 +133,10 @@ sub init_can_view_all {
   $::auth->assert('time_recording_show_all', 1) || $::auth->assert('time_recording_edit_all', 1)
 }
 
+sub init_can_edit_all {
+  $::auth->assert('time_recording_edit_all', 1)
+}
+
 sub init_models {
   my ($self) = @_;
 
@@ -157,6 +162,14 @@ sub init_all_employees {
 
 sub check_auth {
   $::auth->assert('time_recording');
+}
+
+sub check_auth_edit {
+  my ($self) = @_;
+
+  if (!$self->can_edit_all && ($self->time_recording->staff_member_id != SL::DB::Manager::Employee->current->id)) {
+    $::form->error(t8('You do not have permission to access this entry.'));
+  }
 }
 
 sub prepare_report {
