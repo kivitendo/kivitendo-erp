@@ -9,6 +9,7 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('time_recordings');
 
 __PACKAGE__->meta->columns(
+  booked          => { type => 'boolean', default => 'false' },
   customer_id     => { type => 'integer', not_null => 1 },
   description     => { type => 'text', not_null => 1 },
   employee_id     => { type => 'integer', not_null => 1 },
@@ -16,6 +17,7 @@ __PACKAGE__->meta->columns(
   id              => { type => 'serial', not_null => 1 },
   itime           => { type => 'timestamp', default => 'now()', not_null => 1 },
   mtime           => { type => 'timestamp', default => 'now()', not_null => 1 },
+  payroll         => { type => 'boolean', default => 'false' },
   project_id      => { type => 'integer' },
   staff_member_id => { type => 'integer', not_null => 1 },
   start_time      => { type => 'timestamp', not_null => 1 },
