@@ -11,14 +11,16 @@ use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::DB::Customer;
 use SL::DB::Employee;
+use SL::DB::Part;
 use SL::DB::TimeRecording;
+use SL::DB::TimeRecordingArticle;
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 
 use Rose::Object::MakeMethods::Generic
 (
 # scalar                  => [ qw() ],
- 'scalar --get_set_init' => [ qw(time_recording models all_employees can_view_all can_edit_all) ],
+ 'scalar --get_set_init' => [ qw(time_recording models all_employees all_time_recording_articles can_view_all can_edit_all) ],
 );
 
 
@@ -26,19 +28,20 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('check_auth_edit', only => [ qw(edit save delete) ]);
 
-#
-# actions
-#
-
 my %sort_columns = (
   start_time   => t8('Start'),
   end_time     => t8('End'),
   customer     => t8('Customer'),
+  part         => t8('Article'),
   project      => t8('Project'),
   description  => t8('Description'),
   staff_member => t8('Mitarbeiter'),
   duration     => t8('Duration'),
 );
+
+#
+# actions
+#
 
 sub action_list {
   my ($self, %params) = @_;
@@ -150,12 +153,27 @@ sub init_models {
     sorted         => \%sort_columns,
     disable_plugin => 'paginated',
     query          => \@where,
-    with_objects   => [ 'customer', 'project', 'staff_member', 'employee' ],
+    with_objects   => [ 'customer', 'part', 'project', 'staff_member', 'employee' ],
   );
 }
 
 sub init_all_employees {
   SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
+}
+
+sub init_all_time_recording_articles {
+  my $selectable_parts = SL::DB::Manager::TimeRecordingArticle->get_all_sorted(
+    query        => [or => [ 'part.obsolete' => 0, 'part.obsolete' => undef ]],
+    with_objects => ['part']);
+
+  my $res              = [ map { {id => $_->part_id, description => $_->part->displayable_name} } @$selectable_parts];
+  my $curr_id          = $_[0]->time_recording->part_id;
+
+  if ($curr_id && !grep { $curr_id == $_->{id} } @$res) {
+    unshift @$res, {id => $curr_id, description => $_[0]->time_recording->part->displayable_name};
+  }
+
+  return $res;
 }
 
 sub check_auth {
@@ -176,7 +194,7 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns  = qw(start_time end_time customer project description staff_member duration);
+  my @columns  = qw(start_time end_time customer part project description staff_member duration);
 
   my %column_defs = (
     start_time   => { text => t8('Start'),        sub => sub { $_[0]->start_time_as_timestamp },
@@ -184,6 +202,7 @@ sub prepare_report {
     end_time     => { text => t8('End'),          sub => sub { $_[0]->end_time_as_timestamp },
                       obj_link => sub { $self->url_for(action => 'edit', 'id' => $_[0]->id, callback => $self->models->get_callback) }  },
     customer     => { text => t8('Customer'),     sub => sub { $_[0]->customer->displayable_name } },
+    part         => { text => t8('Article'),      sub => sub { $_[0]->part && $_[0]->part->displayable_name } },
     project      => { text => t8('Project'),      sub => sub { $_[0]->project && $_[0]->project->displayable_name } },
     description  => { text => t8('Description'),  sub => sub { $_[0]->description_as_stripped_html },
                       raw_data => sub { $_[0]->description_as_restricted_html }, # raw_data only used for html(?)
