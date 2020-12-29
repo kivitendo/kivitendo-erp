@@ -485,6 +485,7 @@ $self->{texts} = {
   'Bis Konto: '                 => 'bis Konto: ',
   'Body'                        => 'Text',
   'Body:'                       => 'Text:',
+  'Booked'                      => 'gebucht',
   'Booking group'               => 'Buchungsgruppe',
   'Booking group #1 needs a valid expense account' => 'Buchungsgruppe #1 braucht ein gültiges Aufwandskonto',
   'Booking group #1 needs a valid income account' => 'Buchungsgruppe #1 braucht ein gültiges Erfolgskonto',

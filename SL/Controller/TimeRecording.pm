@@ -37,6 +37,7 @@ my %sort_columns = (
   description  => t8('Description'),
   staff_member => t8('Mitarbeiter'),
   duration     => t8('Duration'),
+  booked       => t8('Booked'),
 );
 
 #
@@ -194,7 +195,7 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns  = qw(start_time end_time customer part project description staff_member duration);
+  my @columns  = qw(start_time end_time customer part project description staff_member duration booked);
 
   my %column_defs = (
     start_time   => { text => t8('Start'),        sub => sub { $_[0]->start_time_as_timestamp },
@@ -210,6 +211,7 @@ sub prepare_report {
     staff_member => { text => t8('Mitarbeiter'),  sub => sub { $_[0]->staff_member->safe_name } },
     duration     => { text => t8('Duration'),     sub => sub { $_[0]->duration_as_duration_string },
                       align => 'right'},
+    booked       => { text => t8('Booked'),       sub => sub { $_[0]->booked ? t8('Yes') : t8('No') } },
   );
 
   $report->set_options(

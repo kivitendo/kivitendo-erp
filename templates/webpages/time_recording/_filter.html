@@ -41,6 +41,11 @@
   </tr>
   [%- END -%]
 
+  <tr>
+    <th align="right">[% 'Booked' | $T8 %]</th>
+    <td>[% L.select_tag('filter.booked', [ [ '1', LxERP.t8('Yes') ], [ '0', LxERP.t8('No') ] ], default=filter.booked, with_empty=1, style="width: 200px") %]</td>
+  </tr>
+
  </table>
 
 [% L.hidden_tag('sort_by', FORM.sort_by) %]

@@ -485,6 +485,7 @@ $self->{texts} = {
   'Bis Konto: '                 => '',
   'Body'                        => '',
   'Body:'                       => '',
+  'Booked'                      => '',
   'Booking group'               => '',
   'Booking group #1 needs a valid expense account' => '',
   'Booking group #1 needs a valid income account' => '',
