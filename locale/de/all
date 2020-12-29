@@ -3633,6 +3633,7 @@ $self->{texts} = {
   'There are #1 unfinished follow-ups of which #2 are due.' => 'Es gibt #1 Wiedervorlage(n), von denen #2 fällig ist/sind.',
   'There are Bins defined in your Inventory.' => 'Unter Stammdaten/Waren sind Lagerplätze definiert.',
   'There are Bins defined in your master data.' => 'Unter Stammdaten/Waren sind Lagerplätze defininert',
+  'There are Warnings.'         => 'Es gibt Warnungen.',
   'There are bookings to the account 3803 after 01.01.2007. If you didn\'t change this account manually to 19% the bookings are probably incorrect.' => 'Das Konto 3803 wurde nach dem 01.01.2007 bebucht. Falls Sie dieses Konto nicht manuell auf 19% gestellt haben sind die Buchungen wahrscheinlich mit falscher Umsatzsteuer gebucht worden.',
   'There are currently no delivery orders, or none matches your filter conditions.' => 'kein Lieferschein vorhanden',
   'There are currently no open invoices, or none matches your filter conditions.' => 'Es gibt momentan keine offenen Rechnungen, oder keine erfüllt die Filterkriterien.',

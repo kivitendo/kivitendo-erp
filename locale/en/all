@@ -3631,6 +3631,7 @@ $self->{texts} = {
   'There are #1 unfinished follow-ups of which #2 are due.' => '',
   'There are Bins defined in your Inventory.' => '',
   'There are Bins defined in your master data.' => '',
+  'There are Warnings.'         => '',
   'There are bookings to the account 3803 after 01.01.2007. If you didn\'t change this account manually to 19% the bookings are probably incorrect.' => '',
   'There are currently no delivery orders, or none matches your filter conditions.' => '',
   'There are currently no open invoices, or none matches your filter conditions.' => '',
