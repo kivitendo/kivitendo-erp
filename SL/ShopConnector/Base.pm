@@ -15,9 +15,11 @@ sub update_part    { die 'update_part needs to be implemented' }
 
 sub get_article    { die 'get_article needs to be implemented' }
 
-sub get_categories { die 'get_order needs to be implemented' }
+sub get_categories { die 'get_categories needs to be implemented' }
 
-sub get_version    { die 'get_order needs to be implemented' }
+sub get_version    { die 'get_version needs to be implemented' }
+
+sub set_orderstatus { die 'set_orderstatus needs to be implemented' }
 
 1;
 
@@ -49,6 +51,8 @@ __END__
 =item C<get_categories>
 
 =item C<get_version>
+
+=item C<set_orderstatus>
 
 =back
 

@@ -1441,6 +1441,21 @@ SQL
     }
   }
 
+  # update shop status
+  my $invoice = SL::DB::Invoice->new( id => $form->{id} )->load;
+  my @linked_shop_orders = $invoice->linked_records(
+    from      => 'ShopOrder',
+    via       => ['Order', 'DeliveryOrder'],
+  );
+  if (scalar @linked_shop_orders == 1){
+    #do update
+    my $shop_order = $linked_shop_orders[0][0];
+  require SL::Shop;
+    my $shop_config = SL::DB::Manager::Shop->get_first( query => [ id => $shop_order->shop_id ] );
+    my $shop = SL::Shop->new( config => $shop_config );
+    $shop->connector->set_orderstatus($shop_order->shop_trans_id, "completed");
+  }
+
   return 1;
 }
 

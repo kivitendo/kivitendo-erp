@@ -46,6 +46,7 @@ sub get_one_order {
     };
 
     if(!@errors){
+      $self->set_orderstatus($import->{data}->{id}, "fetched");
       $of++;
     }else{
       flash_later('error', $::locale->text('Database errors: #1', @errors));
@@ -100,6 +101,7 @@ sub get_new_orders {
       };
 
       if(!@errors){
+        $self->set_orderstatus($shoporder->{id}, "fetched");
         $of++;
       }else{
         flash_later('error', $::locale->text('Database errors: #1', @errors));
@@ -399,6 +401,15 @@ sub get_article {
   my $data      = $self->connector->get($url . "api/articles/$partnumber?useNumberAsId=true");
   my $data_json = $data->content;
   return SL::JSON::decode_json($data_json);
+}
+
+sub set_orderstatus {
+  my ($self,$order_id, $status) = @_;
+  if ($status eq "fetched") { $status = 1; }
+  if ($status eq "completed") { $status = 2; }
+  my %new_status = (orderStatusId => $status);
+  my $new_status_json = SL::JSON::to_json(\%new_status);
+  $self->connector->put($self->url . "api/orders/$order_id", Content => $new_status_json);
 }
 
 sub init_url {
