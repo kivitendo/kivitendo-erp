@@ -32,17 +32,15 @@ sub get_one_order {
     my $shoporder = $answer->{data};
 
     $dbh->with_transaction( sub{
-        unless ($self->import_data_to_shop_order($shoporder)) { return 0;}
-
         #update status on server
         $shoporder->{status} = "processing";
-        my %new_status = ( status => "processing" );
-        my $status_json = SL::JSON::to_json( \%new_status);
-        $answer = $self->send_request("orders/$shoporder->{id}", $status_json, "put");
-        unless($answer->{success}){
+        my $anser = $self->set_orderstatus($$shoporder->{id}, "fetched");
+        unless($answer){
           push @errors,($::locale->text('Saving failed. Error message from the server: #1', $answer->message));
-          return 0
+          return 0;
         }
+
+        unless ($self->import_data_to_shop_order($shoporder)) { return 0;}
 
         1;
       })or do {
@@ -87,17 +85,15 @@ sub get_new_orders {
     foreach my $shoporder(@{$orders}){
 
       $dbh->with_transaction( sub{
-          unless ($self->import_data_to_shop_order($shoporder)) { return 0;}
-
           #update status on server
           $shoporder->{status} = "processing";
-          my %new_status = ( status => "processing" );
-          my $status_json = SL::JSON::to_json( \%new_status);
-          $answer = $self->send_request("orders/$shoporder->{id}", $status_json, "put");
-          unless($answer->{success}){
+          my $anser = $self->set_orderstatus($$shoporder->{id}, "fetched");
+          unless($answer){
             push @errors,($::locale->text('Saving failed. Error message from the server: #1', $answer->message));
             return 0;
           }
+
+          unless ($self->import_data_to_shop_order($shoporder)) { return 0;}
 
           1;
       })or do {
@@ -444,6 +440,19 @@ sub get_version {
   } else {
     return $answer;
   }
+}
+
+sub set_orderstatus {
+  my ($self,$order_id, $status) = @_;
+  if ($status eq "fetched") { $status =  "processing"; }
+  if ($status eq "completed") { $status = "completed"; }
+  my %new_status = (status => $status);
+  my $status_json = SL::JSON::to_json( \%new_status);
+  my $answer = $self->send_request("orders/$order_id", $status_json, "put");
+  unless($answer->{success}){
+    return 0;
+  }
+  return 1;
 }
 
 sub create_url {
