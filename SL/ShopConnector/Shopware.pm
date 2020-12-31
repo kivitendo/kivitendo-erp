@@ -416,7 +416,7 @@ sub update_part {
   return $upload_content->{success};
 }
 
-sub get_article {
+sub get_parts_info {
   my ($self,$partnumber) = @_;
 
   my $url       = $self->url;

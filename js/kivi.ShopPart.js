@@ -140,8 +140,34 @@ namespace('kivi.ShopPart', function(ns) {
                         id:     'files_upload',
                         dialog: { title: kivi.t8('File upload'), width: 650, height: 240 } });
     return true;
-  }
+  };
 
+  ns.get_shop_parts_one = function() {
+
+    var data = $('#get_one_shop_part_form').serializeArray();
+    data.push({ name: 'type', value: 'get_one'});
+    data.push({ name: 'action', value: 'ShopPart/get_shop_parts' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.get_shop_parts_new = function() {
+    $.post("controller.pl", { action: 'ShopPart/get_shop_parts', type: 'get_new'}, kivi.eval_json_result);
+  };
+
+  ns.get_shop_order_one_initialize = function() {
+    kivi.popup_dialog({
+      id: 'get_one',
+      dialog: {
+        title: kivi.t8('Get one shoppart'),
+      }
+    });
+  };
+
+  ns.get_shop_parts_one_setup = function() {
+    kivi.ShopPart.get_shop_order_one_initialize();
+    //kivi.submit_ajax_form('controller.pl?action=ShopOrder/get_orders', $('#shoporder'));
+  };
 
   ns.setup = function() {
     kivi.ShopPart.massUploadInitialize();

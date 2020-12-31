@@ -1,0 +1,17 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
+[% USE Dumper %]
+[% L.stylesheet_tag('webshop') %]
+[%- INCLUDE 'common/flash.html' %]
+<form id="get_one_shop_part_form" action="controller.pl" method="post" style="padding-left:1em;">
+ <table>
+    <tr>
+     <th align="right">[% 'Shop' | $T8 %]</th>
+     <td>[% L.select_tag('shop_id', SELF.shops, value_key = 'value', title_key = 'title', default=1) %]</td>
+    </tr>
+    <tr>
+     <th align="right">[% 'Shop partnumber' | $T8 %]</th>
+     <td>[% L.input_tag('part_number', "") %]</td>
+    </tr>
+ </table>
+  [%  L.button_tag("kivi.ShopPart.get_shop_parts_one()", LxERP.t8('Import part')) %]
+</form>
