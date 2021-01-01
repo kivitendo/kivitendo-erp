@@ -297,9 +297,10 @@ customer. L<Rose::DB::Object> allows you to search for these by filtering them p
 
   query => [
     'customer.name'          => 'John Doe',
-    'department.description' => [ ilike => '%Sales%' ],
-    'orddate'                => [ lt    => DateTime->today ],
+    'department.description' => [ like => '%Sales%' ],
+    'orddate'                => { lt    => DateTime->today },
   ]
+
 
 Unfortunately, if you specify them in your form as these strings, the form
 parser will convert them into nested structures like this:
