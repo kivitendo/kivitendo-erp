@@ -30,6 +30,7 @@ sub run {
   my $data;
   $data = $db_obj->data_as_hash if $db_obj;
 
+  $self->{$_} = [] for qw(job_errors);
   # from/to date from data. Defaults to begining and end of last month.
   my $from_date;
   my $to_date;
@@ -56,7 +57,6 @@ sub run {
   push @{ $time_recordings_by_customer_id{$_->customer_id} }, $_ for @$time_recordings;
 
   my @donumbers;
-  my $has_warnings;
   foreach my $customer_id (keys %time_recordings_by_customer_id) {
     my $do;
     if (!eval {
@@ -65,7 +65,8 @@ sub run {
     }) {
       $::lxdebug->message(LXDebug->WARN(),
                           "ConvertTimeRecordings: creating delivery order failed ($@) for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}});
-      $has_warnings = 1;
+      push @{ $self->{job_errors} }, "ConvertTimeRecordings: creating delivery order failed ($@) for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}};
+
     }
 
     if ($do) {
@@ -76,20 +77,25 @@ sub run {
       })) {
         $::lxdebug->message(LXDebug->WARN(),
                             "ConvertTimeRecordings: saving delivery order failed for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}});
-        $has_warnings = 1;
+      push @{ $self->{job_errors} }, "ConvertTimeRecordings: saving delivery order failed for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}};
       } else {
         push @donumbers, $do->donumber;
       }
     }
   }
 
-  my $msg  = t8('Number of deliveryorders created:');
+  my $msg  = t8('Number of delivery orders created:');
   $msg    .= ' ';
   $msg    .= scalar @donumbers;
   $msg    .= ' (';
   $msg    .= join ', ', @donumbers;
   $msg    .= ').';
-  $msg    .= ' ' . t8('There are Warnings.') if $has_warnings;
+  # die if errors exists
+  if (@{ $self->{job_errors} }) {
+    $msg  .= ' ' . t8('The following errors occurred:');
+    $msg  .= join "\n", @{ $self->{job_errors} };
+    return $msg;
+  }
   return $msg;
 }
 
