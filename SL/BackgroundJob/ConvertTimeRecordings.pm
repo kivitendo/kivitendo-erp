@@ -77,7 +77,7 @@ sub run {
       })) {
         $::lxdebug->message(LXDebug->WARN(),
                             "ConvertTimeRecordings: saving delivery order failed for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}});
-      push @{ $self->{job_errors} }, "ConvertTimeRecordings: saving delivery order failed for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}};
+        push @{ $self->{job_errors} }, "ConvertTimeRecordings: saving delivery order failed for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}};
       } else {
         push @donumbers, $do->donumber;
       }
@@ -94,7 +94,7 @@ sub run {
   if (@{ $self->{job_errors} }) {
     $msg  .= ' ' . t8('The following errors occurred:');
     $msg  .= join "\n", @{ $self->{job_errors} };
-    return $msg;
+    die $msg;
   }
   return $msg;
 }
