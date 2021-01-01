@@ -8,7 +8,9 @@ use SL::DB::DeliveryOrder;
 use SL::DB::TimeRecording;
 
 use SL::Locale::String qw(t8);
+
 use DateTime;
+use Try::Tiny;
 
 sub create_job {
   $_[0]->create_standard_job('7 3 1 * *'); # every first day of month at 03:07
@@ -31,8 +33,13 @@ sub run {
   # from/to date from data. Defaults to begining and end of last month.
   my $from_date;
   my $to_date;
-  $from_date   = DateTime->from_kivitendo($data->{from_date}) if $data->{from_date};
-  $to_date     = DateTime->from_kivitendo($data->{to_date})   if $data->{to_date};
+  # handle errors with a catch handler
+  try {
+    $from_date   = DateTime->from_kivitendo($data->{from_date}) if $data->{from_date};
+    $to_date     = DateTime->from_kivitendo($data->{to_date})   if $data->{to_date};
+  } catch {
+    die "Cannot convert date from string $data->{from_date} $data->{to_date}\n Details :\n $_"; # not $@
+  };
   $from_date ||= DateTime->new( day => 1,    month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1);
   $to_date   ||= DateTime->last_day_of_month(month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1);
 
