@@ -186,7 +186,7 @@ sub new_from_time_recordings {
 
   my %args = (
     is_sales    => 1,
-    delivered   => 1,
+    delivered   => 0,
     customer_id => $sources->[0]->customer_id,
     taxzone_id  => $sources->[0]->customer->taxzone_id,
     currency_id => $sources->[0]->customer->currency_id,
