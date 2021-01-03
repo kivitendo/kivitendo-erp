@@ -125,6 +125,8 @@ C<SL::DB::DeliveryOrder-E<gt>new_from_time_recordings>).
 =head1 CONFIGURATION
 
 Some data can be provided to configure this backgroung job.
+If there is user data and it cannot be validated the background job
+returns a error messages.
 
 =over 4
 
@@ -155,6 +157,45 @@ collected. This is the default.
 Example (format depends on your settings):
 
 customernumbers: [c1,22332,334343]
+
+=item C<part_id>
+
+The part id of a time based service which should be used to
+book the times. If not set the clients config defaults is used.
+
+=item C<rounding>
+
+If set the 0 no rounding of the times will be done otherwise
+the times will be rounded up to th full quarters of an hour,
+ie. 0.25h 0.5h 0.75h 1.25h ...
+Defaults to rounding true (1).
+
+=item C<link_project>
+
+If set the job tries to find a previous Order with the current
+customer and project number and tries to do as much automatic
+workflow processing as the UI.
+Defaults to off. If set to true (1) the job will fail if there
+is no Sales Orders which qualifies as a predecessor.
+Conditions for a predeccesor:
+
+ * Global project_id must match time_recording.project_id OR data.project_id
+ * Customer name must match time_recording.customer_id OR data.customernumbers
+ * The sales order must have at least one or more time related services
+ * The Project needs to be valid and active
+
+The job doesn't care if the Sales Order is already delivered or closed.
+If the sales order is overdelivered some organisational stuff needs to be done.
+The sales order may also already be closed, ie the amount is fully billed, but
+the services are not yet fully delivered (simple case: 'Payment in advance').
+
+Hint: take a look or extend the job CloseProjectsBelongingToClosedSalesOrder for
+further automatisation of your organisational needs.
+
+
+=item C<project_id>
+
+Use this project_id instead of the project_id in the time recordings.
 
 =back
 
