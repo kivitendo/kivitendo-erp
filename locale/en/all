@@ -4057,6 +4057,7 @@ $self->{texts} = {
   'You do not have permission to access this entry.' => '',
   'You do not have the permissions to access this function.' => '',
   'You don\'t have the rights to edit this customer.' => '',
+  'You don\'t have the rights to edit this vendor.' => '',
   'You have changed the currency or exchange rate. Please check prices.' => '',
   'You have entered or selected the following shipping address for this customer:' => '',
   'You have never worked with currencies.' => '',
