@@ -765,7 +765,8 @@ locales.pl - Collect strings for translation in kivitendo
 locales.pl [options] lang_code
 
  Options:
-  -c, --check-files      Run extended checks on HTML files
+  -c, --check-files      Run extended checks on HTML files (default)
+  -n, --no-check-files   Do not run extended checks on HTML files
   -f, --filenames        Show the filenames where new strings where found
   -v, --verbose          Be more verbose
   -h, --help             Show this help
@@ -778,7 +779,12 @@ locales.pl [options] lang_code
 
 Run extended checks on the usage of templates. This can be used to
 discover HTML templates that are never used as well as the usage of
-non-existing HTML templates.
+non-existing HTML templates. This is enabled by default.
+
+=item B<-n>, B<--no-check-files>
+
+Do not run extended checks on the usage of templates. See
+C<--no-check-files>.
 
 =item B<-v>, B<--verbose>
 
