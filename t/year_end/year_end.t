@@ -31,7 +31,7 @@ clear_up();
 #   (Ist-versteuerung, rather than Soll-versteuerung)
 
 # use 2019 instead of 2020 because of tax changes in Germany (19/16 and 7/5) because we check for account sums
-my $year = 2019 if DateTime->today_local->year == 2020;
+my $year = 2019;
 my $start_of_year = DateTime->new(year => $year, month => 01, day => 01);
 my $booking_date  = DateTime->new(year => $year, month => 12, day => 22);
 
