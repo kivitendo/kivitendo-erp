@@ -1,9 +1,6 @@
 #!/usr/bin/perl
 
-# -n do not include custom_ scripts
-# -v verbose mode, shows progress stuff
-
-# this version of locles processes not only all required .pl files
+# this version of locales processes not only all required .pl files
 # but also all parse_html_templated files.
 
 use utf8;
