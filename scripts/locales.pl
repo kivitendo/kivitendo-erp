@@ -31,7 +31,6 @@ use SL::YAML;
 $OUTPUT_AUTOFLUSH = 1;
 
 my $opt_v  = 0;
-my $opt_n  = 0;
 my $opt_c  = 0;
 my $opt_f  = 0;
 my $debug  = 0;
@@ -97,7 +96,6 @@ my @customfiles  = grep /_custom/, @bindir_files;
 
 push @progfiles, map { m:^(.+)/([^/]+)$:; [ $2, $1 ] } grep { /\.pm$/ } map { find_files($_) } @progdirs;
 
-# put customized files into @customfiles
 my %dir_h;
 
 my @dbplfiles;
@@ -263,7 +261,6 @@ sub parse_args {
   my ($opt_no_c, $ignore_for_compatiblity);
 
   GetOptions(
-    'no-custom-files' => \$opt_n,
     'check-files'     => \$ignore_for_compatiblity,
     'no-check-files'  => \$opt_no_c,
     'verbose'         => \$opt_v,
@@ -768,7 +765,6 @@ locales.pl - Collect strings for translation in kivitendo
 locales.pl [options] lang_code
 
  Options:
-  -n, --no-custom-files  Do not process files whose name contains "_"
   -c, --check-files      Run extended checks on HTML files
   -f, --filenames        Show the filenames where new strings where found
   -v, --verbose          Be more verbose
@@ -777,10 +773,6 @@ locales.pl [options] lang_code
 =head1 OPTIONS
 
 =over 8
-
-=item B<-n>, B<--no-custom-files>
-
-Do not process files whose name contains "_", e.g. "custom_io.pl".
 
 =item B<-c>, B<--check-files>
 
