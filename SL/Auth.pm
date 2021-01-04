@@ -1229,6 +1229,15 @@ sub check_right {
   return $granted;
 }
 
+sub deny_access {
+  my ($self) = @_;
+
+  $::dispatcher->reply_with_json_error(error => 'access') if $::request->type eq 'json';
+
+  delete $::form->{title};
+  $::form->show_generic_error($::locale->text("You do not have the permissions to access this function."));
+}
+
 sub assert {
   my ($self, $right, $dont_abort) = @_;
 
@@ -1237,10 +1246,7 @@ sub assert {
   }
 
   if (!$dont_abort) {
-    $::dispatcher->reply_with_json_error(error => 'access') if $::request->type eq 'json';
-
-    delete $::form->{title};
-    $::form->show_generic_error($::locale->text("You do not have the permissions to access this function."));
+    $self->deny_access;
   }
 
   return 0;

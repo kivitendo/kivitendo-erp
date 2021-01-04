@@ -76,8 +76,6 @@ sub _zugferd_settings {
 sub search {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('customer_vendor_edit');
-
   my $form     = $main::form;
   my $locale   = $main::locale;
 
@@ -107,7 +105,6 @@ sub search {
 
 sub search_contact {
   $::lxdebug->enter_sub;
-  $::auth->assert('customer_vendor_edit');
 
   $::form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'Contacts');
   ($::form->{CUSTOM_VARIABLES_FILTER_CODE},
@@ -127,8 +124,6 @@ sub search_contact {
 
 sub list_names {
   $main::lxdebug->enter_sub();
-
-  $main::auth->assert('customer_vendor_edit');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -339,7 +334,6 @@ sub list_names {
 
 sub list_contacts {
   $::lxdebug->enter_sub;
-  $::auth->assert('customer_vendor_edit');
 
   $::form->{sortdir} = 1 unless defined $::form->{sortdir};
 
