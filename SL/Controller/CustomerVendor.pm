@@ -10,6 +10,7 @@ use SL::DBUtils;
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::Util qw(trim);
+use SL::VATIDNr;
 use SL::Webdav;
 use SL::ZUGFeRD;
 use SL::Controller::Helper::GetModels;
@@ -132,6 +133,62 @@ sub action_show {
   }
 }
 
+sub _check_ustid_taxnumber_unique {
+  my ($self) = @_;
+
+  my %cfg;
+  if ($self->is_vendor()) {
+    %cfg = (should_check  => $::instance_conf->get_vendor_ustid_taxnummer_unique,
+            manager_class => 'SL::DB::Manager::Vendor',
+            err_ustid     => t8('A vendor with the same VAT ID already exists.'),
+            err_taxnumber => t8('A vendor with the same taxnumber already exists.'),
+    );
+
+  } elsif ($self->is_customer()) {
+    %cfg = (should_check  => $::instance_conf->get_customer_ustid_taxnummer_unique,
+            manager_class => 'SL::DB::Manager::Customer',
+            err_ustid     => t8('A customer with the same VAT ID already exists.'),
+            err_taxnumber => t8('A customer with the same taxnumber already exists.'),
+    );
+
+  } else {
+    return;
+  }
+
+  my @errors;
+
+  if ($cfg{should_check}) {
+    my $do_clean_taxnumber = sub { my $n = $_[0]; $n //= ''; $n =~ s{[[:space:].-]+}{}g; return $n};
+
+    my $clean_ustid     = SL::VATIDNr->clean($self->{cv}->ustid);
+    my $clean_taxnumber = $do_clean_taxnumber->($self->{cv}->taxnumber);
+
+    if (!($clean_ustid || $clean_taxnumber)) {
+      return t8('VAT ID and/or taxnumber must be given.');
+
+    } else {
+      my $clean_number = $clean_ustid;
+      if ($clean_number) {
+        my $entries = $cfg{manager_class}->get_all(query => ['!id' => $self->{cv}->id, '!ustid' => undef, '!ustid' => ''], select => ['ustid'], distinct => 1);
+        if (any { $clean_number eq SL::VATIDNr->clean($_->ustid) } @$entries) {
+          push @errors, $cfg{err_ustid};
+        }
+      }
+
+      $clean_number = $clean_taxnumber;
+      if ($clean_number) {
+        my $entries = $cfg{manager_class}->get_all(query => ['!id' => $self->{cv}->id, '!taxnumber' => undef, '!taxnumber' => ''], select => ['taxnumber'], distinct => 1);
+        if (any { $clean_number eq $do_clean_taxnumber->($_->taxnumber) } @$entries) {
+          push @errors, $cfg{err_taxnumber};
+        }
+      }
+    }
+  }
+
+  return join "\n", @errors if @errors;
+  return;
+}
+
 sub _save {
   my ($self) = @_;
 
@@ -184,6 +241,9 @@ sub _save {
         $::form->error($msg);
       }
     }
+
+    my $ustid_taxnumber_error = $self->_check_ustid_taxnumber_unique;
+    $::form->error($ustid_taxnumber_error) if $ustid_taxnumber_error;
 
     $self->{cv}->save(cascade => 1);
 
