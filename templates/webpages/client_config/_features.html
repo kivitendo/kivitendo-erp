@@ -156,6 +156,17 @@
    <td>[% LxERP.t8('Default hourly rate for new customers') %]</td>
   </tr>
 
+  <tr>
+   <td align="right">[% LxERP.t8('Customers: VAT ID / taxnumber unique') %]</td>
+   <td>[% L.yes_no_tag('defaults.customer_ustid_taxnummer_unique', SELF.defaults.customer_ustid_taxnummer_unique) %]</td>
+   <td>[% LxERP.t8('Should VAT ID or taxnumber be unique for customers? This is checked when saving a customer\'s master data. One of the fields is sufficient and required.') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Vendors: VAT ID / taxnumber unique') %]</td>
+   <td>[% L.yes_no_tag('defaults.vendor_ustid_taxnummer_unique', SELF.defaults.vendor_ustid_taxnummer_unique) %]</td>
+   <td>[% LxERP.t8('Should VAT ID or taxnumber be unique for all vendors? This is checked when saving a vendor\'s master data. One of the fields is sufficient and required.') %]</td>
+  </tr>
+
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Parts Master Data") %]</td></tr>
 
   <tr>
