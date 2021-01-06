@@ -21,6 +21,7 @@ use SL::Helper::Number qw(_format_total _round_total);
 
 use List::Util qw(first notall);
 use List::MoreUtils qw(any);
+use Math::Round qw(nhimult);
 
 __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many',
                                                     class        => 'SL::DB::DeliveryOrderItem',
@@ -226,7 +227,9 @@ sub new_from_time_recordings {
     }
 
     my $date = $source->start_time->to_kivitendo;
-    $entries->{$part_id}->{$date}->{duration} += _round_total($source->duration_in_hours);
+    $entries->{$part_id}->{$date}->{duration} += $source->{rounding} ?
+                                                   nhimult(0.25, ($source->duration_in_hours))
+                                                 : _round_total($source->duration_in_hours);
     # add content if not already in description
     my $new_description = $source->description_as_stripped_html;
     $entries->{$part_id}->{$date}->{content}  .= '<li>' . $new_description . '</li>'
