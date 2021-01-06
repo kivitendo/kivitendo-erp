@@ -9,13 +9,27 @@ use SL::DB::TimeRecording;
 
 use SL::Locale::String qw(t8);
 
+use Carp;
 use DateTime;
 use Try::Tiny;
 
 sub create_job {
   $_[0]->create_standard_job('7 3 1 * *'); # every first day of month at 03:07
 }
+use Rose::Object::MakeMethods::Generic (
+ 'scalar --get_set_init' => [ qw(rounding link_project) ],
+);
 
+# valid parameters -> better as class members with rose generic set/get
+my %params = (
+              fromdate => '',
+              todate   => '',
+              customernumbers => '',
+              part_id => '',
+              rounding => 1,
+              link_project => 0,
+              project_id => '',
+             );
 
 #
 # If job does not throw an error,
@@ -31,7 +45,19 @@ sub run {
   $data = $db_obj->data_as_hash if $db_obj;
 
   $self->{$_} = [] for qw(job_errors);
+
+  # check user input param names
+  foreach my $param (keys %{ $data }) {
+    croak "Not a valid key: $param" unless $params{$param};
+  }
+
+  # TODO check user input param values - (defaults are assigned later)
+  # 1- If there are any customer numbers check if they refer to valid customers
+  #    otherwise croak and do nothing
+  # 2 .. n Same applies for other params if used at all (rounding -> 0|1  link_project -> 0|1)
+
   # from/to date from data. Defaults to begining and end of last month.
+  # TODO get/set see above
   my $from_date;
   my $to_date;
   # handle errors with a catch handler
@@ -53,9 +79,20 @@ sub run {
                                                                                  or => [booked => 0, booked => undef],
                                                                                  %customer_where],
                                                                 with_objects => ['customer']);
+  # no time recordings at all ? -> better exit here before iterating a empty hash
+  # return undef or message unless ref $time_recordings->[0] eq SL::DB::Manager::TimeRecording;
   my %time_recordings_by_customer_id;
-  push @{ $time_recordings_by_customer_id{$_->customer_id} }, $_ for @$time_recordings;
+  # push @{ $time_recordings_by_customer_id{$_->customer_id} }, $_ for @$time_recordings;
+  # loop over all entries and add default or user defined params:
 
+  for my $source_entry (@$time_recordings) {
+    # set user defaults for processing
+    $source_entry->{$_} = $self->$_ for qw(rounding link_project);
+    foreach (qw(project_id parts_id)) {
+      $source_entry->{$_} = $self->{$_} if length ($self->{$_});
+    }
+    push @{ $time_recordings_by_customer_id{$source_entry->customer_id} }, $source_entry;
+  }
   my @donumbers;
   foreach my $customer_id (keys %time_recordings_by_customer_id) {
     my $do;
@@ -97,6 +134,16 @@ sub run {
     die $msg;
   }
   return $msg;
+}
+
+# inits
+
+sub init_rounding {
+  1
+}
+
+sub init_link_project {
+  0
 }
 
 1;
