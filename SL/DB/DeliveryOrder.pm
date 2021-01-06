@@ -227,7 +227,11 @@ sub new_from_time_recordings {
 
     my $date = $source->start_time->to_kivitendo;
     $entries->{$part_id}->{$date}->{duration} += _round_total($source->duration_in_hours);
-    $entries->{$part_id}->{$date}->{content}  .= '<li>' . $source->description_as_stripped_html . '</li>';
+    # add content if not already in description
+    my $new_description = $source->description_as_stripped_html;
+    $entries->{$part_id}->{$date}->{content}  .= '<li>' . $new_description . '</li>'
+      unless $entries->{$part_id}->{$date}->{content} =~ m/\Q$new_description/;
+
     $entries->{$part_id}->{$date}->{date_obj}  = $source->start_time; # for sorting
   }
 
