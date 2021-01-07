@@ -144,12 +144,18 @@ for my $file_name (grep { /\.(?:js|html)$/i } map({find_files($_)} @javascript_d
 # merge entries to translate with entries from files 'missing' and 'lost'
 merge_texts();
 
-# generate all
+# Generate "all" without translations in more_texts.
+# But keep the ones which are in both old_texts (texts) and more_texts,
+# because this are ones which are overwritten in more_texts for custom usage.
+my %to_keep;
+$to_keep{$_} = 1 for grep { !!$self->{more_texts}{$_} } keys %old_texts;
+my @new_all  = grep { $to_keep{$_} || !$self->{more_texts}{$_} } sort keys %alllocales;
+
 generate_file(
   file      => "$locales_dir/all",
   header    => $ALL_HEADER,
   data_name => '$self->{texts}',
-  data_sub  => sub { _print_line($_, $self->{texts}{$_}, @_) for sort keys %alllocales },
+  data_sub  => sub { _print_line($_, $self->{texts}{$_}, @_) for @new_all },
 );
 
 open(my $js_file, '>:encoding(utf8)', $javascript_output_dir .'/locale/'. $locale .'.js') || die;
