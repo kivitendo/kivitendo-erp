@@ -162,7 +162,8 @@ open(my $js_file, '>:encoding(utf8)', $javascript_output_dir .'/locale/'. $local
 print $js_file 'namespace("kivi").setupLocale({';
 my $first_entry = 1;
 for my $key (sort(keys(%jslocale))) {
-  print $js_file ((!$first_entry ? ',' : '') ."\n". _double_quote($key) .':'. _double_quote($self->{texts}{$key}));
+  my $trans = $self->{more_texts}{$key} // $self->{texts}{$key};
+  print $js_file ((!$first_entry ? ',' : '') ."\n". _double_quote($key) .':'. _double_quote($trans));
   $first_entry = 0;
 }
 print $js_file ("\n");
