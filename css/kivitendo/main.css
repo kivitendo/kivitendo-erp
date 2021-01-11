@@ -409,11 +409,13 @@ label {
 }
 
 .chart_picker,
-.part_picker {
+.part_picker,
+.project_picker,
   display: inline-block;
 }
 .chart_picker:before,
-.part_picker:before {
+.part_picker:before,
+.project_picker:before {
   display: inline-block;
   vertical-align: middle;
   height: 100%;
@@ -427,6 +429,7 @@ label {
   font-style: italic;
 }
 
+div.project_picker_project,
 div.part_picker_part,
 div.chart_picker_chart {
   padding: 5px;
@@ -440,6 +443,7 @@ div.chart_picker_chart {
   background-color: white;
   cursor: pointer;
 }
+div.project_picker_project:hover,
 div.part_picker_part:hover,
 div.chart_picker_chart:hover {
   color: #FE5F14;
@@ -463,14 +467,16 @@ span.ppp_popup_button {
   background-size: contain;
 }
 span.chart_picker input,
-span.part_picker input {
+span.part_picker input,
+span.project_picker input {
   padding-right: 20px;
   box-sizing: padding-box;
   -moz-box-sizing: padding-box;
   -webkit-box-sizing: padding-box;
 }
 span.chart_picker,
-span.part_picker {
+span.part_picker,
+span.project_picker {
   white-space: nowrap;
 }
 div.ppp_block span.ppp_block_number,

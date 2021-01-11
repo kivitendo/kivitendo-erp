@@ -376,7 +376,8 @@ label {
 }
 
 .chart_picker,
-.part_picker {
+.part_picker,
+.project_picker {
 }
 .kivi-validator-invalid,
 .customer-vendor-picker-undefined,
@@ -387,7 +388,8 @@ label {
   font-style: italic;
 }
 div.part_picker_part,
-div.chart_picker_chart {
+div.chart_picker_chart,
+div.project_picker_project {
   padding: 5px;
   margin: 5px;
   border: 1px;
@@ -400,7 +402,8 @@ div.chart_picker_chart {
   cursor: pointer;
 }
 div.part_picker_part:hover,
-div.chart_picker_chart:hover {
+div.chart_picker_chart:hover,
+div.project_picker_project:hover {
   background-color: lightgray;
   border-color: gray;
 }
@@ -431,7 +434,8 @@ th span.ppp_popup_button {
   margin-left: -13px;
 }
 span.chart_picker input,
-span.part_picker input {
+span.part_picker input,
+span.project_picker input {
   padding-right: 20px;
   background: white url("../../image/search.svg") no-repeat center right;
   background-size: contain;
@@ -443,12 +447,16 @@ span.part_picker input {
 td span.chart_picker input,
 th span.chart_picker input,
 td span.part_picker input,
-th span.part_picker input {
+th span.part_picker input,
+td span.project_picker input,
+th span.project_picker input {
+
   padding-right: 15px;
 }
 
 span.chart_picker,
-span.part_picker {
+span.part_picker,
+span.project_picker {
  /* white-space: nowrap;*/
 }
 
@@ -475,6 +483,7 @@ div.ppp_line span.ppp_block_ean {
   float:left;
   margin-left:1em;
 }
+
 div.ppp_line span.ppp_block_description,
 div.cpc_line span.cpc_block_description
 {

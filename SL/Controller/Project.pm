@@ -138,6 +138,14 @@ sub action_test_page {
   $_[0]->render('project/test_page');
 }
 
+sub action_project_picker_search {
+  $_[0]->render('project/project_picker_search', { layout => 0 });
+}
+
+sub action_project_picker_result {
+  $_[0]->render('project/_project_picker_result', { layout => 0 });
+}
+
 #
 # filters
 #
