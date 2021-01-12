@@ -207,8 +207,6 @@ sub _create_message {
 
   my @parts;
 
-  push @{ $self->{headers} }, (Type => "multipart/mixed");
-
   if ($self->{message}) {
     push @parts, Email::MIME->create(
       attributes => {
