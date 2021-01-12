@@ -850,6 +850,7 @@ sub make_filter_summary {
     [ $filter->{"valutadate:date::le"},     $::locale->text('Valutadate') . " " . $::locale->text('To Date')   ],
     [ $filter->{"amount:number"},           $::locale->text('Amount')                                          ],
     [ $filter->{"bank_account_id:integer"}, $::locale->text('Local bank account')                              ],
+    [ $filter->{"remote_name:substr::ilike"}, $::locale->text('Remote name')                                   ],
   );
 
   for (@filters) {
