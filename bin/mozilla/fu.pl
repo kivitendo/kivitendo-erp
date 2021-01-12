@@ -42,6 +42,8 @@ sub add {
   $form->get_employee($form->get_standard_dbh(\%myconfig));
   $form->{created_for_user} = $form->{employee_id};
 
+  $form->{subject} = $form->{trans_subject_1} if $form->{trans_subject_1};
+
   my $link_details;
 
   if (0 < scalar @{ $form->{LINKS} }) {

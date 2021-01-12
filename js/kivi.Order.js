@@ -904,6 +904,7 @@ namespace('kivi.Order', function(ns) {
     $('<input type="hidden" name="follow_up_trans_id_1">').appendTo('#order_form').val(id);
     $('<input type="hidden" name="follow_up_trans_type_1">').appendTo('#order_form').val(type);
     $('<input type="hidden" name="follow_up_trans_info_1">').appendTo('#order_form').val(info);
+    $('<input type="hidden" name="follow_up_trans_subject_1">').appendTo('#order_form').val($('#order_transaction_description').val());
 
     follow_up_window();
   };
