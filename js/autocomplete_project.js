@@ -65,7 +65,6 @@ namespace('kivi', function(k){
         $('#project_picker_filter').val('').focus();
         update_results();
       });
-      update_results();
     }
 
     function ajax_data(term) {
