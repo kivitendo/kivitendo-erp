@@ -38,9 +38,13 @@ sub project_picker {
   my @classes = $params{class} ? ($params{class}) : ();
   push @classes, 'project_autocomplete';
 
+
+  my %data_params = map { $_ => delete $params{$_}  } grep { defined $params{$_} } qw(customer_id active valid);
+
   my $ret =
-    input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
-    join('', map { $params{$_} ? input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(customer_id)) .
+    input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
+              'data-project-picker-data' => JSON::to_json(\%data_params),
+    ) .
     input_tag("", ref $value ? $value->displayable_name : '', id => "${id}_name", %params);
 
   $::request->layout->add_javascripts('autocomplete_project.js');

@@ -25,7 +25,7 @@ namespace('kivi', function(k){
     var o = $.extend({
       limit: 20,
       delay: 50,
-    }, options);
+    }, $real.data('project-picker-data'), options);
     var STATES = {
       PICKED:    CLASSES.PICKED,
       UNDEFINED: CLASSES.UNDEFINED
@@ -70,14 +70,29 @@ namespace('kivi', function(k){
     function ajax_data(term) {
       var data = {
         'filter.all:substr:multi::ilike': term,
-        'filter.valid': 'valid',
-        'filter.active': 'active',
         no_paginate:  $('#no_paginate').prop('checked') ? 1 : 0,
         current:  $real.val(),
       };
 
-      if ($customer_id && $customer_id.val())
-        data['filter.customer_id'] = $customer_id.val().split(',');
+      if (o.customer_id)
+        data['filter.customer_id'] = o.customer_id.split(',');
+
+      if (o.active) {
+        if (o.active === 'active')   data['filter.active'] = 'active';
+        if (o.active === 'inactive') data['filter.active'] = 'inactive';
+        // both => no filter
+      } else {
+        data['filter.active'] = 'active'; // default
+      }
+
+      if (o.valid) {
+        if (o.valid === 'valid')   data['filter.valid'] = 'valid';
+        if (o.valid === 'invalid') data['filter.valid'] = 'invalid';
+        // both => no filter
+      } else {
+        data['filter.valid'] = 'valid'; // default
+      }
+
       return data;
     }
 
@@ -245,7 +260,6 @@ namespace('kivi', function(k){
     var pp = {
       real:           function() { return $real },
       dummy:          function() { return $dummy },
-      customer_id:    function() { return $customer_id },
       update_results: update_results,
       result_timer:   result_timer,
       set_item:       set_item,
