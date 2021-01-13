@@ -113,7 +113,7 @@
 [%- BLOCK projectnumber %]
   <tr>
     <th align=right nowrap>[% 'Project' | $T8 %]</th>
-    <td colspan=3>[% P.project.picker('project_id', '') %]</td>
+    <td colspan=3>[% P.project.picker('project_id', '', active="both", valid="both") %]</td>
   </tr>
 [%- END %]
 

@@ -56,7 +56,7 @@
      </tr>
      <tr>
       <th align="right">[% 'Project Number' | $T8 %]</th>
-      <td>[% P.project.picker("project_id", project_id, style=style) %]</td>
+      <td>[% P.project.picker("project_id", project_id, active="both", valid="both", style=style) %]</td>
      </tr>
     [% IF ALL_BUSINESS_TYPES.as_list.size > 0 %]
      <tr>

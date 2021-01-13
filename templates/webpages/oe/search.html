@@ -64,7 +64,7 @@
     </tr>
     <tr>
      <th align="right">[% 'Project' | $T8 %]</th>
-     <td>[% P.project.picker("project_id", '', style=style) %]</td>
+     <td>[% P.project.picker("project_id", '', active="both", valid="both", style=style) %]</td>
      <th align="right">[% 'Part Number' | $T8 %]</th>
      <td>[% L.input_tag("parts_partnumber", "", style=style) %]</td>
     </tr>
