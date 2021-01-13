@@ -90,6 +90,7 @@ namespace("kivi").setupLocale({
 "Print options":"Druckoptionen",
 "Print record":"Beleg drucken",
 "Project link actions":"Projektverknüpfungs-Aktionen",
+"Project picker":"Projektauswahl",
 "Quotations/Orders actions":"Aktionen für Angebote/Aufträge",
 "Re-numbering all sections and function blocks in the order they are currently shown cannot be undone.":"Das Neu-Nummerieren aller Abschnitte und Funktionsblöcke kann nicht rückgängig gemacht werden.",
 "Remove article":"Artikel entfernen",

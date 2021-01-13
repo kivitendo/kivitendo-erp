@@ -2554,6 +2554,7 @@ $self->{texts} = {
   'Project Type'                => '',
   'Project Types'               => '',
   'Project link actions'        => '',
+  'Project picker'              => '',
   'Project statuses'            => '',
   'Project type'                => '',
   'Project types'               => '',
