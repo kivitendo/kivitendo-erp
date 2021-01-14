@@ -561,10 +561,11 @@ sub form_header {
 
   $form->{paid_missing} = $form->{invtotal_unformatted} - $form->{totalpaid};
 
+  $form->{payment_id} = $form->{invoice_obj}->{payment_id} // $form->{payment_id};
   print $form->parse_html_template('ap/form_header', {
     today => DateTime->today,
     currencies => SL::DB::Manager::Currency->get_all_sorted,
-    payment_terms => SL::DB::Manager::PaymentTerm->get_all_sorted(query => [ or => [ obsolete => 0, id => $form->{invoice_obj}->{payment_id}*1 ]]),
+    payment_terms => SL::DB::Manager::PaymentTerm->get_all_sorted(query => [ or => [ obsolete => 0, id => $form->{payment_id}*1 ]]),
   });
 
   $main::lxdebug->leave_sub();
