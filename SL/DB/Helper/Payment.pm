@@ -778,7 +778,10 @@ to be lower than the payment or open invoice amount.
 
 Transdate can either be a date object or a date string.
 Chart_id is the id of the payment booking chart.
-Amount is either a postive or negative number, but never 0.
+Amount is either a positive or negative number, but never 0.
+
+CAVEAT! The helper tries to get the sign right and all calls from BankTransaction are
+positive (abs($value)) values.
 
 
 Example:
