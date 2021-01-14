@@ -252,7 +252,7 @@
             [% L.textarea_tag("intnotes", intnotes, wrap="soft", rows=textarea_rows, cols=50, readonly=readonly) %]
            </td>
            <td>
-             [% L.select_tag('payment_id', payment_terms, default=payment_id, title_key='description', with_empty=1, style="width: 250px", onchange="kivi.SalesPurchase.set_duedate_on_reference_date_change('invdate')") %]
+             [% L.select_tag('payment_id', payment_terms, default=invoice_obj.payment_id, title_key='description', with_empty=1, style="width: 250px", onchange="kivi.SalesPurchase.set_duedate_on_reference_date_change('invdate')") %]
            </td>
           <tr>
         </table>
