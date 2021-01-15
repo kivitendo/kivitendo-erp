@@ -152,7 +152,7 @@ sub _post_transaction {
                   conv_i($form->{department_id}), $form->{storno},
                   $form->{storno_id}, conv_i($form->{globalproject_id}),
                   $form->{direct_debit} ? 't' : 'f',
-                  $form->{payment_id},
+                  conv_i($form->{payment_id}),
                   $form->{id});
     do_query($form, $dbh, $query, @values);
 
