@@ -9,6 +9,8 @@ Mittelgroße neue Features:
  - Der Import von Bankauszügen im MT940-Format wurde komplett neu
    geschrieben. Das externe Programm AQBanking wird nun nicht mehr
    benötigt.
+ - Lupe für Projekt-Picker, über die ein Auswahl-Dialog geöffnet werden
+   kann.
 
 Kleinere neue Features und Detailverbesserungen:
 
