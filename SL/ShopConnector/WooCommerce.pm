@@ -558,7 +558,7 @@ sub get_shop_parts {
 sub get_categories {
   my ($self) = @_;
 
-  my $answer = $self->send_request("products/categories");
+  my $answer = $self->send_request("products/categories",undef,"get","&per_page=100");
   unless($answer->{success}) {
     return $answer;
   }
