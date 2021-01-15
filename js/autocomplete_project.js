@@ -212,7 +212,6 @@ namespace('kivi', function(k){
     var pp = {
       real:           function() { return $real },
       dummy:          function() { return $dummy },
-      type:           function() { return $type },
       customer_id:    function() { return $customer_id },
       update_results: update_results,
       result_timer:   result_timer,
