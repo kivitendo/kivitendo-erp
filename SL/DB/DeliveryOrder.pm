@@ -185,19 +185,6 @@ sub new_from_time_recordings {
   croak("Unsupported object type in sources")                                      if any { ref($_) ne 'SL::DB::TimeRecording' }            @$sources;
   croak("Cannot create delivery order from source records of different customers") if any { $_->customer_id != $sources->[0]->customer_id } @$sources;
 
-  my %args = (
-    is_sales    => 1,
-    delivered   => 0,
-    customer_id => $sources->[0]->customer_id,
-    taxzone_id  => $sources->[0]->customer->taxzone_id,
-    currency_id => $sources->[0]->customer->currency_id,
-    employee_id => SL::DB::Manager::Employee->current->id,
-    salesman_id => SL::DB::Manager::Employee->current->id,
-    items       => [],
-  );
-  my $delivery_order = $class->new(%args);
-  $delivery_order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
-
   # - one item per part (article)
   # - qty is sum of duration
   # - description goes to item longdescription
@@ -239,6 +226,8 @@ sub new_from_time_recordings {
     $entries->{$part_id}->{$date}->{date_obj}  = $source->start_time; # for sorting
   }
 
+  my @items;
+
   my $h_unit = SL::DB::Manager::Unit->find_h_unit;
 
   my @keys = sort { $part_by_part_id{$a}->partnumber cmp $part_by_part_id{$b}->partnumber } keys %$entries;
@@ -267,7 +256,27 @@ sub new_from_time_recordings {
       longdescription => $longdescription,
     );
 
-    $delivery_order->add_items($item);
+    push @items, $item;
+  }
+
+  my $delivery_order;
+
+  if ($params{related_order}) {
+    $delivery_order = SL::DB::DeliveryOrder->new_from($params{related_order}, items => \@items, %params);
+
+  } else {
+    my %args = (
+      is_sales    => 1,
+      delivered   => 0,
+      customer_id => $sources->[0]->customer_id,
+      taxzone_id  => $sources->[0]->customer->taxzone_id,
+      currency_id => $sources->[0]->customer->currency_id,
+      employee_id => SL::DB::Manager::Employee->current->id,
+      salesman_id => SL::DB::Manager::Employee->current->id,
+      items       => \@items,
+    );
+    $delivery_order = $class->new(%args);
+    $delivery_order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
   }
 
   return $delivery_order;

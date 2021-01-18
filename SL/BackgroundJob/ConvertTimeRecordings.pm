@@ -5,18 +5,21 @@ use strict;
 use parent qw(SL::BackgroundJob::Base);
 
 use SL::DB::DeliveryOrder;
+use SL::DB::Part;
+use SL::DB::Project;
 use SL::DB::TimeRecording;
-
 use SL::Locale::String qw(t8);
 
 use Carp;
 use DateTime;
+use List::Util qw(any);
 use Try::Tiny;
 
 sub create_job {
   $_[0]->create_standard_job('7 3 1 * *'); # every first day of month at 03:07
 }
 use Rose::Object::MakeMethods::Generic (
+ 'scalar'                => [ qw(data) ],
  'scalar --get_set_init' => [ qw(rounding link_project) ],
 );
 
@@ -41,13 +44,12 @@ my %valid_params = (
 sub run {
   my ($self, $db_obj) = @_;
 
-  my $data;
-  $data = $db_obj->data_as_hash if $db_obj;
+  $self->data($db_obj->data_as_hash) if $db_obj;
 
   $self->{$_} = [] for qw(job_errors);
 
   # check user input param names
-  foreach my $param (keys %{ $data }) {
+  foreach my $param (keys %{ $self->data }) {
     die "Not a valid parameter: $param" unless exists $valid_params{$param};
   }
 
@@ -62,10 +64,10 @@ sub run {
   my $to_date;
   # handle errors with a catch handler
   try {
-    $from_date   = DateTime->from_kivitendo($data->{from_date}) if $data->{from_date};
-    $to_date     = DateTime->from_kivitendo($data->{to_date})   if $data->{to_date};
+    $from_date   = DateTime->from_kivitendo($self->data->{from_date}) if $self->data->{from_date};
+    $to_date     = DateTime->from_kivitendo($self->data->{to_date})   if $self->data->{to_date};
   } catch {
-    die "Cannot convert date from string $data->{from_date} $data->{to_date}\n Details :\n $_"; # not $@
+    die "Cannot convert date from string $self->data->{from_date} $self->data->{to_date}\n Details :\n $_"; # not $@
   };
   $from_date ||= DateTime->new( day => 1,    month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1);
   $to_date   ||= DateTime->last_day_of_month(month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1);
@@ -73,7 +75,7 @@ sub run {
   $to_date->add(days => 1); # to get all from the to_date, because of the time part (15.12.2020 23.59 > 15.12.2020)
 
   my %customer_where;
-  %customer_where = ('customer.customernumber' => $data->{customernumbers}) if 'ARRAY' eq ref $data->{customernumbers};
+  %customer_where = ('customer.customernumber' => $self->data->{customernumbers}) if 'ARRAY' eq ref $self->data->{customernumbers};
 
   my $time_recordings = SL::DB::Manager::TimeRecording->get_all(where        => [end_time => { ge_lt => [ $from_date, $to_date ]},
                                                                                  or => [booked => 0, booked => undef],
@@ -83,10 +85,58 @@ sub run {
   # no time recordings at all ? -> better exit here before iterating a empty hash
   # return undef or message unless ref $time_recordings->[0] eq SL::DB::Manager::TimeRecording;
 
+  my @donumbers;
+
+  if ($self->data->{link_project}) {
+    my %time_recordings_by_order_id;
+    my %orders_by_order_id;
+    foreach my $tr (@$time_recordings) {
+      my $order = $self->get_order_for_time_recording($tr);
+      next if !$order;
+      push @{ $time_recordings_by_order_id{$order->id} }, $tr;
+      $orders_by_order_id{$order->id} ||= $order;
+    }
+    @donumbers = $self->convert_with_linking(\%time_recordings_by_order_id, \%orders_by_order_id);
+
+  } else {
+    @donumbers = $self->convert_without_linking($time_recordings);
+  }
+
+  my $msg  = t8('Number of delivery orders created:');
+  $msg    .= ' ';
+  $msg    .= scalar @donumbers;
+  $msg    .= ' (';
+  $msg    .= join ', ', @donumbers;
+  $msg    .= ').';
+  # die if errors exists
+  if (@{ $self->{job_errors} }) {
+    $msg  .= ' ' . t8('The following errors occurred:');
+    $msg  .= ' ';
+    $msg  .= join "\n", @{ $self->{job_errors} };
+    die $msg . "\n";
+  }
+  return $msg;
+}
+
+# inits
+
+sub init_rounding {
+  1
+}
+
+sub init_link_project {
+  0
+}
+
+# helper
+sub convert_without_linking {
+  my ($self, $time_recordings) = @_;
+
   my %time_recordings_by_customer_id;
   push @{ $time_recordings_by_customer_id{$_->customer_id} }, $_ for @$time_recordings;
 
-  my %convert_params = map { $_ => $data->{$_} } qw(rounding link_project part_id project_id);
+  my %convert_params = map { $_ => $self->data->{$_} } qw(rounding link_project project_id);
+  $convert_params{default_part_id} = $self->data->{part_id};
 
   my @donumbers;
   foreach my $customer_id (keys %time_recordings_by_customer_id) {
@@ -116,30 +166,125 @@ sub run {
     }
   }
 
-  my $msg  = t8('Number of delivery orders created:');
-  $msg    .= ' ';
-  $msg    .= scalar @donumbers;
-  $msg    .= ' (';
-  $msg    .= join ', ', @donumbers;
-  $msg    .= ').';
-  # die if errors exists
-  if (@{ $self->{job_errors} }) {
-    $msg  .= ' ' . t8('The following errors occurred:');
-    $msg  .= ' ';
-    $msg  .= join "\n", @{ $self->{job_errors} };
-    die $msg . "\n";
+  return @donumbers;
+}
+
+sub convert_with_linking {
+  my ($self, $time_recordings_by_order_id, $orders_by_order_id) = @_;
+
+  my %convert_params = map { $_ => $self->data->{$_} } qw(rounding link_project project_id);
+  $convert_params{default_part_id} = $self->data->{part_id};
+
+  my @donumbers;
+  foreach my $related_order_id (keys %$time_recordings_by_order_id) {
+    my $related_order = $orders_by_order_id->{$related_order_id};
+    my $do;
+    if (!eval {
+      $do = SL::DB::DeliveryOrder->new_from_time_recordings($time_recordings_by_order_id->{$related_order_id}, related_order => $related_order, %convert_params);
+      1;
+    }) {
+      $::lxdebug->message(LXDebug->WARN(),
+                          "ConvertTimeRecordings: creating delivery order failed ($@) for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_order_id->{$related_order_id}});
+      push @{ $self->{job_errors} }, "ConvertTimeRecordings: creating delivery order failed ($@) for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_order_id->{$related_order_id}};
+    }
+
+    if ($do) {
+      if (!SL::DB->client->with_transaction(sub {
+        $do->save;
+        $_->update_attributes(booked => 1) for @{$time_recordings_by_order_id->{$related_order_id}};
+
+        # Todo: reduce qty on related order
+        1;
+      })) {
+        $::lxdebug->message(LXDebug->WARN(),
+                            "ConvertTimeRecordings: saving delivery order failed for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_order_id->{$related_order_id}});
+        push @{ $self->{job_errors} }, "ConvertTimeRecordings: saving delivery order failed for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_order_id->{$related_order_id}};
+      } else {
+        push @donumbers, $do->donumber;
+      }
+    }
   }
-  return $msg;
+
+  return @donumbers;
 }
 
-# inits
+sub get_order_for_time_recording {
+  my ($self, $tr) = @_;
 
-sub init_rounding {
-  1
-}
+  # check project
+  my $project_id;
+  #$project_id   = $self->overide_project_id;
+  $project_id   = $self->data->{project_id};
+  $project_id ||= $tr->project_id;
+  #$project_id ||= $self->default_project_id;
 
-sub init_link_project {
-  0
+  if (!$project_id) {
+    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : no project id';
+    $::lxdebug->message(LXDebug->WARN(), $err_msg);
+    push @{ $self->{job_errors} }, $err_msg;
+    return;
+  }
+
+  my $project = SL::DB::Project->load_cached($project_id);
+
+  if (!$project) {
+    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project not found';
+    $::lxdebug->message(LXDebug->WARN(), $err_msg);
+    push @{ $self->{job_errors} }, $err_msg;
+    return;
+  }
+  if (!$project->active || !$project->valid) {
+    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project not active or not valid';
+    $::lxdebug->message(LXDebug->WARN(), $err_msg);
+    push @{ $self->{job_errors} }, $err_msg;
+    return;
+  }
+  if ($project->customer_id && $project->customer_id != $tr->customer_id) {
+    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project customer does not match customer of time recording';
+    $::lxdebug->message(LXDebug->WARN(), $err_msg);
+    push @{ $self->{job_errors} }, $err_msg;
+    return;
+  }
+
+  # check part
+  my $part_id;
+  #$part_id   = $self->overide_part_id;
+  $part_id ||= $tr->part_id;
+  #$part_id ||= $self->default_part_id;
+  $part_id ||= $self->data->{part_id};
+
+  if (!$part_id) {
+    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : no part id';
+    $::lxdebug->message(LXDebug->WARN(), $err_msg);
+    push @{ $self->{job_errors} }, $err_msg;
+    return;
+  }
+  my $part = SL::DB::Part->load_cached($part_id);
+  if (!$part->unit_obj->is_time_based) {
+    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : part unit is not time based';
+    $::lxdebug->message(LXDebug->WARN(), $err_msg);
+    push @{ $self->{job_errors} }, $err_msg;
+    return;
+  }
+
+  my $orders = SL::DB::Manager::Order->get_all(where => [customer_id      => $tr->customer_id,
+                                                         or               => [quotation => undef, quotation => 0],
+                                                         globalproject_id => $project_id, ]);
+  my @matching_orders;
+  foreach my $order (@$orders) {
+    if (any { $_->parts_id == $part_id } @{ $order->items_sorted }) {
+      push @matching_orders, $order;
+    }
+  }
+
+  if (1 != scalar @matching_orders) {
+    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : no or more than one orders do match';
+    $::lxdebug->message(LXDebug->WARN(), $err_msg);
+    push @{ $self->{job_errors} }, $err_msg;
+    return;
+  }
+
+  return $matching_orders[0];
 }
 
 1;
