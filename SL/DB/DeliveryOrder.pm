@@ -207,9 +207,9 @@ sub new_from_time_recordings {
   #  - merge same descriptions (todo)
   #
 
-  ### config
-  my $default_partnummer = 6;
-  my $default_part_id    = SL::DB::Manager::Part->find_by(partnumber => $default_partnummer)->id;
+  my $default_part_id = $params{default_part_id}    ? $params{default_part_id}
+                      : $params{default_partnumber} ? SL::DB::Manager::Part->find_by(partnumber => $params{default_partnumber})->id
+                      : undef;
 
   # check parts and collect entries
   my %part_by_part_id;
@@ -227,7 +227,7 @@ sub new_from_time_recordings {
     }
 
     my $date = $source->start_time->to_kivitendo;
-    $entries->{$part_id}->{$date}->{duration} += $source->{rounding}
+    $entries->{$part_id}->{$date}->{duration} += $params{rounding}
                                                ? nhimult(0.25, ($source->duration_in_hours))
                                                : _round_total($source->duration_in_hours);
     # add content if not already in description

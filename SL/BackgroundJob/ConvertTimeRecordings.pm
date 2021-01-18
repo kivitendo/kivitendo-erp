@@ -79,25 +79,20 @@ sub run {
                                                                                  or => [booked => 0, booked => undef],
                                                                                  %customer_where],
                                                                 with_objects => ['customer']);
+
   # no time recordings at all ? -> better exit here before iterating a empty hash
   # return undef or message unless ref $time_recordings->[0] eq SL::DB::Manager::TimeRecording;
-  my %time_recordings_by_customer_id;
-  # push @{ $time_recordings_by_customer_id{$_->customer_id} }, $_ for @$time_recordings;
-  # loop over all entries and add default or user defined params:
 
-  for my $source_entry (@$time_recordings) {
-    # set user defaults for processing
-    $source_entry->{$_} = $self->$_ for qw(rounding link_project);
-    foreach (qw(project_id parts_id)) {
-      $source_entry->{$_} = $self->{$_} if length ($self->{$_});
-    }
-    push @{ $time_recordings_by_customer_id{$source_entry->customer_id} }, $source_entry;
-  }
+  my %time_recordings_by_customer_id;
+  push @{ $time_recordings_by_customer_id{$_->customer_id} }, $_ for @$time_recordings;
+
+  my %convert_params = map { $_ => $data->{$_} } qw(rounding link_project part_id project_id);
+
   my @donumbers;
   foreach my $customer_id (keys %time_recordings_by_customer_id) {
     my $do;
     if (!eval {
-      $do = SL::DB::DeliveryOrder->new_from_time_recordings($time_recordings_by_customer_id{$customer_id});
+      $do = SL::DB::DeliveryOrder->new_from_time_recordings($time_recordings_by_customer_id{$customer_id}, %convert_params);
       1;
     }) {
       $::lxdebug->message(LXDebug->WARN(),
