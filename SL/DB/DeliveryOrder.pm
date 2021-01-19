@@ -262,7 +262,19 @@ sub new_from_time_recordings {
   my $delivery_order;
 
   if ($params{related_order}) {
-    $delivery_order = SL::DB::DeliveryOrder->new_from($params{related_order}, items => \@items, %params);
+    # collect suitable items in related order
+    my @items_to_use;
+    foreach my $item (@items) {
+      my $item_to_use = first {$item->parts_id == $_->parts_id} @{ $params{related_order}->items_sorted };
+
+      die "no suitable item found in related order" if !$item_to_use;
+
+      my %new_attributes;
+      $new_attributes{$_} = $item->$_ for qw(qty unit_obj longdescription);
+      $item_to_use->assign_attributes(%new_attributes);
+      push @items_to_use, $item_to_use;
+    }
+    $delivery_order = SL::DB::DeliveryOrder->new_from($params{related_order}, items => \@items_to_use, %params);
 
   } else {
     my %args = (

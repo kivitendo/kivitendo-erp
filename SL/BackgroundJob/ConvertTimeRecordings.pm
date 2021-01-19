@@ -193,7 +193,26 @@ sub convert_with_linking {
         $do->save;
         $_->update_attributes(booked => 1) for @{$time_recordings_by_order_id->{$related_order_id}};
 
+        $related_order->link_to_record($do);
+
+        # TODO extend link_to_record for items, otherwise long-term no d.r.y.
+        foreach my $item (@{ $do->items }) {
+          foreach (qw(orderitems)) {
+            if ($item->{"converted_from_${_}_id"}) {
+              die unless $item->{id};
+              RecordLinks->create_links('mode'       => 'ids',
+                                        'from_table' => $_,
+                                        'from_ids'   => $item->{"converted_from_${_}_id"},
+                                        'to_table'   => 'delivery_order_items',
+                                        'to_id'      => $item->{id},
+              ) || die;
+              delete $item->{"converted_from_${_}_id"};
+            }
+          }
+        }
+
         # Todo: reduce qty on related order
+
         1;
       })) {
         $::lxdebug->message(LXDebug->WARN(),
