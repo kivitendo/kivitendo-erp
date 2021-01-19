@@ -21,9 +21,9 @@ use Rose::Object::MakeMethods::Generic (
 );
 
 # valid parameters -> better as class members with rose generic set/get
-my %params = (
-              fromdate => '',
-              todate   => '',
+my %valid_params = (
+              from_date => '',
+              to_date   => '',
               customernumbers => '',
               part_id => '',
               rounding => 1,
@@ -48,7 +48,7 @@ sub run {
 
   # check user input param names
   foreach my $param (keys %{ $data }) {
-    croak "Not a valid key: $param" unless $params{$param};
+    die "Not a valid parameter: $param" unless exists $valid_params{$param};
   }
 
   # TODO check user input param values - (defaults are assigned later)
