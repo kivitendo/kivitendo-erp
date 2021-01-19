@@ -19,7 +19,7 @@ use SL::DB::Unit;
 
 use SL::Helper::Number qw(_format_total _round_total);
 
-use List::Util qw(first notall);
+use List::Util qw(first);
 use List::MoreUtils qw(any);
 use Math::Round qw(nhimult);
 
