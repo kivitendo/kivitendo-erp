@@ -103,8 +103,11 @@ sub init_sub_layouts_by_name { +{} }
 
 
 #########################################
-# Interface
+# Stylesheets
 ########################################
+
+# override in sub layouts
+sub static_stylesheets {}
 
 sub add_stylesheets {
   &use_stylesheet;
@@ -113,7 +116,7 @@ sub add_stylesheets {
 sub use_stylesheet {
   my $self = shift;
   push @{ $self->{stylesheets} ||= [] }, @_ if @_;
-  @{ $self->{stylesheets} ||= [] };
+    (map { $_->use_stylesheet } $self->sub_layouts), $self->static_stylesheets, @{ $self->{stylesheets} ||= [] };
 }
 
 sub stylesheets {
@@ -121,7 +124,7 @@ sub stylesheets {
   my $css_path = $self->get_stylesheet_for_user;
 
   return uniq grep { $_ } map { $self->_find_stylesheet($_, $css_path)  }
-    $self->use_stylesheet, map { $_->stylesheets } $self->sub_layouts;
+    $self->use_stylesheet;
 }
 
 sub _find_stylesheet {
@@ -150,6 +153,13 @@ sub get_stylesheet_for_user {
   return $css_path;
 }
 
+#########################################
+# Javascripts
+########################################
+
+# override in sub layouts
+sub static_javascripts {}
+
 sub add_javascripts {
   &use_javascript
 }
@@ -157,14 +167,14 @@ sub add_javascripts {
 sub use_javascript {
   my $self = shift;
   push @{ $self->{javascripts} ||= [] }, @_ if @_;
-  @{ $self->{javascripts} ||= [] };
+  map({ $_->use_javascript } $self->sub_layouts), $self->static_javascripts, @{ $self->{javascripts} ||= [] };
 }
 
 sub javascripts {
   my ($self) = @_;
 
   return uniq grep { $_ } map { $self->_find_javascript($_)  }
-    map({ $_->javascripts } $self->sub_layouts), $self->use_javascript;
+     $self->use_javascript;
 }
 
 sub _find_javascript {
@@ -285,14 +295,32 @@ For the C<*_content> callbacks this works if you just remember to dispatch to th
     $_[0]->SUPER::post_content
   }
 
-For the stylesheet and javascript callbacks things are hard, because of the
-backwards compatibility, and the built-in sanity checks. The best way currently
-is to just add your content and dispatch to the base method.
 
-  sub stylesheets {
-    $_[0]->add_stylesheets(qw(mystyle1.css mystyle2.css);
-    $_[0]->SUPER::stylesheets;
+Stylesheets and Javascripts can be added to every layout and sub-layout at
+runtime with L<SL::Layout::Dispatcher/add_stylesheets> and
+L<SL::Layout::Dispatcher/add_javascripts> (C<use_stylesheets> and
+C<use_javascripts> are aliases for backwards compatibility):
+
+  $layout->add_stylesheets("custom.css");
+  $layout->add_javascripts("app.js", "widget.js");
+
+Or they can be overwritten in sub layouts with the calls
+L<SL::Layout::Displatcher/static_stylesheets> and
+L<SL::Layout::Dispatcher/static_javascripts>:
+
+  sub static_stylesheets {
+    "custom.css"
   }
+
+  sub static_javascripts {
+    qw(app.css widget.js)
+  }
+
+Note how these are relative to the base dirs of the currently selected
+stylesheets. Javascripts are resolved relative to the C<js/> basedir.
+
+Setting directly with C<stylesheets> and C<javascripts> is eprecated.
+
 
 =head1 GORY DETAILS ABOUT JAVASCRIPT AND STYLESHEET OVERLOADING
 
