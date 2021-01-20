@@ -26,7 +26,9 @@ sub handle {
   return $self->_error(%param) unless $::myconfig{login};
 
   $::locale = Locale->new($::myconfig{countrycode});
-  $::request->{layout} = SL::Layout::Dispatcher->new(style => $::myconfig{menustyle});
+  $::request->{layout} = $::request->is_mobile
+    ? SL::Layout::Dispatcher->new(style => 'mobile')
+    : SL::Layout::Dispatcher->new(style => $::myconfig{menustyle});
 
   my $ok   =  $::auth->is_api_token_cookie_valid;
   $ok    ||=  $::form->{'{AUTH}login'}                      && (SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, $::form->{'{AUTH}password'}));
