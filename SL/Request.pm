@@ -20,7 +20,7 @@ our @EXPORT_OK = qw(flatten unflatten);
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(applying_database_upgrades post_data) ],
-  'scalar --get_set_init' => [ qw(cgi layout presenter is_ajax type) ],
+  'scalar --get_set_init' => [ qw(cgi layout presenter is_ajax is_mobile type) ],
 );
 
 sub init_cgi {
@@ -37,6 +37,12 @@ sub init_presenter {
 
 sub init_is_ajax {
   return ($ENV{HTTP_X_REQUESTED_WITH} || '') eq 'XMLHttpRequest' ? 1 : 0;
+}
+
+sub init_is_mobile {
+  # mobile clients will change their user agent when the user requests
+  # desktop version so user agent is the most reliable way to identify
+  return ($ENV{HTTP_USER_AGENT} || '') =~ /Mobi/ ? 1 : 0;
 }
 
 sub init_type {
