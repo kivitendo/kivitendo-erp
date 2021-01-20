@@ -374,6 +374,11 @@ keep_installation_unlocked = 0
 # the web browser to always reload the resources.
 auto_reload_resources = 0
 
+# Alternative to auto_reload_resources. If the installation dir is under git
+# version control, this will use the HEAD commit sha1 as the random GET
+# parameter, so that resources are reloaded if the installed version charnges.
+git_commit_reload_recources = 0
+
 # If set to 1 each exception will include a full stack backtrace.
 backtrace_on_die = 0
 
