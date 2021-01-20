@@ -29,6 +29,7 @@ sub use_javascript {
     jquery.js
     common.js
     namespace.js
+    jquery-ui.js
     kivi.js
   ),
   'locale/'. $::myconfig{countrycode} .'.js',
