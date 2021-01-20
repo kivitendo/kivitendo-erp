@@ -124,6 +124,7 @@ sub _find_stylesheet {
   return "$css_path/$stylesheet" if -f "$css_path/$stylesheet";
   return "css/$stylesheet"       if -f "css/$stylesheet";
   return $stylesheet             if -f $stylesheet;
+  return $stylesheet             if $stylesheet =~ /^http/; # external
 }
 
 sub get_stylesheet_for_user {
@@ -165,6 +166,7 @@ sub _find_javascript {
 
   return "js/$javascript"        if -f "js/$javascript";
   return $javascript             if -f $javascript;
+  return $javascript             if $javascript =~ /^http/;
 }
 
 
