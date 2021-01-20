@@ -1,0 +1,38 @@
+# This is the main menu config file for mobile user space menu entries.
+#
+# Th structure is the same as in user/, but currently infinite nesting is not supported.
+#
+---
+- id: test_entry
+  name: Test
+  icon: test
+  order: 100
+  access: customer_vendor_edit|customer_vendor_all_edit
+  params:
+    action: CustomerVendor/add
+    db: customer
+- id: warehouse_produce_assembly
+  name: Produce Assembly
+  icon: assembly_produce
+  order: 200
+  access: warehouse_management
+  module: wh.pl
+  params:
+    action: transfer_warehouse_selection
+    trans_type: assembly
+- id: warehouse_transfer
+  name: Transfer
+  order: 300
+  access: warehouse_management
+  module: wh.pl
+  params:
+    action: transfer_warehouse_selection
+    trans_type: transfer
+- id: warehouse_removal
+  name: Removal
+  order: 400
+  access: warehouse_management
+  module: wh.pl
+  params:
+    action: transfer_warehouse_selection
+    trans_type: removal
