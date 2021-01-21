@@ -214,11 +214,14 @@ sub prepare_report {
     booked       => { text => t8('Booked'),       sub => sub { $_[0]->booked ? t8('Yes') : t8('No') } },
   );
 
+  my $title        = t8('Time Recordings');
+  $report->{title} = $title;    # for browser titlebar (title-tag)
+
   $report->set_options(
     controller_class      => 'TimeRecording',
     std_column_visibility => 1,
     output_format         => 'HTML',
-    title                 => t8('Time Recordings'),
+    title                 => $title, # for heading
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
   );
