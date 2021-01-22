@@ -3,9 +3,9 @@
 # Th structure is the same as in user/, but currently infinite nesting is not supported.
 #
 ---
-- id: test_entry
-  name: Test
-  icon: test
+- id: customer_add
+  name: Add Customer
+  icon: customer_add
   order: 100
   access: customer_vendor_edit|customer_vendor_all_edit
   params:
