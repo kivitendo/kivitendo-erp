@@ -450,6 +450,7 @@ sub header {
   push @header, "<style type='text/css'>\@page { size:landscape; }</style> "                     if $self->{landscape};
   push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>"         if -f $self->{favicon};
   push @header, map { qq|<script type="text/javascript" src="${_}${auto_reload_resources_param}"></script>| }                    $layout->javascripts;
+  push @header, '<meta name="viewport" content="width=device-width, initial-scale=1">';
   push @header, $self->{javascript} if $self->{javascript};
   push @header, map { $_->show_javascript } @{ $self->{AJAX} || [] };
 
