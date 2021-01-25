@@ -565,7 +565,9 @@ namespace('kivi.Part', function(ns) {
       var self = this;
       kivi.popup_dialog({
         url: 'controller.pl?action=Part/part_picker_search',
-        data: self.pp.ajax_data(this.pp.$dummy.val()),
+        data: $.extend({
+          real_id: self.pp.real_id,
+        }, self.pp.ajax_data(this.pp.$dummy.val())),
         id: 'part_selection',
         dialog: {
           title: kivi.t8('Part picker'),

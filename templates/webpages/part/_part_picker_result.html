@@ -30,3 +30,6 @@
 <div style='clear:both'></div>
 
 [% L.paginate_controls(target='#part_picker_result', selector='#part_picker_result', models=SELF.models) %]
+<script type='text/javascript'>
+  $('#'+$('#part_picker_real_id').val()).data("part_picker").dialog.init_results();
+</script>
