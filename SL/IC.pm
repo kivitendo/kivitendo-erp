@@ -272,8 +272,6 @@ sub all_parts {
     insertdate         => 'itime::DATE',
   );
 
-  }
-
   my $make_token_builder = sub {
     my $joins_needed = shift;
     sub {
