@@ -312,7 +312,8 @@ namespace('kivi.Part', function(ns) {
         commit_none: function(){ },
         commit_one:  function(){ $('#update_button').click(); },
         commit_many: function(){ self.open_dialog(); }
-      }
+      },
+      multiple_limit: 100
     }, $real.data('part-picker-data'), options);
     this.$real              = $real;
     this.real_id            = $real.attr('id');
@@ -698,7 +699,8 @@ namespace('kivi.Part', function(ns) {
     update_results: function() {
       var self = this;
       var data = $('#multi_items_form').serializeArray();
-      data.push({ name: 'type', value: self.pp.type });
+      data.push({ name: 'type',  value: self.pp.type });
+      data.push({ name: 'limit', value: self.pp.o.multiple_limit });
       var ppdata = self.pp.ajax_data(function(){
         var val = $('#multi_items_filter').val();
         return val === undefined ? '' : val

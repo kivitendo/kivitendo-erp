@@ -50,8 +50,8 @@ All parts including make models of all vendors with multi select popup: <br>
 All parts including customer partnumbers of all customers: <br>
 [% P.part.picker('part_id23', undef, with_customer_partnumber=1) %]<br>
 <br>
-single select dialog for glass-popup-button; multi select with extra button:<br>
-[% P.part.picker('part_id31', undef, multiple=0) %]
+single select dialog for glass-popup-button; multi select with extra button (and limited to 5 results):<br>
+[% P.part.picker('part_id31', undef, multiple=0, multiple_limit=5) %]
 [% L.button_tag('$("#part_id31").data("part_picker").o.multiple=1; $("#part_id31").data("part_picker").open_dialog()', 'Add multiple items') %]<br>
 
 <h2>Styling</h2>

@@ -423,14 +423,14 @@ sub action_show_multi_items_dialog {
 }
 
 sub action_multi_items_update_result {
-  my $max_count = 100;
+  my $max_count = $::form->{limit};
 
   my $count = $_[0]->multi_items_models->count;
 
   if ($count == 0) {
     my $text = escape($::locale->text('No results.'));
     $_[0]->render($text, { layout => 0 });
-  } elsif ($count > $max_count) {
+  } elsif ($max_count && $count > $max_count) {
     my $text = escape($::locale->text('Too many results (#1 from #2).', $count, $max_count));
     $_[0]->render($text, { layout => 0 });
   } else {
