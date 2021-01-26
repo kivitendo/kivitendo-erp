@@ -272,8 +272,6 @@ sub all_parts {
     insertdate         => 'itime::DATE',
   );
 
-  if ($form->{l_assembly} && $form->{l_lastcost}) {
-    @simple_l_switches = grep { $_ ne 'lastcost' } @simple_l_switches;
   }
 
   my $make_token_builder = sub {
@@ -402,7 +400,7 @@ sub all_parts {
         FROM assembly a_lc
         LEFT JOIN parts p_lc            ON (a_lc.parts_id        = p_lc.id)
         LEFT JOIN price_factors pfac_lc ON (p_lc.price_factor_id = pfac_lc.id)
-        WHERE (a_lc.id = p.id)) AS lastcost|;
+        WHERE (a_lc.id = p.id)) AS assembly_lastcost|;
   $table_prefix{$q_assembly_lastcost} = ' ';
 
   # special case makemodel search

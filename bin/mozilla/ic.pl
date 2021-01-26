@@ -177,6 +177,7 @@ sub generate_report {
     'insertdate'         => { 'text' => $locale->text('Insert Date'), },
     'invnumber'          => { 'text' => $locale->text('Invoice Number'), },
     'lastcost'           => { 'text' => $locale->text('Last Cost'), },
+    'assembly_lastcost'  => { 'text' => $locale->text('Assembly Last Cost'), },
     'linetotallastcost'  => { 'text' => $locale->text('Extended'), },
     'linetotallistprice' => { 'text' => $locale->text('Extended'), },
     'linetotalsellprice' => { 'text' => $locale->text('Extended'), },
@@ -321,6 +322,7 @@ sub generate_report {
     $column_defs{sellprice}{text} = $locale->text('Price');
     $form->{l_lastcost} = ""
   }
+  $form->{l_assembly_lastcost} = "Y" if $form->{l_assembly} && $form->{l_lastcost};
 
   if ($form->{description}) {
     $description = $form->{description};
@@ -388,7 +390,7 @@ sub generate_report {
   my @columns = qw(
     partnumber type_and_classific description notes partsgroup warehouse bin
     make model onhand rop soldtotal unit listprice
-    linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
+    linetotallistprice sellprice linetotalsellprice lastcost assembly_lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription
     insertdate shop
@@ -416,7 +418,7 @@ sub generate_report {
 
   %column_defs = (%column_defs, %column_defs_cvars, %column_defs_pricegroups);
   map { $column_defs{$_}->{visible} ||= $form->{"l_$_"} ? 1 : 0 } @columns;
-  map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal shop), @pricegroup_columns;
+  map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost assembly_lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal shop), @pricegroup_columns;
 
   my @hidden_variables = (
     qw(l_subtotal l_linetotal searchitems itemstatus bom l_pricegroups insertdatefrom insertdateto),
@@ -501,6 +503,7 @@ sub generate_report {
     $ref->{sellprice}     *= $ref->{exchangerate} / $ref->{price_factor};
     $ref->{listprice}     *= $ref->{exchangerate} / $ref->{price_factor};
     $ref->{lastcost}      *= $ref->{exchangerate} / $ref->{price_factor};
+    $ref->{assembly_lastcost} *= $ref->{exchangerate} / $ref->{price_factor};
 
     # use this for assemblies
     my $soldtotal = $bsooqr_mode ? $ref->{soldtotal} : $ref->{onhand};
@@ -515,7 +518,7 @@ sub generate_report {
     $row->{partnumber}->{link}  = $edit_link;
     $row->{description}->{link} = $edit_link;
 
-    foreach (qw(sellprice listprice lastcost)) {
+    foreach (qw(sellprice listprice lastcost assembly_lastcost)) {
       $row->{$_}{data}            = $form->format_amount(\%myconfig, $ref->{$_}, 2);
       $row->{"linetotal$_"}{data} = $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{$_}, 2);
     }
