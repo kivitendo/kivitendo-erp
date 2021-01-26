@@ -245,6 +245,17 @@ If C<%params> contains C<with_makemodel> or C<with_customer_partnumber> even
 parts will be used for autocompletion which partnumber is a vendor partnumber
 (makemodel) or a customer partnumber.
 
+If C<%params> contains C<multiple> an alternative popup will be opened,
+allowing multiple items to be selected. Note however that this requires
+an additional callback C<set_multi_items> to work.
+Also note that you can set C<multiple> to 0 (or not set C<multiple>) on
+creation of the picker, but can open the alternative multi select popup
+with js like this:
+C<$("#pp_id").data("part_picker").o.multiple=1; $("#pp_id").data("part_picker").open_dialog()'>
+where C<pp_id> is the dom id of the part picker.
+Or you can even do it the other way round setting C<multiple> to 1 on creation
+and open a single selection popup with js.
+
 Obsolete parts will by default not be displayed for selection. However they are
 accepted as default values and can persist during updates. As with other
 selectors though, they are not selectable once overridden.
@@ -278,10 +289,7 @@ If more than one element matches the input, the internal state will be set to
 undefined.
 
 After that the action C<commit_one> will be executed, which defaults to
-opening a popup dialog for graphical interaction. If C<params> contains
-C<multiple> an alternative popup will be opened, allowing multiple items to be
-selected. Note however that this requires an additional callback
-C<set_multi_items> to work.
+opening a popup dialog for graphical interaction.
 
 =item * C<commit_none>
 

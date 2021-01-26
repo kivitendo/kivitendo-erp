@@ -323,6 +323,7 @@ namespace('kivi.Part', function(ns) {
     this.last_dummy         = this.$dummy.val();
     this.timer              = undefined;
     this.dialog             = undefined;
+    this.multiple_default   = this.o.multiple;
 
     this.init();
   };
@@ -487,6 +488,7 @@ namespace('kivi.Part', function(ns) {
     },
     open_dialog: function() {
       if (this.o.multiple) {
+        this.o.multiple = this.multiple_default;
         this.dialog = new ns.PickerMultiPopup(this);
       } else {
         this.dialog = new ns.PickerPopup(this);

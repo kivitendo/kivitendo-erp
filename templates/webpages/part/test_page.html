@@ -26,7 +26,7 @@ Artikel-Klassifizierung: Eink.,Verk.,Prod. <br>
 [% P.part.picker('part_id14', undef, classification_id='1,2,4') %]<br>
 Artikel-Status: Aktiv (default)<br>
 [% P.part.picker('part_id15') %]<br>
-Artikel-Status: Aktiv< (explizit)<br>
+Artikel-Status: Aktiv (explizit)<br>
 [% P.part.picker('part_id16', undef, status="active") %]<br>
 Artikel-Status: Ungültig<br>
 [% P.part.picker('part_id17', undef, status="obsolete") %]<br>
@@ -41,14 +41,18 @@ Convertible unit 'Std': (only select parts with unit Tag/Std/Min)<br>
 With multi select popup<br>
 [% P.part.picker('part_id8', undef, multiple=1) %]<br>
 With multi select popup (only obsolete)<br>
-[% P.part.picker('part_id8', undef, multiple=1, status='obsolete') %]<br>
+[% P.part.picker('part_id9', undef, multiple=1, status='obsolete') %]<br>
 <br>
 All parts including make models of all vendors: <br>
-[% P.part.picker('part_id', undef, with_makemodel=1) %]<br>
+[% P.part.picker('part_id21', undef, with_makemodel=1) %]<br>
 All parts including make models of all vendors with multi select popup: <br>
-[% P.part.picker('part_id', undef, with_makemodel=1, multiple=1) %]<br>
+[% P.part.picker('part_id22', undef, with_makemodel=1, multiple=1) %]<br>
 All parts including customer partnumbers of all customers: <br>
-[% P.part.picker('part_id', undef, with_customer_partnumber=1) %]<br>
+[% P.part.picker('part_id23', undef, with_customer_partnumber=1) %]<br>
+<br>
+single select dialog for glass-popup-button; multi select with extra button:<br>
+[% P.part.picker('part_id31', undef, multiple=0) %]
+[% L.button_tag('$("#part_id31").data("part_picker").o.multiple=1; $("#part_id31").data("part_picker").open_dialog()', 'Add multiple items') %]<br>
 
 <h2>Styling</h2>
 
