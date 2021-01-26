@@ -18,6 +18,10 @@
 <div id='multi_items_result'></div>
 <hr>
 
+[%- IF FORM.show_pos_input -%]
+  [% 'At position' | $T8 %]
+  [% L.input_tag('multi_items.position', '', id='multi_items_position', size=5, class="numeric") %]
+[%- END -%]
 [% L.button_tag('', LxERP.t8('Continue'), id='continue_button') %]
 
 </form>

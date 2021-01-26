@@ -668,6 +668,7 @@ namespace('kivi.Part', function(ns) {
         url: 'controller.pl?action=Part/show_multi_items_dialog',
         data: $.extend({
           real_id: self.pp.real_id,
+          show_pos_input: self.pp.o.multiple_pos_input,
         }, self.pp.ajax_data(this.pp.$dummy.val())),
         id: 'jq_multi_items_dialog',
         dialog: {
@@ -736,12 +737,12 @@ namespace('kivi.Part', function(ns) {
       $('#jq_multi_items_dialog').dialog('close');
     },
     disable_continue: function() {
-      $('#multi_items_result input').off("keydown");
+      $('#multi_items_result input, #multi_items_position').off("keydown");
       $('#continue_button').prop('disabled', true);
     },
     enable_continue: function() {
       var self = this;
-      $('#multi_items_result input').keydown(function(event) {
+      $('#multi_items_result input, #multi_items_position').keydown(function(event) {
         if(event.keyCode == KEY.ENTER) {
           event.preventDefault();
           self.add_multi_items();

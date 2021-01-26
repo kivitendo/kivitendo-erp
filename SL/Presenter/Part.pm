@@ -256,6 +256,11 @@ where C<pp_id> is the dom id of the part picker.
 Or you can even do it the other way round setting C<multiple> to 1 on creation
 and open a single selection popup with js.
 
+If C<%params> contains C<multiple_pos_input> an input field with the dom id
+C<multi_items_position> will be rendered in the alternative popup.
+This can be used in the callback for C<set_multi_items> to controll the
+input postion for the items.
+
 If C<%params> contains C<multiple_limit> the alternative popup will not
 show any results if there are more than C<multiple_limit> results. A warning
 message is displayed in this case. Set C<multiple_limit> to 0 to disable
