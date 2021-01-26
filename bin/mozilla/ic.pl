@@ -291,11 +291,15 @@ sub generate_report {
     ean           => $locale->text('EAN')              . ": '$form->{ean}'",
     insertdatefrom => $locale->text('Insert Date') . ": " . $locale->text('From')       . " " . $locale->date(\%myconfig, $form->{insertdatefrom}, 1),
     insertdateto   => $locale->text('Insert Date') . ": " . $locale->text('To (time)')  . " " . $locale->date(\%myconfig, $form->{insertdateto}, 1),
+    l_service     => $locale->text('Services'),
+    l_assembly    => $locale->text('Assemblies'),
+    l_part        => $locale->text('Parts'),
   );
 
   my @itemstatus_keys = qw(active obsolete orphaned onhand short);
   my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup partsgroup_id serialnumber description make model
-                           drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto insertdatefrom insertdateto ean shop all);
+                           drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto insertdatefrom insertdateto ean shop all
+                           l_service l_assembly l_part);
 
   # calculate dependencies
   for (@itemstatus_keys, @callback_keys) {
