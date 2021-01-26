@@ -43,7 +43,7 @@ use Sort::Naturally;
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(item_ids_to_delete is_custom_shipto_to_delete) ],
- 'scalar --get_set_init' => [ qw(order valid_types type cv p multi_items_models all_price_factors search_cvpartnumber show_update_button) ],
+ 'scalar --get_set_init' => [ qw(order valid_types type cv p all_price_factors search_cvpartnumber show_update_button) ],
 );
 
 
@@ -791,38 +791,11 @@ sub action_add_item {
   $self->js->render();
 }
 
-# open the dialog for entering multiple items at once
-sub action_show_multi_items_dialog {
-  $_[0]->render('order/tabs/_multi_items_dialog', { layout => 0 },
-                all_partsgroups => SL::DB::Manager::PartsGroup->get_all);
-}
-
-# update the filter results in the multi item dialog
-sub action_multi_items_update_result {
-  my $max_count = 100;
-
-  $::form->{multi_items}->{filter}->{obsolete} = 0;
-
-  my $count = $_[0]->multi_items_models->count;
-
-  if ($count == 0) {
-    my $text = SL::Presenter::EscapedText->new(text => $::locale->text('No results.'));
-    $_[0]->render($text, { layout => 0 });
-  } elsif ($count > $max_count) {
-    my $text = SL::Presenter::EscapedText->new(text => $::locale->text('Too many results (#1 from #2).', $count, $max_count));
-    $_[0]->render($text, { layout => 0 });
-  } else {
-    my $multi_items = $_[0]->multi_items_models->get;
-    $_[0]->render('order/tabs/_multi_items_result', { layout => 0 },
-                  multi_items => $multi_items);
-  }
-}
-
 # add item rows for multiple items at once
 sub action_add_multi_items {
   my ($self) = @_;
 
-  my @form_attr = grep { $_->{qty_as_number} } @{ $::form->{add_multi_items} };
+  my @form_attr = grep { $_->{qty_as_number} } @{ $::form->{add_items} };
   return $self->js->render() unless scalar @form_attr;
 
   my @items;
@@ -867,7 +840,7 @@ sub action_add_multi_items {
   }
 
   $self->js
-    ->run('kivi.Order.close_multi_items_dialog')
+    ->run('kivi.Part.close_picker_dialogs')
     ->run('kivi.Order.init_row_handlers')
     ->run('kivi.Order.renumber_positions')
     ->focus('#add_item_parts_id_name');
@@ -1181,24 +1154,6 @@ sub init_p {
 
 sub init_order {
   $_[0]->make_order;
-}
-
-# model used to filter/display the parts in the multi-items dialog
-sub init_multi_items_models {
-  SL::Controller::Helper::GetModels->new(
-    controller     => $_[0],
-    model          => 'Part',
-    with_objects   => [ qw(unit_obj) ],
-    disable_plugin => 'paginated',
-    source         => $::form->{multi_items},
-    sorted         => {
-      _default    => {
-        by  => 'partnumber',
-        dir => 1,
-      },
-      partnumber  => t8('Partnumber'),
-      description => t8('Description')}
-  );
 }
 
 sub init_all_price_factors {
@@ -2175,14 +2130,6 @@ One row for already entered items
 
 Displaying tax information
 
-=item * C<template/webpages/order/tabs/_multi_items_dialog.html>
-
-Dialog for entering more than one item at once
-
-=item * C<template/webpages/order/tabs/_multi_items_result.html>
-
-Results for the filter in the multi items dialog
-
 =item * C<template/webpages/order/tabs/_price_sources_dialog.html>
 
 Dialog for selecting price and discount sources
@@ -2255,11 +2202,6 @@ Sorting does not include C<position>, neither does reordering.
 
 This behavior was implemented intentionally. But we can discuss, which behavior
 should be implemented.
-
-=item *
-
-C<show_multi_items_dialog> does not use the currently inserted string for
-filtering.
 
 =back
 

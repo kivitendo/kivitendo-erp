@@ -19,7 +19,11 @@
         <td>
           [%- SET PARAM_KEY = SELF.cv == "customer" ? 'with_customer_partnumber' : 'with_makemodel' -%]
           [%- SET PARAM_VAL = SELF.search_cvpartnumber -%]
-          [% P.part.picker('add_item.parts_id', '', fat_set_item=1, style='width: 300px', class="add_item_input", $PARAM_KEY=PARAM_VAL) %]</td>
+          [% P.part.picker('add_item.parts_id', '', style='width: 300px', class="add_item_input",
+                            fat_set_item=1,
+                            multiple_pos_input=1,
+                            action={set_multi_items='kivi.Order.add_multi_items'},
+                            $PARAM_KEY=PARAM_VAL) %]</td>
         <td>[% L.input_tag('add_item.description', '', class="add_item_input") %]</td>
         <td>
           [% L.input_tag('add_item.qty_as_number', '', size = 5, class="add_item_input numeric") %]

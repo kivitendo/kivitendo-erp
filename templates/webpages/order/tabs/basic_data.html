@@ -227,7 +227,7 @@
 
   [%- PROCESS order/tabs/_item_input.html SELF=SELF %]
 
-  [% L.button_tag('kivi.Order.show_multi_items_dialog()', LxERP.t8('Add multiple items')) %]
+  [% L.button_tag('$("#add_item_parts_id").data("part_picker").o.multiple=1; $("#add_item_parts_id").data("part_picker").open_dialog()', LxERP.t8('Add multiple items')) %]
 
   <table width="100%">
     <tr>
