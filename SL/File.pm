@@ -83,7 +83,7 @@ sub get_all_versions {
           $main::lxdebug->message(LXDebug->DEBUG2(), "clone version=".$clone->version." mtime=". $clone->mtime);
           push @versionobjs, $clone;
           1;
-        }
+        } or do {$::lxdebug->message(LXDebug::WARN(), "clone for version=".($maxversion-$version+1) . "failed: " . $@)};
       }
     }
   }
