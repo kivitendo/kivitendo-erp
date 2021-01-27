@@ -459,6 +459,8 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.open_multi_items_dialog = function() {
+    if (!ns.check_cv()) return;
+
     var pp = $("#add_item_parts_id").data("part_picker");
     pp.o.multiple=1;
     pp.open_dialog();
