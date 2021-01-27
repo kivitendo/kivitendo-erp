@@ -34,7 +34,7 @@ sub get_one_order {
     $dbh->with_transaction( sub{
         #update status on server
         $shoporder->{status} = "processing";
-        my $answer = $self->set_orderstatus($shoporder->{id}, "fetched");
+        my $answer = $self->set_orderstatus($shoporder->{id}, "completed");
         unless($answer){
           push @errors,($::locale->text('Saving failed. Error message from the server: #1', $answer->message));
           return 0;
@@ -77,17 +77,16 @@ sub get_new_orders {
     "orders",
     undef,
     "get",
-    "&per_page=$otf&status=pending"
+    "&per_page=$otf&status=processing&after=2020-12-31T23:59:59&order=asc"
   );
   my %fetched_orders;
   if($answer->{success}) {
     my $orders = $answer->{data};
     foreach my $shoporder(@{$orders}){
-
       $dbh->with_transaction( sub{
           #update status on server
-          $shoporder->{status} = "processing";
-          my $anser = $self->set_orderstatus($$shoporder->{id}, "fetched");
+          $shoporder->{status} = "completed";
+          my $anwser = $self->set_orderstatus($shoporder->{id}, "completed");
           unless($answer){
             push @errors,($::locale->text('Saving failed. Error message from the server: #1', $answer->message));
             return 0;
@@ -179,6 +178,12 @@ sub map_data_to_shoporder {
   my $shop_id      = $self->config->id;
 
   # Mapping to table shoporders. See https://woocommerce.github.io/woocommerce-rest-api-docs/?shell#order-properties
+    my $d_street;
+    if ( $import->{shipping}->{address_1} ne "" ) {
+      $d_street = $import->{shipping}->{address_1} . ($import->{shipping}->{address_2} ? " " . $import->{shipping}->{address_2} : "");
+    } else {
+      $d_street = $import->{billing}->{address_1} . ($import->{billing}->{address_2} ? " " . $import->{billing}->{address_2} : "");
+    }
   my %columns = (
 #billing
     billing_firstname       => $import->{billing}->{first_name},
@@ -197,7 +202,7 @@ sub map_data_to_shoporder {
     #billing_greeting        => "",
     #billing_fax             => "",
     #billing_vat             => "",
-    #billing_company         => "",
+    billing_company         => $import->{billing}->{company},
     #billing_department      => "",
 
 #customer
@@ -224,15 +229,15 @@ sub map_data_to_shoporder {
     #customer_vat            => "",
 
 #shipping
-    delivery_firstname      => $import->{shipping}->{first_name},
-    delivery_lastname       => $import->{shipping}->{last_name},
-    delivery_company        => $import->{shipping}->{company},
+    delivery_firstname      => $import->{shipping}->{first_name} || $import->{billing}->{first_name},
+    delivery_lastname       => $import->{shipping}->{last_name} || $import->{billing}->{last_name},
+    delivery_company        => $import->{shipping}->{company} || $import->{billing}->{company},
     #address_1 address_2
-    delivery_street         => $import->{shipping}->{address_1} . ($import->{shipping}->{address_2} ? " " . $import->{shipping}->{address_2} : ""),
-    delivery_city           => $import->{shipping}->{city},
+    delivery_street         => $d_street,
+    delivery_city           => $import->{shipping}->{city} || $import->{billing}->{city},
     #state ???
-    delivery_zipcode        => $import->{shipping}->{postcode},
-    delivery_country        => $import->{shipping}->{country},
+    delivery_zipcode        => $import->{shipping}->{postcode} || $import->{billing}->{postcode},
+    delivery_country        => $import->{shipping}->{country} || $import->{billing}->{country},
     #delivery_department     => "",
     #delivery_email          => "",
     #delivery_fax            => "",
@@ -257,9 +262,9 @@ sub map_data_to_shoporder {
     #discount_total
     #discount_tax
     #shipping_total
-    shipping_costs          => $import->{shipping_costs},
+    shipping_costs          => $import->{shipping_total},
     #shipping_tax
-    shipping_costs_net      => $import->{shipping_costs} - $import->{shipping_tax},
+    shipping_costs_net      => $import->{shipping_total},
     #cart_tax
     #total
     amount                  => $import->{total},
@@ -597,8 +602,8 @@ sub get_version {
 
 sub set_orderstatus {
   my ($self,$order_id, $status) = @_;
-  if ($status eq "fetched") { $status =  "processing"; }
-  if ($status eq "completed") { $status = "completed"; }
+  #  if ($status eq "fetched") { $status =  "processing"; }
+  #  if ($status eq "processing") { $status = "completed"; }
   my %new_status = (status => $status);
   my $status_json = SL::JSON::to_json( \%new_status);
   my $answer = $self->send_request("orders/$order_id", $status_json, "put");
