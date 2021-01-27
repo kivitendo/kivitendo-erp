@@ -458,6 +458,12 @@ namespace('kivi.Order', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.open_multi_items_dialog = function() {
+    var pp = $("#add_item_parts_id").data("part_picker");
+    pp.o.multiple=1;
+    pp.open_dialog();
+  };
+
   ns.add_multi_items = function(data) {
     var insert_before_item_id = ns.get_insert_before_item_id($('#multi_items_position').val());
     data = data.concat($('#order_form').serializeArray());
