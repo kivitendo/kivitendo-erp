@@ -208,7 +208,7 @@ sub action_print_letter {
       letter        => $letter,
       template_meta => {
         formname  => 'letter',
-        language  => SL::DB::Language->new,
+        language  => SL::DB::Manager::Language->find_by_or_create(id => $::form->{language_id}*1),
         extension => 'pdf',
         format    => $::form->{format},
         media     => $::form->{media},
