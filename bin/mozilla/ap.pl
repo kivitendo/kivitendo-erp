@@ -1061,11 +1061,14 @@ sub ap_transactions {
 
   my $department_description;
   $department_description = SL::DB::Manager::Department->find_by(id => $form->{department_id})->description if $form->{department_id};
+  my $project_description;
+  $project_description = SL::DB::Manager::Project->find_by(id => $form->{project_id})->description if $form->{project_id};
 
   my @options;
   push @options, $locale->text('Vendor')                  . " : $form->{vendor}"                         if ($form->{vendor});
   push @options, $locale->text('Contact Person')          . " : $form->{cp_name}"                        if ($form->{cp_name});
   push @options, $locale->text('Department')              . " : $department_description"                 if ($form->{department_id});
+  push @options, $locale->text('Project')                 . " : $project_description"                    if ($project_description);
   push @options, $locale->text('Invoice Number')          . " : $form->{invnumber}"                      if ($form->{invnumber});
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                      if ($form->{ordnumber});
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                          if ($form->{notes});
