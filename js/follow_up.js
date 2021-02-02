@@ -18,10 +18,10 @@ function follow_up_window() {
       var trans_subject = document.getElementsByName("follow_up_trans_subject_" + i);
 
       url += "&" +
-        "trans_id_"      + i + "=" + encodeURIComponent(typeof trans_id      != "undefined" ? trans_id[0].value      : "") + "&" +
-        "trans_type_"    + i + "=" + encodeURIComponent(typeof trans_type    != "undefined" ? trans_type[0].value    : "") + "&" +
-        "trans_info_"    + i + "=" + encodeURIComponent(typeof trans_info    != "undefined" ? trans_info[0].value    : "") + "&" +
-        "trans_subject_" + i + "=" + encodeURIComponent(typeof trans_subject != "undefined" ? trans_subject[0].value : "");
+        "trans_id_"      + i + "=" + encodeURIComponent((typeof trans_id      != "undefined" && trans_id.length      != 0) ? trans_id[0].value      : "") + "&" +
+        "trans_type_"    + i + "=" + encodeURIComponent((typeof trans_type    != "undefined" && trans_type.length    != 0) ? trans_type[0].value    : "") + "&" +
+        "trans_info_"    + i + "=" + encodeURIComponent((typeof trans_info    != "undefined" && trans_info.length    != 0) ? trans_info[0].value    : "") + "&" +
+        "trans_subject_" + i + "=" + encodeURIComponent((typeof trans_subject != "undefined" && trans_subject.length != 0) ? trans_subject[0].value : "");
     }
 
     url += "&trans_rowcount=" + encodeURIComponent(trans_rowcount[0].value);
