@@ -5,6 +5,7 @@ use lib 't';
 use Support::TestSetup;
 use Carp;
 use Test::Exception;
+use SL::DBUtils qw(check_trgm);
 use SL::Dev::ALL;
 use SL::Dev::Part qw(new_part);
 use SL::Dev::Shop qw(new_shop new_shop_part new_shop_order);
@@ -71,7 +72,7 @@ Support::TestSetup::login();
 
 reset_state();
 
-my $trgm = SL::DB::ShopOrder->check_trgm;
+my $trgm = check_trgm($::form->get_standard_dbh());
 
 my $shop_trans_id = 1;
 

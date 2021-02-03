@@ -13,7 +13,7 @@ our @EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_stateme
              selectall_ids
              prepare_execute_query prepare_query
              create_sort_spec does_table_exist
-             add_token);
+             add_token check_trgm);
 
 use strict;
 
@@ -398,6 +398,14 @@ sub role_is_superuser {
   return $is_superuser;
 }
 
+sub check_trgm {
+  my ($dbh)  = @_;
+
+  my $version = $dbh->selectrow_array(qq|SELECT installed_version FROM pg_available_extensions WHERE name = 'pg_trgm'|);
+
+  return !!$version;
+}
+
 1;
 
 
@@ -683,6 +691,11 @@ The 'dir' parameter is the sort direction as requested by the
 application (e.g. if the user clicked on a column header in a
 report). If it is undefined then the 'default_dir' parameter will be
 used instead.
+
+=item check_trgm
+
+Checks if the postgresextension pg_trgm is installed and return trueish
+or falsish.
 
 =back
 

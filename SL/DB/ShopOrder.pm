@@ -122,7 +122,7 @@ sub check_for_existing_customers {
   my $zipcode          = $self->billing_street   ne '' ?  $self->billing_zipcode                                  : '';
   my $email            = $self->billing_street   ne '' ?  $self->billing_email                                    : '';
 
-  if($self->check_trgm) {
+  if(check_trgm($::form->get_standard_dbh())) {
     # Fuzzysearch for street to find e.g. "Dorfstrasse - Dorfstr. - Dorfstraße"
     my $fs_query = <<SQL;
 SELECT *
@@ -235,17 +235,6 @@ sub compare_to {
   return $result || ($self->id <=> $other->id);
 }
 
-sub check_trgm {
-  my ( $self ) = @_;
-
-  my $dbh     = $::form->get_standard_dbh();
-  my $sql     = "SELECT installed_version FROM pg_available_extensions WHERE name = 'pg_trgm'";
-  my @version = selectall_hashref_query($::form, $dbh, $sql);
-
-  return 1 if($version[0]->{installed_version});
-  return 0;
-}
-
 sub has_differing_delivery_address {
   my ($self) = @_;
   ($self->billing_firstname // '') ne ($self->delivery_firstname // '') ||
@@ -293,10 +282,6 @@ returns only one customer from the check_for_existing_customers if the return fr
 When it is 0 get customer creates a new customer object of the shop order billing data and returns it
 
 =item C<compare_to>
-
-=item C<check_trgm>
-
-Checks if the postgresextension pg_trgm is installed and return 0 or 1.
 
 =back
 
