@@ -14,11 +14,14 @@ Upgrade auf v3.5.6
 In dieser Version sind die Mehrwertsteueranpassungen für den SKR03 und SKR04
 ab 1.7.2020 vorhanden. Wer diese Anpassungen schon manuell eingestellt hat, sollte
 die Upgrade-Skripte deaktivieren.
-Dies betrifft diese drei Skripte "sql/Pg-upgrade2/konjunkturpaket_2020*"
+Dies betrifft diese drei Skripte "sql/Pg-upgrade2/konjunkturpaket_2020*", sowie
+ferner das Entfernen der Release-Abhängigkeiten dieser Skripte:
 
-Folgender sed-Einzeiler erledigt das:
+Folgende zwei Sed-Kommandos erledigen das:
 
  sed -i 's/ignore: 0/ignore: 1/g' sql/Pg-upgrade2/konjunkturpaket_2020*
+ sed -i 's/\bkonjunktur[^ ]*//g' sql/Pg-upgrade2/release_3_5_*
+
 
 Alternativ sollten die Datenbank-Upgrade-Skripte gegen einen Testdatenbestand ausgeführt werden
 und der kivitendo-Dienstleister Ihres Vertrauens griffbereit sein.
