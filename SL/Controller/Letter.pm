@@ -314,7 +314,7 @@ sub action_send_email {
 sub _display {
   my ($self, %params) = @_;
 
-  $::request->{layout}->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery kivi.Letter);
+  $::request->{layout}->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery kivi.Letter kivi.SalesPurchase);
 
   my $letter = $self->letter;
 
