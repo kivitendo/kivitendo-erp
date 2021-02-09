@@ -184,8 +184,7 @@ sub action_list {
 sub action_print_letter {
   my ($self, %params) = @_;
 
-  my $display_form = $::form->{display_form} || "display_form";
-  my $letter       = $self->_update;
+  my $letter = $self->_update;
 
   my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
     name        => 'letter',
@@ -510,21 +509,6 @@ sub set_greetings {
   return if $letter->greeting;
 
   $letter->greeting(t8('Dear Sir or Madam,'));
-}
-
-sub export_letter_to_form {
-  my ($self, $letter) = @_;
-  # nope, not pretty.
-
-  $letter ||= $self->letter;
-
-  for ($letter->meta->columns) {
-    if ((ref $_) =~ /Date/i) {
-      $::form->{$_->name} = $letter->$_->to_kivitendo;
-    } else {
-      $::form->{$_->name} = $letter->$_;
-    }
-  }
 }
 
 sub init_letter {
