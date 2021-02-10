@@ -600,7 +600,12 @@ sub action_save_and_invoice {
 
 # workflow from sales order to sales quotation
 sub action_sales_quotation {
-  $_[0]->workflow_sales_quotation();
+  $_[0]->workflow_sales_or_request_for_quotation();
+}
+
+# workflow from sales order to sales quotation
+sub action_request_for_quotation {
+  $_[0]->workflow_sales_or_request_for_quotation();
 }
 
 # workflow from sales quotation to sales order
@@ -1585,7 +1590,7 @@ sub save {
   return $errors;
 }
 
-sub workflow_sales_quotation {
+sub workflow_sales_or_request_for_quotation {
   my ($self) = @_;
 
   # always save
@@ -1596,7 +1601,7 @@ sub workflow_sales_quotation {
     return $self->js->render();
   }
 
-  my $destination_type = sales_quotation_type();
+  my $destination_type = $::form->{type} eq sales_order_type() ? sales_quotation_type() : request_quotation_type();
 
   $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
   $self->{converted_from_oe_id} = delete $::form->{id};
@@ -1790,6 +1795,11 @@ sub setup_edit_action_bar {
           t8('Save and Quotation'),
           submit   => [ '#order_form', { action => "Order/sales_quotation" } ],
           only_if  => (any { $self->type eq $_ } (sales_order_type())),
+        ],
+        action => [
+          t8('Save and RFQ'),
+          submit   => [ '#order_form', { action => "Order/request_for_quotation" } ],
+          only_if  => (any { $self->type eq $_ } (purchase_order_type())),
         ],
         action => [
           t8('Save and Sales Order'),
@@ -2202,8 +2212,6 @@ java script functions
 =item * testing
 
 =item * credit limit
-
-=item * more workflows (rfq)
 
 =item * price sources: little symbols showing better price / better discount
 
