@@ -17,6 +17,7 @@ use SL::DB::Order;
 use SL::DB::Default;
 use SL::DB::Unit;
 use SL::DB::Part;
+use SL::DB::PartClassification;
 use SL::DB::PartsGroup;
 use SL::DB::Printer;
 use SL::DB::Language;
@@ -43,7 +44,7 @@ use Sort::Naturally;
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(item_ids_to_delete is_custom_shipto_to_delete) ],
- 'scalar --get_set_init' => [ qw(order valid_types type cv p all_price_factors search_cvpartnumber show_update_button) ],
+ 'scalar --get_set_init' => [ qw(order valid_types type cv p all_price_factors search_cvpartnumber show_update_button part_picker_classification_ids) ],
 );
 
 
@@ -1168,6 +1169,13 @@ sub init_order {
 
 sub init_all_price_factors {
   SL::DB::Manager::PriceFactor->get_all;
+}
+
+sub init_part_picker_classification_ids {
+  my ($self)    = @_;
+  my $attribute = 'used_for_' . ($self->type =~ m{sales} ? 'sale' : 'purchase');
+
+  return [ map { $_->id } @{ SL::DB::Manager::PartClassification->get_all(where => [ $attribute => 1 ]) } ];
 }
 
 sub check_auth {

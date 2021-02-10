@@ -349,7 +349,7 @@ namespace('kivi.Part', function(ns) {
         data['filter.obsolete'] = 0;
 
       if (this.o.classification_id)
-        data['filter.classification_id'] = this.o.classification_id.split(',');
+        data['filter.classification_id:any'] = this.o.classification_id.replaceAll(',', ' ');
 
       if (this.o.unit)
         data['filter.unit'] = this.o.unit.split(',');
