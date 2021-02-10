@@ -2211,8 +2211,6 @@ java script functions
 
 =item * testing
 
-=item * credit limit
-
 =item * price sources: little symbols showing better price / better discount
 
 =item * select units in input row?
