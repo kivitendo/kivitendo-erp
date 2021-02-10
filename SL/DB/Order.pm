@@ -310,6 +310,7 @@ sub new_from {
     { from => 'purchase_order',    to => 'purchase_order',    abbr => 'popo' },
     { from => 'sales_order',       to => 'purchase_order',    abbr => 'sopo' },
     { from => 'purchase_order',    to => 'sales_order',       abbr => 'poso' },
+    { from => 'sales_order',       to => 'sales_quotation',   abbr => 'sosq' },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") if !$from_to;
@@ -353,6 +354,11 @@ sub new_from {
   }
   if ( $is_abbr_any->(qw(soso)) ) {
     $args{periodic_invoices_config} = $source->periodic_invoices_config->clone_and_reset if $source->periodic_invoices_config;
+  }
+  if ( $is_abbr_any->(qw(sosq)) ) {
+    $args{ordnumber} = undef;
+    $args{quonumber} = undef;
+    $args{reqdate}   = DateTime->today_local->next_workday();
   }
 
   # Custom shipto addresses (the ones specific to the sales/purchase

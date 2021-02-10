@@ -598,6 +598,11 @@ sub action_save_and_invoice {
   );
 }
 
+# workflow from sales order to sales quotation
+sub action_sales_quotation {
+  $_[0]->workflow_sales_quotation();
+}
+
 # workflow from sales quotation to sales order
 sub action_sales_order {
   $_[0]->workflow_sales_or_purchase_order();
@@ -1580,6 +1585,49 @@ sub save {
   return $errors;
 }
 
+sub workflow_sales_quotation {
+  my ($self) = @_;
+
+  # always save
+  my $errors = $self->save();
+
+  if (scalar @{ $errors }) {
+    $self->js->flash('error', $_) for @{ $errors };
+    return $self->js->render();
+  }
+
+  my $destination_type = sales_quotation_type();
+
+  $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
+  $self->{converted_from_oe_id} = delete $::form->{id};
+
+  # set item ids to new fake id, to identify them as new items
+  foreach my $item (@{$self->order->items_sorted}) {
+    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  }
+
+  # change form type
+  $::form->{type} = $destination_type;
+  $self->type($self->init_type);
+  $self->cv  ($self->init_cv);
+  $self->check_auth;
+
+  $self->recalc();
+  $self->get_unalterable_data();
+  $self->pre_render();
+
+  # trigger rendering values for second row as hidden, because they
+  # are loaded only on demand. So we need to keep the values from the
+  # source.
+  $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
+
+  $self->render(
+    'order/form',
+    title => $self->get_title_for('edit'),
+    %{$self->{template_args}}
+  );
+}
+
 sub workflow_sales_or_purchase_order {
   my ($self) = @_;
 
@@ -1737,6 +1785,11 @@ sub setup_edit_action_bar {
       combobox => [
         action => [
           t8('Workflow'),
+        ],
+        action => [
+          t8('Save and Quotation'),
+          submit   => [ '#order_form', { action => "Order/sales_quotation" } ],
+          only_if  => (any { $self->type eq $_ } (sales_order_type())),
         ],
         action => [
           t8('Save and Sales Order'),
@@ -2150,7 +2203,7 @@ java script functions
 
 =item * credit limit
 
-=item * more workflows (quotation, rfq)
+=item * more workflows (rfq)
 
 =item * price sources: little symbols showing better price / better discount
 
