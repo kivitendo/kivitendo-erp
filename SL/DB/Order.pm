@@ -315,9 +315,6 @@ sub new_from {
   croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") if !$from_to;
 
   my $is_abbr_any = sub {
-    # foreach my $abbr (@_) {
-    #   croak "no such abbreviation: '$abbr'" if !grep { $_->{abbr} eq $abbr } @from_tos;
-    # }
     any { $from_to->{abbr} eq $_ } @_;
   };
 
