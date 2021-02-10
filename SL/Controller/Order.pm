@@ -13,6 +13,7 @@ use SL::File;
 use SL::MIME;
 use SL::Util qw(trim);
 use SL::YAML;
+use SL::DB::History;
 use SL::DB::Order;
 use SL::DB::Default;
 use SL::DB::Unit;
@@ -346,6 +347,9 @@ sub action_print {
       $self->js->flash('error', t8('Storing PDF in storage backend failed: #1', $@));
     }
   }
+
+  $self->save_history('PRINTED');
+
   $self->js->render;
 }
 
@@ -465,6 +469,8 @@ sub action_send_email {
   $intnotes   .= t8('Message')    . ": " . $::form->{message};
 
   $self->order->update_attributes(intnotes => $intnotes);
+
+  $self->save_history('MAILED');
 
   flash_later('info', t8('The email has been sent.'));
 
@@ -1545,6 +1551,8 @@ sub delete {
       my $spool = $::lx_office_conf{paths}->{spool};
       unlink map { "$spool/$_" } @spoolfiles if $spool;
 
+      $self->save_history('DELETED');
+
       1;
   }) || push(@{$errors}, $db->error);
 
@@ -1592,6 +1600,9 @@ sub save {
         }
       }
     }
+
+    $self->save_history('SAVED');
+
     1;
   }) || push(@{$errors}, $db->error);
 
@@ -1766,7 +1777,7 @@ sub pre_render {
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 
   $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery
-                                                         edit_periodic_invoices_config calculate_qty kivi.Validator follow_up);
+                                                         edit_periodic_invoices_config calculate_qty kivi.Validator follow_up show_history);
   $self->setup_edit_action_bar;
 }
 
@@ -1878,6 +1889,11 @@ sub setup_edit_action_bar {
           call     => [ 'kivi.Order.follow_up_window' ],
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
           only_if  => $::auth->assert('productivity', 1),
+        ],
+        action => [
+          t8('History'),
+          call     => [ 'set_history_window', $self->order->id, 'id' ],
+          disabled => !$self->order->id ? t8('This record has not been saved yet.') : undef,
         ],
       ], # end of combobox "more"
     );
@@ -2106,6 +2122,21 @@ sub save_and_redirect_to {
   $self->redirect_to(%params, id => $self->order->id);
 }
 
+sub save_history {
+  my ($self, $addition) = @_;
+
+  my $number_type = $self->order->type =~ m{order} ? 'ordnumber' : 'quonumber';
+  my $snumbers    = $number_type . '_' . $self->order->$number_type;
+
+  SL::DB::History->new(
+    trans_id    => $self->order->id,
+    employee_id => SL::DB::Manager::Employee->current->id,
+    what_done   => $self->order->type,
+    snumbers    => $snumbers,
+    addition    => $addition,
+  )->save;
+}
+
 1;
 
 __END__
@@ -2228,8 +2259,6 @@ java script functions
 =item * access rights
 
 =item * display weights
-
-=item * history
 
 =item * mtime check
 
