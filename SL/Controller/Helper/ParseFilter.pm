@@ -125,7 +125,8 @@ sub _parse_filter {
     my ($type, $op)   = $key =~ m{:(.+)::(.+)};
 
     my $is_multi      = $key =~ s/:multi//;
-    my @value_tokens  = $is_multi ? parse_line('\s+', 0, $value) : ($value);
+    my $is_any        = $key =~ s/:any//;
+    my @value_tokens  = $is_multi || $is_any ? parse_line('\s+', 0, $value) : ($value);
 
     ($key, $method)   = split m{::}, $key, 2;
     ($key, @filters)  = split m{:},  $key;
@@ -146,7 +147,7 @@ sub _parse_filter {
 
     next unless defined $key;
 
-    push @result, $is_multi ? (and => [ @args ]) : @args;
+    push @result, $is_multi ? (and => [ @args ]) : $is_any ? (or => [ @args ]) : @args;
   }
   return \@result;
 }
