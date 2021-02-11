@@ -151,7 +151,7 @@ SL::File::Object - a filemangement object wrapper
 
   my ($object) = SL::File->get_all(object_id   => $object_id,
                                    object_type => $object_type,
-                                   file_type   => 'images',  # may be optional
+                                   file_type   => 'image',   # may be optional
                                    source      => 'uploaded' # may be optional
                                   );
 # read attributes

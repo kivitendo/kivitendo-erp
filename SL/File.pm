@@ -388,7 +388,7 @@ SL::File - The intermediate Layer for handling files
                      object_id     => $self->object_id,
                      object_type   => $self->object_type,
                      mime_type     => 'application/pdf',
-                     file_type     => 'documents',
+                     file_type     => 'document',
                      file_contents => 'this is no pdf');
 
   my $file1  = SL::File->get(id => $id);
@@ -401,7 +401,7 @@ SL::File - The intermediate Layer for handling files
   SL::File->rename(id => $id,to => $newname);
   my $files1 = SL::File->get_all(object_id   => $object_id,
                                  object_type => $object_type,
-                                 file_type   => 'images',  # may be optional
+                                 file_type   => 'image',   # may be optional
                                  source      => 'uploaded' # may be optional
                                 );
 
@@ -418,13 +418,13 @@ There are three types of files:
 
 =over 2
 
-=item - documents,
+=item - document,
 
 which can be generated files (for sales), scanned files or uploaded files (for purchase) for an ERP-object.
 They can exist in different versions. The versioning is handled implicit. All versions of a file may be
 deleted by the user if she/he is allowed to do this.
 
-=item - attachments,
+=item - attachment,
 
 which have additional information for an ERP-objects. They are uploadable. If a filename still exists
 on a ERP-Object the new uploaded file is a new version of this or it must be renamed by user.
@@ -433,7 +433,7 @@ There are generic attachments for a specific document group (like sales_invoices
 combinide/merged with the document-file in the time of printing.
 Today only PDF-Attachmnets can be merged with the generated document-PDF.
 
-=item - images,
+=item - image,
 
 they are like attachments, but they may be have thumbnails for displaying.
 So the must have an image format like png,jpg. The versioning is like attachments
@@ -526,7 +526,7 @@ The Type of the ERP-object like "sales_quotation" for a new file. A clear mappin
 
 =item C<file_type>
 
-The type may be "documents", "attachments" or "images" for a new file.
+The type may be "document", "attachment" or "image" for a new file.
 
 =item C<source>
 
@@ -631,7 +631,7 @@ The Type of the ERP-object like "sales_quotation". A clear mapping to the class/
 
 =item C<file_type>
 
-The type may be "documents", "attachments" or "images". This parameter is optional.
+The type may be "document", "attachment" or "image". This parameter is optional.
 
 =item C<file_name>
 
