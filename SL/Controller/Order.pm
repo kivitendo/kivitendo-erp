@@ -350,7 +350,9 @@ sub action_print {
 
   $self->save_history('PRINTED');
 
-  $self->js->render;
+  $self->js
+    ->run('kivi.ActionBar.setEnabled', '#save_and_email_action')
+    ->render;
 }
 
 # open the email dialog
@@ -1861,6 +1863,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and E-mail'),
+          id   => 'save_and_email_action',
           call => [ 'kivi.Order.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts ],
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
