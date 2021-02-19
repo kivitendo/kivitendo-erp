@@ -50,7 +50,11 @@ sub parse {
   }
 
   foreach my $line (@lines) {
-    if ($line->[0] =~ m{^:25:(\d+)/(\d+)}) {
+    # AT MT940 has the format  :25://AT20151/00797453990/EUR
+    # DE MT940 has the format  :25:BLZ/Konto
+    # https://www.bankaustria.at/files/MBS_MT940_V5107.pdf
+    if ($line->[0] =~ m{^:25:(?://AT)?(\d+)/(\d+)}) {
+
       $local_bank_code      = $1;
       $local_account_number = $2;
 
