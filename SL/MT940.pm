@@ -5,6 +5,7 @@ use warnings;
 
 use Data::Dumper;
 use DateTime;
+use SL::DB::Default;
 use Encode;
 use File::Slurp qw(read_file);
 
@@ -27,6 +28,7 @@ sub parse {
 
   my ($local_bank_code, $local_account_number, %transaction, @transactions, @lines);
   my $line_number = 0;
+  my $default_currency = substr(SL::DB::Default->get_default_currency, -1, 1);
 
   my $store_transaction = sub {
     if (%transaction) {
@@ -58,8 +60,8 @@ sub parse {
       $local_bank_code      = $1;
       $local_account_number = $2;
 
-    } elsif ($line->[0] =~ m{^:61: (\d{2}) (\d{2}) (\d{2}) (\d{2}) (\d{2}) (C|D|RC|RD) (.) (\d+) (?:, (\d*))? N (.{3}) (.*)}x) {
-      #                       1       2       3       4       5       6                7   8          9         10     11
+    } elsif ($line->[0] =~ m{^:61: (\d{2}) (\d{2}) (\d{2}) (\d{4})? (C|D|RC|RD) ([a-zA-Z]?) (\d+) (?:, (\d*))? N (.{3}) (.*)}x) {
+      #                            1       2       3       4        5           6           7          8         9      10
       # :61:2008060806CR952,N051NONREF
 
       $store_transaction->();
@@ -67,14 +69,14 @@ sub parse {
       my $valuta_year      = $1 * 1 + 2000;
       my $valuta_month     = $2;
       my $valuta_day       = $3;
-      my $trans_month      = $4;
-      my $trans_day        = $5;
-      my $debit_credit     = $6;
-      my $currency         = $7;
-      my $amount1          = $8;
-      my $amount2          = $9 || 0;
-      my $transaction_code = $10;
-      my $reference        = $11;
+      my $trans_month      = $4 ? substr($4, 0, 2) : $valuta_month;
+      my $trans_day        = $4 ? substr($4, 2, 2) : $valuta_day;
+      my $debit_credit     = $5;
+      my $currency         = $6 || $default_currency;
+      my $amount1          = $7;
+      my $amount2          = $8 || 0;
+      my $transaction_code = $9;
+      my $reference        = $10;
 
       my $valuta_date      = DateTime->new_local(year => $valuta_year, month => $valuta_month, day => $valuta_day);
       my $trans_date       = DateTime->new_local(year => $valuta_year, month => $trans_month,  day => $trans_day);
