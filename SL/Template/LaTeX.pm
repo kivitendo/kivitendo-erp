@@ -83,6 +83,8 @@ sub _format_html {
   $content =~ s{ (?:\&nbsp;|\s)+ }{ }gx;
   $content =~ s{ (?:\&nbsp;|\s)+$ }{}gx;
   $content =~ s{ (?: <br/?> )+$ }{}gx;
+  $content =~ s{ <ul>\s*</ul> | <ol>\s*</ol> }{}igx;
+  $content =~ s{ (?: <p>\s*</p>\s* )+ \Z }{}imgx;
 
   my @parts = grep { $_ } map {
     if (substr($_, 0, 1) eq '<') {
