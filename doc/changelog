@@ -14,6 +14,8 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+ - Dateimanagement: Dokumente können auch hochgeladen werden, dort, wo sie
+   bisher nur vom Scanner importiert werden konnten.
  - In der Mandantenkonfiguration ist einstellbar, ob UStID oder Steuernummer
    für Kunden oder Lieferanten eindeutig sein sollen.
  - Menü und Rechte für Produktivität: Zugriffskontrolle aufgeteilt und

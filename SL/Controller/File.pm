@@ -43,31 +43,32 @@ use Rose::Object::MakeMethods::Generic
 
 __PACKAGE__->run_before('check_object_params', only => [ qw(list ajax_delete ajax_importdialog ajax_import ajax_unimport ajax_upload ajax_files_uploaded) ]);
 
-# gen:    bitmask: bit 1 (value is 1 or 3)    => file created
-#                  bit 2 (value is 2 or 3)    => file from other source
+# gen:    bitmask: bit 1 (value is 1, 3, 5 or 7) => file created
+#                  bit 2 (value is 2, 3, 6 or 7) => file from other source (e.g. directory for scanned documents)
+#                  bit 3 (value is 4, 5, 6 or 7) => upload as other source
 # gltype: is this used somewhere?
 # dir:    is this used somewhere?
 # model:  base name of the rose model
 # right:  access right used for import
 my %file_types = (
   'sales_quotation'         => { gen => 1, gltype => '',   dir =>'SalesQuotation',       model => 'Order',          right => 'import_ar'  },
-  'sales_order'             => { gen => 1, gltype => '',   dir =>'SalesOrder',           model => 'Order',          right => 'import_ar'  },
+  'sales_order'             => { gen => 5, gltype => '',   dir =>'SalesOrder',           model => 'Order',          right => 'import_ar'  },
   'sales_delivery_order'    => { gen => 1, gltype => '',   dir =>'SalesDeliveryOrder',   model => 'DeliveryOrder',  right => 'import_ar'  },
   'invoice'                 => { gen => 1, gltype => 'ar', dir =>'SalesInvoice',         model => 'Invoice',        right => 'import_ar'  },
   'credit_note'             => { gen => 1, gltype => '',   dir =>'CreditNote',           model => 'Invoice',        right => 'import_ar'  },
-  'request_quotation'       => { gen => 3, gltype => '',   dir =>'RequestForQuotation',  model => 'Order',          right => 'import_ap'  },
-  'purchase_order'          => { gen => 3, gltype => '',   dir =>'PurchaseOrder',        model => 'Order',          right => 'import_ap'  },
-  'purchase_delivery_order' => { gen => 3, gltype => '',   dir =>'PurchaseDeliveryOrder',model => 'DeliveryOrder',  right => 'import_ap'  },
-  'purchase_invoice'        => { gen => 2, gltype => 'ap', dir =>'PurchaseInvoice',      model => 'PurchaseInvoice',right => 'import_ap'  },
+  'request_quotation'       => { gen => 7, gltype => '',   dir =>'RequestForQuotation',  model => 'Order',          right => 'import_ap'  },
+  'purchase_order'          => { gen => 7, gltype => '',   dir =>'PurchaseOrder',        model => 'Order',          right => 'import_ap'  },
+  'purchase_delivery_order' => { gen => 7, gltype => '',   dir =>'PurchaseDeliveryOrder',model => 'DeliveryOrder',  right => 'import_ap'  },
+  'purchase_invoice'        => { gen => 6, gltype => 'ap', dir =>'PurchaseInvoice',      model => 'PurchaseInvoice',right => 'import_ap'  },
   'vendor'                  => { gen => 0, gltype => '',   dir =>'Vendor',               model => 'Vendor',         right => 'xx'         },
   'customer'                => { gen => 1, gltype => '',   dir =>'Customer',             model => 'Customer',       right => 'xx'         },
   'part'                    => { gen => 0, gltype => '',   dir =>'Part',                 model => 'Part',           right => 'xx'         },
-  'gl_transaction'          => { gen => 2, gltype => 'gl', dir =>'GeneralLedger',        model => 'GLTransaction',  right => 'import_ap'  },
+  'gl_transaction'          => { gen => 6, gltype => 'gl', dir =>'GeneralLedger',        model => 'GLTransaction',  right => 'import_ap'  },
   'draft'                   => { gen => 0, gltype => '',   dir =>'Draft',                model => 'Draft',          right => 'xx'         },
   'csv_customer'            => { gen => 1, gltype => '',   dir =>'Reports',              model => 'Customer',       right => 'xx'         },
   'csv_vendor'              => { gen => 1, gltype => '',   dir =>'Reports',              model => 'Vendor',         right => 'xx'         },
   'shop_image'              => { gen => 0, gltype => '',   dir =>'ShopImages',           model => 'Part',           right => 'xx'         },
-  'letter'                  => { gen => 3, gltype => '',   dir =>'Letter',               model => 'Letter',         right => 'sales_letter_edit | purchase_letter_edit' },
+  'letter'                  => { gen => 7, gltype => '',   dir =>'Letter',               model => 'Letter',         right => 'sales_letter_edit | purchase_letter_edit' },
 );
 
 #--- 4 locale ---#
@@ -498,6 +499,27 @@ sub _get_sources {
   my @sources;
   if ( $self->file_type eq 'document' ) {
     # TODO statt gen neue attribute in filetypes :
+    if (($file_types{$self->object_type}->{gen}*1 & 4)==4) {
+      # bit 3 is set => means upload
+      my $source = {
+        'name'         => 'uploaded',
+        'title'        => $main::locale->text('uploaded Documents'),
+        'chk_action'   => 'uploaded_documents_delete',
+        'chk_title'    => $main::locale->text('Delete Documents'),
+        'chkall_title' => $main::locale->text('Delete all'),
+        'file_title'   => $main::locale->text('filename'),
+        'confirm_text' => $main::locale->text('delete'),
+        'can_rename'   => 1,
+        'are_existing' => $self->existing ? 1 : 0,
+        'rename_title' => $main::locale->text('Rename Attachments'),
+        'can_upload'   => 1,
+        'can_delete'   => 1,
+        'upload_title' => $main::locale->text('Upload Documents'),
+        'done_text'    => $main::locale->text('deleted')
+      };
+      push @sources , $source;
+    }
+
     if (($file_types{$self->object_type}->{gen}*1 & 1)==1) {
       my $gendata = {
         'name'         => 'created',
@@ -514,6 +536,7 @@ sub _get_sources {
       };
       push @sources , $gendata;
     }
+
     if (($file_types{$self->object_type}->{gen}*1 & 2)==2) {
       my @others =  SL::File->get_other_sources();
       foreach my $scanner_or_mailrx (@others) {
