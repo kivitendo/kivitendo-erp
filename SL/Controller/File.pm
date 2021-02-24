@@ -408,7 +408,7 @@ sub _get_from_import {
   my $language = $::lx_office_conf{system}->{language};
   my $timezone = $::locale->get_local_time_zone()->name;
   if (opendir my $dir, $path) {
-    my @files = ( readdir $dir);
+    my @files = (readdir $dir);
     foreach my $file ( @files) {
       next if (($file eq '.') || ($file eq '..'));
       $file = Encode::decode('utf-8', $file);
@@ -430,7 +430,12 @@ sub _get_from_import {
       };
 
     }
+    closedir($dir);
+
+  } else {
+    $::lxdebug->message(LXDebug::WARN(), "SL::File::_get_from_import opendir failed to open dir " . $path);
   }
+
   return @foundfiles;
 }
 
