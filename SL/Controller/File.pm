@@ -8,10 +8,12 @@ use List::Util qw(first max);
 
 use utf8;
 use Encode qw(decode);
+use English qw( -no_match_vars );
 use URI::Escape;
 use Cwd;
 use DateTime;
 use File::stat;
+use File::Slurp qw(slurp);
 use File::Spec::Unix;
 use File::Spec::Win32;
 use File::MimeInfo::Magic;
@@ -29,8 +31,9 @@ use SL::JSON;
 use SL::Helper::CreatePDF qw(:all);
 use SL::Locale::String;
 use SL::SessionFile;
+use SL::SessionFile::Random;
 use SL::File;
-use SL::Controller::Helper::ThumbnailCreator qw(file_probe_image_type);
+use SL::Controller::Helper::ThumbnailCreator qw(file_probe_image_type file_probe_type);
 
 use constant DO_DELETE   => 0;
 use constant DO_UNIMPORT => 1;
@@ -393,6 +396,8 @@ sub _do_list {
   }
   $self->files(\@files);
 
+  $_->{thumbnail} = _create_thumbnail($_) for @files;
+
   if($self->object_type eq 'shop_image'){
     $self->js
       ->run('kivi.ShopPart.show_images', $self->object_id)
@@ -599,6 +604,66 @@ sub _get_sources {
     push @sources , $attdata;
   }
   return @sources;
+}
+
+# ignores all errros
+# todo: cache thumbs?
+sub _create_thumbnail {
+  my ($file) = @_;
+
+  my $filename;
+  if (!eval { $filename = $file->get_file(); 1; }) {
+    $::lxdebug->message(LXDebug::WARN(), "SL::File::_create_thumbnail get_file failed: " . $EVAL_ERROR);
+    return;
+  }
+
+  # Workaround for pfds which are not handled by file_probe_type.
+  # Maybe use mime info stored in db?
+  my $mime_type = File::MimeInfo::Magic::magic($filename);
+  if ($mime_type =~ m{pdf}) {
+    $filename = _convert_pdf_to_png($filename);
+  }
+  return if !$filename;
+
+  my $content;
+  if (!eval { $content = slurp $filename; 1; }) {
+    $::lxdebug->message(LXDebug::WARN(), "SL::File::_create_thumbnail slurp failed: " . $EVAL_ERROR);
+    return;
+  }
+
+  my $ret;
+  if (!eval { $ret = file_probe_type($content); 1; }) {
+    $::lxdebug->message(LXDebug::WARN(), "SL::File::_create_thumbnail file_probe_type failed: " . $EVAL_ERROR);
+    return;
+  }
+
+  # file_probe_type returns a hash ref with thumbnail info and content
+  # or an error message
+  if ('HASH' ne ref $ret) {
+    $::lxdebug->message(LXDebug::WARN(), "SL::File::_create_thumbnail file_probe_type returned an error: " . $ret);
+    return;
+  }
+
+  return $ret;
+}
+
+sub _convert_pdf_to_png {
+  my ($filename) = @_;
+
+  my $sfile = SL::SessionFile::Random->new();
+
+  my $command = 'pdftoppm -singlefile -scale-to 64 -png' . ' ' . $filename . ' ' . $sfile->file_name;
+
+  if (system($command) == -1) {
+    $::lxdebug->message(LXDebug::WARN(), "SL::File::_convert_pdf_to_png: system call failed: " . $ERRNO);
+    return;
+  }
+  if ($CHILD_ERROR) {
+    $::lxdebug->message(LXDebug::WARN(), "SL::File::_convert_pdf_to_png: pdftoppm failed with error code: " . ($CHILD_ERROR >> 8));
+    return;
+  }
+
+  return $sfile->file_name . '.png';
 }
 
 1;

@@ -1,5 +1,7 @@
 [%- USE LxERP -%][% USE L %]
 [% USE T8 %]
+[% USE Base64 %]
+[% USE HTML %]
 [%- IF ! json %]
  <div id="[% file_type %]_list_[% object_type %]">
 [%- END %]
@@ -36,7 +38,7 @@
       </th>
       <th class="listheading" width="30%"><b>[%  LxERP.t8('Description') %]</b></th>
      [%- ELSE %]
-      <th class="listheading" width="40%"></th>
+      <th class="listheading" width="40%"><b>[%  LxERP.t8('ImagePreview') %]</b></th>
      [%- END %]
     </tr>
    </thead>
@@ -61,7 +63,15 @@
        </td>
        <td>[% file.description %]</td>
       [%- ELSE %]
-       <td></td>
+       <td align="left">
+        [%- IF file.thumbnail %]
+         <a href="controller.pl?action=File/download&id=[% file.id %][%- IF file.version %]&version=[%- file.version %][%- END %]">
+          <img src="data:[% HTML.escape(file.thumbnail.thumbnail_img_content_type) %];base64,[% file.thumbnail.thumbnail_img_content.encode_base64 %]" alt="[% file.file_name %]">
+         </a>
+        [%- ELSE %]
+         -
+        [%- END %]
+       </td>
       [%- END %]
      </tr>
     [%- END # FOREACH file %]
