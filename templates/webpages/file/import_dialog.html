@@ -1,4 +1,4 @@
-[%- USE L -%][%- USE LxERP -%][%- USE JavaScript -%]
+[%- USE L -%][%- USE LxERP -%]
 
 <form method="post" id="file_import_form" action="controller.pl">
  <table>
@@ -21,8 +21,8 @@
  </table>
 
  <p>
-  [%- L.button_tag("kivi.File.importaction(" _ SELF.object_id _ ",'" _ SELF.object_type _ "','" _ SELF.file_type _ "','" _ source.name _ "','" _ source.path _ "','"_ source.chk_action _ "');", LxERP.t8('Continue'), id => "import_cont_btn") %]</td>
-  [%- L.button_tag("kivi.File.importclose();" , LxERP.t8('Cancel')  , class => "submit") %]</td></tr>
+  [%- L.button_tag("kivi.File.importaction(" _ SELF.object_id _ ",'" _ SELF.object_type _ "','" _ SELF.file_type _ "','" _ source.name _ "','" _ source.path _ "','"_ source.chk_action _ "');", LxERP.t8('Continue'), id => "import_cont_btn") %]
+  [%- L.button_tag("kivi.File.importclose();" , LxERP.t8('Cancel')  , class => "submit") %]
  </p>
 
 </form>
