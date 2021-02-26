@@ -1,4 +1,4 @@
-[%- USE LxERP -%][% USE L %][% USE HTML %]
+[%- USE LxERP -%][% USE L %]
 [%- IF ! json %]
  <div id="[% file_type %]_list_[% object_type %]">
 [%- END %]
@@ -65,7 +65,7 @@
      </tr>
     [%- END # FOREACH file %]
    </tbody>
-  </table
+  </table>
 
   <div>
    [%- IF edit_attachments %]
