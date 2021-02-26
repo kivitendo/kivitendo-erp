@@ -213,3 +213,11 @@ div.cke_textarea_inline {
 div.cke_textarea_inline:focus {
   outline: 0;
 }
+
+span.upload_drop_zone {
+  padding: 4px;
+  border: 2px;
+  border-color: darkgray lightgray lightgray;
+  border-style: solid;
+  background-color: whitesmoke;
+}

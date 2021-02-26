@@ -1,4 +1,5 @@
 [%- USE LxERP -%][% USE L %]
+[% USE T8 %]
 [%- IF ! json %]
  <div id="[% file_type %]_list_[% object_type %]">
 [%- END %]
@@ -81,11 +82,19 @@
     [%- can_rename = 1 %]
     [% L.button_tag("kivi.File.rename(" _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ checkname _ "'," _ is_global _ ");",  source.rename_title ) %]
    [%- END %]
-   [%- IF source.can_upload %]
-    [% L.button_tag("kivi.File.upload(" _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ source.upload_title _ "'," _ is_global _ ");", source.upload_title ) %]
-   [%- END %]
    [%- IF source.can_import %]
     [% L.button_tag("kivi.File.import("   _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ source.name _ "','" _ source.path _"');",  source.import_title ) %]
+   [%- END %]
+   [%- IF source.can_upload %]
+    [% L.button_tag("kivi.File.upload(" _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ source.upload_title _ "'," _ is_global _ ");", source.upload_title ) %]
+    <span class="upload_drop_zone"
+          data-object-type="[% object_type %]"
+          data-object-id="[% object_id %]"
+          data-file-type="[% file_type %]"
+          data-is-global="[% is_global %]"
+          data-maxsize="[% INSTANCE_CONF.get_doc_max_filesize %]">
+      [% 'Drag and drop files here' | $T8 %]
+    </span>
    [%- END %]
   </div>
  [%- END # FOREACH source %]
@@ -103,3 +112,10 @@
   [%- END %]
  [%- END %]
 [%- END %]
+
+<script>
+  $(function() {
+    kivi.File.list_div_id = "[% file_type %]_list_[% object_type %]";
+    kivi.File.init();
+  });
+</script>

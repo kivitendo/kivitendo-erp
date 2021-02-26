@@ -1,4 +1,5 @@
 namespace('kivi.File', function(ns) {
+  ns.list_div_id = undefined;
 
   ns.rename = function(id,type,file_type,checkbox_class,is_global) {
     var $dlg       = $('#rename_dialog_'+file_type);
@@ -77,6 +78,8 @@ namespace('kivi.File', function(ns) {
   }
 
   ns.upload = function(id,type,filetype,upload_title,gl) {
+    $('#upload_status_dialog').remove();
+
     kivi.popup_dialog({ url:     'controller.pl',
                         data:    { action: 'File/ajax_upload',
                                    file_type:   filetype,
@@ -99,10 +102,30 @@ namespace('kivi.File', function(ns) {
       $('#upload_selected_button').prop('disabled',$('#upload_files').val() === '');
   }
 
+  ns.upload_status_dialog = function() {
+    $('#files_upload').remove();
+    $('#upload_status_dialog').remove();
+
+    var html  = '<div id="upload_status_dialog"><p><div id="upload_result"></div></p>';
+    html      = html + '<p><input type="button" value="' + kivi.t8('close') + '" size="30" onclick="$(\'#upload_status_dialog\').dialog(\'close\');">';
+    html      = html + '</p></div>';
+    $(html).hide().appendTo('#' + ns.list_div_id);
+
+    kivi.popup_dialog({id: 'upload_status_dialog',
+                       dialog: {title:  kivi.t8('Upload Status'),
+                                height: 200,
+                                width:  650 }});
+  };
+
   ns.upload_selected_files = function(id,type,filetype,maxsize,is_global) {
       var myform = document.getElementById("upload_form");
-      var filesize  = 0;
       var myfiles = document.getElementById("upload_files").files;
+
+      ns.upload_files(id, type, filetype, maxsize,is_global, myfiles, myform);
+  }
+
+  ns.upload_files = function(id, type, filetype, maxsize, is_global, myfiles, myform) {
+      var filesize  = 0;
       for ( i=0; i < myfiles.length; i++ ) {
           var fname ='';
           try {
@@ -125,16 +148,27 @@ namespace('kivi.File', function(ns) {
           return;
       }
 
-      myform.action ="controller.pl?action=File/ajax_files_uploaded&json=1&object_type="+
-          type+'&object_id='+id+'&file_type='+filetype+'&is_global='+is_global;
+      var fd = new FormData(myform);
+      if (!myform) {
+        $(myfiles).each(function(idx, elt) {
+          fd.append('uploadfiles[+]', elt);
+        });
+      }
+      fd.append('action',      'File/ajax_files_uploaded');
+      fd.append('json',        1);
+      fd.append('object_type', type);
+      fd.append('object_id',   id);
+      fd.append('file_type',   filetype);
+      fd.append('is_global',   is_global);
+
       var oReq = new XMLHttpRequest();
       oReq.onload            = ns.attSuccess;
       oReq.upload.onprogress = ns.attProgress;
       oReq.upload.onerror    = ns.attFailed;
       oReq.upload.onabort    = ns.attCanceled;
-      oReq.open("post",myform.action, true);
+      oReq.open("post", 'controller.pl', true);
       $("#upload_result").html(kivi.t8("start upload"));
-      oReq.send(new FormData(myform));
+      oReq.send(fd);
   }
 
   ns.attProgress = function(oEvent) {
@@ -155,6 +189,7 @@ namespace('kivi.File', function(ns) {
   }
 
   ns.attSuccess = function() {
+      $('#upload_status_dialog').dialog('close');
       $('#files_upload').dialog('close');
       kivi.eval_json_result(jQuery.parseJSON(this.response));
   }
@@ -265,4 +300,47 @@ namespace('kivi.File', function(ns) {
     $.download("controller.pl", data);
     return false;
   }
+
+  ns.init = function() {
+    // Preventing page from redirecting
+    $("#" + ns.list_div_id).on("dragover", function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    $("#" + ns.list_div_id).on("drop", function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    // Drag enter
+    $('.upload_drop_zone').on('dragenter', function (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    });
+
+    // Drag over
+    $('.upload_drop_zone').on('dragover', function (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    });
+
+    // Drop
+    $('.upload_drop_zone').on('drop', function (e) {
+      e.stopPropagation();
+      e.preventDefault();
+
+      ns.upload_status_dialog();
+
+      var object_type = $(e.target).data('object-type');
+      var object_id   = $(e.target).data('object-id');
+      var file_type   = $(e.target).data('file-type');
+      var is_global   = $(e.target).data('is-global');
+      var maxsize     = $(e.target).data('maxsize');
+      var files       = e.originalEvent.dataTransfer.files;
+      ns.upload_files(object_id, object_type, file_type, maxsize, is_global, files);
+    });
+
+  };
+
 });
