@@ -76,6 +76,12 @@ __PACKAGE__->meta->add_relationships(
     column_map   => { id => 'part_id' },
     manager_args => { with_objects => [ 'shop' ] },
   },
+  last_price_update => {
+    type         => 'one to one',
+    class        => 'SL::DB::PartsPriceHistory',
+    column_map   => { id => 'part_id' },
+    manager_args => { sort_by => 'valid_from DESC', limit => 1 },
+  },
 );
 
 __PACKAGE__->meta->initialize;

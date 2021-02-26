@@ -84,9 +84,9 @@
         <td>
          <table id="ic5">
           <tr>
-           <th align="right" nowrap="true">[% 'Updated' | $T8 %]</th>
+           <th align="right" nowrap="true">[% 'Price updated' | $T8 %]</th>
            <td>
-           [% SELF.part.priceupdate.to_kivitendo | html %]
+           [% SELF.part.last_price_update.valid_from.to_kivitendo | html %]
            </td>
           </tr>
 

@@ -481,7 +481,7 @@ sub all_parts {
 
   my $token_builder = $make_token_builder->(\%joins_needed);
 
-  my @sort_cols    = (@simple_filters, qw(id priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate insertdate shop));
+  my @sort_cols    = (@simple_filters, qw(id onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate insertdate shop));
      $form->{sort} = 'id' unless grep { $form->{"l_$_"} } grep { $form->{sort} eq $_ } @sort_cols; # sort by id if unknown or invisible column
   my $sort_order   = ($form->{revers} ? ' DESC' : ' ASC');
   my $order_clause = " ORDER BY " . $token_builder->($form->{sort}) . ($form->{revers} ? ' DESC' : ' ASC');
@@ -567,7 +567,7 @@ sub all_parts {
       qq|SELECT p.id, p.partnumber, p.description, a.qty AS onhand,
            p.unit, p.notes, p.itime::DATE as insertdate,
            p.sellprice, p.listprice, p.lastcost,
-           p.rop, p.weight, p.priceupdate,
+           p.rop, p.weight,
            p.image, p.drawing, p.microfiche,
            pfac.factor
          FROM parts p

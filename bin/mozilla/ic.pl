@@ -188,7 +188,7 @@ sub generate_report {
     'ordnumber'          => { 'text' => $locale->text('Order Number'), },
     'partnumber'         => { 'text' => $locale->text('Part Number'), },
     'partsgroup'         => { 'text' => $locale->text('Partsgroup'), },
-    'priceupdate'        => { 'text' => $locale->text('Updated'), },
+    'priceupdate'        => { 'text' => $locale->text('Price updated'), },
     'quonumber'          => { 'text' => $locale->text('Quotation'), },
     'rop'                => { 'text' => $locale->text('ROP'), },
     'sellprice'          => { 'text' => $locale->text('Sell Price'), },
@@ -435,7 +435,7 @@ sub generate_report {
   my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
   my @sort_full        = qw(partnumber description onhand soldtotal deliverydate insertdate shop);
-  my @sort_no_revers   = qw(partsgroup priceupdate invnumber ordnumber quonumber name image drawing serialnumber);
+  my @sort_no_revers   = qw(partsgroup invnumber ordnumber quonumber name image drawing serialnumber);
 
   foreach my $col (@sort_full) {
     $column_defs{$col}->{link} = join '&', $callback, "sort=$col", map { "$_=" . E($form->{$_}) } qw(revers lastsort);
@@ -581,6 +581,9 @@ sub generate_report {
     $row->{notes}{data} = SL::HTML::Util->strip($ref->{notes});
     $row->{type_and_classific}{data} = SL::Presenter::Part::type_abbreviation($ref->{part_type}).
                                        SL::Presenter::Part::classification_abbreviation($ref->{classification_id});
+
+    # last price update
+    $row->{priceupdate}{data} = SL::DB::Part->new(id => $ref->{id})->load->last_price_update->valid_from->to_kivitendo;
 
     $report->add_data($row);
 

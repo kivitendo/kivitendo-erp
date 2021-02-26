@@ -2501,6 +2501,7 @@ $self->{texts} = {
   'Price sources deactivated in this client' => 'Preisquellen die in diesem Mandanten deaktiviert sind',
   'Price type'                  => 'Preistyp',
   'Price type explanation'      => 'Preistyp Erklärung',
+  'Price updated'               => 'Preisänderung am',
   'Pricegroup'                  => 'Preisgruppe',
   'Pricegroups'                 => 'Preisgruppen',
   'Prices'                      => 'Preise',
