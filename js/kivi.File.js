@@ -265,8 +265,4 @@ namespace('kivi.File', function(ns) {
     $.download("controller.pl", data);
     return false;
   }
-
-  ns.init = function() {
-  }
-
 });
