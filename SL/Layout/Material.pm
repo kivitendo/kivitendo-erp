@@ -13,6 +13,10 @@ sub get_stylesheet_for_user {
   'css/material';
 }
 
+sub webpages_path {
+  "templates/mobile_webpages";
+}
+
 sub init_sub_layouts {
   [
     SL::Layout::None->new,

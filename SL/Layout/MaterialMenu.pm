@@ -10,7 +10,7 @@ sub init_menu {
 }
 
 sub pre_content {
-  $_[0]->presenter->render('menu/material', menu => $_[0]->menu, C => SL::Controller::Base->new);
+  $_[0]->presenter->render('menu/menu', menu => $_[0]->menu, C => SL::Controller::Base->new);
 }
 
 1;
