@@ -550,8 +550,10 @@ sub _prepare_html_template {
   }
   $language = "de" unless ($language);
 
-  if (-f "templates/webpages/${file}.html") {
-    $file = "templates/webpages/${file}.html";
+  my $webpages_path = $::request->layout->webpages_path;
+
+  if (-f "${webpages_path}/${file}.html") {
+    $file = "${webpages_path}/${file}.html";
 
   } elsif (ref $file eq 'SCALAR') {
     # file is a scalarref, use inline mode

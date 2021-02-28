@@ -45,8 +45,10 @@ sub render {
   # Look for the file given by $template if $template is not a reference.
   my $source;
   if (!ref $template) {
+    my $webpages_path = $::request->layout->webpages_path;
+
     my $ext = $options->{type} eq 'text' ? 'txt' : $options->{type};
-    $source = "templates/webpages/${template}.${ext}";
+    $source = "${webpages_path}/${template}.${ext}";
     croak "Template file ${source} not found" unless -f $source;
 
   } elsif (ref($template) eq 'SCALAR') {
@@ -96,6 +98,8 @@ sub render {
 sub get_template {
   my ($self) = @_;
 
+  my $webpages_path = $::request->layout->webpages_path;
+
   # Make locales.pl parse generic/exception.html, too:
   # $::form->parse_html_template("generic/exception")
   $self->{template} ||=
@@ -104,10 +108,10 @@ sub get_template {
                     ABSOLUTE     => 1,
                     CACHE_SIZE   => 0,
                     PLUGIN_BASE  => 'SL::Template::Plugin',
-                    INCLUDE_PATH => '.:templates/webpages',
+                    INCLUDE_PATH => ".:$webpages_path",
                     COMPILE_EXT  => '.tcc',
                     COMPILE_DIR  => $::lx_office_conf{paths}->{userspath} . '/templates-cache',
-                    ERROR        => 'templates/webpages/generic/exception.html',
+                    ERROR        => "${webpages_path}/generic/exception.html",
                     ENCODING     => 'utf8',
                   }) || croak;
 

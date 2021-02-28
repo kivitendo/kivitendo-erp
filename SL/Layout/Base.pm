@@ -38,6 +38,10 @@ sub init_sublayouts_by_name {
   {}
 }
 
+sub webpages_path {
+  "templates/webpages";
+}
+
 sub get {
   $_[0]->sub_layouts;
   return grep { $_ } ($_[0]->sub_layouts_by_name->{$_[1]});
