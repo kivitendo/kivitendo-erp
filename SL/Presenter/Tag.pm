@@ -11,7 +11,7 @@ our @EXPORT_OK = qw(
   html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag
   checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
   stringify_attributes restricted_html textarea_tag link_tag date_tag
-  div_tag radio_button_tag);
+  div_tag radio_button_tag img_tag);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use Carp;
@@ -405,6 +405,14 @@ sub date_tag {
 sub div_tag {
   my ($content, %params) = @_;
   return html_tag('div', $content, %params);
+}
+
+sub img_tag {
+  my (%params) = @_;
+
+  $params{alt} ||= '';
+
+  return html_tag('img', undef, %params);
 }
 
 1;

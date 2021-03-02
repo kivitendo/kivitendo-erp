@@ -84,18 +84,11 @@ sub textarea_tag             { return _call_presenter('textarea_tag',           
 sub date_tag                 { return _call_presenter('date_tag',                 @_); }
 sub div_tag                  { return _call_presenter('div_tag',                  @_); }
 sub radio_button_tag         { return _call_presenter('radio_button_tag',         @_); }
+sub img_tag                  { return _call_presenter('img_tag',                  @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name, $unique) = @_;
   SL::Presenter::Tag::_set_id_attribute($attributes, $name, $unique);
-}
-
-sub img_tag {
-  my ($self, %options) = _hashify(1, @_);
-
-  $options{alt} ||= '';
-
-  return $self->html_tag('img', undef, %options);
 }
 
 sub ul_tag {
