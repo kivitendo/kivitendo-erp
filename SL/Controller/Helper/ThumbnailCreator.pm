@@ -23,11 +23,13 @@ our %supported_mime_types = (
 );
 
 sub file_create_thumbnail {
-  my ($thumb) = @_;
+  my ($thumb, %params) = @_;
+
   croak "No picture set yet" if !$thumb->{content};
+
   my $image            = GD::Image->new($thumb->{content});
   my ($width, $height) = $image->getBounds;
-  my $max_dim          = 64;
+  my $max_dim          = $params{size} // 64;
   my $curr_max         = max $width, $height, 1;
   my $factor           = $curr_max <= $max_dim ? 1 : $curr_max / $max_dim;
   my $new_width        = int($width  / $factor + 0.5);
@@ -64,7 +66,7 @@ sub file_probe_image_type {
 }
 
 sub file_probe_type {
-  my ($content) = @_;
+  my ($content, %params) = @_;
   return (t8("No file uploaded yet")) if !$content;
   my $info = Image::Info::image_info(\$content);
   if (!$info || $info->{error} || !$info->{file_media_type} || !$supported_mime_types{ $info->{file_media_type} }) {
@@ -78,7 +80,7 @@ sub file_probe_type {
   $thumbnail->{file_image_height} = $info->{height};
   $thumbnail->{content} = $content;
 
-  $thumbnail = &file_create_thumbnail($thumbnail);
+  $thumbnail = &file_create_thumbnail($thumbnail, %params);
 
   return $thumbnail;
 }
