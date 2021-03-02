@@ -65,9 +65,13 @@
       [%- ELSE %]
        <td align="left">
         [%- IF file.thumbnail %]
-         <a href="controller.pl?action=File/download&id=[% file.id %][%- IF file.version %]&version=[%- file.version %][%- END %]">
-          <img src="data:[% HTML.escape(file.thumbnail.thumbnail_img_content_type) %];base64,[% file.thumbnail.thumbnail_img_content.encode_base64 %]" alt="[% file.file_name %]">
-         </a>
+         <div class="ovlerlay_div">
+          <img id="thumb_[% file.id %]" class="thumbnail"
+               data-file-id="[% file.id %]" data-file-version="[% file.version %]"
+               src="data:[% HTML.escape(file.thumbnail.thumbnail_img_content_type) %];base64,[% file.thumbnail.thumbnail_img_content.encode_base64 %]"
+               alt="[% file.file_name %]">
+          <img id="enlarged_thumb_[% file.id %]" class="overlay_img">
+         </div>
         [%- ELSE %]
          -
         [%- END %]

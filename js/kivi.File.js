@@ -301,6 +301,35 @@ namespace('kivi.File', function(ns) {
     return false;
   }
 
+  ns.add_enlarged_thumbnail = function(e) {
+    var file_id        = $(e.target).data('file-id');
+    var overlay_img_id = 'enlarged_thumb_' + file_id;
+    var overlay_img    = $('#' + overlay_img_id);
+
+    if (overlay_img.data('is-overlay-shown') == 1) return;
+
+    $('.thumbnail').off('mouseover');
+    overlay_img.data('is-overlay-shown', 1);
+    overlay_img.show();
+
+    if (overlay_img.data('is-overlay-loaded') == 1) return;
+
+    var data = {
+      action:         'File/ajax_get_thumbnail',
+      file_id:        file_id,
+      file_version:   $(e.target).data('file-version'),
+      size:           512
+    };
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.remove_enlarged_thumbnail = function(e) {
+    $(e.target).hide();
+    $(e.target).data('is-overlay-shown', 0);
+    $('.thumbnail').on('mouseover', ns.add_enlarged_thumbnail);
+  };
+
   ns.init = function() {
     // Preventing page from redirecting
     $("#" + ns.list_div_id).on("dragover", function(e) {
@@ -341,6 +370,9 @@ namespace('kivi.File', function(ns) {
       ns.upload_files(object_id, object_type, file_type, maxsize, is_global, files);
     });
 
+    $('.thumbnail').on('mouseover', ns.add_enlarged_thumbnail);
+    $('.overlay_img').on('click', ns.remove_enlarged_thumbnail);
+    $('.overlay_img').on('mouseout', ns.remove_enlarged_thumbnail);
   };
 
 });

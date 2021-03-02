@@ -17,6 +17,7 @@ use File::Slurp qw(slurp);
 use File::Spec::Unix;
 use File::Spec::Win32;
 use File::MimeInfo::Magic;
+use MIME::Base64;
 use SL::DB::Helper::Mappings;
 use SL::DB::Order;
 use SL::DB::DeliveryOrder;
@@ -309,6 +310,20 @@ sub action_download {
     );
   }
 }
+
+sub action_ajax_get_thumbnail {
+  my ($self) = @_;
+
+  my $file      = SL::File->get(id => $::form->{file_id});
+  my $thumbnail = _create_thumbnail($file, $::form->{size});
+
+  my $overlay_selector = '#enlarged_thumb_' . $::form->{file_id};
+  $self->js
+    ->attr($overlay_selector, 'src', 'data:' . $thumbnail->{thumbnail_img_content_type} . ';base64,' . MIME::Base64::encode_base64($thumbnail->{thumbnail_img_content}))
+    ->data($overlay_selector, 'is-overlay-loaded', '1')
+    ->render;
+}
+
 
 #
 # filters
@@ -609,7 +624,9 @@ sub _get_sources {
 # ignores all errros
 # todo: cache thumbs?
 sub _create_thumbnail {
-  my ($file) = @_;
+  my ($file, $size) = @_;
+
+  $size //= 64;
 
   my $filename;
   if (!eval { $filename = $file->get_file(); 1; }) {
@@ -621,7 +638,7 @@ sub _create_thumbnail {
   # Maybe use mime info stored in db?
   my $mime_type = File::MimeInfo::Magic::magic($filename);
   if ($mime_type =~ m{pdf}) {
-    $filename = _convert_pdf_to_png($filename);
+    $filename = _convert_pdf_to_png($filename, size => $size);
   }
   return if !$filename;
 
@@ -632,7 +649,7 @@ sub _create_thumbnail {
   }
 
   my $ret;
-  if (!eval { $ret = file_probe_type($content); 1; }) {
+  if (!eval { $ret = file_probe_type($content, size => $size); 1; }) {
     $::lxdebug->message(LXDebug::WARN(), "SL::File::_create_thumbnail file_probe_type failed: " . $EVAL_ERROR);
     return;
   }
@@ -648,11 +665,11 @@ sub _create_thumbnail {
 }
 
 sub _convert_pdf_to_png {
-  my ($filename) = @_;
+  my ($filename, %params) = @_;
 
-  my $sfile = SL::SessionFile::Random->new();
-
-  my $command = 'pdftoppm -singlefile -scale-to 64 -png' . ' ' . $filename . ' ' . $sfile->file_name;
+  my $size    = $params{size} // 64;
+  my $sfile   = SL::SessionFile::Random->new();
+  my $command = 'pdftoppm -singlefile -scale-to ' . $size . ' -png' . ' ' . $filename . ' ' . $sfile->file_name;
 
   if (system($command) == -1) {
     $::lxdebug->message(LXDebug::WARN(), "SL::File::_convert_pdf_to_png: system call failed: " . $ERRNO);

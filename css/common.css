@@ -221,3 +221,15 @@ span.upload_drop_zone {
   border-style: solid;
   background-color: whitesmoke;
 }
+
+.ovlerlay_div {
+  position: relative;
+}
+
+.overlay_img {
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  z-index: 2;
+  cursor: pointer;
+}
