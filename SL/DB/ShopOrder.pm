@@ -96,7 +96,7 @@ sub convert_to_sales_order {
       intnotes                => $customer->notes,
       salesman_id             => $employee->id,
       taxincluded             => $self->tax_included,
-      payment_id              => $customer->payment_id,
+      payment_id              => $self->payment_id,
       taxzone_id              => $customer->taxzone_id,
       currency_id             => $customer->currency_id,
       transaction_description => $shop->transaction_description,

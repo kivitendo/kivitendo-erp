@@ -203,6 +203,11 @@ sub map_data_to_shoporder {
     } else {
       $d_street = $import->{billing}->{address_1} . ($import->{billing}->{address_2} ? " " . $import->{billing}->{address_2} : "");
     }
+  # Mapping Zahlungsmethoden muss an Firmenkonfiguration angepasst werden
+  my %payment_ids_methods = (
+                              'paypal'                            => 2489,
+                              'german_market_purchase_on_account' => 2487,
+                            );
   my %columns = (
 #billing Shop can have different billing addresses, and may have 1 customer_address
     billing_firstname       => $import->{billing}->{first_name},
@@ -292,9 +297,9 @@ sub map_data_to_shoporder {
     #prices_include_tax
     tax_included            => $tax_included,
     #payment_method
-    # ??? payment_id              => $import->{payment_method},
+    payment_id              => $payment_ids_methods{$import->{payment_method}} || 2487,
     #payment_method_title
-    payment_description     => $import->{payment}->{payment_method_title},
+    payment_description     => $import->{payment_method_title},
     #transaction_id
     shop_trans_id           => $import->{id},
     #date_paid
