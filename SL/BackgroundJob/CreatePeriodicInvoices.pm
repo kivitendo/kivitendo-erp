@@ -16,6 +16,7 @@ use SL::DB::Order;
 use SL::DB::Invoice;
 use SL::DB::PeriodicInvoice;
 use SL::DB::PeriodicInvoicesConfig;
+use SL::File;
 use SL::Helper::CreatePDF qw(create_pdf find_template);
 use SL::Mailer;
 use SL::Util qw(trim);
@@ -358,6 +359,29 @@ sub _store_pdf_in_webdav {
   Common::copy_file_to_webdav_folder($form);
 }
 
+sub _store_pdf_in_filemanagement {
+  my ($self, $pdf_file, $invoice) = @_;
+
+  return unless $::instance_conf->get_doc_storage;
+
+  # create a form for generate_attachment_filename
+  my $form = Form->new('');
+  $form->{invnumber} = $invoice->invnumber;
+  $form->{type}      = 'invoice';
+  $form->{format}    = 'pdf';
+  $form->{formname}  = 'invoice';
+  $form->{language}  = '_' . $invoice->language->template_code if $invoice->language;
+  my $doc_name       = $form->generate_attachment_filename();
+
+  SL::File->save(object_id   => $invoice->id,
+                 object_type => 'invoice',
+                 mime_type   => 'application/pdf',
+                 source      => 'created',
+                 file_type   => 'document',
+                 file_name   => $doc_name,
+                 file_path   => $pdf_file);
+}
+
 sub _print_invoice {
   my ($self, $data) = @_;
 
@@ -435,7 +459,8 @@ sub _email_invoice {
   eval {
     $pdf_file_name = $self->create_pdf(%create_params);
 
-    $self->_store_pdf_in_webdav($pdf_file_name, $data->{invoice});
+    $self->_store_pdf_in_webdav        ($pdf_file_name, $data->{invoice});
+    $self->_store_pdf_in_filemanagement($pdf_file_name, $data->{invoice});
 
     for (qw(email_subject email_body)) {
       _replace_vars(
