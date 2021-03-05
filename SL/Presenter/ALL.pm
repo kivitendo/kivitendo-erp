@@ -23,6 +23,7 @@ use SL::Presenter::ShopOrder;
 use SL::Presenter::Text;
 use SL::Presenter::Tag;
 use SL::Presenter::BankAccount;
+use SL::Presenter::MaterialComponents;
 
 our %presenters = (
   chart                       => 'SL::Presenter::Chart',
@@ -46,6 +47,7 @@ our %presenters = (
   text                        => 'SL::Presenter::Text',
   tag                         => 'SL::Presenter::Tag',
   bank_account                => 'SL::Presenter::BankAccount',
+  M                           => 'SL::Presenter::MaterialComponents',
 );
 
 sub wrap {

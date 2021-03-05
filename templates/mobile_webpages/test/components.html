@@ -1,0 +1,29 @@
+[% USE P %]
+
+<h1>Material Components Tests</h1>
+
+
+<h2>Buttons</h2>
+
+[% P.M.button_tag("", "button") %]
+[% P.M.button_tag("", P.M.icon('add'), floating=1) %]
+[% P.M.submit_tag("", "submit") %]
+[% P.M.submit_tag("", "disabled submit", disabled=1) %]
+[% P.M.button_tag("", "button with left icon", icon="cloud", icon_left=1) %]
+[% P.M.button_tag("", "button with right icon", icon="save", icon_right=1) %]
+[% P.M.button_tag("", "flat button", flat=1) %]
+[% P.M.button_tag("", "large button", large=1) %]
+[% P.M.button_tag("", "small button", small=1) %]
+[% P.M.button_tag("", "disabled small button", disabled=1, small=1) %]
+
+<h2>Icons</h2>
+
+[% P.M.icon("alarm") %]
+[% P.M.icon("alarm", large=1) %]
+[% P.M.icon("alarm", medium=1) %]
+[% P.M.icon("alarm", small=1) %]
+[% P.M.icon("alarm", tiny=1) %]
+
+<h2>Inputs</h2>
+
+[% P.M.input_tag("", "test string") %]
