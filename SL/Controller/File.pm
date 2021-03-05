@@ -43,6 +43,12 @@ use Rose::Object::MakeMethods::Generic
 
 __PACKAGE__->run_before('check_object_params', only => [ qw(list ajax_delete ajax_importdialog ajax_import ajax_unimport ajax_upload ajax_files_uploaded) ]);
 
+# gen:    bitmask: bit 1 (value is 1 or 3)    => file created
+#                  bit 2 (value is 2 or 3)    => file from other source
+# gltype: is this used somewhere?
+# dir:    is this used somewhere?
+# model:  base name of the rose model
+# right:  access right used for import
 my %file_types = (
   'sales_quotation'         => { gen => 1, gltype => '',   dir =>'SalesQuotation',       model => 'Order',          right => 'import_ar'  },
   'sales_order'             => { gen => 1, gltype => '',   dir =>'SalesOrder',           model => 'Order',          right => 'import_ar'  },
@@ -61,6 +67,7 @@ my %file_types = (
   'csv_customer'            => { gen => 1, gltype => '',   dir =>'Reports',              model => 'Customer',       right => 'xx'         },
   'csv_vendor'              => { gen => 1, gltype => '',   dir =>'Reports',              model => 'Vendor',         right => 'xx'         },
   'shop_image'              => { gen => 0, gltype => '',   dir =>'ShopImages',           model => 'Part',           right => 'xx'         },
+  'letter'                  => { gen => 3, gltype => '',   dir =>'Letter',               model => 'Letter',         right => 'sales_letter_edit | purchase_letter_edit' },
 );
 
 #--- 4 locale ---#

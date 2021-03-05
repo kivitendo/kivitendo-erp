@@ -9,7 +9,7 @@
 <form action='controller.pl' method='POST' id='form'>
   <input type="hidden" name="letter.id" value="[% letter.id | html %]">
   <input type="hidden" name="draft.id" value="[% draft.id | html %]">
-  <input type="hidden" name="type" value="[% type | html %]">
+  <input type="hidden" name="type" value="[% FORM.type | html %]">
   [% L.hidden_tag('is_sales', SELF.is_sales) %]
 
   [%- INCLUDE 'common/flash.html' %]
@@ -20,6 +20,9 @@
 [%- IF letter.id %]
  [%- IF INSTANCE_CONF.get_webdav %]
      <li><a href="#ui-tabs-webdav">[% LxERP.t8('WebDAV') %]</a></li>
+ [%- END %]
+ [%- IF INSTANCE_CONF.get_doc_storage %]
+      <li><a href="controller.pl?action=File/list&file_type=document&object_type=[% HTML.escape(FORM.type) %]&object_id=[% HTML.url(letter.id) %]">[% 'Documents' | $T8 %]</a></li>
  [%- END %]
     <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=Letter&object_id=[% HTML.url(letter.id) %]">[% LxERP.t8("Linked Records") %]</a></li>
 [%- END %]

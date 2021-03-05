@@ -14,6 +14,7 @@ use SL::DB::Language;
 use SL::DB::Letter;
 use SL::DB::LetterDraft;
 use SL::DB::Printer;
+use SL::File;
 use SL::Helper::Flash qw(flash flash_later);
 use SL::Helper::CreatePDF;
 use SL::Helper::PrintOptions;
@@ -235,6 +236,17 @@ sub action_print_letter {
       $webdav_file->store(file => $result{file_name});
     }
 
+    if ($::instance_conf->get_doc_storage) {
+      my %save_params = (object_id    => $letter->id,
+                         object_type  => 'letter',
+                         mime_type    => 'application/pdf',
+                         source       => 'created',
+                         file_type    => 'document',
+                         file_name    => $attachment_name,
+                         file_path    => $result{file_name});
+      SL::File->save(%save_params);
+    }
+
     # set some form defaults for printing webdav copy variables
     if ( $::form->{media} eq 'email') {
       my $mail             = Mailer->new;
@@ -313,7 +325,7 @@ sub action_send_email {
 sub _display {
   my ($self, %params) = @_;
 
-  $::request->{layout}->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery kivi.Letter kivi.SalesPurchase);
+  $::request->{layout}->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery kivi.Letter kivi.SalesPurchase kivi.File);
 
   my $letter = $self->letter;
 
