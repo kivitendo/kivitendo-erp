@@ -87,9 +87,19 @@
    <td>[% LxERP.t8('This option controls the method used for determining the startdate for the balance report.') %]</td>
   </tr>
   <tr>
+   <td align="right">[% LxERP.t8('Set valid until date for Sales Quotation') %]</td>
+   <td>[% L.yes_no_tag('defaults.reqdate_on', SELF.defaults.reqdate_on) %]</td>
+   <td>[% LxERP.t8("If set to no the 'valid until' field for sales quotation won't be set at all.") %]</td>
+  </tr>
+  <tr>
    <td align="right">[% LxERP.t8('Sales Quotation valid interval') %]</td>
    <td>[% L.input_tag('defaults.reqdate_interval', LxERP.format_amount(SELF.defaults.reqdate_interval, 0), style=style) %]</td>
    <td>[% LxERP.t8('Usually the sales quotation is valid until the next working day. If a value is set here then the quotation will be valid for at least that many days. The resulting date will be adjusted to the next working day if it ends up on a weekend.') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Set delivery date for Sales Orders') %]</td>
+   <td>[% L.yes_no_tag('defaults.deliverydate_on', SELF.defaults.deliverydate_on) %]</td>
+   <td>[% LxERP.t8("If set to no the 'delivery date' field for sales orders won't be set at all.") %]</td>
   </tr>
   <tr>
    <td align="right">[% LxERP.t8('Sales Order delivery date interval') %]</td>

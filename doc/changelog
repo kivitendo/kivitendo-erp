@@ -47,6 +47,7 @@ Kleinere neue Features und Detailverbesserungen:
    eines Loginnamens auch eine E-Mail-Adresse verwendet werden. Es ist
    nicht nötig, dass diese Adresse einem der Anwenderkonten zugeordnet
    ist.
+-  Lieferdatum und Gültigkeitsdatum können optional auch nicht mehr gesetzt werden
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 97 Benutzer löschen unter System->Benutzer funktioniert nicht
