@@ -327,7 +327,7 @@ sub action_print {
     $self->js->flash('info', t8('The PDF has been printed'));
   }
 
-  my @warnings = store_pdf_to_webdav_and_filemanegement($self->order, $pdf, $pdf_filename);
+  my @warnings = store_pdf_to_webdav_and_filemanagement($self->order, $pdf, $pdf_filename);
   if (scalar @warnings) {
     $self->js->flash('warning', $_) for @warnings;
   }
@@ -432,7 +432,7 @@ sub action_send_email {
       return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render($self);
     }
 
-    my @warnings = store_pdf_to_webdav_and_filemanegement($self->order, $pdf, $::form->{attachment_filename});
+    my @warnings = store_pdf_to_webdav_and_filemanagement($self->order, $pdf, $::form->{attachment_filename});
     if (scalar @warnings) {
       flash_later('warning', $_) for @warnings;
     }
@@ -2129,7 +2129,7 @@ sub save_history {
   )->save;
 }
 
-sub store_pdf_to_webdav_and_filemanegement {
+sub store_pdf_to_webdav_and_filemanagement {
   my($order, $content, $filename) = @_;
 
   my @errors;
