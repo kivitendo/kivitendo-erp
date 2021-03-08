@@ -35,8 +35,8 @@
                         class="recalc reformat_number numeric") %]&nbsp;
     [%- END %]
     <b>[%- 'On Hand' | $T8 %]</b>&nbsp;
-      <span[%- IF ITEM.part.onhand < ITEM.part.rop -%] class="plus0"[%- END -%]>
-        [%- LxERP.format_amount(ITEM.part.onhand_as_number, 2, 0) -%]&nbsp;[%- ITEM.part.unit -%]
+      <span[%- IF ITEM.part.onhand < ITEM.part.rop -%] class="numeric plus0"[%- END -%]>
+        [%- ITEM.part.onhand_as_number -%]&nbsp;[%- ITEM.part.unit -%]
       </span>&nbsp;
   </td></tr>
 
