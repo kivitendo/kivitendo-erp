@@ -69,11 +69,11 @@ sub action_add {
   my ($self) = @_;
 
   $self->order->transdate(DateTime->now_local());
-  my $extra_days = $self->{type} eq 'sales_quotation' ? $::instance_conf->get_reqdate_interval       :
-                   $self->{type} eq 'sales_order'     ? $::instance_conf->get_delivery_date_interval : 1;
+  my $extra_days = $self->type eq sales_quotation_type() ? $::instance_conf->get_reqdate_interval       :
+                   $self->type eq sales_order_type()     ? $::instance_conf->get_delivery_date_interval : 1;
 
-  if (   ($self->{type} eq 'sales_order'     &&  $::instance_conf->get_deliverydate_on)
-      || ($self->{type} eq 'sales_quotation' &&  $::instance_conf->get_reqdate_on)
+  if (   ($self->type eq sales_order_type()     &&  $::instance_conf->get_deliverydate_on)
+      || ($self->type eq sales_quotation_type() &&  $::instance_conf->get_reqdate_on)
       && (!$self->order->reqdate)) {
     $self->order->reqdate(DateTime->today_local->next_workday(extra_days => $extra_days));
   }
@@ -227,11 +227,11 @@ sub action_save_as_new {
 
   # Set new reqdate unless changed if it is enabled in client config
   if ($order->reqdate == $saved_order->reqdate) {
-    my $extra_days = $self->{type} eq 'sales_quotation' ? $::instance_conf->get_reqdate_interval       :
-                     $self->{type} eq 'sales_order'     ? $::instance_conf->get_delivery_date_interval : 1;
+    my $extra_days = $self->type eq sales_quotation_type() ? $::instance_conf->get_reqdate_interval       :
+                     $self->type eq sales_order_type()     ? $::instance_conf->get_delivery_date_interval : 1;
 
-    if (   ($self->{type} eq 'sales_order'     &&  !$::instance_conf->get_deliverydate_on)
-        || ($self->{type} eq 'sales_quotation' &&  !$::instance_conf->get_reqdate_on)) {
+    if (   ($self->type eq sales_order_type()     &&  !$::instance_conf->get_deliverydate_on)
+        || ($self->type eq sales_quotation_type() &&  !$::instance_conf->get_reqdate_on)) {
       $new_attrs{reqdate} = '';
     } else {
       $new_attrs{reqdate} = DateTime->today_local->next_workday(extra_days => $extra_days);
