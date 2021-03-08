@@ -316,36 +316,9 @@ sub action_print {
     $self->js->flash('info', t8('The PDF has been printed'));
   }
 
-  # copy file to webdav folder
-  if ($self->order->number && $::instance_conf->get_webdav_documents) {
-    my $webdav = SL::Webdav->new(
-      type     => $self->type,
-      number   => $self->order->number,
-    );
-    my $webdav_file = SL::Webdav::File->new(
-      webdav   => $webdav,
-      filename => $pdf_filename,
-    );
-    eval {
-      $webdav_file->store(data => \$pdf);
-      1;
-    } or do {
-      $self->js->flash('error', t8('Storing PDF to webdav folder failed: #1', $@));
-    }
-  }
-  if ($self->order->number && $::instance_conf->get_doc_storage) {
-    eval {
-      SL::File->save(object_id     => $self->order->id,
-                     object_type   => $self->type,
-                     mime_type     => 'application/pdf',
-                     source        => 'created',
-                     file_type     => 'document',
-                     file_name     => $pdf_filename,
-                     file_contents => $pdf);
-      1;
-    } or do {
-      $self->js->flash('error', t8('Storing PDF in storage backend failed: #1', $@));
-    }
+  my @warnings = store_pdf_to_webdav_and_filemanegement($self->order, $pdf, $pdf_filename);
+  if (scalar @warnings) {
+    $self->js->flash('warning', $_) for @warnings;
   }
 
   $self->save_history('PRINTED');
@@ -446,6 +419,11 @@ sub action_send_email {
                                                     groupitems => $::form->{print_options}->{groupitems}});
     if (scalar @errors) {
       return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render($self);
+    }
+
+    my @warnings = store_pdf_to_webdav_and_filemanegement($self->order, $pdf, $::form->{attachment_filename});
+    if (scalar @warnings) {
+      flash_later('warning', $_) for @warnings;
     }
 
     my $sfile = SL::SessionFile::Random->new(mode => "w");
@@ -2138,6 +2116,46 @@ sub save_history {
     snumbers    => $snumbers,
     addition    => $addition,
   )->save;
+}
+
+sub store_pdf_to_webdav_and_filemanegement {
+  my($order, $content, $filename) = @_;
+
+  my @errors;
+
+  # copy file to webdav folder
+  if ($order->number && $::instance_conf->get_webdav_documents) {
+    my $webdav = SL::Webdav->new(
+      type     => $order->type,
+      number   => $order->number,
+    );
+    my $webdav_file = SL::Webdav::File->new(
+      webdav   => $webdav,
+      filename => $filename,
+    );
+    eval {
+      $webdav_file->store(data => \$content);
+      1;
+    } or do {
+      push @errors, t8('Storing PDF to webdav folder failed: #1', $@);
+    };
+  }
+  if ($order->id && $::instance_conf->get_doc_storage) {
+    eval {
+      SL::File->save(object_id     => $order->id,
+                     object_type   => $order->type,
+                     mime_type     => 'application/pdf',
+                     source        => 'created',
+                     file_type     => 'document',
+                     file_name     => $filename,
+                     file_contents => $content);
+      1;
+    } or do {
+      push @errors, t8('Storing PDF in storage backend failed: #1', $@);
+    };
+  }
+
+  return @errors;
 }
 
 1;
