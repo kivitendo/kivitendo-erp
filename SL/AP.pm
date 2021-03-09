@@ -450,6 +450,7 @@ sub ap_transactions {
     qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .
     qq|  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes, | .
     qq|  a.globalproject_id, a.storno, a.storno_id, a.direct_debit, | .
+    qq|  a.transaction_description, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, | .
     qq|  v.vendornumber, v.country, v.ustid, | .
@@ -532,6 +533,10 @@ sub ap_transactions {
   if ($form->{ordnumber}) {
     $where .= " AND a.ordnumber ILIKE ?";
     push(@values, like($form->{ordnumber}));
+  }
+  if ($form->{transaction_description}) {
+    $where .= " AND a.transaction_description ILIKE ?";
+    push(@values, like($form->{transaction_description}));
   }
   if ($form->{notes}) {
     $where .= " AND lower(a.notes) LIKE ?";

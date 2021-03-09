@@ -30,6 +30,9 @@
       <td>[% L.input_tag("ordnumber", "", style=style) %]</td>
      </tr>
      <tr>
+      <th align="right" nowrap>[% 'Transaction description' | $T8 %]</th>
+      <td>[% L.input_tag("transaction_description", "", style=style) %]</td>
+     <tr>
       <th align=right nowrap>[% 'Notes' | $T8 %]</th>
       <td>[% L.input_tag("notes", "", style=style) %]</td>
       <th align="right">[% 'Part Description' | $T8 %]</th>
@@ -119,6 +122,8 @@
            <td nowrap>[% 'Subtotal' | $T8 %]</td>
            <td align=right><input name="l_globalprojectnumber" class=checkbox type=checkbox value=Y></td>
            <td nowrap>[% 'Document Project Number' | $T8 %]</td>
+           <td align="right"><input name="l_transaction_description" id="l_transaction_description" class=checkbox type=checkbox value=Y[% IF INSTANCE_CONF.get_require_transaction_description_ps %] checked[% END %]></td>
+           <td nowrap>[% 'Transaction description' | $T8 %]</td>
          </tr>
           <tr>
            <td align=right><input name="l_taxzone" class=checkbox type=checkbox value=Y></td>
