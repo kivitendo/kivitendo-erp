@@ -460,9 +460,9 @@ sub form_header {
   if ($form->{resubmit} && ($form->{format} eq "html")) {
     $dispatch_to_popup  = "window.open('about:blank','Beleg'); document.do.target = 'Beleg';";
     $dispatch_to_popup .= "document.do.submit();";
-  } elsif ($form->{resubmit}) {
+  } elsif ($form->{resubmit} && $form->{action_print}) {
     # emulate click for resubmitting actions
-    $dispatch_to_popup  = "document.do.${_}.click(); " for grep { /^action_/ } keys %$form;
+    $dispatch_to_popup  = "kivi.SalesPurchase.show_print_dialog(); kivi.SalesPurchase.print_record();";
   }
   $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup});");
 
