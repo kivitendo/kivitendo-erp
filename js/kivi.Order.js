@@ -144,6 +144,12 @@ namespace('kivi.Order', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.email_dialog_disable_send = function() {
+    // disable mail send event to prevent
+    // impatient users to send multiple times
+    $('#send_email').prop('disabled', true);
+  };
+
   ns.close_email_dialog = function() {
     email_dialog.dialog("close");
   };
@@ -467,11 +473,6 @@ namespace('kivi.Order', function(ns) {
     var pp = $("#add_item_parts_id").data("part_picker");
     pp.o.multiple=1;
     pp.open_dialog();
-  };
-ns.email_dialog_disable_send = function() {
-    // disable mail send event to prevent
-    // impatient users to send multiple times
-    $('#send_email').prop('disabled', true);
   };
 
   ns.add_multi_items = function(data) {
