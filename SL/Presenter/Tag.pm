@@ -46,6 +46,15 @@ sub _J {
   return $string;
 }
 
+sub join_values {
+  my ($name, $value) = @_;
+  my $spacer = $name eq 'class' ? ' ' : ''; # join classes with spaces, everything else as is
+
+  ref $value && 'ARRAY' eq ref $value
+  ? join $spacer, map { join_values($name, $_) } @$value
+  : $value
+}
+
 sub stringify_attributes {
   my (%params) = @_;
 
@@ -54,6 +63,7 @@ sub stringify_attributes {
     next unless $name;
     next if $_valueless_attributes{$name} && !$value;
     $value = '' if !defined($value);
+    $value = join_values($name, $value) if ref $value && 'ARRAY' eq ref $value;
     push @result, $_valueless_attributes{$name} ? escape($name) : escape($name) . '="' . escape($value) . '"';
   }
 
