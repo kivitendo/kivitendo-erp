@@ -1447,9 +1447,9 @@ SQL
     from      => 'ShopOrder',
     via       => ['DeliveryOrder','Order',],
   );
-  if (scalar @linked_shop_orders == 1){
     #do update
     my $shop_order = $linked_shop_orders[0][0];
+  if ( $shop_order ) {
     require SL::Shop;
     my $shop_config = SL::DB::Manager::Shop->get_first( query => [ id => $shop_order->shop_id ] );
     my $shop = SL::Shop->new( config => $shop_config );
