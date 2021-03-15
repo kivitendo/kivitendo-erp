@@ -18,6 +18,7 @@ Kleinere neue Features und Detailverbesserungen:
    falls möglich. Diese werden beim Drüberfahren vergrößert.
  - Dateimanagement: Dokumente können auch hochgeladen werden, dort, wo sie
    bisher nur vom Scanner importiert werden konnten.
+ - Dateimanagement: Dokumente können auch per Drag&Drop hochgeladen werden.
  - In der Mandantenkonfiguration ist einstellbar, ob UStID oder Steuernummer
    für Kunden oder Lieferanten eindeutig sein sollen.
  - Menü und Rechte für Produktivität: Zugriffskontrolle aufgeteilt und
