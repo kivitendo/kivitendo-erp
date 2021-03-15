@@ -14,6 +14,8 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+ - Dateimanagement: In der Liste der Dateien werden Vorschaubilder angezeigt,
+   falls möglich. Diese werden beim Drüberfahren vergrößert.
  - Dateimanagement: Dokumente können auch hochgeladen werden, dort, wo sie
    bisher nur vom Scanner importiert werden konnten.
  - In der Mandantenkonfiguration ist einstellbar, ob UStID oder Steuernummer
