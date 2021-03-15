@@ -38,8 +38,10 @@ use SL::IS;
 use SL::DN;
 use SL::DB::Department;
 use SL::DB::Dunning;
+use SL::File;
 use SL::Helper::Flash qw(flash);
 use SL::Locale::String qw(t8);
+use SL::Presenter::FileObject;
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
@@ -378,6 +380,7 @@ sub show_dunning {
     'fee'                 => { 'text' => $locale->text('Total Fees') },
     'interest'            => { 'text' => $locale->text('Interest') },
     'salesman'            => { 'text' => $locale->text('Salesperson'), 'visible' => $form->{l_salesman} ? 1 : 0 },
+    'documents'           => { 'text' => $locale->text('Documents')  , 'visible' => $::instance_conf->get_doc_storage ? 1 : 0 },
   );
 
   $report->set_columns(%column_defs);
@@ -442,6 +445,19 @@ sub show_dunning {
                                         . " $ref->{language}" };
     } else {
       $row->{language} = { };
+    }
+
+    if ($::instance_conf->get_doc_storage) {
+      my @files = SL::File->get_all_versions(object_id   => $ref->{id},
+                                             object_type => 'dunning' . $ref->{dunning_level},
+                                             file_type   => 'document',);
+      if (scalar @files) {
+        my $html          = join '<br>', map { SL::Presenter::FileObject::file_object($_) } @files;
+        my $text          = join "\n",   map { $_->file_name                              } @files;
+        $row->{documents} = { 'raw_data' => $html, data => $text };
+      } else {
+        $row->{documents} = { };
+      }
     }
 
     push @{ $current_dunning_rows }, $row;

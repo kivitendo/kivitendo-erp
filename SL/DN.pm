@@ -783,7 +783,7 @@ sub get_dunning {
   my $query =
     qq|SELECT a.id, a.ordnumber, a.invoice, a.transdate, a.invnumber, a.amount, a.language_id,
          ct.name AS customername, ct.id AS customer_id, a.duedate, da.fee,
-         da.interest, dn.dunning_description, da.transdate AS dunning_date,
+         da.interest, dn.dunning_description, dn.dunning_level, da.transdate AS dunning_date,
          da.duedate AS dunning_duedate, da.dunning_id, da.dunning_config_id,
          e2.name AS salesman
        FROM ar a
