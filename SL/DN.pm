@@ -778,7 +778,7 @@ sub get_dunning {
 
   my $sortdir   = !defined $form->{sortdir}    ? 'ASC'         : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortkey   = $sort_columns{$form->{sort}} ? $form->{sort} : 'customername';
-  my $sortorder = join ', ', map { "$_ $sortdir" } @{ $sort_columns{$sortkey} };
+  my $sortorder = join ', ', map { "$_ $sortdir" } (@{ $sort_columns{$sortkey} }, 'da.dunning_id');
 
   my $query =
     qq|SELECT a.id, a.ordnumber, a.invoice, a.transdate, a.invnumber, a.amount, a.language_id,
