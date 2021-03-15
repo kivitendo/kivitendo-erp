@@ -372,6 +372,7 @@ sub action_save_and_show_email_dialog {
   $form->{language}         = '_' . $self->order->language->template_code if $self->order->language;
   $form->{language_id}      = $self->order->language->id                  if $self->order->language;
   $form->{format}           = 'pdf';
+  $form->{cp_id}            = $self->order->contact->cp_id if $self->order->contact;
 
   $email_form->{subject}             = $form->generate_email_subject();
   $email_form->{attachment_filename} = $form->generate_attachment_filename();
