@@ -29,6 +29,7 @@ our %presenters = (
   delivery_order              => 'SL::Presenter::DeliveryOrder',
   dunning                     => 'SL::Presenter::Dunning',
   escaped_text                => 'SL::Presenter::EscapedText',
+  file_object                 => 'SL::Presenter::FileObject',
   invoice                     => 'SL::Presenter::Invoice',
   gl                          => 'SL::Presenter::GL',
   letter                      => 'SL::Presenter::Letter',
