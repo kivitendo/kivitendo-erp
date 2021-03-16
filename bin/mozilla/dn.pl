@@ -448,9 +448,14 @@ sub show_dunning {
     }
 
     if ($::instance_conf->get_doc_storage) {
-      my @files = SL::File->get_all_versions(object_id   => $ref->{id},
-                                             object_type => 'dunning' . $ref->{dunning_level},
-                                             file_type   => 'document',);
+      # object_types dunning1-dunning3 are the dunnings for the according levels.
+      my @files  = SL::File->get_all_versions(object_id   => $ref->{id},
+                                              object_type => 'dunning' . $ref->{dunning_level},
+                                              file_type   => 'document',);
+      # object_type  dunning is the dunning invoice with the fees.
+      push @files, SL::File->get_all_versions(object_id   => $ref->{id},
+                                              object_type => 'dunning',
+                                              file_type   => 'document',);
       if (scalar @files) {
         my $html          = join '<br>', map { SL::Presenter::FileObject::file_object($_) } @files;
         my $text          = join "\n",   map { $_->file_name                              } @files;
