@@ -1102,7 +1102,8 @@ sub print_invoice_for_fees {
 
   map { delete $form->{$_} } grep /^[a-z_]+_\d+$/, keys %{ $form };
 
-  $form->{attachment_filename} = $form->get_formname_translation('dunning_invoice') . "_${dunning_id}.pdf";
+  my $attachment_filename      = $form->get_formname_translation('dunning_invoice') . "_${dunning_id}.pdf";
+  $form->{attachment_filename} = $attachment_filename;
   $form->{attachment_type}     = "dunning";
   $form->{attachment_id}       = $form->{invoice_id};
   $form->parse_template($myconfig);
@@ -1110,8 +1111,8 @@ sub print_invoice_for_fees {
   restore_form($saved_form);
 
   push @{ $form->{DUNNING_PDFS} }, $filename;
-  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => "${spool}/$filename",
-                                           'name'     => "dunning_invoice_${dunning_id}.pdf" };
+  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'path' => "${spool}/$filename",
+                                           'name' => $attachment_filename };
 
   $main::lxdebug->leave_sub();
 }
