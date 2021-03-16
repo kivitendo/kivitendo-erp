@@ -40,6 +40,7 @@ use SL::DBUtils;
 use SL::DB::AuthUser;
 use SL::DB::Default;
 use SL::DB::Employee;
+use SL::File;
 use SL::GenericTranslations;
 use SL::IS;
 use SL::Mailer;
@@ -858,7 +859,7 @@ sub print_dunning {
 
   $dunning_id =~ s|[^\d]||g;
 
-  my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates);
+  my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates, @dunned_invoice_ids);
   if ($form->{"language_id"}) {
     ($language_tc, $output_numberformat, $output_dateformat, $output_longdates) =
       AM->get_language_details($myconfig, $form, $form->{language_id});
@@ -880,7 +881,7 @@ sub print_dunning {
          ar.transdate,       ar.duedate,      ar.customer_id,
          ar.invnumber,       ar.ordnumber,    ar.cp_id,
          ar.amount,          ar.netamount,    ar.paid,
-         ar.employee_id,     ar.salesman_id,
+         ar.employee_id,     ar.salesman_id,  ar.id AS dunned_invoice_id,
          (SELECT cu.name FROM currencies cu WHERE cu.id = ar.currency_id) AS curr,
          (SELECT description from department WHERE id = ar.department_id) AS department,
          ar.amount - ar.paid AS open_amount,
@@ -902,6 +903,7 @@ sub print_dunning {
     map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2) } qw(amount netamount paid open_amount fee interest linetotal);
     map { $form->{$_} = $ref->{$_} } keys %$ref;
     map { push @{ $form->{TEMPLATE_ARRAYS}->{"dn_$_"} }, $ref->{$_} } keys %$ref;
+    push @dunned_invoice_ids, $ref->{dunned_invoice_id};
   }
   $sth->finish();
 
@@ -1011,7 +1013,24 @@ sub print_dunning {
   }
   $form->{attachment_filename} = $form->get_formname_translation($form->{attachment_type}) . "_${dunning_id}.pdf";
   $form->{attachment_id} = $form->{invoice_id};
+
+  # this generates the file in the spool directory
   $form->parse_template($myconfig);
+
+  # save dunning pdf in filemanagement for each invoice
+  if ($::instance_conf->get_doc_storage) {
+    foreach my $dunned_invoice_id (@dunned_invoice_ids) {
+      SL::File->save(
+        object_id   => $dunned_invoice_id,
+        object_type => $form->{attachment_type},
+        mime_type   => 'application/pdf',
+        source      => 'created',
+        file_type   => 'document',
+        file_name   => $form->{attachment_filename},
+        file_path   => "${spool}/$filename",
+      );
+    }
+  }
 
   $main::lxdebug->leave_sub();
 }
@@ -1114,6 +1133,23 @@ sub print_invoice_for_fees {
   push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'path' => "${spool}/$filename",
                                            'name' => $attachment_filename };
 
+  # save dunning fee pdf in filemanagement for each dunned invoice
+  if ($::instance_conf->get_doc_storage) {
+    $query                 = qq|SELECT trans_id FROM dunning WHERE dunning_id = ?|;
+    my @dunned_invoice_ids = selectall_array_query($form, $dbh, $query, $dunning_id);
+    foreach my $dunned_invoice_id (@dunned_invoice_ids) {
+      SL::File->save(
+        object_id   => $dunned_invoice_id,
+        object_type => 'dunning',
+        mime_type   => 'application/pdf',
+        source      => 'created',
+        file_type   => 'document',
+        file_name   => $attachment_filename,
+        file_path   => "${spool}/$filename",
+      );
+    }
+  }
+
   $main::lxdebug->leave_sub();
 }
 
@@ -1178,11 +1214,27 @@ sub print_original_invoices {
   my $saved_reicpient_locale = $form->{recipient_locale};
   $form->{recipient_locale}  = $invoice->language;
 
+  my $attachment_filename    = $form->get_formname_translation('invoice') . "_" . $invoice->invnumber . ".pdf";
+
   push @{ $form->{DUNNING_PDFS} }, $file_name;
   push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'path' => "${spool}/$file_name",
-                                           'name' => $form->get_formname_translation('invoice') . "_" . $invoice->invnumber . ".pdf" };
+                                           'name' => $attachment_filename };
 
   $form->{recipient_locale}  = $saved_reicpient_locale;
+
+  # save original invoice pdf in filemanagement for dunned invoice
+  if ($::instance_conf->get_doc_storage) {
+    SL::File->save(
+      object_id   => $invoice_id,
+      object_type => 'dunning',
+      mime_type   => 'application/pdf',
+      source      => 'created',
+      file_type   => 'document',
+      file_name   => $attachment_filename,
+      file_path   => "${spool}/$file_name",
+    );
+  }
+
 }
 
 1;

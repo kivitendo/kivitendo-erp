@@ -934,7 +934,7 @@ sub parse_template {
       }
     }
 
-    if (!$self->{preview} && $self->doc_storage_enabled)
+    if (!$self->{preview} && $self->{attachment_type} !~ m{^dunning} && $self->doc_storage_enabled)
     {
       $self->{attachment_filename} ||= $self->generate_attachment_filename;
       $self->store_pdf($self);
@@ -954,7 +954,7 @@ sub parse_template {
     }
   }
 
-  if ( !$self->{preview} && $ext_for_format eq 'pdf' && $self->doc_storage_enabled) {
+  if ( !$self->{preview} && $ext_for_format eq 'pdf' && $self->{attachment_type} !~ m{^dunning} && $self->doc_storage_enabled) {
     $self->{attachment_filename} ||= $self->generate_attachment_filename;
     my $file_obj = $self->store_pdf($self);
     $self->{print_file_id} = $file_obj->id if $file_obj;
