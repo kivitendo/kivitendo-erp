@@ -253,7 +253,6 @@ sub send {
     'X-Mailer'            => "kivitendo " . SL::Version->get_version,
   );
   $self->{mail_attachments} = [];
-  $self->{content_by_name}  = $::instance_conf->get_email_journal == 1 && $::instance_conf->get_doc_files;
 
   my $error;
   my $ok = eval {
