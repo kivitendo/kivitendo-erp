@@ -1105,7 +1105,7 @@ sub print_invoice_for_fees {
   my $attachment_filename      = $form->get_formname_translation('dunning_invoice') . "_${dunning_id}.pdf";
   $form->{attachment_filename} = $attachment_filename;
   $form->{attachment_type}     = "dunning";
-  $form->{attachment_id}       = $form->{invoice_id};
+  $form->{attachment_id}       = $invoice_id;
   $form->parse_template($myconfig);
 
   restore_form($saved_form);
