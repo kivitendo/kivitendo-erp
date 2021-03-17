@@ -299,7 +299,10 @@ sub action_ajax_files_uploaded {
 
 sub action_download {
   my ($self) = @_;
-  my ($id, $version) = split /_/, $::form->{id};
+
+  my $id      = $::form->{id};
+  my $version = $::form->{version};
+
   my $file = SL::File->get(id => $id );
   $file->version($version) if $version;
   my $ref  = $file->get_content;
