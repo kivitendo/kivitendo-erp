@@ -456,6 +456,10 @@ sub show_dunning {
       push @files, SL::File->get_all_versions(object_id   => $ref->{id},
                                               object_type => 'dunning',
                                               file_type   => 'document',);
+      # object_type  dunning_orig_invoice is the original dunned invoice.
+      push @files, SL::File->get_all_versions(object_id   => $ref->{id},
+                                              object_type => 'dunning_orig_invoice',
+                                              file_type   => 'document',);
       if (scalar @files) {
         my $html          = join '<br>', map { SL::Presenter::FileObject::file_object($_) } @files;
         my $text          = join "\n",   map { $_->file_name                              } @files;

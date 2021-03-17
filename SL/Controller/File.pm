@@ -399,7 +399,7 @@ sub _do_list {
   if ( $self->file_type eq 'document' ) {
     my @object_types;
     push @object_types, $self->object_type;
-    push @object_types, qw(dunning dunning1 dunning2 dunning3) if $self->object_type eq 'invoice'; # hardcoded object types?
+    push @object_types, qw(dunning dunning1 dunning2 dunning3 dunning_orig_invoice) if $self->object_type eq 'invoice'; # hardcoded object types?
     @files = SL::File->get_all_versions(object_id   => $self->object_id,
                                         object_type => \@object_types,
                                         file_type   => $self->file_type,

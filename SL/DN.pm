@@ -1226,7 +1226,7 @@ sub print_original_invoices {
   if ($::instance_conf->get_doc_storage) {
     SL::File->save(
       object_id   => $invoice_id,
-      object_type => 'dunning',
+      object_type => 'dunning_orig_invoice',
       mime_type   => 'application/pdf',
       source      => 'created',
       file_type   => 'document',
