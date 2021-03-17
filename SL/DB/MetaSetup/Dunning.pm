@@ -9,18 +9,19 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('dunning');
 
 __PACKAGE__->meta->columns(
-  duedate            => { type => 'date' },
-  dunning_config_id  => { type => 'integer' },
-  dunning_id         => { type => 'integer' },
-  dunning_level      => { type => 'integer' },
-  fee                => { type => 'numeric', precision => 15, scale => 5 },
-  fee_interest_ar_id => { type => 'integer' },
-  id                 => { type => 'integer', not_null => 1, sequence => 'id' },
-  interest           => { type => 'numeric', precision => 15, scale => 5 },
-  itime              => { type => 'timestamp', default => 'now()' },
-  mtime              => { type => 'timestamp' },
-  trans_id           => { type => 'integer' },
-  transdate          => { type => 'date' },
+  duedate                  => { type => 'date' },
+  dunning_config_id        => { type => 'integer' },
+  dunning_id               => { type => 'integer' },
+  dunning_level            => { type => 'integer' },
+  fee                      => { type => 'numeric', precision => 15, scale => 5 },
+  fee_interest_ar_id       => { type => 'integer' },
+  id                       => { type => 'integer', not_null => 1, sequence => 'id' },
+  interest                 => { type => 'numeric', precision => 15, scale => 5 },
+  itime                    => { type => 'timestamp', default => 'now()' },
+  mtime                    => { type => 'timestamp' },
+  original_invoice_printed => { type => 'boolean', default => 'false' },
+  trans_id                 => { type => 'integer' },
+  transdate                => { type => 'date' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
