@@ -109,7 +109,9 @@ sub get_filepath {
   my ($self, %params) = @_;
   die "no dbfile" unless $params{dbfile};
   my $path = $self->_filesystem_path($params{dbfile},$params{version});
-  die "no file in backend get_filepath" if !-f $path;
+
+  die "No file found at $path. Expected: $params{dbfile}{file_name}, file.id: $params{dbfile}{id}" if !-f $path;
+
   return $path;
 }
 
