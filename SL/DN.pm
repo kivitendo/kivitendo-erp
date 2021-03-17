@@ -416,7 +416,7 @@ sub _save_dunning {
   $self->print_dunning($myconfig, $form, $dunning_id, $dbh);
 
   if ($print_invoice) {
-    $self->print_original_invoices($myconfig, $form, $_, $dbh) for @invoice_ids;
+    $self->print_original_invoices($myconfig, $form, $_) for @invoice_ids;
   }
 
   if ($send_email) {
