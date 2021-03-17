@@ -416,7 +416,7 @@ sub _save_dunning {
   $self->print_dunning($myconfig, $form, $dunning_id, $dbh);
 
   if ($print_invoice) {
-    $self->print_original_invoices($myconfig, $form, $_) for @invoice_ids;
+    $self->print_original_invoice($myconfig, $form, $_) for @invoice_ids;
   }
 
   if ($send_email) {
@@ -1202,7 +1202,7 @@ sub set_customer_cvars {
 
 }
 
-sub print_original_invoices {
+sub print_original_invoice {
   my ($self, $myconfig, $form, $invoice_id) = @_;
   # get one invoice as object and print to pdf
   my $invoice = SL::DB::Invoice->new(id => $invoice_id)->load;
