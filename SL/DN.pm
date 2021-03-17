@@ -342,7 +342,7 @@ sub _save_dunning {
 
   my $q_insert_dunning =
     qq|INSERT INTO dunning (id,  dunning_id, dunning_config_id, dunning_level, trans_id,
-                            fee, interest,   transdate,         duedate)
+                            fee, interest,   transdate,         duedate,       original_invoice_printed)
        VALUES (?, ?, ?,
                (SELECT dunning_level FROM dunning_config WHERE id = ?),
                ?,
@@ -353,7 +353,8 @@ sub _save_dunning {
                  * (SELECT interest_rate FROM dunning_config WHERE id = ?)
                  / 360,
                current_date,
-               current_date + (SELECT payment_terms FROM dunning_config WHERE id = ?))|;
+               current_date + (SELECT payment_terms FROM dunning_config WHERE id = ?),
+               ?)|;
   my $h_insert_dunning = prepare_query($form, $dbh, $q_insert_dunning);
 
   my @invoice_ids;
@@ -387,7 +388,8 @@ sub _save_dunning {
 
     @values = ($row_id,         $dunning_id,     $next_config_id,
                $next_config_id, $invoice_id,     $next_config_id,
-               $invoice_id,     $next_config_id, $next_config_id);
+               $invoice_id,     $next_config_id, $next_config_id,
+               $print_invoice);
     do_statement($form, $h_insert_dunning, $q_insert_dunning, @values);
 
     RecordLinks->create_links(

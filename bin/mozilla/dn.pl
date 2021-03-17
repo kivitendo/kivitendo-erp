@@ -561,6 +561,11 @@ sub print_multiple {
     $form->{dunning_id} = $dunning_id;
     DN->print_invoice_for_fees(\%myconfig, $form, $dunning_id);
     DN->print_dunning(\%myconfig, $form, $dunning_id);
+
+    # print original dunned invoices, if they where printed on dunning run
+    my $dunnings = SL::DB::Manager::Dunning->get_all(where => [dunning_id => $dunning_id, original_invoice_printed => 1]);
+    DN->print_original_invoice(\%myconfig, $form, $_->trans_id) for @$dunnings;
+
     $i++;
   }
   $form->{language_id} = $saved_language_id;
