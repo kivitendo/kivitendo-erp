@@ -24,7 +24,7 @@ sub _join_entries {
 }
 
 sub parse {
-  my ($class, $file_name) = @_;
+  my ($class, $file_name, %params) = @_;
 
   my ($local_bank_code, $local_account_number, %transaction, @transactions, @lines);
   my $line_number = 0;
@@ -40,7 +40,7 @@ sub parse {
   my ($active_field);
   foreach my $line (read_file($file_name)) {
     chomp $line;
-    $line = Encode::decode('UTF-8', $line);
+    $line = Encode::decode($params{charset} // 'UTF-8', $line);
     $line =~ s{\r+}{};
     $line_number++;
 

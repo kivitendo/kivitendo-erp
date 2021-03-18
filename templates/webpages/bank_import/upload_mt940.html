@@ -7,10 +7,16 @@
 
 <h1>[% FORM.title %]</h1>
 
-<p>
-  [% "Import a MT940 file:" | $T8 %]
-</p>
-
 <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
-  [% L.input_tag('file', '', type => 'file', accept => '*') %]
+  <table>
+    <tr>
+      <td>[% LxERP.t8("Charset") %]:</td>
+      <td>[% L.select_tag('charset', [ [ 'ISO-8859-15', 'ISO-8859-15 (Latin 1)' ], [ 'UTF-8', 'UTF-8' ], [ 'Windows-1252', 'Windows-1252' ] ], default='UTF-8') %]</td>
+    </tr>
+
+    <tr>
+      <td>[% LxERP.t8("MT940 file") %]:</td>
+      <td>[% L.input_tag('file', '', type => 'file', accept => '*') %]</td>
+    </tr>
+  </table>
 </form>
