@@ -2,6 +2,7 @@ package SL::Presenter::FileObject;
 
 use strict;
 
+use SL::Presenter::Tag         qw(link_tag);
 use SL::Presenter::EscapedText qw(escape is_escaped);
 
 use Exporter qw(import);
@@ -12,17 +13,13 @@ use Carp;
 sub file_object {
   my ($file_object, %params) = @_;
 
-  my $link_start  = '<a href="controller.pl?action=File/download&id=' . $file_object->id;
-  $link_start    .= '&version=' . $file_object->version if $file_object->version;
-  $link_start    .= '">';
 
-  my $link_end    = '</a>';
-
-  my $text = join '', (
-    $params{no_link} ? '' : $link_start,
-    escape($file_object->file_name),
-    $params{no_link} ? '' : $link_end,
-  );
+  my $text = escape($file_object->file_name);
+  if (! delete $params{no_link}) {
+    my $href  = 'controller.pl?action=File/download&id=' . $file_object->id;
+    $href    .= '&version=' . $file_object->version if $file_object->version;
+    $text     = link_tag($href, $text, %params);
+  }
 
   is_escaped($text);
 }
@@ -45,7 +42,7 @@ SL::DB::File)
 =head1 SYNOPSIS
 
   my $file_object = SL::File->get(id => 1);
-  my $html        = SL::Presenter::File::file_object($file_object, no_link => 1);
+  my $html        = SL::Presenter::FileObject::file_object($file_object, no_link => 1);
 
 =head1 FUNCTIONS
 
