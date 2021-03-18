@@ -63,7 +63,7 @@ sub action_confirm_price_update {
     return $self->action_search_update_prices;
   } else {
 
-    my $key = $::auth->create_unique_sesion_value(SL::JSON::to_json($self->filter));
+    my $key = $::auth->create_unique_session_value(SL::JSON::to_json($self->filter));
 
     $self->setup_confirm_price_update_action_bar;
     $self->render('ic/confirm_price_update',

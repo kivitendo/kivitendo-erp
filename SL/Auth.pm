@@ -879,7 +879,7 @@ sub get_session_value {
   ($self->{SESSION}{$key} //= SL::Auth::SessionValue->new(auth => $self, key => $key))->get
 }
 
-sub create_unique_sesion_value {
+sub create_unique_session_value {
   my ($self, $value, %params) = @_;
 
   $self->{SESSION} ||= { };
@@ -912,7 +912,7 @@ sub save_form_in_session {
     $data->{$key} = $form->{$key} if !ref($form->{$key}) || $non_scalars;
   }
 
-  return $self->create_unique_sesion_value($data, %params);
+  return $self->create_unique_session_value($data, %params);
 }
 
 sub restore_form_from_session {
@@ -1332,7 +1332,7 @@ The values can be any Perl structure. They are stored as YAML dumps.
 Retrieve a value from the session. Returns C<undef> if the value
 doesn't exist.
 
-=item C<create_unique_sesion_value $value, %params>
+=item C<create_unique_session_value $value, %params>
 
 Create a unique key in the session and store C<$value>
 there.
@@ -1348,7 +1348,7 @@ setters nor the deleter access the database.
 =item C<save_form_in_session %params>
 
 Stores the content of C<$params{form}> (default: C<$::form>) in the
-session using L</create_unique_sesion_value>.
+session using L</create_unique_session_value>.
 
 If C<$params{non_scalars}> is trueish then non-scalar values will be
 stored as well. Default is to only store scalar values.
