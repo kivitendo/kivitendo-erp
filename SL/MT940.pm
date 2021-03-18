@@ -37,14 +37,24 @@ sub parse {
     }
   };
 
+  my ($active_field);
   foreach my $line (read_file($file_name)) {
     chomp $line;
     $line = Encode::decode('UTF-8', $line);
     $line =~ s{\r+}{};
     $line_number++;
 
+    my $current_field;
+    if ($line =~ m{^:(\d+[a-z]*):}i) {
+      $current_field = $1;
+      $active_field  = $1;
+    }
+
     if (@lines && ($line =~ m{^\%})) {
       $lines[-1]->[0] .= substr($line, 1);
+
+    } elsif (@lines && ($active_field eq '86') && !$current_field) {
+      $lines[-1]->[0] .= $line;
 
     } else {
       push @lines, [ $line, $line_number ];
