@@ -7,6 +7,7 @@ use SL::Presenter::CustomerVendor;
 use SL::Presenter::DeliveryOrder;
 use SL::Presenter::Dunning;
 use SL::Presenter::EscapedText;
+use SL::Presenter::FileObject;
 use SL::Presenter::Invoice;
 use SL::Presenter::GL;
 use SL::Presenter::Letter;
