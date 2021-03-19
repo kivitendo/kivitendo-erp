@@ -418,7 +418,7 @@ sub _save_dunning {
   $self->print_dunning($myconfig, $form, $dunning_id, $dbh);
 
   if ($print_invoice) {
-    $self->print_original_invoice($myconfig, $form, $_) for @invoice_ids;
+    $self->print_original_invoice($myconfig, $form, $dunning_id, $_) for @invoice_ids;
   }
 
   if ($send_email) {
@@ -862,7 +862,7 @@ sub print_dunning {
 
   $dunning_id =~ s|[^\d]||g;
 
-  my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates, @dunned_invoices);
+  my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates);
   if ($form->{"language_id"}) {
     ($language_tc, $output_numberformat, $output_dateformat, $output_longdates) =
       AM->get_language_details($myconfig, $form, $form->{language_id});
@@ -884,7 +884,7 @@ sub print_dunning {
          ar.transdate,       ar.duedate,      ar.customer_id,
          ar.invnumber,       ar.ordnumber,    ar.cp_id,
          ar.amount,          ar.netamount,    ar.paid,
-         ar.employee_id,     ar.salesman_id,  ar.id AS dunned_invoice_id,
+         ar.employee_id,     ar.salesman_id,
          (SELECT cu.name FROM currencies cu WHERE cu.id = ar.currency_id) AS curr,
          (SELECT description from department WHERE id = ar.department_id) AS department,
          ar.amount - ar.paid AS open_amount,
@@ -906,7 +906,6 @@ sub print_dunning {
     map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2) } qw(amount netamount paid open_amount fee interest linetotal);
     map { $form->{$_} = $ref->{$_} } keys %$ref;
     map { push @{ $form->{TEMPLATE_ARRAYS}->{"dn_$_"} }, $ref->{$_} } keys %$ref;
-    push @dunned_invoices, {id => $ref->{dunned_invoice_id}, invnumber => $ref->{invnumber}};
   }
   $sth->finish();
 
@@ -1020,31 +1019,28 @@ sub print_dunning {
   # this generates the file in the spool directory
   $form->parse_template($myconfig);
 
-  # save dunning pdf in filemanagement/webdav for each invoice
-  foreach my $dunned_invoice (@dunned_invoices) {
-    if ($::instance_conf->get_doc_storage) {
-      SL::File->save(
-        object_id   => $dunned_invoice->{id},
-        object_type => $form->{attachment_type},
-        mime_type   => 'application/pdf',
-        source      => 'created',
-        file_type   => 'document',
-        file_name   => $form->{attachment_filename},
-        file_path   => "${spool}/$filename",
-      );
-    }
-
-    if ($::instance_conf->get_webdav_documents) {
-      my $webdav = SL::Webdav->new(
-        type     => 'invoice',
-        number   => $dunned_invoice->{invnumber},
-      );
-      my $webdav_file = SL::Webdav::File->new(
-        webdav   => $webdav,
-        filename => $form->{attachment_filename},
-      );
-      $webdav_file->store(file => "${spool}/$filename");
-    }
+  # save dunning pdf in filemanagement/webdav
+  if ($::instance_conf->get_doc_storage) {
+    SL::File->save(
+      object_id   => $dunning_id,
+      object_type => 'dunning',
+      mime_type   => 'application/pdf',
+      source      => 'created',
+      file_type   => 'document',
+      file_name   => $form->{attachment_filename},
+      file_path   => "${spool}/$filename",
+    );
+  }
+  if ($::instance_conf->get_webdav_documents) {
+    my $webdav = SL::Webdav->new(
+      type     => 'dunning',
+      number   => $dunning_id,
+    );
+    my $webdav_file = SL::Webdav::File->new(
+      webdav   => $webdav,
+      filename => $form->{attachment_filename},
+    );
+    $webdav_file->store(file => "${spool}/$filename");
   }
 
   $main::lxdebug->leave_sub();
@@ -1148,36 +1144,28 @@ sub print_invoice_for_fees {
   push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'path' => "${spool}/$filename",
                                            'name' => $attachment_filename };
 
-  # save dunning fee pdf in filemanagement/webdav for each dunned invoice
-  if ($::instance_conf->get_doc_storage || $::instance_conf->get_webdav_documents) {
-    $query              = qq|SELECT trans_id, invnumber FROM dunning LEFT JOIN ar ON (ar.id = trans_id) WHERE dunning_id = ?|;
-    my $dunned_invoices = selectall_hashref_query($form, $dbh, $query, $dunning_id);
-
-    foreach my $dunned_invoice (@$dunned_invoices) {
-      if ($::instance_conf->get_doc_storage) {
-        SL::File->save(
-          object_id   => $dunned_invoice->{trans_id},
-          object_type => 'dunning',
-          mime_type   => 'application/pdf',
-          source      => 'created',
-          file_type   => 'document',
-          file_name   => $attachment_filename,
-          file_path   => "${spool}/$filename",
-        );
-      }
-
-      if ($::instance_conf->get_webdav_documents) {
-        my $webdav = SL::Webdav->new(
-          type     => 'invoice',
-          number   => $dunned_invoice->{invnumber},
-        );
-        my $webdav_file = SL::Webdav::File->new(
-          webdav   => $webdav,
-          filename => $attachment_filename,
-        );
-        $webdav_file->store(file => "${spool}/$filename");
-      }
-    }
+  # save dunning fee pdf in filemanagement/webdav
+  if ($::instance_conf->get_doc_storage) {
+    SL::File->save(
+      object_id   => $dunning_id,
+      object_type => 'dunning',
+      mime_type   => 'application/pdf',
+      source      => 'created',
+      file_type   => 'document',
+      file_name   => $attachment_filename,
+      file_path   => "${spool}/$filename",
+    );
+  }
+  if ($::instance_conf->get_webdav_documents) {
+    my $webdav = SL::Webdav->new(
+      type     => 'dunning',
+      number   => $dunning_id,
+    );
+    my $webdav_file = SL::Webdav::File->new(
+      webdav   => $webdav,
+      filename => $attachment_filename,
+    );
+    $webdav_file->store(file => "${spool}/$filename");
   }
 
   $main::lxdebug->leave_sub();
@@ -1205,7 +1193,7 @@ sub set_customer_cvars {
 }
 
 sub print_original_invoice {
-  my ($self, $myconfig, $form, $invoice_id) = @_;
+  my ($self, $myconfig, $form, $dunning_id, $invoice_id) = @_;
   # get one invoice as object and print to pdf
   my $invoice = SL::DB::Invoice->new(id => $invoice_id)->load;
 
@@ -1252,11 +1240,11 @@ sub print_original_invoice {
 
   $form->{recipient_locale}  = $saved_reicpient_locale;
 
-  # save original invoice pdf in filemanagement/webdav for dunned invoice
+  # save original invoice pdf in filemanagement/webdav for dunning
   if ($::instance_conf->get_doc_storage) {
     SL::File->save(
-      object_id   => $invoice_id,
-      object_type => 'dunning_orig_invoice',
+      object_id   => $dunning_id,
+      object_type => 'dunning',
       mime_type   => 'application/pdf',
       source      => 'created',
       file_type   => 'document',
@@ -1266,8 +1254,8 @@ sub print_original_invoice {
   }
   if ($::instance_conf->get_webdav_documents) {
     my $webdav = SL::Webdav->new(
-      type     => 'invoice',
-      number   => $invoice->invnumber,
+      type     => 'dunning',
+      number   => $dunning_id,
     );
     my $webdav_file = SL::Webdav::File->new(
       webdav   => $webdav,

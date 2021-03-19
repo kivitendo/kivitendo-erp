@@ -448,17 +448,8 @@ sub show_dunning {
     }
 
     if ($::instance_conf->get_doc_storage) {
-      # object_types dunning1-dunning3 are the dunnings for the according levels.
-      my @files  = SL::File->get_all_versions(object_id   => $ref->{id},
-                                              object_type => 'dunning' . $ref->{dunning_level},
-                                              file_type   => 'document',);
-      # object_type  dunning is the dunning invoice with the fees.
-      push @files, SL::File->get_all_versions(object_id   => $ref->{id},
+      my @files  = SL::File->get_all_versions(object_id   => $ref->{dunning_id},
                                               object_type => 'dunning',
-                                              file_type   => 'document',);
-      # object_type  dunning_orig_invoice is the original dunned invoice.
-      push @files, SL::File->get_all_versions(object_id   => $ref->{id},
-                                              object_type => 'dunning_orig_invoice',
                                               file_type   => 'document',);
       if (scalar @files) {
         my $html          = join '<br>', map { SL::Presenter::FileObject::file_object($_) } @files;
@@ -564,7 +555,7 @@ sub print_multiple {
 
     # print original dunned invoices, if they where printed on dunning run
     my $dunnings = SL::DB::Manager::Dunning->get_all(where => [dunning_id => $dunning_id, original_invoice_printed => 1]);
-    DN->print_original_invoice(\%myconfig, $form, $_->trans_id) for @$dunnings;
+    DN->print_original_invoice(\%myconfig, $form, $dunning_id, $_->trans_id) for @$dunnings;
 
     $i++;
   }

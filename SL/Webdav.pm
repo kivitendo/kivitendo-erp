@@ -34,6 +34,7 @@ my %type_to_path = (
   accounts_payable        => 'kreditorenbuchungen',
   customer                => 'kunden',
   vendor                  => 'lieferanten',
+  dunning                 => 'mahnungen',
 );
 
 sub get_all_files {
