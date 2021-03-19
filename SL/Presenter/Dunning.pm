@@ -17,12 +17,10 @@ sub dunning {
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
-  my $invoice = SL::DB::Manager::Invoice->find_by( id => $dunning->trans_id );
-
-  my $text    = escape($dunning->dunning_config->dunning_description);
+  my $text = escape($dunning->dunning_config->dunning_description);
 
   if (! delete $params{no_link}) {
-    my $href = 'dn.pl?action=print_dunning&format=pdf&media=screen&dunning_id=' . $dunning->dunning_id . '&language_id=' . $invoice->language_id;
+    my $href = 'dn.pl?action=show_dunning&showold=1&dunning_id=' . $dunning->dunning_id;
     $text    = link_tag($href, $text, %params);
   }
 
