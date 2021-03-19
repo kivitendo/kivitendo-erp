@@ -3,9 +3,11 @@ package SL::Presenter::MaterialComponents;
 use strict;
 
 use SL::HTML::Restrict;
+use SL::MoreCommon qw(listify);
 use SL::Presenter::EscapedText qw(escape);
 use SL::Presenter::Tag qw(html_tag);
 use Scalar::Util qw(blessed);
+use List::UtilsBy qw(partition_by);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(
@@ -48,6 +50,13 @@ my %optional_classes = (
     medium => MEDIUM,
     small  => SMALL,
     tiny   => TINY,
+  },
+  size => {
+    map { $_ => $_ }
+      qw(col row),
+      (map { "s$_" } 1..12),
+      (map { "m$_" } 1..12),
+      (map { "l$_" } 1..12),
   },
 );
 
@@ -93,6 +102,17 @@ sub _extract_attribute_classes {
   delete $attributes->{$_} for @delete_keys;
 
   @classes;
+}
+
+# used to extract material classes that are passed directly as classes
+sub _extract_classes {
+  my ($attributes, $type) = @_;
+
+  my @classes = map { split / / } listify($attributes->{class});
+  my %classes = partition_by { !!$optional_classes{$type}{$_} } @classes;
+
+  $attributes->{class} = $classes{''};
+  $classes{1};
 }
 
 sub _set_id_attribute {
@@ -239,8 +259,30 @@ sub date_tag {
     $label,
     class => [ grep $_, @classes, INPUT_FIELD ],
   );
+}
+
+sub select_tag {
+  my ($name, $collection, %attributes) = @_;
 
 
+  _set_id_attribute(\%attributes, $name);
+  my @size_classes   = _extract_classes(\%attributes, "size");
+
+
+  my $icon  = $attributes{icon}
+    ? icon(delete $attributes{icon}, class => 'prefix')
+    : '';
+
+  my $label = $attributes{label}
+    ? html_tag('label', delete $attributes{label}, for => $attributes{id})
+    : '';
+
+  my $select_html = SL::Presenter::Tag::select_tag($name, $collection, %attributes);
+
+  html_tag('div',
+    $icon . $select_html . $label,
+    class => [ INPUT_FIELD, @size_classes ],
+  );
 }
 
 

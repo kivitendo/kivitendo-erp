@@ -68,6 +68,7 @@ namespace("kivi.Materialize", function(ns) {
 
   ns.reinit_widgets = function() {
     $('.sidenav').sidenav();
+    $('select').formSelect();
     $('.datepicker').datepicker({
       firstDay: 1,
       format: kivi.myconfig.dateformat,
