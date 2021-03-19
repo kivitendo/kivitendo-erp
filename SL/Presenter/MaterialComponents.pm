@@ -27,6 +27,7 @@ use constant MEDIUM          => 'medium';
 use constant SMALL           => 'small';
 use constant TINY            => 'tiny';
 use constant INPUT_FIELD     => 'input-field';
+use constant DATEPICKER      => 'datepicker';
 
 use constant WAVES_EFFECT    => 'waves-effect';
 use constant WAVES_LIGHT     => 'waves-light';
@@ -203,6 +204,41 @@ sub input_tag {
     class => [ grep $_, $class, INPUT_FIELD ],
   );
 }
+
+sub date_tag {
+  my ($name, $value, %attributes) = @_;
+
+  _set_id_attribute(\%attributes, $name);
+
+  my $icon  = $attributes{icon}
+    ? icon(delete $attributes{icon}, class => 'prefix')
+    : '';
+
+  my $label = $attributes{label}
+    ? html_tag('label', delete $attributes{label}, for => $attributes{id})
+    : '';
+
+  $attributes{type} = 'text'; # required for materialize
+
+  my @onchange = $attributes{onchange} ? (onChange => delete $attributes{onchange}) : ();
+  my @classes  = (delete $attributes{class});
+
+  $::request->layout->add_javascripts('kivi.Validator.js');
+  $::request->presenter->need_reinit_widgets($attributes{id});
+
+  $attributes{'data-validate'} = join(' ', "date", grep { $_ } (delete $attributes{'data-validate'}));
+
+  html_tag('div',
+    $icon .
+    html_tag('input',
+      blessed($value) ? $value->to_lxoffice : $value,
+      size   => 11, type => 'text', name => $name,
+      %attributes,
+      class => DATEPICKER, @onchange,
+    ) .
+    $label,
+    class => [ grep $_, @classes, INPUT_FIELD ],
+  );
 
 
 }
