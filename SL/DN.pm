@@ -780,19 +780,19 @@ sub get_dunning {
   }
 
   my %sort_columns = (
-    'dunning_description' => [ qw(dn.dunning_description customername invnumber) ],
-    'customername'        => [ qw(customername invnumber) ],
+    'dunning_description' => [ qw(dn.dunning_description da.dunning_id customername invnumber) ],
+    'customername'        => [ qw(customername da.dunning_id invnumber) ],
     'invnumber'           => [ qw(a.invnumber) ],
     'transdate'           => [ qw(a.transdate a.invnumber) ],
     'duedate'             => [ qw(a.duedate a.invnumber) ],
-    'dunning_date'        => [ qw(dunning_date a.invnumber) ],
-    'dunning_duedate'     => [ qw(dunning_duedate a.invnumber) ],
+    'dunning_date'        => [ qw(dunning_date da.dunning_id a.invnumber) ],
+    'dunning_duedate'     => [ qw(dunning_duedate da.dunning_id a.invnumber) ],
     'salesman'            => [ qw(salesman) ],
     );
 
   my $sortdir   = !defined $form->{sortdir}    ? 'ASC'         : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortkey   = $sort_columns{$form->{sort}} ? $form->{sort} : 'customername';
-  my $sortorder = join ', ', map { "$_ $sortdir" } (@{ $sort_columns{$sortkey} }, 'da.dunning_id');
+  my $sortorder = join ', ', map { "$_ $sortdir" } @{ $sort_columns{$sortkey} };
 
   my $query =
     qq|SELECT a.id, a.ordnumber, a.invoice, a.transdate, a.invnumber, a.amount, a.language_id,
