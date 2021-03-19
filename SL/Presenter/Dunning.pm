@@ -10,7 +10,7 @@ our @EXPORT_OK = qw(dunning);
 use Carp;
 
 sub dunning {
-  my ($dunning, $type, %params) = @_;
+  my ($dunning, %params) = @_;
 
   $params{display} ||= 'inline';
 
