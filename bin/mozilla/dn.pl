@@ -34,6 +34,8 @@
 
 use POSIX qw(strftime);
 
+use List::MoreUtils qw(none);
+
 use SL::IS;
 use SL::DN;
 use SL::DB::Department;
@@ -337,7 +339,7 @@ sub show_dunning {
 
   $main::auth->assert('dunning_edit');
 
-  my @filter_field_list = qw(customer_id customer dunning_level department_id invnumber ordnumber
+  my @filter_field_list = qw(customer_id customer dunning_id dunning_level department_id invnumber ordnumber
                              transdatefrom transdateto dunningfrom dunningto notes showold l_salesman salesman_id);
 
   report_generator_set_default_sort('customername', 1);
@@ -375,6 +377,7 @@ sub show_dunning {
     'transdate'           => { 'text' => $locale->text('Invdate') },
     'duedate'             => { 'text' => $locale->text('Invoice Duedate') },
     'amount'              => { 'text' => $locale->text('Amount') },
+    'dunning_id'          => { 'text' => $locale->text('Dunning number') },
     'dunning_date'        => { 'text' => $locale->text('Dunning Date') },
     'dunning_duedate'     => { 'text' => $locale->text('Dunning Duedate') },
     'fee'                 => { 'text' => $locale->text('Total Fees') },
@@ -384,7 +387,7 @@ sub show_dunning {
   );
 
   $report->set_columns(%column_defs);
-  $report->set_column_order(qw(checkbox dunning_description customername language invnumber transdate
+  $report->set_column_order(qw(checkbox dunning_description dunning_id customername language invnumber transdate
                                duedate amount dunning_date dunning_duedate fee interest salesman));
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
@@ -392,12 +395,12 @@ sub show_dunning {
   my $print_url = sub { build_std_url('action=print_dunning', 'format=pdf', 'media=screen', 'dunning_id='.$_[0]->{dunning_id}, 'language_id=' . $_[0]->{language_id}) };
   my $sort_url  = build_std_url('action=show_dunning', grep { $form->{$_} } @filter_field_list);
 
-  foreach my $name (qw(dunning_description customername invnumber transdate duedate dunning_date dunning_duedate salesman)) {
+  foreach my $name (qw(dunning_description customername invnumber transdate duedate dunning_date dunning_duedate salesman dunning_id)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $sort_url . "&sort=$name&sortdir=$sortdir";
   }
 
-  my %alignment = map { $_ => 'right' } qw(transdate duedate amount dunning_date dunning_duedate fee interest salesman);
+  my %alignment = map { $_ => 'right' } qw(transdate duedate amount dunning_date dunning_duedate fee interest salesman dunning_id);
 
   my ($current_dunning_rows, $previous_dunning_id, $first_row_for_dunning);
 
@@ -423,12 +426,13 @@ sub show_dunning {
     my $row = { };
     foreach my $column (keys %{ $ref }) {
       $row->{$column} = {
-        'data'  => $first_row_for_dunning || (($column ne 'dunning_description') && ($column ne 'customername')) ? $ref->{$column} : '',
+        'data'  => $first_row_for_dunning || (none { $_ eq $column } qw(dunning_description customername dunning_id)) ? $ref->{$column} : '',
 
         'align' => $alignment{$column},
 
         'link'  => (  $column eq 'invnumber'           ? $edit_url->($ref)
                     : $column eq 'dunning_description' ? $print_url->($ref)
+                    : $column eq 'dunning_id'          ? $print_url->($ref)
                     :                                    ''),
       };
     }

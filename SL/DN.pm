@@ -737,6 +737,11 @@ sub get_dunning {
     push(@values, like($form->{$key}));
   }
 
+  if ($form->{dunning_id}) {
+    $where .= qq| AND da.dunning_id = ?|;
+    push(@values, conv_i($form->{dunning_id}));
+  }
+
   if ($form->{dunning_level}) {
     $where .= qq| AND a.dunning_config_id = ?|;
     push(@values, conv_i($form->{dunning_level}));
@@ -787,6 +792,7 @@ sub get_dunning {
     'duedate'             => [ qw(a.duedate a.invnumber) ],
     'dunning_date'        => [ qw(dunning_date da.dunning_id a.invnumber) ],
     'dunning_duedate'     => [ qw(dunning_duedate da.dunning_id a.invnumber) ],
+    'dunning_id'          => [ qw(dunning_id a.invnumber) ],
     'salesman'            => [ qw(salesman) ],
     );
 
