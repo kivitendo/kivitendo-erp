@@ -26,6 +26,7 @@ use constant LARGE           => 'large';
 use constant MEDIUM          => 'medium';
 use constant SMALL           => 'small';
 use constant TINY            => 'tiny';
+use constant INPUT_FIELD     => 'input-field';
 
 use constant WAVES_EFFECT    => 'waves-effect';
 use constant WAVES_LIGHT     => 'waves-light';
@@ -93,6 +94,40 @@ sub _extract_attribute_classes {
   @classes;
 }
 
+sub _set_id_attribute {
+  my ($attributes, $name, $unique) = @_;
+
+  if (!delete($attributes->{no_id}) && !$attributes->{id}) {
+    $attributes->{id}  = name_to_id($name);
+    $attributes->{id} .= '_' . $attributes->{value} if $unique;
+  }
+
+  %{ $attributes };
+}
+
+{ # This will give you an id for identifying html tags and such.
+  # It's guaranteed to be unique unless you exceed 10 mio calls per request.
+  # Do not use these id's to store information across requests.
+my $_id_sequence = int rand 1e7;
+sub _id {
+  return ( $_id_sequence = ($_id_sequence + 1) % 1e7 );
+}
+}
+
+sub name_to_id {
+  my ($name) = @_;
+
+  if (!$name) {
+    return "id_" . _id();
+  }
+
+  $name =~ s/\[\+?\]/ _id() /ge; # give constructs with [] or [+] unique ids
+  $name =~ s/[^\w_]/_/g;
+  $name =~ s/_+/_/g;
+
+  return $name;
+}
+
 sub button_tag {
   my ($onclick, $value, %attributes) = @_;
 
@@ -148,11 +183,28 @@ sub icon {
 sub input_tag {
   my ($name, $value, %attributes) = @_;
 
-  # todo icons
-  # todo label/active
-  # todo validate
+  _set_id_attribute(\%attributes, $attributes{name});
 
-  html_tag('input', $name, $value, %attributes) . html_tag('label', for => $attributes{id}, $name);
+  my $class = delete %attributes{class};
+  my $icon  = $attributes{icon}
+    ? icon(delete $attributes{icon}, class => 'prefix')
+    : '';
+
+  my $label = $attributes{label}
+    ? html_tag('label', delete $attributes{label}, for => $attributes{id})
+    : '';
+
+  $attributes{type} //= 'text';
+
+  html_tag('div',
+    $icon .
+    html_tag('input', undef, value => $value, %attributes, name => $name) .
+    $label,
+    class => [ grep $_, $class, INPUT_FIELD ],
+  );
+}
+
+
 }
 
 

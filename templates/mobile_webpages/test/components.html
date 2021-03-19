@@ -26,4 +26,16 @@
 
 <h2>Inputs</h2>
 
-[% P.M.input_tag("", "test string") %]
+
+[% P.M.input_tag("", "", label="test input without anything") %]
+[% P.M.input_tag("", "default value", label="test input with default value") %]
+[% P.M.input_tag("", "", placeholder="with placeholder", label="test input with placeholder") %]
+[% P.M.input_tag("", "default value", placeholder="with placeholder", label="test input with placeholder and default value") %]
+
+<h3>With grid:</h3>
+<div class="row">
+[% P.M.input_tag("", "", label="2 cols", class="col s6") %]
+[% P.M.input_tag("", "", label="2 cols", class="col s6") %]
+[% P.M.input_tag("i1", "", placeholder="2 cols placeholder", icon="phone", class="col s6") %]
+[% P.M.input_tag("i2", "", label="2 cols label", icon="account_circle", class="col s6") %]
+</div>
