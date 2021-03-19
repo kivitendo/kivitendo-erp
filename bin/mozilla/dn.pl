@@ -44,6 +44,7 @@ use SL::File;
 use SL::Helper::Flash qw(flash);
 use SL::Locale::String qw(t8);
 use SL::Presenter::FileObject;
+use SL::Presenter::WebdavObject;
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
@@ -383,7 +384,8 @@ sub show_dunning {
     'fee'                 => { 'text' => $locale->text('Total Fees') },
     'interest'            => { 'text' => $locale->text('Interest') },
     'salesman'            => { 'text' => $locale->text('Salesperson'), 'visible' => $form->{l_salesman} ? 1 : 0 },
-    'documents'           => { 'text' => $locale->text('Documents')  , 'visible' => $::instance_conf->get_doc_storage ? 1 : 0 },
+    'documents'           => { 'text' => $locale->text('Documents'),   'visible' => $::instance_conf->get_doc_storage ? 1 : 0 },
+    'webdav'              => { 'text' => $locale->text('WebDAV'),      'visible' => $::instance_conf->get_webdav      ? 1 : 0 },
   );
 
   $report->set_columns(%column_defs);
@@ -461,6 +463,20 @@ sub show_dunning {
         $row->{documents} = { 'raw_data' => $html, data => $text };
       } else {
         $row->{documents} = { };
+      }
+    }
+    if ($::instance_conf->get_webdav && $first_row_for_dunning) {
+      my $webdav = SL::Webdav->new(
+        type     => 'dunning',
+        number   => $ref->{dunning_id},
+      );
+      my @all_objects = $webdav->get_all_objects;
+      if (scalar @all_objects) {
+        my $html          = join '<br>', map { SL::Presenter::WebdavObject::webdav_object($_) } @all_objects;
+        my $text          = join "\n",   map { $_->filename                                   } @all_objects;
+        $row->{webdav}    = { 'raw_data' => $html, data => $text };
+      } else {
+        $row->{webdav}    = { };
       }
     }
 
