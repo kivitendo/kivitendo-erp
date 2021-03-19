@@ -447,7 +447,7 @@ sub show_dunning {
       $row->{language} = { };
     }
 
-    if ($::instance_conf->get_doc_storage) {
+    if ($::instance_conf->get_doc_storage && $first_row_for_dunning) {
       my @files  = SL::File->get_all_versions(object_id   => $ref->{dunning_id},
                                               object_type => 'dunning',
                                               file_type   => 'document',);
