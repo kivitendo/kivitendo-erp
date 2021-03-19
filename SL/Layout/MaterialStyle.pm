@@ -9,11 +9,12 @@ sub use_stylesheet {
 }
 
 sub use_javascript {
-  "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js";
+  "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js",
+  "kivi.Materialize.js";
 }
 
 sub javascripts_inline {
-  "M.AutoInit();";
+  "kivi.Materialize.init();"
 }
 
 sub get_stylesheet_for_user {

@@ -371,6 +371,7 @@ namespace("kivi", function(ns) {
     if (ns.Part) ns.Part.reinit_widgets();
     if (ns.CustomerVendor) ns.CustomerVendor.reinit_widgets();
     if (ns.Validator) ns.Validator.reinit_widgets();
+    if (ns.Materialize) ns.Materialize.reinit_widgets();
 
     if (ns.ProjectPicker)
       ns.run_once_for('input.project_autocomplete', 'project_picker', function(elt) {
