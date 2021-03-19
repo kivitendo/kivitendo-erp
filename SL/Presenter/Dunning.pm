@@ -3,6 +3,7 @@ package SL::Presenter::Dunning;
 use strict;
 
 use SL::Presenter::EscapedText qw(escape is_escaped);
+use SL::Presenter::Tag         qw(link_tag);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(dunning);
@@ -18,11 +19,12 @@ sub dunning {
 
   my $invoice = SL::DB::Manager::Invoice->find_by( id => $dunning->trans_id );
 
-  my $text = join '', (
-    $params{no_link} ? '' : '<a href="dn.pl?action=print_dunning&amp;format=pdf&amp;media=screen&amp;dunning_id=' . $dunning->dunning_id . '&amp;language_id=' . $invoice->language_id . '">',
-    escape($dunning->dunning_config->dunning_description),
-    $params{no_link} ? '' : '</a>',
-  );
+  my $text    = escape($dunning->dunning_config->dunning_description);
+
+  if (! delete $params{no_link}) {
+    my $href = 'dn.pl?action=print_dunning&format=pdf&media=screen&dunning_id=' . $dunning->dunning_id . '&language_id=' . $invoice->language_id;
+    $text    = link_tag($href, $text, %params);
+  }
 
   is_escaped($text);
 }
