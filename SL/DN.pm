@@ -54,6 +54,7 @@ use SL::DB;
 use SL::Webdav;
 
 use File::Copy;
+use File::Slurp qw(read_file);
 
 use strict;
 
@@ -319,7 +320,16 @@ sub save_dunning {
 
   $form->{DUNNING_PDFS_STORAGE} = [];
 
-  my $rc = SL::DB->client->with_transaction(\&_save_dunning, $self, $myconfig, $form, $rows);
+  # Catch any error, either exception or a call to form->error
+  # and return it to the calling function.
+  my ($error, $rc);
+  eval {
+    local $form->{__ERROR_HANDLER} = sub { die @_ };
+    $rc = SL::DB->client->with_transaction(\&_save_dunning, $self, $myconfig, $form, $rows);
+    1;
+  } or do {
+    $error = $@;
+  };
 
   # Save PDFs in filemanagement and webdav after transation succeeded,
   # because otherwise files in the storage may exists if the transaction
@@ -329,9 +339,9 @@ sub save_dunning {
     _store_pdf_to_webdav_and_filemanagement($_->{dunning_id}, $_->{path}, $_->{name}) for @{ $form->{DUNNING_PDFS_STORAGE} };
   }
 
-  if (!$rc) {
-    die SL::DB->client->error
-  }
+  $error       = 'unknown errror' if !$error && !$rc;
+  $rc->{error} = $error           if $error;
+
   $::lxdebug->leave_sub;
 
   return $rc;
@@ -413,7 +423,7 @@ sub _save_dunning {
   }
   # die this transaction, because for this customer only credit notes are
   # selected ...
-  return unless $customer_id;
+  die "only credit notes are selected for this customer\n" unless $customer_id;
 
   $h_update_ar->finish();
   $h_insert_dunning->finish();
@@ -435,7 +445,7 @@ sub _save_dunning {
     $self->send_email($myconfig, $form, $dunning_id, $dbh);
   }
 
-  return 1;
+  return ({dunning_id => $dunning_id, print_original_invoice => $print_invoice, send_email => $send_email});
 }
 
 sub send_email {
@@ -826,7 +836,7 @@ sub melt_pdfs {
 
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $copies) = @_;
+  my ($self, $myconfig, $form, $copies, %params) = @_;
 
   # Don't allow access outside of $spool.
   map { $_ =~ s|.*/||; } @{ $form->{DUNNING_PDFS} };
@@ -842,23 +852,30 @@ sub melt_pdfs {
   my $in = IO::File->new($::lx_office_conf{applications}->{ghostscript} . " -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=- $inputfiles |");
   $form->error($main::locale->text('Could not spawn ghostscript.')) unless $in;
 
-  if ($form->{media} eq 'printer') {
-    $form->get_printer_code($myconfig);
-    my $out;
-    if ($form->{printer_command}) {
-      $out = IO::File->new("| $form->{printer_command}");
-    }
-
-    $form->error($main::locale->text('Could not spawn the printer command.')) unless $out;
-
-    $::locale->with_raw_io($out, sub { $out->print($_) while <$in> });
+  my $dunning_filename    = $form->get_formname_translation('dunning');
+  my $attachment_filename = "${dunning_filename}_${dunning_id}.pdf";
+  my $content;
+  if ($params{return_content}) {
+    $content = read_file($in);
 
   } else {
-    my $dunning_filename = $form->get_formname_translation('dunning');
-    print qq|Content-Type: Application/PDF\n| .
-          qq|Content-Disposition: attachment; filename="${dunning_filename}_${dunning_id}.pdf"\n\n|;
+    if ($form->{media} eq 'printer') {
+      $form->get_printer_code($myconfig);
+      my $out;
+      if ($form->{printer_command}) {
+        $out = IO::File->new("| $form->{printer_command}");
+      }
 
-    $::locale->with_raw_io(\*STDOUT, sub { print while <$in> });
+      $form->error($main::locale->text('Could not spawn the printer command.')) unless $out;
+
+      $::locale->with_raw_io($out, sub { $out->print($_) while <$in> });
+
+    } else {
+      print qq|Content-Type: Application/PDF\n| .
+            qq|Content-Disposition: attachment; filename=$attachment_filename\n\n|;
+
+      $::locale->with_raw_io(\*STDOUT, sub { print while <$in> });
+    }
   }
 
   $in->close();
@@ -866,6 +883,7 @@ sub melt_pdfs {
   map { unlink("$spool/$_") } @{ $form->{DUNNING_PDFS} };
 
   $main::lxdebug->leave_sub();
+  return ($attachment_filename, $content) if $params{return_content};
 }
 
 sub print_dunning {
@@ -1014,13 +1032,6 @@ sub print_dunning {
 
   delete $form->{tmpfile};
 
-  push @{ $form->{DUNNING_PDFS} }        , $filename;
-  push @{ $form->{DUNNING_PDFS_EMAIL} }  , { 'path'       => "${spool}/$filename",
-                                             'name'       => $form->get_formname_translation('dunning') . "_${dunning_id}.pdf" };
-  push @{ $form->{DUNNING_PDFS_STORAGE} }, { 'dunning_id' => $dunning_id,
-                                             'path'       => "${spool}/$filename",
-                                             'name'       => $form->get_formname_translation('dunning') . "_${dunning_id}.pdf" };
-
   my $employee_id = ($::instance_conf->get_dunning_creator eq 'invoice_employee') ?
                       $form->{employee_id}                                        :
                       SL::DB::Manager::Employee->current->id;
@@ -1037,6 +1048,13 @@ sub print_dunning {
 
   # this generates the file in the spool directory
   $form->parse_template($myconfig);
+
+  push @{ $form->{DUNNING_PDFS} }        , $filename;
+  push @{ $form->{DUNNING_PDFS_EMAIL} }  , { 'path'       => "${spool}/$filename",
+                                             'name'       => $form->get_formname_translation('dunning') . "_${dunning_id}.pdf" };
+  push @{ $form->{DUNNING_PDFS_STORAGE} }, { 'dunning_id' => $dunning_id,
+                                             'path'       => "${spool}/$filename",
+                                             'name'       => $form->get_formname_translation('dunning') . "_${dunning_id}.pdf" };
 
   $main::lxdebug->leave_sub();
 }

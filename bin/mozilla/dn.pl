@@ -34,6 +34,7 @@
 
 use POSIX qw(strftime);
 
+use List::Util qw(notall);
 use List::MoreUtils qw(none);
 
 use SL::IS;
@@ -210,6 +211,7 @@ sub save_dunning {
 
   my $active=1;
   my @rows = ();
+  my @status;
   undef($form->{DUNNING_PDFS});
 
   my $saved_language_id = $form->{language_id};
@@ -242,7 +244,10 @@ sub save_dunning {
         if (!$form->{force_lang}) {
           $form->{language_id} = @{$level}[0]->{language_id};
         }
-        DN->save_dunning(\%myconfig, $form, $level);
+        my $rc =  DN->save_dunning(\%myconfig, $form, $level);
+        $rc->{error} =~ s{\n}{<br />}g if $rc->{error};
+        push @status, { invnumbers => [map { $form->{'invnumber_' . $_->{row}} } @$level],
+                        map { ( $_ => $rc->{$_} ) } qw(error dunning_id print_original_invoice send_email), };
       }
     }
 
@@ -260,15 +265,27 @@ sub save_dunning {
       if (!$form->{force_lang}) {
         $form->{language_id} = @{$level}[0]->{language_id};
       }
-      DN->save_dunning(\%myconfig, $form, $level);
+      my $rc = DN->save_dunning(\%myconfig, $form, $level);
+      $rc->{error} =~ s{\n}{<br />}g if $rc->{error};
+      push @status, { invnumbers => [map { $form->{'invnumber_' . $_->{row}} } @$level],
+                      map { ( $_ => $rc->{$_} ) } qw(error dunning_id print_original_invoice send_email), };
     }
   }
 
   $form->{language_id} = $saved_language_id;
 
-  if (scalar @{ $form->{DUNNING_PDFS} }) {
+  my $pdf_filename;
+  my $pdf_content;
+  if ($form->{DUNNING_PDFS} && scalar @{ $form->{DUNNING_PDFS} }) {
     $form->{dunning_id} = strftime("%Y%m%d", localtime time) if scalar @{ $form->{DUNNING_PDFS}} > 1;
-    DN->melt_pdfs(\%myconfig, $form, $form->{copies});
+    ($pdf_filename, $pdf_content) = DN->melt_pdfs(\%myconfig, $form, $form->{copies}, return_content => $form->{media} ne 'printer');
+
+    flash('info', t8('Dunning Process started for selected invoices!'));
+    if ($form->{media} eq 'printer') {
+      flash('info', t8('The PDF has been printed'));
+    } else {
+      flash('info', t8('The PDF has been created'));
+    }
   }
 
   # saving the history
@@ -279,10 +296,13 @@ sub save_dunning {
   }
   # /saving the history
 
-  if ($form->{media} eq 'printer') {
-    delete $form->{callback};
-    $form->redirect($locale->text('Dunning Process started for selected invoices!'));
-  }
+  setup_dn_status_action_bar();
+  $form->{"title"} = $locale->text("Dunning status");
+  $form->header();
+  print $form->parse_html_template('dunning/status', {
+    pdf_filename => $pdf_filename,
+    pdf_content  => $pdf_content,
+    status       => \@status, });
 
   $main::lxdebug->leave_sub();
 }
@@ -690,6 +710,19 @@ sub setup_dn_edit_config_action_bar {
       ],
     );
   }
+}
+
+sub setup_dn_status_action_bar {
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Back'),
+        link      => $::form->{callback},
+        accesskey => 'enter',
+      ],
+    );
+  }
+
 }
 
 # end of main
