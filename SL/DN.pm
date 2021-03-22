@@ -849,9 +849,9 @@ sub melt_pdfs {
       $out = IO::File->new("| $form->{printer_command}");
     }
 
-    $::locale->with_raw_io($out, sub { $out->print($_) while <$in> });
-
     $form->error($main::locale->text('Could not spawn the printer command.')) unless $out;
+
+    $::locale->with_raw_io($out, sub { $out->print($_) while <$in> });
 
   } else {
     my $dunning_filename = $form->get_formname_translation('dunning');
