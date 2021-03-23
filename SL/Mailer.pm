@@ -57,6 +57,7 @@ my %type_to_table = (
   letter                  => 'letter',
   purchase_delivery_order => 'delivery_orders',
   sales_delivery_order    => 'delivery_orders',
+  dunning                 => 'dunning',
 );
 
 sub new {
@@ -421,6 +422,9 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
 
   If $self->{journalentry} and either $self->{record_id} or $::form->{id} (checked in
   this order) exist a record link from record to email journal is created.
+  It is possible to provide an array reference with more than one id in
+  $self->{record_id} or $::form->{id}. In this case all records are linked to
+  the mail.
   Will fail silently if record_link creation wasn't successful (same behaviour as
   _store_in_journal).
 

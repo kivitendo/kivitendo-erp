@@ -505,6 +505,11 @@ sub send_email {
     $mail->{attachments} = $form->{DUNNING_PDFS_EMAIL};
   }
 
+  $query  = qq|SELECT id FROM dunning WHERE dunning_id = ?|;
+  my @ids = selectall_array_query($form, $dbh, $query, $dunning_id);
+  $mail->{record_id}   = \@ids;
+  $mail->{record_type} = 'dunning';
+
   $mail->send();
 
   $main::lxdebug->leave_sub();
