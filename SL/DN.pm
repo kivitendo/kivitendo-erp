@@ -317,7 +317,17 @@ sub save_dunning {
   my ($self, $myconfig, $form, $rows) = @_;
   $main::lxdebug->enter_sub();
 
+  $form->{DUNNING_PDFS_STORAGE} = [];
+
   my $rc = SL::DB->client->with_transaction(\&_save_dunning, $self, $myconfig, $form, $rows);
+
+  # Save PDFs in filemanagement and webdav after transation succeeded,
+  # because otherwise files in the storage may exists if the transaction
+  # failed. Ignore all errros.
+  # Todo: Maybe catch errros and display them as warnings or non fatal errors in the status.
+  if (!$error && $form->{DUNNING_PDFS_STORAGE} && scalar @{ $form->{DUNNING_PDFS_STORAGE} }) {
+    _store_pdf_to_webdav_and_filemanagement($_->{dunning_id}, $_->{path}, $_->{name}) for @{ $form->{DUNNING_PDFS_STORAGE} };
+  }
 
   if (!$rc) {
     die SL::DB->client->error
@@ -998,9 +1008,12 @@ sub print_dunning {
 
   delete $form->{tmpfile};
 
-  push @{ $form->{DUNNING_PDFS} }, $filename;
-  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'path' => "${spool}/$filename",
-                                           'name'     => $form->get_formname_translation('dunning') . "_${dunning_id}.pdf" };
+  push @{ $form->{DUNNING_PDFS} }        , $filename;
+  push @{ $form->{DUNNING_PDFS_EMAIL} }  , { 'path'       => "${spool}/$filename",
+                                             'name'       => $form->get_formname_translation('dunning') . "_${dunning_id}.pdf" };
+  push @{ $form->{DUNNING_PDFS_STORAGE} }, { 'dunning_id' => $dunning_id,
+                                             'path'       => "${spool}/$filename",
+                                             'name'       => $form->get_formname_translation('dunning') . "_${dunning_id}.pdf" };
 
   my $employee_id = ($::instance_conf->get_dunning_creator eq 'invoice_employee') ?
                       $form->{employee_id}                                        :
@@ -1018,30 +1031,6 @@ sub print_dunning {
 
   # this generates the file in the spool directory
   $form->parse_template($myconfig);
-
-  # save dunning pdf in filemanagement/webdav
-  if ($::instance_conf->get_doc_storage) {
-    SL::File->save(
-      object_id   => $dunning_id,
-      object_type => 'dunning',
-      mime_type   => 'application/pdf',
-      source      => 'created',
-      file_type   => 'document',
-      file_name   => $form->{attachment_filename},
-      file_path   => "${spool}/$filename",
-    );
-  }
-  if ($::instance_conf->get_webdav_documents) {
-    my $webdav = SL::Webdav->new(
-      type     => 'dunning',
-      number   => $dunning_id,
-    );
-    my $webdav_file = SL::Webdav::File->new(
-      webdav   => $webdav,
-      filename => $form->{attachment_filename},
-    );
-    $webdav_file->store(file => "${spool}/$filename");
-  }
 
   $main::lxdebug->leave_sub();
 }
@@ -1140,33 +1129,12 @@ sub print_invoice_for_fees {
 
   restore_form($saved_form);
 
-  push @{ $form->{DUNNING_PDFS} }, $filename;
-  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'path' => "${spool}/$filename",
-                                           'name' => $attachment_filename };
-
-  # save dunning fee pdf in filemanagement/webdav
-  if ($::instance_conf->get_doc_storage) {
-    SL::File->save(
-      object_id   => $dunning_id,
-      object_type => 'dunning',
-      mime_type   => 'application/pdf',
-      source      => 'created',
-      file_type   => 'document',
-      file_name   => $attachment_filename,
-      file_path   => "${spool}/$filename",
-    );
-  }
-  if ($::instance_conf->get_webdav_documents) {
-    my $webdav = SL::Webdav->new(
-      type     => 'dunning',
-      number   => $dunning_id,
-    );
-    my $webdav_file = SL::Webdav::File->new(
-      webdav   => $webdav,
-      filename => $attachment_filename,
-    );
-    $webdav_file->store(file => "${spool}/$filename");
-  }
+  push @{ $form->{DUNNING_PDFS} },         $filename;
+  push @{ $form->{DUNNING_PDFS_EMAIL} },   { 'path'       => "${spool}/$filename",
+                                             'name'       => $attachment_filename };
+  push @{ $form->{DUNNING_PDFS_STORAGE} }, { 'dunning_id' => $dunning_id,
+                                             'path'       => "${spool}/$filename",
+                                             'name'       => $attachment_filename };
 
   $main::lxdebug->leave_sub();
 }
@@ -1234,36 +1202,56 @@ sub print_original_invoice {
 
   my $attachment_filename    = $form->get_formname_translation('invoice') . "_" . $invoice->invnumber . ".pdf";
 
-  push @{ $form->{DUNNING_PDFS} }, $file_name;
-  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'path' => "${spool}/$file_name",
-                                           'name' => $attachment_filename };
+  push @{ $form->{DUNNING_PDFS} },         $file_name;
+  push @{ $form->{DUNNING_PDFS_EMAIL} },   { 'path'       => "${spool}/$file_name",
+                                             'name'       => $attachment_filename };
+  push @{ $form->{DUNNING_PDFS_STORAGE} }, { 'dunning_id' => $dunning_id,
+                                             'path'       => "${spool}/$file_name",
+                                             'name'       => $attachment_filename };
 
   $form->{recipient_locale}  = $saved_reicpient_locale;
-
-  # save original invoice pdf in filemanagement/webdav for dunning
-  if ($::instance_conf->get_doc_storage) {
-    SL::File->save(
-      object_id   => $dunning_id,
-      object_type => 'dunning',
-      mime_type   => 'application/pdf',
-      source      => 'created',
-      file_type   => 'document',
-      file_name   => $attachment_filename,
-      file_path   => "${spool}/$file_name",
-    );
-  }
-  if ($::instance_conf->get_webdav_documents) {
-    my $webdav = SL::Webdav->new(
-      type     => 'dunning',
-      number   => $dunning_id,
-    );
-    my $webdav_file = SL::Webdav::File->new(
-      webdav   => $webdav,
-      filename => $attachment_filename,
-    );
-    $webdav_file->store(file => "${spool}/$file_name");
-  }
-
 }
+
+sub _store_pdf_to_webdav_and_filemanagement {
+  my ($dunning_id, $path, $name) =@_;
+
+  my @errors;
+
+  if ($::instance_conf->get_doc_storage) {
+    eval {
+      SL::File->save(
+        object_id   => $dunning_id,
+        object_type => 'dunning',
+        mime_type   => 'application/pdf',
+        source      => 'created',
+        file_type   => 'document',
+        file_name   => $name,
+        file_path   => $path,
+      );
+      1;
+    } or do {
+      push @errors, $::locale->text('Storing PDF in storage backend failed: #1', $@);
+    };
+  }
+
+  if ($::instance_conf->get_webdav_documents) {
+    eval {
+      my $webdav = SL::Webdav->new(
+        type     => 'dunning',
+        number   => $dunning_id,
+      );
+      my $webdav_file = SL::Webdav::File->new(
+        webdav   => $webdav,
+        filename => $name,
+      );
+      $webdav_file->store(file => $path);
+    } or do {
+      push @errors, $::locale->text('Storing PDF to webdav folder failed: #1', $@);
+    };
+  }
+
+  return @errors;
+}
+
 
 1;
