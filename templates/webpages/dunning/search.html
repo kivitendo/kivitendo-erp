@@ -102,6 +102,20 @@
        <th align="right" nowrap>[% 'Show Salesman' | $T8 %]</th>
        <td><input type="checkbox" value="1" name="l_salesman"></td>
       </tr>
+      <tr>
+       [%- IF INSTANCE_CONF.get_email_journal %]
+        <th align="right" nowrap>[% 'Show E-Mails' | $T8 %]</th>
+        <td><input type="checkbox" value="1" name="l_mails" checked></td>
+       [%- END %]
+       [%- IF INSTANCE_CONF.get_webdav %]
+        <th align="right" nowrap>[% 'Show documents in WebDAV' | $T8 %]</th>
+        <td><input type="checkbox" value="1" name="l_webdav" checked></td>
+       [%- END %]
+       [%- IF INSTANCE_CONF.get_doc_storage %]
+        <th align="right" nowrap>[% 'Show documents in file storage' | $T8 %]</th>
+        <td><input type="checkbox" value="1" name="l_documents" checked></td>
+       [%- END %]
+      </tr>
      </table>
     </td>
    </tr>

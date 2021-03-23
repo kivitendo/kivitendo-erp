@@ -20,8 +20,15 @@ sub dunning {
   my $text = escape($dunning->dunning_config->dunning_description);
 
   if (! delete $params{no_link}) {
-    my $href = 'dn.pl?action=show_dunning&showold=1&dunning_id=' . $dunning->dunning_id;
-    $text    = link_tag($href, $text, %params);
+    my @flags;
+    push @flags, 'showold=1';
+    push @flags, 'l_mails=1'      if $::instance_conf->get_email_journal;
+    push @flags, 'l_webdav=1'     if $::instance_conf->get_webdav;
+    push @flags, 'l_documents=1'  if $::instance_conf->get_doc_storage;
+
+    my $href  = 'dn.pl?action=show_dunning&dunning_id=' . $dunning->dunning_id;
+    $href    .= '&' . join '&', @flags if @flags;
+    $text     = link_tag($href, $text, %params);
   }
 
   is_escaped($text);

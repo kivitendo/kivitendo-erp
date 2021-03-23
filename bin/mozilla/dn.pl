@@ -362,7 +362,8 @@ sub show_dunning {
   $main::auth->assert('dunning_edit');
 
   my @filter_field_list = qw(customer_id customer dunning_id dunning_level department_id invnumber ordnumber
-                             transdatefrom transdateto dunningfrom dunningto notes showold l_salesman salesman_id);
+                             transdatefrom transdateto dunningfrom dunningto notes showold l_salesman salesman_id
+                             l_mails l_webdav l_documents);
 
   report_generator_set_default_sort('customername', 1);
 
@@ -405,9 +406,9 @@ sub show_dunning {
     'fee'                 => { 'text' => $locale->text('Total Fees') },
     'interest'            => { 'text' => $locale->text('Interest') },
     'salesman'            => { 'text' => $locale->text('Salesperson'), 'visible' => $form->{l_salesman} ? 1 : 0 },
-    'documents'           => { 'text' => $locale->text('Documents'),   'visible' => $::instance_conf->get_doc_storage   ? 1 : 0 },
-    'webdav'              => { 'text' => $locale->text('WebDAV'),      'visible' => $::instance_conf->get_webdav        ? 1 : 0 },
-    'mails'               => { 'text' => $locale->text('Mails'),       'visible' => $::instance_conf->get_email_journal ? 1 : 0 },
+    'documents'           => { 'text' => $locale->text('Documents'),   'visible' => $form->{l_documents}? 1 : 0 },
+    'webdav'              => { 'text' => $locale->text('WebDAV'),      'visible' => $form->{l_webdav}   ? 1 : 0 },
+    'mails'               => { 'text' => $locale->text('Mails'),       'visible' => $form->{l_mails}    ? 1 : 0 },
   );
 
   $report->set_columns(%column_defs);
@@ -475,7 +476,7 @@ sub show_dunning {
       $row->{language} = { };
     }
 
-    if ($::instance_conf->get_doc_storage && $first_row_for_dunning) {
+    if ($form->{l_documents} && $first_row_for_dunning) {
       my @files  = SL::File->get_all_versions(object_id   => $ref->{dunning_id},
                                               object_type => 'dunning',
                                               file_type   => 'document',);
@@ -487,7 +488,7 @@ sub show_dunning {
         $row->{documents} = { };
       }
     }
-    if ($::instance_conf->get_webdav && $first_row_for_dunning) {
+    if ($form->{l_webdav} && $first_row_for_dunning) {
       my $webdav = SL::Webdav->new(
         type     => 'dunning',
         number   => $ref->{dunning_id},
@@ -502,7 +503,7 @@ sub show_dunning {
       }
     }
 
-    if ($::instance_conf->get_email_journal) {
+    if ($form->{l_mails}) {
       my @mail_links = RecordLinks->get_links(from_table => 'dunning', to_table => 'email_journal', from_id => $ref->{dunning_table_id});
       if (scalar @mail_links) {
         my $email_journals = SL::DB::Manager::EmailJournal->get_all(where => [id => [ map { $_->{to_id} } @mail_links ]]);
