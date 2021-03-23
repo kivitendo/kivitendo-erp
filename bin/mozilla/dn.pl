@@ -44,6 +44,7 @@ use SL::DB::Dunning;
 use SL::File;
 use SL::Helper::Flash qw(flash);
 use SL::Locale::String qw(t8);
+use SL::Presenter::EmailJournal;
 use SL::Presenter::FileObject;
 use SL::Presenter::WebdavObject;
 use SL::ReportGenerator;
@@ -404,13 +405,14 @@ sub show_dunning {
     'fee'                 => { 'text' => $locale->text('Total Fees') },
     'interest'            => { 'text' => $locale->text('Interest') },
     'salesman'            => { 'text' => $locale->text('Salesperson'), 'visible' => $form->{l_salesman} ? 1 : 0 },
-    'documents'           => { 'text' => $locale->text('Documents'),   'visible' => $::instance_conf->get_doc_storage ? 1 : 0 },
-    'webdav'              => { 'text' => $locale->text('WebDAV'),      'visible' => $::instance_conf->get_webdav      ? 1 : 0 },
+    'documents'           => { 'text' => $locale->text('Documents'),   'visible' => $::instance_conf->get_doc_storage   ? 1 : 0 },
+    'webdav'              => { 'text' => $locale->text('WebDAV'),      'visible' => $::instance_conf->get_webdav        ? 1 : 0 },
+    'mails'               => { 'text' => $locale->text('Mails'),       'visible' => $::instance_conf->get_email_journal ? 1 : 0 },
   );
 
   $report->set_columns(%column_defs);
   $report->set_column_order(qw(checkbox dunning_description dunning_id customername language invnumber transdate
-                               duedate amount dunning_date dunning_duedate fee interest salesman));
+                               duedate amount dunning_date dunning_duedate fee interest salesman departmentname mails webdav documents));
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
   my $edit_url  = sub { build_std_url('script=' . ($_[0]->{invoice} ? 'is' : 'ar') . '.pl', 'action=edit', 'callback') . '&id=' . $::form->escape($_[0]->{id}) };
@@ -497,6 +499,18 @@ sub show_dunning {
         $row->{webdav}    = { 'raw_data' => $html, data => $text };
       } else {
         $row->{webdav}    = { };
+      }
+    }
+
+    if ($::instance_conf->get_email_journal) {
+      my @mail_links = RecordLinks->get_links(from_table => 'dunning', to_table => 'email_journal', from_id => $ref->{dunning_table_id});
+      if (scalar @mail_links) {
+        my $email_journals = SL::DB::Manager::EmailJournal->get_all(where => [id => [ map { $_->{to_id} } @mail_links ]]);
+        my $html          = join '<br>', map { SL::Presenter::EmailJournal::email_journal($_) } @$email_journals;
+        my $text          = join "\n",   map { $_->subject                                    } @$email_journals;
+        $row->{mails}     = { 'raw_data' => $html, data => $text };
+      } else {
+        $row->{mails}     = { };
       }
     }
 

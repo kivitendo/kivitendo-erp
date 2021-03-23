@@ -820,6 +820,7 @@ sub get_dunning {
          ct.name AS customername, ct.id AS customer_id, a.duedate, da.fee,
          da.interest, dn.dunning_description, dn.dunning_level, da.transdate AS dunning_date,
          da.duedate AS dunning_duedate, da.dunning_id, da.dunning_config_id,
+         da.id AS dunning_table_id,
          e2.name AS salesman
        FROM ar a
        JOIN customer ct ON (a.customer_id = ct.id)
