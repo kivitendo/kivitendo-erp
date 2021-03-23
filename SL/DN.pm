@@ -1136,7 +1136,7 @@ sub print_invoice_for_fees {
   $self->set_customer_cvars($myconfig, $form);
   $self->set_template_options($myconfig, $form);
 
-  my $filename = Common::unique_id() . "dunning_invoice_${dunning_id}.pdf";
+  my $filename = Common::unique_id() . "dunning_invoice_" . $form->{invnumber} . ".pdf";
 
   my $spool             = $::lx_office_conf{paths}->{spool};
   $form->{OUT}          = "$spool/$filename";
@@ -1145,7 +1145,7 @@ sub print_invoice_for_fees {
 
   map { delete $form->{$_} } grep /^[a-z_]+_\d+$/, keys %{ $form };
 
-  my $attachment_filename      = $form->get_formname_translation('dunning_invoice') . "_${dunning_id}.pdf";
+  my $attachment_filename      = $form->get_formname_translation('dunning_invoice') . "_" . $form->{invnumber} . ".pdf";
   $form->{attachment_filename} = $attachment_filename;
   $form->{attachment_type}     = "dunning";
   $form->{attachment_id}       = $invoice_id;
