@@ -397,9 +397,13 @@ sub setup_is_action_bar {
         action => [ t8('Print and Post'),
           call     => [ 'kivi.SalesPurchase.show_print_dialog', $form->{id} ? 'print' : 'print_and_post' ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => !$may_edit_create ? t8('You must not print this invoice.')
-                    : $form->{id}       ? t8('This invoice has already been posted.')
-                    :                     undef,,
+          disabled => !$may_edit_create                         ? t8('You must not change this invoice.')
+                    : $form->{locked}                           ? t8('The billing period has already been locked.')
+                    : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
+                    : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
+                    : ($form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                                             undef,
         ],
         action => [ t8('E Mail'),
           call     => [ 'kivi.SalesPurchase.show_email_dialog' ],
