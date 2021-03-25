@@ -55,6 +55,7 @@ $self->{texts} = {
   'A canceled general ledger transaction cannot be deleted.' => '',
   'A canceled general ledger transaction cannot be posted.' => '',
   'A canceled invoice cannot be posted.' => '',
+  'A canceled invoice cannot be used. Please undo the cancellation first.' => '',
   'A customer with the same VAT ID already exists.' => '',
   'A customer with the same taxnumber already exists.' => '',
   'A digit is required.'        => '',
