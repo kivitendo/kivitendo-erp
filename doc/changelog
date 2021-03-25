@@ -11,6 +11,24 @@ Mittelgroße neue Features:
    benötigt.
  - Lupe für Projekt-Picker, über die ein Auswahl-Dialog geöffnet werden
    kann.
+ - Verbesserungen beim Erzeugen von Mahnungen:
+   - erzeugte Dokumente werden zum Mahnlauf abgelegt
+   - erzeugte Dokumente im Dateimanagement und im WebDAV werden im
+     Bericht angezeigt
+   - erzeugte Dokumente werden erst nach der "Mahnungs-Transaktion"
+     abgelegt, wenn diese ohne Fehler verlaufen ist, sonst können
+     Dokumente ohne Mahnung abgelegt werden
+   - Fehler der Mahnläufe werden gesammelt und nach dem Mahnen in
+     einem Status-Bericht angezeigt
+   - die Verknüpfung bei der Rechnung zur Mahnung führt nicht mehr zum
+     Drucken, sondern zum Mahnbericht f. die entsprechende Mahnung
+   - der Attachment-Name der Mahnrechnung (mit den Gebühren) enthält
+     jetzt die Rechnungsnummer und nicht mehr die Mahnungsnummer
+   - Verknüpfung der Mahnungen mit E-Mail-Journal evtl. verschickter
+     Mails
+   - Anzeige der Mails im Mahnbericht
+   - DB-Trigger zum Löschen von Verknüpfungen beim Löschen einer
+     Mahnung
 
 Kleinere neue Features und Detailverbesserungen:
 
