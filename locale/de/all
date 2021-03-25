@@ -55,6 +55,7 @@ $self->{texts} = {
   'A canceled general ledger transaction cannot be deleted.' => 'Eine stornierte Dialogbuchung kann nicht gelöscht werden.',
   'A canceled general ledger transaction cannot be posted.' => 'Eine stornierte Dialogbuchung kann nicht mehr gebucht werden.',
   'A canceled invoice cannot be posted.' => 'Eine stornierte Rechnung kann nicht mehr gebucht werden.',
+  'A canceled invoice cannot be used. Please undo the cancellation first.' => 'Eine stornierte Rechnung kann nicht verwendet werden. Bitte machen Sie die Stornierung zunächst rückgängig.',
   'A customer with the same VAT ID already exists.' => 'Ein Kunde mit der gleichen USt-IdNr. existiert bereits.',
   'A customer with the same taxnumber already exists.' => 'Ein Kunde mit der gleichen Steuernummer existiert bereits.',
   'A digit is required.'        => 'Eine Ziffer ist vorgeschrieben.',

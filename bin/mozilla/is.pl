@@ -338,6 +338,8 @@ sub setup_is_action_bar {
           checks   => [ 'kivi.validate_form' ],
           disabled => !$may_edit_create   ? t8('You must not change this invoice.')
                     : !$form->{id}        ? t8('This invoice has not been posted yet.')
+                    : $form->{storno}     ? t8('Cannot storno storno invoice!')
+                    : $form->{locked}     ? t8('The billing period has already been locked.')
                     : !$payments_balanced ? t8('Cancelling is disallowed. Either undo or balance the current payments until the open amount matches the invoice amount')
                     : undef,
         ],
@@ -374,6 +376,7 @@ sub setup_is_action_bar {
           disabled => !$may_edit_create              ? t8('You must not change this invoice.')
                     : $form->{type} eq "credit_note" ? t8('Credit notes cannot be converted into other credit notes.')
                     : !$form->{id}                   ? t8('This invoice has not been posted yet.')
+                    : $form->{storno}                ? t8('A canceled invoice cannot be used. Please undo the cancellation first.')
                     :                                  undef,
         ],
         action => [
