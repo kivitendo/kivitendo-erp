@@ -2,8 +2,9 @@ package SL::Presenter::EscapedText;
 
 use strict;
 use Exporter qw(import);
+use Scalar::Util qw(looks_like_number);
 
-our @EXPORT_OK = qw(escape is_escaped escape_js);
+our @EXPORT_OK = qw(escape is_escaped escape_js escape_js_call);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use JSON ();
@@ -52,6 +53,20 @@ sub escape_js {
   $text =~ s|\n|\\n|g;
 
   __PACKAGE__->new(text => $text, is_escaped => 1);
+}
+
+sub escape_js_call {
+  my ($func, @args) = @_;
+
+  escape(
+      sprintf "%s(%s)",
+      escape_js($func),
+      join ", ", map {
+        looks_like_number($_)
+          ? $_
+          : '"' . escape_js($_) . '"'
+      } @args
+  );
 }
 
 # internal magic
@@ -140,6 +155,18 @@ Static constructor, can be exported. Equivalent to calling C<< new(text => $text
 =item C<escape_js $text>
 
 Static constructor, can be exported. Like C<escape> but also escapes Javascript.
+
+=item C<escape_js_call $func_name, @args>
+
+Static constructor, can be exported. Used to construct a javascript call than
+can be used for onclick handlers in other Presenter functions.
+
+For example:
+
+  L.button_tag(
+    P.escape_js_call("kivi.Package.some_func", arg_one, arg_two, arg_three)
+    title
+  )
 
 =back
 
