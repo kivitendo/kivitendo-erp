@@ -1,0 +1,75 @@
+[%- USE LxERP -%]
+[%- USE L %]
+[%- USE HTML %]
+[%- USE P %]
+
+<h4>[% source.title | html %]</h4>
+
+<div>
+[%- FOREACH source = SOURCES %]
+ <table class="highlight striped">
+  <thead>
+   <tr>
+  [%- SET checkname = source.chk_action %]
+  [%- IF edit_attachments %]
+    <th>[% P.M.checkbox_tag(checkname _ '_checkall', label=source.chkall_title) %]
+  [%- END %]
+    <th>[% LxERP.t8('Date') | html %]</th>
+    <th>[% source.file_title | html %]</th>
+  [%- IF file_type == 'image' %]
+    <th>[% LxERP.t8('Title') %]</th>
+    <th>[% LxERP.t8('ImagePreview') %]</th>
+    <th>[% LxERP.t8('Description') %]</th>
+  [%- ELSE %]
+    <th></th>
+  [%- END %]
+   </tr>
+  </thead>
+
+  <tbody>
+  [%- FOREACH file = source.files %]
+   <tr>
+    [%- IF edit_attachments %]
+    <td>[%- P.M.checkbox_tag(checkname _ '[]', value=file.id _ '_' _ file.version, class=checkname, label=' ') %]</td>
+    [%- END %]
+    <td>[% file.mtime_as_timestamp_s %][% L.hidden_tag("version[]", file.version) %]</td>
+    <td><a href="controller.pl?action=File/download&id=[% file.id %][%- IF file.version %]&version=[%- file.version %][%- END %]">
+        <span id="[% "filename_" _ file.id %][%- IF file.version %]_[% file.version %][%- END %]">[% file.file_name %]</span></a></td>
+    [%- IF file_type == 'image' %]
+    <td>[% file.title %]</td>
+    <td>
+      <img src="controller.pl?action=File/download&id=[% file.id %][%- IF file.version %]&version=[%- file.version %][%- END %]" alt="[% file.title %]" width="64px">
+    </td>
+    <td>[% file.description %]</td>
+    [%- ELSE %]
+    <td></td>
+    [%- END %]
+   </tr>
+  [%- END %]
+  </tbody>
+ </table>
+  <div>
+  [%- IF edit_attachments %]
+    [%- IF source.can_import %]
+      [% P.M.button_tag("kivi.File.unimport(" _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ checkname _ "');", source.chk_title) %]
+    [%- ELSE %]
+      [%- IF source.can_delete %]
+        [% P.M.button_tag("kivi.File.delete("   _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ checkname _ "');", source.chk_title) %]
+      [%- END %]
+    [%- END %]
+  [%- END %]
+  [%- IF source.can_rename %]
+    [% P.M.button_tag("kivi.File.rename(" _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ checkname _ "');",  source.rename_title ) %]
+  [%- END %]
+  [%- IF source.can_upload %]
+    [% P.M.button_tag("kivi.File.upload(" _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ source.upload_title _ "');", source.upload_title ) %]
+  [%- END %]
+  [%- IF source.can_import %]
+    [% P.M.button_tag("kivi.File.import("   _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ source.name _ "','" _ source.path _"');",  source.import_title ) %]
+  [%- END %]
+  </div>
+[%- END %]
+  <div></div><div>
+[% P.M.button_tag("kivi.File.update(" _ object_id _ ",'" _ object_type _ "','" _ file_type _ "');", LxERP.t8('Update')) %]
+  </div>
+</div>
