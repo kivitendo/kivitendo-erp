@@ -99,7 +99,9 @@ namespace('kivi.File', function(ns) {
   }
 
   ns.allow_upload_submit = function() {
-      $('#upload_selected_button').prop('disabled',$('#upload_files').val() === '');
+      const disable = $('#upload_files').val() === '';
+      $('#upload_selected_button').prop('disabled', disable)
+                                  .toggleClass('disabled', disable);
   }
 
   ns.upload_status_dialog = function() {
