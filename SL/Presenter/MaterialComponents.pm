@@ -285,6 +285,22 @@ sub select_tag {
   );
 }
 
+sub checkbox_tag {
+  my ($name, %attributes) = @_;
+
+  _set_id_attribute(\%attributes, $name);
+
+  my $label = $attributes{label}
+    ? html_tag('span', delete $attributes{label})
+    : '';
+
+  my $checkbox_html = SL::Presenter::Tag::checkbox_tag($name, %attributes);
+
+  html_tag('label',
+    $checkbox_html . $label,
+  );
+}
+
 
 1;
 __END__
