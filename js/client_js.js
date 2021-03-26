@@ -8,7 +8,7 @@ namespace("kivi", function(ns) {
 ns.display_flash = function(type, message, noscroll) {
   $('#flash_' + type + '_content').text(message);
   $('#flash_' + type).show();
-  if (!noscroll) {
+  if (!noscroll && $('#frame-header')[0]) {
     $('#frame-header')[0].scrollIntoView();
   }
 };
