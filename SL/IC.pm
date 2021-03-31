@@ -526,13 +526,13 @@ sub all_parts {
   if ($form->{bom} eq '2' && $form->{l_assembly}) {
     # nuke where clause and bind vars
     $where_clause = ' 1=1 AND p.id in (SELECT id from assembly where parts_id IN ' .
-                    ' (select id from parts where 1=1 AND ';
+                    ' (select id from parts where 1=1';
     @bind_vars    = ();
     # use only like filter for items used in assemblies
     foreach (@like_filters) {
       next unless $form->{$_};
       $form->{"l_$_"} = '1'; # show the column
-      $where_clause .= " $_ ILIKE ? ";
+      $where_clause .= " AND $_ ILIKE ? ";
       push @bind_vars,    like($form->{$_});
     }
     $where_clause .='))';
@@ -547,7 +547,6 @@ sub all_parts {
     $order_clause
     $limit_clause
   SQL
-
   $form->{parts} = selectall_hashref_query($form, $dbh, $query, @bind_vars);
 
   map { $_->{onhand} *= 1 } @{ $form->{parts} };
