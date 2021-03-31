@@ -15,6 +15,12 @@
     </tr>
 
     <tr>
+      <td>[% LxERP.t8("Spaces in reference field") %]:</td>
+      <td>[% L.select_tag('space_in_reference', [ [ 0, LxERP.t8('Do not insert an extra space between sub-fields of the reference field') ],
+                                                  [ 1, LxERP.t8('Insert an extra space between sub-fields of the reference field') ] ], default=1) %]</td>
+    </tr>
+
+    <tr>
       <td>[% LxERP.t8("MT940 file") %]:</td>
       <td>[% L.input_tag('file', '', type => 'file', accept => '*') %]</td>
     </tr>

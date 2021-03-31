@@ -16,7 +16,7 @@ use SL::SessionFile::Random;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(file_name transactions statistics charset) ],
+  scalar                  => [ qw(file_name transactions statistics charset space_in_reference) ],
   'scalar --get_set_init' => [ qw(bank_accounts) ],
 );
 
@@ -44,6 +44,7 @@ sub action_import_mt940_preview {
   $file->fh->close;
 
   $self->charset($::form->{charset});
+  $self->space_in_reference($::form->{space_in_reference} // 1);
   $self->file_name($file->file_name);
   $self->parse_and_analyze_transactions;
 
@@ -58,6 +59,7 @@ sub action_import_mt940 {
 
   $self->file_name($::form->{file_name});
   $self->charset($::form->{charset});
+  $self->space_in_reference($::form->{space_in_reference});
   $self->parse_and_analyze_transactions;
   $self->import_transactions;
 
@@ -73,7 +75,12 @@ sub parse_and_analyze_transactions {
 
   my $currency_id = SL::DB::Default->get->currency_id;
 
-  $self->transactions([ sort { $a->{transdate} cmp $b->{transdate} } SL::MT940->parse($self->file_name, charset => $self->charset) ]);
+  my @transactions = SL::MT940->parse(
+    $self->file_name,
+    charset            => $self->charset,
+    space_in_reference => $self->space_in_reference,
+  );
+  $self->transactions([ sort { $a->{transdate} cmp $b->{transdate} } @transactions ]);
 
   foreach my $transaction (@{ $self->transactions }) {
     $transaction->{bank_account}   = $self->bank_accounts->{ make_bank_account_idx($transaction->{local_bank_code}, $transaction->{local_account_number}) };

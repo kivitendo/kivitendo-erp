@@ -10,7 +10,7 @@
 <div class="wrapper">
   <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
     <table class="tbl-horizontal">
-    <caption>[% "Import a MT940 file:" | $T8 %]</caption>
+      <caption>[% "Import a MT940 file:" | $T8 %]</caption>
       <tbody>
         <tr>
           <th>[% LxERP.t8("Charset") %]:</th>
@@ -20,7 +20,12 @@
           <th>[% LxERP.t8("MT940 file") %]:</th>
           <td>[% L.input_tag('file', '', type => 'file', accept => '*') %]</td>
         </tr>
-    <tbody>
+        <tr>
+          <td>[% LxERP.t8("Spaces in reference field") %]:</td>
+          <td>[% L.select_tag('space_in_reference', [ [ 0, LxERP.t8('Do not insert an extra space between sub-fields of the reference field') ],
+                                                      [ 1, LxERP.t8('Insert an extra space between sub-fields of the reference field') ] ], default=1) %]</td>
+        </tr>
+      <tbody>
     </table>
   </form>
 </div>

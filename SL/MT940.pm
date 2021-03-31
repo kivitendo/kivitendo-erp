@@ -22,14 +22,18 @@ sub _join_entries {
 }
 
 sub _join_entries_sepa {
-  my ($parts) = @_;
+  my ($parts, $separator) = @_;
 
   my $line = '';
 
   foreach my $field (grep { $_ } map  { $parts->{$_} } (20..29)) {
     if (($line ne '') && ($field =~ m{^[A-Z]+\+})) {
       $line .= ' ';
+
+    } elsif ($line ne '') {
+      $line .= $separator;
     }
+
     $line .= $field;
   }
 
@@ -37,9 +41,12 @@ sub _join_entries_sepa {
 }
 
 sub _join_entries_austria {
-  my ($parts) = @_;
+  my ($parts, $separator) = @_;
 
-  return _join_entries($parts, 20, 23, ' ');
+  return join ' ',
+    grep { $_ }
+    (_join_entries($parts, 20, 21, $separator),
+     _join_entries($parts, 22, 23, $separator));
 }
 
 sub parse {
@@ -79,6 +86,8 @@ sub parse {
       push @lines, [ $line, $line_number ];
     }
   }
+
+  my $sub_field_separator = $params{space_in_reference} ? ' ' : '';
 
   foreach my $line (@lines) {
     # AT MT940 has the format  :25://AT20151/00797453990/EUR
@@ -140,9 +149,9 @@ sub parse {
         my $is_sepa    = !$is_austria && ($code =~ m{^1});
         my %parts      = map { ((substr($_, 0, 2) // '0') * 1 => substr($_, 2)) } split quotemeta($separator), $rest;
 
-        $transaction{purpose}               = $is_sepa    ? _join_entries_sepa(\%parts)
-                                            : $is_austria ? _join_entries(\%parts, 20, 23, ' ')
-                                            :               _join_entries(\%parts, 20, 29);
+        $transaction{purpose}               = $is_sepa    ? _join_entries_sepa(\%parts, $sub_field_separator)
+                                            : $is_austria ? _join_entries_austria(\%parts, $sub_field_separator)
+                                            :               _join_entries(\%parts, 20, 29, $sub_field_separator);
         $transaction{remote_name}           = _join_entries(\%parts, 32, 33);
         $transaction{remote_bank_code}      = $parts{30};
         $transaction{remote_account_number} = $parts{31};
