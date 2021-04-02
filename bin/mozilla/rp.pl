@@ -1139,13 +1139,11 @@ sub send_email {
 
   RP->aging(\%myconfig, \%$form);
 
-  $form->{"statement_1"} = 1;
 
   my $email_form  = delete $form->{email_form};
   my %field_names = (to => 'email');
 
   $form->{ $field_names{$_} // $_ } = $email_form->{$_} for keys %{ $email_form };
-
   $form->{media} = 'email';
   print_form();
 
