@@ -41,7 +41,7 @@ sub check_objects {
   $self->controller->track_progress(phase => 'building data', progress => 0);
   my $update_policy  = $self->controller->profile->get('update_policy') || 'skip';
 
-  my $i;
+  my $i = 0;
   my $num_data = scalar @{ $self->controller->data };
   foreach my $entry (@{ $self->controller->data }) {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;

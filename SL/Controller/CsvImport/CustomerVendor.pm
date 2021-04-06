@@ -68,7 +68,7 @@ sub check_objects {
   my %vcs_by_number = map { ( $_->$numbercolumn => $_ ) } @{ $self->existing_objects };
   my $methods       = $self->controller->headers->{methods};
 
-  my $i;
+  my $i = 0;
   my $num_data = scalar @{ $self->controller->data };
   foreach my $entry (@{ $self->controller->data }) {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
