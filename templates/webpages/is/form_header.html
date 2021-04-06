@@ -34,8 +34,9 @@
 [%- END %]
 [%- IF id %]
   [%- IF INSTANCE_CONF.get_doc_storage %]
-  <li><a href="controller.pl?action=File/list&file_type=document&object_type=invoice&object_id=[% HTML.url(id) %]">[% 'Documents' | $T8 %]</a></li>
-  <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=invoice&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
+  [% object_type = is_type_credit_note? 'credit_note' : 'invoice' %]
+  <li><a href="controller.pl?action=File/list&file_type=document&object_type=[% object_type %]&object_id=[% HTML.url(id) %]">[% 'Documents' | $T8 %]</a></li>
+  <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=[% object_type %]&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
   [%- END %]
   [%- IF AUTH.assert('record_links', 1) %]
   <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=Invoice&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>
