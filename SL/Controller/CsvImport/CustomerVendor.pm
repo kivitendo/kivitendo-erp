@@ -91,7 +91,7 @@ sub check_objects {
     push @{ $entry->{information} }, $::locale->text('Illegal characters have been removed from the following fields: #1', join(', ', @cleaned_fields))
       if @cleaned_fields;
 
-    my $existing_vc = $vcs_by_number{ $object->$numbercolumn };
+    my $existing_vc = $object->$numbercolumn ? $vcs_by_number{ $object->$numbercolumn } : undef;
     if (!$existing_vc) {
       $vcs_by_number{ $object->$numbercolumn } = $object if $object->$numbercolumn;
 
@@ -240,8 +240,8 @@ sub save_objects {
   my ($self, %params) = @_;
 
   my $numbercolumn   = $self->table . 'number';
-  my $with_number    = [ grep { $_->{object}->$numbercolumn ne '####' } @{ $self->controller->data } ];
-  my $without_number = [ grep { $_->{object}->$numbercolumn eq '####' } @{ $self->controller->data } ];
+  my $with_number    = [ grep { ($_->{object}->$numbercolumn || '') ne '####' } @{ $self->controller->data } ];
+  my $without_number = [ grep { ($_->{object}->$numbercolumn || '') eq '####' } @{ $self->controller->data } ];
 
   $_->{object}->$numbercolumn('') for @{ $without_number };
 
