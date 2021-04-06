@@ -28,7 +28,6 @@
  [% RAW_TOP_INFO_TEXT %]
 
  [% IF DATA_PRESENT %]
- <p>
   <table [% IF TABLE_CLASS %]class="[% TABLE_CLASS %]"[% END %] id="report_table_id" width="100%">
    <thead>
    [%- FOREACH row = HEADER_ROWS %]
@@ -88,7 +87,6 @@
    </tbody>
   </table>
   <hr size="3" noshade>
- </p>
  [% ELSE %]
   <p class="message_hint">[% 'No data was found.' | $T8 %]</p>
  [% END %]
