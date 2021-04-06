@@ -317,10 +317,16 @@ sub action_download {
 sub action_ajax_get_thumbnail {
   my ($self) = @_;
 
-  my $file      = SL::File->get(id => $::form->{file_id});
+  my $id      = $::form->{file_id};
+  my $version = $::form->{file_version};
+  my $file    = SL::File->get(id => $id);
+
+  $file->version($version) if $version;
+
   my $thumbnail = _create_thumbnail($file, $::form->{size});
 
-  my $overlay_selector = '#enlarged_thumb_' . $::form->{file_id};
+  my $overlay_selector  = '#enlarged_thumb_' . $id;
+  $overlay_selector    .= '_' . $version            if $version;
   $self->js
     ->attr($overlay_selector, 'src', 'data:' . $thumbnail->{thumbnail_img_content_type} . ';base64,' . MIME::Base64::encode_base64($thumbnail->{thumbnail_img_content}))
     ->data($overlay_selector, 'is-overlay-loaded', '1')

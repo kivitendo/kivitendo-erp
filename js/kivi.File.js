@@ -303,7 +303,9 @@ namespace('kivi.File', function(ns) {
 
   ns.add_enlarged_thumbnail = function(e) {
     var file_id        = $(e.target).data('file-id');
+    var file_version   = $(e.target).data('file-version');
     var overlay_img_id = 'enlarged_thumb_' + file_id;
+    if (file_version) { overlay_img_id = overlay_img_id + '_' + file_version };
     var overlay_img    = $('#' + overlay_img_id);
 
     if (overlay_img.data('is-overlay-shown') == 1) return;
@@ -317,7 +319,7 @@ namespace('kivi.File', function(ns) {
     var data = {
       action:         'File/ajax_get_thumbnail',
       file_id:        file_id,
-      file_version:   $(e.target).data('file-version'),
+      file_version:   file_version,
       size:           512
     };
 
