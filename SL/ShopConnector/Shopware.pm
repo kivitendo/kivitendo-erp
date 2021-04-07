@@ -151,6 +151,20 @@ sub import_data_to_shop_order {
   }
   $shop_order->positions($position-1);
 
+  if ( $self->config->shipping_costs_parts_id ) {
+    my $shipping_part = SL::DB::Part->find_by( id => $self->config->shipping_costs_parts_id);
+    my %shipping_pos = ( description    => $import->{data}->{dispatch}->{name},
+                         partnumber     => $shipping_part->partnumber,
+                         price          => $import->{data}->{invoiceShipping},
+                         quantity       => 1,
+                         position       => $position,
+                         shop_trans_id  => 0,
+                         shop_order_id  => $id,
+                       );
+    my $shipping_pos_insert = SL::DB::ShopOrderItem->new(%shipping_pos);
+    $shipping_pos_insert->save;
+  }
+
   my $customer = $shop_order->get_customer;
 
   if(ref($customer)){
