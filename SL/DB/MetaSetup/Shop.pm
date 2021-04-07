@@ -26,6 +26,7 @@ __PACKAGE__->meta->columns(
   protocol                => { type => 'text', default => 'http', not_null => 1 },
   realm                   => { type => 'text' },
   server                  => { type => 'text' },
+  shipping_costs_parts_id => { type => 'integer' },
   sortkey                 => { type => 'integer' },
   taxzone_id              => { type => 'integer' },
   transaction_description => { type => 'text' },
