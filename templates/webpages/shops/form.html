@@ -72,6 +72,10 @@
     <td>[%- L.input_tag("shop.transaction_description", SELF.shop.transaction_description, size=size) %]</td>
   </tr>
   <tr>
+    <th align="right">[% 'Default part for shipping costs' | $T8 %]</th>
+    <td>[%- P.part.picker('shop.shipping_costs_parts_id', 'SELF.shop.shipping_costs_parts_id', style="width: 300px") %]</td>
+  </tr>
+  <tr>
     <th align="right">[% 'Obsolete' | $T8 %]</th>
     <td>[% L.checkbox_tag('shop.obsolete', checked = SELF.shop.obsolete, for_submit=1) %]</td>
   </tr>
