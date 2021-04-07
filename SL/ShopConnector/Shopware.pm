@@ -72,7 +72,7 @@ sub get_new_orders {
   my $last_order_number = $self->config->last_order_number;
   my $otf              = $self->config->orders_to_fetch;
   my $of               = 0;
-  my $last_data      = $self->connector->get($url . "api orders/$last_order_number?useNumberAsId=true");
+  my $last_data      = $self->connector->get($url . "api/orders/$last_order_number?useNumberAsId=true");
   my $last_data_json = $last_data->content;
   my $last_import    = SL::JSON::decode_json($last_data_json);
 
