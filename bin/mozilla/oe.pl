@@ -1239,7 +1239,7 @@ sub orders {
 
   my $edit_url = $params{want_binary_pdf}
                ? ''
-               : ($::instance_conf->get_feature_experimental)
+               : ($::instance_conf->get_feature_experimental_order)
                ? build_std_url('script=controller.pl', 'action=Order/edit', 'type')
                : build_std_url('action=edit', 'type', 'vc');
   foreach my $oe (@{ $form->{OE} }) {
