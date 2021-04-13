@@ -12,6 +12,12 @@ use List::UtilsBy qw(partition_by);
 use Exporter qw(import);
 our @EXPORT_OK = qw(
   button_tag
+  input_tag
+  date_tag
+  submit_tag
+  icon
+  select_tag
+  checkbox_tag
 );
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
@@ -317,6 +323,25 @@ SL::Presenter::MaterialComponents - MaterialCSS Component wrapper
 
 
 =head1 DESCRIPTION
+
+This is a collection of components in the style of L<SL::Presenter::Tag>
+intended for materialzecss. They should be useable similarly to their original
+versions but be well-behaved for materialize.
+
+They will also recognize some materialize conventions:
+
+=over 4
+
+=item icon>
+
+Most elements can be decorated with an icon by supplying the C<icon> with the name.
+
+=item grid classes
+
+Grid classes like C<s12> or C<m6> can be given as keys with any truish value or
+directly as classes.
+
+=back
 
 =head1 BUGS
 
