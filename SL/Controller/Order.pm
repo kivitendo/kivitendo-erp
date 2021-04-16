@@ -1965,6 +1965,7 @@ sub get_files_for_email_dialog {
     $files{versions} = [ SL::File->get_all_versions(object_id => $self->order->id,              object_type => $self->order->type, file_type => 'document') ];
     $files{files}    = [ SL::File->get_all(         object_id => $self->order->id,              object_type => $self->order->type, file_type => 'attachment') ];
     $files{vc_files} = [ SL::File->get_all(         object_id => $self->order->{$self->cv}->id, object_type => $self->cv,          file_type => 'attachment') ];
+    $files{project_files} = [ SL::File->get_all(    object_id => $self->order->globalproject_id, object_type => 'project',         file_type => 'attachment') ];
   }
 
   my @parts =

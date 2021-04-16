@@ -2021,7 +2021,7 @@ sub setup_sales_purchase_print_options {
 }
 
 sub _get_files_for_email_dialog {
-  my %files = map { ($_ => []) } qw(versions files vc_files part_files);
+  my %files = map { ($_ => []) } qw(versions files vc_files part_files project_files);
 
   return %files if !$::instance_conf->get_doc_storage;
 
@@ -2030,6 +2030,8 @@ sub _get_files_for_email_dialog {
     $files{files}    = [ SL::File->get_all(         object_id => $::form->{id},    object_type => $::form->{type}, file_type => 'attachment') ];
     $files{vc_files} = [ SL::File->get_all(         object_id => $::form->{vc_id}, object_type => $::form->{vc},   file_type => 'attachment') ]
       if $::form->{vc} && $::form->{"vc_id"};
+    $files{project_files} = [ SL::File->get_all(object_id => $::form->{project_id}, object_type => 'project',file_type => 'attachment') ]
+      if $::form->{project_id};
   }
 
   my @parts =

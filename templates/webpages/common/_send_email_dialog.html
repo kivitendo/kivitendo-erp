@@ -103,6 +103,10 @@
              files = FILES.part_files
              checked = INSTANCE_CONF.get_email_attachment_part_files_checked
              label = LxERP.t8("Files from parts") %]
+
+  [% PROCESS attach_file_list
+             files = FILES.project_files
+             label = LxERP.t8("Files from projects") %]
 [% END %]
  </tbody>
 </table>

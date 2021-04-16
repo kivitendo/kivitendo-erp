@@ -286,6 +286,7 @@ namespace('kivi.SalesPurchase', function(ns) {
       type:         $('#type').val(),
       vc:           vc,
       vc_id:        $('#' + vc + '_id').val(),
+      project_id:  $('#globalproject_id').val(),
     };
 
     $('[name^=id_],[name^=partnumber_]').each(function(idx, elt) {
