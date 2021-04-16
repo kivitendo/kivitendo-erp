@@ -32,6 +32,9 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+ - Projekte wurden um Dateianhänge erweitert, die dort hochgeladenen Dokumente
+   stehen beim E-Mail-Versand in allen verknüpften Belegen vorausgewählt zu
+   Verfügung
  - Dateimanagement: In der Liste der Dateien werden Vorschaubilder angezeigt,
    falls möglich. Diese werden beim Drüberfahren vergrößert.
  - Dateimanagement: Dokumente können auch hochgeladen werden, dort, wo sie
