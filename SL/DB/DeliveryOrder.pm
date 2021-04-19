@@ -227,9 +227,9 @@ sub new_from_time_recordings {
     }
 
     my $date = $source->start_time->to_kivitendo;
-    $entries->{$part_id}->{$date}->{duration} += $source->{rounding} ?
-                                                   nhimult(0.25, ($source->duration_in_hours))
-                                                 : _round_total($source->duration_in_hours);
+    $entries->{$part_id}->{$date}->{duration} += $source->{rounding}
+                                               ? nhimult(0.25, ($source->duration_in_hours))
+                                               : _round_total($source->duration_in_hours);
     # add content if not already in description
     my $new_description = $source->description_as_stripped_html;
     $entries->{$part_id}->{$date}->{content}  .= '<li>' . $new_description . '</li>'
@@ -402,7 +402,7 @@ order.
 
 =item C<new_from_time_recordings $sources, %params>
 
-Creates a new C<SL::DB::DeliveryOrder> instace from the time recordings
+Creates a new C<SL::DB::DeliveryOrder> instance from the time recordings
 given as C<$sources>. All time recording entries must belong to the same
 customer. Time recordings are sorted by article and date. For each article
 a new delivery order item is created. If no article is associated with an
