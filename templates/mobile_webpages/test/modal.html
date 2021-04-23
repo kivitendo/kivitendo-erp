@@ -1,0 +1,49 @@
+[% USE P %]
+
+<h1>Material Modal Tests</h1>
+
+
+<div>
+
+Button triggered modal, no close/agree button:<br>
+
+[% P.M.button_tag("", "Modal", class="modal-trigger", href="#modal1") %]
+<!-- Modal Structure -->
+<div id="modal1" class="modal">
+  <div class="modal-content">
+    <h4>Modal Header</h4>
+    <p>A bunch of text</p>
+  </div>
+</div>
+
+</div>
+
+
+<div>
+Button triggered modal, close/agree button:<br>
+
+[% P.M.button_tag("", "Modal", class="modal-trigger", href="#modal2") %]
+<!-- Modal Structure -->
+<div id="modal2" class="modal">
+  <div class="modal-content">
+    <h4>Modal Header</h4>
+    <p>A bunch of text</p>
+  </div>
+  <div class="modal-footer">
+    [% P.M.button_tag('', 'Cancel', class="modal-close", flat=1) %]
+    [% P.M.button_tag('', 'Agree', class="modal-close", flat=1) %]
+  </div>
+</div>
+
+</div>
+
+<div>
+Javascript triggered modal:<br>
+[% P.M.button_tag("\$('#modal1').modal('open')", "Open!") %]
+</div>
+
+
+<div>
+popup_dialog modal with given html:<br>
+[% P.M.button_tag("kivi.popup_dialog({ html: 'Testtext'})", "Testtext") %]
+</div>

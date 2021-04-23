@@ -14,4 +14,9 @@
   name: Component Test
   order: 200
   params:
-    action: MaterializeTest/test
+    action: MaterializeTest/components
+- id: modal_test
+  name: Modal Test
+  order: 300
+  params:
+    action: MaterializeTest/modal
