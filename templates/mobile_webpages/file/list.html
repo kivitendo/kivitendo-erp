@@ -12,7 +12,7 @@
    <tr>
   [%- SET checkname = source.chk_action %]
   [%- IF edit_attachments %]
-    <th>[% P.M.checkbox_tag(checkname _ '_checkall', label=source.chkall_title) %]
+    <th>[% P.M.checkbox_tag(checkname _ '_checkall', label=' ', checkall=checkname _ "[]") %]</th>
   [%- END %]
     <th>[% LxERP.t8('Date') | html %]</th>
     <th>[% source.file_title | html %]</th>

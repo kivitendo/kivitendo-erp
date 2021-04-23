@@ -7,21 +7,20 @@
 <form method="post" id="upload_form" enctype="multipart/form-data" action="controller.pl">
   [% SET multiple = 'true' %]
   [% IF SELF.object_type == 'shop_image' %][% multiple = 'false' %][% END %]
-  <div class="row">
     <div class="file-field input-field col s12">
-      <div class="btn s3">
+      <div class="btn m3 s12">
         <span>[% 'Filename' | $T8 %]</span>
         <input
           name="uploadfiles[]" type="file" [% IF multiple %]multiple[% END %]
           id="upload_files" size="45" accept="[% SELF.accept_types %]" capture="camera"
           onchange="kivi.File.allow_upload_submit();">
       </div>
-      <div class="file-path-wrapper s9">
+      <div class="file-path-wrapper m9 s12">
         <input class="file-path validate" type="text">
       </div>
     </div>
 
-    <div class="s12">
+    <div class="m12 s12">
      [% P.M.button_tag(
        P.escape_js_call("kivi.File.upload_selected_files", SELF.object_id, SELF.object_type, SELF.file_type, SELF.maxsize, SELF.is_global),
        LxERP.t8("Upload file"),
@@ -31,7 +30,6 @@
      [% P.M.button_tag("kivi.File.reset_upload_form()", LxERP.t8('Reset'), flat=1) %]
     </div>
 
-  </div>
 
 
  <hr>
