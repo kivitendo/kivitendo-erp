@@ -75,7 +75,71 @@ namespace("kivi.Materialize", function(ns) {
       showClearBtn: true,
       i18n: ns.build_i18n()
     });
+    $('.modal').modal();
     M.updateTextFields();
   }
 
+  // alternative for kivi.popup_dialog.
+  // opens materialize modal instead.
+  //
+  // differences: M.modal can not load external content, so it needs to be fetched manually and inserted into the DOM.
+  ns.popup_dialog = function(params) {
+    console.log(params);
+    params            = params        || { };
+    let id            = params.id     || 'jqueryui_popup_dialog';
+    let $div;
+    let custom_close  = params.dialog ? params.dialog.close : undefined;
+    let dialog_params = $.extend(
+      { // kivitendo default parameters.
+        // unlike classic layout, there is not fixed size, and M.modal is always... modal
+        onCloseStart: custom_close
+      },
+        // User supplied options:
+      params.dialog || { },
+      { // Options that must not be changed:
+        // close options already work
+      });
+
+    if (params.url) {
+      $.ajax({
+        url: params.url,
+        data: params.data,
+        success: function(data) {
+          params.html = data;
+          params.url = undefined;
+          params.data = undefined;
+          ns.popup_dialog(params);
+        },
+        error: function(x, status, error) { console.log(error); },
+        dataType: 'text',
+      });
+      return 1;
+    }
+
+    if (params.html) {
+      $div = $('<div>');
+      $div.attr('id', id)
+      $div.addClass("modal");
+      let $modal_content = $('<div>');
+      $modal_content.addClass('modal-content');
+      $modal_content.html(params.html);
+      $div.append($modal_content);
+      $('body').append($div);
+      kivi.reinit_widgets();
+      dialog_params.onCloseEnd = function() { $div.remove(); }
+
+      $div.modal(dialog_params);
+
+    } else if(params.id) {
+      $div = $('#' + params.id);
+    } else {
+      console.error("insufficient parameters to open dialog");
+      return 0;
+    }
+
+    $div.modal('open');
+
+    return true;
+
+  }
 });

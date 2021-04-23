@@ -468,6 +468,9 @@ namespace("kivi", function(ns) {
   // - dialog: an optional object of options passed to the $.dialog() call
   // - load: an optional function that is called after the content has been loaded successfully (only if an AJAX call is made)
   ns.popup_dialog = function(params) {
+    if (kivi.Materialize)
+      return kivi.Materialize.popup_dialog(params);
+
     var dialog;
 
     params            = params        || { };
