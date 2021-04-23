@@ -289,7 +289,7 @@ sub button_tag {
 
   $onclick = 'if (!confirm("'. _J(delete($attributes{confirm})) .'")) return false; ' . $onclick if $attributes{confirm};
 
-  html_tag('input', undef, %attributes, value => $value, onclick => $onclick);
+  html_tag('input', undef, %attributes, value => $value, (onclick => $onclick)x!!$onclick);
 }
 
 sub submit_tag {
