@@ -1042,7 +1042,8 @@ sub invoice {
     if (my $order = SL::DB::Manager::Order->find_by(ordnumber => $form->{ordnumber}, $vc_id => $form->{"$vc_id"})) {
       $order->load;
       $form->{orddate} = $order->transdate_as_date;
-      $form->{$_}      = $order->$_ for qw(payment_id salesman_id taxzone_id quonumber);
+      $form->{$_}      = $order->$_ for qw(payment_id salesman_id taxzone_id quonumber taxincluded);
+      $form->{taxincluded_changed_by_user} = 1;
     }
   }
 
