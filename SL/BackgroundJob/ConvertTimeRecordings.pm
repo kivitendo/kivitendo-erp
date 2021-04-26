@@ -130,8 +130,9 @@ sub run {
   # die if errors exists
   if (@{ $self->{job_errors} }) {
     $msg  .= ' ' . t8('The following errors occurred:');
+    $msg  .= ' ';
     $msg  .= join "\n", @{ $self->{job_errors} };
-    die $msg;
+    die $msg . "\n";
   }
   return $msg;
 }
