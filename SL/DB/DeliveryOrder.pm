@@ -261,6 +261,7 @@ sub new_from_time_recordings {
       parts_id        => $part_by_part_id{$key}->id,
       description     => $part_by_part_id{$key}->description,
       qty             => $qty,
+      base_qty        => $qty,
       unit_obj        => $h_unit,
       sellprice       => $part_by_part_id{$key}->sellprice,
       longdescription => $longdescription,
