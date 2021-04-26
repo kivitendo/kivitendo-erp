@@ -3443,6 +3443,7 @@ $self->{texts} = {
   'The following currencies have been used, but they are not defined:' => '',
   'The following delivery orders could not be processed because they are already closed: #1' => '',
   'The following drafts have been saved and can be loaded.' => '',
+  'The following errors occurred:' => '',
   'The following groups are valid for this client' => '',
   'The following is only a preview.' => '',
   'The following list has been generated automatically from existing users collapsing users with identical settings into a single entry.' => '',
