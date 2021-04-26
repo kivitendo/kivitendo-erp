@@ -231,7 +231,8 @@ sub new_from_time_recordings {
                                                ? nhimult(0.25, ($source->duration_in_hours))
                                                : _round_total($source->duration_in_hours);
     # add content if not already in description
-    my $new_description = $source->description_as_stripped_html;
+    my $new_description = '' . $source->description_as_stripped_html;
+    $entries->{$part_id}->{$date}->{content} ||= '';
     $entries->{$part_id}->{$date}->{content}  .= '<li>' . $new_description . '</li>'
       unless $entries->{$part_id}->{$date}->{content} =~ m/\Q$new_description/;
 
