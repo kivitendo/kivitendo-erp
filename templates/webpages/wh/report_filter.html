@@ -153,7 +153,6 @@
          [% L.yes_no_tag("allrows", 1) %]
         </td>
        </tr>
-
       </table>
      </td>
     </tr>
@@ -207,6 +206,17 @@
         <td align="right"><input name="l_list_price" id="l_list_price" class="checkbox" type="checkbox" value="Y"></td>
         <td nowrap><label for="l_list_price">[% 'List Price' | $T8 %]</label></td>
        </tr>
+       [% IF INCLUDABLE_CVAR_CONFIGS %]
+         <tr><td colspan="6"><hr noshade height="1"></td></tr>
+         [% FOREACH cvar_cfg = INCLUDABLE_CVAR_CONFIGS %]
+         <tr>
+          <td colspan="2" align="left">
+           [% name__ = cvar_cfg.name;
+            L.checkbox_tag("l_cvar_" _ name__, value="1", checked=(cvar_cfg.included_by_default ? 1 : ''), label=cvar_cfg.description) %]
+          </td>
+         </tr>
+         [% END %]
+       [% END %]
       </table>
      </td>
     </tr>

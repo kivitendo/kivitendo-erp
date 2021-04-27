@@ -39,6 +39,7 @@ use SL::Form;
 use SL::User;
 
 use SL::AM;
+use SL::CVar;
 use SL::CT;
 use SL::IC;
 use SL::WH;
@@ -765,6 +766,9 @@ sub report {
 
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
 
+  my $CVAR_CONFIGS = SL::DB::Manager::CustomVariableConfig->get_all_sorted(where => [ module => 'IC' ]);
+  my $INCLUDABLE_CVAR_CONFIGS = [ grep { $_->includeable } @{ $CVAR_CONFIGS } ];
+
   $form->{title}   = $locale->text("Report about warehouse contents");
 
   setup_wh_report_action_bar();
@@ -772,7 +776,10 @@ sub report {
   $form->header();
   print $form->parse_html_template("wh/report_filter",
                                    { "WAREHOUSES" => $form->{WAREHOUSES},
-                                     "UNITS"      => AM->unit_select_data(AM->retrieve_units(\%myconfig, $form)) });
+                                     "UNITS"      => AM->unit_select_data(AM->retrieve_units(\%myconfig, $form)),
+                                     # "CVAR_CONFIGS"            => $CVAR_CONFIGS, # nyi searchable cvars
+                                     "INCLUDABLE_CVAR_CONFIGS" => $INCLUDABLE_CVAR_CONFIGS,
+                                   });
 
   $main::lxdebug->leave_sub();
 }
@@ -785,6 +792,8 @@ sub generate_report {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
+
+  my $cvar_configs = CVar->get_configs('module' => 'IC');
 
   $form->{title}   = $locale->text("Report about warehouse contents");
   $form->{sort}  ||= 'partnumber';
@@ -883,6 +892,10 @@ sub generate_report {
 
   my $href = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
   $href .= "&maxrows=".$form->{maxrows};
+  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
+  push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
+  %column_defs = (%column_defs, %column_defs_cvars);
 
   map { $column_defs{$_}->{link} = $href . "&page=".$page."&sort=${_}&order=" . Q($_ eq $sort_col ? 1 - $form->{order} : $form->{order}) } @columns;
 
@@ -907,6 +920,11 @@ sub generate_report {
                        'attachment_basename'  => strftime($locale->text('warehouse_report_list') . '_%Y%m%d', localtime time));
   $report->set_options_from_form();
   $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
+  CVar->add_custom_variables_to_report('module'         => 'IC',
+                                       'trans_id_field' => 'parts_id',
+                                       'configs'        => $cvar_configs,
+                                       'column_defs'    => \%column_defs,
+                                       'data'           => \@contents);
 
   my $all_units = AM->retrieve_units(\%myconfig, $form);
   my $idx       = 0;
