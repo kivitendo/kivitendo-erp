@@ -32,6 +32,11 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+ - Der Lagerbestandsbericht wurde um die Anzeige von benutzerdefinierten Variablen
+   aus dem Bereich Artikel erweitert
+ - Im Lagerjournal ist standardmäßig die Berichtsanzeige um Dokument angehakt.
+   Sollte eine Warenbewegung durch einen Lieferschein oder eine Rechnung ausgelöst
+   worden sein, wird dies jetzt direkt verlinkt dort angezeigt
  - Projekte wurden um Dateianhänge erweitert, die dort hochgeladenen Dokumente
    stehen beim E-Mail-Versand in allen verknüpften Belegen vorausgewählt zu
    Verfügung
