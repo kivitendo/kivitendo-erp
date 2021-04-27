@@ -870,6 +870,9 @@ sub generate_report {
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
+  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
+
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, qw(warehouse_id bin_id partnumber partstypes_id description chargenumber bestbefore qty_op qty qty_unit partunit l_warehousedescription l_bindescription);
   push @hidden_variables, qw(include_empty_bins subtotal include_invalid_warehouses date);
@@ -892,9 +895,7 @@ sub generate_report {
 
   my $href = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
   $href .= "&maxrows=".$form->{maxrows};
-  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
   my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
-  push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
   %column_defs = (%column_defs, %column_defs_cvars);
 
   map { $column_defs{$_}->{link} = $href . "&page=".$page."&sort=${_}&order=" . Q($_ eq $sort_col ? 1 - $form->{order} : $form->{order}) } @columns;
