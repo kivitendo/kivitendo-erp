@@ -15,8 +15,13 @@
   <table>
     <thead class="listheading">
       <tr>
+       [%- IF SELF.use_duration %]
+        <th>[% 'Date'     | $T8 %]</th>
+        <th>[% 'Duration' | $T8 %] ([% 'in minutes' | $T8 %])</th>
+       [%- ELSE %]
         <th>[% 'Start' | $T8 %]</th>
-        <th>[% 'End' | $T8 %]</th>
+        <th>[% 'End'   | $T8 %]</th>
+       [%- END %]
         <th>[% 'Customer' | $T8 %]</th>
         <th>[% 'Article' | $T8 %]</th>
         <th>[% 'Project' | $T8 %]</th>
@@ -26,6 +31,14 @@
     </thead>
     <tbody valign="top">
       <tr>
+       [%- IF SELF.use_duration %]
+        <td>
+          [% P.date_tag('time_recording.date_as_date', SELF.time_recording.date_as_date, "data-validate"="required", "data-title"=LxERP.t8('Date')) %]<br>
+        </td>
+        <td>
+          [% P.input_tag('time_recording.duration', SELF.time_recording.duration, size=15) %]
+        </td>
+       [%- ELSE %]
         <td>
           [% P.date_tag('start_date',  SELF.start_date, "data-validate"="required", "data-title"=LxERP.t8('Start date'), onchange='kivi.TimeRecording.set_end_date()') %]<br>
           [% P.input_tag('start_time', SELF.start_time, type="time", "data-validate"="required", "data-title"=LxERP.t8('Start time')) %]
@@ -36,6 +49,7 @@
           [% P.input_tag('end_time', SELF.end_time, type="time") %]
           [% P.button_tag('kivi.TimeRecording.set_current_date_time("end")', LxERP.t8('now')) %]
         </td>
+       [%- END %]
         <td>[% P.customer_vendor.picker('time_recording.customer_id', SELF.time_recording.customer_id, type='customer', style='width: 300px', "data-validate"="required", "data-title"=LxERP.t8('Customer')) %]</td>
         <td>[% P.select_tag('time_recording.part_id', SELF.all_time_recording_articles, default=SELF.time_recording.part_id, with_empty=1, value_key='id', title_key='description') %]</td>
         <td>[% P.project.picker('time_recording.project_id', SELF.time_recording.project_id, style='width: 300px') %]</td>

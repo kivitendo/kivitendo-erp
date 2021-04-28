@@ -54,6 +54,7 @@ use SL::DB;
 use SL::GenericTranslations;
 use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::PartPickerSearch;
+use SL::Helper::UserPreferences::TimeRecording;
 use SL::Helper::UserPreferences::UpdatePositions;
 
 use strict;
@@ -546,6 +547,10 @@ sub positions_show_update_button {
   SL::Helper::UserPreferences::UpdatePositions->new()->get_show_update_button();
 }
 
+sub time_recording_use_duration {
+  SL::Helper::UserPreferences::TimeRecording->new()->get_use_duration();
+}
+
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
@@ -582,6 +587,9 @@ sub save_preferences {
   }
   if (exists $form->{positions_show_update_button}) {
     SL::Helper::UserPreferences::UpdatePositions->new()->store_show_update_button($form->{positions_show_update_button})
+  }
+  if (exists $form->{time_recording_use_duration}) {
+    SL::Helper::UserPreferences::TimeRecording->new()->store_use_duration($form->{time_recording_use_duration})
   }
 
   $main::lxdebug->leave_sub();

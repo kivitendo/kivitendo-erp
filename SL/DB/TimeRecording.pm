@@ -33,7 +33,6 @@ sub validate {
 
   my @errors;
 
-  push @errors, t8('Start time must not be empty.')                            if !$self->start_time;
   push @errors, t8('Customer must not be empty.')                              if !$self->customer_id;
   push @errors, t8('Staff member must not be empty.')                          if !$self->staff_member_id;
   push @errors, t8('Employee must not be empty.')                              if !$self->employee_id;
@@ -107,6 +106,10 @@ sub is_time_in_wrong_order {
   }
 
   return;
+}
+
+sub is_duration_used {
+  return !$_[0]->start_time;
 }
 
 sub displayable_times {

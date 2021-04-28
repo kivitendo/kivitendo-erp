@@ -14,13 +14,15 @@ use SL::DB::Employee;
 use SL::DB::Part;
 use SL::DB::TimeRecording;
 use SL::DB::TimeRecordingArticle;
+use SL::Helper::Flash qw(flash);
+use SL::Helper::UserPreferences::TimeRecording;
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 
 use Rose::Object::MakeMethods::Generic
 (
 # scalar                  => [ qw() ],
- 'scalar --get_set_init' => [ qw(time_recording models all_employees all_time_recording_articles can_view_all can_edit_all) ],
+ 'scalar --get_set_init' => [ qw(time_recording models all_employees all_time_recording_articles can_view_all can_edit_all use_duration) ],
 );
 
 
@@ -65,6 +67,12 @@ sub action_edit {
 
   $::request->{layout}->use_javascript("${_}.js") for qw(kivi.TimeRecording ckeditor/ckeditor ckeditor/adapters/jquery kivi.Validator);
 
+  if ($self->use_duration) {
+    flash('warning', t8('This entry is using start and end time. This information will be overwritten on saving.')) if !$self->time_recording->is_duration_used;
+  } else {
+    flash('warning', t8('This entry is using date and duration. This information will be overwritten on saving.'))  if $self->time_recording->is_duration_used;
+  }
+
   if ($self->time_recording->start_time) {
     $self->{start_date} = $self->time_recording->start_time->to_kivitendo;
     $self->{start_time} = $self->time_recording->start_time->to_kivitendo_time;
@@ -83,6 +91,11 @@ sub action_edit {
 
 sub action_save {
   my ($self) = @_;
+
+  if ($self->use_duration) {
+    $self->time_recording->start_date(undef);
+    $self->time_recording->end_date(undef);
+  }
 
   my @errors = $self->time_recording->validate;
   if (@errors) {
@@ -107,25 +120,30 @@ sub action_delete {
 }
 
 sub init_time_recording {
+  my ($self) = @_;
+
   my $is_new         = !$::form->{id};
-  my $time_recording = $is_new ? SL::DB::TimeRecording->new(start_time => DateTime->now_local)
-                               : SL::DB::TimeRecording->new(id => $::form->{id})->load;
+  my $time_recording = !$is_new            ? SL::DB::TimeRecording->new(id => $::form->{id})->load
+                     : $self->use_duration ? SL::DB::TimeRecording->new(date => DateTime->today_local)
+                     :                       SL::DB::TimeRecording->new(start_time => DateTime->now_local);
 
   my %attributes = %{ $::form->{time_recording} || {} };
 
-  foreach my $type (qw(start end)) {
-    if ($::form->{$type . '_date'}) {
-      my $date = DateTime->from_kivitendo($::form->{$type . '_date'});
-      $attributes{$type . '_time'} = $date->clone;
-      if ($::form->{$type . '_time'}) {
-        my ($hour, $min) = split ':', $::form->{$type . '_time'};
-        $attributes{$type . '_time'}->set_hour($hour)  if $hour;
-        $attributes{$type . '_time'}->set_minute($min) if $min;
+  if (!$self->use_duration) {
+    foreach my $type (qw(start end)) {
+      if ($::form->{$type . '_date'}) {
+        my $date = DateTime->from_kivitendo($::form->{$type . '_date'});
+        $attributes{$type . '_time'} = $date->clone;
+        if ($::form->{$type . '_time'}) {
+          my ($hour, $min) = split ':', $::form->{$type . '_time'};
+          $attributes{$type . '_time'}->set_hour($hour)  if $hour;
+          $attributes{$type . '_time'}->set_minute($min) if $min;
+        }
       }
     }
   }
 
-  # do not overwright staff member if you do not have the right
+  # do not overwrite staff member if you do not have the right
   delete $attributes{staff_member_id} if !$_[0]->can_edit_all;
   $attributes{staff_member_id} = SL::DB::Manager::Employee->current->id if $is_new;
 
@@ -176,6 +194,10 @@ sub init_all_time_recording_articles {
   }
 
   return $res;
+}
+
+sub init_use_duration {
+  return SL::Helper::UserPreferences::TimeRecording->new()->get_use_duration();
 }
 
 sub check_auth {
@@ -255,8 +277,8 @@ sub make_filter_summary {
   my $staff_member = $filter->{staff_member_id} ? SL::DB::Employee->new(id => $filter->{staff_member_id})->load->safe_name : '';
 
   my @filters = (
-    [ $filter->{"start_time:date::ge"},                        t8('From Start')      ],
-    [ $filter->{"start_time:date::le"},                        t8('To Start')        ],
+    [ $filter->{"date:date::ge"},                              t8('From Date')      ],
+    [ $filter->{"date:date::le"},                              t8('To Date')        ],
     [ $filter->{"customer"}->{"name:substr::ilike"},           t8('Customer')        ],
     [ $filter->{"customer"}->{"customernumber:substr::ilike"}, t8('Customer Number') ],
     [ $staff_member,                                           t8('Mitarbeiter')     ],
