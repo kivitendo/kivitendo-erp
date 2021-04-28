@@ -16,8 +16,15 @@ __PACKAGE__->make_manager_methods;
 
 sub _sort_spec {
   return ( default => [ 'start_time', 1 ],
-           columns => { SIMPLE    => 'ALL' ,
-                        customer  => [ 'lower(customer.name)', ],
+           nulls   => {
+             date       => 'FIRST',
+             start_time => 'FIRST',
+             end_time   => 'FIRST',
+           },
+           columns => { SIMPLE     => 'ALL' ,
+                        start_time => [ 'date', 'start_time' ],
+                        end_time   => [ 'date', 'end_time' ],
+                        customer   => [ 'lower(customer.name)', 'date','start_time'],
            }
   );
 }

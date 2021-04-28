@@ -119,14 +119,4 @@ sub displayable_times {
   return ($self->start_time_as_timestamp||$ph) . ' - ' . ($self->end_time_as_timestamp||$ph);
 }
 
-sub duration {
-  my ($self) = @_;
-
-  if ($self->start_time && $self->end_time) {
-    return ($self->end_time->subtract_datetime_absolute($self->start_time))->seconds/60.0;
-  } else {
-    return;
-  }
-}
-
 1;

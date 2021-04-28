@@ -11,7 +11,9 @@ __PACKAGE__->meta->table('time_recordings');
 __PACKAGE__->meta->columns(
   booked          => { type => 'boolean', default => 'false' },
   customer_id     => { type => 'integer', not_null => 1 },
+  date            => { type => 'date', not_null => 1 },
   description     => { type => 'text', not_null => 1 },
+  duration        => { type => 'integer' },
   employee_id     => { type => 'integer', not_null => 1 },
   end_time        => { type => 'timestamp' },
   id              => { type => 'serial', not_null => 1 },
@@ -21,7 +23,7 @@ __PACKAGE__->meta->columns(
   payroll         => { type => 'boolean', default => 'false' },
   project_id      => { type => 'integer' },
   staff_member_id => { type => 'integer', not_null => 1 },
-  start_time      => { type => 'timestamp', not_null => 1 },
+  start_time      => { type => 'timestamp' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

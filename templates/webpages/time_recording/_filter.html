@@ -11,12 +11,12 @@
 <a href='#' onClick='javascript:$(".filter_toggle").toggle()'>[% 'Hide Filter' | $T8 %]</a>
  <table id='filter_table'>
   <tr>
-   <th align="right">[% 'Start' | $T8 %] [% 'From Date' | $T8 %]</th>
-   <td>[% L.date_tag('filter.start_time:date::ge', filter.start_time_date__ge) %]</td>
+   <th align="right">[% 'Date' | $T8 %] [% 'From Date' | $T8 %]</th>
+   <td>[% L.date_tag('filter.date:date::ge', filter.date_date__ge) %]</td>
   </tr>
   <tr>
-   <th align="right">[% 'Start' | $T8 %] [% 'To Date' | $T8 %]</th>
-   <td>[% L.date_tag('filter.start_time:date::le', filter.start_time_date__le) %]</td>
+   <th align="right">[% 'Date' | $T8 %] [% 'To Date' | $T8 %]</th>
+   <td>[% L.date_tag('filter.date:date::le', filter.date_date__le) %]</td>
   </tr>
   <tr>
     <th align="right">[% 'Customer' | $T8 %]</th>

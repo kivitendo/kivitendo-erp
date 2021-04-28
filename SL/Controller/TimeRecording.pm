@@ -29,6 +29,7 @@ __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('check_auth_edit', only => [ qw(edit save delete) ]);
 
 my %sort_columns = (
+  date         => t8('Date'),
   start_time   => t8('Start'),
   end_time     => t8('End'),
   customer     => t8('Customer'),
@@ -48,8 +49,8 @@ sub action_list {
   my ($self, %params) = @_;
 
   $::form->{filter} //=  {
-    staff_member_id       => SL::DB::Manager::Employee->current->id,
-    "start_time:date::ge" => DateTime->now_local->add(weeks => -2)->to_kivitendo,
+    staff_member_id => SL::DB::Manager::Employee->current->id,
+    "date:date::ge" => DateTime->today_local->add(weeks => -2)->to_kivitendo,
   };
 
   $self->setup_list_action_bar;
@@ -195,9 +196,11 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns  = qw(start_time end_time customer part project description staff_member duration booked);
+  my @columns  = qw(date start_time end_time customer part project description staff_member duration booked);
 
   my %column_defs = (
+    date         => { text => t8('Date'),         sub => sub { $_[0]->date_as_date },
+                      obj_link => sub { $self->url_for(action => 'edit', 'id' => $_[0]->id, callback => $self->models->get_callback) }  },
     start_time   => { text => t8('Start'),        sub => sub { $_[0]->start_time_as_timestamp },
                       obj_link => sub { $self->url_for(action => 'edit', 'id' => $_[0]->id, callback => $self->models->get_callback) }  },
     end_time     => { text => t8('End'),          sub => sub { $_[0]->end_time_as_timestamp },
