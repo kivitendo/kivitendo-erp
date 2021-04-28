@@ -2065,6 +2065,7 @@ sub oe_prepare_xyz_from_order {
 
   my $order = SL::DB::Order->new(id => $::form->{id})->load;
   $order->flatten_to_form($::form, format_amounts => 1);
+  $::form->{taxincluded_changed_by_user} = 1;
 
   # hack: add partsgroup for first row if it does not exists,
   # because _remove_billed_or_delivered_rows and _remove_full_delivered_rows
