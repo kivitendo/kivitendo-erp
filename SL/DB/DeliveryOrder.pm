@@ -213,7 +213,7 @@ sub new_from_time_recordings {
       die 'article unit must be time based for entry "' . $source->displayable_times . '"' if !$part_by_part_id{$part_id}->unit_obj->is_time_based;
     }
 
-    my $date = $source->start_time->to_kivitendo;
+    my $date = $source->date->to_kivitendo;
     $entries->{$part_id}->{$date}->{duration} += $params{rounding}
                                                ? nhimult(0.25, ($source->duration_in_hours))
                                                : _round_total($source->duration_in_hours);
@@ -223,7 +223,7 @@ sub new_from_time_recordings {
     $entries->{$part_id}->{$date}->{content}  .= '<li>' . $new_description . '</li>'
       unless $entries->{$part_id}->{$date}->{content} =~ m/\Q$new_description/;
 
-    $entries->{$part_id}->{$date}->{date_obj}  = $source->start_time; # for sorting
+    $entries->{$part_id}->{$date}->{date_obj}  = $source->start_time || $source->date; # for sorting
   }
 
   my @items;
