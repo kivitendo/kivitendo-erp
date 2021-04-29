@@ -22,6 +22,7 @@
         <th>[% 'Start' | $T8 %]</th>
         <th>[% 'End'   | $T8 %]</th>
        [%- END %]
+        <th>[% 'Sales Order' | $T8 %]</th>
         <th>[% 'Customer' | $T8 %]</th>
         <th>[% 'Article' | $T8 %]</th>
         <th>[% 'Project' | $T8 %]</th>
@@ -50,6 +51,7 @@
           [% P.button_tag('kivi.TimeRecording.set_current_date_time("end")', LxERP.t8('now')) %]
         </td>
        [%- END %]
+        <td>[% P.select_tag('time_recording.order_id', SELF.all_orders, default=SELF.time_recording.order_id, title_key='digest', with_empty=1, onchange='kivi.TimeRecording.order_changed(this.value)') %]</td>
         <td>[% P.customer_vendor.picker('time_recording.customer_id', SELF.time_recording.customer_id, type='customer', style='width: 300px', "data-validate"="required", "data-title"=LxERP.t8('Customer')) %]</td>
         <td>[% P.select_tag('time_recording.part_id', SELF.all_time_recording_articles, default=SELF.time_recording.part_id, with_empty=1, value_key='id', title_key='description') %]</td>
         <td>[% P.project.picker('time_recording.project_id', SELF.time_recording.project_id, style='width: 300px') %]</td>

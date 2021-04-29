@@ -11,6 +11,7 @@ use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::DB::Customer;
 use SL::DB::Employee;
+use SL::DB::Order;
 use SL::DB::Part;
 use SL::DB::TimeRecording;
 use SL::DB::TimeRecordingArticle;
@@ -22,7 +23,7 @@ use SL::ReportGenerator;
 use Rose::Object::MakeMethods::Generic
 (
 # scalar                  => [ qw() ],
- 'scalar --get_set_init' => [ qw(time_recording models all_employees all_time_recording_articles can_view_all can_edit_all use_duration) ],
+ 'scalar --get_set_init' => [ qw(time_recording models all_employees all_time_recording_articles all_orders can_view_all can_edit_all use_duration) ],
 );
 
 
@@ -119,6 +120,21 @@ sub action_delete {
   $self->redirect_to(safe_callback());
 }
 
+sub action_ajaj_get_order_info {
+
+  my $order = SL::DB::Order->new(id => $::form->{id})->load;
+  my $data  = { customer => { id    => $order->customer_id,
+                              value => $order->customer->displayable_name,
+                              type  => 'customer'
+                },
+                project => { id     =>  $order->globalproject_id,
+                             value  => ($order->globalproject_id ? $order->globalproject->displayable_name : undef),
+                },
+  };
+
+  $_[0]->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
+}
+
 sub init_time_recording {
   my ($self) = @_;
 
@@ -194,6 +210,11 @@ sub init_all_time_recording_articles {
   }
 
   return $res;
+}
+
+sub init_all_orders {
+  SL::DB::Manager::Order->get_all_sorted(query => [or             => [ closed => 0, closed => undef ],
+                                                   '!customer_id' => undef]);
 }
 
 sub init_use_duration {
