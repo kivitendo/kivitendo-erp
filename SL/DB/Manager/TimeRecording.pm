@@ -25,6 +25,7 @@ sub _sort_spec {
                         start_time => [ 'date', 'start_time' ],
                         end_time   => [ 'date', 'end_time' ],
                         customer   => [ 'lower(customer.name)', 'date','start_time'],
+                        order      => [ 'order.ordnumber', 'date','start_time'],
            }
   );
 }

@@ -35,6 +35,7 @@ my %sort_columns = (
   date         => t8('Date'),
   start_time   => t8('Start'),
   end_time     => t8('End'),
+  order        => t8('Sales Order'),
   customer     => t8('Customer'),
   part         => t8('Article'),
   project      => t8('Project'),
@@ -189,7 +190,7 @@ sub init_models {
     sorted         => \%sort_columns,
     disable_plugin => 'paginated',
     query          => \@where,
-    with_objects   => [ 'customer', 'part', 'project', 'staff_member', 'employee' ],
+    with_objects   => [ 'customer', 'part', 'project', 'staff_member', 'employee', 'order' ],
   );
 }
 
@@ -239,7 +240,7 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns  = qw(date start_time end_time customer part project description staff_member duration booked);
+  my @columns  = qw(date start_time end_time order customer part project description staff_member duration booked);
 
   my %column_defs = (
     date         => { text => t8('Date'),         sub => sub { $_[0]->date_as_date },
@@ -248,6 +249,7 @@ sub prepare_report {
                       obj_link => sub { $self->url_for(action => 'edit', 'id' => $_[0]->id, callback => $self->models->get_callback) }  },
     end_time     => { text => t8('End'),          sub => sub { $_[0]->end_time_as_timestamp },
                       obj_link => sub { $self->url_for(action => 'edit', 'id' => $_[0]->id, callback => $self->models->get_callback) }  },
+    order        => { text => t8('Sales Order'),  sub => sub { $_[0]->order && $_[0]->order->number } },
     customer     => { text => t8('Customer'),     sub => sub { $_[0]->customer->displayable_name } },
     part         => { text => t8('Article'),      sub => sub { $_[0]->part && $_[0]->part->displayable_name } },
     project      => { text => t8('Project'),      sub => sub { $_[0]->project && $_[0]->project->displayable_name } },
