@@ -63,6 +63,7 @@ namespace("kivi").setupLocale({
 "File upload":"",
 "Function block actions":"",
 "Generate and print sales delivery orders":"",
+"Get one shoporder":"",
 "Hide all details":"",
 "Hide details":"",
 "History":"",
