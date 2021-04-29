@@ -52,7 +52,7 @@ sub action_get_orders {
         $new_orders = $shop->connector->get_one_order($shop_ordernumber);
         push @{ $orders_fetched }, $new_orders ;
       } else {
-        flash_later('error', t8('From shop "#1" :  Number: #2 #3 ', $shop->config->description, $shop_ordernumber, t8('Shoporder with this ordernumber is already fetched')));
+        flash_later('error', t8('Shoporder "#2" From Shop "#1" is already fetched', $shop->config->description, $shop_ordernumber));
       }
     } else {
         flash_later('error', t8('Shop or ordernumber not selected.'));

@@ -63,6 +63,7 @@ namespace("kivi").setupLocale({
 "File upload":"Datei Upload",
 "Function block actions":"Funktionsblockaktionen",
 "Generate and print sales delivery orders":"Erzeuge und drucke Lieferscheine",
+"Get one shoporder":"Hole eine Bestellung",
 "Hide all details":"Alle Details verbergen",
 "Hide details":"Details verbergen",
 "History":"Historie",
