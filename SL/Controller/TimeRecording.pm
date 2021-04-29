@@ -240,7 +240,7 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns  = qw(date start_time end_time order customer part project description staff_member duration booked);
+  my @columns  = qw(date start_time end_time order customer project part description staff_member duration booked);
 
   my %column_defs = (
     date         => { text => t8('Date'),         sub => sub { $_[0]->date_as_date },
