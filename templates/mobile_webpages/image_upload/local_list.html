@@ -1,0 +1,47 @@
+[%- USE LxERP -%] [%- USE L %]
+[%- USE HTML %]
+[%- USE P %]
+[%- USE T8 %]
+
+<h4>[% source.title | html %]</h4>
+
+  <div id="updoad_result"></div>
+
+  <div id="stored-images" class="container">
+  </div>
+
+
+  <div class="container">
+    <div class="row">
+
+      <div class="file-field input-field col">
+        <div class="btn m3 s12">
+          <span>[% 'Upload Image' | $T8 %]</span>
+          <input
+            name="uploadfiles[]" type="file" [% IF multiple %]multiple[% END %]
+            id="upload_files" accept="[% SELF.accept_types %]" capture="camera"
+            onchange="kivi.ImageUpload.add_files(this)">
+        </div>
+        <div class="file-path-wrapper m9 s12">
+          <input class="file-path validate" type="hidden">
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row">
+      [% P.M.input_tag("object_number", "", label=LxERP.t8("Number")) %]
+      [% P.M.button_tag("submit", LxERP.t8("Upload")) %]
+    </div>
+
+
+    </div>
+  </div>
+
+<div id="upload_modal" class="modal">
+  <div class="modal-content">
+    <h4>Uploading</h4>
+
+    <p>A bunch of text</p>
+  </div>
+</div>

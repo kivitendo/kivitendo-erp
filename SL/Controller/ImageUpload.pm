@@ -28,8 +28,10 @@ sub action_upload_image {
   my ($self) = @_;
 
   $::request->layout->add_javascripts('kivi.File.js');
+  $::request->layout->add_javascripts('kivi.FileDB.js');
+  $::request->layout->add_javascripts('kivi.ImageUpload.js');
 
-  $self->render('image_upload/form');
+  $self->render('image_upload/local_list');
 }
 
 ################# internal ###############

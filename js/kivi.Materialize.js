@@ -3,9 +3,9 @@ namespace("kivi.Materialize", function(ns) {
 
   ns.init = function() {
     ns.reinit_widgets();
-  }
+  };
 
-  ns.build_i18n = function(locale) {
+  ns.build_i18n = function() {
     return {
       months: [
         kivi.t8('January'),
@@ -63,8 +63,8 @@ namespace("kivi.Materialize", function(ns) {
       // Accessibility labels
       labelMonthNext: kivi.t8('Next month'),
       labelMonthPrev: kivi.t8('Previous month')
-    }
-  }
+    };
+  };
 
   ns.reinit_widgets = function() {
     $('.sidenav').sidenav();
@@ -76,15 +76,15 @@ namespace("kivi.Materialize", function(ns) {
       i18n: ns.build_i18n()
     });
     $('.modal').modal();
+    $('.materialboxed').materialbox();
     M.updateTextFields();
-  }
+  };
 
   // alternative for kivi.popup_dialog.
   // opens materialize modal instead.
   //
   // differences: M.modal can not load external content, so it needs to be fetched manually and inserted into the DOM.
   ns.popup_dialog = function(params) {
-    console.log(params);
     params            = params        || { };
     let id            = params.id     || 'jqueryui_popup_dialog';
     let $div;
@@ -94,7 +94,7 @@ namespace("kivi.Materialize", function(ns) {
         // unlike classic layout, there is not fixed size, and M.modal is always... modal
         onCloseStart: custom_close
       },
-        // User supplied options:
+      // User supplied options:
       params.dialog || { },
       { // Options that must not be changed:
         // close options already work
@@ -110,7 +110,7 @@ namespace("kivi.Materialize", function(ns) {
           params.data = undefined;
           ns.popup_dialog(params);
         },
-        error: function(x, status, error) { console.log(error); },
+        error: function(x, status, error) { console.error(error); },
         dataType: 'text',
       });
       return 1;
@@ -118,7 +118,7 @@ namespace("kivi.Materialize", function(ns) {
 
     if (params.html) {
       $div = $('<div>');
-      $div.attr('id', id)
+      $div.attr('id', id);
       $div.addClass("modal");
       let $modal_content = $('<div>');
       $modal_content.addClass('modal-content');
@@ -126,10 +126,9 @@ namespace("kivi.Materialize", function(ns) {
       $div.append($modal_content);
       $('body').append($div);
       kivi.reinit_widgets();
-      dialog_params.onCloseEnd = function() { $div.remove(); }
+      dialog_params.onCloseEnd = function() { $div.remove(); };
 
       $div.modal(dialog_params);
-
     } else if(params.id) {
       $div = $('#' + params.id);
     } else {
@@ -140,6 +139,34 @@ namespace("kivi.Materialize", function(ns) {
     $div.modal('open');
 
     return true;
+  };
 
-  }
+  /**
+   * upload file to local storage for later sync
+   *
+   * should be used with P.M.file_upload(..., local=>1)
+   */
+  ns.LocalFileUpload = function(options) {
+    this.storage_token = options.storage_token; // used in localstorage to retrieve the file
+    this.dom_selector  = options.dom_selector;  // file inputs to listen on
+
+    this.init();
+  };
+
+  ns.LocalFileUpload.prototype = {
+    init: function() {
+      $(this.dom_selector).change(this.handle_file_upload);
+    },
+    handle_file_upload: function() {
+
+    },
+    load_files: function() {
+      return JSON.parse(localStorage.getImte(this.storage_token));
+    },
+    save_files: function() {
+      return JSON.parse(localStorage.getImte(this.storage_token));
+    },
+
+  };
+
 });
