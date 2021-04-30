@@ -95,8 +95,8 @@ sub action_save {
   my ($self) = @_;
 
   if ($self->use_duration) {
-    $self->time_recording->start_date(undef);
-    $self->time_recording->end_date(undef);
+    $self->time_recording->start_time(undef);
+    $self->time_recording->end_time(undef);
   }
 
   my @errors = $self->time_recording->validate;
