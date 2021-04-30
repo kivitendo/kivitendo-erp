@@ -8,6 +8,7 @@ use SL::DB::DeliveryOrder;
 use SL::DB::Part;
 use SL::DB::Project;
 use SL::DB::TimeRecording;
+use SL::Helper::ShippedQty;
 use SL::Locale::String qw(t8);
 
 use DateTime;
@@ -210,7 +211,8 @@ sub convert_with_linking {
           }
         }
 
-        # Todo: reduce qty on related order
+        my $helper = SL::Helper::ShippedQty->new->calculate($related_order)->write_to_objects;
+        $related_order->update_attributes(delivered => $related_order->{delivered});
 
         1;
       })) {
