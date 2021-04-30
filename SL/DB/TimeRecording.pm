@@ -115,11 +115,19 @@ sub is_duration_used {
 sub displayable_times {
   my ($self) = @_;
 
-  # placeholder
-  my $ph = $::locale->format_date_object(DateTime->new(year => 1111, month => 11, day => 11, hour => 11, minute => 11), precision => 'minute');
-  $ph =~ s{1}{-}g;
+  my $text;
 
-  return ($self->start_time_as_timestamp||$ph) . ' - ' . ($self->end_time_as_timestamp||$ph);
+  if ($self->is_duration_used) {
+    $text = $self->date_as_date . ': ' . ($self->duration_as_duration_string || '--:--');
+
+  } else {
+    # placeholder
+    my $ph =  $::locale->format_date_object(DateTime->new(year => 1111, month => 11, day => 11, hour => 11, minute => 11), precision => 'minute');
+    $ph    =~ s{1}{-}g;
+    $text  =  ($self->start_time_as_timestamp||$ph) . ' - ' . ($self->end_time_as_timestamp||$ph);
+  }
+
+  return $text;
 }
 
 1;
