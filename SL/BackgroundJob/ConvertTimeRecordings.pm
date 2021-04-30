@@ -360,8 +360,6 @@ An array with the customer numbers for which time recordings should
 be collected. If not given, time recordings for customers are
 collected. This is the default.
 
-Example (format depends on your settings):
-
 customernumbers: [c1,22332,334343]
 
 =item C<part_id>
