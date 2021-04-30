@@ -10,7 +10,6 @@ use SL::DB::Project;
 use SL::DB::TimeRecording;
 use SL::Locale::String qw(t8);
 
-use Carp;
 use DateTime;
 use List::Util qw(any);
 use Try::Tiny;
