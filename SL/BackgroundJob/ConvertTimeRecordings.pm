@@ -76,8 +76,8 @@ sub run {
   my %customer_where;
   %customer_where = ('customer.customernumber' => $self->data->{customernumbers}) if 'ARRAY' eq ref $self->data->{customernumbers};
 
-  my $time_recordings = SL::DB::Manager::TimeRecording->get_all(where        => [end_time => { ge_lt => [ $from_date, $to_date ]},
-                                                                                 or => [booked => 0, booked => undef],
+  my $time_recordings = SL::DB::Manager::TimeRecording->get_all(where        => [date => { ge_lt => [ $from_date, $to_date ]},
+                                                                                 or   => [booked => 0, booked => undef],
                                                                                  %customer_where],
                                                                 with_objects => ['customer']);
 
