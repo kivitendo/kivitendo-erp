@@ -79,6 +79,8 @@ sub run {
 
   my $time_recordings = SL::DB::Manager::TimeRecording->get_all(where        => [date => { ge_lt => [ $from_date, $to_date ]},
                                                                                  or   => [booked => 0, booked => undef],
+                                                                                 '!duration' => 0,
+                                                                                 '!duration' => undef,
                                                                                  %customer_where],
                                                                 with_objects => ['customer']);
 

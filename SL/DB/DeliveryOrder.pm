@@ -202,6 +202,8 @@ sub new_from_time_recordings {
   my %part_by_part_id;
   my $entries;
   foreach my $source (@$sources) {
+    next if !$source->duration;
+
     my $part_id  = $source->part_id ? $source->part_id
                  : $default_part_id ? $default_part_id
                  : undef;
