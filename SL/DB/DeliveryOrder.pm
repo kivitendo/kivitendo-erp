@@ -20,7 +20,7 @@ use SL::DB::Unit;
 use SL::Helper::Number qw(_format_total _round_total);
 
 use List::Util qw(first);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any pairwise);
 use Math::Round qw(nhimult);
 
 __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many',
@@ -264,17 +264,20 @@ sub new_from_time_recordings {
   if ($params{related_order}) {
     # collect suitable items in related order
     my @items_to_use;
+    my @new_attributes;
     foreach my $item (@items) {
       my $item_to_use = first {$item->parts_id == $_->parts_id} @{ $params{related_order}->items_sorted };
 
       die "no suitable item found in related order" if !$item_to_use;
 
       my %new_attributes;
-      $new_attributes{$_} = $item->$_ for qw(qty unit_obj longdescription);
-      $item_to_use->assign_attributes(%new_attributes);
-      push @items_to_use, $item_to_use;
+      $new_attributes{$_} = $item->$_ for qw(qty base_qty unit_obj longdescription);
+      push @items_to_use,   $item_to_use;
+      push @new_attributes, \%new_attributes;
     }
-    $delivery_order = SL::DB::DeliveryOrder->new_from($params{related_order}, items => \@items_to_use, %params);
+
+    $delivery_order = $class->new_from($params{related_order}, items => \@items_to_use, %params);
+    pairwise { $a->assign_attributes( %$b) } @{$delivery_order->items}, @new_attributes;
 
   } else {
     my %args = (

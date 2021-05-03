@@ -211,8 +211,11 @@ sub convert_with_linking {
           }
         }
 
+        # update delivered and item's ship for related order
         my $helper = SL::Helper::ShippedQty->new->calculate($related_order)->write_to_objects;
-        $related_order->update_attributes(delivered => $related_order->{delivered});
+        $related_order->delivered($related_order->{delivered});
+        $_->ship($_->{shipped_qty}) for @{$related_order->items};
+        $related_order->save(cascade => 1);
 
         1;
       })) {
@@ -287,9 +290,10 @@ sub get_order_for_time_recording {
     return;
   }
 
-  my $orders = SL::DB::Manager::Order->get_all(where => [customer_id      => $tr->customer_id,
-                                                         or               => [quotation => undef, quotation => 0],
-                                                         globalproject_id => $project_id, ]);
+  my $orders = SL::DB::Manager::Order->get_all(where        => [customer_id      => $tr->customer_id,
+                                                                or               => [quotation => undef, quotation => 0],
+                                                                globalproject_id => $project_id, ],
+                                               with_objects => ['orderitems']);
   my @matching_orders;
   foreach my $order (@$orders) {
     if (any { $_->parts_id == $part_id } @{ $order->items_sorted }) {
