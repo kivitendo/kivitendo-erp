@@ -1,4 +1,4 @@
-use Test::More tests => 18;
+use Test::More tests => 20;
 
 use strict;
 
@@ -11,6 +11,7 @@ use DateTime;
 use Rose::DB::Object::Helpers qw(forget_related);
 
 use SL::DB::BackgroundJob;
+use SL::DB::DeliveryOrder;
 
 use_ok 'SL::BackgroundJob::ConvertTimeRecordings';
 
@@ -214,6 +215,46 @@ $sales_order->load;
 
 ok($sales_order->delivered, 'different units 2: related order is delivered');
 is($sales_order->items->[0]->ship*1, 2, 'different units 2: ship in related order');
+
+clear_up();
+
+
+########################################
+# two time recordings, one with start/end one with date/duration
+########################################
+$part     = new_service(partnumber => 'Serv1', unit => 'min')->save;
+$customer = new_customer()->save;
+
+@time_recordings = ();
+push @time_recordings, new_time_recording(
+  start_time => DateTime->new(year => 2021, month =>  4, day => 19, hour => 10, minute => 10),
+  end_time   => DateTime->new(year => 2021, month =>  4, day => 19, hour => 11, minute => 10),
+  customer   => $customer,
+  part       => $part,
+)->save;
+
+push @time_recordings, new_time_recording(
+  date       => DateTime->new(year => 2021, month =>  4, day => 19),
+  duration   => 120,
+  start_time => undef,
+  end_time   => undef,
+  customer   => $customer,
+  part       => $part,
+)->save;
+
+%data = (
+  link_project => 0,
+  from_date    => '01.04.2021',
+  to_date      => '30.04.2021',
+);
+$db_obj = SL::DB::BackgroundJob->new();
+$db_obj->set_data(%data);
+$job    = SL::BackgroundJob::ConvertTimeRecordings->new;
+$ret    = $job->run($db_obj);
+
+my $dos = SL::DB::Manager::DeliveryOrder->get_all(where => [customer_id => $customer->id]);
+is($dos->[0]->items->[0]->qty*1, 180/60, 'date/duration and start/end: qty in delivery order');
+is($dos->[0]->items->[0]->base_qty*1, 180, 'date/duration and start/end2: base_qty in delivery order');
 
 clear_up();
 
