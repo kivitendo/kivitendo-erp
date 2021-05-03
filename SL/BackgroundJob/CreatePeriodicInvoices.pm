@@ -178,6 +178,8 @@ sub _replace_vars {
 sub _adjust_sellprices_for_period_lengths {
   my (%params) = @_;
 
+  return if $params{config}->periodicity eq 'o';
+
   my $billing_len     = $params{config}->get_billing_period_length;
   my $order_value_len = $params{config}->get_order_value_period_length;
 
