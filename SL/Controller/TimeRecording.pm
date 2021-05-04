@@ -13,6 +13,7 @@ use SL::DB::Customer;
 use SL::DB::Employee;
 use SL::DB::Order;
 use SL::DB::Part;
+use SL::DB::Project;
 use SL::DB::TimeRecording;
 use SL::DB::TimeRecordingArticle;
 use SL::Helper::Flash qw(flash);
@@ -133,6 +134,22 @@ sub action_ajaj_get_order_info {
                              value  => ($order->globalproject_id ? $order->globalproject->displayable_name : undef),
                 },
   };
+
+  $_[0]->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
+}
+
+sub action_ajaj_get_project_info {
+
+  my $project = SL::DB::Project->new(id => $::form->{id})->load;
+
+  my $data;
+  if ($project->customer_id) {
+    $data = { customer => { id    => $project->customer_id,
+                            value => $project->customer->displayable_name,
+                            type  => 'customer'
+                          },
+    };
+  }
 
   $_[0]->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }

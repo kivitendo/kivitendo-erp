@@ -25,7 +25,7 @@ namespace('kivi.TimeRecording', function(ns) {
       $('#time_recording_customer_id_name').prop('disabled', false);
       $('#time_recording_project_id').data('project_picker').set_item({});
       $('#time_recording_project_id_name').prop('disabled', false);
-        return;
+      return;
     }
 
     var url = 'controller.pl?action=TimeRecording/ajaj_get_order_info&id='+ value;
@@ -34,6 +34,25 @@ namespace('kivi.TimeRecording', function(ns) {
       $('#time_recording_customer_id_name').prop('disabled', true);
       $('#time_recording_project_id').data('project_picker').set_item(data.project);
       $('#time_recording_project_id_name').prop('disabled', true);
+    });
+  };
+
+  ns.project_changed = function() {
+    var project_id = $('#time_recording_project_id').val();
+
+    if (!project_id) {
+      $('#time_recording_customer_id_name').prop('disabled', false);
+      return;
+    }
+
+    var url = 'controller.pl?action=TimeRecording/ajaj_get_project_info&id='+ project_id;
+    $.getJSON(url, function(data) {
+      if (data) {
+        $('#time_recording_customer_id').data('customer_vendor_picker').set_item(data.customer);
+        $('#time_recording_customer_id_name').prop('disabled', true);
+      } else {
+        $('#time_recording_customer_id_name').prop('disabled', false);
+      }
     });
   };
 
