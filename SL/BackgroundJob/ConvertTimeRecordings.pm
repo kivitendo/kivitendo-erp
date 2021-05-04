@@ -20,7 +20,7 @@ sub create_job {
 }
 use Rose::Object::MakeMethods::Generic (
  'scalar'                => [ qw(data) ],
- 'scalar --get_set_init' => [ qw(rounding link_project) ],
+ 'scalar --get_set_init' => [ qw(rounding link_order) ],
 );
 
 # valid parameters -> better as class members with rose generic set/get
@@ -30,7 +30,7 @@ my %valid_params = (
               customernumbers => '',
               part_id => '',
               rounding => 1,
-              link_project => 0,
+              link_order => 0,
               project_id => '',
              );
 
@@ -56,7 +56,7 @@ sub run {
   # TODO check user input param values - (defaults are assigned later)
   # 1- If there are any customer numbers check if they refer to valid customers
   #    otherwise croak and do nothing
-  # 2 .. n Same applies for other params if used at all (rounding -> 0|1  link_project -> 0|1)
+  # 2 .. n Same applies for other params if used at all (rounding -> 0|1  link_order -> 0|1)
 
   # from/to date from data. Defaults to begining and end of last month.
   # TODO get/set see above
@@ -89,7 +89,7 @@ sub run {
 
   my @donumbers;
 
-  if ($self->data->{link_project}) {
+  if ($self->data->{link_order}) {
     my %time_recordings_by_order_id;
     my %orders_by_order_id;
     foreach my $tr (@$time_recordings) {
@@ -126,7 +126,7 @@ sub init_rounding {
   1
 }
 
-sub init_link_project {
+sub init_link_order {
   0
 }
 
@@ -137,7 +137,7 @@ sub convert_without_linking {
   my %time_recordings_by_customer_id;
   push @{ $time_recordings_by_customer_id{$_->customer_id} }, $_ for @$time_recordings;
 
-  my %convert_params = map { $_ => $self->data->{$_} } qw(rounding link_project project_id);
+  my %convert_params = map { $_ => $self->data->{$_} } qw(rounding link_order project_id);
   $convert_params{default_part_id} = $self->data->{part_id};
 
   my @donumbers;
@@ -174,7 +174,7 @@ sub convert_without_linking {
 sub convert_with_linking {
   my ($self, $time_recordings_by_order_id, $orders_by_order_id) = @_;
 
-  my %convert_params = map { $_ => $self->data->{$_} } qw(rounding link_project project_id);
+  my %convert_params = map { $_ => $self->data->{$_} } qw(rounding link_order project_id);
   $convert_params{default_part_id} = $self->data->{part_id};
 
   my @donumbers;
@@ -236,36 +236,57 @@ sub convert_with_linking {
 sub get_order_for_time_recording {
   my ($self, $tr) = @_;
 
-  # check project
-  my $project_id;
-  #$project_id   = $self->overide_project_id;
-  $project_id   = $self->data->{project_id};
-  $project_id ||= $tr->project_id;
-  #$project_id ||= $self->default_project_id;
+  my $orders;
 
-  if (!$project_id) {
-    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : no project id';
-    $::lxdebug->message(LXDebug->WARN(), $err_msg);
-    push @{ $self->{job_errors} }, $err_msg;
-    return;
+  if (!$tr->order_id) {
+    # check project
+    my $project_id;
+    #$project_id   = $self->overide_project_id;
+    $project_id   = $self->data->{project_id};
+    $project_id ||= $tr->project_id;
+    #$project_id ||= $self->default_project_id;
+
+    if (!$project_id) {
+      my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : no project id';
+      $::lxdebug->message(LXDebug->WARN(), $err_msg);
+      push @{ $self->{job_errors} }, $err_msg;
+      return;
+    }
+
+    my $project = SL::DB::Project->load_cached($project_id);
+
+    if (!$project) {
+      my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project not found';
+      $::lxdebug->message(LXDebug->WARN(), $err_msg);
+      push @{ $self->{job_errors} }, $err_msg;
+      return;
+    }
+    if (!$project->active || !$project->valid) {
+      my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project not active or not valid';
+      $::lxdebug->message(LXDebug->WARN(), $err_msg);
+      push @{ $self->{job_errors} }, $err_msg;
+      return;
+    }
+    if ($project->customer_id && $project->customer_id != $tr->customer_id) {
+      my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project customer does not match customer of time recording';
+      $::lxdebug->message(LXDebug->WARN(), $err_msg);
+      push @{ $self->{job_errors} }, $err_msg;
+      return;
+    }
+
+    $orders = SL::DB::Manager::Order->get_all(where        => [customer_id      => $tr->customer_id,
+                                                               or               => [quotation => undef, quotation => 0],
+                                                               globalproject_id => $project_id, ],
+                                              with_objects => ['orderitems']);
+
+  } else {
+    # order_id given
+    my $order = SL::DB::Manager::Order->find_by(id => $tr->order_id);
+    push @$orders, $order if $order;
   }
 
-  my $project = SL::DB::Project->load_cached($project_id);
-
-  if (!$project) {
-    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project not found';
-    $::lxdebug->message(LXDebug->WARN(), $err_msg);
-    push @{ $self->{job_errors} }, $err_msg;
-    return;
-  }
-  if (!$project->active || !$project->valid) {
-    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project not active or not valid';
-    $::lxdebug->message(LXDebug->WARN(), $err_msg);
-    push @{ $self->{job_errors} }, $err_msg;
-    return;
-  }
-  if ($project->customer_id && $project->customer_id != $tr->customer_id) {
-    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project customer does not match customer of time recording';
+  if (!scalar @$orders) {
+    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : no order found';
     $::lxdebug->message(LXDebug->WARN(), $err_msg);
     push @{ $self->{job_errors} }, $err_msg;
     return;
@@ -292,10 +313,6 @@ sub get_order_for_time_recording {
     return;
   }
 
-  my $orders = SL::DB::Manager::Order->get_all(where        => [customer_id      => $tr->customer_id,
-                                                                or               => [quotation => undef, quotation => 0],
-                                                                globalproject_id => $project_id, ],
-                                               with_objects => ['orderitems']);
   my @matching_orders;
   foreach my $order (@$orders) {
     if (any { $_->parts_id == $part_id } @{ $order->items_sorted }) {
@@ -310,7 +327,30 @@ sub get_order_for_time_recording {
     return;
   }
 
-  return $matching_orders[0];
+  my $matching_order = $matching_orders[0];
+
+  if (!$matching_order->is_sales) {
+    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : found order is not a sales order';
+    $::lxdebug->message(LXDebug->WARN(), $err_msg);
+    push @{ $self->{job_errors} }, $err_msg;
+    return;
+  }
+
+  if ($matching_order->customer_id != $tr->customer_id) {
+    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : customer of order does not match customer of time recording';
+    $::lxdebug->message(LXDebug->WARN(), $err_msg);
+    push @{ $self->{job_errors} }, $err_msg;
+    return;
+  }
+
+  if ($tr->project_id && $tr->project_id != ($matching_order->globalproject_id || 0)) {
+    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project of order does not match project of time recording';
+    $::lxdebug->message(LXDebug->WARN(), $err_msg);
+    push @{ $self->{job_errors} }, $err_msg;
+    return;
+  }
+
+  return $matching_order;
 }
 
 1;
@@ -382,21 +422,24 @@ the times will be rounded up to th full quarters of an hour,
 ie. 0.25h 0.5h 0.75h 1.25h ...
 Defaults to rounding true (1).
 
-=item C<link_project>
+=item C<link_order>
 
-If set the job tries to find a previous Order with the current
-customer and project number and tries to do as much automatic
-workflow processing as the UI.
+If set the job links the created delivery order with with the order
+given in the time recording entry. If there is no order given, then
+it tries to find an order with with the current customer and project
+number and tries to do as much automatic workflow processing as the
+UI.
 Defaults to off. If set to true (1) the job will fail if there
-is no Sales Orders which qualifies as a predecessor.
+is no sales order which qualifies as a predecessor.
 Conditions for a predeccesor:
 
+ * Order given in time recording entry OR
  * Global project_id must match time_recording.project_id OR data.project_id
- * Customer name must match time_recording.customer_id OR data.customernumbers
+ * Customer must match customer in time recording entry
  * The sales order must have at least one or more time related services
  * The Project needs to be valid and active
 
-The job doesn't care if the Sales Order is already delivered or closed.
+The job doesn't care if the sales order is already delivered or closed.
 If the sales order is overdelivered some organisational stuff needs to be done.
 The sales order may also already be closed, ie the amount is fully billed, but
 the services are not yet fully delivered (simple case: 'Payment in advance').
