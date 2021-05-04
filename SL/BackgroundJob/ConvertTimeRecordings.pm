@@ -13,7 +13,6 @@ use SL::Locale::String qw(t8);
 
 use DateTime;
 use List::Util qw(any);
-use Try::Tiny;
 
 sub create_job {
   $_[0]->create_standard_job('7 3 1 * *'); # every first day of month at 03:07
@@ -62,13 +61,8 @@ sub run {
   # TODO get/set see above
   my $from_date;
   my $to_date;
-  # handle errors with a catch handler
-  try {
-    $from_date   = DateTime->from_kivitendo($self->data->{from_date}) if $self->data->{from_date};
-    $to_date     = DateTime->from_kivitendo($self->data->{to_date})   if $self->data->{to_date};
-  } catch {
-    die "Cannot convert date from string $self->data->{from_date} $self->data->{to_date}\n Details :\n $_"; # not $@
-  };
+  $from_date   = DateTime->from_kivitendo($self->data->{from_date}) if $self->data->{from_date};
+  $to_date     = DateTime->from_kivitendo($self->data->{to_date})   if $self->data->{to_date};
   $from_date ||= DateTime->new( day => 1,    month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1);
   $to_date   ||= DateTime->last_day_of_month(month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1);
 
