@@ -18,20 +18,8 @@ sub create_job {
   $_[0]->create_standard_job('7 3 1 * *'); # every first day of month at 03:07
 }
 use Rose::Object::MakeMethods::Generic (
- 'scalar'                => [ qw(data) ],
- 'scalar --get_set_init' => [ qw(rounding link_order) ],
+ 'scalar'                => [ qw(params) ],
 );
-
-# valid parameters -> better as class members with rose generic set/get
-my %valid_params = (
-              from_date => '',
-              to_date   => '',
-              customernumbers => '',
-              part_id => '',
-              rounding => 1,
-              link_order => 0,
-              project_id => '',
-             );
 
 #
 # If job does not throw an error,
@@ -43,52 +31,25 @@ my %valid_params = (
 sub run {
   my ($self, $db_obj) = @_;
 
-  $self->data($db_obj->data_as_hash) if $db_obj;
+  $self->initialize_params($db_obj->data_as_hash) if $db_obj;
 
   $self->{$_} = [] for qw(job_errors);
 
-  # check user input param names
-  foreach my $param (keys %{ $self->data }) {
-    die "Not a valid parameter: $param" unless exists $valid_params{$param};
-  }
-
-  # TODO check user input param values - (defaults are assigned later)
-  # 1- If there are any customer numbers check if they refer to valid customers
-  #    otherwise croak and do nothing
-  # 2 .. n Same applies for other params if used at all (rounding -> 0|1  link_order -> 0|1)
-
-  # from/to date from data. Defaults to begining and end of last month.
-  # TODO get/set see above
-  my $from_date;
-  my $to_date;
-  $from_date   = DateTime->from_kivitendo($self->data->{from_date}) if $self->data->{from_date};
-  $to_date     = DateTime->from_kivitendo($self->data->{to_date})   if $self->data->{to_date};
-
-  # DateTime->from_kivitendo returns undef if the string cannot be parsed. Therefore test the result if it shopuld have been parsed.
-  die 'Cannot convert date from string "' . $self->data->{from_date} . '"' if $self->data->{from_date} && !$from_date;
-  die 'Cannot convert date to string "'   . $self->data->{to_date}   . '"' if $self->data->{to_date}   && !$to_date;
-
-  $from_date ||= DateTime->new( day => 1,    month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1);
-  $to_date   ||= DateTime->last_day_of_month(month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1);
-
-  $to_date->add(days => 1); # to get all from the to_date, because of the time part (15.12.2020 23.59 > 15.12.2020)
-
   my %customer_where;
-  %customer_where = ('customer.customernumber' => $self->data->{customernumbers}) if 'ARRAY' eq ref $self->data->{customernumbers};
+  %customer_where = ('customer_id' => $self->params->{customer_ids}) if scalar @{ $self->params->{customer_ids} };
 
-  my $time_recordings = SL::DB::Manager::TimeRecording->get_all(where        => [date => { ge_lt => [ $from_date, $to_date ]},
+  my $time_recordings = SL::DB::Manager::TimeRecording->get_all(where        => [date => { ge_lt => [ $self->params->{from_date}, $self->params->{to_date} ]},
                                                                                  or   => [booked => 0, booked => undef],
                                                                                  '!duration' => 0,
                                                                                  '!duration' => undef,
-                                                                                 %customer_where],
-                                                                with_objects => ['customer']);
+                                                                                 %customer_where]);
 
   # no time recordings at all ? -> better exit here before iterating a empty hash
   # return undef or message unless ref $time_recordings->[0] eq SL::DB::Manager::TimeRecording;
 
   my @donumbers;
 
-  if ($self->data->{link_order}) {
+  if ($self->params->{link_order}) {
     my %time_recordings_by_order_id;
     my %orders_by_order_id;
     foreach my $tr (@$time_recordings) {
@@ -119,25 +80,85 @@ sub run {
   return $msg;
 }
 
-# inits
-
-sub init_rounding {
-  1
-}
-
-sub init_link_order {
-  0
-}
-
 # helper
+sub initialize_params {
+  my ($self, $data) = @_;
+
+  # valid parameters with default values
+  my %valid_params = (
+    from_date       => DateTime->new( day => 1,    month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1)->to_kivitendo,
+    to_date         => DateTime->last_day_of_month(month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1)->to_kivitendo,
+    customernumbers => [],
+    part_id         => undef,
+    project_id      => undef,
+    rounding        => 1,
+    link_order      => 0,
+  );
+
+
+  # check user input param names
+  foreach my $param (keys %$data) {
+    die "Not a valid parameter: $param" unless exists $valid_params{$param};
+  }
+
+  $self->params(
+    { map { ($_ => $data->{$_} // $valid_params{$_}) } keys %valid_params }
+  );
+
+
+  # convert date from string to object
+  my $from_date;
+  my $to_date;
+  $from_date = DateTime->from_kivitendo($self->params->{from_date});
+  $to_date   = DateTime->from_kivitendo($self->params->{to_date});
+  # DateTime->from_kivitendo returns undef if the string cannot be parsed. Therefore test the result.
+  die 'Cannot convert date from string "' . $self->params->{from_date} . '"' if !$from_date;
+  die 'Cannot convert date to string "'   . $self->params->{to_date}   . '"' if !$to_date;
+
+  $to_date->add(days => 1); # to get all from the to_date, because of the time part (15.12.2020 23.59 > 15.12.2020)
+
+  $self->params->{from_date} = $from_date;
+  $self->params->{to_date}   = $to_date;
+
+
+  # check if customernumbers are valid
+  die 'Customer numbers must be given in an array' if 'ARRAY' ne ref $self->params->{customernumbers};
+
+  my $customers = [];
+  if (scalar @{ $self->params->{customernumbers} }) {
+    $customers = SL::DB::Manager::Customer->get_all(where => [ customernumber => $self->params->{customernumbers},
+                                                               or             => [obsolete => undef, obsolete => 0] ]);
+  }
+  die 'Not all customer numbers are valid' if scalar @$customers != scalar @{ $self->params->{customernumbers} };
+
+  # return customer ids
+  $self->params->{customer_ids} = [ map { $_->id } @$customers ];
+
+
+  # check part
+  if ($self->params->{part_id} && !SL::DB::Manager::Part->find_by(id => $self->params->{part_id},
+                                                                  or => [obsolete => undef, obsolete => 0])) {
+    die 'No valid part found by given part id';
+  }
+
+
+  # check project
+  if ($self->params->{project_id} && !SL::DB::Manager::Project->find_by(id => $self->params->{project_id},
+                                                                        active => 1, valid => 1)) {
+    die 'No valid project found by given project id';
+  }
+
+  return $self->params;
+}
+
 sub convert_without_linking {
   my ($self, $time_recordings) = @_;
 
   my %time_recordings_by_customer_id;
   push @{ $time_recordings_by_customer_id{$_->customer_id} }, $_ for @$time_recordings;
 
-  my %convert_params = map { $_ => $self->data->{$_} } qw(rounding link_order project_id);
-  $convert_params{default_part_id} = $self->data->{part_id};
+  my %convert_params = map { $_ => $self->params->{$_} } qw(rounding link_order project_id);
+  $convert_params{default_part_id} = $self->params->{part_id};
 
   my @donumbers;
   foreach my $customer_id (keys %time_recordings_by_customer_id) {
@@ -173,8 +194,8 @@ sub convert_without_linking {
 sub convert_with_linking {
   my ($self, $time_recordings_by_order_id, $orders_by_order_id) = @_;
 
-  my %convert_params = map { $_ => $self->data->{$_} } qw(rounding link_order project_id);
-  $convert_params{default_part_id} = $self->data->{part_id};
+  my %convert_params = map { $_ => $self->params->{$_} } qw(rounding link_order project_id);
+  $convert_params{default_part_id} = $self->params->{part_id};
 
   my @donumbers;
   foreach my $related_order_id (keys %$time_recordings_by_order_id) {
@@ -241,7 +262,7 @@ sub get_order_for_time_recording {
     # check project
     my $project_id;
     #$project_id   = $self->overide_project_id;
-    $project_id   = $self->data->{project_id};
+    $project_id   = $self->params->{project_id};
     $project_id ||= $tr->project_id;
     #$project_id ||= $self->default_project_id;
 
@@ -296,7 +317,7 @@ sub get_order_for_time_recording {
   #$part_id   = $self->overide_part_id;
   $part_id ||= $tr->part_id;
   #$part_id ||= $self->default_part_id;
-  $part_id ||= $self->data->{part_id};
+  $part_id ||= $self->params->{part_id};
 
   if (!$part_id) {
     my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : no part id';

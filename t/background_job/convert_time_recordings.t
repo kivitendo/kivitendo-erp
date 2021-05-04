@@ -1,4 +1,4 @@
-use Test::More tests => 28;
+use Test::More tests => 34;
 
 use strict;
 
@@ -283,9 +283,10 @@ push @time_recordings, new_time_recording(
 )->save;
 
 %data = (
-  link_order => 1,
-  from_date  => '01.04.2021',
-  to_date    => '30.04.2021',
+  link_order      => 1,
+  from_date       => '01.04.2021',
+  to_date         => '30.04.2021',
+  customernumbers => [$customer->number],
 );
 $db_obj = SL::DB::BackgroundJob->new();
 $db_obj->set_data(%data);
@@ -316,7 +317,7 @@ clear_up();
 # are wrong params detected?
 ########################################
 %data = (
-  from_date  => 'x01.04.2021',
+  from_date       => 'x01.04.2021',
 );
 $db_obj = SL::DB::BackgroundJob->new();
 $db_obj->set_data(%data);
@@ -325,6 +326,95 @@ $job    = SL::BackgroundJob::ConvertTimeRecordings->new;
 my $err_msg = '';
 eval { $ret = $job->run($db_obj);  1; } or do {$err_msg = $@};
 ok($err_msg =~ '^Cannot convert date from string', 'wrong date string detected');
+
+#####
+
+$customer = new_customer()->save;
+%data = (
+  customernumbers => ['a fantasy', $customer->number],
+);
+
+$db_obj = SL::DB::BackgroundJob->new();
+$db_obj->set_data(%data);
+$job    = SL::BackgroundJob::ConvertTimeRecordings->new;
+
+$err_msg = '';
+eval { $ret = $job->run($db_obj);  1; } or do {$err_msg = $@};
+ok($err_msg =~ '^Not all customer numbers are valid', 'wrong customer number detected');
+
+#####
+
+%data = (
+  customernumbers => '123',
+);
+
+$db_obj = SL::DB::BackgroundJob->new();
+$db_obj->set_data(%data);
+$job    = SL::BackgroundJob::ConvertTimeRecordings->new;
+
+$err_msg = '';
+eval { $ret = $job->run($db_obj);  1; } or do {$err_msg = $@};
+ok($err_msg =~ '^Customer numbers must be given in an array', 'wrong customer number data type detected');
+
+#####
+
+%data = (
+  part_id => '123',
+);
+
+$db_obj = SL::DB::BackgroundJob->new();
+$db_obj->set_data(%data);
+$job    = SL::BackgroundJob::ConvertTimeRecordings->new;
+
+$err_msg = '';
+eval { $ret = $job->run($db_obj);  1; } or do {$err_msg = $@};
+ok($err_msg =~ '^No valid part found by given part id', 'invalid part id detected');
+
+#####
+
+$part = new_service(partnumber => 'Serv1', unit => 'Std', obsolete => 1)->save;
+%data = (
+  part_id => $part->id,
+);
+
+$db_obj = SL::DB::BackgroundJob->new();
+$db_obj->set_data(%data);
+$job    = SL::BackgroundJob::ConvertTimeRecordings->new;
+
+$err_msg = '';
+eval { $ret = $job->run($db_obj);  1; } or do {$err_msg = $@};
+ok($err_msg =~ '^No valid part found by given part id', 'obsolete part detected');
+
+#####
+
+%data = (
+  project_id => 123,
+);
+
+$db_obj = SL::DB::BackgroundJob->new();
+$db_obj->set_data(%data);
+$job    = SL::BackgroundJob::ConvertTimeRecordings->new;
+
+$err_msg = '';
+eval { $ret = $job->run($db_obj);  1; } or do {$err_msg = $@};
+ok($err_msg =~ '^No valid project found by given project id', 'invalid project id detected');
+
+#####
+
+$project = create_project(projectnumber => 'p1', description => 'Project 1', valid => 0)->save;
+%data = (
+  project_id => $project->id,
+);
+
+$db_obj = SL::DB::BackgroundJob->new();
+$db_obj->set_data(%data);
+$job    = SL::BackgroundJob::ConvertTimeRecordings->new;
+
+$err_msg = '';
+eval { $ret = $job->run($db_obj);  1; } or do {$err_msg = $@};
+ok($err_msg =~ '^No valid project found by given project id', 'invalid project detected');
+
+#####
 
 clear_up();
 
