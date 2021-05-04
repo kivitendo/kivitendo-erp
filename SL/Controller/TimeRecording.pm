@@ -16,6 +16,7 @@ use SL::DB::Part;
 use SL::DB::TimeRecording;
 use SL::DB::TimeRecordingArticle;
 use SL::Helper::Flash qw(flash);
+use SL::Helper::Number qw(_round_number _parse_number);
 use SL::Helper::UserPreferences::TimeRecording;
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
@@ -146,7 +147,12 @@ sub init_time_recording {
 
   my %attributes = %{ $::form->{time_recording} || {} };
 
-  if (!$self->use_duration) {
+  if ($self->use_duration) {
+    if ($::form->{duration_h} || $::form->{duration_m}) {
+      $attributes{duration} = _round_number(_parse_number($::form->{duration_h}) * 60 + _parse_number($::form->{duration_m}), 0);
+    }
+
+  } else {
     foreach my $type (qw(start end)) {
       if ($::form->{$type . '_date'}) {
         my $date = DateTime->from_kivitendo($::form->{$type . '_date'});

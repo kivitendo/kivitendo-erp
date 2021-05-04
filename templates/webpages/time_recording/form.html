@@ -21,9 +21,10 @@
       </td>
     </tr>
     <tr>
-      <th align="right">[% 'Duration' | $T8 %] ([% 'in minutes' | $T8 %])</th>
+      <th align="right">[% 'Duration' | $T8 %]</th>
       <td>
-        [% P.input_tag('time_recording.duration', SELF.time_recording.duration, size=11) %]
+        [% P.input_tag('duration_h', SELF.time_recording.duration_as_hours,   size=4, class='numeric') %] [% 'h' | $T8 %]<sup>(1)</sup>
+        [% P.input_tag('duration_m', SELF.time_recording.duration_as_minutes, size=4, class='numeric') %] [% 'min' | $T8%]
       </td>
     </tr>
    [%- ELSE %]
@@ -81,5 +82,12 @@
       </td>
     </tr>
   </table>
+
+  [%- IF SELF.use_duration %]
+  <p>
+    <sup>(1)</sup>
+    [% 'Valid are integer values and floating point numbers, e.g. 4.75h = 4 hours and 45 minutes.' | $T8 %]
+  </p>
+  [%- END %]
 
 </form>
