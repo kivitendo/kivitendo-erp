@@ -1,4 +1,4 @@
-use Test::More tests => 27;
+use Test::More tests => 28;
 
 use strict;
 
@@ -71,7 +71,7 @@ push @time_recordings, new_time_recording(
 my %data   = (
   link_order => 1,
   project_id => $project->id,
-  from_date  => '01.04.2021',
+  from_date  => '01.01.2021',
   to_date    => '30.04.2021',
 );
 my $db_obj = SL::DB::BackgroundJob->new();
@@ -308,6 +308,23 @@ Rose::DB::Object::Helpers::forget_related($sales_order, 'orderitems');
 $sales_order->load;
 
 is($sales_order->items->[0]->ship*1, 1, 'linked by order_id: ship in related order');
+
+clear_up();
+
+
+########################################
+# are wrong params detected?
+########################################
+%data = (
+  from_date  => 'x01.04.2021',
+);
+$db_obj = SL::DB::BackgroundJob->new();
+$db_obj->set_data(%data);
+$job    = SL::BackgroundJob::ConvertTimeRecordings->new;
+
+my $err_msg = '';
+eval { $ret = $job->run($db_obj);  1; } or do {$err_msg = $@};
+ok($err_msg =~ '^Cannot convert date from string', 'wrong date string detected');
 
 clear_up();
 

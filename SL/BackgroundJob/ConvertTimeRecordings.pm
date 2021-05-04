@@ -63,6 +63,11 @@ sub run {
   my $to_date;
   $from_date   = DateTime->from_kivitendo($self->data->{from_date}) if $self->data->{from_date};
   $to_date     = DateTime->from_kivitendo($self->data->{to_date})   if $self->data->{to_date};
+
+  # DateTime->from_kivitendo returns undef if the string cannot be parsed. Therefore test the result if it shopuld have been parsed.
+  die 'Cannot convert date from string "' . $self->data->{from_date} . '"' if $self->data->{from_date} && !$from_date;
+  die 'Cannot convert date to string "'   . $self->data->{to_date}   . '"' if $self->data->{to_date}   && !$to_date;
+
   $from_date ||= DateTime->new( day => 1,    month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1);
   $to_date   ||= DateTime->last_day_of_month(month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1);
 
