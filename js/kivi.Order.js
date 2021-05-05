@@ -63,7 +63,7 @@ namespace('kivi.Order', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.show_print_options = function(warn_on_duplicates) {
+  ns.show_print_options = function(warn_on_duplicates, warn_on_reqdate) {
     if (!ns.check_cv()) return;
     if (warn_on_duplicates && !ns.check_duplicate_parts(kivi.t8("Do you really want to print?"))) return;
 

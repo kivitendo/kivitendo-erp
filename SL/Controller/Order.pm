@@ -1898,12 +1898,16 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and print'),
-          call => [ 'kivi.Order.show_print_options', $::instance_conf->get_order_warn_duplicate_parts ],
+          call => [ 'kivi.Order.show_print_options', $::instance_conf->get_order_warn_duplicate_parts,
+                                                     $::instance_conf->get_order_warn_no_deliverydate,
+                                                                                                      ],
         ],
         action => [
           t8('Save and E-mail'),
           id   => 'save_and_email_action',
-          call => [ 'kivi.Order.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts ],
+          call => [ 'kivi.Order.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts,
+                                                                     $::instance_conf->get_order_warn_no_deliverydate,
+                  ],
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
         action => [
