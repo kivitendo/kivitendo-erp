@@ -100,6 +100,7 @@ sub initialize_params {
     die "Not a valid parameter: $param" unless exists $valid_params{$param};
   }
 
+  # set defaults
   $self->params(
     { map { ($_ => $data->{$_} // $valid_params{$_}) } keys %valid_params }
   );
@@ -168,10 +169,7 @@ sub convert_without_linking {
       $do = SL::DB::DeliveryOrder->new_from_time_recordings($time_recordings_by_customer_id{$customer_id}, %convert_params);
       1;
     }) {
-      $::lxdebug->message(LXDebug->WARN(),
-                          "ConvertTimeRecordings: creating delivery order failed ($@) for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}});
-      push @{ $self->{job_errors} }, "ConvertTimeRecordings: creating delivery order failed ($@) for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}};
-
+      $self->log_error("creating delivery order failed ($@) for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}});
     }
 
     if ($do) {
@@ -180,9 +178,7 @@ sub convert_without_linking {
         $_->update_attributes(booked => 1) for @{$time_recordings_by_customer_id{$customer_id}};
         1;
       })) {
-        $::lxdebug->message(LXDebug->WARN(),
-                            "ConvertTimeRecordings: saving delivery order failed for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}});
-        push @{ $self->{job_errors} }, "ConvertTimeRecordings: saving delivery order failed for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}};
+        $self->log_error('saving delivery order failed for time recording ids ' . join ', ', map { $_->id } @{$time_recordings_by_customer_id{$customer_id}});
       } else {
         push @donumbers, $do->donumber;
       }
@@ -208,9 +204,7 @@ sub convert_with_linking {
       $do = SL::DB::DeliveryOrder->new_from_time_recordings($time_recordings_by_order_id->{$related_order_id}, related_order => $related_order, %convert_params);
       1;
     }) {
-      $::lxdebug->message(LXDebug->WARN(),
-                          "ConvertTimeRecordings: creating delivery order failed ($@) for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_order_id->{$related_order_id}});
-      push @{ $self->{job_errors} }, "ConvertTimeRecordings: creating delivery order failed ($@) for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_order_id->{$related_order_id}};
+      $self->log_error("creating delivery order failed ($@) for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_order_id->{$related_order_id}});
     }
 
     if ($do) {
@@ -244,9 +238,8 @@ sub convert_with_linking {
 
         1;
       })) {
-        $::lxdebug->message(LXDebug->WARN(),
-                            "ConvertTimeRecordings: saving delivery order failed for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_order_id->{$related_order_id}});
-        push @{ $self->{job_errors} }, "ConvertTimeRecordings: saving delivery order failed for time recording ids " . join ', ', map { $_->id } @{$time_recordings_by_order_id->{$related_order_id}};
+        $self->log_error('saving delivery order failed for time recording ids ' . join ', ', map { $_->id } @{$time_recordings_by_order_id->{$related_order_id}});
+
       } else {
         push @donumbers, $do->donumber;
       }
@@ -270,30 +263,22 @@ sub get_order_for_time_recording {
     #$project_id ||= $self->default_project_id;
 
     if (!$project_id) {
-      my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : no project id';
-      $::lxdebug->message(LXDebug->WARN(), $err_msg);
-      push @{ $self->{job_errors} }, $err_msg;
+      $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : no project id');
       return;
     }
 
     my $project = SL::DB::Project->load_cached($project_id);
 
     if (!$project) {
-      my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project not found';
-      $::lxdebug->message(LXDebug->WARN(), $err_msg);
-      push @{ $self->{job_errors} }, $err_msg;
+      $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : project not found');
       return;
     }
     if (!$project->active || !$project->valid) {
-      my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project not active or not valid';
-      $::lxdebug->message(LXDebug->WARN(), $err_msg);
-      push @{ $self->{job_errors} }, $err_msg;
+      $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : project not active or not valid');
       return;
     }
     if ($project->customer_id && $project->customer_id != $tr->customer_id) {
-      my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project customer does not match customer of time recording';
-      $::lxdebug->message(LXDebug->WARN(), $err_msg);
-      push @{ $self->{job_errors} }, $err_msg;
+      $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : project customer does not match customer of time recording');
       return;
     }
 
@@ -309,9 +294,7 @@ sub get_order_for_time_recording {
   }
 
   if (!scalar @$orders) {
-    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : no order found';
-    $::lxdebug->message(LXDebug->WARN(), $err_msg);
-    push @{ $self->{job_errors} }, $err_msg;
+    $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : no order found');
     return;
   }
 
@@ -323,16 +306,12 @@ sub get_order_for_time_recording {
   $part_id ||= $self->params->{part_id};
 
   if (!$part_id) {
-    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : no part id';
-    $::lxdebug->message(LXDebug->WARN(), $err_msg);
-    push @{ $self->{job_errors} }, $err_msg;
+    $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : no part id');
     return;
   }
   my $part = SL::DB::Part->load_cached($part_id);
   if (!$part->unit_obj->is_time_based) {
-    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : part unit is not time based';
-    $::lxdebug->message(LXDebug->WARN(), $err_msg);
-    push @{ $self->{job_errors} }, $err_msg;
+    $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : part unit is not time based');
     return;
   }
 
@@ -344,36 +323,37 @@ sub get_order_for_time_recording {
   }
 
   if (1 != scalar @matching_orders) {
-    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : no or more than one orders do match';
-    $::lxdebug->message(LXDebug->WARN(), $err_msg);
-    push @{ $self->{job_errors} }, $err_msg;
+    $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : no or more than one orders do match');
     return;
   }
 
   my $matching_order = $matching_orders[0];
 
   if (!$matching_order->is_sales) {
-    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : found order is not a sales order';
-    $::lxdebug->message(LXDebug->WARN(), $err_msg);
-    push @{ $self->{job_errors} }, $err_msg;
+    $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : found order is not a sales order');
     return;
   }
 
   if ($matching_order->customer_id != $tr->customer_id) {
-    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : customer of order does not match customer of time recording';
-    $::lxdebug->message(LXDebug->WARN(), $err_msg);
-    push @{ $self->{job_errors} }, $err_msg;
+    $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : customer of order does not match customer of time recording');
     return;
   }
 
   if ($tr->project_id && $tr->project_id != ($matching_order->globalproject_id || 0)) {
-    my $err_msg = 'ConvertTimeRecordings: searching related order failed for time recording id ' . $tr->id . ' : project of order does not match project of time recording';
-    $::lxdebug->message(LXDebug->WARN(), $err_msg);
-    push @{ $self->{job_errors} }, $err_msg;
+    $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : project of order does not match project of time recording');
     return;
   }
 
   return $matching_order;
+}
+
+sub log_error {
+  my ($self, $msg) = @_;
+
+  my $dbg = 0;
+
+  push @{ $self->{job_errors} }, $msg;
+  $::lxdebug->message(LXDebug->WARN(), 'ConvertTimeRecordings: ' . $msg) if $dbg;
 }
 
 1;
