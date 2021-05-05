@@ -4,6 +4,11 @@
 
 20??-??-?? - Release ?.?.?
 
+Größere neue Features:
+  - Modul zur Zeiterfassung. Es ist nun möglich, auftrags-, kunden- oder
+    projektbezogen, Arbeitszeiten zu erfassen. Die erfassten Zeiten können
+    über einen Hintergrund-Job in Lieferscheine umgewandelt werden.
+
 Mittelgroße neue Features:
 
  - Der Import von Bankauszügen im MT940-Format wurde komplett neu
