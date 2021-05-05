@@ -1,4 +1,4 @@
-use Test::More tests => 34;
+use Test::More tests => 40;
 
 use strict;
 
@@ -309,6 +309,100 @@ Rose::DB::Object::Helpers::forget_related($sales_order, 'orderitems');
 $sales_order->load;
 
 is($sales_order->items->[0]->ship*1, 1, 'linked by order_id: ship in related order');
+
+clear_up();
+
+
+########################################
+# check rounding
+########################################
+$part     = new_service(partnumber => 'Serv1', unit => 'Std')->save;
+$customer = new_customer()->save;
+
+$sales_order = create_sales_order(
+  save             => 1,
+  customer         => $customer,
+  taxincluded      => 0,
+  orderitems       => [ create_order_item(part => $part, qty => 3, sellprice => 70), ]
+);
+
+@time_recordings = ();
+push @time_recordings, new_time_recording(
+  start_time => DateTime->new(year => 2021, month =>  4, day => 19, hour => 10, minute =>  0),
+  end_time   => DateTime->new(year => 2021, month =>  4, day => 19, hour => 10, minute =>  6),
+  customer   => $customer,
+  order      => $sales_order,
+  part       => $part,
+)->save;
+
+%data   = (
+  from_date  => '01.01.2021',
+  to_date    => '30.04.2021',
+  link_order => 1,
+  rounding   => 1,
+);
+$db_obj = SL::DB::BackgroundJob->new();
+$db_obj->set_data(%data);
+$job    = SL::BackgroundJob::ConvertTimeRecordings->new;
+$ret    = $job->run($db_obj);
+
+$linked_dos   = $sales_order->linked_records(to => 'DeliveryOrder');
+$linked_items = $sales_order->items->[0]->linked_records(to => 'DeliveryOrderItem');
+is($linked_items->[0]->qty*1, 0.25, 'rounding to quarter hour: qty in delivery order');
+is($linked_items->[0]->base_qty*1, 0.25, 'rounding to quarter hour: base_qty in delivery order');
+
+# reload order and orderitems to get changes to deliverd and ship
+Rose::DB::Object::Helpers::forget_related($sales_order, 'orderitems');
+$sales_order->load;
+
+is($sales_order->items->[0]->ship*1, 0.25, 'rounding to quarter hour: ship in related order');
+
+clear_up();
+
+
+########################################
+# check rounding
+########################################
+$part     = new_service(partnumber => 'Serv1', unit => 'Std')->save;
+$customer = new_customer()->save;
+
+$sales_order = create_sales_order(
+  save             => 1,
+  customer         => $customer,
+  taxincluded      => 0,
+  orderitems       => [ create_order_item(part => $part, qty => 3, sellprice => 70), ]
+);
+
+@time_recordings = ();
+push @time_recordings, new_time_recording(
+  start_time => DateTime->new(year => 2021, month =>  4, day => 19, hour => 10, minute =>  0),
+  end_time   => DateTime->new(year => 2021, month =>  4, day => 19, hour => 10, minute =>  6),
+  customer   => $customer,
+  order      => $sales_order,
+  part       => $part,
+)->save;
+
+%data   = (
+  from_date  => '01.01.2021',
+  to_date    => '30.04.2021',
+  link_order => 1,
+  rounding   => 0,
+);
+$db_obj = SL::DB::BackgroundJob->new();
+$db_obj->set_data(%data);
+$job    = SL::BackgroundJob::ConvertTimeRecordings->new;
+$ret    = $job->run($db_obj);
+
+$linked_dos   = $sales_order->linked_records(to => 'DeliveryOrder');
+$linked_items = $sales_order->items->[0]->linked_records(to => 'DeliveryOrderItem');
+is($linked_items->[0]->qty*1, 0.1, 'no rounding: qty in delivery order');
+is($linked_items->[0]->base_qty*1, 0.1, 'no rounding: base_qty in delivery order');
+
+# reload order and orderitems to get changes to deliverd and ship
+Rose::DB::Object::Helpers::forget_related($sales_order, 'orderitems');
+$sales_order->load;
+
+is($sales_order->items->[0]->ship*1, 0.1, 'no rounding: ship in related order');
 
 clear_up();
 
