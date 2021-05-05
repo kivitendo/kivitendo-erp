@@ -66,6 +66,7 @@ namespace('kivi.Order', function(ns) {
   ns.show_print_options = function(warn_on_duplicates, warn_on_reqdate) {
     if (!ns.check_cv()) return;
     if (warn_on_duplicates && !ns.check_duplicate_parts(kivi.t8("Do you really want to print?"))) return;
+    if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
 
     kivi.popup_dialog({
       id: 'print_options',
