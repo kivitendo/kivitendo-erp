@@ -38,11 +38,11 @@ sub run {
   my %customer_where;
   %customer_where = ('customer_id' => $self->params->{customer_ids}) if scalar @{ $self->params->{customer_ids} };
 
-  my $time_recordings = SL::DB::Manager::TimeRecording->get_all(where        => [date => { ge_lt => [ $self->params->{from_date}, $self->params->{to_date} ]},
-                                                                                 or   => [booked => 0, booked => undef],
-                                                                                 '!duration' => 0,
-                                                                                 '!duration' => undef,
-                                                                                 %customer_where]);
+  my $time_recordings = SL::DB::Manager::TimeRecording->get_all(where => [date        => { ge_lt => [ $self->params->{from_date}, $self->params->{to_date} ]},
+                                                                          or          => [booked => 0, booked => undef],
+                                                                          '!duration' => 0,
+                                                                          '!duration' => undef,
+                                                                          %customer_where]);
 
   return t8('No time recordings to convert') if scalar @$time_recordings == 0;
 
@@ -257,7 +257,7 @@ sub get_order_for_time_recording {
   if (!$tr->order_id) {
     # check project
     my $project_id;
-    #$project_id   = $self->overide_project_id;
+    #$project_id   = $self->override_project_id;
     $project_id   = $self->params->{project_id};
     $project_id ||= $tr->project_id;
     #$project_id ||= $self->default_project_id;
@@ -300,7 +300,7 @@ sub get_order_for_time_recording {
 
   # check part
   my $part_id;
-  #$part_id   = $self->overide_part_id;
+  #$part_id   = $self->override_part_id;
   $part_id ||= $tr->part_id;
   #$part_id ||= $self->default_part_id;
   $part_id ||= $self->params->{part_id};
@@ -358,10 +358,6 @@ sub log_error {
 
 1;
 
-# possible data
-# from_date: 01.12.2020
-# to_date: 15.12.2020
-# customernumbers: [1,2,3]
 __END__
 
 =pod
@@ -383,7 +379,13 @@ C<SL::DB::DeliveryOrder-E<gt>new_from_time_recordings>).
 
 Some data can be provided to configure this backgroung job.
 If there is user data and it cannot be validated the background job
-returns a error messages.
+fails.
+
+Example:
+
+  from_date: 01.12.2020
+  to_date: 15.12.2020
+  customernumbers: [1,2,3]
 
 =over 4
 
@@ -408,29 +410,29 @@ to_date: 15.12.2020
 =item C<customernumbers>
 
 An array with the customer numbers for which time recordings should
-be collected. If not given, time recordings for customers are
-collected. This is the default.
+be collected. If not given, time recordings for all customers are
+collected.
 
 customernumbers: [c1,22332,334343]
 
 =item C<part_id>
 
 The part id of a time based service which should be used to
-book the times. If not set the clients config defaults is used.
+book the times if no part is set in the time recording entry.
 
 =item C<rounding>
 
 If set the 0 no rounding of the times will be done otherwise
-the times will be rounded up to th full quarters of an hour,
+the times will be rounded up to the full quarters of an hour,
 ie. 0.25h 0.5h 0.75h 1.25h ...
 Defaults to rounding true (1).
 
 =item C<link_order>
 
-If set the job links the created delivery order with with the order
+If set the job links the created delivery order with the order
 given in the time recording entry. If there is no order given, then
-it tries to find an order with with the current customer and project
-number and tries to do as much automatic workflow processing as the
+it tries to find an order with the current customer and project
+number. It tries to do as much automatic workflow processing as the
 UI.
 Defaults to off. If set to true (1) the job will fail if there
 is no sales order which qualifies as a predecessor.
@@ -450,10 +452,33 @@ the services are not yet fully delivered (simple case: 'Payment in advance').
 Hint: take a look or extend the job CloseProjectsBelongingToClosedSalesOrder for
 further automatisation of your organisational needs.
 
-
 =item C<project_id>
 
 Use this project_id instead of the project_id in the time recordings.
+
+=back
+
+=head1 TODO
+
+=over 4
+
+=item * part and project parameters as numbers
+
+Add parameters to give part and project not with their ids, but with their
+numbers. E.g. (default_/override_)part_number,
+(default_/override_)project_number.
+
+=item * part and project parameters override and default
+
+In the moment, the part id given as parameter is used as the default value.
+This means, it will be used if there is no part in the time recvording entry.
+
+The project id given is used as override parameter. It overrides the project
+given in the time recording entry.
+
+To solve this, there should be parameters named override_part_id,
+default_part_id, override_project_id and default_project_id.
+
 
 =back
 

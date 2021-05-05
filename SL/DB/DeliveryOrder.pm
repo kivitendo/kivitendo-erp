@@ -191,7 +191,7 @@ sub new_from_time_recordings {
   #  - ordered and summed by date
   #  - each description goes to an ordered list
   #  - (as time recording descriptions are formatted text by now, use stripped text)
-  #  - merge same descriptions (todo)
+  #  - merge same descriptions
   #
 
   my $default_part_id = $params{default_part_id}    ? $params{default_part_id}
@@ -434,7 +434,7 @@ Creates a new C<SL::DB::DeliveryOrder> instance from the time recordings
 given as C<$sources>. All time recording entries must belong to the same
 customer. Time recordings are sorted by article and date. For each article
 a new delivery order item is created. If no article is associated with an
-entry, a default article will be used (hard coded).
+entry, a default article will be used.
 Entries of the same date (for each article) are summed together and form a
 list entry in the long description of the item.
 
@@ -450,6 +450,18 @@ C<%params> can include the following options:
 
 An optional hash reference. If it exists then it is used to set
 attributes of the newly created delivery order object.
+
+=item C<related_order>
+
+An optional C<SL::DB::Order> object. If it exists then it is used to
+generate the delivery order from that via C<new_from>.
+The generated items are created from a suitable item of the related
+order. If no suitable item is found, an exception is thrown.
+
+=item C<rounding>
+
+An optional boolean value. If truish, then the durations of the time entries
+are rounded up to the full quarters of an hour.
 
 =back
 
