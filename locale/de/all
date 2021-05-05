@@ -2154,6 +2154,7 @@ $self->{texts} = {
   'No template has been selected yet.' => 'Es wurde noch keine Vorlage ausgewählt.',
   'No text blocks have been created for this position.' => 'Für diese Position wurden noch keine Textblöcke angelegt.',
   'No text has been entered yet.' => 'Es wurde noch kein Text eingegeben.',
+  'No time recordings to convert' => 'Es sind keine Zeiterfassungseinträge zu konvertieren',
   'No title yet'                => 'Bisher ohne Titel',
   'No transaction on chart bank chosen!' => 'Keine Buchung auf Bankkonto gewählt.',
   'No transaction selected!'    => 'Keine Transaktion ausgewählt',

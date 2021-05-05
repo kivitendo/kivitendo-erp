@@ -44,8 +44,7 @@ sub run {
                                                                                  '!duration' => undef,
                                                                                  %customer_where]);
 
-  # no time recordings at all ? -> better exit here before iterating a empty hash
-  # return undef or message unless ref $time_recordings->[0] eq SL::DB::Manager::TimeRecording;
+  return t8('No time recordings to convert') if scalar @$time_recordings == 0;
 
   my @donumbers;
 
