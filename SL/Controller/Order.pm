@@ -338,6 +338,49 @@ sub action_print {
     ->run('kivi.ActionBar.setEnabled', '#save_and_email_action')
     ->render;
 }
+sub action_preview_pdf {
+  my ($self) = @_;
+
+  my $errors = $self->save();
+  if (scalar @{ $errors }) {
+    $self->js->flash('error', $_) foreach @{ $errors };
+    return $self->js->render();
+  }
+
+  $self->js_reset_order_and_item_ids_after_save;
+
+  my $format      = 'pdf';
+  my $media       = 'screen';
+  my $formname    = $self->type;
+
+  # only pdf
+  # create a form for generate_attachment_filename
+  my $form   = Form->new;
+  $form->{$self->nr_key()}  = $self->order->number;
+  $form->{type}             = $self->type;
+  $form->{format}           = $format;
+  $form->{formname}         = $formname;
+  $form->{language}         = '_' . $self->order->language->template_code if $self->order->language;
+  my $pdf_filename          = $form->generate_attachment_filename();
+
+  my $pdf;
+  my @errors = generate_pdf($self->order, \$pdf, { format     => $format,
+                                                   formname   => $formname,
+                                                   language   => $self->order->language,
+                                                 });
+  if (scalar @errors) {
+    return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
+  }
+  $self->save_history('PREVIEWED');
+  $self->js->flash('info', t8('The PDF has been previewed'));
+  # screen/download
+  $self->send_file(
+    \$pdf,
+    type         => SL::MIME->mime_type_from_ext($pdf_filename),
+    name         => $pdf_filename,
+    js_no_render => 0,
+  );
+}
 
 # open the email dialog
 sub action_save_and_show_email_dialog {
@@ -1846,6 +1889,12 @@ sub setup_edit_action_bar {
       combobox => [
         action => [
           t8('Export'),
+        ],
+        action => [
+          t8('Save and preview PDF'),
+           call => [ 'kivi.Order.save', 'preview_pdf', $::instance_conf->get_order_warn_duplicate_parts,
+                                                       $::instance_conf->get_order_warn_no_deliverydate,
+                                                                                                         ],
         ],
         action => [
           t8('Save and print'),
