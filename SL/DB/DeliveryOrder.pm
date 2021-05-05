@@ -194,9 +194,12 @@ sub new_from_time_recordings {
   #  - merge same descriptions
   #
 
-  my $default_part_id = $params{default_part_id}    ? $params{default_part_id}
-                      : $params{default_partnumber} ? SL::DB::Manager::Part->find_by(partnumber => $params{default_partnumber})->id
-                      : undef;
+  my $default_part_id  = $params{default_part_id}     ? $params{default_part_id}
+                       : $params{default_partnumber}  ? SL::DB::Manager::Part->find_by(partnumber => $params{default_partnumber})->id
+                       : undef;
+  my $override_part_id = $params{override_part_id}    ? $params{override_part_id}
+                       : $params{override_partnumber} ? SL::DB::Manager::Part->find_by(partnumber => $params{override_partnumber})->id
+                       : undef;
 
   # check parts and collect entries
   my %part_by_part_id;
@@ -204,9 +207,9 @@ sub new_from_time_recordings {
   foreach my $source (@$sources) {
     next if !$source->duration;
 
-    my $part_id  = $source->part_id ? $source->part_id
-                 : $default_part_id ? $default_part_id
-                 : undef;
+    my $part_id   = $override_part_id;
+    $part_id    ||= $source->part_id;
+    $part_id    ||= $default_part_id;
 
     die 'article not found for entry "' . $source->displayable_times . '"' if !$part_id;
 
@@ -434,7 +437,8 @@ Creates a new C<SL::DB::DeliveryOrder> instance from the time recordings
 given as C<$sources>. All time recording entries must belong to the same
 customer. Time recordings are sorted by article and date. For each article
 a new delivery order item is created. If no article is associated with an
-entry, a default article will be used.
+entry, a default article will be used. The article given in the time
+recording entry can be overriden.
 Entries of the same date (for each article) are summed together and form a
 list entry in the long description of the item.
 
@@ -450,6 +454,24 @@ C<%params> can include the following options:
 
 An optional hash reference. If it exists then it is used to set
 attributes of the newly created delivery order object.
+
+=item C<default_part_id>
+
+An optional part id which is used as default value if no part is set
+in the time recording entry.
+
+=item C<default_partnumber>
+
+Like C<default_part_id> but given as partnumber, not as id.
+
+=item C<override_part_id>
+
+An optional part id which is used instead of a value set in the time
+recording entry.
+
+=item C<override_partnumber>
+
+Like C<overrride_part_id> but given as partnumber, not as id.
 
 =item C<related_order>
 

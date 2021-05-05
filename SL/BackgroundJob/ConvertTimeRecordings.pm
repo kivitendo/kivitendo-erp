@@ -85,13 +85,15 @@ sub initialize_params {
 
   # valid parameters with default values
   my %valid_params = (
-    from_date       => DateTime->new( day => 1,    month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1)->to_kivitendo,
-    to_date         => DateTime->last_day_of_month(month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1)->to_kivitendo,
-    customernumbers => [],
-    part_id         => undef,
-    project_id      => undef,
-    rounding        => 1,
-    link_order      => 0,
+    from_date           => DateTime->new( day => 1,    month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1)->to_kivitendo,
+    to_date             => DateTime->last_day_of_month(month => DateTime->today_local->month, year => DateTime->today_local->year)->subtract(months => 1)->to_kivitendo,
+    customernumbers     => [],
+    override_part_id    => undef,
+    default_part_id     => undef,
+    override_project_id => undef,
+    default_project_id  => undef,
+    rounding            => 1,
+    link_order          => 0,
   );
 
 
@@ -136,16 +138,24 @@ sub initialize_params {
 
 
   # check part
-  if ($self->params->{part_id} && !SL::DB::Manager::Part->find_by(id => $self->params->{part_id},
-                                                                  or => [obsolete => undef, obsolete => 0])) {
-    die 'No valid part found by given part id';
+  if ($self->params->{override_part_id} && !SL::DB::Manager::Part->find_by(id => $self->params->{override_part_id},
+                                                                           or => [obsolete => undef, obsolete => 0])) {
+    die 'No valid part found by given override part id';
+  }
+  if ($self->params->{default_part_id} && !SL::DB::Manager::Part->find_by(id => $self->params->{default_part_id},
+                                                                           or => [obsolete => undef, obsolete => 0])) {
+    die 'No valid part found by given default part id';
   }
 
 
   # check project
-  if ($self->params->{project_id} && !SL::DB::Manager::Project->find_by(id => $self->params->{project_id},
-                                                                        active => 1, valid => 1)) {
-    die 'No valid project found by given project id';
+  if ($self->params->{override_project_id} && !SL::DB::Manager::Project->find_by(id => $self->params->{override_project_id},
+                                                                                 active => 1, valid => 1)) {
+    die 'No valid project found by given override project id';
+  }
+  if ($self->params->{default_project_id} && !SL::DB::Manager::Project->find_by(id => $self->params->{default_project_id},
+                                                                                active => 1, valid => 1)) {
+    die 'No valid project found by given default project id';
   }
 
   return $self->params;
@@ -158,8 +168,9 @@ sub convert_without_linking {
   push @{ $time_recordings_by_customer_id{$_->customer_id} }, $_ for @$time_recordings;
 
   my %convert_params = (
-    rounding        => $self->params->{rounding},
-    default_part_id => $self->params->{part_id},
+    rounding         => $self->params->{rounding},
+    override_part_id => $self->params->{override_part_id},
+    default_part_id  => $self->params->{default_part_id},
   );
 
   my @donumbers;
@@ -193,7 +204,8 @@ sub convert_with_linking {
 
   my %convert_params = (
     rounding        => $self->params->{rounding},
-    default_part_id => $self->params->{part_id},
+    override_part_id => $self->params->{override_part_id},
+    default_part_id  => $self->params->{default_part_id},
   );
 
   my @donumbers;
@@ -257,10 +269,9 @@ sub get_order_for_time_recording {
   if (!$tr->order_id) {
     # check project
     my $project_id;
-    #$project_id   = $self->override_project_id;
-    $project_id   = $self->params->{project_id};
+    $project_id   = $self->params->{override_project_id};
     $project_id ||= $tr->project_id;
-    #$project_id ||= $self->default_project_id;
+    $project_id ||= $self->params->{default_project_id};
 
     if (!$project_id) {
       $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : no project id');
@@ -300,10 +311,9 @@ sub get_order_for_time_recording {
 
   # check part
   my $part_id;
-  #$part_id   = $self->override_part_id;
+  $part_id   = $self->params->{override_part_id};
   $part_id ||= $tr->part_id;
-  #$part_id ||= $self->default_part_id;
-  $part_id ||= $self->params->{part_id};
+  $part_id ||= $self->params->{default_part_id};
 
   if (!$part_id) {
     $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : no part id');
@@ -339,7 +349,7 @@ sub get_order_for_time_recording {
     return;
   }
 
-  if ($tr->project_id && $tr->project_id != ($matching_order->globalproject_id || 0)) {
+  if ($tr->project_id && !$self->params->{override_project_id} && $tr->project_id != ($matching_order->globalproject_id || 0)) {
     $self->log_error('searching related order failed for time recording id ' . $tr->id . ' : project of order does not match project of time recording');
     return;
   }
@@ -415,7 +425,13 @@ collected.
 
 customernumbers: [c1,22332,334343]
 
-=item C<part_id>
+=item C<override_part_id>
+
+The part id of a time based service which should be used to
+book the times instead of the parts which are set in the time
+recordings.
+
+=item C<default_part_id>
 
 The part id of a time based service which should be used to
 book the times if no part is set in the time recording entry.
@@ -452,9 +468,15 @@ the services are not yet fully delivered (simple case: 'Payment in advance').
 Hint: take a look or extend the job CloseProjectsBelongingToClosedSalesOrder for
 further automatisation of your organisational needs.
 
-=item C<project_id>
+=item C<override_project_id>
 
-Use this project_id instead of the project_id in the time recordings.
+Use this project id instead of the project id in the time recordings to find
+a related order. This is only used if C<link_order> is true.
+
+=item C<default_project_id>
+
+Use this project id if no project id is set in the time recording
+entry. This is only used if C<link_order> is true.
 
 =back
 
@@ -467,17 +489,6 @@ Use this project_id instead of the project_id in the time recordings.
 Add parameters to give part and project not with their ids, but with their
 numbers. E.g. (default_/override_)part_number,
 (default_/override_)project_number.
-
-=item * part and project parameters override and default
-
-In the moment, the part id given as parameter is used as the default value.
-This means, it will be used if there is no part in the time recvording entry.
-
-The project id given is used as override parameter. It overrides the project
-given in the time recording entry.
-
-To solve this, there should be parameters named override_part_id,
-default_part_id, override_project_id and default_project_id.
 
 
 =back
