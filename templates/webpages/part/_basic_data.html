@@ -75,6 +75,18 @@
                  <textarea id="part.formel" name="part.formel" rows="[% HTML.escape(notes_rows) %]" cols="30" wrap="soft" class="tooltipster-html" title="[% 'The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>' | $T8 %]">[% HTML.escape(SELF.part.formel) %]</textarea>
                </td>
              </tr>
+             [% IF CUSTOM_VARIABLES_FIRST_TAB %]
+              <tr><td>[% 'Unchecked custom variables will not appear in orders and invoices.' | $T8 %]</td></tr>
+               [%- FOREACH var = CUSTOM_VARIABLES_FIRST_TAB %]
+               <tr>
+                <td align="left" valign="top">[% var.VALID_BOX %]
+                [%- IF !var.partsgroup_filtered %]
+                  [% HTML.escape(var.description) %]
+                [%- END %]
+               </tr>
+               <tr><td>[% var.HTML_CODE %]</td></tr>
+               [%- END %]
+             [% END %]
             </table>
            </td>
           </tr>

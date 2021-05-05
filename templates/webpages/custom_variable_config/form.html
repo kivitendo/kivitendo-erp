@@ -97,6 +97,14 @@
                             labeldx => LxERP.t8("Partsgroups where variables are shown")) %]
     </td>
    </tr>
+   <tr data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
+    <td align="right">[% 'Display in basic data tab' | $T8 %]</td>
+    <td>
+     [% L.radio_button_tag('config.first_tab', value='1', id='config.first_tab', label=LxERP.t8('Yes'), checked=(SELF.config.first_tab ?  1 : '')) %]
+     [% L.radio_button_tag('config.first_tab', value='0', id='config.first_tab', label=LxERP.t8('No'),  checked=(SELF.config.first_tab ? '' :  1)) %]
+    </td>
+   </tr>
+
   </table>
  </p>
 

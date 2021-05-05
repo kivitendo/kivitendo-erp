@@ -11,6 +11,7 @@ __PACKAGE__->meta->table('custom_variable_configs');
 __PACKAGE__->meta->columns(
   default_value       => { type => 'text' },
   description         => { type => 'text', not_null => 1 },
+  first_tab           => { type => 'boolean', default => 'false', not_null => 1 },
   flags               => { type => 'text' },
   id                  => { type => 'integer', not_null => 1, sequence => 'custom_variable_configs_id' },
   includeable         => { type => 'boolean', not_null => 1 },

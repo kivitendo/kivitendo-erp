@@ -12,6 +12,7 @@ use SL::Controller::Helper::GetModels;
 use SL::Locale::String qw(t8);
 use SL::JSON;
 use List::Util qw(sum);
+use List::UtilsBy qw(extract_by);
 use SL::Helper::Flash;
 use Data::Dumper;
 use DateTime;
@@ -230,8 +231,11 @@ sub render_form {
 
   $params{CUSTOM_VARIABLES}  = CVar->get_custom_variables(module => 'IC', trans_id => $self->part->id);
 
-  CVar->render_inputs('variables' => $params{CUSTOM_VARIABLES}, show_disabled_message => 1, partsgroup_id => $self->part->partsgroup_id)
-    if (scalar @{ $params{CUSTOM_VARIABLES} });
+  if (scalar @{ $params{CUSTOM_VARIABLES} }) {
+    CVar->render_inputs('variables' => $params{CUSTOM_VARIABLES}, show_disabled_message => 1, partsgroup_id => $self->part->partsgroup_id);
+    $params{CUSTOM_VARIABLES_FIRST_TAB}       = [];
+    @{ $params{CUSTOM_VARIABLES_FIRST_TAB} }  = extract_by { $_->{first_tab} == 1 } @{ $params{CUSTOM_VARIABLES} };
+  }
 
   my %title_hash = ( part       => t8('Edit Part'),
                      assembly   => t8('Edit Assembly'),

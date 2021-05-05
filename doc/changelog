@@ -32,6 +32,8 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+ - Die benutzerdefinierten Variablen für Artikel können konfigurierbar im Tab Basisdaten
+   angezeigt werden (ohne extra Klick auf einen weiteren Tab)
  - Der Lagerbestandsbericht wurde um die Anzeige von benutzerdefinierten Variablen
    aus dem Bereich Artikel erweitert
  - Im Lagerjournal ist standardmäßig die Berichtsanzeige um Dokument angehakt.
