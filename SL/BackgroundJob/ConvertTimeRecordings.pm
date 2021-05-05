@@ -156,8 +156,10 @@ sub convert_without_linking {
   my %time_recordings_by_customer_id;
   push @{ $time_recordings_by_customer_id{$_->customer_id} }, $_ for @$time_recordings;
 
-  my %convert_params = map { $_ => $self->params->{$_} } qw(rounding link_order project_id);
-  $convert_params{default_part_id} = $self->params->{part_id};
+  my %convert_params = (
+    rounding        => $self->params->{rounding},
+    default_part_id => $self->params->{part_id},
+  );
 
   my @donumbers;
   foreach my $customer_id (keys %time_recordings_by_customer_id) {
@@ -193,8 +195,10 @@ sub convert_without_linking {
 sub convert_with_linking {
   my ($self, $time_recordings_by_order_id, $orders_by_order_id) = @_;
 
-  my %convert_params = map { $_ => $self->params->{$_} } qw(rounding link_order project_id);
-  $convert_params{default_part_id} = $self->params->{part_id};
+  my %convert_params = (
+    rounding        => $self->params->{rounding},
+    default_part_id => $self->params->{part_id},
+  );
 
   my @donumbers;
   foreach my $related_order_id (keys %$time_recordings_by_order_id) {
