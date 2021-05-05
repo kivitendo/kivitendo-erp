@@ -146,11 +146,20 @@
          [% L.radio_button_tag("stock_value_basis", value='list_price',     checked=0, label=LxERP.t8('List Price')) %]
         </td>
        </tr>
+       <tr>
         <th align="right">
           [% "List all rows" | $T8 %]:
         </th>
         <td align="left">
          [% L.yes_no_tag("allrows", 1) %]
+        </td>
+       </tr>
+       <tr>
+        <th align="right">
+          [% "Results per page" | $T8 %]:
+        </th>
+        <td align="left">
+         [% L.input_number_tag("per_page", 20, size=4) %]
         </td>
        </tr>
       </table>
