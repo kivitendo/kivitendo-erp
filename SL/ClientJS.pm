@@ -303,20 +303,15 @@ First some JavaScript code:
   // In the client generate an AJAX request whose 'success' handler
   // calls "eval_json_result(data)":
   var data = {
-    action: "SomeController/the_action",
+    action: "SomeController/my_personal_action",
     id:     $('#some_input_field').val()
   };
   $.post("controller.pl", data, eval_json_result);
 
-Now some Perl code:
+Now some Controller (perl) code for my personal action:
 
-  # In the controller itself. First, make sure that the "client_js.js"
-  # is loaded. This must be done when the whole side is loaded, so
-  # it's not in the action called by the AJAX request shown above.
-  $::request->layout->use_javascript('client_js.js');
-
-  # Now in that action called via AJAX:
-  sub action_the_action {
+  # my personal action
+  sub action_my_personal_action {
     my ($self) = @_;
 
     # Create a new client-side JS object and do stuff with it!
