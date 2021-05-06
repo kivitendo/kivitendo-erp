@@ -134,6 +134,9 @@ namespace("kivi.Validator", function(ns) {
       if ($e.hasClass('tooltipstered'))
         $e.tooltipster('destroy');
 
+      if ($e.data('title'))
+        error = $e.data('title') + ': ' + error;
+
       $e.tooltipster({
         content: error,
         theme: 'tooltipster-light',
