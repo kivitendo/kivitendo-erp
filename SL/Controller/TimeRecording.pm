@@ -165,7 +165,7 @@ sub init_time_recording {
   my %attributes = %{ $::form->{time_recording} || {} };
 
   if ($self->use_duration) {
-    if ($::form->{duration_h} || $::form->{duration_m}) {
+    if (exists $::form->{duration_h} || exists $::form->{duration_m}) {
       $attributes{duration} = _round_number(_parse_number($::form->{duration_h}) * 60 + _parse_number($::form->{duration_m}), 0);
     }
 
