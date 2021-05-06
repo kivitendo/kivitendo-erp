@@ -5,11 +5,14 @@ namespace("kivi.Validator", function(ns) {
   // 'selector'. Elements that should be validated must have an
   // attribute named "data-validate" which is set to a space-separated
   // list of tests to perform. Additionally, the attribute
-  // "data-title" must be set to a human-readable name of the field
-  // that can be shown as part of an error message.
+  // "data-title" can be set to a human-readable name of the field
+  // that can be shown in front of an error message.
   //
   // Supported validation tests are:
   // - "required": the field must be set (its .val() must not be empty)
+  // - "number": the field must be in number format (its .val() must in the right format)
+  // - "date": the field must be in date format (its .val() must in the right format)
+  // - "time": the field must be in time format (its .val() must in the right format)
   //
   // The validation will abort and return "false" as soon as
   // validation routine fails.
