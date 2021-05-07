@@ -2259,6 +2259,7 @@ $self->{texts} = {
   'OpenDocument/OASIS'          => '',
   'Openings'                    => '',
   'Option'                      => '',
+  'Optional'                    => '',
   'Optional comment'            => '',
   'Options'                     => '',
   'Or download the whole Installation Documentation as PDF (350kB) for off-line study (currently in German Language): ' => '',

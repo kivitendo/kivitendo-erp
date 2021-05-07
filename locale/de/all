@@ -2259,6 +2259,7 @@ $self->{texts} = {
   'OpenDocument/OASIS'          => 'OpenDocument/OASIS',
   'Openings'                    => 'Öffnungszeiten',
   'Option'                      => 'Option',
+  'Optional'                    => 'Optional',
   'Optional comment'            => 'Optionaler Kommentar',
   'Options'                     => 'Optionen',
   'Or download the whole Installation Documentation as PDF (350kB) for off-line study (currently in German Language): ' => 'Oder laden Sie die komplette Installationsbeschreibung als PDF (350kB) herunter: ',
