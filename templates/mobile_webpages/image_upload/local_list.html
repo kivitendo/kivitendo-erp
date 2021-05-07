@@ -37,9 +37,9 @@
     <p>Schritt 2: Dateien hochladen</p>
   <div class="container">
     <div class="row">
-      [% P.M.input_tag("object_number", "", label=LxERP.t8("Number"), class="col s4", onchange="kivi.ImageUpload.resolve_object(event)") %]
+      [% P.M.input_tag("object_number", "", label=LxERP.t8("Number"), class="col s4", onkeyup="kivi.ImageUpload.resolve_object(event)") %]
       <div id="object_description" class="col s8">-</div>
-      [% P.M.button_tag("submit", LxERP.t8("Upload Images"), class="col s12") %]
+      [% P.M.button_tag("kivi.ImageUpload.upload_files()", LxERP.t8("Upload Images"), class="col s12") %]
     </div>
 
 
