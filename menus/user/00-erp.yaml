@@ -1537,3 +1537,17 @@
   order: 700
   params:
     action: LoginScreen/logout
+
+- id: develop
+  name: Developer Tools
+  icon: developer
+  order: 1200
+  access: developer
+- parent: develop
+  id: part_test
+  name: Part Test
+  access: developer
+  icon: part
+  order: 100
+  params:
+    action: Part/test_page

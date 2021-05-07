@@ -41,6 +41,9 @@ use Rose::Object::MakeMethods::Generic (
 __PACKAGE__->run_before(sub { $::auth->assert('part_service_assembly_edit') },
                         except => [ qw(ajax_autocomplete part_picker_search part_picker_result) ]);
 
+__PACKAGE__->run_before(sub { $::auth->assert('developer') },
+                        only => [ qw(test_page) ]);
+
 __PACKAGE__->run_before('check_part_id', only   => [ qw(edit delete) ]);
 
 # actions for editing parts
