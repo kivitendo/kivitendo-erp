@@ -42,29 +42,37 @@ namespace("kivi.FileDB", function(ns) {
   };
 
   ns.store_image = function (blob, filename, success) {
-    let put_request = ns.open_store("readwrite").add(blob, filename);
+    ns.open_rw_store((store) => {
+      let put_request = store.add(blob, filename);
 
-    put_request.onsuccess = success;
-    put_request.on_error = ns.onerror;
+      put_request.onsuccess = success;
+      put_request.on_error = ns.onerror;
+    });
   };
 
   ns.retrieve_image = function(key, success) {
-    let get_request = ns.open_store().objectStore(store).get(key);
+    ns.open_ro_store((store) => {
+      let get_request = store.get(key);
 
-    get_request.onsuccess = success;
-    get_request.onerror = request.onerror;
+      get_request.onsuccess = success;
+      get_request.onerror = request.onerror;
+    });
   };
 
   ns.retrieve_all = function(success) {
-    let request = ns.open_store().getAll();
-    request.onsuccess = (event) => { success(event.target.result); };
-    request.onerror = ns.error;
+    ns.open_ro_store((store) => {
+      let request = store.getAll();
+      request.onsuccess = (event) => { success(event.target.result); };
+      request.onerror = ns.error;
+    });
   };
 
   ns.retrieve_all_keys = function(success) {
-    let request = ns.open_store().getAllKeys();
-    request.onsuccess = (event) => { success(event.target.result); };
-    request.onerror = ns.error;
+    ns.open_ro_store((store) => {
+      let request = store.getAllKeys();
+      request.onsuccess = (event) => { success(event.target.result); };
+      request.onerror = ns.error;
+    });
   };
 
   ns.delete_all= function() {
@@ -74,12 +82,30 @@ namespace("kivi.FileDB", function(ns) {
   };
 
   ns.delete_key= function(key, success) {
-    let request = ns.open_store("readwrite").delete(key);
-    request.onsuccess = (event) => { if (success) success(event.target.result); };
-    request.onerror = ns.error;
+    ns.open_rw_store((store) => {
+      let request = store.delete(key);
+      request.onsuccess = (event) => { if (success) success(event.target.result); };
+      request.onerror = ns.error;
+    });
   };
 
-  ns.open_store = function(mode = "readonly")  {
+  ns.open_rw_store = function(callback) {
+    if (db && db_version == db.version) {
+      callback(ns.open_store("readwrite"));
+    } else {
+      request.aftersuccess.push(() => callback(ns.open_store("readwrite")));
+    }
+  };
+
+  ns.open_ro_store = function(callback) {
+    if (db && db_version == db.version) {
+      callback(ns.open_store("readonly"));
+    } else {
+      request.aftersuccess.push(() => callback(ns.open_store("readonly")));
+    }
+  };
+
+  ns.open_store = function(mode = "readonly") {
     return db.transaction([store], mode).objectStore(store);
   };
 
