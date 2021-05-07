@@ -5,10 +5,12 @@ use parent qw(SL::Controller::Base);
 
 use DateTime;
 use English qw(-no_match_vars);
+use List::Util qw(sum0);
 use POSIX qw(strftime);
 
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
+use SL::Controller::Helper::ReportGenerator::ControlRow qw(make_control_row);
 use SL::DB::Customer;
 use SL::DB::Employee;
 use SL::DB::Order;
@@ -17,7 +19,7 @@ use SL::DB::Project;
 use SL::DB::TimeRecording;
 use SL::DB::TimeRecordingArticle;
 use SL::Helper::Flash qw(flash);
-use SL::Helper::Number qw(_round_number _parse_number);
+use SL::Helper::Number qw(_round_number _parse_number _round_total);
 use SL::Helper::UserPreferences::TimeRecording;
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
@@ -63,7 +65,22 @@ sub action_list {
   $self->make_filter_summary;
   $self->prepare_report;
 
-  $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get);
+  my $objects = $self->models->get;
+
+  my $total   = sum0 map { _round_total($_->duration_in_hours) } @$objects;
+  my $total_h = int($total);
+  my $total_m = int($total * 60.0 + 0.5) % 60;
+  my $total_s = sprintf('%d:%02d', $total_h, $total_m);
+
+  push @$objects, make_control_row("separator");
+  push @$objects, make_control_row("data",
+                                   row => {
+                                     map( { $_ => {class => 'listtotal'} } keys %{$self->{report}->{columns}} ),
+                                     description => {data => t8('Total'), class => 'listtotal'},
+                                     duration    => {data => $total_s,    class => 'listtotal'}
+                                   });
+
+  $self->report_generator_list_objects(report => $self->{report}, objects => $objects);
 }
 
 sub action_edit {
