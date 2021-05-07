@@ -2317,6 +2317,7 @@ $self->{texts} = {
   'PLZ Grosskunden'             => '',
   'POSTED'                      => '',
   'POSTED AS NEW'               => '',
+  'PREVIEWED'                   => '',
   'PRINTED'                     => '',
   'Package name'                => '',
   'Packing Lists'               => '',

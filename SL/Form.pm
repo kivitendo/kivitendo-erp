@@ -2958,6 +2958,7 @@ sub save_status {
 # $main::locale->text('ELSE')
 # $main::locale->text('SAVED FOR DUNNING')
 # $main::locale->text('DUNNING STARTED')
+# $main::locale->text('PREVIEWED')
 # $main::locale->text('PRINTED')
 # $main::locale->text('MAILED')
 # $main::locale->text('SCREENED')
