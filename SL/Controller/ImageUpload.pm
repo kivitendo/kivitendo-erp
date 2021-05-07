@@ -3,6 +3,8 @@ package SL::Controller::ImageUpload;
 use strict;
 use parent qw(SL::Controller::Base);
 
+use JSON qw(to_json);
+
 use SL::DB::Part;
 use SL::DB::Order;
 use SL::DB::DeliveryOrder;
@@ -34,6 +36,17 @@ sub action_upload_image {
   $self->render('image_upload/local_list');
 }
 
+sub action_resolve_object_by_number {
+  my ($self) = @_;
+
+  my $result = {
+    id          => $self->object->id,
+    description => $self->object->displayable_name,
+  };
+
+  $self->render(\ to_json($result), { process => 0, type => 'json' });
+}
+
 ################# internal ###############
 
 sub init_object_type {
@@ -50,7 +63,7 @@ sub init_object {
 
   return $manager->find_by(id => $::form->{object_id}*1) if $::form->{object_id};
 
-  return $manager->find_by(donumber => $::form->{object_number}, @{ $loader->[1] // [] }) if $::form->{object_number};
+  return $manager->find_by(donumber => $::form->{object_number}, closed => 0, @{ $loader->[1] // [] }) if $::form->{object_number};
 }
 
 
