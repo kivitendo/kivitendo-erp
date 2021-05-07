@@ -1,6 +1,8 @@
 namespace("kivi.ImageUpload", function(ns) {
   "use strict";
 
+  const MAXSIZE = 5*1024*1024; // 5MB size limit
+
   ns.add_files = function(target) {
     let files = [];
     for (var i = 0; i < target.files.length; i++) {
@@ -44,7 +46,16 @@ namespace("kivi.ImageUpload", function(ns) {
     });
   };
 
-  ns.upload_selected_files = function(id,type,filetype,maxsize) {
+  ns.upload_files = function() {
+    let id = $('#object_id').val();
+    let type = $('#object_type').val();
+
+    ns.upload_selected_files(id, type, MAXSIZE);
+  };
+
+  ns.upload_selected_files = function(id, type, maxsize) {
+    $("#upload_modal").modal("open");
+
     kivi.FileDB.retrieve_all((myfiles) => {
       let filesize  = 0;
       myfiles.forEach(file => {
@@ -55,23 +66,22 @@ namespace("kivi.ImageUpload", function(ns) {
         }
 
         let data = new FormData();
-        data.append(file);
+        data.append("uploadfiles[]", file);
         data.append("action", "File/ajax_files_uploaded");
         data.append("json", "1");
         data.append("object_type", type);
         data.append("object_id", id);
-        data.append("file_type", filetype);
+        data.append("file_type", "attachment");
 
         $("#upload_result").html(kivi.t8("start upload"));
 
-        $.ajax({
-          url: "controller.pl",
-          data: data,
-          success: ns.attSuccess,
-          progress: ns.attProgress,
-          error: ns.attFailes,
-          abort: ns.attCanceled
-        });
+        let xhr = new XMLHttpRequest;
+        xhr.open('POST', 'controller.pl', true);
+        xhr.success = ns.attSuccess;
+        xhr.progress = ns.attProgress;
+        xhr.error = ns.attFailed;
+        xhr.abort = ns.attCanceled;
+        xhr.send(data);
       });
     });
   };
@@ -96,6 +106,34 @@ namespace("kivi.ImageUpload", function(ns) {
   ns.attSuccess = function() {
     $('#upload_modal').modal('close');
     $("#upload_result").html(kivi.t8("Files have been uploaded successfully."));
+  };
+
+  ns.resolve_object = function(event) {
+    let obj_type = $('#object_type').val();
+    let number   = event.target.value;
+
+    $.ajax({
+      url: "controller.pl",
+      data: {
+        action: "ImageUpload/resolve_object_by_number",
+        object_type: obj_type,
+        object_number: number
+      },
+      type: "json",
+      success: (json) => {
+        if (json.error) {
+          $("#object_description").html("");
+          $("#object_id").val("");
+        } else {
+          $("#object_description").html(json.description);
+          $("#object_id").val(json.id);
+        }
+      },
+      error: () => {
+        $("#object_description").html("");
+        $("#object_id").val("");
+      }
+    });
   };
 
   ns.init = function() {

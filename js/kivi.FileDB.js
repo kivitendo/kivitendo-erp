@@ -15,6 +15,7 @@ namespace("kivi.FileDB", function(ns) {
     ns.create_image_store(event.target.result);
   };
   request.onerror = ns.onerror;
+  request.aftersuccess = [];
   request.onsuccess = () => {
     db = request.result;
 
@@ -32,6 +33,8 @@ namespace("kivi.FileDB", function(ns) {
         };
       }
     }
+
+    request.aftersuccess.forEach(f => f());
   };
 
   ns.create_image_store = function (db) {
@@ -83,5 +86,14 @@ namespace("kivi.FileDB", function(ns) {
   ns.onerror = (event) => {
     console.error("Error creating/accessing IndexedDB database");
     console.error(event.errorState);
+  };
+
+  ns.with_db = function(success) {
+    if (db && db_version == db.version) {
+      success();
+    } else {
+      // assume the page load db init isn't done yet and push it onto the success
+      request.aftersuccess.push(success);
+    }
   };
 });
