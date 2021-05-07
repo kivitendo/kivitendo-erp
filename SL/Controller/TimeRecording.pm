@@ -17,7 +17,7 @@ use SL::DB::Project;
 use SL::DB::TimeRecording;
 use SL::DB::TimeRecordingArticle;
 use SL::Helper::Flash qw(flash);
-use SL::Helper::Number qw(_round_number _parse_number _format_total);
+use SL::Helper::Number qw(_round_number _parse_number);
 use SL::Helper::UserPreferences::TimeRecording;
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
@@ -90,7 +90,6 @@ sub action_edit {
 
   $self->render('time_recording/form',
                 title  => t8('Time Recording'),
-                ZERO   => _format_total(0.00),
   );
 }
 

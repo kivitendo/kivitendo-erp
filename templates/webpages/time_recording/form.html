@@ -24,9 +24,9 @@
       <th align="right">[% 'Duration' | $T8 %]</th>
       <td>
         [% P.input_tag('duration_h', SELF.time_recording.duration_as_hours   || '', size=4, class='numeric',
-           "data-validate"="number", "data-title"=LxERP.t8('h'),   "placeholder"= ZERO) %] [% 'h'   | $T8 %]<sup>(1)</sup>
+           "data-validate"="number", "data-title"=LxERP.t8('h'),   "placeholder"=LxERP.format_amount(0.00, 2)) %] [% 'h'   | $T8 %]<sup>(1)</sup>
         [% P.input_tag('duration_m', SELF.time_recording.duration_as_minutes || '', size=4, class='numeric',
-           "data-validate"="number", "data-title"=LxERP.t8('min'), "placeholder"="0")   %] [% 'min' | $T8 %]
+           "data-validate"="number", "data-title"=LxERP.t8('min'), "placeholder"="0"                         ) %] [% 'min' | $T8 %]
       </td>
     </tr>
    [%- ELSE %]
