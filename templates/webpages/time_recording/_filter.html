@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [%- USE L %]
+[%- USE P %]
 [%- USE LxERP %]
 [%- USE HTML %]
 <form action='controller.pl' method='post' id='filter_form'>
@@ -25,6 +26,18 @@
   <tr>
     <th align="right">[% 'Customer Number' | $T8 %]</th>
     <td>[% L.input_tag('filter.customer.customernumber:substr::ilike', filter.customer.customernumber_substr__ilike, size = 20) %]</td>
+  </tr>
+  <tr>
+    <th align="right">[% 'Order Number' | $T8 %]</th>
+    <td>[% L.input_tag('filter.order.ordnumber:substr::ilike', filter.order.ordnumber_substr__ilike, size = 20) %]</td>
+  </tr>
+  <tr>
+    <th align="right">[% 'Project' | $T8 %]</th>
+    <td>[% P.project.picker('filter.project_id', filter.project_id, active="both", valid="both", size = 20) %]</td>
+  </tr>
+  <tr>
+    <th align="right">[% 'Description' | $T8 %]</th>
+    <td>[% L.input_tag('filter.description:substr::ilike', filter.description_substr__ilike, size = 20) %]</td>
   </tr>
 
   [%- IF SELF.can_view_all -%]

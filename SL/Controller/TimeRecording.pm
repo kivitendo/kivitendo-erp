@@ -321,13 +321,17 @@ sub make_filter_summary {
   my $filter = $::form->{filter} || {};
   my @filter_strings;
 
-  my $staff_member = $filter->{staff_member_id} ? SL::DB::Employee->new(id => $filter->{staff_member_id})->load->safe_name : '';
+  my $staff_member = $filter->{staff_member_id} ? SL::DB::Employee->new(id => $filter->{staff_member_id})->load->safe_name        : '';
+  my $project      = $filter->{project_id}      ? SL::DB::Project->new (id => $filter->{project_id})     ->load->displayable_name : '';
 
   my @filters = (
-    [ $filter->{"date:date::ge"},                              t8('From Date')      ],
-    [ $filter->{"date:date::le"},                              t8('To Date')        ],
+    [ $filter->{"date:date::ge"},                              t8('From Date')       ],
+    [ $filter->{"date:date::le"},                              t8('To Date')         ],
     [ $filter->{"customer"}->{"name:substr::ilike"},           t8('Customer')        ],
     [ $filter->{"customer"}->{"customernumber:substr::ilike"}, t8('Customer Number') ],
+    [ $filter->{"order"}->{"ordnumber:substr::ilike"},         t8('Order Number')    ],
+    [ $project,                                                t8('Project')         ],
+    [ $filter->{"description:substr::ilike"},                  t8('Description')     ],
     [ $staff_member,                                           t8('Mitarbeiter')     ],
   );
 
