@@ -67,7 +67,8 @@ sub close_orders_if_billed {
   my $q_ordered = qq|SELECT oi.parts_id, oi.qty, oi.unit, p.unit AS partunit
                       FROM orderitems oi
                       LEFT JOIN parts p ON (oi.parts_id = p.id)
-                      WHERE oi.trans_id = ?|;
+                      WHERE oi.trans_id = ?
+                      AND not oi.optional|;
   my $h_ordered = prepare_query($form, $dbh, $q_ordered);
 
   my @close_oe_ids;

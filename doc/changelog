@@ -37,6 +37,21 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+ - Angebote und Aufträge im Ein- und Verkauf können optionale Positionen enthalten.
+   Optionale Positionen werden in der zweiten Zeile der Position aktiviert.
+   Die einzelne Position wird dann berechnet und erscheint im Ausdruck mit dem
+   berechnetem Preis, die Position wird aber nicht in der Gesamtsumme des Belegs
+   aufgenommen. Dies gilt auch für die Gesamt-Marge und den Gesamt-Ertrag des Belegs.
+   Innerhalb der Druckvorlagen steht das Attribut mit <%optional%> als Variable zu Verfügung.
+   Beim Status setzen eines Auftrags (offen oder geschlossen) werden optionale Position
+   ignoriert. D.h. ein Auftrag gilt als geschlossen, wenn alle nicht optionalen
+   Positionen fakturiert worden sind. Das Attribut optional steht auch nur in
+   den Angeboten/Aufträgen zu Verfügung. Sobald über den Workflow ein neuer Beleg
+   erstellt wird, wird die vorher optionale Position zu einer normalen Position
+   und wird dann auch entsprechend bei dem Rechnungsbeleg mit fakturiert und im
+   Druckvorlagen-System entfällt das Attribut <%optional%>.
+   Entsprechend exemplarisch im aktuellen Druckvorlagensatz RB ergänzt.
+
  - Lagerbestandsbericht: Die Resultate pro Seite können im Bericht eingestellt werden
  - Es gibt eine PDF-Druckvorschau für die Standard-Druckvorlage bei Angeboten und
    Aufträgen im Einkauf und Verkauf ohne ein vorheriges Dialogmenü (Druckvorlage

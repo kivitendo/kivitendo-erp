@@ -97,7 +97,7 @@ sub flatten_to_form {
     _copy($item->part,    $form, '',               "_${idx}", 0,               qw(listprice));
     _copy($item,          $form, '',               "_${idx}", 0,               qw(description project_id ship serialnumber pricegroup_id ordnumber donumber cusordnumber unit
                                                                                   subtotal longdescription price_factor_id marge_price_factor reqdate transdate
-                                                                                  active_price_source active_discount_source));
+                                                                                  active_price_source active_discount_source optional));
     _copy($item,          $form, '',              "_${idx}", $format_noround, qw(qty sellprice fxsellprice));
     _copy($item,          $form, '',              "_${idx}", $format_amounts, qw(marge_total marge_percent lastcost));
     _copy($item,          $form, '',              "_${idx}", $format_percent, qw(discount));

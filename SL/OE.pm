@@ -1366,7 +1366,7 @@ sub order_details {
        partnotes serialnumber reqdate sellprice sellprice_nofmt listprice listprice_nofmt netprice netprice_nofmt
        discount discount_nofmt p_discount discount_sub discount_sub_nofmt nodiscount_sub nodiscount_sub_nofmt
        linetotal linetotal_nofmt nodiscount_linetotal nodiscount_linetotal_nofmt tax_rate projectnumber projectdescription
-       price_factor price_factor_name partsgroup weight weight_nofmt lineweight lineweight_nofmt);
+       price_factor price_factor_name partsgroup weight weight_nofmt lineweight lineweight_nofmt optional);
 
   push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
   push @arrays, map { "project_cvar_$_->{name}" } @{ $project_cvar_configs };
@@ -1433,6 +1433,7 @@ sub order_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{price_factor} },      $price_factor->{formatted_factor};
       push @{ $form->{TEMPLATE_ARRAYS}->{price_factor_name} }, $price_factor->{description};
       push @{ $form->{TEMPLATE_ARRAYS}->{partsgroup} },        $form->{"partsgroup_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{optional} },          $form->{"optional_$i"};
 
       my $sellprice     = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
       my ($dec)         = ($sellprice =~ /\.(\d+)/);
@@ -1472,7 +1473,7 @@ sub order_details {
         $form->{non_separate_subtotal} += $linetotal;
       }
 
-      $form->{ordtotal}         += $linetotal;
+      $form->{ordtotal}         += $linetotal unless $form->{"optional_$i"};
       $form->{nodiscount_total} += $nodiscount_linetotal;
       $form->{discount_total}   += $discount;
 
@@ -1520,14 +1521,16 @@ sub order_details {
 
       map { $taxrate += $form->{"${_}_rate"} } split(/ /, $form->{"taxaccounts_$i"});
 
-      if ($form->{taxincluded}) {
+      unless ($form->{"optional_$i"}) {
+        if ($form->{taxincluded}) {
 
-        # calculate tax
-        $taxamount = $linetotal * $taxrate / (1 + $taxrate);
-        $taxbase = $linetotal / (1 + $taxrate);
-      } else {
-        $taxamount = $linetotal * $taxrate;
-        $taxbase   = $linetotal;
+          # calculate tax
+          $taxamount = $linetotal * $taxrate / (1 + $taxrate);
+          $taxbase = $linetotal / (1 + $taxrate);
+        } else {
+          $taxamount = $linetotal * $taxrate;
+          $taxbase   = $linetotal;
+        }
       }
 
       if ($taxamount != 0) {

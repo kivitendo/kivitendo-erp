@@ -23,6 +23,7 @@ __PACKAGE__->meta->columns(
   marge_price_factor     => { type => 'numeric', default => 1, precision => 15, scale => 5 },
   marge_total            => { type => 'numeric', precision => 15, scale => 5 },
   mtime                  => { type => 'timestamp' },
+  optional               => { type => 'boolean', default => 'false' },
   ordnumber              => { type => 'text' },
   parts_id               => { type => 'integer' },
   position               => { type => 'integer', not_null => 1 },
