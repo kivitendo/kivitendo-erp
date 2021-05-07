@@ -4,6 +4,7 @@ use strict;
 
 use Carp;
 use List::Util qw(max);
+use Scalar::Util qw(blessed);
 
 use SL::Common;
 use SL::MoreCommon;
@@ -126,16 +127,24 @@ sub report_generator_list_objects {
   my @columns     = $params{report}->get_visible_columns('HTML');
 
   for my $obj (@{ $params{objects} || [] }) {
-    my %data = map {
-      my $def = $column_defs->{$_};
-      my $tmp;
-      $tmp->{raw_data} = $def->{raw_data} ? $def->{raw_data}->($obj) : '';
-      $tmp->{data}     = $def->{sub}      ? $def->{sub}->($obj)
-                       : $obj->can($_)    ? $obj->$_
-                       :                    $obj->{$_};
-      $tmp->{link}     = $def->{obj_link} ? $def->{obj_link}->($obj) : '';
-      $_ => $tmp;
-    } @columns;
+    my %data;
+
+    if (blessed($obj) && $obj->isa('SL::Controller::Helper::ReportGenerator::ControlRow::Base')) {
+      $obj->set_data($params{report});
+      next;
+
+    } else {
+      %data = map {
+        my $def = $column_defs->{$_};
+        my $tmp;
+        $tmp->{raw_data} = $def->{raw_data} ? $def->{raw_data}->($obj) : '';
+        $tmp->{data}     = $def->{sub}      ? $def->{sub}->($obj)
+                         : $obj->can($_)    ? $obj->$_
+                         :                    $obj->{$_};
+        $tmp->{link}     = $def->{obj_link} ? $def->{obj_link}->($obj) : '';
+        $_ => $tmp;
+      } @columns;
+    }
 
     $params{data_callback}->(\%data) if $params{data_callback};
 
@@ -250,6 +259,14 @@ already (column definitions, title, sort handling etc).
 =item C<objects>
 
 Mandatory. An array reference of RDBO models to output.
+
+An element of the array can also be an instance of a control row, i.e.
+an instance of a class derived from
+C<SL::Controller::Helper::ReportGenerator::ControlRow::Base>.
+See also:
+
+L<SL::Controller::Helper::ReportGenerator::ControlRow>
+L<SL::Controller::Helper::ReportGenerator::ControlRow::*>
 
 =item C<data_callback>
 
