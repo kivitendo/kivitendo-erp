@@ -93,6 +93,9 @@ namespace('kivi', function(k){
         data['filter.valid'] = 'valid'; // default
       }
 
+      if (o.description_style)
+        data['description_style'] = o.description_style;
+
       return data;
     }
 

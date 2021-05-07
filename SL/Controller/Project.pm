@@ -120,10 +120,14 @@ sub action_ajax_autocomplete {
 
   $::form->{sort_by} = 'customer_and_description';
 
+  my $description_style = ($::form->{description_style} =~ m{both|number|description|full})
+                        ? $::form->{description_style}
+                        : 'full';
+
   my @hashes = map {
    +{
-     value         => $_->full_description(style => 'full'),
-     label         => $_->full_description(style => 'full'),
+     value         => $_->full_description(style => $description_style),
+     label         => $_->full_description(style => $description_style),
      id            => $_->id,
      projectnumber => $_->projectnumber,
      description   => $_->description,

@@ -39,7 +39,7 @@ sub project_picker {
   push @classes, 'project_autocomplete';
 
 
-  my %data_params = map { $_ => delete $params{$_}  } grep { defined $params{$_} } qw(customer_id active valid);
+  my %data_params = map { $_ => delete $params{$_}  } grep { defined $params{$_} } qw(customer_id active valid description_style);
 
   my $ret =
     input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
