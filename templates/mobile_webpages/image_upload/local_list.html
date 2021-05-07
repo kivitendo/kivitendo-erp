@@ -7,6 +7,8 @@
 
   <div id="updoad_result"></div>
 
+  <p>Schritt 1: Bilder machen</p>
+
   <div id="stored-images" class="container">
   </div>
 
@@ -14,9 +16,9 @@
   <div class="container">
     <div class="row">
 
-      <div class="file-field input-field col">
-        <div class="btn m3 s12">
-          <span>[% 'Upload Image' | $T8 %]</span>
+      <div class="file-field input-field col s12">
+        <div class="btn m3 s12 col">
+          <span><i class='material-icons col s12 center'>add_a_photo</i></span>
           <input
             name="uploadfiles[]" type="file" [% IF multiple %]multiple[% END %]
             id="upload_files" accept="[% SELF.accept_types %]" capture="camera"
@@ -28,20 +30,40 @@
       </div>
 
     </div>
-
-    <div class="row">
-      [% P.M.input_tag("object_number", "", label=LxERP.t8("Number")) %]
-      [% P.M.button_tag("submit", LxERP.t8("Upload")) %]
-    </div>
-
-
-    </div>
   </div>
+
+    <hr>
+
+    <p>Schritt 2: Dateien hochladen</p>
+  <div class="container">
+    <div class="row">
+      [% P.M.input_tag("object_number", "", label=LxERP.t8("Number"), class="col s4", onchange="kivi.ImageUpload.resolve_object(event)") %]
+      <div id="object_description" class="col s8">-</div>
+      [% P.M.button_tag("submit", LxERP.t8("Upload Images"), class="col s12") %]
+    </div>
+
+
+  </div>
+</div>
+
+<div id="warn_modal" class="modal">
+  <div class="modal-content">
+    <h4>Warning</h4>
+
+    <p></p>
+  </div>
+</div>
 
 <div id="upload_modal" class="modal">
   <div class="modal-content">
     <h4>Uploading</h4>
 
-    <p>A bunch of text</p>
+    <div class="progress">
+      <div class="indeterminate"></div>
+    </div>
   </div>
 </div>
+
+
+[% L.hidden_tag("object_type", FORM.object_type) %]
+[% L.hidden_tag("object_id") %]
