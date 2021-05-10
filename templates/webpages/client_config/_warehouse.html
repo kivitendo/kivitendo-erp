@@ -116,5 +116,11 @@
     [% LxERP.t8('Any stock contents containing a best before date will be impossible to stock out otherwise.') %]
    </td>
   </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Undo Transfer Interval') %]</td>
+   <td>[% L.input_tag('defaults.unod_transfer_interval', LxERP.format_amount(SELF.defaults.undo_transfer_interval, 7), style=style) %]</td>
+   <td>[% LxERP.t8('Defines the interval where undoing transfers from a delivery order are allowed.') %]</td>
+  </tr>
+
  </table>
 </div>
