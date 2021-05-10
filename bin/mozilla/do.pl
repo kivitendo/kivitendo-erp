@@ -1624,6 +1624,7 @@ sub transfer_in {
 
   SL::DB::DeliveryOrder->new(id => $form->{id})->load->update_attributes(delivered => 1);
 
+  flash_later('info', $locale->text("Transfer successful"));
   $form->{callback} = 'do.pl?action=edit&type=purchase_delivery_order&id=' . $form->escape($form->{id});
   $form->redirect;
 
@@ -1742,6 +1743,7 @@ sub transfer_out {
 
   SL::DB::DeliveryOrder->new(id => $form->{id})->load->update_attributes(delivered => 1);
 
+  flash_later('info', $locale->text("Transfer successful"));
   $form->{callback} = 'do.pl?action=edit&type=sales_delivery_order&id=' . $form->escape($form->{id});
   $form->redirect;
 
