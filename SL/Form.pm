@@ -2964,6 +2964,7 @@ sub save_status {
 # $main::locale->text('SCREENED')
 # $main::locale->text('CANCELED')
 # $main::locale->text('IMPORT')
+# $main::locale->text('UNDO TRANSFER')
 # $main::locale->text('UNIMPORT')
 # $main::locale->text('invoice')
 # $main::locale->text('proforma')

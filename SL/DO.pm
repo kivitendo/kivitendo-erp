@@ -649,6 +649,38 @@ sub delete {
   return $rc;
 }
 
+sub delete_transfers {
+  $main::lxdebug->enter_sub();
+
+  my ($self)   = @_;
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $rc = SL::DB::Order->new->db->with_transaction(sub {
+
+    my $do = SL::DB::DeliveryOrder->new(id => $form->{id})->load;
+    die "No valid delivery order found" unless ref $do eq 'SL::DB::DeliveryOrder';
+
+    my $dt = DateTime->today->subtract(days => $::instance_conf->get_undo_transfer_interval);
+    croak "Wrong call. Please check undoing interval" unless DateTime->compare($do->itime, $dt) == 1;
+
+    foreach my $doi (@{ $do->orderitems }) {
+      foreach my $dois (@{ $doi->delivery_order_stock_entries}) {
+        $dois->inventory->delete;
+        $dois->delete;
+      }
+    }
+    $do->update_attributes(delivered => 0);
+
+    1;
+  });
+
+  $main::lxdebug->leave_sub();
+
+  return $rc;
+}
+
 sub retrieve {
   $main::lxdebug->enter_sub();
 

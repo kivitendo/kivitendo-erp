@@ -241,6 +241,13 @@ sub setup_do_action_bar {
   my @req_trans_desc = qw(kivi.SalesPurchase.check_transaction_description) x!!$::instance_conf->get_require_transaction_description_ps;
   my $is_customer    = $::form->{vc} eq 'customer';
 
+  my $undo_date  = DateTime->today->subtract(days => $::instance_conf->get_undo_transfer_interval);
+  my $insertdate = DateTime->from_kivitendo($::form->{insertdate});
+  my $undo_transfer  = 0;
+  if (ref $undo_date eq 'DateTime' && ref $insertdate eq 'DateTime') {
+    # DateTime->compare      it returns 1 if $dt1 > $dt2
+    $undo_transfer = DateTime->compare($insertdate, $undo_date) == 1 ? 1 : 0;
+  }
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action =>
@@ -313,6 +320,13 @@ sub setup_do_action_bar {
           checks   => [ 'kivi.validate_form' ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
           only_if  => !$is_customer && $::instance_conf->get_transfer_default,
+        ],
+        action => [
+          t8('Undo Transfer'),
+          submit   => [ '#form', { action => "delete_transfers" } ],
+          checks   => [ 'kivi.validate_form' ],
+          only_if  => $::form->{delivered},
+          disabled => !$undo_transfer ? t8('Transfer date exceeds the maximum allowed interval.') : undef,
         ],
       ], # end of combobox "Transfer out"
 
@@ -966,6 +980,37 @@ sub delete {
   }
 
   $form->error($locale->text('Cannot delete delivery order!') . $ret);
+
+  $main::lxdebug->leave_sub();
+}
+sub delete_transfers {
+  $main::lxdebug->enter_sub();
+
+  check_do_access();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $ret;
+
+  die "Invalid form type" unless $form->{type} =~ m/^(sales|purchase)_delivery_order$/;
+
+  if ($ret = DO->delete_transfers()) {
+    # saving the history
+    if(!exists $form->{addition}) {
+      $form->{snumbers} = qq|donumber_| . $form->{donumber};
+      $form->{addition} = "UNDO TRANSFER";
+      $form->save_history;
+    }
+    # /saving the history
+
+    flash_later('info', $locale->text("Transfer undone."));
+
+    $form->{callback} = 'do.pl?action=edit&type=' . $form->{type} . '&id=' . $form->escape($form->{id});
+    $form->redirect;
+  }
+
+  $form->error($locale->text('Cannot undo delivery order transfer!') . $ret);
 
   $main::lxdebug->leave_sub();
 }

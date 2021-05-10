@@ -36,7 +36,8 @@ Mittelgroße neue Features:
      Mahnung
 
 Kleinere neue Features und Detailverbesserungen:
-
+ - Ausgelagerte Lieferscheinen können zurückgelagerte werden insofern der
+   konfigurierbare Zurücklagerungszeitraum noch nicht überschritten ist.
  - Angebote und Aufträge im Ein- und Verkauf können optionale Positionen enthalten.
    Optionale Positionen werden in der zweiten Zeile der Position aktiviert.
    Die einzelne Position wird dann berechnet und erscheint im Ausdruck mit dem
