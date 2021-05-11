@@ -1395,6 +1395,10 @@ sub post_transaction {
   if ($form->{callback} =~ /BankTransaction/ && $form->{bt_id}) {
     print $form->redirect_header($form->{callback});
     $form->redirect($locale->text('GL transaction posted.') . ' ' . $locale->text('ID') . ': ' . $form->{id});
+  } elsif ($::instance_conf->get_gl_add_doc && $::instance_conf->get_doc_storage) {
+    my $add_doc_url = build_std_url("script=gl.pl", 'action=edit', 'id=' . E($form->{id}));
+    print $form->redirect_header($add_doc_url);
+    $form->redirect($locale->text('GL transaction posted.') . ' ' . $locale->text('ID') . ': ' . $form->{id});
   }
 
   # remove or clarify

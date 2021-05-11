@@ -860,11 +860,15 @@ sub post {
     # no restore_from_session_id needed. we like to have a newly generated
     # list of invoices for bank transactions
     print $form->redirect_header($form->{callback}) if ($form->{callback} =~ /BankTransaction/);
-    $form->redirect($locale->text('AP transaction posted.') . ' ' . $locale->text('ID') . ': ' . $form->{id}) unless $inline;
-    # TODO Add callback/return flag in myconfig
     # With version 3.5 we can add documents, but only after posting. there should be a flag in myconfig for the user
     # $form->{callback} ||= 'ap.pl?action=edit&id=' . $form->{id} if $myconfig{no_reset_arap};
+    # or a client config setting
+    if ($::instance_conf->get_ap_add_doc && $::instance_conf->get_doc_storage) {
+      my $add_doc_url = build_std_url("script=ap.pl", 'action=edit', 'id=' . E($form->{id}));
+      print $form->redirect_header($add_doc_url);
+    }
 
+    $form->redirect($locale->text('AP transaction posted.') . ' ' . $locale->text('ID') . ': ' . $form->{id}) unless $inline;
   } else {
     $form->error($locale->text('Cannot post transaction!'));
   }

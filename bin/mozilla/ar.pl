@@ -817,6 +817,10 @@ sub post {
   }
   # /saving the history
 
+  if ($::instance_conf->get_ar_add_doc && $::instance_conf->get_doc_storage) {
+    my $add_doc_url = build_std_url("script=ar.pl", 'action=edit', 'id=' . E($form->{id}));
+    print $form->redirect_header($add_doc_url);
+  }
   $form->redirect($locale->text('AR transaction posted.') . ' ' . $locale->text('ID') . ': ' . $form->{id}) unless $inline;
 
   $main::lxdebug->leave_sub();

@@ -36,6 +36,10 @@ Mittelgroße neue Features:
      Mahnung
 
 Kleinere neue Features und Detailverbesserungen:
+  - Falls der Mandant zu jeder Buchung einen Beleg hinzufügen möchte,
+    ist dies jetzt in der Mandantenkonfiguration einstellbar und falls
+    zusätzlich die DMS Funktion aktiv ist, bleibt der Bearbeiter nach
+    dem  Erfassen einer Buchung in der Maske und kann einen Beleg hinzufügen
  - Ausgelagerte Lieferscheinen können zurückgelagerte werden insofern der
    konfigurierbare Zurücklagerungszeitraum noch nicht überschritten ist.
  - Angebote und Aufträge im Ein- und Verkauf können optionale Positionen enthalten.

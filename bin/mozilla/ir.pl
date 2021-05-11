@@ -935,6 +935,11 @@ sub post {
       $form->save_history;
     }
     # /saving the history
+    # I keep the old default / comment for refactorer, pls check instance_conf:
+    #if ($::instance_conf->get_ir_add_doc && $::instance_conf->get_doc_storage) {
+    #  my $add_doc_url = build_std_url("script=ir.pl", 'action=edit', 'id=' . E($form->{id}));
+    #  print $form->redirect_header($add_doc_url);
+    #}
     $form->{callback} = 'ir.pl?action=edit&id=' . $form->{id};
     $form->redirect(  $locale->text('Invoice')
                   . " $form->{invnumber} "
