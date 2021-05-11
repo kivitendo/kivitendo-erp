@@ -832,14 +832,16 @@ sub trial_balance {
   if ($form->{fromdate} || $form->{todate}) {
     if ($form->{fromdate}) {
       $fromdate = conv_dateq($form->{fromdate});
+      my $fiscal_year_startdate = conv_dateq($self->get_balance_starting_date($form->{fromdate}));
+      # my $date_trunc = "(select date_trunc('year', date $fromdate))";
       $tofrom        .= " AND (ac.transdate >= $fromdate)";
       $subwhere      .= " AND (ac.transdate >= $fromdate)";
-      $sumsubwhere   .= " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
-      $saldosubwhere .= " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
+      $sumsubwhere   .= " AND (ac.transdate >= $fiscal_year_startdate) ";
+      $saldosubwhere .= " AND (ac.transdate >= $fiscal_year_startdate) ";
       $invwhere      .= " AND (a.transdate  >= $fromdate)";
-      $glsaldowhere  .= " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
+      $glsaldowhere  .= " AND (ac.transdate >= $fiscal_year_startdate) ";
       $glwhere        = " AND (ac.transdate >= $fromdate)";
-      $glsumwhere     = " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
+      $glsumwhere     = " AND (ac.transdate >= $fiscal_year_startdate) ";
     }
     if ($form->{todate}) {
       $todate = conv_dateq($form->{todate});
