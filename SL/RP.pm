@@ -835,9 +835,9 @@ sub trial_balance {
       $tofrom        .= " AND (ac.transdate >= $fromdate)";
       $subwhere      .= " AND (ac.transdate >= $fromdate)";
       $sumsubwhere   .= " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
-      $saldosubwhere .= " AND (ac,transdate>=(select date_trunc('year', date $fromdate)))  ";
-      $invwhere      .= " AND (a.transdate >= $fromdate)";
-      $glsaldowhere  .= " AND ac.transdate>=(select date_trunc('year', date $fromdate)) ";
+      $saldosubwhere .= " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
+      $invwhere      .= " AND (a.transdate  >= $fromdate)";
+      $glsaldowhere  .= " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
       $glwhere        = " AND (ac.transdate >= $fromdate)";
       $glsumwhere     = " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
     }
@@ -1097,7 +1097,7 @@ sub trial_balance {
   }
 
 
-  my ($debit, $credit, $saldo, $soll_saldo, $haben_saldo,$soll_kummuliert, $haben_kummuliert, $last_transaction);
+  my ($debit, $credit, $saldo, $soll_saldo, $haben_saldo, $soll_kumuliert, $haben_kumuliert, $last_transaction);
 
   foreach my $accno (sort keys %trb) {
     $ref = {};
