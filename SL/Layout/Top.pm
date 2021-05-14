@@ -22,11 +22,11 @@ sub pre_content {
   );
 }
 
-sub stylesheets {
+sub static_stylesheets {
  'frame_header/header.css';
 }
 
-sub javascripts {
+sub static_javascripts {
   'jquery-ui.js',
   'kivi.QuickSearch.js',
 }

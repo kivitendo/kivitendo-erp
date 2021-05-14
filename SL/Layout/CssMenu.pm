@@ -3,7 +3,7 @@ package SL::Layout::CssMenu;
 use strict;
 use parent qw(SL::Layout::Base);
 
-sub use_stylesheet {
+sub static_stylesheets {
   qw(icons16.css),
 }
 

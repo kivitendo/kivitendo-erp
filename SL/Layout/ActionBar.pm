@@ -39,7 +39,7 @@ sub javascripts_inline {
   join '', map { $_->script } @{ $_[0]->actions };
 }
 
-sub javascripts {
+sub static_javascripts {
   'kivi.ActionBar.js'
 }
 

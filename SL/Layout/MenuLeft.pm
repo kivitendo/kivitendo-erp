@@ -7,7 +7,7 @@ use List::MoreUtils qw(apply);
 use SL::JSON qw(to_json);
 use URI;
 
-sub stylesheets {
+sub static_stylesheets {
   qw(icons16.css icons24.css menu.css)
 }
 
@@ -15,7 +15,7 @@ sub javascripts_inline {
   "\$(function(){kivi.LeftMenu.init(@{[ to_json([ section_menu($_[0]->menu) ]) ]})});"
 }
 
-sub javascripts {
+sub static_javascripts {
   qw(
     js/jquery.cookie.js
     js/kivi.LeftMenu.js
