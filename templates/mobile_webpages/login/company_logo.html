@@ -22,24 +22,16 @@
 
    <table border="0">
     <tr>
-     <th align="left"><a href="am.pl?action=config" title="[% 'Preferences' | $T8 %]">[% 'User' | $T8 %]</a></th>
-     <td>[% HTML.escape(MYCONFIG.name) %]</td>
+     <th align="left">[% 'User' | $T8 %]</th>
+     <td>[% MYCONFIG.name | html %]</td>
     </tr>
     <tr>
-     <th align="left">[% IF AUTH.assert('admin', 'may_fail') %]<a href="controller.pl?action=ClientConfig/edit" title="[% 'Client Configuration' | $T8 %]">[% END %][% 'Client' | $T8 %][% IF AUTH.assert('admin', 'may_fail') %]</a>[% END %]</th>
-     <td>[% HTML.escape(client.name) %]</td>
+     <th align="left">[% 'Client' | $T8 %]</th>
+     <td>[% client.name | html %]</td>
     </tr>
     <tr>
-     <th align="left"><a href="am.pl?action=config" title="[% 'Preferences' | $T8 %]">[% 'Language' | $T8 %]</a></th>
-     <td>[% HTML.escape(MYCONFIG.countrycode) %]</td>
-    </tr>
-    <tr>
-     <th align="left">[% 'Webserver interface' | $T8 %]</th>
-     <td>[% HTML.escape(interface) %]</td>
-    </tr>
-    <tr class="nomobile">
-     <th align="left">[% 'kivitendo Homepage' | $T8 %]:</th>
-     <td><a href="http://kivitendo.de" target="_blank" title="[% 'kivitendo Homepage' | $T8 %]">http://kivitendo.de</a></td>
+     <th align="left">[% 'Language' | $T8 %]</th>
+     <td>[% MYCONFIG.countrycode | html %]</td>
     </tr>
    </table>
  </center>
