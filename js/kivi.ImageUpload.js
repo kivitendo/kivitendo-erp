@@ -73,41 +73,39 @@ namespace("kivi.ImageUpload", function(ns) {
 
     kivi.FileDB.retrieve_all((myfiles) => {
       let filesize  = 0;
-      myfiles.forEach(file => {
-        filesize  += file.size;
-        if (filesize > maxsize) {
-          M.flash(kivi.t8("filesize too big: ") + ns.format_si(filesize) + kivi.t8(" > ") + ns.format_si(maxsize));
-          $("#upload_modal").modal("close");
-          return;
-        }
+      myfiles.forEach(file => filesize  += file.size);
 
-        let data = new FormData();
-        data.append("uploadfiles[]", file);
-        data.append("action", "File/ajax_files_uploaded");
-        data.append("json", "1");
-        data.append("object_type", type);
-        data.append("object_id", id);
-        data.append("file_type", "attachment");
+      if (filesize > maxsize) {
+        M.flash(kivi.t8("filesize too big: ") + ns.format_si(filesize) + kivi.t8(" > ") + ns.format_si(maxsize));
+        $("#upload_modal").modal("close");
+        return;
+      }
 
-        $("#upload_result").html(kivi.t8("start upload"));
+      let data = new FormData();
+      myfiles.forEach(file => data.append("uploadfiles[]", file));
+      data.append("action", "File/ajax_files_uploaded");
+      data.append("json", "1");
+      data.append("object_type", type);
+      data.append("object_id", id);
+      data.append("file_type", "attachment");
 
-        let xhr = new XMLHttpRequest;
-        xhr.open('POST', 'controller.pl', true);
-        xhr.onload = ns.upload_complete;
-        xhr.upload.onprogress = ns.progress;
-        xhr.upload.onerror = ns.failed;
-        xhr.upload.onabort = ns.abort;
-        xhr.send(data);
+      $("#upload_result").html(kivi.t8("start upload"));
 
-        ns.upload_in_progress = xhr;
-      });
+      let xhr = new XMLHttpRequest;
+      xhr.open('POST', 'controller.pl', true);
+      xhr.onload = ns.upload_complete;
+      xhr.upload.onprogress = ns.progress;
+      xhr.upload.onerror = ns.failed;
+      xhr.upload.onabort = ns.abort;
+      xhr.send(data);
+
+      ns.upload_in_progress = xhr;
     });
   };
 
   ns.progress = function(event) {
     if (event.lengthComputable) {
       var percent_complete = (event.loaded / event.total) * 100;
-      console.log(percent_complete);
       $("#upload_progress div").removeClass("indeterminate").addClass("determinate").attr("style", "width: " + percent_complete + "%");
     }
   };
