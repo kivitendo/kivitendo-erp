@@ -66,6 +66,10 @@ namespace("kivi.Materialize", function(ns) {
     };
   };
 
+  ns.flash = function(text) {
+    M.toast({html: text});
+  };
+
   ns.reinit_widgets = function() {
     $('.sidenav').sidenav();
     $('select').formSelect();
