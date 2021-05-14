@@ -40,6 +40,13 @@
    </td>
   </tr>
 
+ [%- IF ALL_EMPLOYEES.size %]
+  <tr class="hidden" data-toggle-recipients="1">
+   <th align="right" nowrap>[% LxERP.t8("CC to Employee") %]</th>
+   <td>[% L.select_tag('email_form.cc_employee',  ALL_EMPLOYEES, value_key='login' title_key='safe_name', with_empty=1, style=style) %]</td>
+  </tr>
+ [%- END %]
+
   <tr class="hidden" data-toggle-recipients="1">
    <th align="right" nowrap>[% LxERP.t8("Cc") %]</th>
    <td>[% L.input_tag("email_form.cc", email_form.cc, size="80") %]</td>

@@ -423,11 +423,13 @@ sub action_save_and_show_email_dialog {
   $email_form->{js_send_function}    = 'kivi.Order.send_email()';
 
   my %files = $self->get_files_for_email_dialog();
+  $self->{all_employees} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
   my $dialog_html = $self->render('common/_send_email_dialog', { output => 0 },
                                   email_form  => $email_form,
                                   show_bcc    => $::auth->assert('email_bcc', 'may fail'),
                                   FILES       => \%files,
                                   is_customer => $self->cv eq 'customer',
+                                  ALL_EMPLOYEES => $self->{all_employees},
   );
 
   $self->js

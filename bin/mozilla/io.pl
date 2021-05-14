@@ -2100,6 +2100,7 @@ sub show_sales_purchase_email_dialog {
     $body_params{fallback_translation_type} = "preset_text_invoice";
   }
 
+  $::form->{all_employees} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
   my $email_form = {
     to                  => $email,
     cc                  => $email_cc,
@@ -2116,6 +2117,7 @@ sub show_sales_purchase_email_dialog {
     FILES       => \%files,
     is_customer => $::form->{vc} eq 'customer',
     is_invoice_mail => ($record_email && $::form->{type} eq 'invoice'),
+    ALL_EMPLOYEES   => $::form->{all_employees},
   });
 
   print $::form->ajax_response_header, $html;

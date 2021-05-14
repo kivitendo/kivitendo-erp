@@ -1002,6 +1002,14 @@ sub send_email {
   map { $mail->{$_} = $self->{$_} }
     qw(cc subject message format);
 
+  if ($self->{cc_employee}) {
+    my ($user, $my_emp_cc);
+    $user        = SL::DB::Manager::AuthUser->find_by(login => $self->{cc_employee});
+    $my_emp_cc   = $user->get_config_value('email') if ref $user eq 'SL::DB::AuthUser';
+    $mail->{cc} .= ", "       if $mail->{cc};
+    $mail->{cc} .= $my_emp_cc if $my_emp_cc;
+  }
+
   $mail->{bcc}    = $self->get_bcc_defaults($myconfig, $self->{bcc});
   $mail->{to}     = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
   $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
