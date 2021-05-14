@@ -70,6 +70,7 @@ namespace("kivi").setupLocale({
 "Feb":"Feb",
 "February":"Februar",
 "File upload":"Datei Upload",
+"Files have been uploaded successfully.":"Dateien wurden erfolgreich hochgeladen.",
 "Fri":"Fr",
 "Friday":"Freitag",
 "Function block actions":"Funktionsblockaktionen",
