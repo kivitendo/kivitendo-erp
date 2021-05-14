@@ -99,6 +99,7 @@ my %kivitendo_package_names = (
   ar                             => 'invoice',
   ap                             => 'purchase_invoice',
   assembly                       => 'assembly',
+  assembly_inventory_part        => 'assembly_inventory_part',
   assortment_items               => 'assortment_item',
   background_jobs                => 'background_job',
   background_job_histories       => 'background_job_history',

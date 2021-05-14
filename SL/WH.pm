@@ -198,8 +198,6 @@ sub transfer_assembly {
   my %params   = @_;
   Common::check_params(\%params, qw(assembly_id dst_warehouse_id login qty unit dst_bin_id chargenumber bestbefore comment));
 
-#  my $maxcreate=WH->check_assembly_max_create(assembly_id =>$params{'assembly_id'}, dbh => $my_dbh);
-
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
   my $kannNichtFertigen ="";  # Falls leer dann erfolgreich
@@ -234,10 +232,15 @@ sub transfer_assembly {
 
     my $sth_part_qty_assembly = prepare_execute_query($form, $dbh, $query, $params{assembly_id});
 
+    my @trans_ids;
+    my $query_trans_id      = qq|SELECT nextval('inventory_id_seq')|;
+    my $query_trans_ids     = qq|INSERT INTO assembly_inventory_part (inventory_assembly_id, inventory_part_id) VALUES (?, ?)|;
+    my $sth_query_trans_ids = prepare_query($form, $dbh, $query_trans_ids);
+
     # Hier wird das prepared Statement für die Schleife über alle Lagerplätze vorbereitet
     my $transferPartSQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, bestbefore, comment, employee_id, qty,
-                             trans_id, trans_type_id, shippingdate)
-                             VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
+                             trans_id, id, trans_type_id, shippingdate)
+                             VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'), ?,
                              (SELECT id FROM transfer_type WHERE direction = 'out' AND description = 'used'),
                              (SELECT current_date))|;
     my $sthTransferPartSQL   = prepare_query($form, $dbh, $transferPartSQL);
@@ -278,9 +281,12 @@ sub transfer_assembly {
         my $temppart_bestbefore   = localtime();
         my $temppart_qty          = $partsQTY * -1;
 
+        my ($trans_id)     = selectrow_query($form, $dbh, $query_trans_id);
+        push @trans_ids, $trans_id;
         do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $currentPart_WH_ID,
                        $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
-                       $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $temppart_qty);
+                       $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $temppart_qty,
+                       $trans_id);
         next;
       }
       # Überprüfen, ob diese Anzahl gefertigt werden kann
@@ -325,9 +331,11 @@ sub transfer_assembly {
                                               # wenn * -1 als berechnung in der parameter-übergabe angegeben wird.
                                               # Dieser Wert IST und BLEIBT positiv!! Hilfe.
                                               # Liegt das daran, dass dieser Wert aus einem SQL-Statement stammt?
+          my ($trans_id)     = selectrow_query($form, $dbh, $query_trans_id);
+          push @trans_ids, $trans_id;
           do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $currentPart_WH_ID,
                        $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
-                       $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $temppart_qty);
+                       $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $temppart_qty, $trans_id);
 
           # hier ist noch ein fehler am besten mit definierten erzeugnissen debuggen 02/2009 jb
           # idee: ausbuch algorithmus mit rekursion lösen und an- und abschaltbar machen
@@ -335,9 +343,11 @@ sub transfer_assembly {
           # auf jeden fall war der internal-server-error nach aktivierung von strict und warnings plus ein paar my-definitionen weg
         } else { # okay, wir haben weniger oder gleich Waren die wir wegbuchen müssen, wir können also aufhören
           $tmpPartsQTY *=-1;
+          my ($trans_id)     = selectrow_query($form, $dbh, $query_trans_id);
+          push @trans_ids, $trans_id;
           do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $currentPart_WH_ID,
                        $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
-                       $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $tmpPartsQTY);
+                       $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $tmpPartsQTY, $trans_id);
           last; # beendet die schleife (springt zum letzten element)
         }
       }  # ende while SELECT SUM(qty), bin_id, chargenumber, bestbefore   FROM inventory  WHERE warehouse_id
@@ -354,13 +364,20 @@ sub transfer_assembly {
 
     # soweit alles gut. Jetzt noch die wirkliche Lagerbewegung für das Erzeugnis ausführen ...
     my $transferAssemblySQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, bestbefore,
-                                                        comment, employee_id, qty, trans_id, trans_type_id, shippingdate)
-                                 VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
+                                                        comment, employee_id, qty, trans_id, id, trans_type_id, shippingdate)
+                                 VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'), ?,
                                  (SELECT id FROM transfer_type WHERE direction = 'in' AND description = 'assembled'),
                                  (select current_date))|;
     my $sthTransferAssemblySQL   = prepare_query($form, $dbh, $transferAssemblySQL);
+    my ($assembly_trans_id)      = selectrow_query($form, $dbh, $query_trans_id);
     do_statement($form, $sthTransferAssemblySQL, $transferAssemblySQL, $params{assembly_id}, $params{dst_warehouse_id},
-                 $params{dst_bin_id}, $params{chargenumber}, conv_date($params{bestbefore}), $params{comment}, $params{login}, $params{qty});
+                 $params{dst_bin_id}, $params{chargenumber}, conv_date($params{bestbefore}), $params{comment}, $params{login}, $params{qty}, $assembly_trans_id);
+
+    # save inventory transactions for this assembly
+    for my $part_id (@trans_ids) {
+      do_statement($form, $sth_query_trans_ids, $query_trans_ids, $assembly_trans_id, $part_id);
+    }
+
     1;
   }) or do { return $kannNichtFertigen };
 
