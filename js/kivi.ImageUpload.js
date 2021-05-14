@@ -3,6 +3,8 @@ namespace("kivi.ImageUpload", function(ns) {
 
   const MAXSIZE = 15*1024*1024; // 5MB size limit
 
+  let num_images = 0;
+
   ns.add_files = function(target) {
     let files = [];
     for (var i = 0; i < target.files.length; i++) {
@@ -18,7 +20,10 @@ namespace("kivi.ImageUpload", function(ns) {
   ns.reload_images = function() {
     kivi.FileDB.retrieve_all((data) => {
       $('#stored-images').empty();
+      num_images = data.length;
+
       data.forEach(ns.create_thumb_row);
+      ns.set_image_button_enabled();
     });
   };
 
@@ -43,8 +48,15 @@ namespace("kivi.ImageUpload", function(ns) {
     let $row = $(event.target).closest(".image-upload-row");
     kivi.FileDB.delete_key(key, () => {
       $row.remove();
+      num_images--;
+      ns.set_image_button_enabled();
     });
   };
+
+  ns.set_image_button_enabled = function() {
+    $('#upload_images_submit').attr("disabled", num_images == 0 || !$('#object_id').val());
+  };
+
 
   ns.upload_files = function() {
     let id = $('#object_id').val();
@@ -128,10 +140,12 @@ namespace("kivi.ImageUpload", function(ns) {
           $("#object_description").html(json.description);
           $("#object_id").val(json.id);
         }
+        ns.set_image_button_enabled();
       },
       error: () => {
         $("#object_description").html("");
         $("#object_id").val("");
+        ns.set_image_button_enabled();
       }
     });
   };
@@ -139,8 +153,6 @@ namespace("kivi.ImageUpload", function(ns) {
   ns.init = function() {
     ns.reload_images();
   };
-
-
 });
 
 $(kivi.ImageUpload.init);
