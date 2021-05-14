@@ -49,6 +49,10 @@ sub action_resolve_object_by_number {
 
 ################# internal ###############
 
+sub accept_types {
+  "image/*"
+}
+
 sub init_object_type {
   $::form->{object_type} or die "need object type"
 }
