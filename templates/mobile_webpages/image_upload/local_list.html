@@ -54,11 +54,13 @@
 
 <div id="upload_modal" class="modal">
   <div class="modal-content">
-    <h4>Uploading</h4>
+    <h4>[% 'Uploading' | $T8 %]</h4>
 
     <div id="upload_progress" class="progress">
       <div class="indeterminate"></div>
     </div>
+
+    [% P.M.button_tag("kivi.ImageUpload.upload_in_progress.abort()", LxERP.t8("Abort"), class="modal-close") %]
   </div>
 </div>
 

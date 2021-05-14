@@ -5,6 +5,7 @@ namespace("kivi.ImageUpload", function(ns) {
   const M = kivi.Materialize;
 
   let num_images = 0;
+  ns.upload_in_progress = undefined;
 
   ns.add_files = function(target) {
     let files = [];
@@ -67,6 +68,7 @@ namespace("kivi.ImageUpload", function(ns) {
   };
 
   ns.upload_selected_files = function(id, type, maxsize) {
+    $("#upload_modal").modal({ dismissible: false });
     $("#upload_modal").modal("open");
 
     kivi.FileDB.retrieve_all((myfiles) => {
@@ -91,33 +93,38 @@ namespace("kivi.ImageUpload", function(ns) {
 
         let xhr = new XMLHttpRequest;
         xhr.open('POST', 'controller.pl', true);
-        xhr.onload = ns.attSuccess;
-        xhr.upload.onprogress = ns.attProgress;
-        xhr.upload.onerror = ns.attFailed;
-        xhr.upload.onabort = ns.attCanceled;
+        xhr.onload = ns.upload_complete;
+        xhr.upload.onprogress = ns.progress;
+        xhr.upload.onerror = ns.failed;
+        xhr.upload.onabort = ns.abort;
         xhr.send(data);
+
+        ns.upload_in_progress = xhr;
       });
     });
   };
 
-  ns.attProgress = function(event) {
+  ns.progress = function(event) {
     if (event.lengthComputable) {
       var percent_complete = (event.loaded / event.total) * 100;
+      console.log(percent_complete);
       $("#upload_progress div").removeClass("indeterminate").addClass("determinate").attr("style", "width: " + percent_complete + "%");
     }
   };
 
-  ns.attFailed = function() {
+  ns.failed = function() {
     $('#upload_modal').modal('close');
     M.flash(kivi.t8("An error occurred while transferring the file."));
   };
 
-  ns.attCanceled = function() {
+  ns.abort = function() {
     $('#upload_modal').modal('close');
     M.flash(kivi.t8("The transfer has been canceled by the user."));
+
+    ns.upload_in_progress = undefined;
   };
 
-  ns.attSuccess = function() {
+  ns.upload_complete = function() {
     $('#upload_modal').modal('close');
     M.flash(kivi.t8("Files have been uploaded successfully."));
     kivi.FileDB.delete_all(ns.reload_images);
