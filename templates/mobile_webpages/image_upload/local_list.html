@@ -5,8 +5,6 @@
 
 <h4>[% source.title | html %]</h4>
 
-  <div id="updoad_result"></div>
-
   <p>Schritt 1: Bilder machen</p>
 
   <div id="stored-images" class="container">
@@ -39,7 +37,7 @@
     <div class="row">
       [% P.M.input_tag("object_number", "", label=LxERP.t8("Number"), class="col s4", onkeyup="kivi.ImageUpload.resolve_object(event)") %]
       <div id="object_description" class="col s8">-</div>
-      [% P.M.button_tag("kivi.ImageUpload.upload_files()", LxERP.t8("Upload Images"), class="col s12") %]
+      [% P.M.button_tag("kivi.ImageUpload.upload_files()", LxERP.t8("Upload Images"), id="upload_images_submit", class="col s12") %]
     </div>
 
 
@@ -58,7 +56,7 @@
   <div class="modal-content">
     <h4>Uploading</h4>
 
-    <div class="progress">
+    <div id="upload_progress" class="progress">
       <div class="indeterminate"></div>
     </div>
   </div>

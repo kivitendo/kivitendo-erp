@@ -75,13 +75,15 @@ namespace("kivi.FileDB", function(ns) {
     });
   };
 
-  ns.delete_all= function() {
-    ns.retrieve_all_keys((keys) => {
-      keys.forEach((key) => ns.delete_key(key));
+  ns.delete_all = function(success) {
+    ns.open_rw_store((store) => {
+      let request = store.clear();
+      request.onsuccess = success;
+      request.onerror = ns.error;
     });
   };
 
-  ns.delete_key= function(key, success) {
+  ns.delete_key = function(key, success) {
     ns.open_rw_store((store) => {
       let request = store.delete(key);
       request.onsuccess = (event) => { if (success) success(event.target.result); };

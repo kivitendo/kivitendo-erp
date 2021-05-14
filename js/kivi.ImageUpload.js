@@ -2,6 +2,7 @@ namespace("kivi.ImageUpload", function(ns) {
   "use strict";
 
   const MAXSIZE = 15*1024*1024; // 5MB size limit
+  const M = kivi.Materialize;
 
   let num_images = 0;
 
@@ -73,7 +74,8 @@ namespace("kivi.ImageUpload", function(ns) {
       myfiles.forEach(file => {
         filesize  += file.size;
         if (filesize > maxsize) {
-          $("#upload_result").html(kivi.t8("filesize too big: ") + filesize+ kivi.t8(" bytes, max=") + maxsize );
+          M.flash(kivi.t8("filesize too big: ") + ns.format_si(filesize) + kivi.t8(" > ") + ns.format_si(maxsize));
+          $("#upload_modal").modal("close");
           return;
         }
 
@@ -89,10 +91,10 @@ namespace("kivi.ImageUpload", function(ns) {
 
         let xhr = new XMLHttpRequest;
         xhr.open('POST', 'controller.pl', true);
-        xhr.success = ns.attSuccess;
-        xhr.progress = ns.attProgress;
-        xhr.error = ns.attFailed;
-        xhr.abort = ns.attCanceled;
+        xhr.onload = ns.attSuccess;
+        xhr.upload.onprogress = ns.attProgress;
+        xhr.upload.onerror = ns.attFailed;
+        xhr.upload.onabort = ns.attCanceled;
         xhr.send(data);
       });
     });
@@ -100,24 +102,25 @@ namespace("kivi.ImageUpload", function(ns) {
 
   ns.attProgress = function(event) {
     if (event.lengthComputable) {
-      var percentComplete = (event.loaded / event.total) * 100;
-      $("#upload_result").html(percentComplete+" % "+ kivi.t8("uploaded"));
+      var percent_complete = (event.loaded / event.total) * 100;
+      $("#upload_progress div").removeClass("indeterminate").addClass("determinate").attr("style", "width: " + percent_complete + "%");
     }
   };
 
   ns.attFailed = function() {
     $('#upload_modal').modal('close');
-    $("#upload_result").html(kivi.t8("An error occurred while transferring the file."));
+    M.flash(kivi.t8("An error occurred while transferring the file."));
   };
 
   ns.attCanceled = function() {
     $('#upload_modal').modal('close');
-    $("#upload_result").html(kivi.t8("The transfer has been canceled by the user."));
+    M.flash(kivi.t8("The transfer has been canceled by the user."));
   };
 
   ns.attSuccess = function() {
     $('#upload_modal').modal('close');
-    $("#upload_result").html(kivi.t8("Files have been uploaded successfully."));
+    M.flash(kivi.t8("Files have been uploaded successfully."));
+    kivi.FileDB.delete_all(ns.reload_images);
   };
 
   ns.resolve_object = function(event) {
@@ -148,6 +151,18 @@ namespace("kivi.ImageUpload", function(ns) {
         ns.set_image_button_enabled();
       }
     });
+  };
+
+  /* this tries to format the number human readable. 3 significant digits, si suffix, */
+  ns.format_si = function(n) {
+    const prefixes = ["", "K" , "M", "G", "T", "P"];
+    let i = 0;
+    while (n >= 1024) {
+      n /= 1024;
+      i++;
+    }
+
+    return kivi.format_amount(n, 3 - (n|0).toString().length) + prefixes[i] + "B";
   };
 
   ns.init = function() {
