@@ -42,9 +42,9 @@ SL::Layout::Split
 
 =head1 SYNOPSIS
 
-  use SL::Layout::TLayout;
+  use SL::Layout::Split;
 
-  SL::Layout::TLayout->new(
+  SL::Layout::Split->new(
     left  => [ LIST OF SUBLAYOUTS ],
     right => [ LIST OF SUBLAYOUTS ],
   );
