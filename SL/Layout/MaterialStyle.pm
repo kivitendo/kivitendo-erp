@@ -3,12 +3,12 @@ package SL::Layout::MaterialStyle;
 use strict;
 use parent qw(SL::Layout::Base);
 
-sub use_stylesheet {
+sub static_stylesheets {
   "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css",
   "https://fonts.googleapis.com/icon?family=Material+Icons";
 }
 
-sub use_javascript {
+sub static_javascripts {
   "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js",
   "kivi.Materialize.js";
 }
