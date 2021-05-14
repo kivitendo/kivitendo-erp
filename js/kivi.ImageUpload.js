@@ -1,7 +1,7 @@
 namespace("kivi.ImageUpload", function(ns) {
   "use strict";
 
-  const MAXSIZE = 5*1024*1024; // 5MB size limit
+  const MAXSIZE = 15*1024*1024; // 5MB size limit
 
   ns.add_files = function(target) {
     let files = [];
