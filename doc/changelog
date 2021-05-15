@@ -36,6 +36,8 @@ Mittelgroße neue Features:
      Mahnung
 
 Kleinere neue Features und Detailverbesserungen:
+  - Gefertigte Erzeugnisse können innerhalb des Zurücklagerungszeitraums
+    wieder zerlegt werden. Die Aktion befindet sich im Lagerbuchungsbericht
   - E-Mail-Versand: Neben dem Freitext CC-Feld kann jetzt auch ein
     kivitendo Benutzer mittels einer Auswahlliste in CC gesetzt werden
   - Falls der Mandant zu jeder Buchung einen Beleg hinzufügen möchte,

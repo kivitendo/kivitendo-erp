@@ -41,13 +41,17 @@ use SL::User;
 use SL::AM;
 use SL::CVar;
 use SL::CT;
+use SL::Helper::Flash qw(flash_later);
 use SL::IC;
 use SL::WH;
 use SL::OE;
+# use SL::Helper::Inventory qw(produce_assembly);
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
+use SL::Presenter::Tag qw(checkbox_tag);
 use SL::Presenter::Part;
 
+use SL::DB::AssemblyInventoryPart;
 use SL::DB::Part;
 
 use Data::Dumper;
@@ -547,6 +551,50 @@ sub remove_parts {
   $main::lxdebug->leave_sub();
 }
 
+sub disassemble_assembly {
+  $main::lxdebug->enter_sub();
+
+  $main::auth->assert('warehouse_management');
+
+  my $form = $main::form;
+
+  croak("No assembly ids") unless scalar @{ $form->{ids}} > 0;
+
+  # fail safe, only allow disassemble in certain intervals
+  my $undo_date  = DateTime->today->subtract(days => $::instance_conf->get_undo_transfer_interval);
+
+  foreach my $assembly_id (@{ $::form->{ids}} )  {
+    my $assembly_parts;
+    $assembly_parts  = SL::DB::Manager::AssemblyInventoryPart->get_all(where => [ inventory_assembly_id => $assembly_id ]);
+    $form->show_generic_error(t8('No relations found for #1', $assembly_id)) unless $assembly_parts;
+    # check first entry for insertdate
+    # everything in one transaction
+    my $db = SL::DB::Inventory->new->db;
+    $db->with_transaction(sub {
+      my ($assembly_entry, $part_entry);
+      foreach my $assembly_part (@{ $assembly_parts }) {
+        die("No valid entry found") unless (ref($assembly_part)  eq 'SL::DB::AssemblyInventoryPart');
+        # fail safe undo date
+        die("Invalid time interval") unless DateTime->compare($assembly_part->itime, $undo_date);
+
+        $assembly_entry //= $assembly_part->assembly;
+        $part_entry       = $assembly_part->part;
+        $assembly_part->delete;
+        $part_entry->delete;
+      }
+      flash_later('info', t8("Disassembly successful for #1",  $assembly_entry->part->partnumber));
+
+      $assembly_entry->delete;
+
+      1;
+
+    }) || die t8('error while disassembling assembly #1 : #2', $assembly_id)  . $db->error . "\n";
+
+  }
+  $main::lxdebug->leave_sub();
+  $form->redirect;
+}
+
 # --------------------------------------------------------------------
 # Journal
 # --------------------------------------------------------------------
@@ -583,13 +631,14 @@ sub generate_journal {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
+  setup_wh_journal_list_all_action_bar();
   $form->{title}   = $locale->text("WHJournal");
   $form->{sort}  ||= 'date';
 
   $form->{report_generator_output_format} = 'HTML' if !$form->{report_generator_output_format};
 
   my %filter;
-  my @columns = qw(trans_id date warehouse_from bin_from warehouse_to bin_to partnumber type_and_classific partdescription chargenumber bestbefore trans_type comment qty unit partunit employee oe_id projectnumber);
+  my @columns = qw(ids trans_id date warehouse_from bin_from warehouse_to bin_to partnumber type_and_classific partdescription chargenumber bestbefore trans_type comment qty unit partunit employee oe_id projectnumber);
 
   # filter stuff
   map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore transtype_id transtype_ids comment projectnumber);
@@ -634,6 +683,7 @@ sub generate_journal {
   push @hidden_variables, qw(classification_id);
 
   my %column_defs = (
+    'ids'             => { raw_header_data => checkbox_tag("", id => "check_all", checkall  => "[data-checkall=1]") },
     'date'            => { 'text' => $locale->text('Date'), },
     'trans_id'        => { 'text' => $locale->text('Trans Id'), },
     'trans_type'      => { 'text' => $locale->text('Trans Type'), },
@@ -674,6 +724,7 @@ sub generate_journal {
   $column_defs{partunit}->{visible} = 1;
   $column_defs{type_and_classific}->{visible} = 1;
   $column_defs{type_and_classific}->{link} ='';
+  $column_defs{ids}->{visible} = 1;
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
@@ -706,8 +757,8 @@ sub generate_journal {
     $entry->{type_and_classific} = SL::Presenter::Part::type_abbreviation($entry->{part_type}) .
                                    SL::Presenter::Part::classification_abbreviation($entry->{classification_id});
     $entry->{qty}        = $form->format_amount(\%myconfig, $entry->{qty});
+    $entry->{assembled} = $entry->{trans_type} eq 'assembled' ? 1 : '';
     $entry->{trans_type} = $locale->text($entry->{trans_type});
-
     my $row = { };
 
     foreach my $column (@columns) {
@@ -717,8 +768,9 @@ sub generate_journal {
       };
     }
 
-    $row->{trans_type}->{raw_data} = $entry->{trans_type};
+    $row->{ids}->{raw_data} = checkbox_tag("ids[]", value => $entry->{id}, "data-checkall" => 1) if $entry->{assembled};
 
+    $row->{trans_type}->{raw_data} = $entry->{trans_type};
     if ($form->{l_oe_id}) {
       $row->{oe_id}->{data} = '';
       my $info              = $entry->{oe_id_info};
@@ -735,12 +787,17 @@ sub generate_journal {
     $idx++;
   }
 
+
+    $report->set_options(
+      raw_top_info_text     => $form->parse_html_template('wh/report_top'),
+      raw_bottom_info_text  => $form->parse_html_template('wh/report_bottom', { callback => $href }),
+    );
   if ( ! $allrows ) {
       $pages->{max}  = SL::DB::Helper::Paginated::ceil($form->{maxrows}, $pages->{per_page}) || 1;
       $pages->{page} = $page < 1 ? 1: $page > $pages->{max} ? $pages->{max}: $page;
       $pages->{common} = [ grep { $_->{visible} } @{ SL::DB::Helper::Paginated::make_common_pages($pages->{page}, $pages->{max}) } ];
 
-      $report->set_options('raw_bottom_info_text' => $form->parse_html_template('common/paginate',
+      $report->set_options('raw_bottom_info_text' =>  $form->parse_html_template('wh/report_bottom', { callback => $href }) . $form->parse_html_template('common/paginate',
                                                             { 'pages' => $pages , 'base_url' => $href.'&sort='.$form->{sort}.'&order='.$form->{order}}) );
   }
   $report->generate_with_headers();
@@ -1190,6 +1247,22 @@ sub setup_wh_journal_action_bar {
     );
   }
 }
+sub setup_wh_journal_list_all_action_bar {
+  my ($action) = @_;
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [ t8('Actions') ],
+        action => [
+          t8('Disassemble Assembly'),
+            submit => [ '#form', { action => 'disassemble_assembly' } ],
+            checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+          ],
+        ],
+    );
+  }
+}
+
 
 1;
 

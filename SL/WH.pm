@@ -519,6 +519,7 @@ sub get_warehouse_journal {
      "comment"              => "i1.comment",
      "trans_type"           => "tt.description",
      "trans_id"             => "i1.trans_id",
+     "id"                   => "i1.id",
      "oe_id"                => "COALESCE(i1.oe_id, i2.oe_id)",
      "invoice_id"           => "COALESCE(i1.invoice_id, i2.invoice_id)",
      "date"                 => "i1.shippingdate",
@@ -539,6 +540,7 @@ sub get_warehouse_journal {
      };
 
   $form->{l_classification_id}  = 'Y';
+  $form->{l_id}                 = 'Y';
   $form->{l_part_type}          = 'Y';
   $form->{l_itime}              = 'Y';
   $form->{l_invoice_id} = $form->{l_oe_id} if $form->{l_oe_id};
