@@ -233,9 +233,6 @@ sub transfer_assembly {
     my $sth_part_qty_assembly = prepare_execute_query($form, $dbh, $query, $params{assembly_id});
 
     my @trans_ids;
-    my $query_trans_id      = qq|SELECT nextval('inventory_id_seq')|;
-    my $query_trans_ids     = qq|INSERT INTO assembly_inventory_part (inventory_assembly_id, inventory_part_id) VALUES (?, ?)|;
-    my $sth_query_trans_ids = prepare_query($form, $dbh, $query_trans_ids);
 
     # Hier wird das prepared Statement für die Schleife über alle Lagerplätze vorbereitet
     my $transferPartSQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, bestbefore, comment, employee_id, qty,
@@ -283,8 +280,6 @@ sub transfer_assembly {
         my $temppart_qty          = $partsQTY * -1;
         ($trans_id) = selectrow_query($form, $dbh, qq|SELECT nextval('id')| ) unless $trans_id;
 
-        my ($trans_id)     = selectrow_query($form, $dbh, $query_trans_id);
-        push @trans_ids, $trans_id;
         do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $currentPart_WH_ID,
                        $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
                        $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $temppart_qty, $trans_id);
@@ -333,7 +328,6 @@ sub transfer_assembly {
                                               # wenn * -1 als berechnung in der parameter-übergabe angegeben wird.
                                               # Dieser Wert IST und BLEIBT positiv!! Hilfe.
                                               # Liegt das daran, dass dieser Wert aus einem SQL-Statement stammt?
-          my ($trans_id)     = selectrow_query($form, $dbh, $query_trans_id);
           push @trans_ids, $trans_id;
           do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $currentPart_WH_ID,
                        $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
@@ -345,8 +339,6 @@ sub transfer_assembly {
           # auf jeden fall war der internal-server-error nach aktivierung von strict und warnings plus ein paar my-definitionen weg
         } else { # okay, wir haben weniger oder gleich Waren die wir wegbuchen müssen, wir können also aufhören
           $tmpPartsQTY *=-1;
-          my ($trans_id)     = selectrow_query($form, $dbh, $query_trans_id);
-          push @trans_ids, $trans_id;
           do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $currentPart_WH_ID,
                        $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
                        $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $tmpPartsQTY, $trans_id);
@@ -375,10 +367,6 @@ sub transfer_assembly {
     do_statement($form, $sthTransferAssemblySQL, $transferAssemblySQL, $params{assembly_id}, $params{dst_warehouse_id},
                  $params{dst_bin_id}, $params{chargenumber}, conv_date($params{bestbefore}), $params{comment}, $params{login}, $params{qty}, $trans_id);
 
-    # save inventory transactions for this assembly
-    for my $part_id (@trans_ids) {
-      do_statement($form, $sth_query_trans_ids, $query_trans_ids, $trans_id, $part_id);
-    }
 
     1;
   }) or do { return $kannNichtFertigen };
