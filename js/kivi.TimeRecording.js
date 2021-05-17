@@ -57,3 +57,7 @@ namespace('kivi.TimeRecording', function(ns) {
   };
 
 });
+
+$(function() {
+  $('#time_recording_project_id').on('set_item:ProjectPicker', function(){ kivi.TimeRecording.project_changed() });
+});
