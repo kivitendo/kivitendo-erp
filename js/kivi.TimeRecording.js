@@ -27,6 +27,7 @@ namespace('kivi.TimeRecording', function(ns) {
       $('#time_recording_customer_id_name').prop('disabled', false);
       $('#time_recording_project_id').data('project_picker').set_item({});
       $('#time_recording_project_id_name').prop('disabled', false);
+      $('#time_recording_project_id ~ .ppp_popup_button').show()
       return;
     }
 
@@ -36,6 +37,7 @@ namespace('kivi.TimeRecording', function(ns) {
       $('#time_recording_customer_id_name').prop('disabled', true);
       $('#time_recording_project_id').data('project_picker').set_item(data.project);
       $('#time_recording_project_id_name').prop('disabled', true);
+      $('#time_recording_project_id ~ .ppp_popup_button').hide()
     });
   };
 
@@ -65,6 +67,7 @@ namespace('kivi.TimeRecording', function(ns) {
       }
       if ("project" === elt) {
         $('#time_recording_project_id_name').prop('disabled', true);
+        setTimeout(function() {$('#time_recording_project_id ~ .ppp_popup_button').hide();}, 100);
       }
     });
   };
