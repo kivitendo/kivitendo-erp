@@ -93,3 +93,11 @@
   [%- END %]
 
 </form>
+
+<script type="text/javascript">
+<!--
+  [% FOREACH i = inputs_to_disable %]
+    kivi.TimeRecording.inputs_to_disable.push("[% i %]");
+  [% END %]
+-->
+</script>

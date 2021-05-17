@@ -1,6 +1,8 @@
 namespace('kivi.TimeRecording', function(ns) {
   'use strict';
 
+  ns.inputs_to_disable = [];
+
   ns.set_end_date = function() {
     if ($('#start_date').val() !== '' && $('#end_date').val() === '') {
       var kivi_start_date  = kivi.format_date(kivi.parse_date($('#start_date').val()));
@@ -56,8 +58,20 @@ namespace('kivi.TimeRecording', function(ns) {
     });
   };
 
+  ns.set_input_constraints = function() {
+    $(ns.inputs_to_disable).each(function(idx, elt) {
+      if ("customer" === elt) {
+        $('#time_recording_customer_id_name').prop('disabled', true);
+      }
+      if ("project" === elt) {
+        $('#time_recording_project_id_name').prop('disabled', true);
+      }
+    });
+  };
+
 });
 
 $(function() {
+  kivi.TimeRecording.set_input_constraints();
   $('#time_recording_project_id').on('set_item:ProjectPicker', function(){ kivi.TimeRecording.project_changed() });
 });

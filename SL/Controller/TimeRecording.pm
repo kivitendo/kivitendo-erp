@@ -103,10 +103,13 @@ sub action_edit {
     $self->{end_time}   = $self->time_recording->end_time->to_kivitendo_time;
   }
 
+  my $inputs_to_disable = $self->get_inputs_to_disable;
+
   $self->setup_edit_action_bar;
 
   $self->render('time_recording/form',
-                title  => t8('Time Recording'),
+                title             => t8('Time Recording'),
+                inputs_to_disable => $inputs_to_disable,
   );
 }
 
@@ -404,5 +407,13 @@ sub setup_edit_action_bar {
 sub safe_callback {
   $::form->{callback} || (action => 'list')
 }
+
+sub get_inputs_to_disable {
+  my ($self) = @_;
+
+  return [qw(customer project)]  if $self->time_recording->order_id;
+  return [qw(customer)]          if $self->time_recording->project_id && $self->time_recording->project->customer_id;
+}
+
 
 1;
