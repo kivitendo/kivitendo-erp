@@ -254,7 +254,8 @@ sub init_all_time_recording_articles {
 }
 
 sub init_all_orders {
-  my $orders = SL::DB::Manager::Order->get_all(query => [or             => [ closed => 0, closed => undef ],
+  my $orders = SL::DB::Manager::Order->get_all(query => [or             => [ closed    => 0, closed    => undef ],
+                                                         or             => [ quotation => 0, quotation => undef ],
                                                          '!customer_id' => undef]);
   return [ map { [$_->id, sprintf("%s %s", $_->number, $_->customervendor->name) ] } sort { $a->number <=> $b->number } @{$orders||[]} ];
 }
