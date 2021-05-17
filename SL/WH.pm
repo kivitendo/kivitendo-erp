@@ -530,7 +530,7 @@ sub get_warehouse_journal {
      };
 
   $form->{l_classification_id}  = 'Y';
-  $form->{l_id}                 = 'Y';
+  $form->{l_trans_id}           = 'Y';
   $form->{l_part_type}          = 'Y';
   $form->{l_itime}              = 'Y';
   $form->{l_invoice_id} = $form->{l_oe_id} if $form->{l_oe_id};
@@ -1346,10 +1346,13 @@ unsuccessfully with a return value of undef.
 
   There has to be at least one data set in the table assembly referenced to this assembly_id.
 
-=item Assembly cannot be destroyed or disassembled
+=item Assembly can be disassembled
 
   Assemblies are like cakes. You cannot disassemble it. NEVER.
-  No negative nor zero qty's are valid inputs.
+  But if your assembly is a mechanical cake you may unscrew it.
+  Assemblies are created in one transaction therefore you can
+  safely rely on the trans_id in inventory to disassemble the
+  created assemblies (see action disassemble_assembly in wh.pl).
 
 =item The assembly item(s) have to be in the same warehouse
 

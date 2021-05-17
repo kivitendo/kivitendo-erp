@@ -51,7 +51,6 @@ use SL::ReportGenerator;
 use SL::Presenter::Tag qw(checkbox_tag);
 use SL::Presenter::Part;
 
-use SL::DB::AssemblyInventoryPart;
 use SL::DB::Part;
 
 use Data::Dumper;
@@ -560,37 +559,18 @@ sub disassemble_assembly {
 
   croak("No assembly ids") unless scalar @{ $form->{ids}} > 0;
 
-  # fail safe, only allow disassemble in certain intervals
-  my $undo_date  = DateTime->today->subtract(days => $::instance_conf->get_undo_transfer_interval);
+  # everything in one transaction
+  my $db = SL::DB::Inventory->new->db;
+  $db->with_transaction(sub {
 
-  foreach my $assembly_id (@{ $::form->{ids}} )  {
-    my $assembly_parts;
-    $assembly_parts  = SL::DB::Manager::AssemblyInventoryPart->get_all(where => [ inventory_assembly_id => $assembly_id ]);
-    $form->show_generic_error(t8('No relations found for #1', $assembly_id)) unless $assembly_parts;
-    # check first entry for insertdate
-    # everything in one transaction
-    my $db = SL::DB::Inventory->new->db;
-    $db->with_transaction(sub {
-      my ($assembly_entry, $part_entry);
-      foreach my $assembly_part (@{ $assembly_parts }) {
-        die("No valid entry found") unless (ref($assembly_part)  eq 'SL::DB::AssemblyInventoryPart');
-        # fail safe undo date
-        die("Invalid time interval") unless DateTime->compare($assembly_part->itime, $undo_date);
+    foreach my $trans_id (@{ $::form->{ids}} )  {
+      SL::DB::Manager::Inventory->delete_all(where => [ trans_id => $trans_id ]);
+      flash_later('info', t8("Disassembly successful for trans_id #1",  $trans_id));
+    }
 
-        $assembly_entry //= $assembly_part->assembly;
-        $part_entry       = $assembly_part->part;
-        $assembly_part->delete;
-        $part_entry->delete;
-      }
-      flash_later('info', t8("Disassembly successful for #1",  $assembly_entry->part->partnumber));
+    1;
+  }) || die t8('error while disassembling for trans_ids #1 : #2', $form->{ids})  . $db->error . "\n";
 
-      $assembly_entry->delete;
-
-      1;
-
-    }) || die t8('error while disassembling assembly #1 : #2', $assembly_id)  . $db->error . "\n";
-
-  }
   $main::lxdebug->leave_sub();
   $form->redirect;
 }
@@ -670,7 +650,10 @@ sub generate_journal {
     $last_nr        = $pages->{per_page};
   }
 
+  my $old_l_trans_id = $form->{l_trans_id};
   my @contents  = WH->get_warehouse_journal(%filter);
+  $form->{l_trans_id} = $old_l_trans_id;
+
   # get maxcount
   if (!$form->{maxrows}) {
     $form->{maxrows} = scalar @contents ;
@@ -752,7 +735,7 @@ sub generate_journal {
                   );
 
   my $idx       = 0;
-
+  my $undo_date  = DateTime->today->subtract(days => $::instance_conf->get_undo_transfer_interval);
   foreach my $entry (@contents) {
     $entry->{type_and_classific} = SL::Presenter::Part::type_abbreviation($entry->{part_type}) .
                                    SL::Presenter::Part::classification_abbreviation($entry->{classification_id});
@@ -768,8 +751,13 @@ sub generate_journal {
       };
     }
 
-    $row->{ids}->{raw_data} = checkbox_tag("ids[]", value => $entry->{id}, "data-checkall" => 1) if $entry->{assembled};
-
+    if ($entry->{assembled}) {
+      my $insertdate = DateTime->from_kivitendo($entry->{shippingdate});
+      if (ref $undo_date eq 'DateTime' && ref $insertdate eq 'DateTime') {
+        my $undo_assembly = DateTime->compare($insertdate, $undo_date) == 1 ? 1 : 0;
+        $row->{ids}->{raw_data} = checkbox_tag("ids[]", value => $entry->{trans_id}, "data-checkall" => 1) if $undo_assembly;
+      }
+    }
     $row->{trans_type}->{raw_data} = $entry->{trans_type};
     if ($form->{l_oe_id}) {
       $row->{oe_id}->{data} = '';
