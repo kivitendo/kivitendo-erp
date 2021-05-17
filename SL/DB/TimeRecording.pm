@@ -38,6 +38,11 @@ sub validate {
   push @errors, t8('Employee must not be empty.')                              if !$self->employee_id;
   push @errors, t8('Description must not be empty.')                           if !$self->description;
   push @errors, t8('Start time must be earlier than end time.')                if $self->is_time_in_wrong_order;
+  push @errors, t8('Assigned order must be a sales order.')                    if $self->order_id && 'sales_order' eq !$self->order->type;
+  push @errors, t8('Customer of assigned order must match customer.')          if $self->order_id && $self->order->customer_id != $self->customer_id;
+  push @errors, t8('Customer of assigned project must match customer.')        if $self->project_id && $self->project->customer_id && $self->project->customer_id != $self->customer_id;
+  push @errors, t8('Project of assigned order must match assigned project.')
+    if $self->project_id && $self->order_id && $self->order->globalproject_id && $self->project_id != $self->order->globalproject_id;
 
   my $conflict = $self->is_time_overlapping;
   push @errors, t8('Entry overlaps with "#1".', $conflict->displayable_times)  if $conflict;
