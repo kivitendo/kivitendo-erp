@@ -341,11 +341,12 @@
           <listitem>
             <para><literal>Text::Iconv</literal></para>
           </listitem>
-
           <listitem>
             <para><literal>Text::Unidecode</literal></para>
           </listitem>
-
+          <listitem>
+            <para><literal>Try::Tiny</literal></para>
+          </listitem>
           <listitem>
             <para><literal>URI</literal></para>
           </listitem>
@@ -435,7 +436,7 @@
   libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl\
   libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
   libdatetime-event-cron-perl libexception-class-perl libcam-pdf-perl \
-  libxml-libxml-perl
+  libxml-libxml-perl libtry-tiny-perl
 </programlisting>
 <para>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</para>
           <note id="ubuntu-universe">

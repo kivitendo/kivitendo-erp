@@ -13,7 +13,7 @@ use SL::Locale::String qw(t8);
 
 use DateTime;
 use List::Util qw(any);
-
+use Try::Tiny;
 sub create_job {
   $_[0]->create_standard_job('7 3 1 * *'); # every first day of month at 03:07
 }
@@ -111,11 +111,19 @@ sub initialize_params {
   # convert date from string to object
   my $from_date;
   my $to_date;
+  try {
+    $from_date   = DateTime->from_kivitendo($data->{from_date}) if $data->{from_date};
+    $to_date     = DateTime->from_kivitendo($data->{to_date})   if $data->{to_date};
+    die unless $from_date && $to_date;
+  } catch {
+    die t8("Cannot convert date.") ."\n" .
+        t8("Input from string: #1", $data->{from_date}) . "\n" .
+        t8("Input to string: #1", $data->{to_date}) . "\n" .
+        t8("Details: #1", $_);
+  };
   $from_date = DateTime->from_kivitendo($self->params->{from_date});
   $to_date   = DateTime->from_kivitendo($self->params->{to_date});
   # DateTime->from_kivitendo returns undef if the string cannot be parsed. Therefore test the result.
-  die 'Cannot convert date from string "' . $self->params->{from_date} . '"' if !$from_date;
-  die 'Cannot convert date to string "'   . $self->params->{to_date}   . '"' if !$to_date;
 
   $to_date->add(days => 1); # to get all from the to_date, because of the time part (15.12.2020 23.59 > 15.12.2020)
 

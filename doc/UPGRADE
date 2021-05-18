@@ -1,6 +1,11 @@
 Wichtige Hinweise zum Upgrade von älteren Versionen
 ===================================================
 
+Upgrade auf v3.5.6.2
+  * Neue Perl Abhängigkeiten:
+
+  * Try::Tiny
+
 
 Die Abwärtskompatibilität zur Lagermengen-Berechnung in Lieferscheinen wurde
 aufgehoben. Wer nicht mit Workflows arbeitet (nicht empfohlen) muss diese
