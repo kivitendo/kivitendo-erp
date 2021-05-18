@@ -90,8 +90,10 @@ sub action_mark_as_booked {
   my ($self) = @_;
 
   if (scalar @{ $::form->{ids} }) {
-    my $trs = SL::DB::Manager::TimeRecording->get_all(query => [id => $::form->{ids}]);
-    $_->update_attributes(booked => 1) for @$trs;
+    SL::DB::Manager::TimeRecording->update_all(
+      set   => { booked => 1              },
+      where => [ id     => $::form->{ids} ]
+    );
   }
 
   $self->redirect_to(safe_callback());
