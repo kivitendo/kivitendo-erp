@@ -22,6 +22,7 @@ use SL::Helper::Flash qw(flash);
 use SL::Helper::Number qw(_round_number _parse_number _round_total);
 use SL::Helper::UserPreferences::TimeRecording;
 use SL::Locale::String qw(t8);
+use SL::Presenter::Tag qw(checkbox_tag);
 use SL::ReportGenerator;
 
 use Rose::Object::MakeMethods::Generic
@@ -33,7 +34,9 @@ use Rose::Object::MakeMethods::Generic
 
 # safety
 __PACKAGE__->run_before('check_auth');
-__PACKAGE__->run_before('check_auth_edit', only => [ qw(edit save delete) ]);
+__PACKAGE__->run_before('check_auth_edit',     only => [ qw(edit save delete) ]);
+__PACKAGE__->run_before('check_auth_edit_all', only => [ qw(mark_as_booked) ]);
+
 
 my %sort_columns = (
   date         => t8('Date'),
@@ -81,6 +84,17 @@ sub action_list {
                                    });
 
   $self->report_generator_list_objects(report => $self->{report}, objects => $objects);
+}
+
+sub action_mark_as_booked {
+  my ($self) = @_;
+
+  if (scalar @{ $::form->{ids} }) {
+    my $trs = SL::DB::Manager::TimeRecording->get_all(query => [id => $::form->{ids}]);
+    $_->update_attributes(booked => 1) for @$trs;
+  }
+
+  $self->redirect_to(safe_callback());
 }
 
 sub action_edit {
@@ -279,15 +293,24 @@ sub check_auth_edit {
   }
 }
 
+sub check_auth_edit_all {
+  my ($self) = @_;
+
+  $::auth->assert('time_recording_edit_all');
+}
+
 sub prepare_report {
   my ($self) = @_;
 
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns  = qw(date start_time end_time order customer project part description staff_member duration booked);
+  my @columns  = qw(ids date start_time end_time order customer project part description staff_member duration booked);
 
   my %column_defs = (
+    ids          => { raw_header_data => checkbox_tag("", id => "check_all", checkall  => "[data-checkall=1]"),
+                      align           => 'center',
+                      raw_data        => sub { $_[0]->booked ? '' : checkbox_tag("ids[]", value => $_[0]->id, "data-checkall" => 1) }   },
     date         => { text => t8('Date'),         sub => sub { $_[0]->date_as_date },
                       obj_link => sub { $self->url_for(action => 'edit', 'id' => $_[0]->id, callback => $self->models->get_callback) }  },
     start_time   => { text => t8('Start'),        sub => sub { $_[0]->start_time_as_timestamp },
@@ -306,6 +329,11 @@ sub prepare_report {
                       align => 'right'},
     booked       => { text => t8('Booked'),       sub => sub { $_[0]->booked ? t8('Yes') : t8('No') } },
   );
+
+  if (!$self->can_edit_all) {
+    @columns = grep {'ids' ne $_} @columns;
+    delete $column_defs{ids};
+  }
 
   my $title        = t8('Time Recordings');
   $report->{title} = $title;    # for browser titlebar (title-tag)
@@ -372,6 +400,19 @@ sub setup_list_action_bar {
         t8('Update'),
         submit    => [ '#filter_form', { action => 'TimeRecording/list' } ],
         accesskey => 'enter',
+      ],
+      combobox => [
+        action => [
+          t8('Actions'),
+          only_if => $self->can_edit_all,
+        ],
+        action => [
+          t8('Mark as booked'),
+          submit  => [ '#form', { action => 'TimeRecording/mark_as_booked', callback => $self->models->get_callback } ],
+          checks  => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+          confirm => $::locale->text('Do you really want to mark the selected entries as booked?'),
+          only_if => $self->can_edit_all,
+        ],
       ],
       action => [
         t8('Add'),
