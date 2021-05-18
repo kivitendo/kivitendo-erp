@@ -109,21 +109,24 @@ sub initialize_params {
 
 
   # convert date from string to object
-  my $from_date;
-  my $to_date;
+  my ($from_date, $to_date);
   try {
-    $from_date   = DateTime->from_kivitendo($data->{from_date}) if $data->{from_date};
-    $to_date     = DateTime->from_kivitendo($data->{to_date})   if $data->{to_date};
-    die unless $from_date && $to_date;
+    if ($self->params->{from_date}) {
+      $from_date = DateTime->from_kivitendo($self->params->{from_date});
+      # no undef and no other type.
+      die unless ref $from_date eq 'DateTime';
+    }
+    if ($self->params->{to_date}) {
+      $to_date = DateTime->from_kivitendo($self->params->{to_date});
+      # no undef and no other type.
+      die unless ref $to_date eq 'DateTime';
+    }
   } catch {
     die t8("Cannot convert date.") ."\n" .
-        t8("Input from string: #1", $data->{from_date}) . "\n" .
-        t8("Input to string: #1", $data->{to_date}) . "\n" .
+        t8("Input from string: #1", $self->params->{from_date}) . "\n" .
+        t8("Input to string: #1", $self->params->{to_date}) . "\n" .
         t8("Details: #1", $_);
   };
-  $from_date = DateTime->from_kivitendo($self->params->{from_date});
-  $to_date   = DateTime->from_kivitendo($self->params->{to_date});
-  # DateTime->from_kivitendo returns undef if the string cannot be parsed. Therefore test the result.
 
   $to_date->add(days => 1); # to get all from the to_date, because of the time part (15.12.2020 23.59 > 15.12.2020)
 
