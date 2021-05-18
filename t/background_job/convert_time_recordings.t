@@ -543,7 +543,7 @@ $job    = SL::BackgroundJob::ConvertTimeRecordings->new;
 
 my $err_msg = '';
 eval { $ret = $job->run($db_obj);  1; } or do {$err_msg = $@};
-ok($err_msg =~ '^Cannot convert date from string', 'wrong date string detected');
+ok($err_msg =~ '^Cannot convert date.', 'wrong date string detected');
 
 #####
 
