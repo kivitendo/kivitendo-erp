@@ -21,7 +21,10 @@ namespace('kivi.TimeRecording', function(ns) {
     $time.val(kivi.format_time(date));
   };
 
+  var order_changed_called;
   ns.order_changed = function(value) {
+    order_changed_called = true;
+
     if (!value) {
       $('#time_recording_customer_id').data('customer_vendor_picker').set_item({});
       $('#time_recording_customer_id_name').prop('disabled', false);
@@ -41,7 +44,12 @@ namespace('kivi.TimeRecording', function(ns) {
     });
   };
 
-  ns.project_changed = function() {
+  ns.project_changed = function(event) {
+    if (order_changed_called) {
+      order_changed_called = false;
+      return;
+    }
+
     var project_id = $('#time_recording_project_id').val();
 
     if (!project_id) {
