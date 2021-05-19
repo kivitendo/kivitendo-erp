@@ -178,7 +178,8 @@
     [% IF ( SELF.is_customer() ) %]
     <tr>
       <th align="right">[% 'Email of the invoice recipient' | $T8 %]</th>
-      <td>[% L.input_tag('cv.invoice_mail', SELF.cv.invoice_mail, size = 45) %]</td>
+      <td>[% L.input_tag('cv.invoice_mail', SELF.cv.invoice_mail, size = 30) %] <label for="cv_postal_invoice">[% 'Postal Invoice' | $T8 %]</label>
+        [% L.checkbox_tag('cv.postal_invoice', checked = SELF.cv.postal_invoice, for_submit=1) %]</td>
     </tr>
     <tr>
       <th align="right">[% 'Email of the delivery order recipient' | $T8 %]</th>

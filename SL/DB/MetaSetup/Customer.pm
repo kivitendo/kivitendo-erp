@@ -56,6 +56,7 @@ __PACKAGE__->meta->columns(
   order_lock                => { type => 'boolean', default => 'false' },
   payment_id                => { type => 'integer' },
   phone                     => { type => 'text' },
+  postal_invoice            => { type => 'boolean', default => 'false' },
   pricegroup_id             => { type => 'integer' },
   salesman_id               => { type => 'integer' },
   street                    => { type => 'text' },

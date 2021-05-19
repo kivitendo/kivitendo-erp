@@ -411,8 +411,9 @@ sub setup_is_action_bar {
         action => [ t8('E Mail'),
           call     => [ 'kivi.SalesPurchase.show_email_dialog' ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => !$may_edit_create ? t8('You must not print this invoice.')
-                    : !$form->{id}      ? t8('This invoice has not been posted yet.')
+          disabled => !$may_edit_create       ? t8('You must not print this invoice.')
+                    : !$form->{id}            ? t8('This invoice has not been posted yet.')
+                    : $form->{postal_invoice} ? t8('This customer wants a postal invoices.')
                     :                     undef,
         ],
       ], # end of combobox "Export"
@@ -458,6 +459,9 @@ sub form_header {
 
   $TMPL_VAR{customer_obj} = SL::DB::Customer->load_cached($form->{customer_id}) if $form->{customer_id};
   $TMPL_VAR{invoice_obj}  = SL::DB::Invoice->load_cached($form->{id})           if $form->{id};
+
+  # only print, no mail
+  $form->{postal_invoice} = $TMPL_VAR{customer_obj}->postal_invoice if ref $TMPL_VAR{customer_obj} eq 'SL::DB::Customer';
 
   my $current_employee   = SL::DB::Manager::Employee->current;
   $form->{employee_id}   = $form->{old_employee_id} if $form->{old_employee_id};

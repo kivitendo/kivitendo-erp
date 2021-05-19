@@ -101,7 +101,7 @@
 
     <tr class="rule-before">
      <th align="right">[%- LxERP.t8("Send invoice via email") %]</th>
-     <td>[% L.checkbox_tag("send_email", onclick => "toggle_send_email_ctrl()", checked=config.send_email) %]</td>
+     <td>[% L.checkbox_tag("send_email", onclick => "toggle_send_email_ctrl()", checked=config.send_email, disabled=postal_invoice) %]</td>
     </tr>
     <tr>
      <th align="right">[%- LxERP.t8("Email of the invoice recipient") %]</th>
