@@ -50,7 +50,7 @@
     <tr></tr><tr></tr>
     <tr>
       <th align="right">[% 'Sales Order' | $T8 %]</th>
-      <td>[% P.select_tag('time_recording.order_id', SELF.all_orders, default=SELF.time_recording.order_id, title_key='digest', with_empty=1, style='width: 300px', onchange='kivi.TimeRecording.order_changed(this.value)') %]</td>
+      <td>[% P.select_tag('time_recording.order_id', SELF.all_orders, default=SELF.time_recording.order_id, with_empty=1, style='width: 300px', onchange='kivi.TimeRecording.order_changed(this.value)') %]</td>
     </tr>
     <tr>
       <th align="right">[% 'Customer' | $T8 %]</th>
