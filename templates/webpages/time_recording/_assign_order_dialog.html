@@ -1,0 +1,30 @@
+[%- USE T8 %][%- USE HTML %][%- USE L %][%- USE P %][%- USE LxERP %]
+
+<form method="POST" id="assign_order_form">
+  [% L.hidden_tag('assign.callback', HTML.escape(callback)) %]
+
+  <p>
+    <h3>[% 'Selected time recordings' | $T8 %]</h3>
+    <table>
+      <tr class="listheading">
+        <th>[% 'time recording entry' | $T8 %]</th>
+        <th>[% 'current order' | $T8 %]</th>
+      </tr>
+      [% FOREACH tr = time_recordings %]
+      <tr class="listrow">
+        <td>[% tr.displayable_times %]</td>
+        <td align="right">[% tr.order_id ? tr.order.number : '-' %]</td>
+      </tr>
+      [% END %]
+    </table>
+  </p>
+
+  <p>
+    <h3>[% 'Select an order to assign' | $T8 %]</h3>
+    [% P.select_tag('assign.order_id', orders, with_empty=1, style='width: 300px') %]
+  </p>
+
+  <p>
+    [% L.button_tag("kivi.TimeRecording.assign_order()", LxERP.t8('Continue')) %]
+  </p>
+</form>

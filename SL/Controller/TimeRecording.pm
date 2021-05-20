@@ -5,7 +5,7 @@ use parent qw(SL::Controller::Base);
 
 use DateTime;
 use English qw(-no_match_vars);
-use List::Util qw(sum0);
+use List::Util qw(sum0 notall);
 use POSIX qw(strftime);
 
 use SL::Controller::Helper::GetModels;
@@ -18,7 +18,7 @@ use SL::DB::Part;
 use SL::DB::Project;
 use SL::DB::TimeRecording;
 use SL::DB::TimeRecordingArticle;
-use SL::Helper::Flash qw(flash);
+use SL::Helper::Flash qw(flash flash_later);
 use SL::Helper::Number qw(_round_number _parse_number _round_total);
 use SL::Helper::UserPreferences::TimeRecording;
 use SL::Locale::String qw(t8);
@@ -35,7 +35,7 @@ use Rose::Object::MakeMethods::Generic
 # safety
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('check_auth_edit',     only => [ qw(edit save delete) ]);
-__PACKAGE__->run_before('check_auth_edit_all', only => [ qw(mark_as_booked) ]);
+__PACKAGE__->run_before('check_auth_edit_all', only => [ qw(mark_as_booked assign_order_dialog assign_order) ]);
 
 
 my %sort_columns = (
@@ -97,6 +97,85 @@ sub action_mark_as_booked {
   }
 
   $self->redirect_to(safe_callback());
+}
+
+sub action_assign_order_dialog {
+  my ($self) = @_;
+
+  if (!scalar @{ $::form->{ids} }) {
+    return $self->js->flash('warning', t8('No entries have been selected.'))->render;
+  }
+
+  # Sanity check: all entries must have the same customer assigned.
+  my $trs = SL::DB::Manager::TimeRecording->get_all(where => [id => $::form->{ids}]);
+  if (notall { $_->customer_id == $trs->[0]->customer_id } @$trs) {
+    return $self->js->flash('error', t8('All entries must have the same customer assigned.'))->render;
+  };
+
+  # Search assigneable orders
+  my $orders = SL::DB::Manager::Order->get_all(query => [or             => [ closed    => 0, closed    => undef ],
+                                                         or             => [ quotation => 0, quotation => undef ],
+                                                         customer_id    => $trs->[0]->customer_id]);
+  $orders = [ map { [$_->id, sprintf("%s %s", $_->number, $_->customervendor->name) ] } sort { $a->number <=> $b->number } @{$orders||[]} ];
+
+  # Prepare dialog
+  my $dialog_html = $self->render('time_recording/_assign_order_dialog', { output => 0 },
+                                  orders          => $orders,
+                                  time_recordings => $trs,
+                                  callback        => $::form->escape($::form->{callback}),
+  );
+
+  my %dialog_params = (
+    html => $dialog_html,
+    id   => 'assign_order_dialog',
+    dialog => {
+      title  => t8('Assign an order to entries'),
+      width  => 500,
+      height => 600,
+    },
+  );
+
+  $self->js
+    ->dialog->open(\%dialog_params)
+    ->render;
+}
+
+sub action_assign_order {
+  my ($self) = @_;
+
+  if (!$::form->{assign}->{order_id}) {
+    return $self->js->flash('warning', t8('No order has been selected.'))->render;
+  }
+
+  if (!scalar @{ $::form->{ids} }) {
+    return $self->js->flash('warning', t8('No entries have been selected.'))->render;
+  }
+
+  # Sanity check: all entries must have the same customer assigned.
+  my $trs = SL::DB::Manager::TimeRecording->get_all(where => [id => $::form->{ids}]);
+  if (notall { $_->customer_id == $trs->[0]->customer_id } @$trs) {
+    return $self->js->flash('error', t8('All entries must have the same customer assigned.'))->render;
+  };
+
+  my $errors_occurred;
+  foreach my $tr (@$trs) {
+    $tr->assign_attributes(order_id => $::form->{assign}->{order_id});
+    my @errors = $tr->validate;
+    if (@errors) {
+      $self->js->flash('error', $tr->displayable_times . ': ' . $_) for @errors;
+      $errors_occurred = 1;
+    }
+  }
+
+  if ($errors_occurred) {
+    return $self->js->flash('warning', t8('No changes were saved.'))->render;
+
+  } else {
+    $_->save for @$trs;
+    flash_later('info', t8('The changes have been saved.'));
+  }
+
+  $self->redirect_to($::form->unescape($::form->{assign}->{callback}));
 }
 
 sub action_edit {
@@ -413,6 +492,12 @@ sub setup_list_action_bar {
           submit  => [ '#form', { action => 'TimeRecording/mark_as_booked', callback => $self->models->get_callback } ],
           checks  => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
           confirm => $::locale->text('Do you really want to mark the selected entries as booked?'),
+          only_if => $self->can_edit_all,
+        ],
+        action => [
+          t8('Assign Order'),
+          call    => [ 'kivi.TimeRecording.assign_order_dialog', { callback => $self->models->get_callback } ],
+          checks  => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
           only_if => $self->can_edit_all,
         ],
       ],

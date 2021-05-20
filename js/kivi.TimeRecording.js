@@ -80,6 +80,27 @@ namespace('kivi.TimeRecording', function(ns) {
     });
   };
 
+  ns.assign_order_dialog = function(params) {
+    var callback = params.callback;
+
+    var data = $('#form').serializeArray();
+    data     = data.concat($('#filter_form').serializeArray());
+    data.push({name: 'action',   value: 'TimeRecording/assign_order_dialog'},
+              {name: 'callback', value: callback});
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.assign_order = function() {
+    var data = $('#form').serializeArray();
+    data     = data.concat($('#assign_order_form').serializeArray());
+    data.push({name: 'action',   value: 'TimeRecording/assign_order'});
+
+    $('#assign_order_dialog').dialog('close');
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
 });
 
 $(function() {
