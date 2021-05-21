@@ -1,0 +1,58 @@
+[%- USE T8 %]
+[%- USE HTML %][%- USE L -%][%- USE LxERP -%]
+
+<center>
+  <a href="https://www.kivitendo.de" target="_top" class="no-underlined-links center-align">
+    <img src="image/kivitendo.png" class="responsive-img kivitendo-logo">
+  </a>
+</center>
+<h5 class="center-align">[% LxERP.t8('kivitendo v#1', version) %]</h5>
+
+<div class="section">
+<div class="container">
+[% IF error %]
+  <div class="col s12 red">[% error | html %]</div>
+[% END %]
+[% IF warning %]
+  <div class="col s12 blue lighten-3">[% warning | html %]</div>
+[% END %]
+[% IF info %]
+  <div class="col s12 green lighten-1">[% ok | html %]</div>
+[% END %]
+</div>
+</div>
+
+<div class="section">
+<div class="container">
+  <div class="z-depth-1 grey lighten-4 row" style="padding: 32px 48px 0px 48px; border: 1px solid #EEE;">
+
+    <form method="post" name="loginscreen" action="controller.pl" target="_top" class="col s12">
+      <div class="row">
+        <div class="input-field col s12">
+          [% L.input_tag('{AUTH}login', FORM.$auth_login, id='auth_login', class='initial_focus validate', label=LxERP.t8('Login Name')) %]
+          <label for='auth_login'>[% 'Login Name' | $T8 %]</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
+          [% L.input_tag('{AUTH}password', '', type='password', id='auth_password', class='validate', label=LxERP.t8('Password')) %]
+          <label for='auth_password'>[% 'Password' | $T8 %]</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
+          [% L.select_tag('{AUTH}client_id', SELF.clients, id='auth_client_id', title_key='name', default=SELF.default_client_id) %]
+          <label for='auth_client_id'>[% 'Client' | $T8 %]</label>
+        </div>
+      </div>
+
+
+      <div class="row">
+        [% L.hidden_tag("action", "LoginScreen/login") %]
+        <button type='submit' name='btn_login' class='col s12 btn btn-large waves-effect'>Login</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+</div>

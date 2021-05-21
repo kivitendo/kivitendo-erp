@@ -165,7 +165,9 @@ sub error_state {
 }
 
 sub set_layout {
-  $::request->{layout} = SL::Layout::Dispatcher->new(style => 'login');
+  $::request->{layout} = $::request->is_mobile
+    ? SL::Layout::Dispatcher->new(style => 'mobile_login')
+    : SL::Layout::Dispatcher->new(style => 'login');
 }
 
 sub init_clients {
