@@ -548,26 +548,10 @@ sub get_warehouse_journal {
   $where_clause = defined($where_clause) ? $where_clause : '';
 
   my $query =
-  qq|SELECT * FROM (SELECT DISTINCT $select{trans}
-    FROM inventory i1
-    LEFT JOIN inventory i2 ON i1.trans_id = i2.trans_id
-    LEFT JOIN parts p ON i1.parts_id = p.id
-    LEFT JOIN bin b1 ON i1.bin_id = b1.id
-    LEFT JOIN bin b2 ON i2.bin_id = b2.id
-    LEFT JOIN warehouse w1 ON i1.warehouse_id = w1.id
-    LEFT JOIN warehouse w2 ON i2.warehouse_id = w2.id
-    LEFT JOIN transfer_type tt ON i1.trans_type_id = tt.id
-    LEFT JOIN project pr ON i1.project_id = pr.id
-    LEFT JOIN employee e ON i1.employee_id = e.id
-    WHERE $where_clause i2.qty = -i1.qty AND i2.qty > 0 AND
-          i1.trans_id IN ( SELECT i.trans_id FROM inventory i GROUP BY i.trans_id HAVING COUNT(i.trans_id) = 2 )
-    GROUP BY $group_clause
-
-    UNION
-
+  qq|SELECT * FROM (
     SELECT DISTINCT $select{out}
     FROM inventory i1
-    LEFT JOIN inventory i2 ON i1.trans_id = i2.trans_id
+    LEFT JOIN inventory i2 ON i1.trans_id = i2.trans_id AND i1.id = i2.id
     LEFT JOIN parts p ON i1.parts_id = p.id
     LEFT JOIN bin b1 ON i1.bin_id = b1.id
     LEFT JOIN bin b2 ON i2.bin_id = b2.id
@@ -576,7 +560,7 @@ sub get_warehouse_journal {
     LEFT JOIN transfer_type tt ON i1.trans_type_id = tt.id
     LEFT JOIN project pr ON i1.project_id = pr.id
     LEFT JOIN employee e ON i1.employee_id = e.id
-    WHERE $where_clause i1.qty < 0 AND
+    WHERE $where_clause i1.qty != 0 AND tt.direction = 'out' AND
           i1.trans_id IN ( SELECT i.trans_id FROM inventory i GROUP BY i.trans_id HAVING COUNT(i.trans_id) >= 1 )
     GROUP BY $group_clause
 
@@ -584,7 +568,7 @@ sub get_warehouse_journal {
 
     SELECT DISTINCT $select{in}
     FROM inventory i1
-    LEFT JOIN inventory i2 ON i1.trans_id = i2.trans_id
+    LEFT JOIN inventory i2 ON i1.trans_id = i2.trans_id AND i1.id = i2.id
     LEFT JOIN parts p ON i1.parts_id = p.id
     LEFT JOIN bin b1 ON i1.bin_id = b1.id
     LEFT JOIN bin b2 ON i2.bin_id = b2.id
@@ -593,12 +577,12 @@ sub get_warehouse_journal {
     LEFT JOIN transfer_type tt ON i1.trans_type_id = tt.id
     LEFT JOIN project pr ON i1.project_id = pr.id
     LEFT JOIN employee e ON i1.employee_id = e.id
-    WHERE $where_clause i1.qty > 0 AND
+    WHERE $where_clause i1.qty != 0 AND tt.direction = 'in' AND
           i1.trans_id IN ( SELECT i.trans_id FROM inventory i GROUP BY i.trans_id HAVING COUNT(i.trans_id) >= 1 )
     GROUP BY $group_clause
-    ORDER BY r_${sort_spec}) AS lines WHERE r_qty>0|;
+    ORDER BY r_${sort_spec}) AS lines WHERE r_qty != 0|;
 
-  my @all_vars = (@filter_vars,@filter_vars,@filter_vars);
+  my @all_vars = (@filter_vars,@filter_vars);
 
   if ($filter{limit}) {
     $query .= " LIMIT ?";
