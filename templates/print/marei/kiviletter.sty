@@ -137,6 +137,7 @@ contents={\usebox\shippingAddressBox}
 	\clist_gset:Nn \g_kivi_pricingtable_col_clist {#1}
 	\__kivi_initialize_columns:,
 	columns .initial:n = {pos, id, desc, amount, price, pricetotal},
+	unknown .code:n = \keys_set:no {kivi/Tabular} {\l_keys_key_str=#1}
 }
 
 % set default values for colwidth
@@ -402,6 +403,20 @@ contents={\usebox\shippingAddressBox}
 	colspec .initial:n = {rrX},
 	headline .tl_set:N = \l_kivi_SimpleTabular_headline_tl,
 	headline .initial:n = {\bfseries\position & \bfseries\menge & \bfseries\bezeichnung},
+\keys_define:nn {kivi/Tabular} {
+	color-rows .bool_gset:N =  \g__kivi_Tabular_rowcolor_bool ,
+	color-rows .initial:n = false,
+	color-rows .default:n = true,
+	rowcolor-odd .tl_gset:N = \g__kivi_Tabular_rowcolor_odd_tl,
+	rowcolor-odd .initial:n = black!10,
+	rowcolor-even .tl_gset:N = \g__kivi_Tabular_rowcolor_even_tl,
+	rowcolor-even .initial:n =,
+	rowcolor-header .tl_gset:N = \g__kivi_Tabular_rowcolor_header_tl,
+	rowcolor-header .initial:n = black!35,
+	rowcolor-total .tl_gset:N = \g__kivi_Tabular_rowcolor_PricingTotal_tl,
+	rowcolor-total .initial:n = black!35,
+	rowsep .tl_set:N =\g__kivi_Tabular_rowsep_tl,
+	hrule .meta:n = {rowsep=\midrule}
 }
 
 \newcommand*{\SetupSimpleTabular}[1]{\keys_set:nn {kivi/SimpleTabular} {#1}}
