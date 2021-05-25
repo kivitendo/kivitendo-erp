@@ -249,6 +249,40 @@ contents={\usebox\shippingAddressBox}
 \seq_new:N \l_kivi_PricingTable_seq
 \seq_new:N \l_kivi_columns_seq
 \seq_new:N \g_kivi_extraDescription_seq
+\dim_new:N \l__kivi_fboxsep_dim 
+\dim_set:Nn \l__kivi_fboxsep_dim {\g_kivi_tabcolsep_dim}
+
+%colorbox variant to only add vertical spacing
+%based on colorbox definition from xcolor.sty
+%% ----------------------------------------------------------------
+%% Copyright (C) 2003-2016 by Dr. Uwe Kern <xcolor at ukern dot de>
+%% ----------------------------------------------------------------
+%% This variant of colorbox adds a space of \l__kivi_fboxsep_dim along the vertical axes but no horizontal space
+\def\kivi@tabcolorbox#1#{\protect\kivi@tabcolor@box{#1}}
+
+\def\kivi@tabcolor@box#1#2{
+	\tl_if_empty:oTF {#2} 
+		\kivi@nocolor@b@x
+		\kivi@color@b@x
+	\relax{\color#1{#2}}
+}
+\long\def\kivi@color@b@x#1#2#3%
+{\leavevmode
+	\setbox\z@\hbox{{\set@color#3}}%
+	\dimen@\ht\z@\advance\dimen@\l__kivi_fboxsep_dim\ht\z@\dimen@
+	\dimen@\dp\z@\advance\dimen@\l__kivi_fboxsep_dim\dp\z@\dimen@
+	{#1{#2\color@block{\wd\z@}{\ht\z@}{\dp\z@}\box\z@}}}
+
+\long\def\kivi@nocolor@b@x#1#2#3%
+{\leavevmode
+	\setbox\z@\hbox{#3}%
+	\dimen@\ht\z@\advance\dimen@\l__kivi_fboxsep_dim\ht\z@\dimen@
+	\dimen@\dp\z@\advance\dimen@\l__kivi_fboxsep_dim\dp\z@\dimen@
+	{\box\z@}}
+
+%%%
+
+
 \newcommand{\FakeTable}[1]{
 	\par
 	\seq_set_split:Nnn \l_kivi_PricingTable_seq {\tabularnewline} {#1}
