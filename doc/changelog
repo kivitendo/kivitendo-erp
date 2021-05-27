@@ -54,9 +54,12 @@ Kleinere neue Features und Detailverbesserungen:
    Innerhalb der Druckvorlagen steht das Attribut mit <%optional%> als Variable zu Verfügung.
    Beim Status setzen eines Auftrags (offen oder geschlossen) werden optionale Position
    ignoriert. D.h. ein Auftrag gilt als geschlossen, wenn alle nicht optionalen
-   Positionen fakturiert worden sind. Das Attribut optional steht auch nur in
-   den Angeboten/Aufträgen zu Verfügung. Sobald über den Workflow ein neuer Beleg
-   erstellt wird, wird die vorher optionale Position zu einer normalen Position
+   Positionen fakturiert worden sind.
+   Das Gleiche gilt für Lieferscheine. Sollten alles bis auf optionale Artikel
+   geliefert worden sein, gilt der Auftrag als komplett geliefert.
+   Das Attribut optional steht auch nur in den Angeboten/Aufträgen zu Verfügung.
+   Sobald über den Workflow ein neuer Beleg erstellt wird,
+   wird die vorher optionale Position zu einer normalen Position
    und wird dann auch entsprechend bei dem Rechnungsbeleg mit fakturiert und im
    Druckvorlagen-System entfällt das Attribut <%optional%>.
    Entsprechend exemplarisch im aktuellen Druckvorlagensatz RB ergänzt.

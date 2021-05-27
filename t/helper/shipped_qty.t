@@ -204,6 +204,55 @@ note('misc tests');
 my $number_of_linked_items = SL::DB::Manager::RecordLink->get_all_count( where => [ from_table => 'orderitems', to_table => 'delivery_order_items' ] );
 is ($number_of_linked_items , 6, "6 record_links for items, 3 from sales order, 3 from purchase order");
 
+note('testing optional orderitems');
+
+my $item_optional = create_order_item(part => $part3, qty => 7, optional => 1);
+ok($item_optional->{optional},       "optional order item");
+
+my $sales_order_opt = create_sales_order(
+  save       => 1,
+  orderitems => [ create_order_item(part => $part1, qty => 5),
+                  create_order_item(part => $part2, qty => 6),
+                  $item_optional,
+                ]
+);
+
+
+SL::Helper::ShippedQty
+  ->new(require_stock_out => 1)  # should make no difference while there is no delivery order
+  ->calculate($sales_order_opt)
+  ->write_to_objects;
+
+is($sales_order_opt->items_sorted->[2]->{shipped_qty}, 0,  "third optional sales orderitem has no shipped_qty");
+ok(!$sales_order_opt->items_sorted->[2]->{delivered},      "third optional sales orderitem is not delivered");
+ok($sales_order_opt->items_sorted->[2]->{optional},        "third optional sales orderitem is optional");
+
+my $orderitem_part3_opt = SL::DB::Manager::OrderItem->find_by(parts_id => $part3->id, trans_id => $sales_order_opt->id);
+is($orderitem_part3_opt->shipped_qty, 0, "OrderItem shipped_qty method ok");
+
+# create sales delivery order from sales order
+my $sales_delivery_order_opt = $sales_order_opt->convert_to_delivery_order;
+is(scalar @{ $sales_delivery_order_opt->items_sorted }, 3,   "third optional sales delivery orderitem is there");
+
+# and delete third item
+my $optional =  SL::DB::Manager::DeliveryOrderItem->find_by(parts_id => $part3->id, delivery_order_id => $sales_delivery_order_opt->id);
+SL::DB::DeliveryOrderItem->new(id => $optional->id)->delete;
+$sales_delivery_order_opt->save(cascade => 1);
+my $new_sales_delivery_order_opt = SL::DB::Manager::DeliveryOrder->find_by(id => $sales_delivery_order_opt->id);
+is(scalar @{ $new_sales_delivery_order_opt->items_sorted }, 2,   "third optional sales delivery orderitem is undef");
+
+SL::Helper::ShippedQty
+  ->new(require_stock_out => 0)
+  ->calculate($sales_order_opt)
+  ->write_to_objects;
+
+is($sales_order_opt->items_sorted->[0]->{shipped_qty}, 5,  "require_stock_out => 0: first sales orderitem has shipped_qty");
+ok($sales_order_opt->items_sorted->[0]->{delivered},       "require_stock_out => 0: first sales orderitem is delivered");
+ok($sales_order_opt->items_sorted->[1]->{delivered},       "require_stock_out => 0: second sales orderitem is delivered");
+ok(!$sales_order_opt->items_sorted->[2]->{delivered},      "require_stock_out => 0: third sales orderitem is NOT delivered");
+is($sales_order_opt->items_sorted->[2]->{shipped_qty}, 0,  "require_stock_out => 0: third sales orderitem has no shipped_qty");
+ok($sales_order_opt->{delivered},                          "require_stock_out => 0: order IS delivered");
+
 clear_up();
 
 {

@@ -26,6 +26,7 @@ my $no_stock_item_links_query = <<'';
   ORDER BY oi.trans_id, oi.position
 
 # oi not item linked. takes about 250ms for 100k hits
+# obsolete since 3.5.6
 my $fill_up_oi_query = <<'';
   SELECT oi.id, oi.trans_id, oi.position, oi.parts_id, oi.description, oi.reqdate, oi.serialnumber, oi.qty, oi.unit
   FROM orderitems oi
@@ -33,6 +34,7 @@ my $fill_up_oi_query = <<'';
   ORDER BY oi.trans_id, oi.position
 
 # doi linked by record, but not by items; 250ms for 100k hits
+# obsolete since 3.5.6
 my $no_stock_fill_up_doi_query = <<'';
   SELECT doi.id, doi.delivery_order_id, doi.position, doi.parts_id, doi.description, doi.reqdate, doi.serialnumber, doi.qty, doi.unit
   FROM delivery_order_items doi
@@ -219,7 +221,7 @@ sub write_to {
     } elsif ('SL::DB::Order' eq ref $obj) {
       if (defined $obj->{orderitems}) {
         $self->write_to($obj->{orderitems});
-        $obj->{delivered} = all { $_->{delivered} } @{ $obj->{orderitems} };
+        $obj->{delivered} = all { $_->{delivered} } grep { !$_->{optional} || $_->{optional} == 0 } @{ $obj->{orderitems} };
       } else {
         # don't force a load on items. just compute by oe_id directly
         $obj->{delivered} = $self->delivered->{$obj->id};
