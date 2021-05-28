@@ -5,6 +5,11 @@ use warnings;
 
 use SL::X::Base;
 
+
+# note! the default fields "message", "error" and "show_trace" are created by
+# Exception::Class if message or error are given, they are used for
+# stringification, so don't use them in error_templates
+#
 use Exception::Class (
   'SL::X::FormError'    => {
     isa                 => 'SL::X::Base',
@@ -32,13 +37,11 @@ use Exception::Class (
   },
   'SL::X::Inventory' => {
     isa                 => 'SL::X::Base',
-    fields              => [ qw(msg error) ],
-    defaults            => { error_template => [ '%s: %s', qw(msg) ] },
+    fields              => [ qw(code) ],
   },
   'SL::X::Inventory::Allocation' => {
     isa                 => 'SL::X::Base',
-    fields              => [ qw(msg error) ],
-    defaults            => { error_template => [ '%s: %s', qw(msg) ] },
+    fields              => [ qw(code) ],
   },
 );
 

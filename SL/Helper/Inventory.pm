@@ -197,8 +197,8 @@ sub allocate {
   }
   if ($rest_qty > 0) {
     die SL::X::Inventory::Allocation->new(
-      error => 'not enough to allocate',
-      msg => t8("can not allocate #1 units of #2, missing #3 units", _format_number($qty), $part->displayable_name, _format_number($rest_qty)),
+      code    => 'not enough to allocate',
+      message => t8("can not allocate #1 units of #2, missing #3 units", _format_number($qty), $part->displayable_name, _format_number($rest_qty)),
     );
   } else {
     if ($params{constraints}) {
@@ -238,8 +238,8 @@ sub check_constraints {
   if ('CODE' eq ref $constraints) {
     if (!$constraints->(@$allocations)) {
       die SL::X::Inventory::Allocation->new(
-        error => 'allocation constraints failure',
-        msg => t8("Allocations didn't pass constraints"),
+        code    => 'allocation constraints failure',
+        message => t8("Allocations didn't pass constraints"),
       );
     }
   } else {
@@ -272,8 +272,8 @@ sub check_constraints {
               SL::DB::Bin->load_cached($_->bin_id)->full_description,
               _format_number($_->qty), _format_number($needed), $_->chargenumber ? $_->chargenumber : '--') for @allocs;
         die SL::X::Inventory::Allocation->new(
-          error => 'allocation constraints failure',
-          msg   => $err,
+          code    => 'allocation constraints failure',
+          message => $err,
         );
       }
     }
@@ -319,7 +319,10 @@ sub produce_assembly {
       $allocations_by_part{ $assembly->parts_id } -= $assembly->qty * $qty;
     }
 
-    die "allocations are insufficient for production" if any { $_ < 0 } values %allocations_by_part;
+    die SL::X::Inventory::Allocation->new(
+      code    => "allocations are insufficient for production",
+      message => t8('can not allocate enough resources for production'),
+    ) if any { $_ < 0 } values %allocations_by_part;
   }
 
   my @transfers;
