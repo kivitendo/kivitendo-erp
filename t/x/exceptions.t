@@ -22,7 +22,7 @@ for my $error_class (@classes) {
   is $x->message, "test message", "$error_class(message): message works";
   is "$x",        "test message", "$error_class(message): stringify works";
 
-  my $x = $error_class->new(error => "test message");
+  $x = $error_class->new(error => "test message");
 
   is $x->error,   "test message", "$error_class(error): error works";
   is $x->message, "test message", "$error_class(error): message works";
@@ -39,7 +39,7 @@ is $x->message, "stuff: broke", "tempalte: message works";
 is "$x",        "stuff: broke", "template: stringify works";
 
 
-my $x = SL::X::Inventory::Allocation->new(code => "DEADCOFFEE", message => "something went wrong");
+$x = SL::X::Inventory::Allocation->new(code => "DEADCOFFEE", message => "something went wrong");
 
 is $x->code,   "DEADCOFFEE", "extra fields work";
 
