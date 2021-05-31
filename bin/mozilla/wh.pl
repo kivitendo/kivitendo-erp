@@ -753,9 +753,8 @@ sub generate_journal {
 
     if ($entry->{assembled}) {
       my $insertdate = DateTime->from_kivitendo($entry->{shippingdate});
-      if (ref $undo_date eq 'DateTime' && ref $insertdate eq 'DateTime') {
-        my $undo_assembly = DateTime->compare($insertdate, $undo_date) == 1 ? 1 : 0;
-        $row->{ids}->{raw_data} = checkbox_tag("ids[]", value => $entry->{trans_id}, "data-checkall" => 1) if $undo_assembly;
+      if (ref $undo_date eq 'DateTime' && ref $insertdate eq 'DateTime' && $insertdate > $undo_date) {
+        $row->{ids}->{raw_data} = checkbox_tag("ids[]", value => $entry->{trans_id}, "data-checkall" => 1);
       }
     }
     $row->{trans_type}->{raw_data} = $entry->{trans_type};

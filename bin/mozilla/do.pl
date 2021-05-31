@@ -245,8 +245,7 @@ sub setup_do_action_bar {
   my $insertdate = DateTime->from_kivitendo($::form->{insertdate});
   my $undo_transfer  = 0;
   if (ref $undo_date eq 'DateTime' && ref $insertdate eq 'DateTime') {
-    # DateTime->compare      it returns 1 if $dt1 > $dt2
-    $undo_transfer = DateTime->compare($insertdate, $undo_date) == 1 ? 1 : 0;
+    $undo_transfer = $insertdate > $undo_date;
   }
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(

@@ -221,7 +221,7 @@ sub write_to {
     } elsif ('SL::DB::Order' eq ref $obj) {
       if (defined $obj->{orderitems}) {
         $self->write_to($obj->{orderitems});
-        $obj->{delivered} = all { $_->{delivered} } grep { !$_->{optional} || $_->{optional} == 0 } @{ $obj->{orderitems} };
+        $obj->{delivered} = all { $_->{delivered} } grep { !$_->{optional} } @{ $obj->{orderitems} };
       } else {
         # don't force a load on items. just compute by oe_id directly
         $obj->{delivered} = $self->delivered->{$obj->id};
