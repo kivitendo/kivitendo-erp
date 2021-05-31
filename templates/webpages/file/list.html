@@ -65,7 +65,7 @@
       [%- ELSE %]
        <td align="left">
         [%- IF file.thumbnail %]
-         <div class="ovlerlay_div">
+         <div class="overlay_div">
           <img id="thumb_[% file.id %]" class="thumbnail"
                data-file-id="[% file.id %]" data-file-version="[% file.version %]"
                src="data:[% HTML.escape(file.thumbnail.thumbnail_img_content_type) %];base64,[% file.thumbnail.thumbnail_img_content.encode_base64 %]"
