@@ -233,3 +233,7 @@ span.upload_drop_zone {
   z-index: 2;
   cursor: pointer;
 }
+
+.thumbnail {
+  cursor: pointer;
+}

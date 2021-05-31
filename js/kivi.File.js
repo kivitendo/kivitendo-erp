@@ -332,6 +332,20 @@ namespace('kivi.File', function(ns) {
     $('.thumbnail').on('mouseover', ns.add_enlarged_thumbnail);
   };
 
+  ns.download = function(e) {
+    var file_id        = $(e.target).data('file-id');
+    var file_version   = $(e.target).data('file-version');
+
+    var data = {
+      action:  'File/download',
+      id:      file_id,
+      version: file_version,
+    };
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+
+  };
+
   ns.init = function() {
     // Preventing page from redirecting
     $("#" + ns.list_div_id).on("dragover", function(e) {
@@ -373,8 +387,8 @@ namespace('kivi.File', function(ns) {
     });
 
     $('.thumbnail').on('mouseover', ns.add_enlarged_thumbnail);
-    $('.overlay_img').on('click', ns.remove_enlarged_thumbnail);
     $('.overlay_img').on('mouseout', ns.remove_enlarged_thumbnail);
+    $('.overlay_div img').on('click', ns.download);
   };
 
 });
