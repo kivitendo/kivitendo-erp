@@ -4224,6 +4224,7 @@ $self->{texts} = {
   'building data'               => 'Verarbeite Daten',
   'building report'             => 'Erstelle Bericht',
   'can not allocate #1 units of #2, missing #3 units' => 'Kann keine #1 Einheiten von #2 belegen, es fehlen #3 Einheiten',
+  'can not allocate enough resources for production' => 'Kann nicht genug Mengen für die Produktion belegen',
   'can only parse a pdf file'   => 'Kann nur eine gültige PDF-Datei verwenden.',
   'cash'                        => 'Ist-Versteuerung',
   'chargenumber #1'             => 'Chargennummer #1',

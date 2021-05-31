@@ -4223,6 +4223,7 @@ $self->{texts} = {
   'building data'               => '',
   'building report'             => '',
   'can not allocate #1 units of #2, missing #3 units' => '',
+  'can not allocate enough resources for production' => '',
   'can only parse a pdf file'   => '',
   'cash'                        => '',
   'chargenumber #1'             => '',
