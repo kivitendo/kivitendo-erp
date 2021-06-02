@@ -158,8 +158,14 @@ sub save_record_template {
   my $template = $::form->{record_template_id} ? SL::DB::RecordTemplate->new(id => $::form->{record_template_id})->load : SL::DB::RecordTemplate->new;
   my $js       = SL::ClientJS->new(controller => SL::Controller::Base->new);
   my $new_name = $template->template_name_to_use($::form->{record_template_new_template_name});
-
   $js->dialog->close('#record_template_dialog');
+
+
+  # bank transactions need amounts for assignment
+  my $can_save = 0;
+  $can_save    = 1 if ($::form->{credit_1} > 0 && $::form->{debit_2} > 0 && $::form->{credit_2} == 0 && $::form->{debit_1} == 0);
+  $can_save    = 1 if ($::form->{credit_2} > 0 && $::form->{debit_1} > 0 && $::form->{credit_1} == 0 && $::form->{debit_2} == 0);
+  return $js->flash('error', t8('Can only save template if amounts,i.e. 1 for debit and credit are set.'))->render unless $can_save;
 
   my @items = grep {
     $_->{chart_id} && (($_->{tax_id} // '') ne '')

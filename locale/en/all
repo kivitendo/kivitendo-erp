@@ -544,6 +544,7 @@ $self->{texts} = {
   'Calling #1 now'              => '',
   'Can not create that quantity with current stock' => '',
   'Can only delete the "Storno zu" part of the cancellation pair.' => '',
+  'Can only save template if amounts,i.e. 1 for debit and credit are set.' => '',
   'Can\'t connect to shop. #1'  => '',
   'Can\'t load item without a valid part.id' => '',
   'Cancel'                      => '',
