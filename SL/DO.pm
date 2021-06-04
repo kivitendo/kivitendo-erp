@@ -663,7 +663,7 @@ sub delete_transfers {
     die "No valid delivery order found" unless ref $do eq 'SL::DB::DeliveryOrder';
 
     my $dt = DateTime->today->subtract(days => $::instance_conf->get_undo_transfer_interval);
-    croak "Wrong call. Please check undoing interval" unless DateTime->compare($do->itime, $dt) == 1;
+    croak "Wrong call. Please check undoing interval" unless $do->itime > $dt;
 
     foreach my $doi (@{ $do->orderitems }) {
       foreach my $dois (@{ $doi->delivery_order_stock_entries}) {
