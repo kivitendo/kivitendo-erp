@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE L %]
 <h1>[% 'DATEX - Export Assistent' | $T8 %]</h1>
 
 <form method='post' action='[% script %]' id='form'>
@@ -39,26 +40,10 @@
           <td align=left nowrap>[% 'Abrechnungsnummer' | $T8 %]</td>
           <td><input name=abrechnungsnr size=5 maxlength=3 value="[% abrechnungsnr %]"></td>
         </tr>
-
-        <tr>
-          <td><input name=exporttype type=radio class=radio value=0 checked> [% 'Export Buchungsdaten' | $T8 %]</td>
-          <td></td>
-
-          <td><input name=exporttype type=radio class=radio value=1> [% 'Export Stammdaten' | $T8 %]</td>
-          <td></td>
-        </tr>
-        <tr>
-          <td><input name=exportformat type=radio class=radio value=csv checked> [% 'CSV' | $T8 %]</td>
-          <td></td>
-
-          <td><input name=exportformat type=radio class=radio value=kne> [% 'KNE' | $T8 %]</td>
-          <td></td>
-        </tr>
       </table>
     </td>
   </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
 </table>
+[%- L.hidden_tag("exporttype",  0) %]
+[%- L.hidden_tag("exportformat",  'csv') %]
 </form>
