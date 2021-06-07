@@ -285,6 +285,7 @@ sub produce_assembly {
 
   my $part = $params{part} or Carp::croak('produce_assembly needs a part');
   my $qty  = $params{qty}  or Carp::croak('produce_assembly needs a qty');
+  my $bin  = $params{bin}  or Carp::croak("need target bin");
 
   my $allocations = $params{allocations};
   if ($params{auto_allocate}) {
@@ -295,18 +296,15 @@ sub produce_assembly {
     $allocations = $params{allocations};
   }
 
-  my $bin          = $params{bin} or Carp::croak("need target bin");
-  my $chargenumber = $params{chargenumber};
-  my $bestbefore   = $params{bestbefore};
+  my $chargenumber  = $params{chargenumber};
+  my $bestbefore    = $params{bestbefore};
   my $for_object_id = $params{for_object_id};
-  my $comment      = $params{comment} // '';
+  my $comment       = $params{comment} // '';
+  my $invoice       = $params{invoice};
+  my $project       = $params{project};
+  my $shippingdate  = $params{shippingsdate} // DateTime->now_local;
+  my $trans_id      = $params{trans_id};
 
-  my $invoice               = $params{invoice};
-  my $project               = $params{project};
-
-  my $shippingdate = $params{shippingsdate} // DateTime->now_local;
-
-  my $trans_id              = $params{trans_id};
   ($trans_id) = selectrow_query($::form, SL::DB->client->dbh, qq|SELECT nextval('id')| ) unless $trans_id;
 
   my $trans_type_out = SL::DB::Manager::TransferType->find_by(direction => 'out', description => 'used');
