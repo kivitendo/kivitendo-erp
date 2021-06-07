@@ -27,7 +27,7 @@ foreach my $ref (@Support::Templates::referenced_files) {
     ok(0, "${file} contains syntax errors");
 
   } else {
-    die "Unknown result type: " . ref($result);
+    die "Unknown result type: " . ref($result) . " for file " . $file;
   }
 }
 
