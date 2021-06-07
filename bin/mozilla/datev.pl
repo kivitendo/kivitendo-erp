@@ -62,11 +62,8 @@ sub export2 {
   $::lxdebug->enter_sub;
   $::auth->assert('datev_export');
 
-  if ($::form->{exporttype} == 0) {
-    export_bewegungsdaten();
-  } else {
-    export_stammdaten();
-  }
+  export_bewegungsdaten();
+
   $::lxdebug->leave_sub;
 }
 
@@ -88,18 +85,6 @@ sub export_bewegungsdaten {
   $::lxdebug->leave_sub;
 }
 
-sub export_stammdaten {
-  $::lxdebug->enter_sub;
-  $::auth->assert('datev_export');
-
-  setup_datev_export2_action_bar();
-
-  $::form->header;
-  print $::form->parse_html_template('datev/export_stammdaten');
-
-  $::lxdebug->leave_sub;
-}
-
 sub export3 {
   $::lxdebug->enter_sub;
   $::auth->assert('datev_export');
@@ -109,20 +94,13 @@ sub export3 {
     format     => $::form->{exportformat} eq 'kne' ? DATEV_FORMAT_KNE :  DATEV_FORMAT_CSV,
   );
 
-  if ($::form->{exporttype} == DATEV_ET_STAMM) {
-    $data{accnofrom}  = $::form->{accnofrom},
-    $data{accnoto}    = $::form->{accnoto},
-  } elsif ($::form->{exporttype} == DATEV_ET_BUCHUNGEN) {
-    @data{qw(from to)} = _get_dates(
-      $::form->{zeitraum}, $::form->{monat}, $::form->{quartal},
-      $::form->{transdatefrom}, $::form->{transdateto},
-    );
-    $data{use_pk} = $::form->{use_pk};
-    $data{locked} = $::form->{locked};
-    $data{imported} = $::form->{imported};
-  } else {
-    die 'invalid exporttype';
-  }
+  @data{qw(from to)} = _get_dates(
+    $::form->{zeitraum}, $::form->{monat}, $::form->{quartal},
+    $::form->{transdatefrom}, $::form->{transdateto},
+  );
+  $data{use_pk} = $::form->{use_pk};
+  $data{locked} = $::form->{locked};
+  $data{imported} = $::form->{imported};
 
   my $datev = SL::DATEV->new(%data);
 
