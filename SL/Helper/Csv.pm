@@ -114,6 +114,7 @@ sub _check_multiplexed {
       # Each profile needs a class and a row_ident
       my $info_ok = all { defined $_->{class} && defined $_->{row_ident} } @profile;
       $self->_push_error([
+        undef,
         0,
         "missing class or row_ident in one of the profiles for multiplexed data",
         0,
@@ -125,6 +126,7 @@ sub _check_multiplexed {
         my @header = @{ $self->header };
         my $t_ok = scalar @profile == scalar @header;
         $self->_push_error([
+          undef,
           0,
           "number of headers and number of profiles must be the same for multiplexed data",
           0,
@@ -133,6 +135,7 @@ sub _check_multiplexed {
 
         $t_ok = all { scalar @$_ > 0} @header;
         $self->_push_error([
+          undef,
           0,
           "no empty headers are allowed for multiplexed data",
           0,
@@ -231,7 +234,8 @@ sub _check_multiplex_datatype_position {
     $self->_multiplex_datatype_position($first_pos);
     return 1;
   } else {
-    $self->_push_error([0,
+    $self->_push_error([undef,
+                        0,
                         "datatype field must be at the same position for all datatypes for multiplexed data",
                         0,
                         0]);
@@ -254,6 +258,7 @@ sub _parse_data {
       my $header = $self->_header_by_row($row);
       if (!$header) {
         push @errors, [
+          undef,
           0,
           "Cannot get header for row. Maybe row name and datatype field not matching.",
           0,

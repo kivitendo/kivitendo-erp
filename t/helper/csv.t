@@ -629,7 +629,7 @@ EOL
   ignore_unknown_columns => 1,
 );
 ok !$csv->parse, 'multiplex check detects incosistent datatype field position';
-is_deeply( ($csv->errors)[0], [ 0, 'datatype field must be at the same position for all datatypes for multiplexed data', 0, 0 ], 'multiplex data with inconsistent datatype field posiotion throws error');
+is_deeply( ($csv->errors)[0], [ undef, 0, 'datatype field must be at the same position for all datatypes for multiplexed data', 0, 0 ], 'multiplex data with inconsistent datatype field posiotion throws error');
 
 #####
 
