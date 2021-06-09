@@ -20,7 +20,6 @@ use SL::DB::Shipto;
 use SL::DB::TaxZone;
 use SL::DB::Unit;
 use SL::PriceSource;
-use SL::TransNumber;
 
 use parent qw(SL::Controller::CsvImport::BaseMulti);
 
