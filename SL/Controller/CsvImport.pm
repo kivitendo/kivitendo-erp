@@ -104,7 +104,7 @@ sub action_result {
   $self->profile($profile);
 
   if ($data->{errors} and my $first_error =  $data->{errors}->[0]) {
-    flash('error', $::locale->text('There was an error parsing the csv file: #1 in line #2: #3', $first_error->[2], $first_error->[0], $first_error->[1]));
+    flash('error', $::locale->text('There was an error parsing the csv file: #1 in line #2.', $first_error->[2], $first_error->[0]));
   }
 
   if ($data->{progress}{finished} || $data->{errors}) {
