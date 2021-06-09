@@ -19,6 +19,7 @@ use SL::DB::Project;
 use SL::DB::Shipto;
 use SL::DB::TaxZone;
 use SL::DB::Unit;
+use SL::PriceSource;
 use SL::TransNumber;
 
 use parent qw(SL::Controller::CsvImport::BaseMulti);
@@ -271,6 +272,7 @@ sub check_objects {
 
   my $i = 0;
   my $num_data = scalar @{ $self->controller->data };
+  my $order_entry;
   foreach my $entry (@{ $self->controller->data }) {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
@@ -278,9 +280,13 @@ sub check_objects {
 
     if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
       $self->handle_order($entry);
+      $order_entry = $entry;
     } elsif ($entry->{raw_data}->{datatype} eq $self->_item_column && $entry->{object}->can('part')) {
-      $self->handle_item($entry);
+      $self->handle_item($entry, $order_entry);
+    } else {
+      $order_entry = undef;
     }
+
     $self->handle_cvars($entry, sub_module => 'orderitems');
 
   } continue {
@@ -383,16 +389,17 @@ sub check_language {
 }
 
 sub handle_item {
-  my ($self, $entry) = @_;
+  my ($self, $entry, $order_entry) = @_;
+
+  return unless $order_entry;
 
   my $object = $entry->{object};
+
   return unless $self->check_part($entry);
 
   my $part_obj = SL::DB::Part->new(id => $object->parts_id)->load;
 
   $self->handle_unit($entry);
-  $self->handle_sellprice($entry);
-  $self->handle_discount($entry);
 
   # copy from part if not given
   $object->description($part_obj->description) unless $object->description;
@@ -405,6 +412,9 @@ sub handle_item {
   $self->check_project($entry, global => 0);
   $self->check_price_factor($entry);
   $self->check_pricegroup($entry);
+
+  $self->handle_sellprice($entry, $order_entry);
+  $self->handle_discount($entry, $order_entry);
 }
 
 sub handle_unit {
@@ -434,28 +444,63 @@ sub handle_unit {
 }
 
 sub handle_sellprice {
-  my ($self, $entry) = @_;
+  my ($self, $entry, $record_entry) = @_;
 
-  my $object = $entry->{object};
+  my $item   = $entry->{object};
+  my $record = $record_entry->{object};
 
-  # Set sellprice from part if not given. Convert with respect to unit.
-  if (!defined $object->sellprice) {
-    my $sellprice = $object->part->sellprice;
+  return if !$record->customervendor;
 
-    if ($object->unit ne $object->part->unit) {
-      $sellprice = $object->unit_obj->convert_to($sellprice, $object->part->unit_obj);
+  # If sellprice is given, set price source to pricegroup if given or to none.
+  if (exists $entry->{raw_data}->{sellprice}) {
+    my $price_source      = SL::PriceSource->new(record_item => $item, record => $record);
+    my $price_source_spec = $item->pricegroup_id ? 'pricegroup' . '/' . $item->pricegroup_id : '';
+    my $price             = $price_source->price_from_source($price_source_spec);
+    $item->active_price_source($price->source);
+
+  } else {
+    # Set sellprice the best price of price source
+    my $price_source = SL::PriceSource->new(record_item => $item, record => $record);
+    my $price        = $price_source->best_price;
+    if ($price) {
+      $item->sellprice($price->price);
+      $item->active_price_source($price->source);
+    } else {
+      $item->sellprice(0);
+      $item->active_price_source($price_source->price_from_source('')->source);
     }
-    $object->sellprice($sellprice);
   }
 }
 
 sub handle_discount {
-  my ($self, $entry) = @_;
+  my ($self, $entry, $record_entry) = @_;
 
-  my $object = $entry->{object};
+  my $item   = $entry->{object};
+  my $record = $record_entry->{object};
 
-  $object->discount($object->discount/100.0)     if $object->discount;
-  $object->discount(0)                       unless $object->discount;
+  return if !$record->customervendor;
+
+  # If discount is given, set discount source to none.
+  if (exists $entry->{raw_data}->{discount}) {
+    $item->discount($item->discount/100.0)      if $item->discount;
+    $item->discount(0)                      unless $item->discount;
+
+    my $price_source = SL::PriceSource->new(record_item => $item, record => $record);
+    my $discount     = $price_source->price_from_source('');
+    $item->active_discount_source($discount->source);
+
+  } else {
+    # Set discount the best discount of price source
+    my $price_source = SL::PriceSource->new(record_item => $item, record => $record);
+    my $discount     = $price_source->best_discount;
+    if ($discount) {
+      $item->discount($discount->discount);
+      $item->active_discount_source($discount->source);
+    } else {
+      $item->discount(0);
+      $item->active_discount_source($price_source->discount_from_source('')->source);
+    }
+  }
 }
 
 sub check_part {
