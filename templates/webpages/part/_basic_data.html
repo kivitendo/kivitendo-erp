@@ -145,7 +145,7 @@
            <th align="right" nowrap="true">[% 'Weight' | $T8 %]</th>
            <td>
             [%- IF SELF.part.is_assembly %]
-              [% LxERP.format_amount(SELF.part.weight) %]
+              <span id="items_weight_sum_basic">[% LxERP.format_amount(SELF.part.weight) %]</span>
             [% ELSE %]
               [% L.input_tag('part.weight_as_number', SELF.part.weight_as_number, size=10, class='reformat_number numeric') %]
             [% END %]

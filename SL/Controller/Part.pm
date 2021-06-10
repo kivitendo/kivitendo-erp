@@ -284,8 +284,9 @@ sub action_update_item_totals {
   my $part_type = $::form->{part_type};
   die unless $part_type =~ /^(assortment|assembly)$/;
 
-  my $sellprice_sum = $self->recalc_item_totals(part_type => $part_type, price_type => 'sellcost');
-  my $lastcost_sum  = $self->recalc_item_totals(part_type => $part_type, price_type => 'lastcost');
+  my $sellprice_sum    = $self->recalc_item_totals(part_type => $part_type, price_type => 'sellcost');
+  my $lastcost_sum     = $self->recalc_item_totals(part_type => $part_type, price_type => 'lastcost');
+  my $items_weight_sum = $self->recalc_item_totals(part_type => $part_type, price_type => 'weight');
 
   my $sum_diff      = $sellprice_sum-$lastcost_sum;
 
@@ -295,6 +296,7 @@ sub action_update_item_totals {
     ->html('#items_sum_diff',            $::form->format_amount(\%::myconfig, $sum_diff,      2, 0))
     ->html('#items_sellprice_sum_basic', $::form->format_amount(\%::myconfig, $sellprice_sum, 2, 0))
     ->html('#items_lastcost_sum_basic',  $::form->format_amount(\%::myconfig, $lastcost_sum,  2, 0))
+    ->html('#items_weight_sum_basic'   , $::form->format_amount(\%::myconfig, $items_weight_sum))
     ->no_flash_clear->render();
 }
 
@@ -400,6 +402,7 @@ sub action_add_assembly_item {
   my $items_sellprice_sum = $part->items_sellprice_sum;
   my $items_lastcost_sum  = $part->items_lastcost_sum;
   my $items_sum_diff      = $items_sellprice_sum - $items_lastcost_sum;
+  my $items_weight_sum    = $part->items_weight_sum;
 
   $self->js
     ->append('#assembly_rows', $html)  # append in tbody
@@ -410,6 +413,7 @@ sub action_add_assembly_item {
     ->html('#items_sum_diff',      $::form->format_amount(\%::myconfig, $items_sum_diff     , 2, 0))
     ->html('#items_sellprice_sum_basic', $::form->format_amount(\%::myconfig, $items_sellprice_sum, 2, 0))
     ->html('#items_lastcost_sum_basic' , $::form->format_amount(\%::myconfig, $items_lastcost_sum , 2, 0))
+    ->html('#items_weight_sum_basic'   , $::form->format_amount(\%::myconfig, $items_weight_sum))
     ->render;
 }
 
@@ -734,7 +738,9 @@ sub recalc_item_totals {
     }
   } elsif ( $part->is_assembly ) {
     $part->assemblies( @{$self->assembly_items} );
-    if ( $params{price_type} eq 'lastcost' ) {
+    if ( $params{price_type} eq 'weight' ) {
+      return $part->items_weight_sum;
+    } elsif ( $params{price_type} eq 'lastcost' ) {
       return $part->items_lastcost_sum;
     } else {
       return $part->items_sellprice_sum;

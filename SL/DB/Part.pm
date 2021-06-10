@@ -4,6 +4,7 @@ use strict;
 
 use Carp;
 use List::MoreUtils qw(any uniq);
+use List::Util qw(sum);
 use Rose::DB::Object::Helpers qw(as_tree);
 
 use SL::Locale::String qw(t8);
@@ -26,7 +27,6 @@ use SL::DB::Helper::DisplayableNamePreferences (
                {name => 'ean',         title => t8('EAN')            }, ],
 );
 
-use List::Util qw(sum);
 
 __PACKAGE__->meta->add_relationships(
   assemblies                     => {
@@ -91,11 +91,22 @@ __PACKAGE__->attr_sorted({ unsorted => 'makemodels',     position => 'sortorder'
 __PACKAGE__->attr_sorted({ unsorted => 'customerprices', position => 'sortorder' });
 
 __PACKAGE__->before_save('_before_save_set_partnumber');
+__PACKAGE__->before_save('_before_save_set_assembly_weight');
 
 sub _before_save_set_partnumber {
   my ($self) = @_;
 
   $self->create_trans_number if !$self->partnumber;
+  return 1;
+}
+
+sub _before_save_set_assembly_weight {
+  my ($self) = @_;
+
+  if ( $self->part_type eq 'assembly' ) {
+    my $weight_sum = $self->items_weight_sum;
+    $self->weight($self->items_weight_sum) if $weight_sum;
+  }
   return 1;
 }
 
@@ -425,7 +436,7 @@ select unnest(ids)
 SQL
 
   my $objs  = SL::DB::Manager::Inventory->get_all(
-    query        => [ id => [ \"$query" ] ],
+    query        => [ id => [ \"$query" ] ],                           # make emacs happy "
     with_objects => [ 'parts', 'trans_type', 'bin', 'bin.warehouse' ], # prevent lazy loading in template
     sort_by      => 'itime DESC',
   );
@@ -517,6 +528,14 @@ sub items_lastcost_sum {
   return unless $self->is_assortment or $self->is_assembly;
   return unless $self->items;
   sum map { $_->linetotal_lastcost } @{$self->items};
+};
+
+sub items_weight_sum {
+  my ($self) = @_;
+
+  return unless $self->is_assembly;
+  return unless $self->items;
+  sum map { $_->linetotal_weight} @{$self->items};
 };
 
 1;

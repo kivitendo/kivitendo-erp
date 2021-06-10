@@ -23,4 +23,11 @@ sub linetotal_lastcost {
   return $self->qty * $self->part->lastcost / ( $self->part->price_factor_id ? $self->part->price_factor->factor : 1 );
 }
 
+sub linetotal_weight {
+  my ($self) = @_;
+
+  return 0 unless $self->qty > 0 and ($self->part->weight||0) > 0;
+  return $self->qty * $self->part->weight;
+}
+
 1;
