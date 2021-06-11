@@ -36,6 +36,10 @@ Mittelgroße neue Features:
      Mahnung
 
 Kleinere neue Features und Detailverbesserungen:
+  - Der Status geliefert bei Aufträgen kann mit oder ohne Dienstleistungen
+    im Lieferschein berechnet werden. Einstellbar in der Mandantenkonfiguration
+    jeweils unabhängig für Einkauf und Verkauf.
+    Standardeinstellung: Dienstleistungen sind lagerbar.
   - Gefertigte Erzeugnisse können innerhalb des Zurücklagerungszeitraums
     wieder zerlegt werden. Die Aktion befindet sich im Lagerbuchungsbericht
   - E-Mail-Versand: Neben dem Freitext CC-Feld kann jetzt auch ein
