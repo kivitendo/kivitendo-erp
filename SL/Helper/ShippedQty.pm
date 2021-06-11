@@ -14,7 +14,8 @@ use SL::Locale::String qw(t8);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar'                => [ qw(objects objects_or_ids shipped_qty keep_matches) ],
-  'scalar --get_set_init' => [ qw(oe_ids dbh require_stock_out fill_up item_identity_fields oi2oe oi_qty delivered matches) ],
+  'scalar --get_set_init' => [ qw(oe_ids dbh require_stock_out fill_up item_identity_fields oi2oe oi_qty delivered matches
+                                  services_deliverable) ],
 );
 
 my $no_stock_item_links_query = <<'';
@@ -221,7 +222,11 @@ sub write_to {
     } elsif ('SL::DB::Order' eq ref $obj) {
       if (defined $obj->{orderitems}) {
         $self->write_to($obj->{orderitems});
-        $obj->{delivered} = all { $_->{delivered} } grep { !$_->{optional} } @{ $obj->{orderitems} };
+        if ($self->services_deliverable) {
+          $obj->{delivered} = all { $_->{delivered} } grep { !$_->{optional} } @{ $obj->{orderitems} };
+        } else {
+          $obj->{delivered} = all { $_->{delivered} } grep { !$_->{optional} && !$_->part->is_service } @{ $obj->{orderitems} };
+        }
       } else {
         # don't force a load on items. just compute by oe_id directly
         $obj->{delivered} = $self->delivered->{$obj->id};
@@ -301,6 +306,17 @@ sub init_delivered {
 sub init_require_stock_out    { $::instance_conf->get_shipped_qty_require_stock_out }
 sub init_item_identity_fields { [ grep $item_identity_fields{$_}, @{ $::instance_conf->get_shipped_qty_item_identity_fields } ] }
 sub init_fill_up              { $::instance_conf->get_shipped_qty_fill_up  }
+
+sub init_services_deliverable  {
+  my ($self) = @_;
+  if ($::form->{type} =~ m/^sales_/) {
+    $::instance_conf->get_sales_delivery_order_check_service;
+  } elsif ($::form->{type} =~ m/^purchase_/) {
+    $::instance_conf->get_purchase_delivery_order_check_service;
+  } else {
+    croak "wrong call, no customer or vendor object referenced";
+  }
+}
 
 1;
 
