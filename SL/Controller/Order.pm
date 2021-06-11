@@ -1798,8 +1798,10 @@ sub pre_render {
   }
 
   if (any { $self->type eq $_ } (sales_order_type(), purchase_order_type())) {
-    # calculate shipped qtys here to prevent calling calculate for every item via the items method
-    SL::Helper::ShippedQty->new->calculate($self->order)->write_to_objects;
+    # Calculate shipped qtys here to prevent calling calculate for every item via the items method.
+    # Do not use write_to_objects to prevent order->delivered to be set, because this should be
+    # the value from db, which can be set manually or is set when linked delivery orders are saved.
+    SL::Helper::ShippedQty->new->calculate($self->order)->write_to(\@{$self->order->items});
   }
 
   if ($self->order->number && $::instance_conf->get_webdav) {
