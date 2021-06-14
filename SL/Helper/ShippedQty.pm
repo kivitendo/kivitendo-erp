@@ -220,16 +220,13 @@ sub write_to {
       $obj->{shipped_qty} = $shipped_qty->{$obj->id} //= 0;
       $obj->{delivered}   = $shipped_qty->{$obj->id} == $obj->qty;
     } elsif ('SL::DB::Order' eq ref $obj) {
-      if (defined $obj->{orderitems}) {
-        $self->write_to($obj->{orderitems});
-        if ($self->services_deliverable) {
-          $obj->{delivered} = all { $_->{delivered} } grep { !$_->{optional} } @{ $obj->{orderitems} };
-        } else {
-          $obj->{delivered} = all { $_->{delivered} } grep { !$_->{optional} && !$_->part->is_service } @{ $obj->{orderitems} };
-        }
+      # load all orderitems unless not already loaded
+      $obj->orderitems unless (defined $obj->{orderitems});
+      $self->write_to($obj->{orderitems});
+      if ($self->services_deliverable) {
+        $obj->{delivered} = all { $_->{delivered} } grep { !$_->{optional} } @{ $obj->{orderitems} };
       } else {
-        # don't force a load on items. just compute by oe_id directly
-        $obj->{delivered} = $self->delivered->{$obj->id};
+        $obj->{delivered} = all { $_->{delivered} } grep { !$_->{optional} && !$_->part->is_service } @{ $obj->{orderitems} };
       }
     } else {
       die "unknown reference '@{[ ref $obj ]}' for @{[ __PACKAGE__ ]}::write_to";
