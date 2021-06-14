@@ -42,6 +42,7 @@ clear_up();
 my $part     = new_service(partnumber => 'Serv1', unit => 'Std')->save;
 my $project  = create_project(projectnumber => 'p1', description => 'Project 1');
 my $customer = new_customer()->save;
+$::form->{type} = 'sales_order';
 
 # sales order with globalproject_id
 my $sales_order = create_sales_order(
