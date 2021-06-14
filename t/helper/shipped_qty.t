@@ -63,6 +63,7 @@ my %default_transfer_params = ( wh => $wh, bin => $bin1, unit => 'Stck');
 
 note("testing purchases, no fill_up");
 
+$::form->{type} = 'purchase_order';
 my $purchase_order = create_purchase_order(
   save       => 1,
   orderitems => [ create_order_item(part => $part1, qty => 11),
@@ -135,6 +136,7 @@ is($purchase_orderitem_part2->shipped_qty(require_stock_out => 1), 11, "OrderIte
 
 note('testing sales, no fill_up');
 
+$::form->{type} = 'sales_order';
 my $sales_order = create_sales_order(
   save       => 1,
   orderitems => [ create_order_item(part => $part1, qty => 5),

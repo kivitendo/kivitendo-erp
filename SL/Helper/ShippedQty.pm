@@ -432,7 +432,9 @@ include a bulk mode to speed up multiple objects.
 
 =item C<new PARAMS>
 
-Creates a new helper object. PARAMS may include:
+Creates a new helper object, $::form->{type} is mandatory.
+
+PARAMS may include:
 
 =over 4
 
@@ -471,6 +473,7 @@ DeliveryOrderItems will be kept for later postprocessing, in case you need more
 than this modules provides.
 
 See C<matches> for the returned format.
+
 
 =back
 
