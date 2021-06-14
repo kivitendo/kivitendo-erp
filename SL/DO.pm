@@ -557,10 +557,10 @@ SQL
                             'to_id'      => $form->{id},
     );
   delete $form->{convert_from_oe_ids};
-
-  $self->mark_orders_if_delivered('do_id' => $form->{id},
-                                  'type'  => $form->{type} eq 'sales_delivery_order' ? 'sales' : 'purchase',
-                                  'dbh'   => $dbh,);
+  unless ($::instance_conf->get_shipped_qty_require_stock_out) {
+    $self->mark_orders_if_delivered('do_id' => $form->{id},
+                                    'type'  => $form->{type} eq 'sales_delivery_order' ? 'sales' : 'purchase');
+  }
 
   $form->{saved_donumber} = $form->{donumber};
   $form->{saved_ordnumber} = $form->{ordnumber};
@@ -1262,6 +1262,11 @@ sub transfer_in_out {
   }
 
   WH->transfer(@transfers);
+
+  if ($::instance_conf->get_shipped_qty_require_stock_out) {
+    $self->mark_orders_if_delivered('do_id' => $form->{id},
+                                    'type'  => $form->{type} eq 'sales_delivery_order' ? 'sales' : 'purchase');
+  }
 
   $main::lxdebug->leave_sub();
 }
