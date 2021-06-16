@@ -332,6 +332,7 @@ sub produce_assembly {
       trans_type   => $trans_type_out,
       shippingdate => $shippingdate,
       employee     => SL::DB::Manager::Employee->current,
+      comment      => t8('Used for assembly #1 #2', $part->partnumber, $part->description),
     );
   }
 

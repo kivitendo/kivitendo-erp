@@ -1,4 +1,5 @@
 use strict;
+use Test::Deep qw(cmp_deeply ignore superhashof);
 use Test::More;
 use Test::Exception;
 
@@ -176,6 +177,37 @@ SL::Helper::Inventory::produce_assembly(
 is(SL::Helper::Inventory::get_stock(part => $assembly1), "3.00000", 'produce with auto allocation works');
 is(SL::Helper::Inventory::get_stock(part => $part1), "2.00000", 'and consumes...');
 is(SL::Helper::Inventory::get_stock(part => $part2), "7.00000", '..the materials');
+
+# check comments and warehouses
+$::form->{l_comment}        = 'Y';
+$::form->{l_warehouse_from} = 'Y';
+$::form->{l_warehouse_to}   = 'Y';
+local $::instance_conf->data->{produce_assembly_same_warehouse} = 1;
+
+my @contents = WH->get_warehouse_journal(sort => 'date');
+
+cmp_deeply(\@contents,
+           [ ignore(), ignore(),
+              superhashof({
+                'comment'        => 'Used for assembly 6 Test Assembly',
+                'warehouse_from' => 'Warehouse'
+              }),
+              superhashof({
+                'comment'        => 'Used for assembly 6 Test Assembly',
+                'warehouse_from' => 'Warehouse'
+              }),
+              superhashof({
+                'part_type'    => 'assembly',
+                'warehouse_to' => 'Warehouse'
+              }),
+           ],
+          "Comments for assembly productions are ok"
+);
+
+
+
+
+
 
 # try to produce without allocations dies
 
