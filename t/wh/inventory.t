@@ -189,11 +189,11 @@ my @contents = WH->get_warehouse_journal(sort => 'date');
 cmp_deeply(\@contents,
            [ ignore(), ignore(),
               superhashof({
-                'comment'        => 'Used for assembly 6 Test Assembly',
+                'comment'        => 'Used for assembly '. $assembly1->partnumber .' Test Assembly',
                 'warehouse_from' => 'Warehouse'
               }),
               superhashof({
-                'comment'        => 'Used for assembly 6 Test Assembly',
+                'comment'        => 'Used for assembly '. $assembly1->partnumber .' Test Assembly',
                 'warehouse_from' => 'Warehouse'
               }),
               superhashof({
