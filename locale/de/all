@@ -3994,6 +3994,7 @@ $self->{texts} = {
   'Useable for…'                => 'Benutzbar für…',
   'Used for Purchase'           => 'im Einkauf verwenden',
   'Used for Sale'               => 'im Verkauf verwenden',
+  'Used for assembly #1 #2'     => 'Verwendet für Erzeugnis #1 #2',
   'User'                        => 'Benutzer',
   'User Preferences'            => 'Benutzereinstellungen',
   'User access'                 => 'Benutzerzugriff',

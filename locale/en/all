@@ -3993,6 +3993,7 @@ $self->{texts} = {
   'Useable for…'                => '',
   'Used for Purchase'           => '',
   'Used for Sale'               => '',
+  'Used for assembly #1 #2'     => '',
   'User'                        => '',
   'User Preferences'            => '',
   'User access'                 => '',
