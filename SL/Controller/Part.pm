@@ -125,11 +125,6 @@ sub action_save {
   # $self->part has been loaded, parsed and validated without errors and is ready to be saved
   $self->part->db->with_transaction(sub {
 
-    if ( $params{save_as_new} ) {
-      $self->part( $self->part->clone_and_reset_deep );
-      $self->part->partnumber(undef); # will be assigned by _before_save_set_partnumber
-    };
-
     $self->part->save(cascade => 1);
 
     SL::DB::History->new(
@@ -160,11 +155,6 @@ sub action_save {
     # default behaviour after save: reload item, this also resets last_modification!
     $self->redirect_to(controller => 'Part', action => 'edit', 'part.id' => $self->part->id);
   }
-}
-
-sub action_save_as_new {
-  my ($self) = @_;
-  $self->action_save(save_as_new=>1);
 }
 
 sub action_delete {
