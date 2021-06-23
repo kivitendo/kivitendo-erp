@@ -129,6 +129,7 @@ __PACKAGE__->meta->columns(
   pdonumber                                 => { type => 'text' },
   ponumber                                  => { type => 'text' },
   precision                                 => { type => 'numeric', default => '0.01', not_null => 1, precision => 15, scale => 5 },
+  produce_assembly_multiple_levels          => { type => 'boolean', default => 'false' },
   produce_assembly_same_warehouse           => { type => 'boolean', default => 'true' },
   profit_carried_forward_chart_id           => { type => 'integer' },
   profit_determination                      => { type => 'text' },
