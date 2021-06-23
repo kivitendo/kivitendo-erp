@@ -163,8 +163,6 @@ sub gather_bank_transactions_and_proposals {
       }
       next if $found;
       # batch transaction has no remotename !!
-    } else {
-      next unless $bt->{remote_name};  # bank has no name, usually fees, use create invoice to assign
     }
 
     # try to match the current $bt to each of the open_invoices, saving the
