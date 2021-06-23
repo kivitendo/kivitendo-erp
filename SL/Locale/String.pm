@@ -13,7 +13,8 @@ our @EXPORT = qw(t8);
 
 use overload
   '""' => \&translated,
-  eq   => \&my_eq;
+  eq   => \&my_eq,
+  ne   => \&my_ne;
 
 sub translated {
   my ($self) = @_;
@@ -29,6 +30,10 @@ sub t8 {
 
 sub my_eq {
   $_[1] eq $_[0]->translated;
+}
+
+sub my_ne {
+  $_[1] ne $_[0]->translated;
 }
 
 sub TO_JSON {
