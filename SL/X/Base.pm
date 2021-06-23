@@ -12,7 +12,7 @@ sub message { goto &error }
 sub error {
   my ($self, @params) = @_;
 
-  return $self->{message} unless ($self->{message} // '') eq '';
+  return $self->{message} if ($self->{message} // '') ne '';
 
   return $self->SUPER::error(@params) if !$self->can('_defaults');
 
