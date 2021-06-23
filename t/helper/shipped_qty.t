@@ -75,6 +75,7 @@ my $purchase_order = create_purchase_order(
 Rose::DB::Object::Helpers::forget_related($purchase_order, 'orderitems');
 $purchase_order->orderitems;
 
+local $::instance_conf->data->{shipped_qty_require_stock_out} = 1;
 SL::Helper::ShippedQty
   ->new(require_stock_out => 1)  # should make no difference while there is no delivery order
   ->calculate($purchase_order)
@@ -88,6 +89,7 @@ my $purchase_orderitem_part1 = SL::DB::Manager::OrderItem->find_by( parts_id => 
 is($purchase_orderitem_part1->shipped_qty, 0, "OrderItem shipped_qty method ok");
 
 is($purchase_order->closed,     0, 'purchase order is open');
+# set delivered only if the do is also stocked in
 ok(!$purchase_order->delivered,    'purchase order is not delivered');
 
 note('converting purchase order to delivery order');

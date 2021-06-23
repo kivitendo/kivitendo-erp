@@ -275,7 +275,7 @@ sub convert_to_delivery_order {
       }
     }
 
-    $self->update_attributes(delivered => 1);
+    $self->update_attributes(delivered => 1) unless $::instance_conf->get_shipped_qty_require_stock_out;
     1;
   })) {
     return undef;
