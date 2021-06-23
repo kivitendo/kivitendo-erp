@@ -19,7 +19,7 @@ use_ok 'SL::Helper::Inventory';
 
 Support::TestSetup::login();
 
-my ($wh, $bin1, $bin2, $assembly1, $part1, $part2);
+my ($wh, $bin1, $bin2, $assembly1, $part1, $part2, $wh_moon, $bin_moon);
 
 reset_db();
 create_standard_stock();
@@ -150,6 +150,7 @@ is(SL::Helper::Inventory::get_stock(part => $part2), "7.00000", '..the materials
 
 # produce the same using auto_allocation
 
+local $::locale = Locale->new('en');
 reset_db();
 create_standard_stock();
 
@@ -208,6 +209,42 @@ cmp_deeply(\@contents,
 
 
 
+
+# try to produce something for our lunar warehouse, but parts are only available on earth
+dies_ok(sub {
+SL::Helper::Inventory::produce_assembly(
+  part          => $assembly1,
+  qty           => 1,
+  auto_allocate => 1,
+  # where to put it
+  bin          => $bin_moon,
+  chargenumber => "Lunar Dust inside",
+);
+}, "producing for wrong warehouse dies");
+
+# same test, but check exception class
+throws_ok{
+SL::Helper::Inventory::produce_assembly(
+  part          => $assembly1,
+  qty           => 1,
+  auto_allocate => 1,
+  # where to put it
+  bin          => $bin_moon,
+  chargenumber => "Lunar Dust inside",
+);
+ } "SL::X::Inventory::Allocation", "producing for wrong warehouse throws correct error class";
+
+# same test, but check user feedback for the error message
+throws_ok{
+SL::Helper::Inventory::produce_assembly(
+  part          => $assembly1,
+  qty           => 1,
+  auto_allocate => 1,
+  # where to put it
+  bin          => $bin_moon,
+  chargenumber => "Lunar Dust inside",
+);
+ } qr/Part ap (1|2) Testpart (1|2) exists in warehouse Warehouse, but not in warehouse Our warehouse location at the moon/, "producing for wrong warehouse throws correct error message";
 
 # try to produce without allocations dies
 
@@ -301,7 +338,11 @@ sub reset_db {
 }
 
 sub create_standard_stock {
-  ($wh, $bin1) = create_warehouse_and_bins();
+  ($wh, $bin1)          = create_warehouse_and_bins();
+  ($wh_moon, $bin_moon) = create_warehouse_and_bins(
+      warehouse_description => 'Our warehouse location at the moon',
+      bin_description       => 'Lunar crater',
+    );
   $bin2 = SL::DB::Bin->new(description => "Bin 2", warehouse => $wh)->save;
   $wh->load;
 
