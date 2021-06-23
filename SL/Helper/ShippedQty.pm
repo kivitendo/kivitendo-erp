@@ -308,7 +308,8 @@ sub init_matches { [] }
 sub init_delivered {
   my ($self) = @_;
 
-  $self->ensure_all_orderitems_for_orders;
+  # is needed in odyn
+  # $self->ensure_all_orderitems_for_orders;
 
   my $d = { };
   for (keys %{ $self->oi_qty }) {
