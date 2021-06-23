@@ -213,8 +213,11 @@ sub allocate_for_assembly {
 
   my $part = $params{part} or Carp::croak('allocate needs a part');
   my $qty  = $params{qty}  or Carp::croak('allocate needs a qty');
+  my $wh   = $params{warehouse};
+  my $wh_strict = $::instance_conf->get_produce_assembly_same_warehouse;
 
-  Carp::croak('not an assembly') unless $part->is_assembly;
+  Carp::croak('not an assembly')       unless $part->is_assembly;
+  Carp::croak('No warehouse selected') if $wh_strict && !$wh;
 
   my %parts_to_allocate;
 
@@ -228,6 +231,15 @@ sub allocate_for_assembly {
   for my $part_id (keys %parts_to_allocate) {
     my $part = SL::DB::Part->load_cached($part_id);
     push @allocations, allocate(%params, part => $part, qty => $parts_to_allocate{$part_id});
+    if ($wh_strict) {
+      die SL::X::Inventory::Allocation->new(
+        code    => "wrong warehouse for part",
+        message => t8('Part #1 exists in warehouse #2, but not in warehouse #3 ',
+                        $part->partnumber . ' ' . $part->description,
+                        SL::DB::Manager::Warehouse->find_by(id => $allocations[-1]->{warehouse_id})->description,
+                        $wh->description),
+      ) unless $allocations[-1]->{warehouse_id} == $wh->id;
+    }
   }
 
   @allocations;
@@ -288,9 +300,10 @@ sub produce_assembly {
   my $bin  = $params{bin}  or Carp::croak("need target bin");
 
   my $allocations = $params{allocations};
+  my $strict_wh = $::instance_conf->get_produce_assembly_same_warehouse ? $bin->warehouse : undef;
   if ($params{auto_allocate}) {
     Carp::croak("produce_assembly: can't have both allocations and auto_allocate") if $params{allocations};
-    $allocations = [ allocate_for_assembly(part => $part, qty => $qty) ];
+    $allocations = [ allocate_for_assembly(part => $part, qty => $qty, warehouse => $strict_wh) ];
   } else {
     Carp::croak("produce_assembly: need allocations or auto_allocate to produce something") if !$params{allocations};
     $allocations = $params{allocations};
@@ -308,7 +321,7 @@ sub produce_assembly {
   ($trans_id) = selectrow_query($::form, SL::DB->client->dbh, qq|SELECT nextval('id')| ) unless $trans_id;
 
   my $trans_type_out = SL::DB::Manager::TransferType->find_by(direction => 'out', description => 'used');
-  my $trans_type_in  = SL::DB::Manager::TransferType->find_by(direction => 'in', description => 'assembled');
+  my $trans_type_in  = SL::DB::Manager::TransferType->find_by(direction => 'in',  description => 'assembled');
 
   # check whether allocations are sane
   if (!$params{no_check_allocations} && !$params{auto_allocate}) {
