@@ -130,16 +130,19 @@ sub import_data_to_shop_order {
   my @positions = sort { Sort::Naturally::ncmp($a->{"sku"}, $b->{"sku"}) } @{ $import->{line_items} };
   my $position = 1;
 
-  my $answer= $self->send_request("taxes");
-  unless ($answer->{success}){ return 0;}
-  my %taxes = map { ($_->{id} => $_) } @{ $answer->{data} };
-
   my $active_price_source = $self->config->price_source;
+  my $tax_included = $self->config->pricetype eq 'brutto' ? 1 : 0;
   #Mapping Positions
   foreach my $pos(@positions) {
-    my $price = $::form->round_amount($pos->{total},2);
-    my $tax_id = $pos->{taxes}[0]->{id};
-    my $tax_rate = $taxes{ $tax_id }{rate};
+    my $tax_rate = $pos->{tax_class} eq "reduced-rate" ? 7 : 19;
+    my $tax_factor = $tax_rate/100+1;
+    my $price = $pos->{price};
+    if ( $tax_included ) {
+      $price = $price * $tax_factor;
+      $price = $::form->round_amount($price,2);
+    } else {
+      $price = $::form->round_amount($price,2);
+    }
     my %pos_columns = ( description          => $pos->{name},
                         partnumber           => $pos->{sku}, # sku has to be a valid value in WooCommerce
                         price                => $price,
@@ -157,6 +160,21 @@ sub import_data_to_shop_order {
     $position++;
   }
   $shop_order->positions($position-1);
+
+  if ( $self->config->shipping_costs_parts_id ) {
+    my $shipping_part = SL::DB::Part->find_by( id => $self->config->shipping_costs_parts_id);
+    my %shipping_pos = (
+      description    => $import->{data}->{dispatch}->{name},
+      partnumber     => $shipping_part->partnumber,
+      price          => $import->{data}->{invoiceShipping},
+      quantity       => 1,
+      position       => $position,
+      shop_trans_id  => 0,
+      shop_order_id  => $id,
+    );
+    my $shipping_pos_insert = SL::DB::ShopOrderItem->new(%shipping_pos);
+    $shipping_pos_insert->save;
+  }
 
   my $customer = $shop_order->get_customer;
 
@@ -176,6 +194,7 @@ sub map_data_to_shoporder {
                                                 );
 
   my $shop_id      = $self->config->id;
+  my $tax_included = $self->config->pricetype;
 
   # Mapping to table shoporders. See https://woocommerce.github.io/woocommerce-rest-api-docs/?shell#order-properties
     my $d_street;
@@ -185,7 +204,7 @@ sub map_data_to_shoporder {
       $d_street = $import->{billing}->{address_1} . ($import->{billing}->{address_2} ? " " . $import->{billing}->{address_2} : "");
     }
   my %columns = (
-#billing
+#billing Shop can have different billing addresses, and may have 1 customer_address
     billing_firstname       => $import->{billing}->{first_name},
     billing_lastname        => $import->{billing}->{last_name},
     #address_1 address_2
@@ -271,7 +290,7 @@ sub map_data_to_shoporder {
     #total_tax
     netamount               => $import->{total} - $import->{total_tax},
     #prices_include_tax
-    tax_included            => $import->{prices_include_tax} eq "true" ? 1 : 0,
+    tax_included            => $tax_included,
     #payment_method
     # ??? payment_id              => $import->{payment_method},
     #payment_method_title
