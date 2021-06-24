@@ -9,6 +9,7 @@ use SL::DBUtils;
 use SL::DB::Shop;
 use SL::DB::MetaSetup::ShopOrder;
 use SL::DB::Manager::ShopOrder;
+use SL::DB::PaymentTerm;
 use SL::DB::Helper::LinkedRecords;
 use SL::Locale::String qw(t8);
 use Carp;
@@ -187,6 +188,7 @@ sub get_customer{
   my $customer_proposals = $self->check_for_existing_customers;
   my $name = $self->billing_firstname . " " . $self->billing_lastname;
   my $customer = 0;
+  my $payment_id = SL::DB::Manager::PaymentTerm->get_first()->id || undef;
   if(!scalar(@{$customer_proposals})){
     my %address = ( 'name'                  => $name,
                     'department_1'          => $self->billing_company,
@@ -205,7 +207,7 @@ sub get_customer{
                     'pricegroup_id'         => (split '\/',$shop->price_source)[0] eq "pricegroup" ?  (split '\/',$shop->price_source)[1] : undef,
                     'taxzone_id'            => $shop->taxzone_id,
                     'currency'              => $::instance_conf->get_currency_id,
-                    #'payment_id'            => 7345,# TODO hardcoded
+                    'payment_id'            => $payment_id,
                   );
     $customer = SL::DB::Customer->new(%address);
 
