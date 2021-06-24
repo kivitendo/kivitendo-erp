@@ -206,7 +206,8 @@ sub map_data_to_shoporder {
   my %payment_ids_methods = (
     # woocommerce_payment_method_title => kivitendo_payment_id
   );
-  my $default_payment_id = SL::DB::Manager::PaymentTerm->get_first()->id || undef;
+  my $default_payment    = SL::DB::Manager::PaymentTerm->get_first();
+  my $default_payment_id = $default_payment ? $default_payment->id : undef;
   my %columns = (
 #billing Shop can have different billing addresses, and may have 1 customer_address
     billing_firstname       => $import->{billing}->{first_name},

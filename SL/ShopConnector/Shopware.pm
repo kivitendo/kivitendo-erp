@@ -190,7 +190,8 @@ sub map_data_to_shoporder {
   my %payment_ids_methods = (
     # shopware_paymentId => kivitendo_payment_id
   );
-  my $default_payment_id = SL::DB::Manager::PaymentTerm->get_first()->id || undef;
+  my $default_payment    = SL::DB::Manager::PaymentTerm->get_first();
+  my $default_payment_id = $default_payment ? $default_payment->id : undef;
   # Mapping to table shoporders. See http://community.shopware.com/_detail_1690.html#GET_.28Liste.29
   my %columns = (
     amount                  => $import->{data}->{invoiceAmount},

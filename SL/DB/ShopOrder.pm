@@ -188,7 +188,8 @@ sub get_customer{
   my $customer_proposals = $self->check_for_existing_customers;
   my $name = $self->billing_firstname . " " . $self->billing_lastname;
   my $customer = 0;
-  my $payment_id = SL::DB::Manager::PaymentTerm->get_first()->id || undef;
+  my $default_payment    = SL::DB::Manager::PaymentTerm->get_first();
+  my $payment_id = $default_payment ? $default_payment->id : undef;
   if(!scalar(@{$customer_proposals})){
     my %address = ( 'name'                  => $name,
                     'department_1'          => $self->billing_company,
