@@ -1421,6 +1421,7 @@ $self->{texts} = {
   'Errors during conversion:'   => 'Umwandlungsfehler:',
   'Errors during printing:'     => 'Druckfehler:',
   'Errors in GL transaction:'   => 'Fehler in Dialogbuchung:',
+  'Errors: #1'                  => 'Fehler: #1',
   'Ertrag'                      => 'Ertrag',
   'Ertrag prozentual'           => 'Ertrag prozentual',
   'Escape character'            => 'Escape-Zeichen',
