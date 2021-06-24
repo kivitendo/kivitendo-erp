@@ -21,11 +21,14 @@ sub _sort_spec {
              start_time => 'FIRST',
              end_time   => 'FIRST',
            },
-           columns => { SIMPLE     => 'ALL' ,
-                        start_time => [ 'date', 'start_time' ],
-                        end_time   => [ 'date', 'end_time' ],
-                        customer   => [ 'lower(customer.name)', 'date','start_time'],
-                        order      => [ 'order.ordnumber', 'date','start_time'],
+           columns => { SIMPLE       => 'ALL' ,
+                        start_time   => [ 'date', 'start_time' ],
+                        end_time     => [ 'date', 'end_time' ],
+                        customer     => [ 'lower(customer.name)', 'date','start_time'],
+                        staff_member => [ 'lower(staff_member.name)', 'date','start_time'],
+                        order        => [ 'order.ordnumber', 'date','start_time'],
+                        part         => [ 'lower(part.partnumber)', 'date','start_time'],
+                        project      => [ 'lower(project.projectnumber)', 'date','start_time'],
            }
   );
 }
