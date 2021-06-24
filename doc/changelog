@@ -36,6 +36,10 @@ Mittelgroße neue Features:
      Mahnung
  - Neuer Order-Controller: Artikel können während der Erfassung eines
    Angebots bzw. Auftrags erfasst werden.
+ - Webshopschnittstelle
+   - Überarbeitet und verbessert. Shopstadi werden jetzt gesetzt und
+     an den Shop gemeldet
+   - Woocommerce Schnittstelle
 
 Kleinere neue Features und Detailverbesserungen:
   - Der Status geliefert bei Aufträgen kann mit oder ohne Dienstleistungen
