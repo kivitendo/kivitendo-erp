@@ -86,50 +86,6 @@ sub action_ajax_delete_file {
     ->render();
 }
 
-sub action_get_shop_parts {
-  my ( $self ) = @_;
-  $main::lxdebug->dump(0, "TST: ShopPart get_shop_parts form", $::form);
-  my $parts_fetched;
-  my $new_parts;
-
-  my $type = $::form->{type};
-  if ( $type eq "get_one" ) {
-    my $shop_id = $::form->{shop_id};
-    my $part_number = $::form->{part_number};
-
-    if ( $shop_id && $part_number ) {
-      my $shop_config = SL::DB::Manager::Shop->get_first(query => [ id => $shop_id, obsolete => 0 ]);
-      my $shop = SL::Shop->new( config => $shop_config );
-      unless ( SL::DB::Manager::Part->get_all_count( query => [ partnumber => $part_number ] )) {
-        $new_parts = $shop->connector->get_shop_parts($part_number);
-        push @{ $parts_fetched }, $new_parts ;
-      } else {
-        flash_later('error', t8('From shop "#1" :  Number: #2 #3 ', $shop->config->description, $part_number, t8('Partnumber is already exist')));
-      }
-    } else {
-        flash_later('error', t8('Shop or partnumber not selected.'));
-    }
-  } elsif ( $type eq "get_new" ) {
-    my $active_shops = SL::DB::Manager::Shop->get_all(query => [ obsolete => 0 ]);
-    foreach my $shop_config ( @{ $active_shops } ) {
-      my $shop = SL::Shop->new( config => $shop_config );
-
-      $new_parts = $shop->connector->get_shop_parts;
-      push @{ $parts_fetched }, $new_parts ;
-    }
-  }
-
-  foreach my $shop_fetched(@{ $parts_fetched }) {
-    if($shop_fetched->{error}){
-      flash_later('error', t8('From shop "#1" :  #2 ', $shop_fetched->{shop_description}, $shop_fetched->{message},));
-    }else{
-      flash_later('info', t8('From shop #1 :  #2 parts have been imported.', $shop_fetched->{description}, $shop_fetched->{number_of_parts},));
-    }
-  }
-
-  $self->redirect_to(controller => "ShopPart", action => 'list_articles');
-}
-
 sub action_get_categories {
   my ($self) = @_;
 
@@ -179,7 +135,7 @@ sub action_show_stock {
   my $shop = SL::Shop->new( config => $self->shop_part->shop );
 
   if($self->shop_part->last_update) {
-    my $shop_article = $shop->connector->get_article_info($self->shop_part->part->partnumber);
+    my $shop_article = $shop->connector->get_article($self->shop_part->part->partnumber);
     $stock_onlineshop = $shop_article->{data}->{mainDetail}->{inStock};
     $active_online = $shop_article->{data}->{active};
   }
@@ -200,7 +156,7 @@ sub action_get_n_write_categories {
     my $shop_part = SL::DB::Manager::ShopPart->get_all( where => [id => $part], with_objects => ['part', 'shop'])->[0];
     require SL::DB::Shop;
     my $shop = SL::Shop->new( config => $shop_part->shop );
-    my $online_article = $shop->connector->get_article_info($shop_part->part->partnumber);
+    my $online_article = $shop->connector->get_article($shop_part->part->partnumber);
     my $online_cat = $online_article->{data}->{categories};
     my @cat = ();
     for(keys %$online_cat){
@@ -267,8 +223,6 @@ sub action_list_articles {
     my $images = SL::DB::Manager::ShopImage->get_all_count( where => [ 'files.object_id' => $article->part->id, ], with_objects => 'file', sort_by => 'position' );
     $article->{images} = $images;
   }
-
-  $self->_setup_list_action_bar;
 
   $self->render('shop_part/_list_articles', title => t8('Webshops articles'), SHOP_PARTS => $articles);
 }
@@ -399,29 +353,6 @@ sub get_price_n_pricesource {
     $price_src_str = $pricegrp;
   }
   return($price,$price_src_str);
-}
-
-sub _setup_list_action_bar {
-  my ($self) = @_;
-
-  for my $bar ($::request->layout->get('actionbar')) {
-    $bar->add(
-        action => [
-          t8('Search'),
-          submit    => [ '#shop_part_filter', { action => "ShopPart/list_articles" } ],
-        ],
-        action => [
-          t8('Get one part'),
-          call    => [ 'kivi.ShopPart.get_shop_parts_one_setup' ],
-          tooltip => t8('Get one part by partnumber'),
-        ],
-        action => [
-          t8('Get new parts'),
-          call    => [ 'kivi.ShopPart.get_shop_parts_new' ],
-          tooltip => t8('Get all new parts'),
-        ],
-    );
-  }
 }
 
 sub check_auth {

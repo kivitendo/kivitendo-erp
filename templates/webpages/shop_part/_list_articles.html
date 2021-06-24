@@ -1,6 +1,5 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
 
-[%- INCLUDE 'common/flash.html' %]
 <h1>[% title %]</h1>
 [%- PROCESS 'shop_part/_filter.html' filter=SELF.models.filtered.laundered %]
 <hr>
@@ -124,9 +123,6 @@
     [%- INCLUDE 'shop_part/_upload_status.html' %]
   </div>
 </form>
- <div id="get_one" style="display:none;">
-   [% INCLUDE 'shop_part/_get_one.html' %]
- </div>
 <hr>
 <script type="text/javascript">
 <!--

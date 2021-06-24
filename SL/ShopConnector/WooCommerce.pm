@@ -154,8 +154,6 @@ sub import_data_to_shop_order {
                         shop_order_id        => $id,
                         active_price_source  => $active_price_source,
                       );
-    #$main::lxdebug->dump(0, "TST: WooCommerce save pos", $pos);
-    #$main::lxdebug->dump(0, "TST: WooCommerce save pos_columns", \%pos_columns);
     my $pos_insert = SL::DB::ShopOrderItem->new(%pos_columns);
     $pos_insert->save;
     $position++;
@@ -346,15 +344,13 @@ sub update_part {
   #};
 
   my @categories = ();
-  if ($shop_part->shop_category) {
-    foreach my $row_cat ( @{ $shop_part->shop_category } ) {
-      my $temp = { ( id => @{$row_cat}[0], ) };
-      push ( @categories, $temp );
-    }
+  foreach my $row_cat ( @{ $shop_part->shop_category } ) {
+    my $temp = { ( id => @{$row_cat}[0], ) };
+    push ( @categories, $temp );
   }
 
   #my @upload_img = $shop_part->get_images;
-  my $partnumber = $::form->escape($part->partnumber);#don't accept / in partnumber
+  my $partnumber = $::form->escape($part->partnumber);#don't accept / in articlenumber
   my $stock_status = ($part->onhand ? "instock" : "outofstock");
   my $status = ($shop_part->active ? "publish" : "private");
   my $tax_n_price = $shop_part->get_tax_and_price;
@@ -413,176 +409,27 @@ sub update_part {
 
   # don't know if this is needed
   #if(@upload_img) {
-  #  my $partnumber = $::form->escape($part->partnumber);#shopware don't accept / in partnumber
-  #  my $imgup      = $self->connector->put($url . "api/generatepartimages/$partnumber?useNumberAsId=true");
+  #  my $partnumber = $::form->escape($part->partnumber);#shopware don't accept / in articlenumber
+  #  my $imgup      = $self->connector->put($url . "api/generatearticleimages/$partnumber?useNumberAsId=true");
   #}
 
   return $answer->{success};
 }
 
-sub get_article_info {
+sub get_article {
   my ($self) = @_;
   my $partnumber = $_[1];
 
   $partnumber   = $::form->escape($partnumber);#don't accept / in partnumber
   my $answer = $self->send_request("products/", undef , "get" , "&sku=$partnumber");
 
-  $answer->{data} = $answer->{data}[0];
-  #$main::lxdebug->dump(0, "TST: WooCommerce get_part_info ", $answer);
-  return $answer;
-
   if($answer->{success} && scalar @{$answer->{data}}){
-    my $part = $self->map_data_to_part($answer->{data}[0]);
-    #$main::lxdebug->dump(0, "TST: WooCommerce get_part_info part", $part);
-    return $part;
+    my $article = $answer->{data}[0];
+    return $article;
   } else {
     #What shut be here?
     return $answer
   }
-}
-
-sub map_data_to_part {
-  my ($self, $part_data) = @_;
-
-  my %map_part_data =  (
-    #id                 => $part_data->{},
-    partnumber         => $part_data->{sku},
-    description        => $part_data->{name},
-    #listprice          => $part_data->{},
-    #sellprice          => $part_data->{},
-    #lastcost           => $part_data->{},
-    #priceupdate        => $part_data->{},
-    #weight             => $part_data->{},
-    notes              => $part_data->{description},
-    #makemodel          => $part_data->{},
-    #rop                => $part_data->{},
-    shop               => 1,
-    obsolete           => 0,
-    #bom                => $part_data->{},
-    #image              => $part_data->{},
-    #drawing            => $part_data->{},
-    #microfiche         => $part_data->{},
-    #partsgroup_id      => $part_data->{},
-    #ve                 => $part_data->{},
-    #gv                 => $part_data->{},
-    #itime              => $part_data->{},
-    #mtime              => $part_data->{},
-    #unit               => $part_data->{},
-    unit               => 'Stck',
-    #formel             => $part_data->{},
-    #not_discountable   => $part_data->{},
-    #buchungsgruppen_id => $part_data->{},
-    #payment_id         => $part_data->{},
-    #ean                => $part_data->{},
-    #price_factor_id    => $part_data->{},
-    #onhand             => $part_data->{},
-    #stockable          => $part_data->{},
-    #has_sernumber      => $part_data->{},
-    #warehouse_id       => $part_data->{},
-    #bin_id             => $part_data->{},
-    #df_status_aktuell  => $part_data->{},
-    #df_status_verlauf  => $part_data->{},
-    #active             => $part_data->{},
-    #classification_id  => $part_data->{},
-    part_type          => 'part',
-  );
-  return SL::DB::Part->new(%map_part_data);
-}
-
-sub map_data_to_shop_part {
-  my ($self, $part_data, $part) = @_;
-
-  my @categories = ();
-  foreach my $row_cat ( @{ $part_data->{categories} } ) {
-    my @tmp;
-    push( @tmp,$row_cat->{id} );
-    push( @tmp,$row_cat->{name} );
-    push( @categories,\@tmp );
-  }
-  my %map_shop_part_data =  (
-    #id                  => ,
-    shop_id             => $self->config->id,
-    part_id             => $part->id,
-    shop_description    => $part_data->{description},
-    #itime               => ,
-    #mtime               => ,
-    #last_update         => ,
-    #show_date           => ,
-    sortorder           => $part_data->{menu_order},
-    #front_page          => ,
-    active              => 1,
-    shop_category       => \@categories,
-    #active_price_source => ,
-    #metatag_keywords    => ,
-    #metatag_description => ,
-    #metatag_title       => ,
-    #shop_versandhinweis => ,
-  );
-  return SL::DB::ShopPart->new(%map_shop_part_data);
-}
-sub get_shop_parts {
-  my ($self, $partnumber) = @_;
-
-  my $dbh       = SL::DB::client;
-  my @errors;
-  my $number_of_parts = 0;
-  my %fetched_parts;
-  my $answer;
-
-  if ($partnumber) {
-    $partnumber   = $::form->escape($partnumber);#don't accept / in partnumber
-    $answer = $self->send_request("products/", undef , "get" , "&sku=$partnumber");
-  } else {
-    #TODO
-    $answer = $self->send_request("products/", undef , "get");
-    if ($answer->{total_pages} > 1) {
-      my $current_page = 2;
-      while ($current_page <= $answer->{total_pages}) {
-        my $tmp_answer = $self->send_request("products/", undef , "get", "&page=$current_page");
-        foreach my $part (@{$tmp_answer->{data}}) {
-          push @{$answer->{data}} , $part;
-        }
-        $current_page++;
-      }
-    }
-  }
-
-  if($answer->{success} && scalar @{$answer->{data}}){
-    $dbh->with_transaction( sub{
-      foreach my $part_data (@{$answer->{data}}) {
-      unless (!$part_data->{sku} || SL::DB::Manager::Part->get_all_count( query => [ partnumber => $part_data->{sku} ] )) {
-          my $part = $self->map_data_to_part($part_data);
-          #$main::lxdebug->dump(0, "TST: WooCommerce get_shop_parts part ", $part);
-          $part->save;
-          my $shop_part = $self->map_data_to_shop_part($part_data, $part);
-          #$main::lxdebug->dump(0, "TST: WooCommerce get_shop_parts shop_part ", $shop_part);
-          $shop_part->save;
-          $number_of_parts++;
-        }
-      }
-      return 1;
-    })or do {
-      push @errors,($::locale->text('Saving failed. Error message from the database: #1', $dbh->error));
-    };
-
-    if(@errors){
-      flash_later('error', $::locale->text('Errors: #1', @errors));
-    }
-    %fetched_parts = (
-      shop_id          => $self->config->id,
-      shop_description => $self->config->description,
-      number_of_parts => $number_of_parts,
-    );
-  } else {
-    my %error_msg  = (
-      shop_id          => $self->config->id,
-      shop_description => $self->config->description,
-      message          => $answer->{message},
-      error            => 1,
-    );
-    %fetched_parts = %error_msg;
-  }
-  return \%fetched_parts;
 }
 
 sub get_categories {
@@ -678,13 +525,10 @@ sub send_request {
   my %return;
   if($answer->is_success && $type eq 'application/json'){
     my $data_json = $answer->content;
-    #$main::lxdebug->dump(0, "TST: WooCommerce send_request header ", $answer->header( 'Link'));
     my $json = SL::JSON::decode_json($data_json);
     %return = (
       success => 1,
       data    => $json,
-      total_pages => $answer->header( 'X-WP-TotalPages'),
-      total_elements => $answer->header( 'X-WP-Total'),
     );
   }else{
     %return = (
