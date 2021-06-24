@@ -11,6 +11,7 @@ use LWP::Authen::Digest;
 use SL::DB::ShopOrder;
 use SL::DB::ShopOrderItem;
 use SL::DB::History;
+use SL::DB::PaymentTerm;
 use DateTime::Format::Strptime;
 use SL::DB::File;
 use Data::Dumper;
@@ -185,6 +186,11 @@ sub map_data_to_shoporder {
   my $shop_id      = $self->config->id;
   my $tax_included = $self->config->pricetype;
 
+  # Mapping Zahlungsmethoden muss an Firmenkonfiguration angepasst werden
+  my %payment_ids_methods = (
+    # shopware_paymentId => kivitendo_payment_id
+  );
+  my $default_payment_id = SL::DB::Manager::PaymentTerm->get_first()->id || undef;
   # Mapping to table shoporders. See http://community.shopware.com/_detail_1690.html#GET_.28Liste.29
   my %columns = (
     amount                  => $import->{data}->{invoiceAmount},
@@ -232,7 +238,7 @@ sub map_data_to_shoporder {
     netamount               => $import->{data}->{invoiceAmountNet},
     order_date              => $orderdate,
     payment_description     => $import->{data}->{payment}->{description},
-    payment_id              => $import->{data}->{paymentId},
+    payment_id              => $payment_ids_methods{$import->{data}->{paymentId}} || $default_payment_id,
     remote_ip               => $import->{data}->{remoteAddress},
     sepa_account_holder     => $import->{data}->{paymentIntances}->{accountHolder},
     sepa_bic                => $import->{data}->{paymentIntances}->{bic},

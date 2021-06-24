@@ -9,6 +9,7 @@ use LWP::UserAgent;
 use LWP::Authen::Digest;
 use SL::DB::ShopOrder;
 use SL::DB::ShopOrderItem;
+use SL::DB::PaymentTerm;
 use SL::DB::History;
 use SL::DB::File;
 use Data::Dumper;
@@ -205,9 +206,9 @@ sub map_data_to_shoporder {
     }
   # Mapping Zahlungsmethoden muss an Firmenkonfiguration angepasst werden
   my %payment_ids_methods = (
-                              'paypal'                            => 2489,
-                              'german_market_purchase_on_account' => 2487,
-                            );
+    # woocommerce_payment_method_title => kivitendo_payment_id
+  );
+  my $default_payment_id = SL::DB::Manager::PaymentTerm->get_first()->id || undef;
   my %columns = (
 #billing Shop can have different billing addresses, and may have 1 customer_address
     billing_firstname       => $import->{billing}->{first_name},
@@ -297,7 +298,7 @@ sub map_data_to_shoporder {
     #prices_include_tax
     tax_included            => $tax_included,
     #payment_method
-    payment_id              => $payment_ids_methods{$import->{payment_method}} || 2487,
+    payment_id              => $payment_ids_methods{$import->{payment_method}} || $default_payment_id,
     #payment_method_title
     payment_description     => $import->{payment_method_title},
     #transaction_id
