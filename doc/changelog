@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-20??-??-?? - Release ?.?.?
+2021-06-25 - Release 3.5.7
 
 Größere neue Features:
   - Modul zur Zeiterfassung. Es ist nun möglich, auftrags-, kunden- oder
@@ -129,9 +129,27 @@ Kleinere neue Features und Detailverbesserungen:
    ist.
 -  Lieferdatum und Gültigkeitsdatum können optional auch nicht mehr gesetzt werden
 
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
-97 Benutzer löschen unter System->Benutzer funktioniert nicht
+480 Lieferscheine mit kompletter Menge im Auftrag erstellt, fehlerhaft bei Option "Lieferschein Menge muss eingelagert sein"
+478 Offene Forderungsliste per E-Mail verschicken, die Auswahl-Haken werden ignoriert
+470 OrderController: Auf Lager falsche Tausenderberechnung
+469 Lieferschein erfassen und direkt drucken: JavaScript-Fehler
+462 Part-Picker Lupen-Dialog: Ergebnisse auf weiteren Seiten (bei Paginierung) lassen sich nicht auswählen
+453 Installationsspezifische Übersetzungen (more/all) besser in Entwicklungsprozess einbinden
+441 Dialogbuchen Konten entfernen
+432 Neuer Auftragskontroller ignoriert Artikel-Übersetzungen
+431 Doppelte Steuern mit neuer DB bei SKR04
+414 Fehler beim DATEV-Export: "Unausgeglichene Buchung" bei Rechnung mit 0,00
 408 Neuer Auftragskontroller: Drucken von odt-Vorlagen geht nur mit Standardvorlage
+399 Nach dem Anlegen von Mahnungen erfolgt keine Bestätigung
+375 Keine Wiedervorlage/Historie im neuen Auftragscontroller
+319 Einkaufspreise von Waren werden im Artikel-Bericht mit 0,00 angezeigt
+317 DATEV KNE-Export komplett entfernen
+302 MT940 Import, doppelte Datensätze besser abfangen
+287 Fehlerhafte Anzeige und Vergabe von Kundennummern beim CSV-Import von Kundendaten
+237 Beim CSV-Import von KundInnen findet bei den benutzerdefinierten Variablen keine Aktualisierung bestehender Einträge statt
+ 97 Benutzer löschen unter System->Benutzer funktioniert nicht
 
 
 2020-10-02 - Release 3.5.6.1
@@ -157,10 +175,12 @@ Kleinere neue Features und Detailverbesserungen:
 
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+
 438 individuelle Lieferadresse gerät beim Speichern durcheinander
 358 segmentation fault in DBI.so beim versenden einer Rechnung per E-Mail
 365 Neuer Order Controller "Individuelle Lieferadresse fehlt"
  35 Zahlungsbedingungen bei Lieferanten nicht in EK-Rechnung
+
 
 2020-07-20 - Release 3.5.6
 
