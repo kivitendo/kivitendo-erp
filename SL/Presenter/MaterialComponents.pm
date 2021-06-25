@@ -212,7 +212,7 @@ sub input_tag {
 
   _set_id_attribute(\%attributes, $attributes{name});
 
-  my $class = delete %attributes{class};
+  my $class = delete $attributes{class};
   my $icon  = $attributes{icon}
     ? icon(delete $attributes{icon}, class => 'prefix')
     : '';
