@@ -32,6 +32,7 @@ sub get_one_order {
   if($answer->{success}) {
     my $shoporder = $answer->{data};
 
+    $main::lxdebug->dump(0, 'WH: ANSWER ', $answer);
     $dbh->with_transaction( sub{
         #update status on server
         $shoporder->{status} = "processing";
@@ -161,7 +162,7 @@ sub import_data_to_shop_order {
   $shop_order->positions($position-1);
 
   if ( $self->config->shipping_costs_parts_id ) {
-    my $shipping_part = SL::DB::Part->find_by( id => $self->config->shipping_costs_parts_id);
+    my $shipping_part = SL::DB::Manager::Part->find_by( id => $self->config->shipping_costs_parts_id);
     my %shipping_pos = (
       description    => $import->{data}->{dispatch}->{name},
       partnumber     => $shipping_part->partnumber,
@@ -526,6 +527,7 @@ sub send_request {
   my %return;
   if($answer->is_success && $type eq 'application/json'){
     my $data_json = $answer->content;
+    $main::lxdebug->dump(0, 'WH: JSON ', $data_json);
     my $json = SL::JSON::decode_json($data_json);
     %return = (
       success => 1,
