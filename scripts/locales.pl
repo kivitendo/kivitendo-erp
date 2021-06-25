@@ -43,7 +43,7 @@ my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
 my @progdirs     = ( "$basedir/SL" );
 my @menufiles    = glob("${basedir}/menus/*/*");
-my @javascript_dirs = ($basedir .'/js', $basedir .'/templates/webpages');
+my @javascript_dirs = ($basedir .'/js', $basedir .'/templates/webpages', $basedir .'/templates/mobile_webpages');
 my $javascript_output_dir = $basedir .'/js';
 my $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
 our $self        = {};
@@ -434,23 +434,25 @@ sub scanfile {
 
       # is this a template call?
       if (/(?:parse_html_template2?|render)\s*\(\s*[\"\']([\w\/]+)\s*[\"\']/) {
-        my $new_file_base = "$basedir/templates/webpages/$1.";
+        my $new_file_name = $1;
         if (/parse_html_template2/) {
-          print "E: " . strip_base($file) . " is still using 'parse_html_template2' for " . strip_base("${new_file_base}html") . ".\n";
+          print "E: " . strip_base($file) . " is still using 'parse_html_template2' for $new_file_name.html.\n";
         }
 
         my $found_one = 0;
-        foreach my $ext (qw(html js json)) {
-          my $new_file = "${new_file_base}${ext}";
-          if (-f $new_file) {
-            $cached{$file}{scanh}{$new_file} = 1;
-            print "." if $opt_v;
-            $found_one = 1;
+        for my $space (qw(webpages mobile_webpages)) {
+          for my $ext (qw(html js json)) {
+            my $new_file = "$basedir/templates/$space/$new_file_name.$ext";
+            if (-f $new_file) {
+              $cached{$file}{scanh}{$new_file} = 1;
+              print "." if $opt_v;
+              $found_one = 1;
+            }
           }
         }
 
         if ($opt_c && !$found_one) {
-          print "W: missing HTML template: " . strip_base($new_file_base) . "{html,json,js} (referenced from " . strip_base($file) . ")\n";
+          print "W: missing HTML template: $new_file_name.{html,json,js} (referenced from " . strip_base($file) . ")\n";
         }
       }
 
@@ -567,15 +569,16 @@ sub unescape_template_string {
 }
 
 sub scanhtmlfile {
-  local *IN;
-
-  my $file = shift;
+  my ($file) = @_;
 
   return if defined $cached{$file};
 
+  my $template_space = $file =~ m{templates/(\w+)/} ? $1 : 'webpages';
+
   my %plugins = ( 'loaded' => { }, 'needed' => { } );
 
-  if (!open(IN, '<:encoding(utf8)', $file)) {
+  my $fh;
+  if (!open($fh, '<:encoding(utf8)', $file)) {
     print "E: template file '$file' not found\n";
     return;
   }
@@ -583,7 +586,7 @@ sub scanhtmlfile {
   my $copying  = 0;
   my $issubmit = 0;
   my $text     = "";
-  while (my $line = <IN>) {
+  while (my $line = <$fh>) {
     chomp($line);
 
     while ($line =~ m/\[\%[^\w]*use[^\w]+(\w+)[^\w]*?\%\]/gi) {
@@ -643,13 +646,13 @@ sub scanhtmlfile {
                       ([^\s]+)      # Beliebig viele Nicht-Whitespaces -- Dateiname
                       \.(html|js)   # Endung ".html" oder ".js", ansonsten kann es der Name eines Blocks sein
                      /ix) {
-      my $new_file_name = "$basedir/templates/webpages/$1.$2";
+      my $new_file_name = "$basedir/templates/$template_space/$1.$2";
       $cached{$file}{scanh}{$new_file_name} = 1;
       substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
     }
   }
 
-  close(IN);
+  close($fh);
 
   foreach my $plugin (keys %{ $plugins{needed} }) {
     next if ($plugins{loaded}->{$plugin});
@@ -692,7 +695,7 @@ sub scan_javascript_file {
   close($fh);
 }
 sub search_unused_htmlfiles {
-  my @unscanned_dirs = ('../../templates/webpages');
+  my @unscanned_dirs = ('../../templates/webpages', '../../templates/mobile_webpages');
 
   while (scalar @unscanned_dirs) {
     my $dir = shift @unscanned_dirs;
@@ -713,7 +716,7 @@ sub strip_base {
   my $s =  "$_[0]";             # Create a copy of the string.
 
   $s    =~ s|^../../||;
-  $s    =~ s|templates/webpages/||;
+  $s    =~ s|templates/\w+/||;
 
   return $s;
 }
