@@ -160,6 +160,7 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
 
 * Locales auf Vollständigkeit prüfen
 
+  $ scripts/locales.pl en
   $ scripts/locales.pl de
 
 * SL::DB::Helper::ALL auf Vollständigkeit prüfen
@@ -167,6 +168,10 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
   (TODO: Mag da einer ein Script für schreiben?
      find SL/DB -type f | grep -v MetaSetup | grep -v Helper | grep -v Manager | sort
    hilft, kriegt aber die Sortierung durcheinander)
+
+* SL::BackgroundJob::ALL auf Vollständigkeit prüfen
+
+  ähnliches Vorgehen wie bei SL::DB::Helper::ALL
 
 * VERSION updaten
 
