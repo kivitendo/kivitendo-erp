@@ -1,18 +1,22 @@
 Wichtige Hinweise zum Upgrade von älteren Versionen
 ===================================================
 
-Upgrade auf v3.5.6.2
+** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
+
+
+Upgrade auf v3.5.7
   * Neue Perl Abhängigkeiten:
 
+  * Math::Round
   * Try::Tiny
 
+
+Upgrade auf v3.5.6.1
 
 Die Abwärtskompatibilität zur Lagermengen-Berechnung in Lieferscheinen wurde
 aufgehoben. Wer nicht mit Workflows arbeitet (nicht empfohlen) muss diese
 explizit in der Mandantenkonfiguration wieder aktivieren.
 
-
-** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
 Upgrade auf v3.5.6
 
