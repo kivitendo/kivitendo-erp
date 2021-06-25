@@ -4,12 +4,12 @@ use strict;
 use parent qw(SL::Layout::Base);
 
 sub static_stylesheets {
-  "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css",
-  "https://fonts.googleapis.com/icon?family=Material+Icons";
+  "materialize.css",   #  "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css",
+  "icons.css"          #  "https://fonts.googleapis.com/icon?family=Material+Icons";
 }
 
 sub static_javascripts {
-  "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js",
+  "materialize.js",    # "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js",
   "kivi.Materialize.js";
 }
 
