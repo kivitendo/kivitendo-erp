@@ -1,0 +1,3 @@
+-- @tag: release_3_5_7
+-- @description: Abhängigkeitsscript für Release 3.5.7
+-- @depends: release_3_5_6_1 rights_time_recording_show_edit_all right_productivity_as_category
