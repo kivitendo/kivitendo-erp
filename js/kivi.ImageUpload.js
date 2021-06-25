@@ -76,7 +76,7 @@ namespace("kivi.ImageUpload", function(ns) {
       myfiles.forEach(file => filesize  += file.size);
 
       if (filesize > maxsize) {
-        M.flash(kivi.t8("filesize too big: ") + ns.format_si(filesize) + kivi.t8(" > ") + ns.format_si(maxsize));
+        M.flash(kivi.t8("filesize too big: ") + ns.format_si(filesize) + " > " + ns.format_si(maxsize));
         $("#upload_modal").modal("close");
         return;
       }
