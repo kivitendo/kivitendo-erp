@@ -169,10 +169,6 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
      find SL/DB -type f | grep -v MetaSetup | grep -v Helper | grep -v Manager | sort
    hilft, kriegt aber die Sortierung durcheinander)
 
-* SL::BackgroundJob::ALL auf Vollständigkeit prüfen
-
-  ähnliches Vorgehen wie bei SL::DB::Helper::ALL
-
 * VERSION updaten
 
   Zu den Versionierungen ab 3.0.0:

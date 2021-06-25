@@ -26,7 +26,6 @@ use SL::DBUpgrade2;
 use SL::DB::AuthClient;
 use SL::DB::BackgroundJob;
 use SL::System::Process;
-use SL::BackgroundJob::ALL;
 use SL::Form;
 use SL::Helper::DateTime;
 use SL::InstanceConfiguration;
