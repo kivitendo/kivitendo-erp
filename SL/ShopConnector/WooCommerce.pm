@@ -527,7 +527,6 @@ sub send_request {
   my %return;
   if($answer->is_success && $type eq 'application/json'){
     my $data_json = $answer->content;
-    $main::lxdebug->dump(0, 'WH: JSON ', $data_json);
     my $json = SL::JSON::decode_json($data_json);
     %return = (
       success => 1,
