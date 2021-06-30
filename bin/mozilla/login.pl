@@ -45,7 +45,7 @@ sub company_logo {
   $main::lxdebug->enter_sub();
 
   my %myconfig = %main::myconfig;
-  $form->{todo_list}  =  create_todo_list('login_screen' => 1) if (!$form->{no_todo_list}) and ($main::auth->check_right($::myconfig{login}, 'productivity'));
+  $form->{todo_list}  =  create_todo_list('login_screen' => 1) if (!$::request->is_mobile) and (!$form->{no_todo_list}) and ($main::auth->check_right($::myconfig{login}, 'productivity'));
 
   $form->{stylesheet} =  $myconfig{stylesheet};
   $form->{title}      =  $::locale->text('kivitendo');
