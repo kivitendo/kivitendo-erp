@@ -982,7 +982,6 @@ sub action_price_popup {
 sub action_create_part {
   my ($self) = @_;
 
-  $::lxdebug->dump(0, "bb: form", $::form);
   my $previousform = $::auth->save_form_in_session(non_scalars => 1);
 
   my $callback     = $self->url_for(
