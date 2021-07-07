@@ -31,7 +31,7 @@
 <input type="hidden" name="follow_up_trans_info_1" value="[% id | html %]">
 <input type="hidden" name="follow_up_rowcount" value="1">
 
-<div id="ir_tabs" class="tabwidget">
+<div id="gl_tabs" class="tabwidget">
  <ul>
   <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
 [%- IF INSTANCE_CONF.get_webdav %]
@@ -39,11 +39,16 @@
 [%- END %]
 [%- IF id %]
 [%- IF INSTANCE_CONF.get_doc_storage %]
-  <li><a href="controller.pl?action=File/list&file_type=document&object_type=gl_transaction&object_id=[% HTML.url(id) %]">[% 'Documents' | $T8 %]</a></li>
+  <li><a href="#ui-tabs-docs">[% 'Documents' | $T8 %]</a></li>
   <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=gl_transaction&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
 [%- END %]
 [%- END %]
  </ul>
+
+[%- IF INSTANCE_CONF.get_doc_storage %]
+  <div id="ui-tabs-docs"></div>
+[%- END %]
+
  <div id="ui-tabs-basic-data">
 
 <table width=100%>

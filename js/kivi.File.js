@@ -393,4 +393,20 @@ namespace('kivi.File', function(ns) {
     $('.overlay_div img').on('click', ns.download);
   };
 
+  ns.doc_tab_init = function(tabs_id, doc_tab_id, id, object_type) {
+    var url = 'controller.pl?action=File/list&file_type=document&object_type=' + object_type  + '&object_id=' + $('#id').val();
+
+    $('#' + tabs_id).on('tabsbeforeactivate', function(e, ui) {
+      if (ui.newPanel.attr('id') !== doc_tab_id) return;
+      $('#' + doc_tab_id).html(kivi.t8('Loading...'));
+      $('#' + doc_tab_id).load(url);
+    });
+
+    $('#' + tabs_id).on('tabscreate', function(e, ui) {
+      if (ui.panel.attr('id') !== doc_tab_id) return;
+      $('#' + doc_tab_id).html(kivi.t8('Loading...'));
+      $('#' + doc_tab_id).load(url);
+    });
+  };
+
 });

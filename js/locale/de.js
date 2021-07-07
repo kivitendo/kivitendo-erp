@@ -89,6 +89,7 @@ namespace("kivi").setupLocale({
 "July":"Juli",
 "Jun":"Jun",
 "June":"Juni",
+"Loading...":"Wird geladen...",
 "Map":"Karte",
 "Mar":"März",
 "March":"März",

@@ -29,3 +29,7 @@ namespace('kivi.GL', function(ns) {
     });
   };
 });
+
+$(function() {
+  kivi.File.doc_tab_init('gl_tabs', 'ui-tabs-docs', $('#id').val(), 'gl_transaction');
+});
