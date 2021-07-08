@@ -14,8 +14,7 @@ use SL::Locale::String qw(t8);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar'                => [ qw(objects objects_or_ids shipped_qty keep_matches) ],
-  'scalar --get_set_init' => [ qw(oe_ids dbh require_stock_out fill_up item_identity_fields oi2oe oi_qty delivered matches
-                                  services_deliverable) ],
+  'scalar --get_set_init' => [ qw(oe_ids dbh require_stock_out oi2oe oi_qty delivered matches services_deliverable) ],
 );
 
 my $no_stock_item_links_query = <<'';
@@ -25,33 +24,6 @@ my $no_stock_item_links_query = <<'';
   INNER JOIN delivery_order_items doi ON doi.id = rl.to_id AND rl.to_table = 'delivery_order_items'
   WHERE oi.trans_id IN (%s)
   ORDER BY oi.trans_id, oi.position
-
-# oi not item linked. takes about 250ms for 100k hits
-# obsolete since 3.5.6
-my $fill_up_oi_query = <<'';
-  SELECT oi.id, oi.trans_id, oi.position, oi.parts_id, oi.description, oi.reqdate, oi.serialnumber, oi.qty, oi.unit
-  FROM orderitems oi
-  WHERE oi.trans_id IN (%s)
-  ORDER BY oi.trans_id, oi.position
-
-# doi linked by record, but not by items; 250ms for 100k hits
-# obsolete since 3.5.6
-my $no_stock_fill_up_doi_query = <<'';
-  SELECT doi.id, doi.delivery_order_id, doi.position, doi.parts_id, doi.description, doi.reqdate, doi.serialnumber, doi.qty, doi.unit
-  FROM delivery_order_items doi
-  WHERE doi.delivery_order_id IN (
-    SELECT to_id
-    FROM record_links
-    WHERE from_id IN (%s)
-      AND from_table = 'oe'
-      AND to_table = 'delivery_orders'
-      AND to_id = doi.delivery_order_id)
-   AND NOT EXISTS (
-    SELECT NULL
-    FROM record_links
-    WHERE from_table = 'orderitems'
-      AND to_table = 'delivery_order_items'
-      AND to_id = doi.id)
 
 my $stock_item_links_query = <<'';
   SELECT oi.trans_id, oi.id AS oi_id, oi.qty AS oi_qty, oi.unit AS oi_unit, doi.id AS doi_id,
@@ -88,21 +60,6 @@ my $stock_fill_up_doi_query = <<'';
       AND to_table = 'delivery_order_items'
       AND to_id = doi.id)
 
-my $oe_do_record_links = <<'';
-  SELECT from_id, to_id
-  FROM record_links
-  WHERE from_id IN (%s)
-    AND from_table = 'oe'
-    AND to_table = 'delivery_orders'
-
-my @known_item_identity_fields = qw(parts_id description reqdate serialnumber);
-my %item_identity_fields = (
-  parts_id     => t8('Part'),
-  description  => t8('Description'),
-  reqdate      => t8('Reqdate'),
-  serialnumber => t8('Serial Number'),
-);
-
 sub calculate {
   my ($self, $data) = @_;
 
@@ -113,7 +70,6 @@ sub calculate {
   return $self unless @{ $self->oe_ids };
 
   $self->calculate_item_links;
-  $self->calculate_fill_up if $self->fill_up;
 
   $self;
 }
@@ -138,74 +94,6 @@ sub calculate_item_links {
 
     push @{ $self->matches }, [ $_->{oi_id}, $_->{doi_id}, $qty, 1 ] if $self->keep_matches;
   }
-}
-
-sub _intersect {
-  my ($a1, $a2) = @_;
-  my %seen;
-  grep { $seen{$_}++ } @$a1, @$a2;
-}
-
-sub calculate_fill_up {
-  my ($self) = @_;
-
-  my @oe_ids = @{ $self->oe_ids };
-
-  my $fill_up_doi_query = $self->require_stock_out ? $stock_fill_up_doi_query : $no_stock_fill_up_doi_query;
-
-  my $oi_query  = sprintf $fill_up_oi_query,   join (', ', ('?')x@oe_ids);
-  my $doi_query = sprintf $fill_up_doi_query,  join (', ', ('?')x@oe_ids);
-  my $rl_query  = sprintf $oe_do_record_links, join (', ', ('?')x@oe_ids);
-
-  my $oi  = selectall_hashref_query($::form, $self->dbh, $oi_query,  @oe_ids);
-
-  return unless @$oi;
-
-  my $doi = selectall_hashref_query($::form, $self->dbh, $doi_query, @oe_ids);
-  my $rl  = selectall_hashref_query($::form, $self->dbh, $rl_query,  @oe_ids);
-
-  my %oi_by_identity  = partition_by { $self->item_identity($_) } @$oi;
-  my %doi_by_id       = partition_by { $_->{delivery_order_id} } @$doi;
-  my %doi_by_trans_id;
-  push @{ $doi_by_trans_id{$_->{from_id}} //= [] }, @{ $doi_by_id{$_->{to_id}} }
-    for grep { exists $doi_by_id{$_->{to_id}} } @$rl;
-
-  my %doi_by_identity = partition_by { $self->item_identity($_) } @$doi;
-
-  for my $match (sort keys %oi_by_identity) {
-    next unless exists $doi_by_identity{$match};
-
-    my %oi_by_oe = partition_by { $_->{trans_id} } @{ $oi_by_identity{$match} };
-    for my $trans_id (sort { $a <=> $b } keys %oi_by_oe) {
-      next unless my @sorted_doi = _intersect($doi_by_identity{$match}, $doi_by_trans_id{$trans_id});
-
-      # sorting should be quite fast here, because there are usually only a handful of matches
-      next unless my @sorted_oi  = sort { $a->{position} <=> $b->{position} } @{ $oi_by_oe{$trans_id} };
-
-      # parallel walk through sorted oi/doi entries
-      my $oi_i = my $doi_i = 0;
-      my ($oi, $doi) = ($sorted_oi[$oi_i], $sorted_doi[$doi_i]);
-      while ($oi_i < @sorted_oi && $doi_i < @sorted_doi) {
-        $oi =  $sorted_oi[++$oi_i],   next if $oi->{qty} <= $self->shipped_qty->{$oi->{id}};
-        $doi = $sorted_doi[++$doi_i], next if 0 == $doi->{qty};
-
-        my $factor  = AM->convert_unit($doi->{unit} => $oi->{unit});
-        my $min_qty = min($oi->{qty} - $self->shipped_qty->{$oi->{id}}, $doi->{qty} * $factor);
-
-        # min_qty should never be 0 now. the first part triggers the first next,
-        # the second triggers the second next and factor must not be 0
-        # but it would lead to an infinite loop, so catch that.
-        die 'panic! invalid shipping quantity' unless $min_qty;
-
-        $self->shipped_qty->{$oi->{id}} += $min_qty;
-        $doi->{qty}                     -= $min_qty / $factor;  # TODO: find a way to avoid float rounding
-        push @{ $self->matches }, [ $oi->{id}, $doi->{id}, $min_qty, 0 ] if $self->keep_matches;
-      }
-    }
-  }
-
-  $self->oi2oe->{$_->{id}}  = $_->{trans_id} for @$oi;
-  $self->oi_qty->{$_->{id}} = $_->{qty}      for @$oi;
 }
 
 sub write_to {
@@ -245,12 +133,6 @@ sub write_to_objects {
   $self->write_to($self->objects);
 }
 
-sub item_identity {
-  my ($self, $row) = @_;
-
-  join $;, map $row->{$_}, @{ $self->item_identity_fields };
-}
-
 sub normalize_input {
   my ($self, $data) = @_;
 
@@ -270,25 +152,6 @@ sub normalize_input {
   $self->shipped_qty({});
 }
 
-# some of the invocations never need to load all orderitems to copute their answers
-# delivered however needs oi_qty to be set for each orderitem to decide whether
-# delivered should be set or not.
-sub ensure_all_orderitems_for_orders {
-  my ($self) = @_;
-
-  return if $self->fill_up;
-
-  my $oi_query  = sprintf $fill_up_oi_query,   join (', ', ('?')x@{ $self->oe_ids });
-  my $oi  = selectall_hashref_query($::form, $self->dbh, $oi_query, @{ $self->oe_ids });
-  for (@$oi) {
-    $self->{oi_qty}{ $_->{id} } //= $_->{qty};
-    $self->{oi2oe}{ $_->{id} }  //= $_->{trans_id};
-  }
-}
-
-sub available_item_identity_fields {
-  map { [ $_ => $item_identity_fields{$_} ] } @known_item_identity_fields;
-}
 
 sub init_oe_ids {
   my ($self) = @_;
@@ -308,9 +171,6 @@ sub init_matches { [] }
 sub init_delivered {
   my ($self) = @_;
 
-  # is needed in odyn
-  # $self->ensure_all_orderitems_for_orders;
-
   my $d = { };
   for (keys %{ $self->oi_qty }) {
     my $oe_id = $self->oi2oe->{$_};
@@ -321,8 +181,6 @@ sub init_delivered {
 }
 
 sub init_require_stock_out    { $::instance_conf->get_shipped_qty_require_stock_out }
-sub init_item_identity_fields { [ grep $item_identity_fields{$_}, @{ $::instance_conf->get_shipped_qty_item_identity_fields } ] }
-sub init_fill_up              { $::instance_conf->get_shipped_qty_fill_up  }
 
 sub init_services_deliverable  {
   my ($self) = @_;
@@ -350,7 +208,6 @@ SL::Helper::ShippedQty - Algorithmic module for calculating shipped qty
   use SL::Helper::ShippedQty;
 
   my $helper = SL::Helper::ShippedQty->new(
-    fill_up              => 0,
     require_stock_out    => 0,
     item_identity_fields => [ qw(parts_id description reqdate serialnumber) ],
   );
@@ -402,27 +259,10 @@ inventory it will mean when the delivery order is saved.
 
 =item *
 
-How to find the correct matching elements. After the changes
-to record item links it's natural to assume that each position is linked, but
-for various reasons this might not be the case. Positions that are not linked
-in the database need to be matched by marching.
-
-=item *
-
-Double links need to be accounted for (these can stem from buggy code).
-
-=item *
-
 orderitems and oe entries may link to many of their counterparts in
-delivery_orders. delivery_orders my be created from multiple orders. The
+delivery_orders. delivery_orders may be created from multiple orders. The
 only constant is that a single entry in delivery_order_items has at most one
 link from an orderitem.
-
-=item *
-
-For the fill up case the identity of positions is not clear. The naive approach
-is just the same part, but description, charge number, reqdate and qty can all
-be part of the identity of a position for finding shipped matches.
 
 =item *
 
@@ -463,28 +303,6 @@ PARAMS may include:
 Boolean. If set, delivery orders must be stocked out to be considered
 delivered. The default is a client setting.
 
-=item * C<fill_up>
-
-Boolean. If set, unlinked delivery order items will be used to fill up
-undelivered order items. Not needed in newer installations. The default is a
-client setting.
-
-=item * C<item_identity_fields ARRAY>
-
-If set, the fields are used to compute the identity of matching positions. The
-default is a client setting. Possible values include:
-
-=over 4
-
-=item * C<parts_id>
-
-=item * C<description>
-
-=item * C<reqdate>
-
-=item * C<serialnumber>
-
-=back
 
 =item * C<keep_matches>
 

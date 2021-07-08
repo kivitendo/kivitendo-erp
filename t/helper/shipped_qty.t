@@ -261,56 +261,6 @@ ok($sales_order_opt->{delivered},                          "require_stock_out =>
 clear_up();
 
 {
-#  legacy unlinked scenario:
-#
-#  order with two positions of the same part, qtys: 5, 3.
-#  3 linked delivery orders, with positions:
-#    1:  3 unlinked
-#    2:  1 linked to 1, 3 linked to 2
-#    3:  1 linked to 1
-#
-#  should be resolved under fill_up as 5/3, but gets resolved as 4/4
-  my $part = new_part()->save;
-  my $order = create_sales_order(
-    orderitems => [
-      create_order_item(part => $part, qty => 5),
-      create_order_item(part => $part, qty => 3),
-    ],
-  )->save;
-  my $do1 = create_sales_delivery_order(
-    orderitems => [
-      create_delivery_order_item(part => $part, qty => 3),
-    ],
-  );
-  my $do2 = create_sales_delivery_order(
-    orderitems => [
-      create_delivery_order_item(part => $part, qty => 1),
-      create_delivery_order_item(part => $part, qty => 3),
-    ],
-  );
-  my $do3 = create_sales_delivery_order(
-    orderitems => [
-      create_delivery_order_item(part => $part, qty => 1),
-    ],
-  );
-  $order->link_to_record($do1);
-  $order->link_to_record($do2);
-  $order->items_sorted->[0]->link_to_record($do2->items_sorted->[0]);
-  $order->items_sorted->[1]->link_to_record($do2->items_sorted->[1]);
-  $order->link_to_record($do3);
-  $order->items_sorted->[0]->link_to_record($do3->items->[0]);
-
-  SL::Helper::ShippedQty
-    ->new(fill_up => 1, require_stock_out => 0)
-    ->calculate($order)
-    ->write_to_objects;
-
-  is $order->items_sorted->[0]->{shipped_qty}, 5, 'unlinked legacy position test 1';
-  is $order->items_sorted->[1]->{shipped_qty}, 3, 'unlinked legacy position test 2';
-
-}
-
-{
 # edge case:
 #
 # suppose an order was delivered, and someone removes one item from the delivery order.
@@ -332,7 +282,7 @@ clear_up();
   $delivery_order->save;
 
   SL::Helper::ShippedQty
-    ->new(fill_up => 0, require_stock_out => 0)
+    ->new(require_stock_out => 0)
     ->calculate($sales_order)
     ->write_to_objects;
 
