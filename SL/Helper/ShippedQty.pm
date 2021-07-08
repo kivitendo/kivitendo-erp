@@ -38,28 +38,6 @@ my $stock_item_links_query = <<'';
   WHERE oi.trans_id IN (%s)
   ORDER BY oi.trans_id, oi.position
 
-my $stock_fill_up_doi_query = <<'';
-  SELECT doi.id, doi.delivery_order_id, doi.position, doi.parts_id, doi.description, doi.reqdate, doi.serialnumber,
-    (CASE WHEN doe.customer_id > 0 THEN -1 ELSE 1 END) * i.qty, p.unit
-  FROM delivery_order_items doi
-  INNER JOIN parts p                         ON p.id = doi.parts_id
-  INNER JOIN delivery_order_items_stock dois ON dois.delivery_order_item_id = doi.id
-  INNER JOIN delivery_orders doe             ON doe.id = doi.delivery_order_id
-  INNER JOIN inventory i                     ON dois.id = i.delivery_order_items_stock_id
-  WHERE doi.delivery_order_id IN (
-    SELECT to_id
-    FROM record_links
-    WHERE from_id IN (%s)
-      AND from_table = 'oe'
-      AND to_table = 'delivery_orders'
-      AND to_id = doi.delivery_order_id)
-   AND NOT EXISTS (
-    SELECT NULL
-    FROM record_links
-    WHERE from_table = 'orderitems'
-      AND to_table = 'delivery_order_items'
-      AND to_id = doi.id)
-
 sub calculate {
   my ($self, $data) = @_;
 
