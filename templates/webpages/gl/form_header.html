@@ -69,7 +69,7 @@
 [%- IF id %]
         <tr>
           <th align="right">[% 'ID' | $T8 %]</th>
-          <td>[% L.input_tag('id', id,  size=20, readonly=readonly) %]</td>
+          <td>[% id %]</td>
           <th align="right">[% 'Gldate' | $T8 %]</th>
           <td>[% L.date_tag('gldate', gldate, readonly=1) %]<img class="ui-datepicker-trigger" src="image/calendar.png" alt="..." title="..." style='visibility:hidden'></td>
         </tr>
