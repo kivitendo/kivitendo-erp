@@ -97,12 +97,6 @@
      [% END %]
    </td>
   </tr>
-  <tr>
-   <th align="right">[% 'Query Type' | $T8 %]</th>
-   <td>
-     [% L.checkbox_tag('use_linked_items', checked=use_linked_items, value='1', label=LxERP.t8('Use linked items')) %]
-   </td>
-  </tr>
  </table>
 
 [% L.hidden_tag('sort_by', FORM.sort_by) %]

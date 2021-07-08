@@ -15,7 +15,7 @@ use SL::DBUtils ();
 use Carp;
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(models all_edit_right vc use_linked_items all_employees all_businesses all_departments) ],
+  'scalar --get_set_init' => [ qw(models all_edit_right vc all_employees all_businesses all_departments) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('delivery_plan'); });
@@ -90,7 +90,7 @@ sub prepare_report {
   );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_export_options(qw(list filter vc use_linked_items));
+  $report->set_export_options(qw(list filter vc));
   $report->set_options_from_form;
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->finalize; # for filter laundering
@@ -107,7 +107,7 @@ sub calc_qtys {
   return unless scalar @$orderitems;
 
   SL::Helper::ShippedQty
-    ->new(fill_up => !$self->use_linked_items)
+    ->new()
     ->calculate($orderitems)
     ->write_to_objects;
 }
@@ -156,109 +156,6 @@ sub make_filter_summary {
   }
 
   $self->{filter_summary} = join ', ', @filter_strings;
-}
-
-sub delivery_plan_query {
-  my ($self) = @_;
-  my $vc     = $self->vc;
-  my $employee_id = SL::DB::Manager::Employee->current->id;
-  my $oe_owner = $_[0]->all_edit_right ? '' : " oe.employee_id = $employee_id AND";
-
-  [
-  "order.${vc}_id" => { gt => 0 },
-  'order.closed' => 0,
-  or => [ 'order.quotation' => 0, 'order.quotation' => undef ],
-
-  # filter by shipped_qty < qty, read from innermost to outermost
-  'id' => [ \"
-    -- 3. resolve the desired information about those
-    SELECT oi.id FROM (
-      -- 2. slice only part, orderitem and both quantities from it
-      SELECT parts_id, trans_id, qty, SUM(doi_qty) AS doi_qty FROM (
-        -- 1. join orderitems and deliverorder items via record_links.
-        --    also add customer data to filter for sales_orders
-        SELECT oi.parts_id, oi.trans_id, oi.id, oi.qty, doi.qty AS doi_qty
-        FROM orderitems oi, oe, record_links rl, delivery_order_items doi
-        WHERE
-          oe.id = oi.trans_id AND
-          oe.${vc}_id IS NOT NULL AND
-          (oe.quotation = 'f' OR oe.quotation IS NULL) AND
-          NOT oe.closed AND
-          $oe_owner
-          rl.from_id = oe.id AND
-          rl.from_id = oi.trans_id AND
-          oe.id = oi.trans_id AND
-          rl.from_table = 'oe' AND
-          rl.to_table = 'delivery_orders' AND
-          rl.to_id = doi.delivery_order_id AND
-          oi.parts_id = doi.parts_id
-      ) tuples GROUP BY parts_id, trans_id, qty
-    ) partials
-    LEFT JOIN orderitems oi ON partials.parts_id = oi.parts_id AND partials.trans_id = oi.trans_id
-    WHERE oi.qty > doi_qty
-
-    UNION ALL
-
-    -- 4. since the join over record_links fails for sales_orders without any delivery order
-    --    retrieve those without record_links at all
-    SELECT oi.id FROM orderitems oi, oe
-    WHERE
-      oe.id = oi.trans_id AND
-      oe.${vc}_id IS NOT NULL AND
-      (oe.quotation = 'f' OR oe.quotation IS NULL) AND
-      NOT oe.closed AND
-      $oe_owner
-      oi.trans_id NOT IN (
-        SELECT from_id
-        FROM record_links rl
-        WHERE
-          rl.from_table ='oe' AND
-          rl.to_table = 'delivery_orders'
-      )
-
-    UNION ALL
-
-    -- 5. now for the really nasty cases.
-    --    If someone partially delivered an order in several delivery orders,
-    --    there will be lots of record_links (4 doesn't catch those) but those
-    --    won't have matching part_ids in delivery_order_items, so 1-3 can't
-    --    find anything
-    --    In this case aggreg record_links - delivery_order - delivery_order_items
-    --    slice only oe.id, parts_id and sum of of qty
-    --    left join that onto orderitems to get matching qtys in doi while retaining
-    --    entrys without matches and then throw out those without record_links
-    --    TODO: join this and 1-3 into a general case
-                  -- need debug info? uncomment these:
-    SELECT oi.id  -- ,oi.trans_id, oi.parts_id, coalesce(sum, 0), agg.parts_id
-    FROM orderitems oi LEFT JOIN (
-      SELECT rl.from_id as oid, doi.parts_id, sum(doi.qty) FROM (
-        SELECT from_id, to_id
-        FROM record_links rl
-        LEFT JOIN oe ON oe.id = from_id
-        WHERE
-          rl.from_table = 'oe' AND
-          rl.to_table = 'delivery_orders' AND
-
-          oe.${vc}_id IS NOT NULL AND
-          $oe_owner
-          (oe.quotation = 'f' OR oe.quotation IS NULL) AND NOT oe.closed
-      ) rl
-      LEFT JOIN delivery_order_items doi ON (rl.to_id = doi.delivery_order_id)
-      GROUP BY rl.from_id, doi.parts_id
-    ) agg ON (agg.oid = oi.trans_id AND agg.parts_id = oi.parts_id)
-    LEFT JOIN oe ON oe.id = oi.trans_id
-    WHERE
-      EXISTS (
-        SELECT to_id
-        FROM record_links rl
-        WHERE oi.trans_id = rl.from_id AND rl.from_table = 'oe' AND rl.to_table = 'delivery_orders'
-      ) AND
-      coalesce(sum, 0) < oi.qty AND
-      oe.${vc}_id IS NOT NULL AND
-      $oe_owner
-      (oe.quotation = 'f' OR oe.quotation IS NULL) AND NOT oe.closed
-  " ], # make emacs happy again: '
-  ]
 }
 
 sub delivery_plan_query_linked_items {
@@ -318,8 +215,7 @@ sub init_models {
   my ($self) = @_;
   my $vc     = $self->vc;
 
-  my $query = $self->use_linked_items ? $self->delivery_plan_query_linked_items
-            :                           $self->delivery_plan_query;
+  my $query = $self->delivery_plan_query_linked_items;
 
   SL::Controller::Helper::GetModels->new(
     controller   => $self,
@@ -333,7 +229,7 @@ sub init_models {
     },
     query        => $query,
     with_objects => [ 'order', "order.$vc", 'part' ],
-    additional_url_params => { vc => $vc, use_linked_items => $self->use_linked_items },
+    additional_url_params => { vc => $vc },
   );
 }
 
@@ -342,10 +238,6 @@ sub init_all_edit_right {
 }
 sub init_vc {
   return $::form->{vc} if ($::form->{vc} eq 'customer' || $::form->{vc} eq 'vendor') || croak "self (DeliveryPlan) has no vc defined";
-}
-
-sub init_use_linked_items {
-  !!$::form->{use_linked_items};
 }
 
 sub init_all_employees {
