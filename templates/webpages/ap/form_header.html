@@ -18,7 +18,7 @@
 <input type="hidden" name="forex" value="[% forex | html %]">
 <input type="hidden" name="lastmtime" value="[% HTML.escape(lastmtime) %]">
 
-<input type="hidden" name="id" value="[% id | html %]">
+<input id="id" type="hidden" name="id" value="[% id | html %]">
 <input type="hidden" name="sort" value="[% sort | html %]">
 <input type="hidden" name="closedto" value="[% closedto | html %]">
 <input type="hidden" name="locked" value="[% locked | html %]">
@@ -63,7 +63,7 @@
   <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
 [%- END %]
 [%- IF id AND INSTANCE_CONF.get_doc_storage %]
-      <li><a href="controller.pl?action=File/list&file_type=document&object_type=purchase_invoice&object_id=[% HTML.url(id) %]">[% 'Documents' | $T8 %]</a></li>
+      <li><a href="#ui-tabs-docs">[% 'Documents' | $T8 %]</a></li>
       <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=purchase_invoice&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
 [%- END %]
 [%- IF id %]
@@ -73,6 +73,10 @@
   <li><a href="[% 'controller.pl?action=AccTrans/list_transactions&trans_id=' _ HTML.url(id) | html %]">[% LxERP.t8('Transactions') %]</a></li>
 [%- END %]
  </ul>
+
+[%- IF id AND INSTANCE_CONF.get_doc_storage %]
+   <div id="ui-tabs-docs"></div>
+[%- END %]
 
 <div id="ui-tabs-basic-data">
 <table width="100%">

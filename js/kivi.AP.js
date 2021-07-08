@@ -51,3 +51,7 @@ namespace('kivi.AP', function(ns){
   };
 
 });
+
+$(function() {
+  kivi.File.doc_tab_init('ap_tabs', 'ui-tabs-docs', $('#id').val(), 'purchase_invoice');
+});

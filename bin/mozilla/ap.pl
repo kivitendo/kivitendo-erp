@@ -864,7 +864,7 @@ sub post {
     # $form->{callback} ||= 'ap.pl?action=edit&id=' . $form->{id} if $myconfig{no_reset_arap};
     # or a client config setting
     if ($::instance_conf->get_ap_add_doc && $::instance_conf->get_doc_storage) {
-      my $add_doc_url = build_std_url("script=ap.pl", 'action=edit', 'id=' . E($form->{id}));
+      my $add_doc_url = build_std_url("script=ap.pl", 'action=edit', 'id=' . E($form->{id}), 'fragment=ui-tabs-docs');
       print $form->redirect_header($add_doc_url);
     }
 
