@@ -45,7 +45,7 @@ use SL::Helper::Flash qw(flash_later);
 use SL::IC;
 use SL::WH;
 use SL::OE;
-# use SL::Helper::Inventory qw(produce_assembly);
+use SL::Helper::Inventory qw(produce_assembly);
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 use SL::Presenter::Tag qw(checkbox_tag);
@@ -371,13 +371,6 @@ sub transfer_stock_get_partunit {
   $main::lxdebug->leave_sub();
 }
 
-# vorüberlegung jb 22.2.2009
-# wir benötigen für diese funktion, die anzahl die vom erzeugnis hergestellt werden soll. vielleicht direkt per js fehleingaben verhindern?
-# ferner dann nochmal mit check_asssembly_max_create gegenprüfen und dann transaktionssicher wegbuchen.
-# wir brauchen eine hilfsfunktion, die nee. brauchen wir nicht. der algorithmus läuft genau wie bei check max_create, nur dass hier auch eine lagerbewegung (verbraucht) stattfindet
-# Manko ist derzeit noch, dass unterschiedliche Lagerplätze, bzw. das Quelllager an sich nicht ausgewählt werden können.
-# Laut Absprache in KW11 09 übernimmt mb hier den rest im April ... jb 18.3.09
-
 sub create_assembly {
   $main::lxdebug->enter_sub();
 
@@ -389,43 +382,30 @@ sub create_assembly {
   if ($form->{qty} <= 0) {
     $form->show_generic_error($locale->text('Invalid quantity.'));
   }
-  # TODO Es wäre schön, hier schon die maximale Anzahl der zu fertigenden Erzeugnisse zu haben
-  #else { if ($form->{qty} > $maxcreate) { #s.o.
-  #     $form->show_generic_error($locale->text('Can not create that quantity with current stock'));
-  #     $form->show_generic_error('Maximale Stückzahl' . $maxcreate);
-  #   }
-  #  }
-
   if (!$form->{warehouse_id} || !$form->{bin_id}) {
     $form->error($locale->text('The warehouse or the bin is missing.'));
   }
+  # need part and bin object
+  my ($bin, $assembly);
+  $assembly = SL::DB::Manager::Part->find_by(id => $form->{parts_id}, part_type => 'assembly');
+  $form->show_generic_error($locale->text('Invalid assembly')) unless ref $assembly eq 'SL::DB::Part';
+
+  $bin = SL::DB::Manager::Bin->find_by(id => $form->{bin_id});
+  $form->show_generic_error($locale->text('Invalid bin')) unless ref $bin eq 'SL::DB::Bin';
 
   if (!$::instance_conf->get_show_bestbefore) {
-      $form->{bestbefore} = '';
+    $form->{bestbefore} = '';
   }
 
-  # WIESO war das nicht vorher schon ein %HASH?? ein hash ist ein hash! das hat mich mehr als eine Stunde gekostet herauszufinden. grr. jb 3.3.2009
-  # Anm. jb 18.3. vielleicht auch nur meine unwissenheit in perl-datenstrukturen
-  my %TRANSFER = (
-    'transfer_type'    => 'assembly',
-    'login'            => $::myconfig{login},
-    'dst_warehouse_id' => $form->{warehouse_id},
-    'dst_bin_id'       => $form->{bin_id},
-    'chargenumber'     => $form->{chargenumber},
-    'bestbefore'       => $form->{bestbefore},
-    'assembly_id'      => $form->{parts_id},
-    'qty'              => $form->{qty},
-    'unit'             => $form->{unit},
-    'comment'          => $form->{comment}
+  produce_assembly(
+              part           => $assembly,               # target assembly
+              qty            => $form->{qty},            # qty
+              auto_allocate  => 1,
+              bin            => $bin,                    # needed unless a global standard target is configured
+              chargenumber   => $form->{chargenumber},   # optional
+              bestbefore     => $form->{bestbefore},
+              comment        => $form->{comment},        # optional
   );
-
-  my $ret = WH->transfer_assembly (%TRANSFER);
-  # Frage: Ich pack in den return-wert auch gleich die Fehlermeldung. Irgendwelche Nummern als Fehlerkonstanten definieren find ich auch nicht besonders schick...
-  # Ideen? jb 18.3.09
-  if ($ret ne "1"){
-    # Die locale-Funktion kann keine Double-Quotes escapen, deswegen hier erstmal so (ein wahrscheinlich immerwährender Hotfix) s.a. Frage davor jb 25.4.09
-    $form->show_generic_error($ret);
-  }
 
   delete @{$form}{qw(parts_id partnumber description qty unit chargenumber bestbefore comment)};
 

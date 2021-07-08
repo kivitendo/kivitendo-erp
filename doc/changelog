@@ -10,6 +10,11 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+- Erzeugnisse können jetzt auf Lagerteile aus anderem Lagern zurückgreifen
+  und die Fertigung liefert keinen Fehler mehr. Einstellbar in der
+  Mandantenkonfiguration.
+- API- Änderung Erzeugnis fertigen nutzt jetzt SL/Helper/Inventory.pm
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
 
