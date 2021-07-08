@@ -161,8 +161,6 @@ __PACKAGE__->meta->columns(
   sepa_set_skonto_date_as_default_exec_date => { type => 'boolean', default => 'false' },
   sepa_set_skonto_date_buffer_in_days       => { type => 'integer', default => '0' },
   servicenumber                             => { type => 'text' },
-  shipped_qty_fill_up                       => { type => 'boolean', default => 'true', not_null => 1 },
-  shipped_qty_item_identity_fields          => { type => 'array', default => '{parts_id}', not_null => 1 },
   shipped_qty_require_stock_out             => { type => 'boolean', default => 'false', not_null => 1 },
   show_bestbefore                           => { type => 'boolean', default => 'false' },
   show_longdescription_select_item          => { type => 'boolean', default => 'false' },
