@@ -23,8 +23,8 @@ sub build_std_url {
 
   my $form     = $main::form;
 
-  my $script = $form->{script};
-
+  my $script   = $form->{script};
+  my $fragment;
   my @parts;
 
   foreach my $key (@_) {
@@ -33,6 +33,10 @@ sub build_std_url {
     if ($key =~ /(.*?)=(.*)/) {
       if ($1 eq 'script') {
         $script = $2;
+
+      } elsif ($1 eq 'fragment') {
+        $fragment = $2;
+
       } else {
         push @parts, $key;
       }
@@ -44,7 +48,7 @@ sub build_std_url {
     }
   }
 
-  my $url = "${script}?" . join('&', @parts);
+  my $url = "${script}?" . join('&', @parts) . (defined $fragment ? "#$fragment" : '');
 
   $main::lxdebug->leave_sub(2);
 
