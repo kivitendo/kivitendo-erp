@@ -1363,7 +1363,7 @@ sub post_transaction {
       die "No bank transaction found" unless $bt;
 
       $chart_id = SL::DB::Manager::BankAccount->find_by(id => $bt->local_bank_account_id)->chart_id;
-      die "no chart id:" unless $chart_id;
+      die "no chart id" unless $chart_id;
 
       $payment = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $::form->{id},
                                                                      chart_link => { like => '%_paid%' },
@@ -1372,7 +1372,7 @@ sub post_transaction {
 
       # credit/debit * -1 matches the sign for bt.amount and bt.invoice_amount
 
-      die "Can only assign the full (partial) bank amount to a single general ledger booking" . $bt->not_assigned_amount . " " .  ($payment->[0]->amount * -1)
+      die "Can only assign the full (partial) bank amount to a single general ledger booking: " . $bt->not_assigned_amount . " " .  ($payment->[0]->amount * -1)
         unless (abs($bt->not_assigned_amount - ($payment->[0]->amount * -1)) < 0.001);
 
       $bt->update_attributes(invoice_amount => $bt->invoice_amount + ($payment->[0]->amount * -1));
