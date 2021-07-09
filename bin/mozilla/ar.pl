@@ -50,7 +50,7 @@ use SL::DB::Employee;
 use SL::DB::Invoice;
 use SL::DB::RecordTemplate;
 use SL::DB::Tax;
-use SL::Helper::Flash qw(flash);
+use SL::Helper::Flash qw(flash flash_later);
 use SL::Locale::String qw(t8);
 use SL::Presenter::Tag;
 use SL::Presenter::Chart;
@@ -817,11 +817,18 @@ sub post {
   }
   # /saving the history
 
-  if ($::instance_conf->get_ar_add_doc && $::instance_conf->get_doc_storage) {
-    my $add_doc_url = build_std_url("script=ar.pl", 'action=edit', 'id=' . E($form->{id}));
-    print $form->redirect_header($add_doc_url);
+  if (!$inline) {
+    my $msg = $locale->text("AR transaction '#1' posted (ID: #2)", $form->{invnumber}, $form->{id});
+    if ($::instance_conf->get_ar_add_doc && $::instance_conf->get_doc_storage) {
+      my $add_doc_url = build_std_url("script=ar.pl", 'action=edit', 'id=' . E($form->{id}));
+      SL::Helper::Flash::flash_later('info', $msg);
+      print $form->redirect_header($add_doc_url);
+      $::dispatcher->end_request;
+
+    } else {
+      $form->redirect($msg);
+    }
   }
-  $form->redirect($locale->text('AR transaction posted.') . ' ' . $locale->text('ID') . ': ' . $form->{id}) unless $inline;
 
   $main::lxdebug->leave_sub();
 }
