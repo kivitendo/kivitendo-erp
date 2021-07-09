@@ -43,7 +43,7 @@ use SL::DB::BankTransactionAccTrans;
 use SL::DB::Tax;
 use SL::FU;
 use SL::GL;
-use SL::Helper::Flash qw(flash);
+use SL::Helper::Flash qw(flash flash_later);
 use SL::IS;
 use SL::ReportGenerator;
 use SL::DBUtils qw(selectrow_query selectall_hashref_query);
@@ -1398,17 +1398,6 @@ sub post_transaction {
     1;
   }) or do { die SL::DB->client->error };
 
-  if ($form->{callback} =~ /BankTransaction/ && $form->{bt_id}) {
-    print $form->redirect_header($form->{callback});
-    $form->redirect($locale->text('GL transaction posted.') . ' ' . $locale->text('ID') . ': ' . $form->{id});
-  } elsif ($::instance_conf->get_gl_add_doc && $::instance_conf->get_doc_storage) {
-    my $add_doc_url = build_std_url("script=gl.pl", 'action=edit', 'id=' . E($form->{id}), 'fragment=ui-tabs-docs');
-    print $form->redirect_header($add_doc_url);
-    $form->redirect($locale->text('GL transaction posted.') . ' ' . $locale->text('ID') . ': ' . $form->{id});
-  }
-
-  # remove or clarify
-  undef($form->{callback});
   $main::lxdebug->leave_sub();
 }
 
@@ -1434,8 +1423,24 @@ sub post {
                    )->webdav_path;
   }
 
-  $form->{callback} = build_std_url("action=add", "show_details");
-  $form->redirect($::locale->text("General ledger transaction '#1' posted", $form->{reference}));
+  my $msg = $::locale->text("General ledger transaction '#1' posted (ID: #2)", $form->{reference}, $form->{id});
+  if ($form->{callback} =~ /BankTransaction/ && $form->{bt_id}) {
+    $form->redirect($msg);
+
+  } elsif ($::instance_conf->get_gl_add_doc && $::instance_conf->get_doc_storage) {
+    # Redirect with callback containing a fragment does not work (by now)
+    # because the callback info is stored in the session an parsing the
+    # callback parameters does not support fragments (see SL::Form::redirect).
+    # So use flash_later for the message and redirect_headers for redirecting.
+    my $add_doc_url = build_std_url("script=gl.pl", 'action=edit', 'id=' . E($form->{id}), 'fragment=ui-tabs-docs');
+    SL::Helper::Flash::flash_later('info', $msg);
+    print $form->redirect_header($add_doc_url);
+    $::dispatcher->end_request;
+
+  } else {
+    $form->{callback} = build_std_url("action=add", "show_details");
+    $form->redirect($msg);
+  }
 
   $main::lxdebug->leave_sub();
 }
