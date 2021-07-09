@@ -643,7 +643,7 @@ sub generate_report {
 
   $report->set_options('raw_bottom_info_text' => $raw_bottom_info_text);
 
-  setup_gl_transactions_action_bar(num_rows => scalar(@{$form->{GL}}));
+  setup_gl_transactions_action_bar();
 
   $report->generate_with_headers();
 
