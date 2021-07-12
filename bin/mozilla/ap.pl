@@ -867,7 +867,7 @@ sub post {
         print $form->redirect_header($form->{callback});
         $::dispatcher->end_request;
 
-      } elsif ($::instance_conf->get_ap_add_doc && $::instance_conf->get_doc_storage) {
+      } elsif ('doc-tab' eq $form->{after_action}) {
         # Redirect with callback containing a fragment does not work (by now)
         # because the callback info is stored in the session an parsing the
         # callback parameters does not support fragments (see SL::Form::redirect).
@@ -1346,6 +1346,34 @@ sub setup_ap_display_form_action_bar {
     $is_linked_bank_transaction = 1;
   }
 
+  my $create_post_action = sub {
+    # $_[0]: description
+    # $_[1]: after_action
+    action => [
+      $_[0],
+      submit   => [ '#form', { action => "post", after_action => $_[1] } ],
+      checks   => [ 'kivi.validate_form', 'kivi.AP.check_fields_before_posting', 'kivi.AP.check_duplicate_invnumber' ],
+      disabled => !$may_edit_create                           ? t8('You must not change this AP transaction.')
+                : $is_closed                                  ? t8('The billing period has already been locked.')
+                : $is_storno                                  ? t8('A canceled invoice cannot be posted.')
+                : ($::form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
+                : ($::form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                : $is_linked_bank_transaction                 ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                :                                               undef,
+    ],
+  };
+
+  my @post_entries;
+  if ($::instance_conf->get_ap_add_doc && $::instance_conf->get_doc_storage) {
+    @post_entries = ( $create_post_action->(t8('Post'), 'doc-tab'),
+                      $create_post_action->(t8('Post and new booking')) );
+  } elsif ($::instance_conf->get_doc_storage) {
+    @post_entries = ( $create_post_action->(t8('Post')),
+                      $create_post_action->(t8('Post and upload document'), 'doc-tab') );
+  } else {
+    @post_entries = ( $create_post_action->(t8('Post')) );
+  }
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
@@ -1356,20 +1384,8 @@ sub setup_ap_display_form_action_bar {
         accesskey => 'enter',
         disabled  => !$may_edit_create ? t8('You must not change this AP transaction.') : undef,
       ],
-
       combobox => [
-        action => [
-          t8('Post'),
-          submit   => [ '#form', { action => "post" } ],
-          checks   => [ 'kivi.validate_form', 'kivi.AP.check_fields_before_posting', 'kivi.AP.check_duplicate_invnumber' ],
-          disabled => !$may_edit_create                           ? t8('You must not change this AP transaction.')
-                    : $is_closed                                  ? t8('The billing period has already been locked.')
-                    : $is_storno                                  ? t8('A canceled invoice cannot be posted.')
-                    : ($::form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
-                    : ($::form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
-                    : $is_linked_bank_transaction                 ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
-                    :                                               undef,
-        ],
+        @post_entries,
         action => [
           t8('Post Payment'),
           submit   => [ '#form', { action => "post_payment" } ],
