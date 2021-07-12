@@ -1088,6 +1088,7 @@ $self->{texts} = {
   'Do not change the tax rate of taxkey 0.' => '',
   'Do not check for duplicates' => '',
   'Do not create Factur-X/ZUGFeRD invoices' => '',
+  'Do not leave booking form?'  => '',
   'Do not link to a project.'   => '',
   'Do not modify this position' => '',
   'Do not run the task server for this client' => '',
