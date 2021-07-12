@@ -14,6 +14,15 @@ Kleinere neue Features und Detailverbesserungen:
   und die Fertigung liefert keinen Fehler mehr. Einstellbar in der
   Mandantenkonfiguration.
 - API- Änderung Erzeugnis fertigen nutzt jetzt SL/Helper/Inventory.pm
+- Falls der Mandant zu jeder Buchung einen Beleg hinzufügen möchte,
+  und dies in der Mandantenkonfiguration einstellt, dann öffnet sich nach
+  dem Buchen von Dialog-/Kreditoren- und EK-Rechnungs-Buchungen der
+  Dokumenten-Reiter des entsprechenden Belegs.
+  Bei dieser Einstellung gibt für Dialog- und Kreditoren-Buchungen eine
+  zweite Aktion unterhalb von "Buchen", nämlich "Buchen und neue Buchung".
+  Ist die Option ausgestellt, ist das Verhalten nach dem Buchen wie zuvor
+  und es gibt eine zweite Aktion "Buchen und Dokument hochladen", mit der
+  in den Dokumenten-Tab gesprungen werden kann.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
