@@ -471,7 +471,7 @@ sub display_row {
       map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount lastcost);
       push @hidden_vars, grep { defined $form->{"${_}_${i}"} } qw(sellprice discount not_discountable price_factor_id lastcost);
       push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
-      push @hidden_vars, qw(delivery_order_items_id converted_from_orderitems_id converted_from_delivery_order_items_id);
+      push @hidden_vars, qw(delivery_order_items_id converted_from_orderitems_id converted_from_delivery_order_items_id has_sernumber);
     }
 
     my @HIDDENS = map { value => $_}, (
@@ -1728,6 +1728,7 @@ sub _update_part_information {
     $form->{"weight_$i"}            = $info->{weight};
     $form->{"part_type_$i"}         = $info->{part_type};
     $form->{"classification_id_$i"} = $info->{classification_id};
+    $form->{"has_sernumber_$i"}     = $info->{has_sernumber};
   }
 
   $main::lxdebug->leave_sub();

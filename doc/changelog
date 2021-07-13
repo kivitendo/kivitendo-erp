@@ -23,6 +23,8 @@ Kleinere neue Features und Detailverbesserungen:
   Ist die Option ausgestellt, ist das Verhalten nach dem Buchen wie zuvor
   und es gibt eine zweite Aktion "Buchen und Dokument hochladen", mit der
   in den Dokumenten-Tab gesprungen werden kann.
+- Seriennummer ist jetzt ein Pflichtfeld für Lieferscheine (Einkauf und Verkauf),
+  falls die Ware im Beleg in den Stammdaten mit "Hat eine Serienummer" markiert ist.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 

@@ -924,6 +924,12 @@ sub save {
   remove_emptied_rows();
   validate_items();
 
+  # check for serial number if part needs one
+  for my $i (1 .. $form->{rowcount} - 1) {
+    next unless $form->{"has_sernumber_$i"};
+    $form->isblank("serialnumber_$i",
+                   $locale->text('Serial Number missing in Row') . " $i");
+  }
   # if the name changed get new values
   my $vc = $form->{vc};
   if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {

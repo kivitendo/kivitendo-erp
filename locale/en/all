@@ -2994,6 +2994,7 @@ $self->{texts} = {
   'September'                   => '',
   'Serial No.'                  => '',
   'Serial Number'               => '',
+  'Serial Number missing in Row' => '',
   'Server'                      => '',
   'Server control'              => '',
   'Service'                     => '',
