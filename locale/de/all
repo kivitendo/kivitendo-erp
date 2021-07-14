@@ -294,6 +294,7 @@ $self->{texts} = {
   'Already counted'             => 'Bereits erfasst',
   'Already imported entries (duplicates)' => 'Bereits importierte Einträge (Duplikate)',
   'Always edit assembly items (user can change/delete items even if assemblies are already produced)' => 'Erzeugnisbestandteile verändern (Löschen/Umsortieren) auch nachdem dieses Erzeugnis schon produziert wurde.',
+  'Always edit assortment items (user can change/delete items even if assortments are already used)' => 'Sortimentsbestandteile verändern (Löschen/Umsortieren), auch nachdem dieses Sortiment schon verwendet wurde.',
   'Always save orders with a projectnumber (create new projects)' => 'Aufträge immer mit Projektnummer speichern (neue Projekte erstellen)',
   'Amended Advance Turnover Tax Return' => 'Berichtigte Anmeldung',
   'Amount'                      => 'Betrag',

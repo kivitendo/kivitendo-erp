@@ -294,6 +294,7 @@ $self->{texts} = {
   'Already counted'             => '',
   'Already imported entries (duplicates)' => '',
   'Always edit assembly items (user can change/delete items even if assemblies are already produced)' => '',
+  'Always edit assortment items (user can change/delete items even if assortments are already used)' => '',
   'Always save orders with a projectnumber (create new projects)' => '',
   'Amended Advance Turnover Tax Return' => '',
   'Amount'                      => '',
