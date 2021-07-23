@@ -222,6 +222,7 @@ sub allocate_for_assembly {
   my %parts_to_allocate;
 
   for my $assembly ($part->assemblies) {
+    next if $assembly->part->type eq 'service' && 1;
     $parts_to_allocate{ $assembly->part->id } //= 0;
     $parts_to_allocate{ $assembly->part->id } += $assembly->qty * $qty;
   }
