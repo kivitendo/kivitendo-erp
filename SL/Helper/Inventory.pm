@@ -214,7 +214,8 @@ sub allocate_for_assembly {
   my $part = $params{part} or Carp::croak('allocate needs a part');
   my $qty  = $params{qty}  or Carp::croak('allocate needs a qty');
   my $wh   = $params{warehouse};
-  my $wh_strict = $::instance_conf->get_produce_assembly_same_warehouse;
+  my $wh_strict       = $::instance_conf->get_produce_assembly_same_warehouse;
+  my $consume_service = $::instance_conf->get_produce_assembly_transfer_service;
 
   Carp::croak('not an assembly')       unless $part->is_assembly;
   Carp::croak('No warehouse selected') if $wh_strict && !$wh;
@@ -222,7 +223,7 @@ sub allocate_for_assembly {
   my %parts_to_allocate;
 
   for my $assembly ($part->assemblies) {
-    next if $assembly->part->type eq 'service' && 1;
+    next if $assembly->part->type eq 'service' && !$consume_service;
     $parts_to_allocate{ $assembly->part->id } //= 0;
     $parts_to_allocate{ $assembly->part->id } += $assembly->qty * $qty;
   }

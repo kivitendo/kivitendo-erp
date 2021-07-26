@@ -10,9 +10,12 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
-- Erzeugnisse können jetzt auf Lagerteile aus anderem Lagern zurückgreifen
+- Erzeugnis fertigen, kann jetzt auf Lagerteile aus anderem Lagern zurückgreifen
   und die Fertigung liefert keinen Fehler mehr. Einstellbar in der
   Mandantenkonfiguration.
+- Erzeugnisse fertigen, kann auch Dienstleistungen verbrauchen, falls
+  diese ein Erzeugnisbestandteil sind. Standardmäßíg deaktiviert.
+  Aktivierbar in der Mandantenkonfiguration (Bereich Lager).
 - API- Änderung Erzeugnis fertigen nutzt jetzt SL/Helper/Inventory.pm
 - Falls der Mandant zu jeder Buchung einen Beleg hinzufügen möchte,
   und dies in der Mandantenkonfiguration einstellt, dann öffnet sich nach
