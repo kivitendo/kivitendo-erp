@@ -330,6 +330,89 @@ cmp_deeply(\@contents,
 
 # assembly with service non default tests (services will be consumed)
 
+local $::instance_conf->data->{produce_assembly_transfer_service} = 1;
+
+set_stock(
+  part => $part1,
+  qty => 12,
+  bin => $bin2,
+);
+set_stock(
+  part => $part2,
+  qty => 6.34,
+  bin => $bin2,
+);
+
+throws_ok{
+  SL::Helper::Inventory::produce_assembly(
+    part          => $assembly_service,
+    qty           => 1,
+    auto_allocate => 1,
+    # where to put it
+    bin          => $bin1,
+  );
+} qr/can not allocate 1,2 units of service number 1 We really need this service, missing 1,2 units/, "producing assembly with services and unstocked service throws correct error message";
+
+is(SL::Helper::Inventory::get_stock(part => $assembly_service), "1.00000", 'produce without service does not work');
+is(SL::Helper::Inventory::get_stock(part => $part1), "12.00000", 'and does not consume...');
+is(SL::Helper::Inventory::get_stock(part => $part2), "6.34000", '..the materials');
+
+
+# ok, now add the missing service
+is('SL::DB::Part', ref $service1);
+set_stock(
+  part => $service1,
+  qty => 1.2,
+  bin => $bin2,
+);
+
+SL::Helper::Inventory::produce_assembly(
+  part          => $assembly_service,
+  qty           => 1,
+  auto_allocate => 1,
+  # where to put it
+  bin          => $bin1,
+);
+
+is(SL::Helper::Inventory::get_stock(part => $assembly_service), "2.00000", 'produce with service does work if services is needed and stocked');
+is(SL::Helper::Inventory::get_stock(part => $part1), "0.00000", 'and does consume...');
+is(SL::Helper::Inventory::get_stock(part => $part2), "0.00000", '..the materials');
+is(SL::Helper::Inventory::get_stock(part => $service1), "0.00000", '..and service');
+
+# check comments and warehouses for assembly with service
+$::form->{l_comment}        = 'Y';
+$::form->{l_warehouse_from} = 'Y';
+$::form->{l_warehouse_to}   = 'Y';
+local $::instance_conf->data->{produce_assembly_same_warehouse} = 1;
+
+@contents = WH->get_warehouse_journal(sort => 'date');
+#use Data::Dumper;
+#diag("hier" . Dumper(@contents));
+cmp_deeply(\@contents,
+         [ ignore(), ignore(), ignore(), ignore(), ignore(), ignore(), ignore(), ignore(),
+              superhashof({
+                'comment'        => 'Used for assembly '. $assembly_service->partnumber .' Ein Erzeugnis mit Dienstleistungen',
+                'warehouse_from' => 'Warehouse'
+              }),
+              superhashof({
+                'comment'        => 'Used for assembly '. $assembly_service->partnumber .' Ein Erzeugnis mit Dienstleistungen',
+                'warehouse_from' => 'Warehouse'
+              }),
+              superhashof({
+                'comment'        => 'Used for assembly '. $assembly_service->partnumber .' Ein Erzeugnis mit Dienstleistungen',
+                'warehouse_from' => 'Warehouse',
+                'part_type'      => 'service',
+                'qty'            => '1.20000',
+              }),
+              superhashof({
+                'part_type'    => 'assembly',
+                'warehouse_to' => 'Warehouse'
+              }),
+           ],
+          "Comments for assembly with service productions are ok"
+);
+
+
 
 # bestbefore tests
 
@@ -402,9 +485,9 @@ sub create_standard_stock {
   $assembly1  =  new_assembly(number_of_parts => 2)->save;
   ($part1, $part2) = map { $_->part } $assembly1->assemblies;
 
-  my $service1 = new_service(partnumber  => "service number 1",
-                             description => "We really need this service",
-                            )->save;
+  $service1 = new_service(partnumber  => "service number 1",
+                          description => "We really need this service",
+                         )->save;
   my $assembly_items;
   push( @{$assembly_items}, SL::DB::Assembly->new(parts_id => $part1->id,
                                                   qty      => 12,
