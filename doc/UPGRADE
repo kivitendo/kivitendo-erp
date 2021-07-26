@@ -14,6 +14,10 @@ benötigt wird.
 Alternativ kann 'Erzeugnis fertigen' ab dieser Version auch Erzeugnisbestandteile aus
 fremden Lagern (nicht das Ziellager) nehmen. Dies sollte i.d.R. den Prozeß abbilden können.
 
+Die Mandantenkonfiguration 'Standard-Auslagern ohne Prüfung auf Bestand' wird bei diesem
+Versionsupgrade hart auf 'Nein' gesetzt und kann vom kivitendo Administrator selbständig
+wieder auf 'Ja' gesetzt werden. Das Verfahren wird aber prinzipiell in einer zukünftigen
+Version von kivitendo nicht mehr unterstützt werden.
 
 
 Upgrade auf v3.5.7
