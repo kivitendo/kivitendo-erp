@@ -5,7 +5,7 @@ use Test::Exception;
 
 use lib 't';
 
-use SL::Dev::Part qw(new_part new_assembly);
+use SL::Dev::Part qw(new_part new_assembly new_service);
 use SL::Dev::Inventory qw(create_warehouse_and_bins set_stock);
 use SL::Dev::Record qw(create_sales_order);
 
@@ -19,7 +19,8 @@ use_ok 'SL::Helper::Inventory';
 
 Support::TestSetup::login();
 
-my ($wh, $bin1, $bin2, $assembly1, $part1, $part2, $wh_moon, $bin_moon);
+my ($wh, $bin1, $bin2, $assembly1, $assembly_service, $part1, $part2, $wh_moon, $bin_moon, $service1);
+my @contents;
 
 reset_db();
 create_standard_stock();
@@ -185,7 +186,7 @@ $::form->{l_warehouse_from} = 'Y';
 $::form->{l_warehouse_to}   = 'Y';
 local $::instance_conf->data->{produce_assembly_same_warehouse} = 1;
 
-my @contents = WH->get_warehouse_journal(sort => 'date');
+@contents = WH->get_warehouse_journal(sort => 'date');
 
 cmp_deeply(\@contents,
            [ ignore(), ignore(),
@@ -204,11 +205,6 @@ cmp_deeply(\@contents,
            ],
           "Comments for assembly productions are ok"
 );
-
-
-
-
-
 
 # try to produce something for our lunar warehouse, but parts are only available on earth
 dies_ok(sub {
@@ -276,6 +272,63 @@ SL::Helper::Inventory::produce_assembly(
 );
 }, "producing with insufficient allocations dies");
 
+
+# assembly with service default tests (services won't be consumed)
+
+local $::locale = Locale->new('en');
+reset_db();
+create_standard_stock();
+
+set_stock(
+  part => $part1,
+  qty => 12,
+  bin => $bin2,
+);
+set_stock(
+  part => $part2,
+  qty => 6.34,
+  bin => $bin2,
+);
+
+SL::Helper::Inventory::produce_assembly(
+  part          => $assembly_service,
+  qty           => 1,
+  auto_allocate => 1,
+  # where to put it
+  bin          => $bin1,
+);
+
+is(SL::Helper::Inventory::get_stock(part => $assembly_service), "1.00000", 'produce with auto allocation works');
+is(SL::Helper::Inventory::get_stock(part => $part1), "0.00000", 'and consumes...');
+is(SL::Helper::Inventory::get_stock(part => $part2), "0.00000", '..the materials');
+
+# check comments and warehouses
+$::form->{l_comment}        = 'Y';
+$::form->{l_warehouse_from} = 'Y';
+$::form->{l_warehouse_to}   = 'Y';
+local $::instance_conf->data->{produce_assembly_same_warehouse} = 1;
+
+@contents = WH->get_warehouse_journal(sort => 'date');
+
+cmp_deeply(\@contents,
+           [ ignore(), ignore(),
+              superhashof({
+                'comment'        => 'Used for assembly '. $assembly_service->partnumber .' Ein Erzeugnis mit Dienstleistungen',
+                'warehouse_from' => 'Warehouse'
+              }),
+              superhashof({
+                'comment'        => 'Used for assembly '. $assembly_service->partnumber .' Ein Erzeugnis mit Dienstleistungen',
+                'warehouse_from' => 'Warehouse'
+              }),
+              superhashof({
+                'part_type'    => 'assembly',
+                'warehouse_to' => 'Warehouse'
+              }),
+           ],
+          "Comments for assembly with service productions are ok"
+);
+
+# assembly with service non default tests (services will be consumed)
 
 
 # bestbefore tests
@@ -348,6 +401,26 @@ sub create_standard_stock {
 
   $assembly1  =  new_assembly(number_of_parts => 2)->save;
   ($part1, $part2) = map { $_->part } $assembly1->assemblies;
+
+  my $service1 = new_service(partnumber  => "service number 1",
+                             description => "We really need this service",
+                            )->save;
+  my $assembly_items;
+  push( @{$assembly_items}, SL::DB::Assembly->new(parts_id => $part1->id,
+                                                  qty      => 12,
+                                                  position => 1,
+                                                  ));
+  push( @{$assembly_items}, SL::DB::Assembly->new(parts_id => $part2->id,
+                                                  qty      => 6.34,
+                                                  position => 2,
+                                                  ));
+  push( @{$assembly_items}, SL::DB::Assembly->new(parts_id => $service1->id,
+                                                  qty      => 1.2,
+                                                  position => 3,
+                                                  ));
+  $assembly_service  =  new_assembly(description    => 'Ein Erzeugnis mit Dienstleistungen',
+                                     assembly_items => $assembly_items
+                                    )->save;
 }
 
 
