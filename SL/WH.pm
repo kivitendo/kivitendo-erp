@@ -1185,26 +1185,6 @@ as the specific reason.
 The method is transaction safe, in case of errors not a single entry will be made
 in inventory.
 
-Two prerequisites can be changed with these global parameters
-
-=over 2
-
-=item  $::instance_conf->get_transfer_default_warehouse_for_assembly
-
-  If trueish we try to get all the items form the default bins defined in parts
-  and do not try to find them in the destination warehouse. Returns an
-  error if not all items have set a default bin in parts.
-
-=item  $::instance_conf->get_bin_id_ignore_onhand
-
-  If trueish we can create assemblies even if we do not have enough items in stock.
-  The needed qty will be booked in a special bin, which has to be configured in
-  the client config.
-
-=back
-
-
-
 
 =head1 BUGS
 

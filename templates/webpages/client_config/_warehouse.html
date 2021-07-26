@@ -130,16 +130,6 @@
     [% LxERP.t8('Produce assembly consumes services if assigned as a assembly item') %]
    </td>
   </tr>
-  <tr>
-   <td align="right">[% LxERP.t8('Use default warehouse for assembly transfer') %]</td>
-   <td>
-    [% L.yes_no_tag('defaults.transfer_default_warehouse_for_assembly', SELF.defaults.transfer_default_warehouse_for_assembly) %]
-   </td>
-   <td>
-    [% LxERP.t8('Transfer of assemblies uses the assembly\'s default warehouse instead of the destination warehouse.') %]<br>
-   </td>
-  </tr>
-
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Services in Delivery Orders") %]</td></tr>
   <tr>
    <td align="right">[% LxERP.t8('Sales Orders Services are deliverable') %]</td>

@@ -3,6 +3,18 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v3.5.8
+
+Die API für 'Erzeugnis fertigen' wurde geändert:
+Die Einstellung der Mandantenkonfiguration für 'Zum Fertigen wird das Standardlager
+des Bestandteils verwendet, nicht das Ziellager' hat keine Auswirkung mehr.
+Falls dieser Wert auf 'Nein' steht funktioniert das Verfahren wie vorher auch.
+Falls dieser Wert auf 'Ja' steht, muss geprüft werden, ob das Verfahren noch so
+benötigt wird.
+Alternativ kann 'Erzeugnis fertigen' ab dieser Version auch Erzeugnisbestandteile aus
+fremden Lagern (nicht das Ziellager) nehmen. Dies sollte i.d.R. den Prozeß abbilden können.
+
+
 
 Upgrade auf v3.5.7
   * Neue Perl Abhängigkeiten:
