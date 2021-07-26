@@ -130,6 +130,7 @@ __PACKAGE__->meta->columns(
   ponumber                                  => { type => 'text' },
   precision                                 => { type => 'numeric', default => '0.01', not_null => 1, precision => 15, scale => 5 },
   produce_assembly_same_warehouse           => { type => 'boolean', default => 'true' },
+  produce_assembly_transfer_service         => { type => 'boolean', default => 'false' },
   profit_carried_forward_chart_id           => { type => 'integer' },
   profit_determination                      => { type => 'text' },
   project_status_id                         => { type => 'integer' },
