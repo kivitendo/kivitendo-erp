@@ -463,7 +463,14 @@ sub ap_transactions {
            WHERE ch.link ~ 'AP[[:>:]]'
             AND at.trans_id = a.id
             LIMIT 1
-          ) AS charts } .
+          ) AS charts, } .
+    qq{  ( SELECT ch.accno || ' -- ' || ch.description
+           FROM acc_trans at
+           LEFT JOIN chart ch ON ch.id = at.chart_id
+           WHERE ch.link ~ 'AP_amount'
+            AND at.trans_id = a.id
+            LIMIT 1
+          ) AS debit_chart } .
     qq|FROM ap a | .
     qq|JOIN vendor v ON (a.vendor_id = v.id) | .
     qq|LEFT JOIN contacts cp ON (a.cp_id = cp.cp_id) | .

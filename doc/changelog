@@ -28,6 +28,7 @@ Kleinere neue Features und Detailverbesserungen:
   in den Dokumenten-Tab gesprungen werden kann.
 - Seriennummer ist jetzt ein Pflichtfeld für Lieferscheine (Einkauf und Verkauf),
   falls die Ware im Beleg in den Stammdaten mit "Hat eine Serienummer" markiert ist.
+- Einkaufsbericht um Anzeige erstes Sollkonto erweitert
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
