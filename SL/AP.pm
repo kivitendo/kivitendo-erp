@@ -450,7 +450,7 @@ sub ap_transactions {
     qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .
     qq|  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes, | .
     qq|  a.globalproject_id, a.storno, a.storno_id, a.direct_debit, | .
-    qq|  a.transaction_description, | .
+    qq|  a.transaction_description, a.itime::DATE AS insertdate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, | .
     qq|  v.vendornumber, v.country, v.ustid, | .
