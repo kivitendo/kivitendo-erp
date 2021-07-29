@@ -31,11 +31,11 @@
 \begin{document}
 
 \begin{letter}{
-		<%name%>\ifhmode\\\fi
-		<%street%>\ifhmode\\\fi
-		<%zipcode%> <%city%>\ifhmode\\\fi
-		<%country%>%
-	}
+<%name%>\ifhmode\\\fi
+<%street%>\ifhmode\\\fi
+<%zipcode%> <%city%>\ifhmode\\\fi
+<%country%>%
+}
 
 \opening{<%company%>}
 \pagestyle{empty}
@@ -43,9 +43,9 @@
 <%name%> \hfill <%datepaid%> \hfill <%source%>%
 
 \begin{SimpleTabular}[colspec=lXrr,headline={\bfseries\rechnung&\bfseries\ausgestellt&\bfseries\faellig&\bfseries\verrechnet}]
-<%foreach invnumber%>%
-<%invnumber%> & <%invdate%> & <%due%> & <%paid%> \\
-<%end invnumber%>%
+  <%foreach invnumber%>%
+  <%invnumber%> & <%invdate%> & <%due%> & <%paid%> \\
+  <%end invnumber%>%
 \end{SimpleTabular}
 
 \end{letter}

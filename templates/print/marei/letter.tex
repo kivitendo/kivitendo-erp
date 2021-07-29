@@ -34,12 +34,12 @@ $( IF letter.subject )$
 $( END )$
 
 \begin{letter}{
-		$( KiviLatex.filter(customer.name) )$\strut\\
-		$( KiviLatex.filter(letter.contact.formal_greeting) )$\strut\\
-		$( KiviLatex.filter(customer.street) )$\strut\\
-		$( KiviLatex.filter(customer.zipcode) )$ $( KiviLatex.filter(customer.city) )$\strut\\
-		$( KiviLatex.filter(customer.country) )$%
-	}
+$( KiviLatex.filter(customer.name) )$\strut\\
+$( KiviLatex.filter(letter.contact.formal_greeting) )$\strut\\
+$( KiviLatex.filter(customer.street) )$\strut\\
+$( KiviLatex.filter(customer.zipcode) )$ $( KiviLatex.filter(customer.city) )$\strut\\
+$( KiviLatex.filter(customer.country) )$%
+}
 
 \opening{$( KiviLatex.filter(letter.greeting) )$}
 

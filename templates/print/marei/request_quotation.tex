@@ -35,48 +35,48 @@
 \begin{document}
 
 \begin{letter}{
-		<%name%>\strut\\
-		<%if department_1%><%department_1%>\\<%end if%>%
-		<%if department_2%><%department_2%>\\<%end if%>%
-		<%cp_givenname%> <%cp_name%>\strut\\
-		<%street%>\strut\\
-		<%zipcode%> <%city%>\strut\\
-		<%country%> \strut
-	}
+<%name%>\strut\\
+<%if department_1%><%department_1%>\\<%end if%>%
+<%if department_2%><%department_2%>\\<%end if%>%
+<%cp_givenname%> <%cp_name%>\strut\\
+<%street%>\strut\\
+<%zipcode%> <%city%>\strut\\
+<%country%> \strut
+}
 
 % Bei Kontaktperson Anrede nach Geschlecht unterscheiden.
 % Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
 \opening{
-	\Ifstr{<%cp_name%>}{}
-		{<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede<%end if%>}
-		{
-			\Ifstr{<%cp_gender%>}{f}
-				{\anredefrau}
-				{\anredeherr}
-				<%cp_title%> <%cp_name%>,
-		}
-}
+\Ifstr{<%cp_name%>}{}
+{<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede<%end if%>}
+  {
+    \Ifstr{<%cp_gender%>}{f}
+        {\anredefrau}
+        {\anredeherr}
+      <%cp_title%> <%cp_name%>,
+    }
+  }
 \thispagestyle{kivitendo.letter.first}
 
 \anfrageformel
 
 \begin{PricingTabular*}[columns={pos,amount,desc}]
-% eigentliche Tabelle
-\FakeTable{
-<%foreach number%>%
-	<%runningnumber%> &
-	<%qty%> <%unit%> &
-	\textbf{<%description%>}
-	<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
-	<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
-	<%if make%>%
-		<%foreach make%>%
-			\Ifstr{<%make%>}{<%name%>}{\ExtraDescription{\artikelnummer: <%model%>}}{}
-		<%end foreach%>%
-	<%end if%>%
-	\tabularnewline
-<%end number%>%
-}%
+  % eigentliche Tabelle
+  \FakeTable{
+  <%foreach number%>%
+  <%runningnumber%> &
+  <%qty%> <%unit%> &
+  \textbf{<%description%>}
+  <%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
+  <%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
+  <%if make%>%
+  <%foreach make%>%
+  \Ifstr{<%make%>}{<%name%>}{\ExtraDescription{\artikelnummer: <%model%>}}{}
+    <%end foreach%>%
+    <%end if%>%
+    \tabularnewline
+    <%end number%>%
+  }%
 \end{PricingTabular*}
 
 
@@ -87,7 +87,7 @@
 
 
 <%if delivery_term%>%
-  \lieferung ~<%delivery_term.description_long%>\\
+\lieferung ~<%delivery_term.description_long%>\\
 <%end delivery_term%>%
 
 <%if reqdate%>%

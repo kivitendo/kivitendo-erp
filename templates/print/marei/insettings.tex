@@ -6,11 +6,11 @@
 
 \makeatletter
 \Ifstr{\lxlangcode}{EN}{
-	\main@language{english}
-	\input{english.tex}}{
-	\Ifstr{\lxlangcode}{DE}{
-		\main@language{ngerman}
-		\input{deutsch.tex}}{\input{deutsch.tex}}
+  \main@language{english}
+  \input{english.tex}}{
+  \Ifstr{\lxlangcode}{DE}{
+    \main@language{ngerman}
+    \input{deutsch.tex}}{\input{deutsch.tex}}
 } % Ende EN
 
 % Mandanten-/Firmenabhängigkeiten
@@ -37,15 +37,15 @@
 % \identpath/<euro/chf/usd/default>_account.tex
 
 \@ifundefined{lxcurrency}{}{
-	\setupCurrencyConfig{\identpath}{\lxcurrency}
+  \setupCurrencyConfig{\identpath}{\lxcurrency}
 }
 
 
 % Befehl f. normale Schriftart und -größe
 
 \KOMAoptions{
-	fontsize=10pt,
-	parskip=half-,% Absatzkennzeichnung durch Abstand statt Einzug
+  fontsize=10pt,
+  parskip=half-,% Absatzkennzeichnung durch Abstand statt Einzug
 }
 % Hier ist es auch möglich zusätzliche Schriftarten zu laden.
 % 
@@ -76,15 +76,15 @@
 % % \ifoot{<inhalt innen/links>}\cfoot{<inhalt zentriert>}\ofoot{<inhalt außen/rechts>}
 % dann sollte jedoch darauf geachtet werden, dass das Makro in den einzelnen Vorlagen aufgerufen wird und daher definiert sein sollte. 
 \newcommand{\ourhead}[5] {
-	\chead{
-	  \makebox[\textwidth]{
-	  \Ifstr{#1}{}{}{#1: #2 \hspace{0.7cm}}
-	  #3
-	  \Ifstr{#4}{}{}{~\nr: #4}
-	  \Ifstr{#5}{}{}{\vom ~ #5}
-	  \hspace{0.7cm} - \seite ~ \thepage/\letterlastpage  ~-%
-	  }
-	}
+  \chead{
+    \makebox[\textwidth]{
+      \Ifstr{#1}{}{}{#1: #2 \hspace{0.7cm}}
+      #3
+      \Ifstr{#4}{}{}{~\nr: #4}
+      \Ifstr{#5}{}{}{\vom ~ #5}
+      \hspace{0.7cm} - \seite ~ \thepage/\letterlastpage  ~-%
+    }
+  }
 }
 
 %Ende Anpassungen der Kopfzeile
@@ -100,32 +100,32 @@
 %Box generieren, um die Höhe des Fußes zu kennen, damit ist eine automatische Anpassung des unteren Randes möglich
 \if@kivi@footer
 
-\newsavebox\footerbox
-\begin{lrbox}\footerbox
-	\usekomafont{pagefoot}%
-	% Anfang des eigentlichen Inhaltes der Fußzeile
-     \begin{tabular*}{\textwidth}[t]{@{\extracolsep{\fill}}p{.25\linewidth}p{.25\linewidth}r@{\extracolsep{0pt}\hspace{2\tabcolsep}}l@{}}%
-	\firma                 & \email              & \textKontonummer			 & \kontonummer \\
-	\strasse               & \homepage           & \textBank        		 & \bank \\
-	\ort                   & \textUstid\ \ustid  & \textIban        		 & \iban \\
-	\textTelefon~\telefon  & \finanzamt          & \textBic         		 & \bic \\
-	\Ifstr{\fax}{}{}{\textFax~\fax} & 			 &\textBankleitzahl			 & \bankleitzahl
-	\end{tabular*}
-	% Ende des Fußzeileninhaltes.
-\end{lrbox}
+  \newsavebox\footerbox
+  \begin{lrbox}\footerbox
+    \usekomafont{pagefoot}%
+    % Anfang des eigentlichen Inhaltes der Fußzeile
+    \begin{tabular*}{\textwidth}[t]{@{\extracolsep{\fill}}p{.25\linewidth}p{.25\linewidth}r@{\extracolsep{0pt}\hspace{2\tabcolsep}}l@{}}%
+      \firma                 & \email              & \textKontonummer			 & \kontonummer \\
+      \strasse               & \homepage           & \textBank        		 & \bank \\
+      \ort                   & \textUstid\ \ustid  & \textIban        		 & \iban \\
+      \textTelefon~\telefon  & \finanzamt          & \textBic         		 & \bic \\
+      \Ifstr{\fax}{}{}{\textFax~\fax} & 			 &\textBankleitzahl			 & \bankleitzahl
+    \end{tabular*}
+    % Ende des Fußzeileninhaltes.
+  \end{lrbox}
 
-%Box in den Fuß eintragen, durch die zusätzliche Angabe in der eckigen Klammer, wird die Fußzeile auch auf der ersten Seite verwendet, falls für die erste Seite eine unterschiedliche Fußzeile verwendet werden soll, ist es möglich den obigen Mechanismus mit einem anderen Makronamen als footerbox zu kopieren
-\cfoot[\usebox\footerbox]{\usebox\footerbox}
+  %Box in den Fuß eintragen, durch die zusätzliche Angabe in der eckigen Klammer, wird die Fußzeile auch auf der ersten Seite verwendet, falls für die erste Seite eine unterschiedliche Fußzeile verwendet werden soll, ist es möglich den obigen Mechanismus mit einem anderen Makronamen als footerbox zu kopieren
+  \cfoot[\usebox\footerbox]{\usebox\footerbox}
 
-%Fußhöhe auf Höhe der Box
-%Automatische Anpassung des unteren Randes
-\setlength{\footheight}{\dimexpr\ht\footerbox+\dp\footerbox}
-\setlength{\footskip}{\dimexpr\footheight+\baselineskip}
-\geometry{
-	includefoot,
-%	bottom=1cm,% Falls der untere Rand kleiner sein soll, als die Seitenränder.
-% 	Weitere Anpassungen der Ränder sind hier ebenfalls möglich
-}
+  %Fußhöhe auf Höhe der Box
+  %Automatische Anpassung des unteren Randes
+  \setlength{\footheight}{\dimexpr\ht\footerbox+\dp\footerbox}
+  \setlength{\footskip}{\dimexpr\footheight+\baselineskip}
+  \geometry{
+    includefoot,
+    %	bottom=1cm,% Falls der untere Rand kleiner sein soll, als die Seitenränder.
+    % 	Weitere Anpassungen der Ränder sind hier ebenfalls möglich
+  }
 
 \fi
 % Ende Anpassungen der Fußzeile

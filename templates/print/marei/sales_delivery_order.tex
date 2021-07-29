@@ -43,47 +43,47 @@
 \begin{document}
 
 \begin{letter}{
-  \Ifstr{<%shiptoname%>}{}{ % KEINE ABWEICHENDE LIEFERADRESSE
-	<%name%>\strut\\
-	<%if department_1%><%department_1%>\\<%end if%>%
-	<%if department_2%><%department_2%>\\<%end if%>%
-	<%cp_givenname%> <%cp_name%>\strut\\
-	<%street%>\strut\\
-	<%zipcode%> <%city%>\strut\\
-	<%country%> \strut
-  }{ % ABWEICHENDE LIEFERADRESSE (Aus Stammdaten oder Beleg)
-	<%shiptoname%>\strut\\
-	<%if shiptocontact%> <%shiptocontact%><%end if%>\strut\\
-	<%shiptodepartment_1%>\strut\\
-	<%shiptodepartment_2%>\strut\\
-	<%shiptostreet%>\strut\\
-	<%shiptozipcode%> <%shiptocity%>\strut
-	} % ende ifthenelse LIEFERADRESSE
+\Ifstr{<%shiptoname%>}{}{ % KEINE ABWEICHENDE LIEFERADRESSE
+  <%name%>\strut\\
+  <%if department_1%><%department_1%>\\<%end if%>%
+  <%if department_2%><%department_2%>\\<%end if%>%
+  <%cp_givenname%> <%cp_name%>\strut\\
+  <%street%>\strut\\
+  <%zipcode%> <%city%>\strut\\
+  <%country%> \strut
+}{ % ABWEICHENDE LIEFERADRESSE (Aus Stammdaten oder Beleg)
+  <%shiptoname%>\strut\\
+  <%if shiptocontact%> <%shiptocontact%><%end if%>\strut\\
+  <%shiptodepartment_1%>\strut\\
+  <%shiptodepartment_2%>\strut\\
+  <%shiptostreet%>\strut\\
+  <%shiptozipcode%> <%shiptocity%>\strut
+} % ende ifthenelse LIEFERADRESSE
 }
 
 \opening{}
 \thispagestyle{kivitendo.letter.first}
 
 \begin{PricingTabular*}[columns={pos, id, desc, amount}]
-% eigentliche Tabelle
-\FakeTable{
-<%foreach number%>%
-	<%runningnumber%> &
-	<%number%> &
-	\textbf{<%description%>}
-		<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
-		<%if reqdate%>\ExtraDescription{\lieferdatum: <%reqdate%>}<%end reqdate%>%
-		<%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
-		<%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
-		<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
-		<%foreach si_number%>%
-			<%if si_chargenumber%>\ExtraDescription{\charge: <%si_chargenumber%> <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end if%><%si_qty%>~<%si_unit%><%end si_chargenumber%>}%
-		<%end si_number%>%
-	&
-		<%qty%> <%unit%>%
-	\tabularnewline
-<%end number%>%
-}
+  % eigentliche Tabelle
+  \FakeTable{
+  <%foreach number%>%
+  <%runningnumber%> &
+  <%number%> &
+  \textbf{<%description%>}
+    <%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
+    <%if reqdate%>\ExtraDescription{\lieferdatum: <%reqdate%>}<%end reqdate%>%
+    <%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
+    <%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
+    <%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
+    <%foreach si_number%>%
+    <%if si_chargenumber%>\ExtraDescription{\charge: <%si_chargenumber%> <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end if%><%si_qty%>~<%si_unit%><%end si_chargenumber%>}%
+    <%end si_number%>%
+    &
+    <%qty%> <%unit%>%
+    \tabularnewline
+    <%end number%>%
+  }
 \end{PricingTabular*}
 
 \medskip
@@ -94,7 +94,7 @@
 <%end if%>%
 
 <%if delivery_term%>%
-  \lieferung ~<%delivery_term.description_long%>\\
+\lieferung ~<%delivery_term.description_long%>\\
 <%end delivery_term%>%
 
 \end{letter}

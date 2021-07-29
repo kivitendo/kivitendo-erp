@@ -67,13 +67,13 @@
 
 
 \begin{letter}{
-	<%name%>\strut\\
-	<%if department_1%><%department_1%>\\<%end if%>%
-	<%if department_2%><%department_2%>\\<%end if%>%
-	<%cp_givenname%> <%cp_name%>\strut\\
-	<%street%>\strut\\
-	<%zipcode%> <%city%>\strut\\
-	<%country%> \strut
+<%name%>\strut\\
+<%if department_1%><%department_1%>\\<%end if%>%
+<%if department_2%><%department_2%>\\<%end if%>%
+<%cp_givenname%> <%cp_name%>\strut\\
+<%street%>\strut\\
+<%zipcode%> <%city%>\strut\\
+<%country%> \strut
 }
 
 
@@ -81,23 +81,23 @@
 \thispagestyle{kivitendo.letter.first}
 
 \begin{PricingTabular*}[columns={pos,amount,desc}]
-% eigentliche Tabelle
-\FakeTable{
-<%foreach number%>%
-	<%runningnumber%> &
-	<%qty%> <%unit%> &
-	\textbf{<%description%>}
-		<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
-		<%if reqdate%>\ExtraDescription{\lieferdatum: <%reqdate%>}<%end reqdate%>%
-		<%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
-		<%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
-		<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
-		<%foreach si_number%>%
-			<%if si_chargenumber%>\ExtraDescription{\charge: <%si_chargenumber%> <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end if%><%si_qty%>~<%si_unit%><%end si_chargenumber%>}%
-		<%end si_number%>%
-	\tabularnewline
-<%end number%>%
-}
+  % eigentliche Tabelle
+  \FakeTable{
+  <%foreach number%>%
+  <%runningnumber%> &
+  <%qty%> <%unit%> &
+  \textbf{<%description%>}
+    <%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
+    <%if reqdate%>\ExtraDescription{\lieferdatum: <%reqdate%>}<%end reqdate%>%
+    <%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
+    <%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
+    <%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
+    <%foreach si_number%>%
+    <%if si_chargenumber%>\ExtraDescription{\charge: <%si_chargenumber%> <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end if%><%si_qty%>~<%si_unit%><%end si_chargenumber%>}%
+    <%end si_number%>%
+    \tabularnewline
+    <%end number%>%
+  }
 \end{PricingTabular*}
 
 \medskip
@@ -108,7 +108,7 @@
 <%end if%>%
 
 <%if delivery_term%>%
-  \lieferung ~<%delivery_term.description_long%>\\
+\lieferung ~<%delivery_term.description_long%>\\
 <%end delivery_term%>%
 
 \end{letter}
