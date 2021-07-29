@@ -1,24 +1,31 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{kiviletter}[2020/04/24 Letter Layouts for Kivitendo]
 
+\RequirePackage{l3keys2e}
+
+\ExplSyntaxOn
 \newif\if@kivi@infobox
 \newif\if@kivi@footer
-\DeclareOption{reffields}{\@kivi@infoboxfalse}
-\DeclareOption{infobox}{\@kivi@infoboxtrue}
-\DeclareOption{nofooter}{\@kivi@footerfalse}
-\DeclareOption{footer}{\@kivi@footertrue}
-\@kivi@infoboxtrue
-\@kivi@footertrue
+\keys_define:nn {kiviletter} {
+	infobox .choices:nn = {true,false} {\use:c {@kivi@infobox\l_keys_choice_tl}},
+	infobox .default:n = true,
+	infobox .initial:n = true,
+	reffields .meta:n = {infobox=false},
+	footer .choices:nn = {true,false} {\use:c {@kivi@footer\l_keys_choice_tl}},
+	footer .default:n = true,
+	footer .initial:n = true,
+	nofooter .meta:n = {footer=false}
+}
+\ExplSyntaxOff
 
 \DeclareOption*{\PassOptionsToPackage{\CurrentOption}{scrletter}}
 
+\ProcessKeysOptions{kiviletter}
 \ProcessOptions\relax
 
-
-\RequirePackage{expl3}
 \RequirePackage{xparse}
 \RequirePackage{iftex}
-\KOMAoptions{fontsize=12pt}
+
 % Schriftart, Eingabelayout der Tastatur
 \ifPDFTeX
   \RequirePackage[utf8]{inputenc}% Nur notwendig, wenn Basis älter als TL2018
