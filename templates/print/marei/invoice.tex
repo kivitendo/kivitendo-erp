@@ -22,18 +22,18 @@
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{
-	\rechnung~ \nr ~<%invnumber%>%
+  \rechnung~ \nr ~<%invnumber%>%
 }
 <%if ordnumber%>%
-	\setkomavar*{myref}{\auftragsnummer}
-	\setkomavar{myref}{<%ordnumber%>}
+  \setkomavar*{myref}{\auftragsnummer}
+  \setkomavar{myref}{<%ordnumber%>}
 <%end if%>%
 <%if cusordnumber%>%
-	\setkomavar*{yourref}{\ihreBestellnummer}
-	\setkomavar{yourref}{<%cusordnumber%>}
+  \setkomavar*{yourref}{\ihreBestellnummer}
+  \setkomavar{yourref}{<%cusordnumber%>}
 <%end if%>%
 <%if donumber%>%
-	\setkomavar{delivery}{<%donumber%>}
+  \setkomavar{delivery}{<%donumber%>}
 <%end if%>%
 
 <%if quonumber%>%
@@ -43,21 +43,21 @@
 <%if shiptoname%>%
 \makeatletter
 \begin{lrbox}\shippingAddressBox
-	\parbox{\useplength{toaddrwidth}}{
-		\backaddr@format{\scriptsize\usekomafont{backaddress}%
-			\strut\abweichendeLieferadresse
-		}
-		\par\smallskip
-		\setlength{\parskip}{\z@}
-		\par
-		\normalsize
-		<%shiptoname%>\par
-		<%if shiptocontact%> <%shiptocontact%><%end if%>\par
-		<%shiptodepartment_1%>\par
-		<%shiptodepartment_2%>\par
-		<%shiptostreet%>\par
-		<%shiptozipcode%> <%shiptocity%>%
-	}
+  \parbox{\useplength{toaddrwidth}}{
+    \backaddr@format{\scriptsize\usekomafont{backaddress}%
+      \strut\abweichendeLieferadresse
+    }
+    \par\smallskip
+    \setlength{\parskip}{\z@}
+    \par
+    \normalsize
+    <%shiptoname%>\par
+    <%if shiptocontact%> <%shiptocontact%><%end if%>\par
+    <%shiptodepartment_1%>\par
+    <%shiptodepartment_2%>\par
+    <%shiptostreet%>\par
+    <%shiptozipcode%> <%shiptocity%>%
+  }
 \end{lrbox}
 \makeatother
 <%end if%>%

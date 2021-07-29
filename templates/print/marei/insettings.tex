@@ -23,7 +23,7 @@
 
 %Ganzseitiger Briefbogen als Hintergrund:
 %\DeclareNewLayer[page,background,
-%	contents={\includegraphics{Briefbogen}} %Hier muss der Dateinamen und ggf. die Bildgröße angepasst werden, falls es abweichende Maße vom Papierformat hat.
+%  contents={\includegraphics{Briefbogen}} %Hier muss der Dateinamen und ggf. die Bildgröße angepasst werden, falls es abweichende Maße vom Papierformat hat.
 %]{background}
 %\AddLayersToPageStyle{kivitendo.letter.first}{background}%Hintergrund für die erste Seite aktivieren
 %\AddLayersToPageStyle{kivitendo.letter}{background}% Hintergrund für die übrigen Briefseiten aktivieren.
@@ -105,11 +105,11 @@
     \usekomafont{pagefoot}%
     % Anfang des eigentlichen Inhaltes der Fußzeile
     \begin{tabular*}{\textwidth}[t]{@{\extracolsep{\fill}}p{.25\linewidth}p{.25\linewidth}r@{\extracolsep{0pt}\hspace{2\tabcolsep}}l@{}}%
-      \firma                 & \email              & \textKontonummer			 & \kontonummer \\
-      \strasse               & \homepage           & \textBank        		 & \bank \\
-      \ort                   & \textUstid\ \ustid  & \textIban        		 & \iban \\
-      \textTelefon~\telefon  & \finanzamt          & \textBic         		 & \bic \\
-      \Ifstr{\fax}{}{}{\textFax~\fax} & 			 &\textBankleitzahl			 & \bankleitzahl
+      \firma                 & \email              & \textKontonummer       & \kontonummer \\
+      \strasse               & \homepage           & \textBank             & \bank \\
+      \ort                   & \textUstid\ \ustid  & \textIban             & \iban \\
+      \textTelefon~\telefon  & \finanzamt          & \textBic              & \bic \\
+      \Ifstr{\fax}{}{}{\textFax~\fax} &        &\textBankleitzahl       & \bankleitzahl
     \end{tabular*}
     % Ende des Fußzeileninhaltes.
   \end{lrbox}
@@ -123,8 +123,8 @@
   \setlength{\footskip}{\dimexpr\footheight+\baselineskip}
   \geometry{
     includefoot,
-    %	bottom=1cm,% Falls der untere Rand kleiner sein soll, als die Seitenränder.
-    % 	Weitere Anpassungen der Ränder sind hier ebenfalls möglich
+    %  bottom=1cm,% Falls der untere Rand kleiner sein soll, als die Seitenränder.
+    %   Weitere Anpassungen der Ränder sind hier ebenfalls möglich
   }
 
 \fi

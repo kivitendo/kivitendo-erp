@@ -24,37 +24,37 @@
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{
-	\auftragsbestaetigung~
-	\nr~<%ordnumber%>%
+  \auftragsbestaetigung~
+  \nr~<%ordnumber%>%
 }
 <%if cusordnumber%>%
-	\setkomavar*{yourref}{\ihreBestellnummer}
-	\setkomavar{yourref}{<%cusordnumber%>}
+  \setkomavar*{yourref}{\ihreBestellnummer}
+  \setkomavar{yourref}{<%cusordnumber%>}
 <%end if%>%
 \setkomavar{transaction}{<%transaction_description%>}
 
 <%if quonumber%>
-	\setkomavar{quote}{<%quonumber%>}
+  \setkomavar{quote}{<%quonumber%>}
 <%end if%>%
 
 <%if shiptoname%>%
 \makeatletter
 \begin{lrbox}\shippingAddressBox
-	\parbox{\useplength{toaddrwidth}}{
-		\backaddr@format{\scriptsize\usekomafont{backaddress}%
-			\strut abweichende Lieferadresse
-		}
-		\par\smallskip
-		\setlength{\parskip}{\z@}
-		\par
-		\normalsize
-		<%shiptoname%>\par
-		<%if shiptocontact%> <%shiptocontact%><%end if%>\par
-		<%shiptodepartment_1%>\par
-		<%shiptodepartment_2%>\par
-		<%shiptostreet%>\par
-		<%shiptozipcode%> <%shiptocity%>%
-	}
+  \parbox{\useplength{toaddrwidth}}{
+    \backaddr@format{\scriptsize\usekomafont{backaddress}%
+      \strut abweichende Lieferadresse
+    }
+    \par\smallskip
+    \setlength{\parskip}{\z@}
+    \par
+    \normalsize
+    <%shiptoname%>\par
+    <%if shiptocontact%> <%shiptocontact%><%end if%>\par
+    <%shiptodepartment_1%>\par
+    <%shiptodepartment_2%>\par
+    <%shiptostreet%>\par
+    <%shiptozipcode%> <%shiptocity%>%
+  }
 \end{lrbox}
 \makeatother
 <%end if%>%

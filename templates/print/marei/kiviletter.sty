@@ -212,23 +212,23 @@
 \tcbuselibrary{breakable, skins}
 
 \tcb@new@skin{kivi@LT}{base@unbroken,%
-frame~engine=empty,interior~titled~engine=empty,interior~engine=empty,segmentation~engine=empty,title~engine=empty,%
-skin~first=kivi@LT@first,skin~middle=kivi@LT@middle,skin~last=kivi@LT@last,
-underlay~first~and~middle={
-\node[anchor=north]  at (interior.north)  {\csname box_use:c\endcsname  {g_kivi_LT@head_box}};
-\node[anchor=south]  at (interior.south)  {\csname box_use:c\endcsname  {g_kivi_LT@foot_box}};
+  frame~engine=empty,interior~titled~engine=empty,interior~engine=empty,segmentation~engine=empty,title~engine=empty,%
+  skin~first=kivi@LT@first,skin~middle=kivi@LT@middle,skin~last=kivi@LT@last,
+  underlay~first~and~middle={
+    \node[anchor=north]  at (interior.north)  {\csname box_use:c\endcsname  {g_kivi_LT@head_box}};
+    \node[anchor=south]  at (interior.south)  {\csname box_use:c\endcsname  {g_kivi_LT@foot_box}};
 },
-underlay~unbroken~and~last={
-\node[anchor=north]  at (interior.north)  {\csname box_use:c\endcsname  {g_kivi_LT@head_box}};
-\node[anchor=south]  at (interior.south)  {\csname box_use:c\endcsname  {g_kivi_LT@lastfoot_box}};
-},
-boxsep=0pt,
-boxrule=0pt,
-left=0pt,
-right=0pt,
-bottom=\box_ht:N  \g_kivi_LT@foot_box+\box_dp:N  \g_kivi_LT@foot_box + \aboverulesep,
-top=\box_ht:N  \g_kivi_LT@head_box+\box_dp:N  \g_kivi_LT@head_box +\belowrulesep,
-parbox=false,
+  underlay~unbroken~and~last={
+    \node[anchor=north]  at (interior.north)  {\csname box_use:c\endcsname  {g_kivi_LT@head_box}};
+    \node[anchor=south]  at (interior.south)  {\csname box_use:c\endcsname  {g_kivi_LT@lastfoot_box}};
+  },
+  boxsep=0pt,
+  boxrule=0pt,
+  left=0pt,
+  right=0pt,
+  bottom=\box_ht:N  \g_kivi_LT@foot_box+\box_dp:N  \g_kivi_LT@foot_box + \aboverulesep,
+  top=\box_ht:N  \g_kivi_LT@head_box+\box_dp:N  \g_kivi_LT@head_box +\belowrulesep,
+  parbox=false,
 }
 
 \tcb@new@skin{kivi@LT@first}{base@first,%
@@ -341,14 +341,14 @@ parbox=false,
 
 \tl_new:N \g_kivi_Pricing_colspec_tl
 \tl_gset:Nn \g_kivi_Pricing_colspec_tl {
-\bool_if:NF \g__kivi_Tabular_rowcolor_bool {@{}}
-\bool_if:NT \l_kivi_col_pos_bool {p{\l_kivi_tab_pos_dim}}
-\bool_if:NT \l_kivi_col_id_bool {p{\l_kivi_tab_id_dim}}
-p{\l_kivi_tab_desc_dim}
-\bool_if:NT \l_kivi_col_amount_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_amount_dim}}}
-\bool_if:NT \l_kivi_col_price_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_price_dim}<{\__kivi_tab_column_currency:}}}
-\bool_if:NT \l_kivi_col_pricetotal_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_pricetotal_dim}<{\__kivi_tab_column_currency:}}}
-\bool_if:NF \g__kivi_Tabular_rowcolor_bool {@{}}
+  \bool_if:NF \g__kivi_Tabular_rowcolor_bool {@{}}
+  \bool_if:NT \l_kivi_col_pos_bool {p{\l_kivi_tab_pos_dim}}
+  \bool_if:NT \l_kivi_col_id_bool {p{\l_kivi_tab_id_dim}}
+  p{\l_kivi_tab_desc_dim}
+  \bool_if:NT \l_kivi_col_amount_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_amount_dim}}}
+  \bool_if:NT \l_kivi_col_price_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_price_dim}<{\__kivi_tab_column_currency:}}}
+  \bool_if:NT \l_kivi_col_pricetotal_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_pricetotal_dim}<{\__kivi_tab_column_currency:}}}
+  \bool_if:NF \g__kivi_Tabular_rowcolor_bool {@{}}
 }
 
 \cs_new_protected:Nn \__kivi_tab_column_currency: {\,\currency}
@@ -393,16 +393,18 @@ p{\l_kivi_tab_desc_dim}
 
 %Macht es sinn hier eine Variante zu machen, in der alle Spalten Belegbar sind?
 \NewDocumentEnvironment{PricingTotal}{+b}{
-\par\nointerlineskip
+  \par\nointerlineskip
 }{
-\bool_if:NT \g__kivi_Tabular_rowcolor_bool 	{\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_PricingTotal_tl}}
-{
-\tabular[t]{@{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}
-p{\dim_eval:n {\linewidth-\l_kivi_tab_pricetotal_dim-\bool_if:NTF \g__kivi_Tabular_rowcolor_bool {4}{2}\tabcolsep}}P{\l_kivi_tab_pricetotal_dim}@{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}}
-\l__kivi_Tabular_PricingTotal_topsep_tl
-#1
-\endtabular
-}
+  \bool_if:NT \g__kivi_Tabular_rowcolor_bool 	{\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_PricingTotal_tl}}
+  {
+    \tabular[t]{
+      @{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}
+      p{\dim_eval:n {\linewidth-\l_kivi_tab_pricetotal_dim-\bool_if:NTF \g__kivi_Tabular_rowcolor_bool {4}{2}\tabcolsep}}P{\l_kivi_tab_pricetotal_dim}@{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}
+    }
+    \l__kivi_Tabular_PricingTotal_topsep_tl
+    #1
+    \endtabular
+  }
 }
 
 \tl_new:N \l__kivi_Tabular_PricingTotal_topsep_tl

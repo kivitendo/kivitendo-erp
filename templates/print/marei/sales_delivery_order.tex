@@ -21,20 +21,20 @@
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{
-	\lieferschein~
-	\nr~<%donumber%>%
+  \lieferschein~
+  \nr~<%donumber%>%
 }
 <%if ordnumber%>
-	\setkomavar{orderID}{<%ordnumber%>}
+  \setkomavar{orderID}{<%ordnumber%>}
 <%end if%>%
 <%if cusordnumber%>%
-	\setkomavar*{yourref}{\unsereBestellnummer}
-	\setkomavar{yourref}{<%cusordnumber%>}
+  \setkomavar*{yourref}{\unsereBestellnummer}
+  \setkomavar{yourref}{<%cusordnumber%>}
 <%end if%>%
 \setkomavar{transaction}{<%transaction_description%>}
 
 <%if globalprojectnumber%>%
-	\setkomavar{projectID}{<%globalprojectnumber%>}
+  \setkomavar{projectID}{<%globalprojectnumber%>}
 <%end globalprojectnumber%>%
 
 \setkomavar{transaction}{<%transaction_description%>}
