@@ -35,12 +35,11 @@
 \RequirePackage{booktabs}
 \RequirePackage{graphicx}
 
-
-
-\RequirePackage[fromlogo,fromalign=right,
+\PassOptionsToPackage{fromlogo,fromalign=right,
   firstfoot=false,%Für einheitliche Randeinstellungen
   refline=nodate,
-]{scrletter}
+}{scrletter}
+\RequirePackage{scrletter}
 \LoadLetterOption{DIN}
 
 \newkomavar{transaction}
@@ -249,8 +248,6 @@ parbox=false,
 
 \tcbset{kivi@LT/.style={skin=kivi@LT}}%
 
-
-
 \seq_new:N \l_kivi_PricingTable_seq
 \seq_new:N \l_kivi_columns_seq
 \seq_new:N \g_kivi_extraDescription_seq
@@ -366,7 +363,6 @@ p{\l_kivi_tab_desc_dim}
 \newkomafont{PricingTableHeader}{\bfseries}
 
 \cs_new:Nn \__kivi_setup_LT_boxes: {
-  %	\bool_show:N  \g__kivi_Tabular_rowcolor_bool
   \__kivi_calc_desc_column:
   \hbox_gset:Nn \g_kivi_LT@head_box {
     \setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
@@ -378,18 +374,12 @@ p{\l_kivi_tab_desc_dim}
     }
   }
   \hbox_gset:Nn \g_kivi_LT@foot_box {
-    %		\parbox{\linewidth}{
-    %		\leavevmode\color{red}\rule{\linewidth}{1pt}\par\nointerlineskip
-    %		\leavevmode\color{blue}\rule{\linewidth}{1cm}
-    %		}
-    %		\raisebox{\depth}{
     \begin{tabular*}{\textwidth}[t]{@{\extracolsep{\fill}}r@{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}}
       \bool_if:NTF \g__kivi_Tabular_rowcolor_bool
-      {\hline\noalign{\vskip1pt}}%\noalign{\nointerlineskip\vskip\z@}\noalign{\nointerlineskip\rule{\linewidth}{\arrayrulewidth}}}%\leavevmode\rule{\linewidth}{\arrayrulewidth}}} 
+      {\hline\noalign{\vskip1pt}}
       \midrule
       \strut\weiteraufnaechsterseite
     \end{tabular*}
-    %		}
   }
   \hbox_gset:Nn \g_kivi_LT@lastfoot_box {
     \raisebox{\dimexpr\depth+\baselineskip}[0pt][0pt]{
@@ -404,7 +394,6 @@ p{\l_kivi_tab_desc_dim}
 %Macht es sinn hier eine Variante zu machen, in der alle Spalten Belegbar sind?
 \NewDocumentEnvironment{PricingTotal}{+b}{
 \par\nointerlineskip
-%	\unskip
 }{
 \bool_if:NT \g__kivi_Tabular_rowcolor_bool 	{\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_PricingTotal_tl}}
 {
