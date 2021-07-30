@@ -335,6 +335,7 @@
       }}
   }
   \endgroup\par
+  \l__kivi_Tabular_rowsep_tl
 }
 
 
@@ -485,8 +486,13 @@
   rowcolor-header .initial:n = black!35,
   rowcolor-total .tl_gset:N = \g__kivi_Tabular_rowcolor_PricingTotal_tl,
   rowcolor-total .initial:n = black!35,
-  rowsep .tl_set:N =\g__kivi_Tabular_rowsep_tl,
-  hrule .meta:n = {rowsep=\midrule}
+  rowsep .tl_set:N =\l__kivi_Tabular_rowsep_tl,
+  rowsep .initial:n = ,
+  hrule .meta:n = {
+    rowsep={
+      \vskip\aboverulesep
+      \leavevmode\hrule\@height\lightrulewidth
+      \vskip\belowrulesep}},
 }
 
 \newcommand*{\SetupSimpleTabular}[1]{\keys_set:nn {kivi/SimpleTabular} {#1}}
@@ -651,5 +657,7 @@
 \renewcommand*{\raggedsignature}{\raggedright}
 
 \newkomafont{extraDescription}{}
+\newkomafont{subtotal}{}
+\newkomafont{total}{}
 
 \endinput

@@ -166,6 +166,21 @@ Die Optionen für die `PricingTabular` Umgebung können wie folgt konfiguriert w
 ```
 Die Angabe hinter dem Kommentarzeichen entspricht der Voreinstellung.
 
+#### Trennlinien zwischen den Einträgen
+Die Umgebung `PricingTabular` hat die möglichkeit horizontale Linien zwischen den Einträgen der `\FakeTable` einzuziehen.
+Die einfachste Möglichkeit hierfür ist die Option hrule, sie setzt automatisch eine Linie der Dicke `\lightrulewidth`.
+Da diese Linie formal nicht innerhalb der Tabelle platziert wird, können Linienmakros für Tabellen heir nicht verwendet werden.
+Falls dennoch eine manuelle Anpassung der Maße notwendig ist, kann direkt der Code zur Erzeugung der Linie übergeben werden.
+Die Option `hrule` entspricht der Angabe
+```
+  rowsep={
+    \vskip\aboverulesep
+    \hrule\@height\lightrulewidth
+    \vskip\belowrulesep
+  }
+```
+Es wird somit auch der Abstand davor und danach mit eingefügt. In Kombination mit Farbigen Tabellen ist hier vorsicht geboten, da der Abstand nicht mit zur farbigen Box gerechnet wird.
+
 
 ##### Reihenfolge/Anzahl der Spalten ändern
 
