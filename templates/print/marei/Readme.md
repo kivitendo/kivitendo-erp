@@ -1,21 +1,20 @@
-
 # Bemerkungen zum Vorlagensatz
-### © 2020 by Marei Peischl (peiTeX TeXnical Solutions)
+### © 2020–2021 by Marei Peischl (peiTeX TeXnical Solutions)
 
 ## Quickstart (wo kann was angepasst werden?):
 
   * insettings.tex : Pfad zu Angaben über Mandanten (default: firma)
                      Logo/Briefpapier
                      Layout der Kopf/Fußzeile
-		     innerhalb dieser Datei werden auch die folgenden Dateien geladen:
-		         firma/ident.tex        : Angaben über Mandanten
-			 firma/<währungskürzel>_account.tex
+                     innerhalb dieser Datei werden auch die folgenden Dateien geladen:
+                     firma/ident.tex        : Angaben über Mandanten
+                     firma/<währungskürzel>_account.tex
 
 * Es muß mindestens eine Sprache angelegt werden!
   -  deutsch.tex    : Textschnipsel für Deutsch
-                     Dafür eine Sprache mit Vorlagenkürzel DE anlegen
+                      Dafür eine Sprache mit Vorlagenkürzel DE anlegen
   -  english.tex    : Textschnipsel für Englisch
-                     Dafür eine Sprache mit Vorlagenkürzel EN anlegen
+                      Dafür eine Sprache mit Vorlagenkürzel EN anlegen
 
 
 
@@ -36,7 +35,7 @@ Mandantenspezifische Konfiguration findet sich in der Datei *insettings.tex* und
    - Sprache: lädt die entsprechende Sprachdatei, falls DE -> *deutsch.tex*, falls EN *englisch.tex* und setzt die babel Optionen. Die Datei enthält Übersetzungen von Einzelbegriffen und Textbausteinen.
    - Lädt die Konfigurationsdatei, ohne spezielle Mandanten ist der Suchpfad zur Konfiguration der Unterordner *firma/*
    - Lädt die Datei *ident.tex*, sowie die Abbildung Briefkopf.
-		
+
 #### Mandanten / Firma:
 
 Um gleiche Vorlagen für verschiedene Firmen verwenden zu können, wird je
@@ -71,8 +70,14 @@ werden.
 Desweiteren sind (auskommentierte) Beispiele enthalten für eine
 Grafik als Briefkopf, nur ein Logo, oder ein komplettes DinA4-PDF
 als Briefpapier.
+
+Absolute Positionierung innerhalb des Brief-Layouts ist über die entsprechende Dokumentation des scrlayer-Paketes möglich.
+Da die Voreinstellungen bereits einige Sonderfälle automatisch berücksichtigen ist mit den Anpassungen Vorsicht geboten.
+Sämtliche Einstellungen sollten jedoch außerhalb der *.sty-Dateien vorgenommen werden.
+Anpassungen der insettings.tex betreffen hierbei alle Mandanten. Mandantenspezifische Einstellung sind über die zugehörige Konfigurationsdatei möglich.
+In diesem Fall kann zum Ende der insettings eine weitere Konfigurationsdatei über die Verwendung von \identpath geladen werden. Ein Beispiel ist in der insettings.tex enthalten.
     
-#### Fusszeile:
+#### Fußzeile:
 Die Tabelle im Fuß verwendet die Angaben aus *firma/ident.tex* und
 *firma/*_account.tex*. Ihre Struktur wird in der *insettings.tex* definiert.
 
@@ -140,14 +145,27 @@ Vorbelegt ist die Konfiguration:
 
 ```
 \SetupPricingTabular{
-	pos/header=\position,
-	id/header=\artikelnummer,
-	desc/header=\bezeichnung,
-	amount/header=\menge,
-	price/header=\einzelpreis,
-	pricetotal/header=\gesamtpreis
+  pos/header=\position,
+  id/header=\artikelnummer,
+  desc/header=\bezeichnung,
+  amount/header=\menge,
+  price/header=\einzelpreis,
+  pricetotal/header=\gesamtpreis
 }
 ```
+
+##### Farbige Tabellen
+Versionen ab Juli 2021 enthalten die Möglichkeit farbige Tabellen zu nutzen.
+Die Optionen für die `PricingTabular` Umgebung können wie folgt konfiguriert werden:
+```
+  color-rows=<true/false>,% false
+  rowcolor-odd=<Farbname>,% black!10
+  rowcolor-even=<Farbname>,% leer, also keine Farbbox wird erzeugt
+  rowcolor-header=<Farbname>,% black!35
+  rowcolor-total=<Farbname>,% black!35
+```
+Die Angabe hinter dem Kommentarzeichen entspricht der Voreinstellung.
+
 
 ##### Reihenfolge/Anzahl der Spalten ändern
 
