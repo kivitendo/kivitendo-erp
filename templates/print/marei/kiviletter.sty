@@ -3,25 +3,31 @@
 
 \RequirePackage{l3keys2e}
 
+%Optionen vor den eigenen Paketoptionen hinzufügen, damit spätere diese ggf. überschreiben
+\PassOptionsToPackage{
+  fromlogo,
+  fromalign=right,
+  firstfoot=false,%Für einheitliche Randeinstellungen
+  refline=nodate,
+}{scrletter}
+
 \ExplSyntaxOn
 \newif\if@kivi@infobox
 \newif\if@kivi@footer
 \keys_define:nn {kiviletter} {
-	infobox .choices:nn = {true,false} {\use:c {@kivi@infobox\l_keys_choice_tl}},
-	infobox .default:n = true,
-	infobox .initial:n = true,
-	reffields .meta:n = {infobox=false},
-	footer .choices:nn = {true,false} {\use:c {@kivi@footer\l_keys_choice_tl}},
-	footer .default:n = true,
-	footer .initial:n = true,
-	nofooter .meta:n = {footer=false}
+  infobox .choices:nn = {true,false} {\use:c {@kivi@infobox\l_keys_choice_tl}},
+  infobox .default:n = true,
+  infobox .initial:n = true,
+  reffields .meta:n = {infobox=false},
+  footer .choices:nn = {true,false} {\use:c {@kivi@footer\l_keys_choice_tl}},
+  footer .default:n = true,
+  footer .initial:n = true,
+  nofooter .meta:n = {footer=false},
+  unknown .code:n = \PassOptionsToPackage{\l_keys_key_str=#1}{scrletter},
 }
 \ExplSyntaxOff
 
-\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{scrletter}}
-
 \ProcessKeysOptions{kiviletter}
-\ProcessOptions\relax
 
 \RequirePackage{xparse}
 \RequirePackage{iftex}
@@ -42,10 +48,6 @@
 \RequirePackage{booktabs}
 \RequirePackage{graphicx}
 
-\PassOptionsToPackage{fromlogo,fromalign=right,
-  firstfoot=false,%Für einheitliche Randeinstellungen
-  refline=nodate,
-}{scrletter}
 \RequirePackage{scrletter}
 \LoadLetterOption{DIN}
 
@@ -153,7 +155,7 @@
   amount=5em,
   price=7em,
   pricetotal=7em,
-  %	desc=auto,
+  %  desc=auto,
   pos/header=\position,
   id/header=\artikelnummer,
   desc/header=\bezeichnung,
@@ -402,7 +404,7 @@
 \NewDocumentEnvironment{PricingTotal}{+b}{
   \par\nointerlineskip
 }{
-  \bool_if:NT \g__kivi_Tabular_rowcolor_bool 	{\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_PricingTotal_tl}}
+  \bool_if:NT \g__kivi_Tabular_rowcolor_bool   {\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_PricingTotal_tl}}
   {
     \tabular[t]{
       @{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}
@@ -449,7 +451,7 @@
   \bool_if:NTF \g__kivi_Tabular_rowcolor_bool {\noalign{\skip_vertical:n {\dp\strutbox}}}\toprule
   \cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_header_currency:
   \bool_set_false:N \l_tmpa_bool
-  \clist_map_inline:Nn \g_kivi_pricingtable_col_clist	{
+  \clist_map_inline:Nn \g_kivi_pricingtable_col_clist  {
     \bool_if:cT {l_kivi_col_##1_bool} {
       \bool_if:NT \l_tmpa_bool {&}
       \bool_set_true:N \l_tmpa_bool
@@ -495,7 +497,7 @@
   \tl_if_in:nnTF {#1} {=} {\keys_set:nn {kivi/SimpleTabular} {#1}} {\tl_if_empty:nF {#1} {\tl_set:Nn \l_kivi_SimpleTabular_headline_tl {#1}}}
   \setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
   \dim_set:Nn \parskip {\c_zero_dim}
-  \bool_if:NF	\g__kivi_Tabular_rowcolor_bool {
+  \bool_if:NF \g__kivi_Tabular_rowcolor_bool {
     \tl_put_right:Nn \l_kivi_SimpleTabular_colspec_tl {@{}}
     \tl_put_left:Nn \l_kivi_SimpleTabular_colspec_tl {@{}}
   }
