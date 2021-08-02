@@ -943,7 +943,20 @@ sub save {
   }
 
   $form->{id} = 0 if $form->{saveasnew};
-
+  # we rely on converted_from_orderitems, if the workflow is used
+  # be sure that at least one position is linked to the original orderitem
+  if ($form->{convert_from_oe_ids}) {
+    my $has_linked_pos;
+    for my $i (1 .. $form->{rowcount}) {
+      if ($form->{"converted_from_orderitems_id_$i"}) {
+        $has_linked_pos = 1;
+        last;
+      }
+    }
+    if (!$has_linked_pos) {
+      $form->error($locale->text('Need at least one original position for the workflow Order to Delivery Order!'));
+    }
+  }
   DO->save();
   # saving the history
   if(!exists $form->{addition}) {
