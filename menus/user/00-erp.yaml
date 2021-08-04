@@ -647,6 +647,14 @@
   params:
     action: ZUGFeRD/upload_zugferd
 - parent: general_ledger
+  id: pay_posting_import
+  name: DATEV - Pay Postings Import
+  icon: datev
+  order: 495
+  access: datev_export & client/feature_datev
+  params:
+    action: PayPostingImport/upload_pay_postings
+- parent: general_ledger
   id: general_ledger_reports
   name: Reports
   icon: gl_report
