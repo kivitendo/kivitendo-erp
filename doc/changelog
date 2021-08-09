@@ -30,6 +30,7 @@ Kleinere neue Features und Detailverbesserungen:
   falls die Ware im Beleg in den Stammdaten mit "Hat eine Serienummer" markiert ist.
 - Einkaufsbericht um Anzeige erstes Sollkonto erweitert
 - Einkaufsbericht um Anzeige Erfassungsdatum erweitert
+- Import der Lohnbuchhaltungsdatensätze aus DATEV Lohnbuchhaltung
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
