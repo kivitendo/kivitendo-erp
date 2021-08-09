@@ -26,7 +26,6 @@ sub action_import_datev_pay_postings {
   die t8("missing file for action import") unless ($::form->{file});
 
   my $filename= $::form->{ATTACHMENTS}{file}{filename};
-
   # check name and first fields of CSV data
   die t8("Wrong file name, expects name like: DTVF_*_LOHNBUCHUNG*.csv") unless $filename =~ /^DTVF_.*_LOHNBUCHUNGEN_LUG.*\.csv$/;
   die t8("not a valid DTVF file, expected first field in A1 'DTVF'")   unless ($::form->{file} =~ m/^"DTVF";/);
@@ -34,20 +33,21 @@ sub action_import_datev_pay_postings {
     unless ($::form->{file} =~ m/Umsatz;S\/H;;;;;Konto;Gegenkonto.*;;Belegdatum;Belegfeld 1;Belegfeld 2;;Buchungstext/);
 
   # check if file is already imported
-  my $acc_trans_doc = SL::DB::Manager::AccTransaction->get_first(source => $filename);
-  die t8("Already imported") if ref $acc_trans_doc eq 'SL::DB::AccTransaction';
+  my $acc_trans_doc = SL::DB::Manager::AccTransaction->get_first(query => [ source => $filename ]);
+  die t8("Already imported: ") . $acc_trans_doc->source if ref $acc_trans_doc eq 'SL::DB::AccTransaction';
 
-  if (parse_and_import($::form->{file}, $filename)) {
+  if (parse_and_import($self)) {
     flash_later('info', t8("All pay postings successfully imported."));
   }
-  # $self->redirect_to("gl.pl?action=search", source => $filename);
+  $self->setup_pay_posting_action_bar;
+  $self->render('pay_posting_import/form', title => $::locale->text('Imported Pay Postings'));
 }
 
 sub parse_and_import {
-  my $doc      = shift;
+  my $self     = shift;
 
   my $csv = Text::CSV_XS->new ({ binary => 0, auto_diag => 1, sep_char => ";" });
-  open my $fh, "<:encoding(cp1252)", \$doc;
+  open (my $fh, "<:encoding(cp1252)", \$::form->{file}) or die "cannot open $::form->{file} $!";
   # Read/parse CSV
   # Umsatz S/H Konto Gegenkonto (ohne BU-Schlüssel) Belegdatum Belegfeld 1 Belegfeld 2 Buchungstext
   my $year = substr($csv->getline($fh)->[12], 0, 4);
@@ -103,7 +103,7 @@ sub parse_and_import {
           source => $::form->{ATTACHMENTS}{file}{filename},
       )->post;
 
-      # push @rows, $current_transaction->id;
+      push @{ $self->{gl_trans} }, $current_transaction;
 
       if ($::instance_conf->get_doc_storage) {
         my $file = SL::File->save(object_id   => $current_transaction->id,
@@ -112,7 +112,7 @@ sub parse_and_import {
                        source      => 'uploaded',
                        file_type   => 'attachment',
                        file_name   => $::form->{ATTACHMENTS}{file}{filename},
-                       file_contents   => $doc
+                       file_contents   => $::form->{file},
                       );
       }
     }
