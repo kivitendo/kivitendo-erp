@@ -4,7 +4,7 @@
 
 -- 1.6 Alle benutzerdefinierten Variablen löschen, für die es keine
 -- Einträge in shipto mehr gibt.
-DELETE FROM custom_variables WHERE EXISTS
+DELETE FROM custom_variables WHERE id IN
   (SELECT cv.id FROM custom_variables cv LEFT JOIN custom_variable_configs cvc ON (cv.config_id = cvc.id)
    WHERE module LIKE 'ShipTo'
      AND NOT EXISTS (SELECT shipto_id FROM shipto WHERE shipto_id = cv.trans_id));
