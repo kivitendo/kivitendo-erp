@@ -2,11 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2021-xx-xx - Release x.x.x
-
-Größere neue Features:
-
-Mittelgroße neue Features:
+2021-08-10 - Release 3.5.8
 
 Kleinere neue Features und Detailverbesserungen:
 
@@ -33,6 +29,8 @@ Kleinere neue Features und Detailverbesserungen:
 - Import der Lohnbuchhaltungsdatensätze aus DATEV Lohnbuchhaltung
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+
+483 Upgrade-Skript: delete_cvars_on_trans_deletion_add_shipto löscht alle custom_variables
 
 
 2021-06-25 - Release 3.5.7
