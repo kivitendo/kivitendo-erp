@@ -1,0 +1,3 @@
+-- @tag: release_3_5_8
+-- @description: Abhängigkeitsscript für Release 3.5.8
+-- @depends: release_3_5_7 right_assortment_edit right_develop

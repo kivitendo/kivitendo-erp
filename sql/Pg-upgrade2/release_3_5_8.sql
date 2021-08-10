@@ -1,0 +1,3 @@
+-- @tag: release_3_5_8
+-- @description: Leeres Script, das alle Upgradescripte bis zum Release 3.5.8 voraussetzt, um ein fest definiertes Schema zu definieren.
+-- @depends: release_3_5_7 defaults_produce_assembly_transfer_service change_warehouse_client_config_default drop_shipped_qty_config delete_warehouse_for_assembly delete_cvars_on_trans_deletion_add_shipto
