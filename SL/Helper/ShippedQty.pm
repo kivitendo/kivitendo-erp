@@ -162,9 +162,9 @@ sub init_require_stock_out    { $::instance_conf->get_shipped_qty_require_stock_
 
 sub init_services_deliverable  {
   my ($self) = @_;
-  if ($::form->{type} =~ m/^sales_/) {
+  if ($::form->{type} =~ m/^sales_/ || $self->{objects}->[0]->{customer_id}) {
     $::instance_conf->get_sales_delivery_order_check_service;
-  } elsif ($::form->{type} =~ m/^purchase_/) {
+  } elsif ($::form->{type} =~ m/^purchase_/ || $self->{objects}->[0]->{vendor_id}) {
     $::instance_conf->get_purchase_delivery_order_check_service;
   } else {
     croak "wrong call, no customer or vendor object referenced";
