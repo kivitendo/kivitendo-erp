@@ -6,6 +6,13 @@
 
 Größere neue Features:
 
+Die neue mobile Variante von kivitendo kann Handyfotos an Lieferscheine hinzufügen.
+Das Feature setzt ein mobiles Endgerät voraus, aufgrund dessen wird ein passendes
+CSS-Design im Android-Stil geladen und über die Suche nach einem Lieferschein lassen
+sich aufgenommen Fotos hochladen. Die Funktion benötigt ein aktiviertes DMS innerhalb
+von kivitendo.
+
+
 Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
