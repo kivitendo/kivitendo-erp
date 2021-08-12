@@ -103,7 +103,7 @@
 % Darüber hinaus kann die Reihenfolge verändert werden, die Voreinstellung entspricht:
 % \begin{PricingTabular*[columns={pos, id, desc, amount, price, pricetotal}]
 % Auf diese Art ist auch möglich mehrSpalten anzulegen als definiert sind. Für jede Spalte kann die Breite über weitere Optionen angepasst werden, die Einträge der columns-Liste entspricht den Spaltennamen.
-% 
+%
 % id = false, % deaktiviert die Spalte der Artikelnummer
 % amount = 1cm, % Setzt die Breite der Mengenspalte auf 1cm
 % desc/header = Artikelbeschreibung, %Ändert die Überschrift der Bezeichnunsspalte in „Artikelbeschreibung”
@@ -137,7 +137,7 @@
 
 \vspace{0.2cm}
 
-\Ifstr{<%deliverydate%>}{}{}{%
+\Ifstr{<%deliverydate%>}{}{%
   \leistungsdatumGleichRechnungsdatum%
 }{
   \lieferungErfolgtAm ~<%deliverydate%>.
