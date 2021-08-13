@@ -336,54 +336,6 @@
               </table>
             </td>
 
-            [%- IF (SELF.type == "sales_order" || SELF.type == "sales_quotation") -%]
-            [%- SET marge_class = (SELF.order.marge_total < 0) ? 'plus0' : '' -%]
-            <td>
-              <table>
-                <tr>
-                  <th  align="left">[% 'Ertrag' | $T8 %]</th>
-                  <td align="right">
-                    [%- L.div_tag(SELF.order.marge_total_as_number, id='marge_total_id', class=marge_class) %]
-                  </td>
-                </tr>
-                <tr>
-                  <th  align="left">[% 'Ertrag prozentual' | $T8 %]</th>
-                  <td align="right">
-                    [%- L.div_tag(LxERP.format_amount(SELF.order.marge_percent, 2), id='marge_percent_id', class=marge_class) %]
-                  </td>
-                  <td>[%- L.div_tag('%', id='marge_percent_sign_id', class=marge_class) %]</td>
-                </tr>
-              </table>
-            </td>
-            [%- END %]
-
-            <td align="right">
-              <table>
-                <tr id="taxincluded_row_id" [%- IF !SELF.taxes.size %]style="display:none"[%- END %]>
-                  <td align=right colspan="2">
-                    <label for="order.taxincluded"><b>[% 'Tax Included' | $T8 %]</b></label>
-                    [% L.yes_no_tag('order.taxincluded', SELF.order.taxincluded, class='recalc') %]
-                  </td>
-                </tr>
-
-                <tr id="subtotal_row_id" [%- IF SELF.order.taxincluded %]style="display:none"[%- END %]>
-                  <th align="right">[%- 'Subtotal' | $T8 %]</th>
-                  <td align="right">
-                    [%- L.div_tag(SELF.order.netamount_as_number, id='netamount_id') %]
-                  </td>
-                </tr>
-                [%- FOREACH tax = SELF.taxes %]
-                  [%- PROCESS order/tabs/_tax_row.html TAX=tax TAXINCLUDED=SELF.order.taxincluded %]
-                [%- END %]
-                <tr id="amount_row_id">
-                  <th align="right">[%- 'Total' | $T8 %]</th>
-                  <td align="right">
-                    [%- L.div_tag(SELF.order.amount_as_number, id='amount_id') %]
-                  </td>
-                </tr>
-              </table>
-            </td>
-
           </tr>
         </table>
       </td>

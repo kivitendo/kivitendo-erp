@@ -71,7 +71,7 @@
       [%- L.input_tag("order.orderitems[].qty_as_number",
                       ITEM.qty_as_number,
                       size = 5,
-                      class="recalc reformat_number numeric") %]
+                      class="reformat_number numeric") %]
       [%- IF ITEM.part.formel -%]
         [%- L.button_tag("kivi.Order.show_calculate_qty_dialog(this)", LxERP.t8("*/")) %]
         [%- L.hidden_tag("formula[+]", ITEM.part.formel) -%]
@@ -82,8 +82,7 @@
                        SELF.all_price_factors,
                        default = ITEM.price_factor_id,
                        title_key = 'description',
-                       with_empty = 1,
-                       class="recalc") %]
+                       with_empty = 1) %]
     </td>
     <td nowrap>
       [%- L.select_tag("order.orderitems[].unit",
@@ -113,7 +112,7 @@
                         ITEM.sellprice_as_number,
                         size = 10,
                         disabled=(EDIT_PRICE? '' : 1),
-                        class="recalc reformat_number numeric") %]
+                        class="reformat_number numeric") %]
       </div>
       <div name="not_editable_price" [%- IF EDIT_PRICE %]style="display:none"[%- END %]>
         [%- L.div_tag(ITEM.sellprice_as_number, name="sellprice_text", class="numeric") %]
@@ -130,7 +129,7 @@
                         ITEM.discount_as_percent,
                         size = 5,
                         disabled=(EDIT_DISCOUNT? '' : 1),
-                        class="recalc reformat_number numeric") %]
+                        class="reformat_number numeric") %]
       </div>
       <div name="not_editable_discount" [%- IF EDIT_DISCOUNT %]style="display:none"[%- END %]>
         [%- L.div_tag(ITEM.discount_as_percent, name="discount_text", class="numeric") %]

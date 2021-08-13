@@ -233,13 +233,6 @@ namespace('kivi.Order', function(ns) {
     }
   };
 
-  ns.recalc_amounts_and_taxes = function() {
-    var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/recalc_amounts_and_taxes' });
-
-    $.post("controller.pl", data, kivi.eval_json_result);
-  };
-
   ns.unit_change = function(event) {
     var row           = $(event.target).parents("tbody").first();
     var item_id_dom   = $(row).find('[name="orderitem_ids[+]"]');
@@ -328,10 +321,6 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.init_row_handlers = function() {
-    kivi.run_once_for('.recalc', 'on_change_recalc', function(elt) {
-      $(elt).change(ns.recalc_amounts_and_taxes);
-    });
-
     kivi.run_once_for('.reformat_number', 'on_change_reformat', function(elt) {
       $(elt).change(ns.reformat_number);
     });
@@ -489,7 +478,6 @@ namespace('kivi.Order', function(ns) {
     $(row).remove();
 
     ns.renumber_positions();
-    ns.recalc_amounts_and_taxes();
   };
 
   ns.row_table_scroll_down = function() {
@@ -557,7 +545,6 @@ namespace('kivi.Order', function(ns) {
       var html_elt  = $(row).find('[name="sellprice_text"]');
       price_elt.val(price_str);
       html_elt.html(price_str);
-      ns.recalc_amounts_and_taxes();
     }
 
     kivi.io.close_dialog();
@@ -592,7 +579,6 @@ namespace('kivi.Order', function(ns) {
       var html_elt     = $(row).find('[name="discount_text"]');
       discount_elt.val(discount_str);
       html_elt.html(discount_str);
-      ns.recalc_amounts_and_taxes();
     }
 
     kivi.io.close_dialog();

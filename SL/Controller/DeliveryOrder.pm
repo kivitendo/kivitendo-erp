@@ -52,10 +52,6 @@ use Rose::Object::MakeMethods::Generic
 # safety
 __PACKAGE__->run_before('check_auth');
 
-__PACKAGE__->run_before('recalc',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_ap_transaction
-                                     print send_email) ]);
-
 __PACKAGE__->run_before('get_unalterable_data',
                         only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_ap_transaction
                                      print send_email) ]);
@@ -107,7 +103,6 @@ sub action_edit {
     $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
   }
 
-  $self->recalc();
   $self->pre_render();
   $self->render(
     'order/form',
@@ -579,7 +574,6 @@ sub action_customer_vendor_changed {
   my ($self) = @_;
 
   setup_order_from_cv($self->order);
-  $self->recalc();
 
   my $cv_method = $self->cv;
 
@@ -612,7 +606,6 @@ sub action_customer_vendor_changed {
     ->focus(      '#order_' . $self->cv . '_id')
     ->run('kivi.Order.update_exchangerate');
 
-  $self->js_redisplay_amounts_and_taxes;
   $self->js_redisplay_cvpartnumbers;
   $self->js->render();
 }
@@ -661,12 +654,9 @@ sub action_unit_changed {
   my $old_unit_obj = SL::DB::Unit->new(name => $::form->{old_unit})->load;
   $item->sellprice($item->unit_obj->convert_to($item->sellprice, $old_unit_obj));
 
-  $self->recalc();
-
   $self->js
     ->run('kivi.Order.update_sellprice', $::form->{item_id}, $item->sellprice_as_number);
   $self->js_redisplay_line_values;
-  $self->js_redisplay_amounts_and_taxes;
   $self->js->render();
 }
 
@@ -683,8 +673,6 @@ sub action_add_item {
   my $item = new_item($self->order, $form_attr);
 
   $self->order->add_items($item);
-
-  $self->recalc();
 
   $self->get_item_cvpartnumber($item);
 
@@ -717,7 +705,6 @@ sub action_add_item {
       $item->discount(1) unless $assortment_item->charge;
 
       $self->order->add_items( $item );
-      $self->recalc();
       $self->get_item_cvpartnumber($item);
       my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
       my $row_as_html = $self->p->render('order/tabs/_row',
@@ -743,7 +730,6 @@ sub action_add_item {
 
   $self->js->run('kivi.Order.row_table_scroll_down') if !$::form->{insert_before_item_id};
 
-  $self->js_redisplay_amounts_and_taxes;
   $self->js->render();
 }
 
@@ -775,8 +761,6 @@ sub action_add_multi_items {
   }
   $self->order->add_items(@items);
 
-  $self->recalc();
-
   foreach my $item (@items) {
     $self->get_item_cvpartnumber($item);
     my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
@@ -803,18 +787,6 @@ sub action_add_multi_items {
 
   $self->js->run('kivi.Order.row_table_scroll_down') if !$::form->{insert_before_item_id};
 
-  $self->js_redisplay_amounts_and_taxes;
-  $self->js->render();
-}
-
-# recalculate all linetotals, amounts and taxes and redisplay them
-sub action_recalc_amounts_and_taxes {
-  my ($self) = @_;
-
-  $self->recalc();
-
-  $self->js_redisplay_line_values;
-  $self->js_redisplay_amounts_and_taxes;
   $self->js->render();
 }
 
@@ -912,7 +884,6 @@ sub action_return_from_create_part {
     $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
   }
 
-  $self->recalc();
   $self->get_unalterable_data();
   $self->pre_render();
 
@@ -936,8 +907,6 @@ sub action_return_from_create_part {
 # the second row and sets the html code via client js.
 sub action_load_second_rows {
   my ($self) = @_;
-
-  $self->recalc() if $self->order->is_sales; # for margin calculation
 
   foreach my $item_id (@{ $::form->{item_ids} }) {
     my $idx  = first_index { $_ eq $item_id } @{ $::form->{orderitem_ids} };
@@ -994,9 +963,7 @@ sub action_update_row_from_master_data {
     }
   }
 
-  $self->recalc();
   $self->js_redisplay_line_values;
-  $self->js_redisplay_amounts_and_taxes;
 
   $self->js->render();
 }
@@ -1044,41 +1011,6 @@ sub js_redisplay_line_values {
 
   $self->js
     ->run('kivi.Order.redisplay_line_values', $is_sales, \@data);
-}
-
-sub js_redisplay_amounts_and_taxes {
-  my ($self) = @_;
-
-  if (scalar @{ $self->{taxes} }) {
-    $self->js->show('#taxincluded_row_id');
-  } else {
-    $self->js->hide('#taxincluded_row_id');
-  }
-
-  if ($self->order->taxincluded) {
-    $self->js->hide('#subtotal_row_id');
-  } else {
-    $self->js->show('#subtotal_row_id');
-  }
-
-  if ($self->order->is_sales) {
-    my $is_neg = $self->order->marge_total < 0;
-    $self->js
-      ->html('#marge_total_id',   $::form->format_amount(\%::myconfig, $self->order->marge_total,   2))
-      ->html('#marge_percent_id', $::form->format_amount(\%::myconfig, $self->order->marge_percent, 2))
-      ->action_if( $is_neg, 'addClass',    '#marge_total_id',        'plus0')
-      ->action_if( $is_neg, 'addClass',    '#marge_percent_id',      'plus0')
-      ->action_if( $is_neg, 'addClass',    '#marge_percent_sign_id', 'plus0')
-      ->action_if(!$is_neg, 'removeClass', '#marge_total_id',        'plus0')
-      ->action_if(!$is_neg, 'removeClass', '#marge_percent_id',      'plus0')
-      ->action_if(!$is_neg, 'removeClass', '#marge_percent_sign_id', 'plus0');
-  }
-
-  $self->js
-    ->html('#netamount_id', $::form->format_amount(\%::myconfig, $self->order->netamount, -2))
-    ->html('#amount_id',    $::form->format_amount(\%::myconfig, $self->order->amount,    -2))
-    ->remove('.tax_row')
-    ->insertBefore($self->build_tax_rows, '#amount_row_id');
 }
 
 sub js_redisplay_cvpartnumbers {
@@ -1241,19 +1173,6 @@ sub build_shipto_inputs {
 sub build_business_info_row
 {
   $_[0]->p->render('order/tabs/_business_info_row', SELF => $_[0]);
-}
-
-# build the rows for displaying taxes
-#
-# Called if amounts where recalculated and redisplayed.
-sub build_tax_rows {
-  my ($self) = @_;
-
-  my $rows_as_html;
-  foreach my $tax (sort { $a->{tax}->rate cmp $b->{tax}->rate } @{ $self->{taxes} }) {
-    $rows_as_html .= $self->p->render('order/tabs/_tax_row', TAX => $tax, TAXINCLUDED => $self->order->taxincluded);
-  }
-  return $rows_as_html;
 }
 
 
@@ -1488,25 +1407,6 @@ sub setup_custom_shipto_from_form {
   }
 }
 
-# recalculate prices and taxes
-#
-# Using the PriceTaxCalculator. Store linetotals in the item objects.
-sub recalc {
-  my ($self) = @_;
-
-  my %pat = $self->order->calculate_prices_and_taxes();
-
-  $self->{taxes} = [];
-  foreach my $tax_id (keys %{ $pat{taxes_by_tax_id} }) {
-    my $netamount = sum0 map { $pat{amounts}->{$_}->{amount} } grep { $pat{amounts}->{$_}->{tax_id} == $tax_id } keys %{ $pat{amounts} };
-
-    push(@{ $self->{taxes} }, { amount    => $pat{taxes_by_tax_id}->{$tax_id},
-                                netamount => $netamount,
-                                tax       => SL::DB::Tax->new(id => $tax_id)->load });
-  }
-  pairwise { $a->{linetotal} = $b->{linetotal} } @{$self->order->items_sorted}, @{$pat{items}};
-}
-
 # get data for saving, printing, ..., that is not changed in the form
 #
 # Only cvars for now.
@@ -1624,7 +1524,6 @@ sub workflow_sales_or_request_for_quotation {
   $self->cv  ($self->init_cv);
   $self->check_auth;
 
-  $self->recalc();
   $self->get_unalterable_data();
   $self->pre_render();
 
@@ -1688,7 +1587,6 @@ sub workflow_sales_or_purchase_order {
   $self->cv  ($self->init_cv);
   $self->check_auth;
 
-  $self->recalc();
   $self->get_unalterable_data();
   $self->pre_render();
 
