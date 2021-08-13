@@ -92,11 +92,6 @@
                       value_key = 'name',
                       class = 'unitselect') %]
     </td>
-    <td>
-      [%- L.button_tag("kivi.Order.price_chooser_item_row(this)",
-                       ITEM.active_price_source.source_description _ ' | ' _ ITEM.active_discount_source.source_description,
-                       name = "price_chooser_button") %]
-    </td>
     [% SET RIGHT_TO_EDIT_PRICES = 0 %]
     [% IF (SELF.type == "sales_order" || SELF.type == "sales_quotation") %]
       [% SET RIGHT_TO_EDIT_PRICES = AUTH.assert('sales_edit_prices', 1) %]
@@ -105,8 +100,7 @@
       [% SET RIGHT_TO_EDIT_PRICES = AUTH.assert('purchase_edit_prices', 1) %]
     [% END %]
     <td>
-      [%- L.hidden_tag("order.orderitems[].active_price_source", ITEM.active_price_source.source) %]
-      [%- SET EDIT_PRICE = (RIGHT_TO_EDIT_PRICES && ITEM.active_price_source.source == '') %]
+      [%- SET EDIT_PRICE = (RIGHT_TO_EDIT_PRICES) %]
       <div name="editable_price" [%- IF !EDIT_PRICE %]style="display:none"[%- END %] class="numeric">
         [%- L.input_tag("order.orderitems[].sellprice_as_number",
                         ITEM.sellprice_as_number,
@@ -122,8 +116,7 @@
       </div>
     </td>
     <td>
-      [%- L.hidden_tag("order.orderitems[].active_discount_source", ITEM.active_discount_source.source) %]
-      [%- SET EDIT_DISCOUNT = (RIGHT_TO_EDIT_PRICES && ITEM.active_discount_source.source == '') %]
+      [%- SET EDIT_DISCOUNT = (RIGHT_TO_EDIT_PRICES) %]
       <div name="editable_discount" [%- IF !EDIT_DISCOUNT %]style="display:none"[%- END %] class="numeric">
         [%- L.input_tag("order.orderitems[].discount_as_percent",
                         ITEM.discount_as_percent,
