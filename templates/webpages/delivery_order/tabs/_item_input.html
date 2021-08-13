@@ -22,7 +22,7 @@
             [%- type_options.push([ 'assortment', LxERP.t8('Assortment')]) %]
           [%- END %]
           [% L.select_tag('add_item.create_part_type', type_options) %]
-          [% L.button_tag('kivi.Order.create_part()', LxERP.t8('+')) %]
+          [% L.button_tag('kivi.DeliveryOrder.create_part()', LxERP.t8('+')) %]
         </td>
         <td>[% L.input_tag('add_item.position', '', size = 5, class="add_item_input numeric") %]</td>
         <td>
@@ -31,7 +31,7 @@
           [% P.part.picker('add_item.parts_id', SELF.created_part, style='width: 300px', class="add_item_input",
                             fat_set_item=1,
                             multiple_pos_input=1,
-                            action={set_multi_items='kivi.Order.add_multi_items'},
+                            action={set_multi_items='kivi.DeliveryOrder.add_multi_items'},
                             classification_id=SELF.part_picker_classification_ids.as_list.join(','),
                             $PARAM_KEY=PARAM_VAL) %]</td>
         <td>[% L.input_tag('add_item.description', SELF.created_part.description, class="add_item_input") %]</td>
@@ -42,7 +42,7 @@
         [%- SET price = LxERP.format_amount(((SELF.type == 'sales_quotation' || SELF.type == 'sales_order') ? SELF.created_part.sellprice : SELF.created_part.lastcost), -2) -%]
         <td>[% L.input_tag('add_item.sellprice_as_number', price, size = 10, class="add_item_input numeric") %]</td>
         <td>[% L.input_tag('add_item.discount_as_percent', '', size = 5, class="add_item_input numeric") %]</td>
-        <td>[% L.button_tag('kivi.Order.add_item()', LxERP.t8('Add part')) %]</td>
+        <td>[% L.button_tag('kivi.DeliveryOrder.add_item()', LxERP.t8('Add part')) %]</td>
       </tr>
     </tbody>
   </table>

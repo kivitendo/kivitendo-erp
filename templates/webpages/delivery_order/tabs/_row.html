@@ -28,7 +28,7 @@
       <img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]" class="dragdrop">
     </td>
     <td align="center">
-      [%- L.button_tag("kivi.Order.delete_order_item_row(this)",
+      [%- L.button_tag("kivi.DeliveryOrder.delete_order_item_row(this)",
                        LxERP.t8("X"),
                        confirm=LxERP.t8("Are you sure?")) %]
     </td>
@@ -37,7 +37,7 @@
       [%- L.img_tag(src="image/rotate_cw.svg",
                     alt=LxERP.t8('Update from master data'),
                     title= LxERP.t8('Update from master data'),
-                    onclick="if (!confirm('" _ LxERP.t8("Are you sure to update this position from master data?") _ "')) return false; kivi.Order.update_row_from_master_data(this);",
+                    onclick="if (!confirm('" _ LxERP.t8("Are you sure to update this position from master data?") _ "')) return false; kivi.DeliveryOrder.update_row_from_master_data(this);",
                     id='update_from_master') %]
     </td>
     [%- END -%]
@@ -60,7 +60,7 @@
                      size='40',
                      style='width: 300px') %]
       [%- L.hidden_tag("order.orderitems[].longdescription", ITEM.longdescription) %]
-      [%- L.button_tag("kivi.Order.show_longdescription_dialog(this)", LxERP.t8("L")) %]
+      [%- L.button_tag("kivi.DeliveryOrder.show_longdescription_dialog(this)", LxERP.t8("L")) %]
     </td>
     [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
     <td nowrap>
@@ -73,7 +73,7 @@
                       size = 5,
                       class="reformat_number numeric") %]
       [%- IF ITEM.part.formel -%]
-        [%- L.button_tag("kivi.Order.show_calculate_qty_dialog(this)", LxERP.t8("*/")) %]
+        [%- L.button_tag("kivi.DeliveryOrder.show_calculate_qty_dialog(this)", LxERP.t8("*/")) %]
         [%- L.hidden_tag("formula[+]", ITEM.part.formel) -%]
       [%- END -%]
     </td>
@@ -141,7 +141,7 @@
     <td colspan="100%">
       [%- IF MYCONFIG.show_form_details || ITEM.render_second_row %]
         <div name="second_row" data-loaded="1">
-          [%- PROCESS order/tabs/_second_row.html ITEM=ITEM TYPE=SELF.type %]
+          [%- PROCESS delivery_order/tabs/_second_row.html ITEM=ITEM TYPE=SELF.type %]
         </div>
       [%- ELSE %]
         <div name="second_row" id="second_row_[% ID %]">

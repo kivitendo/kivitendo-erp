@@ -1,4 +1,4 @@
-package SL::Controller::Order;
+package SL::Controller::DeliveryOrder;
 
 use strict;
 use parent qw(SL::Controller::Base);
@@ -77,7 +77,7 @@ sub action_add {
 
   $self->pre_render();
   $self->render(
-    'order/form',
+    'delivery_order/form',
     title => $self->get_title_for('add'),
     %{$self->{template_args}}
   );
@@ -105,7 +105,7 @@ sub action_edit {
 
   $self->pre_render();
   $self->render(
-    'order/form',
+    'delivery_order/form',
     title => $self->get_title_for('edit'),
     %{$self->{template_args}}
   );
@@ -128,15 +128,15 @@ sub action_edit_collective {
 
   # fall back to save as new if only one id is given
   if (scalar @multi_ids == 1) {
-    $self->order(SL::DB::Order->new(id => $multi_ids[0])->load);
+    $self->order(SL::DB::DeliveryOrder->new(id => $multi_ids[0])->load);
     $self->action_save_as_new();
     return;
   }
 
   # make new order from given orders
-  my @multi_orders = map { SL::DB::Order->new(id => $_)->load } @multi_ids;
+  my @multi_orders = map { SL::DB::DeliveryOrder->new(id => $_)->load } @multi_ids;
   $self->{converted_from_oe_id} = join ' ', map { $_->id } @multi_orders;
-  $self->order(SL::DB::Order->new_from_multi(\@multi_orders, sort_sources_by => 'transdate'));
+  $self->order(SL::DB::DeliveryOrder->new_from_multi(\@multi_orders, sort_sources_by => 'transdate'));
 
   $self->action_edit();
 }
@@ -206,7 +206,7 @@ sub action_save_as_new {
   }
 
   # load order from db to check if values changed
-  my $saved_order = SL::DB::Order->new(id => $order->id)->load;
+  my $saved_order = SL::DB::DeliveryOrder->new(id => $order->id)->load;
 
   my %new_attrs;
   # Lets assign a new number if the user hasn't changed the previous one.
@@ -239,7 +239,7 @@ sub action_save_as_new {
   $new_attrs{employee}  = SL::DB::Manager::Employee->current;
 
   # Create new record from current one
-  $self->order(SL::DB::Order->new_from($order, destination_type => $order->type, attributes => \%new_attrs));
+  $self->order(SL::DB::DeliveryOrder->new_from($order, destination_type => $order->type, attributes => \%new_attrs));
 
   # no linked records on save as new
   delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);
@@ -677,7 +677,7 @@ sub action_add_item {
   $self->get_item_cvpartnumber($item);
 
   my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-  my $row_as_html = $self->p->render('order/tabs/_row',
+  my $row_as_html = $self->p->render('delivery_order/tabs/_row',
                                      ITEM => $item,
                                      ID   => $item_id,
                                      SELF => $self,
@@ -707,7 +707,7 @@ sub action_add_item {
       $self->order->add_items( $item );
       $self->get_item_cvpartnumber($item);
       my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-      my $row_as_html = $self->p->render('order/tabs/_row',
+      my $row_as_html = $self->p->render('delivery_order/tabs/_row',
                                          ITEM => $item,
                                          ID   => $item_id,
                                          SELF => $self,
@@ -764,7 +764,7 @@ sub action_add_multi_items {
   foreach my $item (@items) {
     $self->get_item_cvpartnumber($item);
     my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-    my $row_as_html = $self->p->render('order/tabs/_row',
+    my $row_as_html = $self->p->render('delivery_order/tabs/_row',
                                        ITEM => $item,
                                        ID   => $item_id,
                                        SELF => $self,
@@ -893,7 +893,7 @@ sub action_return_from_create_part {
   $_->{render_longdescription} = 1 for @{ $self->order->items_sorted };
 
   $self->render(
-    'order/form',
+    'delivery_order/form',
     title => $self->get_title_for('edit'),
     %{$self->{template_args}}
   );
@@ -980,7 +980,7 @@ sub js_load_second_row {
     $item->parse_custom_variable_values;
   }
 
-  my $row_as_html = $self->p->render('order/tabs/_second_row', ITEM => $item, TYPE => $self->type);
+  my $row_as_html = $self->p->render('delivery_order/tabs/_second_row', ITEM => $item, TYPE => $self->type);
 
   $self->js
     ->html('#second_row_' . $item_id, $row_as_html)
@@ -1171,37 +1171,16 @@ sub build_shipto_inputs {
 # Needed, if customer/vendor changed.
 sub build_business_info_row
 {
-  $_[0]->p->render('order/tabs/_business_info_row', SELF => $_[0]);
+  $_[0]->p->render('delivery_order/tabs/_business_info_row', SELF => $_[0]);
 }
 
-
-sub render_price_dialog {
-  my ($self, $record_item) = @_;
-
-  my $price_source = SL::PriceSource->new(record_item => $record_item, record => $self->order);
-
-  $self->js
-    ->run(
-      'kivi.io.price_chooser_dialog',
-      t8('Available Prices'),
-      $self->render('order/tabs/_price_sources_dialog', { output => 0 }, price_source => $price_source)
-    )
-    ->reinit_widgets;
-
-#   if (@errors) {
-#     $self->js->text('#dialog_flash_error_content', join ' ', @errors);
-#     $self->js->show('#dialog_flash_error');
-#   }
-
-  $self->js->render;
-}
 
 sub load_order {
   my ($self) = @_;
 
   return if !$::form->{id};
 
-  $self->order(SL::DB::Order->new(id => $::form->{id})->load);
+  $self->order(SL::DB::DeliveryOrder->new(id => $::form->{id})->load);
 
   # Add an empty custom shipto to the order, so that the dialog can render the cvar inputs.
   # You need a custom shipto object to call cvars_by_config to get the cvars.
@@ -1223,8 +1202,8 @@ sub make_order {
   # be retrieved via items until the order is saved. Adding empty items to new
   # order here solves this problem.
   my $order;
-  $order   = SL::DB::Order->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
-  $order ||= SL::DB::Order->new(orderitems  => [],
+  $order   = SL::DB::DeliveryOrder->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
+  $order ||= SL::DB::DeliveryOrder->new(orderitems  => [],
                                 quotation   => (any { $self->type eq $_ } (sales_quotation_type(), request_quotation_type())),
                                 currency_id => $::instance_conf->get_currency_id(),);
 
@@ -1278,7 +1257,7 @@ sub make_item {
   # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
   # they cannot be retrieved via custom_variables until the order/orderitem is
   # saved. Adding empty custom_variables to new orderitem here solves this problem.
-  $item ||= SL::DB::OrderItem->new(custom_variables => []);
+  $item ||= SL::DB::DeliveryOrderItem->new(custom_variables => []);
 
   $item->assign_attributes(%$attr);
 
@@ -1298,7 +1277,7 @@ sub make_item {
 sub new_item {
   my ($record, $attr) = @_;
 
-  my $item = SL::DB::OrderItem->new;
+  my $item = SL::DB::DeliveryOrderItem->new;
 
   # Remove attributes where the user left or set the inputs empty.
   # So these attributes will be undefined and we can distinguish them
@@ -1461,14 +1440,14 @@ sub save {
       $self->order->custom_shipto(undef);
     }
 
-    SL::DB::OrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete || []};
+    SL::DB::DeliveryOrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete || []};
     $self->order->save(cascade => 1);
 
     # link records
     if ($::form->{converted_from_oe_id}) {
       my @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};
       foreach my $converted_from_oe_id (@converted_from_oe_ids) {
-        my $src = SL::DB::Order->new(id => $converted_from_oe_id)->load;
+        my $src = SL::DB::DeliveryOrder->new(id => $converted_from_oe_id)->load;
         $src->update_attributes(closed => 1) if $src->type =~ /_quotation$/;
         $src->link_to_record($self->order);
       }
@@ -1508,7 +1487,7 @@ sub workflow_sales_or_request_for_quotation {
 
   my $destination_type = $::form->{type} eq sales_order_type() ? sales_quotation_type() : request_quotation_type();
 
-  $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
+  $self->order(SL::DB::DeliveryOrder->new_from($self->order, destination_type => $destination_type));
   $self->{converted_from_oe_id} = delete $::form->{id};
 
   # set item ids to new fake id, to identify them as new items
@@ -1531,7 +1510,7 @@ sub workflow_sales_or_request_for_quotation {
   $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
 
   $self->render(
-    'order/form',
+    'delivery_order/form',
     title => $self->get_title_for('edit'),
     %{$self->{template_args}}
   );
@@ -1559,10 +1538,10 @@ sub workflow_sales_or_purchase_order {
   my $custom_shipto;
   if (   $::form->{type} eq sales_order_type() && $destination_type eq purchase_order_type()
       && $::form->{use_shipto} && $self->order->shipto) {
-    $custom_shipto = $self->order->shipto->clone('SL::DB::Order');
+    $custom_shipto = $self->order->shipto->clone('SL::DB::DeliveryOrder');
   }
 
-  $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
+  $self->order(SL::DB::DeliveryOrder->new_from($self->order, destination_type => $destination_type));
   $self->{converted_from_oe_id} = delete $::form->{id};
 
   # set item ids to new fake id, to identify them as new items
@@ -1594,7 +1573,7 @@ sub workflow_sales_or_purchase_order {
   $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
 
   $self->render(
-    'order/form',
+    'delivery_order/form',
     title => $self->get_title_for('edit'),
     %{$self->{template_args}}
   );
@@ -1695,17 +1674,17 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and Quotation'),
-          submit   => [ '#order_form', { action => "Order/sales_quotation" } ],
+          submit   => [ '#order_form', { action => "DeliveryOrder/sales_quotation" } ],
           only_if  => (any { $self->type eq $_ } (sales_order_type())),
         ],
         action => [
           t8('Save and RFQ'),
-          submit   => [ '#order_form', { action => "Order/request_for_quotation" } ],
+          submit   => [ '#order_form', { action => "DeliveryOrder/request_for_quotation" } ],
           only_if  => (any { $self->type eq $_ } (purchase_order_type())),
         ],
         action => [
           t8('Save and Sales Order'),
-          submit   => [ '#order_form', { action => "Order/sales_order" } ],
+          submit   => [ '#order_form', { action => "DeliveryOrder/sales_order" } ],
           only_if  => (any { $self->type eq $_ } (sales_quotation_type(), purchase_order_type())),
         ],
         action => [
@@ -2113,11 +2092,11 @@ and ajax.
 
 the controller
 
-=item * C<template/webpages/order/form.html>
+=item * C<template/webpages/delivery_order/form.html>
 
 main form
 
-=item * C<template/webpages/order/tabs/basic_data.html>
+=item * C<template/webpages/delivery_order/tabs/basic_data.html>
 
 Main tab for basic_data.
 
@@ -2126,25 +2105,21 @@ reused from generic code.
 
 =over 4
 
-=item * C<template/webpages/order/tabs/_business_info_row.html>
+=item * C<template/webpages/delivery_order/tabs/_business_info_row.html>
 
 For displaying information on business type
 
-=item * C<template/webpages/order/tabs/_item_input.html>
+=item * C<template/webpages/delivery_order/tabs/_item_input.html>
 
 The input line for items
 
-=item * C<template/webpages/order/tabs/_row.html>
+=item * C<template/webpages/delivery_order/tabs/_row.html>
 
 One row for already entered items
 
-=item * C<template/webpages/order/tabs/_tax_row.html>
+=item * C<template/webpages/delivery_order/tabs/_tax_row.html>
 
 Displaying tax information
-
-=item * C<template/webpages/order/tabs/_price_sources_dialog.html>
-
-Dialog for selecting price and discount sources
 
 =back
 

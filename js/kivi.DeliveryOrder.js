@@ -1,6 +1,6 @@
-namespace('kivi.Order', function(ns) {
+namespace('kivi.DeliveryOrder', function(ns) {
   ns.check_cv = function() {
-    if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation') {
+    if ($('#type').val() == 'sales_delivery_order') {
       if ($('#order_customer_id').val() === '') {
         alert(kivi.t8('Please select a customer.'));
         return false;
@@ -51,14 +51,14 @@ namespace('kivi.Order', function(ns) {
     if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/' + action });
+    data.push({ name: 'action', value: 'DeliveryOrder/' + action });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
   ns.delete_order = function() {
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/delete' });
+    data.push({ name: 'action', value: 'DeliveryOrder/delete' });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -83,7 +83,7 @@ namespace('kivi.Order', function(ns) {
 
     var data = $('#order_form').serializeArray();
     data = data.concat($('#print_options_form').serializeArray());
-    data.push({ name: 'action', value: 'Order/print' });
+    data.push({ name: 'action', value: 'DeliveryOrder/print' });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -115,7 +115,7 @@ namespace('kivi.Order', function(ns) {
       height: 600,
       title:  kivi.t8('Send email'),
       modal:  true,
-      beforeClose: kivi.Order.finish_send_email_dialog,
+      beforeClose: kivi.DeliveryOrder.finish_send_email_dialog,
       close: function(event, ui) {
         email_dialog.remove();
       }
@@ -127,7 +127,7 @@ namespace('kivi.Order', function(ns) {
     email_dialog.html(html);
     email_dialog.dialog(dialog_params);
 
-    kivi.Order.setup_send_email_dialog();
+    kivi.DeliveryOrder.setup_send_email_dialog();
 
     $('.cancel').click(ns.close_email_dialog);
 
@@ -141,7 +141,7 @@ namespace('kivi.Order', function(ns) {
     var data = $('#order_form').serializeArray();
     data = data.concat($('[name^="email_form."]').serializeArray());
     data = data.concat($('[name^="print_options."]').serializeArray());
-    data.push({ name: 'action', value: 'Order/send_email' });
+    data.push({ name: 'action', value: 'DeliveryOrder/send_email' });
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
@@ -162,7 +162,7 @@ namespace('kivi.Order', function(ns) {
   ns.reload_cv_dependent_selections = function() {
     $('#order_shipto_id').val('');
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/customer_vendor_changed' });
+    data.push({ name: 'action', value: 'DeliveryOrder/customer_vendor_changed' });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -196,7 +196,7 @@ namespace('kivi.Order', function(ns) {
     }
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/update_exchangerate' });
+    data.push({ name: 'action', value: 'DeliveryOrder/update_exchangerate' });
 
     $.ajax({
       url: 'controller.pl',
@@ -243,7 +243,7 @@ namespace('kivi.Order', function(ns) {
     $(select_elt).data('oldval', $(select_elt).val());
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action',           value: 'Order/unit_changed'     },
+    data.push({ name: 'action',           value: 'DeliveryOrder/unit_changed'     },
               { name: 'item_id',          value: item_id_dom.val()        },
               { name: 'old_unit',         value: oldval                   },
               { name: 'sellprice_dom_id', value: sellprice_dom.attr('id') });
@@ -267,7 +267,7 @@ namespace('kivi.Order', function(ns) {
       return;
     }
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action',     value: 'Order/load_second_rows' },
+    data.push({ name: 'action',     value: 'DeliveryOrder/load_second_rows' },
               { name: 'item_ids[]', value: item_id_dom.val()        });
 
     $.post("controller.pl", data, kivi.eval_json_result);
@@ -288,7 +288,7 @@ namespace('kivi.Order', function(ns) {
     }
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/load_second_rows' });
+    data.push({ name: 'action', value: 'DeliveryOrder/load_second_rows' });
     data = data.concat(item_ids);
 
     $.post("controller.pl", data, kivi.eval_json_result);
@@ -409,7 +409,7 @@ namespace('kivi.Order', function(ns) {
     $('#' + order_by + '_header_id a').append('<img border=0 data-sort-dir=' + dir + ' src=' + src + ' alt="' + kivi.t8('sort items') + '">');
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action',   value: 'Order/reorder_items' },
+    data.push({ name: 'action',   value: 'DeliveryOrder/reorder_items' },
               { name: 'order_by', value: order_by              },
               { name: 'sort_dir', value: dir                   });
 
@@ -451,7 +451,7 @@ namespace('kivi.Order', function(ns) {
     var insert_before_item_id = ns.get_insert_before_item_id($('#add_item_position').val());
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/add_item' },
+    data.push({ name: 'action', value: 'DeliveryOrder/add_item' },
               { name: 'insert_before_item_id', value: insert_before_item_id });
 
     $.post("controller.pl", data, kivi.eval_json_result);
@@ -468,7 +468,7 @@ namespace('kivi.Order', function(ns) {
   ns.add_multi_items = function(data) {
     var insert_before_item_id = ns.get_insert_before_item_id($('#multi_items_position').val());
     data = data.concat($('#order_form').serializeArray());
-    data.push({ name: 'action', value: 'Order/add_multi_items' },
+    data.push({ name: 'action', value: 'DeliveryOrder/add_multi_items' },
               { name: 'insert_before_item_id', value: insert_before_item_id });
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -510,7 +510,7 @@ namespace('kivi.Order', function(ns) {
     var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action',  value: 'Order/price_popup' },
+    data.push({ name: 'action',  value: 'DeliveryOrder/price_popup' },
               { name: 'item_id', value: item_id_dom.val()   });
 
     $.post("controller.pl", data, kivi.eval_json_result);
@@ -533,7 +533,7 @@ namespace('kivi.Order', function(ns) {
 
     kivi.popup_dialog({
       url:    'controller.pl',
-      data:   { action: 'Order/show_customer_vendor_details_dialog',
+      data:   { action: 'DeliveryOrder/show_customer_vendor_details_dialog',
                 type  : $('#type').val(),
                 vc    : vc,
                 vc_id : vc_id
@@ -553,7 +553,7 @@ namespace('kivi.Order', function(ns) {
     var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/update_row_from_master_data' });
+    data.push({ name: 'action', value: 'DeliveryOrder/update_row_from_master_data' });
     data.push({ name: 'item_ids[]', value: item_id_dom.val() });
 
     $.post("controller.pl", data, kivi.eval_json_result);
@@ -570,7 +570,7 @@ namespace('kivi.Order', function(ns) {
     }
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/update_row_from_master_data' });
+    data.push({ name: 'action', value: 'DeliveryOrder/update_row_from_master_data' });
     data = data.concat(item_ids);
 
     $.post("controller.pl", data, kivi.eval_json_result);
@@ -593,7 +593,7 @@ namespace('kivi.Order', function(ns) {
 
   ns.purchase_order_check_for_direct_delivery = function() {
     if ($('#type').val() != 'sales_order') {
-      kivi.submit_form_with_action($('#order_form'), 'Order/purchase_order');
+      kivi.submit_form_with_action($('#order_form'), 'DeliveryOrder/purchase_order');
     }
 
     var empty = true;
@@ -623,7 +623,7 @@ namespace('kivi.Order', function(ns) {
     if (!empty) {
       ns.direct_delivery_dialog(shipto);
     } else {
-      kivi.submit_form_with_action($('#order_form'), 'Order/purchase_order');
+      kivi.submit_form_with_action($('#order_form'), 'DeliveryOrder/purchase_order');
     }
   };
 
@@ -634,7 +634,7 @@ namespace('kivi.Order', function(ns) {
       $('<input type="hidden" name="use_shipto">').appendTo('#order_form').val('1');
     }
 
-    kivi.submit_form_with_action($('#order_form'), 'Order/purchase_order');
+    kivi.submit_form_with_action($('#order_form'), 'DeliveryOrder/purchase_order');
   };
 
   ns.direct_delivery_dialog = function(shipto) {
@@ -644,9 +644,9 @@ namespace('kivi.Order', function(ns) {
     var text2 = kivi.t8('Do you want to carry this shipping address over to the new purchase order so that the vendor can deliver the goods directly to your customer?');
     var html  = '<div id="direct-delivery-dialog"><p>' + text1 + '</p><p>' + shipto + '</p><p>' + text2 + '</p>';
     html      = html + '<hr><p>';
-    html      = html + '<input type="button" value="' + kivi.t8('Yes') + '" size="30" onclick="kivi.Order.direct_delivery_callback(true)">';
+    html      = html + '<input type="button" value="' + kivi.t8('Yes') + '" size="30" onclick="kivi.DeliveryOrder.direct_delivery_callback(true)">';
     html      = html + '&nbsp;';
-    html      = html + '<input type="button" value="' + kivi.t8('No')  + '" size="30" onclick="kivi.Order.direct_delivery_callback(false)">';
+    html      = html + '<input type="button" value="' + kivi.t8('No')  + '" size="30" onclick="kivi.DeliveryOrder.direct_delivery_callback(false)">';
     html      = html + '</p></div>';
     $(html).hide().appendTo('#order_form');
 
@@ -696,7 +696,7 @@ namespace('kivi.Order', function(ns) {
 
   ns.create_part = function() {
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/create_part' });
+    data.push({ name: 'action', value: 'DeliveryOrder/create_part' });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -705,14 +705,14 @@ namespace('kivi.Order', function(ns) {
 
 $(function() {
   if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
-    $('#order_customer_id').change(kivi.Order.reload_cv_dependent_selections);
+    $('#order_customer_id').change(kivi.DeliveryOrder.reload_cv_dependent_selections);
   } else {
-    $('#order_vendor_id').change(kivi.Order.reload_cv_dependent_selections);
+    $('#order_vendor_id').change(kivi.DeliveryOrder.reload_cv_dependent_selections);
   }
 
-  $('#order_currency_id').change(kivi.Order.update_exchangerate);
-  $('#order_transdate_as_date').change(kivi.Order.update_exchangerate);
-  $('#order_exchangerate_as_null_number').change(kivi.Order.exchangerate_changed);
+  $('#order_currency_id').change(kivi.DeliveryOrder.update_exchangerate);
+  $('#order_transdate_as_date').change(kivi.DeliveryOrder.update_exchangerate);
+  $('#order_exchangerate_as_null_number').change(kivi.DeliveryOrder.exchangerate_changed);
 
   if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
     $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.sellprice, -2)) });
@@ -725,16 +725,16 @@ $(function() {
   $('.add_item_input').keydown(function(event) {
     if (event.keyCode == 13) {
       event.preventDefault();
-      kivi.Order.add_item();
+      kivi.DeliveryOrder.add_item();
       return false;
     }
   });
 
-  kivi.Order.init_row_handlers();
+  kivi.DeliveryOrder.init_row_handlers();
 
   $('#row_table_id').on('sortstop', function(event, ui) {
     $('#row_table_id thead a img').remove();
-    kivi.Order.renumber_positions();
+    kivi.DeliveryOrder.renumber_positions();
   });
 
   $('#expand_all').on('click', function(event) {
@@ -745,21 +745,21 @@ $(function() {
       $('#expand_all').attr('alt', kivi.t8('Show all details'));
       $('#expand_all').attr('title', kivi.t8('Show all details'));
       $('.row_entry').each(function(idx, elt) {
-        kivi.Order.hide_second_row(elt);
+        kivi.DeliveryOrder.hide_second_row(elt);
       });
     } else {
       $('#expand_all').data('expanded', 1);
       $('#expand_all').attr('src', "image/collapse.svg");
       $('#expand_all').attr('alt', kivi.t8('Hide all details'));
       $('#expand_all').attr('title', kivi.t8('Hide all details'));
-      kivi.Order.load_all_second_rows();
+      kivi.DeliveryOrder.load_all_second_rows();
       $('.row_entry').each(function(idx, elt) {
-        kivi.Order.show_second_row(elt);
+        kivi.DeliveryOrder.show_second_row(elt);
       });
     }
     return false;
   });
 
-  $('.reformat_number_as_null_number').change(kivi.Order.reformat_number_as_null_number);
+  $('.reformat_number_as_null_number').change(kivi.DeliveryOrder.reformat_number_as_null_number);
 
 });

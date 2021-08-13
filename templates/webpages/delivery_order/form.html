@@ -8,7 +8,7 @@
   <form method="post" action="controller.pl" id="print_options_form">
     [% SELF.print_options %]
     <br>
-    [% L.button_tag('kivi.Order.print()', LxERP.t8('Print')) %]
+    [% L.button_tag('kivi.DeliveryOrder.print()', LxERP.t8('Print')) %]
     <a href="#" onclick="$('#print_options').dialog('close');">[% LxERP.t8("Cancel") %]</a>
   </form>
 </div>
@@ -38,7 +38,7 @@
 [%- END %]
     </ul>
 
-    [% PROCESS "order/tabs/basic_data.html" %]
+    [% PROCESS "delivery_order/tabs/basic_data.html" %]
     [% PROCESS 'webdav/_list.html' %]
     <div id="ui-tabs-1">
       [%- LxERP.t8("Loading...") %]
