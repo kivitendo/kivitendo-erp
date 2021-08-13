@@ -333,15 +333,6 @@
                                       title_key = 'description',
                                       style = 'width: 250px') %]</td>
                 </tr>
-                [%- IF SELF.type == "sales_order" %]
-                <tr>
-                  <th align="right">[%- 'Periodic Invoices' | $T8 %]</th>
-                  <td>[% L.button_tag('kivi.Order.show_periodic_invoices_config_dialog()', LxERP.t8('Configure')) %]
-                    (<span id='periodic_invoices_status'>[%- SELF.periodic_invoices_status -%]</span>)
-                    <a href="doc/html/ch03.html#features.periodic-invoices.variables" target="_blank">?</a>
-                  </td>
-                </tr>
-                [%- END %]
               </table>
             </td>
 
