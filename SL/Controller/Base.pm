@@ -15,7 +15,7 @@ use SL::Presenter;
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(action_name) ],
-  'scalar --get_set_init' => [ qw(js) ],
+  'scalar --get_set_init' => [ qw(js p) ],
 );
 
 #
@@ -181,6 +181,10 @@ sub send_file {
 }
 
 sub presenter {
+  return SL::Presenter->get;
+}
+
+sub init_p {
   return SL::Presenter->get;
 }
 
