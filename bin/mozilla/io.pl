@@ -172,12 +172,8 @@ sub display_row {
   );
   # serialnr is important for delivery_orders
   if ($form->{type} eq 'sales_delivery_order') {
-    for my $i (1 .. $form->{rowcount} - 1) {
-      next unless $form->{"has_sernumber_$i"};
-      splice @row2_sort, 0, 1;
-      splice @header_sort, 4, 0, "serialnr";
-      last;
-    }
+    splice @row2_sort, 0, 1;
+    splice @header_sort, 4, 0, "serialnr";
   }
 
   my %column_def = (
