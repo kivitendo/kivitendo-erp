@@ -1006,8 +1006,7 @@ sub aging {
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  my @columns = qw(statement ct invnumber transdate duedate amount open);
-
+  my @columns = qw(statement ct invnumber transdate duedate amount open datepaid);
   my %column_defs = (
     'statement' => { raw_header_data => SL::Presenter::Tag::checkbox_tag("checkall", checkall => '[name^=statement_]'), 'visible' => $form->{ct} eq 'customer' ? 'HTML' : 0, align => "center" },
     'ct'        => { 'text' => $form->{ct} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
@@ -1016,6 +1015,7 @@ sub aging {
     'duedate'   => { 'text' => $locale->text('Due'), },
     'amount'    => { 'text' => $locale->text('Amount'), },
     'open'      => { 'text' => $locale->text('Open'), },
+    'datepaid'  => { 'text' => $locale->text('Date Paid'), visible => ($form->{reporttype} eq 'custom') },
   );
 
   my %column_alignment = ('statement' => 'center',
