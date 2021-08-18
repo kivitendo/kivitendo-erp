@@ -7,6 +7,7 @@ use SL::DB::Manager::Pricegroup;
 use SL::DB::Helper::ActsAsList;
 
 __PACKAGE__->meta->initialize;
+__PACKAGE__->before_save('_before_save_remove_customer_pricegroup');
 
 sub displayable_name {
   my $self = shift;
@@ -14,14 +15,32 @@ sub displayable_name {
   return join ' ', grep $_, $self->id, $self->pricegroup;
 }
 
+sub _before_save_remove_customer_pricegroup {
+  my ($self) = @_;
+
+  return 1 unless $::form->{SELF}{remove_customer_pricegroup};
+
+  my %attributes          = (pricegroup_id => undef);
+  require SL::DB::Customer;
+  SL::DB::Manager::Customer->update_all(
+    set   => \%attributes,
+    where => [
+      'pricegroup_id' => $self->id,
+    ],
+  );
+
+  return 1;
+}
+
 sub validate {
   my ($self) = @_;
   require SL::DB::Customer;
 
   my @errors;
-
-  if ( $self->obsolete && SL::DB::Manager::Customer->get_all_count(query => [ pricegroup_id => $self->id ]) ) {
-    push @errors, $::locale->text('The pricegroup is being used by customers.');
+  if (!$::form->{SELF}{remove_customer_pricegroup}                                    &&
+      $self->obsolete                                                                 &&
+      SL::DB::Manager::Customer->get_all_count(query => [ pricegroup_id => $self->id ]) ) {
+      push @errors, $::locale->text('The pricegroup is being used by customers.');
   }
 
   return @errors;

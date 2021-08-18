@@ -10,4 +10,9 @@
   <th align="right">[% LxERP.t8("Obsolete") %]</th>
   <td>[% L.checkbox_tag("object.obsolete", checked=SELF.object.obsolete, for_submit=1) %]</td>
  </tr>
+ <tr>
+  <th align="right">[% LxERP.t8("Delete for Customers") %]</th>
+  <td>[% L.checkbox_tag("SELF.remove_customer_pricegroup", checked=SELF.remove_customer_pricegroup, for_submit=1) %] [% LxERP.t8("This will also remove this pricegroup for all customers.") %]</td>
+ </tr>
+
 </table>
