@@ -170,6 +170,12 @@ sub display_row {
   my @row2_sort   = qw(
     serialnr projectnr reqdate subtotal marge listprice lastcost onhand
   );
+  # serialnr is important for delivery_orders
+  if ($form->{type} eq 'sales_delivery_order') {
+    splice @row2_sort, 0, 1;
+    splice @header_sort, 4, 0, "serialnr";
+  }
+
   my %column_def = (
     runningnumber => { width => 5,     value => $locale->text('No.'),                  display => 1, },
     partnumber    => { width => 8,     value => $locale->text('Number'),               display => 1, },
