@@ -33,6 +33,7 @@ use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::UpdatePositions;
 
 use SL::Controller::Helper::GetModels;
+use SL::Controller::DeliveryOrder::TypeData;
 
 use List::Util qw(first sum0);
 use List::UtilsBy qw(sort_by uniq_by);
@@ -65,14 +66,7 @@ sub action_add {
   my ($self) = @_;
 
   $self->order->transdate(DateTime->now_local());
-  my $extra_days = $self->type eq sales_quotation_type() ? $::instance_conf->get_reqdate_interval       :
-                   $self->type eq sales_order_type()     ? $::instance_conf->get_delivery_date_interval : 1;
-
-  if (   ($self->type eq sales_order_type()     &&  $::instance_conf->get_deliverydate_on)
-      || ($self->type eq sales_quotation_type() &&  $::instance_conf->get_reqdate_on)
-      && (!$self->order->reqdate)) {
-    $self->order->reqdate(DateTime->today_local->next_workday(extra_days => $extra_days));
-  }
+  $self->set_reqdate_by_type;
 
 
   $self->pre_render();
@@ -152,12 +146,7 @@ sub action_delete {
     return $self->js->render();
   }
 
-  my $text = $self->type eq sales_order_type()       ? $::locale->text('The order has been deleted')
-           : $self->type eq purchase_order_type()    ? $::locale->text('The order has been deleted')
-           : $self->type eq sales_quotation_type()   ? $::locale->text('The quotation has been deleted')
-           : $self->type eq request_quotation_type() ? $::locale->text('The rfq has been deleted')
-           : '';
-  flash_later('info', $text);
+  flash_later('info', $self->type_data->text("delete"));
 
   my @redirect_params = (
     action => 'add',
@@ -178,12 +167,7 @@ sub action_save {
     return $self->js->render();
   }
 
-  my $text = $self->type eq sales_order_type()       ? $::locale->text('The order has been saved')
-           : $self->type eq purchase_order_type()    ? $::locale->text('The order has been saved')
-           : $self->type eq sales_quotation_type()   ? $::locale->text('The quotation has been saved')
-           : $self->type eq request_quotation_type() ? $::locale->text('The rfq has been saved')
-           : '';
-  flash_later('info', $text);
+  flash_later('info', $self->type_data->text("saved"));
 
   my @redirect_params = (
     action => 'edit',
@@ -221,19 +205,7 @@ sub action_save_as_new {
                         : $order->transdate;
 
   # Set new reqdate unless changed if it is enabled in client config
-  if ($order->reqdate == $saved_order->reqdate) {
-    my $extra_days = $self->type eq sales_quotation_type() ? $::instance_conf->get_reqdate_interval       :
-                     $self->type eq sales_order_type()     ? $::instance_conf->get_delivery_date_interval : 1;
-
-    if (   ($self->type eq sales_order_type()     &&  !$::instance_conf->get_deliverydate_on)
-        || ($self->type eq sales_quotation_type() &&  !$::instance_conf->get_reqdate_on)) {
-      $new_attrs{reqdate} = '';
-    } else {
-      $new_attrs{reqdate} = DateTime->today_local->next_workday(extra_days => $extra_days);
-    }
-  } else {
-    $new_attrs{reqdate} = $order->reqdate;
-  }
+  $new_attrs{reqdate} = $self->get_reqdate_by_type($order->reqdate, $saved_order->reqdate);
 
   # Update employee
   $new_attrs{employee}  = SL::DB::Manager::Employee->current;
@@ -1049,10 +1021,6 @@ sub js_reset_order_and_item_ids_after_save {
 # helpers
 #
 
-sub init_valid_types {
-  [ sales_order_type(), purchase_order_type(), sales_quotation_type(), request_quotation_type() ];
-}
-
 sub init_type {
   my ($self) = @_;
 
@@ -1066,11 +1034,7 @@ sub init_type {
 sub init_cv {
   my ($self) = @_;
 
-  my $cv = (any { $self->type eq $_ } (sales_order_type(),    sales_quotation_type()))   ? 'customer'
-         : (any { $self->type eq $_ } (purchase_order_type(), request_quotation_type())) ? 'vendor'
-         : die "Not a valid type for order";
-
-  return $cv;
+  return $self->type_data->customervendor;
 }
 
 sub init_search_cvpartnumber {
@@ -1104,20 +1068,14 @@ sub init_all_price_factors {
 
 sub init_part_picker_classification_ids {
   my ($self)    = @_;
-  my $attribute = 'used_for_' . ($self->type =~ m{sales} ? 'sale' : 'purchase');
 
-  return [ map { $_->id } @{ SL::DB::Manager::PartClassification->get_all(where => [ $attribute => 1 ]) } ];
+  return [ map { $_->id } @{ SL::DB::Manager::PartClassification->get_all(where => $self->type_date->part_classification_query) } ];
 }
 
 sub check_auth {
   my ($self) = @_;
 
-  my $right_for = { map { $_ => $_.'_edit' } @{$self->valid_types} };
-
-  my $right   = $right_for->{ $self->type };
-  $right    ||= 'DOES_NOT_EXIST';
-
-  $::auth->assert($right);
+  $::auth->assert($self->type_data->access || 'DOES_NOT_EXIST');
 }
 
 # build the selection box for contacts
@@ -1204,7 +1162,7 @@ sub make_order {
   my $order;
   $order   = SL::DB::DeliveryOrder->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
   $order ||= SL::DB::DeliveryOrder->new(orderitems  => [],
-                                quotation   => (any { $self->type eq $_ } (sales_quotation_type(), request_quotation_type())),
+                                quotation   => $self->type_data->is_quotation,
                                 currency_id => $::instance_conf->get_currency_id(),);
 
   my $cv_id_method = $self->cv . '_id';
@@ -1485,7 +1443,7 @@ sub workflow_sales_or_request_for_quotation {
     return $self->js->render();
   }
 
-  my $destination_type = $::form->{type} eq sales_order_type() ? sales_quotation_type() : request_quotation_type();
+  my $destination_type = $self->type_data->workflow("to_quotation_type");
 
   $self->order(SL::DB::DeliveryOrder->new_from($self->order, destination_type => $destination_type));
   $self->{converted_from_oe_id} = delete $::form->{id};
@@ -1527,17 +1485,12 @@ sub workflow_sales_or_purchase_order {
     return $self->js->render();
   }
 
-  my $destination_type = $::form->{type} eq sales_quotation_type()   ? sales_order_type()
-                       : $::form->{type} eq request_quotation_type() ? purchase_order_type()
-                       : $::form->{type} eq purchase_order_type()    ? sales_order_type()
-                       : $::form->{type} eq sales_order_type()       ? purchase_order_type()
-                       : '';
+  my $destination_type = $self->type_data->workflow("to_order_type");
 
   # check for direct delivery
   # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
   my $custom_shipto;
-  if (   $::form->{type} eq sales_order_type() && $destination_type eq purchase_order_type()
-      && $::form->{use_shipto} && $self->order->shipto) {
+  if ($self->type_data->workflow("to_order_copy_shipto") && $::form->{use_shipto} && $self->order->shipto) {
     $custom_shipto = $self->order->shipto->clone('SL::DB::DeliveryOrder');
   }
 
@@ -1549,7 +1502,7 @@ sub workflow_sales_or_purchase_order {
     $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
   }
 
-  if ($::form->{type} eq sales_order_type() && $destination_type eq purchase_order_type()) {
+  if ($self->type_data->workflow("to_order_copy_shipto")) {
     if ($::form->{use_shipto}) {
       $self->order->custom_shipto($custom_shipto) if $custom_shipto;
     } else {
@@ -1619,13 +1572,6 @@ sub pre_render {
     $item->active_discount_source($price_source->discount_from_source($item->active_discount_source));
   }
 
-  if (any { $self->type eq $_ } (sales_order_type(), purchase_order_type())) {
-    # Calculate shipped qtys here to prevent calling calculate for every item via the items method.
-    # Do not use write_to_objects to prevent order->delivered to be set, because this should be
-    # the value from db, which can be set manually or is set when linked delivery orders are saved.
-    SL::Helper::ShippedQty->new->calculate($self->order)->write_to(\@{$self->order->items});
-  }
-
   if ($self->order->number && $::instance_conf->get_webdav) {
     my $webdav = SL::Webdav->new(
       type     => $self->type,
@@ -1648,9 +1594,7 @@ sub pre_render {
 sub setup_edit_action_bar {
   my ($self, %params) = @_;
 
-  my $deletion_allowed = (any { $self->type eq $_ } (sales_quotation_type(), request_quotation_type()))
-                      || (($self->type eq sales_order_type())    && $::instance_conf->get_sales_order_show_delete)
-                      || (($self->type eq purchase_order_type()) && $::instance_conf->get_purchase_order_show_delete);
+  my $deletion_allowed = $self->type_data->show_menu("delete");
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -1675,29 +1619,29 @@ sub setup_edit_action_bar {
         action => [
           t8('Save and Quotation'),
           submit   => [ '#order_form', { action => "DeliveryOrder/sales_quotation" } ],
-          only_if  => (any { $self->type eq $_ } (sales_order_type())),
+          only_if  => $self->type_data->show_menu("save_and_quotation"),
         ],
         action => [
           t8('Save and RFQ'),
           submit   => [ '#order_form', { action => "DeliveryOrder/request_for_quotation" } ],
-          only_if  => (any { $self->type eq $_ } (purchase_order_type())),
+          only_if  => $self->type_data->show_menu("save_and_rfq"),
         ],
         action => [
           t8('Save and Sales Order'),
           submit   => [ '#order_form', { action => "DeliveryOrder/sales_order" } ],
-          only_if  => (any { $self->type eq $_ } (sales_quotation_type(), purchase_order_type())),
+          only_if  => $self->type_data->show_menu("save_and_sales_order"),
         ],
         action => [
           t8('Save and Purchase Order'),
           call      => [ 'kivi.Order.purchase_order_check_for_direct_delivery' ],
-          only_if   => (any { $self->type eq $_ } (sales_order_type(), request_quotation_type())),
+          only_if  => $self->type_data->show_menu("save_and_purchase_order"),
         ],
         action => [
           t8('Save and Delivery Order'),
           call      => [ 'kivi.Order.save', 'save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts,
                                                                        $::instance_conf->get_order_warn_no_deliverydate,
                                                                                                                         ],
-          only_if   => (any { $self->type eq $_ } (sales_order_type(), purchase_order_type()))
+          only_if  => $self->type_data->show_menu("save_and_delivery_order"),
         ],
         action => [
           t8('Save and Invoice'),
@@ -1706,7 +1650,7 @@ sub setup_edit_action_bar {
         action => [
           t8('Save and AP Transaction'),
           call      => [ 'kivi.Order.save', 'save_and_ap_transaction', $::instance_conf->get_order_warn_duplicate_parts ],
-          only_if   => (any { $self->type eq $_ } (purchase_order_type()))
+          only_if  => $self->type_data->show_menu("save_and_ap_transaction"),
         ],
 
       ], # end of combobox "Workflow"
@@ -1748,7 +1692,7 @@ sub setup_edit_action_bar {
         call     => [ 'kivi.Order.delete_order' ],
         confirm  => $::locale->text('Do you really want to delete this object?'),
         disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
-        only_if  => $deletion_allowed,
+        only_if  => $self->type_data->show_menu("delete"),
       ],
 
       combobox => [
@@ -1869,23 +1813,7 @@ sub get_title_for {
   my ($self, $action) = @_;
 
   return '' if none { lc($action)} qw(add edit);
-
-  # for locales:
-  # $::locale->text("Add Sales Order");
-  # $::locale->text("Add Purchase Order");
-  # $::locale->text("Add Quotation");
-  # $::locale->text("Add Request for Quotation");
-  # $::locale->text("Edit Sales Order");
-  # $::locale->text("Edit Purchase Order");
-  # $::locale->text("Edit Quotation");
-  # $::locale->text("Edit Request for Quotation");
-
-  $action = ucfirst(lc($action));
-  return $self->type eq sales_order_type()       ? $::locale->text("$action Sales Order")
-       : $self->type eq purchase_order_type()    ? $::locale->text("$action Purchase Order")
-       : $self->type eq sales_quotation_type()   ? $::locale->text("$action Quotation")
-       : $self->type eq request_quotation_type() ? $::locale->text("$action Request for Quotation")
-       : '';
+  return $self->type_data->text($action);
 }
 
 sub get_item_cvpartnumber {
@@ -1927,28 +1855,8 @@ sub get_part_texts {
   return $texts;
 }
 
-sub sales_order_type {
-  'sales_order';
-}
-
-sub purchase_order_type {
-  'purchase_order';
-}
-
-sub sales_quotation_type {
-  'sales_quotation';
-}
-
-sub request_quotation_type {
-  'request_quotation';
-}
-
 sub nr_key {
-  return $_[0]->type eq sales_order_type()       ? 'ordnumber'
-       : $_[0]->type eq purchase_order_type()    ? 'ordnumber'
-       : $_[0]->type eq sales_quotation_type()   ? 'quonumber'
-       : $_[0]->type eq request_quotation_type() ? 'quonumber'
-       : '';
+  return $_[0]->type_data->nr_key;
 }
 
 sub save_and_redirect_to {
@@ -1961,12 +1869,7 @@ sub save_and_redirect_to {
     return $self->js->render();
   }
 
-  my $text = $self->type eq sales_order_type()       ? $::locale->text('The order has been saved')
-           : $self->type eq purchase_order_type()    ? $::locale->text('The order has been saved')
-           : $self->type eq sales_quotation_type()   ? $::locale->text('The quotation has been saved')
-           : $self->type eq request_quotation_type() ? $::locale->text('The rfq has been saved')
-           : '';
-  flash_later('info', $text);
+  flash_later('info', $self->type_data->text("saved"));
 
   $self->redirect_to(%params, id => $self->order->id);
 }
@@ -1974,7 +1877,7 @@ sub save_and_redirect_to {
 sub save_history {
   my ($self, $addition) = @_;
 
-  my $number_type = $self->order->type =~ m{order} ? 'ordnumber' : 'quonumber';
+  my $number_type = $self->nr_key;
   my $snumbers    = $number_type . '_' . $self->order->$number_type;
 
   SL::DB::History->new(
@@ -2024,6 +1927,14 @@ sub store_pdf_to_webdav_and_filemanagement {
   }
 
   return @errors;
+}
+
+sub init_type_data {
+  SL::Controller::DeliveryOrder::TypeData->new($_[0]);
+}
+
+sub init_valid_types {
+  $_[0]->type_data->valid_types;
 }
 
 1;
