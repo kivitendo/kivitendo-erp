@@ -1006,7 +1006,7 @@ sub aging {
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  my @columns = qw(statement ct invnumber transdate duedate amount open datepaid);
+  my @columns = qw(statement ct invnumber transdate duedate amount open datepaid current_open);
   my %column_defs = (
     'statement' => { raw_header_data => SL::Presenter::Tag::checkbox_tag("checkall", checkall => '[name^=statement_]'), 'visible' => $form->{ct} eq 'customer' ? 'HTML' : 0, align => "center" },
     'ct'        => { 'text' => $form->{ct} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
@@ -1015,11 +1015,12 @@ sub aging {
     'duedate'   => { 'text' => $locale->text('Due'), },
     'amount'    => { 'text' => $locale->text('Amount'), },
     'open'      => { 'text' => $locale->text('Open'), },
-    'datepaid'  => { 'text' => $locale->text('Date Paid'), visible => ($form->{reporttype} eq 'custom') },
+    'datepaid'  => { 'text' => $locale->text('Date of Last Payment'), visible => ($form->{reporttype} eq 'custom') },
+    'current_open' => { 'text' => $locale->text('Open Amount at Last Payment Date'), visible => ($form->{reporttype} eq 'custom') },
   );
 
   my %column_alignment = ('statement' => 'center',
-                          map { $_ => 'right' } qw(open amount));
+                          map { $_ => 'right' } qw(open amount current_open datepaid));
 
   $report->set_options('std_column_visibility' => 1);
   $report->set_columns(%column_defs);
@@ -1048,10 +1049,19 @@ sub aging {
     $form->{title} = sprintf($locale->text('Ap aging on %s'), $form->{todate});
   }
 
-  if ($form->{fromdate}) {
-    push @options, $locale->text('for Period') . " " . $locale->text('From') . " " .$locale->date(\%myconfig, $form->{fromdate}, 1) . " " . $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{todate}, 1);
+  if ($form->{reporttype} eq 'free') {
+    if ($form->{fromdate}) {
+      push @options, $locale->text('for Period') . " " . $locale->text('From') . " " .
+      $locale->date(\%myconfig, $form->{fromdate}, 1) . " "                          .
+      $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{todate}, 1);
+    } else {
+      push @options, $locale->text('for Period') . " " . $locale->text('Bis') . " " .
+      $locale->date(\%myconfig, $form->{todate}, 1);
+    }
+  } elsif ($form->{reporttype} eq 'custom') {
+    push @options, $locale->text('Reference day') . " " . $locale->date(\%myconfig, $form->{fordate}, 1);
   } else {
-    push @options, $locale->text('for Period') . " " . $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{todate}, 1);
+    die "Unknown reporttype for aging";
   }
 
   $attachment_basename = $form->{ct} eq 'customer' ? $locale->text('ar_aging_list') : $locale->text('ap_aging_list');
@@ -1066,7 +1076,7 @@ sub aging {
 
   my $previous_ctid = 0;
   my $row_idx       = 0;
-  my @periods       = qw(open amount);
+  my @periods       = qw(open amount current_open);
   my %subtotals     = map { $_ => 0 } @periods;
   my %totals        = map { $_ => 0 } @periods;
 

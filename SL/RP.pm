@@ -1298,7 +1298,7 @@ sub aging {
       phone as customerphone, fax as customerfax, ${ct}number,
       "invnumber", "transdate",
       (amount - COALESCE((SELECT sum(amount)*$ml FROM acc_trans WHERE chart_link ilike '%paid%' AND acc_trans.trans_id=${arap}.id AND acc_trans.transdate <= (date $todate)),0)) as "open", "amount",
-      "duedate", invoice, ${arap}.id, date_part('days', now() - duedate) as overduedays, datepaid,
+      "duedate", invoice, ${arap}.id, date_part('days', now() - duedate) as overduedays, datepaid, (amount - paid) as current_open,
       (SELECT $buysell
        FROM exchangerate
        WHERE (${arap}.currency_id = exchangerate.currency_id)
