@@ -1,5 +1,15 @@
 \documentclass[paper=a4,fontsize=10pt]{scrartcl}
 \usepackage{kiviletter}
+<%if template_meta.formname == "invoice_copy"%>
+  \usepackage{transparent}
+  \DeclareNewLayer[page,foreground,contents={
+    \parbox[c][\layerheight][c]{\layerwidth}{\centering\color{gray}\scalebox{11}{\rotatebox{60}{\texttransparent{0.5}{\rechnungskopie}}}}
+  }]{foreground}
+  \AddLayersToPageStyle{kivitendo.letter.first}{foreground}%Hintergrund für die erste Seite aktivieren
+  \AddLayersToPageStyle{kivitendo.letter}{foreground}%Hintergrund für die erste Seite aktivieren
+<%end if%>
+
+
 
 
 % Variablen, die in settings verwendet werden

@@ -64,6 +64,7 @@ sub get_print_options {
     ($form->{type} eq 'invoice') ? (
       opthash("invoice",             $form->{PD}{invoice},             $locale->text('Invoice')),
       opthash("proforma",            $form->{PD}{proforma},            $locale->text('Proforma Invoice')),
+      opthash("invoice_copy",        $form->{PD}{invoice_copy},        $locale->text('Invoice Copy')),
     ) : undef,
     ($form->{type} eq 'invoice' && $form->{storno}) ? (
       opthash("storno_invoice",      $form->{PD}{storno_invoice},      $locale->text('Storno Invoice')),

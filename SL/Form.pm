@@ -1154,6 +1154,7 @@ sub get_formname_translation {
     bin_list                => $main::locale->text('Bin List'),
     credit_note             => $main::locale->text('Credit Note'),
     invoice                 => $main::locale->text('Invoice'),
+    invoice_copy            => $main::locale->text('Invoice Copy'),
     pick_list               => $main::locale->text('Pick List'),
     proforma                => $main::locale->text('Proforma Invoice'),
     purchase_order          => $main::locale->text('Purchase Order'),
