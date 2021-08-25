@@ -2,7 +2,7 @@
 [% USE HTML %]
 [% USE LxERP %]
 [% USE T8 %]
-<h3>[% 'Journal of Last 10 Transfers' | $T8 %]</h3>
+<h3>[% 'Journal of Last 20 Transfers' | $T8 %]</h3>
 
 [%- IF journal.size %]
 <table>
@@ -16,6 +16,7 @@
   <th>[% 'Warehouse To' | $T8 %]</th>
   <th>[% 'Charge Number' | $T8 %]</th>
   <th>[% 'Comment' | $T8 %]</th>
+  <th>[% 'Document' | $T8 %]</th>
  </tr>
 [% FOREACH row = journal %]
  <tr class='listrow'>
@@ -28,6 +29,7 @@
   <td>[% row.in ? row.in.bin.full_description : '-' | html %]</td>
   <td>[% row.base.chargenumber | html %]</td>
   <td>[% row.base.comment | html %]</td>
+  <td>[% row.base.oe_id | html %][% row.base.invoice.invoice.invnumber | html %]</td>
  </tr>
 [% END %]
 </table>
