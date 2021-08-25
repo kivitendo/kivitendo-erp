@@ -1100,7 +1100,7 @@ sub init_all_price_factors {
 }
 
 sub init_all_pricegroups {
-  SL::DB::Manager::Pricegroup->get_all_sorted;
+  SL::DB::Manager::Pricegroup->get_all_sorted(query => [ obsolete => 0 ]);
 }
 
 # model used to filter/display the parts in the multi-items dialog
