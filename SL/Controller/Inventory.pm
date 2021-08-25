@@ -812,7 +812,7 @@ grouped_ids as (
      from last_inventories
  group by trans_id
  order by max(itime)
-     desc limit 10
+     desc limit 20
 )
 select unnest(ids)
   from grouped_ids
