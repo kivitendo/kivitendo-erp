@@ -1049,6 +1049,7 @@ sub aging {
     $form->{title} = sprintf($locale->text('Ap aging on %s'), $form->{todate});
   }
 
+  $form->{callback} .= "&reporttype=" . E($form->{reporttype});
   if ($form->{reporttype} eq 'free') {
     if ($form->{fromdate}) {
       push @options, $locale->text('for Period') . " " . $locale->text('From') . " " .
