@@ -38,6 +38,10 @@
   \setkomavar*{myref}{\auftragsnummer}
   \setkomavar{myref}{<%ordnumber%>}
 <%end if%>%
+<%if tax_point%>%
+  \setkomavar*{taxpoint}{\leistungsdatum}
+  \setkomavar{taxpoint}{<%tax_point%>}
+<%end if%>%
 <%if cusordnumber%>%
   \setkomavar*{yourref}{\ihreBestellnummer}
   \setkomavar{yourref}{<%cusordnumber%>}
