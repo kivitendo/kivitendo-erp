@@ -524,6 +524,8 @@ sub all_parts {
 
   # simple search for assemblies by items used in assemblies
   if ($form->{bom} eq '2' && $form->{l_assembly}) {
+    # assembly_qty is the column name
+    $form->{l_assembly_qty} = 1;
     # nuke where clause and bind vars
     $where_clause = ' 1=1 AND p.id in (SELECT id from assembly where parts_id IN ' .
                     ' (select id from parts where 1=1';
@@ -563,7 +565,7 @@ sub all_parts {
   my @assemblies;
   if ($form->{l_assembly} && $form->{bom}) {
     $query =
-      qq|SELECT p.id, p.partnumber, p.description, a.qty AS onhand,
+      qq|SELECT p.id, p.partnumber, p.description, a.qty AS assembly_qty,
            p.unit, p.notes, p.itime::DATE as insertdate,
            p.sellprice, p.listprice, p.lastcost,
            p.rop, p.weight,

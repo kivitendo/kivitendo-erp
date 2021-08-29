@@ -185,6 +185,7 @@ sub generate_report {
     'microfiche'         => { 'text' => $locale->text('Microfiche'), },
     'name'               => { 'text' => $locale->text('Name'), },
     'onhand'             => { 'text' => $locale->text('Stocked Qty'), },
+    'assembly_qty'       => { 'text' => $locale->text('Assembly Item Qty'), },
     'ordnumber'          => { 'text' => $locale->text('Order Number'), },
     'partnumber'         => { 'text' => $locale->text('Part Number'), },
     'partsgroup'         => { 'text' => $locale->text('Partsgroup'), },
@@ -268,6 +269,7 @@ sub generate_report {
     obsolete      => $locale->text('Obsolete'),
     orphaned      => $locale->text('Orphaned'),
     onhand        => $locale->text('On Hand'),
+    assembly_qty  => $locale->text('Assembly Item Qty'),
     short         => $locale->text('Short'),
     onorder       => $locale->text('On Order'),
     ordered       => $locale->text('Ordered'),
@@ -389,7 +391,7 @@ sub generate_report {
 
   my @columns = qw(
     partnumber type_and_classific description notes partsgroup warehouse bin
-    make model onhand rop soldtotal unit listprice
+    make model assembly_qty onhand rop soldtotal unit listprice
     linetotallistprice sellprice linetotalsellprice lastcost assembly_lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription
@@ -418,7 +420,7 @@ sub generate_report {
 
   %column_defs = (%column_defs, %column_defs_cvars, %column_defs_pricegroups);
   map { $column_defs{$_}->{visible} ||= $form->{"l_$_"} ? 1 : 0 } @columns;
-  map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost assembly_lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal shop), @pricegroup_columns;
+  map { $column_defs{$_}->{align}   = 'right' } qw(assembly_qty onhand sellprice listprice lastcost assembly_lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal shop), @pricegroup_columns;
 
   my @hidden_variables = (
     qw(l_subtotal l_linetotal searchitems itemstatus bom l_pricegroups insertdatefrom insertdateto),

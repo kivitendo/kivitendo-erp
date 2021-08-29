@@ -351,6 +351,7 @@ $self->{texts} = {
   'Assemblies'                  => '',
   'Assembly'                    => '',
   'Assembly (typeabbreviation)' => 'A',
+  'Assembly Item Qty'           => '',
   'Assembly Last Cost'          => '',
   'Assembly Number missing!'    => '',
   'Assembly creation transfers services' => '',
