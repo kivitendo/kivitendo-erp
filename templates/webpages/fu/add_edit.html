@@ -18,8 +18,7 @@
   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
   <input type="hidden" name="POPUP_MODE" value="[% HTML.escape(POPUP_MODE) %]">
 
-  <p>
-   <table>
+  <table>
     <tr>
      <td valign="top">[% 'Follow-Up for user' | $T8 %]</td>
      <td valign="top">
@@ -48,8 +47,7 @@
      <td valign="right" align="top">[% 'Body' | $T8 %]</td>
      <td align="top"><textarea cols="50" rows="10" name="body">[% HTML.escape(body) %]</textarea></td>
     </tr>
-   </table>
-  </p>
+  </table>
 
  [%- IF POPUP_MODE %]
   <p>
@@ -67,8 +65,7 @@
 
   <h2>[% 'Existing pending follow-ups for this item' | $T8 %]</h2>
 
-  <p>
-   <table>
+  <table>
     <tr>
      <th class="listheading">[% 'Follow-Up Date' | $T8 %]</th>
      <th class="listheading">[% 'Subject' | $T8 %]</th>
@@ -84,10 +81,9 @@
      <td valign="top">[% HTML.escape(row.created_for_user_name) %]</td>
     </tr>
     [%- END %]
-   </table>
-  </p>
+  </table>
   [%- END %]
-  [%- END %]
+ [%- END %]
 
   [%- FOREACH row = LINKS %]
   <input type="hidden" name="trans_id_[% loop.count %]"   value="[% HTML.escape(row.trans_id) %]">
