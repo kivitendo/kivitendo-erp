@@ -1462,6 +1462,7 @@ $self->{texts} = {
   'Existing contacts (with column \'cp_id\')' => 'Existierende Ansprechpersonen (mit Spalte \'cp_id\')',
   'Existing customers/vendors with same customer/vendor number' => 'Existierende Kunden/Lieferanten mit derselben Kunden-/Lieferantennummer',
   'Existing file on server'     => 'Auf dem Server existierende Datei',
+  'Existing finished follow-ups for this item' => 'Erledigte Wiedervorlagen für dieses Dokument',
   'Existing pending follow-ups for this item' => 'Noch nicht erledigte Wiedervorlagen für dieses Dokument',
   'Existing profiles'           => 'Existierende Profile',
   'Existing templates'          => 'Vorhandene Belegvorlagen',

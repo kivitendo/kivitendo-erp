@@ -1462,6 +1462,7 @@ $self->{texts} = {
   'Existing contacts (with column \'cp_id\')' => '',
   'Existing customers/vendors with same customer/vendor number' => '',
   'Existing file on server'     => '',
+  'Existing finished follow-ups for this item' => '',
   'Existing pending follow-ups for this item' => '',
   'Existing profiles'           => '',
   'Existing templates'          => '',

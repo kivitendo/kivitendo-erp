@@ -60,7 +60,7 @@
    <input type="submit" class="submit" onclick="window.close()" value="[% 'Cancel' | $T8 %]">
   </p>
 
-  [%- IF FOLLOW_UPS.size %]
+  [%- IF FOLLOW_UPS_PENDING.size %]
   <hr height="3" noshade>
 
   <h2>[% 'Existing pending follow-ups for this item' | $T8 %]</h2>
@@ -73,7 +73,7 @@
      <th class="listheading">[% 'Follow-up for' | $T8 %]</th>
     </tr>
 
-    [%- FOREACH row = FOLLOW_UPS %]
+    [%- FOREACH row = FOLLOW_UPS_PENDING %]
     <tr class="listrow[% loop.count % 2 %]">
      <td valign="top">[% HTML.escape(row.follow_up_date) %]</td>
      <td valign="top"><a href="fu.pl?action=edit&id=[% HTML.escape(row.id) %][% IF POPUP_MODE %]&POPUP_MODE=1[% END %]">[% HTML.escape(row.subject) %]</a></td>
@@ -83,6 +83,31 @@
     [%- END %]
   </table>
   [%- END %]
+
+  [%- IF FOLLOW_UPS_DONE.size %]
+  <hr height="3" noshade>
+
+  <h2>[% 'Existing finished follow-ups for this item' | $T8 %]</h2>
+
+  <table>
+    <tr>
+     <th class="listheading">[% 'Follow-Up Date' | $T8 %]</th>
+     <th class="listheading">[% 'Subject' | $T8 %]</th>
+     <th class="listheading">[% 'Created by' | $T8 %]</th>
+     <th class="listheading">[% 'Follow-up for' | $T8 %]</th>
+    </tr>
+
+    [%- FOREACH row = FOLLOW_UPS_DONE %]
+    <tr class="listrow[% loop.count % 2 %]">
+     <td valign="top">[% HTML.escape(row.follow_up_date) %]</td>
+     <td valign="top"><a href="fu.pl?action=edit&id=[% HTML.escape(row.id) %][% IF POPUP_MODE %]&POPUP_MODE=1[% END %]">[% HTML.escape(row.subject) %]</a></td>
+     <td valign="top">[% HTML.escape(row.created_by_name) %]</td>
+     <td valign="top">[% HTML.escape(row.created_for_user_name) %]</td>
+    </tr>
+    [%- END %]
+  </table>
+  [%- END %]
+
  [%- END %]
 
   [%- FOREACH row = LINKS %]
