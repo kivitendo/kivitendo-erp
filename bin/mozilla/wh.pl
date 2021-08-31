@@ -916,10 +916,11 @@ sub generate_report {
     'list_price'           => { 'text' => $locale->text('List Price'), },
   );
 
+  my %column_defs_cvars = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
+  %column_defs = (%column_defs, %column_defs_cvars);
+
   my $href = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
   $href .= "&maxrows=".$form->{maxrows};
-  my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
-  %column_defs = (%column_defs, %column_defs_cvars);
 
   map { $column_defs{$_}->{link} = $href . "&page=".$page."&sort=${_}&order=" . Q($_ eq $sort_col ? 1 - $form->{order} : $form->{order}) } @columns;
 
