@@ -627,11 +627,11 @@ sub get_warehouse_report {
   $form->{l_part_type}          = 'Y';
 
   my $select_clause = join ', ', map { +/^l_/; "$select_tokens{$'} AS $'" }
-        ( grep( { !/qty/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
+        ( grep( { !/qty/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
           qw(l_parts_id l_qty l_partunit) );
 
   my $group_clause = join ", ", map { +/^l_/; "$'" }
-        ( grep( { !/qty/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
+        ( grep( { !/qty/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
           qw(l_parts_id l_partunit) );
 
   my %join_tokens = (
@@ -639,7 +639,7 @@ sub get_warehouse_report {
     );
 
   my $joins = join ' ', grep { $_ } map { +/^l_/; $join_tokens{"$'"} }
-        ( grep( { !/qty/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
+        ( grep( { !/qty/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
           qw(l_parts_id l_qty l_partunit) );
 
   my $query =

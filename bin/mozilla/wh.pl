@@ -790,8 +790,11 @@ sub report {
 
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
 
-  my $CVAR_CONFIGS = SL::DB::Manager::CustomVariableConfig->get_all_sorted(where => [ module => 'IC' ]);
-  my $INCLUDABLE_CVAR_CONFIGS = [ grep { $_->includeable } @{ $CVAR_CONFIGS } ];
+  my $cvar_configs                           = CVar->get_configs('module' => 'IC');
+  (undef,
+   $form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'      => $cvar_configs,
+                                                                           'include_prefix' => 'l_',
+                                                                           'include_value'  => 'Y');
 
   $form->{title}   = $locale->text("Report about warehouse contents");
 
@@ -801,8 +804,6 @@ sub report {
   print $form->parse_html_template("wh/report_filter",
                                    { "WAREHOUSES" => $form->{WAREHOUSES},
                                      "UNITS"      => AM->unit_select_data(AM->retrieve_units(\%myconfig, $form)),
-                                     # "CVAR_CONFIGS"            => $CVAR_CONFIGS, # nyi searchable cvars
-                                     "INCLUDABLE_CVAR_CONFIGS" => $INCLUDABLE_CVAR_CONFIGS,
                                    });
 
   $main::lxdebug->leave_sub();
