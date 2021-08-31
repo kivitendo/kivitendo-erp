@@ -817,8 +817,6 @@ sub generate_report {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  my $cvar_configs = CVar->get_configs('module' => 'IC');
-
   $form->{title}   = $locale->text("Report about warehouse contents");
   $form->{sort}  ||= 'partnumber';
   my $sort_col     = $form->{sort};
@@ -894,6 +892,7 @@ sub generate_report {
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
+  my $cvar_configs                 = CVar->get_configs('module' => 'IC');
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
