@@ -6,4 +6,5 @@
 CKEDITOR.editorConfig = function( config ) {
 	// Dialog windows are also simplified.
 	config.removeDialogTabs = 'link:advanced';
+  config.disableNativeSpellChecker = false;
 };
