@@ -398,7 +398,7 @@ sub setup_is_action_bar {
                     :                                   undef,
         ],
         action => [ t8('Print and Post'),
-          call     => [ 'kivi.SalesPurchase.show_print_dialog', $form->{id} ? 'print' : 'print_and_post' ],
+          call     => [ 'kivi.SalesPurchase.show_print_dialog', 'print_and_post' ],
           checks   => [ 'kivi.validate_form' ],
           disabled => !$may_edit_create                         ? t8('You must not change this invoice.')
                     : $form->{locked}                           ? t8('The billing period has already been locked.')
