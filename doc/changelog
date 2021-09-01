@@ -20,7 +20,8 @@ Kleinere neue Features und Detailverbesserungen:
 
 - neue Druckvorlagen-Variante "Rechnungskopie", die mit dem Druckvorlagensatz marei
   ein Wasserzeichen "Rechnungskopie" bei Verkaufs-Rechnungen erzeugt
-
+- Alle HTML-Textfelder benutzen die Rechtschreibprüfung des Anwender-Browser und
+  markieren unbekannte Worte (Tippfehler) mit einer roten gewellten Linie
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
