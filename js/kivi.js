@@ -337,7 +337,8 @@ namespace("kivi", function(ns) {
       extraPlugins:  'inline_resize',
       toolbar:       buttons,
       disableAutoInline: true,
-      title:         false
+      title:         false,
+      disableNativeSpellChecker: false
     };
 
     config.height = $e.height();
