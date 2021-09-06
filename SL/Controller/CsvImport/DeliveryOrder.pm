@@ -711,6 +711,10 @@ sub handle_order_sources {
     push @{ $entry->{errors} }, $::locale->text('Error: More than one source order found');
   }
 
+  foreach my $order (@$orders) {
+    $self->{remaining_source_qtys_by_item_id} = { map { $_->id => $_->qty } @{ $order->items } };
+  }
+
   $record->{source_orders} = $orders;
 }
 
@@ -722,9 +726,38 @@ sub handle_item_source {
 
   return if !@{ $record->{source_orders} };
 
+  # Todo: units?
+
   foreach my $order (@{ $record->{source_orders} }) {
-    $item->{source_item} = first { $item->parts_id == $_->parts_id && $item->qty == $_->qty} @{ $order->items_sorted };
-    last if $item->{source_item};
+    # First: Excact matches and source order position is still complete.
+    $item->{source_item} = first {
+         $item->parts_id                                     == $_->parts_id
+      && $item->qty                                          == $_->qty
+      && $self->{remaining_source_qtys_by_item_id}->{$_->id} == $_->qty
+    } @{ $order->items_sorted };
+    if ($item->{source_item}) {
+      $self->{remaining_source_qtys_by_item_id}->{$item->{source_item}->id} -= $item->qty;
+      last;
+    }
+
+    # Second: Smallest remaining order qty greater or equal delivery order qty.
+    $item->{source_item} = first {
+         $item->parts_id                                     == $_->parts_id
+      && $self->{remaining_source_qtys_by_item_id}->{$_->id} >= $item->qty
+    } sort { $self->{remaining_source_qtys_by_item_id}->{$a->id} <=> $self->{remaining_source_qtys_by_item_id}->{$b->id} } @{ $order->items_sorted };
+    if ($item->{source_item}) {
+      $self->{remaining_source_qtys_by_item_id}->{$item->{source_item}->id} -= $item->qty;
+      last;
+    }
+
+    # Last: Overdelivery?
+    # $item->{source_item} = first {
+    #      $item->parts_id == $_->parts_id
+    # } @{ $order->items_sorted };
+    # if ($item->{source_item}) {
+    #   $self->{remaining_source_qtys_by_item_id}->{$item->{source_item}->id} -= $item->qty;
+    #   last;
+    # }
   }
 }
 
