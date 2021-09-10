@@ -21,6 +21,7 @@ use SL::DB::Unit;
 use SL::DB::Inventory;
 use SL::DB::TransferType;
 use SL::DBUtils;
+use SL::Helper::ShippedQty;
 use SL::PriceSource;
 use SL::TransNumber;
 use SL::Util qw(trim);
@@ -1112,18 +1113,8 @@ sub save_additions {
 
   # delivery order for all positions created?
   if (scalar(@$orders)) {
-    foreach my $order (@{ $orders }) {
-      my $all_deliverd;
-      foreach my $orderitem (@{ $order->items }) {
-        my $delivered_qty = 0;
-        foreach my $do_item (@{$orderitem->linked_records(to => 'DeliveryOrderItem')}) {
-          $delivered_qty += $do_item->unit_obj->convert_to($do_item->qty, $orderitem->unit_obj);
-        }
-        $all_deliverd = $orderitem->qty <= $delivered_qty;
-        last if !$all_deliverd;
-      }
-      $order->update_attributes(delivered => !!$all_deliverd);
-    }
+    SL::Helper::ShippedQty->new->calculate($orders)->write_to_objects;
+    $_->update_attributes(delivered => $_->delivered) for @{ $orders };
   }
 
   # inventory (or use WH->transfer?)
