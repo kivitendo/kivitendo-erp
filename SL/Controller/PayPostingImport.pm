@@ -28,7 +28,7 @@ sub action_import_datev_pay_postings {
   my $filename= $::form->{ATTACHMENTS}{file}{filename};
   # check name and first fields of CSV data
   die t8("Wrong file name, expects name like: DTVF_*_LOHNBUCHUNG*.csv") unless $filename =~ /^DTVF_.*_LOHNBUCHUNGEN_LUG.*\.csv$/;
-  die t8("not a valid DTVF file, expected first field in A1 'DTVF': ")  unless ($::form->{file} =~ m/^('|")?DTVF/);
+  die t8("not a valid DTVF file, expected first field in A1 'DTVF'")    unless ($::form->{file} =~ m/^('|")?DTVF/);
   die t8("not a valid DTVF file, expected field header start with 'Umsatz; (..) ;Konto;Gegenkonto'")
     unless ($::form->{file} =~ m/Umsatz;S\/H;;;;;Konto;Gegenkonto.*;;Belegdatum;Belegfeld 1;Belegfeld 2;;Buchungstext/);
 
