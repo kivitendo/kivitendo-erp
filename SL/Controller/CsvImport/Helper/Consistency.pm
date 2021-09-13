@@ -208,7 +208,7 @@ sub handle_salesman {
     if ($vc_obj && $vc_obj->salesman_id) {
       $object->salesman(SL::DB::Manager::Employee->find_by(id => $vc_obj->salesman_id));
     } else {
-      $object->salesman(SL::DB::Manager::Employee->find_by(login => $::myconfig{login}));
+      $object->salesman(SL::DB::Manager::Employee->current);
     }
   }
 }

@@ -370,7 +370,7 @@ sub handle_employee {
 
   # employee from login if not given
   if (!$object->employee_id) {
-    $object->employee_id(SL::DB::Manager::Employee->find_by(login => $::myconfig{login})->id);
+    $object->employee_id(SL::DB::Manager::Employee->current->id) if SL::DB::Manager::Employee->current;
   }
 
   if ($object->employee_id) {

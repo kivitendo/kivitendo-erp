@@ -556,7 +556,7 @@ sub save_preferences {
 
   my ($self, $form) = @_;
 
-  my $employee = SL::DB::Manager::Employee->find_by(login => $::myconfig{login});
+  my $employee = SL::DB::Manager::Employee->current;
   $employee->update_attributes(name => $form->{name});
 
   my $user = SL::DB::Manager::AuthUser->find_by(login => $::myconfig{login});
