@@ -13,6 +13,8 @@ $self->{texts} = {
   ' Date missing!'              => '',
   ' bytes, max='                => '',
   ' missing!'                   => '',
+  '"#1" seems to be a faulty list of email addresses. After extracing addresses (#2) too many characters are left.' => '',
+  '"#1" seems to be a faulty list of email addresses. No addresses could be extracted.' => '',
   '#1 (custom variable)'        => '',
   '#1 MD'                       => '',
   '#1 additional part(s)'       => '',
