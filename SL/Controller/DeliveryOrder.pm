@@ -46,7 +46,7 @@ use Sort::Naturally;
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(item_ids_to_delete is_custom_shipto_to_delete) ],
- 'scalar --get_set_init' => [ qw(order valid_types type cv p all_price_factors search_cvpartnumber show_update_button part_picker_classification_ids) ],
+ 'scalar --get_set_init' => [ qw(order valid_types type cv p all_price_factors search_cvpartnumber show_update_button part_picker_classification_ids type_data) ],
 );
 
 
@@ -66,7 +66,7 @@ sub action_add {
   my ($self) = @_;
 
   $self->order->transdate(DateTime->now_local());
-  $self->set_reqdate_by_type;
+  $self->type_data->set_reqdate_by_type;
 
 
   $self->pre_render();
@@ -1025,7 +1025,7 @@ sub init_type {
   my ($self) = @_;
 
   if (none { $::form->{type} eq $_ } @{$self->valid_types}) {
-    die "Not a valid type for order";
+    die "Not a valid type for delivery order";
   }
 
   $self->type($::form->{type});
@@ -1069,7 +1069,7 @@ sub init_all_price_factors {
 sub init_part_picker_classification_ids {
   my ($self)    = @_;
 
-  return [ map { $_->id } @{ SL::DB::Manager::PartClassification->get_all(where => $self->type_date->part_classification_query) } ];
+  return [ map { $_->id } @{ SL::DB::Manager::PartClassification->get_all(where => $self->type_data->part_classification_query) } ];
 }
 
 sub check_auth {
@@ -1161,9 +1161,7 @@ sub make_order {
   # order here solves this problem.
   my $order;
   $order   = SL::DB::DeliveryOrder->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
-  $order ||= SL::DB::DeliveryOrder->new(orderitems  => [],
-                                quotation   => $self->type_data->is_quotation,
-                                currency_id => $::instance_conf->get_currency_id(),);
+  $order ||= SL::DB::DeliveryOrder->new(orderitems  => [], currency_id => $::instance_conf->get_currency_id(),);
 
   my $cv_id_method = $self->cv . '_id';
   if (!$::form->{id} && $::form->{$cv_id_method}) {
@@ -1572,7 +1570,7 @@ sub pre_render {
     $item->active_discount_source($price_source->discount_from_source($item->active_discount_source));
   }
 
-  if ($self->order->number && $::instance_conf->get_webdav) {
+  if ($self->order->${\ $self->type_data->nr_key } && $::instance_conf->get_webdav) {
     my $webdav = SL::Webdav->new(
       type     => $self->type,
       number   => $self->order->number,

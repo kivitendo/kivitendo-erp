@@ -6,10 +6,12 @@ use Scalar::Util qw(weaken);
 use SL::Locale::String qw(t8);
 
 use constant {
-  SALES_ORDER_TYPE => 'sales_order',
-  PURCHASE_ORDER_TYPE => 'purchase_order',
-  SALES_QUOTATION_TYPE => 'sales_quotation',
-  REQUEST_QUOTATION_TYPE => 'request_quotation'
+  SALES_ORDER_TYPE             => 'sales_order',
+  PURCHASE_ORDER_TYPE          => 'purchase_order',
+  SALES_QUOTATION_TYPE         => 'sales_quotation',
+  REQUEST_QUOTATION_TYPE       => 'request_quotation',
+  PURCHASE_DELIVERY_ORDER_TYPE => 'purchase_delivery_order',
+  SALES_DELIVERY_ORDER_TYPE    => 'sales_delivery_order',
 };
 
 our @EXPORT_OK = qw(SALES_ORDER_TYPE PURCHASE_ORDER_TYPE SALES_QUOTATION_TYPE REQUEST_QUOTATION_TYPE);
@@ -133,6 +135,53 @@ my %type_data = (
     part_classification_query => [ "used_for_purchase" => 1 ],
     right => "request_quotation_edit",
   },
+  SALES_DELIVERY_ORDER_TYPE() => {
+    text => {
+      delete => t8('Delivery Order has been deleted'),
+      saved  => t8('Delivery Order has been saved'),
+      add    => t8("Add Sales Delivery Order"),
+      edit   => t8("Edit Sales Delivery Order"),
+    },
+    show_menu => {
+      save_and_quotation      => 0,
+      save_and_rfq            => 0,
+      save_and_sales_order    => 0,
+      save_and_purchase_order => 0,
+      save_and_delivery_order => 0,
+      save_and_ap_transaction => 0,
+      delete                  => sub { $::instance_conf->get_sales_delivery_order_show_delete },
+    },
+    properties => {
+      customervendor => "customer",
+      nr_key         => "donumber",
+    },
+    part_classification_query => [ "used_for_sale" => 1 ],
+    right => "sales_delivery_order_edit",
+  },
+  PURCHASE_DELIVERY_ORDER_TYPE() => {
+    text => {
+      delete => t8('Delivery Order has been deleted'),
+      saved  => t8('Delivery Order has been saved'),
+      add    => t8("Add Purchase Delivery Order"),
+      edit   => t8("Edit Purchase Delivery Order"),
+    },
+    show_menu => {
+      save_and_quotation      => 0,
+      save_and_rfq            => 0,
+      save_and_sales_order    => 0,
+      save_and_purchase_order => 0,
+      save_and_delivery_order => 0,
+      save_and_ap_transaction => 0,
+      delete                  => sub { $::instance_conf->get_sales_delivery_order_show_delete },
+    },
+    properties => {
+      customervendor => "vendor",
+      nr_key         => "donumber",
+    },
+    part_classification_query => [ "used_for_purchase" => 1 ],
+    right => "purchase_delivery_order_edit",
+  },
+
 );
 
 sub new {
@@ -150,6 +199,8 @@ sub valid_types {
     PURCHASE_ORDER_TYPE,
     SALES_QUOTATION_TYPE,
     REQUEST_QUOTATION_TYPE,
+    SALES_DELIVERY_ORDER_TYPE,
+    PURCHASE_DELIVERY_ORDER_TYPE,
   ];
 }
 
@@ -157,7 +208,7 @@ sub type {
   $_[0]->c->type;
 }
 
-sub get {
+sub _get {
   my ($self, $key) = @_;
 
   my $ret = $type_data{$self->type}->{$key} // die "unknown property '$key'";
@@ -206,7 +257,7 @@ sub type_data {
 }
 
 sub access {
-  $type_data{right};
+  _get($_[0], "right");
 }
 
 sub is_quotation {
