@@ -1584,7 +1584,7 @@ sub pre_render {
 
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 
-  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery
+  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.DeliveryOrder kivi.File ckeditor/ckeditor ckeditor/adapters/jquery
                                                          calculate_qty kivi.Validator follow_up show_history);
   $self->setup_edit_action_bar;
 }
@@ -1599,13 +1599,13 @@ sub setup_edit_action_bar {
       combobox => [
         action => [
           t8('Save'),
-          call      => [ 'kivi.Order.save', 'save', $::instance_conf->get_order_warn_duplicate_parts,
+          call      => [ 'kivi.DeliveryOrder.save', 'save', $::instance_conf->get_order_warn_duplicate_parts,
                                                     $::instance_conf->get_order_warn_no_deliverydate,
                                                                                                       ],
         ],
         action => [
           t8('Save as new'),
-          call      => [ 'kivi.Order.save', 'save_as_new', $::instance_conf->get_order_warn_duplicate_parts ],
+          call      => [ 'kivi.DeliveryOrder.save', 'save_as_new', $::instance_conf->get_order_warn_duplicate_parts ],
           disabled  => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
       ], # end of combobox "Save"
@@ -1631,23 +1631,23 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and Purchase Order'),
-          call      => [ 'kivi.Order.purchase_order_check_for_direct_delivery' ],
+          call      => [ 'kivi.DeliveryOrder.purchase_order_check_for_direct_delivery' ],
           only_if  => $self->type_data->show_menu("save_and_purchase_order"),
         ],
         action => [
           t8('Save and Delivery Order'),
-          call      => [ 'kivi.Order.save', 'save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts,
+          call      => [ 'kivi.DeliveryOrder.save', 'save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts,
                                                                        $::instance_conf->get_order_warn_no_deliverydate,
                                                                                                                         ],
           only_if  => $self->type_data->show_menu("save_and_delivery_order"),
         ],
         action => [
           t8('Save and Invoice'),
-          call      => [ 'kivi.Order.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
+          call      => [ 'kivi.DeliveryOrder.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
         ],
         action => [
           t8('Save and AP Transaction'),
-          call      => [ 'kivi.Order.save', 'save_and_ap_transaction', $::instance_conf->get_order_warn_duplicate_parts ],
+          call      => [ 'kivi.DeliveryOrder.save', 'save_and_ap_transaction', $::instance_conf->get_order_warn_duplicate_parts ],
           only_if  => $self->type_data->show_menu("save_and_ap_transaction"),
         ],
 
@@ -1659,20 +1659,20 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and preview PDF'),
-           call => [ 'kivi.Order.save', 'preview_pdf', $::instance_conf->get_order_warn_duplicate_parts,
+           call => [ 'kivi.DeliveryOrder.save', 'preview_pdf', $::instance_conf->get_order_warn_duplicate_parts,
                                                        $::instance_conf->get_order_warn_no_deliverydate,
                                                                                                          ],
         ],
         action => [
           t8('Save and print'),
-          call => [ 'kivi.Order.show_print_options', $::instance_conf->get_order_warn_duplicate_parts,
+          call => [ 'kivi.DeliveryOrder.show_print_options', $::instance_conf->get_order_warn_duplicate_parts,
                                                      $::instance_conf->get_order_warn_no_deliverydate,
                                                                                                       ],
         ],
         action => [
           t8('Save and E-mail'),
           id   => 'save_and_email_action',
-          call => [ 'kivi.Order.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts,
+          call => [ 'kivi.DeliveryOrder.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts,
                                                                      $::instance_conf->get_order_warn_no_deliverydate,
                   ],
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
@@ -1687,7 +1687,7 @@ sub setup_edit_action_bar {
 
       action => [
         t8('Delete'),
-        call     => [ 'kivi.Order.delete_order' ],
+        call     => [ 'kivi.DeliveryOrder.delete_order' ],
         confirm  => $::locale->text('Do you really want to delete this object?'),
         disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         only_if  => $self->type_data->show_menu("delete"),
@@ -1699,7 +1699,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Follow-Up'),
-          call     => [ 'kivi.Order.follow_up_window' ],
+          call     => [ 'kivi.DeliveryOrder.follow_up_window' ],
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
           only_if  => $::auth->assert('productivity', 1),
         ],
@@ -2032,7 +2032,7 @@ Displaying tax information
 
 =back
 
-=item * C<js/kivi.Order.js>
+=item * C<js/kivi.DeliveryOrder.js>
 
 java script functions
 
