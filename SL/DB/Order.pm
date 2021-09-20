@@ -328,7 +328,7 @@ sub new_from {
   }
 
   my %args = ( map({ ( $_ => $source->$_ ) } qw(amount cp_id currency_id cusordnumber customer_id delivery_customer_id delivery_term_id delivery_vendor_id
-                                                department_id employee_id exchangerate globalproject_id intnotes marge_percent marge_total language_id netamount notes
+                                                department_id exchangerate globalproject_id intnotes marge_percent marge_total language_id netamount notes
                                                 ordnumber payment_id quonumber reqdate salesman_id shippingpoint shipvia taxincluded tax_point taxzone_id
                                                 transaction_description vendor_id
                                              )),
@@ -336,13 +336,13 @@ sub new_from {
                closed    => 0,
                delivered => 0,
                transdate => DateTime->today_local,
+               employee  => SL::DB::Manager::Employee->current,
             );
 
   if ( $is_abbr_any->(qw(sopo poso)) ) {
     $args{ordnumber} = undef;
     $args{quonumber} = undef;
     $args{reqdate}   = DateTime->today_local->next_workday();
-    $args{employee}  = SL::DB::Manager::Employee->current;
   }
   if ( $is_abbr_any->(qw(sopo)) ) {
     $args{customer_id}      = undef;
@@ -448,7 +448,7 @@ sub new_from_multi {
                        order_probability expected_billing_date)) {
     $attributes{$attr} = undef if any { ($sources->[0]->$attr//'') ne ($_->$attr//'') } @$sources;
   }
-  foreach my $attr (qw(cp_id currency_id employee_id salesman_id department_id
+  foreach my $attr (qw(cp_id currency_id salesman_id department_id
                        delivery_customer_id delivery_vendor_id shipto_id
                        globalproject_id exchangerate)) {
     $attributes{$attr} = undef if any { ($sources->[0]->$attr||0) != ($_->$attr||0) }   @$sources;
@@ -462,6 +462,9 @@ sub new_from_multi {
 
   # no periodic invoice config for new order
   $attributes{periodic_invoices_config} = undef;
+
+  # set emplyee to the current one
+  $attributes{employee} = SL::DB::Manager::Employee->current;
 
   # copy global ordnumber, transdate, cusordnumber into item scope
   #   unless already present there
