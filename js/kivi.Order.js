@@ -844,6 +844,23 @@ namespace('kivi.Order', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.check_transport_cost_article_presence = function() {
+    var $form          = $('#order_form');
+    var wanted_part_id = $form.data('transport-cost-reminder-article-id');
+
+    if (!wanted_part_id) return true
+
+    var id_arr = $('[name="order.orderitems[].parts_id"]').map(function() { return this.value; }).get();
+    id_arr = $.grep(id_arr, function(elt) {
+      return ((elt*1) === wanted_part_id);
+    });
+
+    if (id_arr.length) return true;
+
+    var description = $form.data('transport-cost-reminder-article-description');
+    return confirm(kivi.t8("The transport cost article '#1' is missing. Do you want to continue anyway?", [ description ]));
+  };
+
 });
 
 $(function() {

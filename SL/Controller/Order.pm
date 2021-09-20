@@ -1873,6 +1873,11 @@ sub pre_render {
                                                 } } @all_objects;
   }
 
+  if (   (any { $self->type eq $_ } (sales_quotation_type(), sales_order_type()))
+      && $::instance_conf->get_transport_cost_reminder_article_number_id ) {
+    $self->{template_args}->{transport_cost_reminder_article} = SL::DB::Part->new(id => $::instance_conf->get_transport_cost_reminder_article_number_id)->load;
+  }
+
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 
   $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery
@@ -1887,6 +1892,8 @@ sub setup_edit_action_bar {
                       || (($self->type eq sales_order_type())    && $::instance_conf->get_sales_order_show_delete)
                       || (($self->type eq purchase_order_type()) && $::instance_conf->get_purchase_order_show_delete);
 
+  my @req_trans_cost_art = qw(kivi.Order.check_transport_cost_article_presence) x!!$::instance_conf->get_transport_cost_reminder_article_number_id;
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       combobox => [
@@ -1895,12 +1902,12 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', 'save', $::instance_conf->get_order_warn_duplicate_parts,
                                                     $::instance_conf->get_order_warn_no_deliverydate,
                                                                                                       ],
-          checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'] ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'], @req_trans_cost_art ],
         ],
         action => [
           t8('Save as new'),
           call      => [ 'kivi.Order.save', 'save_as_new', $::instance_conf->get_order_warn_duplicate_parts ],
-          checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices', @req_trans_cost_art ],
           disabled  => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
       ], # end of combobox "Save"
@@ -1912,6 +1919,7 @@ sub setup_edit_action_bar {
         action => [
           t8('Save and Quotation'),
           submit   => [ '#order_form', { action => "Order/sales_quotation" } ],
+          checks   => [ @req_trans_cost_art ],
           only_if  => (any { $self->type eq $_ } (sales_order_type())),
         ],
         action => [
@@ -1922,11 +1930,13 @@ sub setup_edit_action_bar {
         action => [
           t8('Save and Sales Order'),
           submit   => [ '#order_form', { action => "Order/sales_order" } ],
+          checks   => [ @req_trans_cost_art ],
           only_if  => (any { $self->type eq $_ } (sales_quotation_type(), purchase_order_type())),
         ],
         action => [
           t8('Save and Purchase Order'),
           call      => [ 'kivi.Order.purchase_order_check_for_direct_delivery' ],
+          checks    => [ @req_trans_cost_art ],
           only_if   => (any { $self->type eq $_ } (sales_order_type(), request_quotation_type())),
         ],
         action => [
@@ -1934,13 +1944,13 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', 'save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts,
                                                                        $::instance_conf->get_order_warn_no_deliverydate,
                                                                                                                         ],
-          checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices', @req_trans_cost_art ],
           only_if   => (any { $self->type eq $_ } (sales_order_type(), purchase_order_type()))
         ],
         action => [
           t8('Save and Invoice'),
           call      => [ 'kivi.Order.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
-          checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices', @req_trans_cost_art ],
         ],
         action => [
           t8('Save and AP Transaction'),
@@ -1956,15 +1966,17 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and preview PDF'),
-           call => [ 'kivi.Order.save', 'preview_pdf', $::instance_conf->get_order_warn_duplicate_parts,
-                                                       $::instance_conf->get_order_warn_no_deliverydate,
-                                                                                                         ],
+          call   => [ 'kivi.Order.save', 'preview_pdf', $::instance_conf->get_order_warn_duplicate_parts,
+                                                        $::instance_conf->get_order_warn_no_deliverydate,
+                    ],
+          checks => [ @req_trans_cost_art ],
         ],
         action => [
           t8('Save and print'),
-          call => [ 'kivi.Order.show_print_options', $::instance_conf->get_order_warn_duplicate_parts,
-                                                     $::instance_conf->get_order_warn_no_deliverydate,
-                                                                                                      ],
+          call   => [ 'kivi.Order.show_print_options', $::instance_conf->get_order_warn_duplicate_parts,
+                                                       $::instance_conf->get_order_warn_no_deliverydate,
+                    ],
+          checks => [ @req_trans_cost_art ],
         ],
         action => [
           t8('Save and E-mail'),
@@ -2416,7 +2428,7 @@ java script functions
 =item * optional client/user behaviour
 
 (transactions has to be set - department has to be set -
- force project if enabled in client config - transport cost reminder)
+ force project if enabled in client config)
 
 =back
 

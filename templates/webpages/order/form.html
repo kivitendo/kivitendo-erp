@@ -15,7 +15,9 @@
 
 <div id="shipto_dialog" class="hidden"></div>
 
-<form method="post" action="controller.pl" id="order_form">
+<form method="post" action="controller.pl" id="order_form"
+      data-transport-cost-reminder-article-id="[% HTML.escape(transport_cost_reminder_article.id) %]"
+      data-transport-cost-reminder-article-description="[% HTML.escape(transport_cost_reminder_article.displayable_name) %]">
   [% L.hidden_tag('callback',             FORM.callback) %]
   [% L.hidden_tag('type',                 FORM.type) %]
   [% L.hidden_tag('id',                   SELF.order.id) %]
