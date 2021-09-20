@@ -205,7 +205,7 @@ sub action_save_as_new {
                         : $order->transdate;
 
   # Set new reqdate unless changed if it is enabled in client config
-  $new_attrs{reqdate} = $self->get_reqdate_by_type($order->reqdate, $saved_order->reqdate);
+  $new_attrs{reqdate} = $self->type_data->get_reqdate_by_type($order->reqdate, $saved_order->reqdate);
 
   # Update employee
   $new_attrs{employee}  = SL::DB::Manager::Employee->current;
@@ -1644,6 +1644,7 @@ sub setup_edit_action_bar {
         action => [
           t8('Save and Invoice'),
           call      => [ 'kivi.DeliveryOrder.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
+          only_if  => $self->type_data->show_menu("save_and_invoice"),
         ],
         action => [
           t8('Save and AP Transaction'),
