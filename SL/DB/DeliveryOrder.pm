@@ -105,6 +105,10 @@ sub date {
   goto &transdate;
 }
 
+sub number {
+  goto &donumber;
+}
+
 sub _clone_orderitem_cvar {
   my ($cvar) = @_;
 
