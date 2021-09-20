@@ -77,13 +77,6 @@
         [%- L.hidden_tag("formula[+]", ITEM.part.formel) -%]
       [%- END -%]
     </td>
-    <td>
-      [%- L.select_tag("order.orderitems[].price_factor_id",
-                       SELF.all_price_factors,
-                       default = ITEM.price_factor_id,
-                       title_key = 'description',
-                       with_empty = 1) %]
-    </td>
     <td nowrap>
       [%- L.select_tag("order.orderitems[].unit",
                       ITEM.part.available_units,
@@ -92,49 +85,6 @@
                       value_key = 'name',
                       class = 'unitselect') %]
     </td>
-    [% SET RIGHT_TO_EDIT_PRICES = 0 %]
-    [% IF (SELF.type == "sales_order" || SELF.type == "sales_quotation") %]
-      [% SET RIGHT_TO_EDIT_PRICES = AUTH.assert('sales_edit_prices', 1) %]
-    [% END %]
-    [% IF (SELF.type == "purchase_order" || SELF.type == "request_quotation") %]
-      [% SET RIGHT_TO_EDIT_PRICES = AUTH.assert('purchase_edit_prices', 1) %]
-    [% END %]
-    <td>
-      [%- SET EDIT_PRICE = (RIGHT_TO_EDIT_PRICES) %]
-      <div name="editable_price" [%- IF !EDIT_PRICE %]style="display:none"[%- END %] class="numeric">
-        [%- L.input_tag("order.orderitems[].sellprice_as_number",
-                        ITEM.sellprice_as_number,
-                        size = 10,
-                        disabled=(EDIT_PRICE? '' : 1),
-                        class="reformat_number numeric") %]
-      </div>
-      <div name="not_editable_price" [%- IF EDIT_PRICE %]style="display:none"[%- END %]>
-        [%- L.div_tag(ITEM.sellprice_as_number, name="sellprice_text", class="numeric") %]
-        [%- L.hidden_tag("order.orderitems[].sellprice_as_number",
-                         ITEM.sellprice_as_number,
-                         disabled=(EDIT_PRICE? 1 : '')) %]
-      </div>
-    </td>
-    <td>
-      [%- SET EDIT_DISCOUNT = (RIGHT_TO_EDIT_PRICES) %]
-      <div name="editable_discount" [%- IF !EDIT_DISCOUNT %]style="display:none"[%- END %] class="numeric">
-        [%- L.input_tag("order.orderitems[].discount_as_percent",
-                        ITEM.discount_as_percent,
-                        size = 5,
-                        disabled=(EDIT_DISCOUNT? '' : 1),
-                        class="reformat_number numeric") %]
-      </div>
-      <div name="not_editable_discount" [%- IF EDIT_DISCOUNT %]style="display:none"[%- END %]>
-        [%- L.div_tag(ITEM.discount_as_percent, name="discount_text", class="numeric") %]
-        [%- L.hidden_tag("order.orderitems[].discount_as_percent",
-                         ITEM.discount_as_percent,
-                         disabled=(EDIT_DISCOUNT? 1 : '')) %]
-      </div>
-    </td>
-    <td align="right">
-      [%- L.div_tag(LxERP.format_amount(ITEM.linetotal, 2, 0), name="linetotal") %]
-    </td>
-
   </tr>
 
   <tr [%- IF !MYCONFIG.show_form_details -%]style="display:none"[%- END -%]>
