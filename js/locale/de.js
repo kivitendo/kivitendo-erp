@@ -153,6 +153,7 @@ namespace("kivi").setupLocale({
 "Text block picture actions":"Aktionen für Textblockbilder",
 "The URL is missing.":"URL fehlt",
 "The action can only be executed once.":"Die Aktion kann nur einmal ausgeführt werden.",
+"The customer order number is missing. Do you want to continue anyway?":"Die Kundenbestellnummer fehlt. Möchten Sie trotzdem fortfahren?",
 "The description is missing.":"Die Beschreibung fehlt.",
 "The name is missing.":"Der Name fehlt.",
 "The name must only consist of letters, numbers and underscores and start with a letter.":"Der Name darf nur aus Buchstaben (keine Umlaute), Ziffern und Unterstrichen bestehen und muss mit einem Buchstaben beginnen.",

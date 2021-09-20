@@ -861,6 +861,13 @@ namespace('kivi.Order', function(ns) {
     return confirm(kivi.t8("The transport cost article '#1' is missing. Do you want to continue anyway?", [ description ]));
   };
 
+  ns.check_cusordnumber_presence = function() {
+    if ($('#order_cusordnumber').val() === '') {
+      return confirm(kivi.t8('The customer order number is missing. Do you want to continue anyway?'));
+    }
+    return true;
+  };
+
 });
 
 $(function() {

@@ -1893,6 +1893,7 @@ sub setup_edit_action_bar {
                       || (($self->type eq purchase_order_type()) && $::instance_conf->get_purchase_order_show_delete);
 
   my @req_trans_cost_art = qw(kivi.Order.check_transport_cost_article_presence) x!!$::instance_conf->get_transport_cost_reminder_article_number_id;
+  my @req_cusordnumber   = qw(kivi.Order.check_cusordnumber_presence)           x($self->type eq sales_order_type() && $::instance_conf->get_order_warn_no_cusordnumber);
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -1901,13 +1902,17 @@ sub setup_edit_action_bar {
           t8('Save'),
           call      => [ 'kivi.Order.save', 'save', $::instance_conf->get_order_warn_duplicate_parts,
                                                     $::instance_conf->get_order_warn_no_deliverydate,
-                                                                                                      ],
-          checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'], @req_trans_cost_art ],
+          ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'],
+                         @req_trans_cost_art, @req_cusordnumber,
+          ],
         ],
         action => [
           t8('Save as new'),
           call      => [ 'kivi.Order.save', 'save_as_new', $::instance_conf->get_order_warn_duplicate_parts ],
-          checks    => [ 'kivi.Order.check_save_active_periodic_invoices', @req_trans_cost_art ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
+                         @req_trans_cost_art, @req_cusordnumber,
+          ],
           disabled  => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
       ], # end of combobox "Save"
@@ -1919,7 +1924,7 @@ sub setup_edit_action_bar {
         action => [
           t8('Save and Quotation'),
           submit   => [ '#order_form', { action => "Order/sales_quotation" } ],
-          checks   => [ @req_trans_cost_art ],
+          checks   => [ @req_trans_cost_art, @req_cusordnumber ],
           only_if  => (any { $self->type eq $_ } (sales_order_type())),
         ],
         action => [
@@ -1936,7 +1941,7 @@ sub setup_edit_action_bar {
         action => [
           t8('Save and Purchase Order'),
           call      => [ 'kivi.Order.purchase_order_check_for_direct_delivery' ],
-          checks    => [ @req_trans_cost_art ],
+          checks    => [ @req_trans_cost_art, @req_cusordnumber ],
           only_if   => (any { $self->type eq $_ } (sales_order_type(), request_quotation_type())),
         ],
         action => [
@@ -1944,13 +1949,17 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', 'save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts,
                                                                        $::instance_conf->get_order_warn_no_deliverydate,
                                                                                                                         ],
-          checks    => [ 'kivi.Order.check_save_active_periodic_invoices', @req_trans_cost_art ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
+                         @req_trans_cost_art, @req_cusordnumber,
+          ],
           only_if   => (any { $self->type eq $_ } (sales_order_type(), purchase_order_type()))
         ],
         action => [
           t8('Save and Invoice'),
           call      => [ 'kivi.Order.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
-          checks    => [ 'kivi.Order.check_save_active_periodic_invoices', @req_trans_cost_art ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
+                         @req_trans_cost_art, @req_cusordnumber,
+          ],
         ],
         action => [
           t8('Save and AP Transaction'),
@@ -1969,14 +1978,14 @@ sub setup_edit_action_bar {
           call   => [ 'kivi.Order.save', 'preview_pdf', $::instance_conf->get_order_warn_duplicate_parts,
                                                         $::instance_conf->get_order_warn_no_deliverydate,
                     ],
-          checks => [ @req_trans_cost_art ],
+          checks => [ @req_trans_cost_art, @req_cusordnumber ],
         ],
         action => [
           t8('Save and print'),
           call   => [ 'kivi.Order.show_print_options', $::instance_conf->get_order_warn_duplicate_parts,
                                                        $::instance_conf->get_order_warn_no_deliverydate,
                     ],
-          checks => [ @req_trans_cost_art ],
+          checks => [ @req_trans_cost_art, @req_cusordnumber ],
         ],
         action => [
           t8('Save and E-mail'),
