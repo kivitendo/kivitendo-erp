@@ -43,6 +43,7 @@ my %type_data = (
     properties => {
       customervendor => "customer",
       is_quotation   => 0,
+      is_customer    => 1,
       nr_key         => "ordnumber",
     },
     part_classification_query => [ "used_for_sale" => 1 ],
@@ -72,6 +73,7 @@ my %type_data = (
     properties => {
       customervendor => "vendor",
       is_quotation   => 0,
+      is_customer    => 0,
       nr_key         => "ordnumber",
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
@@ -101,6 +103,7 @@ my %type_data = (
     properties => {
       customervendor => "customer",
       is_quotation   => 1,
+      is_customer    => 1,
       nr_key         => "quonumber",
     },
     part_classification_query => [ "used_for_sale" => 1 ],
@@ -130,6 +133,7 @@ my %type_data = (
     properties => {
       customervendor => "vendor",
       is_quotation   => 1,
+      is_customer    => 0,
       nr_key         => "quonumber",
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
@@ -153,6 +157,7 @@ my %type_data = (
     },
     properties => {
       customervendor => "customer",
+      is_customer    => 1,
       nr_key         => "donumber",
     },
     part_classification_query => [ "used_for_sale" => 1 ],
@@ -176,6 +181,7 @@ my %type_data = (
     },
     properties => {
       customervendor => "vendor",
+      is_customer    => 0,
       nr_key         => "donumber",
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
