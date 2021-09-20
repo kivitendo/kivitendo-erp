@@ -796,7 +796,6 @@ sub action_update_exchangerate {
   my $data = {
     is_standard   => $self->order->currency_id == $::instance_conf->get_currency_id,
     currency_name => $self->order->currency->name,
-    exchangerate  => $self->order->daily_exchangerate_as_null_number,
   };
 
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
@@ -1327,7 +1326,6 @@ sub new_item {
     $price_src = $price_source->best_price
                ? $price_source->best_price
                : $price_source->price_from_source("");
-    $price_src->price($::form->round_amount($price_src->price / $record->exchangerate, 5)) if $record->exchangerate;
     $price_src->price(0) if !$price_source->best_price;
   }
 
