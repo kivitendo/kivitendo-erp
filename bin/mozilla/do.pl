@@ -1045,6 +1045,8 @@ sub invoice {
 
   $main::auth->assert($form->{type} eq 'purchase_delivery_order' ? 'vendor_invoice_edit' : 'invoice_edit');
 
+  $form->get_employee();
+
   $form->{convert_from_do_ids} = $form->{id};
   # if we have a reqdate (Liefertermin), this is definetely the preferred
   # deliverydate for invoices
