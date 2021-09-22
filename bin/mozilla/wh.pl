@@ -198,9 +198,8 @@ sub transfer_or_removal_prepare_contents {
   my $all_units = AM->retrieve_units(\%myconfig, $form);
 
   foreach (@contents) {
-    $_->{qty} = $form->format_amount_units('amount'     => $_->{qty},
-                                           'part_unit'  => $_->{partunit},
-                                           'conv_units' => 'convertible');
+    $_->{qty} = $form->format_amount(\%myconfig, $_->{qty}) . ' ' . $_->{partunit};
+
     my $this_unit = $_->{partunit};
 
     if ($all_units->{$_->{partunit}} && ($all_units->{g}->{base_unit} eq $all_units->{$_->{partunit}}->{base_unit})) {
@@ -1001,9 +1000,6 @@ sub generate_report {
     map { $subtotals{$_} += $entry->{$_} } @subtotals_columns;
     $total_stock_value   += $entry->{stock_value} * 1;
     $entry->{qty}         = $form->format_amount(\%myconfig, $entry->{qty});
-#    $entry->{qty}         = $form->format_amount_units('amount'     => $entry->{qty},
-#                                                       'part_unit'  => $entry->{partunit},
-#                                                       'conv_units' => 'convertible');
     $entry->{stock_value} = $form->format_amount(\%myconfig, $entry->{stock_value} * 1, 2);
     $entry->{purchase_price} = $form->format_amount(\%myconfig, $entry->{purchase_price} * 1, 2);
     $entry->{list_price}     = $form->format_amount(\%myconfig, $entry->{list_price}     * 1, 2);
@@ -1016,9 +1012,6 @@ sub generate_report {
 
       my $row = { map { $_ => { 'data' => '', 'class' => 'listsubtotal', 'align' => $column_alignment{$_}, } } @columns };
       $row->{qty}->{data}         = $form->format_amount(\%myconfig, $subtotals{qty});
-#      $row->{qty}->{data}         = $form->format_amount_units('amount'     => $subtotals{qty} * 1,
-#                                                               'part_unit'  => $entry->{partunit},
-#                                                               'conv_units' => 'convertible');
       $row->{stock_value}->{data} = $form->format_amount(\%myconfig, $subtotals{stock_value} * 1, 2);
       $row->{purchase_price}->{data} = $form->format_amount(\%myconfig, $subtotals{purchase_price} * 1, 2);
       $row->{list_price}->{data}     = $form->format_amount(\%myconfig, $subtotals{list_price}     * 1, 2);
