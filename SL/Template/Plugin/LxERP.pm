@@ -41,15 +41,6 @@ sub round_amount {
   return '';
 }
 
-sub format_amount_units {
-  my ($self, $amount, $amount_unit, $part_unit) = @_;
-
-  return $main::form->format_amount_units('amount'      => $amount,
-                                          'part_unit'   => $part_unit,
-                                          'amount_unit' => $amount_unit,
-                                          'conv_units'  => 'convertible_not_smaller');
-}
-
 sub format_percent {
   my ($self, $var, $places, $skip_zero) = @_;
 
