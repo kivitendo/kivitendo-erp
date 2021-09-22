@@ -1302,11 +1302,9 @@ sub calculate_stock_in_out {
   my $sum      = AM->sum_with_unit(map { $_->{qty}, $_->{unit} } @{ $sinfo });
   my $matches  = $do_qty == $sum;
 
-  my $content  = $form->format_amount_units('amount'      => $sum * 1,
-                                            'part_unit'   => $form->{"partunit_$i"},
-                                            'amount_unit' => $all_units->{$form->{"partunit_$i"}}->{base_unit},
-                                            'conv_units'  => 'convertible_not_smaller',
-                                            'max_places'  => 2);
+  my $amount_unit = $all_units->{$form->{"partunit_$i"}}->{base_unit};
+  my $content     = $form->format_amount(\%::myconfig, AM->convert_unit($amount_unit, $form->{"unit_$i"}) * $sum * 1) . ' ' . $form->{"unit_$i"};
+
   $content     = qq|<span id="stock_in_out_qty_display_${i}">${content}</span><input type=hidden id='stock_in_out_qty_matches_$i' value='$matches'> <input type="button" onclick="open_stock_in_out_window('${in_out}', $i);" value="?">|;
 
   $main::lxdebug->leave_sub();
@@ -1440,11 +1438,8 @@ sub _stock_in_out_set_qty_display {
   my $form             = $::form;
   my $all_units        = AM->retrieve_all_units();
   my $sum              = AM->sum_with_unit(map { $_->{qty}, $_->{unit} } @{ $stock_info });
-  $form->{qty_display} = $form->format_amount_units(amount      => $sum * 1,
-                                                    part_unit   => $form->{partunit},
-                                                    amount_unit => $all_units->{ $form->{partunit} }->{base_unit},
-                                                    conv_units  => 'convertible_not_smaller',
-                                                    max_places  => 2);
+  my $amount_unit      = $all_units->{$form->{"partunit"}}->{base_unit};
+  $form->{qty_display} = $form->format_amount(\%::myconfig, AM->convert_unit($amount_unit, $form->{"do_unit"}) * $sum * 1) . ' ' . $form->{"do_unit"};
 }
 
 sub set_stock_in {
@@ -1498,10 +1493,7 @@ sub stock_out_form {
 
   if (!$form->{delivered}) {
     foreach my $row (@contents) {
-      $row->{available_qty} = $form->format_amount_units('amount'      => $row->{qty} * 1,
-                                                         'part_unit'   => $part_info->{unit},
-                                                         'conv_units'  => 'convertible_not_smaller',
-                                                         'max_places'  => 2);
+      $row->{available_qty} = $form->format_amount(\%::myconfig, $row->{qty} * 1) . ' ' . $part_info->{unit};
 
       foreach my $sinfo (@{ $stock_info }) {
         next if (($row->{bin_id}       != $sinfo->{bin_id}) ||
@@ -1732,18 +1724,14 @@ sub transfer_out {
                                                      $binfo->{bin_description},
                                                      $request->{chargenumber} ? $locale->text('chargenumber #1', $request->{chargenumber}) : $locale->text('no chargenumber'),
                                                      $request->{bestbefore} ? $locale->text('bestbefore #1', $request->{bestbefore}) : $locale->text('no bestbefore'),
-                                                     $form->format_amount_units('amount'      => $request->{sum_base_qty},
-                                                                                'part_unit'   => $pinfo->{unit},
-                                                                                'conv_units'  => 'convertible_not_smaller'));
+                                                     $form->format_amount(\%::myconfig, $request->{sum_base_qty}) . ' ' . $pinfo->{unit});
         } else {
             push @{ $form->{ERRORS} }, $locale->text("There is not enough available of '#1' at warehouse '#2', bin '#3', #4, for the transfer of #5.",
                                                      $pinfo->{description},
                                                      $binfo->{warehouse_description},
                                                      $binfo->{bin_description},
                                                      $request->{chargenumber} ? $locale->text('chargenumber #1', $request->{chargenumber}) : $locale->text('no chargenumber'),
-                                                     $form->format_amount_units('amount'      => $request->{sum_base_qty},
-                                                                                'part_unit'   => $pinfo->{unit},
-                                                                                'conv_units'  => 'convertible_not_smaller'));
+                                                     $form->format_amount(\%::myconfig, $request->{sum_base_qty}) . ' ' . $pinfo->{unit});
         }
       }
     }
