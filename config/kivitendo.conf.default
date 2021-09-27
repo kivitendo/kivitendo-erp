@@ -4,8 +4,8 @@
 # interface.
 admin_password = admin123
 
-# Which modules to use for authentication. Valid values are 'DB' and
-# 'LDAP'. You can use multiple modules separated by spaces.
+# Which modules to use for authentication. Valid values are 'DB',
+# 'LDAP', 'HTTPHeaders'. You can use multiple modules separated by spaces.
 #
 # Multiple LDAP modules with different configurations can be used by
 # postfixing 'LDAP' with the name of the configuration section to use:
@@ -76,6 +76,18 @@ bind_dn       =
 bind_password =
 timeout       = 10
 verify        = require
+
+# For use with module 'HTTPHeaders':
+[authentication/http_basic]
+enabled = 1
+
+# For use with module 'HTTPHeaders':
+[authentication/http_headers]
+enabled = 0
+client_id_header = X-Kivitendo-Client-ID
+user_header = Auth-User
+secret_header = X-Kivitendo-App-Secret
+secret = ...
 
 [system]
 # Set language for login and admin forms. Currently "de" (German)
