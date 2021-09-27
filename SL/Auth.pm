@@ -12,6 +12,7 @@ use Regexp::IPv6 qw($IPv6_re);
 use SL::Auth::ColumnInformation;
 use SL::Auth::Constants qw(:all);
 use SL::Auth::DB;
+use SL::Auth::HTTPHeaders;
 use SL::Auth::LDAP;
 use SL::Auth::Password;
 use SL::Auth::SessionValue;
@@ -152,7 +153,7 @@ sub _read_auth_config {
   foreach my $module (split m{ +}, $self->{module}) {
     my $config_name;
     ($module, $config_name) = split m{:}, $module, 2;
-    $config_name          ||= $module eq 'DB' ? 'database' : lc($module);
+    $config_name          ||= $module eq 'DB' ? 'database' : $module eq 'HTTPHeaders' ? 'http_headers' : lc($module);
     my $config              = $::lx_office_conf{'authentication/' . $config_name};
 
     if (!$config) {
@@ -165,6 +166,9 @@ sub _read_auth_config {
 
     } elsif ($module eq 'LDAP') {
       push @{ $self->{authenticators} }, SL::Auth::LDAP->new($config);
+
+    } elsif ($module eq 'HTTPHeaders') {
+      push @{ $self->{authenticators} }, SL::Auth::HTTPHeaders->new($config);
 
     } else {
       my $locale = Locale->new('en');
@@ -228,6 +232,12 @@ sub authenticate_root {
   return $result;
 }
 
+sub set_session_authenticated {
+  my ($self, $login, $result) = @_;
+
+  $self->set_session_value(SESSION_KEY_USER_AUTH() => $result, login => $login, client_id => $self->client->{id});
+}
+
 sub authenticate {
   my ($self, $login, $password) = @_;
 
@@ -252,7 +262,8 @@ sub authenticate {
     }
   }
 
-  $self->set_session_value(SESSION_KEY_USER_AUTH() => $result, login => $login, client_id => $self->client->{id});
+  $self->set_session_authenticated($login, $result);
+
   return $result;
 }
 
