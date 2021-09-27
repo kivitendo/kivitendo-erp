@@ -305,7 +305,7 @@ sub produce_assembly {
   my $strict_wh = $::instance_conf->get_produce_assembly_same_warehouse ? $bin->warehouse : undef;
   if ($params{auto_allocate}) {
     Carp::croak("produce_assembly: can't have both allocations and auto_allocate") if $params{allocations};
-    $allocations = [ allocate_for_assembly(part => $part, qty => $qty, warehouse => $strict_wh) ];
+    $allocations = [ allocate_for_assembly(part => $part, qty => $qty, warehouse => $strict_wh, chargenumber => $params{chargenumber}) ];
   } else {
     Carp::croak("produce_assembly: need allocations or auto_allocate to produce something") if !$params{allocations};
     $allocations = $params{allocations};
