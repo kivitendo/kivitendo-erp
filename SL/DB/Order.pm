@@ -240,6 +240,21 @@ sub convert_to_invoice {
     require SL::DB::Invoice;
     $invoice = SL::DB::Invoice->new_from($self)->post(%params) || die;
     $self->link_to_record($invoice);
+    # TODO extend link_to_record for items, otherwise long-term no d.r.y.
+    foreach my $item (@{ $invoice->items }) {
+      foreach (qw(orderitems)) {
+        if ($item->{"converted_from_${_}_id"}) {
+          die unless $item->{id};
+          RecordLinks->create_links('mode'       => 'ids',
+                                    'from_table' => $_,
+                                    'from_ids'   => $item->{"converted_from_${_}_id"},
+                                    'to_table'   => 'invoice',
+                                    'to_id'      => $item->{id},
+          ) || die;
+          delete $item->{"converted_from_${_}_id"};
+        }
+      }
+    }
     $self->update_attributes(closed => 1);
     1;
   })) {
