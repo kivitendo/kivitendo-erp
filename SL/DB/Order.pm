@@ -238,7 +238,7 @@ sub convert_to_invoice {
   my $invoice;
   if (!$self->db->with_transaction(sub {
     require SL::DB::Invoice;
-    $invoice = SL::DB::Invoice->new_from($self)->post(%params) || die;
+    $invoice = SL::DB::Invoice->new_from($self, %params)->post || die;
     $self->link_to_record($invoice);
     # TODO extend link_to_record for items, otherwise long-term no d.r.y.
     foreach my $item (@{ $invoice->items }) {
@@ -616,7 +616,7 @@ L<SL::DB::Invoice::new_from>. That invoice is posted, and C<$self> is
 linked to the new invoice via L<SL::DB::RecordLink>. C<$self>'s
 C<closed> attribute is set to C<true>, and C<$self> is saved.
 
-The arguments in C<%params> are passed to L<SL::DB::Invoice::post>.
+The arguments in C<%params> are passed to L<SL::DB::Invoice::new_from>.
 
 Returns the new invoice instance on success and C<undef> on
 failure. The whole process is run inside a transaction. On failure
