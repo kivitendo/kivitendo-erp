@@ -1,4 +1,4 @@
-use Test::More tests => 73;
+use Test::More tests => 75;
 
 use strict;
 
@@ -127,7 +127,8 @@ my $do1 = create_sales_delivery_order(
                     transdate       => '06.03.2015',
                     unit            => $unit->name,
                   )
-                ]
+                ],
+  transaction_description => 'Liefervorgang',
 );
 
 
@@ -149,7 +150,7 @@ is (SL::DB::Manager::DeliveryOrderItem->get_all_count(where => [ delivery_order_
 
 
 # convert this do to invoice
-my $invoice = $do1->convert_to_invoice(transdate => $transdate);
+my $invoice = $do1->convert_to_invoice(transdate => $transdate, attributes => {transaction_description => 'Rechnungsvorgang'});
 
 sleep (300) if $VISUAL_TEST; # we can do a real visual test via gui login
 # test invoice afterwards
@@ -165,6 +166,7 @@ is($invoice->payment_terms->description, "14Tage 2%Skonto, 30Tage netto", 'payme
 $invoice->load;
 
 is($invoice->cusordnumber            , 'b84da'           , 'cusordnumber check');
+is($invoice->transaction_description,  'Rechnungsvorgang', 'transaction description (changed on conversion) check');
 is($invoice->department->description , "Test Department" , 'department description ok');
 is($invoice->amount                  , '1354.20000'      , 'amount check');
 is($invoice->marge_percent           , '50.88666'        , 'marge percent check');
@@ -276,7 +278,8 @@ my $o1 = create_sales_order(
                     transdate       => '06.03.2015',
                     unit            => $unit->name,
                   )
-                ]
+  ],
+  transaction_description => 'Auftragsvorgang',
 );
 
 
@@ -286,7 +289,7 @@ my $o1_item1 = $o1->orderitems->[0];
 my $o1_item2 = $o1->orderitems->[1];
 
 # convert this order to invoice
-$invoice = $o1->convert_to_invoice(transdate => $transdate);
+$invoice = $o1->convert_to_invoice(transdate => $transdate, attributes => {transaction_description => 'Rechnungsvorgang'});
 $invoice->load;
 
 # test invoice afterwards
@@ -297,12 +300,13 @@ ok ($invoice->notes eq '<ul><li><strong>fett</strong></li><li><strong>und</stron
 ok(($o1->closed) , 'convert form order: Order is closed after conversion');
 is($invoice->payment_terms->description, "14Tage 2%Skonto, 30Tage netto", 'convert form order: payment term description check');
 
-is($invoice->cusordnumber,            'b84da',           'convert form order: cusordnumber check');
-is($invoice->department->description, "Test Department", 'convert form order: department description ok');
-is($invoice->amount,                  '1354.20000',      'convert form order: amount check');
-is($invoice->marge_percent,           '50.88666',        'convert form order: marge percent check');
-is($invoice->marge_total,             '579.08000',       'convert form order: marge total check');
-is($invoice->netamount,               '1137.98000',      'convert form order: netamount check');
+is($invoice->cusordnumber,            'b84da',            'convert form order: cusordnumber check');
+is($invoice->transaction_description, 'Rechnungsvorgang', 'convert form order: transaction description (changed on conversion) check');
+is($invoice->department->description, "Test Department",  'convert form order: department description ok');
+is($invoice->amount,                  '1354.20000',       'convert form order: amount check');
+is($invoice->marge_percent,           '50.88666',         'convert form order: marge percent check');
+is($invoice->marge_total,             '579.08000',        'convert form order: marge total check');
+is($invoice->netamount,               '1137.98000',       'convert form order: netamount check');
 
 # some item checks
 is($invoice->items_sorted->[0]->parts_id,         $parts[0]->id , 'convert form order: invoiceitem 1 linked with part');
