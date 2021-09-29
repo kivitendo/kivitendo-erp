@@ -1,4 +1,4 @@
-use Test::More tests => 41;
+use Test::More tests => 73;
 
 use strict;
 
@@ -30,7 +30,7 @@ my ($transdate);
 my $VISUAL_TEST = 0;  # just a sleep to click around
 
 sub clear_up {
-  foreach (qw(DeliveryOrderItem DeliveryOrder InvoiceItem Invoice Part Customer Department PaymentTerm)) {
+  foreach (qw(DeliveryOrderItem DeliveryOrder OrderItem Order InvoiceItem Invoice Part Customer Department PaymentTerm)) {
     "SL::DB::Manager::${_}"->delete_all(all => 1);
   }
   SL::DB::Manager::Employee->delete_all(where => [ login => 'testuser' ]);
@@ -233,6 +233,112 @@ foreach ( $do1_item1->id, $do1_item2->id ) {
   is($links_record_item1[0]->{from_id}    , $_                     , "record from id check $_");
   is($links_record_item1[0]->{from_table} , 'delivery_order_items' , "record from table check $_");
   is($links_record_item1[0]->{to_table}   , 'invoice'              , "record to table check $_");
+}
+
+##############
+# test conversion from order to invoice
+##############
+
+reset_state();
+
+# we create A16399 with two items
+my $o1 = create_sales_order(
+  save            => 1,
+  'department_id' => $department->id,
+  'transdate'     => $transdate,
+  'employee_id'   => $employee->id,
+  'intnotes'      => 'some intnotes',
+  'ordnumber'     => 'A16399',
+  'payment_id'    => $payment_do->id,
+  'salesman_id'   => $employee->id,
+  'shippingpoint' => 'sendtome',
+  'shipvia'       => 'DHL, Versand am 06.03.2015, 1 Paket  17,00 kg',
+  'cusordnumber'  => 'b84da',
+  'customer_id'   => $customer->id,
+  'notes'         => '<ul><li><strong>fett</strong></li><li><strong>und</strong></li><li><strong>mit</strong></li><li><strong>bullets</strong></li><li>&nbsp;</li></ul>',
+  orderitems => [
+                  create_order_item(
+                    part               => $parts[0],
+                    discount           => '0.25',
+                    lastcost           => '49.95000',
+                    longdescription    => "<ol><li>27</li><li>28</li><li>29</li><li><sub>asdf</sub></li><li><sub>asdf</sub></li><li><sup>oben</sup></li></ol><p><s>kommt nicht mehr vor</s></p>",
+                    marge_price_factor => 1,
+                    qty                => '2.00000',
+                    sellprice          => '242.20000',
+                    unit               => $unit->name,
+                  ),
+                  create_order_item(
+                    part            => $parts[1],
+                    discount        => '0.25',
+                    lastcost        => '153.00000',
+                    qty             => '3.00000',
+                    sellprice       => '344.30000',
+                    transdate       => '06.03.2015',
+                    unit            => $unit->name,
+                  )
+                ]
+);
+
+
+# TESTS
+
+my $o1_item1 = $o1->orderitems->[0];
+my $o1_item2 = $o1->orderitems->[1];
+
+# convert this order to invoice
+$invoice = $o1->convert_to_invoice(transdate => $transdate);
+$invoice->load;
+
+# test invoice afterwards
+ok ($invoice->shipvia eq "DHL, Versand am 06.03.2015, 1 Paket  17,00 kg", "convert form order: ship via check");
+ok ($invoice->shippingpoint eq "sendtome", "convert form order: shipping point check");
+ok ($invoice->ordnumber eq "A16399", "convert form order: ordnumber check");
+ok ($invoice->notes eq '<ul><li><strong>fett</strong></li><li><strong>und</strong></li><li><strong>mit</strong></li><li><strong>bullets</strong></li><li>&nbsp;</li></ul>', "convert form order: do RichText notes saved");
+ok(($o1->closed) , 'convert form order: Order is closed after conversion');
+is($invoice->payment_terms->description, "14Tage 2%Skonto, 30Tage netto", 'convert form order: payment term description check');
+
+is($invoice->cusordnumber,            'b84da',           'convert form order: cusordnumber check');
+is($invoice->department->description, "Test Department", 'convert form order: department description ok');
+is($invoice->amount,                  '1354.20000',      'convert form order: amount check');
+is($invoice->marge_percent,           '50.88666',        'convert form order: marge percent check');
+is($invoice->marge_total,             '579.08000',       'convert form order: marge total check');
+is($invoice->netamount,               '1137.98000',      'convert form order: netamount check');
+
+# some item checks
+is($invoice->items_sorted->[0]->parts_id,         $parts[0]->id , 'convert form order: invoiceitem 1 linked with part');
+is(scalar @{ $invoice->invoiceitems },            2,              'convert form order: two invoice items linked with invoice');
+is($invoice->items_sorted->[0]->position,         1,              "convert form order: position 1 order correct");
+is($invoice->items_sorted->[1]->position,         2,              "convert form order: position 2 order correct");
+is($invoice->items_sorted->[0]->part->partnumber, 'v-519160549' , "convert form order: partnumber 1 correct");
+is($invoice->items_sorted->[1]->part->partnumber, 'v-120160086' , "convert form order: partnumber 2 correct");
+is($invoice->items_sorted->[0]->qty,              '2.00000',      "convert form order: pos 1 qty");
+is($invoice->items_sorted->[1]->qty,              '3.00000',      "convert form order: pos 2 qty");
+is($invoice->items_sorted->[0]->discount,         0.25,           "convert form order: pos 1 discount");
+is($invoice->items_sorted->[1]->discount,         0.25,           "convert form order: pos 2 discount");
+is($invoice->items_sorted->[0]->longdescription , "<ol><li>27</li><li>28</li><li>29</li><li><sub>asdf</sub></li><li><sub>asdf</sub></li><li><sup>oben</sup></li></ol><p><s>kommt nicht mehr vor</s></p>",
+     "convert form order: invoice item1 rich text longdescripition");
+
+# check linked records AND linked items
+@links_record = RecordLinks->get_links('from_table' => 'oe',
+                                       'to_table'   => 'ar',
+                                       'from_id'    => $o1->id,
+);
+
+is($links_record[0]->{from_id},    $o1->id, "convert form order: record from id check");
+is($links_record[0]->{from_table}, 'oe',    "convert form order: record from table check");
+is($links_record[0]->{to_table},   'ar',    "convert form order: record to table check");
+
+my $i = 0;
+foreach ( $o1_item1->id, $o1_item2->id ) {
+  $i++;
+  my @links_record_item = RecordLinks->get_links('from_table' => 'orderitems',
+                                                  'to_table'   => 'invoice',
+                                                  'from_id'    => $_,
+                                                 );
+
+  is($links_record_item[0]->{from_id},    $_ ,          "convert form order: record from id check item $i");
+  is($links_record_item[0]->{from_table}, 'orderitems', "convert form order: record from table check item $i");
+  is($links_record_item[0]->{to_table},   'invoice',    "convert form order: record to table check item $i");
 }
 
 clear_up();
