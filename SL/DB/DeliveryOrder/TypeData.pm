@@ -124,7 +124,7 @@ my %type_data = (
     },
     properties => {
       customervendor => "customer",
-      is_customer    => 0,
+      is_customer    => 1,
       nr_key         => "donumber",
       transfer       => 'in',
       transnumber    => 'rdonumber',
