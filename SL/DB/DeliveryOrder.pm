@@ -17,6 +17,8 @@ use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Part;
 use SL::DB::Unit;
 
+use SL::Controller::DeliveryOrder::TypeData;
+
 use SL::Helper::Number qw(_format_total _round_total);
 
 use List::Util qw(first);
@@ -77,7 +79,7 @@ sub sales_order {
 }
 
 sub type {
-  return shift->customer_id ? 'sales_delivery_order' : 'purchase_delivery_order';
+  goto &order_type;
 }
 
 sub displayable_type {
@@ -149,6 +151,14 @@ sub new_from {
   } else {
     $args{shipto_id} = $source->shipto_id;
   }
+
+  # infer type from legacy fields if not given
+  $params{order_type} //= $source->customer_id ? 'sales_delivery_order'
+                        : $source->vendor_id   ? 'purchase_delivery_order'
+                        : undef;
+
+  # overwrite legacy is_sales from type_data
+  $args{is_sales} = SL::Controller::DeliveryOrder::TypeData::get3($params{order_type}, "properties", "is_customer");
 
   my $delivery_order = $class->new(%args);
   $delivery_order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
@@ -291,6 +301,7 @@ sub new_from_time_recordings {
   } else {
     my %args = (
       is_sales    => 1,
+      order_type  => 'sales_delivery_order',
       delivered   => 0,
       customer_id => $sources->[0]->customer_id,
       taxzone_id  => $sources->[0]->customer->taxzone_id,
@@ -306,8 +317,14 @@ sub new_from_time_recordings {
   return $delivery_order;
 }
 
+# legacy for compatibility
+# use type_data cusomtervendor and transfer direction instead
+sub is_sales {
+  SL::Controller::DeliveryOrder::TypeData::get3($_[0]->order_type, "properties", "is_customer");
+}
+
 sub customervendor {
-  $_[0]->is_sales ? $_[0]->customer : $_[0]->vendor;
+  SL::Controller::DeliveryOrder::TypeData::get3($_[0]->order_type, "properties", "is_customer") ? $_[0]->customer : $_[0]->vendor;
 }
 
 sub convert_to_invoice {
