@@ -1,6 +1,7 @@
 package SL::DB::DeliveryOrder::TypeData;
 
 use strict;
+use Carp;
 use Exporter qw(import);
 use Scalar::Util qw(weaken);
 use SL::Locale::String qw(t8);
@@ -25,6 +26,7 @@ my %type_data = (
       saved  => t8('Delivery Order has been saved'),
       add    => t8("Add Sales Delivery Order"),
       edit   => t8("Edit Sales Delivery Order"),
+      attachment => t8("sales_delivery_order_list"),
     },
     show_menu => {
       save_and_quotation      => 0,
@@ -51,6 +53,7 @@ my %type_data = (
       saved  => t8('Delivery Order has been saved'),
       add    => t8("Add Purchase Delivery Order"),
       edit   => t8("Edit Purchase Delivery Order"),
+      attachment => t8("purchase_delivery_order_list"),
     },
     show_menu => {
       save_and_quotation      => 0,
@@ -77,6 +80,7 @@ my %type_data = (
       saved  => t8('Delivery Order has been saved'),
       add    => t8("Add Supplier Delivery Order"),
       edit   => t8("Edit Supplier Delivery Order"),
+      attachment => t8("supplier_delivery_order_list"),
     },
     show_menu => {
       save_and_quotation      => 0,
@@ -103,6 +107,7 @@ my %type_data = (
       saved  => t8('Delivery Order has been saved'),
       add    => t8("Add RMA Delivery Order"),
       edit   => t8("Edit RMA Delivery Order"),
+      attachment => t8("rma_delivery_order_list"),
     },
     show_menu => {
       save_and_quotation      => 0,
@@ -143,9 +148,9 @@ sub is_valid_type {
 }
 
 sub validate_type {
-  my ($self, $type) = @_;
+  my ($type) = @_;
 
-  return $valid_types{$type} // die "invalid type";
+  return $valid_types{$type} // confess "invalid type '$type'";
 }
 
 sub get {
@@ -161,7 +166,7 @@ sub get {
 sub get3 {
   my ($type, $topic, $key) = @_;
 
-  my $ret = $type_data{$type}{$topic}{$key} // die "unknown property '$key' in topic '$topic'";
+  my $ret = $type_data{$type}{$topic}{$key} // die "unknown property '$key' in topic '$topic' for type '$type'";
 
   ref $ret eq 'CODE'
     ? $ret->()
