@@ -9,13 +9,16 @@ use List::MoreUtils qw(any none);
 use SL::DBUtils;
 use SL::PrefixedNumber;
 use SL::DB;
+use SL::DB::DeliveryOrder::TypeData;
 
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(type id number save dbh dbh_provided business_id) ],
 );
 
-my @SUPPORTED_TYPES = qw(invoice invoice_for_advance_payment final_invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order purchase_order sales_quotation request_quotation part service assembly assortment letter);
+my @SUPPORTED_TYPES = qw(invoice invoice_for_advance_payment final_invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order purchase_order sales_quotation request_quotation part service assembly assortment letter),
+  @{ SL::DB::DeliveryOrder::TypeData::valid_types() },
+);
 
 sub new {
   my $class = shift;
@@ -47,11 +50,12 @@ sub _get_filters {
     $filters{numberfield}   = "${type}number";
     $filters{table}         = $type;
 
-  } elsif ($type =~ /_delivery_order$/) {
-    $filters{trans_number}  = "donumber";
-    $filters{numberfield}   = $type eq 'sales_delivery_order' ? "sdonumber" : "pdonumber";
+  } elsif ($type =~ /_delivery_order$/ && SL::DB::DeliveryOrder::TypeData::is_valid_type($type)) {
+    $filters{trans_number}  = SL::DB::DeliveryOrder::TypeData::get3($type, 'properties', 'nr_key'),
+    $filters{numberfield}   = SL::DB::DeliveryOrder::TypeData::get3($type, 'properties', 'transnumber'),
     $filters{table}         = "delivery_orders";
-    $filters{where}         = $type =~ /^sales/ ? '(customer_id IS NOT NULL)' : '(vendor_id IS NOT NULL)';
+    $filters{where}         = "order_type = ?";
+    $filters{values}        = [ $::form->{type} ];
 
   } elsif ($type =~ /_order$/) {
     $filters{trans_number}  = "ordnumber";
@@ -96,6 +100,7 @@ sub is_unique {
   my @values = ($self->number);
 
   push @where, $filters{where} if $filters{where};
+  push @values, @{ $filters{values} } if $filters{values};
 
   if ($self->id) {
     push @where,  qq|id <> ?|;
@@ -131,7 +136,7 @@ sub create_unique {
 SQL
 
     do_query($form, $self->dbh, "LOCK TABLE " . $filters{table}) || die $self->dbh->errstr;
-    my %numbers_in_use = selectall_as_map($form, $self->dbh, $query, $filters{trans_number}, 'in_use');
+    my %numbers_in_use = selectall_as_map($form, $self->dbh, $query, $filters{trans_number}, 'in_use', @{ $filters{values} // [] });
 
     my $business_number;
     ($business_number) = selectfirst_array_query($form, $self->dbh, qq|SELECT customernumberinit FROM business WHERE id = ? FOR UPDATE|, $self->business_id) if $self->business_id;

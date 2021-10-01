@@ -8,6 +8,8 @@ use SL::DB::Helper::Paginated;
 use SL::DB::Helper::Sorted;
 use SL::DB::Helper::Filtered;
 
+use SL::DB::DeliveryOrder::TypeData qw(validate_type);
+
 sub object_class { 'SL::DB::DeliveryOrder' }
 
 __PACKAGE__->make_manager_methods;
@@ -27,10 +29,7 @@ sub type_filter {
   my $class = shift;
   my $type  = lc(shift || '');
 
-  return ('!customer_id' => undef) if $type eq 'sales_delivery_order';
-  return ('!vendor_id'   => undef) if $type eq 'purchase_delivery_order';
-
-  die "Unknown type $type";
+  return type => validate_type($type);
 }
 
 sub _sort_spec {
