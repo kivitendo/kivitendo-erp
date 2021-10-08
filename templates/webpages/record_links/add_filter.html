@@ -22,6 +22,11 @@
   </tr>
 
   <tr>
+   <td>[%- LxERP.t8("Record number") %]:</td>
+   <td>[% L.input_tag('number', '', style=style) %]</td>
+  </tr>
+
+  <tr>
    <td>[%- LxERP.t8("Customer/Vendor Number") %]:</td>
    <td>[% L.input_tag('vc_number', is_sales ? SELF.object.customer.customernumber : SELF.object.vendor.vendornumber, style=style) %]</td>
   </tr>

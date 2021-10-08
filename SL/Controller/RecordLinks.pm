@@ -132,12 +132,23 @@ sub action_ajax_add_list {
   my $project_id  = "${project}_id";
   my $description = $self->link_type_desc->{description};
   my $filter      = $self->link_type_desc->{filter};
+  my $number      = $self->link_type_desc->{number};
 
   my @where = $filter && $manager->can($filter) ? $manager->$filter($self->link_type) : ();
   push @where, ("${vc}.${vc}number"     => { ilike => like($::form->{vc_number}) })               if $::form->{vc_number};
   push @where, ("${vc}.name"            => { ilike => like($::form->{vc_name}) })                 if $::form->{vc_name};
   push @where, ($description            => { ilike => like($::form->{transaction_description}) }) if $::form->{transaction_description};
   push @where, ($project_id             => $::form->{globalproject_id})                           if $::form->{globalproject_id} && $manager->can($project_id);
+
+  if ($::form->{number}) {
+    my $class    = 'SL::DB::' . $self->link_type_desc->{model};
+    my $col_type = ref $class->meta->column($number);
+    if ($col_type =~ /^Rose::DB::Object::Metadata::Column::(?:Integer|Serial)$/) {
+      push @where, ($number => $::form->{number});
+    } elsif ($col_type =~ /^Rose::DB::Object::Metadata::Column::Text$/) {
+      push @where, ($number => { ilike => like($::form->{number}) });
+    }
+  }
 
   my @with_objects = ($vc);
   push @with_objects, $project if $manager->can($project_id);
