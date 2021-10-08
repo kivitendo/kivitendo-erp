@@ -29,7 +29,7 @@ sub type_filter {
   my $class = shift;
   my $type  = lc(shift || '');
 
-  return type => validate_type($type);
+  return order_type => validate_type($type);
 }
 
 sub _sort_spec {

@@ -20,6 +20,11 @@ sub new {
   return $o;
 }
 
+sub validate {
+  my ($self, $string) = @_;
+  validate_type($string);
+}
+
 sub text {
   my ($self, $string) = @_;
   get3($self->c->type, "text", $string);

@@ -1161,7 +1161,7 @@ sub make_order {
   # order here solves this problem.
   my $order;
   $order   = SL::DB::DeliveryOrder->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
-  $order ||= SL::DB::DeliveryOrder->new(orderitems  => [], currency_id => $::instance_conf->get_currency_id(), order_type => $self->type_data->validate_type($::form->{type}));
+  $order ||= SL::DB::DeliveryOrder->new(orderitems  => [], currency_id => $::instance_conf->get_currency_id(), order_type => $self->type_data->validate($::form->{type}));
 
   my $cv_id_method = $self->cv . '_id';
   if (!$::form->{id} && $::form->{$cv_id_method}) {
