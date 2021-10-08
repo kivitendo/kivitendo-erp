@@ -155,7 +155,8 @@ sub new_from {
   # infer type from legacy fields if not given
   $params{order_type} //= $source->customer_id ? 'sales_delivery_order'
                         : $source->vendor_id   ? 'purchase_delivery_order'
-                        : undef;
+                        : $source->is_sales    ? 'sales_delivery_order'
+                        : croak "need some way to set delivery order type from source";
 
   # overwrite legacy is_sales from type_data
   $args{is_sales} = SL::Controller::DeliveryOrder::TypeData::get3($params{order_type}, "properties", "is_customer");
