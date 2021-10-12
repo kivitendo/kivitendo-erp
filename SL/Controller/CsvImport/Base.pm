@@ -539,9 +539,11 @@ sub save_objects {
     SL::DB->client->with_transaction(sub {
       foreach my $entry_index ($chunk_size * $chunk .. min( $last_index, $chunk_size * ($chunk + 1) - 1 )) {
         my $entry = $data->[$entry_index];
-        next if @{ $entry->{errors} };
 
         my $object = $entry->{object_to_save} || $entry->{object};
+        $self->save_additions_always($object);
+
+        next if @{ $entry->{errors} };
 
         my $ret;
         if (!eval { $ret = $object->save(cascade => !!$self->save_with_cascade()); 1 }) {
@@ -601,6 +603,18 @@ sub save_additions {
 
   return;
 }
+
+sub save_additions_always {
+  my ($self, $object) = @_;
+
+  # Can be overridden by derived specialized importer classes to save
+  # additional tables always.
+  # This sub is called before the object is saved. Therefore this
+  # hook will always be executed wether or not the import entry can be saved successfully.
+
+  return;
+}
+
 
 sub _save_history {
   my ($self, $object) = @_;
