@@ -610,7 +610,7 @@ sub save_additions_always {
   # Can be overridden by derived specialized importer classes to save
   # additional tables always.
   # This sub is called before the object is saved. Therefore this
-  # hook will always be executed wether or not the import entry can be saved successfully.
+  # hook will always be executed whether or not the import entry can be saved successfully.
 
   return;
 }
