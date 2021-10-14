@@ -23,6 +23,8 @@ Kleinere neue Features und Detailverbesserungen:
   markieren unbekannte Worte (Tippfehler) mit einer roten gewellten Linie
 - Prüfung, ob Kundenbestellnummer in Verkaufsaufträgen vorhanden ist, kann in der
   Mandantenkonfiguration eingestellt werden
+- Optionale Warnung falls eine Verkaufsrechnung nicht aus einem Lieferschein
+  erzeugt wurde (Konfigurierbar in der Mandantenkonfiguration)
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 

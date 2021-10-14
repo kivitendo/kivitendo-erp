@@ -279,14 +279,16 @@ sub setup_is_action_bar {
   my $payments_balanced       = ($::form->{oldtotalpaid} == 0);
   my $has_storno              = ($::form->{storno} && !$::form->{storno_id});
   my $may_edit_create         = $::auth->assert('invoice_edit', 1);
-  my $is_linked_bank_transaction;
+  my ($is_linked_bank_transaction, $warn_unlinked_delivery_order);
     if ($::form->{id}
         && SL::DB::Default->get->payments_changeable != 0
         && SL::DB::Manager::BankTransactionAccTrans->find_by(ar_id => $::form->{id})) {
 
       $is_linked_bank_transaction = 1;
     }
-
+  if ($::instance_conf->get_warn_no_delivery_order_for_invoice && !$form->{id}) {
+    $warn_unlinked_delivery_order = 1 unless $form->{convert_from_do_ids};
+  }
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
@@ -304,6 +306,7 @@ sub setup_is_action_bar {
           t8('Post'),
           submit   => [ '#form', { action => "post" } ],
           checks   => [ 'kivi.validate_form' ],
+          confirm  => t8('The invoice is not linked with a sales delivery order. Post anyway?') x !!$warn_unlinked_delivery_order,
           disabled => !$may_edit_create                         ? t8('You must not change this invoice.')
                     : $form->{locked}                           ? t8('The billing period has already been locked.')
                     : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
@@ -400,6 +403,7 @@ sub setup_is_action_bar {
         action => [ t8('Print and Post'),
           call     => [ 'kivi.SalesPurchase.show_print_dialog', 'print_and_post' ],
           checks   => [ 'kivi.validate_form' ],
+          confirm  => t8('The invoice is not linked with a sales delivery order. Post anyway?') x !!$warn_unlinked_delivery_order,
           disabled => !$may_edit_create                         ? t8('You must not change this invoice.')
                     : $form->{locked}                           ? t8('The billing period has already been locked.')
                     : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')

@@ -260,12 +260,15 @@
    <td>[% LxERP.t8("If enabled a warning will be shown in sales delivery orders on workflow to invoices if positions are not stocked out.") %]</td>
   </tr>
   <tr>
-  <tr>
    <td align="right">[% LxERP.t8("For purchase delivery orders, warn on workflow to invoice if not stocked in") %]</td>
    <td>[% L.yes_no_tag("defaults.purchase_delivery_order_check_stocked", SELF.defaults.purchase_delivery_order_check_stocked) %]</td>
    <td>[% LxERP.t8("If enabled a warning will be shown in purchase delivery orders on workflow to invoices if positions are not stocked in.") %]</td>
   </tr>
   <tr>
+   <td align="right">[% LxERP.t8("For sales invoices, warn if invoice has no delivery order as a predecessor") %]</td>
+   <td>[% L.yes_no_tag("defaults.warn_no_delivery_order_for_invoice", SELF.defaults.warn_no_delivery_order_for_invoice ) %]</td>
+   <td>[% LxERP.t8("If enabled a warning will be shown if a sales invoices is created without having a sales delivery order as a predecessor.") %]</td>
+  </tr>
   <tr>
    <td align="right">[% LxERP.t8("Create sales invoices with Factur-X/ZUGFeRD data") %]</td>
    <td>[% L.select_tag("defaults.create_zugferd_invoices", SELF.zugferd_settings, default=SELF.defaults.create_zugferd_invoices) %]</td>

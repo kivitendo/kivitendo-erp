@@ -189,6 +189,7 @@ __PACKAGE__->meta->columns(
   vertreter                                 => { type => 'boolean', default => 'false' },
   warehouse_id                              => { type => 'integer' },
   warehouse_id_ignore_onhand                => { type => 'integer' },
+  warn_no_delivery_order_for_invoice        => { type => 'boolean', default => 'false' },
   webdav                                    => { type => 'boolean', default => 'false' },
   webdav_documents                          => { type => 'boolean', default => 'false' },
   weightunit                                => { type => 'varchar', length => 5 },
