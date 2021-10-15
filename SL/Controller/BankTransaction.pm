@@ -280,6 +280,7 @@ sub action_create_invoice {
     query        => [ template_type => 'gl_transaction',
                       chart_id      => SL::DB::Manager::BankAccount->find_by(id => $self->transaction->local_bank_account_id)->chart_id,
                     ],
+    sort_by      => [ qw(template_name) ],
     with_objects => [ qw(employee record_template_items) ],
   );
 
