@@ -274,6 +274,7 @@ sub action_create_invoice {
 
   my $templates_ap = SL::DB::Manager::RecordTemplate->get_all(
     where        => [ template_type => 'ap_transaction' ],
+    sort_by      => [ qw(template_name) ],
     with_objects => [ qw(employee vendor) ],
   );
   my $templates_gl = SL::DB::Manager::RecordTemplate->get_all(
