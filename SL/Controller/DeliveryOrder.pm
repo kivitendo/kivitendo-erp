@@ -1582,6 +1582,8 @@ sub pre_render {
                                                 } } @all_objects;
   }
 
+  $self->{template_args}{inout} = $self->type_data->properties('transfer');
+
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 
   $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.DeliveryOrder kivi.File ckeditor/ckeditor ckeditor/adapters/jquery
