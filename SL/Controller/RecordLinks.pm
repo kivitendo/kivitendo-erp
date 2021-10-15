@@ -65,7 +65,10 @@ sub action_ajax_list {
   my ($self) = @_;
 
   eval {
-    my $linked_records = $self->object->linked_records(direction => 'both', recursive => 1, save_path => 1);
+    my $linked_records = ($::instance_conf->get_always_record_links_from_order && ref $self->object ne 'SL::DB::Order')
+                       ?  $self->get_order_centric_linked_records
+                       :  $self->object->linked_records(direction => 'both', recursive => 1, save_path => 1);
+
     push @{ $linked_records }, $self->object->sepa_export_items if $self->object->can('sepa_export_items');
 
     my $output         = grouped_record_list(
@@ -242,4 +245,17 @@ sub check_auth {
   $::auth->assert('record_links');
 }
 
+# internal
+
+sub get_order_centric_linked_records {
+  my ($self) = @_;
+
+  my $all_linked_records = $self->object->linked_records(direction => 'from', recursive => 1);
+  my $filtered_orders = [ grep { 'SL::DB::Order' eq ref $_ && $_->is_type('sales_order') } @$all_linked_records ];
+  my $id_ref = [ map { $_->id } @$filtered_orders ];
+  my $linked_records = SL::DB::Order->new->linked_records(direction => 'to', recursive => 1, batch => $id_ref);
+  push @{ $linked_records }, @$filtered_orders;
+
+  return $linked_records;
+}
 1;

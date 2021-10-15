@@ -19,6 +19,7 @@ __PACKAGE__->meta->columns(
   allow_new_purchase_invoice                => { type => 'boolean', default => 'true', not_null => 1 },
   allow_sales_invoice_from_sales_order      => { type => 'boolean', default => 'true', not_null => 1 },
   allow_sales_invoice_from_sales_quotation  => { type => 'boolean', default => 'true', not_null => 1 },
+  always_record_links_from_order            => { type => 'boolean', default => 'false' },
   ap_add_doc                                => { type => 'boolean', default => 'false', not_null => 1 },
   ap_changeable                             => { type => 'integer', default => 2, not_null => 1 },
   ap_chart_id                               => { type => 'integer' },

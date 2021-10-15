@@ -1,0 +1,12 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%]
+<div id="record_links">
+ <table>
+  <tr>
+   <td align="right" nowrap="true">[% LxERP.t8('View record links from Sales Order') %]</td>
+   <td>[% L.yes_no_tag('defaults.always_record_links_from_order', SELF.defaults.always_record_links_from_order) %]</td>
+   <td>
+    [% LxERP.t8('If enabled the record links view starts always from the sales order including all sublevels') %]<br>
+   </td>
+  </tr>
+ </table>
+</div>

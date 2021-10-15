@@ -25,6 +25,8 @@ Kleinere neue Features und Detailverbesserungen:
   Mandantenkonfiguration eingestellt werden
 - Optionale Warnung falls eine Verkaufsrechnung nicht aus einem Lieferschein
   erzeugt wurde (Konfigurierbar in der Mandantenkonfiguration)
+- Die Ansicht der verknüpften Belegen kann unabhängig vom aktuellen Beleg immer
+  vom Auftrag her aufgebaut werden
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
