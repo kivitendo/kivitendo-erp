@@ -276,6 +276,40 @@ is ref $tt, 'SL::DB::TransferType',       "Valid TransferType, no undef";
 is $tt->direction, 'in',                  "Transfer direction correct";
 is $tt->description, 'correction',        "Transfer description correct";
 
+# target_qty is 0
+
+$file = \<<EOL;
+warehouse,bin,partnumber,target_qty,comment
+Warehouse,"Bin 1","ap 1",0,"Jetzt wirklich"
+EOL
+$entries = test_import($file, $settings1);
+$entry = $entries->[0];
+is scalar @{ $entry->{errors} }, 0, "No error for valid data occurred";
+is $entry->{object}->qty, "-33.75", "Valid qty accepted";  # evals to text qty = target_qty - actual_qty
+is(SL::Helper::Inventory::get_stock(part => $part1),  "0.00000",  'simple add (stock) qty works');
+is(SL::Helper::Inventory::get_onhand(part => $part1), undef, 'simple add (onhand) qty works'); # hmm good return?
+
+# now check the real Inventory entry
+$trans_id = $entry->{object}->trans_id;
+$inv_obj = SL::DB::Manager::Inventory->find_by(trans_id => $trans_id);
+
+# we expect one entry for one trans_id
+is ref $inv_obj, "SL::DB::Inventory",             "One inventory object, no array or undef";
+is $inv_obj->qty == -33.75000, 1,                       "Valid qty accepted";
+is $inv_obj->comment,
+  "Jetzt wirklich",  "Valid comment accepted";
+is $inv_obj->employee_id, 1,                      "Employee valid";
+is ref $inv_obj->shippingdate, 'DateTime',        "Valid DateTime for shippingdate";
+is $inv_obj->shippingdate, DateTime->today_local, "Default shippingdate set";
+
+$tt = SL::DB::Manager::TransferType->find_by(id => $inv_obj->trans_type_id);
+
+is ref $tt, 'SL::DB::TransferType',       "Valid TransferType, no undef";
+is $tt->direction, 'out',                  "Transfer direction correct";
+is $tt->description, 'correction',        "Transfer description correct";
+
+
+
 
 clear_up(); # remove all data at end of tests
 
