@@ -29,6 +29,9 @@ Kleinere neue Features und Detailverbesserungen:
   vom Auftrag her aufgebaut werden
 - SEPA-Überweisungen & -Bankeinzüge nutzen jetzt aktuelle Standard-Versionen, die
   momentan von der Kreditindustrie unterstützt werden.
+- Pflichtenhefte: wenn man im Workflow vom Pflichtenheft ein neues
+  Angebot anlegt und später von diesem Angebot aus einen Auftrag, so
+  wird auch der Auftrag direkt mit dem Pflichtenheft verknüpft.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 

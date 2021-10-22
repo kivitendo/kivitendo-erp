@@ -44,6 +44,7 @@ use SL::DB::Order;
 use SL::DB::PeriodicInvoicesConfig;
 use SL::DB::Project;
 use SL::DB::ProjectType;
+use SL::DB::RequirementSpecOrder;
 use SL::DB::Status;
 use SL::DB::Tax;
 use SL::DBUtils;
@@ -479,6 +480,7 @@ sub _save {
   my $number_field         = $form->{type} =~ m{order} ? 'ordnumber' : 'quonumber';
   my $trans_number         = SL::TransNumber->new(type => $form->{type}, dbh => $dbh, number => $form->{$number_field}, id => $form->{id});
   $form->{$number_field} ||= $trans_number->create_unique; # set $form->{ordnumber} or $form->{quonumber}
+  my $is_new               = !$form->{id};
 
   if ($form->{id}) {
     $query = qq|DELETE FROM custom_variables
@@ -832,9 +834,50 @@ SQL
                                        config_yaml => $form->{periodic_invoices_config})
     if ($form->{type} eq 'sales_order');
 
+  $self->_link_created_sales_order_to_requirement_specs_for_sales_quotations(
+    type               => $form->{type},
+    converted_from_ids => \@convert_from_oe_ids,
+    sales_order_id     => $form->{id},
+    is_new             => $is_new,
+  );
+
   $main::lxdebug->leave_sub();
 
   return 1;
+}
+
+sub _link_created_sales_order_to_requirement_specs_for_sales_quotations {
+  my ($self, %params) = @_;
+
+  # If this is a sales order created from a sales quotation and if
+  # that sales quotation was created from a requirement spec document
+  # then link the newly created sales order to the requirement spec
+  # document, too.
+
+  return if !$params{is_new};
+  return if  $params{type} ne 'sales_order';
+  return if !@{ $params{converted_from_ids} };
+
+  my $oe_objects       = SL::DB::Manager::Order->get_all(where => [ id => $params{converted_from_ids} ]);
+  my @sales_quotations = grep { $_->is_type('sales_quotation') } @{ $oe_objects };
+
+  return if !@sales_quotations;
+
+  my $rs_orders = SL::DB::Manager::RequirementSpecOrder->get_all(where => [ order_id => [ map { $_->id } @sales_quotations ] ]);
+
+  return if !@{ $rs_orders };
+
+  $rs_orders->[0]->db->with_transaction(sub {
+    foreach my $rs_order (@{ $rs_orders }) {
+      SL::DB::RequirementSpecOrder->new(
+        order_id            => $params{sales_order_id},
+        requirement_spec_id => $rs_order->requirement_spec_id,
+        version_id          => $rs_order->version_id,
+      )->save;
+    }
+
+    1;
+  });
 }
 
 sub save_periodic_invoices_config {

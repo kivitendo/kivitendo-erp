@@ -23,6 +23,7 @@ use SL::DB::PartsGroup;
 use SL::DB::Printer;
 use SL::DB::Language;
 use SL::DB::RecordLink;
+use SL::DB::RequirementSpec;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 
@@ -1678,6 +1679,7 @@ sub save {
     # link records
     if ($::form->{converted_from_oe_id}) {
       my @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};
+
       foreach my $converted_from_oe_id (@converted_from_oe_ids) {
         my $src = SL::DB::Order->new(id => $converted_from_oe_id)->load;
         $src->update_attributes(closed => 1) if $src->type =~ /_quotation$/;
@@ -1696,6 +1698,8 @@ sub save {
           $idx++;
         }
       }
+
+      $self->link_requirement_specs_linking_to_created_from_objects(@converted_from_oe_ids);
     }
 
     $self->save_history('SAVED');
@@ -2307,6 +2311,21 @@ sub store_pdf_to_webdav_and_filemanagement {
   }
 
   return @errors;
+}
+
+sub link_requirement_specs_linking_to_created_from_objects {
+  my ($self, @converted_from_oe_ids) = @_;
+
+  return unless @converted_from_oe_ids;
+
+  my $rs_orders = SL::DB::Manager::RequirementSpecOrder->get_all(where => [ order_id => \@converted_from_oe_ids ]);
+  foreach my $rs_order (@{ $rs_orders }) {
+    SL::DB::RequirementSpecOrder->new(
+      order_id            => $self->order->id,
+      requirement_spec_id => $rs_order->requirement_spec_id,
+      version_id          => $rs_order->version_id,
+    )->save;
+  }
 }
 
 1;
