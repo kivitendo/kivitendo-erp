@@ -293,7 +293,16 @@
 
        <tr>
         <th width="70%" align="right" nowrap>[% 'Delivery Order Number' | $T8 %]</th>
-        <td><input name="donumber" id="donumber" size="11" value="[% HTML.escape(donumber) %]"[% RO %]></td>
+        <td>
+[%- IF !is_customer || INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
+          [% L.input_tag("donumber", donumber, size="11", readonly=delivered) %]
+[%- ELSIF id %]
+          [% HTML.escape(donumber) %]
+          [% L.hidden_tag("donumber", donumber) %]
+[%- ELSE %]
+          [% LxERP.t8("will be set upon saving") %]
+[%- END %]
+        </td>
        </tr>
 
        <tr>

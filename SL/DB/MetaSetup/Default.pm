@@ -157,6 +157,7 @@ __PACKAGE__->meta->columns(
   sales_delivery_order_show_delete          => { type => 'boolean', default => 'true' },
   sales_order_show_delete                   => { type => 'boolean', default => 'true' },
   sales_purchase_order_ship_missing_column  => { type => 'boolean', default => 'false' },
+  sales_purchase_record_numbers_changeable  => { type => 'boolean', default => 'false', not_null => 1 },
   sales_serial_eq_charge                    => { type => 'boolean', default => 'false', not_null => 1 },
   sdonumber                                 => { type => 'text' },
   sepa_creditor_id                          => { type => 'text' },

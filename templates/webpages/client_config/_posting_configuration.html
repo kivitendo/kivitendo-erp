@@ -33,6 +33,11 @@
    <td>[% L.select_tag('defaults.payments_changeable', SELF.payment_options, value_key = 'value', title_key = 'title', default = SELF.defaults.payments_changeable) %]</td>
    <td>[% LxERP.t8('Should payments be and when should they be changeable after posting?') %]</td>
   </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Record numbers changeable') %]</td>
+   <td>[% L.yes_no_tag('defaults.sales_purchase_record_numbers_changeable', SELF.defaults.sales_purchase_record_numbers_changeable) %]</td>
+   <td>[% LxERP.t8('If disabled, record numbers for sales records & purchase records produced by our side will always be auto-generated and cannot be changed later.') %]</td>
+  </tr>
 
   <tr> </tr>
   <tr> </tr>

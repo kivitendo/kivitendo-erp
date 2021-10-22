@@ -213,7 +213,16 @@
 [%- IF is_type_credit_note %]
         <tr>
           <th align="right" nowrap>[% 'Credit Note Number' | $T8 %]</th>
-          <td colspan="3"><input size='11' name="invnumber" id="invnumber" value="[% HTML.escape(invnumber) %]"></td>
+          <td colspan="3">
+[%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
+            [% L.input_tag("invnumber", invnumber, size="11") %]
+[%- ELSIF id %]
+            [% L.hidden_tag("invnumber", invnumber) %]
+            [% HTML.escape(invnumber) %]
+[%- ELSE %]
+            [% LxERP.t8("will be set upon posting") %]
+[%- END %]
+          </td>
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Invoice Number' | $T8 %]</th>
@@ -226,7 +235,16 @@
 [%- ELSE %]
         <tr>
           <th align="right" nowrap>[% 'Invoice Number' | $T8 %]</th>
-          <td colspan="3"><input size='11' name="invnumber" id="invnumber" value="[% HTML.escape(invnumber) %]"></td>
+          <td colspan="3">
+[%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
+          [% L.input_tag("invnumber", invnumber, size="11") %]
+[%- ELSIF id %]
+            [% L.hidden_tag("invnumber", invnumber) %]
+            [% HTML.escape(invnumber) %]
+[%- ELSE %]
+            [% LxERP.t8("will be set upon posting") %]
+[%- END %]
+          </td>
         </tr>
         <tr>
           <th align="right">[% 'Invoice Date' | $T8 %]</th>

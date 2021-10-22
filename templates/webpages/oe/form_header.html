@@ -198,12 +198,30 @@
 [%- IF is_order %]
                   <tr>
                     <th width="70%" align="right" nowrap>[% 'Order Number' | $T8 %]</th>
-                    <td><input name="ordnumber" id="ordnumber" size="11" value="[% HTML.escape(ordnumber) %]"></td>
+                    <td>
+[%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
+                      [% L.input_tag("ordnumber", ordnumber, size="11") %]
+[%- ELSIF id %]
+                      [% HTML.escape(ordnumber) %]
+                      [% L.hidden_tag("ordnumber", ordnumber) %]
+[%- ELSE %]
+                      [% LxERP.t8("will be set upon saving") %]
+[%- END %]
+                    </td>
                   </tr>
 [%- END %]
                   <tr>
                     <th width="70%" align="right" nowrap>[% IF is_req_quo %][% 'RFQ Number' | $T8 %][% ELSE %][% 'Quotation Number' | $T8 %][% END %]</th>
-                    <td><input name="quonumber" id="quonumber" size="11" value="[% HTML.escape(quonumber) %]"></td>
+                    <td>
+[%- IF is_order || INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
+                      [% L.input_tag("quonumber", quonumber, size="11") %]
+[%- ELSIF id %]
+                      [% HTML.escape(quonumber) %]
+                      [% L.hidden_tag("quonumber", quonumber) %]
+[%- ELSE %]
+                      [% LxERP.t8("will be set upon saving") %]
+[%- END %]
+                    </td>
                   </tr>
 [%- IF is_order %]
                   <tr>

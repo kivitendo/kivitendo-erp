@@ -39,6 +39,10 @@ Kleinere neue Features und Detailverbesserungen:
   Platzhalter enthalten, die vom Beleg selber stammen. So könnte
   z.B. in der Artikelbeschreibung automatisch die Rechnungsnummer
   ersetzt werden. Beispiel: »Abrechnungszeitraum bis <%invnumber%>«
+- Verkaufs- & Einkaufsbelege: kivitendo kann so konfiguriert werden,
+  dass die Belegnummern von Belegen, die auf unserer Seite erzeugt
+  werden, nicht mehr editierbar sind. In dem Fall vergibt kivitendo
+  sie immer automatisch und zeigt sie in den Belegmasken nur noch an.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
