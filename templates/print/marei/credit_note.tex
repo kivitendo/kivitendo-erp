@@ -16,7 +16,7 @@
 \ourhead{\kundennummer}{<%customernumber%>}{\gutschrift}{<%invnumber%>}{<%invdate%>}
 
 \setkomavar*{date}{\datum}
-\setkomavar{date}{<%transdate%>}
+\setkomavar{date}{<%invdate%>}
 \setkomavar{customer}{<%customernumber%>}
 \setkomavar{fromname}{<%employee_name%>}
 \setkomavar{fromphone}{<%employee_tel%>}
@@ -31,8 +31,7 @@
   \setkomavar{myref}{<%invnumber_for_credit_note%>}
 <%end if%>%
 
-
-
+\setkomavar{transaction}{<%transaction_description%>}
 <%if shiptoname%>%
 \makeatletter
 \begin{lrbox}\shippingAddressBox
@@ -84,6 +83,12 @@
 
 \gutschriftformel
 
+<%if notes%>%
+<%notes%>%
+\vspace{0.5cm}
+<%end if%>%
+
+
 \begin{PricingTabular*}%
   % eigentliche Tabelle%
   \FakeTable{%
@@ -112,10 +117,6 @@
   \end{PricingTotal}%
 \end{PricingTabular*}
 
-<%if notes%>%
-<%notes%>%
-\medskip
-<%end if%>%
 
 \closing{\gruesse}
 
