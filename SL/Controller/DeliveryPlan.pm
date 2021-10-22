@@ -199,12 +199,13 @@ sub delivery_plan_query_linked_items {
       (oe.quotation = 'f' OR oe.quotation IS NULL) AND
       NOT oe.closed AND
       $oe_owner
-      oi.id NOT IN (
+      NOT EXISTS (
         SELECT from_id
         FROM record_links rl
         WHERE
-          rl.from_table ='orderitems' AND
-          rl.to_table = 'delivery_order_items'
+          rl.from_table = 'orderitems' AND
+          rl.to_table = 'delivery_order_items' AND
+          rl.from_id = oi.id
       )
 
   " ], # make emacs happy again: " ]
