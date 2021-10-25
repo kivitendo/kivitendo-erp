@@ -83,6 +83,17 @@
                       [% L.button_tag("kivi.SalesPurchase.edit_custom_shipto()", LxERP.t8("Custom shipto")) %]
                     </td>
                   </tr>
+
+[%- IF is_sales && vc_obj.additional_billing_addresses.as_list.size %]
+                  <tr>
+                    <th align="right">[% 'Custom Billing Address' | $T8 %]</th>
+                    <td>
+                      [% L.select_tag('billing_address_id', vc_obj.additional_billing_addresses,
+                                      with_empty=1, default=billing_address_id, value_key='id', title_key='displayable_id', style='width: 250px') %]
+                    </td>
+                  </tr>
+[%- END %]
+
 [%- IF is_order %]
                   <tr>
                     <td align="right">[% 'Credit Limit' | $T8 %]</td>

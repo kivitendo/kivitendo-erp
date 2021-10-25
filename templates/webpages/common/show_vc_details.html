@@ -1,11 +1,18 @@
 [%- USE T8 %]
-[% USE HTML %]
+[% USE HTML %][%- USE LxERP -%]
 <h1>[% IF is_customer %][% 'Customer details' | $T8 %][% ELSE %][% 'Vendor details' | $T8 %][% END %] &quot;[% HTML.escape(name) %]&quot;</h1>
 
 [% BLOCK jump_block %]
 [%- IF SHIPTO.size || CONTACTS.size %]
  <p>
   [% 'Jump to' | $T8 %] <a href="#billing">[% 'Billing Address' | $T8 %]</a>
+  [%- FOREACH additional_billing_addresses = ADDITIONAL_BILLING_ADDRESSES %]
+   ,
+   <a href="#additional_billing_address[% loop.count %]">
+    [% 'Additional Billing Address' | $T8 %]
+    "[% HTML.escape(additional_billing_addresses.name) %]"
+   </a>
+  [%- END %]
   [%- FOREACH shipto = SHIPTO %]
    ,
    <a href="#shipping[% loop.count %]">
@@ -26,7 +33,7 @@
 [%- END %]
 [% END %]
 
- [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
+ [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO, ADDITIONAL_BILLING_ADDRESSES = ADDITIONAL_BILLING_ADDRESSES %]
 
  <a name="billing"><h1>[% 'Billing Address' | $T8 %]</h1></a>
 
@@ -182,13 +189,79 @@
  </table>
 
 
+ [% FOREACH row = ADDITIONAL_BILLING_ADDRESSES %]
+
+  <hr>
+
+  [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO, ADDITIONAL_BILLING_ADDRESSES = ADDITIONAL_BILLING_ADDRESSES %]
+
+  <a name="additional_billing_address[% loop.count %]"><h1>[% 'Additional Billing Address' | $T8 %] "[% HTML.escape(row.name) %]"</h1></a>
+
+  <table>
+   <tr>
+    <td align="right">[% 'Default Billing Address' | $T8 %]</td>
+    <td>[% row.default_address ? LxERP.t8('yes') : LxERP.t8('no') %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Name' | $T8 %]</td>
+    <td>[% HTML.escape(row.name) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Department' | $T8 %]</td>
+    <td>[% HTML.escape(row.department_1) %][% IF row.department_2 %][% IF row.department_1 %]; [% END %][% HTML.escape(row.department_2) %][% END %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Street' | $T8 %]</td>
+    <td>[% HTML.escape(row.street) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Zip, City' | $T8 %]</td>
+    <td>[% HTML.escape(row.zipcode) %] [% HTML.escape(row.city) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Country' | $T8 %]</td>
+    <td>[% HTML.escape(row.country) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'GLN' | $T8 %]</td>
+    <td>[% HTML.escape(row.gln) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Contact' | $T8 %]</td>
+    <td>[% HTML.escape(row.contact) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Phone' | $T8 %]</td>
+    <td>[% HTML.escape(row.phone) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Fax' | $T8 %]</td>
+    <td>[% HTML.escape(row.fax) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'E-mail' | $T8 %]</td>
+    <td>[% HTML.escape(row.email) %]</td>
+   </tr>
+
+  </table>
+ [% END %]
 
 
  [% FOREACH row = SHIPTO %]
 
   <hr>
 
-  [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
+  [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO, ADDITIONAL_BILLING_ADDRESSES = ADDITIONAL_BILLING_ADDRESSES %]
 
   <a name="shipping[% loop.count %]"><h1>[% 'Shipping Address' | $T8 %] &quot;[% HTML.escape(row.shiptoname) %]&quot;</h1></a>
 
@@ -259,7 +332,7 @@
 
   <hr>
 
-  [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
+  [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO, ADDITIONAL_BILLING_ADDRESSES = ADDITIONAL_BILLING_ADDRESSES %]
 
   <a name="contact[% loop.count %]"><h1>[% 'Contact Person' | $T8 %] &quot;[% HTML.escape(row.cp_name) %]&quot;</h1></a>
 

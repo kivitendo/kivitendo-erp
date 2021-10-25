@@ -342,6 +342,11 @@ sub get_vc_details {
   $query = qq|SELECT * FROM shipto WHERE (trans_id = ?)|;
   $form->{SHIPTO} = selectall_hashref_query($form, $dbh, $query, $vc_id);
 
+  if ($vc eq 'customer') {
+    $query = qq|SELECT * FROM additional_billing_addresses WHERE (customer_id = ?)|;
+    $form->{ADDITIONAL_BILLING_ADDRESSES} = selectall_hashref_query($form, $dbh, $query, $vc_id);
+  }
+
   $query = qq|SELECT * FROM contacts WHERE (cp_cv_id = ?)|;
   $form->{CONTACTS} = selectall_hashref_query($form, $dbh, $query, $vc_id);
 

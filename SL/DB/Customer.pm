@@ -2,6 +2,7 @@ package SL::DB::Customer;
 
 use strict;
 
+use List::Util qw(first);
 use Rose::DB::Object::Helpers qw(as_tree);
 
 use SL::Locale::String qw(t8);
@@ -112,6 +113,13 @@ sub create_zugferd_invoices_for_this_customer {
   no warnings 'once';
   return $::instance_conf->get_create_zugferd_invoices if $self->create_zugferd_invoices == -1;
   return $self->create_zugferd_invoices;
+}
+
+sub default_billing_address {
+  my $self = shift;
+
+  die 'not an accessor' if @_ > 1;
+  return first { $_->default_address } @{ $self->additional_billing_addresses };
 }
 
 1;

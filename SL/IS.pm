@@ -1318,7 +1318,7 @@ SQL
                 shipvia     = ?,                    notes         = ?, intnotes      = ?,
                 currency_id = (SELECT id FROM currencies WHERE name = ?),
                 department_id = ?, payment_id    = ?, taxincluded   = ?,
-                type        = ?, language_id   = ?, taxzone_id    = ?, shipto_id     = ?,
+                type        = ?, language_id   = ?, taxzone_id    = ?, shipto_id     = ?, billing_address_id = ?,
                 employee_id = ?, salesman_id   = ?, storno_id     = ?, storno        = ?,
                 cp_id       = ?, marge_total   = ?, marge_percent = ?,
                 globalproject_id               = ?, delivery_customer_id             = ?,
@@ -1332,7 +1332,7 @@ SQL
              conv_date($form->{"duedate"}),  conv_date($form->{"deliverydate"}),    '1',                                $form->{"shippingpoint"},
                        $form->{"shipvia"},                                $restricter->process($form->{"notes"}),       $form->{"intnotes"},
                        $form->{"currency"},     conv_i($form->{"department_id"}), conv_i($form->{"payment_id"}),        $form->{"taxincluded"} ? 't' : 'f',
-                       $form->{"type"},         conv_i($form->{"language_id"}),   conv_i($form->{"taxzone_id"}), conv_i($form->{"shipto_id"}),
+                       $form->{"type"},         conv_i($form->{"language_id"}),   conv_i($form->{"taxzone_id"}), conv_i($form->{"shipto_id"}), conv_i($form->{billing_address_id}),
                 conv_i($form->{"employee_id"}), conv_i($form->{"salesman_id"}),   conv_i($form->{storno_id}),           $form->{"storno"} ? 't' : 'f',
                 conv_i($form->{"cp_id"}),            1 * $form->{marge_total} ,      1 * $form->{marge_percent},
                 conv_i($form->{"globalproject_id"}),                              conv_i($form->{"delivery_customer_id"}),
@@ -2030,6 +2030,7 @@ sub _retrieve_invoice {
            a.transdate AS invdate, a.deliverydate, a.tax_point, a.paid, a.storno, a.storno_id, a.gldate,
            a.shippingpoint, a.shipvia, a.notes, a.intnotes, a.taxzone_id,
            a.duedate, a.taxincluded, (SELECT cu.name FROM currencies cu WHERE cu.id=a.currency_id) AS currency, a.shipto_id, a.cp_id,
+           a.billing_address_id,
            a.employee_id, a.salesman_id, a.payment_id,
            a.mtime, a.itime,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
@@ -2218,6 +2219,10 @@ sub get_customer {
          c.street, c.zipcode, c.city, c.country,
          c.notes AS intnotes, c.pricegroup_id as customer_pricegroup_id, c.taxzone_id, c.salesman_id, cu.name AS curr,
          c.taxincluded_checked, c.direct_debit,
+         (SELECT aba.id
+          FROM additional_billing_addresses aba
+          WHERE aba.default_address
+          LIMIT 1) AS default_billing_address_id,
          b.discount AS tradediscount, b.description AS business
        FROM customer c
        LEFT JOIN business b ON (b.id = c.business_id)

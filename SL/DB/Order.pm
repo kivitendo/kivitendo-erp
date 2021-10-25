@@ -345,7 +345,7 @@ sub new_from {
   my %args = ( map({ ( $_ => $source->$_ ) } qw(amount cp_id currency_id cusordnumber customer_id delivery_customer_id delivery_term_id delivery_vendor_id
                                                 department_id exchangerate globalproject_id intnotes marge_percent marge_total language_id netamount notes
                                                 ordnumber payment_id quonumber reqdate salesman_id shippingpoint shipvia taxincluded tax_point taxzone_id
-                                                transaction_description vendor_id
+                                                transaction_description vendor_id billing_address_id
                                              )),
                quotation => !!($destination_type =~ m{quotation$}),
                closed    => 0,

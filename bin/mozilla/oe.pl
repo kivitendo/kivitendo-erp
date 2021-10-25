@@ -160,7 +160,7 @@ sub add {
 
   $form->{show_details} = $::myconfig{show_form_details};
 
-  &order_links;
+  order_links(is_new => 1);
   &prepare_order;
   &display_form;
 
@@ -245,6 +245,8 @@ sub edit {
 sub order_links {
   $main::lxdebug->enter_sub();
 
+  my (%params) = @_;
+
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
@@ -266,8 +268,12 @@ sub order_links {
   $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes shipto_id delivery_term_id currency));
 
   # get customer / vendor
-  IR->get_vendor(\%myconfig, \%$form)   if $form->{type} =~ /(purchase_order|request_quotation)/;
-  IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
+  if ($form->{type} =~ /(purchase_order|request_quotation)/) {
+    IR->get_vendor(\%myconfig, \%$form);
+  } else {
+    IS->get_customer(\%myconfig, \%$form);
+    $form->{billing_address_id} = $form->{default_billing_address_id} if $params{is_new};
+  }
 
   $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id shipto_id delivery_term_id));
   $form->restore_vars(qw(currency))    if $form->{id};
@@ -775,8 +781,12 @@ sub update {
   if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
     $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
 
-    IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
-    IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
+    if ($vc eq 'customer') {
+      IS->get_customer(\%myconfig, $form);
+      $::form->{billing_address_id} = $::form->{default_billing_address_id};
+    } else {
+      IR->get_vendor(\%myconfig, $form);
+    }
   }
 
   if (!$form->{forex}) {        # read exchangerate from input field (not hidden)
@@ -1378,6 +1388,8 @@ sub save_and_close {
     IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
     IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
 
+    $::form->{billing_address_id} = $::form->{default_billing_address_id};
+
     update();
     $::dispatcher->end_request;
   }
@@ -1480,8 +1492,13 @@ sub save {
   if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
     $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
 
-    IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
-    IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
+    if ($vc eq 'customer') {
+      IS->get_customer(\%myconfig, $form);
+      $::form->{billing_address_id} = $::form->{default_billing_address_id};
+
+    } else {
+      IR->get_vendor(\%myconfig, $form);
+    }
 
     update();
     $::dispatcher->end_request;

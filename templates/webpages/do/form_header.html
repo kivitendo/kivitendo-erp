@@ -169,6 +169,16 @@
          </td>
         </tr>
 
+        [%- IF (vc == 'customer') && VC_OBJ.additional_billing_addresses.as_list.size %]
+        <tr>
+          <th align="right">[% 'Custom Billing Address' | $T8 %]</th>
+          <td>
+            [% L.select_tag('billing_address_id', VC_OBJ.additional_billing_addresses,
+                            with_empty=1, default=billing_address_id, value_key='id', title_key='displayable_id', style='width: 250px') %]
+          </td>
+        </tr>
+        [%- END %]
+
         [%- IF business %]
         <tr>
          <th align="right">[% IF is_customer %][% 'Customer type' | $T8 %][% ELSE %][% 'Vendor type' | $T8 %][% END %]</th>

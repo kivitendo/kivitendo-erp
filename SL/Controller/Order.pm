@@ -13,6 +13,7 @@ use SL::File;
 use SL::MIME;
 use SL::Util qw(trim);
 use SL::YAML;
+use SL::DB::AdditionalBillingAddress;
 use SL::DB::History;
 use SL::DB::Order;
 use SL::DB::Default;
@@ -699,20 +700,26 @@ sub action_customer_vendor_changed {
     $self->js->hide('#shipto_selection');
   }
 
+  if ($cv_method eq 'customer') {
+    my $show_hide = scalar @{ $self->order->customer->additional_billing_addresses } > 0 ? 'show' : 'hide';
+    $self->js->$show_hide('#billing_address_row');
+  }
+
   $self->js->val( '#order_salesman_id',      $self->order->salesman_id)        if $self->order->is_sales;
 
   $self->js
-    ->replaceWith('#order_cp_id',            $self->build_contact_select)
-    ->replaceWith('#order_shipto_id',        $self->build_shipto_select)
-    ->replaceWith('#shipto_inputs  ',        $self->build_shipto_inputs)
-    ->replaceWith('#business_info_row',      $self->build_business_info_row)
-    ->val(        '#order_taxzone_id',       $self->order->taxzone_id)
-    ->val(        '#order_taxincluded',      $self->order->taxincluded)
-    ->val(        '#order_currency_id',      $self->order->currency_id)
-    ->val(        '#order_payment_id',       $self->order->payment_id)
-    ->val(        '#order_delivery_term_id', $self->order->delivery_term_id)
-    ->val(        '#order_intnotes',         $self->order->intnotes)
-    ->val(        '#order_language_id',      $self->order->$cv_method->language_id)
+    ->replaceWith('#order_cp_id',              $self->build_contact_select)
+    ->replaceWith('#order_shipto_id',          $self->build_shipto_select)
+    ->replaceWith('#shipto_inputs  ',          $self->build_shipto_inputs)
+    ->replaceWith('#order_billing_address_id', $self->build_billing_address_select)
+    ->replaceWith('#business_info_row',        $self->build_business_info_row)
+    ->val(        '#order_taxzone_id',         $self->order->taxzone_id)
+    ->val(        '#order_taxincluded',        $self->order->taxincluded)
+    ->val(        '#order_currency_id',        $self->order->currency_id)
+    ->val(        '#order_payment_id',         $self->order->payment_id)
+    ->val(        '#order_delivery_term_id',   $self->order->delivery_term_id)
+    ->val(        '#order_intnotes',           $self->order->intnotes)
+    ->val(        '#order_language_id',        $self->order->$cv_method->language_id)
     ->focus(      '#order_' . $self->cv . '_id')
     ->run('kivi.Order.update_exchangerate');
 
@@ -742,6 +749,9 @@ sub action_show_customer_vendor_details_dialog {
   $details{payment_terms}       = $cv->payment->description       if $cv->payment;
   $details{pricegroup}          = $cv->pricegroup->pricegroup     if $is_customer && $cv->pricegroup;
 
+  foreach my $entry (@{ $cv->additional_billing_addresses }) {
+    push @{ $details{ADDITIONAL_BILLING_ADDRESSES} },   { map { $_ => $entry->$_ } @{$entry->meta->columns} };
+  }
   foreach my $entry (@{ $cv->shipto }) {
     push @{ $details{SHIPTO} },   { map { $_ => $entry->$_ } @{$entry->meta->columns} };
   }
@@ -1308,6 +1318,22 @@ sub build_contact_select {
   );
 }
 
+# build the selection box for the additional billing address
+#
+# Needed, if customer/vendor changed.
+sub build_billing_address_select {
+  my ($self) = @_;
+
+  select_tag('order.billing_address_id',
+             [ {displayable_id => '', id => ''}, $self->order->{$self->cv}->additional_billing_addresses ],
+             value_key  => 'id',
+             title_key  => 'displayable_id',
+             default    => $self->order->billing_address_id,
+             with_empty => 0,
+             style      => 'width: 300px',
+  );
+}
+
 # build the selection box for shiptos
 #
 # Needed, if customer/vendor changed.
@@ -1565,13 +1591,15 @@ sub setup_order_from_cv {
 
   $order->intnotes($order->customervendor->notes);
 
-  if ($order->is_sales) {
-    $order->salesman_id($order->customer->salesman_id || SL::DB::Manager::Employee->current->id);
-    $order->taxincluded(defined($order->customer->taxincluded_checked)
-                        ? $order->customer->taxincluded_checked
-                        : $::myconfig{taxincluded_checked});
-  }
+  return if !$order->is_sales;
 
+  $order->salesman_id($order->customer->salesman_id || SL::DB::Manager::Employee->current->id);
+  $order->taxincluded(defined($order->customer->taxincluded_checked)
+                      ? $order->customer->taxincluded_checked
+                      : $::myconfig{taxincluded_checked});
+
+  my $address = $order->customer->default_billing_address;;
+  $order->billing_address_id($address ? $address->id : undef);
 }
 
 # setup custom shipto from form

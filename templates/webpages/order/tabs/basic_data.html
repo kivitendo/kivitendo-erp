@@ -51,6 +51,21 @@
             </td>
           </tr>
 
+          [%- IF SELF.cv == "customer" %]
+          <tr id="billing_address_row"[% IF !SELF.order.customer.additional_billing_addresses.as_list.size %] style="display:none"[% END %]>
+            <th align="right">[% 'Custom Billing Address' | $T8 %]</th>
+            <td>
+              [% L.select_tag('order.billing_address_id',
+                               SELF.order.customer.additional_billing_addresses,
+                               default=SELF.order.billing_address_id,
+                               title_key='displayable_id',
+                               value_key='id',
+                               with_empty=1,
+                               style='width: 300px') %]
+            </td>
+          </tr>
+          [%- END %]
+
           [%- PROCESS order/tabs/_business_info_row.html SELF=SELF %]
 
           <tr>

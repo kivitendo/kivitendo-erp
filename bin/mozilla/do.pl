@@ -98,7 +98,7 @@ sub add {
   $form->{show_details} = $::myconfig{show_form_details};
   $form->{callback} = build_std_url('action=add', 'type', 'vc') unless ($form->{callback});
 
-  order_links();
+  order_links(is_new => 1);
   prepare_order();
   display_form();
 
@@ -168,6 +168,7 @@ sub order_links {
 
   check_do_access();
 
+  my %params   = @_;
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
@@ -186,6 +187,7 @@ sub order_links {
   } else {
     IS->get_customer(\%myconfig, \%$form);
     $form->{discount} = $form->{customer_discount};
+    $form->{billing_address_id} = $form->{default_billing_address_id} if $params{is_new};
   }
 
   $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id delivery_term_id));
@@ -548,8 +550,12 @@ sub update_delivery_order {
   if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
     $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
 
-    IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
-    IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
+    if ($vc eq 'customer') {
+      IS->get_customer(\%myconfig, $form);
+      $::form->{billing_address_id} = $::form->{default_billing_address_id};
+    } else {
+      IR->get_vendor(\%myconfig, $form);
+    }
   }
 
   $form->{discount} =  $form->{"$form->{vc}_discount"} if defined $form->{"$form->{vc}_discount"};
@@ -935,8 +941,12 @@ sub save {
   if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
     $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
 
-    IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
-    IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
+    if ($vc eq 'customer') {
+      IS->get_customer(\%myconfig, $form);
+      $::form->{billing_address_id} = $::form->{default_billing_address_id};
+    } else {
+      IR->get_vendor(\%myconfig, $form);
+    }
 
     update();
     $::dispatcher->end_request;

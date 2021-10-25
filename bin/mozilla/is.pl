@@ -97,7 +97,7 @@ sub add {
 
   $form->{callback} = "$form->{script}?action=add&type=$form->{type}" unless $form->{callback};
 
-  &invoice_links;
+  invoice_links(is_new => 1);
   &prepare_invoice;
   &display_form;
 
@@ -154,6 +154,7 @@ sub invoice_links {
   # Delay access check to after the invoice's been loaded so that
   # project-specific invoice rights can be evaluated.
 
+  my %params   = @_;
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
@@ -171,6 +172,8 @@ sub invoice_links {
                         delivery_term_id));
 
   IS->get_customer(\%myconfig, \%$form);
+
+  $form->{billing_address_id} = $form->{default_billing_address_id} if $params{is_new};
 
   $form->restore_vars(qw(id));
 
@@ -731,6 +734,7 @@ sub update {
     $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
 
     IS->get_customer(\%myconfig, $form);
+    $::form->{billing_address_id} = $::form->{default_billing_address_id};
   }
 
   $form->{taxincluded} ||= $taxincluded;

@@ -755,7 +755,7 @@ SQL
          customer_id = ?, amount = ?, netamount = ?, reqdate = ?, tax_point = ?, taxincluded = ?,
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, currency_id = (SELECT id FROM currencies WHERE name=?), closed = ?,
          delivered = ?, proforma = ?, quotation = ?, department_id = ?, language_id = ?,
-         taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,delivery_term_id = ?,
+         taxzone_id = ?, shipto_id = ?, billing_address_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,delivery_term_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?, marge_total = ?, marge_percent = ?
          , order_probability = ?, expected_billing_date = ?
        WHERE id = ?|;
@@ -770,7 +770,7 @@ SQL
              $form->{delivered} ? "t" : "f", $form->{proforma} ? 't' : 'f',
              $quotation, conv_i($form->{department_id}),
              conv_i($form->{language_id}), conv_i($form->{taxzone_id}),
-             conv_i($form->{shipto_id}), conv_i($form->{payment_id}),
+             conv_i($form->{shipto_id}), conv_i($form->{billing_address_id}), conv_i($form->{payment_id}),
              conv_i($form->{delivery_vendor_id}),
              conv_i($form->{delivery_customer_id}),
              conv_i($form->{delivery_term_id}),
@@ -1100,7 +1100,7 @@ sub _retrieve {
            o.closed, o.reqdate, o.tax_point, o.quonumber, o.department_id, o.cusordnumber,
            o.mtime, o.itime,
            d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
-           o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id,
+           o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id, o.billing_address_id,
            o.globalproject_id, o.delivered, o.transaction_description, o.delivery_term_id,
            o.itime::DATE AS insertdate, o.order_probability, o.expected_billing_date
          FROM oe o
