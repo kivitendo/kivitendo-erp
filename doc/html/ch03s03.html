@@ -351,7 +351,23 @@
                      </span></dt><dd><p>Beschreibung der Lieferbedingung</p></dd><dt><span class="term">
                         <code class="varname">delivery_term.description_long</code>
                      </span></dt><dd><p>Langtext bzw. übersetzter Langtext der
-                Lieferbedingung</p></dd></dl></div></div></div><div class="sect2" title="3.3.8. Variablen in Rechnungen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.invoice"></a>3.3.8. Variablen in Rechnungen</h3></div></div></div><div class="sect3" title="3.3.8.1. Allgemeine Variablen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.invoice-allgemein"></a>3.3.8.1. Allgemeine Variablen</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                Lieferbedingung</p></dd></dl></div></div><div class="sect3" title="3.3.7.7. Informationen über abweichende Rechnungsadressen (nur Verkaufsbelege)"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.abweichende-rechnungsadresse"></a>3.3.7.7. Informationen über abweichende Rechnungsadressen (nur Verkaufsbelege)</h4></div></div></div><p>
+            Abweichende Rechnungsadressen gibt es nur in Verkaufsbelegen. Die entsprechenden Variablen sind nur dann mit Inhalt gefüllt,
+            wenn im Beleg eine abweichende Rechnungsadresse ausgewählt wurde. Ob eine Adresse überhaupt ausgewählt wurde, kann über die
+            Variable <code class="literal">billing_address_id</code> getestet werden, die die Datenbank-ID der abweichenden Rechnungsadresse enthält,
+            wenn eine ausgewählt ist.
+          </p><p>
+            Die Variablennamen starten alle mit dem Präfix <code class="literal">billing_address_</code> und heißen anschließend so, wie ihre Pendants
+            aus der Standard-Rechnungsadresse des Kunden. Beispiel: die Postleitzahl, die in der normalen Rechnungsadresse in
+            <code class="literal">zipcode</code> steht, steht für die abweichende Rechnungsadresse in <code class="literal">billing_address_zipcode</code>.
+          </p><p>
+            Die folgenden Variablen stehen so zur Verfügung: <code class="literal">billing_address_name</code>,
+            <code class="literal">billing_address_department_1</code>, <code class="literal">billing_address_department_2</code>,
+            <code class="literal">billing_address_contact</code>, <code class="literal">billing_address_street</code>,
+            <code class="literal">billing_address_zipcode</code>, <code class="literal">billing_address_city</code>, <code class="literal">billing_address_country</code>,
+            <code class="literal">billing_address_gln</code>, <code class="literal">billing_address_email</code>, <code class="literal">billing_address_phone</code> und
+            <code class="literal">billing_address_fax</code>.
+          </p></div></div><div class="sect2" title="3.3.8. Variablen in Rechnungen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.invoice"></a>3.3.8. Variablen in Rechnungen</h3></div></div></div><div class="sect3" title="3.3.8.1. Allgemeine Variablen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.invoice-allgemein"></a>3.3.8.1. Allgemeine Variablen</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
                         <code class="varname">creditremaining</code>
                      </span></dt><dd><p>Verbleibender Kredit</p></dd><dt><span class="term">
                         <code class="varname">currency</code>
@@ -617,7 +633,7 @@
                         <code class="varname">invdate</code>
                      </span></dt><dd><p>Rechnungsdatum</p></dd><dt><span class="term">
                         <code class="varname">invnumber</code>
-                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5861"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
+                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5924"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
           Rechnung. Allerdings heißen die Variablen, die mit
           <code class="varname">inv</code> beginnen, jetzt anders. Bei den Angeboten
           fangen sie mit <code class="varname">quo</code> für "quotation" an:
