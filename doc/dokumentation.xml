@@ -1319,7 +1319,7 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
         url="https://mozilla.github.io/server-side-tls/ssl-config-generator/">
         SSL-Konfigurations-Generator</ulink>.</para>
       </sect2>
-      <sect3>
+      <sect2>
         <title>Aktivierung von Apache2 modsecurity</title>
 
         <para>Aufgrund des OpenSource Charakters ist kivitendo nicht "out of the box" sicher.
@@ -1330,7 +1330,7 @@ XSS und SQL-Injections verhindert werden.</para>
 <para> Als Idee hierfür sei dieser Blog-Eintrag genannt:
 <ulink url="https://doxsec.wordpress.com/2017/06/11/using-modsecurity-web-application-firewall-to-prevent-sql-injection-and-xss-using-blocking-rules/">
         Test Apache2 modsecurity for SQL Injection</ulink>.</para>
-      </sect3>
+      </sect2>
 
     </sect1>
 
@@ -1537,7 +1537,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
           <listitem>
             <para><literal>status</literal> berichtet, ob der Task-Server
             läuft.</para>
-          </listitem>yy
+          </listitem>
         </itemizedlist>
 
         <para>Der Task-Server wechselt beim Starten automatisch in das
@@ -1550,7 +1550,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
         so startet dieser nach Beendigung automatisch erneut.</para>
 
       </sect2>
-      <sect2 id="Tasks konfigurieren">
+      <sect2 id="Tasks-konfigurieren">
         <title>Exemplarische Konfiguration eines Hintergrund-Jobs, der die Jahreszahl in allen Nummernkreisen zum Jahreswechsel erhöht</title>
 
         <para>Hintergrund-Jobs werden über System -> Hintergrund-Jobs und Task-Server -> Aktuelle Hintergrund-Jobs anzeigen -> Aktions-Knopf 'erfassen' angelegt. </para>
@@ -1597,7 +1597,7 @@ multiplier     Nummernkreis 2020
 1000      ->   2020000
 </programlisting>
 <para>Wir gehen jetzt beispielhaft von einer letzten Rechnungsnummer von RE2019456 aus. Demnach sollte ab Januar 2020 die erste Nummer RE2020001 sein. Da der Task auch Präfixe berücksichtigt, kann dies mit folgenden JSON-kodierten Werten umgesetzt werden:</para>
-<literal>Daten:</literal><programlisting>multiplier: 100
+<para><literal>Daten:</literal></para><programlisting>multiplier: 100
 digits_year: 4</programlisting>
           </listitem>
         </itemizedlist>
@@ -2199,7 +2199,7 @@ digits_year: 4</programlisting>
   texlive-collection-latexrecommended texlive-collection-langgerman \
   texlive-collection-langenglish</programlisting></para>
 
-      <note>kivitendo erwartet eine aktuelle TeX Live Umgebung, um PDF/A zu erzeugen. Aktuelle Distributionen von 2020 erfüllen diese. Überprüfbar ist dies mit dem Aufruf des installation_check.pl mit Parameter -l: <programlisting>scripts/installations_check.pl -l</programlisting> </note>
+      <note><para>kivitendo erwartet eine aktuelle TeX Live Umgebung, um PDF/A zu erzeugen. Aktuelle Distributionen von 2020 erfüllen diese. Überprüfbar ist dies mit dem Aufruf des installation_check.pl mit Parameter -l:</para><para><programlisting>scripts/installations_check.pl -l</programlisting></para></note>
       <para>kivitendo bringt drei alternative Vorlagensätze mit:</para>
 
       <itemizedlist>
@@ -7215,7 +7215,7 @@ document_path = /var/local/kivi_documents
 			Version 3.5.6 den ZUGFeRD 2.1 Standard um.</para>
 
 			<para>Weiter Details zu ZUGFeRD sind unter diesem Link zu finden:
-			<ulink>https://www.ferd-net.de/standards/was-ist-zugferd/index.html</ulink>
+			<ulink url="https://www.ferd-net.de/standards/was-ist-zugferd/index.html">https://www.ferd-net.de/standards/was-ist-zugferd/index.html</ulink>
       </para>
 		</sect2>
 
