@@ -20,6 +20,7 @@
   <div class="tabwidget" id="customer_vendor_tabs">
     <ul>
       <li><a href="#billing">[% 'Billing Address' | $T8 %]</a></li>
+      <li><a href="#additional_billing_addresses">[% 'Additional Billing Addresses' | $T8 %]</a></li>
       <li><a href="#bank">[% 'Bank account' | $T8 %]</a></li>
       <li><a href="#shipto">[% 'Shipping Address' | $T8 %]</a></li>
       <li><a href="#contacts">[% 'Contacts' | $T8 %]</a></li>
@@ -61,6 +62,7 @@
     </ul>
 
     [% PROCESS "customer_vendor/tabs/billing.html" %]
+    [% PROCESS "customer_vendor/tabs/additional_billing_addresses.html" %]
     [% PROCESS "customer_vendor/tabs/bank.html" %]
     [% PROCESS "customer_vendor/tabs/shipto.html" %]
     [% PROCESS "customer_vendor/tabs/contacts.html" %]

@@ -61,6 +61,7 @@ __PACKAGE__->run_before(
     'delete',
     'delete_contact',
     'delete_shipto',
+    'delete_additional_billing_address',
   ]
 );
 
@@ -71,6 +72,7 @@ __PACKAGE__->run_before(
     'show',
     'update',
     'ajaj_get_shipto',
+    'ajaj_get_additional_billing_address',
     'ajaj_get_contact',
     'ajax_list_prices',
   ]
@@ -88,6 +90,7 @@ __PACKAGE__->run_before(
 
 __PACKAGE__->run_before('normalize_name');
 
+my @ADDITIONAL_BILLING_ADDRESS_COLUMNS = qw(name department_1 department_2 contact street zipcode city country gln email phone fax default_address);
 
 sub action_add {
   my ($self) = @_;
@@ -280,6 +283,21 @@ sub _save {
       $self->{shipto}->save(cascade => 1);
     }
 
+    if ($self->is_customer && any { $self->{additional_billing_address}->$_ ne '' } @ADDITIONAL_BILLING_ADDRESS_COLUMNS) {
+      $self->{additional_billing_address}->customer_id($self->{cv}->id);
+      $self->{additional_billing_address}->save(cascade => 1);
+
+      # Make sure only one address per customer has "default address" set.
+      if ($self->{additional_billing_address}->default_address) {
+        SL::DB::Manager::AdditionalBillingAddress->update_all(
+          set   => { default_address => 0, },
+          where => [
+            customer_id => $self->{cv}->id,
+            '!id'       => $self->{additional_billing_address}->id,
+          ]);
+      }
+    }
+
     my $snumbers = $self->is_vendor() ? 'vendornumber_'. $self->{cv}->vendornumber : 'customernumber_'. $self->{cv}->customernumber;
     SL::DB::History->new(
       trans_id => $self->{cv}->id,
@@ -323,6 +341,10 @@ sub action_save {
 
   if ( $self->{shipto}->shipto_id ) {
     push(@redirect_params, shipto_id => $self->{shipto}->shipto_id);
+  }
+
+  if ( $self->is_customer && $self->{additional_billing_address}->id ) {
+    push(@redirect_params, additional_billing_address_id => $self->{additional_billing_address}->id);
   }
 
   $self->redirect_to(@redirect_params);
@@ -512,6 +534,32 @@ sub action_delete_shipto {
   $self->action_edit();
 }
 
+sub action_delete_additional_billing_address {
+  my ($self) = @_;
+
+  my $db = $self->{additional_billing_address}->db;
+
+  if ( !$self->{additional_billing_address}->id ) {
+    SL::Helper::Flash::flash('error', $::locale->text('No address selected to delete'));
+  } else {
+    $db->with_transaction(sub {
+      if ( $self->{additional_billing_address}->used ) {
+        $self->{additional_billing_address}->detach;
+        $self->{additional_billing_address}->save(cascade => 1);
+        SL::Helper::Flash::flash('info', $::locale->text('Address is in use and was flagged invalid.'));
+      } else {
+        $self->{additional_billing_address}->delete(cascade => 1);
+        SL::Helper::Flash::flash('info', $::locale->text('Address deleted.'));
+      }
+
+      1;
+    }) || die($db->error);
+
+    $self->{additional_billing_address} = SL::DB::AdditionalBillingAddress->new;
+  }
+
+  $self->action_edit;
+}
 
 sub action_search {
   my ($self) = @_;
@@ -633,6 +681,18 @@ sub action_ajaj_get_shipto {
   };
 
   $data->{shipto_cvars} = $self->_prepare_cvar_configs_for_ajaj($self->{shipto}->cvars_by_config);
+
+  $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
+}
+
+sub action_ajaj_get_additional_billing_address {
+  my ($self) = @_;
+
+  my $data = {
+    additional_billing_address => {
+      map { ($_ => $self->{additional_billing_address}->$_) } ('id', @ADDITIONAL_BILLING_ADDRESS_COLUMNS)
+    },
+  };
 
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }
@@ -899,6 +959,15 @@ sub _instantiate_args {
   $self->{shipto}->assign_attributes(%{$::form->{shipto}});
   $self->{shipto}->module('CT');
 
+  if ($self->is_customer) {
+    if ( $::form->{additional_billing_address}->{id} ) {
+      $self->{additional_billing_address} = SL::DB::AdditionalBillingAddress->new(id => $::form->{additional_billing_address}->{id})->load;
+    } else {
+      $self->{additional_billing_address} = SL::DB::AdditionalBillingAddress->new;
+    }
+    $self->{additional_billing_address}->assign_attributes(%{ $::form->{additional_billing_address} });
+  }
+
   if ( $::form->{contact}->{cp_id} ) {
     $self->{contact} = SL::DB::Contact->new(cp_id => $::form->{contact}->{cp_id})->load();
   } else {
@@ -938,6 +1007,16 @@ sub _load_customer_vendor {
     }
   } else {
     $self->{shipto} = SL::DB::Shipto->new();
+  }
+
+  if ($self->is_customer) {
+    if ( $::form->{additional_billing_address_id} ) {
+      $self->{additional_billing_address} = SL::DB::AdditionalBillingAddress->new(id => $::form->{additional_billing_address_id})->load;
+      die($::locale->text('Error')) if $self->{additional_billing_address}->customer_id != $self->{cv}->id;
+
+    } else {
+      $self->{additional_billing_address} = SL::DB::AdditionalBillingAddress->new;
+    }
   }
 
   if ( $::form->{contact_id} ) {
@@ -988,6 +1067,7 @@ sub _create_customer_vendor {
   $self->{note_followup} = SL::DB::FollowUp->new();
 
   $self->{shipto} = SL::DB::Shipto->new();
+  $self->{additional_billing_address} = SL::DB::AdditionalBillingAddress->new if $self->is_customer;
 
   $self->{contact} = $self->_new_contact_object;
 }
@@ -1063,6 +1143,11 @@ sub _pre_render {
 
   $self->{shiptos} = $self->{cv}->shipto;
   $self->{shiptos} ||= [];
+
+  if ($self->is_customer) {
+    $self->{additional_billing_addresses} = $self->{cv}->additional_billing_addresses;
+    $self->{additional_billing_addresses} ||= [];
+  }
 
   $self->{notes} = SL::DB::Manager::Note->get_all(
     query => [
@@ -1311,11 +1396,15 @@ sub _new_customer_vendor_object {
   my ($self) = @_;
 
   my $class  = 'SL::DB::' . ($self->is_vendor ? 'Vendor' : 'Customer');
-  return $class->new(
+  my $object = $class->new(
     contacts         => [],
     shipto           => [],
     custom_variables => [],
   );
+
+  $object->additional_billing_addresses([]) if $self->is_customer;
+
+  return $object;
 }
 
 sub _new_contact_object {
