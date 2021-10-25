@@ -15,7 +15,7 @@ sub flatten_to_form {
   _copy($self, $form, '', '', 0, qw(id type taxzone_id ordnumber quonumber invnumber donumber cusordnumber taxincluded shippingpoint shipvia notes intnotes cp_id
                                     employee_id salesman_id closed department_id language_id payment_id delivery_customer_id delivery_vendor_id shipto_id proforma
                                     globalproject_id delivered transaction_description container_type accepted_by_customer invoice storno storno_id dunning_config_id
-                                    orddate quodate reqdate gldate duedate deliverydate datepaid transdate tax_point delivery_term_id));
+                                    orddate quodate reqdate gldate duedate deliverydate datepaid transdate tax_point delivery_term_id billing_address_id));
   $form->{currency} = $form->{curr} = $self->currency_id ? $self->currency->name || '' : '';
 
   if ( $vc eq 'customer' ) {

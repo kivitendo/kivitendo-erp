@@ -1392,6 +1392,8 @@ sub print_form {
     $form->get_shipto(\%myconfig);
   }
 
+  $form->set_addition_billing_address_print_variables;
+
   $form->{notes} =~ s/^\s+//g;
 
   delete $form->{printer_command};

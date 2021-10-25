@@ -59,6 +59,7 @@ use SL::CVar;
 use SL::DB;
 use SL::DBConnect;
 use SL::DBUtils;
+use SL::DB::AdditionalBillingAddress;
 use SL::DB::Customer;
 use SL::DB::Default;
 use SL::DB::PaymentTerm;
@@ -3154,6 +3155,8 @@ sub prepare_for_printing {
     IS->invoice_details(\%::myconfig, $self, $::locale);
   }
 
+  $self->set_addition_billing_address_print_variables;
+
   # Chose extension & set source file name
   my $extension = 'html';
   if ($self->{format} eq 'postscript') {
@@ -3219,6 +3222,17 @@ sub prepare_for_printing {
   }
 
   return $self;
+}
+
+sub set_addition_billing_address_print_variables {
+  my ($self) = @_;
+
+  return if !$self->{billing_address_id};
+
+  my $address = SL::DB::Manager::AdditionalBillingAddress->find_by(id => $self->{billing_address_id});
+  return if !$address;
+
+  $self->{"billing_address_${_}"} = $address->$_ for map { $_->name } @{ $address->meta->columns };
 }
 
 sub substitute_placeholders_in_template_arrays {
