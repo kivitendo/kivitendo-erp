@@ -10,6 +10,7 @@ __PACKAGE__->meta->table('ar');
 
 __PACKAGE__->meta->columns(
   amount                    => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
+  billing_address_id        => { type => 'integer' },
   cp_id                     => { type => 'integer' },
   currency_id               => { type => 'integer', not_null => 1 },
   cusordnumber              => { type => 'text' },
@@ -64,6 +65,11 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
+  billing_address => {
+    class       => 'SL::DB::AdditionalBillingAddress',
+    key_columns => { billing_address_id => 'id' },
+  },
+
   contact => {
     class       => 'SL::DB::Contact',
     key_columns => { cp_id => 'cp_id' },

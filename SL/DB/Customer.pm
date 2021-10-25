@@ -29,6 +29,12 @@ use SL::DB::Helper::DisplayableNamePreferences (
 use SL::DB::VC;
 
 __PACKAGE__->meta->add_relationship(
+  additional_billing_addresses => {
+    type         => 'one to many',
+    class        => 'SL::DB::AdditionalBillingAddress',
+    column_map   => { id      => 'customer_id' },
+    manager_args => { sort_by => 'lower(additional_billing_addresses.name)' },
+  },
   shipto => {
     type         => 'one to many',
     class        => 'SL::DB::Shipto',

@@ -9,6 +9,7 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('delivery_orders');
 
 __PACKAGE__->meta->columns(
+  billing_address_id      => { type => 'integer' },
   closed                  => { type => 'boolean', default => 'false' },
   cp_id                   => { type => 'integer' },
   currency_id             => { type => 'integer', not_null => 1 },
@@ -48,6 +49,11 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
+  billing_address => {
+    class       => 'SL::DB::AdditionalBillingAddress',
+    key_columns => { billing_address_id => 'id' },
+  },
+
   contact => {
     class       => 'SL::DB::Contact',
     key_columns => { cp_id => 'cp_id' },
