@@ -4895,6 +4895,32 @@ digits_year: 4</programlisting>
             </varlistentry>
           </variablelist>
         </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.abweichende-rechnungsadresse">
+          <title>Informationen über abweichende Rechnungsadressen (nur Verkaufsbelege)</title>
+
+          <para>
+            Abweichende Rechnungsadressen gibt es nur in Verkaufsbelegen. Die entsprechenden Variablen sind nur dann mit Inhalt gefüllt,
+            wenn im Beleg eine abweichende Rechnungsadresse ausgewählt wurde. Ob eine Adresse überhaupt ausgewählt wurde, kann über die
+            Variable <literal>billing_address_id</literal> getestet werden, die die Datenbank-ID der abweichenden Rechnungsadresse enthält,
+            wenn eine ausgewählt ist.
+          </para>
+
+          <para>
+            Die Variablennamen starten alle mit dem Präfix <literal>billing_address_</literal> und heißen anschließend so, wie ihre Pendants
+            aus der Standard-Rechnungsadresse des Kunden. Beispiel: die Postleitzahl, die in der normalen Rechnungsadresse in
+            <literal>zipcode</literal> steht, steht für die abweichende Rechnungsadresse in <literal>billing_address_zipcode</literal>.
+          </para>
+
+          <para>
+            Die folgenden Variablen stehen so zur Verfügung: <literal>billing_address_name</literal>,
+            <literal>billing_address_department_1</literal>, <literal>billing_address_department_2</literal>,
+            <literal>billing_address_contact</literal>, <literal>billing_address_street</literal>,
+            <literal>billing_address_zipcode</literal>, <literal>billing_address_city</literal>, <literal>billing_address_country</literal>,
+            <literal>billing_address_gln</literal>, <literal>billing_address_email</literal>, <literal>billing_address_phone</literal> und
+            <literal>billing_address_fax</literal>.
+          </para>
+        </sect3>
       </sect2>
 
       <sect2 id="dokumentenvorlagen-und-variablen.invoice">

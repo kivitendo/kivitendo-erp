@@ -15,6 +15,12 @@ von kivitendo.
 
 Mittelgroße neue Features:
 
+In Kundenstammdaten können nun abweichende Rechnungsadressen analog zu
+Lieferadressen verwaltet werden. Diese können in Verkaufsbelegen
+ausgewählt werden. Sie stehen den Druckvorlagen als eigene Variablen
+zur Verfügung.
+
+
 Kleinere neue Features und Detailverbesserungen:
 
 - neue Druckvorlagen-Variante "Rechnungskopie", die mit dem Druckvorlagensatz marei
