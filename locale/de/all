@@ -4144,7 +4144,6 @@ $self->{texts} = {
   'Version'                     => 'Version',
   'Version actions'             => 'Aktionen für Versionen',
   'Version number'              => 'Versionsnummer',
-  'Version: '                   => 'Version',
   'Versions'                    => 'Versionen',
   'View SEPA export'            => 'SEPA-Export-Details ansehen',
   'View background job execution result' => 'Verlauf der Hintergrund-Job-Ausführungen anzeigen',
