@@ -12,12 +12,6 @@ my %shop_connector_by_name = (
   woocommerce => 'SL::ShopConnector::WooCommerce',
 );
 
-my %shop_connector_by_connector = (
-  shopware    => 'SL::ShopConnector::Shopware',
-  shopware6   => 'SL::ShopConnector::Shopware6',
-  woocommerce => 'SL::ShopConnector::WooCommerce',
-);
-
 my @shop_connector_order = qw(
   woocommerce
   shopware
@@ -37,10 +31,6 @@ sub all_shop_connectors {
 
 sub shop_connector_class_by_name {
   $shop_connector_by_name{$_[1]};
-}
-
-sub shop_connector_class_by_connector {
-  $shop_connector_by_connector{$_[1]};
 }
 
 sub connectors {
