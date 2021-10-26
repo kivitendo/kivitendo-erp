@@ -468,7 +468,7 @@ __END__
 
 =head1 NAME
 
-SL::Shopconnecter::Shopware - connector for shopware 5
+SL::Shopconnector::Shopware - connector for shopware 5
 
 =head1 SYNOPSIS
 
