@@ -3,26 +3,31 @@ package SL::ShopConnector::ALL;
 use strict;
 
 use SL::ShopConnector::Shopware;
+use SL::ShopConnector::Shopware6;
 use SL::ShopConnector::WooCommerce;
 
 my %shop_connector_by_name = (
   shopware    => 'SL::ShopConnector::Shopware',
-  woocommerce    => 'SL::ShopConnector::WooCommerce',
+  shopware6   => 'SL::ShopConnector::Shopware6',
+  woocommerce => 'SL::ShopConnector::WooCommerce',
 );
 
 my %shop_connector_by_connector = (
-  shopware   => 'SL::ShopConnector::Shopware',
+  shopware    => 'SL::ShopConnector::Shopware',
+  shopware6   => 'SL::ShopConnector::Shopware6',
   woocommerce => 'SL::ShopConnector::WooCommerce',
 );
 
 my @shop_connector_order = qw(
   woocommerce
   shopware
+  shopware6
 );
 
 my @shop_connectors = (
-  { id => "shopware",   description => "Shopware" },
-  { id => "woocommerce",   description => "WooCommerce" },
+  { id => "shopware",    description => "Shopware" },
+  { id => "shopware6",   description => "Shopware6" },
+  { id => "woocommerce", description => "WooCommerce" },
 );
 
 
