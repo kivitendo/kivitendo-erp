@@ -17,7 +17,16 @@ sub get_article    { die 'get_article needs to be implemented' }
 
 sub get_categories { die 'get_categories needs to be implemented' }
 
-sub get_version    { die 'get_version needs to be implemented' }
+sub get_version    {
+
+  die 'get_version needs to be implemented';
+  # has to return a hashref with this structure:
+  # version has to return the connection error message
+  my $connect = {};
+  $connect->{success}         = 0 || 1;
+  $connect->{data}->{version} = '1234';
+  return $connect;
+}
 
 sub set_orderstatus { die 'set_orderstatus needs to be implemented' }
 
@@ -51,6 +60,16 @@ __END__
 =item C<get_categories>
 
 =item C<get_version>
+
+IMPORTANT: This call is used to test the connection and if succesful
+it returns the version number of the shop. If not succesful the
+returning function has to make sure a error string is returned in
+the same data structure. Details of the returning hashref:
+
+ my $connect = {};
+ $connect->{success}         = 0 || 1;
+ $connect->{data}->{version} = '1234';
+ return $connect;
 
 =item C<set_orderstatus>
 
