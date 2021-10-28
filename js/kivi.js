@@ -676,6 +676,29 @@ namespace("kivi", function(ns) {
     $input.prop('selectionStart', position);
     $input.prop('selectionEnd',   position);
   };
+
+  ns._shell_escape = function(str) {
+    if (str.match(/^[a-zA-Z0-9.,_=+/-]+$/))
+      return str;
+
+    return "'" + str.replace(/'/, "'\\''") + "'";
+  };
+
+  ns.call_as_curl = function(params) {
+    params      = params || {};
+    var uri     = document.documentURI.replace(/\?.*/, '');
+    var command = ['curl', '--user', kivi.myconfig.login + ':SECRET', '--request', params.method || 'POST']
+
+    $(params.data || []).each(function(idx, elt) {
+      command = command.concat([ '--form-string', elt.name + '=' + (elt.value || '') ]);
+    });
+
+    command.push(uri);
+
+    return $.map(command, function(elt, idx) {
+      return kivi._shell_escape(elt);
+    }).join(' ');
+  };
 });
 
 kivi = namespace('kivi');
