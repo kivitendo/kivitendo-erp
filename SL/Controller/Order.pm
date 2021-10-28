@@ -299,11 +299,11 @@ sub action_print {
   my $pdf_filename          = $form->generate_attachment_filename();
 
   my $pdf;
-  my @errors = generate_pdf($self->order, \$pdf, { format     => $format,
-                                                   formname   => $formname,
-                                                   language   => $self->order->language,
-                                                   printer_id => $printer_id,
-                                                   groupitems => $groupitems });
+  my @errors = $self->generate_pdf(\$pdf, { format     => $format,
+                                            formname   => $formname,
+                                            language   => $self->order->language,
+                                            printer_id => $printer_id,
+                                            groupitems => $groupitems });
   if (scalar @errors) {
     return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
   }
@@ -329,7 +329,7 @@ sub action_print {
     $self->js->flash('info', t8('The PDF has been printed'));
   }
 
-  my @warnings = store_pdf_to_webdav_and_filemanagement($self->order, $pdf, $pdf_filename);
+  my @warnings = $self->store_pdf_to_webdav_and_filemanagement($pdf, $pdf_filename);
   if (scalar @warnings) {
     $self->js->flash('warning', $_) for @warnings;
   }
@@ -366,10 +366,10 @@ sub action_preview_pdf {
   my $pdf_filename          = $form->generate_attachment_filename();
 
   my $pdf;
-  my @errors = generate_pdf($self->order, \$pdf, { format     => $format,
-                                                   formname   => $formname,
-                                                   language   => $self->order->language,
-                                                 });
+  my @errors = $self->generate_pdf(\$pdf, { format     => $format,
+                                            formname   => $formname,
+                                            language   => $self->order->language,
+                                          });
   if (scalar @errors) {
     return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
   }
@@ -470,17 +470,17 @@ sub action_send_email {
 
   if (($::form->{attachment_policy} // '') !~ m{^(?:old_file|no_file)$}) {
     my $pdf;
-    my @errors = generate_pdf($self->order, \$pdf, {media      => $::form->{media},
-                                                    format     => $::form->{print_options}->{format},
-                                                    formname   => $::form->{print_options}->{formname},
-                                                    language   => $self->order->language,
-                                                    printer_id => $::form->{print_options}->{printer_id},
-                                                    groupitems => $::form->{print_options}->{groupitems}});
+    my @errors = $self->generate_pdf(\$pdf, {media      => $::form->{media},
+                                            format     => $::form->{print_options}->{format},
+                                            formname   => $::form->{print_options}->{formname},
+                                            language   => $self->order->language,
+                                            printer_id => $::form->{print_options}->{printer_id},
+                                            groupitems => $::form->{print_options}->{groupitems}});
     if (scalar @errors) {
       return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render($self);
     }
 
-    my @warnings = store_pdf_to_webdav_and_filemanagement($self->order, $pdf, $::form->{attachment_filename});
+    my @warnings = $self->store_pdf_to_webdav_and_filemanagement($pdf, $::form->{attachment_filename});
     if (scalar @warnings) {
       flash_later('warning', $_) for @warnings;
     }
@@ -2066,8 +2066,9 @@ sub setup_edit_action_bar {
 }
 
 sub generate_pdf {
-  my ($order, $pdf_ref, $params) = @_;
+  my ($self, $pdf_ref, $params) = @_;
 
+  my $order  = $self->order;
   my @errors = ();
 
   my $print_form = Form->new('');
@@ -2304,8 +2305,9 @@ sub save_history {
 }
 
 sub store_pdf_to_webdav_and_filemanagement {
-  my($order, $content, $filename) = @_;
+  my ($self, $content, $filename) = @_;
 
+  my $order = $self->order;
   my @errors;
 
   # copy file to webdav folder
