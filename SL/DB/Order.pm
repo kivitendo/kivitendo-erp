@@ -316,6 +316,17 @@ sub convert_to_delivery_order {
   return $delivery_order;
 }
 
+sub convert_to_reclamation {
+  my ($self, %params) = @_;
+  $params{destination_type} = $self->is_sales ? 'sales_reclamation'
+                                              : 'purchase_reclamation';
+
+  require SL::DB::Reclamation;
+  my $reclamation = SL::DB::Reclamation->new_from($self, %params);
+
+  return $reclamation;
+}
+
 sub _clone_orderitem_cvar {
   my ($cvar) = @_;
 
@@ -328,7 +339,12 @@ sub _clone_orderitem_cvar {
 sub new_from {
   my ($class, $source, %params) = @_;
 
-  croak("Unsupported source object type '" . ref($source) . "'") unless ref($source) eq 'SL::DB::Order';
+  unless (any {ref($source) eq $_} qw(
+    SL::DB::Order
+    SL::DB::Reclamation
+  )) {
+    croak("Unsupported source object type '" . ref($source) . "'");
+  }
   croak("A destination type must be given as parameter")         unless $params{destination_type};
 
   my $destination_type  = delete $params{destination_type};
@@ -348,6 +364,8 @@ sub new_from {
     { from => 'request_quotation', to => 'sales_order',       abbr => 'rqso' },
     { from => 'sales_quotation',   to => 'request_quotation', abbr => 'sqrq' },
     { from => 'sales_order',       to => 'request_quotation', abbr => 'sorq' },
+    { from => 'sales_reclamation', to => 'sales_order',       abbr => 'srso' },
+    { from => 'purchase_reclamation', to => 'purchase_order', abbr => 'prpo' },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") if !$from_to;
@@ -361,33 +379,53 @@ sub new_from {
   if (ref($source) eq 'SL::DB::Order') {
     $item_parent_id_column = 'trans_id';
     $item_parent_column    = 'order';
+  } elsif ( ref($source) eq 'SL::DB::Reclamation') {
+    $item_parent_id_column = 'reclamation_id';
+    $item_parent_column    = 'reclamation';
   }
 
-  my %args = ( map({ ( $_ => $source->$_ ) } qw(amount cp_id currency_id cusordnumber customer_id delivery_customer_id delivery_term_id delivery_vendor_id
-                                                department_id exchangerate globalproject_id intnotes marge_percent marge_total language_id netamount notes
-                                                ordnumber payment_id quonumber reqdate salesman_id shippingpoint shipvia taxincluded tax_point taxzone_id
-                                                transaction_description vendor_id billing_address_id
-                                             )),
-               quotation => !!($destination_type =~ m{quotation$}),
-               closed    => 0,
-               delivered => 0,
-               transdate => DateTime->today_local,
-               employee  => SL::DB::Manager::Employee->current,
-            );
-  # reqdate in quotation is 'offer is valid    until reqdate'
-  # reqdate in order     is 'will be delivered until reqdate'
-  # both dates are setable (on|off)
-  # and may have a additional interval in days (+ n days)
-  # dies if this convention will change
-  $args{reqdate} = $from_to->{to} =~ m/_quotation$/
-                 ? $::instance_conf->get_reqdate_on
-                 ? DateTime->today_local->next_workday(extra_days => $::instance_conf->get_reqdate_interval)->to_kivitendo
-                 : undef
-                 : $from_to->{to} =~ m/_order$/
-                 ? $::instance_conf->get_deliverydate_on
-                 ? DateTime->today_local->next_workday(extra_days => $::instance_conf->get_delivery_date_interval)->to_kivitendo
-                 : undef
-                 : die "Wrong state for reqdate";
+  my %args;
+  if (ref($source) eq 'SL::DB::Order') {
+    %args = ( map({ ( $_ => $source->$_ ) } qw(amount cp_id currency_id cusordnumber customer_id delivery_customer_id delivery_term_id delivery_vendor_id
+                                               department_id exchangerate globalproject_id intnotes marge_percent marge_total language_id netamount notes
+                                               ordnumber payment_id quonumber reqdate salesman_id shippingpoint shipvia taxincluded tax_point taxzone_id
+                                               transaction_description vendor_id billing_address_id
+                                            )),
+                 quotation => !!($destination_type =~ m{quotation$}),
+                 closed    => 0,
+                 delivered => 0,
+                 transdate => DateTime->today_local,
+                 employee  => SL::DB::Manager::Employee->current,
+              );
+    # reqdate in quotation is 'offer is valid    until reqdate'
+    # reqdate in order     is 'will be delivered until reqdate'
+    # both dates are setable (on|off)
+    # and may have a additional interval in days (+ n days)
+    # dies if this convention will change
+    $args{reqdate} = $from_to->{to} =~ m/_quotation$/
+                   ? $::instance_conf->get_reqdate_on
+                   ? DateTime->today_local->next_workday(extra_days => $::instance_conf->get_reqdate_interval)->to_kivitendo
+                   : undef
+                   : $from_to->{to} =~ m/_order$/
+                   ? $::instance_conf->get_deliverydate_on
+                   ? DateTime->today_local->next_workday(extra_days => $::instance_conf->get_delivery_date_interval)->to_kivitendo
+                   : undef
+                   : die "Wrong state for reqdate";
+  } elsif ( ref($source) eq 'SL::DB::Reclamation') {
+    #TODO(Tamino): add billing_address_id to reclamation
+    %args = ( map({ ( $_ => $source->$_ ) } qw(
+        amount currency_id customer_id delivery_term_id department_id
+        exchangerate globalproject_id intnotes language_id netamount
+        notes payment_id  reqdate salesman_id shippingpoint shipvia taxincluded
+        tax_point taxzone_id transaction_description vendor_id
+      )),
+      cp_id     => $source->{contact_id},
+      closed    => 0,
+      delivered => 0,
+      transdate => DateTime->today_local,
+      employee  => SL::DB::Manager::Employee->current,
+   );
+  }
 
   if ( $is_abbr_any->(qw(sopo poso rqso sosq porq rqsq sqrq sorq)) ) {
     $args{ordnumber} = undef;
@@ -434,16 +472,29 @@ sub new_from {
     $item_parents{$source_item_id} ||= $source_item->$item_parent_column;
     my $item_parent                  = $item_parents{$source_item_id};
 
-    my $current_oe_item = SL::DB::OrderItem->new(map({ ( $_ => $source_item->$_ ) }
-                                                     qw(active_discount_source active_price_source base_qty cusordnumber
-                                                        description discount lastcost longdescription
-                                                        marge_percent marge_price_factor marge_total
-                                                        ordnumber parts_id price_factor price_factor_id pricegroup_id
-                                                        project_id qty reqdate sellprice serialnumber ship subtotal transdate unit
-                                                        optional
-                                                     )),
-                                                 custom_variables => \@custom_variables,
-    );
+    my $current_oe_item;
+    if (ref($source) eq 'SL::DB::Order') {
+      $current_oe_item = SL::DB::OrderItem->new(map({ ( $_ => $source_item->$_ ) }
+                                                       qw(active_discount_source active_price_source base_qty cusordnumber
+                                                          description discount lastcost longdescription
+                                                          marge_percent marge_price_factor marge_total
+                                                          ordnumber parts_id price_factor price_factor_id pricegroup_id
+                                                          project_id qty reqdate sellprice serialnumber ship subtotal transdate unit
+                                                          optional
+                                                       )),
+                                                   custom_variables => \@custom_variables,
+      );
+    } elsif (ref($source) eq 'SL::DB::Reclamation') {
+      $current_oe_item = SL::DB::OrderItem->new(
+        map({ ( $_ => $source_item->$_ ) } qw(
+          active_discount_source active_price_source base_qty description
+          discount lastcost longdescription parts_id price_factor
+          price_factor_id pricegroup_id project_id qty reqdate sellprice
+          serialnumber unit
+        )),
+        custom_variables => \@custom_variables,
+      );
+    }
     if ( $is_abbr_any->(qw(sopo)) ) {
       $current_oe_item->sellprice($source_item->lastcost);
       $current_oe_item->discount(0);
@@ -452,6 +503,7 @@ sub new_from {
       $current_oe_item->lastcost($source_item->sellprice);
     }
     $current_oe_item->{"converted_from_orderitems_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::Order';
+    $current_oe_item->{"converted_from_reclamation_item_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::Reclamation';
     $current_oe_item;
   } @{ $items };
 

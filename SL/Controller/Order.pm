@@ -92,6 +92,24 @@ sub action_add {
   );
 }
 
+sub action_add_from_reclamation {
+  my ($self) = @_;
+
+  require SL::DB::Reclamation;
+  my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
+  my $order = $reclamation->convert_to_order();
+
+  $self->order($order);
+
+  $self->recalc();
+  $self->pre_render();
+  $self->render(
+    'order/form',
+    title => $self->get_title_for('edit'),
+    %{$self->{template_args}}
+  );
+}
+
 # edit an existing order
 sub action_edit {
   my ($self) = @_;
@@ -788,6 +806,27 @@ sub action_save_and_supplier_delivery_order {
     controller => 'controller.pl',
     action     => 'DeliveryOrder/add_from_order',
     type       => 'supplier_delivery_order',
+  );
+}
+
+# save the order and redirect to the frontend subroutine for a new reclamation
+sub action_save_and_reclamation {
+  my ($self) = @_;
+
+  # cann't use save_and_redirect_to, because id is set!
+  my $errors = $self->save();
+  if (scalar @{ $errors }) {
+    $self->js->flash('error', $_) foreach @{ $errors };
+    return $self->js->render();
+  }
+
+  my $to_type = $self->order->is_sales ? 'sales_reclamation'
+                                       : 'purchase_reclamation';
+  $self->redirect_to(
+    controller => 'Reclamation',
+    action     => 'add_from_order',
+    type       => $to_type,
+    from_id    => $self->order->id,
   );
 }
 
@@ -2338,6 +2377,11 @@ sub setup_edit_action_bar {
           ],
           only_if   => (any { $self->type eq $_ } (purchase_order_type())),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
+        ],
+        action => [
+          t8('Save and Reclamation'),
+          call      => [ 'kivi.Order.save', 'save_and_reclamation', $::instance_conf->get_order_warn_duplicate_parts ],
+          only_if   => (any { $self->type eq $_ } (sales_order_type(), purchase_order_type()))
         ],
         action => [
           t8('Save and Invoice'),

@@ -181,11 +181,47 @@ sub valid_reclamation_reasons {
       where => [  $valid_for_type => 1 ]);
 }
 
+sub convert_to_order {
+  my ($self, %params) = @_;
+
+  my $order;
+  $params{destination_type} = $self->is_sales ? 'sales_order'
+                                              : 'purchase_order';
+  if (!$self->db->with_transaction(sub {
+    require SL::DB::Order;
+    $order = SL::DB::Order->new_from($self, %params);
+    $order->save;
+    $self->link_to_record($order);
+    foreach my $item (@{ $order->items }) {
+      foreach (qw(reclamation_item)) {
+        if ($item->{"converted_from_${_}_id"}) {
+          die unless $item->{id};
+          RecordLinks->create_links('dbh'        => $self->db->dbh,
+                                    'mode'       => 'ids',
+                                    'from_table' => 'reclamation_items',
+                                    'from_ids'   => $item->{"converted_from_${_}_id"},
+                                    'to_table'   => 'orderitems',
+                                    'to_id'      => $item->{id},
+          ) || die;
+          delete $item->{"converted_from_${_}_id"};
+        }
+      }
+    }
+
+    1;
+  })) {
+    return undef;
+  }
+
+  return $order;
+}
+
 #TODO(Werner): überprüfen ob alle Felder richtig gestetzt werden
 sub new_from {
   my ($class, $source, %params) = @_;
   my %allowed_sources = map { $_ => 1 } qw(
     SL::DB::Reclamation
+    SL::DB::Order
   );
   unless( $allowed_sources{ref $source} ) {
     croak("Unsupported source object type '" . ref($source) . "'");
@@ -200,6 +236,9 @@ sub new_from {
     { from => 'purchase_reclamation',    to => 'purchase_reclamation', abbr => 'prpr', },
     { from => 'sales_reclamation',       to => 'purchase_reclamation', abbr => 'srpr', },
     { from => 'purchase_reclamation',    to => 'sales_reclamation',    abbr => 'prsr', },
+    #Order
+    { from => 'sales_order',             to => 'sales_reclamation',    abbr => 'sosr', },
+    { from => 'purchase_order',          to => 'purchase_reclamation', abbr => 'popr', },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   if (!$from_to) {
@@ -244,6 +283,33 @@ sub new_from {
       transaction_description
       vendor_id
     ); # }}} for vim folds
+  } elsif ( $is_abbr_any->(qw(sosr popr)) ) { #Order
+    map { $record_args{$_} = $source->$_ } # {{{ for vim folds
+    qw(
+      amount
+      currency_id
+      customer_id
+      delivery_term_id
+      department_id
+      exchangerate
+      globalproject_id
+      intnotes
+      language_id
+      netamount
+      notes
+      payment_id
+      salesman_id
+      shippingpoint
+      shipvia
+      tax_point
+      taxincluded
+      taxzone_id
+      transaction_description
+      vendor_id
+    );
+    $record_args{contact_id} = $source->cp_id;
+    $record_args{cv_record_number} = $source->cusordnumber;
+    # }}} for vim folds
   }
 
   if ( ($from_to->{from} =~ m{sales}) && ($from_to->{to} =~ m{purchase}) ) {
