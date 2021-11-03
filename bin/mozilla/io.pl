@@ -1109,6 +1109,32 @@ sub request_for_quotation {
   quotation();
 }
 
+sub sales_reclamation {
+  my $id = $::form->{id};
+
+  require SL::Controller::Reclamation;
+  my $c = SL::Controller::Reclamation->new();
+  $c->redirect_to(
+    controller => 'Reclamation',
+    action => 'add_from_sales_invoice',
+    from_id => $id,
+    type => 'sales_reclamation',
+  );
+}
+
+sub purchase_reclamation {
+  my $id = $::form->{id};
+
+  require SL::Controller::Reclamation;
+  my $c = SL::Controller::Reclamation->new();
+  $c->redirect_to(
+    controller => 'Reclamation',
+    action => 'add_from_purchase_invoice',
+    from_id => $id,
+    type => 'purchase_reclamation',
+  );
+}
+
 sub print_options {
   $::lxdebug->enter_sub();
 

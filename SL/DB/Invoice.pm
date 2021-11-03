@@ -137,6 +137,17 @@ sub closed {
   return $self->paid >= $self->amount;
 }
 
+sub convert_to_reclamation {
+  my ($self, %params) = @_;
+  $params{destination_type} = $self->is_sales ? 'sales_reclamation'
+                                              : 'purchase_reclamation';
+
+  require SL::DB::Reclamation;
+  my $reclamation = SL::DB::Reclamation->new_from($self, %params);
+
+  return $reclamation;
+}
+
 sub _clone_orderitem_delivery_order_item_cvar {
   my ($cvar) = @_;
 

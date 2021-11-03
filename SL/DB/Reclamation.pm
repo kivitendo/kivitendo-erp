@@ -258,6 +258,8 @@ sub new_from {
     SL::DB::Reclamation
     SL::DB::Order
     SL::DB::DeliveryOrder
+    SL::DB::Invoice
+    SL::DB::PurchaseInvoice
   );
   unless( $allowed_sources{ref $source} ) {
     croak("Unsupported source object type '" . ref($source) . "'");
@@ -278,6 +280,9 @@ sub new_from {
     #Delivery Order
     { from => 'sales_delivery_order',    to => 'sales_reclamation',    abbr => 'sdsr', },
     { from => 'purchase_delivery_order', to => 'purchase_reclamation', abbr => 'pdpr', },
+    #Invoice
+    { from => 'invoice',                 to => 'sales_reclamation',    abbr => 'sisr', },
+    { from => 'purchase_invoice',        to => 'purchase_reclamation', abbr => 'pipr', },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   if (!$from_to) {
@@ -372,6 +377,53 @@ sub new_from {
     );
     $record_args{contact_id} = $source->cp_id;
     $record_args{cv_record_number} = $source->cusordnumber;
+    # }}} for vim folds
+  } elsif ( $is_abbr_any->(qw(sisr)) ) { #Invoice(ar)
+    map { $record_args{$_} = $source->$_ } # {{{ for vim folds
+    qw(
+      amount
+      currency_id
+      customer_id
+      delivery_term_id
+      department_id
+      globalproject_id
+      intnotes
+      language_id
+      netamount
+      notes
+      payment_id
+      salesman_id
+      shippingpoint
+      shipvia
+      tax_point
+      taxincluded
+      taxzone_id
+      transaction_description
+    );
+    $record_args{contact_id} = $source->cp_id;
+    $record_args{cv_record_number} = $source->cusordnumber;
+    # }}} for vim folds
+  } elsif ( $is_abbr_any->(qw(pipr)) ) { #Invoice(ap)
+    map { $record_args{$_} = $source->$_ } # {{{ for vim folds
+    qw(
+      amount
+      currency_id
+      delivery_term_id
+      department_id
+      globalproject_id
+      intnotes
+      language_id
+      netamount
+      notes
+      payment_id
+      shipvia
+      tax_point
+      taxincluded
+      taxzone_id
+      transaction_description
+      vendor_id
+    );
+    $record_args{contact_id} = $source->cp_id;
     # }}} for vim folds
   }
 

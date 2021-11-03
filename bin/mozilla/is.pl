@@ -474,6 +474,12 @@ sub setup_is_action_bar {
           checks   => [ 'kivi.validate_form' ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
+        action => [
+          t8('Reclamation'),
+          submit   => ['#form', { action => "sales_reclamation" }], # can't call Reclamation directly
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+          only_if   => ($::form->{type} eq 'invoice')
+        ],
       ], # end of combobox "Workflow"
 
       combobox => [

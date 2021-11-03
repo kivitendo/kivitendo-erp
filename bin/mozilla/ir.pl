@@ -370,6 +370,12 @@ sub setup_ir_action_bar {
                     : !$form->{id}      ? t8('This invoice has not been posted yet.')
                     :                     undef,
         ],
+        action => [
+          t8('Reclamation'),
+          submit   => ['#form', { action => "purchase_reclamation" }], # can't call Reclamation directly
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+          only_if   => ($::form->{type} eq 'purchase_invoice')
+        ],
        ], # end of combobox "Workflow"
 
       combobox => [

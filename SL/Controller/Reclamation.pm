@@ -146,6 +146,53 @@ sub action_add_from_delivery_order {
   );
 }
 
+sub action_add_from_sales_invoice {
+  my ($self) = @_;
+
+  unless ($::form->{from_id}) {
+    $self->js->flash('error', t8("Can't create new reclamation. No 'from_id' was given."));
+    return $self->js->render();
+  }
+
+  require SL::DB::Invoice;
+  my $invoice = SL::DB::Invoice->new(id => $::form->{from_id})->load;
+  my $reclamation = $invoice->convert_to_reclamation();
+
+  $self->reclamation($reclamation);
+
+  $self->reinit_after_new_reclamation();
+
+  $self->render(
+    'reclamation/form',
+    title => $self->get_title_for('add'),
+    %{$self->{template_args}},
+  );
+}
+
+sub action_add_from_purchase_invoice {
+  my ($self) = @_;
+
+  unless ($::form->{from_id}) {
+    $self->js->flash('error', t8("Can't create new reclamation. No 'from_id' was given."));
+    return $self->js->render();
+  }
+
+  require SL::DB::PurchaseInvoice;
+  my $invoice = SL::DB::PurchaseInvoice->new(id => $::form->{from_id})->load;
+  $invoice->{type} = $invoice->invoice_type; #can't add type → invoice_type in SL/DB/PurchaseInvoice
+  my $reclamation = $invoice->convert_to_reclamation();
+
+  $self->reclamation($reclamation);
+
+  $self->reinit_after_new_reclamation();
+
+  $self->render(
+    'reclamation/form',
+    title => $self->get_title_for('add'),
+    %{$self->{template_args}},
+  );
+}
+
 # edit an existing reclamation
 sub action_edit {
   my ($self) = @_;
@@ -1658,11 +1705,14 @@ sub _link_to_records {
     SL::DB::Reclamation
     SL::DB::Order
     SL::DB::DeliveryOrder
+    SL::DB::Invoice
+    SL::DB::PurchaseInvoice
   );
   my %allowed_linked_record_items = map {$_ => 1} qw(
     SL::DB::ReclamationItem
     SL::DB::OrderItem
     SL::DB::DeliveryOrderItem
+    SL::DB::InvoiceItem
   );
 
   my $from_record_id = delete $::form->{converted_from_record_id};
