@@ -124,68 +124,112 @@ sub _clone_orderitem_cvar {
   return $cloned;
 }
 
+sub convert_to_reclamation {
+  my ($self, %params) = @_;
+
+  $params{destination_type} = $self->is_sales ? 'sales_reclamation'
+                                              : 'purchase_reclamation';
+
+  my $reclamation = SL::DB::Reclamation->new_from($self, %params);
+
+  return $reclamation;
+}
+
 sub new_from {
   my ($class, $source, %params) = @_;
 
-  croak("Unsupported source object type '" . ref($source) . "'") unless ref($source) eq 'SL::DB::Order';
-
-  my ($item_parent_id_column, $item_parent_column);
-
-  if (ref($source) eq 'SL::DB::Order') {
-    $item_parent_id_column = 'trans_id';
-    $item_parent_column    = 'order';
+  my %allowed_sources = map { $_ => 1 } qw(
+    SL::DB::Reclamation
+    SL::DB::Order
+  );
+  unless( $allowed_sources{ref $source} ) {
+    croak("Unsupported source object type '" . ref($source) . "'");
   }
 
-  my %args = ( map({ ( $_ => $source->$_ ) } qw(cp_id currency_id customer_id cusordnumber delivery_term_id department_id employee_id globalproject_id intnotes language_id notes
-                                                ordnumber payment_id reqdate salesman_id shippingpoint shipvia taxincluded taxzone_id transaction_description vendor_id billing_address_id
-                                             )),
-               closed    => 0,
-               delivered => 0,
-               order_type => $params{type},
-               transdate => DateTime->today_local,
-            );
+  my %record_args = (
+    donumber => undef,
+    employee => SL::DB::Manager::Employee->current,
+    closed    => 0,
+    delivered => 0,
+    order_type => $params{type},
+    transdate => DateTime->today_local,
+  );
+
+  if ( ref($source) eq 'SL::DB::Order' ) {
+    map{ ( $record_args{$_} = $source->$_ ) } # {{{ for vim folds
+    qw(
+      billing_address_id
+      cp_id
+      currency_id
+      cusordnumber
+      customer_id
+      delivery_term_id
+      department_id
+      globalproject_id
+      intnotes
+      language_id
+      notes
+      ordnumber
+      payment_id
+      reqdate
+      salesman_id
+      shippingpoint
+      shipvia
+      taxincluded
+      taxzone_id
+      transaction_description
+      vendor_id
+    );
+    # }}} for vim folds
+  } elsif ( ref($source) eq 'SL::DB::Reclamation' ) {
+    map{ ( $record_args{$_} = $source->$_ ) } # {{{ for vim folds
+      #billing_address_id #TODO(Tamino): add billing_address_id to reclamation
+    qw(
+      currency_id
+      customer_id
+      delivery_term_id
+      department_id
+      globalproject_id
+      intnotes
+      language_id
+      notes
+      payment_id
+      reqdate
+      salesman_id
+      shippingpoint
+      shipvia
+      taxincluded
+      taxzone_id
+      transaction_description
+      vendor_id
+    );
+    $record_args{cp_id} = $source->contact_id;
+    $record_args{cusordnumber} = $source->cv_record_number;
+    # }}} for vim folds
+  }
 
   # Custom shipto addresses (the ones specific to the sales/purchase
   # record and not to the customer/vendor) are only linked from
   # shipto → delivery_orders. Meaning delivery_orders.shipto_id
   # will not be filled in that case.
   if (!$source->shipto_id && $source->id) {
-    $args{custom_shipto} = $source->custom_shipto->clone($class) if $source->can('custom_shipto') && $source->custom_shipto;
-
+    $record_args{custom_shipto} = $source->custom_shipto->clone($class) if $source->can('custom_shipto') && $source->custom_shipto;
   } else {
-    $args{shipto_id} = $source->shipto_id;
+    $record_args{shipto_id} = $source->shipto_id;
   }
 
   # infer type from legacy fields if not given
-  $args{order_type} //= $source->customer_id ? 'sales_delivery_order'
+  $record_args{order_type} //= $source->customer_id ? 'sales_delivery_order'
                       : $source->vendor_id   ? 'purchase_delivery_order'
                       : $source->is_sales    ? 'sales_delivery_order'
                       : croak "need some way to set delivery order type from source";
 
-  my $delivery_order = $class->new(%args);
+  my $delivery_order = $class->new(%record_args);
   $delivery_order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
-  my $items          = delete($params{items}) || $source->items_sorted;
-  my %item_parents;
 
-  # do not copy items when converting to supplier delivery order
-  my @items = $delivery_order->is_type(SUPPLIER_DELIVERY_ORDER_TYPE) ? () : map {
-    my $source_item      = $_;
-    my $source_item_id   = $_->$item_parent_id_column;
-    my @custom_variables = map { _clone_orderitem_cvar($_) } @{ $source_item->custom_variables };
-
-    $item_parents{$source_item_id} ||= $source_item->$item_parent_column;
-    my $item_parent                  = $item_parents{$source_item_id};
-
-    my $current_do_item = SL::DB::DeliveryOrderItem->new(map({ ( $_ => $source_item->$_ ) }
-                                         qw(base_qty cusordnumber description discount lastcost longdescription marge_price_factor parts_id price_factor price_factor_id
-                                            project_id qty reqdate sellprice serialnumber transdate unit active_discount_source active_price_source
-                                         )),
-                                   custom_variables => \@custom_variables,
-                                   ordnumber        => ref($item_parent) eq 'SL::DB::Order' ? $item_parent->ordnumber : $source_item->ordnumber,
-                                 );
-    $current_do_item->{"converted_from_orderitems_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::Order';
-    $current_do_item;
-  } @{ $items };
+  my $items = delete($params{items}) || $source->items_sorted;
+  my @items = $delivery_order->is_type(SUPPLIER_DELIVERY_ORDER_TYPE) ? ()
+              : map { SL::DB::DeliveryOrderItem->new_from($_) } @{ $items };
 
   @items = grep { $params{item_filter}->($_) } @items if $params{item_filter};
   @items = grep { $_->qty * 1 } @items if $params{skip_items_zero_qty};

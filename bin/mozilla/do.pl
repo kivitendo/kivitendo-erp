@@ -121,6 +121,20 @@ sub add {
   $main::lxdebug->leave_sub();
 }
 
+sub add_from_reclamation {
+
+  require SL::DB::Reclamation;
+  my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
+  my ($delivery_order, $error) = $reclamation->convert_to_delivery_order();
+  if($error) {
+    croak("Error while converting: " . $error);
+  }
+
+  # edit new saved delivery order
+  $::form->{id} = $delivery_order->id;
+  edit();
+}
+
 sub edit {
   $main::lxdebug->enter_sub();
 
@@ -369,14 +383,21 @@ sub setup_do_action_bar {
 
       'separator',
 
-      action => [
-        t8('Invoice'),
-        submit => [ '#form', { action => "invoice" } ],
-        disabled => !$::form->{id} ? t8('This record has not been saved yet.') : undef,
-        confirm  => $::form->{delivered}                                                                         ? undef
-                  : ($::form->{vc} eq 'customer' && $::instance_conf->get_sales_delivery_order_check_stocked)    ? t8('This record has not been stocked out. Proceed?')
-                  : ($::form->{vc} eq 'vendor'   && $::instance_conf->get_purchase_delivery_order_check_stocked) ? t8('This record has not been stocked in. Proceed?')
-                  :                                                                                                undef,
+      combobox => [
+        action => [ t8('Workflow') ],
+        action => [
+          t8('Invoice'),
+          submit => [ '#form', { action => "invoice" } ],
+          disabled => !$::form->{id} ? t8('This record has not been saved yet.') : undef,
+          confirm  => $::form->{delivered}                                                                         ? undef
+                    : ($::form->{vc} eq 'customer' && $::instance_conf->get_sales_delivery_order_check_stocked)    ? t8('This record has not been stocked out. Proceed?')
+                    : ($::form->{vc} eq 'vendor'   && $::instance_conf->get_purchase_delivery_order_check_stocked) ? t8('This record has not been stocked in. Proceed?')
+                    :                                                                                                undef,
+        ],
+        action => [
+          t8('Save and Reclamation'),
+          submit => [ '#form', { action => "save_and_reclamation" } ],
+        ],
       ],
 
       combobox => [
@@ -1317,6 +1338,23 @@ sub invoice_multi {
   display_form();
 
   $main::lxdebug->leave_sub();
+}
+
+sub save_and_reclamation {
+  my $form     = $main::form;
+  my $type     = $form->{type};
+
+  # save the delivery order
+  save(no_redirect => 1);
+
+  my $to_reclamation_type =
+    $type eq 'sales_delivery_order' ? 'sales_reclamation'
+                                    : 'purchase_reclamation';
+  $form->{callback} =
+    'controller.pl?action=Reclamation/add_from_delivery_order' .
+    '&type=' . $to_reclamation_type .
+    '&from_id=' . $form->escape($form->{id});
+  $form->redirect;
 }
 
 sub save_as_new {

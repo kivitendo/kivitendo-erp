@@ -69,6 +69,7 @@ __PACKAGE__->run_before('recalc',
                           save_and_show_email_dialog
                           workflow_save_and_sales_or_purchase_reclamation
                           save_and_order
+                          save_and_delivery_order
                        )]);
 
 __PACKAGE__->run_before('get_unalterable_data',
@@ -77,6 +78,7 @@ __PACKAGE__->run_before('get_unalterable_data',
                           save_and_show_email_dialog
                           workflow_save_and_sales_or_purchase_reclamation
                           save_and_order
+                          save_and_delivery_order
                         )]);
 
 #
@@ -109,6 +111,29 @@ sub action_add_from_order {
   require SL::DB::Order;
   my $order = SL::DB::Order->new(id => $::form->{from_id})->load;
   my $reclamation = $order->convert_to_reclamation();
+
+  $self->reclamation($reclamation);
+
+  $self->reinit_after_new_reclamation();
+
+  $self->render(
+    'reclamation/form',
+    title => $self->get_title_for('add'),
+    %{$self->{template_args}},
+  );
+}
+
+sub action_add_from_delivery_order {
+  my ($self) = @_;
+
+  unless ($::form->{from_id}) {
+    $self->js->flash('error', t8("Can't create new reclamation. No 'from_id' was given."));
+    return $self->js->render();
+  }
+
+  require SL::DB::DeliveryOrder;
+  my $delivery_order = SL::DB::DeliveryOrder->new(id => $::form->{from_id})->load;
+  my $reclamation = $delivery_order->convert_to_reclamation();
 
   $self->reclamation($reclamation);
 
@@ -513,6 +538,21 @@ sub action_save_and_sales_reclamation {
 # workflow from sales to purchase reclamation
 sub action_save_and_purchase_reclamation {
   $_[0]->workflow_save_and_sales_or_purchase_reclamation();
+}
+
+# save the reclamation and redirect to the frontend subroutine for a new
+# delivery order
+sub action_save_and_delivery_order {
+  my ($self) = @_;
+
+  my $to_type = $self->reclamation->is_sales ? 'sales_delivery_order'
+                                             : 'purchase_delivery_order';
+  $self->save_and_redirect_to(
+    controller => 'do.pl',
+    action     => 'add_from_reclamation',
+    type       => $to_type,
+    from_id    => $self->reclamation->id,
+  );
 }
 
 # set form elements in respect to a changed customer or vendor
@@ -1617,10 +1657,12 @@ sub _link_to_records {
   my %allowed_linked_records = map {$_ => 1} qw(
     SL::DB::Reclamation
     SL::DB::Order
+    SL::DB::DeliveryOrder
   );
   my %allowed_linked_record_items = map {$_ => 1} qw(
     SL::DB::ReclamationItem
     SL::DB::OrderItem
+    SL::DB::DeliveryOrderItem
   );
 
   my $from_record_id = delete $::form->{converted_from_record_id};
@@ -2129,6 +2171,14 @@ sub _setup_edit_action_bar {
           t8('Save and Order'),
           call      => [
             'kivi.Reclamation.save', 'save_and_order',
+            $::instance_conf->get_reclamation_warn_duplicate_parts,
+            $::instance_conf->get_reclamation_warn_no_reqdate,
+          ],
+        ],
+        action => [
+          t8('Save and Delivery Order'),
+          call      => [
+            'kivi.Reclamation.save', 'save_and_delivery_order',
             $::instance_conf->get_reclamation_warn_duplicate_parts,
             $::instance_conf->get_reclamation_warn_no_reqdate,
           ],

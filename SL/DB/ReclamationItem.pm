@@ -54,6 +54,7 @@ sub new_from {
     qw(
       SL::DB::ReclamationItem
       SL::DB::OrderItem
+      SL::DB::DeliveryOrderItem
     )
   ) {
     croak("Unsupported source object type '" . ref($source) . "'");
@@ -72,6 +73,13 @@ sub new_from {
     );
     $item_args{custom_variables} = \@custom_variables;
   } elsif (ref($source) eq 'SL::DB::OrderItem') {
+    map { $item_args{$_} = $source->$_ } qw(
+      active_discount_source active_price_source base_qty description discount
+      lastcost longdescription parts_id position price_factor price_factor_id
+      pricegroup_id project_id qty reqdate sellprice serialnumber unit
+    );
+    $item_args{custom_variables} = \@custom_variables;
+  } elsif (ref($source) eq 'SL::DB::DeliveryOrderItem') {
     map { $item_args{$_} = $source->$_ } qw(
       active_discount_source active_price_source base_qty description discount
       lastcost longdescription parts_id position price_factor price_factor_id

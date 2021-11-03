@@ -35,6 +35,94 @@ __PACKAGE__->configure_acts_as_list(group_by => [qw(delivery_order_id)]);
 
 # methods
 
+sub new_from {
+  my ($class, $source, %params) = @_;
+
+  my %allowed_sources = map { $_ => 1 } qw(
+      SL::DB::ReclamationItem
+      SL::DB::OrderItem
+  );
+  unless( $allowed_sources{ref $source} ) {
+    croak("Unsupported source object type '" . ref($source) . "'");
+  }
+
+  my @custom_variables = map { _clone_cvar_for_delivery_order_item($_) } @{ $source->custom_variables };
+
+  my %item_args;
+  if (ref($source) eq 'SL::DB::ReclamationItem') {
+    map { $item_args{$_} = $source->$_ } # {{{ for vim folds
+    qw(
+      active_discount_source
+      active_price_source
+      base_qty
+      description
+      discount
+      lastcost
+      longdescription
+      parts_id
+      position
+      price_factor
+      price_factor_id
+      pricegroup_id
+      project_id
+      qty
+      reqdate
+      sellprice
+      serialnumber
+      unit
+    );
+    $item_args{custom_variables} = \@custom_variables;
+    # }}} for vim folds
+  } elsif (ref($source) eq 'SL::DB::OrderItem') {
+    map { $item_args{$_} = $source->$_ } # {{{ for vim folds
+    qw(
+      active_discount_source
+      active_price_source
+      base_qty
+      cusordnumber
+      description
+      discount
+      lastcost
+      longdescription
+      marge_price_factor
+      parts_id
+      price_factor
+      price_factor_id
+      project_id
+      qty
+      reqdate
+      sellprice
+      serialnumber
+      transdate
+      unit
+    );
+    $item_args{custom_variables} = \@custom_variables;
+    $item_args{ordnumber}        = ref($source->record) eq 'SL::DB::Order' ? $source->record->ordnumber : $source->ordnumber;
+    # }}} for vim folds
+  }
+
+  my $item = $class->new(%item_args);
+
+  my $source_table = '';
+  if( ref($source) eq 'SL::DB::OrderItem' ) {
+    $source_table = 'orderitems';
+  } elsif ( ref($source) eq 'SL::DB::ReclamationItem' ) {
+    $source_table = 'reclamation_items';
+  }
+  $item->{"converted_from_". $source_table ."_id"} = $_->{id};
+
+  return $item;
+}
+
+sub _clone_cvar_for_delivery_order_item {
+  my ($cvar) = @_;
+
+  my $cloned = $_->clone_and_reset;
+  $cloned->sub_module('delivery_order_items');
+
+  return $cloned;
+}
+
 sub record { goto &delivery_order }
 sub record_id { goto &delivery_order_id }
 

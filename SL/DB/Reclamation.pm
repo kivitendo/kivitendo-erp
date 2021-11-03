@@ -216,12 +216,48 @@ sub convert_to_order {
   return $order;
 }
 
+sub convert_to_delivery_order {
+  my ($self, %params) = @_;
+
+  my $delivery_order;
+  if (!$self->db->with_transaction(sub {
+    require SL::DB::DeliveryOrder;
+    $delivery_order = SL::DB::DeliveryOrder->new_from($self, %params);
+    $delivery_order->save;
+    $self->link_to_record($delivery_order);
+    # TODO extend link_to_record for items, otherwise long-term no d.r.y.
+    foreach my $item (@{ $delivery_order->items }) {
+      foreach (qw(reclamation_items)) {
+        if ($item->{"converted_from_${_}_id"}) {
+          die unless $item->{id};
+          RecordLinks->create_links('dbh'        => $self->db->dbh,
+                                    'mode'       => 'ids',
+                                    'from_table' => $_,
+                                    'from_ids'   => $item->{"converted_from_${_}_id"},
+                                    'to_table'   => 'delivery_order_items',
+                                    'to_id'      => $item->{id},
+          ) || die;
+          delete $item->{"converted_from_${_}_id"};
+        }
+      }
+    }
+
+    $self->update_attributes(delivered => 1) unless $::instance_conf->get_shipped_qty_require_stock_out;
+    1;
+  })) {
+    return undef, $self->db->error->db_error->db_error;
+  }
+
+  return $delivery_order, undef;
+}
+
 #TODO(Werner): überprüfen ob alle Felder richtig gestetzt werden
 sub new_from {
   my ($class, $source, %params) = @_;
   my %allowed_sources = map { $_ => 1 } qw(
     SL::DB::Reclamation
     SL::DB::Order
+    SL::DB::DeliveryOrder
   );
   unless( $allowed_sources{ref $source} ) {
     croak("Unsupported source object type '" . ref($source) . "'");
@@ -239,6 +275,9 @@ sub new_from {
     #Order
     { from => 'sales_order',             to => 'sales_reclamation',    abbr => 'sosr', },
     { from => 'purchase_order',          to => 'purchase_reclamation', abbr => 'popr', },
+    #Delivery Order
+    { from => 'sales_delivery_order',    to => 'sales_reclamation',    abbr => 'sdsr', },
+    { from => 'purchase_delivery_order', to => 'purchase_reclamation', abbr => 'pdpr', },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   if (!$from_to) {
@@ -296,6 +335,30 @@ sub new_from {
       intnotes
       language_id
       netamount
+      notes
+      payment_id
+      salesman_id
+      shippingpoint
+      shipvia
+      tax_point
+      taxincluded
+      taxzone_id
+      transaction_description
+      vendor_id
+    );
+    $record_args{contact_id} = $source->cp_id;
+    $record_args{cv_record_number} = $source->cusordnumber;
+    # }}} for vim folds
+  } elsif ( $is_abbr_any->(qw(sdsr pdpr)) ) { #DeliveryOrder
+    map { $record_args{$_} = $source->$_ } # {{{ for vim folds
+    qw(
+      currency_id
+      customer_id
+      delivery_term_id
+      department_id
+      globalproject_id
+      intnotes
+      language_id
       notes
       payment_id
       salesman_id
