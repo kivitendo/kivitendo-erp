@@ -660,7 +660,7 @@ if ($has_qr_reference && defined $form->{qr_reference}) {
     title creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
     max_dunning_level dunning_amount dunning_description
     taxaccounts cursor_fokus
-    convert_from_do_ids convert_from_oe_ids convert_from_ar_ids useasnew
+    convert_from_reclamations_ids convert_from_do_ids convert_from_oe_ids convert_from_ar_ids useasnew
     invoice_id
     show_details
   ), @custom_hiddens,
@@ -1436,6 +1436,56 @@ sub credit_note {
     delete $form->{"AR_paid_$i"};
   };
   $form->{paidaccounts} = 1;
+
+  &prepare_invoice;
+
+  &display_form;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub credit_note_from_reclamation {
+  $main::lxdebug->enter_sub();
+
+  $main::auth->assert('invoice_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+
+  my $from_id = delete $form->{from_id};
+  my $reclamation = SL::DB::Reclamation->new(id => $from_id)->load;
+
+  $reclamation->flatten_to_form($form, format_amounts => 1);
+
+  # set new persistent ids for credit note and link previous reclamation id
+  $form->{convert_from_reclamations_ids} = $form->{id};
+  $form->{id}     = '';
+
+  $form->{"converted_from_reclamation_items_id_$_"} = delete $form->{"reclamation_items_id_$_"} for 1 .. $form->{"rowcount"};
+
+  $form->{transdate} = $form->{invdate} = $form->current_date(\%myconfig);
+  $form->{duedate} =
+    $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
+
+  $form->{title}  = $locale->text('Add Credit Note');
+  $form->{script} = 'is.pl';
+
+  # bo creates the id, reset it
+  map { delete $form->{$_} }
+    qw(id invnumber subject message cc bcc printed emailed queued);
+  $form->{ $form->{vc} } =~ s/--.*//g;
+
+  $form->{type} = "credit_note";
+
+  my $currency = $form->{currency};
+  &invoice_links;
+  $form->{currency}     = $currency;
+  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{invdate}, 'buy');
+  $form->{exchangerate} = $form->{forex} || '';
+
+  $form->{creditremaining} -= ($form->{oldinvtotal} - $form->{ordtotal});
 
   &prepare_invoice;
 

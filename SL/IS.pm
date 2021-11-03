@@ -1013,7 +1013,7 @@ SQL
                                   dbh          => $dbh);
     }
     # link previous items with invoice items
-    foreach (qw(delivery_order_items orderitems invoice)) {
+    foreach (qw(delivery_order_items orderitems invoice reclamation_items)) {
       if (!$form->{useasnew} && $form->{"converted_from_${_}_id_$i"}) {
         RecordLinks->create_links('dbh'        => $dbh,
                                   'mode'       => 'ids',
@@ -1578,27 +1578,18 @@ SQL
 
   Common::webdav_folder($form);
 
-  if ($form->{convert_from_ar_ids}) {
-    RecordLinks->create_links('dbh'        => $dbh,
-                              'mode'       => 'ids',
-                              'from_table' => 'ar',
-                              'from_ids'   => $form->{convert_from_ar_ids},
-                              'to_table'   => 'ar',
-                              'to_id'      => $form->{id},
-    );
-    delete $form->{convert_from_ar_ids};
-  }
-
   # Link this record to the records it was created from.
-  if ($form->{convert_from_oe_ids}) {
-    RecordLinks->create_links('dbh'        => $dbh,
-                              'mode'       => 'ids',
-                              'from_table' => 'oe',
-                              'from_ids'   => $form->{convert_from_oe_ids},
-                              'to_table'   => 'ar',
-                              'to_id'      => $form->{id},
+  foreach (qw(oe ar reclamations)) {
+    if ($form->{"convert_from_${_}_ids"}) {
+      RecordLinks->create_links('dbh'        => $dbh,
+                                'mode'       => 'ids',
+                                'from_table' => $_,
+                                'from_ids'   => $form->{"convert_from_${_}_ids"},
+                                'to_table'   => 'ar',
+                                'to_id'      => $form->{id},
       );
-    delete $form->{convert_from_oe_ids};
+      delete $form->{"convert_from_${_}_ids"};
+    }
   }
 
   my @convert_from_do_ids = map { $_ * 1 } grep { $_ } split m/\s+/, $form->{convert_from_do_ids};

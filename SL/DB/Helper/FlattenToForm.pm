@@ -74,6 +74,7 @@ sub flatten_to_form {
   my $items_name = ref($self) eq 'SL::DB::Order'         ? 'orderitems'
                  : ref($self) eq 'SL::DB::DeliveryOrder' ? 'delivery_order_items'
                  : ref($self) eq 'SL::DB::Invoice'       ? 'invoice'
+                 : ref($self) eq 'SL::DB::Reclamation'   ? 'reclamation_items'
                  : '';
 
   my %cvar_validity = _determine_cvar_validity($self, $vc);

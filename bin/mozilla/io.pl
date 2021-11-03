@@ -257,9 +257,11 @@ sub display_row {
     my $record_item = $record->id && $record->items ? $record->items->[$i-1] : _make_record_item($i);
 
     # undo formatting
+    $main::lxdebug->dump(0, "TST: before parse_amount", $form->{"sellprice_$i"});
     map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) }
       qw(qty discount sellprice lastcost price_new price_old)
         unless ($form->{simple_save});
+    $main::lxdebug->dump(0, "TST: after parse_amount", $form->{"sellprice_$i"});
 
     if ($form->{"prices_$i"} && ($form->{"new_pricegroup_$i"} != $form->{"old_pricegroup_$i"})) {
       $form->{"sellprice_$i"} = $form->{"price_new_$i"};
@@ -474,7 +476,7 @@ sub display_row {
       push @hidden_vars, qw(invoice_id converted_from_orderitems_id converted_from_delivery_order_items_id converted_from_invoice_id);
     }
     if ($::form->{type} =~ /credit_note/) {
-      push @hidden_vars, qw(invoice_id converted_from_invoice_id);
+      push @hidden_vars, qw(invoice_id converted_from_invoice_id converted_from_reclamation_items_id);
     }
    if ($is_delivery_order) {
       map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount lastcost);
@@ -831,7 +833,8 @@ sub remove_emptied_rows {
                 stock_out stock_in has_sernumber reqdate orderitems_id
                 active_price_source active_discount_source delivery_order_items_id
                 invoice_id converted_from_orderitems_id
-                converted_from_delivery_order_items_id converted_from_invoice_id);
+                converted_from_delivery_order_items_id converted_from_invoice_id
+                converted_from_reclamation_items_id);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
