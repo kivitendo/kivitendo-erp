@@ -677,6 +677,16 @@ sub action_save_and_delivery_order {
   );
 }
 
+sub action_save_and_supplier_delivery_order {
+  my ($self) = @_;
+
+  $self->save_and_redirect_to(
+    controller => 'controller.pl',
+    action     => 'DeliveryOrder/add_from_order',
+    type       => 'supplier_delivery_order',
+  );
+}
+
 # save the order and redirect to the frontend subroutine for a new
 # invoice
 sub action_save_and_invoice {
@@ -2064,6 +2074,16 @@ sub setup_edit_action_bar {
                          @req_trans_cost_art, @req_cusordnumber,
           ],
           only_if   => (any { $self->type eq $_ } (sales_order_type(), purchase_order_type()))
+        ],
+        action => [
+          t8('Save and Supplier Delivery Order'),
+          call      => [ 'kivi.Order.save', 'save_and_supplier_delivery_order', $::instance_conf->get_order_warn_duplicate_parts,
+                                                                       $::instance_conf->get_order_warn_no_deliverydate,
+                                                                                                                        ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
+                         @req_trans_cost_art, @req_cusordnumber,
+          ],
+          only_if   => (any { $self->type eq $_ } (sales_order_type()))
         ],
         action => [
           t8('Save and Invoice'),

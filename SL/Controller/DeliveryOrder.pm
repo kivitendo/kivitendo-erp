@@ -78,6 +78,16 @@ sub action_add {
   );
 }
 
+sub action_add_from_order {
+  my ($self) = @_;
+  # this interfers with init_order
+  $self->{converted_from_oe_id} = delete $::form->{id};
+
+  # TODO copy data and remember to link them on save
+
+  $self->action_add;
+}
+
 # edit an existing order
 sub action_edit {
   my ($self) = @_;
