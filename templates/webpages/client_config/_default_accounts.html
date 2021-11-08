@@ -56,6 +56,11 @@
   </tr>
 
   <tr>
+   <td align="right">[% LxERP.t8("Clearing account for advance payments") %]</td>
+   <td>[% P.chart.picker('defaults.advance_payment_clearing_chart_id', SELF.defaults.advance_payment_clearing_chart_id, choose=1, style=style) %]<td>
+  </tr>
+
+  <tr>
    <td align="right">[% LxERP.t8("Account for workflow from purchase order to ap transaction") %]</td>
    <td>[% P.chart.picker('defaults.workflow_po_ap_chart_id', SELF.defaults.workflow_po_ap_chart_id, type='AP_amount', choose=1, style=style) %]<td>
   </tr>

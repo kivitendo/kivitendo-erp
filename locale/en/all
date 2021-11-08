@@ -669,6 +669,7 @@ $self->{texts} = {
   'Cleared Balance'             => '',
   'Cleared/uncleared only'      => '',
   'Clearing Tax Received (No 71)' => '',
+  'Clearing account for advance payments' => '',
   'Client'                      => '',
   'Client #1'                   => '',
   'Client Configuration'        => '',

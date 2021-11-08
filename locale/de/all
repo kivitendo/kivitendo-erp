@@ -669,6 +669,7 @@ $self->{texts} = {
   'Cleared Balance'             => 'abgeschlossen',
   'Cleared/uncleared only'      => 'Status abgeglichen',
   'Clearing Tax Received (No 71)' => 'Verrechnung des Erstattungsbetrages erwünscht (Zeile 71)',
+  'Clearing account for advance payments' => 'Verrechnungskonto für Anzahlungen',
   'Client'                      => 'Mandant',
   'Client #1'                   => 'Mandant #1',
   'Client Configuration'        => 'Mandantenkonfiguration',
