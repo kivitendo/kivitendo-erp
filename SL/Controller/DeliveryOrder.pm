@@ -26,6 +26,7 @@ use SL::DB::Language;
 use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
+use SL::DB::TransferType;
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
@@ -950,6 +951,50 @@ sub action_update_row_from_master_data {
   $self->js->render();
 }
 
+sub action_transfer_stock {
+  my ($self) = @_;
+
+  if ($self->order->delivered) {
+    return $self->js->flash("error", t8('The parts for this order have already been transferred'))->render;
+  }
+
+  my $errors = $self->save;
+
+  if (@$errors) {
+    $self->js->flash('error', $_) for @$errors;
+    return $self->js->render;
+  }
+
+  my $order = $self->order;
+
+  # TODO move to type data
+  my $trans_type = $self->type_data->properties('transfer') eq 'in'
+    ? SL::DB::Manager::TransferType->find_by(direction => "id", description => "stock")
+    : SL::DB::Manager::TransferType->find_by(direction => "out", deescription => "shipped");
+
+  my @transfer_requests;
+
+  for my $item (@{ $order->items_sorted }) {
+    for my $stock (@{ $item->delivery_order_stock_entries }) {
+      my $transfer = SL::DB::Inventory->new_from($stock);
+      $transfer->trans_type($trans_type);
+
+      push @transfer_requests, $transfer;
+    };
+  }
+
+  if (!@transfer_requests) {
+    $self->js->flash("error", t8("No stock to transfer"))->render;
+  }
+
+  SL::DB->with_transaction(sub {
+    $_->save for @transfer_requests;
+    $self->order->update_attributes(deliverd => 1);
+  });
+
+  $self->js->flash("info", t8("Stock transfered"))->render;
+}
+
 sub js_load_second_row {
   my ($self, $item, $item_id, $do_parse) = @_;
 
@@ -1541,7 +1586,6 @@ sub workflow_sales_or_purchase_order {
   );
 }
 
-
 sub pre_render {
   my ($self) = @_;
 
@@ -1705,6 +1749,23 @@ sub setup_edit_action_bar {
         confirm  => $::locale->text('Do you really want to delete this object?'),
         disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         only_if  => $self->type_data->show_menu("delete"),
+      ],
+
+      combobox => [
+        action => [
+          t8('Transfer out'),
+          submit   => [ '#order_form', { action => "DeliveryOrder/transfer_stock" } ],
+          disabled => $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
+          only_if => $self->type_data->properties('transfer') eq 'out',
+          confirm  => t8('Do you really want to transfer the stock and set this order to delivered?'),
+        ],
+        action => [
+          t8('Transfer in'),
+          submit   => [ '#order_form', { action => "DeliveryOrder/transfer_stock" } ],
+          disabled => $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
+          only_if => $self->type_data->properties('transfer') eq 'in',
+          confirm  => t8('Do you really want to transfer the stock and set this order to delivered?'),
+        ],
       ],
 
       combobox => [
