@@ -1,0 +1,10 @@
+- parent: ar
+  id: ar_add_sales_invoice_for_advance_payment
+  name: Add Invoice for Advance Payment
+  icon: sales_invoice_add
+  order: 550
+  access: invoice_edit
+  module: is.pl
+  params:
+    action: add
+    type: invoice_for_advance_payment

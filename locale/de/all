@@ -179,6 +179,7 @@ $self->{texts} = {
   'Add Follow-Up'               => 'Wiedervorlage erstellen',
   'Add Follow-Up for #1'        => 'Wiedervorlage für #1 erstellen',
   'Add General Ledger Transaction' => 'Dialogbuchen',
+  'Add Invoice for Advance Payment' => 'Anzahlungsrechnung erfassen',
   'Add Letter'                  => 'Brief hinzufügen',
   'Add Part'                    => 'Ware erfassen',
   'Add Price Factor'            => 'Preisfaktor erfassen',

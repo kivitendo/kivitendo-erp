@@ -179,6 +179,7 @@ $self->{texts} = {
   'Add Follow-Up'               => '',
   'Add Follow-Up for #1'        => '',
   'Add General Ledger Transaction' => '',
+  'Add Invoice for Advance Payment' => '',
   'Add Letter'                  => '',
   'Add Part'                    => '',
   'Add Price Factor'            => '',
