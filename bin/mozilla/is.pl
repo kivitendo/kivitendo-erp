@@ -89,6 +89,10 @@ sub add {
     if ($form->{storno}) {
       $form->{title} = $locale->text('Add Storno Credit Note');
     }
+
+  } elsif ($form->{type} eq "invoice_for_advance_payment") {
+    $form->{title} = $locale->text('Add Invoice for Advance Payment');
+
   } else {
     $form->{title} = $locale->text('Add Sales Invoice');
 
@@ -132,6 +136,11 @@ sub edit {
   if ($form->{type} eq "credit_note") {
     $form->{title} = $locale->text('Edit Credit Note');
     $form->{title} = $locale->text('Edit Storno Credit Note') if $form->{storno};
+
+  } elsif ($form->{type} eq "invoice_for_advance_payment") {
+    $form->{title} = $locale->text('Edit Invoice for Advance Payment');
+    $form->{title} = $locale->text('Edit Storno Invoice for Advance Payment') if $form->{storno};
+
   } else {
     $form->{title} = $locale->text('Edit Sales Invoice');
     $form->{title} = $locale->text('Edit Storno Invoice')     if $form->{storno};
