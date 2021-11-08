@@ -9,6 +9,7 @@ our @EXPORT_OK = qw(
   _format_number _round_number
   _format_total  _round_total
   _parse_number
+  _format_number_units
 );
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
@@ -48,6 +49,55 @@ sub _format_number {
   };
 
   $amount;
+}
+
+sub _format_number_units {
+  my ($amount, $places, $unit_from, $unit_to, %params) = @_;
+
+  my $all_units = $params{all_units} //= SL::DB::Manager::Unit->get_all;
+
+  if (!$unit_from || !$unit_to) {
+    return _format_number($amount, $places, %params);
+  }
+
+  $amount       *= $unit_from->convert_to(1, $unit_to);
+
+  my $conv_units = $unit_from->convertible_units($all_units);
+
+  if (!scalar @{ $conv_units }) {
+    return _format_number($amount, $places, %params) . " " . $unit_to->name;
+  }
+
+  my @values;
+  my $num;
+
+  for my $unit (@$conv_units) {
+    my $last = $unit->name eq $unit_to->name;
+    if (!$last) {
+      $num     = int($amount / $unit->factor);
+      $amount -= $num * $unit->factor;
+    }
+
+    if ($last ? $amount : $num) {
+      push @values, {
+        unit   => $unit->name,
+        amount => $last ? $amount / $unit->factor : $num,
+        places => $last ? $places : 0
+      };
+    }
+
+    last if $last;
+  }
+
+  if (!@values) {
+    push @values, { "unit"   => $unit_to->name,
+                    "amount" => 0,
+                    "places" => 0 };
+  }
+
+  return join " ", map {
+    _format_number($_->{amount}, $_->{places}, %params), $_->{unit}
+  } @values;
 }
 
 sub _round_number {
