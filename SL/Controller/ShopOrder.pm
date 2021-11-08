@@ -63,7 +63,7 @@ sub action_get_orders {
     if($shop_fetched->{error}){
       flash_later('error', t8('From shop "#1" :  #2 ', $shop_fetched->{shop_description}, $shop_fetched->{message},));
     }else{
-      flash_later('info', t8('From shop #1 :  #2 shoporders have been fetched.', $shop_fetched->{description}, $shop_fetched->{number_of_orders},));
+      flash_later('info', t8('From shop #1 :  #2 shoporders have been fetched.', $shop_fetched->{shop_description}, $shop_fetched->{number_of_orders},));
     }
   }
 
