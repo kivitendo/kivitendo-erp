@@ -135,7 +135,9 @@
    </td>
   </tr>
 
-[% PROCESS 'is/_payments.html' %]
+[% IF !is_type_invoice_for_advance_payment %]
+  [% PROCESS 'is/_payments.html' %]
+[% END %]
  </table>
 </div>
 [% PROCESS 'webdav/_list.html' %]
