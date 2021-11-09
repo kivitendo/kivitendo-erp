@@ -27,6 +27,8 @@ Kleinere neue Features und Detailverbesserungen:
   erzeugt wurde (Konfigurierbar in der Mandantenkonfiguration)
 - Die Ansicht der verknüpften Belegen kann unabhängig vom aktuellen Beleg immer
   vom Auftrag her aufgebaut werden
+- SEPA-Überweisungen & -Bankeinzüge nutzen jetzt aktuelle Standard-Versionen, die
+  momentan von der Kreditindustrie unterstützt werden.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
