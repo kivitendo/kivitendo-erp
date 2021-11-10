@@ -174,6 +174,7 @@ sub handle_cvars {
 
   my %type_to_column = ( text      => 'text_value',
                          textfield => 'text_value',
+                         htmlfield => 'text_value',
                          select    => 'text_value',
                          date      => 'timestamp_value_as_date',
                          timestamp => 'timestamp_value_as_date',
