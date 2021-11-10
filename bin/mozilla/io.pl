@@ -1885,6 +1885,7 @@ sub _make_record_item {
     sales_quotation         => 'OrderItem',
     request_quotation       => 'OrderItem',
     invoice                 => 'InvoiceItem',
+    invoice_for_advance_payment => 'InvoiceItem',
     credit_note             => 'InvoiceItem',
     purchase_invoice        => 'InvoiceItem',
     purchase_delivery_order => 'DeliveryOrderItem',
@@ -1965,7 +1966,7 @@ sub _make_record {
     sales_delivery_order    => 'DeliveryOrder',
   }->{$::form->{type}};
 
-  if ($::form->{type} =~ /invoice|credit_note/) {
+  if ($::form->{type} =~ /invoice|invoice_for_advance_payment|credit_note/) {
     $class = $::form->{vc} eq 'customer' ? 'Invoice'
            : $::form->{vc} eq 'vendor'   ? 'PurchaseInvoice'
            : do { die 'unknown invoice type' };
