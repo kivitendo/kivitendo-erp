@@ -52,7 +52,7 @@ sub parse_value {
     return $self->timestamp_value(!defined($unparsed) ? undef : ref($unparsed) eq 'DateTime' ? $unparsed->clone : DateTime->from_kivitendo($unparsed));
   }
 
-  # text, textfield, select
+  # text, textfield, htmlfield and select
   $self->text_value($unparsed);
 }
 
@@ -92,7 +92,7 @@ sub value {
     return $self->timestamp_value ? $self->timestamp_value->clone->truncate(to => 'day') : undef;
   }
 
-  goto &text_value; # text, textfield and select
+  goto &text_value; # text, textfield, htmlfield and select
 }
 
 sub value_as_text {
@@ -116,7 +116,7 @@ sub value_as_text {
     return $object ? $object->displayable_name : '';
   }
 
-  goto &text_value; # text, textfield and select
+  goto &text_value; # text, textfield, htmlfield and select
 }
 
 sub is_valid {

@@ -10,6 +10,7 @@ use Data::Dumper;
 
 use SL::DBUtils;
 use SL::MoreCommon qw(listify);
+use SL::Presenter::Text;
 use SL::Util qw(trim);
 use SL::DB;
 
@@ -46,7 +47,7 @@ SQL
       } elsif ($config->{type} eq 'number') {
         $config->{precision} = $1 if ($config->{options} =~ m/precision=(\d+)/i);
 
-      } elsif ($config->{type} eq 'textfield') {
+      } elsif ($config->{type} =~ m{^(?:html|text)field$}) {
         $config->{width}  = 30;
         $config->{height} =  5;
         $config->{width}  = $1 if ($config->{options} =~ m/width=(\d+)/i);
@@ -112,7 +113,7 @@ sub get_custom_variables {
   my $custom_variables = $self->get_configs(module => $params{module});
 
   foreach my $cvar (@{ $custom_variables }) {
-    if ($cvar->{type} eq 'textfield') {
+    if ($cvar->{type} =~ m{^(?:html|text)field}) {
       $cvar->{width}  = 30;
       $cvar->{height} =  5;
 
@@ -271,7 +272,7 @@ sub _save_custom_variables {
 
     my $value  = $params{variables}->{"$params{name_prefix}cvar_$config->{name}$params{name_postfix}"};
 
-    if (($config->{type} eq 'text') || ($config->{type} eq 'textfield') || ($config->{type} eq 'select')) {
+    if (any { $config->{type} eq $_ } qw(text textfield htmlfield select)) {
       push @values, undef, undef, $value, undef;
 
     } elsif (($config->{type} eq 'date') || ($config->{type} eq 'timestamp')) {
@@ -375,7 +376,7 @@ sub build_filter_query {
 
     my (@sub_values, @sub_where, $not);
 
-    if (($config->{type} eq 'text') || ($config->{type} eq 'textfield')) {
+    if (any { $config->{type} eq $_ } qw(text textfield htmlfield)) {
       next unless ($params{filter}->{$name});
 
       push @sub_where,  qq|cvar.text_value ILIKE ?|;
@@ -525,6 +526,7 @@ sub add_custom_variables_to_report {
         : $cfg->{type} eq 'vendor'    ? (SL::DB::Manager::Vendor->find_by(id => 1*$ref->{number_value})   || SL::DB::Vendor->new)->name
         : $cfg->{type} eq 'part'      ? (SL::DB::Manager::Part->find_by(id => 1*$ref->{number_value})     || SL::DB::Part->new)->partnumber
         : $cfg->{type} eq 'bool'      ? ($ref->{bool_value} ? $locale->text('Yes') : $locale->text('No'))
+        : $cfg->{type} eq 'htmlfield' ? SL::Presenter::Text::stripped_html($ref->{text_value})
         :                               $ref->{text_value};
     }
   }

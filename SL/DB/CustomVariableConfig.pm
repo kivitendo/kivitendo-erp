@@ -117,6 +117,7 @@ sub value_col {
     customer  => 'number_value',
     vendor    => 'number_value',
     part      => 'number_value',
+    htmlfield => 'text_value',
     text      => 'text_value',
     textfield => 'text_value',
     select    => 'text_value'

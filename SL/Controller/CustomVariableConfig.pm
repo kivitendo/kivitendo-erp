@@ -25,6 +25,7 @@ __PACKAGE__->run_before('load_config', only => [ qw(edit update destroy) ]);
 our %translations = (
   text      => t8('Free-form text'),
   textfield => t8('Text field'),
+  htmlfield => t8('HTML field'),
   number    => t8('Number'),
   date      => t8('Date'),
   timestamp => t8('Timestamp'),
@@ -35,7 +36,7 @@ our %translations = (
   part      => t8('Part'),
 );
 
-our @types = qw(text textfield number date bool select customer vendor part); # timestamp
+our @types = qw(text textfield htmlfield number date bool select customer vendor part); # timestamp
 
 #
 # actions

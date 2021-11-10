@@ -16,6 +16,8 @@
   [% L.checkbox_tag(var_name, checked = var.value, for_submit = 1) %]
 [%- ELSIF ( var.config .type == 'textfield' ) %]
   [% L.textarea_tag(var_name, var.value, cols = var.config.processed_options.WIDTH, rows = var.config.processed_options.HEIGHT) %]
+[%- ELSIF ( var.config .type == 'htmlfield' ) %]
+  [% L.textarea_tag(var_name, L.restricted_html(var.value), cols = var.config.processed_options.WIDTH, rows = var.config.processed_options.HEIGHT, class='texteditor') %]
 [%- ELSIF ( var.config.type == 'date' ) %]
   [% L.date_tag(var_name, var.value) %]
 [%- ELSIF ( var.config.type == 'timestamp' ) %]
