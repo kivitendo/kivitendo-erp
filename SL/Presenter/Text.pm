@@ -4,6 +4,7 @@ use strict;
 
 use SL::Presenter::EscapedText qw(escape);
 use SL::HTML::Restrict;
+use SL::HTML::Util;
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(format_man_days simple_format truncate restricted_html);
@@ -50,6 +51,11 @@ sub restricted_html {
   my ($value) = @_;
   $html_cleaner //= SL::HTML::Restrict->create;
   return $html_cleaner->process($value);
+}
+
+sub stripped_html {
+  my ($value) = @_;
+  return SL::HTML::Util::strip($value);
 }
 
 1;
@@ -102,6 +108,11 @@ are removed.
 
 Returns HTML code stripped from unwanted/unsupported content. This is
 done via the module L<SL::HTML::Restrict>.
+
+=item C<stripped_html $html>
+
+Returns the raw text with all HTML tags and comments stripped. This is
+done via L<SL::HTML::Util/strip>.
 
 =back
 
