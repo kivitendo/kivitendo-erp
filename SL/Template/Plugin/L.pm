@@ -85,6 +85,7 @@ sub date_tag                 { return _call_presenter('date_tag',               
 sub div_tag                  { return _call_presenter('div_tag',                  @_); }
 sub radio_button_tag         { return _call_presenter('radio_button_tag',         @_); }
 sub img_tag                  { return _call_presenter('img_tag',                  @_); }
+sub restricted_html          { return _call_presenter('restricted_html',          @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name, $unique) = @_;

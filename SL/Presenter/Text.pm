@@ -3,12 +3,15 @@ package SL::Presenter::Text;
 use strict;
 
 use SL::Presenter::EscapedText qw(escape);
+use SL::HTML::Restrict;
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(format_man_days simple_format truncate);
+our @EXPORT_OK = qw(format_man_days simple_format truncate restricted_html);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use Carp;
+
+my $html_cleaner;
 
 sub truncate {
   my ($text, %params) = @_;
@@ -41,6 +44,12 @@ sub format_man_days {
   $output    .= ' ' . $::locale->text('#1 h', $::form->format_amount(\%::myconfig, $rest)) if $rest > 0.0;
 
   escape($output);
+}
+
+sub restricted_html {
+  my ($value) = @_;
+  $html_cleaner //= SL::HTML::Restrict->create;
+  return $html_cleaner->process($value);
 }
 
 1;
@@ -88,6 +97,11 @@ paragraph HTML tags. Two consecutive newlines are interpreted as a
 paragraph change: they close the current paragraph tag and start a new
 one. Single newlines are converted to line breaks. Carriage returns
 are removed.
+
+=item C<restricted_html $unsafe_html>
+
+Returns HTML code stripped from unwanted/unsupported content. This is
+done via the module L<SL::HTML::Restrict>.
 
 =back
 
