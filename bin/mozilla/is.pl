@@ -249,6 +249,7 @@ sub prepare_invoice {
 
   } elsif ($form->{type} eq "invoice_for_advance_payment") {
     $form->{type}     = "invoice_for_advance_payment";
+    $form->{formname} = "invoice_for_advance_payment";
 
   } elsif ($form->{formname} eq "proforma" ) {
     $form->{type}     = "invoice";

@@ -1089,6 +1089,7 @@ sub get_formname_translation {
     credit_note             => $main::locale->text('Credit Note'),
     invoice                 => $main::locale->text('Invoice'),
     invoice_copy            => $main::locale->text('Invoice Copy'),
+    invoice_for_advance_payment => $main::locale->text('Invoice for Advance Payment'),
     pick_list               => $main::locale->text('Pick List'),
     proforma                => $main::locale->text('Proforma Invoice'),
     purchase_order          => $main::locale->text('Purchase Order'),
@@ -1131,7 +1132,7 @@ sub get_number_prefix_for_type {
   my ($self) = @_;
 
   my $prefix =
-      (first { $self->{type} eq $_ } qw(invoice credit_note)) ? 'inv'
+      (first { $self->{type} eq $_ } qw(invoice invoice_for_advance_payment credit_note)) ? 'inv'
     : ($self->{type} =~ /_quotation$/)                        ? 'quo'
     : ($self->{type} =~ /_delivery_order$/)                   ? 'do'
     : ($self->{type} =~ /letter/)                             ? 'letter'
@@ -1170,7 +1171,7 @@ sub generate_attachment_filename {
   my $attachment_filename = $main::locale->unquote_special_chars('HTML', $self->get_formname_translation());
   my $prefix              = $self->get_number_prefix_for_type();
 
-  if ($self->{preview} && (first { $self->{type} eq $_ } qw(invoice credit_note))) {
+  if ($self->{preview} && (first { $self->{type} eq $_ } qw(invoice invoice_for_advance_payment credit_note))) {
     $attachment_filename .= ' (' . $recipient_locale->text('Preview') . ')' . $self->get_extension_for_format();
 
   } elsif ($attachment_filename && $self->{"${prefix}number"}) {
@@ -2944,6 +2945,7 @@ sub save_status {
 # $main::locale->text('UNDO TRANSFER')
 # $main::locale->text('UNIMPORT')
 # $main::locale->text('invoice')
+# $main::locale->text('invoice_for_advance_payment')
 # $main::locale->text('proforma')
 # $main::locale->text('sales_order')
 # $main::locale->text('pick_list')
