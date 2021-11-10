@@ -2713,17 +2713,17 @@ sub lastname_used {
 }
 
 sub get_variable_content_types {
-  my %html_variables  = (
-      longdescription => 'html',
-      partnotes       => 'html',
-      notes           => 'html',
-      orignotes       => 'html',
-      notes1          => 'html',
-      notes2          => 'html',
-      notes3          => 'html',
-      notes4          => 'html',
-      header_text     => 'html',
-      footer_text     => 'html',
+  my %html_variables = (
+    longdescription  => 'html',
+    partnotes        => 'html',
+    notes            => 'html',
+    orignotes        => 'html',
+    notes1           => 'html',
+    notes2           => 'html',
+    notes3           => 'html',
+    notes4           => 'html',
+    header_text      => 'html',
+    footer_text      => 'html',
   );
   return \%html_variables;
 }
