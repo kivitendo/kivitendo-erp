@@ -51,6 +51,7 @@ use SL::MoreCommon;
 use SL::IC;
 use SL::IO;
 use SL::TransNumber;
+use SL::DB::Chart;
 use SL::DB::Default;
 use SL::DB::Draft;
 use SL::DB::Tax;
@@ -776,6 +777,10 @@ sub _post_invoice {
     my $basefactor;
     my $baseqty;
 
+    if ($form->{type} eq 'invoice_for_advance_payment') {
+      $form->{"income_accno_$i"} = SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_clearing_chart_id)->load->accno;
+    }
+
     $form->{"marge_percent_$i"} = $form->parse_amount($myconfig, $form->{"marge_percent_$i"}) * 1;
     $form->{"marge_absolut_$i"} = $form->parse_amount($myconfig, $form->{"marge_absolut_$i"}) * 1;
     $form->{"lastcost_$i"} = $form->parse_amount($myconfig, $form->{"lastcost_$i"}) * 1;
@@ -1008,6 +1013,16 @@ SQL
       $form->{amount}{ $form->{id} }{$item} = $form->round_amount($amount, 2);
       $tax += $form->{amount}{ $form->{id} }{$item};
     }
+  }
+
+  if ($form->{type} eq 'invoice_for_advance_payment') {
+    # invoice for advance payment show tax but does not account it.
+    # tax has to be accounted on payment
+    foreach my $item (split(/ /, $form->{taxaccounts})) {
+      delete $form->{amount}{ $form->{id} }{$item};
+    }
+
+    $tax = 0;
   }
 
   # Invoice Summary includes Rounding
