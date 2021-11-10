@@ -248,7 +248,7 @@ sub display_form {
 
   CVar->render_inputs(variables => $params{CUSTOM_VARIABLES}) if @{ $params{CUSTOM_VARIABLES} };
 
-  $::request->layout->use_javascript('kivi.File.js');
+  $::request->layout->use_javascript("$_.js") for qw(kivi.File ckeditor/ckeditor ckeditor/adapters/jquery);
   $self->setup_edit_action_bar(callback => $params{callback});
 
   $self->render('project/form', %params);
