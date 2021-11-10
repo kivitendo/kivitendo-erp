@@ -539,6 +539,8 @@ sub invoice_type {
   my ($self) = @_;
 
   return 'ar_transaction'     if !$self->invoice;
+  return 'invoice_for_advance_payment_storno' if $self->type eq 'invoice_for_advance_payment' && $self->amount < 0 &&  $self->storno;
+  return 'invoice_for_advance_payment'        if $self->type eq 'invoice_for_advance_payment';
   # stornoed credit_notes are still credit notes and not invoices
   return 'credit_note'        if $self->type eq 'credit_note' && $self->amount < 0;
   return 'invoice_storno'     if $self->type ne 'credit_note' && $self->amount < 0 &&  $self->storno;
@@ -559,6 +561,8 @@ sub displayable_type {
   return t8('Credit Note')                            if $self->invoice_type eq 'credit_note';
   return t8('Invoice') . "(" . t8('Storno') . ")"     if $self->invoice_type eq 'invoice_storno';
   return t8('Credit Note') . "(" . t8('Storno') . ")" if $self->invoice_type eq 'credit_note_storno';
+  return t8('Invoice for Advance Payment')            if $self->invoice_type eq 'invoice_for_advance_payment';
+  return t8('Invoice for Advance Payment') . "(" . t8('Storno') . ")" if $self->invoice_type eq 'invoice_for_advance_payment_storno';
   return t8('Invoice');
 }
 
@@ -573,6 +577,8 @@ sub abbreviation {
   return t8('Credit note (one letter abbreviation)') if $self->invoice_type eq 'credit_note';
   return t8('Invoice (one letter abbreviation)') . "(" . t8('Storno (one letter abbreviation)') . ")" if $self->invoice_type eq 'invoice_storno';
   return t8('Credit note (one letter abbreviation)') . "(" . t8('Storno (one letter abbreviation)') . ")"  if $self->invoice_type eq 'credit_note_storno';
+  return t8('Invoice for Advance Payment (one letter abbreviation)')  if $self->invoice_type eq 'invoice_for_advance_payment';
+  return t8('Invoice for Advance Payment with Storno (abbreviation)') if $self->invoice_type eq 'invoice_for_advance_payment_storno';
   return t8('Invoice (one letter abbreviation)');
 }
 
