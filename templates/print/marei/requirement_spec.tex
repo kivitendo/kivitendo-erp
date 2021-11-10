@@ -59,6 +59,23 @@ $( KiviLatex.required_packages_for_html )$
 
 %\tableofcontents
 
+%%%% Deaktiviertes Beispiel, wie benutzerdefinierte Variablen ausgegeben werden können: %%%%
+%% \newpage
+%%
+%% \section{Benutzerdefinierte Variablen}
+%%
+%% %$ ( FOREACH cvar = rspec.cvars_by_config ) $
+%% Name: $ ( KiviLatex.filter(cvar.config.name) ) $
+%%
+%% Wert:% $ ( IF cvar.config.type == 'htmlfield' ) $
+%% $ ( KiviLatex.filter_html(cvar.value_as_text) ) $
+%% % $ ( ELSE ) $
+%% $ ( KiviLatex.filter(cvar.value_as_text) ) $
+%% % $ ( END ) $
+%%
+%% %$ ( END ) $
+%%%% ENDE Beispiel für benutzerdefinierte Variablen %%%%
+
 %% Versionen
 \newpage
 

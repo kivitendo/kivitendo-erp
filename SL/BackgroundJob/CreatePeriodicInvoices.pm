@@ -451,6 +451,7 @@ sub _email_invoice {
       longdescription => 'html',
       partnotes       => 'html',
       notes           => 'html',
+      $::form->get_variable_content_types_for_cvars,
     },
   );
 

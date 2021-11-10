@@ -61,6 +61,7 @@ use SL::DBConnect;
 use SL::DBUtils;
 use SL::DB::AdditionalBillingAddress;
 use SL::DB::Customer;
+use SL::DB::CustomVariableConfig;
 use SL::DB::Default;
 use SL::DB::PaymentTerm;
 use SL::DB::Vendor;
@@ -2713,6 +2714,8 @@ sub lastname_used {
 }
 
 sub get_variable_content_types {
+  my ($self) = @_;
+
   my %html_variables = (
     longdescription  => 'html',
     partnotes        => 'html',
@@ -2725,7 +2728,34 @@ sub get_variable_content_types {
     header_text      => 'html',
     footer_text      => 'html',
   );
-  return \%html_variables;
+
+  return {
+    %html_variables,
+    $self->get_variable_content_types_for_cvars,
+  };
+}
+
+sub get_variable_content_types_for_cvars {
+  my ($self)       = @_;
+  my $html_configs = SL::DB::Manager::CustomVariableConfig->get_all(where => [ type => 'htmlfield' ]);
+  my %types;
+
+  if (@{ $html_configs }) {
+    my %prefix_by_module = (
+      Contacts => 'cp_cvar_',
+      CT       => 'vc_cvar_',
+      IC       => 'ic_cvar_',
+      Projects => 'project_cvar_',
+      ShipTo   => 'shiptocvar_',
+    );
+
+    foreach my $cfg (@{ $html_configs }) {
+      my $prefix = $prefix_by_module{$cfg->module};
+      $types{$prefix . $cfg->name} = 'html' if $prefix;
+    }
+  }
+
+  return %types;
 }
 
 sub current_date {
