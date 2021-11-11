@@ -13,6 +13,7 @@ use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::SessionFile;
 use SL::SessionFile::Random;
+use SL::Controller::CsvImport::AdditionalBillingAddress;
 use SL::Controller::CsvImport::Contact;
 use SL::Controller::CsvImport::CustomerVendor;
 use SL::Controller::CsvImport::Part;
@@ -307,7 +308,7 @@ sub check_auth {
 sub check_type {
   my ($self) = @_;
 
-  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts inventories customers_vendors addresses contacts projects orders delivery_orders bank_transactions ar_transactions);
+  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts inventories customers_vendors billing_addresses addresses contacts projects orders delivery_orders bank_transactions ar_transactions);
   $self->type($::form->{profile}->{type});
 }
 
@@ -348,6 +349,7 @@ sub render_inputs {
   }
 
   my $title = $self->type eq 'customers_vendors' ? $::locale->text('CSV import: customers and vendors')
+            : $self->type eq 'billing_addresses' ? $::locale->text('CSV import: additional billing addresses')
             : $self->type eq 'addresses'         ? $::locale->text('CSV import: shipping addresses')
             : $self->type eq 'contacts'          ? $::locale->text('CSV import: contacts')
             : $self->type eq 'parts'             ? $::locale->text('CSV import: parts and services')
@@ -720,6 +722,7 @@ sub init_worker {
 
   return $self->{type} eq 'customers_vendors' ? SL::Controller::CsvImport::CustomerVendor->new(@args)
        : $self->{type} eq 'contacts'          ? SL::Controller::CsvImport::Contact->new(@args)
+       : $self->{type} eq 'billing_addresses' ? SL::Controller::CsvImport::AdditionalBillingAddress->new(@args)
        : $self->{type} eq 'addresses'         ? SL::Controller::CsvImport::Shipto->new(@args)
        : $self->{type} eq 'parts'             ? SL::Controller::CsvImport::Part->new(@args)
        : $self->{type} eq 'inventories'       ? SL::Controller::CsvImport::Inventory->new(@args)

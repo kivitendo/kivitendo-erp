@@ -1355,6 +1355,13 @@
     action: CsvImport/new
     profile.type: contacts
 - parent: system_import_csv
+  id: system_import_csv_additional_billing_address
+  name: Additional Billing Addresses
+  order: 250
+  params:
+    action: CsvImport/new
+    profile.type: billing_addresses
+- parent: system_import_csv
   id: system_import_csv_shipto
   name: Shipto
   order: 300
