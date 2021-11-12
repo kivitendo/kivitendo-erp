@@ -2114,6 +2114,7 @@ sub show_sales_purchase_email_dialog {
   }
 
   $::form->{all_employees} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
+
   my $email_form = {
     to                  => $email,
     cc                  => $email_cc,
@@ -2125,10 +2126,10 @@ sub show_sales_purchase_email_dialog {
 
   my %files = _get_files_for_email_dialog();
   my $html  = $::form->parse_html_template("common/_send_email_dialog", {
-    email_form  => $email_form,
-    show_bcc    => $::auth->assert('email_bcc', 'may fail'),
-    FILES       => \%files,
-    is_customer => $::form->{vc} eq 'customer',
+    email_form      => $email_form,
+    show_bcc        => $::auth->assert('email_bcc', 'may fail'),
+    FILES           => \%files,
+    is_customer     => $::form->{vc} eq 'customer',
     is_invoice_mail => ($record_email && $::form->{type} eq 'invoice'),
     ALL_EMPLOYEES   => $::form->{all_employees},
   });
