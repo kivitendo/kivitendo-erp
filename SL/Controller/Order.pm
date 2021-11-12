@@ -14,6 +14,7 @@ use SL::MIME;
 use SL::Util qw(trim);
 use SL::YAML;
 use SL::DB::AdditionalBillingAddress;
+use SL::DB::AuthUser;
 use SL::DB::History;
 use SL::DB::Order;
 use SL::DB::Default;
@@ -426,13 +427,17 @@ sub action_save_and_show_email_dialog {
 
   my %files = $self->get_files_for_email_dialog();
 
-  $self->{all_employees} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
+  my @employees_with_email = grep {
+    my $user = SL::DB::Manager::AuthUser->find_by(login => $_->login);
+    $user && !!trim($user->get_config_value('email'));
+  } @{ SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]) };
+
   my $dialog_html = $self->render('common/_send_email_dialog', { output => 0 },
                                   email_form    => $email_form,
                                   show_bcc      => $::auth->assert('email_bcc', 'may fail'),
                                   FILES         => \%files,
                                   is_customer   => $self->cv eq 'customer',
-                                  ALL_EMPLOYEES => $self->{all_employees},
+                                  ALL_EMPLOYEES => \@employees_with_email,
   );
 
   $self->js

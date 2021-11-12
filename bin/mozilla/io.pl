@@ -54,7 +54,9 @@ use SL::IO;
 use SL::File;
 use SL::PriceSource;
 use SL::Presenter::Part;
+use SL::Util qw(trim);
 
+use SL::DB::AuthUser;
 use SL::DB::Contact;
 use SL::DB::Currency;
 use SL::DB::Customer;
@@ -2113,7 +2115,10 @@ sub show_sales_purchase_email_dialog {
     $body_params{fallback_translation_type} = "preset_text_invoice";
   }
 
-  $::form->{all_employees} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
+  my @employees_with_email = grep {
+    my $user = SL::DB::Manager::AuthUser->find_by(login => $_->login);
+    $user && !!trim($user->get_config_value('email'));
+  } @{ SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]) };
 
   my $email_form = {
     to                  => $email,
@@ -2131,7 +2136,7 @@ sub show_sales_purchase_email_dialog {
     FILES           => \%files,
     is_customer     => $::form->{vc} eq 'customer',
     is_invoice_mail => ($record_email && $::form->{type} eq 'invoice'),
-    ALL_EMPLOYEES   => $::form->{all_employees},
+    ALL_EMPLOYEES   => \@employees_with_email,
   });
 
   print $::form->ajax_response_header, $html;
