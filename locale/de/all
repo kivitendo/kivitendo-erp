@@ -3364,7 +3364,7 @@ $self->{texts} = {
   'Text blocks back'            => 'Textblöcke hinten',
   'Text blocks front'           => 'Textblöcke vorne',
   'Text field'                  => 'Textfeld',
-  'Text field and HTML field variables: \'WIDTH=w HEIGHT=h\' sets the width and height of the text field. They default to 30 and 5 respectively.' => 'Textfelder und HTML-Felder: \'WIDTH=w HEIGHT=h\' setzen die Breite und die Höhe des Textfeldes. Wenn nicht anders angegeben, so werden sie 30 Zeichen breit und fünf Zeichen hoch dargestellt.',
+  'Text field and HTML field variables: \'WIDTH=w HEIGHT=h\' sets the width and height of the field in pixels. They default to 225 and 90 respectively.' => 'Textfelder und HTML-Felder: \'WIDTH=w HEIGHT=h\' setzen die Breite und die Höhe des Feldes in Pixeln. Wenn nicht anders angegeben, so werden sie 225 Pixel breit und 90 Pixel hoch dargestellt.',
   'Text in CSV File'            => 'Spalte in der CSV Datei',
   'Text variables: \'MAXLENGTH=n\' sets the maximum entry length to \'n\'.' => 'Textzeilen: \'MAXLENGTH=n\' setzt eine Maximallänge von n Zeichen.',
   'Text, text field, HTML field and number variables: The default value will be used as-is.' => 'Textzeilen, Textfelder, HTML-Felder und Zahlenvariablen: Der Standardwert wird so wie er ist übernommen.',

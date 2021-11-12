@@ -37,8 +37,8 @@ sub validate {
 use constant OPTION_DEFAULTS =>
   {
     MAXLENGTH => 75,
-    WIDTH => 30,
-    HEIGHT => 5,
+    WIDTH     => 225,
+    HEIGHT    => 90,
   };
 
 sub processed_options {

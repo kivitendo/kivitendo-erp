@@ -5,6 +5,7 @@
 [%- USE LxERP %]
 
 [%- DEFAULT var_name = HTML.escape(cvar_name_prefix) _ HTML.escape(var.config.name) _ HTML.escape(cvar_name_postfix) %]
+[%- SET style_ = "width: " _ var.config.processed_options.WIDTH _ "px; height: " _ var.config.processed_options.HEIGHT _ "px" %]
 
 [%- IF ( hide_non_editable && !var.config.is_flag('editable') ) %]
   [% L.hidden_tag(var_name, var.value) %]
@@ -15,9 +16,9 @@
 [%- ELSIF ( var.config .type == 'bool' ) %]
   [% L.checkbox_tag(var_name, checked = var.value, for_submit = 1) %]
 [%- ELSIF ( var.config .type == 'textfield' ) %]
-  [% L.textarea_tag(var_name, var.value, cols = var.config.processed_options.WIDTH, rows = var.config.processed_options.HEIGHT) %]
+  [% L.textarea_tag(var_name, var.value, style=style_) %]
 [%- ELSIF ( var.config .type == 'htmlfield' ) %]
-  [% L.textarea_tag(var_name, L.restricted_html(var.value), cols = var.config.processed_options.WIDTH, rows = var.config.processed_options.HEIGHT, class='texteditor') %]
+  [% L.textarea_tag(var_name, L.restricted_html(var.value), class='texteditor', style=style_) %]
 [%- ELSIF ( var.config.type == 'date' ) %]
   [% L.date_tag(var_name, var.value) %]
 [%- ELSIF ( var.config.type == 'timestamp' ) %]
