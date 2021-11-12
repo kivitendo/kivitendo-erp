@@ -2113,7 +2113,7 @@ sub show_sales_purchase_email_dialog {
     $body_params{fallback_translation_type} = "preset_text_invoice";
   }
 
-  $::form->{all_employees} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
+  $::form->{all_employees} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
 
   my $email_form = {
     to                  => $email,
