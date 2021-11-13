@@ -2005,12 +2005,14 @@ sub store_pdf_to_webdav_and_filemanagement {
 sub calculate_stock_in_out {
   my ($self, $item) = @_;
 
-  return "" if !$item->part || !$item->part->unit;
+  return "" if !$item->part || !$item->part->unit || !$item->unit;
 
   my $in_out   = $self->type_data->properties("transfer");
 
   my $do_qty   = $item->qty;
-  my $sum      = sum0 map { $_->unit_obj->convert_to($_->qty, $item->unit_obj) } @{ $item->delivery_order_stock_entries };
+  my $sum      = sum0 map {
+    $_->unit_obj->convert_to($_->qty, $item->unit_obj)
+  } $item->delivery_order_stock_entries;
 
   my $matches  = $do_qty == $sum;
   my $content  = _format_number_units($sum, 2, $item->unit_obj, $item->part->unit_obj);
