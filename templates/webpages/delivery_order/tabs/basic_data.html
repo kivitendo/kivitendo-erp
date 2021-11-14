@@ -222,10 +222,10 @@
                 [%- END -%]
                 <th id="qty_header_id"          class="listheading" nowrap width="5" ><a href='#' onClick='javascript:kivi.DeliveryOrder.reorder_items("qty")'>        [%- 'Qty'         | $T8 %]</a></th>
                 <th class="listheading" nowrap width="5" >[%- 'Unit'         | $T8 %] </th>
-                [% IF inout == 'in' %]
+                [% IF in_out == 'in' %]
                 <th class="listheading" nowrap width="5" >[%- 'Transfer To Stock' | $T8 %] </th>
                 [% END %]
-                [% IF inout == 'out' %]
+                [% IF in_out == 'out' %]
                 <th class="listheading" nowrap width="5" >[%- 'Release From Stock' | $T8 %] </th>
                 [% END %]
               </tr>

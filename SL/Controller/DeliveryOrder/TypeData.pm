@@ -65,6 +65,10 @@ sub nr_key {
   get3($_[0]->c->type, "properties", "nr_key");
 }
 
+sub transfer {
+  get3($_[0]->c->type, "properties", "transfer");
+}
+
 sub part_classification_query {
   my ($self, $string) = @_;
   get($self->c->type, "part_classification_query");

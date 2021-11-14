@@ -407,7 +407,7 @@ sub action_save_and_show_email_dialog {
                                   email_form  => $email_form,
                                   show_bcc    => $::auth->assert('email_bcc', 'may fail'),
                                   FILES       => \%files,
-                                  is_customer => $self->cv eq 'customer',
+                                  is_customer => $self->type_data->is_customer,
                                   ALL_EMPLOYEES => $self->{all_employees},
   );
 
@@ -1637,7 +1637,7 @@ sub pre_render {
                                                 } } @all_objects;
   }
 
-  $self->{template_args}{inout} = $self->type_data->properties('transfer');
+  $self->{template_args}{in_out} = $self->type_data->transfer;
 
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 
@@ -2007,7 +2007,7 @@ sub calculate_stock_in_out {
 
   return "" if !$item->part || !$item->part->unit || !$item->unit;
 
-  my $in_out   = $self->type_data->properties("transfer");
+  my $in_out   = $self->type_data->transfer;
 
   my $do_qty   = $item->qty;
   my $sum      = sum0 map {
