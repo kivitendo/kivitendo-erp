@@ -17,7 +17,7 @@ __PACKAGE__->meta->columns(
   price               => { type => 'numeric', precision => 15, scale => 5 },
   quantity            => { type => 'numeric', precision => 25, scale => 5 },
   shop_order_id       => { type => 'integer' },
-  shop_trans_id       => { type => 'integer', not_null => 1 },
+  shop_trans_id       => { type => 'text', not_null => 1 },
   tax_rate            => { type => 'numeric', precision => 15, scale => 2 },
 );
 

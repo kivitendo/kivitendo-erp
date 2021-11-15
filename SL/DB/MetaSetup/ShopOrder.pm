@@ -77,7 +77,7 @@ __PACKAGE__->meta->columns(
   shop_customer_number   => { type => 'text' },
   shop_id                => { type => 'integer' },
   shop_ordernumber       => { type => 'text' },
-  shop_trans_id          => { type => 'integer', not_null => 1 },
+  shop_trans_id          => { type => 'text', not_null => 1 },
   tax_included           => { type => 'boolean' },
   transfer_date          => { type => 'date' },
   transferred            => { type => 'boolean', default => 'false' },
