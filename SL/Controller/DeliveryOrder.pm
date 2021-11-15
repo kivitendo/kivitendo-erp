@@ -4,7 +4,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash_later);
-use SL::Helper::Number qw(_format_number_units);
+use SL::Helper::Number qw(_format_number_units _parse_number);
 use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
@@ -884,6 +884,59 @@ sub action_return_from_create_part {
     %{$self->{template_args}}
   );
 
+}
+
+sub action_stock_in_out_dialog {
+  my ($self) = @_;
+
+  my $part = SL::DB::Part->load_cached($::form->{parts_id}) or die "need parts_id";
+  my $stock = $::form->{stock};
+  my $unit = $::form->{unit};
+  my $qty = _parse_number($::form->{qty_as_number});
+
+  my $inout = $self->type_data->transfer;
+
+  my @contents   = DO->get_item_availability(parts_id => $part->id);
+  my $stock_info = DO->unpack_stock_information(packed => $stock);
+
+  $self->merge_stock_data($stock_info, \@contents, $part);
+
+  $self->render("delivery_order/stock_dialog", { layout => 0 },
+    WHCONTENTS => $self->order->delivered ? $stock_info : \@contents,
+    part  => $part,
+    do_qty => $qty,
+    do_unit => $unit,
+  );
+
+}
+
+sub merge_stock_data {
+  my ($self, $stock_info, $contents, $part) = @_;
+  # TODO rewrite to mapping
+
+  if (!$self->order->delivered) {
+    for my $row (@$contents) {
+      $row->{available_qty} = _format_number_units($row->{qty}, $row->{unit}, $part->unit);
+
+      for my $sinfo (@{ $stock_info }) {
+        next if $row->{bin_id}       != $sinfo->{bin_id} ||
+                $row->{warehouse_id} != $sinfo->{warehouse_id} ||
+                $row->{chargenumber} ne $sinfo->{chargenumber} ||
+                $row->{bestbefore}   ne $sinfo->{bestbefore};
+
+        $row->{"stock_$_"} = $sinfo->{$_}
+          for qw(qty unit error delivery_order_items_stock_id);
+      }
+    }
+
+  } else {
+    for my $sinfo (@{ $stock_info }) {
+      my $bin = SL::DB::Bin->load_cached($sinfo->{bin_id});
+      $sinfo->{warehouse_description} = $bin->warehouse->description;
+      $sinfo->{bin_description}       = $bin->escription;
+      map { $sinfo->{"stock_$_"}      = $sinfo->{$_} } qw(qty unit);
+    }
+  }
 }
 
 # load the second row for one or more items

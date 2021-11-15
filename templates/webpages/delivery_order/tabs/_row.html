@@ -88,8 +88,7 @@
 
     <td>
       <span id="stock_[% ID %]">[% SELF.calculate_stock_in_out(ITEM) %]</span>
-      <input type=hidden id='stock_in_out_qty_matches_[% ID %]' value='$matches'>
-      <input type="button" onclick="kivi.DeliveryOrder.open_stock_in_out_window('[% in_out %]', ID);" value="?">
+      [% P.button_tag("kivi.DeliveryOrder.open_stock_in_out_dialog(this, '" _ in_out _"')", "?") %]
     </td>
   </tr>
 

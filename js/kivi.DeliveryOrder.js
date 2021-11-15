@@ -78,6 +78,28 @@ namespace('kivi.DeliveryOrder', function(ns) {
     });
   };
 
+  ns.open_stock_in_out_dialog = function(clicked, in_out) {
+    var $row = $(clicked).parents("tbody").first();
+    var id = $row.find('[name="orderitem_ids[+]"]').val();
+    $row.uniqueId();
+
+    kivi.popup_dialog({
+      id: "stock_in_out",
+      url: "controller.pl?action=DeliveryOrder/stock_in_out_dialog",
+      data: {
+        id:            $("#id").val(),
+        type:          $("#type").val(),
+        parts_id:      $row.find("[name$=parts_id]").val(),
+        unit:          $row.find("[name$=unit]").val(),
+        qty_as_number: $("qty_" + id).val(),
+        stock:         $("stock_" + id).val(),
+        item_id:       id,
+        row:           $row.attr("id"),
+      },
+      dialog: { title: kivi.t8('Transfer stock') }
+    });
+  };
+
   ns.print = function() {
     $('#print_options').dialog('close');
 
