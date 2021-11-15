@@ -247,6 +247,9 @@ sub select_tag {
 sub checkbox_tag {
   my ($name, %attributes) = @_;
 
+  my %label_attributes = map { (substr($_, 6) => $attributes{$_}) } grep { m{^label_} } keys %attributes;
+  delete @attributes{grep { m{^label_} } keys %attributes};
+
   _set_id_attribute(\%attributes, $name);
 
   $attributes{value}   = 1 unless defined $attributes{value};
@@ -263,7 +266,7 @@ sub checkbox_tag {
   my $code  = '';
   $code    .= hidden_tag($name, 0, %attributes, id => $attributes{id} . '_hidden') if $for_submit;
   $code    .= html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
-  $code    .= html_tag('label', $label, for => $attributes{id}) if $label;
+  $code    .= html_tag('label', $label, for => $attributes{id}, %label_attributes) if $label;
   $code    .= javascript(qq|\$('#$attributes{id}').checkall('$checkall');|) if $checkall;
 
   return $code;
@@ -271,6 +274,9 @@ sub checkbox_tag {
 
 sub radio_button_tag {
   my ($name, %attributes) = @_;
+
+  my %label_attributes = map { (substr($_, 6) => $attributes{$_}) } grep { m{^label_} } keys %attributes;
+  delete @attributes{grep { m{^label_} } keys %attributes};
 
   $attributes{value}   = 1 unless exists $attributes{value};
 
@@ -286,7 +292,7 @@ sub radio_button_tag {
   }
 
   my $code  = html_tag('input', undef,  %attributes, name => $name, type => 'radio');
-  $code    .= html_tag('label', $label, for => $attributes{id}) if $label;
+  $code    .= html_tag('label', $label, for => $attributes{id}, %label_attributes) if $label;
 
   return $code;
 }
@@ -574,7 +580,10 @@ C<name_to_id($name)>. The tag's C<value> defaults to C<1>.
 
 If C<%attributes> contains a key C<label> then a HTML 'label' tag is
 created with said C<label>. No attribute named C<label> is created in
-that case.
+that case. Furthermore, all attributes whose names start with
+C<label_> become attributes on the label tag without the C<label_>
+prefix. For example, C<label_style='#ff0000'> will be turned into
+C<style='#ff0000'> on the label tag, causing the text to become red.
 
 If C<%attributes> contains a key C<checkall> then the value is taken as a
 JQuery selector and clicking this checkbox will also toggle all checkboxes
@@ -588,7 +597,10 @@ C<1>. The tag's C<id> defaults to C<name_to_id($name . "_" . $value)>.
 
 If C<%attributes> contains a key C<label> then a HTML 'label' tag is
 created with said C<label>. No attribute named C<label> is created in
-that case.
+that case. Furthermore, all attributes whose names start with
+C<label_> become attributes on the label tag without the C<label_>
+prefix. For example, C<label_style='#ff0000'> will be turned into
+C<style='#ff0000'> on the label tag, causing the text to become red.
 
 =item C<select_tag $name, \@collection, %attributes>
 
