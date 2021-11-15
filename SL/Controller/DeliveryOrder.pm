@@ -665,6 +665,7 @@ sub action_add_item {
                                      ITEM => $item,
                                      ID   => $item_id,
                                      SELF => $self,
+                                     in_out => $self->type_data->transfer,
   );
 
   if ($::form->{insert_before_item_id}) {
@@ -752,6 +753,7 @@ sub action_add_multi_items {
                                        ITEM => $item,
                                        ID   => $item_id,
                                        SELF => $self,
+                                       in_out => $self->type_data->transfer,
     );
 
     if ($::form->{insert_before_item_id}) {
