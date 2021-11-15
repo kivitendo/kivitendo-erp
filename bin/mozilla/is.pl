@@ -342,6 +342,7 @@ sub setup_is_action_bar {
                     : !$form->{id}                ? t8('This invoice has not been posted yet.')
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     :                               undef,
+          only_if  => $form->{type} ne "invoice_for_advance_payment",
         ],
         action => [ t8('Mark as paid'),
           submit   => [ '#form', { action => "mark_as_paid" } ],
@@ -349,7 +350,7 @@ sub setup_is_action_bar {
           disabled => !$may_edit_create ? t8('You must not change this invoice.')
                     : !$form->{id}      ? t8('This invoice has not been posted yet.')
                     :                     undef,
-          only_if  => $::instance_conf->get_is_show_mark_as_paid,
+          only_if  => $::instance_conf->get_is_show_mark_as_paid && $form->{type} ne "invoice_for_advance_payment",
         ],
       ], # end of combobox "Post"
 
