@@ -203,7 +203,7 @@ sub delete {
     do_query($form, $dbh, $query, @where_values);
 
     1;
-  }) or die { SL::DD->client->error };
+  }) or die { SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
