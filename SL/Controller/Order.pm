@@ -57,11 +57,11 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('check_auth');
 
 __PACKAGE__->run_before('recalc',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_ap_transaction
+                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment save_and_ap_transaction
                                      print send_email) ]);
 
 __PACKAGE__->run_before('get_unalterable_data',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_ap_transaction
+                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment save_and_ap_transaction
                                      print send_email) ]);
 
 #
@@ -685,6 +685,16 @@ sub action_save_and_invoice {
   $self->save_and_redirect_to(
     controller => 'oe.pl',
     action     => 'oe_invoice_from_order',
+  );
+}
+
+sub action_save_and_invoice_for_advance_payment {
+  my ($self) = @_;
+
+  $self->save_and_redirect_to(
+    controller       => 'oe.pl',
+    action           => 'oe_invoice_from_order',
+    new_invoice_type => 'invoice_for_advance_payment',
   );
 }
 
@@ -1974,6 +1984,12 @@ sub setup_edit_action_bar {
   my @req_trans_cost_art = qw(kivi.Order.check_transport_cost_article_presence) x!!$::instance_conf->get_transport_cost_reminder_article_number_id;
   my @req_cusordnumber   = qw(kivi.Order.check_cusordnumber_presence)           x($self->type eq sales_order_type() && $::instance_conf->get_order_warn_no_cusordnumber);
 
+  my $has_invoice_for_advance_payment;
+  if ($self->order->id && $self->type eq sales_order_type()) {
+    my $lr = $self->order->linked_records(direction => 'to', to => ['Invoice']);
+    $has_invoice_for_advance_payment = any {'SL::DB::Invoice' eq ref $_ && "invoice_for_advance_payment" eq $_->type} @$lr;
+  }
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       combobox => [
@@ -2039,6 +2055,16 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
+        ],
+        action => [
+          t8('Save and Invoice for Advance Payment'),
+          call      => [ 'kivi.Order.save', 'save_and_invoice_for_advance_payment', $::instance_conf->get_order_warn_duplicate_parts ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
+                         @req_trans_cost_art, @req_cusordnumber,
+          ],
+          disabled  => $has_invoice_for_advance_payment ? t8('This order has already an invoice for advanced payment.')
+                                                        : undef,
+          only_if   => (any { $self->type eq $_ } (sales_order_type())),
         ],
         action => [
           t8('Save and AP Transaction'),
