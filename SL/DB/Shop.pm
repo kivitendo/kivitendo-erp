@@ -16,10 +16,13 @@ sub validate {
   my ($self) = @_;
 
   my @errors;
-
+  # critical checks
   push @errors, $::locale->text('The description is missing.') unless $self->{description};
-  push @errors, $::locale->text('The path is missing.') unless $self->{path};
-
+  push @errors, $::locale->text('The path is missing.')        unless $self->{path};
+  push @errors, $::locale->text('The Host Name is missing')    unless $self->{server};
+  push @errors, $::locale->text('The Host Name seems invalid') unless $self->{server} =~ m/[0-9A-Za-z].\.[0-9A-Za-z]/;
+  push @errors, $::locale->text('Orders to fetch neeeds a positive Integer')
+                                                               unless $self->{orders_to_fetch} > 0;
   return @errors;
 }
 
