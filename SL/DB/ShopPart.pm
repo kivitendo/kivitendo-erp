@@ -57,7 +57,9 @@ sub get_images {
   my @upload_img = ();
   foreach my $img (@{ $images }) {
     my $file               = SL::File->get(id => $img->file->id );
-    my ($path, $extension) = (split /\./, $file->file_name);
+    # no good: split("\." , 202.220.pdf) -> invaild extension 220
+    # file->extension should be in SL::File, a valid extension may also be 'tar.gz'
+    my ($path, $extension) = split(/\.([^\.]+)$/, $file->file_name);
     my $content            = File::Slurp::read_file($file->get_file);
     my $temp ={ ( link        => 'data:' . $file->mime_type . ';base64,' . MIME::Base64::encode($content, ""), #$content, # MIME::Base64::encode($content),
                   description => $img->file->title,
