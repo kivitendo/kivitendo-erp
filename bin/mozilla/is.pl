@@ -36,6 +36,8 @@ use SL::FU;
 use SL::IS;
 use SL::OE;
 use SL::MoreCommon qw(restore_form save_form);
+use SL::RecordLinks;
+
 use Data::Dumper;
 use DateTime;
 use List::MoreUtils qw(any uniq);
@@ -317,6 +319,13 @@ sub setup_is_action_bar {
     $has_further_invoice_for_advance_payment = any {'SL::DB::Invoice' eq ref $_ && "invoice_for_advance_payment" eq $_->type} @$lr;
   }
 
+  my $has_final_invoice;
+  if ($form->{id} && $form->{type} eq "invoice_for_advance_payment") {
+    my $invoice_obj = SL::DB::Invoice->load_cached($form->{id});
+    my $lr          = $invoice_obj->linked_records(direction => 'to', to => ['Invoice']);
+    $has_final_invoice = any {'SL::DB::Invoice' eq ref $_ && "invoice" eq $_->invoice_type} @$lr;
+  }
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
@@ -408,6 +417,18 @@ sub setup_is_action_bar {
           disabled => !$may_edit_create ? t8('You must not change this invoice.')
                     : !$form->{id}      ? t8('This invoice has not been posted yet.')
                     : $has_further_invoice_for_advance_payment ? t8('This invoice has already a further invoice for advanced payment.')
+                    : $has_final_invoice                       ? t8('This invoice has already a final invoice.')
+                    :                     undef,
+          only_if  => $form->{type} eq "invoice_for_advance_payment",
+        ],
+        action => [
+          t8('Final Invoice'),
+          submit   => [ '#form', { action => "final_invoice" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create ? t8('You must not change this invoice.')
+                    : !$form->{id}      ? t8('This invoice has not been posted yet.')
+                    : $has_further_invoice_for_advance_payment ? t8('This invoice has a further invoice for advanced payment.')
+                    : $has_final_invoice                       ? t8('This invoice has already a final invoice.')
                     :                     undef,
           only_if  => $form->{type} eq "invoice_for_advance_payment",
         ],
@@ -1168,6 +1189,66 @@ sub further_invoice_for_advance_payment {
   $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
   &display_form;
+}
+
+sub final_invoice {
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('invoice_edit');
+
+  # search all related invoices for advance payment
+  #
+  # (order) -> invoice for adv. payment 1 -> invoice for adv. payment 2 -> invoice for adv. payment 3 -> final invoice
+  #
+  # we are currently in the last invoice for adv. payment (3 in this example)
+  my $invoice_obj      = SL::DB::Invoice->load_cached($form->{id});
+  my $links            = $invoice_obj->linked_records(direction => 'from', from => ['Invoice'], recursive => 1);
+  my @related_invoices = grep {'SL::DB::Invoice' eq ref $_ && "invoice_for_advance_payment" eq $_->type} @$links;
+
+  push @related_invoices, $invoice_obj;
+
+  delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked)};
+
+  $form->{convert_from_ar_ids} = $form->{id};
+  $form->{id}                  = '';
+  $form->{type}                = 'invoice';
+  $form->{title}               = t8('Edit Final Invoice');
+  $form->{paidaccounts}        = 1;
+  $form->{invdate}             = $form->current_date(\%myconfig);
+  my $terms                    = get_payment_terms_for_invoice();
+  $form->{duedate}             = $terms ? $terms->calc_date(reference_date => $form->{invdate})->to_kivitendo : $form->{invdate};
+  $form->{employee_id}         = SL::DB::Manager::Employee->current->id;
+  $form->{forex}               = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
+  $form->{exchangerate}        = $form->{forex} if $form->{forex};
+
+  foreach my $i (1 .. $form->{"rowcount"}) {
+    delete $form->{"id_$i"};
+    delete $form->{"invoice_id_$i"};
+    delete $form->{"parts_id_$i"};
+    delete $form->{"partnumber_$i"};
+    delete $form->{"description_$i"};
+  }
+
+  remove_emptied_rows(1);
+
+  my $i = 0;
+  foreach my $ri (@related_invoices) {
+    foreach my $item (@{$ri->items_sorted}) {
+      $i++;
+      $form->{"id_$i"}         = $item->parts_id;
+      $form->{"partnumber_$i"} = $item->part->partnumber;
+      $form->{"discount_$i"}   = $item->discount*100.0;
+      $form->{"sellprice_$i"}  = $item->fxsellprice;
+      $form->{$_ . "_" . $i}   = $item->$_       for qw(description longdescription qty price_factor_id unit sellprice active_price_source active_discount_source);
+
+      $form->{$_ . "_" . $i}   = $form->format_amount(\%myconfig, $form->{$_ . "_" . $i}) for qw(qty sellprice discount);
+    }
+  }
+  $form->{rowcount} = $i;
+
+  update();
+  $::dispatcher->end_request;
 }
 
 sub storno {
