@@ -50,7 +50,7 @@ sub get_tax_and_price {
 }
 
 sub get_images {
-  my ( $self ) = @_;
+  my ($self, %params) = @_;
 
   require SL::DB::ShopImage;
   my $images = SL::DB::Manager::ShopImage->get_all( where => [ 'files.object_id' => $self->{part_id}, ], with_objects => 'file', sort_by => 'position' );
@@ -61,7 +61,9 @@ sub get_images {
     # file->extension should be in SL::File, a valid extension may also be 'tar.gz'
     my ($path, $extension) = split(/\.([^\.]+)$/, $file->file_name);
     my $content            = File::Slurp::read_file($file->get_file);
-    my $temp ={ ( link        => 'data:' . $file->mime_type . ';base64,' . MIME::Base64::encode($content, ""), #$content, # MIME::Base64::encode($content),
+
+    my $temp ={ (
+                  link        => $params{want_binary} ? $content : 'data:' . $file->mime_type . ';base64,' . MIME::Base64::encode($content, ""),
                   description => $img->file->title,
                   position    => $img->position,
                   extension   => $extension,
