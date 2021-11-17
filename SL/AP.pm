@@ -559,6 +559,7 @@ sub ap_transactions {
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, | .
     qq|  v.vendornumber, v.country, v.ustid, | .
+    qq|  v.notes AS intnotes, | .
     qq|  tz.description AS taxzone, | .
     qq|  pt.description AS payment_terms, | .
     qq|  department.description AS department, | .
@@ -661,6 +662,10 @@ sub ap_transactions {
   if ($form->{notes}) {
     $where .= " AND a.notes ILIKE ?";
     push(@values, like($form->{notes}));
+  }
+  if ($form->{intnotes}) {
+    $where .= " AND v.notes ILIKE ?";
+    push(@values, like($form->{intnotes}));
   }
   if ($form->{project_id}) {
     $where .=

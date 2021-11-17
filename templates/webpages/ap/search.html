@@ -48,14 +48,18 @@
       <td>[% L.input_tag("parts_description", "", style=style) %]</td>
      </tr>
      <tr>
+      <th align="right">[% 'Internal Notes' | $T8 %]</th>
+      <td>[% L.input_tag("intnotes", "", style=style) %]</td>
+      <th align="right">[% 'Part Number' | $T8 %]</th>
+      <td>[% L.input_tag("parts_partnumber", "", style=style) %]</td>
+     </tr>
+     <tr>
       <th align="right">[% 'Full Text' | $T8 %]</th>
       <td>[% L.input_tag('fulltext', '', style=style) %]</td>
      </tr>
      <tr>
       <th align="right">[% 'Project Number' | $T8 %]</th>
       <td>[% P.project.picker("project_id", project_id, active="both", valid="both", style=style) %]</td>
-      <th align="right">[% 'Part Number' | $T8 %]</th>
-      <td>[% L.input_tag("parts_partnumber", "", style=style) %]</td>
      </tr>
      <tr>
       <th align=right nowrap>[% 'Invoice Date' | $T8 %]</th>
@@ -140,6 +144,8 @@
           <tr>
            <td align=right><input name="l_notes" class=checkbox type=checkbox value=Y></td>
            <td nowrap>[% 'Notes' | $T8 %]</td>
+           <td align=right><input name="l_intnotes" class=checkbox type=checkbox value=Y></td>
+           <td nowrap>[% 'Internal Notes' | $T8 %]</td>
            <td align=right><input name="l_employee" class=checkbox type=checkbox value=Y></td>
            <td nowrap>[% 'Employee' | $T8 %]</td>
            <td align=right><input name="l_department" class=checkbox type=checkbox value=Y></td>

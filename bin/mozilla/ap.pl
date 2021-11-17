@@ -1188,12 +1188,12 @@ sub ap_transactions {
 
   my @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid
-       due duedate transaction_description notes employee globalprojectnumber department
+       due duedate transaction_description notes intnotes employee globalprojectnumber department
        vendornumber country ustid taxzone payment_terms charts debit_chart direct_debit
        insertdate items);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id
+  push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes intnotes project_id
                                            transdatefrom transdateto duedatefrom duedateto datepaidfrom datepaidto
                                            parts_partnumber parts_description department_id taxzone_id payment_id
                                            fulltext insertdatefrom insertdateto);
@@ -1216,6 +1216,7 @@ sub ap_transactions {
     'duedate'                 => { 'text' => $locale->text('Due Date'), },
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
     'notes'                   => { 'text' => $locale->text('Notes'), },
+    'intnotes'                => { 'text' => $locale->text('Internal Notes'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Document Project Number'), },
     'department'              => { 'text' => $locale->text('Department'), },
@@ -1231,7 +1232,7 @@ sub ap_transactions {
     'items'                   => { 'text' => $locale->text('Positions'), },
   );
 
-  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shipvia transaction_description direct_debit department taxzone insertdate)) {
+foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shipvia transaction_description direct_debit department taxzone insertdate intnotes)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -1261,6 +1262,7 @@ sub ap_transactions {
   push @options, $locale->text('Invoice Number')          . " : $form->{invnumber}"                      if ($form->{invnumber});
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                      if ($form->{ordnumber});
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                          if ($form->{notes});
+  push @options, $locale->text('Internal Notes')          . " : $form->{intnotes}"                       if $form->{intnotes};
   push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"        if ($form->{transaction_description});
   push @options, $locale->text('Part Description')        . " : $form->{parts_description}"              if $form->{parts_description};
   push @options, $locale->text('Part Number')             . " : $form->{parts_partnumber}"               if $form->{parts_partnumber};
