@@ -34,7 +34,21 @@ sub get_one_order  {
 
 sub get_new_orders { die 'get_order needs to be implemented' }
 
-sub update_part    { die 'update_part needs to be implemented' }
+sub update_part    {
+  die 'update_part needs to be implemented';
+
+  my ($self, $shop_part, $todo) = @_;
+  #shop_part is passed as a param
+  die "Need a valid Shop Part for updating Part" unless ref($shop_part) eq 'SL::DB::ShopPart';
+  die "Invalid todo for updating Part"           unless $todo =~ m/(price|stock|price_stock|active|all)/;
+
+  my $part = SL::DB::Part->new(id => $shop_part->part_id)->load;
+  die "Shop Part but no kivi Part?" unless ref $part eq 'SL::DB::Part';
+
+  my $success;
+
+  return $success ? 1 : 0;
+}
 
 sub get_article    { die 'get_article needs to be implemented' }
 
@@ -85,7 +99,24 @@ imported order or within the same hash structure a error message.
 
 =item C<get_new_orders>
 
-=item C<update_part>
+=item C<update_part $shop_part $todo>
+
+Updates one Part including all metadata and Images in a Shop.
+Needs a valid 'SL::DB::ShopPart' as first parameter and a requested action
+as second parameter. Valid values for the second parameter are
+"price, stock, price_stock, active, all".
+The method updates either all metadata or a subset.
+Name and action for the subsets:
+
+ price       => updates only the price
+ stock       => updates only the available stock (qty)
+ price_stock => combines both predecessors
+ active      => updates only the state of the shop part
+
+Images should always be updated, regardless of the requested action.
+Returns 1 if all updates were executed successful.
+
+
 
 =item C<get_article>
 
