@@ -1202,11 +1202,7 @@ sub final_invoice {
   # (order) -> invoice for adv. payment 1 -> invoice for adv. payment 2 -> invoice for adv. payment 3 -> final invoice
   #
   # we are currently in the last invoice for adv. payment (3 in this example)
-  my $invoice_obj      = SL::DB::Invoice->load_cached($form->{id});
-  my $links            = $invoice_obj->linked_records(direction => 'from', from => ['Invoice'], recursive => 1);
-  my @related_invoices = grep {'SL::DB::Invoice' eq ref $_ && "invoice_for_advance_payment" eq $_->type} @$links;
-
-  push @related_invoices, $invoice_obj;
+  my $related_invoices = IS->_get_invoices_for_advance_payment($form->{id});
 
   delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked)};
 
@@ -1233,7 +1229,7 @@ sub final_invoice {
   remove_emptied_rows(1);
 
   my $i = 0;
-  foreach my $ri (@related_invoices) {
+  foreach my $ri (@$related_invoices) {
     foreach my $item (@{$ri->items_sorted}) {
       $i++;
       $form->{"id_$i"}         = $item->parts_id;

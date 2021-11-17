@@ -1054,6 +1054,16 @@ SQL
   # entsprechend auch beim Bestimmen des Steuerschlüssels in Taxkey.pm berücksichtigen
   my $taxdate = $form->{tax_point} ||$form->{deliverydate} || $form->{invdate};
 
+
+  # reverse booking for invoices for advance payment
+  my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id});
+  foreach my $invoice_for_advance_payment (@$invoices_for_advance_payment) {
+    my $transactions = SL::DB::Manager::AccTransaction->get_all(query => [ trans_id => $invoice_for_advance_payment->id ], sort_by => 'acc_trans_id ASC');
+    foreach my $transaction (@$transactions) {
+      $form->{amount}->{$invoice_for_advance_payment->id}->{$transaction->chart->accno} = -1 * $transaction->amount;
+    }
+  }
+
   foreach my $trans_id (keys %{ $form->{amount_cogs} }) {
     foreach my $accno (keys %{ $form->{amount_cogs}{$trans_id} }) {
       next unless ($form->{expense_inventory} =~ /\Q$accno\E/);
@@ -1473,6 +1483,21 @@ SQL
 
   return 1;
 }
+
+sub _get_invoices_for_advance_payment {
+  my ($self, $id) = @_;
+
+  return [] if !$id;
+
+  my $invoice_obj      = SL::DB::Invoice->new(id => $id*1)->load;
+  my $links            = $invoice_obj->linked_records(direction => 'from', from => ['Invoice'], recursive => 1);
+  my @related_invoices = grep {'SL::DB::Invoice' eq ref $_ && "invoice_for_advance_payment" eq $_->type} @$links;
+
+  push @related_invoices, $invoice_obj if "invoice_for_advance_payment" eq $invoice_obj->type;
+
+  return \@related_invoices;
+}
+
 
 sub transfer_out {
   $::lxdebug->enter_sub;
