@@ -1061,6 +1061,7 @@ SQL
     my $transactions = SL::DB::Manager::AccTransaction->get_all(query => [ trans_id => $invoice_for_advance_payment->id ], sort_by => 'acc_trans_id ASC');
     foreach my $transaction (@$transactions) {
       $form->{amount}->{$invoice_for_advance_payment->id}->{$transaction->chart->accno} = -1 * $transaction->amount;
+      $form->{memo}  ->{$invoice_for_advance_payment->id}->{$transaction->chart->accno} = 'reverse booking by final invoice';
     }
   }
 
@@ -1101,7 +1102,7 @@ SQL
 
       if (!$payments_only && ($form->{amount}{$trans_id}{$accno} != 0)) {
         $query =
-          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link, memo)
              VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
                      (SELECT tax_id
                       FROM taxkeys
@@ -1118,8 +1119,9 @@ SQL
                       AND startdate <= ?
                       ORDER BY startdate DESC LIMIT 1),
                      ?,
-                     (SELECT link FROM chart WHERE accno = ?))|;
-        @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno);
+                     (SELECT link FROM chart WHERE accno = ?),
+                     ?)|;
+        @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno, $form->{memo}{$trans_id}{$accno});
         do_query($form, $dbh, $query, @values);
         $form->{amount}{$trans_id}{$accno} = 0;
       }
@@ -1130,7 +1132,7 @@ SQL
 
       if (!$payments_only && ($form->{amount}{$trans_id}{$accno} != 0)) {
         $query =
-          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link, memo)
              VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
                      (SELECT tax_id
                       FROM taxkeys
@@ -1147,8 +1149,9 @@ SQL
                       AND startdate <= ?
                       ORDER BY startdate DESC LIMIT 1),
                      ?,
-                     (SELECT link FROM chart WHERE accno = ?))|;
-        @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno);
+                     (SELECT link FROM chart WHERE accno = ?),
+                     ?)|;
+        @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno,$form->{memo}{$trans_id}{$accno});
         do_query($form, $dbh, $query, @values);
       }
     }
@@ -2003,6 +2006,15 @@ sub _delete_invoice {
     # storno_id auslesen und korrigieren
     my ($invoice_id) = selectfirst_array_query($form, $dbh, qq|SELECT storno_id FROM ar WHERE id = ?|,@values);
     do_query($form, $dbh, qq|UPDATE ar SET storno = 'f', paid = 0 WHERE id = ?|, $invoice_id);
+  }
+
+  # if we delete a final invoice, the reverse bookings for the clearing account in the invoice for advance payment
+  # must be deleted as well
+  my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id});
+  my @trans_ids_to_consider        = map { $_->id } @$invoices_for_advance_payment;
+  if (scalar @trans_ids_to_consider) {
+    my $query = sprintf 'DELETE FROM acc_trans WHERE memo LIKE ? AND trans_id IN (%s)', join ', ', ("?") x scalar @trans_ids_to_consider;
+    do_query($form, $dbh, $query, 'reverse booking by final invoice', @trans_ids_to_consider);
   }
 
   # delete spool files
