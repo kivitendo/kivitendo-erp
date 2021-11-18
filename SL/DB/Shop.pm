@@ -23,6 +23,13 @@ sub validate {
   push @errors, $::locale->text('The Host Name seems invalid') unless $self->{server} =~ m/[0-9A-Za-z].\.[0-9A-Za-z]/;
   push @errors, $::locale->text('Orders to fetch neeeds a positive Integer')
                                                                unless $self->{orders_to_fetch} > 0;
+
+  # not yet implemented checks
+  push @errors, $::locale->text('Transaction Description is not yet implemented')   if $self->{transaction_description};
+  if ($self->{connector} eq 'shopware6') {
+    push @errors, $::locale->text('Shipping cost article not implemented')          if $self->{shipping_costs_parts_id};
+    push @errors, $::locale->text('Fetch from last order number not implemented')   if $self->{last_order_number};
+  }
   return @errors;
 }
 
