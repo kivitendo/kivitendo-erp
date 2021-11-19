@@ -1,0 +1,145 @@
+% config: use-template-toolkit=1
+% config: tag-style=$( )$
+$( USE KiviLatex )$
+$( USE L )$
+$( USE LxERP )$
+
+\documentclass[paper=a4,fontsize=10pt]{scrartcl}
+\usepackage{kiviletter}
+
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {$( template_meta.language.template_code )$}
+\newcommand{\lxmedia} {$( media )$}
+\newcommand{\lxcurrency} {$( currency )$}
+\newcommand{\kivicompany} {$( employee_company )$}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+% laufende Kopfzeile:
+\ourhead{\kundennummer}{$( KiviLatex.filter(reclamation.customervendor.number) )$}{\auftragsbestaetigung}{$( KiviLatex.filter(reclamation.record_number) )$}{$( reclamation.transdate_as_date )$}
+
+\setkomavar*{date}{\datum}
+\setkomavar{date}{$( reclamation.transdate_as_date )$}
+\setkomavar{customer}{$( KiviLatex.filter(reclamation.customer.number) )$}
+\setkomavar{fromname}{$( KiviLatex.filter(reclamation.employee.name) )$}
+%\setkomavar{fromphone}{$( KiviLatex.filter(reclamation.employee.deleted_tel) )$}
+%\setkomavar{fromemail}{$( KiviLatex.filter(reclamation.employee.deleted_email) )$}
+\setkomavar{title}{
+  \auftragsbestaetigung~
+  \nr~$( KiviLatex.filter(reclamation.record_number) )$%
+}
+
+$( IF (reclamation.cv_record_number) )$%
+  %\setkomavar*{yourref}{\ihreReclamationsnummer}
+  \setkomavar{yourref}{$( KiviLatex.filter(reclamation.cv_record_number) )$}
+$( END )$%
+\setkomavar{transaction}{$( KiviLatex.filter(reclamation.transaction_description) )$}
+
+%TODO(Tamino): look at shipto
+$( IF (reclamation.shipto_id) )$%
+\makeatletter
+\begin{lrbox}\shippingAddressBox
+  \parbox{\useplength{toaddrwidth}}{
+    \backaddr@format{\scriptsize\usekomafont{backaddress}%
+      \strut abweichende Lieferadresse
+    }
+    \par\smallskip
+    \setlength{\parskip}{\z@}
+    \par
+    \normalsize
+    $( KiviLatex.filter(reclamation.shipto.shiptoname) )$\par
+    $( IF (reclamation.shipto.shiptocontact) )$ $( KiviLatex.filter(reclamation.shipto.shiptocontact) )$$( END )$\par
+    $( KiviLatex.filter(reclamation.shipto.shiptodepartment_1) )$\par
+    $( KiviLatex.filter(reclamation.shipto.shiptodepartment_2) )$\par
+    $( KiviLatex.filter(reclamation.shipto.shiptostreet) )$\par
+    $( KiviLatex.filter(reclamation.shipto.shiptozipcode) )$ $( KiviLatex.filter(reclamation.shipto.shiptocity) )$%
+  }
+\end{lrbox}
+\makeatother
+$( END )$%
+
+\begin{document}
+
+\begin{letter}{
+    %TODO(Tamino): what name, street, ... ?
+    $( name )$\strut\\
+    $( IF (department_1) )$$( department_1 )$\\$( END )$%
+    $( IF (department_2) )$$( department_2 )$\\$( END )$%
+    $( reclamation.contact.cp_givenname )$ $( reclamation.contact.cp_name )$\strut\\
+    $( street )$\strut\\
+    $( zipcode )$ $( city )$\strut\\
+    $( country )$ \strut
+  }
+
+% Bei Kontaktperson Anrede nach Geschlecht unterscheiden.
+% Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
+\opening{
+  \Ifstr{$( KiviLatex.filter(reclamation.contact.cp_name) )$}{}{
+    $( IF (reclamation.customervendor.natural_person) )$
+      $( KiviLatex.filter(reclamation.customervendor.greeting) )$ $( KiviLatex.filter(reclamation.customervendor.name) )$,
+    $( ELSE )$
+      \anrede
+    $( END )$
+  }{
+    \Ifstr{$( KiviLatex.filter(reclamation.contact.cp_gender) )$}{f}
+      {\anredefrau}
+      {\anredeherr}
+      $( KiviLatex.filter(reclamation.contact.cp_title) )$ $( KiviLatex.filter(reclamation.contact.cp_name) )$,
+  }
+}
+\thispagestyle{kivitendo.letter.first}
+
+\auftragsformel
+
+\begin{PricingTabular*}
+  % eigentliche Tabelle
+  \FakeTable{
+  $( FOREACH item = reclamation.items_sorted )$%
+    $( item.position )$ &%
+    $( item.part.partnumber )$ &%
+    \textbf{ $( KiviLatex.filter(item.description) )$ }%
+    $( IF (item.longdescription) )$\ExtraDescription{$( KiviLatex.filter(item.longdescription) )$}$( END )$%
+    $( IF (item.reqdate) )$\ExtraDescription{\lieferdatum: $( item.reqdate_as_date )$}$( END )$%
+    $( IF (item.serialnumber) )$\ExtraDescription{\seriennummer: $( KiviLatex.filter(item.serialnumber) )$}$( END )$%
+    $( IF (item.projectnumber) )$\ExtraDescription{\projektnummer: $( KiviLatex.filter(item.projectnumber) )$}$( END )$%
+    &%
+    $( item.qty_as_number )$ $( item.unit )$ &%
+    $( item.sellprice_as_number )$&%
+    % TODO(Tamino): discount in '%'
+    \Ifstr{$( p_discount )$}{0}{}{\sffamily\scriptsize{(-$( p_discount )$\,\%)}}%
+    % TODO(Tamino): linetotal
+    $( LxERP.format_amount(item.linetotal, 2, 0) )$\tabularnewline
+  $( END )$%
+  }%
+  \begin{PricingTotal}%
+    % Tabellenende letzte Seite
+    \nettobetrag & $( reclamation.netamount_as_number )$\\%
+    $( FOREACH tax = reclamation.taxes )$%
+      $( KiviLatex.filter(tax.tax.taxdescription) )$ & $( LxERP.format_amount(tax.amount) )$\\%
+    $( END )$%
+    \bfseries\schlussbetrag &  \bfseries $( reclamation.amount_as_number )$\\%
+  \end{PricingTotal}
+\end{PricingTabular*}
+
+$( IF (reclamation.notes) )$%
+  $( KiviLatex.filter_html(reclamation.notes) )$%
+  \medskip
+$( END )$%
+
+$( IF (reclamation.delivery_term) )$%
+  \lieferung ~$( KiviLatex.filter(reclamation.delivery_term.description_long) )$\\
+$( END )$%
+
+$( IF (reclamation.reqdate) )$%
+  \lieferungErfolgtAm ~$( reclamation.reqdate_as_date )$.
+$( END )$%
+
+\textit{\auftragpruefen}
+
+%\closing{\gruesse}
+
+\end{letter}
+
+\end{document}
