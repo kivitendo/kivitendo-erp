@@ -661,30 +661,6 @@ sub init_connector {
   $client->addHeader('Authorization' => 'Bearer ' . $token);
   return $client;
 }
-# ua multiple form-data
-sub init_ua {
-  my ($self) = @_;
-
-  my $section = 'bekuplast_elo';
-  my $config  = $::lx_office_conf{$section} || {};
-  my $client;
-  # mandatory config parameters
-  foreach (qw(user pass apikey)) {
-    die "parameter '$_' in section '$section' must be set in config file" if !defined $config->{$_};
-  }
-  $client = REST::Client->new(host => $self->host);
-  # no test case available in ELO API
-  # and set ua we need this, because ELO wants multippart/form-data
-  my $ua = $self->client->getUseragent();
-
-  $ua->default_header(Authorization  => 'Basic ' . encode_base64($config->{user} . ':' . $config->{pass}),
-                      apikey         => $config->{apikey},
-                      'Content-Type' => 'multipart/form-data',
-                     );
-
-  return $ua;
-}
-
 
 sub import_data_to_shop_order {
   my ($self, $import) = @_;
