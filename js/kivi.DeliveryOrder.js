@@ -84,7 +84,7 @@ namespace('kivi.DeliveryOrder', function(ns) {
     $row.uniqueId();
 
     kivi.popup_dialog({
-      id: "stock_in_out",
+      id: "stock_in_out_dialog",
       url: "controller.pl?action=DeliveryOrder/stock_in_out_dialog",
       data: {
         id:            $("#id").val(),
@@ -98,6 +98,36 @@ namespace('kivi.DeliveryOrder', function(ns) {
       },
       dialog: { title: kivi.t8('Transfer stock') }
     });
+  };
+
+  ns.save_updated_stock = function() {
+    // stock information is saved in DOM as a yaml dump.
+    // we don't want to do this in javascript so we do a tiny roundtrip to the backend
+
+    let data = [];
+    $("#stock-in-out-table tr.listrow").each((i,row) => {
+      data.push({
+        qty:         kivi.parse_amount($(row).find(".data-qty").val()),
+        warehouse_id:                  $(row).find(".data-warehouse-id").val(),
+        bin_id:                        $(row).find(".data-bin-id").val(),
+        chargenumber:                  $(row).find(".data-chargenumber").val(),
+        bestbefore:                    $(row).find(".data-bestbefore").val(),
+        unit:                          $(row).find(".data-unit").val(),
+        delivery_order_items_stock_id: $(row).find(".data-stock-id").val(),
+      });
+    });
+
+    let row = $(".data-row").val();
+
+    $.post("controller.pl", kivi.serialize({
+        action: "DeliveryOrder/pack_stock_information",
+        stock_info: data
+      }),
+      (data) => {
+        $("[name=stock_info_" + row + "]").val(data);
+        $("#stock_in_out_dialog").dialog("close");
+      }
+    );
   };
 
   ns.print = function() {

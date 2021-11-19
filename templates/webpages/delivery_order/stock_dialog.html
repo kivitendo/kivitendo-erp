@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
+[%- USE L %]
  [%- IF delivered %]
  [%- SET RO = ' readonly' %]
  [%- END %]
@@ -28,10 +29,10 @@
   [% L.hidden_tag("parts_id", parts_id) %]
   [% L.hidden_tag("do_qty", do_qty) %]
   [% L.hidden_tag("do_unit", do_unit) %]
-  [% L.hidden_tag("row", row) %]
+  [% L.hidden_tag("row", row, class="data-row") %]
 
   <p>
-   <table>
+   <table id="stock-in-out-table">
     <tr class="listheading">
      <th>&nbsp;</th>
      <th>[% 'Warehouse' | $T8 %]</th>
@@ -60,43 +61,37 @@
      [%- IF delivered %]
 
      <td>[% LxERP.format_amount(row.stock_qty) | html %]</td>
-     <td>[% row.stock_unit | html %]</td>
+     <td>
+      [% row.stock_unit | html %]
+      [% L.hidden_tag("unit", row.stock_unit, class="data-unit") %]
+     </td>
 
      [%- ELSE %]
 
      <td>[% row.available_qty | html %]</td>
-     <td><input name="qty_[% loop.count %]" style="text-align: right;" size="12"
-                [%- IF row.stock_qty %]
-                value="[% LxERP.format_amount(row.stock_qty) %]"
-                [%- ELSIF ((WHCONTENTS.size == 1) && (!row.stock_qty)) %]
-                value="[% do_qty | html %]"
-                [%- END %]
-                ></td>
      <td>
-       [% L.select_tag("unit_" _ loop.count, part.unit_obj.convertible_units, value_key="name", default=row.stock_unit) %]
-     </td>
+      [% L.input_tag("qty", row.stock_qty                              ? LxERP.format_amount(row.stock_qty)
+                          : (WHCONTENTS.size == 1) && (!row.stock_qty) ? LxERP.format_amount(do_qty)
+                          : "", class="numeric data-qty", size="12") %]</td>
+     <td>[% L.select_tag("unit_" _ loop.count, part.unit_obj.convertible_units, value_key="name", default=row.stock_unit, class="data-unit") %]</td>
 
      [%- END %]
+     <td style="display:none">
+      [% L.hidden_tag("warehouse_id", row.warehouse_id, class="data-warehouse-id") %]
+      [% L.hidden_tag("bin_id", row.bin_id, class="data-bin-id") %]
+      [% L.hidden_tag("chargenumber", row.chargenumber, class="data-chargenumber") %]
+      [% L.hidden_tag("delivery_order_items_stock_id", row.delivery_order_items_stock_id, class="data-stock-id") %]
+      [% L.hidden_tag("bestbefore", row.bestbefore, class="data-bestbefore") IF INSTANCE_CONF.get_show_bestbefore %]
+     </td>
     </tr>
 
-    <input type="hidden" name="warehouse_id_[% loop.count %]" value="[% HTML.escape(row.warehouse_id) %]">
-    <input type="hidden" name="bin_id_[% loop.count %]"       value="[% HTML.escape(row.bin_id) %]">
-    <input type="hidden" name="chargenumber_[% loop.count %]" value="[% HTML.escape(row.chargenumber) %]">
-    <input type="hidden" name="delivery_order_items_stock_id_[% loop.count %]" value="[% HTML.escape(row.stock_delivery_order_items_stock_id) %]">
-    [% IF INSTANCE_CONF.get_show_bestbefore %]
-    <input type="hidden" name="bestbefore_[% loop.count %]" value="[% HTML.escape(row.bestbefore) %]">
-    [% END %]
     [%- END %]
    </table>
   </p>
 
   <hr size="3" noshade>
 
-  <p>
-   [%- IF !delivered %]
-   [% L.button_tag('kivi.DeliveryOrder.save_updated_stock()', 'Save') | $T8 %]
-   [%- END %]
-  </p>
+  <p>[% L.button_tag('kivi.DeliveryOrder.save_updated_stock()', LxERP.t8('Save')) IF !delivered %]</p>
 
   [%- END %]
  </form>

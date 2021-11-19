@@ -53,7 +53,8 @@ use Rose::Object::MakeMethods::Generic
 
 
 # safety
-__PACKAGE__->run_before('check_auth');
+__PACKAGE__->run_before('check_auth',
+                        except => [ qw(pack_stock_information) ]);
 
 __PACKAGE__->run_before('get_unalterable_data',
                         only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_ap_transaction
@@ -906,8 +907,20 @@ sub action_stock_in_out_dialog {
     part  => $part,
     do_qty => $qty,
     do_unit => $unit,
+    delivered => $self->order->delivered,
   );
+}
 
+# we're using the old YAML based stock packing, but don't want to do this in
+# the frontend so we're doing a tiny roundtrip to the backend, back the info in
+# perl, serve it back to the frontend and store it in the DOM there
+sub action_pack_stock_information {
+  my ($self) = @_;
+
+  my $stock_info = $::form->{stock_info};
+  my $yaml = SL::YAML::Dump($stock_info);
+
+  $self->render(\$yaml, { layout => 0, process => 0 });
 }
 
 sub merge_stock_data {
