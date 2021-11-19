@@ -11,6 +11,7 @@ use Try::Tiny;
 
 use SL::JSON;
 use SL::Helper::Flash;
+use SL::Locale::String qw(t8);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(connector) ],
@@ -105,8 +106,8 @@ sub update_part {
   my ($self, $shop_part, $todo) = @_;
 
   #shop_part is passed as a param
-  croak "Need a valid Shop Part for updating Part" unless ref($shop_part) eq 'SL::DB::ShopPart';
-  croak "Invalid todo for updating Part"           unless $todo =~ m/(price|stock|price_stock|active|all)/;
+  croak t8("Need a valid Shop Part for updating Part") unless ref($shop_part) eq 'SL::DB::ShopPart';
+  croak t8("Invalid todo for updating Part")           unless $todo =~ m/(price|stock|price_stock|active|all)/;
 
   my $part = SL::DB::Part->new(id => $shop_part->part_id)->load;
   die "Shop Part but no kivi Part?" unless ref $part eq 'SL::DB::Part';
@@ -453,7 +454,7 @@ sub get_categories {
 sub get_one_order  {
   my ($self, $ordnumber) = @_;
 
-  die "No ordnumber" unless $ordnumber;
+  croak t8("No Order Number") unless $ordnumber;
   # set known params for the return structure
   my %fetched_order  = $self->get_fetched_order_structure;
   my $assoc          = $self->all_open_orders();
@@ -669,11 +670,11 @@ sub import_data_to_shop_order {
   my ($self, $import) = @_;
 
   # failsafe checks for not yet implemented
-  die $::locale->text('Shipping cost article not implemented')          if $self->config->shipping_costs_parts_id;
+  die t8('Shipping cost article not implemented') if $self->config->shipping_costs_parts_id;
 
   # no mapping unless we also have at least one shop order item ...
   my $order_pos = delete $import->{lineItems};
-  croak("No Order items fetched") unless ref $order_pos eq 'ARRAY';
+  croak t8("No Order items fetched") unless ref $order_pos eq 'ARRAY';
 
   my $shop_order = $self->map_data_to_shoporder($import);
 
@@ -704,7 +705,7 @@ sub import_data_to_shop_order {
     $shop_order->positions($position);
 
     if ( $self->config->shipping_costs_parts_id ) {
-      die "Not yet implemented";
+      die t8("Not yet implemented");
       # TODO NOT YET Implemented nor tested, this is shopware5 code:
       my $shipping_part = SL::DB::Part->find_by( id => $self->config->shipping_costs_parts_id);
       my %shipping_pos = ( description    => $import->{data}->{dispatch}->{name},
@@ -731,8 +732,8 @@ sub import_data_to_shop_order {
 
     1;
 
-  }) || die ('error while saving shop order ' . $shop_order->{shop_ordernumber} . 'Error: ' . $shop_order->db->error . "\n" .
-             'generic exception:' . $@);
+  }) || die t8('Error while saving shop order #1. DB Error #2. Generic exception #3.',
+                $shop_order->{shop_ordernumber}, $shop_order->db->error, $@);
 }
 
 sub map_data_to_shoporder {
@@ -746,14 +747,14 @@ sub map_data_to_shoporder {
                                                       && ref $import->{orderCustomer} eq 'HASH';
 
   my $shipto_id = $import->{deliveries}->[0]->{shippingOrderAddressId};
-  die "Cannot get shippingOrderAddressId for $import->{orderNumber}" unless $shipto_id;
+  die t8("Cannot get shippingOrderAddressId for #1", $import->{orderNumber}) unless $shipto_id;
 
   my $billing_ary = [ grep { $_->{id} == $import->{billingAddressId} }       @{ $import->{addresses} } ];
   my $shipto_ary  = [ grep { $_->{id} == $shipto_id }                        @{ $import->{addresses} } ];
   my $payment_ary = [ grep { $_->{id} == $import->{paymentMethodId} }        @{ $import->{paymentMethods} } ];
 
-  croak("No Billing and ship to address, for Order Number " . $import->{orderNumber} .
-        "ID Billing:" . $import->{billingAddressId} . " ID Shipping $shipto_id ")
+  die t8("No Billing and ship to address, for Order Number #1 with ID Billing #2 and ID Shipping #3",
+          $import->{orderNumber}, $import->{billingAddressId}, $import->{deliveries}->[0]->{shippingOrderAddressId})
     unless scalar @{ $billing_ary } == 1 && scalar @{ $shipto_ary } == 1;
 
   my $billing = $billing_ary->[0];
@@ -761,9 +762,10 @@ sub map_data_to_shoporder {
   # TODO payment info is not used at all
   my $payment = scalar @{ $payment_ary } ? delete $payment_ary->[0] : undef;
 
-  croak "No billing city"   unless $billing->{city};
-  croak "No shipto city"    unless $shipto->{city};
-  croak "No customer email" unless $import->{orderCustomer}->{email};
+  # check mandatory fields from shopware
+  die t8("No billing city")   unless $billing->{city};
+  die t8("No shipto city")    unless $shipto->{city};
+  die t8("No customer email") unless $import->{orderCustomer}->{email};
 
   # extract order date
   my $parser = DateTime::Format::Strptime->new(pattern   => '%Y-%m-%dT%H:%M:%S',
@@ -777,6 +779,7 @@ sub map_data_to_shoporder {
   my $shop_id      = $self->config->id;
   my $tax_included = $self->config->pricetype;
 
+  # TODO copied from shopware5 connector
   # Mapping Zahlungsmethoden muss an Firmenkonfiguration angepasst werden
   my %payment_ids_methods = (
     # shopware_paymentId => kivitendo_payment_id
@@ -888,8 +891,8 @@ __END__
 
 =item C<sync_all_images (set_cover: 0|1, delete_orphaned: 0|1)>
 
-The important key for shopware is the image name. To get distinct
-entries the kivi partnumber is combined with the title (description)
+The connecting key for shopware to kivi images is the image name.
+To get distinct entries the kivi partnumber is combined with the title (description)
 of the image. Therefore part1000_someTitlefromUser should be unique in
 Shopware.
 All image data is simply send to shopware whether or not image data
@@ -941,6 +944,21 @@ None yet. :)
 Missing fields are commented in the sub map_data_to_shoporder.
 Some items are SEPA debit info, IP adress, delivery costs etc
 Furthermore Shopware6 uses currency, country and locales information.
+Detailed list:
+
+    #customer_newsletter     => $customer}->{newsletter},
+    #remote_ip               => $import->{remoteAddress},
+    #sepa_account_holder     => $import->{paymentIntances}->{accountHolder},
+    #sepa_bic                => $import->{paymentIntances}->{bic},
+    #sepa_iban               => $import->{paymentIntances}->{iban},
+    #shipping_costs          => $import->{invoiceShipping},
+    #shipping_costs_net      => $import->{invoiceShippingNet},
+    #shop_c_billing_id       => $import->{billing}->{customerId},
+    #shop_c_billing_number   => $import->{billing}->{number},
+    #shop_c_delivery_id      => $import->{shipping}->{id},
+    #shop_customer_id        => $import->{customerId},
+    #shop_customer_number    => $import->{billing}->{number},
+    #shop_customer_comment   => $import->{customerComment},
 
 =item * Use shipping_costs_parts_id for additional shipping costs
 
