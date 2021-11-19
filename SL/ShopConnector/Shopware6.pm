@@ -581,6 +581,9 @@ sub get_article {
   } catch {
     die "Malformed JSON Data: $_ " . $ret->responseContent();
   };
+
+  # maybe no product was found ...
+  return undef unless scalar @{ $data_json->{data} } > 0;
   # caller wants this structure:
   # $stock_onlineshop = $shop_article->{data}->{mainDetail}->{inStock};
   # $active_online = $shop_article->{data}->{active};
