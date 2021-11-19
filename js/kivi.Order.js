@@ -821,7 +821,7 @@ namespace('kivi.Order', function(ns) {
     if (number_info !== '') { info += ' (' + number_info + ')' }
     if (name_info   !== '') { info += ' (' + name_info + ')' }
 
-    if (!$('#follow_up_rowcount').lenght) {
+    if (!$('#follow_up_rowcount').length) {
       $('<input type="hidden" name="follow_up_rowcount"        id="follow_up_rowcount">').appendTo('#order_form');
       $('<input type="hidden" name="follow_up_trans_id_1"      id="follow_up_trans_id_1">').appendTo('#order_form');
       $('<input type="hidden" name="follow_up_trans_type_1"    id="follow_up_trans_type_1">').appendTo('#order_form');
