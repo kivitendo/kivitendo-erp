@@ -77,8 +77,8 @@
    <td>
     [% SET no_file_label = have_files ? LxERP.t8("Don't include a printout of the record with the email, only selected files") : LxERP.t8("Don't include a printout of the record with the email") ;
            options       = [
-             [ "normal",   LxERP.t8("Create and send a new printout for this record") ],
              [ "old_file", LxERP.t8("Send the last printout created for this record") ],
+             [ "normal",   LxERP.t8("Create and send a new printout for this record") ],
              [ "no_file",  no_file_label ],
            ] ;
        L.select_tag("email_form.attachment_policy", options, onchange="kivi.SalesPurchase.activate_send_email_actions_regarding_printout()") %]
