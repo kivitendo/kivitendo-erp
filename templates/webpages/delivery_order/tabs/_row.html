@@ -16,6 +16,7 @@
       [%- END %]
       [% L.hidden_tag("orderitem_ids[+]", ID) %]
       [% L.hidden_tag("converted_from_orderitems_ids[+]", ITEM.converted_from_orderitems_id) %]
+      [% L.hidden_tag("stock_info[+]", ITEM.stock_info, class="data-stock-info") %]
       [% L.hidden_tag("order.orderitems[+].id", ITEM.id, id='item_' _ ID) %]
       [% L.hidden_tag("order.orderitems[].parts_id", ITEM.parts_id) %]
     </td>

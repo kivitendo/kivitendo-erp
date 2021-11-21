@@ -890,10 +890,12 @@ sub action_return_from_create_part {
 sub action_stock_in_out_dialog {
   my ($self) = @_;
 
-  my $part = SL::DB::Part->load_cached($::form->{parts_id}) or die "need parts_id";
-  my $stock = $::form->{stock};
-  my $unit = $::form->{unit};
-  my $qty = _parse_number($::form->{qty_as_number});
+  my $part    = SL::DB::Part->load_cached($::form->{parts_id}) or die "need parts_id";
+  my $stock   = $::form->{stock};
+  my $unit    = $::form->{unit};
+  my $row     = $::form->{row};
+  my $item_id = $::form->{item_id};
+  my $qty     = _parse_number($::form->{qty_as_number});
 
   my $inout = $self->type_data->transfer;
 
@@ -904,10 +906,12 @@ sub action_stock_in_out_dialog {
 
   $self->render("delivery_order/stock_dialog", { layout => 0 },
     WHCONTENTS => $self->order->delivered ? $stock_info : \@contents,
-    part  => $part,
-    do_qty => $qty,
-    do_unit => $unit,
-    delivered => $self->order->delivered,
+    part       => $part,
+    do_qty     => $qty,
+    do_unit    => $unit,
+    delivered  => $self->order->delivered,
+    row        => $row,
+    itme_id    => $item_id,
   );
 }
 
