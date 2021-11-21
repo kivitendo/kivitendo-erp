@@ -2083,7 +2083,7 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          only_if   => (any { $self->type eq $_ } (sales_order_type()))
+          only_if   => (any { $self->type eq $_ } (purchase_order_type()))
         ],
         action => [
           t8('Save and Invoice'),
