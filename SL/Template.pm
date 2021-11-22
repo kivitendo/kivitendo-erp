@@ -47,7 +47,7 @@ sub available_templates {
        -d ($::lx_office_conf{paths}->{templates} . "/$_")
     && !/^\.\.?$/
     && !m/\.(?:html|tex|sty|odt)$/
-    && !m/^(?:webpages$|print$|mail$|\.)/
+    && !m/^(?:webpages$|mobile_webpages$|pdf$|print$|mail$|\.)/
   } keys %dir_h;
 
   tie %dir_h, 'IO::Dir', "$::lx_office_conf{paths}->{templates}/print";
