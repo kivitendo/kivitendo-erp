@@ -21,6 +21,9 @@
 % settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
 \input{insettings.tex}
 
+<%if template_meta.formname == "invoice_for_advance_payment"%>
+  \renewcommand{\rechnung}{\anzahlungsrechnung}
+<%end if%>
 
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\rechnung}{<%invnumber%>}{<%invdate%>}
