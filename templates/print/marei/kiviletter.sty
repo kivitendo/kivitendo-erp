@@ -306,6 +306,7 @@
   \let\ExtraDescription\__kivi_addExtraDescription:n
   \setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
   \seq_map_inline:Nn \l_kivi_PricingTable_seq {
+    \if_mode_horizontal: \par \fi
     \bool_if:NT \g__kivi_Tabular_rowcolor_bool {
       \int_gincr:N \g__kivi_PricingTable_rowcolor_int
       \int_if_odd:nTF {\g__kivi_PricingTable_rowcolor_int}
