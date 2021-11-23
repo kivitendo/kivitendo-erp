@@ -84,7 +84,7 @@ sub get_filepath {
   my ($self, %params) = @_;
   die "no dbfile" unless $params{dbfile};
   my ($path, undef, undef) = $self->webdav_path($params{dbfile});
-  die "no file" if !-f $path;
+  die "Path not found: " . $path unless -f $path;
   return $path;
 }
 
@@ -105,8 +105,7 @@ sub sync_from_backend {
 }
 
 sub enabled {
-  return 0 unless $::instance_conf->get_doc_webdav;
-  return 1;
+  return $::instance_conf->get_doc_webdav;
 }
 
 #
