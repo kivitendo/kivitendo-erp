@@ -73,7 +73,7 @@ sub get_mtime {
   die "no dbfile" unless $params{dbfile};
   $main::lxdebug->message(LXDebug->DEBUG2(), "version=" .$params{version});
   my ($path, undef, undef) = $self->webdav_path($params{dbfile});
-  die "no file found in backend" if !-f $path;
+  die "No file found in Backend: " . $path unless -f $path;
   my @st = stat($path);
   my $dt = DateTime->from_epoch(epoch => $st[9])->clone();
   $main::lxdebug->message(LXDebug->DEBUG2(), "dt=" .$dt);
@@ -84,7 +84,7 @@ sub get_filepath {
   my ($self, %params) = @_;
   die "no dbfile" unless $params{dbfile};
   my ($path, undef, undef) = $self->webdav_path($params{dbfile});
-  die "Path not found: " . $path unless -f $path;
+  die "No file found in Backend: " . $path unless -f $path;
   return $path;
 }
 
