@@ -186,18 +186,17 @@ sub webdav_path {
   }
   $main::lxdebug->message(LXDebug->DEBUG2(), "file_name=" . $dbfile->file_name ." number=".$number);
 
-  my @fileparts = split(/_/, $dbfile->file_name);
-  my $number_ext = pop @fileparts;
-  my ($maynumber, $ext) = split(/\./, $number_ext, 2);
-  push @fileparts, $maynumber if $maynumber ne $number;
-
-  my $basename = join('_', @fileparts);
-
   my $path = File::Spec->catdir($self->get_rootdir, "webdav", $::auth->client->{id}, $type, $number);
   if (!-d $path) {
     File::Path::make_path($path, { chmod => 0770 });
   }
-  my $fname = $basename . '_' . $number . '_' . $dbfile->itime->strftime('%Y%m%d_%H%M%S');
+  # simply add the timestring before the last .
+  # fails for .tar.gz but the number extraction algorithm failed for all
+  # '123 Storno zu 456' cases and doubled the name like:
+  # Rechnung_123_Storno_zu_456_202113104 Storno zu 456_20211123_113023
+  # TODO extension should be part of the File Model (filetype)
+  my ($filename, $ext) = split(/\.([^\.]+)$/, $dbfile->file_name);
+  my $fname = $filename . '_' . $dbfile->itime->strftime('%Y%m%d_%H%M%S');
   $fname .= '.' . $ext if $ext;
 
   $main::lxdebug->message(LXDebug->DEBUG2(), "webdav path=" . $path . " filename=" . $fname);
