@@ -55,6 +55,7 @@ BEGIN {
   { name => "PBKDF2::Tiny",    version => '0.005', url => "http://search.cpan.org/~dagolden/",  debian => 'libpbkdf2-tiny-perl' },
   { name => "PDF::API2",       version => '2.000', url => "http://search.cpan.org/~areibens/",  debian => 'libpdf-api2-perl' },
   { name => "Regexp::IPv6",    version => '0.03',  url => "http://search.cpan.org/~salva/",     debian => 'libregexp-ipv6-perl' },
+  { name => "REST::Client",                        url => "https://metacpan.org/pod/REST::Client", debian => 'librest-client-perl' },
   { name => "Rose::Object",                        url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-object-perl' },
   { name => "Rose::DB",                            url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-perl' },
   { name => "Rose::DB::Object", version => 0.788,  url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-object-perl' },
