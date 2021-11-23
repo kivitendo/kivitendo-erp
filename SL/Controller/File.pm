@@ -679,7 +679,12 @@ sub _convert_pdf_to_png {
 
   my $size    = $params{size} // 64;
   my $sfile   = SL::SessionFile::Random->new();
-  my $command = 'pdftoppm -singlefile -scale-to ' . $size . ' -png' . ' ' . $filename . ' ' . $sfile->file_name;
+  unless (-f $filename) {
+    $::lxdebug->message(LXDebug::WARN(), "_convert_pdf_to_png failed, no file found: $filename");
+    return;
+  }
+  # quotemeta for storno case "storno\ zu\ 1020" *nix only
+  my $command = 'pdftoppm -singlefile -scale-to ' . $size . ' -png' . ' ' . quotemeta($filename) . ' ' . $sfile->file_name;
 
   if (system($command) == -1) {
     $::lxdebug->message(LXDebug::WARN(), "SL::File::_convert_pdf_to_png: system call failed: " . $ERRNO);
@@ -687,6 +692,7 @@ sub _convert_pdf_to_png {
   }
   if ($CHILD_ERROR) {
     $::lxdebug->message(LXDebug::WARN(), "SL::File::_convert_pdf_to_png: pdftoppm failed with error code: " . ($CHILD_ERROR >> 8));
+    $::lxdebug->message(LXDebug::WARN(), "SL::File::_convert_pdf_to_png: File: $filename");
     return;
   }
 
