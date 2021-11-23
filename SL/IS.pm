@@ -35,7 +35,7 @@
 
 package IS;
 
-use List::Util qw(max);
+use List::Util qw(max sum0);
 
 use Carp;
 use SL::AM;
@@ -176,7 +176,9 @@ sub invoice_details {
 
   my @payment_arrays = qw(payment paymentaccount paymentdate paymentsource paymentmemo);
 
-  map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays, @payment_arrays, @prepared_arrays);
+  my @invoices_for_advance_payment_arrays = qw(iap_invnumber iap_transdate ifip_amount iap_taxamount);
+
+  map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays, @payment_arrays, @prepared_arrays, @invoices_for_advance_payment_arrays);
 
   my $totalweight = 0;
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
@@ -574,6 +576,23 @@ sub invoice_details {
 
   $form->{username} = $myconfig->{name};
   $form->{$_} = $form->format_amount($myconfig, $form->{$_}, 2) for @separate_totals;
+
+  foreach my $invoice_for_advance_payment (@{$self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id})}) {
+    my %pat       = $invoice_for_advance_payment->calculate_prices_and_taxes;
+    my $taxamount = sum0 values %{ $pat{taxes_by_tax_id} };
+
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_$_"} },              $invoice_for_advance_payment->$_) for qw(invnumber transdate);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_amount_nofmt"} },    $invoice_for_advance_payment->amount);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_amount"} },          $invoice_for_advance_payment->amount_as_number);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_taxamount_nofmt"} }, $taxamount);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_taxamount"} },       $form->format_amount($myconfig, $taxamount, 2));
+
+    $form->{iap_amount_nofmt}    += $invoice_for_advance_payment->amount;
+    $form->{iap_taxamount_nofmt} += $taxamount;
+    $form->{iap_existing}         = 1;
+  }
+  $form->{iap_amount}    = $form->format_amount($myconfig, $form->{iap_amount_nofmt},    2);
+  $form->{iap_taxamount} = $form->format_amount($myconfig, $form->{iap_taxamount_nofmt}, 2);
 
   $main::lxdebug->leave_sub();
 }
