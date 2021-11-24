@@ -30,7 +30,7 @@ sub validate {
     push @errors, $::locale->text('Shipping cost article is not implemented')        if $self->{shipping_costs_parts_id};
     push @errors, $::locale->text('Fetch from last order number is not implemented') if $self->{last_order_number};
   } else {
-    push @errors, $::locale->text('Use Long Description from Parts is only for Shopware6  implemented')
+    push @errors, $::locale->text('Use Long Description from Parts is only for Shopware6 implemented')
       if $self->{use_part_longdescription};
   }
   return @errors;
