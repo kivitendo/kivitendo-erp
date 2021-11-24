@@ -25,10 +25,13 @@ sub validate {
                                                                unless $self->{orders_to_fetch} > 0;
 
   # not yet implemented checks
-  push @errors, $::locale->text('Transaction Description is not yet implemented')   if $self->{transaction_description};
+  push @errors, $::locale->text('Transaction Description is not yet implemented')    if $self->{transaction_description};
   if ($self->{connector} eq 'shopware6') {
-    push @errors, $::locale->text('Shipping cost article not implemented')          if $self->{shipping_costs_parts_id};
-    push @errors, $::locale->text('Fetch from last order number not implemented')   if $self->{last_order_number};
+    push @errors, $::locale->text('Shipping cost article is not implemented')        if $self->{shipping_costs_parts_id};
+    push @errors, $::locale->text('Fetch from last order number is not implemented') if $self->{last_order_number};
+  } else {
+    push @errors, $::locale->text('Use Long Description from Parts is only for Shopware6  implemented')
+      if $self->{use_part_longdescription};
   }
   return @errors;
 }
