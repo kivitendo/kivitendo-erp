@@ -155,6 +155,15 @@
 
 \vspace{0.2cm}
 
+<%if iap_existing%>%
+  Es sind folgende Anzahlungsrechnungen vorhanden:\\
+  <%foreach iap_invnumber%>%
+    <%iap_invnumber%> <%iap_invdate%> <%iap_amount%> <%iap_taxamount%>\\%
+    <%end iap_invnumber%>%
+  Die Summen sind:\\
+  \bfseries <%iap_amount%> \bfseries <%iap_taxamount%>\\%
+<%end iap_available%>%
+
 \Ifstr{<%deliverydate%>}{}{%
   \leistungsdatumGleichRechnungsdatum%
 }{
