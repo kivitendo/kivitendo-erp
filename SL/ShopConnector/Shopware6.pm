@@ -138,6 +138,10 @@ sub update_part {
   my $update_p;
   $update_p->{productNumber} = $part->partnumber;
   $update_p->{name}          = $part->description;
+  $update_p->{description}   =   $shop_part->shop->use_part_longdescription
+                               ? $part->notes
+                               : $shop_part->shop_description;
+
 
   $update_p->{stock}  = $::form->round_amount($part->onhand, 0) if ($todo =~ m/(stock|all)/);
   # JSON::true JSON::false

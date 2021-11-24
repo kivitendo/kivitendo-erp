@@ -79,6 +79,10 @@
     <th align="right">[% 'Obsolete' | $T8 %]</th>
     <td>[% L.checkbox_tag('shop.obsolete', checked = SELF.shop.obsolete, for_submit=1) %]</td>
   </tr>
+  <tr>
+    <th align="right">[% 'Use Long Description from Parts for Shop Long Description' | $T8 %]</th>
+    <td>[% L.yes_no_tag('shop.use_part_longdescription', SELF.shop.use_part_longdescription) %]</td>
+  </tr>
 </table>
 
  <hr>
