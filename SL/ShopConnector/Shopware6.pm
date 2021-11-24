@@ -6,6 +6,7 @@ use parent qw(SL::ShopConnector::Base);
 
 use Carp;
 use Encode qw(encode);
+use List::Util qw(first);
 use REST::Client;
 use Try::Tiny;
 
@@ -142,6 +143,17 @@ sub update_part {
                                ? $part->notes
                                : $shop_part->shop_description;
 
+  # locales simple check for english
+  my $english = SL::DB::Manager::Language->get_first(query => [ description   => { ilike => 'Englisch' },
+                                                        or => [ template_code => { ilike => 'en' } ],
+                                                    ]);
+  if (ref $english eq 'SL::DB::Language') {
+    # add english translation for product
+    # TODO (or not): No Translations for shop_part->shop_description available
+    my $translation = first { $english->id == $_->language_id } @{ $part->translations };
+    $update_p->{translations}->{'en-GB'}->{name}        = $translation->{translation};
+    $update_p->{translations}->{'en-GB'}->{description} = $translation->{longdescription};
+  }
 
   $update_p->{stock}  = $::form->round_amount($part->onhand, 0) if ($todo =~ m/(stock|all)/);
   # JSON::true JSON::false
@@ -892,6 +904,19 @@ __END__
 =item C<get_new_orders>
 
 =item C<update_part>
+
+Updates all metadata for a shop part. See base class for a general description.
+Specific Implementation notes:
+=over 4
+
+=item * Calls sync_all_images with set_cover = 1 and delete_orphaned = 1
+
+=item * Checks if longdescription should be taken from part or shop_part
+
+=item * Checks if a language with the name 'Englisch' or template_code 'en'
+      is available and sets the shopware6 'en-GB' locales for the product
+
+=back
 
 =item C<sync_all_images (set_cover: 0|1, delete_orphaned: 0|1)>
 
