@@ -1920,8 +1920,8 @@ sub pre_render {
 
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 
-  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery
-                                                         edit_periodic_invoices_config calculate_qty kivi.Validator follow_up show_history);
+  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.Validator kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery
+                                                         edit_periodic_invoices_config calculate_qty follow_up show_history);
   $self->setup_edit_action_bar;
 }
 
