@@ -234,6 +234,8 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.recalc_amounts_and_taxes = function() {
+    if (!kivi.validate_form('#order_form')) return;
+
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/recalc_amounts_and_taxes' });
 
