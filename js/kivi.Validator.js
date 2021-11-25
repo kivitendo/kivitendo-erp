@@ -142,6 +142,26 @@ namespace("kivi.Validator", function(ns) {
         ns.annotate($e_annotate);
         return true;
       }
+    },
+    trimmed_whitespaces: function($e, $e_annotate) {
+      $e_annotate = $e_annotate || $e;
+
+      var string = $e.val();
+
+      if ($e.hasClass('tooltipstered'))
+        $e.tooltipster('destroy');
+
+      if (string.match(/^\s|\s$/)) {
+        $e.val(string.trim());
+
+        $e.tooltipster({
+          content: kivi.t8("Leading and trailing whitespaces have been removed."),
+          contentAsHTML: true,
+          theme: 'tooltipster-light',
+        });
+        $e.tooltipster('show');
+      }
+      return true;
     }
   };
 
