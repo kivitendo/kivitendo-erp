@@ -709,7 +709,7 @@ sub add {
 
 sub _set_javascript {
   my ($self) = @_;
-  $::request->layout->use_javascript("${_}.js")  for qw(kivi.Part kivi.File kivi.PriceRule ckeditor/ckeditor ckeditor/adapters/jquery kivi.ShopPart);
+  $::request->layout->use_javascript("${_}.js")  for qw(kivi.Part kivi.File kivi.PriceRule ckeditor/ckeditor ckeditor/adapters/jquery kivi.ShopPart kivi.Validator);
   $::request->layout->add_javascripts_inline("\$(function(){kivi.PriceRule.load_price_rules_for_part(@{[ $self->part->id ]})});") if $self->part->id;
 }
 
@@ -1335,6 +1335,7 @@ sub _setup_form_action_bar {
           t8('Save'),
           call      => [ 'kivi.Part.save' ],
           disabled  => !$may_edit ? t8('You do not have the permissions to access this function.') : undef,
+          checks    => ['kivi.validate_form'],
         ],
         action => [
           t8('Use as new'),
