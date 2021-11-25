@@ -19,7 +19,7 @@
             <table id="ic3">
              <tr>
               <th align="right">[% 'Part Number' | $T8 %]</th>
-              <td>[% L.input_tag("part.partnumber", SELF.part.partnumber, size=40, class="initial_focus") %]</td>
+              <td>[% L.input_tag("part.partnumber", SELF.part.partnumber, size=40, class="initial_focus", "data-validate"="trimmed_whitespaces") %]</td>
              </tr>
              <tr>
               <th align="right">[% 'Part Classification' | $T8 %]</th>
@@ -219,13 +219,13 @@
       <table id="ic6">
        <tr>
         <th align="right" nowrap>[% 'Image' | $T8 %]</th>
-        <td>[% L.input_tag("part.image", SELF.part.image, size=40) %]</td>
+        <td>[% L.input_tag("part.image", SELF.part.image, size=40, "data-validate"="trimmed_whitespaces") %]</td>
         <th align="right" nowrap>[% 'Microfiche' | $T8 %]</th>
-        <td>[% L.input_tag("part.microfiche", SELF.part.microfiche, size=20) %]</td>
+        <td>[% L.input_tag("part.microfiche", SELF.part.microfiche, size=20, "data-validate"="trimmed_whitespaces") %]</td>
        </tr>
        <tr>
         <th align="right" nowrap>[% 'Drawing' | $T8 %]</th>
-        <td>[% L.input_tag("part.drawing", SELF.part.drawing, size=40) %]</td>
+        <td>[% L.input_tag("part.drawing", SELF.part.drawing, size=40, "data-validate"="trimmed_whitespaces") %]</td>
        </tr>
       </table>
      </td>
