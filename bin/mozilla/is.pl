@@ -1024,6 +1024,12 @@ sub post {
 
   $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
     if ($form->{currency} ne $form->{defaultcurrency});
+  # advance payment allows only one tax
+  if ($form->{type} eq 'invoice_for_advance_payment') {
+    my @current_taxaccounts = (split(/ /, $form->{taxaccounts}));
+    $form->error($locale->text('Cannot post invoice for advance payment with more than one tax'))
+      if (scalar @current_taxaccounts > 1);
+  }
 
   for my $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {

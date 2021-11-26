@@ -796,10 +796,6 @@ sub _post_invoice {
     my $basefactor;
     my $baseqty;
 
-    if ($form->{type} eq 'invoice_for_advance_payment') {
-      $form->{"income_accno_$i"} = SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_clearing_chart_id)->load->accno;
-    }
-
     $form->{"marge_percent_$i"} = $form->parse_amount($myconfig, $form->{"marge_percent_$i"}) * 1;
     $form->{"marge_absolut_$i"} = $form->parse_amount($myconfig, $form->{"marge_absolut_$i"}) * 1;
     $form->{"lastcost_$i"} = $form->parse_amount($myconfig, $form->{"lastcost_$i"}) * 1;
@@ -1034,16 +1030,6 @@ SQL
     }
   }
 
-  if ($form->{type} eq 'invoice_for_advance_payment') {
-    # invoice for advance payment show tax but does not account it.
-    # tax has to be accounted on payment
-    foreach my $item (split(/ /, $form->{taxaccounts})) {
-      delete $form->{amount}{ $form->{id} }{$item};
-    }
-
-    $tax = 0;
-  }
-
   # Invoice Summary includes Rounding
   my $grossamount = $netamount + $tax;
   my $rounding = $form->round_amount(
@@ -1073,15 +1059,53 @@ SQL
   # entsprechend auch beim Bestimmen des Steuerschlüssels in Taxkey.pm berücksichtigen
   my $taxdate = $form->{tax_point} ||$form->{deliverydate} || $form->{invdate};
 
-
-  # reverse booking for invoices for advance payment
-  my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id});
-  foreach my $invoice_for_advance_payment (@$invoices_for_advance_payment) {
-    my $transactions = SL::DB::Manager::AccTransaction->get_all(query => [ trans_id => $invoice_for_advance_payment->id ], sort_by => 'acc_trans_id ASC');
-    foreach my $transaction (@$transactions) {
-      $form->{amount}->{$invoice_for_advance_payment->id}->{$transaction->chart->accno} = -1 * $transaction->amount;
-      $form->{memo}  ->{$invoice_for_advance_payment->id}->{$transaction->chart->accno} = 'reverse booking by final invoice';
+  # better type? maybe define Invoice->invoice_type
+  if ($form->{type} ne 'invoice_for_advance_payment') {
+    my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id});
+    if (scalar @$invoices_for_advance_payment > 0) {
+      # reverse booking for invoices for advance payment
+      my $clearing_chart = SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_clearing_chart_id)->load;
+      die "No Clearing Chart for Advance Payment" unless ref $clearing_chart eq 'SL::DB::Chart';
+      foreach my $invoice_for_advance_payment (@$invoices_for_advance_payment) {
+        # delete ? post twice case ?
+        # TODO: helper table acc_trans_advance_payment
+        # trans_id for final invoice connects to acc_trans_id here
+        # my $booking = SL::DB::AccTrans->new( ...)
+        # TODO: If final_invoice change (delete storno) delete all connectin acc_trans entries, if
+        # period is not closed
+        # $booking->id, $self->id in helper table
+        $form->{amount}->{$invoice_for_advance_payment->id}->{$clearing_chart->accno} = -1 * $invoice_for_advance_payment->netamount;
+        $form->{memo}  ->{$invoice_for_advance_payment->id}->{$clearing_chart->accno} = 'reverse booking by final invoice';
+        # AR
+        $form->{amount}->{$invoice_for_advance_payment->id}->{$form->{AR}} = $invoice_for_advance_payment->netamount;
+        $form->{memo}  ->{$invoice_for_advance_payment->id}->{$form->{AR}} = 'reverse booking by final invoice';
+      }
     }
+  }
+  if ($form->{type} eq 'invoice_for_advance_payment') {
+    # sanity and decomplex, allow only one tax rate
+    my $clearing_chart = SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_clearing_chart_id)->load;
+    die "No Clearing Chart for Advance Payment" unless ref $clearing_chart eq 'SL::DB::Chart';
+
+    my @current_taxaccounts = (split(/ /, $form->{taxaccounts}));
+    die 'Wrong Call, cannot post invoice for advance payment with more than one tax' if (scalar @current_taxaccounts > 1);
+
+    my @trans_ids = keys %{ $form->{amount} };
+    if (scalar @trans_ids > 1) {
+      require Data::Dumper;
+      die "Invalid state for advance payment more than one trans_id " . Dumper($form->{amount});
+    }
+
+    # get gross and move to clearing chart - delete everything else
+    # 1. gross
+    my $gross = $form->{amount}{$trans_ids[0]}{$form->{AR}};
+    # 2. destroy
+    undef $form->{amount}{$trans_ids[0]};
+    # 3. rebuild
+    $form->{amount}{$trans_ids[0]}{$form->{AR}}            = $gross;
+    $form->{amount}{$trans_ids[0]}{$clearing_chart->accno} = $gross * -1;
+    # 4. no cogs, hopefully not commonly used at all
+    undef $form->{amount_cogs};
   }
 
   foreach my $trans_id (keys %{ $form->{amount_cogs} }) {
