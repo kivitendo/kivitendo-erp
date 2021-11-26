@@ -77,6 +77,7 @@ sub pay_invoice {
   };
 
   # currency is either passed or use the invoice currency if it differs from the default currency
+  # TODO remove
   my ($exchangerate,$currency);
   if ($params{currency} || $params{currency_id} || $self->currency_id != $::instance_conf->get_currency_id) {
     if ($params{currency} || $params{currency_id} ) { # currency was specified
@@ -290,6 +291,49 @@ sub pay_invoice {
     $arap_booking->save;
     push @new_acc_ids, $arap_booking->acc_trans_id;
 
+    # hook for invoice_for_advance_payment DATEV always pairs, acc_trans_id has to be higher than arap_booking ;-)
+    if ($self->type eq 'invoice_for_advance_payment') {
+      my $clearing_chart = SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_clearing_chart_id)->load;
+      die "No Clearing Chart for Advance Payment" unless ref $clearing_chart eq 'SL::DB::Chart';
+
+      # what does ptc say
+      my %inv_calc = $self->calculate_prices_and_taxes();
+      my @trans_ids = keys %{ $inv_calc{amounts} };
+      die "Invalid state for advance payment more than one trans_id" if (scalar @trans_ids > 1);
+      my $entry = delete $inv_calc{amounts}{$trans_ids[0]};
+      my $tax;
+      if ($entry->{tax_id}) {
+        $tax = SL::DB::Manager::Tax->find_by(id => $entry->{tax_id}); # || die "Can't find tax with id " . $entry->{tax_id};
+      }
+      if ($tax and $tax->rate != 0) {
+        my ($netamount, $taxamount);
+        my $roundplaces = 2;
+        # we dont have a clue about skonto, that's why we use $arap_amount as taxincluded
+        ($netamount, $taxamount) = Form->calculate_tax($arap_amount, $tax->rate, 1, $roundplaces);
+        # for debugging database set
+        my $fullmatch = $netamount == $entry->{amount} ? '::netamount total true' : '';
+        my $tax_booking= SL::DB::AccTransaction->new(trans_id   => $self->id,
+                                                     chart_id   => $tax->chart_id,
+                                                     chart_link => $tax->chart->link,
+                                                     amount     => _round($taxamount),
+                                                     transdate  => $transdate_obj,
+                                                     source     => 'Automatic Tax Booking for Payment in Advance' . $fullmatch,
+                                                     taxkey     => $tax->taxkey,
+                                                     tax_id     => $tax->id);
+        $tax_booking->save;
+        push @new_acc_ids, $tax_booking->acc_trans_id;
+        my $arap_tax_booking= SL::DB::AccTransaction->new(trans_id   => $self->id,
+                                                     chart_id   => $clearing_chart->id,
+                                                     chart_link => $clearing_chart->link,
+                                                     amount     => _round($taxamount * -1),
+                                                     transdate  => $transdate_obj,
+                                                     source     => 'Automatic Tax Booking for Payment in Advance' . $fullmatch,
+                                                     taxkey     => 0,
+                                                     tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+        $arap_tax_booking->save;
+        push @new_acc_ids, $arap_tax_booking->acc_trans_id;
+      }
+    }
     $fx_gain_loss_amount *= -1 if $self->is_sales;
     $self->paid($self->paid + _round($paid_amount) + $fx_gain_loss_amount) if $paid_amount;
     $self->datepaid($transdate_obj);
