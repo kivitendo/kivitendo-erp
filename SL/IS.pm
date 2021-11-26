@@ -1067,12 +1067,22 @@ SQL
       my $clearing_chart = SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_clearing_chart_id)->load;
       die "No Clearing Chart for Advance Payment" unless ref $clearing_chart eq 'SL::DB::Chart';
       foreach my $invoice_for_advance_payment (@$invoices_for_advance_payment) {
-        # delete ? post twice case ?
+        # delete ?
+        # --> is implemented below (bookings are marked in memo field)
+        #
+        # post twice case ?
+        # ?
+        #
         # TODO: helper table acc_trans_advance_payment
         # trans_id for final invoice connects to acc_trans_id here
         # my $booking = SL::DB::AccTrans->new( ...)
+        # --> helper table not nessessary because of mark in memo field
+        #
         # TODO: If final_invoice change (delete storno) delete all connectin acc_trans entries, if
         # period is not closed
+        # --> no problem because gldate of reverse booking is date of final invoice
+        #     if deletion of final invoice is allowed, reverting bookings in invoices
+        #     for advance payment are allowed, too.
         # $booking->id, $self->id in helper table
         $form->{amount}->{$invoice_for_advance_payment->id}->{$clearing_chart->accno} = -1 * $invoice_for_advance_payment->netamount;
         $form->{memo}  ->{$invoice_for_advance_payment->id}->{$clearing_chart->accno} = 'reverse booking by final invoice';
@@ -2054,6 +2064,9 @@ sub _delete_invoice {
   # if we delete a final invoice, the reverse bookings for the clearing account in the invoice for advance payment
   # must be deleted as well
   my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id});
+
+  # Todo: allow only if invoice for advance payment is not paid.
+  # die if any { $_->paid } for @$invoices_for_advance_payment;
   my @trans_ids_to_consider        = map { $_->id } @$invoices_for_advance_payment;
   if (scalar @trans_ids_to_consider) {
     my $query = sprintf 'DELETE FROM acc_trans WHERE memo LIKE ? AND trans_id IN (%s)', join ', ', ("?") x scalar @trans_ids_to_consider;
