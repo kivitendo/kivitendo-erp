@@ -539,7 +539,8 @@ sub invoice_type {
   my ($self) = @_;
 
   return 'ar_transaction'     if !$self->invoice;
-  return 'credit_note'        if $self->type eq 'credit_note' && $self->amount < 0 && !$self->storno;
+  # stornoed credit_notes are still credit notes and not invoices
+  return 'credit_note'        if $self->type eq 'credit_note' && $self->amount < 0;
   return 'invoice_storno'     if $self->type ne 'credit_note' && $self->amount < 0 &&  $self->storno;
   return 'credit_note_storno' if $self->type eq 'credit_note' && $self->amount > 0 &&  $self->storno;
   return 'invoice';
