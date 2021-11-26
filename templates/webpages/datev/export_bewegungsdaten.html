@@ -95,11 +95,11 @@
           [% IF show_pk_option %]
            <td align=left>[% 'Export with CV Charts' | $T8 %]</td>
            <td align=left></td>
-           <td>[% L.checkbox_tag('use_pk', value => 1, checked => 0) %]</td>
+           <td>[% L.checkbox_tag('use_pk', value = 1, checked = 0) %]</td>
           [% ELSE %]
            <td align=left><font color="gray">[% 'Export with CV Charts' | $T8 %]</font></td>
            <td align=left></td>
-           <td>[% L.checkbox_tag('use_pk', value => 1, checked => 0, disabled => 1) %] </td>
+           <td>[% L.checkbox_tag('use_pk', value = 1, checked = 0, disabled = 1) %] </td>
            <td colspan="2"><font color="gray">[% 'Hint: Not all VC Numbers are personal accounts compliant' | $T8 %]</font></td>
           [% END %]
          </tr>
@@ -121,15 +121,15 @@
   </tr>
 </table>
 
-<input type=hidden name=beraternr value="[% beraternr %]">
-<input type=hidden name=dfvkz value="[% dfvkz %]">
-<input type=hidden name=beratername value="[% beratername %]">
-<input type=hidden name=passwort value="[% passwort %]">
-<input type=hidden name=mandantennr value="[% mandantennr %]">
-<input type=hidden name=datentraegernr value="[% datentraegernr %]">
-<input type=hidden name=exportformat value="[% exportformat %]">
-<input type=hidden name=abrechnungsnr value="[% abrechnungsnr %]">
+<input type=hidden name=beraternr value="[% beraternr | html %]">
+<input type=hidden name=dfvkz value="[% dfvkz | html %]">
+<input type=hidden name=beratername value="[% beratername | html %]">
+<input type=hidden name=passwort value="[% passwort | html %]">
+<input type=hidden name=mandantennr value="[% mandantennr | html %]">
+<input type=hidden name=datentraegernr value="[% datentraegernr | html %]">
+<input type=hidden name=exportformat value="[% exportformat | html %]">
+<input type=hidden name=abrechnungsnr value="[% abrechnungsnr | html %]">
 
-<input type=hidden name=exporttype value="[% exporttype %]">
+<input type=hidden name=exporttype value="[% exporttype | html %]">
 
 </form>
