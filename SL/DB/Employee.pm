@@ -27,4 +27,14 @@ sub safe_name {
   return $self->name || $self->login;
 }
 
+sub auth_user {
+  my ($self) = @_;
+
+  die 'not an accessor' if scalar(@_) > 1;
+
+  require SL::DB::AuthUser;
+
+  return SL::DB::Manager::AuthUser->find_by(login => $self->login);
+}
+
 1;
