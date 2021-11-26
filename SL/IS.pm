@@ -734,6 +734,8 @@ sub _post_invoice {
 
   my $all_units = AM->retrieve_units($myconfig, $form);
 
+  my $already_booked = !!$form->{id};
+
   if (!$payments_only) {
     if ($form->{storno}) {
       _delete_transfers($dbh, $form, $form->{storno_id});
@@ -1060,7 +1062,7 @@ SQL
   my $taxdate = $form->{tax_point} ||$form->{deliverydate} || $form->{invdate};
 
   # better type? maybe define Invoice->invoice_type
-  if ($form->{type} ne 'invoice_for_advance_payment') {
+  if (!$already_booked && $form->{type} ne 'invoice_for_advance_payment') {
     my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id});
     if (scalar @$invoices_for_advance_payment > 0) {
       # reverse booking for invoices for advance payment
@@ -1069,9 +1071,6 @@ SQL
       foreach my $invoice_for_advance_payment (@$invoices_for_advance_payment) {
         # delete ?
         # --> is implemented below (bookings are marked in memo field)
-        #
-        # post twice case ?
-        # ?
         #
         # TODO: helper table acc_trans_advance_payment
         # trans_id for final invoice connects to acc_trans_id here
