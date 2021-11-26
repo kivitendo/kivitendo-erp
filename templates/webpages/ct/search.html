@@ -116,8 +116,8 @@
         <label for="l_id">[% 'ID' | $T8 %]</label>
        </td>
        <td>
-        <input name="l_[% db %]number" id="l_[% db %]number" type="checkbox" class="checkbox" value="Y" checked>
-        <label for="l_[% db %]number">[% IF IS_CUSTOMER %][% 'Customer Number' | $T8 %][% ELSE %][% 'Vendor Number' | $T8 %][% END %]</label>
+        <input name="l_[% db | html %]number" id="l_[% db | html %]number" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_[% db | html %]number">[% IF IS_CUSTOMER %][% 'Customer Number' | $T8 %][% ELSE %][% 'Vendor Number' | $T8 %][% END %]</label>
        </td>
        <td>
         <input name="l_name" id="l_name" type="checkbox" class="checkbox" value="Y" checked>
