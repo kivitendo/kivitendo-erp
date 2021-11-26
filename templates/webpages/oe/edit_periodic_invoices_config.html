@@ -8,6 +8,18 @@
 [%- END -%]
 
  <form name="Form" action="oe.pl" method="post">
+  [%- IF popup_dialog -%]
+    [% L.button_tag(popup_js_assign_function, LxERP.t8('Assign')) %]
+    [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel')) %]
+
+  [%- ELSE -%]
+    [% L.hidden_tag('action', 'save_periodic_invoices_config') %]
+
+    <p>
+     [% L.submit_tag('', LxERP.t8('Assign')) %]
+     [% L.submit_tag('', LxERP.t8('Cancel'), onclick => "self.close(); return false;") %]
+    </p>
+  [%- END -%]
 
   <p>
    <table border="0">
@@ -140,19 +152,6 @@
   <p>(2): [% LxERP.t8("If missing then the start date will be used.") %]</p>
   <p>(3): [% LxERP.t8("Multiple addresses can be entered separated by commas.") %]</p>
   <p>(4): [% LxERP.t8("If left empty the default sender from the kivitendo configuration will be used (key 'email_from' in section 'periodic_invoices'; current value: #1).", HTML.escape(LXCONFIG.periodic_invoices.email_from)) %]</p>
-
-  [%- IF popup_dialog -%]
-    [% L.button_tag(popup_js_assign_function, LxERP.t8('Assign')) %]
-    [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel')) %]
-
-  [%- ELSE -%]
-    [% L.hidden_tag('action', 'save_periodic_invoices_config') %]
-
-    <p>
-     [% L.submit_tag('', LxERP.t8('Assign')) %]
-     [% L.submit_tag('', LxERP.t8('Cancel'), onclick => "self.close(); return false;") %]
-    </p>
-  [%- END -%]
  </form>
 
  <script type="text/javascript">
