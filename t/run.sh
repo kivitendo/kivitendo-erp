@@ -2,4 +2,6 @@
 
 dir="$(dirname "$0")"
 
-perl "-I${dir}/../modules/override" "-I${dir}/.." "-I${dir}/../modules/fallback" "$@"
+for TEST in "$@"; do
+  perl "-I${dir}/../modules/override" "-I${dir}/.." "-I${dir}/../modules/fallback" "$TEST"
+done
