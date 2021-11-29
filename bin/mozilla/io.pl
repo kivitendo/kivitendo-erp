@@ -2201,3 +2201,35 @@ sub _maybe_attach_zugferd_data {
     $::form->error($e->message);
   }
 }
+
+sub download_factur_x_xml {
+  my ($form) = @_;
+
+  my $record = _make_record();
+
+  die if !$record
+      || !$record->can('customer')
+      || !$record->customer
+      || !$record->can('create_pdf_a_print_options')
+      || !$record->can('create_zugferd_data')
+      || !$record->customer->create_zugferd_invoices_for_this_customer;
+
+  my $xml_content = eval { $record->create_zugferd_data };
+
+  if (my $e = SL::X::ZUGFeRDValidation->caught) {
+    $::form->error($e->message);
+  }
+
+  my $attachment_filename = $::form->generate_attachment_filename;
+  $attachment_filename    =~ s{\.[^.]+$}{.xml};
+  my %headers             = (
+    '-type'           => 'application/xml',
+    '-connection'     => 'close',
+    '-attachment'     => $attachment_filename,
+    '-content-length' => length($xml_content),
+  );
+
+  print $::request->cgi->header(%headers);
+
+  $::locale->with_raw_io(\*STDOUT, sub { print $xml_content });
+}

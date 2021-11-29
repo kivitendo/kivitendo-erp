@@ -276,12 +276,14 @@ sub prepare_invoice {
 }
 
 sub setup_is_action_bar {
+  my ($tmpl_var)              = @_;
   my $form                    = $::form;
   my $change_never            = $::instance_conf->get_is_changeable == 0;
   my $change_on_same_day_only = $::instance_conf->get_is_changeable == 2 && ($form->current_date(\%::myconfig) ne $form->{gldate});
   my $payments_balanced       = ($::form->{oldtotalpaid} == 0);
   my $has_storno              = ($::form->{storno} && !$::form->{storno_id});
   my $may_edit_create         = $::auth->assert('invoice_edit', 1);
+  my $factur_x_enabled        = $tmpl_var->{invoice_obj} && $tmpl_var->{invoice_obj}->customer->create_zugferd_invoices_for_this_customer;
   my ($is_linked_bank_transaction, $warn_unlinked_delivery_order);
     if ($::form->{id}
         && SL::DB::Default->get->payments_changeable != 0
@@ -423,6 +425,14 @@ sub setup_is_action_bar {
                     : $form->{postal_invoice} ? t8('This customer wants a postal invoices.')
                     :                     undef,
         ],
+        action => [ t8('Factur-X/ZUGFeRD'),
+          submit   => [ '#form', { action => "download_factur_x_xml" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create  ? t8('You must not print this invoice.')
+                    : !$form->{id}       ? t8('This invoice has not been posted yet.')
+                    : !$factur_x_enabled ? t8('Creating Factur-X/ZUGFeRD invoices is not enabled for this customer.')
+                    :                      undef,
+        ],
       ], # end of combobox "Export"
 
       combobox => [
@@ -562,7 +572,7 @@ sub form_header {
   $TMPL_VAR{payment_terms_obj} = get_payment_terms_for_invoice();
   $form->{duedate}             = $TMPL_VAR{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{duedate})->to_kivitendo if $TMPL_VAR{payment_terms_obj};
 
-  setup_is_action_bar();
+  setup_is_action_bar(\%TMPL_VAR);
 
   $form->header();
 
