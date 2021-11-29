@@ -77,7 +77,7 @@
    <td>
     [% SET no_file_label = have_files ? LxERP.t8("Don't include a printout of the record with the email, only selected files") : LxERP.t8("Don't include a printout of the record with the email") ;
            options       = [
-             [ "old_file", LxERP.t8("Send the last printout created for this record") ],
+             [ "old_file", LxERP.t8("Send the last or create the first version for this record") ],
              [ "normal",   LxERP.t8("Create and send a new printout for this record") ],
              [ "no_file",  no_file_label ],
            ] ;
