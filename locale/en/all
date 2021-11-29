@@ -1935,6 +1935,7 @@ $self->{texts} = {
   'Lastcost'                    => '',
   'Lastcost (with X being a number)' => '',
   'Lastname'                    => '',
+  'Leading and trailing whitespaces have been removed.' => '',
   'Left'                        => '',
   'Letter'                      => '',
   'Letter Draft'                => '',

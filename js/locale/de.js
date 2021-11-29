@@ -89,7 +89,7 @@ namespace("kivi").setupLocale({
 "July":"Juli",
 "Jun":"Jun",
 "June":"Juni",
-"Leading and trailing whitespaces have been removed.":"",
+"Leading and trailing whitespaces have been removed.":"Leerzeichen wurden vorne und hinten entfernt",
 "Loading...":"Wird geladen...",
 "Map":"Karte",
 "Mar":"März",
