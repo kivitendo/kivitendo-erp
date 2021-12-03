@@ -60,18 +60,11 @@
      <td>[% L.textarea_tag("shop_part.metatag_description", SELF.shop_part.metatag_description, rows=4) %]</td>
     </tr>
     </table>
-
     [% IF SELF.shop_part.id %]
-    [% L.button_tag("kivi.ShopPart.save_shop_part(" _ SELF.shop_part.id _ ")", LxERP.t8("Save"))  %]</td>
+      [% L.button_tag("kivi.ShopPart.save_shop_part(" _ SELF.shop_part.id _ ")", LxERP.t8("Save"))  %]</td>
     [% ELSE %]
-    [% L.button_tag("kivi.ShopPart.add_shop_part(" _ FORM.part_id _", " _ FORM.shop_id _")", LxERP.t8("Save"))  %]</td>
+      [% L.button_tag("kivi.ShopPart.add_shop_part()", LxERP.t8("Save"))  %]</td>
     [% END %]
-    [% # L.button_tag("kivi.ShopPart.update_partnumber()", LxERP.t8("Update Partnumber"))  %]</td>
-
-    [% # L.hidden_tag("action", "ShopPart/dispatch") %]
-    [% # L.submit_tag('action_update', LxERP.t8('Save')) %]
-
-
   </div>
 </form>
 
