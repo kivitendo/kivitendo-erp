@@ -5,7 +5,8 @@ use strict;
 use parent qw(SL::File::Backend);
 use SL::DB::File;
 
-#use SL::Webdav;
+use SL::System::Process;
+use SL::Webdav;
 use File::Copy;
 use File::Slurp;
 use File::Basename;
@@ -205,17 +206,7 @@ sub webdav_path {
   return (File::Spec->catfile($path, $fname), $path, $fname);
 }
 
-sub get_rootdir {
-  my ($self) = @_;
-
-  #TODO immer noch das alte Problem:
-  #je nachdem von woher der Aufruf kommt ist man in ./users oder .
-  my $rootdir  = POSIX::getcwd();
-  my $basename = basename($rootdir);
-  my $dirname  = dirname($rootdir);
-  $rootdir = $dirname if $basename eq 'users';
-  return $rootdir;
-}
+sub get_rootdir { SL::System::Process::exe_dir() }
 
 sub _get_number_from_model {
   my ($self, $dbfile) = @_;
@@ -345,5 +336,3 @@ The synchronization must be tested and a periodical task is needed to synchroniz
 Martin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
 
 =cut
-
-
