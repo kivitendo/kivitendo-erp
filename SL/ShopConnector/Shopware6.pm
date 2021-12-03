@@ -138,10 +138,10 @@ sub update_part {
 
   my $update_p;
   $update_p->{productNumber} = $part->partnumber;
-  $update_p->{name}          = $part->description;
+  $update_p->{name}          = _u8($part->description);
   $update_p->{description}   =   $shop_part->shop->use_part_longdescription
-                               ? $part->notes
-                               : $shop_part->shop_description;
+                               ? _u8($part->notes)
+                               : _u8($shop_part->shop_description);
 
   # locales simple check for english
   my $english = SL::DB::Manager::Language->get_first(query => [ description   => { ilike => 'Englisch' },
@@ -151,8 +151,8 @@ sub update_part {
     # add english translation for product
     # TODO (or not): No Translations for shop_part->shop_description available
     my $translation = first { $english->id == $_->language_id } @{ $part->translations };
-    $update_p->{translations}->{'en-GB'}->{name}        = $translation->{translation};
-    $update_p->{translations}->{'en-GB'}->{description} = $translation->{longdescription};
+    $update_p->{translations}->{'en-GB'}->{name}        = _u8($translation->{translation});
+    $update_p->{translations}->{'en-GB'}->{description} = _u8($translation->{longdescription});
   }
 
   $update_p->{stock}  = $::form->round_amount($part->onhand, 0) if ($todo =~ m/(stock|all)/);
