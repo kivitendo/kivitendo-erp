@@ -266,7 +266,6 @@ sub action_mass_upload {
 
 sub action_update {
   my ($self) = @_;
-
   $self->create_or_update;
 }
 
@@ -288,17 +287,15 @@ sub create_or_update {
   my ($self) = @_;
 
   my $is_new = !$self->shop_part->id;
-
   my $params = delete($::form->{shop_part}) || { };
-
   $self->shop_part->assign_attributes(%{ $params });
-
   $self->shop_part->save;
 
   my ( $price, $price_src_str ) = $self->get_price_n_pricesource($self->shop_part->active_price_source);
-if(!$is_new){
-  flash('info', $is_new ? t8('The shop part has been created.') : t8('The shop part has been saved.'));
-  $self->js->html('#shop_part_description_' . $self->shop_part->id, $self->shop_part->shop_description)
+
+  if(!$is_new){
+    flash('info', $is_new ? t8('The shop part has been created.') : t8('The shop part has been saved.'));
+    $self->js->html('#shop_part_description_' . $self->shop_part->id, $self->shop_part->shop_description)
            ->html('#shop_part_active_' . $self->shop_part->id, $self->shop_part->active)
            ->html('#price_' . $self->shop_part->id, $::form->format_amount(\%::myconfig,$price,2))
            ->html('#active_price_source_' . $self->shop_part->id, $price_src_str)
