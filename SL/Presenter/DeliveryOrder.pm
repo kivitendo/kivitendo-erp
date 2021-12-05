@@ -15,10 +15,37 @@ sub sales_delivery_order {
   return _do_record($delivery_order, 'sales_delivery_order', %params);
 }
 
+sub rma_delivery_order {
+  my ($delivery_order, %params) = @_;
+
+  return _do_new_record($delivery_order, 'rma_delivery_order', %params);
+}
+
 sub purchase_delivery_order {
   my ($delivery_order, %params) = @_;
 
   return _do_record($delivery_order, 'purchase_delivery_order', %params);
+}
+
+sub supplier_delivery_order {
+  my ($delivery_order, %params) = @_;
+
+  return _do_new_record($delivery_order, 'supplier_delivery_order', %params);
+}
+
+sub _do_new_record {
+  my ($delivery_order, $type, %params) = @_;
+
+  $params{display} ||= 'inline';
+
+  croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
+
+  my $text = join '', (
+    $params{no_link} ? '' : '<a href="contoller.pl?action=DeliveryOrder/edit&amp;type=' . $type . '&amp;id=' . escape($delivery_order->id) . '">',
+    escape($delivery_order->donumber),
+    $params{no_link} ? '' : '</a>',
+  );
+  is_escaped($text);
 }
 
 sub _do_record {

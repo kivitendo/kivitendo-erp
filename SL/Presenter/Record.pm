@@ -48,12 +48,14 @@ sub grouped_record_list {
   $output .= _sales_quotation_list(        $groups{sales_quotations},         %params) if $groups{sales_quotations};
   $output .= _sales_order_list(            $groups{sales_orders},             %params) if $groups{sales_orders};
   $output .= _sales_delivery_order_list(   $groups{sales_delivery_orders},    %params) if $groups{sales_delivery_orders};
+  $output .= _rma_delivery_order_list(     $groups{rma_delivery_orders},      %params) if $groups{rma_delivery_orders};
   $output .= _sales_invoice_list(          $groups{sales_invoices},           %params) if $groups{sales_invoices};
   $output .= _ar_transaction_list(         $groups{ar_transactions},          %params) if $groups{ar_transactions};
 
   $output .= _request_quotation_list(      $groups{purchase_quotations},      %params) if $groups{purchase_quotations};
   $output .= _purchase_order_list(         $groups{purchase_orders},          %params) if $groups{purchase_orders};
   $output .= _purchase_delivery_order_list($groups{purchase_delivery_orders}, %params) if $groups{purchase_delivery_orders};
+  $output .= _supplier_delivery_order_list($groups{supplier_delivery_orders}, %params) if $groups{supplier_delivery_orders};
   $output .= _purchase_invoice_list(       $groups{purchase_invoices},        %params) if $groups{purchase_invoices};
   $output .= _ap_transaction_list(         $groups{ap_transactions},          %params) if $groups{ap_transactions};
 
@@ -183,12 +185,14 @@ sub _group_records {
     shop_orders              => sub { (ref($_[0]) eq 'SL::DB::ShopOrder')       &&  $_[0]->id                           },
     sales_quotations         => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_quotation')   },
     sales_orders             => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_order')       },
-    sales_delivery_orders    => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_sales                     },
+    sales_delivery_orders    => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('sales_delivery_order') },
+    rma_delivery_orders      => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('rma_delivery_order')   },
     sales_invoices           => sub { (ref($_[0]) eq 'SL::DB::Invoice')         &&  $_[0]->invoice                      },
     ar_transactions          => sub { (ref($_[0]) eq 'SL::DB::Invoice')         && !$_[0]->invoice                      },
     purchase_quotations      => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('request_quotation') },
     purchase_orders          => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('purchase_order')    },
-    purchase_delivery_orders => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   && !$_[0]->is_sales                     },
+    purchase_delivery_orders => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('purchase_delivery_order') },
+    supplier_delivery_orders => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('supplier_delivery_order') },
     purchase_invoices        => sub { (ref($_[0]) eq 'SL::DB::PurchaseInvoice') &&  $_[0]->invoice                      },
     ap_transactions          => sub { (ref($_[0]) eq 'SL::DB::PurchaseInvoice') && !$_[0]->invoice                      },
     sepa_collections         => sub { (ref($_[0]) eq 'SL::DB::SepaExportItem')  &&  $_[0]->ar_id                        },
@@ -364,6 +368,27 @@ sub _sales_delivery_order_list {
   );
 }
 
+sub _rma_delivery_order_list {
+  my ($list, %params) = @_;
+
+  return record_list(
+    $list,
+    title   => $::locale->text('RMA Delivery Orders'),
+    type    => 'rma_delivery_order',
+    columns => [
+      [ $::locale->text('Delivery Order Date'),     'transdate'                                                                ],
+      [ $::locale->text('Delivery Order Number'),   sub { $_[0]->presenter->rma_delivery_order(display => 'table-cell') }    ],
+      [ $::locale->text('Order Number'),            'ordnumber' ],
+      [ $::locale->text('Customer'),                'customer'                                                                 ],
+      [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
+      [ $::locale->text('Project'),                 'globalproject', ],
+      [ $::locale->text('Delivered'),               'delivered'                                                                ],
+      [ $::locale->text('Closed'),                  'closed'                                                                   ],
+    ],
+    %params,
+  );
+}
+
 sub _purchase_delivery_order_list {
   my ($list, %params) = @_;
 
@@ -374,6 +399,27 @@ sub _purchase_delivery_order_list {
     columns => [
       [ $::locale->text('Delivery Order Date'),     'transdate'                                                                ],
       [ $::locale->text('Delivery Order Number'),   sub { $_[0]->presenter->purchase_delivery_order(display => 'table-cell') } ],
+      [ $::locale->text('Order Number'),            'ordnumber' ],
+      [ $::locale->text('Vendor'),                  'vendor'                                                                 ],
+      [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
+      [ $::locale->text('Project'),                 'globalproject', ],
+      [ $::locale->text('Delivered'),               'delivered'                                                                ],
+      [ $::locale->text('Closed'),                  'closed'                                                                   ],
+    ],
+    %params,
+  );
+}
+
+sub _supplier_delivery_order_list {
+  my ($list, %params) = @_;
+
+  return record_list(
+    $list,
+    title   => $::locale->text('Supplier Delivery Orders'),
+    type    => 'supplier_delivery_order',
+    columns => [
+      [ $::locale->text('Delivery Order Date'),     'transdate'                                                                ],
+      [ $::locale->text('Delivery Order Number'),   sub { $_[0]->presenter->supplier_delivery_order(display => 'table-cell') } ],
       [ $::locale->text('Order Number'),            'ordnumber' ],
       [ $::locale->text('Vendor'),                  'vendor'                                                                 ],
       [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
@@ -662,6 +708,8 @@ The order in which the records are grouped is:
 
 =item * sales delivery orders
 
+=item * rma delivery orders
+
 =item * sales invoices
 
 =item * AR transactions
@@ -671,6 +719,8 @@ The order in which the records are grouped is:
 =item * purchase orders
 
 =item * purchase delivery orders
+
+=item * supplier delivery orders
 
 =item * purchase invoices
 
