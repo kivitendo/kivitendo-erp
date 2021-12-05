@@ -42,6 +42,7 @@ use SL::AM;
 use SL::Common;
 use SL::CVar;
 use SL::DB::DeliveryOrder;
+use SL::DB::DeliveryOrder::TypeData qw(:types is_valid_type);
 use SL::DB::Status;
 use SL::DBUtils;
 use SL::Helper::ShippedQty;
@@ -79,6 +80,7 @@ sub transactions {
          dord.transaction_description, dord.itime::DATE AS insertdate,
          pr.projectnumber AS globalprojectnumber,
          dep.description AS department,
+         dord.order_type,
          e.name AS employee,
          sm.name AS salesman
        FROM delivery_orders dord
@@ -90,7 +92,10 @@ sub transactions {
        LEFT JOIN department dep ON (dord.department_id = dep.id)
 |;
 
-  push @where, ($form->{type} eq 'sales_delivery_order' ? '' : 'NOT ') . qq|COALESCE(dord.is_sales, FALSE)|;
+  if ($form->{type} && is_valid_type($form->{type})) {
+    push @where, 'dord.order_type = ?';
+    push @values, $form->{type};
+  }
 
   if ($form->{department_id}) {
     push @where,  qq|dord.department_id = ?|;
@@ -515,7 +520,7 @@ SQL
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, closed = ?,
          delivered = ?, department_id = ?, language_id = ?, shipto_id = ?, billing_address_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?,
-         is_sales = ?, taxzone_id = ?, taxincluded = ?, payment_id = ?, currency_id = (SELECT id FROM currencies WHERE name = ?),
+         order_type = ?, taxzone_id = ?, taxincluded = ?, payment_id = ?, currency_id = (SELECT id FROM currencies WHERE name = ?),
          delivery_term_id = ?
        WHERE id = ?|;
 
@@ -529,7 +534,7 @@ SQL
              conv_i($form->{globalproject_id}), conv_i($form->{employee_id}),
              conv_i($form->{salesman_id}), conv_i($form->{cp_id}),
              $form->{transaction_description},
-             $form->{type} =~ /^sales/ ? 't' : 'f',
+             $form->{type} =~ /^sales/ ? SALES_DELIVERY_ORDER_TYPE : PURCHASE_DELIVERY_ORDER_TYPE,
              conv_i($form->{taxzone_id}), $form->{taxincluded} ? 't' : 'f', conv_i($form->{payment_id}), $form->{currency},
              conv_i($form->{delivery_term_id}),
              conv_i($form->{id}));
