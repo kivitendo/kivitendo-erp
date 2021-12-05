@@ -76,7 +76,7 @@ sub _before_save_set_shippingdate {
 sub _before_save_set_employee {
   my ($self, %params) = @_;
 
-  return 1 if $self->emplyee_id;
+  return 1 if $self->employee_id;
 
   $self->employee(SL::DB::Manager::Employee->current);
 
