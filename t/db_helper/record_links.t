@@ -19,6 +19,7 @@ use SL::DB::Employee;
 use SL::DB::Invoice;
 use SL::DB::Order;
 use SL::DB::DeliveryOrder;
+use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Part;
 use SL::DB::Unit;
 use SL::DB::TaxZone;
@@ -86,6 +87,7 @@ sub new_delivery_order {
     employee_id => $employee->id,
     salesman_id => $employee->id,
     taxzone_id  => $taxzone->id,
+    order_type => SALES_DELIVERY_ORDER_TYPE,
     %params,
   )->save;
 }
