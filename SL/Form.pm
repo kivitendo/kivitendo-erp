@@ -2956,7 +2956,7 @@ sub get_history {
       qq|SELECT h.employee_id, h.itime::timestamp(0) AS itime, h.addition, h.what_done, emp.name, h.snumbers, h.trans_id AS id | .
       qq|FROM history_erp h | .
       qq|LEFT JOIN employee emp ON (emp.id = h.employee_id) | .
-      qq|WHERE (trans_id = | . $trans_id . qq|) $restriction | .
+      qq|WHERE (trans_id = | . $dbh->quote($trans_id) . qq|) $restriction | .
       $order;
 
     my $sth = $dbh->prepare($query) || $self->dberror($query);
