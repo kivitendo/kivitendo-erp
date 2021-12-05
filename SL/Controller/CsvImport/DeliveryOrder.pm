@@ -9,6 +9,7 @@ use DateTime;
 
 use SL::Controller::CsvImport::Helper::Consistency;
 use SL::DB::DeliveryOrder;
+use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::DeliveryOrderItem;
 use SL::DB::DeliveryOrderItemsStock;
 use SL::DB::Part;
@@ -215,10 +216,10 @@ sub setup_displayable_columns {
                                  { name => 'globalprojectnumber',     description => $::locale->text('Document Project (number)')             },
                                  { name => 'globalproject_id',        description => $::locale->text('Document Project (database ID)')        },
                                  { name => 'intnotes',                description => $::locale->text('Internal Notes')                        },
-                                 { name => 'is_sales',                description => $::locale->text('Is sales')                              },
                                  { name => 'language',                description => $::locale->text('Language (name)')                       },
                                  { name => 'language_id',             description => $::locale->text('Language (database ID)')                },
                                  { name => 'notes',                   description => $::locale->text('Notes')                                 },
+                                 { name => 'order_type',              description => $::locale->text('Delivery Order Type')                   },
                                  { name => 'ordnumber',               description => $::locale->text('Order Number')                          },
                                  { name => 'payment',                 description => $::locale->text('Payment terms (name)')                  },
                                  { name => 'payment_id',              description => $::locale->text('Payment terms (database ID)')           },
@@ -553,7 +554,7 @@ sub handle_order {
     push @{ $entry->{errors} }, $::locale->text('Error: Customer/vendor missing');
   }
 
-  $self->handle_is_sales($entry);
+  $self->handle_type($entry);
   $self->check_contact($entry);
   $self->check_language($entry);
   $self->check_payment($entry);
@@ -685,11 +686,19 @@ sub handle_stock {
   }
 }
 
-sub handle_is_sales {
+sub handle_type {
   my ($self, $entry) = @_;
 
-  if (!exists $entry->{raw_data}->{is_sales}) {
-    $entry->{object}->is_sales(!!$entry->{object}->customer_id);
+  if (!exists $entry->{raw_data}->{order_type}) {
+    # if no type is present - set to sales delivery order or purchase delivery
+    # order depending on is_sales or customer/vendor
+
+    $entry->{object}->order_type(
+      $entry->{object}->customer_id  ? SALES_DELIVERY_ORDER_TYPE :
+      $entry->{object}->vendor_id    ? PURCHASE_DELIVERY_ORDER_TYPE :
+      $entry->{raw_data}->{is_sales} ? SALES_DELIVERY_ORDER_TYPE :
+                                       PURCHASE_DELIVERY_ORDER_TYPE
+    );
   }
 }
 
