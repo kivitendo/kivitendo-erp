@@ -1042,7 +1042,7 @@ sub action_transfer_stock {
   # TODO move to type data
   my $trans_type = $self->type_data->properties('transfer') eq 'in'
     ? SL::DB::Manager::TransferType->find_by(direction => "id", description => "stock")
-    : SL::DB::Manager::TransferType->find_by(direction => "out", deescription => "shipped");
+    : SL::DB::Manager::TransferType->find_by(direction => "out", description => "shipped");
 
   my @transfer_requests;
 
