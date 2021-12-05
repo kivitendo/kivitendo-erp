@@ -1059,9 +1059,9 @@ sub action_transfer_stock {
     $self->js->flash("error", t8("No stock to transfer"))->render;
   }
 
-  SL::DB->with_transaction(sub {
+  SL::DB->client->with_transaction(sub {
     $_->save for @transfer_requests;
-    $self->order->update_attributes(deliverd => 1);
+    $self->order->update_attributes(delivered => 1);
   });
 
   $self->js->flash("info", t8("Stock transfered"))->render;

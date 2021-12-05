@@ -51,7 +51,7 @@ sub displayable_delivery_order_info {
 sub effective_project {
   my ($self) = @_;
 
-  $self->project // $self->delivery_order->project;
+  $self->project // $self->delivery_order->globalproject;
 }
 
 __END__

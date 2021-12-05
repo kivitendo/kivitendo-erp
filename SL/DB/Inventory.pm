@@ -33,15 +33,14 @@ sub new_from {
 }
 
 sub new_from_delivery_order_stock {
-  my ($stock) = @_;
+  my ($class, $stock) = @_;
 
   my $project = $stock->delivery_order_item->effective_project;
 
-  return __PACKAGE__->new(
+  return $class->new(
     delivery_order_items_stock_id => $stock->id,
     parts_id                      => $stock->delivery_order_item->parts_id,
-    qty                           => $stock->unit->convert_to($stock->qty => $stock->delivery_order_item->part->unit_obj),
-    unit                          => $stock->delivery_order_item->part->unit_obj,
+    qty                           => $stock->unit_obj->convert_to($stock->qty => $stock->delivery_order_item->part->unit_obj),
     warehouse_id                  => $stock->warehouse_id,
     bin_id                        => $stock->bin_id,
     chargenumber                  => $stock->chargenumber,
