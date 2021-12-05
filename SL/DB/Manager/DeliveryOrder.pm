@@ -28,8 +28,9 @@ __PACKAGE__->add_filter_specs(
 sub type_filter {
   my $class = shift;
   my $type  = lc(shift || '');
+  my $prefix = shift // '';
 
-  return order_type => validate_type($type);
+  return "${prefix}order_type" => validate_type($type);
 }
 
 sub _sort_spec {
