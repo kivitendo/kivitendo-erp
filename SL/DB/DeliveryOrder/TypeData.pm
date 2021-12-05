@@ -154,11 +154,13 @@ sub is_valid_type {
 sub validate_type {
   my ($type) = @_;
 
-  return $valid_types{$type} // confess "invalid type '$type'";
+  return $valid_types{$type} // croak "invalid type '$type'";
 }
 
 sub get {
   my ($type, $key) = @_;
+
+  croak "invalid type '$type'" unless exists $type_data{$type};
 
   my $ret = $type_data{$type}->{$key} // die "unknown property '$key'";
 
@@ -170,7 +172,9 @@ sub get {
 sub get3 {
   my ($type, $topic, $key) = @_;
 
-  my $ret = $type_data{$type}{$topic}{$key} // die "unknown property '$key' in topic '$topic' for type '$type'";
+  croak "invalid type '$type'" unless exists $type_data{$type};
+
+  my $ret = $type_data{$type}{$topic}{$key} // croak "unknown property '$key' in topic '$topic' for type '$type'";
 
   ref $ret eq 'CODE'
     ? $ret->()
