@@ -21,21 +21,10 @@ use SL::DB::Helper::CustomVariables (
     }
   },
 );
-use SL::Helper::ShippedQty;
 
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(reclamation_id)]);
-
-sub shipped_qty {
-  my ($self, %params) = @_;
-
-  my $force = delete $params{force};
-
-  SL::Helper::ShippedQty->new(%params)->calculate($self)->write_to_objects if $force || !defined $self->{shipped_qty};
-
-  $self->{shipped_qty};
-}
 
 sub is_linked_to_record {
   my ($self) = @_;
@@ -131,7 +120,6 @@ sub customervendor {
   return $self->reclamation->customervendor;
 }
 
-sub delivered_qty { goto &shipped_qty }
 sub record { goto &reclamation }
 sub record_id { goto &reclamation_id }
 sub trans_id { goto &reclamation_id }
@@ -148,31 +136,6 @@ __END__
 SL::DB::ReclamationItems: Rose model for reclamationitems
 
 =head1 FUNCTIONS
-
-=over 4
-
-=item C<shipped_qty PARAMS>
-
-Calculates the shipped qty for this reclamationitem (measured in the current unit)
-and returns it.
-
-Note that the shipped qty is expected not to change within the request and is
-cached in C<shipped_qty> once calculated. If C<< force => 1 >> is passed, the
-existibng cache is ignored.
-
-Given parameters will be passed to L<SL::Helper::ShippedQty>, so you can force
-the shipped/delivered distinction like this:
-
-  $_->shipped_qty(require_stock_out => 0);
-
-Note however that calculating shipped_qty on individual Reclamationitems is generally
-a bad idea. See L<SL::Helper::ShippedQty> for way to compute these all at once.
-
-=item C<delivered_qty>
-
-Alias for L</shipped_qty>.
-
-=back
 
 =head1 AUTHORS
 

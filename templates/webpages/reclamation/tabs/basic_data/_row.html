@@ -84,9 +84,6 @@
                      style='width: 150px') %]
     </td>
     <td nowrap>
-      [%- L.div_tag(LxERP.format_amount(ITEM.shipped_qty, 2, 0) _ ' ' _ ITEM.unit, name="shipped_qty", class="numeric") %]
-    </td>
-    <td nowrap>
       [%- L.input_tag("reclamation.reclamation_items[].qty_as_number",
                       ITEM.qty_as_number,
                       size = 5,
