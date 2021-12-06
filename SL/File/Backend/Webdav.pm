@@ -11,6 +11,7 @@ use File::Slurp;
 use File::Basename;
 use File::Path qw(make_path);
 use File::MimeInfo::Magic;
+use File::stat;
 
 #
 # public methods
@@ -74,8 +75,7 @@ sub get_mtime {
   $main::lxdebug->message(LXDebug->DEBUG2(), "version=" .$params{version});
   my ($path, undef, undef) = $self->webdav_path($params{dbfile});
   die "No file found in Backend: " . $path unless -f $path;
-  my @st = stat($path);
-  my $dt = DateTime->from_epoch(epoch => $st[9])->clone();
+  my $dt = DateTime->from_epoch(epoch => stat($path)->mtime, time_zone => $::locale->get_local_time_zone()->name)->clone();
   $main::lxdebug->message(LXDebug->DEBUG2(), "dt=" .$dt);
   return $dt;
 }
