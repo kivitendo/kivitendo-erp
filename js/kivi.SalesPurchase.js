@@ -313,7 +313,7 @@ namespace('kivi.SalesPurchase', function(ns) {
   this.activate_send_email_actions_regarding_printout = function() {
     var selected = $('#email_form_attachment_policy').val();
     $('#email_form_attachment_filename').parents('tr')[selected !== 'no_file' ? 'show' : 'hide']();
-    $('#email_form_print_options')[selected === 'normal' ? 'show' : 'hide']();
+    $('#email_form_print_options')[selected !== 'no_file' ? 'show' : 'hide']();
   };
 
   // Printing records.
