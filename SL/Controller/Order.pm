@@ -330,7 +330,7 @@ sub action_print {
     $self->js->flash('info', t8('The document has been printed.'));
   }
 
-  my @warnings = $self->store_doc_to_webdav_and_filemanagement($doc, $doc_filename);
+  my @warnings = $self->store_doc_to_webdav_and_filemanagement($doc, $doc_filename, $formname);
   if (scalar @warnings) {
     $self->js->flash('warning', $_) for @warnings;
   }
@@ -479,9 +479,10 @@ sub action_send_email {
   # Is an old file version available?
   my $attfile;
   if ($::form->{attachment_policy} eq 'old_file') {
-    $attfile = SL::File->get_all(object_id   => $self->order->id,
-                                 object_type => $::form->{formname},
-                                 file_type   => 'document');
+    $attfile = SL::File->get_all(object_id     => $self->order->id,
+                                 object_type   => $self->type,
+                                 file_type     => 'document',
+                                 print_variant => $::form->{formname});
   }
 
   if ($::form->{attachment_policy} ne 'no_file' && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
@@ -496,7 +497,7 @@ sub action_send_email {
       return $self->js->flash('error', t8('Generating the document failed: #1', $errors[0]))->render($self);
     }
 
-    my @warnings = $self->store_doc_to_webdav_and_filemanagement($doc, $::form->{attachment_filename});
+    my @warnings = $self->store_doc_to_webdav_and_filemanagement($doc, $::form->{attachment_filename}, $::form->{formname});
     if (scalar @warnings) {
       flash_later('warning', $_) for @warnings;
     }
@@ -2325,7 +2326,7 @@ sub save_history {
 }
 
 sub store_doc_to_webdav_and_filemanagement {
-  my ($self, $content, $filename) = @_;
+  my ($self, $content, $filename, $variant) = @_;
 
   my $order = $self->order;
   my @errors;
@@ -2355,7 +2356,8 @@ sub store_doc_to_webdav_and_filemanagement {
                      source        => 'created',
                      file_type     => 'document',
                      file_name     => $filename,
-                     file_contents => $content);
+                     file_contents => $content,
+                     print_variant => $variant);
       1;
     } or do {
       push @errors, t8('Storing the document in the storage backend failed: #1', $@);
