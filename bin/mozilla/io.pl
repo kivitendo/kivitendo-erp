@@ -2161,9 +2161,10 @@ sub send_sales_purchase_email {
   # Is an old file version available?
   my $attfile;
   if ($::form->{attachment_policy} eq 'old_file') {
-    $attfile = SL::File->get_all(object_id   => $id,
-                                 object_type => $::form->{formname},
-                                 file_type   => 'document');
+    $attfile = SL::File->get_all(object_id     => $id,
+                                 object_type   => $type,
+                                 file_type     => 'document',
+                                 print_variant => $::form->{formname},);
   }
 
   if ($::form->{attachment_policy} eq 'no_file' || ($::form->{attachment_policy} eq 'old_file' && $attfile)) {

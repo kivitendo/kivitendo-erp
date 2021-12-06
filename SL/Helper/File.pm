@@ -25,13 +25,14 @@ sub store_pdf {
   return if !$id || !$type;
 
   SL::File->save(
-    object_id   => $id,
-    object_type => $type,
-    mime_type   => 'application/pdf',
-    source      => 'created',
-    file_type   => 'document',
-    file_name   => $form->{attachment_filename},
-    file_path   => $form->{tmpfile},
+    object_id     => $id,
+    object_type   => $type,
+    mime_type     => 'application/pdf',
+    source        => 'created',
+    file_type     => 'document',
+    file_name     => $form->{attachment_filename},
+    file_path     => $form->{tmpfile},
+    print_variant => $form->{formname},
   );
 }
 

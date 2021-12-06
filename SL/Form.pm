@@ -975,9 +975,10 @@ sub send_email {
     $attachment_name     =~ s{\.(.+?)$}{.${ext_for_format}} if ($ext_for_format);
 
     if (($self->{attachment_policy} // '') eq 'old_file') {
-      my ( $attfile ) = SL::File->get_all(object_id   => $self->{id},
-                                          object_type => $self->{formname},
-                                          file_type   => 'document');
+      my ( $attfile ) = SL::File->get_all(object_id     => $self->{id},
+                                          object_type   => $self->{type},
+                                          file_type     => 'document',
+                                          print_variant => $self->{formname},);
 
       if ($attfile) {
         $attfile->{override_file_name} = $attachment_name if $attachment_name;
