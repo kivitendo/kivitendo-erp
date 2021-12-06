@@ -587,6 +587,7 @@ $self->{texts} = {
   'Cannot post a transaction without a value!' => 'Eine Buchung ohne Betrag kann nicht vorgenommen werden!',
   'Cannot post invoice and/or transfer out! Error message:' => 'Rechnung kann nicht gebucht oder es kann nicht ausgelagert werden. Fehlermeldung:',
   'Cannot post invoice for a closed period!' => 'Das Rechnungsdatum fällt in einen abgeschlossen Zeitraum!',
+  'Cannot post invoice for advance payment with more than one tax' => 'Anzahlungsrechnung mit mehr als einem Steuersatz kann nicht gebucht werden',
   'Cannot post invoice!'        => 'Rechnung kann nicht gebucht werden!',
   'Cannot post payment for a closed period!' => 'Es können keine Zahlungen für abgeschlossene Bücher gebucht werden!',
   'Cannot post payment!'        => 'Zahlung kann nicht gebucht werden!',

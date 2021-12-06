@@ -587,6 +587,7 @@ $self->{texts} = {
   'Cannot post a transaction without a value!' => '',
   'Cannot post invoice and/or transfer out! Error message:' => '',
   'Cannot post invoice for a closed period!' => '',
+  'Cannot post invoice for advance payment with more than one tax' => '',
   'Cannot post invoice!'        => '',
   'Cannot post payment for a closed period!' => '',
   'Cannot post payment!'        => '',
