@@ -736,7 +736,7 @@ sub retrieve_accounts {
 
   # transdate madness.
   my $transdate = "";
-  if ( (any {$form->{type} eq $_} qw(invoice credit_note invoice_for_advance_payment)) or ($form->{script} eq 'ir.pl') ) {
+  if ( (any {$form->{type} eq $_} qw(invoice credit_note invoice_for_advance_payment final_invoice)) or ($form->{script} eq 'ir.pl') ) {
     # use deliverydate for sales and purchase invoice, if it exists
     # also use deliverydate for credit notes
     $transdate = $form->{tax_point} || $form->{deliverydate} || $form->{invdate};

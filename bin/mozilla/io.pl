@@ -1210,6 +1210,10 @@ sub print_form {
     $form->{label} = $locale->text('Invoice for Advance Payment');
   }
 
+  if ($form->{formname} eq "final_invoice") {
+    $form->{label} = $locale->text('Final Invoice');
+  }
+
   if ($form->{formname} eq 'sales_order') {
     $inv                  = "ord";
     $due                  = "req";
@@ -1307,7 +1311,7 @@ sub print_form {
   }
 
   $form->{TEMPLATE_DRIVER_OPTIONS} = { };
-  if (any { $form->{type} eq $_ } qw(sales_quotation sales_order sales_delivery_order invoice invoice_for_advance_payment request_quotation purchase_order purchase_delivery_order credit_note)) {
+  if (any { $form->{type} eq $_ } qw(sales_quotation sales_order sales_delivery_order invoice invoice_for_advance_payment final_invoice request_quotation purchase_order purchase_delivery_order credit_note)) {
     $form->{TEMPLATE_DRIVER_OPTIONS}->{variable_content_types} = $form->get_variable_content_types();
   }
 
@@ -1891,6 +1895,7 @@ sub _make_record_item {
     request_quotation       => 'OrderItem',
     invoice                 => 'InvoiceItem',
     invoice_for_advance_payment => 'InvoiceItem',
+    final_invoice           => 'InvoiceItem',
     credit_note             => 'InvoiceItem',
     purchase_invoice        => 'InvoiceItem',
     purchase_delivery_order => 'DeliveryOrderItem',

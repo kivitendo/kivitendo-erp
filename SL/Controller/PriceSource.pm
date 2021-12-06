@@ -84,6 +84,7 @@ sub _make_record_item {
     request_quotation       => 'OrderItem',
     invoice                 => 'InvoiceItem',
     invoice_for_advance_payment => 'InvoiceItem',
+    final_invoice           => 'InvoiceItem',
     purchase_invoice        => 'InvoiceItem',
     credit_note             => 'InvoiceItem',
     purchase_delivery_order => 'DeliveryOrderItem',

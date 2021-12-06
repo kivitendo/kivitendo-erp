@@ -1212,6 +1212,9 @@ sub ar_transactions {
         $is_storno        ? $locale->text("Storno (one letter abbreviation)") :
                             $locale->text("Invoice for Advance Payment (one letter abbreviation)");
 
+    } elsif ($ar->{type} eq 'final_invoice') {
+      $ar->{type} = t8('Final Invoice (one letter abbreviation)');
+
     } else {
       $ar->{type} =
         $has_storno       ? $locale->text("Invoice with Storno (abbreviation)") :

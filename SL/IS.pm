@@ -1061,8 +1061,7 @@ SQL
   # entsprechend auch beim Bestimmen des Steuerschlüssels in Taxkey.pm berücksichtigen
   my $taxdate = $form->{tax_point} ||$form->{deliverydate} || $form->{invdate};
 
-  # better type? maybe define Invoice->invoice_type
-  if (!$already_booked && $form->{type} ne 'invoice_for_advance_payment') {
+  if (!$already_booked && $form->{type} eq 'final_invoice') {
     my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id});
     if (scalar @$invoices_for_advance_payment > 0) {
       # reverse booking for invoices for advance payment

@@ -95,6 +95,9 @@ sub add {
   } elsif ($form->{type} eq "invoice_for_advance_payment") {
     $form->{title} = $locale->text('Add Invoice for Advance Payment');
 
+  } elsif ($form->{type} eq "final_invoice") {
+    $form->{title} = $locale->text('Final Invoice');
+
   } else {
     $form->{title} = $locale->text('Add Sales Invoice');
 
@@ -142,6 +145,9 @@ sub edit {
   } elsif ($form->{type} eq "invoice_for_advance_payment") {
     $form->{title} = $locale->text('Edit Invoice for Advance Payment');
     $form->{title} = $locale->text('Edit Storno Invoice for Advance Payment') if $form->{storno};
+
+  } elsif ($form->{type} eq "final_invoice") {
+    $form->{title} = $locale->text('Edit Final Invoice');
 
   } else {
     $form->{title} = $locale->text('Edit Sales Invoice');
@@ -252,6 +258,10 @@ sub prepare_invoice {
   } elsif ($form->{type} eq "invoice_for_advance_payment") {
     $form->{type}     = "invoice_for_advance_payment";
     $form->{formname} = "invoice_for_advance_payment";
+
+  } elsif ($form->{type} eq "final_invoice") {
+    $form->{type}     = "final_invoice";
+    $form->{formname} = "final_invoice";
 
   } elsif ($form->{formname} eq "proforma" ) {
     $form->{type}     = "invoice";
@@ -1214,7 +1224,7 @@ sub final_invoice {
 
   $form->{convert_from_ar_ids} = $form->{id};
   $form->{id}                  = '';
-  $form->{type}                = 'invoice';
+  $form->{type}                = 'final_invoice';
   $form->{title}               = t8('Edit Final Invoice');
   $form->{paidaccounts}        = 1;
   $form->{invdate}             = $form->current_date(\%myconfig);
