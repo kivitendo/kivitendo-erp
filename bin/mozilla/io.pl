@@ -2156,7 +2156,17 @@ sub send_sales_purchase_email {
 
   $::form->{media} = 'email';
 
-  if (($::form->{attachment_policy} // '') =~ m{^(?:old_file|no_file)$}) {
+  $::form->{attachment_policy} //= '';
+
+  # Is an old file version available?
+  my $attfile;
+  if ($::form->{attachment_policy} eq 'old_file') {
+    $attfile = SL::File->get_all(object_id   => $id,
+                                 object_type => $::form->{formname},
+                                 file_type   => 'document');
+  }
+
+  if ($::form->{attachment_policy} eq 'no_file' || ($::form->{attachment_policy} eq 'old_file' && $attfile)) {
     $::form->send_email(\%::myconfig, 'pdf');
 
   } else {
