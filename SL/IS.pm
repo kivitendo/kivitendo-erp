@@ -1082,7 +1082,7 @@ SQL
     }
   }
 
-  if (!$already_booked && $form->{type} eq 'final_invoice') {
+  if ($form->{type} eq 'final_invoice') {
     my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id});
     if (scalar @$invoices_for_advance_payment > 0) {
       # reverse booking for invoices for advance payment
@@ -1101,11 +1101,25 @@ SQL
         #     if deletion of final invoice is allowed, reverting bookings in invoices
         #     for advance payment are allowed, too.
         # $booking->id, $self->id in helper table
-        $form->{amount}->{$invoice_for_advance_payment->id}->{$advance_payment_clearing_chart->accno} = -1 * $invoice_for_advance_payment->netamount;
-        $form->{memo}  ->{$invoice_for_advance_payment->id}->{$advance_payment_clearing_chart->accno} = 'reverse booking by final invoice';
-        # AR
-        $form->{amount}->{$invoice_for_advance_payment->id}->{$form->{AR}} = $invoice_for_advance_payment->netamount;
-        $form->{memo}  ->{$invoice_for_advance_payment->id}->{$form->{AR}} = 'reverse booking by final invoice';
+        if (!$already_booked) {
+          $form->{amount}->{$invoice_for_advance_payment->id}->{$advance_payment_clearing_chart->accno} = -1 * $invoice_for_advance_payment->netamount;
+          $form->{memo}  ->{$invoice_for_advance_payment->id}->{$advance_payment_clearing_chart->accno} = 'reverse booking by final invoice';
+          # AR
+          $form->{amount}->{$invoice_for_advance_payment->id}->{$form->{AR}} = $invoice_for_advance_payment->netamount;
+          $form->{memo}  ->{$invoice_for_advance_payment->id}->{$form->{AR}} = 'reverse booking by final invoice';
+        }
+
+        # VAT for invoices for advance payment is booked on payment of these. So do not book this VAT for final invoice.
+        # Collect VAT of invoices for advance payment.
+        # Set sellprices to fxsellprices for items, because
+        # the PriceTaxCalculator sets fxsellprice from sellprice before calculating.
+        $_->sellprice($_->fxsellprice) for @{$invoice_for_advance_payment->items};
+        my %pat = $invoice_for_advance_payment->calculate_prices_and_taxes;
+
+        foreach my $tax_chart_id (keys %{ $pat{taxes_by_chart_id} }) {
+          my $tax_accno = SL::DB::Chart->new(id => $tax_chart_id)->load->accno;
+          $form->{amount}{ $form->{id} }{$tax_accno} -= $pat{taxes_by_chart_id}->{$tax_chart_id};
+        }
       }
     }
   }
