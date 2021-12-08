@@ -292,7 +292,7 @@ sub pay_invoice {
     push @new_acc_ids, $arap_booking->acc_trans_id;
 
     # hook for invoice_for_advance_payment DATEV always pairs, acc_trans_id has to be higher than arap_booking ;-)
-    if ($self->type eq 'invoice_for_advance_payment') {
+    if ($self->invoice_type eq 'invoice_for_advance_payment') {
       my $clearing_chart = SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_clearing_chart_id)->load;
       die "No Clearing Chart for Advance Payment" unless ref $clearing_chart eq 'SL::DB::Chart';
 
