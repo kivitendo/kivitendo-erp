@@ -36,6 +36,7 @@
 package IS;
 
 use List::Util qw(max sum0);
+use List::MoreUtils qw(any);
 
 use Carp;
 use SL::AM;
@@ -1065,12 +1066,26 @@ SQL
   # entsprechend auch beim Bestimmen des Steuerschlüssels in Taxkey.pm berücksichtigen
   my $taxdate = $form->{tax_point} ||$form->{deliverydate} || $form->{invdate};
 
+  # Sanity checks for invoices for advance payment and final invoices
+  my $advance_payment_clearing_chart;
+  if (any { $_ eq $form->{type} } qw(invoice_for_advance_payment final_invoice)) {
+    $advance_payment_clearing_chart = SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_clearing_chart_id)->load;
+    die "No Clearing Chart for Advance Payment" unless ref $advance_payment_clearing_chart eq 'SL::DB::Chart';
+
+    my @current_taxaccounts = (split(/ /, $form->{taxaccounts}));
+    die 'Wrong call: Cannot post invoice for advance payment or final invoice with more than one tax' if (scalar @current_taxaccounts > 1);
+
+    my @trans_ids = keys %{ $form->{amount} };
+    if (scalar @trans_ids > 1) {
+      require Data::Dumper;
+      die "Invalid state for advance payment more than one trans_id " . Dumper($form->{amount});
+    }
+  }
+
   if (!$already_booked && $form->{type} eq 'final_invoice') {
     my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id});
     if (scalar @$invoices_for_advance_payment > 0) {
       # reverse booking for invoices for advance payment
-      my $clearing_chart = SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_clearing_chart_id)->load;
-      die "No Clearing Chart for Advance Payment" unless ref $clearing_chart eq 'SL::DB::Chart';
       foreach my $invoice_for_advance_payment (@$invoices_for_advance_payment) {
         # delete ?
         # --> is implemented below (bookings are marked in memo field)
@@ -1086,36 +1101,24 @@ SQL
         #     if deletion of final invoice is allowed, reverting bookings in invoices
         #     for advance payment are allowed, too.
         # $booking->id, $self->id in helper table
-        $form->{amount}->{$invoice_for_advance_payment->id}->{$clearing_chart->accno} = -1 * $invoice_for_advance_payment->netamount;
-        $form->{memo}  ->{$invoice_for_advance_payment->id}->{$clearing_chart->accno} = 'reverse booking by final invoice';
+        $form->{amount}->{$invoice_for_advance_payment->id}->{$advance_payment_clearing_chart->accno} = -1 * $invoice_for_advance_payment->netamount;
+        $form->{memo}  ->{$invoice_for_advance_payment->id}->{$advance_payment_clearing_chart->accno} = 'reverse booking by final invoice';
         # AR
         $form->{amount}->{$invoice_for_advance_payment->id}->{$form->{AR}} = $invoice_for_advance_payment->netamount;
         $form->{memo}  ->{$invoice_for_advance_payment->id}->{$form->{AR}} = 'reverse booking by final invoice';
       }
     }
   }
+
   if ($form->{type} eq 'invoice_for_advance_payment') {
-    # sanity and decomplex, allow only one tax rate
-    my $clearing_chart = SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_clearing_chart_id)->load;
-    die "No Clearing Chart for Advance Payment" unless ref $clearing_chart eq 'SL::DB::Chart';
-
-    my @current_taxaccounts = (split(/ /, $form->{taxaccounts}));
-    die 'Wrong Call, cannot post invoice for advance payment with more than one tax' if (scalar @current_taxaccounts > 1);
-
-    my @trans_ids = keys %{ $form->{amount} };
-    if (scalar @trans_ids > 1) {
-      require Data::Dumper;
-      die "Invalid state for advance payment more than one trans_id " . Dumper($form->{amount});
-    }
-
     # get gross and move to clearing chart - delete everything else
     # 1. gross
-    my $gross = $form->{amount}{$trans_ids[0]}{$form->{AR}};
+    my $gross = $form->{amount}{ $form->{id} }{$form->{AR}};
     # 2. destroy
-    undef $form->{amount}{$trans_ids[0]};
+    undef $form->{amount}{ $form->{id} };
     # 3. rebuild
-    $form->{amount}{$trans_ids[0]}{$form->{AR}}            = $gross;
-    $form->{amount}{$trans_ids[0]}{$clearing_chart->accno} = $gross * -1;
+    $form->{amount}{ $form->{id} }{$form->{AR}}            = $gross;
+    $form->{amount}{ $form->{id} }{$advance_payment_clearing_chart->accno} = $gross * -1;
     # 4. no cogs, hopefully not commonly used at all
     undef $form->{amount_cogs};
   }
