@@ -13,7 +13,7 @@ BEGIN
     BEGIN
       IF ( SELECT COUNT(accno) FROM chart WHERE accno LIKE new_accno ) = 0 THEN
         INSERT INTO chart (accno, description, charttype, category, link, taxkey_id)
-          VALUES (new_accno, 'Verrechnungskonto erhalt. Anzahl. bei Buchung über Debitorenkonto','A', 'L', 'AR', 0);
+          VALUES (new_accno, 'Verrechnungskonto erhalt. Anzahl. bei Buchung über Debitorenkonto','A', 'L', 'AR_amount', 0);
         INSERT INTO taxkeys (chart_id, tax_id, taxkey_id, startdate)
           VALUES ((SELECT id FROM chart WHERE accno LIKE new_accno), 0, 0, '1970-01-01');
       END IF;
@@ -27,7 +27,7 @@ BEGIN
     BEGIN
       IF ( SELECT COUNT(accno) FROM chart WHERE accno LIKE new_accno ) = 0 THEN
         INSERT INTO chart (accno, description, charttype, category, link, taxkey_id)
-          VALUES (new_accno, 'Verrechnungskonto erhalt. Anzahl. bei Buchung über Debitorenkonto','A', 'L', 'AR', 0);
+          VALUES (new_accno, 'Verrechnungskonto erhalt. Anzahl. bei Buchung über Debitorenkonto','A', 'L', 'AR_amount', 0);
         INSERT INTO taxkeys (chart_id, tax_id, taxkey_id, startdate)
           VALUES ((SELECT id FROM chart WHERE accno LIKE new_accno), 0, 0, '1970-01-01');
       END IF;
