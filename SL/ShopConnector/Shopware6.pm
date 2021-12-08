@@ -706,7 +706,7 @@ sub import_data_to_shop_order {
       $position++;
       my $price       = $::form->round_amount($pos->{unitPrice}, 2); # unit
       my %pos_columns = ( description          => $pos->{product}->{description},
-                          partnumber           => $pos->{label},
+                          partnumber           => $pos->{product}->{productNumber},
                           price                => $price,
                           quantity             => $pos->{quantity},
                           position             => $position,
