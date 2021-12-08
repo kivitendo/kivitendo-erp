@@ -578,6 +578,10 @@ sub invoice_details {
   $form->{$_} = $form->format_amount($myconfig, $form->{$_}, 2) for @separate_totals;
 
   foreach my $invoice_for_advance_payment (@{$self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id})}) {
+    # Collect VAT of invoices for advance payment.
+    # Set sellprices to fxsellprices for items, because
+    # the PriceTaxCalculator sets fxsellprice from sellprice before calculating.
+    $_->sellprice($_->fxsellprice) for @{$invoice_for_advance_payment->items};
     my %pat       = $invoice_for_advance_payment->calculate_prices_and_taxes;
     my $taxamount = sum0 values %{ $pat{taxes_by_tax_id} };
 
