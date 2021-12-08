@@ -1252,7 +1252,7 @@ sub final_invoice {
       $form->{"partnumber_$i"} = $item->part->partnumber;
       $form->{"discount_$i"}   = $item->discount*100.0;
       $form->{"sellprice_$i"}  = $item->fxsellprice;
-      $form->{$_ . "_" . $i}   = $item->$_       for qw(description longdescription qty price_factor_id unit sellprice active_price_source active_discount_source);
+      $form->{$_ . "_" . $i}   = $item->$_       for qw(description longdescription qty price_factor_id unit active_price_source active_discount_source);
 
       $form->{$_ . "_" . $i}   = $form->format_amount(\%myconfig, $form->{$_ . "_" . $i}) for qw(qty sellprice discount);
     }
