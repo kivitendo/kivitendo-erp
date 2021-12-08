@@ -629,7 +629,6 @@ sub action_save_and_credit_note {
 sub action_customer_vendor_changed {
   my ($self) = @_;
 
-  $self->setup_reclamation_from_cv($self->reclamation);
   $self->recalc();
 
   my $cv_method = $self->cv;
@@ -1438,7 +1437,6 @@ sub make_reclamation {
     my $cv_id_method = $self->cv . '_id';
     if ($::form->{$cv_id_method}) {
       $reclamation->$cv_id_method($::form->{$cv_id_method});
-      $self->setup_reclamation_from_cv($reclamation);
     }
   }
 
@@ -1578,24 +1576,6 @@ sub new_item {
 
   $item->reclamation($record);
   return $item;
-}
-
-sub setup_reclamation_from_cv {
-  my ($self, $reclamation) = @_;
-
-  $reclamation->$_($reclamation->customervendor->$_) for (qw(taxzone_id payment_id delivery_term_id currency_id));
-
-  $reclamation->intnotes($reclamation->customervendor->notes);
-
-  if ($reclamation->is_sales ) {
-    $reclamation->salesman_id($reclamation->customer->salesman_id || SL::DB::Manager::Employee->current->id);
-    $reclamation->taxincluded(
-      defined($reclamation->customervendor->taxincluded_checked)
-        ? $reclamation->customervendor->taxincluded_checked
-        : $::myconfig{taxincluded_checked}
-    );
-  }
-
 }
 
 # setup custom shipto from form
