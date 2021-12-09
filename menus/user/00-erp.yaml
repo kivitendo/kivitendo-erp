@@ -209,6 +209,15 @@
     action: add
     type: sales_delivery_order
 - parent: ar
+  id: ar_add_sales_reclamation
+  name: Add Sales Reclamation
+    #icon: reclamation_add TODO(Tamino): add icons
+  order: 450
+  access: sales_reclamation_edit
+  params:
+    action: Reclamation/add
+    type: sales_reclamation
+- parent: ar
   id: ar_add_sales_invoice
   name: Add Sales Invoice
   icon: sales_invoice_add
@@ -300,6 +309,15 @@
   params:
     action: search
     type: sales_delivery_order
+- parent: ar_reports
+  id: ar_report_sales_reclamation
+  name: Sales Reclamation
+    #icon: reclamation_add TODO(Tamino): add icons
+  order: 450
+  access: sales_reclamation_edit
+  params:
+    action: Reclamation/list
+    type: sales_reclamation
 - parent: ar_reports
   id: ar_reports_invoices_credit_notes_ar_transactions
   name: Invoices, Credit Notes & AR Transactions
@@ -420,6 +438,15 @@
     action: add
     type: purchase_delivery_order
 - parent: ap
+  id: ap_add_purchase_reclamation
+  name: Add Purchase Reclamation
+    #icon: reclamation_add TODO(Tamino): add icons
+  order: 350
+  access: purchase_reclamation_edit
+  params:
+    action: Reclamation/add
+    type: purchase_reclamation
+- parent: ap
   id: ap_add_vendor_invoice
   name: Add Vendor Invoice
   order: 400
@@ -479,6 +506,15 @@
   params:
     action: search
     type: supplier_delivery_order
+- parent: ap_reports
+  id: ap_report_purchase_reclamation
+  name: Purchase Reclamation
+    #icon: reclamation_add TODO(Tamino): add icons
+  order: 370
+  access: purchase_reclamation_edit
+  params:
+    action: Reclamation/list
+    type: purchase_reclamation
 - parent: ap_reports
   id: ap_reports_vendor_invoices_ap_transactions
   name: Vendor Invoices & AP Transactions
@@ -1179,6 +1215,13 @@
   params:
     action: SimpleSystemSetting/list
     type: price_factor
+- parent: system
+  id: system_reclamation_reasons
+  name: Reclamation Reasons
+  order: 1220
+  params:
+    action: ReclamationReason/list
+    type: reclamation_reason
 - parent: system
   id: system_greetings
   name: Greetings

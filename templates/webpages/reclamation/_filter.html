@@ -1,0 +1,354 @@
+[%- USE HTML %][%- USE L %][%- USE LxERP %]
+
+[%- SET filter_element_hash = {
+'1' = {
+  'text' = LxERP.t8("Reclamation Reason"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.reclamation_items.reason.name:substr::ilike',
+  'input_default' = filter.reclamation_items.reason.name_substr__ilike,
+},
+'2' = {
+  'text' = LxERP.t8("Reclamation ID"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.id:number',
+  'input_default' = filter.id_number,
+  'report_id' = 'id',
+},
+'3' = {
+  'text' = LxERP.t8("Reclamation Number"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.record_number:substr::ilike',
+  'input_default' = filter.record_number_substr__ilike,
+  'report_id' = 'record_number',
+},
+'4' = {
+  'text' = LxERP.t8("Employee Name"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.employee.name:substr::ilike',
+  'input_default' = filter.employee.name_substr__ilike,
+  'report_id' = 'employee_id',
+},
+'5' = {
+  'text' = LxERP.t8("Salesman Name"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.salesman.name:substr::ilike',
+  'input_default' = filter.salesman.name_substr__ilike,
+  'report_id' = 'salesman_id',
+},
+# 6,7 for Customer/Vendor
+'8' = {
+  'text' = LxERP.t8("Contact Name"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.contact.cp_name:substr::ilike',
+  'input_default' = filter.contact.cp_name_substr__ilike,
+  'report_id' = 'contact_id',
+},
+'9' = {
+  'text' = LxERP.t8("Language Code"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.language.article_code:substr::ilike',
+  'input_default' = filter.language.article_code_substr__ilike,
+    'report_id' = 'language_id',
+},
+'10' = {
+  'text' = LxERP.t8("Department Description"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.department.description:substr::ilike',
+  'input_default' = filter.department.description_substr__ilike,
+    'report_id' = 'department_id',
+},
+'11' = {
+  'text' = LxERP.t8("Project Number"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.globalproject.projectnumber:substr::ilike',
+  'input_default' = filter.globalproject.projectnumber_substr__ilike,
+  'report_id' = 'globalproject_id',
+},
+'12' = {
+  'text' = LxERP.t8("Project Description"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.globalproject.description:substr::ilike',
+  'input_default' = filter.globalproject.description_substr__ilike,
+},
+# 13 cv_record_number
+'14' = {
+  'text' = LxERP.t8("Description"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.transaction_description:substr::ilike',
+  'input_default' = filter.transaction_description_substr__ilike,
+  'report_id' = 'transaction_description',
+},
+'15' = {
+  'text' = LxERP.t8("Notes"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.notes:substr::ilike',
+  'input_default' = filter.notes_substr__ilike,
+  'report_id' = 'notes',
+},
+'16' = {
+  'text' = LxERP.t8("Internal Notes"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.intnotes:substr::ilike',
+  'input_default' = filter.intnotes_substr__ilike,
+  'report_id' = 'intnotes',
+},
+'17' = {
+  'text' = LxERP.t8("Shipping Point"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.shippingpoint:substr::ilike',
+  'input_default' = filter.shippingpoint_substr__ilike,
+  'report_id' = 'shippingpoint',
+},
+'18' = {
+  'text' = LxERP.t8("Ship via"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.shipvia:substr::ilike',
+  'input_default' = filter.shipvia_substr__ilike,
+  'report_id' = 'shipvia',
+},
+'19' = {
+  'text' = LxERP.t8("Total"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.amount:number',
+  'input_default' = filter.amount_number,
+  'report_id' = 'amount',
+},
+'20' = {
+  'text' = LxERP.t8("Subtotal"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.netamount:number',
+  'input_default' = filter.netamount_number,
+  'report_id' = 'netamount',
+},
+'21' = {
+  'text' = LxERP.t8("Delivery Term"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.delivery_term.description:substr::ilike',
+  'input_default' = filter.delivery_term.description_substr__ilike,
+  'report_id' = 'delivery_term_id',
+},
+'22' = {
+  'text' = LxERP.t8("Payment Term"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.payment.description:substr::ilike',
+  'input_default' = filter.payment.description_substr__ilike,
+  'report_id' = 'payment_id',
+},
+'23' = {
+  'text' = LxERP.t8("Currency"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.currency.name:substr::ilike',
+  'input_default' = filter.currency.name_substr__ilike,
+  'report_id' = 'currency_id',
+},
+'24' = {
+  'text' = LxERP.t8("Exchangerate"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.exchangerate:number',
+  'input_default' = filter.exchangerate_number,
+  'report_id' = 'exchangerate',
+},
+'25' = {
+  'text' = LxERP.t8("Tax included"),
+  'input_type' = 'yes_no_tag'
+  'input_name' = 'filter.taxincluded',
+  'input_default' = filter.taxincluded,
+  'report_id' = 'taxincluded',
+},
+'26' = {
+  'text' = LxERP.t8("Tax Zone"),
+  'input_type' = 'input_tag'
+  'input_name' = 'filter.taxzone.description:substr::ilike',
+  'input_default' = filter.taxzone.description_substr__ilike,
+  'report_id' = 'taxzone_id',
+},
+'27' = {
+  'text' = LxERP.t8("Tax Point"),
+  'input_type' = 'date_tag'
+  'input_name' = 'tax_point',
+  'report_id' = 'tax_point',
+},
+'28' = {
+  'text' = LxERP.t8("Due Date"),
+  'input_type' = 'date_tag'
+  'input_name' = 'reqdate',
+  'report_id' = 'reqdate',
+},
+'29' = {
+  'text' = LxERP.t8("Booking Date"),
+  'input_type' = 'date_tag'
+  'input_name' = 'transdate',
+  'report_id' = 'transdate',
+},
+'30' = {
+  'text' = LxERP.t8("Creation Time"),
+  'input_type' = 'date_tag'
+  'input_name' = 'itime',
+  'report_id' = 'itime',
+},
+'31' = {
+  'text' = LxERP.t8("Last modified Time"),
+  'input_type' = 'date_tag'
+  'input_name' = 'mtime',
+  'report_id' = 'mtime',
+},
+'32' = {
+  'text' = LxERP.t8("Delivered"),
+  'input_type' = 'yes_no_tag'
+  'input_name' = 'filter.delivered',
+  'input_default' = filter.delivered,
+  'report_id' = 'delivered',
+},
+'33' = {
+  'text' = LxERP.t8("Closed"),
+  'input_type' = 'yes_no_tag'
+  'input_name' = 'filter.closed',
+  'input_default' = filter.closed,
+  'report_id' = 'closed',
+},
+
+} %]
+
+[%- IF SELF.type == 'sales_reclamation' %]
+[%- filter_element_hash.import( {
+  '6' = {
+    'text' = LxERP.t8("Customer Name"),
+    'input_type' = 'input_tag'
+    'input_name' = 'filter.customer.name:substr::ilike',
+    'input_default' = filter.customer.name_substr__ilike,
+    'report_id' = 'customer_id',
+  },
+  '7' = {
+    'text' = LxERP.t8("Customer Number"),
+    'input_type' = 'input_tag'
+    'input_name' = 'filter.customer.customernumber:substr::ilike',
+    'input_default' = filter.customer.customernumber_substr__ilike,
+  }
+  '13' = {
+    'text' = LxERP.t8("Customer Record Numeber"),
+    'input_type' = 'input_tag'
+    'input_name' = 'filter.cv_record_number:substr::ilike',
+    'input_default' = filter.cv_record_number_substr__ilike,
+    'report_id' = 'cv_record_number',
+  },
+} ) %]
+[%- ELSE %]
+[%- filter_element_hash.import( {
+  '6' = {
+    'text' = LxERP.t8("Vendor"),
+    'input_type' = 'input_tag'
+    'input_name' = 'filter.vendor.name:substr::ilike',
+    'input_default' = filter.vendor.name_substr__ilike,
+    'report_id' = 'vendor_id',
+  },
+  '7' = {
+    'text' = LxERP.t8("Vendor Number"),
+    'input_type' = 'input_tag'
+    'input_name' = 'filter.vendor.vendornumber:substr::ilike',
+    'input_default' = filter.vendor.vendornumber_substr__ilike,
+  }
+  '13' = {
+    'text' = LxERP.t8("Vendor Record Numeber"),
+    'input_type' = 'input_tag'
+    'input_name' = 'filter.cv_record_number:substr::ilike',
+    'input_default' = filter.cv_record_number_substr__ilike,
+    'report_id' = 'cv_record_number',
+  },
+} ) %]
+[%- END %]
+[% # L.dump(filter_element_list) %]
+[% # L.dump(active_in_report) %]
+
+<div class="filter_toggle" style="display:none">
+ <a href="#" onClick="$('.filter_toggle').toggle(); $('#filter_customer_name_substr_ilike').focus();">[% LxERP.t8("Show Filter") %]</a>
+</div>
+
+<div class="filter_toggle">
+ <a href="#" onClick="javascript:$('.filter_toggle').toggle()">[% LxERP.t8("Hide Filter") %]</a>
+
+ <form method="post" action="controller.pl" id="search_form">
+  [%- L.hidden_tag("_include_cvars_from_form", 1) %]
+
+  <p>
+   <table>
+    [%- SET count=0 %]
+    [%- SET table_size_count=0 %]
+    [%- SET size = filter_element_hash.size %]
+    <tr> <td>
+     <table>
+      [%- WHILE count < size %]
+      [%- SET count=count + 1 %]
+      [%- SET filter_element = filter_element_hash.${count} %]
+      <tr>
+       <th align="right">[% filter_element.text %]</th>
+       [%- IF filter_element.input_type == 'input_tag' %]
+         <td>[% L.input_tag(filter_element.input_name, filter_element.input_default)%]</td>
+       [%- ELSIF filter_element.input_type == 'yes_no_tag' %]
+         <td align="middle">[% L.yes_no_tag(filter_element.input_name, NONE , default=filter_element.input_default, with_empty=1) %]</td>
+       [%- ELSIF filter_element.input_type == 'date_tag' %]
+         <td>
+          <table>
+           <tr>
+            <th> [% LxERP.t8("After") %] </th>
+            <td>[% L.date_tag("filter.${filter_element.input_name}:date::ge", filter.${"${filter_element.input_name}_date__ge"})%]</td>
+           </tr><tr>
+            <th> [% LxERP.t8("Before") %] </th>
+            <td>[% L.date_tag("filter.${filter_element.input_name}:date::le", filter.${"${filter_element.input_name}_date__le"})%]</td>
+           </tr>
+          </table>
+         [%- SET table_size_count=table_size_count + 1 %]
+         </td>
+       [%- END %]
+       [%- IF filter_element.report_id %]
+       <td align="left">[% L.checkbox_tag("include_in_report_${filter_element.report_id}", checked=active_in_report.${filter_element.report_id}, for_submit=1) %]</td>
+       [%- END %]
+      </tr>
+      [%- SET table_size_count=table_size_count + 1 %]
+    [%- IF (table_size_count > 7) %]
+    [%- SET table_size_count=0 %]
+     </table>
+    </td>
+    <td>
+     <table>
+    [%- END %]
+      [%- END %]
+     </table>
+    </td> </tr>
+
+    [%- FOREACH cvar_cfg = SELF.cvar_configs %]
+    [%- IF cvar_cfg.searchable %]
+    <tr>
+      <th align="right">[% HTML.escape(cvar_cfg.description) %]</th>
+      <td>[% INCLUDE 'common/render_cvar_filter_input.html' cvar_cfg=cvar_cfg cvar_ %]</td>
+    </tr>
+    [%- END %]
+    [%-END %]
+
+    [%- IF SELF.includeable_cvar_configs.size %]
+     <tr>
+      <th align="right">[% LxERP.t8("Include in Report") %]</th>
+      <td>
+       <table>
+        <tr>
+         [%- FOREACH cvar_cfg = SELF.includeable_cvar_configs %]
+          <td>
+           [%- name__ = cvar_cfg.name;
+              L.checkbox_tag("include_cvars_" _ name__, value="1", checked=(SELF.include_cvars.$name__ ? 1 : ''), label=cvar_cfg.description) %]
+          </td>
+          [%- IF !loop.last && ((loop.count % 3) == 0) %]
+           </tr><tr>
+          [%- END %]
+         [%- END %]
+        </tr>
+       </table>
+      </td>
+     </tr>
+    [%- END %]
+
+   </table>
+  </p>
+ </form>
+ <p>
+ <a href="#" onClick="javascript:$('.filter_toggle').toggle()">[% LxERP.t8("Hide Filter") %]</a>
+</div>
+

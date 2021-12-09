@@ -65,6 +65,7 @@ sub clone {
   my $module = $type =~ m{::Order$}               ? 'OE'
              : $type =~ m{::DeliveryOrder$}       ? 'DO'
              : $type =~ m{::Invoice$}             ? 'AR'
+             : $type =~ m{::Reclamation$}         ? 'RC'
              : $type =~ m{::(?:Customer|Vendor)$} ? 'CT'
              :                                      croak "Unsupported target class '$type'";
 
