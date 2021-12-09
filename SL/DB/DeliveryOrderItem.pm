@@ -36,6 +36,7 @@ __PACKAGE__->configure_acts_as_list(group_by => [qw(delivery_order_id)]);
 # methods
 
 sub record { goto &delivery_order }
+sub record_id { goto &delivery_order_id }
 
 sub displayable_delivery_order_info {
   my ($self, $dec) = @_;

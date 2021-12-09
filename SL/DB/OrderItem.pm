@@ -47,6 +47,7 @@ sub linked_delivery_order_items {
 sub delivered_qty { goto &shipped_qty }
 
 sub record { goto &order }
+sub record_id { goto &trans_id }
 
 1;
 
