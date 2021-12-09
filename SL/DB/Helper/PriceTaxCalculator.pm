@@ -19,6 +19,8 @@ sub calculate_prices_and_taxes {
   require SL::DB::PriceFactor;
   require SL::DB::Unit;
 
+  my $marge_calculations = $self->can('marge_total');
+
   SL::DB::Part->load_cached(map { $_->parts_id } @{ $self->items }) if @{ $self->items || [] };
 
   my %units_by_name       = map { ( $_->name => $_ ) } @{ SL::DB::Manager::Unit->get_all        };
@@ -53,7 +55,7 @@ sub calculate_prices_and_taxes {
   };
 
   $self->netamount(  0);
-  $self->marge_total(0);
+  $self->marge_total(0) if $marge_calculations;
 
   SL::DB::Manager::Chart->cache_taxkeys(date => $self->effective_tax_point);
 
@@ -83,6 +85,7 @@ sub _get_exchangerate {
 
 sub _calculate_item {
   my ($self, $item, $idx, $data, %params) = @_;
+  my $marge_calculations = $self->can('marge_total');
 
   my $part       = SL::DB::Part->load_cached($item->parts_id);
   return unless $part;
@@ -105,7 +108,7 @@ sub _calculate_item {
   my $sellprice = $item->sellprice;
 
   $item->price_factor(      ! $item->price_factor_obj   ? 1 : ($item->price_factor_obj->factor   || 1));
-  $item->marge_price_factor(! $part->price_factor ? 1 : ($part->price_factor->factor || 1));
+  $item->marge_price_factor(! $part->price_factor ? 1 : ($part->price_factor->factor || 1)) if $marge_calculations;
   my $linetotal = _round($sellprice * (1 - $item->discount) * $item->qty / $item->price_factor, 2) * $data->{exchangerate};
   $linetotal    = _round($linetotal,                                                            2);
 
@@ -140,19 +143,19 @@ sub _calculate_item {
   my $linetotal_cost = 0;
 
   if (!$linetotal) {
-    $item->marge_total(  0);
-    $item->marge_percent(0);
+    $item->marge_total(  0) if $marge_calculations;
+    $item->marge_percent(0) if $marge_calculations;
 
   } else {
     my $lastcost       = !(($item->lastcost // 0) * 1) ? ($part->lastcost || 0) : $item->lastcost;
-    $linetotal_cost    = _round($lastcost * $item->qty / $item->marge_price_factor, 2);
+    $linetotal_cost    = _round($lastcost * $item->qty / ( $marge_calculations ? $item->marge_price_factor : 1 ), 2);
     my $linetotal_net  = $self->taxincluded ? $linetotal - $tax_amount : $linetotal;
 
-    $item->marge_total(  $linetotal_net - $linetotal_cost);
-    $item->marge_percent($item->marge_total * 100 / $linetotal_net);
+    $item->marge_total(  $linetotal_net - $linetotal_cost) if $marge_calculations;
+    $item->marge_percent($item->marge_total * 100 / $linetotal_net) if $marge_calculations;
 
     unless ($data->{allow_optional_items} && $item->optional) {
-      $self->marge_total(  $self->marge_total + $item->marge_total);
+      $self->marge_total(  $self->marge_total + $item->marge_total) if $marge_calculations;
       $data->{lastcost_total} += $linetotal_cost;
     }
   }
@@ -178,12 +181,13 @@ sub _calculate_item {
     taxkey_id      => $taxkey->id,
   };
 
-  _dbg("CALCULATE! ${idx} i.qty " . $item->qty . " i.sellprice " . $item->sellprice . " sellprice $sellprice num_dec $num_dec taxamount $tax_amount " .
-       "i.linetotal $linetotal netamount " . $self->netamount . " marge_total " . $item->marge_total . " marge_percent " . $item->marge_percent);
+  #_dbg("CALCULATE! ${idx} i.qty " . $item->qty . " i.sellprice " . $item->sellprice . " sellprice $sellprice num_dec $num_dec taxamount $tax_amount " .
+  #     "i.linetotal $linetotal netamount " . $self->netamount . " marge_total " . $item->marge_total . " marge_percent " . $item->marge_percent);
 }
 
 sub _calculate_amounts {
   my ($self, $data, %params) = @_;
+  my $marge_calculations = $self->can('marge_total');
 
   my $tax_diff = 0;
   foreach my $chart_id (keys %{ $data->{taxes_by_chart_id} }) {
@@ -203,7 +207,7 @@ sub _calculate_amounts {
     $data->{amounts}->{ $data->{last_incex_chart_id} }->{amount} += $data->{invoicediff} if $data->{last_incex_chart_id};
   }
 
-  _dbg("Sna " . $self->netamount . " idiff " . $data->{invoicediff} . " tdiff ${tax_diff}");
+  #_dbg("Sna " . $self->netamount . " idiff " . $data->{invoicediff} . " tdiff ${tax_diff}");
 
   my $tax              = sum values %{ $data->{taxes_by_chart_id} };
   $amount              = $netamount + $tax;
@@ -213,7 +217,7 @@ sub _calculate_amounts {
 
   $self->netamount(    $netamount);
   $self->amount(       $grossamount);
-  $self->marge_percent($self->netamount ? ($self->netamount - $data->{lastcost_total}) * 100 / $self->netamount : 0);
+  $self->marge_percent($self->netamount ? ($self->netamount - $data->{lastcost_total}) * 100 / $self->netamount : 0) if $marge_calculations;
 }
 
 sub _calculate_assembly_item {
