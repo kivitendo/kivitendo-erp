@@ -113,15 +113,6 @@ sub update_part {
   my $part = SL::DB::Part->new(id => $shop_part->part_id)->load;
   die "Shop Part but no kivi Part?" unless ref $part eq 'SL::DB::Part';
 
-  my @cat = ();
-  # if the part is connected to a category at all
-  if ($shop_part->shop_category) {
-    foreach my $row_cat ( @{ $shop_part->shop_category } ) {
-      my $temp = { ( id => @{$row_cat}[0] ) };
-      push ( @cat, $temp );
-    }
-  }
-
   my $tax_n_price = $shop_part->get_tax_and_price;
   my $price       = $tax_n_price->{price};
   my $taxrate     = $tax_n_price->{tax};
@@ -240,7 +231,71 @@ sub update_part {
     $self->sync_all_images(shop_part => $shop_part, set_cover => 1, delete_orphaned => 1);
   } catch { die "Could not sync images for Part " . $part->partnumber . " Reason: $_" };
 
+  # if there are categories try to sync this with the shop_part
+  try {
+    $self->sync_all_categories(shop_part => $shop_part);
+  } catch { die "Could not sync Categories for Part " . $part->partnumber . " Reason: $_" };
+
   return 1; # no invalid response code -> success
+}
+sub sync_all_categories {
+  my ($self, %params) = @_;
+
+  my $shop_part = delete $params{shop_part};
+  croak "Need a valid Shop Part for updating Images" unless ref($shop_part) eq 'SL::DB::ShopPart';
+
+  my $partnumber = $shop_part->part->partnumber;
+  die "Shop Part but no kivi Partnumber" unless $partnumber;
+
+  my ($ret, $response_code);
+  # 1 get  uuid for product
+  my $product_filter = {
+          'filter' => [
+                        {
+                          'value' => $partnumber,
+                          'type'  => 'equals',
+                          'field' => 'productNumber'
+                        }
+                      ]
+    };
+
+  $ret = $self->connector->POST('api/search/product', to_json($product_filter));
+  $response_code = $ret->responseCode();
+  die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code == 200;
+  my ($product_id, $category_tree);
+  try {
+    $product_id    = from_json($ret->responseContent())->{data}->[0]->{id};
+    $category_tree = from_json($ret->responseContent())->{data}->[0]->{categoryTree};
+  } catch { die "Malformed JSON Data: $_ " . $ret->responseContent();  };
+  my $cat;
+  # if the part is connected to a category at all
+  if ($shop_part->shop_category) {
+    foreach my $row_cat (@{ $shop_part->shop_category }) {
+      $cat->{@{ $row_cat }[0]} = @{ $row_cat }[1];
+    }
+  }
+  # delete
+  foreach my $shopware_cat (@{ $category_tree }) {
+    if ($cat->{$shopware_cat}) {
+      # cat exists and no delete
+      delete $cat->{$shopware_cat};
+      next;
+    }
+    # cat exists and delete
+    $ret = $self->connector->DELETE("api/product/$product_id/categories/$shopware_cat");
+    $response_code = $ret->responseCode();
+    die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code == 204;
+  }
+  # now add only new categories
+  my $p;
+  $p->{id}  = $product_id;
+  $p->{categories} = ();
+  foreach my $new_cat (keys %{ $cat }) {
+    push @{ $p->{categories} }, {id => $new_cat};
+  }
+    $ret = $self->connector->PATCH("api/product/$product_id", to_json($p));
+    $response_code = $ret->responseCode();
+    die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code == 204;
 }
 
 sub sync_all_images {
