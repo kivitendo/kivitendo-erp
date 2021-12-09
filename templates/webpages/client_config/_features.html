@@ -274,6 +274,18 @@
    <td>[% L.yes_no_tag("defaults.warn_no_delivery_order_for_invoice", SELF.defaults.warn_no_delivery_order_for_invoice ) %]</td>
    <td>[% LxERP.t8("If enabled a warning will be shown if a sales invoices is created without having a sales delivery order as a predecessor.") %]</td>
   </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Warn before saving reclamations with duplicate parts") %]</td>
+   <td>[% L.yes_no_tag("defaults.reclamation_warn_duplicate_parts", SELF.defaults.reclamation_warn_duplicate_parts) %]</td>
+   <td>[% LxERP.t8("If enabled a warning will be shown in sales and purchase reclamations if there are two or more positions of the same part.") %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8("Warn before saving reclamations without a due date") %]</td>
+   <td>[% L.yes_no_tag("defaults.reclamation_warn_no_reqdate", SELF.defaults.reclamation_warn_no_reqdate) %]</td>
+   <td>[% LxERP.t8("If enabled a warning will be shown in sales and purchase reclamations if there the due date is empty.") %]</td>
+  </tr>
+
   <tr>
    <td align="right">[% LxERP.t8("Create sales invoices with Factur-X/ZUGFeRD data") %]</td>
    <td>[% L.select_tag("defaults.create_zugferd_invoices", SELF.zugferd_settings, default=SELF.defaults.create_zugferd_invoices) %]</td>
