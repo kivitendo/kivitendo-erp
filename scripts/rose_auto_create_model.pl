@@ -72,6 +72,7 @@ our %foreign_key_name_map     = (
     ap                        => { payment_id => 'payment_terms', },
 
     orderitems                => { parts_id => 'part', trans_id => 'order', },
+    reclamation_items         => { parts_id => 'part' },
     delivery_order_items      => { parts_id => 'part' },
     invoice                   => { parts_id => 'part' },
     follow_ups                => { created_by => 'created_by_employee', },
