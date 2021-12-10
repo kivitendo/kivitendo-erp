@@ -140,8 +140,8 @@ sub new_from {
                                                 ordnumber payment_id reqdate salesman_id shippingpoint shipvia taxincluded taxzone_id transaction_description vendor_id billing_address_id
                                              )),
                closed    => 0,
-               is_sales  => !!$source->customer_id,
                delivered => 0,
+               order_type => $params{type},
                transdate => DateTime->today_local,
             );
 
@@ -161,9 +161,6 @@ sub new_from {
                       : $source->vendor_id   ? 'purchase_delivery_order'
                       : $source->is_sales    ? 'sales_delivery_order'
                       : croak "need some way to set delivery order type from source";
-
-  # overwrite legacy is_sales from type_data
-  $args{is_sales} = SL::Controller::DeliveryOrder::TypeData::get3($args{order_type}, "properties", "is_customer");
 
   my $delivery_order = $class->new(%args);
   $delivery_order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
