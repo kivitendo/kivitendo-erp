@@ -36,7 +36,7 @@ use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::UpdatePositions;
 
 use SL::Controller::Helper::GetModels;
-use SL::Controller::DeliveryOrder::TypeData;
+use SL::Controller::DeliveryOrder::TypeData qw(:types);
 
 use List::Util qw(first sum0);
 use List::UtilsBy qw(sort_by uniq_by);
@@ -1576,8 +1576,8 @@ sub save {
     if ($::form->{converted_from_oe_id}) {
       my @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};
       foreach my $converted_from_oe_id (@converted_from_oe_ids) {
-        my $src = SL::DB::DeliveryOrder->new(id => $converted_from_oe_id)->load;
-        $src->update_attributes(closed => 1) if $src->type =~ /_quotation$/;
+        my $src = SL::DB::Order->new(id => $converted_from_oe_id)->load;
+        $src->update_attributes(closed => 1) if $src->type =~ /_quotation$/ && $self->order->is_type(PURCHASE_DELIVERY_ORDER_TYPE);
         $src->link_to_record($self->order);
       }
       if (scalar @{ $::form->{converted_from_orderitems_ids} || [] }) {
