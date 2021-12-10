@@ -96,6 +96,9 @@ namespace('kivi.Order', function(ns) {
 
     $('#print_options_form table').first().remove().appendTo('#email_form_print_options');
 
+    $('select#format').change(kivi.Order.adjust_email_attachment_name_for_template_format);
+    kivi.Order.adjust_email_attachment_name_for_template_format();
+
     var to_focus = $('#email_form_to').val() === '' ? 'to' : 'subject';
     $('#email_form_' + to_focus).focus();
   };
@@ -153,6 +156,20 @@ namespace('kivi.Order', function(ns) {
 
   ns.close_email_dialog = function() {
     email_dialog.dialog("close");
+  };
+
+  ns.adjust_email_attachment_name_for_template_format = function() {
+    var $filename_elt = $('#email_form_attachment_filename');
+    var $format_elt   = $('select#format');
+
+    if (!$filename_elt || !$format_elt)
+      return;
+
+    var format   = $format_elt.val().toLowerCase();
+    var new_ext  = format == 'html' ? 'html' : format == 'opendocument' ? 'odt' : 'pdf';
+    var filename = $filename_elt.val();
+
+    $filename_elt.val(filename.replace(/[^.]+$/, new_ext));
   };
 
   ns.set_number_in_title = function(elt) {

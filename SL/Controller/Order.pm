@@ -280,8 +280,8 @@ sub action_print {
   my $groupitems  = $::form->{print_options}->{groupitems};
   my $printer_id  = $::form->{print_options}->{printer_id};
 
-  # only pdf and opendocument by now
-  if (none { $format eq $_ } qw(pdf opendocument opendocument_pdf)) {
+  # only PDF, OpenDocument & HTML for now
+  if (none { $format eq $_ } qw(pdf opendocument opendocument_pdf html)) {
     return $self->js->flash('error', t8('Format \'#1\' is not supported yet/anymore.', $format))->render;
   }
 
@@ -297,25 +297,25 @@ sub action_print {
   $form->{format}           = $format;
   $form->{formname}         = $formname;
   $form->{language}         = '_' . $self->order->language->template_code if $self->order->language;
-  my $pdf_filename          = $form->generate_attachment_filename();
+  my $doc_filename          = $form->generate_attachment_filename();
 
-  my $pdf;
-  my @errors = $self->generate_pdf(\$pdf, { format     => $format,
+  my $doc;
+  my @errors = $self->generate_doc(\$doc, { format     => $format,
                                             formname   => $formname,
                                             language   => $self->order->language,
                                             printer_id => $printer_id,
                                             groupitems => $groupitems });
   if (scalar @errors) {
-    return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
+    return $self->js->flash('error', t8('Generating the document failed: #1', $errors[0]))->render;
   }
 
   if ($media eq 'screen') {
     # screen/download
-    $self->js->flash('info', t8('The PDF has been created'));
+    $self->js->flash('info', t8('The document has been created.'));
     $self->send_file(
-      \$pdf,
-      type         => SL::MIME->mime_type_from_ext($pdf_filename),
-      name         => $pdf_filename,
+      \$doc,
+      type         => SL::MIME->mime_type_from_ext($doc_filename),
+      name         => $doc_filename,
       js_no_render => 1,
     );
 
@@ -324,13 +324,13 @@ sub action_print {
     my $printer_id = $::form->{print_options}->{printer_id};
     SL::DB::Printer->new(id => $printer_id)->load->print_document(
       copies  => $copies,
-      content => $pdf,
+      content => $doc,
     );
 
-    $self->js->flash('info', t8('The PDF has been printed'));
+    $self->js->flash('info', t8('The document has been printed.'));
   }
 
-  my @warnings = $self->store_pdf_to_webdav_and_filemanagement($pdf, $pdf_filename);
+  my @warnings = $self->store_doc_to_webdav_and_filemanagement($doc, $doc_filename);
   if (scalar @warnings) {
     $self->js->flash('warning', $_) for @warnings;
   }
@@ -367,7 +367,7 @@ sub action_preview_pdf {
   my $pdf_filename          = $form->generate_attachment_filename();
 
   my $pdf;
-  my @errors = $self->generate_pdf(\$pdf, { format     => $format,
+  my @errors = $self->generate_doc(\$pdf, { format     => $format,
                                             formname   => $formname,
                                             language   => $self->order->language,
                                           });
@@ -475,24 +475,24 @@ sub action_send_email {
   $::form->{media}  = 'email';
 
   if (($::form->{attachment_policy} // '') !~ m{^(?:old_file|no_file)$}) {
-    my $pdf;
-    my @errors = $self->generate_pdf(\$pdf, {media      => $::form->{media},
+    my $doc;
+    my @errors = $self->generate_doc(\$doc, {media      => $::form->{media},
                                             format     => $::form->{print_options}->{format},
                                             formname   => $::form->{print_options}->{formname},
                                             language   => $self->order->language,
                                             printer_id => $::form->{print_options}->{printer_id},
                                             groupitems => $::form->{print_options}->{groupitems}});
     if (scalar @errors) {
-      return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render($self);
+      return $self->js->flash('error', t8('Generating the document failed: #1', $errors[0]))->render($self);
     }
 
-    my @warnings = $self->store_pdf_to_webdav_and_filemanagement($pdf, $::form->{attachment_filename});
+    my @warnings = $self->store_doc_to_webdav_and_filemanagement($doc, $::form->{attachment_filename});
     if (scalar @warnings) {
       flash_later('warning', $_) for @warnings;
     }
 
     my $sfile = SL::SessionFile::Random->new(mode => "w");
-    $sfile->fh->print($pdf);
+    $sfile->fh->print($doc);
     $sfile->fh->close;
 
     $::form->{tmpfile} = $sfile->file_name;
@@ -500,7 +500,7 @@ sub action_send_email {
   }
 
   $::form->{id} = $self->order->id; # this is used in SL::Mailer to create a linked record to the mail
-  $::form->send_email(\%::myconfig, 'pdf');
+  $::form->send_email(\%::myconfig, $::form->{print_options}->{format});
 
   # internal notes
   my $intnotes = $self->order->intnotes;
@@ -1885,7 +1885,7 @@ sub pre_render {
                 no_queue           => 1,
                 no_postscript      => 1,
                 no_opendocument    => 0,
-                no_html            => 1},
+                no_html            => 0},
   );
 
   foreach my $item (@{$self->order->orderitems}) {
@@ -2071,8 +2071,8 @@ sub setup_edit_action_bar {
   }
 }
 
-sub generate_pdf {
-  my ($self, $pdf_ref, $params) = @_;
+sub generate_doc {
+  my ($self, $doc_ref, $params) = @_;
 
   my $order  = $self->order;
   my @errors = ();
@@ -2094,6 +2094,9 @@ sub generate_pdf {
   if ($print_form->{format} =~ /(opendocument|oasis)/i) {
     $template_ext  = 'odt';
     $template_type = 'OpenDocument';
+  } elsif ($print_form->{format} =~ m{html}i) {
+    $template_ext  = 'html';
+    $template_type = 'HTML';
   }
 
   # search for the template
@@ -2115,7 +2118,7 @@ sub generate_pdf {
     eval {
       $print_form->prepare_for_printing;
 
-      $$pdf_ref = SL::Helper::CreatePDF->create_pdf(
+      $$doc_ref = SL::Helper::CreatePDF->create_pdf(
         format        => $print_form->{format},
         template_type => $template_type,
         template      => $template_file,
@@ -2310,7 +2313,7 @@ sub save_history {
   )->save;
 }
 
-sub store_pdf_to_webdav_and_filemanagement {
+sub store_doc_to_webdav_and_filemanagement {
   my ($self, $content, $filename) = @_;
 
   my $order = $self->order;
@@ -2330,21 +2333,21 @@ sub store_pdf_to_webdav_and_filemanagement {
       $webdav_file->store(data => \$content);
       1;
     } or do {
-      push @errors, t8('Storing PDF to webdav folder failed: #1', $@);
+      push @errors, t8('Storing the document to the WebDAV folder failed: #1', $@);
     };
   }
   if ($order->id && $::instance_conf->get_doc_storage) {
     eval {
       SL::File->save(object_id     => $order->id,
                      object_type   => $order->type,
-                     mime_type     => 'application/pdf',
+                     mime_type     => SL::MIME->mime_type_from_ext($filename),
                      source        => 'created',
                      file_type     => 'document',
                      file_name     => $filename,
                      file_contents => $content);
       1;
     } or do {
-      push @errors, t8('Storing PDF in storage backend failed: #1', $@);
+      push @errors, t8('Storing the document in the storage backend failed: #1', $@);
     };
   }
 
