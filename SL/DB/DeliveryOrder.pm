@@ -167,7 +167,8 @@ sub new_from {
   my $items          = delete($params{items}) || $source->items_sorted;
   my %item_parents;
 
-  my @items = map {
+  # do not copy items when converting to supplier delivery order
+  my @items = $delivery_order->is_type(SUPPLIER_DELIVERY_ORDER_TYPE) ? () : map {
     my $source_item      = $_;
     my $source_item_id   = $_->$item_parent_id_column;
     my @custom_variables = map { _clone_orderitem_cvar($_) } @{ $source_item->custom_variables };
