@@ -81,7 +81,9 @@ sub parse_and_import {
 
       # optional KOST1 - KOST2 ?
       $department_name = $row->[36];
-      $department    = SL::DB::Manager::Department->get_first(description => { like =>  $department_name . '%' });
+      if ($department_name) {
+        $department    = SL::DB::Manager::Department->get_first(description => { like =>  $department_name . '%' });
+      }
 
       my $amount = $::form->parse_amount({ numberformat => '1000,00' }, $row->[0]);
 
