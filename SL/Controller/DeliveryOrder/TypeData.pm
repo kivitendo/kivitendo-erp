@@ -6,6 +6,11 @@ use Scalar::Util qw(weaken);
 use SL::Locale::String qw(t8);
 use SL::DB::DeliveryOrder::TypeData qw(:types :subs);
 
+my @export_types = qw(SALES_DELIVERY_ORDER_TYPE PURCHASE_DELIVERY_ORDER_TYPE SUPPLIER_DELIVERY_ORDER_TYPE RMA_DELIVERY_ORDER_TYPE);
+
+our @EXPORT_OK = (@export_types);
+our %EXPORT_TAGS = (types => \@export_types);
+
 use Rose::Object::MakeMethods::Generic scalar => [ qw(c) ];
 
 sub new {
