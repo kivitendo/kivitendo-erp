@@ -18,6 +18,7 @@ use SL::DB::History;
 use SL::DB::Order;
 use SL::DB::Default;
 use SL::DB::Unit;
+use SL::DB::Order;
 use SL::DB::Part;
 use SL::DB::PartClassification;
 use SL::DB::PartsGroup;
@@ -85,7 +86,11 @@ sub action_add_from_order {
   # this interfers with init_order
   $self->{converted_from_oe_id} = delete $::form->{id};
 
-  # TODO copy data and remember to link them on save
+  $self->type_data->validate($::form->{type});
+
+  my $order = SL::DB::Order->new(id => $self->{converted_from_oe_id})->load;
+
+  $self->order(SL::DB::DeliveryOrder->new_from($order, type => $::form->{type}));
 
   $self->action_add;
 }
