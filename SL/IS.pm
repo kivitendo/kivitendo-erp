@@ -1082,6 +1082,7 @@ SQL
     }
   }
 
+  my $iap_amounts;
   if ($form->{type} eq 'final_invoice') {
     my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id});
     if (scalar @$invoices_for_advance_payment > 0) {
@@ -1110,15 +1111,24 @@ SQL
         }
 
         # VAT for invoices for advance payment is booked on payment of these. So do not book this VAT for final invoice.
-        # Collect VAT of invoices for advance payment.
+        # And book the amount of the invoices for advance payment with taxkey 0 (see below).
+        # Collect amounts and VAT of invoices for advance payment.
+
         # Set sellprices to fxsellprices for items, because
         # the PriceTaxCalculator sets fxsellprice from sellprice before calculating.
         $_->sellprice($_->fxsellprice) for @{$invoice_for_advance_payment->items};
         my %pat = $invoice_for_advance_payment->calculate_prices_and_taxes;
 
         foreach my $tax_chart_id (keys %{ $pat{taxes_by_chart_id} }) {
-          my $tax_accno = SL::DB::Chart->new(id => $tax_chart_id)->load->accno;
-          $form->{amount}{ $form->{id} }{$tax_accno} -= $pat{taxes_by_chart_id}->{$tax_chart_id};
+          my $tax_accno = SL::DB::Chart->load_cached($tax_chart_id)->accno;
+          $form->{amount}{ $form->{id} }{$tax_accno}  -= $pat{taxes_by_chart_id}->{$tax_chart_id};
+          $form->{amount}{ $form->{id} }{$form->{AR}} += $pat{taxes_by_chart_id}->{$tax_chart_id};
+        }
+
+        foreach my $amount_chart_id (keys %{ $pat{amounts} }) {
+          my $amount_accno = SL::DB::Chart->load_cached($amount_chart_id)->accno;
+          $iap_amounts->{$amount_accno}                 += $pat{amounts}->{$amount_chart_id}->{amount};
+          $form->{amount}{ $form->{id} }{$amount_accno} -= $pat{amounts}->{$amount_chart_id}->{amount};
         }
       }
     }
@@ -1234,6 +1244,17 @@ SQL
       @values = (conv_i($trans_id), $rnd_accno, $rounding, conv_date($form->{invdate}), conv_i($project_id), $rnd_accno);
       do_query($form, $dbh, $query, @values);
       $rnd_accno = 0;
+    }
+  }
+
+  # Book the amount of the invoices for advance payment with taxkey 0 (see below).
+  if ($form->{type} eq 'final_invoice' && $iap_amounts) {
+    foreach my $accno (keys %$iap_amounts) {
+      $query =
+        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
+        VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, (SELECT id FROM tax WHERE taxkey=0), 0, ?, (SELECT link FROM chart WHERE accno = ?))|;
+      @values = (conv_i($form->{id}), $accno, $iap_amounts->{$accno}, conv_date($form->{invdate}), conv_i($project_id), $accno);
+      do_query($form, $dbh, $query, @values);
     }
   }
 
