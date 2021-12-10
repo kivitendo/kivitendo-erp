@@ -82,6 +82,10 @@ sub type {
   goto &order_type;
 }
 
+sub is_type {
+  return shift->type eq shift;
+}
+
 sub displayable_type {
   my $type = shift->type;
 
