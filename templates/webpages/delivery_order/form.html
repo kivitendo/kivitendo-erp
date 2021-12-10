@@ -34,7 +34,7 @@
       <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=[% HTML.escape(FORM.type) %]&object_id=[% HTML.url(SELF.order.id) %]">[% 'Attachments' | $T8 %]</a></li>
 [%- END %]
 [%- IF SELF.order.id %]
-      <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=Order&object_id=[% HTML.url(SELF.order.id) %]">[% 'Linked Records' | $T8 %]</a></li>
+      <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=DeliveryOrder&object_id=[% HTML.url(SELF.order.id) %]">[% 'Linked Records' | $T8 %]</a></li>
 [%- END %]
     </ul>
 
