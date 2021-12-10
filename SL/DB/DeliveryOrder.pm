@@ -17,7 +17,7 @@ use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Part;
 use SL::DB::Unit;
 
-use SL::Controller::DeliveryOrder::TypeData;
+use SL::DB::DeliveryOrder::TypeData qw(:types);
 
 use SL::Helper::Number qw(_format_total _round_total);
 
@@ -326,13 +326,13 @@ sub new_from_time_recordings {
 # use type_data cusomtervendor and transfer direction instead
 sub is_sales {
   if ($_[0]->order_type) {
-   return SL::Controller::DeliveryOrder::TypeData::get3($_[0]->order_type, "properties", "is_customer");
+   return SL::DB::DeliveryOrder::TypeData::get3($_[0]->order_type, "properties", "is_customer");
   }
   return $_[0]{is_sales};
 }
 
 sub customervendor {
-  SL::Controller::DeliveryOrder::TypeData::get3($_[0]->order_type, "properties", "is_customer") ? $_[0]->customer : $_[0]->vendor;
+  SL::DB::DeliveryOrder::TypeData::get3($_[0]->order_type, "properties", "is_customer") ? $_[0]->customer : $_[0]->vendor;
 }
 
 sub convert_to_invoice {
