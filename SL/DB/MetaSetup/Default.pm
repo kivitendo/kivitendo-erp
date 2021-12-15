@@ -46,6 +46,7 @@ __PACKAGE__->meta->columns(
   contact_departments_use_textfield         => { type => 'boolean' },
   contact_titles_use_textfield              => { type => 'boolean' },
   create_part_if_not_found                  => { type => 'boolean', default => 'false' },
+  create_qrbill_invoices                    => { type => 'boolean' },
   create_zugferd_invoices                   => { type => 'integer' },
   currency_id                               => { type => 'integer', not_null => 1 },
   customer_hourly_rate                      => { type => 'numeric', precision => 8, scale => 2 },
