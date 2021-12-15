@@ -28,12 +28,20 @@
   <td>[%- L.input_tag("object.bank_code", SELF.object.bank_code, style=style) %]</td>
  </tr>
  <tr>
+  <th align="right">[% LxERP.t8('Bank Account Id Number (Swiss)') %]</th>
+  <td>[%- L.input_tag("object.bank_account_id", SELF.object.bank_account_id, style=style) %]</td>
+ </tr>
+ <tr>
   <th align="right">[% LxERP.t8('Chart') %]</th>
   <td>[% P.chart.picker('object.chart_id', SELF.object.chart_id, type='AR_paid,AP_paid', category='A,L,Q', choose=1, style=style, "data-validate"="required", "data-title"=LxERP.t8("Chart")) %]</td>
  </tr>
  <tr>
   <th align="right">[% LxERP.t8('Use for Factur-X/ZUGFeRD') %]</th>
   <td>[% L.checkbox_tag('object.use_for_zugferd', checked = SELF.object.use_for_zugferd, for_submit=1) %]</td>
+ </tr>
+ <tr>
+  <th align="right">[% LxERP.t8('Use for Swiss QR-Bill') %]</th>
+  <td>[% L.checkbox_tag('object.use_for_qrbill', checked = SELF.object.use_for_qrbill, for_submit=1) %]</td>
  </tr>
  <tr>
   <th align="right">[% LxERP.t8('Obsolete') %]</th>
