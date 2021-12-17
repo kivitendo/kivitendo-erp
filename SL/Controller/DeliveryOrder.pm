@@ -955,7 +955,7 @@ sub merge_stock_data {
     for my $sinfo (@{ $stock_info }) {
       my $bin = SL::DB::Bin->load_cached($sinfo->{bin_id});
       $sinfo->{warehouse_description} = $bin->warehouse->description;
-      $sinfo->{bin_description}       = $bin->escription;
+      $sinfo->{bin_description}       = $bin->description;
       map { $sinfo->{"stock_$_"}      = $sinfo->{$_} } qw(qty unit);
     }
   }
