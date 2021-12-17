@@ -1073,7 +1073,12 @@ sub action_transfer_stock {
     $self->order->update_attributes(delivered => 1);
   });
 
-  $self->js->flash("info", t8("Stock transfered"))->render;
+  $self->js
+    ->flash("info", t8("Stock transfered"))
+    ->run('kivi.ActionBar.setDisabled', '#transfer_out_action', t8('The parts for this order have already been transferred'))
+    ->run('kivi.ActionBar.setDisabled', '#transfer_in_action', t8('The parts for this order have already been transferred'))
+    ->render;
+
 }
 
 sub js_load_second_row {
@@ -1875,6 +1880,7 @@ sub setup_edit_action_bar {
       combobox => [
         action => [
           t8('Transfer out'),
+          id   => 'transfer_out_action',
           call   => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
           disabled => $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
           only_if => $self->type_data->properties('transfer') eq 'out',
@@ -1882,6 +1888,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Transfer in'),
+          id   => 'transfer_in_action',
           call   => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
           disabled => $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
           only_if => $self->type_data->properties('transfer') eq 'in',
