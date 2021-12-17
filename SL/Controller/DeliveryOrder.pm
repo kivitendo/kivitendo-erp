@@ -1040,6 +1040,8 @@ sub action_transfer_stock {
     return $self->js->flash("error", t8('The parts for this order have already been transferred'))->render;
   }
 
+  my $inout = $self->type_data->properties('transfer');
+
   my $errors = $self->save;
 
   if (@$errors) {
@@ -1050,7 +1052,7 @@ sub action_transfer_stock {
   my $order = $self->order;
 
   # TODO move to type data
-  my $trans_type = $self->type_data->properties('transfer') eq 'in'
+  my $trans_type = $inout eq 'in'
     ? SL::DB::Manager::TransferType->find_by(direction => "id", description => "stock")
     : SL::DB::Manager::TransferType->find_by(direction => "out", description => "shipped");
 
@@ -1060,6 +1062,7 @@ sub action_transfer_stock {
     for my $stock (@{ $item->delivery_order_stock_entries }) {
       my $transfer = SL::DB::Inventory->new_from($stock);
       $transfer->trans_type($trans_type);
+      $transfer->qty($transfer->qty * -1) if $inout eq 'out';
 
       push @transfer_requests, $transfer if defined $transfer->qty && $transfer->qty != 0;
     };
