@@ -2131,7 +2131,6 @@ sub calculate_stock_in_out {
     $_->unit_obj->convert_to($_->qty, $item->unit_obj)
   } $item->delivery_order_stock_entries;
 
-  my $matches  = $do_qty == $sum;
   my $content  = _format_number_units($sum, 2, $item->unit_obj, $item->part->unit_obj);
 
   return $content;
