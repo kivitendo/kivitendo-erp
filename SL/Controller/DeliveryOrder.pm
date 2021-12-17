@@ -6,6 +6,7 @@ use parent qw(SL::Controller::Base);
 use SL::Helper::Flash qw(flash_later);
 use SL::Helper::Number qw(_format_number_units _parse_number);
 use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
+use SL::Presenter::DeliveryOrder qw(delivery_order_status_line);
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
 use SL::PriceSource;
@@ -1077,6 +1078,7 @@ sub action_transfer_stock {
     ->flash("info", t8("Stock transfered"))
     ->run('kivi.ActionBar.setDisabled', '#transfer_out_action', t8('The parts for this order have already been transferred'))
     ->run('kivi.ActionBar.setDisabled', '#transfer_in_action', t8('The parts for this order have already been transferred'))
+    ->replaceWith('#data-status-line', delivery_order_status_line($self->order))
     ->render;
 
 }
