@@ -3,6 +3,7 @@ package SL::Helper::Number;
 use strict;
 use Exporter qw(import);
 use List::Util qw(max min);
+use List::UtilsBy qw(rev_nsort_by);
 use Config;
 
 our @EXPORT_OK = qw(
@@ -60,18 +61,19 @@ sub _format_number_units {
     return _format_number($amount, $places, %params);
   }
 
-  $amount       *= $unit_from->convert_to(1, $unit_to);
+  $amount       *= $unit_from->factor;
 
-  my $conv_units = $unit_from->convertible_units($all_units);
+  # unline AM::convertible_uits, this one doesn't sort by default
+  my @conv_units = rev_nsort_by { $_->factor // 0 } @{ $unit_from->convertible_units($all_units) };
 
-  if (!scalar @{ $conv_units }) {
+  if (!scalar @conv_units) {
     return _format_number($amount, $places, %params) . " " . $unit_to->name;
   }
 
   my @values;
   my $num;
 
-  for my $unit (@$conv_units) {
+  for my $unit (@conv_units) {
     my $last = $unit->name eq $unit_to->name;
     if (!$last) {
       $num     = int($amount / $unit->factor);
