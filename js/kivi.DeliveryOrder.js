@@ -121,12 +121,14 @@ namespace('kivi.DeliveryOrder', function(ns) {
 
     $.post("controller.pl",
       kivi.serialize({
-        action:     "DeliveryOrder/pack_stock_information",
+        action:     "DeliveryOrder/update_stock_information",
+        unit:       $("#" + row).find("[name$=unit]").val(),
         stock_info: data,
         row:        row
       }),
       (data) => {
-        $("#" + row + " .data-stock-info").val(data);
+        $("#" + row + " .data-stock-info").val(data.stock_info);
+        $("#" + row + " .data-stock-qty").text(data.stock_qty)
         $("#stock_in_out_dialog").dialog("close");
       }
     );

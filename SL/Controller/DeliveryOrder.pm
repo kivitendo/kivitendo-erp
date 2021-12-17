@@ -55,7 +55,7 @@ use Rose::Object::MakeMethods::Generic
 
 # safety
 __PACKAGE__->run_before('check_auth',
-                        except => [ qw(pack_stock_information) ]);
+                        except => [ qw(update_stock_information) ]);
 
 __PACKAGE__->run_before('get_unalterable_data',
                         only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_ap_transaction
@@ -920,16 +920,20 @@ sub action_stock_in_out_dialog {
   );
 }
 
-# we're using the old YAML based stock packing, but don't want to do this in
-# the frontend so we're doing a tiny roundtrip to the backend, back the info in
-# perl, serve it back to the frontend and store it in the DOM there
-sub action_pack_stock_information {
+sub action_update_stock_information {
   my ($self) = @_;
 
   my $stock_info = $::form->{stock_info};
+  my $unit = $::form->{unit};
   my $yaml = SL::YAML::Dump($stock_info);
+  my $stock_qty = $self->calculate_stock_in_out_from_stock_info($unit, $stock_info);
 
-  $self->render(\$yaml, { layout => 0, process => 0 });
+  my $response = {
+    stock_info => $yaml,
+    stock_qty => $stock_qty,
+  };
+
+  $self->render(\ SL::JSON::to_json($response), { layout => 0, type => 'json', process => 0 });
 }
 
 sub merge_stock_data {
@@ -2119,14 +2123,27 @@ sub store_pdf_to_webdav_and_filemanagement {
   return @errors;
 }
 
+sub calculate_stock_in_out_from_stock_info {
+  my ($self, $unit, $stock_info) = @_;
+
+  return "" if !$unit;
+
+  my %units_by_name = map { $_->name => $_ } @{ SL::DB::Manager::Unit->get_all };
+
+  my $sum      = sum0 map {
+    $units_by_name{$_->{unit}}->convert_to($_->{qty}, $units_by_name{$unit})
+  } @$stock_info;
+
+  my $content  = _format_number_units($sum, 2, $units_by_name{$unit}, $units_by_name{$unit});
+
+  return $content;
+}
+
 sub calculate_stock_in_out {
-  my ($self, $item) = @_;
+  my ($self, $item, $stock_info) = @_;
 
   return "" if !$item->part || !$item->part->unit || !$item->unit;
 
-  my $in_out   = $self->type_data->transfer;
-
-  my $do_qty   = $item->qty;
   my $sum      = sum0 map {
     $_->unit_obj->convert_to($_->qty, $item->unit_obj)
   } $item->delivery_order_stock_entries;

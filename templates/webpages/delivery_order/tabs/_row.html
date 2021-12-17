@@ -88,7 +88,7 @@
     </td>
 
     <td>
-      <span id="stock_[% ID %]">[% SELF.calculate_stock_in_out(ITEM) %]</span>
+      <span id="stock_[% ID %]" class="data-stock-qty">[% SELF.calculate_stock_in_out(ITEM) %]</span>
       [% P.button_tag("kivi.DeliveryOrder.open_stock_in_out_dialog(this, '" _ in_out _"')", "?") %]
     </td>
   </tr>
