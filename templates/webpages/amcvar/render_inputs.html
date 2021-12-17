@@ -19,6 +19,9 @@
 [%- ELSIF var.type == 'textfield' %]
 <textarea name="[% var_name %]" cols="[% HTML.escape(var.width) %]" rows="[% HTML.escape(var.height) %]">[% HTML.escape(var.value) %]</textarea>
 
+[%- ELSIF var.type == 'htmlfield' %]
+<textarea name="[% var_name %]" cols="[% HTML.escape(var.width) %]" rows="[% HTML.escape(var.height) %]" class="texteditor">[% HTML.escape(var.value) %]</textarea>
+
 [%- ELSIF var.type == 'date' %]
 [% L.date_tag(var_name, var.value) %]
 

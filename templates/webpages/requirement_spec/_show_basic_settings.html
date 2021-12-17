@@ -1,4 +1,4 @@
-[%- USE HTML -%][%- USE LxERP -%]
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%]
 <div id="basic_settings" class="basic-settings-context-menu">
  <h2>
   [% IF SELF.requirement_spec.is_template %]
@@ -41,7 +41,13 @@
   [% FOREACH var = cvars %]
    <tr class="listrow">
     <td>[% HTML.escape(var.config.description) %]</td>
-    <td>[% HTML.escape(var.value_as_text) %]</td>
+    <td>
+      [%- IF var.config.type == 'htmlfield' -%]
+        [%- L.restricted_html(var.value_as_text) -%]
+      [%- ELSE -%]
+        [%- HTML.escape(var.value_as_text) -%]
+      [%- END -%]
+    </td>
    </tr>
   [% END %]
 

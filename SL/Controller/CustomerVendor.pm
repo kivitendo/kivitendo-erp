@@ -1205,9 +1205,7 @@ sub _pre_render {
 
   $self->{template_args} ||= {};
 
-  $::request->{layout}->add_javascripts('kivi.CustomerVendor.js');
-  $::request->{layout}->add_javascripts('kivi.File.js');
-  $::request->{layout}->add_javascripts('kivi.CustomerVendorTurnover.js');
+  $::request->{layout}->add_javascripts("$_.js") for qw (kivi.CustomerVendor kivi.File kivi.CustomerVendorTurnover ckeditor/ckeditor ckeditor/adapters/jquery);
 
   $self->_setup_form_action_bar;
 }

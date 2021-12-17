@@ -27,7 +27,7 @@ sub strip {
   if (!%stripper) {
     %stripper = ( parser => HTML::Parser->new );
 
-    $stripper{parser}->handler(text => sub { $stripper{text} .= $_[1]; });
+    $stripper{parser}->handler(text => sub { $stripper{text} .= ' ' . $_[1]; });
   }
 
   $stripper{text} = '';
@@ -35,6 +35,8 @@ sub strip {
   $stripper{parser}->eof;
 
   $stripper{text} =~ s{\&([^;]+);}{ $entities{$1} || "\&$1;" }eg;
+  $stripper{text} =~ s{^ +| +$}{}g;
+  $stripper{text} =~ s{ {2,}}{ }g;
 
   return delete $stripper{text};
 }

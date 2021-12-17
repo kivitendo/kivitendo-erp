@@ -27,6 +27,10 @@
 [% render_cvar_tag_options.import(cols=cvar.var.width, rows=cvar.var.height);
    L.textarea_tag(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
+[%- ELSIF cvar.var.type == 'htmlfield' %]
+[% render_cvar_tag_options.import(cols=cvar.var.width, rows=cvar.var.height, class="texteditor");
+   L.textarea_tag(cvar_tag_name, L.restricted_html(cvar.value), render_cvar_tag_options) %]
+
 [%- ELSIF cvar.var.type == 'date' %]
 [%- L.date_tag(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 

@@ -127,7 +127,7 @@
   (4) [% 'The default value depends on the variable type:' | $T8 %]
   <br>
   <ul>
-   <li>[%- 'Text, text field and number variables: The default value will be used as-is.' | $T8 %]</li>
+   <li>[%- 'Text, text field, HTML field and number variables: The default value will be used as-is.' | $T8 %]</li>
    <li>[%- 'Boolean variables: If the default value is non-empty then the checkbox will be checked by default and unchecked otherwise.' | $T8 %]</li>
    <li>[%- 'Date and timestamp variables: If the default value equals \'NOW\' then the current date/current timestamp will be used. Otherwise the default value is copied as-is.' | $T8 %]</li>
   </ul>
@@ -138,7 +138,7 @@
   <br>
   <ul>
    <li>[%- 'Text variables: \'MAXLENGTH=n\' sets the maximum entry length to \'n\'.' | $T8 %]</li>
-   <li>[%- 'Text field variables: \'WIDTH=w HEIGHT=h\' sets the width and height of the text field. They default to 30 and 5 respectively.' | $T8 %]</li>
+   <li>[%- 'Text field and HTML field variables: \'WIDTH=w HEIGHT=h\' sets the width and height of the field in pixels. They default to 225 and 90 respectively.' | $T8 %]</li>
    <li>[%- 'Number variables: \'PRECISION=n\' forces numbers to be shown with exactly n decimal places.' | $T8 %]</li>
    <li>[%- 'Selection fields: The option field must contain the available options for the selection. Options are separated by \'##\', for example \'Early##Normal##Late\'.' | $T8 %]</li>
   </ul>
