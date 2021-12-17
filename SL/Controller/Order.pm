@@ -486,12 +486,12 @@ sub action_send_email {
 
   if ($::form->{attachment_policy} ne 'no_file' && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
     my $doc;
-    my @errors = $self->generate_pdf(\$doc, {media      => $::form->{media},
-                                            format     => $::form->{print_options}->{format},
-                                            formname   => $::form->{print_options}->{formname},
-                                            language   => $self->order->language,
-                                            printer_id => $::form->{print_options}->{printer_id},
-                                            groupitems => $::form->{print_options}->{groupitems}});
+    my @errors = $self->generate_doc(\$doc, {media      => $::form->{media},
+                                             format     => $::form->{print_options}->{format},
+                                             formname   => $::form->{print_options}->{formname},
+                                             language   => $self->order->language,
+                                             printer_id => $::form->{print_options}->{printer_id},
+                                             groupitems => $::form->{print_options}->{groupitems}});
     if (scalar @errors) {
       return $self->js->flash('error', t8('Generating the document failed: #1', $errors[0]))->render($self);
     }
