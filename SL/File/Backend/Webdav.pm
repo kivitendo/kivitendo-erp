@@ -6,7 +6,6 @@ use parent qw(SL::File::Backend);
 use SL::DB::File;
 
 use SL::System::Process;
-use SL::Webdav;
 use File::Copy;
 use File::Slurp;
 use File::Basename;
