@@ -1871,14 +1871,14 @@ sub setup_edit_action_bar {
       combobox => [
         action => [
           t8('Transfer out'),
-          submit   => [ '#order_form', { action => "DeliveryOrder/transfer_stock" } ],
+          call   => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
           disabled => $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
           only_if => $self->type_data->properties('transfer') eq 'out',
           confirm  => t8('Do you really want to transfer the stock and set this order to delivered?'),
         ],
         action => [
           t8('Transfer in'),
-          submit   => [ '#order_form', { action => "DeliveryOrder/transfer_stock" } ],
+          call   => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
           disabled => $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
           only_if => $self->type_data->properties('transfer') eq 'in',
           confirm  => t8('Do you really want to transfer the stock and set this order to delivered?'),
