@@ -98,29 +98,7 @@
         <table>
 
           <tr>
-            <td colspan="2" align="center">
-              [%- IF SELF.order.id %]
-                [%- IF SELF.order.delivered %]
-                  [%- IF SELF.type_data.transfer == 'out' %]
-                  [% 'transferred out' | $T8 %]
-                  [%- ELSE %]
-                  [% 'transferred in' | $T8 %]
-                  [%- END %]
-                [%- ELSE %]
-                  [%- IF SELF.type_data.transfer == 'out' %]
-                  [% 'not transferred out yet' | $T8 %]
-                  [%- ELSE %]
-                  [% 'not transferred in yet' | $T8 %]
-                  [%- END %]
-                [%- END %]
-               ;
-                [%- IF SEF.order.closed %]
-                  [% 'Closed' | $T8 %]
-                [%- ELSE %]
-                  [% 'Open' | $T8 %]
-                [%- END %]
-              [%- END %]
-            </td>
+            <td colspan="2" align="center" id="data-status-line">[% SELF.order.presenter.status_line %]</td>
           </tr>
 
           <tr>

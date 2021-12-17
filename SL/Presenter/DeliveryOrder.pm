@@ -2,10 +2,12 @@ package SL::Presenter::DeliveryOrder;
 
 use strict;
 
+use SL::DB::DeliveryOrder::TypeData ();
+use SL::Locale::String qw(t8);
 use SL::Presenter::EscapedText qw(escape is_escaped);
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(sales_delivery_order purchase_delivery_order);
+our @EXPORT_OK = qw(sales_delivery_order purchase_delivery_order delivery_order_status_line);
 
 use Carp;
 
@@ -62,6 +64,36 @@ sub _do_record {
   );
   is_escaped($text);
 }
+
+sub stock_status {
+  my ($delivery_order) = @_;
+
+  my $in_out = SL::DB::DeliveryOrder::TypeData::get3($delivery_order->type, "properties", "transfer");
+
+  if ($in_out eq 'in') {
+    return escape($delivery_order->delivered ? t8('transferred in') : t8('not transferred in yet'));
+  }
+
+  if ($in_out eq 'out') {
+    return escape($delivery_order->delivered ? t8('transferred out') : t8('not transferred out yet'));
+  }
+}
+
+sub closed_status {
+  my ($delivery_order) = @_;
+
+  return escape($delivery_order->closed ? t8('Closed') : t8('Open'))
+}
+
+sub status_line {
+  my ($delivery_order) = @_;
+
+  return "" unless $delivery_order->id;
+
+  stock_status($delivery_order) . " ; " . closed_status($delivery_order)
+}
+
+sub delivery_order_status_line { goto &status_line };
 
 1;
 
