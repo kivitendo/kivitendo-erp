@@ -1887,7 +1887,8 @@ sub setup_edit_action_bar {
           t8('Transfer out'),
           id   => 'transfer_out_action',
           call   => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
-          disabled => $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
+          disabled => !$self->order->id ? t8('This object has not been saved yet.') :
+                      $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
           only_if => $self->type_data->properties('transfer') eq 'out',
           confirm  => t8('Do you really want to transfer the stock and set this order to delivered?'),
         ],
@@ -1895,7 +1896,8 @@ sub setup_edit_action_bar {
           t8('Transfer in'),
           id   => 'transfer_in_action',
           call   => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
-          disabled => $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
+          disabled => !$self->order->id ? t8('This object has not been saved yet.') :
+                      $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
           only_if => $self->type_data->properties('transfer') eq 'in',
           confirm  => t8('Do you really want to transfer the stock and set this order to delivered?'),
         ],
