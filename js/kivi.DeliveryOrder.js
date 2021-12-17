@@ -106,8 +106,12 @@ namespace('kivi.DeliveryOrder', function(ns) {
 
     let data = [];
     $("#stock-in-out-table tr.listrow").each((i,row) => {
+      let qty = kivi.parse_amount($(row).find(".data-qty").val());
+
+      if (qty === 0) return;
+
       data.push({
-        qty:         kivi.parse_amount($(row).find(".data-qty").val()),
+        qty:                           qty,
         warehouse_id:                  $(row).find(".data-warehouse-id").val(),
         bin_id:                        $(row).find(".data-bin-id").val(),
         chargenumber:                  $(row).find(".data-chargenumber").val(),

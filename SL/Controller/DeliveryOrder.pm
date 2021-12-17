@@ -1061,7 +1061,7 @@ sub action_transfer_stock {
       my $transfer = SL::DB::Inventory->new_from($stock);
       $transfer->trans_type($trans_type);
 
-      push @transfer_requests, $transfer;
+      push @transfer_requests, $transfer if defined $transfer->qty && $transfer->qty != 0;
     };
   }
 
@@ -1378,7 +1378,7 @@ sub make_item {
       $obj->$_($line->{$_}) for qw(bin_id warehouse_id chargenumber qty unit);
       $obj->bestbefore_as_date($line->{bestfbefore})
         if $line->{bestbefore} && $::instance_conf->get_show_bestbefore;
-      push @save, $obj;
+      push @save, $obj if $obj->qty;
     }
 
     $item->delivery_order_stock_entries(@save);
