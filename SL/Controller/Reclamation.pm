@@ -261,7 +261,15 @@ sub action_list {
 
   $self->_setup_search_action_bar;
   $self->prepare_report;
-  $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get);
+  $self->report_generator_list_objects(
+    report => $self->{report},
+    objects => $self->models->get,
+    options => {
+      action_bar_additional_submit_values => {
+        type => $self->type,
+      },
+    },
+  );
 }
 
 # save the reclamation as new document an open it for edit
