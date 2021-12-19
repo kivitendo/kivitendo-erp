@@ -5,6 +5,7 @@ use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash_later);
 use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
+use SL::Presenter::ReclamationFilter qw(filter);
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
 use SL::PriceSource;
@@ -2100,11 +2101,11 @@ sub prepare_report {
   }
   $column_defs{$_}->{text} ||= t8( $self->models->get_sort_spec->{$_}->{title} || $_ ) for keys %column_defs;
 
-  my @columns_to_show = grep { $::form->{"include_in_report_$_"}} keys %column_defs;
+  my @columns_to_show = grep { $::form->{active_in_report}->{"$_"} } keys %column_defs;
   unless (scalar(@columns_to_show)){ @columns_to_show = @default_columns; }
 
   my %active_in_report = map { $_ => 1 } @columns_to_show;
-  $self->models->add_additional_url_params(map { "include_in_report_" . $_ => 1 } @columns_to_show); #for reorder
+  $self->models->add_additional_url_params(map { "active_in_report." . $_ => 1 } @columns_to_show); #for reorder
   my %columns_in_report = map {$_ => $column_defs{$_}} @columns_to_show;
 
   ## add cvars TODO(Tamino): Add own cvars
@@ -2123,7 +2124,11 @@ sub prepare_report {
   #my @cvar_column_form_names = ('_include_cvars_from_form', map { "include_cvars_" . $_->name } @{ $self->includeable_cvar_configs });
 
   # make all sortable
-  my @sortable    = keys %columns_in_report;
+  my @sortable = keys %columns_in_report;
+
+  my $filter_html = SL::Presenter::ReclamationFilter::filter(
+    $::form->{filter}, $self->type, active_in_report => \%active_in_report
+  );
 
   $report->set_options(
     std_column_visibility => 1,
@@ -2132,8 +2137,7 @@ sub prepare_report {
     raw_top_info_text     => $self->render(
      'reclamation/_report_top',
      { output => 0 },
-     type => $self->type,
-     active_in_report => \%active_in_report,
+     FILTER_HTML => $filter_html,
     ),
     raw_bottom_info_text  => $self->render(
      'reclamation/_report_bottom',
