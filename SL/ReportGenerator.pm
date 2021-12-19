@@ -418,7 +418,7 @@ sub prepare_html_content {
 }
 
 sub create_action_bar_actions {
-  my ($self, $variables) = @_;
+  my ($self, $variables, %params) = @_;
 
   my @actions;
   foreach my $type (qw(pdf csv)) {
@@ -430,7 +430,12 @@ sub create_action_bar_actions {
 
     push @actions, action => [
       $type eq 'pdf' ? $::locale->text('PDF export') : $::locale->text('CSV export'),
-      submit => [ '#report_generator_form', { $key => $value } ],
+      submit => [ '#report_generator_form', {(
+            $key => $value,
+            defined $params{action_bar_additional_submit_values}
+            ? %{$params{action_bar_additional_submit_values}}
+            : undef
+          )} ],
     ];
   }
 
@@ -449,7 +454,7 @@ sub create_action_bar_actions {
 sub setup_action_bar {
   my ($self, $variables, %params) = @_;
 
-  my @actions = $self->create_action_bar_actions($variables);
+  my @actions = $self->create_action_bar_actions($variables, %params);
 
   if ($params{action_bar_setup_hook}) {
     $params{action_bar_setup_hook}->(@actions);
