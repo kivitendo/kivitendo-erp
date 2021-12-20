@@ -99,10 +99,11 @@ sub get_all_count {
     object_id   => $params{object_id},
     object_type => $params{object_type}
   );
-  push @query, (file_name => $params{file_name}) if $params{file_name};
-  push @query, (file_type => $params{file_type}) if $params{file_type};
-  push @query, (mime_type => $params{mime_type}) if $params{mime_type};
-  push @query, (source    => $params{source})    if $params{source};
+  push @query, (file_name     => $params{file_name})     if $params{file_name};
+  push @query, (file_type     => $params{file_type})     if $params{file_type};
+  push @query, (mime_type     => $params{mime_type})     if $params{mime_type};
+  push @query, (source        => $params{source})        if $params{source};
+  push @query, (print_variant => $params{print_variant}) if $params{print_variant};
 
   my $cnt = SL::DB::Manager::File->get_all_count(query => [@query]);
   return $cnt;
