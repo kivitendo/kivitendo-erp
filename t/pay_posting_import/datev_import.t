@@ -73,7 +73,13 @@ foreach my $booking (@{ $gl_bookings }) {
 
   # gl
   is ($current_row->[13], $booking->reference, "Buchungstext correct");
-  is ("Wisavis", $booking->department->description, "Department correctly assigned");
+  if (ref $booking->department eq 'SL::DB::Department') {
+    is ($current_row->[36], 'wisavis', "Department correctly assigned");                # lowercase
+    is ('Wisavis', $booking->department->description, "Department correctly assigned"); # upper case
+  } else {
+    is ($current_row->[36], '', "No Department correctly assigned");
+
+  }
   is ($source, $booking->transactions->[0]->source, "Source 0 correctly assigned");
   is ($source, $booking->transactions->[1]->source, "Source 1 correctly assigned");
 
