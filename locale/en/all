@@ -176,6 +176,7 @@ $self->{texts} = {
   'Add Delivery Order'          => '',
   'Add Document from \'#1\''    => '',
   'Add Dunning'                 => '',
+  'Add Final Invoice'           => '',
   'Add Follow-Up'               => '',
   'Add Follow-Up for #1'        => '',
   'Add General Ledger Transaction' => '',

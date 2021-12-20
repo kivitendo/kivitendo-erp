@@ -96,7 +96,7 @@ sub add {
     $form->{title} = $locale->text('Add Invoice for Advance Payment');
 
   } elsif ($form->{type} eq "final_invoice") {
-    $form->{title} = $locale->text('Final Invoice');
+    $form->{title} = $locale->text('Add Final Invoice');
 
   } else {
     $form->{title} = $locale->text('Add Sales Invoice');

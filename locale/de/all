@@ -176,6 +176,7 @@ $self->{texts} = {
   'Add Delivery Order'          => 'Lieferschein erfassen',
   'Add Document from \'#1\''    => 'Dokument von \'#1\' hinzufügen',
   'Add Dunning'                 => 'Mahnung erzeugen',
+  'Add Final Invoice'           => 'Schlussrechnung erfassen',
   'Add Follow-Up'               => 'Wiedervorlage erstellen',
   'Add Follow-Up for #1'        => 'Wiedervorlage für #1 erstellen',
   'Add General Ledger Transaction' => 'Dialogbuchen',
