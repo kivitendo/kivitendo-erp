@@ -578,7 +578,9 @@ sub invoice_details {
   $form->{username} = $myconfig->{name};
   $form->{$_} = $form->format_amount($myconfig, $form->{$_}, 2) for @separate_totals;
 
-  foreach my $invoice_for_advance_payment (@{$self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id})}) {
+  my $id_for_iap = $form->{convert_from_oe_ids} || $form->{convert_from_ar_ids} || $form->{id};
+  my $from_order = !!$form->{convert_from_oe_ids};
+  foreach my $invoice_for_advance_payment (@{$self->_get_invoices_for_advance_payment($id_for_iap, $from_order)}) {
     # Collect VAT of invoices for advance payment.
     # Set sellprices to fxsellprices for items, because
     # the PriceTaxCalculator sets fxsellprice from sellprice before calculating.
@@ -1090,7 +1092,9 @@ SQL
 
   my $iap_amounts;
   if ($form->{type} eq 'final_invoice') {
-    my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id});
+    my $id_for_iap = $form->{convert_from_oe_ids} || $form->{convert_from_ar_ids} || $form->{id};
+    my $from_order = !!$form->{convert_from_oe_ids};
+    my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($id_for_iap, $from_order);
     if (scalar @$invoices_for_advance_payment > 0) {
       # reverse booking for invoices for advance payment
       foreach my $invoice_for_advance_payment (@$invoices_for_advance_payment) {
@@ -1587,15 +1591,44 @@ SQL
 }
 
 sub _get_invoices_for_advance_payment {
-  my ($self, $id) = @_;
+  my ($self, $id, $id_is_from_order) = @_;
 
   return [] if !$id;
 
-  my $invoice_obj      = SL::DB::Invoice->new(id => $id*1)->load;
-  my $links            = $invoice_obj->linked_records(direction => 'from', from => ['Invoice'], recursive => 1);
+  # Search all related invoices for advance payment.
+  # Case 1:
+  # (order) -> invoice for adv. payment 1 -> invoice for adv. payment 2 -> invoice for adv. payment 3 -> final invoice
+  #
+  # Case 2:
+  # order -> invoice for adv. payment 1
+  #   | |`-> invoice for adv. payment 2
+  #   | `--> invoice for adv. payment 3
+  #   `----> final invoice
+  #
+  # The id is currently that from the last invoice for adv. payment (3 in this example),
+  # that from the final invoice or that from the order.
+
+  my $invoice_obj;
+  my $order_obj;
+  my $links;
+
+  if (!$id_is_from_order) {
+    $invoice_obj = SL::DB::Invoice->load_cached($id*1);
+    $links       = $invoice_obj->linked_records(direction => 'from', from => ['Order']);
+    $order_obj   = $links->[0];
+  } else {
+    $order_obj   = SL::DB::Order->load_cached($id*1);
+  }
+
+  if ($order_obj) {
+    $links        = $order_obj  ->linked_records(direction => 'to',   to => ['Invoice']);
+  } else {
+    $links        = $invoice_obj->linked_records(direction => 'from', from => ['Invoice'], recursive => 1);
+  }
+
   my @related_invoices = grep {'SL::DB::Invoice' eq ref $_ && "invoice_for_advance_payment" eq $_->type} @$links;
 
-  push @related_invoices, $invoice_obj if "invoice_for_advance_payment" eq $invoice_obj->type;
+  push @related_invoices, $invoice_obj if !$order_obj && "invoice_for_advance_payment" eq $invoice_obj->type;
 
   return \@related_invoices;
 }
@@ -2109,7 +2142,7 @@ sub _delete_invoice {
 
   # if we delete a final invoice, the reverse bookings for the clearing account in the invoice for advance payment
   # must be deleted as well
-  my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{convert_from_ar_ids} || $form->{id});
+  my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{id});
 
   # Todo: allow only if invoice for advance payment is not paid.
   # die if any { $_->paid } for @$invoices_for_advance_payment;

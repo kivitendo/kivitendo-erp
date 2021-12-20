@@ -57,11 +57,11 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('check_auth');
 
 __PACKAGE__->run_before('recalc',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment save_and_ap_transaction
+                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment save_and_final_invoice save_and_ap_transaction
                                      print send_email) ]);
 
 __PACKAGE__->run_before('get_unalterable_data',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment save_and_ap_transaction
+                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment save_and_final_invoice save_and_ap_transaction
                                      print send_email) ]);
 
 #
@@ -695,6 +695,16 @@ sub action_save_and_invoice_for_advance_payment {
     controller       => 'oe.pl',
     action           => 'oe_invoice_from_order',
     new_invoice_type => 'invoice_for_advance_payment',
+  );
+}
+
+sub action_save_and_final_invoice {
+  my ($self) = @_;
+
+  $self->save_and_redirect_to(
+    controller       => 'oe.pl',
+    action           => 'oe_invoice_from_order',
+    new_invoice_type => 'final_invoice',
   );
 }
 
@@ -1990,6 +2000,12 @@ sub setup_edit_action_bar {
     $has_invoice_for_advance_payment = any {'SL::DB::Invoice' eq ref $_ && "invoice_for_advance_payment" eq $_->type} @$lr;
   }
 
+  my $has_final_invoice;
+  if ($self->order->id && $self->type eq sales_order_type()) {
+    my $lr = $self->order->linked_records(direction => 'to', to => ['Invoice']);
+    $has_final_invoice               = any {'SL::DB::Invoice' eq ref $_ && "final_invoice" eq $_->type} @$lr;
+  }
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       combobox => [
@@ -2057,14 +2073,24 @@ sub setup_edit_action_bar {
           ],
         ],
         action => [
-          t8('Save and Invoice for Advance Payment'),
+          ($has_invoice_for_advance_payment ? t8('Save and Further Invoice for Advance Payment') : t8('Save and Invoice for Advance Payment')),
           call      => [ 'kivi.Order.save', 'save_and_invoice_for_advance_payment', $::instance_conf->get_order_warn_duplicate_parts ],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          disabled  => $has_invoice_for_advance_payment ? t8('This order has already an invoice for advanced payment.')
-                                                        : undef,
+          disabled  => $has_final_invoice ? t8('This order has already a final invoice.')
+                                          : undef,
           only_if   => (any { $self->type eq $_ } (sales_order_type())),
+        ],
+        action => [
+          t8('Save and Final Invoice'),
+          call      => [ 'kivi.Order.save', 'save_and_final_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
+                         @req_trans_cost_art, @req_cusordnumber,
+          ],
+          disabled  => $has_final_invoice ? t8('This order has already a final invoice.')
+                                          : undef,
+          only_if   => (any { $self->type eq $_ } (sales_order_type())) && $has_invoice_for_advance_payment,
         ],
         action => [
           t8('Save and AP Transaction'),

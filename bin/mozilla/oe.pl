@@ -1654,7 +1654,7 @@ sub invoice {
     $::dispatcher->end_request;
   }
 
-  _oe_remove_delivered_or_billed_rows(id => $form->{id}, type => 'billed');
+  _oe_remove_delivered_or_billed_rows(id => $form->{id}, type => 'billed') if $form->{new_invoice_type} ne 'final_invoice';
 
   $form->{cp_id} *= 1;
 
@@ -1699,8 +1699,8 @@ sub invoice {
 
   if (   $form->{type} eq 'sales_order'
       || $form->{type} eq 'sales_quotation') {
-    $form->{title}  = ($form->{new_invoice_type} eq 'invoice_for_advance_payment')
-                    ? $locale->text('Add Invoice for Advance Payment')
+    $form->{title}  = ($form->{new_invoice_type} eq 'invoice_for_advance_payment') ? $locale->text('Add Invoice for Advance Payment')
+                    : ($form->{new_invoice_type} eq 'final_invoice')               ? $locale->text('Add Final Invoice')
                     : $locale->text('Add Sales Invoice');
     $form->{script} = 'is.pl';
     $script         = "is";

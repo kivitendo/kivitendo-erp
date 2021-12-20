@@ -336,6 +336,13 @@ sub setup_is_action_bar {
     $has_final_invoice = any {'SL::DB::Invoice' eq ref $_ && "final_invoice" eq $_->invoice_type} @$lr;
   }
 
+  my $is_invoice_for_advance_payment_from_order;
+  if ($form->{id} && $form->{type} eq "invoice_for_advance_payment") {
+    my $invoice_obj = SL::DB::Invoice->load_cached($form->{id});
+    my $lr          = $invoice_obj->linked_records(direction => 'from', from => ['Order']);
+    $is_invoice_for_advance_payment_from_order = scalar @$lr >= 1;
+  }
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
@@ -428,6 +435,7 @@ sub setup_is_action_bar {
                     : !$form->{id}      ? t8('This invoice has not been posted yet.')
                     : $has_further_invoice_for_advance_payment ? t8('This invoice has already a further invoice for advanced payment.')
                     : $has_final_invoice                       ? t8('This invoice has already a final invoice.')
+                    : $is_invoice_for_advance_payment_from_order ? t8('This invoice was added from an order. See there.')
                     :                     undef,
           only_if  => $form->{type} eq "invoice_for_advance_payment",
         ],
@@ -439,6 +447,7 @@ sub setup_is_action_bar {
                     : !$form->{id}      ? t8('This invoice has not been posted yet.')
                     : $has_further_invoice_for_advance_payment ? t8('This invoice has a further invoice for advanced payment.')
                     : $has_final_invoice                       ? t8('This invoice has already a final invoice.')
+                    : $is_invoice_for_advance_payment_from_order ? t8('This invoice was added from an order. See there.')
                     :                     undef,
           only_if  => $form->{type} eq "invoice_for_advance_payment",
         ],
@@ -1213,11 +1222,6 @@ sub final_invoice {
 
   $main::auth->assert('invoice_edit');
 
-  # search all related invoices for advance payment
-  #
-  # (order) -> invoice for adv. payment 1 -> invoice for adv. payment 2 -> invoice for adv. payment 3 -> final invoice
-  #
-  # we are currently in the last invoice for adv. payment (3 in this example)
   my $related_invoices = IS->_get_invoices_for_advance_payment($form->{id});
 
   delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked)};
