@@ -333,7 +333,7 @@ sub setup_is_action_bar {
   if ($form->{id} && $form->{type} eq "invoice_for_advance_payment") {
     my $invoice_obj = SL::DB::Invoice->load_cached($form->{id});
     my $lr          = $invoice_obj->linked_records(direction => 'to', to => ['Invoice']);
-    $has_final_invoice = any {'SL::DB::Invoice' eq ref $_ && "invoice" eq $_->invoice_type} @$lr;
+    $has_final_invoice = any {'SL::DB::Invoice' eq ref $_ && "final_invoice" eq $_->invoice_type} @$lr;
   }
 
   for my $bar ($::request->layout->get('actionbar')) {
