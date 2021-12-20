@@ -10,7 +10,7 @@ use Exporter qw(import);
 our @EXPORT_OK = qw(
   html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag
   checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
-  stringify_attributes restricted_html textarea_tag link_tag date_tag
+  stringify_attributes textarea_tag link_tag date_tag
   div_tag radio_button_tag img_tag);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
@@ -369,13 +369,6 @@ sub _set_id_attribute {
 
 my $html_restricter;
 
-sub restricted_html {
-  my ($value) = @_;
-
-  $html_restricter ||= SL::HTML::Restrict->create;
-  return $html_restricter->process($value);
-}
-
 sub textarea_tag {
   my ($name, $content, %attributes) = @_;
 
@@ -499,10 +492,6 @@ Converts a name to a HTML id by replacing various characters.
 Creates a string from all elements in C<%items> suitable for usage as
 HTML tag attributes. Keys and values are HTML escaped even though keys
 must not contain non-ASCII characters for browsers to accept them.
-
-=item C<restricted_html $html>
-
-Returns HTML stripped of unknown tags. See L<SL::HTML::Restrict>.
 
 =back
 
