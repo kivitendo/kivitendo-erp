@@ -586,18 +586,24 @@ sub invoice_details {
     my %pat       = $invoice_for_advance_payment->calculate_prices_and_taxes;
     my $taxamount = sum0 values %{ $pat{taxes_by_tax_id} };
 
-    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_$_"} },              $invoice_for_advance_payment->$_) for qw(invnumber transdate);
-    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_amount_nofmt"} },    $invoice_for_advance_payment->amount);
-    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_amount"} },          $invoice_for_advance_payment->amount_as_number);
-    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_taxamount_nofmt"} }, $taxamount);
-    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_taxamount"} },       $form->format_amount($myconfig, $taxamount, 2));
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_$_"} },                $invoice_for_advance_payment->$_) for qw(invnumber transdate);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_amount_nofmt"} },      $invoice_for_advance_payment->amount);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_amount"} },            $invoice_for_advance_payment->amount_as_number);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_taxamount_nofmt"} },   $taxamount);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_taxamount"} },         $form->format_amount($myconfig, $taxamount, 2));
 
-    $form->{iap_amount_nofmt}    += $invoice_for_advance_payment->amount;
-    $form->{iap_taxamount_nofmt} += $taxamount;
-    $form->{iap_existing}         = 1;
+    my $open_amount = $form->round_amount($invoice_for_advance_payment->open_amount, 2);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_open_amount_nofmt"} }, $open_amount);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_open_amount"} },       $form->format_amount($myconfig, $open_amount, 2));
+
+    $form->{iap_amount_nofmt}      += $invoice_for_advance_payment->amount;
+    $form->{iap_taxamount_nofmt}   += $taxamount;
+    $form->{iap_open_amount_nofmt} += $open_amount;
+    $form->{iap_existing}           = 1;
   }
-  $form->{iap_amount}    = $form->format_amount($myconfig, $form->{iap_amount_nofmt},    2);
-  $form->{iap_taxamount} = $form->format_amount($myconfig, $form->{iap_taxamount_nofmt}, 2);
+  $form->{iap_amount}      = $form->format_amount($myconfig, $form->{iap_amount_nofmt},      2);
+  $form->{iap_taxamount}   = $form->format_amount($myconfig, $form->{iap_taxamount_nofmt},   2);
+  $form->{iap_open_amount} = $form->format_amount($myconfig, $form->{iap_open_amount_nofmt}, 2);
 
   $main::lxdebug->leave_sub();
 }

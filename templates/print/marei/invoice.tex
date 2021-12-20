@@ -158,10 +158,10 @@
 <%if iap_existing%>%
   Es sind folgende Anzahlungsrechnungen vorhanden:\\
   <%foreach iap_invnumber%>%
-    <%iap_invnumber%> <%iap_invdate%> <%iap_amount%> <%iap_taxamount%>\\%
+    <%iap_invnumber%> <%iap_invdate%> <%iap_amount%> <%iap_taxamount%> (offen: <%iap_open_amount%>)\\%
     <%end iap_invnumber%>%
   Die Summen sind:\\
-  \bfseries <%iap_amount%> \bfseries <%iap_taxamount%>\\%
+  \bfseries <%iap_amount%> \bfseries <%iap_taxamount%> (offen: <%iap_open_amount%>)\\%
 <%end iap_available%>%
 
 \Ifstr{<%deliverydate%>}{}{%
