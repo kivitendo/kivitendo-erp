@@ -177,7 +177,10 @@ sub invoice_details {
 
   my @payment_arrays = qw(payment paymentaccount paymentdate paymentsource paymentmemo);
 
-  my @invoices_for_advance_payment_arrays = qw(iap_invnumber iap_transdate ifip_amount iap_taxamount);
+  my @invoices_for_advance_payment_arrays = qw(iap_invnumber iap_transdate
+                                               iap_amount iap_amount_nofmt
+                                               iap_taxamount iap_taxamount_nofmt
+                                               iap_open_amount iap_open_amount_nofmt);
 
   map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays, @payment_arrays, @prepared_arrays, @invoices_for_advance_payment_arrays);
 
