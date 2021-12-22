@@ -1085,29 +1085,29 @@ sub get_formname_translation {
   local $::locale = Locale->new($self->{recipient_locale});
 
   my %formname_translations = (
-    bin_list                => $main::locale->text('Bin List'),
-    credit_note             => $main::locale->text('Credit Note'),
-    invoice                 => $main::locale->text('Invoice'),
-    invoice_copy            => $main::locale->text('Invoice Copy'),
+    bin_list                    => $main::locale->text('Bin List'),
+    credit_note                 => $main::locale->text('Credit Note'),
+    invoice                     => $main::locale->text('Invoice'),
+    invoice_copy                => $main::locale->text('Invoice Copy'),
     invoice_for_advance_payment => $main::locale->text('Invoice for Advance Payment'),
-    final_invoice           => $main::locale->text('Final Invoice'),
-    pick_list               => $main::locale->text('Pick List'),
-    proforma                => $main::locale->text('Proforma Invoice'),
-    purchase_order          => $main::locale->text('Purchase Order'),
-    request_quotation       => $main::locale->text('RFQ'),
-    sales_order             => $main::locale->text('Confirmation'),
-    sales_quotation         => $main::locale->text('Quotation'),
-    storno_invoice          => $main::locale->text('Storno Invoice'),
-    sales_delivery_order    => $main::locale->text('Delivery Order'),
-    purchase_delivery_order => $main::locale->text('Delivery Order'),
-    dunning                 => $main::locale->text('Dunning'),
-    dunning1                => $main::locale->text('Payment Reminder'),
-    dunning2                => $main::locale->text('Dunning'),
-    dunning3                => $main::locale->text('Last Dunning'),
-    dunning_invoice         => $main::locale->text('Dunning Invoice'),
-    letter                  => $main::locale->text('Letter'),
-    ic_supply               => $main::locale->text('Intra-Community supply'),
-    statement               => $main::locale->text('Statement'),
+    final_invoice               => $main::locale->text('Final Invoice'),
+    pick_list                   => $main::locale->text('Pick List'),
+    proforma                    => $main::locale->text('Proforma Invoice'),
+    purchase_order              => $main::locale->text('Purchase Order'),
+    request_quotation           => $main::locale->text('RFQ'),
+    sales_order                 => $main::locale->text('Confirmation'),
+    sales_quotation             => $main::locale->text('Quotation'),
+    storno_invoice              => $main::locale->text('Storno Invoice'),
+    sales_delivery_order        => $main::locale->text('Delivery Order'),
+    purchase_delivery_order     => $main::locale->text('Delivery Order'),
+    dunning                     => $main::locale->text('Dunning'),
+    dunning1                    => $main::locale->text('Payment Reminder'),
+    dunning2                    => $main::locale->text('Dunning'),
+    dunning3                    => $main::locale->text('Last Dunning'),
+    dunning_invoice             => $main::locale->text('Dunning Invoice'),
+    letter                      => $main::locale->text('Letter'),
+    ic_supply                   => $main::locale->text('Intra-Community supply'),
+    statement                   => $main::locale->text('Statement'),
   );
 
   $main::lxdebug->leave_sub();
@@ -1134,10 +1134,10 @@ sub get_number_prefix_for_type {
 
   my $prefix =
       (first { $self->{type} eq $_ } qw(invoice invoice_for_advance_payment final_invoice credit_note)) ? 'inv'
-    : ($self->{type} =~ /_quotation$/)                        ? 'quo'
-    : ($self->{type} =~ /_delivery_order$/)                   ? 'do'
-    : ($self->{type} =~ /letter/)                             ? 'letter'
-    :                                                           'ord';
+    : ($self->{type} =~ /_quotation$/)                                                                  ? 'quo'
+    : ($self->{type} =~ /_delivery_order$/)                                                             ? 'do'
+    : ($self->{type} =~ /letter/)                                                                       ? 'letter'
+    :                                                                                                     'ord';
 
   # better default like this?
   # : ($self->{type} =~ /(sales|purcharse)_order/           :  'ord';

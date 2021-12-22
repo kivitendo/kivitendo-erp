@@ -431,24 +431,24 @@ sub setup_is_action_bar {
           t8('Further Invoice for Advance Payment'),
           submit   => [ '#form', { action => "further_invoice_for_advance_payment" } ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => !$may_edit_create ? t8('You must not change this invoice.')
-                    : !$form->{id}      ? t8('This invoice has not been posted yet.')
-                    : $has_further_invoice_for_advance_payment ? t8('This invoice has already a further invoice for advanced payment.')
-                    : $has_final_invoice                       ? t8('This invoice has already a final invoice.')
+          disabled => !$may_edit_create                          ? t8('You must not change this invoice.')
+                    : !$form->{id}                               ? t8('This invoice has not been posted yet.')
+                    : $has_further_invoice_for_advance_payment   ? t8('This invoice has already a further invoice for advanced payment.')
+                    : $has_final_invoice                         ? t8('This invoice has already a final invoice.')
                     : $is_invoice_for_advance_payment_from_order ? t8('This invoice was added from an order. See there.')
-                    :                     undef,
+                    :                                              undef,
           only_if  => $form->{type} eq "invoice_for_advance_payment",
         ],
         action => [
           t8('Final Invoice'),
           submit   => [ '#form', { action => "final_invoice" } ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => !$may_edit_create ? t8('You must not change this invoice.')
-                    : !$form->{id}      ? t8('This invoice has not been posted yet.')
-                    : $has_further_invoice_for_advance_payment ? t8('This invoice has a further invoice for advanced payment.')
-                    : $has_final_invoice                       ? t8('This invoice has already a final invoice.')
+          disabled => !$may_edit_create                          ? t8('You must not change this invoice.')
+                    : !$form->{id}                               ? t8('This invoice has not been posted yet.')
+                    : $has_further_invoice_for_advance_payment   ? t8('This invoice has a further invoice for advanced payment.')
+                    : $has_final_invoice                         ? t8('This invoice has already a final invoice.')
                     : $is_invoice_for_advance_payment_from_order ? t8('This invoice was added from an order. See there.')
-                    :                     undef,
+                    :                                              undef,
           only_if  => $form->{type} eq "invoice_for_advance_payment",
         ],
         action => [
@@ -625,10 +625,10 @@ sub form_header {
   }
 
   $TMPL_VAR{is_type_invoice_for_advance_payment} = $form->{type} eq "invoice_for_advance_payment";
-  $TMPL_VAR{is_type_credit_note} = $form->{type}   eq "credit_note";
-  $TMPL_VAR{is_format_html}      = $form->{format} eq 'html';
-  $TMPL_VAR{dateformat}          = $myconfig{dateformat};
-  $TMPL_VAR{numberformat}        = $myconfig{numberformat};
+  $TMPL_VAR{is_type_credit_note}                 = $form->{type}   eq "credit_note";
+  $TMPL_VAR{is_format_html}                      = $form->{format} eq 'html';
+  $TMPL_VAR{dateformat}                          = $myconfig{dateformat};
+  $TMPL_VAR{numberformat}                        = $myconfig{numberformat};
 
   # hiddens
   $TMPL_VAR{HIDDENS} = [qw(
@@ -769,17 +769,17 @@ sub form_footer {
 
   print $form->parse_html_template('is/form_footer', {
     is_type_invoice_for_advance_payment => ($form->{type} eq "invoice_for_advance_payment"),
-    is_type_credit_note => ($form->{type} eq "credit_note"),
-    totalpaid           => $totalpaid,
-    paid_missing        => $form->{invtotal} - $totalpaid,
-    print_options       => setup_sales_purchase_print_options(),
-    show_storno         => $form->{id} && !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ar") && !$totalpaid,
-    show_delete         => ($::instance_conf->get_is_changeable == 2)
-                             ? ($form->current_date(\%myconfig) eq $form->{gldate})
-                             : ($::instance_conf->get_is_changeable == 1),
-    today               => DateTime->today,
-    vc_obj              => $form->{customer_id} ? SL::DB::Customer->load_cached($form->{customer_id}) : undef,
-    shipto_cvars        => $shipto_cvars,
+    is_type_credit_note                 => ($form->{type} eq "credit_note"),
+    totalpaid                           => $totalpaid,
+    paid_missing                        => $form->{invtotal} - $totalpaid,
+    print_options                       => setup_sales_purchase_print_options(),
+    show_storno                         => $form->{id} && !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ar") && !$totalpaid,
+    show_delete                         => ($::instance_conf->get_is_changeable == 2)
+                                             ? ($form->current_date(\%myconfig) eq $form->{gldate})
+                                             : ($::instance_conf->get_is_changeable == 1),
+    today                               => DateTime->today,
+    vc_obj                              => $form->{customer_id} ? SL::DB::Customer->load_cached($form->{customer_id}) : undef,
+    shipto_cvars                        => $shipto_cvars,
   });
 ##print $form->parse_html_template('is/_payments'); # parser
 ##print $form->parse_html_template('webdav/_list'); # parser
