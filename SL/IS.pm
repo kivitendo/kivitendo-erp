@@ -567,6 +567,11 @@ sub invoice_details {
     2
   );
 
+  $form->{rounding_nofmt} = $form->{rounding};
+  $form->{total_nofmt}    = $form->{total};
+  $form->{invtotal_nofmt} = $form->{invtotal};
+  $form->{paid_nofmt}     = $form->{paid};
+
   $form->{rounding} = $form->format_amount($myconfig, $form->{rounding}, 2);
   $form->{total}    = $form->format_amount($myconfig, $form->{invtotal} - $form->{paid}, 2);
   $form->{invtotal} = $form->format_amount($myconfig, $form->{invtotal}, 2);
@@ -609,6 +614,9 @@ sub invoice_details {
   $form->{iap_amount}      = $form->format_amount($myconfig, $form->{iap_amount_nofmt},      2);
   $form->{iap_taxamount}   = $form->format_amount($myconfig, $form->{iap_taxamount_nofmt},   2);
   $form->{iap_open_amount} = $form->format_amount($myconfig, $form->{iap_open_amount_nofmt}, 2);
+
+  $form->{iap_final_amount_nofmt} = $form->{invtotal_nofmt} - $form->{iap_amount_nofmt};
+  $form->{iap_final_amount}       = $form->format_amount($myconfig, $form->{iap_final_amount_nofmt}, 2);
 
   $main::lxdebug->leave_sub();
 }
