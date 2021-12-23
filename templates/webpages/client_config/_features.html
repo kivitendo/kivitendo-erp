@@ -277,6 +277,11 @@
      [% LxERP.t8("If the test mode is enabled, the Factur-X/ZUGFeRD invoices will be flagged so that they're only fit to be used for testing purposes.") %]
    </td>
   </tr>
+  <tr>
+   <td align="right">[% LxERP.t8("Create sales invoices with Swiss QR-Bill") %]</td>
+   <td>[% L.yes_no_tag("defaults.create_qrbill_invoices", SELF.defaults.create_qrbill_invoices) %]</td>
+   <td>[% LxERP.t8("If enabled sales invoices created using OpenDocument/OASIS format will include data for Swiss QR-Bill creation.") %]</td>
+  </tr>
 
   <tr><td class="listheading" colspan="4">[% LxERP.t8("E-mail") %]</td></tr>
 

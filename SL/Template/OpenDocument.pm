@@ -6,15 +6,21 @@ use Archive::Zip;
 use Encode;
 use HTML::Entities;
 use POSIX 'setsid';
+use XML::LibXML;
 
 use SL::Iconv;
 use SL::Template::OpenDocument::Styles;
+
+use SL::DB::BankAccount;
+use SL::Helper::QrBill;
+use SL::Helper::ISO3166;
 
 use Cwd;
 # use File::Copy;
 # use File::Spec;
 # use File::Temp qw(:mktemp);
 use IO::File;
+use List::Util qw(first);
 
 use strict;
 
@@ -346,10 +352,19 @@ sub parse_block {
 sub parse {
   $main::lxdebug->enter_sub();
   my $self = $_[0];
+
   local *OUT = $_[1];
   my $form = $self->{"form"};
 
   close(OUT);
+
+  my $qr_image_path;
+  if ($::instance_conf->get_create_qrbill_invoices) {
+    # the biller account information, biller address and the reference number,
+    # are needed in the template aswell as in the qr-code generation, therefore
+    # assemble these and add to $::form
+    $qr_image_path = $self->generate_qr_code;
+  }
 
   my $file_name;
   if ($form->{"IN"} =~ m|^/|) {
@@ -420,6 +435,28 @@ sub parse {
     $zip->contents("styles.xml", Encode::encode('utf-8-strict', $new_styles));
   }
 
+  if ($::instance_conf->get_create_qrbill_invoices) {
+    # get placeholder path from odt XML
+    my $qr_placeholder_path;
+    my $dom = XML::LibXML->load_xml(string => $contents);
+    my @nodelist = $dom->getElementsByTagName("draw:frame");
+    for my $node (@nodelist) {
+      my $attr = $node->getAttribute('draw:name');
+      if ($attr eq 'QRCodePlaceholder') {
+        my @children = $node->getChildrenByTagName('draw:image');
+        $qr_placeholder_path = $children[0]->getAttribute('xlink:href');
+      }
+    }
+    if (!defined($qr_placeholder_path)) {
+      $::form->error($::locale->text('QR-Code placeholder image: QRCodePlaceholder not found in template.'));
+    }
+    # replace QR-Code Placeholder Image in zip file (odt) with generated one
+    $zip->updateMember(
+     $qr_placeholder_path,
+     $qr_image_path
+    );
+  }
+
   $zip->writeToFileNamed($form->{"tmpfile"}, 1);
 
   my $res = 1;
@@ -429,6 +466,260 @@ sub parse {
 
   $main::lxdebug->leave_sub();
   return $res;
+}
+
+sub get_qrbill_account {
+  $main::lxdebug->enter_sub();
+  my ($self) = @_;
+
+  my $qr_account;
+
+  my $bank_accounts     = SL::DB::Manager::BankAccount->get_all;
+  $qr_account = scalar(@{ $bank_accounts }) == 1 ?
+    $bank_accounts->[0] :
+    first { $_->use_for_qrbill } @{ $bank_accounts };
+
+  if (!$qr_account) {
+    $::form->error($::locale->text('No bank account flagged for QRBill usage was found.'));
+  }
+
+  $main::lxdebug->leave_sub();
+  return $qr_account;
+}
+
+sub remove_letters_prefix {
+  my $s = $_[0];
+  $s =~ s/^[a-zA-Z]+//;
+  return $s;
+}
+
+sub check_digits_and_max_length {
+  my $s = $_[0];
+  my $length = $_[1];
+
+  return 0 if (!($s =~ /^\d*$/) || length($s) > $length);
+  return 1;
+}
+
+sub calculate_check_digit {
+  # calculate ESR check digit using algorithm: "modulo 10, recursive"
+  my $ref_number_str = $_[0];
+
+  my @m = (0, 9, 4, 6, 8, 2, 7, 1, 3, 5);
+  my $carry = 0;
+
+  my @ref_number_split = map int($_), split(//, $ref_number_str);
+
+  for my $v (@ref_number_split) {
+    $carry = @m[($carry + $v) % 10];
+  }
+
+  return (10 - $carry) % 10;
+}
+
+sub assemble_ref_number {
+  $main::lxdebug->enter_sub();
+
+  my $bank_id = $_[0];
+  my $customer_number = $_[1];
+  my $order_number = $_[2] // "0";
+  my $invoice_number = $_[3] // "0";
+
+  # check values (analog to checks in makro)
+  # - bank_id
+  #     input: 6 digits, only numbers
+  #     output: 6 digits, only numbers
+  if (!($bank_id =~ /^\d*$/) || length($bank_id) != 6) {
+    $::form->error($::locale->text('Bank account id number invalid. Must be 6 digits.'));
+  }
+
+  # - customer_number
+  #     input: prefix (letters) + up to 6 digits (numbers)
+  #     output: prefix removed, 6 digits, filled with leading zeros
+  $customer_number = remove_letters_prefix($customer_number);
+  if (!check_digits_and_max_length($customer_number, 6)) {
+    $::form->error($::locale->text('Customer number invalid. Must be less then or equal to 6 digits after prefix.'));
+  }
+  # fill with zeros
+  $customer_number = sprintf "%06d", $customer_number;
+
+  # - order_number
+  #     input: prefix (letters) + up to 7 digits, may be zero
+  #     output: prefix removed, 7 digits, filled with leading zeros
+  $order_number = remove_letters_prefix($order_number);
+  if (!check_digits_and_max_length($order_number, 7)) {
+    $::form->error($::locale->text('Order number invalid. Must be less then or equal to 7 digits after prefix.'));
+  }
+  # fill with zeros
+  $order_number = sprintf "%07d", $order_number;
+
+  # - invoice_number
+  #     input: prefix (letters) + up to 7 digits, may be zero
+  #     output: prefix removed, 7 digits, filled with leading zeros
+  $invoice_number = remove_letters_prefix($invoice_number);
+  if (!check_digits_and_max_length($invoice_number, 7)) {
+    $::form->error($::locale->text('Invoice number invalid. Must be less then or equal to 7 digits after prefix.'));
+  }
+  # fill with zeros
+  $invoice_number = sprintf "%07d", $invoice_number;
+
+  # assemble ref. number
+  my $ref_number = $bank_id . $customer_number . $order_number . $invoice_number;
+
+  # calculate check digit
+  my $ref_number_cpl = $ref_number . calculate_check_digit($ref_number);
+
+  $main::lxdebug->leave_sub();
+  return $ref_number_cpl;
+}
+
+sub get_ref_number_formatted {
+  $main::lxdebug->enter_sub();
+
+  my $ref_number = $_[0];
+
+  # create ref. number in format:
+  # 'XX XXXXX XXXXX XXXXX XXXXX XXXXX' (2 digits + 5 x 5 digits)
+  my $ref_number_spaced = substr($ref_number, 0, 2) . ' ' .
+                          substr($ref_number, 2, 5) . ' ' .
+                          substr($ref_number, 7, 5) . ' ' .
+                          substr($ref_number, 12, 5) . ' ' .
+                          substr($ref_number, 17, 5) . ' ' .
+                          substr($ref_number, 22, 5);
+
+  $main::lxdebug->leave_sub();
+  return $ref_number_spaced;
+}
+
+sub get_iban_formatted {
+  $main::lxdebug->enter_sub();
+
+  my $iban = $_[0];
+
+  # create iban number in format:
+  # 'XXXX XXXX XXXX XXXX XXXX X' (5 x 4 + 1digits)
+  my $iban_spaced = substr($iban, 0, 4) . ' ' .
+                    substr($iban, 4, 4) . ' ' .
+                    substr($iban, 8, 4) . ' ' .
+                    substr($iban, 12, 4) . ' ' .
+                    substr($iban, 16, 4) . ' ' .
+                    substr($iban, 20, 1);
+
+  $main::lxdebug->leave_sub();
+  return $iban_spaced;
+}
+
+sub get_amount_formatted {
+  $main::lxdebug->enter_sub();
+
+  unless ($_[0] =~ /^\d+\.\d{2}$/) {
+    $::form->error($::locale->text('Amount has wrong format.'));
+  }
+
+  local $_ = shift;
+  $_ = reverse split //;
+  m/^\d{2}\./g;
+  s/\G(\d{3})(?=\d)/$1 /g;
+
+  $main::lxdebug->leave_sub();
+  return scalar reverse split //;
+}
+
+sub generate_qr_code {
+  $main::lxdebug->enter_sub();
+  my $self = $_[0];
+  my $form = $self->{"form"};
+
+  # assemble data for QR-Code
+
+  # get qr-account data
+  my $qr_account = $self->get_qrbill_account();
+
+  my %biller_information = (
+    'iban' => $qr_account->{'iban'}
+  );
+
+  my $biller_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code(
+    $::instance_conf->get_address_country()
+  );
+  if (!$biller_countrycode) {
+    $::form->error($::locale->text('Error mapping biller countrycode.'));
+  }
+  my %biller_data = (
+    'address_type' => 'K',
+    'company' => $::instance_conf->get_company(),
+    'address_row1' => $::instance_conf->get_address_street1(),
+    'address_row2' => $::instance_conf->get_address_zipcode() . ' ' . $::instance_conf->get_address_city(),
+    'countrycode' => $biller_countrycode,
+  );
+
+  my %payment_information = (
+    'amount' => sprintf("%.2f", $form->parse_amount(\%::myconfig, $form->{'total'})),
+    'currency' => $form->{'currency'},
+  );
+
+  my $customer_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($form->{'country'});
+  if (!$customer_countrycode) {
+    $::form->error($::locale->text('Error mapping customer countrycode.'));
+  }
+  my %invoice_recipient_data = (
+    'address_type' => 'K',
+    'name' => $form->{'name'},
+    'address_row1' => $form->{'street'},
+    'address_row2' => $form->{'zipcode'} . ' ' . $form->{'city'},
+    'countrycode' => $customer_countrycode,
+  );
+
+  # generate ref.-no. with check digit
+  my $ref_number = assemble_ref_number(
+    $qr_account->{'bank_account_id'},
+    $form->{'customernumber'},
+    $form->{'ordnumber'},
+    $form->{'invnumber'},
+  );
+
+  my %ref_nr_data = (
+    'type' => 'QRR',
+    'ref_number' => $ref_number,
+  );
+
+  # set into form for template processing
+  $form->{'biller_information'} = \%biller_information;
+  $form->{'biller_data'} = \%biller_data;
+  $form->{'ref_number'} = $ref_number;
+
+  # get ref. number/iban formatted with spaces
+  $form->{'ref_number_formatted'} = get_ref_number_formatted($ref_number);
+  $form->{'iban_formatted'} = get_iban_formatted($qr_account->{'iban'});
+
+  # format amount for template
+  $form->{'amount_formatted'} = get_amount_formatted(
+    sprintf(
+      "%.2f",
+      $form->parse_amount(\%::myconfig, $form->{'total'})
+    )
+  );
+
+  # set outfile
+  my $outfile = $form->{"tmpdir"} . '/' . 'qr-code.png';
+
+  # generate QR-Code Image
+  eval {
+   my $qr_image = SL::Helper::QrBill->new(
+     \%biller_information,
+     \%biller_data,
+     \%payment_information,
+     \%invoice_recipient_data,
+     \%ref_nr_data,
+   );
+   $qr_image->generate($outfile);
+  } or do {
+   local $_ = $@; chomp; my $error = $_;
+   $::form->error($::locale->text('QR-Image generation failed: ' . $error));
+  };
+
+  $main::lxdebug->leave_sub();
+  return $outfile;
 }
 
 sub is_xvfb_running {

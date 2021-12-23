@@ -15,11 +15,12 @@ von kivitendo.
 
 Mittelgroße neue Features:
 
-In Kundenstammdaten können nun abweichende Rechnungsadressen analog zu
-Lieferadressen verwaltet werden. Diese können in Verkaufsbelegen
-ausgewählt werden. Sie stehen den Druckvorlagen als eigene Variablen
-zur Verfügung.
-
+- In Kundenstammdaten können nun abweichende Rechnungsadressen analog zu
+  Lieferadressen verwaltet werden. Diese können in Verkaufsbelegen
+  ausgewählt werden. Sie stehen den Druckvorlagen als eigene Variablen
+  zur Verfügung.
+- Unterstützung für Schweizer QR-Rechnung mit OpenDocument Vorlagen.
+  Variante: QR-IBAN mit QR-Referenz
 
 Kleinere neue Features und Detailverbesserungen:
 
