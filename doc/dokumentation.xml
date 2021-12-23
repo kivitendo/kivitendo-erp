@@ -262,6 +262,14 @@
           </listitem>
 
           <listitem>
+            <para><literal>Imager</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>Imager::QRCode</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>JSON</literal></para>
           </listitem>
 
@@ -376,6 +384,10 @@
         </itemizedlist>
 
 
+        <para>Seit Version größer v3.5.9 sind die folgenden Pakete
+        hinzugekommen: <literal>Imager</literal>,
+        <literal>Imager::QRCode</literal></para>
+
         <para>Seit Version größer v3.5.6 sind die folgenden Pakete hinzugekommen: <literal>Try::Tiny</literal>, <literal>Math::Round</literal></para>
         <para>Seit Version größer v3.5.6 sind die folgenden Pakete hinzugekommen: <literal>XML::LibXML</literal>, <literal>CAM::PDF</literal></para>
         <para>Seit Version größer v3.5.3 sind die folgenden Pakete hinzugekommen: <literal>Exception::Class</literal></para>
@@ -442,13 +454,14 @@
   libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
-  libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl\
-  postgresql-contrib poppler-utils libhtml-restrict-perl\
-  libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl\
-  libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl\
+  libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl \
+  postgresql-contrib poppler-utils libhtml-restrict-perl \
+  libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl \
+  libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl \
   libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
   libdatetime-event-cron-perl libexception-class-perl libcam-pdf-perl \
-  libxml-libxml-perl libtry-tiny-perl libmath-round-perl
+  libxml-libxml-perl libtry-tiny-perl libmath-round-perl \
+  libimager-perl libimager-qrcode-perl
 </programlisting>
 <para>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</para>
           <note id="ubuntu-universe">
@@ -2555,7 +2568,7 @@ digits_year: 4</programlisting>
           sales_order_besr.odt</para>
         </sect3>
 
-        <sect3>
+        <sect3 id="opendocument-druckvorlagen-mit-makros.vorbereitungen">
           <title>Vorbereitungen im Adminbereich</title>
 
           <para>Damit beim Erstellen von Rechnungen und Aufträgen neben der
@@ -2766,6 +2779,164 @@ digits_year: 4</programlisting>
               nötig.</para>
             </listitem>
           </itemizedlist>
+        </sect3>
+      </sect2>
+
+      <sect2>
+        <title>Schweizer QR-Rechnung mit OpenDocument Vorlagen</title>
+
+        <sect3>
+          <title>Übersicht</title>
+
+          <para>Mit der Version 3.5.9 unterstützt Kivitendo die Erstellung von
+          Schweizer QR-Rechnungen gemäss <ulink
+          url="https://www.paymentstandards.ch/dam/downloads/ig-qr-bill-de.pdf">Swiss
+          Payment Standards, Version 2.2</ulink>. Implementiert ist hierbei die
+          Variante: <emphasis role="bold">QR-IBAN mit
+          QR-Referenz</emphasis>.</para>
+
+          <para>Der Vorlagensatz "rev-odt" enthält die Vorlage
+          <literal>invoice_qr.odt</literal>, welche für die Erstellung von
+          QR-Rechnungen vorgesehen ist. Damit diese verwendet werden kann muss
+          wie obenstehend Beschrieben ein Drucker hinzugefügt werden (siehe
+          <xref linkend="opendocument-druckvorlagen-mit-makros.vorbereitungen"/>
+          ). Alternativ kann die Vorlage umbenannt werden in
+          <literal>invoice.odt</literal>.</para>
+
+          <para>Die Vorlage <literal>invoice_qr.odt</literal> kann beliebig
+          angepasst werden. Zwingend muss diese jedoch das QR-Code Platzhalter
+          Bild, als eingebettetes Bild, enthalten. Da dieses beim
+          Ausdrucken/Erzeugen der Rechnung, durch das neu generierte QR-Code
+          Bild ersetzt wird.</para>
+        </sect3>
+
+        <sect3>
+          <title>Einstellungen</title>
+
+          <sect4>
+            <title>Mandantenkonfiguration</title>
+
+            <para>Unter <emphasis>System → Mandatenkonfiguration →
+            Features</emphasis>. Im Abschnitt <emphasis>Einkauf und
+            Verkauf</emphasis> muss der Punkt <emphasis>Verkaufsrechnungen mit
+            Schweizer QR-Rechnung erzeugen</emphasis> aktiviert werden.</para>
+          </sect4>
+
+          <sect4>
+            <title>Konfiguration der Bankkonten</title>
+
+            <para>Unter <emphasis>System → Bankkonten</emphasis> muss bei
+            mindestens einem Bankkonto die Option <emphasis>Nutzung mit
+            Schweizer QR-Rechnung</emphasis> auf <emphasis
+            role="bold">Ja</emphasis> gestellt werden.</para>
+
+            <tip>
+              <para>Dieses Konto muss unter IBAN eine gültige <emphasis
+              role="bold">QR-IBAN Nummer</emphasis> enthalten. Diese
+              unterscheidet sich von der regulären IBAN.</para>
+
+              <para>Zusätzlich muss eine gültige <emphasis role="bold">Bankkonto
+              Identifikationsnummer</emphasis> angegeben werden
+              (6-stellig).</para>
+
+              <para>Diese werden von der jeweiligen Bank vergeben.</para>
+            </tip>
+
+            <para>Sind mehrere Konten ausgewählt, wird das erste
+            verwendet.</para>
+          </sect4>
+        </sect3>
+
+        <sect3>
+          <title>Adressdaten</title>
+
+          <para>Die Adressdaten zum Zahlungsempfänger werden aus der
+          Mandantenkonfiguration entnommen. Unter <emphasis>System →
+          Mandatenkonfiguration → Verschiedenes</emphasis>, Abschnitt
+          <emphasis>Firmenname und -adresse.</emphasis></para>
+
+          <para>Die Adressdaten zum Zahlungspflichtigen, stammen aus den
+          Kundendaten der jeweiligen Rechnung.</para>
+
+          <para>Diese können in der Vorlage mit den jeweiligen Variablen
+          eingetragen werden. Siehe auch: <xref
+          linkend="dokumentenvorlagen-und-variablen"/></para>
+
+          <para>Der erzeugte QR-Code verwendet Adress-Typ "K" (Kombinierte
+          Adressfelder, 2 Zeilen).</para>
+        </sect3>
+
+        <sect3>
+          <title>Referenznummer</title>
+
+          <para>Die Referenznummer wird in Kivitendo erzeugt und setzt sich
+          wiefolgt zusammen:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>Bankkonto Identifikationsnummer (6-stellig)</para>
+            </listitem>
+
+            <listitem>
+              <para>Kundennummer (6-stellig, mit führenden Nullen
+              aufgefüllt)</para>
+            </listitem>
+
+            <listitem>
+              <para>Auftragsnummer (7-stellig, mit führenden Nullen
+              aufgefüllt)</para>
+            </listitem>
+
+            <listitem>
+              <para>Rechnungsnummer (7-stellig, mit führenden Nullen
+              aufgefüllt)</para>
+            </listitem>
+
+            <listitem>
+              <para>Prüfziffer (1-stellig, berechnet mittels modulo 10,
+              rekursiv)</para>
+            </listitem>
+          </itemizedlist>
+
+          <para>Es sind lediglich Ziffern erlaubt. Allfällige Prefixe mit
+          Buchstaben werden entfernt und fehlende Stellen werden mit führenden
+          Nullen aufgefüllt.</para>
+        </sect3>
+
+        <sect3>
+          <title>Zusätzliche Variablen für Vorlage</title>
+
+          <para>Zusätzlich zu den in der Vorlage standardmässig verfügbaren
+          Variablen (siehe <xref linkend="dokumentenvorlagen-und-variablen"/>),
+          werden die folgenden Variablen erzeugt:</para>
+
+          <variablelist>
+            <varlistentry>
+              <term>ref_number_formatted</term>
+
+              <listitem>
+                <para>Referenznummer formatiert mit Leerzeichen, z.B.: 21 00000
+                00003 13947 14300 09017</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>iban_formatted</term>
+
+              <listitem>
+                <para>IBAN formatiert mit Leerzeichen</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>amount_formatted</term>
+
+              <listitem>
+                <para>Betrag formatiert mit Tausendertrennzeichen Leerschlag,
+                z.B.: 1 005.55</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
         </sect3>
       </sect2>
     </sect1>
