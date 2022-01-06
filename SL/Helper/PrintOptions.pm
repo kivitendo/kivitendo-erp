@@ -82,6 +82,9 @@ sub get_print_options {
       opthash($form->{type},         $form->{PD}{$form->{type}},       $locale->text('Delivery Order')),
       opthash('pick_list',           $form->{PD}{pick_list},           $locale->text('Pick List')),
     ) : undef,
+    ($form->{type} =~ /_reclamation$/) ? (
+      opthash($form->{type},         $form->{PD}{$form->{type}},       $locale->text('Reclamation')),
+    ) : undef,
     ($form->{type} =~ /^letter$/) ? (
       opthash('letter',              $form->{PD}{letter},              $locale->text('Letter')),
     ) : undef;
