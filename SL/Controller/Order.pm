@@ -766,8 +766,10 @@ sub action_show_customer_vendor_details_dialog {
   $details{payment_terms}       = $cv->payment->description       if $cv->payment;
   $details{pricegroup}          = $cv->pricegroup->pricegroup     if $is_customer && $cv->pricegroup;
 
-  foreach my $entry (@{ $cv->additional_billing_addresses }) {
-    push @{ $details{ADDITIONAL_BILLING_ADDRESSES} },   { map { $_ => $entry->$_ } @{$entry->meta->columns} };
+  if ($is_customer) {
+    foreach my $entry (@{ $cv->additional_billing_addresses }) {
+      push @{ $details{ADDITIONAL_BILLING_ADDRESSES} },   { map { $_ => $entry->$_ } @{$entry->meta->columns} };
+    }
   }
   foreach my $entry (@{ $cv->shipto }) {
     push @{ $details{SHIPTO} },   { map { $_ => $entry->$_ } @{$entry->meta->columns} };
@@ -1340,6 +1342,8 @@ sub build_contact_select {
 # Needed, if customer/vendor changed.
 sub build_billing_address_select {
   my ($self) = @_;
+
+  return '' if $self->cv ne 'customer';
 
   select_tag('order.billing_address_id',
              [ {displayable_id => '', id => ''}, $self->order->{$self->cv}->additional_billing_addresses ],
