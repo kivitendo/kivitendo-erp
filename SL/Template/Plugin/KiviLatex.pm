@@ -3,6 +3,8 @@ package SL::Template::Plugin::KiviLatex;
 use strict;
 use parent qw( Template::Plugin::Filter );
 
+use SL::Template::LaTeX;
+
 my $cached_instance;
 
 sub new {
@@ -55,22 +57,7 @@ my %html_replace = (
 sub filter_html {
   my ($self, $text, $args) = @_;
 
-  $text =~ s{ \r+ }{}gx;
-  $text =~ s{ \n+ }{ }gx;
-  $text =~ s{ (?:\&nbsp;|\s)+ }{ }gx;
-  $text =~ s{ <ul>\s*</ul> | <ol>\s*</ol> }{}gx; # Remove lists without items. Can happen with copy & paste from e.g. LibreOffice.
-
-  my @parts = map {
-    if (substr($_, 0, 1) eq '<') {
-      s{ +}{}g;
-      $html_replace{$_} || '';
-
-    } else {
-      $::locale->quote_special_chars('Template/LaTeX', HTML::Entities::decode_entities($_));
-    }
-  } split(m{(<.*?>)}x, $text);
-
-  return join('', @parts);
+  return SL::Template::LaTeX->new->_format_html($text);
 }
 
 sub required_packages_for_html {
