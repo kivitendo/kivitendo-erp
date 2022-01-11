@@ -278,8 +278,10 @@
    </td>
   </tr>
   <tr>
-   <td align="right">[% LxERP.t8("Create sales invoices with Swiss QR-Bill") %]</td>
-   <td>[% L.yes_no_tag("defaults.create_qrbill_invoices", SELF.defaults.create_qrbill_invoices) %]</td>
+   <td align="right">[% LxERP.t8("Create sales invoices with Swiss QR-bill") %]</td>
+   <td>
+     [% L.select_tag("defaults.create_qrbill_invoices", [ [ 0, LxERP.t8('Do not create QR-bill invoices') ], [ 1, LxERP.t8('Create variant QR-IBAN with QR reference') ], [ 2, LxERP.t8('Create variant IBAN without reference') ] ], default=SELF.defaults.create_qrbill_invoices) %]
+   </td>
    <td>[% LxERP.t8("If enabled sales invoices created using OpenDocument/OASIS format will include data for Swiss QR-Bill creation.") %]</td>
   </tr>
 

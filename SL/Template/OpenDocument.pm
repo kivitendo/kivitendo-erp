@@ -678,10 +678,20 @@ sub generate_qr_code {
     $form->{'invnumber'},
   );
 
-  my %ref_nr_data = (
-    'type' => 'QRR',
-    'ref_number' => $ref_number,
-  );
+  my %ref_nr_data;
+  if ($::instance_conf->get_create_qrbill_invoices == 1) {
+    %ref_nr_data = (
+      'type' => 'QRR',
+      'ref_number' => $ref_number,
+    );
+  } elsif ($::instance_conf->get_create_qrbill_invoices == 2) {
+    %ref_nr_data = (
+      'type' => 'NON',
+      'ref_number' => '',
+    );
+  } else {
+    $::form->error($::locale->text('Error getting QR-Bill type.'));
+  }
 
   # set into form for template processing
   $form->{'biller_information'} = \%biller_information;
