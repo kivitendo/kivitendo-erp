@@ -592,6 +592,13 @@ sub use_multiselect_js {
   return $self;
 }
 
+sub use_ckeditor_js {
+  my ($self) = @_;
+
+  $::request->{layout}->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery);
+  return $self;
+}
+
 sub login_form {
   my ($self, %params) = @_;
   $::request->layout(SL::Layout::AdminLogin->new);
@@ -601,7 +608,7 @@ sub login_form {
 
 sub edit_user_form {
   my ($self, %params) = @_;
-  $self->use_multiselect_js->render('admin/edit_user', %params);
+  $self->use_multiselect_js->use_ckeditor_js->render('admin/edit_user', %params);
 }
 
 sub edit_client_form {
