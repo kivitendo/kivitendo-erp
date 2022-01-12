@@ -669,14 +669,14 @@ sub config {
   $myconfig{show_form_details} = 1 unless (defined($myconfig{show_form_details}));
   $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();
   $form->{todo_cfg}            = { TODO->get_user_config('login' => $::myconfig{login}) };
-
-  $::request->{layout}->use_javascript("jquery.multiselect2side.js");
   $form->{title}               = $locale->text('Edit Preferences for #1', $::myconfig{login});
+
+  $::request->{layout}->use_javascript("${_}.js") for qw(jquery.multiselect2side ckeditor/ckeditor ckeditor/adapters/jquery);
 
   setup_am_config_action_bar();
   $form->header();
 
-  $form->{full_signature} = $form->create_email_signature();
+  $form->{company_signature} = SL::DB::Default->get->signature;
 
   print $form->parse_html_template('am/config');
 
