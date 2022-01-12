@@ -246,7 +246,7 @@ sub check_auth {
 sub edit_form {
   my ($self) = @_;
 
-  $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side kivi.File);
+  $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side kivi.File ckeditor/ckeditor ckeditor/adapters/jquery);
 
   $self->setup_edit_form_action_bar;
   $self->render('client_config/form', title => t8('Client Configuration'),
