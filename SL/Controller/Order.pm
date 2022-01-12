@@ -4,6 +4,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash_later);
+use SL::HTML::Util;
 use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
@@ -522,7 +523,7 @@ sub action_send_email {
   $intnotes   .= t8('Cc')         . ": " . $::form->{cc}                                                              . "\n"    if $::form->{cc};
   $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}                                                             . "\n"    if $::form->{bcc};
   $intnotes   .= t8('Subject')    . ": " . $::form->{subject}                                                         . "\n\n";
-  $intnotes   .= t8('Message')    . ": " . $::form->{message};
+  $intnotes   .= t8('Message')    . ": " . SL::HTML::Util->strip($::form->{message});
 
   $self->order->update_attributes(intnotes => $intnotes);
 

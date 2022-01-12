@@ -25,6 +25,7 @@ use Encode qw(decode);
 
 use SL::DBUtils;
 use SL::DB;
+use SL::HTML::Util;
 
 sub unique_id {
   my ($a, $b) = gettimeofday();
@@ -423,7 +424,7 @@ sub save_email_status {
       . $main::locale->text('To (email)') . ": $form->{email}\n"
       . "${cc}${bcc}"
       . $main::locale->text('Subject') . ": $form->{subject}\n\n"
-      . $main::locale->text('Message') . ": $form->{message}";
+      . $main::locale->text('Message') . ": " . SL::HTML::Util->strip($form->{message});
 
     $intnotes =~ s|\r||g;
 

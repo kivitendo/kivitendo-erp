@@ -952,17 +952,15 @@ sub send_email {
   $mail->{to}     = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
   $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
   $mail->{fileid} = time() . '.' . $$ . '.';
+  $mail->{content_type}  =  "text/html";
   my $full_signature     =  $self->create_email_signature();
-  $full_signature        =~ s/\r//g;
 
   $mail->{attachments} =  [];
   my @attfiles;
   # if we send html or plain text inline
   if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
-    $mail->{content_type}   =  "text/html";
     $mail->{message}        =~ s/\r//g;
     $mail->{message}        =~ s{\n}{<br>\n}g;
-    $full_signature         =~ s{\n}{<br>\n}g;
     $mail->{message}       .=  $full_signature;
 
     open(IN, "<", $self->{tmpfile})
@@ -1234,10 +1232,12 @@ sub generate_email_body {
 
   return undef unless $body;
 
+  $body .= GenericTranslations->get(translation_type => "salutation_punctuation_mark", language_id => $self->{language_id});
+  $body  = '<p>' . $::locale->quote_special_chars('HTML', $body) . '</p>';
+
   my $translation_type = $params{translation_type} // "preset_text_$self->{formname}";
   my $main_body        = GenericTranslations->get(translation_type => $translation_type,                  language_id => $self->{language_id});
   $main_body           = GenericTranslations->get(translation_type => $params{fallback_translation_type}, language_id => $self->{language_id}) if !$main_body && $params{fallback_translation_type};
-  $body               .= GenericTranslations->get(translation_type => "salutation_punctuation_mark",      language_id => $self->{language_id}) . "\n\n";
   $body               .= $main_body;
 
   $body = $main::locale->unquote_special_chars('HTML', $body);
@@ -3440,19 +3440,11 @@ sub reformat_numbers {
 }
 
 sub create_email_signature {
-
   my $client_signature = $::instance_conf->get_signature;
   my $user_signature   = $::myconfig{signature};
 
-  my $signature = '';
-  if ( $client_signature or $user_signature ) {
-    $signature  = "\n\n-- \n";
-    $signature .= $user_signature   . "\n" if $user_signature;
-    $signature .= $client_signature . "\n" if $client_signature;
-  };
-  return $signature;
-
-};
+  return join '', grep { $_ } ($user_signature, $client_signature);
+}
 
 sub calculate_tax {
   # this function calculates the net amount and tax for the lines in ar, ap and
