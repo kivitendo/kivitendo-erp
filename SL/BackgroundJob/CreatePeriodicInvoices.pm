@@ -489,6 +489,8 @@ sub _email_invoice {
       $mail->{bcc}         = $global_bcc;
       $mail->{subject}     = $data->{config}->email_subject;
       $mail->{message}     = $data->{config}->email_body;
+      $mail->{message}    .= SL::DB::Default->get->signature;
+      $mail->{content_type} = 'text/html';
       $mail->{attachments} = [{
         path     => $pdf_file_name,
         name     => sprintf('%s %s.pdf', $label, $data->{invoice}->invnumber),
