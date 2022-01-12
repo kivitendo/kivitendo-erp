@@ -141,7 +141,7 @@
 
     <tr>
      <th align="right" valign="top">[%- LxERP.t8("Message") %]</th>
-     <td valign="top">[% L.textarea_tag("email_body", config.email_body, disabled=!config.send_email, rows=8, style=style) %]</td>
+     <td valign="top">[% L.textarea_tag("email_body", config.email_body, disabled=!config.send_email, rows=8, style=style, class="texteditor") %]</td>
     </tr>
    </table>
   </p>
@@ -168,7 +168,7 @@
       $('#email_recipient_address').prop('disabled', disabled);
       $('#email_sender').prop('disabled', disabled);
       $('#email_subject').prop('disabled', disabled);
-      $('#email_body').prop('disabled', disabled);
+      $('#email_body').data('ckeditorInstance').setReadOnly(disabled);
     }
     -->
  </script>
