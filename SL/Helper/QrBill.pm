@@ -93,8 +93,12 @@ sub _init_check {
   $check_re->($invoice_recipient_data, 'address_row2', qr{^.{0,70}$});
   $check_re->($invoice_recipient_data, 'countrycode', qr{^[A-Z]{2}$});
 
+  my %ref_nr_regexes = (
+    QRR => qr{^\d{27}$},
+    NON => qr{^$},
+  );
   $check_re->($ref_nr_data, 'type', qr{^(?:QRR|SCOR|NON)$});
-  $check_re->($ref_nr_data, 'ref_number', qr{^\d{27}$});
+  $check_re->($ref_nr_data, 'ref_number', $ref_nr_regexes{$ref_nr_data->{type}});
 }
 
 sub generate {
@@ -311,7 +315,7 @@ Maximum of 4 characters, alphanumerical. QRR/SCOR/NON.
 
 =item C<ref_number>
 
-27 characters, numerical. QR-Reference.
+QR-Reference: 27 characters, numerical; without Reference: empty.
 
 =back
 
