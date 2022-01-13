@@ -117,8 +117,8 @@ sub _qrcode {
   my $self = shift;
 
   return Imager::QRCode->new(
-    size   =>  3,
-    margin =>  1,
+    size   =>  4,
+    margin =>  0,
     level  => 'M',
   );
 }
