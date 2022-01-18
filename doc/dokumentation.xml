@@ -2791,14 +2791,24 @@ digits_year: 4</programlisting>
           <para>Mit der Version 3.5.9 unterstützt Kivitendo die Erstellung von
           Schweizer QR-Rechnungen gemäss <ulink
           url="https://www.paymentstandards.ch/dam/downloads/ig-qr-bill-de.pdf">Swiss
-          Payment Standards, Version 2.2</ulink>. Implementiert ist hierbei die
-          Variante: <emphasis role="bold">QR-IBAN mit
-          QR-Referenz</emphasis>.</para>
+          Payment Standards, Version 2.2</ulink>. Implementiert sind hierbei die
+          Varianten:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para><emphasis role="bold">QR-IBAN mit
+              QR-Referenz</emphasis></para>
+            </listitem>
+
+            <listitem>
+              <para><emphasis role="bold">IBAN ohne Referenz</emphasis></para>
+            </listitem>
+          </itemizedlist>
 
           <para>Der Vorlagensatz "rev-odt" enthält die Vorlage
           <literal>invoice_qr.odt</literal>, welche für die Erstellung von
           QR-Rechnungen vorgesehen ist. Damit diese verwendet werden kann muss
-          wie obenstehend Beschrieben ein Drucker hinzugefügt werden (siehe
+          wie obenstehend beschrieben ein Drucker hinzugefügt werden (siehe
           <xref linkend="opendocument-druckvorlagen-mit-makros.vorbereitungen"/>
           ). Alternativ kann die Vorlage umbenannt werden in
           <literal>invoice.odt</literal>.</para>
@@ -2806,7 +2816,7 @@ digits_year: 4</programlisting>
           <para>Die Vorlage <literal>invoice_qr.odt</literal> kann beliebig
           angepasst werden. Zwingend muss diese jedoch das QR-Code Platzhalter
           Bild, als eingebettetes Bild, enthalten. Da dieses beim
-          Ausdrucken/Erzeugen der Rechnung, durch das neu generierte QR-Code
+          Ausdrucken/Erzeugen der Rechnung durch das neu generierte QR-Code
           Bild ersetzt wird.</para>
         </sect3>
 
@@ -2818,8 +2828,9 @@ digits_year: 4</programlisting>
 
             <para>Unter <emphasis>System → Mandatenkonfiguration →
             Features</emphasis>. Im Abschnitt <emphasis>Einkauf und
-            Verkauf</emphasis> muss der Punkt <emphasis>Verkaufsrechnungen mit
-            Schweizer QR-Rechnung erzeugen</emphasis> aktiviert werden.</para>
+            Verkauf</emphasis>, beim Punkt <emphasis>Verkaufsrechnungen mit
+            Schweizer QR-Rechnung erzeugen</emphasis>, die gewünschte Variante
+            wählen.</para>
           </sect4>
 
           <sect4>
@@ -2831,8 +2842,9 @@ digits_year: 4</programlisting>
             role="bold">Ja</emphasis> gestellt werden.</para>
 
             <tip>
-              <para>Dieses Konto muss unter IBAN eine gültige <emphasis
-              role="bold">QR-IBAN Nummer</emphasis> enthalten. Diese
+              <para>Für die Variante <emphasis role="bold">QR-IBAN mit
+              QR-Referenz</emphasis> muss dieses Konto unter IBAN eine gültige
+              <emphasis role="bold">QR-IBAN Nummer</emphasis> enthalten. Diese
               unterscheidet sich von der regulären IBAN.</para>
 
               <para>Zusätzlich muss eine gültige <emphasis role="bold">Bankkonto
@@ -2842,7 +2854,7 @@ digits_year: 4</programlisting>
               <para>Diese werden von der jeweiligen Bank vergeben.</para>
             </tip>
 
-            <para>Sind mehrere Konten ausgewählt, wird das erste
+            <para>Sind mehrere Konten ausgewählt wird das erste
             verwendet.</para>
           </sect4>
         </sect3>
@@ -2852,10 +2864,10 @@ digits_year: 4</programlisting>
 
           <para>Die Adressdaten zum Zahlungsempfänger werden aus der
           Mandantenkonfiguration entnommen. Unter <emphasis>System →
-          Mandatenkonfiguration → Verschiedenes</emphasis>, Abschnitt
+          Mandantenkonfiguration → Verschiedenes</emphasis>, Abschnitt
           <emphasis>Firmenname und -adresse.</emphasis></para>
 
-          <para>Die Adressdaten zum Zahlungspflichtigen, stammen aus den
+          <para>Die Adressdaten zum Zahlungspflichtigen stammen aus den
           Kundendaten der jeweiligen Rechnung.</para>
 
           <para>Diese können in der Vorlage mit den jeweiligen Variablen

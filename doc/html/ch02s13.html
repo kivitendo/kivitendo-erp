@@ -132,43 +132,50 @@
               Vorlagen sind keine speziellen Einstellungen in LibreOffice
               nötig.</p></li></ul></div></div></div><div class="sect2" title="2.13.2. Schweizer QR-Rechnung mit OpenDocument Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2621"></a>2.13.2. Schweizer QR-Rechnung mit OpenDocument Vorlagen</h3></div></div></div><div class="sect3" title="2.13.2.1. Übersicht"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2624"></a>2.13.2.1. Übersicht</h4></div></div></div><p>Mit der Version 3.5.9 unterstützt Kivitendo die Erstellung von
           Schweizer QR-Rechnungen gemäss <a class="ulink" href="https://www.paymentstandards.ch/dam/downloads/ig-qr-bill-de.pdf" target="_top">Swiss
-          Payment Standards, Version 2.2</a>. Implementiert ist hierbei die
-          Variante: <span class="bold"><strong>QR-IBAN mit
-          QR-Referenz</strong></span>.</p><p>Der Vorlagensatz "rev-odt" enthält die Vorlage
+          Payment Standards, Version 2.2</a>. Implementiert sind hierbei die
+          Varianten:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                        <span class="bold"><strong>QR-IBAN mit
+              QR-Referenz</strong></span>
+                     </p></li><li class="listitem"><p>
+                        <span class="bold"><strong>IBAN ohne Referenz</strong></span>
+                     </p></li></ul></div><p>Der Vorlagensatz "rev-odt" enthält die Vorlage
           <code class="literal">invoice_qr.odt</code>, welche für die Erstellung von
           QR-Rechnungen vorgesehen ist. Damit diese verwendet werden kann muss
-          wie obenstehend Beschrieben ein Drucker hinzugefügt werden (siehe
+          wie obenstehend beschrieben ein Drucker hinzugefügt werden (siehe
           <a class="xref" href="ch02s13.html#opendocument-druckvorlagen-mit-makros.vorbereitungen" title="2.13.1.2. Vorbereitungen im Adminbereich">Abschnitt&nbsp;2.13.1.2, „Vorbereitungen im Adminbereich“</a>
           ). Alternativ kann die Vorlage umbenannt werden in
           <code class="literal">invoice.odt</code>.</p><p>Die Vorlage <code class="literal">invoice_qr.odt</code> kann beliebig
           angepasst werden. Zwingend muss diese jedoch das QR-Code Platzhalter
           Bild, als eingebettetes Bild, enthalten. Da dieses beim
-          Ausdrucken/Erzeugen der Rechnung, durch das neu generierte QR-Code
-          Bild ersetzt wird.</p></div><div class="sect3" title="2.13.2.2. Einstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2650"></a>2.13.2.2. Einstellungen</h4></div></div></div><div class="sect4" title="2.13.2.2.1. Mandantenkonfiguration"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2653"></a>2.13.2.2.1. Mandantenkonfiguration</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Mandatenkonfiguration →
+          Ausdrucken/Erzeugen der Rechnung durch das neu generierte QR-Code
+          Bild ersetzt wird.</p></div><div class="sect3" title="2.13.2.2. Einstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2660"></a>2.13.2.2. Einstellungen</h4></div></div></div><div class="sect4" title="2.13.2.2.1. Mandantenkonfiguration"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2663"></a>2.13.2.2.1. Mandantenkonfiguration</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Mandatenkonfiguration →
             Features</em></span>. Im Abschnitt <span class="emphasis"><em>Einkauf und
-            Verkauf</em></span> muss der Punkt <span class="emphasis"><em>Verkaufsrechnungen mit
-            Schweizer QR-Rechnung erzeugen</em></span> aktiviert werden.</p></div><div class="sect4" title="2.13.2.2.2. Konfiguration der Bankkonten"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2667"></a>2.13.2.2.2. Konfiguration der Bankkonten</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Bankkonten</em></span> muss bei
+            Verkauf</em></span>, beim Punkt <span class="emphasis"><em>Verkaufsrechnungen mit
+            Schweizer QR-Rechnung erzeugen</em></span>, die gewünschte Variante
+            wählen.</p></div><div class="sect4" title="2.13.2.2.2. Konfiguration der Bankkonten"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2677"></a>2.13.2.2.2. Konfiguration der Bankkonten</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Bankkonten</em></span> muss bei
             mindestens einem Bankkonto die Option <span class="emphasis"><em>Nutzung mit
-            Schweizer QR-Rechnung</em></span> auf <span class="bold"><strong>Ja</strong></span> gestellt werden.</p><div class="tip" title="Tipp" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tipp]" src="system/docbook-xsl/images/tip.png"></td><th align="left">Tipp</th></tr><tr><td align="left" valign="top"><p>Dieses Konto muss unter IBAN eine gültige <span class="bold"><strong>QR-IBAN Nummer</strong></span> enthalten. Diese
+            Schweizer QR-Rechnung</em></span> auf <span class="bold"><strong>Ja</strong></span> gestellt werden.</p><div class="tip" title="Tipp" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tipp]" src="system/docbook-xsl/images/tip.png"></td><th align="left">Tipp</th></tr><tr><td align="left" valign="top"><p>Für die Variante <span class="bold"><strong>QR-IBAN mit
+              QR-Referenz</strong></span> muss dieses Konto unter IBAN eine gültige
+              <span class="bold"><strong>QR-IBAN Nummer</strong></span> enthalten. Diese
               unterscheidet sich von der regulären IBAN.</p><p>Zusätzlich muss eine gültige <span class="bold"><strong>Bankkonto
               Identifikationsnummer</strong></span> angegeben werden
-              (6-stellig).</p><p>Diese werden von der jeweiligen Bank vergeben.</p></td></tr></table></div><p>Sind mehrere Konten ausgewählt, wird das erste
-            verwendet.</p></div></div><div class="sect3" title="2.13.2.3. Adressdaten"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2696"></a>2.13.2.3. Adressdaten</h4></div></div></div><p>Die Adressdaten zum Zahlungsempfänger werden aus der
+              (6-stellig).</p><p>Diese werden von der jeweiligen Bank vergeben.</p></td></tr></table></div><p>Sind mehrere Konten ausgewählt wird das erste
+            verwendet.</p></div></div><div class="sect3" title="2.13.2.3. Adressdaten"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2709"></a>2.13.2.3. Adressdaten</h4></div></div></div><p>Die Adressdaten zum Zahlungsempfänger werden aus der
           Mandantenkonfiguration entnommen. Unter <span class="emphasis"><em>System →
-          Mandatenkonfiguration → Verschiedenes</em></span>, Abschnitt
+          Mandantenkonfiguration → Verschiedenes</em></span>, Abschnitt
           <span class="emphasis"><em>Firmenname und -adresse.</em></span>
-               </p><p>Die Adressdaten zum Zahlungspflichtigen, stammen aus den
+               </p><p>Die Adressdaten zum Zahlungspflichtigen stammen aus den
           Kundendaten der jeweiligen Rechnung.</p><p>Diese können in der Vorlage mit den jeweiligen Variablen
           eingetragen werden. Siehe auch: <a class="xref" href="ch03s03.html" title="3.3. Dokumentenvorlagen und verfügbare Variablen">Abschnitt&nbsp;3.3, „Dokumentenvorlagen und verfügbare Variablen“</a>
                </p><p>Der erzeugte QR-Code verwendet Adress-Typ "K" (Kombinierte
-          Adressfelder, 2 Zeilen).</p></div><div class="sect3" title="2.13.2.4. Referenznummer"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2715"></a>2.13.2.4. Referenznummer</h4></div></div></div><p>Die Referenznummer wird in Kivitendo erzeugt und setzt sich
+          Adressfelder, 2 Zeilen).</p></div><div class="sect3" title="2.13.2.4. Referenznummer"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2728"></a>2.13.2.4. Referenznummer</h4></div></div></div><p>Die Referenznummer wird in Kivitendo erzeugt und setzt sich
           wiefolgt zusammen:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Bankkonto Identifikationsnummer (6-stellig)</p></li><li class="listitem"><p>Kundennummer (6-stellig, mit führenden Nullen
               aufgefüllt)</p></li><li class="listitem"><p>Auftragsnummer (7-stellig, mit führenden Nullen
               aufgefüllt)</p></li><li class="listitem"><p>Rechnungsnummer (7-stellig, mit führenden Nullen
               aufgefüllt)</p></li><li class="listitem"><p>Prüfziffer (1-stellig, berechnet mittels modulo 10,
               rekursiv)</p></li></ul></div><p>Es sind lediglich Ziffern erlaubt. Allfällige Prefixe mit
           Buchstaben werden entfernt und fehlende Stellen werden mit führenden
-          Nullen aufgefüllt.</p></div><div class="sect3" title="2.13.2.5. Zusätzliche Variablen für Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2738"></a>2.13.2.5. Zusätzliche Variablen für Vorlage</h4></div></div></div><p>Zusätzlich zu den in der Vorlage standardmässig verfügbaren
+          Nullen aufgefüllt.</p></div><div class="sect3" title="2.13.2.5. Zusätzliche Variablen für Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2751"></a>2.13.2.5. Zusätzliche Variablen für Vorlage</h4></div></div></div><p>Zusätzlich zu den in der Vorlage standardmässig verfügbaren
           Variablen (siehe <a class="xref" href="ch03s03.html" title="3.3. Dokumentenvorlagen und verfügbare Variablen">Abschnitt&nbsp;3.3, „Dokumentenvorlagen und verfügbare Variablen“</a>),
           werden die folgenden Variablen erzeugt:</p><div class="variablelist"><dl><dt><span class="term">ref_number_formatted</span></dt><dd><p>Referenznummer formatiert mit Leerzeichen, z.B.: 21 00000
                 00003 13947 14300 09017</p></dd><dt><span class="term">iban_formatted</span></dt><dd><p>IBAN formatiert mit Leerzeichen</p></dd><dt><span class="term">amount_formatted</span></dt><dd><p>Betrag formatiert mit Tausendertrennzeichen Leerschlag,
