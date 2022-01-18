@@ -129,7 +129,7 @@ sub _cross {
   my $cross = Imager->new();
   $cross->read(file => $Config{cross_file}) or die $cross->errstr, "\n";
 
-  return $cross->scale(xpixels => 27, ypixels => 27, qtype => 'mixing');
+  return $cross->scale(xpixels => 35, ypixels => 35, qtype => 'mixing');
 }
 
 sub _plot {
