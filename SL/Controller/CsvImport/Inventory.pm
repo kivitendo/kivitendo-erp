@@ -281,6 +281,15 @@ sub check_qty{
 
   my $object = $entry->{object};
 
+  # parse qty (may be float values)
+  if (exists $entry->{raw_data}->{target_qty}) {
+    $entry->{raw_data}->{target_qty} = $::form->parse_amount(\%::myconfig, $entry->{raw_data}->{target_qty});
+    $object->target_qty($entry->{raw_data}->{target_qty});
+  }
+  if (exists $entry->{raw_data}->{qty}) {
+    $entry->{raw_data}->{qty}        = $::form->parse_amount(\%::myconfig, $entry->{raw_data}->{qty});
+    $object->qty($entry->{raw_data}->{qty});
+  }
   if (! exists $entry->{raw_data}->{target_qty} && ! exists $entry->{raw_data}->{qty}) {
     push @{ $entry->{errors} }, $::locale->text('Error: A quantity or a target quantity must be given.');
     return 0;
