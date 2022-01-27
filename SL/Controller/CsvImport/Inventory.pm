@@ -276,7 +276,7 @@ sub check_part {
 # This imports inventories when target_qty is given, transfers else.
 # So we get the actual qty in stock and transfer the difference in case of
 # a given target_qty
-sub check_qty{
+sub check_qty {
   my ($self, $entry) = @_;
 
   my $object = $entry->{object};
