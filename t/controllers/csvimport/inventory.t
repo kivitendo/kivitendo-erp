@@ -263,9 +263,8 @@ $inv_obj = SL::DB::Manager::Inventory->find_by(trans_id => $trans_id);
 
 # we expect one entry for one trans_id
 is ref $inv_obj, "SL::DB::Inventory",             "One inventory object, no array or undef";
-is $inv_obj->qty == 30.35, 1,                       "Valid qty accepted";
-is $inv_obj->comment,
-  "Jetzt wirklich",  "Valid comment accepted";
+is $inv_obj->qty == 30.35, 1,                     "Valid qty accepted";
+is $inv_obj->comment, "Jetzt wirklich",           "Valid comment accepted";
 is $inv_obj->employee_id, 1,                      "Employee valid";
 is ref $inv_obj->shippingdate, 'DateTime',        "Valid DateTime for shippingdate";
 is $inv_obj->shippingdate, DateTime->today_local, "Default shippingdate set";
