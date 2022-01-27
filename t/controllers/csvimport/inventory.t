@@ -307,6 +307,27 @@ is ref $tt, 'SL::DB::TransferType',       "Valid TransferType, no undef";
 is $tt->direction, 'out',                  "Transfer direction correct";
 is $tt->description, 'correction',        "Transfer description correct";
 
+# add some stuff with a different numberformat
+
+$::myconfig{numberformat} = '1.000,00';
+$file = \<<EOL;
+warehouse,bin,partnumber,target_qty,comment
+Warehouse,"Bin 1","ap 1","31,2","Jetzt wirklich"
+EOL
+$entries = test_import($file, $settings1);
+$entry = $entries->[0];
+is scalar @{ $entry->{errors} }, 0, "No error for valid data occurred";
+is $entry->{object}->qty, "31.2",  "Valid qty accepted";  # evals to text qty = target_qty - actual_qty
+is(SL::Helper::Inventory::get_stock(part => $part1),  "31.20000",  'simple add (stock) qty works');
+is(SL::Helper::Inventory::get_onhand(part => $part1), "31.20000", 'simple add (onhand) qty works');
+
+# now check the real Inventory entry
+$trans_id = $entry->{object}->trans_id;
+$inv_obj = SL::DB::Manager::Inventory->find_by(trans_id => $trans_id);
+
+# we expect one entry for one trans_id
+is ref $inv_obj, "SL::DB::Inventory",             "One inventory object, no array or undef";
+is $inv_obj->qty == 31.2, 1,                     "Valid qty calculated";
 
 
 
