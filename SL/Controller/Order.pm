@@ -558,6 +558,12 @@ sub action_show_periodic_invoices_config_dialog {
                                                                                 translation_type =>"preset_text_periodic_invoices_email_subject"),
                                                    email_body              => GenericTranslations->get(
                                                                                 language_id      => $::form->{language_id},
+                                                                                translation_type => "salutation_general")
+                                                                            . GenericTranslations->get(
+                                                                                language_id      => $::form->{language_id},
+                                                                                translation_type => "salutation_punctuation_mark") . "\n\n"
+                                                                            . GenericTranslations->get(
+                                                                                language_id      => $::form->{language_id},
                                                                                 translation_type =>"preset_text_periodic_invoices_email_body"),
   );
   $config->periodicity('m')             if none { $_ eq $config->periodicity             }       @SL::DB::PeriodicInvoicesConfig::PERIODICITIES;
