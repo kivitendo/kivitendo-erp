@@ -55,6 +55,12 @@
       <td>[% L.input_tag("parts_partnumber", "", style=style) %]</td>
      </tr>
      <tr>
+      <th align=right nowrap>[% 'Shipping Point' | $T8 %]</th>
+      <td>[% L.input_tag("shippingpoint", "", style=style) %]</td>
+      <th align="right">[% 'Ship via' | $T8 %]</th>
+      <td>[% L.input_tag("shipvia", "", style=style) %]</td>
+     </tr>
+     <tr>
       <th align="right">[% 'Project Number' | $T8 %]</th>
       <td>[% P.project.picker("project_id", project_id, active="both", valid="both", style=style) %]</td>
      </tr>

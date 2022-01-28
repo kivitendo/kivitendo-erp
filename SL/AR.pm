@@ -575,7 +575,7 @@ sub ar_transactions {
     $where .= " AND a.department_id = ?";
     push(@values, $form->{department_id});
   }
-  foreach my $column (qw(invnumber ordnumber cusordnumber notes transaction_description)) {
+  foreach my $column (qw(invnumber ordnumber cusordnumber notes transaction_description shipvia shippingpoint)) {
     if ($form->{$column}) {
       $where .= " AND a.$column ILIKE ?";
       push(@values, like($form->{$column}));

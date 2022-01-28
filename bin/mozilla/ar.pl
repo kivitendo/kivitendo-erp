@@ -1036,7 +1036,8 @@ sub ar_transactions {
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber cusordnumber transaction_description notes project_id transdatefrom transdateto duedatefrom duedateto
-                                           employee_id salesman_id business_id parts_partnumber parts_description department_id show_marked_as_closed show_not_mailed);
+                                           employee_id salesman_id business_id parts_partnumber parts_description department_id show_marked_as_closed show_not_mailed
+                                           shippingpoint shipvia);
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
   $href =  $params{want_binary_pdf} ? '' : build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
@@ -1159,6 +1160,13 @@ sub ar_transactions {
   if ($form->{closed}) {
     push @options, $locale->text('Closed');
   }
+  if ($form->{shipvia}) {
+    push @options, $locale->text('Ship via') . " : $form->{shipvia}";
+  }
+  if ($form->{shippingpoint}) {
+    push @options, $locale->text('Shipping Point') . " : $form->{shippingpoint}";
+  }
+
 
   $form->{ALL_PRINTERS} = SL::DB::Manager::Printer->get_all_sorted;
 
