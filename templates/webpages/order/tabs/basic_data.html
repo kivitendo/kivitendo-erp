@@ -17,6 +17,7 @@
             <td>
               [% P.customer_vendor.picker("order.${SELF.cv}" _ '_id', SELF.order.$cv_id, type=SELF.cv, style='width: 300px') %]
               [% P.button_tag("kivi.Order.show_vc_details_dialog()", LxERP.t8("Details (one letter abbreviation)")) %]
+              [% P.link_tag(SELF.url_for(controller='CustomerVendor', action='edit', 'id'=SELF.order.$cv_id, 'db'=SELF.cv), LxERP.t8('Edit'), target="_blank", title=LxERP.t8('Open in new window')) %]
             </td>
           </tr>
 
