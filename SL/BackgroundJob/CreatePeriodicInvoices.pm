@@ -473,7 +473,7 @@ sub _email_invoice {
         invoice          => $data->{invoice},
         vars             => $data->{time_period_vars},
         attribute        => $_,
-        attribute_format => 'text'
+        attribute_format => ($_ eq 'email_body' ? 'html' : 'text')
       );
     }
 
