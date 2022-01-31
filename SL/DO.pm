@@ -333,8 +333,8 @@ sub _save {
     $query = qq|SELECT nextval('id')|;
     ($form->{id}) = selectrow_query($form, $dbh, $query);
 
-    $query = qq|INSERT INTO delivery_orders (id, donumber, employee_id, currency_id, taxzone_id) VALUES (?, '', ?, (SELECT currency_id FROM defaults LIMIT 1), ?)|;
-    do_query($form, $dbh, $query, $form->{id}, conv_i($form->{employee_id}), $form->{taxzone_id});
+    $query = qq|INSERT INTO delivery_orders (id, donumber, employee_id, currency_id, taxzone_id, order_type) VALUES (?, '', ?, (SELECT currency_id FROM defaults LIMIT 1), ?, ?)|;
+    do_query($form, $dbh, $query, $form->{id}, conv_i($form->{employee_id}), $form->{taxzone_id}, SALES_DELIVERY_ORDER_TYPE);
   }
 
   my $project_id;
