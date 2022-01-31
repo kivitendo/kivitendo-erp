@@ -1878,7 +1878,8 @@ sub setup_edit_action_bar {
         t8('Delete'),
         call     => [ 'kivi.DeliveryOrder.delete_order' ],
         confirm  => $::locale->text('Do you really want to delete this object?'),
-        disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
+        disabled => !$self->order->id       ? t8('This object has not been saved yet.') :
+                    $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
         only_if  => $self->type_data->show_menu("delete"),
       ],
 
