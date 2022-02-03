@@ -1481,7 +1481,7 @@ SQL
                 cp_id       = ?, marge_total   = ?, marge_percent = ?,
                 globalproject_id               = ?, delivery_customer_id             = ?,
                 transaction_description        = ?, delivery_vendor_id               = ?,
-                donumber    = ?, invnumber_for_credit_note = ?,        direct_debit  = ?,
+                donumber    = ?, invnumber_for_credit_note = ?,        direct_debit  = ?, qrbill_without_amount = ?,
                 delivery_term_id = ?
               WHERE id = ?|;
   @values = (          $form->{"invnumber"},           $form->{"ordnumber"},             $form->{"quonumber"},          $form->{"cusordnumber"},
@@ -1495,7 +1495,7 @@ SQL
                 conv_i($form->{"cp_id"}),            1 * $form->{marge_total} ,      1 * $form->{marge_percent},
                 conv_i($form->{"globalproject_id"}),                              conv_i($form->{"delivery_customer_id"}),
                        $form->{transaction_description},                          conv_i($form->{"delivery_vendor_id"}),
-                       $form->{"donumber"}, $form->{"invnumber_for_credit_note"},        $form->{direct_debit} ? 't' : 'f',
+                       $form->{"donumber"}, $form->{"invnumber_for_credit_note"},        $form->{direct_debit} ? 't' : 'f', $form->{qrbill_without_amount} ? 't' : 'f',
                 conv_i($form->{delivery_term_id}),
                 conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
@@ -2249,7 +2249,7 @@ sub _retrieve_invoice {
            a.mtime, a.itime,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
            a.transaction_description, a.donumber, a.invnumber_for_credit_note,
-           a.marge_total, a.marge_percent, a.direct_debit, a.delivery_term_id,
+           a.marge_total, a.marge_percent, a.direct_debit, a.qrbill_without_amount, a.delivery_term_id,
            dc.dunning_description,
            e.name AS employee
          FROM ar a

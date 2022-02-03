@@ -2753,6 +2753,7 @@ $self->{texts} = {
   'Purpose'                     => 'Verwendungszweck',
   'Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")' => 'Verwendungszweck (wenn die Spalten purpose, purpose1, purpose2 ... existieren werden diese zum Feld "purpose" zusammengefügt)',
   'Purpose/Reference'           => 'Verwendungszweck und Referenz',
+  'QR bill without amount'      => 'QR-Rechnung ohne Betrag',
   'QR-Code placeholder image: QRCodePlaceholder not found in template.' => 'QR-Code Platzhalter Bild: QRCodePlaceholder nicht gefunden.',
   'QR-Image generation failed: ' => 'QR-Code Erzeugung fehlgeschlagen: ',
   'QUEUED'                      => 'In Warteschlange',

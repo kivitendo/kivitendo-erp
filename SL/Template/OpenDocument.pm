@@ -653,8 +653,15 @@ sub generate_qr_code {
     'countrycode' => $biller_countrycode,
   );
 
+  my $amount;
+  if ($form->{'qrbill_without_amount'}) {
+    $amount = '';
+  } else {
+    $amount = sprintf("%.2f", $form->parse_amount(\%::myconfig, $form->{'total'}));
+  }
+
   my %payment_information = (
-    'amount' => sprintf("%.2f", $form->parse_amount(\%::myconfig, $form->{'total'})),
+    'amount' => $amount,
     'currency' => $form->{'currency'},
   );
 
