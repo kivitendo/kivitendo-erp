@@ -44,6 +44,7 @@ __PACKAGE__->meta->columns(
   ordnumber                 => { type => 'text' },
   paid                      => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
   payment_id                => { type => 'integer' },
+  qrbill_without_amount     => { type => 'boolean', default => 'false' },
   quodate                   => { type => 'date' },
   quonumber                 => { type => 'text' },
   salesman_id               => { type => 'integer' },
