@@ -24,6 +24,7 @@ __PACKAGE__->meta->columns(
   price_source             => { type => 'text' },
   pricetype                => { type => 'text' },
   protocol                 => { type => 'text', default => 'http', not_null => 1 },
+  proxy                    => { type => 'text', default => '' },
   realm                    => { type => 'text' },
   server                   => { type => 'text' },
   shipping_costs_parts_id  => { type => 'integer' },
