@@ -71,34 +71,39 @@ sub _init_check {
   my ($biller_information, $biller_data, $payment_information, $invoice_recipient_data, $ref_nr_data) = @_;
 
   my $check_re = sub {
-    my ($href, $elem, $regex) = @_;
+    my ($group, $href, $elem, $regex) = @_;
     defined $href->{$elem} && $href->{$elem} =~ $regex
-      or die "parameter '$elem' not valid", "\n";
+      or die "field '$elem' in group '$group' not valid", "\n";
   };
 
-  $check_re->($biller_information, 'iban', qr{^(?:CH|LI)[0-9a-zA-Z]{19}$});
+  my $group = 'biller information';
+  $check_re->($group, $biller_information, 'iban', qr{^(?:CH|LI)[0-9a-zA-Z]{19}$});
 
-  $check_re->($biller_data, 'address_type', qr{^[KS]$});
-  $check_re->($biller_data, 'company', qr{^.{1,70}$});
-  $check_re->($biller_data, 'address_row1', qr{^.{0,70}$});
-  $check_re->($biller_data, 'address_row2', qr{^.{0,70}$});
-  $check_re->($biller_data, 'countrycode', qr{^[A-Z]{2}$});
+  $group = 'biller data';
+  $check_re->($group, $biller_data, 'address_type', qr{^[KS]$});
+  $check_re->($group, $biller_data, 'company', qr{^.{1,70}$});
+  $check_re->($group, $biller_data, 'address_row1', qr{^.{0,70}$});
+  $check_re->($group, $biller_data, 'address_row2', qr{^.{0,70}$});
+  $check_re->($group, $biller_data, 'countrycode', qr{^[A-Z]{2}$});
 
-  $check_re->($payment_information, 'amount', qr{^(?:(?:0|[1-9][0-9]{0,8})\.[0-9]{2})?$});
-  $check_re->($payment_information, 'currency', qr{^(?:CHF|EUR)$});
+  $group = 'payment information';
+  $check_re->($group, $payment_information, 'amount', qr{^(?:(?:0|[1-9][0-9]{0,8})\.[0-9]{2})?$});
+  $check_re->($group, $payment_information, 'currency', qr{^(?:CHF|EUR)$});
 
-  $check_re->($invoice_recipient_data, 'address_type', qr{^[KS]$});
-  $check_re->($invoice_recipient_data, 'name', qr{^.{1,70}$});
-  $check_re->($invoice_recipient_data, 'address_row1', qr{^.{0,70}$});
-  $check_re->($invoice_recipient_data, 'address_row2', qr{^.{0,70}$});
-  $check_re->($invoice_recipient_data, 'countrycode', qr{^[A-Z]{2}$});
+  $group = 'invoice recipient data';
+  $check_re->($group, $invoice_recipient_data, 'address_type', qr{^[KS]$});
+  $check_re->($group, $invoice_recipient_data, 'name', qr{^.{1,70}$});
+  $check_re->($group, $invoice_recipient_data, 'address_row1', qr{^.{0,70}$});
+  $check_re->($group, $invoice_recipient_data, 'address_row2', qr{^.{0,70}$});
+  $check_re->($group, $invoice_recipient_data, 'countrycode', qr{^[A-Z]{2}$});
 
+  $group = 'reference number data';
   my %ref_nr_regexes = (
     QRR => qr{^\d{27}$},
     NON => qr{^$},
   );
-  $check_re->($ref_nr_data, 'type', qr{^(?:QRR|SCOR|NON)$});
-  $check_re->($ref_nr_data, 'ref_number', $ref_nr_regexes{$ref_nr_data->{type}});
+  $check_re->($group, $ref_nr_data, 'type', qr{^(?:QRR|SCOR|NON)$});
+  $check_re->($group, $ref_nr_data, 'ref_number', $ref_nr_regexes{$ref_nr_data->{type}});
 }
 
 sub generate {
