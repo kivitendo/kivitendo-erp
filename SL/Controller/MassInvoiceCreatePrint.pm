@@ -19,6 +19,7 @@ use SL::Helper::File qw(store_pdf append_general_pdf_attachments doc_storage_ena
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::SessionFile;
+use SL::ARAP;
 use SL::System::TaskServer;
 use Rose::Object::MakeMethods::Generic
 (
@@ -57,6 +58,7 @@ sub action_create_invoices {
   }
 
   my $db = SL::DB::Invoice->new->db;
+  my $dbh = SL::DB->client->dbh;
   my @invoices;
   my @already_closed_delivery_orders;
 
@@ -73,6 +75,11 @@ sub action_create_invoices {
 
       } else {
         my $invoice = $delivery_order->convert_to_invoice() || die $db->error;
+
+        ARAP->close_orders_if_billed('dbh'     => $dbh,
+                                     'arap_id' => $invoice->id,
+                                     'table'   => 'ar',);
+
         push @invoices, $invoice;
       }
     }

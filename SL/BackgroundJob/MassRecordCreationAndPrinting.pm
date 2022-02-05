@@ -11,6 +11,7 @@ use SL::DB::Invoice;
 use SL::DB::Printer;
 use SL::SessionFile;
 use SL::Template;
+use SL::ARAP;
 use SL::Locale::String qw(t8);
 use SL::Helper::MassPrintCreatePDF qw(:all);
 use SL::Helper::CreatePDF qw(:all);
@@ -41,6 +42,7 @@ sub create_invoices {
 
   my $job_obj = $self->{job_obj};
   my $db      = $job_obj->db;
+  my $dbh     = SL::DB->client->dbh;
 
   $job_obj->set_data(status => CONVERTING_DELIVERY_ORDERS())->save;
 
@@ -55,6 +57,11 @@ sub create_invoices {
       my $invoice              = $sales_delivery_order->convert_to_invoice(%conversion_params);
 
       die $db->error if !$invoice;
+
+      ARAP->close_orders_if_billed('dbh'     => $dbh,
+                                   'arap_id' => $invoice->id,
+                                   'table'   => 'ar',);
+
       # update shop status
       my @linked_shop_orders = $invoice->linked_records(
         from      => 'ShopOrder',
