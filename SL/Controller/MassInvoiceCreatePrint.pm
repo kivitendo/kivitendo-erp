@@ -83,6 +83,23 @@ sub action_create_invoices {
     $::form->error($db->error);
   }
 
+  foreach my $invoice( @invoices ) {
+    # update shop status
+    my @linked_shop_orders = $invoice->linked_records(
+      from      => 'ShopOrder',
+      via       => [ 'DeliveryOrder', 'Order' ],
+    );
+    #if (scalar @linked_shop_orders[0][0] >= 1){
+      #do update
+    my $shop_order = $linked_shop_orders[0][0];
+    if ($shop_order){
+    require SL::Shop;
+      my $shop_config = SL::DB::Manager::Shop->get_first( query => [ id => $shop_order->shop_id ] );
+      my $shop = SL::Shop->new( config => $shop_config );
+      $shop->connector->set_orderstatus($shop_order->shop_trans_id, "completed");
+    }
+  }
+
   my $key = sprintf('%d-%d', Time::HiRes::gettimeofday());
   $::auth->set_session_value("MassInvoiceCreatePrint::ids-${key}" => [ map { $_->id } @invoices ]);
 

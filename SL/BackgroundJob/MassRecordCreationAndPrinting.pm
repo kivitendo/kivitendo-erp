@@ -55,6 +55,20 @@ sub create_invoices {
       my $invoice              = $sales_delivery_order->convert_to_invoice(%conversion_params);
 
       die $db->error if !$invoice;
+      # update shop status
+      my @linked_shop_orders = $invoice->linked_records(
+        from      => 'ShopOrder',
+        via       => [ 'DeliveryOrder', 'Order' ],
+      );
+      #if (scalar @linked_shop_orders[0][0] >= 1){
+        #do update
+      my $shop_order = $linked_shop_orders[0][0];
+      if ($shop_order){
+      require SL::Shop;
+        my $shop_config = SL::DB::Manager::Shop->get_first( query => [ id => $shop_order->shop_id ] );
+        my $shop = SL::Shop->new( config => $shop_config );
+        $shop->connector->set_orderstatus($shop_order->shop_trans_id, "completed");
+      }
 
       $data->{num_created}++;
       push @{ $data->{invoice_ids} }, $invoice->id;
