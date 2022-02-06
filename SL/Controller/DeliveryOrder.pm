@@ -4,7 +4,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash_later);
-use SL::Helper::Number qw(_format_number_units _parse_number);
+use SL::Helper::Number qw(_format_number _parse_number);
 use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
 use SL::Presenter::DeliveryOrder qw(delivery_order_status_line);
 use SL::Locale::String qw(t8);
@@ -897,8 +897,8 @@ sub action_stock_in_out_dialog {
   my ($self) = @_;
 
   my $part    = SL::DB::Part->load_cached($::form->{parts_id}) or die "need parts_id";
+  my $unit    = SL::DB::Unit->load_cached($::form->{unit}) or die "need unit";
   my $stock   = $::form->{stock};
-  my $unit    = $::form->{unit};
   my $row     = $::form->{row};
   my $item_id = $::form->{item_id};
   my $qty     = _parse_number($::form->{qty_as_number});
@@ -908,13 +908,13 @@ sub action_stock_in_out_dialog {
   my @contents   = DO->get_item_availability(parts_id => $part->id);
   my $stock_info = DO->unpack_stock_information(packed => $stock);
 
-  $self->merge_stock_data($stock_info, \@contents, $part);
+  $self->merge_stock_data($stock_info, \@contents, $part, $unit);
 
   $self->render("delivery_order/stock_dialog", { layout => 0 },
     WHCONTENTS => $self->order->delivered ? $stock_info : \@contents,
     part       => $part,
     do_qty     => $qty,
-    do_unit    => $unit,
+    do_unit    => $unit->unit,
     delivered  => $self->order->delivered,
     row        => $row,
     item_id    => $item_id,
@@ -938,12 +938,13 @@ sub action_update_stock_information {
 }
 
 sub merge_stock_data {
-  my ($self, $stock_info, $contents, $part) = @_;
+  my ($self, $stock_info, $contents, $part, $unit) = @_;
   # TODO rewrite to mapping
 
   if (!$self->order->delivered) {
     for my $row (@$contents) {
-      $row->{available_qty} = _format_number_units($row->{qty}, $row->{unit}, $part->unit);
+      # row here is in parts units. stock is in item units
+      $row->{available_qty} = _format_number($part->unit_obj->convert_to($row->{qty}, $unit));
 
       for my $sinfo (@{ $stock_info }) {
         next if $row->{bin_id}       != $sinfo->{bin_id} ||
@@ -2151,7 +2152,7 @@ sub calculate_stock_in_out_from_stock_info {
     $units_by_name{$_->{unit}}->convert_to($_->{qty}, $units_by_name{$unit})
   } @$stock_info;
 
-  my $content  = _format_number_units($sum, 2, $units_by_name{$unit}, $units_by_name{$unit});
+  my $content  = _format_number($sum, 2);
 
   return $content;
 }
@@ -2165,7 +2166,7 @@ sub calculate_stock_in_out {
     $_->unit_obj->convert_to($_->qty, $item->unit_obj)
   } $item->delivery_order_stock_entries;
 
-  my $content  = _format_number_units($sum, 2, $item->unit_obj, $item->part->unit_obj);
+  my $content  = _format_number($sum, 2);
 
   return $content;
 }
