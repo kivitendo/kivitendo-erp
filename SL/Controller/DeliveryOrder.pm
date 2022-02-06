@@ -1069,7 +1069,7 @@ sub action_transfer_stock {
   }
 
   if (!@transfer_requests) {
-    $self->js->flash("error", t8("No stock to transfer"))->render;
+    return $self->js->flash("error", t8("No stock to transfer"))->render;
   }
 
   SL::DB->client->with_transaction(sub {
