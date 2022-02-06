@@ -406,7 +406,7 @@ sub action_save_and_show_email_dialog {
   $email_form->{subject}             = $form->generate_email_subject();
   $email_form->{attachment_filename} = $form->generate_attachment_filename();
   $email_form->{message}             = $form->generate_email_body();
-  $email_form->{js_send_function}    = 'kivi.Order.send_email()';
+  $email_form->{js_send_function}    = 'kivi.DeliveryOrder.send_email()';
 
   my %files = $self->get_files_for_email_dialog();
   $self->{all_employees} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
@@ -419,7 +419,7 @@ sub action_save_and_show_email_dialog {
   );
 
   $self->js
-      ->run('kivi.Order.show_email_dialog', $dialog_html)
+      ->run('kivi.DeliveryOrder.show_email_dialog', $dialog_html)
       ->reinit_widgets
       ->render($self);
 }
@@ -433,7 +433,7 @@ sub action_send_email {
   my $errors = $self->save();
 
   if (scalar @{ $errors }) {
-    $self->js->run('kivi.Order.close_email_dialog');
+    $self->js->run('kivi.DeliveryOrder.close_email_dialog');
     $self->js->flash('error', $_) foreach @{ $errors };
     return $self->js->render();
   }
@@ -595,7 +595,7 @@ sub action_customer_vendor_changed {
     ->val(        '#order_intnotes',         $self->order->intnotes)
     ->val(        '#order_language_id',      $self->order->$cv_method->language_id)
     ->focus(      '#order_' . $self->cv . '_id')
-    ->run('kivi.Order.update_exchangerate');
+    ->run('kivi.DeliveryOrder.update_exchangerate');
 
   $self->js_redisplay_cvpartnumbers;
   $self->js->render();
@@ -646,7 +646,7 @@ sub action_unit_changed {
   $item->sellprice($item->unit_obj->convert_to($item->sellprice, $old_unit_obj));
 
   $self->js
-    ->run('kivi.Order.update_sellprice', $::form->{item_id}, $item->sellprice_as_number);
+    ->run('kivi.DeliveryOrder.update_sellprice', $::form->{item_id}, $item->sellprice_as_number);
   $self->js_redisplay_line_values;
   $self->js->render();
 }
@@ -716,11 +716,11 @@ sub action_add_item {
 
   $self->js
     ->val('.add_item_input', '')
-    ->run('kivi.Order.init_row_handlers')
-    ->run('kivi.Order.renumber_positions')
+    ->run('kivi.DeliveryOrder.init_row_handlers')
+    ->run('kivi.DeliveryOrder.renumber_positions')
     ->focus('#add_item_parts_id_name');
 
-  $self->js->run('kivi.Order.row_table_scroll_down') if !$::form->{insert_before_item_id};
+  $self->js->run('kivi.DeliveryOrder.row_table_scroll_down') if !$::form->{insert_before_item_id};
 
   $self->js->render();
 }
@@ -774,11 +774,11 @@ sub action_add_multi_items {
 
   $self->js
     ->run('kivi.Part.close_picker_dialogs')
-    ->run('kivi.Order.init_row_handlers')
-    ->run('kivi.Order.renumber_positions')
+    ->run('kivi.DeliveryOrder.init_row_handlers')
+    ->run('kivi.DeliveryOrder.renumber_positions')
     ->focus('#add_item_parts_id_name');
 
-  $self->js->run('kivi.Order.row_table_scroll_down') if !$::form->{insert_before_item_id};
+  $self->js->run('kivi.DeliveryOrder.row_table_scroll_down') if !$::form->{insert_before_item_id};
 
   $self->js->render();
 }
@@ -825,7 +825,7 @@ sub action_reorder_items {
     }
   }
   $self->js
-    ->run('kivi.Order.redisplay_items', \@to_sort)
+    ->run('kivi.DeliveryOrder.redisplay_items', \@to_sort)
     ->render;
 }
 
@@ -980,7 +980,7 @@ sub action_load_second_rows {
     $self->js_load_second_row($item, $item_id, 0);
   }
 
-  $self->js->run('kivi.Order.init_row_handlers') if $self->order->is_sales; # for lastcosts change-callback
+  $self->js->run('kivi.DeliveryOrder.init_row_handlers') if $self->order->is_sales; # for lastcosts change-callback
 
   $self->js->render();
 }
@@ -1017,7 +1017,7 @@ sub action_update_row_from_master_data {
     $item->active_price_source($price_src);
 
     $self->js
-      ->run('kivi.Order.update_sellprice', $item_id, $item->sellprice_as_number)
+      ->run('kivi.DeliveryOrder.update_sellprice', $item_id, $item->sellprice_as_number)
       ->html('.row_entry:has(#item_' . $item_id . ') [name = "partnumber"] a', $item->part->partnumber)
       ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].description"]', $item->description)
       ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].longdescription"]', $item->longdescription);
@@ -1129,7 +1129,7 @@ sub js_redisplay_line_values {
   }
 
   $self->js
-    ->run('kivi.Order.redisplay_line_values', $is_sales, \@data);
+    ->run('kivi.DeliveryOrder.redisplay_line_values', $is_sales, \@data);
 }
 
 sub js_redisplay_cvpartnumbers {
@@ -1140,7 +1140,7 @@ sub js_redisplay_cvpartnumbers {
   my @data = map {[$_->{cvpartnumber}]} @{ $self->order->items_sorted };
 
   $self->js
-    ->run('kivi.Order.redisplay_cvpartnumbers', \@data);
+    ->run('kivi.DeliveryOrder.redisplay_cvpartnumbers', \@data);
 }
 
 sub js_reset_order_and_item_ids_after_save {
