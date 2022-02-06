@@ -1081,6 +1081,7 @@ sub action_transfer_stock {
     ->flash("info", t8("Stock transfered"))
     ->run('kivi.ActionBar.setDisabled', '#transfer_out_action', t8('The parts for this order have already been transferred'))
     ->run('kivi.ActionBar.setDisabled', '#transfer_in_action', t8('The parts for this order have already been transferred'))
+    ->run('kivi.ActionBar.setDisabled', '#delete_action', t8('The parts for this order have already been transferred'))
     ->replaceWith('#data-status-line', delivery_order_status_line($self->order))
     ->render;
 
@@ -1876,6 +1877,7 @@ sub setup_edit_action_bar {
 
       action => [
         t8('Delete'),
+        id       => 'delete_action',
         call     => [ 'kivi.DeliveryOrder.delete_order' ],
         confirm  => $::locale->text('Do you really want to delete this object?'),
         disabled => !$self->order->id       ? t8('This object has not been saved yet.') :
