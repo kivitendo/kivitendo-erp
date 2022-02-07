@@ -57,6 +57,7 @@
           <td>
            [% P.customer_vendor.picker("customer_id", customer_id, type="customer", style="width: 250px", class="initial_focus", onchange="\$('#update_button').click()") %]
            [% L.button_tag("show_vc_details('customer')", LxERP.t8('Details (one letter abbreviation)')) %]
+           [% P.link_tag('controller.pl?action=CustomerVendor/edit&db=customer&id=' _ customer_id, LxERP.t8('Edit'), target="_blank", title=LxERP.t8('Open in new window')) %]
            [% L.hidden_tag("previous_customer_id", customer_id) %]
            [% L.hidden_tag("customer_pricegroup_id", customer_pricegroup_id) %]
           </td>
