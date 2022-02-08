@@ -1796,7 +1796,9 @@ sub setup_edit_action_bar {
         action => [
           t8('Save as new'),
           call      => [ 'kivi.DeliveryOrder.save', 'save_as_new', $::instance_conf->get_order_warn_duplicate_parts ],
-          disabled  => !$self->order->id ? t8('This object has not been saved yet.') : undef,
+          disabled  =>   $self->type eq 'supplier_delivery_order' ? t8('Need a workflow for Supplier Delivery Order')
+                       : !$self->order->id                        ? t8('This object has not been saved yet.')
+                       : undef,
         ],
       ], # end of combobox "Save"
 
