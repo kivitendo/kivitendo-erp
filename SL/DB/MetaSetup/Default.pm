@@ -128,6 +128,7 @@ __PACKAGE__->meta->columns(
   parts_image_css                           => { type => 'text', default => 'border:0;float:left;max-width:250px;margin-top:20px:margin-right:10px;margin-left:10px;' },
   parts_listing_image                       => { type => 'boolean', default => 'true' },
   parts_show_image                          => { type => 'boolean', default => 'true' },
+  partsgroup_required                       => { type => 'boolean', default => 'false', not_null => 1 },
   payments_changeable                       => { type => 'integer', default => '0', not_null => 1 },
   pdonumber                                 => { type => 'text' },
   ponumber                                  => { type => 'text' },

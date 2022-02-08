@@ -194,6 +194,11 @@
    <td>   [% L.yes_no_tag('defaults.normalize_part_descriptions', SELF.defaults.normalize_part_descriptions) %]</td>
    <td>[% LxERP.t8('Automatic deletion of leading, trailing and excessive (repetitive) spaces in part description and part notes. Affects the CSV import as well.') %]</td>
  </tr>
+ <tr>
+   <td align="right">[% LxERP.t8('Partsgroup is required for parts') %]</td>
+   <td>   [% L.yes_no_tag('defaults.partsgroup_required', SELF.defaults.partsgroup_required) %]</td>
+   <td>[% LxERP.t8('If enabled, when saving parts the partsgroup must be not be empty.') %]</td>
+ </tr>
 
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Purchasing & Sales") %]</td></tr>
 
