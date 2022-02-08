@@ -80,8 +80,8 @@ my %type_data = (
   },
   SUPPLIER_DELIVERY_ORDER_TYPE() => {
     text => {
-      delete => t8('Delivery Order has been deleted'),
-      saved  => t8('Delivery Order has been saved'),
+      delete => t8('Supplier Delivery Order has been deleted'),
+      saved  => t8('Supplier Delivery Order has been saved'),
       add    => t8("Add Supplier Delivery Order"),
       edit   => t8("Edit Supplier Delivery Order"),
       attachment => t8("supplier_delivery_order_list"),
