@@ -670,20 +670,23 @@ sub generate_qr_code {
     'countrycode' => $customer_countrycode,
   );
 
-  # generate ref.-no. with check digit
-  my $ref_number = assemble_ref_number(
-    $qr_account->{'bank_account_id'},
-    $form->{'customernumber'},
-    $form->{'ordnumber'},
-    $form->{'invnumber'},
-  );
-
   my %ref_nr_data;
   if ($::instance_conf->get_create_qrbill_invoices == 1) {
+    # generate ref.-no. with check digit
+    my $ref_number = assemble_ref_number(
+      $qr_account->{'bank_account_id'},
+      $form->{'customernumber'},
+      $form->{'ordnumber'},
+      $form->{'invnumber'},
+    );
     %ref_nr_data = (
       'type' => 'QRR',
       'ref_number' => $ref_number,
     );
+    # get ref. number/iban formatted with spaces and set into form for template
+    # processing
+    $form->{'ref_number'} = $ref_number;
+    $form->{'ref_number_formatted'} = get_ref_number_formatted($ref_number);
   } elsif ($::instance_conf->get_create_qrbill_invoices == 2) {
     %ref_nr_data = (
       'type' => 'NON',
@@ -696,10 +699,6 @@ sub generate_qr_code {
   # set into form for template processing
   $form->{'biller_information'} = \%biller_information;
   $form->{'biller_data'} = \%biller_data;
-  $form->{'ref_number'} = $ref_number;
-
-  # get ref. number/iban formatted with spaces
-  $form->{'ref_number_formatted'} = get_ref_number_formatted($ref_number);
   $form->{'iban_formatted'} = get_iban_formatted($qr_account->{'iban'});
 
   # format amount for template
