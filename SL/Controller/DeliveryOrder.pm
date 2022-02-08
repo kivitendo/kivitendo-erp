@@ -933,7 +933,6 @@ sub action_update_stock_information {
     stock_info => $yaml,
     stock_qty => $stock_qty,
   };
-
   $self->render(\ SL::JSON::to_json($response), { layout => 0, type => 'json', process => 0 });
 }
 
@@ -2154,7 +2153,7 @@ sub calculate_stock_in_out_from_stock_info {
     $units_by_name{$_->{unit}}->convert_to($_->{qty}, $units_by_name{$unit})
   } @$stock_info;
 
-  my $content  = _format_number($sum, 2);
+  my $content  = _format_number($sum, 2) . ' ' . $unit;
 
   return $content;
 }
