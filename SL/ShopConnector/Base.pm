@@ -137,7 +137,7 @@ the same data structure. Details of the returning hashref:
 =item C<set_orderstatus>
 
 Sets the state of the order in the Shop.
-Valid values are dependant on the Shop API, common states
+Valid values depend on the Shop API, common states
 are delivered, fetched, paid, in progress ...
 
 
