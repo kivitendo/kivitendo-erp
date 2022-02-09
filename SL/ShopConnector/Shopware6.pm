@@ -265,7 +265,7 @@ sub sync_all_categories {
   my ($product_id, $category_tree);
   try {
     $product_id    = from_json($ret->responseContent())->{data}->[0]->{id};
-    $category_tree = from_json($ret->responseContent())->{data}->[0]->{categoryTree};
+    $category_tree = from_json($ret->responseContent())->{data}->[0]->{categoryIds};
   } catch { die "Malformed JSON Data: $_ " . $ret->responseContent();  };
   my $cat;
   # if the part is connected to a category at all
