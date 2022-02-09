@@ -763,7 +763,7 @@ sub import_data_to_shop_order {
     foreach my $pos (@positions) {
       $position++;
       my $price       = $::form->round_amount($pos->{unitPrice}, 2); # unit
-      my %pos_columns = ( description          => $pos->{product}->{description},
+      my %pos_columns = ( description          => $pos->{product}->{name},
                           partnumber           => $pos->{product}->{productNumber},
                           price                => $price,
                           quantity             => $pos->{quantity},
@@ -967,14 +967,12 @@ Updates all metadata for a shop part. See base class for a general description.
 Specific Implementation notes:
 =over 4
 
-=item * Calls sync_all_images with set_cover = 1 and delete_orphaned = 1
+=item Calls sync_all_images with set_cover = 1 and delete_orphaned = 1
 
-=item * Checks if longdescription should be taken from part or shop_part
+=item Checks if longdescription should be taken from part or shop_part
 
-=item * Checks if a language with the name 'Englisch' or template_code 'en'
+=item Checks if a language with the name 'Englisch' or template_code 'en'
       is available and sets the shopware6 'en-GB' locales for the product
-
-=back
 
 =item C<sync_all_images (set_cover: 0|1, delete_orphaned: 0|1)>
 
@@ -993,6 +991,9 @@ entry for the image is deleted.
 More on media and Shopware6 can be found here:
 https://shopware.stoplight.io/docs/admin-api/ZG9jOjEyNjI1Mzkw-media-handling
 
+=back
+
+=over 4
 
 =item C<get_article>
 
