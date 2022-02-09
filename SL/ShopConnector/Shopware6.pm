@@ -709,10 +709,10 @@ sub set_orderstatus {
 sub init_connector {
   my ($self) = @_;
 
-  my $client = REST::Client->new(host => $self->config->server);
+  my $protocol = $self->config->server =~ /(^https:\/\/|^http:\/\/)/ ? '' : $self->config->protocol . '://';
+  my $client   = REST::Client->new(host => $protocol . $self->config->server);
 
   $client->getUseragent()->proxy([$self->config->protocol], $self->config->proxy) if $self->config->proxy;
-
   $client->addHeader('Content-Type', 'application/json');
   $client->addHeader('charset',      'UTF-8');
   $client->addHeader('Accept',       'application/json');
