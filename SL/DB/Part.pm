@@ -139,6 +139,13 @@ sub validate {
   push @errors, $::locale->text('The unit is missing.')           unless $self->unit;
   push @errors, $::locale->text('The buchungsgruppe is missing.') unless $self->buchungsgruppen_id or $self->buchungsgruppe;
 
+  if ( $::instance_conf->get_partsgroup_required
+       && ( !$self->partsgroup_id or ( $self->id && !$self->partsgroup_id && $self->partsgroup ) ) ) {
+    # when unsetting an existing partsgroup in the interface, $self->partsgroup_id will be undef but $self->partsgroup will still have a value
+    # this needs to be checked, as partsgroup dropdown has an empty value
+    push @errors, $::locale->text('The partsgroup is missing.');
+  }
+
   unless ( $self->id ) {
     push @errors, $::locale->text('The partnumber already exists.') if SL::DB::Manager::Part->get_all_count(where => [ partnumber => $self->partnumber ]);
   };

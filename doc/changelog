@@ -50,6 +50,7 @@ Kleinere neue Features und Detailverbesserungen:
   dass die Belegnummern von Belegen, die auf unserer Seite erzeugt
   werden, nicht mehr editierbar sind. In dem Fall vergibt kivitendo
   sie immer automatisch und zeigt sie in den Belegmasken nur noch an.
+- Warengruppe kann nun als Pflichtfeld für Artikel konfiguriert werden.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
