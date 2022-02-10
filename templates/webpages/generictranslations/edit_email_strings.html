@@ -28,8 +28,8 @@
        [%- END %]
       </td>
       <td>
-       [%- IF mail_string.search('preset') %]
-        <textarea name="translation__[% language.id %]__[% mail_string %]" rows="4" cols="60">[% HTML.escape(language.$mail_string) %]</textarea>
+       [%- IF mail_string.search('preset') && !mail_string.search('subject')%]
+        <textarea name="translation__[% language.id %]__[% mail_string %]" rows="4" cols="60" class="texteditor">[% HTML.escape(language.$mail_string) %]</textarea>
        [%- ELSE %]
         <input name="translation__[% language.id %]__[% mail_string %]" size="40" value="[% HTML.escape(language.$mail_string) %]">
        [%- END %]

@@ -41,6 +41,31 @@ sub strip {
   return delete $stripper{text};
 }
 
+sub plain_text_to_html {
+  my ($class_or_text) = @_;
+
+  my $text = !ref($class_or_text) && (($class_or_text // '') eq 'SL::HTML::Util') ? $_[1] : $class_or_text;
+
+  return $text if $text =~ m{^<p>.*</p>$};
+
+  $text =~ s{\r+}{}g;
+  $text =~ s{^[[:space:]]+|[[:space:]]+$}{}g;
+
+  return '' if $text eq '';
+
+  my @paragraphs;
+
+  foreach my $paragraph (split m{\n{2,}}, $text) {
+    no warnings 'once';
+    $paragraph =  $::locale->quote_special_chars('HTML', $paragraph);
+    $paragraph =~ s{\n}{<br>}g;
+
+    push @paragraphs, $paragraph;
+  }
+
+  return '<p>' . join('</p><p>', @paragraphs) . '</p>';
+}
+
 1;
 __END__
 
@@ -64,6 +89,12 @@ SL::HTML::Util - Utility functions dealing with HTML
 
 Removes all HTML elements and tags from C<$html_content> and returns
 the remaining plain text.
+
+=item C<plain_text_to_html $text>
+
+Converts a plain text to HTML: paragraphs will be recognized by empty
+lines; remaining newlines will be converted into forced line breaks;
+the rest will be HTML escaped.
 
 =back
 

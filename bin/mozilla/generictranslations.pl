@@ -178,6 +178,7 @@ sub edit_email_strings {
   setup_generictranslations_edit_email_strings_action_bar();
 
   $form->{title} = $locale->text('Edit preset email strings');
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(ckeditor/ckeditor ckeditor/adapters/jquery));
   $form->header();
   print $form->parse_html_template('generictranslations/edit_email_strings',{ 'MAIL_STRINGS' => \%mail_strings });
 

@@ -241,8 +241,16 @@ namespace('kivi.SalesPurchase', function(ns) {
     if (!kivi.SalesPurchase.check_required_email_fields())
       return false;
 
+    // ckeditor gets de-initialized when removing the children from
+    // the DOM. Therefore we have to manually preserve its content
+    // over the children's relocation.
+
+    var message = $('#email_form_message').val();
+
     $('#send_email_dialog').children().remove().appendTo('#email_inputs');
     $('#send_email_dialog').dialog('close');
+
+    $('#email_form_message').val(message);
 
     kivi.submit_form_with_action('#form', $('#form').data('send-email-action'));
 
@@ -254,6 +262,8 @@ namespace('kivi.SalesPurchase', function(ns) {
     kivi.SalesPurchase.show_print_options_elements([ 'sendmode', 'media', 'copies', 'remove_draft' ], false);
 
     $('#print_options').children().remove().appendTo('#email_form_print_options');
+
+    kivi.reinit_widgets();
 
     var to_focus = $('#email_form_to').val() === '' ? 'to' : 'subject';
     $('#email_form_' + to_focus).focus();

@@ -1,7 +1,7 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE HTML %]
-[%- USE L %]
+[%- USE L %][%- USE P -%]
 
 <h1>[% title %]</h1>
 
@@ -34,17 +34,22 @@
      </tr>
 
      <tr>
-      <th align="right">[% 'E-mail' | $T8 %]</th>
+      <th align="right">[% 'Email address' | $T8 %]</th>
       <td><input name="email" size="30" value="[% HTML.escape(MYCONFIG.email) %]"></td>
      </tr>
 
      <tr valign="top">
-      <th align="right">[% 'Signature' | $T8 %]</th>
-      <td><textarea id="signature" name="signature" class="toggletextarea" rows="5" cols="50">[% HTML.escape(MYCONFIG.signature) %] </textarea>
-         <span id="full_signature" class="toggletextarea"> <textarea readonly name="full_signature" rows="10" cols="50" >[% HTML.escape(full_signature) %]</textarea> </span>
-         <a href="#" class="togglelink">[% 'Check full signature' | $T8 %]</a>
-         <a href="#" id="edit_signature" class="togglelink">[% 'Edit user signature' | $T8 %]</a>
-          </td> </tr>
+      <th align="right">[% 'Email signature' | $T8 %]</th>
+      <td>
+       [% P.textarea_tag("signature", MYCONFIG.signature, class="texteditor", rows="5", cols="50") %]
+      </td>
+     </tr>
+
+     <tr valign="top">
+      <th align="right">[% "Company's email signature" | $T8 %]</th>
+      <td>[% P.restricted_html(company_signature) %]</td>
+     </tr>
+
      <tr>
       <th align="right">[% 'Phone' | $T8 %]</th>
       <td><input name="tel" size="14" value="[% HTML.escape(MYCONFIG.tel) %]"></td>
@@ -333,17 +338,3 @@
    </div>
   </div>
  </form>
-
- <script type="text/javascript">
-  <!--
-$(function() {
-  $("#full_signature").toggle();
-  $("#edit_signature").toggle();
-  $('.togglelink').click(function() {
-    $('.toggletextarea').toggle();
-    $('.togglelink').toggle();
-    return false;
-  });
-});
-    -->
- </script>
