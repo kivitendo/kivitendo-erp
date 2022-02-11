@@ -15,7 +15,7 @@
           <li>
           [% checked = '' %]
           [% FOREACH cat_row = SELF.shop_part.shop_category %]
-            [% IF cat_row.0 == categorie.id %]
+            [% IF (cat_row.0 == categorie.id) || (SELF.shop_part.shop.connector == 'shopware6' && cat_row == categorie.id) %]
               [% checked = 'checked' %]
             [% END %]
           [% END %]

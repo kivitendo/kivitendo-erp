@@ -38,7 +38,7 @@ namespace('kivi.ShopPart', function(ns) {
     });
   }
 
-  ns.add_shop_part = function(part_id,shop_id) {
+  ns.add_shop_part = function() {
     var form = $('form').serializeArray();
     form.push( { name: 'action', value: 'ShopPart/update' }
     );

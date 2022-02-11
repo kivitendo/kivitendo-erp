@@ -44,6 +44,10 @@
     <td>[%- L.input_tag("shop.port", SELF.shop.port, size=5) %]</td>
   </tr>
   <tr>
+    <th align="right">[% 'Proxy' | $T8 %]</th>
+    <td>[%- L.input_tag("shop.proxy", SELF.shop.proxy, size=size) %]</td>
+  </tr>
+  <tr>
     <th align="right">[% 'Path' | $T8 %]</th>
     <td>[%- L.input_tag("shop.path", SELF.shop.path, size=size) %]</td>
   </tr>
@@ -78,6 +82,10 @@
   <tr>
     <th align="right">[% 'Obsolete' | $T8 %]</th>
     <td>[% L.checkbox_tag('shop.obsolete', checked = SELF.shop.obsolete, for_submit=1) %]</td>
+  </tr>
+  <tr>
+    <th align="right">[% 'Use Long Description from Parts for Shop Long Description' | $T8 %]</th>
+    <td>[% L.yes_no_tag('shop.use_part_longdescription', SELF.shop.use_part_longdescription) %]</td>
   </tr>
 </table>
 

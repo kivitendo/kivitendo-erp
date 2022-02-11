@@ -16,10 +16,26 @@ sub validate {
   my ($self) = @_;
 
   my @errors;
-
+  # critical checks
   push @errors, $::locale->text('The description is missing.') unless $self->{description};
-  push @errors, $::locale->text('The path is missing.') unless $self->{path};
+  push @errors, $::locale->text('The path is missing.')        unless $self->{path};
+  push @errors, $::locale->text('The Host Name is missing')    unless $self->{server};
+  push @errors, $::locale->text('The Host Name seems invalid') unless $self->{server} =~ m/[0-9A-Za-z].\.[0-9A-Za-z]/;
+  push @errors, $::locale->text('The Protocol for Host Name seems invalid (expected: http:// or https://)!')
+                                                               if ($self->{server} =~ m/:/ && $self->{server} !~ m/(^https:\/\/|^http:\/\/)/);
+  push @errors, $::locale->text('The Proxy Name seems invalid') . $self->{proxy} . ':' unless !$self->{proxy} ||  $self->{proxy} =~ m/[0-9A-Za-z].\.[0-9A-Za-z]/;
+  push @errors, $::locale->text('Orders to fetch neeeds a positive Integer')
+                                                               unless $self->{orders_to_fetch} > 0;
 
+  # not yet implemented checks
+  push @errors, $::locale->text('Transaction Description is not yet implemented')    if $self->{transaction_description};
+  if ($self->{connector} eq 'shopware6') {
+    push @errors, $::locale->text('Shipping cost article is not implemented')        if $self->{shipping_costs_parts_id};
+    push @errors, $::locale->text('Fetch from last order number is not implemented') if $self->{last_order_number};
+  } else {
+    push @errors, $::locale->text('Use Long Description from Parts is only for Shopware6 implemented')
+      if $self->{use_part_longdescription};
+  }
   return @errors;
 }
 

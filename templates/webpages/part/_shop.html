@@ -18,13 +18,20 @@
    <th>[% LxERP.t8("Action") %]</th>
   </tr>
   </thead>
-  [% # L.dump(SELF.part) %]
+  [%#  L.dump(SELF.part) %]
   [%- FOREACH shop_part = SELF.part.shop_parts %]
   [% IF !shop_part.shop.obsolete %]
+
   <tr class="listrow">
    <td>[% HTML.escape( shop_part.shop.description ) %]</td>
    <td>[% L.html_tag('span', shop_part.active, id => 'shop_part_active_' _ shop_part.id ) %]</td>
-   <td>[% L.html_tag('span', shop_part.shop_description, id => 'shop_part_description_' _ shop_part.id ) %]</td>
+   <td>
+    [% IF shop_part.shop.use_part_longdescription %]
+      [% L.html_tag('span', shop_part.part.notes, id => 'shop_part_description_' _ shop_part.id ) %]
+    [% ELSE %]
+      [% L.html_tag('span', shop_part.shop_description, id => 'shop_part_description_' _ shop_part.id ) %]
+    [% END %]
+  </td>
    <td>[% L.html_tag('span',LxERP.t8(), id => 'active_price_source_' _ shop_part.id) %] </td>
    <td>[% L.html_tag('span','Price', id => 'price_' _ shop_part.id) %]</td>
    <td>[% L.html_tag('span','Stock', id => 'stock_' _ shop_part.id) %]</td>

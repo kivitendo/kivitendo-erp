@@ -48,7 +48,8 @@ sub convert_to_sales_order {
     }else{
       my $current_order_item = SL::DB::OrderItem->new(
         parts_id            => $part->id,
-        description         => $part->description,
+        description         => $_->description, # description from the shop
+        longdescription     => $part->notes,    # longdescription from parts. TODO locales
         qty                 => $_->quantity,
         sellprice           => $_->price,
         unit                => $part->unit,
