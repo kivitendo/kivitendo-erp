@@ -1124,11 +1124,27 @@ SQL
         #     for advance payment are allowed, too.
         # $booking->id, $self->id in helper table
         if (!$already_booked) {
-          $form->{amount}->{$invoice_for_advance_payment->id}->{$advance_payment_clearing_chart->accno} = -1 * $invoice_for_advance_payment->netamount;
-          $form->{memo}  ->{$invoice_for_advance_payment->id}->{$advance_payment_clearing_chart->accno} = 'reverse booking by final invoice';
-          # AR
-          $form->{amount}->{$invoice_for_advance_payment->id}->{$form->{AR}} = $invoice_for_advance_payment->netamount;
-          $form->{memo}  ->{$invoice_for_advance_payment->id}->{$form->{AR}} = 'reverse booking by final invoice';
+          # move all netamount to correct transfer chart (19% or 7%)
+          my %inv_calc = $invoice_for_advance_payment->calculate_prices_and_taxes();
+          my @trans_ids = keys %{ $inv_calc{amounts} };
+          die "Invalid state for advance payment invoice,more than one trans_id" if (scalar @trans_ids > 1);
+          my $entry = delete $inv_calc{amounts}{$trans_ids[0]};
+          my $tax;
+          if ($entry->{tax_id}) {
+            $tax = SL::DB::Manager::Tax->find_by(id => $entry->{tax_id}); # || die "Can't find tax with id " . $entry->{tax_id};
+          }
+          # no tax, no prob
+          if ($tax and $tax->rate != 0) {
+            my $transfer_chart = $tax->taxkey == 2 ? SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_taxable_7_id)->load
+                              :  $tax->taxkey == 3 ? SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_taxable_19_id)->load
+                              :  undef;
+            die "No Transfer Chart for Advance Payment" unless ref $transfer_chart eq 'SL::DB::Chart';
+            $form->{amount}->{$invoice_for_advance_payment->id}->{$transfer_chart->accno} = -1 * $invoice_for_advance_payment->netamount;
+            $form->{memo}  ->{$invoice_for_advance_payment->id}->{$transfer_chart->accno} = 'reverse booking by final invoice';
+            # AR
+            $form->{amount}->{$invoice_for_advance_payment->id}->{$form->{AR}} = $invoice_for_advance_payment->netamount;
+            $form->{memo}  ->{$invoice_for_advance_payment->id}->{$form->{AR}} = 'reverse booking by final invoice';
+          }
         }
 
         # VAT for invoices for advance payment is booked on payment of these. So do not book this VAT for final invoice.
