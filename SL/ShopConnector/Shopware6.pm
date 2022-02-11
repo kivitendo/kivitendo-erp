@@ -1077,6 +1077,12 @@ Right now the returning structure and the common parts of the filter are in two 
 
 Many error messages are thrown, but at least the more common cases should be localized.
 
+=item * Multi language support
+
+By guessing the correct german name for the english language some translation for parts can
+also be synced. This should be more clear (language configuration for shops) and the order
+synchronisation should also handle this (longdescription is simply copied from part.notes)
+
 =back
 
 =head1 AUTHOR
