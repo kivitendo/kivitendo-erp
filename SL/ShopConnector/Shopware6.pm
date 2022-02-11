@@ -180,7 +180,11 @@ sub update_part {
     }
     undef $update_p->{partNumber}; # we dont need this one
     $ret = $self->connector->PATCH('api/product/' . $one_d->{id}, to_json($update_p));
-    die "Updating part with " .  $part->partnumber . " failed: " . $ret->responseContent() unless (204 == $ret->responseCode());
+    unless (204 == $ret->responseCode()) {
+      die t8('Part Description is too long for this Shopware version. It should have lower than 255 characters.')
+         if $ret->responseContent() =~ m/Diese Zeichenkette ist zu lang. Sie sollte.*255 Zeichen/;
+      die "Updating part with " .  $part->partnumber . " failed: " . $ret->responseContent() unless (204 == $ret->responseCode());
+    }
   } else {
     # create part
     # 1. get the correct tax for this product
