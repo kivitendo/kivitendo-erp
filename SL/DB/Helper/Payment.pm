@@ -312,26 +312,44 @@ sub pay_invoice {
         ($netamount, $taxamount) = Form->calculate_tax($arap_amount, $tax->rate, 1, $roundplaces);
         # for debugging database set
         my $fullmatch = $netamount == $entry->{amount} ? '::netamount total true' : '';
+        my $transfer_chart = $tax->taxkey == 2 ? SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_taxable_7_id)->load
+                          :  $tax->taxkey == 3 ? SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_taxable_19_id)->load
+                          :  undef;
+        die "No Transfer Chart for Advance Payment" unless ref $transfer_chart eq 'SL::DB::Chart';
+
+        my $arap_full_booking= SL::DB::AccTransaction->new(trans_id   => $self->id,
+                                                           chart_id   => $clearing_chart->id,
+                                                           chart_link => $clearing_chart->link,
+                                                           amount     => $arap_amount * -1, # full amount
+                                                           transdate  => $transdate_obj,
+                                                           source     => 'Automatic Tax Booking for Payment in Advance' . $fullmatch,
+                                                           taxkey     => 0,
+                                                           tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+        $arap_full_booking->save;
+        push @new_acc_ids, $arap_full_booking->acc_trans_id;
+
+        my $arap_tax_booking= SL::DB::AccTransaction->new(trans_id   => $self->id,
+                                                          chart_id   => $transfer_chart->id,
+                                                          chart_link => $transfer_chart->link,
+                                                          amount     => _round($netamount), # full amount
+                                                          transdate  => $transdate_obj,
+                                                          source     => 'Automatic Tax Booking for Payment in Advance' . $fullmatch,
+                                                          taxkey     => $tax->taxkey,
+                                                          tax_id     => $tax->id);
+        $arap_tax_booking->save;
+        push @new_acc_ids, $arap_tax_booking->acc_trans_id;
+
         my $tax_booking= SL::DB::AccTransaction->new(trans_id   => $self->id,
                                                      chart_id   => $tax->chart_id,
                                                      chart_link => $tax->chart->link,
                                                      amount     => _round($taxamount),
                                                      transdate  => $transdate_obj,
                                                      source     => 'Automatic Tax Booking for Payment in Advance' . $fullmatch,
-                                                     taxkey     => $tax->taxkey,
-                                                     tax_id     => $tax->id);
-        $tax_booking->save;
-        push @new_acc_ids, $tax_booking->acc_trans_id;
-        my $arap_tax_booking= SL::DB::AccTransaction->new(trans_id   => $self->id,
-                                                     chart_id   => $clearing_chart->id,
-                                                     chart_link => $clearing_chart->link,
-                                                     amount     => _round($taxamount * -1),
-                                                     transdate  => $transdate_obj,
-                                                     source     => 'Automatic Tax Booking for Payment in Advance' . $fullmatch,
                                                      taxkey     => 0,
                                                      tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
-        $arap_tax_booking->save;
-        push @new_acc_ids, $arap_tax_booking->acc_trans_id;
+
+        $tax_booking->save;
+        push @new_acc_ids, $tax_booking->acc_trans_id;
       }
     }
     $fx_gain_loss_amount *= -1 if $self->is_sales;
