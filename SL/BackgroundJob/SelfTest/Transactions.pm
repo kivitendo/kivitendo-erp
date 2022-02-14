@@ -472,6 +472,7 @@ sub check_ar_acc_trans_amount {
           from acc_trans ac left join ar on (ac.trans_id = ar.id)
           WHERE ac.chart_link like 'AR_amount%'
           AND ac.transdate >= ? AND ac.transdate <= ?
+          AND ar.type       = 'invoice'
           group by invnumber,netamount having sum(ac.amount) <> ar.netamount|;
 
   my $ar_amount_not_ac_amount = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);

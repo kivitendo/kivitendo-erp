@@ -35,7 +35,8 @@
 
 package IS;
 
-use List::Util qw(max);
+use List::Util qw(max sum0);
+use List::MoreUtils qw(any);
 
 use Carp;
 use SL::AM;
@@ -51,6 +52,7 @@ use SL::MoreCommon;
 use SL::IC;
 use SL::IO;
 use SL::TransNumber;
+use SL::DB::Chart;
 use SL::DB::Default;
 use SL::DB::Draft;
 use SL::DB::Tax;
@@ -175,7 +177,12 @@ sub invoice_details {
 
   my @payment_arrays = qw(payment paymentaccount paymentdate paymentsource paymentmemo);
 
-  map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays, @payment_arrays, @prepared_arrays);
+  my @invoices_for_advance_payment_arrays = qw(iap_invnumber iap_transdate
+                                               iap_amount iap_amount_nofmt
+                                               iap_taxamount iap_taxamount_nofmt
+                                               iap_open_amount iap_open_amount_nofmt);
+
+  map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays, @payment_arrays, @prepared_arrays, @invoices_for_advance_payment_arrays);
 
   my $totalweight = 0;
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
@@ -560,6 +567,11 @@ sub invoice_details {
     2
   );
 
+  $form->{rounding_nofmt} = $form->{rounding};
+  $form->{total_nofmt}    = $form->{total};
+  $form->{invtotal_nofmt} = $form->{invtotal};
+  $form->{paid_nofmt}     = $form->{paid};
+
   $form->{rounding} = $form->format_amount($myconfig, $form->{rounding}, 2);
   $form->{total}    = $form->format_amount($myconfig, $form->{invtotal} - $form->{paid}, 2);
   $form->{invtotal} = $form->format_amount($myconfig, $form->{invtotal}, 2);
@@ -573,6 +585,38 @@ sub invoice_details {
 
   $form->{username} = $myconfig->{name};
   $form->{$_} = $form->format_amount($myconfig, $form->{$_}, 2) for @separate_totals;
+
+  my $id_for_iap = $form->{convert_from_oe_ids} || $form->{convert_from_ar_ids} || $form->{id};
+  my $from_order = !!$form->{convert_from_oe_ids};
+  foreach my $invoice_for_advance_payment (@{$self->_get_invoices_for_advance_payment($id_for_iap, $from_order)}) {
+    # Collect VAT of invoices for advance payment.
+    # Set sellprices to fxsellprices for items, because
+    # the PriceTaxCalculator sets fxsellprice from sellprice before calculating.
+    $_->sellprice($_->fxsellprice) for @{$invoice_for_advance_payment->items};
+    my %pat       = $invoice_for_advance_payment->calculate_prices_and_taxes;
+    my $taxamount = sum0 values %{ $pat{taxes_by_tax_id} };
+
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_$_"} },                $invoice_for_advance_payment->$_) for qw(invnumber transdate);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_amount_nofmt"} },      $invoice_for_advance_payment->amount);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_amount"} },            $invoice_for_advance_payment->amount_as_number);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_taxamount_nofmt"} },   $taxamount);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_taxamount"} },         $form->format_amount($myconfig, $taxamount, 2));
+
+    my $open_amount = $form->round_amount($invoice_for_advance_payment->open_amount, 2);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_open_amount_nofmt"} }, $open_amount);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_open_amount"} },       $form->format_amount($myconfig, $open_amount, 2));
+
+    $form->{iap_amount_nofmt}      += $invoice_for_advance_payment->amount;
+    $form->{iap_taxamount_nofmt}   += $taxamount;
+    $form->{iap_open_amount_nofmt} += $open_amount;
+    $form->{iap_existing}           = 1;
+  }
+  $form->{iap_amount}      = $form->format_amount($myconfig, $form->{iap_amount_nofmt},      2);
+  $form->{iap_taxamount}   = $form->format_amount($myconfig, $form->{iap_taxamount_nofmt},   2);
+  $form->{iap_open_amount} = $form->format_amount($myconfig, $form->{iap_open_amount_nofmt}, 2);
+
+  $form->{iap_final_amount_nofmt} = $form->{invtotal_nofmt} - $form->{iap_amount_nofmt};
+  $form->{iap_final_amount}       = $form->format_amount($myconfig, $form->{iap_final_amount_nofmt}, 2);
 
   $main::lxdebug->leave_sub();
 }
@@ -713,6 +757,8 @@ sub _post_invoice {
   my $defaultcurrency = $form->{defaultcurrency};
 
   my $all_units = AM->retrieve_units($myconfig, $form);
+
+  my $already_booked = !!$form->{id};
 
   if (!$payments_only) {
     if ($form->{storno}) {
@@ -1039,6 +1085,105 @@ SQL
   # entsprechend auch beim Bestimmen des Steuerschlüssels in Taxkey.pm berücksichtigen
   my $taxdate = $form->{tax_point} ||$form->{deliverydate} || $form->{invdate};
 
+  # Sanity checks for invoices for advance payment and final invoices
+  my $advance_payment_clearing_chart;
+  if (any { $_ eq $form->{type} } qw(invoice_for_advance_payment final_invoice)) {
+    $advance_payment_clearing_chart = SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_clearing_chart_id)->load;
+    die "No Clearing Chart for Advance Payment" unless ref $advance_payment_clearing_chart eq 'SL::DB::Chart';
+
+    my @current_taxaccounts = (split(/ /, $form->{taxaccounts}));
+    die 'Wrong call: Cannot post invoice for advance payment or final invoice with more than one tax' if (scalar @current_taxaccounts > 1);
+
+    my @trans_ids = keys %{ $form->{amount} };
+    if (scalar @trans_ids > 1) {
+      require Data::Dumper;
+      die "Invalid state for advance payment more than one trans_id " . Dumper($form->{amount});
+    }
+  }
+
+  my $iap_amounts;
+  if ($form->{type} eq 'final_invoice') {
+    my $id_for_iap = $form->{convert_from_oe_ids} || $form->{convert_from_ar_ids} || $form->{id};
+    my $from_order = !!$form->{convert_from_oe_ids};
+    my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($id_for_iap, $from_order);
+    if (scalar @$invoices_for_advance_payment > 0) {
+      # reverse booking for invoices for advance payment
+      foreach my $invoice_for_advance_payment (@$invoices_for_advance_payment) {
+        # delete ?
+        # --> is implemented below (bookings are marked in memo field)
+        #
+        # TODO: helper table acc_trans_advance_payment
+        # trans_id for final invoice connects to acc_trans_id here
+        # my $booking = SL::DB::AccTrans->new( ...)
+        # --> helper table not nessessary because of mark in memo field
+        #
+        # TODO: If final_invoice change (delete storno) delete all connectin acc_trans entries, if
+        # period is not closed
+        # --> no problem because gldate of reverse booking is date of final invoice
+        #     if deletion of final invoice is allowed, reverting bookings in invoices
+        #     for advance payment are allowed, too.
+        # $booking->id, $self->id in helper table
+        if (!$already_booked) {
+          # move all netamount to correct transfer chart (19% or 7%)
+          my %inv_calc = $invoice_for_advance_payment->calculate_prices_and_taxes();
+          my @trans_ids = keys %{ $inv_calc{amounts} };
+          die "Invalid state for advance payment invoice,more than one trans_id" if (scalar @trans_ids > 1);
+          my $entry = delete $inv_calc{amounts}{$trans_ids[0]};
+          my $tax;
+          if ($entry->{tax_id}) {
+            $tax = SL::DB::Manager::Tax->find_by(id => $entry->{tax_id}); # || die "Can't find tax with id " . $entry->{tax_id};
+          }
+          # no tax, no prob
+          if ($tax and $tax->rate != 0) {
+            my $transfer_chart = $tax->taxkey == 2 ? SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_taxable_7_id)->load
+                              :  $tax->taxkey == 3 ? SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_taxable_19_id)->load
+                              :  undef;
+            die "No Transfer Chart for Advance Payment" unless ref $transfer_chart eq 'SL::DB::Chart';
+            $form->{amount}->{$invoice_for_advance_payment->id}->{$transfer_chart->accno} = -1 * $invoice_for_advance_payment->netamount;
+            $form->{memo}  ->{$invoice_for_advance_payment->id}->{$transfer_chart->accno} = 'reverse booking by final invoice';
+            # AR
+            $form->{amount}->{$invoice_for_advance_payment->id}->{$form->{AR}} = $invoice_for_advance_payment->netamount;
+            $form->{memo}  ->{$invoice_for_advance_payment->id}->{$form->{AR}} = 'reverse booking by final invoice';
+          }
+        }
+
+        # VAT for invoices for advance payment is booked on payment of these. So do not book this VAT for final invoice.
+        # And book the amount of the invoices for advance payment with taxkey 0 (see below).
+        # Collect amounts and VAT of invoices for advance payment.
+
+        # Set sellprices to fxsellprices for items, because
+        # the PriceTaxCalculator sets fxsellprice from sellprice before calculating.
+        $_->sellprice($_->fxsellprice) for @{$invoice_for_advance_payment->items};
+        my %pat = $invoice_for_advance_payment->calculate_prices_and_taxes;
+
+        foreach my $tax_chart_id (keys %{ $pat{taxes_by_chart_id} }) {
+          my $tax_accno = SL::DB::Chart->load_cached($tax_chart_id)->accno;
+          $form->{amount}{ $form->{id} }{$tax_accno}  -= $pat{taxes_by_chart_id}->{$tax_chart_id};
+          $form->{amount}{ $form->{id} }{$form->{AR}} += $pat{taxes_by_chart_id}->{$tax_chart_id};
+        }
+
+        foreach my $amount_chart_id (keys %{ $pat{amounts} }) {
+          my $amount_accno = SL::DB::Chart->load_cached($amount_chart_id)->accno;
+          $iap_amounts->{$amount_accno}                 += $pat{amounts}->{$amount_chart_id}->{amount};
+          $form->{amount}{ $form->{id} }{$amount_accno} -= $pat{amounts}->{$amount_chart_id}->{amount};
+        }
+      }
+    }
+  }
+
+  if ($form->{type} eq 'invoice_for_advance_payment') {
+    # get gross and move to clearing chart - delete everything else
+    # 1. gross
+    my $gross = $form->{amount}{ $form->{id} }{$form->{AR}};
+    # 2. destroy
+    undef $form->{amount}{ $form->{id} };
+    # 3. rebuild
+    $form->{amount}{ $form->{id} }{$form->{AR}}            = $gross;
+    $form->{amount}{ $form->{id} }{$advance_payment_clearing_chart->accno} = $gross * -1;
+    # 4. no cogs, hopefully not commonly used at all
+    undef $form->{amount_cogs};
+  }
+
   foreach my $trans_id (keys %{ $form->{amount_cogs} }) {
     foreach my $accno (keys %{ $form->{amount_cogs}{$trans_id} }) {
       next unless ($form->{expense_inventory} =~ /\Q$accno\E/);
@@ -1076,7 +1221,7 @@ SQL
 
       if (!$payments_only && ($form->{amount}{$trans_id}{$accno} != 0)) {
         $query =
-          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link, memo)
              VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
                      (SELECT tax_id
                       FROM taxkeys
@@ -1093,8 +1238,9 @@ SQL
                       AND startdate <= ?
                       ORDER BY startdate DESC LIMIT 1),
                      ?,
-                     (SELECT link FROM chart WHERE accno = ?))|;
-        @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno);
+                     (SELECT link FROM chart WHERE accno = ?),
+                     ?)|;
+        @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno, $form->{memo}{$trans_id}{$accno});
         do_query($form, $dbh, $query, @values);
         $form->{amount}{$trans_id}{$accno} = 0;
       }
@@ -1105,7 +1251,7 @@ SQL
 
       if (!$payments_only && ($form->{amount}{$trans_id}{$accno} != 0)) {
         $query =
-          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link, memo)
              VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
                      (SELECT tax_id
                       FROM taxkeys
@@ -1122,8 +1268,9 @@ SQL
                       AND startdate <= ?
                       ORDER BY startdate DESC LIMIT 1),
                      ?,
-                     (SELECT link FROM chart WHERE accno = ?))|;
-        @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno);
+                     (SELECT link FROM chart WHERE accno = ?),
+                     ?)|;
+        @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno,$form->{memo}{$trans_id}{$accno});
         do_query($form, $dbh, $query, @values);
       }
     }
@@ -1134,6 +1281,17 @@ SQL
       @values = (conv_i($trans_id), $rnd_accno, $rounding, conv_date($form->{invdate}), conv_i($project_id), $rnd_accno);
       do_query($form, $dbh, $query, @values);
       $rnd_accno = 0;
+    }
+  }
+
+  # Book the amount of the invoices for advance payment with taxkey 0 (see below).
+  if ($form->{type} eq 'final_invoice' && $iap_amounts) {
+    foreach my $accno (keys %$iap_amounts) {
+      $query =
+        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
+        VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, (SELECT id FROM tax WHERE taxkey=0), 0, ?, (SELECT link FROM chart WHERE accno = ?))|;
+      @values = (conv_i($form->{id}), $accno, $iap_amounts->{$accno}, conv_date($form->{invdate}), conv_i($project_id), $accno);
+      do_query($form, $dbh, $query, @values);
     }
   }
 
@@ -1458,6 +1616,50 @@ SQL
 
   return 1;
 }
+
+sub _get_invoices_for_advance_payment {
+  my ($self, $id, $id_is_from_order) = @_;
+
+  return [] if !$id;
+
+  # Search all related invoices for advance payment.
+  # Case 1:
+  # (order) -> invoice for adv. payment 1 -> invoice for adv. payment 2 -> invoice for adv. payment 3 -> final invoice
+  #
+  # Case 2:
+  # order -> invoice for adv. payment 1
+  #   | |`-> invoice for adv. payment 2
+  #   | `--> invoice for adv. payment 3
+  #   `----> final invoice
+  #
+  # The id is currently that from the last invoice for adv. payment (3 in this example),
+  # that from the final invoice or that from the order.
+
+  my $invoice_obj;
+  my $order_obj;
+  my $links;
+
+  if (!$id_is_from_order) {
+    $invoice_obj = SL::DB::Invoice->load_cached($id*1);
+    $links       = $invoice_obj->linked_records(direction => 'from', from => ['Order']);
+    $order_obj   = $links->[0];
+  } else {
+    $order_obj   = SL::DB::Order->load_cached($id*1);
+  }
+
+  if ($order_obj) {
+    $links        = $order_obj  ->linked_records(direction => 'to',   to => ['Invoice']);
+  } else {
+    $links        = $invoice_obj->linked_records(direction => 'from', from => ['Invoice'], recursive => 1);
+  }
+
+  my @related_invoices = grep {'SL::DB::Invoice' eq ref $_ && "invoice_for_advance_payment" eq $_->type} @$links;
+
+  push @related_invoices, $invoice_obj if !$order_obj && "invoice_for_advance_payment" eq $invoice_obj->type;
+
+  return \@related_invoices;
+}
+
 
 sub transfer_out {
   $::lxdebug->enter_sub;
@@ -1963,6 +2165,18 @@ sub _delete_invoice {
     # storno_id auslesen und korrigieren
     my ($invoice_id) = selectfirst_array_query($form, $dbh, qq|SELECT storno_id FROM ar WHERE id = ?|,@values);
     do_query($form, $dbh, qq|UPDATE ar SET storno = 'f', paid = 0 WHERE id = ?|, $invoice_id);
+  }
+
+  # if we delete a final invoice, the reverse bookings for the clearing account in the invoice for advance payment
+  # must be deleted as well
+  my $invoices_for_advance_payment = $self->_get_invoices_for_advance_payment($form->{id});
+
+  # Todo: allow only if invoice for advance payment is not paid.
+  # die if any { $_->paid } for @$invoices_for_advance_payment;
+  my @trans_ids_to_consider        = map { $_->id } @$invoices_for_advance_payment;
+  if (scalar @trans_ids_to_consider) {
+    my $query = sprintf 'DELETE FROM acc_trans WHERE memo LIKE ? AND trans_id IN (%s)', join ', ', ("?") x scalar @trans_ids_to_consider;
+    do_query($form, $dbh, $query, 'reverse booking by final invoice', @trans_ids_to_consider);
   }
 
   # delete spool files

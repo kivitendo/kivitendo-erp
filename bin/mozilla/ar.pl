@@ -1206,12 +1206,23 @@ sub ar_transactions {
     my $is_storno  = $ar->{storno} &&  $ar->{storno_id};
     my $has_storno = $ar->{storno} && !$ar->{storno_id};
 
-    $ar->{type} =
-      $has_storno       ? $locale->text("Invoice with Storno (abbreviation)") :
-      $is_storno        ? $locale->text("Storno (one letter abbreviation)") :
-      $ar->{amount} < 0 ? $locale->text("Credit note (one letter abbreviation)") :
-      $ar->{invoice}    ? $locale->text("Invoice (one letter abbreviation)") :
-                          $locale->text("AR Transaction (abbreviation)");
+    if ($ar->{type} eq 'invoice_for_advance_payment') {
+      $ar->{type} =
+        $has_storno       ? $locale->text("Invoice for Advance Payment with Storno (abbreviation)") :
+        $is_storno        ? $locale->text("Storno (one letter abbreviation)") :
+                            $locale->text("Invoice for Advance Payment (one letter abbreviation)");
+
+    } elsif ($ar->{type} eq 'final_invoice') {
+      $ar->{type} = t8('Final Invoice (one letter abbreviation)');
+
+    } else {
+      $ar->{type} =
+        $has_storno       ? $locale->text("Invoice with Storno (abbreviation)") :
+        $is_storno        ? $locale->text("Storno (one letter abbreviation)") :
+        $ar->{amount} < 0 ? $locale->text("Credit note (one letter abbreviation)") :
+        $ar->{invoice}    ? $locale->text("Invoice (one letter abbreviation)") :
+                            $locale->text("AR Transaction (abbreviation)");
+    }
 
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(netamount tax amount paid due marge_total marge_percent);
 

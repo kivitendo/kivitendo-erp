@@ -1654,7 +1654,7 @@ sub invoice {
     $::dispatcher->end_request;
   }
 
-  _oe_remove_delivered_or_billed_rows(id => $form->{id}, type => 'billed');
+  _oe_remove_delivered_or_billed_rows(id => $form->{id}, type => 'billed') if $form->{new_invoice_type} ne 'final_invoice';
 
   $form->{cp_id} *= 1;
 
@@ -1699,7 +1699,9 @@ sub invoice {
 
   if (   $form->{type} eq 'sales_order'
       || $form->{type} eq 'sales_quotation') {
-    $form->{title}  = $locale->text('Add Sales Invoice');
+    $form->{title}  = ($form->{new_invoice_type} eq 'invoice_for_advance_payment') ? $locale->text('Add Invoice for Advance Payment')
+                    : ($form->{new_invoice_type} eq 'final_invoice')               ? $locale->text('Add Final Invoice')
+                    : $locale->text('Add Sales Invoice');
     $form->{script} = 'is.pl';
     $script         = "is";
     $buysell        = 'buy';
@@ -1708,7 +1710,7 @@ sub invoice {
   # bo creates the id, reset it
   map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued);
   $form->{ $form->{vc} } =~ s/--.*//g;
-  $form->{type} = "invoice";
+  $form->{type} = $form->{new_invoice_type} || "invoice";
 
   # locale messages
   $main::locale = Locale->new("$myconfig{countrycode}", "$script");

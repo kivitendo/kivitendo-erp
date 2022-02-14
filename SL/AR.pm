@@ -487,6 +487,7 @@ sub ar_transactions {
     qq|  a.shippingpoint, a.storno, a.storno_id, a.globalproject_id, | .
     qq|  a.marge_total, a.marge_percent, | .
     qq|  a.transaction_description, a.direct_debit, | .
+    qq|  a.type, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  c.name, c.customernumber, c.country, c.ustid, b.description as customertype, | .
     qq|  c.id as customer_id, | .

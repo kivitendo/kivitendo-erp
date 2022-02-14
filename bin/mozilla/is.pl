@@ -36,9 +36,11 @@ use SL::FU;
 use SL::IS;
 use SL::OE;
 use SL::MoreCommon qw(restore_form save_form);
+use SL::RecordLinks;
+
 use Data::Dumper;
 use DateTime;
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(any uniq);
 use List::Util qw(max sum);
 use List::UtilsBy qw(sort_by);
 use English qw(-no_match_vars);
@@ -89,6 +91,13 @@ sub add {
     if ($form->{storno}) {
       $form->{title} = $locale->text('Add Storno Credit Note');
     }
+
+  } elsif ($form->{type} eq "invoice_for_advance_payment") {
+    $form->{title} = $locale->text('Add Invoice for Advance Payment');
+
+  } elsif ($form->{type} eq "final_invoice") {
+    $form->{title} = $locale->text('Add Final Invoice');
+
   } else {
     $form->{title} = $locale->text('Add Sales Invoice');
 
@@ -132,6 +141,14 @@ sub edit {
   if ($form->{type} eq "credit_note") {
     $form->{title} = $locale->text('Edit Credit Note');
     $form->{title} = $locale->text('Edit Storno Credit Note') if $form->{storno};
+
+  } elsif ($form->{type} eq "invoice_for_advance_payment") {
+    $form->{title} = $locale->text('Edit Invoice for Advance Payment');
+    $form->{title} = $locale->text('Edit Storno Invoice for Advance Payment') if $form->{storno};
+
+  } elsif ($form->{type} eq "final_invoice") {
+    $form->{title} = $locale->text('Edit Final Invoice');
+
   } else {
     $form->{title} = $locale->text('Edit Sales Invoice');
     $form->{title} = $locale->text('Edit Storno Invoice')     if $form->{storno};
@@ -237,8 +254,18 @@ sub prepare_invoice {
   if ($form->{type} eq "credit_note") {
     $form->{type}     = "credit_note";
     $form->{formname} = "credit_note";
+
+  } elsif ($form->{type} eq "invoice_for_advance_payment") {
+    $form->{type}     = "invoice_for_advance_payment";
+    $form->{formname} = "invoice_for_advance_payment";
+
+  } elsif ($form->{type} eq "final_invoice") {
+    $form->{type}     = "final_invoice";
+    $form->{formname} = "final_invoice";
+
   } elsif ($form->{formname} eq "proforma" ) {
     $form->{type}     = "invoice";
+
   } else {
     $form->{type}     = "invoice";
     $form->{formname} = "invoice";
@@ -294,6 +321,28 @@ sub setup_is_action_bar {
   if ($::instance_conf->get_warn_no_delivery_order_for_invoice && !$form->{id}) {
     $warn_unlinked_delivery_order = 1 unless $form->{convert_from_do_ids};
   }
+
+  my $has_further_invoice_for_advance_payment;
+  if ($form->{id} && $form->{type} eq "invoice_for_advance_payment") {
+    my $invoice_obj = SL::DB::Invoice->load_cached($form->{id});
+    my $lr          = $invoice_obj->linked_records(direction => 'to', to => ['Invoice']);
+    $has_further_invoice_for_advance_payment = any {'SL::DB::Invoice' eq ref $_ && "invoice_for_advance_payment" eq $_->type} @$lr;
+  }
+
+  my $has_final_invoice;
+  if ($form->{id} && $form->{type} eq "invoice_for_advance_payment") {
+    my $invoice_obj = SL::DB::Invoice->load_cached($form->{id});
+    my $lr          = $invoice_obj->linked_records(direction => 'to', to => ['Invoice']);
+    $has_final_invoice = any {'SL::DB::Invoice' eq ref $_ && "final_invoice" eq $_->invoice_type} @$lr;
+  }
+
+  my $is_invoice_for_advance_payment_from_order;
+  if ($form->{id} && $form->{type} eq "invoice_for_advance_payment") {
+    my $invoice_obj = SL::DB::Invoice->load_cached($form->{id});
+    my $lr          = $invoice_obj->linked_records(direction => 'from', from => ['Order']);
+    $is_invoice_for_advance_payment_from_order = scalar @$lr >= 1;
+  }
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
@@ -328,6 +377,7 @@ sub setup_is_action_bar {
                     : !$form->{id}                ? t8('This invoice has not been posted yet.')
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     :                               undef,
+          only_if  => $form->{type} ne "invoice_for_advance_payment",
         ],
         action => [ t8('Mark as paid'),
           submit   => [ '#form', { action => "mark_as_paid" } ],
@@ -335,7 +385,7 @@ sub setup_is_action_bar {
           disabled => !$may_edit_create ? t8('You must not change this invoice.')
                     : !$form->{id}      ? t8('This invoice has not been posted yet.')
                     :                     undef,
-          only_if  => $::instance_conf->get_is_show_mark_as_paid,
+          only_if  => $::instance_conf->get_is_show_mark_as_paid && $form->{type} ne "invoice_for_advance_payment",
         ],
       ], # end of combobox "Post"
 
@@ -376,6 +426,30 @@ sub setup_is_action_bar {
           disabled => !$may_edit_create ? t8('You must not change this invoice.')
                     : !$form->{id}      ? t8('This invoice has not been posted yet.')
                     :                     undef,
+        ],
+        action => [
+          t8('Further Invoice for Advance Payment'),
+          submit   => [ '#form', { action => "further_invoice_for_advance_payment" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create                          ? t8('You must not change this invoice.')
+                    : !$form->{id}                               ? t8('This invoice has not been posted yet.')
+                    : $has_further_invoice_for_advance_payment   ? t8('This invoice has already a further invoice for advanced payment.')
+                    : $has_final_invoice                         ? t8('This invoice has already a final invoice.')
+                    : $is_invoice_for_advance_payment_from_order ? t8('This invoice was added from an order. See there.')
+                    :                                              undef,
+          only_if  => $form->{type} eq "invoice_for_advance_payment",
+        ],
+        action => [
+          t8('Final Invoice'),
+          submit   => [ '#form', { action => "final_invoice" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create                          ? t8('You must not change this invoice.')
+                    : !$form->{id}                               ? t8('This invoice has not been posted yet.')
+                    : $has_further_invoice_for_advance_payment   ? t8('This invoice has a further invoice for advanced payment.')
+                    : $has_final_invoice                         ? t8('This invoice has already a final invoice.')
+                    : $is_invoice_for_advance_payment_from_order ? t8('This invoice was added from an order. See there.')
+                    :                                              undef,
+          only_if  => $form->{type} eq "invoice_for_advance_payment",
         ],
         action => [
           t8('Credit Note'),
@@ -550,10 +624,11 @@ sub form_header {
     $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
-  $TMPL_VAR{is_type_credit_note} = $form->{type}   eq "credit_note";
-  $TMPL_VAR{is_format_html}      = $form->{format} eq 'html';
-  $TMPL_VAR{dateformat}          = $myconfig{dateformat};
-  $TMPL_VAR{numberformat}        = $myconfig{numberformat};
+  $TMPL_VAR{is_type_normal_invoice} = $form->{type} eq "invoice";
+  $TMPL_VAR{is_type_credit_note}    = $form->{type}   eq "credit_note";
+  $TMPL_VAR{is_format_html}         = $form->{format} eq 'html';
+  $TMPL_VAR{dateformat}             = $myconfig{dateformat};
+  $TMPL_VAR{numberformat}           = $myconfig{numberformat};
 
   # hiddens
   $TMPL_VAR{HIDDENS} = [qw(
@@ -693,17 +768,18 @@ sub form_footer {
   }
 
   print $form->parse_html_template('is/form_footer', {
-    is_type_credit_note => ($form->{type} eq "credit_note"),
-    totalpaid           => $totalpaid,
-    paid_missing        => $form->{invtotal} - $totalpaid,
-    print_options       => setup_sales_purchase_print_options(),
-    show_storno         => $form->{id} && !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ar") && !$totalpaid,
-    show_delete         => ($::instance_conf->get_is_changeable == 2)
-                             ? ($form->current_date(\%myconfig) eq $form->{gldate})
-                             : ($::instance_conf->get_is_changeable == 1),
-    today               => DateTime->today,
-    vc_obj              => $form->{customer_id} ? SL::DB::Customer->load_cached($form->{customer_id}) : undef,
-    shipto_cvars        => $shipto_cvars,
+    is_type_normal_invoice              => ($form->{type} eq "invoice"),
+    is_type_credit_note                 => ($form->{type} eq "credit_note"),
+    totalpaid                           => $totalpaid,
+    paid_missing                        => $form->{invtotal} - $totalpaid,
+    print_options                       => setup_sales_purchase_print_options(),
+    show_storno                         => $form->{id} && !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ar") && !$totalpaid,
+    show_delete                         => ($::instance_conf->get_is_changeable == 2)
+                                             ? ($form->current_date(\%myconfig) eq $form->{gldate})
+                                             : ($::instance_conf->get_is_changeable == 1),
+    today                               => DateTime->today,
+    vc_obj                              => $form->{customer_id} ? SL::DB::Customer->load_cached($form->{customer_id}) : undef,
+    shipto_cvars                        => $shipto_cvars,
   });
 ##print $form->parse_html_template('is/_payments'); # parser
 ##print $form->parse_html_template('webdav/_list'); # parser
@@ -967,6 +1043,12 @@ sub post {
 
   $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
     if ($form->{currency} ne $form->{defaultcurrency});
+  # advance payment allows only one tax
+  if ($form->{type} eq 'invoice_for_advance_payment') {
+    my @current_taxaccounts = (split(/ /, $form->{taxaccounts}));
+    $form->error($locale->text('Cannot post invoice for advance payment with more than one tax'))
+      if (scalar @current_taxaccounts > 1);
+  }
 
   for my $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
@@ -1111,6 +1193,80 @@ sub use_as_new {
   $main::lxdebug->leave_sub();
 }
 
+sub further_invoice_for_advance_payment {
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('invoice_edit');
+
+  delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked)};
+  $form->{convert_from_ar_ids} = $form->{id};
+  $form->{id}                  = '';
+  $form->{rowcount}--;
+  $form->{paidaccounts}        = 1;
+  $form->{invdate}             = $form->current_date(\%myconfig);
+  my $terms                    = get_payment_terms_for_invoice();
+  $form->{duedate}             = $terms ? $terms->calc_date(reference_date => $form->{invdate})->to_kivitendo : $form->{invdate};
+  $form->{employee_id}         = SL::DB::Manager::Employee->current->id;
+  $form->{forex}               = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
+  $form->{exchangerate}        = $form->{forex} if $form->{forex};
+
+  $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
+
+  &display_form;
+}
+
+sub final_invoice {
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('invoice_edit');
+
+  my $related_invoices = IS->_get_invoices_for_advance_payment($form->{id});
+
+  delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked)};
+
+  $form->{convert_from_ar_ids} = $form->{id};
+  $form->{id}                  = '';
+  $form->{type}                = 'final_invoice';
+  $form->{title}               = t8('Edit Final Invoice');
+  $form->{paidaccounts}        = 1;
+  $form->{invdate}             = $form->current_date(\%myconfig);
+  my $terms                    = get_payment_terms_for_invoice();
+  $form->{duedate}             = $terms ? $terms->calc_date(reference_date => $form->{invdate})->to_kivitendo : $form->{invdate};
+  $form->{employee_id}         = SL::DB::Manager::Employee->current->id;
+  $form->{forex}               = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
+  $form->{exchangerate}        = $form->{forex} if $form->{forex};
+
+  foreach my $i (1 .. $form->{"rowcount"}) {
+    delete $form->{"id_$i"};
+    delete $form->{"invoice_id_$i"};
+    delete $form->{"parts_id_$i"};
+    delete $form->{"partnumber_$i"};
+    delete $form->{"description_$i"};
+  }
+
+  remove_emptied_rows(1);
+
+  my $i = 0;
+  foreach my $ri (@$related_invoices) {
+    foreach my $item (@{$ri->items_sorted}) {
+      $i++;
+      $form->{"id_$i"}         = $item->parts_id;
+      $form->{"partnumber_$i"} = $item->part->partnumber;
+      $form->{"discount_$i"}   = $item->discount*100.0;
+      $form->{"sellprice_$i"}  = $item->fxsellprice;
+      $form->{$_ . "_" . $i}   = $item->$_       for qw(description longdescription qty price_factor_id unit active_price_source active_discount_source);
+
+      $form->{$_ . "_" . $i}   = $form->format_amount(\%myconfig, $form->{$_ . "_" . $i}) for qw(qty sellprice discount);
+    }
+  }
+  $form->{rowcount} = $i;
+
+  update();
+  $::dispatcher->end_request;
+}
+
 sub storno {
   $main::lxdebug->enter_sub();
 
@@ -1239,7 +1395,6 @@ sub credit_note {
   $form->{paidaccounts} = 1;
 
   &prepare_invoice;
-
 
   &display_form;
 
