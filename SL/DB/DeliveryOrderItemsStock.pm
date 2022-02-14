@@ -13,6 +13,11 @@ __PACKAGE__->meta->add_relationship(
     class        => 'SL::DB::Inventory',
     column_map   => { id => 'delivery_order_items_stock_id' },
   },
+  unit_obj => {
+    type         => 'many to one',
+    class        => 'SL::DB::Unit',
+    column_map   => { unit => 'name' },
+  },
 );
 
 __PACKAGE__->meta->initialize;

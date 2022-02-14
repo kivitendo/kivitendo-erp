@@ -75,7 +75,10 @@ sub get_print_options {
     ($form->{type} eq 'final_invoice') ? (
       opthash("final_invoice", $form->{PD}{final_invoice},             $locale->text('Final Invoice')),
     ) : undef,
-    ($form->{type} =~ /_delivery_order$/) ? (
+    ($form->{type} =~ /^supplier_delivery_order$/) ? (
+      opthash('supplier_delivery_order', $form->{PD}{supplier_delivery_order},  $locale->text('Supplier Delivery Order')),
+    ) : undef,
+    ($form->{type} =~ /(sales|purchase)_delivery_order$/) ? (
       opthash($form->{type},         $form->{PD}{$form->{type}},       $locale->text('Delivery Order')),
       opthash('pick_list',           $form->{PD}{pick_list},           $locale->text('Pick List')),
     ) : undef,

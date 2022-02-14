@@ -699,6 +699,26 @@ namespace("kivi", function(ns) {
       return kivi._shell_escape(elt);
     }).join(' ');
   };
+
+  ns.serialize = function(source, target = [], prefix, in_array = false) {
+    let arr_prefix = first => in_array ? (first ? "[+]" : "[]") : "";
+
+    if (Array.isArray(source) ) {
+      source.forEach(( val, i ) => {
+        ns.serialize(val, target, prefix + arr_prefix(i == 0), true);
+      });
+    } else if (typeof source === "object") {
+      let first = true;
+      for (let key in source) {
+        ns.serialize(source[key], target, (prefix !== undefined ? prefix + arr_prefix(first) + "." : "") + key);
+        first = false;
+      }
+    } else {
+      target.push({ name: prefix + arr_prefix(false), value: source });
+    }
+
+    return target;
+  };
 });
 
 kivi = namespace('kivi');

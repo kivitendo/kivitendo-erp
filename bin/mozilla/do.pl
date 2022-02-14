@@ -36,7 +36,9 @@ use List::MoreUtils qw(uniq);
 use List::Util qw(max sum);
 use POSIX qw(strftime);
 
+use SL::Controller::DeliveryOrder;
 use SL::DB::DeliveryOrder;
+use SL::DB::DeliveryOrder::TypeData qw(:types validate_type);
 use SL::DO;
 use SL::IR;
 use SL::IS;
@@ -56,7 +58,10 @@ use strict;
 # end of main
 
 sub check_do_access {
-  $main::auth->assert($main::form->{type} . '_edit');
+  validate_type($::form->{type});
+
+  my $right = SL::DB::DeliveryOrder::TypeData::get($::form->{type}, "right");
+  $main::auth->assert($right);
 }
 
 sub set_headings {
@@ -887,7 +892,9 @@ sub orders {
       'align'    => 'center',
     };
 
-    $row->{donumber}->{link}  = $edit_url       . "&id=" . E($dord->{id})      . "&callback=${callback}";
+    $row->{donumber}->{link}  = SL::DB::DeliveryOrder::TypeData::get3($dord->{order_type}, "show_menu", "new_controller")
+                              ? SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id}, type => $dord->{order_type})
+                              : $edit_url  . "&id=" . E($dord->{id})      . "&callback=${callback}";
     $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
     $report->add_data($row);
 

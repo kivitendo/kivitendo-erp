@@ -48,6 +48,12 @@ sub displayable_delivery_order_info {
          . " (" . $self->delivery_order->transdate->to_kivitendo . ")";
 };
 
+sub effective_project {
+  my ($self) = @_;
+
+  $self->project // $self->delivery_order->globalproject;
+}
+
 __END__
 
 =pod

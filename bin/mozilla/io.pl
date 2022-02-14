@@ -60,6 +60,7 @@ use SL::DB::AuthUser;
 use SL::DB::Contact;
 use SL::DB::Currency;
 use SL::DB::Customer;
+use SL::DB::DeliveryOrder::TypeData qw();
 use SL::DB::Default;
 use SL::DB::Language;
 use SL::DB::Printer;
@@ -2018,7 +2019,10 @@ sub _make_record {
   }
 
   $obj->items(@items) if @items;
-  $obj->is_sales(!!$obj->customer_id) if $class eq 'SL::DB::DeliveryOrder';
+
+  if ($class eq 'SL::DB::DeliveryOrder' && !$obj->order_type) {
+    $obj->order_type(SL::DB::DeliveryOrder::TypeData::validate_type($::form->{type}));
+  }
 
   if ($class eq 'SL::DB::Invoice') {
     my $paid = $factor *

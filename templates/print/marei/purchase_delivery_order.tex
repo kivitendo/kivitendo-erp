@@ -11,6 +11,10 @@
 % settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
 \input{insettings.tex}
 
+<%if template_meta.formname == "supplier_delivery_order"%>
+  \renewcommand{\einkaufslieferschein} {\beistelllieferschein}
+<%end%>
+
 
 % laufende Kopfzeile:
 \ourhead{}{}{\einkaufslieferschein}{<%donumber%>}{<%dodate%>}

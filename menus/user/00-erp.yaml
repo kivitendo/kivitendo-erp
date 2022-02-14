@@ -471,6 +471,15 @@
     action: search
     type: purchase_delivery_order
 - parent: ap_reports
+  id: ap_reports_supplier_delivery_orders
+  name: Supplier Delivery Orders
+  order: 350
+  access: purchase_delivery_order_edit
+  module: do.pl
+  params:
+    action: search
+    type: supplier_delivery_order
+- parent: ap_reports
   id: ap_reports_vendor_invoices_ap_transactions
   name: Vendor Invoices & AP Transactions
   order: 400

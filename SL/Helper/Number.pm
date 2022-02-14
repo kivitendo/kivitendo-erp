@@ -3,6 +3,7 @@ package SL::Helper::Number;
 use strict;
 use Exporter qw(import);
 use List::Util qw(max min);
+use List::UtilsBy qw(rev_nsort_by);
 use Config;
 
 our @EXPORT_OK = qw(

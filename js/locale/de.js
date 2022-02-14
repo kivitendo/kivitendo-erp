@@ -178,6 +178,7 @@ namespace("kivi").setupLocale({
 "Today":"heute",
 "Toggle marker":"Markierung umschalten",
 "Transaction description":"Vorgangsbezeichnung",
+"Transfer stock":"Lagerbewegungen",
 "Tue":"Di",
 "Tuesday":"Dienstag",
 "Update":"Erneuern",

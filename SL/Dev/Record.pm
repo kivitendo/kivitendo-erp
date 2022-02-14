@@ -20,6 +20,7 @@ our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use SL::DB::Invoice;
 use SL::DB::InvoiceItem;
+use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Employee;
 use SL::Dev::Part qw(new_part);
 use SL::Dev::CustomerVendor qw(new_vendor new_customer);
@@ -116,7 +117,7 @@ sub create_sales_delivery_order {
   die "illegal customer" unless ref($customer) eq 'SL::DB::Customer';
 
   my $delivery_order = SL::DB::DeliveryOrder->new(
-    'is_sales'   => 'true',
+    order_type   => SALES_DELIVERY_ORDER_TYPE,
     'closed'     => undef,
     customer_id  => $customer->id,
     taxzone_id   => $customer->taxzone_id,
@@ -144,7 +145,7 @@ sub create_purchase_delivery_order {
   die "illegal customer" unless ref($vendor) eq 'SL::DB::Vendor';
 
   my $delivery_order = SL::DB::DeliveryOrder->new(
-    'is_sales'   => 'false',
+    order_type   => PURCHASE_DELIVERY_ORDER_TYPE,
     'closed'     => undef,
     vendor_id    => $vendor->id,
     taxzone_id   => $vendor->taxzone_id,

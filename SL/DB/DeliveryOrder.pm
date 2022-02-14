@@ -17,6 +17,8 @@ use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Part;
 use SL::DB::Unit;
 
+use SL::DB::DeliveryOrder::TypeData qw(:types);
+
 use SL::Helper::Number qw(_format_total _round_total);
 
 use List::Util qw(first);
@@ -77,7 +79,11 @@ sub sales_order {
 }
 
 sub type {
-  return shift->customer_id ? 'sales_delivery_order' : 'purchase_delivery_order';
+  goto &order_type;
+}
+
+sub is_type {
+  return shift->type eq shift;
 }
 
 sub displayable_type {
@@ -105,6 +111,10 @@ sub date {
   goto &transdate;
 }
 
+sub number {
+  goto &donumber;
+}
+
 sub _clone_orderitem_cvar {
   my ($cvar) = @_;
 
@@ -130,8 +140,8 @@ sub new_from {
                                                 ordnumber payment_id reqdate salesman_id shippingpoint shipvia taxincluded taxzone_id transaction_description vendor_id billing_address_id
                                              )),
                closed    => 0,
-               is_sales  => !!$source->customer_id,
                delivered => 0,
+               order_type => $params{type},
                transdate => DateTime->today_local,
             );
 
@@ -146,12 +156,19 @@ sub new_from {
     $args{shipto_id} = $source->shipto_id;
   }
 
+  # infer type from legacy fields if not given
+  $args{order_type} //= $source->customer_id ? 'sales_delivery_order'
+                      : $source->vendor_id   ? 'purchase_delivery_order'
+                      : $source->is_sales    ? 'sales_delivery_order'
+                      : croak "need some way to set delivery order type from source";
+
   my $delivery_order = $class->new(%args);
   $delivery_order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
   my $items          = delete($params{items}) || $source->items_sorted;
   my %item_parents;
 
-  my @items = map {
+  # do not copy items when converting to supplier delivery order
+  my @items = $delivery_order->is_type(SUPPLIER_DELIVERY_ORDER_TYPE) ? () : map {
     my $source_item      = $_;
     my $source_item_id   = $_->$item_parent_id_column;
     my @custom_variables = map { _clone_orderitem_cvar($_) } @{ $source_item->custom_variables };
@@ -287,6 +304,7 @@ sub new_from_time_recordings {
   } else {
     my %args = (
       is_sales    => 1,
+      order_type  => 'sales_delivery_order',
       delivered   => 0,
       customer_id => $sources->[0]->customer_id,
       taxzone_id  => $sources->[0]->customer->taxzone_id,
@@ -302,8 +320,17 @@ sub new_from_time_recordings {
   return $delivery_order;
 }
 
+# legacy for compatibility
+# use type_data cusomtervendor and transfer direction instead
+sub is_sales {
+  if ($_[0]->order_type) {
+   return SL::DB::DeliveryOrder::TypeData::get3($_[0]->order_type, "properties", "is_customer");
+  }
+  return $_[0]{is_sales};
+}
+
 sub customervendor {
-  $_[0]->is_sales ? $_[0]->customer : $_[0]->vendor;
+  SL::DB::DeliveryOrder::TypeData::get3($_[0]->order_type, "properties", "is_customer") ? $_[0]->customer : $_[0]->vendor;
 }
 
 sub convert_to_invoice {
