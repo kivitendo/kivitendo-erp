@@ -134,8 +134,7 @@
     </table>
    </td>
   </tr>
-
-[% IF !is_type_invoice_for_advance_payment %]
+[% IF is_type_normal_invoice OR  is_type_credit_note %]
   [% PROCESS 'is/_payments.html' %]
 [% END %]
  </table>
