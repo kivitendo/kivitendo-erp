@@ -625,10 +625,10 @@ sub form_header {
   }
 
   $TMPL_VAR{is_type_normal_invoice} = $form->{type} eq "invoice";
-  $TMPL_VAR{is_type_credit_note} = $form->{type}   eq "credit_note";
-  $TMPL_VAR{is_format_html}      = $form->{format} eq 'html';
-  $TMPL_VAR{dateformat}          = $myconfig{dateformat};
-  $TMPL_VAR{numberformat}        = $myconfig{numberformat};
+  $TMPL_VAR{is_type_credit_note}    = $form->{type}   eq "credit_note";
+  $TMPL_VAR{is_format_html}         = $form->{format} eq 'html';
+  $TMPL_VAR{dateformat}             = $myconfig{dateformat};
+  $TMPL_VAR{numberformat}           = $myconfig{numberformat};
 
   # hiddens
   $TMPL_VAR{HIDDENS} = [qw(
@@ -768,7 +768,7 @@ sub form_footer {
   }
 
   print $form->parse_html_template('is/form_footer', {
-    is_type_normal_invoice => ($form->{type} eq "invoice"),
+    is_type_normal_invoice              => ($form->{type} eq "invoice"),
     is_type_credit_note                 => ($form->{type} eq "credit_note"),
     totalpaid                           => $totalpaid,
     paid_missing                        => $form->{invtotal} - $totalpaid,
