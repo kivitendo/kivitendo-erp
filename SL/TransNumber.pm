@@ -16,7 +16,8 @@ use Rose::Object::MakeMethods::Generic
  scalar => [ qw(type id number save dbh dbh_provided business_id) ],
 );
 
-my @SUPPORTED_TYPES = qw(invoice invoice_for_advance_payment final_invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order purchase_order sales_quotation request_quotation part service assembly assortment letter),
+my @SUPPORTED_TYPES = (
+  qw(invoice invoice_for_advance_payment final_invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order purchase_order sales_quotation request_quotation part service assembly assortment letter),
   @{ SL::DB::DeliveryOrder::TypeData::valid_types() },
 );
 
