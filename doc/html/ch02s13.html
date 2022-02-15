@@ -63,13 +63,13 @@
       Verzeichnis umbenannt werden.</p><p>Dieses Verzeichnis, wie auch das komplette
       <code class="literal">users</code>-Verzeichnis, muss vom Webserver beschreibbar
       sein. Dieses wurde bereits erledigt (siehe <a class="xref" href="ch02s03.html" title="2.3. Manuelle Installation des Programmpaketes">Manuelle Installation des Programmpaketes</a>), kann aber erneut
-      überprüft werden, wenn die Konvertierung nach PDF fehlschlägt.</p><div class="sect2" title="2.13.1. OpenDocument (odt) Druckvorlagen mit Makros"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2466"></a>2.13.1. OpenDocument (odt) Druckvorlagen mit Makros</h3></div></div></div><p>OpenDocument Vorlagen können Makros enthalten, welche komplexere
+      überprüft werden, wenn die Konvertierung nach PDF fehlschlägt.</p><div class="sect2" title="2.13.1. OpenDocument (odt) Druckvorlagen mit Makros"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2478"></a>2.13.1. OpenDocument (odt) Druckvorlagen mit Makros</h3></div></div></div><p>OpenDocument Vorlagen können Makros enthalten, welche komplexere
         Aufgaben erfüllen.</p><p>Der Vorlagensatz "rev-odt" enthält solche Vorlagen mit <span class="bold"><strong>Schweizer Bank-Einzahlungsscheinen (BESR)</strong></span>.
         Diese Makros haben die Aufgabe, die in den Einzahlungsscheinen
         benötigte Referenznummer und Kodierzeile zu erzeugen. Hier eine kurze
         Beschreibung, wie die Makros aufgebaut sind, und was bei ihrer Nutzung
         zu beachten ist (<span class="bold"><strong>in fett sind nötige einmalige
-        Anpassungen aufgeführt</strong></span>):</p><div class="sect3" title="2.13.1.1. Bezeichnung der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2479"></a>2.13.1.1. Bezeichnung der Vorlagen</h4></div></div></div><p>Rechnung: invoice_besr.odt, Auftrag:
+        Anpassungen aufgeführt</strong></span>):</p><div class="sect3" title="2.13.1.1. Bezeichnung der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2491"></a>2.13.1.1. Bezeichnung der Vorlagen</h4></div></div></div><p>Rechnung: invoice_besr.odt, Auftrag:
           sales_order_besr.odt</p></div><div class="sect3" title="2.13.1.2. Vorbereitungen im Adminbereich"><div class="titlepage"><div><div><h4 class="title"><a name="opendocument-druckvorlagen-mit-makros.vorbereitungen"></a>2.13.1.2. Vorbereitungen im Adminbereich</h4></div></div></div><p>Damit beim Erstellen von Rechnungen und Aufträgen neben der
           Standardvorlage ohne Einzahlungsschein weitere Vorlagen (z.B. mit
           Einzahlungsschein) auswählbar sind, muss für jedes Vorlagen-Suffix
@@ -79,11 +79,11 @@
               Aufträgen oder Rechnungen als odt-Datei keine Bedeutung, darf
               aber nicht leer sein)</p></li><li class="listitem"><p>Vorlagenkürzel → besr bzw. selbst gewähltes Vorlagensuffix
               (muss genau der Zeichenfolge entsprechen, die zwischen
-              "invoice_" bzw. "sales_order_" und ".odt" steht.)</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.13.1.3. Benutzereinstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2508"></a>2.13.1.3. Benutzereinstellungen</h4></div></div></div><p>Wer den Ausdruck mit Einzahlungsschein als Standardeinstellung
+              "invoice_" bzw. "sales_order_" und ".odt" steht.)</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.13.1.3. Benutzereinstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2520"></a>2.13.1.3. Benutzereinstellungen</h4></div></div></div><p>Wer den Ausdruck mit Einzahlungsschein als Standardeinstellung
           im Rechnungs- bzw. Auftragsformular angezeigt haben möchte, kann
           dies persönlich für sich bei den Benutzereinstellungen
           konfigurieren:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Programm → Benutzereinstellungen → Druckoptionen</p></li><li class="listitem"><p>Standardvorlagenformat → OpenDocument/OASIS</p></li><li class="listitem"><p>Standardausgabekanal → Bildschirm</p></li><li class="listitem"><p>Standarddrucker → gewünschte Druckerbeschreibung auswählen
-              (z.B. mit Einzahlungsschein Bank xy)</p></li><li class="listitem"><p>Anzahl Kopien → leer</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.13.1.4. Aufbau und nötige Anpassungen der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2532"></a>2.13.1.4. Aufbau und nötige Anpassungen der Vorlagen</h4></div></div></div><p>In der Vorlage sind als Modul "BESR" 4 Makros gespeichert, die
+              (z.B. mit Einzahlungsschein Bank xy)</p></li><li class="listitem"><p>Anzahl Kopien → leer</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.13.1.4. Aufbau und nötige Anpassungen der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2544"></a>2.13.1.4. Aufbau und nötige Anpassungen der Vorlagen</h4></div></div></div><p>In der Vorlage sind als Modul "BESR" 4 Makros gespeichert, die
           aus dem von kivitendo erzeugten odt-Dokument die korrekte
           Referenznummer inklusive Prüfziffer sowie die Kodierzeile in
           OCRB-Schrift erzeugen und am richtigen Ort ins Dokument
@@ -112,12 +112,12 @@
               angepasst werden.</strong></span> Dabei ist darauf zu achten, dass
               sich die Positionen der Postkonto-Nummern der Bank, sowie der
               Zeichenfolgen dddfr, DDDREF1, DDDREF2, 609, DDDKODIERZEILE nicht
-              verschieben.</p></li></ul></div><div class="screenshot"><div class="mediaobject"><img src="images/Einzahlungsschein_Makro.png"></div></div></div><div class="sect3" title="2.13.1.5. Auswahl der Druckvorlage in kivitendo beim Erzeugen einer odt-Rechnung (analog bei Auftrag)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2596"></a>2.13.1.5. Auswahl der Druckvorlage in kivitendo beim Erzeugen einer
+              verschieben.</p></li></ul></div><div class="screenshot"><div class="mediaobject"><img src="images/Einzahlungsschein_Makro.png"></div></div></div><div class="sect3" title="2.13.1.5. Auswahl der Druckvorlage in kivitendo beim Erzeugen einer odt-Rechnung (analog bei Auftrag)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2608"></a>2.13.1.5. Auswahl der Druckvorlage in kivitendo beim Erzeugen einer
           odt-Rechnung (analog bei Auftrag)</h4></div></div></div><p>Im Fussbereich der Rechnungsmaske muss neben Rechnung,
           OpenDocument/OASIS und Bildschirm die im Adminbereich erstellte
           Druckerbeschreibung ausgewählt werden, falls diese nicht bereits bei
           den Benutzereinstellungen als persönlicher Standard gewählt
-          wurde.</p></div><div class="sect3" title="2.13.1.6. Makroeinstellungen in LibreOffice anpassen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2601"></a>2.13.1.6. Makroeinstellungen in LibreOffice anpassen</h4></div></div></div><p>Falls beim Öffnen einer von kivitendo erzeugten odt-Rechnung
+          wurde.</p></div><div class="sect3" title="2.13.1.6. Makroeinstellungen in LibreOffice anpassen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2613"></a>2.13.1.6. Makroeinstellungen in LibreOffice anpassen</h4></div></div></div><p>Falls beim Öffnen einer von kivitendo erzeugten odt-Rechnung
           die Meldung kommt, dass Makros aus Sicherheitsgründen nicht
           ausgeführt werden, so müssen folgende Einstellungen in LibreOffice
           angepasst werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Extras → Optionen → Sicherheit → Makrosicherheit</p></li><li class="listitem"><p>Sicherheitslevel auf "Mittel" einstellen (Diese
@@ -130,7 +130,7 @@
               so eingestellt, dass sie beim Öffnen der Vorlagen selbst nicht
               ausgeführt werden. Das heisst für das Ansehen und Bearbeiten der
               Vorlagen sind keine speziellen Einstellungen in LibreOffice
-              nötig.</p></li></ul></div></div></div><div class="sect2" title="2.13.2. Schweizer QR-Rechnung mit OpenDocument Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2621"></a>2.13.2. Schweizer QR-Rechnung mit OpenDocument Vorlagen</h3></div></div></div><div class="sect3" title="2.13.2.1. Übersicht"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2624"></a>2.13.2.1. Übersicht</h4></div></div></div><p>Mit der Version 3.5.9 unterstützt Kivitendo die Erstellung von
+              nötig.</p></li></ul></div></div></div><div class="sect2" title="2.13.2. Schweizer QR-Rechnung mit OpenDocument Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2633"></a>2.13.2. Schweizer QR-Rechnung mit OpenDocument Vorlagen</h3></div></div></div><div class="sect3" title="2.13.2.1. Übersicht"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2636"></a>2.13.2.1. Übersicht</h4></div></div></div><p>Mit der Version 3.5.9 unterstützt Kivitendo die Erstellung von
           Schweizer QR-Rechnungen gemäss <a class="ulink" href="https://www.paymentstandards.ch/dam/downloads/ig-qr-bill-de.pdf" target="_top">Swiss
           Payment Standards, Version 2.2</a>. Implementiert sind hierbei die
           Varianten:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
@@ -148,11 +148,11 @@
           angepasst werden. Zwingend muss diese jedoch das QR-Code Platzhalter
           Bild, als eingebettetes Bild, enthalten. Da dieses beim
           Ausdrucken/Erzeugen der Rechnung durch das neu generierte QR-Code
-          Bild ersetzt wird.</p></div><div class="sect3" title="2.13.2.2. Einstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2660"></a>2.13.2.2. Einstellungen</h4></div></div></div><div class="sect4" title="2.13.2.2.1. Mandantenkonfiguration"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2663"></a>2.13.2.2.1. Mandantenkonfiguration</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Mandatenkonfiguration →
+          Bild ersetzt wird.</p></div><div class="sect3" title="2.13.2.2. Einstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2672"></a>2.13.2.2. Einstellungen</h4></div></div></div><div class="sect4" title="2.13.2.2.1. Mandantenkonfiguration"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2675"></a>2.13.2.2.1. Mandantenkonfiguration</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Mandatenkonfiguration →
             Features</em></span>. Im Abschnitt <span class="emphasis"><em>Einkauf und
             Verkauf</em></span>, beim Punkt <span class="emphasis"><em>Verkaufsrechnungen mit
             Schweizer QR-Rechnung erzeugen</em></span>, die gewünschte Variante
-            wählen.</p></div><div class="sect4" title="2.13.2.2.2. Konfiguration der Bankkonten"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2677"></a>2.13.2.2.2. Konfiguration der Bankkonten</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Bankkonten</em></span> muss bei
+            wählen.</p></div><div class="sect4" title="2.13.2.2.2. Konfiguration der Bankkonten"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2689"></a>2.13.2.2.2. Konfiguration der Bankkonten</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Bankkonten</em></span> muss bei
             mindestens einem Bankkonto die Option <span class="emphasis"><em>Nutzung mit
             Schweizer QR-Rechnung</em></span> auf <span class="bold"><strong>Ja</strong></span> gestellt werden.</p><div class="tip" title="Tipp" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tipp]" src="system/docbook-xsl/images/tip.png"></td><th align="left">Tipp</th></tr><tr><td align="left" valign="top"><p>Für die Variante <span class="bold"><strong>QR-IBAN mit
               QR-Referenz</strong></span> muss dieses Konto unter IBAN eine gültige
@@ -160,7 +160,7 @@
               unterscheidet sich von der regulären IBAN.</p><p>Zusätzlich muss eine gültige <span class="bold"><strong>Bankkonto
               Identifikationsnummer</strong></span> angegeben werden
               (6-stellig).</p><p>Diese werden von der jeweiligen Bank vergeben.</p></td></tr></table></div><p>Sind mehrere Konten ausgewählt wird das erste
-            verwendet.</p></div></div><div class="sect3" title="2.13.2.3. Adressdaten"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2709"></a>2.13.2.3. Adressdaten</h4></div></div></div><p>Die Adressdaten zum Zahlungsempfänger werden aus der
+            verwendet.</p></div></div><div class="sect3" title="2.13.2.3. Adressdaten"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2721"></a>2.13.2.3. Adressdaten</h4></div></div></div><p>Die Adressdaten zum Zahlungsempfänger werden aus der
           Mandantenkonfiguration entnommen. Unter <span class="emphasis"><em>System →
           Mandantenkonfiguration → Verschiedenes</em></span>, Abschnitt
           <span class="emphasis"><em>Firmenname und -adresse.</em></span>
@@ -168,14 +168,14 @@
           Kundendaten der jeweiligen Rechnung.</p><p>Diese können in der Vorlage mit den jeweiligen Variablen
           eingetragen werden. Siehe auch: <a class="xref" href="ch03s03.html" title="3.3. Dokumentenvorlagen und verfügbare Variablen">Abschnitt&nbsp;3.3, „Dokumentenvorlagen und verfügbare Variablen“</a>
                </p><p>Der erzeugte QR-Code verwendet Adress-Typ "K" (Kombinierte
-          Adressfelder, 2 Zeilen).</p></div><div class="sect3" title="2.13.2.4. Referenznummer"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2728"></a>2.13.2.4. Referenznummer</h4></div></div></div><p>Die Referenznummer wird in Kivitendo erzeugt und setzt sich
+          Adressfelder, 2 Zeilen).</p></div><div class="sect3" title="2.13.2.4. Referenznummer"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2740"></a>2.13.2.4. Referenznummer</h4></div></div></div><p>Die Referenznummer wird in Kivitendo erzeugt und setzt sich
           wiefolgt zusammen:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Bankkonto Identifikationsnummer (6-stellig)</p></li><li class="listitem"><p>Kundennummer (6-stellig, mit führenden Nullen
               aufgefüllt)</p></li><li class="listitem"><p>Auftragsnummer (7-stellig, mit führenden Nullen
               aufgefüllt)</p></li><li class="listitem"><p>Rechnungsnummer (7-stellig, mit führenden Nullen
               aufgefüllt)</p></li><li class="listitem"><p>Prüfziffer (1-stellig, berechnet mittels modulo 10,
               rekursiv)</p></li></ul></div><p>Es sind lediglich Ziffern erlaubt. Allfällige Prefixe mit
           Buchstaben werden entfernt und fehlende Stellen werden mit führenden
-          Nullen aufgefüllt.</p></div><div class="sect3" title="2.13.2.5. Zusätzliche Variablen für Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2751"></a>2.13.2.5. Zusätzliche Variablen für Vorlage</h4></div></div></div><p>Zusätzlich zu den in der Vorlage standardmässig verfügbaren
+          Nullen aufgefüllt.</p></div><div class="sect3" title="2.13.2.5. Zusätzliche Variablen für Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2763"></a>2.13.2.5. Zusätzliche Variablen für Vorlage</h4></div></div></div><p>Zusätzlich zu den in der Vorlage standardmässig verfügbaren
           Variablen (siehe <a class="xref" href="ch03s03.html" title="3.3. Dokumentenvorlagen und verfügbare Variablen">Abschnitt&nbsp;3.3, „Dokumentenvorlagen und verfügbare Variablen“</a>),
           werden die folgenden Variablen erzeugt:</p><div class="variablelist"><dl><dt><span class="term">ref_number_formatted</span></dt><dd><p>Referenznummer formatiert mit Leerzeichen, z.B.: 21 00000
                 00003 13947 14300 09017</p></dd><dt><span class="term">iban_formatted</span></dt><dd><p>IBAN formatiert mit Leerzeichen</p></dd><dt><span class="term">amount_formatted</span></dt><dd><p>Betrag formatiert mit Tausendertrennzeichen Leerschlag,

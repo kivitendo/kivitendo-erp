@@ -89,6 +89,8 @@
                   </p></li><li class="listitem"><p>
                      <code class="literal">Regexp::IPv6</code>
                   </p></li><li class="listitem"><p>
+                     <code class="literal">Rest::Client</code>
+                  </p></li><li class="listitem"><p>
                      <code class="literal">Rose::Object</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">Rose::DB</code>
@@ -118,9 +120,10 @@
                      <code class="literal">XML::LibXML</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">YAML::XS</code> oder <code class="literal">YAML</code>
-                  </p></li></ul></div><p>Seit Version größer v3.5.9 sind die folgenden Pakete
-        hinzugekommen: <code class="literal">Imager</code>,
-        <code class="literal">Imager::QRCode</code>
+                  </p></li></ul></div><p>Seit Version größer v3.5.8 sind die folgenden Pakete hinzugekommen: <code class="literal">Imager</code>, <code class="literal">Imager::QRCode</code>
+
+               <code class="literal">Rest::Client</code>
+               <code class="literal">Term::ReadLine::Gnu</code>
             </p><p>Seit Version größer v3.5.6 sind die folgenden Pakete hinzugekommen: <code class="literal">Try::Tiny</code>, <code class="literal">Math::Round</code>
             </p><p>Seit Version größer v3.5.6 sind die folgenden Pakete hinzugekommen: <code class="literal">XML::LibXML</code>, <code class="literal">CAM::PDF</code>
             </p><p>Seit Version größer v3.5.3 sind die folgenden Pakete hinzugekommen: <code class="literal">Exception::Class</code>
@@ -156,7 +159,7 @@
         sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
         zukünftigen Version aber aus dem Paket entfernt werden. Es wird
         empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
-        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e611"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten
+        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e623"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten
           Pakete als Debian-Pakete zur Verfügung. Sie können mit
           folgendem Befehl installiert werden:</p><pre class="programlisting">apt install  apache2 libarchive-zip-perl libclone-perl \
   libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
@@ -175,10 +178,10 @@
   libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
   libdatetime-event-cron-perl libexception-class-perl libcam-pdf-perl \
   libxml-libxml-perl libtry-tiny-perl libmath-round-perl \
-  libimager-perl libimager-qrcode-perl
+  libimager-perl libimager-qrcode-perl librest-client-perl \
 </pre><p>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left"><a name="ubuntu-universe"></a>Anmerkung</th></tr><tr><td align="left" valign="top"><p>Die Perl Pakete für Ubuntu befinden sich im "Universe" Repository. Falls dies nicht aktiv ist, kann dies mit folgendem Aufruf aktiviert werden:
 </p><pre class="programlisting">add-apt-repository universe</pre><p>
-                  </p></td></tr></table></div></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e626"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
+                  </p></td></tr></table></div></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e638"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">dnf install httpd mod_fcgid postgresql-server postgresql-contrib\
   perl-Algorithm-CheckDigits perl-Archive-Zip perl-CPAN perl-Class-XSAccessor \
@@ -190,7 +193,7 @@
   perl-Params-Validate perl-Regexp-IPv6 perl-Rose-DB perl-Rose-DB-Object \
   perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer \
-  perl-YAML perl-libwww-perl</pre></div><div class="sect3" title="2.2.2.3. openSUSE Leap 15.x und SUSE Linux Enterprise Server 15 GA"><div class="titlepage"><div><div><h4 class="title"><a name="d0e633"></a>2.2.2.3. openSUSE Leap 15.x und SUSE Linux Enterprise Server 15 GA</h4></div></div></div><p>Für openSUSE Leap 15.x stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung.</p><p>Damit diese installiert werden können, muß das System die erforderlichen Repositories kennen und Zugriff über das Internet darauf haben.</p><p>Daher machen wir die Repositories dem System bekannt.</p><p>Um die zusätzlichen Repositories für die Installation zur Verfügung zu stellen, kann man diese mit YaST oder auch in einem Terminal auf der Konsole bekannt geben. Wir beschränken uns hier mit der Eingabe auf der Konsole. In den allermeisten Fällen verwenden die Administratoren eine sichere SSH-Verbindung zum zu administrierenden Server.</p><p>Dazu geben wir folgenden Befehl ein:</p><pre class="programlisting">zypper addrepo -f \
+  perl-YAML perl-libwww-perl</pre></div><div class="sect3" title="2.2.2.3. openSUSE Leap 15.x und SUSE Linux Enterprise Server 15 GA"><div class="titlepage"><div><div><h4 class="title"><a name="d0e645"></a>2.2.2.3. openSUSE Leap 15.x und SUSE Linux Enterprise Server 15 GA</h4></div></div></div><p>Für openSUSE Leap 15.x stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung.</p><p>Damit diese installiert werden können, muß das System die erforderlichen Repositories kennen und Zugriff über das Internet darauf haben.</p><p>Daher machen wir die Repositories dem System bekannt.</p><p>Um die zusätzlichen Repositories für die Installation zur Verfügung zu stellen, kann man diese mit YaST oder auch in einem Terminal auf der Konsole bekannt geben. Wir beschränken uns hier mit der Eingabe auf der Konsole. In den allermeisten Fällen verwenden die Administratoren eine sichere SSH-Verbindung zum zu administrierenden Server.</p><p>Dazu geben wir folgenden Befehl ein:</p><pre class="programlisting">zypper addrepo -f \
   http://download.opensuse.org/repositories/devel:languages:perl/openSUSE_Leap_15.2/ \
   "devel:languages:perl"
           </pre><pre class="programlisting">zypper addrepo -f \
@@ -235,7 +238,7 @@
   texlive-upca
           </pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
           werden. Dazu können Sie die folgenden Befehle anwenden:</p><pre class="programlisting">cpan DateTime::event::Cron DateTime::Set FCGI \
-  HTML::Restrict PBKDF2::Tiny Rose::Db::Object Set::Infinite</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e695"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+  HTML::Restrict PBKDF2::Tiny Rose::Db::Object Set::Infinite</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e707"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
                      <code class="literal">poppler-utils</code> 'pdfinfo' zum Erkennen der Seitenanzahl bei der PDF-Generierung</p></li><li class="listitem"><p>
                      <code class="literal">Postgres Trigram-Index</code> Für datenbankoptimierte Suchanfragen. Bspw. im Paket <code class="literal">postgresql-contrib</code> enthalten</p></li></ul></div><p>Debian und Ubuntu: </p><pre class="programlisting">apt install postgresql-contrib poppler-utils</pre><p>
             </p><p>Fedora: </p><pre class="programlisting">dnf install poppler-utils postgresql-contrib</pre><p>

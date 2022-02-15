@@ -322,6 +322,10 @@
           </listitem>
 
           <listitem>
+            <para><literal>Rest::Client</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>Rose::Object</literal></para>
           </listitem>
 
@@ -384,9 +388,8 @@
         </itemizedlist>
 
 
-        <para>Seit Version größer v3.5.9 sind die folgenden Pakete
-        hinzugekommen: <literal>Imager</literal>,
-        <literal>Imager::QRCode</literal></para>
+        <para>Seit Version größer v3.5.8 sind die folgenden Pakete hinzugekommen: <literal>Imager</literal>, <literal>Imager::QRCode</literal>
+<literal>Rest::Client</literal><literal>Term::ReadLine::Gnu</literal></para>
 
         <para>Seit Version größer v3.5.6 sind die folgenden Pakete hinzugekommen: <literal>Try::Tiny</literal>, <literal>Math::Round</literal></para>
         <para>Seit Version größer v3.5.6 sind die folgenden Pakete hinzugekommen: <literal>XML::LibXML</literal>, <literal>CAM::PDF</literal></para>
@@ -461,7 +464,7 @@
   libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
   libdatetime-event-cron-perl libexception-class-perl libcam-pdf-perl \
   libxml-libxml-perl libtry-tiny-perl libmath-round-perl \
-  libimager-perl libimager-qrcode-perl
+  libimager-perl libimager-qrcode-perl librest-client-perl \
 </programlisting>
 <para>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</para>
           <note id="ubuntu-universe">
