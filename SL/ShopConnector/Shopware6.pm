@@ -701,8 +701,8 @@ sub get_version {
 sub set_orderstatus {
   my ($self, $order_id, $transition) = @_;
 
-  croak "No order ID, should be in format [0-9a-f]{32}" unless $order_id   =~ m/^[0-9a-f]{32}$/;
-  croak "NO valid transition value"                     unless $transition =~ m/(open|process|cancel|complete)/;
+  croak "No shop order ID, should be in format [0-9a-f]{32}" unless $order_id   =~ m/^[0-9a-f]{32}$/;
+  croak "NO valid transition value"                          unless $transition =~ m/(open|process|cancel|complete)/;
   my $ret;
   $ret = $self->connector->POST("/api/_action/order/$order_id/state/$transition");
   my $response_code = $ret->responseCode();
