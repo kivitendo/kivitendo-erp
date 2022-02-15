@@ -2,15 +2,34 @@
 # Veränderungen von kivitendo #
 ###############################
 
-202x-xx-xx - Release x.x.x
+202x-xx-xx - Release 3.6.0
 
 Größere neue Features:
 
-Die neue mobile Variante von kivitendo kann Handyfotos an Lieferscheine hinzufügen.
-Das Feature setzt ein mobiles Endgerät voraus, aufgrund dessen wird ein passendes
-CSS-Design im Android-Stil geladen und über die Suche nach einem Lieferschein lassen
-sich aufgenommen Fotos hochladen. Die Funktion benötigt ein aktiviertes DMS innerhalb
-von kivitendo.
+- Mobilvariante Handyfotos für Lieferscheine
+  Die neue mobile Variante von kivitendo kann Handyfotos an Lieferscheine hinzufügen.
+  Das Feature setzt ein mobiles Endgerät voraus, aufgrund dessen wird ein passendes
+  CSS-Design im Android-Stil geladen und über die Suche nach einem Lieferschein lassen
+  sich aufgenommen Fotos hochladen. Die Funktion benötigt ein aktiviertes DMS innerhalb
+  von kivitendo.
+
+- Lieferanten-Beistelllieferschein
+  Über den Lieferantenworkflow ist es jetzt möglich
+  einen Lieferantenausgangslieferschein zu erstellen (beigestellte Ware).
+  Mit diesem neuen Belegtyp können dann für einen Lieferanten Waren ausgelagert,
+  sprich mitgegeben werden. Damit kann der Anwendungsfall: Lieferant veredelt
+  eigene Erzeugnisse weiter oder erbringt Dienstleistungen mit selbst erzeugter
+  Ware abgebildet werden.
+  Dieser Belegtyp wurde vollständig unabhängig vom alten Lieferschein-Code ent-
+  wickelt (MVC Modell, wie beim neueren Auftrag) und enthält die Option
+  Belegart (Einkauf oder Verkauf) sowie Lagerrichtung (Ein- oder Auslagern) beliebig
+  zu kombinieren.
+
+- Shopware 6 Schnittstelle
+  kivitendo unterstützt jetzt die neuere Shopware Version 6 als Alternative
+  zum bisherigen Shopware 5 Konnektor. Die meisten Funktionen sind analog zum
+  Shopware 5 Konnektor implementiert. Admins können sich im Detail im Perl-Doc
+  über die Implementierung informieren (perldoc SL/ShopConnector/Shopware6.pm).
 
 
 Mittelgroße neue Features:
@@ -51,6 +70,9 @@ Kleinere neue Features und Detailverbesserungen:
   werden, nicht mehr editierbar sind. In dem Fall vergibt kivitendo
   sie immer automatisch und zeigt sie in den Belegmasken nur noch an.
 - Warengruppe kann nun als Pflichtfeld für Artikel konfiguriert werden.
+- Das E-Mail Feld 'body' innerhalb von kivitendo unterstützt jetzt HTML-Formatierungen
+  Somit kann der Versand von wiederkehrenden Rechnungen als auch der
+  manuelle E-Mail-Versand von Belegen wie das Beleg-Bemerkungsfeld formatiert werden.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 

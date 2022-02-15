@@ -3,6 +3,26 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v3.6
+
+Der 'neue Auftrags-Controller' ist mittlerweile weder neu noch experimentell und
+die entsprechende Mandantenkonfiguration 'Experimentellen neuen Auftrags-Controller'
+verwenden wird bei diesem Upgrade hart auf 'Ja' gesetzt.
+Die alte, noch aktive Auftragsmaske wird in einer zukünftigen Version von kivitendo entfernt
+werden.
+
+Einige neue Perl-Module sind hinzugekommen, Hilfe zum Installieren bietet wie immer
+das Skript 'scripts/installation_check.pl -v'.
+
+  * Neue Perl Abhängigkeiten:
+
+  * Term::ReadLine::Gnu
+  * Imager::QRCode
+  * Imager
+  * REST::Client
+
+
+
 Upgrade auf v3.5.8
 
 Die API für 'Erzeugnis fertigen' wurde geändert:
