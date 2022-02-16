@@ -1048,6 +1048,8 @@ sub post {
     my @current_taxaccounts = (split(/ /, $form->{taxaccounts}));
     $form->error($locale->text('Cannot post invoice for advance payment with more than one tax'))
       if (scalar @current_taxaccounts > 1);
+    $form->error($locale->text('Cannot post invoice for advance payment with taxincluded'))
+      if ($form->{taxincluded});
   }
 
   for my $i (1 .. $form->{paidaccounts}) {
