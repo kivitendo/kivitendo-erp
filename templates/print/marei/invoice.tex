@@ -159,17 +159,17 @@
 
 \vspace{0.2cm}
 
-<%if iap_existing%>%
-  \abzueglichAnzahlungsrechnungen:\\
-  \begin{SimpleTabular}[colspec=llr<{\tabcurrency}r<{\tabcurrency},headline={\bfseries\nr& \bfseries\date& \bfseries\betrag & \bfseries\ust}]%
-    <%foreach iap_invnumber%>%
-      <%iap_invnumber%> & <%iap_transdate_as_date%> & <%iap_amount%> & <%iap_taxamount%>\\%
-    <%end iap_invnumber%>%
-  \end{SimpleTabular}%
-  <%if template_meta.formname == "final_invoice"%>%
-    \bfseries\rechnungsbetrag: <%iap_final_amount%> \currency\\%
-  <%end%>%
-<%end iap_available%>%
+<%if template_meta.formname == "final_invoice"%>
+  <%if iap_existing%>
+    \abzueglichAnzahlungsrechnungen:\\
+    \begin{SimpleTabular}[colspec=llr<{\tabcurrency}r<{\tabcurrency},headline={\bfseries\nr& \bfseries\date& \bfseries\betrag & \bfseries\ust}]%
+      <%foreach iap_invnumber%>%
+        <%iap_invnumber%> & <%iap_transdate_as_date%> & <%iap_amount%> & <%iap_taxamount%>\\%
+      <%end iap_invnumber%>%
+    \end{SimpleTabular}%
+      \bfseries\rechnungsbetrag: <%iap_final_amount%> \currency\\%
+  <%end iap_available%>
+<%end%>%
 
 \Ifstr{<%deliverydate%>}{}{%
   \leistungsdatumGleichRechnungsdatum%
