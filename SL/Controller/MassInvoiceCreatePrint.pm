@@ -58,7 +58,7 @@ sub action_create_invoices {
   }
 
   my $db = SL::DB::Invoice->new->db;
-  my $dbh = SL::DB->client->dbh;
+  my $dbh = $db->dbh;
   my @invoices;
   my @already_closed_delivery_orders;
 
