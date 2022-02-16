@@ -42,7 +42,7 @@ sub create_invoices {
 
   my $job_obj = $self->{job_obj};
   my $db      = $job_obj->db;
-  my $dbh     = SL::DB->client->dbh;
+  my $dbh     = $db->dbh;
 
   $job_obj->set_data(status => CONVERTING_DELIVERY_ORDERS())->save;
 
