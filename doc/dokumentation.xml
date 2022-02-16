@@ -2829,7 +2829,7 @@ digits_year: 4</programlisting>
           <sect4>
             <title>Mandantenkonfiguration</title>
 
-            <para>Unter <emphasis>System → Mandatenkonfiguration →
+            <para>Unter <emphasis>System → Mandantenkonfiguration →
             Features</emphasis>. Im Abschnitt <emphasis>Einkauf und
             Verkauf</emphasis>, beim Punkt <emphasis>Verkaufsrechnungen mit
             Schweizer QR-Rechnung erzeugen</emphasis>, die gewünschte Variante
@@ -2859,6 +2859,19 @@ digits_year: 4</programlisting>
 
             <para>Sind mehrere Konten ausgewählt wird das erste
             verwendet.</para>
+          </sect4>
+
+          <sect4>
+            <title>Rechnungen ohne Betrag</title>
+
+            <para>Für Rechnungen ohne Betrag (z.B. Spenden) kann, in der
+            jeweiligen Rechnung, die Checkbox <emphasis>QR-Rechnung ohne
+            Betrag</emphasis> aktiviert werden. Diese Checkbox erscheint nur,
+            wenn QR-Rechnungen in der Mandantenkonfiguration aktiviert sind
+            (variante ausgewählt).</para>
+
+            <para>Dies wirkt sich lediglich auf den erzeugten QR-Code aus. Die
+            Vorlage muss separat angepasst und ausgewählt werden.</para>
           </sect4>
         </sect3>
 
