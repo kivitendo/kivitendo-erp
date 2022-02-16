@@ -1296,7 +1296,7 @@ sub aging {
     SELECT ${ct}.id AS ctid, ${ct}.name,
       street, zipcode, city, country, contact, email,
       phone as customerphone, fax as customerfax, ${ct}number,
-      "invnumber", "transdate",
+      "invnumber", "transdate", "type",
       (amount - COALESCE((SELECT sum(amount)*$ml FROM acc_trans WHERE chart_link ilike '%paid%' AND acc_trans.trans_id=${arap}.id AND acc_trans.transdate <= (date $todate)),0)) as "open", "amount",
       "duedate", invoice, ${arap}.id, date_part('days', now() - duedate) as overduedays, datepaid, (amount - paid) as current_open,
       (SELECT $buysell

@@ -1569,6 +1569,7 @@ $self->{texts} = {
   'Filter record template'      => 'Filter für Buchungsvorlagen',
   'Final Invoice'               => 'Schlussrechnung',
   'Final Invoice (one letter abbreviation)' => 'F',
+  'Final Invoice, please use mark as paid manually' => 'Rechnungstyp Schlussrechnung, bitte den Beleg manuell als bezahlt markieren',
   'Financial Controlling'       => 'Finanzcontrolling',
   'Financial Controlling Report' => 'Finanzcontrollingbericht',
   'Financial Overview'          => 'Finanzübersicht',

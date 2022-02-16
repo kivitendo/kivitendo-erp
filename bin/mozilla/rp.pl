@@ -98,6 +98,7 @@ use strict;
 # $locale->text('Payments')
 # $locale->text('Project Transactions')
 # $locale->text('Business evaluation')
+# $locale->text('Final Invoice, please use mark as paid manually')
 
 # $form->parse_html_template('rp/html_report_susa')
 
@@ -1006,7 +1007,7 @@ sub aging {
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  my @columns = qw(statement ct invnumber transdate duedate amount open datepaid current_open);
+  my @columns = qw(statement ct invnumber transdate duedate amount open datepaid current_open type);
   my %column_defs = (
     'statement' => { raw_header_data => SL::Presenter::Tag::checkbox_tag("checkall", checkall => '[name^=statement_]'), 'visible' => $form->{ct} eq 'customer' ? 'HTML' : 0, align => "center" },
     'ct'        => { 'text' => $form->{ct} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
@@ -1017,6 +1018,7 @@ sub aging {
     'open'      => { 'text' => $locale->text('Open'), },
     'datepaid'  => { 'text' => $locale->text('Date of Last Payment'), visible => ($form->{reporttype} eq 'custom') },
     'current_open' => { 'text' => $locale->text('Open Amount at Last Payment Date'), visible => ($form->{reporttype} eq 'custom') },
+    'type'      => { 'text' => $locale->text('Note'), },
   );
 
   my %column_alignment = ('statement' => 'center',
@@ -1103,6 +1105,12 @@ sub aging {
     }
 
     $row->{invnumber}->{link} =  build_std_url("script=$ref->{module}.pl", 'action=edit', 'callback', 'id=' . E($ref->{id}));
+    if ($row->{type}->{data} eq 'final_invoice') {
+      $row->{type}->{data} = $locale->text('Final Invoice, please use mark as paid manually');
+      $row->{type}->{link} = build_std_url("script=$ref->{module}.pl", 'action=edit', 'callback', 'id=' . E($ref->{id}));
+    } else {
+      $row->{type}->{data} = '';
+    }
 
     if ($previous_ctid != $ref->{ctid}) {
       $row->{statement}->{raw_data} =
