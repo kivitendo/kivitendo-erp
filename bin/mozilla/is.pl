@@ -385,7 +385,7 @@ sub setup_is_action_bar {
           disabled => !$may_edit_create ? t8('You must not change this invoice.')
                     : !$form->{id}      ? t8('This invoice has not been posted yet.')
                     :                     undef,
-          only_if  => $::instance_conf->get_is_show_mark_as_paid && $form->{type} ne "invoice_for_advance_payment",
+          only_if  => ($::instance_conf->get_is_show_mark_as_paid && $form->{type} ne "invoice_for_advance_payment") || $form->{type} eq 'final_invoice',
         ],
       ], # end of combobox "Post"
 
