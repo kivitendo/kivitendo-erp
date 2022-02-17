@@ -79,7 +79,7 @@ sub pay_invoice {
   # currency is either passed or use the invoice currency if it differs from the default currency
   # TODO remove
   my ($exchangerate,$currency);
-  if ($params{currency} || $params{currency_id} || $self->currency_id != $::instance_conf->get_currency_id) {
+  if ($params{currency} || $params{currency_id}) {
     if ($params{currency} || $params{currency_id} ) { # currency was specified
       $currency = SL::DB::Manager::Currency->find_by(name => $params{currency}) || SL::DB::Manager::Currency->find_by(id => $params{currency_id});
     } else { # use invoice currency
