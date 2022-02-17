@@ -394,7 +394,7 @@ sub make_row_result {
        $row->{outcorrection}->{data} - $row->{incorrection}->{data};
   $row->{averconsumed}->{data} = $row->{consumed}->{data}*30/$days ;
   map { $row->{$_}->{data} = $form->format_amount($myconfig,$row->{$_}->{data},2); } $self->getnumcolumns();
-  $row->{partnumber}->{link} = 'controller.pl?action=Part/edit&part.id' . $partid;
+  $row->{partnumber}->{link} = 'controller.pl?action=Part/edit&part.id=' . $partid;
 }
 
 sub action_stock {
