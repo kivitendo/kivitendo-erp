@@ -2,11 +2,12 @@
 # Veränderungen von kivitendo #
 ###############################
 
-202x-xx-xx - Release 3.6.0
+2022-0x-xx - Release 3.6.0
 
 Größere neue Features:
 
 - Mobilvariante Handyfotos für Lieferscheine
+
   Die neue mobile Variante von kivitendo kann Handyfotos an Lieferscheine hinzufügen.
   Das Feature setzt ein mobiles Endgerät voraus, aufgrund dessen wird ein passendes
   CSS-Design im Android-Stil geladen und über die Suche nach einem Lieferschein lassen
@@ -14,6 +15,7 @@ Größere neue Features:
   von kivitendo.
 
 - Lieferanten-Beistelllieferschein
+
   Über den Lieferantenworkflow ist es jetzt möglich
   einen Lieferantenausgangslieferschein zu erstellen (beigestellte Ware).
   Mit diesem neuen Belegtyp können dann für einen Lieferanten Waren ausgelagert,
@@ -26,10 +28,34 @@ Größere neue Features:
   zu kombinieren.
 
 - Shopware 6 Schnittstelle
+
   kivitendo unterstützt jetzt die neuere Shopware Version 6 als Alternative
   zum bisherigen Shopware 5 Konnektor. Die meisten Funktionen sind analog zum
   Shopware 5 Konnektor implementiert. Admins können sich im Detail im Perl-Doc
   über die Implementierung informieren (perldoc SL/ShopConnector/Shopware6.pm).
+
+- Anzahlungs- und Schlussrechnung konform nach deutschem Steuerrecht
+
+  Es gibt zwei neue Typen von Rechnungen, einmal den Typ Anzahlungsrechnung und den Typ Schlußrechnung.
+  Die Anzahlungsrechnung braucht keinen Vorgänger.
+  Schlußrechnung braucht immer einen Vorgänger.
+  Vorgänger für die Schlußrechnung kann eine Anzahlungsrechnung oder ein Auftrag sein.
+  Sollte der Workflow bei Anzahlungsrechnung starten, kann von der Anzahlungsrechnung aus eine
+  weitere Anzahlungsrechnung oder eine Schlußrechnung generiert werden.
+  Alternativ kann der Workflow auch mit einem Auftrag beginnen, dann muss die Schlußrechnung auch von diesem Auftrag aus erstellt werden.
+  Buchhalterische Änderungen:
+  Die Anzahlungsrechnung wird nicht auf das Standard-Ertragkonto gebucht,
+  sondern auf ein definiertes Transferkonto, ferner wird keine Mehrwertsteuer gebucht.
+  Sobald der Zahlungseingang zu dieser Anzahlungsrechnung verbucht wird (per Bankimport),
+  wird die Mehrwertsteuer entsprechend zum Zahlbetrag brutto verbucht.
+  Damit das ganze DATEV konform bleibt, wird der entsprechende netto Betrag des Zahlbetrags
+  auf ein Steuertransferkonto je nach Steuersatz verschoben.
+  Sobald die Schlußrechnung gebucht wird, werden die Verschiebungen wieder rückgängig gemacht
+  und falls die Schlußrechnung in Summe höher ist als die vorherigen Anzahlungsrechnungen wird
+  die Mehrwertsteuer anteilig gebucht.
+  Die Standard-Druckvorlage marei, enthält exemplarisch zwei neue Druckvarianten die
+  diesen Fall abbilden und somit als Orientierung für eigene Vorlagen-Anpassungen
+  dienen können.
 
 
 Mittelgroße neue Features:
@@ -40,6 +66,15 @@ Mittelgroße neue Features:
   zur Verfügung.
 - Unterstützung für Schweizer QR-Rechnung mit OpenDocument Vorlagen.
   Varianten: QR-IBAN mit QR-Referenz, IBAN ohne Referenz
+- Neuer benutzerdefinierter Variablentyp HTML-Feld
+  Der Funktionsumfang entspricht dem Editor im Langtext/Bemerkungen
+  innerhalb der Belege. Erweiterbar für alle auch bisher verwendete
+  Objekte die benutzerdefinierte Variable verwenden können (Stammdaten,
+  Projekte, usw)
+- DMS unterstützt auch Druckvarianten des Belegs
+  Bisher konnte das DMS nur die Hauptvariante des Belegtyps zuordnen,
+  jetzt wird auch bei allen bekannten Druckvariante ein entsprechend
+  eigenständiger Dokumenteneintrag, inkl. Version hinterlegt
 
 Kleinere neue Features und Detailverbesserungen:
 
@@ -73,11 +108,36 @@ Kleinere neue Features und Detailverbesserungen:
 - Das E-Mail Feld 'body' innerhalb von kivitendo unterstützt jetzt HTML-Formatierungen
   Somit kann der Versand von wiederkehrenden Rechnungen als auch der
   manuelle E-Mail-Versand von Belegen wie das Beleg-Bemerkungsfeld formatiert werden.
+- Für die HTML-Texte ist jetzt die Rechtschreibprüfung des Anwender-Browsers aktiviert
+- Beim E-Mail-Versand wird jetzt gewarnt, falls scheinbar keine
+  gültige E-Mail-Adresse des Empfängers existiert
+- Optionale auftragszentrische Verknüpfte Belege
+  Konfigurierbar in der Mandantenkonfiguration. Unabhängig vom
+  aktuellen Belegort werden die verknüpften Belege immer vom VK-Auftrag aufgebaut.
+- Lieferplan: Geschwindigkeitssteigerung
+- SEPA: aktuell von Kreditinstituten unterstützte Formatversionen nutzen
+- Pflichtenhefte: bei Pflichtenheft → Angebot → Auftrag auch PH mit Auftrag verknüpfen
+- Auftrag: Projekt automatisch in verknüpftem Pflichtenheft eintragen
+- Ein-/Verkauf: Belegnummern von uns erzeugter Belege nicht ändern können (Mandantenkonfig)
+  Für Belege, die auf unserer Seite erzeugt werden, kann nun verhindert
+  werden, dass die Belegnummer manuell angepasst bzw. gesetzt
+  wird. Statt dessen wird sie immer vom System beim ersten Speichern
+  vergeben und beim späteren Bearbeiten nur noch read-only angezeigt.
+- Verkaufsrechnungen direkt als Factur-X/ZUGFeRD-XML exportieren können
+- Order-Controller: Unterstützung für Drucken & E-Mailen von HTML-Vorlage
+- Der Lagerbewegungs-Import (CSV) unterstützt auch Fließkommazahlen
+- E-Mails aus kivitendo werden jetzt HTML-formatiert verschickt, mit
+  den bekannten Editiermöglichkeiten aus den Bemerkungen/Langtext
+- Bei längeren Langtexten in der Position ist jetzt ein Vergrößern des
+  Textfelds im Popup-Dialog möglich
+
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
-
-
+488 Lager ohne Lagerplatz nicht erlauben
+486 Bericht Lagerentnahme: Link zur Ware kaputt
+485 Offenen Forderungen zum Stichtag mit aktuellem Status
+484 CSV/PDF-Export Summen- und Saldenliste mit allen Konten
 
 
 2021-08-10 - Release 3.5.8
