@@ -2231,7 +2231,7 @@ digits_year: 4</programlisting>
       </itemizedlist>
 
       <para>Der ehemalige Druckvorlagensatz "f-tex" wurde mit der Version
-      3.6 entfernt, da er nicht mehr gepflegt wird.</para>
+      3.5.6 entfernt, da er nicht mehr gepflegt wird.</para>
 
       <sect2 id="Vorlagenverzeichnis-anlegen"
              xreflabel="Vorlagenverzeichnis anlegen">
