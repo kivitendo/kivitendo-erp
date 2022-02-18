@@ -2791,7 +2791,7 @@ digits_year: 4</programlisting>
         <sect3>
           <title>Übersicht</title>
 
-          <para>Mit der Version 3.5.9 unterstützt Kivitendo die Erstellung von
+          <para>Mit der Version 3.6.0 unterstützt Kivitendo die Erstellung von
           Schweizer QR-Rechnungen gemäss <ulink
           url="https://www.paymentstandards.ch/dam/downloads/ig-qr-bill-de.pdf">Swiss
           Payment Standards, Version 2.2</ulink>. Implementiert sind hierbei die
