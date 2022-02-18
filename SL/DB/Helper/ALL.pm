@@ -46,6 +46,7 @@ use SL::DB::Customer;
 use SL::DB::Datev;
 use SL::DB::Default;
 use SL::DB::DeliveryOrder;
+use SL::DB::DeliveryOrder::TypeData;
 use SL::DB::DeliveryOrderItem;
 use SL::DB::DeliveryOrderItemsStock;
 use SL::DB::DeliveryTerm;
