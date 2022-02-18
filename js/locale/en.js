@@ -178,6 +178,7 @@ namespace("kivi").setupLocale({
 "Today":"",
 "Toggle marker":"",
 "Transaction description":"",
+"Transfer stock":"",
 "Tue":"",
 "Tuesday":"",
 "Update":"",
