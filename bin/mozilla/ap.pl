@@ -1248,6 +1248,7 @@ sub add_from_purchase_order {
   $::form->{globalproject_id}   = $order->globalproject_id;
   $::form->{ordnumber}          = $order->number;
   $::form->{department_id}      = $order->department_id;
+  $::form->{transaction_description} = $order->transaction_description;
   $::form->{currency}           = $order->currency->name;
   $::form->{taxincluded}        = 1; # we use amount below, so tax is included
   $::form->{transdate}          = $today->to_kivitendo;

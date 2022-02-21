@@ -139,6 +139,10 @@
               [% END %]
 
               <tr>
+                <th align="right">[% 'Transaction description' | $T8 %]</th>
+                <td colspan="3">[% L.input_tag("transaction_description", transaction_description, size=35, "data-validate"=INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : '') %]</td>
+              </tr>
+              <tr>
                 <td align="right"><input name="taxincluded" class="checkbox" type="checkbox" value="1" [% IF ( taxincluded ) %]checked[% END %]></td>
                 <th align=left nowrap>[% 'Tax Included' | $T8 %]</th>
               </tr>

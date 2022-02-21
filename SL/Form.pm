@@ -2525,7 +2525,7 @@ sub create_links {
            a.mtime, a.itime,
            a.intnotes, a.department_id, a.amount AS oldinvtotal,
            a.paid AS oldtotalpaid, a.employee_id, a.gldate, a.type,
-           a.globalproject_id, ${extra_columns}
+           a.globalproject_id, a.transaction_description, ${extra_columns}
            c.name AS $table,
            d.description AS department,
            e.name AS employee
