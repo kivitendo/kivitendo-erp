@@ -89,10 +89,14 @@
           <td>[% L.date_tag('tax_point', tax_point) %]</td>
         </tr>
         <tr>
-          <th align="right">[% 'Description' | $T8 %]</th>
-          <td>[% L.areainput_tag('description', description, cols=50, readonly=readonly) %]</td>
+          <th align="right">[% 'Transaction description' | $T8 %]</th>
+          <td>[% L.input_tag("transaction_description", transaction_description, size=35) %]</td>
           <th align=right>[% 'Delivery Date' | $T8 %]</th>
           <td>[% L.date_tag('deliverydate', deliverydate) %]</td>
+        </tr>
+        <tr>
+          <th align="right">[% 'Description' | $T8 %]</th>
+          <td>[% L.areainput_tag('description', description, cols=50, readonly=readonly) %]</td>
         </tr>
         <tr>
           <th align="right">[%- IF id %][% 'Mitarbeiter' | $T8 %][% END %]</th>

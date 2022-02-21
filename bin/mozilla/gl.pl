@@ -1218,6 +1218,7 @@ sub post_transaction {
   $form->isblank("reference",   $locale->text('Reference missing!'));
   $form->isblank("transdate",   $locale->text('Transaction Date missing!'));
   $form->isblank("description", $locale->text('Description missing!'));
+  $form->isblank("transaction_description", $locale->text('A transaction description is required.')) if $::instance_conf->get_require_transaction_description_ps;
 
   my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);

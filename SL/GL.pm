@@ -124,12 +124,14 @@ sub _post_transaction {
     qq|UPDATE gl SET
          reference = ?, description = ?, notes = ?,
          transdate = ?, deliverydate = ?, tax_point = ?, department_id = ?, taxincluded = ?,
-         storno = ?, storno_id = ?, ob_transaction = ?, cb_transaction = ?
+         storno = ?, storno_id = ?, ob_transaction = ?, cb_transaction = ?,
+         transaction_description = ?
        WHERE id = ?|;
 
   @values = ($form->{reference}, $form->{description}, $form->{notes},
              conv_date($form->{transdate}), conv_date($form->{deliverydate}), conv_date($form->{tax_point}), conv_i($form->{department_id}), $form->{taxincluded} ? 't' : 'f',
              $form->{storno} ? 't' : 'f', conv_i($form->{storno_id}), $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f',
+             $form->{transaction_description},
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
@@ -657,7 +659,8 @@ sub transaction {
            g.storno, g.storno_id,
            g.department_id, d.description AS department,
            e.name AS employee, g.taxincluded, g.gldate,
-         g.ob_transaction, g.cb_transaction
+         g.ob_transaction, g.cb_transaction,
+         g.transaction_description
          FROM gl g
          LEFT JOIN department d ON (d.id = g.department_id)
          LEFT JOIN employee e ON (e.id = g.employee_id)
