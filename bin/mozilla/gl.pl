@@ -113,7 +113,7 @@ sub load_record_template {
   $::form->{duedate}          = $today->to_kivitendo;
   $::form->{rowcount}         = @{ $template->items };
   $::form->{paidaccounts}     = 1;
-  $::form->{$_}               = $template->$_     for qw(department_id taxincluded ob_transaction cb_transaction reference description show_details);
+  $::form->{$_}               = $template->$_     for qw(department_id taxincluded ob_transaction cb_transaction reference description show_details transaction_description);
   $::form->{$_}               = $dummy_form->{$_} for qw(closedto revtrans previous_id previous_gldate);
 
   my $row = 0;
@@ -194,6 +194,7 @@ sub save_record_template {
     reference      => $::form->{reference},
     description    => $::form->{description},
     show_details   => $::form->{show_details},
+    transaction_description => $::form->{transaction_description},
 
     items          => \@items,
   );
