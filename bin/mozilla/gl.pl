@@ -185,15 +185,15 @@ sub save_record_template {
     template_type  => 'gl_transaction',
     template_name  => $new_name,
 
-    currency_id    => $::instance_conf->get_currency_id,
-    department_id  => $::form->{department_id}    || undef,
-    project_id     => $::form->{globalproject_id} || undef,
-    taxincluded    => $::form->{taxincluded}     ? 1 : 0,
-    ob_transaction => $::form->{ob_transaction}  ? 1 : 0,
-    cb_transaction => $::form->{cb_transaction}  ? 1 : 0,
-    reference      => $::form->{reference},
-    description    => $::form->{description},
-    show_details   => $::form->{show_details},
+    currency_id             => $::instance_conf->get_currency_id,
+    department_id           => $::form->{department_id}    || undef,
+    project_id              => $::form->{globalproject_id} || undef,
+    taxincluded             => $::form->{taxincluded}     ? 1 : 0,
+    ob_transaction          => $::form->{ob_transaction}  ? 1 : 0,
+    cb_transaction          => $::form->{cb_transaction}  ? 1 : 0,
+    reference               => $::form->{reference},
+    description             => $::form->{description},
+    show_details            => $::form->{show_details},
     transaction_description => $::form->{transaction_description},
 
     items          => \@items,
@@ -1216,9 +1216,9 @@ sub post_transaction {
   my $locale   = $main::locale;
 
   # check if there is something in reference and date
-  $form->isblank("reference",   $locale->text('Reference missing!'));
-  $form->isblank("transdate",   $locale->text('Transaction Date missing!'));
-  $form->isblank("description", $locale->text('Description missing!'));
+  $form->isblank("reference",               $locale->text('Reference missing!'));
+  $form->isblank("transdate",               $locale->text('Transaction Date missing!'));
+  $form->isblank("description",             $locale->text('Description missing!'));
   $form->isblank("transaction_description", $locale->text('A transaction description is required.')) if $::instance_conf->get_require_transaction_description_ps;
 
   my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
