@@ -136,7 +136,7 @@ sub load_record_template {
   $::form->{duedate}          = $today->to_kivitendo;
   $::form->{rowcount}         = @{ $template->items };
   $::form->{paidaccounts}     = 1;
-  $::form->{$_}               = $template->$_ for qw(department_id ordnumber taxincluded notes);
+  $::form->{$_}               = $template->$_ for qw(department_id ordnumber taxincluded notes transaction_description);
 
   if ($template->vendor) {
     $::form->{vendor_id} = $template->vendor_id;
@@ -219,6 +219,7 @@ sub save_record_template {
     direct_debit   => $::form->{direct_debit} ? 1 : 0,
     ordnumber      => $::form->{ordnumber},
     notes          => $::form->{notes},
+    transaction_description => $::form->{transaction_description},
 
     items          => \@items,
   );
