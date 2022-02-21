@@ -141,7 +141,7 @@ sub load_record_template {
   if ($template->vendor) {
     $::form->{vendor_id} = $template->vendor_id;
     $::form->{vendor}    = $template->vendor->name;
-    $::form->{duedate}     = $template->vendor->payment->calc_date(reference_date => $today)->to_kivitendo if $template->vendor->payment;
+    $::form->{duedate}   = $template->vendor->payment->calc_date(reference_date => $today)->to_kivitendo if $template->vendor->payment;
   }
 
   my $row = 0;
@@ -206,22 +206,22 @@ sub save_record_template {
   } (1..($::form->{rowcount} || 1));
 
   $template->assign_attributes(
-    template_type  => 'ap_transaction',
-    template_name  => $new_name,
+    template_type           => 'ap_transaction',
+    template_name           => $new_name,
 
-    currency_id    => SL::DB::Manager::Currency->find_by(name => $::form->{currency})->id,
-    ar_ap_chart_id => $::form->{AP_chart_id}      || undef,
-    vendor_id      => $::form->{vendor_id}        || undef,
-    department_id  => $::form->{department_id}    || undef,
-    project_id     => $::form->{globalproject_id} || undef,
-    payment_id     => $::form->{payment_id}       || undef,
-    taxincluded    => $::form->{taxincluded}  ? 1 : 0,
-    direct_debit   => $::form->{direct_debit} ? 1 : 0,
-    ordnumber      => $::form->{ordnumber},
-    notes          => $::form->{notes},
+    currency_id             => SL::DB::Manager::Currency->find_by(name => $::form->{currency})->id,
+    ar_ap_chart_id          => $::form->{AP_chart_id}      || undef,
+    vendor_id               => $::form->{vendor_id}        || undef,
+    department_id           => $::form->{department_id}    || undef,
+    project_id              => $::form->{globalproject_id} || undef,
+    payment_id              => $::form->{payment_id}       || undef,
+    taxincluded             => $::form->{taxincluded}  ? 1 : 0,
+    direct_debit            => $::form->{direct_debit} ? 1 : 0,
+    ordnumber               => $::form->{ordnumber},
+    notes                   => $::form->{notes},
     transaction_description => $::form->{transaction_description},
 
-    items          => \@items,
+    items                   => \@items,
   );
 
   eval {
@@ -1241,21 +1241,21 @@ sub add_from_purchase_order {
   return if $order->type ne 'purchase_order';
 
   my $today                     = DateTime->today_local;
-  $::form->{title}              = "Add";
-  $::form->{vc}                 = 'vendor';
-  $::form->{vendor_id}          = $order->customervendor->id;
-  $::form->{vendor}             = $order->vendor->name;
-  $::form->{convert_from_oe_id} = $order->id;
-  $::form->{globalproject_id}   = $order->globalproject_id;
-  $::form->{ordnumber}          = $order->number;
-  $::form->{department_id}      = $order->department_id;
+  $::form->{title}                   = "Add";
+  $::form->{vc}                      = 'vendor';
+  $::form->{vendor_id}               = $order->customervendor->id;
+  $::form->{vendor}                  = $order->vendor->name;
+  $::form->{convert_from_oe_id}      = $order->id;
+  $::form->{globalproject_id}        = $order->globalproject_id;
+  $::form->{ordnumber}               = $order->number;
+  $::form->{department_id}           = $order->department_id;
   $::form->{transaction_description} = $order->transaction_description;
-  $::form->{currency}           = $order->currency->name;
-  $::form->{taxincluded}        = 1; # we use amount below, so tax is included
-  $::form->{transdate}          = $today->to_kivitendo;
-  $::form->{duedate}            = $today->to_kivitendo;
-  $::form->{duedate}            = $order->payment_terms->calc_date(reference_date => $today)->to_kivitendo if $order->payment_terms;
-  $::form->{deliverydate}       = $order->reqdate->to_kivitendo                                            if $order->reqdate;
+  $::form->{currency}                = $order->currency->name;
+  $::form->{taxincluded}             = 1; # we use amount below, so tax is included
+  $::form->{transdate}               = $today->to_kivitendo;
+  $::form->{duedate}                 = $today->to_kivitendo;
+  $::form->{duedate}                 = $order->payment_terms->calc_date(reference_date => $today)->to_kivitendo if $order->payment_terms;
+  $::form->{deliverydate}            = $order->reqdate->to_kivitendo                                            if $order->reqdate;
   create_links();
 
   my $config_po_ap_workflow_chart_id = $::instance_conf->get_workflow_po_ap_chart_id;
