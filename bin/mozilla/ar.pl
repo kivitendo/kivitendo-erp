@@ -124,17 +124,17 @@ sub load_record_template {
 
   # Fill $::form from the template.
   my $today                   = DateTime->today_local;
-  $::form->{title}            = "Add";
-  $::form->{currency}         = $template->currency->name;
-  $::form->{direct_debit}     = $template->direct_debit;
-  $::form->{globalproject_id} = $template->project_id;
+  $::form->{title}                   = "Add";
+  $::form->{currency}                = $template->currency->name;
+  $::form->{direct_debit}            = $template->direct_debit;
+  $::form->{globalproject_id}        = $template->project_id;
   $::form->{transaction_description} = $template->transaction_description;
-  $::form->{AR_chart_id}      = $template->ar_ap_chart_id;
-  $::form->{transdate}        = $today->to_kivitendo;
-  $::form->{duedate}          = $today->to_kivitendo;
-  $::form->{rowcount}         = @{ $template->items };
-  $::form->{paidaccounts}     = 1;
-  $::form->{$_}               = $template->$_ for qw(department_id ordnumber taxincluded employee_id notes);
+  $::form->{AR_chart_id}             = $template->ar_ap_chart_id;
+  $::form->{transdate}               = $today->to_kivitendo;
+  $::form->{duedate}                 = $today->to_kivitendo;
+  $::form->{rowcount}                = @{ $template->items };
+  $::form->{paidaccounts}            = 1;
+  $::form->{$_}                      = $template->$_ for qw(department_id ordnumber taxincluded employee_id notes);
 
   if ($template->customer) {
     $::form->{customer_id} = $template->customer_id;
@@ -198,22 +198,22 @@ sub save_record_template {
   } (1..($::form->{rowcount} || 1));
 
   $template->assign_attributes(
-    template_type  => 'ar_transaction',
-    template_name  => $new_name,
+    template_type           => 'ar_transaction',
+    template_name           => $new_name,
 
-    currency_id    => SL::DB::Manager::Currency->find_by(name => $::form->{currency})->id,
-    ar_ap_chart_id => $::form->{AR_chart_id}      || undef,
-    customer_id    => $::form->{customer_id}      || undef,
-    department_id  => $::form->{department_id}    || undef,
-    project_id     => $::form->{globalproject_id} || undef,
-    employee_id    => $::form->{employee_id}      || undef,
-    taxincluded    => $::form->{taxincluded}  ? 1 : 0,
-    direct_debit   => $::form->{direct_debit} ? 1 : 0,
-    ordnumber      => $::form->{ordnumber},
-    notes          => $::form->{notes},
+    currency_id             => SL::DB::Manager::Currency->find_by(name => $::form->{currency})->id,
+    ar_ap_chart_id          => $::form->{AR_chart_id}      || undef,
+    customer_id             => $::form->{customer_id}      || undef,
+    department_id           => $::form->{department_id}    || undef,
+    project_id              => $::form->{globalproject_id} || undef,
+    employee_id             => $::form->{employee_id}      || undef,
+    taxincluded             => $::form->{taxincluded}  ? 1 : 0,
+    direct_debit            => $::form->{direct_debit} ? 1 : 0,
+    ordnumber               => $::form->{ordnumber},
+    notes                   => $::form->{notes},
     transaction_description => $::form->{transaction_description},
 
-    items          => \@items,
+    items                   => \@items,
   );
 
   eval {
