@@ -283,7 +283,7 @@ sub _save {
       $self->{shipto}->save(cascade => 1);
     }
 
-    if ($self->is_customer && any { $self->{additional_billing_address}->$_ ne '' } @ADDITIONAL_BILLING_ADDRESS_COLUMNS) {
+    if ($self->is_customer && any { $self->{additional_billing_address}->$_ ne '' } grep { $_ ne 'default_address' } @ADDITIONAL_BILLING_ADDRESS_COLUMNS) {
       $self->{additional_billing_address}->customer_id($self->{cv}->id);
       $self->{additional_billing_address}->save(cascade => 1);
 
