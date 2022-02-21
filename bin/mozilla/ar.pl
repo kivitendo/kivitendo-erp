@@ -128,6 +128,7 @@ sub load_record_template {
   $::form->{currency}         = $template->currency->name;
   $::form->{direct_debit}     = $template->direct_debit;
   $::form->{globalproject_id} = $template->project_id;
+  $::form->{transaction_description} = $template->transaction_description;
   $::form->{AR_chart_id}      = $template->ar_ap_chart_id;
   $::form->{transdate}        = $today->to_kivitendo;
   $::form->{duedate}          = $today->to_kivitendo;
@@ -210,6 +211,7 @@ sub save_record_template {
     direct_debit   => $::form->{direct_debit} ? 1 : 0,
     ordnumber      => $::form->{ordnumber},
     notes          => $::form->{notes},
+    transaction_description => $::form->{transaction_description},
 
     items          => \@items,
   );
