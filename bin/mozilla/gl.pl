@@ -427,11 +427,12 @@ sub generate_report {
   my $ml = ($form->{ml} =~ /(A|E|Q)/) ? -1 : 1;
 
   my @columns = qw(
-    transdate      gldate   id      reference      description
-    notes          transaction_description         source   doccnt  debit          debit_accno
-    credit         credit_accno     debit_tax      debit_tax_accno
-    credit_tax     credit_tax_accno balance        projectnumbers
-    department     employee
+    transdate     gldate              id                         reference
+    description   notes               transaction_description    source
+    doccnt        debit               debit_accno
+    credit        credit_accno        debit_tax                  debit_tax_accno
+    credit_tax    credit_tax_accno    balance                    projectnumbers
+    department    employee
   );
 
   # add employee here, so that variable is still known and passed in url when choosing a different sort order in resulting table
@@ -441,13 +442,13 @@ sub generate_report {
   my $employee = $form->{employee_id} ? SL::DB::Employee->new(id => $form->{employee_id})->load->name : '';
 
   my (@options, @date_options);
-  push @options,      $locale->text('Account')     . " : $form->{accno} $form->{account_description}" if ($form->{accno});
-  push @options,      $locale->text('Source')      . " : $form->{source}"                             if ($form->{source});
-  push @options,      $locale->text('Reference')   . " : $form->{reference}"                          if ($form->{reference});
-  push @options,      $locale->text('Description') . " : $form->{description}"                        if ($form->{description});
-  push @options,      $locale->text('Notes')       . " : $form->{notes}"                              if ($form->{notes});
-  push @options,      $locale->text('Transaction description') . " : $form->{transaction_description}" if $form->{transaction_description};
-  push @options,      $locale->text('Employee')    . " : $employee"                                   if $employee;
+  push @options,      $locale->text('Account')                 . " : $form->{accno} $form->{account_description}" if ($form->{accno});
+  push @options,      $locale->text('Source')                  . " : $form->{source}"                             if ($form->{source});
+  push @options,      $locale->text('Reference')               . " : $form->{reference}"                          if ($form->{reference});
+  push @options,      $locale->text('Description')             . " : $form->{description}"                        if ($form->{description});
+  push @options,      $locale->text('Notes')                   . " : $form->{notes}"                              if ($form->{notes});
+  push @options,      $locale->text('Transaction description') . " : $form->{transaction_description}"            if $form->{transaction_description};
+  push @options,      $locale->text('Employee')                . " : $employee"                                   if $employee;
   my $datesorttext = $form->{datesort} eq 'transdate' ? $locale->text('Transdate') :  $locale->text('Gldate');
   push @date_options,      "$datesorttext"                              if ($form->{datesort} and ($form->{datefrom} or $form->{dateto}));
   push @date_options, $locale->text('From'), $locale->date(\%myconfig, $form->{datefrom}, 1)          if ($form->{datefrom});
@@ -473,26 +474,26 @@ sub generate_report {
   $form->{l_doccnt}           = $form->{l_source} ? 'Y' : '';
 
   my %column_defs = (
-    'id'               => { 'text' => $locale->text('ID'), },
-    'transdate'        => { 'text' => $locale->text('Transdate'), },
-    'gldate'           => { 'text' => $locale->text('Gldate'), },
-    'reference'        => { 'text' => $locale->text('Reference'), },
-    'source'           => { 'text' => $locale->text('Source'), },
-    'doccnt'           => { 'text' => $locale->text('Document Count'), },
-    'description'      => { 'text' => $locale->text('Description'), },
-    'notes'            => { 'text' => $locale->text('Notes'), },
-    'debit'            => { 'text' => $locale->text('Debit'), },
-    'debit_accno'      => { 'text' => $locale->text('Debit Account'), },
-    'credit'           => { 'text' => $locale->text('Credit'), },
-    'credit_accno'     => { 'text' => $locale->text('Credit Account'), },
-    'debit_tax'        => { 'text' => $locale->text('Debit Tax'), },
-    'debit_tax_accno'  => { 'text' => $locale->text('Debit Tax Account'), },
-    'credit_tax'       => { 'text' => $locale->text('Credit Tax'), },
-    'credit_tax_accno' => { 'text' => $locale->text('Credit Tax Account'), },
-    'balance'          => { 'text' => $locale->text('Balance'), },
-    'projectnumbers'   => { 'text' => $locale->text('Project Numbers'), },
-    'department'       => { 'text' => $locale->text('Department'), },
-    'employee'         => { 'text' => $locale->text('Employee'), },
+    'id'                      => { 'text' => $locale->text('ID'), },
+    'transdate'               => { 'text' => $locale->text('Transdate'), },
+    'gldate'                  => { 'text' => $locale->text('Gldate'), },
+    'reference'               => { 'text' => $locale->text('Reference'), },
+    'source'                  => { 'text' => $locale->text('Source'), },
+    'doccnt'                  => { 'text' => $locale->text('Document Count'), },
+    'description'             => { 'text' => $locale->text('Description'), },
+    'notes'                   => { 'text' => $locale->text('Notes'), },
+    'debit'                   => { 'text' => $locale->text('Debit'), },
+    'debit_accno'             => { 'text' => $locale->text('Debit Account'), },
+    'credit'                  => { 'text' => $locale->text('Credit'), },
+    'credit_accno'            => { 'text' => $locale->text('Credit Account'), },
+    'debit_tax'               => { 'text' => $locale->text('Debit Tax'), },
+    'debit_tax_accno'         => { 'text' => $locale->text('Debit Tax Account'), },
+    'credit_tax'              => { 'text' => $locale->text('Credit Tax'), },
+    'credit_tax_accno'        => { 'text' => $locale->text('Credit Tax Account'), },
+    'balance'                 => { 'text' => $locale->text('Balance'), },
+    'projectnumbers'          => { 'text' => $locale->text('Project Numbers'), },
+    'department'              => { 'text' => $locale->text('Department'), },
+    'employee'                => { 'text' => $locale->text('Employee'), },
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
   );
 

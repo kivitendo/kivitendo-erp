@@ -366,20 +366,20 @@ sub all_transactions {
   }
 
   my %sort_columns =  (
-    'id'           => [ qw(id)                   ],
-    'transdate'    => [ qw(transdate id)         ],
-    'gldate'       => [ qw(gldate id)         ],
-    'reference'    => [ qw(lower_reference id)   ],
-    'description'  => [ qw(lower_description id) ],
-    'accno'        => [ qw(accno transdate id)   ],
-    'department'   => [ qw(department transdate id)   ],
+    'id'                      => [ qw(id)                   ],
+    'transdate'               => [ qw(transdate id)         ],
+    'gldate'                  => [ qw(gldate id)         ],
+    'reference'               => [ qw(lower_reference id)   ],
+    'description'             => [ qw(lower_description id) ],
+    'accno'                   => [ qw(accno transdate id)   ],
+    'department'              => [ qw(department transdate id)   ],
     'transaction_description' => [ qw(lower_transaction_description id) ],
     );
   my %lowered_columns =  (
-    'reference'       => { 'gl' => 'g.reference',   'arap' => 'a.invnumber', },
-    'source'          => { 'gl' => 'ac.source',     'arap' => 'ac.source',   },
-    'description'     => { 'gl' => 'g.description', 'arap' => 'ct.name',     },
-    'transaction_description' => { 'gl' => 'g.transaction_description', 'arap' => 'a.transaction_description',     },
+    'reference'               => { 'gl' => 'g.reference',               'arap' => 'a.invnumber',               },
+    'source'                  => { 'gl' => 'ac.source',                 'arap' => 'ac.source',                 },
+    'description'             => { 'gl' => 'g.description',             'arap' => 'ct.name',                   },
+    'transaction_description' => { 'gl' => 'g.transaction_description', 'arap' => 'a.transaction_description', },
     );
 
   # sortdir = sort direction (ascending or descending)
@@ -670,8 +670,8 @@ sub transaction {
            g.storno, g.storno_id,
            g.department_id, d.description AS department,
            e.name AS employee, g.taxincluded, g.gldate,
-         g.ob_transaction, g.cb_transaction,
-         g.transaction_description
+           g.ob_transaction, g.cb_transaction,
+           g.transaction_description
          FROM gl g
          LEFT JOIN department d ON (d.id = g.department_id)
          LEFT JOIN employee e ON (e.id = g.employee_id)
