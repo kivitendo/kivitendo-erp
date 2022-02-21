@@ -35,6 +35,10 @@
           <td colspan=3><input name=notes size=40></td>
         </tr>
         <tr>
+          <th align=right>[% 'Transaction description' | $T8 %]</th>
+          <td>[% L.input_tag("transaction_description", "", size=40) %]</td>
+        </tr>
+        <tr>
           <th align=right>[% 'Project Number' | $T8 %]</th>
           <td colspan=3>[% L.select_tag('project_id', ALL_PROJECTS, title_key = 'projectnumber', with_empty = 1) %]</td>
         </tr>
@@ -104,6 +108,8 @@
                       <td>[% 'Project Number' | $T8 %]</td>
                       <td align=right><input name="l_employee" class=checkbox type=checkbox value=Y></td>
                       <td>[% 'Employee' | $T8 %]</td>
+                      <td align=right><input name="l_transaction_description" id="l_transaction_description" class=checkbox type=checkbox value=Y[% IF INSTANCE_CONF.get_require_transaction_description_ps %] checked[% END %]></td>
+                      <td>[% 'Transaction description' | $T8 %]</td>
                     </tr>
                     <tr>
                       <td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>

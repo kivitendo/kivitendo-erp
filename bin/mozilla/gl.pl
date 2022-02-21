@@ -428,14 +428,14 @@ sub generate_report {
 
   my @columns = qw(
     transdate      gldate   id      reference      description
-    notes          source   doccnt  debit          debit_accno
+    notes          transaction_description         source   doccnt  debit          debit_accno
     credit         credit_accno     debit_tax      debit_tax_accno
     credit_tax     credit_tax_accno balance        projectnumbers
     department     employee
   );
 
   # add employee here, so that variable is still known and passed in url when choosing a different sort order in resulting table
-  my @hidden_variables = qw(accno source reference description notes project_id datefrom dateto employee_id datesort category l_subtotal department_id);
+  my @hidden_variables = qw(accno source reference description notes project_id datefrom dateto employee_id datesort category l_subtotal department_id transaction_description);
   push @hidden_variables, map { "l_${_}" } @columns;
 
   my $employee = $form->{employee_id} ? SL::DB::Employee->new(id => $form->{employee_id})->load->name : '';
@@ -446,6 +446,7 @@ sub generate_report {
   push @options,      $locale->text('Reference')   . " : $form->{reference}"                          if ($form->{reference});
   push @options,      $locale->text('Description') . " : $form->{description}"                        if ($form->{description});
   push @options,      $locale->text('Notes')       . " : $form->{notes}"                              if ($form->{notes});
+  push @options,      $locale->text('Transaction description') . " : $form->{transaction_description}" if $form->{transaction_description};
   push @options,      $locale->text('Employee')    . " : $employee"                                   if $employee;
   my $datesorttext = $form->{datesort} eq 'transdate' ? $locale->text('Transdate') :  $locale->text('Gldate');
   push @date_options,      "$datesorttext"                              if ($form->{datesort} and ($form->{datefrom} or $form->{dateto}));
@@ -492,9 +493,10 @@ sub generate_report {
     'projectnumbers'   => { 'text' => $locale->text('Project Numbers'), },
     'department'       => { 'text' => $locale->text('Department'), },
     'employee'         => { 'text' => $locale->text('Employee'), },
+    'transaction_description' => { 'text' => $locale->text('Transaction description'), },
   );
 
-  foreach my $name (qw(id transdate gldate reference description debit_accno credit_accno debit_tax_accno credit_tax_accno department)) {
+  foreach my $name (qw(id transdate gldate reference description debit_accno credit_accno debit_tax_accno credit_tax_accno department transaction_description)) {
     my $sortname                = $name =~ m/accno/ ? 'accno' : $name;
     my $sortdir                 = $sortname eq $form->{sort} ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $callback . "&sort=$sortname&sortdir=$sortdir";
@@ -582,7 +584,7 @@ sub generate_report {
     $row->{balance}->{data}        = $data;
     $row->{projectnumbers}->{data} = join ", ", sort { lc($a) cmp lc($b) } keys %{ $ref->{projectnumbers} };
 
-    map { $row->{$_}->{data} = $ref->{$_} } qw(id reference description notes gldate employee department);
+    map { $row->{$_}->{data} = $ref->{$_} } qw(id reference description notes gldate employee department transaction_description);
 
     map { $row->{$_}->{data} = \@{ $rows{$_} }; } qw(transdate debit credit debit_accno credit_accno debit_tax_accno credit_tax_accno source);
 

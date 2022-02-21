@@ -301,6 +301,15 @@ sub all_transactions {
     push(@apvalues, like($form->{notes}));
   }
 
+  if (trim($form->{transaction_description})) {
+    $glwhere .= " AND g.transaction_description ILIKE ?";
+    $arwhere .= " AND a.transaction_description ILIKE ?";
+    $apwhere .= " AND a.transaction_description ILIKE ?";
+    push(@glvalues, like($form->{transaction_description}));
+    push(@arvalues, like($form->{transaction_description}));
+    push(@apvalues, like($form->{transaction_description}));
+  }
+
   if ($form->{accno}) {
     $glwhere .= " AND c.accno = '$form->{accno}'";
     $arwhere .= " AND c.accno = '$form->{accno}'";
@@ -364,11 +373,13 @@ sub all_transactions {
     'description'  => [ qw(lower_description id) ],
     'accno'        => [ qw(accno transdate id)   ],
     'department'   => [ qw(department transdate id)   ],
+    'transaction_description' => [ qw(lower_transaction_description id) ],
     );
   my %lowered_columns =  (
     'reference'       => { 'gl' => 'g.reference',   'arap' => 'a.invnumber', },
     'source'          => { 'gl' => 'ac.source',     'arap' => 'ac.source',   },
     'description'     => { 'gl' => 'g.description', 'arap' => 'ct.name',     },
+    'transaction_description' => { 'gl' => 'g.transaction_description', 'arap' => 'a.transaction_description',     },
     );
 
   # sortdir = sort direction (ascending or descending)
@@ -389,7 +400,7 @@ sub all_transactions {
         ac.acc_trans_id, g.id, 'gl' AS type, FALSE AS invoice, g.reference, ac.taxkey, c.link,
         g.description, ac.transdate, ac.gldate, ac.source, ac.trans_id,
         ac.amount, c.accno, g.notes, t.chart_id,
-        d.description AS department,
+        d.description AS department, g.transaction_description,
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns $gl_globalproject_columns
         $columns_for_sorting{gl}
@@ -407,7 +418,7 @@ sub all_transactions {
       SELECT ac.acc_trans_id, a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
         ct.name, ac.transdate, ac.gldate, ac.source, ac.trans_id,
         ac.amount, c.accno, a.notes, t.chart_id,
-        d.description AS department,
+        d.description AS department, a.transaction_description,
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns $arap_globalproject_columns
         $columns_for_sorting{arap}
@@ -427,7 +438,7 @@ sub all_transactions {
       SELECT ac.acc_trans_id, a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
         ct.name, ac.transdate, ac.gldate, ac.source, ac.trans_id,
         ac.amount, c.accno, a.notes, t.chart_id,
-        d.description AS department,
+        d.description AS department, a.transaction_description,
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns $arap_globalproject_columns
         $columns_for_sorting{arap}
