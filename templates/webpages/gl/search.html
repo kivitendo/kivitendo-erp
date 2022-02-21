@@ -38,19 +38,19 @@
           <th align=right>[% 'Project Number' | $T8 %]</th>
           <td colspan=3>[% L.select_tag('project_id', ALL_PROJECTS, title_key = 'projectnumber', with_empty = 1) %]</td>
         </tr>
- <tr>
-    <th align=right>[% 'Employee' | $T8 %]</th>
-    <td colspan=3>[% L.select_tag('employee_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1) %]</td>
-  </tr>
-  <tr>
-    <th align=right>[% 'Filter date by' | $T8 %]</th>
-    <td colspan=3>
-    <input name=datesort class=radio type=radio value=transdate checked> [% 'Transdate' | $T8 %]
-    <input name=datesort class=radio type=radio value=gldate> [% 'Gldate' | $T8 %]
-  </td>
-  </tr>
-  <tr>
-    <th align=right>[% 'From' | $T8 %]</th>
+        <tr>
+          <th align=right>[% 'Employee' | $T8 %]</th>
+          <td colspan=3>[% L.select_tag('employee_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1) %]</td>
+        </tr>
+        <tr>
+          <th align=right>[% 'Filter date by' | $T8 %]</th>
+          <td colspan=3>
+            <input name=datesort class=radio type=radio value=transdate checked> [% 'Transdate' | $T8 %]
+            <input name=datesort class=radio type=radio value=gldate> [% 'Gldate' | $T8 %]
+          </td>
+        </tr>
+        <tr>
+          <th align=right>[% 'From' | $T8 %]</th>
           <td>[% L.date_tag('datefrom') %]</td>
           <th align=right>[% 'To (time)' | $T8 %]</th>
           <td>[% L.date_tag('dateto') %]</td>
@@ -70,46 +70,46 @@
               </tr>
               <tr>
                 <td>
-                <table>
-                  <tr>
-                    <td align=right><input name="l_id" class=checkbox type=checkbox value=Y></td>
-                    <td>[% 'ID' | $T8 %]</td>
-                    <td align=right><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
-                    <td>[% 'Transdate' | $T8 %]</td>
-                    <td align=right><input name="l_gldate" class=checkbox type=checkbox value=Y checked></td>
-                    <td>[% 'Gldate' | $T8 %]</td>
-                    <td align=right><input name="l_reference" class=checkbox type=checkbox value=Y checked></td>
-                    <td>[% 'Reference' | $T8 %]</td>
-                    <td align=right><input name="l_description" class=checkbox type=checkbox value=Y checked></td>
-                    <td>[% 'Description' | $T8 %]</td>
-                    <td align=right><input name="l_notes" class=checkbox type=checkbox value=Y></td>
-                    <td>[% 'Notes' | $T8 %]</td>
-                  </tr>
-                  <tr>
-                    <td align=right><input name="l_debit" class=checkbox type=checkbox value=Y checked></td>
-                    <td>[% 'Debit' | $T8 %]</td>
-                    <td align=right><input name="l_credit" class=checkbox type=checkbox value=Y checked></td>
-                    <td>[% 'Credit' | $T8 %]</td>
-                    <td align=right><input name="l_source" class=checkbox type=checkbox value=Y checked></td>
-                    <td>[% 'Source' | $T8 %]</td>
-                    <td align=right><input name="l_accno" class=checkbox type=checkbox value=Y checked></td>
-                    <td>[% 'Account' | $T8 %]</td>
-                    [%- IF ALL_DEPARTMENTS %]
+                  <table>
+                    <tr>
+                      <td align=right><input name="l_id" class=checkbox type=checkbox value=Y></td>
+                      <td>[% 'ID' | $T8 %]</td>
+                      <td align=right><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
+                      <td>[% 'Transdate' | $T8 %]</td>
+                      <td align=right><input name="l_gldate" class=checkbox type=checkbox value=Y checked></td>
+                      <td>[% 'Gldate' | $T8 %]</td>
+                      <td align=right><input name="l_reference" class=checkbox type=checkbox value=Y checked></td>
+                      <td>[% 'Reference' | $T8 %]</td>
+                      <td align=right><input name="l_description" class=checkbox type=checkbox value=Y checked></td>
+                      <td>[% 'Description' | $T8 %]</td>
+                      <td align=right><input name="l_notes" class=checkbox type=checkbox value=Y></td>
+                      <td>[% 'Notes' | $T8 %]</td>
+                    </tr>
+                    <tr>
+                      <td align=right><input name="l_debit" class=checkbox type=checkbox value=Y checked></td>
+                      <td>[% 'Debit' | $T8 %]</td>
+                      <td align=right><input name="l_credit" class=checkbox type=checkbox value=Y checked></td>
+                      <td>[% 'Credit' | $T8 %]</td>
+                      <td align=right><input name="l_source" class=checkbox type=checkbox value=Y checked></td>
+                      <td>[% 'Source' | $T8 %]</td>
+                      <td align=right><input name="l_accno" class=checkbox type=checkbox value=Y checked></td>
+                      <td>[% 'Account' | $T8 %]</td>
+                      [%- IF ALL_DEPARTMENTS %]
                       <td align=right><input name="l_department" class=checkbox type=checkbox value=Y></td>
                       <td>[% 'Department' | $T8 %]</td>
-                    [%- END %]
-                  </tr>
-                  <tr>
-                    <td align=right><input name="l_projectnumbers" class=checkbox type=checkbox value=Y></td>
-                    <td>[% 'Project Number' | $T8 %]</td>
-                    <td align=right><input name="l_employee" class=checkbox type=checkbox value=Y></td>
-                    <td>[% 'Employee' | $T8 %]</td>
-                  </tr>
-                  <tr>
-                    <td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
-                    <td>[% 'Subtotal' | $T8 %]</td>
-                  </tr>
-                </table>
+                      [%- END %]
+                    </tr>
+                    <tr>
+                      <td align=right><input name="l_projectnumbers" class=checkbox type=checkbox value=Y></td>
+                      <td>[% 'Project Number' | $T8 %]</td>
+                      <td align=right><input name="l_employee" class=checkbox type=checkbox value=Y></td>
+                      <td>[% 'Employee' | $T8 %]</td>
+                    </tr>
+                    <tr>
+                      <td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
+                      <td>[% 'Subtotal' | $T8 %]</td>
+                    </tr>
+                  </table>
                 </td>
               </tr>
             </table>
