@@ -138,14 +138,15 @@ sub _post_transaction {
            currency_id = (SELECT id FROM currencies WHERE name = ?),
            netamount = ?, notes = ?, department_id = ?,
            employee_id = ?, storno = ?, storno_id = ?, globalproject_id = ?,
-           direct_debit = ?
+           direct_debit = ?, transaction_description = ?
          WHERE id = ?|;
     my @values = ($form->{invnumber}, $form->{ordnumber}, conv_date($form->{transdate}), conv_i($form->{customer_id}), $form->{taxincluded} ? 't' : 'f', $form->{amount},
                   conv_date($form->{duedate}), conv_date($form->{deliverydate}), conv_date($form->{tax_point}), $form->{paid},
                   $form->{currency},
                   $form->{netamount}, $form->{notes}, conv_i($form->{department_id}),
                   conv_i($form->{employee_id}), $form->{storno} ? 't' : 'f', $form->{storno_id},
-                  conv_i($form->{globalproject_id}), $form->{direct_debit} ? 't' : 'f', conv_i($form->{id}));
+                  conv_i($form->{globalproject_id}), $form->{direct_debit} ? 't' : 'f', $form->{transaction_description},
+                  conv_i($form->{id}));
     do_query($form, $dbh, $query, @values);
 
     # add individual transactions for AR, amount and taxes
