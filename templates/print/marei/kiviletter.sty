@@ -648,8 +648,7 @@
   \exp_args:Nf \str_if_in:nnT {#2} {CHF} {\tl_gset:Nn \g_kivi_currency_tl {chf}}
   \exp_args:Nf \str_if_in:nnT {#2} {EUR} {\tl_gset:Nn \g_kivi_currency_tl {euro}}
   \tl_if_empty:NT  \g_kivi_currency_tl {
-    \tl_gset:Nn \g_kivi_currency_tl {default}
-    \edef \currency {\tl_to_str:N \lxcurrency}
+    \tl_gset:Nn \g_kivi_currency_tl {euro} % euro ist standard, chf oder usd alternativ
   }
   \input{#1/\g_kivi_currency_tl _account.tex}
 }

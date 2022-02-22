@@ -23,7 +23,7 @@ Die Grundstruktur besteht je Dokumententyp aus einer Basisdatei und verschiedene
 
 Die Basis wurde so überarbeitet, dass Dokumente nun generell auf der Dokumentenklasse *scrartcl.cls* basieren und das Paket *kiviletter.sty* benutzen.
 
-Mandantenspezifische Konfiguration findet sich in der Datei *insettings.tex* und dem Ordner eines spezifischen Mandanten (default=*firma/*). 
+Mandantenspezifische Konfiguration findet sich in der Datei *insettings.tex* und dem Ordner eines spezifischen Mandanten (default=*firma/*).
 
 
 ### Struktur der Basisdatei (je Dokumententyp eine)
@@ -61,7 +61,14 @@ So kann in den Dokumenten je nach Währung ein anderes Konto
 angegeben werden.
 Nach demselben Schema können auch weitere, alternative Bankverbindungen
 angelegt werden, die dann in *insettings.tex* als Variable in der Fußzeile eingefügt werden.
-    
+Als Fallback (falls kivitendo keine Währung an das Druckvorlagen-System übergibt)
+ist Euro eingestellt. Dies lässt sich simpel in kiviletter.sty in dieser Zeile anpassen:
+```
+  \tl_if_empty:NT  \g_kivi_currency_tl {
+    \tl_gset:Nn \g_kivi_currency_tl {euro}% hier dann bspw. usd oder chf eintragen
+}
+```
+
 #### Briefbogen/Logos:
 Eine Hintergrundgrafik oder ein Logo kann in Abhängigkeit vom
 Medium (z.B. nur beim Verschicken mit E-Mail) eingebunden
@@ -76,7 +83,7 @@ Da die Voreinstellungen bereits einige Sonderfälle automatisch berücksichtigen
 Sämtliche Einstellungen sollten jedoch außerhalb der *.sty-Dateien vorgenommen werden.
 Anpassungen der insettings.tex betreffen hierbei alle Mandanten. Mandantenspezifische Einstellung sind über die zugehörige Konfigurationsdatei möglich.
 In diesem Fall kann zum Ende der insettings eine weitere Konfigurationsdatei über die Verwendung von \identpath geladen werden. Ein Beispiel ist in der insettings.tex enthalten.
-    
+
 #### Fußzeile:
 Die Tabelle im Fuß verwendet die Angaben aus *firma/ident.tex* und
 *firma/*_account.tex*. Ihre Struktur wird in der *insettings.tex* definiert.
@@ -85,7 +92,7 @@ Die Tabelle im Fuß verwendet die Angaben aus *firma/ident.tex* und
 Das Seitenlayout wird über scrlayer-scrpage bestimmt. Es existieren in der Datei *insettings.tex* einige Hinweise zu den Anpassungen. Die Basiskonfiguration ist ebenfalls dort eingetragen.
 
 Die Kopfzeile unterscheidet sich von Dokumententyp zu Dokumententyp leicht, da diese über Datenbankvariablen befüllt wird. Hierfür wird das Makro `\ourhead` definiert. Diese Definition kann ebenfalls über die *insettings.tex* geändert werden.
-        
+
 ### Tabellen:
 
 Die Tabellenstruktur wurde komplett überarbeitet. Der Vorlagensatz verfügt über Tabellen, die automatisch die Breite der Textbreite anpassen und zusätzlich Seitenumbrüche erlauben.
@@ -141,7 +148,7 @@ Die Spaltenbreite der Spalte `desc` für die Artikelbeschreibung nimmt dabei jew
 ##### Kopfzeileneinträge
 
 Die Kopfzeileneinträge werden über die Option `<Spaltenname>/header=<Neue Beschriftung>` angepasst.
-Vorbelegt ist die Konfiguration: 
+Vorbelegt ist die Konfiguration:
 
 ```
 \SetupPricingTabular{
