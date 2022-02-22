@@ -1,13 +1,14 @@
 [%- USE T8 %]
-[%- USE HTML %]
+[%- USE HTML %][%- USE L -%]
 <h1>[% title %]</h1>
 
  <script type="text/javascript">
   <!--
       function email_updated() {
         window.opener.document.getElementsByName(document.Form.input_subject.value)[0].value = document.getElementsByName("email_subject")[0].value;
-        window.opener.document.getElementsByName(document.Form.input_body.value)[0].value = document.getElementsByName("email_body")[0].value;
-        window.opener.document.getElementsByName(document.Form.input_attachment.value)[0].value = document.getElementsByName("email_attachment")[0].value;        self.close();
+        window.opener.document.getElementsByName(document.Form.input_body.value)[0].value = $("#email_body").val();
+        window.opener.document.getElementsByName(document.Form.input_attachment.value)[0].value = document.getElementsByName("email_attachment")[0].value;
+        self.close();
       }
     -->
  </script>
@@ -26,7 +27,7 @@
 
    <tr>
     <td valign="top">[% 'Body:' | $T8 %]</td>
-    <td valign="top"><textarea id="email_body" name="email_body" rows="20" cols="70" wrap="soft">[% HTML.escape(email_body) %]</textarea></td>
+    <td valign="top">[% L.textarea_tag('email_body', email_body, rows=20, cols=70, class='texteditor') %]</td>
    </tr>
 
    <tr>

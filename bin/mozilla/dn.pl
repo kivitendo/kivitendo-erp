@@ -317,7 +317,10 @@ sub set_email {
   $main::auth->assert('dunning_edit');
 
   $form->{"title"} = $locale->text("Set eMail text");
-  $form->header(no_layout => 1);
+  $form->header(
+    no_layout       => 1,
+    use_javascripts => [ qw(ckeditor/ckeditor ckeditor/adapters/jquery) ],
+  );
   print($form->parse_html_template("dunning/set_email"));
 
   $main::lxdebug->leave_sub();

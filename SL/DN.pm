@@ -487,13 +487,17 @@ sub send_email {
     } or die $main::locale->text('No email for user with login #1 defined.', $ref->{invoice_employee_login});
   }
 
+  my $html_template = SL::Template::create(type => 'HTML',      form => $form, myconfig => $myconfig);
+  $html_template->set_tag_style('&lt;%', '%&gt;');
+
   my $template     = SL::Template::create(type => 'PlainText', form => $form, myconfig => $myconfig);
   my $mail         = Mailer->new();
   $mail->{bcc}     = $form->get_bcc_defaults($myconfig, $form->{bcc});
   $mail->{from}    = $from;
   $mail->{to}      = $ref->{recipient};
   $mail->{subject} = $template->parse_block($ref->{email_subject});
-  $mail->{message} = $template->parse_block($ref->{email_body});
+  $mail->{message} = $html_template->parse_block($ref->{email_body});
+  $mail->{content_type} = 'text/html';
   my $sign_backup  = $::myconfig{signature};
   $::myconfig{signature} = $sign if $sign;
   $mail->{message} .= $form->create_email_signature();

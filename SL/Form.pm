@@ -436,6 +436,8 @@ sub header {
     common part_selection
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
+  $layout->use_javascript("$_.js") for @{ $params{use_javascripts} // [] };
+
   $self->{favicon} ||= "favicon.ico";
   $self->{titlebar} = join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->read_version if $self->{title} || !$self->{titlebar};
 
