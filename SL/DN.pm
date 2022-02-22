@@ -967,7 +967,7 @@ sub print_dunning {
          c.country,           c.department_1, c.department_2, c.email,     c.customernumber,
          c.greeting,          c.contact,      c.phone,        c.fax,       c.homepage,
          c.email,             c.taxincluded,  c.business_id,  c.taxnumber, c.iban,
-         c.ustid,
+         c.ustid,             c.currency_id,  curr.name as currency,
          ar.id AS invoice_id,
          co.*
        FROM dunning d
@@ -975,6 +975,7 @@ sub print_dunning {
        LEFT JOIN customer c  ON (ar.customer_id = c.id)
        LEFT JOIN contacts co ON (ar.cp_id = co.cp_id)
        LEFT JOIN employee e  ON (ar.salesman_id = e.id)
+       LEFT JOIN currencies curr ON (c.currency_id = curr.id)
        WHERE (d.dunning_id = ?)
        LIMIT 1|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id);
