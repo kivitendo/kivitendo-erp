@@ -480,18 +480,21 @@ sub action_send_email {
   $::form->{id} = $self->order->id; # this is used in SL::Mailer to create a linked record to the mail
   $::form->send_email(\%::myconfig, 'pdf');
 
-  # internal notes
-  my $intnotes = $self->order->intnotes;
-  $intnotes   .= "\n\n" if $self->order->intnotes;
-  $intnotes   .= t8('[email]')                                                                                        . "\n";
-  $intnotes   .= t8('Date')       . ": " . $::locale->format_date_object(DateTime->now_local, precision => 'seconds') . "\n";
-  $intnotes   .= t8('To (email)') . ": " . $::form->{email}                                                           . "\n";
-  $intnotes   .= t8('Cc')         . ": " . $::form->{cc}                                                              . "\n"    if $::form->{cc};
-  $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}                                                             . "\n"    if $::form->{bcc};
-  $intnotes   .= t8('Subject')    . ": " . $::form->{subject}                                                         . "\n\n";
-  $intnotes   .= t8('Message')    . ": " . $::form->{message};
+  # internal notes unless no email journal
+  unless ($::instance_conf->get_email_journal) {
 
-  $self->order->update_attributes(intnotes => $intnotes);
+    my $intnotes = $self->order->intnotes;
+    $intnotes   .= "\n\n" if $self->order->intnotes;
+    $intnotes   .= t8('[email]')                                                                                        . "\n";
+    $intnotes   .= t8('Date')       . ": " . $::locale->format_date_object(DateTime->now_local, precision => 'seconds') . "\n";
+    $intnotes   .= t8('To (email)') . ": " . $::form->{email}                                                           . "\n";
+    $intnotes   .= t8('Cc')         . ": " . $::form->{cc}                                                              . "\n"    if $::form->{cc};
+    $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}                                                             . "\n"    if $::form->{bcc};
+    $intnotes   .= t8('Subject')    . ": " . $::form->{subject}                                                         . "\n\n";
+    $intnotes   .= t8('Message')    . ": " . $::form->{message};
+
+    $self->order->update_attributes(intnotes => $intnotes);
+  }
 
   $self->save_history('MAILED');
 

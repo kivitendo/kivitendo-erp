@@ -388,6 +388,8 @@ sub save_email_status {
 
   my ($self, $myconfig, $form) = @_;
 
+  return unless ($::instance_conf->get_email_journal);
+
   my ($table, $query, $dbh);
 
   if ($form->{script} eq 'oe.pl') {
@@ -645,6 +647,11 @@ can be set to C<1> (only strip those at the end of C<$text>) or
 C<full> (replace consecutive line feed/carriage return characters in
 the middle by a single space and remove tailing line feed/carriage
 return characters).
+
+=item C<save_email_status>
+
+Adds sending information to internal notes.
+Does nothing if the client config email_journal is enabled.
 
 =back
 
