@@ -99,6 +99,7 @@ my %kivitendo_package_names = (
   'auth.user_group'              => 'auth_user_group',
   ar                             => 'invoice',
   ap                             => 'purchase_invoice',
+  ap_gl                          => 'ap_gl',
   assembly                       => 'assembly',
   assortment_items               => 'assortment_item',
   background_jobs                => 'background_job',
