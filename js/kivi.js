@@ -347,6 +347,14 @@ namespace("kivi", function(ns) {
     var editor = CKEDITOR.inline($e.get(0), config);
     $e.data('ckeditorInstance', editor);
 
+    if ($e.hasClass('texteditor-space-for-toolbar'))
+      editor.on('instanceReady', function() {
+        var editor   = $e.ckeditorGet();
+        var editable = editor.editable();
+        $(editable.$).css("margin-top", "30px");
+      });
+
+
     if ($e.hasClass('texteditor-autofocus'))
       editor.on('instanceReady', function() { ns.focus_ckeditor($e); });
   };
