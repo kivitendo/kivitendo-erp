@@ -38,6 +38,7 @@ use strict;
 use POSIX qw(strftime);
 use List::Util qw(first sum);
 
+use SL::DB::ApGl;
 use SL::DB::RecordTemplate;
 use SL::DB::BankTransactionAccTrans;
 use SL::DB::Tax;
@@ -969,11 +970,15 @@ sub setup_gl_action_bar {
   my $form   = $::form;
   my $change_never            = $::instance_conf->get_gl_changeable == 0;
   my $change_on_same_day_only = $::instance_conf->get_gl_changeable == 2 && ($form->current_date(\%::myconfig) ne $form->{gldate});
-  my $is_linked_bank_transaction;
+  my ($is_linked_bank_transaction, $is_linked_ap_transaction);
 
   if ($form->{id} && SL::DB::Manager::BankTransactionAccTrans->find_by(gl_id => $form->{id})) {
     $is_linked_bank_transaction = 1;
   }
+  if ($form->{id} && SL::DB::Manager::ApGl->find_by(gl_id => $form->{id})) {
+    $is_linked_ap_transaction = 1;
+  }
+
 
   my $create_post_action = sub {
     # $_[0]: description
@@ -986,7 +991,8 @@ sub setup_gl_action_bar {
                 : ($form->{id} && $change_never)            ? t8('Changing general ledger transaction has been disabled in the configuration.')
                 : ($form->{id} && $change_on_same_day_only) ? t8('General ledger transactions can only be changed on the day they are posted.')
                 : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
-                :                                             undef,
+                : $is_linked_ap_transaction                 ? t8('This transaction is linked with a AP transaction. Please undo and redo the AP transaction booking if needed.')
+                : undef,
     ],
   };
 
@@ -1017,6 +1023,7 @@ sub setup_gl_action_bar {
           disabled => !$form->{id}                ? t8('This general ledger transaction has not been posted yet.')
                     : $form->{storno}             ? t8('A canceled general ledger transaction cannot be canceled again.')
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    : $is_linked_ap_transaction   ? t8('This transaction is linked with a AP transaction. Please undo and redo the AP transaction booking if needed.')
                     : undef,
         ],
         action => [ t8('Delete'),
@@ -1027,8 +1034,9 @@ sub setup_gl_action_bar {
                     : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
                     : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    : $is_linked_ap_transaction   ? t8('This transaction is linked with a AP transaction. Please undo and redo the AP transaction booking if needed.')
                     : $form->{storno}             ? t8('A canceled general ledger transaction cannot be deleted.')
-                    :                            undef,
+                    : undef,
         ],
       ], # end of combobox "Storno"
 
@@ -1053,7 +1061,7 @@ sub setup_gl_action_bar {
           call     => [ 'kivi.Draft.popup', 'gl', 'unknown', $form->{draft_id}, $form->{draft_description} ],
           disabled => $form->{id}     ? t8('This invoice has already been posted.')
                     : $form->{locked} ? t8('The billing period has already been locked.')
-                    :                   undef,
+                    : undef,
         ],
       ], # end of combobox "more"
     );
