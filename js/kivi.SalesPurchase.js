@@ -18,7 +18,7 @@ namespace('kivi.SalesPurchase', function(ns) {
 
   this.edit_longdescription_with_params = function(params) {
     var $container = $('#popup_edit_longdescription_input_container');
-    var $edit      = $('<textarea id="popup_edit_longdescription_input" class="texteditor-in-dialog" wrap="soft" style="width: 750px; height: 220px;"></textarea>');
+    var $edit      = $('<textarea id="popup_edit_longdescription_input" class="texteditor-in-dialog texteditor-space-for-toolbar" wrap="soft" style="width: 750px; height: 220px;"></textarea>');
 
     $container.children().remove();
     $container.append($edit);

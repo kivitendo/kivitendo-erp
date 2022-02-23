@@ -68,7 +68,7 @@
    <th align="right" nowrap>[% LxERP.t8("Message") %]
     <sup> [% L.link("generictranslations.pl?action=edit_email_strings", "1)", title=LxERP.t8('Tired of copying always nice phrases for this message? Click here to use the new preset message option!'), target="_blank") %]</sup>
   </th>
-   <td>[% L.textarea_tag("email_form.message", email_form.message, rows="15", cols="80", class="texteditor") %]</td>
+   <td>[% L.textarea_tag("email_form.message", email_form.message, rows="15", cols="80", class="texteditor texteditor-space-for-toolbar") %]</td>
   </tr>
 
 [% IF INSTANCE_CONF.get_doc_storage %]
