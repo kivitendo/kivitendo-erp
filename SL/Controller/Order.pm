@@ -301,7 +301,8 @@ sub action_print {
   my $doc_filename          = $form->generate_attachment_filename();
 
   my $doc;
-  my @errors = $self->generate_doc(\$doc, { format     => $format,
+  my @errors = $self->generate_doc(\$doc, { media      => $media,
+                                            format     => $format,
                                             formname   => $formname,
                                             language   => $self->order->language,
                                             printer_id => $printer_id,
@@ -368,7 +369,8 @@ sub action_preview_pdf {
   my $pdf_filename          = $form->generate_attachment_filename();
 
   my $pdf;
-  my @errors = $self->generate_doc(\$pdf, { format     => $format,
+  my @errors = $self->generate_doc(\$pdf, { media      => $media,
+                                            format     => $format,
                                             formname   => $formname,
                                             language   => $self->order->language,
                                           });
