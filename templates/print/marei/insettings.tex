@@ -1,6 +1,6 @@
 %% insettings.tex
-%% Copyright 2019 Marei Peischl
-\ProvidesFile{insettings.tex}[2019/12/22 Konfigurationsdatei kivitendo ERP]
+%% Copyright 2019–2022 Marei Peischl
+\ProvidesFile{insettings.tex}[2022/02/23 Konfigurationsdatei kivitendo ERP]
 % Sprachüberprüfung
 \RequirePackage[english, ngerman]{babel}
 
@@ -34,11 +34,10 @@
 
 % Währungen/Konten
 % Die Konfiguration bedindet sich in der Datei 
-% \identpath/<euro/chf/usd/default>_account.tex
+% \identpath/<euro/chf/usd>_account.tex
+% das optionale Argument ist als euro vorbelegt und gibt die Einstellung an, falls \lxcurrency nicht von kivitendo übergeben wird.
 
-\@ifundefined{lxcurrency}{}{
-  \setupCurrencyConfig{\identpath}{\lxcurrency}
-}
+\setupCurrencyConfig[euro]{\identpath}{\lxcurrency}
 
 
 % Befehl f. normale Schriftart und -größe

@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{kiviletter}[2020/04/24 Letter Layouts for Kivitendo]
+\ProvidesPackage{kiviletter}[2022/04/23 Letter Layouts for Kivitendo]
 
 \RequirePackage{l3keys2e}
 
@@ -642,17 +642,30 @@
   }
 }
 
-\newcommand*{\setupCurrencyConfig}[2]{
+\newcommand*{\setupCurrencyConfig}[3][euro]{
   \tl_new:N \g_kivi_currency_tl
-  \exp_args:Nf \str_if_in:nnT {#2} {USD} {\tl_gset:Nn \g_kivi_currency_tl {usd}}
-  \exp_args:Nf \str_if_in:nnT {#2} {CHF} {\tl_gset:Nn \g_kivi_currency_tl {chf}}
-  \exp_args:Nf \str_if_in:nnT {#2} {EUR} {\tl_gset:Nn \g_kivi_currency_tl {euro}}
+  \exp_args:Nf \str_if_in:nnT {#3} {USD} {\tl_gset:Nn \g_kivi_currency_tl {usd}}
+  \exp_args:Nf \str_if_in:nnT {#3} {CHF} {\tl_gset:Nn \g_kivi_currency_tl {chf}}
+  \exp_args:Nf \str_if_in:nnT {#3} {EUR} {\tl_gset:Nn \g_kivi_currency_tl {euro}}
   \tl_if_empty:NT  \g_kivi_currency_tl {
-    \tl_gset:Nn \g_kivi_currency_tl {euro} % euro ist standard, chf oder usd alternativ
+    \tl_if_empty:nTF {#3} {
+      \tl_gset:Nn \g_kivi_currency_tl {#1}
+    } {
+      \tl_gset:Nn \g_kivi_currency_tl {#3}
+    }
   }
-  \input{#1/\g_kivi_currency_tl _account.tex}
+  \input{#2/\g_kivi_currency_tl _account.tex}
+  \let\setupCurrencyConfig\_kivi_currency_already_configured:w
 }
 
+\newcommand*{\_kivi_currency_already_configured:w}[3][euro]{
+  \msg_error:nnx {kiviletter} {currency-already-configured} {\g_kivi_currency_tl}
+}
+
+\msg_new:nnn {kiviletter} {currency-already-configured} {
+  The~currency~configuration~is~a~global~setting~for~each~document.\\
+  It's~already~set~to~#1,~please~remove~the~second~call~of~\string\setupCurrencyConfig.
+}
 \ExplSyntaxOff
 
 
