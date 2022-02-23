@@ -62,12 +62,8 @@ angegeben werden.
 Nach demselben Schema können auch weitere, alternative Bankverbindungen
 angelegt werden, die dann in *insettings.tex* als Variable in der Fußzeile eingefügt werden.
 Als Fallback (falls kivitendo keine Währung an das Druckvorlagen-System übergibt)
-ist Euro eingestellt. Dies lässt sich simpel in kiviletter.sty in dieser Zeile anpassen:
-```
-  \tl_if_empty:NT  \g_kivi_currency_tl {
-    \tl_gset:Nn \g_kivi_currency_tl {euro}% hier dann bspw. usd oder chf eintragen
-}
-```
+ist Euro eingestellt. Dies lässt sich in der *insettings.tex* über das optionale Argument
+von `\setupCurrencyConfig` anpassen.
 
 #### Briefbogen/Logos:
 Eine Hintergrundgrafik oder ein Logo kann in Abhängigkeit vom
