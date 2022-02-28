@@ -29,11 +29,13 @@ order=< > \n
 \n=<br>
 
 [Template/LaTeX]
-order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © ~ \xad \xa0 ➔ → ← | − ≤ ≥ ‐ ​ Ω μ Δ λ Ø ø ‑
+order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © ~ \xad \xa0 ➔ → ← ↔ ↕ | − ≤ ≥ ‐ <200b> Ω μ Δ λ Ø ø ‑
 \\=\\textbackslash\s
 <pagebreak>=
-"=''
 &=\\&
+\n=\\newline\s
+\r=
+"=''
 $=\\$
 <bullet>=$\\bullet$
 %=\\%
@@ -41,39 +43,39 @@ _=\\_
 # A hash mark starts a comment; therefore the line is ignored. So use
 # its hex code instead.
 \x23=\\#
+^=\\^\\\s
 {=\\{
 }=\\}
 <=$<$
 >=$>$
 £=\\pounds\s
-\n=\\newline\s
-\r=
 ±=$\\pm$
-^=\\^\\\s
 ²=$^2$
 ³=$^3$
 °=$^\\circ$
-§=\\S\s
-®={\\textregistered}
-©={\\textcopyright}
+§=\\S
+®=\\textregistered
+©=\\textcopyright
+~={\\raisebox{0.5ex}{\\texttildelow}}
 \xad=\\-
+\xa0=~
 ➔=$\\rightarrow$
 →=$\\rightarrow$
 ←=$\\leftarrow$
-\xa0=~
+↔=$\\leftrightarrow$
+↕=$\\updownarrow$
 |={\\textbar}
 −={\\textemdash}
 ≤=$\\leq$
 ≥=$\\geq$
 ‐={}-{}
 ​={\\hspace{0pt}}
+Ω=$\\Omega$
 μ={\\textmu}
 Δ=$\\Delta$
-Ω=$\\Omega$
-~={\\raisebox{0.5ex}{\\texttildelow}}
 λ=$\\lambda$
-ø={\\o}
 Ø={\\O}
+ø={\\o}
 ‑={}-{}
 
 [Template/OpenDocument]
