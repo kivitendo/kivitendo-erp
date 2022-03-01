@@ -1,7 +1,7 @@
 -- @tag: tax_reverse_charge
 -- @description: Reverse Charge für Kreditorenbelege
--- @depends: release_3_6_0
--- @ignore: 1
+-- @depends: release_3_5_0
+-- @ignore: 0
 
 ALTER TABLE tax add column reverse_charge_chart_id integer;
 
@@ -102,7 +102,8 @@ WHERE EXISTS ( -- update only for SKR03
 ;
 -- if not defined
 insert into taxkeys(chart_id,tax_id,taxkey_id,startdate) SELECT (SELECT chart_id FROM tax WHERE taxkey = '94'),0,0,'1970-01-01' WHERE NOT EXISTS
-  (SELECT chart_id from taxkeys where chart_id = ( SELECT chart_id FROM tax WHERE taxkey = '94') ;
+  (SELECT chart_id from taxkeys where chart_id = ( SELECT chart_id FROM tax WHERE taxkey = '94'));
+
 insert into taxkeys(chart_id,tax_id,taxkey_id,startdate) SELECT (SELECT reverse_charge_chart_id FROM tax WHERE taxkey = '94'),0,0,'1970-01-01' WHERE NOT EXISTS
-  (SELECT chart_id from taxkeys where chart_id = ( SELECT reverse_charge_chart_id FROM tax WHERE taxkey = '94');
+  (SELECT chart_id from taxkeys where chart_id = ( SELECT reverse_charge_chart_id FROM tax WHERE taxkey = '94'));
 
