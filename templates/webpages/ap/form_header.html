@@ -211,7 +211,13 @@
               <input name="amount_[% i %]" size="10" value="[% temp = "amount_"_ i %][% $temp | html %]">
             </td>
             <td>
-              [% temp = "tax_"_ i %][% $temp | html %]
+              [% IF "tax_reverse_"_ i  %]
+                [% temp_r = "tax_reverse_"_ i %][% $temp_r | html %]
+                &nbsp;&nbsp;&nbsp;
+                [% temp_c = "tax_charge_"_ i %][% $temp_c | html %]
+              [% ELSE %]
+                [% temp = "tax_"_ i %][% $temp | html %]
+              [% END %]
             </td>
             <td>
               [% temp = 'selected_taxchart_'_ i %]

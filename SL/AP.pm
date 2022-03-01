@@ -39,6 +39,7 @@ use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
 use SL::IO;
 use SL::MoreCommon;
+use SL::DB::ApGl;
 use SL::DB::Default;
 use SL::DB::Draft;
 use SL::DB::Order;
@@ -406,6 +407,8 @@ sub _post_transaction {
     SL::DB::Manager::Draft->delete_all(where => [ id => delete($form->{draft_id}) ]);
   }
 
+  # hook for taxkey 94
+  $self->_reverse_charge($myconfig, $form);
   # safety check datev export
   if ($::instance_conf->get_datev_check_on_ap_transaction) {
     my $datev = SL::DATEV->new(
@@ -422,12 +425,86 @@ sub _post_transaction {
   return 1;
 }
 
+sub _reverse_charge {
+  my ($self, $myconfig, $form) = @_;
+
+  # check taxkey settings or return
+  my $tax = SL::DB::Manager::Tax->get_first( where => [taxkey => 94 ]);
+  return unless ref $tax eq 'SL::DB::Tax';
+
+  # delete previous bookings, if they exists (repost)
+  my $ap_gl = SL::DB::Manager::ApGl->get_first(where => [ ap_id => $form->{id} ]);
+  my $gl_id = ref $ap_gl eq 'SL::DB::ApGl' ? $ap_gl->gl_id : undef;
+
+  SL::DB::Manager::GLTransaction->delete_all(where => [ id    => $gl_id ])       if $gl_id;
+  SL::DB::Manager::ApGl->         delete_all(where => [ ap_id => $form->{id} ])  if $gl_id;
+  SL::DB::Manager::RecordLink->   delete_all(where => [ from_table => 'ap', to_table => 'gl', from_id => $form->{id} ]);
+
+  # gl booking
+  my ($credit, $debit);
+  $credit   = SL::DB::Manager::Chart->find_by(id => $tax->chart_id);
+  $debit    = SL::DB::Manager::Chart->find_by(id => $tax->reverse_charge_chart_id);
+
+  croak("No such Chart ID" . $tax->chart_id)          unless ref $credit eq 'SL::DB::Chart';
+  croak("No such Chart ID" . $tax->reverse_chart_id)  unless ref $debit  eq 'SL::DB::Chart';
+
+  my ($i, $current_transaction);
+
+  for $i (1 .. $form->{rowcount}) {
+    next unless $form->{"taxkey_$i"} == 94;
+
+    my ($tmpnetamount, $tmptaxamount) = $form->calculate_tax($form->{"amount_$i"}, 0.19, $form->{taxincluded}, 2);
+    $current_transaction = SL::DB::GLTransaction->new(
+          employee_id    => $form->{employee_id},
+          transdate      => $form->{transdate},
+          description    => $form->{notes} || $form->{invnumber},
+          reference      => $form->{invnumber},
+          department_id  => $form->{department_id} ? $form->{department_id} : undef,
+          imported       => 0, # not imported
+          taxincluded    => 0,
+        )->add_chart_booking(
+          chart  => $tmptaxamount < 0 ? $credit : $debit,
+          credit => abs($tmptaxamount),
+          source => "Reverse Charge for " . $form->{invnumber},
+        )->add_chart_booking(
+          chart  => $tmptaxamount < 0 ? $debit : $credit,
+          debit  => abs($tmptaxamount),
+          source => "Reverse Charge for " . $form->{invnumber},
+      )->post;
+    # add a stable link from ap to gl
+    my %props_gl = (
+        ap_id => $form->{id},
+        gl_id => $current_transaction->id,
+      );
+    SL::DB::ApGl->new(%props_gl)->save;
+    # Record a record link from ap to gl
+    my %props_rl = (
+        from_table => 'ap',
+        from_id    => $form->{id},
+        to_table   => 'gl',
+        to_id      => $current_transaction->id,
+      );
+    SL::DB::RecordLink->new(%props_rl)->save;
+  }
+}
+
 sub delete_transaction {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
 
   SL::DB->client->with_transaction(sub {
+
+    # if tax 94 reverse charge, clear all GL bookings and links
+    my $ap_gl = SL::DB::Manager::ApGl->get_first(where => [ ap_id => $form->{id} ]);
+    my $gl_id = ref $ap_gl eq 'SL::DB::ApGl' ? $ap_gl->gl_id : undef;
+
+    SL::DB::Manager::GLTransaction->delete_all(where => [ id    => $gl_id ])       if $gl_id;
+    SL::DB::Manager::ApGl->         delete_all(where => [ ap_id => $form->{id} ])  if $gl_id;
+    SL::DB::Manager::RecordLink->   delete_all(where => [ from_table => 'ap', to_table => 'gl', from_id => $form->{id} ]);
+    # done gl delete for tax 94 case
+
+    # begin ap delete
     my $query = qq|DELETE FROM ap WHERE id = ?|;
     do_query($form, SL::DB->client->dbh, $query, $form->{id});
     1;

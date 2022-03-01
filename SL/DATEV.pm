@@ -835,6 +835,7 @@ sub generate_datev_lines {
       }
       if ($transaction->[$i]->{'taxkey'}) {
         $taxkey = $transaction->[$i]->{'taxkey'};
+        $taxkey = 0 if $taxkey == 94; # taxbookings are in gl
       }
       if ($transaction->[$i]->{'charttax'}) {
         $charttax = $transaction->[$i]->{'charttax'};

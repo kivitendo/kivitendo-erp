@@ -493,6 +493,15 @@ sub form_header {
     $form->{"selected_taxchart_$i"}  = $selected_taxchart;
     $form->{"AP_amount_chart_id_$i"} = $amount_chart_id;
     $form->{"taxcharts_$i"}          = \@taxcharts;
+
+    # reverse charge hack for template, display two taxes
+    if ($taxchart_to_use->taxkey == 94) {
+      my $tmpnetamount;
+      ($tmpnetamount, $form->{"tax_reverse_$i"}) = $form->calculate_tax($form->parse_amount(\%myconfig, $form->{"amount_$i"}), 0.19, $form->{taxincluded},2);
+      $form->{"tax_charge_$i"}  = $form->{"tax_reverse_$i"} * -1;
+      $form->{"tax_reverse_$i"} = $form->format_amount(\%myconfig, $form->{"tax_reverse_$i"}, 2);
+      $form->{"tax_charge_$i"}  = $form->format_amount(\%myconfig, $form->{"tax_charge_$i"}, 2);
+    }
   }
 
   $form->{taxchart_value_title_sub} = sub {
@@ -797,10 +806,16 @@ sub post {
   $form->error($locale->text('Cannot post transaction for a closed period!')) if ($form->date_closed($form->{"transdate"}, \%myconfig));
 
   my $zero_amount_posting = 1;
+  # no taxincluded for 94
+  my $tax = SL::DB::Manager::Tax->get_first( where => [taxkey => 94 ]);
+  my $tax_id = ref $tax eq 'SL::DB::Tax' ? $tax->id : undef;
   for my $i (1 .. $form->{rowcount}) {
+    # no taxincluded for 94
+    if ($tax_id && $form->{"taxchart_$i"} =~ m/^$tax_id--/ && $form->{taxincluded}) {
+      $form->error($locale->text('Cannot Post AP transaction with tax included!'));
+    }
     if ($form->parse_amount(\%myconfig, $form->{"amount_$i"})) {
       $zero_amount_posting = 0;
-      last;
     }
   }
 
@@ -1348,6 +1363,10 @@ sub setup_ap_display_form_action_bar {
 
     $is_linked_bank_transaction = 1;
   }
+  my $is_linked_gl_transaction;
+  if ($::form->{id} && SL::DB::Manager::ApGl->find_by(ap_id => $::form->{id})) {
+    $is_linked_gl_transaction = 1;
+  }
 
   my $create_post_action = sub {
     # $_[0]: description
@@ -1419,6 +1438,7 @@ sub setup_ap_display_form_action_bar {
                     : $is_storno           ? t8('Reversal invoices cannot be canceled.')
                     : $::form->{totalpaid} ? t8('Invoices with payments cannot be canceled.')
                     : $has_sepa_exports    ? t8('This invoice has been linked with a sepa export, undo this first.')
+                    : $is_linked_gl_transaction ? t8('This transaction is linked with a gl transaction. Please delete the ap transaction booking if needed.')
                     :                        undef,
         ],
         action => [ t8('Delete'),
@@ -1426,12 +1446,13 @@ sub setup_ap_display_form_action_bar {
           confirm  => t8('Do you really want to delete this object?'),
           disabled => !$may_edit_create           ? t8('You must not change this AP transaction.')
                     : !$::form->{id}              ? t8('This invoice has not been posted yet.')
-                    : $change_never               ? t8('Changing invoices has been disabled in the configuration.')
-                    : $change_on_same_day_only    ? t8('Invoices can only be changed on the day they are posted.')
-                    : $has_storno                 ? t8('This invoice has been canceled already.')
                     : $is_closed                  ? t8('The billing period has already been locked.')
                     : $has_sepa_exports           ? t8('This invoice has been linked with a sepa export, undo this first.')
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    : $is_linked_gl_transaction   ? undef # linked transactions can be deleted, if period is not closed
+                    : $change_never               ? t8('Changing invoices has been disabled in the configuration.')
+                    : $change_on_same_day_only    ? t8('Invoices can only be changed on the day they are posted.')
+                    : $has_storno                 ? t8('This invoice has been canceled already.')
                     :                               undef,
         ],
       ], # end of combobox "Storno"
