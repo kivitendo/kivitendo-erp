@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::AccTransaction;
 use SL::DB::AdditionalBillingAddress;
+use SL::DB::ApGl;
 use SL::DB::Assembly;
 use SL::DB::AssortmentItem;
 use SL::DB::AuthClient;
