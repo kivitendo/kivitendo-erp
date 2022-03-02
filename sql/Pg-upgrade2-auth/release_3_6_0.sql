@@ -1,0 +1,3 @@
+-- @tag: release_3_6_0
+-- @description: Abhängigkeitsscript für Release 3.6.0
+-- @depends: release_3_5_8 convert_columns_to_html_for_sending_html_emails
