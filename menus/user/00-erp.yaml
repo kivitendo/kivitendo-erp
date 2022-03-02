@@ -275,7 +275,7 @@
   name: Quotations
   icon: report_quotations
   order: 200
-  access: sales_quotation_edit
+  access: sales_quotation_edit | sales_quotation_view
   module: oe.pl
   params:
     action: search
@@ -285,7 +285,7 @@
   name: Sales Orders
   icon: report_sales_orders
   order: 300
-  access: sales_order_edit
+  access: sales_order_edit | sales_order_view
   module: oe.pl
   params:
     action: search
@@ -446,7 +446,7 @@
   name: RFQs
   icon: rfq_report
   order: 100
-  access: request_quotation_edit
+  access: request_quotation_edit | request_quotation_view
   module: oe.pl
   params:
     action: search
@@ -456,7 +456,7 @@
   name: Purchase Orders
   icon: purchase_order_report
   order: 200
-  access: purchase_order_edit
+  access: purchase_order_edit | purchase_order_view
   module: oe.pl
   params:
     action: search

@@ -5,7 +5,7 @@ use parent qw(SL::Controller::TopQuickSearch::OERecord);
 
 use SL::Locale::String qw(t8);
 
-sub auth { 'request_quotation_edit' }
+sub auth { 'request_quotation_edit | request_quotation_view' }
 
 sub name { 'request_quotation' }
 

@@ -84,10 +84,18 @@ my $oe_access_map = {
   'sales_quotation'   => 'sales_quotation_edit',
 };
 
+my $oe_view_access_map = {
+  'sales_order'       => 'sales_order_edit       | sales_order_view',
+  'purchase_order'    => 'purchase_order_edit    | purchase_order_view',
+  'request_quotation' => 'request_quotation_edit | request_quotation_view',
+  'sales_quotation'   => 'sales_quotation_edit   | sales_quotation_view',
+};
+
 sub check_oe_access {
+  my (%params) = @_;
   my $form     = $main::form;
 
-  my $right   = $oe_access_map->{$form->{type}};
+  my $right   = ($params{with_view}) ? $oe_view_access_map->{$form->{type}} : $oe_access_map->{$form->{type}};
   $right    ||= 'DOES_NOT_EXIST';
 
   $main::auth->assert($right);
@@ -926,7 +934,7 @@ sub search {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  check_oe_access();
+  check_oe_access(with_view => 1);
 
   if ($form->{type} eq 'purchase_order') {
     $form->{vc}        = 'vendor';
@@ -1017,7 +1025,7 @@ sub orders {
   my $cgi      = $::request->{cgi};
 
   my %params   = @_;
-  check_oe_access();
+  check_oe_access(with_view => 1);
 
   my $ordnumber = ($form->{type} =~ /_order$/) ? "ordnumber" : "quonumber";
 

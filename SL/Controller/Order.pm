@@ -56,6 +56,9 @@ use Rose::Object::MakeMethods::Generic
 # safety
 __PACKAGE__->run_before('check_auth');
 
+__PACKAGE__->run_before('check_auth_save',
+                        except => [ qw(edit show_customer_vendor_details_dialog price_popup load_second_rows) ]);
+
 __PACKAGE__->run_before('recalc',
                         only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment save_and_final_invoice save_and_ap_transaction
                                      print send_email) ]);
@@ -1370,6 +1373,17 @@ sub init_part_picker_classification_ids {
 sub check_auth {
   my ($self) = @_;
 
+  my $right_for = { map { $_ => $_.'_edit' . ' | ' . $_.'_view' } @{$self->valid_types} };
+
+  my $right   = $right_for->{ $self->type };
+  $right    ||= 'DOES_NOT_EXIST';
+
+  $::auth->assert($right);
+}
+
+sub check_auth_save {
+  my ($self) = @_;
+
   my $right_for = { map { $_ => $_.'_edit' } @{$self->valid_types} };
 
   my $right   = $right_for->{ $self->type };
@@ -2018,6 +2032,11 @@ sub setup_edit_action_bar {
     $has_final_invoice               = any {'SL::DB::Invoice' eq ref $_ && "final_invoice" eq $_->type} @$lr;
   }
 
+  my $right_for = { map { $_ => $_.'_edit' } @{$self->valid_types} };
+  my $right     = $right_for->{ $self->type };
+  $right      ||= 'DOES_NOT_EXIST';
+
+  if ($::auth->assert($right, 1)) {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       combobox => [
@@ -2164,6 +2183,12 @@ sub setup_edit_action_bar {
         only_if  => $deletion_allowed,
       ],
 
+    );
+  }
+  }
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
       combobox => [
         action => [
           t8('more')
@@ -2182,6 +2207,7 @@ sub setup_edit_action_bar {
       ], # end of combobox "more"
     );
   }
+
 }
 
 sub generate_doc {
