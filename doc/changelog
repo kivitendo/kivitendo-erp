@@ -2,6 +2,20 @@
 # Veränderungen von kivitendo #
 ###############################
 
+2022-0x-xx - Release 3.6.1
+
+Größere neue Features:
+
+Mittelgroße neue Features:
+
+Kleinere neue Features und Detailverbesserungen:
+
+ - Die Protokollierung von E-Mails in interne Bemerkungen ist deaktiviert,
+   falls der Mandant sowieso das E-Mail-Journal aktiviert hat.
+ - Steuerschlüssel 94, Reverse Charge gleichzeitige Vor- und Mehrwertsteuer
+   kann in einem netto verbuchten Kreditorenbeleg verbucht werden, die Steuer
+   wird dann mit einer verknüpften Dialogbuchung verbucht.
+
 2022-03-02 - Release 3.6.0
 
 Größere neue Features:
