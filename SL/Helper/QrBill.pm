@@ -108,7 +108,7 @@ sub _init_check {
 
 sub generate {
   my $self = shift;
-  my $out_file = defined $_[0] ? $_[0] : $Config{out_file};
+  my $out_file = $_[0] // $Config{out_file};
 
   $self->{qrcode} = $self->_qrcode();
   $self->{cross}  = $self->_cross();
@@ -202,7 +202,7 @@ SL::Helper::QrBill - Helper methods for generating Swiss QR-Code
          \%invoice_recipient_data,
          \%ref_nr_data,
        );
-       $qr_image->generate($outfile);
+       $qr_image->generate($out_file);
      } or do {
        local $_ = $@; chomp; my $error = $_;
        $::form->error($::locale->text('QR-Image generation failed: ' . $error));
