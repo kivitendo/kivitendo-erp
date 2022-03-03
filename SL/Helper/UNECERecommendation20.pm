@@ -39,7 +39,7 @@ my @mappings = (
   [ 'LTR', qr{^(?:l|liter|litre)$}i ],
 
   # miscellaneous
-  [ 'C62', qr{^(?:stck|stück|pieces?|pc|psch|pauschal)$}i ],
+  [ 'C62', qr{^(?:stck|stück|pieces?|pc|psch|pauschal|licenses?|lizenz(?:en)?)$}i ],
 );
 
 sub map_name_to_code {
