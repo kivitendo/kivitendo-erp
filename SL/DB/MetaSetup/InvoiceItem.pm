@@ -35,7 +35,7 @@ __PACKAGE__->meta->columns(
   price_factor_id        => { type => 'integer' },
   pricegroup_id          => { type => 'integer' },
   project_id             => { type => 'integer' },
-  qty                    => { type => 'float', precision => 4, scale => 4 },
+  qty                    => { type => 'numeric', precision => 25, scale => 5 },
   sellprice              => { type => 'numeric', precision => 15, scale => 5 },
   serialnumber           => { type => 'text' },
   subtotal               => { type => 'boolean', default => 'false' },
