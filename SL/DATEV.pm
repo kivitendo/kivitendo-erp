@@ -543,6 +543,7 @@ sub generate_datev_data {
          $gl_itime_filter
          $gl_department_id_filter
          $gl_imported
+         AND NOT EXISTS (SELECT gl_id from ap_gl where gl_id = gl.id)
          $filter
 
        ORDER BY trans_id, acc_trans_id|;
@@ -835,7 +836,7 @@ sub generate_datev_lines {
       }
       if ($transaction->[$i]->{'taxkey'}) {
         $taxkey = $transaction->[$i]->{'taxkey'};
-        $taxkey = 0 if $taxkey == 94; # taxbookings are in gl
+        # $taxkey = 0 if $taxkey == 94; # taxbookings are in gl
       }
       if ($transaction->[$i]->{'charttax'}) {
         $charttax = $transaction->[$i]->{'charttax'};
