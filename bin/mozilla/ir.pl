@@ -56,9 +56,10 @@ use strict;
 # end of main
 
 sub _may_view_or_edit_this_invoice {
-  return 1 if  $::auth->assert('ap_transactions', 1); # may edit all invoices
-  return 0 if !$::form->{id};                         # creating new invoices isn't allowed without invoice_edit
-  return 0 if !$::form->{globalproject_id};           # existing records without a project ID are not allowed
+  return 1 if  $::auth->assert('ap_transactions', 1);       # may edit all invoices
+  return 0 if !$::form->{id};                               # creating new invoices isn't allowed without invoice_edit
+  return 1 if  $::auth->assert('purchase_invoice_view', 1); # viewing is allowed with this right
+  return 0 if !$::form->{globalproject_id};                 # existing records without a project ID are not allowed
   return SL::DB::Project->new(id => $::form->{globalproject_id})->load->may_employee_view_project_invoices(SL::DB::Manager::Employee->current);
 }
 

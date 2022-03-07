@@ -487,16 +487,16 @@ sub ap_transactions {
   # Permissions:
   # - Always return invoices & AP transactions for projects the employee has "view invoices" permissions for, no matter what the other rules say.
   # - Exclude AP transactions if no permissions for them exist.
-  # - Limit to own invoices unless may edit all invoices.
-  # - If may edit all, allow filtering by employee.
+  # - Limit to own invoices unless may edit all invoices or view invoices is allowed.
+  # - If may edit all or view invoices is allowed, allow filtering by employee.
   my (@permission_where, @permission_values);
 
-  if ($::auth->assert('vendor_invoice_edit', 1)) {
+  if ($::auth->assert('vendor_invoice_edit', 1) || $::auth->assert('purchase_invoice_view', 1)) {
     if (!$::auth->assert('show_ap_transactions', 1)) {
       push @permission_where, "NOT invoice = 'f'"; # remove ap transactions from Purchase -> Reports -> Invoices
     }
 
-    if (!$::auth->assert('purchase_all_edit', 1)) {
+    if (!$::auth->assert('purchase_all_edit', 1) && !$::auth->assert('purchase_invoice_view', 1)) {
       # only show own invoices
       push @permission_where,  "a.employee_id = ?";
       push @permission_values, SL::DB::Manager::Employee->current->id;
@@ -509,7 +509,7 @@ sub ap_transactions {
     }
   }
 
-  if (@permission_where || !$::auth->assert('vendor_invoice_edit', 1)) {
+  if (@permission_where || (!$::auth->assert('vendor_invoice_edit', 1) && !$::auth->assert('purchase_invoice_view', 1))) {
     my $permission_where_str = @permission_where ? "OR (" . join(" AND ", map { "($_)" } @permission_where) . ")" : "";
     $where .= qq|
       AND (   (a.globalproject_id IN (
