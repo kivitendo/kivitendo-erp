@@ -56,7 +56,7 @@ use Rose::Object::MakeMethods::Generic
 # safety
 __PACKAGE__->run_before('check_auth');
 
-__PACKAGE__->run_before('check_auth_save',
+__PACKAGE__->run_before('check_auth_for_edit',
                         except => [ qw(edit show_customer_vendor_details_dialog price_popup load_second_rows) ]);
 
 __PACKAGE__->run_before('recalc',
@@ -1381,7 +1381,7 @@ sub check_auth {
   $::auth->assert($right);
 }
 
-sub check_auth_save {
+sub check_auth_for_edit {
   my ($self) = @_;
 
   my $right_for = { map { $_ => $_.'_edit' } @{$self->valid_types} };
