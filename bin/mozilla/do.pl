@@ -1792,7 +1792,7 @@ sub mark_closed {
 sub display_form {
   $::lxdebug->enter_sub;
 
-  $::auth->assert('purchase_delivery_order_edit | sales_delivery_order_edit');
+  check_do_access();
 
   relink_accounts();
   retrieve_partunits();
