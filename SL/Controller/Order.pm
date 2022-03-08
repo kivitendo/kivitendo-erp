@@ -2032,11 +2032,11 @@ sub setup_edit_action_bar {
     $has_final_invoice               = any {'SL::DB::Invoice' eq ref $_ && "final_invoice" eq $_->type} @$lr;
   }
 
-  my $right_for = { map { $_ => $_.'_edit' } @{$self->valid_types} };
-  my $right     = $right_for->{ $self->type };
-  $right      ||= 'DOES_NOT_EXIST';
+  my $right_for         = { map { $_ => $_.'_edit' } @{$self->valid_types} };
+  my $right             = $right_for->{ $self->type };
+  $right              ||= 'DOES_NOT_EXIST';
+  my $may_edit_create   = $::auth->assert($right, 'may fail');
 
-  if ($::auth->assert($right, 1)) {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       combobox => [
@@ -2048,6 +2048,7 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'],
                          @req_trans_cost_art, @req_cusordnumber,
           ],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save as new'),
@@ -2055,7 +2056,9 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          disabled  => !$self->order->id ? t8('This object has not been saved yet.') : undef,
+          disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                     : !$self->order->id ? t8('This object has not been saved yet.')
+                     :                     undef,
         ],
       ], # end of combobox "Save"
 
@@ -2068,23 +2071,27 @@ sub setup_edit_action_bar {
           submit   => [ '#order_form', { action => "Order/sales_quotation" } ],
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
           only_if  => (any { $self->type eq $_ } (sales_order_type())),
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and RFQ'),
           submit   => [ '#order_form', { action => "Order/request_for_quotation" } ],
           only_if  => (any { $self->type eq $_ } (purchase_order_type())),
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Sales Order'),
           submit   => [ '#order_form', { action => "Order/sales_order" } ],
           checks   => [ @req_trans_cost_art ],
           only_if  => (any { $self->type eq $_ } (sales_quotation_type(), purchase_order_type())),
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Purchase Order'),
           call      => [ 'kivi.Order.purchase_order_check_for_direct_delivery' ],
           checks    => [ @req_trans_cost_art, @req_cusordnumber ],
           only_if   => (any { $self->type eq $_ } (sales_order_type(), request_quotation_type())),
+          disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Delivery Order'),
@@ -2094,7 +2101,8 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          only_if   => (any { $self->type eq $_ } (sales_order_type(), purchase_order_type()))
+          only_if   => (any { $self->type eq $_ } (sales_order_type(), purchase_order_type())),
+          disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Supplier Delivery Order'),
@@ -2104,7 +2112,8 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          only_if   => (any { $self->type eq $_ } (purchase_order_type()))
+          only_if   => (any { $self->type eq $_ } (purchase_order_type())),
+          disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Invoice'),
@@ -2112,6 +2121,7 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
+          disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           ($has_invoice_for_advance_payment ? t8('Save and Further Invoice for Advance Payment') : t8('Save and Invoice for Advance Payment')),
@@ -2119,8 +2129,9 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          disabled  => $has_final_invoice ? t8('This order has already a final invoice.')
-                                          : undef,
+          disabled  => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
+                     : $has_final_invoice ? t8('This order has already a final invoice.')
+                     :                      undef,
           only_if   => (any { $self->type eq $_ } (sales_order_type())),
         ],
         action => [
@@ -2129,14 +2140,16 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          disabled  => $has_final_invoice ? t8('This order has already a final invoice.')
-                                          : undef,
+          disabled  => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
+                     : $has_final_invoice ? t8('This order has already a final invoice.')
+                     :                      undef,
           only_if   => (any { $self->type eq $_ } (sales_order_type())) && $has_invoice_for_advance_payment,
         ],
         action => [
           t8('Save and AP Transaction'),
           call      => [ 'kivi.Order.save', 'save_and_ap_transaction', $::instance_conf->get_order_warn_duplicate_parts ],
-          only_if   => (any { $self->type eq $_ } (purchase_order_type()))
+          only_if   => (any { $self->type eq $_ } (purchase_order_type())),
+          disabled  => !$may_edit_create  ? t8('You do not have the permissions to access this function.') : undef,
         ],
 
       ], # end of combobox "Workflow"
@@ -2147,25 +2160,29 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and preview PDF'),
-          call   => [ 'kivi.Order.save', 'preview_pdf', $::instance_conf->get_order_warn_duplicate_parts,
-                                                        $::instance_conf->get_order_warn_no_deliverydate,
-                    ],
-          checks => [ @req_trans_cost_art, @req_cusordnumber ],
+          call     => [ 'kivi.Order.save', 'preview_pdf', $::instance_conf->get_order_warn_duplicate_parts,
+                                                          $::instance_conf->get_order_warn_no_deliverydate,
+                      ],
+          checks   => [ @req_trans_cost_art, @req_cusordnumber ],
+          disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and print'),
-          call   => [ 'kivi.Order.show_print_options', $::instance_conf->get_order_warn_duplicate_parts,
-                                                       $::instance_conf->get_order_warn_no_deliverydate,
-                    ],
-          checks => [ @req_trans_cost_art, @req_cusordnumber ],
+          call     => [ 'kivi.Order.show_print_options', $::instance_conf->get_order_warn_duplicate_parts,
+                                                         $::instance_conf->get_order_warn_no_deliverydate,
+                      ],
+          checks   => [ @req_trans_cost_art, @req_cusordnumber ],
+          disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and E-mail'),
-          id   => 'save_and_email_action',
-          call => [ 'kivi.Order.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts,
-                                                                     $::instance_conf->get_order_warn_no_deliverydate,
-                  ],
-          disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
+          id       => 'save_and_email_action',
+          call     => [ 'kivi.Order.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts,
+                                                                         $::instance_conf->get_order_warn_no_deliverydate,
+                      ],
+          disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id  ? t8('This object has not been saved yet.')
+                    :                      undef,
         ],
         action => [
           t8('Download attachments of all parts'),
@@ -2179,35 +2196,14 @@ sub setup_edit_action_bar {
         t8('Delete'),
         call     => [ 'kivi.Order.delete_order' ],
         confirm  => $::locale->text('Do you really want to delete this object?'),
-        disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
+        disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
+                  : !$self->order->id  ? t8('This object has not been saved yet.')
+                  :                      undef,
         only_if  => $deletion_allowed,
       ],
 
     );
   }
-  }
-
-  for my $bar ($::request->layout->get('actionbar')) {
-    $bar->add(
-      combobox => [
-        action => [
-          t8('more')
-        ],
-        action => [
-          t8('History'),
-          call     => [ 'set_history_window', $self->order->id, 'id' ],
-          disabled => !$self->order->id ? t8('This record has not been saved yet.') : undef,
-        ],
-        action => [
-          t8('Follow-Up'),
-          call     => [ 'kivi.Order.follow_up_window' ],
-          disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
-          only_if  => $::auth->assert('productivity', 1),
-        ],
-      ], # end of combobox "more"
-    );
-  }
-
 }
 
 sub generate_doc {
