@@ -1788,16 +1788,16 @@ sub setup_edit_action_bar {
       combobox => [
         action => [
           t8('Save'),
-          call      => [ 'kivi.DeliveryOrder.save', 'save', $::instance_conf->get_order_warn_duplicate_parts,
-                                                    $::instance_conf->get_order_warn_no_deliverydate,
-                                                                                                      ],
+          call     => [ 'kivi.DeliveryOrder.save', 'save', $::instance_conf->get_order_warn_duplicate_parts,
+                                                           $::instance_conf->get_order_warn_no_deliverydate,
+          ],
         ],
         action => [
           t8('Save as new'),
-          call      => [ 'kivi.DeliveryOrder.save', 'save_as_new', $::instance_conf->get_order_warn_duplicate_parts ],
-          disabled  =>   $self->type eq 'supplier_delivery_order' ? t8('Need a workflow for Supplier Delivery Order')
-                       : !$self->order->id                        ? t8('This object has not been saved yet.')
-                       : undef,
+          call     => [ 'kivi.DeliveryOrder.save', 'save_as_new', $::instance_conf->get_order_warn_duplicate_parts ],
+          disabled => $self->type eq 'supplier_delivery_order' ? t8('Need a workflow for Supplier Delivery Order')
+                    : !$self->order->id                        ? t8('This object has not been saved yet.')
+                    :                                            undef,
         ],
       ], # end of combobox "Save"
 
@@ -1822,24 +1822,24 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and Purchase Order'),
-          call      => [ 'kivi.DeliveryOrder.purchase_order_check_for_direct_delivery' ],
+          call     => [ 'kivi.DeliveryOrder.purchase_order_check_for_direct_delivery' ],
           only_if  => $self->type_data->show_menu("save_and_purchase_order"),
         ],
         action => [
           t8('Save and Delivery Order'),
-          call      => [ 'kivi.DeliveryOrder.save', 'save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts,
-                                                                       $::instance_conf->get_order_warn_no_deliverydate,
-                                                                                                                        ],
+          call     => [ 'kivi.DeliveryOrder.save', 'save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts,
+                                                                              $::instance_conf->get_order_warn_no_deliverydate,
+          ],
           only_if  => $self->type_data->show_menu("save_and_delivery_order"),
         ],
         action => [
           t8('Save and Invoice'),
-          call      => [ 'kivi.DeliveryOrder.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
+          call     => [ 'kivi.DeliveryOrder.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
           only_if  => $self->type_data->show_menu("save_and_invoice"),
         ],
         action => [
           t8('Save and AP Transaction'),
-          call      => [ 'kivi.DeliveryOrder.save', 'save_and_ap_transaction', $::instance_conf->get_order_warn_duplicate_parts ],
+          call     => [ 'kivi.DeliveryOrder.save', 'save_and_ap_transaction', $::instance_conf->get_order_warn_duplicate_parts ],
           only_if  => $self->type_data->show_menu("save_and_ap_transaction"),
         ],
 
@@ -1851,22 +1851,22 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and preview PDF'),
-           call => [ 'kivi.DeliveryOrder.save', 'preview_pdf', $::instance_conf->get_order_warn_duplicate_parts,
-                                                       $::instance_conf->get_order_warn_no_deliverydate,
-                                                                                                         ],
+           call    => [ 'kivi.DeliveryOrder.save', 'preview_pdf', $::instance_conf->get_order_warn_duplicate_parts,
+                                                                  $::instance_conf->get_order_warn_no_deliverydate,
+          ],
         ],
         action => [
           t8('Save and print'),
-          call => [ 'kivi.DeliveryOrder.show_print_options', $::instance_conf->get_order_warn_duplicate_parts,
-                                                     $::instance_conf->get_order_warn_no_deliverydate,
-                                                                                                      ],
+          call     => [ 'kivi.DeliveryOrder.show_print_options', $::instance_conf->get_order_warn_duplicate_parts,
+                                                                 $::instance_conf->get_order_warn_no_deliverydate,
+          ],
         ],
         action => [
           t8('Save and E-mail'),
-          id   => 'save_and_email_action',
-          call => [ 'kivi.DeliveryOrder.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts,
-                                                                     $::instance_conf->get_order_warn_no_deliverydate,
-                  ],
+          id       => 'save_and_email_action',
+          call     => [ 'kivi.DeliveryOrder.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts,
+                                                                                 $::instance_conf->get_order_warn_no_deliverydate,
+          ],
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
         action => [
@@ -1882,28 +1882,31 @@ sub setup_edit_action_bar {
         id       => 'delete_action',
         call     => [ 'kivi.DeliveryOrder.delete_order' ],
         confirm  => $::locale->text('Do you really want to delete this object?'),
-        disabled => !$self->order->id       ? t8('This object has not been saved yet.') :
-                    $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
+        disabled => !$self->order->id       ? t8('This object has not been saved yet.')
+                  : $self->order->delivered ? t8('The parts for this order have already been transferred')
+                  :                           undef,
         only_if  => $self->type_data->show_menu("delete"),
       ],
 
       combobox => [
         action => [
           t8('Transfer out'),
-          id   => 'transfer_out_action',
-          call   => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
-          disabled => !$self->order->id ? t8('This object has not been saved yet.') :
-                      $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
-          only_if => $self->type_data->properties('transfer') eq 'out',
+          id       => 'transfer_out_action',
+          call     => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
+          disabled => !$self->order->id       ? t8('This object has not been saved yet.')
+                    : $self->order->delivered ? t8('The parts for this order have already been transferred')
+                    :                           undef,
+          only_if  => $self->type_data->properties('transfer') eq 'out',
           confirm  => t8('Do you really want to transfer the stock and set this order to delivered?'),
         ],
         action => [
           t8('Transfer in'),
-          id   => 'transfer_in_action',
-          call   => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
-          disabled => !$self->order->id ? t8('This object has not been saved yet.') :
-                      $self->order->delivered ? t8('The parts for this order have already been transferred') : undef,
-          only_if => $self->type_data->properties('transfer') eq 'in',
+          id       => 'transfer_in_action',
+          call     => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
+          disabled => !$self->order->id       ? t8('This object has not been saved yet.')
+                    : $self->order->delivered ? t8('The parts for this order have already been transferred')
+                    :                           undef,
+          only_if  => $self->type_data->properties('transfer') eq 'in',
           confirm  => t8('Do you really want to transfer the stock and set this order to delivered?'),
         ],
       ],
