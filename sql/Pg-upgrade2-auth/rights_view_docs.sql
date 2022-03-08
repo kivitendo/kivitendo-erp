@@ -59,12 +59,22 @@ INSERT INTO auth.master_rights (position, name, description, category)
           FALSE);
 
 
+-- INSERT INTO auth.group_rights (group_id, "right", granted)
+--    SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'sales_quotation_view',         true UNION
+--    SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'sales_order_view',             true UNION
+--    SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'sales_delivery_order_view',    true UNION
+--    SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'sales_invoice_view',           true UNION
+--    SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'request_quotation_view',       true UNION
+--    SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'purchase_order_view',          true UNION
+--    SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'purchase_delivery_order_view', true UNION
+--    SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'purchase_invoice_view',        true;
+
 INSERT INTO auth.group_rights (group_id, "right", granted)
-   SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'sales_quotation_view',         true UNION
-   SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'sales_order_view',             true UNION
-   SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'sales_delivery_order_view',    true UNION
-   SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'sales_invoice_view',           true UNION
-   SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'request_quotation_view',       true UNION
-   SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'purchase_order_view',          true UNION
-   SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'purchase_delivery_order_view', true UNION
-   SELECT (SELECT id FROM auth.group WHERE name = 'Vollzugriff'), 'purchase_invoice_view',        true;
+   SELECT id, 'sales_quotation_view',         true FROM auth.group WHERE name = 'Vollzugriff' UNION
+   SELECT id, 'sales_order_view',             true FROM auth.group WHERE name = 'Vollzugriff' UNION
+   SELECT id, 'sales_delivery_order_view',    true FROM auth.group WHERE name = 'Vollzugriff' UNION
+   SELECT id, 'sales_invoice_view',           true FROM auth.group WHERE name = 'Vollzugriff' UNION
+   SELECT id, 'request_quotation_view',       true FROM auth.group WHERE name = 'Vollzugriff' UNION
+   SELECT id, 'purchase_order_view',          true FROM auth.group WHERE name = 'Vollzugriff' UNION
+   SELECT id, 'purchase_delivery_order_view', true FROM auth.group WHERE name = 'Vollzugriff' UNION
+   SELECT id, 'purchase_invoice_view',        true FROM auth.group WHERE name = 'Vollzugriff';
