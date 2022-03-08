@@ -5,7 +5,7 @@ use parent qw(SL::Controller::TopQuickSearch::DeliveryOrder);
 
 use SL::Locale::String qw(t8);
 
-sub auth { 'sales_delivery_order_edit' }
+sub auth { 'sales_delivery_order_edit | sales_delivery_order_view' }
 
 sub name { 'sales_delivery_order' }
 

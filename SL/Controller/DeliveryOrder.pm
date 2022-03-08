@@ -58,6 +58,9 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('check_auth',
                         except => [ qw(update_stock_information) ]);
 
+__PACKAGE__->run_before('check_auth_for_edit',
+                        except => [ qw(update_stock_information edit show_customer_vendor_details_dialog price_popup stock_in_out_dialog load_second_rows) ]);
+
 __PACKAGE__->run_before('get_unalterable_data',
                         only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_ap_transaction
                                      print send_email) ]);
@@ -1223,7 +1226,13 @@ sub init_part_picker_classification_ids {
 sub check_auth {
   my ($self) = @_;
 
-  $::auth->assert($self->type_data->access || 'DOES_NOT_EXIST');
+  $::auth->assert($self->type_data->access('view') || 'DOES_NOT_EXIST');
+}
+
+sub check_auth_for_edit {
+  my ($self) = @_;
+
+  $::auth->assert($self->type_data->access('edit') || 'DOES_NOT_EXIST');
 }
 
 # build the selection box for contacts
@@ -1782,6 +1791,7 @@ sub setup_edit_action_bar {
   my ($self, %params) = @_;
 
   my $deletion_allowed = $self->type_data->show_menu("delete");
+  my $may_edit_create  = $::auth->assert($self->type_data->access('edit') || 'DOES_NOT_EXIST', 1);
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -1791,11 +1801,13 @@ sub setup_edit_action_bar {
           call     => [ 'kivi.DeliveryOrder.save', 'save', $::instance_conf->get_order_warn_duplicate_parts,
                                                            $::instance_conf->get_order_warn_no_deliverydate,
           ],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save as new'),
           call     => [ 'kivi.DeliveryOrder.save', 'save_as_new', $::instance_conf->get_order_warn_duplicate_parts ],
-          disabled => $self->type eq 'supplier_delivery_order' ? t8('Need a workflow for Supplier Delivery Order')
+          disabled => !$may_edit_create                        ? t8('You do not have the permissions to access this function.')
+                    : $self->type eq 'supplier_delivery_order' ? t8('Need a workflow for Supplier Delivery Order')
                     : !$self->order->id                        ? t8('This object has not been saved yet.')
                     :                                            undef,
         ],
@@ -1809,21 +1821,25 @@ sub setup_edit_action_bar {
           t8('Save and Quotation'),
           submit   => [ '#order_form', { action => "DeliveryOrder/sales_quotation" } ],
           only_if  => $self->type_data->show_menu("save_and_quotation"),
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and RFQ'),
           submit   => [ '#order_form', { action => "DeliveryOrder/request_for_quotation" } ],
           only_if  => $self->type_data->show_menu("save_and_rfq"),
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Sales Order'),
           submit   => [ '#order_form', { action => "DeliveryOrder/sales_order" } ],
           only_if  => $self->type_data->show_menu("save_and_sales_order"),
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Purchase Order'),
           call     => [ 'kivi.DeliveryOrder.purchase_order_check_for_direct_delivery' ],
           only_if  => $self->type_data->show_menu("save_and_purchase_order"),
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Delivery Order'),
@@ -1831,16 +1847,19 @@ sub setup_edit_action_bar {
                                                                               $::instance_conf->get_order_warn_no_deliverydate,
           ],
           only_if  => $self->type_data->show_menu("save_and_delivery_order"),
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Invoice'),
           call     => [ 'kivi.DeliveryOrder.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
           only_if  => $self->type_data->show_menu("save_and_invoice"),
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and AP Transaction'),
           call     => [ 'kivi.DeliveryOrder.save', 'save_and_ap_transaction', $::instance_conf->get_order_warn_duplicate_parts ],
           only_if  => $self->type_data->show_menu("save_and_ap_transaction"),
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
 
       ], # end of combobox "Workflow"
@@ -1854,12 +1873,14 @@ sub setup_edit_action_bar {
            call    => [ 'kivi.DeliveryOrder.save', 'preview_pdf', $::instance_conf->get_order_warn_duplicate_parts,
                                                                   $::instance_conf->get_order_warn_no_deliverydate,
           ],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and print'),
           call     => [ 'kivi.DeliveryOrder.show_print_options', $::instance_conf->get_order_warn_duplicate_parts,
                                                                  $::instance_conf->get_order_warn_no_deliverydate,
           ],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and E-mail'),
@@ -1867,12 +1888,16 @@ sub setup_edit_action_bar {
           call     => [ 'kivi.DeliveryOrder.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts,
                                                                                  $::instance_conf->get_order_warn_no_deliverydate,
           ],
-          disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id ? t8('This object has not been saved yet.')
+                    :                     undef,
         ],
         action => [
           t8('Download attachments of all parts'),
           call     => [ 'kivi.File.downloadOrderitemsFiles', $::form->{type}, $::form->{id} ],
-          disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id ? t8('This object has not been saved yet.')
+                    :                     undef,
           only_if  => $::instance_conf->get_doc_storage,
         ],
       ], # end of combobox "Export"
@@ -1882,7 +1907,8 @@ sub setup_edit_action_bar {
         id       => 'delete_action',
         call     => [ 'kivi.DeliveryOrder.delete_order' ],
         confirm  => $::locale->text('Do you really want to delete this object?'),
-        disabled => !$self->order->id       ? t8('This object has not been saved yet.')
+        disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
+                  : !$self->order->id       ? t8('This object has not been saved yet.')
                   : $self->order->delivered ? t8('The parts for this order have already been transferred')
                   :                           undef,
         only_if  => $self->type_data->show_menu("delete"),
@@ -1893,7 +1919,8 @@ sub setup_edit_action_bar {
           t8('Transfer out'),
           id       => 'transfer_out_action',
           call     => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
-          disabled => !$self->order->id       ? t8('This object has not been saved yet.')
+          disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id       ? t8('This object has not been saved yet.')
                     : $self->order->delivered ? t8('The parts for this order have already been transferred')
                     :                           undef,
           only_if  => $self->type_data->properties('transfer') eq 'out',
@@ -1903,7 +1930,8 @@ sub setup_edit_action_bar {
           t8('Transfer in'),
           id       => 'transfer_in_action',
           call     => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
-          disabled => !$self->order->id       ? t8('This object has not been saved yet.')
+          disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id       ? t8('This object has not been saved yet.')
                     : $self->order->delivered ? t8('The parts for this order have already been transferred')
                     :                           undef,
           only_if  => $self->type_data->properties('transfer') eq 'in',

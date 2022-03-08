@@ -51,7 +51,8 @@ sub properties {
 }
 
 sub access {
-  get($_[0]->c->type, "right");
+  my ($self, $string) = @_;
+  get3($_[0]->c->type, "rights", $string);
 }
 
 sub is_quotation {
