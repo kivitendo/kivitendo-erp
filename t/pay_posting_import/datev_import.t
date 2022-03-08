@@ -51,6 +51,23 @@ foreach my $accno (@charts) {
 
 # and add department (KOST1 description)
   SL::DB::Department->new(
+    description => 'Total falsche Abteilung, niemals zuordnen!'
+  )->save;
+
+  SL::DB::Department->new(
+    description => '2. Total falsche Abteilung, niemals zuordnen!'
+  )->save;
+
+  SL::DB::Department->new(
+    description => '3. Total falsche Abteilung, niemals zuordnen!'
+  )->save;
+
+  SL::DB::Department->new(
+    description => 'annahme stelle. Total falsche Abteilung, niemals zuordnen!'
+  )->save;
+
+
+  SL::DB::Department->new(
     description => 'Wisavis'
   )->save;
 
@@ -73,7 +90,8 @@ foreach my $booking (@{ $gl_bookings }) {
 
   # gl
   is ($current_row->[13], $booking->reference, "Buchungstext correct");
-  if (ref $booking->department eq 'SL::DB::Department') {
+  if ($current_row->[36] eq 'wisavis') {
+    is(ref $booking->department eq 'SL::DB::Department', 1, "Department assigned");
     is ($current_row->[36], 'wisavis', "Department correctly assigned");                # lowercase
     is ('Wisavis', $booking->department->description, "Department correctly assigned"); # upper case
   } else {
