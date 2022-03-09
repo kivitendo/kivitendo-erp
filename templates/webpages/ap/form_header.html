@@ -89,7 +89,7 @@
               <tr>
                 <th align="right" nowrap>[% 'Vendor' | $T8 %]</th>
                 <td colspan="3">
-                 [% P.customer_vendor.picker("vendor_id", vendor_id, type="vendor", style="width: 300px", onchange="\$('#update_button').click()") %]
+                 [% P.customer_vendor.picker("vendor_id", vendor_id, type="vendor", style="width: 330px", onchange="\$('#update_button').click()") %]
                  [% L.button_tag("show_vc_details('vendor')", LxERP.t8('Details (one letter abbreviation)')) %]
                  [% L.hidden_tag("previous_vendor_id", vendor_id) %]
                 </td>
@@ -134,13 +134,13 @@
               [% IF ALL_DEPARTMENTS %]
                 <tr>
                   <th align="right" nowrap>[% 'Department' | $T8 %]</th>
-                  <td colspan=3>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1) %]</td>
+                  <td colspan=3>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1, style = "width:334px") %]</td>
                 </tr>
               [% END %]
 
               <tr>
                 <th align="right">[% 'Transaction description' | $T8 %]</th>
-                <td colspan="3">[% L.input_tag("transaction_description", transaction_description, size=35, "data-validate"=INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : '') %]</td>
+                <td colspan="3">[% L.input_tag("transaction_description", transaction_description, style="width:330px", "data-validate"=INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : '') %]</td>
               </tr>
               <tr>
                 <td align="right"><input name="taxincluded" class="checkbox" type="checkbox" value="1" [% IF ( taxincluded ) %]checked[% END %]></td>
