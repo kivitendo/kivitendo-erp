@@ -192,7 +192,8 @@ SQL
     push(@values, (like($form->{"cp_name"}))x2);
   }
 
-  if ( !(($vc eq 'customer' && $main::auth->assert('sales_all_edit', 1)) || ($vc eq 'vendor' && $main::auth->assert('purchase_all_edit', 1))) ) {
+  if ( !(    ($vc eq 'customer' && ($main::auth->assert('sales_all_edit',    1) || $main::auth->assert('sales_order_view',    1)))
+          || ($vc eq 'vendor'   && ($main::auth->assert('purchase_all_edit', 1) || $main::auth->assert('purchase_order_view', 1))) ) ) {
     $query .= " AND o.employee_id = (select id from employee where login= ?)";
     push @values, $::myconfig{login};
   }

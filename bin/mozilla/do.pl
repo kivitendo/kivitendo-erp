@@ -57,10 +57,17 @@ use strict;
 
 # end of main
 
+sub check_do_access_for_edit {
+  validate_type($::form->{type});
+
+  my $right = SL::DB::DeliveryOrder::TypeData::get3($::form->{type}, "rights", "edit");
+  $main::auth->assert($right);
+}
+
 sub check_do_access {
   validate_type($::form->{type});
 
-  my $right = SL::DB::DeliveryOrder::TypeData::get($::form->{type}, "right");
+  my $right = SL::DB::DeliveryOrder::TypeData::get3($::form->{type}, "rights", "view");
   $main::auth->assert($right);
 }
 
@@ -90,7 +97,7 @@ sub set_headings {
 sub add {
   $main::lxdebug->enter_sub();
 
-  check_do_access();
+  check_do_access_for_edit();
 
   if (($::form->{type} =~ /purchase/) && !$::instance_conf->get_allow_new_purchase_invoice) {
     $::form->show_generic_error($::locale->text("You do not have the permissions to access this function."));
@@ -254,11 +261,15 @@ sub setup_do_action_bar {
   if (ref $undo_date eq 'DateTime' && ref $insertdate eq 'DateTime') {
     $undo_transfer = $insertdate > $undo_date;
   }
+
+  my $may_edit_create = $::auth->assert(SL::DB::DeliveryOrder::TypeData::get3($::form->{type}, "rights", "edit"), 1);
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action =>
         [ t8('Update'),
           submit    => [ '#form', { action => "update" } ],
+          disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
           id        => 'update_button',
           accesskey => 'enter',
         ],
@@ -268,20 +279,24 @@ sub setup_do_action_bar {
           t8('Save'),
           submit   => [ '#form', { action => "save" } ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
+          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
+                    : $::form->{delivered} ? t8('This record has already been delivered.')
+                    :                        undef,
         ],
         action => [
           t8('Save as new'),
           submit   => [ '#form', { action => "save_as_new" } ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => !$::form->{id},
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : !$::form->{id},
         ],
         action => [
           t8('Mark as closed'),
           submit   => [ '#form', { action => "mark_closed" } ],
           checks   => [ 'kivi.validate_form' ],
           confirm  => t8('This will remove the delivery order from showing as open even if contents are not delivered. Proceed?'),
-          disabled => !$::form->{id}    ? t8('This record has not been saved yet.')
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : !$::form->{id}    ? t8('This record has not been saved yet.')
                     : $::form->{closed} ? t8('This record has already been closed.')
                     :                     undef,
         ],
@@ -291,7 +306,8 @@ sub setup_do_action_bar {
         t8('Delete'),
         submit   => [ '#form', { action => "delete" } ],
         confirm  => t8('Do you really want to delete this object?'),
-        disabled => !$::form->{id}                                                                              ? t8('This record has not been saved yet.')
+        disabled => !$may_edit_create                                                                           ? t8('You do not have the permissions to access this function.')
+                  : !$::form->{id}                                                                              ? t8('This record has not been saved yet.')
                   : $::form->{delivered}                                                                        ? t8('This record has already been delivered.')
                   : ($::form->{vc} eq 'customer' && !$::instance_conf->get_sales_delivery_order_show_delete)    ? t8('Deleting this type of record has been disabled in the configuration.')
                   : ($::form->{vc} eq 'vendor'   && !$::instance_conf->get_purchase_delivery_order_show_delete) ? t8('Deleting this type of record has been disabled in the configuration.')
@@ -303,28 +319,36 @@ sub setup_do_action_bar {
           t8('Transfer out'),
           submit   => [ '#form', { action => "transfer_out" } ],
           checks   => [ 'kivi.validate_form', @transfer_qty ],
-          disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
+          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
+                    : $::form->{delivered} ? t8('This record has already been delivered.')
+                    :                        undef,
           only_if  => $is_customer,
         ],
         action => [
           t8('Transfer out via default'),
           submit   => [ '#form', { action => "transfer_out_default" } ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
+          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
+                    : $::form->{delivered} ? t8('This record has already been delivered.')
+                    :                        undef,
           only_if  => $is_customer && $::instance_conf->get_transfer_default,
         ],
         action => [
           t8('Transfer in'),
           submit   => [ '#form', { action => "transfer_in" } ],
           checks   => [ 'kivi.validate_form', @transfer_qty ],
-          disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
+          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
+                    : $::form->{delivered} ? t8('This record has already been delivered.')
+                    :                        undef,
           only_if  => !$is_customer,
         ],
         action => [
           t8('Transfer in via default'),
           submit   => [ '#form', { action => "transfer_in_default" } ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
+          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
+                    : $::form->{delivered} ? t8('This record has already been delivered.')
+                    :                        undef,
           only_if  => !$is_customer && $::instance_conf->get_transfer_default,
         ],
         action => [
@@ -332,7 +356,9 @@ sub setup_do_action_bar {
           submit   => [ '#form', { action => "delete_transfers" } ],
           checks   => [ 'kivi.validate_form' ],
           only_if  => $::form->{delivered},
-          disabled => !$undo_transfer ? t8('Transfer date exceeds the maximum allowed interval.') : undef,
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : !$undo_transfer   ? t8('Transfer date exceeds the maximum allowed interval.')
+                    :                     undef,
         ],
       ], # end of combobox "Transfer out"
 
@@ -353,14 +379,17 @@ sub setup_do_action_bar {
         action => [ t8('Export') ],
         action => [
           t8('Print'),
-          call   => [ 'kivi.SalesPurchase.show_print_dialog' ],
-          checks => [ 'kivi.validate_form' ],
+          call     => [ 'kivi.SalesPurchase.show_print_dialog' ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('E Mail'),
           call   => [ 'kivi.SalesPurchase.show_email_dialog' ],
           checks => [ 'kivi.validate_form' ],
-          disabled => !$::form->{id} ? t8('This record has not been saved yet.') : undef,
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : !$::form->{id} ?    t8('This record has not been saved yet.')
+                    :                     undef,
         ],
       ], # end of combobox "Export"
 
@@ -913,7 +942,7 @@ sub save {
 
   my (%params) = @_;
 
-  check_do_access();
+  check_do_access_for_edit();
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -995,7 +1024,7 @@ sub save {
 sub delete {
   $main::lxdebug->enter_sub();
 
-  check_do_access();
+  check_do_access_for_edit();
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -1021,7 +1050,7 @@ sub delete {
 sub delete_transfers {
   $main::lxdebug->enter_sub();
 
-  check_do_access();
+  check_do_access_for_edit();
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -1275,7 +1304,7 @@ sub invoice_multi {
 sub save_as_new {
   $main::lxdebug->enter_sub();
 
-  check_do_access();
+  check_do_access_for_edit();
 
   my $form     = $main::form;
 
@@ -1792,7 +1821,7 @@ sub mark_closed {
 sub display_form {
   $::lxdebug->enter_sub;
 
-  $::auth->assert('purchase_delivery_order_edit | sales_delivery_order_edit');
+  check_do_access();
 
   relink_accounts();
   retrieve_partunits();

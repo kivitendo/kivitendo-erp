@@ -47,7 +47,10 @@ my %type_data = (
       transnumber    => 'sdonumber',
     },
     part_classification_query => [ "used_for_sale" => 1 ],
-    right => "sales_delivery_order_edit",
+    rights => {
+      edit => "sales_delivery_order_edit",
+      view => "sales_delivery_order_edit | sales_delivery_order_view",
+    },
   },
   PURCHASE_DELIVERY_ORDER_TYPE() => {
     text => {
@@ -76,7 +79,10 @@ my %type_data = (
       transnumber    => 'pdonumber',
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
-    right => "purchase_delivery_order_edit",
+    rights => {
+      edit => "purchase_delivery_order_edit",
+      view => "purchase_delivery_order_edit | purchase_delivery_order_view",
+    },
   },
   SUPPLIER_DELIVERY_ORDER_TYPE() => {
     text => {
@@ -105,7 +111,10 @@ my %type_data = (
       transnumber    => 'sudonumber',
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
-    right => "purchase_delivery_order_edit",
+    rights => {
+      edit => "purchase_delivery_order_edit",
+      view => "purchase_delivery_order_edit | purchase_delivery_order_view",
+    },
   },
   RMA_DELIVERY_ORDER_TYPE() => {
     text => {
@@ -134,7 +143,10 @@ my %type_data = (
       transnumber    => 'rdonumber',
     },
     part_classification_query => [ "used_for_sale" => 1 ],
-    right => "sales_delivery_order_edit",
+    rights => {
+      edit => "sales_delivery_order_edit",
+      view => "sales_delivery_order_edit | sales_delivery_order_view",
+    },
   },
 );
 
