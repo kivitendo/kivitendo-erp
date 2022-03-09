@@ -18,7 +18,7 @@ Support::TestSetup::login();
 my $dbh = SL::DB->client->dbh;
 my @charts = qw(379000 136900 372000 372500 373000 374000 377000 494700);
 local $::locale = Locale->new('en');
-diag("init csv");
+note("init csv");
 clear_up();
 
 # datev naming convention and expected filename entry in $::form
