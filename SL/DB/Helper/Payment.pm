@@ -646,8 +646,8 @@ sub skonto_charts {
         };
 
         push @skonto_charts, $rec;
-      };
-  };
+      }
+  }
 
   # if the rounded sum of all rounding_errors reaches 0.01 this sum is
   # subtracted from the largest skonto_amount
