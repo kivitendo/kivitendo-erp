@@ -964,6 +964,7 @@ sub search {
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
   $form->{ALL_BUSINESS_TYPES} = SL::DB::Manager::Business->get_all_sorted;
+  $form->{ALL_TAXZONES}       = SL::DB::Manager::TaxZone ->get_all_sorted;
 
   $form->{CT_CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
   ($form->{CT_CUSTOM_VARIABLES_FILTER_CODE},
@@ -1039,7 +1040,7 @@ sub ar_transactions {
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber cusordnumber transaction_description notes project_id transdatefrom transdateto duedatefrom duedateto
                                            employee_id salesman_id business_id parts_partnumber parts_description department_id show_marked_as_closed show_not_mailed
-                                           shippingpoint shipvia);
+                                           shippingpoint shipvia taxzone_id);
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
   $href =  $params{want_binary_pdf} ? '' : build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);

@@ -573,9 +573,9 @@ sub ar_transactions {
     $where .= " AND c.business_id = ?";
     push(@values, $business_id);
   }
-  if ($form->{department_id}) {
-    $where .= " AND a.department_id = ?";
-    push(@values, $form->{department_id});
+  if ($form->{taxzone_id}) {
+    $where .= " AND a.taxzone_id = ?";
+    push(@values, $form->{taxzone_id});
   }
   foreach my $column (qw(invnumber ordnumber cusordnumber notes transaction_description shipvia shippingpoint)) {
     if ($form->{$column}) {

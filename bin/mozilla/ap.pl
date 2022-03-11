@@ -987,6 +987,8 @@ sub search {
   $form->{title} = $locale->text('Vendor Invoices & AP Transactions');
 
   $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
+  $::form->{ALL_TAXZONES}    = SL::DB::Manager::TaxZone   ->get_all_sorted;
+
   # constants and subs for template
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
 
@@ -1044,7 +1046,7 @@ sub ap_transactions {
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id transdatefrom transdateto
-                                           parts_partnumber parts_description department_id);
+                                           parts_partnumber parts_description department_id taxzone_id);
 
   my $href = build_std_url('action=ap_transactions', grep { $form->{$_} } @hidden_variables);
 

@@ -30,6 +30,10 @@
       <td>[% L.input_tag("ordnumber", "", style=style) %]</td>
      </tr>
      <tr>
+      <th align="right">[% 'Steuersatz' | $T8 %]</th>
+      <td>[% L.select_tag('taxzone_id', ALL_TAXZONES, with_empty=1, title_key='description', style=style) %]</td>
+     </tr>
+     <tr>
       <th align="right" nowrap>[% 'Transaction description' | $T8 %]</th>
       <td>[% L.input_tag("transaction_description", "", style=style) %]</td>
      <tr>
