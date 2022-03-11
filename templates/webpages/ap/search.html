@@ -4,6 +4,7 @@
 <h1>[% title %]</h1>
 
  <form method="post" name="search" action="ap.pl" id="form">
+  [% L.hidden_tag("sort", "transdate") %]
 
   <table width=100%>
   <tr>
@@ -64,7 +65,6 @@
        [% L.date_tag('duedateto') %]
      </td>
     </tr>
-   <input type=hidden name=sort value=transdate>
    </table>
     </td>
     </tr>
@@ -146,7 +146,7 @@
            <td nowrap>[% 'Insert Date' | $T8 %]</td>
           </tr>
          <tr>
-          <td colspan=4 align=left><b>[% 'Vendor' | $T8 %] </td>
+          <td colspan=4 align=left><b>[% 'Vendor' | $T8 %]</b></td>
          </tr>
          <tr>
            <td align=right><input name="l_vendornumber" class=checkbox type=checkbox value=Y></td>

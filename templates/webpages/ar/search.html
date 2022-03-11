@@ -5,6 +5,7 @@
 
  <form method=post name="search" id="form" action=[% script %]>
   [% L.hidden_tag("action", nextsub) %]
+  [% L.hidden_tag("sort", "transdate") %]
 
   <table width=100% border="0">
   <tr>
@@ -104,12 +105,11 @@
 [%- IF CT_CUSTOM_VARIABLES.size %]
     <tr>
       <td></td>
-      <td colspan=4 align=left><b>[% 'Custom variables for module' | $T8 %]: [%'Customers and vendors' | $T8 %]</td>
+      <td colspan=4 align=left><b>[% 'Custom variables for module' | $T8 %]: [%'Customers and vendors' | $T8 %]</b></td>
     </tr>
     [% CT_CUSTOM_VARIABLES_FILTER_CODE %]
 [%- END %]
 
-   <input type=hidden name=sort value=transdate>
    </table>
     </td>
     </tr>
@@ -209,7 +209,7 @@
            <td nowrap>[% 'direct debit' | $T8 %]</td>
           </tr>
           <tr>
-           <td colspan=4 align=left><b>[% 'Customer' | $T8 %] </td>
+           <td colspan=4 align=left><b>[% 'Customer' | $T8 %]</b></td>
           </tr>
           <tr>
            <td align=right><input name="l_customernumber" id="l_customernumber" class=checkbox type=checkbox value=Y></td>
