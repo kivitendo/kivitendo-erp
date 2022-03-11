@@ -961,10 +961,10 @@ sub search {
 
   $form->{title} = $locale->text('Invoices, Credit Notes & AR Transactions');
 
-  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
-  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
-  $form->{ALL_BUSINESS_TYPES} = SL::DB::Manager::Business->get_all_sorted;
-  $form->{ALL_TAXZONES}       = SL::DB::Manager::TaxZone ->get_all_sorted;
+  $form->{ALL_EMPLOYEES}      = SL::DB::Manager::Employee  ->get_all_sorted(query => [ deleted => 0 ]);
+  $form->{ALL_DEPARTMENTS}    = SL::DB::Manager::Department->get_all_sorted;
+  $form->{ALL_BUSINESS_TYPES} = SL::DB::Manager::Business  ->get_all_sorted;
+  $form->{ALL_TAXZONES}       = SL::DB::Manager::TaxZone   ->get_all_sorted;
 
   $form->{CT_CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
   ($form->{CT_CUSTOM_VARIABLES_FILTER_CODE},
