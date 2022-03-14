@@ -15,6 +15,12 @@ Kleinere neue Features und Detailverbesserungen:
  - Steuerschlüssel 94, Reverse Charge gleichzeitige Vor- und Mehrwertsteuer
    kann in einem netto verbuchten Kreditorenbeleg verbucht werden, die Steuer
    wird dann mit einer verknüpften Dialogbuchung verbucht.
+ - Im im Kunden-/Lieferantenbereicht kann nach "allen Telefonnummern" gefiltert
+   werden. Hier wird in den Feldern Telefon und Fax bei Kunden und Lieferanten
+   und in weiteren Feldern bei Ansprechpersonen (Tel. 1/2, Fax, Mobil 1/2,
+   Sat. Tel, Sat. Fax, Privates Tel.) gesucht.
+ - Es gibt eine neue Schnellsuche "Alle Telefonnummern", die alle Telefonnumern
+   bei Kunden, Lieferanten und Ansprechpersonen durchsucht.
 
 2022-03-02 - Release 3.6.0
 
