@@ -289,6 +289,7 @@ sub search {
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
         qq|  pt.description as payment | .
         $pg_select .
+        $main_cp_select .
         qq|, a.invnumber, a.ordnumber, a.quonumber, a.id AS invid, | .
         qq|  '$module' AS module, 'invoice' AS formtype, | .
         qq|  (a.amount = a.paid) AS closed | .
@@ -308,6 +309,7 @@ sub search {
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
         qq|  pt.description as payment | .
         $pg_select .
+        $main_cp_select .
         qq|, ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
         qq|  'oe' AS module, 'order' AS formtype, o.closed | .
         qq|FROM $cv ct | .
@@ -326,6 +328,7 @@ sub search {
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
         qq|  pt.description as payment | .
         $pg_select .
+        $main_cp_select .
         qq|, ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
         qq|  'oe' AS module, 'quotation' AS formtype, o.closed | .
         qq|FROM $cv ct | .
