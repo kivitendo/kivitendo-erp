@@ -228,6 +228,10 @@
         <input name="l_ustid" id="l_ustid" type="checkbox" class="checkbox" value="Y">
         <label for="l_ustid">[% 'VAT ID' | $T8 %]</label>
        </td>
+       <td>
+        <input name="l_main_contact_person" id="l_main_contact_person" type="checkbox" class="checkbox" value="Y">
+        <label for="l_main_contact_person">[% 'Main Contact Person' | $T8 %]</label>
+       </td>
       [% IF !IS_CUSTOMER %]
       </tr>
       [% ELSE %]
@@ -238,10 +242,6 @@
        <td>
         <input name="l_commercial_court" id="l_commercial_court" type="checkbox" class="checkbox" value="Y">
         <label for="l_commercial_court">[% 'Commercial court' | $T8 %]</label>
-       </td>
-       <td>
-        <input name="l_main_contact_person" id="l_main_contact_person" type="checkbox" class="checkbox" value="Y">
-        <label for="l_main_contact_person">[% 'Main Contact Person' | $T8 %]</label>
        </td>
 
       </tr>
