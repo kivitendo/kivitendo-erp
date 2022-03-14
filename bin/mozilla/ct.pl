@@ -151,6 +151,7 @@ sub list_names {
   push @options, $locale->text('Contact') . " : $form->{contact}"                                 if $form->{contact};
   push @options, $locale->text('Number') . qq| : $form->{"$form->{db}number"}|                    if $form->{"$form->{db}number"};
   push @options, $locale->text('E-mail') . " : $form->{email}"                                    if $form->{email};
+  push @options, $locale->text('All phone numbers') . " : $form->{all_phonenumbers}"              if $form->{all_phonenumbers};
   push @options, $locale->text('Contact person (surname)')           . " : $form->{cp_name}"      if $form->{cp_name};
   push @options, $locale->text('Billing/shipping address (city)')    . " : $form->{addr_city}"    if $form->{addr_city};
   push @options, $locale->text('Billing/shipping address (zipcode)') . " : $form->{addr_zipcode}" if $form->{addr_zipcode};
@@ -237,6 +238,7 @@ sub list_names {
   my @hidden_variables  = ( qw(
       db status obsolete name contact email cp_name addr_street addr_zipcode
       addr_city addr_country addr_gln business_id salesman_id insertdateto insertdatefrom all
+      all_phonenumbers
     ), "$form->{db}number",
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
     map({'cvar_'. $_->{name} .'_from'} grep({$_->{type} eq 'date'} @searchable_custom_variables)),

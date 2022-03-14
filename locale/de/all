@@ -287,6 +287,7 @@ $self->{texts} = {
   'All pay postings successfully imported.' => 'Alle Lohnbuchungen erfolgreich importiert.',
   'All payments have already been posted.' => 'Es wurden bereits alle Zahlungen verbucht.',
   'All payments must be posted before the payment list can be downloaded.' => 'Alle Zahlungen müssen verbucht werden, bevor die Zahlungsliste heruntergeladen werden kann.',
+  'All phone numbers'           => 'Alle Telefonnummern',
   'All price sources'           => 'Alle Preisquellen',
   'All reports'                 => 'Alle Berichte (Kontenübersicht, Summen- u. Saldenliste, Erfolgsrechnung, GuV, BWA, Bilanz, Projektbuchungen)',
   'All the other clients will start with an empty set of WebDAV folders.' => 'Alle anderen Mandanten werden mit einem leeren Satz von Dokumenten-Ordnern ausgestattet.',

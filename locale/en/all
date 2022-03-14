@@ -287,6 +287,7 @@ $self->{texts} = {
   'All pay postings successfully imported.' => '',
   'All payments have already been posted.' => '',
   'All payments must be posted before the payment list can be downloaded.' => '',
+  'All phone numbers'           => '',
   'All price sources'           => '',
   'All reports'                 => '',
   'All the other clients will start with an empty set of WebDAV folders.' => '',

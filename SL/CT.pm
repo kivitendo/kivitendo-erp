@@ -42,6 +42,7 @@ use SL::Common;
 use SL::CVar;
 use SL::DBUtils;
 use SL::DB;
+use SL::Util qw(trim);
 use Text::ParseWords;
 
 use strict;
@@ -242,6 +243,24 @@ sub search {
   if (($form->{create_zugferd_invoices} // '') ne '') {
     $where .= qq| AND (ct.create_zugferd_invoices = ?)|;
     push @values, $form->{create_zugferd_invoices};
+  }
+
+  if ($form->{all_phonenumbers}) {
+    $where .= qq| AND (ct.phone ILIKE ? OR
+                       ct.fax   ILIKE ? OR
+                       ct.id    IN
+                         (SELECT cp_cv_id FROM contacts
+                          WHERE cp_phone1      ILIKE ? OR
+                                cp_phone2      ILIKE ? OR
+                                cp_fax         ILIKE ? OR
+                                cp_mobile1     ILIKE ? OR
+                                cp_mobile2     ILIKE ? OR
+                                cp_satphone    ILIKE ? OR
+                                cp_satfax      ILIKE ? OR
+                                cp_privatphone ILIKE ?
+                         )
+    )|;
+    push @values, (like(trim($form->{all_phonenumbers})))x10;
   }
 
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',
