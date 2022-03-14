@@ -28,6 +28,7 @@ my @available_modules = (
   'SL::Controller::TopQuickSearch::GLTransaction',
   'SL::Controller::TopQuickSearch::Customer',
   'SL::Controller::TopQuickSearch::Vendor',
+  'SL::Controller::TopQuickSearch::PhoneNumber',
 );
 my %modules_by_name;
 
