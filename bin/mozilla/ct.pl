@@ -147,19 +147,19 @@ sub list_names {
   my @zugferd_settings_list = _zugferd_settings();
   my $zugferd_filter        = $form->{create_zugferd_invoices} eq '' ? undef : $zugferd_settings_list[$form->{create_zugferd_invoices} + 1]->[1];
 
-  push @options, $locale->text('Name') . " : $form->{name}"                                       if $form->{name};
-  push @options, $locale->text('Contact') . " : $form->{contact}"                                 if $form->{contact};
-  push @options, $locale->text('Number') . qq| : $form->{"$form->{db}number"}|                    if $form->{"$form->{db}number"};
-  push @options, $locale->text('E-mail') . " : $form->{email}"                                    if $form->{email};
-  push @options, $locale->text('All phone numbers') . " : $form->{all_phonenumbers}"              if $form->{all_phonenumbers};
-  push @options, $locale->text('Contact person (surname)')           . " : $form->{cp_name}"      if $form->{cp_name};
-  push @options, $locale->text('Billing/shipping address (city)')    . " : $form->{addr_city}"    if $form->{addr_city};
-  push @options, $locale->text('Billing/shipping address (zipcode)') . " : $form->{addr_zipcode}" if $form->{addr_zipcode};
-  push @options, $locale->text('Billing/shipping address (street)')  . " : $form->{addr_street}"  if $form->{addr_street};
-  push @options, $locale->text('Billing/shipping address (country)') . " : $form->{addr_country}" if $form->{addr_country};
-  push @options, $locale->text('Billing/shipping address (GLN)')     . " : $form->{addr_gln}"     if $form->{addr_gln};
-  push @options, $locale->text('Quick Search')                       . " : $form->{all}"          if $form->{all};
-  push @options, $locale->text('Factur-X/ZUGFeRD settings')          . " : $zugferd_filter"       if $zugferd_filter;
+  push @options, $locale->text('Name')                               . " : $form->{name}"                  if $form->{name};
+  push @options, $locale->text('Contact')                            . " : $form->{contact}"               if $form->{contact};
+  push @options, $locale->text('Number')                           . qq| : $form->{"$form->{db}number"}|   if $form->{"$form->{db}number"};
+  push @options, $locale->text('E-mail')                             . " : $form->{email}"                 if $form->{email};
+  push @options, $locale->text('All phone numbers')                  . " : $form->{all_phonenumbers}"      if $form->{all_phonenumbers};
+  push @options, $locale->text('Contact person (surname)')           . " : $form->{cp_name}"               if $form->{cp_name};
+  push @options, $locale->text('Billing/shipping address (city)')    . " : $form->{addr_city}"             if $form->{addr_city};
+  push @options, $locale->text('Billing/shipping address (zipcode)') . " : $form->{addr_zipcode}"          if $form->{addr_zipcode};
+  push @options, $locale->text('Billing/shipping address (street)')  . " : $form->{addr_street}"           if $form->{addr_street};
+  push @options, $locale->text('Billing/shipping address (country)') . " : $form->{addr_country}"          if $form->{addr_country};
+  push @options, $locale->text('Billing/shipping address (GLN)')     . " : $form->{addr_gln}"              if $form->{addr_gln};
+  push @options, $locale->text('Quick Search')                       . " : $form->{all}"                   if $form->{all};
+  push @options, $locale->text('Factur-X/ZUGFeRD settings')          . " : $zugferd_filter"                if $zugferd_filter;
 
   if ($form->{business_id}) {
     my $business = SL::DB::Manager::Business->find_by(id => $form->{business_id});
