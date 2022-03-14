@@ -1028,7 +1028,7 @@ sub ar_transactions {
     qw(ids transdate id type invnumber ordnumber cusordnumber donumber deliverydate name netamount tax amount paid
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
        marge_total marge_percent globalprojectnumber customernumber country ustid taxzone
-       payment_terms charts customertype direct_debit dunning_description department);
+       payment_terms charts customertype direct_debit dunning_description department attachments);
 
   my $ct_cvar_configs                 = CVar->get_configs('module' => 'CT');
   my @ct_includeable_custom_variables = grep { $_->{includeable} } @{ $ct_cvar_configs };
@@ -1082,6 +1082,7 @@ sub ar_transactions {
     'direct_debit'            => { 'text' => $locale->text('direct debit'), },
     'department'              => { 'text' => $locale->text('Department'), },
     dunning_description       => { 'text' => $locale->text('Dunning level'), },
+    attachments               => { 'text' => $locale->text('Attachments'), },
     %column_defs_cvars,
   );
 
@@ -1206,6 +1207,10 @@ sub ar_transactions {
     $subtotals{marge_percent} = $subtotals{netamount} ? ($subtotals{marge_total} * 100 / $subtotals{netamount}) : 0;
     $totals{marge_percent}    = $totals{netamount}    ? ($totals{marge_total}    * 100 / $totals{netamount}   ) : 0;
 
+    # Preserve $ar->{type} before changing it to the abbreviation letter for
+    # getting files from file management below.
+    $ar->{object_type} = $ar->{type};
+
     my $is_storno  = $ar->{storno} &&  $ar->{storno_id};
     my $has_storno = $ar->{storno} && !$ar->{storno_id};
 
@@ -1248,6 +1253,20 @@ sub ar_transactions {
       valign   => 'center',
       align    => 'center',
     };
+
+    if ($::instance_conf->get_doc_storage && $form->{l_attachments}) {
+      my @files  = SL::File->get_all_versions(object_id   => $ar->{id},
+                                              object_type => $ar->{object_type} || 'invoice',
+                                              file_type   => 'attachment',);
+      if (scalar @files) {
+        my $html            = join '<br>', map { SL::Presenter::FileObject::file_object($_) } @files;
+        my $text            = join "\n",   map { $_->file_name                              } @files;
+        $row->{attachments} = { 'raw_data' => $html, data => $text };
+      } else {
+        $row->{attachments} = { };
+      }
+
+    }
 
     my $row_set = [ $row ];
 

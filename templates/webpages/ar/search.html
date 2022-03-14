@@ -208,6 +208,12 @@
            <td align=right><input name="l_direct_debit" id="l_direct_debit" class=checkbox type=checkbox value=Y></td>
            <td nowrap>[% 'direct debit' | $T8 %]</td>
           </tr>
+[% IF INSTANCE_CONF.get_doc_storage -%]
+          <tr>
+           <td align=right><input name="l_attachments" id="l_attachments" class=checkbox type=checkbox value=Y></td>
+           <td nowrap>[% 'Attachments' | $T8 %]</td>
+          </tr>
+[% END-%]
           <tr>
            <td colspan=4 align=left><b>[% 'Customer' | $T8 %]</b></td>
           </tr>
