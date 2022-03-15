@@ -463,12 +463,12 @@ sub _reverse_charge {
           imported       => 0, # not imported
           taxincluded    => 0,
         )->add_chart_booking(
-          chart  => $tmptaxamount < 0 ? $credit : $debit,
-          credit => abs($tmptaxamount),
+          chart  => $tmptaxamount > 0 ? $debit : $credit,
+          debit  => abs($tmptaxamount),
           source => "Reverse Charge for " . $form->{invnumber},
         )->add_chart_booking(
-          chart  => $tmptaxamount < 0 ? $debit : $credit,
-          debit  => abs($tmptaxamount),
+          chart  => $tmptaxamount > 0 ? $credit : $debit,
+          credit => abs($tmptaxamount),
           source => "Reverse Charge for " . $form->{invnumber},
       )->post;
     # add a stable link from ap to gl
