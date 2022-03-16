@@ -40,6 +40,7 @@ use List::Util qw(first sum);
 
 use SL::DB::ApGl;
 use SL::DB::RecordTemplate;
+use SL::DB::ReconciliationLink;
 use SL::DB::BankTransactionAccTrans;
 use SL::DB::Tax;
 use SL::FU;
@@ -974,7 +975,7 @@ sub setup_gl_action_bar {
   my $form   = $::form;
   my $change_never            = $::instance_conf->get_gl_changeable == 0;
   my $change_on_same_day_only = $::instance_conf->get_gl_changeable == 2 && ($form->current_date(\%::myconfig) ne $form->{gldate});
-  my ($is_linked_bank_transaction, $is_linked_ap_transaction);
+  my ($is_linked_bank_transaction, $is_linked_ap_transaction, $is_reconciled_bank_transaction);
 
   if ($form->{id} && SL::DB::Manager::BankTransactionAccTrans->find_by(gl_id => $form->{id})) {
     $is_linked_bank_transaction = 1;
@@ -982,8 +983,13 @@ sub setup_gl_action_bar {
   if ($form->{id} && SL::DB::Manager::ApGl->find_by(gl_id => $form->{id})) {
     $is_linked_ap_transaction = 1;
   }
-
-
+  # dont edit reconcilated bookings!
+  if ($form->{id}) {
+    my @acc_trans = map { $_->acc_trans_id } @{ SL::DB::Manager::AccTransaction->get_all( where => [ trans_id => $form->{id} ] ) };
+    if (scalar @acc_trans && scalar @{ SL::DB::Manager::ReconciliationLink->get_all(where => [ acc_trans_id  => [ @acc_trans ] ]) }) {
+      $is_reconciled_bank_transaction = 1;
+    }
+  }
   my $create_post_action = sub {
     # $_[0]: description
     # $_[1]: after_action
@@ -996,6 +1002,7 @@ sub setup_gl_action_bar {
                 : ($form->{id} && $change_on_same_day_only) ? t8('General ledger transactions can only be changed on the day they are posted.')
                 : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                 : $is_linked_ap_transaction                 ? t8('This transaction is linked with a AP transaction. Please undo and redo the AP transaction booking if needed.')
+                : $is_reconciled_bank_transaction           ? t8('This transaction is reconciled with a bank transaction. Please undo the reconciliation if needed.')
                 : undef,
     ],
   };
@@ -1028,6 +1035,7 @@ sub setup_gl_action_bar {
                     : $form->{storno}             ? t8('A canceled general ledger transaction cannot be canceled again.')
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     : $is_linked_ap_transaction   ? t8('This transaction is linked with a AP transaction. Please undo and redo the AP transaction booking if needed.')
+                    : $is_reconciled_bank_transaction ? t8('This transaction is reconciled with a bank transaction. Please undo the reconciliation if needed.')
                     : undef,
         ],
         action => [ t8('Delete'),
@@ -1039,6 +1047,7 @@ sub setup_gl_action_bar {
                     : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     : $is_linked_ap_transaction   ? t8('This transaction is linked with a AP transaction. Please undo and redo the AP transaction booking if needed.')
+                    : $is_reconciled_bank_transaction ? t8('This transaction is reconciled with a bank transaction. Please undo the reconciliation if needed.')
                     : $form->{storno}             ? t8('A canceled general ledger transaction cannot be deleted.')
                     : undef,
         ],
