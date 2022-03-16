@@ -496,9 +496,11 @@ sub form_header {
     $form->{"taxcharts_$i"}          = \@taxcharts;
 
     # reverse charge hack for template, display two taxes
-    if ($taxchart_to_use->taxkey == 94) {
+    if ($taxchart_to_use->reverse_charge_chart_id) {
       my $tmpnetamount;
-      ($tmpnetamount, $form->{"tax_reverse_$i"}) = $form->calculate_tax($form->parse_amount(\%myconfig, $form->{"amount_$i"}), 0.19, $form->{taxincluded},2);
+      ($tmpnetamount, $form->{"tax_reverse_$i"}) = $form->calculate_tax($form->parse_amount(\%myconfig, $form->{"amount_$i"}),
+                                                                        $taxchart_to_use->rate, $form->{taxincluded}, 2        );
+
       $form->{"tax_charge_$i"}  = $form->{"tax_reverse_$i"} * -1;
       $form->{"tax_reverse_$i"} = $form->format_amount(\%myconfig, $form->{"tax_reverse_$i"}, 2);
       $form->{"tax_charge_$i"}  = $form->format_amount(\%myconfig, $form->{"tax_charge_$i"}, 2);
@@ -807,14 +809,15 @@ sub post {
   $form->error($locale->text('Cannot post transaction for a closed period!')) if ($form->date_closed($form->{"transdate"}, \%myconfig));
 
   my $zero_amount_posting = 1;
-  # no taxincluded for 94
-  my $tax = SL::DB::Manager::Tax->get_first( where => [taxkey => 94 ]);
-  my $tax_id = ref $tax eq 'SL::DB::Tax' ? $tax->id : undef;
   for my $i (1 .. $form->{rowcount}) {
-    # no taxincluded for 94
-    if ($tax_id && $form->{"taxchart_$i"} =~ m/^$tax_id--/ && $form->{taxincluded}) {
+
+    # no taxincluded for reverse charge
+    my ($used_tax_id) = split(/--/, $form->{"taxchart_$i"});
+    my $tax = SL::DB::Manager::Tax->find_by(id => $used_tax_id);
+    if ($tax->reverse_charge_chart_id && $form->{taxincluded}) {
       $form->error($locale->text('Cannot Post AP transaction with tax included!'));
     }
+
     if ($form->parse_amount(\%myconfig, $form->{"amount_$i"})) {
       $zero_amount_posting = 0;
     }

@@ -428,10 +428,6 @@ sub _post_transaction {
 sub _reverse_charge {
   my ($self, $myconfig, $form) = @_;
 
-  # check taxkey settings or return
-  my $tax = SL::DB::Manager::Tax->get_first( where => [taxkey => 94 ]);
-  return unless ref $tax eq 'SL::DB::Tax';
-
   # delete previous bookings, if they exists (repost)
   my $ap_gl = SL::DB::Manager::ApGl->get_first(where => [ ap_id => $form->{id} ]);
   my $gl_id = ref $ap_gl eq 'SL::DB::ApGl' ? $ap_gl->gl_id : undef;
@@ -440,20 +436,22 @@ sub _reverse_charge {
   SL::DB::Manager::ApGl->         delete_all(where => [ ap_id => $form->{id} ])  if $gl_id;
   SL::DB::Manager::RecordLink->   delete_all(where => [ from_table => 'ap', to_table => 'gl', from_id => $form->{id} ]);
 
-  # gl booking
-  my ($credit, $debit);
-  $credit   = SL::DB::Manager::Chart->find_by(id => $tax->chart_id);
-  $debit    = SL::DB::Manager::Chart->find_by(id => $tax->reverse_charge_chart_id);
-
-  croak("No such Chart ID" . $tax->chart_id)          unless ref $credit eq 'SL::DB::Chart';
-  croak("No such Chart ID" . $tax->reverse_chart_id)  unless ref $debit  eq 'SL::DB::Chart';
-
   my ($i, $current_transaction);
 
   for $i (1 .. $form->{rowcount}) {
-    next unless $form->{"taxkey_$i"} == 94;
 
-    my ($tmpnetamount, $tmptaxamount) = $form->calculate_tax($form->{"amount_$i"}, 0.19, $form->{taxincluded}, 2);
+    my $tax = SL::DB::Manager::Tax->get_first( where => [id => $form->{"tax_id_$i"}, '!reverse_charge_chart_id' => undef ]);
+    next unless ref $tax eq 'SL::DB::Tax';
+
+    # gl booking
+    my ($credit, $debit);
+    $credit   = SL::DB::Manager::Chart->find_by(id => $tax->chart_id);
+    $debit    = SL::DB::Manager::Chart->find_by(id => $tax->reverse_charge_chart_id);
+
+    croak("No such Chart ID" . $tax->chart_id)          unless ref $credit eq 'SL::DB::Chart';
+    croak("No such Chart ID" . $tax->reverse_chart_id)  unless ref $debit  eq 'SL::DB::Chart';
+
+    my ($tmpnetamount, $tmptaxamount) = $form->calculate_tax($form->{"amount_$i"}, $tax->rate, $form->{taxincluded}, 2);
     $current_transaction = SL::DB::GLTransaction->new(
           employee_id    => $form->{employee_id},
           transdate      => $form->{transdate},
@@ -466,10 +464,12 @@ sub _reverse_charge {
           chart  => $tmptaxamount > 0 ? $debit : $credit,
           debit  => abs($tmptaxamount),
           source => "Reverse Charge for " . $form->{invnumber},
+          tax_id => 0,
         )->add_chart_booking(
           chart  => $tmptaxamount > 0 ? $credit : $debit,
           credit => abs($tmptaxamount),
           source => "Reverse Charge for " . $form->{invnumber},
+          tax_id => 0,
       )->post;
     # add a stable link from ap to gl
     my %props_gl = (
