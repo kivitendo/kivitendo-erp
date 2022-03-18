@@ -1680,7 +1680,7 @@ sub new_item {
 sub setup_order_from_cv {
   my ($order) = @_;
 
-  $order->$_($order->customervendor->$_) for (qw(taxzone_id payment_id delivery_term_id currency_id));
+  $order->$_($order->customervendor->$_) for (qw(taxzone_id payment_id delivery_term_id currency_id language_id));
 
   $order->intnotes($order->customervendor->notes);
 
