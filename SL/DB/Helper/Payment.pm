@@ -581,33 +581,34 @@ sub _skonto_charts_and_tax_correction {
   croak "no amount passed to skonto_charts"                    unless abs(_round($amount)) >= 0.01;
   croak "no banktransaction.id passed to skonto_charts"        unless $params{bt_id};
   croak "no banktransaction.transdate passed to skonto_charts" unless ref $params{transdate_obj} eq 'DateTime';
-  #$main::lxdebug->message(0, 'id der transaktion' . $params{bt_id});
-  #$main::lxdebug->message(0, 'wert des skontos:' . $amount);
+
   my $is_sales = $self->is_sales;
   my (@skonto_charts, $inv_calc, $total_skonto_rounded);
+
   $inv_calc = $self->get_tax_and_amount_by_tax_chart_id();
-  #$main::lxdebug->message(0, 'lulu' . Dumper($inv_calc));
-  while (my ($tax_chart_id, $entry) = each %{ $inv_calc } ) {  # foreach tax key = tax.id
-    #$main::lxdebug->message(0, 'was hier:' . $tax_chart_id);
+
+  # foreach tax.chart_id || $entry->{ta..id}
+  while (my ($tax_chart_id, $entry) = each %{ $inv_calc } ) {
     my $tax = SL::DB::Manager::Tax->find_by(id => $entry->{tax_id}) || die "Can't find tax with id " . $tax_chart_id;
     die t8('no skonto_chart configured for taxkey #1 : #2 : #3', $tax->taxkey, $tax->taxdescription , $tax->rate * 100)
       unless $is_sales ? ref $tax->skonto_sales_chart : ref $tax->skonto_purchase_chart;
-    #$main::lxdebug->message(0, 'was dort:' . $tax->id);
+
+    # percent net amount
     my $transaction_net_skonto_percent = abs($entry->{netamount} / $self->amount);
     my $skonto_netamount_unrounded     = abs($amount * $transaction_net_skonto_percent);
-    #$main::lxdebug->message(0, 'ungerundet netto:' . $skonto_netamount_unrounded);
-    # divide for tax
+
+    # percent tax amount
     my $transaction_tax_skonto_percent = abs($entry->{tax} / $self->amount);
     my $skonto_taxamount_unrounded     = abs($amount * $transaction_tax_skonto_percent);
-    #$main::lxdebug->message(0, 'ungerundet steuer:' . $skonto_taxamount_unrounded);
+
     my $skonto_taxamount_rounded   = _round($skonto_taxamount_unrounded);
     my $skonto_netamount_rounded   = _round($skonto_netamount_unrounded);
     my $chart_id                   = $is_sales ? $tax->skonto_sales_chart->id : $tax->skonto_purchase_chart->id;
 
+    # entry net + tax for caller
     my $rec_net = {
       chart_id               => $chart_id,
       skonto_amount          => _round($skonto_netamount_unrounded + $skonto_taxamount_unrounded),
-      # skonto_amount          => _round($skonto_netamount_unrounded) + _round($skonto_taxamount_unrounded),
     };
     push @skonto_charts, $rec_net;
     $total_skonto_rounded += $rec_net->{skonto_amount};
@@ -645,24 +646,7 @@ sub _skonto_charts_and_tax_correction {
          tax_id => 0,
       )->post;
 
-    ## add a stable link from ap to gl
-    # not needed, BankTransactionAccTrans is already stable
-    # furthermore the origin of the booking is the bank_transaction
-    #my $arap = $self->is_sales ? 'ar' : 'ap';
-    #my %props_gl = (
-    #  $arap . _id => $self->id,
-    #  gl_id => $current_transaction->id,
-    #  datev_export => 1,
-    #);
-    #if ($arap eq 'ap') {
-    #  require SL::DB::ApGl;
-    #  SL::DB::ApGl->new(%props_gl)->save;
-    #} elsif ($arap eq 'ar') {
-    #  require SL::DB::ArGl;
-    #  SL::DB::ArGl->new(%props_gl)->save;
-    #} else { die "Invalid state"; }
-    #push @new_acc_ids, map { $_->acc_trans_id } @{ $current_transaction->transactions };
-
+    # add a stable link acc_trans_id to bank_transactions.id
     foreach my $transaction (@{ $current_transaction->transactions }) {
       my %props_acc = (
            acc_trans_id        => $transaction->acc_trans_id,
@@ -672,7 +656,6 @@ sub _skonto_charts_and_tax_correction {
       SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
     }
     # Record a record link from banktransactions to gl
-    # caller has to assign param bt_id
     my %props_rl = (
          from_table => 'bank_transactions',
          from_id    => $params{bt_id},
@@ -693,19 +676,17 @@ sub _skonto_charts_and_tax_correction {
 
   }
   # check for rounding errors, at least for the payment chart
-  # we ignore tax rounding errors as long as the user or calculated
-  # amount of skonto is fully assigned
+  # we ignore tax rounding errors as long as the amount (user input or calculated)
+  # is fully assigned.
   # we simply alter one cent for the first skonto booking entry
   # should be correct for most of the cases (no invoices with mixed taxes)
   if ($total_skonto_rounded - $amount > 0.01) {
     # add one cent
-    $main::lxdebug->message(0, 'Una mas!' . $total_skonto_rounded);
     $skonto_charts[0]->{skonto_amount} -= 0.01;
   } elsif ($amount - $total_skonto_rounded > 0.01) {
     # subtract one cent
-    $main::lxdebug->message(0, 'Una menos!' . $total_skonto_rounded);
     $skonto_charts[0]->{skonto_amount} += 0.01;
-  } else { $main::lxdebug->message(0, 'No rounding error');  }
+  }
 
   # return same array of skonto charts as sub skonto_charts
   return @skonto_charts;
