@@ -113,7 +113,7 @@ sub add_chart_booking {
   require SL::DB::Chart;
   die "add_chart_booking needs a transdate" unless $self->transdate;
   die "add_chart_booking needs taxincluded" unless defined $self->taxincluded;
-  die "chart missing"  unless $params{chart} && ref($params{chart}) eq 'SL::DB::Chart';
+  die "chart missing" unless $params{chart} && ref($params{chart}) eq 'SL::DB::Chart';
   die t8('Booking needs at least one debit and one credit booking!')
     unless $params{debit} or $params{credit}; # must exist and not be 0
   die t8('Cannot have a value in both Debit and Credit!')
@@ -212,7 +212,7 @@ sub validate {
       my $sum = sum map { $_->amount } @{ $self->transactions };
       # compare rounded amount to 0, to get around floating point problems, e.g.
       # $sum = -2.77555756156289e-17
-      push @errors, t8('Out of balance transaction!') unless $::form->round_amount($sum,5) == 0;
+      push @errors, t8('Out of balance transaction!') . $sum unless $::form->round_amount($sum,5) == 0;
     };
   } else {
     push @errors, t8('Empty transaction!');

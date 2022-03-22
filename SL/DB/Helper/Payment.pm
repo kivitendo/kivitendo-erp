@@ -10,14 +10,16 @@ our %EXPORT_TAGS = (
 );
 
 require SL::DB::Chart;
+
+use Carp;
 use Data::Dumper;
 use DateTime;
-use SL::DATEV qw(:CONSTANTS);
-use SL::Locale::String qw(t8);
 use List::Util qw(sum);
+
+use SL::DATEV qw(:CONSTANTS);
 use SL::DB::Exchangerate;
 use SL::DB::Currency;
-use Carp;
+use SL::Locale::String qw(t8);
 
 #
 # Public functions not exported by default
@@ -259,7 +261,7 @@ sub pay_invoice {
         $reference_amount -= abs($amount);
         $paid_amount      += -1 * $amount * $exchangerate;
         $skonto_amount_check -= $skonto_booking->{'skonto_amount'};
-      };
+      }
       if ( $params{payment_type} eq 'difference_as_skonto' ) {
           die "difference_as_skonto calculated incorrectly, sum of calculated payments doesn't add up to open amount $total_open_amount, reference_amount = $reference_amount\n" unless _round($reference_amount) == 0;
       }
@@ -895,6 +897,8 @@ sub get_payment_suggestions {
       push(@{$self->{payment_select_options}} , { payment_type => 'with_skonto_pt',  display => t8('with skonto acc. to pt') , selected => 1 });
     } else {
       if ( ( $self->valid_skonto_amount($self->open_amount) || $self->valid_skonto_amount($open_amount) ) and not $params{sepa} ) {
+        # Will never be reached
+        die "This case is as dead as the dead cat. Go to start, don't pick 2,000 \$";
         $self->{invoice_amount_suggestion} = $open_amount;
         # only suggest difference_as_skonto if open_amount exactly matches skonto_amount
         # AND we aren't in SEPA mode
