@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date skonto_charts amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction exchangerate forex _skonto_charts_and_tax_correction);
+our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction exchangerate forex _skonto_charts_and_tax_correction);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -710,108 +710,6 @@ sub _skonto_charts_and_tax_correction {
   # return same array of skonto charts as sub skonto_charts
   return @skonto_charts;
 }
-
-sub skonto_charts {
-  my $self = shift;
-
-  # TODO: use param for amount, may also want to calculate skonto_amounts by
-  # passing percentage in the future
-
-  my $amount = shift || $self->skonto_amount;
-
-  croak "no amount passed to skonto_charts" unless abs(_round($amount)) >= 0.01;
-
-  # TODO: check whether there are negative values in invoice / acc_trans ... credited items
-
-  # don't check whether skonto applies, because user may want to override this
-  # return undef unless $self->percent_skonto;
-
-  my $is_sales = ref($self) eq 'SL::DB::Invoice';
-
-  my $mult = $is_sales ? 1 : -1;  # multiplier for getting the right sign
-
-  my @skonto_charts;  # resulting array with all income/expense accounts that have to be corrected
-
-  # calculate effective skonto (percentage) in difference_as_skonto mode
-  # only works if there are no negative acc_trans values
-  my $effective_skonto_rate = $amount ? $amount / $self->amount : 0;
-
-  # checks:
-  my $total_skonto_amount  = 0;
-  my $total_rounding_error = 0;
-
-  my $reference_ARAP_amount = 0;
-
-  # my $transactions = $self->transactions;
-  foreach my $transaction (@{ $self->transactions }) {
-    # find all transactions with an AR_amount or AP_amount link
-    $transaction->{chartlinks} = { map { $_ => 1 } split(m/:/, $transaction->{chart_link}) };
-    # second condition is that we can determine an automatic Skonto account for each AR_amount entry
-
-    if ( ( $is_sales && $transaction->{chartlinks}->{AR_amount} ) or ( !$is_sales && $transaction->{chartlinks}->{AP_amount}) ) {
-        # $reference_ARAP_amount += $transaction->{amount} * $mult;
-
-        # quick hack that works around problem of non-unique tax keys in SKR04
-        # ? use tax_id in acc_trans
-        my $tax = SL::DB::Manager::Tax->get_first( where => [id => $transaction->{tax_id}]);
-        croak "no tax for taxkey " . $transaction->{taxkey} unless ref $tax;
-
-        if ( $is_sales ) {
-          die t8('no skonto_chart configured for taxkey #1 : #2 : #3', $transaction->{taxkey} , $tax->taxdescription , $tax->rate*100) unless ref $tax->skonto_sales_chart;
-        } else {
-          die t8('no skonto_chart configured for taxkey #1 : #2 : #3', $transaction->{taxkey} , $tax->taxdescription , $tax->rate*100) unless ref $tax->skonto_purchase_chart;
-        };
-
-        my $skonto_amount_unrounded;
-
-        my $skonto_percent_abs = $self->amount ? abs($transaction->amount * (1 + $tax->rate) * 100 / $self->amount) : 0;
-
-        my $transaction_amount = abs($transaction->{amount} * (1 + $tax->rate));
-        my $transaction_skonto_percent = abs($transaction_amount/$self->amount); # abs($transaction->{amount} * (1 + $tax->rate));
-
-
-        $skonto_amount_unrounded   = abs($amount * $transaction_skonto_percent);
-        my $skonto_amount_rounded  = _round($skonto_amount_unrounded);
-        my $rounding_error         = $skonto_amount_unrounded - $skonto_amount_rounded;
-        my $rounded_rounding_error = _round($rounding_error);
-
-        $total_rounding_error += $rounding_error;
-        $total_skonto_amount  += $skonto_amount_rounded;
-
-        my $rec = {
-          # skonto_percent_abs: relative part of amount + tax to the total invoice amount
-          'skonto_percent_abs'     => $skonto_percent_abs,
-          'chart_id'               => $is_sales ? $tax->skonto_sales_chart->id : $tax->skonto_purchase_chart->id,
-          'skonto_amount'          => $skonto_amount_rounded,
-          # 'rounding_error'         => $rounding_error,
-          # 'rounded_rounding_error' => $rounded_rounding_error,
-        };
-
-        push @skonto_charts, $rec;
-      }
-  }
-
-  # if the rounded sum of all rounding_errors reaches 0.01 this sum is
-  # subtracted from the largest skonto_amount
-  my $rounded_total_rounding_error = abs(_round($total_rounding_error));
-
-  if ( $rounded_total_rounding_error > 0 ) {
-    my $highest_amount_pos = 0;
-    my $highest_amount = 0;
-    my $i = -1;
-    foreach my $ref ( @skonto_charts ) {
-      $i++;
-      if ( $ref->{skonto_amount} > $highest_amount ) {
-        $highest_amount     = $ref->{skonto_amount};
-        $highest_amount_pos = $i;
-      };
-    };
-    $skonto_charts[$i]->{skonto_amount} -= $rounded_total_rounding_error;
-  };
-
-  return @skonto_charts;
-};
-
 
 sub within_skonto_period {
   my $self = shift;
