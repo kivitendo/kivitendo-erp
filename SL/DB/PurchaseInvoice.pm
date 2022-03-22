@@ -11,6 +11,7 @@ use SL::DB::Helper::AttrHTML;
 use SL::DB::Helper::AttrSorted;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::Payment qw(:ALL);
+use SL::DB::Helper::SalesPurchaseInvoice;
 use SL::Locale::String qw(t8);
 use Rose::DB::Object::Helpers qw(has_loaded_related forget_related);
 

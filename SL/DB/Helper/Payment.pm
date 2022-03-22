@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date skonto_charts amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction exchangerate forex);
+our @EXPORT_OK = qw(skonto_date skonto_charts amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction exchangerate forex _skonto_charts_and_tax_correction);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -39,6 +39,7 @@ sub pay_invoice {
 
   # check for required parameters and optional params depending on payment_type
   Common::check_params(\%params, qw(chart_id transdate));
+  Common::check_params(\%params, qw(bt_id)) unless $params{payment_type} eq 'without_skonto';
   if ( $params{'payment_type'} eq 'without_skonto' && abs($params{'amount'}) < 0) {
     croak "invalid amount for payment_type 'without_skonto': $params{'amount'}\n";
   }
@@ -220,12 +221,14 @@ sub pay_invoice {
       if ( $params{payment_type} eq 'with_skonto_pt' ) {
         $total_skonto_amount = $self->skonto_amount;
       } elsif ( $params{payment_type} eq 'difference_as_skonto' ) {
+        # only used for tests. no real code calls this payment_type!
         $total_skonto_amount = $self->open_amount;
       } elsif ( $params{payment_type} eq 'free_skonto') {
         $total_skonto_amount = $params{skonto_amount};
       }
-      my @skonto_bookings = $self->skonto_charts($total_skonto_amount);
-
+      my @skonto_bookings = $self->_skonto_charts_and_tax_correction(amount => $total_skonto_amount, bt_id => $params{bt_id},
+                                                                     transdate_obj => $transdate_obj, memo => $params{memo},
+                                                                     source => $params{source});
       # error checking:
       if ( $params{payment_type} eq 'difference_as_skonto' ) {
         my $calculated_skonto_sum  = sum map { $_->{skonto_amount} } @skonto_bookings;
@@ -235,6 +238,7 @@ sub pay_invoice {
       my $reference_amount = $total_skonto_amount;
 
       # create an acc_trans entry for each result of $self->skonto_charts
+      # TODO create internal sub _skonto_bookings
       foreach my $skonto_booking ( @skonto_bookings ) {
         next unless $skonto_booking->{'chart_id'};
         next unless $skonto_booking->{'skonto_amount'} != 0;
@@ -566,8 +570,144 @@ sub open_sepa_transfer_amount {
 
   return $open_sepa_amount || 0;
 
-};
+}
 
+sub _skonto_charts_and_tax_correction {
+  my ($self, %params)   = @_;
+  my $amount = $params{amount} || $self->skonto_amount;
+
+  croak "no amount passed to skonto_charts"                    unless abs(_round($amount)) >= 0.01;
+  croak "no banktransaction.id passed to skonto_charts"        unless $params{bt_id};
+  croak "no banktransaction.transdate passed to skonto_charts" unless ref $params{transdate_obj} eq 'DateTime';
+  #$main::lxdebug->message(0, 'id der transaktion' . $params{bt_id});
+  #$main::lxdebug->message(0, 'wert des skontos:' . $amount);
+  my $is_sales = $self->is_sales;
+  my (@skonto_charts, $inv_calc, $total_skonto_rounded);
+  $inv_calc = $self->get_tax_and_amount_by_tax_chart_id();
+  #$main::lxdebug->message(0, 'lulu' . Dumper($inv_calc));
+  while (my ($tax_chart_id, $entry) = each %{ $inv_calc } ) {  # foreach tax key = tax.id
+    #$main::lxdebug->message(0, 'was hier:' . $tax_chart_id);
+    my $tax = SL::DB::Manager::Tax->find_by(id => $entry->{tax_id}) || die "Can't find tax with id " . $tax_chart_id;
+    die t8('no skonto_chart configured for taxkey #1 : #2 : #3', $tax->taxkey, $tax->taxdescription , $tax->rate * 100)
+      unless $is_sales ? ref $tax->skonto_sales_chart : ref $tax->skonto_purchase_chart;
+    #$main::lxdebug->message(0, 'was dort:' . $tax->id);
+    my $transaction_net_skonto_percent = abs($entry->{netamount} / $self->amount);
+    my $skonto_netamount_unrounded     = abs($amount * $transaction_net_skonto_percent);
+    #$main::lxdebug->message(0, 'ungerundet netto:' . $skonto_netamount_unrounded);
+    # divide for tax
+    my $transaction_tax_skonto_percent = abs($entry->{tax} / $self->amount);
+    my $skonto_taxamount_unrounded     = abs($amount * $transaction_tax_skonto_percent);
+    #$main::lxdebug->message(0, 'ungerundet steuer:' . $skonto_taxamount_unrounded);
+    my $skonto_taxamount_rounded   = _round($skonto_taxamount_unrounded);
+    my $skonto_netamount_rounded   = _round($skonto_netamount_unrounded);
+    my $chart_id                   = $is_sales ? $tax->skonto_sales_chart->id : $tax->skonto_purchase_chart->id;
+
+    my $rec_net = {
+      chart_id               => $chart_id,
+      skonto_amount          => _round($skonto_netamount_unrounded + $skonto_taxamount_unrounded),
+      # skonto_amount          => _round($skonto_netamount_unrounded) + _round($skonto_taxamount_unrounded),
+    };
+    push @skonto_charts, $rec_net;
+    $total_skonto_rounded += $rec_net->{skonto_amount};
+
+    # add-on: correct tax with one linked gl booking
+
+    # no skonto tax correction for dual tax (reverse charge) or rate = 0
+    next if ($tax->rate == 0 || $tax->reverse_charge_chart_id);
+
+    my ($credit, $debit);
+    $credit = SL::DB::Manager::Chart->find_by(id => $chart_id);
+    $debit  = SL::DB::Manager::Chart->find_by(id => $tax_chart_id);
+    croak("No such Chart ID")  unless ref $credit eq 'SL::DB::Chart' && ref $debit eq 'SL::DB::Chart';
+
+    my $current_transaction = SL::DB::GLTransaction->new(
+         employee_id    => $self->employee_id,
+         transdate      => $params{transdate_obj},
+         notes          => $params{source} . ' ' . $params{memo},
+         description    => $self->notes || $self->invnumber,
+         reference      => t8('Skonto Tax Correction for') . " " . $tax->rate * 100 . '% ' . $self->invnumber,
+         department_id  => $self->department_id ? $self->department_id : undef,
+         imported       => 0, # not imported
+         taxincluded    => 0,
+      )->add_chart_booking(
+         chart  => $is_sales ? $debit : $credit,
+         debit  => abs($skonto_taxamount_rounded),
+         source => t8('Skonto Tax Correction for') . " " . $self->invnumber,
+         memo   => $params{memo},
+         tax_id => 0,
+      )->add_chart_booking(
+         chart  => $is_sales ? $credit : $debit,
+         credit => abs($skonto_taxamount_rounded),
+         source => t8('Skonto Tax Correction for') . " " . $self->invnumber,
+         memo   => $params{memo},
+         tax_id => 0,
+      )->post;
+
+    ## add a stable link from ap to gl
+    # not needed, BankTransactionAccTrans is already stable
+    # furthermore the origin of the booking is the bank_transaction
+    #my $arap = $self->is_sales ? 'ar' : 'ap';
+    #my %props_gl = (
+    #  $arap . _id => $self->id,
+    #  gl_id => $current_transaction->id,
+    #  datev_export => 1,
+    #);
+    #if ($arap eq 'ap') {
+    #  require SL::DB::ApGl;
+    #  SL::DB::ApGl->new(%props_gl)->save;
+    #} elsif ($arap eq 'ar') {
+    #  require SL::DB::ArGl;
+    #  SL::DB::ArGl->new(%props_gl)->save;
+    #} else { die "Invalid state"; }
+    #push @new_acc_ids, map { $_->acc_trans_id } @{ $current_transaction->transactions };
+
+    foreach my $transaction (@{ $current_transaction->transactions }) {
+      my %props_acc = (
+           acc_trans_id        => $transaction->acc_trans_id,
+           bank_transaction_id => $params{bt_id},
+           gl                  => $current_transaction->id,
+      );
+      SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
+    }
+    # Record a record link from banktransactions to gl
+    # caller has to assign param bt_id
+    my %props_rl = (
+         from_table => 'bank_transactions',
+         from_id    => $params{bt_id},
+         to_table   => 'gl',
+         to_id      => $current_transaction->id,
+    );
+    SL::DB::RecordLink->new(%props_rl)->save;
+    # Record a record link from arap to gl
+    # linked gl booking will appear in tab linked records
+    # this is just a link for convenience
+    %props_rl = (
+         from_table => $is_sales ? 'ar' : 'ap',
+         from_id    => $self->id,
+         to_table   => 'gl',
+         to_id      => $current_transaction->id,
+    );
+    SL::DB::RecordLink->new(%props_rl)->save;
+
+  }
+  # check for rounding errors, at least for the payment chart
+  # we ignore tax rounding errors as long as the user or calculated
+  # amount of skonto is fully assigned
+  # we simply alter one cent for the first skonto booking entry
+  # should be correct for most of the cases (no invoices with mixed taxes)
+  if ($total_skonto_rounded - $amount > 0.01) {
+    # add one cent
+    $main::lxdebug->message(0, 'Una mas!' . $total_skonto_rounded);
+    $skonto_charts[0]->{skonto_amount} -= 0.01;
+  } elsif ($amount - $total_skonto_rounded > 0.01) {
+    # subtract one cent
+    $main::lxdebug->message(0, 'Una menos!' . $total_skonto_rounded);
+    $skonto_charts[0]->{skonto_amount} += 0.01;
+  } else { $main::lxdebug->message(0, 'No rounding error');  }
+
+  # return same array of skonto charts as sub skonto_charts
+  return @skonto_charts;
+}
 
 sub skonto_charts {
   my $self = shift;

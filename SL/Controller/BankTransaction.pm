@@ -680,6 +680,7 @@ sub save_single_bank_transaction {
                           source        => $source,
                           memo          => $memo,
                           skonto_amount => $free_skonto_amount,
+                          bt_id         => $bt_id,
                           transdate     => $bank_transaction->valutadate->to_kivitendo);
     # ... and record the origin via BankTransactionAccTrans
     if (scalar(@acc_ids) < 2) {
