@@ -195,8 +195,10 @@ sub follow_ups {
   my @values_user   = ();
 
   if ($params{trans_id}) {
-    $where .= qq| AND EXISTS (SELECT * FROM follow_up_links ful
-                              WHERE (ful.follow_up_id = fu.id) AND (ful.trans_id = ?))|;
+    $where .= qq| AND fu.id IN (select follow_up_id from follow_up_links where trans_id = ?)|;
+   # $where .= qq| AND (ful.follow_up_id = fu.id) AND (ful.trans_id = ?))|;
+   # $where .= qq| AND EXISTS (SELECT * FROM follow_up_links ful
+   #                           WHERE (ful.follow_up_id = fu.id) AND (ful.trans_id = ?))|;
     push @values, conv_i($params{trans_id});
   }
 
@@ -251,7 +253,7 @@ sub follow_ups {
     push @values, conv_i($params{created_for});
   }
 
-  if ($params{all_users}) {
+  if ($params{all_users} || $params{trans_id}) {  # trans_id only for documents?
     $where_user = qq|OR (fu.created_by IN (SELECT DISTINCT what FROM follow_up_access WHERE who = ?))|;
     push @values_user, $employee_id;
   }
