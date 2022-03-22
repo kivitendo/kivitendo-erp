@@ -180,7 +180,8 @@ sub invoice_details {
   my @invoices_for_advance_payment_arrays = qw(iap_invnumber iap_transdate
                                                iap_amount iap_amount_nofmt
                                                iap_taxamount iap_taxamount_nofmt
-                                               iap_open_amount iap_open_amount_nofmt);
+                                               iap_open_amount iap_open_amount_nofmt
+                                               iap_netamount);
 
   map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays, @payment_arrays, @prepared_arrays, @invoices_for_advance_payment_arrays);
 
@@ -599,6 +600,7 @@ sub invoice_details {
     push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_$_"} },                $invoice_for_advance_payment->$_) for qw(invnumber transdate);
     push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_amount_nofmt"} },      $invoice_for_advance_payment->amount);
     push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_amount"} },            $invoice_for_advance_payment->amount_as_number);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_netamount"} },         $invoice_for_advance_payment->netamount_as_number);
     push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_taxamount_nofmt"} },   $taxamount);
     push(@{ $form->{TEMPLATE_ARRAYS}->{"iap_taxamount"} },         $form->format_amount($myconfig, $taxamount, 2));
 
