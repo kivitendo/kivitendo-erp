@@ -3267,6 +3267,7 @@ $self->{texts} = {
   'Skipping due to same partnumber in csv file' => 'Eintrag in Datei mit doppelter Artikelnummer wird übersprungen',
   'Skipping non-existent article' => 'Überspringe nicht vorhandenen Artikel',
   'Skonto'                      => 'Skonto',
+  'Skonto Tax Correction for'   => 'Skonto-Steuerkorrektur für',
   'Skonto Terms'                => 'Zahlungsziel Skonto',
   'Skonto amount'               => 'Skontobetrag',
   'Skonto information'          => 'Skonto Information',
