@@ -19,6 +19,7 @@ use List::Util qw(sum);
 use SL::DATEV qw(:CONSTANTS);
 use SL::DB::Exchangerate;
 use SL::DB::Currency;
+use SL::HTML::Util;
 use SL::Locale::String qw(t8);
 
 #
@@ -622,12 +623,13 @@ sub _skonto_charts_and_tax_correction {
     $credit = SL::DB::Manager::Chart->find_by(id => $chart_id);
     $debit  = SL::DB::Manager::Chart->find_by(id => $tax_chart_id);
     croak("No such Chart ID")  unless ref $credit eq 'SL::DB::Chart' && ref $debit eq 'SL::DB::Chart';
+    my $notes = SL::HTML::Util->strip($self->notes);
 
     my $current_transaction = SL::DB::GLTransaction->new(
          employee_id    => $self->employee_id,
          transdate      => $params{transdate_obj},
          notes          => $params{source} . ' ' . $params{memo},
-         description    => $self->notes || $self->invnumber,
+         description    => $notes || $self->invnumber,
          reference      => t8('Skonto Tax Correction for') . " " . $tax->rate * 100 . '% ' . $self->invnumber,
          department_id  => $self->department_id ? $self->department_id : undef,
          imported       => 0, # not imported
