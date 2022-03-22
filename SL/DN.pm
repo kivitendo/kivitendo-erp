@@ -657,8 +657,9 @@ sub get_invoices {
          ct.name AS customername, a.customer_id, a.duedate,
          a.amount - a.paid AS open_amount,
          a.direct_debit,
+         pt.description as payment_term,
          dep.description as departmentname,
-
+         ct.invoice_mail AS cv_email,
          cfg.dunning_description, cfg.dunning_level,
 
          d.transdate AS dunning_date, d.duedate AS dunning_duedate,
@@ -676,6 +677,7 @@ sub get_invoices {
 
        LEFT JOIN customer ct ON (a.customer_id = ct.id)
        LEFT JOIN department dep ON (a.department_id = dep.id)
+       LEFT JOIN payment_terms pt ON (a.payment_id = pt.id)
        LEFT JOIN dunning_config cfg ON (a.dunning_config_id = cfg.id)
        LEFT JOIN dunning_config nextcfg ON
          (nextcfg.id =

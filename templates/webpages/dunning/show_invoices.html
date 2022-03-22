@@ -20,6 +20,7 @@
   <table width="100%" id="dunning_invoice_list">
    <th class="listheading" colspan="2">[% 'Current / Next Level' | $T8 %]</th>
 
+   <th class="listheading">[% 'Payment description' | $T8 %]</th>
    <th class="listheading">
     [% L.checkbox_tag('selectall_active', checkall='INPUT[name*=active_]', checked=all_active) %]
     <label for="selectall_active">[% 'Active?' | $T8 %]</label>
@@ -69,9 +70,10 @@
        [% FOREACH cfg_row = row.DUNNING_CONFIG %]<option value="[% HTML.escape(cfg_row.id) %]" [% IF cfg_row.SELECTED %]selected[% END %]>[% HTML.escape(cfg_row.dunning_description) %]</option>[% END %]
       </select>
      </td>
+     <td>[% HTML.escape(row.payment_term) %]</td>
 
      <td><input type="checkbox" name="active_[% loop.count %]" value="1" [% IF row.active %]checked[% END %]></td>
-     <td><input type="checkbox" name="email_[% loop.count %]" value="1" [% IF row.email %]checked[% END %]></td>
+     <td><input type="checkbox" name="email_[% loop.count %]" value="1" [% IF row.email && row.cv_email %]checked[% END %]>[% HTML.escape(row.cv_email) %]</td>
      <td><input type="checkbox" name="include_invoice_[% loop.count %]" value="1" [% IF row.print_original_invoice %]checked[% END %]></td>
      <td><input type="hidden" name="customername_[% loop.count %]" size="6" value="[% HTML.escape(row.customername) %]">[% HTML.escape(row.customername) %]</td>
      <td><input type="hidden" name="department_[% loop.count %]" size="6" value="[% HTML.escape(row.departmentname) %]">[% HTML.escape(row.departmentname) %]</td>
