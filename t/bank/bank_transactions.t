@@ -1,4 +1,4 @@
-use Test::More tests => 291;
+use Test::More tests => 293;
 
 use strict;
 
@@ -177,7 +177,7 @@ sub reset_state {
 
 sub test_ar_transaction {
   my (%params) = @_;
-  my $netamount = $params{amount} || 100;
+  my $netamount = $::form->round_amount($params{amount}, 2) || 100;
   my $amount    = $::form->round_amount($netamount * 1.19,2);
   my $invoice   = SL::DB::Invoice->new(
       invoice      => 0,
@@ -335,7 +335,8 @@ sub test_bt_error {
   $::form->{invoice_skontos} = {
     $bt->id => [ 'with_skonto_pt' ]
   };
-
+  is($ar_transaction->netamount, $::form->round_amount(168.58/1.19, 2), "$testname: Net Amount assigned");
+  is($ar_transaction->amount, 168.58, "$testname: Amount assigned");
   is($ar_transaction->paid   , '0' , "$testname: salesinv is not paid");
 
   # generate an error for testing rollback mechanism
@@ -626,7 +627,7 @@ sub test_full_workflow_ar_multiple_inv_skonto_reconciliate_and_undo {
   is($bt->invoice_amount   , '299.29000' , "$testname: bt invoice amount was assigned partially paid amount");
   is($bt->amount           , '299.29000' , "$testname: bt amount is stil there");
   is(scalar @{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [bank_transaction_id => $bt->id ] )},
-       7, "$testname 7 acc_trans entries created");
+       9, "$testname 9 acc_trans entries created");
 
   # same loop as above, but only for the 3rd ar_id
   foreach my $acc_trans_id_entry (@{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [ar_id => $ar_transaction_skonto->id ] )}) {

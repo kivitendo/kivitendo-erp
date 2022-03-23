@@ -583,6 +583,10 @@ sub _skonto_charts_and_tax_correction {
   croak "no banktransaction.id passed to skonto_charts"        unless $params{bt_id};
   croak "no banktransaction.transdate passed to skonto_charts" unless ref $params{transdate_obj} eq 'DateTime';
 
+  $params{memo}   //= '';
+  $params{source} //= '';
+
+
   my $is_sales = $self->is_sales;
   my (@skonto_charts, $inv_calc, $total_skonto_rounded);
 
