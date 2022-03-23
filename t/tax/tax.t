@@ -9,6 +9,8 @@ use utf8;
 use Support::TestSetup;
 use Test::Exception;
 
+use SL::DB::BankTransaction;
+use SL::DB::BankTransactionAccTrans;
 use SL::DB::Customer;
 use SL::DB::Vendor;
 use SL::DB::Invoice;
@@ -32,6 +34,9 @@ clear_up();
 #  neue Konten für 5% anlegen
 #  Leistungszeitraum vs. Datum Zuord. Steuerperiodest
 
+
+
+
 note('checking if all tax entries exist for Konjunkturprogramm');
 
 # create dates to test on
@@ -39,6 +44,30 @@ my $date_2006   = DateTime->new(year => 2006, month => 6, day => 15);
 my $date_2020_1 = DateTime->new(year => 2020, month => 6, day => 15);
 my $date_2020_2 = DateTime->new(year => 2020, month => 7, day => 15);
 my $date_2021   = DateTime->new(year => 2021, month => 1, day => 15);
+
+# dummy bt_id
+my $bank_account     =  SL::DB::BankAccount->new(
+    account_number  => '123',
+    bank_code       => '123',
+    iban            => '123',
+    bic             => '123',
+    bank            => '123',
+    chart_id        => SL::DB::Manager::Chart->find_by( description => 'Bank' )->id,
+    name            => SL::DB::Manager::Chart->find_by( description => 'Bank' )->description,
+  )->save;
+
+
+my $currency_id     = $::instance_conf->get_currency_id;
+my  $bt = SL::DB::BankTransaction->new(
+    local_bank_account_id => $bank_account->id,
+    transdate             => $date_2021,
+    valutadate            => $date_2021,
+    amount                => 27332.32,
+    purpose               => 'dummy',
+    currency              => $currency_id,
+  );
+  $bt->save || die $@;
+
 
 # The only way to discern the pre-2007 16% tax from the 2020 16% tax is by
 # their configured automatic tax charts, so look them up here:
@@ -403,6 +432,7 @@ note('testing payments with skonto');
 
 my %params = ( chart_id     => $chart_bank->id,
                payment_type => 'with_skonto_pt',
+               bt_id        => $bt->id,
              );
 
 $sales_invoice_2020_2->pay_invoice( %params,
@@ -585,6 +615,9 @@ sub datev_test {
 }
 
 sub clear_up {
+  SL::DB::Manager::BankTransactionAccTrans->delete_all(all => 1);
+  SL::DB::Manager::BankTransaction->delete_all(all => 1);
+  SL::DB::Manager::BankAccount->delete_all(all => 1);
   SL::DB::Manager::OrderItem->delete_all(all => 1);
   SL::DB::Manager::Order->delete_all(all => 1);
   SL::DB::Manager::InvoiceItem->delete_all(all => 1);
