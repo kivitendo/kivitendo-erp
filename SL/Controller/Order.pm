@@ -1847,7 +1847,10 @@ sub workflow_sales_or_request_for_quotation {
   my $destination_type = $::form->{type} eq sales_order_type() ? sales_quotation_type() : request_quotation_type();
 
   $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
-  $self->{converted_from_oe_id} = delete $::form->{id};
+  delete $::form->{id};
+
+  # no linked records from order to quotations
+  delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);
 
   # set item ids to new fake id, to identify them as new items
   foreach my $item (@{$self->order->items_sorted}) {
