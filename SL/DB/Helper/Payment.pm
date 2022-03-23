@@ -620,8 +620,8 @@ sub _skonto_charts_and_tax_correction {
 
     # add-on: correct tax with one linked gl booking
 
-    # no skonto tax correction for dual tax (reverse charge) or rate = 0
-    next if ($tax->rate == 0 || $tax->reverse_charge_chart_id);
+    # no skonto tax correction for dual tax (reverse charge) or rate = 0 or taxamount below 0.01
+    next if ($tax->rate == 0 || $tax->reverse_charge_chart_id || $skonto_taxamount_rounded < 0.01);
 
     my ($credit, $debit);
     $credit = SL::DB::Manager::Chart->find_by(id => $chart_id);
@@ -686,11 +686,11 @@ sub _skonto_charts_and_tax_correction {
   # is fully assigned.
   # we simply alter one cent for the first skonto booking entry
   # should be correct for most of the cases (no invoices with mixed taxes)
-  if ($total_skonto_rounded - $amount > 0.01) {
-    # add one cent
-    $skonto_charts[0]->{skonto_amount} -= 0.01;
-  } elsif ($amount - $total_skonto_rounded > 0.01) {
+  if (_round($total_skonto_rounded - $amount) >= 0.01) {
     # subtract one cent
+    $skonto_charts[0]->{skonto_amount} -= 0.01;
+  } elsif (_round($amount - $total_skonto_rounded) >= 0.01) {
+    # add one cent
     $skonto_charts[0]->{skonto_amount} += 0.01;
   }
 
