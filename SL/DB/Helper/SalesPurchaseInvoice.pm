@@ -32,7 +32,7 @@ sub get_tax_and_amount_by_tax_chart_id {
     $total ||= 0;
     $total  += $transaction->amount;
   }
-  die "Invalid calculated amount" if abs($total) - abs($self->amount) > 0.001;
+  die "Invalid calculated amount. Calc: $total Amount: " . abs($self->amount) if abs($total) - abs($self->amount) > 0.001;
   return $tax_and_amount_by_tax_id;
 }
 
