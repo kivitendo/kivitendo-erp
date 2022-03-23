@@ -14,6 +14,8 @@ use List::Util qw(sum);
 use SL::Dev::Record qw(create_invoice_item create_sales_invoice create_credit_note create_ap_transaction);
 use SL::Dev::CustomerVendor qw(new_customer new_vendor);
 use SL::Dev::Part qw(new_part);
+use SL::DB::BankTransaction;
+use SL::DB::BankTransactionAccTrans;
 use SL::DB::Buchungsgruppe;
 use SL::DB::Currency;
 use SL::DB::Exchangerate;
@@ -29,7 +31,8 @@ use SL::DB::PaymentTerm;
 use SL::DBUtils qw(selectfirst_array_query);
 use Data::Dumper;
 
-my ($customer, $vendor, $currency_id, @parts, $buchungsgruppe, $buchungsgruppe7, $unit, $employee, $tax, $tax7, $tax_9, $taxzone, $payment_terms, $bank_account);
+my ($customer, $vendor, $currency_id, @parts, $buchungsgruppe, $buchungsgruppe7, $unit, $employee, $tax, $tax7, $tax_9, $taxzone, $payment_terms,
+    $bank_account, $bt);
 my ($transdate1, $transdate2, $transdate3, $transdate4, $currency, $exchangerate, $exchangerate2, $exchangerate3, $exchangerate4);
 my ($ar_chart,$bank,$ar_amount_chart, $ap_chart, $ap_amount_chart, $fxloss_chart, $fxgain_chart);
 
@@ -99,6 +102,8 @@ sub clear_up {
   SL::DB::Manager::Part->delete_all(all => 1);
   SL::DB::Manager::Customer->delete_all(all => 1);
   SL::DB::Manager::Vendor->delete_all(all => 1);
+  SL::DB::Manager::BankTransactionAccTrans->delete_all(all => 1);
+  SL::DB::Manager::BankTransaction->delete_all(all => 1);
   SL::DB::Manager::BankAccount->delete_all(all => 1);
   SL::DB::Manager::PaymentTerm->delete_all(all => 1);
   SL::DB::Manager::Exchangerate->delete_all(all => 1);
@@ -237,6 +242,17 @@ sub init_state {
   $bank            = SL::DB::Manager::Chart->find_by( accno => '1200' ); # Bank
   $ar_amount_chart = SL::DB::Manager::Chart->find_by( accno => '8400' ); # Erlöse
   $ap_amount_chart = SL::DB::Manager::Chart->find_by( accno => '3400' ); # Wareneingang 19%
+
+  $bt = SL::DB::BankTransaction->new(
+    local_bank_account_id => $bank_account->id,
+    transdate             => $transdate1,
+    valutadate            => $transdate1,
+    amount                => 27332.32,
+    purpose               => 'dummy',
+    currency              => $currency,
+  );
+  $bt->save || die $@;
+
 }
 
 sub new_ap_transaction {
@@ -378,8 +394,9 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto {
   );
 
   # default values
-  my %params = ( chart_id => $bank_account->chart_id,
+  my %params = ( chart_id  => $bank_account->chart_id,
                  transdate => $transdate1,
+                 bt_id     => $bt->id,
                );
 
   $params{payment_type} = 'with_skonto_pt';
@@ -411,8 +428,9 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_tax_included {
   );
 
   # default values
-  my %params = ( chart_id => $bank_account->chart_id,
+  my %params = ( chart_id  => $bank_account->chart_id,
                  transdate => $transdate1,
+                 bt_id     => $bt->id,
                );
 
   $params{payment_type} = 'with_skonto_pt';
@@ -561,6 +579,7 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
                          payment_type => 'difference_as_skonto',
                          chart_id     => $bank_account->chart_id,
                          transdate    => $transdate1,
+                         bt_id        => $bt->id,
                        );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
@@ -601,6 +620,7 @@ sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fi
                          payment_type => 'difference_as_skonto',
                          chart_id     => $bank_account->chart_id,
                          transdate    => $transdate1,
+                         bt_id        => $bt->id,
                        );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
@@ -637,6 +657,7 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
                          payment_type => 'difference_as_skonto',
                          chart_id     => $bank_account->chart_id,
                          transdate    => $transdate1,
+                         bt_id        => $bt->id,
                        );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
@@ -665,6 +686,7 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
   # default values
   my %params = ( chart_id  => $bank_account->chart_id,
                  transdate => $transdate1,
+                 bt_id     => $bt->id,
                );
 
   $params{amount}       = '2.32';
@@ -705,6 +727,7 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
   # default values
   my %params = ( chart_id  => $bank_account->chart_id,
                  transdate => $transdate1,
+                 bt_id     => $bt->id,
                );
 
   $params{amount}       = '6.95';
@@ -756,8 +779,9 @@ sub test_default_ap_transaction_two_charts_19_7_with_skonto {
 
   my $ap_transaction = new_ap_transaction();
 
-  my %params = ( chart_id => $bank_account->chart_id,
+  my %params = ( chart_id  => $bank_account->chart_id,
                  transdate => $transdate1,
+                 bt_id     => $bt->id,
                );
 
   # $params{amount} = '226'; # pass full amount
@@ -817,6 +841,7 @@ sub test_default_ap_transaction_two_charts_19_7_tax_without_skonto_multiple_paym
                           payment_type => 'difference_as_skonto',
                           chart_id     => $bank_account->chart_id,
                           transdate    => $transdate1,
+                          bt_id        => $bt->id,
                          );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);
@@ -844,6 +869,7 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_50_50 {
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
                  transdate => $transdate1,
+                 bt_id     => $bt->id,
                );
 
   $params{amount} = $invoice->amount_less_skonto;
@@ -880,6 +906,7 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25 {
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
                  transdate => $transdate1,
+                 bt_id     => $bt->id,
                );
 
   $params{amount} = $invoice->amount_less_skonto;
@@ -915,6 +942,7 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included {
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
                  transdate => $transdate1,
+                 bt_id     => $bt->id,
                );
 
   $params{amount} = $invoice->amount_less_skonto;
@@ -958,6 +986,7 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple {
   $invoice->pay_invoice( payment_type => 'difference_as_skonto',
                          chart_id     => $bank_account->chart_id,
                          transdate    => $transdate1,
+                         bt_id     => $bt->id,
                        );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
