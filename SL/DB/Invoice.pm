@@ -361,7 +361,6 @@ sub add_ar_amount_row {
     ($netamount, $taxamount) = Form->calculate_tax($params{amount}, $tax->rate, $self->taxincluded, $roundplaces);
   };
   next unless $netamount; # netamount mustn't be zero
-
   my $sign = $self->customer_id ? 1 : -1;
   my $acc = SL::DB::AccTransaction->new(
     amount     => $netamount * $sign,
@@ -427,7 +426,7 @@ sub create_ar_row {
   $self->add_transactions( $acc );
   push( @$acc_trans, $acc );
   return $acc_trans;
-};
+}
 
 sub validate_acc_trans {
   my ($self, %params) = @_;
