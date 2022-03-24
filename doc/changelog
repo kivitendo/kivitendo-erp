@@ -21,6 +21,8 @@ Kleinere neue Features und Detailverbesserungen:
    Sat. Tel, Sat. Fax, Privates Tel.) gesucht.
  - Es gibt eine neue Schnellsuche "Alle Telefonnummern", die alle Telefonnumern
    bei Kunden, Lieferanten und Ansprechpersonen durchsucht.
+-  Skontoautomatik bei Kontoauszug verbuchen generiert automatisch die
+   Steuerkorrektur pro Steuersatz des Belegs als verknüpfte Dialogbuchung
 
 2022-03-02 - Release 3.6.0
 
