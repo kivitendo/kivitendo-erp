@@ -3,6 +3,12 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v3.6.x
+
+Das manueller Korrigieren der Steuer bei Skontoverbuchungen entfällt seit
+dieser Version, da die Steuerkorrektur automatisch gemacht wird.
+
+
 Upgrade auf v3.6.0
 
 Der 'neue Auftrags-Controller' ist mittlerweile weder neu noch experimentell und
