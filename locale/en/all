@@ -3267,6 +3267,7 @@ $self->{texts} = {
   'Skipping due to same partnumber in csv file' => '',
   'Skipping non-existent article' => '',
   'Skonto'                      => '',
+  'Skonto Tax Correction for'   => '',
   'Skonto Terms'                => '',
   'Skonto amount'               => '',
   'Skonto information'          => '',
