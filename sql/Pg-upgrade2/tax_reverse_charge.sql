@@ -101,8 +101,9 @@ WHERE EXISTS ( -- update only for SKR03
 
 -- if not defined
 insert into taxkeys(chart_id,tax_id,taxkey_id,startdate) SELECT (SELECT chart_id FROM tax WHERE taxkey = '94'),0,0,'1970-01-01' WHERE NOT EXISTS
-  (SELECT chart_id from taxkeys where chart_id = ( SELECT chart_id FROM tax WHERE taxkey = '94'));
+  (SELECT chart_id from taxkeys where chart_id = ( SELECT chart_id FROM tax WHERE taxkey = '94'))
+  AND (EXISTS (SELECT coa FROM defaults WHERE defaults.coa='Germany-DATEV-SKR04EU') OR EXISTS (SELECT coa FROM defaults WHERE defaults.coa='Germany-DATEV-SKR03EU'));
 
 insert into taxkeys(chart_id,tax_id,taxkey_id,startdate) SELECT (SELECT reverse_charge_chart_id FROM tax WHERE taxkey = '94'),0,0,'1970-01-01' WHERE NOT EXISTS
-  (SELECT chart_id from taxkeys where chart_id = ( SELECT reverse_charge_chart_id FROM tax WHERE taxkey = '94'));
-
+  (SELECT chart_id from taxkeys where chart_id = ( SELECT reverse_charge_chart_id FROM tax WHERE taxkey = '94'))
+    AND (EXISTS (SELECT coa FROM defaults WHERE defaults.coa='Germany-DATEV-SKR04EU') OR EXISTS (SELECT coa FROM defaults WHERE defaults.coa='Germany-DATEV-SKR03EU'));
