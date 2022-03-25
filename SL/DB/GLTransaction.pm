@@ -2,6 +2,7 @@ package SL::DB::GLTransaction;
 
 use strict;
 
+use SL::DB::Helper::LinkedRecords;
 use SL::DB::MetaSetup::GLTransaction;
 use SL::Locale::String qw(t8);
 use List::Util qw(sum);

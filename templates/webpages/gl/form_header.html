@@ -42,6 +42,9 @@
   <li><a href="#ui-tabs-docs">[% 'Documents' | $T8 %]</a></li>
   <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=gl_transaction&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
 [%- END %]
+  [%- IF AUTH.assert('record_links', 1) %]
+  <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=GLTransaction&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>
+  [%- END %]
 [%- END %]
  </ul>
 

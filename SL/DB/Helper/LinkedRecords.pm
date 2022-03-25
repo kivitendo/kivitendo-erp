@@ -315,6 +315,7 @@ sub sort_linked_records {
                   'SL::DB::ShopOrder'       => sub { $_[0]->shop_ordernumber },
                   'SL::DB::EmailJournal'    => sub { $_[0]->id },
                   'SL::DB::Dunning'         => sub { $_[0]->dunning_id },
+                  'SL::DB::GLTransaction'   => sub { $_[0]->reference },
                   UNKNOWN                   => '9999999999999999',
                 );
   my $number_xtor = sub {
@@ -342,7 +343,7 @@ sub sort_linked_records {
               purchase_order            => 130,
               purchase_delivery_order   => 140,
               'SL::DB::PurchaseInvoice' => 150,
-              'SL::DB::PurchaseInvoice' => 150,
+              'SL::DB::GLTransaction'   => 170,
               'SL::DB::Letter'          => 200,
               'SL::DB::ShopOrder'       => 250,
               'SL::DB::EmailJournal'    => 300,

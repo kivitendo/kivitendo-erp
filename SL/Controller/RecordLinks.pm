@@ -55,6 +55,7 @@ my @link_type_specifics = (
   { title => t8('AR Transaction'),          type => 'ar_transaction',          model => 'Invoice',         number => 'invnumber', },
   { title => t8('AP Transaction'),          type => 'ap_transaction',          model => 'PurchaseInvoice', number => 'invnumber', },
   { title => t8('Dunning'),                 type => 'dunning',                 model => 'Dunning',         number => 'dunning_id', },
+  { title => t8('GL Transaction'),          type => 'gl_transaction',          model => 'GLTransaction',   number => 'reference', },
 );
 
 my @link_types = map { +{ %link_type_defaults, %{ $_ } } } @link_type_specifics;
