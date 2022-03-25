@@ -12,10 +12,12 @@ Kleinere neue Features und Detailverbesserungen:
 
  - Die Protokollierung von E-Mails in interne Bemerkungen ist deaktiviert,
    falls der Mandant sowieso das E-Mail-Journal aktiviert hat.
- - Steuerschlüssel 94, Reverse Charge gleichzeitige Vor- und Mehrwertsteuer
-   kann in einem netto verbuchten Kreditorenbeleg verbucht werden, die Steuer
-   wird dann mit einer verknüpften Dialogbuchung verbucht.
- - Im im Kunden-/Lieferantenbereicht kann nach "allen Telefonnummern" gefiltert
+ - Steuerschlüssel 94, 19 und 18 neu angelegt und um Reverse Charge erweitert.
+   D.h. bei diesen Steuerschlüsseln
+   kann in einem netto verbuchten Kreditorenbeleg gleichzeitig Vor- und
+   Mehrwertsteuer verbucht werden. Die Steuerbuchung wird in einer separat
+   verknüpften Dialogbuchung gemacht.
+ - Im Kunden-/Lieferantenbereicht kann nach "allen Telefonnummern" gefiltert
    werden. Hier wird in den Feldern Telefon und Fax bei Kunden und Lieferanten
    und in weiteren Feldern bei Ansprechpersonen (Tel. 1/2, Fax, Mobil 1/2,
    Sat. Tel, Sat. Fax, Privates Tel.) gesucht.
