@@ -995,10 +995,12 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple {
                          chart_id     => $bank_account->chart_id,
                          transdate => $transdate1,
                        );
-  $invoice->pay_invoice( payment_type => 'difference_as_skonto',
+  $invoice->pay_invoice( payment_type => 'free_skonto',
                          chart_id     => $bank_account->chart_id,
                          transdate    => $transdate1,
-                         bt_id     => $bt->id,
+                         bt_id        => $bt->id,
+                         skonto_amount => $invoice->open_amount,
+                         amount        => 0,
                        );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);

@@ -41,15 +41,16 @@ sub pay_invoice {
   validate_payment_type($params{payment_type});
 
   # check for required parameters and optional params depending on payment_type
-  Common::check_params(\%params, qw(chart_id transdate));
+  Common::check_params(\%params, qw(chart_id transdate amount));
   Common::check_params(\%params, qw(bt_id)) unless $params{payment_type} eq 'without_skonto';
+
+  # three valid cases, test logical params in depth, before proceeding ...
   if ( $params{'payment_type'} eq 'without_skonto' && abs($params{'amount'}) < 0) {
     croak "invalid amount for payment_type 'without_skonto': $params{'amount'}\n";
-  }
-  if ($params{'payment_type'} eq 'free_skonto') {
+  } elsif ($params{'payment_type'} eq 'free_skonto') {
     # we dont like too much automagic for this payment type.
     # we force caller input for amount and skonto amount
-    Common::check_params(\%params, qw(amount skonto_amount));
+    Common::check_params(\%params, qw(skonto_amount));
     # secondly we dont want to handle credit notes and purchase credit notes
     croak("Cannot use 'free skonto' for credit or debit notes") if ($params{amount} < 0 || $params{skonto_amount} <= 0);
     # both amount have to be rounded
@@ -59,7 +60,15 @@ sub pay_invoice {
     if ($params{skonto_amount} > _round($self->open_amount)) {
       croak("Skonto amount:" . $params{skonto_amount} . " higher than the payment or open invoice amount:" . $self->open_amount);
     }
+  } elsif ( $params{'payment_type'} eq 'with_skonto_pt' ) {
+    # options with_skonto_pt doesn't require the parameter
+    # amount, but if amount is passed, make sure it matches the expected value
+    # note: the parameter isn't used at all - amount_less_skonto will always be used
+    # partial skonto payments are therefore impossible to book
+    croak "amount $params{amount} doesn't match amount less skonto: " . $self->amount_less_skonto . "\n" if $params{amount} && abs($self->amount_less_skonto - $params{amount} ) > 0.0000001;
+    croak "payment type with_skonto_pt can't be used if payments have already been made" if $self->paid != 0;
   }
+
 
   my $transdate_obj;
   if (ref($params{transdate}) eq 'DateTime') {
@@ -106,15 +115,6 @@ sub pay_invoice {
     $exchangerate = 1;
   };
 
-  # options with_skonto_pt and difference_as_skonto don't require the parameter
-  # amount, but if amount is passed, make sure it matches the expected value
-  if ( $params{'payment_type'} eq 'difference_as_skonto' ) {
-    croak "amount $params{amount} doesn't match open amount " . $self->open_amount . ", diff = " . ($params{amount}-$self->open_amount) if $params{amount} && abs($self->open_amount - $params{amount} ) > 0.0000001;
-  } elsif ( $params{'payment_type'} eq 'with_skonto_pt' ) {
-    croak "amount $params{amount} doesn't match amount less skonto: " . $self->amount_less_skonto . "\n" if $params{amount} && abs($self->amount_less_skonto - $params{amount} ) > 0.0000001;
-    croak "payment type with_skonto_pt can't be used if payments have already been made" if $self->paid != 0;
-  };
-
   # absolute skonto amount for invoice, use as reference sum to see if the
   # calculated skontos add up
   # only needed for payment_term "with_skonto_pt"
@@ -140,18 +140,15 @@ sub pay_invoice {
     my $new_acc_trans;
 
     # all three payment type create 1 AR/AP booking (the paid part)
-    # difference_as_skonto creates n skonto bookings (1 for each buchungsgruppe type)
-    # with_skonto_pt creates 1 bank booking and n skonto bookings (1 for each buchungsgruppe type)
+    # with_skonto_pt creates 1 bank booking and n skonto bookings (1 for each tax type)
+    # and one tax correction as a gl booking
     # without_skonto creates 1 bank booking
 
-    # as long as there is no automatic tax, payments are always booked with
-    # taxkey 0
-
-    unless ( $rounded_params_amount == 0 || $params{payment_type} eq 'difference_as_skonto' ) {
+    unless ( $rounded_params_amount == 0 ) {
       # cases with_skonto_pt, free_skonto and without_skonto
 
       # for case with_skonto_pt we need to know the corrected amount at this
-      # stage if we are going to use $params{amount}
+      # stage because we don't use $params{amount} ?!
 
       my $pay_amount = $rounded_params_amount;
       $pay_amount = $self->amount_less_skonto if $params{payment_type} eq 'with_skonto_pt';
@@ -216,32 +213,21 @@ sub pay_invoice {
         }
       }
     }
-    # better everything except without_skonto
-    if ($params{payment_type} eq 'difference_as_skonto' or $params{payment_type} eq 'with_skonto_pt'
-        or $params{payment_type} eq 'free_skonto' ) {
+    # skonto cases
+    if ($params{payment_type} eq 'with_skonto_pt' or $params{payment_type} eq 'free_skonto' ) {
 
       my $total_skonto_amount;
       if ( $params{payment_type} eq 'with_skonto_pt' ) {
         $total_skonto_amount = $self->skonto_amount;
-      } elsif ( $params{payment_type} eq 'difference_as_skonto' ) {
-        # only used for tests. no real code calls this payment_type!
-        $total_skonto_amount = $self->open_amount;
       } elsif ( $params{payment_type} eq 'free_skonto') {
         $total_skonto_amount = $params{skonto_amount};
       }
       my @skonto_bookings = $self->_skonto_charts_and_tax_correction(amount => $total_skonto_amount, bt_id => $params{bt_id},
                                                                      transdate_obj => $transdate_obj, memo => $params{memo},
                                                                      source => $params{source});
-      # error checking:
-      if ( $params{payment_type} eq 'difference_as_skonto' ) {
-        my $calculated_skonto_sum  = sum map { $_->{skonto_amount} } @skonto_bookings;
-        croak "calculated skonto for difference_as_skonto = $calculated_skonto_sum doesn't add up open amount: " . $self->open_amount unless _round($calculated_skonto_sum) == _round($self->open_amount);
-      };
-
       my $reference_amount = $total_skonto_amount;
 
       # create an acc_trans entry for each result of $self->skonto_charts
-      # TODO create internal sub _skonto_bookings
       foreach my $skonto_booking ( @skonto_bookings ) {
         next unless $skonto_booking->{'chart_id'};
         next unless $skonto_booking->{'skonto_amount'} != 0;
@@ -263,16 +249,10 @@ sub pay_invoice {
         $paid_amount      += -1 * $amount * $exchangerate;
         $skonto_amount_check -= $skonto_booking->{'skonto_amount'};
       }
-      if ( $params{payment_type} eq 'difference_as_skonto' ) {
-          die "difference_as_skonto calculated incorrectly, sum of calculated payments doesn't add up to open amount $total_open_amount, reference_amount = $reference_amount\n" unless _round($reference_amount) == 0;
-      }
     }
-
     my $arap_amount = 0;
 
-    if ( $params{payment_type} eq 'difference_as_skonto' ) {
-      $arap_amount = $total_open_amount;
-    } elsif ( $params{payment_type} eq 'without_skonto' ) {
+    if ( $params{payment_type} eq 'without_skonto' ) {
       $arap_amount = $rounded_params_amount;
     } elsif ( $params{payment_type} eq 'with_skonto_pt' ) {
       # this should be amount + sum(amount+skonto), but while we only allow
@@ -797,6 +777,8 @@ sub get_payment_suggestions {
     $self->{invoice_amount_suggestion} = $open_amount;
     # difference_as_skonto doesn't make any sense for SEPA transfer, as this doesn't cause any actual payment
     if ( $self->valid_skonto_amount($self->open_amount) && not $params{sepa} ) {
+      # probably also dead code
+      die "This case is as dead as the dead cat. Go to start, don't pick 2,000 \$";
       push(@{$self->{payment_select_options}} , { payment_type => 'difference_as_skonto',  display => t8('difference as skonto') , selected => 0 });
     };
   };
@@ -807,13 +789,12 @@ sub get_payment_suggestions {
 #
 # $main::locale->text('without_skonto')
 # $main::locale->text('with_skonto_pt')
-# $main::locale->text('difference_as_skonto')
 #
 
 sub validate_payment_type {
   my $payment_type = shift;
 
-  my %allowed_payment_types = map { $_ => 1 } qw(without_skonto with_skonto_pt difference_as_skonto free_skonto);
+  my %allowed_payment_types = map { $_ => 1 } qw(without_skonto with_skonto_pt free_skonto);
   croak "illegal payment type: $payment_type, must be one of: " . join(' ', keys %allowed_payment_types) unless $allowed_payment_types{ $payment_type };
 
   return 1;
@@ -860,16 +841,20 @@ Create a payment booking for an existing invoice object (type ar/ap/is/ir) via
 a configured bank account.
 
 This function deals with all the acc_trans entries and also updates paid and datepaid.
-The params C<transdate> and C<chart_id> are mandantory.
-If the default payment ('without_skonto') is used the param amount is also
-mandantory.
-If the payment type ('free_skonto') is used the number params skonto_amount and amount
-are as well mandantory and need to be positive. Furthermore the skonto amount has
-to be lower than the payment or open invoice amount.
+The params C<transdate>, C<amount> and C<chart_id> are mandantory.
+
+For all valid skonto types ('free_skonto' or 'with_skonto_pt') the source of
+the bank_transaction is needed, therefore pay_invoice expects the param
+C<bt_id> with a valid bank_transactions.id.
+
+If the payment type ('free_skonto') is used the number param skonto_amount is
+as well mandantory and needs to be positive. Furthermore the skonto amount has
+to be lower or equal than the open invoice amount.
+Payments with only skonto and zero bank transaction amount are possible.
 
 Transdate can either be a date object or a date string.
 Chart_id is the id of the payment booking chart.
-Amount is either a positive or negative number, but never 0.
+Amount is either a positive or negative number, and for the case 'free_skonto' might be zero.
 
 CAVEAT! The helper tries to get the sign right and all calls from BankTransaction are
 positive (abs($value)) values.
@@ -908,7 +893,7 @@ or in a certain currency:
                   );
 
 Allowed payment types are:
-  without_skonto with_skonto_pt difference_as_skonto
+  without_skonto with_skonto_pt
 
 The option C<payment_type> allows for a basic skonto mechanism.
 
@@ -922,35 +907,20 @@ booked according to the skonto chart configured in the tax settings for each
 tax key. If an amount is passed it is ignored and the actual configured skonto
 amount is used.
 
-C<difference_as_skonto> can only be used after partial payments have been made,
-the whole specified amount is booked according to the skonto charts configured
-in the tax settings for each tax key.
-
-So passing amount doesn't have any effect for the cases C<with_skonto_pt> and
-C<difference_as_skonto>, as all necessary values are taken from the stored
-invoice.
+So passing amount doesn't have any effect for the case C<with_skonto_pt>.
 
 The skonto modes automatically calculate the relative amounts for a mix of
 taxes, e.g. items with 7% and 19% in one invoice. There is a helper method
-skonto_charts, which calculates the relative percentages according to the
-amounts in acc_trans (which are grouped by tax).
+_skonto_charts_and_tax_correction, which calculates the relative percentages
+according to the amounts in acc_trans grouped by different tax rates.
+
+The helper method also generates the tax correction for the skonto booking
+and links this to the original bank transaction and the selected record.
 
 There is currently no way of excluding certain items in an invoice from having
 skonto applied to them.  If this feature was added to parts the calculation
 method of relative skonto would have to be completely rewritten using the
 invoice items rather than acc_trans.
-
-The skonto modes also still don't automatically correct the tax, this still has
-to be done manually. Therefore all payments generated by pay_invoice have
-taxkey 0.
-
-There is currently no way to directly pay an invoice via this method if the
-effective skonto differs from the skonto according to the payment terms
-configured for the invoice/vendor.
-
-In this case one has to pay in two steps: first the actual paid amount via
-"without skonto", and then the remainder via "difference_as_skonto". The user
-has to there actively decide whether to accept the differing skonto.
 
 Because of the way skonto_charts works the calculation doesn't work if there
 are negative values in acc_trans. E.g. one invoice with a positive value for
@@ -964,7 +934,9 @@ If neither currency or currency_id are given as params, the currency of the
 invoice is assumed to be the payment currency.
 
 If successful the return value will be 1 in scalar context or in list context
-the two ids (acc_trans_id) of the newly created bookings.
+the two or more (gl transaction for skonto tax correction) ids (acc_trans_id)
+of the newly created bookings.
+
 
 =item C<reference_account>
 
@@ -1020,7 +992,11 @@ Example:
    # ... do something
  }
 
-=item C<skonto_charts [$amount]>
+=item C<_skonto_charts_and_tax_correction [amount => $amount, bt_id => $bank_transaction.id, transdate_ojb => DateTime]>
+
+Needs a valid bank_transaction id and the transdate of the bank_transaction as
+a DateTime object.
+If no amout is passed, the currently open invoice amount will be used.
 
 Returns a list of chart_ids and some calculated numbers that can be used for
 paying the invoice with skonto. This function will automatically calculate the
@@ -1029,10 +1005,13 @@ relative skonto amounts even if the invoice contains several types of taxes
 
 Example usage:
   my $invoice = SL::DB::Manager::Invoice->find_by(invnumber => '211');
-  my @skonto_charts = $invoice->skonto_charts;
+  my @skonto_charts = $invoice->_skonto_charts_and_tax_correction(bt_id         => $bt_id,
+                                                                  transdate_obj => $transdate_obj);
 
 or with the total skonto amount as an argument:
-  my @skonto_charts = $invoice->skonto_charts($invoice->open_amount);
+  my @skonto_charts = $invoice->_skonto_charts_and_tax_correction(amount => $invoice->open_amount,
+                                                                  bt_id  => $bt_id,
+                                                                  transdate_obj => $transdate_obj);
 
 The following values are generated for each chart:
 
@@ -1046,57 +1025,12 @@ The chart id of the skonto amount to be booked.
 
 The total amount to be paid to the account
 
-=item C<skonto_percent>
-
-The relative percentage of that skonto chart. This can be useful if the actual
-ekonto that is paid deviates from the granted skonto, e.g. customer effectively
-pays 2.6% skonto instead of 2%, and we accept this. Then we can still calculate
-the relative skonto amounts for different taxes based on the absolute
-percentages. Used for case C<difference_as_skonto>.
-
-=item C<skonto_percent_abs>
-
-The absolute percentage of that skonto chart in relation to the total amount.
-Used to calculate skonto_amount for case C<with_skonto_pt>.
-
 =back
 
 If the invoice contains several types of taxes then skonto_charts can be used
 to calculate the relative amounts.
 
-Example in console of an invoice with 100 Euro at 7% and 100 Euro at 19% with
-tax not included:
-
-  my $invoice = invoice(invnumber => '144');
-  $invoice->amount
-  226.00000
-  $invoice->payment_terms->percent_skonto
-  0.02
-  $invoice->skonto_charts
-  pp $invoice->skonto_charts
-  #             $VAR1 = {
-  #               'chart_id'       => 128,
-  #               'skonto_amount'  => '2.14',
-  #               'skonto_percent' => '47.3451327433627'
-  #             };
-  #             $VAR2 = {
-  #               'chart_id'       => 130,
-  #               'skonto_amount'  => '2.38',
-  #               'skonto_percent' => '52.654867256637'
-  #             };
-
-C<skonto_charts> always returns positive values (abs) for C<skonto_amount> and
-C<skonto_percent>.
-
-C<skonto_charts> generates one entry for each acc_trans entry. ar and ap
-bookings only have one acc_trans entry for each taxkey (e.g. 7% and 19%).  This
-is because all the items are grouped according to the Buchungsgruppen mechanism
-and the totals are written to acc_trans.  For is and ir it is possible to have
-several acc_trans entries with the same tax. In this case skonto_charts
-generates a skonto booking for each acc_trans income/expense entry.
-
-In the future this function may also be used to calculate the corrections for
-the income tax.
+C<_skonto_charts_and_tax_correction> generates one entry for each tax type entry.
 
 =item C<open_amount>
 
@@ -1120,7 +1054,7 @@ Returns undef if skonto is not configured for that invoice.
 
 Creates data intended for an L.select_tag dropdown that can be used in a
 template. Depending on the rules it will choose from the options
-without_skonto, with_skonto_pt and difference_as_skonto, and select the most
+without_skonto and with_skonto_pt and select the most
 likely one.
 
 If the parameter "sepa" is passed, the SEPA export payments that haven't been
@@ -1133,8 +1067,6 @@ The current rules are:
 =item * without_skonto is always an option
 
 =item * with_skonto_pt is only offered if there haven't been any payments yet and the current date is within the skonto period.
-
-=item * difference_as_skonto is only offered if there have already been payments made and the open amount is smaller than 10% of the total amount.
 
 with_skonto_pt will only be offered, if all the AR_amount/AP_amount have a
 taxkey with a configured skonto chart
@@ -1182,7 +1114,7 @@ of a HTML drop-down select with the most likely option preselected.
 This is a helper function for BankTransaction/ajax_payment_suggestion and
 template/webpages/bank_transactions/invoices.html
 
-We are working with an existing payment, so difference_as_skonto never makes sense.
+We are working with an existing payment, so (deprecated) difference_as_skonto never makes sense.
 
 If skonto is not possible (skonto_date does not exists) simply return
 the single 'no skonto' option as a visual hint.
@@ -1215,7 +1147,7 @@ Returns 1 if record uses a different currency, 0 if the default currency is used
 when looking at open amount, maybe consider that there may already be queued
 amounts in SEPA Export
 
-=item * C<skonto_charts>
+=item * C<_skonto_charts_and_tax_correction>
 
 Cannot handle negative skonto amounts, will always calculate the skonto amount
 for credit notes or negative ap transactions with a positive sign.
