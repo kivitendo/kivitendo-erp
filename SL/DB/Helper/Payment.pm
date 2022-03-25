@@ -51,13 +51,13 @@ sub pay_invoice {
     # we force caller input for amount and skonto amount
     Common::check_params(\%params, qw(amount skonto_amount));
     # secondly we dont want to handle credit notes and purchase credit notes
-    croak("Cannot use 'free skonto' for credit or debit notes") if ($params{amount} <= 0 || $params{skonto_amount} <= 0);
+    croak("Cannot use 'free skonto' for credit or debit notes") if ($params{amount} < 0 || $params{skonto_amount} <= 0);
     # both amount have to be rounded
     $params{skonto_amount} = _round($params{skonto_amount});
     $params{amount}        = _round($params{amount});
-    # lastly skonto_amount has to be smaller than the open invoice amount or payment amount ;-)
-    if ($params{skonto_amount} > abs($self->open_amount) || $params{skonto_amount} > $params{amount}) {
-      croak("Skonto amount higher than the payment or invoice amount");
+    # lastly skonto_amount has to be smaller or equal than the open invoice amount
+    if ($params{skonto_amount} > _round($self->open_amount)) {
+      croak("Skonto amount:" . $params{skonto_amount} . " higher than the payment or open invoice amount:" . $self->open_amount);
     }
   }
 
@@ -147,7 +147,7 @@ sub pay_invoice {
     # as long as there is no automatic tax, payments are always booked with
     # taxkey 0
 
-    unless ( $params{payment_type} eq 'difference_as_skonto' ) {
+    unless ( $rounded_params_amount == 0 || $params{payment_type} eq 'difference_as_skonto' ) {
       # cases with_skonto_pt, free_skonto and without_skonto
 
       # for case with_skonto_pt we need to know the corrected amount at this
