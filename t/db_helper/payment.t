@@ -53,13 +53,13 @@ test_default_ap_transaction_two_charts_19_7_tax_partial_unrounded_payment_withou
 test_default_invoice_one_item_19_without_skonto_overpaid();
 test_credit_note_two_items_19_7_tax_tax_not_included();
 
-# test cases: difference_as_skonto
-test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
-test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_1cent();
-test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_2cent();
-test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto();
-test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto_1cent();
-test_default_ap_transaction_two_charts_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
+# test cases: free_skonto
+test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_free_skonto();
+test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_free_skonto_1cent();
+test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_free_skonto_2cent();
+test_default_invoice_one_item_19_multiple_payment_final_free_skonto();
+test_default_invoice_one_item_19_multiple_payment_final_free_skonto_1cent();
+test_default_ap_transaction_two_charts_19_7_tax_without_skonto_multiple_payments_final_free_skonto();
 
 # test cases: with_skonto_pt
 test_default_invoice_two_items_19_7_tax_with_skonto_50_50();
@@ -289,7 +289,7 @@ sub number_of_payments {
   my $paid_amount;
   foreach my $transaction ( @{ $invoice->transactions } ) {
     if ( $transaction->chart_link =~ /(AR_paid|AP_paid)/ ) {
-      $paid_amount += $transaction->amount ;
+      $paid_amount += $transaction->amount;
       $number_of_payments++;
     }
   };
@@ -553,7 +553,7 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments {
 }
 
 # test 6
-sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto {
+sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_free_skonto {
   my $title = 'default invoice, two items, 19/7% tax not included';
 
   my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
@@ -575,16 +575,21 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
                          chart_id     => $bank_account->chart_id,
                          transdate    => $transdate1,
                        );
-  $invoice->pay_invoice( amount       => $invoice->open_amount,
-                         payment_type => 'difference_as_skonto',
-                         chart_id     => $bank_account->chart_id,
-                         transdate    => $transdate1,
-                         bt_id        => $bt->id,
+  # free_skonto does:
+  #  my $open_amount = $payment_type eq 'with_skonto_pt' ? $invoice->amount_less_skonto : $invoice->open_amount;
+  #  $open_amount    = abs($open_amount);
+  #  $open_amount   -= $free_skonto_amount if ($payment_type eq 'free_skonto');
+
+  $invoice->pay_invoice( skonto_amount => $invoice->open_amount,
+                         amount        => 0,
+                         payment_type  => 'free_skonto',
+                         chart_id      => $bank_account->chart_id,
+                         transdate     => $transdate1,
+                         bt_id         => $bt->id,
                        );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
-
   is($invoice->netamount,        5.85 + 11.66,     "${title}: netamount");
   is($invoice->amount,           6.96 + 12.48,     "${title}: amount");
   is($paid_amount,                     -19.44,     "${title}: paid amount");
@@ -594,13 +599,15 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
 
 }
 
-sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_1cent {
+sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_free_skonto_1cent {
   my $title = 'default invoice, two items, 19/7% tax not included';
 
   # if there is only one cent left there can only be one skonto booking, the
   # error handling should choose the highest amount, which is the 7% account
   # (11.66) rather than the 19% account (5.85).  The actual tax amount is
   # higher for the 19% case, though (1.11 compared to 0.82)
+  #
+  # -> wrong: sub name. two cents are still left. one cent for each tax case. no tax correction
 
   my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
   my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
@@ -616,13 +623,13 @@ sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fi
                          chart_id     => $bank_account->chart_id,
                          transdate    => $transdate1,
                        );
-  $invoice->pay_invoice( amount       => $invoice->open_amount,
-                         payment_type => 'difference_as_skonto',
+  $invoice->pay_invoice( skonto_amount => $invoice->open_amount,
+                         amount       => 0,
+                         payment_type => 'free_skonto',
                          chart_id     => $bank_account->chart_id,
                          transdate    => $transdate1,
                          bt_id        => $bt->id,
                        );
-
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
 
@@ -630,12 +637,11 @@ sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fi
   is($invoice->amount,           6.96 + 12.48,     "${title}: amount");
   is($paid_amount,                     -19.44,     "${title}: paid amount");
   is($invoice->paid,                    19.44,     "${title}: paid");
-  is($number_of_payments,                   3,     "${title}: 2 AR_paid bookings");
+  is($number_of_payments,                   3,     "${title}: 3 AR_paid bookings");
   is($total,                                0,     "${title}: even balance");
-
 }
 
-sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_2cent {
+sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_free_skonto_2cent {
   my $title = 'default invoice, two items, 19/7% tax not included';
 
   # if there are two cents left there will be two skonto bookings, 1 cent each
@@ -653,8 +659,9 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
                          chart_id     => $bank_account->chart_id,
                          transdate    => $transdate1,
                        );
-  $invoice->pay_invoice( amount       => $invoice->open_amount,
-                         payment_type => 'difference_as_skonto',
+  $invoice->pay_invoice( skonto_amount => $invoice->open_amount,
+                         amount       => 0,
+                         payment_type => 'free_skonto',
                          chart_id     => $bank_account->chart_id,
                          transdate    => $transdate1,
                          bt_id        => $bt->id,
@@ -672,7 +679,7 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
 
 }
 
-sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto {
+sub test_default_invoice_one_item_19_multiple_payment_final_free_skonto {
   my $title = 'default invoice, one item, 19% tax, without_skonto';
 
   my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
@@ -697,8 +704,9 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
   $params{payment_type} = 'without_skonto';
   $invoice->pay_invoice( %params );
 
-  $params{amount}       = $invoice->open_amount; # set amount, otherwise previous 3.81 is used
-  $params{payment_type} = 'difference_as_skonto';
+  $params{skonto_amount} = $invoice->open_amount; # set amount, otherwise previous 3.81 is used
+  $params{amount}        = 0,
+  $params{payment_type}  = 'free_skonto';
   $invoice->pay_invoice( %params );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
@@ -713,7 +721,7 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
 
 }
 
-sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto_1cent {
+sub test_default_invoice_one_item_19_multiple_payment_final_free_skonto_1cent {
   my $title = 'default invoice, one item, 19% tax, without_skonto';
 
   my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
@@ -734,8 +742,9 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
   $params{payment_type} = 'without_skonto';
   $invoice->pay_invoice( %params );
 
-  $params{amount}       = $invoice->open_amount; # set amount, otherwise previous value 6.95 is used
-  $params{payment_type} = 'difference_as_skonto';
+  $params{skonto_amount} = $invoice->open_amount;
+  $params{amount}        = 0,
+  $params{payment_type} = 'free_skonto';
   $invoice->pay_invoice( %params );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
@@ -783,11 +792,12 @@ sub test_default_ap_transaction_two_charts_19_7_with_skonto {
                  transdate => $transdate1,
                  bt_id     => $bt->id,
                );
-
-  # $params{amount} = '226'; # pass full amount
+  # BankTransaction-Controller __always__ calcs amount:
+  # my $open_amount = $payment_type eq 'with_skonto_pt' ? $invoice->amount_less_skonto : $invoice->open_amount;
+  $ap_transaction->payment_terms($ap_transaction->vendor->payment);
+  $params{amount}       = $ap_transaction->amount_less_skonto; # pass calculated skonto amount
   $params{payment_type} = 'with_skonto_pt';
 
-  $ap_transaction->payment_terms($ap_transaction->vendor->payment);
   $ap_transaction->pay_invoice( %params );
 
   my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);
@@ -819,8 +829,8 @@ sub test_default_ap_transaction_two_charts_19_7_tax_partial_unrounded_payment_wi
 };
 
 
-sub test_default_ap_transaction_two_charts_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto {
-  my $title = 'default ap_transaction, two charts, 19/7% tax multiple payments with final difference as skonto';
+sub test_default_ap_transaction_two_charts_19_7_tax_without_skonto_multiple_payments_final_free_skonto {
+  my $title = 'default ap_transaction, two charts, 19/7% tax multiple payments with final free skonto';
 
   my $ap_transaction = new_ap_transaction();
 
@@ -838,7 +848,9 @@ sub test_default_ap_transaction_two_charts_19_7_tax_without_skonto_multiple_paym
                           transdate    => $transdate1,
                          );
   $ap_transaction->pay_invoice(
-                          payment_type => 'difference_as_skonto',
+                          payment_type => 'free_skonto',
+                          skonto_amount => $ap_transaction->open_amount,
+                          amount       => 0,
                           chart_id     => $bank_account->chart_id,
                           transdate    => $transdate1,
                           bt_id        => $bt->id,
@@ -848,7 +860,7 @@ sub test_default_ap_transaction_two_charts_19_7_tax_without_skonto_multiple_paym
   my $total = total_amount($ap_transaction);
 
   is($paid_amount,         226, "${title}: paid amount");
-  is($number_of_payments,    4, "${title}: 1 AP_paid bookings");
+  is($number_of_payments,    4, "${title}: 4 AP_paid bookings");
   is($total,                 0, "${title}: even balance");
 
 }
