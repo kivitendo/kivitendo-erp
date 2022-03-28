@@ -1,6 +1,6 @@
 # @tag: clean_tax_18_19
 # @description: Vorbereitung für neue Steuerschlüssel 18,19
-# @depends: release_3_6_0
+# @depends: release_3_6_0 tax_reverse_charge
 # @ignore: 0
 package SL::DBUpgrade2::clean_tax_18_19;
 
@@ -14,8 +14,7 @@ sub delete_alter_tax {
 
   my $query = <<SQL;
     SELECT id from tax
-    where chart_id is not null
-    and taxkey = ?
+    where taxkey = ?
     and reverse_charge_chart_id is null
 SQL
   my $q_fetch = <<SQL;
