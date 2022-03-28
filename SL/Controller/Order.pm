@@ -197,11 +197,19 @@ sub action_save {
            : '';
   flash_later('info', $text);
 
-  my @redirect_params = (
-    action => 'edit',
-    type   => $self->type,
-    id     => $self->order->id,
-  );
+  my @redirect_params;
+  if ($::form->{back_to_caller}) {
+    @redirect_params = $::form->{callback} ? ($::form->{callback})
+                                           : (controller => 'LoginScreen', action => 'user_login');
+
+  } else {
+    @redirect_params = (
+      action   => 'edit',
+      type     => $self->type,
+      id       => $self->order->id,
+      callback => $::form->{callback},
+    );
+  }
 
   $self->redirect_to(@redirect_params);
 }
@@ -2049,6 +2057,17 @@ sub setup_edit_action_bar {
           t8('Save'),
           call      => [ 'kivi.Order.save', 'save', $::instance_conf->get_order_warn_duplicate_parts,
                                                     $::instance_conf->get_order_warn_no_deliverydate,
+          ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'],
+                         @req_trans_cost_art, @req_cusordnumber,
+          ],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
+        ],
+        action => [
+          t8('Save and Close'),
+          call      => [ 'kivi.Order.save', 'save', $::instance_conf->get_order_warn_duplicate_parts,
+                                                    $::instance_conf->get_order_warn_no_deliverydate,
+                                                    1
           ],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'],
                          @req_trans_cost_art, @req_cusordnumber,

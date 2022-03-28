@@ -45,13 +45,15 @@ namespace('kivi.Order', function(ns) {
     }
   };
 
-  ns.save = function(action, warn_on_duplicates, warn_on_reqdate) {
+  ns.save = function(action, warn_on_duplicates, warn_on_reqdate, back_to_caller) {
     if (!ns.check_cv()) return;
     if (warn_on_duplicates && !ns.check_duplicate_parts()) return;
     if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
 
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/' + action });
+
+    if (back_to_caller) data.push({ name: 'back_to_caller', value: '1' });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
