@@ -446,12 +446,16 @@ sub action_save_and_show_email_dialog {
     $user && !!trim($user->get_config_value('email'));
   } @{ SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]) };
 
+
+  my $all_partner_email_addresses = $self->order->customervendor->get_all_email_addresses();
+
   my $dialog_html = $self->render('common/_send_email_dialog', { output => 0 },
                                   email_form    => $email_form,
                                   show_bcc      => $::auth->assert('email_bcc', 'may fail'),
                                   FILES         => \%files,
                                   is_customer   => $self->cv eq 'customer',
                                   ALL_EMPLOYEES => \@employees_with_email,
+                                  ALL_PARTNER_EMAIL_ADDRESSES => $all_partner_email_addresses,
   );
 
   $self->js
@@ -477,6 +481,12 @@ sub action_send_email {
   $self->js_reset_order_and_item_ids_after_save;
 
   my $email_form  = delete $::form->{email_form};
+
+  if ($email_form->{additional_to}) {
+    $email_form->{to} = join ', ', grep { $_ } $email_form->{to}, @{$email_form->{additional_to}};
+    delete $email_form->{additional_to};
+  }
+
   my %field_names = (to => 'email');
 
   $::form->{ $field_names{$_} // $_ } = $email_form->{$_} for keys %{ $email_form };

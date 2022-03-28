@@ -2145,6 +2145,11 @@ sub show_sales_purchase_email_dialog {
   };
 
   my %files = _get_files_for_email_dialog();
+
+  my $all_partner_email_addresses;
+  $all_partner_email_addresses = SL::DB::Customer->load_cached($::form->{vc_id})->get_all_email_addresses() if 'customer' eq $::form->{vc};
+  $all_partner_email_addresses = SL::DB::Vendor  ->load_cached($::form->{vc_id})->get_all_email_addresses() if 'vendor'   eq $::form->{vc};
+
   my $html  = $::form->parse_html_template("common/_send_email_dialog", {
     email_form      => $email_form,
     show_bcc        => $::auth->assert('email_bcc', 'may fail'),
@@ -2152,6 +2157,7 @@ sub show_sales_purchase_email_dialog {
     is_customer     => $::form->{vc} eq 'customer',
     is_invoice_mail => ($record_email && $::form->{type} eq 'invoice'),
     ALL_EMPLOYEES   => \@employees_with_email,
+    ALL_PARTNER_EMAIL_ADDRESSES => $all_partner_email_addresses,
   });
 
   print $::form->ajax_response_header, $html;
@@ -2165,6 +2171,12 @@ sub send_sales_purchase_email {
                   :                                                    'is.pl';
 
   my $email_form  = delete $::form->{email_form};
+
+  if ($email_form->{additional_to}) {
+    $email_form->{to} = join ', ', grep { $_ } $email_form->{to}, @{$email_form->{additional_to}};
+    delete $email_form->{additional_to};
+  }
+
   my %field_names = (to => 'email');
 
   $::form->{ $field_names{$_} // $_ } = $email_form->{$_} for keys %{ $email_form };

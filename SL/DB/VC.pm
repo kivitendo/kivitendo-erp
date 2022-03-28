@@ -2,11 +2,13 @@ package SL::DB::VC;
 
 use strict;
 
-require Exporter;
+use List::MoreUtils qw(uniq);
 use SL::DBUtils;
 
+require Exporter;
+
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(get_credit_remaining);
+our @EXPORT = qw(get_credit_remaining get_all_email_addresses);
 
 sub get_credit_remaining {
   my $vc               = shift;
@@ -48,6 +50,44 @@ SQL
   $sth->finish;
 
   return $credit_remaining;
+}
+
+sub get_all_email_addresses {
+  my ($self) = @_;
+
+  my $is_sales = ref $self eq 'SL::DB::Customer';
+
+  my @addresses;
+
+  # billing address
+  push @addresses, $self->$_ for qw(email cc bcc);
+  if ($is_sales) {
+    push @addresses, $self->$_ for qw(delivery_order_mail invoice_mail);
+  }
+
+  # additional billing addresses
+  if ($is_sales) {
+    foreach my $additional_billing_address (@{ $self->additional_billing_addresses }) {
+      push @addresses, $additional_billing_address->$_ for qw(email);
+    }
+  }
+
+  # contacts
+  foreach my $contact (@{ $self->contacts }) {
+    push @addresses, $contact->$_ for qw(cp_email cp_privatemail);
+  }
+
+  # shiptos
+  foreach my $shipto (@{ $self->shipto }) {
+    push @addresses, $shipto->$_ for qw(shiptoemail);
+  }
+
+  # remove empty ones and duplicates
+  @addresses = grep { $_ } @addresses;
+  @addresses = uniq @addresses;
+
+
+  return \@addresses;
 }
 
 1;

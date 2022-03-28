@@ -40,6 +40,21 @@
    </td>
   </tr>
 
+  [%- IF ALL_PARTNER_EMAIL_ADDRESSES.size %]
+   [%- FOREACH email = ALL_PARTNER_EMAIL_ADDRESSES %]
+    <tr class="hidden" data-toggle-recipients="1">
+     <th align="right" nowrap>
+      [%- IF loop.first %]
+       [% LxERP.t8("Other recipients") %]
+      [%- END %]
+     </th>
+     <td>
+       [% P.checkbox_tag("email_form.additional_to[]", label=email, value=email, checked="0") %]
+     </td>
+    </tr>
+   [%- END %]
+  [%- END %]
+
  [%- IF ALL_EMPLOYEES.size %]
   <tr class="hidden" data-toggle-recipients="1">
    <th align="right" nowrap>[% LxERP.t8("CC to Employee") %]</th>
