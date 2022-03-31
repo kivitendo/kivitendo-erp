@@ -274,10 +274,13 @@ namespace('kivi.SalesPurchase', function(ns) {
     return true;
   };
 
-  this.show_email_dialog = function(send_action) {
+  this.show_email_dialog = function(send_action, vc, vc_id_selector) {
     $('#form').data('send-email-action', send_action || 'send_sales_purchase_email');
 
-    var vc   = $('#vc').val();
+    vc             = vc             || $('#vc').val();
+    vc_id_selector = vc_id_selector || '#' + vc + '_id';
+    var vc_id = $(vc_id_selector).val();
+
     var data = {
       action:       'show_sales_purchase_email_dialog',
       cp_id:        $('#cp_id').val(),
@@ -295,7 +298,7 @@ namespace('kivi.SalesPurchase', function(ns) {
       quonumber:    $('#quonumber').val(),
       type:         $('#type').val(),
       vc:           vc,
-      vc_id:        $('#' + vc + '_id').val(),
+      vc_id:        vc_id,
       project_id:  $('#globalproject_id').val(),
     };
 

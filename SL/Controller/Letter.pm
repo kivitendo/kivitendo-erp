@@ -620,6 +620,8 @@ sub setup_load_letter_draft_action_bar {
 sub setup_display_action_bar {
   my ($self, %params) = @_;
 
+  my $vc = $self->is_sales ? 'customer' : 'vendor'; # needed for show_email_dialog
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
@@ -655,7 +657,7 @@ sub setup_display_action_bar {
         ],
         action => [
           t8('E-mail'),
-          call     => [ 'kivi.SalesPurchase.show_email_dialog', 'Letter/send_email' ],
+          call     => [ 'kivi.SalesPurchase.show_email_dialog', 'Letter/send_email', $vc, '#letter_' . $vc . '_id' ],
           disabled => !$self->letter->id ? t8('The object has not been saved yet.') : undef,
         ],
       ],
