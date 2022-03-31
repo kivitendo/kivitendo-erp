@@ -7,7 +7,6 @@ use SL::Controller::TopQuickSearch::Customer;
 use SL::Controller::TopQuickSearch::Vendor;
 use SL::DB::Customer;
 use SL::DB::Vendor;
-use SL::DBUtils qw(like);
 use SL::Locale::String qw(t8);
 use SL::Util qw(trim);
 
@@ -23,22 +22,24 @@ sub query_autocomplete {
   my ($self) = @_;
 
   my @results;
-  my $like_search_term = like(trim($::form->{term}));
+  my $search_term = trim($::form->{term});
+  $search_term    =~ s{\p{WSpace}+}{}g;
+  $search_term    = join ' *', split(//, $search_term);
 
   foreach my $model (qw(Customer Vendor)) {
     my $manager = 'SL::DB::Manager::' . $model;
     my $result  = $manager->get_all(
       query => [ or => [ 'obsolete' => 0, 'obsolete' => undef ],
-                 or => [ phone                     => { ilike => $like_search_term },
-                         fax                       => { ilike => $like_search_term },
-                         'contacts.cp_phone1'      => { ilike => $like_search_term },
-                         'contacts.cp_phone2'      => { ilike => $like_search_term },
-                         'contacts.cp_fax'         => { ilike => $like_search_term },
-                         'contacts.cp_mobile1'     => { ilike => $like_search_term },
-                         'contacts.cp_mobile2'     => { ilike => $like_search_term },
-                         'contacts.cp_satphone'    => { ilike => $like_search_term },
-                         'contacts.cp_satfax'      => { ilike => $like_search_term },
-                         'contacts.cp_privatphone' => { ilike => $like_search_term },
+                 or => [ phone                     => { imatch => $search_term },
+                         fax                       => { imatch => $search_term },
+                         'contacts.cp_phone1'      => { imatch => $search_term },
+                         'contacts.cp_phone2'      => { imatch => $search_term },
+                         'contacts.cp_fax'         => { imatch => $search_term },
+                         'contacts.cp_mobile1'     => { imatch => $search_term },
+                         'contacts.cp_mobile2'     => { imatch => $search_term },
+                         'contacts.cp_satphone'    => { imatch => $search_term },
+                         'contacts.cp_satfax'      => { imatch => $search_term },
+                         'contacts.cp_privatphone' => { imatch => $search_term },
                  ] ],
       with_objects => ['contacts']);
 
