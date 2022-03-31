@@ -112,6 +112,7 @@ my %supported_types = (
       {                            title => t8('Number Format'), formatter => sub { $_[0]->output_numberformat || t8('use program settings') } },
       {                            title => t8('Date Format'),   formatter => sub { $_[0]->output_dateformat   || t8('use program settings') } },
       {                            title => t8('Long Dates'),    formatter => sub { $_[0]->output_longdates ? t8('yes') : t8('no') } },
+      {                            title => t8('Obsolete'),      formatter => sub { $_[0]->obsolete  ? t8('yes') : t8('no') } },
     ],
   },
 
