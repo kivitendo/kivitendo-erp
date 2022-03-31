@@ -14,6 +14,7 @@ __PACKAGE__->meta->columns(
   id                  => { type => 'integer', not_null => 1, sequence => 'id' },
   itime               => { type => 'timestamp', default => 'now()' },
   mtime               => { type => 'timestamp' },
+  obsolete            => { type => 'boolean', default => 'false' },
   output_dateformat   => { type => 'text' },
   output_longdates    => { type => 'boolean' },
   output_numberformat => { type => 'text' },
