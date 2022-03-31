@@ -20,7 +20,7 @@ my %object_loader = (
   sales_order     => [ "SL::DB::Order", [ sales => 1, quotation => 0 ] ],
   sales_quotation => [ "SL::DB::Order", [ sales => 1, quotation => 1 ] ],
   purchase_order  => [ "SL::DB::Order", [ sales => 0, quotation => 1 ] ],
-  sales_delivery_order => [ "SL::DB::DeliveryOrder", [ is_sales => 1 ] ],
+  sales_delivery_order => [ "SL::DB::DeliveryOrder", [ order_type => 'sales_delivery_order' ] ],
 );
 
 
