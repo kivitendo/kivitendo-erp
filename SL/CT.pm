@@ -246,21 +246,25 @@ sub search {
   }
 
   if ($form->{all_phonenumbers}) {
-    $where .= qq| AND (ct.phone ILIKE ? OR
-                       ct.fax   ILIKE ? OR
+    my $search_term = trim($form->{all_phonenumbers});
+    $search_term    =~ s{\p{WSpace}+}{}g;
+    $search_term    = join ' *', split(//, $search_term);
+
+    $where .= qq| AND (ct.phone ~* ? OR
+                       ct.fax   ~* ? OR
                        ct.id    IN
                          (SELECT cp_cv_id FROM contacts
-                          WHERE cp_phone1      ILIKE ? OR
-                                cp_phone2      ILIKE ? OR
-                                cp_fax         ILIKE ? OR
-                                cp_mobile1     ILIKE ? OR
-                                cp_mobile2     ILIKE ? OR
-                                cp_satphone    ILIKE ? OR
-                                cp_satfax      ILIKE ? OR
-                                cp_privatphone ILIKE ?
+                          WHERE cp_phone1      ~* ? OR
+                                cp_phone2      ~* ? OR
+                                cp_fax         ~* ? OR
+                                cp_mobile1     ~* ? OR
+                                cp_mobile2     ~* ? OR
+                                cp_satphone    ~* ? OR
+                                cp_satfax      ~* ? OR
+                                cp_privatphone ~* ?
                          )
     )|;
-    push @values, (like(trim($form->{all_phonenumbers})))x10;
+    push @values, ($search_term)x10;
   }
 
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',
