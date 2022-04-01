@@ -1958,7 +1958,7 @@ sub pre_render {
   $self->{all_taxzones}               = SL::DB::Manager::TaxZone->get_all_sorted();
   $self->{all_currencies}             = SL::DB::Manager::Currency->get_all_sorted();
   $self->{all_departments}            = SL::DB::Manager::Department->get_all_sorted();
-  $self->{all_languages}              = SL::DB::Manager::Language->get_all_sorted( query => [ obsolete => 0 ] );
+  $self->{all_languages}              = SL::DB::Manager::Language->get_all_sorted( query => [ or => [ obsolete => 0, id => $self->order->language_id ] ] );
   $self->{all_employees}              = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->employee_id,
                                                                                               deleted => 0 ] ],
                                                                            sort_by => 'name');
