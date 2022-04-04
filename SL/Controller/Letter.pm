@@ -379,9 +379,9 @@ sub prepare_report {
   my %column_defs = (
     date                  => { text => t8('Date'),         sub => sub { $_[0]->date_as_date } },
     subject               => { text => t8('Subject'),      sub => sub { $_[0]->subject },
-                               obj_link => sub { $self->url_for(action => 'edit', 'letter.id' => $_[0]->id, is_sales => $self->is_sales, callback => $self->models->get_callback) }  },
+                               obj_link => sub { $self->url_for(action => 'edit', 'letter.id' => $_[0]->id, callback => $self->models->get_callback) }  },
     letternumber          => { text => t8('Letternumber'), sub => sub { $_[0]->letternumber },
-                               obj_link => sub { $self->url_for(action => 'edit', 'letter.id' => $_[0]->id, is_sales => $self->is_sales, callback => $self->models->get_callback) }  },
+                               obj_link => sub { $self->url_for(action => 'edit', 'letter.id' => $_[0]->id, callback => $self->models->get_callback) }  },
     customer_id           => { text => t8('Customer'),      sub => sub { SL::DB::Manager::Customer->find_by_or_create(id => $_[0]->customer_id)->displayable_name }, visible => $self->is_sales },
     vendor_id             => { text => t8('Vendor'),        sub => sub { SL::DB::Manager::Vendor->find_by_or_create(id => $_[0]->vendor_id)->displayable_name }, visible => !$self->is_sales},
     contact               => { text => t8('Contact'),       sub => sub { $_[0]->contact ? $_[0]->contact->full_name : '' } },
@@ -588,13 +588,13 @@ sub init_is_sales {
 }
 
 sub check_auth_edit {
-  $_[0]->is_sales ? $::auth->assert('sales_letter_edit')
-                  : $::auth->assert('purchase_letter_edit');
+  $::form->{is_sales} ? $::auth->assert('sales_letter_edit')
+                      : $::auth->assert('purchase_letter_edit');
 }
 
 sub check_auth_report {
-  $_[0]->is_sales ? $::auth->assert('sales_letter_report')
-                  : $::auth->assert('purchase_letter_report');
+  $::form->{is_sales} ? $::auth->assert('sales_letter_report')
+                      : $::auth->assert('purchase_letter_report');
 }
 
 sub setup_load_letter_draft_action_bar {
