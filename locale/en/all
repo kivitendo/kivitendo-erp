@@ -897,6 +897,7 @@ $self->{texts} = {
   'Customer Order Number'       => '',
   'Customer Part Number'        => '',
   'Customer Price'              => '',
+  'Customer Proposals'          => '',
   'Customer deleted!'           => '',
   'Customer details'            => '',
   'Customer missing!'           => '',
