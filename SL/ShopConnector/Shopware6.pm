@@ -701,6 +701,9 @@ sub get_version {
 sub set_orderstatus {
   my ($self, $order_id, $transition) = @_;
 
+  # one state differs
+  $transition = 'complete' if $transition eq 'completed';
+
   croak "No shop order ID, should be in format [0-9a-f]{32}" unless $order_id   =~ m/^[0-9a-f]{32}$/;
   croak "NO valid transition value"                          unless $transition =~ m/(open|process|cancel|complete)/;
   my $ret;
