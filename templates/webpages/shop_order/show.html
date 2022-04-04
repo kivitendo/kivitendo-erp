@@ -132,7 +132,7 @@
             <div style="height: 125px; overflow:auto;">
               <table>
                 <tr class="listheading">
-                  <th colspan="7">Customer Proposals</td>
+                  <th colspan="7">[% 'Customer Proposals' | $T8 %]</td>
                 </tr>
                 [% FOREACH prop = PROPOSALS %][% IF prop.order_lock %][% SET orderlock_class = 'style="background:rgba(232, 32, 23, 0.2);"' %][% ELSE %][% SET orderlock_class = '' %][% END %]
                 <tr class="listrow" [% orderlock_class %]>
