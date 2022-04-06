@@ -21,11 +21,11 @@ use constant RENAME_NEW_VERSION => 4;
 
 sub get {
   my ($self, %params) = @_;
-  die 'no id' unless $params{id};
-  my $dbfile = SL::DB::Manager::File->get_first(query => [id => $params{id}]);
-  die 'not found' unless $dbfile;
-  $main::lxdebug->message(LXDebug->DEBUG2(), "object_id=".$dbfile->object_id." object_type=".$dbfile->object_type." dbfile=".$dbfile);
-  SL::File::Object->new(db_file => $dbfile, id => $dbfile->id, loaded => 1);
+  die "no id or dbfile" unless $params{id} || $params{dbfile};
+  $params{dbfile} = SL::DB::Manager::File->get_first(query => [id => $params{id}]) if !$params{dbfile};
+  die 'not found' unless $params{dbfile};
+  $main::lxdebug->message(LXDebug->DEBUG2(), "object_id=".$params{dbfile}->object_id." object_type=".$params{dbfile}->object_type." dbfile=".$params{dbfile});
+  SL::File::Object->new(db_file => $params{dbfile}, id => $params{dbfile}->id, loaded => 1);
 }
 
 sub get_version_count {
