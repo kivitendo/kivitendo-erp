@@ -63,9 +63,9 @@ sub get_all {
 sub get_all_versions {
   my ($self, %params) = @_;
   my @versionobjs;
-  my @fileobjs = $self->get_all(%params);
+  my @fileobjs;
   if ( $params{dbfile} ) {
-    push @fileobjs, SL::File::Object->new(dbfile => $params{db_file}, id => $params{dbfile}->id, loaded => 1);
+    push @fileobjs, SL::File::Object->new(db_file => $params{dbfile}, id => $params{dbfile}->id, loaded => 1);
   } else {
     @fileobjs = $self->get_all(%params);
   }
