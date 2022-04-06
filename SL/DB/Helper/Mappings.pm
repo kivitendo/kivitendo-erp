@@ -144,6 +144,7 @@ my %kivitendo_package_names = (
   employee_project_invoices      => 'EmployeeProjectInvoices',
   exchangerate                   => 'exchangerate',
   files                          => 'file',
+  file_full_texts                => 'file_full_text',
   finanzamt                      => 'finanzamt',
   follow_up_access               => 'follow_up_access',
   follow_up_links                => 'follow_up_link',
