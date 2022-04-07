@@ -17,7 +17,7 @@ use Carp;
 use Data::Dumper;
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(models vc all_employees all_businesses) ],
+  'scalar --get_set_init' => [ qw(models vc all_employees all_businesses all_partsgroups) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('delivery_value_report'); });
@@ -141,13 +141,14 @@ sub prepare_report {
 sub make_filter_summary {
   my ($self) = @_;
   my $vc     = $self->vc;
-  my ($business, $employee);
+  my ($business, $employee, $partsgroup);
 
   my $filter = $::form->{filter} || {};
   my @filter_strings;
 
-  $business = SL::DB::Business->new(id => $filter->{order}{customer}{"business_id"})->load->description if $filter->{order}{customer}{"business_id"};
-  $employee = SL::DB::Employee->new(id => $filter->{order}{employee_id})->load->name if $filter->{order}{employee_id};
+  $business   = SL::DB::Business->new(id => $filter->{order}{customer}{"business_id"})->load->description if $filter->{order}{customer}{"business_id"};
+  $employee   = SL::DB::Employee->new(id => $filter->{order}{employee_id})->load->name                    if $filter->{order}{employee_id};
+  $partsgroup = SL::DB::PartsGroup->new(id => $filter->{part}{partsgroup_id})->load->partsgroup           if $filter->{part}{partsgroup_id};
 
   my @filters = (
     [ $filter->{order}{"ordnumber:substr::ilike"},                    $::locale->text('Number')                                             ],
@@ -163,6 +164,7 @@ sub make_filter_summary {
     [ $filter->{order}{customer}{"customernumber:substr::ilike"},     $::locale->text('Customer Number')                                    ],
     [ $business,                                                      $::locale->text('Customer type')                                      ],
     [ $employee,                                                      $::locale->text('Employee')                                           ],
+    [ $partsgroup,                                                    $::locale->text('Partsgroup')                                         ],
   );
 
   # flags for with_object 'part'
@@ -216,6 +218,9 @@ sub init_all_employees {
 }
 sub init_all_businesses {
   return SL::DB::Manager::Business->get_all_sorted;
+}
+sub init_all_partsgroups {
+  return SL::DB::Manager::PartsGroup->get_all_sorted;
 }
 
 

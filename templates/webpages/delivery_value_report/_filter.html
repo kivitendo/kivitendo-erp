@@ -78,6 +78,12 @@
                      style      => 'width: 200px') %]
    </td>
   </tr>
+  [%- IF SELF.all_partsgroups.size %]
+  <tr>
+     <th align="right">[% 'Partsgroup' | $T8 %]</th>
+     <td>[%- L.select_tag('filter.part.partsgroup_id', SELF.all_partsgroups, default=filter.part.partsgroup_id, title_key='partsgroup', value_key='id', with_empty=1 style='width: 200px') %]</td>
+  </tr>
+  [% END %]
   <tr>
    <th align="right">[% 'Type' | $T8 %]</th>
    <td>
