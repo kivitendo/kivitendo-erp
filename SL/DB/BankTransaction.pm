@@ -99,6 +99,17 @@ sub get_agreement_with_invoice {
   $bank_code      = $invoice->vendor->bank_code        if ! $invoice->is_sales;
   $iban           = $invoice->vendor->iban             if ! $invoice->is_sales;
   $account_number = $invoice->vendor->account_number   if ! $invoice->is_sales;
+
+  # check only valid remote_account_number (with some content)
+  if ($self->remote_account_number) {
+    if ($bank_code eq $self->remote_bank_code && $account_number eq $self->remote_account_number) {
+      $agreement += $points{remote_account_number};
+      $rule_matches .= 'remote_account_number(' . $points{'remote_account_number'} . ') ';
+    } elsif ($iban eq $self->remote_account_number) { # elsif -> do not add twice
+      $agreement += $points{remote_account_number};
+      $rule_matches .= 'remote_account_number(' . $points{'remote_account_number'} . ') ';
+    }
+  }
   if ( $bank_code eq $self->remote_bank_code && $account_number eq $self->remote_account_number ) {
     $agreement += $points{remote_account_number};
     $rule_matches .= 'remote_account_number(' . $points{'remote_account_number'} . ') ';
