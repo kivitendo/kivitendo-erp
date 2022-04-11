@@ -47,6 +47,16 @@ __PACKAGE__->meta->add_relationship(
     class                  => 'SL::DB::Exchangerate',
     column_map             => { currency_id => 'currency_id', transdate => 'transdate' },
   },
+  phone_notes => {
+    type         => 'one to many',
+    class        => 'SL::DB::Note',
+    column_map   => { id => 'trans_id' },
+    query_args   => [ trans_module => 'oe' ],
+    manager_args => {
+      with_objects => [ 'employee' ],
+      sort_by      => 'notes.itime',
+    }
+  },
 );
 
 SL::DB::Helper::Attr::make(__PACKAGE__, daily_exchangerate => 'numeric');

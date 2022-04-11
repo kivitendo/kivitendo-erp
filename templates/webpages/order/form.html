@@ -38,6 +38,9 @@
 [%- IF SELF.order.id %]
       <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=Order&object_id=[% HTML.url(SELF.order.id) %]">[% 'Linked Records' | $T8 %]</a></li>
 [%- END %]
+[% IF SELF.order.id %]
+      <li><a href="#ui-tabs-phone-notes">[% 'Phone Notes' | $T8 %]<span id="num_phone_notes">[%- num_phone_notes ? ' (' _ num_phone_notes _ ')' : '' -%]</span></a></li>
+[% END %]
     </ul>
 
     [% PROCESS "order/tabs/basic_data.html" %]
@@ -45,7 +48,11 @@
     <div id="ui-tabs-1">
       [%- LxERP.t8("Loading...") %]
     </div>
-
+[% IF SELF.order.id %]
+    <div id="ui-tabs-phone-notes">
+      [% PROCESS "order/tabs/phone_notes.html" %]
+    </div>
+[% END %]
     <div id="shipto_inputs" class="hidden">
       [%- PROCESS 'common/_ship_to_dialog.html'
         vc_obj=SELF.order.customervendor

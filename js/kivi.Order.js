@@ -878,7 +878,6 @@ namespace('kivi.Order', function(ns) {
   ns.create_part = function() {
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/create_part' });
-
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
@@ -904,6 +903,38 @@ namespace('kivi.Order', function(ns) {
       return confirm(kivi.t8('The customer order number is missing. Do you want to continue anyway?'));
     }
     return true;
+  };
+
+  ns.load_phone_note = function(id, subject, body) {
+    $('#phone_note_edit_text').html(kivi.t8('Edit note'));
+    $('#phone_note_id').val(id);
+    $('#phone_note_subject').val(subject);
+    $('#phone_note_body').val(body);
+    $('#phone_note_delete_button').show();
+  };
+
+  ns.cancel_phone_note = function() {
+    $('#phone_note_edit_text').html(kivi.t8('Add note'));
+    $('#phone_note_id').val('');
+    $('#phone_note_subject').val('');
+    $('#phone_note_body').val('');
+    $('#phone_note_delete_button').hide();
+  };
+
+  ns.save_phone_note = function() {
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'Order/save_phone_note' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.delete_phone_note = function() {
+    if ($('#phone_note_id').val() === '') return;
+
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'Order/delete_phone_note' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
   };
 
 });

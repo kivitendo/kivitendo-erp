@@ -24,6 +24,7 @@ use SL::DB::Part;
 use SL::DB::PartClassification;
 use SL::DB::PartsGroup;
 use SL::DB::Printer;
+use SL::DB::Note;
 use SL::DB::Language;
 use SL::DB::RecordLink;
 use SL::DB::RequirementSpec;
@@ -1239,6 +1240,58 @@ sub action_update_row_from_master_data {
   $self->js->render();
 }
 
+sub action_save_phone_note {
+  my ($self) = @_;
+
+  if (!$::form->{phone_note}->{subject} || !$::form->{phone_note}->{body}) {
+    return $self->js->flash('error', t8('Phone note needs a subject and a body.'))->render;
+  }
+
+  my $phone_note;
+  if ($::form->{phone_note}->{id}) {
+    $phone_note = first { $_->id == $::form->{phone_note}->{id} } @{$self->order->phone_notes};
+    return $self->js->flash('error', t8('Phone note not found for this order.'))->render if !$phone_note;
+  }
+
+  $phone_note = SL::DB::Note->new() if !$phone_note;
+  my $is_new  = !$phone_note->id;
+
+  $phone_note->assign_attributes(%{ $::form->{phone_note} },
+                                 trans_id     => $self->order->id,
+                                 trans_module => 'oe',
+                                 employee     => SL::DB::Manager::Employee->current);
+
+  $phone_note->save;
+  $self->order(SL::DB::Order->new(id => $self->order->id)->load);
+
+  my $tab_as_html = $self->p->render('order/tabs/phone_notes', SELF => $self);
+
+  return $self->js
+    ->replaceWith('#phone-notes', $tab_as_html)
+    ->html('#num_phone_notes', (scalar @{$self->order->phone_notes}) ? ' (' . scalar @{$self->order->phone_notes} . ')' : '')
+    ->flash('info', $is_new ? t8('Phone note has been created.') : t8('Phone note has been updated.'))
+    ->render;
+}
+
+sub action_delete_phone_note {
+  my ($self) = @_;
+
+  my $phone_note = first { $_->id == $::form->{phone_note}->{id} } @{$self->order->phone_notes};
+
+  return $self->js->flash('error', t8('Phone note not found for this order.'))->render if !$phone_note;
+
+  $phone_note->delete;
+  $self->order(SL::DB::Order->new(id => $self->order->id)->load);
+
+  my $tab_as_html = $self->p->render('order/tabs/phone_notes', SELF => $self);
+
+  return $self->js
+    ->replaceWith('#phone-notes', $tab_as_html)
+    ->html('#num_phone_notes', (scalar @{$self->order->phone_notes}) ? ' (' . scalar @{$self->order->phone_notes} . ')' : '')
+    ->flash('info', t8('Phone note has been deleted.'))
+    ->render;
+}
+
 sub js_load_second_row {
   my ($self, $item, $item_id, $do_parse) = @_;
 
@@ -1802,6 +1855,30 @@ sub save {
   my $errors = [];
   my $db     = $self->order->db;
 
+  # check for new or updated phone note
+  if ($::form->{phone_note}->{subject} || $::form->{phone_note}->{body}) {
+    if (!$::form->{phone_note}->{subject} || !$::form->{phone_note}->{body}) {
+      return [t8('Phone note needs a subject and a body.')];
+      die;
+    }
+
+    my $phone_note;
+    if ($::form->{phone_note}->{id}) {
+      $phone_note = first { $_->id == $::form->{phone_note}->{id} } @{$self->order->phone_notes};
+      return [t8('Phone note not found for this order.')] if !$phone_note;
+    }
+
+    $phone_note = SL::DB::Note->new() if !$phone_note;
+    my $is_new  = !$phone_note->id;
+
+    $phone_note->assign_attributes(%{ $::form->{phone_note} },
+                                   trans_id     => $self->order->id,
+                                   trans_module => 'oe',
+                                   employee     => SL::DB::Manager::Employee->current);
+
+    $self->order->add_phone_notes($phone_note) if $is_new;
+  }
+
   $db->with_transaction(sub {
     # delete custom shipto if it is to be deleted or if it is empty
     if ($self->order->custom_shipto && ($self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty)) {
@@ -2025,6 +2102,8 @@ sub pre_render {
   $self->{template_args}->{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
 
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
+
+  $self->{template_args}->{num_phone_notes} = scalar @{ $self->order->phone_notes || [] };
 
   $::request->{layout}->use_javascript("${_}.js") for qw(kivi.Validator kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery
                                                          edit_periodic_invoices_config calculate_qty follow_up show_history);
