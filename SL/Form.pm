@@ -389,6 +389,7 @@ sub create_http_response {
                                      '-path'    => $uri->path,
                                      '-expires' => '+' . $::auth->{session_timeout} . 'm',
                                      '-secure'  => $::request->is_https);
+      $session_cookie = "$session_cookie; SameSite=strict";
     }
   }
 
