@@ -34,6 +34,7 @@
 
 use SL::FU;
 use SL::Helper::Flash qw(flash_later);
+use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::IR;
 use SL::IS;
 use SL::DB::BankTransactionAccTrans;
@@ -456,9 +457,10 @@ sub form_header {
     $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
-  $TMPL_VAR{is_format_html}      = $form->{format} eq 'html';
-  $TMPL_VAR{dateformat}          = $myconfig{dateformat};
-  $TMPL_VAR{numberformat}        = $myconfig{numberformat};
+  $TMPL_VAR{is_format_html}                         = $form->{format} eq 'html';
+  $TMPL_VAR{dateformat}                             = $myconfig{dateformat};
+  $TMPL_VAR{numberformat}                           = $myconfig{numberformat};
+  $TMPL_VAR{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
 
   # hiddens
   $TMPL_VAR{HIDDENS} = [qw(

@@ -25,3 +25,9 @@
   <a onclick="$('#edit_longdescription_dialog').dialog('close');" href="#">[% LxERP.t8("Abort") %]</a>
  </p>
 </div>
+
+<script>
+  $(function() {
+    kivi.SalesPurchase.longdescription_dialog_size_percentage = "[% longdescription_dialog_size_percentage %]";
+  });
+</script>

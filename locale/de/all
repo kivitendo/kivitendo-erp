@@ -2046,6 +2046,7 @@ $self->{texts} = {
   'Long Description (quotations & orders)' => 'Langtext (Angebote & Aufträge)',
   'Long Description for invoices' => 'Langtext für Rechnungen',
   'Long Description for quotations & orders' => 'Langtext für Angebote & Aufträge',
+  'Longdescription dialog size percentage from main window (0 means fix values)' => 'Prozentuale Größe des Langtext-Dialogs im Verhältnis zum Hauptfenster (0 bedeutet feste Größe)',
   'Loss'                        => 'Verlust',
   'Loss carried forward account' => 'Verlustvortragskonto',
   'Luxembourg'                  => 'Luxemburg',

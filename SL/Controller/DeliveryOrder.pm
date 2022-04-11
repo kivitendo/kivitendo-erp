@@ -33,6 +33,7 @@ use SL::DB::TransferType;
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
 use SL::Helper::ShippedQty;
+use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::UpdatePositions;
 
@@ -1781,7 +1782,8 @@ sub pre_render {
                                                 } } @all_objects;
   }
 
-  $self->{template_args}{in_out} = $self->type_data->transfer;
+  $self->{template_args}{in_out}                                 = $self->type_data->transfer;
+  $self->{template_args}{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
 
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 

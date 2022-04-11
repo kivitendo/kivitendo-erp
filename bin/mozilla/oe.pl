@@ -42,6 +42,7 @@ use SL::FU;
 use SL::OE;
 use SL::IR;
 use SL::IS;
+use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::MoreCommon qw(ary_diff restore_form save_form);
 use SL::ReportGenerator;
 use SL::YAML;
@@ -50,7 +51,6 @@ use List::Util qw(min max reduce sum);
 use Data::Dumper;
 
 use SL::Controller::Order;
-
 use SL::DB::Customer;
 use SL::DB::TaxZone;
 use SL::DB::PaymentTerm;
@@ -622,8 +622,9 @@ sub form_header {
   }
 
   $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup});");
-  $TMPL_VAR->{dateformat}          = $myconfig{dateformat};
-  $TMPL_VAR->{numberformat}        = $myconfig{numberformat};
+  $TMPL_VAR->{dateformat}                             = $myconfig{dateformat};
+  $TMPL_VAR->{numberformat}                           = $myconfig{numberformat};
+  $TMPL_VAR->{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
 
   if ($form->{type} eq 'sales_order') {
     if (!$form->{periodic_invoices_config}) {

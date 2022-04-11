@@ -659,12 +659,13 @@ sub config {
   $form->{enabled_quick_searchmodules} = \@{$enabled_quick_search};
   $form->{default_quick_searchmodules} = \@quick_search_modules;
 
-  $form->{displayable_name_specs_by_module} = AM->displayable_name_specs_by_module();
-  $form->{positions_scrollbar_height}       = AM->positions_scrollbar_height();
-  $form->{purchase_search_makemodel}        = AM->purchase_search_makemodel();
-  $form->{sales_search_customer_partnumber} = AM->sales_search_customer_partnumber();
-  $form->{positions_show_update_button}     = AM->positions_show_update_button();
-  $form->{time_recording_use_duration}      = AM->time_recording_use_duration();
+  $form->{displayable_name_specs_by_module}       = AM->displayable_name_specs_by_module();
+  $form->{positions_scrollbar_height}             = AM->positions_scrollbar_height();
+  $form->{purchase_search_makemodel}              = AM->purchase_search_makemodel();
+  $form->{sales_search_customer_partnumber}       = AM->sales_search_customer_partnumber();
+  $form->{positions_show_update_button}           = AM->positions_show_update_button();
+  $form->{time_recording_use_duration}            = AM->time_recording_use_duration();
+  $form->{longdescription_dialog_size_percentage} = AM->longdescription_dialog_size_percentage();
 
   $myconfig{show_form_details} = 1 unless (defined($myconfig{show_form_details}));
   $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();

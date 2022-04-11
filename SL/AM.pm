@@ -52,6 +52,7 @@ use SL::DB::Part;
 use SL::DB::Vendor;
 use SL::DB;
 use SL::GenericTranslations;
+use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::PartPickerSearch;
 use SL::Helper::UserPreferences::TimeRecording;
@@ -551,6 +552,10 @@ sub time_recording_use_duration {
   SL::Helper::UserPreferences::TimeRecording->new()->get_use_duration();
 }
 
+sub longdescription_dialog_size_percentage {
+  SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
+}
+
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
@@ -590,6 +595,9 @@ sub save_preferences {
   }
   if (exists $form->{time_recording_use_duration}) {
     SL::Helper::UserPreferences::TimeRecording->new()->store_use_duration($form->{time_recording_use_duration})
+  }
+  if (exists $form->{longdescription_dialog_size_percentage}) {
+    SL::Helper::UserPreferences::DisplayPreferences->new()->store_longdescription_dialog_size_percentage($form->{longdescription_dialog_size_percentage})
   }
 
   $main::lxdebug->leave_sub();

@@ -35,6 +35,7 @@
 use SL::FU;
 use SL::IS;
 use SL::OE;
+use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::MoreCommon qw(restore_form save_form);
 use SL::RecordLinks;
 
@@ -625,11 +626,12 @@ sub form_header {
     $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
-  $TMPL_VAR{is_type_normal_invoice} = $form->{type} eq "invoice";
-  $TMPL_VAR{is_type_credit_note}    = $form->{type}   eq "credit_note";
-  $TMPL_VAR{is_format_html}         = $form->{format} eq 'html';
-  $TMPL_VAR{dateformat}             = $myconfig{dateformat};
-  $TMPL_VAR{numberformat}           = $myconfig{numberformat};
+  $TMPL_VAR{is_type_normal_invoice}                 = $form->{type} eq "invoice";
+  $TMPL_VAR{is_type_credit_note}                    = $form->{type}   eq "credit_note";
+  $TMPL_VAR{is_format_html}                         = $form->{format} eq 'html';
+  $TMPL_VAR{dateformat}                             = $myconfig{dateformat};
+  $TMPL_VAR{numberformat}                           = $myconfig{numberformat};
+  $TMPL_VAR{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
 
   # hiddens
   $TMPL_VAR{HIDDENS} = [qw(

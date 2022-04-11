@@ -2046,6 +2046,7 @@ $self->{texts} = {
   'Long Description (quotations & orders)' => '',
   'Long Description for invoices' => '',
   'Long Description for quotations & orders' => '',
+  'Longdescription dialog size percentage from main window (0 means fix values)' => '',
   'Loss'                        => '',
   'Loss carried forward account' => '',
   'Luxembourg'                  => '',

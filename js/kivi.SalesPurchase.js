@@ -1,4 +1,6 @@
 namespace('kivi.SalesPurchase', function(ns) {
+  this.longdescription_dialog_size_percentage = 0;
+
   this.edit_longdescription = function(row) {
     var $element = $('#longdescription_' + row);
 
@@ -17,8 +19,20 @@ namespace('kivi.SalesPurchase', function(ns) {
   };
 
   this.edit_longdescription_with_params = function(params) {
+    var dialog_width    = 800;
+    var dialog_height   = 500;
+    var textarea_width  = 750;
+    var textarea_height = 220;
+    if (this.longdescription_dialog_size_percentage != 0) {
+      dialog_width    = Math.ceil(window.innerWidth  * this.longdescription_dialog_size_percentage/100);
+      dialog_height   = Math.ceil(window.innerHeight * this.longdescription_dialog_size_percentage/100);
+      textarea_width  = Math.ceil(dialog_width * 95/100);
+      textarea_height = dialog_height - 220;
+      if (textarea_height <= 0) textarea_height = 220;
+    }
+
     var $container = $('#popup_edit_longdescription_input_container');
-    var $edit      = $('<textarea id="popup_edit_longdescription_input" class="texteditor-in-dialog texteditor-space-for-toolbar" wrap="soft" style="width: 750px; height: 220px;"></textarea>');
+    var $edit      = $('<textarea id="popup_edit_longdescription_input" class="texteditor-in-dialog texteditor-space-for-toolbar" wrap="soft" style="width: ' + textarea_width + 'px; height: ' + textarea_height + 'px;"></textarea>');
 
     $container.children().remove();
     $container.append($edit);
@@ -44,6 +58,8 @@ namespace('kivi.SalesPurchase', function(ns) {
       id:    'edit_longdescription_dialog',
       dialog: {
         title: kivi.t8('Enter longdescription'),
+        width:  dialog_width,
+        height: dialog_height,
         open:  function() { kivi.focus_ckeditor_when_ready('#popup_edit_longdescription_input'); },
         close: function() { $('#popup_edit_longdescription_input_container').children().remove(); }
       }
