@@ -3914,6 +3914,7 @@ $self->{texts} = {
   'This part was already counted for this bin:' => '',
   'This price has since gone down' => '',
   'This price has since gone up' => '',
+  'This record containts obsolete items at position #1' => '',
   'This record has already been closed.' => '',
   'This record has already been delivered.' => '',
   'This record has not been saved yet.' => '',

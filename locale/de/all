@@ -3915,6 +3915,7 @@ $self->{texts} = {
   'This part was already counted for this bin:' => 'Dieser Artikel wurde für diesen Lagerplatz bereits erfasst:',
   'This price has since gone down' => 'Dieser Preis ist mittlerweile niedriger',
   'This price has since gone up' => 'Dieser Preis ist mittlerweile höher',
+  'This record containts obsolete items at position #1' => 'Dieser Beleg enthält ungültige Artikel an Position #1',
   'This record has already been closed.' => 'Dieser Beleg wurde bereits geschlossen.',
   'This record has already been delivered.' => 'Dieser Beleg wurde bereits geliefert.',
   'This record has not been saved yet.' => 'Der Beleg wurde noch nicht gespeichert.',

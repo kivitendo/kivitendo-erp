@@ -259,6 +259,10 @@ sub action_save_as_new {
   # Update employee
   $new_attrs{employee}  = SL::DB::Manager::Employee->current;
 
+  # Warn on obsolete items
+  my @obsolete_positions = map { $_->position } grep { $_->part->obsolete } @{ $order->items_sorted };
+  flash_later('warning', t8('This record containts obsolete items at position #1', join ', ', @obsolete_positions)) if @obsolete_positions;
+
   # Create new record from current one
   $self->order(SL::DB::Order->new_from($order, destination_type => $order->type, attributes => \%new_attrs));
 
