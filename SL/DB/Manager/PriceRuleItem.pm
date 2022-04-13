@@ -32,7 +32,10 @@ my @types = (
   { type => 'pricegroup', description => t8('Pricegroup'),         customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->pricegroup_id }, exclude_nulls => 1 },
   { type => 'partsgroup', description => t8('Partsgroup'),         customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->part->partsgroup_id }, exclude_nulls => 1 },
   { type => 'qty',        description => t8('Qty'),                customer => 1, vendor => 1, data_type => 'num',  data => sub { $_[1]->qty }, ops => 'num' },
+  { type => 'cvar',       description => t8('Custom Variables'),   customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->part->cvar_by_name('articlegroup')->id }, exclude_nulls => 1 },
 );
+
+# ITEM.part.cvar_by_name(var.config.name)
 
 sub not_matching_sql_and_values {
   my ($class, %params) = @_;
