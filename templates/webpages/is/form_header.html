@@ -326,6 +326,10 @@
   <script type="text/javascript">
    <!--
      $('document').ready(function(){
+       function disableBack() { window.history.forward() };
+       window.onload = disableBack();
+       window.onpageshow = function(evt) { if (evt.persisted) disableBack() };
+
 [% IF resubmit && is_format_html %]
        window.open('about:blank','Beleg');
        document.invoice.target = 'Beleg';
