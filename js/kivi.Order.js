@@ -474,6 +474,15 @@ namespace('kivi.Order', function(ns) {
     return insert_before_item_id;
   };
 
+  ns.update_item_input_row = function() {
+    if (!ns.check_cv()) return;
+
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'Order/update_item_input_row' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   ns.add_item = function() {
     if ($('#add_item_parts_id').val() === '') return;
     if (!ns.check_cv()) return;
@@ -902,13 +911,9 @@ $(function() {
   $('#order_transdate_as_date').change(kivi.Order.update_exchangerate);
   $('#order_exchangerate_as_null_number').change(kivi.Order.exchangerate_changed);
 
-  if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
-    $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.sellprice, -2)) });
-  } else {
-    $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.lastcost, -2)) });
-  }
-  $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_description').val(o.description) });
-  $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_unit').val(o.unit) });
+  $('#add_item_parts_id').on('set_item:PartPicker', function() {
+    kivi.Order.update_item_input_row();
+  });
 
   $('.add_item_input').keydown(function(event) {
     if (event.keyCode == 13) {

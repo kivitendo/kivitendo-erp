@@ -887,6 +887,62 @@ sub action_unit_changed {
   $self->js->render();
 }
 
+# update item input row when a part ist picked
+sub action_update_item_input_row {
+  my ($self) = @_;
+
+  delete $::form->{add_item}->{$_} for qw(create_part_type sellprice_as_number discount_as_percent);
+
+  my $form_attr = $::form->{add_item};
+
+  return unless $form_attr->{parts_id};
+
+  my $record       = $self->order;
+  my $item         = SL::DB::OrderItem->new(%$form_attr);
+  my $part         = SL::DB::Part->new(id => $::form->{add_item}->{parts_id})->load;
+  my $price_source = SL::PriceSource->new(record_item => $item, record => $record);
+
+  $item->unit($part->unit);
+
+  my $price_src;
+  if ( $part->is_assortment ) {
+    # add assortment items with price 0, as the components carry the price
+    $price_src = $price_source->price_from_source("");
+    $price_src->price(0);
+  } elsif (defined $item->sellprice) {
+    $price_src = $price_source->price_from_source("");
+    $price_src->price($item->sellprice);
+  } else {
+    $price_src = $price_source->best_price
+               ? $price_source->best_price
+               : $price_source->price_from_source("");
+    $price_src->price($::form->round_amount($price_src->price / $record->exchangerate, 5)) if $record->exchangerate;
+    $price_src->price(0) if !$price_source->best_price;
+  }
+
+  my $discount_src;
+  if (defined $item->discount) {
+    $discount_src = $price_source->discount_from_source("");
+    $discount_src->discount($item->discount);
+  } else {
+    $discount_src = $price_source->best_discount
+                  ? $price_source->best_discount
+                  : $price_source->discount_from_source("");
+    $discount_src->discount(0) if !$price_source->best_discount;
+  }
+
+  $self->js
+    ->val     ('#add_item_unit',                $item->unit)
+    ->val     ('#add_item_description',         $part->description)
+    ->val     ('#add_item_sellprice_as_number', '')
+    ->attr    ('#add_item_sellprice_as_number', 'placeholder', $price_src->price_as_number)
+    ->attr    ('#add_item_sellprice_as_number', 'title',       $price_src->source_description)
+    ->val     ('#add_item_discount_as_percent', '')
+    ->attr    ('#add_item_discount_as_percent', 'placeholder', $discount_src->discount_as_percent)
+    ->attr    ('#add_item_discount_as_percent', 'title',       $discount_src->source_description)
+    ->render;
+}
+
 # add an item row for a new item entered in the input row
 sub action_add_item {
   my ($self) = @_;
@@ -954,6 +1010,8 @@ sub action_add_item {
 
   $self->js
     ->val('.add_item_input', '')
+    ->attr('.add_item_input', 'placeholder', '')
+    ->attr('.add_item_input', 'title', '')
     ->run('kivi.Order.init_row_handlers')
     ->run('kivi.Order.renumber_positions')
     ->focus('#add_item_parts_id_name');
@@ -2711,18 +2769,7 @@ java script functions
 
 =item *
 
-Customer discount is not displayed as a valid discount in price source popup
-(this might be a bug in price sources)
-
-(I cannot reproduce this (Bernd))
-
-=item *
-
 No indication that <shift>-up/down expands/collapses second row.
-
-=item *
-
-Inline creation of parts is not currently supported
 
 =item *
 
@@ -2745,10 +2792,6 @@ should be implemented.
 
 How to expand/collapse second row. Now it can be done clicking the icon or
 <shift>-up/down.
-
-=item *
-
-Possibility to select PriceSources in input row?
 
 =item *
 
