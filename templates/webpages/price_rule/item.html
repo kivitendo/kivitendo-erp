@@ -36,6 +36,10 @@
     [% 'Transdate Record' | $T8 %] [% L.select_tag('price_rule.items[].op', date_compare_ops, default=item.op) %] [% L.date_tag('price_rule.items[].value_date', item.value_date) %]
   [% CASE 'pricegroup' %]
     [% 'Pricegroup' | $T8 %] [% 'is' | $T8 %] [% L.select_tag('price_rule.items[].value_int', SELF.pricegroups, title_key='pricegroup', default=item.value_int) %]
+  [% CASE 'cvar' %]
+  [% # Dumper.dump_html(SELF.cvar.processed_options) %]
+    [% 'Custom Variables' | $T8 %] [% 'is' | $T8 %] [% L.select_tag('price_rule.items[].custom_variable_configs_id', SELF.cvar, title_key='description', default=item.custom_variable_configs_id ) %] [% 'with value' | $T8 %]  [% L.select_tag('price_rule.items[].value_text', SELF.cvar.processed_options, title_key='options', default=item.value_text ) %]
+
   [% CASE %]
 [%- END %]
 </div>

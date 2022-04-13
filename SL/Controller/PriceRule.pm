@@ -17,7 +17,7 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(models price_rule vc pricegroups partsgroups businesses) ],
+ 'scalar --get_set_init' => [ qw(models price_rule vc pricegroups partsgroups businesses cvar) ],
 );
 
 # __PACKAGE__->run_before('check_auth');
@@ -280,6 +280,13 @@ sub init_pricegroups {
 sub init_partsgroups {
   SL::DB::Manager::PartsGroup->get_all;
 }
+
+sub init_cvar {
+  # SL::DB::Manager::CustomVariableConfig->get_all_sorted(where => [ module => 'IC' ]);
+  # proof of concept: hard coded for articlegroup
+  SL::DB::Manager::CustomVariableConfig->get_first(where => [ module => 'IC', name => 'articlegroup' ]) ;
+}
+
 
 sub all_price_types {
   SL::DB::Manager::PriceRule->all_price_types;

@@ -128,6 +128,8 @@ sub full_description {
      : $op eq 'lt' ? t8('Transdate is before #1', $self->value_date_as_date)
      : $op eq 'gt' ? t8('Transdate is after #1',  $self->value_date_as_date)
      : do { die "unknown op $op for type $type" } )
+  : $type eq 'cvar' ? t8('Custom Variables')       . ' ' . $self->custom_variable_configs->description . ' ' . $self->value_text
+#     $self->custom_variable_configs->value_col eq 'text_value' ?  $self->value_text : 'lu'
   : do { die "unknown type $type" }
 }
 
