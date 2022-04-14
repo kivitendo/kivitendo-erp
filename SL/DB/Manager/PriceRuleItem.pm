@@ -14,25 +14,21 @@ __PACKAGE__->make_manager_methods;
 
 use SL::Locale::String qw(t8);
 
-my @types = qw(
-  part customer vendor business partsgroup qty reqdate transdate pricegroup
-);
-
 my %ops = (
   'num'  => { eq => '=', le => '<=', ge => '>=' },
   'date' => { eq => '=', lt => '<', gt => '>' },
 );
 
-my %types = (
-  'customer'            => { description => t8('Customer'),           customer => 1, vendor => 0, data_type => 'int',  data => sub { $_[0]->customer->id }, },
-  'vendor'              => { description => t8('Vendor'),             customer => 0, vendor => 1, data_type => 'int',  data => sub { $_[0]->vendor->id }, },
-  'business'            => { description => t8('Type of Business'),   customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[0]->customervendor->business_id }, exclude_nulls => 1 },
-  'reqdate'             => { description => t8('Reqdate'),            customer => 1, vendor => 1, data_type => 'date', data => sub { $_[0]->reqdate }, ops => 'date' },
-  'transdate'           => { description => t8('Transdate'),          customer => 1, vendor => 1, data_type => 'date', data => sub { $_[0]->transdate }, ops => 'date' },
-  'part'                => { description => t8('Part'),               customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->part->id }, },
-  'pricegroup'          => { description => t8('Pricegroup'),         customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->pricegroup_id }, exclude_nulls => 1 },
-  'partsgroup'          => { description => t8('Partsgroup'),         customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->part->partsgroup_id }, exclude_nulls => 1 },
-  'qty'                 => { description => t8('Qty'),                customer => 1, vendor => 1, data_type => 'num',  data => sub { $_[1]->qty }, ops => 'num' },
+my @types = (
+  { type => 'customer',   description => t8('Customer'),           customer => 1, vendor => 0, data_type => 'int',  data => sub { $_[0]->customer->id }, },
+  { type => 'vendor',     description => t8('Vendor'),             customer => 0, vendor => 1, data_type => 'int',  data => sub { $_[0]->vendor->id }, },
+  { type => 'business',   description => t8('Type of Business'),   customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[0]->customervendor->business_id }, exclude_nulls => 1 },
+  { type => 'reqdate',    description => t8('Reqdate'),            customer => 1, vendor => 1, data_type => 'date', data => sub { $_[0]->reqdate }, ops => 'date' },
+  { type => 'transdate',  description => t8('Transdate'),          customer => 1, vendor => 1, data_type => 'date', data => sub { $_[0]->transdate }, ops => 'date' },
+  { type => 'part',       description => t8('Part'),               customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->part->id }, },
+  { type => 'pricegroup', description => t8('Pricegroup'),         customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->pricegroup_id }, exclude_nulls => 1 },
+  { type => 'partsgroup', description => t8('Partsgroup'),         customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->part->partsgroup_id }, exclude_nulls => 1 },
+  { type => 'qty',        description => t8('Qty'),                customer => 1, vendor => 1, data_type => 'num',  data => sub { $_[1]->qty }, ops => 'num' },
 );
 
 sub not_matching_sql_and_values {
@@ -43,14 +39,16 @@ sub not_matching_sql_and_values {
 
   my (@tokens, @values);
 
-  for my $type (@types) {
-    my $def = $types{$type};
+  for my $def (@types, cached_cvar_types()) {
+    my $type = $def->{type};
     next unless $def->{$params{type}};
 
     my $value = $def->{data}->(@args);
 
+    my $type_token = $def->{cvar_config} ? "custom_variable_configs_id = '$def->{cvar_config}'" : "type = '$type'";
+
     if ($def->{exclude_nulls} && !defined $value) {
-      push @tokens, "type = '$type'";
+      push @tokens, $type_token;
     } else {
       my @sub_tokens;
       if ($def->{ops}) {
@@ -65,29 +63,76 @@ sub not_matching_sql_and_values {
         push @values, $value;
       }
 
-      push @tokens, "type = '$type' AND (@{[ join(' OR ', map qq|($_)|, @sub_tokens) ]})";
+      push @tokens, "$type_token AND (@{[ join(' OR ', map qq|($_)|, @sub_tokens) ]})";
     }
   }
 
   return join(' OR ', map "($_)", @tokens), @values;
 }
 
+sub cached_cvar_types {
+  my $cache = $::request->cache("SL::DB::PriceRuleItem::cvar_types", []);
+
+  @$cache = generate_cvar_types() if !@$cache;
+  @$cache
+}
+
+# we only generate cvar types for cvar price_rules that are actually used to keep the query smaller
+# these are cached per request
+sub generate_cvar_types {
+  my $cvar_configs = SL::DB::Manager::CustomVariableConfig->get_all(query => [ id => \"(select distinct custom_variable_configs_id from price_rule_items where custom_variable_configs_id is not null)" ]);
+
+  my @types;
+
+  for my $config (@$cvar_configs) {
+
+    # NOTE! this only works for non-editable selects.
+    # if the cvar is editable, it needs to be pulled from the record itself
+    push @types, {
+      type          => "cvar_" . $config->id,
+      description   => $config->description,
+      customer      => 1,
+      vendor        => 1,
+      data_type     => 'text',
+      data          => sub { $_[1]->part->cvar_by_name($config->name)->value },
+      exclude_nulls => 1,
+      cvar_config   => $config->id,
+    } if $config->module eq 'IC' && !$config->processed_flags->{editable} && $config->type eq 'select';
+
+    # NOTE! this only works for editable selects.
+    # if the cvar is editable, it needs to be pulled from the record itself
+    push @types, {
+      type          => "cvar_" . $config->id,
+      description   => $config->description,
+      customer      => 1,
+      vendor        => 1,
+      data_type     => 'text',
+      data          => sub { $_[1]->cvar_by_name($config->name)->value },
+      exclude_nulls => 1,
+      cvar_config   => $config->id,
+    } if $config->module eq 'IC' && $config->processed_flags->{editable} && $config->type eq 'select';
+
+  }
+
+  @types;
+}
+
 sub get_all_types {
   my ($class, $vc) = @_;
 
   $vc
-  ? [ map { [ $_, $types{$_}{description} ] } grep { $types{$_}{$vc} } map { $_ } @types ]
-  : [ map { [ $_, $types{$_}{description} ] } map { $_ } @types ]
+  ? [ map { [ $_->{type}, $_->{description} ] } grep { $_->{$vc} } @types ]
+  : [ map { [ $_->{type}, $_->{description} ] } @types ]
 }
 
 sub get_type {
-  $types{$_[1]}
+  grep { $_->{type} eq $_[1] } @types
 }
 
 sub filter_match {
   my ($self, $type, $value) = @_;
 
-  my $type_def = $types{$type};
+  my $type_def = first { $_->{type} eq $type } @types;
 
   if (!$type_def->{ops}) {
     my $evalue   = $::form->get_standard_dbh->quote($value);
