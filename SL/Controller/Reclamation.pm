@@ -83,6 +83,16 @@ __PACKAGE__->run_before('get_unalterable_data',
                           save_and_credit_note
                         )]);
 
+__PACKAGE__->run_before('get_record_links_data_from_form',
+                        only => [qw(
+                          save save_as_new print preview_pdf send_email
+                          save_and_show_email_dialog
+                          workflow_save_and_sales_or_purchase_reclamation
+                          save_and_order
+                          save_and_delivery_order
+                          save_and_credit_note
+                        )]);
+
 #
 # actions
 #
@@ -1643,6 +1653,27 @@ sub get_unalterable_data {
   }
 }
 
+# get data for record_links from form and store it in the object
+sub get_record_links_data_from_form {
+  my ($self) = @_;
+
+  my $reclamation = $self->reclamation;
+
+  $reclamation->{converted_from_record_id} = delete $::form->{converted_from_record_id};
+  $reclamation->{converted_from_record_type_ref} = delete $::form->{converted_from_record_type_ref};
+
+  my $from_record_item_ids = delete $::form->{converted_from_record_item_ids} ;
+  my $from_record_item_type_refs = delete $::form->{converted_from_record_item_type_refs} ;
+
+  if (scalar @{ $from_record_item_ids || [] }) {
+    for my $idx (0 .. $#{ $reclamation->items_sorted }) {
+      my $reclamation_item = $reclamation->items_sorted->[$idx];
+      $reclamation_item->{converted_from_record_item_id} = $from_record_item_ids->[$idx];
+      $reclamation_item->{converted_from_record_item_type_ref} = $from_record_item_type_refs->[$idx];
+    }
+  }
+}
+
 # delete the reclamation
 #
 # And remove related files in the spool directory
@@ -1689,66 +1720,12 @@ sub save {
     SL::DB::ReclamationItem->new(id => $_)->delete for @{$self->item_ids_to_delete || []};
     $self->reclamation->save(cascade => 1);
 
-    $self->_link_to_records();
-
     $self->save_history('SAVED');
 
     1;
   }) || push(@{$errors}, $db->error);
 
   return $errors;
-}
-
-sub _link_to_records {
-  my ($self) = @_;
-  my %allowed_linked_records = map {$_ => 1} qw(
-    SL::DB::Reclamation
-    SL::DB::Order
-    SL::DB::DeliveryOrder
-    SL::DB::Invoice
-    SL::DB::PurchaseInvoice
-  );
-  my %allowed_linked_record_items = map {$_ => 1} qw(
-    SL::DB::ReclamationItem
-    SL::DB::OrderItem
-    SL::DB::DeliveryOrderItem
-    SL::DB::InvoiceItem
-  );
-
-  my $from_record_id = delete $::form->{converted_from_record_id};
-  $from_record_id ||= $self->reclamation->{converted_from_record_id};
-  if ($from_record_id) {
-    my $from_record_type = delete $::form->{converted_from_record_type_ref};
-    $from_record_type ||= $self->reclamation->{converted_from_record_type_ref};
-    unless ($allowed_linked_records{$from_record_type}) {
-      croak("Not allowed converted_from_record_type_ref: '" . $from_record_type);
-    }
-    my $src = ${from_record_type}->new(id => $from_record_id)->load;
-    $src->link_to_record($self->reclamation);
-    #clear converted_from;
-    delete $self->reclamation->{$_} for qw(converted_from_record_id converted_from_record_type_ref);
-
-    if (scalar @{ $::form->{converted_from_record_item_ids} || [] }) {
-      my $idx = -1;
-      my $from_record_item_ids = delete $::form->{converted_from_record_item_ids} ;
-      my $from_record_item_type_refs = delete $::form->{converted_from_record_item_type_refs} ;
-      for my $idx (0 .. $#{ $self->reclamation->items_sorted }) {
-        my $from_item_id = $from_record_item_ids->[$idx];
-        my $reclamation_item = $self->reclamation->items_sorted->[$idx];
-        $from_item_id ||= $reclamation_item->{converted_from_record_item_id};
-        next if !$from_item_id;
-        my $from_item_type = $from_record_item_type_refs->[$idx];
-        $from_item_type ||= $reclamation_item->{converted_from_record_item_type_ref};
-        unless ($allowed_linked_record_items{$from_item_type}) {
-          croak("Not allowed converted_from_record_item_type_ref: '" . $from_item_type);
-        }
-        my $src_item = ${from_item_type}->new(id => $from_item_id)->load;
-        $src_item->link_to_record($reclamation_item);
-        #clear converted_from;
-        delete $reclamation_item->{$_} for qw(converted_from_record_item_id converted_from_record_item_type_ref);
-      }
-    }
-  }
 }
 
 sub save_with_render_error {

@@ -55,6 +55,7 @@ __PACKAGE__->attr_sorted('items');
 __PACKAGE__->before_save('_before_save_set_record_number');
 __PACKAGE__->before_save('_before_save_remove_empty_custom_shipto');
 __PACKAGE__->before_save('_before_save_set_custom_shipto_module');
+__PACKAGE__->after_save('_after_save_link_records');
 
 # hooks
 
@@ -78,6 +79,53 @@ sub _before_save_set_custom_shipto_module {
   my ($self) = @_;
 
   $self->custom_shipto->module('Reclamation') if $self->custom_shipto;
+
+  return 1;
+}
+
+sub _after_save_link_records {
+  my ($self) = @_;
+  my %allowed_linked_records = map {$_ => 1} qw(
+    SL::DB::Reclamation
+    SL::DB::Order
+    SL::DB::DeliveryOrder
+    SL::DB::Invoice
+    SL::DB::PurchaseInvoice
+  );
+  my %allowed_linked_record_items = map {$_ => 1} qw(
+    SL::DB::ReclamationItem
+    SL::DB::OrderItem
+    SL::DB::DeliveryOrderItem
+    SL::DB::InvoiceItem
+  );
+
+  my $from_record_id = $self->{converted_from_record_id};
+  if ($from_record_id) {
+    my $from_record_type = $self->{converted_from_record_type_ref};
+    unless ($allowed_linked_records{$from_record_type}) {
+      croak("Not allowed converted_from_record_type_ref: '" . $from_record_type);
+    }
+    my $src = ${from_record_type}->new(id => $from_record_id)->load;
+    $src->link_to_record($self);
+    #clear converted_from;
+    delete $self->{$_} for qw(converted_from_record_id converted_from_record_type_ref);
+
+    if (scalar @{ $self->items_sorted || [] }) {
+      for my $idx (0 .. $#{ $self->items_sorted }) {
+        my $reclamation_item = $self->items_sorted->[$idx];
+        my $from_item_id = $reclamation_item->{converted_from_record_item_id};
+        next if !$from_item_id;
+        my $from_item_type = $reclamation_item->{converted_from_record_item_type_ref};
+        unless ($allowed_linked_record_items{$from_item_type}) {
+          croak("Not allowed converted_from_record_item_type_ref: '" . $from_item_type);
+        }
+        my $src_item = ${from_item_type}->new(id => $from_item_id)->load;
+        $src_item->link_to_record($reclamation_item);
+        #clear converted_from;
+        delete $reclamation_item->{$_} for qw(converted_from_record_item_id converted_from_record_item_type_ref);
+      }
+    }
+  }
 
   return 1;
 }
