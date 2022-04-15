@@ -4,6 +4,7 @@ use utf8;
 use strict;
 
 use List::MoreUtils qw(any);
+use Rose::DB::Object::Helpers qw(as_tree strip);
 
 use SL::DB::MetaSetup::ReclamationItem;
 use SL::DB::Manager::ReclamationItem;
@@ -87,11 +88,11 @@ sub new_from {
 
   my $item = $class->new(%item_args);
 
-  if ( $source->record->is_sales() && ($parent_type =~ m{sales}) ) {
+  if ( $source->record->is_sales() && ($parent_type =~ m{purchase}) ) {
     $item->sellprice($source->lastcost);
     $item->discount(0);
   }
-  if ( !$source->record->is_sales() && ($parent_type =~ m{purchase}) ) {
+  if ( !$source->record->is_sales() && ($parent_type =~ m{sales}) ) {
     $item->lastcost($source->sellprice);
   }
 

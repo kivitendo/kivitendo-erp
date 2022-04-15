@@ -735,7 +735,7 @@ namespace('kivi.Reclamation', function(ns) {
       $('<input type="hidden" name="use_shipto">').appendTo('#reclamation_form').val('1');
     }
 
-    kivi.submit_form_with_action($('#reclamation_form'), 'Reclamation/purchase_reclamation');
+    kivi.submit_form_with_action($('#reclamation_form'), 'Reclamation/save_and_purchase_reclamation');
   };
 
   ns.direct_delivery_dialog = function(shipto) {

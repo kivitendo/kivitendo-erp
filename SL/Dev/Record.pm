@@ -11,6 +11,8 @@ our @EXPORT_OK = qw(create_invoice_item
                     create_delivery_order_item
                     create_sales_delivery_order
                     create_purchase_delivery_order
+                    create_sales_reclamation
+                    create_purchase_reclamation
                     create_project create_department
                     create_ap_transaction
                     create_ar_transaction
@@ -39,6 +41,9 @@ my %record_type_to_item_type = ( sales_invoice        => 'SL::DB::InvoiceItem',
                                  sales_order          => 'SL::DB::OrderItem',
                                  purchase_order       => 'SL::DB::OrderItem',
                                  sales_delivery_order => 'SL::DB::DeliveryOrderItem',
+                                 purchase_delivery_order => 'SL::DB::DeliveryOrderItem',
+                                 sales_reclamation    => 'SL::DB::ReclamationItem',
+                                 purchase_reclamation => 'SL::DB::ReclamationItem',
                                );
 
 sub create_sales_invoice {
@@ -223,6 +228,66 @@ sub create_purchase_order {
   return $order;
 };
 
+sub create_sales_reclamation {
+  my (%params) = @_;
+
+  my $record_type = 'sales_reclamation';
+  my $reclamation_items = delete $params{reclamation_items} // _create_two_items($record_type);
+  _check_items($reclamation_items, $record_type);
+
+  my $save = delete $params{save} // 0;
+
+  my $customer = $params{customer} // new_customer(name => 'Test_Customer')->save;
+  die "'customer' is not of type SL::DB::Customer" unless ref($customer) eq 'SL::DB::Customer';
+
+  my $reclamation = SL::DB::Reclamation->new(
+    customer_id  => delete $params{customer_id} // $customer->id,
+    taxzone_id   => delete $params{taxzone_id}  // $customer->taxzone->id,
+    currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
+    taxincluded  => delete $params{taxincluded} // 0,
+    transdate    => delete $params{transdate}   // DateTime->today,
+    'closed'     => undef,
+    reclamation_items => $reclamation_items,
+  );
+  $reclamation->assign_attributes(%params) if %params;
+
+  if ( $save ) {
+    $reclamation->calculate_prices_and_taxes; # not tested
+    $reclamation->save;
+  }
+  return $reclamation;
+}
+
+sub create_purchase_reclamation {
+  my (%params) = @_;
+
+  my $record_type = 'sales_reclamation';
+  my $reclamation_items = delete $params{reclamation_items} // _create_two_items($record_type);
+  _check_items($reclamation_items, $record_type);
+
+  my $save = delete $params{save} // 0;
+
+  my $vendor = $params{vendor} // new_vendor(name => 'Test_Vendor')->save;
+  die "'vendor' is not of type SL::DB::Vendor" unless ref($vendor) eq 'SL::DB::Vendor';
+
+  my $reclamation = SL::DB::Reclamation->new(
+    vendor_id    => delete $params{vendor_id}   // $vendor->id,
+    taxzone_id   => delete $params{taxzone_id}  // $vendor->taxzone->id,
+    currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
+    taxincluded  => delete $params{taxincluded} // 0,
+    transdate    => delete $params{transdate}   // DateTime->today,
+    'closed'     => undef,
+    reclamation_items => $reclamation_items,
+  );
+  $reclamation->assign_attributes(%params) if %params;
+
+  if ( $save ) {
+    $reclamation->calculate_prices_and_taxes; # not tested
+    $reclamation->save;
+  }
+  return $reclamation;
+}
+
 sub _check_items {
   my ($items, $record_type) = @_;
 
@@ -247,6 +312,13 @@ sub create_delivery_order_item {
   my (%params) = @_;
 
   return _create_item(record_type => 'sales_delivery_order', %params);
+}
+
+sub create_reclamation_item {
+  my (%params) = @_;
+
+  # record_type can be sales or purchase; make sure one is set
+  return _create_item(record_type => 'sales_reclamation', %params);
 }
 
 sub _create_item {

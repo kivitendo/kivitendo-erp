@@ -21,6 +21,7 @@ use SL::DB::DeliveryOrder::TypeData qw(:types);
 
 use SL::Helper::Number qw(_format_total _round_total);
 
+use Rose::DB::Object::Helpers qw(as_tree strip);
 use List::Util qw(first);
 use List::MoreUtils qw(any pairwise);
 use Math::Round qw(nhimult);
@@ -205,6 +206,7 @@ sub new_from {
     );
     $record_args{cp_id} = $source->contact_id;
     $record_args{cusordnumber} = $source->cv_record_number;
+    $record_args{is_sales} = $source->is_sales;
     # }}} for vim folds
   }
 

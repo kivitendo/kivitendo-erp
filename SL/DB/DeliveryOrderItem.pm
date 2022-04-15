@@ -2,6 +2,8 @@ package SL::DB::DeliveryOrderItem;
 
 use strict;
 
+use Rose::DB::Object::Helpers qw(as_tree strip);
+
 use SL::DB::MetaSetup::DeliveryOrderItem;
 use SL::DB::Manager::DeliveryOrderItem;
 use SL::DB::Helper::ActsAsList;

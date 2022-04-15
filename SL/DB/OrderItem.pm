@@ -18,6 +18,7 @@ use SL::DB::Helper::CustomVariables (
   },
 );
 use SL::Helper::ShippedQty;
+use Rose::DB::Object::Helpers qw(as_tree strip);
 
 __PACKAGE__->meta->initialize;
 

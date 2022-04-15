@@ -22,7 +22,7 @@ use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::Payment qw(forex);
 use SL::Locale::String qw(t8);
 use SL::RecordLinks;
-use Rose::DB::Object::Helpers qw(as_tree);
+use Rose::DB::Object::Helpers qw(as_tree strip);
 
 __PACKAGE__->meta->add_relationship(
   orderitems => {

@@ -20,7 +20,7 @@ use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::Locale::String qw(t8);
 use SL::RecordLinks;
-use Rose::DB::Object::Helpers qw(as_tree);
+use Rose::DB::Object::Helpers qw(as_tree strip);
 
 __PACKAGE__->meta->add_relationship(
 
@@ -258,7 +258,7 @@ sub convert_to_order {
 
     1;
   })) {
-    return undef;
+    return undef, $self->db->error->db_error->db_error;
   }
 
   return $order;
@@ -296,7 +296,7 @@ sub convert_to_delivery_order {
     return undef, $self->db->error->db_error->db_error;
   }
 
-  return $delivery_order, undef;
+  return $delivery_order;
 }
 
 #TODO(Werner): überprüfen ob alle Felder richtig gestetzt werden
@@ -485,6 +485,7 @@ sub new_from {
     $record_args{vendor_id} = undef;
     $record_args{salesman_id} = undef;
     $record_args{payment_id} = undef;
+    $record_args{delivery_term_id} = undef;
   }
 
 
