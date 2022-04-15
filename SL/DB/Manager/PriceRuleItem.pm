@@ -13,6 +13,9 @@ sub object_class { 'SL::DB::PriceRuleItem' }
 __PACKAGE__->make_manager_methods;
 
 use SL::Locale::String qw(t8);
+use List::Util qw(first);
+
+use SL::DB::CustomVariableConfig;
 
 my %ops = (
   'num'  => { eq => '=', le => '<=', ge => '>=' },
@@ -80,37 +83,28 @@ sub cached_cvar_types {
 # we only generate cvar types for cvar price_rules that are actually used to keep the query smaller
 # these are cached per request
 sub generate_cvar_types {
-  my $cvar_configs = SL::DB::Manager::CustomVariableConfig->get_all(query => [ id => \"(select distinct custom_variable_configs_id from price_rule_items where custom_variable_configs_id is not null)" ]);
+  my $cvar_configs = SL::DB::Manager::CustomVariableConfig->get_all(query => [
+    id => [ \"(select distinct custom_variable_configs_id from price_rule_items where custom_variable_configs_id is not null)" ]
+  ]);
 
   my @types;
 
   for my $config (@$cvar_configs) {
 
-    # NOTE! this only works for non-editable selects.
-    # if the cvar is editable, it needs to be pulled from the record itself
     push @types, {
       type          => "cvar_" . $config->id,
       description   => $config->description,
       customer      => 1,
       vendor        => 1,
       data_type     => 'text',
-      data          => sub { $_[1]->part->cvar_by_name($config->name)->value },
+      data          => sub {
+        $config->processed_flags->{editable}
+          ? $_[1]->cvar_by_name($config->name)->value
+          : $_[1]->part->cvar_by_name($config->name)->value
+      },
       exclude_nulls => 1,
       cvar_config   => $config->id,
-    } if $config->module eq 'IC' && !$config->processed_flags->{editable} && $config->type eq 'select';
-
-    # NOTE! this only works for editable selects.
-    # if the cvar is editable, it needs to be pulled from the record itself
-    push @types, {
-      type          => "cvar_" . $config->id,
-      description   => $config->description,
-      customer      => 1,
-      vendor        => 1,
-      data_type     => 'text',
-      data          => sub { $_[1]->cvar_by_name($config->name)->value },
-      exclude_nulls => 1,
-      cvar_config   => $config->id,
-    } if $config->module eq 'IC' && $config->processed_flags->{editable} && $config->type eq 'select';
+    } if $config->module eq 'IC' && $config->type eq 'select';
 
   }
 
