@@ -66,6 +66,11 @@ CREATE TABLE reclamations (
 );
 CREATE TRIGGER mtime_reclamations BEFORE UPDATE ON reclamations FOR EACH ROW EXECUTE PROCEDURE set_mtime();
 
+CREATE INDEX reclamations_record_number_key ON reclamations (record_number);
+CREATE INDEX reclamations_customer_id_key ON reclamations (customer_id);
+CREATE INDEX reclamations_vendor_id_key ON reclamations (vendor_id);
+
+
 ALTER TABLE defaults ADD COLUMN p_reclamation_record_number TEXT NOT NULL DEFAULT 0;
 ALTER TABLE defaults ADD COLUMN s_reclamation_record_number TEXT NOT NULL DEFAULT 0;
 
