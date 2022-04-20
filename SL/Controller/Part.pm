@@ -160,6 +160,19 @@ sub action_save {
   }
 }
 
+sub action_save_and_purchase_order {
+  my ($self) = @_;
+
+  delete $::form->{previousform};
+  $::form->{callback} = $self->url_for(
+    controller   => 'Order',
+    action       => 'return_from_create_part',
+    type         => 'purchase_order',
+  );
+
+  $self->_run_action('save');
+}
+
 sub action_abort {
   my ($self) = @_;
 
@@ -1345,6 +1358,20 @@ sub _setup_form_action_bar {
                     :                    undef,
         ],
       ], # end of combobox "Save"
+
+      combobox => [
+        action => [ t8('Workflow') ],
+        action => [
+          t8('Save and Purchase Order'),
+          submit   => [ '#ic', { action => "Part/save_and_purchase_order" } ],
+          checks   => ['kivi.validate_form'],
+          disabled => !$self->part->id                                    ? t8('The object has not been saved yet.')
+                    : !$may_edit                                          ? t8('You do not have the permissions to access this function.')
+                    : !$::auth->assert('purchase_order_edit', 'may fail') ? t8('You do not have the permissions to access this function.')
+                    :                                                       undef,
+          only_if  => !$::form->{inline_create},
+        ],
+      ],
 
       action => [
         t8('Abort'),
