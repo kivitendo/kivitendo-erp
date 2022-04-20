@@ -1102,7 +1102,7 @@ sub orders {
                                                         reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
                                                         business_id shippingpoint taxzone_id reqdate_unset_or_old insertdatefrom insertdateto
                                                         order_probability_op order_probability_value expected_billing_date_from expected_billing_date_to
-                                                        parts_partnumber parts_description all department_id intnotes);
+                                                        parts_partnumber parts_description all department_id intnotes phone_notes);
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
   my   @keys_for_url = grep { $form->{$_} } @hidden_variables;
@@ -1188,6 +1188,7 @@ sub orders {
   push @options, $locale->text('Shipping Point')          . " : $form->{shippingpoint}"                   if $form->{shippingpoint};
   push @options, $locale->text('Part Description')        . " : $form->{parts_description}"               if $form->{parts_description};
   push @options, $locale->text('Part Number')             . " : $form->{parts_partnumber}"                if $form->{parts_partnumber};
+  push @options, $locale->text('Phone Notes')             . " : $form->{phone_notes}"                     if $form->{phone_notes};
   if ( $form->{transdatefrom} or $form->{transdateto} ) {
     push @options, $locale->text('Order Date');
     push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1)     if $form->{transdatefrom};

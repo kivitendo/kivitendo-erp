@@ -116,6 +116,13 @@ sub transactions {
     }
   }
 
+  my ($phone_notes_columns, $phone_notes_join);
+  $form->{phone_notes} = trim($form->{phone_notes});
+  if ($form->{phone_notes}) {
+    $phone_notes_columns = qq| , phone_notes.subject AS phone_notes_subject, phone_notes.body AS phone_notes_body |;
+    $phone_notes_join    = qq| JOIN notes phone_notes ON (o.id = phone_notes.trans_id AND phone_notes.trans_module LIKE 'oe') |;
+  }
+
   $query =
     qq|SELECT o.id, o.ordnumber, o.transdate, o.reqdate, | .
     qq|  o.amount, ct.${vc}number, ct.name, o.netamount, o.${vc}_id, o.globalproject_id, | .
@@ -133,6 +140,7 @@ sub transactions {
     qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id,  | .
     qq|  tz.description AS taxzone | .
     $periodic_invoices_columns .
+    $phone_notes_columns .
     qq|  , o.order_probability, o.expected_billing_date, (o.netamount * o.order_probability / 100) AS expected_netamount | .
     qq|FROM oe o | .
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
@@ -146,6 +154,7 @@ sub transactions {
     qq|LEFT JOIN tax_zones tz ON (o.taxzone_id = tz.id) | .
     qq|LEFT JOIN department   ON (o.department_id = department.id) | .
     qq|$periodic_invoices_joins | .
+    $phone_notes_join .
     qq|WHERE (o.quotation = ?) |;
   push(@values, $quotation);
 
@@ -302,6 +311,11 @@ SQL
   if ($form->{intnotes}) {
     $query .= qq| AND o.intnotes ILIKE ?|;
     push(@values, like($form->{intnotes}));
+  }
+
+  if ($form->{phone_notes}) {
+    $query .= qq| AND (phone_notes.subject ILIKE ? OR phone_notes.body ILIKE ?)|;
+    push(@values, like($form->{phone_notes}), like($form->{phone_notes}));
   }
 
   if ($form->{parts_partnumber}) {
