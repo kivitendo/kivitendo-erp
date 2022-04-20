@@ -1165,11 +1165,11 @@ sub action_create_part {
   flash_later('info', t8('You are adding a new part while you are editing another document. You will be redirected to your document when saving the new part or aborting this form.'));
 
   my @redirect_params = (
-    controller => 'Part',
-    action     => 'add',
-    part_type  => $::form->{add_item}->{create_part_type},
-    callback   => $callback,
-    show_abort => 1,
+    controller    => 'Part',
+    action        => 'add',
+    part_type     => $::form->{add_item}->{create_part_type},
+    callback      => $callback,
+    inline_create => 1,
   );
 
   $self->redirect_to(@redirect_params);

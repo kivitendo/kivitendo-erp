@@ -1349,7 +1349,7 @@ sub _setup_form_action_bar {
       action => [
         t8('Abort'),
         submit   => [ '#ic', { action => "Part/abort" } ],
-        only_if  => !!$::form->{show_abort},
+        only_if  => !!$::form->{inline_create},
       ],
 
       action => [
