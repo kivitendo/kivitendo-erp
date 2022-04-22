@@ -26,6 +26,15 @@ sub _init {
   my $self = shift;
   my ($biller_information, $biller_data, $payment_information, $invoice_recipient_data, $ref_nr_data) = @_;
 
+  my $address = sub {
+    my ($href) = @_;
+    my $address_type = $href->{address_type};
+    return ((map $href->{$_}, qw(address_row1 address_row2)), '', '')
+      if $address_type eq 'K';
+    return  (map $href->{$_}, qw(street street_no postalcode city))
+      if $address_type eq 'S';
+  };
+
   $self->{data}{header} = [
     'SPC',  # QRType
     '0200', # Version
@@ -37,10 +46,7 @@ sub _init {
   $self->{data}{biller_data} = [
     $biller_data->{address_type},
     $biller_data->{company},
-    $biller_data->{address_row1},
-    $biller_data->{address_row2},
-    '',
-    '',
+    $address->($biller_data),
     $biller_data->{countrycode},
   ];
   $self->{data}{payment_information} = [
@@ -50,10 +56,7 @@ sub _init {
   $self->{data}{invoice_recipient_data} = [
     $invoice_recipient_data->{address_type},
     $invoice_recipient_data->{name},
-    $invoice_recipient_data->{address_row1},
-    $invoice_recipient_data->{address_row2},
-    '',
-    '',
+    $address->($invoice_recipient_data),
     $invoice_recipient_data->{countrycode},
   ];
   $self->{data}{ref_nr_data} = [
@@ -82,8 +85,15 @@ sub _init_check {
   $group = 'biller data';
   $check_re->($group, $biller_data, 'address_type', qr{^[KS]$});
   $check_re->($group, $biller_data, 'company', qr{^.{1,70}$});
-  $check_re->($group, $biller_data, 'address_row1', qr{^.{0,70}$});
-  $check_re->($group, $biller_data, 'address_row2', qr{^.{0,70}$});
+  if ($biller_data->{address_type} eq 'K') {
+    $check_re->($group, $biller_data, 'address_row1', qr{^.{0,70}$});
+    $check_re->($group, $biller_data, 'address_row2', qr{^.{0,70}$});
+  } elsif ($biller_data->{address_type} eq 'S') {
+    $check_re->($group, $biller_data, 'street', qr{^.{0,70}$});
+    $check_re->($group, $biller_data, 'street_no', qr{^.{0,16}$});
+    $check_re->($group, $biller_data, 'postalcode', qr{^.{0,16}$});
+    $check_re->($group, $biller_data, 'city', qr{^.{0,35}$});
+  }
   $check_re->($group, $biller_data, 'countrycode', qr{^[A-Z]{2}$});
 
   $group = 'payment information';
@@ -93,8 +103,15 @@ sub _init_check {
   $group = 'invoice recipient data';
   $check_re->($group, $invoice_recipient_data, 'address_type', qr{^[KS]$});
   $check_re->($group, $invoice_recipient_data, 'name', qr{^.{1,70}$});
-  $check_re->($group, $invoice_recipient_data, 'address_row1', qr{^.{0,70}$});
-  $check_re->($group, $invoice_recipient_data, 'address_row2', qr{^.{0,70}$});
+  if ($invoice_recipient_data->{address_type} eq 'K') {
+    $check_re->($group, $invoice_recipient_data, 'address_row1', qr{^.{0,70}$});
+    $check_re->($group, $invoice_recipient_data, 'address_row2', qr{^.{0,70}$});
+  } elsif ($invoice_recipient_data->{address_type} eq 'S') {
+    $check_re->($group, $invoice_recipient_data, 'street', qr{^.{0,70}$});
+    $check_re->($group, $invoice_recipient_data, 'street_no', qr{^.{0,16}$});
+    $check_re->($group, $invoice_recipient_data, 'postalcode', qr{^.{0,16}$});
+    $check_re->($group, $invoice_recipient_data, 'city', qr{^.{0,35}$});
+  }
   $check_re->($group, $invoice_recipient_data, 'countrycode', qr{^[A-Z]{2}$});
 
   $group = 'reference number data';
@@ -237,13 +254,15 @@ country code.
 
 =item C<%biller_data>
 
-Fields: address_type, company, address_row1, address_row2 and countrycode.
+Fields (mandatory): address_type, company and countrycode.
+Fields (combined): address_row1 and address_row2.
+Fields (structured): street, street_no, postalcode and city.
 
 =over 4
 
 =item C<address_type>
 
-Fixed length; 1-digit, alphanumerical. 'K' implemented only.
+Fixed length; 1-digit, alphanumerical.
 
 =item C<company>
 
@@ -251,11 +270,27 @@ Maximum of 70 characters, name (surname allowable) or company.
 
 =item C<address_row1>
 
-Maximum of 70 characters, street/nr.
+Maximum of 70 characters, street/no.
 
 =item C<address_row2>
 
-Maximum of 70 characters, postal code/place.
+Maximum of 70 characters, postal code/city.
+
+=item C<street>
+
+Maximum of 70 characters, street.
+
+=item C<street_no>
+
+Maximum of 16 characters, street no.
+
+=item C<postalcode>
+
+Maximum of 16 characters, postal code.
+
+=item C<city>
+
+Maximum of 35 characters, city.
 
 =item C<countrycode>
 
@@ -282,13 +317,15 @@ CHF/EUR.
 
 =item C<%invoice_recipient_data>
 
-Fields: address_type, name, address_row1, address_row2 and countrycode.
+Fields (mandatory): address_type, name and countrycode.
+Fields (combined): address_row1 and address_row2.
+Fields (structured): street, street_no, postalcode and city.
 
 =over 4
 
 =item C<address_type>
 
-Fixed length; 1-digit, alphanumerical. 'K' implemented only.
+Fixed length; 1-digit, alphanumerical.
 
 =item C<name>
 
@@ -296,11 +333,27 @@ Maximum of 70 characters, name (surname allowable) or company.
 
 =item C<address_row1>
 
-Maximum of 70 characters, street/nr.
+Maximum of 70 characters, street/no.
 
 =item C<address_row2>
 
-Maximum of 70 characters, postal code/place.
+Maximum of 70 characters, postal code/city.
+
+=item C<street>
+
+Maximum of 70 characters, street.
+
+=item C<street_no>
+
+Maximum of 16 characters, street no.
+
+=item C<postalcode>
+
+Maximum of 16 characters, postal code.
+
+=item C<city>
+
+Maximum of 35 characters, city.
 
 =item C<countrycode>
 
