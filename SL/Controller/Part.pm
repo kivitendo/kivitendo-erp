@@ -163,11 +163,18 @@ sub action_save {
 sub action_save_and_purchase_order {
   my ($self) = @_;
 
-  delete $::form->{previousform};
+  my $session_value;
+  if (1 == scalar @{$self->part->makemodels}) {
+    my $prepared_form           = Form->new('');
+    $prepared_form->{vendor_id} = $self->part->makemodels->[0]->make;
+    $session_value              = $::auth->save_form_in_session(form => $prepared_form);
+  }
+
   $::form->{callback} = $self->url_for(
     controller   => 'Order',
     action       => 'return_from_create_part',
     type         => 'purchase_order',
+    previousform => $session_value,
   );
 
   $self->_run_action('save');
