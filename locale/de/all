@@ -1635,6 +1635,7 @@ $self->{texts} = {
   'Front page'                  => 'Hauptseite',
   'Full Access'                 => 'Vollzugriff',
   'Full Preview'                => 'Alles',
+  'Full Text'                   => 'Volltext',
   'Full access to all functions' => 'Vollzugriff auf alle Funktionen',
   'Function block'              => 'Funktionsblock',
   'Function block actions'      => 'Funktionsblockaktionen',

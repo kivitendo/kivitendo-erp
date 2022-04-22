@@ -84,6 +84,12 @@
      <th align="right">[% 'Phone Notes' | $T8 %]</th>
      <td>[% L.input_tag('phone_notes', '', style=style) %]</td>
     </tr>
+    [%- IF type == 'sales_order' %]
+    <tr>
+     <th align="right">[% 'Full Text' | $T8 %]</th>
+     <td>[% L.input_tag('fulltext', '', style=style) %]</td>
+    </tr>
+    [%- END %]
     <tr>
      <th align="right">[% IF is_order %][% 'Order Date' | $T8 %][% ELSE %][% 'Quotation Date' | $T8 %][% END %] [% 'From' | $T8 %]</th>
      <td>

@@ -318,6 +318,25 @@ SQL
     push(@values, like($form->{phone_notes}), like($form->{phone_notes}));
   }
 
+  $form->{fulltext} = trim($form->{fulltext});
+  if ($form->{fulltext}) {
+    my @fulltext_fields = qw(o.notes
+                             o.intnotes
+                             o.shippingpoint
+                             o.shipvia
+                             o.transaction_description
+                             o.quonumber
+                             o.ordnumber
+                             o.cusordnumber);
+    $query .= ' AND (';
+    $query .= join ' ILIKE ? OR ', @fulltext_fields;
+    $query .= ' ILIKE ?';
+    $query .= qq| OR EXISTS (SELECT files.id FROM files LEFT JOIN file_full_texts ON (file_full_texts.file_id = files.id) WHERE files.object_id = o.id AND files.object_type = 'sales_order' AND file_full_texts.full_text ILIKE ?)|;
+    $query .= qq| OR EXISTS (SELECT notes.id FROM notes WHERE notes.trans_id = o.id AND notes.trans_module LIKE 'oe' AND (notes.subject ILIKE ? OR notes.body ILIKE ?))|;
+    $query .= ')';
+    push(@values, like($form->{fulltext})) for 1 .. (scalar @fulltext_fields) + 3;
+  }
+
   if ($form->{parts_partnumber}) {
     $query .= <<SQL;
       AND EXISTS (
