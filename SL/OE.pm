@@ -331,10 +331,33 @@ SQL
     $query .= ' AND (';
     $query .= join ' ILIKE ? OR ', @fulltext_fields;
     $query .= ' ILIKE ?';
-    $query .= qq| OR EXISTS (SELECT files.id FROM files LEFT JOIN file_full_texts ON (file_full_texts.file_id = files.id) WHERE files.object_id = o.id AND files.object_type = 'sales_order' AND file_full_texts.full_text ILIKE ?)|;
-    $query .= qq| OR EXISTS (SELECT notes.id FROM notes WHERE notes.trans_id = o.id AND notes.trans_module LIKE 'oe' AND (notes.subject ILIKE ? OR notes.body ILIKE ?))|;
-    $query .= qq| OR EXISTS (SELECT follow_up_links.id FROM follow_up_links WHERE follow_up_links.trans_id = o.id AND trans_type = 'sales_order' AND EXISTS (SELECT notes.id FROM notes WHERE trans_module LIKE 'fu' AND trans_id = follow_up_links.follow_up_id AND (notes.subject ILIKE ? OR notes.body ILIKE ?)))|;
+
+    $query .= <<SQL;
+      OR EXISTS (
+        SELECT files.id FROM files LEFT JOIN file_full_texts ON (file_full_texts.file_id = files.id)
+          WHERE files.object_id = o.id AND files.object_type = 'sales_order'
+            AND file_full_texts.full_text ILIKE ?)
+SQL
+
+    $query .= <<SQL;
+      OR EXISTS (
+        SELECT notes.id FROM notes
+          WHERE notes.trans_id = o.id AND notes.trans_module LIKE 'oe'
+            AND (notes.subject ILIKE ? OR notes.body ILIKE ?))
+SQL
+
+    $query .= <<SQL;
+      OR EXISTS (
+        SELECT follow_up_links.id FROM follow_up_links
+          WHERE follow_up_links.trans_id = o.id AND trans_type = 'sales_order'
+            AND EXISTS (
+              SELECT notes.id FROM notes
+                WHERE trans_module LIKE 'fu' AND trans_id = follow_up_links.follow_up_id
+                  AND (notes.subject ILIKE ? OR notes.body ILIKE ?)))
+SQL
+
     $query .= ')';
+
     push(@values, like($form->{fulltext})) for 1 .. (scalar @fulltext_fields) + 5;
   }
 
