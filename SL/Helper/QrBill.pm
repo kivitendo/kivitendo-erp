@@ -75,8 +75,15 @@ sub _init_check {
 
   my $check_re = sub {
     my ($group, $href, $elem, $regex) = @_;
-    defined $href->{$elem} && $href->{$elem} =~ $regex
-      or die "field '$elem' in group '$group' not valid", "\n";
+    my $error = undef;
+    if (!exists $href->{$elem}) {
+      $error = 'does not exist';
+    } elsif (!defined $href->{$elem}) {
+      $error = 'is not defined';
+    } elsif ($href->{$elem} !~ $regex) {
+      $error = 'is not valid';
+    }
+    die "field '$elem' in group '$group' $error", "\n" if defined $error;
   };
 
   my $group = 'biller information';
