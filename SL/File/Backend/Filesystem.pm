@@ -98,7 +98,7 @@ sub save {
 sub get_version_count {
   my ($self, %params) = @_;
   die "no dbfile" unless $params{dbfile};
-  return $params{dbfile}->backend_data * 1;
+  return $params{dbfile}->backend_data//0 * 1;
 }
 
 sub get_mtime {
