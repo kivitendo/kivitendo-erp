@@ -42,6 +42,10 @@ sub full_filedescriptor {
   File::Spec->catfile($self->webdav->webdav_path, $self->filename);
 }
 
+sub size {
+  ($_[0]->stat)[7];
+}
+
 sub atime {
   DateTime->from_epoch(epoch => ($_[0]->stat)[8]);
 }
@@ -131,6 +135,10 @@ Returns the version string.
 =item C<extension>
 
 Returns the extension.
+
+=item C<size>
+
+wrapped stat[7]
 
 =item C<atime>
 

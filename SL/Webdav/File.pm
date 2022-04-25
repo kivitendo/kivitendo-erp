@@ -58,6 +58,19 @@ sub store {
       $params{new_version} = 1;
     }
 
+    # Do not create a new version of the document if file size of last version is the same.
+    if ($params{new_version}) {
+      my $last_file_size = $last->size;
+      my $new_file_size;
+      if ($params{file}) {
+        croak 'No valid file' unless -f $params{file};
+        $new_file_size  = (stat($params{file}))[7];
+      } else {
+        $new_file_size  = length(${ $params{data} });
+      }
+      $params{new_version} = 0 if $last_file_size == $new_file_size;
+    }
+
     if ($params{new_version}) {
       my $new_version  = $self->webdav->version_scheme->next_version($last);
       my $sep          = $self->webdav->version_scheme->separator;
@@ -152,6 +165,9 @@ C<file> and C<data> are exclusive.
 
 If param C<new_version> is set, force a new version, even if the versioning
 scheme would keep the old one.
+
+No new version is stored if the file or data size is euqal to the size of
+the last stored version.
 
 =back
 
