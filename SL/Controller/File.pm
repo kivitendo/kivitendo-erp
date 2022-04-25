@@ -404,26 +404,21 @@ sub _delete_all {
 
 sub _do_list {
   my ($self, $json) = @_;
-  my @files;
-  if ( $self->file_type eq 'document' ) {
-    my @object_types;
-    push @object_types, $self->object_type;
-    push @object_types, qw(dunning1 dunning2 dunning3 dunning_invoice dunning_orig_invoice) if $self->object_type eq 'invoice'; # hardcoded object types?
-    @files = SL::File->get_all_versions(object_id   => $self->object_id,
-                                        object_type => \@object_types,
-                                        file_type   => $self->file_type,
-                                       );
 
+  my @files;
+  my @object_types = ($self->object_type);
+  if ( $self->file_type eq 'document' ) {
+    push @object_types, qw(dunning1 dunning2 dunning3 dunning_invoice dunning_orig_invoice) if $self->object_type eq 'invoice'; # hardcoded object types?
   }
-  elsif ( $self->file_type eq 'attachment' || $self->file_type eq 'image' ) {
-    @files   = SL::File->get_all(object_id   => $self->object_id,
-                                 object_type => $self->object_type,
-                                 file_type   => $self->file_type,
-                                );
-  }
+  @files = SL::File->get_all_versions(object_id   => $self->object_id,
+                                      object_type => \@object_types,
+                                      file_type   => $self->file_type,
+                                     );
+
   $self->files(\@files);
 
-  $_->{thumbnail} = _create_thumbnail($_) for @files;
+  $_->{thumbnail}     = _create_thumbnail($_)                     for @files;
+  $_->{version_count} = SL::File->get_version_count(id => $_->id) for @files;
 
   if($self->object_type eq 'shop_image'){
     $self->js

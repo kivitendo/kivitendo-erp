@@ -29,6 +29,7 @@
       <th class="listheading" width="3%">[% L.checkbox_tag(checkname _ '_checkall') %]</th>
       <th class="listheading" width="7%">[% source.chkall_title %]</th>
      [%- END %]
+     <th class="listheading" width="2%"><b>[%  LxERP.t8('Version') %]</b></th>
      <th class="listheading" width="15%"><b>[%  LxERP.t8('Date') %]</b></th>
      <th class="listheading" width="20%"><b>[%  source.file_title %]</b></th>
      [%- IF file_type == 'image' %]
@@ -45,12 +46,24 @@
 
    <tbody>
     [%- FOREACH file = source.files %]
-     <tr class="listrow[% loop.count % 2 %]">
+     [%- is_other_version = 1 IF last_id == file.id %]
+     [%- last_id = file.id %]
+     [%- IF !is_other_version %]
+      [%- row_cnt = row_cnt + 1 %]
+      <tr class="listrow[% row_cnt % 2 %]">
+     [%- ELSE %]
+      <tr class="[% 'version_row_' _ file.id %] listrow[% row_cnt % 2 %] hidden">
+     [%- END %]
       [%- IF edit_attachments %]
        <td>[%- L.checkbox_tag(checkname _ '[]', 'value'=file.id _ '_' _ file.version, 'class'=checkname) %]</td>
        <td></td>
       [%- END %]
-      <td>[% file.mtime_as_timestamp_s %][% L.hidden_tag("version[]", file.version) %]</td>
+      <td align="right" [%- IF file.version_count > 1 && !is_other_version %] class="cursor-pointer" onclick="kivi.File.toggle_versions('[% file.id %]')"[%- END %]>
+       [%- IF file.version_count > 1 && !is_other_version %]<span id="[% 'version_toggle_' _ file.id %]">⏷ </span>[% END %]
+       [% file.version _ '/' _ file.version_count %]
+       [% L.hidden_tag("version[]", file.version) %]
+      </td>
+      <td>[% file.mtime_as_timestamp_s %]</td>
       <td>
        <a href="controller.pl?action=File/download&id=[% file.id %][%- IF file.version %]&version=[%- file.version %][%- END %]">
         <span id="[% "filename_" _ file.id %][%- IF file.version %]_[% file.version %][%- END %]">[% file.file_name %]</span>

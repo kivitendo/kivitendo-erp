@@ -409,4 +409,16 @@ namespace('kivi.File', function(ns) {
     });
   };
 
+  ns.toggle_versions = function(file_id) {
+    if ($('#version_toggle_' + file_id).data('versions_expanded')) {
+      $('.version_row_'    + file_id).hide();
+      $('#version_toggle_' + file_id).data('versions_expanded', 0);
+      $('#version_toggle_' + file_id).html("⏷ ");
+    } else {
+      $('.version_row_'    + file_id).show();
+      $('#version_toggle_' + file_id).data('versions_expanded', 1);
+      $('#version_toggle_' + file_id).html("⏶ ");
+    }
+  };
+
 });
