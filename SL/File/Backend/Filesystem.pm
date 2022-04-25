@@ -6,6 +6,7 @@ use parent qw(SL::File::Backend);
 use SL::DB::File;
 use File::Copy;
 use File::Slurp;
+use File::stat;
 use File::Path qw(make_path);
 
 #
@@ -66,6 +67,15 @@ sub save {
   die 'dbfile not exists' unless $params{dbfile};
   my $dbfile = $params{dbfile};
   die 'no file contents' unless $params{file_path} || $params{file_contents};
+
+  # Do not save and do not create a new version of the document if file size of last version is the same.
+  if ($dbfile->source eq 'created' && $self->get_version_count(dbfile => $dbfile)) {
+    my $new_file_size  = $params{file_path} ? stat($params{file_path})->size : length($params{file_contents});
+    my $last_file_size = stat($self->_filesystem_path($dbfile))->size;
+
+    return 1 if $last_file_size == $new_file_size;
+  }
+
   $dbfile->backend_data(0) unless $dbfile->backend_data;
   $dbfile->backend_data($dbfile->backend_data*1+1);
   $dbfile->save->load;
@@ -100,8 +110,7 @@ sub get_mtime {
 
   die "No file found at $path. Expected: $params{dbfile}{file_name}, file.id: $params{dbfile}{id}" if !-f $path;
 
-  my @st = stat($path);
-  my $dt = DateTime->from_epoch(epoch => $st[9], time_zone => $::locale->get_local_time_zone()->name, locale => $::lx_office_conf{system}->{language})->clone();
+  my $dt = DateTime->from_epoch(epoch => stat($path)->mtime, time_zone => $::locale->get_local_time_zone()->name, locale => $::lx_office_conf{system}->{language})->clone();
   return $dt;
 }
 
