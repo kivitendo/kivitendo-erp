@@ -8,6 +8,12 @@ Größere neue Features:
 
 Mittelgroße neue Features:
 
+ - Neuer Workflow Artikel->Lieferantenaufrag. Hierbei wird der gerade
+   bearbeitete Artikel gespeichert und die Lieferantenauftrags-Maske
+   geöffnet. Der Artikel ist dann in der Eingabezeile vorbelegt.
+   Sofern genau ein Lieferant beim Artikel hinterlegt ist, so wird
+   auch dieser im Lieferantenauftrag vorbelegt.
+
 Kleinere neue Features und Detailverbesserungen:
 
  - Die Protokollierung von E-Mails in interne Bemerkungen ist deaktiviert,
