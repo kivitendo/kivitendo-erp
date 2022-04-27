@@ -1253,12 +1253,22 @@ sub action_update_row_from_master_data {
       $price_src->price(0) if !$price_source->best_price;
     }
 
+    my $discount_src;
+    $discount_src = $price_source->best_discount
+                  ? $price_source->best_discount
+                  : $price_source->discount_from_source("");
+    $discount_src->discount(0) if !$price_source->best_discount;
 
     $item->sellprice($price_src->price);
     $item->active_price_source($price_src);
+    $item->discount($discount_src->discount);
+    $item->active_discount_source($discount_src);
+
+    my $price_editable = $self->order->is_sales ? $::auth->assert('sales_edit_prices', 1) : $::auth->assert('purchase_edit_prices', 1);
 
     $self->js
-      ->run('kivi.Order.update_sellprice', $item_id, $item->sellprice_as_number)
+      ->run('kivi.Order.set_price_and_source_text',    $item_id, $price_src   ->source, $price_src   ->source_description, $item->sellprice_as_number, $price_editable)
+      ->run('kivi.Order.set_discount_and_source_text', $item_id, $discount_src->source, $discount_src->source_description, $item->discount_as_percent, $price_editable)
       ->html('.row_entry:has(#item_' . $item_id . ') [name = "partnumber"] a', $item->part->partnumber)
       ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].description"]', $item->description)
       ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].longdescription"]', $item->longdescription);
