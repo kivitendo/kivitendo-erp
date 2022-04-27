@@ -591,7 +591,7 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.update_price_source = function(item_id, source, descr, price_str, price_editable) {
-    ns.set_price_source_text(item_id, source, descr, price_str, price_editable);
+    ns.set_price_and_source_text(item_id, source, descr, price_str, price_editable);
 
     if (price_str) ns.recalc_amounts_and_taxes();
     kivi.io.close_dialog();
@@ -630,6 +630,8 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.update_discount_source = function(item_id, source, descr, discount_str, price_editable) {
+    ns.set_discount_and_source_text(item_id, source, descr, discount_str, price_editable);
+
     if (discount_str) ns.recalc_amounts_and_taxes();
     kivi.io.close_dialog();
   };
