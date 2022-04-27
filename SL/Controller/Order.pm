@@ -899,41 +899,13 @@ sub action_update_item_input_row {
 
   my $record       = $self->order;
   my $item         = SL::DB::OrderItem->new(%$form_attr);
-  my $part         = SL::DB::Part->new(id => $::form->{add_item}->{parts_id})->load;
-  my $price_source = SL::PriceSource->new(record_item => $item, record => $record);
+  $item->unit($item->part->unit);
 
-  $item->unit($part->unit);
-
-  my $price_src;
-  if ( $part->is_assortment ) {
-    # add assortment items with price 0, as the components carry the price
-    $price_src = $price_source->price_from_source("");
-    $price_src->price(0);
-  } elsif (defined $item->sellprice) {
-    $price_src = $price_source->price_from_source("");
-    $price_src->price($item->sellprice);
-  } else {
-    $price_src = $price_source->best_price
-               ? $price_source->best_price
-               : $price_source->price_from_source("");
-    $price_src->price($::form->round_amount($price_src->price / $record->exchangerate, 5)) if $record->exchangerate;
-    $price_src->price(0) if !$price_source->best_price;
-  }
-
-  my $discount_src;
-  if (defined $item->discount) {
-    $discount_src = $price_source->discount_from_source("");
-    $discount_src->discount($item->discount);
-  } else {
-    $discount_src = $price_source->best_discount
-                  ? $price_source->best_discount
-                  : $price_source->discount_from_source("");
-    $discount_src->discount(0) if !$price_source->best_discount;
-  }
+  my ($price_src, $discount_src) = get_best_price_and_discount_source($record, $item, 0);
 
   $self->js
     ->val     ('#add_item_unit',                $item->unit)
-    ->val     ('#add_item_description',         $part->description)
+    ->val     ('#add_item_description',         $item->part->description)
     ->val     ('#add_item_sellprice_as_number', '')
     ->attr    ('#add_item_sellprice_as_number', 'placeholder', $price_src->price_as_number)
     ->attr    ('#add_item_sellprice_as_number', 'title',       $price_src->source_description)
@@ -1238,26 +1210,7 @@ sub action_update_row_from_master_data {
     $item->description($texts->{description});
     $item->longdescription($texts->{longdescription});
 
-    my $price_source = SL::PriceSource->new(record_item => $item, record => $self->order);
-
-    my $price_src;
-    if ($item->part->is_assortment) {
-    # add assortment items with price 0, as the components carry the price
-      $price_src = $price_source->price_from_source("");
-      $price_src->price(0);
-    } else {
-      $price_src = $price_source->best_price
-                 ? $price_source->best_price
-                 : $price_source->price_from_source("");
-      $price_src->price($::form->round_amount($price_src->price / $self->order->exchangerate, 5)) if $self->order->exchangerate;
-      $price_src->price(0) if !$price_source->best_price;
-    }
-
-    my $discount_src;
-    $discount_src = $price_source->best_discount
-                  ? $price_source->best_discount
-                  : $price_source->discount_from_source("");
-    $discount_src->discount(0) if !$price_source->best_discount;
+    my ($price_src, $discount_src) = get_best_price_and_discount_source($self->order, $item, 1);
 
     $item->sellprice($price_src->price);
     $item->active_price_source($price_src);
@@ -1710,58 +1663,29 @@ sub new_item {
   }
 
   $item->assign_attributes(%$attr);
+  $item->qty(1.0)                   if !$item->qty;
+  $item->unit($item->part->unit)    if !$item->unit;
 
-  my $part         = SL::DB::Part->new(id => $attr->{parts_id})->load;
-  my $price_source = SL::PriceSource->new(record_item => $item, record => $record);
-
-  $item->qty(1.0)          if !$item->qty;
-  $item->unit($part->unit) if !$item->unit;
-
-  my $price_src;
-  if ( $part->is_assortment ) {
-    # add assortment items with price 0, as the components carry the price
-    $price_src = $price_source->price_from_source("");
-    $price_src->price(0);
-  } elsif (defined $item->sellprice) {
-    $price_src = $price_source->price_from_source("");
-    $price_src->price($item->sellprice);
-  } else {
-    $price_src = $price_source->best_price
-               ? $price_source->best_price
-               : $price_source->price_from_source("");
-    $price_src->price($::form->round_amount($price_src->price / $record->exchangerate, 5)) if $record->exchangerate;
-    $price_src->price(0) if !$price_source->best_price;
-  }
-
-  my $discount_src;
-  if (defined $item->discount) {
-    $discount_src = $price_source->discount_from_source("");
-    $discount_src->discount($item->discount);
-  } else {
-    $discount_src = $price_source->best_discount
-                  ? $price_source->best_discount
-                  : $price_source->discount_from_source("");
-    $discount_src->discount(0) if !$price_source->best_discount;
-  }
+  my ($price_src, $discount_src) = get_best_price_and_discount_source($record, $item, 0);
 
   my %new_attr;
-  $new_attr{part}                   = $part;
-  $new_attr{description}            = $part->description     if ! $item->description;
-  $new_attr{price_factor_id}        = $part->price_factor_id if ! $item->price_factor_id;
+  $new_attr{description}            = $item->part->description     if ! $item->description;
+  $new_attr{qty}                    = 1.0                          if ! $item->qty;
+  $new_attr{price_factor_id}        = $item->part->price_factor_id if ! $item->price_factor_id;
   $new_attr{sellprice}              = $price_src->price;
   $new_attr{discount}               = $discount_src->discount;
   $new_attr{active_price_source}    = $price_src;
   $new_attr{active_discount_source} = $discount_src;
-  $new_attr{longdescription}        = $part->notes           if ! defined $attr->{longdescription};
+  $new_attr{longdescription}        = $item->part->notes           if ! defined $attr->{longdescription};
   $new_attr{project_id}             = $record->globalproject_id;
-  $new_attr{lastcost}               = $record->is_sales ? $part->lastcost : 0;
+  $new_attr{lastcost}               = $record->is_sales ? $item->part->lastcost : 0;
 
   # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
   # they cannot be retrieved via custom_variables until the order/orderitem is
   # saved. Adding empty custom_variables to new orderitem here solves this problem.
   $new_attr{custom_variables} = [];
 
-  my $texts = get_part_texts($part, $record->language_id, description => $new_attr{description}, longdescription => $new_attr{longdescription});
+  my $texts = get_part_texts($item->part, $record->language_id, description => $new_attr{description}, longdescription => $new_attr{longdescription});
 
   $item->assign_attributes(%new_attr, %{ $texts });
 
@@ -2512,6 +2436,41 @@ sub get_part_texts {
   $texts->{longdescription} = $translation->longdescription if $translation && $translation->longdescription;
 
   return $texts;
+}
+
+sub get_best_price_and_discount_source {
+  my ($record, $item, $ignore_given) = @_;
+
+  my $price_source = SL::PriceSource->new(record_item => $item, record => $record);
+
+  my $price_src;
+  if ( $item->part->is_assortment ) {
+    # add assortment items with price 0, as the components carry the price
+    $price_src = $price_source->price_from_source("");
+    $price_src->price(0);
+  } elsif (!$ignore_given && defined $item->sellprice) {
+    $price_src = $price_source->price_from_source("");
+    $price_src->price($item->sellprice);
+  } else {
+    $price_src = $price_source->best_price
+               ? $price_source->best_price
+               : $price_source->price_from_source("");
+    $price_src->price($::form->round_amount($price_src->price / $record->exchangerate, 5)) if $record->exchangerate;
+    $price_src->price(0) if !$price_source->best_price;
+  }
+
+  my $discount_src;
+  if (!$ignore_given && defined $item->discount) {
+    $discount_src = $price_source->discount_from_source("");
+    $discount_src->discount($item->discount);
+  } else {
+    $discount_src = $price_source->best_discount
+                  ? $price_source->best_discount
+                  : $price_source->discount_from_source("");
+    $discount_src->discount(0) if !$price_source->best_discount;
+  }
+
+  return ($price_src, $discount_src);
 }
 
 sub sales_order_type {
