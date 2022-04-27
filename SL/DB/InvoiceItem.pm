@@ -17,6 +17,7 @@ use SL::DB::Helper::CustomVariables (
     },
   },
 );
+use Rose::DB::Object::Helpers qw(as_tree strip);
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(trans_id)]);
 

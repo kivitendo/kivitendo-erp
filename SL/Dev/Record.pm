@@ -37,6 +37,7 @@ use SL::Locale::String qw(t8);
 use SL::DATEV;
 
 my %record_type_to_item_type = ( sales_invoice        => 'SL::DB::InvoiceItem',
+                                 purchase_invoice     => 'SL::DB::InvoiceItem',
                                  credit_note          => 'SL::DB::InvoiceItem',
                                  sales_order          => 'SL::DB::OrderItem',
                                  purchase_order       => 'SL::DB::OrderItem',
@@ -74,6 +75,36 @@ sub create_sales_invoice {
   $invoice->assign_attributes(%params) if %params;
 
   $invoice->post;
+  return $invoice;
+}
+
+sub create_purchase_invoice {
+  my (%params) = @_;
+
+  my $record_type = 'purchase_invoice';
+  my $invoiceitems = delete $params{invoiceitems} // _create_two_items($record_type);
+  _check_items($invoiceitems, $record_type);
+
+  my $vendor = delete $params{vendor} // new_vendor(name => 'Testvendor')->save;
+  die "illegal vendor" unless defined $vendor && ref($vendor) eq 'SL::DB::Vendor';
+
+  my $invoice = SL::DB::PurchaseInvoice->new(
+    invoice      => 1,
+    type         => 'purchase_invoice',
+    vendor       => $vendor->id,
+    taxzone_id   => $vendor->taxzone->id,
+    invnumber    => delete $params{invnumber}   // undef,
+    currency_id  => $params{currency_id} // $::instance_conf->get_currency_id,
+    taxincluded  => $params{taxincluded} // 0,
+    employee_id  => $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    transdate    => $params{transdate}   // DateTime->today_local->to_kivitendo,
+    payment_id   => $params{payment_id}  // undef,
+    gldate       => DateTime->today,
+    invoiceitems => $invoiceitems,
+  );
+  $invoice->assign_attributes(%params) if %params;
+
+  $invoice->save;
   return $invoice;
 }
 
@@ -147,7 +178,7 @@ sub create_purchase_delivery_order {
   _check_items($orderitems, $record_type);
 
   my $vendor = $params{vendor} // new_vendor(name => 'Testvendor')->save;
-  die "illegal customer" unless ref($vendor) eq 'SL::DB::Vendor';
+  die "illegal vendor" unless ref($vendor) eq 'SL::DB::Vendor';
 
   my $delivery_order = SL::DB::DeliveryOrder->new(
     order_type   => PURCHASE_DELIVERY_ORDER_TYPE,

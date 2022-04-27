@@ -13,7 +13,7 @@ use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::Payment qw(:ALL);
 use SL::DB::Helper::SalesPurchaseInvoice;
 use SL::Locale::String qw(t8);
-use Rose::DB::Object::Helpers qw(has_loaded_related forget_related);
+use Rose::DB::Object::Helpers qw(has_loaded_related forget_related as_tree strip);
 
 # The calculator hasn't been adjusted for purchase invoices yet.
 # use SL::DB::Helper::PriceTaxCalculator;
