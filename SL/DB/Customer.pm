@@ -24,7 +24,8 @@ use SL::DB::Helper::DisplayableNamePreferences (
                {name => 'city',           title => t8('City') },
                {name => 'zipcode',        title => t8('Zipcode')},
                {name => 'email',          title => t8('E-Mail') },
-               {name => 'phone',          title => t8('Phone')  }, ]
+               {name => 'phone',          title => t8('Phone')  },
+               {name => 'country',        title => t8('Country') }, ]
 );
 
 use SL::DB::VC;

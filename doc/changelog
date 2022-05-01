@@ -44,6 +44,8 @@ Kleinere neue Features und Detailverbesserungen:
 - Die E-Mail-Absenderadresse kann jetzt belegweise generisch gesetzt werden, konfigurierbar
   in der Mandanteneinstellung auf Workflow-Ebene im Bereich Einkauf und Verkauf
  - Schnellsuche für Projekte eingeführt
+ - In der benutzerkonfigurierten Kundenanzeige kann man nun auch das Land mit
+   anzeigen
 
 2022-09-19 - Release 3.7.0
 
