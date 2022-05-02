@@ -12,7 +12,7 @@
  [%- FOREACH source = SOURCES %]
   <table style="width: 100%" >
    <thead>
-    <tr><th class="listheading" colspan="6">[% source.title %]</th></tr>
+    <tr><th class="listheading" colspan="[% IF file_type == 'image' %]8[% ELSE %]6[% END %]">[% source.title %]</th></tr>
     <tr>
      [%- SET checkname = source.chk_action %]
      [%- IF is_global %]
