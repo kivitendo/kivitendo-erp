@@ -412,9 +412,8 @@ sub new_from {
                    : undef
                    : die "Wrong state for reqdate";
   } elsif ( ref($source) eq 'SL::DB::Reclamation') {
-    #TODO(Tamino): add billing_address_id to reclamation
     %args = ( map({ ( $_ => $source->$_ ) } qw(
-        amount currency_id customer_id delivery_term_id department_id
+        amount billing_address_id currency_id customer_id delivery_term_id department_id
         exchangerate globalproject_id intnotes language_id netamount
         notes payment_id  reqdate salesman_id shippingpoint shipvia taxincluded
         tax_point taxzone_id transaction_description vendor_id

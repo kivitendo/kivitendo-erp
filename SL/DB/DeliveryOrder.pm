@@ -184,8 +184,8 @@ sub new_from {
     # }}} for vim folds
   } elsif ( ref($source) eq 'SL::DB::Reclamation' ) {
     map{ ( $record_args{$_} = $source->$_ ) } # {{{ for vim folds
-      #billing_address_id #TODO(Tamino): add billing_address_id to reclamation
     qw(
+      billing_address_id
       currency_id
       customer_id
       delivery_term_id

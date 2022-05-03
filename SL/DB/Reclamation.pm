@@ -353,6 +353,7 @@ sub new_from {
     map { $record_args{$_} = $source->$_ } # {{{ for vim folds
     qw(
       amount
+      billing_address_id
       contact_id
       currency_id
       customer_id
@@ -379,6 +380,7 @@ sub new_from {
     map { $record_args{$_} = $source->$_ } # {{{ for vim folds
     qw(
       amount
+      billing_address_id
       currency_id
       customer_id
       delivery_term_id
@@ -405,6 +407,7 @@ sub new_from {
   } elsif ( $is_abbr_any->(qw(sdsr pdpr)) ) { #DeliveryOrder
     map { $record_args{$_} = $source->$_ } # {{{ for vim folds
     qw(
+      billing_address_id
       currency_id
       customer_id
       delivery_term_id
@@ -430,6 +433,7 @@ sub new_from {
     map { $record_args{$_} = $source->$_ } # {{{ for vim folds
     qw(
       amount
+      billing_address_id
       currency_id
       customer_id
       delivery_term_id
@@ -477,6 +481,7 @@ sub new_from {
 
   if ( ($from_to->{from} =~ m{sales}) && ($from_to->{to} =~ m{purchase}) ) {
     $record_args{customer_id}      = undef;
+    $record_args{billing_address_id} = undef;
     $record_args{salesman_id}      = undef;
     $record_args{payment_id}       = undef;
     $record_args{delivery_term_id} = undef;
