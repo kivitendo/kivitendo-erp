@@ -289,6 +289,11 @@
    </td>
    <td>[% LxERP.t8("If enabled sales invoices created using OpenDocument/OASIS format will include data for Swiss QR-Bill creation.") %]</td>
   </tr>
+  <tr>
+   <td align="right">[% LxERP.t8("Prevent browser's back button in sales invoices") %]</td>
+   <td>[% L.yes_no_tag("defaults.invoice_prevent_browser_back", SELF.defaults.invoice_prevent_browser_back) %]</td>
+   <td>[% LxERP.t8("If enabled try to overrule the brower's back button to prevent double booking of sales invoices.") %]</td>
+  </tr>
 
   <tr><td class="listheading" colspan="4">[% LxERP.t8("E-mail") %]</td></tr>
 

@@ -326,9 +326,11 @@
   <script type="text/javascript">
    <!--
      $('document').ready(function(){
+[% IF INSTANCE_CONF.get_invoice_prevent_browser_back %]
        function disableBack() { window.history.forward() };
        window.onload = disableBack();
        window.onpageshow = function(evt) { if (evt.persisted) disableBack() };
+[% END %]
 
 [% IF resubmit && is_format_html %]
        window.open('about:blank','Beleg');

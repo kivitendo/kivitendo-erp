@@ -36,6 +36,12 @@ Kleinere neue Features und Detailverbesserungen:
    Version einer Datei. Weitere Versionen lassen sich durch Ausklappen
    anzeigen. Dies gilt nun auch für die Dokument-Typen Anhänge und Bilder, bei
    denen zuvor nur die neueste Version angezeigt wurde.
+-  Um ein ungewolltes doppeltes Buchen einer Verkaufsrechnung zu verhindern,
+   dass durch den Browser-Zurück-Knopf (und dann nochmaliges Buchen) ausgelöst
+   werden kann, kann in der Mandantenkonfiguration das Aushebeln des Browser-
+   Zurück-Knopfes bei Verkaufsrechnunghen aktiviert werden.
+   Da dadurch allerdings auch Situationen ausgehebelt werden, in denen das
+   Drücken des Zurück-Knopfes sinnvoll ist, ist dies konfigurierbar.
 
 2022-03-02 - Release 3.6.0
 
