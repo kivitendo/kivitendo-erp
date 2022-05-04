@@ -32,6 +32,10 @@ Kleinere neue Features und Detailverbesserungen:
 -  Skontoautomatik bei Kontoauszug verbuchen generiert automatisch die
    Steuerkorrektur pro Steuersatz des Belegs als verknüpfte Dialogbuchung
 -  Verknüpfte Belege auch für Dialogbuchungen (neuer Reiter)
+-  DMS: Anzeige von Versionen verbessert: Angezeigt wird immer nur die neueste
+   Version einer Datei. Weitere Versionen lassen sich durch Ausklappen
+   anzeigen. Dies gilt nun auch für die Dokument-Typen Anhänge und Bilder, bei
+   denen zuvor nur die neueste Version angezeigt wurde.
 
 2022-03-02 - Release 3.6.0
 
