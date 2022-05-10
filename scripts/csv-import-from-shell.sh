@@ -127,7 +127,7 @@ function do_curl {
     -X 'POST' \
     -H 'Content-Type:multipart/form-data' \
     --silent --insecure \
-    -F 'action=CsvImport/dispatch' \
+    -F 'action=CsvImport/import' \
     -F "${action}=1" \
     -F 'escape_char=quote' \
     -F 'profile.type=parts' \
