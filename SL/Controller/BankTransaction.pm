@@ -983,6 +983,7 @@ sub load_ap_record_template_url {
     'form_defaults.paid_1_suggestion'    => $::form->format_amount(\%::myconfig, -1 * $self->transaction->amount, 2),
     'form_defaults.AP_paid_1_suggestion' => $self->transaction->local_bank_account->chart->accno,
     'form_defaults.callback'             => $self->callback,
+    'form_defaults.notes'                => $self->convert_purpose_for_template($template, $self->transaction->purpose),
   );
 }
 
@@ -998,8 +999,16 @@ sub load_gl_record_template_url {
     'form_defaults.callback'             => $self->callback,
     'form_defaults.bt_id'                => $self->transaction->id,
     'form_defaults.bt_chart_id'          => $self->transaction->local_bank_account->chart->id,
-    'form_defaults.description'          => $self->transaction->purpose,
+    'form_defaults.description'          => $self->convert_purpose_for_template($template, $self->transaction->purpose),
   );
+}
+
+sub convert_purpose_for_template {
+  my ($self, $template, $purpose) = @_;
+
+  # enter custom code here
+
+  return $purpose;
 }
 
 sub setup_search_action_bar {
@@ -1118,6 +1127,13 @@ that payments are not manually changed, i.e. only imported payments.
 GL-records will be deleted completely if a bank transaction was the source.
 
 TODO: we still rely on linked_records for the check boxes
+
+=item C<convert_purpose_for_template>
+
+This method can be used to parse, filter and convert the bank transaction's
+purpose string before it will be assigned to the description field of a
+gl transaction or to the notes field of an ap transaction.
+You have to write your own custom code.
 
 =back
 
