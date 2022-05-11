@@ -90,24 +90,28 @@ sub gather_bank_transactions_and_proposals {
     sort_by      => $sort_by,
     limit        => 10000,
     where        => [
-      amount                => {ne => \'invoice_amount'},
+      amount                => {ne => \'invoice_amount'},      # '} make emacs happy
       local_bank_account_id => $params{bank_account}->id,
       cleared               => 0,
       @where
     ],
   );
   # credit notes have a negative amount, treat differently
-  my $all_open_ar_invoices = SL::DB::Manager::Invoice        ->get_all(where => [ or => [ amount => { gt => \'paid' },
-                                                                                          and => [ type    => 'credit_note',
-                                                                                                   amount  => { lt => \'paid' }
-                                                                                                 ],
-                                                                                        ],
-                                                                                ],
-                                                                       with_objects => ['customer','payment_terms']);
+  my $all_open_ar_invoices = SL::DB::Manager::Invoice->get_all(where        => [ or => [ amount => { gt => \'paid' },                 # '} make emacs happy
+                                                                                         and    => [ type    => 'credit_note',
+                                                                                                     amount  => { lt => \'paid' }     # '} make emacs happy
+                                                                                         ],
+                                                                                 ],
+                                                               ],
+                                                               with_objects => ['customer','payment_terms']);
 
-  my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => [amount => { ne => \'paid' }], with_objects => ['vendor'  ,'payment_terms']);
-  my $all_open_sepa_export_items = SL::DB::Manager::SepaExportItem->get_all(where => [chart_id => $params{bank_account}->chart_id ,
-                                                                             'sepa_export.executed' => 0, 'sepa_export.closed' => 0 ], with_objects => ['sepa_export']);
+  my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where        => [amount => { ne => \'paid' }],                 #  '}] make emacs happy
+                                                                       with_objects => ['vendor'  ,'payment_terms']);
+  my $all_open_sepa_export_items = SL::DB::Manager::SepaExportItem->get_all(where        => [chart_id               => $params{bank_account}->chart_id ,
+                                                                                             'sepa_export.executed' => 0,
+                                                                                             'sepa_export.closed'   => 0
+                                                                            ],
+                                                                            with_objects => ['sepa_export']);
 
   my @all_open_invoices;
   # filter out invoices with less than 1 cent outstanding
