@@ -42,14 +42,17 @@ namespace('kivi.BankTransaction', function(ns) {
   };
 
   ns.create_invoice = function(bank_transaction_id) {
+    $.post('controller.pl?action=BankTransaction/create_invoice',
+           '&bt_id=' + bank_transaction_id + "&filter.bank_account=" + $('#filter_bank_account').val() + '&filter.fromdate=' + $('#filter_fromdate').val() + '&filter.todate=' + $('#filter_todate').val(),
+           kivi.eval_json_result);
+  };
+
+  ns.show_create_invoice_dialog = function(dialog_html) {
     kivi.popup_dialog({
-      url:    'controller.pl?action=BankTransaction/create_invoice',
-      data:   '&bt_id=' + bank_transaction_id + "&filter.bank_account=" + $('#filter_bank_account').val() + '&filter.fromdate=' + $('#filter_fromdate').val() + '&filter.todate=' + $('#filter_todate').val(),
-      type:   'POST',
+      html:    dialog_html,
       id:     'create_invoice_window',
       dialog: { title: kivi.t8('Create invoice') }
     });
-    return true;
   };
 
 
