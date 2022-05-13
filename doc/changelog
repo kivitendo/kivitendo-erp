@@ -13,6 +13,9 @@ Mittelgroße neue Features:
    geöffnet. Der Artikel ist dann in der Eingabezeile vorbelegt.
    Sofern genau ein Lieferant beim Artikel hinterlegt ist, so wird
    auch dieser im Lieferantenauftrag vorbelegt.
+ - In Angebot und Auftrag gibt es einen neuen Reiter für Telefonnotizen.
+   Hier können Notizen zum Beleg erfasst werden. Nach diesen lässt sich im
+   Bericht auch filtern.
 
 Kleinere neue Features und Detailverbesserungen:
 
