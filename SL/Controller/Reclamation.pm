@@ -609,14 +609,15 @@ sub action_save_and_purchase_reclamation {
 
 # save the reclamation and redirect to the frontend subroutine for a new
 # delivery order
+
 sub action_save_and_delivery_order {
   my ($self) = @_;
 
-  my $to_type = $self->reclamation->is_sales ? 'sales_delivery_order'
-                                             : 'purchase_delivery_order';
+  my $to_type = $self->reclamation->is_sales ? 'rma_delivery_order'
+                                             : 'supplier_delivery_order';
   $self->save_and_redirect_to(
-    controller => 'do.pl',
-    action     => 'add_from_reclamation',
+    controller => 'controller.pl',
+    action     => 'DeliveryOrder/add_from_reclamation',
     type       => $to_type,
     from_id    => $self->reclamation->id,
   );

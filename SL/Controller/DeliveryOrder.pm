@@ -100,6 +100,21 @@ sub action_add_from_order {
   $self->action_add;
 }
 
+sub action_add_from_reclamation {
+  my ($self) = @_;
+
+  require SL::DB::Reclamation;
+  my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
+  my ($delivery_order, $error) = $reclamation->convert_to_delivery_order();
+  if($error) {
+    croak("Error while converting: " . $error);
+  }
+
+  $self->order($delivery_order);
+
+  $self->action_add;
+}
+
 # edit an existing order
 sub action_edit {
   my ($self) = @_;
