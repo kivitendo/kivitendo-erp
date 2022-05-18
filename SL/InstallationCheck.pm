@@ -45,6 +45,7 @@ BEGIN {
   { name => "Image::Info",                         url => "http://search.cpan.org/~srezic/",    debian => 'libimage-info-perl' },
   { name => "Imager",                              url => "http://search.cpan.org/~tonyc/",     debian => 'libimager-perl' },
   { name => "Imager::QRCode",                      url => "http://search.cpan.org/~kurihara/",  debian => 'libimager-qrcode-perl' },
+  { name => "IPC::Run",                            url => "https://metacpan.org/pod/IPC::Run",  debian => 'libipc-run-perl' },
   { name => "JSON",                                url => "http://search.cpan.org/~makamaka",   debian => 'libjson-perl' },
   { name => "List::MoreUtils", version => '0.30',  url => "http://search.cpan.org/~vparseval/", debian => 'liblist-moreutils-perl' },
   { name => "List::UtilsBy",   version => '0.09',  url => "http://search.cpan.org/~pevans/",    debian => 'liblist-utilsby-perl' },
