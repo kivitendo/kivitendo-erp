@@ -2721,7 +2721,6 @@ $self->{texts} = {
   'Project (description)'       => 'Projekt (Beschreibung)',
   'Project (number)'            => 'Projektnummer',
   'Project Description'         => 'Projektbeschreibung',
-  'Project Details'             => 'Projektdetails',
   'Project Link'                => 'Projektverknüpfung',
   'Project Number'              => 'Projektnummer',
   'Project Numbers'             => 'Projektnummern',
