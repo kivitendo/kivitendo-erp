@@ -115,3 +115,30 @@ sub _text_to_strings {
 }
 
 1;
+
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::BackgroundJob::CreateOrUpdateFileFullTexts - Extract text strings/words from
+files in the DMS for full text search.
+
+=head1 SYNOPSIS
+
+Search all documents in the files table and try to extract strings from them
+and store the strings in the database.
+
+Duplicate strings/words in one text are removed.
+
+Strings are updated if the change or creation time of the document is newer than
+the old entry.
+
+=head1 AUTHOR
+
+Bernd Bleßmann E<lt>bernd@kivitendo-premium.deE<gt>
+
+=cut
