@@ -16,6 +16,15 @@ Mittelgroße neue Features:
  - In Angebot und Auftrag gibt es einen neuen Reiter für Telefonnotizen.
    Hier können Notizen zum Beleg erfasst werden. Nach diesen lässt sich im
    Bericht auch filtern.
+ - Neuer Filter im Auftragsbericht nach "Volltext". Hierzu werden die Texte in
+   den Feldern Bemerkungen, interne Bemerkungen, Versandort, Transportmittel,
+   Vorgangsbezeichnung, Auftragsnummer, Angebotsnummer und
+   Bestellnummer des Kunden durchsucht,
+   Zudem werden Dokumente und Anhänge zu Aufträgen im DMS durchsucht.
+   Dazu wird ein Hintgergrund-Job eingerichtet (täglich 03:20 Uhr), der die
+   Texte aus den Dokumenten extrahiert. Im Moment werden Texte aus Dokumenten
+   mit den mime-Typen 'application/pdf', 'text/html' und 'text/plain'
+   ausgelesen.
 
 Kleinere neue Features und Detailverbesserungen:
 
