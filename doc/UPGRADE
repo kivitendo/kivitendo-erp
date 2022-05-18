@@ -8,6 +8,11 @@ Upgrade auf v3.6.x
 Das manueller Korrigieren der Steuer bei Skontoverbuchungen entfällt seit
 dieser Version, da die Steuerkorrektur automatisch gemacht wird.
 
+Ein neues Perl-Modul ist hinzugekommen, Hilfe zum Installieren bietet wie immer
+das Skript 'scripts/installation_check.pl -v'.
+
+  * IPC::Run
+
 
 Upgrade auf v3.6.0
 
