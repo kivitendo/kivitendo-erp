@@ -22,7 +22,7 @@ my %extractor_by_mime_type = (
 );
 
 sub create_job {
-  $_[0]->create_standard_job('7 * * * *'); # seven minutes after every hour
+  $_[0]->create_standard_job('20 3 * * *'); # # every day at 3:20 am
 }
 
 #
