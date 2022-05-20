@@ -217,6 +217,7 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
 * VERSION auf aktuelle Version setzen
  - Changelog auf Tagesdatum plus Versionssnummer
  - dokumentation.xml Versionsnummer anpassen
+ - im Dokument UPGRADE Versionsnummer anpassen
  - bei der Datei VERSION Versionsnummer anpassen
 
 
