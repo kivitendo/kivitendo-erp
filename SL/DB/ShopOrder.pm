@@ -138,11 +138,11 @@ WHERE (
  OR
    ( street % ?  AND zipcode ILIKE ?)
  OR
-   email ILIKE ?
+   ( email ILIKE ? OR invoice_mail ILIKE ? )
 ) AND obsolete = 'F'
 SQL
 
-    my @values = ($lastname, $company, $self->billing_zipcode, $street, $self->billing_zipcode, $self->billing_email);
+    my @values = ($lastname, $company, $self->billing_zipcode, $street, $self->billing_zipcode, $self->billing_email, $self->billing_email);
 
     $customers = SL::DB::Manager::Customer->get_objects_from_sql(
       sql  => $fs_query,
@@ -152,20 +152,24 @@ SQL
     # If trgm extension is not installed
     $customers = SL::DB::Manager::Customer->get_all(
       where => [
-          or => [
-            and => [
-                     or => [ 'name' => { ilike => $lastname },
-                             'name' => { ilike => $company  },
-                           ],
-                     'zipcode' => { ilike => $zipcode },
+                 or => [
+                   and => [
+                            or => [ 'name' => { ilike => $lastname },
+                                    'name' => { ilike => $company  },
+                            ],
+                            'zipcode' => { ilike => $zipcode },
                    ],
-            and => [
-                     and => [ 'street'  => { ilike => $street_not_fuzzy },
-                              'zipcode' => { ilike => $zipcode },
+                   and => [
+                            and => [ 'street'  => { ilike => $street_not_fuzzy },
+                                     'zipcode' => { ilike => $zipcode },
                             ],
                    ],
-            or  => [ 'email' => { ilike => $email } ],
-          ],
+                   or  => [
+                            'email'        => { ilike => $email },
+                            'invoice_mail' => { ilike => $email },
+                   ],
+                 ],
+                 and => [ obsolete => 'F' ]
       ],
     );
   }
@@ -199,6 +203,7 @@ sub get_customer{
                     'zipcode'               => $self->billing_zipcode,
                     'city'                  => $self->billing_city,
                     'email'                 => $self->billing_email,
+                    'invoice_mail'          => $self->billing_email,
                     'country'               => $self->billing_country,
                     'greeting'              => $self->billing_greeting,
                     'fax'                   => $self->billing_fax,
@@ -234,6 +239,7 @@ sub get_customer{
                                                     obsolete => 'F',
                                                   );
   }
+  $customer->update_attributes(invoice_mail => $self->billing_email) if $customer->invoice_mail ne $self->billing_email;
 
   return $customer;
 }
