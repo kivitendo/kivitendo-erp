@@ -62,6 +62,14 @@ Kleinere neue Features und Detailverbesserungen:
 -  Möglichkeit, Namen von Dateianhängen im Rechnungsbericht anzuzeigen.
 
 
+Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+
+498 Angebot/Auftrags-Maske: Drucken mit nicht-änderbarer Belegnummer zeigt diese nicht an
+494 Beim Erstellen eines Auftrags via Workflow aus der Kundenmaske wird die Sprache nicht übernommen
+491 qty real nach numeric migrieren
+479 Preise neuer Auftragsconroller
+
+
 2022-03-02 - Release 3.6.0
 
 Größere neue Features:
