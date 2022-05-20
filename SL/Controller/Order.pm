@@ -416,6 +416,8 @@ sub action_save_and_show_email_dialog {
     return $self->js->render();
   }
 
+  $self->js_reset_order_and_item_ids_after_save;
+
   my $cv_method = $self->cv;
 
   if (!$self->order->$cv_method) {
