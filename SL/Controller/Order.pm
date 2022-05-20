@@ -291,6 +291,12 @@ sub action_print {
 
   $self->js_reset_order_and_item_ids_after_save;
 
+  my $redirect_url = $self->url_for(
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
+
   my $format      = $::form->{print_options}->{format};
   my $media       = $::form->{print_options}->{media};
   my $formname    = $::form->{print_options}->{formname};
@@ -300,12 +306,14 @@ sub action_print {
 
   # only PDF, OpenDocument & HTML for now
   if (none { $format eq $_ } qw(pdf opendocument opendocument_pdf html)) {
-    return $self->js->flash('error', t8('Format \'#1\' is not supported yet/anymore.', $format))->render;
+    flash_later('error', t8('Format \'#1\' is not supported yet/anymore.', $format));
+    return $self->js->redirect_to($redirect_url)->render;
   }
 
   # only screen or printer by now
   if (none { $media eq $_ } qw(screen printer)) {
-    return $self->js->flash('error', t8('Media \'#1\' is not supported yet/anymore.', $media))->render;
+    flash_later('error', t8('Media \'#1\' is not supported yet/anymore.', $media));
+    return $self->js->redirect_to($redirect_url)->render;
   }
 
   # create a form for generate_attachment_filename
@@ -325,7 +333,8 @@ sub action_print {
                                             printer_id => $printer_id,
                                             groupitems => $groupitems });
   if (scalar @errors) {
-    return $self->js->flash('error', t8('Generating the document failed: #1', $errors[0]))->render;
+    flash_later('error', t8('Generating the document failed: #1', $errors[0]));
+    return $self->js->redirect_to($redirect_url)->render;
   }
 
   if ($media eq 'screen') {
@@ -356,12 +365,7 @@ sub action_print {
 
   $self->save_history('PRINTED');
 
-  my @redirect_params = (
-    action => 'edit',
-    type   => $self->type,
-    id     => $self->order->id,
-  );
-  $self->js->redirect_to($self->url_for(@redirect_params))->render;
+  $self->js->redirect_to($redirect_url)->render;
 }
 
 sub action_preview_pdf {
@@ -374,6 +378,12 @@ sub action_preview_pdf {
   }
 
   $self->js_reset_order_and_item_ids_after_save;
+
+  my $redirect_url = $self->url_for(
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
 
   my $format      = 'pdf';
   my $media       = 'screen';
@@ -396,10 +406,14 @@ sub action_preview_pdf {
                                             language   => $self->order->language,
                                           });
   if (scalar @errors) {
-    return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
+    flash_later('error', t8('Conversion to PDF failed: #1', $errors[0]));
+    return $self->js->redirect_to($redirect_url)->render;
   }
+
   $self->save_history('PREVIEWED');
+
   flash_later('info', t8('The PDF has been previewed'));
+
   # screen/download
   $self->send_file(
     \$pdf,
@@ -408,12 +422,7 @@ sub action_preview_pdf {
     js_no_render => 1,
   );
 
-  my @redirect_params = (
-    action => 'edit',
-    type   => $self->type,
-    id     => $self->order->id,
-  );
-  $self->js->redirect_to($self->url_for(@redirect_params))->render;
+  $self->js->redirect_to($redirect_url)->render;
 }
 
 # open the email dialog
