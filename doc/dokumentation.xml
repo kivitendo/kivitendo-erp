@@ -270,6 +270,10 @@
           </listitem>
 
           <listitem>
+            <para><literal>IPC::Run</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>JSON</literal></para>
           </listitem>
 
@@ -388,6 +392,8 @@
         </itemizedlist>
 
 
+        <para>Seit Version größer v3.6.0 sind die folgenden Pakete hinzugekommen: <literal>IPC::Run</literal></para>
+
         <para>Seit Version größer v3.5.8 sind die folgenden Pakete hinzugekommen: <literal>Imager</literal>, <literal>Imager::QRCode</literal>
 <literal>Rest::Client</literal><literal>Term::ReadLine::Gnu</literal></para>
 
@@ -464,9 +470,10 @@
   libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
   libdatetime-event-cron-perl libexception-class-perl libcam-pdf-perl \
   libxml-libxml-perl libtry-tiny-perl libmath-round-perl \
-  libimager-perl libimager-qrcode-perl librest-client-perl \
-</programlisting>
-<para>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</para>
+  libimager-perl libimager-qrcode-perl librest-client-perl libipc-run-perl
+          </programlisting>
+
+          <para>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</para>
           <note id="ubuntu-universe">
             <para>Die Perl Pakete für Ubuntu befinden sich im "Universe" Repository. Falls dies nicht aktiv ist, kann dies mit folgendem Aufruf aktiviert werden:
 <programlisting>add-apt-repository universe</programlisting></para>
