@@ -1859,7 +1859,6 @@ sub save {
   if ($::form->{phone_note}->{subject} || $::form->{phone_note}->{body}) {
     if (!$::form->{phone_note}->{subject} || !$::form->{phone_note}->{body}) {
       return [t8('Phone note needs a subject and a body.')];
-      die;
     }
 
     my $phone_note;
