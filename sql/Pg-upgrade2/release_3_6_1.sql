@@ -1,0 +1,3 @@
+-- @tag: release_3_6_1
+-- @description: Leeres Script, das alle Upgradescripte bis zum Release 3.6.1 voraussetzt, um ein fest definiertes Schema zu definieren.
+-- @depends: release_3_6_0 tax_reverse_charge_key_19 delete_wrong_charts_for_taxkeys delete_wrong_charts_for_taxkeys_04 defaults_invoice_prevent_browser_back file_full_texts remove_oids language_obsolete add_record_templates_transaction_description full_texts_background_job tax_reverse_charge_key_18 record_links_remove_to_quotation convert_real_qty ap_gl add_gl_transaction_description

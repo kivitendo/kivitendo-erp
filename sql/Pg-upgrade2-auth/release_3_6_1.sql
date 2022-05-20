@@ -1,0 +1,3 @@
+-- @tag: release_3_6_1
+-- @description: Abhängigkeitsscript für Release 3.6.1
+-- @depends: release_3_6_0 rights_view_docs
