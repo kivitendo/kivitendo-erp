@@ -56,8 +56,8 @@ sub company_logo {
   my $git             = SL::Git->new;
   ($form->{git_head}) = $git->get_log(since => 'HEAD~1', until => 'HEAD') if $git->is_git_installation;
   $form->{xmas}       = '_xmas' if (DateTime->today->month == 12 && DateTime->today->day < 27);
-  $form->{xmas}       = '_mir'  if (DateTime->today->month >= 03 && DateTime->today->year == 2022
-                                    && DateTime->today->month <= 09);
+  $form->{xmas}       = '_mir'  if (DateTime->today->month >= 3 && DateTime->today->year == 2022
+                                    && DateTime->today->month <= 9);
   $form->{xmas}       = '_mir'  if (DateTime->today->day == 24 && DateTime->today->month == 2);
 
   # create the logo screen
