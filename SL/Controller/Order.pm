@@ -330,7 +330,7 @@ sub action_print {
 
   if ($media eq 'screen') {
     # screen/download
-    $self->js->flash('info', t8('The document has been created.'));
+    flash_later('info', t8('The document has been created.'));
     $self->send_file(
       \$doc,
       type         => SL::MIME->mime_type_from_ext($doc_filename),
@@ -346,20 +346,24 @@ sub action_print {
       content => $doc,
     );
 
-    $self->js->flash('info', t8('The document has been printed.'));
+    flash_later('info', t8('The document has been printed.'));
   }
 
   my @warnings = $self->store_doc_to_webdav_and_filemanagement($doc, $doc_filename, $formname);
   if (scalar @warnings) {
-    $self->js->flash('warning', $_) for @warnings;
+    flash_later('warning', $_) for @warnings;
   }
 
   $self->save_history('PRINTED');
 
-  $self->js
-    ->run('kivi.ActionBar.setEnabled', '#save_and_email_action')
-    ->render;
+  my @redirect_params = (
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
+  $self->js->redirect_to($self->url_for(@redirect_params))->render;
 }
+
 sub action_preview_pdf {
   my ($self) = @_;
 
@@ -395,14 +399,21 @@ sub action_preview_pdf {
     return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
   }
   $self->save_history('PREVIEWED');
-  $self->js->flash('info', t8('The PDF has been previewed'));
+  flash_later('info', t8('The PDF has been previewed'));
   # screen/download
   $self->send_file(
     \$pdf,
     type         => SL::MIME->mime_type_from_ext($pdf_filename),
     name         => $pdf_filename,
-    js_no_render => 0,
+    js_no_render => 1,
   );
+
+  my @redirect_params = (
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
+  $self->js->redirect_to($self->url_for(@redirect_params))->render;
 }
 
 # open the email dialog
