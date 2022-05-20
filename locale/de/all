@@ -4000,7 +4000,6 @@ $self->{texts} = {
   'Transaction'                 => 'Buchung',
   'Transaction %d cancelled.'   => 'Buchung %d erfolgreich storniert.',
   'Transaction Date missing!'   => 'Buchungsdatum fehlt!',
-  'Transaction Description is not yet implemented' => 'Vorgangsbezeichnung ist noch nicht implementiert',
   'Transaction ID missing.'     => 'Die Buchungs-ID fehlt.',
   'Transaction Value'           => 'Umsatz',
   'Transaction Value Currency Code' => 'WKZ Umsatz',
