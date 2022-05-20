@@ -54,6 +54,13 @@ Kleinere neue Features und Detailverbesserungen:
    Zurück-Knopfes bei Verkaufsrechnunghen aktiviert werden.
    Da dadurch allerdings auch Situationen ausgehebelt werden, in denen das
    Drücken des Zurück-Knopfes sinnvoll ist, ist dies konfigurierbar.
+-  Rechte (nur) zum Lesen von Belegen, getrennt nach Einkauf/Verkauf und
+   Angebot/Auftrag/Lieferschein/Rechnung. Wer nur das Lese-Recht hat, kann
+   Belege nicht anlegen und nicht speichern.
+-  neues Feld "Vorgangsbezeichnung" in Kreditoren-, Debitoren und Dialogbuchung.
+-  Rechnungsbericht VK und EK kann nach Steuerzone gefiltert und sortieren werden.
+-  Möglichkeit, Namen von Dateianhängen im Rechnungsbericht anzuzeigen.
+
 
 2022-03-02 - Release 3.6.0
 
