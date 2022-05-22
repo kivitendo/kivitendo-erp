@@ -105,7 +105,8 @@ sub action_add_from_reclamation {
 
   require SL::DB::Reclamation;
   my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
-  my ($delivery_order, $error) = $reclamation->convert_to_delivery_order();
+  my $type = $reclamation->type eq 'sales_reclamation' ? 'rma_delivery_order' : 'supplier_delivery_order';
+  my ($delivery_order, $error) = $reclamation->convert_to_delivery_order(type => $type);
   if($error) {
     croak("Error while converting: " . $error);
   }
@@ -1075,8 +1076,9 @@ sub action_transfer_stock {
 
   # TODO move to type data
   my $trans_type = $inout eq 'in'
-    ? SL::DB::Manager::TransferType->find_by(direction => "id", description => "stock")
+    ? SL::DB::Manager::TransferType->find_by(direction => "in", description => "stock")
     : SL::DB::Manager::TransferType->find_by(direction => "out", description => "shipped");
+
 
   my @transfer_requests;
 
@@ -1085,6 +1087,7 @@ sub action_transfer_stock {
       my $transfer = SL::DB::Inventory->new_from($stock);
       $transfer->trans_type($trans_type);
       $transfer->qty($transfer->qty * -1) if $inout eq 'out';
+      $transfer->qty($transfer->qty * 1) if $inout eq 'in';
 
       push @transfer_requests, $transfer if defined $transfer->qty && $transfer->qty != 0;
     };
