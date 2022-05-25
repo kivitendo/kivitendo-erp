@@ -162,6 +162,7 @@ my %kivitendo_package_names = (
   notes                          => 'note',
   orderitems                     => 'order_item',
   oe                             => 'order',
+  oe_version                     => 'order_version',
   parts                          => 'part',
   partsgroup                     => 'parts_group',
   part_classifications           => 'PartClassification',
