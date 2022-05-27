@@ -4,7 +4,8 @@
 -- @ignore: 0
       CREATE TABLE oe_version (
         oe_id                   integer,
-        version                 integer,
+        version                 INTEGER NOT NULL,
+        final_version           BOOLEAN DEFAULT FALSE,
         email_journal_id        integer,
         file_id                 integer,
         itime                   TIMESTAMP      DEFAULT now(),
@@ -13,3 +14,5 @@
         FOREIGN KEY (oe_id)                    REFERENCES oe (id),
         FOREIGN KEY (email_journal_id)         REFERENCES email_journal (id),
         FOREIGN KEY (file_id)                  REFERENCES files (id));
+
+CREATE TRIGGER mtime_oe_version BEFORE UPDATE ON oe_version FOR EACH ROW EXECUTE PROCEDURE set_mtime();

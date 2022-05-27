@@ -11,6 +11,7 @@ __PACKAGE__->meta->table('oe_version');
 __PACKAGE__->meta->columns(
   email_journal_id => { type => 'integer' },
   file_id          => { type => 'integer' },
+  final_version    => { type => 'boolean', default => 'false' },
   itime            => { type => 'timestamp', default => 'now()' },
   mtime            => { type => 'timestamp' },
   oe_id            => { type => 'integer', not_null => 1 },
