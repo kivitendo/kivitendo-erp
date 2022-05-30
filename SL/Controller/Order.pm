@@ -1008,6 +1008,7 @@ sub action_add_item {
     ->val('.add_item_input', '')
     ->attr('.add_item_input', 'placeholder', '')
     ->attr('.add_item_input', 'title', '')
+    ->attr('#add_item_qty_as_number', 'placeholder', '1')
     ->run('kivi.Order.init_row_handlers')
     ->run('kivi.Order.renumber_positions')
     ->focus('#add_item_parts_id_name');
