@@ -2225,7 +2225,7 @@ sub setup_edit_action_bar {
                          @req_trans_cost_art, @req_cusordnumber,
           ],
           disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
-                    : $final_sales_version ? t8('This record is the final version. Please create a new subversion') : undef,
+                    : $final_sales_version ? t8('This record is the final version. Please create a new sub-version') : undef,
         ],
         action => [
           t8('Save and Close'),
@@ -2361,7 +2361,7 @@ sub setup_edit_action_bar {
                       ],
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
           disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
-                    : $final_sales_version ? t8('This record is a final version. Please create a new subversion') : undef,
+                    : $final_sales_version ? t8('This record is the final version. Please create a new sub-version') : undef,
         ],
         action => [
           t8('Save and print'),
@@ -2370,7 +2370,7 @@ sub setup_edit_action_bar {
                       ],
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
           disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
-                    : $final_sales_version ? t8('This record is a final version. Please create a new subversion') : undef,
+                    : $final_sales_version ? t8('This record is the final version. Please create a new sub-version') : undef,
         ],
         action => [
           t8('Save and E-mail'),
@@ -2380,7 +2380,7 @@ sub setup_edit_action_bar {
                       ],
           disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
                     : !$self->order->id    ? t8('This object has not been saved yet.')
-                    : $final_sales_version ? t8('This record is a final version. Please create a new subversion') : undef,
+                    : $final_sales_version ? t8('This record is the final version. Please create a new sub-version') : undef,
         ],
         action => [
           t8('Download attachments of all parts'),
