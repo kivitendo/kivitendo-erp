@@ -47,6 +47,7 @@ use English qw(-no_match_vars);
 use File::Spec;
 use Cwd;
 use Sort::Naturally;
+use Try::Tiny;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -62,11 +63,13 @@ __PACKAGE__->run_before('check_auth_for_edit',
                         except => [ qw(edit show_customer_vendor_details_dialog price_popup load_second_rows) ]);
 
 __PACKAGE__->run_before('recalc',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment save_and_final_invoice save_and_ap_transaction
+                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment
+                                     save_and_final_invoice save_and_ap_transaction add_subversion
                                      print send_email) ]);
 
 __PACKAGE__->run_before('get_unalterable_data',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment save_and_final_invoice save_and_ap_transaction
+                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment
+                                     save_and_final_invoice save_and_ap_transaction add_subversion
                                      print send_email) ]);
 
 #
@@ -216,7 +219,31 @@ sub action_save {
   $self->redirect_to(@redirect_params);
 }
 
-# save the order as new document an open it for edit
+# create new version and set version number
+sub action_add_subversion {
+  my ($self) = @_;
+
+  try {
+    my $new_version_number = $self->order->current_version_number + 1;
+
+    if ($self->type eq sales_quotation_type() || $self->type eq request_quotation_type()) {
+      $self->order->quonumber($self->order->quonumber . '-' . $new_version_number);
+    } elsif ($self->type eq sales_order_type()|| $self->type eq purchase_order_type()) {
+      $self->order->quonumber($self->order->quonumber . '-' . $new_version_number);
+    } else { die "Invalid Call for Sub-Version. Need Order or Quotation."; }
+
+    SL::DB::OrderVersion->new(oe_id   => $self->order->id,
+                              version => $new_version_number,
+                             )->save;
+
+  } catch {  die "Could not create sub-version for record with id:" . $self->order->id . " Reason: $_" };
+
+  # call the save action
+  $self->action_save();
+
+}
+
+# save the order as new document and open it for edit
 sub action_save_as_new {
   my ($self) = @_;
 
@@ -581,6 +608,23 @@ sub action_send_email {
   }
 
   $self->save_history('MAILED');
+
+  # self is generated on the fly. form is a file from the dms
+  # TODO: for the case Filesystem and Webdav we want the real file from the filesystem
+  #       for the nyi case DMS/CMIS we need a gloid or whatever the system offers (elo_id for ELO)
+  #       DMS kivi version should have a record_link to email_journal
+  #       the record link has to refer to the correct version -> helper table file <-> file_version
+  my $file_id = $self->{file_id} || $::form->{file_id};
+  die "No file id" unless $file_id;
+
+  # $main::lxdebug->message(0, "was wir hier haben" . $self->order->id . " " . $::form->{email_journal_id} . " file id noch frisch " . $self->{file_id});
+
+  # email is sent -> set this version to final and link to journal and file
+  my $current_version = SL::DB::Manager::OrderVersion->get_all(where => [oe_id => $self->order->id, final_version => 0]);
+  die "Invalid version state" unless scalar @{ $current_version } == 1;
+  $current_version->[0]->update_attributes(file_id          => $file_id,
+                                           email_journal_id => $::form->{email_journal_id},
+                                           final_version    => 1)->save;
 
   flash_later('info', t8('The email has been sent.'));
 
@@ -1911,6 +1955,8 @@ sub save {
 
     SL::DB::OrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete || []};
     $self->order->save(cascade => 1);
+    # create first version if none exists
+    SL::DB::OrderVersion->new(oe_id => $self->order->id, version => 1)->save unless scalar @{ $self->order->order_version };
 
     # link records
     if ($::form->{converted_from_oe_id}) {
@@ -2159,6 +2205,13 @@ sub setup_edit_action_bar {
   my $right             = $right_for->{ $self->type };
   $right              ||= 'DOES_NOT_EXIST';
   my $may_edit_create   = $::auth->assert($right, 'may fail');
+  # VALID States for current Sales Version
+  # 1. save create version without email_id             -> open
+  # 2. send email set email_id for version 1            -> final
+  # 3. save and subversion new version without email_id -> open
+  # 4. send email set email_id for current subversion   -> final
+  # for all version > 1 set postfix -2 .. -n for recordnumber (don´t compute just use autoincrement db field)
+  my $final_sales_version = ($self->order->is_sales && $self->order->id) ? $self->order->is_final_version : undef;
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -2171,7 +2224,8 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'],
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
+          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
+                    : $final_sales_version ? t8('This record is the final version. Please create a new subversion') : undef,
         ],
         action => [
           t8('Save and Close'),
@@ -2182,7 +2236,15 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'],
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
+          disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
+                    : $final_sales_version    ? t8('This record is the final version. Please create a new sub-version') : undef,
+        ],
+        action => [
+          t8('Create Sub-Version'),
+          call      => [ 'kivi.Order.save', 'add_subversion',
+          ],
+          disabled => !$may_edit_create     ? t8('You do not have the permissions to access this function.')
+                    : !$final_sales_version ? t8('This sub-version is not yet finalized') : undef,
         ],
         action => [
           t8('Save as new'),
@@ -2298,7 +2360,8 @@ sub setup_edit_action_bar {
                                                           $::instance_conf->get_order_warn_no_deliverydate,
                       ],
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
-          disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.') : undef,
+          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
+                    : $final_sales_version ? t8('This record is a final version. Please create a new subversion') : undef,
         ],
         action => [
           t8('Save and print'),
@@ -2306,7 +2369,8 @@ sub setup_edit_action_bar {
                                                          $::instance_conf->get_order_warn_no_deliverydate,
                       ],
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
-          disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.') : undef,
+          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
+                    : $final_sales_version ? t8('This record is a final version. Please create a new subversion') : undef,
         ],
         action => [
           t8('Save and E-mail'),
@@ -2314,9 +2378,9 @@ sub setup_edit_action_bar {
           call     => [ 'kivi.Order.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts,
                                                                          $::instance_conf->get_order_warn_no_deliverydate,
                       ],
-          disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
-                    : !$self->order->id  ? t8('This object has not been saved yet.')
-                    :                      undef,
+          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id    ? t8('This object has not been saved yet.')
+                    : $final_sales_version ? t8('This record is a final version. Please create a new subversion') : undef,
         ],
         action => [
           t8('Download attachments of all parts'),
@@ -2657,16 +2721,19 @@ sub store_doc_to_webdav_and_filemanagement {
       push @errors, t8('Storing the document to the WebDAV folder failed: #1', $@);
     };
   }
+  my $file_obj;
   if ($order->id && $::instance_conf->get_doc_storage) {
     eval {
-      SL::File->save(object_id     => $order->id,
-                     object_type   => $order->type,
-                     mime_type     => SL::MIME->mime_type_from_ext($filename),
-                     source        => 'created',
-                     file_type     => 'document',
-                     file_name     => $filename,
-                     file_contents => $content,
-                     print_variant => $variant);
+      $file_obj = SL::File->save(object_id     => $order->id,
+                                 object_type   => $order->type,
+                                 mime_type     => SL::MIME->mime_type_from_ext($filename),
+                                 source        => 'created',
+                                 file_type     => 'document',
+                                 file_name     => $filename,
+                                 file_contents => $content,
+                                 print_variant => $variant);
+
+      $self->{file_id}  = $file_obj->id;
       1;
     } or do {
       push @errors, t8('Storing the document in the storage backend failed: #1', $@);

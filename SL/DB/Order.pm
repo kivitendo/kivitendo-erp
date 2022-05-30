@@ -8,6 +8,7 @@ use DateTime;
 use List::Util qw(max);
 use List::MoreUtils qw(any);
 
+use SL::DBUtils ();
 use SL::DB::MetaSetup::Order;
 use SL::DB::Manager::Order;
 use SL::DB::Helper::Attr;
@@ -56,6 +57,11 @@ __PACKAGE__->meta->add_relationship(
       with_objects => [ 'employee' ],
       sort_by      => 'notes.itime',
     }
+  },
+  order_version => {
+    type                   => 'one to many',
+    class                  => 'SL::DB::OrderVersion',
+    column_map             => { id => 'oe_id' },
   },
 );
 
@@ -545,6 +551,31 @@ sub digest {
     $self->customervendor->name,
     $self->amount_as_number,
     $self->date->to_kivitendo;
+}
+
+sub current_version_number {
+  my ($self) = @_;
+
+  my $query = <<EOSQL;
+    SELECT max(version)
+    FROM oe_version
+    WHERE (oe_id = ?)
+EOSQL
+
+  my ($current_version_number) = SL::DBUtils::selectfirst_array_query($::form, $self->db->dbh, $query, ($self->id));
+  die "Invalid State. No version linked" unless $current_version_number;
+
+  return $current_version_number;
+}
+
+sub is_final_version {
+  my ($self) = @_;
+
+  my $order_versions = SL::DB::Manager::OrderVersion->get_all(where => [ oe_id => $self->id, final_version => 0 ]);
+  die "Invalid version state" unless scalar @{ $order_versions } < 2;
+  my $final_version = scalar @{ $order_versions } == 1 ? 0 : 1;
+
+  return $final_version;
 }
 
 1;

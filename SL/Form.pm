@@ -984,6 +984,7 @@ sub send_email {
       if ($attfile) {
         $attfile->{override_file_name} = $attachment_name if $attachment_name;
         push @attfiles, $attfile;
+        $self->{file_id} = $attfile->id;
       }
 
     } else {
