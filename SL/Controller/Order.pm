@@ -922,6 +922,7 @@ sub action_update_item_input_row {
 
   my $record       = $self->order;
   my $item         = SL::DB::OrderItem->new(%$form_attr);
+  $item->qty(1) if !$item->qty;
   $item->unit($item->part->unit);
 
   my ($price_src, $discount_src) = get_best_price_and_discount_source($record, $item, 0);
