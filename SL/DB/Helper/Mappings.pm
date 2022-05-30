@@ -226,6 +226,7 @@ my %kivitendo_package_names = (
   units                          => 'unit',
   units_language                 => 'units_language',
   user_preferences               => 'user_preference',
+  validity_tokens                => 'ValidityToken',
   vendor                         => 'vendor',
   warehouse                      => 'warehouse',
 );

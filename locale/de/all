@@ -3641,6 +3641,7 @@ $self->{texts} = {
   'The following transactions are concerned:' => 'Die folgenden Buchungen sind betroffen:',
   'The following users are a member of this group' => 'Die folgenden Benutzer sind Mitglieder dieser Gruppe',
   'The following users will have access to this client' => 'Die folgenden Benutzer werden auf diesen Mandanten Zugriff haben',
+  'The form is not valid anymore.' => 'Das Formular ist nicht mehr gültig.',
   'The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>' => 'Die Formeln müssen in der folgenden Syntax eingegeben werden:<br>Bei normalen Artikeln:<br>Variablenname = Variable Einheit;<br>Variablenname2 = Variable2 Einheit2;<br>...<br>###<br>Variable + Variable2 * ( Variable - Variable2 )<br>Variablennamen und Einheiten dürfen nur aus alphanumerischen Zeichen bestehen.<br>Es muss jeweils die Gesamte Zeile eingegeben werden',
   'The greetings have been saved.' => 'Die Anreden wurden gespeichert',
   'The installation is currently locked.' => 'Die Installation ist momentan gesperrt.',
