@@ -2201,12 +2201,22 @@ sub _setup_edit_action_bar {
           ],
         ],
         action => [
-          t8('Save and Delivery Order'),
+          t8('Save and RMA Delivery Order'),
           call      => [
             'kivi.Reclamation.save', 'save_and_delivery_order',
             $::instance_conf->get_reclamation_warn_duplicate_parts,
             $::instance_conf->get_reclamation_warn_no_reqdate,
           ],
+          only_if   => (any { $self->type eq $_ } (sales_reclamation_type())),
+        ],
+        action => [
+          t8('Save and Supplier Delivery Order'),
+          call      => [
+            'kivi.Reclamation.save', 'save_and_delivery_order',
+            $::instance_conf->get_reclamation_warn_duplicate_parts,
+            $::instance_conf->get_reclamation_warn_no_reqdate,
+          ],
+          only_if   => (any { $self->type eq $_ } (purchase_reclamation_type())),
         ],
         action => [
           t8('Save and Credit Note'),
