@@ -457,6 +457,26 @@ sub _sales_reclamation_list {
   );
 }
 
+sub _purchase_reclamation_list {
+  my ($list, %params) = @_;
+
+  return record_list(
+    $list,
+    title   => $::locale->text('Purchase Reclamation'),
+    type    => 'purchase_reclamation',
+    columns => [
+      [ $::locale->text('Reclamation Date'),        'transdate'                                                          ],
+      [ $::locale->text('Reclamation Number'),      sub { $_[0]->presenter->purchase_reclamation(display => 'table-cell') } ],
+      [ $::locale->text('Vendor'),                'vendor'                                                           ],
+      [ $::locale->text('Transaction description'), 'transaction_description'                                            ],
+      [ $::locale->text('Project'),                 'globalproject',                                                     ],
+      [ $::locale->text('Delivered'),               'delivered'                                                          ],
+      [ $::locale->text('Closed'),                  'closed'                                                             ],
+    ],
+    %params,
+  );
+}
+
 sub _sales_invoice_list {
   my ($list, %params) = @_;
 
