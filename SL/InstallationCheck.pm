@@ -98,6 +98,7 @@ BEGIN {
   { name => "URI::Find",                           url => "http://search.cpan.org/~mschwern/",  debian => 'liburi-find-perl' },
   { name => "GD",              version => '2.00',  url => "http://search.cpan.org/~lds/",       debian => 'libgd-perl' },
   { name => "Rose::DB::Object", version => 0.809,  url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-object-perl' },
+  { name => "Data::Compare",                       url => "http://search.cpan.org/~dcantrell/", debian => 'libdata-compare-perl' },
 );
 
 $_->{fullname} = join ' ', grep $_, @$_{qw(name version)}
