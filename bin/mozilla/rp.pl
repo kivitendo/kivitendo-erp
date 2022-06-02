@@ -1005,6 +1005,8 @@ sub aging {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
+  $::request->{layout}->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery);
+
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @columns = qw(statement ct invnumber transdate duedate amount open datepaid current_open type);
