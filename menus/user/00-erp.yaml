@@ -1575,3 +1575,10 @@
   order: 100
   params:
     action: Part/test_page
+- parent: develop
+  id: js_tests
+  name: JS Tests
+  access: developer
+  order: 100
+  params:
+    action: JSTests/run
