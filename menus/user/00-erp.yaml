@@ -1576,9 +1576,30 @@
   params:
     action: Part/test_page
 - parent: develop
+  id: chart_test
+  name: Chart Test
+  access: developer
+  order: 200
+  params:
+    action: Chart/test_page
+- parent: develop
+  id: customervendor_test
+  name: Customer-Vendor Test
+  access: developer
+  order: 300
+  params:
+    action: CustomerVendor/test_page
+- parent: develop
+  id: project_test
+  name: Project Test
+  access: developer
+  order: 400
+  params:
+    action: Project/test_page
+- parent: develop
   id: js_tests
   name: JS Tests
   access: developer
-  order: 100
+  order: 500
   params:
     action: JSTests/run
