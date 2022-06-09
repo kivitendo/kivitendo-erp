@@ -239,7 +239,9 @@ sub get_customer{
                                                     obsolete => 'F',
                                                   );
   }
-  $customer->update_attributes(invoice_mail => $self->billing_email) if $customer->invoice_mail ne $self->billing_email;
+  if( ref $customer eq 'SL::DB::Customer') {
+    $customer->update_attributes(invoice_mail => $self->billing_email) if $customer->invoice_mail ne $self->billing_email;
+  }
 
   return $customer;
 }
