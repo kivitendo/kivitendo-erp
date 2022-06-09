@@ -19,6 +19,9 @@
 <input type="hidden" name="follow_up_rowcount" id="follow_up_rowcount" value="1">
 <input type="hidden" name="lastmtime" id="lastmtime" value="[% HTML.escape(lastmtime) %]">
 <input type="hidden" name="already_printed_flag" id="already_printed_flag" value="0">
+[% IF !id %]
+[%   L.hidden_tag('form_validity_token', form_validity_token) %]
+[% END %]
 
 <h1>[% title %]</h1>
 

@@ -52,6 +52,7 @@ use SL::DB::Customer;
 use SL::DB::Department;
 use SL::DB::Invoice;
 use SL::DB::PaymentTerm;
+use SL::DB::ValidityToken;
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
@@ -105,6 +106,9 @@ sub add {
 
   }
 
+  if (!$form->{form_validity_token}) {
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
+  }
 
   $form->{callback} = "$form->{script}?action=add&type=$form->{type}" unless $form->{callback};
 
@@ -1008,6 +1012,16 @@ sub post {
   $main::auth->assert('invoice_edit');
   $form->mtime_ischanged('ar');
 
+  my $validity_token;
+  if (!$form->{id}) {
+    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+      scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST(),
+      token => $form->{form_validity_token},
+    );
+
+    $form->error($::locale->text('The form is not valid anymore.')) if !$validity_token;
+  }
+
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   $form->isblank("invdate",  $locale->text('Invoice Date missing!'));
   $form->isblank("customer_id", $locale->text('Customer missing!'));
@@ -1135,6 +1149,9 @@ sub post {
       $form->error($locale->text('Cannot post invoice!'));
     }
   }
+
+  $validity_token->delete if $validity_token;
+  delete $form->{form_validity_token};
 
   if(!exists $form->{addition}) {
     $form->{snumbers}  =  'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
