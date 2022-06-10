@@ -1110,7 +1110,7 @@ sub get_formname_translation {
     supplier_delivery_order     => $main::locale->text('Supplier Delivery Order'),
     rma_delivery_order          => $main::locale->text('RMA Delivery Order'),
     sales_reclamation           => $main::locale->text('Reclamation'),
-    purchase_recalmation        => $main::locale->text('Reclamation'),
+    purchase_reclamation        => $main::locale->text('Reclamation'),
     dunning                     => $main::locale->text('Dunning'),
     dunning1                    => $main::locale->text('Payment Reminder'),
     dunning2                    => $main::locale->text('Dunning'),
