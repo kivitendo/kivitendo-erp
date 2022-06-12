@@ -82,6 +82,7 @@ use SL::DB::Object::Hooks;
 use SL::DB::Object;
 use SL::DB::Order;
 use SL::DB::OrderItem;
+use SL::DB::OrderVersion;
 use SL::DB::Part;
 use SL::DB::PartClassification;
 use SL::DB::PartCustomerPrice;
