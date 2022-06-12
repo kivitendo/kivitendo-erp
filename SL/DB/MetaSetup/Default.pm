@@ -120,6 +120,7 @@ __PACKAGE__->meta->columns(
   itime                                     => { type => 'timestamp', default => 'now()' },
   language_id                               => { type => 'integer' },
   letternumber                              => { type => 'integer' },
+  lock_oe_subversions                       => { type => 'boolean', default => 'false', not_null => 1 },
   loss_carried_forward_chart_id             => { type => 'integer' },
   max_future_booking_interval               => { type => 'integer', default => 360 },
   mtime                                     => { type => 'timestamp' },

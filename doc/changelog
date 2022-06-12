@@ -2,6 +2,18 @@
 # Veränderungen von kivitendo #
 ###############################
 
+2022-xx-xx - Release 3.7
+
+Größere neue Features:
+
+Mittelgroße neue Features:
+
+ - Angebote und Aufträge um Unterversionierungen erweitert.
+   Dabei werden vorherige Unterversionen von Verkaufs-Angebote und Verkaufs-Aufträge
+   gesperrt sobald diese per E-Mail versendet wurden. Die Funktion ist
+   standardmäßig deaktiviert und kann über die Mandantenkonfiguration aktiviert werden.
+
+
 2022-05-20 - Release 3.6.1
 
 Größere neue Features:

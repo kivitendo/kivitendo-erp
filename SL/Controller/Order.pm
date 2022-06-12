@@ -617,14 +617,14 @@ sub action_send_email {
   my $file_id = $self->{file_id} || $::form->{file_id};
   die "No file id" unless $file_id;
 
-  # $main::lxdebug->message(0, "was wir hier haben" . $self->order->id . " " . $::form->{email_journal_id} . " file id noch frisch " . $self->{file_id});
-
-  # email is sent -> set this version to final and link to journal and file
-  my $current_version = SL::DB::Manager::OrderVersion->get_all(where => [oe_id => $self->order->id, final_version => 0]);
-  die "Invalid version state" unless scalar @{ $current_version } == 1;
-  $current_version->[0]->update_attributes(file_id          => $file_id,
-                                           email_journal_id => $::form->{email_journal_id},
-                                           final_version    => 1)->save;
+  if ($::instance_conf->get_lock_oe_subversions) {
+    # email is sent -> set this version to final and link to journal and file
+    my $current_version = SL::DB::Manager::OrderVersion->get_all(where => [oe_id => $self->order->id, final_version => 0]);
+    die "Invalid version state" unless scalar @{ $current_version } == 1;
+    $current_version->[0]->update_attributes(file_id          => $file_id,
+                                             email_journal_id => $::form->{email_journal_id},
+                                             final_version    => 1)->save;
+  }
 
   flash_later('info', t8('The email has been sent.'));
 
@@ -2210,8 +2210,12 @@ sub setup_edit_action_bar {
   # 2. send email set email_id for version 1            -> final
   # 3. save and subversion new version without email_id -> open
   # 4. send email set email_id for current subversion   -> final
-  # for all version > 1 set postfix -2 .. -n for recordnumber (don´t compute just use autoincrement db field)
-  my $final_sales_version = ($self->order->is_sales && $self->order->id) ? $self->order->is_final_version : undef;
+  # for all versions > 1 set postfix -2 .. -n for recordnumber
+  my $final_sales_version = $::instance_conf->get_lock_oe_subversions    ?  # conf enabled
+                            ($self->order->is_sales && $self->order->id) ?  # is saved
+                            $self->order->is_final_version               :  # is final
+                            undef                                        :  # is not final
+                            undef;                                          # conf disabled
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -2244,7 +2248,9 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', 'add_subversion',
           ],
           disabled => !$may_edit_create     ? t8('You do not have the permissions to access this function.')
-                    : !$final_sales_version ? t8('This sub-version is not yet finalized') : undef,
+                    : !$final_sales_version
+                    ? t8('This sub-version is not yet finalized') . ' ' . t8('or the feature is disabled in the configuration settings.')
+                    : undef,
         ],
         action => [
           t8('Save as new'),
