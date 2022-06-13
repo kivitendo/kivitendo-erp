@@ -1338,6 +1338,7 @@ sub action_save_phone_note {
     ->replaceWith('#phone-notes', $tab_as_html)
     ->html('#num_phone_notes', (scalar @{$self->order->phone_notes}) ? ' (' . scalar @{$self->order->phone_notes} . ')' : '')
     ->flash('info', $is_new ? t8('Phone note has been created.') : t8('Phone note has been updated.'))
+    ->reinit_widgets
     ->render;
 }
 
@@ -1357,6 +1358,7 @@ sub action_delete_phone_note {
     ->replaceWith('#phone-notes', $tab_as_html)
     ->html('#num_phone_notes', (scalar @{$self->order->phone_notes}) ? ' (' . scalar @{$self->order->phone_notes} . ')' : '')
     ->flash('info', t8('Phone note has been deleted.'))
+    ->reinit_widgets
     ->render;
 }
 

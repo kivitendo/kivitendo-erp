@@ -15,7 +15,7 @@
 
     [%- FOREACH row = SELF.order.phone_notes %]
      <tr class="listrow">
-       <td>[% P.link_tag('#', row.subject, onclick="kivi.Order.load_phone_note(" _ HTML.url(row.id) _ ", '" _ HTML.escape(row.subject) _ "', '" _ HTML.escape(row.body) _ "')") %]</td>
+       <td>[% P.link_tag('#', row.subject, onclick="kivi.Order.load_phone_note(" _ HTML.url(row.id) _ ", '" _ HTML.escape(row.subject) _ "', '" _ row.body _ "')") %]</td>
        <td>[% row.itime.to_kivitendo | html %]</td>
        <td>[% row.employee.safe_name | html %]</td>
      </tr>
@@ -34,7 +34,7 @@
     </tr>
     <tr>
       <td valign="right" align="top">[% 'Body' | $T8 %]</td>
-      <td align="top">[% L.textarea_tag('phone_note.body', '', cols = 50 rows = 10) %]</td>
+      <td align="top">[% L.textarea_tag('phone_note.body', '', wrap="soft", style="width: 350px; height: 150px", class="texteditor") %]</td>
     </tr>
   </table>
 
