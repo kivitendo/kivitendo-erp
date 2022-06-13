@@ -314,7 +314,7 @@ SQL
   }
 
   if ($form->{phone_notes}) {
-    $query .= qq| AND (phone_notes.subject ILIKE ? OR phone_notes.body ILIKE ?)|;
+    $query .= qq| AND (phone_notes.subject ILIKE ? OR regexp_replace(phone_notes.body, '<[^>]*>', '', 'g') ILIKE ?)|;
     push(@values, like($form->{phone_notes}), like($form->{phone_notes}));
   }
 
@@ -343,7 +343,7 @@ SQL
       OR EXISTS (
         SELECT notes.id FROM notes
           WHERE notes.trans_id = o.id AND notes.trans_module LIKE 'oe'
-            AND (notes.subject ILIKE ? OR notes.body ILIKE ?))
+            AND (notes.subject ILIKE ? OR regexp_replace(notes.body, '<[^>]*>', '', 'g') ILIKE ?))
 SQL
 
     $query .= <<SQL;
