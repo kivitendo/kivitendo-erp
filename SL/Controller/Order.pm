@@ -224,12 +224,17 @@ sub action_add_subversion {
   my ($self) = @_;
 
   try {
-    my $new_version_number = $self->order->current_version_number + 1;
+    my $current_version_number = $self->order->current_version_number;
+    my $new_version_number     = $current_version_number + 1;
 
     if ($self->type eq sales_quotation_type() || $self->type eq request_quotation_type()) {
-      $self->order->quonumber($self->order->quonumber . '-' . $new_version_number);
+      my $new_quonumber = $self->order->quonumber;
+      $new_quonumber    =~ s/-$current_version_number$//;
+      $self->order->quonumber($new_quonumber . '-' . $new_version_number);
     } elsif ($self->type eq sales_order_type()|| $self->type eq purchase_order_type()) {
-      $self->order->quonumber($self->order->quonumber . '-' . $new_version_number);
+      my $new_ordnumber = $self->order->ordnumber;
+      $new_ordnumber    =~ s/-$current_version_number$//;
+      $self->order->ordnumber($new_ordnumber . '-' . $new_version_number);
     } else { die "Invalid Call for Sub-Version. Need Order or Quotation."; }
 
     SL::DB::OrderVersion->new(oe_id   => $self->order->id,
