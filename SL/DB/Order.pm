@@ -571,9 +571,9 @@ EOSQL
 sub is_final_version {
   my ($self) = @_;
 
-  my $order_versions = SL::DB::Manager::OrderVersion->get_all(where => [ oe_id => $self->id, final_version => 0 ]);
-  die "Invalid version state" unless scalar @{ $order_versions } < 2;
-  my $final_version = scalar @{ $order_versions } == 1 ? 0 : 1;
+  my $order_versions_count = SL::DB::Manager::OrderVersion->get_all_count(where => [ oe_id => $self->id, final_version => 0 ]);
+  die "Invalid version state" unless $order_versions_count < 2;
+  my $final_version = $order_versions_count == 1 ? 0 : 1;
 
   return $final_version;
 }
