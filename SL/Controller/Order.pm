@@ -621,7 +621,7 @@ sub action_send_email {
     die "Invalid version state" unless scalar @{ $current_version } == 1;
     $current_version->[0]->update_attributes(file_id          => $file_id,
                                              email_journal_id => $::form->{email_journal_id},
-                                             final_version    => 1)->save;
+                                             final_version    => 1);
   }
 
   flash_later('info', t8('The email has been sent.'));
