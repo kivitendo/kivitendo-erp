@@ -604,15 +604,18 @@ sub action_send_email {
 
   $self->save_history('MAILED');
 
-  # self is generated on the fly. form is a file from the dms
-  # TODO: for the case Filesystem and Webdav we want the real file from the filesystem
-  #       for the nyi case DMS/CMIS we need a gloid or whatever the system offers (elo_id for ELO)
-  #       DMS kivi version should have a record_link to email_journal
-  #       the record link has to refer to the correct version -> helper table file <-> file_version
-  my $file_id = $self->{file_id} || $::form->{file_id};
-  die "No file id" unless $file_id;
-
   if ($::instance_conf->get_lock_oe_subversions) {
+    my $file_id;
+    if ($::instance_conf->get_doc_storage && $::form->{attachment_policy} ne 'no_file') {
+      # self is generated on the fly. form is a file from the dms
+      # TODO: for the case Filesystem and Webdav we want the real file from the filesystem
+      #       for the nyi case DMS/CMIS we need a gloid or whatever the system offers (elo_id for ELO)
+      #       DMS kivi version should have a record_link to email_journal
+      #       the record link has to refer to the correct version -> helper table file <-> file_version
+      $file_id = $self->{file_id} || $::form->{file_id};
+      die "No file id" unless $file_id;
+    }
+
     # email is sent -> set this version to final and link to journal and file
     my $current_version = SL::DB::Manager::OrderVersion->get_all(where => [oe_id => $self->order->id, final_version => 0]);
     die "Invalid version state" unless scalar @{ $current_version } == 1;
