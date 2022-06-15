@@ -4582,7 +4582,6 @@ $self->{texts} = {
   'one-time execution'          => 'einmalige Ausführung',
   'only OB Transactions'        => 'nur EB-Buchungen',
   'open'                        => 'Offen',
-  'or the feature is disabled in the configuration settings.' => 'oder die Funktion ist in der Mandantenkonfiguration deaktiviert.',
   'order'                       => 'Reihenfolge',
   'our vendor number at customer' => 'Unsere Lieferanten-Nr. beim Kunden',
   'parsing csv'                 => 'Parse CSV Daten',

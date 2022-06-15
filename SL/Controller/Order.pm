@@ -2245,10 +2245,10 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Create Sub-Version'),
-          call      => [ 'kivi.Order.save', 'add_subversion',
-          ],
+          call      => [ 'kivi.Order.save', 'add_subversion', ],
+          only_if   => $::instance_conf->get_lock_oe_subversions,
           disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
-                    : !$is_final_version ? t8('This sub-version is not yet finalized') . ' ' . t8('or the feature is disabled in the configuration settings.')
+                    : !$is_final_version ? t8('This sub-version is not yet finalized')
                     :                      undef,
         ],
         action => [

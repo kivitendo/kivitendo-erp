@@ -4581,7 +4581,6 @@ $self->{texts} = {
   'one-time execution'          => '',
   'only OB Transactions'        => '',
   'open'                        => '',
-  'or the feature is disabled in the configuration settings.' => '',
   'order'                       => '',
   'our vendor number at customer' => '',
   'parsing csv'                 => '',
