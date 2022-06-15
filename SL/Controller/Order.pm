@@ -47,7 +47,6 @@ use English qw(-no_match_vars);
 use File::Spec;
 use Cwd;
 use Sort::Naturally;
-use Try::Tiny;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -223,25 +222,16 @@ sub action_save {
 sub action_add_subversion {
   my ($self) = @_;
 
-  try {
-    my $current_version_number = $self->order->current_version_number;
-    my $new_version_number     = $current_version_number + 1;
+  my $current_version_number = $self->order->current_version_number;
+  my $new_version_number     = $current_version_number + 1;
 
-    if ($self->type eq sales_quotation_type() || $self->type eq request_quotation_type()) {
-      my $new_quonumber = $self->order->quonumber;
-      $new_quonumber    =~ s/-$current_version_number$//;
-      $self->order->quonumber($new_quonumber . '-' . $new_version_number);
-    } elsif ($self->type eq sales_order_type()|| $self->type eq purchase_order_type()) {
-      my $new_ordnumber = $self->order->ordnumber;
-      $new_ordnumber    =~ s/-$current_version_number$//;
-      $self->order->ordnumber($new_ordnumber . '-' . $new_version_number);
-    } else { die "Invalid Call for Sub-Version. Need Order or Quotation."; }
+  my $new_number = $self->order->number;
+  $new_number    =~ s/-$current_version_number$//;
+  $self->order->number($new_number . '-' . $new_version_number);
 
-    SL::DB::OrderVersion->new(oe_id   => $self->order->id,
-                              version => $new_version_number,
-                             )->save;
-
-  } catch {  die "Could not create sub-version for record with id:" . $self->order->id . " Reason: $_" };
+  SL::DB::OrderVersion->new(oe_id   => $self->order->id,
+                            version => $new_version_number,
+  )->save;
 
   # call the save action
   $self->action_save();
