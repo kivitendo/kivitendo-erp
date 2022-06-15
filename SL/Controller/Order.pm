@@ -2209,7 +2209,7 @@ sub setup_edit_action_bar {
   # 4. send email set email_id for current subversion   -> final
   # for all versions > 1 set postfix -2 .. -n for recordnumber
   my $final_sales_version = $::instance_conf->get_lock_oe_subversions    ?  # conf enabled
-                            ($self->order->is_sales && $self->order->id) ?  # is saved
+                            $self->order->id                             ?  # is saved
                             $self->order->is_final_version               :  # is final
                             undef                                        :  # is not final
                             undef;                                          # conf disabled
