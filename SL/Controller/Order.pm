@@ -2208,11 +2208,11 @@ sub setup_edit_action_bar {
   # 3. save and subversion new version without email_id -> open
   # 4. send email set email_id for current subversion   -> final
   # for all versions > 1 set postfix -2 .. -n for recordnumber
-  my $final_sales_version = $::instance_conf->get_lock_oe_subversions    ?  # conf enabled
-                            $self->order->id                             ?  # is saved
-                            $self->order->is_final_version               :  # is final
-                            undef                                        :  # is not final
-                            undef;                                          # conf disabled
+  my $is_final_version = $::instance_conf->get_lock_oe_subversions    ?  # conf enabled
+                         $self->order->id                             ?  # is saved
+                         $self->order->is_final_version               :  # is final
+                         undef                                        :  # is not final
+                         undef;                                          # conf disabled
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -2225,8 +2225,8 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'],
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
-                    : $final_sales_version ? t8('This record is the final version. Please create a new sub-version') : undef,
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : $is_final_version ? t8('This record is the final version. Please create a new sub-version') : undef,
         ],
         action => [
           t8('Save and Close'),
@@ -2237,17 +2237,16 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'],
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
-                    : $final_sales_version    ? t8('This record is the final version. Please create a new sub-version') : undef,
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : $is_final_version ? t8('This record is the final version. Please create a new sub-version') : undef,
         ],
         action => [
           t8('Create Sub-Version'),
           call      => [ 'kivi.Order.save', 'add_subversion',
           ],
-          disabled => !$may_edit_create     ? t8('You do not have the permissions to access this function.')
-                    : !$final_sales_version
-                    ? t8('This sub-version is not yet finalized') . ' ' . t8('or the feature is disabled in the configuration settings.')
-                    : undef,
+          disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
+                    : !$is_final_version ? t8('This sub-version is not yet finalized') . ' ' . t8('or the feature is disabled in the configuration settings.')
+                    :                      undef,
         ],
         action => [
           t8('Save as new'),
@@ -2363,8 +2362,8 @@ sub setup_edit_action_bar {
                                                           $::instance_conf->get_order_warn_no_deliverydate,
                       ],
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
-          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
-                    : $final_sales_version ? t8('This record is the final version. Please create a new sub-version') : undef,
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : $is_final_version ? t8('This record is the final version. Please create a new sub-version') : undef,
         ],
         action => [
           t8('Save and print'),
@@ -2372,8 +2371,8 @@ sub setup_edit_action_bar {
                                                          $::instance_conf->get_order_warn_no_deliverydate,
                       ],
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
-          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
-                    : $final_sales_version ? t8('This record is the final version. Please create a new sub-version') : undef,
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : $is_final_version ? t8('This record is the final version. Please create a new sub-version') : undef,
         ],
         action => [
           t8('Save and E-mail'),
@@ -2381,9 +2380,9 @@ sub setup_edit_action_bar {
           call     => [ 'kivi.Order.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts,
                                                                          $::instance_conf->get_order_warn_no_deliverydate,
                       ],
-          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
-                    : !$self->order->id    ? t8('This object has not been saved yet.')
-                    : $final_sales_version ? t8('This record is the final version. Please create a new sub-version') : undef,
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id ? t8('This object has not been saved yet.')
+                    : $is_final_version ? t8('This record is the final version. Please create a new sub-version') : undef,
         ],
         action => [
           t8('Download attachments of all parts'),
