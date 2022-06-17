@@ -3,8 +3,8 @@ package SL::Helper::QrBill;
 use strict;
 use warnings;
 
-use Imager;
-use Imager::QRCode;
+use Imager ();
+use Imager::QRCode ();
 
 my %Config = (
   cross_file => 'image/CH-Kreuz_7mm.png',
