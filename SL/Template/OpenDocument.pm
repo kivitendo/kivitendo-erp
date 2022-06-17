@@ -665,7 +665,8 @@ sub generate_qr_code {
     'currency' => $form->{'currency'},
   );
 
-  my $customer_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($form->{'country'});
+  my $country = $form->{'country'} || 'CH';
+  my $customer_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($country);
   if (!$customer_countrycode) {
     $::form->error($::locale->text('Error mapping customer countrycode.'));
   }
