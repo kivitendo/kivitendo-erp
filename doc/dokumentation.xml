@@ -2875,9 +2875,10 @@ digits_year: 4</programlisting>
           <para>Die Adressdaten zum Zahlungspflichtigen stammen aus den
           Kundendaten der jeweiligen Rechnung.</para>
 
-          <para>Die Adressen müssen inklusive Land angegeben werden. Akzeptiert
-          werden Ländername oder Ländercode, also z.B. "Schweiz" oder "CH".
-          </para>
+          <para>Die Adresse des Zahlungsempfängers muss inklusive Land angegeben
+          werden. Ist bei den Kundendaten kein Land angegeben, wird
+          standardmässig Schweiz verwendet. Akzeptiert werden Ländername oder
+          Ländercode, also z.B. "Schweiz" oder "CH".</para>
 
           <para>Diese können in der Vorlage mit den jeweiligen Variablen
           eingetragen werden. Siehe auch: <xref
