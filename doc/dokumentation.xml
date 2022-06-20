@@ -2931,17 +2931,17 @@ digits_year: 4</programlisting>
           <para>Der Vorlagensatz "rev-odt" enthält die Vorlage
           <literal>invoice_qr.odt</literal>, welche für die Erstellung von
           QR-Rechnungen vorgesehen ist. Damit diese verwendet werden kann muss
-          wie obenstehend beschrieben ein Drucker hinzugefügt werden (siehe
-          <xref
+          wie obenstehend beschrieben ein Drucker hinzugefügt werden, allerdings
+          mit dem Vorlagenkürzel <literal>qr</literal> (siehe <xref
           linkend="opendocument-druckvorlagen-mit-makros.vorbereitungen"/>).
-          Alternativ kann die Vorlage umbenannt werden in
-          <literal>invoice.odt</literal>.</para>
+          Weitere Vorlagen für die QR-Rechnung müssen im Dateinamen, bzw.
+          Vorlagenkürzel, ebenfalls die Zeichenfolge <literal>qr</literal>
+          enthalten, also z.b. <literal>invoice_qr2.odt</literal> etc.</para>
 
-          <para>Die Vorlage <literal>invoice_qr.odt</literal> kann beliebig
-          angepasst werden. Zwingend muss diese jedoch das QR-Code Platzhalter
-          Bild, als eingebettetes Bild, enthalten. Da dieses beim
-          Ausdrucken/Erzeugen der Rechnung durch das neu generierte QR-Code Bild
-          ersetzt wird. Das Bild muss den Namen
+          <para>Die Vorlagen können beliebig angepasst werden. Zwingend müssen
+          diese jedoch das QR-Code Platzhalter Bild, als eingebettetes Bild,
+          enthalten. Da dieses beim Ausdrucken/Erzeugen der Rechnung durch das
+          neu generierte QR-Code Bild ersetzt wird. Das Bild muss den Namen
           <literal>QRCodePlaceholder</literal> tragen. In Libreoffice unter
           <emphasis>Bild-Kontextmenü → </emphasis><emphasis>Einstellungen →
           Optionen → Name</emphasis> einstellbar. Siehe dazu auch die
