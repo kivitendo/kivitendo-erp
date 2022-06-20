@@ -358,8 +358,13 @@ sub parse {
 
   close(OUT);
 
+  my $is_qr_bill = $::instance_conf->get_create_qrbill_invoices &&
+                   $form->{formname} eq 'invoice' &&
+                   $form->{'template_meta'}->{'printer'}->{'template_code'} =~ m/qr/ ?
+                   1 : 0;
+
   my $qr_image_path;
-  if ($::instance_conf->get_create_qrbill_invoices && $form->{formname} eq 'invoice') {
+  if ($is_qr_bill) {
     # the biller account information, biller address and the reference number,
     # are needed in the template aswell as in the qr-code generation, therefore
     # assemble these and add to $::form
@@ -435,7 +440,7 @@ sub parse {
     $zip->contents("styles.xml", Encode::encode('utf-8-strict', $new_styles));
   }
 
-  if ($::instance_conf->get_create_qrbill_invoices && $form->{formname} eq 'invoice') {
+  if ($is_qr_bill) {
     # get placeholder path from odt XML
     my $qr_placeholder_path;
     my $dom = XML::LibXML->load_xml(string => $contents);
