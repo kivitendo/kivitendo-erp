@@ -1803,14 +1803,17 @@ sub setup_edit_action_bar {
       combobox => [
         action => [
           t8('Save'),
-          call     => [ 'kivi.DeliveryOrder.save', 'save', $::instance_conf->get_order_warn_duplicate_parts,
-                                                           $::instance_conf->get_order_warn_no_deliverydate,
+          call     => [ 'kivi.DeliveryOrder.save', { action             => 'save',
+                                                     warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+                                                     warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
           ],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save as new'),
-          call     => [ 'kivi.DeliveryOrder.save', 'save_as_new', $::instance_conf->get_order_warn_duplicate_parts ],
+          call     => [ 'kivi.DeliveryOrder.save', { action             => 'save_as_new',
+                                                     warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts },
+          ],
           disabled => !$may_edit_create                        ? t8('You do not have the permissions to access this function.')
                     : $self->type eq 'supplier_delivery_order' ? t8('Need a workflow for Supplier Delivery Order')
                     : !$self->order->id                        ? t8('This object has not been saved yet.')
@@ -1848,21 +1851,26 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and Delivery Order'),
-          call     => [ 'kivi.DeliveryOrder.save', 'save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts,
-                                                                              $::instance_conf->get_order_warn_no_deliverydate,
+          call     => [ 'kivi.DeliveryOrder.save', { action             => 'save_and_delivery_order',
+                                                     warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+                                                     warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
           ],
           only_if  => $self->type_data->show_menu("save_and_delivery_order"),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Invoice'),
-          call     => [ 'kivi.DeliveryOrder.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
+          call     => [ 'kivi.DeliveryOrder.save', { action             => 'save_and_invoice',
+                                                     warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts },
+          ],
           only_if  => $self->type_data->show_menu("save_and_invoice"),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and AP Transaction'),
-          call     => [ 'kivi.DeliveryOrder.save', 'save_and_ap_transaction', $::instance_conf->get_order_warn_duplicate_parts ],
+          call     => [ 'kivi.DeliveryOrder.save', { action             => 'save_and_ap_transaction',
+                                                     warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts },
+          ],
           only_if  => $self->type_data->show_menu("save_and_ap_transaction"),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
@@ -1875,23 +1883,25 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and preview PDF'),
-           call    => [ 'kivi.DeliveryOrder.save', 'preview_pdf', $::instance_conf->get_order_warn_duplicate_parts,
-                                                                  $::instance_conf->get_order_warn_no_deliverydate,
+           call    => [ 'kivi.DeliveryOrder.save', { action             => 'preview_pdf',
+                                                     warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+                                                     warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
           ],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and print'),
-          call     => [ 'kivi.DeliveryOrder.show_print_options', $::instance_conf->get_order_warn_duplicate_parts,
-                                                                 $::instance_conf->get_order_warn_no_deliverydate,
+          call     => [ 'kivi.DeliveryOrder.show_print_options', { warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+                                                                   warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
           ],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and E-mail'),
           id       => 'save_and_email_action',
-          call     => [ 'kivi.DeliveryOrder.save', 'save_and_show_email_dialog', $::instance_conf->get_order_warn_duplicate_parts,
-                                                                                 $::instance_conf->get_order_warn_no_deliverydate,
+          call     => [ 'kivi.DeliveryOrder.save', { action             => 'save_and_show_email_dialog',
+                                                     warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+                                                     warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
           ],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : !$self->order->id ? t8('This object has not been saved yet.')
@@ -1923,7 +1933,7 @@ sub setup_edit_action_bar {
         action => [
           t8('Transfer out'),
           id       => 'transfer_out_action',
-          call     => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
+          call     => [ 'kivi.DeliveryOrder.save', { action => 'transfer_stock' } ],
           disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
                     : !$self->order->id       ? t8('This object has not been saved yet.')
                     : $self->order->delivered ? t8('The parts for this order have already been transferred')
@@ -1934,7 +1944,7 @@ sub setup_edit_action_bar {
         action => [
           t8('Transfer in'),
           id       => 'transfer_in_action',
-          call     => [ 'kivi.DeliveryOrder.save', 'transfer_stock' ],
+          call     => [ 'kivi.DeliveryOrder.save', { action => 'transfer_stock' } ],
           disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
                     : !$self->order->id       ? t8('This object has not been saved yet.')
                     : $self->order->delivered ? t8('The parts for this order have already been transferred')

@@ -45,8 +45,13 @@ namespace('kivi.DeliveryOrder', function(ns) {
     }
   };
 
-  ns.save = function(action, warn_on_duplicates, warn_on_reqdate) {
+  ns.save = function(params) {
     if (!ns.check_cv()) return;
+
+    const action             = params.action;
+    const warn_on_duplicates = params.warn_on_duplicates;
+    const warn_on_reqdate    = params.warn_on_reqdate;
+
     if (warn_on_duplicates && !ns.check_duplicate_parts()) return;
     if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
 
@@ -63,8 +68,12 @@ namespace('kivi.DeliveryOrder', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.show_print_options = function(warn_on_duplicates, warn_on_reqdate) {
+  ns.show_print_options = function(params) {
     if (!ns.check_cv()) return;
+
+    const warn_on_duplicates = params.warn_on_duplicates;
+    const warn_on_reqdate    = params.warn_on_reqdate;
+
     if (warn_on_duplicates && !ns.check_duplicate_parts(kivi.t8("Do you really want to print?"))) return;
     if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
 
