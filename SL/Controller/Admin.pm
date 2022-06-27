@@ -137,6 +137,8 @@ sub action_save_user {
   my $params = delete($::form->{user})          || { };
   my $props  = delete($params->{config_values}) || { };
   my $is_new = !$params->{id};
+  my $check_previously_used = delete($::form->{check_previously_used}) || 0;
+  my $assign_documents = delete($::form->{assign_documents}) || 0;
 
   # Assign empty arrays if the browser doesn't send those controls.
   $params->{clients} ||= [];
@@ -149,9 +151,28 @@ sub action_save_user {
   my @errors = $self->user->validate;
 
   if (@errors) {
-    flash('error', @errors);
-    $self->edit_user_form(title => $is_new ? t8('Create a new user') : t8('Edit User'));
-    return;
+    $self->js->flash('error', $_) foreach @errors;
+    return $self->js->render();
+  }
+
+  # check if given login name was previously used and show a dialog if so
+  if ($is_new && $check_previously_used && $self->check_loginname_previously_used()) {
+    $self->js->run('show_loginname_previously_used_dialog');
+    return $self->js->render();
+  }
+
+  # rename previous usernames in employee table, if not set to assign
+  if ($is_new && !$assign_documents) {
+    my $clients = SL::DB::Manager::AuthClient->get_all_sorted;
+    for my $client (@$clients) {
+      my $now = DateTime->now_local;
+      my $timestamp = $now->format_cldr('yyyyMMddHHmmss');
+
+      my $dbh = $client->dbconnect(AutoCommit => 1);
+      $dbh->do(qq|UPDATE employee SET login = ? WHERE login = ?;|,undef,
+               $params->{'login'} . $timestamp, $params->{'login'});
+      $dbh->disconnect;
+    }
   }
 
   $self->user->save;
@@ -760,6 +781,23 @@ sub check_database_superuser_privileges {
   return (%result, error => $::locale->text('No superuser credentials were entered.')) if !$::form->{database_superuser_user};
   return %result                                                                       if $result{error};
   return (%result, error => $::locale->text('The database user \'#1\' does not have superuser privileges.', $result{username}));
+}
+
+sub check_loginname_previously_used() {
+  my ($self) = @_;
+
+  my $clients = SL::DB::Manager::AuthClient->get_all_sorted;
+  for my $client (@$clients) {
+    my $dbh = $client->dbconnect();
+    my ($result) = $dbh->selectrow_array(qq|SELECT login FROM employee WHERE login = ?;|,undef,
+                                        $self->user->{'login'});
+    $dbh->disconnect;
+
+    if ($result) {
+      return 1;
+    }
+  }
+  return 0;
 }
 
 1;

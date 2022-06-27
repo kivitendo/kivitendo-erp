@@ -8,6 +8,8 @@
 <form method="post" action="controller.pl" id="form">
  [% L.hidden_tag("user.id", SELF.user.id) %]
  [% L.hidden_tag("action", "") %]
+ [% L.hidden_tag("check_previously_used", "0") %]
+ [% L.hidden_tag("assign_documents", "0") %]
  [%- SET props=SELF.user.config_values %]
 
  <h2>[%- LxERP.t8("Settings") %]</h2>
@@ -89,6 +91,7 @@
        [% L.radio_button_tag('user.config_values.mandatory_departments', value='1', id='user.config_values.mandatory_departments_1', label=LxERP.t8('Yes'), checked= props.mandatory_departments) %]
       </td>
      </tr>
+
     </table>
    </td>
   </tr>
@@ -149,7 +152,7 @@
 <p>
  [% L.link(SELF.url_for(action="show"), LxERP.t8("Back")) %]
 
- [% L.button_tag("submit_with_action('save_user')", LxERP.t8("Save")) %]
+ [% L.button_tag("save_new()", LxERP.t8("Save")) %]
  [% IF SELF.user.id %]
   [% L.button_tag("save_as_new()", LxERP.t8("Save as new")) %]
   [% L.button_tag("submit_delete()", LxERP.t8("Delete"), confirm=LxERP.t8("Are you sure?")) %]
@@ -175,9 +178,46 @@
 [% END %]
   }
 
+  function save() {
+    $("#action").val('Admin/save_user');
+    var data = $('#form').serializeArray();
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+
+  function save_new() {
+    $("#check_previously_used").val("1");
+    save();
+  }
+
   function save_as_new() {
     $("#user_id").val("");
-    submit_with_action("save_user");
+    $("#check_previously_used").val("1");
+    save();
+  }
+
+  function show_loginname_previously_used_dialog() {
+    var buttons = {};
+    buttons[kivi.t8('Yes')] = function() {
+      $("#check_previously_used").val("0");
+      $("#assign_documents").val("1");
+      save();
+    };
+    buttons[kivi.t8('No')] = function() {
+      $("#check_previously_used").val("0");
+      save();
+    };
+    buttons[kivi.t8('Cancel')] = function() { $( this ).dialog('close'); };
+
+    kivi.popup_dialog({
+      id: 'loginname_previously_used_dialog',
+      html: kivi.t8('The login name you entered was previously used. Do you want to assign documents from the former user that had the same username to the new user?'),
+      dialog: {
+        title:  kivi.t8('Login name was previously used'),
+        width:  400,
+        height: 250,
+        buttons: buttons
+      }
+    });
   }
    -->
 </script>
