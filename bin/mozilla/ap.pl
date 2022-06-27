@@ -1048,7 +1048,8 @@ sub ap_transactions {
        insertdate);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id transdatefrom transdateto
+  push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id
+                                           transdatefrom transdateto duedatefrom duedateto
                                            parts_partnumber parts_description department_id taxzone_id);
 
   my $href = build_std_url('action=ap_transactions', grep { $form->{$_} } @hidden_variables);
