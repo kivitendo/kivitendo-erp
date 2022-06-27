@@ -1038,7 +1038,8 @@ sub ar_transactions {
   push @columns, map { "cvar_$_->{name}" } @ct_includeable_custom_variables;
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber cusordnumber transaction_description notes project_id transdatefrom transdateto duedatefrom duedateto
+  push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber cusordnumber transaction_description notes project_id
+                                           transdatefrom transdateto duedatefrom duedateto datepaidfrom datepaidto
                                            employee_id salesman_id business_id parts_partnumber parts_description department_id show_marked_as_closed show_not_mailed
                                            shippingpoint shipvia taxzone_id);
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
@@ -1155,6 +1156,12 @@ sub ar_transactions {
   }
   if ($form->{duedateto}) {
     push @options, $locale->text('Due Date') . " " . $locale->text('to') . " " . $locale->date(\%myconfig, $form->{duedateto}, 1);
+  }
+  if ($form->{datepaidfrom}) {
+    push @options, $locale->text('Date Paid') . " " . $locale->text('from') . " " . $locale->date(\%myconfig, $form->{datepaidfrom}, 1);
+  }
+  if ($form->{datepaidto}) {
+    push @options, $locale->text('Date Paid') . " " . $locale->text('to') . " " . $locale->date(\%myconfig, $form->{datepaidto}, 1);
   }
   if ($form->{open}) {
     push @options, $locale->text('Open');

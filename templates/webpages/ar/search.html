@@ -101,6 +101,14 @@
        [% L.date_tag('duedateto') %]
      </td>
     </tr>
+     <tr>
+      <th align=right nowrap>[% 'Date Paid' | $T8 %]</th>
+      <td>
+       [% L.date_tag('datepaidfrom') %]
+       [% 'Bis' | $T8 %]
+       [% L.date_tag('datepaidto') %]
+     </td>
+    </tr>
 
 [%- IF CT_CUSTOM_VARIABLES.size %]
     <tr>

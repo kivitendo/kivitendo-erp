@@ -1049,7 +1049,7 @@ sub ap_transactions {
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id
-                                           transdatefrom transdateto duedatefrom duedateto
+                                           transdatefrom transdateto duedatefrom duedateto datepaidfrom datepaidto
                                            parts_partnumber parts_description department_id taxzone_id);
 
   my $href = build_std_url('action=ap_transactions', grep { $form->{$_} } @hidden_variables);
@@ -1119,8 +1119,10 @@ sub ap_transactions {
   push @options, $locale->text('Part Number')             . " : $form->{parts_partnumber}"               if $form->{parts_partnumber};
   push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1)      if ($form->{transdatefrom});
   push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{transdateto},   1)      if ($form->{transdateto});
-  push @options, $locale->text('Due Date') . " " . $locale->text('from') . " " . $locale->date(\%myconfig, $form->{duedatefrom}, 1)      if ($form->{duedatefrom});
-  push @options, $locale->text('Due Date') . " " . $locale->text('to')   . " " . $locale->date(\%myconfig, $form->{duedateto},   1)      if ($form->{duedateto});
+  push @options, $locale->text('Due Date') . " " . $locale->text('from') . " " . $locale->date(\%myconfig,  $form->{duedatefrom}, 1)      if ($form->{duedatefrom});
+  push @options, $locale->text('Due Date') . " " . $locale->text('to')   . " " . $locale->date(\%myconfig,  $form->{duedateto},   1)      if ($form->{duedateto});
+  push @options, $locale->text('Date Paid') . " " . $locale->text('from') . " " . $locale->date(\%myconfig, $form->{datepaidfrom}, 1)     if ($form->{datepaidfrom});
+  push @options, $locale->text('Date Paid') . " " . $locale->text('to')   . " " . $locale->date(\%myconfig, $form->{datepaidto},   1)     if ($form->{datepaidto});
   push @options, $locale->text('Open')                                                                   if ($form->{open});
   push @options, $locale->text('Closed')                                                                 if ($form->{closed});
 
