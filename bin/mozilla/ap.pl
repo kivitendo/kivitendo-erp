@@ -1119,6 +1119,8 @@ sub ap_transactions {
   push @options, $locale->text('Part Number')             . " : $form->{parts_partnumber}"               if $form->{parts_partnumber};
   push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1)      if ($form->{transdatefrom});
   push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{transdateto},   1)      if ($form->{transdateto});
+  push @options, $locale->text('Due Date') . " " . $locale->text('from') . " " . $locale->date(\%myconfig, $form->{duedatefrom}, 1)      if ($form->{duedatefrom});
+  push @options, $locale->text('Due Date') . " " . $locale->text('to')   . " " . $locale->date(\%myconfig, $form->{duedateto},   1)      if ($form->{duedateto});
   push @options, $locale->text('Open')                                                                   if ($form->{open});
   push @options, $locale->text('Closed')                                                                 if ($form->{closed});
 
