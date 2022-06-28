@@ -54,6 +54,7 @@ use SL::Controller::Order;
 use SL::DB::Customer;
 use SL::DB::TaxZone;
 use SL::DB::PaymentTerm;
+use SL::DB::ValidityToken;
 use SL::DB::Vendor;
 
 require "bin/mozilla/common.pl";
@@ -1631,6 +1632,7 @@ sub invoice {
 
   $main::auth->assert($form->{type} eq 'purchase_order' || $form->{type} eq 'request_quotation' ? 'vendor_invoice_edit' : 'invoice_edit');
 
+  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   $form->{old_salesman_id} = $form->{salesman_id};
   $form->get_employee();
 
