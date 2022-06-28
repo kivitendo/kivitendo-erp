@@ -1369,6 +1369,8 @@ sub credit_note {
 
   $main::auth->assert('invoice_edit');
 
+  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
+
   $form->{transdate} = $form->{invdate} = $form->current_date(\%myconfig);
   $form->{duedate} =
     $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
