@@ -125,6 +125,17 @@ sub action_save {
   my @errors = $self->part->validate;
   return $self->js->error(@errors)->render if @errors;
 
+  if ($is_new) {
+    # Ensure CVars that should be enabled by default actually are when
+    # creating new parts.
+    my @default_valid_configs =
+      grep { ! $_->{flag_defaults_to_invalid} }
+      grep { $_->{module} eq 'IC' }
+      @{ CVar->get_configs() };
+
+    $::form->{"cvar_" . $_->{name} . "_valid"} = 1 for @default_valid_configs;
+  }
+
   # $self->part has been loaded, parsed and validated without errors and is ready to be saved
   $self->part->db->with_transaction(sub {
 
