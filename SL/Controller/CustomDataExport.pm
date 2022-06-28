@@ -124,7 +124,18 @@ sub setup_javascripts {
 # helpers
 #
 
-sub init_query      { $::form->{id} ? SL::DB::CustomDataExportQuery->new(id => $::form->{id})->load : SL::DB::CustomDataExportQuery->new }
+sub init_query {
+
+  # If ReportGenerator is used, then set form variables from its hiddens so that they are available here.
+  if ($::form->{report_generator_variable_list}) {
+    foreach my $key (split m/ +/, $::form->{report_generator_variable_list}) {
+      $::form->{$key} = $::form->{"report_generator_hidden_${key}"};
+    }
+  }
+
+  $::form->{id} ? SL::DB::CustomDataExportQuery->new(id => $::form->{id})->load : SL::DB::CustomDataExportQuery->new
+}
+
 sub init_parameters { [ sort_by { lc $_->name } @{ $_[0]->query->parameters // [] } ] }
 
 sub init_queries {
