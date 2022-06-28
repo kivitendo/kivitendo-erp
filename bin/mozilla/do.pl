@@ -39,6 +39,7 @@ use POSIX qw(strftime);
 use SL::Controller::DeliveryOrder;
 use SL::DB::DeliveryOrder;
 use SL::DB::DeliveryOrder::TypeData qw(:types validate_type);
+use SL::DB::ValidityToken;
 use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::DO;
 use SL::IR;
@@ -1095,6 +1096,7 @@ sub invoice {
 
   $form->get_employee();
 
+  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   $form->{convert_from_do_ids} = $form->{id};
   # if we have a reqdate (Liefertermin), this is definetely the preferred
   # deliverydate for invoices
