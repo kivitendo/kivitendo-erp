@@ -175,6 +175,21 @@ my %supported_types = (
     ],
   },
 
+  order_status => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_order_status_form")
+    class  => 'OrderStatus',
+    titles => {
+      list => t8('RFQ/Order Statuses'),
+      add  => t8('Add rfq/order status'),
+      edit => t8('Edit rfq/order status'),
+    },
+    list_attributes => [
+      { method => 'name',        title => t8('Name') },
+      { method => 'description', title => t8('Description') },
+      { method => 'obsolete',    title => t8('Obsolete'), formatter => sub { $_[0]->obsolete ? t8('yes') : t8('no') } },
+    ],
+  },
+
   project_status => {
     class  => 'ProjectStatus',
     titles => {

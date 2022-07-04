@@ -1215,6 +1215,13 @@
     action: SimpleSystemSetting/list
     type: contact_department
 - parent: system
+  id: system_order_statuses
+  name: RFQ/Order Statuses
+  order: 1500
+  params:
+    action: SimpleSystemSetting/list
+    type: order_status
+- parent: system
   id: system_project_types
   name: Project Types
   order: 1600
