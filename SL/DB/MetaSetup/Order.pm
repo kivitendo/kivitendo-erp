@@ -35,6 +35,7 @@ __PACKAGE__->meta->columns(
   netamount               => { type => 'numeric', precision => 15, scale => 5 },
   notes                   => { type => 'text' },
   order_probability       => { type => 'integer', default => '0', not_null => 1 },
+  order_status_id         => { type => 'integer' },
   ordnumber               => { type => 'text', not_null => 1 },
   payment_id              => { type => 'integer' },
   proforma                => { type => 'boolean', default => 'false' },
@@ -111,6 +112,11 @@ __PACKAGE__->meta->foreign_keys(
   language => {
     class       => 'SL::DB::Language',
     key_columns => { language_id => 'id' },
+  },
+
+  order_status => {
+    class       => 'SL::DB::OrderStatus',
+    key_columns => { order_status_id => 'id' },
   },
 
   payment_terms => {
