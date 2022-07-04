@@ -160,6 +160,7 @@ my %kivitendo_package_names = (
   letter_draft                   => 'letter_draft',
   makemodel                      => 'make_model',
   notes                          => 'note',
+  order_statuses                 => 'order_status',
   orderitems                     => 'order_item',
   oe                             => 'order',
   oe_version                     => 'order_version',
