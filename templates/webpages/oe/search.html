@@ -33,7 +33,10 @@
     <tr>
      <th align="right">[% HTML.escape(ordlabel) %]</th>
      <td>[% L.input_tag(ordnrname, "", style=style) %]</td>
+     <th align="right">[% 'Status' | $T8 %]</th>
+     <td colspan=3>[% L.select_tag('order_status_id', ALL_ORDER_STATUSES, default = order_status_id, title_key = 'name', with_empty = 1, style=style) %]</td>
     </tr>
+
 [% IF is_order %]
     <tr>
      <th align="right">[% LxERP.t8("Customer Order Number") %]</th>
@@ -306,6 +309,10 @@
         <td>
          <input name="l_remaining_netamount" id="l_remaining_netamount" class="checkbox" type="checkbox" value="Y">
          <label for="l_remaining_netamount">[% 'Remaining Net Amount' | $T8 %]</label>
+        </td>
+        <td>
+         <input name="l_order_status" id="l_order_status" class="checkbox" type="checkbox" value="Y">
+         <label for="l_order_status">[% 'Status' | $T8 %]</label>
         </td>
        </tr>
        <tr>

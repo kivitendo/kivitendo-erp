@@ -131,14 +131,15 @@ sub transactions {
     qq|  o.marge_total, o.marge_percent, | .
     qq|  o.exchangerate, | .
     qq|  o.itime::DATE AS insertdate, | .
-    qq|  o.intnotes, | .
+    qq|  o.intnotes,| .
     qq|  department.description as department, | .
     qq|  ex.$rate AS daily_exchangerate, | .
     qq|  pt.description AS payment_terms, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, s.name AS salesman, | .
     qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id,  | .
-    qq|  tz.description AS taxzone | .
+    qq|  tz.description AS taxzone, | .
+    qq|  order_statuses.name AS order_status | .
     $periodic_invoices_columns .
     $phone_notes_columns .
     qq|  , o.order_probability, o.expected_billing_date, (o.netamount * o.order_probability / 100) AS expected_netamount | .
@@ -153,6 +154,7 @@ sub transactions {
     qq|LEFT JOIN payment_terms pt ON (pt.id = o.payment_id)| .
     qq|LEFT JOIN tax_zones tz ON (o.taxzone_id = tz.id) | .
     qq|LEFT JOIN department   ON (o.department_id = department.id) | .
+    qq|LEFT JOIN order_statuses ON (o.order_status_id = order_statuses.id) | .
     qq|$periodic_invoices_joins | .
     $phone_notes_join .
     qq|WHERE (o.quotation = ?) |;
@@ -313,6 +315,11 @@ SQL
     push(@values, like($form->{intnotes}));
   }
 
+  if ($form->{order_status_id}) {
+    $query .= qq| AND o.order_status_id = ?|;
+    push(@values, $form->{order_status_id});
+  }
+
   if ($form->{phone_notes}) {
     $query .= qq| AND (phone_notes.subject ILIKE ? OR regexp_replace(phone_notes.body, '<[^>]*>', '', 'g') ILIKE ?)|;
     push(@values, like($form->{phone_notes}), like($form->{phone_notes}));
@@ -429,6 +436,7 @@ SQL
     "payment_terms"           => "pt.description",
     "department"              => "department.description",
     "intnotes"                => "o.intnotes",
+    "order_status"            => "order_statuses.name",
   );
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
     $sortorder = $allowed_sort_columns{$form->{sort}} . " ${sortdir}"  . ", o.itime ${sortdir}";

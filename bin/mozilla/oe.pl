@@ -970,8 +970,9 @@ sub search {
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
                    "taxzones"     => "ALL_TAXZONES",
                    "business_types" => "ALL_BUSINESS_TYPES",);
-  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
-  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $form->{ALL_EMPLOYEES}      = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
+  $form->{ALL_DEPARTMENTS}    = SL::DB::Manager::Department->get_all;
+  $form->{ALL_ORDER_STATUSES} = SL::DB::Manager::OrderStatus->get_all_sorted;
 
   $form->{CT_CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
   ($form->{CT_CUSTOM_VARIABLES_FILTER_CODE},
@@ -1054,7 +1055,7 @@ sub orders {
     "country",                 "shippingpoint",
     "taxzone",                 "insertdate",
     "order_probability",       "expected_billing_date", "expected_netamount",
-    "payment_terms",           "intnotes",
+    "payment_terms",           "intnotes",              "order_status",
   );
 
   # only show checkboxes if gotten here via sales_order form.
@@ -1103,7 +1104,7 @@ sub orders {
                                                         reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
                                                         business_id shippingpoint taxzone_id reqdate_unset_or_old insertdatefrom insertdateto
                                                         order_probability_op order_probability_value expected_billing_date_from expected_billing_date_to
-                                                        parts_partnumber parts_description all department_id intnotes phone_notes fulltext);
+                                                        parts_partnumber parts_description all department_id intnotes phone_notes fulltext order_status_id);
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
   my   @keys_for_url = grep { $form->{$_} } @hidden_variables;
@@ -1149,10 +1150,11 @@ sub orders {
     'expected_netamount'      => { 'text' => $locale->text('Exp. netamount'), },
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
     'intnotes'                => { 'text' => $locale->text('Internal Notes'), },
+    'order_status'            => { 'text' => $locale->text('Status'), },
     %column_defs_cvars,
   );
 
-  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone insertdate payment_terms department intnotes)) {
+  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone insertdate payment_terms department intnotes order_status)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -1233,6 +1235,10 @@ sub orders {
     push @options, $locale->text('Expected billing date');
     push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{expected_billing_date_from}, 1) if $form->{expected_billing_date_from};
     push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{expected_billing_date_to},   1) if $form->{expected_billing_date_to};
+  }
+
+  if ($form->{order_status_id}) {
+    push @options, $locale->text('Status') . " : " . SL::DB::OrderStatus->new(id => $form->{order_status_id})->load->name;
   }
 
   $report->set_options('top_info_text'        => join("\n", @options),
