@@ -12,6 +12,12 @@ Mittelgroße neue Features:
    Dabei werden vorherige Unterversionen von Verkaufs-Angebote und Verkaufs-Aufträge
    gesperrt sobald diese per E-Mail versendet wurden. Die Funktion ist
    standardmäßig deaktiviert und kann über die Mandantenkonfiguration aktiviert werden.
+ - Angebote und Aufträge bekommen einen Status. Die Status können im
+   System-Menü angelegt, editiert und gelöscht (sofern noch nicht
+   verwendet) werden. Ein Status "bestätigt" ist bereits angelegt.
+   Der Status kann in den Masken per Hand gesetzt werden. Es erfolgt
+   keine automatische Statusänderung. In den Berichten kann der Status
+   angezeigt werden und es kann danach gefiltert werden.
 
 
 2022-05-20 - Release 3.6.1
