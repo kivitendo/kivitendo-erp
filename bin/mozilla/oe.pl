@@ -1154,12 +1154,19 @@ sub orders {
     %column_defs_cvars,
   );
 
-  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone insertdate payment_terms department intnotes order_status)) {
+  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber
+                       name employee salesman shipvia transaction_description
+                       shippingpoint taxzone insertdate payment_terms department
+                       intnotes order_status)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
 
-  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount curr remaining_amount remaining_netamount order_probability expected_billing_date expected_netamount);
+  my %column_alignment =
+    map { $_ => 'right' } qw(netamount tax amount curr
+                             remaining_amount remaining_netamount
+                             order_probability expected_billing_date
+                             expected_netamount);
 
   $form->{"l_type"} = "Y";
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
