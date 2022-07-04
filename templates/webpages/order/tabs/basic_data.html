@@ -151,6 +151,7 @@
               SELF.all_statuses,
               default=SELF.order.order_status_id,
               with_empty=1,
+              style='width:100%',
               title_key='name') %]</td>
           </tr>
           [%- END -%]
@@ -160,6 +161,7 @@
             <td>[% L.select_tag('order.employee_id',
               SELF.all_employees,
               default=(SELF.order.employee_id ? SELF.order.employee_id : SELF.current_employee_id),
+              style='width:100%',
               title_key='safe_name') %]</td>
           </tr>
 
@@ -169,6 +171,7 @@
             <td>[% L.select_tag('order.salesman_id',
               SELF.all_salesmen,
               default=(SELF.order.salesman_id ? SELF.order.salesman_id : SELF.current_employee_id),
+              style='width:100%',
               title_key='safe_name') %]</td>
           </tr>
           [% END %]
