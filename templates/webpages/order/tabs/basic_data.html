@@ -144,6 +144,17 @@
             </td>
           </tr>
 
+          [%- IF SELF.all_statuses.size %]
+          <tr>
+            <th align="right">[% 'Status' | $T8 %]</th>
+            <td>[% L.select_tag('order.order_status_id',
+              SELF.all_statuses,
+              default=SELF.order.order_status_id,
+              with_empty=1,
+              title_key='name') %]</td>
+          </tr>
+          [%- END -%]
+
           <tr>
             <th align="right">[% 'Employee' | $T8 %]</th>
             <td>[% L.select_tag('order.employee_id',
