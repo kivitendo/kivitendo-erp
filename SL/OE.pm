@@ -467,6 +467,26 @@ SQL
 
   $sth->finish;
 
+  if ($form->{l_items} && scalar @{ $form->{OE} }) {
+    my ($items_query, $items_sth);
+    if ($form->{l_items}) {
+      $items_query =
+        qq|SELECT id
+          FROM orderitems
+          WHERE trans_id  = ?
+          ORDER BY position|;
+
+      $items_sth = prepare_query($form, $dbh, $items_query);
+    }
+
+    foreach my $oe (@{ $form->{OE} }) {
+      do_statement($form, $items_sth, $items_query, $oe->{id});
+      $oe->{item_ids} = $dbh->selectcol_arrayref($items_sth);
+      $oe->{item_ids} = undef if !@{$oe->{item_ids}};
+    }
+    $items_sth->finish();
+  }
+
   $main::lxdebug->leave_sub();
 }
 

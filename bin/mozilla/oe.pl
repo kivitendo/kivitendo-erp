@@ -37,6 +37,7 @@ use Carp;
 use POSIX qw(strftime);
 
 use SL::DB::Order;
+use SL::DB::OrderItem;
 use SL::DO;
 use SL::FU;
 use SL::OE;
@@ -44,6 +45,7 @@ use SL::IR;
 use SL::IS;
 use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::MoreCommon qw(ary_diff restore_form save_form);
+use SL::Presenter::ItemsList;
 use SL::ReportGenerator;
 use SL::YAML;
 use List::MoreUtils qw(uniq any none);
@@ -1056,6 +1058,7 @@ sub orders {
     "taxzone",                 "insertdate",
     "order_probability",       "expected_billing_date", "expected_netamount",
     "payment_terms",           "intnotes",              "order_status",
+    "items",
   );
 
   # only show checkboxes if gotten here via sales_order form.
@@ -1151,6 +1154,7 @@ sub orders {
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
     'intnotes'                => { 'text' => $locale->text('Internal Notes'), },
     'order_status'            => { 'text' => $locale->text('Status'), },
+    'items'                   => { 'text' => $locale->text('Positions'), },
     %column_defs_cvars,
   );
 
@@ -1169,6 +1173,7 @@ sub orders {
                              expected_netamount);
 
   $form->{"l_type"} = "Y";
+
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
   $column_defs{ids}->{visible} = $allow_multiple_orders ? 'HTML' : 0;
 
@@ -1299,6 +1304,7 @@ sub orders {
 
     foreach my $column (@columns) {
       next if ($column eq 'ids');
+      next if ($column eq 'items');
       $row->{$column} = {
         'data'  => $oe->{$column},
         'align' => $column_alignment{$column},
@@ -1313,6 +1319,12 @@ sub orders {
     };
 
     $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}" unless $params{want_binary_pdf};
+
+    if ($form->{l_items}) {
+      my $items = SL::DB::Manager::OrderItem->get_all_sorted(where => [id => $oe->{item_ids}]);
+      $row->{items}->{raw_data}  = SL::Presenter::ItemsList::items_list($items)               if lc($report->{options}->{output_format}) eq 'html';
+      $row->{items}->{data}      = SL::Presenter::ItemsList::items_list($items, as_text => 1) if lc($report->{options}->{output_format}) ne 'html';
+    }
 
     my $row_set = [ $row ];
 

@@ -1,0 +1,3 @@
+[% FOREACH item = items -%]
+[% item.position %]: [% item.part.partnumber %] [% item.description %] [% item.qty_as_number %] [% item.unit %]
+[% END -%]
