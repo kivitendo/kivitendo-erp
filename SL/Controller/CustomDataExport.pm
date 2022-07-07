@@ -63,6 +63,7 @@ sub action_export {
     title                 => $self->query->name,
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
+    allow_chart_export    => 1,
     attachment_basename   => $report_name,
   );
 

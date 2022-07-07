@@ -1,0 +1,30 @@
+[% USE P -%]
+
+<h1>[% TITLE %]</h1>
+
+[%- INCLUDE 'common/flash.html' %]
+
+[% IF TOP_INFO_TEXT %]
+ <p>[% TOP_INFO_TEXT %]</p>
+[% END %]
+
+[% RAW_TOP_INFO_TEXT %]
+
+<div class="chart-container" style="position: relative;">
+  <canvas id="chart" height="70vH"></canvas>
+</div>
+
+[% RAW_BOTTOM_INFO_TEXT %]
+
+[% IF BOTTOM_INFO_TEXT %]
+ <p>[% BOTTOM_INFO_TEXT %]</p>
+[% END %]
+
+
+<script>
+  kivi.ChartReport.data = { data_x: [% data_x %],
+                            data_y: [% data_y %],
+                            label_y: "[% label_y %]",
+                            label_x: "[% label_x %]"
+                          };
+</script>

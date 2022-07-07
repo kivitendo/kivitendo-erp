@@ -41,7 +41,7 @@ sub report_generator_setup_action_bar {
     $bar->add(
       combobox => [
         action => [
-          $type eq 'pdf' ? $::locale->text('PDF export') : $::locale->text('CSV export'),
+          $type eq 'pdf' ? $::locale->text('PDF export') : $type eq 'csv' ? $::locale->text('CSV export') : $::locale->text('Chart export'),
           submit => [ '#report_generator_form', { 'report_generator_dispatch_to' => "report_generator_export_as_${type}" } ],
         ],
         action => [
@@ -122,6 +122,31 @@ sub report_generator_export_as_csv {
 
   $form->header();
   print $form->parse_html_template('report_generator/csv_export_options', { 'HIDDEN' => \@form_values });
+
+  $main::lxdebug->leave_sub();
+}
+
+sub report_generator_export_as_chart {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  if ($form->{report_generator_chart_options_set}) {
+    report_generator_do('Chart');
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
+  my $fields      = delete $form->{report_generator_chart_fields};
+  my @form_values = $form->flatten_variables(grep { ($_ ne 'login') && ($_ ne 'password') } keys %{ $form });
+
+  $form->{title} = $locale->text('Chart export -- options');
+
+  report_generator_setup_action_bar('chart');
+
+  $form->header();
+  print $form->parse_html_template('report_generator/chart_export_options', { 'HIDDEN' => \@form_values, fields => $fields });
 
   $main::lxdebug->leave_sub();
 }
