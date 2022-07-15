@@ -603,6 +603,8 @@ sub action_send_email {
   $::form->{id} = $self->order->id; # this is used in SL::Mailer to create a linked record to the mail
   $::form->send_email(\%::myconfig, $::form->{print_options}->{format});
 
+  flash_later('info', t8('The email has been sent.'));
+
   # internal notes unless no email journal
   unless ($::instance_conf->get_email_journal) {
     my $intnotes = $self->order->intnotes;
@@ -639,8 +641,6 @@ sub action_send_email {
                                              email_journal_id => $::form->{email_journal_id},
                                              final_version    => 1);
   }
-
-  flash_later('info', t8('The email has been sent.'));
 
   $self->redirect_to(@redirect_params);
 }
