@@ -101,6 +101,8 @@ sub send {
   $self->{smtp}->quit;
 
   delete $self->{smtp};
+
+  die $self->extended_status if !$ok;
 }
 
 sub keep_from_header {
