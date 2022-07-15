@@ -515,8 +515,6 @@ sub action_save_and_show_email_dialog {
 }
 
 # send email
-#
-# Todo: handling error messages: flash is not displayed in dialog, but in the main form
 sub action_send_email {
   my ($self) = @_;
 
@@ -529,6 +527,24 @@ sub action_send_email {
   }
 
   $self->js_reset_order_and_item_ids_after_save;
+
+  my @redirect_params = (
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
+
+  # Set the error handler to reload the document and display errors later,
+  # because the document is already saved and saving can have some side effects
+  # such as generating a document number, project number or reocrd links,
+  # which will be up to date when the document is reloaded.
+  # Hint: Do not use "die" here and try to catch exceptions in subroutine
+  # calls. You should use "$::form->error" which respects the error handler.
+  local $::form->{__ERROR_HANDLER} = sub {
+      flash_later('error', $_[0]);
+      $self->redirect_to(@redirect_params);
+      $::dispatcher->end_request;
+  };
 
   my $email_form  = delete $::form->{email_form};
 
@@ -568,7 +584,7 @@ sub action_send_email {
                                              printer_id => $::form->{print_options}->{printer_id},
                                              groupitems => $::form->{print_options}->{groupitems}});
     if (scalar @errors) {
-      return $self->js->flash('error', t8('Generating the document failed: #1', $errors[0]))->render($self);
+      $::form->error(t8('Generating the document failed: #1', $errors[0]));
     }
 
     my @warnings = $self->store_doc_to_webdav_and_filemanagement($doc, $::form->{attachment_filename}, $::form->{formname});
@@ -613,24 +629,18 @@ sub action_send_email {
       #       DMS kivi version should have a record_link to email_journal
       #       the record link has to refer to the correct version -> helper table file <-> file_version
       $file_id = $self->{file_id} || $::form->{file_id};
-      die "No file id" unless $file_id;
+      $::form->error("No file id") unless $file_id;
     }
 
     # email is sent -> set this version to final and link to journal and file
     my $current_version = SL::DB::Manager::OrderVersion->get_all(where => [oe_id => $self->order->id, final_version => 0]);
-    die "Invalid version state" unless scalar @{ $current_version } == 1;
+    $::form->error("Invalid version state") unless scalar @{ $current_version } == 1;
     $current_version->[0]->update_attributes(file_id          => $file_id,
                                              email_journal_id => $::form->{email_journal_id},
                                              final_version    => 1);
   }
 
   flash_later('info', t8('The email has been sent.'));
-
-  my @redirect_params = (
-    action => 'edit',
-    type   => $self->type,
-    id     => $self->order->id,
-  );
 
   $self->redirect_to(@redirect_params);
 }
