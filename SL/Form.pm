@@ -1014,16 +1014,16 @@ sub send_email {
   $mail->{message} .= $full_signature;
   $self->{emailerr} = $mail->send();
 
-  if ($self->{emailerr}) {
-    $self->cleanup;
-    $self->error($::locale->text('The email was not sent due to the following error: #1.', $self->{emailerr}));
-  }
-
   $self->{email_journal_id} = $mail->{journalentry};
   $self->{snumbers}  = "emailjournal" . "_" . $self->{email_journal_id};
   $self->{what_done} = $::form->{type};
   $self->{addition}  = "MAILED";
   $self->save_history;
+
+  if ($self->{emailerr}) {
+    $self->cleanup;
+    $self->error($::locale->text('The email was not sent due to the following error: #1.', $self->{emailerr}));
+  }
 
   #write back for message info and mail journal
   $self->{cc}  = $mail->{cc};
