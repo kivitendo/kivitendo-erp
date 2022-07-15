@@ -620,8 +620,6 @@ sub action_send_email {
     $self->order->update_attributes(intnotes => $intnotes);
   }
 
-  $self->save_history('MAILED');
-
   if ($::instance_conf->get_lock_oe_subversions) {
     my $file_id;
     if ($::instance_conf->get_doc_storage && $::form->{attachment_policy} ne 'no_file') {
