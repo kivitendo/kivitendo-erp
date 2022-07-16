@@ -164,7 +164,7 @@ sub check_latex {
   Your pdfx version is too old. You cannot use ZuGFeRD or modern (2018+)
   templates. Please consider using a more recent LaTeX environment.
   Verify with:
-  pdflatex --interaction=batchmode "\RequirePackage{pdfx}[2018/12/22]"
+  pdflatex --interaction=batchmode "\\RequirePackage{pdfx}[2018/12/22]"
 +------------------------------------------------------------------------------+
 EOL
 }
