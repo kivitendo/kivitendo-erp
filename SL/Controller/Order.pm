@@ -451,14 +451,22 @@ sub action_preview_pdf {
 sub action_save_and_show_email_dialog {
   my ($self) = @_;
 
-  my $errors = $self->save();
+  my $is_final_version = $::instance_conf->get_lock_oe_subversions    ?  # conf enabled
+                         $self->order->id                             ?  # is saved
+                         $self->order->is_final_version               :  # is final
+                         undef                                        :  # is not final
+                         undef;                                          # conf disabled
 
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
+  if (!$is_final_version) {
+    my $errors = $self->save();
+
+    if (scalar @{ $errors }) {
+      $self->js->flash('error', $_) foreach @{ $errors };
+      return $self->js->render();
+    }
+
+    $self->js_reset_order_and_item_ids_after_save;
   }
-
-  $self->js_reset_order_and_item_ids_after_save;
 
   my $cv_method = $self->cv;
 
@@ -506,6 +514,7 @@ sub action_save_and_show_email_dialog {
                                   is_customer   => $self->cv eq 'customer',
                                   ALL_EMPLOYEES => \@employees_with_email,
                                   ALL_PARTNER_EMAIL_ADDRESSES => $all_partner_email_addresses,
+                                  is_final_version => $is_final_version,
   );
 
   $self->js
@@ -518,15 +527,23 @@ sub action_save_and_show_email_dialog {
 sub action_send_email {
   my ($self) = @_;
 
-  my $errors = $self->save();
+  my $is_final_version = $::instance_conf->get_lock_oe_subversions    ?  # conf enabled
+                         $self->order->id                             ?  # is saved
+                         $self->order->is_final_version               :  # is final
+                         undef                                        :  # is not final
+                         undef;                                          # conf disabled
 
-  if (scalar @{ $errors }) {
-    $self->js->run('kivi.Order.close_email_dialog');
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
+  if (!$is_final_version) {
+    my $errors = $self->save();
+
+    if (scalar @{ $errors }) {
+      $self->js->run('kivi.Order.close_email_dialog');
+      $self->js->flash('error', $_) foreach @{ $errors };
+      return $self->js->render();
+    }
+
+    $self->js_reset_order_and_item_ids_after_save;
   }
-
-  $self->js_reset_order_and_item_ids_after_save;
 
   my @redirect_params = (
     action => 'edit',
@@ -575,7 +592,11 @@ sub action_send_email {
                                  print_variant => $::form->{formname});
   }
 
-  if ($::form->{attachment_policy} ne 'no_file' && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
+  if ($is_final_version && $::form->{attachment_policy} eq 'old_file' && !$attfile) {
+    $::form->error(t8('Re-sending a final version was requested, but the latest version of the document could not be found'));
+  }
+
+  if (!$is_final_version && $::form->{attachment_policy} ne 'no_file' && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
     my $doc;
     my @errors = $self->generate_doc(\$doc, {media      => $::form->{media},
                                              format     => $::form->{print_options}->{format},
@@ -620,7 +641,7 @@ sub action_send_email {
     $self->order->update_attributes(intnotes => $intnotes);
   }
 
-  if ($::instance_conf->get_lock_oe_subversions) {
+  if ($::instance_conf->get_lock_oe_subversions && !$is_final_version) {
     my $file_id;
     if ($::instance_conf->get_doc_storage && $::form->{attachment_policy} ne 'no_file') {
       # self is generated on the fly. form is a file from the dms
@@ -2403,7 +2424,7 @@ sub setup_edit_action_bar {
                     : $is_final_version ? t8('This record is the final version. Please create a new sub-version') : undef,
         ],
         action => [
-          t8('Save and E-mail'),
+          ($is_final_version ? t8('E-mail') : t8('Save and E-mail')),
           id       => 'save_and_email_action',
           call     => [ 'kivi.Order.save', { action             => 'save_and_show_email_dialog',
                                              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
@@ -2411,7 +2432,7 @@ sub setup_edit_action_bar {
           ],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : !$self->order->id ? t8('This object has not been saved yet.')
-                    : $is_final_version ? t8('This record is the final version. Please create a new sub-version') : undef,
+                    : undef,
         ],
         action => [
           t8('Download attachments of all parts'),

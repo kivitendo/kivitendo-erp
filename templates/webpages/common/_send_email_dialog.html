@@ -23,6 +23,10 @@
   [% END %]
 [% END %]
 
+[%- IF is_final_version %]
+  <div class="flash_message_warning">[% LxERP.t8('This record is the final version. Changes have not been saved') %]</div>
+[%- END %]
+
 <table>
  <tbody>
   <tr>
@@ -90,13 +94,20 @@
   <tr>
    <th align="right" nowrap>[% LxERP.t8("Send printout of record") %]</th>
    <td>
-    [% SET no_file_label = have_files ? LxERP.t8("Don't include a printout of the record with the email, only selected files") : LxERP.t8("Don't include a printout of the record with the email") ;
-           options       = [
+    [% SET no_file_label = have_files ? LxERP.t8("Don't include a printout of the record with the email, only selected files") : LxERP.t8("Don't include a printout of the record with the email") %]
+      [%- IF is_final_version %]
+        [% options       = [
+             [ "old_file", LxERP.t8("Send the last version for this record") ],
+             [ "no_file",  no_file_label ],
+           ] %]
+      [%- ELSE %]
+        [% options       = [
              [ "old_file", LxERP.t8("Send the last or create the first version for this record") ],
              [ "normal",   LxERP.t8("Create and send a new printout for this record") ],
              [ "no_file",  no_file_label ],
-           ] ;
-       L.select_tag("email_form.attachment_policy", options, onchange="kivi.SalesPurchase.activate_send_email_actions_regarding_printout()") %]
+           ] %]
+      [%- END %]
+      [% L.select_tag("email_form.attachment_policy", options, onchange="kivi.SalesPurchase.activate_send_email_actions_regarding_printout()") %]
    </td>
   </tr>
 [% END %]
