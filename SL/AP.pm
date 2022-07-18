@@ -720,6 +720,26 @@ SQL
 
   $form->{AP} = [ @result ];
 
+  if ($form->{l_items} && scalar @{ $form->{AP} }) {
+    my ($items_query, $items_sth);
+    if ($form->{l_items}) {
+      $items_query =
+        qq|SELECT id
+          FROM invoice
+          WHERE trans_id  = ?
+          ORDER BY position|;
+
+      $items_sth = prepare_query($form, $dbh, $items_query);
+    }
+
+    foreach my $ap (@{ $form->{AP} }) {
+      do_statement($form, $items_sth, $items_query, $ap->{id});
+      $ap->{item_ids} = $dbh->selectcol_arrayref($items_sth);
+      $ap->{item_ids} = undef if !@{$ap->{item_ids}};
+    }
+    $items_sth->finish();
+  }
+
   $main::lxdebug->leave_sub();
 }
 

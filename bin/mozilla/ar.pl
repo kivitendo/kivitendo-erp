@@ -48,12 +48,14 @@ use SL::DB::Currency;
 use SL::DB::Default;
 use SL::DB::Employee;
 use SL::DB::Invoice;
+use SL::DB::InvoiceItem;
 use SL::DB::RecordTemplate;
 use SL::DB::Tax;
 use SL::Helper::Flash qw(flash flash_later);
 use SL::Locale::String qw(t8);
 use SL::Presenter::Tag;
 use SL::Presenter::Chart;
+use SL::Presenter::ItemsList;
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
@@ -1028,7 +1030,8 @@ sub ar_transactions {
     qw(ids transdate id type invnumber ordnumber cusordnumber donumber deliverydate name netamount tax amount paid
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
        marge_total marge_percent globalprojectnumber customernumber country ustid taxzone
-       payment_terms charts customertype direct_debit dunning_description department attachments);
+       payment_terms charts customertype direct_debit dunning_description department attachments
+       items);
 
   my $ct_cvar_configs                 = CVar->get_configs('module' => 'CT');
   my @ct_includeable_custom_variables = grep { $_->{includeable} } @{ $ct_cvar_configs };
@@ -1084,6 +1087,7 @@ sub ar_transactions {
     'department'              => { 'text' => $locale->text('Department'), },
     dunning_description       => { 'text' => $locale->text('Dunning level'), },
     attachments               => { 'text' => $locale->text('Attachments'), },
+    items                     => { 'text' => $locale->text('Positions'), },
     %column_defs_cvars,
   );
 
@@ -1252,6 +1256,8 @@ sub ar_transactions {
     my $row = { };
 
     foreach my $column (@columns) {
+      next if ($column eq 'items');
+
       $row->{$column} = {
         'data'  => $ar->{$column},
         'align' => $column_alignment{$column},
@@ -1279,6 +1285,12 @@ sub ar_transactions {
         $row->{attachments} = { };
       }
 
+    }
+
+    if ($form->{l_items}) {
+      my $items = SL::DB::Manager::InvoiceItem->get_all_sorted(where => [id => $ar->{item_ids}]);
+      $row->{items}->{raw_data}  = SL::Presenter::ItemsList::items_list($items)               if lc($report->{options}->{output_format}) eq 'html';
+      $row->{items}->{data}      = SL::Presenter::ItemsList::items_list($items, as_text => 1) if lc($report->{options}->{output_format}) ne 'html';
     }
 
     my $row_set = [ $row ];

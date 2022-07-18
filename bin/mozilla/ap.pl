@@ -47,11 +47,13 @@ use SL::DB::BankTransactionAccTrans;
 use SL::DB::Chart;
 use SL::DB::Currency;
 use SL::DB::Default;
+use SL::DB::InvoiceItem;
 use SL::DB::Order;
 use SL::DB::PaymentTerm;
 use SL::DB::PurchaseInvoice;
 use SL::DB::RecordTemplate;
 use SL::DB::Tax;
+use SL::Presenter::ItemsList;
 use SL::Webdav;
 use SL::Locale::String qw(t8);
 
@@ -1045,7 +1047,7 @@ sub ap_transactions {
     qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid
        due duedate transaction_description notes employee globalprojectnumber department
        vendornumber country ustid taxzone payment_terms charts debit_chart direct_debit
-       insertdate);
+       insertdate items);
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id
@@ -1082,6 +1084,7 @@ sub ap_transactions {
     'debit_chart'             => { 'text' => $locale->text('Debit Account'), },
     'direct_debit'            => { 'text' => $locale->text('direct debit'), },
     'insertdate'              => { 'text' => $locale->text('Insert Date'), },
+    'items'                   => { 'text' => $locale->text('Positions'), },
   );
 
   foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description direct_debit department taxzone)) {
@@ -1176,6 +1179,8 @@ sub ap_transactions {
     my $row = { };
 
     foreach my $column (@columns) {
+      next if ($column eq 'items');
+
       $row->{$column} = {
         'data'  => $ap->{$column},
         'align' => $column_alignment{$column},
@@ -1184,6 +1189,12 @@ sub ap_transactions {
 
     $row->{invnumber}->{link} = build_std_url("script=" . ($ap->{invoice} ? 'ir.pl' : 'ap.pl'), 'action=edit')
       . "&id=" . E($ap->{id}) . "&callback=${callback}";
+
+    if ($form->{l_items}) {
+      my $items = SL::DB::Manager::InvoiceItem->get_all_sorted(where => [id => $ap->{item_ids}]);
+      $row->{items}->{raw_data}  = SL::Presenter::ItemsList::items_list($items)               if lc($report->{options}->{output_format}) eq 'html';
+      $row->{items}->{data}      = SL::Presenter::ItemsList::items_list($items, as_text => 1) if lc($report->{options}->{output_format}) ne 'html';
+    }
 
     my $row_set = [ $row ];
 
