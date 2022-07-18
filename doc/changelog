@@ -18,7 +18,9 @@ Mittelgroße neue Features:
    Der Status kann in den Masken per Hand gesetzt werden. Es erfolgt
    keine automatische Statusänderung. In den Berichten kann der Status
    angezeigt werden und es kann danach gefiltert werden.
-
+ - Informationen über Positionen in Belegberichten können in einer eigenen
+   Spalte angezeigt werden. Es wird zuerst nur die erste Position angezeigt,
+   die Information weiterer Positionen lässt sich aus- und einklappen.
 
 2022-05-20 - Release 3.6.1
 
