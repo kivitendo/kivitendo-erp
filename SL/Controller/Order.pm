@@ -51,7 +51,10 @@ use Sort::Naturally;
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(item_ids_to_delete is_custom_shipto_to_delete) ],
- 'scalar --get_set_init' => [ qw(order valid_types type cv p all_price_factors search_cvpartnumber show_update_button part_picker_classification_ids) ],
+ 'scalar --get_set_init' => [ qw(order valid_types type cv p all_price_factors
+                              search_cvpartnumber show_update_button
+                              part_picker_classification_ids
+                              is_final_version) ],
 );
 
 
@@ -451,13 +454,7 @@ sub action_preview_pdf {
 sub action_save_and_show_email_dialog {
   my ($self) = @_;
 
-  my $is_final_version = $::instance_conf->get_lock_oe_subversions    ?  # conf enabled
-                         $self->order->id                             ?  # is saved
-                         $self->order->is_final_version               :  # is final
-                         undef                                        :  # is not final
-                         undef;                                          # conf disabled
-
-  if (!$is_final_version) {
+  if (!$self->is_final_version) {
     my $errors = $self->save();
 
     if (scalar @{ $errors }) {
@@ -514,7 +511,7 @@ sub action_save_and_show_email_dialog {
                                   is_customer   => $self->cv eq 'customer',
                                   ALL_EMPLOYEES => \@employees_with_email,
                                   ALL_PARTNER_EMAIL_ADDRESSES => $all_partner_email_addresses,
-                                  is_final_version => $is_final_version,
+                                  is_final_version => $self->is_final_version,
   );
 
   $self->js
@@ -527,13 +524,7 @@ sub action_save_and_show_email_dialog {
 sub action_send_email {
   my ($self) = @_;
 
-  my $is_final_version = $::instance_conf->get_lock_oe_subversions    ?  # conf enabled
-                         $self->order->id                             ?  # is saved
-                         $self->order->is_final_version               :  # is final
-                         undef                                        :  # is not final
-                         undef;                                          # conf disabled
-
-  if (!$is_final_version) {
+  if (!$self->is_final_version) {
     my $errors = $self->save();
 
     if (scalar @{ $errors }) {
@@ -592,11 +583,11 @@ sub action_send_email {
                                  print_variant => $::form->{formname});
   }
 
-  if ($is_final_version && $::form->{attachment_policy} eq 'old_file' && !$attfile) {
+  if ($self->is_final_version && $::form->{attachment_policy} eq 'old_file' && !$attfile) {
     $::form->error(t8('Re-sending a final version was requested, but the latest version of the document could not be found'));
   }
 
-  if (!$is_final_version && $::form->{attachment_policy} ne 'no_file' && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
+  if (!$self->is_final_version && $::form->{attachment_policy} ne 'no_file' && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
     my $doc;
     my @errors = $self->generate_doc(\$doc, {media      => $::form->{media},
                                              format     => $::form->{print_options}->{format},
@@ -641,7 +632,7 @@ sub action_send_email {
     $self->order->update_attributes(intnotes => $intnotes);
   }
 
-  if ($::instance_conf->get_lock_oe_subversions && !$is_final_version) {
+  if ($::instance_conf->get_lock_oe_subversions && !$self->is_final_version) {
     my $file_id;
     if ($::instance_conf->get_doc_storage && $::form->{attachment_policy} ne 'no_file') {
       # self is generated on the fly. form is a file from the dms
@@ -1566,6 +1557,20 @@ sub init_part_picker_classification_ids {
   return [ map { $_->id } @{ SL::DB::Manager::PartClassification->get_all(where => [ $attribute => 1 ]) } ];
 }
 
+sub init_is_final_version {
+  # VALID States for current Sales Version
+  # 1. save create version without email_id             -> open
+  # 2. send email set email_id for version 1            -> final
+  # 3. save and subversion new version without email_id -> open
+  # 4. send email set email_id for current subversion   -> final
+  # for all versions > 1 set postfix -2 .. -n for recordnumber
+  return $::instance_conf->get_lock_oe_subversions    ?  # conf enabled
+         $_[0]->order->id                             ?  # is saved
+         $_[0]->order->is_final_version               :  # is final
+         undef                                        :  # is not final
+         undef;                                          # conf disabled
+}
+
 sub check_auth {
   my ($self) = @_;
 
@@ -2236,17 +2241,8 @@ sub setup_edit_action_bar {
   my $right             = $right_for->{ $self->type };
   $right              ||= 'DOES_NOT_EXIST';
   my $may_edit_create   = $::auth->assert($right, 'may fail');
-  # VALID States for current Sales Version
-  # 1. save create version without email_id             -> open
-  # 2. send email set email_id for version 1            -> final
-  # 3. save and subversion new version without email_id -> open
-  # 4. send email set email_id for current subversion   -> final
-  # for all versions > 1 set postfix -2 .. -n for recordnumber
-  my $is_final_version = $::instance_conf->get_lock_oe_subversions    ?  # conf enabled
-                         $self->order->id                             ?  # is saved
-                         $self->order->is_final_version               :  # is final
-                         undef                                        :  # is not final
-                         undef;                                          # conf disabled
+
+  my $is_final_version = $self->is_final_version;
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
