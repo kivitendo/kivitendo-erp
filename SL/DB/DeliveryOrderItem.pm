@@ -3,6 +3,7 @@ package SL::DB::DeliveryOrderItem;
 use strict;
 
 use SL::DB::MetaSetup::DeliveryOrderItem;
+use SL::DB::Manager::DeliveryOrderItem;
 use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::RecordItem;
@@ -16,8 +17,6 @@ use SL::DB::Helper::CustomVariables (
     }
   },
 );
-
-__PACKAGE__->meta->make_manager_class;
 
 __PACKAGE__->meta->add_relationship(
   delivery_order_stock_entries => {
