@@ -268,13 +268,31 @@ SQL
 
     my $sth = prepare_query($form, $dbh, $query);
 
+
+    my ($items_query, $items_sth);
+    if ($form->{l_items}) {
+      $items_query =
+        qq|SELECT id
+          FROM delivery_order_items
+          WHERE delivery_order_id = ?
+          ORDER BY position|;
+
+      $items_sth = prepare_query($form, $dbh, $items_query);
+    }
+
     foreach my $dord (@{ $form->{DO} }) {
+      if ($form->{l_items}) {
+        do_statement($form, $items_sth, $items_query, $dord->{id});
+        $dord->{item_ids} = $dbh->selectcol_arrayref($items_sth);
+      }
+
       next unless ($dord->{ordnumber});
       do_statement($form, $sth, $query, $dord->{ordnumber});
       ($dord->{oe_id}) = $sth->fetchrow_array();
     }
 
     $sth->finish();
+    $items_sth->finish() if $form->{l_items};
   }
 
   $main::lxdebug->leave_sub();

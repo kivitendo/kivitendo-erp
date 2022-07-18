@@ -38,6 +38,7 @@ use POSIX qw(strftime);
 
 use SL::Controller::DeliveryOrder;
 use SL::DB::DeliveryOrder;
+use SL::DB::DeliveryOrderItem;
 use SL::DB::DeliveryOrder::TypeData qw(:types validate_type);
 use SL::DB::ValidityToken;
 use SL::Helper::UserPreferences::DisplayPreferences;
@@ -45,6 +46,7 @@ use SL::DO;
 use SL::IR;
 use SL::IS;
 use SL::MoreCommon qw(ary_diff restore_form save_form);
+use SL::Presenter::ItemsList;
 use SL::ReportGenerator;
 use SL::WH;
 use SL::YAML;
@@ -753,7 +755,7 @@ sub orders {
     shipvia                 globalprojectnumber
     transaction_description department
     open                    delivered
-    insertdate
+    insertdate              items
   );
 
   $form->{l_open}      = $form->{l_closed} = "Y" if ($form->{open}      && $form->{closed});
@@ -792,6 +794,7 @@ sub orders {
     'delivered'               => { 'text' => $locale->text('Delivered'), },
     'department'              => { 'text' => $locale->text('Department'), },
     'insertdate'              => { 'text' => $locale->text('Insert Date'), },
+    'items'                   => { 'text' => $locale->text('Positions'), },
   );
 
   foreach my $name (qw(id transdate reqdate donumber ordnumber name employee salesman shipvia transaction_description department insertdate)) {
@@ -914,7 +917,7 @@ sub orders {
     $dord->{open}      = $dord->{closed}    ? $locale->text('No')  : $locale->text('Yes');
     $dord->{delivered} = $dord->{delivered} ? $locale->text('Yes') : $locale->text('No');
 
-    my $row = { map { $_ => { 'data' => $dord->{$_} } } @columns };
+    my $row = { map { $_ => { 'data' => $dord->{$_} } } grep {$_ ne 'items'} @columns };
 
     my $ord_id = $dord->{id};
     $row->{ids}  = {
@@ -928,6 +931,13 @@ sub orders {
                               ? SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id}, type => $dord->{order_type})
                               : $edit_url  . "&id=" . E($dord->{id})      . "&callback=${callback}";
     $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
+
+    if ($form->{l_items}) {
+      my $items = SL::DB::Manager::DeliveryOrderItem->get_all_sorted(where => [id => $dord->{item_ids}]);
+      $row->{items}->{raw_data}  = SL::Presenter::ItemsList::items_list($items)               if lc($report->{options}->{output_format}) eq 'html';
+      $row->{items}->{data}      = SL::Presenter::ItemsList::items_list($items, as_text => 1) if lc($report->{options}->{output_format}) ne 'html';
+    }
+
     $report->add_data($row);
 
     $idx++;
