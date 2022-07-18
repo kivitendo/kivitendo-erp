@@ -2205,12 +2205,14 @@ sub report_for_todo_list {
   my $content;
 
   if (@{ $quotations }) {
+    my $callback = build_std_url('action');
     my $edit_url = ($::instance_conf->get_feature_experimental_order)
-                 ? build_std_url('script=controller.pl', 'action=Order/edit')
-                 : build_std_url('script=oe.pl', 'action=edit');
+                 ? build_std_url('script=controller.pl', 'action=Order/edit', 'callback=' . E($callback))
+                 : build_std_url('script=oe.pl', 'action=edit', 'callback=' . E($callback));
 
     $content     = $form->parse_html_template('oe/report_for_todo_list', { 'QUOTATIONS' => $quotations,
-                                                                           'edit_url'   => $edit_url });
+                                                                           'edit_url'   => $edit_url,
+                                                                           'callback'   => $callback });
   }
 
   $main::lxdebug->leave_sub();

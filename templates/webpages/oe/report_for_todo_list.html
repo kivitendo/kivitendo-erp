@@ -1,9 +1,14 @@
 [%- USE T8 %]
-[% USE HTML %][% USE LxERP %]
+[% USE HTML %][% USE LxERP %][% USE P %]
 <h1>[% 'Overdue sales quotations and requests for quotations' | $T8 %]</h1>
+
+<form method="post" action="controller.pl" id="todo_quotations_form">
+  [% P.hidden_tag('action', 'Order/dispatch') %]
+  [% P.hidden_tag('callback', HTML.escape(callback)) %]
 
  <table width="100%">
   <tr>
+   <td class="listheading">&nbsp;</td>
    <td class="listheading">[% 'Date' | $T8 %]</td>
    <td class="listheading">[% 'Valid until' | $T8 %]</td>
    <td class="listheading">[% 'Sales quotation' | $T8 %] / [% 'Request quotation' | $T8 %]</td>
@@ -14,7 +19,14 @@
   </tr>
 
   [%- FOREACH row = QUOTATIONS %]
+  [%- SET RIGHT_TO_EDIT = ((row.vc == 'customer' && AUTH.assert('sales_quotation_edit', 1)) || (row.vc == 'vendor' && AUTH.assert('request_quotation_edit', 1))) %]
+
   <tr class="listrow[% loop.count % 2 %]">
+   <td>
+    [%- IF RIGHT_TO_EDIT %]
+     [% P.checkbox_tag("ids[]", value=HTML.escape(row.id), checked="0") %]
+    [%- END %]
+   </td>
    <td>[% HTML.escape(row.transdate) %]</td>
    <td>[% HTML.escape(row.reqdate) %]</td>
    <td>
@@ -40,3 +52,8 @@
   </tr>
   [%- END %]
  </table>
+
+ <p>
+  [% P.submit_tag('action_close_quotations', LxERP.t8('Close Quotations')) %]
+ </p>
+</form>

@@ -59,10 +59,11 @@ use Rose::Object::MakeMethods::Generic
 
 
 # safety
-__PACKAGE__->run_before('check_auth');
+__PACKAGE__->run_before('check_auth',
+                        except => [ qw(close_quotations) ]);
 
 __PACKAGE__->run_before('check_auth_for_edit',
-                        except => [ qw(edit show_customer_vendor_details_dialog price_popup load_second_rows) ]);
+                        except => [ qw(edit show_customer_vendor_details_dialog price_popup load_second_rows close_quotations) ]);
 
 __PACKAGE__->run_before('recalc',
                         only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment
@@ -1378,6 +1379,55 @@ sub action_delete_phone_note {
     ->flash('info', t8('Phone note has been deleted.'))
     ->reinit_widgets
     ->render;
+}
+
+sub action_close_quotations {
+  my ($self) = @_;
+
+  my @redirect_params = $::form->{callback} ? ($::form->{callback})
+                                            : (controller => 'LoginScreen', action => 'user_login');
+
+  if (!$::form->{ids} || !@{$::form->{ids}}) {
+    flash_later('info', t8('Nothing selected!'));
+    $self->redirect_to(@redirect_params);
+    $::dispatcher->end_request;
+  }
+
+  my $sales_quotations   = SL::DB::Manager::Order->get_all(where => [id            => $::form->{ids},
+                                                                     or             => [closed => 0, closed => undef],
+                                                                     quotation      => 1,
+                                                                     '!customer_id' => undef]);
+
+  my $request_quotations = SL::DB::Manager::Order->get_all(where => [id            => $::form->{ids},
+                                                                     or             => [closed => 0, closed => undef],
+                                                                     quotation      => 1,
+                                                                     '!vendor_id'   => undef]);
+
+  $::auth->assert('sales_quotation_edit')   if scalar @$sales_quotations;
+  $::auth->assert('request_quotation_edit') if scalar @$request_quotations;
+
+  my $employee_id = SL::DB::Manager::Employee->current->id;
+  SL::DB->client->with_transaction(sub {
+    SL::DB::Manager::Order->update_all(set   => {closed => 1},
+                                       where => [id => $::form->{ids}]);
+
+    foreach my $quotation (@$sales_quotations, @$request_quotations) {
+      SL::DB::History->new(
+        trans_id    => $quotation->id,
+        employee_id => $employee_id,
+        what_done   => $quotation->type,
+        snumbers    => 'quonumber_' . $quotation->number,
+        addition    => 'SAVED',
+      )->save;
+    }
+
+    1;
+  }) || do {
+    $::form->error(t8('Closing the selected quotations failed: #1', SL::DB->client->error));
+  };
+
+  flash_later('info', t8('The selected quotations where closed.'));
+  $self->redirect_to(@redirect_params);
 }
 
 sub js_load_second_row {
