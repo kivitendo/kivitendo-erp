@@ -644,9 +644,8 @@ sub generate_qr_code {
     'iban' => $qr_account->{'iban'}
   );
 
-  my $biller_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code(
-    $::instance_conf->get_address_country()
-  );
+  my $biller_country = $::instance_conf->get_address_country() || 'CH';
+  my $biller_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($biller_country);
   if (!$biller_countrycode) {
     $::form->error($::locale->text('Error mapping biller countrycode.'));
   }
@@ -670,8 +669,8 @@ sub generate_qr_code {
     'currency' => $form->{'currency'},
   );
 
-  my $country = $form->{'country'} || 'CH';
-  my $customer_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($country);
+  my $customer_country = $form->{'country'} || 'CH';
+  my $customer_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($customer_country);
   if (!$customer_countrycode) {
     $::form->error($::locale->text('Error mapping customer countrycode.'));
   }
