@@ -40,7 +40,7 @@ sub get_user_config {
     $cfg = { map { $_ => 1 } qw(show_after_login show_follow_ups show_follow_ups_login show_overdue_sales_quotations show_overdue_sales_quotations_login) };
   }
 
-  if (! $main::auth->check_right($params{login}, 'sales_quotation_edit')) {
+  if (! $main::auth->check_right($params{login}, 'sales_quotation_edit | sales_quotation_view | request_quotation_edit | request_quotation_view')) {
     map { delete $cfg->{$_} } qw(show_overdue_sales_quotations show_overdue_sales_quotations_login);
   }
 

@@ -504,6 +504,11 @@ sub transactions_for_todo_list {
   my $query    = qq|SELECT id FROM employee WHERE login = ?|;
   my ($e_id)   = selectrow_query($form, $dbh, $query, $::myconfig{login});
 
+  my $sales_purchase_filter  = 'AND (1 = 0';
+  $sales_purchase_filter    .= $params{sales}    ? qq| OR customer_id IS NOT NULL| : '';
+  $sales_purchase_filter    .= $params{purchase} ? qq| OR vendor_id   IS NOT NULL| : '';
+  $sales_purchase_filter    .= ')';
+
   $query       =
     qq|SELECT oe.id, oe.transdate, oe.reqdate, oe.quonumber, oe.transaction_description, oe.amount,
          CASE WHEN (COALESCE(oe.customer_id, 0) = 0) THEN 'vendor' ELSE 'customer' END AS vc,
@@ -519,6 +524,7 @@ sub transactions_for_todo_list {
          AND ((oe.employee_id = ?) OR (oe.salesman_id = ?))
          AND NOT (oe.reqdate ISNULL)
          AND (oe.reqdate < current_date)
+         $sales_purchase_filter
        ORDER BY transdate|;
 
   my $quotations = selectall_hashref_query($form, $dbh, $query, $e_id, $e_id);

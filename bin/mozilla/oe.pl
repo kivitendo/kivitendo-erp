@@ -2199,7 +2199,9 @@ sub report_for_todo_list {
 
   my $form     = $main::form;
 
-  my $quotations = OE->transactions_for_todo_list();
+  my $is_for_sales    = $::auth->assert($oe_view_access_map->{'sales_quotation'},   'may fail');
+  my $is_for_purchase = $::auth->assert($oe_view_access_map->{'request_quotation'}, 'may fail');
+  my $quotations      = OE->transactions_for_todo_list(sales => $is_for_sales, purchase => $is_for_purchase);
   my $content;
 
   if (@{ $quotations }) {
