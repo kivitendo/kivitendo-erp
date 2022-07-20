@@ -493,23 +493,23 @@ SQL
 sub transactions_for_todo_list {
   $main::lxdebug->enter_sub();
 
-  my $self     = shift;
-  my %params   = @_;
+  my $self                   = shift;
+  my %params                 = @_;
 
-  my $myconfig = \%main::myconfig;
-  my $form     = $main::form;
+  my $myconfig               = \%main::myconfig;
+  my $form                   = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh                    = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  my $query    = qq|SELECT id FROM employee WHERE login = ?|;
-  my ($e_id)   = selectrow_query($form, $dbh, $query, $::myconfig{login});
+  my $query                  = qq|SELECT id FROM employee WHERE login = ?|;
+  my ($e_id)                 = selectrow_query($form, $dbh, $query, $::myconfig{login});
 
   my $sales_purchase_filter  = 'AND (1 = 0';
   $sales_purchase_filter    .= $params{sales}    ? qq| OR customer_id IS NOT NULL| : '';
   $sales_purchase_filter    .= $params{purchase} ? qq| OR vendor_id   IS NOT NULL| : '';
   $sales_purchase_filter    .= ')';
 
-  $query       =
+  $query                     =
     qq|SELECT oe.id, oe.transdate, oe.reqdate, oe.quonumber, oe.transaction_description, oe.amount,
          CASE WHEN (COALESCE(oe.customer_id, 0) = 0) THEN 'vendor' ELSE 'customer' END AS vc,
          c.name AS customer,
