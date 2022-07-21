@@ -2833,6 +2833,8 @@ digits_year: 4</programlisting>
             Schweizer QR-Rechnung</emphasis> auf <emphasis
             role="bold">Ja</emphasis> gestellt werden.</para>
 
+            <para>Die IBAN muss ohne Leerzeichen angegeben werden.</para>
+            
             <tip>
               <para>Für die Variante <emphasis role="bold">QR-IBAN mit
               QR-Referenz</emphasis> muss dieses Konto unter IBAN eine gültige

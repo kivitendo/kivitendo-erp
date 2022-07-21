@@ -144,18 +144,18 @@
             Schweizer QR-Rechnung erzeugen</em></span>, die gewünschte Variante
             wählen.</p></div><div class="sect4" title="2.13.2.1.2. Konfiguration der Bankkonten"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2682"></a>2.13.2.1.2. Konfiguration der Bankkonten</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Bankkonten</em></span> muss bei
             mindestens einem Bankkonto die Option <span class="emphasis"><em>Nutzung mit
-            Schweizer QR-Rechnung</em></span> auf <span class="bold"><strong>Ja</strong></span> gestellt werden.</p><div class="tip" title="Tipp" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tipp]" src="system/docbook-xsl/images/tip.png"></td><th align="left">Tipp</th></tr><tr><td align="left" valign="top"><p>Für die Variante <span class="bold"><strong>QR-IBAN mit
+            Schweizer QR-Rechnung</em></span> auf <span class="bold"><strong>Ja</strong></span> gestellt werden.</p><p>Die IBAN muss ohne Leerzeichen angegeben werden.</p><div class="tip" title="Tipp" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tipp]" src="system/docbook-xsl/images/tip.png"></td><th align="left">Tipp</th></tr><tr><td align="left" valign="top"><p>Für die Variante <span class="bold"><strong>QR-IBAN mit
               QR-Referenz</strong></span> muss dieses Konto unter IBAN eine gültige
               <span class="bold"><strong>QR-IBAN Nummer</strong></span> enthalten. Diese
               unterscheidet sich von der regulären IBAN.</p><p>Zusätzlich muss eine gültige <span class="bold"><strong>Bankkonto
               Identifikationsnummer</strong></span> angegeben werden
               (6-stellig).</p><p>Diese werden von der jeweiligen Bank vergeben.</p></td></tr></table></div><p>Sind mehrere Konten ausgewählt wird das erste
-            verwendet.</p></div><div class="sect4" title="2.13.2.1.3. Rechnungen ohne Betrag"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2714"></a>2.13.2.1.3. Rechnungen ohne Betrag</h5></div></div></div><p>Für Rechnungen ohne Betrag (z.B. Spenden) kann, in der
+            verwendet.</p></div><div class="sect4" title="2.13.2.1.3. Rechnungen ohne Betrag"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2716"></a>2.13.2.1.3. Rechnungen ohne Betrag</h5></div></div></div><p>Für Rechnungen ohne Betrag (z.B. Spenden) kann, in der
             jeweiligen Rechnung, die Checkbox <span class="emphasis"><em>QR-Rechnung ohne
             Betrag</em></span> aktiviert werden. Diese Checkbox erscheint nur,
             wenn QR-Rechnungen in der Mandantenkonfiguration aktiviert sind
             (variante ausgewählt).</p><p>Dies wirkt sich lediglich auf den erzeugten QR-Code aus. Die
-            Vorlage muss separat angepasst und ausgewählt werden.</p></div></div><div class="sect3" title="2.13.2.2. Adressdaten"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2724"></a>2.13.2.2. Adressdaten</h4></div></div></div><p>Die Adressdaten zum Zahlungsempfänger werden aus der
+            Vorlage muss separat angepasst und ausgewählt werden.</p></div></div><div class="sect3" title="2.13.2.2. Adressdaten"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2726"></a>2.13.2.2. Adressdaten</h4></div></div></div><p>Die Adressdaten zum Zahlungsempfänger werden aus der
           Mandantenkonfiguration entnommen. Unter <span class="emphasis"><em>System →
           Mandantenkonfiguration → Verschiedenes</em></span>, Abschnitt
           <span class="emphasis"><em>Firmenname und -adresse.</em></span>
@@ -165,14 +165,14 @@
           z.B. "Schweiz" oder "CH".</p><p>Die Adressdaten können in der Vorlage mit den jeweiligen
           Variablen eingetragen werden. Siehe auch: <a class="xref" href="ch03s03.html" title="3.3. Dokumentenvorlagen und verfügbare Variablen">Abschnitt&nbsp;3.3, „Dokumentenvorlagen und verfügbare Variablen“</a>
                </p><p>Der erzeugte QR-Code verwendet Adress-Typ "K" (Kombinierte
-          Adressfelder, 2 Zeilen).</p></div><div class="sect3" title="2.13.2.3. Referenznummer"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2745"></a>2.13.2.3. Referenznummer</h4></div></div></div><p>Die Referenznummer wird in Kivitendo erzeugt und setzt sich
+          Adressfelder, 2 Zeilen).</p></div><div class="sect3" title="2.13.2.3. Referenznummer"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2747"></a>2.13.2.3. Referenznummer</h4></div></div></div><p>Die Referenznummer wird in Kivitendo erzeugt und setzt sich
           wiefolgt zusammen:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Bankkonto Identifikationsnummer (6-stellig)</p></li><li class="listitem"><p>Kundennummer (6-stellig, mit führenden Nullen
               aufgefüllt)</p></li><li class="listitem"><p>Auftragsnummer (7-stellig, mit führenden Nullen
               aufgefüllt)</p></li><li class="listitem"><p>Rechnungsnummer (7-stellig, mit führenden Nullen
               aufgefüllt)</p></li><li class="listitem"><p>Prüfziffer (1-stellig, berechnet mittels modulo 10,
               rekursiv)</p></li></ul></div><p>Es sind lediglich Ziffern erlaubt. Allfällige Prefixe mit
           Buchstaben werden entfernt und fehlende Stellen werden mit führenden
-          Nullen aufgefüllt.</p></div><div class="sect3" title="2.13.2.4. Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2768"></a>2.13.2.4. Vorlage</h4></div></div></div><p>Der Vorlagensatz "rev-odt" enthält die Vorlage
+          Nullen aufgefüllt.</p></div><div class="sect3" title="2.13.2.4. Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2770"></a>2.13.2.4. Vorlage</h4></div></div></div><p>Der Vorlagensatz "rev-odt" enthält die Vorlage
           <code class="literal">invoice_qr.odt</code>, welche für die Erstellung von
           QR-Rechnungen vorgesehen ist. Damit diese verwendet werden kann muss
           wie obenstehend beschrieben ein Drucker hinzugefügt werden, allerdings
@@ -187,7 +187,7 @@
           <span class="emphasis"><em>Bild-Kontextmenü → </em></span>
                   <span class="emphasis"><em>Einstellungen →
           Optionen → Name</em></span> einstellbar. Siehe dazu auch die
-          Beispielvorlage.</p><div class="sect4" title="2.13.2.4.1. Zusätzliche Variablen für Vorlage"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2798"></a>2.13.2.4.1. Zusätzliche Variablen für Vorlage</h5></div></div></div><p>Zusätzlich zu den in der Vorlage standardmässig verfügbaren
+          Beispielvorlage.</p><div class="sect4" title="2.13.2.4.1. Zusätzliche Variablen für Vorlage"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2800"></a>2.13.2.4.1. Zusätzliche Variablen für Vorlage</h5></div></div></div><p>Zusätzlich zu den in der Vorlage standardmässig verfügbaren
             Variablen (siehe <a class="xref" href="ch03s03.html" title="3.3. Dokumentenvorlagen und verfügbare Variablen">Abschnitt&nbsp;3.3, „Dokumentenvorlagen und verfügbare Variablen“</a>),
             werden die folgenden Variablen erzeugt:</p><div class="variablelist"><dl><dt><span class="term">ref_number_formatted</span></dt><dd><p>Referenznummer formatiert mit Leerzeichen, z.B.: 21 00000
                   00003 13947 14300 09017</p></dd><dt><span class="term">iban_formatted</span></dt><dd><p>IBAN formatiert mit Leerzeichen</p></dd><dt><span class="term">amount_formatted</span></dt><dd><p>Betrag formatiert mit Tausendertrennzeichen Leerschlag,
