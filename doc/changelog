@@ -26,6 +26,10 @@ Kleinere neue Features und Detailverbesserungen:
 
  - Angebote/Preisanfragen können aus der Aufgabenliste (auch auf dem
    Startbildschrim) heraus geschlossen werden.
+ - Schweizer QR-Rechnungen: Bei den Adressdaten für Kunden und Rechnungssteller wird
+   Schweiz als Standardwert verwendet. Es werden nur noch Druckvorlagen welche 'qr' im
+   Vorlagenkürzel enthalten für die QR-Rechnung verwendet, dies ermöglicht die gleichzeitige
+   Verwendung von QR und nicht-QR Rechnungen.
 
 2022-05-20 - Release 3.6.1
 
