@@ -344,6 +344,7 @@ sub new_from {
     { from => 'sales_order',       to => 'sales_quotation',   abbr => 'sosq' },
     { from => 'purchase_order',    to => 'request_quotation', abbr => 'porq' },
     { from => 'request_quotation', to => 'sales_quotation',   abbr => 'rqsq' },
+    { from => 'request_quotation', to => 'sales_order',       abbr => 'rqso' },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") if !$from_to;
@@ -371,7 +372,7 @@ sub new_from {
                employee  => SL::DB::Manager::Employee->current,
             );
 
-  if ( $is_abbr_any->(qw(sopo poso)) ) {
+  if ( $is_abbr_any->(qw(sopo poso rqso)) ) {
     $args{ordnumber} = undef;
     $args{quonumber} = undef;
     $args{reqdate}   = DateTime->today_local->next_workday();
@@ -433,7 +434,7 @@ sub new_from {
       $current_oe_item->sellprice($source_item->lastcost);
       $current_oe_item->discount(0);
     }
-    if ( $is_abbr_any->(qw(poso rqsq)) ) {
+    if ( $is_abbr_any->(qw(poso rqsq rqso)) ) {
       $current_oe_item->lastcost($source_item->sellprice);
     }
     $current_oe_item->{"converted_from_orderitems_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::Order';

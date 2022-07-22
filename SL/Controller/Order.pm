@@ -2302,7 +2302,7 @@ sub setup_edit_action_bar {
           t8('Save and Sales Order'),
           call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => sales_order_type()), '#order_form' ],
           checks   => [ @req_trans_cost_art ],
-          only_if  => (any { $self->type eq $_ } (sales_quotation_type(), purchase_order_type())),
+          only_if  => (any { $self->type eq $_ } (sales_quotation_type(), request_quotation_type(), purchase_order_type())),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
