@@ -851,6 +851,9 @@ sub action_order_workflow {
 
   my $destination_type = $::form->{to_type} ? $::form->{to_type} : '';
 
+  my $from_side        = $self->order->is_sales ? 'sales' : 'purchase';
+  my $to_side          = (any { $destination_type eq $_ } (sales_order_type(), sales_quotation_type())) ? 'sales' : 'purchase';
+
   # check for direct delivery
   # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
   my $custom_shipto;
@@ -861,8 +864,9 @@ sub action_order_workflow {
 
   $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
 
-  # no linked records from order to quotations
-  if (any { $destination_type eq $_ } (sales_quotation_type(), request_quotation_type())) {
+  # no linked records to quotations from the same side (sales -> sales or purchase -> purchase)
+  if (    (any { $destination_type eq $_ } (sales_quotation_type(), request_quotation_type()))
+       && $from_side eq $to_side) {
     delete $::form->{id};
     delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);
   } else {
@@ -2285,7 +2289,7 @@ sub setup_edit_action_bar {
           t8('Save and Quotation'),
           call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => sales_quotation_type()), '#order_form' ],
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
-          only_if  => (any { $self->type eq $_ } (sales_order_type())),
+          only_if  => (any { $self->type eq $_ } (sales_order_type(), request_quotation_type())),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [

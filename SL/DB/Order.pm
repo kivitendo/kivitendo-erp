@@ -343,6 +343,7 @@ sub new_from {
     { from => 'purchase_order',    to => 'sales_order',       abbr => 'poso' },
     { from => 'sales_order',       to => 'sales_quotation',   abbr => 'sosq' },
     { from => 'purchase_order',    to => 'request_quotation', abbr => 'porq' },
+    { from => 'request_quotation', to => 'sales_quotation',   abbr => 'rqsq' },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") if !$from_to;
@@ -381,13 +382,13 @@ sub new_from {
     $args{payment_id}       = undef;
     $args{delivery_term_id} = undef;
   }
-  if ( $is_abbr_any->(qw(poso)) ) {
+  if ( $is_abbr_any->(qw(poso rqsq)) ) {
     $args{vendor_id} = undef;
   }
   if ( $is_abbr_any->(qw(soso)) ) {
     $args{periodic_invoices_config} = $source->periodic_invoices_config->clone_and_reset if $source->periodic_invoices_config;
   }
-  if ( $is_abbr_any->(qw(sosq porq)) ) {
+  if ( $is_abbr_any->(qw(sosq porq rqsq)) ) {
     $args{ordnumber} = undef;
     $args{quonumber} = undef;
     $args{reqdate}   = DateTime->today_local->next_workday();
@@ -432,7 +433,7 @@ sub new_from {
       $current_oe_item->sellprice($source_item->lastcost);
       $current_oe_item->discount(0);
     }
-    if ( $is_abbr_any->(qw(poso)) ) {
+    if ( $is_abbr_any->(qw(poso rqsq)) ) {
       $current_oe_item->lastcost($source_item->sellprice);
     }
     $current_oe_item->{"converted_from_orderitems_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::Order';
