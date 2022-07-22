@@ -65,16 +65,6 @@ __PACKAGE__->run_before('check_auth',
 __PACKAGE__->run_before('check_auth_for_edit',
                         except => [ qw(edit show_customer_vendor_details_dialog price_popup load_second_rows close_quotations) ]);
 
-__PACKAGE__->run_before('recalc',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment
-                                     save_and_final_invoice save_and_ap_transaction add_subversion
-                                     print send_email) ]);
-
-__PACKAGE__->run_before('get_unalterable_data',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_invoice_for_advance_payment
-                                     save_and_final_invoice save_and_ap_transaction add_subversion
-                                     print send_email) ]);
-
 #
 # actions
 #
@@ -2003,6 +1993,9 @@ sub delete {
 # And delete items that are deleted in the form.
 sub save {
   my ($self) = @_;
+
+  $self->recalc();
+  $self->get_unalterable_data();
 
   my $errors = [];
   my $db     = $self->order->db;
