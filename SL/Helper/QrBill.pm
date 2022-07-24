@@ -86,47 +86,93 @@ sub _init_check {
     die "field '$elem' in group '$group' $error", "\n" if defined $error;
   };
 
+  my %regexes = (
+    'biller information' => [
+      [ 'iban', qr{^(?:CH|LI)[0-9a-zA-Z]{19}$} ],
+    ],
+    'biller data' => [
+      [ 'address_type', qr{^[KS]$}     ],
+      [ 'company',      qr{^.{1,70}$}  ],
+      [ 'address_row1', qr{^.{0,70}$}  ],
+      [ 'address_row2', qr{^.{0,70}$}  ],
+      [ 'street',       qr{^.{0,70}$}  ],
+      [ 'street_no',    qr{^.{0,16}$}  ],
+      [ 'postalcode',   qr{^.{0,16}$}  ],
+      [ 'city',         qr{^.{0,35}$}  ],
+      [ 'countrycode',  qr{^[A-Z]{2}$} ],
+    ],
+    'payment information' => [
+      [ 'amount',   qr{^(?:(?:0|[1-9][0-9]{0,8})\.[0-9]{2})?$} ],
+      [ 'currency', qr{^(?:CHF|EUR)$}                          ],
+    ],
+    'invoice recipient data' => [
+      [ 'address_type', qr{^[KS]$}     ],
+      [ 'name',         qr{^.{1,70}$}  ],
+      [ 'address_row1', qr{^.{0,70}$}  ],
+      [ 'address_row2', qr{^.{0,70}$}  ],
+      [ 'street',       qr{^.{0,70}$}  ],
+      [ 'street_no',    qr{^.{0,16}$}  ],
+      [ 'postalcode',   qr{^.{0,16}$}  ],
+      [ 'city',         qr{^.{0,35}$}  ],
+      [ 'countrycode',  qr{^[A-Z]{2}$} ],
+    ],
+    'reference number data' => [
+      [ 'type', qr{^(?:QRR|SCOR|NON)$} ],
+    ],
+  );
+
   my $group = 'biller information';
-  $check_re->($group, $biller_information, 'iban', qr{^(?:CH|LI)[0-9a-zA-Z]{19}$});
+  foreach my $re (@{$regexes{$group}}) {
+    $check_re->($group, $biller_information, @$re);
+  }
 
   $group = 'biller data';
-  $check_re->($group, $biller_data, 'address_type', qr{^[KS]$});
-  $check_re->($group, $biller_data, 'company', qr{^.{1,70}$});
-  if ($biller_data->{address_type} eq 'K') {
-    $check_re->($group, $biller_data, 'address_row1', qr{^.{0,70}$});
-    $check_re->($group, $biller_data, 'address_row2', qr{^.{0,70}$});
-  } elsif ($biller_data->{address_type} eq 'S') {
-    $check_re->($group, $biller_data, 'street', qr{^.{0,70}$});
-    $check_re->($group, $biller_data, 'street_no', qr{^.{0,16}$});
-    $check_re->($group, $biller_data, 'postalcode', qr{^.{0,16}$});
-    $check_re->($group, $biller_data, 'city', qr{^.{0,35}$});
+  foreach my $re (grep $_->[0] =~ /^(?:address_type|company)$/, @{$regexes{$group}}) {
+    $check_re->($group, $biller_data, @$re);
   }
-  $check_re->($group, $biller_data, 'countrycode', qr{^[A-Z]{2}$});
+  if ($biller_data->{address_type} eq 'K') {
+    foreach my $re (grep $_->[0] =~ /^address_row[12]$/, @{$regexes{$group}}) {
+      $check_re->($group, $biller_data, @$re);
+    }
+  } elsif ($biller_data->{address_type} eq 'S') {
+    foreach my $re (grep $_->[0] =~ /^(?:street(?:_no)?|postalcode|city)$/, @{$regexes{$group}}) {
+      $check_re->($group, $biller_data, @$re);
+    }
+  }
+  foreach my $re (grep $_->[0] =~ /^countrycode$/, @{$regexes{$group}}) {
+    $check_re->($group, $biller_data, @$re);
+  }
 
   $group = 'payment information';
-  $check_re->($group, $payment_information, 'amount', qr{^(?:(?:0|[1-9][0-9]{0,8})\.[0-9]{2})?$});
-  $check_re->($group, $payment_information, 'currency', qr{^(?:CHF|EUR)$});
+  foreach my $re (@{$regexes{$group}}) {
+    $check_re->($group, $payment_information, @$re);
+  }
 
   $group = 'invoice recipient data';
-  $check_re->($group, $invoice_recipient_data, 'address_type', qr{^[KS]$});
-  $check_re->($group, $invoice_recipient_data, 'name', qr{^.{1,70}$});
-  if ($invoice_recipient_data->{address_type} eq 'K') {
-    $check_re->($group, $invoice_recipient_data, 'address_row1', qr{^.{0,70}$});
-    $check_re->($group, $invoice_recipient_data, 'address_row2', qr{^.{0,70}$});
-  } elsif ($invoice_recipient_data->{address_type} eq 'S') {
-    $check_re->($group, $invoice_recipient_data, 'street', qr{^.{0,70}$});
-    $check_re->($group, $invoice_recipient_data, 'street_no', qr{^.{0,16}$});
-    $check_re->($group, $invoice_recipient_data, 'postalcode', qr{^.{0,16}$});
-    $check_re->($group, $invoice_recipient_data, 'city', qr{^.{0,35}$});
+  foreach my $re (grep $_->[0] =~ /^(?:address_type|name)$/, @{$regexes{$group}}) {
+    $check_re->($group, $invoice_recipient_data, @$re);
   }
-  $check_re->($group, $invoice_recipient_data, 'countrycode', qr{^[A-Z]{2}$});
+  if ($invoice_recipient_data->{address_type} eq 'K') {
+    foreach my $re (grep $_->[0] =~ /^address_row[12]$/, @{$regexes{$group}}) {
+      $check_re->($group, $invoice_recipient_data, @$re);
+    }
+  } elsif ($invoice_recipient_data->{address_type} eq 'S') {
+    foreach my $re (grep $_->[0] =~ /^(?:street(?:_no)?|postalcode|city)$/, @{$regexes{$group}}) {
+      $check_re->($group, $invoice_recipient_data, @$re);
+    }
+  }
+  foreach my $re (grep $_->[0] =~ /^countrycode$/, @{$regexes{$group}}) {
+    $check_re->($group, $invoice_recipient_data, @$re);
+  }
 
   $group = 'reference number data';
   my %ref_nr_regexes = (
     QRR => qr{^\d{27}$},
     NON => qr{^$},
   );
-  $check_re->($group, $ref_nr_data, 'type', qr{^(?:QRR|SCOR|NON)$});
+  foreach my $re (@{$regexes{$group}}) {
+    $check_re->($group, $ref_nr_data, @$re);
+  }
   $check_re->($group, $ref_nr_data, 'ref_number', $ref_nr_regexes{$ref_nr_data->{type}});
 }
 
