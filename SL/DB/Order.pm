@@ -345,6 +345,8 @@ sub new_from {
     { from => 'purchase_order',    to => 'request_quotation', abbr => 'porq' },
     { from => 'request_quotation', to => 'sales_quotation',   abbr => 'rqsq' },
     { from => 'request_quotation', to => 'sales_order',       abbr => 'rqso' },
+    { from => 'sales_quotation',   to => 'request_quotation', abbr => 'sqrq' },
+    { from => 'sales_order',       to => 'request_quotation', abbr => 'sorq' },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") if !$from_to;
@@ -377,7 +379,7 @@ sub new_from {
     $args{quonumber} = undef;
     $args{reqdate}   = DateTime->today_local->next_workday();
   }
-  if ( $is_abbr_any->(qw(sopo)) ) {
+  if ( $is_abbr_any->(qw(sopo sqrq sorq)) ) {
     $args{customer_id}      = undef;
     $args{salesman_id}      = undef;
     $args{payment_id}       = undef;
@@ -389,10 +391,13 @@ sub new_from {
   if ( $is_abbr_any->(qw(soso)) ) {
     $args{periodic_invoices_config} = $source->periodic_invoices_config->clone_and_reset if $source->periodic_invoices_config;
   }
-  if ( $is_abbr_any->(qw(sosq porq rqsq)) ) {
+  if ( $is_abbr_any->(qw(sosq porq rqsq sqrq sorq)) ) {
     $args{ordnumber} = undef;
     $args{quonumber} = undef;
     $args{reqdate}   = DateTime->today_local->next_workday();
+  }
+  if ( $is_abbr_any->(qw(sqrq sorq)) ) {
+    $args{cusordnumber} = undef;
   }
 
   # Custom shipto addresses (the ones specific to the sales/purchase
