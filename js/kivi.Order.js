@@ -784,7 +784,8 @@ namespace('kivi.Order', function(ns) {
 
   ns.purchase_order_check_for_direct_delivery = function() {
     if ($('#type').val() != 'sales_order') {
-      kivi.submit_form_with_action($('#order_form'), 'Order/purchase_order');
+      kivi.submit_ajax_form("controller.pl", '#order_form', {action: 'Order/save_and_purchase_order'});
+      return;
     }
 
     var empty = true;
@@ -814,7 +815,7 @@ namespace('kivi.Order', function(ns) {
     if (!empty) {
       ns.direct_delivery_dialog(shipto);
     } else {
-      kivi.submit_form_with_action($('#order_form'), 'Order/purchase_order');
+      kivi.submit_ajax_form("controller.pl", '#order_form', {action: 'Order/save_and_purchase_order'});
     }
   };
 
@@ -825,7 +826,7 @@ namespace('kivi.Order', function(ns) {
       $('<input type="hidden" name="use_shipto">').appendTo('#order_form').val('1');
     }
 
-    kivi.submit_form_with_action($('#order_form'), 'Order/purchase_order');
+    kivi.submit_ajax_form("controller.pl", '#order_form', {action: 'Order/save_and_purchase_order'});
   };
 
   ns.direct_delivery_dialog = function(shipto) {
