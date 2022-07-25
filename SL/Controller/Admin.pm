@@ -505,7 +505,7 @@ sub init_all_groups        { SL::DB::Manager::AuthGroup ->get_all_sorted        
 sub init_all_printers      { SL::DB::Manager::Printer   ->get_all_sorted                                                     }
 sub init_all_dateformats   { [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd)      ]                                              }
 sub init_all_numberformats { [ '1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00" ]                                    }
-sub init_all_stylesheets   { [ qw(lx-office-erp.css Mobile.css kivitendo.css) ]                                              }
+sub init_all_stylesheets   { [ qw(lx-office-erp.css Mobile.css kivitendo.css design40.css) ]                                 }
 sub init_all_dbsources             { [ sort User->dbsources($::form)                               ] }
 sub init_all_used_dbsources        { { map { (join(':', $_->dbhost || 'localhost', $_->dbport || 5432, $_->dbname) => $_->name) } @{ $_[0]->all_clients }  } }
 sub init_all_accounting_methods    { [ { id => 'accrual',   name => t8('Accrual accounting')  }, { id => 'cash',     name => t8('Cash accounting')       } ] }

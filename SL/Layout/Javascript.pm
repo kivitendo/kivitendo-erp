@@ -1,7 +1,7 @@
 package SL::Layout::Javascript;
 
 use strict;
-use parent qw(SL::Layout::Base);
+use parent qw(SL::Layout::Design40Switch);
 
 use SL::Layout::None;
 use SL::Layout::DHTMLMenu;
