@@ -1,0 +1,248 @@
+/* ------------------------------------------------------------ */
+/* General page layout */
+/* ------------------------------------------------------------ */
+
+input.rs_input_field,
+select.rs_input_field,
+table.rs_input_field input[type=text],
+table.rs_input_field input[type=password],
+table.rs_input_field select {
+  width: 300px;
+}
+
+#column-container {
+  //width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
+  overflow: hidden ;
+  //border: 1px red solid ; // TEST
+}
+
+#tree-column {
+  float: left;
+  width: 25%;
+  //border: 1px green solid ; // TEST
+}
+
+#content-column {
+  float: left;
+  width: 70%;
+  padding-left: 3.0em;
+  //border: 1px blue solid ; // TEST
+}
+
+.section-empty-description {
+  color: #bbb;
+}
+
+/* ------------------------------------------------------------ */
+/* Special things that apply to the tree */
+/* ------------------------------------------------------------ */
+
+#tree li.flagged > a > ins {
+ background-image: url("../image/flag-red.png") !important;
+ background-position: 0;
+}
+
+/* ------------------------------------------------------------ */
+/* Special things that apply to the context menu */
+/* ------------------------------------------------------------ */
+
+.context-menu-item.icon-flag   { background-image: url("../image/flag-red.png"); }
+.context-menu-item.icon-close  { background-image: url("../image/document-close.png"); }
+.context-menu-item.icon-save   { background-image: url("../image/document-save.png"); }
+.context-menu-item.icon-revert { background-image: url("../image/edit-undo.png"); }
+.context-menu-item.icon-pdf    { background-image: url("../image/application-pdf.png"); }
+.context-menu-item.icon-html   { background-image: url("../image/text-html.png"); }
+.context-menu-item.icon-add-picture { background-image: url("../image/add-picture.png"); }
+.context-menu-item.icon-download    { background-image: url("../image/download.png"); }
+.context-menu-item.icon-renumber    { background-image: url("../image/format-list-ordered.png"); }
+
+/* ------------------------------------------------------------ */
+/* Sections & function blocks */
+/* ------------------------------------------------------------ */
+
+.section {
+  border-left: 0;
+  margin-left: 0;
+}
+
+.section-header{
+  display: block ;
+  overflow: hidden;
+  width: 70% ;
+}
+
+.section-description-heading {
+  font-weight: normal;
+}
+
+.section-description {
+  color: #000;
+  background: rgb(235, 235, 235);
+  //border: 1px solid #ccc;
+  margin-bottom: 15px;
+}
+
+.function-block {
+  border-top: 1px solid #bbb;
+  //border-left: 0;
+  margin: 0.6em 0 2.2em 0 ;
+  padding: 0.8em 0 1.0em 0 ;
+  overflow: hidden;
+  display: block;
+  //background-color: yellow ;
+}
+
+.function-block-content{
+  overflow: hidden ;
+}
+
+.function-block-form {
+  background: rgb(235, 235, 235);
+  border: 1px solid rgb(0, 100, 0);
+}
+.function-block-header {
+  clear: both;
+  overflow: hidden;
+}
+.function-block-number {
+  font-weight: bold;
+  min-width: 6.0em ;
+  display: block;
+  float: left;
+}
+.function-block-desc {
+  font-weight: normal;
+  float: left;
+  width: 70%;
+  //clear: both;
+  padding-bottom: 1.0em ;
+}
+.function-block-desc p {
+  margin: 0 0 0.6em 0;
+  padding: 0 ;
+}
+
+.function-block-properties {
+  display: block ;
+  margin: 0 0 0 6.1em;
+  padding: 0 ;
+  float: left;
+  overflow: hidden;
+  clear: both;
+}
+
+
+
+
+.function-block-form > div {
+  padding: 0.4em;
+}
+
+.sub-function-block {
+  //background-color: #fff;
+  border-top: 1px solid #ccc;
+  margin: 1.0em 0 0.4em 0;
+  padding: 1.8em 0 1.6em 0 ;
+}
+
+.sub-function-block-container {
+  margin: 1.0em 0 1.6em 6.0em;
+  padding: 1.6em 0.6em 0.6em 0;
+  //border: 1px solid #ccc;
+}
+
+.sub-function-block-header {
+  //padding: 0.2em;
+  font-weight: normal;
+  font-size: 120% ;
+  color: #666;
+  //background: #ccc;
+  margin-top: 1.0em ;
+}
+
+/* Flagged sections, function blocks, text blocks */
+
+.section.flagged .section-description,
+.function-block.flagged,
+.sub-function-block.flagged {
+  background-color: #feece3;
+}
+
+.section.flagged .section-description > .section-description-heading,
+.function-block.flagged > .function-block-content > div > .function-block-number,
+.sub-function-block.flagged > .sub-function-block-content > div > .function-block-number {
+  background-color: #fe5f14;
+  color: #fff;
+}
+
+/* Selected sections, function blocks, text blocks */
+
+.section.selected,
+.function-block.selected,
+.sub-function-block.selected {
+  margin-left: -3px;
+  border-left: 3px solid #cbb120;
+}
+
+/* ------------------------------------------------------------ */
+/* Text blocks */
+/* ------------------------------------------------------------ */
+
+.requirement-spec-text-block {
+  border-left: 0;
+  margin-left: 3px;
+  margin-top: 10px;
+}
+
+.requirement-spec-text-block > h2 {
+  margin-top: 0px;
+}
+
+.requirement-spec-text-block.flagged {
+  background-color: #feece3;
+  /* border: 1px solid #fe5f14; */
+}
+
+.requirement-spec-text-block.flagged > h2 {
+  background-color: #fe5f14;
+  color: #fff;
+}
+
+.requirement-spec-text-block.selected {
+  border-left: 3px solid #cbb120;
+  margin-left: 0;
+}
+
+.requirement-spec-text-block-picture-thumbnail {
+  border-radius: 5px;
+  border: 2px solid #ebebeb;
+  float: left;
+  margin-right: 20px;
+  padding: 5px;
+  text-align: center;
+  width: 130px;
+}
+
+.requirement-spec-text-block-picture-thumbnail-img-container {
+  height: 64px;
+  margin: auto;
+  padding: auto;
+  width: 64px;
+}
+
+.requirement-spec-text-block-picture-thumbnail.selected {
+  border: 2px solid #cbb120;
+}
+
+/* ------------------------------------------------------------ */
+/* Time/cost estimation */
+/* ------------------------------------------------------------ */
+
+#time_cost_estimate p {
+  margin-top: 0;
+  margin-bottom: 0;
+}

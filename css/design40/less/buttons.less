@@ -1,0 +1,332 @@
+/* ------------------------------------------------------------- */
+/* BUTTONS (buttons.less)                                        */
+/* ------------------------------------------------------------- */
+
+// ----------------------------------------------------------------------------
+//
+// BUTTONS (FORM BUTTONS & LINKS AS BUTTONS)
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION: all kind of buttons
+//
+// CONTENTS:
+// - FORM BUTTONS
+//   - input, button
+//     - .clear
+//     - Dimensions
+//   - button.icon
+//   - Action STRONG (submission to server page)
+//   - Action SOFT/NEUTRAL (no submission to server page)
+//   - button
+//     - .below
+// - LINK AND LABELS DESIGNED AS BUTTONS
+// - BUTTONS CONTAINER
+// - IMAGE-BUTTONS
+// ----------------------------------------------------------------------------
+
+
+
+// --------------------------------------
+// FORM BUTTONS
+// --------------------------------------
+// At first we tried to nest the buttons within the form element,
+// but it is not possible because some forms do not have a form element
+// (e.g. print dialog)
+
+// A lot of buttons are outside of a form, so let be this tag deactivated
+//form {
+
+  // General
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  button {
+
+    .mx-button ; // Mixin
+
+    &.clear { clear: left; }
+
+    // DIMENSIONS
+    &.wi-verysmall   { min-width: @input-wi-verysmall   ; }
+    &.wi-small       { min-width: @input-wi-small       ; }
+    &.wi-mediumsmall { min-width: @input-wi-mediumsmall ; }
+    &.wi-normal      { min-width: @input-wi-normal      ; }
+    &.wi-lightwide   { width:     @input-wi-lightwide   ; }
+    &.wi-wide        { width:     @input-wi-wide        ; }
+    &.wi-wider       { width:     @input-wi-wider       ; }
+    &.wi-verywide    { width:     @input-wi-verywide    ; }
+    &.wi-tiny {
+      width:        auto ;
+      padding:      0.16em 0.2em 0.1em 0.2em;
+      margin:      -0.3em 0 0 0.2em;
+      //float:      right;
+      display:      inline-block;
+      font-size:    84% ;
+      min-height:   23px;
+      max-height:   23px;
+    }
+    &.wi-verytiny{
+      font-size:    8pt !important;
+      padding:      0.0em 0.3em 0.1em 0.3em;
+      display:      inline-block;
+      min-height:   17px;
+      max-height:   17px;
+    }
+
+  } // /input[type="button etc."]
+
+  button.icon{
+    padding:      0 ;
+    margin:       0 ;
+    background:   none !important;
+    border:       0 !important;
+    display:      inline-block;
+    img { vertical-align: middle ; }
+  }
+
+  // -------------------
+  // Action STRONG (submission to server page)
+  input[type="submit"],
+  input[type="button"],
+  input[type="button"].button,
+  button[type="submit"],
+  button[type="button"] {
+    color:                  @button-strong-color ;
+    background-color:       @button-strong-bg;
+    border:                 @button-strong-border ;
+    &:hover{
+      color:                @button-strong-hover-color ;
+      background-color:     @button-strong-hover-bg;
+      border:               @button-strong-hover-border ;
+    }
+    &:active,
+    &:focus{
+      color:                @button-strong-active-color ;
+      background-color:     @button-strong-active-bg;
+      border:               @button-strong-active-border ;
+    }
+  }
+
+  // -------------------
+  // Action SOFT/NEUTRAL (no submission to server page)
+  input[type="button"].neutral,
+  input[type="submit"].neutral,
+  input[type="reset"],
+  input[type="reset"].neutral,
+  button.neutral,
+  button[type="reset"] {
+    color:              @button-neutral-color ;
+    background-color:   @button-neutral-bg;
+    border:             @button-neutral-border ;
+    &:hover {
+      color:            @button-neutral-hover-color ;
+      background-color: @button-neutral-hover-bg;
+      border:           @button-neutral-hover-border ;
+    }
+    &:active,
+    &:focus {
+      color:            @button-neutral-active-color;
+      background-color: @button-neutral-active-bg;
+      border:           @button-neutral-active-border ;
+    }
+
+    // Toggle-Button (e.g. for position details in tables)
+    &.positions {
+      padding-right:    1.2em ;
+      // ::after does not work in buttons
+//       input#cb_show_details {
+//         &::after {
+//           content:      "▸" !important ;
+//         }
+//       }
+//       input#cb_hide_details::after {
+//         content:        "▾" !important ;
+//       }
+    } // /.positions
+
+  } // /input[type="*"].neutral
+
+  // PENDENT: Neu
+  input[type="button"]{
+    &.below{
+      clear: both !important;
+      float: none;
+      //margin-top: 0.3em;
+      overflow: hidden ;
+    }
+  }
+//} // /form
+
+
+
+
+
+
+
+// --------------------------------------
+// LINKS DESIGNED AS BUTTONS
+// They may be placed inside or outside a form
+// --------------------------------------
+a {
+  &.button {
+
+    .mx-button ;
+
+    &.below { clear: both !important; }
+
+    // STANDARD colors
+    .mx-button-standard ;
+    .mx-button-standard-hover-focus ;
+
+    // NEUTRAL (no Submission)
+    &.neutral {
+      &:link,
+      &:visited{
+        .mx-button-neutral ; // Mixin
+      }
+      .mx-button-neutral-hover-focus ; // Mixin
+    } // /.neutral
+
+    &.wi-smallest     { width:     @input-wi-smallest    ; }
+    &.wi-verysmall    { width:     @input-wi-verysmall   ; }
+    &.wi-small        { width:     @input-wi-small       ; }
+    &.wi-mediumsmall  { width:     @input-wi-mediumsmall ; }
+    &.wi-normal       { width:     @input-wi-normal      ; }
+    &.wi-lightwide    { width:     @input-wi-lightwide   ; }
+    &.wi-wide         { width:     @input-wi-wide        ; }
+    &.wi-wider        { min-width: @input-wi-wider       ; }
+    &.wi-verywide     { min-width: @input-wi-verywide    ; }
+    // Tiny button (one letter button)
+    &.wi-tiny {
+      display:    inline-block;
+      width:      auto ;
+      padding:    0.16em 0.2em 0.1em 0.2em;
+      margin:     -0.3em 0 0 0.2em;
+      font-size:  84% ;
+    }
+
+    // Toggle (for filters e.g.)
+    &.toggle {
+      background-color: @controlpanel-bg-color !important ;
+
+      &.off::after{
+        content:                    " ▸";
+        padding-right:              1.0em;
+      }
+      &.on::after {
+        content:                    " ▾";
+        padding-right:              1.0em;
+      }
+      &.with-panel{
+        margin-bottom:              0 ;
+        border-bottom: none;
+        border-bottom-left-radius:  0px ;
+        border-bottom-right-radius: 0px ;
+        &:hover {
+          border-top:               @controlpanel-border !important ;
+          border-right:             @controlpanel-border !important ;
+          border-bottom:            0 !important;
+          border-left:              @controlpanel-border !important ;
+        }
+      }
+      &:hover{
+        background-color:           @button-neutral-bg !important;
+        border:                     @controlpanel-border !important ;
+        color:                      @button-neutral-color;
+        text-decoration:            none;
+      }
+    } // /.toggle
+  } // /.button
+}// /a
+
+
+
+// --------------------------------------
+// LABELS DESIGNED AS BUTTONS
+// They may be placed inside or outside a form
+// --------------------------------------
+#content label.button {
+
+  .mx-button ; // Mixin
+
+  // STANDARD colors
+  .mx-button-standard ; // Mixin
+
+  .mx-button-standard-hover-focus ; // Mixin
+
+  // NEUTRAL (no Submission)
+  &.neutral {
+    .mx-button-neutral ; // Mixin
+    .mx-button-neutral-hover-focus ; // Mixin
+  } // /.neutral
+
+} // /.button
+
+
+
+// --------------------------------------
+// BUTTONS CONTAINER
+// --------------------------------------
+// Container fuer Buttons
+div.buttons {
+  padding:            1.0em ;
+  clear:              left ;
+  display:            block;
+  // PENDENT: anschauen, steht fuer Anzeige von Positionsdetails in Listen-Tabellen
+  &.positions {
+    margin:           0 0 -1.7em 26.0em;
+    padding:          0em;
+    label.button.neutral,
+    input.positions {
+      border-bottom-left-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+      padding-bottom: 0.6em !important;
+      margin-bottom: -0.8em !important;
+      background: none !important;
+      border-bottom: none !important;
+    }
+    input.positions{
+
+    }
+  }
+  &.below {
+    padding:          0 ;
+    margin:           0 ;
+  }
+}
+.col > .buttons,
+.wrapper * .buttons {
+  padding:            1.0em 1.0em 1.0em 0 !important;
+}
+
+
+
+// --------------------------------------
+// IMAGE BUTTONS ()
+// --------------------------------------
+.button-image {
+  display: inline-block ;
+  // Info or details button
+  &.info {  }
+  // Delete (cross) button
+  &.delete {  }
+  // Edit (pencil) button
+  &.edit {  }
+  // Map (globus / planet earth) button
+  &.map { }
+}
+td,
+th {
+  .button-image { vertical-align: middle; }
+}
+input[type="button"].button-image{
+  &.delete {
+    background-image:     url("image/cross.png");
+    background-repeat:     no-repeat;
+    background-position:   0 0;
+    color:                 #fff;
+    background-color:      transparent;
+    border-color:         none;
+    border-width:         0;
+  }
+}

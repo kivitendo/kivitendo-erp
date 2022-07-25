@@ -1,0 +1,204 @@
+/* ------------------------------------------------------------- */
+/* LISTS (lists.less)                                            */
+/* ------------------------------------------------------------- */
+
+
+
+// ----------------------------------------------------------------------------
+//
+// Lists
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION: UL or OL lists and some fake tables with DIVs
+//
+// CONTENTS:
+// - UNORDERED LISTS (UL)
+// - TABLES build with DIVS
+// - TABLES with PARAGRAPHS or DIVs for Checkboxes
+// ----------------------------------------------------------------------------
+
+
+// --------------------------------------
+// UNORDERED LISTS
+// --------------------------------------
+ul {
+  list-style-type:       disc;
+  list-style-position:   outside;
+  list-style-image:     none;
+  padding:               0 0 0 1.4em;
+  margin:               0.4em 0 0.4em 0;
+
+  // with SUP-items for footnotes
+  &.footnotes {
+    list-style-type:       none !important ;
+    list-style-position:   outside ;
+    margin:               0 0 0 1.8em !important ;
+    li {
+      sup {
+        display:   inline-block;
+        margin:   0 0.6em 0 -2.6em;
+        padding:   0;
+      }
+      & > ul {
+        position:             relative;
+        list-style-type:       circle ;
+        list-style-position:   outside ;
+        margin:               0.3em 0 0.3em 1.4em !important ;
+      }
+    }
+
+  } // /.footnotes
+
+  // List inside a list item
+  li {
+    ul {
+      list-style-type:       circle ;
+      list-style-position:   outside ;
+      li { }
+    }
+  }
+}
+
+
+
+//  --------------------------------------
+//  TABLES build with DIVS
+//  --------------------------------------
+
+div.table {
+  margin-bottom:   1.0em ;
+  &.col {
+    float:         left ;
+    margin-right: 1.6em ;
+  }
+  div.caption {
+    clear:         left ;
+    display:       block ;
+    font-weight:   bold ;
+    color:         @table-caption-color ;
+  }
+  div.field {
+    clear:         left ;
+    display:       block ;
+    overflow:     hidden ;
+    margin-right:  2.0em ;
+    // PENDENT: ueberpruefen wegen cke-Editor-Konflikte
+    span.label {
+      display:     inline-block ;
+      float:       left ;
+      min-width:   12em;
+      width:       auto;
+    }
+    span.value {
+      display:     inline-block ;
+      float:       left ;
+      min-width:   12em;
+      width:       auto;
+    }
+  }
+}
+
+
+//  --------------------------------------
+//  TABLES with PARAGRAPHS or DIVs for Checkboxes
+//  --------------------------------------
+// PENDENT: siehe auch form-additions
+div.list {
+  font-size:   @font-size-small ;
+  color:       @t-cell-text-color ;
+
+  // A column with a list
+  &.col {
+    float: left ;
+    margin-right:  2.6em !important ;
+    width:         auto ;
+    min-width:     110px ;
+  }
+  // List Title
+  h4 {
+    padding:       0.6em 0 0.2em 0.0em !important ;
+    margin:       0.2em 0 0 0 ;
+    font-weight:   normal;
+    font-size:     @font-size-medium;
+    font-family:   "Helvetica Neue", Helvetica, Arial; // PENDENT: in Variablen verlegen
+    color:         @base-dark ;
+  }
+  // List Elements
+  & > p,
+  & > div {
+    padding:       0.2em 0 0.2em 0 !important ;
+    margin:       0 !important ;
+    white-space:   normal ;
+
+    &>input[type="checkbox"],
+    &>input[type="radio"] {
+      padding:     0 ;
+      margin:     0 0.3em 0.3em 0 ;
+      float:       left ;
+    }
+    label {
+      width:       auto ;
+      float:       left ;
+    }
+  }
+  &>p {
+    //margin:     0 0 1.2em 0 !important ;
+    overflow:     hidden ;
+  }
+  // Special Element but same like above (see Custom Vars)
+  &>input[type="checkbox"] {
+    clear:           both;
+    float:           left;
+    margin-right:   0.4em ;
+  }
+  &>label { width:   82% ; }
+
+  div { clear:       left }
+
+  & > div.no-rows {
+    &>input[type="checkbox"],
+    &>input[type="radio"] {
+      padding:   0 ;
+      margin:    0.3em 0.3em 0 0 ;
+      clear:     left ;
+    }
+    label {
+      width: 82% ;
+      float: left ;
+    }
+  }
+
+} // /div.list
+
+
+
+
+// PENDENT: wo eingesetzt?
+div.list-table-with-separate-total-table {
+
+  div.full-width {
+    padding-bottom:  0 ;
+    margin-bottom:   0 ;
+
+    .tbl-list {
+      margin-bottom: 0 ;
+    }
+
+  }
+
+  // Total-Tabelle
+  // Separater Block mit Table ohne Body, nur Footer für Totals
+  div.list-total {
+    width:    100% ;
+    margin:   0 ;
+    padding:  0 ;
+    overflow: hidden ;
+
+    table.footer-only {
+      margin:  0 ;
+      padding: 0 ;
+      &.right { float: right ; }
+    }
+    div.after-item {  }
+  }
+}

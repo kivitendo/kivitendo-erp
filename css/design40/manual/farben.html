@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <link href="../style.css" rel="stylesheet">
+  <title>Kommunikation mit Farben in Kivitendo</title>
+
+  <script type="text/javascript" src="../../js/jquery.js"></script>
+  <script type="text/javascript" src="../../js/common.js"></script>
+  <script type="text/javascript" src="../../js/namespace.js"></script>
+  <script type="text/javascript" src="../../js/kivi.js"></script>
+  <script type="text/javascript" src="../../js/locale/de.js"></script>
+  <script type="text/javascript" src="../../js/jquery-ui.js"></script>
+  <script type="text/javascript" src="../../js/kivi.QuickSearch.js"></script>
+  <script type="text/javascript" src="../../js/kivi.ActionBar.js"></script>
+  <script type="text/javascript" src="../../js/kivi.Draft.js"></script>
+  <script type="text/javascript" src="../../js/kivi.File.js"></script>
+  <script type="text/javascript" src="../../js/kivi.SalesPurchase.js"></script>
+  <script type="text/javascript" src="../../js/kivi.Part.js"></script>
+  <script type="text/javascript" src="../../js/ckeditor/ckeditor.js"></script>
+  <script type="text/javascript" src="../../js/ckeditor/adapters/jquery.js"></script>
+  <script type="text/javascript" src="../../js/kivi.io.js"></script>
+  <script type="text/javascript" src="../../js/autocomplete_customer.js"></script>
+  <script type="text/javascript" src="../../js/client_js.js"></script>
+  <script type="text/javascript" src="../../js/jquery.cookie.js"></script>
+  <script type="text/javascript" src="../../js/jquery.checkall.js"></script>
+  <script type="text/javascript" src="../../js/jquery.download.js"></script>
+  <script type="text/javascript" src="../../js/jquery/jquery.form.js"></script>
+  <script type="text/javascript" src="../../js/jquery/fixes.js"></script>
+  <script type="text/javascript" src="../../js/jquery/jquery.tooltipster.min.js"></script>
+  <script type="text/javascript" src="../../js/jquery/ui/i18n/jquery.ui.datepicker-de.js"></script>
+
+</head>
+<body class="developing">
+<header>
+  <h1>Bedeutung &amp; Anwendung von Farben in Kivitendo</h1>
+  <nav><a href="index.html" title="Zur Übersicht bzw. Inhaltsverzeichnis">Zum Index</a></nav>
+</header>
+<div class="wrapper">
+<h2>Buttons</h2>
+<form action="#">
+<h3>Formular absenden (Datenmanipulation, unwiderrufbar)</h3>
+<p>Diese Buttons starten den Versand der Formulardaten an den Server (Submit). Aus diesem Grunde sind diese entsprechend prominent eingefärbt.</p>
+<div class="buttons">
+<table>
+  <tbody>
+    <tr>
+      <td>normal</td>
+      <td>hover</td>
+      <td>active</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><input type="submit" value="Absenden" class="wi-small"></td>
+      <td><input type="submit" value="Absenden" class="hover wi-small"></td>
+      <td><input type="submit" value="Absenden" class="active wi-small"></td>
+      <td>(INPUT[type=submit])</td>
+    </tr>
+    <tr>
+      <td><input type="button" value="Absenden" class="wi-small"></td>
+      <td><input type="button" value="Absenden" class="hover wi-small"></td>
+      <td><input type="button" value="Absenden" class="active wi-small"></td>
+      <td>(INPUT[type=button])</td>
+    </tr>
+    <tr>
+      <td><button type="button" class=" wi-small">Speichern</button></td>
+      <td><button type="button" class="hover wi-small">Speichern</button></td>
+      <td><button type="button" class="active wi-small">Speichern</button></td>
+      <td>(BUTTON)</td>
+    </tr>
+    <tr>
+      <td><a href="#" class="button wi-small">Absenden</a></td>
+      <td><a href="#" class="button hover wi-small">Absenden</a></td>
+      <td><a href="#" class="button active wi-small">Absenden</a></td>
+      <td>(A.button-Tag)</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+
+</div><!-- ./buttons -->
+
+<h3>Navigation &amp; User Interface</h3>
+<p>Diese Buttons dienen zur Bedienung der grafischen Benutzer-Schnittstelle im Client und verursachen KEINE unwiderrufliche Datenmanipulationen auf Seiten des Servers.<br>Aus diesem Grunde wird die Klasse <b>«.neutral»</b> bereitgestellt.</p>
+<div class="buttons">
+<table>
+  <tbody>
+    <tr>
+      <td>normal</td>
+      <td>hover</td>
+      <td>active</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><input type="reset" value="Zurücksetzen" class="neutral wi-normal"></td>
+      <td><input type="reset" value="Zurücksetzen" class="neutral-hover wi-normal"></td>
+      <td><input type="reset" value="Zurücksetzen" class="neutral-active wi-normal"></td>
+      <td>(INPUT[submit].neutral-Tag)</td>
+    </tr>
+    <tr>
+      <td><button class="neutral wi-normal">Details anzeigen</button></td>
+      <td><button class="neutral neutral-hover wi-normal">Details anzeigen</button></td>
+      <td><button class="neutral neutral-active wi-normal">Details anzeigen</button></td>
+      <td>(BUTTON.neutral-Tag)</td>
+    </tr>
+    <tr>
+      <td><a href="#" class="button neutral wi-normal">Filter anzeigen</a></td>
+      <td><a href="#" class="button neutral neutral-hover wi-normal">Filter anzeigen</a></td>
+      <td><a href="#" class="button neutral neutral-active wi-normal">Filter anzeigen</a></td>
+      <td>(A.button.neutral-Tag)</td>
+    </tr>
+  </tbody>
+</table>
+</div><!-- ./buttons -->
+</form>
+
+<h2>Nachrichten (Messages)</h2>
+<p>Es gibt zwei ggf. sogar drei Message-<b>Container-Varianten</b> in Kivitendo:</p>
+<ul>
+  <li>Flash_Messages</li>
+  <li>Old_Style</li>
+</ul>
+<p>Dann gibt es mind. 4 <b>Message-Arten</b>:</p>
+<ul>
+  <li>Error</li>
+  <li>Warning</li>
+  <li>Info oder Hint</li>
+  <li>OK</li>
+</ul>
+<p>Nachfolgend werden jeweils zuerst die komplexen Flash-Messages, dann die einfachen Old Style-Messages in P- & DIV-Containern aufgeführt.</p>
+
+
+<h3>Error</h3>
+
+<p>Fehlermeldung, die ein Grund zur Sorge sein sollten. Diese Nachrichten-Art nur in schwerwiegenden Fällen einsetzen, damit der Benutzer sofort erkennt, dass was schiefgelaufen ist.</p>
+<div id="flash_error" class="flash_message flash_message_error">
+<div class="button-container">
+  <a href="#flash_error" style="float:right" class="icon-close button wi-tiny">✕</a>
+  <span id="flash_error_disp" class="display" style="float:left;">
+    <a href="#flash_error" style="float:left;" onclick="$('#flash_detail_error').toggle();" class="button wi-tiny">Details</a>
+  </span>
+</div>
+<div class="message-container">
+  <span class="flash_title" style="float:left;">Fehler:</span>
+  <div class="flash_notification" style="float:left;">
+    <span id="flash_error_content" class="content">Es ist ein schwerwiegender Fehler aufgetreten!</span>
+    <div id="flash_detail_error" class="detail" style="display:none;">
+      <span id="flash_error_detail">Details zum aufgetretenen, schwerwiegenden Fehler. Hierbei handelt es sich aber nicht um einen Rechtschreibefehler.</span>
+      <a href="#flash_error" style="float:left" onclick="$('#flash_detail_error').hide()" class="icon-close button wi-tiny">✕</a>
+    </div>
+  </div>
+</div>
+</div>
+<p class="message message_error">Es ist ein Fehler aufgetreten! (P.message_error)</p>
+<div class="message message_error">Es ist ein Fehler aufgetreten! (DIV.message_error)</div>
+
+
+<h3>Warning</h3>
+
+<p>Wichtige Mitteilung, die aber kein Grund zur Sorge geben sollte. Diese Nachricht unterstützt den Benutzer bei kritischen Prozessen, sollte ihn aber bei täglichem Einsatz nicht von der Arbeit abhalten.</p>
+<div id="flash_warning" class="flash_message flash_message_warning">
+<div class="button-container">
+  <a href="#flash_warning" style="float:right" class="icon-close button wi-tiny">✕</a>
+  <span id="flash_warning_disp" class="display" style="float:left;">
+    <a href="#flash_warning" style="float:left;" onclick="$('#flash_detail_warning').toggle();" class="button wi-tiny">Details</a>
+  </span>
+</div>
+<div class="message-container">
+  <span class="flash_title" style="float:left;">Warnung:</span>
+  <div class="flash_notification" style="float:left;">
+    <span id="flash_warning_content" class="content">Diesen Hinweis sollten Sie ernst nehmen, aber es besteht beim Lesen noch kein Grund zur Beunruhigung.</span>
+    <div id="flash_detail_warning" class="detail" style="display:none;">
+      <span id="flash_warning_detail">Sie sollten diesen Hinweis ernst nehmen, und vielleicht kommt er Ihnen auch hinlänglich bekannt vor, sodass Sie wissen, wie Sie damit umzugehen haben. Sie sollten sich darüber im Klaren sein, was diese Warnung bedeutet.</span>
+      <a href="#flash_warning" style="float:left" onclick="$('#flash_detail_warning').hide()" class="icon-close button wi-tiny">✕</a>
+    </div>
+  </div>
+</div>
+</div>
+<p class="message message_warning">Achtung, wichtiger Hinweis! (P.message_warning)</p>
+<div class="message message_warning">Achtung, wichtiger Hinweis! (DIV.message_warning)</div>
+
+
+<h3>Info / Hint</h3>
+
+<p>Hier handelt es sich eher um neutrale, ggf. zu ignorierende Routine-Nachrichten, die den Benutzer auch eine gewisse Sicherheit geben sollten. Nicht im Übermass einsetzen, da die Benutzer das Kivitendo-System u.U. täglich bedienen müssen.</p>
+<div id="flash_info" class="flash_message flash_message_info">
+<div class="button-container">
+  <a href="#flash_info" style="float:right" class="icon-close button wi-tiny">✕</a>
+  <span id="flash_info_disp" class="display" style="float:left;">
+    <a href="#flash_info" style="float:left;" onclick="$('#flash_detail_info').toggle();" class="button wi-tiny"> Details </a>
+  </span>
+</div>
+<div class="message-container">
+  <span class="flash_title" style="float:left;">Information:</span>
+  <div class="flash_notification" style="float:left;">
+    <span id="flash_info_content" class="content">Absolut kein Grund zur Beunruhigung, aber lesen sollten Sie die Nachricht vielleicht einmal in Ihrem Leben.</span>
+    <div id="flash_detail_info" class="detail" style="display:none;">
+      <span id="flash_info_detail">Manchmal ist es einfacher, solche Nachrichten zu lesen als gleich das Manual durchrackern zu müssen, was sowieso nur wenige Prozent der Kivitendo-Nutzer machen, ausser eben die karrierebewussten Anwender oder die innerbetrieblich Verantwortlichen.</span>
+      <a href="#flash_info" style="float:left" onclick="$('#flash_detail_info').hide()" class="icon-close button wi-tiny">✕</a>
+    </div>
+  </div>
+</div>
+</div>
+<p class="message message_hint">Es wurden keine Dokumente gefunden, was durchaus korrekt sein kann! (P.message_<b>hint</b>)</p>
+<div class="message message_hint">Die Buchungen sind noch nicht abgespeichert worden! (DIV.message_<b>hint</b>)</div>
+
+
+<h3>OK</h3>
+
+<p>Reine Info, die man getrost ignorieren könnte oder dürfte, aber dem Benutzer die Gewissheit gibt, dass der ausgeführte Prozess erfolgreich abgelaufen ist.</p>
+<div id="flash_ok" class="flash_message flash_message_ok">
+<div class="button-container">
+  <a href="#flash_ok" style="float:right" class="icon-close button wi-tiny">✕</a>
+  <span id="flash_ok_disp" class="display" style="float:left;">
+    <a href="#flash_ok" style="float:left;" onclick="$('#flash_detail_ok').toggle();" class="button wi-tiny">Details</a>
+  </span>
+</div>
+<div class="message-container">
+  <span class="flash_title" style="float:left;">OK:</span>
+  <div class="flash_notification" style="float:left;">
+    <span id="flash_ok_content" class="content">Sie haben erfolgreich einen Prozess ausführen lassen, gratuliere.</span>
+    <div id="flash_detail_ok" class="detail" style="display:none;">
+      <span id="flash_ok_detail">Das ist aber noch kein Grund zur Freude. Lesen Sie doch bitte hier, was es im weiteren zu beachten gibt.</span>
+      <a href="#flash_ok" style="float:left" onclick="$('#flash_detail_ok').hide()" class="icon-close button wi-tiny">✕</a>
+    </div>
+  </div>
+</div>
+</div>
+<p class="message message_ok">Achtung, wichtiger Hinweis! (P.message_ok)</p>
+<div class="message message_ok">Achtung, wichtiger Hinweis! (DIV.message_ok)</div>
+
+
+</div>
+</body>
+</html>

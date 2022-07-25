@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <link href="../style.css" rel="stylesheet">
+  <title>Tabellen in Kivitendo</title>
+  <style type="text/css">
+    p.p1 {padding:0;margin: 0.0px 0.0px 0.0px 0.0px; font: 19.0px monospace; color: #d02226; -webkit-text-stroke: #d02226;font-family: monospace;}
+    p.p2 {padding:0;margin: 0.0px 0.0px 0.0px 0.0px; font: 19.0px Times; color: #374ef5; -webkit-text-stroke: #374ef5;font-family: monospace;}
+    p.p3 {padding:0;margin: 0.0px 0.0px 0.0px 0.0px; font: 19.0px Times; color: #141414; -webkit-text-stroke: #141414;font-family: monospace;}
+    p.p4 {padding:0;margin: 0.0px 0.0px 0.0px 0.0px; font: 19.0px Times; color: #c83a82; -webkit-text-stroke: #c83a82;font-family: monospace;}
+    p.p5 {padding:0;margin: 0.0px 0.0px 12.0px 0.0px; font: 19.0px Times; color: #374ef5; -webkit-text-stroke: #374ef5;font-family: monospace;}
+    span.s1 {font-kerning: none}
+    span.s2 {font-kerning: none; color: #000000; -webkit-text-stroke: 0px #000000}
+    span.s3 {font-kerning: none; color: #bb5f0a; -webkit-text-stroke: 0px #bb5f0a}
+    span.s4 {font-kerning: none; color: #c83a82; -webkit-text-stroke: 0px #c83a82}
+    span.s5 {font-kerning: none; color: #374ef5; -webkit-text-stroke: 0px #374ef5}
+    span.s6 {font-kerning: none; color: #141414; -webkit-text-stroke: 0px #141414}
+    p.p1 , p.p2 , p.p3 , p.p4 , p.p5 , span.s1 , span.s2 , span.s3 , span.s4 , span.s5 , span.s6 {font-size: 90% ;}
+    .picture{ background-color: #fff; padding: 0.8em ; border: 1px #aaa solid ; }
+  </style>
+
+
+</head>
+<body class="developing">
+<header>
+  <h1>Tabellen in Kivitendo</h1>
+  <nav><a href="index.html" title="Zur Übersicht bzw. Inhaltsverzeichnis">Zum Index</a></nav>
+</header>
+<div class="wrapper">
+<h2>Horizontale Tabelle (Klasse «tbl-horizontal»)</h2>
+<h3>Einleitung & grundlegender Code</h3>
+<p>
+Die horizontalen Tabellen dienen als Standard-Container für die Plazierung und Anzeige von Daten und Eingabe-Elementen. Die Struktur dieser Tabellen-Klasse ist ziemlich starr, was darin begründet wird, dass diese dynamisch rechts umfliesst, Gruppierung ermöglicht und sich einfach erweitern lässt, indem man eine einfache Zeile einfügt. Die erste Spalte enthält ausschliesslich Titel-Tabellen-Zellen (TH), die weiteren bestehen aus Daten-Tabellen-Zellen (TD). Weitere Klassen und Style in den enthaltenen Elementen sind nur in Ausnahmefällen nötig. Die grundlegende Aufbau dieser Tabellenklasse sieht wie folgt aus.
+</p>
+<pre><code>&lt;table class="tbl-horizontal"&gt;
+  &lt;caption&gt;Tabllentitel (Caption)&lt;/caption&gt;
+  &lt;colgroup&gt;
+    &lt;col class="wi-small"&gt;
+    &lt;col class="wi-lightwide"&gt;
+  &lt;/colgroup&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Feldbezeichnung&lt;/th&gt;
+      &lt;td&gt;Wert oder Formular-Element&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+</code></pre>
+
+<table class="tbl-horizontal" style="float: none;">
+  <caption>Elemente Horizontale Tabelle</caption>
+  <colgroup>
+    <col class="wi-normal">
+    <col class="wi-verywide">
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>CAPTION</th>
+      <td>Überschrift der Tabelle, die in die Tabelle selber eingekapselt wird. Das erleichtert nicht nur das Verschieben der Tabelle.</td>
+    </tr>
+    <tr>
+      <th>COLGROUP &gt; COL</th>
+      <td>Spaltendefinitionen mit begrenzter Funktionalität, wobei hier im wesentlichen Spaltenbreiten-Angaben zur Geltung kommen, leider keine Ausrichtung also kein rechtsbündiges Ausrichten. Beachten Sie, dass COL ein leeres Element ist, das kein abschliessendes Tag benötigt. Zudem muss es in der COLGROUP untergebracht sein.</td>
+    </tr>
+    <tr>
+      <th>TBODY</th>
+      <td>Datenkörper der Tabelle, zwingend anzuwenden, auch wenn optional einsetzbar. Ermöglicht auch ein effizientes Code-Falten der Tabelle, sodass der Titel (Caption) im Text-Editor sichtbar bleibt.</td>
+    </tr>
+    <tr>
+      <th>TH</th>
+      <td>Label bzw. Feldbezeichnung</td>
+    </tr>
+    <tr>
+      <th>TD</th>
+      <td>Feldwerte oder Eingabe-Felder aller Art inkl. nebenstehendem Icon oder Kurztext.</td>
+    </tr>
+    <tr>
+      <th>Feldbezeichnung</th>
+      <td>Wert</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h3>Plazierung horizontaler Tabellen in einem .WRAPPER-Block</h3>
+<p>Befinden sich Horizontale Tabellen in einem <b>.WRAPPER-Block</b>, werden diese links ausgerichtet (float:left;) bzw. rechts angefügt. Soll zwingend ein Zeilen-Umbruch (clear) stattfinden, nächste Tabelle einfach in eine weitere, anschliessende .WRAPPER-Box setzen. Der Wrapper erzeugt einen Abstand zum Fensterrand und einen abschliessenden Zeilenumbruch. Standardmässig sind maximal drei Tabellen in einer .WRAPPER-Zeile vorgesehen (Standard-Bildschirmauflösung)</p>
+</div><!-- /.wrapper -->
+<p class="picture"><img src="images/Tabellen_in_Wrapper-Bloecken.png" width="800" height="556" alt="Tabellen_in_Wrapper-Bloecken"></p>
+<h4>Beispiel:</h4>
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <caption>Caption horizontale Tabelle</caption>
+  <colgroup> <col class="wi-verysmall"><col class="wi-normal"> </colgroup>
+  <tbody>
+    <tr>
+      <th>Label 1</th>
+      <td>Wert 1</td>
+    </tr>
+    <tr>
+      <th>Label 2</th>
+      <td>Wert 2</td>
+    </tr>
+    <tr>
+      <th>Label 3</th>
+      <td>Wert 3</td>
+    </tr>
+    <tr>
+      <th>Label 4</th>
+      <td>Wert 4</td>
+    </tr>
+    <tr>
+      <th>Label 5</th>
+      <td>Wert 6</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>Tabelle mit COL .wi-verysmall & .wi-wide</caption>
+  <colgroup> <col class="wi-verysmall"><col class="wi-wide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>Label 1</th>
+      <td>Wert 1</td>
+    </tr>
+    <tr>
+      <th>Label 2</th>
+      <td>Wert 2</td>
+    </tr>
+    <tr>
+      <th class="caption" colspan="2">Caption Zeile</th>
+    </tr>
+    <tr>
+      <th>Label 3</th>
+      <td>Wert 3</td>
+    </tr>
+    <tr>
+      <th>Label 4</th>
+      <td>Wert 4</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="col" style="background-color:#FFC0D6;padding: 0 0.2em 1.2em 0.2em">
+  <table class="tbl-horizontal">
+    <caption>Tabelle 1 IN SPALTE</caption>
+    <colgroup> <col class="wi-verysmall"><col class="wi-normal"> </colgroup>
+    <tbody>
+      <tr>
+        <th>Label 1</th>
+        <td>Wert 1</td>
+      </tr>
+      <tr>
+        <th>Label 2</th>
+        <td>Wert 2</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="tbl-horizontal">
+    <caption>Tabelle 2 IN SPALTE</caption>
+    <colgroup> <col class="wi-verysmall"><col class="wi-normal"> </colgroup>
+    <tbody>
+      <tr>
+        <th>Label 1</th>
+        <td>Wert 1</td>
+      </tr>
+      <tr>
+        <th>Label 2</th>
+        <td>Wert 2</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</div><!-- /.wrapper -->
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <caption>Caption horizontale Tabelle</caption>
+  <colgroup>
+    <col class="wi-verysmall"><col class="wi-normal">
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>Label 1</th>
+      <td>Wert 1</td>
+    </tr>
+    <tr>
+      <th>Label 2</th>
+      <td>Wert 2</td>
+    </tr>
+    <tr>
+      <th class="caption" colspan="2">Caption Zeile</th>
+    </tr>
+    <tr>
+      <th>Label 3</th>
+      <td>Wert 3</td>
+    </tr>
+    <tr>
+      <th>Label 4</th>
+      <td>Wert 4</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>Tabelle mit COL .wi-verysmall & .wi-wide</caption>
+  <colgroup>
+    <col class="wi-verysmall"><col class="wi-wide">
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>Label 1</th>
+      <td>Wert 1</td>
+    </tr>
+    <tr>
+      <th>Label 2</th>
+      <td>Wert 2</td>
+    </tr>
+    <tr>
+      <th class="caption" colspan="2">Caption Zeile</th>
+    </tr>
+    <tr>
+      <th>Label 3</th>
+      <td>Wert 3</td>
+    </tr>
+    <tr>
+      <th>Label 4</th>
+      <td>Wert 4</td>
+    </tr>
+  </tbody>
+</table>
+
+
+</div><!-- /.wrapper -->
+
+<div class="wrapper">
+<p><b>Mehrere horizontale Tabellen</b> können in einem Spalten-Block (<code>DIV.COL</code>) untergebracht werden (siehe Beispiel oben <span style="background-color:#FFC0D6;">Block mit roter Hintergrundfarbe</span>). Das könnte vor allem bei kleinen Tabellen Sinn machen.<br>Ein <b>Caption</b> kann auch <b>innerhalb eines TBODY</b> angebracht werden<br>&LT;TR&GT;&LT;TH.CAPTION COLSPAN="2"&GT;caption&lt;CAPTION&GT;&LT;TR&GT;<br>Siehe letzte Tabelle im vorherigen Beispiel.</p>
+
+<h3>Ausrichtung und Breite der Spalten</h3>
+<p>Um ein ausgewogenes, ruhiges Erscheinungsbild der Benutzeroberfläche zu erhalten, ist es nicht unwichtig, dass die Tabellen-Spalten und Formular-Elemente vertikal bündig ausgerichtet sind. Auch wenn es manche Programmierer nicht als nötig erachten, muss doch der tägliche Einsatz durch den einfachen Benutzer dabei im Vordergrund stehen. Aber diese Angelegenheit ist einfacher zu bewältigen, als es zuerst klingt, denn es gibt da den bereits erwähnte Zauber-Code COLGROUP > COL und die zur Verfügung gestellten assoziativen Abmessungsklassen.</p>
+<p class="picture"><img src="images/Tabelle_Horizontal_mit_Elementen.svg" width="800" height="532" alt="Tabelle_Horizontal_mit_Elementen"></p>
+<h4>Beispiel:</h4>
+<form action="#">
+  <table class="tbl-horizontal">
+    <caption>Tabelle mit Elementen</caption>
+    <colgroup>
+      <col class="wi-small">
+      <col class="wi-lightwide">
+    </colgroup>
+    <tbody>
+      <tr>
+        <th>Feldbezeichnung</th>
+        <td><input type="text" value="" size="10" class="wi-lightwide" name="npt1"></td>
+      </tr>
+      <tr>
+        <th>Feldbezeichnung</th>
+        <td><input type="text" value="" size="10" class="wi-lightwide" name="npt2">kg</td>
+      </tr>
+      <tr>
+        <th>Feldbezeichnung</th>
+        <td><select id="slct1" name="slct1" class="wi-lightwide"><option value="Halli">Halli</option><option value="Hallo">Hallo</option></select></td>
+      </tr>
+      <tr>
+        <th colspan="2"><span class="label above">Feldbezeichnung</span><textarea name="txtarea1" class="wi-small-lightwide" cols="10" rows="4"></textarea></th>
+      </tr>
+    </tbody>
+  </table>
+</form>
+
+
+
+
+
+
+
+
+
+<h2>Listen-Tabelle mit Kopfzeile (tbl-list)</h2>
+<p>Diese komplexen Tabellen benötigen ein zwingend korrektes Konstrukt, um eine optimale Darstellungsqualität zu erreichen, die genug Freiraum für nachträgliche Gestaltung via CSS erlaubt. THEAD- und TBODY-Container müssen zwingend gesetzt sein, optional auch der TFOOT-Container für Summenangaben. Listen-Tabellen, die sich über die ganze Seite erstrecken, müssen nicht zwingend in einem .WRAPPER-Block liegen. Schmale Listen-Tabellen in einem .WRAPPER-Block erhalten automatisch links und rechts einen abschliessenden Rand. Grundlegendes Code-Beispiel:</p>
+
+<!--
+<pre><code>&lt;table class="tbl-list"&gt;
+  &lt;caption&gt;Caption der Listen-Tabelle&lt;/caption&gt;
+  &lt;colgroup&gt;
+    &lt;col class="wi-mediumsmall"&gt;&lt;col class="wi-small"&gt;&lt;col class="wi-small"&gt;
+  &lt;/colgroup&gt;
+  &lt;thead&gt;
+  &lt;tr&gt;
+    &lt;th&gt;Column Header 1&lt;/th&gt;
+    &lt;th&gt;Column Header 2&lt;/th&gt;
+    &lt;th class="right"&gt;Total Header 3&lt;/th&gt;
+  &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+  &lt;tr&gt;
+    &lt;th&gt;R1C1&lt;/th&gt;
+    &lt;td&gt;R1C2&lt;/td&gt;
+    &lt;td class="numeric"&gt;100&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;R2C1&lt;/td&gt;
+    &lt;td&gt;R2C2&lt;/td&gt;
+    &lt;td class="numeric"&gt;200&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;/tbody&gt;
+  &lt;tfoot&gt;
+    &lt;th colspan="2"&gt;Summe&lt;/th&gt;
+    &lt;th class="numeric"&gt;300&lt;/th&gt;
+  &lt;/tfoot&gt;
+&lt;/table&gt;
+</code></pre>
+ -->
+
+<div class="code-highlighted">
+<p class="p4"><span class="s5"><span class="indent"> &nbsp;&nbsp; </span>&lt;table </span><span class="s3"> class=</span><span class="s1">"tbl-list"</span><span class="s5">&gt;</span></p><p class="p3"><span class="s5"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;caption&gt;</span><span class="s1">Caption der Listen-Tabelle</span><span class="s5">&lt;/caption&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;colgroup&gt;</span></p><p class="p4"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;col </span><span class="s3"> class=</span><span class="s1">"wi-mediumsmall"</span><span class="s5">&gt;</span></p><p class="p4"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;col </span><span class="s3"> class=</span><span class="s1">"wi-mediumsmall"</span><span class="s5">&gt;</span></p><p class="p4"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;col </span><span class="s3"> class=</span><span class="s1">"wi-small"</span><span class="s5">&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;/colgroup&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;thead&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;tr&gt;</span></p><p class="p3"><span class="s5"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;th&gt;</span><span class="s1">Column Header 1</span><span class="s5">&lt;/th&gt;</span></p><p class="p3"><span class="s5"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;th&gt;</span><span class="s1">Column Header 2</span><span class="s5">&lt;/th&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;th </span><span class="s3"> class=</span><span class="s4">"right"</span><span class="s1">&gt;</span><span class="s6">Total Header 3</span><span class="s1">&lt;/th&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;/tr&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;/thead&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;tbody&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;tr&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;th&gt;</span><span class="s6">R1C1</span><span class="s1">&lt;/th&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;td&gt;</span><span class="s6">R1C2</span><span class="s1">&lt;/td&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;td </span><span class="s3"> class=</span><span class="s4">"numeric"</span><span class="s1">&gt;</span><span class="s6">100</span><span class="s1">&lt;/td&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;/tr&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;tr&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;td&gt;</span><span class="s6">R2C1</span><span class="s1">&lt;/td&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;td&gt;</span><span class="s6">R2C2</span><span class="s1">&lt;/td&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;td </span><span class="s3"> class=</span><span class="s4">"numeric"</span><span class="s1">&gt;</span><span class="s6">200</span><span class="s1">&lt;/td&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;/tr&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;/tbody&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;tfoot&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;th </span><span class="s3"> colspan=</span><span class="s4">"2"</span><span class="s1">&gt;</span><span class="s6">Summe</span><span class="s1">&lt;/th&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;th </span><span class="s3"> class=</span><span class="s4">"numeric"</span><span class="s1">&gt;</span><span class="s6">300</span><span class="s1">&lt;/th&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;/tfoot&gt;</span></p><p class="p2"><span class="s1"><span class="indent"> &nbsp;&nbsp; </span>&lt;/table&gt;</span></p></div>
+
+
+<table class="tbl-list">
+  <caption>Caption der Listen-Tabelle</caption>
+  <colgroup>
+    <col class="wi-mediumsmall"><col class="wi-small"><col class="wi-small">
+  </colgroup>
+  <thead>
+  <tr>
+    <th>Column Header 1</th>
+    <th>Column Header 2</th>
+    <th class="right">Total Header 3</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <th>R1C1</th>
+    <td>R1C2</td>
+    <td class="numeric">100</td>
+  </tr>
+  <tr>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td class="numeric">200</td>
+  </tr>
+  </tbody>
+  <tfoot>
+    <th colspan="2">Summe</th>
+    <th class="numeric">300</th>
+  </tfoot>
+</table>
+
+<p>
+Die durchaus optionalen «<code>COLGROUP > COL</code>»-Angaben können nur in Bezug auf Spaltenbreiten angewendet werden, nicht aber auf Ausrichtung oder Schriftgrösse innerhalb der Zellen der Spalte. Vielleicht ändert sich das mit zukünftigen Browser-Versionen.
+</p>
+<p>
+<b>Empfehlung:</b> Vermeiden Sie bitte bei Tabellen mit begrenzter Kardinalität die Stil-Anweisung <b><code>WIDTH="100%"</code></b>. Bei breiten Bildschirmen erschwert diese Ausbreitung die Übersicht über die Daten in den Zeilen. Mit der Klasse <code>.WI-MODERATE</code> werden niedrig-kardinale Tabellen ein wenig verbreitert.
+</p>
+
+</div>
+
+<table class="tbl-list">
+  <caption>Listen-Tabelle nicht im .WRAPPER-Block und mit 100% Breite</caption>
+  <colgroup>
+    <col class="wi-normal"><col class="wi-normal"><col class="wi-normal"><col class="wi-normal"><col class="wi-normal">
+    <col class="wi-wide"><col class="wi-normal"><col class="wi-normal"><col class="wi-normal"><col class="wi-normal right">
+  </colgroup>
+  <thead>
+  <tr>
+    <th></th>
+    <th>Column 1</th>
+    <th>Column 2</th>
+    <th>Column 3</th>
+    <th>Column 4</th>
+    <th>Column 5</th>
+    <th>Column 6</th>
+    <th class="right">Column 7</th>
+    <th class="right">Column 8</th>
+    <th class="right">Column 9</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <th>Row 1</th>
+    <td>R1C1</td>
+    <td>R1C2R1C2R1C2R1C2</td>
+    <td>R1C3</td>
+    <td>R1C4</td>
+    <td>R1C5</td>
+    <td>R1C6</td>
+    <td class="right">R1C7</td>
+    <td class="right">R1C8</td>
+    <td class="right">R1C9</td>
+  </tr>
+  <tr>
+    <th>Row 2</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+    <td>R2C5</td>
+    <td>R2C6</td>
+    <td class="right">R2C7</td>
+    <td class="right">R2C8</td>
+    <td class="right">R2C9</td>
+  </tr>
+  <tr>
+    <th>Row 3</th>
+    <td>R3C1</td>
+    <td>R3C2</td>
+    <td>R3C3</td>
+    <td>R3C4</td>
+    <td>R3C5R3C5R3</td>
+    <td>R3C6</td>
+    <td class="right">R3C7</td>
+    <td class="right">R3C8</td>
+    <td class="right">R3C9</td>
+  </tr>
+  <tr>
+    <th>Row 4</th>
+    <td>R4C1</td>
+    <td>R4C2</td>
+    <td>R4C3</td>
+    <td>R4C4</td>
+    <td>R4C5</td>
+    <td>R4C6</td>
+    <td class="right">R4C7</td>
+    <td class="right">R4C8</td>
+    <td class="right">R4C9</td>
+  </tr>
+  </tbody>
+  <tfoot>
+    <th colspan="7">Summen</th>
+    <th class="numeric">Summe C7</th>
+    <th class="numeric">Summe C8</th>
+    <th class="numeric">Summe C9</th>
+  </tfoot>
+</table>
+
+
+</body>
+</html>

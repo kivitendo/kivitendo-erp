@@ -1,0 +1,380 @@
+/* ------------------------------------------------------------- */
+/* CONTROL PANELS (control_panels.less)                          */
+/* ------------------------------------------------------------- */
+
+// ----------------------------------------------------------------------------
+//
+// CONTROL PANELS
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION: all kind boxes/tools for selecting, including and entering data
+//
+// CONTENTS:
+// - FORM-ADDITION
+// - SELECT ITEM
+// - FILTER-TOGGLE-PANEL
+// - INPUT-PANEL
+// - PAGINATE
+// - JUMP-TO
+// ----------------------------------------------------------------------------
+
+
+
+// --------------------------------------
+// CONTROL-PANEL
+// --------------------------------------
+// General Class for all control panels
+.control-panel {
+  border:           @controlpanel-border !important;
+  background-color: @controlpanel-bg-color;
+  background:        @controlpanel-bg-style ;
+  border-radius:    @controlpanel-radius;
+  //color:            red ;
+  overflow:         hidden ;
+
+  span.label{
+    padding-right: 0.6em ;
+  }
+}
+
+
+
+
+// --------------------------------------
+// FORM-ADDITION
+// --------------------------------------
+// Settings for including fields in a report
+.form-addition{
+  padding:          @controlpanel-padding-bold !important ;
+  margin:           @controlpanel-margin !important ;
+  width:            auto !important ;
+  display:          inline-block ;
+
+  h3{
+//    color:          @controlpanel-h3-color  !important;
+//    font-size:      @controlpanel-h3-size   !important;
+//    font-weight:    @controlpanel-h3-weight !important;
+    margin:         0.3em 0 0.1em 0 !important;
+    padding:         0 ;
+  }
+  h4{
+   color:          @controlpanel-h4-color !important;;
+   font-size:      @controlpanel-h4-size;
+   font-weight:    @controlpanel-h4-weight;
+   font-style:     @controlpanel-h4-style;
+  }
+
+  div.list{
+    margin-top: 0.2em !important ;
+    &.col{
+//       min-width: 130px ;
+//       max-width: 240px ;
+    }
+  }
+} // /.form-addition
+
+
+
+// --------------------------------------
+// SELECT ITEM
+// --------------------------------------
+// Panel for selecting a hidden Record (e.g. Contacts, Delivery Address etc.)
+.select-item{
+  display:          inline-block ;
+  width:            auto ;
+  height:           auto;
+  padding:          @controlpanel-select-item-padding ;
+  margin:           @controlpanel-margin ;
+  color:            @controlpanel-color ;
+  font-size:        @font-size-smaller ;
+  border:           @controlpanel-border ;
+  border-radius:    @controlpanel-radius ;
+  background-color: @controlpanel-bg-color ;
+  background:        @_bg_style_button ; // PENDENT:
+
+  input,
+  select{
+    margin-left:    0.6em ;
+  }
+  span.label{
+    float:          left ;
+    color:          @controlpanel-color ;
+  }
+  table{
+    margin: 0 ;
+    td, th{ color:  @controlpanel-color ; }
+  }
+
+  // see /controller.pl?action=FinancialOverview
+  // PENDENT: anders loesen oder einfacher benennen
+  .floating-boxes {
+    display: table ;
+    margin: 0.4em 0 0.8em 0 ;
+
+    .floating-box {
+      display: table-cell ;
+      float: left ;
+      font-size: @font-size-smaller ;
+      height: 1.9em ;
+      vertical-align: middle;
+      padding: 0 2.0em 0 0 ;
+      .button, button{
+        margin: 0 ;
+      }
+      label,
+      span.label{
+        width: auto;
+        display: inline-block;
+        height: 160%;
+      }
+      input[type="checkbox"]{ margin: 0 0.4em 0 0 ; }
+      select { margin: -0.3em 0 0 0; }
+    }
+  }
+
+} // /.select-item
+
+// Select function within standard wrapper
+.ui-tabs-panel > .select-item {
+  margin:         @contentbox-margin;
+  vertical-align: top ;
+
+}
+.wrapper > .select-item {
+  margin:     0.8em 0 1.0em 0 ;
+}
+
+// selects with text filters
+div.filtered_select input, div.filtered_select select {
+  display: block;
+}
+
+div.filtered_select input {
+  background-image: url(../../image/glass14x14.png);
+  background-repeat: no-repeat;
+  background-position: 2px 2px;
+  border-radius: 0px;
+  border: solid #a0a0a0 1px;
+  border-bottom: none;
+  padding: 0px;
+  padding-left: 20px;
+  margin: 0;
+  width: 500px;
+}
+
+div.filtered_select select {
+  width: 522px;
+}
+
+
+
+
+// --------------------------------------
+// FILTER-TOGGLE-PANEL
+// --------------------------------------
+// for togglin a filter panel
+// see inlcude file /templates/webpages/common/filter-toggle.html
+.toggle_panel.control-panel{
+  border:         none !important;
+  background:     none !important;
+  border-radius:   0 !important;
+  overflow:       visible !important;
+}
+.toggle_panel{
+  & > a.button.toggle {
+    padding:   0.2em 0 0.2em 1.4em;
+    &:hover {
+      background-color: @controlpanel-bg-color !important;
+      text-decoration:   underline ;
+    }
+  }
+  span.summary {
+    font-size:     @font-size-small;
+    padding-left: 2.0em;
+    color:         @controlpanel-color;
+  }
+  .toggle_panel_block {
+    display:          block;
+    overflow:         hidden;
+    padding:          @controlpanel-padding ;
+    margin:            2em 1em 0em 0; ;
+    background-color: @controlpanel-bg-color;
+
+    border:                     @controlpanel-border ;
+    border-bottom-left-radius:  @controlpanel-radius ;
+    border-bottom-right-radius: @controlpanel-radius ;
+    border-top-right-radius:    @controlpanel-radius ;
+    margin-top: -1px ;
+
+    .buttons{
+      clear:     left ;
+      padding:   0 !important;
+      margin:   0;
+    }
+  }
+
+  // PENDENT: ggf. anpassen an Controlpanel-Farbtoene
+  .tbl-horizontal {
+    //th{ color: @base-superdark ; }
+    margin-right: 1.6em;
+  }
+
+}
+
+
+
+
+// --------------------------------------
+// INPUT-PANEL
+// --------------------------------------
+// Panel for entering data via jQuery-Scripts etc.
+#content .input-panel {
+  display:                    inline-block;
+  overflow:                   hidden ;
+  padding:                    @controlpanel-padding-narrow ;
+  margin:                     @margin-from-wrapper ;
+  background-color:           @controlpanel-bg-color;
+  border:                     @controlpanel-border ;
+  border-radius:              @controlpanel-radius ;
+//  border-bottom-left-radius:  @controlpanel-radius ;
+//  border-bottom-right-radius: @controlpanel-radius ;
+//  border-top-right-radius:    @controlpanel-radius ;
+//  border-top-left-radius:     @controlpanel-radius ;
+  width:                       auto ;
+  min-width:                   30% ;
+  //max-width: 70% ;
+
+  & > h3 {
+    margin-top: 0 ;
+  }
+  p      {
+    font-size:   @font-size-smaller ;
+    margin:     0 0 0.4em 0 ;
+  }
+  table.condensed {
+    margin-bottom: 0.1em;
+    caption { padding-top: 0.1em ; }
+    td span.label {
+      padding-right: 0.6em ;
+      &.above{ margin-bottom: 0em ; }
+    }
+  }
+}
+#content .ui-tabs-panel > .input-panel { margin-left: @margin-left-from-content }
+
+
+// --------------------------------------
+// PAGINATE
+// --------------------------------------
+.paginate {
+  display:          inline-block ;
+  width:            auto ;
+  height:           auto ;
+  padding:          0 ;
+  margin:           @controlpanel-margin ;
+  border:           @controlpanel-border ;
+  border-radius:    @controlpanel-radius ;
+  background-color: @controlpanel-bg-color ;
+  color:            @controlpanel-color ;
+
+  & > a,
+  & > span {
+    padding: 0.4em 0.6em !important ;
+    margin-top: -1px ;
+  }
+
+  .paginate-prev {
+    display:          inline-block ;
+    &::before{ content: "◄" ; }
+    &:hover{
+      border-bottom-left-radius: @controlpanel-radius ;
+      border-top-left-radius:    @controlpanel-radius ;
+    }
+  }
+  .paginate-next {
+    display:          inline-block ;
+    &::after{ content: "►"; }
+    &:hover{
+      border-bottom-right-radius: @controlpanel-radius ;
+      border-top-right-radius:    @controlpanel-radius ;
+    }
+  }
+  .paginate-page {
+    display:          inline-block ;
+    padding: 0 ;
+  }
+  span.paginate-page {
+    background-color: @controlpanel-active-bg;
+    color:            @controlpanel-active-text;
+  }
+  a:link, a:visited{  }
+  a:hover,
+  a:active{
+    background-color: @controlpanel-bg-hover;
+    color:            @controlpanel-bg-hover-text;
+    text-decoration: none;
+  }
+}
+
+
+
+// --------------------------------------
+// JUMP-TO
+// --------------------------------------
+// for jumping e.g. to a address within a browser window
+// PENDENT: anders und allgemein loesen
+table.jump-to {
+  &.right { float: right; }
+
+  border: @controlpanel-border;
+  border-radius: @controlpanel-radius ;
+  background-color: @controlpanel-bg-color;
+  margin: 0.8em 2.0em 0 1.2em !important;
+}
+
+
+
+// -------------------
+// FLOAT-CELLS TABLE
+// Table with left-floating cell
+div.float-cells-table{
+  display: block ;
+  width: 100% ;
+  overflow: hidden;
+  font-size: 80% ;
+
+  div.caption{
+    float: left;
+    display: block;
+    width: auto;
+    padding: 0 2.0em 0 0;
+    margin: 0;
+
+  }
+  div.cells{
+    float: left;
+    display: block;
+    overflow: hidden;
+    width: 100%;
+     background-color: #F66;
+
+    div.cell{
+      float: left;
+      padding: 0 2.0em 0 0;
+      border-right: 1px #fff solid;
+      background-color: #FC6;
+    }
+  }
+}
+
+
+
+
+
+// --------------------------------------
+// DEZIDIERTE ELEMENTE
+// --------------------------------------
+
+.control-panel select#contact_cp_id {
+
+}

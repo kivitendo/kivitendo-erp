@@ -1,0 +1,425 @@
+/* ------------------------------------------------------------- */
+/* JQUERY-UI OVERRIDES (jquery-ui_overrides.less)                */
+/* ------------------------------------------------------------- */
+
+
+// ----------------------------------------------------------------------------
+//
+// jQuery UI CUSTOM
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+// Overrides of jQuery UI LESS or CSS stuff
+//
+// Contents:
+// - UI WIDGETS IN GENERAL
+// - TAB WIDGET
+//   - DIV-Container with Tabs & Panels
+//     - LIST WITH TABS (UL)
+//       - SINGLE TAB (LI)
+//         - LINKS
+//         - STATES (Active, Default, Hover)
+//     - UI-TABS-NAV (Class)
+//     - UI-TABS-COLLAPSIBLE
+//     - DIV (UI-TABS-PANEL)
+//       - UI-TABS-PANEL (CLASS)
+// UI-AUTOCOMPLETE
+// ----------------------------------------------------------------------------
+
+
+
+
+// --------------------------------------
+// UI WIDGETS IN GENERAL
+// --------------------------------------
+
+
+
+
+
+
+// --------------------------------------
+// TAB WIDGET
+// --------------------------------------
+// Container with Tabs & Panels (DIV)
+
+.tabwidget {
+  width:       100%;
+  overflow:   hidden;
+  position:   relative;
+  zoom:       1;
+  padding:     0 !important;
+  border:     0;
+
+  color:       @tabs-default-color;
+  //background: @tabs-bg;
+  background: transparent;
+
+
+
+  // -----------------------
+  // LIST WITH TABS (UL)
+  // -----------------------
+  > ul {
+    display:           block;
+    list-style:       none;
+    outline:           0;
+    margin:           0;
+    padding:           0.2em 0.2em 0 0;
+    margin:           0;
+
+    font-size:         @font-size-base; // hps
+    font-weight:       bold;
+    line-height:       1.3;
+    text-decoration:  none;
+
+    // -----------------------
+    // SINGLE TAB (LI)
+    // -----------------------
+    li {
+      position:   relative;
+      top:        1px;
+      float:      left;
+      list-style: none;
+
+      margin:      1px 0.2em 0 0;
+      padding:     0;
+      white-space: nowrap;
+
+      border-bottom:           0 !important;
+      border-top-right-radius: @tabs-border-radius;
+      border-top-left-radius:  @tabs-border-radius;
+      border:                  1px solid #cccccc;
+
+      background-color:    @tabs-default-bg ;
+      color:               @tabs-default-color;
+      font-size:           @font-size-smaller ;
+      font-weight:         bold;
+
+      &.ui-tabs-selected {
+        margin-bottom:    0;
+        padding-bottom:   1px;
+
+        a { cursor:       pointer; }
+      }
+
+      // -----------------------
+      // LINKS
+      // -----------------------
+      a {
+        float:           left;
+        padding:         0.2em 0.7em;
+        text-decoration: none;
+        cursor:          pointer;
+      }
+
+      // -----------------------
+      // STATES (Active, Default, Hover)
+      // -----------------------
+      // Outline: 0 ; in anchor to avoid dotted frame after click
+
+      &.ui-state-default{
+        margin:       0 0 0 0.6em;
+        background:   @tabs-default-bg;
+        color:         @tabs-default-color;
+        border:       1px @tabs-border-color solid;
+        font-weight:   normal;
+
+        a,
+        a:link {
+          color:       @tabs-default-color;
+          font-weight: normal;
+        }
+      }
+
+      &.ui-state-hover{
+        color:             @tabs-default-hover-color;
+        background-color: @tabs-default-hover-bg;
+        a,
+        a:hover {}
+      }
+
+      &.ui-state-active {
+        color:               @tabs-active-color;
+        background-color:   @tabs-active-bg;
+
+        a,
+        a:link,
+        a:visited {
+          color:             @tabs-active-color;
+          outline:           0 ;
+        }
+
+        &.ui-state-hover {
+          color: @tabs-active-hover-color;
+          a,
+          a:hover {}
+        }
+      } // /&.ui-state-active
+
+      &.ui-state-disabled a {
+        cursor:   text;
+        outline:   0 ;
+      }
+      &.ui-state-processing a { cursor: text; }
+      &.ui-state-loading    a { outline: 0 ;  }
+
+    }
+    // /li
+
+    // UL
+    &.ui-widget-header {
+      //background: transparent;
+      //border: 0px;
+      //color: #fe5f14;
+    }
+
+
+
+    // -----------------------
+    // UI-TABS-NAV (Class)
+    // -----------------------
+    // UL
+    &.ui-tabs-nav {
+      position: fixed;
+      top: 100px;
+      width: 100%;
+      z-index: 1029;
+
+      margin: 0 0.4em 0.6em 0;
+      padding: 0.4em 0.2em 0 0.7em;
+
+      background-color: @tabs-bg;
+      border-bottom: 1px @tabs-border-color solid !important;
+
+      li {
+        margin: 1px 0.2em 0 0;
+
+        a { padding: 0.2em 0.7em; }
+
+        &.ui-tabs-active {
+          border-bottom: 1px @tabs-active-bg solid !important ;
+          margin-bottom: -1px;
+          padding-bottom: 0;
+        }
+      }
+    } // /.ui-tabs-nav
+
+  }
+  // /ul
+
+
+  // -----------------------
+  // UI-TABS-COLLAPSIBLE
+  // -----------------------
+  &.ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a {
+     cursor: pointer;
+  }
+
+
+
+
+
+  // -----------------------
+  // DIV (UI-Tabs-Panel)
+  // -----------------------
+  // Single Panel, selected via Tabs
+  // Some of the Panels do not have a class PENDENT: loesen!!!
+
+  //--------------------------
+  // UI-Tabs-Panel (DIV WITHOUT CLASS)
+  // --------------------------
+  & > div {
+    display: none;
+    //border-top: 1px solid #999 !important;
+    //border-left: 1px solid #999 !important;
+    //border-right: 1px solid #999 !important;
+    padding-top: 1.8em !important;
+    border-bottom: none;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    overflow: hidden ;
+
+    //--------------------------
+    // UI-Tabs-Panel (DIV WITH CLASS)
+    // --------------------------
+    &.ui-tabs-panel{
+      width: 100%;
+      overflow: hidden;
+      //background-color: @tabs-panel-bg;
+      //background-color: transparent;
+      display: block;
+
+      // further tabwidget within a tabwidget (documents tab etc.)
+      & > .tabwidget{
+        position: relative ;
+
+        & > .ui-tabs-nav{
+          position: relative ;
+          top: auto;
+          //background: none;
+          //background-color: @tabs-bg;
+          background-color: transparent;
+        }
+
+        & > .ui-tabs-panel {
+          background-color: @tabs-bg ;
+          background-color: transparent ;
+          position: relative ;
+          top: auto;
+          padding-top: 0 !important ;
+        }
+        //.ui-tabs-nav{  }
+      }
+
+      &.ui-widget-content { border: 0 ;}
+
+    } //  .ui-tabs-panel
+  } // /div (.ui-tabs-panel)
+} //  /.tabwidget
+
+
+
+
+
+// --------------------------------------
+// UI-DIALOG
+// --------------------------------------
+
+//.ui-dialog {
+//  border: 1px solid #333333;
+//  color: #333333;
+//  border-radius: @controlpanel-radius;
+//
+//  .ui-dialog-titlebar {
+//    button.ui-dialog-titlebar-close {
+//      background: #bbb !important;
+//    }
+//  }
+//  .ui-widget-header {
+//    button.ui-dialog-titlebar-close {
+//      right: 0.3em;
+//      top: 0;
+//      width: 21px;
+//      margin: 5px 0 0 0;
+//    }
+//  }
+//}
+
+
+
+
+
+// --------------------------------------
+// AUTOCOMPLETE
+// --------------------------------------
+
+//.ui-autocomplete {
+//  z-index: 9000 ;
+//
+//  li{
+//    a{
+//      display: block ;
+//      font-size: 80% ;
+//      padding-top: 0.4em !important;
+//      padding-bottom: 0.4em !important;
+//      &:hover{
+//        background-color: #C9C9C9;
+//        border: none ;
+//        color: #000 ;
+//      }
+//    }
+//  }
+//}
+
+
+
+
+// -------------------
+// Date_Picker
+// Select Date in Popover
+// PENDENT: Ausrichtung vertikal in Zelle & wo eingesetzt
+//input.datepicker{
+  //margin: -0.3em 0 0 0 !important;
+  //padding: 0 !important;
+//}
+
+
+
+// --------------------------------------
+// DATEPICKER
+// --------------------------------------
+
+// Forward / Backward Arrows
+//.ui-widget-header {
+//  .ui-icon {
+//    background-image: url(ui-lightness/images/ui-icons_222222_256x240.png);
+//  }
+//  .ui-state-hover{
+//    .ui-icon{
+//      background-image: url(ui-lightness/images/ui-icons_ef8c08_256x240.png);
+//      background: #ffffff;
+//    }
+//  }
+////  select.ui-datepicker-month,
+////  select.ui-datepicker-year {
+////    width: 48%;
+////  }
+//}
+
+
+
+
+// Calendar symbol
+//img.ui-datepicker-trigger{
+//  vertical-align: middle;
+//  margin-left: 0.2em ;
+//}
+// Calender (Table)
+/*
+.ui-datepicker-calendar  {
+  .ui-state-highlight{
+    color: #ffffff ;
+    background-color: @gray-standard;
+    border: 1px @gray-standard solid
+  }
+  // Days
+  td a {
+    &.ui-state-default {
+      color: @base-dark;
+    }
+    &.ui-state-hover {
+      color: #ffffff ;
+      background-color: #000000;
+      border: #000000 ;
+    }
+    &.ui-state-active {
+      border: 1px solid @base-dark;
+      background-color: @base-dark;
+      color: @base-verylight;
+    }
+
+  }
+
+} // /.ui-datepicker-calendar
+*/
+//.ui-state-hover,
+//.ui-widget-content .ui-state-hover,
+//.ui-widget-header .ui-state-hover,
+//.ui-state-focus,
+//.ui-widget-content .ui-state-focus,
+//.ui-widget-header .ui-state-focus {
+//  border: 1px solid #000000;
+//  background: #ffffff;
+//  color: #000000;
+//}
+//
+//.ui-state-default,
+//.ui-state-hover,
+//.ui-state-focus,
+//.ui-state-active {
+//  .ui-icon {
+//    background-image: url(ui-lightness/images/ui-icons_777777_256x240.png) !important;
+//  }
+//}

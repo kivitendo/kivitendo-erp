@@ -1,0 +1,258 @@
+/* ------------------------------------------------------------- */
+/* VARIABLES COLOR (variables_color_gray_standard.less) Standard Grey */
+/* ------------------------------------------------------------- */
+.bg-body {
+  background-color: #b0d5bf;
+}
+.bg-content {
+  background-image: linear-gradient(to bottom, #eff7f2, #b0d5bf);
+}
+h1::after {
+  content: " pine";
+}
+:root {
+  --gray-standard: #888888;
+  --gray-superdark: #000000;
+  --gray-verydark: #222222;
+  --gray-darker: #444444;
+  --gray-dark: #666666;
+  --gray-light: #aaaaaa;
+  --gray-lighter: #cccccc;
+  --gray-verylight: #eeeeee;
+  --gray-superlight: #ffffff;
+  --color-standard: #118040;
+  --color-superlight: #ffffff;
+  --color-verylight: #eff7f2;
+  --color-lighter: #cfe6d9;
+  --color-light: #b0d5bf;
+  --color-dark: #07331a;
+  --color-darker: #052211;
+  --color-verydark: #021109;
+  --color-superdark: #000000;
+  --msg-ok-strong: #013717;
+  --msg-ok-light: #a7fac9;
+  --msg-error-strong: #8c0713;
+  --msg-error-light: #f5dadb;
+  --msg-hint-strong: #1b85a3;
+  --msg-hint-light: #ecf7fa;
+  --msg-warning-strong: #725c03;
+  --msg-warning-light: #e7e4b3;
+  --color-green-strong: #003c18;
+  --color-green-light: #3cff8a;
+  --color-red-strong: #ae0014;
+  --color-red-light: #ffaeb7;
+  --color-blue-strong: #209ec8;
+  --color-blue-light: #ebf8fc;
+  --color-orange-strong: #8d6a00;
+  --color-orange-light: #ffe38d;
+  --spin_60: #115180;
+  --spin_120: #401180;
+  --spin_180: #801151;
+  --spin_240: #804011;
+  --style-ocean: #2e6ffd;
+  --style-light_blue: #336699;
+  --style-aqua: #0f80ff;
+  --style-turquoise: #21ffff;
+  --style-pine: #118040;
+  --style-asparagus: #808004;
+  --style-petrol: #108080;
+  --style-salmona: #990033;
+  --style-salmon: #fc6666;
+  --style-tangerine: #fd8008;
+  --style-marascino: #fb0207;
+  --style-maroon: #800040;
+  --style-strawberry: #fb0280;
+  --style-pure_red: #fc7d86;
+  --style-old_lemon: #e0e00a;
+  --style-yellow_to_green: #cad008;
+  --style-eggplant: #400080;
+  --style-plum: #800080;
+  --style-grape: #8000ff;
+  --style-magenta: #fb02ff;
+  --style-lavender: #cc66ff;
+  --style-cayenne: #800002;
+  --style-mocha: #804003;
+  --style-cantaloupe: #fecc66;
+  --style-dark_brown: #6d3702;
+  --style-orange_brown: #cc6600;
+  --style-smack_brown: #996600;
+  --style-green_brown: #666633;
+}
+.color-standard {
+  color: var(--color-standard);
+}
+.color-superlight {
+  color: var(--color-superlight);
+}
+.color-verylight {
+  color: var(--color-verylight);
+}
+.color-lighter {
+  color: var(--color-lighter);
+}
+.color-light {
+  color: var(--color-light);
+}
+.color-dark {
+  color: var(--color-dark);
+}
+.color-darker {
+  color: var(--color-darker);
+}
+.color-verydark {
+  color: var(--color-verydark);
+}
+.color-superdark {
+  color: var(--color-superdark);
+}
+.bg-standard {
+  background-color: var(--color-standard);
+}
+.bg-superlight {
+  background-color: var(--color-superlight);
+}
+.bg-verylight {
+  background-color: var(--color-verylight);
+}
+.bg-lighter {
+  background-color: var(--color-lighter);
+}
+.bg-light {
+  background-color: var(--color-light);
+}
+.bg-dark {
+  background-color: var(--color-dark);
+}
+.bg-darker {
+  background-color: var(--color-darker);
+}
+.bg-verydark {
+  background-color: var(--color-verydark);
+}
+.bg-superdark {
+  background-color: var(--color-superdark);
+}
+.msg-ok {
+  background-color: var(--msg-ok-light);
+  color: var(--msg-ok-strong);
+  border-color: var(--msg-ok-strong);
+}
+.msg-error {
+  background-color: var(--msg-error-light);
+  color: var(--msg-error-strong);
+  border-color: var(--msg-error-strong);
+}
+.msg-hint {
+  background-color: var(--msg-hint-light);
+  color: var(--msg-hint-strong);
+  border-color: var(--msg-hint-strong);
+}
+.msg-warning {
+  background-color: var(--msg-warning-light);
+  color: var(--msg-warning-strong);
+  border-color: var(--msg-warning-strong);
+}
+.color-ok {
+  background-color: var(--color-green-light);
+  color: var(--color-green-strong);
+  border-color: var(--color-green-strong);
+}
+.color-error {
+  background-color: var(--color-red-light);
+  color: var(--color-red-strong);
+  border-color: var(--color-red-strong);
+}
+.color-hint {
+  background-color: var(--color-blue-light);
+  color: var(--color-blue-strong);
+  border-color: var(--color-blue-strong);
+}
+.color-warning {
+  background-color: var(--color-orange-light);
+  color: var(--color-orange-strong);
+  border-color: var(--color-orange-strong);
+}
+.style-ocean {
+  background-color: var(--style-ocean);
+}
+.style-light_blue {
+  background-color: var(--style-light_blue);
+}
+.style-aqua {
+  background-color: var(--style-aqua);
+}
+.style-turquoise {
+  background-color: var(--style-turquoise);
+}
+.style-pine {
+  background-color: var(--style-pine);
+}
+.style-asparagus {
+  background-color: var(--style-asparagus);
+}
+.style-petrol {
+  background-color: var(--style-petrol);
+}
+.style-salmona {
+  background-color: var(--style-salmona);
+}
+.style-salmon {
+  background-color: var(--style-salmon);
+}
+.style-tangerine {
+  background-color: var(--style-tangerine);
+}
+.style-marascino {
+  background-color: var(--style-marascino);
+}
+.style-maroon {
+  background-color: var(--style-maroon);
+}
+.style-strawberry {
+  background-color: var(--style-strawberry);
+}
+.style-pure_red {
+  background-color: var(--style-pure_red);
+}
+.style-old_lemon {
+  background-color: var(--style-old_lemon);
+}
+.style-yellow_to_green {
+  background-color: var(--style-yellow_to_green);
+}
+.style-eggplant {
+  background-color: var(--style-eggplant);
+}
+.style-plum {
+  background-color: var(--style-plum);
+}
+.style-grape {
+  background-color: var(--style-grape);
+}
+.style-magenta {
+  background-color: var(--style-magenta);
+}
+.style-lavender {
+  background-color: var(--style-lavender);
+}
+.style-cayenne {
+  background-color: var(--style-cayenne);
+}
+.style-mocha {
+  background-color: var(--style-mocha);
+}
+.style-cantaloupe {
+  background-color: var(--style-cantaloupe);
+}
+.style-dark_brown {
+  background-color: var(--style-dark_brown);
+}
+.style-orange_brown {
+  background-color: var(--style-orange_brown);
+}
+.style-smack_brown {
+  background-color: var(--style-smack_brown);
+}
+.style-green_brown {
+  background-color: var(--style-green_brown);
+}

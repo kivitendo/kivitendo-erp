@@ -1,0 +1,800 @@
+/* ------------------------------------------------------------- */
+/* FORM ELEMENTS (forms.less)                                    */
+/* ------------------------------------------------------------- */
+
+// ----------------------------------------------------------------------------
+//
+// FORMS & FORM-ELEMENTS
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+// The properties of every form and form element should be specified here
+//
+//
+// CONTENTS:
+// - FORM
+// -- .box
+// - FORM ELEMENTS
+// -- input, textarea, select
+// -- focused elements
+// - BUTTONS
+// - LABELS
+// - FIELDSET
+// - DIMENSIONS:
+//   - Single line input fields
+//   - Select elements
+// - DATA FORMAT
+// - SPECIALS:
+//   - Date picker (JQuery-UI)
+// - MIXED FORM-TABLES
+// - PLACEHOLDER-TEXT
+// - JQUERY-CONTAINERS FOR FIELDS (Picker etc.)
+// ----------------------------------------------------------------------------
+
+
+/* forms.less */
+
+// --------------------------------------
+// FORM
+// --------------------------------------
+// At first we tried to nest all form elements within the form tag
+// but it is not possible because some forms (print dialog etc.) do not have
+// a surrounding form element
+form {
+  display:     table;
+  width:       100%;
+  text-align: left;
+  margin:     0 auto 0 auto;
+
+
+  // If Form must be a block container
+  // PENDENT: anschauen
+  &.box {
+    display:   block;
+    overflow: hidden ;
+    padding:   0 0 1.6em 0 ;
+  }
+
+}
+// /form
+
+
+  // --------------------------------------
+  // FORM-ELEMENTS
+  // --------------------------------------
+  //
+  input,
+  textarea,
+  select {
+    font-family:       @font-family-sans-serif ;
+    //font-size:         @font-size-smaller ;
+    padding:           0.2em 0.2em 0.2em @padding-databoxes-left ;
+    border:           1px;
+    border-color:     darkgray lightgray lightgray;
+    border-style:     solid;
+    outline:           none;
+    background-color: #fff ;
+
+    &[type="text"],
+    &[type="password"] {
+
+    }
+    // PENDENT: data type
+    &[type="text"] {
+      &.accent{
+        font-weight:   bold ;
+        font-size:     130% !important ;
+        padding:       0.6em auto !important ;
+      }
+    }
+  }
+  // /input, textarea, select
+
+
+  textarea {
+    resize: vertical;
+  }
+
+
+
+
+
+  // --------------
+  // Focused Elements
+  input[type="text"],
+  input[type="password"],
+  textarea,
+  select {
+    &:focus,
+    &:active {
+      background-color: @formelement-focus-bg ;
+      border:           @formelement-focus-border ;
+      color:             @formelement-focus-text ;
+    }
+  }
+
+
+
+  // --------------
+  // Forced Padding for Pop-Down-Symbol
+  // PENDENT: Pop-Down-Symbol wo definiert?
+
+  select {
+    // background: white url('../image/select-down.png') no-repeat scroll right center;
+    //padding-right:         1.0em;
+    //padding-left:          0.6em ;
+    &.helper {
+       background-color:   @gray-superlight;
+    }
+    & > option {
+      padding-left:          0.6em ;
+    }
+  }
+
+
+
+
+
+
+
+  // --------------------------------------
+  // SPECIAL INPUT TYPES
+  // --------------------------------------
+
+  input {
+    &[type="file"]{
+      padding:             0.8em;
+      background-color:   @gray-lighter;
+      color:               @gray-dark ;
+      border:             1px @gray-dark solid ;
+      // PENDENT: geht wahrscheinlich nicht, oder muss anders geloest werden
+      // Hier handelt es sich um den "Select File"-Button
+      button,
+      input[type="button"] {
+        background-color: #A3FFA8;
+      }
+    }
+  }
+
+
+
+
+  // --------------------------------------
+  // LABELS
+  // --------------------------------------
+
+  label {
+    cursor:             pointer;
+    vertical-align:     top;
+    display:             inline-block;
+    width:               88% ;
+    color:               @base-data-label-color ;
+
+    &:link,
+    &:visited {
+      text-decoration: none ;
+    }
+    &:hover {
+      //color:             #000 ;
+      text-decoration:   underline ;
+    }
+  }
+
+
+
+
+  // --------------------------------------
+  // FIELDSET
+  // --------------------------------------
+
+  fieldset {
+    margin-top:       15px;
+    color:             black;
+    font-weight:       normal;
+    font-size:         @font-size-large;
+    text-transform:   uppercase;
+    border-color:     grey;
+    border-width:     1px ;
+    margin:           0.4em 0.6em 1.4em 0.6em;
+
+    // Heading within FIELDSET */
+    h4 {
+      font-weight: normal ;
+      font-size:   @h4-size ;
+      margin:      0;
+      padding:     0 0 0.2em 0;
+    }
+  }
+
+
+
+
+  // --------------------------------------
+  // DIMENSIONS
+  // --------------------------------------
+  input{
+
+    // 1 Lined input field
+    // PENDENT: bei Verwendung von weiteren HTML5-Typen Typ-Deklaration erweitern
+    &[type="text"],
+    &[type="password"]{
+      &.wi-smallest     { width:     @input-wi-smallest    ; } //   2.0em
+      &.wi-verysmall    { width:     @input-wi-verysmall   ; } //   4.0em
+      &.wi-small        { width:     @input-wi-small       ; } //   8.8em
+      &.wi-mediumsmall  { width:     @input-wi-mediumsmall ; } //   8.8em
+      &.wi-normal       { width:     @input-wi-normal      ; } //  12.0em
+      &.wi-lightwide    { width:     @input-wi-lightwide   ; } //  12.0em
+      &.wi-wide         { width:     @input-wi-wide        ; } //  18.0em
+      &.wi-wider        { min-width: @input-wi-wider       ; } //  24.0em
+      &.wi-verywide     { min-width: @input-wi-verywide    ; } //  36.0em
+
+      // data types
+      &.wi-date         { width: @input-wi-small       ; } //
+      &.wi-number       { width: @input-wi-small       ; } //
+      &.wi-tinynumber   { width: @input-wi-verysmall   ; } //
+      &.wi-largenumber  { width: @input-wi-mediumsmall ; } //
+
+      // combined minus dimensions (take care of the double hyphen -- )
+      &.wi-lightwide--verysmall { width: @input-wi-lightwide--verysmall; }
+      &.wi-wide--verysmall      { width: @input-wi-wide--verysmall !important; }
+      //&.wi-wide--verysmall      { width: 203px; }
+
+    }
+    // Password (Standard size) // PENDENT: Standardgroesse ??
+     &[type="password"]{
+      //min-width: @input-wi-normal ;
+    }
+
+    // OBSOLETE // PENDENT: ggf. entfernen
+    .fixed_width {
+      width: 250px;
+    }
+  } // /DIMENSION input
+
+
+  // -------------------
+  // Select-Element
+  //
+
+  select {
+    &.wi-smallest     { width:     @select-wi-smallest    ; } //   2.0em
+    &.wi-verysmall    { width:     @select-wi-verysmall   ; }
+    &.wi-small        { width:     @select-wi-small       ; } // Datum (PENDENT: ca. 8.6em)
+    &.wi-mediumsmall  { width:     @select-wi-mediumsmall ; }
+    &.wi-normal       { width:     @select-wi-normal      ; }
+    &.wi-lightwide    { width:     @select-wi-lightwide   ; }
+    &.wi-wide         { width:     @select-wi-wide        ; }
+    &.wi-wider        { min-width: @select-wi-wider       ; }
+    &.wi-verywide     { min-width: @select-wi-verywide    ; }
+    &.wi-full         { width:     100%                   ; }
+
+    &.wi-small-normal             { width: @select-wi-small-normal } ;
+    &.wi-small-lightwide          { width: @select-wi-small-lightwide } ;
+    &.wi-small-wide               { width: @select-wi-small-wide } ;
+    &.wi-small-wider              { width: @select-wi-small-wider } ;
+    &.wi-small-verywide           { width: @select-wi-small-verywide } ;
+    &.wi-mediumsmall-normal       { width: @select-wi-mediumsmall-normal } ;
+    &.wi-mediumsmall-lightwide    { width: @select-wi-mediumsmall-lightwide } ;
+    &.wi-mediumsmall-wide         { width: @select-wi-mediumsmall-wide } ;
+    &.wi-mediumsmall-wider        { width: @select-wi-mediumsmall-wider } ;
+    &.wi-mediumsmall-verywide     { width: @select-wi-mediumsmall-verywide } ;
+    &.wi-normal-normal            { width: @select-wi-normal-normal } ;
+    &.wi-normal-lightwide         { width: @select-wi-normal-lightwide } ;
+    &.wi-normal-wide              { width: @select-wi-normal-wide } ;
+    &.wi-normal-wider             { width: @select-wi-normal-wider } ;
+    &.wi-normal-verywide          { width: @select-wi-normal-verywide } ;
+    &.wi-lightwide-normal         { width: @select-wi-lightwide-normal } ;
+    &.wi-lightwide-lightwide      { width: @select-wi-lightwide-lightwide } ;
+    &.wi-lightwide-wide           { width: @select-wi-lightwide-wide } ;
+    &.wi-lightwide-wider          { width: @select-wi-lightwide-wider } ;
+    &.wi-lightwide-verywide       { width: @select-wi-lightwide-verywide } ;
+    &.wi-wide-normal              { width: @select-wi-wide-normal } ;
+    &.wi-wide-lightwide           { width: @select-wi-wide-lightwide } ;
+    &.wi-wide-wide                { width: @select-wi-wide-wide } ;
+    &.wi-wide-wider               { width: @select-wi-wide-wider } ;
+    &.wi-wide-verywide            { width: @select-wi-wide-verywide } ;
+
+
+
+
+
+  } // /DIMENSION select
+
+
+  // -------------------
+  // Textarea-Element
+  //
+
+  textarea {
+
+    // Standard-Dimensions
+    &.wi-smallest     { width:     @textarea-wi-normal      ; } // no smallest, just normal
+    &.wi-verysmall    { width:     @textarea-wi-normal      ; } // no verysmall, just normal
+    &.wi-small        { width:     @textarea-wi-normal      ; } // no small, just normal
+    &.wi-mediumsmall  { width:     @textarea-wi-normal      ; } // no mediumsmall, just normal
+    &.wi-normal       { width:     @textarea-wi-normal      ; }
+    &.wi-lightwide    { min-width: @textarea-wi-lightwide   ; }
+    &.wi-wide         { min-width: @textarea-wi-wide        ; }
+    &.wi-wide.strict  { max-width: @textarea-wi-wide !important  ; }
+    &.wi-wider        { min-width: @textarea-wi-wider       ; }
+    &.wi-verywide     { min-width: @textarea-wi-verywide    ; }
+    &.wi-full         { width:     100%                  ; }
+
+
+    &.wi-small-small       { width: @textarea-wi-small-small ; }
+    &.wi-small-mediumsmall { width: @textarea-wi-small-mediumsmall ; margin: 0 30px 0 0 ; }
+    &.wi-small-normal      { width: @textarea-wi-small-normal ; }
+    &.wi-small-lightwide   { width: @textarea-wi-small-lightwide ; }
+    &.wi-small-wide        { width: @textarea-wi-small-wide ; }
+    &.wi-small-wider       { width: @textarea-wi-small-wider ; }
+    &.wi-small-verywide    { width: @textarea-wi-small-verywide ; }
+
+    &.wi-mediumsmall-small       { width: @textarea-wi-mediumsmall-small ; }
+    &.wi-mediumsmall-mediumsmall { width: @textarea-wi-mediumsmall-mediumsmall ; }
+    &.wi-mediumsmall-normal      { width: @textarea-wi-mediumsmall-normal ; }
+    &.wi-mediumsmall-lightwide   { width: @textarea-wi-mediumsmall-lightwide ; }
+    &.wi-mediumsmall-wide        { width: @textarea-wi-mediumsmall-wide ; }
+    &.wi-mediumsmall-wider       { width: @textarea-wi-mediumsmall-wider ; }
+    &.wi-mediumsmall-verywide    { width: @textarea-wi-mediumsmall-verywide ; }
+
+    &.wi-normal-small       { width: @textarea-wi-normal-small ; }
+    &.wi-normal-mediumsmall { width: @textarea-wi-normal-mediumsmall ; }
+    &.wi-normal-normal      { width: @textarea-wi-normal-normal ; }
+    &.wi-normal-lightwide   { width: @textarea-wi-normal-lightwide ; }
+    &.wi-normal-wide        { width: @textarea-wi-normal-wide ; }
+    &.wi-normal-wider       { width: @textarea-wi-normal-wider ; }
+    &.wi-normal-verywide    { width: @textarea-wi-normal-verywide ; }
+
+    &.wi-lightwide-small       { width: @textarea-wi-lightwide-small ; }
+    &.wi-lightwide-mediumsmall { width: @textarea-wi-lightwide-mediumsmall ; }
+    &.wi-lightwide-normal      { width: @textarea-wi-lightwide-normal ; }
+    &.wi-lightwide-lightwide   { width: @textarea-wi-lightwide-lightwide ; }
+    &.wi-lightwide-wide        { width: @textarea-wi-lightwide-wide ; }
+    &.wi-lightwide-wider       { width: @textarea-wi-lightwide-wider ; }
+    &.wi-lightwide-verywide    { width: @textarea-wi-lightwide-verywide ; }
+
+    &.wi-wide-small       { width: @textarea-wi-wide-small ; }
+    &.wi-wide-mediumsmall { width: @textarea-wi-wide-mediumsmall ; }
+    &.wi-wide-normal      { width: @textarea-wi-wide-normal ; }
+    &.wi-wide-lightwide   { width: @textarea-wi-wide-wide ; }
+    &.wi-wide-wide        { width: @textarea-wi-wide-wide ; }
+    &.wi-wide-wider       { width: @textarea-wi-wide-wider ; }
+    &.wi-wide-verywide    { width: @textarea-wi-wide-verywide ; }
+
+  } // /DIMENSION textarea
+
+  // textarea sizes for JS generated elements
+  // make sure not to use it as a standard
+  td, th { &.wi-date            > input[type="text"] { width: @input-wi-small             ; } }
+  td, th { &.wi-lightwide       > textarea { width: @textarea-wi-wide           ; } }
+  td, th { &.wi-wide            > textarea { width: @textarea-wi-wide           ; } }
+  td, th { &.wi-small-verywide  > textarea { width: @textarea-wi-small-verywide ; } }
+
+  th,
+  td {
+    &.wi-lightwide { textarea, input[type="text"], div.cke_editable, input#order_vendor_id_name { width: @textarea-wi-lightwide; } }
+    &.wi-wide      { textarea, input[type="text"], div.cke_editable, input#order_vendor_id_name { width: @textarea-wi-wide;      } }
+
+  }
+
+
+  span {
+
+    // Standard-Dimensions
+    &.wi-smallest                { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal      ; } } // no smallest, just normal
+    &.wi-verysmall               { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal      ; } } // no verysmall, just normal
+    &.wi-small                   { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal      ; } } // no small, just normal
+    &.wi-mediumsmall             { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal      ; } } // no mediumsmall, just normal
+    &.wi-normal                  { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal      ; } }
+    &.wi-lightwide               { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide   ; } }
+    &.wi-wide                    { padding: 0 ; textarea, & > div.cke_editable { width:     @textarea-wi-wide  !important        ; } }
+    &.wi-wide.strict             {                              max-width: @textarea-wi-wide !important  ; }
+    &.wi-wider                   { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wider       ; } }
+    &.wi-verywide                { padding: 0 ; textarea, div.cke_editable { min-width: @textarea-wi-verywide    ; } }
+    &.wi-full                    { padding: 0 ; textarea, div.cke_editable { width:     100%                     ; } }
+
+
+    &.wi-small-small             { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-small       ; } }
+    &.wi-small-mediumsmall       { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-mediumsmall ; margin: 0 30px 0 0 ; } }
+    &.wi-small-normal            { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-normal      ; } }
+    &.wi-small-lightwide         { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-lightwide   ; } }
+    &.wi-small-wide              { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-wide        ; } }
+    &.wi-small-wider             { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-wider       ; } }
+    &.wi-small-verywide          { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-verywide    ; } }
+
+    &.wi-mediumsmall-small       { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-mediumsmall-small       ; } }
+    &.wi-mediumsmall-mediumsmall { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-mediumsmall-mediumsmall ; } }
+    &.wi-mediumsmall-normal      { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-mediumsmall-normal      ; } }
+    &.wi-mediumsmall-lightwide   { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-mediumsmall-lightwide   ; } }
+    &.wi-mediumsmall-wide        { padding: 0 ; textarea, &.wi-mediumsmall-wide > div.cke_editable { width: @textarea-wi-mediumsmall-wide !important ; } }
+    &.wi-mediumsmall-wider       { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-mediumsmall-wider       ; } }
+    &.wi-mediumsmall-verywide    { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-mediumsmall-verywide    ; } }
+
+    &.wi-normal-small            { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-small       ; } }
+    &.wi-normal-mediumsmall      { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-mediumsmall ; } }
+    &.wi-normal-normal           { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-normal      ; } }
+    &.wi-normal-lightwide        { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-lightwide   ; } }
+    &.wi-normal-wide             { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-wide        ; } }
+    &.wi-normal-wider            { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-wider       ; } }
+    &.wi-normal-verywide         { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-verywide    ; } }
+
+    &.wi-lightwide-small         { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-small       ; } }
+    &.wi-lightwide-mediumsmall   { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-mediumsmall ; } }
+    &.wi-lightwide-normal        { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-normal      ; } }
+    &.wi-lightwide-lightwide     { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-lightwide   ; } }
+    &.wi-lightwide-wide          { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-wide        ; } }
+    &.wi-lightwide-wider         { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-wider       ; } }
+    &.wi-lightwide-verywide      { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-verywide    ; } }
+
+    &.wi-wide-small              { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-small       ; } }
+    &.wi-wide-mediumsmall        { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-mediumsmall ; } }
+    &.wi-wide-normal             { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-normal      ; } }
+    &.wi-wide-lightwide          { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-wide        ; } }
+    &.wi-wide-wide               { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-wide        ; } }
+    &.wi-wide-wider              { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-wider       ; } }
+    &.wi-wide-verywide           { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-verywide    ; } }
+
+  } // /DIMENSION textarea
+
+
+// -------------------
+// Input, Select & Textarea-Elements within TD & TH elements
+//
+// PENDENT: Dieses Konstrukt sollte nicht noetig sein und behoben werden, vor allem die Funktion L.button_tag()
+th,
+td {
+  &.wi-smallest      { input[type="text"], select           { width:     @input-wi-smallest         ; } }
+  &.wi-verysmall     { input[type="text"], select           { width:     @input-wi-verysmall        ; } }
+  &.wi-small         { input[type="text"], select           { width:     @input-wi-small            ; } }
+  &.wi-mediumsmall   { input[type="text"], select           { width:     @input-wi-mediumsmall      ; } }
+  &.wi-normal        { input[type="text"], select, textarea, div.cke_editable { width:     @input-wi-normal           ; } }
+  &.wi-lightwide     { input[type="text"], select, textarea, div.cke_editable { width:     @input-wi-lightwide        ; } }
+  &.wi-wide          { input[type="text"], select, textarea, div.cke_editable { width:     @input-wi-wide !important  ; } }
+  &.wi-wide.strict   { input[type="text"], select, textarea, div.cke_editable { max-width: @input-wi-wide !important  ; } }
+  &.wi-wider         { input[type="text"], select, textarea, div.cke_editable { width:     @input-wi-wider !important ; } }
+  &.wi-verywide      { input[type="text"], select, textarea, div.cke_editable { min-width: @input-wi-verywide         ; } }
+  &.wi-full          { input[type="text"], select, textarea, div.cke_editable { width:     100% ; } }
+  // Combinations
+  &.wi-mediumsmall-wide       { input[type="text"], select, textarea, div.cke_editable { width: @textarea-wi-mediumsmall-wide  ; } }
+  &.wi-small-mediumsmall      { input[type="text"], select, textarea, div.cke_editable { width: @textarea-wi-small-mediumsmall ; } }
+  &.wi-mediumsmall-lightwide  { input[type="text"], select, textarea, div.cke_editable { width: @textarea-wi-mediumsmall-lightwide ; } }
+
+  &.below       { input[type="text"], select, textarea, div.cke_editable { clear: both; margin-top: 0.4em  ; } }
+
+}
+// TEMPORAER: PENDENT: sollte behoben sein, weshalb dieses Konstrukt nicht mehr noetig sein sollte
+td.wi-lightwide > span.customer_vendor_picker > input { width:     @input-wi-lightwide        ; }
+td.wi-wide      > span.customer_vendor_picker > input { width:     @input-wi-wide             ; }
+td.wi-wider     > span.customer_vendor_picker > input { width:     @input-wi-wider            ; }
+
+
+
+  // --------------------------------------
+  // DATA-FORMAT
+  // --------------------------------------
+
+  input,
+  select {
+    &.number  { text-align: right ; }
+    &.numeric { text-align: right ; }
+    &.right   { text-align: right ; }
+  }
+
+
+  input[type=text].emphasized {
+    word-wrap:     break-word;
+    word-break:   break-all;
+    height:       auto;
+    overflow:     hidden ;
+  }
+
+
+
+
+  // --------------------------------------
+  // SPECIALS
+  // --------------------------------------
+
+  // -------------------
+  // Date picker Symbol (Jquery-UI)
+  // normally placed after a input field within a table cell
+
+  td img.ui-datepicker-trigger{
+    vertical-align: middle ;
+    padding: 0 0.2em ;
+  }
+
+
+  td {
+    div.rowspan-table{
+      display:           table-row ;
+      float:             left;
+      margin:             0.8em 2.8em 0.8em 0 ;
+      div.label-n-value{
+        display:         table-cell ;
+        vertical-align: middle;
+        height:         1.6em !important ; // the cell have not the same height if they are made with DIVs
+
+        float: left;
+        padding:         0 2.0em 0 0 ;
+        //overflow: hidden ;
+        b{
+          font-weight:   normal;
+          padding:       0 0 0 0 ;
+        }
+      }
+    }
+  }
+
+
+  // --------------------------------------
+  // MIXED FORM-TABLES
+  // --------------------------------------
+  // Tables with either Form Elements or Text in Cells
+  // PENDENT: .data mit anderen Formular-Elementen zusammenfassen
+  table td > span.data {
+    display:      block;
+    overflow:     hidden ;
+    height:       (@font-size-smaller * 1.7); // 1.6em
+    font-size:     @font-size-smaller ;
+    color:         @t-cell-databox-text-color ;
+    border:       1px @t-cell-databox-border-color solid;
+    margin:       0 ;
+    line-height:  120%;
+    padding:      0.2em 0.28em 0.2em @padding-databoxes-left !important;
+
+    &::before{
+      //content: "" ;
+    }
+    &.below{
+      margin-top: 0.2em;
+    }
+    &.numeric,
+    &.right{
+      text-align: right;
+    }
+
+    // Dimensions
+    &.wi-smallest    { width: @input-wi-smallest    ; }
+    &.wi-verysmall   { width: @input-wi-verysmall   ; }
+    &.wi-small       { width: @input-wi-small       ; }
+    &.wi-mediumsmall { width: @input-wi-mediumsmall ; }
+    &.wi-normal      { width: @input-wi-normal      ; }
+    &.wi-lightwide   { width: @input-wi-lightwide   ; }
+    &.wi-wide        { width: @input-wi-wide        ; }
+
+    // Data Types
+    &.numeric { text-align: right ; }
+    &.right   { text-align: right ; }
+
+  }
+
+
+
+  // -------------------
+  // Boxes
+  //
+
+  div.boxes{
+    margin: 0 0 0.9em 0 ;
+    overflow: hidden ;
+    max-width: 800px ;
+
+    // Additional
+    // There are also some Checkboxes for "Select All"
+    h3 {
+      padding: 0.2em 0 0.2em 0.0em;
+
+      label{
+        //float: right;
+        float: left;
+        width: 88% ;
+        font-size: @h3-size ;
+        padding: 0 0 0.6em 0.2em ;
+        line-height: 1.2em ;
+      }
+    }
+
+
+    &>div{
+      clear:       both;
+      margin:     0 0 0.6em 0 ;
+      padding:     0;
+      display:     block ;
+      overflow:   hidden ;
+      label{
+        float:     left;
+        width:     88% ;
+      }
+      input[type="checkbox"],
+      input[type="radio"]{
+        float:           left;
+        margin-right:   0.6em ;
+      }
+    }
+  }
+
+  // -------------------
+  // Boxes horizontal
+  //
+
+  td.horizontal {
+    input[type="radio"],
+    input[type="checkbox"]{
+      float:     left !important;
+      clear:     none !important;
+      width:     auto;
+    }
+    label{
+      width:           auto !important;
+      margin-right:   2.0em ;
+      float:           left !important;
+      clear:           none !important;
+    }
+  }
+
+
+
+
+
+
+
+// --------------------------------------
+// CHECKBOXES & LABELS WITHIN DIVS
+// --------------------------------------
+
+table.tbl-horizontal,
+table.tbl-list,
+table.tbl-plain {
+  th {
+    label{
+      display: inline-block;
+
+//      &:link,
+//      &:visited {
+//        color: @gray-standard ;
+//        text-decoration: none ;
+//      }
+//      &:hover{
+//        color: #777 ;
+//        text-decoration: underline;
+//      }
+    }
+  }
+  td{
+    input[type="radio"],
+    input[type="checkbox"]{
+      float: left;
+      clear: left;
+      &~label{
+        float: left;
+        width: auto;
+        margin-left: 0.2em ;
+        line-height: 1.4em ;
+        //clear: left;
+      }
+    }
+    // Date-Field generated by the function L.Date_Tag
+    span.wi-date {
+      padding: 0 ;
+      input[type="text"],
+      input[type="date"]{
+        width: @input-wi-small ;
+      }
+    }
+  }
+}
+
+
+// --------------------------------------
+// FAKE-ELEMENTS
+// --------------------------------------
+// Yes, there exists some foolery
+// Substitution for Elements as readonly containers
+div.fake-textarea {
+  width: @textarea-wi-lightwide;
+  height: 150px;
+  background-color: white;
+  overflow: auto;
+  border: 1px #999999 solid;
+
+  &.fake-wi-wide { width: @textarea-wi-wide ; }
+}
+
+
+
+
+// especially in the admin section
+
+div.admin{
+  form{
+    font-size: @font-size-small ;
+    input[type="checkbox"] {
+      margin: 0.2em 0.6em 0.3em 0 ;
+      float: left;
+    }
+    h3{
+      margin: 1.2em 0 0.6em 0 ;
+      display: block;
+    }
+  }
+}
+
+// --------------------------------------
+// jQuery-Plugins for forms
+// --------------------------------------
+
+// MultiSelect2Side
+.ms2side {
+  display: block;
+  overflow: hidden;
+
+  p {
+    margin: 0 0 0.4em 0 ;
+  }
+
+  .ms2side__div {
+
+    .ms2side__header {
+      width: 12.0em ;
+      height: 2.2em ;
+      display: table-cell;
+      vertical-align: bottom;
+    }
+
+    .ms2side__options > p.ms2side__hide,
+    .ms2side__updown  > p.ms2side__hide {
+      cursor: default;
+      color: #9e9e9e;
+      border: 1px solid grey;
+      background-color: #D4D4D4 !important;
+    }
+
+  }
+
+}
+
+// --------------------------------------
+// PLACEHOLDER-TEXT
+// --------------------------------------
+
+.frame-header-quicksearch input::placeholder {
+  color: @gray-dark ;
+}
+
+#content input::placeholder {
+  color: #999 ;
+}
+
+
+
+// --------------------------------------
+// JQUERY-CONTAINERS FOR FIELDS
+// --------------------------------------
+// PENDENT: gehoert in Tables
+span.customer_vendor_picker {
+  padding: 0 ;
+}
+input#vendor_id_name.ui-autocomplete-input,
+input#customer_id_name.ui-autocomplete-input {
+  margin: 0 ;
+  &.wi-wide{
+    width: @input-wi-wide  ;
+  }
+}
+
+// --------------------------------------
+// DIVERS JQUERY-/AJAX-STUFF
+// --------------------------------------
+
+table td span.project_picker {
+  padding: 0 !important;
+}
+
+
+
+
+
+
+
+

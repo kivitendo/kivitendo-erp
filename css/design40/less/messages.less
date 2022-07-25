@@ -1,0 +1,454 @@
+/* ------------------------------------------------------------- */
+/* MESSAGES (messages.less)                                      */
+/* ------------------------------------------------------------- */
+
+
+// ----------------------------------------------------------------------------
+//
+// MESSAGES
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION: all kind of messages
+//
+//
+// CONTENTS:
+// - MESSAGES & WARNINGS
+//   - Messages (Depraceted)
+//   - Flash Messages
+// ----------------------------------------------------------------------------
+
+
+
+
+
+// --------------------------------------
+// MESSAGE MIXIN
+// --------------------------------------
+
+.mx-message {
+  display:       block;
+  overflow:      hidden;
+  overflow-x:     auto;
+  clear:         both ;
+
+  width:         auto;
+  min-width:     @messages-min-width ;
+  max-width:     @messages-max-width ;
+
+  padding:       0.6em 0.8em ;
+
+  border-radius: @controlpanel-radius;
+  border-style:  solid;
+  border-width:  1px;
+
+  font-size:     @font-size-smaller ;
+  font-weight:   normal;
+  line-height:   110% ;
+  text-align:    left;
+  white-space:   normal;
+}
+
+
+
+
+
+
+// --------------------------------------
+// MESSAGES & FLASH MESSAGES
+// --------------------------------------
+.flash_message,
+.message {
+  &,
+  &_error,
+  &_ok,
+  &_hint,
+  &_warning,
+  &_info{
+    .mx-message ;
+  }
+} // /.flash_message
+
+
+
+
+// --------------------------------------
+// MESSAGES (SIMPLE STYLE)
+// --------------------------------------
+
+.message {
+
+  // -----------------------
+  // ERROR
+  // -----------------------
+  &_error {
+    color:            @message_error_text;
+    background-color: @message_error_bg;
+    border-color:     @message_error_border;
+    h4{ color:        @message_error_text; }
+    p { color:        @message_error_text; }
+  }
+  // -----------------------
+  // Warning
+  // -----------------------
+  &_warning {
+    color:            @message_warning_text;
+    background-color: @message_warning_bg;
+    border-color:     @message_warning_border;
+    h4{ color:        @message_warning_text; }
+    p { color:        @message_warning_text; }
+  }
+  // -----------------------
+  // INFO / HINT
+  // -----------------------
+  &_hint,
+  &_info {
+    color:            @message_hint_text;
+    background-color: @message_hint_bg;
+    border-color:     @message_hint_border;
+    h4 { color:       @message_hint_text ; }
+    p  { color:       @message_hint_text ; }
+  }
+  // -----------------------
+  // OK
+  // -----------------------
+  &_ok {
+    color:            @message_ok_text;
+    background-color: @message_ok_bg;
+    border-color:     @message_ok_border;
+    h4{ color:        @message_ok_text; }
+    p { color:        @message_ok_text; }
+  }
+  // -----------------------
+  // ATTENTION (PENDING)
+  // -----------------------
+  // PENDENT: noch aktuell? ggf. durch Hint ersetzen
+  &.attention{
+    color:            @message_hint_text;
+    background-color: @message_hint_bg;
+    border-color:     @message_hint_border;
+    h4 { color:       @message_hint_text ; }
+    p  { color:       @message_hint_text ; }
+  }
+  // -----------------------
+  // TYPOGRAPHY
+  // -----------------------
+  h4{
+    font-weight: bold;
+    font-size: 110%;
+    margin: 0.4em 1.0em 0.2em 0 ;
+    padding: 0;
+  }
+  p{
+    margin: 0 1.0em 0.6em 0 ;
+    padding: 0;
+  }
+
+  // PENDENT: GGF. entfernen
+  &_error,
+  &_warning,
+  &_hint,
+  &_info,
+  &_ok {
+    // PENDENT: wieso wird in einem DIV-Container nochmals ein Paragraf mit der gleichen Klasse ausgegeben?
+    // ggf. entfernen
+    & > .message {
+      &_error,
+      &_warning,
+      &_hint,
+      &_info,
+      &_ok{
+        display: none;
+      }
+    }
+  } // /_TYPE of messages
+} // /.message
+p.message{ padding: 0.6em !important ; }
+
+
+// -----------------------
+// Message blocks in different levels in the #content
+// -----------------------
+#content {
+  & > form {
+
+	// -----------------------
+	// Message Immediately In Form
+	// -----------------------
+    & > .message,
+    & > .ui-tabs > .ui-tabs-panel > .message {
+      margin-top:     @margin-left-from-content;
+      margin-right:   0;
+      margin-bottom:  @margin-left-from-content;
+      margin-left:    @margin-left-from-content;
+
+      &.message_ok,
+      &.message_info,
+      &.message_hint,
+      &.message_error,
+      &.message_warning{
+        margin-left: @margin-left-from-content ;
+      }
+    } // .message
+
+
+    & > .message_ok,
+    & > .message_info,
+    & > .message_hint,
+    & > .message_error,
+    & > .message_warning{
+      margin-top:     @margin-left-from-content;
+      margin-right:   0;
+      margin-bottom:  @margin-left-from-content;
+      margin-left:    @margin-left-from-content;
+    }
+
+    // -----------------------
+    // Message Immediately In Wrapper
+    // -----------------------
+    .wrapper{
+      & > .message,
+      & > .message_ok,
+      & > .message_info,
+      & > .message_hint,
+      & > .message_error,
+      & > .message_warning{
+        margin: @margin-from-wrapper ;
+      }
+    }
+
+  } // /form
+} // /#content
+
+// -----------------------
+// Message on the welcome screen
+// -----------------------
+body > div.login .message{
+  width: 100% ;
+  text-align: center ;
+  margin: 0 auto 1.0em auto ;
+}
+
+
+
+
+
+
+
+// --------------------------------------
+// FLASH MESSAGES
+// --------------------------------------
+
+.flash_message {
+
+  // General (apears two times within a .flash_message)
+
+  // -----------------------
+  // Error
+  // -----------------------
+  &.flash_message_error {
+    background-color: @message_error_bg;
+    border-color: @message_error_border;
+    color: @message_error_text;
+    a.button.wi-tiny,
+    a.icon-close {
+      border: @message_error_border !important;
+      color: @message_error_text;
+    }
+  }
+  // -----------------------
+  // OK
+  // -----------------------
+  &.flash_message_ok {
+    background-color: @message_ok_bg;
+    border: @message_ok_border;
+    color: @message_ok_text;
+    a.button.wi-tiny,
+    a.icon-close {
+      border: @message_ok_border;
+      color: @message_ok_text;
+    }
+  }
+  // -----------------------
+  // Warning
+  // -----------------------
+  &.flash_message_warning {
+    background-color: @message_warning_bg;
+    border-color: @message_warning_border;
+    color: @message_warning_text;
+    a.button.wi-tiny,
+    a.icon-close {
+      border: @message_warning_border;
+      color: @message_warning_text;
+    }
+  }
+  // -----------------------
+  // Info / Hint
+  // -----------------------
+
+  &.flash_message_info {
+    background-color: @message_info_bg;
+    border: @message_info_border;
+    color: @message_info_text;
+    a.button.wi-tiny,
+    a.icon-close {
+      border: @message_info_border;
+      color: @message_info_text;
+    }
+  }
+
+
+
+	// -----------------------
+	// Elements in .flash_message
+	// -----------------------
+
+  .flash_title {
+    font-weight: bold;
+    float: left;
+    display: block ;
+    padding-right: 1.0em ;
+  }
+  .flash_notification{
+    float: left;
+    display: block ;
+  }
+
+  // Buttons (Details & Close)
+  a.button.wi-tiny {
+    font-size: 76% ;
+    padding: 0 0.2em 0 0.2em ;
+    margin: 0 0.4em 0 0.4em  ;
+    width: auto ;
+    background-color: transparent;
+  }
+  a.icon-close {
+    //display: block ;
+  }
+
+  div.button-container,
+  div.icon-container  {
+    overflow: hidden ;
+    width: 12% ;
+    float: right ;
+
+    a.icon-close {
+      font-size: 76% ;
+      float: right ;
+      border-width: 1px ;
+      border-style: solid ;
+      padding: 0 3px ;
+      border-radius: 3px;
+    }
+    span.display {
+      float: right !important;
+      display: block;
+      width: auto ;
+      text-align: right ;
+      margin: 0 ;
+      padding: 0;
+      a.button { }
+    }
+  } // /div.icon-container
+
+  div.message-container {
+    overflow: hidden ;
+    width: 86% ;
+    float: left ;
+
+    &>span.flash_title {
+      display: block;
+      float: left ;
+      width: auto ;
+    }
+    & > div.flash_notification {
+      display: block;
+      float: left ;
+      max-width: 80% ;
+      width: auto ;
+
+      span.content {
+        float: left ;
+        display: block;
+        width: 100% ;
+      }
+      div.detail {
+        display: block;
+        clear: both ;
+        padding-top: 0.9em ;
+
+        span {
+          display: block;
+          width: 94%;
+          float: right;
+        }
+        a.button.wi-tiny{
+          display: block ;
+          float: left ;
+          margin-left: 0 ;
+        }
+      }
+    } // /.div.flash_notification
+  } // /div.message-container
+} // /.flash_message
+
+
+
+// -----------------------
+// Flash Message blocks in different levels in #content
+// -----------------------
+
+#content {
+
+  & > form {
+
+    // Flash message immediately in form
+    & > .flash_message {
+      &_error,
+      &_ok,
+      &_warning,
+      &_info{
+        margin: 48px 0 0 @margin-left-from-content ;
+      }
+    } // /.flash_message
+
+
+    // Flash message in .ui-tabs
+    .ui-tabs-panel{
+      & > .flash_message {
+        &_error,
+        &_ok,
+        &_warning,
+        &_info{
+          margin: 48px 0 0 @margin-left-from-content ;
+        }
+      } // /.flash_message
+    } // /.ui-tabs
+
+
+    // Flash message within .wrapper
+    .wrapper {
+      .flash_message {
+        margin: @margin-from-wrapper ;
+        &_error,
+        &_ok,
+        &_warning,
+        &_info{
+          margin: @margin-from-wrapper ;
+        }
+      } // /.flash_message
+    } // /.wrapper
+
+  } // /form
+
+  // Flash message immediately in #content
+  & > .flash_message {
+    &_error,
+    &_ok,
+    &_warning,
+    &_info{
+      margin: 24px 0 0 @margin-left-from-content ;
+    }
+  }
+
+} // /#content
+

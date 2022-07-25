@@ -1,0 +1,212 @@
+/* ------------------------------------------------------------- */
+/* Menu Actionbar (menu_actionbar.less)                          */
+/* ------------------------------------------------------------- */
+
+// ----------------------------------------------------------------------------
+//
+// ACTIONBAR
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+// Contextual Menu and Buttons for Kivitendo
+// Save, Update, Post and Workflow Buttons etc.
+//
+//
+// CONTENTS:
+// - layout-actionbar
+//   - layout-actionbar-separator
+//   - layout-actionbar-action
+//   - layout-actionbar-link
+//   - layout-actionbar-combobox
+//     - layout-actionbar-combobox-head
+//     - layout-actionbar-combobox-list
+// ----------------------------------------------------------------------------
+
+
+
+// --------------------------------------
+// Main-Container for Actionbar
+// --------------------------------------
+//
+// for main properties of this container see scaffolding.less
+.layout-actionbar {
+
+  div.layout-actionbar-separator {
+    display: block;
+    width: 0.6em;
+    height: 0.6em;
+    float: left;
+    content: "&nbsp;";
+    position: relative;
+    border: none;
+  }
+
+  div.layout-actionbar-action {
+    -webkit-touch-callout: none;
+    -webkit-user-select:   none;
+    -khtml-user-select:    none;
+    -moz-user-select:      none;
+    -ms-user-select:       none;
+    user-select:           none;
+    height: 25px;
+    font-size: @font-size-smaller ;
+    
+    &.layout-actionbar-action-disabled{
+      color: @actionbar-font-color-disabled !important;
+      &:hover{ text-decoration: none !important; }
+    }
+  }
+
+  & > div.layout-actionbar-action{
+    border-radius: @actionbar-border-radius ;
+    border: 1px @actionbar-border-color solid;
+    background-color: @actionbar-bg ;
+    float: left;
+    color: @actionbar-font-color;
+    z-index: @zindex-actionbar-action ;
+  }
+
+  div.layout-actionbar-action-disabled,
+  div.layout-actionbar-action-disabled:hover{  }
+
+
+
+  div.layout-actionbar-link,
+  div.layout-actionbar-submit,
+  div.layout-actionbar-scriptbutton {
+    display: block;
+    min-width: 90px;
+    width: auto;
+    box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    text-align: center;
+    padding: 4px 10px;
+    cursor: default;
+    &:focus{
+      border-color: darkgray; // PENDENT: Button Border
+      background-color: @actionbar-bg-active;
+    }
+    &:hover {
+      border-width: 1px;
+      border-style: solid;
+    }
+  }
+
+  .layout-actionbar-default-action {
+    font-weight: normal;
+  }
+
+  div.layout-actionbar-combobox {
+    position: relative;
+    display: block;
+    float: left;
+    //width: 5.8em;
+    width: 110px;
+    z-index: @zindex-actionbar-combobox ;
+
+    div.layout-actionbar-combobox-head {
+      padding-right: 20px;
+      white-space: nowrap;
+      display: block;
+      margin-bottom: -1px;
+      float: right;
+      z-index: @zindex-actionbar-combobox-head ;
+      position: relative;
+
+      >div {
+        //width: 5.4em;
+        min-width: 90px;
+        height: 25px;
+        border-top-left-radius: @actionbar-border-radius ;
+        border-bottom-left-radius: @actionbar-border-radius ;
+        border: 1px @actionbar-border-color solid;
+        background-color: @actionbar-bg;
+        color: @actionbar-font-color;
+        position: relative;
+      }
+
+      > span {
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 24px !important;
+        height: 25px !important;
+        border: 1px @actionbar-border-color solid;
+        border-left: none;
+        border-top-right-radius: @actionbar-border-radius ;
+        border-bottom-right-radius: @actionbar-border-radius ;
+        padding: 4px;
+        background-color: @actionbar-bg ;
+        //background-image: url("../image/select-down.png") no-repeat;
+        background-image: url("../image/select-down.png") ;
+        background-repeat: no-repeat;
+        background-position: 5px 5px;
+      }
+    } // /.layout-actionbar-combobox-head
+
+    div.layout-actionbar-combobox-list {
+      position: relative;
+      display: none;
+      min-width: 140px;
+      float: right;
+      overflow: hidden;
+      border: 1px solid @actionbar-border-color ;
+      border-top-left-radius: @actionbar-border-radius;
+      border-bottom-left-radius: @actionbar-border-radius;
+      border-bottom-right-radius: @actionbar-border-radius;
+      z-index: @zindex-actionbar-combobox-list ;
+      top: 1px;
+      //padding-bottom: 0.6em;
+      background-color: @actionbar-bg ;
+
+      div.layout-actionbar-action {
+        white-space: nowrap;
+        display: block;
+        position: relative;
+        width: 100%;
+        text-align: left;
+        padding: 0.6em 0.6em 0.6em 1.0em;
+        border-bottom: none !important;
+        background-color: @actionbar-bg ;
+        color: @actionbar-font-color;
+
+        // PENDENT: *-active ersetzen durch -hover
+        &:hover {
+          color: @actionbar-font-color-active;
+          text-decoration: underline;
+          background-color: @actionbar-bg-active;
+        }
+      }
+    } // /.layout-actionbar-combobox-list
+
+    // Combobox active
+    &.active {
+      div.layout-actionbar-combobox-head{
+        height: 29px;
+        border-bottom: none !important ;
+
+        div {
+          //background-color: @actionbar-bg-active !important ;
+          border-bottom-left-radius: 0 !important;
+          border-bottom: none;
+          height: 30px ;
+        }
+        span {
+          //background-color: @actionbar-bg-active !important ;
+          border-bottom-right-radius: 0 !important;
+          border-bottom: none;
+          height: 30px !important ;
+        }
+      } // /div.layout-actionbar-combobox-head
+      div.layout-actionbar-combobox-list {
+        display: inline-table; // IMPORTANT
+        border-top-right-radius: 0 !important;
+        div.layout-actionbar-action{
+          border: none !important;
+        }
+      }
+    } // /.active
+  } // /.layout-actionbar-combobox
+}

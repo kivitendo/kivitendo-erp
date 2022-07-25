@@ -1,0 +1,251 @@
+/* ------------------------------------------------------------- */
+/* PRINT (print.less)                                            */
+/* ------------------------------------------------------------- */
+
+
+// ----------------------------------------------------------------------------
+//
+// PRINT
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION: Statements for print issues
+//
+// CONTENTS:
+//
+// ----------------------------------------------------------------------------
+
+
+// --------------------------------------
+// MEDIA: Print
+// --------------------------------------
+
+// PENDENT: Druckversion erstellen, noch erweitern
+
+@print-size: 0.8 ;
+@width-size: 0.6 ;
+
+@media print {
+
+  body{ margin-left: 1.4em ; }
+
+  // Do not print following areas
+  #menuv3,
+  #html-menu,
+  #frame-header,
+  #main_menu_div,
+  #js-header,
+  body>#layout-split-left,
+  #tree-column,
+  ul.ui-tabs-nav,
+  div.layout-actionbar,
+  .control-panel,
+  .input-panel,
+  .toggles {
+    display: none !important;
+  }
+
+  // Layout adjustments
+  body>#layout-split-right{
+    margin-left: 0 !important;
+  }
+  //#content.html-menu { margin-left: 0; }
+
+
+  .wrapper.toggled > table.tbl-horizontal,
+  .wrapper.toggled > div.col {
+    margin-top: 0 !important ;
+  }
+  div.buttons.positions{
+    display: none;
+    margin: 0 0 0 0 !important;
+  }
+
+
+  #content {
+
+    // Typography
+    td, p, div, span, input, textarea, select, option {
+      //font-size: round( ( @font-size-smaller * @print-size ) ) !important ;
+      font-size: round( ( 9pt * @print-size ) , 0 ) !important ;
+    }
+
+//    font-size: 80% !important ;
+    padding:  1.0em 0 0 0 !important ;
+    margin:   0 ;
+
+    & > h1 {
+        color:    @gray-verydark ;
+        padding:  0 0 0 0 ;
+        top:      0 ;
+        position: absolute ;
+    }
+
+    wrapper{
+      margin:   0.4em 1em 1em 1.2em;
+      padding:  0 0 0.4em 0;
+    }
+
+    caption,
+    th.caption,
+    td.caption{
+
+      font-size :   round( (@table-caption-size * @print-size) , 0 ) ;
+      font-weight:  bold;
+      padding:      0.1em 0 0.1em 0.2em;
+      margin:       0.1em 0 0.1em 0 ;
+      display:      table-cell ;
+
+    }
+
+    .tbl-horizontal {
+      tbody {
+        tr {
+          //background-color: @table-bg-accent ;
+          //th { background-color: #fff ; }
+          td, th {
+            border-color:   @table-border-color ;
+            border-width:   0.3pt !important;
+            border-style:   solid ;
+            padding:        0.3em 0.6em ;
+          }
+        th, span.label { font-size: round( ( @font-size-verysmall * @print-size ) )!important }
+        }
+      } // /tbody
+    }
+
+
+    .tbl-list {
+      margin-top: 1.2em ;
+      width: 96% !important ;
+      caption{
+        margin: 0 !important ;
+        padding: 0 !important ;
+      }
+      thead  {
+        //display:  table-header-group ;
+        overflow: hidden ;
+        tr th{
+          font-size: 70% ;
+        }
+      }
+      tbody tr {
+        &:nth-child(odd)  { background-color: none; }
+        &:nth-child(even) { background-color: none; }
+        border-bottom: 1px #000 solid !important;
+        td {
+          border-bottom:  1px #000 solid !important;
+          vertical-align: top !important ;
+        }
+      }
+    }
+
+      // -----------------------
+      //  width of columns (dimensions)
+      // -----------------------
+      col {
+        &.wi-smallest    { width: round( (@tcol-wi-smallest * @width-size ) , 0     )!important ; }
+        &.wi-verysmall   { width: round( (@tcol-wi-verysmall * @width-size ) , 0    )!important ; }
+        &.wi-small       { width: round( (@tcol-wi-small * @width-size ) , 0        )!important ; }
+        &.wi-mediumsmall { width: round( (@tcol-wi-mediumsmall * @width-size ) , 0  )!important ; }
+        &.wi-normal      { width: round( (@tcol-wi-normal * @width-size ) , 0       )!important ; }
+        &.wi-lightwide   { width: round( (@tcol-wi-lightwide * @width-size ) , 0    )!important ; }
+        &.wi-wide        { width: round( (@tcol-wi-wide * @width-size ) , 0         )!important ; }
+        &.wi-wider       { width: round( (@tcol-wi-wider * @width-size ) , 0        )!important ; }
+        &.wi-verywide    { width: round( (@tcol-wi-verywide * @width-size ) , 0     )!important ; }
+      }
+
+
+
+
+
+
+
+
+    input[type="text"],
+    input[type="customer"],
+    input.numeric,
+    textarea,
+    select,
+    span.data,
+    select,
+    textarea {
+      width: auto         !important;
+      appearance:         none !important;
+      -webkit-appearance: none !important;
+      -moz-appearance:    none !important;
+      border:             none;
+      color:              #000 !important ;
+      background-color:   none !important;
+      background:         none !important;
+      /* rest needed for Firefox: */
+      overflow:visible    !important;
+      //width: 120%;/* needed for Firefox???: */
+    }
+
+//    input[type="text"]{
+//      appearance:         none;
+//      -webkit-appearance: none;
+//      -moz-appearance:    none;
+//      border:             none;
+//    }
+
+    textarea{
+      display:      block ;
+      height:       auto !important ;
+      //min-height:   3.6em ;
+      overflow-y:   visible !important;
+      min-width:    16em ;
+      width:        100% !important;
+      padding:      0 ;
+      resize:       vertical;
+    }
+    table.tbl-list td {
+      textarea  { min-height:   4.2em !important; }
+      input     { padding-left: 0 !important; }
+    }
+    span.data{
+      width:  auto;
+      border: none ;
+    }
+    input.wi-date{
+      align: left !important;
+      padding: 0 !important;
+    }
+    select{
+      padding: 0 0 0.4em 0.2em !important;
+    }
+
+    div.cke_editable{
+      min-height: 1.8em  !important;
+      height:     auto !important;
+      border:     none;
+      overflow:   hidden !important;
+    }
+
+
+    a.button-image,
+    a.button,
+    input[type="button"],
+    input.neutral,
+    td img {
+      display: none ;
+    }
+
+    input, select{
+      &.wi-smallest     { width: ( round( ( @input-wi-smallest * @width-size    ) , 0 ) )!important ; } ;
+      &.wi-verysmall    { width: ( round( ( @input-wi-verysmall * @width-size   ) , 0 ) )!important ; } ;
+      &.wi-small        { width: ( round( ( @input-wi-small * @width-size       ) , 0 ) )!important ; } ;
+      &.wi-mediumsmall  { width: ( round( ( @input-wi-mediumsmall * @width-size ) , 0 ) )!important ; } ;
+      &.wi-normal       { width: ( round( ( @input-wi-normal * @width-size      ) , 0 ) )!important ; } ;
+      &.wi-lightwide    { width: ( round( ( @input-wi-lightwide * @width-size   ) , 0 ) )!important ; } ;
+      &.wi-wide         { width: ( round( ( @input-wi-wide * @width-size        ) , 0 ) )!important ; } ; // min-width
+      &.wi-wider        { width: ( round( ( @input-wi-wider * @width-size       ) , 0 ) )!important ; } ; // min-width
+      &.wi-verywide     { width: ( round( ( @input-wi-verywide * @width-size    ) , 0 ) )!important ; } ; // min-width
+    }
+
+
+
+
+  } // /#content
+} // /@media print
+

@@ -1,0 +1,175 @@
+// ----------------------------------------------------------------------------
+//
+// MAIN-LESS-FILE
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+// Use this file for rendering the file ../style.css
+// with the following command:
+// lessc style.less ../style.css
+// the cursor in your shell should be on /css/less/
+//
+// CONTENTS:
+// - Variables
+// - LOGGED IN
+// ----------------------------------------------------------------------------
+
+
+
+// --------------------------------------
+// VARIABLES WITH COLOR SCHEMES
+// --------------------------------------
+// fuer die Anpassung des Erscheinungsbildes
+// in dieser Datei koennen z.b. Farbvarianten eines Themes einfach erstellt werden
+// Color Schemes
+@import 'variables_color_style.less' ;  // Standard color scheme
+
+
+
+// Standard-Variables
+@import 'variables.less';
+
+
+// -----------------------
+// Custom LESS variables
+// -----------------------
+// Your custom LESS variables
+// (new or overrides of the previous LESS variable stuff)
+@import 'custom_less_variables.less';
+
+
+
+// --------------------------------------
+// MIXINS
+// --------------------------------------
+// Mixins are unique CSS-templates in shape of CSS-classes
+// Mixins are general & sitewide properties
+@import 'mixins.less' ;
+
+
+
+// --------------------------------------
+// BASIC SETTINGS & MIXINS
+// --------------------------------------
+@import 'common.less';
+
+
+
+// --------------------------------------
+// SCAFFOLDING (IN GERMAN GERUEST)
+// --------------------------------------
+// Main areas and main boxes of the Kivitendo Webpage
+// In general Layout of the page
+@import 'scaffolding.less';
+
+
+
+
+// FORMER POSITION OF STANDARD HTML-ELEMENTS IN KIVITENDO (SEE BELOW)
+
+
+
+
+// --------------------------------------
+// MENUS
+// --------------------------------------
+@import 'menu_frame_header.less'; // Quick_Search, User/Mandatory, Logout
+@import 'menu.less'; // All kind of menus
+@import 'menu_actionbar.less';
+
+
+
+// --------------------------------------
+// CONTENT
+// --------------------------------------
+// Every HTML Stuff within the Element #content
+@import 'forms.less';
+@import 'messages.less';
+@import 'tables.less';
+@import 'lists.less';
+@import 'buttons.less';
+@import 'control_panels.less';
+
+
+
+// --------------------------------------
+// STANDARD HTML-ELEMENTS IN KIVITENDO
+// --------------------------------------
+@import 'main.less';
+@import 'main_login.less';
+
+
+
+
+// -----------------------
+// NON GENERIC STUFF
+// -----------------------
+@import 'requirement_spec.less'; //
+@import 'specials.less';
+
+
+
+
+// --------------------------------------
+// JQUERY STUFF
+// --------------------------------------
+@import 'jquery-ui.less'; // jQuery-UI
+// Original Standard jQuery Stuff (no overrides, )
+@import 'jquery.autocomplete.less';
+@import 'jquery.multiselect2side.less';
+@import 'jquery.tooltipster.less';
+//@import 'jquery.tooltipster-light.less';
+// Special jQuery Stuff
+@import 'jquery.chartpicker.less';
+
+
+
+
+// --------------------------------------
+// OVERRIDES
+// --------------------------------------
+// General overrides from the settings above
+@import 'main_overrides.less';
+// Overrides of all jquery stuff above
+@import 'jquery-ui_overrides.less';
+
+// -----------------------
+// Admin (Overrides)
+// -----------------------
+@import 'admin.less';
+
+
+
+
+// --------------------------------------
+// Responsive & Print
+// --------------------------------------
+// Responsive & Print Stuff
+@import 'responsive.less';
+@import 'print.less';
+
+
+
+// --------------------------------------
+// CUSTOM LESS STUFF
+// --------------------------------------
+// Place in this file your own LESS or CSS stuff
+// This will override all the stuff above
+@import 'custom.less';
+
+
+
+// --------------------------------------
+// DEVELOPER STUFF
+// --------------------------------------
+// (don't hesitate to disable this')
+@import 'developing.less';
+
+
+
+
+// --------------------------------------
+// DEPRACATED STUFF
+// --------------------------------------
+// PENDENT: (necessary???)
+@import 'icons16.less';

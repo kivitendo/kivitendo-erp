@@ -1,0 +1,135 @@
+/* ------------------------------------------------------------- */
+/* MIXINS (mixins.less)                                          */
+/* ------------------------------------------------------------- */
+
+// ----------------------------------------------------------------------------
+//
+// MIXINS (general sitewide properties)
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+// Mixins can be used like variables and be written like a CSS-class
+// Do not apply these classes onto selectors but apply besides other properties
+// within a selector
+//
+// CONTENTS:
+// - H3 & CAPTION
+// - CONTENT-BLOCKS (Content-Boxes)
+// - -
+// -
+// -
+// -
+//
+// ----------------------------------------------------------------------------
+
+
+
+// --------------
+// H3
+//
+// Mixin, no class to apply in selectors
+// see H3 in main.less
+// see also Caption in tables.less
+.mx-h3-caption {
+  font-size :  @table-caption-size ;
+  //font-style:  @h3-style;
+  font-weight: @h3-weight;
+  color:       @table-caption-color !important ;
+  padding:     0.2em 0 0.2em 0.2em;
+	margin: 0.1em 0 0.4em 0 ;
+  //margin:      0;
+  text-align:  left;
+  letter-spacing: 0.12em;
+}
+
+// -------------------
+// Content-BLOCKS (Content-Boxes)
+//
+.mx-contentbox-properties {
+  margin:  @contentbox-margin ;
+  padding: @contentbox-padding;
+}
+
+
+//  --------------------------------------
+//  Tables
+//  --------------------------------------
+.mx-thead-th {
+  color:            @t-cell-head-text ;
+  background-color: @t-cell-head-bg ;
+  border-top:       1px solid @table-border-color;
+  border-bottom:    1px solid @table-border-color;
+  text-align:       left ;
+  vertical-align:   middle ;
+}
+//  --------------------------------------
+//  Buttons
+//  --------------------------------------
+.mx-button {
+  display:       inline-block ;
+  cursor:        pointer ;
+  width:         auto ;
+  padding:       0.2em 0.6em;
+  font-size:     @font-size-smaller ;
+  font-weight:   normal;
+  font-style:    normal;
+  text-align:    center;
+  border-style:  solid;
+  border-width:  1px;
+  border-radius: @button-border-radius;
+}
+// -------------------
+// STRONG
+//
+// for links, labels, buttons (no :link pseudo class)
+.mx-button-standard{
+  border:     			@button-strong-border ;
+  background-color: @button-strong-bg ;
+  color:            @button-strong-color ;
+  text-decoration:  none;
+}
+// for hover, focus, active pseudo classes
+.mx-button-standard-hover-focus{
+  &:hover{
+    border:     			@button-strong-hover-border ;
+    background-color: @button-strong-hover-bg;
+    color:            @button-strong-hover-color;
+    text-decoration:  none;
+  }
+  &:active,
+  &:focus{
+    border			:     @button-strong-active-border ;
+    background-color: @button-strong-active-bg;
+    color:            @button-strong-active-color;
+    text-decoration:  none;
+  }
+}
+// -------------------
+// NEUTRAL
+//
+// for links, labels, buttons (no :link pseudo class)
+.mx-button-neutral {
+  border:     			@button-neutral-border ;
+  background-color: @button-neutral-bg;
+  color:            @button-neutral-color;
+}
+// for hover, focus, active pseudo classes
+.mx-button-neutral-hover-focus {
+  &:hover{
+    border:    				 	@button-neutral-hover-border ;
+    background-color: 	@button-neutral-hover-bg;
+    color:            	@button-neutral-hover-color;
+    text-decoration:  	none;
+  }
+  &:active,
+  &:focus{
+    border:     			@button-neutral-active-border ;
+    background-color: @button-neutral-active-bg;
+    color:            @button-neutral-active-color;
+    text-decoration:  none;
+  }
+}
+
+
+
+
