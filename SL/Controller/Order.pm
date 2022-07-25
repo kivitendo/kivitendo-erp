@@ -824,36 +824,12 @@ sub action_save_and_final_invoice {
   );
 }
 
-# workflow from sales order to sales quotation
-sub action_save_and_sales_quotation {
+# workflows to all types of this controller
+sub action_save_and_order_workflow {
   $_[0]->save_and_redirect_to(
-    action     => 'sales_or_request_for_quotation',
+    action     => 'order_workflow',
     type       => $_[0]->type,
-  );
-}
-
-# workflow from sales order to sales quotation
-sub action_save_and_request_for_quotation {
-  $_[0]->save_and_redirect_to(
-    action     => 'sales_or_request_for_quotation',
-    type       => $_[0]->type,
-  );
-}
-
-# workflow from sales quotation to sales order
-sub action_save_and_sales_order {
-  $_[0]->save_and_redirect_to(
-    action     => 'sales_or_purchase_order',
-    type       => $_[0]->type,
-    use_shipto => $::form->{use_shipto},
-  );
-}
-
-# workflow from rfq to purchase order
-sub action_save_and_purchase_order {
-  $_[0]->save_and_redirect_to(
-    action     => 'sales_or_purchase_order',
-    type       => $_[0]->type,
+    to_type    => $::form->{to_type},
     use_shipto => $::form->{use_shipto},
   );
 }
@@ -868,16 +844,12 @@ sub action_save_and_ap_transaction {
   );
 }
 
-sub action_sales_or_purchase_order {
+sub action_order_workflow {
   my ($self) = @_;
 
   $self->load_order;
 
-  my $destination_type = $::form->{type} eq sales_quotation_type()   ? sales_order_type()
-                       : $::form->{type} eq request_quotation_type() ? purchase_order_type()
-                       : $::form->{type} eq purchase_order_type()    ? sales_order_type()
-                       : $::form->{type} eq sales_order_type()       ? purchase_order_type()
-                       : '';
+  my $destination_type = $::form->{to_type} ? $::form->{to_type} : '';
 
   # check for direct delivery
   # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
@@ -888,7 +860,14 @@ sub action_sales_or_purchase_order {
   }
 
   $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
-  $self->{converted_from_oe_id} = delete $::form->{id};
+
+  # no linked records from order to quotations
+  if (any { $destination_type eq $_ } (sales_quotation_type(), request_quotation_type())) {
+    delete $::form->{id};
+    delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);
+  } else {
+    $self->{converted_from_oe_id} = delete $::form->{id};
+  }
 
   # set item ids to new fake id, to identify them as new items
   foreach my $item (@{$self->order->items_sorted}) {
@@ -902,46 +881,6 @@ sub action_sales_or_purchase_order {
       # remove any custom shipto if not wanted
       $self->order->custom_shipto(SL::DB::Shipto->new(module => 'OE', custom_variables => []));
     }
-  }
-
-  # change form type
-  $::form->{type} = $destination_type;
-  $self->type($self->init_type);
-  $self->cv  ($self->init_cv);
-  $self->check_auth;
-
-  $self->recalc();
-  $self->get_unalterable_data();
-  $self->pre_render();
-
-  # trigger rendering values for second row as hidden, because they
-  # are loaded only on demand. So we need to keep the values from the
-  # source.
-  $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
-
-  $self->render(
-    'order/form',
-    title => $self->get_title_for('edit'),
-    %{$self->{template_args}}
-  );
-}
-
-sub action_sales_or_request_for_quotation {
-  my ($self) = @_;
-
-  $self->load_order;
-
-  my $destination_type = $::form->{type} eq sales_order_type() ? sales_quotation_type() : request_quotation_type();
-
-  $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
-  delete $::form->{id};
-
-  # no linked records from order to quotations
-  delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);
-
-  # set item ids to new fake id, to identify them as new items
-  foreach my $item (@{$self->order->items_sorted}) {
-    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
   }
 
   # change form type
@@ -2344,27 +2283,27 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and Quotation'),
-          call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_sales_quotation"), '#order_form' ],
+          call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => sales_quotation_type()), '#order_form' ],
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
           only_if  => (any { $self->type eq $_ } (sales_order_type())),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and RFQ'),
-          call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_request_for_quotation"), '#order_form' ],
+          call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => request_quotation_type()), '#order_form' ],
           only_if  => (any { $self->type eq $_ } (purchase_order_type())),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Sales Order'),
-          call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_sales_order"), '#order_form' ],
+          call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => sales_order_type()), '#order_form' ],
           checks   => [ @req_trans_cost_art ],
           only_if  => (any { $self->type eq $_ } (sales_quotation_type(), purchase_order_type())),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Purchase Order'),
-          call      => [ 'kivi.Order.purchase_order_check_for_direct_delivery' ],
+          call      => [ 'kivi.Order.purchase_order_check_for_direct_delivery', { to_type => purchase_order_type() } ],
           checks    => [ @req_trans_cost_art, @req_cusordnumber ],
           only_if   => (any { $self->type eq $_ } (sales_order_type(), request_quotation_type())),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,

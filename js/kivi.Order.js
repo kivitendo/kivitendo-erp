@@ -782,9 +782,11 @@ namespace('kivi.Order', function(ns) {
     kivi.SalesPurchase.edit_custom_shipto();
   };
 
-  ns.purchase_order_check_for_direct_delivery = function() {
+  ns.purchase_order_check_for_direct_delivery = function(params) {
+    const to_type = params.to_type;
+
     if ($('#type').val() != 'sales_order') {
-      kivi.submit_ajax_form("controller.pl", '#order_form', {action: 'Order/save_and_purchase_order'});
+      kivi.submit_ajax_form("controller.pl", '#order_form', {action: 'Order/save_and_order_workflow', to_type: to_type});
       return;
     }
 
@@ -813,32 +815,32 @@ namespace('kivi.Order', function(ns) {
 
     var use_it = false;
     if (!empty) {
-      ns.direct_delivery_dialog(shipto);
+      ns.direct_delivery_dialog(shipto, to_type);
     } else {
-      kivi.submit_ajax_form("controller.pl", '#order_form', {action: 'Order/save_and_purchase_order'});
+      kivi.submit_ajax_form("controller.pl", '#order_form', {action: 'Order/save_and_order_workflow', to_type: to_type});
     }
   };
 
-  ns.direct_delivery_callback = function(accepted) {
+  ns.direct_delivery_callback = function(accepted, to_type) {
     $('#direct-delivery-dialog').dialog('close');
 
     if (accepted) {
       $('<input type="hidden" name="use_shipto">').appendTo('#order_form').val('1');
     }
 
-    kivi.submit_ajax_form("controller.pl", '#order_form', {action: 'Order/save_and_purchase_order'});
+    kivi.submit_ajax_form("controller.pl", '#order_form', {action: 'Order/save_and_order_workflow', to_type: to_type});
   };
 
-  ns.direct_delivery_dialog = function(shipto) {
+  ns.direct_delivery_dialog = function(shipto, to_type) {
     $('#direct-delivery-dialog').remove();
 
     var text1 = kivi.t8('You have entered or selected the following shipping address for this customer:');
     var text2 = kivi.t8('Do you want to carry this shipping address over to the new purchase order so that the vendor can deliver the goods directly to your customer?');
     var html  = '<div id="direct-delivery-dialog"><p>' + text1 + '</p><p>' + shipto + '</p><p>' + text2 + '</p>';
     html      = html + '<hr><p>';
-    html      = html + '<input type="button" value="' + kivi.t8('Yes') + '" size="30" onclick="kivi.Order.direct_delivery_callback(true)">';
+    html      = html + '<input type="button" value="' + kivi.t8('Yes') + '" size="30" onclick="kivi.Order.direct_delivery_callback(true,  \'' + to_type + '\')">';
     html      = html + '&nbsp;';
-    html      = html + '<input type="button" value="' + kivi.t8('No')  + '" size="30" onclick="kivi.Order.direct_delivery_callback(false)">';
+    html      = html + '<input type="button" value="' + kivi.t8('No')  + '" size="30" onclick="kivi.Order.direct_delivery_callback(false, \'' + to_type + '\')">';
     html      = html + '</p></div>';
     $(html).hide().appendTo('#order_form');
 
