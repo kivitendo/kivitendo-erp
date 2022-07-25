@@ -857,7 +857,7 @@ sub action_order_workflow {
   # check for direct delivery
   # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
   my $custom_shipto;
-  if (   $::form->{type} eq sales_order_type() && $destination_type eq purchase_order_type()
+  if (   $from_side eq 'sales' && $to_side eq 'purchase'
       && $::form->{use_shipto} && $self->order->shipto) {
     $custom_shipto = $self->order->shipto->clone('SL::DB::Order');
   }
@@ -878,7 +878,7 @@ sub action_order_workflow {
     $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
   }
 
-  if ($::form->{type} eq sales_order_type() && $destination_type eq purchase_order_type()) {
+  if ($from_side eq 'sales' && $to_side eq 'purchase') {
     if ($::form->{use_shipto}) {
       $self->order->custom_shipto($custom_shipto) if $custom_shipto;
     } else {
@@ -2294,7 +2294,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and RFQ'),
-          call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => request_quotation_type()), '#order_form' ],
+          call     => [ 'kivi.Order.purchase_check_for_direct_delivery', { to_type => request_quotation_type() } ],
           only_if  => (any { $self->type eq $_ } (sales_order_type(), sales_quotation_type(), purchase_order_type())),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
@@ -2307,7 +2307,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and Purchase Order'),
-          call      => [ 'kivi.Order.purchase_order_check_for_direct_delivery', { to_type => purchase_order_type() } ],
+          call      => [ 'kivi.Order.purchase_check_for_direct_delivery', { to_type => purchase_order_type() } ],
           checks    => [ @req_trans_cost_art, @req_cusordnumber ],
           only_if   => (any { $self->type eq $_ } (sales_order_type(), request_quotation_type())),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,

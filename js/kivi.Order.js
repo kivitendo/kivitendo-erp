@@ -782,10 +782,10 @@ namespace('kivi.Order', function(ns) {
     kivi.SalesPurchase.edit_custom_shipto();
   };
 
-  ns.purchase_order_check_for_direct_delivery = function(params) {
+  ns.purchase_check_for_direct_delivery = function(params) {
     const to_type = params.to_type;
 
-    if ($('#type').val() != 'sales_order') {
+    if ($('#type').val() != 'sales_quotation' && $('#type').val() != 'sales_order') {
       kivi.submit_ajax_form("controller.pl", '#order_form', {action: 'Order/save_and_order_workflow', to_type: to_type});
       return;
     }
