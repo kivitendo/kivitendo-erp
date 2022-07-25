@@ -1,0 +1,510 @@
+/* ------------------------------------------------------------- */
+/* REQUIREMENT SPEC (requirement_spec.less)                      */
+/* ------------------------------------------------------------- */
+
+
+
+//  ------------------------------------------------------------
+//  General page layout
+//  ------------------------------------------------------------
+
+
+
+
+// -----------------------
+// Requirement Spec Version (Title)
+// -----------------------
+
+#requirement_spec_version{
+  padding:           @contentbox-padding;
+  letter-spacing:   0.16em ;
+  font-size:         110% ;
+}
+
+
+
+// --------------------------------------
+// COLUMN-CONTAINER
+// --------------------------------------
+
+
+#column-container {
+  //width: 100%;
+  padding-left:   0;
+  padding-right:   0;
+  margin-left:     0;
+  margin-top:     0.2em ;
+  margin-right:   0;
+  overflow:       hidden ;
+
+
+
+  // --------------------------------------
+  // TREE COLUMN (LEFT, JS-TREE)
+  // --------------------------------------
+
+  #tree-column {
+    float:                 left;
+    width:                 30em;
+    padding:               0.3em 1.2em 2.0em 0.8em;
+    border-right:         1px #000 solid;
+    //background-color:   @gray-superlight;
+    background-color:     none;
+
+    .jstree {
+        & > ul {
+          width: 342px;
+          overflow-x: hidden;
+        }
+
+      ul li {
+        line-height:       1.8em;
+        padding:           0 ;
+
+        font-size:         10pt;
+        a {
+          border-bottom:   none;
+          width:           98% ;
+        }
+
+      }
+    } // /.jstree
+
+    //  Special things that apply to the tree
+    #tree li.flagged > a > ins {
+      background-image:     url("../image/flag-red.png") !important;
+      background-position:   0;
+    }
+
+  } // /#tree-column
+
+
+
+  // --------------------------------------
+  // CONTENT COLUMN (RIGHT, EDITING)
+  // --------------------------------------
+
+  #content-column {
+    float:               left;
+    width:               58em;
+    padding-left:       3.0em;
+    //background-color: @gray-superlight;
+    background-color:   none;
+
+    // just nice to have this helpful container :-)
+    #column-content {
+
+
+
+      // --------------------------------------
+      // SECTIONS
+      // --------------------------------------
+
+      .section {
+        border-left:       0;
+        margin-left:       0;
+
+        .section-header{
+          display:         block ;
+          overflow:       hidden;
+          width:           90% ;
+
+          h3 {
+            font-size:         140%;
+            letter-spacing:   0.16em;
+            span.label {
+              font-size:       90% ;
+              font-weight:     bold;
+              letter-spacing: 0.1em;
+              color:           @base-dark;
+            }
+          } // /h3
+
+          .section-description {
+            margin-bottom:   15px;
+            margin-left:     0;
+
+            div{
+              padding:       0.3em 0 0.4em 0;
+
+              .section-description-heading {
+                font-weight:     normal;
+                font-size:       100% ;
+                /* margin:       0 0 1.2em 0; */
+                padding:         0 0 0.0em 0;
+                display:         block;
+
+              }
+              span.label{
+                font-size:       90%;
+              }
+              p {
+                color:           #000;
+                font-size:       106%;
+                line-height:     1.5em;
+                margin:         0 0 0.3em 0;
+              }
+
+            } // /div
+
+          } // /.section-description
+
+          .section-context-menu {
+            h3{
+              background-color: #000;
+              color:             #000 !important ;
+              span.label { font-weight: normal;}
+            }
+            div.section-description {
+              div{
+                span.label section-description-heading {}
+              }
+            }
+            span.label { }
+          }
+
+          #section-list-empty{
+            border:           1px #0C42FF solid ;
+            background-color: #BBCDFF ;
+            padding:           0.6em ;
+          }
+
+        }
+        // /.section-header
+
+      } // /.section
+
+
+
+      // --------------------------------------
+      // FUNCTION BLOCKS
+      // --------------------------------------
+
+      .function-block {
+        border-top:   1px solid #bbb;
+        margin:       0 ;
+        padding:       0.8em 0 1.8em 0 ;
+        overflow:     hidden;
+        display:       block;
+        clear:         both;
+        float:         none;
+        width:         48em;
+
+        .function-block-content{
+          overflow:   hidden ;
+          padding:     0 0 0 0.6em;
+
+          .function-block-header {
+            clear:     both;
+            overflow: hidden;
+
+            .function-block-number {
+              font-weight:   normal;
+              width:         5.0em ;
+              display:       block;
+              float:         left;
+            }
+
+            .function-block-desc {
+              display:         inline-block;
+              overflow:       hidden;
+              float:           left;
+              width:           80%;
+              padding-bottom: 1.0em ;
+              //font-size:       90% ;
+              font-weight:     normal;
+
+              p {
+                margin: 0 0 0.6em 0;
+                padding: 0 ;
+              }
+              p:first-child {
+                font-weight: bold ;
+              }
+            }
+          } // /.function-block-header
+
+          .function-block-properties {
+            display: block ;
+            margin: 0 0 0 5.0em;
+            padding: 0 ;
+            overflow: hidden;
+            clear: both;
+            font-size: 9pt;
+            span.label,
+            span.value {
+              float: left;
+            }
+             //vertical adjustment
+            span.label { width: 110px ;}
+            span.value {
+              width: 200px;
+              padding: 0 30px 0 0;
+              margin: 0;
+            }
+            // horizontal adjustment
+//            &.list > div {
+//              width: 300px ;
+//              float: left;
+//              display: inline-block ;
+//              span.label { }
+//              span.value {
+//                padding: 0 30px 0 0;
+//                margin: 0;
+//              }
+//            }
+
+          } // /.function-block-properties
+
+        } // /.function-block-content
+
+
+
+        // --------------------------------------
+        // FUNCTION BLOCKS
+        // --------------------------------------
+
+        .sub-function-block-container {
+          margin: 1.8em 0 0 5.1em;
+          display: block;
+
+          .sub-function-block-header{
+            border-top: 1px solid #ccc;
+            padding: 0.4em 0 0.4em 0.6em ;
+            font-size: 86% ;
+            letter-spacing: 0.2em;
+          }
+
+          .sub-function-block {
+            border-top: 1px solid #ccc;
+            margin: 0.2em 0 0.2em 0;
+            padding: 0.2em 0 0.4em 0 ;
+
+            .sub-function-block-content {
+              margin: 0.2em 0 0.2em 0;
+              padding: 0.2em 0.6em 0.4em 0.6em;
+
+              .sub-function-block-header {
+                font-weight: normal;
+                font-size: 120% ;
+                color: @gray-dark;
+                margin-top: 1.0em ;
+              }
+            }
+          }// /.sub-function-block
+
+        } // /.sub-function-block-container
+
+      } // /.function-block
+
+
+
+      // --------------------------------------
+      // FUNCTION BLOCK FORM
+      // --------------------------------------
+
+      // Form for creating or editing function blocks
+      .function-block-form {
+        &> div { padding: 0.4em; }
+
+        input.rs_input_field,
+        select.rs_input_field,
+        table.rs_input_field input[type=text],
+        table.rs_input_field input[type=password],
+        table.rs_input_field select { }
+
+      } // /.function-block-form
+
+
+
+      // --------------------------------------
+      // FLAGGED SECTIONS & BLOCKS
+      // --------------------------------------
+
+      //  Flagged sections, function blocks, text blocks
+      .section.flagged .section-description,
+      .function-block.flagged,
+      .sub-function-block.flagged {
+        background-color: @color-blue-light;
+      }
+      // Flagged headings or numbers
+      .section.flagged .section-description > .section-description-heading,
+      .function-block.flagged > .function-block-content > div > .function-block-number,
+      .sub-function-block.flagged > .sub-function-block-content > div > .function-block-number {
+        //background-color: #fe5f14;
+        color: @color-blue-strong;
+      }
+
+
+
+      // --------------------------------------
+      // SELECTION
+      // --------------------------------------
+
+      //  Selected sections, function blocks, text blocks
+      .section.selected,
+      .function-block.selected,
+      .sub-function-block.selected {
+        margin-left: -3px;
+        border-left: 3px solid #24D115; //   PENDENT: GREEN STRONG
+      }
+
+    } // /#column-content
+
+  } // /#content-column
+
+} // /#column-container
+
+
+.section-empty-description { color: #bbb; }
+
+
+
+// --------------------------------------
+//  CONTEXT MENU
+// --------------------------------------
+
+// Have a look on jquery-ui.less
+//.context-menu-item.icon-flag        { background-image: url("../image/flag-red.png"); }
+//.context-menu-item.icon-close       { background-image: url("../image/document-close.png"); }
+//.context-menu-item.icon-save        { background-image: url("../image/document-save.png"); }
+//.context-menu-item.icon-revert      { background-image: url("../image/edit-undo.png"); }
+//.context-menu-item.icon-pdf         { background-image: url("../image/application-pdf.png"); }
+//.context-menu-item.icon-html        { background-image: url("../image/text-html.png"); }
+//.context-menu-item.icon-add-picture { background-image: url("../image/add-picture.png"); }
+//.context-menu-item.icon-download    { background-image: url("../image/download.png"); }
+//.context-menu-item.icon-renumber    { background-image: url("../image/format-list-ordered.png"); }
+
+
+
+// --------------------------------------
+// TABWIDGET (Tabs)
+// --------------------------------------
+
+#requirement_spec_tabs{
+  #function-blocks-tab{
+    margin-top: 1.4em ;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+// --------------------------------------
+//  Text blocks
+// --------------------------------------
+
+.requirement-spec-text-block {
+  border-left: 0;
+  margin-left: 3px;
+  margin-top: 10px;
+
+  & > h2 { margin-top: 0px; }
+
+  &.flagged {
+    //background-color: #feece3;
+    //  border: 1px solid #fe5f14;
+    &> h2 {
+      //background-color: #fe5f14;
+      color: #fff;
+    }
+  } // /.flagged
+
+  &.selected {
+    border-left: 3px solid #cbb120;
+    margin-left: 0;
+  }
+
+}
+
+.requirement-spec-text-block-picture-thumbnail {
+  border-radius: 5px;
+  border:        2px solid #ebebeb;
+  float:         left;
+  margin-right:  20px;
+  padding:       5px;
+  text-align:    center;
+  width:         130px;
+}
+.requirement-spec-text-block-picture-thumbnail-img-container {
+  height:  64px;
+  margin:  auto;
+  padding: 0;
+  width:   64px;
+}
+.requirement-spec-text-block-picture-thumbnail.selected {
+  border: 2px solid #cbb120;
+}
+
+
+
+
+// ------------------------------------------------------------
+// TIME/COST ESTIMATION (TABLE)
+// ------------------------------------------------------------
+
+#time_cost_estimate  {
+  p {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  table tbody tr  {
+    td {
+      vertical-align: top ;
+    }
+    td:first-child { width: 66% ; }
+
+    // special rows
+    &.section th {
+      line-height: 2.2em ;
+      //background-color: @base-standard;
+      color: @base-superdark ;
+      b {
+        font-size: 116% ;
+      }
+    }
+    &.subtotal {
+      td, th {
+        font-weight:      bold ;
+        background-color: @gray-standard; // PENDENT: ZEBRA
+        border-top:       1px @base-superdark solid ;
+        border-bottom:    1px @base-superdark solid ;
+        text-align:       right;
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+//  --------------------------------------
+//  TABLES in Requirement Specs
+//  --------------------------------------
+
+div.function-block * table.tbl-horizontal td {
+  font-size: 66% !important ;
+}
+
+
+
+// --------------------------------------
+// OVERRIDES
+// --------------------------------------
+.jstree-requirement-spec .jstree-clicked {
+  background: @gray-lighter !important;
+  border: 0 !important;
+}
+

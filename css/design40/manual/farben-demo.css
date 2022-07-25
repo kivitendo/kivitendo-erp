@@ -1,0 +1,234 @@
+.gray-darker {
+  background-color: #222222;
+}
+.gray-dark {
+  background-color: #555555;
+}
+.gray-mediumdark {
+  background-color: #666666;
+}
+.gray {
+  background-color: #888888;
+}
+.gray-medium {
+  background-color: #aaaaaa;
+}
+.gray-light {
+  background-color: #cfcfcf;
+}
+.gray-lighter {
+  background-color: #dedede;
+}
+.gray-morelighter {
+  background-color: #e0e0e0;
+}
+.gray-verylight {
+  background-color: #ececec;
+}
+.gray-superlight {
+  background-color: #efefef;
+}
+.color-red-strong {
+  background-color: #ae0014;
+}
+.color-red-light {
+  background-color: #ffd6d6;
+}
+.color-green-strong {
+  background-color: #088604;
+}
+.color-green-light {
+  background-color: #c9ee8e;
+}
+.color-blue-strong {
+  background-color: #209ec8;
+}
+.color-blue-light {
+  background-color: #b6e6e5;
+}
+.color-orange-strong {
+  background-color: #6d613e;
+}
+.color-orange-light {
+  background-color: #f6d972;
+}
+.rainbow-green {
+  background-color: #408000;
+}
+.rainbow-blue {
+  background-color: #0080ff;
+}
+.rainbow-red {
+  background-color: #ff0000;
+}
+.rainbow-yellow {
+  background-color: #ffff00;
+}
+.brand-primary {
+  background-color: #000000;
+}
+.brand-label {
+  background-color: #888888;
+}
+.brand-label-bg {
+  background-color: #dedede;
+}
+.brand-info {
+  background-color: #209ec8;
+}
+.brand-info-bg {
+  background-color: #b6e6e5;
+}
+.brand-ok {
+  background-color: #088604;
+}
+.brand-ok-bg {
+  background-color: #c9ee8e;
+}
+.brand-warning {
+  background-color: #6d613e;
+}
+.brand-warning-bg {
+  background-color: #f6d972;
+}
+.brand-error {
+  background-color: #ae0014;
+}
+.brand-error-bg {
+  background-color: #ffd6d6;
+}
+.brand-positive {
+  background-color: #088604;
+}
+.brand-positive-bg {
+  background-color: #c9ee8e;
+}
+.brand-negative {
+  background-color: #ae0014;
+}
+.brand-negative-bg {
+  background-color: #ffd6d6;
+}
+.button-strong {
+  background-color: #000000;
+}
+.button-strong-bg {
+  background-color: #cfcfcf;
+}
+.button-strong-border {
+  background-color: #cfcfcf;
+}
+.button-strong-hover {
+  background-color: #000000;
+}
+.button-strong-hover-bg {
+  background-color: #cfcfcf;
+}
+.button-strong-hover-border {
+  background-color: #cfcfcf;
+}
+.button-strong-active {
+  background-color: #000000;
+}
+.button-strong-active-bg {
+  background-color: #cfcfcf;
+}
+.button-strong-active-border {
+  background-color: #cfcfcf;
+}
+.button-soft {
+  background-color: #555555;
+}
+.button-soft-bg {
+  background-color: #ececec;
+}
+.button-soft-border {
+  background-color: #ececec;
+}
+.button-soft-hover {
+  background-color: #555555;
+}
+.button-soft-hover-bg {
+  background-color: #ececec;
+}
+.button-soft-hover-border {
+  background-color: #ececec;
+}
+.button-soft-active {
+  background-color: #555555;
+}
+.button-soft-active-bg {
+  background-color: #ececec;
+}
+.button-soft-active-border {
+  background-color: #ececec;
+}
+.body-bg {
+  background-color: #efefef;
+}
+.content-bg {
+  background-color: #ffffff;
+}
+.tabs-bg {
+  background-color: #efefef;
+}
+.heading-bg {
+  background-color: #cfcfcf;
+}
+.controlpanel-bg {
+  background-color: #e0e0e0;
+}
+.text-color {
+  background-color: #000000;
+}
+.heading-color {
+  background-color: #888888;
+}
+.caption-color {
+  background-color: #888888;
+}
+#demo h1,
+#demo h2 {
+  clear: both;
+  color: #888888 !important;
+  padding: 0 ;
+  margin: 20px 0 0 0 ;
+}
+#demo h1 {
+  font-size: 14pt;
+  padding-top: 1.0em ;
+}
+#demo h2 {
+  font-size: 12pt;
+  margin-top: 0.2em ;
+}
+#demo div.selector {
+  display: block ;
+  width: 8.0em ;
+  float: left ;
+  margin: 0 1.0em 0 0 ;
+  overflow: hidden ;
+  padding: 0 ;
+}
+#demo div.selector h3 {
+  color: #888888 !important;
+  font-size: 8pt;
+  font-weight: normal;
+  height: 3.6em ;
+  display: table-cell;
+  vertical-align: bottom ;
+}
+#demo div.selector div.color {
+  width: 8.0em ;
+  height: 8.0em ;
+  display: block;
+  overflow: hidden ;
+  padding: 0 ;
+  margin: 0;
+  border: 1px #000 solid ;
+}
+#demo .group {
+  display: inline-block;
+  float: left;
+  overflow: hidden ;
+}

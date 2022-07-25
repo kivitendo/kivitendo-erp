@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <link href="../style.css" rel="stylesheet">
+  <title>Tabellen in Kivitendo</title>
+  
+  <script type="text/javascript" src="/js/jquery.js"></script>
+  <script type="text/javascript" src="/js/common.js"></script>
+  <script type="text/javascript" src="/js/namespace.js"></script>
+  <script type="text/javascript" src="/js/kivi.js"></script>
+  <script type="text/javascript" src="/js/locale/de.js"></script>
+  <script type="text/javascript" src="/js/jquery-ui.js"></script>
+  <script type="text/javascript" src="/js/kivi.QuickSearch.js"></script>
+  <script type="text/javascript" src="/js/kivi.ActionBar.js"></script>
+  <script type="text/javascript" src="/js/kivi.Draft.js"></script>
+  <script type="text/javascript" src="/js/kivi.File.js"></script>
+  <script type="text/javascript" src="/js/kivi.SalesPurchase.js"></script>
+  <script type="text/javascript" src="/js/kivi.Part.js"></script>
+  <script type="text/javascript" src="/js/ckeditor/ckeditor.js"></script>
+  <script type="text/javascript" src="/js/ckeditor/adapters/jquery.js"></script>
+  <script type="text/javascript" src="/js/kivi.io.js"></script>
+  <script type="text/javascript" src="/js/autocomplete_customer.js"></script>
+  <script type="text/javascript" src="/js/client_js.js"></script>
+  <script type="text/javascript" src="/js/jquery.cookie.js"></script>
+  <script type="text/javascript" src="/js/jquery.checkall.js"></script>
+  <script type="text/javascript" src="/js/jquery.download.js"></script>
+  <script type="text/javascript" src="/js/jquery/jquery.form.js"></script>
+  <script type="text/javascript" src="/js/jquery/fixes.js"></script>
+  <script type="text/javascript" src="/js/jquery/jquery.tooltipster.min.js"></script>
+  <script type="text/javascript" src="/js/jquery/ui/i18n/jquery.ui.datepicker-de.js"></script>
+  
+</head>
+<body class="developing">
+<header>
+  <h1>Abmessungen der horizontalen Tabellen in Kivitendo</h1>
+  <nav><a href="index.html" title="Zur Übersicht bzw. Inhaltsverzeichnis">Zum Index</a></nav>
+</header>
+
+<form action="#">
+
+<div class="wrapper">
+
+<p></p>
+</div><!-- /.wrapper -->
+
+
+
+<div class="wrapper clear">
+<div class="col">
+
+
+<h2>Small</h2>
+
+<table class="tbl-horizontal test-plain">
+  <caption>Colums Small &amp; Small</caption>
+  <colgroup> <col class="wi-small"><col class="wi-small"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Label</th>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <th>Label</th>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal wi-small-small test-plain">
+  <caption>Table Small-Small</caption>
+  <tbody>
+    <tr>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal test-plain">
+  <caption>Small Formelemente</caption>
+  <colgroup><col class="wi-small"><col class="wi-small"></colgroup>
+  <tbody>
+    <tr>
+      <th>Textfeld</th>
+      <td><input type="text" name="input-type-text-small-small-1-1" class="wi-small"><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button></td>
+    </tr>
+    <tr>
+      <th>Textfeld</th>
+      <td><input type="text" name="input-type-text-small-small-1-2" class="wi-small">mm</td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+      <select id="slct-small-1" name="slct-small-1" class="wi-small">
+        <option value=""></option>
+        <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+        <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+        <option value="Timothy Leary">Timothy Leary</option>
+        <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+      </select><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button></td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal test-plain wi-small-small">
+  <caption>Small-Small Textarea</caption>
+  <colgroup> <col class="wi-small-small"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>KEIN Texteditor</th>
+    </tr>
+    <tr>
+      <td><span class="label">Nur Textarea</span>
+        <textarea name="texteditor-small-small" id="texteditor-small-small" class="wi-small-small">Diese Abmessung sollte nicht für den CKEditor verwendet werden.</textarea>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+<div class="test-box wi-small">Div .small</div>
+<div class="test-box wi-small">Div .small</div>
+
+
+
+</div><!-- /.col -->
+<div class="col">
+
+
+<h2>Mediumsmall</h2>
+
+<table class="tbl-horizontal test-plain">
+  <caption>Colums Small &amp; Mediumsmall</caption>
+  <colgroup> <col class="wi-small"><col class="wi-mediumsmall"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Label</th>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <th>Label</th>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal wi-small-mediumsmall test-plain">
+  <caption>Table Small-Mediumsmall</caption>
+  <tbody>
+    <tr>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+
+</table>
+
+<table class="tbl-horizontal test-plain">
+  <caption>Mediumsmall Formelemente</caption>
+  <colgroup><col class="wi-small"><col class="wi-mediumsmall"></colgroup>
+  <tbody>
+    <tr>
+      <th>Textfeld</th>
+      <td><input type="text" name="input-type-text-small-mediumsmall-2-1" class="wi-mediumsmall"><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button></td>
+    </tr>
+    <tr>
+      <th>Textfeld</th>
+      <td><input type="text" name="input-type-text-small-mediumsmall-2-2" class="wi-mediumsmall">mm</td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+      <select id="slct-small-mediumsmall" name="slct-small-mediumsmall" class="wi-mediumsmall">
+        <option value=""></option>
+        <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+        <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+        <option value="Timothy Leary">Timothy Leary</option>
+        <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+      </select><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button></td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal test-plain wi-small-mediumsmall">
+  <caption>Small-Mediumsmall Textarea</caption>
+  <colgroup> <col class="wi-small-mediumsmall"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>KEIN Texteditor</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="label">Nur Textarea</span>
+        <textarea name="texteditor-small-mediumsmall" id="texteditor-small-mediumsmall" class="wi-small-mediumsmall">Diese Abmessung sollte nicht für den CKEditor verwendet werden.</textarea>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="test-box wi-small">Div .small</div>
+<div class="test-box wi-mediumsmall">Div .mediumsmall</div>
+
+
+</div><!-- /.col -->
+<div class="col">
+
+
+<h2>Normal</h2>
+
+<table class="tbl-horizontal test-plain">
+  <caption>Colums Small &amp; Normal</caption>
+  <colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Label</th>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <th>Label</th>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal wi-small-normal test-plain">
+  <caption>Table Small-Normal</caption>
+  <tbody>
+    <tr>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+
+</table>
+
+
+<table class="tbl-horizontal test-plain">
+  <caption>Normal Formelemente</caption>
+  <colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Textfeld</th>
+      <td>
+        <input type="text" name="input-type-text-5" class="wi-normal"><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button>
+      </td>
+    </tr>
+    <tr>
+      <th>Textfeld</th>
+      <td>
+        <input type="text" name="input-type-text-5" class="wi-normal">mm
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td>
+        <textarea name="txtarea1" class="wi-normal">Dies ist ein ganz langer Text</textarea>
+      </td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct-5" name="slct-5" class="wi-normal">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal test-plain wi-small-normal">
+  <caption>Small-Normal Textarea</caption>
+  <colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Texteditor</th>
+    </tr>
+    <tr>
+      <td>
+        <textarea name="texteditor-1" id="texteditor-1" class="texteditor wi-small-normal">Dies ist ein ganz langer Text</textarea>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="test-box wi-small">Div .small</div>
+<div class="test-box wi-normal">Div .normal</div>
+
+
+
+</div><!-- /.col -->
+</div><!-- /.wrapper -->
+<div class="wrapper clear">
+<div class="col">
+
+
+
+<h2>Lightwide</h2>
+
+<table class="tbl-horizontal test-plain">
+  <caption>Colums Small &amp; Lightwide</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Label</th>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <th>Label</th>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal wi-small-lightwide test-plain">
+  <caption>Table Small-Lightwide</caption>
+  <tbody>
+    <tr>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+
+</table>
+
+
+<table class="tbl-horizontal test-plain">
+  <caption>Lightwide Formelemente</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Textfeld</th>
+      <td>
+        <input type="text" name="input-type-text-1" class="wi-lightwide"><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button>
+      </td>
+    </tr>
+    <tr>
+      <th>Textfeld</th>
+      <td>
+        <input type="text" name="input-type-text-1" class="wi-lightwide">mm
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td>
+        <textarea name="txtarea1" class="wi-lightwide">Dies ist ein ganz langer Text</textarea>
+      </td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct-1" name="slct-1" class="wi-lightwide">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal test-plain wi-small-lightwide">
+  <caption>Small-Lightwide Textarea</caption>
+  <colgroup> <col class="wi-small-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Texteditor</th>
+    </tr>
+    <tr>
+      <td><textarea name="texteditor-1" id="texteditor-1" class="texteditor wi-small-lightwide">Dies ist ein ganz langer text</textarea></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="test-box wi-small">Div .small</div>
+<div class="test-box wi-lightwide">Div .lightwide</div>
+
+
+</div><!-- /.col -->
+<div class="col">
+
+
+
+<h2>Wide</h2>
+
+<table class="tbl-horizontal test-plain">
+  <caption>Colums Small &amp; Wide</caption>
+  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Label</th>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <th>Label</th>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal wi-small-wide test-plain">
+  <caption>Table Small-Wide</caption>
+  <tbody>
+    <tr>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+
+</table>
+
+
+<table class="tbl-horizontal test-plain">
+  <caption>Wide Formelemente</caption>
+  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Textfeld</th>
+      <td>
+        <input type="text" name="input-type-text-9" class="wi-wide"><button name="bttn9" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button>
+      </td>
+    </tr>
+    <tr>
+      <th>Textfeld</th>
+      <td>
+        <input type="text" name="input-type-text-9" class="wi-wide">mm
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td>
+        <textarea name="txtarea1" class="wi-wide">Dies ist ein ganz langer Text</textarea>
+      </td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct9" name="slct-9" class="wi-wide">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal test-plain wi-small-wide">
+  <caption>Small-Wide Textarea</caption>
+  <colgroup> <col class="wi-small-wide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Texteditor</th>
+    </tr>
+    <tr>
+      <td>
+        <textarea name="texteditor-1" id="texteditor-1" class="texteditor wi-small-wide">Dies ist ein ganz langer text</textarea>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+<div class="test-box wi-small">Div .small</div>
+<div class="test-box wi-wide">Div .wide</div>
+
+
+
+</div><!-- /.col -->
+<div class="col">
+
+
+
+<h2>Wider</h2>
+
+<table class="tbl-horizontal test-plain">
+  <caption>Colums Small &amp; Wider</caption>
+  <colgroup> <col class="wi-small"><col class="wi-wider"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Label</th>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <th>Label</th>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal wi-small-wider test-plain">
+  <caption>Table Small-Wider</caption>
+  <tbody>
+    <tr>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+
+</table>
+
+
+<table class="tbl-horizontal test-plain">
+  <caption>Wider Formelemente</caption>
+  <colgroup> <col class="wi-small"><col class="wi-wider"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Textfeld</th>
+      <td>
+        <input type="text" name="input-type-text-3" class="wi-wider"><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button>
+      </td>
+    </tr>
+    <tr>
+      <th>Textfeld</th>
+      <td>
+        <input type="text" name="input-type-text-3" class="wi-wider">mm
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td>
+        <textarea name="txtarea1" class="wi-wider">Dies ist ein ganz langer Text</textarea>
+      </td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct-3" name="slct-3" class="wi-wider">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal test-plain wi-small-wider">
+  <caption>Small-Wider Textarea</caption>
+  <colgroup> <col class="wi-small-wider"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Texteditor</th>
+    </tr>
+    <tr>
+      <td>
+        <textarea name="texteditor-1" id="texteditor-1" class="texteditor wi-small-wider">Dies ist ein ganz langer text</textarea>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+<div class="test-box wi-small">Div .small</div>
+<div class="test-box wi-wider">Div .wider</div>
+
+
+
+</div><!-- /.col -->
+<div class="col">
+
+
+
+<h2>Verywide</h2>
+
+<table class="tbl-horizontal test-plain">
+  <caption>Colums Small &amp; Verywide</caption>
+  <colgroup> <col class="wi-small"><col class="wi-verywide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Label</th>
+      <td><div class="data">div.data</div></td>
+    </tr>
+    <tr>
+      <th>Label</th>
+      <td class="data">td.data</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal wi-small-verywide test-plain">
+  <caption>Table Small-Verywide</caption>
+  <tbody>
+    <tr>
+      <td><div class="data">Value 2</div></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<table class="tbl-horizontal test-plain">
+  <caption>Verywide Formelemente</caption>
+  <colgroup> <col class="wi-small"><col class="wi-verywide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Textfeld</th>
+      <td>
+        <input type="text" name="input-type-text-4" class="wi-verywide"><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button>
+      </td>
+    </tr>
+    <tr>
+      <th>Textfeld</th>
+      <td>
+        <input type="text" name="input-type-text-4" class="wi-verywide">mm
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td>
+        <textarea name="txtarea1" class="wi-verywide">Dies ist ein ganz langer Text</textarea>
+      </td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct-4" name="slct-4" class="wi-verywide">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select><button name="bttn1" type="button" value="D" title="Details ansehen" class="wi-tiny">W</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal test-plain wi-small-verywide">
+  <caption>Small-Verywide Textarea</caption>
+  <colgroup> <col class="wi-small-verywide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Texteditor</th>
+    </tr>
+    <tr>
+      <td>
+        <textarea name="texteditor-1" id="texteditor-1" class="texteditor wi-small-verywide">Dies ist ein ganz langer text</textarea>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<div class="test-box wi-small">Div .small</div>
+<div class="test-box wi-verywide">Div .verywide</div>
+
+
+
+</div><!-- /.col -->
+<div class="col">
+
+<h2>Verysmall &amp; Smallest (nur DIVs)</h2>
+
+<div style="clear:left;margin:0 0 1.0em 0;overflow:hidden;">
+<h3 class="caption">Div Verysmall</h3>
+<div class="test-box wi-small">Div .small</div>
+<div class="test-box wi-verysmall">Div .verysmall</div>
+</div>
+<div style="clear:left;margin-bottom:1.0em">
+<h3 class="caption">Div Verysmall</h3>
+<div class="test-box wi-small">Div .small</div>
+<div class="test-box wi-smallest">Div .smallest</div>
+</div>
+</div>
+
+
+
+
+
+
+</div><!-- /.wrapper -->
+
+</form>
+
+</body>
+</html>

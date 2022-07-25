@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <link href="../style.css" rel="stylesheet">
+
+  <script type="text/javascript" src="../../js/jquery.js"></script>
+  <script type="text/javascript" src="../../js/common.js"></script>
+  <script type="text/javascript" src="../../js/namespace.js"></script>
+  <script type="text/javascript" src="../../js/kivi.js"></script>
+  <script type="text/javascript" src="../../js/locale/de.js"></script>
+  <script type="text/javascript" src="../../js/jquery-ui.js"></script>
+  <script type="text/javascript" src="../../js/kivi.QuickSearch.js"></script>
+  <script type="text/javascript" src="../../js/kivi.ActionBar.js"></script>
+  <script type="text/javascript" src="../../js/kivi.Draft.js"></script>
+  <script type="text/javascript" src="../../js/kivi.File.js"></script>
+  <script type="text/javascript" src="../../js/kivi.SalesPurchase.js"></script>
+  <script type="text/javascript" src="../../js/kivi.Part.js"></script>
+  <script type="text/javascript" src="../../js/ckeditor/ckeditor.js"></script>
+  <script type="text/javascript" src="../../js/ckeditor/adapters/jquery.js"></script>
+  <script type="text/javascript" src="../../js/kivi.io.js"></script>
+  <script type="text/javascript" src="../../js/autocomplete_customer.js"></script>
+  <script type="text/javascript" src="../../js/client_js.js"></script>
+  <script type="text/javascript" src="../../js/jquery.cookie.js"></script>
+  <script type="text/javascript" src="../../js/jquery.checkall.js"></script>
+  <script type="text/javascript" src="../../js/jquery.download.js"></script>
+  <script type="text/javascript" src="../../js/jquery/jquery.form.js"></script>
+  <script type="text/javascript" src="../../js/jquery/fixes.js"></script>
+  <script type="text/javascript" src="../../js/jquery/jquery.tooltipster.min.js"></script>
+  <script type="text/javascript" src="../../js/jquery/ui/i18n/jquery.ui.datepicker-de.js"></script>
+  <script type="text/javascript" src="../../js/jquery.multiselect2side.js"></script>
+  <script type="text/javascript" src="../../js/jquery.selectboxes.js"></script>
+ 
+  <title>Spezielle Formular-Elemente</title>
+</head>
+<body class="developing">
+<header>
+  <h1>Spezielle Formular-Elemente</h1>
+  <nav><a href="index.html" title="Zur Übersicht bzw. Inhaltsverzeichnis">Zum Index</a></nav>
+</header>
+<form action="#">
+
+<div class="wrapper">
+
+
+<div class="col">
+<h2>ms2side (.ms2side / MultiSelect2Side)</h2>
+
+<div class="ms2side">
+  <p>Folgende Elemente können einer Gruppe zugeordnet werden:</p>
+  <!-- vormals:.clearfix -->
+  <select name="group_usersms2side__orig" multiple="" id="group_users" style="display: none;">
+    <option value="2">Element 2</option>
+    <option value="1">Element 1</option>
+  </select>
+  <script type="text/javascript">
+    $().ready(function() {
+      $('#group_users').multiselect2side({ moveOptions: false, labeldx: "Gruppenmitglieder", labelsx: "Alle BenutzerInnen" });
+    });
+  </script>
+  <div class="ms2side__div">
+    <div class="ms2side__select">
+      <div class="ms2side__header">
+        Alle verfügbaren Elemente
+      </div>
+      <select title="Alle BenutzerInnen" name="group_usersms2side__sx" id="group_usersms2side__sx" size="undefined" multiple="multiple">
+        <option value="2">Element 2</option>
+        <option value="1">Element 1</option>
+      </select>
+    </div>
+    <div class="ms2side__options" style="padding-top: 7.333333492279053px;">
+      <p class="AddOne ms2side__hide" title="Add Selected">›</p>
+      <p class="AddAll" title="Add All">»</p>
+      <p class="RemoveOne ms2side__hide" title="Remove Selected">‹</p>
+      <p class="RemoveAll ms2side__hide" title="Remove All">«</p>
+    </div>
+    <div class="ms2side__select">
+      <div class="ms2side__header">
+        Zugeordnete Elemente
+      </div>
+      <select title="Gruppenmitglieder" name="group_usersms2side__dx" id="group_usersms2side__dx" size="undefined" multiple="multiple">
+      </select>
+    </div>
+    <span id="group_usersms2side_hidden" style="display: none;"></span>
+  </div>
+  <script type="text/javascript">
+    $().ready(function() {
+      $('#group_clients').multiselect2side({ moveOptions: false, labeldx: "Mandanten, für die diese Gruppe gültig ist", labelsx: "Alle Mandanten" });
+    });
+  </script>
+
+</div>
+
+<div class="buttons">
+  <a class="button neutral" href="#">Zurück</a>
+  <input value="Speichern" type="button">
+</div>
+
+</div>
+
+
+
+<div class="col wi-wide">
+<h2>Boxes (.boxes)</h2>
+<div class="boxes">
+  <h3 title="Select/Deselect all"><input title="Select/Deselect" value="1" name="dummy1" type="checkbox" id="dummy1">
+    <label for="dummy1">Überschrift (Select all)</label>
+    <script type="text/javascript">$('#dummy1').checkall('.checkallgroup1');</script>
+  </h3>
+  <div>
+    <input value="1" class="checkallgroup1" id="group_rights_map_customer_vendor_edit" name="group.rights_map.customer_vendor_edit" type="checkbox">
+    <label for="group_rights_map_customer_vendor_edit">Option 1</label>
+  </div>
+  <div>
+    <input value="1" id="group_rights_map_customer_vendor_all_edit" class="checkallgroup1" name="group.rights_map.customer_vendor_all_edit" type="checkbox">
+    <label for="group_rights_map_customer_vendor_all_edit">Option 2</label>
+  </div>
+  <div>
+    <input value="1" name="group.rights_map.part_service_assembly_edit" id="group_rights_map_part_service_assembly_edit" type="checkbox" class="checkallgroup1">
+    <label for="group_rights_map_part_service_assembly_edit">Option 3</label>
+  </div>
+  <div>
+    <input value="1" name="group.rights_map.part_service_assembly_details" id="group_rights_map_part_service_assembly_details" class="checkallgroup1" type="checkbox">
+    <label for="group_rights_map_part_service_assembly_details">Option 4</label>
+  </div>
+  <div>
+    <input value="1" id="group_rights_map_project_edit" type="checkbox" name="group.rights_map.project_edit" class="checkallgroup1">
+    <label for="group_rights_map_project_edit">Option 4</label>
+  </div>
+</div>
+</div>
+
+
+</div><!-- /.wrapper -->
+
+
+
+<div class="form-addition">
+  <h3 class="h4">In Bericht aufnehmen</h3>
+  <div class="list col">
+    <h4> Numbers &amp; IDs </h4>
+    <div>
+      <input name="l_id" id="l_id" type="checkbox" value="Y">
+      <label for="l_id"> Buchungsnummer </label>
+    </div>
+    <div>
+      <input name="l_customernumber" id="l_customernumber" type="checkbox" value="Y" checked="">
+      <label for="l_customernumber"> Kundennummer </label>
+    </div>
+    <div>
+      <input name="l_taxnumber" id="l_taxnumber" type="checkbox" value="Y">
+      <label for="l_taxnumber"> Steuernummer </label>
+    </div>
+    <div>
+      <input name="l_invnumber" id="l_invnumber" type="checkbox" value="Y">
+      <label for="l_invnumber"> Rechnungen </label>
+    </div>
+  </div>
+  <div class="list col">
+    <h4> Kunde </h4>
+    <div>
+      <input name="l_name" id="l_name" type="checkbox" value="Y" checked="">
+      <label for="l_name"> Kundenname </label>
+    </div>
+    <div>
+      <input name="l_contact" id="l_contact" type="checkbox" value="Y" checked="">
+      <label for="l_contact"> Kontakt </label>
+    </div>
+  </div>
+  <div class="list col">
+    <h4> Adresse </h4>
+    <div>
+      <input name="l_street" id="l_street" type="checkbox" value="Y" checked="">
+      <label for="l_street"> Straße </label>
+    </div>
+    <div>
+      <input name="l_zipcode" id="l_zipcode" type="checkbox" value="Y" checked="">
+      <label for="l_zipcode"> PLZ </label>
+    </div>
+    <div>
+      <input name="l_city" id="l_city" type="checkbox" value="Y" checked="">
+      <label for="l_city"> Stadt </label>
+    </div>
+    <div>
+      <input name="l_country" id="l_country" type="checkbox" value="Y" checked="">
+      <label for="l_country"> Land </label>
+    </div>
+    <div>
+      <input name="l_gln" id="l_gln" type="checkbox" value="Y" checked="">
+      <label for="l_gln"> GLN </label>
+    </div>
+  </div>
+  <div class="list col">
+    <h4> Benutzerdefinierte Variablen </h4>
+<!-- PENDENT: bessere Loesung suchen -->
+    <input type="checkbox" name="l_cvar_Geburtsdatum" id="l_cvar_Geburtsdatum" value="Y">
+    <label for="l_cvar_Geburtsdatum">Geburtsdatum</label>
+  </div>
+</div>
+
+
+<div class="wrapper">
+  <div class="filter_toggle" style="display: block;">
+    <a href="#" onclick="javascript:$('.filter_toggle').toggle()" class="button toggle off neutral">Filter zeigen</a> 
+  </div>
+  <div class="filter_toggle" style="display: none;">
+    <a href="#" onclick="javascript:$('.filter_toggle').toggle()" class="button toggle on neutral with-panel">Filter verbergen</a> 
+<!-- PENDENT: Panel einbauen -->
+    <div class="filter-toggle-panel">
+      <table id="filter_table" class="tbl-horizontal">
+        <caption>Ware</caption>
+        <tbody>
+          <tr>
+            <th>Beschreibung</th>
+            <td><input value="" name="filter.name:substr::ilike" type="text" id="filter_name_substr_ilike" class="wi-normal" size="20">
+            </td>
+          </tr>
+          <tr>
+            <th>Typ</th>
+            <td>
+            <select name="filter.type" id="price_rule_filter_type" class="wi-normal">
+              <option value=""></option>
+              <option value="customer">Preisregeln (Verkauf)</option>
+              <option value="vendor">Preisregeln (Einkauf)</option>
+            </select>
+            </td>
+          </tr>
+          <tr>
+            <th>Ware</th>
+            <td><span class="part_picker"><input data-part-picker-data="{'class':'wi-normal'}" value="" name="filter.item_type_matches[].part" id="filter_item_type_matches5719277_part" type="hidden" class="wi-normal part_autocomplete">
+            <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span><input value="" name="" type="text" class="wi-normal ui-autocomplete-input" id="filter_item_type_matches5719277_part_name" autocomplete="off">
+            <span class="ppp_popup_button"></span></span></td>
+          </tr>
+          <tr>
+            <th>Warengruppe</th>
+            <td>
+            <select name="filter.item_type_matches[].partsgroup" id="filter_item_type_matches5719278_partsgroup" class="wi-normal">
+              <option value=""></option>
+              <option value="447">Computer Occasion</option>
+              <option value="448">Hardwareteile Occasion</option>
+              <option value="449">Computer neu</option>
+              <option value="450">Hardwareteile neu</option>
+              <option value="451">Peripheriegeräte neu</option>
+              <option value="452">Peripheriegeräte Occasion</option>
+              <option value="528">Dienstleistung</option>
+              <option value="594">Lizenzgebühren</option>
+              <option value="635">Zubehör</option>
+              <option value="681">Verbrauchsmaterial</option>
+              <option value="920">Geldbetraege</option>
+              <option value="13376">0Kundengerät</option>
+              <option value="27265">Dienstleistung (Stunden)</option>
+            </select>
+            </td>
+          </tr>
+          <tr>
+            <th>Menge</th>
+            <td><input value="" name="filter.item_type_matches[].qty" type="text" id="filter_item_type_matches5719279_qty" class="wi-normal">
+            </td>
+          </tr>
+          <tr id="price_rule_filter_customer_tr" style="display:none">
+            <th>Kunde</th>
+            <td><span class="customer_vendor_picker"><input value="" name="filter.item_type_matches[].customer" id="price_rule_filter_customer" type="hidden" class="wi-normal customer_vendor_autocomplete" data-customer-vendor-picker-data="{'type':'customer','class':'wi-normal'}">
+            <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span><input value="" name="" class="wi-normal ui-autocomplete-input" type="customer" id="price_rule_filter_customer_name" autocomplete="off">
+            </span></td>
+          </tr>
+          <tr id="price_rule_filter_vendor_tr" style="display:none">
+<!-- PENDENT: Korrekt mit customer? -->
+            <th>Lieferant</th>
+            <td><span class="customer_vendor_picker"><input value="" name="filter.item_type_matches[].vendor" id="price_rule_filter_vendor" type="hidden" class="wi-normal customer_vendor_autocomplete" data-customer-vendor-picker-data="{'type':'vendor','class':'wi-normal'}">
+            <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span><input value="" name="" class="wi-normal ui-autocomplete-input" type="vendor" id="price_rule_filter_vendor_name" autocomplete="off">
+            </span></td>
+          </tr>
+          <tr>
+            <th>Kunden-/Lieferantentyp</th>
+            <td>
+            <select name="filter.item_type_matches[].business" id="filter_item_type_matches5719280_business" class="wi-normal">
+              <option value=""></option>
+              <option value="23353">LehrerInnen</option>
+              <option value="23347">IT-Firma</option>
+              <option value="41723">Behörde</option>
+              <option value="158">Firma</option>
+              <option value="157">Privatperson</option>
+            </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <table id="filter_table" class="tbl-horizontal">
+        <caption>Dates</caption>
+        <tbody>
+          <tr>
+            <th>Liefertermin</th>
+            <td><input value="" name="filter.item_type_matches[].reqdate" type="text" class="datepicker wi-date hasDatepicker" id="filter_item_type_matches5719281_reqdate" data-validate="date" size="11">
+            <img class="ui-datepicker-trigger" src="image/calendar.png" alt="..." title="..."></td>
+          </tr>
+          <tr>
+            <th>Buchungsdatum Beleg</th>
+            <td><input value="" name="filter.item_type_matches[].transdate" type="text" class="datepicker wi-date hasDatepicker" id="filter_item_type_matches5719282_transdate" data-validate="date" size="11">
+            <img class="ui-datepicker-trigger" src="image/calendar.png" alt="..." title="..."></td>
+          </tr>
+          <tr>
+            <th class="caption" colspan="2">Prices &amp; Discounts</th>
+          </tr>
+          <tr>
+            <th>Preisgruppe</th>
+            <td>
+            <select name="filter.item_type_matches[].pricegroup" id="filter_item_type_matches5719283_pricegroup" class="wi-normal">
+              <option value=""></option>
+              <option value="0">keine Preisgruppe</option>
+              <option value="27267">50 CHF pro Stunde</option>
+              <option value="27268">100 CHF pro Stunde</option>
+            </select>
+            <br>
+            </td>
+          </tr>
+          <tr>
+            <th>Preis</th>
+            <td><input value="" name="filter.price:number" type="text" id="filter_price_number" class="wi-normal" size="20">
+            </td>
+          </tr>
+          <tr>
+            <th>Abschlag</th>
+            <td><input value="" name="filter.reduction:number" type="text" id="filter_reduction_number" class="wi-normal" size="20">
+            </td>
+          </tr>
+          <tr>
+            <th>Rabatt</th>
+            <td><input value="" name="filter.discount:number" type="text" id="filter_discount_number" class="wi-normal" size="20">
+            </td>
+          </tr>
+          <tr>
+            <th class="caption" colspan="2">Status</th>
+          </tr>
+          <tr>
+            <th>Priorität</th>
+            <td>
+            <select name="filter.priority" id="filter_priority" class="wi-normal">
+              <option value="" selected="">Alle</option>
+              <option value="3">Normal</option>
+              <option value="4">Override</option>
+            </select>
+            </td>
+          </tr>
+          <tr>
+            <th>Ungültig</th>
+            <td>
+            <select name="filter.obsolete" id="filter_obsolete" class="wi-normal">
+              <option value="">Beide</option>
+              <option value="0" selected="">Gültig</option>
+              <option value="1">Ungültig</option>
+            </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="col list">
+        <h3 class="caption">Hat Regeltypen</h3>
+        <div>
+          <input value="part" name="filter.has_item_type[]" id="filter_has_item_type5719284" type="checkbox">
+          <label for="filter_has_item_type5719284">Ware</label>
+          <br>
+          <input value="customer" name="filter.has_item_type[]" id="filter_has_item_type5719285" type="checkbox">
+          <label for="filter_has_item_type5719285">Kunde</label>
+          <br>
+          <input value="vendor" name="filter.has_item_type[]" id="filter_has_item_type5719286" type="checkbox">
+          <label for="filter_has_item_type5719286">Lieferant</label>
+          <br>
+          <input value="business" name="filter.has_item_type[]" id="filter_has_item_type5719287" type="checkbox">
+          <label for="filter_has_item_type5719287">Kunden-/Lieferantentyp</label>
+          <br>
+          <input value="partsgroup" name="filter.has_item_type[]" id="filter_has_item_type5719288" type="checkbox">
+          <label for="filter_has_item_type5719288">Warengruppe</label>
+          <br>
+          <input value="qty" name="filter.has_item_type[]" id="filter_has_item_type5719289" type="checkbox">
+          <label for="filter_has_item_type5719289">Menge</label>
+          <br>
+          <input value="reqdate" name="filter.has_item_type[]" id="filter_has_item_type5719290" type="checkbox">
+          <label for="filter_has_item_type5719290">Liefertermin</label>
+          <br>
+          <input value="transdate" name="filter.has_item_type[]" id="filter_has_item_type5719291" type="checkbox">
+          <label for="filter_has_item_type5719291">Buchungsdatum</label>
+          <br>
+          <input value="pricegroup" name="filter.has_item_type[]" id="filter_has_item_type5719292" type="checkbox">
+          <label for="filter_has_item_type5719292">Preisgruppe</label>
+          <br>
+        </div>
+      </div>
+      <input value="name" name="sort_by" id="sort_by" type="hidden">
+      <input value="0" name="sort_dir" id="sort_dir" type="hidden">
+      <input value="1" name="page" id="page" type="hidden">
+      <div class="buttons">
+        <input value="Reset Filter" class="neutral" type="reset" onclick="$('#search_form').resetForm()">
+      </div>
+    </div>
+<!-- /.filter-toggle-panel -->
+  </div>
+<!-- /.filter_toggle -->
+</div>
+
+
+
+
+
+</form>
+</body>
+</html>

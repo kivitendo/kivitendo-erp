@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <link href="../style.css" rel="stylesheet">
+  <title>Kivitendo-Design: Anleitung &amp; Grundsätze</title>
+</head>
+<body class="developing">
+<header>
+  <h1>Anleitung und Grunsätze</h1>
+  <nav><a href="index.html" title="Zur Übersicht bzw. Inhaltsverzeichnis">Zum Index</a></nav>
+</header>
+<div class="wrapper">
+  <h2>Grundregeln</h2>
+
+<h3>INPUT-Tag:</h3>
+  <p>Da das INPUT-Element sehr vielseitig ist und via CSS das TYPE-Attribut abgefangen werden kann, muss dieses <b>TYPE-Attribut zwingend</b> mit den reservierten Begriffen gesetzt sein, da Webbrowser mitsamt ihrer CSS-Fähigkeiten das Fehlen missinterpretieren können. Standard ist TEXT, im weiteren dürfen vorerst SUBMIT, RESET, CHECKBOX und RADIO verwendet werden. Fehlt dieses Attribut oder wird ein ungehöriges gesetzt, wird das Feld vom Browser nicht korrekt dargestellt.</p>
+  <p>Korrekt: <code>&lt;input type="text" name="name" id="name"&gt;</code><br>Falsch:&nbsp; <code>&lt;input name="name" id="name"&gt;</code> (häufig aufgetreten)<p>
+  <h3>H1 (Header 1):</h3><p>Dieses Element sollte nur <b>einmal pro Seite</b> eingesetzt werden, und zwar einzig für den Seitentitel. Zudem sollte dieses Attribut <b>gleich zu Beginn der Template-Datei</b> gesetzt werden, und nicht innerhalb eines Formular- oder Wrapper-Elements. Das unkorrekte Setzen dieses Elements ist zwar durch den CSS-Code abgefangen, die Darstellung könnte aber in solchen Fällen nicht den Vorstellungen entsprechen.</p>
+
+<h3>Form- &amp; Form-Elemente-Tags korrekt in Tabellen setzen</h3>
+<p>
+Formular-Tags sollten nicht innerhalb einer Tabelle stehen sondern um sie herum. Die Elemente dürfen aber in einer Tabellenzelle stehen. Hidden-Elemente auch, denn diese sollten nicht zwischen TR-, TH- oder TD-Tags stehen sondern entweder ausserhalb der Tabelle, falls möglich, und sonst innerhalb eines TH- oder TD-Tags
+</p>
+
+<h3>Keine verschachtelten Tabellen</h3>
+<p>Tabellen in Tabellen-Zellen sind grundsätzlich verboten</p>
+</div>
+</body>
+</html>

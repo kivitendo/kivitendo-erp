@@ -1,0 +1,77 @@
+/* ------------------------------------------------------------- */
+/* JQUERY MULTISELECT2SIDE (jquery.multiselect2side.less)        */
+/* ------------------------------------------------------------- */
+
+
+//  multiselect2side plugin
+.ms2side__div {
+  clear:         left;
+  width:         100%;
+  padding:       1px;
+  float:         left;
+  background :   url('') repeat-x; //  HACK FOR CHROME
+}
+
+.ms2side__select {
+  float:         left;
+}
+/* siehe H3 */
+.ms2side__header {
+  color:         #666; /* hps */
+  font-size:     @font-size-smaller ;
+  line-height:   1.0em;
+  padding:       0 0 0.3em 0;
+  display:       block;
+}
+
+.ms2side__options,
+.ms2side__updown {
+  float:         left;
+  font-size:     @font-size-small ;
+  margin:       0;
+  padding:       0 8px;
+  width:         40px;
+  color:         black;
+  text-align:   center;
+  overflow:     hidden;
+}
+.ms2side__options{
+  padding-top:   1.0em !important;
+}
+.ms2side__updown {
+  font-size:     @font-size-small;
+}
+
+.ms2side__options p,
+.ms2side__updown p {
+  margin:           2px 0;
+  padding:           0;
+  cursor:           pointer;
+  border:           1px solid black;
+  width:             auto !important; /* hps */
+  background-color: @button-neutral-bg;  /* hps */
+  color:             @button-neutral-color ; /* hps */
+  border-color:     @button-neutral-border ; /* hps */
+  border-radius:     3px; /* hps */
+}
+
+.ms2side__options p.ms2side_hover,
+.ms2side__updown p.ms2side_hover {
+  background-color: #3C3C3B; /* hps */
+  border-color:     #000000;
+  color:             #ffffff ;
+  cursor:           pointer;
+}
+
+.ms2side__options > p.ms2side__hide,
+.ms2side__updown > p.ms2side__hide {
+  cursor:           default;
+  color:             #9e9e9e;
+  border:           1px solid grey;
+  background-color: #D4D4D4 !important;
+}
+
+.ms2side__div select {
+  width:             12.0em; /*hps:400px*/
+  float:             left;
+}

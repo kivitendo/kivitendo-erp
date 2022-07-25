@@ -1,0 +1,90 @@
+/* ------------------------------------------------------------- */
+/* MAIN OVERRIDES (main_overrides.less)                          */
+/* ------------------------------------------------------------- */
+
+
+// ----------------------------------------------------------------------------
+//
+// MAIN-OVERRIDE
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+// Overrides some properties of some selectors
+// This can be useful if some selectors are placed in special containers
+//
+//
+//
+// CONTENTS:
+// - Overrides withing .wrapper
+// -
+// ----------------------------------------------------------------------------
+
+
+// --------------------------------------
+// WRAPPER
+// --------------------------------------
+// Elements within .wrapper
+.wrapper {
+  &>.buttons {
+    padding-left:  0 !important;
+  }
+  .select-item,
+  .form-addition,
+  .input-panel{
+    // PENDENT: noch austesten, falls im .wrapper oder nicht, sonst Ausrichtung noch in anderen containern festlegen
+    margin-left:  0 !important;
+  }
+  & > .col {
+    margin-right: 1.6em ;
+    & > .tbl-horizontal {
+      margin-right: 0 !important ;
+    }
+  }
+  & > .tbl-horizontal {
+//    float: left;
+//    margin-right: 1.6em ;
+  }
+  .tbl-list {
+    //margin-left: 0.2em;
+    caption { padding-left: 0 ; }
+  }
+} // /.wrapper
+
+
+
+
+
+// --------------------------------------
+// TABS
+// --------------------------------------
+#content .ui-tabs-panel div.wrapper:first-child { margin-top: 1.5em ; }
+
+
+.ui-tabs-panel{
+  & > div.select-item {
+    margin: 1.8em 2.0em 0.8em @margin-from-panel-left !important;
+  }
+  & > div.form-addition {
+    margin-left: 0 !important ;
+  }
+} // /.ui-tabs-panel
+
+
+
+
+// --------------------------------------
+// UI-DIALOG
+// --------------------------------------
+.ui-dialog-content { background: #ffffff; }
+.ui-widget-content {background: transparent;}
+
+
+.ui-dialog-content,
+.ui-widget-content {
+  .select-item{
+    margin: 1em 1em 1.0em 0;
+  }
+  .buttons{
+    padding: 1.0em 1.0em 1.0em 0;
+  }
+}

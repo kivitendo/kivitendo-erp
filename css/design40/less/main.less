@@ -1,0 +1,678 @@
+/* ------------------------------------------------------------- */
+/* MAIN PROPERTIES (main.less)                                   */
+/* ------------------------------------------------------------- */
+
+
+// ----------------------------------------------------------------------------
+//
+// MAIN (MAIN PROPERTIES)
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+//
+// CONTENTS:
+// - GENERAL FONT SIZES
+// - HEADINGS (H1-H3)
+//   - H1
+//   - H2
+//   - H3 & Caption
+// - LINKS
+// - OTHER STANDARD HTML-ELEMENTS (SELECTORS)
+//   - Lists (UL & OL)
+//   - Horizontal Rule
+// - COMPONENTS
+//   - Dimensions for DIVs & SPANs
+//   - Long Description
+//   - Info-Container (description & instructions)
+//   - Labels & Values (SPAN)
+//   - Centered Elements
+//   - Accent
+//   - File Content
+//   - Expanded
+//   - Hidden Elements
+// - WRAPPER
+//   - Toggled Wrapper
+//   - Toggle buttons
+//   - Columns
+//   - Paragraph within Wrapper
+//   - Horizontal Scroll
+// - CATEGORIES
+//   - Plus & Minus / Positive & Negative
+//   - Styled Text
+// - SPECIALIZED PROPERTIES (REDUNANT)
+//   - Dunned Invoices
+//   - Bank transactions
+//   - Diverse Elements
+// - DEPRACETED STUFF
+// ----------------------------------------------------------------------------
+
+
+
+
+// --------------------------------------
+// GENERAL FONT SIZES
+// --------------------------------------
+
+#content {
+
+  & > p,
+  & > div,
+  & > td,
+  & > th {
+    font-size: @font-size-smaller ;
+  }
+  input,
+  select, option,
+  textarea {
+    font-size: @font-size-smaller ;
+  }
+
+}
+
+
+
+
+// --------------------------------------
+// Headings (H1 - H3)
+// --------------------------------------
+
+// -----------------------
+// H1
+// -----------------------
+h1 {
+  display:       block;
+  text-align:    left;
+  margin:        0;
+  font-weight:   normal;
+  font-size:     @h1-size;
+  line-height:   1.2em ;
+}
+// PENDENT: SIEHE AUCH .LISTTOP
+#content > h1 {
+  position:           fixed;
+  z-index:            @zindex-h1; //hps:12
+  top:                60px;
+  width:              100%;
+  color:              @base-h1-color ;
+  background-color:   @base-h1-bg;
+  padding:            @h1-padding;
+  border-top:         @base-h1-border-top;
+}
+#content .wrapper h1{
+  color:              @headings-color;
+  font-size:          @h2-size;
+  margin:             @margin-from-wrapper ;
+}
+body > h1{
+  color:              @base-h1-color ;
+  background-color:   @base-h1-bg ;
+  padding:            @h1-padding;
+}
+
+
+// -----------------------
+// H2
+// -----------------------
+h2 {
+  color:            @headings-color;
+  font-size:        @h2-size ;
+  border-style:     none;
+  letter-spacing:   0.14em;
+}
+
+#content,
+.admin {
+  & > h2 {
+    padding:        0.6em 0.2em ;
+    margin:         0.6em 0 0 0 ;
+  }
+  ui-tabs-panel {
+    .wrapper > h2 {
+      padding: 0 0.2em 0.6em 0.2em ;
+      margin:  @margin-from-wrapper ;
+    }
+  }
+  .wrapper > h2 {
+    padding:      2.0em 0.2em 0.6em 0.2em ;
+    margin:       0 ;
+    font-weight:  normal;
+    clear:        both;
+    &:first-child{ padding-top: 0 ; }
+  }
+} // /#content /.admin
+
+h2.confirm { color: @headings-color-confirm ; }
+h2.error   { color: @headings-color-error ; }
+
+
+// -----------------------
+// H2 Record-Title
+// -----------------------
+// (e.g. Customer Name, Article Name)
+// PENDENT: in verschiedenen Templates einfuegen
+h2.record-title {
+  padding:          0.6em 0 0 0 !important;
+  font-size:        @h2-size ;
+  color:            @headings-color-accent ;
+  small{
+    color:          @headings-color ;
+    letter-spacing: 0 ;
+  }
+}
+.wrapper > h2.record-title{
+  margin:   0em 1em 1em 0.2em !important;
+}
+.ui-tabs-panel > h2.record-title{
+  margin:   1em 1em 0.2em @margin-left-from-content !important;
+  padding:  0.8em 0 0 0.1em !important;
+}
+
+
+// -----------------------
+// H3
+// -----------------------
+// see also mixin .mx-h3-caption and caption in table.less
+h3 {
+  .mx-h3-caption ; // Mixin
+  &.caption{
+    margin: 0.6em 0 0.4em 0 !important;
+  }
+}
+#content h3{
+  color:        @headings-color ;
+  padding-left: 0 ;
+  margin:       0.8em 0 0.4em 0 ;
+}
+#content .wrapper h3 {
+  margin-top:   1.0em ;
+  &:first-child { margin-top: 0 ; }
+}
+#content table.tbl-horizontal > tbody > tr > th > h3,
+#content table.tbl-horizontal > tbody > tr > td > h3 { margin-top: 0.2em !important; }
+
+// PENDENT: H4
+
+
+
+
+// --------------------------------------
+// LINKS
+// --------------------------------------
+
+a {
+  text-decoration: @link-decoration;
+  font-weight:     @link-weight;
+  &:link,
+  &:visited,
+  &:active {
+    color: @link-color;
+  }
+  &:hover {
+    color: @link-hover-color;
+    text-decoration: @link-hover-decoration;
+  }
+
+  // Special classes
+  // PENDENT: some of them obsolete
+  &.selected:hover {
+    color:#EBEBEB;
+  }
+  &.nomobile {
+    background-color:transparent;
+    border:none;
+  }
+  &.green {
+    background-color: DarkGreen;
+    color: white !important;
+    border:none;
+  }
+  &.orange {
+    background-color:#FF8000;
+    border:none;
+  }
+  &.red {
+    background-color:#FF0000;
+    border:none;
+  }
+
+
+  // -------------------
+  // BUTTONS (.button)
+  // see file buttons.less
+
+} // /a (Links)
+
+
+
+
+
+// --------------------------------------
+// OTHER STANDARD HTML-ELEMENTS (SELECTORS)
+// --------------------------------------
+
+// -----------------------
+// Lists (UL & OL)
+// -----------------------
+ul,
+ol {
+  font-size: @font-size-base ;
+
+  li {
+    font-size: @font-size-small ;
+  }
+}
+.wrapper .col{
+  ul {
+    list-style: circle outside;
+    padding: 0 ;
+    margin: 0 ;
+    li{
+      padding: 0 0 0 -0.6em ;
+      margin: 0 0 0 0 ;
+    }
+  }
+}
+
+// -----------------------
+// Horizontal Rule
+// -----------------------
+hr {
+    background-color: @color-green-light; // #006400
+    border: none;
+    height: 1px;
+}
+
+
+
+
+
+
+// --------------------------------------
+// COMPONENTS
+// --------------------------------------
+
+// -----------------------
+// Dimensions for DIVs & SPANs
+// -----------------------
+div,
+span,
+div.list {
+  &.wi-smallest     { width:     @div-wi-smallest    ; } //   2.0em
+  &.wi-verysmall    { width:     @div-wi-verysmall   ; } //   4.0em
+  &.wi-small        { width:     @div-wi-small       ; } //   8.8em
+  &.wi-mediumsmall  { width:     @div-wi-mediumsmall ; } //   8.8em
+  &.wi-normal       { width:     @div-wi-normal      ; } //  12.0em
+  &.wi-lightwide    { width:     @div-wi-lightwide   ; } //  12.0em
+  &.wi-wide         { width:     @div-wi-wide        ; } //  18.0em
+  &.wi-wider        { width:     @div-wi-wider       ; } //  24.0em
+  &.wi-verywide     { width:     @div-wi-verywide    ; } //  36.0em
+}
+
+// -----------------------
+// Long Description
+// -----------------------
+// (see also TD.longdesc etc.)
+div.long-description,
+div.long-desc,
+div.longdescription,
+div.longdesc {
+  font-size: @font-size-smaller ;
+
+  &.small {
+    font-size: @font-size-smaller ;
+  }
+  p {
+    margin: 0 0 0.6em 0;
+  }
+  ul,
+  ol {
+    margin-top: 0 ;
+    li { font-size: @font-size-smaller ; }
+  }
+}
+
+// -----------------------
+// Info-Container (description & instructions)
+// -----------------------
+// Description
+// Small info-boxes for the user
+div.description{
+  display: block;
+  float: left ;
+  padding: 0 0 0.6em 0 ;
+
+  // Dimensions
+  &.wi-verysmall    { width: @div-wi-verysmall   ; }
+  &.wi-small        { width: @div-wi-small       ; }
+  &.wi-mediumsmall  { width: @div-wi-mediumsmall ; }
+  &.wi-normal       { width: @div-wi-normal      ; }
+  &.wi-wide         { width: @div-wi-wide        ; }
+  &.wi-lightwide    { width: @div-wi-lightwide   ; }
+  &.wi-wider        { width: @div-wi-wider       ; }
+  &.wi-verywide     { width: @div-wi-verywide    ; }
+
+}
+
+// Instructions
+// Big info boxes for the user, same as cols
+// PENDENT: Mixin fuer Padding, Margin etc. anlegen
+div.instructions {
+  background-color: @instructionbox-bg;
+  border:           @instructionbox-border;
+  border-radius:    @contentbox-radius ;
+  max-width: 70% ;
+  .mx-contentbox-properties ;
+  color: #4C4C4C;
+  font-size: 80%;
+
+  p { width: 30.0em }
+}
+
+// -----------------------
+// Labels & Values (SPAN)
+// -----------------------
+span.label{
+  //color: @base-data-label-color ;
+  font-size: @font-size-smaller ;
+  font-style: normal ;
+  //margin: 0 0.3em 0 0 ; // PENDENT: gehoert nicht hierher
+}
+span.value{
+  color: #000 ;
+  //margin: 0 2.6em 0 0 ; // PENDENT: anschauen, margin-top seltsam
+}
+
+// -----------------------
+// Centered Elements
+// -----------------------
+// Centered blocks
+.center {
+  margin: 0 auto;
+  width: auto;
+}
+
+// -----------------------
+// Accent
+// -----------------------
+// PENDENT: Neue Loesung
+.accent{
+  div.label{
+    float: left ;
+    //color: @base-data-label-color ;
+    font-size: 80% ;
+    //&.wi-mediumsmall{ width: 13.6em; } // PENDENT!
+    padding-top: 0.8em ;
+  }
+  div.data{
+    float: left ;
+    input[type="text"]{
+      width: 20em !important ;
+    }
+  }
+} // /.accent
+
+// -----------------------
+// File Content
+// -----------------------
+// PENDENT: wozu? genügt nicht PRE?
+// /templates/webpages/am/edit_templates.html
+pre.filecontent {
+  border: 1px solid blue;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+// -----------------------
+// Expanded
+// -----------------------
+// Pendent: wozu einmalig?
+// /templates/webpages/order/tabs/_row.html
+// /templates/webpages/order/tabs/basic_data.html
+// /js/kivi.Order.js
+#expand_all,
+.expand {
+    cursor: pointer;
+    display: block;
+    max-width: 16px;
+    max-height: 16px;
+}
+
+// -----------------------
+// Hidden Elements
+// -----------------------
+.hidden {
+  display: none ;
+}
+
+
+
+
+
+// --------------------------------------
+// Wrapper
+// --------------------------------------
+
+// Wrapper for columns & horizontal tables
+.wrapper {
+  overflow:  hidden ;
+  margin:    @contentbox-margin ;
+  padding:   0 0 1.0em 0 ;
+  clear:     both ;
+  display:   block ;
+  border:    1px transparent solid ; // for nice alignment with folded/toggled wrapper
+  width:     98.6%;
+
+  .wrapper { margin-left: 0 !important ; }
+
+  &.test {   background-color: #FFE67C ; }
+
+  .tbl-horizontal,
+  .tbl-plain { float: left ; }
+
+  & > table.tbl-horizontal:last-child{
+    margin-right: 0 ;
+  }
+
+
+  // -----------------------
+  // Toggled Wrapper
+  // -----------------------
+  &.toggled  {
+    display: inline-block !important ;
+    width: 98.6% ;
+    & > table.tbl-horizontal,
+    & > div.col {
+      margin-top: -1.8em ;
+    }
+
+    // -----------------------
+    // Toggle buttons
+    // -----------------------
+    // must be placed on the first position in .wrapper
+    // PENDENT: Plazierung
+    & > .toggles {
+      display:      block ;
+      float:        right        ;
+      position:     relative     ;
+      top:          0            ;
+      margin-top:   4px          ;
+      float:        right        ;
+      width:        100% ;
+
+      a.toggle {
+        //display:    inline-block;
+        display:      block;
+        //width:      18px ;
+        width:      100% ;
+        height:     18px ;
+        background-repeat:        no-repeat;
+        background-position:      50% 50%;
+        &.min,
+        &.max { background-position-x: 99% ; }
+        &.min { background-image: url(../image/toggle-down.png); }
+        &.max { background-image: url(../image/toggle-left.png); }
+      }
+    } // /.toggles
+
+
+
+  }
+
+  &.bordered {
+    border:        @controlpanel-border ;
+    border-radius: 4px ;
+  }
+
+
+  // -----------------------
+  // Columns
+  // -----------------------
+  // DIV or TABLE
+  .col {
+    float: left ;
+    &.test {
+      background-color: #FFD7BA;
+      border: 1px #6CF solid;
+    }
+    &.wi-small       { width: @div-wi-small      ; }
+    &.wi-mediumsmall { width: @div-wi-mediumsmall; }
+    &.wi-normal      { width: @div-wi-normal     ; }
+    &.wi-wide        { width: @div-wi-wide       ; }
+    &.wi-lightwide   { width: @div-wi-lightwide  ; }
+    &.wi-wider       { width: @div-wi-wider      ; }
+    &.wi-verywide    { width: @div-wi-verywide   ; }
+
+    .tbl-horizontal,
+    .tbl-plain {
+      float: none ;
+      clear: left ;
+    }
+  } // /.col
+
+  // -----------------------
+  // Paragraph within Wrapper
+  // -----------------------
+  & > p {
+    max-width:       36.0em ;
+    overflow:        hidden ;
+    font-size:       @font-size-smaller ;
+    line-height:     140%;
+    //color:           @gray-darker ;
+    padding-bottom:  1.0em ;
+  }
+
+} // /.wrapper
+
+// --------------------------------------
+// wrapper to show horizontal scroll bar
+// E.g. use for tables
+// --------------------------------------
+
+.horizontal-scroll-wrapper {
+  overflow-x: auto !important;
+}
+
+
+
+// --------------------------------------
+// CATEGORIES
+// --------------------------------------
+
+// -----------------------
+// Plus & Minus / Positive & negative
+// -----------------------
+// Inline-Elements
+.plus,
+.minus,
+.plus0,
+.plus1 {
+  clear: none;
+}
+// Negative Values
+.minus,
+.plus0 { color:      @base-negative !important; }
+// Positive Values
+.plus,
+.plus1 { color:     @base-positive !important; }
+
+// unbalanced Ledger
+// PENDENT: wo eingesetzt?
+span.unbalanced_ledger {
+  background-color: @base-warning-bg;
+}
+
+
+// -----------------------
+// Styled Text
+// -----------------------
+// Dimmed Text
+// /templates/webpages/requirement_spec_text_block/_text_block.html
+// /templates/webpages/requirement_spec_item/_section_header.html
+div.dimmed-text,
+span.dimmed-text {
+  color:        @gray-standard;
+  font-style:   italic;
+}
+
+
+
+
+
+// --------------------------------------
+// SPECIALIZED PROPERTIES (REDUNANT)
+// --------------------------------------
+
+// -----------------------
+// Dunned Invoices
+// -----------------------
+//  /templates/webpages/is/form_header.html
+//  /templates/webpages/ar/form_header.html
+.dunned_invoice {
+  font-weight: bold;
+  color: #f00;
+}
+//  /templates/webpages/is/form_header.html
+//  /templates/webpages/ar/form_header.html
+.customer_dunning_level {
+  font-weight: bold;
+}
+// dunning invoice list
+// /templates/webpages/dunning/show_invoices.html
+#dunning_invoice_list .direct_debit td,
+#dunning_invoice_list .direct_debit a {
+  color: @gray-standard;
+}
+
+// -----------------------
+// Bank transactions
+// -----------------------
+// /templates/webpages/bank_transactions/tabs/automatic.html
+#bank_transactions_proposals .invoice_number_highlight a,
+#bank_transactions_proposals span.invoice_number_highlight {
+  background-color: @color-green-strong;
+  color: #FFFFFF;
+}
+
+// --------------------------------------
+// Diverse Elements
+// --------------------------------------
+// make vertical Space between to elements
+.spacer{
+  clear: both;
+}
+
+
+
+
+
+// --------------------------------------
+// DEPRACETED STUFF (BUT WILL IT BE AVAILABLE FOR A LONGER TIME?)
+// --------------------------------------
+
+// PENDENT: Programmmaesig loesen, vor allem primitive Ueberschriften und "Not records Found"-Meldungen wandeln
+#content {
+  &>p { margin: 0.6em 2.0em 1.0em 0.7em }
+  &>p.message_hint {
+    margin: 0.6em 2.0em 1.0em 1.0em
+  }
+}

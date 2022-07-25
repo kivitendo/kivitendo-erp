@@ -1,0 +1,958 @@
+/* ------------------------------------------------------------- */
+/* VARIABLES (variables.less)                                    */
+/* ------------------------------------------------------------- */
+
+// ----------------------------------------------------------------------------
+//
+// VARIABLES (Less-Style) for general use (most of it is Bootstrap-Stuff)
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+//
+// CONTENTS:
+// - COLORS
+//   - Greys
+//   - Base
+//   - Divers Color Specifications
+// - SCAFFOLDING
+//   - Body/Content Background color, Text color
+//   - Content Boxes (Wrapper & Columns Container)
+// - LINKS
+// - TYPOGRAPHY
+//   - Font family
+//   - Font size
+//   - Line height
+//   - Heading 1 - 4
+//   - Heading 1 (H1)
+//   - Heading Controlpanels
+//   - Data Types
+// - ICONOGRAPHY (ggf. OBSOLETE)
+// - PAGE COMPONENTS
+//   - Z-Index
+//   - Dashboard (frame-header)
+//   - Menu Top (CSS)
+//   - Menu Left (JS)
+//   - Context Menu (layout-actionbar) -> missing
+//   - Component properties
+//   - Tabs
+// - TABLES
+//   - Table & Caption
+//   - Table Cells
+//   - Zebra effect in list tables
+//   - Dimensions (Table Cells Only) (OBSOLETE)
+// - BUTTONS
+//   - STANDARD-Button Strong (with Submission / data manipulation)
+//   - NEUTRAL-Button (NO Submission)
+//   - Diverse Button states
+// - DROPDOWNS (OBSOLETE)
+// - FORMS
+//   - Input elements
+//   - Legend, Labels, Fieldsets
+//   - Highlighting (Focus and so on)
+//   - Dimensions (input, select) (OBSOLETE)
+// - MESSAGES
+// - DIMENSIONS
+//   - Standard Dimensions (even for TABLE CELLS)
+//   - Dimensions for for DIVs
+//   - Dimensions for Table Colums (TH, TD & Col)
+//   - Dimensions for combined rows with combination Table column widths
+//   - Dimensions for Form input elements
+//   - Dimensions for Form Select elements
+//   - Dimensions for Textarea elements with standard dimensions
+//   -
+//   -
+// ----------------------------------------------------------------------------
+
+
+
+
+// --------------------------------------
+// COLORS (GREYs, BASE COLORS & OTHERS)
+// --------------------------------------
+// Base Colors see variables_color[*-9].less
+// Include the preferred color scheme in style.less before including this less file
+
+// -----------------------
+// General text color (label & data)
+// -----------------------
+// Standard text
+@base-primary:         @base-text-color;
+@base-label:           @base-data-label-color;
+@base-label-bg:        @base-lighter;
+
+// -----------------------
+// MESSAGES & INFO TYPES
+// -----------------------
+// color definitions in variables_color_[*-9].less
+@base-ok:              @color-green-strong;
+@base-ok-bg:           @color-green-light;
+
+@base-error:           @color-red-strong;
+@base-error-bg:        @color-red-light;
+
+@base-info:            @color-blue-strong;
+@base-info-bg:         @color-blue-light;
+
+@base-warning:         @color-orange-strong;
+@base-warning-bg:      @color-orange-light;
+
+// Positive & negative colors
+@base-positive:        @color-green-strong;
+@base-positive-bg:     @color-green-light;
+@base-negative:        @color-red-strong;
+@base-negative-bg:     @color-red-light;
+
+
+
+
+
+// --------------------------------------
+// CONTENT CONTAINER
+// --------------------------------------
+
+@text-min-width:            400px ;
+@text-max-width:            600px ;
+
+// like Wrappers, Colums Containers, Flash-Messages and Record Selection
+//@content-padding:           0 0 0 0; // 0 is OK otherwise there will be a border after the ui-tabs-panels
+//@content-margin:            101px 0 1.0em 0; // PENDENT: ueberpruefen
+// working alternative
+@content-padding:           101px 0 0 0; // 0 is OK otherwise there will be a border after the ui-tabs-panels
+@content-margin:            0 0 1.0em 0; // PENDENT: ueberpruefen
+
+
+
+@margin-left-from-content:  1.2em ; // directly inside #content
+@margin-left-from-wrapper:  0   ;       // directly inside .wrapper
+
+@margin-from-content:       1em   1em 1em   @margin-left-from-content ; // directly inside #content
+@margin-from-wrapper:       1.6em 0   0.4em @margin-left-from-wrapper ; // directly inside .wrapper
+
+// Paragraphs, messages
+@text-container-width:      auto ;
+@text-container-min-width:  @text-min-width ;
+@text-container-max-width:  @text-max-width ;
+
+@messages_width:            60.0em;
+@messages-min-width:        60.0em;
+@messages-max-width:        40.0em;
+
+@contentbox-margin:         1.0em 1.0em 1.0em @margin-from-panel-left ;
+@contentbox-padding:        0.6em 1.0em 1.2em 1.8em ;
+@contentbox-radius:         0.6em ;
+
+// -----------------------
+// Component properties
+// -----------------------
+// Based on 14px font-size and 1.428 line-height (~20px to start)
+// PENDENT: UI-Tabs und so weiter
+// PENDENT: genauer anschauen, ggf. obsolete da nicht verwendet
+
+@padding-base-vertical:         6px;
+@padding-base-horizontal:       12px;
+
+@padding-large-vertical:        10px;
+@padding-large-horizontal:      16px;
+
+@padding-small-vertical:        5px;
+@padding-small-horizontal:      10px;
+
+@line-height-large:             1.33;
+@line-height-small:             1.5;
+
+@border-radius-base:            4px;
+@border-radius-large:           6px;
+@border-radius-small:           3px;
+
+@component-active-color:        @base-superlight;
+@component-active-bg:           @base-primary; // PENDENT: Variable nicht vorgesehen dafuer
+
+@caret-width-base:              4px;
+@caret-width-large:             5px;
+
+@margin-from-panel-left:        1.2em; // for panels and wrappers
+
+@padding-databoxes-left:        0.6em ; // for input, span.data in data tables
+
+
+
+
+
+
+
+
+// --------------------------------------
+// LINKS
+// --------------------------------------
+@link-color:            @base-link-color;
+@link-hover-color:      lighten(@base-link-color, 10%);
+@link-decoration:       underline;
+@link-hover-decoration: underline;
+@link-weight:           bold;
+
+
+
+
+
+// --------------------------------------
+// TYPOGRAPHY
+// --------------------------------------
+
+// -----------------------
+// Font family
+// -----------------------
+@font-family-sans-serif:  Verdana, "Helvetica Neue", Helvetica, Arial, sans-serif ;
+@font-family-serif:       Georgia, "Times New Roman", Times, serif ;
+@font-family-monospace:   Monaco, Menlo, Consolas, "Courier New", monospace;
+
+@font-family-base:        @font-family-sans-serif;
+
+// -----------------------
+// Font size
+// -----------------------
+@font-size-base:          11pt; // vorh.14px
+@font-size-large:         ceil(@font-size-base * 1.25); //  ~18px
+@font-size-medium:        ceil(@font-size-base * 1.0 ); //  ~18px
+@font-size-small:         ceil(@font-size-base * 0.85); //  ~11px
+@font-size-smaller:       ceil(@font-size-base * 0.76); //  ~12px
+@font-size-verysmall:     ceil(@font-size-base * 0.6); //   ~12px
+
+// -----------------------
+// Line height
+// -----------------------
+@line-height-base:        1.428571429; //  20/14
+@line-height-computed:    floor(@font-size-base * @line-height-base); //  ~20px
+
+// -----------------------
+// Heading 1-4
+// -----------------------
+@headings-font-family:    @font-family-base;
+@headings-weight:         500;
+@headings-line-height:    1.3em;
+@headings-color:          @base-heading-color;
+@headings-color-accent:   #000;
+
+@headings-color-error:    @base-error;
+@headings-color-confirm:  @base-ok;
+
+@h1-size:            floor(@font-size-base * 1.1); //  ~**px
+@h2-size:            floor(@font-size-base * 1.2); //  ~**px
+@h3-size:            ceil(@font-size-base * 1.1); //  ~**px
+@h4-size:            ceil(@font-size-base * 1.0); //  ~**px
+@h5-size:            @font-size-base;
+@h6-size:            ceil(@font-size-base * 0.85); //  ~**px
+
+@h1-style:           normal;
+@h2-style:           normal;
+@h3-style:           normal;
+@h4-style:           normal;
+
+@h1-weight:          bold;
+@h2-weight:          bold;
+@h3-weight:          normal;
+@h4-weight:          normal;
+
+// -----------------------
+// Heading 1 (H1)
+// -----------------------
+// Fixed on top of every page together with the action bar
+@base-h1-color:        @_base-h1-color;
+@base-h1-bg:           @_base-h1-bg;
+@h1-padding:            0.7em 0.5em 0.7em 1.3em;
+@h1-margin:             0;
+@base-h1-border-top:  @_base-h1-border-top;
+// -----------------------
+// Heading Controlpanels
+// -----------------------
+@h3-controlpanel-size:    @h3-size;
+@h4-controlpanel-size:    @h4-size;
+
+@h3-controlpanel-style:   bold;
+@h4-controlpanel-style:   bold;
+
+@h3-controlpanel-weight:  normal;
+@h4-controlpanel-weight:  bold;
+
+// -----------------------
+// Data types
+// -----------------------
+@heading-and-label-color:   @base-data-label-color  ;
+@heading-and-label-bg:      @base-data-label-color  ;
+@data-color:                @base-data-color ;
+
+@long-desc-size:            @font-size-verysmall ;
+@long-desc-color:           @base-text-color ;
+
+
+
+// --------------------------------------
+// Iconography (ggf. OBSOLETE)
+// --------------------------------------
+//@icon-font-path:          "../bootstrap/fonts/";
+//@icon-font-name:          "glyphicons-halflings-regular";
+
+
+
+
+
+// --------------------------------------
+// PAGE COMPONENTS
+// --------------------------------------
+
+// -----------------------
+// Z-index
+// -----------------------
+// Stack-/Layer Positions of components
+// only for specialists
+
+// General
+@zindex-dropdown:          1000;
+@zindex-popover:           1010;
+@zindex-tooltip:           1030;
+@zindex-navbar-fixed:      1030;
+@zindex-modal-background:  1040;
+@zindex-modal:             1050;
+
+// Components
+@zindex-dashboard:         1040; // frame-header
+@zindex-navbar:            1999; // menuv3 must be on top
+@zindex-h1:                1020; // h1 inside content
+
+@zindex-actionbar:               1030; // action-bar (Workflow)
+@zindex-actionbar-action:        1031;
+@zindex-actionbar-combobox:      1031;
+@zindex-actionbar-combobox-head: 1033;
+@zindex-actionbar-combobox-list: 1032;
+
+// -----------------------
+// DASHBOARD (FRAME HEADER)
+// -----------------------
+@dashbrd_bg:            @_dashbrd_bg ;
+@dashbrd_text:          @_dashbrd_text ;
+@dashbrd_link:          @_dashbrd_link ;
+@dashbrd_link_hover:    @_dashbrd_link_hover ;
+@dashbrd_link_deco:     underline ;
+@dashbrd_input_bg:      @_dashbrd_input_bg;
+@dashbrd_input_text:    @_dashbrd_input_text ;
+
+// -----------------------
+// Menue (menuv3)
+// -----------------------
+@menu_bg:               @_menu_bg ;
+@menu_link:             @_menu_link ;
+
+@menu_link_bg:          @_menu_link_bg ; // display:block
+@menu_link_hover:       @_menu_link_hover ;
+@menu_link_hover_bg:    @_menu_link_hover_bg ;
+@menu_link_hover_deco:  underline ;
+@menu_border_color:     @_menu_border_color ;
+@menu_border:           1px @menu_border_color solid ;
+
+@menu_link_bg_level1:         @_menu_link_bg_level1 ;
+@menu_link_bg_level1_hover:   @_menu_link_bg_level1_hover ;
+@menu_link_bg_level2:         @_menu_link_bg_level2 ;
+@menu_link_bg_level2_hover:   @_menu_link_bg_level2_hover ;
+@menu_link_bg_level3:         @_menu_link_bg_level3 ;
+@menu_link_bg_level3_hover:   @_menu_link_bg_level3_hover ;
+
+
+// -----------------------
+// Menu Left (JS & HTML)
+// -----------------------
+@menu_left_bg:                    @_menu_left_bg ;
+@menu_left_level_1_color:         @_menu_left_level_1_color ;
+@menu_left_level_1_bg:            @_menu_left_level_1_bg ;
+@menu_left_level_1_hover_color:   @_menu_left_level_1_hover_color ;
+@menu_left_level_1_hover_bg:      @_menu_left_level_1_hover_bg ;
+@menu_left_level_2_color:         @_menu_left_level_2_color ;
+@menu_left_level_2_bg:            @_menu_left_level_2_bg ;
+@menu_left_level_2_hover_color:   @_menu_left_level_2_hover_color ;
+@menu_left_level_2_hover_bg:      @_menu_left_level_2_hover_bg ;
+@menu_left_level_3_color:         @_menu_left_level_3_color ;
+@menu_left_level_3_bg:            @_menu_left_level_3_bg ;
+@menu_left_level_3_hover_color:   @_menu_left_level_3_hover_color ;
+@menu_left_level_3_hover_bg:      @_menu_left_level_3_hover_bg ;
+
+// Additional Variables for Menu Left (JS)
+@menu_open_color: @_menu_open_color;
+@menu_open_bg:    @_menu_open_bg;
+
+// -----------------------
+// CONTEXT-MENU (LAYOUT-ACTIONBAR)
+// -----------------------
+@actionbar-bg:                  @_actionbar-bg;
+@actionbar-bg-active:           @_actionbar-bg-active;
+//@actionbar-bg-hover:          @_actionbar-bg-hover;
+@actionbar-font-color:          @_actionbar-font-color;
+@actionbar-font-color-active:   @_actionbar-font-color-active;
+@actionbar-border-color:        @_actionbar-border-color;
+@actionbar-border-color-active: @_actionbar-border-color-active;
+@actionbar-hover-bg:            @_actionbar-hover-bg;
+@actionbar-hover-color:         @_actionbar-hover-color;
+@actionbar-border-radius:       4px ;
+@actionbar-font-color-disabled: @_actionbar-font-color-disabled;
+
+// -----------------------
+// Tabs
+// -----------------------
+// background tabs panel (data/content)
+
+@tabs-bg:                   @_tabs-bg ;
+@tabs-panel-bg:             @_tabs-panel-bg ;
+@tabs-border-color:         @_tabs-border-color ;
+@tabs-border-radius:        4px ;
+
+@tabs-default-bg:           @_tabs-default-bg;
+@tabs-default-color:        @_tabs-default-color;
+@tabs-default-hover-bg:     @_tabs-default-hover-bg;
+@tabs-default-hover-color:  @_tabs-default-hover-color;
+
+@tabs-active-bg:            @_tabs-active-bg;
+@tabs-active-color:         @_tabs-active-color;
+@tabs-active-hover-bg:      @_tabs-active-hover-bg;
+@tabs-active-hover-color:   @_tabs-active-hover-color;
+
+
+
+
+
+// --------------------------------------
+// Dropdowns (OBSOLETE?)
+// --------------------------------------
+
+@dropdown-bg:                    #fff;
+@dropdown-border:                rgba(0,0,0,.15);
+@dropdown-fallback-border:       #ccc;
+@dropdown-divider-bg:            #e5e5e5;
+
+@dropdown-link-color:            @gray-dark;
+@dropdown-link-hover-color:      darken(@gray-dark, 5%);
+@dropdown-link-hover-bg:         #f5f5f5;
+
+@dropdown-link-active-color:     @component-active-color;
+@dropdown-link-active-bg:        @component-active-bg;
+
+@dropdown-link-disabled-color:   @gray-light;
+
+@dropdown-header-color:          @gray-light;
+
+@dropdown-caret-color:           #000;
+
+
+
+
+
+// --------------------------------------
+// FORMS
+// --------------------------------------
+
+// -------------------
+// Input elements
+// -------------------
+@input-bg:                       #fff;
+@input-bg-disabled:              @gray-lighter;
+
+@input-color:                    @gray-standard;
+@input-border:                   #ccc;
+@input-border-radius:            @border-radius-base;
+@input-border-focus:             #66afe9;
+
+@input-color-placeholder:        @gray-light;
+
+@input-height-base:              (@line-height-computed + (@padding-base-vertical * 2) + 2);
+@input-height-large:             (floor(@font-size-large * @line-height-large) + (@padding-large-vertical * 2) + 2);
+@input-height-small:             (floor(@font-size-small * @line-height-small) + (@padding-small-vertical * 2) + 2);
+
+@input-group-addon-bg:           @gray-lighter;
+@input-group-addon-border-color: @input-border;
+
+// -------------------
+// Legend, Labels, Fieldsets
+// -------------------
+@legend-color:                   @gray-dark;
+@legend-border-color:            #e5e5e5;
+
+// -------------------
+//  Highlighting (Focused, Activated)
+// -------------------
+@formelement-focus-bg:             @_formelement-focus-bg ;
+@formelement-focus-text:           @_formelement-focus-text ;
+@formelement-focus-border:         @_formelement-focus-border ;
+
+
+
+
+
+// --------------------------------------
+// BUTTONS
+// --------------------------------------
+@button-font-weight:                normal;
+@button-border-radius:              6px ;
+// -------------------
+// STANDARD-Button Strong (with Submission / data manipulation)
+// -------------------
+// Standard
+@button-strong-color:               @_button-strong-color;
+@button-strong-bg:                  @_button-strong-bg;
+@button-strong-border:              1px @_button-strong-border-color solid;
+
+// Hover
+@button-strong-hover-color:         @_button-strong-hover-color;
+@button-strong-hover-bg:            @_button-strong-hover-bg;
+@button-strong-hover-border:        1px @_button-strong-hover-border-color solid;
+
+// Active
+@button-strong-active-color:        @_button-strong-active-color;
+@button-strong-active-bg:           @_button-strong-active-bg;
+@button-strong-active-border:       1px @_button-strong-active-border-color solid;
+
+// -------------------
+// NEUTRAL-Button (NO Submission)
+// -------------------
+// Standard
+@button-neutral-color:               @_button-neutral-color;
+@button-neutral-bg:                  @_button-neutral-bg;
+@button-neutral-border:              1px @_button-neutral-border-color solid;
+
+// Hover
+@button-neutral-hover-color:         @_button-neutral-hover-color;
+@button-neutral-hover-bg:            @_button-neutral-hover-bg;
+@button-neutral-hover-border:        1px @_button-neutral-hover-border-color solid;
+
+// Active
+@button-neutral-active-color:        @_button-neutral-active-color;
+@button-neutral-active-bg:           @_button-neutral-active-bg;
+@button-neutral-active-border:       1px @_button-neutral-active-border-color solid;
+
+// -------------------
+// Diverse Button states
+// -------------------
+//@button-primary-color:              @_button-primary-color;
+//@button-primary-bg:                 @_button-primary-bg;
+//@button-primary-border:             1px darken(@button-primary-bg, 5%) solid;
+
+@button-success-color:              @_button-success-color;
+@button-success-bg:                 @_button-success-bg;
+@button-success-border:             1px darken(@color-green-light, 5%) solid;
+
+@button-warning-color:              @_button-warning-color;
+@button-warning-bg:                 @_button-warning-bg;
+@button-warning-border:             1px darken(@button-warning-bg, 5%) solid;
+
+@button-info-color:                 @_button-info-color;
+@button-info-bg:                    @_button-info-bg;
+@button-info-border:                1px darken(@button-info-bg, 5%) solid;
+
+@button-link-disabled-color:        @_button-link-disabled-color;
+
+
+
+
+
+// --------------------------------------
+// CONTROL PANELS
+// --------------------------------------
+
+@controlpanel-margin:         @contentbox-margin      ;
+@controlpanel-padding:        1.2em 1.0em 0.8em 0.9em ;
+@controlpanel-padding-narrow: 0.4em 1.0em 0.6em 0.9em ; // e.g. for input-panels
+@controlpanel-padding-bold:   0.8em 1.0em 1.4em 1.2em ; // PENDENT: wozu?
+@controlpanel-bg-color:       @_controlpanel-bg-color ;
+@controlpanel-bg-style:        @_bg_style_controlpanel ;
+@controlpanel-color:          @_controlpanel-color    ;
+@controlpanel-border:         1px @_controlpanel-border-color solid  ;
+@controlpanel-radius:         @contentbox-radius      ;
+
+// PENDENT: noetig?
+@controlpanel-bg-hover:       @base-superdark        ;
+@controlpanel-bg-hover-text:  @base-light            ;
+@controlpanel-active-bg:      @base-darker            ;
+@controlpanel-active-text:    @base-lighter          ;
+
+@controlpanel-h3-color:       @h3-size ;
+@controlpanel-h3-size:        110%    ;
+@controlpanel-h3-style:       normal  ;
+@controlpanel-h3-weight:      normal  ;
+
+@controlpanel-h4-color:       @_controlpanel-header-color ;
+@controlpanel-h4-size:        @h4-size    ;
+@controlpanel-h4-weight:      normal ;
+@controlpanel-h4-style:       normal  ;
+
+// select item control panel
+@controlpanel-select-item-padding:   0.6em 1.0em 0.6em 0.8em ;
+
+@instructionbox-bg:           @controlpanel-bg-color ;
+@instructionbox-border:       1px @_controlpanel-border-color solid ;
+
+
+
+
+
+// --------------------------------------
+// TABLES
+// --------------------------------------
+
+@table-border-color:             @_table-border-color; //  table and cell border
+
+@table-bg:                       @_table-bg; // overall background-color
+@table-bg-accent:                @_table-bg-accent; // for striping
+@table-bg-hover:                 @_table-bg-hover;
+@table-bg-active:                @_table-bg-active;
+
+@table-caption-bg:               @_table-caption-bg;
+@table-caption-color:            @_table-caption-color;
+@table-caption-size:             @h3-size - 2pt ;
+@table-caption-style:            @h3-style ;
+@table-caption-weight:           @h3-weight ;
+
+
+// --------------
+// Table Cells
+// --------------
+@t-cell-text-color:              @_t-cell-text-color;
+@t-cell-th-text-color:           @_t-cell-th-text-color; // even for label/.label in tables
+
+@t-cell-head-bg:                 @_t-cell-head-bg;
+@t-cell-head-bg-accent:          @_t-cell-head-bg-accent;
+@t-cell-head-text:               @_t-cell-head-text;
+@t-cell-head-text-accent:        @_t-cell-head-text-accent;
+
+@t-cell-label-text:              @_t-cell-label-text;
+@t-cell-label-text-accent:       @_t-cell-label-text-accent;
+@t-cell-data-text:               @_t-cell-data-text;
+@t-cell-data-text-accent:        @_t-cell-data-text-accent;
+
+@t-cell-databox-text-color:       @_t-cell-databox-text-color ;
+@t-cell-databox-border-color:     @_t-cell-databox-border-color ;
+
+
+@t-cell-foot-text:               @_t-cell-foot-text;
+
+// -----------------------
+// Zebra effect in list tables
+// -----------------------
+@t-row-zebra-bg-odd:             @_t-row-zebra-bg-odd;
+@t-row-zebra-bg-even:            @_t-row-zebra-bg-even;
+
+@t-row-zebra-bg-hover:           @_t-row-zebra-bg-hover;
+
+@t-row-zebra-bg-error:           @msg-error-light;
+
+@table-list-zebra-text-color:     @_table-list-zebra-text-color ;
+@table-list-zebra-link-color:     @_table-list-zebra-link-color ;
+
+@t-row-zebra-bg-special:         #FEF2C5; // PENDENT: ANSCHAUEN
+@t-row-zebra-bg-highlight:       #B4F4FE; // PENDENT: ANSCHAUEN
+
+
+// PENDENT: Footer
+
+
+
+// --------------------------------------
+// MESSAGES
+// --------------------------------------
+
+@message-margin:         3.6em 2.0em 0.6em 1.0em ;
+@message-padding:        0.6em 0.6em 0.5em 0.6em ;
+
+// Error
+@message_error_bg:       @base-error-bg ;
+@message_error_border:   1px solid @base-error ;
+@message_error_text:     @base-error ;
+// OK
+@message_ok_bg:          @base-ok-bg ;
+@message_ok_border:      1px solid @base-ok ;
+@message_ok_text:        @base-ok ;
+// Info & Hint
+@message_info_bg:        @base-info-bg ;
+@message_info_border:    1px solid @base-info ;
+@message_info_text:      @base-info ;
+// Warning
+@message_warning_bg:     @base-warning-bg ;
+@message_warning_border: 1px solid @base-warning ;
+@message_warning_text:   @base-warning ;
+// Hint (like Info above, just to make it sure working)
+@message_hint_bg:        @message_info_bg ;
+@message_hint_border:    @message_info_border ;
+@message_hint_text:      @message_info_text ;
+
+
+
+
+
+// --------------------------------------
+// JQUERY-UI STUFF
+// --------------------------------------
+
+
+// -----------------------
+// Date picker
+// -----------------------
+@jquery_datepicker-bg-color: @base-superlight ;
+
+// -----------------------
+// UI-Dialog
+// -----------------------
+@jquery_ui_dialog-bg-color:   @base-verylight ;
+@jquery_ui_dialog-bg-style:   @_bg_style_body ;
+
+// -----------------------
+// TOOLTIPSTER
+// -----------------------
+@jquery_ui_tooltipster-bg-color:       @base-standard ;
+@jquery_ui_tooltipster-border-color:   @base-lighter ;
+@jquery_ui_tooltipster-color:         @base-verylight ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// --------------------------------------
+// DIMENSIONS (width)
+// --------------------------------------
+// Only for Containers like DIV, TABLE, TH, TD, COL, P
+
+// -----------------------
+// Standard Dimensions (even for table cells)
+// -----------------------
+// Table cells:   COL, TD, TH, DIV
+@wi-smallest:       42px ;  //   2.6em ; // one or two ciphers
+@wi-verysmall:      80px ;  //   5.0em ;
+@wi-small:         128px ;   //   8.0em ; // also date e.g. 2018/06/06
+@wi-mediumsmall:   160px ;   //  10.0em ;
+@wi-normal:        208px ;   //  13.0em ;
+@wi-lightwide:     256px ;   //  16.0em ;
+@wi-wide:          320px ;   //  20.0em ;
+@wi-wider:         384px ;   //  24.0em ;
+@wi-verywide:      576px ;   //  36.0em ;
+
+// -----------------------
+// Standard Dimensions for for DIVs
+// -----------------------
+@div-wi-smallest:     (@wi-smallest    ) ;
+@div-wi-verysmall:    (@wi-verysmall   ) ;
+@div-wi-small:        (@wi-small       ) ;
+@div-wi-mediumsmall:  (@wi-mediumsmall ) ;
+@div-wi-normal:       (@wi-normal      ) ;
+@div-wi-lightwide:    (@wi-lightwide   ) ;
+@div-wi-wide:         (@wi-wide        ) ; // min-width
+@div-wi-wider:        (@wi-wider       ) ; // min-width
+@div-wi-verywide:     (@wi-verywide    ) ; // min-width
+
+// -----------------------
+// Dimensions for Table Colums (TH, TD & Col)
+// -----------------------
+@tcol-wi-smallest:     (@wi-smallest    ) ;
+@tcol-wi-verysmall:    (@wi-verysmall   ) ;
+@tcol-wi-small:        (@wi-small       ) ;
+@tcol-wi-mediumsmall:  (@wi-mediumsmall ) ;
+@tcol-wi-normal:       (@wi-normal      ) ;
+@tcol-wi-lightwide:    (@wi-lightwide   ) ;
+@tcol-wi-wide:         (@wi-wide        ) ; // min-width
+@tcol-wi-wider:        (@wi-wider       ) ; // min-width
+@tcol-wi-verywide:     (@wi-verywide    ) ; // min-width
+
+// -----------------------
+// Dimensions for combined rows with combination Table column widths
+// -----------------------
+@tcol-wi-small-small:            (@tcol-wi-small       + @tcol-wi-small        ) ;
+@tcol-wi-small-mediumsmall:      (@tcol-wi-small       + @tcol-wi-mediumsmall  ) ;
+@tcol-wi-small-normal:           (@tcol-wi-small       + @tcol-wi-normal       ) ;
+@tcol-wi-small-lightwide:        (@tcol-wi-small       + @tcol-wi-lightwide    ) ;
+@tcol-wi-small-wide:             (@tcol-wi-small       + @tcol-wi-wide         ) ;
+@tcol-wi-small-wider:            (@tcol-wi-small       + @tcol-wi-wider        ) ;
+@tcol-wi-small-verywide:         (@tcol-wi-small       + @tcol-wi-verywide     ) ;
+
+@tcol-wi-mediumsmall-small:      (@tcol-wi-mediumsmall + @tcol-wi-small        ) ;
+@tcol-wi-mediumsmall-mediumsmall:(@tcol-wi-mediumsmall + @tcol-wi-mediumsmall  ) ;
+@tcol-wi-mediumsmall-normal:     (@tcol-wi-mediumsmall + @tcol-wi-normal       ) ;
+@tcol-wi-mediumsmall-lightwide:  (@tcol-wi-mediumsmall + @tcol-wi-lightwide    ) ;
+@tcol-wi-mediumsmall-wide:       (@tcol-wi-mediumsmall + @tcol-wi-wide         ) ;
+@tcol-wi-mediumsmall-wider:      (@tcol-wi-mediumsmall + @tcol-wi-wider        ) ;
+@tcol-wi-mediumsmall-verywide:   (@tcol-wi-mediumsmall + @tcol-wi-verywide     ) ;
+
+@tcol-wi-normal-small:           (@tcol-wi-normal      + @tcol-wi-small        ) ;
+@tcol-wi-normal-mediumsmall:     (@tcol-wi-normal      + @tcol-wi-mediumsmall  ) ;
+@tcol-wi-normal-normal:          (@tcol-wi-normal      + @tcol-wi-normal       ) ;
+@tcol-wi-normal-lightwide:       (@tcol-wi-normal      + @tcol-wi-lightwide    ) ;
+@tcol-wi-normal-wide:            (@tcol-wi-normal      + @tcol-wi-wide         ) ;
+@tcol-wi-normal-wider:           (@tcol-wi-normal      + @tcol-wi-wider        ) ;
+@tcol-wi-normal-verywide:        (@tcol-wi-normal      + @tcol-wi-verywide     ) ;
+
+@tcol-wi-lightwide-small:        (@tcol-wi-lightwide   + @tcol-wi-small        ) ;
+@tcol-wi-lightwide-mediumsmall:  (@tcol-wi-lightwide   + @tcol-wi-mediumsmall  ) ;
+@tcol-wi-lightwide-normal:       (@tcol-wi-lightwide   + @tcol-wi-normal       ) ;
+@tcol-wi-lightwide-lightwide:    (@tcol-wi-lightwide   + @tcol-wi-lightwide    ) ;
+@tcol-wi-lightwide-wide:         (@tcol-wi-lightwide   + @tcol-wi-wide         ) ;
+@tcol-wi-lightwide-wider:        (@tcol-wi-lightwide   + @tcol-wi-wider        ) ;
+@tcol-wi-lightwide-verywide:     (@tcol-wi-lightwide   + @tcol-wi-verywide     ) ;
+
+// -----------------------
+// Dimensions for Form input elements
+// -----------------------
+@diff-input-select: 36px ; //1.6em ;
+
+// Input elements
+@form-element-margin-right: 5px ;
+
+@input-wi-smallest:     (@wi-smallest  ) ;
+@input-wi-verysmall:    (@wi-verysmall ) ;
+@input-wi-small:        (@wi-small       - @diff-input-select) ;
+@input-wi-mediumsmall:  (@wi-mediumsmall - @diff-input-select) ;
+@input-wi-normal:       (@wi-normal      - @diff-input-select) ;
+@input-wi-lightwide:    (@wi-lightwide   - @diff-input-select) ;
+@input-wi-wide:         (@wi-wide)       - @diff-input-select ; // min-width
+@input-wi-wider:        (@wi-wider)      - @diff-input-select ; // min-width
+@input-wi-verywide:     (@wi-verywide)   - @diff-input-select ; // min-width
+
+// Input elements with combined dimensions
+
+// Minus size combinations (take care of the double hyphen --)
+@input-wi-lightwide--verysmall: ( @input-wi-lightwide - @input-wi-verysmall ) - 1 ;
+@input-wi-wide--verysmall:      ( @input-wi-wide      - @input-wi-verysmall ) - ( @form-element-margin-right  ) + 4px ;
+
+// -----------------------
+// Dimensions for Form Select elements
+// -----------------------
+@select-wi-smallest:    (@wi-smallest    ) ;
+@select-wi-verysmall:   (@wi-verysmall   ) ;
+@select-wi-small:       (@wi-small       - @diff-input-select ) ;
+@select-wi-mediumsmall: (@wi-mediumsmall - @diff-input-select ) ;
+@select-wi-normal:      (@wi-normal      - @diff-input-select ) ;
+@select-wi-lightwide:   (@wi-lightwide   - @diff-input-select ) ;
+@select-wi-wide:        (@wi-wide        - @diff-input-select ) ; // min-width
+@select-wi-wider:       (@wi-wider       - @diff-input-select ) ; // min-width
+@select-wi-verywide:    (@wi-verywide    - @diff-input-select ) ; // min-width
+
+// Select elements with combined dimensions
+@diff-select-combined:  0 ;
+
+@select-wi-small-normal:          ((@wi-small + (@wi-normal - @diff-input-select))     - @diff-select-combined ) ;
+@select-wi-small-lightwide:       ((@wi-small + (@wi-lightwide - @diff-input-select))  - @diff-select-combined ) ;
+@select-wi-small-wide:            ((@wi-small + (@wi-wide - @diff-input-select))       - @diff-select-combined ) ;
+@select-wi-small-wider:           ((@wi-small + (@wi-wider - @diff-input-select))      - @diff-select-combined ) ;
+@select-wi-small-verywide:        ((@wi-small + (@wi-verywide - @diff-input-select))   - @diff-select-combined ) ;
+@select-wi-mediumsmall-normal:    ((@wi-mediumsmall + (@wi-normal - @diff-input-select))     - @diff-select-combined ) ;
+@select-wi-mediumsmall-lightwide: ((@wi-mediumsmall + (@wi-lightwide - @diff-input-select))  - @diff-select-combined ) ;
+@select-wi-mediumsmall-wide:      ((@wi-mediumsmall + (@wi-wide - @diff-input-select))       - @diff-select-combined ) ;
+@select-wi-mediumsmall-wider:     ((@wi-mediumsmall + (@wi-wider - @diff-input-select))      - @diff-select-combined ) ;
+@select-wi-mediumsmall-verywide:  ((@wi-mediumsmall + (@wi-verywide - @diff-input-select))   - @diff-select-combined ) ;
+@select-wi-normal-normal:         ((@wi-normal + (@wi-normal - @diff-input-select))     - @diff-select-combined ) ;
+@select-wi-normal-lightwide:      ((@wi-normal + (@wi-lightwide - @diff-input-select))  - @diff-select-combined ) ;
+@select-wi-normal-wide:           ((@wi-normal + (@wi-wide - @diff-input-select))       - @diff-select-combined ) ;
+@select-wi-normal-wider:          ((@wi-normal + (@wi-wider - @diff-input-select))      - @diff-select-combined ) ;
+@select-wi-normal-verywide:       ((@wi-normal + (@wi-verywide - @diff-input-select))   - @diff-select-combined ) ;
+@select-wi-lightwide-normal:      ((@wi-lightwide + (@wi-normal - @diff-input-select))     - @diff-select-combined ) ;
+@select-wi-lightwide-lightwide:   ((@wi-lightwide + (@wi-lightwide - @diff-input-select))  - @diff-select-combined ) ;
+@select-wi-lightwide-wide:        ((@wi-lightwide + (@wi-wide - @diff-input-select))       - @diff-select-combined ) ;
+@select-wi-lightwide-wider:       ((@wi-lightwide + (@wi-wider - @diff-input-select))      - @diff-select-combined ) ;
+@select-wi-lightwide-verywide:    ((@wi-lightwide + (@wi-verywide - @diff-input-select))   - @diff-select-combined ) ;
+@select-wi-wide-normal:           ((@wi-wide + (@wi-normal - @diff-input-select))     - @diff-select-combined ) ;
+@select-wi-wide-lightwide:        ((@wi-wide + (@wi-lightwide - @diff-input-select))  - @diff-select-combined ) ;
+@select-wi-wide-wide:             ((@wi-wide + (@wi-wide - @diff-input-select))       - @diff-select-combined ) ;
+@select-wi-wide-wider:            ((@wi-wide + (@wi-wider - @diff-input-select))      - @diff-select-combined ) ;
+@select-wi-wide-verywide:         ((@wi-wide + (@wi-verywide - @diff-input-select))   - @diff-select-combined ) ;
+
+// -----------------------
+// Dimensions for Textarea elements with standard dimensions
+// -----------------------
+
+@textarea-wi-normal:      (@wi-normal      - @diff-input-select ) ;
+@textarea-wi-lightwide:   (@wi-lightwide   - @diff-input-select ) ;
+@textarea-wi-wide:        (@wi-wide        - @diff-input-select ) ; // min-width
+@textarea-wi-wider:       (@wi-wider       - @diff-input-select ) ; // min-width
+@textarea-wi-verywide:    (@wi-verywide    - @diff-input-select ) ; // min-width
+
+// Textarea elements with combined dimensions
+@diff-input-textarea-combined: 0px ; //1.6em ;
+//@textarea-margin-combined: 24px ;
+
+@textarea-wi-small-small:       ((@tcol-wi-small + @input-wi-small)        - @diff-input-textarea-combined) ;
+@textarea-wi-small-mediumsmall: ((@tcol-wi-small + @input-wi-mediumsmall)  - @diff-input-textarea-combined) ;
+@textarea-wi-small-normal:      ((@tcol-wi-small + @input-wi-normal)       - @diff-input-textarea-combined) ;
+@textarea-wi-small-lightwide:   ((@tcol-wi-small + @input-wi-lightwide)    - @diff-input-textarea-combined) ;
+@textarea-wi-small-wide:        ((@tcol-wi-small + @input-wi-wide)         - @diff-input-textarea-combined) ;
+@textarea-wi-small-wider:       ((@tcol-wi-small + @input-wi-wider)        - @diff-input-textarea-combined) ;
+@textarea-wi-small-verywide:    ((@tcol-wi-small + @input-wi-verywide)     - @diff-input-textarea-combined) ;
+
+@textarea-wi-mediumsmall-small:        ((@tcol-wi-mediumsmall + @input-wi-small)         - @diff-input-textarea-combined) ;
+@textarea-wi-mediumsmall-mediumsmall:  ((@tcol-wi-mediumsmall + @input-wi-mediumsmall)   - @diff-input-textarea-combined) ;
+@textarea-wi-mediumsmall-normal:       ((@tcol-wi-mediumsmall + @input-wi-normal)        - @diff-input-textarea-combined) ;
+@textarea-wi-mediumsmall-lightwide:    ((@tcol-wi-mediumsmall + @input-wi-lightwide)     - @diff-input-textarea-combined) ;
+@textarea-wi-mediumsmall-wide:         ((@tcol-wi-mediumsmall + @input-wi-wide)          - @diff-input-textarea-combined) ;
+@textarea-wi-mediumsmall-wider:        ((@tcol-wi-mediumsmall + @input-wi-wider)         - @diff-input-textarea-combined) ;
+@textarea-wi-mediumsmall-verywide:     ((@tcol-wi-mediumsmall + @input-wi-verywide)      - @diff-input-textarea-combined) ;
+
+@textarea-wi-normal-small:        ((@tcol-wi-normal + @input-wi-small)         - @diff-input-textarea-combined) ;
+@textarea-wi-normal-mediumsmall:  ((@tcol-wi-normal + @input-wi-mediumsmall)   - @diff-input-textarea-combined) ;
+@textarea-wi-normal-normal:       ((@tcol-wi-normal + @input-wi-normal)        - @diff-input-textarea-combined) ;
+@textarea-wi-normal-lightwide:    ((@tcol-wi-normal + @input-wi-lightwide)     - @diff-input-textarea-combined) ;
+@textarea-wi-normal-wide:         ((@tcol-wi-normal + @input-wi-wide)          - @diff-input-textarea-combined) ;
+@textarea-wi-normal-wider:        ((@tcol-wi-normal + @input-wi-wider)         - @diff-input-textarea-combined) ;
+@textarea-wi-normal-verywide:     ((@tcol-wi-normal + @input-wi-verywide)      - @diff-input-textarea-combined) ;
+
+@textarea-wi-lightwide-small:       ((@tcol-wi-lightwide + @input-wi-small)         - @diff-input-textarea-combined) ;
+@textarea-wi-lightwide-mediumsmall: ((@tcol-wi-lightwide + @input-wi-mediumsmall)   - @diff-input-textarea-combined) ;
+@textarea-wi-lightwide-normal:      ((@tcol-wi-lightwide + @input-wi-normal)        - @diff-input-textarea-combined) ;
+@textarea-wi-lightwide-lightwide:   ((@tcol-wi-lightwide + @input-wi-lightwide)     - @diff-input-textarea-combined) ;
+@textarea-wi-lightwide-wide:        ((@tcol-wi-lightwide + @input-wi-wide)          - @diff-input-textarea-combined) ;
+@textarea-wi-lightwide-wider:       ((@tcol-wi-lightwide + @input-wi-wider)         - @diff-input-textarea-combined) ;
+@textarea-wi-lightwide-verywide:    ((@tcol-wi-lightwide + @input-wi-verywide)      - @diff-input-textarea-combined) ;
+
+@textarea-wi-wide-small:        ((@tcol-wi-wide + @input-wi-small)         - @diff-input-textarea-combined) ;
+@textarea-wi-wide-mediumsmall:  ((@tcol-wi-wide + @input-wi-mediumsmall)   - @diff-input-textarea-combined) ;
+@textarea-wi-wide-normal:       ((@tcol-wi-wide + @input-wi-normal)        - @diff-input-textarea-combined) ;
+@textarea-wi-wide-lightwide:    ((@tcol-wi-wide + @input-wi-lightwide)     - @diff-input-textarea-combined) ;
+@textarea-wi-wide-wide:         ((@tcol-wi-wide + @input-wi-wide)          - @diff-input-textarea-combined) ;
+@textarea-wi-wide-wider:        ((@tcol-wi-wide + @input-wi-wider)         - @diff-input-textarea-combined) ;
+@textarea-wi-wide-verywide:     ((@tcol-wi-wide + @input-wi-verywide)      - @diff-input-textarea-combined) ;
+
+
+/* ------------------------------------------------------------- */
+/* This CSS-Vars are just for testing                            */
+/* ------------------------------------------------------------- */
+
+:root {
+  --gray-standard:      @gray-standard;
+  --gray-superdark:     @gray-superdark; // Black
+  --gray-verydark:      @gray-verydark;
+  --gray-darker:        @gray-darker;
+  --gray-dark:          @gray-dark;
+  --gray-light:         @gray-light;
+  --gray-lighter:       @gray-lighter;
+  --gray-verylight:     @gray-verylight;
+  --gray-superlight:    @gray-superlight; // White
+
+  --color-standard:     @base-standard;
+  --color-superlight:   @base-superlight;
+  --color-verylight:    @base-verylight;
+  --color-lighter:      @base-lighter;
+  --color-light:        @base-light;
+  --color-dark:         @base-dark;
+  --color-darker:       @base-darker;
+  --color-verydark:     @base-verydark;
+  --color-superdark:    @base-superdark;
+
+  --msg-ok-strong:        @msg-green-strong;
+  --msg-ok-light:         @msg-green-light;
+  --msg-error-strong:     @msg-red-strong;
+  --msg-error-light:      @msg-red-light;
+  --msg-hint-strong:      @msg-blue-strong;
+  --msg-hint-light:       @msg-blue-light;
+  --msg-warning-strong:   @msg-orange-strong;
+  --msg-warning-light:    @msg-orange-light;
+
+}

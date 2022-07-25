@@ -1,0 +1,63 @@
+/* Allgemeine Schriftdefinition */
+th,td {
+	font-size:small;
+}
+
+@page {
+	size: landscape;
+	margin: 0.5cm;
+}
+
+/* Definition Tabellenueberschrift */
+
+.left	{ text-align:left; }
+.center	{ text-align:center; }
+.right	{ text-align:right; }
+
+tr.headline    { border:0; }
+tr.headline td { border:0; }
+h3 { font-size:120%; }
+h3 { font-size:100%; }
+
+/* Tabellenkopf */
+th {
+	font-weight: bold;
+	border-bottom: solid thin black;
+	padding:0 10px;
+	text-align:right;
+}
+
+th.left  { border-left:  solid thin black; }
+th.right { border-right: solid thin black; }
+
+.querkopf th.right { text-align:center; }
+.querkopf th {
+	border-top: solid thin black;
+	border-bottom:0;
+}
+
+/* Tabelleninhalt */
+td {
+	text-align:right;
+	padding:0 0.5em;
+}
+td.left  { border-left:  solid thin black; }
+td.right { border-right: solid thin black; }
+
+
+/* jede zweite Zeile grau hinterlegen */
+tr.grey {
+	background:#f0f0f0;
+}
+
+/* letzte Zeile in der Tabelle */
+#last td{ border-bottom: solid thin black; }
+
+/* Zwischensumme/-ueberschriften */
+tr.subtotal td { font-weight: bold; }
+
+/* Fusszeile unter der Tabelle */
+td.footer {
+	text-align:right;
+	font-size:smaller;
+}

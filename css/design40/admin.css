@@ -1,0 +1,38 @@
+a.no-underlined-links,
+a.no-underlined-links:visited,
+a.no-underlined-links:hover {
+  text-decoration: none !important;
+  background-color: transparent !important;
+  border: none;
+}
+a.no-underlined-links:hover {
+  background: none;
+}
+body div.admin {
+  margin: 0 ;
+}
+body div.admin h1 {
+  background-color: #fe5f14 !important;
+  color: #ffffff;
+  top: 0px ;
+  position: fixed;
+  width: 100% ;
+  padding: 0.1em 0.5em 0.3em 0.6em ;
+}
+body div.admin .tabwidget {
+  top: 35px ;
+  padding: 1.8em 0 0 0 !important;
+}
+body div.admin .tabwidget .ui-tabs-panel {
+  padding: 2.0em 1.0em 1.0em 1.0em ;
+}
+body div.admin form {
+  display: block ;
+  margin-top: 1px ;
+}
+body div.admin > form {
+  padding-top: 3.8em ;
+}
+body div.admin .wrapper {
+  margin-top: 4.0em ;
+}

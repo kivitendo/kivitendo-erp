@@ -1,0 +1,150 @@
+/* ------------------------------------------------------------- */
+/* SPECIALS (specials.less)                                      */
+/* ------------------------------------------------------------- */
+
+
+// ----------------------------------------------------------------------------
+//
+// SPECIALS
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+// Styles for special purposes
+//
+//
+// CONTENTS:
+// - ACCOUNT LIST
+// - ROW POSITON DETAILS (E.G. SALES ORDER)
+// - TABLE #DISPLAY ROW
+// - HORIZONTAL SCROLLBAR DISPLAY
+// ----------------------------------------------------------------------------
+
+
+
+// --------------------------------------
+// ACCOUNT LIST
+// --------------------------------------
+// PENDENT: ansehen
+#tbl-accounts{
+  border-width: 0;
+  thead{
+    th{
+      //background-color: #E3E3E3 ;
+    }
+
+  }
+  tbody{
+
+    tr.heading{
+
+      &.heading th {
+        border-top: 1px #999 solid;
+          &.numeric{
+            padding-right: 20px;
+            padding-left: 10px;
+          }
+      }
+
+      &.th1{
+        font-size: @font-size-large  ;
+        th{ padding: 1.0em 0 0.4em 0 ; }
+      }
+      &.th2{
+        font-size: @font-size-medium ;
+        th{ padding: 1.0em 0 0.4em 0 ; }
+      }
+      &.th3{
+        font-size: @font-size-small   ;
+        th{ padding: 1.0em 0 0.4em 0 ; }
+      }
+   } // /tr.heading
+
+    td:first-child {
+      text-align: right !important;
+    }
+
+    tr.ajax-account-details td{
+      padding: 0.8em 0 1.0em 4.0em ;
+    }
+
+
+  }
+}
+
+
+
+// --------------------------------------
+// ROW POSITON DETAILS (E.G. SALES ORDER)
+// --------------------------------------
+
+td.row-position-detail{
+  padding: 0 0 0.2em 0.4em !important;
+
+  div.table{
+    display:             table;
+    div.field{
+      display:           table-row;
+      padding:           0.1em 0 ;
+      height:           2.0em !important; ;
+
+      span.label{
+        width:           10.0em;
+        height:         2.0em !important;
+        vertical-align: middle;
+        display:         table-cell ;
+        padding:         0.3em 0 0 0;
+      }
+
+      span.value{
+        height:         2.0em ;
+        span.data{
+          padding:       0.3em 0 0.2em 0.5em !important;
+          display:       block;
+        }
+      }
+
+    } //div.field
+  } // /div.table
+
+} // /td.row-position-detail
+
+
+
+// --------------------------------------
+// TABLE #DISPLAY ROW
+// --------------------------------------
+
+table#display_row{
+  tbody{
+    tr{
+      td{
+        a.row-position{
+          float: left;
+          padding: 0.6em 0.2em 0 0 ;
+        }
+        input.row-position{
+          float: left;
+        }
+      }
+    }
+  }
+
+}
+
+
+
+// --------------------------------------
+// HORIZONTAL SCROLLBAR DISPLAY
+// --------------------------------------
+
+// csv import preview/results table
+#results {
+  // show below others and limit width so that scrollbar is displayed
+  clear: left;
+  width: 95vw;
+}
+
+// orders positions table
+#row_table_scroll_id {
+  max-width: 96vw !important;
+}

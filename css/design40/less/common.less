@@ -1,0 +1,189 @@
+/* ------------------------------------------------------------- */
+/* COMMON PROPERTIES (common.less)                               */
+/* ------------------------------------------------------------- */
+
+// ----------------------------------------------------------------------------
+//
+// COMMON PROPERTIES
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+//
+//
+//
+// CONTENTS:
+// - HTML
+// - BODY
+// - DIVs & BOX-SIZING
+// - CLEARFIX
+// - MEDIA
+// - CTI
+// - INTERACT
+// - CURSOR
+// - CKEDITOR
+// - PENDENT: bereinigen, bitte!
+// ----------------------------------------------------------------------------
+
+
+
+
+// --------------------------------------
+// HTML
+// --------------------------------------
+
+html {
+  // show scrollbar every time
+  overflow-y: scroll;
+}
+
+
+
+
+// --------------------------------------
+// BODY
+// --------------------------------------
+
+body {
+  // don't use this IE stuff anymore!!!
+  //behavior:url("csshover.htc") ;
+  padding: 0;
+  margin: 0 ;
+  font-size: @font-size-smaller ;
+}
+
+
+
+
+// --------------------------------------
+// DIVS & BOX-SIZING
+// --------------------------------------
+
+div, 
+p,
+span, 
+table, 
+th,
+td,
+input, 
+textarea,
+select, 
+button,
+a.button
+{
+  box-sizing: border-box;
+}
+
+
+
+
+
+
+
+
+
+
+// --------------------------------------
+// CLEARFIX
+// --------------------------------------
+
+// class to fix container around floats
+.clearfix:after {
+  clear:both;
+  content:".";
+  display:block;
+  height:0;
+  visibility:hidden;
+}
+
+
+
+
+// --------------------------------------
+// MEDIA
+// --------------------------------------
+
+@media screen   { .noscreen { display: none; } }
+@media print    { .noprint  { display: none ;} }
+@media handheld { .nomobile { display: none; } }
+
+
+
+
+// --------------------------------------
+// CTI
+// --------------------------------------
+
+a.cti_call_action {
+  //display: inline-block;
+  display: block;
+  padding-left: 18px;
+  top: 2px;
+  vertical-align: middle;
+  background-image: url(../image/icons/16x16/phone.png);
+  background-repeat: no-repeat;
+}
+
+
+
+
+// --------------------------------------
+// INTERACT
+// --------------------------------------
+
+// clickable text anchors, usually with attached javascript handlers
+.interact { color: gray }
+.interact:hover { color: black; }
+
+
+
+
+// --------------------------------------
+// CURSOR
+// --------------------------------------
+
+.cursor-default { cursor: default }
+.cursor-pointer { cursor: pointer }
+.cursor-help    { cursor: help }
+
+
+
+
+
+// --------------------------------------
+// CKEditor
+// --------------------------------------
+
+// PENDENT: schauen, wie man das am besten hinkriegt,
+// ggf. in CKEditor-JS-Dateien anpassen, was aber nicht nachhaltig ist
+// CKEditor: Padding reduziert
+.cke_contents iframe html body.cke_editable{
+  padding: 0;
+  margin: 0;
+}
+
+
+
+
+
+// --------------------------------------
+// PENDENT
+// --------------------------------------
+
+
+
+// PENDENT: OBSOLET diese Klassen entfernen
+ //  Internals (waren im HTML-Code eingebaut)
+ //  ersetzen bzw. Verlagern in Tabellen ggf. Paragrafen oder DIVs
+.top_border {
+  border-top: solid black;
+  border-width: 4px;
+}
+ //  Internals (waren im HTML-Code eingebaut)
+ //  ersetzen bzw. Verlagern in Tabellen ggf. Paragrafen oder DIVs
+.bottom_border {
+  border-bottom: solid black;
+  border-width: 1px;
+}
+
+
+

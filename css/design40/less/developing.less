@@ -1,0 +1,197 @@
+/* ------------------------------------------------------------- */
+/* DEVELOPING (developing.less)                                  */
+/* ------------------------------------------------------------- */
+
+// ----------------------------------------------------------------------------
+//
+// Developing-Section
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+// This LESS-file is just for us developers.
+// Don't be ashamed to disable the rendering of the following LESS/CSS-Code
+// in the file style.less.
+//
+//
+// CONTENTS:
+// -
+// -
+// -
+// -
+// ----------------------------------------------------------------------------
+
+
+body.developing{
+
+  &>header{
+     background-color: @base-h1-bg;
+     display: block;
+     overflow: hidden;
+    h1{
+      float: left;
+      color: @base-h1-color ;
+      padding: 1.0em;
+    }
+    nav{
+      float: right;
+      padding: 1.0em;
+      a:link,
+      a:visited {
+        color: white ;
+      }
+    }
+  }
+  .wrapper{
+    p,
+    ul,
+    ol,
+    li,
+    h2,
+    h3,
+    h4{
+      clear: both;
+      width: 60.0em;
+      max-width: 60em;
+    }
+  }
+  & > p,
+  & > h2,
+  & > h3,
+  & > h4 {
+    margin-left: 0.8em ;
+  }
+  h2, h3, h4 { font-weight: bold ; color: #000 !important; clear: left; padding-left: 0 !important; }
+  h2{ font-size: 130%;  }
+  h3{ font-size: 120%;  }
+  h4{ font-size: 110%;  }
+  pre {
+    margin: 0 0 1.0em 0 ;
+    padding: 0.6em ;
+    border: 1px #000 solid ;
+    background-color: #ddd ;
+    display: inline-block;
+    clear: both;
+    code{ padding: 0 ; }
+  }
+  div.code-highlighted{
+    margin: 0 0 1.0em 0 ;
+    padding: 0.6em ;
+    border: 1px #000 solid ;
+    background-color: #ddd ;
+    display: inline-block;
+  }
+
+  p.picture{
+    background-color: #fff;
+    padding: 0.8em;
+    border: 1px @gray-standard solid;
+    display: inline-block;
+    width: auto;
+  }
+  .wrapper{
+
+    .tbl-horizontal{
+      border: 1px black solid !important;
+      border-collapse: collapse;
+      tbody {
+        border-top: none;
+      }
+      caption,th { padding-left: 0.6em ; }
+
+      th.caption {
+        border-top: none;
+        border-bottom: none;
+
+      }
+
+
+      &.test,
+      &.test-plain{
+        th{
+          //border: 1px black solid !important;
+          padding-left: 0.3em;
+        }
+        td{
+          //border: 1px black solid ;
+          display: block;
+          overflow: visible;
+          border-bottom: 1px @gray-dark solid ;
+        }
+        tr:last-child td { border: none ;}
+
+      }
+    }
+
+    &.clear{
+      .tbl-horizontal{
+        clear: both ;
+      }
+    }
+
+    table.tbl-list > thead > tr th:first-child, table.tbl-list > tbody > tr td:first-child {
+        padding-left: 0 !important;
+    }
+
+    div.test-box{
+      font-size: 80% ;
+      overflow: visible;
+      padding: 0.3em 0.5em ;
+      background-color: #9D9E9D;
+      float: left;
+      border: 1px #000 dotted ;
+    }
+
+  } // /.wrapper
+
+  // Buttons
+  // Action SOFT/NEUTRAL (no submission to server page)
+  input[type="submit"], 
+  input[type="button"], 
+  input[type="button"].button, 
+  button[type="submit"], 
+  button[type="button"],
+  a.button {
+    color: @button-strong-color;
+    background-color: @button-strong-bg;
+    border: @button-strong-border;
+
+    &.hover{
+      color: @button-strong-hover-color;
+      background-color: @button-strong-hover-bg;
+      border: @button-strong-hover-border;  
+    }
+    &.active{
+      color: @button-strong-active-color;
+      background-color: @button-strong-active-bg;
+      border: @button-strong-active-border;  
+    }  
+  }
+  // Action SOFT/NEUTRAL (no submission to server page)
+  input[type="button"].neutral,
+  input[type="submit"].neutral,
+  input[type="reset"],
+  input[type="reset"].neutral,
+  button.neutral,
+  button[type="reset"] {
+    color:              @button-neutral-color ;
+    background-color:   @button-neutral-bg;
+    border:             @button-neutral-border ;
+    &.neutral-hover {
+      color:            @button-neutral-hover-color ;
+      background-color: @button-neutral-hover-bg;
+      border:           @button-neutral-hover-border ;
+    }
+    &.neutral-active,
+    &.neutral-focus {
+      color:            @button-neutral-active-color;
+      background-color: @button-neutral-active-bg;
+      border:           @button-neutral-active-border ;
+    }
+  }
+
+
+
+
+
+
+} // /body.developing

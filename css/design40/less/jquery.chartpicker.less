@@ -1,0 +1,113 @@
+/* ------------------------------------------------------------- */
+/* JQUERY CHART-PICKER (jquery.chartpicker.less)                 */
+/* ------------------------------------------------------------- */
+
+
+
+
+
+
+
+//  ------------------------------------------- 
+//  Bloecke                                     
+//  ------------------------------------------- 
+
+div.cpc_block,
+div.ppp_block {
+  overflow:hidden;
+  float:left;
+  width: 350px;
+}
+
+
+//  --------------------- 
+//  PPP-Block             
+//  --------------------- 
+div.ppp_block {
+
+  span.ppp_block_number { float: left; }
+
+  span.ppp_block_description {
+    float:        right;
+    margin-left:  1em;
+    font-weight:  bold;
+  }
+}
+
+
+//  --------------------- 
+//  CPC-Block             
+//  --------------------- 
+
+div.cpc_block {
+
+  span.cpc_block_number { float: left; }
+
+  span.cpc_block_description {
+    float:left;
+    margin-left:1em;
+    font-weight:bold;
+  }
+  span.cpc_block_balance    { float:   right; }
+  span.cpc_line_balance     { display: none; }
+  span.cpc_block_second_row {}
+}
+
+
+
+
+//  ------------------------------------------- 
+//  Linien                                      
+//  ------------------------------------------- 
+
+//  --------------------- 
+//  PPP-Linie             
+//  --------------------- 
+div.ppp_line{
+
+  span.ppp_block_description  {
+    margin-left:1em;
+    font-weight:bold;
+  }
+}
+
+//  --------------------- 
+//  CPC-Linie             
+//  --------------------- 
+div.cpc_line {
+
+  span.cpc_block_description  {
+    margin-left:1em;
+    font-weight:bold;
+  }
+  span.cpc_block_second_row { display: none; }
+
+}
+
+
+//  ------------------------------------------------------------- 
+//  Diverses                                                      
+//  ------------------------------------------------------------- 
+
+.customer-vendor-picker-undefined,
+.chartpicker-undefined,
+.projectpicker-undefined,
+.partpicker-undefined {
+  color: red;
+  font-style: italic;
+}
+
+span.cpc_popup_button,
+span.ppp_popup_button {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: -24px;
+  height: 20px;
+  width: 20px;
+  cursor: pointer;
+  background: url("../image/search.svg") no-repeat center right;
+  background-size: contain;
+}
+
+
+

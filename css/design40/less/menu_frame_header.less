@@ -1,0 +1,146 @@
+/* ------------------------------------------------------------- */
+/* MENU FRAME HEADER (menu_frame_header.less)                    */
+/* ------------------------------------------------------------- */
+
+
+// ----------------------------------------------------------------------------
+//
+// FRAME-HEADER (DASHBOARD)
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+// The Frame-Header is always on top of every Kivitendo-Page visible
+// and offers Quick Search functions, a Log Out-Link and more
+//
+// CONTENTS:
+// - FRAME-HEADER
+// - FRAME-HEADER-ELEMENTS (Links left & right)
+// - AJAX-SPINNER (Beach Ball)
+// - QUICK-SEARCH
+// ----------------------------------------------------------------------------
+
+
+#frame-header {
+
+    text-align: left;
+    margin: 0;
+    padding: 0.2em 0.6em;
+    border: 0;
+    overflow: hidden;
+    height: 28px;
+    width: 100%;
+    display: table-cell;
+    vertical-align: middle;
+    border-spacing: 0;
+
+    background-color: @dashbrd_bg;
+    line-height: 100%;
+    font-size: @font-size-smaller ;
+
+    + div {
+        // see main.less
+    }
+
+
+    // --------------------------------------
+    // FRAME-HEADER-ELEMENTS (Left & Right)
+    // --------------------------------------
+
+    span.frame-header-element {
+        color: @dashbrd_text ;
+        padding-top: 0.2em;
+
+        a:link,
+        a:visited,
+        a:hover,
+        a:active {
+            text-decoration: none;
+            border-bottom: none;
+            color: @dashbrd_link ;
+        }
+
+        a:hover{
+            color: @dashbrd_link_hover ;
+            text-decoration: @dashbrd_link_deco; /*underline*/
+        }
+        span.client{
+          text-transform: uppercase ;
+          font-size: 130% ;
+        }
+    } // /span.frame-header-element
+
+
+    span.frame-header-left,
+    span.frame-header-center,
+    span.frame-header-right    {
+        border-spacing: 0;
+        padding: 0;
+        vertical-align: middle;
+        height: 100%;
+        display: table-row;
+
+        & > span {
+          height: 24px;
+          margin: 0 10px;
+          display: table-cell ;
+          vertical-align: middle;
+        }
+    }
+
+    span.frame-header-left {
+        float: left;
+        padding: 0 1.0em 0 0.2em ;
+        margin-right: 1.0em ;
+        & > span { padding-right: 1.0em ; }
+    }
+    span.frame-header-right {
+        float: right;
+        vertical-align: middle;
+        padding: 0 1.2em 0 1.0em ;
+        margin-left: 1.0em;
+        & > span { padding-left: 1.0em ; }
+    }
+
+
+
+    // --------------------------------------
+    // AJAX-SPINNER (Beach Ball)
+    // --------------------------------------
+
+    #ajax-spinner {
+      display: none;
+    }
+
+
+
+    // --------------------------------------
+    // QUICK-SEARCH
+    // --------------------------------------
+
+    div.frame-header-quicksearch{
+      display: block;
+      overflow: hidden;
+      margin: 0.1em auto 0 auto;
+      text-align: center;
+      width: auto;
+
+      span.frame-header-quicksearch input {
+        font-size: @font-size-smaller;
+        //font-family: @font-family-sans-serif ;
+        margin-top: 0.1em;
+        background-color: @dashbrd_input_bg ;
+        width: auto !important;
+        min-width: 5em;
+        max-width: 7em;
+        padding: 0 0.2em ;
+        border-width: 1px ;
+        //border-color: #bcbcbc;
+        border-style: solid;
+        border-top-color: #949494;
+        border-right-color: #BCBCBC;
+        border-bottom-color: #BCBCBC;
+        border-left-color: #949494;
+      }
+    } // /div.frame-header-quicksearch
+
+} /* /#frame-header  */

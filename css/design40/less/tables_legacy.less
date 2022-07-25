@@ -1,0 +1,314 @@
+// PENDENT: wird vorlaeufig noch nicht gerendert
+// PENDENT: Klassen ggf. entfernen oder ersetzen, falls nicht mehr gebraucht
+tr {
+
+  tr{
+
+    /* Subtotal innerhalb laengerer Tabelle (tbl-list) */
+    /* ggf. OBSOLETE */
+    &.total-sub{
+      height: 2.0em;
+      td{
+        border-top: 1px solid #ccc ;
+        border-bottom: 2px solid #999 ;
+        font-weight: bold;
+        color: @gray-mediumdark ;
+      }
+      &:after td{
+        padding-top: 0.2em;
+      }
+    }
+
+
+    /* ??? */
+    &.rule-before th,
+    &.rule-before td {
+      padding-top: 2px;
+      border-top: 2px solid #EBEBEB;
+    }
+
+    /* -------------------- */
+    /* Kopfzeile OBSOLETE */
+    /* -------------------- */
+    &.listheading th {
+      padding: 0.6em 0.2em;
+      background-color: #bcbcbc;
+      color: @gray-mediumdark;
+      font-size: @font-size-base ;
+
+      text-align: left;
+      border-style: none;
+
+
+      a{
+        &:link,
+        &:visited,
+        &:active,
+        &:hover {
+          color: #000;
+        }
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    } /* /.listheading th */
+
+
+
+    /* -------------------- */
+    /* Zebra-Effekt (OBSOLETE)*/
+    /* -------------------- */
+
+    &.listrow1 td,
+    &.listrow:nth-child(even) td {
+      background-color: #FFFFFF;
+      color: black;
+      vertical-align: middle;
+
+    }
+    &.listrow0 td,
+    &.listrow:nth-child(odd) td {
+      background-color: @gray-lighter;
+      color: black;
+      vertical-align: middle;
+    }
+
+    /* OBSOLETE: nicht mehr noetig */
+    &.listrow0,
+    &.listrow1{
+      td { }
+    }
+
+    /* -------------------- */
+    /* Total-Zeile (OBSOLETE) */
+    /* -------------------- */
+    /* hps: sollte in tfoot verlagert werden */
+    /* vor .listrow* verschoben */
+    &.listtotal td {
+      background-color: #ffffff;
+      color: black;
+      font-weight: bold;
+      padding: 1.0em 0.2em !important;
+      border-bottom: 3px solid black;
+    }
+
+
+  } /* /tr */
+
+
+
+/* ------------------------------------------- */
+/* Abmessungen                 */
+/*                       */
+/* aufgrund übergeordnetem Selektor      */
+/* ------------------------------------------- */
+
+.cols-3 {
+  &.th-small    > table.tbl-horizontal > tbody > tr > th { width: @tt-small+1.0em ; }
+  &.th-mediumsmall > table.tbl-horizontal > tbody > tr > th { width: @tt-mediumsmall+1.6em !important; }
+  &.th-mediumsmall > table.tbl-horizontal > tbody > tr > th { width: 140px !important; }
+  &.th-normal      > table.tbl-horizontal > tbody > tr > th { width: @tt-normal+1.0em ; }
+  &.th-wide        > table.tbl-horizontal > tbody > tr > th { width: @tt-wide+1.0em ; }
+  &.th-wider       > table.tbl-horizontal > tbody > tr > th { width: @tt-wider+1.0em ; }
+  &.th-verywide    > table.tbl-horizontal > tbody > tr > th { width: @tt-verywide+1.0em ; }
+
+  &.td-small       > table.tbl-horizontal > tbody > tr > td { width: @tt-small+1.0em ; }
+  &.td-mediumsmall > table.tbl-horizontal > tbody > tr > td { width: @tt-mediumsmall+1.0em ; }
+  &.td-normal      > table.tbl-horizontal > tbody > tr > td { width: @tt-normal+3.0em !important ; }
+  &.td-wide        > table.tbl-horizontal > tbody > tr > td { width: @tt-wide+1.0em ; }
+  &.td-wider       > table.tbl-horizontal > tbody > tr > td { width: @tt-wider+1.0em ; }
+  &.td-verywide    > table.tbl-horizontal > tbody > tr > td { width: @tt-verywide+1.0em ; }
+
+  > table.tbl-horizontal.col {
+  min-width: 30% ;
+  }
+
+
+}
+
+
+
+/* -------------------------- */
+/* Daten innerhalb UI-Tabs */
+/* -------------------------- */
+/* PENDENT: OBSOLETE */
+.ui-tabs-panel{
+
+  table{
+    tr{
+      /* Zebra-Effekt */
+      &:nth-child(odd){ }
+      &:nth-child(even){ }
+
+      td,
+      th{ }
+      th{}
+    }
+  }
+  /* /table */
+}
+/* .ui-tabs-panel */
+
+
+
+
+
+
+
+/* ggf. Tabellen */
+/* OBSOLETE */
+.subsubheading {
+  color: #000000;
+  font-weight: bolder;
+  text-decoration: underline;
+}
+/* OBSOLETE */
+.optionen {
+  border: dashed;
+  border-width: 1px;
+  background: #FFFFE0;
+}
+
+
+
+/* ./templates/webpages/oe/sales_order.html:20 */
+/* ./js/common.js:213 */
+/* PENDENT: genauer anschauen */
+table#display_row{
+
+
+  listrow0 td,
+  listrow1 td,
+  listheading td{
+
+  }
+
+  td{
+    width: auto;
+    padding: 0.4em 0.2em 0.2em 0.12em !important;
+
+    &[colspan="11"] {
+      padding-top: -0.0em !important;
+      padding-bottom: 0.6em !important;
+      border-bottom: 1px @gray-mediumdark solid;
+      color: @gray-mediumdark;
+
+      b{
+        font-weight: normal;
+      }
+
+      input,
+      font{
+        padding: 0 2.6em 0 0;
+      }
+    }
+  }
+
+
+} /* /table#display_row */
+
+
+/* Bezeichnungen aendern */
+/*/templates/webpages/reconciliation/_linked_transactions.html:54*/
+.listrow_error1,
+.listrow_error:nth-child(even) {
+  background-color: #F6CECE;
+  color: black;
+  vertical-align: top;
+}
+.listrow_error0,
+.listrow_error:nth-child(odd) {
+  background-color: #F5A9A9;
+  color: black;
+  vertical-align: top;
+}
+/* Bezeichnungen aendern */
+/* ./bin/mozilla/vk.pl:259 */
+.listrowempty {
+  background-color: #FFFFFF;
+  color: black;
+  vertical-align: top;
+}
+/* PENDENT: Anschauen! Sollte in TR sein und nicht im TBODY */
+
+/* linked_transactions.html */
+tbody listrow_error{
+
+}
+
+
+/* Bezeichnungen aendern */
+/* bin/mozilla/wh.pl:935 */
+/* bin/mozilla/wh.pl:957 */
+/* bin/mozilla/ar.pl:1193 */
+/* bin/mozilla/ca.pl:489 */
+/* bin/mozilla/gl.pl:588 */
+/* bin/mozilla/ap.pl:1108 */
+/* bin/mozilla/vk.pl:438 */
+/* bin/mozilla/vk.pl:451 */
+/* bin/mozilla/rp.pl:916 */
+/* bin/mozilla/rp.pl:1075 */
+/* bin/mozilla/rp.pl:1110 */
+/* bin/mozilla/rp.pl:1583 */
+/* bin/mozilla/rp.pl:1587 */
+/* bin/mozilla/oe.pl:1263 */
+/* bin/mozilla/ic.pl:564 */
+/* SL/Controller/FinancialOverview.pm:248 */
+/* templates/webpages/rp/tax_report.html:38 */
+.listsubtotal {
+  background-color: rgb(236,233,216);
+  color: black;
+  font-weight: bolder;
+}
+
+/* Verkaufsbericht */
+/* ./bin/mozilla/vk.pl:343 & 350 */
+.listmainsortheader {
+  background-color: rgb(236,233,216);
+  color: red;
+  font-weight: bolder;
+  padding-left: 10px;
+  padding-top: 0px;
+}
+/* OBSOLETE */
+.listmainsortsubtotal {
+  background-color: rgb(236,233,216);
+  color: red;
+  font-weight: bolder;
+  padding-left: 10px;
+}
+/* ./bin/mozilla/vk.pl:366 */
+.listsubsortheader {
+  background-color: rgb(236,233,216);
+  color: green;
+  font-weight: bolder;
+  padding-left: 20px
+}
+/* OBSOLETE */
+.listsubsortsubtotal {
+  background-color: rgb(236,233,216);
+  color: green;
+  font-weight: bolder;
+  padding-left: 20px
+}
+/* OBSOLETE */
+.listsortdescription {
+  background-color: rgb(236,233,216);
+  color: black;
+  font-weight: normal;
+  padding-left: 30px
+}
+
+/* the cvars table in the 2. row */
+/* /templates/webpages/oe/sales_order.html:52 */
+.row2-cvars-table {
+  tr { vertical-align: top }
+  th {
+    text-align: right;
+    padding-left: 15px;
+    padding-right: 0 ;
+  }
+  td,
+  th { padding-top: 10px }
+}
+

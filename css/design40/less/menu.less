@@ -1,0 +1,595 @@
+/* ------------------------------------------------------------- */
+/* MENU (V3) and HTML MENU (menu.less)                          */
+/* ------------------------------------------------------------- */
+
+// ----------------------------------------------------------------------------
+//
+// MENU (V3) and HTML MENU
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+//
+//
+//
+// CONTENTS:
+// - MENUV3
+//   - List-Element general
+//     - Links & Inbound Pseudo Link (DIV)
+//   - Items with Sub Items
+//   - List 1st Level (horizontal)
+//     - List 2nd and 3rd Level (Vertical)
+//     - List 2nd Level (Vertical)
+//     - List 3rd Level (Vertical)
+//
+// - HTML-MENU (LEFT)
+//   - Layout Web Page (LEFT & RIGHT AREA)
+//   - HTML-JS-MENU
+//     - Menue Items
+//     - Top Menu Item (1st Level)
+//     - Sub Menu Item (2nd Level)
+//     - Sub Sub Menu Item (3rd & last Level)
+//
+// - DHTML-MENU (TOP WITH ICONS, JUST OVERRIDES)
+//   - Menu Bar on Top
+//   - Menu-Container Sub (Sub Menu 2nd Level)
+//   - Menu-Item Sub (2nd Level)
+//   - Non-Generic Overrides (With Group Ids
+
+// ----------------------------------------------------------------------------
+
+
+
+
+
+// --------------------------------------
+// MENUV3
+// --------------------------------------
+
+#menuv3 {
+  // Main-Properties of this element in File SCAFFOLDING.LESS
+  background-color: @menu_bg ;
+
+
+
+  // --------------
+  // List-Element general
+  // --------------
+  li {
+    display:       block;
+    position:      relative;
+    float:         none;
+    font-weight:   normal !important ;
+    font-size:     @font-size-smaller;
+    line-height:   96%;
+    white-space:   nowrap;
+    border:        0;
+    padding:       0;
+    margin:        0;
+
+    &:hover {
+      cursor:    pointer;
+    }
+
+    // --------------
+    // Links & Inbound Pseudo Link (DIV)
+    // --------------
+    a,
+    a:visited,
+    div.x,
+    div.x:visited {
+      display:         block;
+      color:           @menu_link;
+      text-decoration: none;
+      padding:         0.45em 0.6em 0.58em 1.3em ;
+      font-weight:     normal;
+      //padding-right: 0.6em;
+    }
+
+  } //  /li (List-Element general)
+
+
+  // --------------
+  // List 1st Level (horizontal)
+  // --------------
+  & > ul {
+    list-style: none;
+    margin:     0;
+    padding:    0;
+    float:      left;
+
+    & > li{
+      display:          block;
+      height:           17px;
+      padding:          9px 0.9em 6px 0.9em;
+      background-color: @menu_bg ;
+      color:            @menu_link ;
+      vertical-align:   middle;
+
+      &:hover {
+        background-color: @menu_link_bg_level1_hover;
+
+        // Display Menu 2nd level
+        > ul {
+          display:  block;
+          position: absolute;
+        }
+      }
+
+
+      // --------------
+      // List 2nd and 3rd Level (vertical)
+      // --------------
+      ul {
+        position: relative;
+        display:  none;
+        padding:  0 2em 2em 2em;
+        margin:   0 -2em -2em -2.8em;
+
+        li{
+          border-bottom: 1px @menu_border_color solid ;
+        }
+      } // /ul (2nd and 3rd Level)
+
+
+      // --------------
+      /* List 2nd Level (Vertical) */
+      // --------------
+      & > ul {
+        top: 32px;
+        z-index: 1000;
+
+        & > li {
+          background-color: @menu_link_bg_level2 ;
+          margin-left:       1px;
+
+          // Items with Sub Items
+          div.x {
+            background:    no-repeat right url("../image/menu-arrow-to-right-5.png");
+            padding-right: 2.0em ;
+
+            // does not work because text has to be a block
+//            &::after {
+//              content:     "▷" ;
+//              color:       @gray-dark ;
+//              font-size:   120% ;
+//              padding:     0 0 0 1.0em ;
+//              text-align: right ;
+//              display:    inline-box ;
+//            }
+          }
+
+          // List-Item Hover
+          &:hover {
+            color:            @menu_link_hover;
+            background-color: @menu_link_bg_level2_hover;
+
+            // Display Menu 3rd level
+            > ul {
+              display:  block;
+              position: absolute;
+            }
+          }
+
+          // --------------
+          // List 3rd Level (Vertical)
+          // --------------
+          > ul {
+            top:              0;
+            left:             99%;
+            padding:          2em;
+            //margin:       -2em;
+            margin-top:       -2.06em;
+            margin-right:     -2em;
+            margin-bottom:    -2em;
+            margin-left:      -2em;
+            list-style:       none;
+
+            > li {
+              background-color:   @menu_link_bg_level3 ;
+              //border-left:      0.2em solid @menu_border_color;
+
+              &:hover {
+                background-color: @menu_link_bg_level3_hover }
+
+              &:first-child { border-top: 1px #800040 solid ; }
+             }
+
+          } // /ul (3rd level)
+
+        } // />li (2nd level)
+
+      } // /ul List 2nd Level (Vertical)
+
+    } //  />li (1st level)
+
+  } //  /ul (1st level)
+
+} //  /#menuv3
+
+
+//  PENDENT: ??? (ggf. entfernen)
+li.sub {
+  position:         relative;
+  left:             0.2em;
+  top:               0px;
+  background-color: #FFFFFF;
+}
+
+
+
+
+
+// --------------------------------------
+// HTML-MENU (LEFT)
+// --------------------------------------
+
+// --------------------
+// Layout Web Page (LEFT & RIGHT AREA)
+// --------------------
+
+// LEFT (Menu) area/column
+body > #layout-split-left {
+  display: block;
+  position:         fixed !important;
+  top:               0 ;
+  left:             0 ;
+  width:             200px;
+  height:           100%;
+  z-index:           1;
+  overflow:         hidden   ;
+  border-right:     1px @gray-standard solid;
+  background-color: @gray-dark;
+
+
+}
+
+// RIGHT (Content) area/column
+body > div#layout-split-right {
+  margin-left:   200px;
+  //margin-top:   70px;
+  padding-top: 28px;
+  display:       block;
+  z-index:       1;
+  overflow:     hidden;
+  // PENDENT: das muss dringend geloest werden,
+  // siehe z.B. /am.pl?action=edit_account&callback=am.pl%3faction%3dlist_account&id=6130
+  // Bearbeitung von Konto (wird unten abgeschnitten, falls nicht mit prov. Behelf wie unten)
+  min-height:   800px;
+  height:       auto;
+
+  .layout-actionbar { top: 36px; }
+
+  & > #content {
+    top: 68px;
+    padding-top: 40px;
+
+    h1 { top: 28px !important; }
+
+    & > .wrapper{
+      padding-top: 2em ;
+    }
+    & + div.wrapper {
+      padding-top: 4em ; // funzt nicht
+    }
+
+    & > form {
+      margin-top: 0.6em ;
+
+      & + div.wrapper {
+        padding-top: 4em ;
+      }
+
+
+      & > .tabwidget {
+        & > ui-tabs-panel {
+          //padding-top: 6.0em ;
+          .wrapper{ margin-top: 2em; }
+          .tabwidget ul.ui-tabs-nav{ position: relative; }
+        }
+        & > ul.ui-tabs-nav{
+          top: 69px;
+          width: calc(100% - 200px);
+        }
+
+      } // / > .tabwidget
+    } // / > form
+    & > #requirement_spec_tabs.tabwidget {
+      & > ul.ui-tabs-nav{ top: 69px !important ; }
+    }
+  }
+
+  // PENDENT: war für Klasse .layout-split-right eingesetzt, wo gebraucht im alten Kivi ?? ggf. entfernen
+  &.folded {
+    margin-left: 40px
+  }
+
+
+
+}
+
+// PENDENT: wo als Klasse gebraucht im alten Kivi ?? ggf. entfernen
+div.layout-split-right.folded {
+  margin-left: 40px
+}
+
+// --------------------
+// HTML-JS-MENU
+// --------------------
+
+#layout-split-left #html-menu {
+  display:            block;
+  overflow-y:         scroll;
+  overflow-x:         hidden;
+  width:              100%;
+  height:             100%;
+  margin:             27px 0 0 0;
+  padding:            0 0 150px 0;
+  background-color:   @menu_left_bg ;
+  font-size:          @font-size-small;
+  border-bottom:      20px @menu_border_color solid ; // PENDENT: Rand unten sollte vorhanden sein
+
+  // scrollbars can be invisible only on Webkit-Browsers
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  & > div:last-of-type {
+    border-bottom: @menu_border ; // PENDENT: Rand unten sollte vorhanden sein
+  }
+
+  // -----------------------
+  // Menue-Items
+  // -----------------------
+  .mi {
+    display:       block ;
+    a {
+      display:     block;
+      word-wrap:   break-word;
+      text-decoration: none;
+      font-weight: normal;
+    }
+    &:first-child {
+      border-top: 2px @menu_border_color solid ; // PENDENT: 2px ??? sonst @menu_border verwenden
+    }
+    &:last-child {
+      border-bottom: @menu_border ; // PENDENT: 2px ??? sonst @menu_border verwenden
+    }
+  }
+
+
+  // -----------------------
+  // Top Menu Item (1st Level)
+  // -----------------------
+  .s0 {
+    padding: 0 ;
+    background-color: @menu_left_level_1_bg ;
+    color:             @menu_left_level_1_color;
+    border-top:       @menu_border ;
+    font-size:         90% ;
+    text-transform:   uppercase;
+
+    a {
+      padding:   5px 0 6px 8px ;
+      cursor:   pointer ;
+
+      &:hover,
+      &:active{
+        background-color: @menu_left_level_1_hover_bg ;
+        color:             @menu_left_level_1_hover_color ;
+        //color:             white ;
+        text-decoration:   none;
+      }
+      &:link,
+      &:visited { color: @menu_left_level_1_color ; }
+    }
+
+    &.menu-open{
+      font-weight:       normal;
+      background-color: @menu_open_bg ;
+      color:             @menu_open_color ;
+      border-bottom:     0 ;
+
+      a {
+        padding:         5px 0 6px 8px ;
+        cursor:         auto ;
+
+        &:hover,
+        &:active{
+          background-color: @menu_open_bg ;
+          color:             @menu_open_color ;
+          text-decoration:   none;
+        }
+        &:link,
+        &:visited { color:   @menu_open_color ; }
+      }
+    }
+  } // /.s0
+
+  // -----------------------
+  // Sub Menu Item (2nd Level)
+  // -----------------------
+  .s1{
+    font-size: 80% ;
+    padding: 0 ;
+    background-color: @menu_left_level_2_bg ;
+    border-top:       @menu_border ;
+
+    a {
+      padding:         4px 0 3px 8px ;
+
+      &:hover,
+      &:active{
+        background-color: @menu_left_level_2_hover_bg ;
+        color:             @menu_left_level_2_hover_color ;
+        text-decoration:   none;
+      }
+      &:link,
+      &:visited { color:   @menu_left_level_2_color ; }
+    }
+
+    // has submenu (has 3rd-Level menu)
+    &.sm{
+      &:after{
+        content:     "▼" ;
+        color:       @gray-standard ;
+        font-size:   80% ;
+      }
+      a {
+        display:   inline-block ;
+        width:     162px; // with scrollbar{ display:none; } 174px is possible, works only with ::-webkit-scrollbar
+        color:     @menu_left_level_2_color ;
+
+        &:hover,
+        &:active{
+          background-color:   @menu_left_level_2_bg ;
+          color:               @menu_left_level_2_color ;
+          text-decoration:     none ;
+        }
+        &:link,
+        &:visited { color:     @menu_left_level_2_color ; }
+
+        &.ml:link,
+        &.ml:visited{ color:   @menu_left_level_2_color ; }
+      }
+    }
+    & > .s2:last-child {       border-bottom: @menu_border ; }
+
+  } // /.s1
+
+  // -----------------------
+  // Sub Sub Menu Item (3rd & last Level)
+  // -----------------------
+  .s2{
+    padding:           0 ;
+    font-size:         80% ;
+    background-color: @menu_left_level_3_bg ;
+
+    a {
+      padding:         2px 0 3px 20px ;
+
+      &:hover,
+      &:active{
+        background-color:   @menu_left_level_3_hover_bg ;
+        color:               @menu_left_level_3_hover_color ;
+        text-decoration:     none;
+      }
+      &:link,
+      &:visited { color:     @menu_left_level_3_color ; }
+    }
+
+  } // /.s2
+} // /#html-menu
+
+
+
+
+
+// --------------------------------------
+// DHTML-MENU (TOP WITH ICONS, JUST OVERRIDES)
+// --------------------------------------
+
+#main_menu_div {
+
+  // -----------------------
+  // Menu Bar on Top
+  // -----------------------
+
+  .DHTMLSuite_menuBar_top {
+    top:         28px;
+    height:     31px !important;
+    padding:     0;
+    margin:     0 ;
+
+    // -----------------------
+    // Menu Item on Top
+    // -----------------------
+    // Menu Item on Top, generic
+    // same as .DHTMLSuite_menuItem_top_* below
+    & > div {
+      padding: 5px 5px 0 3px ;
+
+      // Container with useless icon
+      div:first-child { }
+      // Text Menu Item top
+      .DHTMLSuite_menuItem_textContent {
+        font-size:   90% ;
+        padding:     0.1em 0.2em 0.2em 0.2em ;
+      }
+      // Arrow down Top
+      .DHTMLSuite_menuItem_top_arrowShowSub {
+          margin:   0 0.2em 0.2em 0.2em ;
+      }
+    } // / > div (Menu Item on Top, generic)
+
+    // Menu Item on Top with funny classes
+
+    .DHTMLSuite_menuItem_top_regular,
+    .DHTMLSuite_menuItem_top_over,
+    .DHTMLSuite_menuItem_top_click,
+    .DHTMLSuite_menuItem_top_disabled,
+    .DHTMLSuite_menuItem_top_active {
+      height: 19px;
+    }
+    .DHTMLSuite_menuItem_top_regular { }
+    // Hover
+    .DHTMLSuite_menuItem_top_over,
+    .DHTMLSuite_menuItem_top_click {
+      color:             @color-red-strong ;
+      background-color: @base-superlight ;
+      .DHTMLSuite_menuItem_top_arrowShowSub{
+        border:         none !important ;
+      }
+    }
+    // Clicked with Submenu
+    .DHTMLSuite_menuItem_top_click { }
+
+  } // /.DHTMLSuite_menuBar_top
+
+} // /#main_menu_div
+
+
+// -----------------------
+// Menu-Container Sub (Sub Menu 2nd Level)
+// -----------------------
+.DHTMLSuite_menuBar_sub {
+  width:           auto !important;
+  padding:         0.1em 0 0.4em 0.4em !important;
+  margin:         11px 0 0 0;
+  border-top:     none;
+  border-right:   1px solid @base-lighter;
+  border-bottom:   1px solid @base-lighter;
+  border-left:     1px solid @base-lighter;
+
+  // -----------------------
+  // Menu-Item Sub (2nd Level)
+  // -----------------------
+  .DHTMLSuite_menuItem_sub_regular,
+  .DHTMLSuite_menuItem_sub_over,
+  .DHTMLSuite_menuItem_sub_click,
+  .DHTMLSuite_menuItem_sub_disabled,
+  .DHTMLSuite_menuItem_sub_active {
+    clear:               both;
+    padding-left:       25px;
+    padding-right:       0.7em;
+    padding-top:         0.2em;
+    padding-bottom:     0.2em;
+    cursor:             pointer;
+    background-repeat:   no-repeat;
+    font-size:           90%;
+
+    .DHTMLSuite_menuItem_sub_arrowShowSub {
+      right:             3px !important;
+    }
+  }
+  // Regular
+  .DHTMLSuite_menuItem_sub_regular{
+    a.DHTMLSuite_menuItem_textContent{  }
+  }
+  // Hover & Active
+  .DHTMLSuite_menuItem_sub_over,
+  .DHTMLSuite_menuItem_sub_active {
+    color: @color-orange-strong ;
+    background-color: @base-superlight;
+  }
+
+} // /.DHTMLSuite_menuBar_sub
