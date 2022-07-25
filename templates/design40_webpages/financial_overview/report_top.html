@@ -1,0 +1,34 @@
+[% USE L %]
+[% USE LxERP %]
+
+<form method="post" id="form" action="controller.pl">
+
+<div class="select-item control-panel">
+  [% L.hidden_tag('action', 'FinancialOverview/list') %]
+  <div class="floating-boxes">
+    <div class="floating-box">
+      <a href="[% SELF.url_for(action='list', year=(SELF.year - 1), subtotals_per_quarter=SELF.subtotals_per_quarter, salesman_id=SELF.salesman_id) %]" class="button neutral" style="float: left;">&laquo; [% LxERP.t8("Prior year") %]: [% SELF.year - 1 %]</a> &nbsp;
+    </div>
+    <div class="floating-box">
+      <span class="label">[% LxERP.t8("Current year") %]</span>
+      [% L.select_tag('year', YEARS_TO_LIST, default=SELF.year, onchange='$("#form").submit();', class='wi-verysmall') %] &nbsp; &nbsp;
+    </div>
+    [% IF SELF.year < (SELF.current_year + 5) %]
+    <div class="floating-box">
+      <a href="[% SELF.url_for(action='list', year=(SELF.year + 1), subtotals_per_quarter=SELF.subtotals_per_quarter, salesman_id=SELF.salesman_id) %]" class="button neutral" style="float:left;">[% LxERP.t8("Following year") %]: [% SELF.year + 1 %] &raquo;</a>
+    </div>
+    [% END %]
+  </div><!-- /.floating-boxes -->
+  <div class="floating-boxes">
+    <div class="floating-box">
+      [% L.checkbox_tag('subtotals_per_quarter', checked=SELF.subtotals_per_quarter, label=LxERP.t8('Subtotals per quarter'), onchange='$("#form").submit();') %]
+    </div>
+    <div class="floating-box">
+      <span class="label">[% LxERP.t8("Salesperson") %]</span> [% L.select_tag('salesman_id', SELF.employees, with_empty=1, title_key='name', onchange='$("#form").submit();', default=SELF.salesman_id) %]
+    </div>
+  </div>
+
+
+</div><!-- /.select-item -->
+
+</form>

@@ -1,0 +1,179 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+<h1>[% title %]</h1>
+
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/dunning.js"></script>
+
+<form method="post" action="dn.pl" name="Form" id="form">
+
+<div class="wrapper">
+<table class="tbl-list wi-moderate">
+  <thead>
+    <tr>
+      <th class="center">[% 'Dunning Level' | $T8 %]</th>
+      <th>[% 'Dunning Description' | $T8 %]</th>
+      <th class="center">[% 'Active?' | $T8 %]</th>
+      <th class="center">[% 'eMail Send?' | $T8 %]</th>
+<!--     <th>[% 'Auto Send?' | $T8 %]</th>  -->
+      <th class="center">[% 'Create invoice?' | $T8 %]</th>
+      <th class="center">[% 'Include original Invoices?' | $T8 %]</th>
+      <th class="right">[% 'Fristsetzung' | $T8 %]</th>
+      <th class="right">[% 'Duedate +Days' | $T8 %]</th>
+      <th class="right">[% 'Fee' | $T8 %]</th>
+      <th class="right">[% 'Interest Rate' | $T8 %]</th>
+      <th>[% 'Template' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% SET odd = '1' %]
+    [% USE DUNNING_it = Iterator(DUNNING) %]
+    [% FOREACH row = DUNNING_it %]
+    <tr>
+      <td class="center">
+        <input type="hidden" name="dunning_level_[% DUNNING_it.count %]" value="[% DUNNING_it.count %]">
+        <input type="hidden" name="id_[% DUNNING_it.count %]" value="[% HTML.escape(row.id) %]">
+        [% DUNNING_it.count %]
+      </td>
+      <td>
+        <input type="text" name="dunning_description_[% DUNNING_it.count %]" value="[% HTML.escape(row.dunning_description) %]">
+      </td>
+      <td class="center">
+        <input type="checkbox" name="active_[% DUNNING_it.count %]" value="1" [% IF row.active %]checked[% END %]>
+      </td>
+      <td class="center">
+        <input type="checkbox" name="email_[% DUNNING_it.count %]" value="1" [% IF row.email %]checked[% END %]>
+        <button type="button" onclick="set_email_window('email_subject_[% DUNNING_it.count %]', 'email_body_[% DUNNING_it.count %]', 'email_attachment_[% DUNNING_it.count %]')"> [% 'L' | $T8 %]</button>
+        <input type="hidden" name="email_body_[% DUNNING_it.count %]" value="[% HTML.escape(row.email_body) %]">
+        <input type="hidden" name="email_subject_[% DUNNING_it.count %]" value="[% HTML.escape(row.email_subject) %]">
+        <input type="hidden" name="email_attachment_[% DUNNING_it.count %]" value="[% HTML.escape(row.email_attachment) %]">
+      </td>
+  <!--      <td><input type="checkbox" name="auto_[% DUNNING_it.count %]" value="1" [% IF row.auto %]checked[% END %]></td> -->
+      <td class="center">
+        <input type="checkbox" name="create_invoices_for_fees_[% DUNNING_it.count %]" value="1"[% IF row.create_invoices_for_fees %] checked[% END %]>
+      </td>
+      <td class="center">
+        <input type="checkbox" name="print_original_invoice_[% DUNNING_it.count %]" value="1" [% IF row.print_original_invoice %]checked[% END %]>
+      </td>
+      <td class="right">
+        <input type="text" name="payment_terms_[% DUNNING_it.count %]" size="3" value="[% HTML.escape(row.payment_terms) %]">
+      </td>
+      <td class="right">
+        <input type="text" name="terms_[% DUNNING_it.count %]" size="3" value="[% HTML.escape(row.terms) %]">
+      </td>
+      <td class="right">
+        <input type="text" name="fee_[% DUNNING_it.count %]" size="5" value="[% HTML.escape(row.fee) %]">
+      </td>
+      <td class="right">
+        <input type="text" name="interest_rate_[% DUNNING_it.count %]" size="4" value="[% HTML.escape(row.interest_rate) %]">%
+      </td>
+      <td>
+        <input type="text" name="template_[% DUNNING_it.count %]" value="[% HTML.escape(row.template) %]">
+      </td>
+    </tr>
+      [% IF DUNNING_it.last %]
+        [% SET rowcount = DUNNING_it.size + 1 %]
+      [% END %]
+    [% END %]
+
+    [% UNLESS rowcount %][% SET rowcount = '1' %][% END %]
+    <tr>
+      <td class="center">
+        <input type="hidden" name="dunning_level_[% rowcount %]" value="[% rowcount %]">
+        <input type="hidden" name="id_[% rowcount %]">
+        [% rowcount %]
+      </td>
+      <td>
+        <input type="text" name="dunning_description_[% rowcount %]">
+      </td>
+      <td class="center">
+        <input type="checkbox" name="active_[% rowcount %]" value="1" checked>
+      </td>
+      <td class="center">
+        <input type="checkbox" name="email_[% rowcount %]" value="1" checked>
+        <button type="button" onclick="set_email_window('email_subject_[% rowcount %]', 'email_body_[% rowcount %]', 'email_attachment_[% rowcount %]')"> [% 'L' | $T8 %]</button>
+        <input type="hidden" name="email_body_[% rowcount %]">
+        <input type="hidden" name="email_subject_[% rowcount %]">
+        <input type="hidden" name="email_attachment_[% rowcount %]">
+      </td>
+  <!--     <td><input type="checkbox" name="auto_[% rowcount %]" value="1" checked></td> -->
+      <td class="center">
+        <input type="checkbox" name="create_invoices_for_fees_[% rowcount %]" value="1" checked>
+      </td>
+      <td class="center">
+        <input type="checkbox" name="print_original_invoice_[% DUNNING_it.count %]" value="1" [% IF row.print_original_invoice %]checked[% END %]>
+      </td>
+      <td class="right">
+        <input type="text" name="payment_terms_[% rowcount %]" size="3">
+      </td>
+      <td class="right">
+        <input type="text" name="terms_[% rowcount %]" size="3">
+      </td>
+      <td class="right">
+        <input type="text" name="fee_[% rowcount %]" size="5">
+      </td>
+      <td class="right">
+        <input type="text" name="interest_rate_[% rowcount %]" size="4">%
+      </td>
+      <td>
+        <input type="text" name="template_[% rowcount %]">
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div><!-- /.wrapper -->
+
+<input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
+
+<div class="wrapper">
+
+<p>[% 'If the automatic creation of invoices for fees and interest is switched on for a dunning level then the following accounts will be used for the invoice.' | $T8 %]</p>
+
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% 'Account for fees' | $T8 %]</th>
+      <td>
+        <select name="AR_amount_fee" class="wi-verywide">
+          [% FOREACH row = SELECT_AR_AMOUNT %]
+          <option value="[% HTML.escape(row.id) %]" [% IF row.AR_amount_fee_selected %] selected[% END %]>[% HTML.escape(row.accno) %]--[% HTML.escape(row.description) %]</option>
+          [% END %]
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Account for interest' | $T8 %]</th>
+      <td>
+        <select name="AR_amount_interest" class="wi-verywide">
+          [% FOREACH row = SELECT_AR_AMOUNT %]
+          <option value="[% HTML.escape(row.id) %]" [% IF row.AR_amount_interest_selected %]selected[% END %]>[% HTML.escape(row.accno) %]--[% HTML.escape(row.description) %]</option>
+          [% END %]
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Record in' | $T8 %]</th>
+      <td>
+        <select name="AR" class="wi-verywide">
+          [% FOREACH row = SELECT_AR %]
+          <option value="[% HTML.escape(row.id) %]" [% IF row.AR_selected %]selected[% END %]>[% HTML.escape(row.accno) %]--[% HTML.escape(row.description) %]</option>
+          [% END %]
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th align="right">[% 'Dunning Creator' | $T8 %]</th>
+      <td>[% L.select_tag('dunning_creator', [ [ 'current_employee', LxERP.t8('Current Employee') ],[ 'invoice_employee', LxERP.t8('Employee from the original invoice') ]  ], default=dunning_creator) %]
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+
+</div><!-- /.wrapper -->
+
+</form>

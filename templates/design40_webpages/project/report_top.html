@@ -1,0 +1,15 @@
+[% USE L %]
+[% USE T8 %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<form action="controller.pl" method="post" id="search_form">
+<div class="wrapper">
+  [% PROCESS 'project/_filter.html' filter=SELF.models.filtered.laundered %]
+  [% L.hidden_tag('action', 'Project/dispatch') %]
+  [% L.hidden_tag('sort_by', FORM.sort_by) %]
+  [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+  [% L.hidden_tag('page', FORM.page) %]
+</div><!-- /.wrapper -->
+</form>
+<div class="wrapper">

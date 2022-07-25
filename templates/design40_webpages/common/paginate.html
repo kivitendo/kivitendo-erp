@@ -1,0 +1,47 @@
+[% USE T8 %]
+[% MACRO build_url BLOCK %]
+ [% IF base_url %]
+  [% base_url %]&page=[% page %]
+ [% ELSE %]
+  [% url_maker('page' => page) %]
+ [% END %]
+[% END %]
+
+[% IF pages.max > 1 %]
+<div class="paginate control-panel">
+[% IF pages.page > 1 %]
+  <a class="paginate-link paginate-prev" href="[% build_url(page=pages.page - 1) %]" title="[% 'prev' | $T8 %]"></a> [% ELSE %]<span class="paginate-prev"></span> [% END %]
+  [% FOR p = pages.common %]
+    [% NEXT UNLESS p.visible %]
+    [% IF p.active %]
+      <a class="paginate-link paginate-page" href="[% build_url(page=p.page) %]">[% p.page %]</a>
+    [% ELSE %]
+      <span class="paginate-page">[% p.page %]</span>
+    [% END %]
+  [% END %]
+  [% IF pages.page < pages.max %]
+    <a class="paginate-link paginate-next" href="[% build_url(page=pages.page + 1) %]" title="[% 'next' | $T8 %]"></a>
+  [% ELSE %]
+    <span class="paginate-next"></span>
+  [% END %]
+</div>
+[% END %]
+
+[% IF target %]
+<script type="text/javascript">
+  var target   = '[% target %]';
+  $(function(){
+    $('.paginate-link').click(function(event){
+      event.preventDefault();
+      var e = this;
+      var url = $(this).attr('href')
+      $.ajax({
+        url: url,
+        success: function(data){
+          $(target).html(data)
+        },
+      })
+    });
+  });
+</script>
+[% END %]

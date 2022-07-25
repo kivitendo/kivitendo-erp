@@ -1,0 +1,36 @@
+[% USE T8 %]
+[% USE L %]
+[% USE HTML %]
+[% USE LxERP %]
+
+[% IF SELF.all_pricegroups.size %]
+<table class="tbl-horizontal">
+  <caption>[% 'Pricegroups' | $T8 %]</caption>
+  <colgroup>
+    <col class="wi-small">
+    <col class="wi-lightwide">
+  </colgroup>
+  <thead>
+    <tr>
+      <th> [% 'Price group' | $T8 %] </th>
+      <th> [% 'Price'       | $T8 %] </th>
+    </tr>
+  </thead>
+  <tbody>
+  [% FOREACH pricegroup = SELF.all_pricegroups %]
+    [% SET pricegroup_id = pricegroup.id
+           price         = prices_map.$pricegroup_id %]
+    <tr>
+      <th>
+        [% L.hidden_tag('prices[+].pricegroup_id', pricegroup.id) %]
+        [% L.hidden_tag('prices[].price_id', price.id) # id not used? %]
+        [% L.hidden_tag('prices[].pricegroup', pricegroup.pricegroup) %][% HTML.escape(pricegroup.pricegroup) %]
+      </th>
+      <td> [% L.input_tag('prices[].price', price.price_as_number, size=11, class='wi-small numeric reformat_number') %] </td>
+    </tr>
+  [% END %]
+  [% # followed by Storage-Table %]
+
+  </tbody>
+</table>
+[% END %]

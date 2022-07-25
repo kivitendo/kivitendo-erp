@@ -1,0 +1,88 @@
+[% USE T8 %]
+[% USE L %]
+[% USE HTML %]
+[% USE LxERP %]
+<h1>[% 'Show parts' | $T8 %]</h1>
+
+<form method="post" action="controller.pl">
+  [% L.hidden_tag("action", "LoginScreen/login") %]
+  [% L.hidden_tag("upgrade_action", "filter_parts") %]
+  [% L.hidden_tag("no_layout", 1) %]
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% 'Partnumber' | $T8 %]</th>
+      <td>[% L.input_tag("filter_partnumber", filter_partnumber, size=20) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Description' | $T8 %]</th>
+      <td>[% L.input_tag("filter_description", filter_description, size=20) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Notes' | $T8 %]</th>
+      <td>[% L.input_tag("filter_notes", filter_notes, size=20) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'EAN' | $T8 %]</th>
+      <td>[% L.input_tag("filter_ean", filter_ean, size=20) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Service, assembly or part' | $T8 %]</th>
+      <td>
+        <select name="filter_type">
+          <option value=""></option>
+          <option value="assembly" [% IF filter_type == 'assembly' %]selected[% END %]>[% 'Assembly' | $T8 %]</option>
+          <option value="service" [% IF filter_type == 'service' %]selected[% END %]>[% 'Service' | $T8 %]</option>
+          <option value="part" [% IF filter_type == 'part' %]selected[% END %]>[% 'Part' | $T8 %]</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Valid/Obsolete' | $T8 %]</th>
+      <td>
+        <select name="filter_obsolete">
+          <option value=""></option>
+          <option value="valid" [% IF filter_obsolete == 'valid' %]selected[% END %]>[% 'Valid' | $T8 %]</option>
+          <option value="obsolete" [% IF filter_obsolete == 'obsolete' %]selected[% END %]>[% 'Obsolete' | $T8 %]</option>
+        </select>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<input type="submit" value="[% 'Filter parts' | $T8 %]" onclick="submit()">
+
+<table class="tbl-list">
+<thead>
+  <tr>
+    <th>[% 'Partnumber' | $T8 %]</th>
+    <th>[% 'Description' | $T8 %]</th>
+    <th>[% 'Unit' | $T8 %]</th>
+    <th>[% 'Notes' | $T8 %]</th>
+    <th>[% 'EAN' | $T8 %]</th>
+    <th>[% 'Service, assembly or part' | $T8 %]</th>
+    <th>[% 'Obsolete' | $T8 %]</th>
+  </tr>
+</thead>
+<tbody>
+  [% SET row_odd = '1' %]
+  [% FOREACH row = ALL_PARTS %]
+  <tr>
+    <td>[% HTML.escape(row.partnumber) %]</td>
+    <td> [% HTML.escape(row.description) %]</a></td>
+    <td>[% HTML.escape(row.unit) %]</td>
+    <td>[% HTML.escape(row.notes) %]</td>
+    <td>[% HTML.escape(row.ean) %]</td>
+    <td>[% IF row.assembly %] [% 'assembly' | $T8 %] [% ELSE %] [% IF row.inventory_accno_id %] [% 'part' | $T8 %] [% ELSE %] [% 'service' | $T8 %] [% END %] [% END %]</td>
+    <td>[% IF row.obsolete %][% LxERP.t8("Obsolete") %][% ELSE %][% LxERP.t8("Not obsolete") %][% END %]</td>
+  </tr>
+  [% END %]
+</tbody>
+</table>
+
+<div class="buttons">
+  <input type="button" value="[% 'Close window' | $T8 %]" onclick="window.close()">
+</div>
+
+</form>

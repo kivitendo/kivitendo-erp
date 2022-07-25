@@ -1,0 +1,83 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+
+<div class="list-total">
+
+<table class="tbl-list footer-only right">
+  <colgroup> <col class="wi-small"><col class="wi-small"><col class="wi-small"><col class="wi-small"><col class="wi-small"> </colgroup>
+  <tfoot>
+    [% UNLESS taxincluded %]
+    <tr>
+      <th colspan="3"></th>
+      <th>[% 'Subtotal' | $T8 %]</th>
+      <td class="numeric">[% LxERP.format_amount(invsubtotal, 2) %]</td>
+    </tr>
+    [% END %][% # tax %]
+
+    [% FOREACH item = taxaccounts_array %]
+      [% SET description_ref = item _ '_description' %]
+      [% SET rate_ref        = item _ '_rate' %]
+      [% SET total_ref       = item _ '_total' %]
+      [% SET netto_ref       = item _ '_netto' %]
+      <tr>
+        <th colspan="3"></th>
+        <th>[% 'Including' | $T8 %] [% $description_ref | html %]&nbsp;[% $rate_ref * 100 %]%</th>
+        <td class="numeric">[% LxERP.format_amount($total_ref, 2) %]</td>
+      </tr>
+      [% IF taxincluded %]
+      <tr>
+        <th colspan="3"></th>
+        <th>[% 'Net amount' | $T8 %]</th>
+        <td class="numeric">[% LxERP.format_amount($netto_ref, 2) %]</td>
+      </tr>
+      [% END %]
+    [% END %]
+
+    <tr>
+      [% IF show_weight %]
+        <th>[% 'Total weight' | $T8 %]</th>
+        <td class="numeric">[% LxERP.format_amount(totalweight) %] [% HTML.escape(weightunit) %]</td>
+        <th></th>
+      [% ELSE %]
+        <th colspan="3"></th>
+      [% END %]
+      <th>[% 'Total' | $T8 %]</th>
+      <td class="numeric">[% LxERP.format_amount(invtotal, 2) %]</td>
+    </tr>
+  </tfoot>
+</table>
+
+[% IF taxaccounts %]
+<div class="after-item"><input name="taxincluded" type="checkbox"[% IF taxincluded %] checked[% END %]> [% 'Tax Included' | $T8 %]</div>
+[% END %]
+
+</div><!-- /.list-total -->
+</div><!-- /.list-table-with-separate-total-table -->
+
+
+
+[% PROCESS 'ir/_payments.html' %]
+
+</div>
+
+[% PROCESS 'webdav/_list.html' %]
+<div id="ui-tabs-1">
+  [% LxERP.t8("Loading...") %]
+</div>
+</div>
+
+
+
+<p>[% print_options %]</p>
+
+<input type="hidden" name="rowcount" value="[% rowcount %]">
+<input type="hidden" name="callback" value="[% callback %]">
+[% P.hidden_tag('draft_id', draft_id) %]
+[% P.hidden_tag('draft_description', draft_description) %]
+<input type="hidden" name="vendor_discount" value="[% vendor_discount %]">
+
+</form>

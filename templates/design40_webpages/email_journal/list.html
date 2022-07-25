@@ -1,0 +1,48 @@
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+
+<h1>[% FORM.title %]</h1>
+
+[% INCLUDE 'common/flash.html' %]
+[% PROCESS 'email_journal/_filter.html' filter=SELF.models.filtered.laundered %]
+
+[% IF !ENTRIES.size %]
+  <p>[% LxERP.t8('There are no entries that match the filter.') %]</p>
+
+[% ELSE %]
+
+<table id="email_journal_list" class="tbl-list wi-moderate">
+  <thead>
+    <tr>
+      [% IF SELF.can_view_all %]
+        <th>[% L.sortable_table_header("sender") %]</th>
+      [% END %]
+      <th>[% L.sortable_table_header("from") %]</th>
+      <th>[% L.sortable_table_header("recipients") %]</th>
+      <th>[% L.sortable_table_header("subject") %]</th>
+      <th>[% L.sortable_table_header("sent_on") %]</th>
+      <th>[% L.sortable_table_header("status") %]</th>
+      <th>[% L.sortable_table_header("extended_status") %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH entry = ENTRIES %]
+    <tr[% IF entry.status != 'ok' %] class="row_error[% END %]" id="email_journal_id_[% entry.id %]">
+      [% IF SELF.can_view_all %]
+        <td>[% IF entry.sender %] [% HTML.escape(entry.sender.name) %] [% ELSE %] [% LxERP.t8("kivitendo") %] [% END %]</td>
+      [% END %]
+      <td><a href="[% SELF.url_for(action => 'show', id => entry.id, back_to => SELF.get_callback) %]"> [% HTML.escape(entry.from) %] </a></td>
+      <td>[% HTML.escape(entry.recipients) %]</td>
+      <td><a href="[% SELF.url_for(action => 'show', id => entry.id, back_to => SELF.get_callback) %]"> [% HTML.escape(entry.subject) %] </a></td>
+      <td>[% HTML.escape(entry.sent_on.to_lxoffice('precision' => 'second')) %]</td>
+      <td>[% IF entry.status == 'ok' %] [% LxERP.t8('succeeded') %] [% ELSE %] [% LxERP.t8('failed') %] [% END %]</td>
+      <td>[% HTML.escape(entry.extended_status) %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+
+[% END %]
+
+[% L.paginate_controls %]

@@ -1,0 +1,42 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L -%]
+<div class="login" id="login">
+  <h1>[% LxERP.t8('kivitendo v#1 administration', version) %]</h1>
+     <div class="logo">
+      <a href="http://www.kivitendo.de"><img src="image/kivitendo.png"></a>
+
+      [% IF error %]
+      <div class="message_error_login">[% HTML.escape(error) %]</div>
+      [% END %]
+    </div>
+
+
+  <form method="post" action="controller.pl">
+  [% L.hidden_tag("action",   'Admin/login') %]
+  [% L.hidden_tag("do_login", 1) %]
+  <div class="separate-form">
+  <table class="tbl-horizontal login">
+    <caption>[% 'Admin Login' | $T8 %]</caption>
+    <colgroup><col class="wi-small"><col class="wi-normal"></colgroup>
+ <tbody>
+  <tr>
+    <th>[% 'Password' | $T8 %]</th>
+    <td>[%- L.input_tag("{AUTH}admin_password", '', type="password", class="initial_focus", id="admin_password") %]</td>
+  </tr>
+  <tr>
+    <th></th>
+    <td>[% L.submit_tag('dummy', LxERP.t8('Login')) %]</td>
+  </tr>
+  </tbody>
+  </table>
+  </div>
+  </form>
+
+  <p style="text-align:center;">
+    <a href="controller.pl?action=LoginScreen/user_login" target="_top">[%- LxERP.t8('User login') %]</a>
+    &nbsp;|&nbsp;
+    <a href="doc/kivitendo-Dokumentation.pdf" target="_top">[%- LxERP.t8('Documentation') %]</a>
+  </p>
+</div><!-- /.login -->

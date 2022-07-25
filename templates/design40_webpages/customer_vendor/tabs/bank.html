@@ -1,0 +1,58 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %] 
+
+<div id="bank">
+  <div class="wrapper">
+    <table class="tbl-horizontal">
+      <caption> [% 'Bank Account' | $T8 %] </caption>
+      <tbody>
+        <tr>
+          <th>[% 'Owner of account' | $T8 %]</th>
+          <td>[% L.input_tag('cv.depositor', SELF.cv.depositor, class="wi-wide") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'IBAN' | $T8 %]</th>
+          <td>[% L.input_tag('cv.iban', SELF.cv.iban, class="wi-wide") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Account Number' | $T8 %]</th>
+          <td>[% L.input_tag('cv.account_number', SELF.cv.account_number, class="wi-wide") %]</td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="tbl-horizontal">
+      <caption> [% 'Bank' | $T8 %] </caption>
+      <tbody>
+        <tr>
+          <th>[% 'Bank' | $T8 %]</th>
+          <td>[% L.input_tag('cv.bank', SELF.cv.bank, class="wi-normal") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'BIC' | $T8 %]</th>
+          <td>[% L.input_tag('cv.bic', SELF.cv.bic, class="wi-normal") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Bank Code Number' | $T8 %]</th>
+          <td>[% L.input_tag('cv.bank_code', SELF.cv.bank_code, class="wi-normal") %]</td>
+        </tr>
+      </tbody>
+    </table>
+    [% IF ( SELF.is_customer ) %] 
+    <table class="tbl-horizontal">
+      <caption> [% 'Mandator' | $T8 %] </caption>
+      <tbody>
+        <tr>
+          <th>[% 'Mandator ID' | $T8 %]</th>
+          <td>[% L.input_tag('cv.mandator_id', SELF.cv.mandator_id, class="wi-normal") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Mandate Date of Signature' | $T8 %]</th>
+          <td>[% L.date_tag('cv.mandate_date_of_signature', SELF.cv.mandate_date_of_signature, class="wi-date") %]</td>
+        </tr>
+      </tbody>
+    </table>
+    [% END %] 
+  </div>
+</div>

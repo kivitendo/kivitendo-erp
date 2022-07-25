@@ -1,0 +1,32 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[% INCLUDE "common/flash.html" %]
+<h1>[% title %]</h1>
+<div class="wrapper">
+<table class="tbl-list width-moderate">
+  <thead>
+    <tr>
+      <th class="center">[% 'tax_taxkey' | $T8 %]</th>
+      <th>[% 'tax_taxdescription' | $T8 %]</th>
+      <th>[% 'tax_rate' | $T8 %]</th>
+      <th>[% 'taxnumber' | $T8 %]</th>
+      <th>[% 'account_description' | $T8 %]</th>
+      <th>[% 'Automatic skonto chart sales' | $T8 %]</th>
+      <th>[% 'Automatic skonto chart purchase' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% SET row_odd = '1' %][% FOREACH row = TAX %]
+    <tr>
+      <td class="center">[% HTML.escape(row.taxkey) %]</td>
+      <td><a href="am.pl?action=edit_tax&id=[% HTML.url(row.id) %]&callback=[% HTML.url(callback) %]">[% HTML.escape(row.taxdescription) %]</a></td>
+      <td>[% HTML.escape(row.rate) %] %</td>
+      <td>[% HTML.escape(row.taxnumber) %]</td>
+      <td>[% HTML.escape(row.account_description) %]</td>
+      <td>[% HTML.escape(row.skonto_chart_accno) %] [% HTML.escape(row.skonto_chart_description) %]</td>
+      <td>[% HTML.escape(row.skonto_chart_purchase_accno) %] [% HTML.escape(row.skonto_chart_purchase_description) %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+</div>

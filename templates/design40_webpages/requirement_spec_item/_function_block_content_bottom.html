@@ -1,0 +1,28 @@
+[% USE LxERP %]
+[% USE P %]
+<!-- PENDENT: ggf. DIV-Tabelle anwenden -->
+<div id="[% id_prefix %]function-block-content-bottom-[% requirement_spec_item.id %]" class="function-block-properties list">
+
+[% IF requirement_spec_item.dependencies.size %]
+<div>
+    <span class="label">[% LxERP.t8("Dependencies") %]:</span>
+    <span class="value">[% requirement_spec_item.presenter.requirement_spec_item_dependency_list %]</span>
+</div>
+[% END %]
+
+<div>
+  <span class="label">[% LxERP.t8("Complexity") %]:</span>
+  <span class="value">[% requirement_spec_item.complexity.description %]</span>
+</div>
+
+<div>
+  <span class="label">[% LxERP.t8("Risk") %]:</span>
+  <span class="value">[% requirement_spec_item.risk.description %]</span>
+</div>
+
+<div>
+  <span class="label">[% LxERP.t8("Time estimate") %]:</span>
+  <span class="value">[% P.format_man_days(requirement_spec_item.time_estimation, skip_zero=1) %]</span>
+</div>
+
+</div><!-- /.function-block-properties -->

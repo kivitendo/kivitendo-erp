@@ -1,0 +1,51 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<div class="wrapper">
+<div class="input-panel control-panel">
+  <table id="input_row_table_id" class="tbl-plain condensed">
+    <caption>[% 'Add Parts here!' | $T8 %]</caption>
+    <tbody>
+      <tr>
+        <td>
+          <span class="label above">[% 'position' | $T8 %] </span>
+          [% L.input_tag('add_item.position', '', size = 5, class="add_item_input numeric") %]
+        </td>
+        <td>
+          <span class="label above">[% 'Part' | $T8 %] </span>
+          [%- SET PARAM_KEY = SELF.cv == "customer" ? 'with_customer_partnumber' : 'with_makemodel' -%]
+          [%- SET PARAM_VAL = SELF.search_cvpartnumber -%]
+          [% P.part.picker('add_item.parts_id', '', class="add_item_input wi-normal",
+             fat_set_item=1,
+             multiple_pos_input=1,
+             action={set_multi_items='kivi.Order.add_multi_items'},
+             $PARAM_KEY=PARAM_VAL) %]
+        </td>
+        <td>
+          <span class="label above">[% 'Description' | $T8 %] </span>
+          [% L.input_tag('add_item.description', '', class="add_item_input wi-normal") %]
+        </td>
+        <td>
+          <span class="label above">[% 'Qty' | $T8 %]</span>
+          [% L.input_tag('add_item.qty_as_number', '', class="add_item_input numeric wi-verysmall") %]
+          [% L.hidden_tag('add_item.unit', '', class="add_item_input") %]
+        </td>
+        <td>
+          <span class="label above">[% 'Price' | $T8 %]</span>
+          [% L.input_tag('add_item.sellprice_as_number', '', class="add_item_input numeric wi-verysmall") %]
+        </td>
+        <td>
+          <span class="label above">[% 'Discount' | $T8 %]</span>
+          [% L.input_tag('add_item.discount_as_percent', '', class="add_item_input numeric wi-smallest") %]
+        </td>
+        <td style="vertical-align:bottom;">[% L.button_tag('kivi.Order.add_item()', LxERP.t8('Add part'), style='margin:0;') %]</td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="clear:both">[% L.button_tag('kivi.Order.open_multi_items_dialog()', LxERP.t8('Add multiple items'), class='neutral') %]</div>
+
+</div><!-- /.entry-panel -->
+</div><!-- /.wrapper -->

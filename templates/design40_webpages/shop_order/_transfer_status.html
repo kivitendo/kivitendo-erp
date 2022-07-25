@@ -1,0 +1,65 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+[% SET data = job.data_as_hash %]
+<!-- STANDARD-EINZUG IN DER KIVITENDO-PROGRAMMIERUNG IST 2 LEERZEICHEN - BITTE IN ZUKUNFT EINHALTEN! -->
+
+<h2>[% LxERP.t8("Watch status") %]</h2>
+
+[% L.hidden_tag('', job.id, id="smt_job_id") %]
+
+<p>
+  JOBID: <b>[% job.id %]</b><br>
+  [% LxERP.t8("This status output will be refreshed every five seconds.") %]
+</p>
+
+
+<div class="buttons">
+  [% L.link("#", LxERP.t8("Close window"), onclick="kivi.ShopOrder.processClose();", class="button neutral") %]
+</div>
+
+<table class="tbl-horizontal col">
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8("Current status:") %]</th>
+      <td>
+        [% IF !data.status %]
+          [% LxERP.t8("waiting for job to be started") %] 
+        [% ELSIF data.status == 1 %] 
+          [% LxERP.t8("Converting to deliveryorder") %]
+        [% ELSE %] 
+          [% LxERP.t8("Done.") %] 
+        [% END %] 
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Number of orders created:") %]</th>
+      <td>[% IF data.status > 0 %][% HTML.escape(data.num_order_created) %] / [% HTML.escape(data.shop_order_record_ids.size) %][% ELSE %]–[% END %]</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h3>[% LxERP.t8("Errors during conversion:") %]</h3>
+[% IF !data.status %]
+  –
+[% ELSIF !data.conversion_errors.size %]
+  [% LxERP.t8("No errors have occurred.") %]
+[% ELSE %]
+  <table clas="tbl-list">
+    <thead>
+      <tr>
+        <th>[% LxERP.t8("Shoporder") %]</th>
+        <th>[% LxERP.t8("Error") %]</th>
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH error = data.conversion_errors %]
+        <tr>
+          <td>[% HTML.escape(error.number) %]</td>
+          <td>[% FOREACH message = error.message %][% HTML.escape(message) %]<br>[% END %]</td>
+        </tr>
+      [% END %]
+    </tbody>
+  </table>
+[% END %]

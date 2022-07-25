@@ -1,0 +1,38 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+
+<div id="stocktaking">
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <caption>[% 'Stocktaking' | $T8 %]</caption>
+    <tbody>
+    <tr>
+      <th>[% LxERP.t8('Preselected warehouse') %]</th>
+      <td>[% L.select_tag('defaults.stocktaking_warehouse_id', SELF.all_warehouses, id='stocktaking_warehouse_id', with_empty=1, default=SELF.defaults.stocktaking_warehouse_id, title_key='description', onchange="warehouse_selected(this.selectedIndex == 0 ? -1 : warehouses[this.selectedIndex - 1].id, -1 ,'stocktaking_bin_id')", class='wi-normal') %] </td>
+      <td class="long-desc">[% LxERP.t8('If configured this warehouse will be preselected for stocktaking.') %]<br>
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Preselected bin') %]</th>
+      <td>[% L.select_tag('defaults.stocktaking_bin_id', [], id='stocktaking_bin_id', with_empty=1, class='wi-normal') %]</td>
+      <td class="long-desc">[% LxERP.t8('If configured this bin will be preselected for stocktaking.') %]<br>
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Preselected cutoff date') %]</th>
+      <td>[% L.date_tag('defaults.stocktaking_cutoff_date', SELF.defaults.stocktaking_cutoff_date, class='wi-date') %]</td>
+      <td class="long-desc">[% LxERP.t8('If configured this date will used as preselected cutoff date for stocktaking.') %]<br>
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Threshold for warning on quantity difference') %]</th>
+      <td>[% L.input_tag('defaults.stocktaking_qty_threshold_as_number', SELF.defaults.stocktaking_qty_threshold_as_number, class='wi-small', size='15') %]</td>
+      <td class="long-desc">[% LxERP.t8('If the counted quantity differs more than this threshold from the quantity in the database, a warning will be shown. Set to 0 to switch of this feature.') %]<br>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div><!-- /.wrapper -->
+</div><!-- /#stocktaking -->

@@ -1,0 +1,57 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+
+<h1>[% title %]</h1>
+
+<form action="sepa.pl" method="post" id="form">
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% IF vc == 'vendor' %][% 'Vendor' | $T8 %][% ELSE %][% LxERP.t8('Customer') %][% END %]</th>
+      <td><input type="text" name="f_vc" class="initial_focus">
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Invoice number' | $T8 %]</th>
+      <td><input type="text" name="f_invnumber">
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("SEPA message ID") %]</th>
+      <td>[% L.input_tag("f_message_id") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Export date from' | $T8 %]</th>
+      <td>[% L.date_tag('f_export_date_from') %] [% 'to (time)' | $T8 %] [% L.date_tag('f_export_date_to') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Requested execution date from' | $T8 %]</th>
+      <td>[% L.date_tag('f_requested_execution_date_from') %] [% 'to (time)' | $T8 %] [% L.date_tag('f_requested_execution_date_to') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Execution date from' | $T8 %]</th>
+      <td>[% L.date_tag('f_execution_date_from') %] [% 'to (time)' | $T8 %] [% L.date_tag('f_execution_date_to') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="form-addition control-panel">
+  <h4>[% 'Include in Report' | $T8 %]</h4>
+  <div class="list">
+    <div><input type="checkbox" name="l_open" id="l_open" value="1" checked> <label for="l_open"> [% 'open' | $T8 %]</label></div>
+    <div><input type="checkbox" name="l_closed" id="l_closed" value="1"> <label for="l_closed"> [% 'closed' | $T8 %]</label></div>
+    <div><input type="checkbox" name="l_not_executed" id="l_not_executed" value="1" checked> <label for="l_not_executed"> [% 'not yet executed' | $T8 %]</label></div>
+    <div><input type="checkbox" name="l_executed" id="l_executed" value="1" checked> <label for="l_executed"> [% 'executed' | $T8 %]</label></div>
+  </div>
+</div><!-- /.form-addition -->
+
+</div><!-- /.wrapper -->
+
+<input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
+
+</form>

@@ -1,0 +1,37 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+
+<form method="post" id="multi_items_form" method="POST">
+
+<div class="select-item control-panel">
+  <table id="multi_items_filter_table" class="tbl-plain">
+    <tr>
+      <th>[% LxERP.t8("Description") %]/[% LxERP.t8("Partnumber") %]</th>
+      <td>[% L.input_tag('multi_items_filter', search_term) %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Partsgroup") %]</th>
+      <td>[% L.select_tag('multi_items.filter.partsgroup_id', all_partsgroups, title_key='partsgroup', value_key='id', with_empty=1, class='wi-normal') %]</td>
+    <tr>
+  </table>
+</div>
+
+<div class="buttons">
+  [% L.button_tag('', LxERP.t8('Filter'), id='multi_items_filter_button') %]
+  [% L.button_tag('', LxERP.t8('Reset'), id='multi_items_filter_reset') %]
+</div>
+
+
+<div id="multi_items_result"></div>
+
+[%- IF FORM.show_pos_input -%]
+  [% 'At position' | $T8 %]
+  [% L.input_tag('multi_items.position', '', id='multi_items_position', size=5, class="numeric") %]
+[%- END -%]
+<div class="buttons">
+  [% L.button_tag('', LxERP.t8('Continue'), id='continue_button') %]
+</div>
+
+</form>

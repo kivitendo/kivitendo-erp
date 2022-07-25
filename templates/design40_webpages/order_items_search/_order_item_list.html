@@ -1,0 +1,47 @@
+[% USE LxERP %]
+[% USE T8 %]
+[% USE L %]
+[% USE HTML %]
+[% USE P %]
+[% SET qty_round = 2 %]
+
+<table class="tbl-list wi-moderate">
+  <thead>
+    <tr>
+      <th>[%               LxERP.t8("Part")           %]</th>
+      <th>[%               LxERP.t8("Customer")       %]</th>
+      <th class="right">[% LxERP.t8("Order")          %]</th>
+      <th>[%               LxERP.t8("Order Date")     %]</th>
+      <th class="right" colspan="2">[% LxERP.t8("Qty")       ; "/" ;LxERP.t8("Unit") %]</th>
+      <th class="right" colspan="2">[% LxERP.t8("Delivered") ; "/" ;LxERP.t8("Unit") %]</th>
+      <th class="right">[% LxERP.t8("Price")          %]</th>
+      <th class="right">[% LxERP.t8("Discount")       %]%</th>
+      <th>[%               LxERP.t8("Delivery Order") %]</th>
+      [% IF FORM.show_images %]
+        <th>[%             LxERP.t8("Image")          %]</th>
+      [% END %]
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH order_item = SELF.orderitems %]
+      <tr id="tr_[% loop.count %]">
+      <td>[%                   order_item.part.presenter.part(no_link => 0)               %]</td>
+      <td>[%                   order_item.order.customer.presenter.customer(no_link => 0) %]</td>
+      <td class="numeric">[%   order_item.order.presenter.sales_order(no_link => 0)       %]</td>
+      <td>[%                   order_item.order.transdate.to_kivitendo %]</td>
+      <td class="numeric[% IF order_item.delivered_qty == order_item.qty %] plus[% ELSE %] minus[% END %]">
+          [%                   LxERP.format_amount(order_item.qty, qty_round) %]
+      </td>
+      <td>[% order_item.unit | html %]</td>
+      <td class="numeric">[% LxERP.format_amount(order_item.delivered_qty, qty_round) %]</td>
+      <td>[% order_item.unit | html %]</td>
+      <td class="numeric">[% order_item.sellprice_as_number %]</td>
+      <td class="numeric">[% order_item.discount_as_percent %]</td>
+      <td>[% order_item.deliveryorders %]</td>
+      [% IF FORM.show_images %]
+        <td>[% IF order_item.part.image %]<a href="[% order_item.part.image | html %]" target="_blank"><img height="32" src="[% order_item.part.image | html %]"/></a>[% END %]</td>
+      [% END %]
+      </tr>
+    [% END %]
+  </tbody>
+</table>

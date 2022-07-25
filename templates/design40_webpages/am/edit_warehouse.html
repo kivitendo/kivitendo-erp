@@ -1,0 +1,44 @@
+[%- USE T8 %]
+[%- USE HTML %]
+<h1>[% IF id %][% 'Edit Warehouse' | $T8 %][% ELSE %][% 'Add Warehouse' | $T8 %][% END %]</h1>
+
+<div class="wrapper">
+  <!-- UPDATE. message container -->
+ [% IF saved_message %]
+  <p>[% saved_message %]</p>
+ [% END %]
+
+ <form method="post" action="am.pl" id="form">
+
+  <input type="hidden" name="id" value="[% HTML.escape(id) %]">
+  <input type="hidden" name="type" value="warehouse">
+  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+
+  <table class="tbl-horizontal">
+    <tbody>
+   <tr>
+    <th>[% 'Description' | $T8 %]</th>
+    <td>
+     <input type="text" id='description' name="description" size="60" value="[% HTML.escape(description) %]" class="initial_focus">
+     <input type="hidden" name="orig_description" value="[% HTML.escape(description) %]">
+    </td>
+   </tr>
+
+   <tr>
+    <th>[% 'Invalid' | $T8 %]</th>
+    <td><input type="checkbox" name="invalid" value="1" [% IF invalid %]checked[% END %]></td>
+   </tr>
+
+   <tr>
+    <th>[% 'Number of new bins' | $T8 %]</th>
+    <td><input type="text" name="number_of_new_bins"></td>
+   </tr>
+
+   <tr>
+    <th>[%- 'Prefix for the new bins\' names' | $T8 %]</th>
+    <td><input type="text" name="prefix" value="[% 'Bin' | $T8 %]"></td>
+   </tr>
+   </tbody>
+  </table>
+ </form>
+</div>

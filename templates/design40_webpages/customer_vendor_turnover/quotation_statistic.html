@@ -1,0 +1,37 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE L %]
+[%- USE HTML %]
+<div id="invoice_statistic">
+  <table width="100%">
+    <tbody>
+      <tr>
+        <td class="listheading">[% IF FORM.db == 'customer' %][% 'Quotation Number' | $T8 %][% ELSE %][% 'RFQ Number' | $T8 %][% END %]</td>
+        <td class="listheading">[% IF FORM.db == 'customer' %][% 'Quotation Date' | $T8 %][% ELSE %][% 'RFQ Date' | $T8 %][% END %]</td>
+        <td class="listheading">[% 'Amount' | $T8 %]</td>
+        <td class="listheading">[% 'Delivery Date' | $T8 %]</td>
+        <td class="listheading">[% 'Transaction description' | $T8 %]</td>
+      </tr>
+
+      [%- FOREACH row = orders %]
+      <tr class="listrow[% loop.count % 2 %]">
+        [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
+          <td>[% IF row.id %]<a href='controller.pl?action=Order/edit&type=[% IF FORM.db == "customer" %]sales_quotation[% ELSE %]request_quotation[% END %]&id=[% HTML.escape(row.id) %]'>
+              [% END %][% HTML.escape(row.quonumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
+        [%- ELSE -%]
+          <td>[% IF row.id %]<a href='oe.pl?action=edit&type=[% IF FORM.db == "customer" %]sales_quotation[% ELSE %]request_quotation[% END %]&vc=[% FORM.db %]&id=[% HTML.escape(row.id) %]'>
+              [% END %][% HTML.escape(row.quonumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
+        [%- END -%]
+        <td>[% row.transdate.to_kivitendo | html %]</td>
+        <td class="numeric">[%- LxERP.format_amount(row.amount, 2) %]</td>
+        <td>[% row.reqdate.to_kivitendo | html %]</td>
+        <td>[% row.transaction_description %]</td>
+      </tr>
+      [% END %]
+    </tbody>
+  </table>
+
+
+    </tbody>
+  </table>
+</div>

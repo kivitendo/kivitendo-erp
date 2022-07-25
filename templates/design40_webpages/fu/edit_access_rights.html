@@ -1,0 +1,51 @@
+[% USE T8 %]
+[% USE HTML %]
+
+<h1>[% title %]</h1>
+
+<div class="wrapper">
+
+  [% IF SAVED_MESSAGE %]
+  <p class="message">[% SAVED_MESSAGE %]</p>
+  [% END %]
+
+  <p>[% 'Allow the following users access to my follow-ups:' | $T8 %]</p>
+
+  <form action="fu.pl" method="post" name="Form" id="form">
+
+    <table class="tbl-list width-moderate">
+      <thead>
+        <tr>
+          <th>[% 'User' | $T8 %]</th>
+          <th>[% 'Allow access' | $T8 %]</th>
+        </tr>
+      </thead>
+      <tbody>
+        [% FOREACH row = EMPLOYEES %]
+        [% UNLESS row.login == login %]
+        <tr>
+          <td>
+            <input type="hidden" name="employee_id_[% loop.count %]" value="[% HTML.escape(row.id) %]">
+            [% IF row.name %]
+              [% HTML.escape(row.name) %] ([% HTML.escape(row.login) %])
+            [% ELSE %]
+              [% HTML.escape(row.login) %]
+            [% END %]
+          </td>
+          <td class="horizontal">
+            <input type="radio" id="access_[% HTML.escape(row.id) %]_yes" name="access_[% HTML.escape(row.id) %]" value="1"[% IF row.access %] checked[% END %]>
+            <label for="access_[% HTML.escape(row.id) %]_yes">[% 'Yes' | $T8 %]</label> &nbsp;
+            <input type="radio" id="access_[% HTML.escape(row.id) %]_no" name="access_[% HTML.escape(row.id) %]" value=""[% UNLESS row.access %] checked[% END %]>
+            <label for="access_[% HTML.escape(row.id) %]_no">[% 'No' | $T8 %]</label>
+          </td>
+        </tr>
+        [% END %]
+        [% END %]
+      </tbody>
+    </table>
+
+    <input type="hidden" name="rowcount" value="[% EMPLOYEES.size %]">
+  </form>
+
+</div>
+

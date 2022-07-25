@@ -1,0 +1,37 @@
+[% USE HTML %]
+[% USE T8 %]
+[% USE LxERP %]
+
+[% IF INSTANCE_CONF.get_webdav %]
+<div id="ui-tabs-webdav" class="ui-tabs-panel" style="display:none;">
+
+<div class="wrapper">
+
+  <h3>[% 'Documents in the WebDAV repository' | $T8 %]</h3>
+
+  [% IF WEBDAV && WEBDAV.size %]
+  <table class="tbl-list wi-moderate">
+    <thead>
+     <tr>
+      <th>[% 'File name' | $T8 %]</th>
+      <th>[% 'WebDAV link' | $T8 %]</th>
+     </tr>
+    </thead>
+    <tbody>
+      [% FOREACH file = WEBDAV %]
+        <tr>
+          <td>[% HTML.escape(file.name) %]</td>
+          <td><a href="[% HTML.escape(file.link) %]">[% HTML.escape(file.type) %]</a></td>
+        </tr>
+      [% END %]
+    </tbody>
+  </table>
+
+  [% ELSE %]
+   <p>[% LxERP.t8("There are no documents in the WebDAV directory at the moment.") %]</p>
+  [% END %]
+
+</div><!-- /.wrapper -->
+
+</div><!-- /#ui-tabs-webdav -->
+[% END %]

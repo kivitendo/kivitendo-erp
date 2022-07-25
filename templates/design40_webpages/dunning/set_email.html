@@ -1,0 +1,41 @@
+[% USE T8 %]
+[% USE HTML %]
+
+<h1>[% title %]</h1>
+
+<script type="text/javascript"><!--
+  function email_updated() {
+    window.opener.document.getElementsByName(document.Form.input_subject.value)[0].value = document.getElementsByName("email_subject")[0].value;
+    window.opener.document.getElementsByName(document.Form.input_body.value)[0].value = document.getElementsByName("email_body")[0].value;
+    window.opener.document.getElementsByName(document.Form.input_attachment.value)[0].value = document.getElementsByName("email_attachment")[0].value;        self.close();
+  }
+--></script>
+
+<form name="Form">
+
+<input type="hidden" name="input_subject" value="[% HTML.escape(input_subject) %]">
+<input type="hidden" name="input_body" value="[% HTML.escape(input_body) %]">
+<input type="hidden" name="input_attachment" value="[% HTML.escape(input_attachment) %]">
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% 'Subject:' | $T8 %]</th>
+      <td><input type="text" id="email_subject" name="email_subject" size="40" value="[% HTML.escape(email_subject) %]"></td>
+    </tr>
+    <tr>
+      <th>[% 'Body:' | $T8 %]</th>
+      <td><textarea id="email_body" name="email_body" rows="20" cols="70" wrap="soft">[% HTML.escape(email_body) %]</textarea>
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Attach PDF:' | $T8 %]</th>
+      <td><input id="email_attachment" type="checkbox" name="email_attachment" value="1" [% IF email_attachment %]checked[% END %]></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<button type="button" onclick="email_updated()">[% 'Save and close' | $T8 %]</button>
+
+</form>

@@ -1,0 +1,68 @@
+[% USE L %]
+[% USE T8 %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<h1>[% 'Print' | $T8 %] [% label.$type.title %]</h1>
+
+<form method="post" action="bp.pl" id="form">
+
+[% L.hidden_tag('title', LxERP.t8('Print') _ ' ' _ label.$type.title) %]
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <colgroup><col class="wi-small"><col class="wi-verywide"></colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Customer' | $T8 %]</th>
+      <td>[% L.input_tag(vc, '', class='wi-normal') %]</td>
+    </tr>
+    [% IF show_accounts %]
+    <tr>
+      <th>[% 'Account' | $T8 %]</th>
+      <td>[% L.select_tag('account', accounts, value_title_sub=\account_sub, class='wi-verywide') %]</td>
+    </tr>
+    [% END %]
+    [% IF label.$type.invnumber %]
+    <tr>
+      <th>[% 'Invoice Number' | $T8 %]</th>
+      <td>[% L.input_tag('invnumber', '', class='wi-normal') %]</td>
+    </tr>
+    [% END %]
+    [% IF label.$type.ordnumber %]
+    <tr>
+      <th>[% 'Order Number' | $T8 %]</th>
+      <td>[% L.input_tag('ordnumber', '', class='wi-normal') %]</td>
+    </tr>
+    [% END %]
+    [% IF label.$type.quonumber %]
+    <tr>
+      <th>[% 'Quotation Number' | $T8 %]</th>
+      <td>[% L.input_tag('quonumber', '', class='wi-normal') %]</td>
+    </tr>
+    [% END %]
+    [% IF label.$type.donumber %]
+    <tr>
+      <th>[% 'Delivery Order Number' | $T8 %]</th>
+      <td>[% L.input_tag('donumber', '', class='wi-normal') %]</td>
+    </tr>
+    [% END %]
+    [% IF label.$type.chknumber %]
+    <tr>
+      <th>[% 'Reference' | $T8 %]</th>
+      <td>[% L.input_tag('chknumber', '', class='wi-normal') %]</td>
+    </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Date' | $T8 %] [% 'from' | $T8 %] </th>
+      <td class="wi-date">[% L.date_tag('transdatefrom') %] [% 'Bis' | $T8 %] [% L.date_tag('transdateto') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+[% L.hidden_tag('sort', 'transdate') %]
+[% L.hidden_tag('vc', vc) %]
+[% L.hidden_tag('type', type) %]
+</div>
+</form>

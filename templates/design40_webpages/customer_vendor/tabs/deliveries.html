@@ -1,0 +1,55 @@
+[% USE T8 %]
+[% USE LxERP %]
+[% USE L %]
+<!-- PENDENT: Element-Klassen neu definieren  -->
+<div id="deliveries">
+
+  <div class="select-item control-panel">
+    <span class="formelement">
+      [% temp = [{shipto_id = 'all', displayable_id = LxERP.t8('All')}] %]
+      [% temp = temp.merge(SELF.shiptos) %]
+      [% 'Select Deliveries' | $T8 %] [%
+        L.select_tag(
+          'delivery_id',
+          temp,
+          value_key = 'shipto_id',
+          title_key = 'displayable_id',
+          with_empty = 1,
+          onchange = "kivi.CustomerVendor.selectDelivery();",
+          class='wi-lightwide',
+          id='delivery_id'
+        )
+      %]
+    </span>
+    <span class="formelement">
+      [% 'From' | $T8 %] [%
+        L.date_tag(
+          'delivery_from',
+          FORM.delivery_from,
+          onchange => "kivi.CustomerVendor.selectDelivery(this.form.delivery_from.value, this.form.delivery_to.value);",
+          class='wi-date'
+        )
+      %]
+    </span>
+    <span class="formelement">
+      &nbsp; [% 'To (time)' | $T8 %] [%
+        L.date_tag(
+          'delivery_to',
+          FORM.delivery_to,
+          onchange => "kivi.CustomerVendor.selectDelivery(this.form.delivery_from.value, this.form.delivery_to.value);",
+          class='wi-date'
+        )
+      %]
+    </span>
+  </div>
+  <!-- PENDENT: ein No-Result-Feature wuerde sich hier noch gut machen -->
+  <div class="wrapper">
+    <div id="delivery">[% 'Please wait!' | $T8 %]</div>
+  </div>
+
+</div>
+
+<script type="text/javascript">
+  $('#delivery_id option[value=all]').attr('selected','selected');
+  kivi.CustomerVendor.selectDelivery();
+</script>

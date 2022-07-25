@@ -1,0 +1,79 @@
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+
+<div class="wrapper">
+
+[% BLOCK filter_toggle_panel %]
+<form method="post" action="controller.pl" id="search_form">
+  [% L.hidden_tag("is_template", is_template) %]
+  [% L.hidden_tag("_include_cvars_from_form", 1) %]
+  <table class="tbl-horizontal">
+    <tbody>
+      <tr>
+        <th>[% LxERP.t8("Title") %]</th>
+        <td>[% L.input_tag('filter.title:substr::ilike', filter.title_substr__ilike, class="rs_input_field wi-lightwide") %]</td>
+      </tr>
+      [% UNLESS is_template %]
+        <tr>
+          <th>[% LxERP.t8("Customer") %]</th>
+          <td>[% L.input_tag('filter.customer.name:substr::ilike', filter.customer.name_substr__ilike, class="rs_input_field wi-lightwide") %]</td>
+        </tr>
+        <tr>
+          <th>[% LxERP.t8("Customer Number") %]</th>
+          <td>[% L.input_tag('filter.customer.customernumber:substr::ilike', filter.customer.customernumber_substr__ilike, class="rs_input_field wi-lightwide") %]</td>
+        </tr>
+        <tr>
+          <th>[% LxERP.t8("Requirement Spec Type") %]</th>
+          <td>[% L.select_tag('filter.type_id', SELF.types, default=filter.type_id, title_key="description", with_empty=1, class="rs_input_field wi-lightwide") %]</td>
+        </tr>
+        <tr>
+          <th>[% LxERP.t8("Requirement Spec Status") %]</th>
+          <td>
+            [% L.select_tag('filter.status_id[]', SELF.statuses, default=filter.status_id_, title_key="description", multiple=1, class="rs_input_field wi-wide") %]
+            [%# NOTE: the trailing '_' is NOT a mistake -- look at SL::Controller::Helper::Filtered for the explanation! %]
+          </td>
+        </tr>
+        <tr>
+          <th>[% LxERP.t8("Project Number") %]</th>
+          <td>[% L.input_tag('filter.project.projectnumber:substr::ilike', filter.project.projectnumber_substr__ilike, class="rs_input_field wi-lightwide") %]</td>
+        </tr>
+        <tr>
+          <th>[% LxERP.t8("Project Description") %]</th>
+          <td>[% L.input_tag('filter.project.description:substr::ilike', filter.project.description_substr__ilike, class="rs_input_field wi-lightwide") %]</td>
+        </tr>
+        [% FOREACH cvar_cfg = SELF.cvar_configs %]
+          [% IF cvar_cfg.searchable %]
+            <tr>
+              <th>[% HTML.escape(cvar_cfg.description) %]</th>
+              <td>[% INCLUDE 'common/render_cvar_filter_input.html' cvar_cfg=cvar_cfg cvar_class="rs_input_field" %]</td>
+            </tr>
+          [% END %]
+        [% END # %]
+      [% END # /UNLESS is_template %]
+    </tbody>
+  </table>
+  [% IF SELF.includeable_cvar_configs.size %]
+  <table class="tbl-plain">
+    <caption>[% LxERP.t8("Include in Report") %]</caption>
+    <tbody>
+      [% FOREACH cvar_cfg = SELF.includeable_cvar_configs %]
+      <tr>
+        <td>
+          [% name__ = cvar_cfg.name; L.checkbox_tag("include_cvars_" _ name__, value="1", checked=(SELF.include_cvars.$name__ ? 1 : ''), label=cvar_cfg.description) %]
+        </td>
+      [% IF !loop.last && ((loop.count % 3) == 0) %]
+      </tr>
+      <tr>
+        [% END %]
+      </tr>
+      [% END %]
+    <tbody>
+  </table>
+  [% END %]
+</form>
+[% END # /BLOCK filter_toggle_panel %]
+
+[% INCLUDE 'common/toggle_panel.html' %]
+
+</div><!-- /.wrapper -->

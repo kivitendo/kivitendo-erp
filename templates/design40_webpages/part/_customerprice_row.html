@@ -1,0 +1,19 @@
+[% USE T8 %]
+[% USE L %]
+[% USE HTML %]
+[% USE LxERP %]
+
+<tr class="listrow customerprice_row">
+  <td style='display:none'>
+    [% L.hidden_tag("customerprices[+].customer_id", customerprice.customer_id) %]
+    [% L.hidden_tag("customerprices[].id"   , customerprice.id) %]
+  </td>
+  <td>[% L.button_tag("kivi.Part.delete_customerprice_row(this)", "✕", class="wi-verytiny neutral") %] [% # , confirm=LxERP.t8("Are you sure?")) %]</td>
+  <td class="center numeric"><span name="position">[% HTML.escape(customerprice.sortorder) %]</span></td>
+  <td><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]" class="dragdrop"></td>
+  <td>[% customerprice.customer.customernumber | html %]</td>
+  <td>[% customerprice.customer.name         | html %]</td>
+  <td>[% L.input_tag('customerprices[].customer_partnumber', customerprice.customer_partnumber, class='wi-mediumsmall', size=10 ) %]</td>
+  <td>[% L.input_tag('customerprices[].price_as_number'    , customerprice.price_as_number    , class="wi-small reformat_number numeric", size=10) %]</td>
+  <td>[% L.hidden_tag('customerprices[].lastupdate'         , customerprice.lastupdate.to_kivitendo) %][% customerprice.lastupdate.to_kivitendo | html %]</td>
+</tr>

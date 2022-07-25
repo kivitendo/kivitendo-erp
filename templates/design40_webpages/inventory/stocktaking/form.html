@@ -1,0 +1,73 @@
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+[% USE HTML %]
+[% USE LxERP %]
+
+<h1>[% title | html %]</h1>
+
+<div class="wrapper">
+
+[% INCLUDE 'common/flash.html' %]
+
+<form method="post" action="controller.pl" id="stocktaking_form">
+
+<div class="select-item control-panel">
+  [% "Select article" | $T8 %] [% P.part.picker("part_id", "", with_makemodel=1) %]
+</div>
+
+<div id="stock"></div>
+
+<table id="stocktaking_registration_table" class="tbl-horizontal">
+  <caption>[% 'Registration' | $T8 %]</caption>
+  <colgroup><col class="wi-mediumsmall"><col class="wi-wide"></colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Destination warehouse' | $T8 %]</th>
+      <td class="wi-wide">
+        [% L.select_tag('warehouse_id', SELF.warehouses, default=SELF.warehouse.id, title_key='description', class='wi-wide' ) %]
+        [% IF SELF.warehouse.id %]
+          <span class="below wi-wide condensed">[% L.select_tag('bin_id', SELF.warehouse.bins, default=SELF.bin.id, title_key='description', class='wi-wide' ) %]</span>
+        [% ELSE %]
+          <span id="bin_id" class="wi-wide"></span>
+        [% END %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Charge number' | $T8 %]</th>
+      <td>[% L.input_tag('chargenumber', "", size=30, class='wi-wide') %]</td>
+    </tr>
+    [% IF INSTANCE_CONF.get_show_bestbefore %]
+      <tr>
+        <th>[% 'Best Before' | $T8 %]</th>
+        <td>[% L.date_tag('bestbefore', "", class='wi-date') %]</td>
+      </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Target Qty' | $T8 %]</th>
+      <td>
+        [% L.input_tag('target_qty', '', size=10, class='numeric wi-small') %]
+        [% IF SELF.part.unit %]
+          [% L.select_tag('unit_id', SELF.part.available_units, title_key='name', default=SELF.unit.id, class='wi-small' ) %]
+        [% ELSE %]
+          [% L.select_tag('unit_id', SELF.units, title_key='name', class='wi-small') %]
+        [% END %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Cutoff Date' | $T8 %]</th>
+      <td>[% L.date_tag('cutoff_date_as_date', SELF.stocktaking_cutoff_date, class='wi-date' ) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Optional comment' | $T8 %]</th>
+      <td>[% L.input_tag('comment', SELF.stocktaking_comment, size=30, class='wi-wide') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+</form>
+
+<div id="stocktaking_history">[% LxERP.t8("Loading...") %]</div>
+
+
+</div><!-- /.wrapper -->

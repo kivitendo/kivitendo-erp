@@ -1,0 +1,59 @@
+[% USE HTML %]
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+[% USE LxERP %]
+
+<form action="controller.pl" method="post" name="Form" id="search_form">
+<div class="wrapper">
+
+[% BLOCK filter_toggle_panel %]
+<table id='filter_table' class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% 'Letternumber' | $T8 %]</th>
+      <td>[% L.input_tag('filter.letternumber:substr::ilike', filter.letternumber_substr__ilike, class='wi-lightwide') %]</td>
+    </tr>
+    [% IF SELF.is_sales %]
+      <tr>
+        <th>[% 'Customer' | $T8 %]</th>
+        <td class="wi-lightwide">[% P.customer_vendor.picker('filter.customer_id', filter.customer_id, type='customer') %]</td>
+      </tr>
+    [% ELSE %]
+      <tr>
+        <th>[% 'Vendor' | $T8 %]</th>
+        <td class="wi-lightwide">[% P.customer_vendor.picker('filter.vendor_id', filter.vendor_id, type='vendor') %]</td>
+      </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Contact' | $T8 %]</th>
+      <td>[% L.input_tag('filter.contact.cp_name:substr::ilike', filter.contact.cp_name_substr__ilike, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Subject' | $T8 %]</th>
+      <td>[% L.input_tag('filter.subject:substr::ilike', filter.subject_substr__ilike, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Body' | $T8 %]</th>
+      <td>[% L.input_tag('filter.body:substr::ilike', filter.body_substr__ilike, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Date' | $T8 %]</th>
+      <td>[% L.date_tag('filter.date:date::ge', filter.date_date__ge, class='wi-date') %] [% 'To (time)' | $T8 %] [% L.date_tag('filter.date:date::le', filter.date_date__le, class='wi-date') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+[% L.hidden_tag('is_sales', SELF.is_sales) %]
+[% L.hidden_tag('sort_by', FORM.sort_by) %]
+[% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+[% L.hidden_tag('page', FORM.page) %]
+<div class="buttons">
+  [% L.button_tag("\$('#search_form').resetForm()", LxERP.t8("Reset"), class='neutral') %]
+</div>
+[% END # /BLOCK filter_toggle_panel %]
+
+[% INCLUDE 'common/toggle_panel.html' %]
+
+</div>
+</form>

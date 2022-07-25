@@ -1,0 +1,3 @@
+[% USE L %]
+[% PROCESS 'bank_transactions/_filter.html' filter=SELF.models.filtered.laundered %]
+<form method="post" action="controller.pl" id="form">

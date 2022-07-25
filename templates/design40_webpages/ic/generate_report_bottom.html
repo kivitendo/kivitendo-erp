@@ -1,0 +1,58 @@
+[% USE T8 %]
+[% USE HTML %]
+
+<div class="wrapper">
+
+<h3>[% 'Abbreviation Legend' | $T8  %]</h3>
+
+<table class="tbl-list">
+  <thead>
+    <tr>
+     <th>[% 'TypAbbreviation' | $T8  %]</th>
+     <th>[% 'Description'     | $T8  %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+     <td>[% 'Part (typeabbreviation)'       | $T8 %]</td>
+     <td>[% 'Part'                          | $T8 %]</td>
+    </tr>
+    <tr>
+     <td>[% 'Assembly (typeabbreviation)'   | $T8 %]</td>
+     <td>[%'Assembly'                       | $T8 %]</td>
+    </tr>
+    <tr>
+     <td>[% 'Service (typeabbreviation)'    | $T8 %]</td>
+     <td>[%'Service'                        | $T8 %]</td>
+    </tr>
+    [% IF INSTANCE_CONF.get_feature_experimental_assortment %]
+      <tr>
+       <td>[% 'Assortment (typeabbreviation)' | $T8 %]</td>
+       <td>[%'Assortment'                     | $T8 %]</td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>
+
+<table class="tbl-list">
+  <thead>
+    <tr>
+     <th>[% 'PartClassAbbreviation' | $T8  %]</th>
+     <th>[% 'Description'           | $T8  %]</th>
+    </tr>
+  </thead>
+  <tbody>
+  [% FOREACH part_classification = PART_CLASSIFICATIONS %]
+    <tr>
+     <td>[% part_classification.abbreviation | $T8 %]</td>
+     <td>[% part_classification.description  | $T8 %]</td>
+    </tr>
+  [% END %]
+  </tbody>
+</table>
+
+</div>
+
+<form method="post" action="controller.pl" id="new_form">
+ <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
+</form>

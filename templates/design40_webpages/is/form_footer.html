@@ -1,0 +1,120 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<!--
+  Total-Lines of Invoice Items
+  Within the big colspan/rowspan cell there are weight information
+-->
+<table class="tbl-list footer-only full-width">
+  <colgroup>
+    <col style="width: 75%;">
+    <col style="width: 15%;">
+    <col style="width: 10%;">
+  </colgroup>
+  <tfoot>
+  [% UNLESS taxincluded %]
+  <tr>
+    <td>
+      [% IF show_weight %]
+        <div class="info-block"><!-- PENDENT: vereinheitlichen -->
+          <span class="info-label">[% 'Total weight' | $T8 %]</span>
+          <span class="info-value">[% LxERP.format_amount(totalweight) %] [% HTML.escape(weightunit) %]</span>
+        </div>
+      [% END %]
+    </td><!-- <td></td><td></td><td></td><td></td><td></td><td></td><td></td> -->
+    <th>[% 'Subtotal' | $T8 %]</th>
+    <td class="numeric">[% LxERP.format_amount(invsubtotal, 2) %]</td>
+  </tr>
+  [% END %]
+
+  [%# tax %]
+  [% FOREACH item = taxaccounts_array %]
+    [% SET description_ref = item _ '_description' %]
+    [% SET rate_ref        = item _ '_rate' %]
+    [% SET total_ref       = item _ '_total' %]
+    [% SET netto_ref       = item _ '_netto' %]
+    <tr>
+      <td></td>
+      <th>[% 'Including' | $T8 %] [% $description_ref | html %]&nbsp;[% $rate_ref * 100 %]%</th>
+      <td class="numeric">[% LxERP.format_amount($total_ref, 2) %]</td>
+    </tr>
+    [% IF taxincluded %]
+      <tr>
+        <td></td>
+        <th>[% 'Net amount' | $T8 %]</th>
+        <td class="numeric">[% LxERP.format_amount($netto_ref, 2) %]</td>
+      </tr>
+    [% END %]
+  [% END %]
+  [% IF rounding %]
+    <tr>
+    <td></td>
+      <th>[% 'Rounding' | $T8 %]</th>
+      <td class="numeric">[% LxERP.format_amount(rounding, 2) %]</td>
+    </tr>
+  [% END %]
+  <tr>
+    <td></td>
+    <th>[% 'Total' | $T8 %]</th>
+    <td class="numeric">[% LxERP.format_amount(invtotal, 2) %]</td>
+  </tr>
+  <tr>
+    <td></td>
+    <th>[% 'Ertrag' | $T8 %]</th>
+    <td class="numeric">
+      [% LxERP.format_amount(marge_total, 2, 0) %]
+      <input type=hidden name="marge_total" value="[% marge_total %]" class="numeric">
+    </td>
+  </tr>
+  <tr>
+    <td></td>
+    <th>[% 'Ertrag prozentual' | $T8 %]</th>
+    <td class="numeric">
+      [% LxERP.format_amount(marge_percent, 2, 0) %] %
+      <input type=hidden name="marge_percent" value="[% marge_percent %]" class="numeric">
+    </td>
+  </tr>
+  </tfoot>
+</table>
+
+[% IF id && follow_ups.size %]
+  <div class="message message_hint">
+      [% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', follow_ups.size, follow_ups_unfinished) | html %]
+  </div>
+[% END %]
+
+[% PROCESS 'is/_payments.html' %]
+
+</div><!--  /.ui-tabs-panel /#ui-tabs-basic-data -->
+
+[% PROCESS 'webdav/_list.html' %]
+
+<div id="ui-tabs-1" class="ui-tabs-panel" style="display:none">
+  <div class="wrapper">
+    [% LxERP.t8('Loading...') %]
+  </div>
+</div><!-- /#ui-tabs-1 -->
+
+</div>
+
+<input type="hidden" name="rowcount" value="[% rowcount %]">
+<input type="hidden" name="callback" value="[% callback | html %]">
+[% P.hidden_tag('draft_id', draft_id) %]
+[% P.hidden_tag('draft_description', draft_description) %]
+<input type="hidden" name="customer_discount" value="[% customer_discount %]">
+<input type="hidden" name="gldate" value="[% gldate %]">
+
+<div id="shipto_inputs" class="hidden">[% PROCESS 'common/_ship_to_dialog.html' cvars=shipto_cvars %]</div>
+<div id="email_inputs" style="display: none"></div>
+<div id="print_options" style="display: none">[% print_options %]</div>
+
+</form>
+<script type='text/javascript'>
+  $(kivi.SalesPurchase.init_on_submit_checks);
+</script>
+
+<div id="shipto_dialog" class="hidden"></div>
+<div id="print_dialog" class="hidden"><form action="#" name="fake-print-dialog" id="fake-print-dialog">[% PROCESS 'common/_print_dialog.html' %]</form></div>

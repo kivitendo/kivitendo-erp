@@ -1,0 +1,13 @@
+[% USE HTML %]
+[% USE LxERP %]
+
+<h1 id="requirement-spec-header">
+  [% IF SELF.requirement_spec.is_template %]
+    [% HTML.escape(LxERP.t8("Requirement spec template '#1'", SELF.requirement_spec.title)) %]
+  [% ELSE %]
+    [% HTML.escape(SELF.requirement_spec.displayable_name('format', 'with_customer')) %]
+    [% LxERP.t8("for") %]
+    [% HTML.escape(SELF.requirement_spec.customer.displayable_name) %]
+  [% END %]
+</h1>
+

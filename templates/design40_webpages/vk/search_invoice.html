@@ -1,0 +1,269 @@
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+[% SET style="width: 250px" %]
+
+<h1>[% title %]</h1>
+
+<form method=post name="search_invoice" action=[% script %]>
+<div class="wrapper">
+
+<input type="hidden" name="sort" value="transdate">
+<input type=hidden name=nextsub value=[% nextsub %]>
+
+<div class="col">
+
+<table class="tbl-horizontal">
+  <caption>[% 'Sorting' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-small"><col class="wi-mediumsmall"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Main sorting' | $T8 %]</th>
+      <td>
+        <select name="mainsort" id="mainsort">
+          <option value="description">[% 'Part' | $T8 %]</option>
+          <option value="customername">[% 'Customer' | $T8 %]</option>
+          <option value="country">[% 'Country' | $T8 %]</option>
+          <option value="partsgroup">[% 'Partsgroup' | $T8 %]</option>
+          <option value="business">[% 'Customer type' | $T8 %]</option>
+          <option value="salesman" selected="selected">[% 'Salesman' | $T8 %]</option>
+          <option value="month">[% 'Month' | $T8 %]</option>
+          <option value="shipvia">[% 'Ship via' | $T8 %]</option>
+        </select>
+      </td>
+      <td>
+        <input name="l_headers_mainsort" id="l_headers_mainsort" type=checkbox value=Y checked><label for="l_headers_mainsort">[% 'Heading' | $T8 %]</label><br>
+        <input name="l_subtotal_mainsort" id="l_subtotal_mainsort" type=checkbox value=Y checked><label for="l_subtotal_mainsort">[% 'Subtotal' | $T8 %]</label>
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Secondary sorting' | $T8 %]</th>
+      <td>
+        <select name="subsort" id="subsort">
+          <option value="description">[% 'Part' | $T8 %]</option>
+          <option value="customername">[% 'Customer' | $T8 %]</option>
+          <option value="country">[% 'Country' | $T8 %]</option>
+          <option value="partsgroup">[% 'Partsgroup' | $T8 %]</option>
+          <option value="business">[% 'Customer type' | $T8 %]</option>
+          <option value="salesman">[% 'Salesman' | $T8 %]</option>
+          <option value="month" selected="selected">[% 'Month' | $T8 %]</option>
+        </select>
+      </td>
+      <td>
+        <input name="l_headers_subsort" id="l_headers_subsort" type=checkbox value=Y checked><label for="l_headers_subsort">[% 'Heading' | $T8 %]</label><br>
+        <input name="l_subtotal_subsort" id="l_subtotal_subsort" type=checkbox value=Y checked><label for="l_subtotal_subsort">[% 'Subtotal' | $T8 %]</label>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Item & Sums' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Item mode' | $T8 %]</th>
+      <td><input name="l_parts" type=checkbox value=Y> ([%'Show items from invoices individually' | $T8 %])</td>
+    </tr>
+    <tr>
+      <th>[% 'Total sum' | $T8 %]</th>
+      <td><input name="l_total" type=checkbox value=Y checked> [% 'Decimalplaces' | $T8 %]: <input type="text" name="decimalplaces" size="2" value="2"></td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Parts' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Part Number' | $T8 %]</th>
+      <td>[% P.input_tag("partnumber", "", class='wi-small') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Part Description' | $T8 %]</th>
+      <td>[% P.input_tag("description", "", class='wi-wide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Partsgroup' | $T8 %]</th>
+      <td>[% P.select_tag("partsgroup_id", ALL_PARTSGROUPS, title_key="partsgroup", with_empty=1, class='wi-wide') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Invoices' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Invoice Date' | $T8 %]</th>
+      <td><span class="wi-date">
+        [% #'From' | $T8 %]
+        [% L.date_tag('transdatefrom') %]
+        [% 'Bis' | $T8 %]
+        [% L.date_tag('transdateto') %]
+      </span></td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.col -->
+
+<div class="col">
+
+<table class="tbl-horizontal">
+  <caption>[% 'Customers' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Customer' | $T8 %]</th>
+      <td>[% P.input_tag( "customer", "", class="initial_focus", class='wi-wide' ) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Customer Number' | $T8 %]</th>
+      <td>[% P.input_tag( "customernumber", "", class='wi-small' ) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Customer type' | $T8 %]</th>
+      <td>[% L.select_tag("business_id", ALL_BUSINESS_TYPES, title_key="description", with_empty=1, class='wi-wide') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Handling' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Employee' | $T8 %]</th>
+      <td>[% L.select_tag("employee_id", ALL_EMPLOYEES, title_key="safe_name", with_empty=1, class='wi-wide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Salesman' | $T8 %]</th>
+      <td>[% L.select_tag("salesman_id", ALL_EMPLOYEES, title_key="safe_name", with_empty=1, class='wi-wide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Department' | $T8 %]</th>
+      <td>[% L.select_tag( 'department_id', ALL_DEPARTMENTS, title_key='description', with_empty = 1, class='wi-wide' ) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Project Number' | $T8 %]</th>
+      <td>[% P.project.picker("project_id", "", active="both", valid="both", class='wi-small') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Country' | $T8 %]</th>
+      <td>[% P.input_tag("country", "", class='wi-wide') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.col -->
+
+<div class="col">
+
+<table class="tbl-horizontal">
+  <caption>[% 'Filter for customer variables' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    [% CUSTOM_VARIABLES_FILTER_CODE_CT %]
+    <tr>
+      <th class="caption" colspan="2">[% 'Filter for item variables' | $T8 %]</th>
+    </tr>
+    [% CUSTOM_VARIABLES_FILTER_CODE_IC %]
+  </tbody>
+</table>
+
+</div>
+
+</div><!-- /.wrapper -->
+
+<div class="buttons">
+  <input type=submit name=action value="[% 'Continue' | $T8 %]">
+</div>
+
+<div class="wrapper form-addition control-panel">
+  <h3>[% 'Include in Report' | $T8 %]</h3>
+
+  <table class="tbl-plain clear">
+    <colgroup><col class="wi-mediumsmall"><col class="wi-mediumsmall"><col class="wi-mediumsmall"><col class="wi-verywide"></colgroup>
+    <tbody>
+    <tr>
+      <th colspan="4"><h4>[% 'Cumulated or averaged values' | $T8 %] ([% 'invoice mode or item mode' | $T8 %]):</h4></th>
+    </tr>
+    <tr>
+      <td><input name="l_sellprice_total" id="l_sellprice_total" type=checkbox value=Y checked><label for="l_sellprice_total">[% 'Sales price total' | $T8 %]</label></td>
+      <td><input name="l_lastcost_total" id="l_lastcost_total" type=checkbox value=Y checked><label for="l_lastcost_total">[% 'Purchase price total' | $T8 %]</label></td>
+      <td><input name="l_marge_total" id="l_marge_total" type=checkbox value=Y checked><label for="l_marge_total">[% 'Margetotal' | $T8 %]</label></td>
+      <td class="long-desc">([% 'Single values in item mode, cumulated values in invoice mode' | $T8 %])</td>
+    </tr>
+    <tr>
+      <td><input name="l_sellprice" id="l_sellprice" type=checkbox value=Y checked><label for="l_sellprice">[% 'Sales price' | $T8 %]</label></td>
+      <td><input name="l_lastcost" id="l_lastcost" type=checkbox value=Y checked><label for="l_lastcost">[% 'Purchase price' | $T8 %]</label></td>
+      <td><input name="l_marge_percent" id="l_marge_percent" type=checkbox value=Y checked><label for="l_marge_percent">[% 'Margepercent' | $T8 %]</label></td>
+      <td class="long-desc">([% 'averaged values, in invoice mode only useful when filtered by a part' | $T8 %])</td>
+    </tr>
+    <tr>
+      <td><input name="l_qty" id="l_qty" type=checkbox value=Y checked><label for="l_qty">[% 'Quantity' | $T8 %]</label></td>
+      <td><input name="l_discount" id="l_discount" type=checkbox value=Y><label for="l_discount">[% 'Discount' | $T8 %]</label></td>
+      <td></td>
+      <td class="long-desc">([% 'averaged values, in invoice mode only useful when filtered by a part' | $T8 %])</td>
+    </tr>
+    <tr>
+      <td><input name="l_weight" id="l_weight" type=checkbox value=Y><label for="l_weight">[% 'Weight' | $T8 %]</label></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th colspan="4"><h4>[% 'Item values' | $T8 %] ([% 'Only shown in item mode' | $T8 %])</h4></th>
+    </tr>
+    <tr>
+      <td><input name="l_description" id="l_description" type=checkbox value=Y checked><label for="l_description">[% 'Description' | $T8 %]</label></td>
+      <td><input name="l_partnumber" id="l_partnumber" type=checkbox value=Y><label for="l_partnumber">[% 'Part Number' | $T8 %]</label></td>
+      <td><input name="l_invnumber" id="l_invnumber" type=checkbox value=Y><label for="l_invnumber">[% 'Invnumber' | $T8 %]</label></td>
+      <td><input name="l_transdate" id="l_transdate" type=checkbox value=Y><label for="l_transdate">[% 'Invdate' | $T8 %]</label></td>
+    </tr>
+    <tr>
+      <td><input name="l_parts_unit" id="l_parts_unit" type=checkbox value=Y><label for="l_parts_unit">[% 'Base unit' | $T8 %]</label></td>
+      <td><input name="l_partsgroup" id="l_partsgroup" type=checkbox value=Y><label for="l_partsgroup">[% 'Partsgroup' | $T8 %]</label></td>
+      <td><input name="l_salesman" id="l_salesman" type=checkbox value=Y><label for="l_salesman">[% 'Salesperson' | $T8 %]</label></td>
+      <td><input name="l_employee" id="l_employee" type=checkbox value=Y><label for="l_employee">[% 'Employee' | $T8 %]</label></td>
+    </tr>
+    <tr>
+      <td><input name="l_customernumber" id="l_customernumber" type=checkbox value=Y><label for="l_customernumber">[% 'Customer Number' | $T8 %]</label></td>
+      <td><input name="l_customername" id="l_customername" type=checkbox value=Y><label for="l_customername">[% 'Customer Name' | $T8 %]</label></td>
+      <td><input name="l_country" id="l_country" type=checkbox value=Y><label for="l_country">[% 'Country' | $T8 %]</label></td>
+      <td><input name="l_business" id="l_business" type=checkbox value=Y><label for="l_business">[% 'Customer type' | $T8 %]</label></td>
+    </tr>
+    <tr>
+      <td><input name="l_shipvia" class=checkbox type=checkbox value=Y>[% 'Ship via' | $T8 %]</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <table class="tbl-plain clear">
+    <tbody>
+    <tr>
+      <th colspan="4"><h4>[% 'Customer variables' | $T8 %] ([% 'Only shown in item mode' | $T8 %])</h4></th>
+    </tr>
+    [% CUSTOM_VARIABLES_INCLUSION_CODE_CT %]
+    </tbody>
+  </table>
+
+  <table class="tbl-plain clear">
+    <tbody>
+    <tr>
+      <th colspan="4"><h4>[% 'Item variables' | $T8 %] ([% 'Only shown in item mode' | $T8 %])</h4></th>
+    </tr>
+    [% CUSTOM_VARIABLES_INCLUSION_CODE_IC %]
+    </tbody>
+  </table>
+</div>
+
+</form>
+
+<script type="text/javascript"><!--
+  $(document).ready(function(){
+    $('customer').focus();
+  })
+//--></script>

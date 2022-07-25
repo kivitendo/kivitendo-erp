@@ -1,0 +1,113 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+[% SET show_images=0 %]
+
+<h1>[% title %]</h1>
+<div class="wrapper">
+
+
+<form id="filter" name="filter" method="post" action="controller.pl">
+
+[% BLOCK filter_toggle_panel %]
+  <table class="tbl-horizontal text">
+    <tbody>
+      <tr>
+        <th>[% 'Customer' | $T8 %]</th>
+        <td class="wi-lightwide">[% P.customer_vendor.picker('filter.order.customer.id', FORM.customer_id, type='customer', class='filter wi-lightwide') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Part' | $T8 %]</th>
+        <td>[% L.input_tag('filter.part.all:substr:multi::ilike', FORM.part, class="filter wi-lightwide") %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Order Number' | $T8 %]</th>
+        <td>[% L.input_tag('filter.order.ordnumber:substr::ilike', FORM.ordnumber, class="filter wi-lightwide") %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Order Date' | $T8 %]</th>
+        <td>
+          [% #'From' | $T8 %]
+          [% L.date_tag("filter.order.transdate:date::ge", filter.order.transdate_date___ge, class="filter wi-date") %]
+          [% 'Until' | $T8 %] [% L.date_tag('filter.order.transdate:date::le', filter.order.transdate_date__le, class="filter wi-date") %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Description' | $T8 %]</th>
+        <td>[% L.input_tag('filter.description:substr::ilike', filter.description_substr__ilike, class="filter wi-lightwide") %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Long Description' | $T8 %]</th>
+        <td>[% L.input_tag('filter.longdescription:substr::ilike', filter.longdescription_substr__ilike, class="filter wi-lightwide") %] </td>
+      </tr>
+      <tr>
+        <th>[% 'Show images' | $T8 %]</th>
+        <td>[% L.checkbox_tag('show_images', checked=show_images) %] </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="buttons">
+    [% L.button_tag("this.form.reset(); refresh_plot();", LxERP.t8("Reset")) %]
+  </div>
+[% END #filter_toggle_panel %]
+
+
+<div class="wrapper">
+  [% SET display_status = 'open' %]
+  [% INCLUDE 'common/toggle_panel.html' %]
+</div><!-- /.wrapper -->
+
+</form>
+
+
+<div id="orderitems">
+  [% PROCESS 'order_items_search/_order_item_list.html' %]
+</div>
+
+</div><!-- /.wrapper -->
+
+<script type="text/javascript">
+  $(function() {
+    [% IF FORM.customer_id %]
+      $( "#filter_part_all_substr_multi_ilike" ).focus();
+    [% ELSE %]
+      $( "#filter_order_customer_id_name" ).focus();
+    [% END %]
+
+    addInputCallback($(".filter"), refresh_plot , 300 );
+
+    $('#show_images').change(function(){
+      refresh_plot();
+    });
+  });
+
+
+  function refresh_plot() {
+    var filterdata = $('#filter').serialize()
+    var url = './controller.pl?action=OrderItem/order_item_list_dynamic_table&' + filterdata;
+    $.ajax({
+        url : url,
+        type: 'POST',
+        success: function(data){
+            $('#orderitems').html(data);
+        }
+    })
+
+  };
+
+function addInputCallback(inputfield, callback, delay) {
+    var timer = null;
+    inputfield.on('keyup', function() {
+        if (timer) {
+            window.clearTimeout(timer);
+        }
+        timer = window.setTimeout( function() {
+            timer = null;
+            callback();
+        }, delay );
+    });
+    inputfield = null;
+}
+</script>

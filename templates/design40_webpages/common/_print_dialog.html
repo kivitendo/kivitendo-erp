@@ -1,0 +1,9 @@
+[% USE LxERP %]
+[% USE L %]
+
+<div id="print_dialog_print_options"></div>
+
+<div class="buttons">
+ [% L.button_tag("kivi.SalesPurchase.print_record()", LxERP.t8("Print"), id="print_dialog_print_button") %]
+ [% L.button_tag("\$('#print_dialog').dialog('close');", LxERP.t8("Abort"), id="print_dialog_abort_button", class="neutral") %]
+</div>

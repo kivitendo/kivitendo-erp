@@ -1,0 +1,43 @@
+[% USE T8 %]
+[%
+  # Include this JS and these HTML toggle buttons right on the first position of a .wrapper container
+  # for minimizing / maximizing the surrounding .wrapper container
+  # First Symbols: former &or; & &lt; but now with icons
+  # It seems advantageous to give an id to the .wrapper-block e.g. #wrapper-1 or #wrapper-basic-data
+
+  # PENDENT: vielleicht noch generischer programmieren.
+%]
+
+<div class="toggles" id="toggles">
+  <script type="text/javascript">
+    var toggles_id = "#toggles" ; // surrounding container of the toggle buttons
+    var wrapper = new Object() ;
+    $(document).ready(function(){
+      if( $(toggles_id).parent().attr('class') == "wrapper" ) {
+        wrapper = $(toggles_id).parent() ; // closest surrounding wrapper to toggle, must have the class .wrapper
+        $(wrapper).addClass("toggled") ; // change the wrapper into a inline-block instead of a 100%-width-block
+      }
+      if( wrapper != "") {
+        var hi = -1; //height of the wrapper
+        $(wrapper).ready(function(){
+          if( hi <= -1 ) hi = $(wrapper).height(); // height of the wrapper
+        });
+        // Toggle to minimum
+        $("#toggler-1").click(function(){
+          $(wrapper).animate({height:"30px"},200).addClass("bordered");
+          $(this).toggle();
+          $("#toggler-2").toggle();
+        });
+        // Toggle back to maximum
+        $("#toggler-2").click(function(){
+          $(wrapper).animate({height:hi},200).removeClass("bordered");
+          $(this).toggle();
+          $("#toggler-1").toggle();
+        });
+      }
+    });
+  </script>
+  <a class="toggle min" id="toggler-1" href="#" style="display:visible;" title="[% 'Minimize Panel' | $T8 %]"></a>
+  <a class="toggle max" id="toggler-2" href="#" style="display:none;" title="[% 'Open Panel' | $T8 %]"></a>
+
+</div><!-- /.toggles /#toggles -->

@@ -1,0 +1,66 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+[% USE Dumper %]
+[% SET data = job.data_as_hash %]
+
+<h2>[% LxERP.t8("Watch status") %]</h2>
+
+[% L.hidden_tag('', job.id, id="smu_job_id") %]
+
+<p>
+  JOBID: [% job.id %]<br>
+  [% LxERP.t8("This status output will be refreshed every five seconds.") %]
+</p>
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8("Current status:") %]</th>
+      <td>
+        [% IF !data.status %]
+          [% LxERP.t8("waiting for job to be started") %]
+        [% ELSIF data.status == 1 %]
+          [% LxERP.t8("Uploading Data") %]
+        [% ELSE %]
+          [% LxERP.t8("Done.") %]
+        [% END %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Number of data uploaded:") %]</th>
+      <td>
+        [% IF data.status > 0 %]
+          [% HTML.escape(data.num_uploaded) %] / [% HTML.escape(data.shop_part_record_ids.size) %]
+        [% ELSE %]
+          –
+        [% END %]
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<table class="tbl-list">
+  <caption>[% LxERP.t8("Conversion:") %]</caption>
+  <thead>
+    <tr>
+      <th>[% LxERP.t8("Part") %]</th>
+      <th>[% LxERP.t8("Partnumber") %]</th>
+      <th>[% LxERP.t8("Message") %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH message = data.conversion %]
+    <tr>
+      <td>[% HTML.escape(message.id) %]</td>
+      <td>[% HTML.escape(message.number) %]</td>
+      <td >[% HTML.escape(message.message) %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+
+
+

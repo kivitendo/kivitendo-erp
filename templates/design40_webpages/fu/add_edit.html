@@ -1,0 +1,103 @@
+[% USE T8 %]
+[% USE L %]
+[% USE HTML %]
+<h1>[% title %]</h1>
+
+<script type="text/javascript">
+  $(function(){ document.Form.subject.focus(); });
+</script>
+
+<div class="wrapper">
+<form action="fu.pl" method="post" name="Form" id="form">
+
+[% IF SAVED_MESSAGE %]
+  <p>[% SAVED_MESSAGE %]</p>
+[% END %]
+
+<input type="hidden" name="id" value="[% HTML.escape(id) %]">
+<input type="hidden" name="note_id" value="[% HTML.escape(note_id) %]">
+<input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+<input type="hidden" name="POPUP_MODE" value="[% HTML.escape(POPUP_MODE) %]">
+
+
+<table class="tbl-horizontal">
+<tbody>
+  <tr>
+    <th>[% 'Follow-Up for user' | $T8 %]</th>
+    <td>
+      <select name="created_for_user" class="wi-wider">
+        [% FOREACH row = EMPLOYEES %]
+          <option value="[% HTML.escape(row.id) %]"[% IF created_for_user== row.id %] selected[% END %]>
+            [% IF row.name %][% HTML.escape(row.name) %] ([% HTML.escape(row.login) %])[% ELSE %][% HTML.escape(row.login) %][% END %]
+          </option>
+        [% END %]
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <th>[% 'Follow-Up Date' | $T8 %]</th>
+    <td>[% L.date_tag('follow_up_date', follow_up_date) %]</td>
+  </tr>
+  <tr>
+    <th>[% 'Subject' | $T8 %]</th>
+    <td><input type="text" name="subject" value="[% HTML.escape(subject) %]" class="wi-wider"></td>
+  </tr>
+  <tr>
+    <th>[% 'Body' | $T8 %]</th>
+    <td><textarea class="wi-wider" rows="10" name="body">[% HTML.escape(body) %]</textarea>
+    </td>
+  </tr>
+</tbody>
+</table>
+
+
+
+[% IF POPUP_MODE %]
+<div class="buttons">
+  <input type="hidden" name="action" value="dispatcher">
+  <input type="submit" name="action_save" value="[% 'Save' | $T8 %]">
+  [% IF id %]
+    <input type="submit" name="action_finish" value="[% 'Finish' | $T8 %]">
+    <input type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
+  [% END %]
+  <input type="submit" onclick="window.close()" value="[% 'Cancel' | $T8 %]">
+</div>
+
+[% IF FOLLOW_UPS.size %]
+
+<h2>[% 'Existing pending follow-ups for this item' | $T8 %]</h2>
+
+<table class="tbl-list">
+  <thead>
+    <tr>
+      <th>[% 'Follow-Up Date' | $T8 %]</th>
+      <th>[% 'Subject' | $T8 %]</th>
+      <th>[% 'Created by' | $T8 %]</th>
+      <th>[% 'Follow-up for' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH row = FOLLOW_UPS %]
+    <tr class="listrow[% loop.count % 2 %]">
+      <td>[% HTML.escape(row.follow_up_date) %]</td>
+      <td><a href="fu.pl?action=edit&id=[% HTML.escape(row.id) %][% IF POPUP_MODE %]&POPUP_MODE=1[% END %]">[% HTML.escape(row.subject) %]</a></td>
+      <td>[% HTML.escape(row.created_by_name) %]</td>
+      <td>[% HTML.escape(row.created_for_user_name) %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+
+[% END %]
+[% END %]
+
+[% FOREACH row = LINKS %]
+  <input type="hidden" name="trans_id_[% loop.count %]"   value="[% HTML.escape(row.trans_id) %]">
+  <input type="hidden" name="trans_type_[% loop.count %]" value="[% HTML.escape(row.trans_type) %]">
+  <input type="hidden" name="trans_info_[% loop.count %]" value="[% HTML.escape(row.trans_info) %]">
+[% END %]
+
+<input type="hidden" name="trans_rowcount" value="[% LINKS.size %]">
+
+</form>
+</div><!-- /.wrapper -->

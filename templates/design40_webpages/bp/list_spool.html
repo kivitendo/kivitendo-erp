@@ -1,0 +1,83 @@
+[% USE L %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE T8 %]
+[% USE url %]
+[% SET list_spool__callback = href _ '&sort=' _ sort %]
+
+<h1>[% title | html %]</h1>
+
+<form method="post" action="bp.pl" id="form">
+
+<div class="wrapper">
+<table class="tbl-horizontal">
+  <tr>
+    <th>[% LxERP.t8("Printer") %]</th>
+    <td>[% L.select_tag('printer', ALL_PRINTERS, title_key = 'printer_description') %]</td>
+  </tr>
+  <tr>
+    <th>[% 'Options' | $T8 %]</th>
+    <td>[% FOREACH option IN options %][% option %][% ', ' UNLESS loop.last %][% END %]</td>
+  </tr>
+</table>
+</div>
+
+<div class="wrapper">
+
+<table class="tbl-list">
+  <thead>
+    <tr>
+      <th>[% L.checkbox_tag('checkall_box', checkall='input.check_all') %]</td>
+      <th>[% L.link(href _ '&sort=transdate', LxERP.t8('Date')) %]</td>
+    [% IF is_invoice %]
+      <th>[% L.link(href _ '&sort=invoice', LxERP.t8('Invoice')) %]</td>
+    [% END %]
+    [% IF is_order %]
+      <th>[% L.link(href _ '&sort=ordnumber', LxERP.t8('Order')) %]</td>
+    [% END %]
+    [% IF is_quotation %]
+      <th>[% L.link(href _ '&sort=quonumber', LxERP.t8('Quotation')) %]</td>
+    [% END %]
+      <th>[% L.link(href _ '&sort=name', vc == 'customer' ? LxERP.t8('Customer') : LxERP.t8('Vendor')) %]</td>
+      <th>[% 'Spoolfile' | $T8 %]</td>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH row = SPOOL %]
+      <tr>
+        <td>[% SET list_spool__checked='checked_' _ loop.count; L.checkbox_tag(list_spool__checked, checked=$list_spool__checked, class='check_all') IF row.new_file %]</td>
+        <td>[% row.transdate %]</td>
+      [% IF is_invoice %]
+        <td>[% L.link(url(row.module _ '.pl', action='edit' ,type=type, callback=list_spool__callback, id=row.id), row.invnumber) %]</td>
+      [% END %]
+      [% IF is_order %]
+        <td>[% L.link(url(row.module _ '.pl', action='edit' ,type=type, callback=list_spool__callback, id=row.id), row.ordnumber) %]</td>
+      [% END %]
+      [% IF is_quotation %]
+        <td>[% L.link(url(row.module _ '.pl', action='edit' ,type=type, callback=list_spool__callback, id=row.id), row.quonumber) %]</td>
+      [% END %]
+        <td>[% row.name | html %]</td>
+        <td>[% L.link(LXCONFIG.paths.spool _ '/' _ row.spoolfile, row.spoolfile) %][% L.hidden_tag('spoolfile_' _ loop.count, row.spoolfile) %]</td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>
+[% L.hidden_tag('rowcount', SPOOL.size) %]
+
+[% L.hidden_tag('callback', callback) %]
+[% L.hidden_tag('title', title) %]
+[% L.hidden_tag('vc', vc) %]
+[% L.hidden_tag('type', type) %]
+[% L.hidden_tag('sort', sort) %]
+[% L.hidden_tag('account', account) %]
+
+[% L.hidden_tag('transdateto', transdateto) %]
+[% L.hidden_tag('transdatefrom', transdatefrom) %]
+[% L.hidden_tag('invnumber', invnumber) %]
+[% L.hidden_tag('ordnumber', ordnumber) %]
+[% L.hidden_tag('quonumber', quonumber) %]
+[% L.hidden_tag('customer', customer) %]
+[% L.hidden_tag('vendor', vendor) %]
+
+</div><!-- /.wrapper -->
+</form>

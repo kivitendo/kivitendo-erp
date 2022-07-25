@@ -1,0 +1,35 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+
+[% INCLUDE 'common/flash.html' %]
+
+<h1>[% title %]</h1>
+<div class="wrapper">
+
+<table class="tbl-list wi-moderate" id="shop_list">
+  <thead>
+    <tr>
+      <th><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
+      <th>[% 'Description' | $T8 %]</th>
+      <th>[% 'Type' | $T8 %]</th>
+      <th>[% 'Obsolete' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH shop = SHOPS %]
+    <tr id="shop_id_[% shop.id %]">
+      <td class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+      <td><a href="[% SELF.url_for(action='edit', id=shop.id) %]">[% HTML.escape(shop.description) %]</a></td>
+      <td>[% HTML.escape(shop.connector) %]</a></td>
+      <td>[% HTML.escape(shop.obsolete) %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+
+
+[% L.sortable_element('#shop_list tbody', url=SELF.url_for(action='reorder'), with='shop_id') %]
+
+</div><!-- /.wrapper -->

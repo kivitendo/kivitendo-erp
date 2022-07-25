@@ -1,0 +1,27 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]  
+<div class="wrapper">
+
+<form method="post" action="controller.pl" id="filter_form">
+  <table class="tbl-horizontal">
+  <caption>[% 'Filter' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8("Number of months") %]</th>
+      <td>[% L.input_tag("params.months", FORM.params.months, class="initial_focus") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Break down by") %]</th>
+      <td> 
+        [% L.checkbox_tag("params.type",           value=1, checked=FORM.params.type,           label=LxERP.t8("Basis of calculation")) %] <br>
+        [% L.checkbox_tag("params.salesman",       value=1, checked=FORM.params.salesman,       label=LxERP.t8("Salesman")) %] <br>
+        [% L.checkbox_tag("params.buchungsgruppe", value=1, checked=FORM.params.buchungsgruppe, label=LxERP.t8("Booking group")) %] 
+      </td>
+    </tr>
+  </tbody>
+  </table>
+</form>
+
+</div><!-- /.wrapper -->
+

@@ -1,0 +1,65 @@
+[% USE T8 %]
+[% USE HTML %]
+<!--
+  PENDENT: Was soll diese Form des Dialogs?
+           Show_Headers sollte hier sowieso auf TRUE gestellt sein,
+           und der Dialog könnte vertikal statt horizontal ausgerichtet sein.
+-->
+
+<table class="tbl-horizontal">
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+  [% # IF show_headers %]
+    <body>
+       [% FOREACH row = SELECTS %]
+         [% IF row.show %]
+           <tr>
+             <th id="print_options_header_[% row.sname %]">[% row.hname %]</th>
+             <td id="print_options_input_[% row.sname %]">
+               <select name="[% name_prefix %][% row.sname %]" id="[% id_prefix %][% row.sname %]" class="wi-lightwide">
+                 [% FOREACH data = row.DATA %]
+                   <option value="[% data.value %]" [% data.selected %]>[% data.oname %]</option>
+                 [% END %]
+               </select>
+             </td>
+           </tr>
+         [% END %]
+       [% END %]
+       [% IF display_copies %]
+         <tr>
+           <th id="print_options_header_copies">[% 'Copies' | $T8 %]</th>
+           <td id="print_options_input_copies">
+             <input type="text" name="[% name_prefix %]copies" id="[% id_prefix %]copies" size="2" value="[% HTML.escape(copies) %]" class="wi-small">
+           </td>
+         </tr>
+       [% END %]
+       [% IF display_groupitems %]
+         <tr>
+           <th id="print_options_header_groupitems">[% 'Group Items' | $T8 %]</th>
+           <td id="print_options_input_groupitems">
+             <input name="[% name_prefix %]groupitems" id="[% id_prefix %]groupitems" type="checkbox" [% groupitems_checked %]>
+           </td>
+         </tr>
+       [% END %]
+       [% IF display_bothsided %]
+         <tr>
+           <th id="print_options_header_bothsided">[% 'Both-sided' | $T8 %]</th>
+           <td id="print_options_input_bothsided">
+             <input name="[% name_prefix %]bothsided" id="[% id_prefix %]bothsided" type="checkbox" [% bothsided_checked %]>
+           </td>
+         </tr>
+       [% END %]
+       [% IF display_remove_draft %]
+         <tr>
+           <th id="print_options_header_remove_draft">[% 'Remove Draft' | $T8 %]</th>
+           <td id="print_options_input_remove_draft">
+             <input name="[% name_prefix %]remove_draft" id="[% id_prefix %]remove_draft" type="checkbox" [% remove_draft_checked %]>
+           </td>
+         </tr>
+       [% END %]
+    </body>
+  [% # END %]
+</table>
+
+[% IF status_msg %]
+  <div class="message message_hint">[% status_msg %]</div>
+[% END %]

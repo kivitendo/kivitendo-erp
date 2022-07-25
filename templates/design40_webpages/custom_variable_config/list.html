@@ -1,0 +1,66 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+
+<h1>[% title %]</h1>
+
+[% INCLUDE 'common/flash.html' %]
+
+<div class="wrapper">
+
+<div class="select-item control-panel">
+ [% 'Custom variables for module' | $T8 %]
+ [% L.select_tag('module', SELF.modules, value_key='module', title_key='description', default=SELF.module, onchange='show_module_list()') %]
+</div>
+
+[% IF SELF.module == 'IC' %]
+  [% SET W="12.5%" %]
+[% ELSE %]
+  [% SET W="20%" %]
+[% END %]
+
+<table id="cvarcfg_list" class="tbl-list wi-moderate">
+  <thead>
+    <tr>
+      <th><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]"></th>
+      <th>[% 'Name' | $T8 %]</th>
+      <th>[% 'Description' | $T8 %]</th>
+      <th>[% 'Type' | $T8 %]</th>
+      <th>[% 'Searchable' | $T8 %]</th>
+      <th>[% 'Includeable in reports' | $T8 %]</th>
+      [% IF SELF.module == 'IC' %]
+        <th>[% 'Editable' | $T8 %]</th>
+        <th>[% 'Deactivate by default' | $T8 %]</th>
+        <th>[% 'Filter by Partsgroups' | $T8 %]</th>
+      [% END %]
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH cfg = CONFIGS %]
+      <tr id="cvarcfg_id_[% cfg.id %]">
+        <td class="center dragdrop"><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]"></td>
+        <td><a href="[% SELF.url_for(action='edit', module=SELF.module, id=cfg.id) %]">[% HTML.escape(cfg.name) %]</a></td>
+        <td>[% HTML.escape(cfg.description) %]</td>
+        <td>[% HTML.escape(SELF.get_translation(cfg.type)) %]</td>
+        <td>[% IF cfg.searchable %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %]</td>
+        <td>[% IF cfg.included_by_default %][% 'Yes, included by default' | $T8 %][% ELSIF cfg.includeable %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %]</td>
+        [% IF SELF.module == 'IC' %]
+          <td>[% IF cfg.flags.match('editable=1') %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %]</td>
+          <td>[% IF cfg.flags.match('defaults_to_invalid=1') %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %]</td>
+          <td>[% IF cfg.flags.match('partsgroup_filter=1') %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %]</td>
+        [% END %]
+      </tr>
+    [% END %]
+  </tbody>
+ </table>
+
+[% L.sortable_element('#cvarcfg_list tbody', url=SELF.url_for(action='reorder'), with='cvarcfg_id', params='"&module=" + encodeURIComponent($("#module").val())') %]
+
+</div><!-- /.wrapper -->
+
+<script type="text/javascript"><!--
+  function show_module_list() {
+    window.location.href = '[% SELF.url_for(action='list') %]&module=' + encodeURIComponent($('#module').val());
+  }
+--></script>

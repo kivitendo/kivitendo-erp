@@ -1,0 +1,99 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE L %]
+[% USE date %]
+
+<div id="vcnotes">
+
+<div class="wrapper">
+
+<!-- PENDENT: wieso Datum nicht descending sortiert? -->
+[% IF ( SELF.notes && SELF.notes.size ) %]
+<table class="tbl-list width-moderate">
+  <caption>[% 'Follow-Ups' | $T8 %]</caption>
+  <thead>
+    <tr>
+      <th>[% 'Delete' | $T8 %]</th>
+      <th>[% 'Subject' | $T8 %]</th>
+      <th>[% 'Created on' | $T8 %]</th>
+      <th>[% 'Created by' | $T8 %]</th>
+      <th>[% 'Follow-Up Date' | $T8 %]</th>
+      <th>[% 'Follow-Up for' | $T8 %]</th>
+      <th>[% 'Follow-Up done' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH row = SELF.notes %]
+      <tr>
+        <td>
+          [% IF ( !SELF.note || SELF.note.id != row.id ) %]
+            [% L.checkbox_tag('delete_notes[]', value = row.id) %]
+          [% END %]
+        </td>
+        <td>
+          <a href="controller.pl?action=CustomerVendor/edit&db=[% SELF.is_vendor() ? 'vendor' : 'customer' %]&id=[% HTML.url(SELF.cv.id) %]&note_id=[% HTML.url(row.id) %]">[% HTML.escape(row.subject) %]</a>
+        </td>
+        <td>[% row.itime.to_kivitendo | html %]</td>
+        <td>[% row.employee.safe_name | html %]</td>
+        <td>[% row.follow_up.follow_up_date.to_kivitendo | html %]</td>
+        <td>[% row.follow_up.created_for_employee.safe_name | html %]</td>
+        <td>
+          [% IF ( row.follow_up.follow_up_date ) %]
+            [% IF ( row.follow_up.done ) %]
+              [% 'Yes' | $T8 %]
+            [% ELSE %]
+              [% 'No' | $T8 %]
+            [% END %]
+          [% END %]
+        </td>
+      </tr>
+    [% END #/FOREACH %]
+  </tbody>
+</table>
+[% END %]
+
+[% L.hidden_tag('note.id', SELF.note.id) %]
+
+<table class="tbl-horizontal">
+  <caption>
+    [% IF ( SELF.note.id ) %]
+      [% 'Edit note' | $T8 %]
+    [% ELSE %]
+      [% 'Add note' | $T8 %]
+    [% END %]
+  </caption>
+  <tbody>
+    <tr>
+      <th>[% 'Subject' | $T8 %]</th>
+      <td>[% L.input_tag('note.subject', SELF.note.subject, class="wi-verywide") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Follow-Up On' | $T8 %]</th>
+      <td>
+        [% IF SELF.note_followup.follow_up_date ; SET thedate=SELF.note_followup.follow_up_date ; ELSE; SET thedate=date.format(date.now, '%d.%m.%Y'); END %]
+        [% L.date_tag('note_followup.follow_up_date', thedate, class="wi-date") %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'for' | $T8 %]</th>
+      <td>[% L.select_tag(
+             'note_followup.created_for_user',
+             SELF.all_employees,
+             default = SELF.note_followup.created_for_user,
+             title_key = 'safe_name',
+             class='wi-lightwide' ) %]
+      </td>
+    </tr>
+    <tr>
+      <th><label for="note_followup_done" title="[% 'Follow-Up done' | $T8 %]">[% 'Done' | $T8 %]</label></th>
+      <td>[% L.checkbox_tag('note_followup.done', checked = SELF.note_followup.done) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Body' | $T8 %]</th>
+      <td >[% L.textarea_tag('note.body', SELF.note.body, rows=20, class="wi-verywide") %]</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+</div>

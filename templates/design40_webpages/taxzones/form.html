@@ -1,0 +1,50 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+[% USE T8 %]
+
+<h1>[% HTML.escape(title) %]</h1>
+
+<form action="controller.pl" method="post" id="form">
+[% L.hidden_tag("id", SELF.config.id) %]
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% 'Description' | $T8 %]</th>
+      <td>[% L.input_tag("config.description", SELF.config.description, "data-validate"="required", "data-title"=LxERP.t8("Description")) %]</td>
+    </tr>
+    [% FOREACH bg = BUCHUNGSGRUPPEN %]
+    <tr>
+      <th>[% 'Revenue' | $T8 %] [% HTML.escape(bg.description) %]</th>
+      [% IF NOT SELF.config.id %]
+        <td>[% P.chart.picker('income_accno_id_' _ bg.id, SELF.defaults.income_accno_id, choose=1, type='IC_income,IC_sale', class='wi-wide') %]</td>
+      [% ELSIF SELF.config.id AND SELF.config.orphaned %]
+        <td>[% P.chart.picker('income_accno_id_' _ bg.id, CHARTLIST.${bg.id}.income_accno_id, choose=1, type='IC_income,IC_sale', class='wi-wide') %]</td>
+      [% ELSE %]
+        <td>[% CHARTLIST.${bg.id}.income_accno_description %]</td>
+      [% END %]
+    </tr>
+    <tr>
+      <th>[% 'Expense' | $T8 %] [% HTML.escape(bg.description) %]</th>
+      [% IF NOT SELF.config.id %]
+        <td>[% P.chart.picker('expense_accno_id_' _ bg.id, SELF.defaults.expense_accno_id, choose=1, type='IC_expense,IC_cogs', class='wi-wide') %]</td>
+      [% ELSIF SELF.config.id AND SELF.config.orphaned %]
+        <td>[% P.chart.picker('expense_accno_id_' _ bg.id, CHARTLIST.${bg.id}.expense_accno_id, choose=1, type='IC_expense,IC_cogs', class='wi-wide') %]</td>
+      [% ELSE %]
+        <td>[% CHARTLIST.${bg.id}.expense_accno_description %]</td>
+      [% END %]
+    </tr>
+    [% END %]
+    <tr>
+      <th><i>[% LxERP.t8('Obsolete') %]</i></th>
+      <td>[% L.checkbox_tag('config.obsolete', checked = SELF.config.obsolete, for_submit=1) %]</td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+</form>

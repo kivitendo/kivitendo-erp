@@ -1,0 +1,61 @@
+[% USE T8 %]
+[% USE HTML %]
+
+<h1>[% 'Tax Office Preferences' | $T8 %]</h1>
+
+<form name="verzeichnis" method="post" action="[% HTML.escape(script) %]" id="form">
+
+[% IF COA_Germany %]
+  <fieldset>
+    <legend><b>[% 'Local Tax Office Preferences' | $T8 %]</b></legend><br>
+    [% select_tax_office %]
+  </fieldset>
+[% END %]
+
+<fieldset>
+  <legend><b>[% 'Taxation' | $T8 %]</b></legend>
+  [% IF method_local %]
+    [% method_local %]
+  [% END %]
+</fieldset>
+       
+<fieldset>
+  <legend><b>[% 'Tax Period' | $T8 %]</b></legend>
+  <input name="fa_voranmeld" id="month" type="radio" value="month" [% checked_monthly %]> 
+    <label for="month">[% 'month' | $T8 %]</label> <br>
+  <input name="fa_voranmeld" id="quarter" type="radio" value="quarter" [% checked_quarterly %]> 
+    <label for="quarter">[% 'quarter' | $T8 %]</label><br>
+  <input name="fa_dauerfrist" id="fa_dauerfrist" type="checkbox" value="1" [% checked_dauerfristverlaengerung %]>
+    <label for="">[% 'Extension Of Time' | $T8 %]</label>
+</fieldset>
+
+
+<fieldset>
+  <legend><b>[% 'Tax Consultant' | $T8 %]</b></legend>
+  <!-- <input name="fa_71" id="fa_71" type="checkbox" value="X" [% checked_kz_71 %]> <label for="fa_71">[% 'Clearing Tax Received (No 71)' | $T8 %]</label> -->
+  <table class="tbl-list">
+    <thead>
+      <tr>
+        <td>[% 'Name' | $T8 %]</td>
+        <td>[% 'Street' | $T8 %]</td>
+        <td>[% 'Zip, City' | $T8 %]</td>
+        <td>[% 'Telephone' | $T8 %]</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="text" name="fa_steuerberater_name" id="steuerberater" size="25" value="[% HTML.escape(fa_steuerberater_name) %]"></td>
+        <td><input type="text" name="fa_steuerberater_street" id="steuerberater" size="25" value="[% HTML.escape(fa_steuerberater_street) %]"></td>
+        <td><input type="text" name="fa_steuerberater_city" id="steuerberater" size="25" value="[% HTML.escape(fa_steuerberater_city) %]"></td>
+        <td><input type="text" name="fa_steuerberater_tel" id="steuerberater" size="25" value="[% HTML.escape(fa_steuerberater_tel) %]"> 
+      </tr>
+    </tbody>
+  </table>
+</fieldset>
+
+
+[% FOREACH var = hidden_variables %]
+  <input type="hidden" name="[% HTML.escape(var.variable) %]" value="[% HTML.escape(var.value) %]">
+[% END %]
+
+</form>

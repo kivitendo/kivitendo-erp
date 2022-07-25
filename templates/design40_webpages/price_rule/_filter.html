@@ -1,0 +1,117 @@
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<form action="controller.pl" method="post" id="search_form">
+
+<div class="wrapper">
+
+[% BLOCK filter_toggle_panel %]
+[%
+  # This code contains the form elements within the .filter-toggle-panel
+  # This block must bear the name filter_toggle_panel
+  # For more info have a look in common/toggle_panel.html
+%]
+<table id="filter_table" class="tbl-horizontal">
+  <caption>[% 'Part' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% 'Description' | $T8 %]</th>
+      <td>[% L.input_tag('filter.name:substr::ilike', filter.name_substr__ilike, size = 20, class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Type' | $T8 %]</th>
+      <td>[% L.select_tag('filter.type', [ [ 'customer', LxERP.t8('Sales Price Rules '), ] [ 'vendor', LxERP.t8('Purchase Price Rules ') ] ], with_empty=1, default=filter.type, id='price_rule_filter_type', class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Part' | $T8 %]</th>
+      <td>[% P.part.picker('filter.item_type_matches[].part', FORM.filter.item_type_matches.0.part, class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Partsgroup' | $T8 %]</th>
+      <td>[% L.select_tag('filter.item_type_matches[].partsgroup', SELF.partsgroups, title_key='partsgroup', default=FORM.filter.item_type_matches.0.partsgroup, with_empty=1, class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Qty' | $T8 %]</th>
+      <td>[% L.input_tag('filter.item_type_matches[].qty', FORM.filter.item_type_matches.0.qty, class="wi-normal") %]</td>
+    </tr>
+    <tr id="price_rule_filter_customer_tr"[% ' style="display:none" ' UNLESS SELF.vc== 'customer' %]>
+      <th>[% 'Customer' | $T8 %]</th>
+      <td>[% P.customer_vendor.picker('filter.item_type_matches[].customer', FORM.filter.item_type_matches.0.customer, type='customer', id='price_rule_filter_customer', class="wi-normal") %]</td>
+    </tr>
+    <tr id="price_rule_filter_vendor_tr"[% ' style="display:none" ' UNLESS SELF.vc== 'customer' %]><!-- PENDENT: Korrekt mit customer? -->
+      <th>[% 'Vendor' | $T8 %]</th>
+      <td>[% P.customer_vendor.picker('filter.item_type_matches[].vendor', FORM.filter.item_type_matches.0.vendor, type='vendor', id='price_rule_filter_vendor', class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Business' | $T8 %]</th>
+      <td>[% L.select_tag('filter.item_type_matches[].business', SELF.businesses, title_key='description', default=FORM.filter.item_type_matches.0.business, with_empty=1, class="wi-normal") %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<table id="filter_table2" class="tbl-horizontal">
+  <caption>[% 'Dates' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% 'Reqdate' | $T8 %]</th>
+      <td>[% L.date_tag('filter.item_type_matches[].reqdate', FORM.filter.item_type_matches.0.reqdate, class="wi-date") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Transdate Record' | $T8 %]</th>
+      <td>[% L.date_tag('filter.item_type_matches[].transdate', FORM.filter.item_type_matches.0.transdate, class="wi-date") %]</td>
+    </tr>
+    <tr>
+      <th class="caption" colspan="2">[% 'Prices & Discounts' | $T8 %]</th>
+    </tr>
+    <tr>
+    <th>[% 'Pricegroup' | $T8 %]</th>
+    <td>[% L.select_tag('filter.item_type_matches[].pricegroup', SELF.pricegroups, default=FORM.filter.item_type_matches.0.pricegroup, title_key='pricegroup', with_empty=1, class="wi-normal") %]<br>
+    </td>
+    </tr>
+    <tr>
+      <th>[% 'Price' | $T8 %]</th>
+      <td>[% L.input_tag('filter.price:number', filter.price_number, size=20, class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Reduced Master Data' | $T8 %]</th>
+      <td>[% L.input_tag('filter.reduction:number', filter.reduction_number, size=20, class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Discount' | $T8 %]</th>
+      <td>[% L.input_tag('filter.discount:number', filter.discount_number, size=20, class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th class="caption" colspan="2">[% 'Status' | $T8 %]</th>
+    </tr>
+    <tr>
+      <th>[% 'Priority' | $T8 %]</th>
+      <td>[% L.select_tag('filter.priority', [ [ '', LxERP.t8('All') ], [ 3, LxERP.t8('Normal') ], [ 4 , LxERP.t8('Override')]], default=filter.priority, class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Obsolete' | $T8 %]</th>
+      <td>[% L.select_tag('filter.obsolete', [ [ '', LxERP.t8('Both') ], [ 0, LxERP.t8('Valid') ], [ 1 , LxERP.t8('Obsolete')]], default=filter.obsolete, class="wi-normal") %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="col list">
+<h3 class="caption">[% 'Has item type' | $T8 %]</h3>
+  [% FOREACH type = SELF.all_price_rule_item_types %]
+    <div>[% L.checkbox_tag('filter.has_item_type[]', value=type.0, label=type.1, checked=filter.has_item_type_.${type.0})  %]</div>
+  [% END %]
+</div>
+
+[% L.hidden_tag('sort_by', FORM.sort_by) %]
+[% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+[% L.hidden_tag('page', FORM.page) %]
+
+<div class="buttons"> [% L.button_tag("\$('#search_form').resetForm()", LxERP.t8("Reset Filter"), class='neutral', type='reset') %]</div>
+
+[% END #BLOCK filter_toggle_panel %]
+[% INCLUDE 'common/toggle_panel.html' %]
+
+</div>
+</form>

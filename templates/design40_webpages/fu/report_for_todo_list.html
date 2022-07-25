@@ -1,0 +1,48 @@
+[% USE T8 %]
+[% USE HTML %]
+
+<div class="wrapper center">
+
+  <form action="fu.pl" method="post" name="TODOFollowUpsForm">
+    <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+    <input type="hidden" name="rowcount" value="[% FOLLOW_UPS.size %]">
+
+    <table class="tbl-list width-moderate">
+      <caption>[% 'Unfinished follow-ups' | $T8 %]</caption>
+      <thead>
+        <tr>
+          <th>&nbsp;</th>
+          <th>[% 'Follow-Up Date' | $T8 %]</th>
+          <th>[% 'Created on' | $T8 %]</th>
+          <th>[% 'Subject' | $T8 %]</th>
+          <th>[% 'Reference' | $T8 %]</th>
+          <th>[% 'Created by' | $T8 %]</th>
+        </tr>
+      </thead>
+      <tbody>
+        [% FOREACH row = FOLLOW_UPS %] 
+        <tr>
+          <td> 
+          <input type="hidden" name="follow_up_id_[% loop.count %]" value="[% HTML.escape(row.id) %]">
+          <input type="checkbox" name="selected_[% loop.count %]" value="1">
+          </td>
+          <td><a href="[% edit_url | html %][% HTML.escape(row.id) %]">[% HTML.escape(row.follow_up_date) %]</a></td>
+          <td><a href="[% edit_url | html %][% HTML.escape(row.id) %]">[% HTML.escape(row.created_on) %]</a></td>
+          <td><a href="[% edit_url | html %][% HTML.escape(row.id) %]">[% HTML.escape(row.subject) %]</a></td>
+          <td>[% IF row.reference_link %]<a href="[% row.reference_link | html %]" class="alternative">[% END %][% HTML.escape(row.reference) %][% IF row.reference_link %]</a>[% END %]</td>
+          <td><a href="[% edit_url | html %][% HTML.escape(row.id) %]">[% HTML.escape(row.created_by_name) %]</a></td>
+        </tr>
+        [% END %] 
+      </tbody>
+    </table>
+
+    <div class="buttons">
+      <input type="hidden" name="action" value="dispatcher">
+      <input type="submit" name="action_finish" value="[% 'Finish' | $T8 %]">
+      <input type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
+    </div>
+
+  </form>
+</div>
+
+

@@ -1,0 +1,10 @@
+[% USE L %]
+[% USE T8 %]
+<tr>
+  <td>&nbsp;</td>
+  <td>[% L.select_tag('', SELF.all_price_rule_item_types, id='price_rules_empty_item_select') %]</td>
+  <td colspan="2">
+    <a id="price_rule_item_add" class="button cursor-pointer">[% 'Add new price rule item' | $T8 %]</a>
+</td>
+</tr>
+

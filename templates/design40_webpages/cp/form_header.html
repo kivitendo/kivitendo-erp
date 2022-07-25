@@ -1,0 +1,110 @@
+[% USE L %]
+[% USE HTML %]
+[% USE T8 %]
+[% USE LxERP %]
+[% USE P %]
+
+<h1>[% is_receipt ? LxERP.t8('Receipt') : LxERP.t8('Payment') %]</h1>
+
+<form method="post" action="cp.pl" id="form">
+
+[% SET vc_id = vc _ '_id'
+       style = "width: 250px" %]
+[% L.hidden_tag('defaultcurrency', defaultcurrency) %]
+[% L.hidden_tag('closedto', closedto) %]
+[% L.hidden_tag('vc', vc) %]
+[% L.hidden_tag('type', type) %]
+[% L.hidden_tag('formname', type) %]
+[% L.hidden_tag('queued', queued) %]
+[% L.hidden_tag('arap', arap) %]
+[% L.hidden_tag('ARAP', ARAP) %]
+[% L.hidden_tag('openinvoices', openinvoices) %]
+
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <colgroup><col class="wi-small"><col class="wi-verywide"></colgroup>
+  <tbody>
+    <tr>
+      <th>[% is_customer ? LxERP.t8('Customer') : LxERP.t8('Vendor') %]</th>
+      <td>
+        [% P.customer_vendor.picker(vc_id, $vc_id, type=vc, class="initial_focus wi-wide") %]
+        [% P.hidden_tag("previous_" _ vc_id, $vc_id) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Address' | $T8 %]</th>
+      <td>
+        [% IF street || zipcode || city || country %]
+          [% IF street %]<span class="data wi-wide below">[% street | html %]</span>[% END %]
+          [% L.hidden_tag('street', street) %]
+          [% IF zipcode || city %]<span class="data wi-wide below">[% zipcode | html %] [% city | html %]</span>[% END %]
+          [% L.hidden_tag('zipcode', zipcode) %][% L.hidden_tag('city', city) %]
+          [% IF country %]<span class="data wi-wide below">[% country | html %]</span>[% END %]
+          [% L.hidden_tag('country', country) %]
+        [% ELSE %]
+          <span class="data wi-wide">&nbsp;</span>
+        [% END %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Memo' | $T8 %]</th>
+      <td><input type="text" name="memo" class="wi-wide" value="[% memo | html %]"></td>
+    </tr>
+    <tr>
+      <th>[% 'Invoice Number' | $T8 %]</th>
+      <td><input type="text" name="invnumber" class="wi-normal"></td>
+    </tr>
+    <tr>
+      <th>[% 'Account' | $T8 %]</th>
+      <td>
+        <select name="account" class="wi-verywide">[% selectaccount %]</select>
+        <input type=hidden name="selectaccount" value="[% selectaccount | html %]">
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Date' | $T8 %]</th>
+      <td><span class="wi-date">[% L.date_tag('datepaid', datepaid) %]</span></td>
+    </tr>
+    <tr>
+      <th>[% 'Currency' | $T8 %]</th>
+      <td>
+        <select name="currency" class="wi-small">[% selectcurrency %]</select>
+        <input type=hidden name="selectcurrency" value="[% selectcurrency | html %]">
+        <input type=hidden name="oldcurrency" value="[% oldcurrency | html %]">
+      </td>
+    </tr>
+    [% IF currency != defaultcurrency %]
+      <tr>
+        <th>[% 'Exchangerate' | $T8 %]</th>
+        [% IF forex %]
+          <td><span class="plain-data wi-small">[% LxERP.format_amount(exchangerate) %]</span>[% L.hidden_tag('exchangerate', LxERP.format_amount(exchangerate)) %]</td>
+        [% ELSE %]
+          <td>[% L.input_tag('exchangerate', LxERP.format_amount(exchangerate), class='wi-small') %]</td>
+        [% END %]
+      </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Source' | $T8 %]</th>
+      <td><input type="text" name="source" value="[% source | html %]" class="wi-small">
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Amount' | $T8 %]</th>
+      <td><span class="data wi-small numeric">[% LxERP.format_amount(amount, 2) %]</span></td>
+    </tr>
+  </tbody>
+</table>
+
+[% IF openinvoices_other_currencies %]
+  <input type="hidden" name="openinvoices_other_currencies" value="[% openinvoices_other_currencies | html %]">
+  <p class="message message_info"><b>[% 'Note' | $T8 %]:</b><br>
+    [% IF is_customer %]
+      [% LxERP.t8('There are #1 more open invoices for this customer with other currencies.', openinvoices_other_currencies) %]
+    [% ELSE %]
+      [% LxERP.t8('There are #1 more open invoices from this vendor with other currencies.',  openinvoices_other_currencies) %]
+    [% END %]
+  </p>
+[% END %]
+</div>

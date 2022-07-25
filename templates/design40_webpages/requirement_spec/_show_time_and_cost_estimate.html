@@ -1,0 +1,71 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+[% USE P %]
+[% DEFAULT id_prefix = 'time_and_cost_estimate_form' %]
+[% SET total_cost = 0 %]
+
+<div id="time_cost_estimate"[% IF initially_hidden %] style="display: none;"[% END %]>
+<div class="wrapper">
+
+[% IF !SELF.requirement_spec.sections.size %]
+  <p class="message message_info">[% LxERP.t8("Neither sections nor function blocks have been created yet.") %]</p>
+
+[% ELSE %]
+
+[% SET at_least_one_function_block = 0 %]
+
+<table class="tbl-list time-cost-estimate time-cost-estimate-context-menu">
+  <thead>
+    <tr>
+      <th>[% LxERP.t8("Function block") %]</th>
+      <th>[% LxERP.t8("Complexity") %]</th>
+      <th>[% LxERP.t8("Risk") %]</th>
+      <th class="right">[% LxERP.t8("Time estimate") %]</th>
+      [% UNLESS SELF.requirement_spec.is_template %]
+       <th class="right">[% LxERP.t8("Price") %]</th>
+      [% END %]
+    </tr>
+  </thead>
+  <tbody>
+  [% FOREACH section = SELF.requirement_spec.sections_sorted %]
+    <tr class="section">
+      <th colspan="5"><b>[% HTML.escape(section.fb_number) %]: [% HTML.escape(section.title) %]</b></th>
+    </tr>
+    [% IF section.children.size %]
+      [% SET at_least_one_function_block = 1 %]
+      [% FOREACH child = section.children_sorted %]
+        [% INCLUDE 'requirement_spec/_show_time_and_cost_estimate_item.html'
+                    section = section
+                    item    = child
+                    level   = 1 %]
+      [% END %]
+      <tr class="subtotal">
+        <th colspan="3" class="right">[% LxERP.t8("Sum for section") %]:</th>
+        <td class="numeric">[% P.format_man_days(section.time_estimation, 'skip_zero'=1) %]</td>
+        [% UNLESS SELF.requirement_spec.is_template %]
+         [% SET section_cost = section.time_estimation * SELF.requirement_spec.hourly_rate * section.sellprice_factor;
+                 total_cost   = total_cost + section_cost %]
+         <!-- PENDENT: hier ist EURO angegeben -->
+         <td class="numeric">[% LxERP.format_amount(section_cost, 2) %] EUR</td>
+        [% END %]
+      </tr>
+      [% END %]
+    [% END %]
+  </tbody>
+  <tfoot>
+    <tr>
+      <th class="right" colspan="3">[% LxERP.t8("Sum for #1", SELF.requirement_spec.type.description) %]:</th>
+      <td class="right">[% P.format_man_days(SELF.requirement_spec.time_estimation) %]</td>
+      [% UNLESS SELF.requirement_spec.is_template %]
+        <!-- PENDENT: hier ist EURO angegeben -->
+        <td class="right" >[% LxERP.format_amount(total_cost, 2) %] EUR</td>
+      [% END %]
+    </tr>
+   </tfoot>
+</table>
+
+[% END %]
+
+</div><!-- /.wrapper -->
+</div><!-- /#time_cost_estimate -->

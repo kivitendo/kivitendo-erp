@@ -1,0 +1,101 @@
+[% USE L %]
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+<h1>[% title | html %]</h1>
+
+<form method=post action="[% script %]">
+
+<div class="wrapper">
+[% L.hidden_tag('accno', accno) %]
+[% L.hidden_tag('description', description) %]
+[% L.hidden_tag('sort', 'transdate') %]
+[% L.hidden_tag('accounttype', accounttype) %]
+
+<table class="tbl-horizontal">
+  <colgroup> <col style="width:1.4em;"><col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <caption>[% 'Periods' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th colspan="3">
+        <h4>
+          [% L.radio_button_tag('reporttype', value='custom', id='reporttype_custom') %] 
+          <label for="reporttype_custom">[% LxERP.t8('Customized Report') %]</label>
+        </h4>
+      </th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>[% 'Year' | $T8 %]</th>
+      <td><input type="text" name=year class="wi-smallest" title="[% 'YYYY' | $T8 %]" value="[% year %]"></td>
+    </tr>
+     <tr>
+      <th></th>
+      <th colspan="2"><h4>[% 'Periods' | $T8 %]</h4></th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>[% 'Yearly' | $T8 %]</th>
+      <td>[% L.radio_button_tag('duetyp', value=13, label=LxERP.t8('Yearly')) %]</td>
+    </tr>
+    <tr>
+      <th></th>
+      <th>[% 'Quarterly' | $T8 %]</th>
+     <td>
+        [% L.radio_button_tag('duetyp', value='A', label='1. ' _ LxERP.t8('Quarter')) %]<br>
+        [% L.radio_button_tag('duetyp', value='B', label='2. ' _ LxERP.t8('Quarter')) %]<br>
+        [% L.radio_button_tag('duetyp', value='C', label='3. ' _ LxERP.t8('Quarter')) %]<br>
+        [% L.radio_button_tag('duetyp', value='D', label='4. ' _ LxERP.t8('Quarter')) %]
+      </td>
+    </tr>
+    <tr>
+      <th></th>
+      <th>[% 'Monthly' | $T8 %]</th>
+      <td>
+        [% L.radio_button_tag('duetyp', value='1', label=LxERP.t8('January')) %]<br>
+        [% L.radio_button_tag('duetyp', value='5', label=LxERP.t8('May')) %]<br>
+        [% L.radio_button_tag('duetyp', value='9', label=LxERP.t8('September')) %]<br>
+        [% L.radio_button_tag('duetyp', value='2', label=LxERP.t8('February')) %]<br>
+        [% L.radio_button_tag('duetyp', value='6', label=LxERP.t8('June')) %]<br>
+        [% L.radio_button_tag('duetyp', value='10', label=LxERP.t8('October')) %]<br>
+        [% L.radio_button_tag('duetyp', value='3', label=LxERP.t8('March')) %]<br>
+        [% L.radio_button_tag('duetyp', value='7', label=LxERP.t8('July')) %]<br>
+        [% L.radio_button_tag('duetyp', value='11', label=LxERP.t8('November')) %]<br>
+        [% L.radio_button_tag('duetyp', value='4', label=LxERP.t8('April')) %]<br>
+        [% L.radio_button_tag('duetyp', value='8', label=LxERP.t8('August')) %]<br>
+        [% L.radio_button_tag('duetyp', value='12', label=LxERP.t8('December')) %]
+      </td>
+    </tr>
+    <tr>
+      <th colspan="3">
+        <h4>[% L.radio_button_tag('reporttype', value='free',id='reporttype_free') %] 
+        <label for="reporttype_free">[% LxERP.t8('Free report period') %]</label></h4>
+      </th>
+    </tr>
+    <tr>
+      <th></th>
+      <td colspan="2">
+        [% 'From' | $T8 %] [% L.date_tag('fromdate') %]
+        [% 'Bis' | $T8  %] [% L.date_tag('todate')   %]
+      </td>
+    </tr>
+    <tr>
+      <th colspan="3" class="caption">[% 'Miscellaneous' | $T8 %]</th>
+    </tr>
+    <tr>
+      <th colspan="2">[% 'Decimalplaces' | $T8 %]</th>
+      <td><input type="text" name=decimalplaces size=3 value="2"></td>
+    </tr>
+    <tr>
+      <th colspan="2">[% LxERP.t8('Subtotal') %] </th>
+      <td>[% L.checkbox_tag('subtotal', label=LxERP.t8('Yes')) %]</td>
+    </tr>
+
+</tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+<div class="buttons">[% L.submit_tag('action', LxERP.t8('List Transactions')) %]</div>
+
+</form>

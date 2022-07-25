@@ -1,0 +1,312 @@
+[% USE T8 %]
+[% USE LxERP %]
+[% USE HTML %]
+[% USE L %]
+
+<h1>[% title %]</h1>
+
+<form method="post" action="am.pl" name="Form" id="form">
+<div class="tabwidget">
+<ul>
+  <li><a href="#page_personal_settings">[% 'Personal settings' | $T8 %]</a></li>
+  <li><a href="#page_display_options">[% 'Display options' | $T8 %]</a></li>
+  <li><a href="#page_print_options">[% 'Print options' | $T8 %]</a></li>
+  <li><a href="#page_todo_list_options">[% 'TODO list options' | $T8 %]</a></li>
+</ul>
+
+
+<div id="page_personal_settings">
+  <div class="wrapper">
+    <table class="tbl-horizontal">
+      <colgroup> <col class="wi-mediumsmall"><col class="wi-lightwide"> </colgroup>
+      <caption> [% 'Personal settings' | $T8 %] </caption>
+      <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+      <tbody>
+      <tr>
+        <th>[% 'Name' | $T8 %]</th>
+        <td><input type="text" name="name" class="wi-wide" value="[% HTML.escape(MYCONFIG.name) %]"></td>
+      </tr>
+      <tr>
+        <th>[% 'Password' | $T8 %]</th>
+        <td>
+          [% IF CAN_CHANGE_PASSWORD %]
+            <input type="password" name="new_password" class="wi-wide" value="********">
+          [% ELSE %]
+            <input type="hidden" name="new_password" value="********" class="wi-wide">
+          [% END %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'E-mail' | $T8 %]</th>
+        <td><input type="text" name="email" class="wi-wide" value="[% HTML.escape(MYCONFIG.email) %]"></td>
+      </tr>
+      <tr>
+        <th>[% 'Signature' | $T8 %]</th>
+        <td>
+          <textarea id="signature" name="signature" class="toggletextarea" rows="5" cols="50">[% HTML.escape(MYCONFIG.signature) %] </textarea>
+          <span id="full_signature" class="toggletextarea"> <textarea readonly name="full_signature" rows="10" cols="50">[% HTML.escape(full_signature) %]</textarea>
+          </span> <a href="#" class="togglelink">[% 'Check full signature' | $T8 %]</a> <a href="#" id="edit_signature" class="togglelink">[% 'Edit user signature' | $T8 %]</a>
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Phone' | $T8 %]</th>
+        <td><input type="text" name="tel" class="wi-wide" value="[% HTML.escape(MYCONFIG.tel) %]"></td>
+      </tr>
+      <tr>
+        <th>[% 'Fax' | $T8 %]</th>
+        <td><input type="text" name="fax" class="wi-wide" value="[% HTML.escape(MYCONFIG.fax) %]"></td>
+      </tr>
+      <tr>
+        <th>[% 'taxincluded checked' | $T8 %]</th>
+        <td> [% L.yes_no_tag('taxincluded_checked', MYCONFIG.taxincluded_checked, class='wi-small') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Focus position after update' | $T8 %]</th>
+        <td> [% L.select_tag( 'focus_position', [ ['new_description', LxERP.t8('New row, description')], ['new_partnumber', LxERP.t8('New row, partnumber')], ['new_qty', LxERP.t8('New row, qty')], ['last_description', LxERP.t8('Last row, description')], ['last_partnumber', LxERP.t8('Last row, partnumber')], ['last_qty', LxERP.t8('Last row, qty')], ], default => MYCONFIG.focus_position, class='wi-wide') %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Item multi selection with qty' | $T8 %]</th>
+        <td> [% L.yes_no_tag('item_multiselect', MYCONFIG.item_multiselect, class='wi-small') %]
+        </td>
+      </tr>
+    </tbody>
+    </table>
+  </div><!-- /.wrapper -->
+</div><!-- /#page_personal_settings -->
+
+<div id="page_display_options">
+  <div class="wrapper">
+    <table class="tbl-horizontal">
+    <colgroup> <col class="wi-mediumsmall"><col class="wi-lightwide"> </colgroup>
+    <caption>[% 'Display options' | $T8 %]</caption>
+    <tbody>
+    <tr>
+      <th>[% 'Date Format' | $T8 %]</th>
+      <td>[% L.select_tag('dateformat', DATEFORMATS, value_key='value', title_key='name', class="wi-small") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Time Format' | $T8 %]</th>
+      <td>[% L.select_tag('timeformat', TIMEFORMATS, value_key='value', title_key='name', class="wi-small") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Output Number Format' | $T8 %]</th>
+      <td>[% L.select_tag('numberformat', NUMBERFORMATS, value_key='value', title_key='name', class="wi-small") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Language' | $T8 %]</th>
+      <td>[% L.select_tag('countrycode', COUNTRYCODES, value_key = 'value', title_key = 'name', class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Stylesheet' | $T8 %]</th>
+      <td>[% L.select_tag('usestylesheet', STYLESHEETS, value_key = 'value', title_key = 'name', class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Setup Menu' | $T8 %]</th>
+      <td>
+        <select name="menustyle" class="wi-lightwide">
+          <option value="old"[% IF MYCONFIG.menustyle == 'old' %] selected[% END %]>[% 'Old (on the side)' | $T8 %]</option>
+          <option value="v3"[% IF MYCONFIG.menustyle == 'v3' %] selected[% END %]>[% 'Top (CSS)' | $T8 %]</option>
+          <option value="neu"[% IF MYCONFIG.menustyle == 'neu' %] selected[% END %]>[% 'Top (Javascript)' | $T8 %]</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Form details (second row)' | $T8 %]</th>
+      <td>
+        <select name="show_form_details" class="wi-lightwide">
+          <option value="1"[% IF  MYCONFIG.show_form_details %] selected[% END %]>[% 'Show by default' | $T8 %]</option>
+          <option value="0"[% IF !MYCONFIG.show_form_details %] selected[% END %]>[% 'Hide by default' | $T8 %]</option>
+        </select>
+      </td>
+    </tr>
+    [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
+    <tr>
+      <th>[% 'Scrollbar height percentage for form postion area (0 means no scrollbar)' | $T8 %]</th>
+      <td>
+        [% L.input_tag('positions_scrollbar_height',  positions_scrollbar_height, size = 5) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Search parts by vendor partnumber (model) in purchase order forms' | $T8 %]</th>
+      <td>
+        [% L.yes_no_tag('purchase_search_makemodel', purchase_search_makemodel) %]
+        [%- 'This also enables displaying a column with the vendor partnumber (model) (new order controller).' | $T8 %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Search parts by customer partnumber in sales order forms' | $T8 %]</th>
+      <td>
+        [% L.yes_no_tag('sales_search_customer_partnumber', sales_search_customer_partnumber) %]
+        [%- 'This also enables displaying a column with the customer partnumber (new order controller).' | $T8 %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Show update button for positions in order forms' | $T8 %]</th>
+      <td>
+        [% L.yes_no_tag('positions_show_update_button', positions_show_update_button) %]
+      </td>
+    </tr>
+    [%- END -%]
+    <tr>
+      <th>[% 'Show custom variable search inputs' | $T8 %]</th>
+      <td>
+        <select name="hide_cvar_search_options" class="wi-lightwide">
+          <option value="0"[% IF !MYCONFIG.hide_cvar_search_options %] selected[% END %]>[% 'Show by default' | $T8 %]</option>
+          <option value="1"[% IF  MYCONFIG.hide_cvar_search_options %] selected[% END %]>[% 'Hide by default' | $T8 %]</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Number of columns of custom variables in form details (second row)' | $T8 %]</th>
+      <td>[% L.input_tag('form_cvars_nr_cols', MYCONFIG.form_cvars_nr_cols || 3, class='wi-verysmall') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Quick Searches that will be shown in the header for this user' | $T8 %]</th>
+      <td>
+        <div>
+          [% L.select_tag("quick_search_modules[]",
+            enabled_quick_searchmodules,
+            value_key  = "name",
+            title_key  = "description_config",
+            id         = "quick_searches",
+            multiple   = 1,
+            with_empty = 1,
+            size       = enabled_quick_searchmodules.size,
+            default    = default_quick_searchmodules) %]
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th align="right">[% 'Displayable Name Preferences' | $T8 %]</th>
+      <td>
+        <table>
+          [% FOREACH module=displayable_name_specs_by_module.keys.sort %]
+          [%- SET spec=displayable_name_specs_by_module.$module -%]
+          <tr>
+            <td align="right">[% spec.specs.title %]</td>
+            <td>
+              <table>
+                <tr>
+                  <th align="left" class="listheading">[% 'Option' | $T8 %]</th>
+                  <th align="left" class="listheading">[% 'Name'   | $T8 %]</th>
+                </tr>
+                [% FOREACH option=spec.specs.options %]
+                <tr>
+                  <td>[% option.title %]</td>
+                  <td>[% option.name  %]</td>
+                </tr>
+                [% END %]
+                <tr>
+                  <th align="left">[% 'Display' | $T8 %]:</th>
+                  <td>
+                    [% L.hidden_tag("displayable_name_specs[+].module", module) %]
+                    [% L.input_tag("displayable_name_specs[].value", spec.prefs.get, size=50) %]
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          [% END %]
+        </table>
+      </td>
+    </tr>
+    </tbody>
+    </table>
+  </div><!-- /.wrapper -->
+</div><!-- /#page_display_options -->
+
+
+<div id="page_print_options">
+  <div class="wrapper">
+    <input name="printer" type="hidden" value="[% HTML.escape(MYCONFIG.printer) %]">
+    <table class="tbl-horizontal">
+      <caption>[% 'Print options' | $T8 %]</caption>
+      <tbody>
+        <tr>
+          <th>[% 'Default template format' | $T8 %]</th>
+          <td> [% L.select_tag('template_format', TEMPLATE_FORMATS, value_key = 'value', title_key = 'name', class='wi-normal') %]
+          </td>
+        </tr>
+        <tr>
+          <th>[% 'Default output medium' | $T8 %]</th>
+          <td> [% L.select_tag('default_media', MEDIA, value_key = 'value', title_key = 'name', class='wi-normal') %]
+          </td>
+        </tr>
+        <tr>
+          <th>[% 'Default printer' | $T8 %]</th>
+          <td> [% L.select_tag('default_printer_id', PRINTERS, default = MYCONFIG.default_printer_id, title_key = 'printer_description', with_empty = 1, class='wi-normal') %]
+          </td>
+        </tr>
+        <tr>
+          <th>[% 'Number of copies' | $T8 %]</th>
+          <td>
+          <input type="text" name="copies" size="10" value="[% HTML.escape(MYCONFIG.copies) %]" class="wi-normal">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div><!-- /.wrapper -->
+</div><!-- /#page_print_options -->
+
+
+<div id="page_todo_list_options">
+  <div class="wrapper">
+    <table class="tbl-horizontal">
+    <caption>[% 'TODO list options' | $T8 %]</caption>
+      <colgroup> <col class="wi-normal"><col class="wi-normal"> </colgroup>
+    <tbody>
+      <tr>
+        <th>[% 'Show your TODO list after logging in' | $T8 %]</th>
+        <td>
+        <input type="radio" name="todo_cfg.show_after_login" id="todo_cfg_show_after_login_1" value="1"[% IF todo_cfg.show_after_login %] checked[% END %]>
+        <label for="todo_cfg_show_after_login_1">[% 'Yes' | $T8 %]</label>
+        <input type="radio" name="todo_cfg.show_after_login" id="todo_cfg_show_after_login_0" value="0"[% IF !todo_cfg.show_after_login %] checked[% END %]>
+        <label for="todo_cfg_show_after_login_0">[% 'No' | $T8 %]</label>
+        </td>
+      </tr>
+      <tr>
+        <th colspan="2" class="caption">[% 'Configuration of individual TODO items' | $T8 %]</th>
+      </tr>
+      <tr>
+        <th>[% 'Show follow ups...' | $T8 %]</th>
+        <td>
+          <input type="checkbox" name="todo_cfg.show_follow_ups" id="todo_cfg_show_follow_ups" value="1"[% IF todo_cfg.show_follow_ups %] checked[% END %]>
+          <label for="todo_cfg_show_follow_ups">[% '...on the TODO list' | $T8 %]</label> <br>
+          <input type="checkbox" name="todo_cfg.show_follow_ups_login" id="todo_cfg_show_follow_ups_login" value="1"[% IF todo_cfg.show_follow_ups_login %] checked[% END %]>
+          <label for="todo_cfg_show_follow_ups_login">[% '...after logging in' | $T8 %]</label>
+        </td>
+      </tr>
+      [% IF AUTH.assert('sales_quotation_edit', 'may_fail') %]
+      <tr>
+        <th>[% 'Show overdue sales quotations and requests for quotations...' | $T8 %]</th>
+        <td>
+          <input type="checkbox" name="todo_cfg.show_overdue_sales_quotations" id="todo_cfg_show_overdue_sales_quotations" value="1"[% IF todo_cfg.show_overdue_sales_quotations %] checked[% END %]>
+          <label for="todo_cfg_show_overdue_sales_quotations">[% '...on the TODO list' | $T8 %]</label> <br>
+          <input type="checkbox" name="todo_cfg.show_overdue_sales_quotations_login" id="todo_cfg_show_overdue_sales_quotations_login" value="1"[% IF todo_cfg.show_overdue_sales_quotations_login %] checked[% END %]>
+          <label for="todo_cfg_show_overdue_sales_quotations_login">[% '...after logging in' | $T8 %]</label>
+        </td>
+      </tr>
+      [% END %]
+    </tbody>
+    </table>
+  </div><!-- /.wrapper -->
+</div><!-- /#page_todo_list_options -->
+
+
+</div>
+</form>
+
+ <script type="text/javascript">
+  <!--
+$(function() {
+  $("#full_signature").toggle();
+  $("#edit_signature").toggle();
+  $('.togglelink').click(function() {
+    $('.toggletextarea').toggle();
+    $('.togglelink').toggle();
+    return false;
+  });
+});
+    -->
+ </script>

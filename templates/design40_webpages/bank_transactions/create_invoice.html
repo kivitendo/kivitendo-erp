@@ -1,0 +1,75 @@
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+[% USE P %]
+[% USE T8 %]
+<div class="wrapper">
+
+<table class="tbl-list">
+  <caption>[% 'Transaction' | $T8 %]</caption>
+  <thead>
+    <tr>
+      <th>[% LxERP.t8("ID") %]</th>
+      <th>[% LxERP.t8("Amount") %]</th>
+      <th>[% LxERP.t8("Date") %]</th>
+      <th>[% LxERP.t8("Remote name") %]</th>
+      <th>[% LxERP.t8("Purpose") %]</th>
+      <th>[% LxERP.t8("Remote bank code") %]</th>
+      <th>[% LxERP.t8("Remote account number") %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>[% SELF.transaction.id %]</td>
+      <td>[% LxERP.format_amount(SELF.transaction.amount, 2) %]</td>
+      <td>[% SELF.transaction.valutadate_as_date %]</td>
+      <td>[% SELF.transaction.remote_name %]</td>
+      <td>[% SELF.transaction.purpose %]</td>
+      <td>[% SELF.transaction.remote_bank_code %]</td>
+      <td>[% SELF.transaction.remote_account_number %]</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<form method="post" action="javascript:kivi.BankTransaction.filter_templates()" id="create_invoice_window_form">
+[% L.hidden_tag("bt_id",               SELF.transaction.id)      %]
+[% L.hidden_tag("filter.bank_account", FORM.filter.bank_account) %]
+[% L.hidden_tag("filter.fromdate",     FORM.filter.fromdate)     %]
+[% L.hidden_tag("filter.todate",       FORM.filter.todate)       %]
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8("Template Description") %]</th>
+      <td>[% P.input_tag("template", template_name, style="width: 250px") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Vendor") %]</th>
+      <td>[% P.input_tag("vendor", vendor_name, style="width: 250px") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Reference") %]</th>
+      <td>[% P.input_tag("reference", reference_name, style="width: 250px") %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="buttons">
+  [% P.submit_tag('', LxERP.t8("Filter")) %]
+  [% P.button_tag('$("#create_invoice_window_form").resetForm()', LxERP.t8('Reset'), class='neutral') %]
+  <a href="#" onclick="$('#create_invoice_window').dialog('close');" class="button neutral">[% LxERP.t8("Cancel") %]</a>
+</p>
+
+</form>
+
+<div id="templates">
+  [% PROCESS "bank_transactions/_template_list.html" %]
+</div>
+</div><!-- /.wrapper -->
+
+<script type="text/javascript"><!--
+$(function() {
+  $('#template').focus();
+});
+//--></script>

@@ -1,0 +1,70 @@
+[% USE T8 %]
+[% USE HTML %]
+<div class="taxkey-coa">
+[% FOREACH row = CA %]
+
+<div class="table">
+  <div class="field">
+    <span class="label"> [% 'Category' | $T8 %] </span>
+    <span class="value wi-verywide"> [% HTML.escape(row.category) %] </span>
+  </div>
+<div class="field">
+  <span class="label"> [% 'Linked to...' | $T8 %] </span>
+  <span class="value wi-verywide"> [% IF row.link %][% HTML.escape(row.link).replace('\] \[', ']<br>[') %][% ELSE %]-[% END %] </span>
+</div>
+</div>
+<!-- PENDENT: Klasse wo noch im Einsatz? -->
+<div>
+  <div class="col table">
+    <div class="caption">
+      [% 'Taxlink_coa' | $T8 %]
+    </div>
+    <div class="field">
+      <span class="label"> [% 'Taxkey_coa' | $T8 %] </span>
+      <span class="value"> [% IF row.taxkeys.size         %][% FOR taxkey         = row.taxkeys         %][% HTML.escape(taxkey)         %]<br>[% END %][% ELSE %]-[% END %] </span>
+    </div>
+    <div class="field">
+      <span class="label"> [% 'Taxaccount_coa' | $T8 %] </span>
+      <span class="value"> [% IF row.taxaccounts.size     %][% FOR taxaccount     = row.taxaccounts     %][% HTML.escape(taxaccount)     %]<br>[% END %][% ELSE %]-[% END %] </span>
+    </div>
+    <div class="field">
+      <span class="label"> [% 'Taxdescription_coa' | $T8 %] </span>
+      <span class="value"> [% IF row.taxdescriptions.size %][% FOR taxdescription = row.taxdescriptions %][% HTML.escape(taxdescription) %]<br>[% END %][% ELSE %]-[% END %] </span>
+    </div>
+    <div class="field">
+      <span class="label"> [% 'Posustva_coa' | $T8 %] </span>
+      <span class="value"> [% IF row.pos_ustvas.size      %][% FOR pos_ustva      = row.pos_ustvas      %][% HTML.escape(pos_ustva)      %]<br>[% END %][% ELSE %]-[% END %] </span>
+    </div>
+    <div class="field">
+      <span class="label"> [% 'Startdate_coa' | $T8 %] </span>
+      <span class="value"> [% IF row.startdates.size      %][% FOR startdate      = row.startdates      %][% HTML.escape(startdate)      %]<br>[% END %][% ELSE %]-[% END %] </span>
+    </div>
+  </div>
+  <div class="col table">
+    <div class="caption">
+      [% 'Report Positions' | $T8 %]
+    </div>
+    <div class="field">
+      <span class="label"> [% 'pos_bwa' | $T8 %] </span>
+      <span class="value"> [% IF row.pos_bwa %][% HTML.escape(row.pos_bwa) %][% ELSE %]-[% END %] </span>
+    </div>
+    <div class="field">
+      <span class="label"> [% 'pos_bilanz' | $T8 %] </span>
+      <span class="value"> [% IF row.pos_bilanz %][% HTML.escape(row.pos_bilanz) %][% ELSE %]-[% END %] </span>
+    </div>
+    <div class="field">
+      <span class="label"> [% 'pos_eur' | $T8 %] </span>
+      <span class="value"> [% IF row.pos_eur %][% HTML.escape(row.pos_eur) %][% ELSE %]-[% END %] </span>
+    </div>
+    <div class="field">
+      <span class="label"> [% 'Datevautomatik' | $T8 %] </span>
+      <span class="value"> [% IF row.datevautomatik %][% 'On' | $T8 %][% ELSE %][% 'Off' | $T8 %][% END %] </span>
+    </div>
+  </div>
+</div>
+
+
+
+
+[% END %]
+</div>

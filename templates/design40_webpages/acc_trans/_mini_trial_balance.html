@@ -1,0 +1,30 @@
+[% USE L %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<div class="wrapper">
+
+<table id="balances" class="tbl-list">
+  <caption>[% HTML.escape(title) %]</caption>
+  <thead>
+    <tr>
+      <th class="numeric-centered">[% LxERP.t8("Chart") %]</th>
+      <th>[% LxERP.t8("Description") %]</th>
+      <th class="right">[% LxERP.t8("Debit") %]</th>
+      <th class="right">[% LxERP.t8("Credit") %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH balance = BALANCES %]
+    <tr>
+      <td class="numeric-centered">[% balance.accno %]</td>
+      <td>[% balance.description %]</td>
+      <td class="numeric">[% IF balance.balance < 0 %] [% LxERP.format_amount(balance.balance * -1, 2) %] [% END %]</td>
+      <td class="numeric">[% IF balance.balance > 0 %] [% LxERP.format_amount(balance.balance, 2) %] [% END %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+</div>

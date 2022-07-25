@@ -1,0 +1,26 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%][%- INCLUDE 'common/flash.html' %]
+
+<h1>[% title %]</h1>
+
+<div class="wrapper">
+<table class="tbl-list" id="taxzone_list">
+  <thead>
+    <tr>
+      <th class="center"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
+      <th>[% 'Description' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [%- FOREACH tz = TAXZONES %]
+    <tr id="tzone_id_[% tz.id %]">
+      <td class="center dragdrop"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></td>
+      <td><a href="[% SELF.url_for(action='edit', id=tz.id) %]">[% HTML.escape(tz.description) %]</a></td>
+    </tr>
+    [%- END %]
+  </tbody>
+</table>
+
+
+[% L.sortable_element('#taxzone_list tbody', url=SELF.url_for(action='reorder'), with='tzone_id') %]
+
+</div>

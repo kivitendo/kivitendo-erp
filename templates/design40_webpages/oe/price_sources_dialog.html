@@ -1,0 +1,109 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+[% SET best_price = price_source.best_price %]
+[% SET best_discount = price_source.best_discount %]
+
+
+<table class="tbl-plain full-width lined">
+  <caption>[% 'Prices' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-small"><col class="wi-small"><col class="wi-small"><col class="wi-mediumsmall"> </colgroup>
+  <thead>
+    <tr>
+      <th></th>
+      <th>[% 'Price Source' | $T8 %]</th>
+      <th class="right">[% 'Price' | $T8 %]</th>
+      <th class="right">[% 'Best Price' | $T8 %]</th>
+      <th>[% 'Details' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      [% IF price_source.record_item.active_price_source %]
+        <td><!-- PENDENT: a.buttons komplett ueberpruefen, L.button_tag()-Funktionen deaktivieren oder loeschen -->
+          <a class="button neutral" onclick="kivi.io.update_price_source('[% FORM.row %]', '')">[% LxERP.t8('Select') %]</a>
+          [% #L.button_tag('kivi.io.update_price_source(' _ FORM.row _ ', \'\')', LxERP.t8('Select'), class='button neutral') %]
+        </td>
+      [% ELSE %]
+        <td>[% 'Selected' | $T8 %]</td>
+      [% END %]
+      <td>[% 'None (PriceSource)' | $T8 %]</td>
+      <td class="right">-</td>
+      <td></td>
+      <td></td>
+    </tr>
+    [% FOREACH price IN price_source.available_prices %]
+    <tr>
+      [% IF price_source.record_item.active_price_source != price.source %]
+        <td>
+          <a class="button neutral" onclick="kivi.io.update_price_source([% FORM.row %], '[% price.source %]', '[% LxERP.format_amount(price.price, -2) %]')">[% LxERP.t8('Select') %]</a>
+          [% #L.button_tag('kivi.io.update_price_source(' _ FORM.row _ ', \'' _ price.source _ '\', \'' _ LxERP.format_amount(price.price, -2) _ '\')', LxERP.t8('Select')) %]
+        </td>
+      [% ELSIF price_source.record_item.sellprice * 1 != price.price * 1 %]
+        <td>
+          <a class="button" onclick="kivi.io.update_price_source([% FORM.row %], '[% price.source %]', '[% LxERP.format_amount(price.price, -2) %]')">[% LxERP.t8('Update Price') %]</a>
+          [% #L.button_tag('kivi.io.update_price_source(' _ FORM.row _ ', \'' _ price.source _ '\', \'' _ LxERP.format_amount(price.price, -2) _ '\')', LxERP.t8('Update Price')) %]
+        </td>
+      [% ELSE %]
+        <td>[% 'Selected' | $T8 %]</td>
+      [% END %]
+      <td>[% price.source_description | html %]</td>
+      <td class="numeric">[% price.price_as_number %]</td>
+      [% IF price.source == best_price.source %]
+        <td class="right">-</td>
+      [% ELSE %]
+        <td></td>
+      [% END %]
+      <td>[% price.description | html %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+
+
+<table class="tbl-plain full-width lined">
+  <caption>[% 'Discounts' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-small"><col class="wi-small"><col class="wi-small"><col class="wi-mediumsmall"> </colgroup>  <thead>
+    <tr>
+      <th></th>
+      <th>[% 'Price Source' | $T8 %]</th>
+      <th class="right">[% 'Discount' | $T8 %]</th>
+      <th class="right">[% 'Best Discount' | $T8 %]</th>
+      <th>[% 'Details' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      [% IF price_source.record_item.active_discount_source %]
+      <td>[% L.button_tag('kivi.io.update_discount_source(' _ FORM.row _ ', \'\')', LxERP.t8('Select'), class='neutral') %]</td>
+      [% ELSE %]
+      <td><b>[% 'Selected' | $T8 %]</b></td>
+      [% END %]
+      <td>[% 'None (PriceSource Discount)' | $T8 %]</td>
+      <td class="right">-</td>
+      <td class="right"></td>
+      <td></td>
+    </tr>
+    [% FOREACH price IN price_source.available_discounts %]
+    <tr>
+      [% IF price_source.record_item.active_discount_source != price.source %]
+        <td>[% L.button_tag('kivi.io.update_discount_source(' _ FORM.row _ ', \'' _ price.source _ '\', \'' _ price.discount_as_percent _ '\')', LxERP.t8('Select')) %]</td>
+      [% ELSIF price_source.record_item.discount * 1 != price.discount * 100 %]
+        <td>[% L.button_tag('kivi.io.update_discount_source(' _ FORM.row _ ', \'' _ price.source _ '\', \'' _ price.discount_as_percent _ '\')', LxERP.t8('Update Discount')) %]</td>
+      [% ELSE %]
+        <td><b>[% 'Selected' | $T8 %]</b></td>
+      [% END %]
+      <td>[% price.source_description | html %]</td>
+      <td class="right">[% price.discount_as_percent %] %</td>
+      [% IF price.source == best_discount.source %]
+        <td class="right">&#x2022;</td>
+      [% ELSE %]
+        <td></td>
+      [% END %]
+      <td>[% price.description | html %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+

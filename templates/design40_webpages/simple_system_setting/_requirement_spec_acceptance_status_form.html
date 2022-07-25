@@ -1,0 +1,17 @@
+[% USE LxERP %]
+[% USE L %]
+
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <tbody>
+      <tr>
+        <th> [% LxERP.t8("Name") %] </th>
+        <td> [% L.select_tag("object.name", SELF.valid_names, default=SELF.object.name, class="wi-wider") %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Description") %] </th>
+        <td> [% L.input_tag("object.description", SELF.object.description, class="wi-wider", "data-validate"="required", "data-title"=LxERP.t8("Description")) %] </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

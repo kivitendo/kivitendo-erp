@@ -1,0 +1,324 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE JavaScript %]
+
+<div id="billing">
+
+<div class="wrapper">
+
+[% IF SELF.cv.name %]
+<h2 class="record-title" title="[% IF SELF.is_vendor() %][% 'Vendor Name' | $T8 %][% ELSE %][% 'Customer Name' | $T8 %][% END %]">
+  [% SELF.cv.name %] <small>[% IF SELF.cv.city; IF SELF.cv.name !=""; ", "; END ; SELF.cv.city ; END; %]</small>
+</h2>
+[% END %]
+
+<table class="tbl-horizontal">
+  <caption>[% 'Name and Address' | $T8 %]</caption>
+  <colgroup><col class="wi-small"><col class="wi-lightwide"></colgroup>
+  <tbody>
+    <tr>
+      <th>[% IF SELF.is_vendor() %] [% 'Vendor Name' | $T8 %] [% ELSE %] [% 'Customer Name' | $T8 %] [% END %]</th>
+      <td>[% L.input_tag('cv.name', SELF.cv.name, type='text', class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th><label for="cv_natural_person">[% 'natural person' | $T8 %]</label></th>
+      <td>[% L.checkbox_tag('cv.natural_person', checked = SELF.cv.natural_person, for_submit=1) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Department' | $T8 %]</th>
+      <td>
+        [% L.input_tag('cv.department_1', SELF.cv.department_1, class='wi-lightwide') %]<br>
+        [% L.input_tag('cv.department_2', SELF.cv.department_2, class='wi-lightwide addition') %]
+      <br>
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Street' | $T8 %]</th>
+      <td>
+        [% L.input_tag('cv.street', SELF.cv.street, class='wi-lightwide') %]<button id="billing_map" type="button" class="icon"></button>
+        <script type="text/javascript">
+          billingMapWidget = new kivi.CustomerVendor.MapWidget('cv_', '[% JavaScript.escape(SELF.home_address_for_google_maps) %]');
+          $(function() {
+            billingMapWidget.render($('#billing_map'));
+          });
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
+      <td>[% L.input_tag('cv.zipcode', SELF.cv.zipcode, class='wi-verysmall') %][% L.input_tag('cv.city', SELF.cv.city, class='wi-small', class='wi-lightwide--verysmall') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Country' | $T8 %]</th>
+      <td>[% L.input_tag('cv.country', SELF.cv.country, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'GLN' | $T8 %]</th>
+      <td>[% L.input_tag('cv.gln', SELF.cv.gln, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Greeting' | $T8 %]</th>
+      <td>
+        [% IF INSTANCE_CONF.get_vc_greetings_use_textfield %]
+          [% L.input_tag('cv.greeting', SELF.cv.greeting, class='wi-lightwide') %]<br>
+          [% L.select_tag('cv_greeting_select', SELF.all_greetings, default = SELF.cv.greeting, value_key = 'description', title_key = 'description', with_empty = 1, onchange = '$("#cv_greeting").val(this.value);', class='wi-lightwide addition') %]
+        [% ELSE %]
+          [% L.select_tag('cv.greeting', SELF.all_greetings, default = SELF.cv.greeting, value_key = 'description', title_key = 'description', with_empty = 1, class='wi-lightwide') %]
+        [% END %]
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Communication' | $T8 %]</caption>
+  <colgroup><col class="wi-small"><col class="wi-lightwide"></colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Contact' | $T8 %]</th>
+      <td>[% L.input_tag('cv.contact', SELF.cv.contact, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Phone' | $T8 %]</th>
+      <td>[% L.input_tag('cv.phone', SELF.cv.phone, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Fax' | $T8 %]</th>
+      <td>[% L.input_tag('cv.fax', SELF.cv.fax, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% IF SELF.cv.email %]<a href="mailto:[% SELF.cv.email %]">[% END %][% 'E-mail' | $T8 %][% IF SELF.cv.email %]</a>[% END %]</th>
+      <td>[% L.input_tag('cv.email', SELF.cv.email, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% IF SELF.cv.cc %]<a href="mailto:[% SELF.cv.cc %]">[% END %][% 'Cc E-mail' | $T8 %][% IF SELF.cv.cc %]</a>[% END %]</th>
+      <td>[% L.input_tag('cv.cc', SELF.cv.cc, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% IF SELF.cv.bcc %]<a href="mailto:[% SELF.cv.bcc %]">[% END %][% 'Bcc E-mail' | $T8 %][% IF SELF.cv.bcc %]</a>[% END %]</th>
+      <td>[% L.input_tag('cv.bcc', SELF.cv.bcc, class='wi-lightwide') %]</td>
+    </tr>
+    <tr><!-- PENDENT: Funktion der Link-Erzeugung verbessern, z.B. falls z.B. Schema (http:// oder https://) schon angegeben -->
+      <th>[% IF SELF.cv.homepage %]<a href="http://[% HTML.escape(SELF.cv.homepage) %]" title="[% 'Open in new window' | $T8 %]" target="_blank">[% 'Homepage' | $T8 %]</a>[% ELSE %][% 'Homepage' | $T8 %][% END %]</th>
+      <td>[% L.input_tag('cv.homepage', SELF.cv.homepage, class='wi-lightwide', title = LxERP.t8('Example: http://kivitendo.de')) %]</td>
+    </tr>
+
+    [% IF ( SELF.is_customer() ) %]
+    <tr>
+      <th>[% 'Email of the invoice recipient' | $T8 %]</th>
+      <td>[% L.input_tag('cv.invoice_mail', SELF.cv.invoice_mail, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Email of the delivery order recipient' | $T8 %]</th>
+      <td>[% L.input_tag('cv.delivery_order_mail', SELF.cv.delivery_order_mail, class='wi-lightwide') %]</td>
+    </tr>
+    [% END %]
+    [% IF ( SELF.is_customer() ) %]
+    <tr>
+      <th>[% 'Origin of personal data' | $T8 %]</th>
+      <td>[% L.textarea_tag('cv.contact_origin', SELF.cv.contact_origin, rows=6, class='wi-small-lightwide') %]</td>
+    </tr>
+    [% END %]
+    [% IF ( SELF.is_customer() ) %]
+    <tr>
+      <th>[% 'Commercial court' | $T8 %]</th>
+      <td>[% L.input_tag('cv.commercial_court', SELF.cv.commercial_court, class='wi-lightwide') %] </td>
+    </tr>
+    [% END %]
+
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% IF ( SELF.is_vendor() ) %][% 'Vendor' | $T8 %][% ELSE %][% 'Customer' | $T8 %][% END %] [% 'Info & Status' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    [% IF ( INSTANCE_CONF.get_vertreter ) %]
+      <tr>
+        <th>[% IF SELF.is_vendor() %] [% 'Type of Vendor' | $T8 %] [% ELSE %] [% 'Type of Customer' | $T8 %] [% END %]</th>
+        <td>[% L.select_tag('cv.business_id', SELF.all_business, value_key = 'id', title_key = 'description', default = SELF.cv.business_id, with_empty=1, class='wi-lightwide') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Representative' | $T8 %]</th>
+        <td>[% L.select_tag('cv.salesman_id', SELF.all_salesman_customers, default=SELF.cv.salesman_id, value_key='id', title_key='name', with_empty=1, class='wi-lightwide') %]</td>
+      </tr>
+    [% END %]
+    <!-- PENDENT: zweimal das gleiche Feld aber nicht wirklich angezeigt? Anschauen!!!!!! -->
+    [% IF ( !INSTANCE_CONF.get_vertreter ) %]
+      <tr>
+        <th>[% IF ( SELF.is_vendor() ) %][% 'Type of Vendor' | $T8 %][% ELSE %][% 'Type of Customer' | $T8 %][% END %]</th>
+        <td>[% L.select_tag('cv.business_id', SELF.all_business, default = SELF.cv.business_id, value_key = 'id', title_key = 'description', with_empty=1, class='wi-lightwide') %]</td>
+      </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Language' | $T8 %]</th>
+      <td>[% L.select_tag('cv.language_id', SELF.all_languages, default = SELF.cv.language_id, value_key = 'id', title_key='description', with_empty=1, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th><label for="cv_obsolete">[% 'Obsolete' | $T8 %]</label> </th>
+      <td>[% L.checkbox_tag('cv.obsolete', checked = SELF.cv.obsolete, for_submit=1) %]</td>
+    </tr>
+    <tr>
+      <th colspan="2">
+        <span class="label above">[% 'Internal Notes' | $T8 %]</span>
+        [% L.textarea_tag('cv.notes', SELF.cv.notes, rows=6, class='wi-small-lightwide') %]
+    </th>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+<div class="wrapper">
+
+<div class="col">
+
+<table class="tbl-horizontal">
+  <caption>[% 'Numbers & IDs' | $T8 %]</caption>
+  <colgroup><col class="wi-small"><col class="wi-lightwide"></colgroup>
+  <tbody>
+    <tr>
+      [% IF SELF.is_vendor() %]
+        <th>[% 'Vendor Number' | $T8 %]</th>
+        <td>[% L.input_tag('cv.vendornumber', SELF.cv.vendornumber, class='wi-normal') %]</td>
+      [% ELSE %]
+        <th>[% 'Customer Number' | $T8 %]</th>
+        <td>[% L.input_tag('cv.customernumber', SELF.cv.customernumber, class='wi-normal') %]</td>
+      [% END %]
+    </tr>
+    <tr>
+      <th>[% 'Tax Number / SSN' | $T8 %]</th>
+      <td>[% L.input_tag('cv.taxnumber', SELF.cv.taxnumber, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+<!--
+  PENDENT: Ist diese Anmerkung noch gueltig?:
+  Anm.: R&B 15.11.2008     VAT Reg No ist Ust-ID in GB, aber generell sollte es laut Richardson die sales tax id sein
+-->
+      <th>[% 'sales tax identification number' | $T8 %]</th>
+      <td>[% L.input_tag('cv.ustid', SELF.cv.ustid, class='wi-normal' ) %]</td>
+    </tr>
+    <tr>
+      [% IF ( SELF.is_vendor() ) %]
+        <th>[% 'Customer Number' | $T8 %]</th>
+        <td>[% L.input_tag('cv.v_customer_id', SELF.cv.v_customer_id, class='wi-normal') %]</td>
+      [% ELSE %]
+        <th>[% 'our vendor number at customer' | $T8 %]</th>
+        <td>[% L.input_tag('cv.c_vendor_id', SELF.cv.c_vendor_id, class='wi-normal') %]</td>
+        <th>[% 'Our routing id at customer' | $T8 %]</th>
+        <td>[% L.input_tag('cv.c_vendor_routing_id', SELF.cv.c_vendor_routing_id, size = 20) %]</td>
+      [% END %]
+    </tr>
+<!-- </tbody> -->
+<!-- </table> -->
+<!--
+<table class="tbl-horizontal">
+  <colgroup><col class="wi-small"><col class="wi-lightwide"></colgroup>
+  <caption>[% #'Login details' | $T8 %]</caption>
+  <tbody>
+-->
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Login details' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+<!--
+    <tr>
+      <th class="caption" colspan="2">[% 'Login details' | $T8 %]</th>
+    </tr>
+ -->
+    <tr>
+      <th>[% 'Username' | $T8 %]</th>
+      <td>[% L.input_tag('cv.username', SELF.cv.username, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Password' | $T8 %]</th>
+      <td>[% L.input_tag('cv.user_password', SELF.cv.user_password, class='wi-normal') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.col -->
+
+
+
+<table class="tbl-horizontal">
+  <caption>[% 'Currency, Prices & Taxes' | $T8 %]</caption>
+  <colgroup><col class="wi-small"><col class="wi-lightwide"></colgroup>
+  <tbody>
+    [% IF ( SELF.all_currencies.size ) %]
+      <tr>
+        <th>[% 'Currency' | $T8 %]</th>
+        <td>[% L.select_tag('cv.currency_id', SELF.all_currencies, title_key = 'name', value_key = 'id', default = SELF.cv.currency_id, class='wi-small') %]</td>
+      </tr>
+    [% END %]
+    [% IF ( SELF.is_customer() ) %]
+      <tr>
+        <th>[% 'Price group' | $T8 %]</th>
+        <td>[% L.select_tag('cv.pricegroup_id', SELF.all_pricegroups, default = SELF.cv.pricegroup_id, value_key = 'id', title_key = 'pricegroup', with_empty = 1, class='wi-lightwide') %]</td>
+      </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Tax rate' | $T8 %]</th>
+      <td>[% L.select_tag('cv.taxzone_id', SELF.all_taxzones, default = SELF.cv.taxzone_id, value_key = 'id', title_key = 'description', class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+    [% IF ( SELF.is_customer() ) %]
+      <th>[% 'taxincluded checked' | $T8 %]</th>
+      <td>[% L.select_tag('cv.taxincluded_checked', [[undef, LxERP.t8('use user config')], ['1', LxERP.t8('Yes')], ['0', LxERP.t8('No')]], default = SELF.cv.taxincluded_checked, class='wi-lightwide') %]</td>
+    [% END %]
+    </tr>
+    <tr>
+      <th>[% 'Discount' | $T8 %]</th>
+      <td>[% L.input_tag('cv.discount_as_percent', SELF.cv.discount_as_percent, class='wi-small numeric') %]% </td>
+    </tr>
+    [% IF ( SELF.is_customer() ) %]
+      <tr>
+        <th>[% LxERP.t8("Hourly rate") %]</th>
+        <td>[% L.input_tag("cv.hourly_rate_as_number", SELF.cv.hourly_rate_as_number, class='wi-small numeric') %]</td>
+      <tr>
+        <th>[% LxERP.t8("Create sales invoices with Factur-X/ZUGFeRD data") %]</th>
+        <td>[% L.select_tag("cv.create_zugferd_invoices", SELF.zugferd_settings, default=SELF.cv.create_zugferd_invoices) %]</td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>
+
+
+<table class="tbl-horizontal">
+  <caption>[% 'Conditions' | $T8 %]</caption>
+  <colgroup><col class="wi-small"><col class="wi-lightwide"></colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Credit Limit' | $T8 %]</th>
+      <td>[% L.input_tag('cv.creditlimit_as_number', SELF.cv.creditlimit_as_number, class='wi-small numeric') %]</td>
+    </tr>
+    [% IF ( SELF.is_customer() ) %]
+      <tr>
+        <th><label for="cv_order_lock">[% 'Shoporderlock' | $T8 %]</label></th>
+        <td>[% L.checkbox_tag('cv.order_lock', checked = SELF.cv.order_lock, for_submit=1) %]</td>
+      </tr>
+    [% END %]
+    <tr>
+      <th><label for="cv_direct_debit">[% 'direct debit' | $T8 %]</label></th>
+      <td>[% L.checkbox_tag('cv.direct_debit', checked = SELF.cv.direct_debit, for_submit=1) %]</td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <span class="label above">[% 'Payment Terms' | $T8 %]</span>
+        [% L.select_tag('cv.payment_id', SELF.all_payment_terms, value_key = 'id', title_key = 'description', default = SELF.cv.payment_id, with_empty = 1, class='wi-small-lightwide') %]</td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <span class="label above">[% 'Delivery Terms' | $T8 %]</span>
+        [% L.select_tag('cv.delivery_term_id', SELF.all_delivery_terms, default = SELF.cv.delivery_term_id, value_key = 'id', title_key = 'description', with_empty = 1, class='wi-small-lightwide') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+
+</div><!-- /.wrapper -->
+</div>
