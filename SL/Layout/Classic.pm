@@ -1,7 +1,7 @@
 package SL::Layout::Classic;
 
 use strict;
-use parent qw(SL::Layout::Base);
+use parent qw(SL::Layout::Design40Switch);
 
 use SL::Layout::Top;
 use SL::Layout::MenuLeft;
