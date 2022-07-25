@@ -1,0 +1,32 @@
+[% USE L %]
+[% USE HTML %]
+
+<div id="menuv3">
+  [% FOREACH node = menu.tree %][% NEXT UNLESS node.visible %]
+  <ul>
+    <li>[% PROCESS submenu top=1 %]</li>
+  </ul>
+  [% END %]
+  </div>
+<div style="clear: both;"></div>
+[% %]
+[% BLOCK submenu %]
+  [% IF top %]
+    [% menu.name_for_node(node) | html %]
+  [% ELSIF node.children %]
+    <div class="x">[% menu.name_for_node(node) | html %]</div>
+  [% ELSE                %]
+    [% IF node.target %]
+      [% L.link(menu.href_for_node(node), menu.name_for_node(node), title=menu.name_for_node(node), target=node.target) %]
+    [% ELSE %]
+      [% L.link(menu.href_for_node(node), menu.name_for_node(node), title=menu.name_for_node(node)) %]
+    [% END %]
+  [% END %]
+  [% IF node.children %]
+    <ul>
+      [% FOREACH node = node.children %]
+        [% NEXT UNLESS node.visible %]<li>[% PROCESS submenu top=0 %]</li>
+      [% END %]
+    </ul>
+  [% END %]
+[% END %]

@@ -1,0 +1,78 @@
+[% USE T8 %]
+[% USE L %]
+[% USE HTML %]
+
+<script type="text/javascript" src="js/common.js"></script>
+
+<h1>[% title %]</h1>
+
+<form method="post" name="search" action="dn.pl" id="form">
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <colgroup> <col class="wi-mediumsmall"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Customer' | $T8 %]</th>
+      <td><input type="text" name="customer" class="initial_focus wi-lightwide"></td>
+    </tr>
+    [% IF SHOW_DEPARTMENT_SELECTION %]
+    <tr>
+      <th align="right">[% 'Department' | $T8 %]</th>
+      <td colspan="3">
+        [% L.select_tag('department_id', ALL_DEPARTMENTS, title_key = 'description', with_empty = 1, style=style) %]
+      </td>
+    </tr>
+   [% END %]
+    [% IF SHOW_DUNNING_LEVEL_SELECTION %]
+    <tr>
+      <th>[% 'Next Dunning Level' | $T8 %]</th>
+      <td>
+        <select name="dunning_level" class="wi-lightwide">
+          <option></option>
+          [% FOREACH row = DUNNING %]
+            <option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.dunning_description) %]</option>
+          [% END %]
+        </select>
+      </td>
+    </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Invoice Number' | $T8 %]</th>
+      <td><input type="text" name="invnumber" class="wi-lightwide"></td>
+    </tr>
+    <tr>
+      <th>[% 'Order Number' | $T8 %]</th>
+      <td><input type="text" name="ordnumber" class="wi-lightwide"></td>
+    </tr>
+    <tr>
+      <th>[% 'Notes' | $T8 %]</th>
+      <td><input type="text" name="notes" class="wi-lightwide"></td>
+    </tr>
+    <tr class="separator below">
+      <th>[% 'Country' | $T8 %]</th>
+      <td><input type="text" name="country"  class="wi-lightwide"></td>
+    </tr>
+    <tr>
+      <th>[% 'Minimum Amount' | $T8 %]</th>
+      <td><input type="text" name="minamount" class="wi-lightwide"></td>
+    </tr>
+    <tr>
+      <th><label for="groupinvoices">[% 'Group Invoices' | $T8 %]</label></th>
+      <td><input type="checkbox" value="1" id="groupinvoices" name="groupinvoices" checked></td>
+    </tr>
+    <tr>
+      <th><label for="l_include_direct_debit">[% 'Include invoices with direct debit' | $T8 %]</label></th>
+      <td><input type="checkbox" value="1" id="l_include_direct_debit" name="l_include_direct_debit"></td>
+    </tr>
+    <tr>
+     <th><label for="l_include_credit_notes">[% 'Add open Credit Notes' | $T8 %]</label></th>
+     <td><input type="checkbox" value="1" id="l_include_credit_notes" name="l_include_credit_notes"></td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+</form>

@@ -1,0 +1,60 @@
+[% USE HTML %][% USE T8 %][% USE L %][% USE LxERP %]
+<h1>[% FORM.title %]</h1>
+
+[%- INCLUDE 'common/flash.html' %]
+
+<form method="post" action="controller.pl">
+[% IF !PAYMENT_TERMS.size %]
+  <p>
+    [%- 'No payment term has been created yet.' | $T8 %]
+  </p>
+
+[%- ELSE %]
+ 
+<div class="wrapper">
+<table id="payment_term_list" class="tbl-list wi-moderate">
+  <colgroup> 
+    <col class="wi-smallest"> 
+    <col class="wi-wide"> 
+    <col class="wi-wide"> 
+    <col class="wi-wide"> 
+    <col class="wi-small"> 
+    <col class="wi-small"> 
+    <col class="wi-small"> 
+    <col class="wi-verysmall"> 
+    <col class="wi-verysmall"> 
+  </colgroup> 
+  <thead>
+    <tr>
+      <th> <img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"> </th>
+      <th> [%- 'Description' | $T8 %] </th>
+      <th> [%- 'Long Description (quotations & orders)' | $T8 %] </th>
+      <th> [%- 'Long Description (invoices)' | $T8 %] </th>
+      <th class="center"> [% 'Automatic date calculation' | $T8 %] </th>
+      <th class="center"> [%- 'Netto Terms' | $T8 %] </th>
+      <th class="center"> [%- 'Skonto Terms' | $T8 %] </th>
+      <th class="center"> [%- 'Skonto' | $T8 %] </th>
+      <th class="center"> [%- 'Obsolete' | $T8 %] </th>
+    </tr>
+  </thead>
+  <tbody>
+    [%- FOREACH payment_term = PAYMENT_TERMS %] 
+    <tr id="payment_term_id_[% payment_term.id %]">
+      <td class="dragdrop"> <img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"> </td>
+      <td> <a href="[% SELF.url_for(action => 'edit', id => payment_term.id) %]"> [%- HTML.escape(payment_term.description) %] </a> </td>
+      <td> [%- HTML.escape(payment_term.description_long) %] </td>
+      <td> [%- HTML.escape(payment_term.description_long_invoice) %] </td>
+      <td class="center"> [% IF payment_term.auto_calculation %][% LxERP.t8("yes") %][% ELSE %][% LxERP.t8("no") %][% END %] </td>
+      <td class="center"> [%- HTML.escape(payment_term.terms_netto_as_number) %] </td>
+      <td class="center"> [%- HTML.escape(payment_term.terms_skonto_as_number) %] </td>
+      <td class="center"> [%- HTML.escape(payment_term.percent_skonto_as_percent) %] % </td>
+      <td class="center"> [%- HTML.escape(payment_term.obsolete) %] </td>
+    </tr>
+    [%- END %] 
+  </tbody>
+</table>
+</div>
+[%- END %]
+</form>
+
+ [% L.sortable_element('#payment_term_list tbody', url => 'controller.pl?action=PaymentTerm/reorder', with => 'payment_term_id') %]

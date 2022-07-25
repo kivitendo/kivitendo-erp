@@ -1,0 +1,82 @@
+[% USE HTML %]
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+[% USE LxERP %]
+
+<form action="controller.pl" method="post">
+
+<div class="wrapper">
+
+<p>
+  [% LxERP.t8("Part") %]: [% HTML.escape(SELF.shop_part.part.displayable_name) %]<br>
+  [% LxERP.t8("Shop") %]: [% HTML.escape(SELF.shop_part.shop.description) %]
+</p>
+
+[% IF SELF.shop_part.id %]
+  [% L.hidden_tag("shop_part.id", SELF.shop_part.id) %]
+  [% L.hidden_tag("shop_part.shop_id", SELF.shop_part.shop_id) %]
+[% ELSE %]
+  [% L.hidden_tag("shop_part.shop_id", FORM.shop_id) %]
+  [% L.hidden_tag("shop_part.part_id", FORM.part_id) %]
+[% END %]
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8("Description") %]</th>
+      <td colspan="3">[% L.textarea_tag('shop_part.shop_description', SELF.shop_part.shop_description, wrap="soft", style="width: 350px; height: 150px", class="texteditor") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Active") %]</th>
+      <td>[% L.yes_no_tag("shop_part.active", SELF.shop_part.active, default = "yes") %]</td>
+      <th>[% LxERP.t8("Date") %]</th>
+      <td>[% L.date_tag("shop_part.show_date", SELF.shop_part.show_date) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Price Source' | $T8 %]</th>
+      <td>
+        [% IF SELF.shop_part.active_price_source %]
+          [% SET price_source = SELF.shop_part.active_price_source %]
+        [% ELSE %]
+          [% SET price_source = SELF.shop_part.shop.price_source %]
+        [% END %]
+        [% L.select_tag('shop_part.active_price_source', SELF.price_sources, value_key = 'id', title_key = 'name', with_empty = 0, default = price_source, default_value_key='id' ) %]
+      </td>
+     <th>[% LxERP.t8("Front page") %]</th>
+     <td>[% L.yes_no_tag('shop_part.front_page', SELF.shop_part.front_page) %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Sort order") %]</th>
+      <td>[% L.input_tag("shop_part.sortorder", SELF.shop_part.sortorder, size=2) %]</td>
+      <th>[% LxERP.t8("Meta tag title") %]</th>
+      <td>[% L.input_tag("shop_part.metatag_title", SELF.shop_part.metatag_title, size=12) %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Meta tag keywords") %]</th>
+      <td>[% L.input_tag("shop_part.metatag_keywords", SELF.shop_part.metatag_keywords, size=22) %]</td>
+      <th>[% LxERP.t8("Meta tag description") %]</th>
+      <td>[% L.textarea_tag("shop_part.metatag_description", SELF.shop_part.metatag_description, rows=4) %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="buttons">
+  [% IF SELF.shop_part.id %]
+    [% L.button_tag("kivi.ShopPart.save_shop_part(" _ SELF.shop_part.id _ ")", LxERP.t8("Save"))  %]
+  [% ELSE %]
+    [% L.button_tag("kivi.ShopPart.add_shop_part(" _ FORM.part_id _", " _ FORM.shop_id _")", LxERP.t8("Save"))  %]
+  [% END %]
+  [% # L.button_tag("kivi.ShopPart.update_partnumber()", LxERP.t8("Update Partnumber"))  %]
+
+  [% # L.hidden_tag("action", "ShopPart/dispatch") %]
+  [% # L.submit_tag('action_update', LxERP.t8('Save')) %]
+</div>
+
+[% IF SELF.shop_part.part.image && INSTANCE_CONF.get_parts_show_image %]
+  <a href="[% SELF.shop_part.part.image | html %]" target="_blank"><img style="[% INSTANCE_CONF.get_parts_image_css %]" src="[% SELF.shop_part.part.image | html %]"/></a>
+[% END %]
+
+</div><!-- /.wrapper -->
+
+</form>

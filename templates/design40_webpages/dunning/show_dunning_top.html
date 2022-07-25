@@ -1,0 +1,24 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+<form method="post" action="dn.pl" id="form">
+
+<div class="wrapper">
+<div class="col">
+<table class="tbl-horizontal">
+  <caption>[% LxERP.t8("Print options") %]</caption>
+	<colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+	<tbody>
+		<tr>
+			<th></th>
+			<td>[% L.checkbox_tag("force_lang", label=LxERP.t8('Override invoice language'), checked=force_lang) %]</td>
+		</tr>
+	</tbody>
+</table>
+[% PRINT_OPTIONS %]
+</div><!-- /.col -->
+</div><!-- /.wrapper -->
+
+<div class="wrapper">
+  <h2>[% LxERP.t8("Dunnings") %]</h2>
+</div>

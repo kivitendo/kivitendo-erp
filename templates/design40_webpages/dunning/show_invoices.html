@@ -1,0 +1,103 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+
+<h1>[% title %]</h1>
+
+[% SET all_active = 1 %][% FOREACH row = DUNNINGS %][% IF !row.active %][% SET all_active = 0 %][% LAST %][% END %][% END %]
+[% SET all_email = 1 %] [% FOREACH row = DUNNINGS %][% IF !row.email %][% SET all_email = 0 %]  [% LAST %][% END %][% END %]
+[% SET all_include_invoices = 1 %][% FOREACH row = DUNNINGS %][% IF !row.print_original_invoice %][% SET all_include_invoices = 0 %][% LAST %][% END %][% END %]
+<form name="Form" method="post" action="dn.pl" id="form">
+
+<div class="wrapper">
+  <div class="select-item control-panel">
+    <h3>[% LxERP.t8("Print options") %]</h3>
+    [% L.checkbox_tag("force_lang", label=LxERP.t8('Override invoice language'), checked=force_lang) %]
+    [% PRINT_OPTIONS %]
+  </div>
+  <p>[% 'The columns &quot;Dunning Duedate&quot;, &quot;Total Fees&quot; and &quot;Interest&quot; show data for the previous dunning created for this invoice.' | $T8 %]</p>
+</div><!-- /.wrapper -->
+
+<table id="dunning_invoice_list" class="tbl-list wi-moderate">
+  <caption>[% LxERP.t8("Overdue invoices") %]</caption>
+  <thead>
+    <th colspan="2">[% 'Current / Next Level' | $T8 %]</th>
+    <th class="center">
+      <label for="selectall_active">[% 'Active?' | $T8 %]</label>
+      [% L.checkbox_tag('selectall_active', checkall='INPUT[name*=active_]', checked=all_active) %]
+    </th>
+    <th class="center">
+      <label for="selectall_email">[% 'eMail?' | $T8 %]</label>
+      [% L.checkbox_tag('selectall_email', checkall='INPUT[name*=email_]', checked=all_email) %]
+    </th>
+    <th class="center">
+      <label for="selectall_include_invoices">[% 'Include original Invoices?' | $T8 %]</label>
+      [% L.checkbox_tag('selectall_include_invoices', checkall='INPUT[name*=include_invoice_]', checked=all_include_invoices) %]
+    </th>
+    <th>[% 'Customername' | $T8 %]</th>
+    <th>[% 'Department' | $T8 %]</th>
+    <th>[% 'Language' | $T8 %]</th>
+    <th>[% 'Invno.' | $T8 %]</th>
+    <th>[% 'Invdate' | $T8 %]</th>
+    <th>[% 'Inv. Duedate' | $T8 %]</th>
+    <th class="right">[% 'Amount' | $T8 %]</th>
+    <th class="right">[% 'Open Amount' | $T8 %]</th>
+    <th>[% 'Dunning Duedate' | $T8 %]</th>
+    <th class="right">[% 'Total Fees' | $T8 %]</th>
+    <th class="right">[% 'Interest' | $T8 %]</th>
+    [% IF l_include_direct_debit %]
+      <th class="right">[% 'direct debit' | $T8 %]</th>
+    [% END %]
+  </thead>
+  <!-- Ausgabe der einzelnen Zeilen -->
+  <tbody>
+    [% FOREACH row = DUNNINGS %]
+       <tr[% IF row.direct_debit %] class="direct_debit"[% END %]>
+         <td>
+           <input type="hidden" name="inv_id_[% loop.count %]" size="2" value="[% HTML.escape(row.id) %]">
+           <input type="hidden" name="customer_id_[% loop.count %]" size="2" value="[% HTML.escape(row.customer_id) %]">
+           [% IF row.dunning_level %][% HTML.escape(row.dunning_level) %][% ELSE %]&nbsp;[% END %]
+         </td>
+         <td>
+           [% IF row.credit_note %]
+             [% LxERP.t8("Add Credit Note for this dunning level:") %]
+             <input type="hidden" name="credit_note_[% loop.count %]" value="1">
+           [% END %]
+           <select name="next_dunning_config_id_[% loop.count %]">
+             [% FOREACH cfg_row = row.DUNNING_CONFIG %]<option value="[% HTML.escape(cfg_row.id) %]" [% IF cfg_row.SELECTED %]selected[% END %]>[% HTML.escape(cfg_row.dunning_description) %]</option>[% END %]
+           </select>
+         </td>
+         <td class="center"><input type="checkbox" name="active_[% loop.count %]" value="1" [% IF row.active %]checked[% END %]></td>
+         <td class="center"><input type="checkbox" name="email_[% loop.count %]" value="1" [% IF row.email %]checked[% END %]></td>
+         <td class="center"><input type="checkbox" name="include_invoice_[% loop.count %]" value="1" [% IF row.print_original_invoice %]checked[% END %]></td>
+         <td><input type="hidden" name="customername_[% loop.count %]" size="6" value="[% HTML.escape(row.customername) %]">[% HTML.escape(row.customername) %]</td>
+         <td><input type="hidden" name="department_[% loop.count %]" size="6" value="[% HTML.escape(row.departmentname) %]">[% HTML.escape(row.departmentname) %]</td>
+         <td><input type="hidden" name="language_id_[% loop.count %]" size="6" value="[% HTML.escape(row.language_id) %]">[% HTML.escape(row.language) %]</td>
+         <td>
+           <input type="hidden" name="invnumber_[% loop.count %]" size="6" value="[% HTML.escape(row.invnumber) %]">
+           <a href="[% IF row.invoice %]is[% ELSE %]ar[% END %].pl?action=edit&type=invoice&id=[% row.id | url %]">[% HTML.escape(row.invnumber) %]</a>
+         </td>
+         <td><input type="hidden" name="invdate_[% loop.count %]" size="6" value="[% HTML.escape(row.transdate) %]">[% HTML.escape(row.transdate) %]</td>
+         <td><input type="hidden" name="inv_duedate_[% loop.count %]" size="6" value="[% HTML.escape(row.duedate) %]">[% HTML.escape(row.duedate) %]</td>
+         <td class="numeric"><input type="hidden" name="amount_[% loop.count %]" size="6" value="[% HTML.escape(row.amount) %]">[% HTML.escape(row.amount) %]</td>
+         <td class="numeric"><input type="hidden" name="open_amount_[% loop.count %]" size="6" value="[% HTML.escape(row.open_amount) %]">[% HTML.escape(row.open_amount) %]</td>
+         <td>[% HTML.escape(row.dunning_duedate) %]</td>
+         <td class="numeric"><input type="hidden" name="fee_[% loop.count %]" size="6" value="[% HTML.escape(row.fee) %]">[% HTML.escape(row.fee) %]</td>
+         <td class="numeric"><input type="hidden" name="interest_[% loop.count %]" size="6" value="[% HTML.escape(row.interest) %]">[% HTML.escape(row.interest) %]</td>
+         [% IF l_include_direct_debit %]
+           <td class="numeric">
+             [% IF row.direct_debit %][% LxERP.t8("yes") %][% ELSE %][% LxERP.t8("no") %][% END %]
+           </td>
+         [% END %]
+       </tr>
+     [% END %]
+  </tbody>
+</table>
+
+<input name="rowcount" type="hidden" value="[% HTML.escape(rowcount) %]">
+<input name="groupinvoices" type="hidden" value="[% HTML.escape(groupinvoices) %]">
+<input name="l_include_credit_notes" type="hidden" value="[% HTML.escape(l_include_credit_notes) %]">
+<input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
+
+</form>

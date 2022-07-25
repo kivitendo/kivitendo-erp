@@ -1,0 +1,22 @@
+[% USE LxERP %]
+[% USE HTML %]
+
+<div class="message message_error">[% LxERP.t8('Error!') %]</div>
+
+<div class="wrapper">
+
+<p>[% LxERP.t8('An exception occurred during execution.') %]</p>
+
+<table class="tbl-horizontal">
+  <tr>
+    <td>[% LxERP.t8('Type') %]:</td>
+    <td>[% HTML.escape(error.type) %]</td>
+  </tr>
+  <tr>
+    <td>[% LxERP.t8('Information') %]:</td>
+    <td><code>[% HTML.escape(error.info) %]</code></td>
+  </tr>
+</table>
+
+</div><!-- /.wrapper -->
+

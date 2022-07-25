@@ -1,0 +1,35 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+[% INCLUDE 'common/flash.html' %]
+
+<h1>[% title %]</h1>
+
+<table id="buchungsgruppen_list" class="tbl-list wi-moderate">
+  <thead>
+    <tr>
+      <th><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]"></th>
+      <th>[% 'Description' | $T8 %]</th>
+      <th>[% 'Inventory Account' | $T8 %]</th>
+    [% FOREACH tz = TAXZONES %]
+      <th>[% 'Revenue' | $T8 %] [% HTML.escape(tz.description) %]</th>
+      <th>[% 'Expense' | $T8 %] [% HTML.escape(tz.description) %]</th>
+    [% END %]
+    </tr>
+  </thead>
+  <tbody>
+  [% FOREACH bg = BUCHUNGSGRUPPEN %]
+    <tr id="bg_id_[% bg.id %]">
+      <td class="center dragdrop"><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]"></td>
+      <td class="nowrap"><a href="[% SELF.url_for(action='edit', id=bg.id) %]">[% HTML.escape(bg.description) %]</a></td>
+      <td>[% HTML.escape(CHARTLIST.${bg.id}.inventory_accno) %]</td>
+    [% FOREACH tz = TAXZONES %]
+      <td>[% HTML.escape(CHARTLIST.${bg.id}.${tz.id}.income_accno) %]</td>
+      <td>[% HTML.escape(CHARTLIST.${bg.id}.${tz.id}.expense_accno) %]</td>
+    [% END %]
+  [% END %]
+  </tbody>
+</table>
+
+[% L.sortable_element('#buchungsgruppen_list tbody', url=SELF.url_for(action='reorder'), with='bg_id') %]

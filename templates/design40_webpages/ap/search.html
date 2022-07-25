@@ -1,0 +1,189 @@
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+
+<h1>[% title %]</h1>
+
+<form method="post" name="search" action="ap.pl" id="form">
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <caption>[% 'Vendor & Order' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Vendor' | $T8 %]</th>
+      <td>[% L.input_tag("vendor", vendor, style=style, class="initial_focus wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Contact Person' | $T8 %]</th>
+      <td>[% L.input_tag("cp_name", '', class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Department' | $T8 %]</th>
+      <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, title_key = 'description', with_empty = 1, class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Part Description' | $T8 %]</th>
+      <td>[% L.input_tag("parts_description", "", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Notes' | $T8 %]</th>
+      <td>[% L.input_tag("notes", "", class="wi-normal") %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Dates & Numbers' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Invoice Date' | $T8 %]</th>
+      <td><span class="wi-date">[% L.date_tag('transdatefrom') %] [% 'Bis' | $T8 %] [% L.date_tag('transdateto') %] </span></td>
+    </tr>
+    <tr>
+      <th>[% 'Due Date' | $T8 %]</th>
+      <td><span class="wi-date">[% L.date_tag('duedatefrom') %] [% 'Bis' | $T8 %] [% L.date_tag('duedateto') %] </span></td>
+    </tr>
+    <tr>
+      <th>[% 'Invoice Number' | $T8 %]</th>
+      <td>[% L.input_tag("invnumber", "", class="wi-small") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Order Number' | $T8 %]</th>
+      <td>[% L.input_tag("ordnumber", "", class="wi-small") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Part Number' | $T8 %]</th>
+      <td>[% L.input_tag("parts_partnumber", "", class="wi-small") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Project Number' | $T8 %]</th>
+      <td>[% P.project.picker("project_id", project_id, active="both", valid="both", class="wi-small") %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Status' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Open' | $T8 %]</th>
+      <td><input name="open" id="open" type="checkbox" value="Y" checked></td>
+    </tr>
+    <tr>
+      <th>[% 'Closed' | $T8 %]</th>
+      <td><input name="closed" id="closed" type="checkbox" value="Y"></td>
+    </tr>
+  </tbody>
+</table>
+
+<input type="hidden" name="sort" value="transdate">
+
+</div><!-- /.wrapper -->
+<div class="form-addition control-panel">
+
+  <h3>[% 'Include in Report' | $T8 %]</h3>
+
+  <div class="list col">
+    <h4>[% 'Dates' | $T8 %]</h4>
+    <div>
+      <input name="l_transdate" id="l_transdate" type="checkbox" value="Y" checked><label for="l_transdate">[% 'Invoice Date' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_datepaid" id="l_datepaid" type="checkbox" value="Y"><label for="l_datepaid">[% 'Date Paid' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_duedate" id="l_duedate" type="checkbox" value="Y"><label for="l_duedate">[% 'Due Date' | $T8 %]</label>
+    </div>
+  </div>
+
+  <div class="list col">
+    <h4>[% 'Numbers & IDs' | $T8 %]</h4>
+    <div>
+      <input name="l_id" id="l_id" type="checkbox" value="Y"><label for="l_id">[% 'ID' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_invnumber" id="l_invnumber" type="checkbox" value="Y" checked><label for="l_invnumber">[% 'Invoice Number' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_ordnumber" id="l_ordnumber" type="checkbox" value="Y"><label for="l_ordnumber">[% 'Order Number' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_globalprojectnumber" id="l_globalprojectnumber" type="checkbox" value="Y"><label for="l_globalprojectnumber">[% 'Document Project Number' | $T8 %]</label>
+    </div>
+  </div>
+
+  <div class="list col">
+    <h4>[% 'Amounts' | $T8 %]</h4>
+    <div>
+      <input name="l_netamount" id="l_netamount" type="checkbox" value="Y"><label for="l_netamount">[% 'Amount' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_tax" id="l_tax" type="checkbox" value="Y"><label for="l_tax">[% 'Tax' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_subtotal" id="l_subtotal" type="checkbox" value="Y"><label for="l_subtotal">[% 'Subtotal' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_amount" id="l_amount" type="checkbox" value="Y" checked><label for="l_amount">[% 'Total' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_paid" id="l_paid" type="checkbox" value="Y" checked><label for="l_paid">[% 'Paid' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_due" id="l_due" type="checkbox" value="Y"><label for="l_due">[% 'Amount Due' | $T8 %]</label>
+    </div>
+  </div>
+
+  <div class="list col">
+    <h4>[% 'Handling' | $T8 %]</h4>
+    <div>
+      <input name="l_employee" id="l_employee" type="checkbox" value="Y"><label for="l_employee">[% 'Employee' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_notes" id="l_notes" type="checkbox" value="Y"><label for="l_notes">[% 'Notes' | $T8 %]</label>
+    </div>
+  </div>
+
+  <div class="list col">
+    <h4>[% 'Order' | $T8 %]</h4>
+    <div>
+      <input name="l_department" id="l_department" type="checkbox" value="Y"><label for="l_department">[% 'Department' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_charts" id="l_charts" type="checkbox" value="Y"><label for="l_charts">[% 'Chart' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_taxzone" id="l_taxzone" type="checkbox" value="Y"><label for="l_taxzone">[% 'Steuersatz' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_payment_terms" id="l_payment_terms" type="checkbox" value="Y"><label for="l_payment_terms">[% 'Payment Terms' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_direct_debit" id="l_direct_debit" id="l_direct_debit" type="checkbox" value="Y"><label for="l_direct_debit">[% 'direct debit' | $T8 %]</label>
+    </div>
+  </div>
+
+  <div class="list col">
+  <h4>[% 'Vendor' | $T8 %]</h4>
+  <div>
+    <input name="l_name" id="l_name" type="checkbox" value="Y" checked><label for="l_name">[% 'Vendor' | $T8 %]</label>
+  </div>
+  <div>
+    <input name="l_vendornumber" id="l_vendornumber" type="checkbox" value="Y"><label for="l_vendornumber">[% 'Vendor Number' | $T8 %]</label>
+  </div>
+  <div>
+    <input name="l_country" id="l_country" type="checkbox" value="Y"><label for="l_country">[% 'Country' | $T8 %]</label>
+  </div>
+  <div>
+    <input name="l_ustid" id="l_ustid" type="checkbox" value="Y"><label for="l_ustid">[% 'USt-IdNr.' | $T8 %]</label>
+  </div>
+</div>
+
+</div><!-- /.form-addition -->
+
+</form>

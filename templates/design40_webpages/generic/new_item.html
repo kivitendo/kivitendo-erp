@@ -1,0 +1,38 @@
+[% USE T8 %]
+[% USE HTML %]
+
+<form method="post" action="controller.pl">
+<div class="wrapper">
+  [% IF is_wrong_pclass == NOTFORSALE %]
+    <p class="message message_error">[% 'searched part not for sale' | $T8 %]</p>
+  [% ELSE %]
+    [% IF is_wrong_pclass == NOTFORPURCHASE %]
+      <p class="message message_error">[% 'searched part not for purchase' | $T8 %]</p>
+    [% ELSE %]
+      <p class="message message_error">[% 'Item does not exists in the database' | $T8 %]</p>
+      [% IF INSTANCE_CONF.get_create_part_if_not_found %]
+        <p>[% 'What type of item is this?' | $T8 %]</p>
+        <p>
+          <input type="radio" name="part.part_type" value="part" checked> [% 'Part' | $T8 %]<br>
+          <input type="radio" name="part.part_type" value="assembly"> [% 'Assembly' | $T8 %]<br>
+          <input type="radio" name="part.part_type" value="service"> [% 'Service' | $T8 %]<br>
+          <input type="radio" name="part.part_type" value="assortment"> [% 'Assortment' | $T8 %]
+        </p>
+        [% FOREACH var = HIDDENS %]
+          <input type="hidden" name="[% HTML.escape(var.name) %]" value="[% HTML.escape(var.value) %]">
+        [% END %]
+        <input type="hidden" name="action" value="Part/dispatch">
+        <div class="buttons">
+          <input type="submit" name="action_add_from_record" value="[% 'Continue' | $T8 %]">
+        </div>
+      [% END %]<!-- /IF INSTANCE_CONF.get_create_part_if_not_found -->
+    [% END %]<!-- /ELSE -> IF is_wrong_pclass == NOTFORPURCHASE -->
+  [% END %]<!-- /ELSE -> IF is_wrong_pclass == NOTFORSALE -->
+  <div class="buttons"><input id='back_button' type='button' class="neutral" value="[% 'Back' | $T8 %]"></div>
+</div><!-- /.wrapper -->
+</form>
+
+
+<script type='text/javascript'>
+  $(function(){ $('#back_button').click(function(){ window.history.back(-1) }) })
+</script>

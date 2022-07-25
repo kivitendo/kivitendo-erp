@@ -1,0 +1,135 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+
+<h1>[% 'Tax-O-Matic' | $T8 %] [% title %]</h1>
+
+<form method="post" action="am.pl" id="form">
+
+<input type="hidden" name="id" value="[% HTML.escape(id) %]">
+<input type="hidden" name="type" value="tax">
+
+<div class="wrapper cols">
+
+<table class="tbl-horizontal col">
+  <caption>[% 'Tax' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% 'tax_taxkey' | $T8 %]</th>
+      <td>
+        [% IF tax_already_used %]
+          [% HTML.escape(taxkey) %]
+          <input type="hidden" name="taxkey" value="[% HTML.escape(taxkey) %]">
+        [% ELSE %]
+          <input name="taxkey" value="[% HTML.escape(taxkey) %]" class="wi-tinynumber" type="text">
+        [% END %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'tax_taxdescription' | $T8 %]</th>
+      <td><input name="taxdescription" value="[% HTML.escape(taxdescription) %]" class="wi-verywide" type="text"></td>
+    </tr>
+    [% FOREACH language = LANGUAGES %]
+    <tr>
+      <th>[% HTML.escape(language.description) %] ([% LxERP.t8('Translation') %])</th>
+      <td><input name="translation_[% language.id %]" value="[% HTML.escape(TAX.translated_attribute('taxdescription', language, 1)) %]" class="wi-verywide" type="text"></td>
+    </tr>
+    [% END %]
+    <tr>
+      <th>[% 'tax_percent' | $T8 %]</th>
+      <td>
+        [% IF tax_already_used %]
+          [% HTML.escape(rate) %]%
+          <input type="hidden" name="rate" value="[% HTML.escape(rate) %]">
+        [% ELSE %]
+          <input name="rate" value="[% HTML.escape(rate) %]" class="wi-tinynumber" type="text">%
+        [% END %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'tax_chartaccno' | $T8 %]</th>
+      <td>
+        <select name="chart_id" class="wi-verywide">
+          <option value="">[% 'None' | $T8 %]</option>
+          [% FOREACH row = ACCOUNTS %]
+            <option value="[% HTML.escape(row.id) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.taxaccount) %]</option>
+          [% END %]
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Automatic skonto chart sales' | $T8 %]</th>
+      <td>[% L.select_tag('skonto_sales_chart_id', AR_PAID, value_title_sub = \skontochart_value_title_sub, with_empty = 1, default = skonto_sales_chart_id, class='wi-verywide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Automatic skonto chart purchase' | $T8 %]</th>
+      <td>[% L.select_tag('skonto_purchase_chart_id', AP_PAID, value_title_sub = \skontochart_value_title_sub, with_empty = 1, default = skonto_purchase_chart_id class='wi-verywide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Account categories' | $T8 %]</th>
+      <td>
+        [% IF asset %]
+          [% L.checkbox_tag('asset', value => 1, checked => 1) %]
+        [% ELSE %]
+          [% L.checkbox_tag('asset', value => 1, checked => 0) %]
+        [% END %]
+        [% 'Asset' | $T8 %] (A) <br>
+
+        [% IF liability %]
+          [% L.checkbox_tag('liability', value => 1, checked => 1) %]
+        [% ELSE %]
+          [% L.checkbox_tag('liability', value => 1, checked => 0) %]
+        [% END %]
+        [% 'Liability' | $T8 %] (L) <br>
+
+        [% IF equity %]
+          [% L.checkbox_tag('equity', value => 1, checked => 1) %]
+        [% ELSE %]
+          [% L.checkbox_tag('equity', value => 1, checked => 0) %]
+        [% END %]
+        [% 'Equity' | $T8 %] (Q) <br>
+
+        [% IF revenue %]
+          [% L.checkbox_tag('revenue', value => 1, checked => 1) %]
+        [% ELSE %]
+          [% L.checkbox_tag('revenue', value => 1, checked => 0) %]
+        [% END %]
+        [% 'Revenue' | $T8 %] (I) <br>
+
+        [% IF expense %]
+          [% L.checkbox_tag('expense', value => 1, checked => 1) %]
+        [% ELSE %]
+          [% L.checkbox_tag('expense', value => 1, checked => 0) %]
+        [% END %]
+        [% 'Expense' | $T8 %] (E) <br>
+
+        [% IF costs %]
+          [% L.checkbox_tag('costs', value => 1, checked => 1) %]
+        [% ELSE %]
+          [% L.checkbox_tag('costs', value => 1, checked => 0) %]
+        [% END %]
+        [% 'Costs' | $T8 %] (C)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+[% UNLESS orphaned %]
+<div class="col">
+  <h3 class="caption">[% 'Chartaccounts connected to this Tax:' | $T8 %]</h3>
+  <ul>
+    [% FOREACH row = TAXINUSE %]
+      <li><a href="am.pl?action=edit_account&id=[% HTML.url(row.id) %]&callback=[% HTML.url(callback) %]">[% HTML.escape(row.accno) %]</a></li>
+    [% END %]
+  </ul>
+</div>
+[% END %]
+
+<input type="hidden" name="callback" value="[% #HTML.escape(callback) %]">
+
+</div><!-- /.wrapper -->
+</form>
+
+

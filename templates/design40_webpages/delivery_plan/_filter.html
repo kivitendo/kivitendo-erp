@@ -1,0 +1,146 @@
+[% USE T8 %]
+[% USE L %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<form action='controller.pl' method='post' id='filter_form'>
+
+<div class="wrapper">
+
+[% BLOCK filter_toggle_panel %]
+<div class="wrapper">
+<table id='filter_table' class="tbl-horizontal">
+  <caption>[% 'Order & Articles' | $T8 %]</caption>
+	<colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Number' | $T8 %]</th>
+      <td>[% L.input_tag('filter.order.ordnumber:substr::ilike', filter.order.ordnumber_substr__ilike, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Document Project Number' | $T8 %]</th>
+      <td>[% L.input_tag('filter.order.globalproject.projectnumber:substr::ilike', filter.order.globalproject.projectnumber_substr__ilike, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Part Number' | $T8 %]</th>
+      <td>[% L.input_tag('filter.part.partnumber:substr::ilike', filter.part.partnumber_substr__ilike, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Part Description' | $T8 %]</th>
+      <td>[% L.input_tag('filter.description:substr::ilike', filter.description_substr__ilike, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Quantity' | $T8 %]</th>
+      <td>[% L.input_tag('filter.qty:number', filter.qty_number, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Type' | $T8 %]</th>
+      <td>
+        [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.part,     value='part',     label=LxERP.t8('Part')) %]
+        [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.service,  value='service',  label=LxERP.t8('Service')) %]
+        [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.assembly, value='assembly', label=LxERP.t8('Assembly')) %]
+        [% IF INSTANCE_CONF.get_feature_experimental_assortment %]
+          [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.assortment, value='assortment', label=LxERP.t8('Assortment')) %]
+        [% END %]
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+	<caption>[% IF SELF.vc == 'customer' %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</caption>
+	<colgroup> <col class="wi-small"><col class="wi-mediumsmall"> </colgroup>
+	<tbody>
+    [% IF SELF.vc == 'customer' %]
+      <tr>
+        <th>[% 'Customer' | $T8 %]</th>
+        <td>[% L.input_tag('filter.order.customer.name:substr::ilike', filter.order.customer.name_substr__ilike, class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Customer Number' | $T8 %]</th>
+        <td>[% L.input_tag('filter.order.customer.customernumber:substr::ilike', filter.order.customer.customernumber_substr__ilike, class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Customer type' | $T8 %]</th>
+        <td>[% L.select_tag('filter.order.customer.business_id', SELF.all_businesses,
+             default    => filter.order.customer.business_id,
+             title_key  => 'description',
+             value_key  => 'id',
+             with_empty => 1,
+             class      => 'wi-mediumsmall') %]
+        </td>
+      </tr>
+    [% ELSE %]
+      <tr>
+        <th>[% 'Vendor' | $T8 %]</th>
+        <td>[% L.input_tag('filter.order.vendor.name:substr::ilike', filter.order.vendor.name_substr__ilike, class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Vendor Number' | $T8 %]</th>
+        <td>[% L.input_tag('filter.order.vendor.vendornumber:substr::ilike', filter.order.vendor.vendornumber_substr__ilike, class='wi-mediumsmall') %]</td>
+      </tr>
+    [% END %]
+	</tbody>
+</table>
+
+<table class="tbl-horizontal">
+	<caption>[% 'Handling' | $T8 %]</caption>
+	<colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup>
+	<tbody>
+    <tr>
+      <th>[% 'Delivery Date' | $T8 %] [% 'From Date' | $T8 %]</th>
+      <td class="wi-date">[% L.date_tag('filter.reqdate:date::ge', filter.reqdate_date__ge) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Delivery Date' | $T8 %] [% 'To Date' | $T8 %]</th>
+      <td class="wi-date">[% L.date_tag('filter.reqdate:date::le', filter.reqdate_date__le) %]</td>
+    </tr>
+    [% IF SELF.all_departments.size %]
+      <tr>
+        <th>[% 'Department' | $T8 %]</th>
+        <td>[% L.select_tag('filter.order.department_id', SELF.all_departments, default=filter.order.department_id, title_key='description', with_empty=1, class='wi-lightwide') %]</td>
+      </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Employee' | $T8 %]</th>
+      <td>[% L.select_tag('filter.order.employee_id', SELF.all_employees,
+           default    => filter.order.employee_id,
+           title_key  => 'name',
+           value_key  => 'id',
+           with_empty => 1,
+           class      => 'wi-lightwide') %]
+      </td>
+    </tr>
+	</tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+    <tbody>
+      <tr>
+        <th>[% 'Query Type' | $T8 %]</th>
+        <td>[% L.checkbox_tag('use_linked_items', checked=use_linked_items, value='1', label=LxERP.t8('Use linked items')) %]</td>
+      </tr>
+    </tbody>
+  </table>
+</div><!-- /.wrapper -->
+
+[% L.hidden_tag('sort_by', FORM.sort_by) %]
+[% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+[% L.hidden_tag('page', FORM.page) %]
+[% L.hidden_tag('vc', SELF.vc) %]
+[% L.hidden_tag('mode', SELF.mode) %]
+<div class="buttons">
+  [% L.button_tag('$("#filter_form").resetForm()', LxERP.t8('Reset'), class='neutral') %]
+</div>
+
+[% END # /BLOCK filter_toggle_panel %]
+
+[% INCLUDE 'common/toggle_panel.html' %]
+
+</div><!-- /.wrapper -->
+
+</form>

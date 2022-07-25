@@ -1,0 +1,186 @@
+[% USE HTML -%]
+[% USE LxERP -%]
+[% USE L -%]
+[% USE T8 -%]
+
+<h1>[% HTML.escape(title) %]</h1>
+
+<div class="wrapper">
+<form action="controller.pl" method="post" id="form">
+ [% L.hidden_tag("id", SELF.config.id) %]
+
+<table class="tbl-horizontal">
+  <caption>[% 'Custom Variable' | $T8 %]</caption>
+  <colgroup><col class="wi-normal"><col class="wi-wide"></colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Module' | $T8 %]</th>
+      <td>[% L.select_tag('module', SELF.modules, value_key='module', title_key='description', default=SELF.module, onchange="update_ic_rows();", class="wi-wide") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Variable Name' | $T8 %]<sup>(1)</sup></th>
+      <td>[% L.input_tag("config.name", SELF.config.name, class='initial_focus', class='wi-wide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Variable Description' | $T8 %]<sup>(2)</sup></th>
+      <td>[% L.input_tag("config.description", SELF.config.description, class='wi-wide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Type' | $T8 %]<sup>(3)</sup></th>
+      <td>[% L.select_tag("config.type", SELF.translated_types, value_key='type', title_key='translation', default=SELF.config.type, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Default value' | $T8 %]<sup>(4)</sup></th>
+      <td>[% L.input_tag("config.default_value", SELF.config.type == 'number' ? LxERP.format_amount(SELF.config.default_value, 2) : SELF.config.default_value, class='wi-wide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Options' | $T8 %]<sup>(5)</sup></th>
+      <td>
+        [% L.textarea_tag("config.options", SELF.config.options, cols='5' rows='3' class='wi-wide') %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Is Searchable' | $T8 %]</th>
+      <td class="horizontal">
+        [% L.radio_button_tag('config.searchable', value='1', id='config_searchable_1', label=LxERP.t8('Yes'), checked=(SELF.config.searchable ?  1 : '')) %]
+        [% L.radio_button_tag('config.searchable', value='0', id='config_searchable_0', label=LxERP.t8('No'),  checked=(SELF.config.searchable ? '' :  1)) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Includeable in reports' | $T8 %]</th>
+      <td class="horizontal">
+        [% L.radio_button_tag('config.includeable', value='1', id='config_includeable_1', label=LxERP.t8('Yes'), checked=(SELF.config.includeable ?  1 : ''), onclick='update_included_by_default()') %]
+        [% L.radio_button_tag('config.includeable', value='0', id='config_includeable_0', label=LxERP.t8('No'),  checked=(SELF.config.includeable ? '' :  1), onclick='update_included_by_default()') %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Included in reports by default' | $T8 %]</th>
+      <td class="horizontal">
+        [% SET disabled = SELF.config.includeable ? '' : 'disabled' %]
+        [% L.radio_button_tag('config.included_by_default', value='1', id='config_included_by_default_1', label=LxERP.t8('Yes'), checked=(SELF.config.included_by_default ?  1 : ''), disabled=disabled) %]
+        [% L.radio_button_tag('config.included_by_default', value='0', id='config_included_by_default_0', label=LxERP.t8('No'),  checked=(SELF.config.included_by_default ? '' :  1), disabled=disabled) %]
+      </td>
+    </tr>
+    <tr data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
+      <th>[% 'Editable' | $T8 %]<sup>(6)</sup></th>
+      <td class="horizontal">
+        [% L.radio_button_tag('config.flag_editable', value='1', id='config.flag_editable_1', label=LxERP.t8('Yes'), checked=(SELF.flags.editable ?  1 : '')) %]
+        [% L.radio_button_tag('config.flag_editable', value='0', id='config.flag_editable_0', label=LxERP.t8('No'),  checked=(SELF.flags.editable ? '' :  1)) %]
+      </td>
+    </tr>
+    <tr data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
+      <th>[% 'Deactivate by default' | $T8 %]<sup>(7)</sup></th>
+      <td class="horizontal">
+        [% L.radio_button_tag('config.flag_defaults_to_invalid', value='1', id='config.flag_defaults_to_invalid_1', label=LxERP.t8('Yes'), checked=(SELF.flags.defaults_to_invalid ?  1 : '')) %]
+        [% L.radio_button_tag('config.flag_defaults_to_invalid', value='0', id='config.flag_defaults_to_invalid_0', label=LxERP.t8('No'),  checked=(SELF.flags.defaults_to_invalid ? '' :  1)) %]
+      </td>
+    </tr>
+    <tr data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
+      <th>[% 'Filter by Partsgroups' | $T8 %]</th>
+      <td class="horizontal">
+        [% L.radio_button_tag('config.flag_partsgroup_filter', value='1', id='config_flag_partsgroup_filter_1', label=LxERP.t8('Yes'), checked=(SELF.flags.partsgroup_filter ?  1 : ''), onclick='update_pg_filter_row()') %]
+        [% L.radio_button_tag('config.flag_partsgroup_filter', value='0', id='config_flag_partsgroup_filter_0', label=LxERP.t8('No'),  checked=(SELF.flags.partsgroup_filter ? '' :  1), onclick='update_pg_filter_row()') %]
+      </td>
+    </tr>
+    <tr data-show-for="IC+PGFILTER"[% UNLESS (SELF.module == 'IC' && SELF.flags.partsgroup_filter) %] style="display: none;"[% END %]>
+      <th></th>
+      <td>[% L.select_tag(
+                'config.partsgroups[]',
+                all_partsgroups,
+                id                => "partsgroups",
+                value_key         => "id",
+                title_key         => "partsgroup",
+                default           => SELF.config.partsgroups,
+                default_value_key => "id",
+                multiple          => 1)
+          %]
+          [% L.multiselect2side(
+                "partsgroups",
+                labelsx => LxERP.t8("All partsgroups"),
+                labeldx => LxERP.t8("Partsgroups where variables are shown"))
+          %]
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="col" style="width:51.0em;">
+	<!--<h3 class="caption">[% 'Annotations' | $T8 %]</h3>-->
+<h3><caption>[% 'Annotations' | $T8 %]</caption></h3>
+<div class="long-description">
+
+<ul class="footnotes">
+  <li><sup>(1)</sup> [% 'The variable name must only consist of letters, numbers and underscores. It must begin with a letter. Example: send_christmas_present' | $T8 %]</li>
+  <li><sup>(2)</sup> [% 'The description is shown on the form. Chose something short and descriptive.' | $T8 %]</li>
+  <li><sup>(3)</sup> [% 'For type "customer" the perl module JSON is required. Please check this on system level: $ ./scripts/installation_check.pl' | $T8 %]</li>
+  <li><sup>(4)</sup> [% 'The default value depends on the variable type:' | $T8 %]
+    <ul>
+      <li>[% 'Text, text field and number variables: The default value will be used as-is.' | $T8 %]</li>
+      <li>[% 'Boolean variables: If the default value is non-empty then the checkbox will be checked by default and unchecked otherwise.' | $T8 %]</li>
+      <li>[% 'Date and timestamp variables: If the default value equals \'NOW\' then the current date/current timestamp will be used. Otherwise the default value is copied as-is.' | $T8 %]</li>
+    </ul>
+  </li>
+  <li><sup>(5)</sup> [% 'The available options depend on the varibale type:' | $T8 %]
+    <ul>
+      <li>[% 'Text variables: \'MAXLENGTH=n\' sets the maximum entry length to \'n\'.' | $T8 %]</li>
+      <li>[% 'Text field variables: \'WIDTH=w HEIGHT=h\' sets the width and height of the text field. They default to 30 and 5 respectively.' | $T8 %]</li>
+      <li>[% 'Number variables: \'PRECISION=n\' forces numbers to be shown with exactly n decimal places.' | $T8 %]</li>
+      <li>[% 'Selection fields: The option field must contain the available options for the selection. Options are separated by \'##\', for example \'Early##Normal##Late\'.' | $T8 %]</li>
+    </ul>
+  [% 'Other values are ignored.' | $T8 %]</li>
+<div data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
+	<li><sup>(6)</sup> [% 'A variable marked as \'editable\' can be changed in each quotation, order, invoice etc.' | $T8 %] [% 'Otherwise the variable is only available for printing.' | $T8 %]</li>
+</div>
+<div data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
+  <li><sup>(7)</sup> [% 'A variable marked as \'Deactivate by default\' isn\'t automatically added to all articles, and has to be explicitly added for each desired article in its master data tab. Only then can the variable be used for that article in the records.' | $T8 %]</li>
+</div>
+</ul>
+
+</div><!-- /.long-description -->
+</div><!-- /.col -->
+
+</form>
+</div><!-- /.wrapper -->
+
+
+
+<script type="text/javascript">
+<!--
+function update_included_by_default() {
+  $('INPUT[name="config.included_by_default"]').prop('disabled', !$('#config_includeable_1').prop('checked'));
+}
+
+function update_ic_rows() {
+  $('[data-show-for="IC"]').toggle($('#module').val() === "IC");
+  $('[data-show-for="IC+PGFILTER"]').toggle($('#module').val() === "IC" && $('#config_flag_partsgroup_filter_1').prop('checked'));
+}
+
+function update_pg_filter_row() {
+  $('[data-show-for="IC+PGFILTER"]').toggle($('#module').val() === "IC" && $('#config_flag_partsgroup_filter_1').prop('checked'));
+}
+
+function check_prerequisites() {
+  if (($('#config_type').val() === "select") && ($('#config_options').val() === "")) {
+    alert(kivi.t8('The option field is empty.'));
+    return false;
+  }
+
+  if ($('#config_name').val() === "") {
+    alert(kivi.t8('The name is missing.'));
+    return false;
+  }
+
+  if (!$('#config_name').val().match(/^[a-z][a-z0-9_]*$/i)) {
+    alert(kivi.t8('The name must only consist of letters, numbers and underscores and start with a letter.'));
+    return false;
+  }
+
+  if ($('#config_description').val() === "") {
+    alert(kivi.t8('The description is missing.'));
+    return false;
+  }
+
+  return true;
+}
+-->
+</script>

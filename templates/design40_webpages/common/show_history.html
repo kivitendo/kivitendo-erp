@@ -1,0 +1,61 @@
+[% USE T8 %]
+[% USE HTML %]
+
+[% IF SUCCESS %]
+
+  [% BLOCK column_header %]
+    <span class="sort_symbol">
+      [% IF THIS_COLUMN && !THIS_COLUMN_DOWN %]
+       <a title="[% 'order' | $T8 %]" class="ascending active">&and;</a>
+      [% ELSE %]
+       <a href="[% callback %]&order=[% column %]--0" title="[% 'order' | $T8 %]" class="ascending">&and;</a>
+      [% END %]
+      [% IF THIS_COLUMN &&  THIS_COLUMN_DOWN %]
+       <a title="[% 'order' | $T8 %]" class="descending active">&or;</a>
+      [% ELSE %]
+       <a href="[% callback %]&order=[% column %]--1" title="[% 'order' | $T8 %]" class="descending">&or;</a>
+      [% END %]
+    </span>
+  [% END %]
+
+  <table class="tbl-list">
+    <thead>
+      <tr>
+        <th><span class="sort">[% 'Time' | $T8 %]</span>[% PROCESS column_header THIS_COLUMN=ITIME THIS_COLUMN_DOWN=ITIMEBY column='h.itime' %]</th>
+        <th><span class="sort">[% 'Employee' | $T8 %]</span>[% PROCESS column_header THIS_COLUMN=NAME THIS_COLUMN_DOWN=NAMEBY column='emp.name' %]</th>
+        <th><span class="sort">[% 'Action' | $T8 %]</span></th>
+        <th><span class="sort">[% 'Addition' | $T8 %]</span></th>
+        <th><span class="sort">[% 'ID number' | $T8 %]</span>[% PROCESS column_header THIS_COLUMN=TRANS_ID THIS_COLUMN_DOWN=TRANS_IDBY column='h.trans_id' %]</th>
+        <th><span class="sort">[% 'Record number' | $T8 %]</span>[% PROCESS column_header THIS_COLUMN=SNUMBERS THIS_COLUMN_DOWN=SNUMBERSBY column='h.snumbers' %]</th>
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH row = DATEN %]
+        <tr>
+          <td>[% HTML.escape(row.itime) %] </td>
+          <td> [% HTML.escape(row.name) %] </td>
+          <td> [% HTML.escape(row.addition) %] </td>
+          <td> [% HTML.escape(row.what_done) %] </td>
+          <td> [% HTML.escape(row.id) %] </td>
+          <td>
+            [% IF row.haslink %]
+              <a href="[% row.haslink %]" target="_blank">[% HTML.escape(row.snumbers) %]</a>
+            [% ELSE %]
+              [% HTML.escape(row.snumbers) %]
+            [% END %]
+          </td>
+        </tr>
+      [% END %]
+    </tbody>
+  </table>
+[% ELSE %]
+  <b>[% 'No search results found!' | $T8 %]</b><br>
+[% END %]
+
+<div class="buttons">
+  [% IF NONEWWINDOW %]
+    <input type="button" onclick="javascript:history.back(-1);" value="[% 'back' | $T8 %]">
+  [% ELSE %]
+    <input type="button" onclick="javascript:window.close();" value="[% 'close' | $T8 %]">
+  [% END %]
+</div>

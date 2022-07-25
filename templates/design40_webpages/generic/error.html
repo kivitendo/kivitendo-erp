@@ -1,0 +1,7 @@
+[% USE T8 %]
+[% USE HTML %]
+
+<div class="message message_error">
+  <h4>[% IF title_error %][% title_error %][% ELSE %][% 'Error!' | $T8 %][% END %]</h4>
+  <p>[% label_error %]</p>
+</div>

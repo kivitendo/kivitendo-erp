@@ -1,0 +1,61 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+
+<div id="delivery">
+
+  <table>
+    <thead>
+    <tr>
+      <th>[% 'Shipping Address' | $T8 %]</th>
+      <th>[% 'Invoice' | $T8 %]</th>
+      <th>[% 'Order' | $T8 %]</th>
+      <th>[% 'Invdate' | $T8 %]</th>
+      <th>[% 'Description' | $T8 %]</th>
+      <th>[% 'Qty' | $T8 %]</th>
+      <th>[% 'Unit' | $T8 %]</th>
+      [% IF ( SELF.is_customer() ) %]
+        <th>[% 'Sell Price' | $T8 %]</th>
+      [% ELSE %]
+        <th>[% 'Last Cost' | $T8 %]</th>
+      [%- END %]
+    </tr>
+    </thead>
+    <tbody>
+    [% FOREACH row = SELF.delivery %]
+      [% row.script = SELF.is_vendor() ? ( row.invoice ? 'ir' : 'ap' ) : ( row.invoice ? 'is' : 'ar' ) %]
+      <tr>
+        <td>[% HTML.escape(row.shiptoname) UNLESS loop.prev.shiptoname == row.shiptoname %]&nbsp;</td>
+        <td>
+          [% IF row.id %]
+            <a href="[% row.script %].pl?action=edit&id=[% HTML.escape(row.id) %]">
+          [% END %]
+          [% HTML.escape(row.invnumber)   || '&nbsp;' %]
+          [% IF row.id %]</a>[% END %]
+        </td>
+        <td>[% IF row.oe_id %]
+              [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
+                <a href='controller.pl?action=Order/edit&type=[% IF SELF.is_customer %]sales_order[% ELSE %]purchase_order[% END %]&id=[% HTML.escape(row.oe_id) %]'>
+              [%- ELSE -%]
+                <a href='oe.pl?action=edit&type=[% IF SELF.is_customer %]sales_order[% ELSE %]purchase_order[% END %]&vc=customer&id=[% HTML.escape(row.oe_id) %]'>
+              [%- END -%]
+            [% END %]
+          [% HTML.escape(row.ordnumber)   || '&nbsp;' %]
+          [% IF row.oe_id %]</a>[% END %]
+        </td>
+        <td>[% HTML.escape(row.transdate)   || '&nbsp;' %]</td>
+        <td>[% HTML.escape(row.description) || '&nbsp;' %]</td>
+        <td>[% HTML.escape(row.qty)         || '&nbsp;' %]</td>
+        <td>[% HTML.escape(row.unit)        || '&nbsp;' %]</td>
+        <td>[% LxERP.format_amount(row.sellprice, 2) || '&nbsp;' %]</td>
+      </tr>
+    [% END %]
+   </tbody>
+   
+  </table>
+
+  [% IF DELIVERY.size == 15 %]
+    <p>[% 'This list is capped at 15 items to keep it fast. If you need a full list, please use reports.' | $T8 %]</p>
+  [% END %]
+
+</div>

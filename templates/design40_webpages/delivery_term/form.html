@@ -1,0 +1,27 @@
+[% USE HTML %][% USE T8 %][% USE L %][% USE LxERP %][%- USE P -%]
+<h1>[% FORM.title %]</h1>
+
+ 
+<div class="wrapper">
+  <form method="post" action="controller.pl" id="form">
+    [%- INCLUDE 'common/flash.html' %] 
+    <table class="tbl-horizontal">
+      <tr>
+        <th> [%- 'Description' | $T8 %] </th>
+        <td> [% P.input_tag("delivery_term.description", SELF.delivery_term.description, size="60", "data-validate"="required", "data-title"=LxERP.t8("Description")) %] </td>
+      </tr>
+      <tr>
+        <th> [%- 'Long Description' | $T8 %] </th>
+        <td> [% P.input_tag("delivery_term.description_long", SELF.delivery_term.description_long, size="60", "data-validate"="required", "data-title"=LxERP.t8("Long Description")) %] </td>
+      </tr>
+      [%- FOREACH language = SELF.languages %] 
+      <tr>
+        <th> [%- HTML.escape(language.description) %] ([%- LxERP.t8('Translation') %]) </th>
+        <td> 
+          <input type="text" name="translation_[% language.id %]" value="[%- HTML.escape(SELF.delivery_term.translated_attribute('description_long', language, 1)) %]" size="60"> </td>
+      </tr>
+      [%- END %] 
+    </table>
+    [% P.hidden_tag("id", SELF.delivery_term.id) %] 
+  </form>
+</div>

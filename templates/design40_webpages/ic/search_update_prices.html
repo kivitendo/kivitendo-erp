@@ -1,0 +1,129 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+<h1>[% 'Update prices' | $T8 %]</h1>
+
+[% INCLUDE 'common/flash.html' %]
+
+<form method="post" action="controller.pl" id="form">
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% 'Part Number' | $T8 %]</th>
+      <td>[% L.input_tag('filter.partnumber', FORM.filter.partnumber, size=20) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Part Description' | $T8 %]</th>
+      <td colspan="3">[% L.input_tag('filter.description', FORM.filter.description, size=20) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Partsgroup' | $T8 %]</th>
+      <td>[% L.input_tag('filter.partsgroup', FORM.filter.partsgroup, size=20) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Serial Number' | $T8 %]</th>
+      <td>[% L.input_tag('filter.serialnumber', FORM.filter.serialnumber, size=20) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Scope' | $T8 %]</th>
+      <td>
+        <div class="list">
+          [% L.radio_button_tag('filter.itemstatus', value='active', label=LxERP.t8('Active'), checked=!FORM.filter.itemstatus||FORM.filter.itemstatus=='active') %]<br>
+          [% L.radio_button_tag('filter.itemstatus', value='onhand', label=LxERP.t8('On Hand'), checked=FORM.filter.itemstatus=='onhand') %]<br>
+          [% L.radio_button_tag('filter.itemstatus', value='short', label=LxERP.t8('Short'), checked=FORM.filter.itemstatus=='short') %]<br>
+          [% L.radio_button_tag('filter.itemstatus', value='obsolete', label=LxERP.t8('Obsolete'), checked=FORM.filter.itemstatus=='obsolete') %]<br>
+          [% L.radio_button_tag('filter.itemstatus', value='orphaned', label=LxERP.t8('Orphaned'), checked=FORM.filter.itemstatus=='orphaned') %]
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+     <th>[% 'Make' | $T8 %]</th>
+     <td>[% L.input_tag('filter.make', FORM.filter.make, size=20) %]</td>
+    </tr>
+    <tr>
+     <th>[% 'Model' | $T8 %]</th>
+     <td>[% L.input_tag('filter.model', FORM.filter.model, size=20) %]</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+     <th>[% 'Drawing' | $T8 %]</th>
+     <td>[% L.input_tag('filter.drawing', FORM.filter.drawing, size=20) %]</td>
+    </tr>
+    <tr>
+     <th>[% 'Microfiche' | $T8 %]</th>
+     <td>[% L.input_tag('filter.microfiche', FORM.filter.microfiche, size=20) %]</td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <thead>
+    <tr>
+      <th>[% 'Price group' | $T8 %]</th>
+      <th>[% 'Preis' | $T8 %]</th>
+      <th>[% 'Prozentual/Absolut' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>[% 'Sell Price' | $T8 %]</th>
+      <td>[% L.input_tag('filter.prices.sellprice.price_as_number', FORM.filter.prices.sellprice.price_as_number, size=11) %]</td>
+      <td class="center">
+        [% L.radio_button_tag("filter.prices.sellprice.type",
+           value="percent",
+           checked=!FORM.filter.prices.sellprice.type || FORM.filter.prices.sellprice.type == 'percent') %] /
+        [% L.radio_button_tag("filter.prices.sellprice.type",
+           value="absolut",
+           checked=FORM.filter.prices.sellprice.type == 'absolut', class='horizontal') %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'List Price' | $T8 %]</th>
+      <td>[% L.input_tag('filter.prices.listprice.price_as_number', FORM.filter.prices.listprice.price_as_number, size=11) %]</td>
+      <td class="center">
+        [% L.radio_button_tag("filter.prices.listprice.type",
+           value="percent",
+           checked=!FORM.filter.prices.listprice.type || FORM.filter.prices.listprice.type == 'percent', class='horizontal') %] /
+        [% L.radio_button_tag("filter.prices.listprice.type",
+           value="absolut",
+           checked=FORM.filter.prices.listprice.type == 'absolut', class='horizontal') %]
+      </td>
+    </tr>
+    [% FOREACH pg = SELF.pricegroups %]
+    <tr>
+      <th>[% pg.pricegroup | html %]</th>
+      <td>[% L.input_tag('filter.prices.' _ pg.id _ '.price_as_number', FORM.filter.prices.${pg.id}.price_as_number, size=11) %]</td>
+      <td class="center">
+        [% L.radio_button_tag("filter.prices." _ pg.id  _ ".type",
+           value="percent",
+           checked=!FORM.filter.prices.${pg.id}.type || FORM.filter.prices.${pg.id}.type == 'percent', class='horizontal') %] /
+        [% L.radio_button_tag("filter.prices." _ pg.id _ ".type",
+           value="absolut",
+           checked=FORM.filter.prices.${pg.id}.type == 'absolut', class='horizontal') %]
+      </td>
+    </tr>
+    [% END %]
+</tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+</form>

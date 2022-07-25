@@ -1,0 +1,55 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+
+<div class="logged-in">
+  <noscript>
+  [% INCLUDE 'generic/information.html'
+     title_information = LxERP.t8('Your browser does not currently support Javascript.'),
+     label_information = LxERP.t8('A lot of the usability of kivitendo has been enhanced with javascript. Although it is currently possible to use every aspect of kivitendo without javascript, we strongly recommend it. In a future version this may change and javascript may be necessary to access advanced features.'),
+  %]
+  </noscript>
+  <div class="col" style="width:270px">
+    <a class="nomobile" href="http://www.kivitendo.de" target="_blank" title="[% 'kivitendo Homepage' | $T8 %] ([% 'Open in new window' | $T8 %])">
+    <img src="image/kivitendo[% xmas %].png" class="kivitendo-logo" alt="[% 'kivitendo' | $T8 %]"></a>
+  </div>
+  <div class="col">
+    <h3 class="login">[% 'kivitendo' | $T8 %] [% version %]</h3>
+
+    [% IF git_head %]
+      <p>[% LxERP.t8("Git revision: #1, #2 #3", git_head.hash.substr(0, 7), git_head.author_date.to_kivitendo, git_head.author_date.strftime('%H:%M:%S %Z')) %]</p>
+    [% END %]
+
+    <table class="tbl-horizontal">
+      <tbody>
+        <tr>
+          <th>[% 'companylogo_subtitle' | $T8 %]</th>
+          <td><b>[% HTML.escape(defaults.company) %]<br></b>[% HTML.escape(defaults.address).replace('\\\\n', '<br>').replace('\n', '<br>') %]</td>
+        </tr>
+        <tr>
+          <th><a href="am.pl?action=config" title="[% 'Preferences' | $T8 %]">[% 'User' | $T8 %]</a></th>
+          <td>[% HTML.escape(MYCONFIG.name) %]</td>
+        </tr>
+        <tr>
+          <th>[% IF AUTH.assert('admin', 'may_fail') %]
+            <a href="controller.pl?action=ClientConfig/edit" title="[% 'Client Configuration' | $T8 %]">[% END %][% 'Client' | $T8 %][% IF AUTH.assert('admin', 'may_fail') %]</a>[% END %]</th>
+          <td>[% HTML.escape(client.name) %]</td>
+        </tr>
+        <tr>
+          <th><a href="am.pl?action=config" title="[% 'Preferences' | $T8 %]">[% 'Language' | $T8 %]</a></th>
+          <td>[% HTML.escape(MYCONFIG.countrycode) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Webserver interface' | $T8 %]</th>
+          <td>[% HTML.escape(interface) %]</td>
+        </tr>
+        <tr class="nomobile">
+          <th>[% 'kivitendo Homepage' | $T8 %]:</th>
+          <td><a href="http://kivitendo.de" target="_blank" title="[% 'kivitendo Homepage' | $T8 %] ,[% 'Open in new window' | $T8 %]">http://kivitendo.de</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+[% todo_list %]

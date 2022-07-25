@@ -1,0 +1,162 @@
+[% USE T8 %]
+[% USE L %]
+[% USE HTML %]
+[% USE LxERP %]
+
+[% IF vc == 'vendor' %]
+  [% SET is_vendor = 1 %]
+  [% SET arap = 'ap' %]
+  [% SET iris = 'ir' %]
+[% ELSE %]
+  [% SET is_vendor = 0 %]
+  [% SET arap = 'ar' %]
+  [% SET iris = 'is' %]
+[% END %]
+
+<h1>[% title %]</h1>
+
+<form action="sepa.pl" method="post" id="form">
+<div class="wrapper">
+
+<div class="select-item control-panel">
+  <span class="label above">
+  [% IF is_vendor %]
+    [% 'Please select the source bank account for the transfers:' | $T8 %]
+  [% ELSE %]
+    [% 'Please select the destination bank account for the collections:' | $T8 %]
+  [% END %]</span><br>
+  [% L.select_tag('bank_account',
+      BANK_ACCOUNTS,
+      title_key='displayable_name',
+      with_empty=0,
+      class='wi-wide',
+  ) %]
+</div><!-- /.select-item -->
+</div><!-- /.wrapper -->
+
+<table class="tbl-list">
+  <thead>
+    <tr>
+      <th><input type="checkbox" id="select_all"></th>
+      <th>[% IF is_vendor %][% 'Vendor' | $T8 %][% ELSE %][% LxERP.t8('Customer') %][% END %]</th>
+      <th>[% 'Invoice' | $T8 %]</th>
+      <th>[% 'Amount' | $T8 %]</th>
+      <th>[% 'Open amount' | $T8 %]</th>
+      <th>[% 'Invoice Date' | $T8 %]</th>
+      <th>[% 'Due Date' | $T8 %]</th>
+      <th>[% 'Purpose' | $T8 %]</th>
+      <th>[% 'Bank transfer amount' | $T8 %]</th>
+      <th>[% 'Payment type' | $T8 %]</th>
+      <th>[% 'Skonto information' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH invoice = INVOICES %]
+      <tr[% IF !invoice.vc_bank_info_ok && invoice.checked %] class="listrow_error"[% END %]>
+        <td>
+          <input type="hidden" name="bank_transfers[+].[% arap %]_id" value="[% HTML.escape(invoice.id) %]">
+          <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(invoice.amount_less_skonto, 2) %]">
+          <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.open_amount - invoice.open_sepa_transfer_amount, 2) %]">
+          <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.skonto_amount, 2) %]">
+          [% IF invoice.vc_bank_info_ok %]
+            [% L.checkbox_tag("ids[]", value=invoice.id, checked=invoice.checked) %]
+          [% END %]
+        </td>
+        <td>
+         [% IF loop.first || (previous_vcname != invoice.vcname) %]
+          <a href="controller.pl?action=CustomerVendor/edit&db=[% vc %]&id=[% HTML.url(invoice.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
+           [% GET HTML.escape(invoice.vcname);
+               SET previous_vcname = invoice.vcname;
+               IF !invoice.vc_bank_info_ok;
+                 IF invoice.checked;
+                   GET ' <sup>(2)</sup>';
+                 ELSE;
+                   GET ' <sup>(1)</sup>';
+                 END;
+                 SET show_vc_bank_info_footnote = '1';
+               END; %]
+          </a>
+         [% END %]
+        </td>
+        <td>
+         <a href="[% IF invoice.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&id=[% HTML.escape(invoice.id) %]">
+          [% HTML.escape(invoice.invnumber) %]
+         </a>
+        </td>
+        <td>[% LxERP.format_amount(invoice.invoice_amount-invoice.open_sepa_transfer_amount, 2) %]</td>
+        <td>[% LxERP.format_amount(invoice.open_amount-invoice.open_sepa_transfer_amount, 2) %]</td>
+        <td>[% invoice.transdate %]</td>
+        <td>[% invoice.duedate %]</td>
+        <td>
+          [% IF INSTANCE_CONF.get_sepa_reference_add_vc_vc_id %]
+            [% SET reference = invoice.reference_prefix _ invoice.invnumber _ invoice.reference_prefix_vc _ invoice.vc_vc_id %]
+          [% ELSE %]
+            [% SET reference = invoice.reference_prefix _ invoice.invnumber %]
+          [% END %]
+         <input type="text" name="bank_transfers[].reference" value="[% HTML.escape(reference.substr(0, 140)) %]" maxlength="140" size="30">
+        </td>
+        <td>
+          <input type="text" id=[% loop.count %] name="bank_transfers[].amount" id="amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.invoice_amount_suggestion, 2) %]" style="text-align: right" size="12">
+        </td>
+        <td>
+          [% L.select_tag('bank_transfers[].payment_type', invoice.payment_select_options, value_key => 'payment_type', title_key => 'display', id => 'payment_type_' _ loop.count, class => 'type_target' ) %]
+        </td>
+        <td[% IF invoice.within_skonto_period %] class="highlight"[% END %]>
+          [% IF invoice.skonto_amount %]
+            [% LxERP.format_amount(invoice.percent_skonto, 2) %] % = [% LxERP.format_amount(invoice.skonto_amount, 2) %] € bis [% invoice.skonto_date %]
+          [% END %]
+        </td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>
+
+[% IF show_vc_bank_info_footnote %]
+<div class="long-desc wrapper">
+  <p><sup>(1)</sup>
+    [% IF is_vendor %]
+      [% 'No bank information has been entered in this vendor\'s master data entry. You cannot create bank transfers unless you enter bank information.' | $T8 %]
+      [% "The required information consists of the IBAN and the BIC." | $T8 %]
+    [% ELSE %]
+      [% 'No bank information has been entered in this customer\'s master data entry. You cannot create bank collections unless you enter bank information.' | $T8 %]
+      [% "The required information consists of the IBAN, the BIC, the mandator ID and the mandate's date of signature." | $T8 %]
+    [% END %]
+  </p>
+  <p><sup>(2)</sup>
+    [% IF is_vendor %]
+      [% 'No bank information has been entered in this vendor\'s master data entry. You cannot create bank transfers unless you enter bank information.' | $T8 %]
+      [% "The required information consists of the IBAN and the BIC." | $T8 %]
+      [% LxERP.t8("Additionally the invoice is not marked for direct debit and would have been checked automatically had the bank information been entered.") %]
+    [% ELSE %]
+      [% 'No bank information has been entered in this customer\'s master data entry. You cannot create bank collections unless you enter bank information.' | $T8 %]
+      [% "The required information consists of the IBAN, the BIC, the mandator ID and the mandate's date of signature." | $T8 %]
+      [% LxERP.t8("Additionally the invoice is marked for direct debit and would have been checked automatically had the bank information been entered.") %]
+    [% END %]
+  </p>
+</div><!-- /.long-desc -->
+[% END %]
+
+<input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
+</form>
+
+<script type="text/javascript">
+  <!--
+    $(function() {
+      $("#select_all").checkall('INPUT[name="ids[]"]');
+    });
+  -->
+
+$( ".type_target" ).change(function() {
+  type_id = $(this).attr('id');
+  var id = type_id.match(/\d*$/);
+  // alert("found id " + id);
+  if ( $(this).val() == "without_skonto" ) {
+      $('#' + id).val( $('#invoice_open_amount_' + id).val() );
+  } else if ( $(this).val() == "difference_as_skonto" ) {
+      $('#' + id).val( $('#invoice_open_amount_' + id).val() );
+  } else if ( $(this).val() == "with_skonto_pt" ) {
+            $('#' + id).val( $('#amount_less_skonto_' + id).val() );
+  }
+});
+
+</script>

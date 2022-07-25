@@ -1,0 +1,259 @@
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+[% SET style="width: 250px" %]
+<h1>[% title %]</h1>
+
+<form method=post name="search" id="form" action=[% script %]>
+[% L.hidden_tag("action", nextsub) %]
+
+<div class="wrapper">
+
+  <div class="col">
+    <table class="tbl-horizontal">
+      <caption>[% 'Customer' | $T8 %]</caption>
+      <tbody>
+        <tr>
+          <th>[% 'Customer' | $T8 %]</th>
+          <td>[% L.input_tag("customer", customer, style=style, class="initial_focus") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Contact Person' | $T8 %]</th>
+          <td>[% L.input_tag("cp_name", '', style=style) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Department' | $T8 %]</th>
+          <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, title_key = 'description', with_empty = 1, style=style) %]</td>
+        </tr>
+        <tr>
+          <th class="caption" colspan="2">[% 'Employee' | $T8 %]</th>
+        </tr>
+        <tr>
+          <th>[% 'Employee' | $T8 %]</th>
+          <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1, style=style) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Salesman' | $T8 %]</th>
+          <td>[% L.select_tag('salesman_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1, style=style) %]</td>
+        </tr>
+        <tr>
+          <th class="caption" colspan="2">[% 'Order' | $T8 %]</th>
+        </tr>
+        <tr>
+          <th>[% 'Transaction description' | $T8 %]</th>
+          <td>[% L.input_tag("transaction_description", "", style=style) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Notes' | $T8 %]</th>
+          <td>[% L.input_tag("notes", "", style=style) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Part Description' | $T8 %]</th>
+          <td>[% L.input_tag("parts_description", "", style=style) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Part Number' | $T8 %]</th>
+          <td>[% L.input_tag("parts_partnumber", "", style=style) %]</td>
+        </tr>
+      </tbody>
+    </table>
+  </div><!-- /.col -->
+
+  <div class="col">
+    <table class="tbl-horizontal">
+      <caption>[% 'Record numbers and dates' | $T8 %]</caption>
+      <tbody>
+        <tr>
+          <th>[% 'Invoice Number' | $T8 %]</th>
+          <td>[% L.input_tag("invnumber", "", style=style) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Order Number' | $T8 %]</th>
+          <td>[% L.input_tag("ordnumber", "", style=style) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Customer Order Number' | $T8 %]</th>
+          <td>[% L.input_tag("cusordnumber", "", style=style) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Project Number' | $T8 %]</th>
+          <td>[% P.project.picker("project_id", project_id, active="both", valid="both", style=style) %]</td>
+        </tr>
+        [% IF ALL_BUSINESS_TYPES.as_list.size > 0 %]
+          <tr>
+            <th>[% 'Customer type' | $T8 %]</th>
+            <td>[% L.select_tag("business_id", ALL_BUSINESS_TYPES, with_empty=1, title_key="description", style=style) %]</td>
+          </tr>
+        [% END %]
+        <tr>
+          <th>[% 'Show only marked as paid invoices' | $T8 %]</th>
+          <td>[% L.checkbox_tag('show_marked_as_closed') %]</td>
+        </tr>
+        [% IF INSTANCE_CONF.get_email_journal %]
+        <tr>
+          <th>[% 'Show only not mailed invoices' | $T8 %]</th>
+          <td>[% L.checkbox_tag('show_not_mailed') %]</td>
+        </tr>
+        [% END %]
+        <tr>
+          <th>[% 'Invoice Date' | $T8 %]</th>
+          <td> [% L.date_tag('transdatefrom') %] [% 'Bis' | $T8 %] [% L.date_tag('transdateto') %] </td>
+        </tr>
+        <tr>
+          <th>[% 'Due Date' | $T8 %]</th>
+          <td> [% L.date_tag('duedatefrom') %] [% 'Bis' | $T8 %] [% L.date_tag('duedateto') %] </td>
+        </tr>
+        [% IF CT_CUSTOM_VARIABLES.size %]
+          <tr>
+            <th class="caption" colspan="2">[% 'Custom variables for module' | $T8 %]: [%'Customers and vendors' | $T8 %]</th>
+          </tr>
+          [% CT_CUSTOM_VARIABLES_FILTER_CODE %]
+        [% END %]
+      </tbody>
+    </table>
+    <input type=hidden name=sort value=transdate>
+  </div><!-- /.col -->
+
+</div><!-- /.wrapper -->
+
+<div class="wrapper form-addition control-panel">
+  <h3>[% 'Include in Report' | $T8 %]</h3>
+  <div class="list col">
+    <h4>[% 'Status' | $T8 %]</h4>
+    <div>
+      <input name="open" id="open" type="checkbox" checked><label for="open">[% 'Open' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="closed" id="closed" type="checkbox" [% IF closed %] checked[% END %]><label for="closed">[% 'Closed' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_paid" id="l_paid" type="checkbox" checked><label for="l_paid">[% 'Paid' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_dunning_description" id="l_dunning_description" type="checkbox"><label for="l_dunning_description">[% 'Dunning level' | $T8 %]</label>
+    </div>
+  </div>
+  <div class="list col">
+    <h4>[% 'Numbers' | $T8 %]</h4>
+    <div>
+      <input name="l_id" id="l_id" type="checkbox"><label for="l_id">[% 'ID' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_invnumber" id="l_invnumber" type="checkbox" checked><label for="l_invnumber">[% 'Invoice Number' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_ordnumber" id="l_ordnumber" type="checkbox"><label for="l_ordnumber">[% 'Order Number' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_globalprojectnumber" id="l_globalprojectnumber" type="checkbox"><label for="l_globalprojectnumber">[% 'Document Project Number' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_cusordnumber" id="l_cusordnumber" type="checkbox"><label for="l_cusordnumber">[% 'Customer Order Number' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_ustid" id="l_ustid" type="checkbox"><label for="l_ustid">[% 'USt-IdNr.' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_donumber" id="l_donumber" class=checkbox type=checkbox value=Y><label for="l_donumber">[% 'Delivery Order Number' | $T8 %]</label>
+    </div>
+  </div>
+  <div class="list col">
+    <h4>[% 'Date' | $T8 %]</h4>
+    <div>
+      <input name="l_transdate" id="l_transdate" type="checkbox" checked><label for="l_transdate">[% 'Invoice Date' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_datepaid" id="l_datepaid" type="checkbox"><label for="l_datepaid">[% 'Date Paid' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_duedate" id="l_duedate" type="checkbox"><label for="l_duedate">[% 'Due Date' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_deliverydate" id="l_deliverydate" class=checkbox type=checkbox value=Y><label for="l_deliverydate">[% 'Delivery Date' | $T8 %]</label>
+    </div>
+  </div>
+  <div class="list col">
+    <h4>[% 'Customer' | $T8 %]</h4>
+    <div>
+      <input name="l_name" id="l_name" type="checkbox" checked><label for="l_name">[% 'Customer' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_customernumber" id="l_customernumber" type="checkbox"><label for="l_customernumber">[% 'Customer Number' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_department" id="l_department" type="checkbox"><label for="l_department">[% 'Department' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_country" id="l_country" type="checkbox"><label for="l_country">[% 'Country' | $T8 %]</label>
+    </div>
+  </div>
+  <div class="list col">
+    <h4>[% 'Amounts' | $T8 %]</h4>
+    <div>
+      <input name="l_netamount" id="l_netamount" type="checkbox" value="Y" checked><label for="l_netamount">[% 'Amount' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_amount" id="l_amount" type="checkbox" value="Y" checked><label for="l_amount">[% 'Total' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_subtotal" id="l_subtotal" type="checkbox"><label for="l_subtotal">[% 'Subtotal' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_due" id="l_due" type="checkbox"><label for="l_due">[% 'Amount Due' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_marge_total" id="l_marge_total" type="checkbox"><label for="l_marge_total">[% 'Ertrag' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_marge_percent" id="l_marge_percent" type="checkbox"><label for="l_marge_percent">[% 'Ertrag prozentual' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_tax" id="l_tax" type="checkbox"><label for="l_tax">[% 'Tax' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_taxzone" id="l_taxzone" type="checkbox"><label for="l_taxzone">[% 'Steuersatz' | $T8 %]</label>
+    </div>
+  </div>
+  <div class="list col">
+    <h4>[% 'Order' | $T8 %]</h4>
+    <div>
+      <input name="l_notes" id="l_notes" type="checkbox"><label for="l_notes">[% 'Notes' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_shippingpoint" id="l_shippingpoint" type="checkbox"><label for="l_shippingpoint">[% 'Shipping Point' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_shipvia" id="l_shipvia" type="checkbox"><label for="l_shipvia">[% 'Ship via' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_transaction_description" id="l_transaction_description" type="checkbox" [% IF INSTANCE_CONF.get_require_transaction_description_ps %] checked[% END %]><label for="l_transaction_description">[% 'Transaction description' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_payment_terms" id="l_payment_terms" type="checkbox"><label for="l_payment_terms">[% 'Payment Terms' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_charts" id="l_charts" type="checkbox"><label for="l_charts">[% 'Chart' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_direct_debit" id="l_direct_debit" type="checkbox"><label for="l_direct_debit">[% 'direct debit' | $T8 %]</label>
+    </div>
+  </div>
+  <div class="list col">
+    <h4>[% 'Employee' | $T8 %]</h4>
+    <div>
+      <input name="l_salesman" id="l_salesman" type="checkbox"><label for="l_salesman">[% 'Salesperson' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_employee" id="l_employee" type="checkbox"><label for="l_employee">[% 'Employee' | $T8 %]</label>
+    </div>
+  </div>
+  <div class="list col">
+    <h4>[% 'Custom Variables' | $T8 %]</h4>
+    <div class="no-rows">
+      [% CT_CUSTOM_VARIABLES_INCLUSION_CODE %]
+    </div>
+  </div>
+</div>
+<!-- /.wrapper.form-addition -->
+
+</form>

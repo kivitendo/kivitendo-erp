@@ -1,0 +1,50 @@
+[% USE T8 %]
+[% USE HTML %]
+
+<form name="CalcQtyForm" id="calc_qty_form_id">
+
+<!-- <h1>[% #title %]</h1> --><!-- PENDENT: wieso wurde das entfernt? Braucht es hier keinen Titel? -->
+
+<input type="hidden" name="input_name" value="[% HTML.escape(input_name) %]">
+<input type="hidden" name="input_id" value="[% HTML.escape(input_id) %]">
+
+<table class="tbl-list">
+  <caption>[% 'Please insert object dimensions below.' | $T8 %]</caption>
+  <thead>
+     <tr>
+       [% FOREACH col = HEADER %]
+         <th>[% col.column_title %]</a></th>
+       [% END %]
+     </tr>
+  </thead>
+  <tbody>
+    [% FOREACH row = VARIABLES %]
+      <tr class="listrow[% loop.count % 2 %]">
+        <td>[% HTML.escape(row.description) %]:</td><td><input type="text" id="[% row.name %]" name="[% row.name %]" value=""></td>
+        <td>[% HTML.escape(row.unit) %]</td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>
+
+<div class="buttons">
+  <button type="button" onclick="calculate_qty()">[% 'Calculate' | $T8 %]</button>
+</div>
+</form>
+
+<script type="text/javascript">
+  function calculate_qty() {
+    [%- FOREACH row = VARIABLES %]
+      var [% row.name %] = kivi.parse_amount($('#calc_qty_form_id #[% row.name %]').val());
+    [%- END %]
+    var result = [% formel %];
+    result = kivi.format_amount(result, 2);
+    /* Every Element should be assigned by ID and not with NAME, modern Browsers handle that since 2006 or a bit later */
+    if (document.CalcQtyForm.input_id.value) {
+      document.getElementById(document.CalcQtyForm.input_id.value).value = result;
+    } else {
+      document.getElementsByName(document.CalcQtyForm.input_name.value)[0].value = result;
+    }
+    $('#calc_qty_dialog').dialog('close');
+  }
+</script>

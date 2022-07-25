@@ -1,0 +1,43 @@
+[% USE L %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE T8 %]
+
+<h3>[% 'Journal of Last 10 Transfers' | $T8 %]</h3>
+
+[% IF journal.size %]
+
+  <table class="tbl-list wi-moderate">
+    <thead>
+     <tr>
+      <th>[% 'Date' | $T8 %]</th>
+      <th>[% 'Trans Type' | $T8 %]</th>
+      <th>[% 'Part' | $T8 %]</th>
+      <th>[% 'Warehouse From' | $T8 %]</th>
+      <th class="right">[% 'Qty' | $T8 %]</th>
+      <th>[% 'Unit' | $T8 %]</th>
+      <th>[% 'Warehouse To' | $T8 %]</th>
+      <th class="right">[% 'Charge Number' | $T8 %]</th>
+      <th>[% 'Comment' | $T8 %]</th>
+     </tr>
+    </thead>
+    <tbody>
+      [% FOREACH row = journal %]
+       <tr>
+        <td>[% row.base.itime_as_date  %]</td>
+        <td>[% row.base.trans_type.description | $T8 %]</td>
+        <td>[% row.base.part.displayable_name | html %]</td>
+        <td>[% row.out ? row.out.bin.full_description : '-' | html %]</td>
+        <td class='numeric'>[% row.in ? row.in.qty_as_number : LxERP.format_amount(-1 * row.out.qty, 2) %]</td>
+        <td>[% row.base.part.unit | html %]</td>
+        <td>[% row.in ? row.in.bin.full_description : '-' | html %]</td>
+        <td class="right">[% row.base.chargenumber | html %]</td>
+        <td>[% row.base.comment | html %]</td>
+       </tr>
+      [% END %]
+    </tbody>
+  </table>
+
+[% ELSE %]
+  <p>[% 'No transactions yet.' | $T8 %]</p>
+[% END %]

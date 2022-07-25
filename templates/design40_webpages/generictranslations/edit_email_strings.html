@@ -1,0 +1,48 @@
+[% USE T8 %]
+[% USE HTML %]
+
+<h1>[% HTML.escape(title) %]</h1>
+
+<div class="wrapper">
+
+[% IF message %]<p>[% HTML.escape(message) %]</p>[% END %]
+
+<form method="post" action="generictranslations.pl" id="form">
+
+<div class="long-description">[% 'Default means "if no language selected then..."' | $T8 %]</div>
+
+<table class="tbl-horizontal">
+  <colgroup><col class="wi-small"><col class="wi-wider"></colgroup>
+  <tbody>
+    [% FOREACH mail_string IN MAIL_STRINGS.keys.sort %]
+      <tr>
+        <th class="caption" colspan="2">[% MAIL_STRINGS.$mail_string %]</th>
+      </tr>
+       [% FOREACH language = LANGUAGES %]
+       <tr>
+        <td>
+         [% IF language.id == 'default' %]
+           [% 'Default (no language selected)' | $T8 %]
+         [% ELSE %]
+           [% HTML.escape(language.description) %]
+         [% END %]
+        </td>
+        <td>
+          [% IF mail_string.search('preset') %]
+            <textarea name="translation__[% language.id %]__[% mail_string %]" rows="4" cols="50" class="wi-wide" style="float:left;">[% HTML.escape(language.$mail_string) %]</textarea>
+          [% ELSE %]
+            <input name="translation__[% language.id %]__[% mail_string %]" value="[% HTML.escape(language.$mail_string) %]" type="text" class="wi-wide" style="float:left;">
+          [% END %]
+           [% IF mail_string.search('preset_text_periodic_invoices') %]
+             <a href="doc/html/ch03.html#features.periodic-invoices.variables" target="_blank" class="button wi-tiny neutral tooltipster-html" style="float:left;" title="[% 'Documentation about variables in a new window/tab' | $T8 %]">?</a>
+           [% END %]
+        </td>
+      </tr>
+      [% END %]
+    [% END %]
+  </tbody>
+</table>
+
+</form>
+
+</div><!-- /.wrapper -->

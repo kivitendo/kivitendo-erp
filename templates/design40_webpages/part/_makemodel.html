@@ -1,0 +1,55 @@
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+[% USE HTML %]
+[% USE LxERP %]
+
+<table id="makemodel_table" class="tbl-list">
+  <caption>[% 'Makemodel Price' | $T8 %]</caption>
+  <thead>
+    <tr>
+      <th class="center"><img src="image/close.png" alt="[% LxERP.t8('delete item') %]"></th>
+      <th>[% 'position'      | $T8 %]</th>
+      <th class="center"><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]"></th>
+      <th>[% 'Vendor Number' | $T8 %]</th>
+      <th>[% 'Vendor'        | $T8 %]</th>
+      <th>[% 'Model'         | $T8 %]</th>
+      <th>[% 'Last Cost'     | $T8 %]</th>
+      <th>[% 'Updated'       | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody id="makemodel_rows">
+    [% SET listrow = 0 %]
+    [% FOREACH makemodel = SELF.part.makemodels %]
+      [% listrow = listrow + 1 %]
+      [% PROCESS 'part/_makemodel_row.html' makemodel=makemodel listrow=listrow %]
+    [% END %]
+  </tbody>
+  <!-- PENDENT: koennte besser und schoener geloest werden! -->
+  <tfoot>
+    <tr>
+     <td></td>
+     <td></td>
+     <td></td>
+     <th class="right"><span class="label">[% 'Search & Add Vendor' | $T8 %]</span></th>
+     <td>
+        [% SET titleaddmodel=LxERP.t8('Search & Add Vendor by Name') %]
+        [% P.customer_vendor.picker('add_makemodel', '', type='vendor', class='add_makemodel_input wi-small tooltipstered tooltipster-html', title=titleaddmodel, action={commit_one='kivi.Part.add_makemodel_row'}, size=10) %]
+      </td>
+     <td>[% L.button_tag('kivi.Part.add_makemodel_row()', LxERP.t8('Add')) %]</td>
+     <td></td>
+     <td></td>
+    </tr>
+  </tfoot>
+</table>
+[% L.sortable_element('#makemodel_rows') %]
+
+<script type="text/javascript">
+/*
+  $(function() {
+    $('#makemodel_rows').on('sortstop', function(event, ui) {
+      kivi.Part.makemodel_renumber_positions();
+    });
+  })
+ */
+</script><!-- PENDENT: Ueberpruefen -->

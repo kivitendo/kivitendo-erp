@@ -1,0 +1,71 @@
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+
+<h1>[% FORM.title %]</h1>
+
+[% INCLUDE 'common/flash.html' %]
+
+
+<table id="email_journal_details" class="tbl-horizontal email_journal_details">
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8("From") %]</th>
+      <td>[% HTML.escape(SELF.entry.from) %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Recipients") %]</th>
+      <td>[% HTML.escape(SELF.entry.recipients) %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Subject") %]</th>
+      <td>[% HTML.escape(SELF.entry.subject) %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Sent on") %]</th>
+      <td>[% HTML.escape(SELF.entry.sent_on.to_lxoffice("precision" => "second")) %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Status") %]</th>
+      <td> [% IF SELF.entry.status == "ok" %] [% LxERP.t8("succeeded") %] [% ELSE %] [% LxERP.t8("failed") %] [% END %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Extended status") %]</th>
+      <td><pre>[% HTML.escape(SELF.entry.extended_status) %]</pre></td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Headers") %]</th>
+      <td><pre>[% HTML.escape(SELF.entry.headers) %]</pre></td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Body") %]</th>
+      <td><pre>[% HTML.escape(SELF.entry.body) %]</pre></td>
+    </tr>
+  </tbody>
+</table>
+
+
+[% SET attachments = SELF.entry.attachments_sorted %]
+[% IF attachments.size %]
+
+<table id="email_journal_details" class="tbl-list email_journal_details">
+  <caption>[% LxERP.t8("Attachments") %]</caption>
+  <thead>
+    <tr>
+      <th>[% LxERP.t8("Attachment name") %]</th>
+      <th>[% LxERP.t8("MIME type") %]</th>
+      <th>[% LxERP.t8("Size") %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH attachment = attachments %]
+    <tr>
+      <td>[% L.link(SELF.url_for(action="download_attachment", id=attachment.id), attachment.name) %]</td>
+      <td>[% HTML.escape(attachment.mime_type) %]</td>
+      <td>[% HTML.escape(LxERP.format_amount(attachment.content.length, 0)) %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+
+[% END %]

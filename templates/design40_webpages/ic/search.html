@@ -1,0 +1,225 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+[% SET style="width: 250px" %]
+
+[% INCLUDE 'common/flash.html' %]
+
+<h1>[% title %]</h1>
+
+<form method="post" action="ic.pl" id="form">
+  <input type="hidden" name="searchitems" value="[% HTML.escape(searchitems) %]">
+  <input type="hidden" name="title" value="[% HTML.escape(title) %]">
+  <input type="hidden" name="revers" value="[% HTML.escape(revers) %]">
+  <input type="hidden" name="lastsort" value="[% HTML.escape(lastsort) %]">
+  <input type="hidden" name="sort" value="description">
+  <input type="hidden" name="ndxs_counter" value="[% HTML.escape(ndxs_counter) %]">
+
+  <div class="wrapper">
+
+  <table class="tbl-horizontal">
+    <caption>[% 'Article data' | $T8 %]</caption>
+    <colgroup> <col class="wi-mediumsmall"><col class="wi-lightwide"> </colgroup>
+    <tbody>
+      <tr>
+        <th>[% 'Part Type' | $T8 %]</th>
+        <td>
+          <input name="l_part" id="l_part" type="checkbox" value="Y" checked>
+          <label for="l_part"> [% 'Part' | $T8 %] </label><br>
+          <input name="l_service" id="l_service" type="checkbox" value="Y" checked>
+          <label for="l_service"> [% 'Service' | $T8 %] </label><br>
+          <input name="l_assembly" id="l_assembly" type="checkbox" value="Y" checked>
+          <label for="l_assembly"> [% 'Assembly' | $T8 %] </label><br>
+          [% IF INSTANCE_CONF.get_feature_experimental_assortment %]
+            <input name="l_assortment" id="l_assortment" type="checkbox" value="Y" checked>
+            <label for="l_assortment"> [% 'Assortment' | $T8 %] </label>
+          [% END %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Part Number' | $T8 %]</th>
+        <td>[% L.input_tag("partnumber", "", value='asfasdf', class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Part Description' | $T8 %]</th>
+        <td>[% L.input_tag("description", "", class='initial_focus wi-lightwide') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Part Classification' | $T8 %]</th>
+        <td>[% P.part.select_classification('classification_id', class='wi-lightwide', with_empty=1, empty_title='') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Partsgroup' | $T8 %]</th>
+        <td>[% P.select_tag("partsgroup_id", ALL_PARTSGROUPS, with_empty=1, empty_title='', default=partsgroup, title_key="partsgroup", class='wi-lightwide') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Serial Number' | $T8 %]</th>
+        <td>[% L.input_tag("serialnumber", "", class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'EAN' | $T8 %]</th>
+        <td>[% L.input_tag("ean", "", class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Make' | $T8 %]</th>
+        <td>[% L.input_tag("make", "", class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Model' | $T8 %]</th>
+        <td>[% L.input_tag("model", "", class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Shop article' | $T8 %]</th>
+        <td>[% L.yes_no_tag('shop', shop, default='', with_empty=1, empty_title='', class='wi-mediumsmall') %]</td>
+      </tr>
+      [% CUSTOM_VARIABLES_FILTER_CODE %]
+      <tr>
+        <th class="caption" colspan="2"> [% 'Illustrations' | $T8 %]</th>
+      </tr>
+      <tr>
+        <th>[% 'Drawing' | $T8 %]</th>
+        <td>[% L.input_tag("drawing", "", class="wi-wide") %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Microfiche' | $T8 %]</th>
+        <td>[% L.input_tag("microfiche", "", class="wi-wide") %]</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tbl-horizontal">
+    <caption> [% 'Options' | $T8 %]</caption>
+    <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+    <tbody>
+      <tr>
+        <td>
+          [% L.radio_button_tag('itemstatus', value='active', id='itemstatus_active', label=LxERP.t8('Active'), checked=1) %]<br>
+          [% L.radio_button_tag('itemstatus', value='onhand', id='itemstatus_onhand', label=LxERP.t8('On Hand')) %]<br>
+          [% L.radio_button_tag('itemstatus', value='short', id='itemstatus_short', label=LxERP.t8('Short')) %]<br>
+          [% L.radio_button_tag('itemstatus', value='obsolete', id='itemstatus_obsolete', label=LxERP.t8('Obsolete')) %]<br>
+          [% L.radio_button_tag('itemstatus', value='orphaned', id='itemstatus_orphaned', label=LxERP.t8('Orphaned')) %]<br>
+          [% L.radio_button_tag('itemstatus', value='', id='itemstatus_all', label=LxERP.t8('All')) %]
+        </td>
+      </tr>
+      <tr>
+        <th class="caption" colspan="2">[% 'Assemblies' | $T8 %]</th>
+      </tr>
+      <tr>
+        <td colspan="2">
+          [% L.radio_button_tag('bom', id='bom_0', value=0, checked=1, label=LxERP.t8('Top Level Designation only')) %]<br>
+          [% L.radio_button_tag('bom', id='bom_1', value=1, label=LxERP.t8('Individual Items')) %]<br>
+          [% L.radio_button_tag('bom', id='bom_2', value=2, label=LxERP.t8('Search for Items used in Assemblies')) %]
+        </td>
+      </tr>
+      <tr>
+        <th class="caption" colspan="2">[% 'Status' | $T8 %]</th>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <div class="list wi-verysmall col">
+            <div class="field">[% L.checkbox_tag('bought', label=LxERP.t8('Bought')) %]</div>
+            <div class="field">[% L.checkbox_tag('sold', label=LxERP.t8('Sold')) %]</div>
+          </div>
+          <div class="list wi-mediumsmall col">
+            <div class="field">[% L.checkbox_tag('onorder', label=LxERP.t8('On Order')) %]</div>
+            <div class="field">[% L.checkbox_tag('ordered', label=LxERP.t8('Ordered')) %]</div>
+          </div>
+          <div class="list wi-verysmall col">
+            <div class="field">[% L.checkbox_tag('rfq', label=LxERP.t8('RFQ')) %]</div>
+            <div class="field">[% L.checkbox_tag('quoted', label=LxERP.t8('Quoted')) %]</div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="wi-date" colspan="2" style="vertical-align:middle;padding-top:1.2em;">
+          [% 'From' | $T8 %]
+          [% L.date_tag('transdatefrom') %]
+          [% 'To (time)' | $T8 %]
+          [% L.date_tag('transdateto') %]
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="tbl-horizontal">
+    <caption>[% 'Handling' | $T8 %]</caption>
+    <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+    <tbody>
+      <tr>
+        <th>[% 'Insert Date' | $T8 %]</th>
+        <td class="wi-date">[% L.date_tag('insertdatefrom') %] [% 'Bis' | $T8 %] [% L.date_tag('insertdateto') %]</td>
+      </tr>
+    </tbody>
+  </table>
+</div><!-- /.wrapper -->
+
+
+<div class="wrapper form-addition control-panel">
+
+  <h3 class="caption"> [% 'Include in Report' | $T8 %] </h3>
+  <!-- PENDENT: Klasse col noetig in form-adddition -->
+  <div class="col list">
+    <h4>[% 'Article' | $T8 %]</h4>
+    <p>[% L.checkbox_tag('l_partnumber', label=LxERP.t8('Part Number'), checked=1, value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_description', label=LxERP.t8('Part Description'), checked=1, value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_serialnumber', label=LxERP.t8('Serial Number'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_unit', label=LxERP.t8('Unit of measure'), value='Y', checked=1) %]</p>
+    <p>[% L.checkbox_tag('l_weight', label=LxERP.t8('Weight'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_partsgroup', label=LxERP.t8('Partsgroup'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_notes', label=LxERP.t8('Notes'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_ean', label=LxERP.t8('EAN'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_shop', label=LxERP.t8('Shop article'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_projectnumber', label=LxERP.t8('Project Number'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_projectdescription', label=LxERP.t8('Project Description'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_name', label=LxERP.t8('Name in Selected Records'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_soldtotal', label=LxERP.t8('Qty in Selected Records'), value='Y') %]</p>
+  </div>
+
+  <div class="col list">
+    <h4>[% 'Prices' | $T8 %]</h4>
+    <p>[% L.checkbox_tag('l_listprice', label=LxERP.t8('List Price'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_sellprice', label=LxERP.t8('Sell Price'), value='Y', checked=1) %]</p>
+    <p>[% L.checkbox_tag('l_lastcost', label=LxERP.t8('Last Cost'), value='Y', checked=1) %]</p>
+    <p>[% L.checkbox_tag('l_priceupdate', label=LxERP.t8('Updated'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_subtotal', label=LxERP.t8('Subtotal'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_linetotal', label=LxERP.t8('Line Total'), value='Y', checked=1) %]</p>
+    <p>[% L.checkbox_tag('l_pricegroups', label=LxERP.t8('Pricegroups'), value='Y', checked=1) %]</p>
+  </div>
+
+  <div class="col list">
+    <h4>[% 'Handling' | $T8 %]</h4>
+    <p>[% L.checkbox_tag('l_insertdate', label=LxERP.t8('Insert Date'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_deliverydate', label=LxERP.t8('Delivery Date'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_transdate', label=LxERP.t8('Transdate Record'), value='Y') %]</p>
+    <p>&nbsp;</p>
+    <h4>[% 'Vendor' | $T8 %]</h4>
+    <p>[% L.checkbox_tag('l_make', label=LxERP.t8('Make'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_model', label=LxERP.t8('Model'), value='Y') %]</p>
+  </div>
+
+  <div class="col list">
+    <h4>[% 'Warehouse' | $T8 %]</h4>
+    <p>[% L.checkbox_tag('l_warehouse', label=LxERP.t8('Default Warehouse'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_bin', label=LxERP.t8('Default Bin'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_onhand', label=LxERP.t8('Stocked Qty'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_rop', label=LxERP.t8('ROP'), value='Y') %]</p>
+  </div>
+
+  <div class="col list">
+    <h4>[% 'Illustrations' | $T8 %]</h4>
+    <p>[% L.checkbox_tag('l_image', label=LxERP.t8('Image'), value='Y', checked=(INSTANCE_CONF.get_parts_listing_image ? 1 : 0)) %]</p>
+    <p>[% L.checkbox_tag('l_drawing', label=LxERP.t8('Drawing'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_microfiche', label=LxERP.t8('Microfiche'), value='Y') %]</p>
+  </div>
+
+  [% IF CUSTOM_VARIABLES_INCLUSION_CODE %]
+    <div class="col list">
+      <h4>[% 'Custom Variables' | $T8 %] </h4>
+      [% CUSTOM_VARIABLES_INCLUSION_CODE %]
+    </div>
+  [% END %]
+
+</div><!-- ./wrapper.form-addition -->
+
+</form>

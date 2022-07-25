@@ -1,0 +1,46 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE T8 %]
+[% USE L %]
+  </tbody>
+  <tfoot>
+    <tr>
+      <th></th>
+      <th></th>
+      <th class="numeric"> [% LxERP.format_amount(totaldebit, 2) | html %]</th>
+      <th class="numeric"> [% LxERP.format_amount(totalcredit, 2) | html %]</th>
+      <td colspan="2"></td>
+      [% IF show_details %]<td colspan="3"></td>[% END %]
+    </tr>
+  </tfoot>
+</table>
+</div><!-- /.wrapper / see form_header.html -->
+</div><!-- /#ui-tabs-basic-data -->
+
+[% PROCESS 'webdav/_list.html' %]
+<!-- /#ui-tabs-webdav -->
+
+<input name=callback type=hidden value="[% callback %]">
+<input name=bt_id    type=hidden value="[% bt_id %]">
+<input name=bt_chart_id type=hidden value="[% bt_chart_id %]">
+
+[% IF id && follow_ups.size %]
+  <p>[% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', follow_ups.size , follow_ups_due) %]</p>
+[% END %]
+
+</div><!-- /#ir_tabs.tabwidget -->
+
+</form>
+
+<script type="text/javascript"><!--
+$(document).ready(function() {
+  [% SET row=0 %]
+  [% WHILE row < rowcount %]
+   [% SET row=row + 1 %]
+   $('#accno_id_[% row %]').on('set_item:ChartPicker', function(e, item) {
+     kivi.GL.show_chart_balance(this);
+     kivi.GL.update_taxes(this);
+   });
+  [% END %]
+});
+--></script>

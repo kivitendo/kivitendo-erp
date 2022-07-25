@@ -1,0 +1,46 @@
+[% USE L %]
+[% USE LxERP %]
+[% USE HTML %]
+
+[% BLOCK filter_toggle_panel %]
+  <table id="filter_table" class="tbl-horizontal">
+    <tbody>
+    <tr>
+      <th>[% LxERP.t8("From") %]</th>
+      <td>[% L.input_tag("filter.from:substr::ilike", filter.from_substr__ilike, size = 20) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Recipients") %]</th>
+      <td>[% L.input_tag("filter.recipients:substr::ilike", filter.recipients_substr__ilike, size = 20) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Sent on") %]</th>
+      <td>[% L.date_tag("filter.sent_on:date::ge", filter.sent_on_date__ge) %] [% LxERP.t8("To Date") %] [% L.date_tag("filter.sent_on:date::le", filter.sent_on_date__le) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Status") %]</th>
+      <td>[% L.select_tag("filter.status:eq_ignore_empty", [ [ "", "" ], [ "failed", LxERP.t8("failed") ], [ "ok", LxERP.t8("succeeded") ] ], default=filter.status_eq_ignore_empty) %]
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  [% L.hidden_tag("sort_by", FORM.sort_by) %]
+  [% L.hidden_tag("sort_dir", FORM.sort_dir) %]
+  [% L.hidden_tag("page", FORM.page) %]
+  <div class="buttons">[% L.button_tag('$("#filter_form").resetForm()', LxERP.t8('Reset')) %]</div>
+[% END %]
+
+<div class="wrapper">
+<form action="controller.pl" method="post" id="filter_form">
+
+[% INCLUDE common/toggle_panel.html %]
+
+
+
+</div>
+
+</form>
+</div>

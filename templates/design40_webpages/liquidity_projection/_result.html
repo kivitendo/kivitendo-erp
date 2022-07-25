@@ -1,0 +1,74 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE T8 %]
+[% SET name_col = FORM.params.salesman || FORM.params.buchungsgruppe || FORM.params.type %]
+
+<table class="tbl-list wi-moderate">
+  <caption>[% 'Result' | $T8 %]</caption>
+  <thead>
+    <tr>
+      <th>[% LxERP.t8("Type") %]</th>
+      [% IF name_col %]
+        <th>[% LxERP.t8("Name") %]</th>
+      [% END %]
+      [% FOREACH month = SELF.liquidity.sorted.month %]
+        <th>[% IF month == 'old' %][% LxERP.t8("old") %][% ELSIF month == 'future' %][% LxERP.t8("prospective") %][% ELSE %][% HTML.escape(month) %][% END %]</th>
+      [% END %]
+    </tr>
+  </thead>
+  <tbody>
+    [% IF FORM.params.type %] [% FOREACH type = SELF.liquidity.sorted.type %]
+    <tr>
+      <td>[% IF loop.first %][% LxERP.t8("Basis of calculation") %][% END %]</td>
+      <td>[% IF type == 'order' %][% LxERP.t8("Sales Orders") %] [% ELSIF type == 'partial' %][% LxERP.t8("Partial invoices") %] [% ELSE %][% LxERP.t8("Periodic Invoices") %] [% END %] </td>
+      [% FOREACH month = SELF.liquidity.sorted.month %]
+      <td class="numeric">[% LxERP.format_amount(SELF.liquidity.$type.$month, 2) %]</td>
+      [% END %]
+    </tr>
+    [% END %]
+    [% END %]
+
+     [% IF FORM.params.salesman %]
+      [% FOREACH salesman = SELF.liquidity.sorted.salesman %]
+       <tr>
+        <td>[% IF loop.first %][% LxERP.t8("Salesman") %][% END %]</td>
+        <td>[% HTML.escape(salesman) %]</td>
+
+        [% FOREACH month = SELF.liquidity.sorted.month %]
+         <td class="numeric">[% LxERP.format_amount(SELF.liquidity.salesman.$salesman.$month, 2) %]</td>
+        [% END %]
+       </tr>
+      [% END %]
+     [% END %]
+
+     [% IF FORM.params.buchungsgruppe %]
+      [% FOREACH buchungsgruppe = SELF.liquidity.sorted.buchungsgruppe %]
+       <tr>
+        <td>[% IF loop.first %][% LxERP.t8("Booking group") %][% END %]</td>
+        <td>[% HTML.escape(buchungsgruppe) %]</td>
+
+        [% FOREACH month = SELF.liquidity.sorted.month %]
+         <td class="numeric">[% LxERP.format_amount(SELF.liquidity.buchungsgruppe.$buchungsgruppe.$month, 2) %]</td>
+        [% END %]
+       </tr>
+      [% END %]
+     [% END %]
+  </tbody>
+<tfoot>
+  <tr class="listrow listtotal">
+    <td>[% LxERP.t8("Total") %]</td>
+    [% IF name_col %]<td></td>[% END %]
+    [% FOREACH month = SELF.liquidity.sorted.month %]
+      <td class="numeric">
+        [% IF SELF.liquidity.total.$month > 0 %]
+          <a href="[% HTML.escape(SELF.link_to_old_orders(reqdate=month, months=params.months)) %]">
+        [% END %]
+        [% LxERP.format_amount(SELF.liquidity.total.$month, 2) %]
+        [% IF SELF.liquidity.total.$month > 0 %]
+          </a>
+        [% END %]
+      </td>
+   [% END %]
+  </tr>
+</tfoot>
+</table>

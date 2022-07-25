@@ -1,0 +1,46 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+
+[% INCLUDE 'common/flash.html' %]
+
+<h1>[% LxERP.t8("Database login (#1)", title) %]</h1>
+
+<div class="wrapper">
+<form method="post" action="controller.pl">
+<p>
+  [% LxERP.t8('Here you only provide the credentials for logging into the database.') %]
+  [% LxERP.t8('Nothing will be created or deleted at this stage!') %]
+</p>
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8('Host') %]</th>
+      <td>[% L.input_tag('dbhost', dbhost, size=30, class="initial_focus wi-wide") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Port') %]</th>
+      <td>[% L.input_tag('dbport', dbport, class="wi-verysmall") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Database User') %]</th>
+      <td>[% L.input_tag("dbuser", dbuser, class="wi-wide") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Password') %]</th>
+      <td>[% L.input_tag("dbpasswd", dbpasswd, type='password', class="wi-wide") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Database template') %]</th>
+      <td>[% L.input_tag("dbdefault", dbdefault, class="wi-wide") %]</td>
+    </tr>
+  </tbody>
+</table>
+
+[% L.hidden_tag("action", 'Admin/dispatch') %]
+
+<div class="buttons">[% L.submit_tag('action_' _ next_action, LxERP.t8('Login')) %]</div>
+
+</div><!-- /.wrapper -->
+</form>

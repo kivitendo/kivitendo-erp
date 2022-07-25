@@ -1,0 +1,29 @@
+[%- USE HTML -%][%- USE L -%][%- USE LxERP -%]
+<h3>
+ <span class="label">[%- HTML.escape(requirement_spec_item.fb_number) %]:</span>
+ [% IF requirement_spec_item.title %]
+  [% HTML.escape(requirement_spec_item.title) %]
+ [% ELSE %]
+  <div class="dimmed-text">
+   [%- LxERP.t8("No text has been entered yet.") %]
+  </div>
+ [% END %]
+</h3>
+
+<div class="section-description" id="section-description">
+  <div>
+  [% IF requirement_spec_item.description %]
+    <span class="label section-description-heading">[%- LxERP.t8("Preamble") %]:</span><br>
+    [%- requirement_spec_item.description_as_restricted_html -%]
+  [%- ELSE %]
+    <span class="dimmed-text">[%- LxERP.t8("No text has been entered yet.") %]</span>
+  [%- END %]
+  </div>
+
+  [% IF requirement_spec_item.sellprice_factor %]
+  <div>
+    <span class="label">[%- LxERP.t8("Price Factor") -%]:</span> [%- LxERP.format_amount(requirement_spec_item.sellprice_factor, -2) -%]
+  </div>
+  [% END %]
+
+</div>

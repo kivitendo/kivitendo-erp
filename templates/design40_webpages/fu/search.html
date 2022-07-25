@@ -1,0 +1,73 @@
+[% USE T8 %]
+[% USE L %]
+[% USE HTML %]
+
+<h1>[% title %]</h1>
+
+<script type="text/javascript">
+  $(function(){ document.Form.subject.focus(); });
+</script>
+
+<form action="fu.pl" method="post" name="Form" id="form">
+
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <tbody>
+      <tr>
+        <th>[% 'Created for' | $T8 %]</th>
+        <td>
+          <select name="created_for" class="wi-wider">
+            <option></option>
+            [% FOREACH row = EMPLOYEES %]
+            <option value="[% HTML.escape(row.id) %]">
+              [% IF row.name %]
+                [% HTML.escape(row.name) %] ([% HTML.escape(row.login) %])
+              [% ELSE %]
+                [% HTML.escape(row.login) %]
+              [% END %]
+            </option>
+            [% END %]
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Subject' | $T8 %]</th>
+        <td><input type="text" name="subject" class="wi-wider"></td>
+      </tr>
+      <tr>
+        <th>[% 'Body' | $T8 %]</th>
+        <td><input type="text" name="body" class="wi-wider"></td>
+      </tr>
+      <tr>
+        <th>[% 'Reference' | $T8 %]</th>
+        <td><input type="text" name="reference" class="wi-wider"></td>
+      </tr>
+      <tr>
+        <th>[% 'Follow-Up Date' | $T8 %]</th>
+        <td>
+          [% 'From'      | $T8 %] [% L.date_tag('follow_up_date_from') %]
+          [% 'To (time)' | $T8 %] [% L.date_tag('follow_up_date_to'  ) %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Created on' | $T8 %]</th>
+        <td>
+          [% 'From'      | $T8 %] [% L.date_tag('itime_from') %]
+          [% 'To (time)' | $T8 %] [% L.date_tag('itime_to'  ) %]
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="form-addition control-panel">
+  <h3>[% 'Include in Report' | $T8 %]</h3>
+  <div class="list">
+    <input type="checkbox" name="due_only" id="due_only" value="1" checked>   <label for="due_only">[% 'Only due follow-ups' | $T8 %]</label> <br>
+    <input type="checkbox" name="all_users" id="all_users" value="1" checked> <label for="all_users">[% 'Other users\' follow-ups' | $T8 %]</label>  <br>
+    <input type="checkbox" name="not_done" id="not_done" value="1" checked>   <label for="not_done">[% 'Not done yet' | $T8 %]</label>  <br>
+    <input type="checkbox" name="done" id="done" value="1">                   <label for="done">[% 'Done' | $T8 %]</label>
+  </div>
+</div>
+
+</form>

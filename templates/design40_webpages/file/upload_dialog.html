@@ -1,0 +1,37 @@
+[% USE L %]
+[% USE LxERP %]
+[% USE JavaScript %]
+
+<form method="post" id="upload_form" enctype="multipart/form-data" action="controller.pl">
+[% SET multiple = 'true' %]
+[% IF SELF.object_type == 'shop_image' %][% multiple = 'false' %][% END %]
+
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8("Filename") %]:</th>
+      <td><input type="file" name="uploadfiles[]" multiple="[% multiple %]" id="upload_files" size="45" accept="[% SELF.accept_types %]" onchange="kivi.File.allow_upload_submit();"></td>
+    </tr>
+    [% IF SELF.object_type == 'shop_image' %]
+    <tr>
+      <th>[% LxERP.t8("Title") %]</th>
+      <td>[% L.input_tag("title",'') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Description") %]</th>
+      <td>[% L.input_tag("description",'') %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+
+<div class="buttons">
+<input value="[% LxERP.t8("Upload file") %]" id="upload_selected_button" onclick="kivi.File.upload_selected_files([% SELF.object_id %],'[% SELF.object_type %]','[% SELF.file_type %]',[% SELF.maxsize %],[% SELF.is_global %]);" type="button" disabled >
+<a href="#" onclick="kivi.File.reset_upload_form();" class="button neutral">[% LxERP.t8("Reset") %]</a>
+<a href="#" onclick="$('#files_upload').dialog('close');" class="button neutral">[% LxERP.t8("Cancel") %]</a>
+</div>
+
+<div id="upload_result"><p></p></div>
+
+</form>

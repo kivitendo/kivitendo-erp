@@ -1,0 +1,116 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<div id="assortment" class="wrapper">
+
+[% L.hidden_tag('assortment_id', SELF.part.id) %]
+
+<table id="assortment_items" class="tbl-list">
+  <caption>[% 'Assortment items' | $T8 %]</caption>
+  <thead>
+    <tr>
+      <th style="display:none"></th>
+      [% IF SELF.orphaned %]
+        <th style="text-align:center"><img src="image/close.png" alt="[% LxERP.t8('delete item') %]"></th>
+      [% END %]
+      <th>[% 'Position' | $T8 %] </th>
+      [% IF SELF.orphaned %]
+        <th style="text-align:center"><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]"></th>
+      [% END %]
+      <th id="partnumber_header_id" >
+        <a href='javascript:kivi.Part.reorder_items("partnumber")'>[% 'Partnumber' | $T8 %]</a>
+      </th>
+      <th id="partdescription_header_id">
+        <a href='javascript:kivi.Part.reorder_items("description")'>[% 'Description' | $T8 %]</a>
+      </th>
+      <th id="qty_header_id">
+        <a href='javascript:kivi.Part.reorder_items("qty")'>[% 'Qty' | $T8 %]</a>
+      </th>
+      <th>[% 'Unit'         | $T8 %] </th>
+      <th>[% 'Charge'       | $T8 %] </th>
+      <th>[% 'Line Total'   | $T8 %] </th>
+      <th id="sellprice_header_id" class="right">
+        <a href='javascript:kivi.Part.reorder_items("sellprice")'> [% 'Sellprice' | $T8 %]</a>
+      </th>
+      <th id="lastcost_header_id" class="right">
+        <a href='javascript:kivi.Part.reorder_items("lastcost")'> [% 'Lastcost' | $T8 %]</a>
+      </th>
+      <th id="_header_id" class="right">
+        <a href='javascript:kivi.Part.reorder_items("partsgroup")'> [% 'Partsgroup' | $T8 %]</a>
+      </th>
+    </tr>
+  </thead>
+  <tbody id="assortment_rows">
+    [% assortment_html %]
+  </tbody>
+  <tfoot id="assortment_input">
+    <tr>
+      [% IF SELF.orphaned %]
+        <td></td>
+        <td></td>
+        <td></td>
+        <td colspan="4">
+          [% P.part.picker('add_items[+].parts_id', '', class='wi-lightwide', multiple=1, id='assortment_picker', action={set_multi_items='kivi.Part.set_multi_assortment_items'}, placeholder=LxERP.t8('Search & Add Article')) %]
+          [% L.button_tag("kivi.Part.add_assortment_item()", LxERP.t8("Add")) %]
+          [% L.hidden_tag('add_items[].qty_as_number', 1) %]
+        </td>
+      [% ELSE %]
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      [% END %]
+      <td></td>
+      <td></td>
+      <td class="numeric" id="items_sellprice_sum">[% LxERP.format_amount(items_sellprice_sum, 2, 0) %]</td>
+      <td class="numeric" id="items_lastcost_sum" >[% LxERP.format_amount(items_lastcost_sum,  2, 0) %]</td>
+      <td class="numeric" id="items_sum_diff"     >[% LxERP.format_amount(items_sum_diff,      2, 0) %]</td>
+    </tr>
+    <tr class="blank">
+     [% IF SELF.orphaned %]
+       <td></td>
+       <td></td>
+       <td></td>
+       <td colspan="2">[% L.button_tag('$("#assortment_picker").data("part_picker").open_dialog()', LxERP.t8('Add multiple items'), class='neutral') %]</td>
+     [% ELSE %]
+       <td></td>
+       <td></td>
+       <td></td>
+     [% END %]
+     <td></td>
+     <td></td>
+     <td></td>
+     <td></td>
+     <td class="right">[% L.button_tag("kivi.Part.set_assortment_sellprice()", LxERP.t8("Set sellprice")) %]</td>
+     <td class="right">[% L.button_tag("kivi.Part.set_assortment_lastcost()",  LxERP.t8("Set lastcost"))  %]</td>
+     <td></td>
+    </tr>
+  </tfoot>
+
+</table><!-- /#assortment.wrapper -->
+
+[% L.sortable_element('#assortment_rows') %]
+
+</div>
+
+<script type="text/javascript">
+  $(function() {
+    $('#assortment').on( 'focusout', '.recalc', function( event )  {
+      kivi.Part.assortment_recalc();
+    });
+
+    $('#assortment').on( 'change', ':checkbox', function( event )  {
+      kivi.Part.assortment_recalc();
+    });
+
+    $('#assortment_rows').on('sortstop', function(event, ui) {
+      $('#assortment thead a img').remove();
+      kivi.Part.renumber_positions();
+    });
+  })
+</script>

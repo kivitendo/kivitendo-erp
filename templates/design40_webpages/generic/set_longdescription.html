@@ -1,0 +1,39 @@
+[% USE L %]
+[% USE LxERP %]
+
+<div id="edit_longdescription_dialog" class="wrapper" style="display: none">
+<!--
+  PENDENT:
+  Eigentlich gibt es hier kein Formular, sollte es aber,
+  damit wir nicht zuletzt das ganze im CSS-Namensraum FORM
+  designen können. Es werden sonst nur die Standard-Elemente angezeigt.
+-->
+
+<table class="tbl-horizontal checkered" style="clear:left;">
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8("Row") %]:</th>
+      <td id="popup_edit_longdescription_runningnumber"></td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Part Number") %]:</th>
+      <td id="popup_edit_longdescription_partnumber"></td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Description") %]:</th>
+      <td id="popup_edit_longdescription_description"></td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="spacer">&nbsp;</p>
+
+<p id="popup_edit_longdescription_input_container" style="clear:left;"></p>
+
+<div class="buttons">
+  [% L.button_tag("kivi.SalesPurchase.set_longdescription()", LxERP.t8("Assign"), class="button neutral") %]
+  <a onclick="$('#edit_longdescription_dialog').dialog('close');" href="#" class="button neutral">[% LxERP.t8("Abort") %]</a>
+</div>
+
+</div><!-- /#edit_longdescription_dialog -->

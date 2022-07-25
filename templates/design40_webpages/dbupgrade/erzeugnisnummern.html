@@ -1,0 +1,61 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+<h1>[% 'Double partnumbers' | $T8 %]</h1>
+
+<script type="text/javascript">
+<!--
+function show_parts(vc) {
+  var width = 750;
+  var height = 550;
+  var parm = centerParms(width, height) + ",width=" + width + ",height=" + height + ",status=yes,scrollbars=yes";
+  url = "controller.pl?action=LoginScreen/login&upgrade_action=filter_parts&no_layout=1"
+  //alert(url);
+  window.open(url, "_new_generic", parm);
+}
+//-->
+</script>
+
+<form name="Form" method="post" action="login.pl">
+<input type="hidden" name="action" value="login">
+<input type="hidden" name="continued" value="1">
+
+<p>[% 'There are double partnumbers in your database.' | $T8 %]</p>
+<p>[% 'From this version on the partnumber of services, articles and assemblies have to be unique.' | $T8 %]</p>
+<p>[% 'So far you could use one partnumber for severel parts, for example a service and an article.' | $T8 %]</p>
+<p>[% 'Because the useability gets worse if one partnumber is used for several parts (for example if you are searching a position for an invoice), partnumbers should be unique.' | $T8 %]</p>
+
+<p>[% 'Please change the partnumber of the following parts and run the update again:' | $T8 %]</p>
+<table>
+  <tr>
+    <th>[% 'Partnumber' | $T8 %]</th>
+    <th>[% 'Description' | $T8 %]</th>
+    <th>[% 'Unit' | $T8 %]</th>
+    <th>[% 'Notes' | $T8 %]</th>
+    <th>[% 'EAN' | $T8 %]</th>
+    <th>[% 'Service, assembly or part' | $T8 %]</th>
+    <th>[% 'Obsolete' | $T8 %]</th>
+  </tr>
+
+  [% SET row_odd = '1' %][% FOREACH row = PARTS %]
+  <tr class="listrow[% IF row_odd %]1[% SET row_odd = '0' %][% ELSE %]0[% SET row_odd = '1' %][% END %]">
+    <td><input type="text" name='partnumber_[% loop.count %]' value='[% HTML.escape(row.partnumber) %]'></td>
+    <input type="hidden" name='partid_[% loop.count %]' value='[% HTML.escape(row.id) %]'>
+    <td> [% HTML.escape(row.description) %]</a></td>
+    <td>[% HTML.escape(row.unit) %]</td>
+    <td>[% HTML.escape(row.notes) %]</td>
+    <td>[% HTML.escape(row.ean) %]</td>
+    <td>[% IF row.assembly %] [% 'assembly' | $T8 %] [% ELSE %] [% IF row.inventory_accno_id %] [% 'part' | $T8 %] [% ELSE %] [% 'service' | $T8 %] [% END %] [% END %]</td>
+    <td>[% IF row.obsolete %][% LxERP.t8("Obsolete") %][% ELSE %][% LxERP.t8("Not obsolete") %][% END %]</td>
+  </tr>
+  [% SET rowcount = loop.count %]
+  [% END %]
+  <input type="hidden" name="rowcount" value="[% rowcount %]">
+</table>
+
+<input type="button" value="[% 'Show all parts' | $T8 %]" onclick="show_parts('customer')">
+<br>
+<br>
+<input type="submit" value="[% 'Continue' | $T8 %]">
+
+</form>

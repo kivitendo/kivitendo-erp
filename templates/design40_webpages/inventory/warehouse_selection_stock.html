@@ -1,0 +1,101 @@
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+[% USE HTML %]
+[% USE LxERP %]
+
+<h1>[% title | html %]</h1>
+
+[% INCLUDE 'common/flash.html' %]
+
+<form name="Form" method="post" action="controller.pl" id="form">
+
+<div class="wrapper">
+
+  <table class="tbl-horizontal">
+    <colgroup> <col class="wi-mediumsmall"><col class="wi-verywide"> </colgroup>
+    <tbody>
+      <tr>
+        <th>[% 'Part' | $T8 %]</th>
+        <td>[% P.part.picker('part_id', SELF.part, class='wi-wide') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Destination warehouse' | $T8 %]</th>
+        <td class="wi-wide below">
+          [% L.select_tag('warehouse_id', SELF.warehouses, default=SELF.warehouse.id, title_key='description', class='wi-wide') %]
+          [% IF SELF.warehouse.id %]
+            [% L.select_tag('bin_id', SELF.warehouse.bins, default=SELF.bin.id, title_key='description', class='wi-wide below') %]
+          [% ELSE %]
+            <span id="bin_id" class="data wi-wide"></span>
+          [% END %]
+          <span id="write_default_bin_span" style="display:none;" class="below">[% L.checkbox_tag('write_default_bin', label=LxERP.t8('Write bin to default bin in part?')) %]</span>
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Charge number' | $T8 %]</th>
+        <td>[% L.input_tag('chargenumber', FORM.chargenumber, class='wi-wide') %]</td>
+      </tr>
+      [% IF INSTANCE_CONF.get_show_bestbefore %]
+        <tr>
+          <th>[% 'Best Before' | $T8 %]</th>
+          <td>[% L.date_tag('bestbefore', FORM.bestbefore) %]</td>
+        </tr>
+      [% END %]
+      <tr>
+        <th>[% 'Quantity' | $T8 %]</th>
+        <td>
+          [% L.input_tag('qty', LxERP.format_amount(FORM.qty), class='wi-verysmall') %]
+          [% IF SELF.part.unit %]
+            [% L.select_tag('unit_id', SELF.part.available_units, title_key='name', default=SELF.unit.id, class='wi-small') %]
+          [% ELSE %]
+            [% L.select_tag('unit_id', SELF.units, title_key='name', class='wi-small') %]
+          [% END %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Select type of transfer in' | $T8 %]</th>
+        <td>[% L.select_tag('transfer_type_id', TRANSFER_TYPES, title_key='description', class='wi-wide') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Optional comment' | $T8 %]</th>
+        <td>[% L.input_tag('comment', FORM.comment, class='wi-wide') %]</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div><!-- /.wrapper -->
+
+</form>
+
+<div class="wrapper">
+
+  <div id="stock">
+    [% PROCESS 'inventory/_stock.html' %]
+  </div>
+  <div id="journal">
+    [% PROCESS 'inventory/_journal.html' journal=SELF.mini_journal %]
+  </div>
+
+</div><!-- /.wrapper -->
+
+
+<script type="text/javascript">
+  function reload_warehouse_selection () {
+    $.post("controller.pl", { action: 'Inventory/part_changed', part_id: function(){ return $('#part_id').val() } }, kivi.eval_json_result);
+    $.post("controller.pl", { action: 'Inventory/mini_stock', part_id: function(){ return $('#part_id').val() } }, kivi.eval_json_result);
+  }
+  function reload_bin_selection () {
+    $.post("controller.pl", { action: 'Inventory/warehouse_changed', warehouse_id: function(){ return $('#warehouse_id').val() } }, kivi.eval_json_result);
+  }
+  function check_part_selection_before_stocking() {
+    if ($('#part_id').val() !== '')
+      return true;
+
+    alert(kivi.t8('No article has been selected yet.'));
+    return false;
+  }
+  $(function(){
+    $('#part_id').change(reload_warehouse_selection);
+    $('#warehouse_id').change(reload_bin_selection);
+  })
+</script>

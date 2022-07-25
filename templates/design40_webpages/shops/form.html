@@ -1,0 +1,107 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+[% USE T8 %]
+
+[% SET style="width: 400px" %]
+[% SET size=34 %]
+
+<h1>[% HTML.escape(title) %]</h1>
+<form id="form" action="controller.pl" method="post">
+
+[% INCLUDE 'common/flash.html' %]
+
+[% L.hidden_tag("id", SELF.shop.id) %]
+
+<div class="wrapper">
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% 'Description' | $T8 %]</th>
+      <td>[% L.input_tag("shop.description", SELF.shop.description, class='wi-wide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Shop type' | $T8 %]</th>
+      <td>[% L.select_tag('shop.connector', SELF.connectors, value_key = 'id', title_key = 'description', with_empty = 0, default = SELF.shop.connector, default_value_key='id', class='wi-wide' ) %]</td>
+      <tr>
+        <tr>
+          <th>[% 'Price type' | $T8 %]</th>
+          <td>[% L.select_tag('shop.pricetype', SELF.price_types, value_key = 'id', title_key = 'name', with_empty = 0, default = SELF.shop.pricetype, default_value_key='id', class='wi-small' ) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Price Source' | $T8 %]</th>
+          <td>[% L.select_tag('shop.price_source', SELF.price_sources, value_key = 'id', title_key = 'name', with_empty = 0, default = SELF.shop.price_source, default_value_key='id', class='wi-wide' ) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Bookinggroup/Tax' | $T8 %]</th>
+          <td>[% L.select_tag('shop.taxzone_id', SELF.taxzone_id, value_key = 'id', title_key = 'name', with_empty = 0, default = SELF.shop.taxzone_id, default_value_key='id', class='wi-wide' ) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Protocol' | $T8 %]</th>
+          <td>[% L.select_tag('shop.protocol', SELF.protocols value_key = 'id', title_key = 'name', with_empty = 0, default = SELF.shop.protocol, default_value_key='id', class='wi-small' ) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Server' | $T8 %]</th>
+          <td>[% L.input_tag("shop.server", SELF.shop.server, class='wi-wide') %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Port' | $T8 %]</th>
+          <td>[% L.input_tag("shop.port", SELF.shop.port, class='wi-small') %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Path' | $T8 %]</th>
+          <td>[% L.input_tag("shop.path", SELF.shop.path, class='wi-wide') %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Realm' | $T8 %]</th>
+          <td>[% L.input_tag("shop.realm", SELF.shop.realm, class='wi-wide') %]</td>
+        </tr>
+        <tr>
+          <th>[% 'User' | $T8 %]</th>
+          <td>[% L.input_tag("shop.login", SELF.shop.login, class='wi-wide') %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Password' | $T8 %]</th>
+          <td>[% L.input_tag("shop.password", SELF.shop.password, class='wi-wide') %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Last ordernumber' | $T8 %]</th>
+          <td>[% L.input_tag("shop.last_order_number", SELF.shop.last_order_number, class='wi-small') %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Orders to fetch' | $T8 %]</th>
+          <td>[% L.input_tag("shop.orders_to_fetch", SELF.shop.orders_to_fetch, class='wi-small') %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Transaction description' | $T8 %]</th>
+          <td>[% L.input_tag("shop.transaction_description", SELF.shop.transaction_description, class='wi-wide') %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Obsolete' | $T8 %]</th>
+          <td>[% L.checkbox_tag('shop.obsolete', checked = SELF.shop.obsolete, for_submit=1) %]</td>
+        </tr>
+  </tbody>
+</table>
+</div>
+
+
+<script type="text/javascript"><!--
+  function check_prerequisites() {
+    if ($('#shop_description').val() === "") {
+      alert(kivi.t8('The name is missing.'));
+      return false;
+    }
+    if ($('#shop_url').val() === "") {
+      alert(kivi.t8('The URL is missing.'));
+      return false;
+    }
+    if ($('#shop_port').val() === "") {
+      alert(kivi.t8('The port is missing.'));
+      return false;
+    }
+
+    return true;
+  }
+--></script>
+</form>

@@ -1,0 +1,47 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+
+<h1>[% LxERP.t8("Chart configuration overview regarding reports") %]</h1>
+
+<div class="wrapper">
+
+[% FOREACH data = DATA %]
+
+  [% UNLESS data.size == 1 %]
+    <div id="[% HTML.escape(data.type) %]" style="clear:left;float:none;" class="select-item control-panel">
+     [% LxERP.t8("Jump to") %]:
+     [% FOREACH jump = DATA %]
+       [% IF jump.type != data.type %] [% L.link("#" _ jump.type, jump.heading) %][% END %]
+     [% END %]
+    </div>
+  [% END %]
+
+ <h2 style="clear:left;">[% HTML.escape(data.heading) %]</h2>
+
+  [% FOREACH pos = data.positions %]
+    [% SET name = data.names.item(pos) %]
+    [% SET charts = data.charts.$pos %]
+    <table class="tbl-plain" style="clear:left;float:none;">
+      <caption>[% IF name %][% LxERP.t8("Position #1: #2", pos, name) %][% ELSE %][% LxERP.t8("Position #1", pos) %][% END %]</caption>
+      <colgroup><col class="wi-verysmall"><col class="wi-lightwide"></colgroup>
+        <thead>
+          <tr>
+            <th>[% LxERP.t8("Account") %]</th>
+            <th>[% LxERP.t8("Description") %]</th>
+          </tr>
+        </thead>
+     <tbody>
+    [% FOREACH chart = charts %]
+      <tr>
+       <td>[% L.link("am.pl?action=edit_account&id=" _ chart.id, chart.accno) %]</td>
+       <td>[% HTML.escape(chart.description) %]</td>
+      </tr>
+      [% END %]
+     </tbody>
+    </table>
+  [% END %]
+
+[% END %]
+
+</div><!-- /.wrapper -->

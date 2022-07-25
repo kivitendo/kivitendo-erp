@@ -1,0 +1,85 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+
+<!-- PENDENT: Ueberschriften mal genauer anschauen, ebenfalls in Tabellen -->
+<h3>[% company %]
+<br>[% address %] [% 'BALANCE SHEET' | $T8 %]
+<br>[% 'Balance sheet date' | $T8 %]: [% this_period %]
+<br>[% 'Report date' | $T8 %]: [% report_date %]</h3>
+
+<table class="tbl-horizontal test">
+  <tbody>
+    <tr>
+      <th colspan="2"><h3>[% 'ASSETS' | $T8 %]</h3></th>
+      <th>[% this_startdate %] - [% this_period %]</th>
+      <th>[% IF last_period %][% last_startdate %] - [% last_period %][% END %]</th>
+    </tr>
+    [% FOREACH row = A %]
+      <tr>
+        <td class="right">[% row.accno IF l_accno %]</td>
+        [%
+          SET colspan = 1 ;
+          IF row.accno < 1000 ;
+            SET colspan = colspan+1 ;
+            IF last_period      ;
+              SET colspan = colspan+1 ;
+            END ;
+          END ;
+         %]
+        [% IF colspan > 1 %]<td colspan="[% colspan %]">[% ELSE %]<td>[%  END %]
+        [% row.description %]</td>
+        [% IF row.accno > 999 %]
+          <td class="numeric">[% LxERP.format_amount(row.this, decimalplaces) %]</td>
+          <td class="numeric">[% IF last_period %][% LxERP.format_amount(row.last, decimalplaces) %][% END %]</td>
+        [% END %]
+      </tr>
+    [% END %]
+    [% IF l_subtotal %]
+      <tr class="subtotal">
+        <th colspan="2">[% 'TOTAL' | $T8 %]</th>
+        <th class="numeric">[% LxERP.format_amount(total.A.this, decimalplaces) %]</th>
+        <th class="numeric">[% IF last_period %][% LxERP.format_amount(total.A.last, decimalplaces) %][% END %]</th>
+      </tr>
+    [% END %]
+    <tr><th colspan="4" class="caption">[% 'LIABILITIES' | $T8 %]</th></tr>
+    [% FOREACH row = L %]
+      <tr>
+        <td class="right">[% row.accno IF l_accno %]</td>
+        <td>[% row.description %]</td>
+        <td class="numeric">[% LxERP.format_amount(row.this, decimalplaces) %]</td>
+        <td class="numeric">[% IF last_period %][% LxERP.format_amount(row.last, decimalplaces) %][% END %]</td>
+      </tr>
+    [% END %]
+    [% IF l_subtotal %]
+      <tr class="subtotal">
+        <th colspan="2">[% 'TOTAL' | $T8 %]</th>
+        <td class="numeric">[% LxERP.format_amount(total.L.this, decimalplaces) %]</td>
+        <td class="numeric">[% IF last_period %][% LxERP.format_amount(total.L.last, decimalplaces) %][% END %]</td>
+      </tr>
+    [% END %]
+    <tr><th colspan="4" class="caption">[% 'EQUITY' | $T8 %]</th></tr>
+    [% FOREACH row = Q %]
+      <tr>
+        <td class="right">[% row.accno IF l_accno and row.accno %]</td>
+        <td>[% row.description %]</td>
+        <td class="numeric">[% LxERP.format_amount(row.this, decimalplaces) %]</td>
+        <td class="numeric">[% IF last_period %][% LxERP.format_amount(row.last, decimalplaces) %][% END %]</td>
+      </tr>
+    [% END  %]
+    [% IF l_subtotal %]
+    <tr class="subtotal">
+      <th colspan="2">[% 'TOTAL' | $T8 %]</th>
+      <td class="numeric">[% LxERP.format_amount(total.Q.this, decimalplaces) %]</td>
+      <td class="numeric">[% IF last_period %][% LxERP.format_amount(total.Q.last, decimalplaces) %][% END %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+  <tfoot>
+    <tr>
+      <th colspan="2">[% 'TOTAL' | $T8 %] [% 'LIABILITIES' | $T8 %] &amp; [% 'EQUITY' | $T8 %]</th>
+      <td class="numeric">[% LxERP.format_amount(total.this, decimalplaces) %]</td>
+      <td class="numeric">[% IF last_period %][% LxERP.format_amount(total.last, decimalplaces) %][% END %]</td>
+    </tr>
+  </tfoot>
+</table>

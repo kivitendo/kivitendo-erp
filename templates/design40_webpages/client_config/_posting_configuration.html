@@ -1,0 +1,117 @@
+[% USE L %]
+[% USE LxERP %]
+[% USE T8 %]
+
+<div id="posting_configuration">
+
+<div class="wrapper" id="wrapper-5">
+
+<table class="tbl-horizontal">
+  <caption>[% 'Changeable after posting' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-mediumsmall"><col class="wi-normal"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8('Sales invoices') %]</th>
+      <td>[% L.select_tag('defaults.is_changeable', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.is_changeable, class='wi-normal') %]</td>
+      <td class="longdesc">[% LxERP.t8('Should sales invoices be and when should they be changeable or deleteable after posting?') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Purchase invoices') %]</th>
+      <td>[% L.select_tag('defaults.ir_changeable', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.ir_changeable, class='wi-normal') %]</td>
+      <td class="longdesc">[% LxERP.t8('Should purchase invoices be and when should they be deleteable after posting?') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('AR Transactions') %]</th>
+      <td>[% L.select_tag('defaults.ar_changeable', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.ar_changeable, class='wi-normal') %]</td>
+      <td class="longdesc">[% LxERP.t8('Should ar transactions be and when should they be changeable or deleteable after posting?') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('AP Transactions') %]</th>
+      <td>[% L.select_tag('defaults.ap_changeable', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.ap_changeable, class='wi-normal') %]</td>
+      <td class="longdesc">[% LxERP.t8('Should ap transactions be and when should they be changeable or deleteable after posting?') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('GL Transactions') %]</th>
+      <td>[% L.select_tag('defaults.gl_changeable', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.gl_changeable, class='wi-normal') %]</td>
+      <td class="longdesc">[% LxERP.t8('Should gl transactions be and when should they be changeable or deleteable after posting?') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Payments') %]</th>
+      <td>[% L.select_tag('defaults.payments_changeable', SELF.payment_options, value_key = 'value', title_key = 'title', default = SELF.defaults.payments_changeable, class='wi-normal') %]</td>
+      <td class="longdesc">[% LxERP.t8('Should payments be and when should they be changeable after posting?') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<table class="tbl-horizontal">
+  <caption>[% 'Show "mark as paid"' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-small"><col class="wi-normal"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8('Sales Invoices') %]</th>
+      <td>[% L.yes_no_tag('defaults.is_show_mark_as_paid', SELF.defaults.is_show_mark_as_paid, class='wi-small') %]</td>
+      <td class="longdesc">[% LxERP.t8('Should the "mark as paid" button showed on sales invoices?') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Purchase Invoices') %]</th>
+      <td>[% L.yes_no_tag('defaults.ir_show_mark_as_paid', SELF.defaults.ir_show_mark_as_paid, class='wi-small') %]</td>
+      <td class="longdesc">[% LxERP.t8('Should the "mark as paid" button showed in purchase invoices?') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('AR Transactions') %]</th>
+      <td>[% L.yes_no_tag('defaults.ar_show_mark_as_paid', SELF.defaults.ar_show_mark_as_paid, class='wi-small') %]</td>
+      <td class="longdesc">[% LxERP.t8('Should the "mark as paid" button showed in ar transactions?') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('AP Transactions') %]</th>
+      <td>[% L.yes_no_tag('defaults.ap_show_mark_as_paid', SELF.defaults.ap_show_mark_as_paid, class='wi-small') %]</td>
+      <td class="longdesc">[% LxERP.t8('Should the "mark as paid" button showed in ap transactions?') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+<div class="wrapper" id="wrapper-6">
+
+<table class="tbl-horizontal">
+  <caption>[% 'Methods & Preferences' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8('Accounting method') %]</th>
+      <td>[% L.select_tag('defaults.accounting_method', SELF.accounting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.accounting_method, class='wi-normal') %]</td>
+      <td class="longdesc">[% LxERP.t8('This option controls the posting and calculation behavior for the accounting method.') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Inventory system') %]</th>
+      <td>[% L.select_tag('defaults.inventory_system', SELF.inventory_options, value_key = 'value', title_key = 'title', default = SELF.defaults.inventory_system, class='wi-normal') %]</td>
+      <td class="longdesc"> [% LxERP.t8('This option controls the inventory system.') %]<br>
+      [% LxERP.t8('ATTENTION! You can not simply change it from periodic to perpetual once you started posting.') %] </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Profit determination') %]</th>
+      <td>[% L.select_tag('defaults.profit_determination', SELF.profit_options, value_key = 'value', title_key = 'title', default = SELF.defaults.profit_determination, class='wi-morewide') %]</td>
+      <td class="longdesc">[% LxERP.t8('This option controls the method used for profit determination.') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Balance startdate method') %]</th>
+      <td>[% L.select_tag('defaults.balance_startdate_method', SELF.balance_startdate_method_options, value_key = 'value', title_key = 'title', default = SELF.defaults.balance_startdate_method, class='wi-morewide') %]</td>
+      <td class="longdesc">[% LxERP.t8('This option controls the method used for determining the startdate for the balance report.') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Sales Quotation valid interval') %]</th>
+      <td>[% L.input_tag('defaults.reqdate_interval', LxERP.format_amount(SELF.defaults.reqdate_interval, 0), class='wi-verysmall') %]</td>
+      <td class="longdesc">[% LxERP.t8('Usually the sales quotation is valid until the next working day. If a value is set here then the quotation will be valid for at least that many days. The resulting date will be adjusted to the next working day if it ends up on a weekend.') %]</td>
+    </tr>
+    <tr>
+      <td align="right">[% LxERP.t8('Sales Order delivery date interval') %]</td>
+      <td>[% L.input_tag('defaults.delivery_date_interval', LxERP.format_amount(SELF.defaults.delivery_date_interval, 0), style=style) %]</td>
+      <td class="longdesc">[% LxERP.t8('Usually the delivery date of an order is the next working day. If a value is set here this value will be added to the delivery date of the sales order. The resulting date will be adjusted to the next working day if it ends up on a weekend.') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+</div><!-- /#posting_configuration -->

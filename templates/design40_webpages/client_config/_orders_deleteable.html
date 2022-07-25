@@ -1,0 +1,36 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+
+<div id="orders_deleteable">
+<div class="wrapper">
+
+  <table class="tbl-horizontal">
+    <caption>[% 'Orders / Delivery Orders deleteable' | $T8 %]?</caption>
+    <tbody>
+      <tr>
+        <th>[% LxERP.t8('Sales Orders') %]</th>
+        <td>[% L.yes_no_tag('defaults.sales_order_show_delete', SELF.defaults.sales_order_show_delete, class='wi-small') %]</td>
+        <td class="long-desc">[% LxERP.t8('Show delete button in sales orders?') %]</td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8('Purchase Orders') %]</th>
+        <td>[% L.yes_no_tag('defaults.purchase_order_show_delete', SELF.defaults.purchase_order_show_delete, class='wi-small') %]</td>
+        <td class="long-desc">[% LxERP.t8('Show delete button in purchase orders?') %]</td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8('Sales Delivery Orders') %]</th>
+        <td>[% L.yes_no_tag('defaults.sales_delivery_order_show_delete', SELF.defaults.sales_delivery_order_show_delete, class='wi-small') %]</td>
+        <td class="long-desc">[% LxERP.t8('Show delete button in sales delivery orders?') %]</td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8('Purchase Delivery Orders') %]</th>
+        <td>[% L.yes_no_tag('defaults.purchase_delivery_order_show_delete', SELF.defaults.purchase_delivery_order_show_delete, class='wi-small') %]</td>
+        <td class="long-desc">[% LxERP.t8('Show delete button in purchase delivery orders?') %]</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div><!-- /.wrapper -->
+</div><!-- /#orders_deleteable -->
+
