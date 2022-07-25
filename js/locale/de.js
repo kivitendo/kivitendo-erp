@@ -55,7 +55,7 @@ namespace("kivi").setupLocale({
 "Do you really want to print?":"Wollen Sie wirklich drucken?",
 "Do you really want to revert to this version?":"Möchten Sie wirklich auf diese Version zurücksetzen?",
 "Do you really want to unimport the selected documents?":"Möchten Sie wirklich diese Dateien an die Quelle zurückgeben?",
-"Do you want to carry this shipping address over to the new purchase order so that the vendor can deliver the goods directly to your customer?":"Möchten Sie diese Lieferadresse in den neuen Lieferantenauftrag übernehmen, damit der Händler die Waren direkt an Ihren Kunden liefern kann?",
+"Do you want to carry this shipping address over to the new purchase document so that the vendor can deliver the goods directly to your customer?":"Möchten Sie diese Lieferadresse in den neuen Einkaufsbeleg übernehmen, damit der Händler die Waren direkt an Ihren Kunden liefern kann?",
 "Do you want to set the account number \"#1\" to \"#2\" and the name \"#3\" to \"#4\"?":"Soll die Kontonummer \"#1\" zu \"#2\" und den Name \"#3\" zu \"#4\" geändert werden?",
 "Download picture":"Bild herunterladen",
 "Due Date missing!":"Fälligkeitsdatum fehlt!",

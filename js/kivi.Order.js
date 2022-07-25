@@ -835,7 +835,7 @@ namespace('kivi.Order', function(ns) {
     $('#direct-delivery-dialog').remove();
 
     var text1 = kivi.t8('You have entered or selected the following shipping address for this customer:');
-    var text2 = kivi.t8('Do you want to carry this shipping address over to the new purchase order so that the vendor can deliver the goods directly to your customer?');
+    var text2 = kivi.t8('Do you want to carry this shipping address over to the new purchase document so that the vendor can deliver the goods directly to your customer?');
     var html  = '<div id="direct-delivery-dialog"><p>' + text1 + '</p><p>' + shipto + '</p><p>' + text2 + '</p>';
     html      = html + '<hr><p>';
     html      = html + '<input type="button" value="' + kivi.t8('Yes') + '" size="30" onclick="kivi.Order.direct_delivery_callback(true,  \'' + to_type + '\')">';
