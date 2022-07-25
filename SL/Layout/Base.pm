@@ -42,6 +42,10 @@ sub webpages_path {
   "templates/webpages";
 }
 
+sub allow_stylesheet_fallback {
+  1
+}
+
 sub get {
   $_[0]->sub_layouts;
   return grep { $_ } ($_[0]->sub_layouts_by_name->{$_[1]});
@@ -135,7 +139,7 @@ sub _find_stylesheet {
   my ($self, $stylesheet, $css_path) = @_;
 
   return "$css_path/$stylesheet" if -f "$css_path/$stylesheet";
-  return "css/$stylesheet"       if -f "css/$stylesheet";
+  return "css/$stylesheet"       if -f "css/$stylesheet" && $self->allow_stylesheet_fallback;
   return $stylesheet             if -f $stylesheet;
   return $stylesheet             if $stylesheet =~ /^http/; # external
 }
