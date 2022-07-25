@@ -169,7 +169,7 @@ a.cti_call_action {
   padding-left: 18px;
   top: 2px;
   vertical-align: middle;
-  background-image: url(../image/icons/16x16/phone.png);
+  background-image: url(../../image/icons/16x16/phone.png);
   background-repeat: no-repeat;
 }
 .interact {
@@ -466,7 +466,7 @@ body div.center {
   margin-left: 1px;
 }
 #menuv3 > ul > li > ul > li div.x {
-  background: no-repeat right url("../image/menu-arrow-to-right-5.png");
+  background: no-repeat right url("../../image/menu-arrow-to-right-5.png");
   padding-right: 2em;
 }
 #menuv3 > ul > li > ul > li:hover {
@@ -873,7 +873,7 @@ div.layout-split-right.folded {
   border-bottom-right-radius: 4px;
   padding: 4px;
   background-color: #ccccbb;
-  background-image: url("../image/select-down.png");
+  background-image: url("../../image/select-down.png");
   background-repeat: no-repeat;
   background-position: 5px 5px;
 }
@@ -3870,7 +3870,7 @@ th .button-image {
   vertical-align: middle;
 }
 input[type="button"].button-image.delete {
-  background-image: url("image/cross.png");
+  background-image: url("image/cross2.png");
   background-repeat: no-repeat;
   background-position: 0 0;
   color: #fff;
@@ -3978,7 +3978,7 @@ div.filtered_select select {
   display: block;
 }
 div.filtered_select input {
-  background-image: url(../../image/glass14x14.png);
+  background-image: url(../../../image/glass14x14.png);
   background-repeat: no-repeat;
   background-position: 2px 2px;
   border-radius: 0px;
@@ -4534,10 +4534,10 @@ pre.filecontent {
   background-position-x: 99% ;
 }
 .wrapper.toggled > .toggles a.toggle.min {
-  background-image: url(../image/toggle-down.png);
+  background-image: url(../../image/toggle-down.png);
 }
 .wrapper.toggled > .toggles a.toggle.max {
-  background-image: url(../image/toggle-left.png);
+  background-image: url(../../image/toggle-left.png);
 }
 .wrapper.bordered {
   border: 1px #666633 solid;
@@ -4778,7 +4778,7 @@ div.logged-in .message {
   width: 98% ;
 }
 #column-container #tree-column #tree li.flagged > a > ins {
-  background-image: url("../image/flag-red.png") !important;
+  background-image: url("../../image/flag-red.png") !important;
   background-position: 0;
 }
 #column-container #content-column {
@@ -5445,10 +5445,10 @@ button.ui-button::-moz-focus-inner {
   curser: pointer ;
 }
 .ui-datepicker .ui-datepicker-header.ui-widget-header .ui-icon {
-  background-image: url(ui-lightness/images/ui-icons_222222_256x240.png);
+  background-image: url(images/ui-icons_222222_256x240.png);
 }
 .ui-datepicker .ui-datepicker-header.ui-widget-header .ui-state-hover .ui-icon {
-  background-image: url(ui-lightness/images/ui-icons_ef8c08_256x240.png);
+  background-image: url(images/ui-icons_ef8c08_256x240.png);
 }
 .ui-datepicker table {
   width: 100%;
@@ -5811,7 +5811,7 @@ ul.context-menu-list .context-menu-input > label > textarea {
   height: 100%;
 }
 .ui-progressbar .ui-progressbar-overlay {
-  background: url("ui-lightness/images/animated-overlay.gif");
+  background: url("images/animated-overlay.gif");
   height: 100%;
   filter: alpha(opacity=25);
   opacity: 0.25;
@@ -6035,7 +6035,7 @@ body > .ui-dialog > .ui-dialog-content > p > .cke_editable {
 .ui-state-hover .ui-icon,
 .ui-state-focus .ui-icon,
 .ui-state-active .ui-icon {
-  background-image: url(ui-lightness/images/ui-icons_777777_256x240.png) !important;
+  background-image: url(images/ui-icons_777777_256x240.png) !important;
 }
 .ui-state-default {
   border: 1px solid #cccccc;
@@ -6119,27 +6119,27 @@ body > .ui-dialog > .ui-dialog-content > p > .cke_editable {
 }
 .ui-icon,
 .ui-widget-content .ui-icon {
-  background-image: url(ui-lightness/images/ui-icons_222222_256x240.png);
+  background-image: url(images/ui-icons_222222_256x240.png);
 }
 .ui-widget-header .ui-icon {
-  background-image: url(ui-lightness/images/ui-icons_ffffff_256x240.png);
+  background-image: url(images/ui-icons_ffffff_256x240.png);
 }
 .ui-state-default .ui-icon {
-  background-image: url(ui-lightness/images/ui-icons_ef8c08_256x240.png);
+  background-image: url(images/ui-icons_ef8c08_256x240.png);
 }
 .ui-state-hover .ui-icon,
 .ui-state-focus .ui-icon {
-  background-image: url(ui-lightness/images/ui-icons_ef8c08_256x240.png);
+  background-image: url(images/ui-icons_ef8c08_256x240.png);
 }
 .ui-state-active .ui-icon {
-  background-image: url(ui-lightness/images/ui-icons_ef8c08_256x240.png);
+  background-image: url(images/ui-icons_ef8c08_256x240.png);
 }
 .ui-state-highlight .ui-icon {
-  background-image: url(ui-lightness/images/ui-icons_228ef1_256x240.png);
+  background-image: url(images/ui-icons_228ef1_256x240.png);
 }
 .ui-state-error .ui-icon,
 .ui-state-error-text .ui-icon {
-  background-image: url(ui-lightness/images/ui-icons_ffd27a_256x240.png);
+  background-image: url(images/ui-icons_ffd27a_256x240.png);
 }
 .ui-icon-blank {
   background-position: 16px 16px;
@@ -7181,7 +7181,7 @@ span.ppp_popup_button {
   height: 20px;
   width: 20px;
   cursor: pointer;
-  background: url("../image/search.svg") no-repeat center right;
+  background: url("../../image/search.svg") no-repeat center right;
   background-size: contain;
 }
 /* ------------------------------------------------------------- */
@@ -8021,7 +8021,7 @@ body.developing button[type="reset"].neutral-focus {
 /* ICONS 16 (icons16.less)                                    */
 /* ------------------------------------------------------------- */
 .icon16 {
-  background: url(../image/maps/icons16.png) 16px 0px no-repeat;
+  background: url(../../image/maps/icons16.png) 16px 0px no-repeat;
   padding: 0;
   width: 16px;
   height: 16px;
