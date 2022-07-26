@@ -43,7 +43,8 @@ my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
 my @progdirs     = ( "$basedir/SL" );
 my @menufiles    = glob("${basedir}/menus/*/*");
-my @javascript_dirs = ($basedir .'/js', $basedir .'/templates/webpages', $basedir .'/templates/mobile_webpages');
+my @webpages     = qw(webpages mobile_webpages design40_webpages);
+my @javascript_dirs = ($basedir .'/js', map { $basedir .'/templates/' . $_ } @webpages);
 my $javascript_output_dir = $basedir .'/js';
 my $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
 our $self        = {};
@@ -440,7 +441,7 @@ sub scanfile {
         }
 
         my $found_one = 0;
-        for my $space (qw(webpages mobile_webpages)) {
+        for my $space (@webpages) {
           for my $ext (qw(html js json)) {
             my $new_file = "$basedir/templates/$space/$new_file_name.$ext";
             if (-f $new_file) {
@@ -695,7 +696,7 @@ sub scan_javascript_file {
   close($fh);
 }
 sub search_unused_htmlfiles {
-  my @unscanned_dirs = ('../../templates/webpages', '../../templates/mobile_webpages');
+  my @unscanned_dirs = map {  '../../templates/' . $_ } @webpages;
 
   while (scalar @unscanned_dirs) {
     my $dir = shift @unscanned_dirs;
