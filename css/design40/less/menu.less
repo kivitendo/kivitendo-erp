@@ -228,7 +228,7 @@ li.sub {
 // --------------------
 
 // LEFT (Menu) area/column
-body > #layout-split-left {
+body > div.layout-split-left {
   display: block;
   position:         fixed !important;
   top:               0 ;
@@ -244,7 +244,7 @@ body > #layout-split-left {
 }
 
 // RIGHT (Content) area/column
-body > div#layout-split-right {
+body > div.layout-split-right {
   margin-left:   200px;
   //margin-top:   70px;
   padding-top: 28px;
@@ -316,7 +316,7 @@ div.layout-split-right.folded {
 // HTML-JS-MENU
 // --------------------
 
-#layout-split-left #html-menu {
+div.layout-split-left #html-menu {
   display:            block;
   overflow-y:         scroll;
   overflow-x:         hidden;
@@ -327,6 +327,11 @@ div.layout-split-right.folded {
   background-color:   @menu_left_bg ;
   font-size:          @font-size-small;
   border-bottom:      20px @menu_border_color solid ; // PENDENT: Rand unten sollte vorhanden sein
+
+  // menu item icons (mii) ausblenden
+  .mii {
+    display: none;
+  }
 
   // scrollbars can be invisible only on Webkit-Browsers
   &::-webkit-scrollbar {
