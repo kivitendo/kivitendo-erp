@@ -62,7 +62,7 @@ namespace('kivi.PriceRule', function(ns) {
       ns.add_new_row($('#price_rules_empty_item_select').val());
     });
     $('#price_rule_items').on('click', 'a.price_rule_remove_line', function(){
-      $(this).closest('div').remove();
+      $(this).closest('.price_rule_item').remove();
     })
     $('#price_rule_price_type_help').click(ns.open_price_type_help_popup);
     $('#price_rule_filter_type').change(ns.on_change_filter_type);
