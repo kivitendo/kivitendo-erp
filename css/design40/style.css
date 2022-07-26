@@ -5094,6 +5094,21 @@ table#display_row tbody tr td input.row-position {
 #row_table_scroll_id {
   max-width: 96vw !important;
 }
+img.icon-sort-up {
+  content: url("../../image/up-small.png");
+}
+img.icon-sort-down {
+  content: url("../../image/down.png");
+}
+img.icon-dragdrop {
+  content: url("../../image/updown2.png");
+}
+img.icon-delete {
+  content: url("../../image/cross2.png");
+}
+img.icon-map {
+  content: url("../../image/map-earth.png");
+}
 /* ------------------------------------------------------------- */
 /* JQUERY UI (jquery-ui.less)                                    */
 /* ------------------------------------------------------------- */
