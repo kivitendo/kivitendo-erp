@@ -502,7 +502,7 @@ li.sub {
   top: 0px;
   background-color: #FFFFFF;
 }
-body > #layout-split-left {
+body > div.layout-split-left {
   display: block;
   position: fixed !important;
   top: 0 ;
@@ -514,7 +514,7 @@ body > #layout-split-left {
   border-right: 1px #888888 solid;
   background-color: #666666;
 }
-body > div#layout-split-right {
+body > div.layout-split-right {
   margin-left: 200px;
   padding-top: 28px;
   display: block;
@@ -523,48 +523,48 @@ body > div#layout-split-right {
   min-height: 800px;
   height: auto;
 }
-body > div#layout-split-right .layout-actionbar {
+body > div.layout-split-right .layout-actionbar {
   top: 36px;
 }
-body > div#layout-split-right > #content {
+body > div.layout-split-right > #content {
   top: 68px;
   padding-top: 40px;
 }
-body > div#layout-split-right > #content h1 {
+body > div.layout-split-right > #content h1 {
   top: 28px !important;
 }
-body > div#layout-split-right > #content > .wrapper {
+body > div.layout-split-right > #content > .wrapper {
   padding-top: 2em ;
 }
-body > div#layout-split-right > #content + div.wrapper {
+body > div.layout-split-right > #content + div.wrapper {
   padding-top: 4em ;
 }
-body > div#layout-split-right > #content > form {
+body > div.layout-split-right > #content > form {
   margin-top: 0.6em;
 }
-body > div#layout-split-right > #content > form + div.wrapper {
+body > div.layout-split-right > #content > form + div.wrapper {
   padding-top: 4em ;
 }
-body > div#layout-split-right > #content > form > .tabwidget > ui-tabs-panel .wrapper {
+body > div.layout-split-right > #content > form > .tabwidget > ui-tabs-panel .wrapper {
   margin-top: 2em;
 }
-body > div#layout-split-right > #content > form > .tabwidget > ui-tabs-panel .tabwidget ul.ui-tabs-nav {
+body > div.layout-split-right > #content > form > .tabwidget > ui-tabs-panel .tabwidget ul.ui-tabs-nav {
   position: relative;
 }
-body > div#layout-split-right > #content > form > .tabwidget > ul.ui-tabs-nav {
+body > div.layout-split-right > #content > form > .tabwidget > ul.ui-tabs-nav {
   top: 69px;
   width: calc(100% - 200px);
 }
-body > div#layout-split-right > #content > #requirement_spec_tabs.tabwidget > ul.ui-tabs-nav {
+body > div.layout-split-right > #content > #requirement_spec_tabs.tabwidget > ul.ui-tabs-nav {
   top: 69px !important ;
 }
-body > div#layout-split-right.folded {
+body > div.layout-split-right.folded {
   margin-left: 40px;
 }
 div.layout-split-right.folded {
   margin-left: 40px;
 }
-#layout-split-left #html-menu {
+div.layout-split-left #html-menu {
   display: block;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -576,28 +576,31 @@ div.layout-split-right.folded {
   font-size: 10pt;
   border-bottom: 20px #666633 solid;
 }
-#layout-split-left #html-menu::-webkit-scrollbar {
+div.layout-split-left #html-menu .mii {
   display: none;
 }
-#layout-split-left #html-menu > div:last-of-type {
+div.layout-split-left #html-menu::-webkit-scrollbar {
+  display: none;
+}
+div.layout-split-left #html-menu > div:last-of-type {
   border-bottom: 1px #666633 solid;
 }
-#layout-split-left #html-menu .mi {
+div.layout-split-left #html-menu .mi {
   display: block ;
 }
-#layout-split-left #html-menu .mi a {
+div.layout-split-left #html-menu .mi a {
   display: block;
   word-wrap: break-word;
   text-decoration: none;
   font-weight: normal;
 }
-#layout-split-left #html-menu .mi:first-child {
+div.layout-split-left #html-menu .mi:first-child {
   border-top: 2px #666633 solid;
 }
-#layout-split-left #html-menu .mi:last-child {
+div.layout-split-left #html-menu .mi:last-child {
   border-bottom: 1px #666633 solid;
 }
-#layout-split-left #html-menu .s0 {
+div.layout-split-left #html-menu .s0 {
   padding: 0 ;
   background-color: #ccccbb;
   color: #1b1b0e;
@@ -605,102 +608,102 @@ div.layout-split-right.folded {
   font-size: 90% ;
   text-transform: uppercase;
 }
-#layout-split-left #html-menu .s0 a {
+div.layout-split-left #html-menu .s0 a {
   padding: 5px 0 6px 8px ;
   cursor: pointer ;
 }
-#layout-split-left #html-menu .s0 a:hover,
-#layout-split-left #html-menu .s0 a:active {
+div.layout-split-left #html-menu .s0 a:hover,
+div.layout-split-left #html-menu .s0 a:active {
   background-color: #548360;
   color: #fff;
   text-decoration: none;
 }
-#layout-split-left #html-menu .s0 a:link,
-#layout-split-left #html-menu .s0 a:visited {
+div.layout-split-left #html-menu .s0 a:link,
+div.layout-split-left #html-menu .s0 a:visited {
   color: #1b1b0e;
 }
-#layout-split-left #html-menu .s0.menu-open {
+div.layout-split-left #html-menu .s0.menu-open {
   font-weight: normal;
   background-color: #406449;
   color: #fff;
   border-bottom: 0 ;
 }
-#layout-split-left #html-menu .s0.menu-open a {
+div.layout-split-left #html-menu .s0.menu-open a {
   padding: 5px 0 6px 8px ;
   cursor: auto ;
 }
-#layout-split-left #html-menu .s0.menu-open a:hover,
-#layout-split-left #html-menu .s0.menu-open a:active {
+div.layout-split-left #html-menu .s0.menu-open a:hover,
+div.layout-split-left #html-menu .s0.menu-open a:active {
   background-color: #406449;
   color: #fff;
   text-decoration: none;
 }
-#layout-split-left #html-menu .s0.menu-open a:link,
-#layout-split-left #html-menu .s0.menu-open a:visited {
+div.layout-split-left #html-menu .s0.menu-open a:link,
+div.layout-split-left #html-menu .s0.menu-open a:visited {
   color: #fff;
 }
-#layout-split-left #html-menu .s1 {
+div.layout-split-left #html-menu .s1 {
   font-size: 80% ;
   padding: 0 ;
   background-color: #e0e0d6;
   border-top: 1px #666633 solid;
 }
-#layout-split-left #html-menu .s1 a {
+div.layout-split-left #html-menu .s1 a {
   padding: 4px 0 3px 8px ;
 }
-#layout-split-left #html-menu .s1 a:hover,
-#layout-split-left #html-menu .s1 a:active {
+div.layout-split-left #html-menu .s1 a:hover,
+div.layout-split-left #html-menu .s1 a:active {
   background-color: #ccccbb;
   color: #000000;
   text-decoration: none;
 }
-#layout-split-left #html-menu .s1 a:link,
-#layout-split-left #html-menu .s1 a:visited {
+div.layout-split-left #html-menu .s1 a:link,
+div.layout-split-left #html-menu .s1 a:visited {
   color: #1b1b0e;
 }
-#layout-split-left #html-menu .s1.sm:after {
+div.layout-split-left #html-menu .s1.sm:after {
   content: "▼";
   color: #888888;
   font-size: 80% ;
 }
-#layout-split-left #html-menu .s1.sm a {
+div.layout-split-left #html-menu .s1.sm a {
   display: inline-block;
   width: 162px;
   color: #1b1b0e;
 }
-#layout-split-left #html-menu .s1.sm a:hover,
-#layout-split-left #html-menu .s1.sm a:active {
+div.layout-split-left #html-menu .s1.sm a:hover,
+div.layout-split-left #html-menu .s1.sm a:active {
   background-color: #e0e0d6;
   color: #1b1b0e;
   text-decoration: none ;
 }
-#layout-split-left #html-menu .s1.sm a:link,
-#layout-split-left #html-menu .s1.sm a:visited {
+div.layout-split-left #html-menu .s1.sm a:link,
+div.layout-split-left #html-menu .s1.sm a:visited {
   color: #1b1b0e;
 }
-#layout-split-left #html-menu .s1.sm a.ml:link,
-#layout-split-left #html-menu .s1.sm a.ml:visited {
+div.layout-split-left #html-menu .s1.sm a.ml:link,
+div.layout-split-left #html-menu .s1.sm a.ml:visited {
   color: #1b1b0e;
 }
-#layout-split-left #html-menu .s1 > .s2:last-child {
+div.layout-split-left #html-menu .s1 > .s2:last-child {
   border-bottom: 1px #666633 solid;
 }
-#layout-split-left #html-menu .s2 {
+div.layout-split-left #html-menu .s2 {
   padding: 0 ;
   font-size: 80% ;
   background-color: #e0e0d6;
 }
-#layout-split-left #html-menu .s2 a {
+div.layout-split-left #html-menu .s2 a {
   padding: 2px 0 3px 20px ;
 }
-#layout-split-left #html-menu .s2 a:hover,
-#layout-split-left #html-menu .s2 a:active {
+div.layout-split-left #html-menu .s2 a:hover,
+div.layout-split-left #html-menu .s2 a:active {
   background-color: #ccccbb;
   color: #000000;
   text-decoration: none;
 }
-#layout-split-left #html-menu .s2 a:link,
-#layout-split-left #html-menu .s2 a:visited {
+div.layout-split-left #html-menu .s2 a:link,
+div.layout-split-left #html-menu .s2 a:visited {
   color: #1b1b0e;
 }
 #main_menu_div .DHTMLSuite_menuBar_top {
@@ -7611,7 +7614,7 @@ body div.admin > form {
   #frame-header,
   #main_menu_div,
   #js-header,
-  body > #layout-split-left,
+  body > div.layout-split-left,
   #tree-column,
   ul.ui-tabs-nav,
   div.layout-actionbar,
@@ -7620,7 +7623,7 @@ body div.admin > form {
   .toggles {
     display: none !important;
   }
-  body > #layout-split-right {
+  body > div.layout-split-right {
     margin-left: 0 !important;
   }
   .wrapper.toggled > table.tbl-horizontal,
