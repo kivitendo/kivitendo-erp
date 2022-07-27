@@ -15,6 +15,10 @@ sub allow_stylesheet_fallback {
   !is_design40();
 }
 
+sub html_dialect {
+  is_design40() ? 'html5' : $_[0]->SUPER::html_dialect
+}
+
 1;
 
 __END__

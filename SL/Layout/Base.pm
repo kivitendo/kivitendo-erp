@@ -42,6 +42,10 @@ sub webpages_path {
   "templates/webpages";
 }
 
+sub html_dialect {
+  'transitional'
+}
+
 sub allow_stylesheet_fallback {
   1
 }
@@ -361,6 +365,13 @@ A request for "common.css" would not find "css/common.css", but a request for
 "css/common.css" would be found.
 
 Also see the next section L</GORY DETAILS ABOUT JAVASCRIPT AND STYLESHEET OVERLOADING>
+
+=item * html_dialect
+
+Default 'transitional'. Controls the html dialect that the header will
+generate. Used in combination with template overriding for html5.
+
+See also L<SL::Form/header>
 
 =back
 
