@@ -401,11 +401,11 @@ sub form_header {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
-  my %TMPL_VAR = ();
+  my $TMPL_VAR = $::request->cache('tmpl_var', {});
   my @custom_hiddens;
 
-  $TMPL_VAR{invoice_obj} = SL::DB::PurchaseInvoice->load_cached($form->{id}) if $form->{id};
-  $TMPL_VAR{vendor_obj}  = SL::DB::Vendor->load_cached($form->{vendor_id})   if $form->{vendor_id};
+  $TMPL_VAR->{invoice_obj} = SL::DB::PurchaseInvoice->load_cached($form->{id}) if $form->{id};
+  $TMPL_VAR->{vendor_obj}  = SL::DB::Vendor->load_cached($form->{vendor_id})   if $form->{vendor_id};
   my $current_employee   = SL::DB::Manager::Employee->current;
   $form->{employee_id}   = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id}   = $form->{old_salesman_id} if $form->{old_salesman_id};
@@ -416,16 +416,17 @@ sub form_header {
 
   my @old_project_ids     = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
   my @conditions          = @old_project_ids ? (id => \@old_project_ids) : ();
-  $TMPL_VAR{ALL_PROJECTS} = SL::DB::Manager::Project->get_all_sorted(query => [ or => [ active => 1, @conditions ]]);
-  $form->{ALL_PROJECTS}   = $TMPL_VAR{ALL_PROJECTS}; # make projects available for second row drop-down in io.pl
+  $TMPL_VAR->{ALL_PROJECTS} = SL::DB::Manager::Project->get_all_sorted(query => [ or => [ active => 1, @conditions ]]);
+  $form->{ALL_PROJECTS}   = $TMPL_VAR->{ALL_PROJECTS}; # make projects available for second row drop-down in io.pl
 
   $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "currencies"    => "ALL_CURRENCIES",
                    "price_factors" => "ALL_PRICE_FACTORS");
 
-  $TMPL_VAR{ALL_DEPARTMENTS}       = SL::DB::Manager::Department->get_all_sorted;
-  $TMPL_VAR{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
-  $TMPL_VAR{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all_sorted(query => [
+  $TMPL_VAR->{ALL_DEPARTMENTS}       = SL::DB::Manager::Department->get_all_sorted;
+  $TMPL_VAR->{ALL_DELIVERY_TERMS}    = SL::DB::Manager::DeliveryTerm->get_all_sorted();
+  $TMPL_VAR->{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
+  $TMPL_VAR->{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all_sorted(query => [
     or => [
       cp_cv_id => $::form->{"$::form->{vc}_id"} * 1,
       and      => [
@@ -441,15 +442,15 @@ sub form_header {
   $form->{currency}            = $form->{defaultcurrency} unless $form->{currency};
   # show_exchangerate is also later needed in another template
   $form->{show_exchangerate} = $form->{currency} ne $form->{defaultcurrency};
-  $TMPL_VAR{currencies}        = NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
+  $TMPL_VAR->{currencies}        = NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
                                                       '-values' => \@values, '-labels' => \%labels,
                                                       '-onchange' => "document.getElementById('update_button').click();"
                                      )) if scalar @values;
   push @custom_hiddens, "forex";
   push @custom_hiddens, "exchangerate" if $form->{forex};
 
-  $TMPL_VAR{creditwarning} = ($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update};
-  $TMPL_VAR{is_credit_remaining_negativ} = $form->{creditremaining} =~ /-/;
+  $TMPL_VAR->{creditwarning} = ($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update};
+  $TMPL_VAR->{is_credit_remaining_negativ} = $form->{creditremaining} =~ /-/;
 
 # set option selected
   foreach my $item (qw(AP)) {
@@ -457,13 +458,13 @@ sub form_header {
     $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
-  $TMPL_VAR{is_format_html}                         = $form->{format} eq 'html';
-  $TMPL_VAR{dateformat}                             = $myconfig{dateformat};
-  $TMPL_VAR{numberformat}                           = $myconfig{numberformat};
-  $TMPL_VAR{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
+  $TMPL_VAR->{is_format_html}                         = $form->{format} eq 'html';
+  $TMPL_VAR->{dateformat}                             = $myconfig{dateformat};
+  $TMPL_VAR->{numberformat}                           = $myconfig{numberformat};
+  $TMPL_VAR->{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
 
   # hiddens
-  $TMPL_VAR{HIDDENS} = [qw(
+  $TMPL_VAR->{HIDDENS} = [qw(
     id type queued printed emailed title vc discount
     title creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
     max_dunning_level dunning_amount
@@ -473,8 +474,8 @@ sub form_header {
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber', $_.'_tax_id' } split / /, $form->{taxaccounts}];
 
-  $TMPL_VAR{payment_terms_obj} = get_payment_terms_for_invoice();
-  $form->{duedate}             = $TMPL_VAR{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{duedate})->to_kivitendo if $TMPL_VAR{payment_terms_obj};
+  $TMPL_VAR->{payment_terms_obj} = get_payment_terms_for_invoice();
+  $form->{duedate}             = $TMPL_VAR->{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{duedate})->to_kivitendo if $TMPL_VAR->{payment_terms_obj};
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File kivi.SalesPurchase kivi.Part kivi.CustomerVendor kivi.Validator ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_project client_js));
 
@@ -482,7 +483,7 @@ sub form_header {
 
   $form->header();
 
-  print $form->parse_html_template("ir/form_header", \%TMPL_VAR);
+  print $form->parse_html_template("ir/form_header", $TMPL_VAR);
 
   $main::lxdebug->leave_sub();
 }
@@ -517,6 +518,8 @@ sub form_footer {
 
   $form->{invtotal}    = $form->{invsubtotal};
   $form->{oldinvtotal} = $form->{invtotal};
+
+  my $TMPL_VAR = $::request->cache('tmpl_var', {});
 
   # tax, total and subtotal calculations
   my ($tax, $subtotal);
@@ -580,9 +583,8 @@ sub form_footer {
     $totalpaid += $form->{"paid_$i"};
   }
 
-  $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
-
   print $form->parse_html_template('ir/form_footer', {
+    %$TMPL_VAR,
     totalpaid           => $totalpaid,
     paid_missing        => $form->{invtotal} - $totalpaid,
     show_storno         => $form->{id} && !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ap") && !$totalpaid,

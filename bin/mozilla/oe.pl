@@ -563,6 +563,7 @@ sub form_header {
     ]);
 
   $TMPL_VAR->{ALL_PROJECTS}          = SL::DB::Manager::Project->get_all_sorted(query => \@conditions);
+  $TMPL_VAR->{ALL_DELIVERY_TERMS}    = SL::DB::Manager::DeliveryTerm->get_all_sorted();
   $form->{ALL_PROJECTS}            = $TMPL_VAR->{ALL_PROJECTS}; # make projects available for second row drop-down in io.pl
 
   # label subs
@@ -749,8 +750,6 @@ sub form_footer {
     2
   );
   $form->{oldinvtotal} = $form->{invtotal};
-
-  $TMPL_VAR->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   my $print_options_html = setup_sales_purchase_print_options();
 

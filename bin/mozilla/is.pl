@@ -574,6 +574,7 @@ sub form_header {
 
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
   $form->{ALL_LANGUAGES}   = SL::DB::Manager::Language->get_all_sorted;
+  $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   # Projects
   my @old_project_ids = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
@@ -765,8 +766,6 @@ sub form_footer {
   }
 
   $form->{oldinvtotal} = $form->{invtotal};
-
-  $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   my $shipto_cvars       = SL::DB::Shipto->new->cvars_by_config;
   foreach my $var (@{ $shipto_cvars }) {
