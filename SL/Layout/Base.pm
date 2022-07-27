@@ -330,6 +330,42 @@ stylesheets. Javascripts are resolved relative to the C<js/> basedir.
 Setting directly with C<stylesheets> and C<javascripts> is eprecated.
 
 
+=head1 BEHAVIOUR SWITCHES FOR SUB LAYOUTS
+
+Certain methods have been added to adjust behaviour in sub layouts. Most of these are single case uses.
+
+=over 4
+
+=item * sublayouts_by_name
+
+Contains a map that holds named sublayouts. If a sublayout needs to targeted
+directly, the compositing layout needs to add it here. Initially introduced for
+the ActionPlan.
+
+=item * webpages_path
+
+Overrides the default webpages path "templates/webpages". Used for mobile and design40 styles.
+
+Note that this does not have fallback behaviour by default. It is intended for
+stylesheets where the templates are so incompatible that a complete fork of the
+templates dir is sensible.
+
+=item * allow_stylesheet_fallback
+
+Defaults to true. The default behaviour is that stylesheets not found in the
+stylesheet path of the user will fallback to files found in css/. This is
+usually desirable for shared stuff like common.css, which contains behaviour
+styling. If a stylesheet comes from a separate generator, this can be used to
+turn falllback off. Files can still be included with the complete path though.
+A request for "common.css" would not find "css/common.css", but a request for
+"css/common.css" would be found.
+
+Also see the next section L</GORY DETAILS ABOUT JAVASCRIPT AND STYLESHEET OVERLOADING>
+
+=back
+
+
+
 =head1 GORY DETAILS ABOUT JAVASCRIPT AND STYLESHEET OVERLOADING
 
 The original code used to store one stylesheet in C<< $form->{stylesheet} >> and
