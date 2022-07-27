@@ -1550,10 +1550,20 @@
   params:
     action: Admin/login
 - parent: program
-  id: program_documentation_in_german_
+  id: program_documentation_in_german
   name: Documentation (in German)
   order: 500
+- parent: program_documentation_in_german
+  id: program_documentation_in_german_pdf
+  name: PDF
+  order: 100
   href: doc/kivitendo-Dokumentation.pdf
+  target: _blank
+- parent: program_documentation_in_german
+  id: program_documentation_in_german_html
+  name: HTML
+  order: 200
+  href: doc/html/index.html
   target: _blank
 - parent: program
   id: program_kivitendo_website_external_
