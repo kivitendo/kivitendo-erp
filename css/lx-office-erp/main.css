@@ -659,3 +659,11 @@ img.icon-delete {
 img.icon-map {
   content:url("../../image/map.png");
 }
+
+
+
+/* styling for input to textarea switch */
+span.area-input span.switch-to-textarea {
+  content: url("../../image/edit-entry.png");
+  margin-left: 2px;
+}
