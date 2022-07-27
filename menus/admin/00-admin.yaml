@@ -67,10 +67,20 @@
   params: 
     action: Admin/show_lock
 - parent: system
-  id: system_documentation_in_german_
+  id: program_documentation_in_german
   name: Documentation (in German)
   order: 200
+- parent: program_documentation_in_german
+  id: program_documentation_in_german_pdf
+  name: PDF
+  order: 100
   href: doc/kivitendo-Dokumentation.pdf
+  target: _blank
+- parent: program_documentation_in_german
+  id: program_documentation_in_german_html
+  name: HTML
+  order: 200
+  href: doc/html/index.html
   target: _blank
 - parent: system
   id: system_kivitendo_website_external_
