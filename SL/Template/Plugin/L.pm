@@ -228,9 +228,9 @@ sub areainput_tag {
 
   return $self->textarea_tag($name, $value, %attributes, rows => $rows, cols => $cols) if $rows > 1;
 
-  return '<span>'
+  return '<span class="area-input">'
     . $self->input_tag($name, $value, %attributes, size => $cols)
-    . "<img src=\"image/edit-entry.png\" onclick=\"kivi.switch_areainput_to_textarea('${id}')\" style=\"margin-left: 2px;\">"
+    . "<span class=\"switch-to-textarea\" onclick=\"kivi.switch_areainput_to_textarea('${id}')\"></span>"
     . '</span>';
 }
 
