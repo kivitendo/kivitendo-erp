@@ -11,6 +11,10 @@ sub webpages_path {
   is_design40() ? "templates/design40_webpages" : $_[0]->SUPER::webpages_path
 }
 
+sub webpages_fallback_path {
+  is_design40() ? "templates/webpages" : $_[0]->SUPER::webpages_fallback_path
+}
+
 sub allow_stylesheet_fallback {
   !is_design40();
 }
