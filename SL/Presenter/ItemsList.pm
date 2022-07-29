@@ -14,23 +14,11 @@ our @EXPORT_OK = qw(items_list);
 sub items_list {
   my ($items, %params) = @_;
 
-  my $output;
-  if (delete $params{as_text}) {
-    my $template = Template->new({ INTERPOLATE => 1,
-                                   EVAL_PERL   => 0,
-                                   ABSOLUTE    => 1,
-                                   CACHE_SIZE  => 0,
-                                   ENCODING    => 'utf8',
-                                 });
-    die "Could not create Template instance" if !$template;
-    my $filename = File::Spec->catfile($::request->layout->webpages_path, qw(presenter items_list items_list.txt));
-    $template->process($filename, {%params, items => $items}, \$output) || die $template->error;
-    # Remove last newline because it can cause problems when rendering pdf.
-    $output =~ s{\n$}{}x;
+  my $text_mode = !!delete $params{as_text};
 
-  } else {
-    $output = SL::Presenter->get->render('presenter/items_list/items_list', %params, items => $items);
-  }
+  my $output = SL::Presenter->get->render('presenter/items_list/items_list', { type => $text_mode ? 'text' : 'html' }, %params, items => $items);
+
+  $output =~ s{\n$}{}x if $text_mode;
 
   return $output;
 }
