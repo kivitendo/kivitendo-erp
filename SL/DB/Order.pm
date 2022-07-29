@@ -374,7 +374,7 @@ sub new_from {
                employee  => SL::DB::Manager::Employee->current,
             );
 
-  if ( $is_abbr_any->(qw(sopo poso rqso)) ) {
+  if ( $is_abbr_any->(qw(sopo poso rqso sosq porq rqsq sqrq sorq)) ) {
     $args{ordnumber} = undef;
     $args{quonumber} = undef;
     $args{reqdate}   = DateTime->today_local->next_workday();
@@ -390,11 +390,6 @@ sub new_from {
   }
   if ( $is_abbr_any->(qw(soso)) ) {
     $args{periodic_invoices_config} = $source->periodic_invoices_config->clone_and_reset if $source->periodic_invoices_config;
-  }
-  if ( $is_abbr_any->(qw(sosq porq rqsq sqrq sorq)) ) {
-    $args{ordnumber} = undef;
-    $args{quonumber} = undef;
-    $args{reqdate}   = DateTime->today_local->next_workday();
   }
   if ( $is_abbr_any->(qw(sqrq sorq)) ) {
     $args{cusordnumber} = undef;
