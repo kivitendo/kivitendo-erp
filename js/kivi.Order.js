@@ -813,7 +813,6 @@ namespace('kivi.Order', function(ns) {
       shipto = shipto_elements.join('; ');
     }
 
-    var use_it = false;
     if (!empty) {
       ns.direct_delivery_dialog(shipto, to_type);
     } else {
