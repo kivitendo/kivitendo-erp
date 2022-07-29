@@ -555,11 +555,13 @@ sub _prepare_html_template {
   }
   $language = "de" unless ($language);
 
-  my $webpages_path = $::request->layout->webpages_path;
+  my $webpages_path     = $::request->layout->webpages_path;
+  my $webpages_fallback = $::request->layout->webpages_fallback_path;
 
-  if (-f "${webpages_path}/${file}.html") {
-    $file = "${webpages_path}/${file}.html";
+  my @templates = first { -f } map { "${_}/${file}.html" } grep { defined } $webpages_path, $webpages_fallback;
 
+  if (@templates) {
+    $file = $templates[0];
   } elsif (ref $file eq 'SCALAR') {
     # file is a scalarref, use inline mode
   } else {
