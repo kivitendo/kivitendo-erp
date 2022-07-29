@@ -6,6 +6,7 @@ use parent qw(Rose::Object);
 
 use Carp;
 use Template;
+use List::Util qw(first);
 
 use SL::Presenter::EscapedText qw(is_escaped);
 
@@ -45,11 +46,14 @@ sub render {
   # Look for the file given by $template if $template is not a reference.
   my $source;
   if (!ref $template) {
-    my $webpages_path = $::request->layout->webpages_path;
+    my $webpages_path     = $::request->layout->webpages_path;
+    my $webpages_fallback = $::request->layout->webpages_fallback_path;
 
     my $ext = $options->{type} eq 'text' ? 'txt' : $options->{type};
-    $source = "${webpages_path}/${template}.${ext}";
-    croak "Template file ${source} not found" unless -f $source;
+
+    $source = first { -f } map { "${_}/${template}.${ext}" } grep { defined } $webpages_path, $webpages_fallback;
+
+    croak "Template file ${template} not found" unless $source;
 
   } elsif (ref($template) eq 'SCALAR') {
     # Normal scalar reference: hand over to Template
@@ -98,7 +102,10 @@ sub render {
 sub get_template {
   my ($self) = @_;
 
-  my $webpages_path = $::request->layout->webpages_path;
+  my $webpages_path     = $::request->layout->webpages_path;
+  my $webpages_fallback = $::request->layout->webpages_fallback_path;
+
+  my $include_path = join ':', grep defined, $webpages_path, $webpages_fallback;
 
   # Make locales.pl parse generic/exception.html, too:
   # $::form->parse_html_template("generic/exception")
@@ -108,7 +115,7 @@ sub get_template {
                     ABSOLUTE     => 1,
                     CACHE_SIZE   => 0,
                     PLUGIN_BASE  => 'SL::Template::Plugin',
-                    INCLUDE_PATH => ".:$webpages_path",
+                    INCLUDE_PATH => ".:$include_path",
                     COMPILE_EXT  => '.tcc',
                     COMPILE_DIR  => $::lx_office_conf{paths}->{userspath} . '/templates-cache',
                     ERROR        => "${webpages_path}/generic/exception.html",

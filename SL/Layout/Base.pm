@@ -42,6 +42,9 @@ sub webpages_path {
   "templates/webpages";
 }
 
+sub webpages_fallback_path {
+}
+
 sub html_dialect {
   'transitional'
 }
@@ -353,6 +356,15 @@ Overrides the default webpages path "templates/webpages". Used for mobile and de
 Note that this does not have fallback behaviour by default. It is intended for
 stylesheets where the templates are so incompatible that a complete fork of the
 templates dir is sensible.
+
+=item * webpages_fallback_path
+
+Allows partial template sets to fallback to other paths in case a template
+wasn't found. Intended to be used in conjunction with L</webpages_path>.
+
+Note: in case a template can't be found at all, generic/error.html will be
+rendered, and the fallback doesn't work in this case.
+
 
 =item * allow_stylesheet_fallback
 
