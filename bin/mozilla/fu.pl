@@ -83,6 +83,8 @@ sub edit {
     $form->{title} = $locale->text('Edit Follow-Up');
   }
 
+  $form->{created_for_employees} = SL::DB::FollowUp->new(id => $form->{id})->load->created_for_employees;
+
   display_form();
 
   $main::lxdebug->leave_sub();
@@ -95,7 +97,7 @@ sub display_form {
 
   my $form     = $main::form;
 
-  $form->get_lists("employees" => "EMPLOYEES");
+  $form->{all_employees} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   my %params;
   $params{not_id}     = $form->{id} if ($form->{id});
@@ -107,7 +109,9 @@ sub display_form {
 
   setup_fu_display_form_action_bar() unless $::form->{POPUP_MODE};
 
-  $form->header(no_layout => $::form->{POPUP_MODE});
+  $form->header(no_layout       => $::form->{POPUP_MODE},
+                use_javascripts => [ qw(jquery.selectboxes jquery.multiselect2side) ],
+  );
   print $form->parse_html_template('fu/add_edit');
 
   $main::lxdebug->leave_sub();
@@ -121,11 +125,11 @@ sub save_follow_up {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
-  $form->isblank('created_for_user', $locale->text('You must chose a user.'));
+  $form->error(                      $locale->text('You must chose a user.'))          if !$form->{created_for_employees};
   $form->isblank('follow_up_date',   $locale->text('The follow-up date is missing.'));
   $form->isblank('subject',          $locale->text('The subject is missing.'));
 
-  my %params = (map({ $_ => $form->{$_} } qw(id subject body note_id created_for_user follow_up_date)), 'done' => 0);
+  my %params = (map({ $_ => $form->{$_} } qw(id subject body note_id created_for_employees follow_up_date)), 'done' => 0);
 
   _collect_links(\%params);
 
@@ -143,7 +147,7 @@ sub save_follow_up {
     $form->redirect();
   }
 
-  delete @{$form}{qw(id subject body created_for_user follow_up_date)};
+  delete @{$form}{qw(id subject body created_for_employees follow_up_date)};
 
   map { $form->{$_} = 1 } qw(due_only all_users not_done);
 

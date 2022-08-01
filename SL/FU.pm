@@ -35,13 +35,13 @@ sub _save {
   if (!$params{id}) {
     ($params{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('follow_up_id')|);
 
-    $query = qq|INSERT INTO follow_ups (created_by, done, note_id, follow_up_date, created_for_user, id)
-                VALUES ((SELECT id FROM employee WHERE login = ?), ?, ?, ?, ?, ?)|;
+    $query = qq|INSERT INTO follow_ups (created_by, done, note_id, follow_up_date, id)
+                VALUES ((SELECT id FROM employee WHERE login = ?), ?, ?, ?, ?)|;
 
     push @values, $::myconfig{login};
 
   } else {
-    $query = qq|UPDATE follow_ups SET done = ?, note_id = ?, follow_up_date = ?, created_for_user = ? WHERE id = ?|;
+    $query = qq|UPDATE follow_ups SET done = ?, note_id = ?, follow_up_date = ? WHERE id = ?|;
   }
 
   $params{note_id} = Notes->save('id'           => $params{note_id},
@@ -53,7 +53,7 @@ sub _save {
 
   $params{done} = 1 if (!defined $params{done});
 
-  do_query($form, $dbh, $query, @values, $params{done} ? 't' : 'f', conv_i($params{note_id}), $params{follow_up_date}, conv_i($params{created_for_user}), conv_i($params{id}));
+  do_query($form, $dbh, $query, @values, $params{done} ? 't' : 'f', conv_i($params{note_id}), $params{follow_up_date}, conv_i($params{id}));
 
   do_query($form, $dbh, qq|DELETE FROM follow_up_links WHERE follow_up_id = ?|, conv_i($params{id}));
 
@@ -65,6 +65,15 @@ sub _save {
   }
 
   $sth->finish();
+
+  do_query($form, $dbh, qq|DELETE FROM follow_up_created_for_employees WHERE follow_up_id = ?|, conv_i($params{id}));
+
+  $query = qq|INSERT INTO follow_up_created_for_employees (follow_up_id, employee_id) VALUES (?, ?)|;
+  $sth   = prepare_query($form, $dbh, $query);
+
+  foreach my $employee_id (@{ $params{created_for_employees} }) {
+    do_statement($form, $sth, $query, conv_i($params{id}), $employee_id);
+  }
 
   return 1;
 }
@@ -131,8 +140,9 @@ sub retrieve {
   $query            = qq|SELECT fu.*, n.subject, n.body, n.created_by
                          FROM follow_ups fu
                          LEFT JOIN notes n ON (fu.note_id = n.id)
+                         LEFT JOIN follow_up_created_for_employees ON (follow_up_created_for_employees.follow_up_id = fu.id)
                          WHERE (fu.id = ?)
-                           AND (   (fu.created_by = ?) OR (fu.created_for_user = ?)
+                           AND (   (fu.created_by = ?) OR (follow_up_created_for_employees.employee_id = ?)
                                 OR (fu.created_by IN (SELECT DISTINCT what FROM follow_up_access WHERE who = ?)))|;
   my $ref           = selectfirst_hashref_query($form, $dbh, $query, conv_i($params{id}), $employee_id, $employee_id, $employee_id);
 

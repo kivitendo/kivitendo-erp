@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE L %]
 [%- USE HTML %]
+[%- USE LxERP %]
 <h1>[% title %]</h1>
 
  <script type="text/javascript">
@@ -21,14 +22,22 @@
   <table>
     <tr>
      <td valign="top">[% 'Follow-Up for user' | $T8 %]</td>
-     <td valign="top">
-      <select name="created_for_user">
-       [%- FOREACH row = EMPLOYEES %]
-       <option value="[% HTML.escape(row.id) %]"[% IF created_for_user == row.id %] selected[% END %]>
-        [%- IF row.name %][% HTML.escape(row.name) %] ([% HTML.escape(row.login) %])[% ELSE %][% HTML.escape(row.login) %][% END %]
-       </option>
-       [%- END %]
-      </select>
+     <td align="top">
+      [% L.select_tag(
+        'created_for_employees[]',
+        all_employees,
+        id                => 'created_for_employees',
+        value_key         => 'id',
+        title_key         => 'safe_name',
+        default           => created_for_employees,
+        default_value_key => 'id',
+        multiple          => 1)
+      %]
+      [% L.multiselect2side(
+      'created_for_employees',
+       labelsx => LxERP.t8('All users'),
+       labeldx => LxERP.t8('Wiedervorlage für Benutzer'))
+      -%]
      </td>
     </tr>
 
