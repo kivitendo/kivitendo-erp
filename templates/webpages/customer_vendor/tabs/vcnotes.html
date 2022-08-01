@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %]
+[%- USE LxERP %]
 
 <div id="vcnotes">
   [% IF ( SELF.notes && SELF.notes.size ) %]
@@ -94,13 +95,26 @@
 
         <td>
           [% L.date_tag('note_followup.follow_up_date', SELF.note_followup.follow_up_date) %]
-          [% 'for' | $T8 %]
+        <td>
+      </tr>
+
+      <tr>
+        <td valign="right" align="top">[% 'for' | $T8 %]</td>
+        <td align="top">
           [% L.select_tag(
-               'note_followup.created_for_user',
-               SELF.all_employees,
-               default = SELF.note_followup.created_for_user,
-               title_key = 'safe_name'
-             )
+            'note_followup.created_for_employees[]',
+            SELF.all_employees,
+            id                => 'note_followup_created_for_employees',
+            value_key         => 'id',
+            title_key         => 'safe_name',
+            default           => SELF.note_followup.created_for_employees,
+            default_value_key => 'id',
+            multiple          => 1)
+          %]
+          [% L.multiselect2side(
+            'note_followup_created_for_employees',
+            labelsx => LxERP.t8('All users'),
+            labeldx => LxERP.t8('Wiedervorlage für Benutzer'))
           %]
         </td>
       </tr>

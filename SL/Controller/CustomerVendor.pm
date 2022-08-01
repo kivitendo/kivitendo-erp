@@ -265,6 +265,9 @@ sub _save {
       if ( !$self->{note_followup}->follow_up_date ) {
         $::form->error($::locale->text('Date missing!'));
       }
+      if (!$self->{note_followup}->{created_for_employees}) {
+        $::form->error($::locale->text('You must chose a user.'));
+      }
 
       $self->{note}->trans_id($self->{cv}->id);
       $self->{note}->save();
@@ -1205,7 +1208,7 @@ sub _pre_render {
 
   $self->{template_args} ||= {};
 
-  $::request->{layout}->add_javascripts("$_.js") for qw (kivi.CustomerVendor kivi.File kivi.CustomerVendorTurnover ckeditor/ckeditor ckeditor/adapters/jquery);
+  $::request->{layout}->add_javascripts("$_.js") for qw (kivi.CustomerVendor kivi.File kivi.CustomerVendorTurnover ckeditor/ckeditor ckeditor/adapters/jquery jquery.selectboxes jquery.multiselect2side);
 
   $self->_setup_form_action_bar;
 }
