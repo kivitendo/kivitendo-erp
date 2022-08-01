@@ -87,7 +87,7 @@
      <td valign="top">[% HTML.escape(row.follow_up_date) %]</td>
      <td valign="top"><a href="fu.pl?action=edit&id=[% HTML.escape(row.id) %][% IF POPUP_MODE %]&POPUP_MODE=1[% END %]">[% HTML.escape(row.subject) %]</a></td>
      <td valign="top">[% HTML.escape(row.created_by_name) %]</td>
-     <td valign="top">[% HTML.escape(row.created_for_user_name) %]</td>
+     <td valign="top">[% HTML.escape(row.created_for_user_name) | html_line_break %]</td>
     </tr>
     [%- END %]
   </table>
@@ -111,7 +111,7 @@
      <td valign="top">[% HTML.escape(row.follow_up_date) %]</td>
      <td valign="top"><a href="fu.pl?action=edit&id=[% HTML.escape(row.id) %][% IF POPUP_MODE %]&POPUP_MODE=1[% END %]">[% HTML.escape(row.subject) %]</a></td>
      <td valign="top">[% HTML.escape(row.created_by_name) %]</td>
-     <td valign="top">[% HTML.escape(row.created_for_user_name) %]</td>
+     <td valign="top">[% HTML.escape(row.created_for_user_name) | html_line_break %]</td>
     </tr>
     [%- END %]
   </table>
