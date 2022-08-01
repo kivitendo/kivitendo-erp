@@ -7,6 +7,7 @@ use List::Util qw(first);
 use SL::Common;
 use SL::DBUtils;
 use SL::DB;
+use SL::DB::FollowUpCreatedForEmployee;
 use SL::Notes;
 
 use strict;
@@ -249,7 +250,7 @@ sub follow_ups {
     push @values, conv_date($params{itime_to});
   }
   if ($params{created_for}) {
-    $where .= qq| AND fu.created_for_user = ?|;
+    $where .= qq| AND follow_up_created_for_employees.employee_id = ?|;
     push @values, conv_i($params{created_for});
   }
 
@@ -264,7 +265,7 @@ sub follow_ups {
     my %sort_columns = (
       'follow_up_date' => [ qw(fu.follow_up_date fu.id) ],
       'created_on'     => [ qw(created_on fu.id) ],
-      'subject'        => [ qw(lower(n.subject)) ],
+      'subject'        => [ qw(n.subject) ],
       );
 
     my $sortdir = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
@@ -272,16 +273,15 @@ sub follow_ups {
     $order_by   = 'ORDER BY ' . join(', ', map { "$_ $sortdir" } @{ $sort_columns{$sortkey} });
   }
 
-  $query  = qq|SELECT fu.*, n.subject, n.body, n.created_by,
+  $query  = qq|SELECT DISTINCT fu.*, n.subject, n.body, n.created_by,
                  fu.follow_up_date <= current_date AS due,
                  fu.itime::DATE                    AS created_on,
-                 COALESCE(eby.name,  eby.login)    AS created_by_name,
-                 COALESCE(efor.name, efor.login)   AS created_for_user_name
+                 COALESCE(eby.name,  eby.login)    AS created_by_name
                FROM follow_ups fu
                LEFT JOIN notes    n    ON (fu.note_id          = n.id)
                LEFT JOIN employee eby  ON (n.created_by        = eby.id)
-               LEFT JOIN employee efor ON (fu.created_for_user = efor.id)
-               WHERE ((fu.created_by = ?) OR (fu.created_for_user = ?)
+               LEFT JOIN follow_up_created_for_employees ON (follow_up_created_for_employees.follow_up_id = fu.id)
+               WHERE ((fu.created_by = ?) OR (follow_up_created_for_employees.employee_id = ?)
                       $where_user)
                  $where
                $order_by|;
@@ -295,6 +295,11 @@ sub follow_ups {
 
   foreach my $fu (@{ $follow_ups }) {
     $fu->{LINKS} = $self->retrieve_links(%{ $fu });
+
+    my $fu_created_for_employees = SL::DB::Manager::FollowUpCreatedForEmployee->get_all(
+      where       => [follow_up_id => $fu->{id}],
+      with_obects => ['employee']);
+    $fu->{created_for_user_name} = join "\n", map { $_->employee->safe_name } @{$fu_created_for_employees};
   }
 
   if ($form->{sort} eq 'title') {
