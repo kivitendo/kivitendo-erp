@@ -41,7 +41,9 @@
             </td>
 
             <td>
-              [% row.follow_up.created_for_employee.safe_name | html %]
+              [% FOREACH employee = row.follow_up.created_for_employees -%]
+                [% employee.safe_name | html %][% IF !loop.last %]<br>[% END -%]
+              [% END %]
             </td>
 
             <td>
