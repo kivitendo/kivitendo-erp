@@ -74,7 +74,7 @@ our %foreign_key_name_map     = (
     orderitems                => { parts_id => 'part', trans_id => 'order', },
     delivery_order_items      => { parts_id => 'part' },
     invoice                   => { parts_id => 'part' },
-    follow_ups                => { created_for_user => 'created_for_employee', created_by => 'created_by_employee', },
+    follow_ups                => { created_by => 'created_by_employee', },
     follow_up_access          => { who => 'with_access', what => 'to_follow_ups_by', },
 
     periodic_invoices_configs => { oe_id => 'order', email_recipient_contact_id => 'email_recipient_contact' },

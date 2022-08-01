@@ -65,6 +65,7 @@ use SL::DB::FileFullText;
 use SL::DB::Finanzamt;
 use SL::DB::FollowUp;
 use SL::DB::FollowUpAccess;
+use SL::DB::FollowUpCreatedForEmployee;
 use SL::DB::FollowUpLink;
 use SL::DB::GLTransaction;
 use SL::DB::GenericTranslation;
