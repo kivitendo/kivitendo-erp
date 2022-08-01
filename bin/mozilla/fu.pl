@@ -3,6 +3,7 @@ use POSIX qw(strftime);
 use SL::FU;
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
+use SL::DB::Employee;
 
 require "bin/mozilla/reportgenerator.pl";
 
@@ -40,7 +41,8 @@ sub add {
   _collect_links($form);
 
   $form->get_employee($form->get_standard_dbh(\%myconfig));
-  $form->{created_for_user} = $form->{employee_id};
+
+  push @{$form->{created_for_employees}}, SL::DB::Manager::Employee->current;
 
   $form->{subject} = $form->{trans_subject_1} if $form->{trans_subject_1};
 
