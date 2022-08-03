@@ -18,7 +18,7 @@ $( USE LxERP )$
 \input{insettings.tex}
 
 % laufende Kopfzeile:
-\ourhead{\kundennummer}{$( KiviLatex.filter(reclamation.customervendor.number) )$}{\auftragsbestaetigung}{$( KiviLatex.filter(reclamation.record_number) )$}{$( reclamation.transdate_as_date )$}
+\ourhead{\kundennummer}{$( KiviLatex.filter(reclamation.customervendor.number) )$}{\ekreklamation}{$( KiviLatex.filter(reclamation.record_number) )$}{$( reclamation.transdate_as_date )$}
 
 \setkomavar*{date}{\datum}
 \setkomavar{date}{$( reclamation.transdate_as_date )$}
@@ -27,7 +27,7 @@ $( USE LxERP )$
 %\setkomavar{fromphone}{$( KiviLatex.filter(reclamation.employee.deleted_tel) )$}
 %\setkomavar{fromemail}{$( KiviLatex.filter(reclamation.employee.deleted_email) )$}
 \setkomavar{title}{
-  \auftragsbestaetigung~
+  \ekreklamation~
   \nr~$( KiviLatex.filter(reclamation.record_number) )$%
 }
 
@@ -64,13 +64,13 @@ $( END )$%
 
 \begin{letter}{
     %TODO(Tamino): what name, street, ... ?
-    $( name )$\strut\\
-    $( IF (department_1) )$$( department_1 )$\\$( END )$%
-    $( IF (department_2) )$$( department_2 )$\\$( END )$%
+    $( reclamation.customer.name )$\strut\\
+    $( IF (reclamation.customer.department_1) )$$( reclamation.customer.department_1 )$\\$( END )$%
+    $( IF (reclamation.customer.department_2) )$$( reclamation.customer.department_2 )$\\$( END )$%
     $( reclamation.contact.cp_givenname )$ $( reclamation.contact.cp_name )$\strut\\
-    $( street )$\strut\\
-    $( zipcode )$ $( city )$\strut\\
-    $( country )$ \strut
+    $( reclamation.customer.street )$\strut\\
+    $( reclamation.customer.zipcode )$ $( city )$\strut\\
+    $( reclamation.customer.country )$ \strut
   }
 
 % Bei Kontaktperson Anrede nach Geschlecht unterscheiden.
@@ -91,7 +91,7 @@ $( END )$%
 }
 \thispagestyle{kivitendo.letter.first}
 
-\auftragsformel
+\ekreklamationsformel
 
 \begin{PricingTabular*}
   % eigentliche Tabelle
@@ -104,12 +104,15 @@ $( END )$%
     $( IF (item.reqdate) )$\ExtraDescription{\lieferdatum: $( item.reqdate_as_date )$}$( END )$%
     $( IF (item.serialnumber) )$\ExtraDescription{\seriennummer: $( KiviLatex.filter(item.serialnumber) )$}$( END )$%
     $( IF (item.projectnumber) )$\ExtraDescription{\projektnummer: $( KiviLatex.filter(item.projectnumber) )$}$( END )$%
+    $( IF (item.reason.description) )$\ExtraDescription{\grund: $( KiviLatex.filter(item.reason.description) )$}$( END )$%
+    $( IF (item.reason_description_ext) )$\ExtraDescription{$( KiviLatex.filter(item.reason_description_ext) )$}$( END )$%
     &%
     $( item.qty_as_number )$ $( item.unit )$ &%
     $( item.sellprice_as_number )$&%
     % TODO(Tamino): discount in '%'
-    \Ifstr{$( p_discount )$}{0}{}{\sffamily\scriptsize{(-$( p_discount )$\,\%)}}%
+    \Ifstr{$( item.discount_as_number )$}{0}{}{\sffamily\scriptsize{(-$( item.discount_as_percent )$\%)}}%
     % TODO(Tamino): linetotal
+    \normalsize
     $( LxERP.format_amount(item.linetotal, 2, 0) )$\tabularnewline
   $( END )$%
   }%
@@ -136,7 +139,6 @@ $( IF (reclamation.reqdate) )$%
   \lieferungErfolgtAm ~$( reclamation.reqdate_as_date )$.
 $( END )$%
 
-\textit{\auftragpruefen}
 
 %\closing{\gruesse}
 
