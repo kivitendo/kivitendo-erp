@@ -2379,6 +2379,11 @@ sub setup_edit_action_bar {
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
+          t8('Save and Reclamation'),
+          call      => [ 'kivi.Order.save', 'save_and_reclamation', $::instance_conf->get_order_warn_duplicate_parts ],
+          only_if   => (any { $self->type eq $_ } (sales_order_type(), purchase_order_type()))
+        ],
+        action => [
           t8('Save and Invoice'),
           call      => [ 'kivi.Order.save', { action             => 'save_and_invoice',
                                               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts },
