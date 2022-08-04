@@ -17,6 +17,7 @@ use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Controller::Helper::ParseFilter;
 
+use SL::DB::AuthGroup;
 use SL::DB::Customer;
 use SL::DB::Vendor;
 use SL::DB::Business;
@@ -1084,7 +1085,8 @@ sub _pre_render {
 
   $self->{all_business} = SL::DB::Manager::Business->get_all();
 
-  $self->{all_employees} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
+  $self->{all_employees}   = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
+  $self->{all_auth_groups} = SL::DB::Manager::AuthGroup->get_all_sorted;
 
   $self->{all_greetings} = SL::DB::Manager::Greeting->get_all_sorted();
   if ($self->{cv}->id && $self->{cv}->greeting && !grep {$self->{cv}->greeting eq $_->description} @{$self->{all_greetings}}) {
@@ -1208,7 +1210,7 @@ sub _pre_render {
 
   $self->{template_args} ||= {};
 
-  $::request->{layout}->add_javascripts("$_.js") for qw (kivi.CustomerVendor kivi.File kivi.CustomerVendorTurnover ckeditor/ckeditor ckeditor/adapters/jquery jquery.selectboxes jquery.multiselect2side);
+  $::request->{layout}->add_javascripts("$_.js") for qw (kivi.CustomerVendor kivi.File kivi.CustomerVendorTurnover ckeditor/ckeditor ckeditor/adapters/jquery follow_up);
 
   $self->_setup_form_action_bar;
 }

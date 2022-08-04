@@ -21,40 +21,55 @@
 
   <table>
     <tr>
-     <td valign="top">[% 'Follow-Up for user' | $T8 %]</td>
-     <td align="top">
-      [% L.select_tag(
-        'created_for_employees[]',
-        all_employees,
-        id                => 'created_for_employees',
-        value_key         => 'id',
-        title_key         => 'safe_name',
-        default           => created_for_employees,
-        default_value_key => 'id',
-        multiple          => 1)
-      %]
-      [% L.multiselect2side(
-      'created_for_employees',
-       labelsx => LxERP.t8('All users'),
-       labeldx => LxERP.t8('Wiedervorlage für Benutzer'))
-      -%]
+     <td align="top">[% 'Follow-Up for user' | $T8 %]</td>
+     <td valign="top">
+      <table>
+       <tr class="listheading">
+       <th>[% L.checkbox_tag('checkall_checkboxes', label='', id='ckeckall', checkall="[data-checkall=1]") %]</th>
+       <th>[% LxERP.t8('All users') %]</th>
+       </tr>
+
+       [% FOREACH employee = all_employees %]
+        [% SET checked = 0 %]
+        [% FOREACH cfe = created_for_employees %]
+         [% IF cfe.id == employee.id %][% SET checked = 1 %][% LAST %][% END %]
+        [% END %]
+       <tr class="listrow">
+         <td>[% L.checkbox_tag('created_for_employees[]', value=employee.id, checked=checked, "data-checkall"=1, class="employee_check") %]</td>
+         <td><label for='created_for_employees[]'>[% HTML.escape(employee.safe_name) %]</label><td>
+       </tr>
+        [% END %]
+      </table>
+     <td>
+     <td valign="top">
+      <table>
+       <tr class="listheading"><th>[% LxERP.t8('Users that are a member in this group') %] ([% LxERP.t8('Click group to add the group\'s users') %])</th></tr>
+        [% FOREACH auth_group = all_auth_groups %]
+         <tr onclick="follow_up_do_select(this)" data-ids='[% FOREACH employee = auth_group.get_employees %][% employee.id %][% IF !loop.last %],[% END%][% END%]' class="interactive cursor-pointer">
+          <td class="listrow1"><b>←&nbsp;[% auth_group.name %]</b>: [% auth_group.description %]</td>
+         </tr>
+         [% FOREACH employee = auth_group.get_employees %]
+          <tr class="listrow0"><td>&nbsp;&nbsp;&nbsp;[% employee.safe_name %]</td></tr>
+         [% END %]
+        [% END %]
+      </table>
      </td>
     </tr>
 
     <tr>
      <td valign="right">[% 'Follow-Up Date' | $T8 %]</td>
-     <td>
+     <td colspan="3">
        [% L.date_tag('follow_up_date', follow_up_date) %]
     </tr>
 
     <tr>
      <td valign="right">[% 'Subject' | $T8 %]</td>
-     <td><input name="subject" value="[% HTML.escape(subject) %]" size="50"></td>
+     <td colspan="3"><input name="subject" value="[% HTML.escape(subject) %]" size="50"></td>
     </tr>
 
     <tr>
      <td valign="right" align="top">[% 'Body' | $T8 %]</td>
-     <td align="top"><textarea cols="50" rows="10" name="body">[% HTML.escape(body) %]</textarea></td>
+     <td colspan="3" align="top"><textarea cols="50" rows="10" name="body">[% HTML.escape(body) %]</textarea></td>
     </tr>
   </table>
 

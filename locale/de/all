@@ -4448,6 +4448,7 @@ $self->{texts} = {
   'chart_of_accounts'           => 'kontenuebersicht',
   'cleared'                     => 'Abgeglichen',
   'click here to edit cvars'    => 'Klicken Sie hier, um nach benutzerdefinierten Variablen zu suchen',
+  'click on a group to add the group\'s users' => 'auf eine Gruppe klicken, um alle Gruppenmitglieder auszuwählen',
   'close'                       => 'schließen',
   'closed'                      => 'geschlossen',
   'companylogo_subtitle'        => 'Lizenziert für',

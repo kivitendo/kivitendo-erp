@@ -4447,6 +4447,7 @@ $self->{texts} = {
   'chart_of_accounts'           => '',
   'cleared'                     => '',
   'click here to edit cvars'    => '',
+  'click on a group to add the group\'s users' => '',
   'close'                       => '',
   'closed'                      => '',
   'companylogo_subtitle'        => '',

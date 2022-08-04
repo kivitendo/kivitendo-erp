@@ -3,6 +3,7 @@ use POSIX qw(strftime);
 use SL::FU;
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
+use SL::DB::AuthGroup;
 use SL::DB::Employee;
 
 require "bin/mozilla/reportgenerator.pl";
@@ -99,7 +100,8 @@ sub display_form {
 
   my $form     = $main::form;
 
-  $form->{all_employees} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
+  $form->{all_employees}   = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
+  $form->{all_auth_groups} = SL::DB::Manager::AuthGroup->get_all_sorted;
 
   my %params;
   $params{not_id}     = $form->{id} if ($form->{id});
@@ -112,7 +114,7 @@ sub display_form {
   setup_fu_display_form_action_bar() unless $::form->{POPUP_MODE};
 
   $form->header(no_layout       => $::form->{POPUP_MODE},
-                use_javascripts => [ qw(jquery.selectboxes jquery.multiselect2side) ],
+                use_javascripts => [ qw(follow_up) ],
   );
   print $form->parse_html_template('fu/add_edit');
 

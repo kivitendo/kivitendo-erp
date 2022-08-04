@@ -30,3 +30,12 @@ function follow_up_window() {
   //alert(url);
   window.open(url, "_new_generic", parm);
 }
+
+function follow_up_do_select(target) {
+  let ids = ($(target).data('ids')+'').split(',');
+  $('.employee_check').each(function(check_idx, check_elt) {
+    if (ids.indexOf($(check_elt).val()) !== -1) {
+      $(check_elt).prop('checked', true);
+    }
+  });
+}
