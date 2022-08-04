@@ -105,8 +105,7 @@ sub action_add_from_reclamation {
 
   require SL::DB::Reclamation;
   my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
-  my $type = $reclamation->type eq 'sales_reclamation' ? 'rma_delivery_order' : 'supplier_delivery_order';
-  my ($delivery_order, $error) = $reclamation->convert_to_delivery_order(type => $type);
+  my ($delivery_order, $error) = $reclamation->convert_to_delivery_order();
   if($error) {
     croak("Error while converting: " . $error);
   }

@@ -207,6 +207,7 @@ sub new_from {
     $record_args{cp_id} = $source->contact_id;
     $record_args{cusordnumber} = $source->cv_record_number;
     $record_args{is_sales} = $source->is_sales;
+    $record_args{type} = $source->is_sales ? 'rma_delivery_order' : 'supplier_delivery_order';
     # }}} for vim folds
   }
 
@@ -230,7 +231,8 @@ sub new_from {
   $delivery_order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
 
   my $items = delete($params{items}) || $source->items_sorted;
-  my @items = $delivery_order->is_type(SUPPLIER_DELIVERY_ORDER_TYPE) ? ()
+  my @items = ( $delivery_order->is_type(SUPPLIER_DELIVERY_ORDER_TYPE) && ref($source) ne 'SL::DB::Reclamation' ) ?
+                ()
               : map { SL::DB::DeliveryOrderItem->new_from($_) } @{ $items };
 
   @items = grep { $params{item_filter}->($_) } @items if $params{item_filter};
