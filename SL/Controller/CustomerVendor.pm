@@ -273,6 +273,9 @@ sub _save {
       $self->{note}->trans_id($self->{cv}->id);
       $self->{note}->save();
 
+      if (delete $self->{note_followup}->{not_done}) {
+        $self->{note_followup}->done->delete if $self->{note_followup}->done;
+      }
       $self->{note_followup}->save();
 
       $self->{note_followup_link}->follow_up_id($self->{note_followup}->id);
@@ -956,6 +959,8 @@ sub _instantiate_args {
   if (delete $::form->{note_followup_done}) {
     $self->{note_followup}->done(SL::DB::FollowUpDone->new) if !$self->{note_followup}->done;
     $self->{note_followup}->done->employee_id(SL::DB::Manager::Employee->current->id);
+  } else {
+    $self->{note_followup}->{not_done} = 1;
   }
 
   $self->{note_followup_link}->trans_type($self->is_vendor() ? 'vendor' : 'customer');
