@@ -21,6 +21,8 @@ Mittelgroße neue Features:
  - Informationen über Positionen in Belegberichten können in einer eigenen
    Spalte angezeigt werden. Es wird zuerst nur die erste Position angezeigt,
    die Information weiterer Positionen lässt sich aus- und einklappen.
+ - Wiedervorlagen können für mehrere Benutzer angelegt werden. Zudem können
+   die Benutzer aus den Benutzergruppen gewählt werden.
 
 Kleinere neue Features und Detailverbesserungen:
 
