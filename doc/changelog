@@ -32,6 +32,7 @@ Kleinere neue Features und Detailverbesserungen:
    Schweiz als Standardwert verwendet. Es werden nur noch Druckvorlagen welche 'qr' im
    Vorlagenkürzel enthalten für die QR-Rechnung verwendet, dies ermöglicht die gleichzeitige
    Verwendung von QR und nicht-QR Rechnungen.
+ - Beim Abschluss von Wiedervorlagen wird der Benutzer und der Zeitpunkt gespeichert.
 
 2022-05-20 - Release 3.6.1
 
