@@ -14,6 +14,7 @@
     <td class="listheading">[% 'Subject' | $T8 %]</td>
     <td class="listheading">[% 'Reference' | $T8 %]</td>
     <td class="listheading">[% 'Created by' | $T8 %]</td>
+    <td class="listheading">[% 'Follow-up for' | $T8 %]</td>
    </tr>
 
    [%- FOREACH row = FOLLOW_UPS %]
@@ -27,6 +28,7 @@
     <td><a href="[% edit_url | html %][% HTML.escape(row.id) %]">[% HTML.escape(row.subject) %]</a></td>
     <td>[% IF row.reference_link %]<a href="[% row.reference_link | html %]">[% END %][% HTML.escape(row.reference) %][% IF row.reference_link %]</a>[% END %]</td>
     <td>[% HTML.escape(row.created_by_name) %]</td>
+    <td>[% HTML.escape(row.created_for_user_name) | html_line_break %]</td>
    </tr>
    [%- END %]
   </table>
