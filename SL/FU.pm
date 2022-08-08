@@ -35,13 +35,13 @@ sub _save {
   if (!$params{id}) {
     ($params{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('follow_up_id')|);
 
-    $query = qq|INSERT INTO follow_ups (created_by, done, note_id, follow_up_date, id)
-                VALUES ((SELECT id FROM employee WHERE login = ?), ?, ?, ?, ?)|;
+    $query = qq|INSERT INTO follow_ups (created_by, note_id, follow_up_date, id)
+                VALUES ((SELECT id FROM employee WHERE login = ?), ?, ?, ?)|;
 
     push @values, $::myconfig{login};
 
   } else {
-    $query = qq|UPDATE follow_ups SET done = ?, note_id = ?, follow_up_date = ? WHERE id = ?|;
+    $query = qq|UPDATE follow_ups SET note_id = ?, follow_up_date = ? WHERE id = ?|;
   }
 
   $params{note_id} = Notes->save('id'           => $params{note_id},
@@ -51,9 +51,15 @@ sub _save {
                                  'body'         => $params{body},
                                  'dbh'          => $dbh,);
 
-  $params{done} = 1 if (!defined $params{done});
+  do_query($form, $dbh, $query, @values, conv_i($params{note_id}), $params{follow_up_date}, conv_i($params{id}));
 
-  do_query($form, $dbh, $query, @values, $params{done} ? 't' : 'f', conv_i($params{note_id}), $params{follow_up_date}, conv_i($params{id}));
+  $params{done} = 1 if (!defined $params{done});
+  if ($params{done}) {
+    do_query($form, $dbh, qq|INSERT INTO follow_up_done (follow_up_id, employee_id) VALUES (?, (SELECT id FROM employee WHERE login = ?))|,
+             conv_i($params{id}), $::myconfig{login});
+  } else {
+    do_query($form, $dbh, qq|DELETE FROM follow_up_done WHERE follow_up_id = ?|, conv_i($params{id}));
+  }
 
   do_query($form, $dbh, qq|DELETE FROM follow_up_links WHERE follow_up_id = ?|, conv_i($params{id}));
 
@@ -89,10 +95,14 @@ sub finish {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  SL::DB->client->with_transaction(sub {
-    do_query($form, SL::DB->client->dbh, qq|UPDATE follow_ups SET done = TRUE WHERE id = ?|, conv_i($params{id}));
-    1;
-  }) or do { die SL::DB->client->error };
+  my ($done)   = selectrow_query($::form, SL::DB->client->dbh, qq|SELECT id FROM follow_up_done WHERE follow_up_id = ?|, conv_i($params{id}));
+  if (!$done) {
+    SL::DB->client->with_transaction(sub {
+      do_query($form, SL::DB->client->dbh, qq|INSERT INTO follow_up_done (follow_up_id, employee_id) VALUES (?, (SELECT id FROM employee WHERE login = ?))|,
+               conv_i($params{id}), $myconfig->{login});
+      1;
+    }) or do { die SL::DB->client->error };
+  }
 
   $main::lxdebug->leave_sub();
 }
@@ -137,10 +147,15 @@ sub retrieve {
   my ($query, @values);
 
   my ($employee_id) = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $::myconfig{login});
-  $query            = qq|SELECT fu.*, n.subject, n.body, n.created_by
+  $query            = qq|SELECT fu.*, n.subject, n.body, n.created_by,
+                         follow_up_done.follow_up_id AS done,
+                         date_trunc('second', follow_up_done.done_at) AS done_at,
+                         COALESCE(done_by.name, done_by.login) AS done_by_employee_name
                          FROM follow_ups fu
                          LEFT JOIN notes n ON (fu.note_id = n.id)
                          LEFT JOIN follow_up_created_for_employees ON (follow_up_created_for_employees.follow_up_id = fu.id)
+                         LEFT JOIN follow_up_done ON (follow_up_done.follow_up_id = fu.id)
+                         LEFT JOIN employee done_by ON (follow_up_done.employee_id = done_by.id)
                          WHERE (fu.id = ?)
                            AND (   (fu.created_by = ?) OR (follow_up_created_for_employees.employee_id = ?)
                                 OR (fu.created_by IN (SELECT DISTINCT what FROM follow_up_access WHERE who = ?)))|;
@@ -219,7 +234,7 @@ sub follow_ups {
 
   if ($params{done} ne $params{not_done}) {
     my $not  = $params{not_done} ? 'NOT' : '';
-    $where  .= qq| AND $not COALESCE(fu.done, FALSE)|;
+    $where  .= qq| AND $not EXISTS (SELECT id FROM follow_up_done WHERE follow_up_id = fu.id)|;
   }
 
   if ($params{not_id}) {
@@ -286,11 +301,13 @@ sub follow_ups {
   $query  = qq|SELECT DISTINCT fu.*, n.subject, n.body, n.created_by,
                  fu.follow_up_date <= current_date AS due,
                  fu.itime::DATE                    AS created_on,
-                 COALESCE(eby.name,  eby.login)    AS created_by_name
+                 COALESCE(eby.name,  eby.login)    AS created_by_name,
+                 follow_up_done.follow_up_id       AS done
                FROM follow_ups fu
                LEFT JOIN notes    n    ON (fu.note_id          = n.id)
                LEFT JOIN employee eby  ON (n.created_by        = eby.id)
                LEFT JOIN follow_up_created_for_employees ON (follow_up_created_for_employees.follow_up_id = fu.id)
+               LEFT JOIN follow_up_done ON (follow_up_done.follow_up_id = fu.id)
                WHERE ((fu.created_by = ?) OR (follow_up_created_for_employees.employee_id = ?)
                       $where_user)
                  $where

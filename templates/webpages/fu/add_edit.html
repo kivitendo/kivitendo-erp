@@ -20,6 +20,13 @@
   <input type="hidden" name="POPUP_MODE" value="[% HTML.escape(POPUP_MODE) %]">
 
   <table>
+    [% IF done_at -%]
+    <tr class="fu_finished">
+      <td>[% 'Finished' | $T8 %]</td>
+      <td>[% 'by' | $T8 %] [% HTML.escape(done_by_employee_name) %]</td>
+      <td colspan="2">[% 'at' | $T8 %] [% HTML.escape(done_at) %]</td>
+    </tr>
+    [% END %]
     <tr>
      <td align="top">[% 'Follow-Up for user' | $T8 %]</td>
      <td valign="top">
@@ -43,7 +50,7 @@
      <td>
      <td valign="top">
       <table>
-       <tr class="listheading"><th>[% LxERP.t8('Users that are a member in this group') %] ([% LxERP.t8('Click group to add the group\'s users') %])</th></tr>
+       <tr class="listheading"><th>[% LxERP.t8('Users that are a member in this group') %] ([% LxERP.t8('click on a group to add the group\'s users') %])</th></tr>
         [% FOREACH auth_group = all_auth_groups %]
          <tr onclick="follow_up_do_select(this)" data-ids='[% FOREACH employee = auth_group.get_employees %][% employee.id %][% IF !loop.last %],[% END%][% END%]' class="interactive cursor-pointer">
           <td class="listrow1"><b>←&nbsp;[% auth_group.name %]</b>: [% auth_group.description %]</td>

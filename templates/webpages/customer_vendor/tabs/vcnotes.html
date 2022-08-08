@@ -74,6 +74,13 @@
 
   <p>
     <table>
+      [% IF SELF.note_followup.done -%]
+      <tr class="fu_finished">
+        <td>[% 'Finished' | $T8 %]</td>
+        <td>[% 'by' | $T8 %] [% HTML.escape(SELF.note_followup.done.employee.safe_name) %]</td>
+        <td colspan="2">[% 'at' | $T8 %] [% HTML.escape(SELF.note_followup.done.done_at_as_timestamp_s) %]</td>
+      </tr>
+      [% END %]
       <tr>
         <td valign="right">[% 'Subject' | $T8 %]</td>
 
@@ -121,7 +128,7 @@
      <td>
      <td valign="top">
       <table>
-       <tr class="listheading"><th>[% LxERP.t8('Users that are a member in this group') %] ([% LxERP.t8('Click group to add the group\'s users') %])</th></tr>
+       <tr class="listheading"><th>[% LxERP.t8('Users that are a member in this group') %] ([% LxERP.t8('click on a group to add the group\'s users') %])</th></tr>
         [% FOREACH auth_group = SELF.all_auth_groups %]
          <tr onclick="follow_up_do_select(this)" data-ids='[% FOREACH employee = auth_group.get_employees %][% employee.id %][% IF !loop.last %],[% END%][% END%]' class="interactive cursor-pointer">
           <td class="listrow1"><b>←&nbsp;[% auth_group.name %]</b>: [% auth_group.description %]</td>
@@ -138,7 +145,7 @@
         <td>&nbsp;</td>
 
         <td>
-          [% L.checkbox_tag('note_followup.done', checked = SELF.note_followup.done) %]
+          [% L.checkbox_tag('note_followup_done', checked = SELF.note_followup.done) %]
           <label for="note_followup_done">[% 'Follow-Up done' | $T8 %]</label>
         </td>
       </tr>

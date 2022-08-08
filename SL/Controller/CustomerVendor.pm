@@ -938,6 +938,7 @@ sub _instantiate_args {
     $self->{note} = SL::DB::Note->new(id => $::form->{note}->{id})->load();
     $self->{note_followup} = $self->{note}->follow_up;
     $self->{note_followup_link} = $self->{note_followup}->follow_up_link;
+
   } else {
     $self->{note} = SL::DB::Note->new();
     $self->{note_followup} = SL::DB::FollowUp->new();
@@ -951,6 +952,11 @@ sub _instantiate_args {
   $self->{note_followup}->assign_attributes(%{$::form->{note_followup}});
   $self->{note_followup}->note($self->{note});
   $self->{note_followup}->created_by($curr_employee->id);
+
+  if (delete $::form->{note_followup_done}) {
+    $self->{note_followup}->done(SL::DB::FollowUpDone->new) if !$self->{note_followup}->done;
+    $self->{note_followup}->done->employee_id(SL::DB::Manager::Employee->current->id);
+  }
 
   $self->{note_followup_link}->trans_type($self->is_vendor() ? 'vendor' : 'customer');
   $self->{note_followup_link}->trans_info($self->{cv}->name);

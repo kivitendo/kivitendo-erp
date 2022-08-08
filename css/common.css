@@ -237,3 +237,7 @@ span.upload_drop_zone {
 .thumbnail {
   cursor: pointer;
 }
+
+.fu_finished {
+  background-color: #ADFFB6;
+}
