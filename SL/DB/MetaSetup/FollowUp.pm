@@ -10,7 +10,6 @@ __PACKAGE__->meta->table('follow_ups');
 
 __PACKAGE__->meta->columns(
   created_by     => { type => 'integer', not_null => 1 },
-  done           => { type => 'boolean', default => 'false' },
   follow_up_date => { type => 'date', not_null => 1 },
   id             => { type => 'integer', not_null => 1, sequence => 'follow_up_id' },
   itime          => { type => 'timestamp', default => 'now()' },

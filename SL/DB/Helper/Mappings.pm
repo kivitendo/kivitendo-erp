@@ -148,6 +148,7 @@ my %kivitendo_package_names = (
   finanzamt                      => 'finanzamt',
   follow_up_access               => 'follow_up_access',
   follow_up_created_for_employees => 'follow_up_created_for_employee',
+  follow_up_done                 => 'follow_up_done',
   follow_up_links                => 'follow_up_link',
   follow_ups                     => 'follow_up',
   generic_translations           => 'generic_translation',
