@@ -2,6 +2,7 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %]
+[%- USE P %]
 <h1>[% 'Update prices' | $T8 %]</h1>
 
 [% INCLUDE 'common/flash.html' %]
@@ -27,7 +28,7 @@
 
   <tr>
    <th align="right" nowrap>[% 'Make' | $T8 %]</th>
-   <td>[% L.input_tag('filter.make', FORM.filter.make, size=20) %]</td>
+   <td>[% P.customer_vendor.picker('filter.make', FORM.filter.make, type='vendor', size=20) %]</td>
    <th align="right" nowrap>[% 'Model' | $T8 %]</th>
    <td>[% L.input_tag('filter.model', FORM.filter.model, size=20) %]</td>
   </tr>

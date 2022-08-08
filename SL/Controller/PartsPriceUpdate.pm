@@ -92,7 +92,7 @@ sub _create_filter_for_priceupdate {
   my @where_values;
   my $where = '1 = 1';
 
-  for my $item (qw(partnumber drawing microfiche make model pg.partsgroup description serialnumber)) {
+  for my $item (qw(partnumber drawing microfiche pg.partsgroup description serialnumber)) {
     my $column = $item;
     $column =~ s/.*\.//;
     next unless $filter->{$column};
@@ -130,10 +130,14 @@ sub _create_filter_for_priceupdate {
 
   }
 
-  for my $column (qw(make model)) {
-    next unless ($filter->{$column});
-    $where .= qq| AND p.id IN (SELECT DISTINCT parts_id FROM makemodel WHERE $column ILIKE ?|;
-    push @where_values, "%$filter->{$column}%";
+  if ($filter->{make}) {
+    $where .= qq| AND p.id IN (SELECT DISTINCT parts_id FROM makemodel WHERE make = ?) |;
+    push @where_values, $filter->{make};
+  }
+
+  if ($filter->{model}) {
+    $where .= qq| AND p.id IN (SELECT DISTINCT parts_id FROM makemodel WHERE model ILIKE ?) |;
+    push @where_values, "%$filter->{model}%";
   }
 
   return ($where, @where_values);
