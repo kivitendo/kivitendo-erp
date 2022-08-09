@@ -29,5 +29,6 @@
   background-color: #FFF;
   border: 1px solid #000;
   display: inline;
+  min-width: 75px;
 }
 
