@@ -201,7 +201,13 @@ sub all_parts {
 
   my %joins = (
     partsgroup => 'LEFT JOIN partsgroup pg      ON (pg.id       = p.partsgroup_id)',
-    makemodel  => 'LEFT JOIN makemodel mm       ON (mm.parts_id = p.id)',
+    makemodel  => "LEFT JOIN LATERAL (
+                      SELECT string_agg(mv.vendornumber || ' ' || mv.name, ', ') AS make,
+                             string_agg(mm.model, ', ')                          AS model
+                        FROM makemodel mm
+                             LEFT JOIN vendor mv ON (mv.id = mm.make)
+                      WHERE  mm.parts_id = p.id
+                   ) mm ON TRUE",
     pfac       => 'LEFT JOIN price_factors pfac ON (pfac.id     = p.price_factor_id)',
     invoice_oi =>
       q|LEFT JOIN (
@@ -219,12 +225,11 @@ sub all_parts {
            SELECT id, name, 'customer' AS cv FROM customer UNION
            SELECT id, name, 'vendor'   AS cv FROM vendor
          ) AS cv ON cv.id = apoe.customer_id OR cv.id = apoe.vendor_id|,
-    mv         => 'LEFT JOIN vendor AS mv ON mv.id = mm.make',
     project    => 'LEFT JOIN project AS pj ON pj.id = COALESCE(ioi.project_id, apoe.globalproject_id)',
     warehouse  => 'LEFT JOIN warehouse AS wh ON wh.id = p.warehouse_id',
     bin        => 'LEFT JOIN bin ON bin.id = p.bin_id',
   );
-  my @join_order = qw(partsgroup makemodel mv invoice_oi apoe cv pfac project warehouse bin);
+  my @join_order = qw(partsgroup makemodel invoice_oi apoe cv pfac project warehouse bin);
 
   my %table_prefix = (
      deliverydate => 'apoe.', serialnumber => 'ioi.',
@@ -405,8 +410,10 @@ sub all_parts {
   # all_parts is based upon the assumption that every parameter is named like the column it represents
   # unfortunately make would have to match vendor.name which is already taken for vendor.name in bsooqr mode.
   # fortunately makemodel doesn't need to be displayed later, so adding a special clause to where_token is sufficient.
+  # the lateral join mm already creates a string consisting of vendornumbers and vendornames in mm.make
+  # and the models in mm.make
   if ($form->{make}) {
-    push @where_tokens, 'mv.name ILIKE ?';
+    push @where_tokens, 'mm.make ILIKE ?';
     push @bind_vars, like($form->{make});
   }
   if ($form->{model}) {
@@ -449,7 +456,6 @@ sub all_parts {
   $joins_needed{pfac}        = 1;
   $joins_needed{project}     = 1 if grep { $form->{$_} || $form->{"l_$_"} } @project_filters;
   $joins_needed{makemodel}   = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
-  $joins_needed{mv}          = 1 if $joins_needed{makemodel};
   $joins_needed{cv}          = 1 if $bsooqr;
   $joins_needed{apoe}        = 1 if $joins_needed{project} || $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
   $joins_needed{invoice_oi}  = 1 if $joins_needed{project} || $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;
