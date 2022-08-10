@@ -23,6 +23,9 @@ Mittelgroße neue Features:
    die Information weiterer Positionen lässt sich aus- und einklappen.
  - Wiedervorlagen können für mehrere Benutzer angelegt werden. Zudem können
    die Benutzer aus den Benutzergruppen gewählt werden.
+ - Erinnerungen an fällige Wiedervorlagen können an Benutzer gemailt werden.
+   Dazu gibt es einen Hintergrund-Job (SendFollowUpReminder), der angelegt und
+   aktiviert werden kann.
 
 Kleinere neue Features und Detailverbesserungen:
 

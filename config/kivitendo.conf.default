@@ -256,6 +256,16 @@ email_subject  = kivitendo self test report
 # template. currently txt and html templates are recognized and correctly mime send.
 email_template = templates/mail/self_test/status_mail.txt
 
+[follow_up_reminder]
+# Email notifications for due follow ups.
+# The "From:" header for said email.
+email_from     = kivitendo Daemon <root@localhost>
+# The subject for said email.
+email_subject  = kivitendo: fällige Wiedervorlagen
+# The template file used for the email's body.
+# If empty fu/follow_up_reminder_mail.html will be used.
+email_template =
+
 [console]
 # Automatic login will only work if both "client" and "login" are
 # given.  "client" can be a client's database ID or its name. "login"
