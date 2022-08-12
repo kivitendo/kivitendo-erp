@@ -117,7 +117,7 @@ sub _init_check {
       [ 'countrycode',  qr{^[A-Z]{2}$} ],
     ],
     'reference number data' => [
-      [ 'type', qr{^(?:QRR|SCOR|NON)$} ],
+      [ 'type', qr{^(?:QRR|NON)$} ],
     ],
   );
 
@@ -422,7 +422,7 @@ Fields: type and ref_number.
 
 =item C<type>
 
-Maximum of 4 characters, alphanumerical. QRR/SCOR/NON.
+Maximum of 4 characters, alphanumerical. QRR/NON.
 
 =item C<ref_number>
 
