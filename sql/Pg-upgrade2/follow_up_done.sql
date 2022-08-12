@@ -10,6 +10,6 @@ CREATE TABLE follow_up_done (
 );
 
 INSERT INTO follow_up_done (follow_up_id, done_at)
-  SELECT id, mtime FROM follow_ups WHERE done IS TRUE;
+  SELECT id, COALESCE(mtime, itime) FROM follow_ups WHERE done IS TRUE;
 
 ALTER TABLE follow_ups DROP COLUMN done;
