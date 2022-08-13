@@ -141,9 +141,9 @@ sub calculate_one_time_data {
       my $month                              = $object->transdate->month - 1;
       my $tdata                              = $self->data->{$type};
 
-      $tdata->{months}->[$month]            += $object->netamount;
-      $tdata->{quarters}->[int($month / 3)] += $object->netamount;
-      $tdata->{year}                        += $object->netamount;
+      $tdata->{months}->[$month]            += $object->netamount_base_currency;
+      $tdata->{quarters}->[int($month / 3)] += $object->netamount_base_currency;
+      $tdata->{year}                        += $object->netamount_base_currency;
     }
   }
 }
