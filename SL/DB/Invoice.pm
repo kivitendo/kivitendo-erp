@@ -626,6 +626,12 @@ sub effective_tax_point {
   return $self->tax_point || $self->deliverydate || $self->transdate;
 }
 
+sub netamount_base_currency {
+  my ($self) = @_;
+
+  return $self->netamount; # already matches base currency
+}
+
 1;
 
 __END__

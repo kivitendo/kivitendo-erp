@@ -19,6 +19,7 @@ use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
+use SL::DB::Helper::Payment qw(forex);
 use SL::Locale::String qw(t8);
 use SL::RecordLinks;
 use Rose::DB::Object::Helpers qw(as_tree);
@@ -578,6 +579,18 @@ sub is_final_version {
   my $final_version = $order_versions_count == 1 ? 0 : 1;
 
   return $final_version;
+}
+
+sub netamount_base_currency {
+  my ($self) = @_;
+
+  return $self->netamount unless $self->forex;
+
+  if ( defined $self->exchangerate ) {
+    return $self->netamount * $self->exchangerate;
+  } else {
+    return $self->netamount * $self->daily_exchangerate;
+  }
 }
 
 1;
