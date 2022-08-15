@@ -119,6 +119,9 @@ sub _init_check {
     'reference number data' => [
       [ 'type', qr{^(?:QRR|NON)$} ],
     ],
+    additional => {
+      'qr_iban' => qr{^.{4}3[01][0-9]{3}.{12}$},
+    },
   );
 
   my $group = 'biller information';
@@ -174,6 +177,11 @@ sub _init_check {
     $check_re->($group, $ref_nr_data, @$re);
   }
   $check_re->($group, $ref_nr_data, 'ref_number', $ref_nr_regexes{$ref_nr_data->{type}});
+
+  $group = 'biller information';
+  if ($ref_nr_data->{type} eq 'QRR') {
+    $check_re->($group, $biller_information, 'iban', $regexes{additional}->{qr_iban});
+  }
 }
 
 sub generate {
