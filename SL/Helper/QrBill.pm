@@ -120,6 +120,10 @@ sub _init_check {
       [ 'type', qr{^(?:QRR|NON)$} ],
     ],
     additional => {
+      'ref_nr'  => {
+        QRR => qr{^\d{27}$},
+        NON => qr{^$},
+      },
       'qr_iban' => qr{^.{4}3[01][0-9]{3}.{12}$},
     },
   );
@@ -169,14 +173,10 @@ sub _init_check {
   }
 
   $group = 'reference number data';
-  my %ref_nr_regexes = (
-    QRR => qr{^\d{27}$},
-    NON => qr{^$},
-  );
   foreach my $re (@{$regexes{$group}}) {
     $check_re->($group, $ref_nr_data, @$re);
   }
-  $check_re->($group, $ref_nr_data, 'ref_number', $ref_nr_regexes{$ref_nr_data->{type}});
+  $check_re->($group, $ref_nr_data, 'ref_number', $regexes{additional}->{ref_nr}{$ref_nr_data->{type}});
 
   $group = 'biller information';
   if ($ref_nr_data->{type} eq 'QRR') {
