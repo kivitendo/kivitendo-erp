@@ -3,11 +3,13 @@ package SL::Helper::QrBill;
 use strict;
 use warnings;
 
+use File::Spec ();
 use Imager ();
 use Imager::QRCode ();
 
 my %Config = (
-  cross_file => 'image/CH-Kreuz_7mm.png',
+  img_dir    => 'image',
+  cross_file => 'CH-Kreuz_7mm.png',
   out_file   => 'out.png',
 );
 
@@ -210,7 +212,7 @@ sub _cross {
   my $self = shift;
 
   my $cross = Imager->new();
-  $cross->read(file => $Config{cross_file}) or die $cross->errstr, "\n";
+  $cross->read(file => File::Spec->catfile(@Config{qw(img_dir cross_file)})) or die $cross->errstr, "\n";
 
   return $cross->scale(xpixels => 35, ypixels => 35, qtype => 'mixing');
 }
