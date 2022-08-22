@@ -62,7 +62,7 @@ sub run {
       ->new(package_name => $self->package_name,
             run_at       => $run_at,
             status       => SL::DB::BackgroundJobHistory::FAILURE(),
-            error_col    => $error,
+            error_col    => '' . $error,
             data         => $self->data);
     $history->save;
 
