@@ -99,7 +99,7 @@ sub action_save_and_execute {
   my ($self) = @_;
 
   $self->background_job(SL::DB::BackgroundJob->new) if !$self->background_job;
-  return unless $self->create_or_update;
+  return unless $self->create_or_update(1);
   $self->action_execute;
 }
 
@@ -178,7 +178,7 @@ sub create_or_update {
   $self->background_job->save;
 
   flash_later('info', $is_new ? $::locale->text('The background job has been created.') : $::locale->text('The background job has been saved.'));
-  return if $return;
+  return 1 if $return;
 
   $self->redirect_to($self->back_to);
 }
