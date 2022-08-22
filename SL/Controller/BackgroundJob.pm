@@ -170,6 +170,7 @@ sub create_or_update {
 
   if (@errors) {
     flash('error', @errors);
+    $self->setup_form_action_bar;
     $self->render('background_job/form', title => $is_new ? $::locale->text('Create a new background job') : $::locale->text('Edit background job'));
     return;
   }
