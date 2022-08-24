@@ -16,6 +16,15 @@ __PACKAGE__->meta->add_relationship(
   },
 );
 
+__PACKAGE__->meta->add_relationship(
+  file_version         => {
+    type               => 'one to many',
+    class              => 'SL::DB::FileVersion',
+    column_map         => { id => 'file_id' },
+  },
+);
+
+
 __PACKAGE__->meta->initialize;
 
 
