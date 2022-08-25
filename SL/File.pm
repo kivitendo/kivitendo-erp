@@ -6,6 +6,7 @@ use parent qw(Rose::Object);
 
 use SL::File::Backend;
 use SL::File::Object;
+use SL::DB;
 use SL::DB::History;
 use SL::DB::ShopImage;
 use SL::DB::File;
@@ -128,10 +129,10 @@ sub delete {
   my ($self, %params) = @_;
   die "no id or dbfile in delete" unless $params{id} || $params{dbfile};
   my $rc = 0;
-  eval {
-    $rc = SL::DB->client->with_transaction(\&_delete, $self, %params);
+  SL::DB->client->with_transaction(sub {
+    $rc = $self->_delete(%params);
     1;
-  } or do { die $@ };
+  }) or do { die SL::DB->client->error };
   return $rc;
 }
 
@@ -184,10 +185,10 @@ sub save {
   my ($self, %params) = @_;
 
   my $obj;
-  eval {
-    $obj = SL::DB->client->with_transaction(\&_save, $self, %params);
+  SL::DB->client->with_transaction(sub {
+    $obj = $self->_save(%params);
     1;
-  } or do { die $@ };
+  }) or do { die SL::DB->client->error };
   return $obj;
 }
 
