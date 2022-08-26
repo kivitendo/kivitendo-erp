@@ -22,7 +22,6 @@ use Cwd;
 # use File::Spec;
 # use File::Temp qw(:mktemp);
 use IO::File;
-use List::Util qw(first);
 
 use strict;
 

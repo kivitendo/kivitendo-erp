@@ -1,5 +1,7 @@
 package SL::Helper::QrBillFunctions;
 
+use List::Util qw(first);
+
 use strict;
 use warnings;
 
@@ -12,10 +14,9 @@ sub get_qrbill_account {
 
   my $qr_account;
 
-  my $bank_accounts     = SL::DB::Manager::BankAccount->get_all;
-  $qr_account = scalar(@{ $bank_accounts }) == 1 ?
-    $bank_accounts->[0] :
-    first { $_->use_for_qrbill } @{ $bank_accounts };
+  my $bank_accounts = SL::DB::Manager::BankAccount->get_all_sorted;
+  
+  $qr_account = first { $_->use_for_qrbill } @{ $bank_accounts };
 
   if (!$qr_account) {
     $::form->error($::locale->text('No bank account flagged for QRBill usage was found.'));
