@@ -13,6 +13,8 @@ my %Config = (
   out_file   => 'out.png',
 );
 
+# Validate data, populate structures and return a
+# SL::Helper::QrBill object.
 sub new {
   my $class = shift;
 
@@ -24,6 +26,8 @@ sub new {
   return $self;
 }
 
+# Populate the data structures with data received by the
+# constructor.
 sub _init {
   my $self = shift;
   my ($biller_information, $biller_data, $payment_information, $invoice_recipient_data, $ref_nr_data) = @_;
@@ -71,6 +75,8 @@ sub _init {
   ];
 }
 
+# Validate the data with regular expressions and exit ungracefully
+# if conditions are not matched.
 sub _init_check {
   my $self = shift;
   my ($biller_information, $biller_data, $payment_information, $invoice_recipient_data, $ref_nr_data) = @_;
@@ -186,6 +192,7 @@ sub _init_check {
   }
 }
 
+# Generate the QR-Code image by calling internal methods.
 sub generate {
   my $self = shift;
   my $out_file = $_[0] // $Config{out_file};
@@ -198,6 +205,7 @@ sub generate {
   $self->_write($out_file);
 }
 
+# Return a new Imager::QRCode object.
 sub _qrcode {
   my $self = shift;
 
@@ -208,6 +216,7 @@ sub _qrcode {
   );
 }
 
+# Read the cross file and scale the resulting image.
 sub _cross {
   my $self = shift;
 
@@ -217,6 +226,7 @@ sub _cross {
   return $cross->scale(xpixels => 35, ypixels => 35, qtype => 'mixing');
 }
 
+# Order and modify the structured data, form the text and plot it.
 sub _plot {
   my $self = shift;
 
@@ -243,6 +253,7 @@ sub _plot {
   return $self->{qrcode}->plot($text);
 }
 
+# Paste cross image onto the middle of the QR-Code image.
 sub _paste {
   my $self = shift;
 
@@ -253,6 +264,7 @@ sub _paste {
   );
 }
 
+# Write the QR-Code image to a file.
 sub _write {
   my $self = shift;
   my ($out_file) = @_;
