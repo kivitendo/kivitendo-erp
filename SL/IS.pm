@@ -1484,7 +1484,6 @@ SQL
     # assemble reference number with check digit
     ($qr_reference, $error) = assemble_ref_number($qr_account->{bank_account_id},
                                                   $customer_obj->{customernumber},
-                                                  $form->{ordnumber},
                                                   $form->{invnumber});
     die $error if !$qr_reference;
   } else {

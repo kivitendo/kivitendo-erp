@@ -31,8 +31,7 @@ sub assemble_ref_number {
 
   my $bank_id = $_[0];
   my $customer_number = $_[1];
-  my $order_number = $_[2] // "0";
-  my $invoice_number = $_[3] // "0";
+  my $invoice_number = $_[2] // "0";
 
   # check values (analog to checks in makro)
   # - bank_id
@@ -52,28 +51,18 @@ sub assemble_ref_number {
   # fill with zeros
   $customer_number = sprintf "%06d", $customer_number;
 
-  # - order_number
-  #     input: prefix (letters) + up to 7 digits, may be zero
-  #     output: prefix removed, 7 digits, filled with leading zeros
-  $order_number = remove_letters_prefix($order_number);
-  if (!check_digits_and_max_length($order_number, 7)) {
-    return undef, $::locale->text('Order number invalid. Must be less then or equal to 7 digits after prefix.');
-  }
-  # fill with zeros
-  $order_number = sprintf "%07d", $order_number;
-
   # - invoice_number
-  #     input: prefix (letters) + up to 7 digits, may be zero
-  #     output: prefix removed, 7 digits, filled with leading zeros
+  #     input: prefix (letters) + up to 14 digits, may be zero
+  #     output: prefix removed, 14 digits, filled with leading zeros
   $invoice_number = remove_letters_prefix($invoice_number);
-  if (!check_digits_and_max_length($invoice_number, 7)) {
-    return undef, $::locale->text('Invoice number invalid. Must be less then or equal to 7 digits after prefix.');
+  if (!check_digits_and_max_length($invoice_number, 14)) {
+    return undef, $::locale->text('Invoice number invalid. Must be less then or equal to 14 digits after prefix.');
   }
   # fill with zeros
-  $invoice_number = sprintf "%07d", $invoice_number;
+  $invoice_number = sprintf "%014d", $invoice_number;
 
   # assemble ref. number
-  my $ref_number = $bank_id . $customer_number . $order_number . $invoice_number;
+  my $ref_number = $bank_id . $customer_number . $invoice_number;
 
   # calculate check digit
   my $ref_number_cpl = $ref_number . calculate_check_digit($ref_number);
@@ -187,7 +176,6 @@ SL::Helper::QrBillFunctions - Additional helper functions for the swiss QR bill
   my ($ref_number, $error) = assemble_ref_number(
     $qr_account->{'bank_account_id'},
     $form->{'customernumber'},
-    $form->{'ordnumber'},
     $form->{'invnumber'},
   );
 
@@ -233,13 +221,9 @@ Parameters:
 
 Kivitendo customer number. Prefix (letters) and up to 6 digits.
 
-=item C<order_number>
-
-Kivitendo order number. Prefix (letters) and up to 7 digits, may be zero.
-
 =item C<invoice_number>
 
-Kivitendo invoice number. Prefix (letters) and up to 7 digits, may be zero.
+Kivitendo invoice number. Prefix (letters) and up to 14 digits, may be zero.
 
 =back
 
