@@ -35,16 +35,15 @@ sub assemble_ref_number {
 
   # check values (analog to checks in makro)
   # - bank_id
-  #     input: 6 digits, only numbers
-  #     output: 6 digits, only numbers
+  #     in-/output: a string containing a 6 digit number
   if (!($bank_id =~ /^\d*$/) || length($bank_id) != 6) {
     return undef, $::locale->text('Bank account id number invalid. Must be 6 digits.');
   }
 
   # - customer_number
-  #     input: prefix (letters) + up to 6 digits (numbers)
-  #     output: prefix removed, 6 digits, filled with leading zeros
-  $customer_number = remove_letters_prefix($customer_number);
+  #     input: a string containing up to 6 digits [0-9]
+  #     output: non-digits removed, 6 digits, filled with leading zeros
+  $customer_number = remove_non_digits($customer_number);
   if (!check_digits_and_max_length($customer_number, 6)) {
     return undef, $::locale->text('Customer number invalid. Must be less then or equal to 6 digits after non-digits removed.');
   }
@@ -52,11 +51,11 @@ sub assemble_ref_number {
   $customer_number = sprintf "%06d", $customer_number;
 
   # - invoice_number
-  #     input: prefix (letters) + up to 14 digits, may be zero
-  #     output: prefix removed, 14 digits, filled with leading zeros
-  $invoice_number = remove_letters_prefix($invoice_number);
+  #     input: a string containing up to 14 digits, may be zero
+  #     output: non-digits removed, 14 digits, filled with leading zeros
+  $invoice_number = remove_non_digits($invoice_number);
   if (!check_digits_and_max_length($invoice_number, 14)) {
-    return undef, $::locale->text('Invoice number invalid. Must be less then or equal to 14 digits after prefix.');
+    return undef, $::locale->text('Invoice number invalid. Must be less then or equal to 14 digits after non-digits removed.');
   }
   # fill with zeros
   $invoice_number = sprintf "%014d", $invoice_number;
@@ -125,9 +124,9 @@ sub get_amount_formatted {
 
 ### internal functions
 
-sub remove_letters_prefix {
+sub remove_non_digits {
   my $s = $_[0];
-  $s =~ s/^[a-zA-Z]+//;
+  $s =~ s/[^0-9]//g;
   return $s;
 }
 
@@ -207,7 +206,7 @@ Assembles and returns the Swiss reference number. 27 digits, formed
 from the parameters plus one check digit. And a string containing an error
 message as second return value or undef if no error occurred.
 
-Prefixes will be removed and numbers filled up with leading zeros.
+Non-digits will be removed and remaining numbers filled up with leading zeros.
 
 Parameters:
 
@@ -215,15 +214,15 @@ Parameters:
 
 =item C<bank_id>
 
-"Bankkonto Identifikationsnummer". 6 digit number.
+"Bankkonto Identifikationsnummer". A string containing a 6 digit number.
 
 =item C<customer_number>
 
-Kivitendo customer number. Prefix (letters) and up to 6 digits.
+Kivitendo customer number. A string containing up to 6 digits.
 
 =item C<invoice_number>
 
-Kivitendo invoice number. Prefix (letters) and up to 14 digits, may be zero.
+Kivitendo invoice number. A string containing up to 14 digits, may be zero.
 
 =back
 
