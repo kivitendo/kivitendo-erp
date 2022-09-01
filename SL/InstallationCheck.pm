@@ -70,6 +70,7 @@ BEGIN {
   { name => "Text::Unidecode",                     url => "http://search.cpan.org/~sburke/",    debian => 'libtext-unidecode-perl' },
   { name => "Try::Tiny",                           url => "https://metacpan.org/release/Try-Tiny", debian => 'libtry-tiny-perl' },
   { name => "URI",             version => '1.35',  url => "http://search.cpan.org/~gaas/",      debian => 'liburi-perl' },
+  { name => "UUID::Tiny",                          url => "https://metacpan.org/pod/UUID::Tiny",  debian => 'libuuid-tiny-perl' },
   { name => "XML::LibXML",                         url => "https://metacpan.org/pod/XML::LibXML", debian => 'libxml-libxml-perl' },
   { name => "XML::Writer",     version => '0.602', url => "http://search.cpan.org/~josephw/",   debian => 'libxml-writer-perl' },
   { name => "YAML",            version => '0.62',  url => "http://search.cpan.org/~ingy/",      debian => 'libyaml-perl' },
