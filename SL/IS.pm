@@ -53,6 +53,7 @@ use SL::IC;
 use SL::IO;
 use SL::TransNumber;
 use SL::DB::Chart;
+use SL::DB::Customer;
 use SL::DB::Default;
 use SL::DB::Draft;
 use SL::DB::Tax;
@@ -60,6 +61,7 @@ use SL::DB::TaxZone;
 use SL::TransNumber;
 use SL::DB;
 use SL::Presenter::Part qw(type_abbreviation classification_abbreviation);
+use SL::Helper::QrBillFunctions qw(get_qrbill_account assemble_ref_number);
 use Data::Dumper;
 
 use strict;
@@ -1467,6 +1469,33 @@ SQL
 
   $amount = $form->round_amount( $netamount + $tax, 2, 1);
 
+  # qr reference
+  my $qr_reference;
+  if ($form->{has_qr_reference}) {
+    # (re-)generate reference number
+
+    # get qr-account data
+    my ($qr_account, $error) = get_qrbill_account();
+    die $error if !$qr_account;
+
+    # get customer object
+    my $customer_obj = SL::DB::Customer->load_cached(conv_i($form->{customer_id}));
+
+    # assemble reference number with check digit
+    ($qr_reference, $error) = assemble_ref_number($qr_account->{bank_account_id},
+                                                  $customer_obj->{customernumber},
+                                                  $form->{ordnumber},
+                                                  $form->{invnumber});
+    die $error if !$qr_reference;
+  } else {
+    # if the reference number has been previously defined keep it
+    if (defined $form->{qr_reference}) {
+      $qr_reference = $form->{qr_reference};
+    } else {
+      $qr_reference = undef;
+    }
+  }
+
   # save AR record
   #erweiterung fuer lieferscheinnummer (donumber) 12.02.09 jb
 
@@ -1484,7 +1513,7 @@ SQL
                 globalproject_id               = ?, delivery_customer_id             = ?,
                 transaction_description        = ?, delivery_vendor_id               = ?,
                 donumber    = ?, invnumber_for_credit_note = ?,        direct_debit  = ?, qrbill_without_amount = ?,
-                delivery_term_id = ?
+                qr_reference = ?, delivery_term_id = ?
               WHERE id = ?|;
   @values = (          $form->{"invnumber"},           $form->{"ordnumber"},             $form->{"quonumber"},          $form->{"cusordnumber"},
              conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}), conv_date($form->{tax_point}), conv_i($form->{"customer_id"}),
@@ -1498,7 +1527,7 @@ SQL
                 conv_i($form->{"globalproject_id"}),                              conv_i($form->{"delivery_customer_id"}),
                        $form->{transaction_description},                          conv_i($form->{"delivery_vendor_id"}),
                        $form->{"donumber"}, $form->{"invnumber_for_credit_note"},        $form->{direct_debit} ? 't' : 'f', $form->{qrbill_without_amount} ? 't' : 'f',
-                conv_i($form->{delivery_term_id}),
+                $qr_reference, conv_i($form->{delivery_term_id}),
                 conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
 
@@ -2251,7 +2280,7 @@ sub _retrieve_invoice {
            a.mtime, a.itime,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
            a.transaction_description, a.donumber, a.invnumber_for_credit_note,
-           a.marge_total, a.marge_percent, a.direct_debit, a.qrbill_without_amount, a.delivery_term_id,
+           a.marge_total, a.marge_percent, a.direct_debit, a.qrbill_without_amount, a.qr_reference, a.delivery_term_id,
            dc.dunning_description,
            e.name AS employee
          FROM ar a
