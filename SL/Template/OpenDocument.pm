@@ -13,8 +13,8 @@ use SL::Template::OpenDocument::Styles;
 
 use SL::DB::BankAccount;
 use SL::Helper::QrBill;
-use SL::Helper::QrBillFunctions qw(get_qrbill_account assemble_ref_number
-  get_ref_number_formatted get_iban_formatted get_amount_formatted);
+use SL::Helper::QrBillFunctions qw(get_qrbill_account get_ref_number_formatted
+  get_iban_formatted get_amount_formatted);
 use SL::Helper::ISO3166;
 
 use Cwd;
@@ -538,24 +538,14 @@ sub generate_qr_code {
 
   my %ref_nr_data;
   if ($::instance_conf->get_create_qrbill_invoices == 1) {
-    # generate ref.-no. with check digit
-    my ($ref_number, $error) = assemble_ref_number(
-      $qr_account->{'bank_account_id'},
-      $form->{'customernumber'},
-      $form->{'ordnumber'},
-      $form->{'invnumber'},
-    );
-    if (!$ref_number) {
-      $::form->error($error);
-    }
     %ref_nr_data = (
       'type' => 'QRR',
-      'ref_number' => $ref_number,
+      'ref_number' => $form->{'qr_reference'},
     );
     # get ref. number/iban formatted with spaces and set into form for template
     # processing
-    $form->{'ref_number'} = $ref_number;
-    $form->{'ref_number_formatted'} = get_ref_number_formatted($ref_number);
+    $form->{'ref_number'} = $form->{'qr_reference'};
+    $form->{'ref_number_formatted'} = get_ref_number_formatted($form->{'qr_reference'});
   } elsif ($::instance_conf->get_create_qrbill_invoices == 2) {
     %ref_nr_data = (
       'type' => 'NON',

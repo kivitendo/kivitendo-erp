@@ -19,6 +19,10 @@
 <input type="hidden" name="follow_up_rowcount" id="follow_up_rowcount" value="1">
 <input type="hidden" name="lastmtime" id="lastmtime" value="[% HTML.escape(lastmtime) %]">
 <input type="hidden" name="already_printed_flag" id="already_printed_flag" value="0">
+<input type="hidden" name="has_qr_reference" id="has_qr_reference" value="[% has_qr_reference %]">
+[%- IF qr_reference %]
+[%   L.hidden_tag("qr_reference", qr_reference) %]
+[%- END %]
 [% IF !id %]
 [%   L.hidden_tag('form_validity_token', form_validity_token) %]
 [% END %]
@@ -313,6 +317,18 @@
             [%- L.select_tag('globalproject_id', ALL_PROJECTS, title_key = 'projectnumber', default = globalproject_id, with_empty = '1', onChange = "document.getElementById('update_button').click();") %]
           </td>
         </tr>
+        [%- IF has_qr_reference %]
+        <tr>
+          <th align="right" nowrap>[% 'QR reference' | $T8 %]</th>
+          <td>
+            [%- IF qr_reference %]
+              [% HTML.escape(qr_reference_formatted) %]
+            [%- ELSE %]
+              [% LxERP.t8("will be set upon posting") %]
+            [%- END %]
+          </td>
+        </tr>
+        [%- END %]
       </table>
     </td>
   </tr>
