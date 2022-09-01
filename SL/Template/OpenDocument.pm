@@ -482,7 +482,10 @@ sub generate_qr_code {
   # assemble data for QR-Code
 
   # get qr-account data
-  my $qr_account = get_qrbill_account();
+  my ($qr_account, $error) = get_qrbill_account();
+  if (!$qr_account) {
+    $::form->error($error);
+  }
 
   my %biller_information = (
     'iban' => $qr_account->{'iban'}
@@ -501,11 +504,18 @@ sub generate_qr_code {
     'countrycode' => $biller_countrycode,
   );
 
-  my $amount;
+  my ($amount, $amount_formatted);
   if ($form->{'qrbill_without_amount'}) {
     $amount = '';
+    $amount_formatted = '';
   } else {
     $amount = sprintf("%.2f", $form->parse_amount(\%::myconfig, $form->{'total'}));
+
+    # format amount for template
+    $amount_formatted = get_amount_formatted($amount);
+    if (!$amount_formatted) {
+      $::form->error($::locale->text('Amount has wrong format.'));
+    }
   }
 
   my %payment_information = (
@@ -529,12 +539,15 @@ sub generate_qr_code {
   my %ref_nr_data;
   if ($::instance_conf->get_create_qrbill_invoices == 1) {
     # generate ref.-no. with check digit
-    my $ref_number = assemble_ref_number(
+    my ($ref_number, $error) = assemble_ref_number(
       $qr_account->{'bank_account_id'},
       $form->{'customernumber'},
       $form->{'ordnumber'},
       $form->{'invnumber'},
     );
+    if (!$ref_number) {
+      $::form->error($error);
+    }
     %ref_nr_data = (
       'type' => 'QRR',
       'ref_number' => $ref_number,
@@ -556,15 +569,8 @@ sub generate_qr_code {
   $form->{'biller_information'} = \%biller_information;
   $form->{'biller_data'} = \%biller_data;
   $form->{'iban_formatted'} = get_iban_formatted($qr_account->{'iban'});
-
-  # format amount for template
-  $form->{'amount_formatted'} = get_amount_formatted(
-    sprintf(
-      "%.2f",
-      $form->parse_amount(\%::myconfig, $form->{'total'})
-    )
-  );
-
+  $form->{'amount_formatted'} = $amount_formatted;
+  
   # set outfile
   my $outfile = $form->{"tmpdir"} . '/' . 'qr-code.png';
 

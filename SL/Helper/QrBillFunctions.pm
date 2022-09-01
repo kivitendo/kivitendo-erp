@@ -19,11 +19,11 @@ sub get_qrbill_account {
   $qr_account = first { $_->use_for_qrbill } @{ $bank_accounts };
 
   if (!$qr_account) {
-    $::form->error($::locale->text('No bank account flagged for QRBill usage was found.'));
+    return undef, $::locale->text('No bank account flagged for QRBill usage was found.');
   }
 
   $main::lxdebug->leave_sub();
-  return $qr_account;
+  return $qr_account, undef;
 }
 
 sub assemble_ref_number {
@@ -39,7 +39,7 @@ sub assemble_ref_number {
   #     input: 6 digits, only numbers
   #     output: 6 digits, only numbers
   if (!($bank_id =~ /^\d*$/) || length($bank_id) != 6) {
-    $::form->error($::locale->text('Bank account id number invalid. Must be 6 digits.'));
+    return undef, $::locale->text('Bank account id number invalid. Must be 6 digits.');
   }
 
   # - customer_number
@@ -47,7 +47,7 @@ sub assemble_ref_number {
   #     output: prefix removed, 6 digits, filled with leading zeros
   $customer_number = remove_letters_prefix($customer_number);
   if (!check_digits_and_max_length($customer_number, 6)) {
-    $::form->error($::locale->text('Customer number invalid. Must be less then or equal to 6 digits after prefix.'));
+    return undef, $::locale->text('Customer number invalid. Must be less then or equal to 6 digits after non-digits removed.');
   }
   # fill with zeros
   $customer_number = sprintf "%06d", $customer_number;
@@ -57,7 +57,7 @@ sub assemble_ref_number {
   #     output: prefix removed, 7 digits, filled with leading zeros
   $order_number = remove_letters_prefix($order_number);
   if (!check_digits_and_max_length($order_number, 7)) {
-    $::form->error($::locale->text('Order number invalid. Must be less then or equal to 7 digits after prefix.'));
+    return undef, $::locale->text('Order number invalid. Must be less then or equal to 7 digits after prefix.');
   }
   # fill with zeros
   $order_number = sprintf "%07d", $order_number;
@@ -67,7 +67,7 @@ sub assemble_ref_number {
   #     output: prefix removed, 7 digits, filled with leading zeros
   $invoice_number = remove_letters_prefix($invoice_number);
   if (!check_digits_and_max_length($invoice_number, 7)) {
-    $::form->error($::locale->text('Invoice number invalid. Must be less then or equal to 7 digits after prefix.'));
+    return undef, $::locale->text('Invoice number invalid. Must be less then or equal to 7 digits after prefix.');
   }
   # fill with zeros
   $invoice_number = sprintf "%07d", $invoice_number;
@@ -79,7 +79,7 @@ sub assemble_ref_number {
   my $ref_number_cpl = $ref_number . calculate_check_digit($ref_number);
 
   $main::lxdebug->leave_sub();
-  return $ref_number_cpl;
+  return $ref_number_cpl, undef;
 }
 
 sub get_ref_number_formatted {
@@ -122,7 +122,7 @@ sub get_amount_formatted {
   $main::lxdebug->enter_sub();
 
   unless ($_[0] =~ /^\d+\.\d{2}$/) {
-    $::form->error($::locale->text('Amount has wrong format.'));
+    return undef;
   }
 
   local $_ = shift;
@@ -182,9 +182,9 @@ SL::Helper::QrBillFunctions - Additional helper functions for the swiss QR bill
     get_ref_number_formatted get_iban_formatted get_amount_formatted);
 
   # get qr-account data
-  my $qr_account = get_qrbill_account();
+  my ($qr_account, $error) = get_qrbill_account();
 
-  my $ref_number = assemble_ref_number(
+  my ($ref_number, $error) = assemble_ref_number(
     $qr_account->{'bank_account_id'},
     $form->{'customernumber'},
     $form->{'ordnumber'},
@@ -197,12 +197,8 @@ SL::Helper::QrBillFunctions - Additional helper functions for the swiss QR bill
   $form->{'iban_formatted'} = get_iban_formatted($qr_account->{'iban'});
 
   # format amount for template
-  $form->{'amount_formatted'} = get_amount_formatted(
-    sprintf(
-      "%.2f",
-      $form->parse_amount(\%::myconfig, $form->{'total'})
-    )
-  );
+  my $amount = sprintf("%.2f", $form->parse_amount(\%::myconfig, $form->{'total'}));
+  my $amount_formatted = get_amount_formatted($amount);
 
 =head1 DESCRIPTION
 
@@ -214,12 +210,14 @@ Helper functions moved from SL::Template::OpenDocument.
 
 =item C<get_qrbill_account>
 
-Return the bank account flagged for the QR bill.
+Return the bank account flagged for the QR bill. And a string containing an
+error message as second return value or undef if no error occurred.
 
 =item C<assemble_ref_number>
 
 Assembles and returns the Swiss reference number. 27 digits, formed
-from the parameters plus one check digit.
+from the parameters plus one check digit. And a string containing an error
+message as second return value or undef if no error occurred.
 
 Prefixes will be removed and numbers filled up with leading zeros.
 
@@ -260,14 +258,19 @@ Given a IBAN number, return it in format:
 =item C<get_amount_formatted>
 
 Given an amount, return it in format: 'X XXX.XX'
+Or undef if an error occurred.
 
 =back
 
 =head1 ERROR HANDLING
 
-Currently errors are thrown via form e.g.:
+The functions C<get_qrbill_account> and C<assemble_ref_number> return
+undef when an error occurs and a string containing an error message as
+second return value.
 
-  $::form->error($::locale->text('Bank account id number invalid. Must be 6 digits.'));
+The function C<get_amount_formatted> returns undef if an error occurred.
+
+The other functions always return a result.
 
 =head1 AUTHOR
 
