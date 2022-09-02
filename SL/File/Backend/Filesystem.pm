@@ -4,10 +4,12 @@ use strict;
 
 use parent qw(SL::File::Backend);
 use SL::DB::File;
+
 use File::Copy;
 use File::Slurp;
 use File::stat;
 use File::Path qw(make_path);
+use UUID::Tiny ':std';
 
 #
 # public methods
@@ -90,6 +92,18 @@ sub save {
     print OUT $params{file_contents};
     close(OUT);
   }
+  my $doc_path = $::lx_office_conf{paths}->{document_path};
+  my $rel_file = $tofile;
+  $rel_file    =~ s/$doc_path//;
+
+  my $fv = SL::DB::FileVersion->new(
+                            file_id       => $dbfile->id,
+                            version       => $dbfile->backend_data,
+                            file_location => $rel_file,
+                            doc_path      => $doc_path,
+                            backend       => 'Filesystem',
+                            guid          => create_uuid_as_string(UUID_V4),
+                          )->save;
   if ($params{mtime}) {
     utime($params{mtime}, $params{mtime}, $tofile);
   }
