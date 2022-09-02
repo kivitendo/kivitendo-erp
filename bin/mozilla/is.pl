@@ -806,6 +806,7 @@ sub show_draft {
   # unless no lazy implementation of save draft without invdate
   # set the current date like in version <= 3.4.1
   $::form->{invdate}   = DateTime->today->to_lxoffice;
+  $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   update();
 }
 
