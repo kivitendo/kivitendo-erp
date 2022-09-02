@@ -113,6 +113,17 @@
            <td align=left></td>
            <td colspan="3">[% L.yes_no_tag('imported', 0) %]</td>
         </tr>
+         <tr>
+           <td align=left>[% 'Export Documents' | $T8 %]</td>
+           <td align=left></td>
+          [% IF show_documents_option %]
+           <td colspan="3">[% L.yes_no_tag('documents', 0, disabled => 0) %]</td>
+          [% ELSE %]
+           <td>[% L.yes_no_tag('documents', 0, disabled => 1) %] </td>
+           <td colspan="2"><font color="gray">[% 'Hint: DMS Feature has to be activated' | $T8 %]</font></td>
+          [% END %]
+        </tr>
+
         </table>
      </td>
    </tr>

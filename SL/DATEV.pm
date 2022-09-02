@@ -38,6 +38,7 @@ use SL::Iconv;
 use SL::Locale::String qw(t8);
 use SL::VATIDNr;
 
+use Archive::Zip;
 use Data::Dumper;
 use DateTime;
 use Exporter qw(import);
@@ -48,6 +49,7 @@ use List::Util qw(min max sum);
 use List::UtilsBy qw(partition_by sort_by);
 use Text::CSV_XS;
 use Time::HiRes qw(gettimeofday);
+use XML::LibXML;
 
 {
   my $i = 0;
@@ -348,6 +350,8 @@ sub csv_export {
     $csv_file->close;
     $self->{warnings} = $datev_csv->warnings;
 
+    $self->_create_xml_and_documents if $self->{documents} && scalar @{ $self->{guids} };
+
     # convert utf-8 to cp1252//translit if set
     if ($::instance_conf->get_datev_export_format eq 'cp1252-translit') {
 
@@ -401,6 +405,77 @@ sub imported {
    $self->{imported} = $_[0];
  }
  return $self->{imported};
+}
+sub documents {
+ my $self = shift;
+
+ if (@_) {
+   $self->{documents} = $_[0];
+ }
+ return $self->{documents};
+}
+sub _create_xml_and_documents {
+  my $self = shift;
+
+  die "No guids" unless scalar @{ $self->{guids} };
+
+  my $today = DateTime->now_local;
+  my $doc   = XML::LibXML::Document->new('1.0', 'utf-8');
+
+  my $root  = $doc->createElement('archive');
+  #<archive xmlns="http://xml.datev.de/bedi/tps/document/v05.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xml.datev.de/bedi/tps/document/v05.0 Document_v050.xsd" version="5.0" generatingSystem="DATEV-Musterdaten">
+
+  $root->setAttribute('xmlns'              => 'http://xml.datev.de/bedi/tps/document/v05.0');
+  $root->setAttribute('xmlns:xsi'          => 'http://www.w3.org/2001/XMLSchema-instance');
+  $root->setAttribute('xsi:schemaLocation' => 'http://xml.datev.de/bedi/tps/document/v05.0 Document_v050.xsd');
+  $root->setAttribute('version'            => '5.0');
+  $root->setAttribute('generatingSystem'   => 'kivitendo');
+
+  # header with timestamp
+  my $header_tag = $doc->createElement('header');
+  $root->appendChild($header_tag);
+  my $date_tag = $doc->createElement('date');
+  $date_tag->appendTextNode($today);
+  $header_tag->appendChild($date_tag);
+
+
+  # content
+  my $content_node = $doc->createElement('content');
+  $root->appendChild($content_node);
+  # we have n document childs
+  foreach my $guid (@{ $self->{guids} }) {
+    # 1. get filename and file location
+    my $file_version = SL::DB::Manager::FileVersion->find_by(guid => $guid);
+    die "Invalid guid $guid" unless ref $file_version eq 'SL::DB::FileVersion';
+    # file_name has to be unique add guid if needed
+    my $filename_for_zip = (exists $self->{files}{$file_version->file_name})
+                           ? $file_version->file_name . '__' . $guid
+                           : $file_version->file_name;
+    $self->{files}{$filename_for_zip} = $file_version->get_system_location;
+    # create xml metadata for files
+    my $document_node = $doc->createElement('document');
+    # set attr
+    $document_node->setAttribute('guid'      => $guid);
+    $document_node->setAttribute('processID' => '1');
+    $document_node->setAttribute('type'      => '1');
+    $content_node->appendChild($document_node);
+    my $extension_node = $doc->createElement('extension');
+    $extension_node->setAttribute('xsi:type' => 'File');
+    $extension_node->setAttribute('name'     => $filename_for_zip);
+    $document_node->appendChild($extension_node);
+  }
+  $doc->setDocumentElement($root);
+
+  # create Archive::Zip in Export Path
+  my $zip = Archive::Zip->new();
+  # add metadata document
+  $zip->addString($doc->toString(), 'document.xml');
+  # add real files
+  foreach my $filename (keys %{ $self->{files} }) {
+    $zip->addFile($self->{files}{$filename}, $filename);
+  }
+  die "Cannot write Belege-XML.zip" unless ($zip->writeToFileNamed($self->export_path . 'Belege-XML.zip')
+                                            == Archive::Zip::AZ_OK());
 }
 
 sub generate_datev_data {
@@ -820,6 +895,7 @@ sub generate_datev_lines {
     my $taxkey         = 0;
     my $charttax       = 0;
     my $ustid          ="";
+    my $document_guid  ="";
     my ($haben, $soll);
     for (my $i = 0; $i < $trans_lines; $i++) {
       if ($trans_lines == 2) {
@@ -907,7 +983,21 @@ sub generate_datev_lines {
     }
     # set lock for each transaction
     $datev_data{locked} = $self->locked;
-
+    # add guids if datev export with documents is requested
+    if ($self->documents) {
+      # add exactly one document link for the latest created/uploaded document
+      my $latest_document = SL::DB::Manager::File->get_first(query =>
+                                [
+                                  object_id => $transaction->[$haben]->{trans_id},
+                                  file_type => 'document'
+                                ],
+                                  sort_by   => 'itime DESC');
+      if (ref $latest_document eq 'SL::DB::File') {
+        # if we have a booking document add guid from the latest version
+        $datev_data{document_guid} = $latest_document->file_version->[-1]->guid;
+        push @{ $self->{guids} }, $datev_data{document_guid};
+      }
+    }
     push(@datev_lines, \%datev_data) if $datev_data{umsatz};
   }
 
@@ -956,6 +1046,28 @@ SQL
   return 1;
 }
 
+sub check_document_export {
+  my ($self) = @_;
+
+  # no dms enabled and works only for type Filesystem
+  return 0 unless $::instance_conf->get_doc_storage
+               && $::instance_conf->get_doc_storage_for_documents eq 'Filesystem';
+
+  return 1;
+
+  # TODO maybe needed
+  # not all last month ar ap gl booking have an entry -> rent ?
+  my $query = <<"SQL";
+  select distinct trans_id,object_id from acc_trans
+  left join files on files.object_id=trans_id
+  where date_trunc('month', transdate) = date_trunc('month', current_date - interval '1 month')
+  and object_id is null
+  LIMIT 1
+SQL
+  my ($booking_has_no_document)  = selectrow_query($::form, SL::DB->client->dbh, $query);
+  return defined $booking_has_no_document ? 0 : 1;
+
+}
 sub DESTROY {
   clean_temporary_directories();
 }
