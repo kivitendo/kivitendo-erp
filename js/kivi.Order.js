@@ -1,6 +1,6 @@
 namespace('kivi.Order', function(ns) {
   ns.check_cv = function() {
-    if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation') {
+    if ($('#type').val() == 'sales_order_intake' || $('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation') {
       if ($('#order_customer_id').val() === '') {
         alert(kivi.t8('Please select a customer.'));
         return false;
@@ -716,7 +716,7 @@ namespace('kivi.Order', function(ns) {
     var vc;
     var vc_id;
     var title;
-    if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
+    if ($('#type').val() == 'sales_order_intake' || $('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
       vc    = 'customer';
       vc_id = $('#order_customer_id').val();
       title = kivi.t8('Customer details');
@@ -789,7 +789,7 @@ namespace('kivi.Order', function(ns) {
   ns.purchase_check_for_direct_delivery = function(params) {
     const to_type = params.to_type;
 
-    if ($('#type').val() != 'sales_quotation' && $('#type').val() != 'sales_order') {
+    if ($('#type').val() != 'sales_quotation' && $('#type').val() != 'sales_order_intake' && $('#type').val() != 'sales_order') {
       kivi.submit_ajax_form("controller.pl", '#order_form', {action: 'Order/save_and_order_workflow', to_type: to_type});
       return;
     }
@@ -858,14 +858,14 @@ namespace('kivi.Order', function(ns) {
     var type = $('#type').val();
 
     var number_info = '';
-    if ($('#type').val() == 'sales_order' || $('#type').val() == 'purchase_order') {
+    if ($('#type').val() == 'sales_order_intake' || $('#type').val() == 'sales_order' || $('#type').val() == 'purchase_order') {
       number_info = $('#order_ordnumber').val();
     } else if ($('#type').val() == 'sales_quotation' || $('#type').val() == 'request_quotation') {
       number_info = $('#order_quonumber').val();
     }
 
     var name_info = '';
-    if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation') {
+    if ($('#type').val() == 'sales_order_intake' || $('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation') {
       name_info = $('#order_customer_id_name').val();
     } else if ($('#type').val() == 'purchase_order' || $('#type').val() == 'request_quotation') {
       name_info = $('#order_vendor_id_name').val();
@@ -989,7 +989,7 @@ namespace('kivi.Order', function(ns) {
 });
 
 $(function() {
-  if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
+  if ($('#type').val() == 'sales_order_intake' || $('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
     $('#order_customer_id').change(kivi.Order.reload_cv_dependent_selections);
   } else {
     $('#order_vendor_id').change(kivi.Order.reload_cv_dependent_selections);
