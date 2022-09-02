@@ -64,9 +64,11 @@ sub rename {
 
 sub save {
   my ($self, %params) = @_;
-  die 'dbfile not exists' unless $params{dbfile};
-  my $dbfile = $params{dbfile};
-  die 'no file contents' unless $params{file_path} || $params{file_contents};
+
+  die 'dbfile not exists' unless ref $params{dbfile} eq 'SL::DB::File';
+  die 'no file contents'  unless $params{file_path} || $params{file_contents};
+
+  my $dbfile = delete $params{dbfile};
 
   # Do not save and do not create a new version of the document if file size of last version is the same.
   if ($dbfile->source eq 'created' && $self->get_version_count(dbfile => $dbfile)) {
@@ -83,8 +85,7 @@ sub save {
   my $tofile = $self->_filesystem_path($dbfile);
   if ($params{file_path} && -f $params{file_path}) {
     File::Copy::copy($params{file_path}, $tofile);
-  }
-  elsif ($params{file_contents}) {
+  } elsif ($params{file_contents}) {
     open(OUT, "> " . $tofile);
     print OUT $params{file_contents};
     close(OUT);
