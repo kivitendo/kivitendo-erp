@@ -109,17 +109,24 @@ sub get_iban_formatted {
 sub get_amount_formatted {
   $main::lxdebug->enter_sub();
 
-  unless ($_[0] =~ /^\d+\.\d{2}$/) {
+  my $amount = $_[0];
+
+  # parameter should be a string containing a number
+  # with 2 digits after the pointi'm also getting in the town 
+  unless ($amount =~ /^\d+\.\d{2}$/) {
     return undef;
   }
 
-  local $_ = shift;
-  $_ = reverse split //;
-  m/^\d{2}\./g;
-  s/\G(\d{3})(?=\d)/$1 /g;
+  my $r = reverse $amount;
+  # this matches the digits left of the '.'
+  $r =~ m/^\d{2}\./g;
+  # '\G' continuous the search where the last stopped,
+  # matches three digits and substitutes with a space
+  $r =~ s/\G(\d{3})(?=\d)/$1 /g;
+  $r = reverse $r;
 
   $main::lxdebug->leave_sub();
-  return scalar reverse split //;
+  return $r;
 }
 
 ### internal functions
