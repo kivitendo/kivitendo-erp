@@ -262,6 +262,12 @@ The function C<get_amount_formatted> returns undef if an error occurred.
 
 The other functions always return a result.
 
+=head1 TESTS
+
+Tests for functions see t/helper/qrbill_functions.t.
+
+Run: C<t/test.pl t/helper/qrbill_functions.t>
+
 =head1 AUTHOR
 
 Cem Aydin E<lt>cem.aydin@gmx.chE<gt>
