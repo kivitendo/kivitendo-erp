@@ -33,6 +33,7 @@ use strict;
 use SL::DBUtils;
 use SL::DATEV::CSV;
 use SL::DB;
+use Encode qw(encode);
 use SL::HTML::Util ();
 use SL::Iconv;
 use SL::Locale::String qw(t8);
@@ -350,7 +351,7 @@ sub csv_export {
     $csv_file->close;
     $self->{warnings} = $datev_csv->warnings;
 
-    $self->_create_xml_and_documents if $self->{documents} && scalar @{ $self->{guids} };
+    $self->_create_xml_and_documents if $self->{documents} && %{ $self->{guids} };
 
     # convert utf-8 to cp1252//translit if set
     if ($::instance_conf->get_datev_export_format eq 'cp1252-translit') {
@@ -417,7 +418,7 @@ sub documents {
 sub _create_xml_and_documents {
   my $self = shift;
 
-  die "No guids" unless scalar @{ $self->{guids} };
+  die "No guids" unless %{ $self->{guids} };
 
   my $today = DateTime->now_local;
   my $doc   = XML::LibXML::Document->new('1.0', 'utf-8');
@@ -443,7 +444,7 @@ sub _create_xml_and_documents {
   my $content_node = $doc->createElement('content');
   $root->appendChild($content_node);
   # we have n document childs
-  foreach my $guid (@{ $self->{guids} }) {
+  foreach my $guid (keys %{ $self->{guids} }) {
     # 1. get filename and file location
     my $file_version = SL::DB::Manager::FileVersion->find_by(guid => $guid);
     die "Invalid guid $guid" unless ref $file_version eq 'SL::DB::FileVersion';
@@ -472,7 +473,8 @@ sub _create_xml_and_documents {
   $zip->addString($doc->toString(), 'document.xml');
   # add real files
   foreach my $filename (keys %{ $self->{files} }) {
-    $zip->addFile($self->{files}{$filename}, $filename);
+    my $enc_filename = encode('Windows-1252', $filename);
+    $zip->addFile($self->{files}{$filename}, $enc_filename);
   }
   die "Cannot write Belege-XML.zip" unless ($zip->writeToFileNamed($self->export_path . 'Belege-XML.zip')
                                             == Archive::Zip::AZ_OK());
@@ -1015,6 +1017,9 @@ sub generate_datev_lines {
         }
       }
     }
+    # keine kommerzbank daten exportieren
+    next if ($datev_data{konto} eq '1800' || $datev_data{gegenkonto} eq '1800');
+
     push(@datev_lines, \%datev_data) if $datev_data{umsatz};
   }
 
@@ -1085,6 +1090,14 @@ SQL
   return defined $booking_has_no_document ? 0 : 1;
 
 }
+
+
+sub _u8 {
+  my ($value) = @_;
+  return encode('UTF-8', $value // '');
+}
+
+
 sub DESTROY {
   clean_temporary_directories();
 }
