@@ -895,7 +895,6 @@ sub generate_datev_lines {
     my $taxkey         = 0;
     my $charttax       = 0;
     my $ustid          ="";
-    my $document_guid  ="";
     my ($haben, $soll);
     for (my $i = 0; $i < $trans_lines; $i++) {
       if ($trans_lines == 2) {
@@ -984,18 +983,36 @@ sub generate_datev_lines {
     # set lock for each transaction
     $datev_data{locked} = $self->locked;
     # add guids if datev export with documents is requested
-    if ($self->documents) {
-      # add exactly one document link for the latest created/uploaded document
-      my $latest_document = SL::DB::Manager::File->get_first(query =>
+    # no records for bank transactions with ar or ap
+    # die Dumper($transaction->[$haben]->{link}) if $transaction->[$haben]->{link} =~ m/paid/;
+    if (   $self->documents && ($transaction->[$haben]->{table} eq 'gl'
+        || ($datev_data{konto} !~ m/(1810|1370)/ && $datev_data{gegenkonto} !~ m/(1810|1370)/ )) ) {
+      # add all document links for the latest created/uploaded document
+      my $latest_documents = SL::DB::Manager::File->get_all(query =>
                                 [
-                                  object_id => $transaction->[$haben]->{trans_id},
-                                  file_type => 'document'
+                                  object_id   => $transaction->[$haben]->{trans_id},
+                                  file_type   => 'document',
+                                  or          => [
+                                                   object_type => 'gl_transaction',
+                                                   object_type => 'purchase_invoice',
+                                                   object_type => 'invoice',
+                                                   object_type => 'credit_note',
+                                                 ],
                                 ],
                                   sort_by   => 'itime DESC');
-      if (ref $latest_document eq 'SL::DB::File') {
+      #if (ref $latest_document eq 'SL::DB::File') {
+      if (scalar @{ $latest_documents }) {
         # if we have a booking document add guid from the latest version
-        $datev_data{document_guid} = $latest_document->file_version->[-1]->guid;
-        push @{ $self->{guids} }, $datev_data{document_guid};
+        # one record may be referenced to more transaction (credit booking with different accounts)
+        # therefore collect guids in hash
+        foreach my $latest_document (@{ $latest_documents }) {
+          die "No file datatype:" . ref $latest_document unless (ref $latest_document eq 'SL::DB::File');
+          my $latest_guid = $latest_document->file_version->[-1]->guid;
+
+          $self->{guids}{$latest_guid} = 1;
+          $datev_data{document_guid}  .= $datev_data{document_guid} ?  ',' : '';
+          $datev_data{document_guid}  .= $latest_guid;
+        }
       }
     }
     push(@datev_lines, \%datev_data) if $datev_data{umsatz};
