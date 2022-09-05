@@ -53,6 +53,16 @@ sub create_invoices {
     eval {
       my $sales_delivery_order = SL::DB::DeliveryOrder->new(id => $delivery_order_id)->load;
       $number                  = $sales_delivery_order->donumber;
+
+      # Only process open delivery orders. In this list should only be open
+      # delivery orders, but if the background job is restarted (for what
+      # reason so ever), a new creation of invoices for delivery orders which
+      # are closed now can be triggered.
+      # Prevent this.
+      if ($sales_delivery_order->closed) {
+        die "Delivery Order already closed!\n";
+      }
+
       my %conversion_params    = $data->{transdate} ? ('attributes' => { transdate => $data->{transdate} }) : ();
       my $invoice              = $sales_delivery_order->convert_to_invoice(%conversion_params);
 
