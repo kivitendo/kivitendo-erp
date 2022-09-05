@@ -167,12 +167,11 @@
                </p><p>Der erzeugte QR-Code verwendet Adress-Typ "K" (Kombinierte
           Adressfelder, 2 Zeilen).</p></div><div class="sect3" title="2.13.2.3. Referenznummer"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2747"></a>2.13.2.3. Referenznummer</h4></div></div></div><p>Die Referenznummer wird in Kivitendo erzeugt und setzt sich
           wiefolgt zusammen:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Bankkonto Identifikationsnummer (6-stellig)</p></li><li class="listitem"><p>Kundennummer (6-stellig, mit führenden Nullen
-              aufgefüllt)</p></li><li class="listitem"><p>Auftragsnummer (7-stellig, mit führenden Nullen
-              aufgefüllt)</p></li><li class="listitem"><p>Rechnungsnummer (7-stellig, mit führenden Nullen
+              aufgefüllt)</p></li><li class="listitem"><p>Rechnungsnummer (14-stellig, mit führenden Nullen
               aufgefüllt)</p></li><li class="listitem"><p>Prüfziffer (1-stellig, berechnet mittels modulo 10,
-              rekursiv)</p></li></ul></div><p>Es sind lediglich Ziffern erlaubt. Allfällige Prefixe mit
-          Buchstaben werden entfernt und fehlende Stellen werden mit führenden
-          Nullen aufgefüllt.</p></div><div class="sect3" title="2.13.2.4. Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2770"></a>2.13.2.4. Vorlage</h4></div></div></div><p>Der Vorlagensatz "rev-odt" enthält die Vorlage
+              rekursiv)</p></li></ul></div><p>Es sind lediglich Ziffern erlaubt. Allfällige Buchstaben und
+          Sonderzeichen werden entfernt und fehlende Stellen werden mit
+          führenden Nullen aufgefüllt.</p></div><div class="sect3" title="2.13.2.4. Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2767"></a>2.13.2.4. Vorlage</h4></div></div></div><p>Der Vorlagensatz "rev-odt" enthält die Vorlage
           <code class="literal">invoice_qr.odt</code>, welche für die Erstellung von
           QR-Rechnungen vorgesehen ist. Damit diese verwendet werden kann muss
           wie obenstehend beschrieben ein Drucker hinzugefügt werden, allerdings
@@ -187,7 +186,7 @@
           <span class="emphasis"><em>Bild-Kontextmenü → </em></span>
                   <span class="emphasis"><em>Einstellungen →
           Optionen → Name</em></span> einstellbar. Siehe dazu auch die
-          Beispielvorlage.</p><div class="sect4" title="2.13.2.4.1. Zusätzliche Variablen für Vorlage"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2800"></a>2.13.2.4.1. Zusätzliche Variablen für Vorlage</h5></div></div></div><p>Zusätzlich zu den in der Vorlage standardmässig verfügbaren
+          Beispielvorlage.</p><div class="sect4" title="2.13.2.4.1. Zusätzliche Variablen für Vorlage"><div class="titlepage"><div><div><h5 class="title"><a name="d0e2797"></a>2.13.2.4.1. Zusätzliche Variablen für Vorlage</h5></div></div></div><p>Zusätzlich zu den in der Vorlage standardmässig verfügbaren
             Variablen (siehe <a class="xref" href="ch03s03.html" title="3.3. Dokumentenvorlagen und verfügbare Variablen">Abschnitt&nbsp;3.3, „Dokumentenvorlagen und verfügbare Variablen“</a>),
             werden die folgenden Variablen erzeugt:</p><div class="variablelist"><dl><dt><span class="term">ref_number_formatted</span></dt><dd><p>Referenznummer formatiert mit Leerzeichen, z.B.: 21 00000
                   00003 13947 14300 09017</p></dd><dt><span class="term">iban_formatted</span></dt><dd><p>IBAN formatiert mit Leerzeichen</p></dd><dt><span class="term">amount_formatted</span></dt><dd><p>Betrag formatiert mit Tausendertrennzeichen Leerschlag,

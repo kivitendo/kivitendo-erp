@@ -2906,12 +2906,7 @@ digits_year: 4</programlisting>
             </listitem>
 
             <listitem>
-              <para>Auftragsnummer (7-stellig, mit führenden Nullen
-              aufgefüllt)</para>
-            </listitem>
-
-            <listitem>
-              <para>Rechnungsnummer (7-stellig, mit führenden Nullen
+              <para>Rechnungsnummer (14-stellig, mit führenden Nullen
               aufgefüllt)</para>
             </listitem>
 
@@ -2921,9 +2916,9 @@ digits_year: 4</programlisting>
             </listitem>
           </itemizedlist>
 
-          <para>Es sind lediglich Ziffern erlaubt. Allfällige Prefixe mit
-          Buchstaben werden entfernt und fehlende Stellen werden mit führenden
-          Nullen aufgefüllt.</para>
+          <para>Es sind lediglich Ziffern erlaubt. Allfällige Buchstaben und
+          Sonderzeichen werden entfernt und fehlende Stellen werden mit
+          führenden Nullen aufgefüllt.</para>
         </sect3>
 
         <sect3>
