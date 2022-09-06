@@ -198,6 +198,7 @@ __PACKAGE__->meta->columns(
   show_longdescription_select_item          => { type => 'boolean', default => 'false' },
   show_weight                               => { type => 'boolean', default => 'false', not_null => 1 },
   signature                                 => { type => 'text' },
+  soinumber                                 => { type => 'text' },
   sonumber                                  => { type => 'text' },
   sqnumber                                  => { type => 'text' },
   stocktaking_bin_id                        => { type => 'integer' },
