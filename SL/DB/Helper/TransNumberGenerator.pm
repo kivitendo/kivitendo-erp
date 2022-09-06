@@ -29,6 +29,7 @@ sub parts_scoping {
 
 my %specs = ( ar                      => { number_column => 'invnumber',                                                                           },
               sales_quotation         => { number_column => 'quonumber',      number_range_column => 'sqnumber',       scoping => \&oe_scoping,    },
+              sales_order_intake      => { number_column => 'ordnumber',      number_range_column => 'soinumber',      scoping => \&oe_scoping,    },
               sales_order             => { number_column => 'ordnumber',      number_range_column => 'sonumber',       scoping => \&oe_scoping,    },
               request_quotation       => { number_column => 'quonumber',      number_range_column => 'rfqnumber',      scoping => \&oe_scoping,    },
               purchase_order          => { number_column => 'ordnumber',      number_range_column => 'ponumber',       scoping => \&oe_scoping,    },

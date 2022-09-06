@@ -26,6 +26,7 @@ __PACKAGE__->meta->columns(
   expected_billing_date   => { type => 'date' },
   globalproject_id        => { type => 'integer' },
   id                      => { type => 'integer', not_null => 1, sequence => 'id' },
+  intake                  => { type => 'boolean', default => 'false', not_null => 1 },
   intnotes                => { type => 'text' },
   itime                   => { type => 'timestamp', default => 'now()' },
   language_id             => { type => 'integer' },
