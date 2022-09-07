@@ -17,6 +17,7 @@ __PACKAGE__->meta->columns(
   itime                 => { type => 'timestamp', default => 'now()' },
   local_bank_account_id => { type => 'integer', not_null => 1 },
   purpose               => { type => 'text' },
+  qr_reference          => { type => 'text' },
   remote_account_number => { type => 'text' },
   remote_bank_code      => { type => 'text' },
   remote_name           => { type => 'text' },
