@@ -42,6 +42,7 @@ my @link_type_specifics = (
   { title => t8('Requirement spec'),        type => 'requirement_spec',        model => 'RequirementSpec', number => 'id', project => 'project', description => 'title', date => undef, filter => 'working_copy_filter', },
   { title => t8('Shop Order'),              type => 'shop_order',              model => 'ShopOrder',       number => 'shop_ordernumber', date => 'order_date', project => undef, description => undef, },
   { title => t8('Sales quotation'),         type => 'sales_quotation',         model => 'Order',           number => 'quonumber', },
+  { title => t8('Sales Order Intake'),      type => 'sales_order_intake',      model => 'Order',           number => 'ordnumber', },
   { title => t8('Sales Order'),             type => 'sales_order',             model => 'Order',           number => 'ordnumber', },
   { title => t8('Sales delivery order'),    type => 'sales_delivery_order',    model => 'DeliveryOrder',   number => 'donumber',  },
   { title => t8('RMA delivery order'),      type => 'rma_delivery_order',      model => 'DeliveryOrder',   number => 'rdonumber', },
