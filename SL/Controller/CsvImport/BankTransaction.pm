@@ -111,7 +111,8 @@ sub _displayable_columns {
    { name => 'purpose10',             description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
    { name => 'purpose11',             description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
    { name => 'purpose12',             description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
-   { name => 'purpose13',             description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') }
+   { name => 'purpose13',             description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'qr_reference',          description => $::locale->text('QR reference') }
  );
 }
 
