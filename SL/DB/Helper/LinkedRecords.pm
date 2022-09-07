@@ -335,6 +335,7 @@ sub sort_linked_records {
               'SL::DB::RequirementSpec' =>  15,
               'SL::DB::Order'           =>  sub { $scores{ $_[0]->type } },
               sales_quotation           =>  20,
+              sales_order_intake        =>  25,
               sales_order               =>  30,
               sales_delivery_order      =>  40,
               'SL::DB::DeliveryOrder'   =>  sub { $scores{ $_[0]->type } },

@@ -46,6 +46,7 @@ sub grouped_record_list {
   $output .= _requirement_spec_list(       $groups{requirement_specs},        %params) if $groups{requirement_specs};
   $output .= _shop_order_list(             $groups{shop_orders},              %params) if $groups{shop_orders};
   $output .= _sales_quotation_list(        $groups{sales_quotations},         %params) if $groups{sales_quotations};
+  $output .= _sales_order_intake_list(     $groups{sales_order_intakes},      %params) if $groups{sales_order_intakes};
   $output .= _sales_order_list(            $groups{sales_orders},             %params) if $groups{sales_orders};
   $output .= _sales_delivery_order_list(   $groups{sales_delivery_orders},    %params) if $groups{sales_delivery_orders};
   $output .= _rma_delivery_order_list(     $groups{rma_delivery_orders},      %params) if $groups{rma_delivery_orders};
@@ -188,6 +189,7 @@ sub _group_records {
     requirement_specs        => sub { (ref($_[0]) eq 'SL::DB::RequirementSpec')                                         },
     shop_orders              => sub { (ref($_[0]) eq 'SL::DB::ShopOrder')       &&  $_[0]->id                           },
     sales_quotations         => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_quotation')   },
+    sales_order_intakes      => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_order_intake') },
     sales_orders             => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_order')       },
     sales_delivery_orders    => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('sales_delivery_order') },
     rma_delivery_orders      => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('rma_delivery_order')   },
@@ -302,6 +304,27 @@ sub _request_quotation_list {
       [ $::locale->text('Quotation Date'),          'transdate'                                                                ],
       [ $::locale->text('Quotation Number'),        sub { $_[0]->presenter->request_quotation(display => 'table-cell') }       ],
       [ $::locale->text('Vendor'),                  'vendor'                                                                   ],
+      [ $::locale->text('Net amount'),              'netamount'                                                                ],
+      [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
+      [ $::locale->text('Project'),                 'globalproject', ],
+      [ $::locale->text('Closed'),                  'closed'                                                                   ],
+    ],
+    %params,
+  );
+}
+
+sub _sales_order_intake_list {
+  my ($list, %params) = @_;
+
+  return record_list(
+    $list,
+    title   => $::locale->text('Sales Order Intakes'),
+    type    => 'sales_order_intake',
+    columns => [
+      [ $::locale->text('Order Date'),              'transdate'                                                                ],
+      [ $::locale->text('Order Number'),            sub { $_[0]->presenter->sales_order_intake(display => 'table-cell') }      ],
+      [ $::locale->text('Quotation'),               'quonumber' ],
+      [ $::locale->text('Customer'),                'customer'                                                                 ],
       [ $::locale->text('Net amount'),              'netamount'                                                                ],
       [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
       [ $::locale->text('Project'),                 'globalproject', ],
