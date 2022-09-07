@@ -1103,6 +1103,7 @@ sub get_formname_translation {
     proforma                    => $main::locale->text('Proforma Invoice'),
     purchase_order              => $main::locale->text('Purchase Order'),
     request_quotation           => $main::locale->text('RFQ'),
+    sales_order_intake          => $main::locale->text('Sales Order Intake'),
     sales_order                 => $main::locale->text('Confirmation'),
     sales_quotation             => $main::locale->text('Quotation'),
     storno_invoice              => $main::locale->text('Storno Invoice'),
@@ -2920,6 +2921,7 @@ sub save_status {
 # $main::locale->text('invoice_for_advance_payment')
 # $main::locale->text('final_invoice')
 # $main::locale->text('proforma')
+# $main::locale->text('sales_order_intake')
 # $main::locale->text('sales_order')
 # $main::locale->text('pick_list')
 # $main::locale->text('purchase_order')
