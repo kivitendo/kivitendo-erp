@@ -52,6 +52,9 @@ sub get_print_options {
     ) : undef,
     ($form->{type} eq 'credit_note') ?
       opthash("credit_note",         $form->{PD}{credit_note},         $locale->text('Credit Note')) : undef,
+    ($form->{type} eq 'sales_order_intake') ? (
+      opthash("sales_order_intake",  $form->{PD}{sales_order_intake},  $locale->text('Sales Order Intake')),
+    ) : undef,
     ($form->{type} eq 'sales_order') ? (
       opthash("sales_order",         $form->{PD}{sales_order},         $locale->text('Confirmation')),
       opthash("proforma",            $form->{PD}{proforma},            $locale->text('Proforma Invoice')),
