@@ -56,6 +56,7 @@ __PACKAGE__->run_before('check_object_params', only => [ qw(list ajax_delete aja
 # right:  access right used for import
 my %file_types = (
   'sales_quotation'             => { gen => 1, gltype => '',   dir =>'SalesQuotation',       model => 'Order',          right => 'import_ar'  },
+  'sales_order_intake'          => { gen => 5, gltype => '',   dir =>'SalesOrderIntake',     model => 'Order',          right => 'import_ar'  },
   'sales_order'                 => { gen => 5, gltype => '',   dir =>'SalesOrder',           model => 'Order',          right => 'import_ar'  },
   'sales_delivery_order'        => { gen => 1, gltype => '',   dir =>'SalesDeliveryOrder',   model => 'DeliveryOrder',  right => 'import_ar'  },
   'sales_reclamation'           => { gen => 5, gltype => '',   dir =>'SalesReclamation',     model => 'Reclamation',    right => 'import_ar'  },
