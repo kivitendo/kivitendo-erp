@@ -779,7 +779,8 @@ SQL
   $form->add_shipto($dbh, $form->{id}, "AP");
 
   # delete zero entries
-  do_query($form, $dbh, qq|DELETE FROM acc_trans WHERE amount = 0|);
+  do_query($form, $dbh, qq|DELETE FROM acc_trans WHERE amount = 0 AND trans_id = ?|, $form->{id});
+
 
   Common::webdav_folder($form);
 
@@ -938,12 +939,6 @@ sub delete_invoice {
     &reverse_invoice($dbh, $form);
 
     my @values = (conv_i($form->{id}));
-
-    # delete zero entries
-    # wtf? use case for this?
-    $query = qq|DELETE FROM acc_trans WHERE amount = 0|;
-    do_query($form, $dbh, $query);
-
 
     my @queries = (
       qq|DELETE FROM invoice WHERE trans_id = ?|,
