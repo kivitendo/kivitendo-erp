@@ -174,7 +174,7 @@ sub pay_invoice {
 
       push @new_acc_ids, $new_acc_trans->acc_trans_id;
       # deal with fxtransaction
-      if ( $self->currency_id != $::instance_conf->get_currency_id ) {
+      if ( $self->currency_id != $::instance_conf->get_currency_id && $exchangerate != 1) {
         my $fxamount = _round($amount - ($amount * $exchangerate));
         $new_acc_trans = SL::DB::AccTransaction->new(trans_id       => $self->id,
                                                      chart_id       => $account_bank->id,
