@@ -18,6 +18,9 @@
       <th>[% 'Amount' | $T8 %]</th>
       <th>[% 'Skonto' | $T8 %]</th>
       <th>[% 'Purpose/Reference' | $T8 %]</th>
+      [% IF INSTANCE_CONF.get_create_qrbill_invoices == 1 %]
+        <th>[% 'QR reference' | $T8 %]</th>
+      [% END %]
       <th>[% 'Customer/Vendor/Remote name' | $T8 %]</th>
       <th>[% LxERP.t8("Source") %]</th>
       <th>[% LxERP.t8("Memo") %]</th>
@@ -55,6 +58,23 @@
                 purpose ;
               END %]
           </td>
+          [% IF INSTANCE_CONF.get_create_qrbill_invoices == 1 %]
+            <td>
+            [% SET qr_reference = HTML.escape(proposal.qr_reference)
+                qr_reference_found = '';
+              FOREACH proposed_invoice = proposal.proposals;
+                IF qr_reference.match(proposed_invoice.qr_reference);
+                  SET qr_reference_found = proposed_invoice.qr_reference;
+                END;
+              END;
+
+              IF qr_reference_found;
+                qr_reference.replace(qr_reference_found, '<span class="qr_reference_highlight">' _ qr_reference_found _ '</span>');
+              ELSE;
+                purpose;
+              END %]
+            </td>
+          [% END %]
           <td>[% HTML.escape(proposal.remote_name) %]</td>
           <td></td>
           <td></td>
@@ -72,6 +92,15 @@
           <td>[% proposed_invoice.skonto_type | $T8 %]
               [% L.hidden_tag("invoice_skontos." _ proposal.id _ "[]", proposed_invoice.skonto_type) %]</td>
           <td[% IF proposed_invoice.invnumber == invnumber_found %] class="invoice_number_highlight"[% END %]>[% proposed_invoice.link %]</td>
+          [% IF INSTANCE_CONF.get_create_qrbill_invoices == 1 %]
+            <td>
+            [% IF proposed_invoice.qr_reference == proposal.qr_reference %]
+              <span class="qr_reference_highlight">[% HTML.escape(proposed_invoice.qr_reference) %]</span>
+            [% ELSE %]
+              [% HTML.escape(proposed_invoice.qr_reference) %]
+            [% END %]
+            </td>
+          [% END %]
           <td>[% HTML.escape(proposed_invoice.customer.name) %][% HTML.escape(proposed_invoice.vendor.name) %]</td>
           <td>[% L.input_tag("sources." _ proposal.id _ "[]", "", size=20) %]</td>
           <td>[% L.input_tag("memos." _ proposal.id _ "[]", "", size=20) %]</td>

@@ -82,6 +82,7 @@ sub get_agreement_with_invoice {
     wrong_sign                  => -4,
     sepa_export_item            => 5,
     batch_sepa_transaction      => 20,
+    qr_reference                => 20,
   );
 
   my ($agreement,$rule_matches);
@@ -89,6 +90,16 @@ sub get_agreement_with_invoice {
   if ( $self->is_batch_transaction && $self->{sepa_export_ok}) {
     $agreement += $points{batch_sepa_transaction};
     $rule_matches .= 'batch_sepa_transaction(' . $points{'batch_sepa_transaction'} . ') ';
+  }
+
+  # check swiss qr reference if feature enabled
+  if ($::instance_conf->get_create_qrbill_invoices == 1) {
+    if ($self->{qr_reference} && $invoice->{qr_reference} &&
+        $self->{qr_reference} eq $invoice->{qr_reference}) {
+
+      $agreement += $points{qr_reference};
+      $rule_matches .= 'qr_reference(' . $points{'qr_reference'} . ') ';
+    }
   }
 
   # compare banking arrangements

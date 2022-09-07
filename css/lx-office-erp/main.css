@@ -549,7 +549,10 @@ a.red {
 #bank_transactions_proposals span.invoice_number_highlight {
   background-color: #006400;
   color: #FFFFFF;
-
+}
+#bank_transactions_proposals span.qr_reference_highlight {
+  background-color: #006400;
+  color: #FFFFFF;
 }
 
 /* actionbar styling */

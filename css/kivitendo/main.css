@@ -553,6 +553,10 @@ span.toggle_selected {
   background-color: #006400;
   color: #FFFFFF;
 }
+#bank_transactions_proposals span.qr_reference_highlight {
+  background-color: #006400;
+  color: #FFFFFF;
+}
 
 /* actionbar styling */
 div.layout-actionbar {
