@@ -10,3 +10,16 @@
 - parent: ar
   id: ar_add_sales_order_experimental
   name: Add Sales Order Confirmation
+- parent: ar_reports
+  id: ar_reports_sales_order_intakes
+  name: Sales Order Intakes
+  icon: report_sales_orders
+  order: 280
+  access: sales_order_edit | sales_order_view
+  module: oe.pl
+  params:
+    action: search
+    type: sales_order_intake
+- parent: ar_reports
+  id: ar_reports_sales_orders
+  name: Sales Order Confirmations
