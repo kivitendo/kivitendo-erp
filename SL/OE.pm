@@ -69,6 +69,7 @@ sub transactions {
   my $query;
   my $ordnumber = 'ordnumber';
   my $quotation = '0';
+  my $intake    = '0';
 
   my @values;
   my $where;
@@ -80,6 +81,9 @@ sub transactions {
   if ($form->{type} =~ /_quotation$/) {
     $quotation = '1';
     $ordnumber = 'quonumber';
+
+  } elsif ($form->{type} =~ /_order_intake$/) {
+    $intake = '1';
 
   } elsif ($form->{type} eq 'sales_order') {
     $periodic_invoices_columns = qq| , COALESCE(pcfg.active, 'f') AS periodic_invoices |;
@@ -157,8 +161,10 @@ sub transactions {
     qq|LEFT JOIN order_statuses ON (o.order_status_id = order_statuses.id) | .
     qq|$periodic_invoices_joins | .
     $phone_notes_join .
-    qq|WHERE (o.quotation = ?) |;
+    qq|WHERE (o.quotation = ?) | .
+    qq|  AND (o.intake = ?) |;
   push(@values, $quotation);
+  push(@values, $intake);
 
   if ($form->{department_id}) {
     $query .= qq| AND o.department_id = ?|;

@@ -81,17 +81,19 @@ use strict;
 # $locale->text('Workflow sales_quotation');
 
 my $oe_access_map = {
-  'sales_order'       => 'sales_order_edit',
-  'purchase_order'    => 'purchase_order_edit',
-  'request_quotation' => 'request_quotation_edit',
-  'sales_quotation'   => 'sales_quotation_edit',
+  'sales_order_intake' => 'sales_order_edit',
+  'sales_order'        => 'sales_order_edit',
+  'purchase_order'     => 'purchase_order_edit',
+  'request_quotation'  => 'request_quotation_edit',
+  'sales_quotation'    => 'sales_quotation_edit',
 };
 
 my $oe_view_access_map = {
-  'sales_order'       => 'sales_order_edit       | sales_order_view',
-  'purchase_order'    => 'purchase_order_edit    | purchase_order_view',
-  'request_quotation' => 'request_quotation_edit | request_quotation_view',
-  'sales_quotation'   => 'sales_quotation_edit   | sales_quotation_view',
+  'sales_order_intake' => 'sales_order_edit       | sales_order_view',
+  'sales_order'        => 'sales_order_edit       | sales_order_view',
+  'purchase_order'     => 'purchase_order_edit    | purchase_order_view',
+  'request_quotation'  => 'request_quotation_edit | request_quotation_view',
+  'sales_quotation'    => 'sales_quotation_edit   | sales_quotation_view',
 };
 
 sub check_oe_access {
@@ -951,10 +953,16 @@ sub search {
     $form->{title}     = $locale->text('Request for Quotations');
     $form->{ordlabel}  = $locale->text('RFQ Number');
 
+  } elsif ($form->{type} eq 'sales_order_intake') {
+    $form->{vc}        = 'customer';
+    $form->{ordnrname} = 'ordnumber';
+    $form->{title}     = $locale->text('Sales Order Intakes');
+    $form->{ordlabel}  = $locale->text('Order Number');
+
   } elsif ($form->{type} eq 'sales_order') {
     $form->{vc}        = 'customer';
     $form->{ordnrname} = 'ordnumber';
-    $form->{title}     = $locale->text('Sales Orders');
+    $form->{title}     = $locale->text('Sales Order Confirmations');
     $form->{ordlabel}  = $locale->text('Order Number');
 
   } elsif ($form->{type} eq 'sales_quotation') {
@@ -1031,7 +1039,7 @@ sub orders {
   my %params   = @_;
   check_oe_access(with_view => 1);
 
-  my $ordnumber = ($form->{type} =~ /_order$/) ? "ordnumber" : "quonumber";
+  my $ordnumber = ($form->{type} =~ /_order_intake$|_order$/) ? "ordnumber" : "quonumber";
 
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
   report_generator_set_default_sort('transdate', 1);
@@ -1061,7 +1069,7 @@ sub orders {
   );
 
   # only show checkboxes if gotten here via sales_order form.
-  my $allow_multiple_orders = $form->{type} eq 'sales_order';
+  my $allow_multiple_orders = $form->{type} eq 'sales_order_intake' || $form->{type} eq 'sales_order';
   if ($allow_multiple_orders) {
     unshift @columns, "ids";
   }
@@ -1082,7 +1090,10 @@ sub orders {
     }
 
   } else {
-    if ($form->{type} eq 'sales_order') {
+    if ($form->{type} eq 'sales_order_intake') {
+      $form->{title}       = $locale->text('Sales Order Intakes');
+      $attachment_basename = $locale->text('sales_order_intake_list');
+    } elsif ($form->{type} eq 'sales_order') {
       $form->{title}       = $locale->text('Sales Orders');
       $attachment_basename = $locale->text('sales_order_list');
     } else {
