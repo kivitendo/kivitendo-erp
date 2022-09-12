@@ -115,6 +115,7 @@ sub enabled {
 
 my %type_to_path = (
   sales_quotation             => 'angebote',
+  sales_order_intake          => 'auftragseingaenge',
   sales_order                 => 'bestellungen',
   request_quotation           => 'anfragen',
   purchase_order              => 'lieferantenbestellungen',
@@ -143,6 +144,7 @@ my %type_to_path = (
 
 my %type_to_model = (
   sales_quotation             => 'Order',
+  sales_order_intake          => 'Order',
   sales_order                 => 'Order',
   request_quotation           => 'Order',
   purchase_order              => 'Order',

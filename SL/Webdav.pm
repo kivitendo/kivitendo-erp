@@ -18,6 +18,7 @@ use Rose::Object::MakeMethods::Generic (
 
 my %type_to_path = (
   sales_quotation             => 'angebote',
+  sales_order_intake          => 'auftragseingaenge',
   sales_order                 => 'bestellungen',
   request_quotation           => 'anfragen',
   purchase_order              => 'lieferantenbestellungen',
