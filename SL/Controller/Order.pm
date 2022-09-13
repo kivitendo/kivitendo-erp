@@ -222,10 +222,8 @@ sub action_add_subversion {
   my $new_number = $self->order->number;
   $new_number    =~ s/-$current_version_number$//;
   $self->order->number($new_number . '-' . $new_version_number);
-
-  SL::DB::OrderVersion->new(oe_id   => $self->order->id,
-                            version => $new_version_number,
-  )->save;
+  $self->order->add_order_version(SL::DB::OrderVersion->new(oe_id   => $self->order->id,
+                                                            version => $new_version_number));
 
   # call the save action
   $self->action_save();
