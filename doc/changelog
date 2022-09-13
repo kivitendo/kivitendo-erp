@@ -38,6 +38,8 @@ Kleinere neue Features und Detailverbesserungen:
  - Beim Abschluss von Wiedervorlagen wird der Benutzer und der Zeitpunkt gespeichert.
  - Formular-Gültigkeit beim Buchen von Verkaufsrechnungen überprüfen. Aktuelles Browser-Verhalten
    kann dazu führen, dass der Anwender doppelte Buchungen erstellt.
+ - Das E-Mail-Journal protokolliert jetzt die genaue Fehlermeldung des SMTP-Servers
+ - Finanzübersicht funktioniert jetzt auch korrekt mit Fremdwährungs-Belegen
 
 2022-05-20 - Release 3.6.1
 
