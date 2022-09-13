@@ -3,6 +3,8 @@ package SL::Layout::Base;
 use strict;
 use parent qw(Rose::Object);
 
+use SL::Version;
+
 use File::Slurp qw(read_file);
 use List::MoreUtils qw(uniq);
 use Time::HiRes qw();
@@ -47,28 +49,30 @@ sub get {
   return grep { $_ } ($_[0]->sub_layouts_by_name->{$_[1]});
 }
 
+sub _current_git_ref {
+  my $git_dir = SL::System::Process::exe_dir() . '/.git';
+
+  return unless -d $git_dir;
+
+  my $content = eval { scalar(read_file($git_dir . '/HEAD')) };
+
+  return unless ($content // '') =~ m{\Aref: ([^\r\n]+)};
+
+  $content = eval { scalar(read_file($git_dir . '/' . $1)) };
+
+  return unless ($content // '') =~ m{\A([0-9a-fA-F]+)};
+
+  return $1;
+}
+
 sub init_auto_reload_resources_param {
-  if ($::lx_office_conf{debug}->{auto_reload_resources}) {
-    return sprintf('?rand=%d-%d-%d', Time::HiRes::gettimeofday(), int(rand 1000000000000));
-  }
+  my $value;
 
-  if ($::lx_office_conf{debug}{git_commit_reload_resources}) {
-    my $git_dir = SL::System::Process::exe_dir() . '/.git';
+  $value   = sprintf('%d-%d-%d', Time::HiRes::gettimeofday(), int(rand 1000000000000)) if $::lx_office_conf{debug}->{auto_reload_resources};
+  $value ||= _current_git_ref();
+  $value ||= SL::Version->get_version;
 
-    return '' unless -d $git_dir;
-
-    my $content = eval { scalar(read_file($git_dir . '/HEAD')) };
-
-    return '' unless ($content // '') =~ m{\Aref: ([^\r\n]+)};
-
-    $content = eval { scalar(read_file($git_dir . '/' . $1)) };
-
-    return '' unless ($content // '') =~ m{\A([0-9a-fA-F]+)};
-
-    return '?rand=' . $1;
-  }
-
-  return '';
+  return $value ? "?rand=${value}" : '';
 }
 
 ##########################################
