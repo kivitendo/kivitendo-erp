@@ -36,6 +36,8 @@ Kleinere neue Features und Detailverbesserungen:
    Vorlagenkürzel enthalten für die QR-Rechnung verwendet, dies ermöglicht die gleichzeitige
    Verwendung von QR und nicht-QR Rechnungen.
  - Beim Abschluss von Wiedervorlagen wird der Benutzer und der Zeitpunkt gespeichert.
+ - Formular-Gültigkeit beim Buchen von Verkaufsrechnungen überprüfen. Aktuelles Browser-Verhalten
+   kann dazu führen, dass der Anwender doppelte Buchungen erstellt.
 
 2022-05-20 - Release 3.6.1
 
