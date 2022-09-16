@@ -402,7 +402,8 @@ sub reference_account {
   my $link_filter = $is_sales ? 'AR' : 'AP';
 
   my $acc_trans = SL::DB::Manager::AccTransaction->find_by(
-     trans_id   => $self->id,
+     'trans_id'    => $self->id,
+     '!chart_id'   => $::instance_conf->get_advance_payment_clearing_chart_id,
      SL::DB::Manager::AccTransaction->chart_link_filter("$link_filter")
   );
 
