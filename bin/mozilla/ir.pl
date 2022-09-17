@@ -591,7 +591,12 @@ sub form_footer {
     if ($form->date_closed($form->{"gldate_$i"})) {
       $form->{"changeable_$i"} = 0;
     }
-
+    # don't add manual bookings for charts which are assigned to real bank accounts
+    my $bank_accounts = SL::DB::Manager::BankAccount->get_all();
+    foreach my $bank (@{ $bank_accounts }) {
+      my $accno_paid_bank = $bank->chart->accno;
+      $form->{selectAP_paid} =~ s/<option>$accno_paid_bank--(.*?)<\/option>//;
+    }
     $form->{"selectAP_paid_$i"} = $form->{selectAP_paid};
     if (!$form->{"AP_paid_$i"}) {
       $form->{"selectAP_paid_$i"} =~ s/option>$accno_arap--(.*?)>/option selected>$accno_arap--$1>/;

@@ -444,14 +444,21 @@ sub form_header {
 
   my %project_labels = map { $_->id => $_->projectnumber }  @{ SL::DB::Manager::Project->get_all };
 
-  my %charts;
+  my (%charts, %bank_accounts);
   my $default_ap_amount_chart_id;
+  # don't add manual bookings for charts which are assigned to real bank accounts
+  my $bank_accounts = SL::DB::Manager::BankAccount->get_all();
+  foreach my $bank (@{ $bank_accounts }) {
+    my $accno_paid_bank = $bank->chart->accno;
+    $bank_accounts{$accno_paid_bank} = 1;
+  }
 
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
     if ( grep({ $_ eq 'AP_amount' } @{ $item->{link_split} }) ) {
       $default_ap_amount_chart_id //= $item->{id};
 
     } elsif ( grep({ $_ eq 'AP_paid' } @{ $item->{link_split} }) ) {
+      next if $bank_accounts{$item->{accno}};
       push(@{ $form->{ALL_CHARTS_AP_paid} }, $item);
     }
 

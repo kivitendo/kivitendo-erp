@@ -406,14 +406,20 @@ sub form_header {
 
   my %project_labels = map { $_->{id} => $_->{projectnumber} } @{ $form->{"ALL_PROJECTS"} };
 
-  my (@AR_paid_values, %AR_paid_labels);
+  my (@AR_paid_values, %AR_paid_labels, %bank_accounts);
   my $default_ar_amount_chart_id;
-
+  # don't add manual bookings for charts which are assigned to real bank accounts
+  my $bank_accounts = SL::DB::Manager::BankAccount->get_all();
+  foreach my $bank (@{ $bank_accounts }) {
+    my $accno_paid_bank = $bank->chart->accno;
+    $bank_accounts{$accno_paid_bank} = 1;
+  }
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
     if ($item->{link_split}{AR_amount}) {
       $default_ar_amount_chart_id //= $item->{id};
 
     } elsif ($item->{link_split}{AR_paid}) {
+      next if $bank_accounts{$item->{accno}};
       push(@AR_paid_values, $item->{accno});
       $AR_paid_labels{$item->{accno}} = "$item->{accno}--$item->{description}";
     }
