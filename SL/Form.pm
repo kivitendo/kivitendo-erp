@@ -1668,9 +1668,10 @@ sub set_payment_options {
   $self->{payment_terms} =~ s/<\%mandator_id\%>/$self->{mandator_id}/g;
 
   map { $self->{payment_terms} =~ s/<%${_}%>/$formatted_amounts{$_}/g; } keys %formatted_amounts;
-
-  $self->{skonto_in_percent} = $formatted_amounts{skonto_in_percent};
-
+  # put amounts in form for print template
+  foreach (keys %formatted_amounts) {
+    $self->{$_} = $formatted_amounts{$_};
+  }
 }
 
 sub get_template_language {
