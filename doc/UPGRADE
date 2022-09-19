@@ -3,6 +3,11 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v3.7.0
+
+Es sind keine neuen Perl-Abhängigkeiten hinzugekommen.
+
+
 Upgrade auf v3.6.1
 
 Das manuelle Korrigieren der Steuer bei Skontoverbuchungen entfällt seit
