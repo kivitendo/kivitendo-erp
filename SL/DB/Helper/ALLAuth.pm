@@ -2,10 +2,18 @@ package SL::DB::Helper::ALLAuth;
 
 use strict;
 
+use SL::DB::AuthClient;
+use SL::DB::AuthClientGroup;
+use SL::DB::AuthClientUser;
 use SL::DB::AuthGroup;
 use SL::DB::AuthGroupRight;
-use SL::DB::AuthUserConfig;
+use SL::DB::AuthMasterRight;
+use SL::DB::AuthSchemaInfo;
+use SL::DB::AuthSession;
+use SL::DB::AuthSessionContent;
 use SL::DB::AuthUser;
+use SL::DB::AuthUserConfig;
+use SL::DB::AuthUserGroup;
 
 1;
 
