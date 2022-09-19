@@ -361,6 +361,7 @@ $self->{texts} = {
   'Article type'                => '',
   'Articles'                    => '',
   'As a result, the saved onhand values of the present goods can be stored into a warehouse designated by you, or will be reset for a proper warehouse tracking' => '',
+  'As of version 3.7 most of the variables are also availabe as a print variable.' => '',
   'Assemblies'                  => '',
   'Assembly'                    => '',
   'Assembly (typeabbreviation)' => 'A',

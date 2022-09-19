@@ -2,6 +2,14 @@
 # Veränderungen von kivitendo #
 ###############################
 
+2022-xx-xx - Release 4.0.0
+
+Kleinere neue Features und Detailverbesserungen:
+
+ - Die Variablen zur Ersetzung der Zahlungsbedingungen stehen auch als einzelne
+   Variable für das Druckvorlagensystem zu Verfügung, bspw. bezeichnet
+   <%invtotal_wo_skonto%> den Rechnungsbetrag abzgl. des Skontos.
+
 2022-09-19 - Release 3.7.0
 
 Größere neue Features:

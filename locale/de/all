@@ -361,6 +361,7 @@ $self->{texts} = {
   'Article type'                => 'Artikeltyp',
   'Articles'                    => 'Artikel',
   'As a result, the saved onhand values of the present goods can be stored into a warehouse designated by you, or will be reset for a proper warehouse tracking' => 'Als Konsequenz können die gespeicherten Mengen entweder in ein Lager überführt werden, oder für eine frische Lagerverwaltung resettet werden.',
+  'As of version 3.7 most of the variables are also availabe as a print variable.' => 'Seit Version 3.7 stehen die meisten Felder auch als einzelne Druckvariable zu Verfügung.',
   'Assemblies'                  => 'Erzeugnisse',
   'Assembly'                    => 'Erzeugnis',
   'Assembly (typeabbreviation)' => 'E',
