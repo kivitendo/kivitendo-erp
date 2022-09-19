@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction exchangerate forex _skonto_charts_and_tax_correction);
+our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction exchangerate forex _skonto_charts_and_tax_correction);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -422,27 +422,6 @@ sub reference_account {
   return $reference_account;
 };
 
-sub reference_amount {
-  my $self = shift;
-
-  my $is_sales = ref($self) eq 'SL::DB::Invoice';
-
-  require SL::DB::Manager::AccTransaction;
-
-  my $link_filter = $is_sales ? 'AR' : 'AP';
-
-  my $acc_trans = SL::DB::Manager::AccTransaction->find_by(
-     trans_id   => $self->id,
-     SL::DB::Manager::AccTransaction->chart_link_filter("$link_filter")
-  );
-
-  return undef unless ref $acc_trans;
-
-  # this should be the same as $self->amount
-  return $acc_trans->amount;
-};
-
-
 sub open_amount {
   my $self = shift;
 
@@ -454,35 +433,10 @@ sub open_amount {
   return ($self->amount // 0) - ($self->paid // 0);
 };
 
-sub open_percent {
-  my $self = shift;
-
-  return 0 if $self->amount == 0;
-  my $open_percent;
-  if ( $self->open_amount < 0 ) {
-    # overpaid, currently treated identically
-    $open_percent = $self->open_amount * 100 / $self->amount;
-  } else {
-    $open_percent = $self->open_amount * 100 / $self->amount;
-  };
-
-  return _round($open_percent) || 0;
-};
-
 sub skonto_amount {
   my $self = shift;
 
   return $self->amount - $self->amount_less_skonto;
-};
-
-sub remaining_skonto_days {
-  my $self = shift;
-
-  return undef unless ref $self->skonto_date;
-
-  my $dur = DateTime::Duration->new($self->skonto_date - DateTime->today);
-  return $dur->delta_days();
-
 };
 
 sub percent_skonto {
@@ -542,11 +496,11 @@ sub check_skonto_configuration {
 
 sub open_sepa_transfer_amount {
   my $self = shift;
-
+#  die "was buggy for ar and not really in use at all";
   my ($vc, $key, $type);
   if ( ref($self) eq 'SL::DB::Invoice' ) {
     $vc   = 'customer';
-    $key  = 'ap_id';
+    $key  = 'ar_id';  # BUGGY ar_id
     $type = 'ar';
   } else {
     $vc   = 'vendor';
@@ -1045,19 +999,6 @@ C<_skonto_charts_and_tax_correction> generates one entry for each tax type entry
 
 Unrounded total open amount of invoice (amount - paid).
 Doesn't take into account pending SEPA transfers.
-
-=item C<open_percent>
-
-Percentage of the invoice that is still unpaid, e.g. 100,00 if no payments have
-been made yet, 0,00 if fully paid.
-
-=item C<remaining_skonto_days>
-
-How many days skonto can still be taken, calculated from current day. Returns 0
-if current day is the max skonto date, and negative number if skonto date has
-already passed.
-
-Returns undef if skonto is not configured for that invoice.
 
 =item C<get_payment_suggestions %params>
 
