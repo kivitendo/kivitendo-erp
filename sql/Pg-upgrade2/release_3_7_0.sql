@@ -1,0 +1,3 @@
+-- @tag: release_3_7_0
+-- @description: Leeres Script, das alle Upgradescripte bis zum Release 3.7.0 voraussetzt, um ein fest definiertes Schema zu definieren.
+-- @depends: release_3_6_1 bank_transactions_add_qr_reference follow_up_done_close_follow_ups_when_order_is_closed oe_add_order_status follow_up_created_for_employees defaults_oe_subversion on_delete_oe_version_trigger ar_add_qr_reference oe_version_create_first_ phone_notes_convert_to_html validity_tokens follow_up_done
