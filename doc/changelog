@@ -52,6 +52,11 @@ Kleinere neue Features und Detailverbesserungen:
    Broser-Cache manuell gelöscht werden muss ("Drück mal Strg-F5"
    entfällt dann hoffentlich).
 
+Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+504 BDV Auswahlbox mit Checkbox ignoriert Parameter 7) Deaktiviert als Voreinstellung
+501 Gelöschten Benutzernamen für einen andere Person neu vergeben verursacht Durcheinander
+
+
 2022-05-20 - Release 3.6.1
 
 Größere neue Features:
