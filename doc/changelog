@@ -40,6 +40,17 @@ Kleinere neue Features und Detailverbesserungen:
    kann dazu führen, dass der Anwender doppelte Buchungen erstellt.
  - Das E-Mail-Journal protokolliert jetzt die genaue Fehlermeldung des SMTP-Servers
  - Finanzübersicht funktioniert jetzt auch korrekt mit Fremdwährungs-Belegen
+ - Die Konfigurations-Option "git_commit_reload_recources", um bei
+   einer git-basierten Installation den js/css-Resource-Dateien den
+   Hash des aktuellen git-Heads anzuhängen, entfällt. Nun wird
+   vielmehr immer der Hash angehängt. Wenn dieser nicht ermittelt
+   werden kann, dann wird die kivi-Versionsnummer angehängt.
+   Die Entwickler-Option "auto_reload_resources" bleibt vorhanden und
+   hat Vorrang.
+   Das dient dazu, dass der Browser die Resource-Dateien neu lädt und
+   bei einem Upgrade nicht bei allen Anwender-Browsern der
+   Broser-Cache manuell gelöscht werden muss ("Drück mal Strg-F5"
+   entfällt dann hoffentlich).
 
 2022-05-20 - Release 3.6.1
 
