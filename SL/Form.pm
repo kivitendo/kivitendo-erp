@@ -1670,7 +1670,7 @@ sub set_payment_options {
   map { $self->{payment_terms} =~ s/<%${_}%>/$formatted_amounts{$_}/g; } keys %formatted_amounts;
   # put amounts in form for print template
   foreach (keys %formatted_amounts) {
-    next if $_  =~ m/(total|invtotal)/;
+    next if $_  =~ m/(^total$|^invtotal$)/;
     $self->{$_} = $formatted_amounts{$_};
   }
 }
