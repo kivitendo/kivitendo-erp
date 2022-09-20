@@ -15,6 +15,7 @@ use Carp;
 use Data::Dumper;
 use DateTime;
 use List::Util qw(sum);
+use Params::Validate qw(:all);
 
 use SL::DATEV qw(:CONSTANTS);
 use SL::DB::Exchangerate;
@@ -617,17 +618,23 @@ sub _skonto_charts_and_tax_correction {
   return @skonto_charts;
 }
 
+
 sub within_skonto_period {
   my $self = shift;
-  my $dateref = shift || DateTime->now->truncate( to => 'day' );
-
-  return undef unless ref $dateref eq 'DateTime';
-  return 0 unless $self->skonto_date;
-
-  # return 1 if requested date (or today) is inside skonto period
-  # this will also return 1 if date is before the invoice date
-  return $dateref <= $self->skonto_date;
-};
+  validate(
+    @_,
+       { transdate => {
+                        isa => 'DateTime',
+                        callbacks => {
+                          'self has a skonto date'  => sub { ref $self->skonto_date eq 'DateTime' },
+                          'is within skonto period' => sub { return shift() <= $self->skonto_date },
+                        },
+                      },
+       }
+    );
+  # then return true
+  return 1;
+}
 
 sub valid_skonto_amount {
   my $self = shift;
