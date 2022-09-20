@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction exchangerate forex _skonto_charts_and_tax_correction);
+our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount check_skonto_configuration valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction exchangerate forex _skonto_charts_and_tax_correction);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -492,30 +492,6 @@ sub check_skonto_configuration {
   };
 
   return $skonto_configured;
-};
-
-sub open_sepa_transfer_amount {
-  my $self = shift;
-#  die "was buggy for ar and not really in use at all";
-  my ($vc, $key, $type);
-  if ( ref($self) eq 'SL::DB::Invoice' ) {
-    $vc   = 'customer';
-    $key  = 'ar_id';  # BUGGY ar_id
-    $type = 'ar';
-  } else {
-    $vc   = 'vendor';
-    $key  = 'ap_id';
-    $type = 'ap';
-  };
-
-  my $sql = qq|SELECT SUM(sei.amount) AS amount FROM sepa_export_items sei | .
-            qq| LEFT JOIN sepa_export se ON (sei.sepa_export_id = se.id)   | .
-            qq| WHERE $key = ? AND NOT se.closed AND (se.vc = '$vc')       |;
-
-  my ($open_sepa_amount) = $self->db->dbh->selectrow_array($sql, undef, $self->id);
-
-  return $open_sepa_amount || 0;
-
 }
 
 sub _skonto_charts_and_tax_correction {
@@ -704,49 +680,7 @@ sub exchangerate {
   return undef unless $rate;
 
   return $self->is_sales ? $rate->buy : $rate->sell; # also undef if not defined
-};
-
-sub get_payment_suggestions {
-
-  my ($self, %params) = @_;
-
-  my $open_amount = $self->open_amount;
-  $open_amount   -= $self->open_sepa_transfer_amount if $params{sepa};
-
-  $self->{invoice_amount_suggestion} = $open_amount;
-  undef $self->{payment_select_options};
-  push(@{$self->{payment_select_options}} , { payment_type => 'without_skonto',  display => t8('without skonto') });
-  if ( $self->within_skonto_period ) {
-    # If there have been no payments yet suggest amount_less_skonto, otherwise the open amount
-    if ( $open_amount &&                   # invoice amount not 0
-         $open_amount == $self->amount &&  # no payments yet, or sum of payments and sepa export amounts is zero
-         $self->check_skonto_configuration) {
-      $self->{invoice_amount_suggestion} = $self->amount_less_skonto;
-      push(@{$self->{payment_select_options}} , { payment_type => 'with_skonto_pt',  display => t8('with skonto acc. to pt') , selected => 1 });
-    } else {
-      if ( ( $self->valid_skonto_amount($self->open_amount) || $self->valid_skonto_amount($open_amount) ) and not $params{sepa} ) {
-        # Will never be reached
-        die "This case is as dead as the dead cat. Go to start, don't pick 2,000 \$";
-        $self->{invoice_amount_suggestion} = $open_amount;
-        # only suggest difference_as_skonto if open_amount exactly matches skonto_amount
-        # AND we aren't in SEPA mode
-        my $selected = 0;
-        $selected = 1 if _round($open_amount) == _round($self->skonto_amount);
-        push(@{$self->{payment_select_options}} , { payment_type => 'difference_as_skonto',  display => t8('difference as skonto') , selected => $selected });
-      };
-    };
-  } else {
-    # invoice was configured with skonto, but skonto date has passed, or no skonto available
-    $self->{invoice_amount_suggestion} = $open_amount;
-    # difference_as_skonto doesn't make any sense for SEPA transfer, as this doesn't cause any actual payment
-    if ( $self->valid_skonto_amount($self->open_amount) && not $params{sepa} ) {
-      # probably also dead code
-      die "This case is as dead as the dead cat. Go to start, don't pick 2,000 \$";
-      push(@{$self->{payment_select_options}} , { payment_type => 'difference_as_skonto',  display => t8('difference as skonto') , selected => 0 });
-    };
-  };
-  return 1;
-};
+}
 
 # locales for payment type
 #
