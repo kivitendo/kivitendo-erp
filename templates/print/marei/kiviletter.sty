@@ -171,7 +171,7 @@
 \dim_gset:Nn \g_kivi_tabcolsep_dim {.5\tabcolsep}
 \setlength\tabcolsep{.5\tabcolsep}
 
-\prg_new_conditional:Nnn \kivi_if_Price_col:n {T} {
+\prg_new_conditional:Nnn \kivi_if_Price_col:n {T, TF} {
   \prop_get:cnN {l_kivi_col_#1_prop} {colspec} \l_tmpa_tl
   \exp_args:NV \tl_if_eq:nnTF \l_tmpa_tl {Price}
   {\prg_return_true:}
@@ -204,7 +204,16 @@
             \dim_use:c {l_kivi_tab_##1_dim}+2\g_kivi_tabcolsep_dim
           }
         }
-        \tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {K{\dim_use:c {l_kivi_tab_##1_dim}}}
+        \prop_if_in:cnTF {l_kivi_col_##1_prop} {colspec} {
+          \kivi_if_Price_col:nTF {##1} {
+             \tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {K}
+          }{
+             \tl_gput_right:Nx \g_kivi_Pricing_colspec_tl {\prop_item:cn {l_kivi_col_##1_prop} {colspec}}
+          }
+          \tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {{\dim_use:c {l_kivi_tab_##1_dim}}}
+         } {
+          \tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {K{\dim_use:c {l_kivi_tab_##1_dim}}}
+         }
         \kivi_if_Price_col:nT {##1} {\tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {<{\__kivi_tab_column_currency:}}}
       }
     }
