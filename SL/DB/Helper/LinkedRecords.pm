@@ -405,7 +405,7 @@ __END__
 
 SL::DB::Helper::LinkedRecords - Mixin for retrieving linked records via the table C<record_links>
 
-SYNOPSIS
+=head1 SYNOPSIS
 
   # In SL::DB::<Object>
   use SL::DB::Helper::LinkedRecords;
@@ -680,7 +680,7 @@ Note: If the latter has a default setting it will always mask the creation time.
 
 Returns an array reference.
 
-Can only be called both as a class function since it is not exported.
+Can only be called as a class function since it is not exported.
 
 =back
 
