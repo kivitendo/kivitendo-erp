@@ -399,7 +399,7 @@ sub skonto_date {
   return undef unless ref $self->payment_terms;
   return undef unless $self->payment_terms->terms_skonto > 0;
   return DateTime->from_object(object => $self->transdate)->add(days => $self->payment_terms->terms_skonto);
-};
+}
 
 sub reference_account {
   my $self = shift;
@@ -421,7 +421,7 @@ sub reference_account {
   my $reference_account = SL::DB::Manager::Chart->find_by(id => $acc_trans->chart_id);
 
   return $reference_account;
-};
+}
 
 sub open_amount {
   my $self = shift;
@@ -432,13 +432,13 @@ sub open_amount {
   # numerically, so round this value when checking for cent threshold >= 0.01
 
   return ($self->amount // 0) - ($self->paid // 0);
-};
+}
 
 sub skonto_amount {
   my $self = shift;
 
   return $self->amount - $self->amount_less_skonto;
-};
+}
 
 sub percent_skonto {
   my $self = shift;
@@ -450,7 +450,7 @@ sub percent_skonto {
   $percent_skonto = $self->payment_terms->percent_skonto;
 
   return $percent_skonto;
-};
+}
 
 sub amount_less_skonto {
   # amount that has to be paid if skonto applies, always return positive rounded values
@@ -463,8 +463,11 @@ sub amount_less_skonto {
 
   return _round($self->amount - ( $self->amount * $percent_skonto) );
 
-};
+}
 
+# dead method,  used to be called in get_payment_select_options_for_bank_transaction
+# error handling is now in _skonto_charts_and_tax_correction that dies with a user info
+# and not silently disables the option for the user
 sub check_skonto_configuration {
   my $self = shift;
 
@@ -645,7 +648,7 @@ sub valid_skonto_amount {
 
   # does this work for other currencies?
   return ($self->amount*$max_skonto_percent) > $amount;
-};
+}
 
 sub get_payment_select_options_for_bank_transaction {
   my ($self, $bt_id, %params) = @_;
@@ -707,7 +710,7 @@ sub validate_payment_type {
 sub forex {
   my ($self) = @_;
   $self->currency_id == $::instance_conf->get_currency_id ? return 0 : return 1;
-};
+}
 
 sub _round {
   my $value = shift;
