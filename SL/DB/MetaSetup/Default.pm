@@ -151,6 +151,8 @@ __PACKAGE__->meta->columns(
   purchase_order_show_delete                => { type => 'boolean', default => 'true' },
   quick_search_modules                      => { type => 'array' },
   rdonumber                                 => { type => 'text' },
+  record_links_from_order_with_myself       => { type => 'boolean', default => 'false' },
+  record_links_from_order_with_quotations   => { type => 'boolean', default => 'false' },
   reqdate_interval                          => { type => 'integer', default => '0' },
   reqdate_on                                => { type => 'boolean', default => 'true' },
   require_transaction_description_ps        => { type => 'boolean', default => 'false', not_null => 1 },

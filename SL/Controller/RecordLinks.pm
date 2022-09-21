@@ -67,9 +67,14 @@ my @link_types = map { +{ %link_type_defaults, %{ $_ } } } @link_type_specifics;
 sub action_ajax_list {
   my ($self) = @_;
 
+  my %order_centric_params = (
+    with_myself           => $::instance_conf->get_record_links_from_order_with_myself,
+    with_sales_quotations => $::instance_conf->get_record_links_from_order_with_quotations
+  );
+
   eval {
     my $linked_records = $::instance_conf->get_always_record_links_from_order
-                       ?  $self->object->sales_order_centric_linked_records()
+                       ?  $self->object->sales_order_centric_linked_records(%order_centric_params)
                        :  $self->object->linked_records(direction => 'both', recursive => 1, save_path => 1);
 
     push @{ $linked_records }, $self->object->sepa_export_items if $self->object->can('sepa_export_items');
