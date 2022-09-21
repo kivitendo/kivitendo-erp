@@ -667,7 +667,7 @@ sub get_payment_select_options_for_bank_transaction {
   }
   # valid skonto date, check if skonto is preferred
   my $bt = SL::DB::BankTransaction->new(id => $bt_id)->load;
-  if ($self->skonto_date && $self->within_skonto_period($bt->transdate)) {
+  if ($self->skonto_date && $self->within_skonto_period(transdate => $bt->transdate)) {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
     push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 }) if $skontoable;
   } else {
@@ -877,15 +877,16 @@ This method can also be used to determine whether skonto applies for the
 invoice, as it returns undef if there is no payment term or skonto days is set
 to 0.
 
-=item C<within_skonto_period [DATE]>
+=item C<within_skonto_period [transdate =E<gt> DateTime]>
 
-Returns 0 or 1.
+Returns 1 if skonto_date is in a skontoable period.
+Needs the mandatory named param 'transdate' as a 'DateTime', usually a bank
+transaction date for imported bank data.
 
-Checks whether the invoice has payment terms configured, and whether the date
-is within the skonto max date. If no date is passed the current date is used.
+Checks if the invoice has skontoable payment terms configured and whether the date
+is within the skonto max date.
 
-You can also pass a dateref object as a parameter to check whether skonto
-applies for that date rather than the current date.
+If one of the condition fails, a hopefully helpful error message is returned.
 
 =item C<valid_skonto_amount>
 
@@ -1051,6 +1052,6 @@ for credit notes or negative ap transactions with a positive sign.
 
 =head1 AUTHOR
 
-G. Richardson E<lt>grichardson@kivitendo-premium.de<gt>
+G. Richardson E<lt>grichardson@kivitendo-premium.deE<gt>
 
 =cut
