@@ -4,7 +4,7 @@ use strict;
 
 require Exporter;
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(linked_records link_to_record order_centric_linked_records);
+our @EXPORT = qw(linked_records link_to_record sales_order_centric_linked_records);
 
 use Carp;
 use List::MoreUtils qw(any);
@@ -395,7 +395,7 @@ sub filter_linked_records {
   return \@records;
 }
 
-sub order_centric_linked_records {
+sub sales_order_centric_linked_records {
   my ($self) = @_;
 
   my $all_linked_records = $self->linked_records(direction => 'from', recursive => 1);
