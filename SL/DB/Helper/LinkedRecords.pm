@@ -4,7 +4,7 @@ use strict;
 
 require Exporter;
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(linked_records link_to_record);
+our @EXPORT = qw(linked_records link_to_record order_centric_linked_records);
 
 use Carp;
 use List::MoreUtils qw(any);
@@ -393,6 +393,25 @@ sub filter_linked_records {
   }
 
   return \@records;
+}
+
+sub order_centric_linked_records {
+  my ($self) = @_;
+
+  my $all_linked_records = $self->linked_records(direction => 'from', recursive => 1);
+  my $filtered_orders = [ grep { 'SL::DB::Order' eq ref $_ && $_->is_type('sales_order') } @$all_linked_records ];
+
+  # no orders no call to linked_records via batch mode
+  # but instead return default list
+  return $self->linked_records(direction => 'both', recursive => 1, save_path => 1)
+    unless scalar @$filtered_orders;
+
+  # we have a order, therefore get the tree view from the top (order)
+  my $id_ref = [ map { $_->id } @$filtered_orders ];
+  my $linked_records = SL::DB::Order->new->linked_records(direction => 'to', recursive => 1, batch => $id_ref);
+  push @{ $linked_records }, @$filtered_orders;
+
+  return $linked_records;
 }
 
 1;
