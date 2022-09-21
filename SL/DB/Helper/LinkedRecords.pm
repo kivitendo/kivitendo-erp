@@ -7,7 +7,7 @@ our @ISA    = qw(Exporter);
 our @EXPORT = qw(linked_records link_to_record sales_order_centric_linked_records);
 
 use Carp;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any none);
 use List::UtilsBy qw(uniq_by);
 use Sort::Naturally;
 use SL::DBUtils;
@@ -396,20 +396,52 @@ sub filter_linked_records {
 }
 
 sub sales_order_centric_linked_records {
-  my ($self) = @_;
+  my ($self, %params) = @_;
 
-  my $all_linked_records = $self->linked_records(direction => 'from', recursive => 1);
-  my $filtered_orders = [ grep { 'SL::DB::Order' eq ref $_ && $_->is_type('sales_order') } @$all_linked_records ];
+  my $with_sales_quotations = $params{with_sales_quotations};
+  my $with_myself           = $params{with_myself};
+
+  my $all_linked_records = $self->linked_records(direction => 'both', recursive => 1, save_path => 1);
+
+  if (!$with_sales_quotations) {
+    $all_linked_records = [ grep { !('SL::DB::Order' eq ref $_ && $_->is_sales && $_->quotation) } @$all_linked_records ];
+  }
+
+  if ($with_myself) {
+    $self->{_record_link_to_myself} = 1;
+    push @$all_linked_records, $self;
+  }
+
+  my $filtered_orders = [ grep { 'SL::DB::Order' eq ref $_ && $_->is_type('sales_order') && $_->{_record_link_direction} eq 'from' } @$all_linked_records ];
 
   # no orders no call to linked_records via batch mode
   # but instead return default list
-  return $self->linked_records(direction => 'both', recursive => 1, save_path => 1)
-    unless scalar @$filtered_orders;
+  return $all_linked_records unless scalar @$filtered_orders;
 
-  # we have a order, therefore get the tree view from the top (order)
+  # we have an order, therefore get the tree view from the top (order)
   my $id_ref = [ map { $_->id } @$filtered_orders ];
+
   my $linked_records = SL::DB::Order->new->linked_records(direction => 'to', recursive => 1, batch => $id_ref);
-  push @{ $linked_records }, @$filtered_orders;
+
+  # Remove entries that are already in all_linked_records.
+  $linked_records = [ grep { my $id = $_->id; none { $_->id == $id } @$all_linked_records } @$linked_records ];
+
+  # Remove quotations if requested.
+  if (!$with_sales_quotations) {
+    $linked_records = [ grep { !('SL::DB::Order' eq ref $_ && $_->is_sales && $_->quotation) } @$linked_records ];
+  }
+
+  # Mark or remove myself.
+  if ($with_myself) {
+    $_->{_record_link_to_myself}  = 1 for grep { $_->id == $self->id } @$linked_records;
+  } else {
+    $linked_records = [ grep { $_->id != $self->id } @$linked_records ];
+  }
+
+  # All remaining links found via order are two more steps away from myself.
+  $_->{_record_link_depth} += 2 for @{ $linked_records };
+
+  push @{ $linked_records }, @$all_linked_records;
 
   return $linked_records;
 }
@@ -475,6 +507,12 @@ SL::DB::Helper::LinkedRecords - Mixin for retrieving linked records via the tabl
   my @linked_objects = $order->linked_records(
     direction => 'to',
     %params,
+  );
+
+  # get order centric linked records
+  $invoice->sales_order_centric_linked_records(
+    with_myself           => 1,
+    with_sales_quotations => 1
   );
 
   # add a new link
@@ -701,11 +739,38 @@ Returns an array reference.
 
 Can only be called as a class function since it is not exported.
 
+=item C<sales_order_centric_linked_records %params>
+
+Get linked records from the view of a reachable sales order in the path
+prior to this record. If no sales order is found, recursive linked records
+for both directions are returned.
+
+=over 2
+
+=item * C<with_sales_quotations>
+
+Since the view from a sales order is requested, normally no sales quotation
+prior to the sales order will be returned. If this parameter is truish, then
+a sales quotation would be included.
+This parameter is optional and defaults to false.
+
+=item * C<with_myself>
+
+The records returned by L</linked_records> do not include the requesting record
+itself. However, if you want to display the same linked records for every
+record in the same workflow, it can be usefull to include the record itself.
+C<_record_link_to_myself> will be set to a truish value in that record in
+that case.
+This parameter is optional and defaults to false.
+
+=back
+
 =back
 
 =head1 EXPORTS
 
-This mixin exports the functions L</linked_records> and
+This mixin exports the functions L</linked_records>,
+L</sales_order_centric_linked_records> and
 L</link_to_record>.
 
 =head1 BUGS

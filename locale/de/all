@@ -2963,6 +2963,7 @@ $self->{texts} = {
   'Rounding Loss'               => 'Rundungsaufwendungen',
   'Row'                         => 'Zeile',
   'Row #1: amount has to be different from zero.' => 'Zeile #1: Der Wert darf nicht 0 sein.',
+  'Row is the record itself'    => 'Zeile ist der Beleg selbst',
   'Row number'                  => 'Zeilennummer',
   'Row was created from current record' => 'Zeile wurde aus aktuellem Beleg erstellt',
   'Row was linked to another record' => 'Zeile wurde über einen anderen Beleg verlinkt',

@@ -68,7 +68,7 @@ sub action_ajax_list {
   my ($self) = @_;
 
   eval {
-    my $linked_records = ($::instance_conf->get_always_record_links_from_order && ref $self->object ne 'SL::DB::Order')
+    my $linked_records = $::instance_conf->get_always_record_links_from_order
                        ?  $self->object->sales_order_centric_linked_records()
                        :  $self->object->linked_records(direction => 'both', recursive => 1, save_path => 1);
 
