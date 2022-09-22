@@ -30,7 +30,7 @@ sub new {
 # constructor.
 sub _init {
   my $self = shift;
-  my ($biller_information, $biller_data, $payment_information, $invoice_recipient_data, $ref_nr_data) = @_;
+  my ($biller_information, $biller_data, $payment_information, $invoice_recipient_data, $ref_nr_data, $additional_information) = @_;
 
   my $address = sub {
     my ($href) = @_;
@@ -70,7 +70,7 @@ sub _init {
     $ref_nr_data->{ref_number},
   ];
   $self->{data}{additional_information} = [
-    '',
+    $additional_information->{unstructured_message},
     'EPD', # End Payment Data
   ];
 }
@@ -79,7 +79,7 @@ sub _init {
 # if conditions are not matched.
 sub _init_check {
   my $self = shift;
-  my ($biller_information, $biller_data, $payment_information, $invoice_recipient_data, $ref_nr_data) = @_;
+  my ($biller_information, $biller_data, $payment_information, $invoice_recipient_data, $ref_nr_data, $additional_information) = @_;
 
   my $check_re = sub {
     my ($group, $href, $elem, $regex) = @_;
@@ -126,6 +126,9 @@ sub _init_check {
     ],
     'reference number data' => [
       [ 'type', qr{^(?:QRR|NON)$} ],
+    ],
+    'additional information' => [
+      [ 'unstructured_message', qr{^.{0,140}$} ],
     ],
     additional => {
       'ref_nr'  => {
@@ -189,6 +192,11 @@ sub _init_check {
   $group = 'biller information';
   if ($ref_nr_data->{type} eq 'QRR') {
     $check_re->($group, $biller_information, 'iban', $regexes{additional}->{qr_iban});
+  }
+
+  $group = 'additional information';
+  foreach my $re (@{$regexes{$group}}) {
+    $check_re->($group, $additional_information, @$re);
   }
 }
 
@@ -293,6 +301,7 @@ SL::Helper::QrBill - Helper methods for generating Swiss QR-Code
          \%payment_information,
          \%invoice_recipient_data,
          \%ref_nr_data,
+         \%additional_information,
        );
        $qr_image->generate($out_file);
      } or do {
@@ -308,7 +317,7 @@ This module generates the Swiss QR-Code with data provided to the constructor.
 
 =head2 C<new>
 
-Creates a new object. Expects five references to hashes as arguments.
+Creates a new object. Expects six references to hashes as arguments.
 
 The hashes are structured as follows:
 
@@ -449,6 +458,18 @@ Maximum of 4 characters, alphanumerical. QRR/NON.
 =item C<ref_number>
 
 QR-Reference: 27 characters, numerical; without Reference: empty.
+
+=back
+
+=item C<%additional_information>
+
+Fields: unstructured_message.
+
+=over 4
+
+=item C<unstructured_message>
+
+Maximum of 140 characters, unstructured message.
 
 =back
 
