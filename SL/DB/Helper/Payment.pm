@@ -393,11 +393,11 @@ sub pay_invoice {
 }
 
 sub skonto_date {
-
   my $self = shift;
 
-  return undef unless ref $self->payment_terms;
+  return undef unless ref $self->payment_terms eq 'SL::DB::PaymentTerm';
   return undef unless $self->payment_terms->terms_skonto > 0;
+
   return DateTime->from_object(object => $self->transdate)->add(days => $self->payment_terms->terms_skonto);
 }
 
@@ -618,30 +618,32 @@ sub valid_skonto_amount {
 }
 
 sub get_payment_select_options_for_bank_transaction {
-  my ($self, $bt_id, %params) = @_;
+  my ($self, $bt_id) = @_;
 
-
-  # CAVEAT template code expects with_skonto_pt at position 1 for visual help
-  # due to skonto_charts, we cannot offer skonto for credit notes and neg ap
-  my $skontoable = $self->amount > 0 ? 1 : 0;
   my @options;
+
+  # 1. no skonto available -> done
   if(!$self->skonto_date) {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto'), selected => 1 });
-    # wrong call to presenter or not implemented? disabled option is ignored
-    # push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), disabled => 1 });
-    push(@options, { payment_type => 'free_skonto', display => t8('free skonto') }) if $skontoable;
+    push(@options, { payment_type => 'free_skonto', display => t8('free skonto') });
     return @options;
   }
-  # valid skonto date, check if skonto is preferred
+
+  # 2. valid skonto date, check if date is within skonto period
+  # CAVEAT template code expects with_skonto_pt at position 1 for visual help
+  # [% is_skonto_pt   = SELECT_OPTIONS.1.selected %]
+
   my $bt = SL::DB::BankTransaction->new(id => $bt_id)->load;
-  if ($self->skonto_date && $self->within_skonto_period(transdate => $bt->transdate)) {
+  croak "No Bank Transaction with ID $bt_id found" unless ref $bt eq 'SL::DB::BankTransaction';
+
+  if ($self->within_skonto_period(transdate => $bt->transdate)) {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
-    push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 }) if $skontoable;
+    push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });
   } else {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') , selected => 1 });
-    push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt')}) if $skontoable;
+    push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt')});
   }
-  push(@options, { payment_type => 'free_skonto', display => t8('free skonto') }) if $skontoable;
+  push(@options, { payment_type => 'free_skonto', display => t8('free skonto') });
   return @options;
 }
 
