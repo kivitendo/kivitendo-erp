@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount check_skonto_configuration valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction exchangerate forex _skonto_charts_and_tax_correction);
+our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount check_ valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction exchangerate forex _skonto_charts_and_tax_correction);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -463,39 +463,6 @@ sub amount_less_skonto {
 
   return _round($self->amount - ( $self->amount * $percent_skonto) );
 
-}
-
-# dead method,  used to be called in get_payment_select_options_for_bank_transaction
-# error handling is now in _skonto_charts_and_tax_correction that dies with a user info
-# and not silently disables the option for the user
-sub check_skonto_configuration {
-  my $self = shift;
-
-  my $is_sales = ref($self) eq 'SL::DB::Invoice';
-
-  my $skonto_configured = 1; # default is assume skonto works
-
-  # my $transactions = $self->transactions;
-  foreach my $transaction (@{ $self->transactions }) {
-    # find all transactions with an AR_amount or AP_amount link
-    my $tax = SL::DB::Manager::Tax->get_first( where => [taxkey => $transaction->taxkey, id => $transaction->tax_id ]);
-
-    # acc_trans entries for the taxes (chart_link == A[RP]_tax) often
-    # have combinations of taxkey & tax_id that don't exist in
-    # tax. Those must be skipped.
-    next if !$tax && ($transaction->chart_link !~ m{A[RP]_amount});
-
-    croak "no tax for taxkey " . $transaction->{taxkey} unless ref $tax;
-
-    $transaction->{chartlinks} = { map { $_ => 1 } split(m/:/, $transaction->chart_link) };
-    if ( $is_sales && $transaction->{chartlinks}->{AR_amount} ) {
-      $skonto_configured = 0 unless $tax->skonto_sales_chart_id;
-    } elsif ( !$is_sales && $transaction->{chartlinks}->{AP_amount}) {
-      $skonto_configured = 0 unless $tax->skonto_purchase_chart_id;
-    };
-  };
-
-  return $skonto_configured;
 }
 
 sub _skonto_charts_and_tax_correction {
