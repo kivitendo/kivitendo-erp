@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 258;
+use Test::More tests => 264;
 
 use strict;
 
@@ -82,7 +82,8 @@ test_ar_currency_tax_not_included_and_payment_2_credit_note();  # exchangerate 0
 test_ap_currency_tax_not_included_and_payment_2();             # two exchangerates, with fx_gain_loss
 test_ap_currency_tax_not_included_and_payment_2_credit_note(); # two exchangerates, with fx_gain_loss
 
-is(SL::DB::Manager::Invoice->get_all_count(), 21,  "number of invoices at end of tests ok");
+test_error_codes_within_skonto();
+is(SL::DB::Manager::Invoice->get_all_count(), 23,  "number of invoices at end of tests ok");
 TODO: {
   local $TODO = "currently this test fails because the code writing the invoice is buggy, the calculation of skonto is correct";
   my ($acc_trans_sum)  = selectfirst_array_query($::form, $currency->db->dbh, 'SELECT SUM(amount) FROM acc_trans');
@@ -1621,6 +1622,45 @@ sub test_credit_note_two_items_19_7_tax_tax_not_included {
   is($invoice->paid,             -45.10,   "${title}: paid");
   is($number_of_payments,             1,   "${title}: 1 AR_paid bookings");
   is($total,                          0,   "${title}: even balance");
+}
+
+sub test_error_codes_within_skonto {
+  my $title   = 'test within_skonto_period';
+  my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
+  # no skonto payment terms at all
+  my $invoice = create_sales_invoice(
+    transdate    => $transdate1,
+    taxincluded  => 1,
+    invoiceitems => [ $item1, $item2 ],
+  );
+  # has skonto payment terms
+  my $invoice2 = create_sales_invoice(
+    transdate    => $transdate1,
+    taxincluded  => 1,
+    invoiceitems => [ $item1, $item2 ],
+    payment_id   => $payment_terms->id,
+  );
+
+  throws_ok{
+    $invoice->within_skonto_period();
+   } qr/Mandatory parameter 'transdate' missing in call to SL::DB::Helper::Payment::within_skonto_period/, "call without parameter throws correct error message";
+
+  throws_ok{
+    $invoice->within_skonto_period(transdate => 'Kaese');
+   } qr/The 'transdate' parameter \("Kaese"\) to SL::DB::Helper::Payment::within_skonto_period was not a 'DateTime' \(it is a Kaese\)/, "call with parameter Käse throws correct error message";
+
+  throws_ok{
+    $invoice->within_skonto_period(transdate => DateTime->now());
+  } qr /The 'transdate' parameter .* to SL::DB::Helper::Payment::within_skonto_period did not pass the 'self has a skonto date' callback/, "call to invoice withount skonto throws correct error message";
+
+  is($invoice2->within_skonto_period(transdate => DateTime->now()->add(days => 1)), 1, "one day after invdate is skontoable");
+  is($invoice2->within_skonto_period(transdate => DateTime->now()->add(days => 4)), 1, "four days after invdate is skontoable");
+
+  throws_ok{
+    $invoice2->within_skonto_period(transdate => DateTime->now()->add(days => 6));
+  } qr /The 'transdate' parameter .* to SL::DB::Helper::Payment::within_skonto_period did not pass the 'is within skonto period' callback/, "One day after skonto date throws correct error message";
+
 }
 
 1;
