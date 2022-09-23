@@ -2279,6 +2279,16 @@ sub save {
 
     $self->set_project_in_linked_requirement_specs if $self->order->globalproject_id;
 
+    # Close reachable sales order intakes in the from-workflow if this is a sales order
+    if (sales_order_type() eq $self->type) {
+      my $lr = $self->order->linked_records(direction => 'from', recursive => 1);
+      $lr    = [grep { 'SL::DB::Order' eq ref $_ && !$_->closed && $_->is_type('sales_order_intake')} @$lr];
+      if (@$lr) {
+        SL::DB::Manager::Order->update_all(set   => {closed => 1},
+                                           where => [id => [map {$_->id} @$lr]]);
+      }
+    }
+
     $self->save_history('SAVED');
 
     $validity_token->delete if $validity_token;
