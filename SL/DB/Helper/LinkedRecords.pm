@@ -413,7 +413,11 @@ sub sales_order_centric_linked_records {
     push @$all_linked_records, $self;
   }
 
-  my $filtered_orders = [ grep { 'SL::DB::Order' eq ref $_ && $_->is_type('sales_order') && $_->{_record_link_direction} eq 'from' } @$all_linked_records ];
+  my $filtered_orders = [ grep {
+    'SL::DB::Order' eq ref $_ &&
+    ($_->is_type('sales_order') || $_->is_type('sales_order_intake')) &&
+    $_->{_record_link_direction} eq 'from'
+  } @$all_linked_records ];
 
   # no orders no call to linked_records via batch mode
   # but instead return default list
