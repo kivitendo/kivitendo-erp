@@ -643,7 +643,7 @@ sub check_orphaned_reconciliated_links {
   my ($self) = @_;
 
   my $query = qq|
-          SELECT purpose from bank_transactions
+          SELECT id, purpose from bank_transactions
           WHERE cleared is true
           AND NOT EXISTS (SELECT bank_transaction_id from reconciliation_links WHERE bank_transaction_id = bank_transactions.id)
           AND transdate >= ? AND transdate <= ?|;
@@ -654,7 +654,7 @@ sub check_orphaned_reconciliated_links {
     $self->tester->ok(0, "Verwaiste abgeglichene Bankbewegungen gefunden. Bei folgenden Bankbewegungen ist die abgleichende Verknüpfung gelöscht worden:");
 
     for my $bt_orphaned (@{ $bt_cleared_no_link }) {
-      $self->tester->diag("Verwendungszweck: $bt_orphaned->{purpose}");
+      $self->tester->diag("ID: $bt_orphaned->{id} Verwendungszweck: $bt_orphaned->{purpose}");
     }
   } else {
     $self->tester->ok(1, "Keine verwaisten Einträge in abgeglichenen Bankbewegungen.");
@@ -693,7 +693,7 @@ sub check_orphaned_bank_transaction_acc_trans_links {
   my ($self) = @_;
 
   my $query = qq|
-          SELECT purpose from bank_transactions
+          SELECT id, purpose from bank_transactions
           WHERE invoice_amount <> 0
           AND NOT EXISTS (SELECT bank_transaction_id FROM bank_transaction_acc_trans WHERE bank_transaction_id = bank_transactions.id)
           AND itime > (SELECT min(itime) from bank_transaction_acc_trans)
@@ -705,7 +705,7 @@ sub check_orphaned_bank_transaction_acc_trans_links {
     $self->tester->ok(0, "Verwaiste Verknüpfungen zu Bankbewegungen gefunden. Bei folgenden Bankbewegungen ist eine interne Verknüpfung gelöscht worden:");
 
     for my $bt_orphaned (@{ $bt_assigned_no_link }) {
-      $self->tester->diag("Verwendungszweck: $bt_orphaned->{purpose}");
+      $self->tester->diag("ID: $bt_orphaned->{id} Verwendungszweck: $bt_orphaned->{purpose}");
     }
   } else {
     $self->tester->ok(1, "Keine verwaisten Einträge in verknüpften Bankbewegungen (Richtung Bank).");
