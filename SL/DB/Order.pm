@@ -374,11 +374,24 @@ sub new_from {
                transdate => DateTime->today_local,
                employee  => SL::DB::Manager::Employee->current,
             );
+  # reqdate in quotation is 'offer is valid    until reqdate'
+  # reqdate in order     is 'will be delivered until reqdate'
+  # both dates are setable (on|off)
+  # and may have a additional interval in days (+ n days)
+  # dies if this convention will change
+  $args{reqdate} = $from_to->{to} =~ m/_quotation$/
+                 ? $::instance_conf->get_reqdate_on
+                 ? DateTime->today_local->next_workday(extra_days => $::instance_conf->get_reqdate_interval)->to_kivitendo
+                 : undef
+                 : $from_to->{to} =~ m/_order$/
+                 ? $::instance_conf->get_deliverydate_on
+                 ? DateTime->today_local->next_workday(extra_days => $::instance_conf->get_delivery_date_interval)->to_kivitendo
+                 : undef
+                 : die "Wrong state for reqdate";
 
   if ( $is_abbr_any->(qw(sopo poso rqso sosq porq rqsq sqrq sorq)) ) {
     $args{ordnumber} = undef;
     $args{quonumber} = undef;
-    $args{reqdate}   = DateTime->today_local->next_workday();
   }
   if ( $is_abbr_any->(qw(sopo sqrq sorq)) ) {
     $args{customer_id}      = undef;
