@@ -34,10 +34,10 @@ my %specs = ( ar                      => { number_column => 'invnumber',        
               rma_delivery_order      => { number_column => 'donumber',       number_range_column => 'rdonumber',      scoping => \&do_scoping,    },
               customer                => { number_column => 'customernumber', number_range_column => 'customernumber',                             },
               vendor                  => { number_column => 'vendornumber',   number_range_column => 'vendornumber',                               },
-              part                    => { number_column => 'partnumber',     number_range_column => 'articlenumber',  scoping => \&parts_scoping, },
-              service                 => { number_column => 'partnumber',     number_range_column => 'servicenumber',  scoping => \&parts_scoping, },
-              assembly                => { number_column => 'partnumber',     number_range_column => 'assemblynumber', scoping => \&parts_scoping, },
-              assortment              => { number_column => 'partnumber',     number_range_column => 'assortmentnumber', scoping => \&parts_scoping, },
+              part                    => { number_column => 'partnumber',     number_range_column => 'articlenumber',                              },
+              service                 => { number_column => 'partnumber',     number_range_column => 'servicenumber',                              },
+              assembly                => { number_column => 'partnumber',     number_range_column => 'assemblynumber',                             },
+              assortment              => { number_column => 'partnumber',     number_range_column => 'assortmentnumber',                           },
             );
 
 sub get_next_trans_number {
@@ -100,7 +100,6 @@ sub get_next_trans_number {
   my $range_table    = ($business ? $business : SL::DB::Default->get)->load(for_update => 1);
 
   my $start_number   = $range_table->$number_range_column;
-  $start_number      = $range_table->articlenumber if ($number_range_column =~ /^(assemblynumber|assortmentnumber)$/) && (length($start_number)//0 < 1);
   my $sequence       = SL::PrefixedNumber->new(number => $start_number // 0);
 
   if (!$fill_holes_in_range) {
