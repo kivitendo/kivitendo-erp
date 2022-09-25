@@ -918,7 +918,11 @@ sub _post_invoice {
 
       next if $payments_only;
 
-      if ($form->{"inventory_accno_$i"} || $form->{"part_type_$i"} eq 'assembly') {
+
+
+      # do cogs only if inventory_sytem perpetual is active
+      if  ($::instance_conf->get_inventory_system eq 'perpetual'
+        && $form->{"inventory_accno_$i"} || $form->{"part_type_$i"} eq 'assembly') {
 
         if ($form->{"part_type_$i"} eq 'assembly') {
           # record assembly item as allocated
