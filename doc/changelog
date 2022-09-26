@@ -9,6 +9,9 @@ Kleinere neue Features und Detailverbesserungen:
  - Die Variablen zur Ersetzung der Zahlungsbedingungen stehen auch als einzelne
    Variable für das Druckvorlagensystem zu Verfügung, bspw. bezeichnet
    <%invtotal_wo_skonto%> den Rechnungsbetrag abzgl. des Skontos.
+ - Bei den Transaktions-SelfTest kann eine optional weitere E-Mail-Adresse direkt
+   beim Anlegen des Hintergrundjobs im Textfeld data json formatiert wie folgt
+   hinzugefügt werden 'email: meine@email.adresse' (Hochkommatas weglassen).
 
 2022-09-19 - Release 3.7.0
 

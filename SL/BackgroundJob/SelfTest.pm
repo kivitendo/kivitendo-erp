@@ -26,7 +26,7 @@ use Rose::Object::MakeMethods::Generic (
    'add_full_diag'  => { interface => 'add', hash_key => 'full_diag' },
   ],
   scalar => [
-   qw(diag tester config aggreg module_nr),
+   qw(diag tester config aggreg module_nr additional_email),
   ],
 );
 
@@ -48,9 +48,14 @@ sub setup {
 
 sub run {
   my $self        = shift;
+  my $db_obj      = shift;
   $self->setup;
 
   return 1 unless $self->modules;
+
+  # set additional mail
+  my $options = $db_obj->data_as_hash;
+  $self->additional_email($options->{email}) if $options->{email} =~ m/(\S+)@(\S+)$/;
 
   foreach my $module ($self->modules) {
     $self->run_module($module);
@@ -127,6 +132,8 @@ sub _send_email {
   my $email = $user ? $user->get_config_value('email') : undef;
 
   return unless $email;
+
+  $email .= $self->additional_email ? ',' . $self->additional_email : '';
 
   my ($output, $content_type) = $self->_prepare_report;
 
