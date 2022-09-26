@@ -490,18 +490,19 @@ my @kivitendo_to_datev = (
                             {
                               kivi_datev_name => 'not yet implemented',
                             },
-                            {
-                              kivi_datev_name => 'not yet implemented',
-                            },
-                            {
-                              kivi_datev_name => 'not yet implemented',
-                            },
-                            {
-                              kivi_datev_name => 'not yet implemented',
-                            },
-                            {
-                              kivi_datev_name => 'not yet implemented',
-                            },  # pos 120
+                            # DATEV Prüfprogramm says: Only 116 fields are allowed
+                            #{
+                            #  kivi_datev_name => 'not yet implemented',
+                            #},
+                            #{
+                            #  kivi_datev_name => 'not yet implemented',
+                            #},
+                            #{
+                            #  kivi_datev_name => 'not yet implemented',
+                            #},
+                            #{
+                            #  kivi_datev_name => 'not yet implemented',
+                            #},  # pos 120
   );
 
 sub new {
@@ -554,13 +555,16 @@ sub header {
     next unless $datev->{$k};
     $meta_datev{$k} = substr $datev->{$k}, 0, $v;
   }
+  my $coa = $::instance_conf->get_coa eq 'Germany-DATEV-SKR03EU' ? '03'
+          : $::instance_conf->get_coa eq 'Germany-DATEV-SKR04EU' ? '04'
+          : '';
 
   my @header_row_1 = (
     "EXTF", "510", 21, "Buchungsstapel", 7, $created_on, "", "ki",
     "kivitendo-datev", "", $meta_datev{beraternr}, $meta_datev{mandantennr},
     $self->first_day_of_fiscal_year->ymd(''), $length_of_accounts,
     $self->from->ymd(''), $self->to->ymd(''), "", "", 1, "", $self->locked,
-    $default_curr, "", "", "",""
+    $default_curr, "", "", "","", $coa, "", "", "", ""
   );
   push @header, [ @header_row_1 ];
 
