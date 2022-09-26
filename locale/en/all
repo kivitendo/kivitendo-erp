@@ -2785,6 +2785,7 @@ $self->{texts} = {
   'Purpose'                     => '',
   'Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")' => '',
   'Purpose/Reference'           => '',
+  'QR bill unstructured message' => '',
   'QR bill without amount'      => '',
   'QR reference'                => '',
   'QR-Code placeholder image: QRCodePlaceholder not found in template.' => '',

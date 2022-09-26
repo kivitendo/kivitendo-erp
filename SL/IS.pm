@@ -1516,7 +1516,7 @@ SQL
                 globalproject_id               = ?, delivery_customer_id             = ?,
                 transaction_description        = ?, delivery_vendor_id               = ?,
                 donumber    = ?, invnumber_for_credit_note = ?,        direct_debit  = ?, qrbill_without_amount = ?,
-                qr_reference = ?, delivery_term_id = ?
+                qr_reference = ?, qr_unstructured_message = ?, delivery_term_id = ?
               WHERE id = ?|;
   @values = (          $form->{"invnumber"},           $form->{"ordnumber"},             $form->{"quonumber"},          $form->{"cusordnumber"},
              conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}), conv_date($form->{tax_point}), conv_i($form->{"customer_id"}),
@@ -1530,7 +1530,7 @@ SQL
                 conv_i($form->{"globalproject_id"}),                              conv_i($form->{"delivery_customer_id"}),
                        $form->{transaction_description},                          conv_i($form->{"delivery_vendor_id"}),
                        $form->{"donumber"}, $form->{"invnumber_for_credit_note"},        $form->{direct_debit} ? 't' : 'f', $form->{qrbill_without_amount} ? 't' : 'f',
-                $qr_reference, conv_i($form->{delivery_term_id}),
+                $qr_reference, $form->{"qr_unstructured_message"}, conv_i($form->{delivery_term_id}),
                 conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
 
@@ -2283,7 +2283,7 @@ sub _retrieve_invoice {
            a.mtime, a.itime,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
            a.transaction_description, a.donumber, a.invnumber_for_credit_note,
-           a.marge_total, a.marge_percent, a.direct_debit, a.qrbill_without_amount, a.qr_reference, a.delivery_term_id,
+           a.marge_total, a.marge_percent, a.direct_debit, a.qrbill_without_amount, a.qr_reference, a.qr_unstructured_message, a.delivery_term_id,
            dc.dunning_description,
            e.name AS employee
          FROM ar a

@@ -555,11 +555,16 @@ sub generate_qr_code {
     $::form->error($::locale->text('Error getting QR-Bill type.'));
   }
 
+  my %additional_information = (
+    'unstructured_message' => $form->{'qr_unstructured_message'}
+  );
+
   # set into form for template processing
   $form->{'biller_information'} = \%biller_information;
   $form->{'biller_data'} = \%biller_data;
   $form->{'iban_formatted'} = get_iban_formatted($qr_account->{'iban'});
   $form->{'amount_formatted'} = $amount_formatted;
+  $form->{'unstructured_message'} = $form->{'qr_unstructured_message'};
   
   # set outfile
   my $outfile = $form->{"tmpdir"} . '/' . 'qr-code.png';
@@ -572,6 +577,7 @@ sub generate_qr_code {
      \%payment_information,
      \%invoice_recipient_data,
      \%ref_nr_data,
+     \%additional_information
    );
    $qr_image->generate($outfile);
   } or do {

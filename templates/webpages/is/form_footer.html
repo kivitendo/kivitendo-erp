@@ -47,6 +47,12 @@
                  [%- L.checkbox_tag('qrbill_without_amount', 'checked', qrbill_without_amount) %]
                </td>
              </tr>
+             <tr>
+              <th align="right">[% 'QR bill unstructured message' | $T8 %]</th>
+              <td>
+                [%- L.input_tag('qr_unstructured_message', qr_unstructured_message) %]
+              </td>
+            </tr>
 [%- END %]
            </table>
          </td>
