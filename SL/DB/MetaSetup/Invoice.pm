@@ -45,6 +45,7 @@ __PACKAGE__->meta->columns(
   paid                      => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
   payment_id                => { type => 'integer' },
   qr_reference              => { type => 'text' },
+  qr_unstructured_message   => { type => 'text' },
   qrbill_without_amount     => { type => 'boolean', default => 'false' },
   quodate                   => { type => 'date' },
   quonumber                 => { type => 'text' },
