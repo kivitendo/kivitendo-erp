@@ -12,6 +12,11 @@ Kleinere neue Features und Detailverbesserungen:
  - Bei den Transaktions-SelfTest kann eine optional weitere E-Mail-Adresse direkt
    beim Anlegen des Hintergrundjobs im Textfeld data json formatiert wie folgt
    hinzugefügt werden 'email: meine@email.adresse' (Hochkommatas weglassen).
+ - Bücher können vom Benutzer auch beim Arbeitsschritt: Lohnbuchhaltung importieren
+   geschlossen werden.
+ - Metadaten für DATEV-CSV-Export exakter nach den Wünschen des DATEV-Prüfprogramms
+   gesetzt (SKR ergänzt und weniger Spalten)
+
 
 2022-09-19 - Release 3.7.0
 
