@@ -17,7 +17,15 @@ sub action_upload_pay_postings {
   my ($self, %params) = @_;
 
   $self->setup_pay_posting_action_bar;
-  $self->render('pay_posting_import/form', title => $::locale->text('Import Pay Postings'));
+
+  # new closedto
+  my $today = DateTime->now();
+  $today->subtract(months => 1);
+
+  my $dt = DateTime->last_day_of_month(year  => $today->year, month => $today->month);
+
+  my $new_closedto = $dt->to_kivitendo();
+  $self->render('pay_posting_import/form', title => $::locale->text('Import Pay Postings'), closedto => $new_closedto);
 }
 
 sub action_import_datev_pay_postings {
@@ -38,6 +46,9 @@ sub action_import_datev_pay_postings {
 
   if (parse_and_import($self)) {
     flash_later('info', t8("All pay postings successfully imported."));
+  }
+  if ($::form->{set_closedto} && _set_closedto($self)) {
+    flash_later('info', t8("Books closed until:") . ' ' . $::form->{closedto});
   }
   $self->setup_pay_posting_action_bar;
   $self->render('pay_posting_import/form', title => $::locale->text('Imported Pay Postings'));
@@ -122,6 +133,19 @@ sub parse_and_import {
     1;
 
   }) or do { die t8("Cannot add Booking, reason: #1 DB: #2 ", $@, SL::DB->client->error) };
+}
+
+
+sub _set_closedto {
+  my $self     = shift;
+  die "no date:" . $::form->{closedto} unless $::form->{closedto};
+
+  my $defaults   = SL::DB::Default->get;
+
+  $defaults->closedto(DateTime->from_kivitendo($::form->{closedto}));
+  $defaults->save || die "Cannot save closedto!";
+
+  return 1;
 }
 
 sub check_auth {

@@ -32,10 +32,11 @@
  </table>
  <div>
 [% END %]
-
 <p>
  [% "Import a File:" | $T8 %]
 </p>
 <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
   [% L.input_tag('file', '', type => 'file', accept => '.csv') %]
+  <p>[% L.checkbox_tag('set_closedto', value => 1, checked => 1, class => 'checkbox') %]  [% 'Close Books up to' | $T8 %]:</p>
+  [% L.date_tag('closedto', closedto) %]
 </form>
