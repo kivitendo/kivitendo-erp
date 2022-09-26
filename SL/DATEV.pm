@@ -452,6 +452,7 @@ sub _create_xml_and_documents {
     my $filename_for_zip = (exists $self->{files}{$file_version->file_name})
                            ? $file_version->file_name . '__' . $guid
                            : $file_version->file_name;
+    $filename_for_zip = $guid . '.pdf';
     $self->{files}{$filename_for_zip} = $file_version->get_system_location;
     # create xml metadata for files
     my $document_node = $doc->createElement('document');
@@ -473,8 +474,8 @@ sub _create_xml_and_documents {
   $zip->addString($doc->toString(), 'document.xml');
   # add real files
   foreach my $filename (keys %{ $self->{files} }) {
-    my $enc_filename = encode('Windows-1252', $filename);
-    $zip->addFile($self->{files}{$filename}, $enc_filename);
+#    my $enc_filename = encode('Windows-1252', $filename);
+    $zip->addFile($self->{files}{$filename}, $filename);
   }
   die "Cannot write Belege-XML.zip" unless ($zip->writeToFileNamed($self->export_path . 'Belege-XML.zip')
                                             == Archive::Zip::AZ_OK());
@@ -990,10 +991,11 @@ sub generate_datev_lines {
     if (   $self->documents && ($transaction->[$haben]->{table} eq 'gl'
         || ($datev_data{konto} !~ m/(1810|1370)/ && $datev_data{gegenkonto} !~ m/(1810|1370)/ )) ) {
       # add all document links for the latest created/uploaded document
-      my $latest_documents = SL::DB::Manager::File->get_all(query =>
+      my $latest_document = SL::DB::Manager::File->get_first(query =>
                                 [
                                   object_id   => $transaction->[$haben]->{trans_id},
                                   file_type   => 'document',
+                                  mime_type   => 'application/pdf',
                                   or          => [
                                                    object_type => 'gl_transaction',
                                                    object_type => 'purchase_invoice',
@@ -1002,19 +1004,20 @@ sub generate_datev_lines {
                                                  ],
                                 ],
                                   sort_by   => 'itime DESC');
-      #if (ref $latest_document eq 'SL::DB::File') {
-      if (scalar @{ $latest_documents }) {
+      if (ref $latest_document eq 'SL::DB::File') {
+      #if (scalar @{ $latest_documents }) {
         # if we have a booking document add guid from the latest version
         # one record may be referenced to more transaction (credit booking with different accounts)
         # therefore collect guids in hash
-        foreach my $latest_document (@{ $latest_documents }) {
+        # not yet implemented -> datev steigt aus, sobald ein komma getrennter wert erscheint
+        #foreach my $latest_document (@{ $latest_documents }) {
           die "No file datatype:" . ref $latest_document unless (ref $latest_document eq 'SL::DB::File');
           my $latest_guid = $latest_document->file_version->[-1]->guid;
 
           $self->{guids}{$latest_guid} = 1;
           $datev_data{document_guid}  .= $datev_data{document_guid} ?  ',' : '';
           $datev_data{document_guid}  .= $latest_guid;
-        }
+        # }
       }
     }
     # keine kommerzbank daten exportieren
