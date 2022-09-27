@@ -62,6 +62,7 @@ use SL::TransNumber;
 use SL::DB;
 use SL::Presenter::Part qw(type_abbreviation classification_abbreviation);
 use SL::Helper::QrBillFunctions qw(get_qrbill_account assemble_ref_number);
+use SL::Helper::ISO3166;
 use Data::Dumper;
 
 use strict;
@@ -622,6 +623,22 @@ sub invoice_details {
   $form->{iap_final_amount_nofmt} = $form->{invtotal_nofmt} - $form->{iap_amount_nofmt};
   $form->{iap_final_amount}       = $form->format_amount($myconfig, $form->{iap_final_amount_nofmt}, 2);
 
+  # set variables for swiss QR bill, if feature enabled
+  # handling errors gracefully (don't die if undef)
+  if ($::instance_conf->get_create_qrbill_invoices && $form->{formname} eq 'invoice') {
+    my ($qr_account, $error) = get_qrbill_account();
+    $form->{qrbill_iban} = $qr_account->{iban};
+
+    my $biller_country = $::instance_conf->get_address_country() || 'CH';
+    my $biller_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($biller_country);
+    $form->{qrbill_biller_countrycode} = $biller_countrycode;
+
+    my $customer_country = $form->{'country'} || 'CH';
+    my $customer_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($customer_country);
+    $form->{qrbill_customer_countrycode} = $customer_countrycode;
+
+    $form->{qrbill_amount} = sprintf("%.2f", $form->parse_amount($myconfig, $form->{'total'}));
+  }
   $main::lxdebug->leave_sub();
 }
 

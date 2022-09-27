@@ -13,8 +13,7 @@ use SL::Template::OpenDocument::Styles;
 
 use SL::DB::BankAccount;
 use SL::Helper::QrBill;
-use SL::Helper::QrBillFunctions qw(get_qrbill_account get_ref_number_formatted
-  get_iban_formatted get_amount_formatted);
+use SL::Helper::QrBillFunctions qw(get_ref_number_formatted get_iban_formatted get_amount_formatted);
 use SL::Helper::ISO3166;
 
 use Cwd;
@@ -481,19 +480,15 @@ sub generate_qr_code {
 
   # assemble data for QR-Code
 
-  # get qr-account data
-  my ($qr_account, $error) = get_qrbill_account();
-  if (!$qr_account) {
-    $::form->error($error);
+  if (!$form->{qrbill_iban}) {
+    $::form->error($::locale->text('No bank account flagged for QRBill usage was found.'));
   }
 
   my %biller_information = (
-    'iban' => $qr_account->{'iban'}
+    'iban' => $form->{qrbill_iban}
   );
 
-  my $biller_country = $::instance_conf->get_address_country() || 'CH';
-  my $biller_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($biller_country);
-  if (!$biller_countrycode) {
+  if (!$form->{qrbill_biller_countrycode}) {
     $::form->error($::locale->text('Error mapping biller countrycode.'));
   }
   my %biller_data = (
@@ -501,7 +496,7 @@ sub generate_qr_code {
     'company' => $::instance_conf->get_company(),
     'address_row1' => $::instance_conf->get_address_street1(),
     'address_row2' => $::instance_conf->get_address_zipcode() . ' ' . $::instance_conf->get_address_city(),
-    'countrycode' => $biller_countrycode,
+    'countrycode' => $form->{qrbill_biller_countrycode},
   );
 
   my ($amount, $amount_formatted);
@@ -509,7 +504,7 @@ sub generate_qr_code {
     $amount = '';
     $amount_formatted = '';
   } else {
-    $amount = sprintf("%.2f", $form->parse_amount(\%::myconfig, $form->{'total'}));
+    $amount = $form->{qrbill_amount};
 
     # format amount for template
     $amount_formatted = get_amount_formatted($amount);
@@ -523,9 +518,7 @@ sub generate_qr_code {
     'currency' => $form->{'currency'},
   );
 
-  my $customer_country = $form->{'country'} || 'CH';
-  my $customer_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($customer_country);
-  if (!$customer_countrycode) {
+  if (!$form->{qrbill_customer_countrycode}) {
     $::form->error($::locale->text('Error mapping customer countrycode.'));
   }
   my %invoice_recipient_data = (
@@ -533,7 +526,7 @@ sub generate_qr_code {
     'name' => $form->{'name'},
     'address_row1' => $form->{'street'},
     'address_row2' => $form->{'zipcode'} . ' ' . $form->{'city'},
-    'countrycode' => $customer_countrycode,
+    'countrycode' => $form->{qrbill_customer_countrycode},
   );
 
   my %ref_nr_data;
@@ -562,7 +555,7 @@ sub generate_qr_code {
   # set into form for template processing
   $form->{'biller_information'} = \%biller_information;
   $form->{'biller_data'} = \%biller_data;
-  $form->{'iban_formatted'} = get_iban_formatted($qr_account->{'iban'});
+  $form->{'iban_formatted'} = get_iban_formatted($form->{qrbill_iban});
   $form->{'amount_formatted'} = $amount_formatted;
   $form->{'unstructured_message'} = $form->{'qr_unstructured_message'};
   
