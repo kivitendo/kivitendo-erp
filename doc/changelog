@@ -16,7 +16,11 @@ Kleinere neue Features und Detailverbesserungen:
    geschlossen werden.
  - Metadaten für DATEV-CSV-Export exakter nach den Wünschen des DATEV-Prüfprogramms
    gesetzt (SKR ergänzt und weniger Spalten)
-
+ - Hintergrund-Job der automatisch periodisch die Bücher schließt, falls dies manuell
+   vergessen wird. Als Intervall sind Monate und Tage rückwirkend auswählbar:
+   'subtract_month: n', 'subtract_days: n'. Die Einstellung im Job muss wie immer json
+   kodiert passieren. Falls keine Parameter gesetzt sind, werden die Bücher am 10. des
+   Monats rückwirkend am letzten Tag des Vorvormonats geschlossen.
 
 2022-09-19 - Release 3.7.0
 
