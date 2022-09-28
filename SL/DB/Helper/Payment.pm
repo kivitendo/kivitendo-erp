@@ -676,11 +676,14 @@ sub _skonto_charts_and_tax_correction {
       )->post;
 
     # add a stable link acc_trans_id to bank_transactions.id
+    # set automatic flag and type
     foreach my $transaction (@{ $current_transaction->transactions }) {
       my %props_acc = (
            acc_trans_id        => $transaction->acc_trans_id,
            bank_transaction_id => $params{bt_id},
            gl                  => $current_transaction->id,
+           automatic           => 1,
+           type                => 'skonto_charts_and_tax_correction',
       );
       SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
     }

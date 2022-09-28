@@ -12,10 +12,12 @@ __PACKAGE__->meta->columns(
   acc_trans_id        => { type => 'bigint', not_null => 1 },
   ap_id               => { type => 'integer' },
   ar_id               => { type => 'integer' },
+  automatic           => { type => 'boolean', default => 'false', not_null => 1 },
   bank_transaction_id => { type => 'integer', not_null => 1 },
   gl_id               => { type => 'integer' },
   itime               => { type => 'timestamp', default => 'now()' },
   mtime               => { type => 'timestamp' },
+  type                => { type => 'text' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'bank_transaction_id', 'acc_trans_id' ]);
