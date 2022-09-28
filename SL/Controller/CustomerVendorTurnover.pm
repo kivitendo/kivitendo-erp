@@ -8,6 +8,7 @@ use SL::DB::Order;
 use SL::DB::EmailJournal;
 use SL::DB::Letter;
 use SL::DB;
+use SL::JSON qw(to_json);
 
 __PACKAGE__->run_before('check_auth');
 
@@ -151,7 +152,12 @@ sub action_turnover {
   ORDER BY $order_by
 SQL
   $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query, $cv);
-  $self->render('customer_vendor_turnover/count_turnover', { layout => 0 });
+
+  if ($::request->type eq 'json') {
+    $self->render(\ SL::JSON::to_json($self->{turnover_statistic}), { layout => 0, type => 'json', process => 0 });
+  } else {
+    $self->render('customer_vendor_turnover/count_turnover', { layout => 0 });
+  }
 }
 
 sub action_get_invoices {

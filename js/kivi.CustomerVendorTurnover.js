@@ -42,6 +42,129 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
     $('#turnovers').load(url);
   };
 
+  ns.show_turnover_chart = function(period) {
+    const html = '<div class="chart-container" style="position: relative;">'
+               + '<canvas id="chart"></canvas>'
+               + '</div>';
+    $('#turnovers').html(html);
+
+    let mode = "month";
+    if (period === 'y') {
+      mode    = "year";
+    } else if (period === 'm') {
+      mode    = "month";
+    }
+
+    const data = { action: 'CustomerVendorTurnover/turnover.json',
+                   id:   $('#cv_id').val(),
+                   db:   $('#db').val(),
+                   mode: mode
+                 };
+    $.getJSON('controller.pl', data, function( returned_data ) {
+      ns.draw_chart(returned_data);
+      $("html, body").animate({ scrollTop: $("#chart").offset().top }, "slow");
+    });
+  };
+
+  ns.draw_chart = function(data) {
+    // Todos are most probably better done in the perl backend.
+    // Todo: fill holes
+    // Todo: show amount/paid in one/each bar
+    // data = [
+    //   {date_part: 2022, netamount: 1234.4},
+    //   {date_part: 2022, netamount: 234.4},
+    //   {date_part: 2021, netamount: 234.4},
+    //   {date_part: 2021, netamount: 34.4},
+    //   {date_part: 2020, netamount: 134.4},
+    //   {date_part: 2018, netamount: 34.4}
+    // ];
+
+    $(data).each(function(idx, elt) {
+      elt.date_part = '' + elt.date_part;
+    });
+
+    ns.chart(data);
+  };
+
+  ns.chart = function(data) {
+    const ctx = 'chart';
+    const myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        datasets: [{
+          label: kivi.t8('Net.Turnover'),
+          data: data,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)'
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        },
+        parsing: {
+          xAxisKey: 'date_part',
+          yAxisKey: 'netamount'
+        }
+      }
+    });
+  };
+
+  ns.sample_chart = function() {
+    const ctx = 'chart';
+    const myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        datasets: [{
+          label: '# of Votes',
+          data: [12, 19, 3, 5, 2, 3],
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)'
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  };
+
   ns.cv_tabs_init = function () {
     $("#customer_vendor_tabs").on('tabsbeforeactivate', function(event, ui){
       if (ui.newPanel.attr('id') == 'quotations') {

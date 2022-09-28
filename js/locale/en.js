@@ -101,6 +101,7 @@ namespace("kivi").setupLocale({
 "Mon":"",
 "Monday":"",
 "More than one file selected, please set only one checkbox!":"",
+"Net.Turnover":"",
 "Next month":"",
 "No":"",
 "No article has been selected yet.":"",

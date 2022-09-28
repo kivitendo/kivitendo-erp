@@ -101,6 +101,7 @@ namespace("kivi").setupLocale({
 "Mon":"Mo",
 "Monday":"Montag",
 "More than one file selected, please set only one checkbox!":"Mehr als ein Element selektiert, bitte nur eine Box anklicken",
+"Net.Turnover":"Netto Umsatz",
 "Next month":"nächster Monat",
 "No":"Nein",
 "No article has been selected yet.":"Es wurde noch kein Artikel ausgewählt.",
