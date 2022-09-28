@@ -523,6 +523,7 @@ $self->{texts} = {
   'Booking needs at least one debit and one credit booking!' => '',
   'Bookinggroup/Tax'            => '',
   'Books are open'              => '',
+  'Books closed until:'         => '',
   'Books closed up to'          => '',
   'Boolean variables: If the default value is non-empty then the checkbox will be checked by default and unchecked otherwise.' => '',
   'Both'                        => '',
