@@ -22,7 +22,7 @@ sub run {
                                                  && $subtract_days  =~ m/^\d+\z/);
 
   # new closedto
-  my $new_closedto->subtract(months => $subtract_month, days => $subtract_days);
+  my $new_closedto = DateTime->now_local->subtract(months => $subtract_month, days => $subtract_days);
 
   my $defaults   = SL::DB::Default->get;
 
