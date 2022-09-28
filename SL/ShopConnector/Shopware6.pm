@@ -911,7 +911,7 @@ sub map_data_to_shoporder {
     delivery_phone          => $shipto->{phone},
     delivery_street         => $shipto->{street},
     delivery_vat            => $shipto->{vatId},
-    delivery_zipcode        => $shipto->{zipCode},
+    delivery_zipcode        => $shipto->{zipcode},
 #    host                    => $shop}->{hosts},
     netamount               => $import->{amountNet},
     order_date              => $orderdate,
