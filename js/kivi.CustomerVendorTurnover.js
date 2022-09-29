@@ -89,6 +89,36 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
     ns.chart(data);
   };
 
+  ns.background_colors = function() { return [
+    'rgba(255, 0, 0, 0.2)',
+    'rgba(191, 0, 0, 0.2)',
+    'rgba(127, 0, 0, 0.2)',
+    'rgba(63, 0, 0, 0.2)',
+    'rgba(0, 255, 0, 0.2)',
+    'rgba(0, 191, 0, 0.2)',
+    'rgba(0, 127, 0, 0.2)',
+    'rgba(0, 63, 0, 0.2)',
+    'rgba(0, 0, 255, 0.2)',
+    'rgba(0, 0, 191, 0.2)',
+    'rgba(0, 0, 127, 0.2)',
+    'rgba(0, 0, 63, 0.2)'
+  ]};
+
+  ns.border_colors = function() { return [
+    'rgba(255, 0, 0, 1)',
+    'rgba(191, 0, 0, 1)',
+    'rgba(127, 0, 0, 1)',
+    'rgba(63, 0, 0, 1)',
+    'rgba(0, 255, 0, 1)',
+    'rgba(0, 191, 0, 1)',
+    'rgba(0, 127, 0, 1)',
+    'rgba(0, 63, 0, 1)',
+    'rgba(0, 0, 255, 1)',
+    'rgba(0, 0, 191, 1)',
+    'rgba(0, 0, 127, 1)',
+    'rgba(0, 0, 63, 1)'
+  ]};
+
   ns.chart = function(data) {
     const ctx = 'turnovers_chart';
     const chart = new Chart(ctx, {
@@ -97,22 +127,8 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
         datasets: [{
           label: kivi.t8('Net.Turnover'),
           data: data,
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)'
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)'
-          ],
+          backgroundColor: ns.background_colors,
+          borderColor: ns.border_colors,
           borderWidth: 1
         },
         {
