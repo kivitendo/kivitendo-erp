@@ -119,6 +119,12 @@ sub action_turnover {
 
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
 
+  my $sort_dir   = 'DESC';
+
+  if ($::request->type eq 'json') {
+    $sort_dir   = 'ASC';
+  }
+
   my $dbh = SL::DB->client->dbh;
   my $cv = $::form->{id};
   my ($db, $cv_type);
@@ -134,11 +140,11 @@ sub action_turnover {
   if ('month' eq $::form->{mode}) {
     $date_part_select = "CONCAT(EXTRACT (MONTH FROM transdate),'/',EXTRACT (YEAR FROM transdate))";
     $group_by         = "EXTRACT (YEAR FROM transdate), EXTRACT (MONTH FROM transdate)";
-    $order_by         = "EXTRACT (YEAR FROM transdate) DESC, EXTRACT (MONTH FROM transdate) DESC";
+    $order_by         = "EXTRACT (YEAR FROM transdate) $sort_dir, EXTRACT (MONTH FROM transdate) $sort_dir";
   } else {
     $date_part_select = "EXTRACT (YEAR FROM transdate)";
     $group_by         = "EXTRACT (YEAR FROM transdate)";
-    $order_by         = "EXTRACT (YEAR FROM transdate) DESC";
+    $order_by         = "EXTRACT (YEAR FROM transdate) $sort_dir";
   }
 
   my $query = <<SQL;
