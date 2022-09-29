@@ -120,9 +120,11 @@ sub action_turnover {
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
 
   my $sort_dir   = 'DESC';
+  my $fill_holes = 0;
 
   if ($::request->type eq 'json') {
     $sort_dir   = 'ASC';
+    $fill_holes = 1;
   }
 
   my $dbh = SL::DB->client->dbh;
@@ -158,6 +160,42 @@ sub action_turnover {
   ORDER BY $order_by
 SQL
   $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query, $cv);
+
+  if ('month' eq $::form->{mode} && $fill_holes && @{$self->{turnover_statistic}} > 1) {
+    my $date_part_to_months = sub { my ($m, $y) = $_[0] =~ m{^(\d{1,2})/(\d{1,4})$}; return $m + 12*$y; };
+    my $months_to_date_part = sub { my $y = int($_[0]/12); my $m = $_[0] - 12*$y; $m ||= 12; return "$m/$y"; };
+    my $start_month         = $date_part_to_months->($self->{turnover_statistic}[ 0]->{date_part});
+    my $end_month           = $date_part_to_months->($self->{turnover_statistic}[-1]->{date_part});
+    my $step                = ($start_month > $end_month) ? -1 : 1;
+    my $next_month          = $start_month;
+    my @new_stats           = ();
+    foreach my $stat (@{$self->{turnover_statistic}}) {
+      while ($date_part_to_months->($stat->{date_part}) != $next_month) {
+        push @new_stats, {date_part => $months_to_date_part->($next_month)};
+        $next_month += $step;
+      }
+      push @new_stats, $stat;
+      $next_month += $step;
+    }
+    $self->{turnover_statistic} = \@new_stats;
+  }
+
+  if ('month' ne $::form->{mode} && $fill_holes && @{$self->{turnover_statistic}} > 1) {
+    my $start          = $self->{turnover_statistic}[ 0]->{date_part};
+    my $end            = $self->{turnover_statistic}[-1]->{date_part};
+    my $step           = ($start > $end) ? -1 : 1;
+    my $next_date_part = $start;
+    my @new_stats = ();
+    foreach my $stat (@{$self->{turnover_statistic}}) {
+      while ($stat->{date_part} != $next_date_part) {
+        push @new_stats, {date_part => $next_date_part};
+        $next_date_part += $step;
+      }
+      push @new_stats, $stat;
+      $next_date_part += $step;
+    }
+    $self->{turnover_statistic} = \@new_stats;
+  }
 
   if ($::request->type eq 'json') {
     $self->render(\ SL::JSON::to_json($self->{turnover_statistic}), { layout => 0, type => 'json', process => 0 });
