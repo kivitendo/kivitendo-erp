@@ -42,7 +42,7 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
     $('#turnovers').load(url);
   };
 
-  ns.show_turnover_chart = function(period) {
+  ns.show_turnover_chart = function(period, year_for_month) {
     const html = '<div class="chart-container" style="position: relative;">'
                + '<canvas id="chart"></canvas>'
                + '</div>';
@@ -51,6 +51,7 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
     let mode = "month";
     if (period === 'y') {
       mode    = "year";
+      year_for_month = undefined;
     } else if (period === 'm') {
       mode    = "month";
     }
@@ -58,7 +59,8 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
     const data = { action: 'CustomerVendorTurnover/turnover.json',
                    id:   $('#cv_id').val(),
                    db:   $('#db').val(),
-                   mode: mode
+                   mode: mode,
+                   year: year_for_month
                  };
     $.getJSON('controller.pl', data, function( returned_data ) {
       ns.draw_chart(returned_data);
@@ -88,7 +90,7 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
 
   ns.chart = function(data) {
     const ctx = 'chart';
-    const myChart = new Chart(ctx, {
+    const chart = new Chart(ctx, {
       type: 'bar',
       data: {
         datasets: [{
@@ -122,6 +124,19 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
         parsing: {
           xAxisKey: 'date_part',
           yAxisKey: 'netamount'
+        },
+        onClick: (e) => {
+          const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
+
+          // Substitute the appropriate scale IDs
+          const dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
+          const dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
+
+          if ((data[dataX].date_part || "").match(/^\d{1,4}$/)) {
+            ns.show_turnover_chart('m', data[dataX].date_part);
+          } else {
+            ns.show_turnover_chart('y');
+          }
         }
       }
     });
