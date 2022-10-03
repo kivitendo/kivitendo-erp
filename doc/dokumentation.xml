@@ -5350,6 +5350,57 @@ digits_year: 4</programlisting>
           </variablelist>
         </sect3>
 
+        <sect3>
+          <title>Variablen für die schweizer QR-Rechnung</title>
+
+          <para>Diese variablen können mit dem LaTeX Modul qrbill verwendet
+          werden: <ulink
+          url="https://ctan.org/pkg/qrbill?lang=de">https://ctan.org/pkg/qrbill?lang=de</ulink></para>
+
+          <para>Für die Erstellung von QR-Rechnungen mit OpenDocument Vorlagen
+          siehe: <xref linkend="OpenDocument-Vorlagen"/></para>
+
+          <variablelist>
+            <varlistentry>
+              <term>qrbill_iban</term>
+
+              <listitem>
+                <para>IBAN/QR-IBAN des Rechnungsstellers, aus <emphasis>System
+                → Bankkonten</emphasis></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>qrbill_biller_countrycode</term>
+
+              <listitem>
+                <para>Länderkürzel des Rechnungsstellers gem. ISO 3166, aus
+                <emphasis>Mandantenkonfiguration → Firmenname und
+                -adresse</emphasis></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>qrbill_customer_countrycode</term>
+
+              <listitem>
+                <para>Länderkürzel des Rechnungsempfängers gem. ISO 3166, aus
+                der jeweiligen Rechnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>qrbill_amount</term>
+
+              <listitem>
+                <para>Betrag für die QR-Rechnung (Zahl ohne
+                Tausendertrennzeichen mit zwei Nachkommastellen), entsprechend
+                total</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
         <sect3 id="dokumentenvorlagen-und-variablen.invoice-posten">
           <title>Variablen für jeden Posten auf der Rechnung</title>
 
