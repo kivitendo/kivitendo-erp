@@ -5398,6 +5398,16 @@ digits_year: 4</programlisting>
                 total</para>
               </listitem>
             </varlistentry>
+
+            <varlistentry>
+              <term>qr_reference</term>
+
+              <listitem>
+                <para>QR-Referenz der jeweiligen Rechnung, sofern in der
+                <emphasis>Mandantenkonfiguration → Features → Variante QR-IBAN
+                mit QR-Referenz erzeugen</emphasis> aktiviert ist</para>
+              </listitem>
+            </varlistentry>
           </variablelist>
         </sect3>
 
