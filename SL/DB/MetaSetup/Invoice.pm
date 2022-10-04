@@ -26,6 +26,7 @@ __PACKAGE__->meta->columns(
   duedate                   => { type => 'date' },
   dunning_config_id         => { type => 'integer' },
   employee_id               => { type => 'integer' },
+  exchangerate              => { type => 'numeric', precision => 15, scale => 5 },
   gldate                    => { type => 'date', default => 'now' },
   globalproject_id          => { type => 'integer' },
   id                        => { type => 'integer', not_null => 1, sequence => 'glid' },
