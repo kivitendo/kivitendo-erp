@@ -1410,7 +1410,7 @@ sub _retrieve {
 
   }
 
-  $form->{exchangerate} = $form->get_exchangerate($dbh, $form->{currency}, $form->{transdate}, ($form->{vc} eq 'customer') ? "buy" : "sell");
+  $form->{exchangerate} = $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, ($form->{vc} eq 'customer') ? "buy" : "sell");
 
   Common::webdav_folder($form);
 

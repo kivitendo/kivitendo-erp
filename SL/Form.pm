@@ -2606,13 +2606,13 @@ sub create_links {
 
     # get exchangerate for currency
     $self->{exchangerate} =
-      $self->get_exchangerate($dbh, $self->{currency}, $self->{transdate}, $fld);
+      $self->check_exchangerate($myconfig, $self->{currency}, $self->{transdate}, $fld);
     my $index = 0;
 
     # store amounts in {acc_trans}{$key} for multiple accounts
     while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
       $ref->{exchangerate} =
-        $self->get_exchangerate($dbh, $self->{currency}, $ref->{transdate}, $fld);
+        $self->check_exchangerate($myconfig, $self->{currency}, $ref->{transdate}, $fld);
       if (!($xkeyref{ $ref->{accno} } =~ /tax/)) {
         $index++;
       }
@@ -2664,7 +2664,7 @@ sub create_links {
 
       # get exchangerate for currency
       $self->{exchangerate} =
-        $self->get_exchangerate($dbh, $self->{currency}, $self->{transdate}, $fld);
+        $self->check_exchangerate($myconfig, $self->{currency}, $self->{transdate}, $fld);
 
     }
 

@@ -136,7 +136,7 @@ sub get_openinvoices {
 
     # if this is a foreign currency transaction get exchangerate
     $ref->{exchangerate} =
-      $form->get_exchangerate($dbh, $ref->{curr}, $ref->{transdate}, $buysell)
+      $form->check_exchangerate($myconfig, $ref->{curr}, $ref->{transdate}, $buysell)
       if ($form->{currency} ne $form->{defaultcurrency});
     push @{ $form->{PR} }, $ref;
   }
