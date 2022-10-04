@@ -49,6 +49,7 @@ use File::Copy;
 use File::Temp ();
 use IO::File;
 use Math::BigInt;
+use Params::Validate qw(:all);
 use POSIX qw(strftime);
 use SL::Auth;
 use SL::Auth::DB;
@@ -1538,19 +1539,16 @@ sub get_exchangerate {
 sub check_exchangerate {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $currency, $transdate, $fld) = @_;
-
-  if ($fld !~/^buy|sell$/) {
-    $self->error('Fatal: check_exchangerate called with invalid buy/sell argument');
-  }
-
-  unless ($transdate) {
-    $main::lxdebug->leave_sub();
-    return "";
-  }
+  my $self = shift;
+  validate_pos(@_,
+                 { type => HASHREF, callbacks => { has_yy_in_dateformat => sub { $_[0]->{dateformat} =~ m/yy/ } } },
+                 { type => SCALAR  }, # should be ISO three letter codes for currency identification (ISO 4217)
+                 { type => SCALAR, callbacks  => { is_valid_kivi_date   => sub { shift =~ m/\d+\d+\d+/ } } }, # we have three numers
+                 { type => SCALAR, callbacks  => { is_buy_or_sell_rate  => sub { shift =~ m/^buy|sell$/ } } },
+              );
+  my ($myconfig, $currency, $transdate, $fld) = @_;
 
   my ($defaultcurrency) = $self->get_default_currency($myconfig);
-
   if ($currency eq $defaultcurrency) {
     $main::lxdebug->leave_sub();
     return 1;
