@@ -1236,6 +1236,7 @@ sub invoice_multi {
                               $locale->text('You cannot create an invoice for delivery orders from different vendors.'),
                               'back_button' => 1);
   }
+  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
 
   my $source_type              = $form->{type};
   $form->{convert_from_do_ids} = join ' ', @do_ids;
