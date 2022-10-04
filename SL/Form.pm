@@ -1505,37 +1505,6 @@ sub save_exchangerate {
   $main::lxdebug->leave_sub();
 }
 
-sub get_exchangerate {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $dbh, $curr, $transdate, $fld) = @_;
-  my ($query);
-
-  unless ($transdate && $curr) {
-    $main::lxdebug->leave_sub();
-    return 1;
-  }
-
-  $query = qq|SELECT name AS curr FROM currencies WHERE id = (SELECT currency_id FROM defaults)|;
-
-  my ($defaultcurrency) = selectrow_query($self, $dbh, $query);
-
-  if ($curr eq $defaultcurrency) {
-    $main::lxdebug->leave_sub();
-    return 1;
-  }
-
-  $query = qq|SELECT e.$fld FROM exchangerate e
-                 WHERE e.currency_id = (SELECT id FROM currencies WHERE name = ?) AND e.transdate = ?|;
-  my ($exchangerate) = selectrow_query($self, $dbh, $query, $curr, $transdate);
-
-
-
-  $main::lxdebug->leave_sub();
-
-  return $exchangerate;
-}
-
 sub check_exchangerate {
   $main::lxdebug->enter_sub();
 
