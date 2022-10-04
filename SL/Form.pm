@@ -1484,27 +1484,6 @@ sub update_exchangerate {
   $main::lxdebug->leave_sub();
 }
 
-sub save_exchangerate {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $currency, $transdate, $rate, $fld) = @_;
-
-  SL::DB->client->with_transaction(sub {
-    my $dbh = SL::DB->client->dbh;
-
-    my ($buy, $sell);
-
-    $buy  = $rate if $fld eq 'buy';
-    $sell = $rate if $fld eq 'sell';
-
-
-    $self->update_exchangerate($dbh, $currency, $transdate, $buy, $sell);
-    1;
-  }) or do { die SL::DB->client->error };
-
-  $main::lxdebug->leave_sub();
-}
-
 sub check_exchangerate {
   $main::lxdebug->enter_sub();
 
