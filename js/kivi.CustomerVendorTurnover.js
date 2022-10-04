@@ -35,6 +35,11 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
     $('#mails').load(url);
   };
 
+  ns.show_turnover = function(period, year_for_month) {
+    ns.show_turnover_chart(period, year_for_month);
+    ns.show_turnover_stat(period);
+  };
+
   ns.show_turnover_stat = function(period) {
     let mode = 'year';
     if (period === 'm') mode = 'month';
@@ -58,10 +63,9 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
                    year: year_for_month
                  };
     $.getJSON('controller.pl', data, function( returned_data ) {
-      const html = '<canvas id="turnovers_chart"></canvas>';
+      const html = '<canvas id="turnovers_chart" height="70vH"></canvas>';
       $('#turnovers_chart_container').html(html);
       ns.draw_chart(returned_data);
-      $("html, body").animate({ scrollTop: $("#turnovers_chart").offset().top }, "slow");
     });
   };
 
@@ -130,9 +134,9 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
           const dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
 
           if ((data[dataX].date_part || "").match(/^\d{1,4}$/)) {
-            ns.show_turnover_chart('m', data[dataX].date_part);
+            ns.show_turnover('m', data[dataX].date_part);
           } else {
-            ns.show_turnover_chart('y');
+            ns.show_turnover('y');
           }
         }
       }
@@ -183,7 +187,7 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
         ns.get_sales_quotations();
       }
       if (ui.newPanel.attr('id') == 'turnover_stat') {
-        ns.show_turnover_chart("y");
+        ns.show_turnover("y");
       }
       return 1;
     });
@@ -193,7 +197,7 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
         ns.get_sales_quotations();
       }
       if (ui.panel.attr('id') == 'turnover_stat') {
-        ns.show_turnover_chart("y");
+        ns.show_turnover("y");
       }
       return 1;
     });
