@@ -2307,7 +2307,8 @@ sub _retrieve_invoice {
 
     foreach my $vc (qw(customer vendor)) {
       next if !$form->{"delivery_${vc}_id"};
-      ($form->{"delivery_${vc}_string"}) = selectrow_query($form, $dbh, qq|SELECT name FROM customer WHERE id = ?|, $id);
+      ($form->{"delivery_${vc}_string"}) = selectrow_query($form, $dbh, qq|SELECT name FROM customer WHERE id = ?|,
+                                                           $form->{"delivery_${vc}_id"});
     }
 
     # get shipto
