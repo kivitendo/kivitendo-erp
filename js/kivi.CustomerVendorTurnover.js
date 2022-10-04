@@ -43,11 +43,6 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
   };
 
   ns.show_turnover_chart = function(period, year_for_month) {
-    const html = '<div class="chart-container" style="position: relative;">'
-               + '<canvas id="chart"></canvas>'
-               + '</div>';
-    $('#turnovers').html(html);
-
     let mode = "month";
     if (period === 'y') {
       mode    = "year";
@@ -63,8 +58,10 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
                    year: year_for_month
                  };
     $.getJSON('controller.pl', data, function( returned_data ) {
+      const html = '<canvas id="turnovers_chart"></canvas>';
+      $('#turnovers_chart_container').html(html);
       ns.draw_chart(returned_data);
-      $("html, body").animate({ scrollTop: $("#chart").offset().top }, "slow");
+      $("html, body").animate({ scrollTop: $("#turnovers_chart").offset().top }, "slow");
     });
   };
 
@@ -89,7 +86,7 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
   };
 
   ns.chart = function(data) {
-    const ctx = 'chart';
+    const ctx = 'turnovers_chart';
     const chart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -185,12 +182,18 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
       if (ui.newPanel.attr('id') == 'quotations') {
         ns.get_sales_quotations();
       }
+      if (ui.newPanel.attr('id') == 'turnover_stat') {
+        ns.show_turnover_chart("y");
+      }
       return 1;
     });
 
     $("#customer_vendor_tabs").on('tabscreate', function(event, ui){
       if (ui.panel.attr('id') == 'quotations') {
         ns.get_sales_quotations();
+      }
+      if (ui.panel.attr('id') == 'turnover_stat') {
+        ns.show_turnover_chart("y");
       }
       return 1;
     });

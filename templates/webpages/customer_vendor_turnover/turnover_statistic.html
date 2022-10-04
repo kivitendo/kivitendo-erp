@@ -2,13 +2,7 @@
 [%- USE LxERP %]
 [%- USE L %]
 [%- USE HTML %]
-<p>
-[% L.radio_button_tag('period', value='year', label= LxERP.t8('Year'), onclick='kivi.CustomerVendorTurnover.show_turnover_stat("y");') %]
-
-[% L.radio_button_tag('period', value='year_chart', label= LxERP.t8('Year as chart'), onclick='kivi.CustomerVendorTurnover.show_turnover_chart("y");') %]
-
-[% L.radio_button_tag('period', value='month', label= LxERP.t8('Month'), onclick='kivi.CustomerVendorTurnover.show_turnover_stat("m");') %]
-
-[% L.radio_button_tag('period', value='month_chart', label= LxERP.t8('Month as chart'), onclick='kivi.CustomerVendorTurnover.show_turnover_chart("m");') %]
-</p>
+<div class="chart-container" id="turnovers_chart_container" style="position: relative;">
+  [%- LxERP.t8("Loading...") %]
+</div>
 <div id="turnovers"></div>
