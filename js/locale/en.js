@@ -114,6 +114,7 @@ namespace("kivi").setupLocale({
 "Oct":"",
 "October":"",
 "Ok":"",
+"Overall Net.Turnover":"",
 "Part picker":"",
 "Paste":"",
 "Paste template":"",

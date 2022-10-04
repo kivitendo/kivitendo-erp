@@ -114,6 +114,12 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
             'rgba(255, 159, 64, 1)'
           ],
           borderWidth: 1
+        },
+        {
+          label: kivi.t8('Overall Net.Turnover'),
+          data: data,
+          type: 'line',
+          backgroundColor: 'black',
         }]
       },
       options: {
@@ -124,7 +130,7 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
         },
         parsing: {
           xAxisKey: 'date_part',
-          yAxisKey: 'netamount'
+          yAxisKey: ['netamount', 'overall_netamount']
         },
         onClick: (e) => {
           const canvasPosition = Chart.helpers.getRelativePosition(e, chart);

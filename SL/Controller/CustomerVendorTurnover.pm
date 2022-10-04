@@ -223,6 +223,24 @@ SQL
     $self->{turnover_statistic} = \@new_stats;
   }
 
+  if (@{$self->{turnover_statistic}} > 1) {
+    my $query = <<SQL;
+      SELECT $date_part_select as date_part,
+         count(id)             as count,
+         sum(amount)           as amount,
+         sum(netamount)        as netamount,
+         sum(paid)             as paid
+      FROM $db WHERE $cv_type IS NOT NULL
+      GROUP BY $group_by
+      ORDER BY $order_by
+SQL
+    my $overall_turnover = selectall_hashref_query($::form, $dbh, $query);
+    foreach my $stat (@{$self->{turnover_statistic}}) {
+      my $overall_stat = first { $_->{date_part} eq $stat->{date_part} } @$overall_turnover;
+      $stat->{overall_netamount} = 0;
+      $stat->{'overall_' . $_} = $overall_stat->{$_} for keys %$overall_stat;
+    }
+  }
 
   if ($::request->type eq 'json') {
     $self->render(\ SL::JSON::to_json($self->{turnover_statistic}), { layout => 0, type => 'json', process => 0 });

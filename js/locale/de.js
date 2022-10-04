@@ -114,6 +114,7 @@ namespace("kivi").setupLocale({
 "Oct":"Okt",
 "October":"Oktober",
 "Ok":"Ok",
+"Overall Net.Turnover":"Gesamter Netto-Umsatz",
 "Part picker":"Artikelauswahl",
 "Paste":"Einfügen",
 "Paste template":"Vorlage einfügen",

@@ -2448,6 +2448,7 @@ $self->{texts} = {
   'Out of balance transaction!' => '',
   'Out of balance!'             => '',
   'Output Number Format'        => '',
+  'Overall Net.Turnover'        => '',
   'Overdue invoices'            => '',
   'Overdue sales quotations and requests for quotations' => '',
   'Override'                    => '',
