@@ -112,7 +112,7 @@ SQL
    $self->render('customer_vendor_turnover/count_open_items_by_year', { layout => 0 });
 }
 
-sub action_turnover_by_month {
+sub action_turnover {
 
   my ($self) = @_;
 
@@ -128,44 +128,27 @@ sub action_turnover_by_month {
     $db      = "ap";
     $cv_type = "vendor_id";
   }
-  my $query = <<SQL;
-  SELECT CONCAT(EXTRACT (MONTH FROM transdate),'/',EXTRACT (YEAR FROM transdate)) as date_part,
-         count(id)                                                                as count,
-         sum(amount)                                                              as amount,
-         sum(netamount)                                                           as netamount,
-         sum(paid)                                                                as paid
-    FROM $db WHERE $cv_type = ?
-GROUP BY EXTRACT (YEAR FROM transdate), EXTRACT (MONTH FROM transdate)
-ORDER BY EXTRACT (YEAR FROM transdate) DESC, EXTRACT (MONTH FROM transdate) DESC
-SQL
-   $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query, $cv);
-   $self->render('customer_vendor_turnover/count_turnover', { layout => 0 });
-}
 
-sub action_turnover_by_year {
-  my ($self) = @_;
-
-  return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
-
-  my $dbh = SL::DB->client->dbh;
-  my $cv = $::form->{id};
-  my ($db, $cv_type);
-  if ($::form->{db} eq 'customer') {
-    $db      = "ar";
-    $cv_type = "customer_id";
+  my ($date_part_select, $group_by, $order_by);
+  if ('month' eq $::form->{mode}) {
+    $date_part_select = "CONCAT(EXTRACT (MONTH FROM transdate),'/',EXTRACT (YEAR FROM transdate))";
+    $group_by         = "EXTRACT (YEAR FROM transdate), EXTRACT (MONTH FROM transdate)";
+    $order_by         = "EXTRACT (YEAR FROM transdate) DESC, EXTRACT (MONTH FROM transdate) DESC";
   } else {
-    $db      = "ap";
-    $cv_type = "vendor_id";
+    $date_part_select = "EXTRACT (YEAR FROM transdate)";
+    $group_by         = "EXTRACT (YEAR FROM transdate)";
+    $order_by         = "EXTRACT (YEAR FROM transdate) DESC";
   }
+
   my $query = <<SQL;
-  SELECT EXTRACT (YEAR FROM transdate) as date_part,
-         count(id)                     as count,
-         sum(amount)                   as amount,
-         sum(netamount)                as netamount,
-         sum(paid)                     as paid
+  SELECT $date_part_select as date_part,
+         count(id)         as count,
+         sum(amount)       as amount,
+         sum(netamount)    as netamount,
+         sum(paid)         as paid
     FROM $db WHERE $cv_type = ?
-GROUP BY date_part
-ORDER BY date_part DESC
+GROUP BY $group_by
+ORDER BY $order_by
 SQL
    $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query, $cv);
    $self->render('customer_vendor_turnover/count_turnover', { layout => 0 });
@@ -477,13 +460,11 @@ gets and shows a dunning statistic of the customer by month
 
 gets and shows a dunning statistic of the customer by year
 
-=item C<action_turnover_by_month>
+=item C<action_turnover>
 
 gets and shows an invoice statistic of customer/vendor by month
-
-=item C<action_turnover_by_year>
-
-gets and shows an invoice statistic of customer/vendor by year
+or year depending on $::form->{mode}. If $::form->{mode} eq 'month'
+get statistics by month, otherwise by year.
 
 =item C<action_get_invoices>
 

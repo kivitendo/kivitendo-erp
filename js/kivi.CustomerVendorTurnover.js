@@ -36,13 +36,10 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
   };
 
   ns.show_turnover_stat = function(period) {
-    if (period === 'y') {
-      var url = 'controller.pl?action=CustomerVendorTurnover/turnover_by_year&id=' + $('#cv_id').val() + '&db=' + $('#db').val();
-      $('#turnovers').load(url);
-    } else {
-      var url = 'controller.pl?action=CustomerVendorTurnover/turnover_by_month&id=' + $('#cv_id').val() + '&db=' + $('#db').val();
-      $('#turnovers').load(url);
-    }
+    let mode = 'year';
+    if (period === 'm') mode = 'month';
+    const url = 'controller.pl?action=CustomerVendorTurnover/turnover&id=' + $('#cv_id').val() + '&db=' + $('#db').val() + '&mode=' + mode;
+    $('#turnovers').load(url);
   };
 
 });
