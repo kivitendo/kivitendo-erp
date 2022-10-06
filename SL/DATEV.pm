@@ -1012,7 +1012,7 @@ sub generate_datev_lines {
         # not yet implemented -> datev steigt aus, sobald ein komma getrennter wert erscheint
         #foreach my $latest_document (@{ $latest_documents }) {
           die "No file datatype:" . ref $latest_document unless (ref $latest_document eq 'SL::DB::File');
-          my $latest_guid = $latest_document->file_version->[-1]->guid;
+          my $latest_guid = $latest_document->file_version_sorted->[-1]->guid;
 
           $self->{guids}{$latest_guid} = 1;
           $datev_data{document_guid}  .= $datev_data{document_guid} ?  ',' : '';
