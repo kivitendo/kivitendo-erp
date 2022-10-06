@@ -18,7 +18,7 @@ __PACKAGE__->meta->add_relationship(
 );
 
 __PACKAGE__->meta->add_relationship(
-  file_version         => {
+  file_versions        => {
     type               => 'one to many',
     class              => 'SL::DB::FileVersion',
     column_map         => { id => 'file_id' },
@@ -28,7 +28,7 @@ __PACKAGE__->meta->add_relationship(
 
 __PACKAGE__->meta->initialize;
 
-__PACKAGE__->attr_sorted({unsorted => 'file_version', position => 'version'});
+__PACKAGE__->attr_sorted({unsorted => 'file_versions', position => 'version'});
 
 1;
 __END__
