@@ -1,3 +1,4 @@
+# This module consists of helper methods for generating Swiss QR-Code.
 package SL::Helper::QrBill;
 
 use strict;
