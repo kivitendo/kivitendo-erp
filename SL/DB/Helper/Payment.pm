@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount check_ valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction exchangerate forex _skonto_charts_and_tax_correction);
+our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount check_ valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction forex _skonto_charts_and_tax_correction);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
