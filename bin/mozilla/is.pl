@@ -1081,8 +1081,12 @@ sub post {
   $form->error($locale->text('Cannot post invoice for a closed period!'))
     if ($invdate <= $closedto);
 
-  $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
-    if ($form->{currency} ne $form->{defaultcurrency});
+  if ($form->{currency} ne $form->{defaultcurrency}) {
+    $form->isblank("exchangerate", $locale->text('Exchangerate missing!'));
+    $form->error($locale->text('Cannot post invoice with negative exchange rate'))
+      unless ($form->parse_amount(\%myconfig, $form->{"exchangerate"}) > 0);
+  }
+
   # advance payment allows only one tax
   if ($form->{type} eq 'invoice_for_advance_payment') {
     my @current_taxaccounts = (split(/ /, $form->{taxaccounts}));

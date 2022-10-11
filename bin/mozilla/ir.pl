@@ -964,9 +964,11 @@ sub post {
   $form->error($locale->text('Cannot post invoice for a closed period!'))
     if ($invdate <= $closedto);
 
-  $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
-    if ($form->{currency} ne $form->{defaultcurrency});
-
+  if ($form->{currency} ne $form->{defaultcurrency}) {
+    $form->isblank("exchangerate", $locale->text('Exchangerate missing!'));
+    $form->error($locale->text('Cannot post invoice with negative exchange rate'))
+      unless ($form->parse_amount(\%myconfig, $form->{"exchangerate"}) > 0);
+  }
   my $i;
   for $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {

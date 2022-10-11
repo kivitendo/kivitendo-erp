@@ -862,8 +862,12 @@ sub post {
 
   $form->error($locale->text('Zero amount posting!')) if $zero_amount_posting;
 
-  $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
-    if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency}));
+  if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
+    $form->isblank("exchangerate", $locale->text('Exchangerate missing!'));
+    $form->error($locale->text('Cannot post invoice with negative exchange rate'))
+      unless ($form->parse_amount(\%myconfig, $form->{"exchangerate"}) > 0);
+  }
+
   delete($form->{AP});
 
   for my $i (1 .. $form->{paidaccounts}) {
