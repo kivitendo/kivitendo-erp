@@ -1428,22 +1428,27 @@ sub update_balance {
 sub update_exchangerate {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $curr, $transdate, $buy, $sell) = @_;
+  validate_pos(@_,
+                 { isa  => 'Form'},
+                 { isa  => 'DBI::db'},
+                 { type => SCALAR, callbacks  => { is_fx_currency     => sub { shift ne $_[1]->[0]->{defaultcurrency} } } }, # should be ISO three letter codes for currency identification (ISO 4217)
+                 { type => SCALAR, callbacks  => { is_valid_kivi_date => sub { shift =~ m/\d+\d+\d+/ } } }, # we have three numers
+                 { type => SCALAR, callbacks  => { is_null_or_digit   => sub { shift =~ m/(^0$|\d+)/ } } }, # value buy fxrate
+                 { type => SCALAR, callbacks  => { is_null_or_digit   => sub { shift =~ m/(^0$|\d+)/ } } }, # value sell fxrate
+                 { type => SCALAR, callbacks  => { is_current_form_id => sub { $_[0] == $_[1]->[0]->{id} } },              optional => 1 },
+                 { type => SCALAR, callbacks  => { is_valid_fx_table  => sub { shift =~ m/(ar|ap|bank_transactions)/  } }, optional => 1 }
+              );
+
+  my ($self, $dbh, $curr, $transdate, $buy, $sell, $id, $record_table) = @_;
+
+  # record has a exchange rate and should be updated
+  if ($record_table && $id) {
+    do_query($self, $dbh, qq|UPDATE $record_table SET exchangerate = ? WHERE id = ?|, $buy || $sell, $id);
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
   my ($query);
-  # some sanity check for currency
-  if ($curr eq '') {
-    $main::lxdebug->leave_sub();
-    return;
-  }
-  $query = qq|SELECT name AS curr FROM currencies WHERE id=(SELECT currency_id FROM defaults)|;
-
-  my ($defaultcurrency) = selectrow_query($self, $dbh, $query);
-
-  if ($curr eq $defaultcurrency) {
-    $main::lxdebug->leave_sub();
-    return;
-  }
-
   $query = qq|SELECT e.currency_id FROM exchangerate e
                  WHERE e.currency_id = (SELECT cu.id FROM currencies cu WHERE cu.name=?) AND e.transdate = ?
                  FOR UPDATE|;
@@ -1469,6 +1474,7 @@ sub update_exchangerate {
   }
 
   if ($sth->fetchrow_array) {
+    die "this never happens never";
     $query = qq|UPDATE exchangerate
                 SET $set
                 WHERE currency_id = (SELECT id FROM currencies WHERE name = ?)
@@ -1487,22 +1493,31 @@ sub update_exchangerate {
 sub check_exchangerate {
   $main::lxdebug->enter_sub();
 
-  my $self = shift;
   validate_pos(@_,
+                 { isa  => 'Form'},
                  { type => HASHREF, callbacks => { has_yy_in_dateformat => sub { $_[0]->{dateformat} =~ m/yy/ } } },
-                 { type => SCALAR  }, # should be ISO three letter codes for currency identification (ISO 4217)
+                 { type => SCALAR, callbacks  => { is_fx_currency       => sub { shift ne $_[1]->[0]->{defaultcurrency} } } }, # should be ISO three letter codes for currency identification (ISO 4217)
                  { type => SCALAR, callbacks  => { is_valid_kivi_date   => sub { shift =~ m/\d+\d+\d+/ } } }, # we have three numers
                  { type => SCALAR, callbacks  => { is_buy_or_sell_rate  => sub { shift =~ m/^buy|sell$/ } } },
+                 { type => SCALAR, callbacks  => { is_current_form_id   => sub { $_[0] == $_[1]->[0]->{id} } },              optional => 1 },
+                 { type => SCALAR, callbacks  => { is_valid_fx_table    => sub { shift =~ m/(ar|ap|bank_transactions)/  } }, optional => 1 }
               );
-  my ($myconfig, $currency, $transdate, $fld) = @_;
-
-  my ($defaultcurrency) = $self->get_default_currency($myconfig);
-  if ($currency eq $defaultcurrency) {
-    $main::lxdebug->leave_sub();
-    return 1;
-  }
+  my ($self, $myconfig, $currency, $transdate, $fld, $id, $record_table) = @_;
 
   my $dbh   = $self->get_standard_dbh($myconfig);
+
+  # callers wants a check if record has a exchange rate and should be fetched instead
+  if ($record_table && $id) {
+    my ($record_exchange_rate) = selectrow_query($self, $dbh, qq|SELECT exchangerate FROM $record_table WHERE id = ?|, $id);
+    if ($record_exchange_rate) {
+
+      $main::lxdebug->leave_sub();
+
+      return $record_exchange_rate;
+    }
+  }
+
+  # fetch default from exchangerate table
   my $query = qq|SELECT e.$fld FROM exchangerate e
                  WHERE e.currency_id = (SELECT id FROM currencies WHERE name = ?) AND e.transdate = ?|;
 
@@ -3524,6 +3539,36 @@ Can be called wit C<option> mail to generate a different error message.
 
 Returns undef if no save operation has been done yet ($self->{id} not present).
 Returns undef if no concurrent write process is detected otherwise a error message.
+
+=back
+
+=over 4
+
+=item C<check_exchangerate>  $myconfig, $currency, $transdate, $fld, $id, $record_table
+
+Needs a local myconfig, a currency string, a date of the transaction, a field (fld) which
+has to be either the buy or sell exchangerate and checks if there is already a buy or
+sell exchangerate for this date.
+Returns 0 or (NULL) if no entry is found or the already stored exchangerate.
+If the optional parameter id and record_table is passed, the method tries to look up
+a custom exchangerate for a record with id. record_table can either be ar, ap or bank_transactions.
+If none is found the default (daily) entry will be checked.
+The method is very strict about the parameters and tries to fail if anything does
+not look like the expected type.
+
+=item C<update_exchangerate> $dbh, $curr, $transdate, $buy, $sell, $id, $record_table
+
+Needs a dbh connection, a currency string, a date of the transaction, buy (0|1), sell (0|1) which
+determines if either the buy or sell or both exchangerates should be updated and updates
+the exchangerate for this currency for this date.
+If the optional parameter id and record_table is passed, the method saves
+a custom exchangerate for a record with id. record_table can either be ar, ap or bank_transactions.
+
+The method is very strict about the parameters and tries to fail if anything does not look
+like the expected type.
+
+
+
 
 =back
 
