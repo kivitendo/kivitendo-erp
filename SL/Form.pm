@@ -1433,8 +1433,8 @@ sub update_exchangerate {
                  { isa  => 'DBI::db'},
                  { type => SCALAR, callbacks  => { is_fx_currency     => sub { shift ne $_[1]->[0]->{defaultcurrency} } } }, # should be ISO three letter codes for currency identification (ISO 4217)
                  { type => SCALAR, callbacks  => { is_valid_kivi_date => sub { shift =~ m/\d+\d+\d+/ } } }, # we have three numers
-                 { type => SCALAR, callbacks  => { is_null_or_digit   => sub { shift =~ m/(^0$|\d+)/ } } }, # value buy fxrate
-                 { type => SCALAR, callbacks  => { is_null_or_digit   => sub { shift =~ m/(^0$|\d+)/ } } }, # value sell fxrate
+                 { type => SCALAR, callbacks  => { is_null_or_digit   => sub { $_[0] =~ m/(^0$|\d+)/ && $_[0] >= 0 } } }, # value buy fxrate
+                 { type => SCALAR, callbacks  => { is_null_or_digit   => sub { $_[0] =~ m/(^0$|\d+)/ && $_[0] >= 0 } } }, # value sell fxrate
                  { type => SCALAR, callbacks  => { is_current_form_id => sub { $_[0] == $_[1]->[0]->{id} } },              optional => 1 },
                  { type => SCALAR, callbacks  => { is_valid_fx_table  => sub { shift =~ m/(ar|ap|bank_transactions)/  } }, optional => 1 }
               );
@@ -1509,7 +1509,7 @@ sub check_exchangerate {
   # callers wants a check if record has a exchange rate and should be fetched instead
   if ($record_table && $id) {
     my ($record_exchange_rate) = selectrow_query($self, $dbh, qq|SELECT exchangerate FROM $record_table WHERE id = ?|, $id);
-    if ($record_exchange_rate) {
+    if ($record_exchange_rate && $record_exchange_rate > 0) {
 
       $main::lxdebug->leave_sub();
 
