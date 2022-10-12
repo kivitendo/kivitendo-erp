@@ -7,6 +7,7 @@ use Encode;
 use HTML::Entities;
 use POSIX 'setsid';
 use XML::LibXML;
+use File::Basename;
 
 use SL::Iconv;
 use SL::Template::OpenDocument::Styles;
@@ -692,12 +693,14 @@ sub convert_to_pdf {
   } else {
     $ENV{'HOME'} = getcwd() . "/" . $self->{"userspath"};
   }
+  
+  my $outdir = dirname($filename);
 
   if (!$::lx_office_conf{print_templates}->{openofficeorg_daemon}) {
     if (system($::lx_office_conf{applications}->{openofficeorg_writer},
                "--minimized", "--norestore", "--nologo", "--nolockcheck", "--headless",
-               "file:${filename}.odt",
-               "macro://" . (split('/', $filename))[-1] . "/Standard.Conversion.ConvertSelfToPDF()") == -1) {
+               "--convert-to", "pdf", "--outdir", $outdir,
+               "file:${filename}.odt") == -1) {
       die "system call to $::lx_office_conf{applications}->{openofficeorg_writer} failed: $!";
     }
   } else {
