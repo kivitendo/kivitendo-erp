@@ -771,9 +771,9 @@ sub spawn_openoffice {
         my $ssres = setsid();
         $main::lxdebug->message(LXDebug->DEBUG2(), "  Child execing\n");
         my @cmdline = ($::lx_office_conf{applications}->{openofficeorg_writer},
-                       "-minimized", "-norestore", "-nologo", "-nolockcheck",
-                       "-headless",
-                       "-accept=socket,host=localhost,port=" .
+                       "--minimized", "--norestore", "--nologo", "--nolockcheck",
+                       "--headless",
+                       "--accept=socket,host=localhost,port=" .
                        $::lx_office_conf{print_templates}->{openofficeorg_daemon_port} . ";urp;");
         exec(@cmdline);
       } else {
@@ -827,7 +827,7 @@ sub convert_to_pdf {
 
   if (!$::lx_office_conf{print_templates}->{openofficeorg_daemon}) {
     if (system($::lx_office_conf{applications}->{openofficeorg_writer},
-               "-minimized", "-norestore", "-nologo", "-nolockcheck", "-headless",
+               "--minimized", "--norestore", "--nologo", "--nolockcheck", "--headless",
                "file:${filename}.odt",
                "macro://" . (split('/', $filename))[-1] . "/Standard.Conversion.ConvertSelfToPDF()") == -1) {
       die "system call to $::lx_office_conf{applications}->{openofficeorg_writer} failed: $!";
