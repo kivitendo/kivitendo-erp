@@ -13,13 +13,13 @@ __PACKAGE__->meta->columns(
   doc_path      => { type => 'text', not_null => 1 },
   file_id       => { type => 'integer', not_null => 1 },
   file_location => { type => 'text', not_null => 1 },
-  guid          => { type => 'text' },
+  guid          => { type => 'text', not_null => 1 },
   itime         => { type => 'timestamp', default => 'now()', not_null => 1 },
   mtime         => { type => 'timestamp' },
   version       => { type => 'integer', not_null => 1 },
 );
 
-__PACKAGE__->meta->primary_key_columns([ 'file_id', 'version' ]);
+__PACKAGE__->meta->primary_key_columns([ 'guid' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
 
