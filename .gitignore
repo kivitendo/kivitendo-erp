@@ -23,7 +23,6 @@
 /users/templates-cache/
 /users/templates-cache-for-tests/
 /users/texmf/
-/users/xvfb_display
 /webdav/*
 crm
 pod2html*

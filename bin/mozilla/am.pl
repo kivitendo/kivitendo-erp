@@ -582,8 +582,7 @@ sub config {
 
   my @formats = ();
   if ($::lx_office_conf{print_templates}->{opendocument}
-      && $::lx_office_conf{applications}->{openofficeorg_writer} && (-x $::lx_office_conf{applications}->{openofficeorg_writer})
-      && $::lx_office_conf{applications}->{xvfb}                 && (-x $::lx_office_conf{applications}->{xvfb})) {
+      && $::lx_office_conf{applications}->{openofficeorg_writer} && (-x $::lx_office_conf{applications}->{openofficeorg_writer})) {
     push(@formats, { "name" => $locale->text("PDF (OpenDocument/OASIS)"),
                      "value" => "opendocument_pdf" });
   }

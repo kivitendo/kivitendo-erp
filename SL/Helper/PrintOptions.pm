@@ -101,9 +101,9 @@ sub get_print_options {
         if ($form->{media} ne 'email');
 
   push @FORMAT, grep $_,
-    ($::lx_office_conf{print_templates}->{opendocument} &&     $::lx_office_conf{applications}->{openofficeorg_writer}  &&     $::lx_office_conf{applications}->{xvfb}
-                                                        && (-x $::lx_office_conf{applications}->{openofficeorg_writer}) && (-x $::lx_office_conf{applications}->{xvfb})
-     && !$options->{no_opendocument_pdf}) ?
+    ($::lx_office_conf{print_templates}->{opendocument} &&     $::lx_office_conf{applications}->{openofficeorg_writer}
+                                                        && (-x $::lx_office_conf{applications}->{openofficeorg_writer})
+                                                        && !$options->{no_opendocument_pdf}) ?
       opthash("opendocument_pdf",    $form->{DF}{"opendocument_pdf"},  $locale->text("PDF (OpenDocument/OASIS)")) : undef,
     ($::lx_office_conf{print_templates}->{latex}) ?
       opthash("pdf",                 $form->{DF}{pdf},                 $locale->text('PDF')) : undef,

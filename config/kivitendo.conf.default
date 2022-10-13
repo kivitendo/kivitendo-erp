@@ -158,8 +158,6 @@ password =
 [applications]
 # Location of OpenOffice.org writer
 openofficeorg_writer = oowriter
-# Location of the X virtual frame buffer used for OpenOffice
-xvfb = Xvfb
 # Location of the html2ps binary
 html2ps = html2ps
 # Location of the Ghostscript binary
