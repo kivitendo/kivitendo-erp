@@ -1,4 +1,5 @@
-# This module consists of helper methods for generating Swiss QR-Code.
+# This module consists of helper methods for generating Swiss
+# billing QR-Code.
 package SL::Helper::QrBill;
 
 use strict;
@@ -289,7 +290,7 @@ __END__
 
 =head1 NAME
 
-SL::Helper::QrBill - Helper methods for generating Swiss QR-Code
+SL::Helper::QrBill - Helper methods for generating Swiss billing QR-Code
 
 =head1 SYNOPSIS
 
@@ -312,7 +313,7 @@ SL::Helper::QrBill - Helper methods for generating Swiss QR-Code
 
 =head1 DESCRIPTION
 
-This module generates the Swiss QR-Code with data provided to the constructor.
+This module generates the Swiss billing QR-Code with data provided to the constructor.
 
 =head1 METHODS
 
