@@ -41,7 +41,7 @@ sub _format_text {
 }
 
 my %html_replace = (
-  '</p>'      => "\n\n",
+  '</p>'      => "\\par\n",
   '<ul>'      => "\\begin{itemize} ",
   '</ul>'     => "\\end{itemize} ",
   '<ol>'      => "\\begin{enumerate} ",
