@@ -8,6 +8,8 @@ use Carp;
 use Cwd;
 use English qw(-no_match_vars);
 use File::Basename;
+use File::Path;
+use File::Spec;
 use File::Temp;
 use HTML::Entities ();
 use List::MoreUtils qw(any);
@@ -532,12 +534,25 @@ sub _texinputs_path {
   return join(':', grep({ $_ } ('.', $exe_dir . '/texmf', $exe_dir . '/users', $templates_path, $ENV{TEXINPUTS})), '');
 }
 
+sub _setup_env {
+  my ($self) = @_;
+
+  my $userspath    = $::lx_office_conf{paths}->{userspath};
+  $ENV{openin_any} = "r";
+  $ENV{TEXINPUTS}  = $self->_texinputs_path($self->{form}->{templates});
+  $ENV{TEXMFHOME}  = File::Spec->rel2abs($userspath . "/texmf", SL::System::Process::exe_dir());
+  $ENV{TEXMFVAR}   = $ENV{TEXMFHOME} . "/var";
+
+  File::Path::make_path($ENV{TEXMFVAR});
+}
+
 sub convert_to_postscript {
   my ($self) = @_;
   my ($form, $userspath) = ($self->{"form"}, $self->{"userspath"});
 
   # Convert the tex file to postscript
-  local $ENV{TEXINPUTS} = $self->_texinputs_path($form->{templates});
+  local ($ENV{TEXINPUTS}, $ENV{TEXMFHOME}, $ENV{TEXMFVAR}, $ENV{openin_any});
+  $self->_setup_env;
 
   if (!chdir("$userspath")) {
     $self->{"error"} = "chdir : $!";
@@ -548,10 +563,6 @@ sub convert_to_postscript {
   $form->{tmpfile} =~ s/\Q$userspath\E\///g;
 
   my $latex = $self->_get_latex_path();
-  my $old_home = $ENV{HOME};
-  my $old_openin_any = $ENV{openin_any};
-  $ENV{HOME}   = $userspath =~ m|^/| ? $userspath : getcwd();
-  $ENV{openin_any} = "r";
 
   for (my $run = 1; $run <= 2; $run++) {
     if (system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
@@ -559,8 +570,6 @@ sub convert_to_postscript {
       die "system call to $latex failed: $!";
     }
     if ($?) {
-      $ENV{HOME} = $old_home;
-      $ENV{openin_any} = $old_openin_any;
       $self->{"error"} = $form->cleanup($latex);
       return 0;
     }
@@ -571,8 +580,6 @@ sub convert_to_postscript {
   if (system("dvips $form->{tmpfile} -o -q > /dev/null") == -1) {
     die "system call to dvips failed: $!";
   }
-  $ENV{HOME} = $old_home;
-  $ENV{openin_any} = $old_openin_any;
 
   if ($?) {
     $self->{"error"} = "dvips : $?";
@@ -591,7 +598,8 @@ sub convert_to_pdf {
   my ($form, $userspath) = ($self->{"form"}, $self->{"userspath"});
 
   # Convert the tex file to PDF
-  local $ENV{TEXINPUTS} = $self->_texinputs_path($form->{templates});
+  local ($ENV{TEXINPUTS}, $ENV{TEXMFHOME}, $ENV{TEXMFVAR}, $ENV{openin_any});
+  $self->_setup_env;
 
   if (!chdir("$userspath")) {
     $self->{"error"} = "chdir : $!";
@@ -602,10 +610,6 @@ sub convert_to_pdf {
   $form->{tmpfile} =~ s/\Q$userspath\E\///g;
 
   my $latex = $self->_get_latex_path();
-  my $old_home = $ENV{HOME};
-  my $old_openin_any = $ENV{openin_any};
-  $ENV{HOME}   = $userspath =~ m|^/| ? $userspath : getcwd();
-  $ENV{openin_any} = "r";
 
   for (my $run = 1; $run <= 2; $run++) {
     if (system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
@@ -614,15 +618,11 @@ sub convert_to_pdf {
     }
 
     if ($?) {
-      $ENV{HOME}     = $old_home;
-      $ENV{openin_any} = $old_openin_any;
       $self->{error} = $form->cleanup($latex);
       return 0;
     }
   }
 
-  $ENV{HOME} = $old_home;
-  $ENV{openin_any} = $old_openin_any;
   $form->{tmpfile} =~ s/tex$/pdf/;
 
   $self->cleanup();
