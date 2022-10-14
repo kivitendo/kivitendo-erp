@@ -2410,7 +2410,7 @@ digits_year: 4</programlisting>
         <para>Wird gar kein Fehler angezeigt, sondern nur der Name des
         Templates, heißt das normalerweise, dass das LaTeX Binary nicht
         gefunden wurde. Prüfen Sie den Namen in der Konfiguration (Standard:
-        <literal>pdflatex</literal>), und stellen Sie sicher, dass pdflatex
+        <literal>latexmk -pdf</literal>), und stellen Sie sicher, dass latexmk
         (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
         darf.</para>
 
@@ -7467,7 +7467,7 @@ document_path = /var/local/kivi_documents
         export PATH=/usr/local/texlive/2020/bin/x86_64-linux:$PATH
         hash -r
 
-        exec pdflatex &quot;$@&quot;
+        exec latexmk -pdf &quot;$@&quot;
         ------------------------------------------------------------
 
         4. In config/kivitendo.conf den Parameter »latex« auf den Pfad zu »run_pdflatex.sh« setzen

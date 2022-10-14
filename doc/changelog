@@ -21,6 +21,15 @@ Kleinere neue Features und Detailverbesserungen:
    'subtract_month: n', 'subtract_days: n'. Die Einstellung im Job muss wie immer json
    kodiert passieren. Falls keine Parameter gesetzt sind, werden die Bücher am 10. des
    Monats rückwirkend am letzten Tag des Vorvormonats geschlossen.
+ - LaTeX-Druckvorlagen werden nun standardmäßig nicht mehr zwei mal
+   durch den LaTeX-Interpreter übersetzt. Statt dessen wird in der
+   Standardkonfiguration das Programm »latexmk -pdf« aufgerufen, das
+   selbständig feststellen kann, ob eine mehrfache Ausführung nötig
+   ist, z.B. um Referenzen richtig auflösen zu können. Bei
+   existierenden Installationen muss dafür in der Konfigurationsdatei
+   »config/kivitendo.conf« der Pfad in der Einstellung
+   »[applications]« → »latex« umgestellt werden, z.B. auf »latexmk
+   -pdf«.
 
 2022-09-19 - Release 3.7.0
 

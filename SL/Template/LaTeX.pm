@@ -564,15 +564,13 @@ sub convert_to_postscript {
 
   my $latex = $self->_get_latex_path();
 
-  for (my $run = 1; $run <= 2; $run++) {
-    if (system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
-               "> $form->{tmpfile}.err") == -1) {
-      die "system call to $latex failed: $!";
-    }
-    if ($?) {
-      $self->{"error"} = $form->cleanup($latex);
-      return 0;
-    }
+  if (system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
+             "> $form->{tmpfile}.err") == -1) {
+    die "system call to $latex failed: $!";
+  }
+  if ($?) {
+    $self->{"error"} = $form->cleanup($latex);
+    return 0;
   }
 
   $form->{tmpfile} =~ s/tex$/dvi/;
@@ -611,16 +609,14 @@ sub convert_to_pdf {
 
   my $latex = $self->_get_latex_path();
 
-  for (my $run = 1; $run <= 2; $run++) {
-    if (system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
-               "> $form->{tmpfile}.err") == -1) {
-      die "system call to $latex failed: $!";
-    }
+  if (system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
+             "> $form->{tmpfile}.err") == -1) {
+    die "system call to $latex failed: $!";
+  }
 
-    if ($?) {
-      $self->{error} = $form->cleanup($latex);
-      return 0;
-    }
+  if ($?) {
+    $self->{error} = $form->cleanup($latex);
+    return 0;
   }
 
   $form->{tmpfile} =~ s/tex$/pdf/;
@@ -631,7 +627,7 @@ sub convert_to_pdf {
 }
 
 sub _get_latex_path {
-  return $::lx_office_conf{applications}->{latex} || 'pdflatex';
+  return $::lx_office_conf{applications}->{latex} || 'latexmk -pdf';
 }
 
 sub get_mime_type() {
