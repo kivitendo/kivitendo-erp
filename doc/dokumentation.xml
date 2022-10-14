@@ -2410,9 +2410,9 @@ digits_year: 4</programlisting>
         <para>Wird gar kein Fehler angezeigt, sondern nur der Name des
         Templates, heißt das normalerweise, dass das LaTeX Binary nicht
         gefunden wurde. Prüfen Sie den Namen in der Konfiguration (Standard:
-        <literal>latexmk -pdf</literal>), und stellen Sie sicher, dass latexmk
-        (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
-        darf.</para>
+        <literal>latexmk --pdflatex</literal>), und stellen Sie sicher, dass
+        latexmk (oder das von Ihnen verwendete System) vom Webserver ausgeführt
+        werden darf.</para>
 
         <para>Wenn sich das Problem nicht auf Grund der Ausgabe im Webbrowser
         verifizieren lässt:</para>
@@ -2836,7 +2836,7 @@ digits_year: 4</programlisting>
             role="bold">Ja</emphasis> gestellt werden.</para>
 
             <para>Die IBAN muss ohne Leerzeichen angegeben werden.</para>
-            
+
             <tip>
               <para>Für die Variante <emphasis role="bold">QR-IBAN mit
               QR-Referenz</emphasis> muss dieses Konto unter IBAN eine gültige
@@ -7467,7 +7467,7 @@ document_path = /var/local/kivi_documents
         export PATH=/usr/local/texlive/2020/bin/x86_64-linux:$PATH
         hash -r
 
-        exec latexmk -pdf &quot;$@&quot;
+        exec latexmk --pdflatex &quot;$@&quot;
         ------------------------------------------------------------
 
         4. In config/kivitendo.conf den Parameter »latex« auf den Pfad zu »run_pdflatex.sh« setzen

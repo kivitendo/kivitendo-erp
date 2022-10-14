@@ -23,13 +23,13 @@ Kleinere neue Features und Detailverbesserungen:
    Monats rückwirkend am letzten Tag des Vorvormonats geschlossen.
  - LaTeX-Druckvorlagen werden nun standardmäßig nicht mehr zwei mal
    durch den LaTeX-Interpreter übersetzt. Statt dessen wird in der
-   Standardkonfiguration das Programm »latexmk -pdf« aufgerufen, das
-   selbständig feststellen kann, ob eine mehrfache Ausführung nötig
-   ist, z.B. um Referenzen richtig auflösen zu können. Bei
+   Standardkonfiguration das Programm »latexmk --pdflatex« aufgerufen,
+   das selbständig feststellen kann, ob eine mehrfache Ausführung
+   nötig ist, z.B. um Referenzen richtig auflösen zu können. Bei
    existierenden Installationen muss dafür in der Konfigurationsdatei
    »config/kivitendo.conf« der Pfad in der Einstellung
    »[applications]« → »latex« umgestellt werden, z.B. auf »latexmk
-   -pdf«.
+   --pdflatex«.
 
 2022-09-19 - Release 3.7.0
 

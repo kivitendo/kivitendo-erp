@@ -165,7 +165,7 @@ html2ps = html2ps
 # Location of the Ghostscript binary
 ghostscript = gs
 # Location of the program to create PDFs from TeX documents
-latex = latexmk -pdf
+latex = latexmk --pdflatex
 # Location of the Python interpreter to use when converting from
 # OpenDocument to PDF. Some distributions compile UNO support only
 # into binaries located in different locations than the main Python

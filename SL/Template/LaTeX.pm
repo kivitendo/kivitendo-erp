@@ -627,7 +627,7 @@ sub convert_to_pdf {
 }
 
 sub _get_latex_path {
-  return $::lx_office_conf{applications}->{latex} || 'latexmk -pdf';
+  return $::lx_office_conf{applications}->{latex} || 'latexmk --pdflatex';
 }
 
 sub get_mime_type() {
