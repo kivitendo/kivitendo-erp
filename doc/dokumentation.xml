@@ -5353,7 +5353,7 @@ digits_year: 4</programlisting>
         <sect3>
           <title>Variablen für die schweizer QR-Rechnung</title>
 
-          <para>Diese variablen können mit dem LaTeX Modul qrbill verwendet
+          <para>Diese Variablen können mit dem LaTeX Modul qrbill verwendet
           werden: <ulink
           url="https://ctan.org/pkg/qrbill?lang=de">https://ctan.org/pkg/qrbill?lang=de</ulink></para>
 
