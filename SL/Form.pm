@@ -1474,7 +1474,7 @@ sub update_exchangerate {
   }
 
   if ($sth->fetchrow_array) {
-    die "this never happens never";
+    # die "this never happens never"; # except for credit or debit bookings
     $query = qq|UPDATE exchangerate
                 SET $set
                 WHERE currency_id = (SELECT id FROM currencies WHERE name = ?)

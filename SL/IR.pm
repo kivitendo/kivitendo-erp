@@ -91,7 +91,7 @@ sub _post_invoice {
 
   my $all_units = AM->retrieve_units($myconfig, $form);
 
-#markierung
+  #markierung
   if (!$payments_only) {
     if ($form->{id}) {
       &reverse_invoice($dbh, $form);
@@ -691,7 +691,7 @@ SQL
 
     $paiddiff = 0;
 
-    # update exchange rate
+    # update exchange rate for PAYMENTS
     $form->update_exchangerate($dbh, $form->{currency}, $form->{"datepaid_$i"}, 0, $form->{"exchangerate_$i"})
       if ($form->{currency} ne $defaultcurrency) && !$exchangerate;
   }

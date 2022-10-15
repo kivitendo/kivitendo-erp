@@ -39,6 +39,8 @@ use List::Util qw(max sum0);
 use List::MoreUtils qw(any);
 
 use Carp;
+use Data::Dumper;
+
 use SL::AM;
 use SL::ARAP;
 use SL::CVar;
@@ -63,7 +65,6 @@ use SL::DB;
 use SL::Presenter::Part qw(type_abbreviation classification_abbreviation);
 use SL::Helper::QrBillFunctions qw(get_qrbill_account assemble_ref_number);
 use SL::Helper::ISO3166;
-use Data::Dumper;
 
 use strict;
 use constant PCLASS_OK             =>   0;
@@ -1434,7 +1435,8 @@ SQL
 
       $diff = 0;
 
-      # update exchange rate
+      # update exchange rate for PAYMENTS
+      # exchangerate contains a new exchangerate of the payment date
       if (($form->{currency} ne $defaultcurrency) && !$exchangerate) {
         $form->update_exchangerate($dbh, $form->{currency},
                                    $form->{"datepaid_$i"},
