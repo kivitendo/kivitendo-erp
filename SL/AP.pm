@@ -72,6 +72,29 @@ sub _post_transaction {
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
   $form->{taxincluded} = 0 unless $form->{taxincluded};
 
+  # make sure to have a id
+  my ($query, $sth, @values);
+  if (!$payments_only) {
+    # if we have an id delete old records
+    if ($form->{id}) {
+
+      # delete detail records
+      $query = qq|DELETE FROM acc_trans WHERE trans_id = ?|;
+      do_query($form, $dbh, $query, $form->{id});
+
+    } else {
+
+      ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
+
+      $query =
+        qq|INSERT INTO ap (id, invnumber, employee_id,currency_id, taxzone_id) | .
+        qq|VALUES (?, ?, (SELECT e.id FROM employee e WHERE e.login = ?),
+                      (SELECT id FROM currencies WHERE name = ?), (SELECT taxzone_id FROM vendor WHERE id = ?) )|;
+      do_query($form, $dbh, $query, $form->{id}, $form->{invnumber}, $::myconfig{login}, $form->{currency}, $form->{vendor_id});
+
+    }
+  }
+  # check default or record exchangerate
   if ($form->{currency} eq $form->{defaultcurrency}) {
     $form->{exchangerate} = 1;
   } else {
@@ -91,7 +114,6 @@ sub _post_transaction {
                                  0, $form->{exchangerate}, $form->{id}, 'ap');
     }
   }
-
   # get the charts selected
   $form->{AP_amounts}{"amount_$_"} = $form->{"AP_amount_chart_id_$_"} for (1 .. $form->{rowcount});
 
@@ -124,25 +146,6 @@ sub _post_transaction {
   $form->{payables} = $form->{invtotal};
 
   if (!$payments_only) {
-    # if we have an id delete old records
-    if ($form->{id}) {
-
-      # delete detail records
-      $query = qq|DELETE FROM acc_trans WHERE trans_id = ?|;
-      do_query($form, $dbh, $query, $form->{id});
-
-    } else {
-
-      ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
-
-      $query =
-        qq|INSERT INTO ap (id, invnumber, employee_id,currency_id, taxzone_id) | .
-        qq|VALUES (?, ?, (SELECT e.id FROM employee e WHERE e.login = ?),
-                      (SELECT id FROM currencies WHERE name = ?), (SELECT taxzone_id FROM vendor WHERE id = ?) )|;
-      do_query($form, $dbh, $query, $form->{id}, $form->{invnumber}, $::myconfig{login}, $form->{currency}, $form->{vendor_id});
-
-    }
-
     $query = qq|UPDATE ap SET invnumber = ?,
                 transdate = ?, ordnumber = ?, vendor_id = ?, taxincluded = ?,
                 amount = ?, duedate = ?, deliverydate = ?, tax_point = ?, paid = ?, netamount = ?,
