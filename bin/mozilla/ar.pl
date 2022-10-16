@@ -385,9 +385,11 @@ sub form_header {
                       ? ($form->current_date(\%myconfig) eq $form->{gldate})
                       : ($::instance_conf->get_ar_changeable == 1);
   $readonly = ($form->{radier}) ? "" : $readonly;
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+  if ($form->{currency} ne $form->{defaultcurrency}) {
+    ($form->{exchangerate}, $form->{record_forex}) = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, "buy", $form->{id}, 'ar');
+  }
 
-  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'buy');
-  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $rows = max 2, $form->numtextrows($form->{notes}, 50);
 

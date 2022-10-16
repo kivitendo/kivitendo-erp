@@ -858,9 +858,9 @@ sub update {
   if (!$form->{forex}) {        # read exchangerate from input field (not hidden)
     $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate}) unless $recursive_call;
   }
-  $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
+  ($form->{forex}, $form->{record_forex}) = $form->check_exchangerate(\%myconfig, $form->{currency},
+                                                                      $form->{invdate}, 'buy', $form->{id}, 'ar');
   $form->{exchangerate} = $form->{forex} if $form->{forex};
-
   for my $i (1 .. $form->{paidaccounts}) {
     next unless $form->{"paid_$i"};
     map { $form->{"${_}_$i"}   = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(paid exchangerate);

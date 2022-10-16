@@ -1013,7 +1013,7 @@ sub retrieve_invoice {
   $form->{mtime} = $form->{itime} if !$form->{mtime};
   $form->{lastmtime} = $form->{mtime};
 
-  $form->{exchangerate}  = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, "sell");
+  ($form->{exchangerate}, $form->{record_forex}) = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, "sell", conv_i($form->{id}), 'ap');
 
   # get shipto
   $query = qq|SELECT * FROM shipto WHERE (trans_id = ?) AND (module = 'AP')|;

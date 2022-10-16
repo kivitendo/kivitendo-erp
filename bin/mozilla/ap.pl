@@ -353,9 +353,6 @@ sub create_links {
   # build the popup menus
   $form->{taxincluded} = ($form->{id}) ? $form->{taxincluded} : "checked";
 
-  # currencies
-  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
-
   $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
@@ -413,13 +410,13 @@ sub form_header {
 
   $form->{readonly} = $readonly;
 
-  $form->{forex} = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'sell');
-  if ( $form->{forex} ) {
-    $form->{exchangerate} = $form->{forex};
+  # currencies
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+  if ($form->{currency} ne $form->{defaultcurrency}) {
+    ($form->{exchangerate}, $form->{record_forex}) = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, "sell", $form->{id}, 'ap');
   }
 
   # format amounts
-  $form->{exchangerate}    = $form->{exchangerate} ? $form->format_amount(\%myconfig, $form->{exchangerate}) : '';
   $form->{creditlimit}     = $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
   $form->{creditremaining} = $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
 
@@ -697,9 +694,6 @@ sub update {
   $form->redo_rows(\@flds, \@a, $count, $form->{rowcount});
 
   map { $form->{invtotal} += $form->{"amount_$_"} } (1 .. $form->{rowcount});
-
-  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'sell');
-  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $form->{invdate} = $form->{transdate};
 

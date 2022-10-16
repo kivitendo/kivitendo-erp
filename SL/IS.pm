@@ -2308,7 +2308,7 @@ sub _retrieve_invoice {
     $form->{mtime} = $form->{itime} if !$form->{mtime};
     $form->{lastmtime} = $form->{mtime};
 
-    $form->{exchangerate} = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, "buy");
+    ($form->{exchangerate}, $form->{record_forex}) = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, "buy", $id, 'ar');
 
     foreach my $vc (qw(customer vendor)) {
       next if !$form->{"delivery_${vc}_id"};
