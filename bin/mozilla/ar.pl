@@ -379,12 +379,6 @@ sub form_header {
   # $locale->text('Edit Accounts Receivables Transaction')
   $form->{title} = $locale->text("$title Accounts Receivables Transaction");
 
-  $readonly = ($form->{id}) ? "readonly" : "";
-
-  $form->{radier} = ($::instance_conf->get_ar_changeable == 2)
-                      ? ($form->current_date(\%myconfig) eq $form->{gldate})
-                      : ($::instance_conf->get_ar_changeable == 1);
-  $readonly = ($form->{radier}) ? "" : $readonly;
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   if ($form->{currency} ne $form->{defaultcurrency}) {
     ($form->{exchangerate}, $form->{record_forex}) = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, "buy", $form->{id}, 'ar');
@@ -1384,6 +1378,15 @@ sub setup_ar_form_header_action_bar {
 
     $is_linked_bank_transaction = 1;
   }
+  # add readonly state in $::form
+  $::form->{readonly} = !$may_edit_create                           ? 1
+                      : $is_closed                                  ? 1
+                      : $is_storno                                  ? 1
+                      : $has_storno                                 ? 1
+                      : ($::form->{id} && $change_never)            ? 1
+                      : ($::form->{id} && $change_on_same_day_only) ? 1
+                      : $is_linked_bank_transaction                 ? 1
+                      : 0;
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [

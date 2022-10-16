@@ -401,15 +401,6 @@ sub form_header {
   # type=submit $locale->text('Add Accounts Payables Transaction')
   # type=submit $locale->text('Edit Accounts Payables Transaction')
 
-  my $readonly = $form->{id} ? "readonly" : "";
-
-  $form->{radier} = ($::instance_conf->get_ap_changeable == 2)
-                      ? ($form->current_date(\%myconfig) eq $form->{gldate})
-                      : ($::instance_conf->get_ap_changeable == 1);
-  $readonly       = $form->{radier} ? "" : $readonly;
-
-  $form->{readonly} = $readonly;
-
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   if ($form->{currency} ne $form->{defaultcurrency}) {
@@ -1407,6 +1398,16 @@ sub setup_ap_display_form_action_bar {
   if ($::form->{id} && SL::DB::Manager::ApGl->find_by(ap_id => $::form->{id})) {
     $is_linked_gl_transaction = 1;
   }
+  # add readonly state in $::form
+  $::form->{readonly} = !$may_edit_create                           ? 1
+                      : $is_closed                                  ? 1
+                      : $is_storno                                  ? 1
+                      : $has_storno                                 ? 1
+                      : ($::form->{id} && $change_never)            ? 1
+                      : ($::form->{id} && $change_on_same_day_only) ? 1
+                      : $is_linked_bank_transaction                 ? 1
+                      : $has_sepa_exports                           ? 1
+                      : 0;
 
   my $create_post_action = sub {
     # $_[0]: description

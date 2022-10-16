@@ -350,6 +350,14 @@ sub setup_is_action_bar {
     my $lr          = $invoice_obj->linked_records(direction => 'from', from => ['Order']);
     $is_invoice_for_advance_payment_from_order = scalar @$lr >= 1;
   }
+  # add readonly state in tmpl_vars
+  $tmpl_var->{readonly} = !$may_edit_create                     ? 1
+                    : $form->{locked}                           ? 1
+                    : $form->{storno}                           ? 1
+                    : ($form->{id} && $change_never)            ? 1
+                    : ($form->{id} && $change_on_same_day_only) ? 1
+                    : $is_linked_bank_transaction               ? 1
+                    : 0;
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(

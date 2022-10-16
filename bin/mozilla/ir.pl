@@ -247,6 +247,7 @@ sub prepare_invoice {
 }
 
 sub setup_ir_action_bar {
+  my ($tmpl_var)              = @_;
   my $form                    = $::form;
   my $change_never            = $::instance_conf->get_ir_changeable == 0;
   my $change_on_same_day_only = $::instance_conf->get_ir_changeable == 2 && ($form->current_date(\%::myconfig) ne $form->{gldate});
@@ -269,6 +270,15 @@ sub setup_ir_action_bar {
 
     $is_linked_bank_transaction = 1;
   }
+  # add readonly state in tmpl_vars
+  $tmpl_var->{readonly} = !$may_edit_create                     ? 1
+                    : $form->{locked}                           ? 1
+                    : $form->{storno}                           ? 1
+                    : ($form->{id} && $change_never)            ? 1
+                    : ($form->{id} && $change_on_same_day_only) ? 1
+                    : $is_linked_bank_transaction               ? 1
+                    : $has_sepa_exports                         ? 1
+                    : 0;
 
   my $create_post_action = sub {
     # $_[0]: description
@@ -283,6 +293,7 @@ sub setup_ir_action_bar {
                 : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
                 : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
                 : ($form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                : $has_sepa_exports                         ? t8('This invoice has been linked with a sepa export, undo this first.')
                 : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                 :                                             undef,
     ],
@@ -498,7 +509,7 @@ sub form_header {
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File kivi.SalesPurchase kivi.Part kivi.CustomerVendor kivi.Validator ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_project client_js));
 
-  setup_ir_action_bar();
+  setup_ir_action_bar(\%TMPL_VAR);
 
   $form->header();
 
