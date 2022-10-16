@@ -76,7 +76,20 @@ sub _post_transaction {
     $form->{exchangerate} = 1;
   } else {
     $exchangerate         = $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'sell');
-    $form->{exchangerate} = $exchangerate || $form->parse_amount($myconfig, $form->{exchangerate});
+    $form->{exchangerate} = $form->parse_amount($myconfig, $form->{exchangerate}, 5);
+
+    # if default exchangerate is not defined, define one
+    unless ($exchangerate) {
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate}, 0,  $form->{exchangerate});
+      # delete records exchangerate -> if user sets new invdate for record
+      $query = qq|UPDATE ap set exchangerate = NULL where id = ?|;
+      do_query($form, $dbh, $query, $form->{"id"});
+    }
+    # update record exchangerate, if the default is set and differs from current
+    if ($exchangerate && ($form->{exchangerate} != $exchangerate)) {
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate},
+                                 0, $form->{exchangerate}, $form->{id}, 'ap');
+    }
   }
 
   # get the charts selected
@@ -109,14 +122,6 @@ sub _post_transaction {
 
   # amount for total AP
   $form->{payables} = $form->{invtotal};
-
-  # update exchangerate
-  if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
-    $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate}, 0,
-                               $form->{exchangerate});
-  }
-
-  my ($query, $sth, @values);
 
   if (!$payments_only) {
     # if we have an id delete old records

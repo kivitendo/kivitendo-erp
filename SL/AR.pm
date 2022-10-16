@@ -70,12 +70,28 @@ sub _post_transaction {
   my @values;
 
   my $dbh = $provided_dbh || SL::DB->client->dbh;
-  $form->{defaultcurrency} = $form->get_default_currency($myconfig);
 
-  # set exchangerate
-  $form->{exchangerate} = ($form->{currency} eq $form->{defaultcurrency}) ? 1 :
-      ( $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'buy') ||
-        $form->parse_amount($myconfig, $form->{exchangerate}) );
+  $form->{defaultcurrency} = $form->get_default_currency($myconfig);
+  # check default or record exchangerate
+  if ($form->{currency} eq $form->{defaultcurrency}) {
+    $form->{exchangerate} = 1;
+  } else {
+    $exchangerate         = $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'buy');
+    $form->{exchangerate} = $form->parse_amount($myconfig, $form->{exchangerate}, 5);
+
+    # if default exchangerate is not defined, define one
+    unless ($exchangerate) {
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate}, $form->{exchangerate}, 0);
+      # delete records exchangerate -> if user sets new invdate for record
+      $query = qq|UPDATE ar set exchangerate = NULL where id = ?|;
+      do_query($form, $dbh, $query, $form->{"id"});
+    }
+    # update record exchangerate, if the default is set and differs from current
+    if ($exchangerate && ($form->{exchangerate} != $exchangerate)) {
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate},
+                                 $form->{exchangerate}, 0,  $form->{id}, 'ar');
+    }
+  }
 
   # get the charts selected
   $form->{AR_amounts}{"amount_$_"} = $form->{"AR_amount_chart_id_$_"} for (1 .. $form->{rowcount});
@@ -104,31 +120,10 @@ sub _post_transaction {
 
   $form->get_employee($dbh) unless $form->{employee_id};
 
-  # if we have an id delete old records else make one
-  if (!$payments_only) {
-    if ($form->{id}) {
-      # delete detail records
-      $query = qq|DELETE FROM acc_trans WHERE trans_id = ?|;
-      do_query($form, $dbh, $query, $form->{id});
 
-    } else {
-      $query = qq|SELECT nextval('glid')|;
-      ($form->{id}) = selectrow_query($form, $dbh, $query);
-      $query = qq|INSERT INTO ar (id, invnumber, employee_id, currency_id, taxzone_id) VALUES (?, 'dummy', ?, (SELECT id FROM currencies WHERE name=?), (SELECT taxzone_id FROM customer WHERE id = ?))|;
-      do_query($form, $dbh, $query, $form->{id}, $form->{employee_id}, $form->{currency}, $form->{customer_id});
-      if (!$form->{invnumber}) {
-        my $trans_number   = SL::TransNumber->new(type => 'invoice', dbh => $dbh, number => $form->{partnumber}, id => $form->{id});
-        $form->{invnumber} = $trans_number->create_unique;
-      }
-    }
-  }
 
   # amount for AR account
   $form->{receivables} = $form->round_amount($form->{amount}, 2) * -1;
-
-  # update exchangerate
-  $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate}, $form->{exchangerate}, 0)
-    if ($form->{currency} ne $form->{defaultcurrency}) && !$form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'buy');
 
   if (!$payments_only) {
     $query =

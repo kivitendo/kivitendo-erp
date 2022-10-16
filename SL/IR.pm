@@ -100,16 +100,25 @@ sub _post_invoice {
       do_query($form, $dbh, qq|INSERT INTO ap (id, invnumber, currency_id, taxzone_id) VALUES (?, '', (SELECT id FROM currencies WHERE name=?), ?)|, $form->{id}, $form->{currency}, $form->{taxzone_id});
     }
   }
-
   if ($form->{currency} eq $defaultcurrency) {
     $form->{exchangerate} = 1;
   } else {
-    $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, 'sell');
+    $exchangerate         = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, 'sell');
+    $form->{exchangerate} = $form->parse_amount($myconfig, $form->{exchangerate}, 5);
+
+    # if default exchangerate is not defined, define one
+    unless ($exchangerate) {
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate}, 0,  $form->{exchangerate});
+      # delete records exchangerate -> if user sets new invdate for record
+      $query = qq|UPDATE ap set exchangerate = NULL where id = ?|;
+      do_query($form, $dbh, $query, $form->{"id"});
+    }
+    # update record exchangerate, if the default is set and differs from current
+    if ($exchangerate && ($form->{exchangerate} != $exchangerate)) {
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate},
+                                 0, $form->{exchangerate}, $form->{id}, 'ap');
+    }
   }
-
-  $form->{exchangerate} = $exchangerate || $form->parse_amount($myconfig, $form->{exchangerate});
-  $form->{exchangerate} = 1 unless ($form->{exchangerate} * 1);
-
   my %item_units;
   my $q_item_unit = qq|SELECT unit FROM parts WHERE id = ?|;
   my $h_item_unit = prepare_query($form, $dbh, $q_item_unit);
@@ -543,12 +552,7 @@ SQL
 
   $form->{paid} = $form->round_amount($form->{paid} * $form->{exchangerate} + $paiddiff, 2) if $form->{paid} != 0;
 
-# update exchangerate
-
-  $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate}, 0, $form->{exchangerate})
-    if ($form->{currency} ne $defaultcurrency) && !$exchangerate;
-
-# record acc_trans transactions
+  # record acc_trans transactions
   my $taxdate = $form->{tax_point} || $form->{deliverydate} || $form->{invdate};
   foreach my $trans_id (keys %{ $form->{amount} }) {
     foreach my $accno (keys %{ $form->{amount}{$trans_id} }) {

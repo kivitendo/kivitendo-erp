@@ -813,13 +813,22 @@ sub _post_invoice {
   if ($form->{currency} eq $defaultcurrency) {
     $form->{exchangerate} = 1;
   } else {
-    $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, 'buy');
-  }
+    $exchangerate         = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, 'buy');
+    $form->{exchangerate} = $form->parse_amount($myconfig, $form->{exchangerate}, 5);
 
-  $form->{exchangerate} =
-    ($exchangerate)
-    ? $exchangerate
-    : $form->parse_amount($myconfig, $form->{exchangerate});
+    # if default exchangerate is not defined, define one
+    unless ($exchangerate) {
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate}, $form->{exchangerate}, 0);
+      # delete records exchangerate -> if user sets new invdate for record
+      $query = qq|UPDATE ar set exchangerate = NULL where id = ?|;
+      do_query($form, $dbh, $query, $form->{"id"});
+    }
+    # update record exchangerate, if the default is set and differs from current
+    if ($exchangerate && ($form->{exchangerate} != $exchangerate)) {
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate},
+                                 $form->{exchangerate}, 0, $form->{id}, 'ar');
+    }
+  }
 
   $form->{expense_inventory} = "";
 
@@ -1100,12 +1109,6 @@ SQL
 
   # reverse AR
   $form->{amount}{ $form->{id} }{ $form->{AR} } *= -1;
-
-  # update exchangerate
-  if (($form->{currency} ne $defaultcurrency) && !$exchangerate) {
-    $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate},
-                               $form->{exchangerate}, 0);
-  }
 
   $project_id = conv_i($form->{"globalproject_id"});
   # entsprechend auch beim Bestimmen des Steuerschlüssels in Taxkey.pm berücksichtigen
