@@ -482,6 +482,11 @@ Maximum of 140 characters, unstructured message.
 Generates the QR-Code image. Accepts filename of image as argument.
 Defaults to C<out.png>.
 
+=head1 TESTS
+
+Tests may be invoked by executing C<t/test.pl t/helper/qrbill.t>
+within the root directory of the repository.
+
 =head1 AUTHOR
 
 Steven Schubiger E<lt>stsc@refcnt.orgE<gt>
