@@ -825,9 +825,10 @@ sub storno {
   $form->{invnumber} = "Storno zu " . $form->{invnumber};
   $form->{rowcount}++;
   $form->{employee_id} = $employee_id;
-
   $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
 
+  # post expects the field as user input
+  $form->{exchangerate} = $form->format_amount(\%myconfig, $form->{exchangerate});
   post();
   $main::lxdebug->leave_sub();
 
@@ -850,6 +851,7 @@ sub use_as_new {
 
   $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
+  $form->{exchangerate} = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'sell');
   $form->{useasnew} = 1;
   &display_form;
 
