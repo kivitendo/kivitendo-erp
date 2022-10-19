@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount check_ valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction forex _skonto_charts_and_tax_correction);
+our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction forex _skonto_charts_and_tax_correction get_exchangerate_for_bank_transaction get_exchangerate _add_bank_fx_fees);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -29,7 +29,7 @@ use SL::Locale::String qw(t8);
 
 sub pay_invoice {
   my ($self, %params) = @_;
-
+  # todo named params
   require SL::DB::Tax;
 
   my $is_sales = ref($self) eq 'SL::DB::Invoice';
@@ -463,6 +463,76 @@ sub amount_less_skonto {
   return _round($self->amount - ( $self->amount * $percent_skonto) );
 
 }
+sub _add_bank_fx_fees {
+  my ($self, %params)   = @_;
+  my $amount = $params{fee};
+
+  croak "no amount passed for bank fx fees"   unless abs(_round($amount)) >= 0.01;
+  croak "no banktransaction.id passed"        unless $params{bt_id};
+  croak "no bank chart id passed"             unless $params{bank_chart_id};
+  croak "no banktransaction.transdate passed" unless ref $params{transdate_obj} eq 'DateTime';
+
+  $params{memo}   //= '';
+  $params{source} //= '';
+
+  my ($credit, $debit);
+  $credit = SL::DB::Chart->load_cached($params{bank_chart_id});
+  $debit  = SL::DB::Manager::Chart->find_by(description => 'Nebenkosten des Geldverkehrs');
+  croak("No such Chart ID")  unless ref $credit eq 'SL::DB::Chart' && ref $debit eq 'SL::DB::Chart';
+  my $notes = SL::HTML::Util->strip($self->notes);
+
+  my $current_transaction = SL::DB::GLTransaction->new(
+         employee_id    => $self->employee_id,
+         transdate      => $params{transdate_obj},
+         notes          => $params{source} . ' ' . $params{memo},
+         description    => $notes || $self->invnumber,
+         reference      => t8('Automatic Foreign Exchange Bank Fees') . " "  . $self->invnumber,
+         department_id  => $self->department_id ? $self->department_id : undef,
+         imported       => 0, # not imported
+         taxincluded    => 0,
+    )->add_chart_booking(
+         chart  => $debit,
+         debit  => abs($amount),
+         source => t8('Automatic Foreign Exchange Bank Fees') . " "  . $self->invnumber,
+         memo   => $params{memo},
+         tax_id => 0,
+    )->add_chart_booking(
+         chart  => $credit,
+         credit => abs($amount),
+         source => t8('Automatic Foreign Exchange Bank Fees') . " "  . $self->invnumber,
+         memo   => $params{memo},
+         tax_id => 0,
+    )->post;
+
+    # add a stable link acc_trans_id to bank_transactions.id
+    foreach my $transaction (@{ $current_transaction->transactions }) {
+      my %props_acc = (
+           acc_trans_id        => $transaction->acc_trans_id,
+           bank_transaction_id => $params{bt_id},
+           gl                  => $current_transaction->id,
+      );
+      SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
+    }
+    # Record a record link from banktransactions to gl
+    my %props_rl = (
+         from_table => 'bank_transactions',
+         from_id    => $params{bt_id},
+         to_table   => 'gl',
+         to_id      => $current_transaction->id,
+    );
+    SL::DB::RecordLink->new(%props_rl)->save;
+    # Record a record link from ap to gl
+    # linked gl booking will appear in tab linked records
+    # this is just a link for convenience
+    %props_rl = (
+         #from_table => $is_sales ? 'ar' : 'ap',
+         from_table => 'ap',
+         from_id    => $self->id,
+         to_table   => 'gl',
+         to_id      => $current_transaction->id,
+    );
+    SL::DB::RecordLink->new(%props_rl)->save;
+}
 
 sub _skonto_charts_and_tax_correction {
   my ($self, %params)   = @_;
@@ -646,12 +716,17 @@ sub get_payment_select_options_for_bank_transaction {
   return @options;
 }
 
-sub exchangerate {
+sub get_exchangerate {
   my ($self) = @_;
 
   return 1 if $self->currency_id == $::instance_conf->get_currency_id;
 
+  # return record exchange rate if set
+  return $self->exchangerate if $self->exchangerate > 0;
+
+  # none defined check daily exchangerate at records transdate
   die "transdate isn't a DateTime object:" . ref($self->transdate) unless ref($self->transdate) eq 'DateTime';
+
   my $rate = SL::DB::Manager::Exchangerate->find_by(currency_id => $self->currency_id,
                                                     transdate   => $self->transdate,
                                                    );
@@ -678,6 +753,30 @@ sub validate_payment_type {
 sub forex {
   my ($self) = @_;
   $self->currency_id == $::instance_conf->get_currency_id ? return 0 : return 1;
+}
+
+sub get_exchangerate_for_bank_transaction {
+  validate_pos(
+    @_,
+      {  can       => [ qw(forex is_sales) ],
+         callbacks => { 'has forex'      => sub { return $_[0]->forex } } },
+      {  callbacks => {
+           'is an integer'               => sub { return $_[0] =~ /^[1-9][0-9]*$/                                              },
+           'is a valid bank transaction' => sub { ref SL::DB::BankTransaction->load_cached($_[0]) eq 'SL::DB::BankTransaction' },
+           'has a valid valuta date'     => sub { ref SL::DB::BankTransaction->load_cached($_[0])->valutadate eq 'DateTime'    },
+         },
+      }
+  );
+
+  my ($self, $bt_id) = @_;
+
+  my $bt   = SL::DB::BankTransaction->load_cached($bt_id);
+  my $rate = SL::DB::Manager::Exchangerate->find_by(currency_id => $self->currency_id,
+                                                    transdate   => $bt->valutadate,
+                                                   );
+  return undef unless $rate;
+
+  return $self->is_sales ? $rate->buy : $rate->sell; # also undef if not defined
 }
 
 sub _round {
