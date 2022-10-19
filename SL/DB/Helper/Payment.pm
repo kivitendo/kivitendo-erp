@@ -90,32 +90,43 @@ sub pay_invoice {
     croak t8('Cannot post transaction above the maximum future booking date!') if $transdate_obj > DateTime->now->add( days => $::instance_conf->get_max_future_booking_interval );
   };
 
-  # currency is either passed or use the invoice currency if it differs from the default currency
-  # TODO remove
-  my ($exchangerate, $currency, $return_bank_amount);
-  $return_bank_amount = 0;
-  if ($params{currency} || $params{currency_id}) {
-    if ($params{currency} || $params{currency_id} ) { # currency was specified
-      $currency = SL::DB::Manager::Currency->find_by(name => $params{currency}) || SL::DB::Manager::Currency->find_by(id => $params{currency_id});
-    } else { # use invoice currency
-      $currency = SL::DB::Manager::Currency->find_by(id => $self->currency_id);
-    };
-    die "no currency" unless $currency;
-    if ($currency->id == $::instance_conf->get_currency_id) {
-      $exchangerate = 1;
-    } else {
-      my $rate = SL::DB::Manager::Exchangerate->find_by(currency_id => $currency->id,
-                                                        transdate   => $transdate_obj,
-                                                       );
-      if ($rate) {
-        $exchangerate = $is_sales ? $rate->buy : $rate->sell;
-      } else {
-        die "No exchange rate for " . $transdate_obj->to_kivitendo;
-      };
-    };
-  } else { # no currency param given or currency is the same as default_currency
+  # currency has to be passed and caller has to be sure to assign it for a forex invoice
+  # dies if called for a invoice with the default currency (TODO: Params::Validate before)
+  my ($exchangerate, $currency, $fx_gain_loss_amount, $return_bank_amount);
+  if ($params{currency} || $params{currency_id} && $self->forex) { # currency was specified
+    $currency = SL::DB::Manager::Currency->find_by(name => $params{currency}) || SL::DB::Manager::Currency->find_by(id => $params{currency_id});
+    # set exchangerate - no fallback
+    # die "No exchange rate" unless $params{exchangerate} > 0;
+    $exchangerate = $params{exchangerate};
+    # hook for gl_bookings $book_fx_bank_fees;
+    # and calculus fidibus total fx
+    # self->amount - paid / self->exchangerate * banktransaction.exchangerate = total new amount EUR
+    my $new_open_amount = ( $self->open_amount / $self->get_exchangerate ) * $exchangerate;
+    # VORHER
+    # my $gain_loss_amount = _round($amount * ($exchangerate - $self->get_exchangerate ) * -1,2);
+    $fx_gain_loss_amount = _round( $self->open_amount - $new_open_amount);
+    # works for ap, but change sign for ar (todo credit notes and negative ap transactions
+    $fx_gain_loss_amount *= -1 if $self->is_sales;
+    $main::lxdebug->message(0, 'h 1 ' . $new_open_amount . ' h 3 ' . $params{amount} . ' und fx ' . $fx_gain_loss_amount );
+    if ($params{fx_book} && $new_open_amount < $params{amount}) {
+      die "Bank Fees can only be added for AP transactions" if $self->is_sales;
+      $self->_add_bank_fx_fees(fee           => _round($params{amount} - $new_open_amount),
+                               bt_id         => $params{bt_id},
+                               bank_chart_id => $params{chart_id},
+                               memo          => $params{memo},
+                               source        => $params{source},
+                               transdate_obj => $transdate_obj  );
+      # invoice_amount
+      $return_bank_amount += _round($params{amount} - $new_open_amount);
+    } else { }
+    # always use new open amount for payment booking and add this value to arap.paid
+    $params{amount} = $new_open_amount;
+    # $paid_amount    = $new_open_amount;
+  } elsif (!$self->forex) { # invoices uses default currency. no exchangerate
     $exchangerate = 1;
-  };
+  } else {
+    die "Cannot calculate exchange rate, if invoices uses the default currency";
+  }
 
   # absolute skonto amount for invoice, use as reference sum to see if the
   # calculated skontos add up
@@ -135,9 +146,6 @@ sub pay_invoice {
   my $source = $params{source} // '';
 
   my $rounded_params_amount = _round( $params{amount} ); # / $exchangerate);
-  my $fx_gain_loss_amount = 0; # for fx_gain and fx_loss
-
-  my $return_bank_amount;  # will be returned for invoice_amount
   my $db = $self->db;
   $db->with_transaction(sub {
     my $new_acc_trans;
@@ -157,7 +165,7 @@ sub pay_invoice {
       $pay_amount = $self->amount_less_skonto if $params{payment_type} eq 'with_skonto_pt';
 
       # bank account and AR/AP
-      $paid_amount += $pay_amount * $exchangerate;
+      $paid_amount += $pay_amount;
 
       my $amount = (-1 * $pay_amount) * $mult;
 
@@ -177,47 +185,32 @@ sub pay_invoice {
       $new_acc_trans->save;
       $return_bank_amount = $amount;
       push @new_acc_ids, $new_acc_trans->acc_trans_id;
-      # deal with fxtransaction
-      if ( $self->currency_id != $::instance_conf->get_currency_id && $exchangerate != 1) {
-        my $fxamount = _round($amount - ($amount * $exchangerate));
+      # deal with fxtransaction ...
+      # if invoice exchangerate differs from exchangerate of payment
+      # add fxloss or fxgain
+      if ($fx_gain_loss_amount && $exchangerate != 1 && $self->get_exchangerate and $self->get_exchangerate != 1 and $self->get_exchangerate != $exchangerate) {
+        # (self->amount - self->paid) / $self->exchangerate
+        my $fxgain_chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_fxgain_accno_id) || die "Can't determine fxgain chart";
+        my $fxloss_chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_fxloss_accno_id) || die "Can't determine fxloss chart";
+        $main::lxdebug->message(0, 'was sagt gain loss' . $fx_gain_loss_amount);
+        my $gain_loss_chart  = $fx_gain_loss_amount > 0 ? $fxgain_chart : $fxloss_chart;
+        $paid_amount += $fx_gain_loss_amount if $fx_gain_loss_amount < 0; # only add if we have fx_loss
+        $main::lxdebug->message(0, 'paid2 ' . $paid_amount);
+        $main::lxdebug->message(0, 'paid2chart ' . $fx_gain_loss_amount);
+        # $fx_gain_loss_amount = $gain_loss_amount;
+
         $new_acc_trans = SL::DB::AccTransaction->new(trans_id       => $self->id,
-                                                     chart_id       => $account_bank->id,
-                                                     chart_link     => $account_bank->link,
-                                                     amount         => $fxamount * -1,
+                                                     chart_id       => $gain_loss_chart->id,
+                                                     chart_link     => $gain_loss_chart->link,
+                                                     amount         => $fx_gain_loss_amount,
                                                      transdate      => $transdate_obj,
                                                      source         => $source,
                                                      memo           => $memo,
                                                      taxkey         => 0,
-                                                     fx_transaction => 1,
+                                                     fx_transaction => 0, # probably indicates a real bank account in foreign currency
                                                      tax_id         => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
         $new_acc_trans->save;
         push @new_acc_ids, $new_acc_trans->acc_trans_id;
-        # if invoice exchangerate differs from exchangerate of payment
-        # deal with fxloss and fxamount
-        if ($self->exchangerate and $self->exchangerate != 1 and $self->exchangerate != $exchangerate) {
-          my $fxgain_chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_fxgain_accno_id) || die "Can't determine fxgain chart";
-          my $fxloss_chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_fxloss_accno_id) || die "Can't determine fxloss chart";
-          # would nearly work if $amount is in foreign currency. Old code in AP.pm
-          # and old code says USD * ( rate invoice - rate payment )
-          my $gain_loss_amount = _round($amount * ($exchangerate - $self->exchangerate ) * -1,2);
-          #                               EUR / rate payment   * ( rate invoice - rate bank transaction)
-          my $gain_loss_chart = $gain_loss_amount > 0 ? $fxgain_chart : $fxloss_chart;
-          $fx_gain_loss_amount = $gain_loss_amount;
-
-          $new_acc_trans = SL::DB::AccTransaction->new(trans_id       => $self->id,
-                                                       chart_id       => $gain_loss_chart->id,
-                                                       chart_link     => $gain_loss_chart->link,
-                                                       amount         => $gain_loss_amount,
-                                                       transdate      => $transdate_obj,
-                                                       source         => $source,
-                                                       memo           => $memo,
-                                                       taxkey         => 0,
-                                                       fx_transaction => 0,
-                                                       tax_id         => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
-          $new_acc_trans->save;
-          push @new_acc_ids, $new_acc_trans->acc_trans_id;
-
-        }
       }
     }
     # skonto cases
@@ -253,7 +246,7 @@ sub pay_invoice {
         push @new_acc_ids, $new_acc_trans->acc_trans_id;
 
         $reference_amount -= abs($amount);
-        $paid_amount      += -1 * $amount * $exchangerate;
+        $paid_amount      += -1 * $amount;
         $skonto_amount_check -= $skonto_booking->{'skonto_amount'};
       }
     }
@@ -273,11 +266,11 @@ sub pay_invoice {
     }
 
     # regardless of payment_type there is always only exactly one arap booking
-    # TODO: compare $arap_amount to running total
+    # TODO: compare $arap_amount to running total and/or use this as running total for ar.paid|ap.paid
     my $arap_booking= SL::DB::AccTransaction->new(trans_id   => $self->id,
                                                   chart_id   => $reference_account->id,
                                                   chart_link => $reference_account->link,
-                                                  amount     => _round($arap_amount * $mult * $exchangerate - $fx_gain_loss_amount),
+                                                  amount     => _round($arap_amount * $mult - $fx_gain_loss_amount),
                                                   transdate  => $transdate_obj,
                                                   source     => '', #$params{source},
                                                   taxkey     => 0,
@@ -346,8 +339,8 @@ sub pay_invoice {
         push @new_acc_ids, $tax_booking->acc_trans_id;
       }
     }
-    $fx_gain_loss_amount *= -1 if $self->is_sales;
-    $self->paid($self->paid + _round($paid_amount) + $fx_gain_loss_amount) if $paid_amount;
+    # $fx_gain_loss_amount *= -1 if $self->is_sales;
+    $self->paid($self->paid + _round($paid_amount)) if $paid_amount;
     $self->datepaid($transdate_obj);
     $self->save;
 
@@ -655,7 +648,6 @@ sub _skonto_charts_and_tax_correction {
   # return same array of skonto charts as sub skonto_charts
   return @skonto_charts;
 }
-
 
 sub within_skonto_period {
   my $self = shift;

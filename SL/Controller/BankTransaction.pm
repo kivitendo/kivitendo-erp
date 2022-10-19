@@ -689,6 +689,40 @@ sub save_single_bank_transaction {
     # sign is simply the sign of amount in bank_transactions: positive for increase and negative for decrease
     # $amount_for_booking *= $sign;
 
+    # check exchangerate and if fx_loss calculate new booking_amount for this invoice
+    if ($fx_rate > 0)  {
+      die "Exchangerate without currency"                     unless $currency_id;
+      die "Invoice currency differs from user input currency" unless $currency_id == $invoice->currency->id;
+
+      # 1 set daily default or custom record exchange rate
+      my $default_rate = $invoice->get_exchangerate_for_bank_transaction($bank_transaction->id);
+      if (!$default_rate) { # set new daily default
+        # helper
+        my $buysell = $invoice->is_sales ? 'buy' : 'sell';
+        my $ex = SL::DB::Manager::Exchangerate->find_by(currency_id => $currency_id,
+                                                        transdate => $bank_transaction->valutadate)
+              ||              SL::DB::Exchangerate->new(currency_id => $currency_id,
+                                                        transdate   => $bank_transaction->valutadate);
+        $ex->update_attributes($buysell => $fx_rate);
+      } elsif ($default_rate != $fx_rate) {           # set record (banktransaction) exchangerate
+        $bank_transaction->exchangerate($fx_rate);    # custom rate, will be displayed in ap, ir, is
+      } elsif ($default_rate == $fx_rate) {
+        # should be last valid state -> do nothing
+      } else { die "Invalid exchange rate state:" . $default_rate . " " . $fx_rate; }
+
+      # 2 if fx_loss, we probably need a higher amount to pay the original amount of the ap invoice
+      if ($invoice->get_exchangerate < $fx_rate) {
+        # set whole bank_transaction amount -> pay_invoice will try to calculate losses and bank fees
+        my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
+        $amount_for_payment = $not_assigned_amount;
+        $amount_for_payment *= -1 if $invoice->amount < 0;
+      } elsif ($invoice->get_exchangerate > $fx_rate) {
+        # if fx_gain do nothing, because gain
+        # bla bla
+      } else {
+        die "Invalid exchange rate state for record:" . $invoice->get_exchangerate . " " . $fx_rate;
+      }
+    }
     # ... and then pay the invoice
     my @acc_ids = $invoice->pay_invoice(chart_id => $bank_transaction->local_bank_account->chart_id,
                           trans_id      => $invoice->id,
