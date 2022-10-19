@@ -704,6 +704,7 @@ sub save_single_bank_transaction {
               ||              SL::DB::Exchangerate->new(currency_id => $currency_id,
                                                         transdate   => $bank_transaction->valutadate);
         $ex->update_attributes($buysell => $fx_rate);
+        $bank_transaction->exchangerate(undef);       # maybe user reassigned bank_transaction
       } elsif ($default_rate != $fx_rate) {           # set record (banktransaction) exchangerate
         $bank_transaction->exchangerate($fx_rate);    # custom rate, will be displayed in ap, ir, is
       } elsif ($default_rate == $fx_rate) {
@@ -862,6 +863,7 @@ sub action_unlink_bank_transaction {
 
       # 5. finally reset  this bank transaction
       $bank_transaction->invoice_amount(0);
+      $bank_transaction->exchangerate(undef);
       $bank_transaction->cleared(0);
       $bank_transaction->save;
       # 6. and add a log entry in history_erp
