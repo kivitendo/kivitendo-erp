@@ -195,7 +195,9 @@ sub pay_invoice {
         my $fxloss_chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_fxloss_accno_id) || die "Can't determine fxloss chart";
         $main::lxdebug->message(0, 'was sagt gain loss' . $fx_gain_loss_amount);
         my $gain_loss_chart  = $fx_gain_loss_amount > 0 ? $fxgain_chart : $fxloss_chart;
-        $paid_amount += abs($fx_gain_loss_amount); # if $fx_gain_loss_amount < 0; # only add if we have fx_loss
+        # $paid_amount += abs($fx_gain_loss_amount); # if $fx_gain_loss_amount < 0; # only add if we have fx_loss
+        $paid_amount += $fx_gain_loss_amount if $fx_gain_loss_amount < 0; # only add if we have fx_loss
+
         $main::lxdebug->message(0, 'paid2 ' . $paid_amount);
         $main::lxdebug->message(0, 'paid2chart ' . $fx_gain_loss_amount);
         # $fx_gain_loss_amount = $gain_loss_amount;

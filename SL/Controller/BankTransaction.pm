@@ -739,6 +739,8 @@ sub save_single_bank_transaction {
                           transdate     => $bank_transaction->valutadate->to_kivitendo);
     # First element is the booked amount for accno bank
     my $booked_amount = shift @acc_ids;
+    # hotfix why
+    $booked_amount = $bank_transaction->amount if abs($booked_amount > $bank_transaction->invoice_amount);
     $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $booked_amount * $sign);
     # ... and record the origin via BankTransactionAccTrans
     if (scalar(@acc_ids) < 2) {
