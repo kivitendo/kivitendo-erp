@@ -11,6 +11,7 @@ use SL::DB::CustomVariableValidity;
 use SL::DB::PartsGroup;
 use SL::Helper::Flash;
 use SL::Locale::String;
+use SL::Presenter::CustomVariableConfig;
 use Data::Dumper;
 
 use Rose::Object::MakeMethods::Generic (
@@ -37,6 +38,8 @@ our %translations = (
 );
 
 our @types = qw(text textfield htmlfield number date bool select customer vendor part); # timestamp
+
+our @modules = qw(CT Contacts IC Projects RequirementSpecs ShipTo);
 
 #
 # actions
@@ -161,13 +164,10 @@ sub init_translated_types {
 sub init_modules {
   my ($self, %params) = @_;
 
-  return [ sort { $a->{description}->translated cmp $b->{description}->translated } (
-    { module => 'CT',               description => t8('Customers and vendors')          },
-    { module => 'Contacts',         description => t8('Contact persons')                },
-    { module => 'IC',               description => t8('Parts, services and assemblies') },
-    { module => 'Projects',         description => t8('Projects')                       },
-    { module => 'RequirementSpecs', description => t8('Requirement Specs')              },
-    { module => 'ShipTo',           description => t8('Shipping Address')               },
+  return [
+    sort { $a->{description}->translated cmp $b->{description}->translated } (
+    map +{ module => $_, description => $SL::Presenter::CustomVariableConfig::t8{$_} },
+    @modules
   )];
 }
 
