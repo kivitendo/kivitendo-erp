@@ -232,6 +232,8 @@ sub _post_invoice {
       next if $payments_only;
 
       # update parts table by setting lastcost to current price, don't allow negative values by using abs
+      # maybe allow only 2 decimal places -> rounding error with fx can be too huge for datev checks
+      # @values = ($form->round_amount(abs($fxsellprice * $form->{exchangerate} / $basefactor), 2), conv_i($form->{"id_$i"}));
       $query = qq|UPDATE parts SET lastcost = ? WHERE id = ?|;
       @values = (abs($fxsellprice * $form->{exchangerate} / $basefactor), conv_i($form->{"id_$i"}));
       do_query($form, $dbh, $query, @values);
