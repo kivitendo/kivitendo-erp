@@ -109,19 +109,27 @@ sub pay_invoice {
     # works for ap, but change sign for ar (todo credit notes and negative ap transactions
     $fx_gain_loss_amount *= -1 if $self->is_sales;
     $main::lxdebug->message(0, 'h 1 ' . $new_open_amount . ' h 3 ' . $params{amount} . ' und fx ' . $fx_gain_loss_amount );
-    if ($params{fx_book} && $new_open_amount < $params{amount}) {
-      die "Bank Fees can only be added for AP transactions" if $self->is_sales;
-      $self->_add_bank_fx_fees(fee           => _round($params{amount} - $new_open_amount),
-                               bt_id         => $params{bt_id},
-                               bank_chart_id => $params{chart_id},
-                               memo          => $params{memo},
-                               source        => $params{source},
-                               transdate_obj => $transdate_obj  );
-      # invoice_amount
-      $return_bank_amount += _round($params{amount} - $new_open_amount);
-    } else { }
-    # always use new open amount for payment booking and add this value to arap.paid
-    $params{amount} = $new_open_amount;
+    if ($new_open_amount < $params{amount}) {
+      # if new open amount for payment booking is smaller than original amount use this
+      # assume that the rest are fees, if the user selected this
+      if($params{fx_book}) {
+        die "Bank Fees can only be added for AP transactions" if $self->is_sales;
+        $self->_add_bank_fx_fees(fee           => _round($params{amount} - $new_open_amount),
+                                 bt_id         => $params{bt_id},
+                                 bank_chart_id => $params{chart_id},
+                                 memo          => $params{memo},
+                                 source        => $params{source},
+                                 transdate_obj => $transdate_obj  );
+        # invoice_amount with gl booking
+        $return_bank_amount = _round($params{amount});
+      } else {
+        # invoice_amount without gl booking
+        $return_bank_amount = $new_open_amount;
+      }
+        # with or without fees simply assign the new open amount for bank (fx_gain follows later)
+        $params{amount} = $new_open_amount;
+    }
+    $main::lxdebug->message(0, 'return0 ' . $return_bank_amount);
     # $paid_amount    = $new_open_amount;
   } elsif (!$self->forex) { # invoices uses default currency. no exchangerate
     $exchangerate = 1;
