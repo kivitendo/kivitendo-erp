@@ -235,6 +235,20 @@ sub invoice_links {
         $form->{"memo_$i"}         = $form->{acc_trans}{$key}->[$i - 1]->{memo};
 
         $form->{paidaccounts} = $i;
+        # hook for calc of of fx_paid and check if banktransaction has a record exchangerate
+        if ($form->{"exchangerate_$i"}) {
+          my $bt_acc_trans;
+          my $bt_acc_trans = SL::DB::Manager::BankTransactionAccTrans->find_by(acc_trans_id => $form->{"acc_trans_id_$i"});
+          if ($bt_acc_trans) {
+            if ($bt_acc_trans->bank_transaction->exchangerate > 0) {
+              $form->{"exchangerate_$i"} = $bt_acc_trans->bank_transaction->exchangerate;
+              $form->{"forex_$i"}        = $form->{"exchangerate_$i"};
+              $form->{"record_forex_$i"} = 1;
+            }
+          }
+          $form->{"fx_paid_$i"} = $form->{"paid_$i"} / $form->{"exchangerate_$i"};
+          $form->{"fx_totalpaid"} +=  $form->{"fx_paid_$i"};
+        } # end hook fx_paid
       }
     } else {
       $form->{$key} = "$form->{acc_trans}{$key}->[0]->{accno}--$form->{acc_trans}{$key}->[0]->{description}";
@@ -863,12 +877,19 @@ sub update {
 
   $form->{taxincluded} ||= $taxincluded;
 
-  if (!$form->{forex}) {        # read exchangerate from input field (not hidden)
-    $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate}) unless $recursive_call;
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+  if ($form->{defaultcurrency} ne $form->{currency}) {
+    if ($form->{exchangerate}) { # user input OR first default ->  leave this value
+      $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate}) unless $recursive_call;
+      # does this differ from daily default?
+      my $current_daily_rate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
+      $form->{record_forex}  = $current_daily_rate > 0 && $current_daily_rate != $form->{exchangerate}
+                           ?   1 : 0;
+    } else {                     # no value, but get defaults -> maybe user changes invdate as well ...
+      ($form->{exchangerate}, $form->{record_forex}) = $form->check_exchangerate(\%myconfig, $form->{currency},
+                                                                                 $form->{invdate}, 'buy', $form->{id}, 'ar');
+    }
   }
-  ($form->{forex}, $form->{record_forex}) = $form->check_exchangerate(\%myconfig, $form->{currency},
-                                                                      $form->{invdate}, 'buy', $form->{id}, 'ar');
-  $form->{exchangerate} = $form->{forex} if $form->{forex};
   for my $i (1 .. $form->{paidaccounts}) {
     next unless $form->{"paid_$i"};
     map { $form->{"${_}_$i"}   = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(paid exchangerate);
