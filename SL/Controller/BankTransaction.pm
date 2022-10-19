@@ -670,6 +670,7 @@ sub save_single_bank_transaction {
       }
     # pay invoice
     # TODO rewrite this: really booked amount should be a return value of Payment.pm
+    # -> quick and dirty done -> really booked amount is the first element of return array
     # also this controller shouldnt care about how to calc skonto. we simply delegate the
     # payment_type to the helper and get the corresponding bank_transaction values back
     # hotfix to get the signs right - compare absolute values and later set the signs
@@ -703,10 +704,8 @@ sub save_single_bank_transaction {
                           currency_id   => $currency_id,
                           bt_id         => $bt_id,
                           transdate     => $bank_transaction->valutadate->to_kivitendo);
+    # First element is the booked amount for accno bank
     my $booked_amount = shift @acc_ids;
-    use Data::Dumper;
-    $main::lxdebug->message(0, 'hier1:' .Dumper $booked_amount);
-    $main::lxdebug->message(0, 'hier2:' .Dumper @acc_ids);
     $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $booked_amount * $sign);
     # ... and record the origin via BankTransactionAccTrans
     if (scalar(@acc_ids) < 2) {

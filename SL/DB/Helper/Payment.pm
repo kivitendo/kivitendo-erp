@@ -137,6 +137,7 @@ sub pay_invoice {
   my $rounded_params_amount = _round( $params{amount} ); # / $exchangerate);
   my $fx_gain_loss_amount = 0; # for fx_gain and fx_loss
 
+  my $return_bank_amount;  # will be returned for invoice_amount
   my $db = $self->db;
   $db->with_transaction(sub {
     my $new_acc_trans;
@@ -162,6 +163,7 @@ sub pay_invoice {
 
 
       # total amount against bank, do we already know this by now?
+      # Yes, method requires this
       $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $self->id,
                                                    chart_id   => $account_bank->id,
                                                    chart_link => $account_bank->link,
@@ -386,10 +388,7 @@ sub pay_invoice {
     1;
 
   }) || die t8('error while paying invoice #1 : ', $self->invnumber) . $db->error . "\n";
-
-  $return_bank_amount *= -1;   # negative booking is positive bank transaction
-                               # positive booking is negative bank transaction
-  return wantarray ? ( { return_bank_amount => $return_bank_amount }, @new_acc_ids) : 1;
+  return wantarray ? (abs($return_bank_amount), @new_acc_ids) : 1;
 }
 
 sub skonto_date {
