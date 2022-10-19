@@ -1504,7 +1504,7 @@ sub check_exchangerate {
                  { type => SCALAR, callbacks  => { is_valid_kivi_date   => sub { shift =~ m/\d+\d+\d+/ } } }, # we have three numers
                  { type => SCALAR, callbacks  => { is_buy_or_sell_rate  => sub { shift =~ m/^buy|sell$/ } } },
                  { type => SCALAR, callbacks  => { is_current_form_id   => sub { $_[0] == $_[1]->[0]->{id} } },              optional => 1 },
-                 { type => SCALAR, callbacks  => { is_valid_fx_table    => sub { shift =~ m/(ar|ap|bank_transactions)/  } }, optional => 1 }
+                 { type => SCALAR, callbacks  => { is_valid_fx_table    => sub { shift =~ m/(ar|ap)/  } }, optional => 1 }
               );
   my ($self, $myconfig, $currency, $transdate, $fld, $id, $record_table) = @_;
 
