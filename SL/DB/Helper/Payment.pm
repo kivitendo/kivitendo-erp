@@ -175,8 +175,7 @@ sub pay_invoice {
                                                    taxkey     => 0,
                                                    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
       $new_acc_trans->save;
-      $return_bank_amount += $amount;
-
+      $return_bank_amount = $amount;
       push @new_acc_ids, $new_acc_trans->acc_trans_id;
       # deal with fxtransaction
       if ( $self->currency_id != $::instance_conf->get_currency_id && $exchangerate != 1) {
