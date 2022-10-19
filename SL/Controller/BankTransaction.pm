@@ -513,8 +513,11 @@ sub save_invoices {
       push @{ $self->problems }, $self->save_single_bank_transaction(
         bank_transaction_id => $bank_transaction_id,
         invoice_ids         => $invoice_ids,
-        sources             => [  map { $::form->{"sources_${bank_transaction_id}_${_}"} } @{ $invoice_ids } ],
-        memos               => [  map { $::form->{"memos_${bank_transaction_id}_${_}"}   } @{ $invoice_ids } ],
+        sources             => [  map { $::form->{"sources_${bank_transaction_id}_${_}"}           } @{ $invoice_ids } ],
+        memos               => [  map { $::form->{"memos_${bank_transaction_id}_${_}"}             } @{ $invoice_ids } ],
+        book_fx_bank_fees   => [  map { $::form->{"book_fx_bank_fees_${bank_transaction_id}_${_}"} } @{ $invoice_ids } ],
+        currency_ids        => [  map { $::form->{"currency_id_${bank_transaction_id}_${_}"}       } @{ $invoice_ids } ],
+        exchangerates       => [  map { $::form->parse_amount(\%::myconfig, $::form->{"exchangerate_${bank_transaction_id}_${_}"}) } @{ $invoice_ids } ],
       );
       $count += scalar( @{$invoice_ids} );
     }
@@ -627,8 +630,11 @@ sub save_single_bank_transaction {
     my $n_invoices   = 0;
 
     foreach my $invoice (@{ $data{invoices} }) {
-      my $source = ($data{sources} // [])->[$n_invoices];
-      my $memo   = ($data{memos}   // [])->[$n_invoices];
+      my $source  = ($data{sources} // [])->[$n_invoices];
+      my $memo    = ($data{memos}   // [])->[$n_invoices];
+      my $fx_rate = ($data{exchangerates} // [])->[$n_invoices];
+      my $fx_book = ($data{book_fx_bank_fees}   // [])->[$n_invoices];
+      my $currency_id = ($data{currency_ids}   // [])->[$n_invoices];
 
       $n_invoices++ ;
       # safety check invoice open
@@ -692,10 +698,16 @@ sub save_single_bank_transaction {
                           source        => $source,
                           memo          => $memo,
                           skonto_amount => $free_skonto_amount,
+                          exchangerate  => $fx_rate,
+                          fx_book       => $fx_book,
+                          currency_id   => $currency_id,
                           bt_id         => $bt_id,
                           transdate     => $bank_transaction->valutadate->to_kivitendo);
-    my $bank_amount = shift @acc_ids;
-    die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless (abs($bank_amount->{return_bank_amount}) - abs($amount_for_booking) < 0.001);
+    my $booked_amount = shift @acc_ids;
+    use Data::Dumper;
+    $main::lxdebug->message(0, 'hier1:' .Dumper $booked_amount);
+    $main::lxdebug->message(0, 'hier2:' .Dumper @acc_ids);
+    $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $booked_amount * $sign);
     # ... and record the origin via BankTransactionAccTrans
     if (scalar(@acc_ids) < 2) {
       return {
