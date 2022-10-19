@@ -212,6 +212,7 @@ sub gather_bank_transactions_and_proposals {
   my @otherproposals = grep {
        ($_->{agreement} >= $proposal_threshold)
     && (1 == scalar @{ $_->{proposals} })
+    && ($_->{proposals}->[0]->forex == 0)      # nyi forex invoices for automatic booking
   } @{ $bank_transactions };
 
   push @proposals, @otherproposals;
