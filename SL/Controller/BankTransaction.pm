@@ -707,7 +707,7 @@ sub save_single_bank_transaction {
         $bank_transaction->exchangerate(undef);       # maybe user reassigned bank_transaction
       } elsif ($default_rate != $fx_rate) {           # set record (banktransaction) exchangerate
         $bank_transaction->exchangerate($fx_rate);    # custom rate, will be displayed in ap, ir, is
-      } elsif ($default_rate == $fx_rate) {
+      } elsif ($default_rate - $fx_rate < 0.001) {
         # should be last valid state -> do nothing
       } else { die "Invalid exchange rate state:" . $default_rate . " " . $fx_rate; }
 
@@ -717,7 +717,7 @@ sub save_single_bank_transaction {
         my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
         $amount_for_payment = $not_assigned_amount;
         $amount_for_payment *= -1 if $invoice->amount < 0;
-      } elsif ($invoice->get_exchangerate > $fx_rate) {
+      } elsif ($invoice->get_exchangerate >= $fx_rate) {
         # if fx_gain do nothing, because gain
         # bla bla
       } else {
