@@ -680,16 +680,14 @@ sub save_single_bank_transaction {
     $open_amount            = abs($open_amount);
     $open_amount           -= $free_skonto_amount if ($payment_type eq 'free_skonto');
     my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
-    my $amount_for_booking  = ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount;
-    my $amount_for_payment  = $amount_for_booking;
+    my $amount_for_payment  = ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount;
 
     # get the right direction for the payment bookings (all amounts < 0 are stornos, credit notes or negative ap)
     $amount_for_payment *= -1 if $invoice->amount < 0;
     $free_skonto_amount *= -1 if ($free_skonto_amount && $invoice->amount < 0);
     # get the right direction for the bank transaction
-    $amount_for_booking *= $sign;
-
-    $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $amount_for_booking);
+    # sign is simply the sign of amount in bank_transactions: positive for increase and negative for decrease
+    # $amount_for_booking *= $sign;
 
     # ... and then pay the invoice
     my @acc_ids = $invoice->pay_invoice(chart_id => $bank_transaction->local_bank_account->chart_id,

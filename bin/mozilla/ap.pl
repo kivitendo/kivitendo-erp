@@ -1389,7 +1389,6 @@ sub setup_ap_display_form_action_bar {
 
   my $is_linked_bank_transaction;
   if ($::form->{id}
-      && SL::DB::Default->get->payments_changeable != 0
       && SL::DB::Manager::BankTransactionAccTrans->find_by(ap_id => $::form->{id})) {
 
     $is_linked_bank_transaction = 1;
@@ -1496,7 +1495,7 @@ sub setup_ap_display_form_action_bar {
                     : $is_closed                  ? t8('The billing period has already been locked.')
                     : $has_sepa_exports           ? t8('This invoice has been linked with a sepa export, undo this first.')
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
-                    : $is_linked_gl_transaction   ? undef # linked transactions can be deleted, if period is not closed
+                    # : $is_linked_gl_transaction   ? undef # linked transactions can be deleted, if period is not closed
                     : $change_never               ? t8('Changing invoices has been disabled in the configuration.')
                     : $change_on_same_day_only    ? t8('Invoices can only be changed on the day they are posted.')
                     : $has_storno                 ? t8('This invoice has been canceled already.')
