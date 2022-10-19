@@ -120,19 +120,20 @@ sub pay_invoice {
                                  memo          => $params{memo},
                                  source        => $params{source},
                                  transdate_obj => $transdate_obj  );
-        # invoice_amount with gl booking
-        $return_bank_amount = _round($params{amount});
+        # invoice_amount add gl booking
+        $return_bank_amount += _round($params{amount} - $new_open_amount);
       } else {
         # invoice_amount without gl booking
-        $return_bank_amount = $new_open_amount;
+        # $return_bank_amount = $new_open_amount;
       }
         # with or without fees simply assign the new open amount for bank (fx_gain follows later)
         $params{amount} = $new_open_amount;
     }
-    $main::lxdebug->message(0, 'return0 ' . $return_bank_amount);
+    $main::lxdebug->message(0, 'return 1gl booking ' . $return_bank_amount); # stimmt f
     # $paid_amount    = $new_open_amount;
   } elsif (!$self->forex) { # invoices uses default currency. no exchangerate
     $exchangerate = 1;
+    # $return_bank_amount = _round($params{amount}); # no forex
   } else {
     die "Cannot calculate exchange rate, if invoices uses the default currency";
   }
@@ -192,7 +193,8 @@ sub pay_invoice {
                                                    taxkey     => 0,
                                                    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
       $new_acc_trans->save;
-      $return_bank_amount += $amount; # dont exclude fx_booking ;-)
+      $return_bank_amount += abs($amount); # add sign
+      $main::lxdebug->message(0, 'return 5 ' . $return_bank_amount);
       push @new_acc_ids, $new_acc_trans->acc_trans_id;
       # deal with fxtransaction ...
       # if invoice exchangerate differs from exchangerate of payment
@@ -204,10 +206,14 @@ sub pay_invoice {
         $main::lxdebug->message(0, 'was sagt gain loss' . $fx_gain_loss_amount);
         my $gain_loss_chart  = $fx_gain_loss_amount > 0 ? $fxgain_chart : $fxloss_chart;
         # $paid_amount += abs($fx_gain_loss_amount); # if $fx_gain_loss_amount < 0; # only add if we have fx_loss
-        $paid_amount += $fx_gain_loss_amount if $fx_gain_loss_amount < 0; # only add if we have fx_loss
+        $paid_amount += abs($fx_gain_loss_amount) if $fx_gain_loss_amount < 0; # only add if we have fx_loss
+        $paid_amount -= abs($fx_gain_loss_amount) if $fx_gain_loss_amount > 0; # but extract if we have gain to match original invoice amount (ar)
+        $main::lxdebug->message(0, 'return 1 ' . $return_bank_amount);
+        $main::lxdebug->message(0, 'paid amount hier 2 ' . $paid_amount);
+        # $return_bank_amount += $fx_gain_loss_amount if $fx_gain_loss_amount < 0; # only add if we have fx_loss
 
-        $main::lxdebug->message(0, 'paid2 ' . $paid_amount);
         $main::lxdebug->message(0, 'paid2chart ' . $fx_gain_loss_amount);
+        $main::lxdebug->message(0, 'return 2 ' . $return_bank_amount);
         # $fx_gain_loss_amount = $gain_loss_amount;
 
         $new_acc_trans = SL::DB::AccTransaction->new(trans_id       => $self->id,
