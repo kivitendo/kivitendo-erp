@@ -17,7 +17,7 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(models price_rule vc pricegroups partsgroups businesses cvar) ],
+ 'scalar --get_set_init' => [ qw(models price_rule vc pricegroups partsgroups businesses cvar_configs) ],
 );
 
 # __PACKAGE__->run_before('check_auth');
@@ -80,7 +80,9 @@ sub action_destroy {
 sub action_add_item_row {
   my ($self, %params) = @_;
 
-  my $item = SL::DB::PriceRuleItem->new(type => $::form->{type});
+  my $item = $::form->{type} =~ m{cvar/(\d+)}
+    ? SL::DB::PriceRuleItem->new(type => 'cvar', custom_variable_configs_id => $1)
+    : SL::DB::PriceRuleItem->new(type => $::form->{type});
 
   my $html = $self->render('price_rule/item', { output => 0 }, item => $item);
 
@@ -235,7 +237,10 @@ sub make_filter_summary {
 }
 
 sub all_price_rule_item_types {
-  SL::DB::Manager::PriceRuleItem->get_all_types($_[0]->vc || $_[0]->price_rule->type);
+  my $item_types = SL::DB::Manager::PriceRuleItem->get_all_types($_[0]->vc || $_[0]->price_rule->type);
+  my @cvar_types = map [ "cvar/" . $_->id, $_->presenter->description_with_module ], @{$_[0]->cvar_configs };
+
+  [ @$item_types, @cvar_types ];
 }
 
 sub add_javascripts  {
@@ -255,7 +260,9 @@ sub init_price_rule {
 
   my @items;
   for my $raw_item (@$items) {
-    my $item = $raw_item->{id} ? $old_items{ $raw_item->{id} } || SL::DB::PriceRuleItem->new(id => $raw_item->{id})->load : SL::DB::PriceRuleItem->new;
+    my $item = $raw_item->{id}
+      ? $old_items{ $raw_item->{id} } || SL::DB::PriceRuleItem->new(id => $raw_item->{id})->load
+      : SL::DB::PriceRuleItem->new;
     $item->assign_attributes(%$raw_item);
     push @items, $item;
   }
@@ -281,10 +288,13 @@ sub init_partsgroups {
   SL::DB::Manager::PartsGroup->get_all;
 }
 
-sub init_cvar {
-  # SL::DB::Manager::CustomVariableConfig->get_all_sorted(where => [ module => 'IC' ]);
-  # proof of concept: hard coded for articlegroup
-  SL::DB::Manager::CustomVariableConfig->get_first(where => [ module => 'IC', name => 'articlegroup' ]) ;
+sub init_cvar_configs {
+  # eligible cvars for this are all that are reachable from a record or recorditem (all modules but requirement spec)
+  # and of a type that price rules support (currently: id-based with picker, numeric or date) and by special request select
+  SL::DB::Manager::CustomVariableConfig->get_all(where => [
+    "!module" => 'RequirementSpecs',
+    type => [ qw(timestamp date number integer customer vendor part select) ],
+  ]) ;
 }
 
 

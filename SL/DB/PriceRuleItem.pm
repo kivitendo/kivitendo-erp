@@ -99,6 +99,11 @@ sub pricegroup {
   SL::DB::Pricegroup->load_cached($_[0]->value_int);
 }
 
+sub cvar_config {
+  die "not a cvar price rule item" unless $_[0]->type eq 'cvar';
+  &custom_variable_configs
+}
+
 sub full_description {
   my ($self) = @_;
 
