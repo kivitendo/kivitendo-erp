@@ -93,6 +93,7 @@ sub pay_invoice {
   # currency has to be passed and caller has to be sure to assign it for a forex invoice
   # dies if called for a invoice with the default currency (TODO: Params::Validate before)
   my ($exchangerate, $currency, $fx_gain_loss_amount, $return_bank_amount);
+  $return_bank_amount = 0;
   if ($params{currency} || $params{currency_id} && $self->forex) { # currency was specified
     $currency = SL::DB::Manager::Currency->find_by(name => $params{currency}) || SL::DB::Manager::Currency->find_by(id => $params{currency_id});
     # set exchangerate - no fallback
@@ -183,7 +184,7 @@ sub pay_invoice {
                                                    taxkey     => 0,
                                                    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
       $new_acc_trans->save;
-      $return_bank_amount = $amount;
+      $return_bank_amount += $amount; # dont exclude fx_booking ;-)
       push @new_acc_ids, $new_acc_trans->acc_trans_id;
       # deal with fxtransaction ...
       # if invoice exchangerate differs from exchangerate of payment
@@ -194,7 +195,7 @@ sub pay_invoice {
         my $fxloss_chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_fxloss_accno_id) || die "Can't determine fxloss chart";
         $main::lxdebug->message(0, 'was sagt gain loss' . $fx_gain_loss_amount);
         my $gain_loss_chart  = $fx_gain_loss_amount > 0 ? $fxgain_chart : $fxloss_chart;
-        $paid_amount += $fx_gain_loss_amount if $fx_gain_loss_amount < 0; # only add if we have fx_loss
+        $paid_amount += abs($fx_gain_loss_amount); # if $fx_gain_loss_amount < 0; # only add if we have fx_loss
         $main::lxdebug->message(0, 'paid2 ' . $paid_amount);
         $main::lxdebug->message(0, 'paid2chart ' . $fx_gain_loss_amount);
         # $fx_gain_loss_amount = $gain_loss_amount;
