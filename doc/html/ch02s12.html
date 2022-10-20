@@ -89,9 +89,9 @@
             Abhilfe.</p></li></ul></div><p>Wird gar kein Fehler angezeigt, sondern nur der Name des
         Templates, heißt das normalerweise, dass das LaTeX Binary nicht
         gefunden wurde. Prüfen Sie den Namen in der Konfiguration (Standard:
-        <code class="literal">pdflatex</code>), und stellen Sie sicher, dass pdflatex
-        (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
-        darf.</p><p>Wenn sich das Problem nicht auf Grund der Ausgabe im Webbrowser
+        <code class="literal">latexmk --pdflatex</code>), und stellen Sie sicher, dass
+        latexmk (oder das von Ihnen verwendete System) vom Webserver ausgeführt
+        werden darf.</p><p>Wenn sich das Problem nicht auf Grund der Ausgabe im Webbrowser
         verifizieren lässt:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>editiere [kivitendo-home]/config/kivitendo.conf und ändere
             "keep_temp_files" auf 1</p><p>
                      </p><pre class="programlisting">keep_temp_files = 1;</pre><p>

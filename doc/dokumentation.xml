@@ -2472,116 +2472,75 @@ digits_year: 4</programlisting>
       <para>kivitendo unterstützt die Verwendung von Vorlagen im
       OpenDocument-Format, wie es LibreOffice oder OpenOffice (ab Version 2)
       erzeugen. kivitendo kann dabei sowohl neue OpenDocument-Dokumente als
-      auch aus diesen direkt PDF-Dateien erzeugen. Um die Unterstützung von
-      OpenDocument-Vorlagen zu aktivieren muss in der Datei
-      <filename>config/kivitendo.conf</filename> die Variable
-      <literal>opendocument</literal> im Abschnitt
-      <literal>print_templates</literal> auf ‘<literal>1</literal>’ stehen.
-      Dieses ist die Standardeinstellung.</para>
-
-      <para>Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
-      weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
-      LibreOffice oder OpenOffice benötigt. Soll dieses Feature genutzt
-      werden, so muss neben LibreOffice oder OpenOffice auch der “X virtual
-      frame buffer” (xvfb) installiert werden. Bei Debian ist er im Paket
-      “xvfb” enthalten. Andere Distributionen enthalten ihn in anderen
-      Paketen.</para>
-
-      <para>Nach der Installation müssen in der Datei
-      <filename>config/kivitendo.conf</filename> im Abschnitt
-      <literal>applications</literal> zwei weitere Variablen angepasst
-      werden:</para>
-
-      <para><literal>openofficeorg_writer</literal> muss den vollständigen
-      Pfad zu LibreOffice oder OpenOffice enthalten. Dabei dürfen keine
-      Anführungszeichen eingesetzt werden.</para>
-
-      <para>Beispiel für Debian oder Ubuntu:</para>
-
-      <programlisting>openofficeorg_writer = /usr/bin/libreoffice</programlisting>
-
-      <para><literal>xvfb</literal> muss den Pfad zum “X virtual frame buffer”
-      enthalten.</para>
-
-      <para>Zusätzlich gibt es zwei verschiedene Arten, wie kivitendo mit
-      LibreOffice bzw. OpenOffice kommuniziert. Die erste Variante, die
-      benutzt wird, wenn die Variable <literal>$openofficeorg_daemon</literal>
-      gesetzt ist, startet ein LibreOffice oder OpenOffice, das auch nach der
-      Umwandlung des Dokumentes gestartet bleibt. Bei weiteren Umwandlungen
-      wird dann diese laufende Instanz benutzt. Der Vorteil ist, dass die Zeit
-      zur Umwandlung deutlich reduziert wird, weil nicht für jedes Dokument
-      ein LibreOffice bzw. OpenOffice gestartet werden muss. Der Nachteil ist,
-      dass diese Methode Python und die Python-UNO-Bindings benötigt, die
-      Bestandteil von LibreOffice bzw. OpenOffice sind.</para>
-
-      <note>
-        <para>Für die Verbindung zu LibreOffice bzw. OpenOffice wird
-        normalerweise der Python-Interpreter
-        <filename>/usr/bin/python</filename> benutzt. Sollte dies nicht der
-        richtige sein, so kann man mit zwei Konfigurationsvariablen
-        entscheiden, welcher Python-Interpreter genutzt wird. Mit der Option
-        <literal>python_uno</literal> aus dem Abschnitt
-        <literal>applications</literal> wird der Interpreter selber
-        festgelegt; sie steht standardmäßig auf dem eben erwähnten Wert
-        <literal>/usr/bin/python</literal>.</para>
-
-        <para>Zusätzlich ist es möglich, Pfade anzugeben, in denen Python
-        neben seinen normalen Suchpfaden ebenfalls nach Modulen gesucht wird,
-        z.B. falls sich diese in einem gesonderten LibreOffice- bzw.
-        OpenOffice-Verzeichnis befinden. Diese zweite Variable heißt
-        <literal>python_uno_path</literal> und befindet sich im Abschnitt
-        <literal>environment</literal>. Sie ist standardmäßig leer. Werden
-        hier mehrere Pfade angegeben, so müssen diese durch Doppelpunkte
-        voneinander getrennt werden. Der Inhalt wird an den Python-Interpreter
-        über die Umgebungsvariable <literal>PYTHONPATH</literal>
-        übergeben.</para>
-      </note>
-
-      <para>Ist <literal>$openofficeorg_daemon</literal> nicht gesetzt, so
-      wird für jedes Dokument LibreOffice bzw. OpenOffice neu gestartet und
-      die Konvertierung mit Hilfe eines Makros durchgeführt. Dieses Makro muss
-      in der Dokumentenvorlage enthalten sein und
-      “Standard.Conversion.ConvertSelfToPDF()” heißen. Die Beispielvorlage
-      ‘<literal>templates/print/rev-odt/invoice.odt</literal>’ enthält ein
-      solches Makro, das in jeder anderen Dokumentenvorlage ebenfalls
-      enthalten sein muss.</para>
-
-      <para>Als letztes muss herausgefunden werden, welchen Namen OpenOffice
-      bzw. LibreOffice dem Verzeichnis mit den Benutzereinstellungen gibt.
-      Unter Debian ist dies momentan <literal>~/.config/libreoffice</literal>.
-      kivitendo verwendet das Verzeichnis
-      <literal>users/.openoffice.org2</literal>. Eventuell muss dieses
-      Verzeichnis umbenannt werden.</para>
-
-      <para>Dieses Verzeichnis, wie auch das komplette
-      <literal>users</literal>-Verzeichnis, muss vom Webserver beschreibbar
-      sein. Dieses wurde bereits erledigt (siehe <xref
-      linkend="Manuelle-Installation-des-Programmpaketes"/>), kann aber erneut
-      überprüft werden, wenn die Konvertierung nach PDF fehlschlägt.</para>
+      auch aus diesen direkt PDF-Dateien erzeugen. Nachfolgend ist die
+      Verwendung mit LibreOffice beschrieben. Für die Verwendung mit
+      OpenOffice müssen die Einstellungen allenfalls angepasst werden.</para>
 
       <sect2>
-        <title>OpenDocument (odt) Druckvorlagen mit Makros</title>
+        <title>Grundeinstellung</title>
 
-        <para>OpenDocument Vorlagen können Makros enthalten, welche komplexere
-        Aufgaben erfüllen.</para>
+        <para>Um die Unterstützung von OpenDocument-Vorlagen zu aktivieren,
+        muss in der Datei <filename>config/kivitendo.conf</filename> die
+        Variable <literal>opendocument</literal>, im Abschnitt
+        <literal>print_templates</literal>, auf <literal>1</literal> stehen.
+        Dies ist die Standardeinstellung.</para>
+      </sect2>
 
-        <para>Der Vorlagensatz "rev-odt" enthält solche Vorlagen mit <emphasis
-        role="bold">Schweizer Bank-Einzahlungsscheinen (BESR)</emphasis>.
-        Diese Makros haben die Aufgabe, die in den Einzahlungsscheinen
-        benötigte Referenznummer und Kodierzeile zu erzeugen. Hier eine kurze
-        Beschreibung, wie die Makros aufgebaut sind, und was bei ihrer Nutzung
-        zu beachten ist (<emphasis role="bold">in fett sind nötige einmalige
-        Anpassungen aufgeführt</emphasis>):</para>
+      <sect2>
+        <title>Direkte Erzeugung von PDF-Dateien</title>
+
+        <para>Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
+        weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
+        LibreOffice oder OpenOffice benötigt.</para>
+
+        <para>Unter Debian kann dieses installiert werden mit:</para>
+
+        <programlisting>apt install libreoffice</programlisting>
+
+        <para>Der Pfad zu LibreOffice kann in der Datei
+        <filename>config/kivitendo.conf</filename>, im Abschnitt
+        <literal>applications</literal>, angepasst werden. Unter Debian sollte
+        dies nicht notwendig sein.</para>
 
         <sect3>
-          <title>Bezeichnung der Vorlagen</title>
+          <title>Variante 1)</title>
 
-          <para>Rechnung: invoice_besr.odt, Auftrag:
-          sales_order_besr.odt</para>
+          <para>In der Standardeinstellung wird LibreOffice für jedes Dokument
+          neu gestartet. Es ist keine weitere Konfiguration
+          erforderlich.</para>
         </sect3>
 
+        <sect3>
+          <title>Variante 2)</title>
+
+          <para>Die zweite Variante startet ein LibreOffice, das auch nach der
+          Umwandlung des Dokumentes gestartet bleibt. Bei weiteren
+          Umwandlungen wird dann diese laufende Instanz benutzt. Der Vorteil
+          ist, dass die Zeit zur Umwandlung möglicherweise reduziert wird,
+          weil nicht für jedes Dokument eine neue Instanz gestartet werden
+          muss.</para>
+
+          <para>Dazu muss in der Konfigurationsdatei
+          <filename>config/kivitendo.conf</filename>, im Abschnitt
+          <literal>print_templates</literal>, <literal>openofficeorg_daemon =
+          1</literal> gesetzt werden.</para>
+
+          <para>Diese Methode verwendet Python und die Python uno bindings.
+          Unter Debian werden diese mit LibreOffice mitgeliefert.</para>
+
+          <para>Die Optionen <literal>python_uno</literal> und
+          <literal>python_uno_path</literal> in der Konfigurationsdatei
+          <filename>config/kivitendo.conf</filename> dienen zur Anpassung der
+          Python uno Pfade. Unter Debian sollte keine Anpassung notwendig
+          sein.</para>
+        </sect3>
+      </sect2>
+
+      <sect2>
+        <title>Vorbereitungen</title>
+
         <sect3 id="opendocument-druckvorlagen-mit-makros.vorbereitungen">
-          <title>Vorbereitungen im Adminbereich</title>
+          <title>Adminbereich</title>
 
           <para>Damit beim Erstellen von Rechnungen und Aufträgen neben der
           Standardvorlage ohne Einzahlungsschein weitere Vorlagen (z.B. mit
@@ -2658,97 +2617,6 @@ digits_year: 4</programlisting>
         </sect3>
 
         <sect3>
-          <title>Aufbau und nötige Anpassungen der Vorlagen</title>
-
-          <para>In der Vorlage sind als Modul "BESR" 4 Makros gespeichert, die
-          aus dem von kivitendo erzeugten odt-Dokument die korrekte
-          Referenznummer inklusive Prüfziffer sowie die Kodierzeile in
-          OCRB-Schrift erzeugen und am richtigen Ort ins Dokument
-          schreiben.</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>Für den Einzahlungsschein ist die letzte Seite des
-              Dokuments reserviert</para>
-            </listitem>
-
-            <listitem>
-              <para>Direkt über dem Einzahlungsschein enthält die Vorlage eine
-              Zeile mit folgenden Angaben (<emphasis
-              role="bold">Bank-Konto-Identifikationsnummer und
-              Postkonto-Nummer der Bank müssen gemäss Angaben der jeweiligen
-              Bank angepasst werden</emphasis>):<itemizedlist>
-                  <listitem>
-                    <para>DDDREF: 4 Werte zum Bilden der Referenznummer
-                    (jeweils durch einen Leerschlag getrennt): <itemizedlist>
-                        <listitem>
-                          <para>erster Wert: <emphasis
-                          role="bold">Bank-Konto-Identifikation</emphasis>
-                          (nur Ziffern, maximal 6), <emphasis role="bold">muss
-                          angepasst werden</emphasis>.</para>
-                        </listitem>
-
-                        <listitem>
-                          <para>zweiter Wert: &lt;%customernumber%&gt;
-                          (Kundennummer: nur Ziffern, maximal 6)</para>
-                        </listitem>
-
-                        <listitem>
-                          <para>dritter Wert: &lt;%ordnumber%&gt;
-                          (Auftragsnummer bei Auftragsvorlage
-                          sales_oder_besr.odt, sonst 0) maximal 7 Ziffern,
-                          führende Buchstaben werden vom Makro entfernt</para>
-                        </listitem>
-
-                        <listitem>
-                          <para>vierter Wert: &lt;%invnumber%&gt;
-                          (Rechnungsnummer bei Rechnungsvorlage
-                          invoice_besr.odt, sonst 0) maximal 7 Ziffern,
-                          führende Buchstaben werden vom Makro entfernt</para>
-                        </listitem>
-                      </itemizedlist></para>
-                  </listitem>
-
-                  <listitem>
-                    <para>DDDKONTO: <emphasis role="bold">Postkonto-Nummer der
-                    Bank, muss angepasst werden</emphasis>.</para>
-                  </listitem>
-
-                  <listitem>
-                    <para>DDDBETRAG: &lt;%total%&gt; Einzahlungsbetrag oder 0,
-                    falls Einzahlungsschein ohne Betrag</para>
-                  </listitem>
-
-                  <listitem>
-                    <para>DDDEND: muss am Ende der Zeile vorhanden sein</para>
-                  </listitem>
-                </itemizedlist></para>
-            </listitem>
-
-            <listitem>
-              <para><emphasis role="bold">Im Einzahlungsschein selbst müssen
-              der Name und die Adresse der Bank, die Postkonto-Nummer der
-              Bank, sowie der eigene Firmenname und die Firmenadresse
-              angepasst werden.</emphasis> Dabei ist darauf zu achten, dass
-              sich die Positionen der Postkonto-Nummern der Bank, sowie der
-              Zeichenfolgen dddfr, DDDREF1, DDDREF2, 609, DDDKODIERZEILE nicht
-              verschieben.</para>
-            </listitem>
-          </itemizedlist>
-
-          <screenshot>
-            <screeninfo>Rechnungsvorlage Schweizer Bank-Einzahlungsschein - zu
-            ändernde Einträge in rot</screeninfo>
-
-            <mediaobject>
-              <imageobject>
-                <imagedata fileref="images/Einzahlungsschein_Makro.png"/>
-              </imageobject>
-            </mediaobject>
-          </screenshot>
-        </sect3>
-
-        <sect3>
           <title>Auswahl der Druckvorlage in kivitendo beim Erzeugen einer
           odt-Rechnung (analog bei Auftrag)</title>
 
@@ -2757,40 +2625,6 @@ digits_year: 4</programlisting>
           Druckerbeschreibung ausgewählt werden, falls diese nicht bereits bei
           den Benutzereinstellungen als persönlicher Standard gewählt
           wurde.</para>
-        </sect3>
-
-        <sect3>
-          <title>Makroeinstellungen in LibreOffice anpassen</title>
-
-          <para>Falls beim Öffnen einer von kivitendo erzeugten odt-Rechnung
-          die Meldung kommt, dass Makros aus Sicherheitsgründen nicht
-          ausgeführt werden, so müssen folgende Einstellungen in LibreOffice
-          angepasst werden:</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>Extras → Optionen → Sicherheit → Makrosicherheit</para>
-            </listitem>
-
-            <listitem>
-              <para>Sicherheitslevel auf "Mittel" einstellen (Diese
-              Einstellung muss auf jedem Computer durchgeführt werden, mit dem
-              von kivitendo erzeugte odt-Rechnungen oder Aufträge geöffnet
-              werden.)</para>
-            </listitem>
-
-            <listitem>
-              <para>Beim Öffnen einer odt-Rechnung oder eines odt-Auftrags bei
-              der entsprechenden Nachfrage "Makros ausführen"
-              auswählen.</para>
-
-              <para><emphasis role="bold">Wichtig</emphasis>: die Makros sind
-              so eingestellt, dass sie beim Öffnen der Vorlagen selbst nicht
-              ausgeführt werden. Das heisst für das Ansehen und Bearbeiten der
-              Vorlagen sind keine speziellen Einstellungen in LibreOffice
-              nötig.</para>
-            </listitem>
-          </itemizedlist>
         </sect3>
       </sect2>
 
