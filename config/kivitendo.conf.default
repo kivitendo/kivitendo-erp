@@ -156,8 +156,8 @@ login =
 password =
 
 [applications]
-# Location of OpenOffice.org writer
-openofficeorg_writer = oowriter
+# Location of OpenOffice.org/LibreOffice writer
+openofficeorg_writer = lowriter
 # Location of the html2ps binary
 html2ps = html2ps
 # Location of the Ghostscript binary
@@ -168,7 +168,7 @@ latex = latexmk --pdflatex
 # OpenDocument to PDF. Some distributions compile UNO support only
 # into binaries located in different locations than the main Python
 # binary.
-python_uno = python
+python_uno = python3
 
 [environment]
 # Add the following paths to the PATH environment variable.
@@ -188,11 +188,11 @@ latex = 1
 excel = 0
 # Enable or disable support for OpenDocument print templates
 opendocument = 1
-# Chose whether or not OpenOffice should remain running after a
+# Chose whether or not OpenOffice/LibreOffice should remain running after a
 # conversion. If yes then the conversion of subsequent documents will
-# be a lot faster. You need to have Python and the Python UNO bindings
-# (part of OpenOffice) installed.
-openofficeorg_daemon = 1
+# be a bit faster. You need to have Python and the Python UNO bindings
+# (part of OpenOffice/LibreOffice) installed.
+openofficeorg_daemon = 0
 openofficeorg_daemon_port = 2002
 
 [task_server]
