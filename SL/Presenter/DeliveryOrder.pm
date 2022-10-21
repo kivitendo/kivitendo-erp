@@ -43,7 +43,7 @@ sub _do_new_record {
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
   my $text = join '', (
-    $params{no_link} ? '' : '<a href="contoller.pl?action=DeliveryOrder/edit&amp;type=' . $type . '&amp;id=' . escape($delivery_order->id) . '">',
+    $params{no_link} ? '' : '<a href="controller.pl?action=DeliveryOrder/edit&amp;type=' . $type . '&amp;id=' . escape($delivery_order->id) . '">',
     escape($delivery_order->donumber),
     $params{no_link} ? '' : '</a>',
   );
