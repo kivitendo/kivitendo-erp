@@ -1,4 +1,4 @@
-use Test::More tests => 293;
+use Test::More tests => 297;
 
 use strict;
 
@@ -717,6 +717,8 @@ sub test_credit_note {
                       create_invoice_item(part => $part2, qty => 10, sellprice => 50),
                     ]
   );
+  is($credit_note->amount ,'-844.9' ,"$testname: amount before booking ok");
+  is($credit_note->paid   ,'0'      ,"$testname: paid before booking ok");
   my $bt            = create_bank_transaction(record        => $credit_note,
                                                                 amount        => $credit_note->amount,
                                                                 bank_chart_id => $bank->id,
@@ -737,6 +739,8 @@ sub test_credit_note {
   is($credit_note->amount   , '-844.90000', "$testname: amount ok");
   is($credit_note->netamount, '-710.00000', "$testname: netamount ok");
   is($credit_note->paid     , '-844.90000', "$testname: paid ok");
+  is($bt->invoice_amount    , '-844.90000', "$testname: bt invoice amount for credit note was assigned");
+  is($bt->amount            , '-844.90000', "$testname: bt  amount for credit note was assigned");
 }
 
 sub test_neg_ap_transaction {

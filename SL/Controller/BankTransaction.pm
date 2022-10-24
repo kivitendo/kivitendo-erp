@@ -693,6 +693,8 @@ sub save_single_bank_transaction {
                           skonto_amount => $free_skonto_amount,
                           bt_id         => $bt_id,
                           transdate     => $bank_transaction->valutadate->to_kivitendo);
+    my $bank_amount = shift @acc_ids;
+    die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless (abs($bank_amount->{return_bank_amount}) - abs($amount_for_booking) < 0.001);
     # ... and record the origin via BankTransactionAccTrans
     if (scalar(@acc_ids) < 2) {
       return {
