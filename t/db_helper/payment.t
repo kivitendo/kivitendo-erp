@@ -317,8 +317,6 @@ sub test_default_invoice_one_item_19_without_skonto {
     payment_id   => $payment_terms->id,
   );
 
-  my $ap_transaction = new_ap_transaction();
-
   # default values
   my %params = ( chart_id => $bank_account->chart_id,
                  transdate => $transdate1,
@@ -327,18 +325,20 @@ sub test_default_invoice_one_item_19_without_skonto {
   $params{amount} = '6.96';
   $params{payment_type} = 'without_skonto';
 
-  $invoice->pay_invoice( %params );
-
+  my @ret = $invoice->pay_invoice( %params );
+  my $bank_amount = shift @ret;
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
-
+  my $exp_invoice_amount = $invoice->amount > 0 ? $params{amount} : $params{amount} * -1;
   is($invoice->netamount,   5.85,      "${title}: netamount");
   is($invoice->amount,      6.96,      "${title}: amount");
   is($paid_amount,         -6.96,      "${title}: paid amount");
   is($number_of_payments,      1,      "${title}: 1 AR_paid booking");
   is($invoice->paid,        6.96,      "${title}: paid");
   is($total,                   0,      "${title}: even balance");
-
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} > 0,  1,     "${title}: bank invoice_amount is positive");
+  is($invoice->paid,  $bank_amount->{return_bank_amount},      "${title}: paid eq invoice_amount");
 }
 
 sub test_default_invoice_one_item_19_without_skonto_overpaid {
@@ -362,10 +362,23 @@ sub test_default_invoice_one_item_19_without_skonto_overpaid {
 
   $params{amount} = '16.96';
   $params{payment_type} = 'without_skonto';
-  $invoice->pay_invoice( %params );
+  my @ret = $invoice->pay_invoice( %params );
+  my $bank_amount = shift @ret;
 
-  $params{amount} = '-10.00';
-  $invoice->pay_invoice( %params );
+  my $exp_invoice_amount = $invoice->amount > 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($exp_invoice_amount > 0,  1,     "${title}: bank invoice_amount is positive");
+  my $bt_invoice_amount = $exp_invoice_amount;
+
+  $params{amount} = -10.00;
+  @ret = $invoice->pay_invoice( %params );
+
+  $bank_amount = shift @ret;
+  $exp_invoice_amount = $invoice->amount > 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($exp_invoice_amount < 0,  1,     "${title}: bank invoice_amount is negative");
+  $bt_invoice_amount += $exp_invoice_amount;
+
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
@@ -376,6 +389,7 @@ sub test_default_invoice_one_item_19_without_skonto_overpaid {
   is($number_of_payments,      2,      "${title}: 1 AR_paid booking");
   is($invoice->paid,        6.96,      "${title}: paid");
   is($total,                   0,      "${title}: even balance");
+  is($invoice->paid,        $bt_invoice_amount,      "${title}: invoice paid equals bt invoice_amount");
 
 }
 
@@ -402,7 +416,10 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto {
   $params{payment_type} = 'with_skonto_pt';
   $params{amount}       = $invoice->amount_less_skonto;
 
-  $invoice->pay_invoice( %params );
+  my @ret = $invoice->pay_invoice( %params );
+  my $bank_amount = shift @ret;
+  my $exp_invoice_amount = $invoice->amount > 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
@@ -436,7 +453,11 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_tax_included {
   $params{payment_type} = 'with_skonto_pt';
   $params{amount}       = $invoice->amount_less_skonto;
 
-  $invoice->pay_invoice( %params );
+  my @ret = $invoice->pay_invoice( %params );
+  my $bank_amount = shift @ret;
+  my $exp_invoice_amount = $invoice->amount > 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} > 0,  1,     "${title}: bank invoice_amount is positive");
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
@@ -446,6 +467,7 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_tax_included {
   is($paid_amount,               -17.51,   "${title}: paid amount");
   is($invoice->paid,              17.51,   "${title}: paid");
   is($number_of_payments,             3,   "${title}: 3 AR_paid bookings");
+  is($invoice->paid != $bank_amount->{return_bank_amount},   1,   "${title}: paid does not equal bank invoice_amount");
 
 TODO: {
   local $TODO = "currently this test fails because the code writing the invoice is buggy, the calculation of skonto is correct";
@@ -474,7 +496,11 @@ sub test_default_invoice_two_items_19_7_without_skonto {
   $params{amount} = '19.44'; # pass full amount
   $params{payment_type} = 'without_skonto';
 
-  $invoice->pay_invoice( %params );
+  my @ret = $invoice->pay_invoice( %params );
+  my $bank_amount = shift @ret;
+  my $exp_invoice_amount = $invoice->amount > 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} > 0,  1,     "${title}: bank invoice_amount is positive");
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
@@ -485,6 +511,7 @@ sub test_default_invoice_two_items_19_7_without_skonto {
   is($invoice->paid,                 19.44,     "${title}: paid");
   is($number_of_payments,                1,     "${title}: 1 AR_paid bookings");
   is($total,                             0,     "${title}: even balance");
+  is($invoice->paid,  $bank_amount->{return_bank_amount},  "${title}: paid equals bt.invoice_amount");
 }
 
 # test 4
@@ -500,11 +527,15 @@ sub test_default_invoice_two_items_19_7_without_skonto_incomplete_payment {
     payment_id   => $payment_terms->id,
   );
 
-  $invoice->pay_invoice( amount       => '9.44',
-                         payment_type => 'without_skonto',
-                         chart_id     => $bank_account->chart_id,
-                         transdate    => $transdate1,
-                       );
+  my @ret = $invoice->pay_invoice( amount       => '9.44',
+                                   payment_type => 'without_skonto',
+                                   chart_id     => $bank_account->chart_id,
+                                   transdate    => $transdate1,
+                                 );
+  my $bank_amount = shift @ret;
+  my $exp_invoice_amount = $invoice->amount > 0 ? 9.44 : 9.44 * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} > 0,  1,     "${title}: bank invoice_amount is positive");
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
@@ -515,6 +546,7 @@ sub test_default_invoice_two_items_19_7_without_skonto_incomplete_payment {
   is($invoice->paid,             9.44,            "${title}: paid");
   is($number_of_payments,   1,                "${title}: 1 AR_paid bookings");
   is($total,                    0,                "${title}: even balance");
+  is($invoice->paid,  $bank_amount->{return_bank_amount},  "${title}: paid equals bt.invoice_amount");
 }
 
 # test 5
@@ -529,16 +561,28 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments {
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
   );
+  my @ret;
+  @ret = $invoice->pay_invoice( amount       => '9.44',
+                                payment_type => 'without_skonto',
+                                chart_id     => $bank_account->chart_id,
+                                transdate    => $transdate1,
+                       );
 
-  $invoice->pay_invoice( amount       => '9.44',
-                         payment_type => 'without_skonto',
-                         chart_id     => $bank_account->chart_id,
-                         transdate    => $transdate1,
+  my $bank_amount = shift @ret;
+  my $exp_invoice_amount = $invoice->amount > 0 ? 9.44 : 9.44 * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} > 0,  1,     "${title}: bank invoice_amount is positive");
+  my $bank_invoice_amount = $bank_amount->{return_bank_amount};
+
+  @ret = $invoice->pay_invoice( amount       => '10.00',
+                               chart_id     => $bank_account->chart_id,
+                               transdate    => $transdate1,
                        );
-  $invoice->pay_invoice( amount       => '10.00',
-                         chart_id     => $bank_account->chart_id,
-                         transdate    => $transdate1,
-                       );
+  $bank_amount = shift @ret;
+  $exp_invoice_amount = $invoice->amount > 0 ? 10 : 10 * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} > 0,  1,     "${title}: bank invoice_amount is positive");
+  $bank_invoice_amount += $bank_amount->{return_bank_amount};
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
@@ -549,6 +593,7 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments {
   is($invoice->paid,                    19.44,     "${title}: paid");
   is($number_of_payments,                   2,     "${title}: 2 AR_paid bookings");
   is($total,                                0,     "${title}: even balance");
+  is($invoice->paid,   $bank_invoice_amount,       "${title}: paid eq bank invoice_amount");
 
 }
 
@@ -565,28 +610,44 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
     payment_id   => $payment_terms->id,
   );
 
-  $invoice->pay_invoice( amount       => '9.44',
-                         payment_type => 'without_skonto',
-                         chart_id     => $bank_account->chart_id,
-                         transdate    => $transdate1,
-                       );
-  $invoice->pay_invoice( amount       => '8.73',
-                         payment_type => 'without_skonto',
-                         chart_id     => $bank_account->chart_id,
-                         transdate    => $transdate1,
-                       );
+  my (@ret, $bank_amount, $exp_invoice_amount);
+  @ret = $invoice->pay_invoice( amount       => '9.44',
+                                payment_type => 'without_skonto',
+                                chart_id     => $bank_account->chart_id,
+                                transdate    => $transdate1,
+                              );
+  $bank_amount = shift @ret;
+  my $amount = 9.44;
+  $exp_invoice_amount = $invoice->amount > 0 ? $amount : $amount * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+
+  @ret = $invoice->pay_invoice( amount       => '8.73',
+                                payment_type => 'without_skonto',
+                                chart_id     => $bank_account->chart_id,
+                                transdate    => $transdate1,
+                              );
+  $bank_amount = shift @ret;
+  $amount = 8.73;
+  $exp_invoice_amount = $invoice->amount > 0 ? $amount : $amount * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+
   # free_skonto does:
   #  my $open_amount = $payment_type eq 'with_skonto_pt' ? $invoice->amount_less_skonto : $invoice->open_amount;
   #  $open_amount    = abs($open_amount);
   #  $open_amount   -= $free_skonto_amount if ($payment_type eq 'free_skonto');
 
-  $invoice->pay_invoice( skonto_amount => $invoice->open_amount,
+  @ret = $invoice->pay_invoice( skonto_amount => $invoice->open_amount,
                          amount        => 0,
                          payment_type  => 'free_skonto',
                          chart_id      => $bank_account->chart_id,
                          transdate     => $transdate1,
                          bt_id         => $bt->id,
                        );
+  $bank_amount = shift @ret;
+  $amount = 0;
+  $exp_invoice_amount = $invoice->amount < 0 ? $amount : $amount * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
@@ -618,18 +679,30 @@ sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fi
     payment_id   => $payment_terms->id,
   );
 
-  $invoice->pay_invoice( amount       => '19.42',
-                         payment_type => 'without_skonto',
-                         chart_id     => $bank_account->chart_id,
-                         transdate    => $transdate1,
-                       );
-  $invoice->pay_invoice( skonto_amount => $invoice->open_amount,
-                         amount       => 0,
-                         payment_type => 'free_skonto',
-                         chart_id     => $bank_account->chart_id,
-                         transdate    => $transdate1,
-                         bt_id        => $bt->id,
-                       );
+  my (@ret, $bank_amount, $exp_invoice_amount);
+  @ret = $invoice->pay_invoice( amount       => '19.42',
+                                payment_type => 'without_skonto',
+                                chart_id     => $bank_account->chart_id,
+                                transdate    => $transdate1,
+                              );
+  $bank_amount        = shift @ret;
+  my $amount          = 19.42;
+  $exp_invoice_amount = $invoice->amount > 0 ? $amount : $amount * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} > 0,  1,     "${title}: bank invoice_amount is positive");
+
+  @ret = $invoice->pay_invoice( skonto_amount => $invoice->open_amount,
+                                amount       => 0,
+                                payment_type => 'free_skonto',
+                                chart_id     => $bank_account->chart_id,
+                                transdate    => $transdate1,
+                                bt_id        => $bt->id,
+                              );
+  $bank_amount        = shift @ret;
+  $amount             = 0;
+  $exp_invoice_amount = $invoice->amount < 0 ? $amount : $amount * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
 
@@ -654,18 +727,30 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
     payment_id   => $payment_terms->id,
   );
 
-  $invoice->pay_invoice( amount       => '19.42',
+  my (@ret, $bank_amount, $exp_invoice_amount);
+  @ret = $invoice->pay_invoice( amount       => '19.42',
                          payment_type => 'without_skonto',
                          chart_id     => $bank_account->chart_id,
                          transdate    => $transdate1,
                        );
-  $invoice->pay_invoice( skonto_amount => $invoice->open_amount,
+  $bank_amount = shift @ret;
+  my $amount = 19.42;
+  $exp_invoice_amount = $invoice->amount > 0 ? $amount : $amount * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} > 0,  1,     "${title}: bank invoice_amount is positive");
+
+  @ret = $invoice->pay_invoice( skonto_amount => $invoice->open_amount,
                          amount       => 0,
                          payment_type => 'free_skonto',
                          chart_id     => $bank_account->chart_id,
                          transdate    => $transdate1,
                          bt_id        => $bt->id,
                        );
+  $bank_amount = shift @ret;
+  $amount = 0;
+  $exp_invoice_amount = $invoice->amount > 0 ? $amount : $amount * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} == 0,  1,     "${title}: bank invoice_amount is zero");
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
@@ -698,16 +783,32 @@ sub test_default_invoice_one_item_19_multiple_payment_final_free_skonto {
 
   $params{amount}       = '2.32';
   $params{payment_type} = 'without_skonto';
-  $invoice->pay_invoice( %params );
+  my @ret = $invoice->pay_invoice( %params );
+  my $bank_amount = shift @ret;
+  my $exp_invoice_amount = $invoice->amount > 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} > 0,  1,     "${title}: bank invoice_amount is positive");
+
 
   $params{amount}       = '3.81';
   $params{payment_type} = 'without_skonto';
-  $invoice->pay_invoice( %params );
+  @ret = $invoice->pay_invoice( %params );
+  $bank_amount = shift @ret;
+  $exp_invoice_amount = $invoice->amount > 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} > 0,  1,     "${title}: bank invoice_amount is positive");
+
+
 
   $params{skonto_amount} = $invoice->open_amount; # set amount, otherwise previous 3.81 is used
   $params{amount}        = 0,
   $params{payment_type}  = 'free_skonto';
-  $invoice->pay_invoice( %params );
+  @ret = $invoice->pay_invoice( %params );
+  $bank_amount = shift @ret;
+  $exp_invoice_amount = $invoice->amount > 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} == 0,  1,     "${title}: bank invoice_amount is zero");
+
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
@@ -740,12 +841,20 @@ sub test_default_invoice_one_item_19_multiple_payment_final_free_skonto_1cent {
 
   $params{amount}       = '6.95';
   $params{payment_type} = 'without_skonto';
-  $invoice->pay_invoice( %params );
+  my @ret = $invoice->pay_invoice( %params );
+  my $bank_amount = shift @ret;
+  my $exp_invoice_amount = $invoice->amount > 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} > 0,  1,     "${title}: bank invoice_amount is positive");
 
   $params{skonto_amount} = $invoice->open_amount;
   $params{amount}        = 0,
   $params{payment_type} = 'free_skonto';
-  $invoice->pay_invoice( %params );
+  @ret = $invoice->pay_invoice( %params );
+  $bank_amount = shift @ret;
+  $exp_invoice_amount = $invoice->amount > 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
@@ -761,7 +870,7 @@ sub test_default_invoice_one_item_19_multiple_payment_final_free_skonto_1cent {
 
 # test 3 : two items, without skonto
 sub test_default_ap_transaction_two_charts_19_7_without_skonto {
-  my $title = 'default invoice, two items, 19/7% tax without skonto';
+  my $title = 'default ap_transaction, two items, 19/7% tax without skonto';
 
   my $ap_transaction = new_ap_transaction();
 
@@ -769,17 +878,22 @@ sub test_default_ap_transaction_two_charts_19_7_without_skonto {
                  transdate => $transdate1,
                );
 
-  $params{amount} = '226'; # pass full amount
+  $params{amount} = 226; # pass full amount
   $params{payment_type} = 'without_skonto';
 
-  $ap_transaction->pay_invoice( %params );
+  my @ret = $ap_transaction->pay_invoice( %params );
+  my $bank_amount = shift @ret;
+  my $exp_invoice_amount = $ap_transaction->amount < 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} < 0,  1,     "${title}: bank invoice_amount is negative");
 
   my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);
   my $total = total_amount($ap_transaction);
 
-  is($paid_amount,         226,     "${title}: paid amount");
-  is($number_of_payments,    1,     "${title}: 1 AP_paid bookings");
-  is($total,                 0,     "${title}: even balance");
+  is($paid_amount,            226,     "${title}: paid amount");
+  is($ap_transaction->paid,   226,     "${title}: ap.paid amount");
+  is($number_of_payments,       1,     "${title}: 1 AP_paid bookings");
+  is($total,                    0,     "${title}: even balance");
 
 }
 
@@ -798,14 +912,19 @@ sub test_default_ap_transaction_two_charts_19_7_with_skonto {
   $params{amount}       = $ap_transaction->amount_less_skonto; # pass calculated skonto amount
   $params{payment_type} = 'with_skonto_pt';
 
-  $ap_transaction->pay_invoice( %params );
+  my @ret = $ap_transaction->pay_invoice( %params );
+  my $bank_amount = shift @ret;
+  my $exp_invoice_amount = $ap_transaction->amount < 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} < 0,  1,     "${title}: bank invoice_amount is negative");
 
   my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);
   my $total = total_amount($ap_transaction);
 
-  is($paid_amount,         226,     "${title}: paid amount");
-  is($number_of_payments,    3,     "${title}: 1 AP_paid bookings");
-  is($total,                 0,     "${title}: even balance");
+  is($paid_amount,                  226,     "${title}: paid amount");
+  is($ap_transaction->paid,         226,     "${title}: paid amount");
+  is($number_of_payments,             3,     "${title}: 1 AP_paid bookings");
+  is($total,                          0,     "${title}: even balance");
 
 }
 
@@ -814,18 +933,26 @@ sub test_default_ap_transaction_two_charts_19_7_tax_partial_unrounded_payment_wi
 
   # check whether unrounded amounts passed via $params{amount} are rounded for without_skonto case
   my $ap_transaction = new_ap_transaction();
-  $ap_transaction->pay_invoice(
-                          amount       => ( $ap_transaction->amount / 3 * 2),
-                          payment_type => 'without_skonto',
-                          chart_id     => $bank_account->chart_id,
-                          transdate    => $transdate1,
-                         );
+  my @ret = $ap_transaction->pay_invoice(
+                                         amount       => ( $ap_transaction->amount / 3 * 2),
+                                         payment_type => 'without_skonto',
+                                         chart_id     => $bank_account->chart_id,
+                                         transdate    => $transdate1,
+                                        );
+  my $bank_amount = shift @ret;
+  my $amount      = $::form->round_amount( $ap_transaction->amount / 3 * 2, 2);
+  my $exp_invoice_amount = $ap_transaction->amount < 0 ? $amount : $amount * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} < 0,  1,     "${title}: bank invoice_amount is negative");
+
+
   my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);
   my $total = total_amount($ap_transaction);
 
-  is($paid_amount,         150.67,   "${title}: paid amount");
-  is($number_of_payments,       1,   "${title}: 1 AP_paid bookings");
-  is($total,                    0,   "${title}: even balance");
+  is($paid_amount,                  150.67,   "${title}: paid amount");
+  is($ap_transaction->paid,         150.67,   "${title}: paid amount");
+  is($number_of_payments,                1,   "${title}: 1 AP_paid bookings");
+  is($total,                             0,   "${title}: even balance");
 };
 
 
@@ -835,19 +962,31 @@ sub test_default_ap_transaction_two_charts_19_7_tax_without_skonto_multiple_paym
   my $ap_transaction = new_ap_transaction();
 
   # pay 2/3 and 1/5, leaves 3.83% to be used as Skonto
-  $ap_transaction->pay_invoice(
+  my @ret = $ap_transaction->pay_invoice(
                           amount       => ( $ap_transaction->amount / 3 * 2),
                           payment_type => 'without_skonto',
                           chart_id     => $bank_account->chart_id,
                           transdate    => $transdate1,
                          );
-  $ap_transaction->pay_invoice(
+  my $bank_amount = shift @ret;
+  my $amount      = $::form->round_amount( $ap_transaction->amount / 3 * 2, 2);
+  my $exp_invoice_amount = $ap_transaction->amount < 0 ? $amount : $amount * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} < 0,  1,     "${title}: bank invoice_amount is negative");
+
+  @ret = $ap_transaction->pay_invoice(
                           amount       => ( $ap_transaction->amount / 5 ),
                           payment_type => 'without_skonto',
                           chart_id     => $bank_account->chart_id,
                           transdate    => $transdate1,
                          );
-  $ap_transaction->pay_invoice(
+  $bank_amount = shift @ret;
+  $amount      =  $ap_transaction->amount / 5;
+  $exp_invoice_amount = $ap_transaction->amount < 0 ? $amount : $amount * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} < 0, 1,     "${title}: invoice_amount negative");
+
+  @ret = $ap_transaction->pay_invoice(
                           payment_type => 'free_skonto',
                           skonto_amount => $ap_transaction->open_amount,
                           amount       => 0,
@@ -855,13 +994,18 @@ sub test_default_ap_transaction_two_charts_19_7_tax_without_skonto_multiple_paym
                           transdate    => $transdate1,
                           bt_id        => $bt->id,
                          );
+  $bank_amount = shift @ret;
+  $amount      = 0;
+  $exp_invoice_amount = $ap_transaction->amount < 0 ? $amount : $amount * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
 
   my ($number_of_payments, $paid_amount) = number_of_payments($ap_transaction);
   my $total = total_amount($ap_transaction);
 
-  is($paid_amount,         226, "${title}: paid amount");
-  is($number_of_payments,    4, "${title}: 4 AP_paid bookings");
-  is($total,                 0, "${title}: even balance");
+  is($paid_amount,                  226, "${title}: paid amount");
+  is($ap_transaction->paid,         226, "${title}: ap.paid amount");
+  is($number_of_payments,             4, "${title}: 4 AP_paid bookings");
+  is($total,                          0, "${title}: even balance");
 
 }
 
@@ -887,7 +1031,11 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_50_50 {
   $params{amount} = $invoice->amount_less_skonto;
   $params{payment_type} = 'with_skonto_pt';
 
-  $invoice->pay_invoice( %params );
+  my @ret = $invoice->pay_invoice( %params );
+  my $bank_amount = shift @ret;
+  my $exp_invoice_amount = $invoice->amount > 0 ? $params{amount} : $params{amount} * -1;
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} > 0, 1,     "${title}: invoice_amount positive");
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
@@ -1018,7 +1166,7 @@ sub test_ar_currency_tax_not_included_and_payment {
   my $title = 'test_ar_currency_tax_not_included_and_payment_2';
 
   my $netamount = $::form->round_amount(75 * $exchangerate->sell,2); #  75 in CUR, 100.00 in EUR
-  my $amount    = $::form->round_amount($netamount * 1.19,2);        # 100 in CUR, 119.00 in EUR
+  my $amount    = $::form->round_amount($netamount * 1.19,2);        # 100 in EUR, 119.00 in EUR incl. tax
   my $invoice   = SL::DB::Invoice->new(
       invoice      => 0,
       amount       => $amount,
@@ -1049,12 +1197,12 @@ sub test_ar_currency_tax_not_included_and_payment {
   is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ar_chart->id, trans_id => $invoice->id)->amount, '-119.00000', $ar_chart->accno . ': has been converted for currency');
 
   $invoice->pay_invoice(chart_id   => $bank->id,
-                        amount     => 50,
+                        amount     => 50,     # amount is in default currency -> should be 37.5 in CUR
                         currency   => 'CUR',
                         transdate  => $transdate1->to_kivitendo,
                        );
   $invoice->pay_invoice(chart_id   => $bank->id,
-                        amount     => 39.25,
+                        amount     => 39.25,  # amount is in default currency -> should be 29.44 in CUR
                         currency   => 'CUR',
                         transdate  => $transdate1->to_kivitendo,
                        );
@@ -1457,7 +1605,12 @@ sub test_credit_note_two_items_19_7_tax_tax_not_included {
 
   $params{amount}       = $invoice->amount,
 
-  $invoice->pay_invoice( %params );
+  my @ret = $invoice->pay_invoice( %params );
+  my $bank_amount = shift @ret;
+
+  my $exp_invoice_amount =  $params{amount};
+  is($bank_amount->{return_bank_amount}, $exp_invoice_amount,      "${title}: invoice_amount");
+  is($bank_amount->{return_bank_amount} < 0,  1,     "${title}: bank invoice_amount is negative (credit note)");
 
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);

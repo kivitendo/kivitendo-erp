@@ -91,7 +91,8 @@ sub pay_invoice {
 
   # currency is either passed or use the invoice currency if it differs from the default currency
   # TODO remove
-  my ($exchangerate,$currency);
+  my ($exchangerate, $currency, $return_bank_amount);
+  $return_bank_amount = 0;
   if ($params{currency} || $params{currency_id}) {
     if ($params{currency} || $params{currency_id} ) { # currency was specified
       $currency = SL::DB::Manager::Currency->find_by(name => $params{currency}) || SL::DB::Manager::Currency->find_by(id => $params{currency_id});
@@ -171,6 +172,7 @@ sub pay_invoice {
                                                    taxkey     => 0,
                                                    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
       $new_acc_trans->save;
+      $return_bank_amount += $amount;
 
       push @new_acc_ids, $new_acc_trans->acc_trans_id;
       # deal with fxtransaction
@@ -193,7 +195,10 @@ sub pay_invoice {
         if ($self->exchangerate and $self->exchangerate != 1 and $self->exchangerate != $exchangerate) {
           my $fxgain_chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_fxgain_accno_id) || die "Can't determine fxgain chart";
           my $fxloss_chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_fxloss_accno_id) || die "Can't determine fxloss chart";
+          # would nearly work if $amount is in foreign currency. Old code in AP.pm
+          # and old code says USD * ( rate invoice - rate payment )
           my $gain_loss_amount = _round($amount * ($exchangerate - $self->exchangerate ) * -1,2);
+          #                               EUR / rate payment   * ( rate invoice - rate bank transaction)
           my $gain_loss_chart = $gain_loss_amount > 0 ? $fxgain_chart : $fxloss_chart;
           $fx_gain_loss_amount = $gain_loss_amount;
 
@@ -380,7 +385,10 @@ sub pay_invoice {
     1;
 
   }) || die t8('error while paying invoice #1 : ', $self->invnumber) . $db->error . "\n";
-  return wantarray ? @new_acc_ids : 1;
+
+  $return_bank_amount *= -1;   # negative booking is positive bank transaction
+                               # positive booking is negative bank transaction
+  return wantarray ? ( { return_bank_amount => $return_bank_amount }, @new_acc_ids) : 1;
 }
 
 sub skonto_date {
