@@ -708,7 +708,7 @@ sub save_single_bank_transaction {
         $bank_transaction->exchangerate(undef);       # maybe user reassigned bank_transaction
       } elsif ($default_rate != $fx_rate) {           # set record (banktransaction) exchangerate
         $bank_transaction->exchangerate($fx_rate);    # custom rate, will be displayed in ap, ir, is
-      } elsif ($default_rate - $fx_rate < 0.001) {
+      } elsif (abs($default_rate - $fx_rate) < 0.001) {
         # should be last valid state -> do nothing
       } else { die "Invalid exchange rate state:" . $default_rate . " " . $fx_rate; }
 
