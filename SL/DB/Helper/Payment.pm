@@ -699,8 +699,13 @@ sub get_payment_select_options_for_bank_transaction {
 
   my @options;
 
-  # 1. no skonto available -> done
-  if(!$self->skonto_date) {
+  # 1. no sane skonto support for foreign currency yet
+  if ($self->forex) {
+    push(@options, { payment_type => 'without_skonto', display => t8('without skonto'), selected => 1 });
+    return @options;
+  }
+  # 2. no skonto available -> done
+  if (!$self->skonto_date) {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto'), selected => 1 });
     push(@options, { payment_type => 'free_skonto', display => t8('free skonto') });
     return @options;
