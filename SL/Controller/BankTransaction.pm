@@ -681,13 +681,14 @@ sub save_single_bank_transaction {
     $open_amount           -= $free_skonto_amount if ($payment_type eq 'free_skonto');
     my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
     my $amount_for_payment  = ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount;
+    my $amount_for_booking  = ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount;
 
     # get the right direction for the payment bookings (all amounts < 0 are stornos, credit notes or negative ap)
     $amount_for_payment *= -1 if $invoice->amount < 0;
     $free_skonto_amount *= -1 if ($free_skonto_amount && $invoice->amount < 0);
     # get the right direction for the bank transaction
     # sign is simply the sign of amount in bank_transactions: positive for increase and negative for decrease
-    # $amount_for_booking *= $sign;
+    $amount_for_booking *= $sign;
 
     # check exchangerate and if fx_loss calculate new booking_amount for this invoice
     if ($fx_rate > 0)  {
@@ -739,7 +740,12 @@ sub save_single_bank_transaction {
                           transdate     => $bank_transaction->valutadate->to_kivitendo);
     # First element is the booked amount for accno bank
     my $booked_amount = shift @acc_ids;
-    $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $booked_amount * $sign);
+    if (!$invoice->forex) {
+      die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless abs(abs($booked_amount) - abs($amount_for_booking)) < 0.001;
+      $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $amount_for_booking);
+    } else {
+      $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $booked_amount * $sign);
+    }
     # ... and record the origin via BankTransactionAccTrans
     if (scalar(@acc_ids) < 2) {
       return {
