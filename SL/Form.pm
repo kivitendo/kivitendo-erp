@@ -2572,12 +2572,15 @@ sub create_links {
     do_statement($self, $sth, $query, $self->{id});
 
     # get exchangerate for currency
-    $self->{exchangerate} =
-      $self->check_exchangerate($myconfig, $self->{currency}, $self->{transdate}, $fld);
+    ($self->{exchangerate}, $self->{record_forex}) = $self->check_exchangerate($myconfig, $self->{currency}, $self->{transdate}, $fld,
+                                                                               $self->{id}, $arap);
+
     my $index = 0;
 
     # store amounts in {acc_trans}{$key} for multiple accounts
     while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+      # credit and debit bookings calc fx rate for positions
+      # also used as exchangerate_$i for payments
       $ref->{exchangerate} =
         $self->check_exchangerate($myconfig, $self->{currency}, $ref->{transdate}, $fld);
       if (!($xkeyref{ $ref->{accno} } =~ /tax/)) {

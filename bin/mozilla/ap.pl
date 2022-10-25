@@ -403,8 +403,10 @@ sub form_header {
 
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
-  if ($form->{currency} ne $form->{defaultcurrency}) {
-    ($form->{exchangerate}, $form->{record_forex}) = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, "sell", $form->{id}, 'ap');
+  if ($form->{currency} ne $form->{defaultcurrency} && !$form->{exchangerate}) {
+    ($form->{exchangerate}, $form->{record_forex}) = $form->{id}
+                                                  ?  $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, "sell", $form->{id}, 'ap')
+                                                  :  $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, "sell");
   }
 
   # format amounts
@@ -540,6 +542,20 @@ sub form_header {
   $form->{accno_arap} = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
 
   for my $i (1 .. $form->{paidaccounts}) {
+    # hook for calc of of fx_paid and check if banktransaction has a record exchangerate
+    if ($form->{"exchangerate_$i"}) {
+      my $bt_acc_trans;
+      my $bt_acc_trans = SL::DB::Manager::BankTransactionAccTrans->find_by(acc_trans_id => $form->{"acc_trans_id_$i"});
+      if ($bt_acc_trans) {
+        if ($bt_acc_trans->bank_transaction->exchangerate > 0) {
+          $form->{"exchangerate_$i"} = $bt_acc_trans->bank_transaction->exchangerate;
+          $form->{"forex_$i"}        = $form->{"exchangerate_$i"};
+          $form->{"record_forex_$i"} = 1;
+        }
+      }
+      $form->{"fx_paid_$i"} = $form->{"paid_$i"} / $form->{"exchangerate_$i"};
+      $form->{"fx_totalpaid"} +=  $form->{"fx_paid_$i"};
+    } # end hook fx_paid
     # format amounts
     if ($form->{"paid_$i"}) {
       $form->{"paid_$i"} = $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
@@ -574,8 +590,9 @@ sub form_header {
        $form->{'AP_paid_' . $i} . " " . SL::DB::Manager::Chart->find_by(accno => $form->{'AP_paid_' . $i})->description
      : '';
   }
-
-  $form->{paid_missing} = $form->{invtotal_unformatted} - $form->{totalpaid};
+  $form->{paid_missing} =  $::form->{is_linked_bank_transaction} && $form->{invoice_obj}->forex ?
+                           $form->{invoice_obj}->open_amount
+                        :  $form->{invtotal_unformatted} - $form->{totalpaid};
 
   $form->{payment_id} = $form->{invoice_obj}->{payment_id} // $form->{payment_id};
   print $form->parse_html_template('ap/form_header', {
@@ -1407,11 +1424,14 @@ sub setup_ap_display_form_action_bar {
                       : $is_linked_bank_transaction                 ? 1
                       : $has_sepa_exports                           ? 1
                       : 0;
+  # and is_linked_bank_transaction
+  $::form->{is_linked_bank_transaction} = $is_linked_bank_transaction;
 
   my $create_post_action = sub {
     # $_[0]: description
     # $_[1]: after_action
     action => [
+
       $_[0],
       submit   => [ '#form', { action => "post", after_action => $_[1] } ],
       checks   => [ 'kivi.validate_form', 'kivi.AP.check_fields_before_posting', 'kivi.AP.check_duplicate_invnumber' ],

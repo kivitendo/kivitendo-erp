@@ -483,6 +483,20 @@ sub form_header {
 
   my @payments;
   for my $i (1 .. $form->{paidaccounts}) {
+    # hook for calc of of fx_paid and check if banktransaction has a record exchangerate
+    if ($form->{"exchangerate_$i"}) {
+      my $bt_acc_trans;
+      my $bt_acc_trans = SL::DB::Manager::BankTransactionAccTrans->find_by(acc_trans_id => $form->{"acc_trans_id_$i"});
+        if ($bt_acc_trans) {
+          if ($bt_acc_trans->bank_transaction->exchangerate > 0) {
+            $form->{"exchangerate_$i"} = $bt_acc_trans->bank_transaction->exchangerate;
+            $form->{"forex_$i"}        = $form->{"exchangerate_$i"};
+            $form->{"record_forex_$i"} = 1;
+          }
+        }
+      $form->{"fx_paid_$i"} = $form->{"paid_$i"} / $form->{"exchangerate_$i"};
+      $form->{"fx_totalpaid"} +=  $form->{"fx_paid_$i"};
+    } # end hook fx_paid
     my $payment = {
       paid             => $form->{"paid_$i"},
       exchangerate     => $form->{"exchangerate_$i"} || '',
@@ -492,9 +506,12 @@ sub form_header {
       memo             => $form->{"memo_$i"},
       AR_paid          => $form->{"AR_paid_$i"},
       forex            => $form->{"forex_$i"},
+      record_forex     => $form->{"record_forex_$i"},
       datepaid         => $form->{"datepaid_$i"},
       paid_project_id  => $form->{"paid_project_id_$i"},
       gldate           => $form->{"gldate_$i"},
+      fx_paid          => $form->{"fx_paid_$i"},
+      fx_totalpaid     => $form->{"fx_totalpaid_$i"},
     };
 
     # default account for current assets (i.e. 1801 - SKR04) if no account is selected
@@ -541,10 +558,13 @@ sub form_header {
   );
 
   setup_ar_form_header_action_bar();
+  $::form->{paid_missing} =  $form->{is_linked_bank_transaction} && $form->{invoice_obj}->forex ?
+                           $form->{invoice_obj}->open_amount
+                        :  $::form->{invtotal} - $::form->{totalpaid};
 
   $form->header;
   print $::form->parse_html_template('ar/form_header', {
-    paid_missing         => $::form->{invtotal} - $::form->{totalpaid},
+    paid_missing         => $::form->{paidmissing},
     show_exch            => ($::form->{defaultcurrency} && ($::form->{currency} ne $::form->{defaultcurrency})),
     payments             => \@payments,
     transactions         => \@transactions,
@@ -1373,7 +1393,6 @@ sub setup_ar_form_header_action_bar {
 
   my $is_linked_bank_transaction;
   if ($::form->{id}
-      && SL::DB::Default->get->payments_changeable != 0
       && SL::DB::Manager::BankTransactionAccTrans->find_by(ar_id => $::form->{id})) {
 
     $is_linked_bank_transaction = 1;
@@ -1387,6 +1406,8 @@ sub setup_ar_form_header_action_bar {
                       : ($::form->{id} && $change_on_same_day_only) ? 1
                       : $is_linked_bank_transaction                 ? 1
                       : 0;
+  # and is_linked_bank_transaction
+  $::form->{is_linked_bank_transaction} = $is_linked_bank_transaction;
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
