@@ -92,7 +92,7 @@
   [% SET record_forex = 'record_forex_' _ i %]
   [% IF $forex %]
         <input type="hidden" name="exchangerate_[% i %]" value="[% LxERP.format_amount($exchangerate, 5) %]">
-          [% LxERP.format_amount($forex, 5) %] = [% $fx_paid %] [% currency %] </br>
+          [% LxERP.format_amount($forex, 5) %] = [% LxERP.format_amount($fx_paid, 5) %] [% currency %] </br>
           [% IF $record_forex %][% 'bank transaction exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
   [% ELSE %]
      [% IF $changeable %]

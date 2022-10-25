@@ -287,7 +287,7 @@
   [%- IF row.changeable %]
           <input name="paid_[% loop.count %]" size=11 data-validate="number" class="numeric" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]">
   [%- ELSE %]
-         [% row.paid | html %]<input type=hidden name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]">
+         [% row.paid | html %]<input type=hidden name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]"> [% defaultcurrency %]
   [%- END %]
          </td>
          <td>
@@ -298,7 +298,9 @@
 [%- IF show_exch %]
          <td align=center>
     [%- IF row.forex || !row.changeable%]
-          <input type=hidden name="exchangerate_[% loop.count %]" value="[%- LxERP.format_amount(row.exchangerate, 5, 1) -%]">[%- LxERP.format_amount(row.exchangerate, 5, 1) -%]
+          <input type=hidden name="exchangerate_[% loop.count %]" value="[%- LxERP.format_amount(row.exchangerate, 5, 1) -%]">
+      [%- LxERP.format_amount(row.exchangerate, 5, 0) -%] = [% LxERP.format_amount(row.fx_paid, 2) %] [% currency %]</br>
+      [% IF $record_forex %][% 'bank transaction exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
     [%- ELSE %]
           <input name="exchangerate_[% loop.count %]" size=10 value="[%- LxERP.format_amount(row.exchangerate, 5, 1) -%]">
     [%- END %]
@@ -329,7 +331,13 @@
           <td></td>
           <td></td>
           <td align="center">[% 'Total' | $T8 %]</td>
-          <td align="center">[% LxERP.format_amount(totalpaid, 2) | html %]</td>
+          <td align="center">[% LxERP.format_amount(totalpaid, 2) | html %]  [% defaultcurrency %] </td>
+        [% IF show_exch %]
+            <td></td>
+            <td align="center">[% LxERP.format_amount(fx_totalpaid, 2) | html %] [% currency %]</td>
+            <input type="hidden" name="fx_totalpaid" value="[% fx_totalpaid %]">
+            <input type="hidden" name="is_linked_bank_transaction" value="[% is_linked_bank_transaction %]">
+        [% END %]
         </tr>
         <tr>
           <td></td>

@@ -138,6 +138,7 @@
                        <input name="exchangerate" size="10" value="[% HTML.escape(LxERP.format_amount(exchangerate)) %]">
                      [%- END %]
                      [% IF record_forex %][% 'record exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
+                     [% L.hidden_tag("record_forex", record_forex) %]
                 [% END %]
               </tr>
 
@@ -340,12 +341,12 @@
             </td>
 
             [% temp = "paid_"_ i %]
-            <td align="center">
+            <td align="right">
               [% IF( changeable ) %]
                 <input name="[% temp %]" size="11" data-validate="number" class="numeric" value="[% $temp | html %]" id="[%- 'payment_' _ temp -%]">
               [% ELSE %]
                 [% $temp | html %]
-                <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
+                <input type="hidden" name="[% temp %]" value="[% $temp | html %]"> [% defaultcurrency %]
               [% END %]
             </td>
 
@@ -403,11 +404,12 @@
           <td></td>
           <td></td>
           <td align="center">[% 'Total' | $T8 %]</td>
-          <td align="center">[% LxERP.format_amount(totalpaid, 2) | html %]</td>
+          <td align="right">[% LxERP.format_amount(totalpaid, 2) | html %] [% defaultcurrency %]</td>
         [% IF ( !defaultcurrency || (currency != defaultcurrency) ) %]
             <td></td>
             <td align="center">[% LxERP.format_amount(fx_totalpaid, 2) | html %] [% currency %]</td>
             <input type="hidden" name="fx_totalpaid" value="[% fx_totalpaid %]">
+            <input type="hidden" name="is_linked_bank_transaction" value="[% is_linked_bank_transaction %]">
         [% END %]
 
         </tr>
@@ -415,7 +417,7 @@
           <td></td>
           <td></td>
           <td align="center">[% 'Missing amount' | $T8 %]</td>
-          <td align="center">[% LxERP.format_amount(paid_missing, 2) | html %]</td>
+          <td align="right">[% LxERP.format_amount(paid_missing, 2) | html %] [% defaultcurrency %]</td>
         </tr>
       </table>
       [% END %]
