@@ -264,14 +264,16 @@ sub action_save_as_new {
 sub action_print {
   my ($self) = @_;
 
-  my $errors = $self->save();
+  if ( !$self->order->delivered ) {
+    my $errors = $self->save();
 
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
+    if (scalar @{ $errors }) {
+      $self->js->flash('error', $_) foreach @{ $errors };
+      return $self->js->render();
+    }
+
+    $self->js_reset_order_and_item_ids_after_save;
   }
-
-  $self->js_reset_order_and_item_ids_after_save;
 
   my $format      = $::form->{print_options}->{format};
   my $media       = $::form->{print_options}->{media};
@@ -344,13 +346,15 @@ sub action_print {
 sub action_preview_pdf {
   my ($self) = @_;
 
-  my $errors = $self->save();
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
+  if ( !$self->order->delivered ) {
+    my $errors = $self->save();
+    if (scalar @{ $errors }) {
+      $self->js->flash('error', $_) foreach @{ $errors };
+      return $self->js->render();
+    }
 
-  $self->js_reset_order_and_item_ids_after_save;
+    $self->js_reset_order_and_item_ids_after_save;
+  }
 
   my $format      = 'pdf';
   my $media       = 'screen';
@@ -389,11 +393,13 @@ sub action_preview_pdf {
 sub action_save_and_show_email_dialog {
   my ($self) = @_;
 
-  my $errors = $self->save();
+  if ( !$self->order->delivered ) {
+    my $errors = $self->save();
 
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
+    if (scalar @{ $errors }) {
+      $self->js->flash('error', $_) foreach @{ $errors };
+      return $self->js->render();
+    }
   }
 
   my $cv_method = $self->cv;
@@ -447,15 +453,17 @@ sub action_save_and_show_email_dialog {
 sub action_send_email {
   my ($self) = @_;
 
-  my $errors = $self->save();
+  if ( !$self->order->delivered ) {
+    my $errors = $self->save();
 
-  if (scalar @{ $errors }) {
-    $self->js->run('kivi.DeliveryOrder.close_email_dialog');
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
+    if (scalar @{ $errors }) {
+      $self->js->run('kivi.DeliveryOrder.close_email_dialog');
+      $self->js->flash('error', $_) foreach @{ $errors };
+      return $self->js->render();
+    }
+    $self->js_reset_order_and_item_ids_after_save;
   }
 
-  $self->js_reset_order_and_item_ids_after_save;
 
   my $email_form  = delete $::form->{email_form};
   my %field_names = (to => 'email');
@@ -1865,7 +1873,9 @@ sub setup_edit_action_bar {
                                                      warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
                                                      warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
           ],
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : $self->order->delivered ? t8('This record has already been delivered.')
+                    :                        undef,
         ],
         action => [
           t8('Save as new'),
