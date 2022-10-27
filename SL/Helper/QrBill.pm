@@ -103,12 +103,12 @@ sub _init_check {
     'biller data' => [
       [ 'address_type', qr{^[KS]$}     ],
       [ 'company',      qr{^.{1,70}$}  ],
-      [ 'address_row1', qr{^.{0,70}$}  ],
-      [ 'address_row2', qr{^.{0,70}$}  ],
-      [ 'street',       qr{^.{0,70}$}  ],
-      [ 'street_no',    qr{^.{0,16}$}  ],
-      [ 'postalcode',   qr{^.{0,16}$}  ],
-      [ 'city',         qr{^.{0,35}$}  ],
+      [ 'address_row1', qr{^.{0,70}$}  ], # combined (K)
+      [ 'address_row2', qr{^.{0,70}$}  ], # "
+      [ 'street',       qr{^.{0,70}$}  ], # structured (S)
+      [ 'street_no',    qr{^.{0,16}$}  ], # "
+      [ 'postalcode',   qr{^.{0,16}$}  ], # "
+      [ 'city',         qr{^.{0,35}$}  ], # "
       [ 'countrycode',  qr{^[A-Z]{2}$} ],
     ],
     'payment information' => [
@@ -118,12 +118,12 @@ sub _init_check {
     'invoice recipient data' => [
       [ 'address_type', qr{^[KS]$}     ],
       [ 'name',         qr{^.{1,70}$}  ],
-      [ 'address_row1', qr{^.{0,70}$}  ],
-      [ 'address_row2', qr{^.{0,70}$}  ],
-      [ 'street',       qr{^.{0,70}$}  ],
-      [ 'street_no',    qr{^.{0,16}$}  ],
-      [ 'postalcode',   qr{^.{0,16}$}  ],
-      [ 'city',         qr{^.{0,35}$}  ],
+      [ 'address_row1', qr{^.{0,70}$}  ], # combined (K)
+      [ 'address_row2', qr{^.{0,70}$}  ], # "
+      [ 'street',       qr{^.{0,70}$}  ], # structured (S)
+      [ 'street_no',    qr{^.{0,16}$}  ], # "
+      [ 'postalcode',   qr{^.{0,16}$}  ], # "
+      [ 'city',         qr{^.{0,35}$}  ], # "
       [ 'countrycode',  qr{^[A-Z]{2}$} ],
     ],
     'reference number data' => [
