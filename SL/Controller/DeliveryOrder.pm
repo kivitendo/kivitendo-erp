@@ -1351,7 +1351,7 @@ sub load_order {
   # You need a custom shipto object to call cvars_by_config to get the cvars.
   $self->order->custom_shipto(SL::DB::Shipto->new(module => 'OE', custom_variables => [])) if !$self->order->custom_shipto;
 
-  $self->prepare_stock_info($_) for $self->order->items;
+  $self->order->prepare_stock_info($_) for $self->order->items;
 
   return $self->order;
 }
@@ -1402,8 +1402,6 @@ sub make_order {
     push @items, $item;
     $pos++;
   }
-
-  $self->prepare_stock_info($_) for $order->items, @items;
 
   $order->add_items(grep {!$_->id} @items);
 
@@ -1530,21 +1528,6 @@ sub new_item {
   $item->assign_attributes(%new_attr, %{ $texts });
 
   return $item;
-}
-
-sub prepare_stock_info {
-  my ($self, $item) = @_;
-
-  $item->{stock_info} = SL::YAML::Dump([
-    map +{
-      delivery_order_items_stock_id => $_->id,
-      qty                           => $_->qty,
-      warehouse_id                  => $_->warehouse_id,
-      bin_id                        => $_->bin_id,
-      chargenumber                  => $_->chargenumber,
-      unit                          => $_->unit,
-    }, $item->delivery_order_stock_entries
-  ]);
 }
 
 sub setup_order_from_cv {

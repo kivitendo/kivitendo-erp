@@ -3,7 +3,7 @@ package SL::DB::Helper::FlattenToForm;
 use strict;
 
 use parent qw(Exporter);
-our @EXPORT = qw(flatten_to_form);
+our @EXPORT = qw(flatten_to_form prepare_stock_info);
 
 use List::MoreUtils qw(uniq any);
 
@@ -111,12 +111,31 @@ sub flatten_to_form {
       $form->{"deliverydate_oe_${idx}"} = $date;
       $form->{"reqdate_${idx}"}         = $date;
     }
+    if (ref($self) eq 'SL::DB::DeliveryOrder'){
+      my $in_out   = $form->{type} =~ /^sales|^supplier/ ? 'out' : 'in';
+      $form->{"stock_" . $in_out . "_" . ${idx}} = prepare_stock_info($self,$item);
+    }
   }
 
   _copy_custom_variables($self, $form, 'vc_cvar_', '', $cvar_validity{vc});
   _copy_custom_variables($self->contact, $form, 'cp_cvar_', '') if $self->contact;
 
   return $self;
+}
+
+sub prepare_stock_info {
+  my ($self, $item) = @_;
+
+  $item->{stock_info} = SL::YAML::Dump([
+    map +{
+      delivery_order_items_stock_id => $_->id,
+      qty                           => $_->qty,
+      warehouse_id                  => $_->warehouse_id,
+      bin_id                        => $_->bin_id,
+      chargenumber                  => $_->chargenumber,
+      unit                          => $_->unit,
+    }, $item->delivery_order_stock_entries
+  ]);
 }
 
 sub _has {

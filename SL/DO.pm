@@ -977,7 +977,7 @@ sub order_details {
                            (SELECT description FROM warehouse WHERE id = ?) AS warehouse|;
   my $h_bin_wh = prepare_query($form, $dbh, $q_bin_wh);
 
-  my $in_out   = $form->{type} =~ /^sales/ ? 'out' : 'in';
+  my $in_out   = $form->{type} =~ /^sales|^supplier/ ? 'out' : 'in';
 
   my $num_si   = 0;
 
