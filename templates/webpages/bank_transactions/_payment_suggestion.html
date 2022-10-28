@@ -21,7 +21,7 @@
    [% UNLESS daily_exchangerate  %][% LxERP.t8("new") %] [% END %][% LxERP.t8("default exchange rate") %]: [% P.input_tag("exchangerate_" _ bt_id _ "_" _  invoice.id , "$formatted_daily_exchangerate", style=style, disabled=0, size=4, class='numeric') %]
    [% P.hidden_tag("currency_id_" _ bt_id _ "_" _ invoice.id, invoice.currency.id) %]
    </br>
-   [% UNLESS invoice.is_sales %]
+   [% IF invoice.invoice_type == 'ap_transaction' || invoice.invoice_type == 'purchase_invoice' || invoice.invoice_type == 'credit_note' %]
      [% P.checkbox_tag("book_fx_bank_fees_" _ bt_id _ "_" _ invoice.id, value=1, checked="1") %] [% LxERP.t8("Bank Fee Booking") %]
      </br>
    [% END %]

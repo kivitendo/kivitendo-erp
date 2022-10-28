@@ -109,7 +109,8 @@ sub link {
 sub invoice_type {
   my ($self) = @_;
 
-  return 'ap_transaction' if !$self->invoice;
+  return 'purchase_credit_note'  if  $self->amount < 0;
+  return 'ap_transaction'        if !$self->invoice;
   return 'purchase_invoice';
 }
 
