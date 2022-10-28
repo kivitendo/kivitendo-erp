@@ -166,7 +166,7 @@ sub display_row {
 
   # column_index
   my @header_sort = qw(
-    runningnumber partnumber type_and_classific description ship ship_missing qty price_factor
+    runningnumber partnumber vendor_partnumber type_and_classific description ship ship_missing qty price_factor
     unit weight price_source sellprice discount linetotal
     bin stock_in_out
   );
@@ -205,6 +205,7 @@ sub display_row {
     listprice     => {                 value => $locale->text('LP'),                   display => $show_marge, },
     lastcost      => {                 value => $locale->text('EK'),                   display => $show_marge, },
     onhand        => {                 value => $locale->text('On Hand'),              display => 1, },
+    vendor_partnumber => { width => 8, value => $locale->text('Vendor Part Number'),   display => $is_delivery_order && $is_purchase, },
   );
   my @HEADER = map { $column_def{$_} } @header_sort;
 
@@ -318,6 +319,7 @@ sub display_row {
 
 
     $column_data{partnumber}    = $cgi->textfield(-name => "partnumber_$i",    -id => "partnumber_$i",    -size => 12, -value => $form->{"partnumber_$i"});
+    $column_data{vendor_partnumber} = $form->{"vendor_partnumber_$i"};
     $column_data{type_and_classific} = SL::Presenter::Part::type_abbreviation($form->{"part_type_$i"}).
                                        SL::Presenter::Part::classification_abbreviation($form->{"classification_id_$i"}) if $form->{"id_$i"};
     $column_data{description} = (($rows > 1) # if description is too large, use a textbox instead

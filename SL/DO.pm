@@ -884,8 +884,10 @@ sub retrieve {
                                            trans_id   => $doi->{delivery_order_items_id},
                                           );
     map { $doi->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
-  }
 
+    my $makemodel = SL::DB::Manager::MakeModel->find_by(parts_id => $doi->{id}, make =>$form->{vendor_id});
+    $doi->{vendor_partnumber} = $makemodel->model if $makemodel;
+  }
   if ($mode eq 'single') {
     my $in_out = $form->{type} =~ /^sales/ ? 'out' : 'in';
 
