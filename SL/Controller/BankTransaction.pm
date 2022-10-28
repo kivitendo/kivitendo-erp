@@ -675,30 +675,17 @@ sub save_single_bank_transaction {
     # payment_type to the helper and get the corresponding bank_transaction values back
     # hotfix to get the signs right - compare absolute values and later set the signs
     # should be better done elsewhere - changing not_assigned_amount to abs feels seriously bogus
-
+    # default open amount
     my $open_amount = $payment_type eq 'with_skonto_pt' ? $invoice->amount_less_skonto : $invoice->open_amount;
-    $open_amount            = abs($open_amount);
-    $open_amount           -= $free_skonto_amount if ($payment_type eq 'free_skonto');
-    my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
-    my $amount_for_payment  = ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount;
-    my $amount_for_booking  = ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount;
-
-    # get the right direction for the payment bookings (all amounts < 0 are stornos, credit notes or negative ap)
-    $amount_for_payment *= -1 if $invoice->amount < 0;
-    $free_skonto_amount *= -1 if ($free_skonto_amount && $invoice->amount < 0);
-    # get the right direction for the bank transaction
-    # sign is simply the sign of amount in bank_transactions: positive for increase and negative for decrease
-    $amount_for_booking *= $sign;
-
-    # check exchangerate and if fx_loss calculate new booking_amount for this invoice
-    if ($fx_rate > 0)  {
+    # if fx calc new open amount with skonto pt and set new exchange rate (default or for bank_transaction)
+    if ($fx_rate > 0) {
+      # 1. set new open amount
       die "Exchangerate without currency"                     unless $currency_id;
       die "Invoice currency differs from user input currency" unless $currency_id == $invoice->currency->id;
-
-      # 1 set daily default or custom record exchange rate
+      $open_amount  = $payment_type eq 'with_skonto_pt' ? $invoice->amount_less_skonto_fx($fx_rate) : $invoice->open_amount_fx($fx_rate);
+      # 2. set daily default or custom record exchange rate
       my $default_rate = $invoice->get_exchangerate_for_bank_transaction($bank_transaction->id);
       if (!$default_rate) { # set new daily default
-        # helper
         my $buysell = $invoice->is_sales ? 'buy' : 'sell';
         my $ex = SL::DB::Manager::Exchangerate->find_by(currency_id => $currency_id,
                                                         transdate => $bank_transaction->valutadate)
@@ -709,22 +696,60 @@ sub save_single_bank_transaction {
       } elsif ($default_rate != $fx_rate) {           # set record (banktransaction) exchangerate
         $bank_transaction->exchangerate($fx_rate);    # custom rate, will be displayed in ap, ir, is
       } elsif (abs($default_rate - $fx_rate) < 0.001) {
-        # should be last valid state -> do nothing
+        # last valid state default rate is (nearly) the same as user input -> do nothing
       } else { die "Invalid exchange rate state:" . $default_rate . " " . $fx_rate; }
+    } # end fx hook
 
+    # open amount is in default currency -> free_skonto is in default currency, no need to change
+    $open_amount            = abs($open_amount);
+    $open_amount           -= $free_skonto_amount if ($payment_type eq 'free_skonto');
+    my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
+    my $amount_for_booking  = ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount;
+    my $fx_fee_amount       = $fx_book && ($open_amount < $not_assigned_amount) ? $not_assigned_amount - $open_amount : 0;
+    my $amount_for_payment  = $amount_for_booking;
+    # add booking amount
+    # $amount_for_booking
+
+    # get the right direction for the payment bookings (all amounts < 0 are stornos, credit notes or negative ap)
+    $amount_for_payment *= -1 if $invoice->amount < 0;
+    $free_skonto_amount *= -1 if ($free_skonto_amount && $invoice->amount < 0);
+    # get the right direction for the bank transaction
+    # sign is simply the sign of amount in bank_transactions: positive for increase and negative for decrease
+    $amount_for_booking *= $sign;
+
+    $main::lxdebug->message(0, 'amount for payment:' . $amount_for_payment);
+    # check exchangerate and if fx_loss calculate new booking_amount for this invoice
+    #if ($fx_rate > 0)  {
+    #  die "Exchangerate without currency"                     unless $currency_id;
+    #  die "Invoice currency differs from user input currency" unless $currency_id == $invoice->currency->id;
+
+
+      # open_amount is open_amount for default currency
+      # TODO
+      # use helper to calc everything (even)
       # 2 if fx_loss, we probably need a higher amount to pay the original amount of the ap invoice
-      if ($invoice->get_exchangerate < $fx_rate) {
+      # no, just calc new open_amount and check if user wants a fee booking
+    #  my $open_amount_fx = $invoice->open_amount_fx($fx_rate);
+    #  $amount_for_payment = $fx_book ? $not_assigned_amount : $invoice->open_amount_fx($fx_rate);
+
+    #  die $open_amount_fx;
+    #  if ($invoice->get_exchangerate < $fx_rate) {
         # set whole bank_transaction amount -> pay_invoice will try to calculate losses and bank fees
-        my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
-        $amount_for_payment = $not_assigned_amount;
-        $amount_for_payment *= -1 if $invoice->amount < 0;
-      } elsif ($invoice->get_exchangerate >= $fx_rate) {
+    #    my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
+    #    $amount_for_payment = $not_assigned_amount;
+    #    $amount_for_payment *= -1 if $invoice->amount < 0;
+    #  } elsif ($invoice->get_exchangerate >= $fx_rate) {
         # if fx_gain do nothing, because gain
         # bla bla
-      } else {
-        die "Invalid exchange rate state for record:" . $invoice->get_exchangerate . " " . $fx_rate;
-      }
-    }
+        # TODO copy paste
+    #    my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
+    #    $amount_for_payment = $not_assigned_amount;
+    #    $amount_for_payment *= -1 if $invoice->amount < 0;
+    #  } else {
+    #    die "Invalid exchange rate state for record:" . $invoice->get_exchangerate . " " . $fx_rate;
+    #  }
+    #}
+    #$main::lxdebug->message(0, 'amount for payment2:' . $amount_for_payment);
     # ... and then pay the invoice
     my @acc_ids = $invoice->pay_invoice(chart_id => $bank_transaction->local_bank_account->chart_id,
                           trans_id      => $invoice->id,
@@ -735,16 +760,21 @@ sub save_single_bank_transaction {
                           skonto_amount => $free_skonto_amount,
                           exchangerate  => $fx_rate,
                           fx_book       => $fx_book,
+                          fx_fee_amount => $fx_fee_amount,
                           currency_id   => $currency_id,
                           bt_id         => $bt_id,
                           transdate     => $bank_transaction->valutadate->to_kivitendo);
     # First element is the booked amount for accno bank
-    my $booked_amount = shift @acc_ids;
+    my $bank_amount = shift @acc_ids;
+    $main::lxdebug->message(0, 'a' . $bank_amount->{return_bank_amount});
+    $main::lxdebug->message(0, 'b' . $amount_for_booking);
     if (!$invoice->forex) {
-      die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless abs(abs($booked_amount) - abs($amount_for_booking)) < 0.001;
+      die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless (abs($bank_amount->{return_bank_amount}) - abs($amount_for_booking) < 0.001);
       $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $amount_for_booking);
     } else {
-      $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $booked_amount * $sign);
+      die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless $fx_book || (abs($bank_amount->{return_bank_amount}) - abs($amount_for_booking) < 0.001);
+      $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $bank_amount->{return_bank_amount});
+      #$bank_transaction->invoice_amount($bank_transaction->invoice_amount + $amount_for_booking);
     }
     # ... and record the origin via BankTransactionAccTrans
     if (scalar(@acc_ids) < 2) {
