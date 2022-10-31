@@ -97,7 +97,11 @@ sub action_add_from_reclamation {
 
   require SL::DB::Reclamation;
   my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
-  my $order = $reclamation->convert_to_order();
+  my %params;
+  $params{destination_type} = $reclamation->is_sales ? 'sales_order'
+                                              : 'purchase_order';
+  my $order = SL::DB::Order->new_from($reclamation, %params);
+  $self->{converted_from_reclamation_id} = $::form->{from_id};
 
   $self->order($order);
 
@@ -1609,6 +1613,7 @@ sub js_reset_order_and_item_ids_after_save {
   $self->js
     ->val('#id', $self->order->id)
     ->val('#converted_from_oe_id', '')
+    ->val('#converted_from_reclamation_id', '')
     ->val('#order_' . $self->nr_key(), $self->order->number);
 
   my $idx = 0;
@@ -1623,6 +1628,7 @@ sub js_reset_order_and_item_ids_after_save {
     $idx++;
   }
   $self->js->val('[name="converted_from_orderitems_ids[+]"]', '');
+  $self->js->val('[name="converted_from_reclamation_items_ids[+]"]', '');
 }
 
 #
@@ -2156,6 +2162,27 @@ sub save {
       }
 
       $self->link_requirement_specs_linking_to_created_from_objects(@converted_from_oe_ids);
+    }
+    if ($::form->{converted_from_reclamation_id}) {
+      my @converted_from_reclamation_ids = split ' ', $::form->{converted_from_reclamation_id};
+
+      foreach my $converted_from_reclamation_id (@converted_from_reclamation_ids) {
+        my $src = SL::DB::Reclamation->new(id => $converted_from_reclamation_id)->load;
+        $src->link_to_record($self->order);
+      }
+      if (scalar @{ $::form->{converted_from_reclamation_items_ids} || [] }) {
+        my $idx = 0;
+        foreach (@{ $self->order->items_sorted }) {
+          my $from_id = $::form->{converted_from_reclamation_items_ids}->[$idx];
+          next if !$from_id;
+          SL::DB::RecordLink->new(from_table => 'reclamation_items',
+                                  from_id    => $from_id,
+                                  to_table   => 'orderitems',
+                                  to_id      => $_->id
+          )->save;
+          $idx++;
+        }
+      }
     }
 
     $self->set_project_in_linked_requirement_specs if $self->order->globalproject_id;
