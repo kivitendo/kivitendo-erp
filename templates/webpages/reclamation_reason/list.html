@@ -20,8 +20,8 @@
     <td><a href="[% SELF.url_for(action='edit', id=reason.id) %]">[% HTML.escape(reason.name) %]
 [% # reason.level %]</a></td>
     <td>[% reason.description | html %]</td>
-    <td>[% (reason.valid_for_sales? 'Yes' : 'No') | $T8 %]</td>
-    <td>[% (reason.valid_for_purchase? 'Yes' : 'No') | $T8 %]</td>
+    <td>[% reason.valid_for_sales_as_bool_yn %]</td>
+    <td>[% reason.valid_for_purchase_as_bool_yn %]</td>
    [%- END %]
   </tbody>
  </table>

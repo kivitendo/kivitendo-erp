@@ -19,11 +19,11 @@
   </tr>
   <tr>
     <th align="right">[% 'Valid for Sales' | $T8 %]</th>
-     <td align="left">[% L.checkbox_tag("reclamation_reason.valid_for_sales", checked=reclamation_reason.valid_for_sales, for_submit=1) %]</td>
+     <td align="left">[% L.checkbox_tag("reclamation_reason.valid_for_sales", checked=SELF.reclamation_reason.valid_for_sales, for_submit=1) %]</td>
   </tr>
   <tr>
     <th align="right">[% 'Valid for Purchase' | $T8 %]</th>
-     <td align="left">[% L.checkbox_tag("reclamation_reason.valid_for_purchase", checked=reclamation_reason.valid_for_purchase, for_submit=1) %]</td>
+     <td align="left">[% L.checkbox_tag("reclamation_reason.valid_for_purchase", checked=SELF.reclamation_reason.valid_for_purchase, for_submit=1) %]</td>
   </tr>
 </table>
 </form>
