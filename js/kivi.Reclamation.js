@@ -38,7 +38,7 @@ namespace('kivi.Reclamation', function(ns) {
 
   ns.check_valid_reqdate = function() {
     if ($('#reclamation_reqdate_as_date').val() === '') {
-      alert(kivi.t8('Please select a due date.'));
+      alert(kivi.t8('Please select a deadline date.'));
       return false;
     } else {
       return true;
