@@ -41,15 +41,6 @@ use File::Spec;
 use Cwd;
 use Sort::Naturally;
 
-# for _link_to_records
-use SL::DB::Order;
-use SL::DB::OrderItem;
-use SL::DB::DeliveryOrder;
-use SL::DB::DeliveryOrderItem;
-use SL::DB::Invoice;
-use SL::DB::PurchaseInvoice;
-use SL::DB::InvoiceItem;
-
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(item_ids_to_delete is_custom_shipto_to_delete) ],
