@@ -218,6 +218,20 @@ SQL
     push @values, like($form->{parts_description});
   }
 
+  if ($form->{chargenumber}) {
+    push @where, <<SQL;
+      EXISTS (
+        SELECT delivery_order_items_stock.id
+        FROM delivery_order_items_stock
+        LEFT JOIN delivery_order_items ON (delivery_order_items.id = delivery_order_items_stock.delivery_order_item_id)
+        WHERE delivery_order_items.delivery_order_id = dord.id
+          AND delivery_order_items_stock.chargenumber ILIKE ?
+        LIMIT 1
+      )
+SQL
+    push @values, like($form->{chargenumber});
+  }
+
   if ($form->{all}) {
     my @tokens = parse_line('\s+', 0, $form->{all});
     # ordnumber quonumber customer.name vendor.name transaction_description
