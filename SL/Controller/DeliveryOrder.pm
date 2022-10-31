@@ -105,11 +105,8 @@ sub action_add_from_reclamation {
 
   require SL::DB::Reclamation;
   my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
-  my ($delivery_order, $error) = $reclamation->convert_to_delivery_order();
-  if($error) {
-    croak("Error while converting: " . $error);
-  }
-
+  my $delivery_order = SL::DB::DeliveryOrder->new_from($reclamation);
+  $self->{converted_from_reclamation_id} = $::form->{from_id};
   $self->order($delivery_order);
 
   $self->action_add;
@@ -1173,6 +1170,7 @@ sub js_reset_order_and_item_ids_after_save {
   $self->js
     ->val('#id', $self->order->id)
     ->val('#converted_from_oe_id', '')
+    ->val('#converted_from_reclamation_id', '')
     ->val('#order_' . $self->nr_key(), $self->order->number);
 
   my $idx = 0;
@@ -1187,6 +1185,7 @@ sub js_reset_order_and_item_ids_after_save {
     $idx++;
   }
   $self->js->val('[name="converted_from_orderitems_ids[+]"]', '');
+  $self->js->val('[name="converted_from_reclamation_items_ids[+]"]', '');
 }
 
 #
@@ -1631,6 +1630,26 @@ sub save {
           my $from_id = $::form->{converted_from_orderitems_ids}->[$idx];
           next if !$from_id;
           SL::DB::RecordLink->new(from_table => 'orderitems',
+                                  from_id    => $from_id,
+                                  to_table   => 'orderitems',
+                                  to_id      => $_->id
+          )->save;
+          $idx++;
+        }
+      }
+    }
+    if ($::form->{converted_from_reclamation_id}) {
+      my @converted_from_reclamation_ids = split ' ', $::form->{converted_from_reclamation_id};
+      foreach my $converted_from_reclamation_id (@converted_from_reclamation_ids) {
+        my $src = SL::DB::Reclamation->new(id => $converted_from_reclamation_id)->load;
+        $src->link_to_record($self->order);
+      }
+      if (scalar @{ $::form->{converted_from_reclamation_items_ids} || [] }) {
+        my $idx = 0;
+        foreach (@{ $self->order->items_sorted }) {
+          my $from_id = $::form->{converted_from_reclamation_items_ids}->[$idx];
+          next if !$from_id;
+          SL::DB::RecordLink->new(from_table => 'reclamation_items',
                                   from_id    => $from_id,
                                   to_table   => 'orderitems',
                                   to_id      => $_->id
