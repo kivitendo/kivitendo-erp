@@ -1138,6 +1138,31 @@ sub action_transfer_stock {
 
 }
 
+sub action_undo_transfers {
+  my ( $self ) = @_;
+
+  SL::DB->client->with_transaction(sub {
+    foreach my $item (@{$self->order->orderitems}) {
+      foreach my $inv_item (@{ $item->delivery_order_stock_entries}) {
+        $inv_item->inventory->delete;
+        $inv_item->delete;
+      }
+    }
+    $self->order->update_attributes(delivered => 0);
+    $self->order->update_attributes(closed => 0);
+  });
+
+  flash_later('info', t8("Transfer undone"));
+  my @redirect_params = (
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
+
+  $self->redirect_to(@redirect_params);
+
+}
+
 sub js_load_second_row {
   my ($self, $item, $item_id, $do_parse) = @_;
 
@@ -2002,6 +2027,16 @@ sub setup_edit_action_bar {
                     :                           undef,
           only_if  => $self->type_data->properties('transfer') eq 'in',
           confirm  => t8('Do you really want to transfer the stock and set this order to delivered?'),
+        ],
+        action => [
+          t8('Undo Transfer'),
+          id       => 'undo_transfer',
+          call     => [ 'kivi.DeliveryOrder.save', { action => 'undo_transfers' } ],
+          disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id       ? t8('This object has not been saved yet.')
+                    : undef,
+          only_if => $self->order->delivered,
+          confirm => t8('Do you really want undo transfers the stock and set this order to undelivered?'),
         ],
       ],
 
