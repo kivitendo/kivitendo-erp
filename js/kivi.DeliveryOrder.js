@@ -148,8 +148,7 @@ namespace('kivi.DeliveryOrder', function(ns) {
     $("#stock-in-out-table tr.listrow").each((i,row) => {
       let qty = kivi.parse_amount($(row).find(".data-qty").val());
 
-      if (qty === 0) return;
-      if (qty === null) return;
+      if (qty === 0 || qty === null) return;
 
       data.push({
         qty:                           qty,
