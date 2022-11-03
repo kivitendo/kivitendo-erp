@@ -1,0 +1,40 @@
+[% USE T8 %]
+[% USE L %]
+[% USE HTML %]
+[% USE LxERP %]
+
+<table id="customerprice_table" class="tbl-list wi-moderate">
+  <caption>[% 'Customer specific Price' | $T8 %]</caption>
+  <thead>
+    <tr>
+      <th class="center"><img src="image/close.png" alt="[% LxERP.t8('delete item') %]"></th>
+      <th class="center">[% 'position' | $T8 %]</th>
+      <th class="center"><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]"></th>
+      <th>[% 'Customer Number'      | $T8 %]</th>
+      <th>[% 'Customer'             | $T8 %]</th>
+      <th>[% 'Customer Part Number' | $T8 %]</th>
+      <th>[% 'Customer Price'       | $T8 %]</th>
+      <th>[% 'Updated'              | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody id="customerprice_rows">
+  [% SET listrow = 0 %]
+  [% FOREACH customerprice = SELF.part.customerprices_sorted %]
+    [% listrow = listrow + 1 %]
+    [% PROCESS 'part/_customerprice_row.html' customerprice=customerprice listrow=listrow %]
+  [% END %]
+ </tbody>
+ <tfoot>
+  <tr>
+   <td></td>
+   <td></td>
+   <td></td>
+   <th>[% 'Search & Add Customer' | $T8 %]</th>
+   <td>[% P.customer_vendor.customer_picker('add_customerprice', '', class="add_customerprice_input wi-small tooltipstered tooltipster-html", action={commit_one='kivi.Part.add_customerprice_row'}, title=LxERP.t8("Search customer by name and add by selecting")) %]</td>
+   <td>[% L.button_tag('kivi.Part.add_customerprice_row()', LxERP.t8('Add')) %]</td>
+   <td colspan="2"></td>
+  </tr>
+ </tfoot>
+</table>
+
+[% L.sortable_element('#customerprice_rows') %]

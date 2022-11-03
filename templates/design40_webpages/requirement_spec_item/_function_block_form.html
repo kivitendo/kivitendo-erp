@@ -1,0 +1,69 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+[% USE JavaScript %]
+[% USE P %][% SET style="width: 500px" %]
+
+[% DEFAULT id_base = 'edit_function_block_' _ SELF.item.id %]
+[% SET a_options = '' %]
+[% IF SELF.item.id %]
+  [% SET a_options = "to_show: '#" _ SELF.item.item_type _ "-content-top-" _ SELF.item.id _ "'" %]
+[% END %]
+[% IF SELF.item.item_type == 'sub-function-block' %]
+  [% SET a_options = a_options ? a_options _ ', ' : a_options %]
+  [% SET a_options = a_options _ "to_hide_if_empty: '#sub-function-block-container-" _ SELF.item.parent_id _ "'" %]
+[% END %]
+<form method="post" id="[% id_base %]_form" class="function-block-form">
+ [% L.hidden_tag('form_prefix',                    id_base,      id=id_base _ '_form_prefix') %]
+ [% L.hidden_tag('id',                             SELF.item.id, id=id_base _ '_id') %]
+ [% L.hidden_tag(id_base _ '.requirement_spec_id', SELF.item.requirement_spec_id) %]
+ [% L.hidden_tag(id_base _ '.parent_id',           SELF.item.parent_id) %]
+ [% L.hidden_tag(id_base _ '.item_type',           SELF.item.item_type) %]
+ [% IF insert_after %]
+  [% L.hidden_tag(id_base _ '.insert_after',       insert_after) %]
+ [% END %]
+
+<div class="rs-form">
+<table class="tbl-horizontal" class="wi-verywide">
+  <colgroup> <col class="wi-small"><col class="wi-verywide"> </colgroup> 
+  <caption>
+    [% IF SELF.item.id %]
+      [% LxERP.t8("Description of #1", SELF.item.fb_number) %]
+    [% ELSIF SELF.item.item_type == 'function-block' %]
+        [% LxERP.t8("Add function block") %]
+    [% ELSE %]
+        [% LxERP.t8("Add sub function block") %]
+    [% END %]
+  </caption>
+  <tbody>
+    <tr>
+      <th class="wi-small-verywide" colspan="2">[% L.textarea_tag(id_base _ '.description_as_restricted_html', SELF.item.description_as_restricted_html, id=id_base _ '_description', rows=8, cols=20, class='wi-wide', class='texteditor') %]</th>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Complexity") %]</th>
+      <td>[% L.select_tag(id_base _ '.complexity_id', SELF.complexities, title_key='description', default=SELF.item.complexity_id, class='wi-wide') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Risk") %]</th>
+      <td>[% L.select_tag(id_base _ '.risk_id', SELF.risks, title_key='description', default=SELF.item.risk_id, class='wi-wide') %]</td>
+    </tr>
+    [% IF !SELF.item.children.size %]
+      <tr>
+        <th>[% LxERP.t8("Time estimate") %]</th>
+        <td>[% P.man_days_tag(id_base _ '.time_estimation', SELF.item, class='wi-verysmall') %]</td>
+      </tr>
+    [% END %]
+    <tr>
+      <th>[% LxERP.t8("Dependencies") %]</th>
+      <td>[% L.select_tag(id_base _ '.dependencies[]', DEPENDENCIES, default=SELECTED_DEPENDENCIES, with_optgroups=1, multiple=1, size=8 class='wi-wide') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="buttons">
+    [% L.ajax_submit_tag('controller.pl?action=RequirementSpecItem/ajax_' _ (SELF.item.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save'), id=id_base _ '_submit') %]
+    <a href="#" onclick="kivi.requirement_spec.cancel_edit_item_form('[% id_base %]', { [% a_options %] })" class="button neutral">[% LxERP.t8("Cancel") %]</a>
+</div>
+</div><!-- /.wrapper.rs-fb-form -->
+
+</form>

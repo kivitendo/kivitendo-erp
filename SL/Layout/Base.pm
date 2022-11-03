@@ -44,6 +44,17 @@ sub webpages_path {
   "templates/webpages";
 }
 
+sub webpages_fallback_path {
+}
+
+sub html_dialect {
+  'transitional'
+}
+
+sub allow_stylesheet_fallback {
+  1
+}
+
 sub get {
   $_[0]->sub_layouts;
   return grep { $_ } ($_[0]->sub_layouts_by_name->{$_[1]});
@@ -139,7 +150,7 @@ sub _find_stylesheet {
   my ($self, $stylesheet, $css_path) = @_;
 
   return "$css_path/$stylesheet" if -f "$css_path/$stylesheet";
-  return "css/$stylesheet"       if -f "css/$stylesheet";
+  return "css/$stylesheet"       if -f "css/$stylesheet" && $self->allow_stylesheet_fallback;
   return $stylesheet             if -f $stylesheet;
   return $stylesheet             if $stylesheet =~ /^http/; # external
 }
@@ -328,6 +339,58 @@ Note how these are relative to the base dirs of the currently selected
 stylesheets. Javascripts are resolved relative to the C<js/> basedir.
 
 Setting directly with C<stylesheets> and C<javascripts> is eprecated.
+
+
+=head1 BEHAVIOUR SWITCHES FOR SUB LAYOUTS
+
+Certain methods have been added to adjust behaviour in sub layouts. Most of these are single case uses.
+
+=over 4
+
+=item * sublayouts_by_name
+
+Contains a map that holds named sublayouts. If a sublayout needs to targeted
+directly, the compositing layout needs to add it here. Initially introduced for
+the ActionPlan.
+
+=item * webpages_path
+
+Overrides the default webpages path "templates/webpages". Used for mobile and design40 styles.
+
+Note that this does not have fallback behaviour by default. It is intended for
+stylesheets where the templates are so incompatible that a complete fork of the
+templates dir is sensible.
+
+=item * webpages_fallback_path
+
+Allows partial template sets to fallback to other paths in case a template
+wasn't found. Intended to be used in conjunction with L</webpages_path>.
+
+Note: in case a template can't be found at all, generic/error.html will be
+rendered, and the fallback doesn't work in this case.
+
+
+=item * allow_stylesheet_fallback
+
+Defaults to true. The default behaviour is that stylesheets not found in the
+stylesheet path of the user will fallback to files found in css/. This is
+usually desirable for shared stuff like common.css, which contains behaviour
+styling. If a stylesheet comes from a separate generator, this can be used to
+turn falllback off. Files can still be included with the complete path though.
+A request for "common.css" would not find "css/common.css", but a request for
+"css/common.css" would be found.
+
+Also see the next section L</GORY DETAILS ABOUT JAVASCRIPT AND STYLESHEET OVERLOADING>
+
+=item * html_dialect
+
+Default 'transitional'. Controls the html dialect that the header will
+generate. Used in combination with template overriding for html5.
+
+See also L<SL::Form/header>
+
+=back
+
 
 
 =head1 GORY DETAILS ABOUT JAVASCRIPT AND STYLESHEET OVERLOADING

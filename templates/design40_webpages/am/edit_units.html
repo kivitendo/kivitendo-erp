@@ -1,0 +1,99 @@
+[%- USE T8 %][%- USE LxERP %][% USE L %]
+[% USE HTML %]
+<h1>
+  [% title %]
+</h1>
+
+[% INCLUDE "common/flash.html" %]
+
+<div class="wrapper">
+
+  <div class="col" style="width:30.0em">
+    [% PROCESS "am/_units_header_info.html" %]
+  </div>
+
+  <div class="col" style="width:30.0em">
+    <p>
+      [% 'Units that have already been used (e.g. for parts and services or in invoices or warehouse transactions) cannot be changed.' | $T8 %]
+    </p>
+    <p>
+      [% 'Units marked for deletion will be deleted upon saving.' | $T8 %]
+    </p>
+    <p>
+      [% 'You can declare different translations for singular and plural for each unit (e.g. &quot;day&quot; and &quot;days).' | $T8 %]
+    </p>
+  </div>
+</div>
+
+<div class="wrapper">
+
+  <form method="post" action="[% HTML.escape(script) %]" id="form">
+    <input type="hidden" name="type" value="unit">
+
+    <table id="unit_list" class="tbl-list wi-moderate">
+      <thead>
+        <tr>
+          <th class="center img"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
+          <th>[% 'Delete' | $T8 %]</th>
+          <th>[% 'Unit' | $T8 %]</th>
+          <th>[% 'Base unit' | $T8 %]</th>
+          <th>[% 'Factor' | $T8 %]</th>
+          [% FOREACH language = LANGUAGES %]
+          <th>[% language.description %]<br>
+          [% 'Singular' | $T8 %]</th>
+          <th><br>
+          [% 'Plural' | $T8 %]</th>
+          [% END %]
+        </tr>
+      </thead>
+      <tbody>
+        [% FOREACH row = UNITS %]
+        <tr id="unit_id_[% row.id %]">
+          <td class="center img dragdrop"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></td>
+        [% IF row.in_use %]
+          <td>
+            <input type="hidden" name="unchangeable_[% loop.count %]" value="1">
+            <input type="hidden" name="old_name_[% loop.count %]" value="[% HTML.escape(row.name) %]">
+          </td>
+          <td><span>[% HTML.escape(row.name) %]</span></td>
+          <td><span>[% IF row.base_unit %][% HTML.escape(row.base_unit) %][% ELSE %]---[% END %]</span></td>
+          <td class="numeric"><span>[% IF row.base_unit %][% HTML.escape(row.factor)    %][% ELSE %]---[% END %]</span></td>
+        [% ELSE %]
+          <td class="center">
+            <input type="checkbox" name="delete_[% loop.count %]">
+          </td>
+          <td>
+            <input type="hidden" name="old_name_[% loop.count %]" value="[% HTML.escape(row.name) %]">
+            <input name="name_[% loop.count %]" value="[% HTML.escape(row.name) %]" maxlength="20" type="text" class="wi-small">
+          </td>
+          <td>
+            <select name="base_unit_[% loop.count %]" class="wi-small">
+              [% FOREACH option = row.BASE_UNIT_DDBOX %]
+                <option [% option.selected %]>[% HTML.escape(option.name) %]</option>
+              [% END %]
+            </select>
+          </td>
+          <td>
+            <input name="factor_[% loop.count %]" value="[% row.factor %]" maxlength="8" type="text" class="wi-verysmall numeric">
+          </td>
+        [% END %]
+        [% FOREACH language = row.UNITLANGUAGES %]
+          <td>
+            <input type="text" name="localized_[% language.idx %]_[% language.language_id %]" value="[% HTML.escape(language.localized) %]" maxlength="20" class="wi-mediumsmall">
+          </td>
+          <td>
+            <input type="text" name="localized_plural_[% language.idx %]_[% language.language_id %]" value="[% HTML.escape(language.localized_plural) %]" maxlength="20" class="wi-mediumsmall">
+          </td>
+        [% END %]
+        </tr>
+        [% END %]
+      </tbody>
+    </table>
+
+    <input type="hidden" name="rowcount" value="[% UNITS.size %]">
+
+  </form>
+
+  [% L.sortable_element('#unit_list tbody', url => 'controller.pl?action=Unit/reorder', with => 'unit_id') %]
+</div>
+

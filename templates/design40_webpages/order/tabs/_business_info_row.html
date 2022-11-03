@@ -1,0 +1,13 @@
+[% USE T8 %]
+[% USE HTML %]
+
+<tr id='business_info_row' [% IF !SELF.order.customervendor.business_id %]style='display:none'[% END %]>
+  <th>
+    [% IF SELF.cv == 'customer' %]
+      [% 'Customer type' | $T8 %]
+    [% ELSE %]
+      [% 'Vendor type' | $T8 %]
+    [% END %]
+  </th>
+  <td><span class="plain-data wi-lightwide">[% HTML.escape(SELF.order.customervendor.business.description) %] ([% 'Trade Discount' | $T8 %] [% SELF.order.customervendor.business.discount_as_percent %]%)</span></td>
+</tr>

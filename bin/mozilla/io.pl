@@ -311,7 +311,7 @@ sub display_row {
 
     # quick delete single row
     $column_data{runningnumber}  = q|<a onclick= "$('#partnumber_| . $i . q|').val(''); $('#update_button').click();">| .
-                                   q|<img height="10px" width="10px" src="image/cross.png" alt="| . $locale->text('Remove') . q|"></a> |;
+                                   q|<img class="icon-delete" alt="| . $locale->text('Remove') . q|"></a> |;
     $column_data{runningnumber} .= $cgi->textfield(-name => "runningnumber_$i", -id => "runningnumber_$i", -size => 5,  -value => $i);    # HuT
 
 

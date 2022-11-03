@@ -1,0 +1,39 @@
+[% USE HTML %]
+[% USE L %]
+[% USE P %]
+[% USE LxERP %]
+
+<div id="translations_tab" class="ui-tabs-panel">
+<div class="wrapper">
+<table class="tbl-horizontal">
+  <thead>
+    <tr>
+      <th>[% LxERP.t8("Language") %]</th>
+      <th>[% LxERP.t8("Description") %]</th>
+      <th>[% LxERP.t8("Long Description") %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH language = SELF.all_languages %]
+      <tr>
+        <td>
+          [% SET language_id = language.id translation = translations_map.$language_id %]
+          [% L.hidden_tag('translations[+].language_id', language.id) %]
+          [% HTML.escape(language.description) %]
+        </td>
+        <td>[% L.areainput_tag("translations[].translation", translation.translation, size=40, class="wi-normal") %]</td>
+        <td>
+          [% L.textarea_tag(
+            "translations[].longdescription",
+            P.restricted_html(translation.longdescription),
+            id="translations_longdescription_" _ language_id,
+            class="texteditor wi-lightwide",
+            cols=100, rows=4)
+          %]
+        </td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>
+</div>
+</div>

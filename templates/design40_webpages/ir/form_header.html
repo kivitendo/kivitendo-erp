@@ -1,0 +1,266 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<h1>[% title %]</h1>
+
+[% SET follow_up_trans_info = invnumber _ ' (' _ vendor_obj.name _ ')' %]
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/calculate_qty.js"></script>
+<script type="text/javascript" src="js/follow_up.js"></script>
+
+<form id='form' method="post" name="invoice" action="[% script %]">
+
+<p>[% saved_message %]</p>
+
+[% FOREACH key = HIDDENS %]
+<input type="hidden" name="[% HTML.escape(key) %]" value="[% HTML.escape($key)  %]">
+[% END %]
+<input type="hidden" name="follow_up_trans_id_1" value="[% id %]">
+<input type="hidden" name="follow_up_trans_type_1" value="purchase_invoice">
+<input type="hidden" name="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">
+<input type="hidden" name="follow_up_rowcount" value="1">
+<input type="hidden" name="lastmtime" value="[% HTML.escape(lastmtime) %]">
+
+[% INCLUDE 'common/flash.html' %]
+[% INCLUDE 'generic/set_longdescription.html' %]
+
+<div id="ir_tabs" class="tabwidget">
+
+<ul>
+  <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
+  [% IF INSTANCE_CONF.get_webdav %]
+    <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
+  [% END %]
+  [% IF id %]
+    [% IF INSTANCE_CONF.get_doc_storage %]
+      <li><a href="controller.pl?action=File/list&file_type=document&object_type=purchase_invoice&object_id=[% HTML.url(id) %]">[% 'Documents' | $T8 %]</a></li>
+      <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=purchase_invoice&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
+    [% END %]
+    [% IF AUTH.assert('record_links', 1) %]
+      <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=PurchaseInvoice&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>
+    [% END %]
+    <li><a href="[% 'controller.pl?action=AccTrans/list_transactions&trans_id=' _ HTML.url(id) | html %]">[% LxERP.t8('Transactions') %]</a></li>
+  [% END %]
+</ul>
+
+<div id="ui-tabs-basic-data">
+
+<div class="wrapper" id="wrapper-1">
+  [% INCLUDE 'generic/toggle_wrapper.html' %]
+
+  <table class="tbl-horizontal col">
+  <caption>[% 'Vendor & Transaction' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Vendor' | $T8 %]</th>
+      <td class="wi-wide">[% P.customer_vendor.picker("vendor_id", vendor_id, type="vendor", class="wi-wide", class="initial_focus", onchange="\$('#update_button').click()") %][% P.button_tag("show_vc_details('vendor')", LxERP.t8('Details (one letter abbreviation)'), class='wi-tiny neutral') %] [% P.hidden_tag("previous_vendor_id", vendor_id) %]</td>
+    </tr>
+    [% IF ALL_CONTACTS.size %]
+    <tr>
+      <th>[% 'Contact Person' | $T8 %]</th>
+      <td>[% L.select_tag('cp_id', ALL_CONTACTS, default = cp_id, value_key = 'cp_id', title_key = 'full_name_dep', with_empty = 1, class='wi-wide') %]</td>
+    </tr>
+    [% END %]
+    [% IF business %]
+    <tr>
+      <th>[% 'Vendor type' | $T8 %]</th>
+      <td>[% business %]; [% 'Trade Discount' | $T8 %] [% LxERP.format_amount(tradediscount * 100) %] %</td>
+    </tr>
+    [% END %]
+    [% IF ALL_DEPARTMENTS.as_list.size %]
+    <tr>
+      <th>[% 'Department' | $T8 %]</th>
+      <td>[% P.select_tag("department_id", ALL_DEPARTMENTS, with_empty=1, default=department_id, title_key="description", class="wi-wide") %]</td>
+    </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Credit Limit' | $T8 %]</th>
+      <td>
+        <span class="data wi-wide">
+          [% LxERP.format_amount(creditlimit, 0, '0') %]; [% 'Remaining' | $T8 %]
+          <span class="plus[% IF is_credit_remaining_negativ %]0[% ELSE %]1[% END %]">[% LxERP.format_amount(creditremaining,0 ,'0') %]</span>
+        </span>
+      </td>
+    </tr>
+    [% IF invoice_obj.sepa_exports.as_list.size %]
+    <tr>
+      <th>[% LxERP.t8("SEPA exports") %]</th>
+      <td>
+        [% FOREACH export = invoice_obj.sepa_exports.as_list %]
+          <a href="sepa.pl?action=bank_transfer_edit&vc=vendor&id=[% HTML.url(export.id) %]">[% HTML.escape(export.id) %]</a>
+          [% UNLESS loop.last %], [% END %] [% END %]
+        </td>
+    </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Record in' | $T8 %]</th>
+      <td>
+      <select name="AP" class="wi-wide strict">
+        [% selectAP %]
+      </select>
+      <input type="hidden" name="selectAP" value="[% selectAP %]">
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Steuersatz' | $T8 %]</th>
+      <td>
+        [% L.select_tag('taxzone_id',
+                         ( id ? ALL_TAXZONES : ALL_ACTIVE_TAXZONES) ,
+                         default = taxzone_id,
+                         title_key = 'description',
+                         disabled = (id ? 1 : 0),
+                         class='wi-wide',
+                         onchange = "document.getElementById('update_button').click();"
+        ) %]
+        [% IF id %]
+          <input type='hidden' name='taxzone_id' value='[% taxzone_id %]'>
+        [% END %]
+      </td>
+    </tr>
+    [% IF currencies %]
+      <tr>
+        <th>[% 'Currency' | $T8 %]</th>
+        <td class="wi-small">[% currencies %]</td>
+      </tr>
+    [% END %]
+    <input type="hidden" name="fxgain_accno" value="[% fxgain_accno %]">
+    <input type="hidden" name="fxloss_accno" value="[% fxloss_accno %]">
+    [% IF show_exchangerate %]
+      <tr>
+        <th>[% 'Exchangerate' | $T8 %]</th>
+        <td class="wi-small">
+          [% IF forex %]
+            <span class="data wi-small">[% LxERP.format_amount(exchangerate, 5) %]</span>
+          [% ELSE %]
+            <input type="text" name="exchangerate" class="wi-small" value="[% HTML.escape(LxERP.format_amount(exchangerate)) %]">
+          [% END %]
+        </td>
+      </tr>
+    [% END %]
+  </tbody>
+  </table>
+
+  <table class="tbl-horizontal col">
+    <caption>[% 'Payment / Delivery Options' | $T8 %]</caption>
+    <colgroup><col class="wi-wider"> </colgroup>
+    <tbody>
+      <tr>
+        <td>
+          <span class="label-above">[% 'Payment Terms' | $T8 %]</span>
+          [% L.select_tag('payment_id', payment_terms, default = payment_id, title_key = 'description', with_empty = 1, style="width: 250px") %]
+          <script type='text/javascript'>$('#payment_id').change(function(){ kivi.SalesPurchase.set_duedate_on_reference_date_change("invdate"); })</script>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span class="label-above">[% 'Delivery Terms' | $T8 %]</span>
+          [% L.select_tag('delivery_term_id', ALL_DELIVERY_TERMS, default=delivery_term_id, with_empty=1, title_key='description', class='wi-wider') %]
+        </td>
+      </tr>
+      <tr>
+        <td>[% L.checkbox_tag('direct_debit', 'checked', direct_debit) %] <label for="direct_debit">[% 'direct debit' | $T8 %]</label></td>
+      </tr>
+      <tr>
+        <th class="caption">[% 'Notes' | $T8 %]</th>
+      </tr>
+      <tr>
+        <td class="wi-wider">[% L.textarea_tag("notes", notes, wrap="soft", style="height:150px", class="texteditor wi-wider") %]</td>
+      </tr>
+      <tr>
+        <td>
+          <span class="label-above">[% 'Internal Notes' | $T8 %]</span>
+          [% L.textarea_tag("intnotes", intnotes, wrap="soft", class="wi-wider", style="width: 350px; height: 150px") %]
+        </td>
+      </tr>
+      [% IF id && follow_ups.size %]
+      <tr>
+        <td>[% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', follow_ups.size, follow_ups_unfinished) | html %]</td>
+      </tr>
+      [% END %]
+    </tbody>
+  </table>
+
+  <table class="tbl-horizontal col">
+    <caption>[% 'Handling, Numbers & Dates' | $T8 %]</caption>
+    <colgroup> <col class="wi-mediumsmall"><col class="wi-wide"> </colgroup>
+    <tbody>
+      <tr>
+        <th>[% 'Employee' | $T8 %]</th>
+        <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, default = employee_id, title_key = 'safe_name', class='wi-wide') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Order Number' | $T8 %]</th>
+        <td><input type="text" class="wi-mediumsmall" name="ordnumber" value="[% HTML.escape(ordnumber) %]"></td>
+      </tr>
+      [% IF is_type_credit_note %]
+      <tr>
+        <th>[% 'Credit Note Number' | $T8 %]</th>
+        <td><input type="text" class="wi-mediumsmall" name="invnumber" value="[% HTML.escape(invnumber) %]"></td>
+      </tr>
+      [% ELSE %]
+      <tr>
+        <th>[% 'Invoice Number' | $T8 %]</th>
+        <td>[% L.input_tag('invnumber', invnumber, class='wi-mediumsmall') %]</td>
+      </tr>
+      [% END %]
+      <tr>
+        <th>[% 'Project Number' | $T8 %]</th>
+        <td>[% P.project.picker('globalproject_id', globalproject_id, onchange="document.getElementById('update_button').click();", class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Quotation Date' | $T8 %]</th>
+        <td>[% L.date_tag('quodate', quodate, class='wi-small') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Order Date' | $T8 %]</th>
+        <td>[% L.date_tag('orddate', orddate, class='wi-small') %]</td>
+      </tr>
+      [% IF is_type_credit_note %]
+        <tr>
+          <th>[% 'Credit Note Date' | $T8 %]</th>
+          <td>[% L.date_tag('invdate', invdate, class='wi-small') %]</td>
+        </tr>
+      [% ELSE %]
+        <tr>
+          <th>[% 'Invoice Date' | $T8 %]</th>
+          <td>[% L.date_tag('invdate', invdate, onChange='kivi.SalesPurchase.set_duedate_on_reference_date_change("invdate")', class='wi-small') %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Due Date' | $T8 %]</th>
+          <td><span id="duedate_container"[% IF payment_terms_obj.auto_calculation %] style="display:none"[% END %] class="condensed">[% L.date_tag('duedate', duedate, class='wi-small') %]</span> <span id="duedate_fixed" [% IF !payment_terms_obj.auto_calculation %] style="display:none" [% END %]>[% HTML.escape(duedate) %]</span> </td>
+        </tr>
+      [% END %]
+      <tr>
+        <th>[% 'Tax point' | $T8 %]</th>
+        <td>[% L.date_tag('tax_point', tax_point, id='tax_point', class='wi-small') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Delivery Date' | $T8 %]</th>
+        <td>[% L.date_tag('deliverydate', deliverydate, class='wi-small') %]</td>
+      </tr>
+
+
+    </tbody>
+  </table>
+
+</div><!-- /.wrapper -->
+
+<script type="text/javascript" src="js/show_form_details.js"></script>
+<script type="text/javascript" src="js/show_vc_details.js"></script>
+<script type="text/javascript" src="js/show_history.js"></script>
+<script type="text/javascript"><!--
+  $('document').ready(function(){
+  [% IF creditwarning != '' %]
+    alert('[% 'Credit Limit exceeded!!!' | $T8 %]');
+  [% ELSE %]
+  [% END %]
+     });
+//--></script>
+
+<input type="hidden" name="webdav" value="[% webdav | html %]">
+
+<div class="list-table-with-separate-total-table">

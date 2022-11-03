@@ -81,6 +81,13 @@ verify        = require
 # Set language for login and admin forms. Currently "de" (German)
 # and "en" (English, not perfect) are available.
 language = de
+
+# Set stylesheet for login and admin forms. Supported:
+#  lx-office-erp
+#  kivitendo - default
+#  design40
+stylesheet = kivitendo
+
 # MassPrint Timeout
 # must be less than cgi timeout
 #

@@ -1,0 +1,138 @@
+/* ------------------------------------------------------------- */
+/* MAIN LOGIN (main_login.less)                                  */
+/* ------------------------------------------------------------- */
+
+
+// ----------------------------------------------------------------------------
+//
+// LOGIN and LOGGED IN PAGE
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION:
+// Properties for the Login and the Logged In page
+//
+// CONTENTS:
+// - LOGIN
+// - LOGGED IN
+// ----------------------------------------------------------------------------
+
+
+
+
+// --------------------------------------
+// LOGIN
+// --------------------------------------
+
+div#login,
+div.login {
+  margin: 0 auto; // centered
+  width: 100%;
+  padding: 0 ;
+  text-align: center ;
+
+  h1 {
+    text-align: center;
+    font-size: 150%;
+    top: 0 ;
+    width: 100% ;
+    display: block ;
+    vertical-align: middle;
+    background-color: green ;
+    color: white ;
+    padding: 0.8em 0 ;
+    z-index: 10 ;
+  }
+
+  #login-elements {
+    width: 34.0em ;
+    margin: 0 auto ;
+    text-align: center ;
+    display: block ;
+
+    h3 {
+      text-align: left;
+    }
+
+    >div {
+      text-align: center ;
+      p { text-align: center; }
+    }
+
+    div.logo{
+      width: auto;
+      clear: both;
+      margin: 3.0em auto 1.0em auto ;
+      padding: 2.0em 0 0 0 ;
+    }
+    form{
+      margin: 0 auto ;
+      width: 100% ;
+    }
+
+    div.separate-form{
+      background-color: #ddd ;
+      border: 1px @gray-standard solid;
+      border-radius: @controlpanel-radius ;
+      display: block ;
+      margin: 0 auto ;
+      width: 100% ;
+      padding: 0 0.6em 1.0em 0.6em ;
+    }
+
+    table.login{
+      width: auto ;
+      float: none ;
+      clear: both ;
+      input[type="submit"] {
+        margin-top: 0.2em ;
+      }
+      caption {
+        margin: 0.7em 0 0.4em 0 ;
+      }
+      td select {
+        width: @select-wi-lightwide !important ;
+      }
+    }
+
+    .message {
+      width: 100% ;
+      word-wrap: normal ;
+      min-width: 0;
+      //min-width: auto ;
+      //max-width: inherit ;
+    }
+  } // /.login-elements
+} // /.login
+
+
+
+
+// --------------------------------------
+// LOGGED IN
+// --------------------------------------
+
+div.logged-in {
+  margin: 0 auto ;
+  padding: 1.0em 0.5em 2.0em 0.5em ;
+  width: 60.0em;
+  min-width: 60.0em;
+  overflow: hidden;
+
+  .col {
+    width: 48%;
+    display: inline-block;
+    float: left;
+
+    p {
+      font-size: 10pt ;
+    }
+  }
+  .message{
+    width: 100% ;
+    min-width: 100% ;
+    max-width: 100% ;
+  }
+}
+
+
+

@@ -1,0 +1,9 @@
+[% USE LxERP %]
+[% USE L %]
+<tr>
+ <th>[% LxERP.t8("Existing bank transactions") %]:</th>
+ <td>
+  [% opts = [ [ 'skip', LxERP.t8('Skip entry') ] , [ 'insert_new', LxERP.t8('Insert new') ] ] %]
+  [% L.select_tag('settings.update_policy', opts, default = SELF.profile.get('update_policy'), class='wi-normal') %]
+</td>
+</tr>

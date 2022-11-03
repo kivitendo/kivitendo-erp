@@ -494,6 +494,7 @@ sub form_header {
     ]);
 
   $::form->{ALL_PROJECTS}          = SL::DB::Manager::Project->get_all_sorted(query => \@conditions);
+  $::form->{ALL_DELIVERY_TERMS}    = SL::DB::Manager::DeliveryTerm->get_all_sorted();
   $::form->{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
   $::form->{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
   $::form->{ALL_SHIPTO}            = SL::DB::Manager::Shipto->get_all_sorted(query => [
@@ -553,7 +554,6 @@ sub form_footer {
   my $form     = $main::form;
 
   $form->{PRINT_OPTIONS}      = setup_sales_purchase_print_options();
-  $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   my $shipto_cvars       = SL::DB::Shipto->new->cvars_by_config;
   foreach my $var (@{ $shipto_cvars }) {

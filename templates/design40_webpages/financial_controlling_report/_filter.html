@@ -1,0 +1,58 @@
+[% USE T8 %]
+[% USE L %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<form action="controller.pl" method="post" id="filter_form">
+<div class="wrapper">
+
+[% BLOCK filter_toggle_panel %]
+<table id="filter_table" class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% 'Customer' | $T8 %]</th>
+      <td>[% L.input_tag('filter.customer.name:substr::ilike', filter.customer.name_substr__ilike, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Customer Number' | $T8 %]</th>
+      <td>[% L.input_tag('filter.customer.customernumber:substr::ilike', filter.customer.customernumber_substr__ilike, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Order Number' | $T8 %]</th>
+      <td>[% L.input_tag('filter.ordnumber:substr::ilike', filter.ordnumber_substr__ilike, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Project Number' | $T8 %]</th>
+      <td>[% L.input_tag('filter.globalproject.projectnumber:substr::ilike', filter.globalproject.projectnumber_substr__ilike, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Project Type' | $T8 %]</th>
+      <td>[% L.select_tag('filter.globalproject.project_type_id', SELF.project_types, default=filter.globalproject.project_type_id, title_key='description', with_empty=1, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Transaction description') %]</th>
+      <td>[% L.input_tag('filter.transaction_description:substr::ilike', filter.transaction_description_substr__ilike, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Order Date' | $T8 %] [% 'From Date' | $T8 %]</th>
+      <td>[% L.date_tag('filter.transdate:date::ge', filter.transdate_date__ge, cal_align = 'BR', class='wi-small') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Order Date' | $T8 %] [% 'To Date' | $T8 %]</th>
+      <td>[% L.date_tag('filter.transdate:date::le', filter.transdate_date__le, cal_align = 'BR', class='wi-small') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="buttons">
+  [% L.hidden_tag('sort_by', FORM.sort_by) %]
+  [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+  [% L.hidden_tag('page', FORM.page) %]
+  [% L.button_tag('$("#filter_form").resetForm()', LxERP.t8('Reset'), class='neutral') %]
+</div><!-- ./buttons -->
+[% END # /BLOCK filter_toggle_panel %]
+
+[% INCLUDE 'common/toggle_panel.html' %]
+
+</div><!-- /.wrapper -->
+</form>

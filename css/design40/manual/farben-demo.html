@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <link href="../style.css" rel="stylesheet">
+  <link href="farben-demo.css" rel="stylesheet">
+  <title>Kommunikation mit Farben in Kivitendo</title>
+
+  <script type="text/javascript" src="../../js/jquery.js"></script>
+  <script type="text/javascript" src="../../js/common.js"></script>
+  <script type="text/javascript" src="../../js/namespace.js"></script>
+  <script type="text/javascript" src="../../js/kivi.js"></script>
+  <script type="text/javascript" src="../../js/locale/de.js"></script>
+  <script type="text/javascript" src="../../js/jquery-ui.js"></script>
+  <script type="text/javascript" src="../../js/kivi.QuickSearch.js"></script>
+  <script type="text/javascript" src="../../js/kivi.ActionBar.js"></script>
+  <script type="text/javascript" src="../../js/kivi.Draft.js"></script>
+  <script type="text/javascript" src="../../js/kivi.File.js"></script>
+  <script type="text/javascript" src="../../js/kivi.SalesPurchase.js"></script>
+  <script type="text/javascript" src="../../js/kivi.Part.js"></script>
+  <script type="text/javascript" src="../../js/ckeditor/ckeditor.js"></script>
+  <script type="text/javascript" src="../../js/ckeditor/adapters/jquery.js"></script>
+  <script type="text/javascript" src="../../js/kivi.io.js"></script>
+  <script type="text/javascript" src="../../js/client_js.js"></script>
+  <script type="text/javascript" src="../../js/jquery.cookie.js"></script>
+  <script type="text/javascript" src="../../js/jquery.checkall.js"></script>
+  <script type="text/javascript" src="../../js/jquery.download.js"></script>
+  <script type="text/javascript" src="../../js/jquery/jquery.form.js"></script>
+  <script type="text/javascript" src="../../js/jquery/fixes.js"></script>
+  <script type="text/javascript" src="../../js/jquery/jquery.tooltipster.min.js"></script>
+  <script type="text/javascript" src="../../js/jquery/ui/i18n/jquery.ui.datepicker-de.js"></script>
+</head>
+<body class="developing">
+<header>
+	<h1>Anzeige aller Farben in Kivitendo</h1>
+	<nav><a href="index.html" title="Zur Übersicht bzw. Inhaltsverzeichnis">Zum Index</a></nav>
+</header>
+<div class="wrapper" id="demo">
+<!--
+For creating the blocks from the less-code use following grep:
+\.([a-z-]+)[ ]*\{[^\n]+      replace with
+<div class="selector"><h3>\1</h3><div class="color \1"></div></div>     or
+<div class="selector"><h3>$1</h3><div class="color $1"></div></div>
+-->
+
+<h1>more brown</h1>
+<div class="selector"><h3>.gray-darker</h3><div class="color gray-darker"></div></div>
+<div class="selector"><h3>.gray-dark</h3><div class="color gray-dark"></div></div>
+<div class="selector"><h3>.gray-mediumdark</h3><div class="color gray-mediumdark"></div></div>
+<div class="selector"><h3>.gray</h3><div class="color gray"></div></div>
+<div class="selector"><h3>.gray-medium</h3><div class="color gray-medium"></div></div>
+<div class="selector"><h3>.gray-light</h3><div class="color gray-light"></div></div>
+<div class="selector"><h3>.gray-lighter</h3><div class="color gray-lighter"></div></div>
+<div class="selector"><h3>.gray-morelighter</h3><div class="color gray-morelighter"></div></div>
+<div class="selector"><h3>.gray-verylight</h3><div class="color gray-verylight"></div></div>
+<div class="selector"><h3>.gray-superlight</h3><div class="color gray-superlight"></div></div>
+
+<h1>Divers Color Specications</h1>
+<div class="group">
+<h2>ok</h2>
+<div class="selector"><h3>.color-green-strong</h3><div class="color color-green-strong"></div></div>
+<div class="selector"><h3>.color-green-light</h3><div class="color color-green-light"></div></div>
+</div>
+<div class="group">
+<h2>error</h2>
+<div class="selector"><h3>.color-red-strong</h3><div class="color color-red-strong"></div></div>
+<div class="selector"><h3>.color-red-light</h3><div class="color color-red-light"></div></div>
+</div>
+<div class="group">
+<h2>info/hint</h2>
+<div class="selector"><h3>.color-blue-strong</h3><div class="color color-blue-strong"></div></div>
+<div class="selector"><h3>.color-blue-light</h3><div class="color color-blue-light"></div></div>
+</div>
+<div class="group">
+<h2>warning</h2>
+<div class="selector"><h3>.color-orange-strong</h3><div class="color color-orange-strong"></div></div>
+<div class="selector"><h3>.color-orange-light</h3><div class="color color-orange-light"></div></div>
+</div>
+
+
+<h2>divers</h2>
+<div class="selector"><h3>.rainbow-green</h3><div class="color rainbow-green"></div></div>
+<div class="selector"><h3>.rainbow-blue</h3><div class="color rainbow-blue"></div></div>
+<div class="selector"><h3>.rainbow-red</h3><div class="color rainbow-red"></div></div>
+<div class="selector"><h3>.rainbow-yellow</h3><div class="color rainbow-yellow"></div></div>
+
+<h1>Brand colors</h1>
+
+<h2>Text (Label & data)</h2>
+<div class="selector"><h3>.brand-primary</h3><div class="color brand-primary"></div></div>
+<div class="selector"><h3>.brand-label</h3><div class="color brand-label"></div></div>
+<div class="selector"><h3>.brand-label-bg</h3><div class="color brand-label-bg"></div></div>
+
+<h1>Messages & info types</h1>
+<div class="selector"><h3>.brand-ok</h3><div class="color brand-ok"></div></div>
+<div class="selector"><h3>.brand-ok-bg</h3><div class="color brand-ok-bg"></div></div>
+
+<div class="selector"><h3>.brand-error</h3><div class="color brand-error"></div></div>
+<div class="selector"><h3>.brand-error-bg</h3><div class="color brand-error-bg"></div></div>
+
+<div class="selector"><h3>.brand-info</h3><div class="color brand-info"></div></div>
+<div class="selector"><h3>.brand-info-bg</h3><div class="color brand-info-bg"></div></div>
+
+<div class="selector"><h3>.brand-warning</h3><div class="color brand-warning"></div></div>
+<div class="selector"><h3>.brand-warning-bg</h3><div class="color brand-warning-bg"></div></div>
+
+<h1>Positive & negative colors</h1>
+<div class="selector"><h3>.brand-positive</h3><div class="color brand-positive"></div></div>
+<div class="selector"><h3>.brand-positive-bg</h3><div class="color brand-positive-bg"></div></div>
+<div class="selector"><h3>.brand-negative</h3><div class="color brand-negative"></div></div>
+<div class="selector"><h3>.brand-negative-bg</h3><div class="color brand-negative-bg"></div></div>
+
+
+<h1>Buttons</h1>
+<h2>Button with manipulation (submit etc.)</h2>
+<div class="selector"><h3>.button-strong</h3><div class="color button-strong"></div></div>
+<div class="selector"><h3>.button-strong-bg</h3><div class="color button-strong-bg"></div></div>
+<div class="selector"><h3>.button-strong-border</h3><div class="color button-strong-border"></div></div>
+<div class="selector"><h3>.button-strong-hover</h3><div class="color button-strong-hover"></div></div>
+<div class="selector"><h3>.button-strong-hover-bg</h3><div class="color button-strong-hover-bg"></div></div>
+<div class="selector"><h3>.button-strong-hover-border</h3><div class="color button-strong-hover-border"></div></div>
+<div class="selector"><h3>.button-strong-active</h3><div class="color button-strong-active"></div></div>
+<div class="selector"><h3>.button-strong-active-bg</h3><div class="color button-strong-active-bg"></div></div>
+<div class="selector"><h3>.button-strong-active-border</h3><div class="color button-strong-active-border"></div></div>
+<h2>button withoud data manipulation (reset, cancel, open, show etc.)</h2>
+<div class="selector"><h3>.button-soft</h3><div class="color button-soft"></div></div>
+<div class="selector"><h3>.button-soft-bg</h3><div class="color button-soft-bg"></div></div>
+<div class="selector"><h3>.button-soft-border</h3><div class="color button-soft-border"></div></div>
+<div class="selector"><h3>.button-soft-hover</h3><div class="color button-soft-hover"></div></div>
+<div class="selector"><h3>.button-soft-hover-bg</h3><div class="color button-soft-hover-bg"></div></div>
+<div class="selector"><h3>.button-soft-hover-border</h3><div class="color button-soft-hover-border"></div></div>
+<div class="selector"><h3>.button-soft-active</h3><div class="color button-soft-active"></div></div>
+<div class="selector"><h3>.button-soft-active-bg</h3><div class="color button-soft-active-bg"></div></div>
+<div class="selector"><h3>.button-soft-active-border</h3><div class="color button-soft-active-border"></div></div>
+
+
+<h1>SCAFFOLDING</h1>
+<div class="selector"><h3>.body-bg</h3><div class="color body-bg"></div></div>
+<div class="selector"><h3>.content-bg</h3><div class="color content-bg"></div></div>
+<div class="selector"><h3>.tabs-bg</h3><div class="color tabs-bg"></div></div>
+<div class="selector"><h3>.heading-bg</h3><div class="color heading-bg"></div></div>
+<div class="selector"><h3>.controlpanel-bg</h3><div class="color controlpanel-bg"></div></div>
+
+<div class="selector"><h3>.text-color</h3><div class="color text-color"></div></div>
+<div class="selector"><h3>.heading-color</h3><div class="color heading-color"></div></div>
+<div class="selector"><h3>.caption-color</h3><div class="color caption-color"></div></div>
+
+
+
+
+</div>
+</body>
+</html>

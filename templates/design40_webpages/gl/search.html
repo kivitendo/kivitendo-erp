@@ -1,0 +1,141 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+<h1>[% 'Journal' | $T8 %]</h1>
+
+<form method="post" id="form" action="gl.pl">
+
+<input type="hidden" name="sort" value="datesort">
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% 'Reference / Invoice Number' | $T8 %]</th>
+      <td><input name="reference" class="wi-normal initial_focus" type="text"></td>
+    </tr>
+    <tr>
+      <th>[% 'Source' | $T8 %]</th>
+      <td><input name="source" class="wi-normal" type="text"></td>
+    </tr>
+    [% IF ALL_DEPARTMENTS %]
+    <tr>
+      <th>[% 'Department' | $T8 %]</th>
+      <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, title_key='description', with_empty=1, class='wi-normal') %]</td>
+    </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Description' | $T8 %]</th>
+      <td><input name="description" class="wi-normal" type="text"></td>
+    </tr>
+    <tr>
+      <th>[% 'Account Number' | $T8 %]</th>
+      <td><input name="accno" class="wi-normal" type="text"></td>
+    </tr>
+    <tr>
+      <th>[% 'Notes' | $T8 %]</th>
+      <td><input name="notes" class="wi-normal" type="text"></td>
+    </tr>
+    <tr>
+      <th>[% 'Project Number' | $T8 %]</th>
+      <td>[% L.select_tag('project_id', ALL_PROJECTS, title_key='projectnumber', with_empty=1, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Employee' | $T8 %]</th>
+      <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, title_key='safe_name', with_empty=1, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Filter date by' | $T8 %]</th>
+      <td>
+        <input name="datesort" type="radio" value="transdate" checked> [% 'Transdate' | $T8 %] <br>
+        <input name="datesort" type="radio" value="gldate"> [%            'Gldate'    | $T8 %]</td>
+    </tr>
+    <tr>
+      <th>[% 'From' | $T8 %]</th>
+      <td>[% L.date_tag('datefrom') %] [% 'To (time)' | $T8 %] [% L.date_tag('dateto') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+<div class="wrapper form-addition control-panel">
+  <h3>[% 'Include in Report' | $T8 %]</h3>
+  <div class="list col">
+    <h4 class="caption">[% 'Scope' | $T8 %]</h4>
+    <div>
+      <input name="category" type="radio" value="X" checked> [% 'All' | $T8 %]
+    </div>
+    <div>
+      <input name="category" type="radio" value="A"> [% 'Asset' | $T8 %]
+    </div>
+    <div>
+      <input name="category" type="radio" value="L"> [% 'Liability' | $T8 %]
+    </div>
+    <div>
+      <input name="category" type="radio" value="I"> [% 'Revenue' | $T8 %]
+    </div>
+    <div>
+      <input name="category" type="radio" value="E"> [% 'Expense' | $T8 %]
+    </div>
+  </div>
+  <div class="list col">
+    <h4>[% 'Transaction Details' | $T8 %]</h4>
+    <div>
+      <input name="l_transdate" type="checkbox" value="Y" checked> [% 'Transdate' | $T8 %]
+    </div>
+    <div>
+      <input name="l_gldate" type="checkbox" value="Y" checked> [% 'Gldate' | $T8 %]
+    </div>
+    <div>
+      <input name="l_id" type="checkbox" value="Y"> [% 'ID' | $T8 %]
+    </div>
+    <div>
+      <input name="l_reference" type="checkbox" value="Y" checked> [% 'Reference' | $T8 %]
+    </div>
+    <div>
+      <input name="l_source" type="checkbox" value="Y" checked> [% 'Source' | $T8 %]
+    </div>
+    <div>
+      <input name="l_description" type="checkbox" value="Y" checked> [% 'Description' | $T8 %]
+    </div>
+    <div>
+      <input name="l_notes" type="checkbox" value="Y"> [% 'Notes' | $T8 %]
+    </div>
+  </div>
+  <div class="list col">
+    <h4>[% 'Accounts & Sum' | $T8 %]</h4>
+    <div>
+      <input name="l_debit" type="checkbox" value="Y" checked> [% 'Debit' | $T8 %]
+    </div>
+    <div>
+      <input name="l_credit" type="checkbox" value="Y" checked> [% 'Credit' | $T8 %]
+    </div>
+    <div>
+      <input name="l_accno" type="checkbox" value="Y" checked> [% 'Account' | $T8 %]
+    </div>
+    <div>
+      <input name="l_subtotal" type="checkbox" value="Y"> [% 'Subtotal' | $T8 %]
+    </div>
+  </div>
+  <div class="list col">
+    <h4>[% 'Miscellaneous' | $T8 %]</h4>
+    <div>
+      <input name="l_projectnumbers" type="checkbox" value="Y"> [% 'Project Number' | $T8 %]
+    </div>
+    <div>
+      <input name="l_employee" type="checkbox" value="Y"> [% 'Employee' | $T8 %]
+    </div>
+    [%- IF ALL_DEPARTMENTS %]
+      <div>
+        <input name="l_department" class=checkbox type=checkbox value=Y> [% 'Department' | $T8 %]
+      </div>
+    [%- END %]
+  </div>
+</div>
+<!-- /.wrapper.form-addition -->
+
+
+</form>

@@ -1,0 +1,53 @@
+[% USE L %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<form action="controller.pl" method="post" id="filter_form">
+
+<div class="wrapper">
+
+[% BLOCK filter_toggle_panel %]
+<table id="filter_table" class="tbl-horizontal">
+  <tr>
+    <th>[% LxERP.t8('Package name') %]</th>
+    <td>[% L.input_tag('filter.package_name:substr::ilike', filter.package_name_substr__ilike, size = 10, class='wi-lightwide') %]</td>
+  </tr>
+  <tr>
+    <th>[% LxERP.t8('Result') %]</th>
+    <td>[% L.input_tag('filter.result:substr::ilike', filter.result_substr__ilike, size = 10, class='wi-lightwide') %]</td>
+  </tr>
+  <tr>
+    <th>[% LxERP.t8('Error') %]</th>
+    <td>[% L.input_tag('filter.error:substr::ilike', filter.error_substr__ilike, size = 10, class='wi-lightwide') %]</td>
+  </tr>
+  <tr>
+    <th>[% LxERP.t8('Status') %]</th>
+    <td>[% L.select_tag('filter.status:eq_ignore_empty', [ [ '', '' ], [ 'failure', LxERP.t8('failed') ], [ 'success', LxERP.t8('succeeded') ] ], default=filter.status_eq_ignore_empty, class='wi-lightwide') %]</td>
+  </tr>
+  <tr>
+    <th>[% LxERP.t8('Execution date from') %]</th>
+    <td>[% L.date_tag('filter.run_at:date::ge', filter.run_at_date__ge, class='wi-date') %]</td>
+  </tr>
+  <tr>
+    <th>[% LxERP.t8('Execution date to') %]</th>
+    <td>[% L.date_tag('filter.run_at:date::le', filter.run_at_date__le, class='wi-date') %]</td>
+  </tr>
+</table>
+
+
+[% L.hidden_tag('action', 'BackgroundJobHistory/dispatch') %]
+[% L.hidden_tag('sort_by', FORM.sort_by) %]
+[% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+[% L.hidden_tag('page', FORM.page) %]
+<div class="buttons">
+  [% L.submit_tag('action_list', LxERP.t8('Continue'))%]
+  [% L.button_tag("\$('#filter_form').resetForm();", LxERP.t8('Reset')) %]
+</div>
+
+[% END # /BLOCK filter_toggle_panel %]
+
+[% INCLUDE 'common/toggle_panel.html' %]
+</div><!-- /.wrapper -->
+
+
+</form>

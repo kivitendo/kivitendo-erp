@@ -1,0 +1,39 @@
+[% USE L %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<div class="wrapper">
+
+<table id="acc_trans" class="tbl-list">
+  <caption>[% HTML.escape(title) %]</caption>
+  <thead>
+    <tr>
+      <th class="date">[% LxERP.t8("Date") %]</th>
+      <th class="center">[% LxERP.t8("Chart") %]</th>
+      <th>[% LxERP.t8("Description") %]</th>
+      <th class="right">[% LxERP.t8("Debit") %]</th>
+      <th class="right">[% LxERP.t8("Credit") %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH transaction = TRANSACTIONS %]
+    <tr>
+      <td class="date">[% transaction.transdate.to_kivitendo %]</td>
+      <td class="center">[% transaction.chart.accno %]</td>
+      <td>[% transaction.chart.description %]</td>
+      <td class="numeric">[% IF transaction.amount < 0 %] [% LxERP.format_amount(transaction.amount * -1, 2) %] [% END %]</td>
+      <td class="numeric">[% IF transaction.amount > 0 %] [% LxERP.format_amount(transaction.amount , 2) %] [% END %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+  <tfoot>
+    <td colspan="2"></td>
+    <th>[% LxERP.t8("Total") %]</th>
+    <td class="numeric">[% LxERP.format_amount(debit_sum * -1, 2) %]</td>
+    <td class="numeric">[% LxERP.format_amount(credit_sum, 2) %]</td>
+  </tr>
+  </tfoot>
+</table>
+
+</div><!-- /.wrapper -->
+

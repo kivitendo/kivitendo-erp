@@ -1,0 +1,27 @@
+[% USE T8 %]
+[% USE LxERP %]
+
+[% UNLESS skip_frame_header %]
+  <div id="frame-header">
+  [% UNLESS is_links %]
+   <span class="frame-header-element frame-header-left">
+      <span><a href="controller.pl?action=LoginScreen/user_login" title="[% 'Home' | $T8 %]"><img alt="[% 'Home' | $T8 %]" src="image/header-icon-home.png"></a></span>
+      <span><a href="controller.pl?action=LoginScreen/user_login" target="_blank" title="[% 'Open a further kivitendo window or tab' | $T8 %]"><img alt="[% 'New window/tab' | $T8 %]" src="image/header-icon-new-window.png"></a></span>
+      <span><a href="JavaScript:top.print();" title="[% 'Hardcopy' | $T8 %]"><img alt="[% 'Print' | $T8 %]" src="image/header-icon-print.png"></a></span>
+   </span>
+  [% END %]
+   <span class="frame-header-element frame-header-right">
+    <span title="[% 'Client' | $T8 %]" class="client">[% AUTH.client.name | html %]</span>
+    <span><a href="am.pl?action=config" title="[% 'User' | $T8 %]: [% MYCONFIG.login | html %] / [% 'Client' | $T8 %]: [% AUTH.client.name | html %]"><!-- [% #MYCONFIG.login | html %] / [% #AUTH.client.name | html %] --><img alt="[% 'User' | $T8 %]/[% 'Client' | $T8 %]" src="image/header-icon-user.png"></a></span>
+     <span><a href="controller.pl?action=LoginScreen/logout" target="_top" title="[% 'Logout now' | $T8 %]"><img alt="[% 'Logout' | $T8 %]" src="image/header-icon-logout.png"></a></span>
+   </span>
+   <span class="frame-header-element frame-header-right" id="ajax-spinner">
+      <img src="image/spinner-white.gif" alt="[% LxERP.t8('Loading...') %]">
+   </span>
+   <div class="frame-header-quicksearch">
+  [% FOREACH search = quick_search.enabled_modules %]
+     <span class='frame-header-quicksearch'><input type="text" id="top-quick-search-[% search.name %]" module="[% search.name %]" placeholder="[% search.description_field %]" maxlength="20" class="quick-search"></span>
+  [% END %]
+   </div>
+</div>
+[% END %]

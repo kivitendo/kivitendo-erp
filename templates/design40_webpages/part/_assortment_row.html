@@ -1,0 +1,72 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<tr>
+  <td style="display:none">
+    [% IF orphaned %]
+      [% L.hidden_tag("assortment_items[+].parts_id", ITEM.part.id) %]
+    [% END %]
+  </td>
+  <td class="center"[% UNLESS orphaned %] style="display:none"[% END %]>
+    [% L.button_tag("kivi.Part.delete_item_row(this)", LxERP.t8("✖"), class="wi-verytiny neutral delete-item") %] [% # , confirm=LxERP.t8("Are you sure?")) %]
+  </td>
+  <td class="center">
+    <div id="position">
+      [% HTML.escape(position) or HTML.escape(ITEM.position) %]
+    </div>
+  </td>
+  <td class="center"[% UNLESS orphaned %] style="display:none"[% END %]>
+    <img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]" class="dragdrop">
+  </td>
+  <td>
+    [% ITEM.part.presenter.part %]
+  </td>
+  <td>
+     [% HTML.escape(ITEM.part.description) %]
+  </td>
+  <td class="numeric">
+    [% IF orphaned %]
+      [% L.input_tag("assortment_items[].qty_as_number",
+                      ITEM.qty_as_number,
+                      maxsize = 10,
+                      class="recalc reformat_number numeric wi-verysmall",
+                      size=10) %]
+    [% ELSE %]
+      [% ITEM.qty_as_number | html %]
+    [% END %]
+  </td>
+  <td>
+    [% IF orphaned %]
+      [% L.select_tag("assortment_items[].unit",
+                      ITEM.part.available_units,
+                      default = ITEM.part.unit,
+                      title_key = 'name',
+                      value_key = 'name',
+                      class = 'unitselect wi-verysmall') %]
+    [% ELSE %]
+      [% ITEM.part.unit | html %]
+    [% END %]
+  </td>
+  <td class="center">
+    [% IF orphaned %]
+      [% L.checkbox_tag('assortment_items[].charge', checked => ITEM.charge, class => 'checkbox', for_submit=1) %]
+    [% ELSE %]
+      [% IF ITEM.charge %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %]
+    [% END %]
+  </td>
+  <td class="numeric">
+    [% L.div_tag(LxERP.format_amount(ITEM.linetotal_sellprice, 2, 0), name="linetotal") %]
+  </td>
+  <td class="numeric">
+    [% ITEM.part.sellprice_as_number %]
+  </td>
+  <td class="numeric">
+    [% ITEM.part.lastcost_as_number %]
+  </td>
+  <td class="numeric">
+    [% HTML.escape(ITEM.part.partsgroup.partsgroup) %]
+  </td>
+</tr>

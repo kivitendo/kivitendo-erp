@@ -1,0 +1,50 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+
+<div class="wrapper center">
+
+<table class="tbl-list wi-moderate">
+  <caption>[% 'Overdue sales quotations and requests for quotations' | $T8 %]</caption>
+  <thead>
+    <tr>
+     <th>[% 'Date' | $T8 %]</th>
+     <th>[% 'Valid until' | $T8 %]</th>
+     <th>[% 'Sales quotation' | $T8 %] / [% 'Request quotation' | $T8 %]</th>
+     <th>[% 'Customer' | $T8 %] / [% 'Vendor' | $T8 %]</th>
+     <th>[% 'Transaction description' | $T8 %]</th>
+     <th>[% 'Amount' | $T8 %]</th>
+     <th>[% 'Employee' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH row = QUOTATIONS %]
+    <tr>
+     <td>[% HTML.escape(row.transdate) %]</td>
+     <td>[% HTML.escape(row.reqdate) %]</td>
+     <td>
+      <a href="[% edit_url | html %]&amp;vc=[% row.vc | html %]&amp;type=[% IF row.vc == 'customer' %]sales_quotation[% ELSE %]request_quotation[% END %]&amp;id=[% row.id | html %]">
+       [% IF row.vc == 'customer' %]
+         [% 'Sales quotation' | $T8 %]
+       [% ELSE %]
+         [% 'Request quotation' | $T8 %]
+       [% END %]
+       [% HTML.escape(row.quonumber) %]
+      </a>
+     </td>
+     <td>
+      [% IF row.vc == 'customer' %]
+        [% HTML.escape(row.customer) %]
+      [% ELSE %]
+        [% HTML.escape(row.vendor) %]
+      [% END %]
+     </td>
+     <td>[% HTML.escape(row.transaction_description) %]</td>
+     <td>[% HTML.escape(LxERP.format_amount(row.amount, 2)) %]</td>
+     <td>[% HTML.escape(row.employee) %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->

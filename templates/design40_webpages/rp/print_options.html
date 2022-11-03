@@ -1,0 +1,38 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+<table>
+  <tbody>
+   <tr>
+     <td>
+       <select name="type" id="type">
+         <option value="statement" [% pd.statement %]>[% 'Statement' | $T8 %]</option>
+       </select>
+     </td>
+     <td>
+       <select name="format" id="format">
+         <option value="html" [% df.html %]>[% 'HTML' | $T8 %]</option>
+         <option value="pdf" [% df.pdf %]>[% 'PDF' | $T8 %]</option>
+         <option value="postscript" [% df.postscript %]>[% 'Postscript' | $T8 %]</option>
+       </select>
+     </td>
+     <td>
+       <select name="media">
+         [% IF is_email %]
+           <option value="attachment" [% sm.attachment %]>[% 'Attachment' | $T8 %]</option>
+           <option value="inline" [% sm.inline %]>[% 'In-line' | $T8 %]</option>
+         [% ELSE %]
+           <option value="screen" [% op.screen %]>[% 'Screen' | $T8 %]</option>
+         [% IF MYCONFIG.printer && LXCONFIG.print_templates.latex %]
+           <option value="printer" [% op.printer %]>[% 'Printer' | $T8 %]</option>
+         [% END %] [% END %]
+       </select>
+     </td>
+     [% IF MYCONFIG.printer && LXCONFIG.print_templates.latex && !is_email %]
+       <td>[% 'Copies' | $T8 %]<input type="text" name="copies" size="2" value="[% copies %]"></td>
+     [% END %]
+   </tr>
+  </tbody>
+</table>
+

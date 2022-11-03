@@ -1,0 +1,62 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+[% USE T8 %]
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <caption>[% 'Bank account' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8('Description') %]</th>
+      <td>[% L.input_tag("object.name", SELF.object.name, class='wi-wider', "data-validate"="required", "data-title"=LxERP.t8("Description")) %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('IBAN') %]</th>
+      <td>[% L.input_tag("object.iban", SELF.object.iban, class='wi-wider', "data-validate"="required", "data-title"=LxERP.t8("IBAN")) %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Bank') %]</th>
+      <td>[% L.input_tag("object.bank", SELF.object.bank, class='wi-wider') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Account number') %]</th>
+      <td>[% L.input_tag("object.account_number", SELF.object.account_number, class='wi-wider') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('BIC') %]</th>
+      <td>[% L.input_tag("object.bic", SELF.object.bic, class='wi-wider') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Bank code') %]</th>
+      <td>[% L.input_tag("object.bank_code", SELF.object.bank_code, class='wi-wider') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Chart') %]</th>
+      <td>[% P.chart.picker("object.chart_id", SELF.object.chart_id, type='AR_paid,AP_paid', category='A,L,Q', choose=1, class='wi-wider', "data-validate"="required", "data-title"=LxERP.t8("Chart")) %]</td>
+    </tr>
+    <tr>
+     <th>[% LxERP.t8('Use for Factur-X/ZUGFeRD') %]</th>
+     <td>[% L.checkbox_tag('object.use_for_zugferd', checked = SELF.object.use_for_zugferd, for_submit=1) %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Obsolete') %]</th>
+      <td>[% L.checkbox_tag('object.obsolete', checked = SELF.object.obsolete, for_submit=1) %]</td>
+    </tr>
+    <tr>
+      <th class="caption" colspan="2">[% LxERP.t8('Reconciliation') %]: </th>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Starting date') %]</th>
+      <td>[% L.date_tag('object.reconciliation_starting_date', SELF.object.reconciliation_starting_date, class="wi-small date") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Starting balance') %]</th>
+      <td>[% L.input_tag('object.reconciliation_starting_balance_as_number', SELF.object.reconciliation_starting_balance_as_number, class="wi-small numeric") %]</td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->

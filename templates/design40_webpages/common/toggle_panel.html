@@ -1,0 +1,82 @@
+[% USE T8 %]
+[% USE LxERP %]
+[%
+  # Use this include for flip open or shut a filter controlpanel/block.
+  # The source file must contain the BLOCK "filter_toggle_panel"
+
+  # CUSTOM BLOCK NAME
+  # If you want to use MORE THAN ONE filter controlpanel/block
+  # use the variable "block_name" with one of the block names
+  # before the include statement
+
+  # OPEN / CLOSED STATUS
+  # If you want to have the filter block flipped out (open)
+  # then use the optional statement ( SET display_status = 'open' )
+  # before the include statement
+
+  # MINIMAL STATEMENT
+  # At least a BLOCK like the default 'filter_toggle_panel'
+  # and the INCLUDE-Statement are required
+
+  # BLOCK filter_toggle_panel ;          # mandatory, with variable block_name another block name is possible
+  #   <myhtml></myhtml>
+  # END ;                                # END of block filter_toggle_panel
+  # INCLUDE 'common/toggle_panel.html'   #
+  # block_name     = 'this_is_block_2'   # optional / one of all the filter panels, default is 'filter_toggle_panel'
+  # toggle_class   = 'panel_2'           # optional / one of all the button/panel classes, default is 'toggle_panel'
+  # display_status = 'open'              # optional / default/empty is 'closed'
+  # button_closed  = 'Show Filter'       # optional / Term in closed button / default/empty is 'Show Filter' (historical)
+  # button_open    = 'Hide Filter'       # optional / Term in opened button / default/empty is 'Hide Filter' (historical)
+%]
+
+[%
+  IF display_status && display_status == 'open' ;
+    SET display_off = 'style="display:none;"' ;
+    SET display_on  = 'style="display:block;"' ;
+  ELSIF ( display_status && ( display_status == 'closed' || display_status == '' ) ) || !display_status  ;
+    SET display_off = 'style="display:block;"' ;
+    SET display_on  = 'style="display:none;"' ;
+  END ;
+  IF !button_closed || button_closed == '' ;
+    SET button_closed = LxERP.t8('Show Filter') ; # Default Term Filter is historical
+  END ;
+  IF !button_open || button_open == '' ;
+    SET button_open   = LxERP.t8('Hide Filter') ; # Default Term Filter is historical
+  END ;
+  IF !toggle_class || toggle_class == '';
+    toggle_class = 'toggle_panel' ; # this is default for one toggle panel per page
+  END ;
+%]
+
+<div class="toggle_panel control-panel [% toggle_class %]" [% display_off %]>
+  <a href="#" onClick='javascript:$(".[% toggle_class %]").toggle()' class="button toggle off neutral">[% button_closed %]</a>
+  [% IF SELF.filter_summary %]([% LxERP.t8("Current filter") %]: [% SELF.filter_summary | html %])[% END %]
+</div>
+
+<div class="toggle_panel control-panel [% toggle_class %]" [% display_on %]>
+  <a href="#" onClick='javascript:$(".[% toggle_class %]").toggle()' class="button toggle on neutral with-panel">[% button_open %]</a>
+  <div class="toggle_panel_block">
+     [% IF block_name && block_name != ''   %]
+      [%
+        #Dumper.dump_html(block_name) ;
+        IF block_name == 'panel_1' ;
+          PROCESS panel_1 ;
+        ELSIF block_name == 'panel_2' ;
+          PROCESS panel_2 ;
+        ELSIF block_name == 'panel_3' ;
+          PROCESS panel_3 ;
+        END
+      %]
+    [% ELSE %]
+      [% PROCESS filter_toggle_panel %]
+    [% END %]
+
+  </div>
+</div><!-- /.filter_toggle -->
+[%
+  # Reset in case of more than one toggle object
+  SET display_status = '' ; SET display_off = '' ; SET display_on = '' ;
+  SET block_name     = '' ;
+  SET button_closed  = '' ;
+  SET button_open    = '' ;
+%]

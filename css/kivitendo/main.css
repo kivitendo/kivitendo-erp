@@ -646,3 +646,28 @@ div.filtered_select input {
 div.filtered_select select {
   width: 522px;
 }
+
+/* icons that change between stylesheets */
+img.icon-sort-up {
+  content:url("../../image/up.png");
+}
+img.icon-sort-down {
+  content:url("../../image/down.png");
+}
+img.icon-dragdrop {
+  content:url("../../image/updown.png");
+}
+img.icon-delete {
+  content:url("../../image/cross.png");
+}
+img.icon-map {
+  content:url("../../image/map.png");
+}
+
+
+
+/* styling for input to textarea switch */
+span.area-input span.switch-to-textarea {
+  content: url("../../image/edit-entry.png");
+  margin-left: 2px;
+}

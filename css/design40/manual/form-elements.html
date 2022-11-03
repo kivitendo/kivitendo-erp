@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <link href="../style.css" rel="stylesheet">
+  <title>Test und Entwicklung des Kivitendo-CSS</title>
+</head>
+<body class="developing">
+<header>
+  <h1>Kivitendo-Formular-Elemente</h1>
+  <nav><a href="index.html" title="Zur Übersicht bzw. Inhaltsverzeichnis">Zum Index</a></nav>
+</header>
+
+<form action="#">
+
+
+
+
+<div class="wrapper">
+
+
+<h2>Formular-Elemente mit Standard-Einstellungen</h2>
+
+
+<table class="tbl-horizontal">
+  <caption>Klassische Input-Elemente</caption>
+  <colgroup> <col class="wi-small"><col class="wi-mediumsmall"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Text</th>
+      <td><input type="text" name="input-type-text"></td>
+    </tr>
+    <tr>
+      <th>Password</th>
+      <td><input type="password" name="input-type-password"></td>
+    </tr>
+    <tr>
+      <th>Checkbox</th>
+      <td>
+        <input type="checkbox" name="input-type-checkbox" value="cb1" id="cb1-1"><label for="cb1-1">1</label> &nbsp; 
+        <input type="checkbox" name="input-type-checkbox" value="cb2" id="cb1-2"><label for="cb1-2">2</label>
+      </td>
+    </tr>
+    <tr>
+      <th>Radio</th>
+      <td>
+        <input type="radio" name="input-type-radio" value="Yes" id="rd1-1"><label for="rd1-1">Yes</label> &nbsp; 
+        <input type="radio" name="input-type-radio" value="No" id="rd1-2"><label for="rd1-2">No</label>      
+      </td>
+    </tr>
+    <tr>
+      <th>Submit</th>
+      <td><input type="submit" name="sbmt1"></td>
+    </tr>
+    <tr>
+      <th>Reset</th>
+      <td><input type="reset" name="rst1"></td>
+    </tr>
+    <tr>
+      <th>Button</th>
+      <td><input type="button" name="btn1" value="Anzeigen"></td>
+    </tr>
+    <tr>
+      <th>Image</th>
+      <td><input type="image" name="input-type-image"></td>
+    </tr>
+    <tr>
+      <th>File</th>
+      <td><input type="file" name="input-type-file"></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<table class="tbl-horizontal">
+  <caption>Andere Formular-Elemente</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct1" name="slct1">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td><textarea name="txtarea1">Dies ist ein ganz normaler Text in einem Mehrzeilen-Feld!</textarea></td>
+    </tr>
+    <tr>
+      <th>Button</th>
+      <td>
+        <button name="bttn1-1" type="button">Type Button</button><br>
+        <button name="bttn1-2" type="submit">Type Submit</button><br>
+        <button name="bttn1-3" type="reset">Type Reset</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>Neue Input-Elemente in HTML5</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Search</th>
+      <td><input type="search" name="input-type-search"></td>
+    </tr>
+    <tr>
+      <th>Tel</th>
+      <td><input type="tel" name="input-type-tel"></td>
+    </tr>
+    <tr>
+      <th>URL</th>
+      <td><input type="url" name="input-type-url"></td>
+    </tr>
+    <tr>
+      <th>Email</th>
+      <td><input type="email" name="input-type-email"></td>
+    </tr>
+    <tr>
+      <th>Datetime</th>
+      <td><input type="datetime" name="input-type-datetime"></td>
+    </tr>
+    <tr>
+      <th>Date</th>
+      <td><input type="date" name="input-type-date"></td>
+    </tr>
+    <tr>
+      <th>Time</th>
+      <td><input type="time" name="input-type-time"></td>
+    </tr>
+    <tr>
+      <th>Month</th>
+      <td><input type="month" name="input-type-month"></td>
+    </tr>
+    <tr>
+      <th>Week</th>
+      <td><input type="week" name="input-type-week"></td>
+    </tr>
+    <tr>
+      <th>Datetime-Local</th>
+      <td><input type="datetime-local" name="input-type-datetime-local"></td>
+    </tr>
+    <tr>
+      <th>Number</th>
+      <td><input type="number" name="input-type-number"></td>
+    </tr>
+    <tr>
+      <th>Range</th>
+      <td><input type="range" name="input-type-range"></td>
+    </tr>
+    <tr>
+      <th>Color</th>
+      <td><input type="color" name="input-type-color"></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<table class="tbl-horizontal">
+  <caption>Abmessungen (Beispiel Input[type=text])</caption>
+  <colgroup> <col class="wi-mediumsmall"><col class="wi-verysmall"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>wi-smallest</th>
+      <th>44px</th>
+      <td><input type="text" name="input-type-text" class="wi-smallest"></td>
+    </tr>
+    <tr>
+      <th>wi-verysmall</th>
+      <th>63px</th>
+      <td><input type="text" name="input-type-text" class="wi-verysmall"></td>
+    </tr>
+    <tr>
+      <th>wi-small</th>
+      <th>95px</th>
+      <td><input type="text" name="input-type-text" class="wi-small"></td>
+    </tr>
+    <tr>
+      <th>wi-mediumsmall</th>
+      <th>121px</th>
+      <td><input type="text" name="input-type-text" class="wi-mediumsmall"></td>
+    </tr>
+    <tr>
+      <th>wi-normal</th>
+      <th>161px</th>
+      <td><input type="text" name="input-type-text" class="wi-normal"></td>
+    </tr>
+    <tr>
+      <th>wi-lightwide</th>
+      <th>188px</th>
+      <td><input type="text" name="input-type-text" class="wi-lightwide"></td>
+    </tr>
+    <tr>
+      <th>wi-wide</th>
+      <th>249px</th>
+      <td><input type="text" name="input-type-text" class="wi-wide"></td>
+    </tr>
+    <tr>
+      <th>wi-wider</th>
+      <th>329px</th>
+      <td><input type="text" name="input-type-text" class="wi-wider"></td>
+    </tr>
+    <tr>
+      <th>wi-verywide</th>
+      <th>489px</th>
+      <td><input type="text" name="input-type-text" class="wi-verywide"></td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+
+<div class="wrapper">
+
+
+<h2>Abmessungen mit assoziativen Klassennamen</h2>
+
+
+<table class="tbl-horizontal col">
+  <caption>Klasse wi-normal</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Text</th>
+      <td><input type="text" name="input-type-text-2" class="wi-normal"></td>
+    </tr>
+    <tr>
+      <th>Password</th>
+      <td><input type="password" name="input-type-password-2" class="wi-normal"></td>
+    </tr>
+    <tr>
+      <th>Submit</th>
+      <td><input type="submit" name="sbmt2" class="wi-normal"></td>
+    </tr>
+    <tr>
+      <th>Reset</th>
+      <td><input type="reset" name="rst2" class="wi-normal"></td>
+    </tr>
+    <tr>
+      <th>Button</th>
+      <td><input type="button" name="btn2" value="Anzeigen" class="wi-normal"></td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct1" name="slct2" class="wi-normal">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td><textarea name="txtarea2" class="wi-normal">Dies ist ein ganz normaler Text in einem Mehrzeilen-Feld!</textarea></td>
+    </tr>
+    <tr>
+      <th>Button (Tag)</th>
+      <td>
+        <button name="bttn1-1" type="button" class="wi-normal">Type Button</button><br>
+        <button name="bttn1-2" type="submit" class="wi-normal">Type Submit</button><br>
+        <button name="bttn1-3" type="reset" class="wi-normal">Type Reset</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal col">
+  <caption>Klasse wi-smallest</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Text</th>
+      <td><input type="text" name="input-type-text-2" class="wi-smallest"></td>
+    </tr>
+    <tr>
+      <th>Password</th>
+      <td><input type="password" name="input-type-password-2" class="wi-smallest"></td>
+    </tr>
+    <tr>
+      <th>Submit</th>
+      <td><input type="submit" name="sbmt2" class="wi-smallest"></td>
+    </tr>
+    <tr>
+      <th>Reset</th>
+      <td><input type="reset" name="rst2" class="wi-smallest"></td>
+    </tr>
+    <tr>
+      <th>Button</th>
+      <td><input type="button" name="btn2" value="Anzeigen" class="wi-smallest"></td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct1" name="slct2" class="wi-smallest">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td><textarea name="txtarea2" class="wi-smallest">Dies ist ein ganz normaler Text in einem Mehrzeilen-Feld!</textarea></td>
+    </tr>
+    <tr>
+      <th>Button (Tag)</th>
+      <td>
+        <button name="bttn1-1" type="button" class="wi-smallest">Type Button</button><br>
+        <button name="bttn1-2" type="submit" class="wi-smallest">Type Submit</button><br>
+        <button name="bttn1-3" type="reset" class="wi-smallest">Type Reset</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal col">
+  <caption>Klasse wi-verysmall</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Text</th>
+      <td><input type="text" name="input-type-text-2" class="wi-verysmall"></td>
+    </tr>
+    <tr>
+      <th>Password</th>
+      <td><input type="password" name="input-type-password-2" class="wi-verysmall"></td>
+    </tr>
+    <tr>
+      <th>Submit</th>
+      <td><input type="submit" name="sbmt2" class="wi-verysmall"></td>
+    </tr>
+    <tr>
+      <th>Reset</th>
+      <td><input type="reset" name="rst2" class="wi-verysmall"></td>
+    </tr>
+    <tr>
+      <th>Button</th>
+      <td><input type="button" name="btn2" value="Anzeigen" class="wi-verysmall"></td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct1" name="slct2" class="wi-verysmall">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td><textarea name="txtarea2" class="wi-verysmall">Dies ist ein ganz normaler Text in einem Mehrzeilen-Feld!</textarea></td>
+    </tr>
+    <tr>
+      <th>Button (Tag)</th>
+      <td>
+        <button name="bttn1-1" type="button" class="wi-verysmall">Type Button</button><br>
+        <button name="bttn1-2" type="submit" class="wi-verysmall">Type Submit</button><br>
+        <button name="bttn1-3" type="reset" class="wi-verysmall">Type Reset</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal col">
+  <caption>Klasse wi-small</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Text</th>
+      <td><input type="text" name="input-type-text-2" class="wi-small"></td>
+    </tr>
+    <tr>
+      <th>Password</th>
+      <td><input type="password" name="input-type-password-2" class="wi-small"></td>
+    </tr>
+    <tr>
+      <th>Submit</th>
+      <td><input type="submit" name="sbmt2" class="wi-small"></td>
+    </tr>
+    <tr>
+      <th>Reset</th>
+      <td><input type="reset" name="rst2" class="wi-small"></td>
+    </tr>
+    <tr>
+      <th>Button</th>
+      <td><input type="button" name="btn2" value="Anzeigen" class="wi-small"></td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct1" name="slct2" class="wi-small">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td><textarea name="txtarea2" class="wi-small">Dies ist ein ganz normaler Text in einem Mehrzeilen-Feld!</textarea></td>
+    </tr>
+    <tr>
+      <th>Button (Tag)</th>
+      <td>
+        <button name="bttn1-1" type="button" class="wi-small">Type Button</button><br>
+        <button name="bttn1-2" type="submit" class="wi-small">Type Submit</button><br>
+        <button name="bttn1-3" type="reset" class="wi-small">Type Reset</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal col">
+  <caption>Klasse wi-mediumsmall</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Text</th>
+      <td><input type="text" name="input-type-text-2" class="wi-mediumsmall"></td>
+    </tr>
+    <tr>
+      <th>Password</th>
+      <td><input type="password" name="input-type-password-2" class="wi-mediumsmall"></td>
+    </tr>
+    <tr>
+      <th>Submit</th>
+      <td><input type="submit" name="sbmt2" class="wi-mediumsmall"></td>
+    </tr>
+    <tr>
+      <th>Reset</th>
+      <td><input type="reset" name="rst2" class="wi-mediumsmall"></td>
+    </tr>
+    <tr>
+      <th>Button</th>
+      <td><input type="button" name="btn2" value="Anzeigen" class="wi-mediumsmall"></td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct1" name="slct2" class="wi-mediumsmall">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td><textarea name="txtarea2" class="wi-mediumsmall">Dies ist ein ganz normaler Text in einem Mehrzeilen-Feld!</textarea></td>
+    </tr>
+    <tr>
+      <th>Button (Tag)</th>
+      <td>
+        <button name="bttn1-1" type="button" class="wi-mediumsmall">Type Button</button><br>
+        <button name="bttn1-2" type="submit" class="wi-mediumsmall">Type Submit</button><br>
+        <button name="bttn1-3" type="reset" class="wi-mediumsmall">Type Reset</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal col">
+  <caption>Klasse wi-lightwide</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Text</th>
+      <td><input type="text" name="input-type-text-2" class="wi-lightwide"></td>
+    </tr>
+    <tr>
+      <th>Password</th>
+      <td><input type="password" name="input-type-password-2" class="wi-lightwide"></td>
+    </tr>
+    <tr>
+      <th>Submit</th>
+      <td><input type="submit" name="sbmt2" class="wi-lightwide"></td>
+    </tr>
+    <tr>
+      <th>Reset</th>
+      <td><input type="reset" name="rst2" class="wi-lightwide"></td>
+    </tr>
+    <tr>
+      <th>Button</th>
+      <td><input type="button" name="btn2" value="Anzeigen" class="wi-lightwide"></td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct1" name="slct2" class="wi-lightwide">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td><textarea name="txtarea2" class="wi-lightwide">Dies ist ein ganz normaler Text in einem Mehrzeilen-Feld!</textarea></td>
+    </tr>
+    <tr>
+      <th>Button (Tag)</th>
+      <td>
+        <button name="bttn1-1" type="button" class="wi-lightwide">Type Button</button><br>
+        <button name="bttn1-2" type="submit" class="wi-lightwide">Type Submit</button><br>
+        <button name="bttn1-3" type="reset" class="wi-lightwide">Type Reset</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal col">
+  <caption>Klasse wi-wide</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Text</th>
+      <td><input type="text" name="input-type-text-2" class="wi-wide"></td>
+    </tr>
+    <tr>
+      <th>Password</th>
+      <td><input type="password" name="input-type-password-2" class="wi-wide"></td>
+    </tr>
+    <tr>
+      <th>Submit</th>
+      <td><input type="submit" name="sbmt2" class="wi-wide"></td>
+    </tr>
+    <tr>
+      <th>Reset</th>
+      <td><input type="reset" name="rst2" class="wi-wide"></td>
+    </tr>
+    <tr>
+      <th>Button</th>
+      <td><input type="button" name="btn2" value="Anzeigen" class="wi-wide"></td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct1" name="slct2" class="wi-wide">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td><textarea name="txtarea2" class="wi-wide">Dies ist ein ganz normaler Text in einem Mehrzeilen-Feld!</textarea></td>
+    </tr>
+    <tr>
+      <th>Button (Tag)</th>
+      <td>
+        <button name="bttn1-1" type="button" class="wi-wide">Type Button</button><br>
+        <button name="bttn1-2" type="submit" class="wi-wide">Type Submit</button><br>
+        <button name="bttn1-3" type="reset" class="wi-wide">Type Reset</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal col">
+  <caption>Klasse wi-wider</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Text</th>
+      <td><input type="text" name="input-type-text-2" class="wi-wider"></td>
+    </tr>
+    <tr>
+      <th>Password</th>
+      <td><input type="password" name="input-type-password-2" class="wi-wider"></td>
+    </tr>
+    <tr>
+      <th>Submit</th>
+      <td><input type="submit" name="sbmt2" class="wi-wider"></td>
+    </tr>
+    <tr>
+      <th>Reset</th>
+      <td><input type="reset" name="rst2" class="wi-wider"></td>
+    </tr>
+    <tr>
+      <th>Button</th>
+      <td><input type="button" name="btn2" value="Anzeigen" class="wi-wider"></td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct1" name="slct2" class="wi-wider">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td><textarea name="txtarea2" class="wi-wider">Dies ist ein ganz normaler Text in einem Mehrzeilen-Feld!</textarea></td>
+    </tr>
+    <tr>
+      <th>Button (Tag)</th>
+      <td>
+        <button name="bttn1-1" type="button" class="wi-wider">Type Button</button><br>
+        <button name="bttn1-2" type="submit" class="wi-wider">Type Submit</button><br>
+        <button name="bttn1-3" type="reset" class="wi-wider">Type Reset</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal col">
+  <caption>Klasse wi-verywide</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>Text</th>
+      <td><input type="text" name="input-type-text-2" class="wi-verywide"></td>
+    </tr>
+    <tr>
+      <th>Password</th>
+      <td><input type="password" name="input-type-password-2" class="wi-verywide"></td>
+    </tr>
+    <tr>
+      <th>Submit</th>
+      <td><input type="submit" name="sbmt2" class="wi-verywide"></td>
+    </tr>
+    <tr>
+      <th>Reset</th>
+      <td><input type="reset" name="rst2" class="wi-verywide"></td>
+    </tr>
+    <tr>
+      <th>Button</th>
+      <td><input type="button" name="btn2" value="Anzeigen" class="wi-verywide"></td>
+    </tr>
+    <tr>
+      <th>Select</th>
+      <td>
+        <select id="slct1" name="slct2" class="wi-verywide">
+          <option value=""></option>
+          <option value="Hans Magnus Enzensberger">Hans Magnus Enzensberger</option>
+          <option value="Douglas Rushkow" selected>Douglas Rushkow</option>
+          <option value="Timothy Leary">Timothy Leary</option>
+          <option value="Joseph Weizenbaum">Joseph Weizenbaum</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>Textarea</th>
+      <td><textarea name="txtarea2" class="wi-verywide">Dies ist ein ganz normaler Text in einem Mehrzeilen-Feld!</textarea></td>
+    </tr>
+    <tr>
+      <th>Button (Tag)</th>
+      <td>
+        <button name="bttn1-1" type="button" class="wi-verywide">Type Button</button><br>
+        <button name="bttn1-2" type="submit" class="wi-verywide">Type Submit</button><br>
+        <button name="bttn1-3" type="reset" class="wi-verywide">Type Reset</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+
+
+</div>
+
+
+
+
+
+</form>
+
+</body>
+</html>

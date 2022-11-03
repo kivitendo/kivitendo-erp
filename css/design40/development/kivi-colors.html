@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>Kivitendo: Entwicklung von Farben</title>
+  <link type="text/css" href="style.css" rel="stylesheet">
+  <style type="text/css">
+  
+  
+    h2 {
+      clear: both;
+      margin: 2.0em 0 0 0;
+      display: block;
+    }
+    
+    h3 {
+      clear: both;
+      padding: 2.0em 0 0 0;
+      margin: 0;
+      display: block;
+    }
+
+
+  
+    /* ----------------------- */
+    /* ELEMENTS WITH GREY COLORS */
+    /* ----------------------- */
+    div.gray-superdark { background-color: var( --gray-superdark ); }/* Black */
+    div.gray-verydark { background-color: var( --gray-verydark ); }
+    div.gray-darker { background-color: var( --gray-darker ); }
+    div.gray-dark { background-color: var( --gray-dark ); }
+    div.gray-standard { background-color: var( --gray-standard ); }
+    div.gray-light { background-color: var( --gray-light ); }
+    div.gray-lighter { background-color: var( --gray-lighter ); }
+    div.gray-verylight { background-color: var( --gray-verylight ); }
+    div.gray-superlight { background-color: var( --gray-superlight ); }/* White */
+
+    p.gray-superdark { color: var( --gray-superdark ); } /* Black */
+    p.gray-verydark { color: var( --gray-verydark ); }
+    p.gray-darker { color: var( --gray-darker ); }
+    p.gray-dark { color: var( --gray-dark ); }
+    p.gray-standard { color: var( --gray-standard ); }
+    p.gray-light { color: var( --gray-light ); }
+    p.gray-lighter { color: var( --gray-lighter ); }
+    p.gray-verylight { color: var( --gray-verylight ); }
+    p.gray-superlight { color: var( --gray-superlight ); } /* White   */  
+  
+    /* ----------------------- */
+    /* ELEMENTS WITH BRAND COLORS */
+    /* ----------------------- */
+    div.brand-superdark { background-color: var( --color-superdark ); }/* Black */
+    div.brand-verydark { background-color: var( --color-verydark ); }
+    div.brand-darker { background-color: var( --color-darker ); }
+    div.brand-dark { background-color: var( --color-dark ); }
+    div.brand-standard { background-color: var( --color-standard ); }
+    div.brand-light { background-color: var( --color-light ); }
+    div.brand-lighter { background-color: var( --color-lighter ); }
+    div.brand-verylight { background-color: var( --color-verylight ); }
+    div.brand-superlight { background-color: var( --color-superlight ); }/* White */
+
+
+    /* ----------------------- */
+    /* MAIN ELEMENTS WITH BORDERS */
+    /* ----------------------- */
+
+    div.gray-superdark,
+    div.gray-verydark,
+    div.gray-darker,
+    div.gray-dark,
+    div.gray-standard,
+    div.gray-light,
+    div.gray-lighter,
+    div.gray-verylight,
+    div.brand-superdark,
+    div.brand-verydark,
+    div.brand-darker,
+    div.brand-dark,
+    div.brand-standard,
+    div.brand-light,
+    div.brand-lighter,
+    div.brand-verylight {
+      border: 1px transparent solid ;
+    }
+    div.brand-superlight,
+    div.gray-superlight {
+      border: 1px #dcdcdc solid;
+    }
+
+    p.brand-superdark { color: var( --color-superdark ); } /* Black */
+    p.brand-verydark { color: var( --color-verydark ); }
+    p.brand-darker { color: var( --color-darker ); }
+    p.brand-dark { color: var( --color-dark ); }
+    p.brand-standard { color: var( --color-standard ); }
+    p.brand-light { color: var( --color-light ); }
+    p.brand-lighter { color: var( --color-lighter ); }
+    p.brand-verylight { color: var( --color-verylight ); }
+    p.brand-superlight { color: var( --color-superlight ); } /* White   */
+  
+    div.tiny-box
+    {
+      width: 10%;
+      height: 16em;
+      float: left;
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: middle;
+      text-align: center;
+      font-size: 70%;
+      padding: 0;
+      margin: 0;
+    }
+    div.box{
+      padding: 1.2em;
+      vertical-align: middle;
+    }
+    
+    div.inner
+    {
+      display: table-cell;
+      text-align: center;
+      vertical-align: middle;
+      height: 16em;
+    }
+    
+    div.tiny-box p { vertical-align: middle; font-size: 120%; }
+    div.tiny-box p b { font-size: 120%; }
+
+    div.main-box{ overflow: hidden; padding: 1.0em ;s}
+    div.main-box .wrapper{ clear: left ; margin-bottom: 1.0em ; overflow: hidden ; }
+    
+    .wrapper.lighter  { color: var(--color-dark) ;}
+    .wrapper.light    { color: var(--color-darker) ;}
+    .wrapper.standard  { color: var(--color-verydark) ;}
+    .wrapper.dark      { color: var(--color-verylight) ;}
+    .wrapper.darker    { color: var(--color-lighter) ;}
+    .wrapper.verydark  { color: var(--color-light) ;}
+
+    div.mbox
+    {
+      border-width: 3px;
+      border-style: solid;
+      padding: 1.0em;
+      width: 20% ;
+      margin: 0 1.0em 0.3em 0 ;
+      float: left;
+    }
+
+    div.msg,
+    div.spin,
+    div.msg_color
+    {
+      border-width: 1px;
+      border-style: solid;
+      padding: 1.0em;
+      width: 20% ;
+      margin: 0 1.0em 0.3em 0 ;
+      float: left;
+      border-radius: 6px ;
+    }
+    div.msg.ok{        background-color: var(--msg-ok-light);       color: var(--msg-ok-strong) ;  }
+    div.msg.hint{      background-color: var(--msg-hint-light);     color: var(--msg-hint-strong) ;  }
+    div.msg.warning{  background-color: var(--msg-warning-light); color: var(--msg-warning-strong) ;  }
+    div.msg.error{    background-color: var(--msg-error-light);   color: var(--msg-error-strong) ;  }
+
+/* 
+    div.msg_color.ok{        background-color: var(--color-green-light);       color: var(--color-green-strong) ;  }
+    div.msg_color.hint{      background-color: var(--color-blue-light);     color: var(--color-blue-strong) ;  }
+    div.msg_color.warning{  background-color: var(--color-orange-light); color: var(--color-orange-strong) ;  }
+    div.msg_color.error{    background-color: var(--color-red-light);   color: var(--color-red-strong) ;  }
+ */
+
+    div.spin.spin_60{        background-color: var(--spin_60);   color: var(--msg-ok-strong) ;  }
+    div.spin.spin_120{      background-color: var(--spin_120);   color: var(--msg-hint-strong) ;  }
+    div.spin.spin_180{      background-color: var(--spin_180);   color: var(--msg-warning-strong) ;  }
+    div.spin.spin_240{      background-color: var(--spin_240);   color: var(--msg-error-strong) ;  }
+
+
+
+
+
+
+
+  
+  </style>
+  
+</head>
+<body>
+<h1>Color Style </h1>
+<h2>GREY COLORS</H2>
+
+<div class="gray-superdark tiny-box"><div class="inner"><p class="gray-verylight">Class <b>.gray-superdark</b><br>with .gray-verylight as text</p></div></div> 
+<div class="gray-verydark tiny-box"><div class="inner"><p class="gray-standard">Class <b>.gray-verydark</b><br>with .gray-standard as text</p></div></div> 
+<div class="gray-darker tiny-box"><div class="inner"><p class="gray-standard">Class <b>.gray-darker</b><br>with .gray-standard as text</p></div></div> 
+<div class="gray-dark tiny-box"><div class="inner"><p class="gray-XXX">Class <b>.gray-dark</b><br>with .gray-XXXX as text</p></div></div> 
+
+<div class="gray-standard tiny-box"><div class="inner"><p class="gray-superdark">Class <b>.gray-standard</b><br>with .gray-superdark as text</p></div></div> 
+
+<div class="gray-light tiny-box"><div class="inner"><p class="gray-XXX">Class <b>.gray-light</b><br>with .gray-XXXX as text</p></div></div> 
+<div class="gray-lighter tiny-box"><div class="inner"><p class="gray-standard">Class <b>.gray-lighter</b><br>with .gray-standard as text</p></div></div> 
+<div class="gray-verylight tiny-box"><div class="inner"><p class="gray-standard">Class <b>.gray-verylight</b><br>with .gray-standard as text</p></div></div> 
+<div class="gray-superlight tiny-box"><div class="inner"><p class="gray-verydark">Class <b>.gray-superlight</b><br>with .gray-verydark as text</p></div></div>  
+
+
+<h2>BRAND COLORS</H2>
+
+<div class="brand-superdark tiny-box"><div class="inner"><p class="brand-verylight">Class <b>.brand-superdark</b><br>with .brand-verylight as text</p></div></div> 
+<div class="brand-verydark tiny-box"><div class="inner"><p class="brand-standard">Class <b>.brand-verydark</b><br>with .brand-standard as text</p></div></div> 
+<div class="brand-darker tiny-box"><div class="inner"><p class="brand-standard">Class <b>.brand-darker</b><br>with .brand-standard as text</p></div></div> 
+<div class="brand-dark tiny-box"><div class="inner"><p class="brand-XXX">Class <b>.brand-dark</b><br>with .brand-XXXX as text</p></div></div> 
+
+<div class="brand-standard tiny-box"><div class="inner"><p class="brand-superdark">Class <b>.brand-standard</b><br>with .brand-superdark as text</p></div></div> 
+
+<div class="brand-light tiny-box"><div class="inner"><p class="brand-XXX">Class <b>.brand-light</b><br>with .brand-XXXX as text</p></div></div> 
+<div class="brand-lighter tiny-box"><div class="inner"><p class="brand-standard">Class <b>.brand-lighter</b><br>with .brand-standard as text</p></div></div> 
+<div class="brand-verylight tiny-box"><div class="inner"><p class="brand-standard">Class <b>.brand-verylight</b><br>with .brand-standard as text</p></div></div> 
+<div class="brand-superlight tiny-box"><div class="inner"><p class="brand-verydark">Class <b>.brand-superlight</b><br>with .brand-verydark as text</p></div></div>  
+
+<h2>LAYOUTS</h2>
+
+<div class="brand-lighter main-box">
+  <p class="brand-standard">Class <b>.brand-verylight</b><br>with .brand-standard as text</p>
+  <div class="wrapper lighter">
+    <div class="mbox" style="background-color:var(--color-lighter);border-color:var(--color-standard);">BG: LIGHTER<br>Border: STANDARD<br>Text: DARK</div>
+    <div class="mbox" style="background-color:var(--color-lighter);border-color:var(--color-dark);">BG: LIGHTER<br>Border: DARK<br>Text: DARK</div>
+    <div class="mbox" style="background-color:var(--color-lighter);border-color:var(--color-darker);">BG: LIGHTER<br>Border: DARKER<br>Text: DARK</div>
+    <div class="mbox" style="background-color:var(--color-lighter);border-color:var(--color-verydark);">BG: LIGHTER<br>Border: VERYDARK<br>Text: DARK</div>
+  </div>
+  <div class="wrapper light">
+    <div class="mbox" style="background-color:var(--color-light);border-color:var(--color-standard);">BG: LIGHT<br>Border: STANDARD<br>Text: DARKER</div>
+    <div class="mbox" style="background-color:var(--color-light);border-color:var(--color-dark);">BG: LIGHT<br>Border: DARK<br>Text: DARKER</div>
+    <div class="mbox" style="background-color:var(--color-light);border-color:var(--color-darker);">BG: LIGHT<br>Border: DARKER<br>Text: DARKER</div>
+    <div class="mbox" style="background-color:var(--color-light);border-color:var(--color-verydark);">BG: LIGHT<br>Border: VERYDARK<br>Text: DARKER</div>
+  </div>
+  <div class="wrapper standard">
+    <div class="mbox" style="background-color:var(--color-standard);border-color:var(--color-standard);">BG: STANDARD<br>Border: STANDARD<br>Text: VERYDARK</div>
+    <div class="mbox" style="background-color:var(--color-standard);border-color:var(--color-dark);">BG: STANDARD<br>Border: DARK<br>Text: VERYDARK</div>
+    <div class="mbox" style="background-color:var(--color-standard);border-color:var(--color-darker);">BG: STANDARD<br>Border: DARKER<br>Text: VERYDARK</div>
+    <div class="mbox" style="background-color:var(--color-standard);border-color:var(--color-verydark);">BG: STANDARD<br>Border: VERYDARK<br>Text: VERYDARK</div>
+  </div>
+  <div class="wrapper dark">
+    <div class="mbox" style="background-color:var(--color-dark);border-color:var(--color-standard);">BG: DARK<br>Border: STANDARD<br>Text: VERYLIGHT</div>
+    <div class="mbox" style="background-color:var(--color-dark);border-color:var(--color-dark);">BG: DARK<br>Border: DARK<br>Text: VERYLIGHT</div>
+    <div class="mbox" style="background-color:var(--color-dark);border-color:var(--color-darker);">BG: DARK<br>Border: DARKER<br>Text: VERYLIGHT</div>
+    <div class="mbox" style="background-color:var(--color-dark);border-color:var(--color-verydark);">BG: DARK<br>Border: VERYDARK<br>Text: VERYLIGHT</div>
+  </div>
+  <div class="wrapper darker">
+    <div class="mbox" style="background-color:var(--color-darker);border-color:var(--color-standard);">BG: DARKER<br>Border: STANDARD<br>Text: LIGHTER</div>
+    <div class="mbox" style="background-color:var(--color-darker);border-color:var(--color-dark);">BG: DARKER<br>Border: DARK<br>Text: LIGHTER</div>
+    <div class="mbox" style="background-color:var(--color-darker);border-color:var(--color-darker);">BG: DARKER<br>Border: DARKER<br>Text: LIGHTER</div>
+    <div class="mbox" style="background-color:var(--color-darker);border-color:var(--color-verydark);">BG: DARKER<br>Border: VERYDARK<br>Text: LIGHTER</div>
+  </div>
+  <div class="wrapper verydark">
+    <div class="mbox" style="background-color:var(--color-verydark);border-color:var(--color-standard);">BG: VERYDARK<br>Border: STANDARD<br>Text: LIGHT</div>
+    <div class="mbox" style="background-color:var(--color-verydark);border-color:var(--color-dark);">BG: VERYDARK<br>Border: DARK<br>Text: LIGHT</div>
+    <div class="mbox" style="background-color:var(--color-verydark);border-color:var(--color-darker);">BG: VERYDARK<br>Border: DARKER<br>Text: LIGHT</div>
+    <div class="mbox" style="background-color:var(--color-verydark);border-color:var(--color-verydark);">BG: VERYDARK<br>Border: VERYDARK<br>Text: LIGHT</div>
+  </div>
+<h3>Messages (Colors mixed with Color Style)</h3>
+  <div class="wrapper verydark">
+    <div class="msg msg-ok">This is a OK message</div>
+    <div class="msg msg-hint">This is a HINT message</div>
+    <div class="msg msg-warning">This is a WARNING message</div>
+    <div class="msg msg-error">This is a ERROR message</div>
+  </div>
+  <h3>Original Message Colors</h3>
+  <div class="wrapper verydark">
+    <div class="msg color-ok">This is a OK message</div>
+    <div class="msg color-hint">This is a HINT message</div>
+    <div class="msg color-warning">This is a WARNING message</div>
+    <div class="msg color-error">This is a ERROR message</div>
+  </div>
+<!-- 
+<h3>Spins (Just Research)</h3>
+  <div class="wrapper verydark">
+    <div class="spin spin_60"> This is Spin  60</div>
+    <div class="spin spin_120">This is Spin 120</div>
+    <div class="spin spin_180">This is Spin 180</div>
+    <div class="spin spin_240">This is Spin 240</div>
+  </div>
+ -->
+
+
+</div> 
+
+
+<h2>COLOR STYLES</h2>
+<div class="main-box">
+  <div class="mbox style-ocean"><p><b>ocean</b></p></div> 
+  <div class="mbox style-light_blue"><p><b>light_blue</b></p></div> 
+  <div class="mbox style-aqua"><p><b>aqua</b></p></div> 
+  <h3>Green</h3>
+  <div class="mbox style-turquoise"><p><b>turquoise</b></p></div> 
+  <div class="mbox style-pine"><p><b>pine</b></p></div> 
+  <div class="mbox style-asparagus"><p><b>asparagus</b></p></div> 
+  <div class="mbox style-petrol"><p><b>petrol</b></p></div> 
+  <h3>Red</h3>
+  <div class="mbox style-salmona"><p><b>salmona</b></p></div>   
+  <div class="mbox style-salmon"><p><b>salmon</b></p></div>  
+  <div class="mbox style-tangerine"><p><b>tangerine</b></p></div>  
+  <div class="mbox style-marascino"><p><b>marascino</b></p></div> 
+  <div class="mbox style-maroon"><p><b>maroon</b></p></div> 
+  <div class="mbox style-strawberry"><p><b>strawberry</b></p></div> 
+  <div class="mbox style-pure_red"><p><b>pure_red</b></p></div> 
+  <h3>Yellow</h3>
+  <div class="mbox style-old_lemon"><p><b>old_lemon</b></p></div>  
+  <div class="mbox style-yellow_to_green"><p><b>yellow_to_green</b></p></div> 
+  <h3>Violets & Purple</h3>
+  <div class="mbox style-eggplant"><p><b>eggplant</b></p></div> 
+  <div class="mbox style-plum"><p><b>plum</b></p></div> 
+  <div class="mbox style-grape"><p><b>grape</b></p></div> 
+  <div class="mbox style-magenta"><p><b>magenta</b></p></div> 
+  <div class="mbox style-lavender"><p><b>lavender</b></p></div> 
+  <h3>Browns</h3>
+  <div class="mbox style-cayenne"><p><b>cayenne</b></p></div> 
+  <div class="mbox style-mocha"><p><b>mocha</b></p></div> 
+  <div class="mbox style-cantaloupe"><p><b>cantaloupe</b></p></div>  
+  <div class="mbox style-dark_brown"><p><b>dark_brown</b></p></div> 
+  <div class="mbox style-orange_brown"><p><b>orange_brown</b></p></div> 
+  <div class="mbox style-smack_brown"><p><b>smack_brown</b></p></div> 
+  <div class="mbox style-green_brown"><p><b>green_brown</b></p></div>  
+</div>
+</body>
+</html>

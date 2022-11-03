@@ -1,0 +1,23 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+
+[% IF ok %]
+<p class="message message_ok">[% LxERP.t8('The connection was established successfully.') %]</p>
+
+[% ELSE %]
+
+<div class="message message_error">
+
+<p>
+  [% LxERP.t8('The connection to the database could not be established.') %]
+  [% LxERP.t8('Error message from the database driver:') %]
+</p>
+<p>[% HTML.escape(error) %]</p>
+</div>
+
+[% END %]
+
+<div>
+  <a href="#" onclick="$('#test_db_connection_window').dialog('close');" class="button neutral">[% LxERP.t8("Close Window") %]</a>
+</div>

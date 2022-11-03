@@ -1,0 +1,152 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+[% USE T8 %]
+
+<div id="miscellaneous">
+
+<div class="wrapper">
+
+  <table class="tbl-horizontal">
+    <caption> [% LxERP.t8("Company name and address") %] </caption>
+    <colgroup> <col class="wi-mediumsmall"><col class="wi-wide"> </colgroup>
+    <tbody>
+    <tr>
+      <th> [% LxERP.t8("Company name") %] </th>
+      <td> [% L.input_tag('defaults.company', SELF.defaults.company, class='wi-wide') %] </td>
+    </tr>
+    <tr>
+     <td>[% LxERP.t8("Street 1") %]</td>
+     <td>[% L.input_tag('defaults.address_street1', SELF.defaults.address_street1, style=style) %]</td>
+    </tr>
+    <tr>
+     <td>[% LxERP.t8("Street 2") %]</td>
+     <td>[% L.input_tag('defaults.address_street2', SELF.defaults.address_street2, style=style) %]</td>
+    </tr>
+    <tr>
+     <td>[% LxERP.t8("Zipcode and city") %]</td>
+     <td>
+       [% L.input_tag('defaults.address_zipcode', SELF.defaults.address_zipcode, size=8) %]
+       [% L.input_tag('defaults.address_city', SELF.defaults.address_city, size=30) %]
+     </td>
+    </tr>
+    <tr>
+     <td>[% LxERP.t8("Country") %]</td>
+     <td>[% L.input_tag('defaults.address_country', SELF.defaults.address_country, style=style) %]</td>
+    </tr>
+    <tr>
+      <th class="caption" colspan="2">[% LxERP.t8("Company settings") %]</th>
+    </tr>
+    <tr>
+      <th> [% LxERP.t8("Signature") %] </th>
+      <td> [% L.textarea_tag('defaults.signature', SELF.defaults.signature, rows=4, class='wi-wide') %] </td>
+    </tr>
+    <tr>
+      <th> [% LxERP.t8("Tax number") %] </th>
+      [% IF SELF.defaults.feature_ustva %]
+      <td> [% SELF.defaults.taxnumber %]&nbsp;&nbsp; <a href="ustva.pl?action=config_step1"> ([% LxERP.t8("For changeing goto USTVA Config") %]) </a> </td>
+      [% ELSE %]
+      <td> [% L.input_tag('defaults.taxnumber', SELF.defaults.taxnumber, class='wi-medium-small') %] </td>
+      [% END %]
+    </tr>
+    <tr>
+      <th> [% LxERP.t8("Tax ID number") %] </th>
+      <td> [% L.input_tag('defaults.co_ustid', SELF.defaults.co_ustid, class='wi-medium-small') %] </td>
+    </tr>
+    <tr>
+      <th> [% LxERP.t8("SEPA creditor ID") %] </th>
+      <td> [% L.input_tag('defaults.sepa_creditor_id', SELF.defaults.sepa_creditor_id, class='wi-medium-small') %] </td>
+    </tr>
+    <tr>
+      <th> [% LxERP.t8("Business Number") %] </th>
+      <td> [% L.input_tag('defaults.businessnumber', SELF.defaults.businessnumber, class='wi-medium-small') %] </td>
+    </tr>
+    <tr>
+      <th> [% LxERP.t8("DUNS number") %] </th>
+      <td> [% L.input_tag('defaults.duns', SELF.defaults.duns, class='wi-medium-small') %] </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <table class="tbl-horizontal">
+    <colgroup> <col class="wi-small"> <col class="wi-small"> <col class="wi-small"></colgroup>
+    <caption>[% LxERP.t8("Language settings") %]</caption>
+    <tbody>
+    <tr>
+      <th> [% LxERP.t8('Default Customer/Vendor Language') %] </th>
+      <td colspan="2"> [% L.select_tag('defaults.language_id', SELF.all_languages, title_key='description', default=SELF.defaults.language_id, with_empty=1, class='wi-mediumsmall') %] </td>
+    </tr>
+    <tr class="header-caption">
+      <th class="caption">[% LxERP.t8("Currencies") %] </th>
+      <th>[% LxERP.t8("Currency name") %] </th>
+      <th class="center">[% LxERP.t8("Default currency") %] </th>
+    </tr>
+    [% FOREACH currency = SELF.all_currencies %]
+      <tr>
+        <th>
+          [% L.hidden_tag("currencies[+].id", currency.id) %]
+          [% IF loop.count == 1 %][% LxERP.t8("Currencies") %][% END %]
+        </th>
+        <td>
+          [% SET title=LxERP.t8("Edit the currency names in order to rename them.") %]
+          [% L.input_tag("currencies[].name", currency.name, title=title, class='wi-small') %]
+        </td>
+        <td class="center">[% L.radio_button_tag('defaults.currency_id', value=currency.id, id='defaults.currency_id_' _ currency.id, checked=(SELF.defaults.currency_id == currency.id)) %]</td>
+      </tr>
+    [% END %]
+    <tr>
+      <th></th>
+      <td>[% L.input_tag("new_currency", FORM.new_currency, class='wi-small', placeholder=LxERP.t8('Add new currency'), title=LxERP.t8('Add new currency') ) %] </td>
+      <td class="center">[% L.radio_button_tag('defaults.currency_id', value=-1, id='defaults.currency_id__1', checked=(SELF.defaults.currency_id == -1)) %] </td>
+    </tr>
+    [% IF SELF.all_weightunits.size %]
+    <tr>
+      <th class="caption" colspan="3">[% LxERP.t8("Weight") %] </th>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Weight unit") %] </th>
+      <td>[% L.select_tag('defaults.weightunit', SELF.all_weightunits, default=SELF.defaults.weightunit, value_key='name', title_key='name', class='wi-small') %] </td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Show weights') %] </th>
+      <td colspan="2">
+        [% L.yes_no_tag('defaults.show_weight', SELF.defaults.show_weight, class='wi-small') %]
+        <div class="description">[% LxERP.t8('Show the weights of articles and the total weight in orders, invoices and delivery notes?') %]</div>
+      </td>
+    </tr>
+    [% END %]
+    </tbody>
+  </table>
+
+</div><!-- /.wrapper -->
+
+<div class="wrapper">
+
+  <table class="tbl-horizontal">
+    <caption>[% LxERP.t8("Print templates") %] </caption>
+    <colgroup> <col class="wi-mediumsmall"><col class="wi-lightwide"> </colgroup>
+
+    <tbody>
+      <tr>
+        <th>[% LxERP.t8("Print templates to use") %] </th>
+        <th>[% 'Templates' | $T8 %] </th>
+      </tr>
+      <tr>
+        <th>[% L.radio_button_tag('use_templates', value='existing', id='use_templates_existing', label=LxERP.t8('Use existing templates'), checked=(FORM.use_templates == 'existing')) %] </th>
+        <td>[% L.select_tag('defaults.templates', SELF.all_templates.print_templates, default=SELF.defaults.templates, value_sub=\make_templates_value, class='wi-normal') %] </td>
+      </tr>
+      <tr>
+        <th>[% L.radio_button_tag('use_templates', value='new', id='use_templates_new', label=LxERP.t8('Create new templates from master templates'), checked=(FORM.use_templates == 'new')) %] </th>
+        <td>[% L.select_tag('new_master_templates', SELF.all_templates.master_templates, default=FORM.new_master_templates, class='wi-normal') %] </td>
+      </tr>
+      <tr>
+        <th></th>
+        <td>[% SET placeholder=LxERP.t8("New name") %] [% L.input_tag('new_templates', FORM.new_templates, placeholder=placeholder, class='wi-normal') %] </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div><!-- /.wrapper -->
+
+</div><!-- /#miscellaneous -->

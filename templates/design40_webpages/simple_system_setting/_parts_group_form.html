@@ -1,0 +1,15 @@
+[%- USE LxERP -%][%- USE L -%]
+<div class="wrapper">
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th> [% LxERP.t8("Description") %] </th>
+      <td> [%- L.input_tag("object.partsgroup", SELF.object.partsgroup, "data-validate"="required", "data-title"=LxERP.t8("Description")) %] </td>
+    </tr>
+    <tr>
+      <th> [% LxERP.t8("Obsolete") %] </th>
+      <td> [% L.checkbox_tag("object.obsolete", checked=SELF.object.obsolete, for_submit=1) %] </td>
+    </tr>
+  </tbody>
+</table>
+</div>

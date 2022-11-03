@@ -19,14 +19,13 @@ use SL::PriceSource::ALL;
 use SL::Template;
 use SL::Controller::TopQuickSearch;
 use SL::DB::Helper::AccountingPeriod qw(get_balance_startdate_method_options);
-use SL::Helper::ShippedQty;
 use SL::VATIDNr;
 use SL::ZUGFeRD;
 
 __PACKAGE__->run_before('check_auth');
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_price_sources h_unit_name available_quick_search_modules available_shipped_qty_item_identity_fields
+  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_price_sources h_unit_name available_quick_search_modules
                                   all_project_statuses all_project_types zugferd_settings
                                   posting_options payment_options accounting_options inventory_options profit_options balance_startdate_method_options
                                   displayable_name_specs_by_module) ],
@@ -208,10 +207,6 @@ sub init_all_price_sources {
 
 sub init_available_quick_search_modules {
   [ SL::Controller::TopQuickSearch->new->available_modules ];
-}
-
-sub init_available_shipped_qty_item_identity_fields {
-  [ SL::Helper::ShippedQty->new->available_item_identity_fields ];
 }
 
 sub init_displayable_name_specs_by_module {

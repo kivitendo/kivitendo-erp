@@ -1,0 +1,342 @@
+[% USE L %]
+[% USE P %]
+[% USE HTML %]
+[% USE T8 %]
+[% USE LxERP %]
+
+<h1>[% title | html %]</h1>
+
+[% INCLUDE 'common/flash.html' %]
+
+<form method="post" action="[% script | html %]" id="form">
+
+<input type="hidden" name="terms" value="[% terms | html %]">
+<input type="hidden" name="creditlimit" value="[% creditlimit | html %]">
+<input type="hidden" name="creditremaining" value="[% creditremaining | html %]">
+<input type="hidden" name="forex" value="[% forex | html %]">
+<input type="hidden" name="lastmtime" value="[% HTML.escape(lastmtime) %]">
+<input type="hidden" name="id" value="[% id | html %]">
+<input type="hidden" name="sort" value="[% sort | html %]">
+<input type="hidden" name="closedto" value="[% closedto | html %]">
+<input type="hidden" name="locked" value="[% locked | html %]">
+<input type="hidden" name="title" value="[% title_ | html %]">
+<input type="hidden" name="follow_up_trans_id_1" value="[% id | html %]">
+<input type="hidden" name="follow_up_trans_type_1" value="ap_transaction">
+<input type="hidden" name="follow_up_trans_info_1" value="[% follow_up_trans_info | html %]">
+<input type="hidden" name="follow_up_rowcount" value="1">
+<input type="hidden" name="defaultcurrency" value="[% defaultcurrency | html %]">
+<input type="hidden" name="fxgain_accno" value="[% fxgain_accno | html %]">
+<input type="hidden" name="fxloss_accno" value="[% fxloss_accno | html %]">
+<input type="hidden" name="oldinvtotal" value="[% oldinvtotal | html %]">
+<input type="hidden" name="oldtotalpaid" value="[% oldtotalpaid | html %]">
+<input type="hidden" name="taxaccounts" value="[% taxaccounts | html %]">
+<input type="hidden" name="rowcount" value="[% rowcount | html %]">
+<input type="hidden" name="paidaccounts" value="[% paidaccounts | html %]">
+
+[% P.hidden_tag('convert_from_oe_id', convert_from_oe_id) %]
+
+[% FOREACH i IN [1..paidaccounts] %]
+  [% temp = "acc_trans_id_"_ i %]
+  <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
+  [% temp = "gldate_"_ i %]
+  <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
+[% END %]
+
+
+[% IF ( saved_message ) %]
+  <p>[% saved_message | html %]</p>
+[% END %]
+
+<div id="ap_tabs" class="tabwidget">
+
+<ul>
+  <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
+  [% IF INSTANCE_CONF.get_webdav %]
+    <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
+  [% END %]
+  [% IF id AND INSTANCE_CONF.get_doc_storage %]
+    <li><a href="controller.pl?action=File/list&file_type=document&object_type=purchase_invoice&object_id=[% HTML.url(id) %]">[% 'Documents' | $T8 %]</a></li>
+    <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=purchase_invoice&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
+  [% END %]
+  [% IF id %]
+    [% IF AUTH.assert('record_links', 1) %]
+  <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=PurchaseInvoice&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>
+    [% END %]
+  <li><a href="[% 'controller.pl?action=AccTrans/list_transactions&trans_id=' _ HTML.url(id) | html %]">[% LxERP.t8('Transactions') %]</a></li>
+  [% END %]
+</ul>
+
+<div id="ui-tabs-basic-data">
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <caption>[% 'Vendor & Order' | $T8 %]</caption>
+  <colgroup> <col class="wi-mediumsmall"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Vendor' | $T8 %]</th>
+      <td class="wi-lightwide">[% P.customer_vendor.picker("vendor_id", vendor_id, type="vendor", onchange="\$('#update_button').click()") %][% L.button_tag("show_vc_details('vendor')", LxERP.t8('Details (one letter abbreviation)'), class='wi-tiny neutral') %] [% L.hidden_tag("previous_vendor_id", vendor_id) %] </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Credit Limit") %]</th>
+      <td><span class="data wi-lightwide">[% creditlimit | html %], [% LxERP.t8("Remaining") %] <span class="plus[% creditremaining_plus %]">[% creditremaining | html %]</span></span> </td>
+    </tr>
+    [% IF invoice_obj.sepa_exports.as_list.size %]
+      <tr>
+        <th>[% LxERP.t8("SEPA exports") %]</th>
+        <td> [% FOREACH export = invoice_obj.sepa_exports.as_list %] <a href="sepa.pl?action=bank_transfer_edit&vc=vendor&id=[% HTML.url(export.id) %]">[% HTML.escape(export.id) %]</a> [% UNLESS loop.last %], [% END %] [% END %] </td>
+      </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Currency' | $T8 %]</th>
+      <th>
+        [% L.select_tag("currency", currencies, default=currency, value_key="name", title_key="name", class="wi-small") %]
+        [% IF ( defaultcurrency && (currency != defaultcurrency) ) %]
+          [% 'Exchangerate' | $T8 %]
+          [% IF ( forex ) %]
+            <input type="hidden" name="exchangerate" value="[% exchangerate | html %]">
+            [% exchangerate | html %]
+          [% ELSE %]
+            <input type="text" name="exchangerate" size="10" value="[% exchangerate | html %]">
+          [% END %]
+        [% END %]
+      </th>
+    </tr>
+    [% IF ALL_DEPARTMENTS %]
+    <tr>
+      <th>[% 'Department' | $T8 %]</th>
+      <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1, class='wi-lightwide') %]</td>
+    </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Tax Included' | $T8 %]</th>
+      <th><input name="taxincluded" type="checkbox" value="1" [% if ( taxincluded ) %]checked[% end %]></th>
+    </tr>
+    <tr>
+      <th>[% 'direct debit' | $T8 %]</th>
+      <th><input name="direct_debit" type="checkbox" value="1" [% if (direct_debit) %]checked[% end %]> </th>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Notes' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        [% L.textarea_tag("notes", notes, wrap="soft", rows=textarea_rows, cols=50, readonly=readonly) %]
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="label above">[% 'Internal Notes' | $T8 %]</span>
+        [% L.textarea_tag("intnotes", intnotes, wrap="soft", rows=textarea_rows, cols=50, readonly=readonly) %]
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="label above">[% 'Payment Terms' | $T8 %]</span>
+        [% L.select_tag('payment_id', payment_terms, default=payment_id, title_key='description', with_empty=1, style="width: 250px", onchange="kivi.SalesPurchase.set_duedate_on_reference_date_change('invdate')") %]
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Numbers & Dates' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% 'Invoice Number' | $T8 %]</th>
+      <td>[% L.input_tag("invnumber", invnumber, size="11", readonly=readonly) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Order Number' | $T8 %]</th>
+      <td>[% L.input_tag("ordnumber", ordnumber, size="11", readonly=readonly) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Invoice Date' | $T8 %]</th>
+      <td>[% L.date_tag('transdate', transdate) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Due Date' | $T8 %]</th>
+      <td>[% L.date_tag('duedate', duedate) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Tax point' | $T8 %]</th>
+      <td>[% L.date_tag('tax_point', tax_point, id='tax_point') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Delivery Date' | $T8 %]</th>
+      <td>[% L.date_tag('deliverydate', deliverydate) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Project Number' | $T8 %]</th>
+      <td>[% P.project.picker('globalproject_id', globalproject_id, onchange="document.getElementById('update_button').click();") %]</td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+<div class="wrapper">
+
+<table class="tbl-list">
+  <caption>[% 'Transactions' | $T8 %]</caption>
+  <thead>
+    <tr>
+      <th>[% 'Account' | $T8 %]</th>
+      <th class="right">[% 'Amount' | $T8 %]</th>
+      <th class="right">[% 'Tax' | $T8 %]</th>
+      <th>[% 'Taxkey' | $T8 %]</th>
+      <th>[% 'Project' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH i IN [1..rowcount] %]
+    <tr>
+      <td class="wi-wide">
+        [% SET selected_chart_id = "AP_amount_chart_id_"_ i %]
+        [% P.chart.picker("AP_amount_chart_id_" _ i, $selected_chart_id, type="AP_amount", class=(initial_focus == 'row_' _ i ? "initial_focus wi-wide" : "wi-wide") ) %]
+        [% L.hidden_tag("previous_AP_amount_chart_id_" _ i, $selected_chart_id) %]
+        <input type="hidden" name="tax_[% i %]" value="[% temp = " tax"_ i %][% $temp | html %]">
+      </td>
+      <td class="numeric">
+        <input type="text" name="amount_[% i %]" size="10" value="[% temp = "amount_"_ i %][% $temp | html %]" class="numeric wi-small">
+      </td>
+      <td class="numeric">[% temp = "tax_"_ i %][% $temp | html %]</td>
+      <td>
+        [% temp = 'selected_taxchart_'_ i %] [% taxcharts = 'taxcharts_' _ i %]
+        [% L.select_tag('taxchart_'_ i, $taxcharts, value_title_sub = \taxchart_value_title_sub, default = $temp, class='wi-lightwide') %]
+      </td>
+      <td>
+        [% temp = "project_id_"_ i %]
+        [% P.project.picker(temp, loop.last ? globalproject_id : $temp) %]
+      </td>
+    </tr>
+    [% END %]
+  </tbody>
+  <tfoot>
+    <tr>
+      <td class="wi-wide">[% P.chart.picker('AP_chart_id', AP_chart_id, class="wi-wide", type="AP") %] </td>
+      <td class="numeric">[% invtotal | html %]</td>
+      <td colspan="3"></td>
+    </tr>
+  </tfoot>
+</table>
+
+[% UNLESS no_payment_bookings %]
+  <table class="tbl-list">
+    <caption>[% 'Payments' | $T8 %]</caption>
+    <thead>
+      <tr>
+        <th>[% 'Date' | $T8 %]</th>
+        <th>[% 'Source' | $T8 %]</th>
+        <th>[% 'Memo' | $T8 %]</th>
+        <th>[% 'Amount' | $T8 %]</th>
+        <th></th>
+        [% IF ( !defaultcurrency || (currency != defaultcurrency) ) %]
+          <th>[% 'Exch' | $T8 %]</th>
+        [% END %]
+        <th>[% 'Account' | $T8 %]</th>
+        <th>[% 'Project Number' | $T8 %]</th>
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH i IN [1..paidaccounts] %] [% temp = "paidaccount_changeable_"_ i %] [% changeable = $temp %]
+      <tr>
+        [% temp = "datepaid_"_ i %]
+        <td>
+          [% IF( changeable ) %] [% L.date_tag(temp, $temp ? $temp : today) %]
+          [% ELSE %] [% $temp | html %] <input type="hidden" name="[% temp %]" value="[% $temp | html %]"> [% END %]
+        </td>
+        <td>
+          [% temp = "source_"_ i %]
+          [% IF( changeable ) %]  <input type="text" name="[% temp %]" size="11" value="[% $temp | html %]">
+          [% ELSE %] [% $temp | html %]  <input type="hidden" name="[% temp %]" value="[% $temp | html %]">[% END %]
+        </td>
+        <td>
+          [% temp = "memo_"_ i %]
+          [% IF( changeable ) %] <input type="text" name="[% temp %]" size="11" value="[% $temp | html %]">
+          [% ELSE %] [% $temp | html %] <input type="hidden" name="[% temp %]" value="[% $temp | html %]"> [% END %]
+        </td>
+        <td>
+          [% temp = "paid_"_ i %]
+          [% IF( changeable ) %]
+            <input name="[% temp %]" data-validate="number" value="[% $temp | html %]" id="[%- 'payment_' _ temp -%]" size="11" class="numeric">
+          [% ELSE %]
+            [% $temp | html %]
+            <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
+          [% END %]
+        </td>
+        <td>
+          [% IF changeable && loop.last && paid_missing > 0 %] <input type="button" id="ap_set_to_paid_missing" value="[% 'Set to paid missing' | $T8 %]"> [% END %]
+        </td>
+        [% IF ( !defaultcurrency || (currency != defaultcurrency) ) %]
+          <td>
+            [% temp = "exchangerate_"_ i %]
+            [% temp_forex = "forex_"_ i %]
+            [% IF( $temp_forex || !changeable ) %] [% $temp | html %] <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
+            [% ELSE %]  <input type="text" name="[% temp %]" size="11" value="[% $temp | html %]"> [% END %]
+            <input type="hidden" name="[% temp_forex %]" value="[% $temp_forex | html %]">
+          </td>
+        [% END %]
+        <td>
+          [% temp     = "AP_paid_"_ i %]
+          [% readonly = "AP_paid_readonly_desc_"_ i %]
+          [% IF( changeable ) %] [% L.select_tag(temp, ALL_CHARTS_AP_paid, value_title_sub = \AP_paid_value_title_sub, default = ($temp || accno_arap)) %]
+          [% ELSE %] [% $readonly | html %] <input type="hidden" name="[% temp %]" value="[% $temp | html %]"> [% END %]
+        </td>
+        <td>
+          [% temp = "paid_project_id_"_ i %]
+          [% IF( changeable ) %] [% P.project.picker(temp, $temp) %]
+          [% ELSE %] <input type="hidden" name="[% temp %]" value="[% $temp | html %]"> [% temp = "label"_ temp %] [% $temp | html %] [% END %]
+        </td>
+      </tr>
+      [% END %]
+    </tbody>
+    <tfoot>
+    <tr>
+      <td></td>
+      <td></td>
+      <th class="right">[% 'Total' | $T8 %]</th>
+      <td class="numeric">[% LxERP.format_amount(totalpaid, 2) | html %]</td>
+      <td></td>
+      [% IF ( !defaultcurrency || (currency != defaultcurrency) ) %]
+        <th></th>
+      [% END %]
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <th class="right">[% 'Missing amount' | $T8 %]</th>
+      <td class="numeric">[% LxERP.format_amount(paid_missing, 2) | html %]</td>
+      <td></td>
+      [% IF ( !defaultcurrency || (currency != defaultcurrency) ) %]
+        <th></th>
+      [% END %]
+      <td></td>
+      <td></td>
+    </tr>
+    </tfoot>
+  </table>
+[% END %]
+
+</div><!-- /.wrapper -->
+
+</div><!-- /#ui-tabs-basic-data -->
+
+[% PROCESS 'webdav/_list.html' %]
+<div id="ui-tabs-1">
+ [% LxERP.t8('Loading...') %]
+</div>
+
+</div>
+
+
+<script type="text/javascript">
+ $('#ap_set_to_paid_missing').click(function(){ $('input[id^="payment_paid_"]:last').val('[% LxERP.format_amount(paid_missing, 2) %]') });
+</script>

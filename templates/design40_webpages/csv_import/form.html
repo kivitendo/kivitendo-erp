@@ -1,0 +1,385 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+
+<h1>[% FORM.title %]</h1>
+
+[% INCLUDE 'common/flash.html' %]
+
+<form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
+[% L.hidden_tag('form_sent', '1') %]
+[% L.hidden_tag('action', 'CsvImport/dispatch') %]
+[% L.hidden_tag('profile.type', SELF.profile.type) %]
+[% L.hidden_tag('tmp_profile_id', SELF.profile.id) %]
+
+[% IF SELF.profile.get('dont_edit_profile') %]
+  [% L.hidden_tag('force_profile', 1) %]
+  [% L.hidden_tag('profile.id', SELF.profile.id) %]
+
+[% ELSE %]
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <caption>[% LxERP.t8('Import profiles') %]</caption>
+  <colgroup><col class="wi-mediumsmall"><col class="wi-wide"></colgroup>
+  <tbody>
+    [% IF SELF.profile.id %]
+    <tr>
+      <th>[% LxERP.t8('Current profile') %]:</th>
+      <td><h3>[% HTML.escape(SELF.profile.name) %]</h3></td>
+    </tr>
+    [% END %]
+    [% IF SELF.all_profiles.size %]
+    <tr>
+      <th>[% LxERP.t8('Existing profiles') %]:</th>
+      <td>
+        [% L.select_tag('profile.id', SELF.all_profiles, title_key = 'name', default = SELF.profile.id, style = 'width: 300px') %] <br>
+        [% L.submit_tag('action_new', LxERP.t8('Load profile')) %]
+        [% L.submit_tag('action_destroy', LxERP.t8('Delete profile'), confirm => LxERP.t8('Do you really want to delete this object?')) %]
+      </td>
+    </tr>
+    [% END %]
+    <tr>
+      <th>[% LxERP.t8('Save settings as') %]:</th>
+      <td>
+        [% L.input_tag('profile.name', '', style => 'width: 300px') %]<br>
+        [% L.checkbox_tag('profile.is_default', label => LxERP.t8('Make default profile')) %]<br>
+        <div class="buttons below">[% L.submit_tag('action_save', LxERP.t8('Save profile'), class='below') %]</div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+<div class="wrapper">
+
+<div class="col wi-verywide">
+
+<h3 class="caption">[% LxERP.t8('Settings') %]</h3>
+
+[% BLOCK panel_1 %]
+<table class="tbl-horizontal">
+  <colgroup><col class="wi-mediumsmall"><col class="wi-wide"></colgroup>
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8('Number Format') %]:</th>
+      <td>[% L.select_tag('settings.numberformat', ['1.000,00', '1000,00', '1,000.00', '1000.00', "1'000.00"], default = SELF.profile.get('numberformat'), class='wi-normal') %]</td>
+    </tr>
+    <tr>
+     <th>[% LxERP.t8('Date Format') %]:</th>
+     <td>[% L.select_tag('settings.dateformat', ['dd.mm.yyyy', 'yyyy-mm-dd', 'dd/mm/yyyy', 'mm/dd/yyyy' ], default = SELF.profile.get('dateformat'), class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Charset') %]:</th>
+      <td>[% L.select_tag('settings.charset', SELF.all_charsets, default = SELF.profile.get('charset'), class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Separator') %]:</th>
+      <td>
+      [% SET custom_sep_char = SELF.sep_char %]
+      [% FOREACH entry = SELF.all_sep_chars %]
+        [% IF SELF.sep_char == entry.first %] [% SET custom_sep_char = '' %] [% END %]
+        [% L.radio_button_tag('sep_char', value => entry.first, label => entry.last, checked => SELF.sep_char == entry.first) %]<br>
+      [% END %]
+      [% L.radio_button_tag('sep_char', value => 'custom', checked => custom_sep_char != '') %]
+      [% L.input_tag('custom_sep_char', custom_sep_char, size => 3, maxlength => 1) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Quote character') %]:</th>
+      <td>
+        [% SET custom_quote_char = SELF.quote_char %]
+        [% FOREACH entry = SELF.all_quote_chars %]
+          [% IF SELF.quote_char == entry.first %] [% SET custom_quote_char = '' %] [% END %]
+          [% L.radio_button_tag('quote_char', value => entry.first, label => entry.last, checked => SELF.quote_char == entry.first) %]<br>
+        [% END %]
+        [% L.radio_button_tag('quote_char', value => 'custom', checked => custom_quote_char != '') %]
+        [% L.input_tag('custom_quote_char', custom_quote_char, size => 3, maxlength => 1) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Escape character') %]:</th>
+      <td>
+        [% SET custom_escape_char = SELF.escape_char %]
+        [% FOREACH entry = SELF.all_escape_chars %]
+          [% IF SELF.escape_char == entry.first %] [% SET custom_escape_char = '' %] [% END %]
+          [% L.radio_button_tag('escape_char', value => entry.first, label => entry.last, checked => SELF.escape_char == entry.first) %]<br>
+        [% END %]
+        [% L.radio_button_tag('escape_char', value => 'custom', checked => custom_escape_char != '') %]
+        [% L.input_tag('custom_escape_char', custom_escape_char, size => 3, maxlength => 1) %]
+      </td>
+    </tr>
+    [% duplicate_fields = SELF.worker.get_duplicate_check_fields() %]
+    [% IF ( duplicate_fields.size ) %]
+      <tr>
+        <th>[% LxERP.t8('Check for duplicates') %]:</th>
+        <td>
+        [% FOREACH key = duplicate_fields.keys %]
+          [% IF (SELF.profile.get('duplicates_'_ key) || (duplicate_fields.$key.default && !FORM.form_sent)) %] [% SET chckd=' checked' %]
+          [% ELSE %] [% SET chckd='' %]
+          [% END %]
+          <input type="checkbox" name="settings.duplicates_[% key | html %]" id="settings.duplicates_[% key | html %]" value="1"[% chckd %]>
+          <label for="settings.duplicates_[% key | html %]">[% duplicate_fields.$key.label | html %]</label><br>
+        [% END %]
+        </td>
+      </tr>
+      <tr>
+        <th></th>
+        <td>
+          [% opts = [ [ 'no_check',  LxERP.t8('Do not check for duplicates') ],
+                      [ 'check_csv', LxERP.t8('Discard duplicate entries in CSV file') ],
+                      [ 'check_db',  LxERP.t8('Discard entries with duplicates in database or CSV file') ] ] %]
+          [% L.select_tag('settings.duplicates', opts, default = SELF.profile.get('duplicates'), style = 'width: 300px') %]
+        </td>
+      </tr>
+    [% END %]
+    [% IF SELF.type == 'parts' %]
+      [% INCLUDE 'csv_import/_form_parts.html' %]
+    [% ELSIF SELF.type == 'customers_vendors' %]
+      [% INCLUDE 'csv_import/_form_customers_vendors.html' %]
+    [% ELSIF SELF.type == 'contacts' %]
+      [% INCLUDE 'csv_import/_form_contacts.html' %]
+    [% ELSIF SELF.type == 'inventories' %]
+      [% INCLUDE 'csv_import/_form_inventories.html' %]
+    [% ELSIF SELF.type == 'orders' %]
+      [% INCLUDE 'csv_import/_form_orders.html' %]
+    [% ELSIF SELF.type == 'delivery_orders' %]
+      [% INCLUDE 'csv_import/_form_delivery_orders.html' %]
+    [% ELSIF SELF.type == 'ar_transactions' %]
+      [% INCLUDE 'csv_import/_form_artransactions.html' %]
+    [% ELSIF SELF.type == 'bank_transactions' %]
+      [% INCLUDE 'csv_import/_form_banktransactions.html' %]
+    [% END %]
+    <tr>
+      <th>[% LxERP.t8('Preview Mode') %]:</th>
+      <td>
+        [% L.radio_button_tag('settings.full_preview', value=0, checked=!SELF.profile.get('full_preview'), label=LxERP.t8('Full Preview')) %]
+        [% L.radio_button_tag('settings.full_preview', value=1, checked=SELF.profile.get('full_preview')==1, label=LxERP.t8('Only Lines with Notes or Errors')) %]
+        [% L.radio_button_tag('settings.full_preview', value=2, checked=SELF.profile.get('full_preview')==2,   label=LxERP.t8('First 20 Lines')) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Import file') %]:</th>
+      <td>[% L.input_tag('file', '', type => 'file', accept => '*') %]</td>
+    </tr>
+    [% IF SELF.file.exists %]
+      <tr>
+        <th>[% LxERP.t8('Existing file on server') %]:</th>
+        <td>[% LxERP.t8('Uploaded on #1, size #2 kB', SELF.file.displayable_mtime, LxERP.format_amount(SELF.file.size / 1024, 2)) %]</td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>
+[% END # panel_1 %]
+
+[%
+  INCLUDE 'common/toggle_panel.html'
+  block_name     = 'panel_1'
+  toggle_class   = 'toggle_panel_1'
+  display_status = 'open'
+  button_closed  = LxERP.t8("Show settings")
+  button_open    = LxERP.t8("Hide settings")
+%]
+
+</div><!-- /.col -->
+<div class="col wi-verywide">
+
+[% UNLESS SELF.worker.is_multiplexed %]
+
+<h3>[% 'Mappings (csv_import)' | $T8 %]</h3>
+
+[% BLOCK panel_2 %]
+<p>[% 'These mappings can be used to map heading from non standard csv files to known columns. These will also be saved in profiles, so you can save profiles for every source of formats.' | $T8 %]</p>
+<table id="csv_import_mappings" class="tbl-list">
+  <thead>
+    <tr>
+      <th>[% 'Action' | $T8 %]</th>
+      <th>[% 'Text in CSV File' | $T8 %]</th>
+      <th>[% 'Known Column' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id="mapping_empty" style="display:none">
+      <td colspan="3">[% 'There is nothing here yet (csv_import)' | $T8 %]</td>
+    </tr>
+    [% FOREACH row = SELF.mappings %]
+      [% PROCESS 'csv_import/_mapping_item.html', item=row IF row.from %]
+    [% END %]
+    [% PROCESS 'csv_import/_mapping_item.html', item={} %]
+  </tbody>
+</table>
+<div class="button">
+  <input type="button" id="add_empty_mapping_line" value="[% 'Add empty line (csv_import)' | $T8 %]">
+  <input type="button" id="add_mapping_from_upload" value="[% 'Add headers from last uploaded file (csv_import)' | $T8 %]">
+</div>
+[% END # panel_2 %]
+
+[%
+  INCLUDE 'common/toggle_panel.html'
+  block_name     = 'panel_2'
+  toggle_class   = 'toggle_panel_2'
+  display_status = 'open'
+  button_closed  = LxERP.t8("Show mappings (csv_import)")
+  button_open    = LxERP.t8("Hide mappings (csv_import)")
+%]
+
+[% END # UNLESS SELF.worker.is_multiplexed %]
+
+</div><!-- /.col -->
+
+[% IF SELF.deferred %]
+  <div id="results" class="horizontal-scroll-wrapper">
+    [% PROCESS 'csv_import/_deferred_results.html' %]
+  </div>
+[% END %]
+
+<div class="col wi-verywide">
+
+<h3 class="caption">[% LxERP.t8('Help on column names') %]</h3>
+
+[% BLOCK panel_3 %]
+  [% IF SELF.worker.is_multiplexed %]
+    <table>
+      <tbody>
+        <tr>
+          [% FOREACH p = SELF.worker.profile %]
+            <th>[% p.row_ident %]</th>
+          [% END %]
+        </tr>
+        <tr>
+          [% FOREACH p = SELF.worker.profile %]
+            [% SET ri = p.row_ident %]
+            <td>
+              <table class="tbl-list">
+                <thead>
+                  <tr>
+                    <th>[% LxERP.t8('Column name') %]</th>
+                    <th>[% LxERP.t8('Meaning') %]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  [% FOREACH row = SELF.displayable_columns.$ri %]
+                    <tr>
+                      <td>[% HTML.escape(row.name) %]</td>
+                      <td>[% HTML.escape(row.description) %]</td>
+                    </tr>
+                  [% END %]
+                </tbody>
+              </table>
+            </td>
+          [% END %]
+        </tr>
+      </tbody>
+    </table>
+  [% ELSE %]
+    <table class="tbl-list">
+      <thead>
+        <tr>
+          <th>[% LxERP.t8('Column name') %]</th>
+          <th>[% LxERP.t8('Meaning') %]</th>
+        </tr>
+      </thead>
+      <tbody>
+        [% FOREACH row = SELF.displayable_columns %]
+        <tr>
+          <td>[% HTML.escape(row.name) %]</td>
+          <td>[% HTML.escape(row.description) %]</td>
+        </tr>
+        [% END %]
+      </tbody>
+    </table>
+  [% END %]
+  [% IF SELF.type == 'contacts' %]
+    <p>
+      [% LxERP.t8("You can update existing contacts by providing the 'cp_id' column with their database IDs. Otherwise: ") %]
+      [% LxERP.t8('At least one of the columns #1, customer, customernumber, customer_gln, vendor, vendornumber, vendor_gln (depending on the target table) is required for matching the entry to an existing customer or vendor.', 'cp_cv_id') %]
+    </p>
+  [% ELSIF SELF.type == 'addresses' %]
+    <p>[% LxERP.t8('At least one of the columns #1, customer, customernumber, customer_gln, vendor, vendornumber, vendor_gln (depending on the target table) is required for matching the entry to an existing customer or vendor.', 'trans_id') %]</p>
+  [% ELSIF SELF.type == 'parts' %]
+    <p>
+      [1]:
+      [% LxERP.t8('The three columns "make_X", "model_X" and "lastcost_X" with the same number "X" are used to import vendor part numbers and vendor prices.') %]
+      [% LxERP.t8('The column triplets can occur multiple times with different numbers "X" each time (e.g. "make_1", "model_1", "lastcost_1", "make_2", "model_2", "lastcost_2", "make_3", "model_3", "lastcost_3" etc).') %]
+      [% LxERP.t8('The items are imported accoring do their number "X" regardless of the column order inside the file.') %]
+      [% LxERP.t8('The column "make_X" can contain either a vendor\'s database ID, a vendor number or a vendor\'s name.') %]
+    </p>
+    <p>
+      [2]:
+      [% LxERP.t8('Onhand only sets the quantity in master data, not in inventory. This is only a legacy info field and will be overwritten as soon as a inventory transfer happens.') %]
+    </p>
+    <p>
+      [3]:
+      [% LxERP.t8("If the article type is set to 'mixed' then a column called 'part_type' or called 'pclass' must be present.") %]
+      [% LxERP.t8("Type can be either 'part', 'service' or 'assembly'.") %]
+      [% LxERP.t8("If column 'pclass' is present the article type is then irrelevant or used as default ") %]
+      [% LxERP.t8("The 'pclass' column has the same abbreviation like a part export. The first letter is for the type Part,Assembly or Service, the second(and third) for Part Classification") %]
+    </p>
+  [% ELSIF SELF.type == 'inventories' %]
+    <p>[% LxERP.t8('One of the columns "qty" or "target_qty" must be given. If "target_qty" is given, the quantity to transfer for each transfer will be calculate, so that the quantity for this part, warehouse and bin will result in the given "target_qty" after each transfer.') %]</p>
+  [% ELSIF SELF.type == 'orders' OR SELF.type == 'delivery_orders' OR SELF.type == 'ar_transactions' %]
+    <p>
+      [1]:
+      [% LxERP.t8('The column "datatype" must be present and must be at the same position / column in each data set. The values must be the row names (see settings) for order and item data respectively.') %]
+    </p>
+    <p>
+    [% IF SELF.type == 'orders' OR SELF.type == 'ar_transactions' %]
+      <p>
+        [2]:
+        [% LxERP.t8('Amount and net amount are calculated by kivitendo. "verify_amount" and "verify_netamount" can be used for sanity checks.') %]<br>
+        [% LxERP.t8('If amounts differ more than "Maximal amount difference" (see settings), this item is marked as invalid.') %]<br>
+      </p>
+    [% END %]
+  [% END %][%# IF SELF.type == … %]
+  <p>[% L.submit_tag('action_download_sample', LxERP.t8('Download sample file')) %]</p>
+[% END # panel_3 %]
+
+[%
+  INCLUDE 'common/toggle_panel.html'
+  block_name    = 'panel_3'
+  toggle_class  = 'toggle_panel_3'
+  button_closed = LxERP.t8("Show help text")
+  button_open   = LxERP.t8("Hide help text")
+%]
+
+
+</div><!-- /.col -->
+
+[% END %]<!-- # /ELSE SELF.profile.get('dont_edit_profile') -->
+
+
+
+</form>
+
+<div class="col wi-wide">
+
+
+
+
+</div><!-- /.col -->
+
+</div><!-- /.wrapper -->
+
+
+<script type="text/javascript">
+  <!--
+    $(document).ready(function() {
+      $('#action_save').click(function() {
+        if ($('#profile_name').val() != '')
+          return true;
+        alert('[% LxERP.t8('Please enter a profile name.') %]');
+        return false;
+      });
+      $('#add_empty_mapping_line').click(function(){
+        $.get('controller.pl', { action: 'CsvImport/add_empty_mapping_line', 'profile.type': $('#profile_type').val() }, kivi.eval_json_result);
+      });
+      $('#add_mapping_from_upload').click(function(){
+        $.get('controller.pl?action_add_mapping_from_upload=1', $('form').serialize() , kivi.eval_json_result);
+      });
+      $('#csv_import_mappings').on('click', '.remove_line', function(){ $(this).closest('tr').remove(); if (1==$('#csv_import_mappings tr:visible').length) $('#mapping_empty').show() });
+    });
+    -->
+</script>

@@ -1,0 +1,34 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <tbody>
+      <tr>
+        <th> [% LxERP.t8("Language") %] </th>
+        <td> [% L.input_tag("object.description", SELF.object.description, class='wi-wider', "data-validate"="required", "data-title"=LxERP.t8("Language")) %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Template Code") %] </th>
+        <td> [% L.input_tag("object.template_code", SELF.object.template_code, class='wi-wider') %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Article Code") %] </th>
+        <td> [% L.input_tag("object.article_code", SELF.object.article_code, class='wi-wider') %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Number Format") %] </th>
+        <td> [% L.select_tag("object.output_numberformat", SELF.numberformats, default=SELF.object.output_numberformat, with_empty=1, empty_title=LxERP.t8("use program settings"), class='wi-wider') %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Date Format") %] </th>
+        <td> [% L.select_tag("object.output_dateformat", SELF.dateformats, default=SELF.object.output_dateformat, with_empty=1, empty_title=LxERP.t8("use program settings"), class='wi-wider') %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Long Dates") %] </th>
+        <td> [% L.yes_no_tag("object.output_longdates", SELF.object.output_longdates, class='wi-wider') %] </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

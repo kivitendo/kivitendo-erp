@@ -1,0 +1,65 @@
+[% USE T8 %]
+<h1>[% 'DATEX - Export Assistent' | $T8 %]</h1>
+
+<form method='post' action='[% script %]' id='form'>
+
+<table width=100%>
+  <tr>
+    <th>[% 'DATEV Angaben' | $T8 %]</th>
+  </tr>
+  <tr height="5"></tr>
+  <tr>
+    <td>
+      <table>
+        <tr>
+          <td>[% 'Beraternummer' | $T8 %]</td>
+          <td><input type="text" name=beraternr size=10 maxlength=7 value="[% beraternr %]"></td>
+
+          <td>[% 'DFV-Kennzeichen' | $T8 %]</td>
+          <td><input type="text" name=dfvkz size=5 maxlength=2 value="[% dfvkz %]"></td>
+        </tr>
+        <tr>
+          <td>[% 'Beratername' | $T8 %]</td>
+          <td><input type="text" name=beratername size=10 maxlength=9 value="[% beratername %]"></td>
+
+          <td>[% 'Password' | $T8 %]</td>
+          <!-- PENDENT: Maxlenght 4 ist ein wenig unrealistisch -->
+          <td><input type="text" name=passwort size=5 maxlength=4 value="[% passwort %]"></td>
+        </tr>
+        <tr>
+          <td>[% 'Mandantennummer' | $T8 %]</td>
+          <td><input type="text" name=mandantennr size=10 maxlength=5 value="[% mandantennr %]"></td>
+
+          <td>[% 'Medium Number' | $T8 %]</td>
+          <td><input type="text" name=datentraegernr size=5 maxlength=3 value="[% datentraegernr %]"></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+
+          <td>[% 'Abrechnungsnummer' | $T8 %]</td>
+          <td><input type="text" name=abrechnungsnr size=5 maxlength=3 value="[% abrechnungsnr %]"></td>
+        </tr>
+
+        <tr>
+          <td><input name=exporttype type=radio value=0 checked> [% 'Export Buchungsdaten' | $T8 %]</td>
+          <td></td>
+
+          <td><input name=exporttype type=radio value=1> [% 'Export Stammdaten' | $T8 %]</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><input name=exportformat type=radio class=radio value=csv checked> [% 'CSV' | $T8 %]</td>
+          <td></td>
+
+          <td><input name=exportformat type=radio class=radio value=kne> [% 'KNE' | $T8 %]</td>
+          <td></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td><hr size=3 noshade></td>
+  </tr>
+</table>
+</form>

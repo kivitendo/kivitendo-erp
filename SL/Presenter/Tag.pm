@@ -302,10 +302,16 @@ sub button_tag {
 
   _set_id_attribute(\%attributes, $attributes{name}) if $attributes{name};
   $attributes{type} ||= 'button';
+  $attributes{tag}  ||= 'input';
 
   $onclick = 'if (!confirm("'. _J(delete($attributes{confirm})) .'")) return false; ' . $onclick if $attributes{confirm};
 
-  html_tag('input', undef, %attributes, value => $value, (onclick => $onclick)x!!$onclick);
+  if ( $attributes{tag} == 'input' ) {
+    html_tag('input', undef, %attributes, value => $value, (onclick => $onclick)x!!$onclick)
+  }
+  elsif ( $attributes{tag} == 'button' ) {
+    html_tag('button', undef, %attributes, value => $value, (onclick => $onclick)x!!$onclick);
+  }
 }
 
 sub submit_tag {

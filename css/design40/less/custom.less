@@ -1,0 +1,175 @@
+/* ------------------------------------------------------------- */
+/* CUSTOM LESS STUFF (custom.less)                               */
+/* ------------------------------------------------------------- */
+
+// ----------------------------------------------------------------------------
+//
+// CUSTOM LESS STUFF (ONLY FOR OVERRIDES OF THE STANDARD-KIVITENDO-STUFF)
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION: Place your custom less/css stuff here
+// Override the Kivitendo-Less-Stuff only in custom.less
+//
+//
+//
+// CONTENTS:
+// - SUBJECT
+// - - My special class
+// - - My overridden class // PENDENT: bessere Beschreibung
+// ----------------------------------------------------------------------------
+
+
+//
+// **********************************
+// MY SPECIAL CLASS
+// **********************************
+
+//.my-class-padding: 0.2em ; // just an example
+
+//
+// **********************************
+// MY OVERRIDDEN CLASSES // PENDENT: bessere Beschreibung
+// **********************************
+
+// You can delete or disable/enable the following CSS code
+// This is just an exemple
+// Do run "lessc style.less ../style.css" in your terminal session with cursor on the folder /css/less
+
+// Custom overrides 
+
+
+// --------------------------------------
+// DISABLE CAPTIONS IN HORIZONTAL TABLES
+// --------------------------------------
+// Captions are good. It is a nice guidance thru Kivitendo and captions also force 
+// programmers 
+
+
+
+//table.tbl-horizontal {
+//  caption,
+//  th.caption,
+//  td.caption{
+//    display: none ; // instead of: table-caption  
+//  }
+//}
+//
+//div.wrapper.bordered {
+//  padding: 0.6em 0 0.2em 0.4em;
+//
+//  &::before{ 
+//    content: "Detail Information"; //instead of caption in toggled wrapper
+//    z-index: 9000 ;   
+//  }
+//  .tbl-horizontal{ display: none ; }
+//  .toggles { margin-top: -3px; }
+//  .toggles.max {
+//    width: 100%;
+//    z-index: 9001 ; 
+//    margin-top: -17px;
+//    text-align: right;
+//    display: block;
+//    margin-right: 10px;
+//    a.toggle.max{
+//      width: 100%;
+//      background-position: right center;
+//    }
+//  }
+//}
+// /DISABLE CAPTIONS IN HORIZONTAL TABLES
+
+
+
+
+//table.tbl-horizontal {
+//  display: table ;
+//  background-color: #ccc;
+//  border-bottom: 12px #ccc solid ;
+//  border-top-left-radius:   0 ;
+//  border-top-right-radius:  0 ;
+//  border-bottom-left-radius:   @controlpanel-radius ;
+//  border-bottom-right-radius:  @controlpanel-radius ;
+//
+//  & > caption{
+//    color:                   #ffffff !important;
+//    background-color:        @gray-dark;
+//    padding-left:            0.8em;
+//    border-top-left-radius:  @controlpanel-radius ;
+//    border-top-right-radius: @controlpanel-radius ;
+//    //margin: -24px -12px 0.6em -12px ;
+//    & > a, & > a:link, & > a:visited { decoration: none; color: #fff !important; }
+//  }
+//  th{ padding-left: 0.3em; }
+//  td{ padding-right: 0.3em; }
+//  tbody { border-top: 8px #ccc solid; }
+//  &.checkered {
+//     tbody { border-top: none ; }
+//     border-bottom: none;
+//  }
+//  tbody > tr > td:first-child,
+//  tbody > tr > th:first-child,
+//  thead > tr > th:first-child{
+//    padding-left: 1.0em ;
+//  }
+//  tbody > tr:first-child {
+//    & > th { padding-top: 0.5em ; }
+//    & > td { padding-top: 0.5em ; }
+//  }
+//  th.caption{
+//    color:              #fff !important;
+//    background-color:   @gray-dark;
+//    padding:            0.4em 0 0.3em 0.8em;
+//    border-top:         6px solid #ccc;
+//    border-bottom:      8px solid #ccc;
+//    margin-bottom: 0.6em ;
+//    //margin: -24px -12px 0.6em -18px ;
+//  }
+//}
+//
+//.col{
+//  padding-bottom: 0.4em ;
+//
+//  & > table.tbl-horizontal {
+//    margin-right: 0 !important;
+//    //border-top-left-radius:  0 ;
+//    //border-top-right-radius: 0 ;
+//    border-radius: 0 ;
+//    padding-bottom: 0 ;
+//
+//    caption{
+//      border-top-left-radius:  0 ;
+//      border-top-right-radius: 0 ;
+//    }
+//  }
+//  & > table.tbl-horizontal:first-child{
+//    border-top-left-radius:     0 ;
+//    border-top-right-radius:    0 ;
+//    border-bottom-left-radius:  0 ;
+//    border-bottom-right-radius: 0 ;
+//    margin-bottom: 0 ;
+//    caption{
+//      border-top-left-radius:  @controlpanel-radius ;
+//      border-top-right-radius: @controlpanel-radius ;
+//    }
+//  }
+//  & > table.tbl-horizontal:last-child{
+//    border-bottom-left-radius:  @controlpanel-radius  ;
+//    border-bottom-right-radius: @controlpanel-radius ;
+//    margin-bottom: 0 ;
+//  }
+//}
+//
+//.cke_editable{
+//  margin-left: 0.0em !important;
+//}
+
+
+
+// --------------------------------------
+// Centered Aligned Tables
+// --------------------------------------
+// Do everybody a favor: do not activate it
+
+//table.tbl-list{
+//  margin: 0 auto 1.0em auto;
+//}

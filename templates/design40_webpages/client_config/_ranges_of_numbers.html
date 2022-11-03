@@ -1,0 +1,83 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+[% USE T8 %]
+
+<div id="ranges_of_numbers">
+<div class="wrapper" id="wrapper-4">
+
+<table class="tbl-horizontal">
+  <caption>[% 'Last Numbers / Prefixes' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8('Customer') %]</th>
+      <td>[% L.input_tag("defaults.customernumber", SELF.defaults.customernumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Vendor') %]</th>
+      <td>[% L.input_tag("defaults.vendornumber", SELF.defaults.vendornumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td></td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Order') %]</th>
+      <td>[% L.input_tag("defaults.sonumber", SELF.defaults.sonumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Purchase Order') %]</th>
+      <td>[% L.input_tag("defaults.ponumber", SELF.defaults.ponumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Sales quotation') %]</th>
+      <td>[% L.input_tag("defaults.sqnumber", SELF.defaults.sqnumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Invoice') %]</th>
+      <td>[% L.input_tag("defaults.invnumber", SELF.defaults.invnumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Credit Note') %]</th>
+      <td>[% L.input_tag("defaults.cnnumber", SELF.defaults.cnnumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('RFQ') %]</th>
+      <td>[% L.input_tag("defaults.rfqnumber", SELF.defaults.rfqnumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Sales Delivery Order') %]</th>
+      <td>[% L.input_tag("defaults.sdonumber", SELF.defaults.sdonumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Purchase Delivery Order') %]</th>
+      <td>[% L.input_tag("defaults.pdonumber", SELF.defaults.pdonumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td></td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Article') %]</th>
+      <td>[% L.input_tag("defaults.articlenumber", SELF.defaults.articlenumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Service') %]</th>
+      <td>[% L.input_tag("defaults.servicenumber", SELF.defaults.servicenumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Assembly') %]</th>
+      <td>[% L.input_tag("defaults.assemblynumber", SELF.defaults.assemblynumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      [% IF INSTANCE_CONF.get_feature_experimental_assortment %]
+      <th>[% LxERP.t8('Assortment') %]</th>
+      <td>[% L.input_tag("defaults.assortmentnumber", SELF.defaults.assortmentnumber, size="15", class="wi-normal") %]</td>
+      [% END %]
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+</div><!-- /#ranges_of_numbers -->

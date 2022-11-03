@@ -1,7 +1,7 @@
 package SL::Layout::Admin;
 
 use strict;
-use parent qw(SL::Layout::None);
+use parent qw(SL::Layout::Design40Switch);
 
 use SL::Menu;
 use SL::Layout::None;

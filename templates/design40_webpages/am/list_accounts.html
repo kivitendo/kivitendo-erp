@@ -1,0 +1,52 @@
+[% USE T8 %]
+[% USE HTML %]
+<h1>[% title %]</h1>
+
+
+<table class="tbl-plain width-moderate" style="width:70%;" id="tbl-accounts">
+  <thead>
+    <tr>
+      <th class="right">[% 'Account' | $T8 %]</td>
+      <th>[% 'Description (Click on Description for details)' | $T8 %]</td>
+      <th class="right">[% 'Debit' | $T8 %]</td>
+      <th class="right">[% 'Credit' | $T8 %]</td>
+    </tr>
+  </thead>
+  <tbody>
+  [% FOREACH row = CA %]
+  [% IF row.heading %]
+  [% IF row.accno < 10 %] [% SET rwcls='th1' %] [% ELSE %] [% IF row.accno < 100 %] [% SET rwcls='th2' %] [% ELSE %] [% SET rwcls='th3' %] [% END %] [% END %]
+  <tr class="heading [% rwcls %]">
+    <th class="numeric"><a href="[% row.link_edit_account %]">[% row.accno | html %]</a></th>
+    <th colspan="3">[% row.description | html %]</th>
+  </tr>
+  [% ELSE %]
+  <tr>
+    <td class="numeric"><a href="[% row.link_edit_account %]">[% row.accno | html %]</a></td>
+    <td onclick="account_details([% row.id %])">[% row.description | html %]</td>
+    <td class="numeric">[% row.debit | html %]</td>
+    <td class="numeric">[% row.credit | html %]</td>
+  </tr>
+  <tr id="ajaxrow[% row.id %]" style="display:none" onclick="$(this).toggle()" class="ajax-account-details">
+    <td></td>
+    <td colspan="3" id="ajaxcontent[% row.id %]"></td>
+  </tr>
+  [% END %]
+  [% END %]
+  </tbody>
+</table>
+
+
+<script type='text/javascript'>
+  function account_details(id) {
+    $.ajax({
+      url: 'am.pl?action=list_account_details',
+      data: { args: id },
+      dataType: 'html',
+      success: function (data) { $('#ajaxcontent' + id).html(data) },
+    });
+    $('#ajaxrow' + id).toggle();
+  }
+</script>
+
+

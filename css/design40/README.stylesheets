@@ -1,0 +1,33 @@
+Some notes about stylesheets:
+
+* NOT every directory in css/ is considered a style to be chosen. The available
+  stylesheets are hardcoded in at least 3 places:
+  - SL/Auth.pm:read_user
+  - SL/Controller/Admin.pm:init_stylesheets
+  - bin/mozilla/am.pl:config
+  yes it sucks. change it, if you like.
+
+* If a stylesheet is requests from controller code, it is searched in this order:
+  - css/<stylesheet_of_current_user>/<path>
+  - css/<path>
+  - <path>
+
+  so common libraries can be put higher here, to be included by any stylesheet
+
+* 'kivitendo' is used as the fallback style if no style was found or the style
+  chosen was invalid.
+
+* Pay attention to the position of relative image urls. Most should not be
+  included in css anyway but should use the generated icon maps. For the rest,
+  a couple of ../ may be needed to get the right path.
+
+* If you edit another styles, these are things that are known to get broken.
+  Be sure to test them thoroughly:
+  - tabs
+  - calendars
+  - all menus
+  - autocompletion (parts/customers)
+  - charts of accounts
+  - multiselect
+  - ckeeditor
+  - jquery-ui widgets (i hate those things)

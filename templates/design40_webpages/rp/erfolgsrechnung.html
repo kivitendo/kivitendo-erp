@@ -1,0 +1,37 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+<!-- PENDENT: Ueberschriften mal genauer anschauen -->
+<h2>
+  <b>[% company %]<br></b>
+  [% address %]<br>
+  <big>[% 'ERFOLGSRECHNUNG' %]</big><br>
+  <i>[% fromdate %] bis [% todate %]</i>
+</h2>
+
+<table class="tbl-list">
+  <tbody>
+    [% FOREACH category = categories %]
+      <tr>
+        <th class="caption" colspan="3">[% category.name %]</th>
+      </tr>
+      [% FOREACH row = category.accounts %]
+        <tr>
+          <td>[% row.accno %]</td>
+          <td>[% row.description %]</td>
+          <td class="numeric">[% row.total %]</td>
+        </tr>
+      [% END %]
+      <tr>
+        <th colspan="2">TOTAL</th>
+        <td class="right">[% category.total %]</td>
+      </tr>
+    [% END %]
+  </tbody>
+  <tfoot>
+    <tr>
+      <th colspan="2">GEWINN/VERLUST</th>
+      <td class="numeric">[% total %]<br><hr noshade size="2"></td>
+    </tr>
+  </tfoot>
+</table>

@@ -1,0 +1,126 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+[% USE Math %]
+
+[% PROCESS 'amcvar/render_inputs_block.html' %]
+
+
+<div class="buttons positions">
+  <input type="button" id="cb_show_details" name="show_details_button" class="positions neutral" value="[% 'Show details' | $T8 %]"[% IF  show_details %] style="display:none"[% END %]>
+  <input type="button" id="cb_hide_details" name="hide_details_button" class="positions neutral" value="[% 'Hide details' | $T8 %]"[% IF !show_details %] style="display:none"[% END %]>
+</div>
+
+<script type="text/javascript">
+ $('#cb_show_details,#cb_hide_details').click(function(){
+   $('[id^="row2"],#cb_show_details,#cb_hide_details').toggle();
+   if ( $('[id^="row2"]').is(":visible") ) {
+    $("[name='show_details']").val(1);
+   } else {
+    $("[name='show_details']").val(0);
+   }}
+ );
+</script>
+[% SET cols = 0; SET colst = 0; %]
+<table id="display_row" class="tbl-list full-width" style="margin-bottom:0;">
+  <caption>[% 'Invoice items' | $T8 %]</caption>
+  <thead>
+    <tr>
+      [% FOREACH header = HEADER %]
+        [% IF header.display %]
+          <th>[% header.value %]</th>
+        [% END %]
+      [% END %]
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH row = ROWS %]
+      <tr>
+        [% FOREACH row1 = row.ROW1 %]
+          <td style="[% IF row1.align %]text-align:[% row1.align %];[% END %][% IF row1.nowrap %]white-space:nowrap;[% END %]"[% IF row1.class %] class="[% row1.class %]"[% END %]>
+            [% row1.value %]
+          </td>
+        [% END %]
+      </tr>
+      <tr style="display:none">
+        <td>
+          [% FOREACH hidden = row.HIDDENS %]
+            [% hidden.value %]
+          [% END %]
+        </td>
+      </tr>
+      <tr id="row2.[% loop.count %]" [% UNLESS show_details %]style="display:none;"[% END %]>
+        [% SET colspan1 = 3 ; SET colspan2 = (row.colspan - colspan1) ; %]
+        <td colspan="[% colspan1 %]"></td>
+        <td colspan="[% colspan2 %]" class="row-position-detail">
+          [% # Render all row2 entries except cvars  %]
+          [% SET row2_size = row.ROW2.size ; %]
+          <!-- <h4>Size of row.ROW2: [% row2_size %] / [% row2_half_size %]  / [%  (row.ROW2.size); %] </h4> -->
+          [%
+
+            # PENDENT: ICH WEISS, DAS NACHFOLGENDE IST SCHEISSE, ABER WIE KRIEGE ICH EINEN KORREKTEN ZWEISPALTER HIN????? Hanspi
+            # Es muessen auch noch MATH-Bibliotheken fuer Template-Toolkit geladen werden, die bei der Revamp aber nicht zur Verfuegung stehen.
+            # Zuerich, 2. September 2018
+
+          %]
+          [% SET cvars_count = 0 %]
+          [% FOREACH row2 = row.ROW2 %]
+            [% IF row2.cvar %]
+              [% SET row2_size = row2_size - 1 ; %]
+              [% SET cvars_count = cvars_count + 1 ; %]
+            [% END %]
+          [% END %]
+          [% IF (row2_size % 2) == 0 ; SET row2_half_size = (row2_size / 2); ELSE; SET row2_half_size = ((row2_size / 2) + 0.5) ; END ; %]
+          [%  SET row2_counter = 1; %]
+          [%  SET row2_counter_items = 1; %]
+          <div class="rowspan-table table">
+            [% FOREACH row2 = row.ROW2 %]
+              [% IF row2_counter > row2_half_size %]
+                </div>
+                <div class="rowspan-table table">
+                [% SET row2_half_size = row2_size - row2_half_size ;  %]
+                [% SET row2_counter = 1 ; %]
+              [% END %]
+              [% IF !row2.cvar %]
+                <div class="label-n-value field" title="[% row2_counter %]">[% row2.value %]</div>
+              [% ELSE %]
+                [% SET row2_half_size = row2_half_size - 1 %]
+              [% END %]
+              [% SET row2_counter = row2_counter + 1 %]
+              [% SET row2_counter_items = row2_counter_items + 1 %]
+              [% LAST IF row2_counter_items > row2_size %]
+            [% END %]
+          </div>
+
+          [% # process editable cvars  %]
+            [% IF cvars_count > 0 %]
+            <!-- <table class="row2-cvars-table"> -->
+            <div class="rowspan-table table">
+                [% FOREACH row2 = row.ROW2 %]
+                  [% SET show = ((row2.render_options.var.flag_editable || !row2.render_options.hide_non_editable ) && row2.render_options.valid && !row2.render_options.partsgroup_filtered) %]
+                  [% IF row2.cvar && show %]
+                    [% # IF row2.line_break %]<!-- </tr><tr> -->[% #END %]
+                    <div class="label-n-value field"><!-- <tr> -->
+                      <span class="label horizontal"><!-- <th> -->[% row2.description %]<!-- </th> --></span>
+                      <span class="value"><!-- <td> -->[% PROCESS cvar_inputs cvar = row2.render_options %]<!-- </td> --></span>
+                    <!-- </tr> --></div>
+                  [% END %]
+                [% END %]
+            <!-- </table> -->
+            </div>
+          [% END %]
+          [%# process non editable cvars extra to not disturb the table layout (this will be hidden inputs) %]
+          [% FOREACH row2 = row.ROW2 %]
+            [% SET hide = (!row2.render_options.var.flag_editable && row2.render_options.hide_non_editable) %]
+            [% IF row2.cvar && hide %]
+              [% PROCESS cvar_inputs cvar = row2.render_options %]
+            [% END %]
+          [% END %]
+        </td>
+      </tr>
+    [% END # /FOREACH row = ROWS %]
+    </tbody>
+  </table>
+
+

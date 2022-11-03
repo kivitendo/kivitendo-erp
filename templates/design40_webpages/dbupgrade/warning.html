@@ -1,0 +1,57 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+
+<div class="wrapper">
+<form name="Form" method="post" action="controller.pl">
+
+  <input type="hidden" name="action" value="LoginScreen/login">
+
+  <div class="buttons"><input type="button" onclick="history.back()" value="[% 'Back' | $T8 %]" class="neutral"></div>
+  <p class="message message_hint"> [% LxERP.t8('kivitendo is about to update the database [ #1 ].', dbname) | html %] </p>
+
+  [% IF superuser.need_privileges && !superuser.have_privileges %]
+    <p>
+     [% LxERP.t8("Database superuser privileges are required for the update.") %]
+     [% LxERP.t8("Please provide corresponding credentials.") %]
+    </p>
+
+    [% IF superuser.error %]
+      <p>[% LxERP.t8("Error: #1", superuser.error) %]</p>
+    [% END %]
+
+    <table class="tbl-horizontal">
+      <tbody>
+        <tr>
+           <th>[% LxERP.t8("User name") %]:</th>
+           <td>[% L.input_tag("database_superuser_username", superuser.username) %]</td>
+        </tr>
+        <tr>
+           <th>[% LxERP.t8("Password") %]:</th>
+           <td>[% L.input_tag("database_superuser_password", superuser.password, type="password") %]</td>
+        </tr>
+      </tbody>
+    </table>
+  [% END %]
+
+  <p>[% 'You should create a backup of the database before proceeding because the backup might not be reversible.' | $T8 %] </p>
+  <div class="buttons"><input type="submit" name="dummy" value="[% 'Continue' | $T8 %]"></div>
+
+</form>
+
+<div id="nodetails" class="toggle_panel">
+  <a href="#" onclick="$('#details,#nodetails').toggle();" class="button toggle off neutral control-panel">[% LxERP.t8('Show details') %]</a>
+</div>
+<div id="details" style="display: none;" class="toggle_panel">
+  <a href="#" onclick="$('#details,#nodetails').toggle();" class="button toggle on neutral with-panel">[% LxERP.t8('Hide details') %]</a>
+  <div class="filter-toggle-panel toggle_panel_block">
+    <p> [% LxERP.t8("List of database upgrades to be applied:") %] </p>
+    <ul>
+      [% FOREACH upgrade_script = unapplied_scripts %]
+        <li>[% HTML.escape(upgrade_script.tag) %]: [% HTML.escape(upgrade_script.description) %]</li>
+      [% END %]
+    </ul>
+  </div><!-- /.filter-toggle-panel -->
+</div>
+</div><!-- /.wrapper -->

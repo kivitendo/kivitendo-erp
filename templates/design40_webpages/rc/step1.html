@@ -1,0 +1,24 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+
+<h1>[% 'Reconciliation' | $T8 %]</h1>
+
+<form method="post" action="rc.pl" id="form">
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <th>[% 'Account' | $T8 %]</th>
+      <td>[% L.select_tag('accno', PR, value_title_sub=\selection_sub) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Period' | $T8 %]</th>
+      <td>[% L.date_tag('fromdate') %] [% 'Until' | $T8 %] [% L.date_tag('todate') %]</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</form>

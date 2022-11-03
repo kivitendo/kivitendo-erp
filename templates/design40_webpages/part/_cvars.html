@@ -1,0 +1,21 @@
+[% USE HTML  %]
+[% USE T8 %]
+
+<div class="wrapper">
+
+[% IF CUSTOM_VARIABLES.size %]
+  <p>[% 'Unchecked custom variables will not appear in orders and invoices.' | $T8 %]</p>
+  <table class="tbl-horizontal">
+    [% FOREACH var = CUSTOM_VARIABLES %]
+      <tr>
+        <td>[% var.VALID_BOX %]</td>
+        [% IF !var.partsgroup_filtered %]
+          <td>[% HTML.escape(var.description) %]</td>
+        [% END %]
+        <td>[% var.HTML_CODE %]</td>
+      </tr>
+    [% END %]
+  </table>
+[% END %]
+
+</div><!-- /.wrapper -->

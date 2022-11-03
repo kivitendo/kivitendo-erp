@@ -1,0 +1,101 @@
+[% USE L %]
+[% USE LxERP %]
+[% USE JavaScript %]
+[% SET style='width: 500px' %]
+
+
+<form method="post" action="controller.pl" id="record_links_add_filter_form">
+[% L.hidden_tag('object_model',   SELF.object_model) %]
+[% L.hidden_tag('object_id',      SELF.object_id) %]
+
+<table class="tbl-horizontal">
+  <caption>[% LxERP.t8("Add link: select records to link with") %]</caption>
+  <colgroup> <col class="wi-normal"><col class="wi-verywide"> </colgroup> 
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8("Link to") %]</th>
+      <td>[% L.select_tag('link_type', LINK_TYPES, default=DEFAULT_LINK_TYPE, class='wi-wide', id='record_links_add_filter_link_type') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Link direction") %]</th>
+      <td>[% L.select_tag('link_direction',
+                          [ [ 'from', LxERP.t8("The link target to add has been created from the existing record."), ],
+                            [ 'to',   LxERP.t8("The existing record has been created from the link target to add."), ], ],
+                            class='wi-verywide') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Customer/Vendor Number") %]</th>
+      <td>[% L.input_tag('vc_number', is_sales ? SELF.object.customer.customernumber : SELF.object.vendor.vendornumber, class='wi-wide') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Customer/Vendor Name") %]</th>
+      <td>[% L.input_tag('vc_name', is_sales ? SELF.object.customer.name : SELF.object.vendor.name, class='wi-wide') %]</td>
+    </tr>
+    <tr id="record_links_add_filter_project_row">
+      <th>[% LxERP.t8("Project") %]</tdh>
+      <td>[% L.select_tag('globalproject_id', PROJECTS, default=SELF.object.globalproject_id, with_empty=1, class='wi-wide') %]</td>
+    </tr>
+    <tr>
+      <th><span id="record_links_add_filter_title">[% LxERP.t8("Transaction description") %]</span></th>
+      <td>[% L.input_tag('transaction_description', '', class='wi-wide') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="buttons">
+  [% L.button_tag('filter_record_links()', LxERP.t8("Search"), class='neutral') %]
+  [% L.button_tag('add_selected_record_links()', LxERP.t8("Add links"), id='add_selected_record_links_button', disabled=1) %]
+  [% L.button_tag('$("#record_links_add_filter_form").resetForm()', LxERP.t8('Reset'), class='neutral') %]
+  <a href="#" onclick="$('#record_links_add').dialog('close');" class="button neutral">[% LxERP.t8("Cancel") %]</a>
+</div>
+
+
+<div id="record_list_filtered_list"></div>
+
+</form>
+
+<script type="text/javascript"><!--
+$(function() {
+  $('#record_links_add input[name=vc_name]').focus();
+  $('#record_links_add_filter_link_type').change(record_links_change_form_to_match_type);
+  record_links_change_form_to_match_type();
+});
+
+function filter_record_links() {
+  var url="controller.pl?action=RecordLinks/ajax_add_list&" + $("#record_links_add form").serialize();
+  $.ajax({
+    url: url,
+    success: function(new_data) {
+      $("#record_list_filtered_list").html(new_data['html']);
+      $('#add_selected_record_links_button').prop('disabled', new_data['count'] == 0);
+    }
+  });
+}
+
+function add_selected_record_links() {
+  var url="controller.pl?action=RecordLinks/ajax_add_do&" + $("#record_links_add form").serialize();
+  $.ajax({
+    url: url,
+    success: function(new_html) {
+      $('#record_links_list').replaceWith(new_html);
+      $('#record_links_add').dialog('close');
+    }
+  });
+}
+
+function record_links_change_form_to_match_type() {
+  var type  = $('#record_links_add_filter_link_type').val();
+  var title = type == 'requirement_spec' ? kivi.t8('Title')
+            : type == 'letter'           ? kivi.t8('Subject')
+            :                              kivi.t8('Transaction description');
+
+  if (type == 'letter') {
+    $('#record_links_add_filter_project_row').hide();
+
+  } else {
+    $('#record_links_add_filter_project_row').show();
+  }
+
+  $('#record_links_add_filter_title').html(title);
+}
+--></script>

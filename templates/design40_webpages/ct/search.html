@@ -1,0 +1,267 @@
+[% USE T8 %]
+[% USE L %]
+[% USE HTML %]
+[% USE LxERP %]
+
+<h1>[% title %]</h1>
+
+<form method="post" action="ct.pl" name="Form" id="form">
+<input type="hidden" name="db" value="[% HTML.escape(db) %]">
+
+<div class="wrapper">
+
+    <table class="tbl-horizontal">
+      <caption> [% 'Customer & Contact' | $T8 %] </caption>
+      <tbody>
+        <tr>
+          <th>[% IF IS_CUSTOMER %][% 'Customer Number' | $T8 %][% ELSE %][% 'Vendor Number' | $T8 %][% END %] </th>
+          <td><input type="text" name="[% IF IS_CUSTOMER %]customer[% ELSE %]vendor[% END %]number" class="wi-normal"></td>
+        </tr>
+        <tr>
+          <th>[% IF IS_CUSTOMER %][% 'Customer Name' | $T8 %][% ELSE %][% 'Vendor Name' | $T8 %][% END %] </th>
+          <td><input type="text" id="name" name="name" class="initial_focus wi-normal"></td>
+        </tr>
+        <tr>
+          <th>[% 'Contact' | $T8 %] </th>
+          <td><input type="text" name="contact" class="wi-normal"></td>
+        </tr>
+        <tr>
+          <th>[% 'Contact person (surname)' | $T8 %] </th>
+          <td><input type="text" name="cp_name" class="wi-normal"></td>
+        </tr>
+        <tr>
+          <th>[% 'E-mail' | $T8 %] </th>
+          <td><input type="text" name="email" class="wi-normal"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="tbl-horizontal">
+      <caption> [% 'Billing/shipping address' | $T8 %] </caption>
+      <tbody>
+        <tr>
+          <th>[% 'Street' | $T8 %] </th>
+          <td><input type="text" name="addr_street" class="wi-normal"></td>
+        </tr>
+        <tr>
+          <th>[% 'ZIPcode' | $T8 %] </th>
+          <td><input type="text" name="addr_zipcode" class="wi-normal"></td>
+        </tr>
+        <tr>
+          <th>[% 'City' | $T8 %] </th>
+          <td><input type="text" name="addr_city" class="wi-normal"></td>
+        </tr>
+        <tr>
+          <th>[% 'Country' | $T8 %] </th>
+          <td><input type="text" name="addr_country" class="wi-normal"></td>
+        </tr>
+        <tr>
+          <th>[% 'GLN' | $T8 %] </th>
+          <td><input type="text" name="addr_gln" class="wi-number"></td>
+        </tr>
+      </tbody>
+    </table>
+
+
+  <table class="tbl-horizontal">
+    <caption> [% 'Handling & Scope' | $T8 %] </caption>
+    <tbody>
+      [% IF SHOW_BUSINESS_TYPES %]
+      <tr>
+        <th>[% IF IS_CUSTOMER %][% 'Customer type' | $T8 %][% ELSE %][% 'Vendor type' | $T8 %][% END %] </th>
+        <td>[% L.select_tag('business_id', ALL_BUSINESS_TYPES, title_key = 'description', with_empty = 1, class='wi-lightwide') %] </td>
+      </tr>
+      [% END %]
+      [% IF IS_CUSTOMER %]
+         <tr>
+           <th>[% LxERP.t8("Factur-X/ZUGFeRD settings") %]</th>
+           <td>[% L.select_tag('create_zugferd_invoices', ZUGFERD_SETTINGS, with_empty = 1) %]</td>
+         </tr>
+      [% END %]
+      [% IF IS_CUSTOMER && ALL_SALESMEN.size %]
+        <tr>
+          <th>[% 'Salesman' | $T8 %] </th>
+          <td>[% L.select_tag('salesman_id', ALL_SALESMEN, title_key = 'name', with_empty = 1, class='wi-lightwide') %] </td>
+        </tr>
+      [% END %]
+        <tr>
+          <th>[% 'Insert Date' | $T8 %] [% 'From' | $T8 %] </th>
+          <td>[% L.date_tag('insertdatefrom') %] [% 'Bis' | $T8 %] [% L.date_tag('insertdateto') %] <!-- PENDENT: Klassen implementieren in Funktion --></td>
+        </tr>
+      [% CUSTOM_VARIABLES_FILTER_CODE %]
+      <tr>
+        <th>[% 'Scope' | $T8 %] </th>
+        <td>
+          <input name="status" type="radio" value="all" checked id="chckb1"> <label for="chckb1">[% 'All' | $T8 %]</label>
+          <input name="status" type="radio" value="orphaned" id="chckb2"> <label for="chckb2">[% 'Orphaned' | $T8 %]</label>
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Validity' | $T8 %] </th>
+        <td>
+          <input name="obsolete" type="radio" value="all" id="rd1"> <label for="rd1">[% 'All' | $T8 %]</label>
+          <input name="obsolete" type="radio" value="Y" id="rd2"> <label for="rd2">[% 'Obsolete' | $T8 %]</label>
+          <input name="obsolete" type="radio" value="N" checked id="rd3"> <label for="rd3">[% 'Not obsolete' | $T8 %]</label>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+
+<div class="form-addition control-panel">
+  <h3>[% 'Include in Report' | $T8 %]</h3>
+
+  <div class="list col">
+    <h4> [% 'Numbers & IDs' | $T8 %] </h4>
+    <div>
+      <input name="l_id" id="l_id" type="checkbox" value="Y">
+      <label for="l_id"> [% 'ID' | $T8 %] </label>
+    </div>
+    <div>
+      <input name="l_[% db %]number" id="l_[% db %]number" type="checkbox" value="Y" checked>
+      <label for="l_[% db %]number"> [% IF IS_CUSTOMER %][% 'Customer Number' | $T8 %][% ELSE %][% 'Vendor Number' | $T8 %][% END %] </label>
+    </div>
+    <div>
+      <input name="l_taxnumber" id="l_taxnumber" type="checkbox" value="Y">
+      <label for="l_taxnumber"> [% 'Tax Number' | $T8 %] </label>
+    </div>
+    <div>
+      <input name="l_invnumber" id="l_invnumber" type="checkbox" value="Y">
+      <label for="l_invnumber"> [% 'Invoices' | $T8 %] </label>
+    </div>
+  </div>
+
+  <div class="list col">
+    <h4> [% 'Customer' | $T8 %] </h4>
+    <div>
+      <input name="l_name" id="l_name" type="checkbox" value="Y" checked>
+      <label for="l_name"> [% IF IS_CUSTOMER %][% 'Customer Name' | $T8 %][% ELSE %][% 'Vendor Name' | $T8 %][% END %] </label>
+    </div>
+    <div>
+      <input name="l_contact" id="l_contact" type="checkbox" value="Y" checked>
+      <label for="l_contact"> [% 'Contact' | $T8 %] </label>
+    </div>
+    [% IF IS_CUSTOMER %]
+    <div>
+      <input name="l_contact_origin" id="l_contact_origin" type="checkbox" class="checkbox" value="Y">
+      <label for="l_contact_origin">[% 'Origin of personal data' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_invoice_mail" id="l_invoice_mail" type="checkbox" class="checkbox" value="Y">
+      <label for="l_invoice_mail">[% 'Email of the invoice recipient' | $T8 %]</label>
+    </div>
+    [% END %]
+    <div>
+      <input name="l_ustid" id="l_ustid" type="checkbox" class="checkbox" value="Y">
+      <label for="l_ustid">[% 'VAT ID' | $T8 %]</label>
+    </div>
+    [% IF IS_CUSTOMER %]
+    <div>
+      <input name="l_creditlimit" id="l_creditlimit" type="checkbox" class="checkbox" value="Y">
+      <label for="l_creditlimit">[% 'Credit Limit' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_commercial_court" id="l_commercial_court" type="checkbox" class="checkbox" value="Y">
+      <label for="l_commercial_court">[% 'Commercial court' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_main_contact_person" id="l_main_contact_person" type="checkbox" class="checkbox" value="Y">
+      <label for="l_main_contact_person">[% 'Main Contact Person' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_delivery_order_mail" id="l_delivery_order_mail" type="checkbox" class="checkbox" value="Y">
+      <label for="l_delivery_order_mail">[% 'Email of the delivery order recipient' | $T8 %]</label>
+    </div>
+    [% END %]
+  </div>
+
+  <div class="list col">
+    <h4> [% 'Address' | $T8 %] </h4>
+    <div>
+      <input name="l_street" id="l_street" type="checkbox" value="Y" checked>
+      <label for="l_street"> [% 'Street' | $T8 %] </label>
+    </div>
+    <div>
+      <input name="l_zipcode" id="l_zipcode" type="checkbox" value="Y" checked>
+      <label for="l_zipcode"> [% 'Zipcode' | $T8 %] </label>
+    </div>
+    <div>
+      <input name="l_city" id="l_city" type="checkbox" value="Y" checked>
+      <label for="l_city"> [% 'City' | $T8 %] </label>
+    </div>
+    <div>
+      <input name="l_country" id="l_country" type="checkbox" value="Y" checked>
+      <label for="l_country"> [% 'Country' | $T8 %] </label>
+    </div>
+    <div>
+      <input name="l_gln" id="l_gln" type="checkbox" value="Y" checked>
+      <label for="l_gln"> [% 'GLN' | $T8 %] </label>
+    </div>
+  </div>
+
+  <div class="list col">
+    <h4> [% 'Contact' | $T8 %] </h4>
+    <div>
+      <input name="l_phone" id="l_phone" type="checkbox" value="Y" checked>
+      <label for="l_phone"> [% 'Phone' | $T8 %] </label>
+    </div>
+    <div>
+      <input name="l_fax" id="l_fax" type="checkbox" value="Y">
+      <label for="l_fax"> [% 'Fax' | $T8 %] </label>
+    </div>
+    <div>
+      <input name="l_email" id="l_email" type="checkbox" value="Y" checked>
+      <label for="l_email"> [% 'E-mail' | $T8 %] </label>
+    </div>
+  </div>
+
+  <div class="list col">
+    <h4> [% 'Orders' | $T8 %] </h4>
+    <div>
+      <input name="l_ordnumber" id="l_ordnumber" type="checkbox" value="Y">
+      <label for="l_ordnumber"> [% IF IS_CUSTOMER %][% 'Sales Orders' | $T8 %][% ELSE %][% 'Purchase Orders' | $T8 %][% END %] </label>
+    </div>
+    <div>
+      <input name="l_quonumber" id="l_quonumber" type="checkbox" value="Y">
+      <label for="l_quonumber"> [% IF IS_CUSTOMER %][% 'Quotations' | $T8 %][% ELSE %][% 'RFQs' | $T8 %][% END %] </label>
+    </div>
+    <div>
+      <input name="l_discount" id="l_discount" type="checkbox" value="Y">
+      <label for="l_discount"> [% 'Discount' | $T8 %] </label>
+    </div>
+    <div>
+      <input name="l_payment" id="l_payment" type="checkbox" value="Y">
+      <label for="l_payment"> [% 'Payment Terms' | $T8 %] </label>
+    </div>
+  </div>
+
+  <div class="list col">
+    <h4> [% 'Handling & Scope' | $T8 %] </h4>
+    <div>
+      <input name="l_insertdate" id="l_insertdate" type="checkbox" value="Y">
+      <label for="l_insertdate"> [% 'Insert Date' | $T8 %] </label>
+    </div>
+    [% IF IS_CUSTOMER %]
+    <div>
+      <input name="l_salesman" id="l_salesman" type="checkbox" value="Y">
+      <label for="l_salesman"> [% 'Salesman' | $T8 %] </label>
+    </div>
+    <div>
+      <input name="l_pricegroup" id="l_pricegroup" type="checkbox" value="Y">
+      <label for="l_pricegroup"> [% 'Pricegroup' | $T8 %] </label>
+    </div>
+    [% END %]
+  </div>
+
+  <div class="list col">
+    <h4> [% 'Custom Variables' | $T8 %] </h4>
+    <!-- PENDENT: bessere Loesung suchen -->
+    [% CUSTOM_VARIABLES_INCLUSION_CODE %]
+  </div>
+
+
+</div>
+
+</form>

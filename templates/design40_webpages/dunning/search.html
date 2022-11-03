@@ -1,0 +1,98 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE L %]
+[% USE P %]
+
+<h1>[% title %]</h1>
+
+[% INCLUDE 'common/flash.html' %]
+
+<form method="post" name="search" action="dn.pl" id="form">
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <caption>[% 'Order data' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% 'Customer' | $T8 %]</th>
+      <td>[% P.input_tag("customer", "", class="initial_focus wi-lightwide") %]</td>
+    </tr>
+    [% IF SHOW_DUNNING_LEVELS %]
+    <tr>
+      <th>[% 'Dunning Level' | $T8 %]</th>
+      <td>
+      <select name="dunning_level" class="wi-lightwide">
+        <option value=""></option>
+        [% FOREACH row = DUNNING %]
+          <option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.dunning_description) %]</option>
+        [% END %]
+      </select>
+      </td>
+    </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Invoice Number' | $T8 %]</th>
+      <td><input type="text" name="invnumber" class="wi-lightwide">
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Order Number' | $T8 %]</th>
+      <td><input type="text" name="ordnumber" class="wi-lightwide">
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Notes' | $T8 %]</th>
+      <td><input type="text" name="notes" class="wi-lightwide">
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Invdate from' | $T8 %]</th>
+      <td><span class="wi-date"> [% L.date_tag('transdatefrom') %] [% 'To (time)' | $T8 %] [% L.date_tag('transdateto') %]</span></td>
+    </tr>
+    <tr>
+      <th>[% 'Dunning Date from' | $T8 %]</th>
+      <td><span class="wi-date"> [% L.date_tag('dunningfrom') %] [% 'To (time)' | $T8 %] [% L.date_tag('dunningto') %]</span></td>
+    </tr>
+    [% IF ALL_DEPARTMENTS.as_list.size %]
+    <tr>
+      <th>[% 'Department' | $T8 %]</th>
+      <td>
+        <select name="department_id" class="wi-lightwide">
+          <option value=""></option>
+          [% FOREACH row = ALL_DEPARTMENTS %]
+            <option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.description) %]</option>
+          [% END %]
+        </select>
+      </td>
+    </tr>
+    [% END %]
+    <tr>
+      <th>[% 'Salesman' | $T8 %]</th>
+      <td>[% L.select_tag('salesman_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1, class='wi-lightwide') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal col">
+  <caption>[% 'Options' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% 'Show old dunnings' | $T8 %]</th>
+      <td><input type="checkbox" value="1" name="showold">
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Show Salesman' | $T8 %]</th>
+      <td><input type="checkbox" value="1" name="l_salesman">
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+
+
+
+</form>

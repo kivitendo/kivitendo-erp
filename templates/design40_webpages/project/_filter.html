@@ -1,0 +1,69 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+
+[% BLOCK filter_toggle_panel %]
+<table id="filter_table" class="tbl-horizontal">
+  <caption>[% 'Project' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% 'Number' | $T8 %]</th>
+      <td>[% L.input_tag('filter.projectnumber:substr::ilike', filter.projectnumber_substr__ilike, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Description' | $T8 %]</th>
+      <td>[% L.input_tag('filter.description:substr::ilike', filter.description_substr__ilike, class='wi-normal initial_focus') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Customer' | $T8 %]</th>
+      <td>[% L.input_tag('filter.customer.name:substr::ilike', filter.customer.name_substr__ilike, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Project Type' | $T8 %]</th>
+      <td>[% L.select_tag('filter.project_type_id', SELF.project_types, default=filter.project_type_id, title_key='description', with_empty=1, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Project Status' | $T8 %]</th>
+      <td>[% L.select_tag('filter.project_status_id', SELF.project_statuses, default=filter.project_status_id, title_key='description', with_empty=1, class='wi-normal') %]</td>
+    </tr>
+    [% FOREACH cvar_cfg = SELF.cvar_configs %]
+    [%- IF cvar_cfg.searchable %]
+    <tr>
+      <th align="right">[% HTML.escape(cvar_cfg.description) %]</th>
+      <td>[% INCLUDE 'common/render_cvar_filter_input.html' cvar_cfg=cvar_cfg cvar_class="rs_input_field" %]</td>
+    </tr>
+    [% END %]
+    [% END %]
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Include in Report' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <td>[% L.select_tag('filter.active', [ [ 'active', LxERP.t8('Active') ], [ 'inactive', LxERP.t8('Inactive') ], [ 'both', LxERP.t8('Both') ] ], default=filter.active, style="width: 200px") %]</td>
+    </tr>
+    <tr>
+      <td>[% L.select_tag('filter.valid', [ [ 'valid', LxERP.t8('Valid') ], [ 'invalid', LxERP.t8('Invalid') ], [ 'both', LxERP.t8('Both') ] ], default=filter.valid, style="width: 200px") %]</td>
+    </tr>
+    <tr>
+      <td>[% L.select_tag('filter.status', [ [ 'all', LxERP.t8('All') ], [ 'orphaned', LxERP.t8('Orphaned') ] ], default=filter.status, style="width: 200px") %]</td>
+    </tr>
+    [% FOREACH cvar_cfg = SELF.includeable_cvar_configs %]
+    <tr>
+      <td>
+        [% name__ = cvar_cfg.name;
+        L.checkbox_tag("include_cvars_" _ name__, value="1", checked=(SELF.include_cvars.$name__ ? 1 : ''), label=cvar_cfg.description) %]
+      </td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+
+<div class="buttons">
+  [% L.button_tag('$("#search_form").resetForm()', LxERP.t8('Reset'), class="neutral") %]
+</div>
+[% END # /BLOCK filter_toggle_panel %]
+
+[% INCLUDE 'common/toggle_panel.html' %]

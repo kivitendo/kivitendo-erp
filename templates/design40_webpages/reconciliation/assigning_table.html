@@ -1,0 +1,46 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
+
+[% IF SELF.ELEMENTS.size %]
+<table class="tbl-horizontal test">
+  <thead>
+    <tr>
+      <th></th>
+      <th>[% 'ID' | $T8 %]</th>
+      <th>[% 'Type' | $T8 %]</th>
+      <th>[% 'Transdate' | $T8 %]</th>
+      <th>[% 'Amount BT' | $T8 %]</th>
+      <th>[% 'Amount BB' | $T8 %]</th>
+    </tr>
+  </thead>
+  <!-- PENDENT: tbody#assigned_elements war in der foreach-Schlaufe, was falsch ist. Ueberpruefen -->
+  <tbody id="assigned_elements">
+  [% FOREACH element = SELF.ELEMENTS %]
+    <tr id="element[% element.type %][% element.id %]">
+     <td><a href="#" onclick='delete_element("[% element.id %]", "[% element.type %]")'>x</a></td>
+     <td>[% HTML.escape(element.id) %]</td>
+     <td>[% IF element.type == 'BT' %][% 'Bank transaction' | $T8 %][% ELSE %][% 'Acc transaction' | $T8 %][% END %]</td>
+     <td>[% HTML.escape(element.transdate_as_date) %]</td>
+     <td class="numeric right">[% IF element.type == 'BT' %][% HTML.escape(element.amount_as_number) %][% END %]</td>
+     <td class="numeric right">[% IF element.type == 'BB' %][% LxERP.format_amount(-1 * element.amount, 2) %][% END %]</td>
+    </tr>
+  [% END %]
+  </tbody>
+  <tfoot>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="numeric">[% bt_sum %]</td>
+      <td class="numeric">[% bb_sum %]</td>
+    </tr>
+  </tfoot>
+</table>
+  [% UNLESS errors %]
+   [% L.button_tag("submit_with_action('reconcile')", LxERP.t8("Reconcile")) %]
+  [% ELSE %]
+    [% FOREACH error IN errors %]
+      [% error %]
+    [% END %]
+  [% END %]
+[% END %]
