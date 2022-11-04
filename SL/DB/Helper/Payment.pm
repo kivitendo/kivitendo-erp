@@ -473,7 +473,8 @@ sub open_amount_fx {
   validate_pos(
     @_,
       {  can       => [ qw(forex get_exchangerate) ],
-         callbacks => { 'has forex'      => sub { return $_[0]->forex } } },
+         callbacks => { 'has forex'        => sub { return $_[0]->forex },
+                        'has exchangerate' => sub { return $_[0]->get_exchangerate > 0 } } },
       {  callbacks => {
            'is a positive real'          => sub { return $_[0] =~ m/^[+]?\d+(\.\d+)?$/ }, },
       }
