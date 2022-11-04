@@ -483,7 +483,7 @@ sub form_header {
 
   $form->header();
 
-  print $form->parse_html_template("ir/form_header", $TMPL_VAR);
+  print $form->parse_html_template("ir/form_header", {%$TMPL_VAR});
 
   $main::lxdebug->leave_sub();
 }
