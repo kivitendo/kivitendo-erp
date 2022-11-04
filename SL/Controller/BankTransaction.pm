@@ -886,11 +886,15 @@ sub action_unlink_bank_transaction {
         die ("invalid type") unless $type =~ m/^(ar|ap)$/;
 
         # recalc and set paid via database query
+        # add: fx_gain and fx_loss
         my $query = qq|UPDATE $type SET paid =
                         (SELECT COALESCE(abs(sum(amount)),0) FROM acc_trans
                          WHERE trans_id = ?
-                         AND chart_link ilike '%paid%')
-                       WHERE id = ?|;
+                         AND (chart_link ilike '%paid%'
+                              OR chart_id IN (SELECT fxgain_accno_id from defaults)
+                              OR chart_id IN (SELECT fxloss_accno_id from defaults)
+                             )
+                        WHERE id = ?|;
 
         die if (do_query($::form, $bank_transaction->db->dbh, $query, $trans_id, $trans_id) == -1);
       }
