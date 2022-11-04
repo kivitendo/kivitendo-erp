@@ -894,6 +894,7 @@ sub action_unlink_bank_transaction {
                               OR chart_id IN (SELECT fxgain_accno_id from defaults)
                               OR chart_id IN (SELECT fxloss_accno_id from defaults)
                              )
+                        )
                         WHERE id = ?|;
 
         die if (do_query($::form, $bank_transaction->db->dbh, $query, $trans_id, $trans_id) == -1);
