@@ -878,9 +878,15 @@
   icon: chart_of_accounts
   order: 100
   access: report
-  module: ca.pl
   params:
-    action: chart_of_accounts
+    action: ChartOfAccounts/list
+- parent: reports
+  id: reports_list_transactions
+  name: List Transactions
+  order: 150
+  access: report
+  params:
+    action: ListTransactions/report_settings
 - parent: reports
   id: reports_trial_balance
   name: Trial Balance
