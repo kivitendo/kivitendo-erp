@@ -1125,7 +1125,7 @@ sub action_transfer_stock {
 
   SL::DB->client->with_transaction(sub {
     $_->save for @transfer_requests;
-    $self->order->update_attributes(delivered => 1);
+    $self->order->update_attributes(delivered => 1, closed => 1);
   });
 
   $self->js
@@ -1133,6 +1133,7 @@ sub action_transfer_stock {
     ->run('kivi.ActionBar.setDisabled', '#transfer_out_action', t8('The parts for this order have already been transferred'))
     ->run('kivi.ActionBar.setDisabled', '#transfer_in_action', t8('The parts for this order have already been transferred'))
     ->run('kivi.ActionBar.setDisabled', '#delete_action', t8('The parts for this order have already been transferred'))
+    ->run('kivi.ActionBar.setEnabled', '#undo_transfer_action', t8('The parts for this order have already been transferred'))
     ->replaceWith('#data-status-line', delivery_order_status_line($self->order))
     ->render;
 
@@ -1877,6 +1878,7 @@ sub setup_edit_action_bar {
       combobox => [
         action => [
           t8('Save'),
+          id       => 'save_action',
           call     => [ 'kivi.DeliveryOrder.save', { action             => 'save',
                                                      warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
                                                      warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
@@ -2030,7 +2032,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Undo Transfer'),
-          id       => 'undo_transfer',
+          id       => 'undo_transfer_action',
           call     => [ 'kivi.DeliveryOrder.save', { action => 'undo_transfers' } ],
           disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
                     : !$self->order->id       ? t8('This object has not been saved yet.')
