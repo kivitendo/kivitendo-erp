@@ -4,7 +4,7 @@
 [%- USE HTML %]
 [% # L.dump( SELF.reclamation.items_sorted ) %]
 
-<h1>[% FORM.title %] [% SELF.reclamation.id %] <span id='nr_in_title'>[%- SELF.reclamation.number -%]</span></h1>
+<h1>[% FORM.title %] <span id='nr_in_title'>[%- SELF.reclamation.record_number -%]</span></h1>
 
 <div id="print_options" style="display:none">
   <form method="post" action="controller.pl" id="print_options_form">
