@@ -215,7 +215,7 @@ sub pay_invoice {
         #                      : $self->invoice_type =~ m/invoice|ar_transaction|purchase_credit_note|invoice_for_advance_payment/ ? -1
         #                      : die "invalid state";
 
-        $fx_gain_loss_amount = _round($amount / $exchangerate * ( $self->get_exchangerate - $exchangerate)); # * $fx_gain_loss_sign;
+        $fx_gain_loss_amount = _round($params{amount} / $exchangerate * ( $self->get_exchangerate - $exchangerate)); # * $fx_gain_loss_sign;
 
         $main::lxdebug->message(0, 'was sagt gain loss 2 ' . $fx_gain_loss_amount);
         # die "huchz" . $fx_gain_loss_amount;
