@@ -2035,7 +2035,7 @@ sub setup_edit_action_bar {
           disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
                     : !$self->order->id       ? t8('This object has not been saved yet.')
                     : undef,
-          only_if => $self->order->delivered,
+          disabled => !$self->order->delivered,
           confirm => t8('Do you really want undo transfers the stock and set this order to undelivered?'),
         ],
       ],
