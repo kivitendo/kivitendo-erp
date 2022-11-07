@@ -21,7 +21,14 @@
 <input type="hidden" name="follow_up_trans_info_1" id="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">
 <input type="hidden" name="follow_up_rowcount" id="follow_up_rowcount" value="1">
 <input type="hidden" name="lastmtime" id="lastmtime" value="[% HTML.escape(lastmtime) %]">
-
+<input type="hidden" name="already_printed_flag" id="already_printed_flag" value="0">
+<input type="hidden" name="has_qr_reference" id="has_qr_reference" value="[% has_qr_reference %]">
+[%- IF qr_reference %]
+[%   L.hidden_tag("qr_reference", qr_reference) %]
+[%- END %]
+[% IF !id %]
+[%   L.hidden_tag('form_validity_token', form_validity_token) %]
+[% END %]
 
 [% IF saved_message != '' %]<p>[% saved_message %]</p>[% END %]
 
@@ -36,8 +43,8 @@
     [% END %]
     [% IF id %]
       [% IF INSTANCE_CONF.get_doc_storage %]
-        <li><a href="controller.pl?action=File/list&file_type=document&object_type=invoice&object_id=[% HTML.url(id) %]">[% 'Documents' | $T8 %]</a></li>
-        <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=invoice&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
+        <li><a href="controller.pl?action=File/list&file_type=document&object_type=[% type %]&object_id=[% HTML.url(id) %]">[% 'Documents' | $T8 %]</a></li>
+        <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=[% type %]&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
       [% END %]
       [% IF AUTH.assert('record_links', 1) %]
         <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=Invoice&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>
@@ -63,6 +70,7 @@
         [% P.customer_vendor.picker("customer_id", customer_id, type="customer", class="wi-wide initial_focus", size=36, onchange="\$('#update_button').click()") %]
         [% #L.button_tag("show_vc_details('customer')", LxERP.t8('Details (one letter abbreviation)'), class='wi-tiny neutral') %]
         <a href="javascript:show_vc_details('customer')" class="button-image info tooltipster-html" title="[% 'Detailed information about this customer' | $T8 %]"><img src="image/detail.png"></a>
+        [% P.link_tag('controller.pl?action=CustomerVendor/edit&db=customer&id=' _ customer_id, LxERP.t8('Edit'), target="_blank", title=LxERP.t8('Open in new window')) %]
         [% L.hidden_tag("previous_customer_id", customer_id) %]
         [% L.hidden_tag("customer_pricegroup_id", customer_pricegroup_id) %]
       </td>
@@ -85,6 +93,15 @@
        [% L.button_tag("kivi.SalesPurchase.edit_custom_shipto()", LxERP.t8("Custom shipto"), class="wi-wide neutral below") %]
       </td>
     </tr>
+    [% IF customer_obj.additional_billing_addresses.as_list.size %]
+    <tr>
+      <th>[% 'Custom Billing Address' | $T8 %]</th>
+      <td>
+        [% L.select_tag('billing_address_id', customer_obj.additional_billing_addresses,
+                        with_empty=1, default=billing_address_id, value_key='id', title_key='displayable_id', class="wi-wide") %]
+      </td>
+    </tr>
+    [% END %]
     <tr>
       <th>[% 'Credit Limit' | $T8 %]</th>
       <td>
@@ -224,8 +241,19 @@
       </th>
     </tr>
     <tr>
-      <th>[% 'direct debit' | $T8 %] [% L.checkbox_tag('direct_debit', 'checked', direct_debit) %]</th>
+      <th>[% L.checkbox_tag('direct_debit', 'checked', direct_debit, label=LxERP.t8('direct debit')) %]</th>
     </tr>
+    [%- IF INSTANCE_CONF.get_create_qrbill_invoices > 0 %]
+    <tr>
+      <th>[% L.checkbox_tag('qrbill_without_amount', 'checked', qrbill_without_amount, label=LxERP.t8('QR bill without amount')) %]</th>
+    </tr>
+    <tr>
+      <th>[% 'QR bill unstructured message' | $T8 %]</th>
+    </tr>
+    <tr>
+      <th>[% L.input_tag('qr_unstructured_message', qr_unstructured_message, class="wi-wide") %]</th>
+    </tr>
+    [%- END %]
     <tr>
       <th class="caption">[% 'Notes (will appear on hard copy)' | $T8 %]</th>
     </tr>
@@ -271,7 +299,16 @@
         <th>[% 'Credit Note' | $T8 %]</th>
         <!-- <th>[% 'Credit Note Number' | $T8 %]</th> -->
         <td>[% L.date_tag('invdate', invdate, onchange='kivi.SalesPurchase.set_duedate_on_reference_date_change("invdate")', class='wi-date') %]</td>
-        <td><input type="text" name="invnumber" id="invnumber" value="[% HTML.escape(invnumber) %]" class="wi-small"></td>
+        <td>
+          [%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
+            [% L.input_tag("invnumber", invnumber, size="11", class="wi-small") %]
+          [%- ELSIF id %]
+            [% L.hidden_tag("invnumber", invnumber) %]
+            [% HTML.escape(invnumber) %]
+          [%- ELSE %]
+            [% LxERP.t8("will be set upon posting") %]
+          [%- END %]
+        </td>
       </tr>
       <tr>
         <th>[% 'Invoice' | $T8 %]</th>
@@ -284,7 +321,16 @@
       <tr>
         <th>[% 'Invoice' | $T8 %]</th>
         <td>[% L.date_tag('invdate', invdate, onchange='kivi.SalesPurchase.set_duedate_on_reference_date_change("invdate")', class='wi-date') %]</td>
-        <td><input type="text" name="invnumber" id="invnumber" value="[% HTML.escape(invnumber) %]" class="wi-small"></td>
+        <td>
+          [%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
+            [% L.input_tag("invnumber", invnumber, size="11", class="wi-small") %]
+          [%- ELSIF id %]
+            [% L.hidden_tag("invnumber", invnumber) %]
+            [% HTML.escape(invnumber) %]
+          [%- ELSE %]
+            [% LxERP.t8("will be set upon posting") %]
+          [%- END %]
+        </td>
       </tr>
       <tr>
         <th>[% 'Due Date' | $T8 %]</th>
@@ -333,6 +379,18 @@
       <td></td>
       <td>[% L.select_tag('globalproject_id', ALL_PROJECTS, title_key = 'projectnumber', default = globalproject_id, with_empty = '1', onChange = "document.getElementById('update_button').click();", class="wi-small") %]</td>
     </tr>
+    [%- IF has_qr_reference %]
+    <tr>
+      <th>[% 'QR reference' | $T8 %]</th>
+      <td>
+        [%- IF qr_reference %]
+          [% HTML.escape(qr_reference_formatted) %]
+        [%- ELSE %]
+          [% LxERP.t8("will be set upon posting") %]
+        [%- END %]
+      </td>
+    </tr>
+    [%- END %]
     </tbody>
   </table>
 
@@ -346,14 +404,23 @@
 [% IF (resubmit && is_format_html) || resubmit || creditwarning != '' %]
   <script type="text/javascript"><!--
     $('document').ready(function(){
+      [% IF INSTANCE_CONF.get_invoice_prevent_browser_back %]
+       function disableBack() { window.history.forward() };
+       window.onload = disableBack();
+       window.onpageshow = function(evt) { if (evt.persisted) disableBack() };
+      [% END %]
+
       [% IF resubmit && is_format_html %]
         window.open('about:blank','Beleg');
         document.invoice.target = 'Beleg';
         kivi.SalesPurchase.show_print_dialog();
         kivi.SalesPurchase.print_record();
       [% ELSIF resubmit %]
-        kivi.SalesPurchase.show_print_dialog();
-        kivi.SalesPurchase.print_record();
+        if ($('#already_printed_flag').val() === "0") {
+          kivi.SalesPurchase.show_print_dialog();
+          kivi.SalesPurchase.print_record();
+          $('#already_printed_flag').val("1");
+        }
       [% ELSIF creditwarning != '' %]
         alert('[% 'Credit Limit exceeded!!!' | $T8 %]');
       [% ELSE %]
