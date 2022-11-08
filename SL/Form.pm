@@ -1501,7 +1501,7 @@ sub check_exchangerate {
                  { isa  => 'Form'},
                  { type => HASHREF, callbacks => { has_yy_in_dateformat => sub { $_[0]->{dateformat} =~ m/yy/ } } },
                  { type => SCALAR, callbacks  => { is_fx_currency       => sub { shift ne $_[1]->[0]->{defaultcurrency} } } }, # should be ISO three letter codes for currency identification (ISO 4217)
-                 { type => SCALAR, callbacks  => { is_valid_kivi_date   => sub { shift =~ m/\d+\d+\d+/ } } }, # we have three numers
+                 { type => SCALAR | HASHREF, callbacks  => { is_valid_kivi_date   => sub { shift =~ m/\d+\d+\d+/ } } }, # we have three numbers. Either DateTime or form scalar
                  { type => SCALAR, callbacks  => { is_buy_or_sell_rate  => sub { shift =~ m/^buy|sell$/ } } },
                  { type => SCALAR, callbacks  => { is_current_form_id   => sub { $_[0] == $_[1]->[0]->{id} } },              optional => 1 },
                  { type => SCALAR, callbacks  => { is_valid_fx_table    => sub { shift =~ m/(ar|ap)/  } }, optional => 1 }
