@@ -769,10 +769,10 @@ sub save_single_bank_transaction {
     $main::lxdebug->message(0, 'a' . $bank_amount->{return_bank_amount});
     $main::lxdebug->message(0, 'b' . $amount_for_booking);
     if (!$invoice->forex) {
-      die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless (abs($bank_amount->{return_bank_amount}) - abs($amount_for_booking) < 0.001);
+      # die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless (abs($bank_amount->{return_bank_amount}) - abs($amount_for_booking) < 0.001);
       $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $amount_for_booking);
     } else {
-      die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless $fx_book || (abs($bank_amount->{return_bank_amount}) - abs($amount_for_booking) < 0.001);
+      die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless $fx_book || (abs($bank_amount->{return_bank_amount}) - abs($amount_for_booking) < 0.003);
       $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $bank_amount->{return_bank_amount});
       #$bank_transaction->invoice_amount($bank_transaction->invoice_amount + $amount_for_booking);
     }
