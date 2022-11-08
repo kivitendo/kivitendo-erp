@@ -4,6 +4,11 @@
 
 2022-xx-xx - Release 4.0.0
 
+Größere neue Features:
+
+ - Reklamationscontroller
+   Zum Erfassen und auswerten von Einkaufs- und Verkaufsreklamationen
+
 Kleinere neue Features und Detailverbesserungen:
 
  - Die Variablen zur Ersetzung der Zahlungsbedingungen stehen auch als einzelne
