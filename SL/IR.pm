@@ -698,6 +698,7 @@ SQL
     $paiddiff = 0;
 
     # update exchange rate for PAYMENTS
+    $form->{script} = 'ir.pl';
     $form->update_exchangerate($dbh, $form->{currency}, $form->{"datepaid_$i"}, 0, $form->{"exchangerate_$i"})
       if ($form->{currency} ne $defaultcurrency) && !$exchangerate;
   }

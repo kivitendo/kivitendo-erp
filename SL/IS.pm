@@ -1441,6 +1441,7 @@ SQL
       # update exchange rate for PAYMENTS
       # exchangerate contains a new exchangerate of the payment date
       if (($form->{currency} ne $defaultcurrency) && !$exchangerate) {
+        $form->{script} = 'is.pl';
         $form->update_exchangerate($dbh, $form->{currency},
                                    $form->{"datepaid_$i"},
                                    $form->{"exchangerate_$i"}, 0);

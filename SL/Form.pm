@@ -1435,10 +1435,10 @@ sub update_exchangerate {
                  { type => SCALAR, callbacks  => { is_valid_kivi_date => sub { shift =~ m/\d+\d+\d+/ } } }, # we have three numers
                  { type => SCALAR, callbacks  => { is_null_or_ar_int  => sub {    $_[0] == 0
                                                                                || $_[0] >  0
-                                                                               && $_[1]->[0]->{script} =~ m/ar\.pl|is\.pl/ } } }, # value buy fxrate
+                                                                               && $_[1]->[0]->{script} =~ m/cp\.pl|ar\.pl|is\.pl/ } } }, # value buy fxrate
                  { type => SCALAR, callbacks  => { is_null_or_ap_int  => sub {    $_[0] == 0
                                                                                || $_[0] >  0
-                                                                               && $_[1]->[0]->{script} =~ m/ap\.pl|ir\.pl/  } } }, # value sell fxrate
+                                                                               && $_[1]->[0]->{script} =~ m/cp\.pl|ap\.pl|ir\.pl/  } } }, # value sell fxrate
                  { type => SCALAR, callbacks  => { is_current_form_id => sub { $_[0] == $_[1]->[0]->{id} } },              optional => 1 },
                  { type => SCALAR, callbacks  => { is_valid_fx_table  => sub { shift =~ m/(ar|ap|bank_transactions)/  } }, optional => 1 }
               );
