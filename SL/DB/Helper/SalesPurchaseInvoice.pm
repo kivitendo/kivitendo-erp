@@ -14,7 +14,7 @@ sub get_tax_and_amount_by_tax_chart_id {
 
   foreach my $transaction (@{ $self->transactions }) {
     next if $transaction->chart_link =~ m/(^${ARAP}$|paid)/;
-
+    next unless $transaction->chart_link;
     my $tax_or_netamount = $transaction->chart_link =~ m/tax/            ? 'tax'
                          : $transaction->chart_link =~ m/(${ARAP}_amount|IC_cogs)/ ? 'netamount'
                          : undef;
