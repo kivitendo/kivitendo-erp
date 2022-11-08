@@ -1,37 +1,37 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>3.10. ZUGFeRD Rechnungen</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.7.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch03.html" title="Kapitel 3. Features und Funktionen"><link rel="prev" href="ch03s09.html" title="3.9. Webshop-Api"><link rel="next" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.10. ZUGFeRD Rechnungen</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03s09.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 3. Features und Funktionen</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="3.10. ZUGFeRD Rechnungen"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="features.zugferd"></a>3.10. ZUGFeRD Rechnungen</h2></div></div></div><div class="sect2" title="3.10.1. Vorbedingung"><div class="titlepage"><div><div><h3 class="title"><a name="features.zugferd.preamble"></a>3.10.1. Vorbedingung</h3></div></div></div><p>
-          Für die Erstellung von ZUGFeRD PDFs wird TexLive2018 oder höher benötigt.
-         </p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>
-          Wer kein TexLive2018 oder höher installieren kann, kann eine lokale Umgebung nur für kivitendo wie folgt erzeugen:
-         </p><pre class="programlisting">
-        1. Download des offiziellen Installers von https://www.tug.org/texlive/quickinstall.html
+   <title>3.10. ZUGFeRD Rechnungen</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.7.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch03.html" title="Kapitel 3. Features und Funktionen"><link rel="prev" href="ch03s09.html" title="3.9. Webshop-Api"><link rel="next" href="ch03s11.html" title="3.11. Reklamationen"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.10. ZUGFeRD Rechnungen</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03s09.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 3. Features und Funktionen</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch03s11.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="3.10. ZUGFeRD Rechnungen"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="features.zugferd"></a>3.10. ZUGFeRD Rechnungen</h2></div></div></div><div class="sect2" title="3.10.1. Vorbedingung"><div class="titlepage"><div><div><h3 class="title"><a name="features.zugferd.preamble"></a>3.10.1. Vorbedingung</h3></div></div></div><p>
+            Für die Erstellung von ZUGFeRD PDFs wird TexLive2018 oder höher benötigt.
+           </p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>
+            Wer kein TexLive2018 oder höher installieren kann, kann eine lokale Umgebung nur für kivitendo wie folgt erzeugen:
+           </p><pre class="programlisting">
+          1. Download des offiziellen Installers von https://www.tug.org/texlive/quickinstall.html
 
-        2. Installer ausführen, Standard-Ort für Installation belassen, evtl. ein paar Pakete abwählen, installieren lassen
+          2. Installer ausführen, Standard-Ort für Installation belassen, evtl. ein paar Pakete abwählen, installieren lassen
 
-        3. Ein kleine Script »run_pdflatex.sh« anlegen, das den PATH auf das  Installationsverezichnis setzt und pdflatex ausführt:
+          3. Ein kleine Script »run_pdflatex.sh« anlegen, das den PATH auf das  Installationsverezichnis setzt und pdflatex ausführt:
 
-        ------------------------------------------------------------
-        #!/bin/bash
+          ------------------------------------------------------------
+          #!/bin/bash
 
-        export PATH=/usr/local/texlive/2020/bin/x86_64-linux:$PATH
-        hash -r
+          export PATH=/usr/local/texlive/2020/bin/x86_64-linux:$PATH
+          hash -r
 
-        exec latexmk --pdflatex "$@"
-        ------------------------------------------------------------
+          exec latexmk --pdflatex "$@"
+          ------------------------------------------------------------
 
-        4. In config/kivitendo.conf den Parameter »latex« auf den Pfad zu »run_pdflatex.sh« setzen
+          4. In config/kivitendo.conf den Parameter »latex« auf den Pfad zu »run_pdflatex.sh« setzen
 
-        5. Webserver neu starten
-        </pre></td></tr></table></div></div><div class="sect2" title="3.10.2. Übersicht"><div class="titlepage"><div><div><h3 class="title"><a name="features.zugferd.summary"></a>3.10.2. Übersicht</h3></div></div></div><p>Mit der Version 3.5.6 bietet kivitendo die Möglichkeit ZUGFeRD
-			Rechnungen zu erstellen, sowie auch  ZUGFeRD Rechnungen direkt in
-			kivitendo einzulesen. </p><p>Bei  ZUGFeRD Rechnungen handelt es sich um eine PDF Datei in
-			der eine XML-Datei eingebettet ist. Der Aufbau der XML-Datei ist
-			standardisiert und ermöglicht so den Austausch zwischen
-			den verschiedenen Softwareprodukten. Kivitendo setzt mit der
-			Version 3.5.6 den ZUGFeRD 2.1 Standard um.</p><p>Weiter Details zu ZUGFeRD sind unter diesem Link zu finden:
-			<a class="ulink" href="https://www.ferd-net.de/standards/was-ist-zugferd/index.html" target="_top">https://www.ferd-net.de/standards/was-ist-zugferd/index.html</a>
-      
+          5. Webserver neu starten
+          </pre></td></tr></table></div></div><div class="sect2" title="3.10.2. Übersicht"><div class="titlepage"><div><div><h3 class="title"><a name="features.zugferd.summary"></a>3.10.2. Übersicht</h3></div></div></div><p>Mit der Version 3.5.6 bietet kivitendo die Möglichkeit ZUGFeRD
+        Rechnungen zu erstellen, sowie auch  ZUGFeRD Rechnungen direkt in
+        kivitendo einzulesen. </p><p>Bei  ZUGFeRD Rechnungen handelt es sich um eine PDF Datei in
+        der eine XML-Datei eingebettet ist. Der Aufbau der XML-Datei ist
+        standardisiert und ermöglicht so den Austausch zwischen
+        den verschiedenen Softwareprodukten. Kivitendo setzt mit der
+        Version 3.5.6 den ZUGFeRD 2.1 Standard um.</p><p>Weiter Details zu ZUGFeRD sind unter diesem Link zu finden:
+        <a class="ulink" href="https://www.ferd-net.de/standards/was-ist-zugferd/index.html" target="_top">https://www.ferd-net.de/standards/was-ist-zugferd/index.html</a>
+
             </p></div><div class="sect2" title="3.10.3. Erstellen von ZUGFeRD Rechnungen in Kivitendo"><div class="titlepage"><div><div><h3 class="title"><a name="features.zugferd.create_zugferd_bills"></a>3.10.3. Erstellen von ZUGFeRD Rechnungen in Kivitendo</h3></div></div></div><p>Für die Erstellung von ZUGFeRD Rechnungen bedarf es in
 			kivitendo zwei Dinge:</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>Die Erstellung muss in der Mandantenkonfiguration
 					aktiviert sein</p></li><li class="listitem"><p>Beim mindestens einem Bankkonto muss die Option
