@@ -39,7 +39,7 @@
     </tr>
     <tr>
       <th> [% LxERP.t8("Signature") %] </th>
-      <td> [% L.textarea_tag('defaults.signature', SELF.defaults.signature, rows=4, class='wi-wide') %] </td>
+      <td> [% L.textarea_tag('defaults.signature', SELF.defaults.signature, rows=4, class='wi-wide texteditor') %] </td>
     </tr>
     <tr>
       <th> [% LxERP.t8("Tax number") %] </th>
@@ -144,6 +144,13 @@
         <th></th>
         <td>[% SET placeholder=LxERP.t8("New name") %] [% L.input_tag('new_templates', FORM.new_templates, placeholder=placeholder, class='wi-normal') %] </td>
       </tr>
+      <tr>
+        <th>[% LxERP.t8('Interpolate variables in texts of positions') %]</th>
+        <td colspan="2">
+          [% L.yes_no_tag('defaults.print_interpolate_variables_in_positions', SELF.defaults.print_interpolate_variables_in_positions) %]
+          <div class="description">[% LxERP.t8('Whether or not to replace variable placeholders such as "<%invdate%>" in texts in positions such as the part description by the record\'s actual value') %]</div>
+        </td>
+       </tr>
     </tbody>
   </table>
 

@@ -40,6 +40,11 @@
       <td>[% L.select_tag('defaults.payments_changeable', SELF.payment_options, value_key = 'value', title_key = 'title', default = SELF.defaults.payments_changeable, class='wi-normal') %]</td>
       <td class="longdesc">[% LxERP.t8('Should payments be and when should they be changeable after posting?') %]</td>
     </tr>
+    <tr>
+      <th>[% LxERP.t8('Record numbers changeable') %]</th>
+      <td>[% L.yes_no_tag('defaults.sales_purchase_record_numbers_changeable', SELF.defaults.sales_purchase_record_numbers_changeable) %]</td>
+      <td class="longdesc">[% LxERP.t8('If disabled, record numbers for sales records & purchase records produced by our side will always be auto-generated and cannot be changed later.') %]</td>
+     </tr>
   </tbody>
 </table>
 
@@ -67,6 +72,33 @@
       <th>[% LxERP.t8('AP Transactions') %]</th>
       <td>[% L.yes_no_tag('defaults.ap_show_mark_as_paid', SELF.defaults.ap_show_mark_as_paid, class='wi-small') %]</td>
       <td class="longdesc">[% LxERP.t8('Should the "mark as paid" button showed in ap transactions?') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Add document for' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-small"><col class="wi-normal"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8('Purchase invoices') %]</th>
+      <td>[% L.yes_no_tag('defaults.ir_add_doc', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.ir_add_doc) %]</td>
+      <td>[% LxERP.t8('Show document tab after posting?') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('AR Transactions') %]</th>
+      <td>[% L.yes_no_tag('defaults.ar_add_doc', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.ar_add_doc) %]</td>
+      <td>[% LxERP.t8('Do not leave booking form?') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('AP Transactions') %]</th>
+      <td>[% L.yes_no_tag('defaults.ap_add_doc', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.ap_add_doc) %]</td>
+      <td>[% LxERP.t8('Show document tab after posting?') %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('GL Transactions') %]</th>
+      <td>[% L.yes_no_tag('defaults.gl_add_doc', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.gl_add_doc) %]</td>
+      <td>[% LxERP.t8('Show document tab after posting?') %]</td>
     </tr>
   </tbody>
 </table>
@@ -100,13 +132,23 @@
       <td class="longdesc">[% LxERP.t8('This option controls the method used for determining the startdate for the balance report.') %]</td>
     </tr>
     <tr>
+      <th>[% LxERP.t8('Set valid until date for Sales Quotation') %]</th>
+      <td>[% L.yes_no_tag('defaults.reqdate_on', SELF.defaults.reqdate_on) %]</td>
+      <td class="longdesc">[% LxERP.t8("If set to no the 'valid until' field for sales quotation won't be set at all.") %]</td>
+     </tr>
+    <tr>
       <th>[% LxERP.t8('Sales Quotation valid interval') %]</th>
       <td>[% L.input_tag('defaults.reqdate_interval', LxERP.format_amount(SELF.defaults.reqdate_interval, 0), class='wi-verysmall') %]</td>
       <td class="longdesc">[% LxERP.t8('Usually the sales quotation is valid until the next working day. If a value is set here then the quotation will be valid for at least that many days. The resulting date will be adjusted to the next working day if it ends up on a weekend.') %]</td>
     </tr>
     <tr>
-      <td align="right">[% LxERP.t8('Sales Order delivery date interval') %]</td>
-      <td>[% L.input_tag('defaults.delivery_date_interval', LxERP.format_amount(SELF.defaults.delivery_date_interval, 0), style=style) %]</td>
+      <th>[% LxERP.t8('Set delivery date for Sales Orders') %]</th>
+      <td>[% L.yes_no_tag('defaults.deliverydate_on', SELF.defaults.deliverydate_on) %]</td>
+      <td class="longdesc">[% LxERP.t8("If set to no the 'delivery date' field for sales orders won't be set at all.") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Sales Order delivery date interval') %]</th>
+      <td>[% L.input_tag('defaults.delivery_date_interval', LxERP.format_amount(SELF.defaults.delivery_date_interval, 0), class='wi-verysmall') %]</td>
       <td class="longdesc">[% LxERP.t8('Usually the delivery date of an order is the next working day. If a value is set here this value will be added to the delivery date of the sales order. The resulting date will be adjusted to the next working day if it ends up on a weekend.') %]</td>
     </tr>
   </tbody>

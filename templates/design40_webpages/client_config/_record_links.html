@@ -1,0 +1,35 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+
+<div id="record_links">
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <caption>[% 'Linked Records' | $T8 %]</caption>
+    <tbody>
+      <tr>
+        <th>[% LxERP.t8('View record links from Sales Order') %]</th>
+        <td>[% L.yes_no_tag('defaults.always_record_links_from_order', SELF.defaults.always_record_links_from_order) %]</td>
+        <td class="longdesc">[% LxERP.t8('If enabled the record links view starts always from the sales order including all sublevels') %]</td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8('Include a link to the record itself') %]</th>
+        <td>[% L.yes_no_tag('defaults.record_links_from_order_with_myself', SELF.defaults.record_links_from_order_with_myself) %]</td>
+        <td class="longdesc">
+          [% LxERP.t8('Include the record itself in the list of linked records, if the view for record links from sales order is enabled.') %]<br>
+          [% LxERP.t8('This way you can get a similar list of linked records for every record in the same workflow.') %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8('Include links to sales quotations') %]</th>
+        <td>[% L.yes_no_tag('defaults.record_links_from_order_with_quotations', SELF.defaults.record_links_from_order_with_quotations) %]</td>
+        <td class="longdesc">
+          [% LxERP.t8('Include sales quotations in the list of linked records, if the view for record links from sales order is enabled.') %]<br>
+          [% LxERP.t8('As the view starts from sales orders, normally sales quotations are not included.') %]
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div><!-- /.wrapper -->
+</div><!-- /#record_links -->

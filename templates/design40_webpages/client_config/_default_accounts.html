@@ -54,8 +54,12 @@
       <td>[% P.chart.picker('defaults.ar_chart_id', SELF.defaults.ar_chart_id, type='AR', choose=1, style=style) %]</td>
     </tr>
     <tr>
+      <th>[% LxERP.t8("Clearing account for advance payments") %]</th>
+      <td>[% P.chart.picker('defaults.advance_payment_clearing_chart_id', SELF.defaults.advance_payment_clearing_chart_id, choose=1, style=style) %]</td>
+    </tr>
+    <tr>
       <th>[% LxERP.t8("Account for workflow from purchase order to ap transaction") %]</th>
-      <td>[% P.chart.picker('defaults.workflow_po_ap_chart_id', SELF.defaults.workflow_po_ap_chart_id, type='AP_amount', choose=1, style=style) %]<td>
+      <td>[% P.chart.picker('defaults.workflow_po_ap_chart_id', SELF.defaults.workflow_po_ap_chart_id, type='AP_amount', choose=1, style=style) %]</td>
     </tr>
   </tbody>
 </table>
@@ -65,15 +69,15 @@
   <tbody>
     <tr>
       <th>[% LxERP.t8("Carry over account for year-end closing") %]</th>
-      <td>[% P.chart.picker('defaults.carry_over_account_chart_id', SELF.defaults.carry_over_account_chart_id, category='A', choose=1, style=style) %]<td>
+      <td>[% P.chart.picker('defaults.carry_over_account_chart_id', SELF.defaults.carry_over_account_chart_id, category='A', choose=1, style=style) %]</td>
     </tr>
     <tr>
       <th>[% LxERP.t8("Profit carried forward account") %]</th>
-      <td>[% P.chart.picker('defaults.profit_carried_forward_chart_id', SELF.defaults.profit_carried_forward_chart_id, category='A', choose=1, style=style) %]<td>
+      <td>[% P.chart.picker('defaults.profit_carried_forward_chart_id', SELF.defaults.profit_carried_forward_chart_id, category='A', choose=1, style=style) %]</td>
     </tr>
     <tr>
       <th>[% LxERP.t8("Loss carried forward account") %]</th>
-      <td>[% P.chart.picker('defaults.loss_carried_forward_chart_id', SELF.defaults.loss_carried_forward_chart_id, category='A', choose=1, style=style) %]<td>
+      <td>[% P.chart.picker('defaults.loss_carried_forward_chart_id', SELF.defaults.loss_carried_forward_chart_id, category='A', choose=1, style=style) %]</td>
     </tr>
   </tbody>
 </table>
