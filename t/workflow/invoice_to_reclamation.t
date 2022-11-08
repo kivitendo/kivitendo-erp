@@ -247,7 +247,7 @@ foreach my $pair (zip(@sales_invoice_items, @converted_sales_reclamation_items))
 }
 ok Compare($sales_invoice->strip->as_tree, $converted_sales_reclamation->strip->as_tree, {ignore_hash_keys => [qw(
       id employee_id itime mtime transdate
-      datepaid delivery_customer_id delivery_vendor_id deliverydate direct_debit donumber duedate dunning_config_id gldate invnumber_for_credit_note invoice marge_percent marge_total orddate ordnumber paid qrbill_without_amount quodate quonumber storno storno_id type
+      datepaid delivery_customer_id delivery_vendor_id deliverydate direct_debit donumber duedate dunning_config_id gldate invnumber_for_credit_note invoice marge_percent marge_total orddate ordnumber paid qr_reference qr_unstructured_message qrbill_without_amount quodate quonumber storno storno_id type
       delivered closed exchangerate reqdate vendor_id
       cp_id contact_id
       cusordnumber cv_record_number
@@ -270,6 +270,8 @@ ok Compare($purchase_invoice->strip->as_tree, $converted_purchase_reclamation->s
       invnumber record_number
       )]});
 
+# diag Dumper($sales_invoice->strip->as_tree);
+# diag Dumper($converted_sales_reclamation->strip->as_tree);
 
 ####
 clear_up();

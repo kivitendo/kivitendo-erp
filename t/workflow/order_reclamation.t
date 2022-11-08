@@ -292,7 +292,7 @@ foreach my $pair (zip(@sales_order_items, @converted_sales_reclamation_items)) {
 }
 ok Compare($sales_order->strip->as_tree, $converted_sales_reclamation->strip->as_tree, {ignore_hash_keys => [qw(
       id employee_id itime mtime reqdate transdate
-      delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability proforma quonumber quotation
+      delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability order_status_id proforma quonumber quotation
       cp_id contact_id
       cusordnumber cv_record_number
       ordnumber record_number
@@ -308,7 +308,7 @@ foreach my $pair (zip(@sales_reclamation_items, @converted_sales_order_items)) {
 }
 ok Compare($sales_reclamation->strip->as_tree, $converted_sales_order->strip->as_tree, {ignore_hash_keys => [qw(
       id employee_id itime mtime reqdate transdate
-      delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability proforma quonumber quotation
+      delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability order_status_id proforma quonumber quotation
       cp_id contact_id
       cusordnumber cv_record_number
       ordnumber record_number
@@ -325,7 +325,7 @@ foreach my $pair (zip(@purchase_order_items, @converted_purchase_reclamation_ite
 }
 ok Compare($purchase_order->strip->as_tree, $converted_purchase_reclamation->strip->as_tree, {ignore_hash_keys => [qw(
       id employee_id itime mtime reqdate transdate
-      delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability proforma quonumber quotation
+      delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability order_status_id proforma quonumber quotation
       cp_id contact_id
       cusordnumber cv_record_number
       ordnumber record_number
@@ -341,11 +341,14 @@ foreach my $pair (zip(@purchase_reclamation_items, @converted_purchase_order_ite
 }
 ok Compare($purchase_reclamation->strip->as_tree, $converted_purchase_order->strip->as_tree, {ignore_hash_keys => [qw(
       id employee_id itime mtime reqdate transdate
-      delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability proforma quonumber quotation
+      delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability order_status_id proforma quonumber quotation
       cp_id contact_id
       cusordnumber cv_record_number
       ordnumber record_number
       )]});
+
+# diag Dumper($sales_order->strip->as_tree);
+# diag Dumper($converted_sales_reclamation->strip->as_tree);
 
 ####
 clear_up();
