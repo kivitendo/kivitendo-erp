@@ -91,8 +91,9 @@ sub pay_invoice {
 
   # currency has to be passed and caller has to be sure to assign it for a forex invoice
   # dies if called for a invoice with the default currency (TODO: Params::Validate before)
-  my ($exchangerate, $currency, $return_bank_amount , $fx_gain_loss_amount);
-  $return_bank_amount = 0;
+  my ($exchangerate, $currency);
+  my $fx_gain_loss_amount    = 0;
+  my $return_bank_amount     = 0;
   if ($params{currency} || $params{currency_id} && $self->forex) { # currency was specified
     $currency = SL::DB::Manager::Currency->find_by(name => $params{currency}) || SL::DB::Manager::Currency->find_by(id => $params{currency_id});
 
@@ -108,13 +109,11 @@ sub pay_invoice {
     # $fx_gain_loss_amount = _round($self->open_amount / $self->get_exchangerate - $new_open_amount / $exchangerate);
     # works for ap, but change sign for ar (todo credit notes and negative ap transactions
     # $fx_gain_loss_amount *= -1 if $self->is_sales;
-    $main::lxdebug->message(0, 'h 1 ' . $new_open_amount . ' h 3 ' . $params{amount});
     # if new open amount for payment booking is smaller than original amount use this
     # assume that the rest are fees, if the user selected this
     if ($params{fx_book} && $params{fx_fee_amount} > 0) {
       die "Bank Fees can only be added for AP transactions or Sales Credit Notes"
-        unless $self->invoice_type =~ m/purchase_invoice|ap_transaction|credit_note/;
-
+        unless $self->invoice_type =~ m/^purchase_invoice$|^ap_transaction$|^credit_note$/;
       $self->_add_bank_fx_fees(fee           => _round($params{fx_fee_amount}),
                                bt_id         => $params{bt_id},
                                bank_chart_id => $params{chart_id},
@@ -209,19 +208,11 @@ sub pay_invoice {
         # exchangerate gain/loss
         # $amount = $form->round_amount($form->{"paid_$i"} * ($form->{exchangerate} - $form->{"exchangerate_$i"}), 2);
         # ==>
-        # my $fx_gain_loss_sign   = $is_sales ? -1 : 1;  # multiplier for getting the right sign depending on ar/ap
+        my $fx_gain_loss_sign   = $is_sales ? -1 : 1;  # multiplier for getting the right sign depending on ar/ap
 
-        #my $fx_gain_loss_sign = $self->invoice_type =~ m/purchase_invoice|ap_transaction|credit_note/                             ?  1
-        #                      : $self->invoice_type =~ m/invoice|ar_transaction|purchase_credit_note|invoice_for_advance_payment/ ? -1
-        #                      : die "invalid state";
+        $fx_gain_loss_amount = _round($params{amount} / $exchangerate * ( $self->get_exchangerate - $exchangerate)) * $fx_gain_loss_sign;
 
-        $fx_gain_loss_amount = _round($params{amount} / $exchangerate * ( $self->get_exchangerate - $exchangerate)); # * $fx_gain_loss_sign;
-
-        $main::lxdebug->message(0, 'was sagt gain loss 2 ' . $fx_gain_loss_amount);
-        # die "huchz" . $fx_gain_loss_amount;
         my $gain_loss_chart  = $fx_gain_loss_amount > 0 ? $fxgain_chart : $fxloss_chart;
-        # $paid_amount += abs($fx_gain_loss_amount); # if $fx_gain_loss_amount < 0; # only add if we have fx_loss
-        $main::lxdebug->message(0, 'paid hier 1 ' . $paid_amount);
         # for sales add loss to ar.paid and subtract gain from ar.paid
         # for purchase add gain to ap.paid and subtract loss from ap.paid
         $paid_amount += abs($fx_gain_loss_amount) if $fx_gain_loss_amount < 0 && $self->is_sales; # extract if we have fx_loss
@@ -797,7 +788,7 @@ sub get_exchangerate {
   return 1 if $self->currency_id == $::instance_conf->get_currency_id;
 
   # return record exchange rate if set
-  return $self->exchangerate if $self->exchangerate > 0;
+  return $self->exchangerate if $self->exchangerate && $self->exchangerate > 0;
 
   # none defined check daily exchangerate at records transdate
   die "transdate isn't a DateTime object:" . ref($self->transdate) unless ref($self->transdate) eq 'DateTime';
