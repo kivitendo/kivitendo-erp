@@ -866,6 +866,12 @@ Transdate can either be a date object or a date string.
 Chart_id is the id of the payment booking chart.
 Amount is either a positive or negative number, and for the case 'free_skonto' might be zero.
 
+If the parameters currency and exchangerate exists the method will determine gain and
+loss rates for exchangerates.
+
+If the parameters fx_book is true and fx_fee_amount exists as number the method will book the costs of
+foreign exchanges with a link GL Record.
+
 CAVEAT! The helper tries to get the sign right and all calls from BankTransaction are
 positive (abs($value)) values.
 
@@ -896,6 +902,7 @@ or in a certain currency:
   $ap->pay_invoice(chart_id      => $bank->chart_id,
                    amount        => 500,
                    currency      => 'USD',
+                   exchangerate  => 0.9820,
                    transdate     => DateTime->now->to_kivitendo,
                    memo          => 'foobar',
                    source        => 'barfoo',
