@@ -485,7 +485,6 @@ sub form_header {
   for my $i (1 .. $form->{paidaccounts}) {
     # hook for calc of of fx_paid and check if banktransaction has a record exchangerate
     if ($form->{"exchangerate_$i"}) {
-      my $bt_acc_trans;
       my $bt_acc_trans = SL::DB::Manager::BankTransactionAccTrans->find_by(acc_trans_id => $form->{"acc_trans_id_$i"});
         if ($bt_acc_trans) {
           if ($bt_acc_trans->bank_transaction->exchangerate > 0) {
