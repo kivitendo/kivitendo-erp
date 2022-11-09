@@ -134,7 +134,7 @@
   <caption>[% IF ( SELF.is_vendor() ) %][% 'Vendor' | $T8 %][% ELSE %][% 'Customer' | $T8 %][% END %] [% 'Info & Status' | $T8 %]</caption>
   <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
   <tbody>
-    [% IF ( INSTANCE_CONF.get_vertreter ) %]
+    [% IF ( 0 && INSTANCE_CONF.get_vertreter ) %]
       <tr>
         <th>[% IF SELF.is_vendor() %] [% 'Type of Vendor' | $T8 %] [% ELSE %] [% 'Type of Customer' | $T8 %] [% END %]</th>
         <td>[% L.select_tag('cv.business_id', SELF.all_business, value_key = 'id', title_key = 'description', default = SELF.cv.business_id, with_empty=1, class='wi-lightwide') %]</td>
@@ -199,17 +199,21 @@
       <th>[% 'sales tax identification number' | $T8 %]</th>
       <td>[% L.input_tag('cv.ustid', SELF.cv.ustid, class='wi-normal' ) %]</td>
     </tr>
-    <tr>
-      [% IF ( SELF.is_vendor() ) %]
-        <th>[% 'Customer Number' | $T8 %]</th>
-        <td>[% L.input_tag('cv.v_customer_id', SELF.cv.v_customer_id, class='wi-normal') %]</td>
-      [% ELSE %]
+    [% IF ( SELF.is_vendor() ) %]
+      <tr>
+          <th>[% 'Customer Number' | $T8 %]</th>
+          <td>[% L.input_tag('cv.v_customer_id', SELF.cv.v_customer_id, class='wi-normal') %]</td>
+      </tr>
+    [% ELSE %]
+      <tr>
         <th>[% 'our vendor number at customer' | $T8 %]</th>
         <td>[% L.input_tag('cv.c_vendor_id', SELF.cv.c_vendor_id, class='wi-normal') %]</td>
+      </tr>
+      <tr>
         <th>[% 'Our routing id at customer' | $T8 %]</th>
         <td>[% L.input_tag('cv.c_vendor_routing_id', SELF.cv.c_vendor_routing_id, size = 20) %]</td>
-      [% END %]
-    </tr>
+      </tr>
+    [% END %]
 <!-- </tbody> -->
 <!-- </table> -->
 <!--

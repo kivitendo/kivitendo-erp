@@ -1,6 +1,7 @@
 [% USE T8 %]
 [% USE HTML %]
 [% USE L %]
+[% USE LxERP %]
 [% USE date %]
 
 <div id="vcnotes">
@@ -36,7 +37,11 @@
         <td>[% row.itime.to_kivitendo | html %]</td>
         <td>[% row.employee.safe_name | html %]</td>
         <td>[% row.follow_up.follow_up_date.to_kivitendo | html %]</td>
-        <td>[% row.follow_up.created_for_employee.safe_name | html %]</td>
+        <td>
+          [% FOREACH employee = row.follow_up.created_for_employees -%]
+            [% employee.safe_name | html %][% IF !loop.last %]<br>[% END -%]
+          [% END %]
+        </td>
         <td>
           [% IF ( row.follow_up.follow_up_date ) %]
             [% IF ( row.follow_up.done ) %]
@@ -63,6 +68,13 @@
     [% END %]
   </caption>
   <tbody>
+    [% IF SELF.note_followup.done -%]
+    <tr class="fu_finished">
+      <th>[% 'Finished' | $T8 %]</th>
+      <td>[% 'by' | $T8 %] [% HTML.escape(SELF.note_followup.done.employee.safe_name) %]</td>
+      <td colspan="2">[% 'at' | $T8 %] [% HTML.escape(SELF.note_followup.done.done_at_as_timestamp_s) %]</td>
+    </tr>
+    [% END %]
     <tr>
       <th>[% 'Subject' | $T8 %]</th>
       <td>[% L.input_tag('note.subject', SELF.note.subject, class="wi-verywide") %]</td>
@@ -75,22 +87,47 @@
       </td>
     </tr>
     <tr>
-      <th>[% 'for' | $T8 %]</th>
-      <td>[% L.select_tag(
-             'note_followup.created_for_user',
-             SELF.all_employees,
-             default = SELF.note_followup.created_for_user,
-             title_key = 'safe_name',
-             class='wi-lightwide' ) %]
-      </td>
-    </tr>
-    <tr>
       <th><label for="note_followup_done" title="[% 'Follow-Up done' | $T8 %]">[% 'Done' | $T8 %]</label></th>
       <td>[% L.checkbox_tag('note_followup.done', checked = SELF.note_followup.done) %]</td>
     </tr>
     <tr>
       <th>[% 'Body' | $T8 %]</th>
-      <td >[% L.textarea_tag('note.body', SELF.note.body, rows=20, class="wi-verywide") %]</td>
+      <td >[% L.textarea_tag('note.body', SELF.note.body, rows=10, class="wi-verywide") %]</td>
+    </tr>
+    <tr>
+      <td>[% 'for' | $T8 %]</td>
+      <td>
+        <table>
+          <tr class="listheading">
+            <th>[% L.checkbox_tag('checkall_checkboxes', label=LxERP.t8('All users'), id='ckeckall', checkall="[data-checkall=1]") %]</th>
+          </tr>
+          [% FOREACH employee = SELF.all_employees %]
+            [% SET checked = 0 %]
+            [% FOREACH cfe = SELF.note_followup.created_for_employees %]
+              [% IF cfe.id == employee.id %][% SET checked = 1 %][% LAST %][% END %]
+            [% END %]
+            <tr class="listrow">
+              <td>[% L.checkbox_tag('note_followup.created_for_employees[]', value=employee.id, checked=checked,
+                                    "data-checkall"=1, class="employee_check", label=employee.safe_name) %]</td>
+            </tr>
+          [% END %]
+        </table>
+      <td>
+      <td>
+        <table>
+          <tr class="listheading">
+            <th>[% LxERP.t8('Users that are a member in this group') %]<br>([% LxERP.t8('click on a group to add the group\'s users') %])</th>
+          </tr>
+          [% FOREACH auth_group = SELF.all_auth_groups %]
+            <tr onclick="follow_up_do_select(this)" data-ids='[% FOREACH employee = auth_group.get_employees %][% employee.id %][% IF !loop.last %],[% END%][% END%]' class="interactive cursor-pointer">
+              <td class="listrow1"><b>←&nbsp;[% auth_group.name %]</b>: [% auth_group.description %]</td>
+            </tr>
+            [% FOREACH employee = auth_group.get_employees %]
+              <tr class="listrow0"><td>&nbsp;&nbsp;&nbsp;[% employee.safe_name %]</td></tr>
+            [% END %]
+          [% END %]
+        </table>
+      </td>
     </tr>
   </tbody>
 </table>
