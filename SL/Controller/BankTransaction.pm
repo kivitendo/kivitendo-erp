@@ -717,39 +717,6 @@ sub save_single_bank_transaction {
     # sign is simply the sign of amount in bank_transactions: positive for increase and negative for decrease
     $amount_for_booking *= $sign;
 
-    $main::lxdebug->message(0, 'amount for payment:' . $amount_for_payment);
-    # check exchangerate and if fx_loss calculate new booking_amount for this invoice
-    #if ($fx_rate > 0)  {
-    #  die "Exchangerate without currency"                     unless $currency_id;
-    #  die "Invoice currency differs from user input currency" unless $currency_id == $invoice->currency->id;
-
-
-      # open_amount is open_amount for default currency
-      # TODO
-      # use helper to calc everything (even)
-      # 2 if fx_loss, we probably need a higher amount to pay the original amount of the ap invoice
-      # no, just calc new open_amount and check if user wants a fee booking
-    #  my $open_amount_fx = $invoice->open_amount_fx($fx_rate);
-    #  $amount_for_payment = $fx_book ? $not_assigned_amount : $invoice->open_amount_fx($fx_rate);
-
-    #  die $open_amount_fx;
-    #  if ($invoice->get_exchangerate < $fx_rate) {
-        # set whole bank_transaction amount -> pay_invoice will try to calculate losses and bank fees
-    #    my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
-    #    $amount_for_payment = $not_assigned_amount;
-    #    $amount_for_payment *= -1 if $invoice->amount < 0;
-    #  } elsif ($invoice->get_exchangerate >= $fx_rate) {
-        # if fx_gain do nothing, because gain
-        # bla bla
-        # TODO copy paste
-    #    my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
-    #    $amount_for_payment = $not_assigned_amount;
-    #    $amount_for_payment *= -1 if $invoice->amount < 0;
-    #  } else {
-    #    die "Invalid exchange rate state for record:" . $invoice->get_exchangerate . " " . $fx_rate;
-    #  }
-    #}
-    #$main::lxdebug->message(0, 'amount for payment2:' . $amount_for_payment);
     # ... and then pay the invoice
     my @acc_ids = $invoice->pay_invoice(chart_id => $bank_transaction->local_bank_account->chart_id,
                           trans_id      => $invoice->id,
@@ -766,8 +733,7 @@ sub save_single_bank_transaction {
                           transdate     => $bank_transaction->valutadate->to_kivitendo);
     # First element is the booked amount for accno bank
     my $bank_amount = shift @acc_ids;
-    $main::lxdebug->message(0, 'a' . $bank_amount->{return_bank_amount});
-    $main::lxdebug->message(0, 'b' . $amount_for_booking);
+
     if (!$invoice->forex) {
       # die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless (abs($bank_amount->{return_bank_amount}) - abs($amount_for_booking) < 0.001);
       $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $amount_for_booking);

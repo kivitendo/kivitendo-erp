@@ -163,8 +163,6 @@ sub pay_invoice {
       $paid_amount += $pay_amount;
 
       my $amount = (-1 * $pay_amount) * $mult;
-      $main::lxdebug->message(0, 'bank pay amount:' . $pay_amount);
-      $main::lxdebug->message(0, 'paidamount:' . $paid_amount);
 
       # total amount against bank, do we already know this by now?
       # Yes, method requires this
