@@ -150,6 +150,7 @@ sub action_transfer {
     $order->db->with_transaction( sub {
       $order->calculate_prices_and_taxes;
       $order->save;
+      SL::DB::OrderVersion->new(oe_id => $order->id, version => 1)->save;
 
       my $snumbers = "ordernumber_" . $order->ordnumber;
       SL::DB::History->new(

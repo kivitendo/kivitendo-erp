@@ -61,6 +61,7 @@ sub create_order {
         }else{
           $order->save;
           $order->calculate_prices_and_taxes;
+          SL::DB::OrderVersion->new(oe_id => $order->id, version => 1)->save;
           my $snumbers = "ordernumber_" . $order->ordnumber;
           SL::DB::History->new(
                             trans_id    => $order->id,
