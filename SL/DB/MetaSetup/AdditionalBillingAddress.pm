@@ -16,6 +16,7 @@ __PACKAGE__->meta->columns(
   default_address => { type => 'boolean', default => 'false', not_null => 1 },
   department_1    => { type => 'text' },
   department_2    => { type => 'text' },
+  dunning_mail    => { type => 'text' },
   email           => { type => 'text' },
   fax             => { type => 'text' },
   gln             => { type => 'text' },
