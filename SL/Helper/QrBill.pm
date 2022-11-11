@@ -9,6 +9,8 @@ use File::Spec ();
 use Imager ();
 use Imager::QRCode ();
 
+our $VERSION = '0.01';
+
 my %Config = (
   img_dir    => 'image',
   cross_file => 'CH-Kreuz_7mm.png',
