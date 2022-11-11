@@ -182,6 +182,11 @@
         [% L.checkbox_tag('cv.postal_invoice', checked = SELF.cv.postal_invoice, for_submit=1) %]</td>
     </tr>
     <tr>
+      <th align="right">[% 'Email of the dunning recipient' | $T8 %]</th>
+      <td>[% L.input_tag('cv.dunning_mail', SELF.cv.dunning_mail, size = 30) %]</td>
+    </tr>
+
+    <tr>
       <th align="right">[% 'Email of the delivery order recipient' | $T8 %]</th>
       <td>[% L.input_tag('cv.delivery_order_mail', SELF.cv.delivery_order_mail, size = 45) %]</td>
     </tr>

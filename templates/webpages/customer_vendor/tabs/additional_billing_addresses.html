@@ -116,6 +116,14 @@
         [% L.input_tag('additional_billing_address.email', SELF.additional_billing_address.email,  size = 45) %]
       </td>
     </tr>
+    <tr>
+      <th align="right" nowrap>[% 'Dunning email' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('additional_billing_address.dunning_mail', SELF.additional_billing_address.dunning_mail,  size = 45) %]
+      </td>
+    </tr>
+
   </table>
 
   [% L.button_tag('submitInputButton("delete_additional_billing_address");', LxERP.t8('Delete address'), class = 'submit') %]
