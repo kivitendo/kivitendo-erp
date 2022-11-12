@@ -9,6 +9,14 @@ use List::MoreUtils qw(none notall);
 use SL::DB::DeliveryOrder;
 use SL::DB::Order;
 
+use Rose::Object::MakeMethods::Generic (
+  'scalar --get_set_init' => [ qw(start_date) ],
+);
+
+sub init_start_date {
+  DateTime->new(year => 2022, month => 11, day => 1);
+}
+
 
 sub run {
   my ($self) = @_;
@@ -34,7 +42,8 @@ sub check_no_missing_invoices {
                                                                                       '!cusordnumber' => { ilike => ['muster'] },
                                                                                       delivered       => 1,
                                                                                       or              => [closed => undef, closed => 0],
-                                                                                      reqdate         => {le => $latest_reqdate}]
+                                                                                      reqdate         => {le => $latest_reqdate},
+                                                                                      transdate       => {ge => $self->start_date},]
   );
 
   if (@$open_delivery_orders) {
@@ -58,7 +67,8 @@ sub check_no_missing_deliveries {
                                                                         or              => [quotation => undef, quotation => 0],
                                                                         or              => [intake    => undef, intake    => 0],
                                                                         or              => [closed    => undef, closed    => 0],
-                                                                        reqdate         => {le => $latest_reqdate}]);
+                                                                        reqdate         => {le => $latest_reqdate},
+                                                                        transdate       => {ge => $self->start_date},]);
   my %not_delivered;
   foreach my $order (@$orders) {
     my $lr = $order->linked_records(to => 'DeliveryOrder');
@@ -113,7 +123,8 @@ sub check_no_missing_order_confirmations {
                                                                           intake          => 1,
                                                                           or              => [quotation => undef, quotation => 0],
                                                                           or              => [closed    => undef, closed    => 0],
-                                                                          transdate       => {le => $latest_transdate}]);
+                                                                          transdate       => {le => $latest_transdate},
+                                                                          transdate       => {ge => $self->start_date},]);
 
   # Check, if order confirmations are in the worklfow.
   # (Maybe it is sufficient to list all order intakes which are not closed because
@@ -128,7 +139,7 @@ sub check_no_missing_order_confirmations {
   if (@not_confirmed_order_intakes) {
     $self->tester->ok(0, $title);
 
-    $self->tester->diag("Folgende offene Auftragseingänge alter als $days_delta haben keine Auftragsbestätigung:");
+    $self->tester->diag("Folgende offene Auftragseingänge älter als $days_delta haben keine Auftragsbestätigung:");
     $self->tester->diag("Auftrageingangs-Nummer: " . $_) for @not_confirmed_order_intakes;
 
   } else {
@@ -143,8 +154,9 @@ sub check_invoices_mailed {
   my $title    = "Alle offenen Verkaufsrechnungen sind per Mail verschickt worden.";
 
   my $invoices = SL::DB::Manager::Invoice->get_all_sorted(where => [invoice => 1,
-                                                                    type    => 'invoice',
-                                                                    or      => [storno => undef, storno => 0]]);
+                                                                    type      => 'invoice',
+                                                                    or        => [storno => undef, storno => 0],
+                                                                    transdate => {ge => $self->start_date},]);
   $invoices    = [grep { !$_->closed } @$invoices];
 
   my @documents_not_mailed = $self->get_documents_not_mailed($invoices);
@@ -168,7 +180,8 @@ sub check_order_confirmations_mailed {
                                                                           or              => [quotation => undef, quotation => 0],
                                                                           or              => [intake    => undef, intake    => 0],
                                                                           or              => [closed    => undef, closed    => 0],
-                                                                          transdate       => {le => $latest_transdate}]);
+                                                                          transdate       => {le => $latest_transdate},
+                                                                          transdate       => {ge => $self->start_date},]);
 
   my @documents_not_mailed = $self->get_documents_not_mailed($orders);
   $self->complain_documtens_not_mailed(
@@ -191,7 +204,8 @@ sub check_quotations_mailed {
                                                                           quotation       => 1,
                                                                           or              => [intake    => undef, intake    => 0],
                                                                           or              => [closed    => undef, closed    => 0],
-                                                                          transdate       => {le => $latest_transdate}]);
+                                                                          transdate       => {le => $latest_transdate},
+                                                                          transdate       => {ge => $self->start_date},]);
 
   my @documents_not_mailed = $self->get_documents_not_mailed($orders);
   $self->complain_documtens_not_mailed(
