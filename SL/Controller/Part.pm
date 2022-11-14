@@ -238,10 +238,9 @@ sub action_use_as_new {
   $::form->{oldpartnumber} = $oldpart->partnumber;
 
   $self->part($oldpart->clone_and_reset_deep);
-  $self->parse_form;
+  $self->parse_form(use_as_new => 1);
   $self->part->partnumber(undef);
-
-  $self->render_form;
+  $self->render_form(use_as_new => 1);
 }
 
 sub action_edit {
@@ -260,7 +259,10 @@ sub render_form {
   %assortment_vars = %{ $self->prepare_assortment_render_vars } if $self->part->is_assortment;
   %assembly_vars   = %{ $self->prepare_assembly_render_vars   } if $self->part->is_assembly;
 
-  $params{CUSTOM_VARIABLES}  = CVar->get_custom_variables(module => 'IC', trans_id => $self->part->id);
+  $params{CUSTOM_VARIABLES}  = $params{use_as_new} && $::form->{old_id}
+                            ?  CVar->get_custom_variables(module => 'IC', trans_id => $::form->{old_id})
+                            :  CVar->get_custom_variables(module => 'IC', trans_id => $self->part->id);
+
 
   if (scalar @{ $params{CUSTOM_VARIABLES} }) {
     CVar->render_inputs('variables' => $params{CUSTOM_VARIABLES}, show_disabled_message => 1, partsgroup_id => $self->part->partsgroup_id);
@@ -787,7 +789,7 @@ sub check_part_not_modified {
 }
 
 sub parse_form {
-  my ($self) = @_;
+  my ($self, %params) = @_;
 
   my $is_new = !$self->part->id;
 
@@ -812,7 +814,7 @@ sub parse_form {
     $self->part->add_assemblies( @{ $self->assembly_items } );
   };
 
-  $self->part->translations([]);
+  $self->part->translations([]) unless $params{use_as_new};
   $self->parse_form_translations;
 
   $self->part->prices([]);

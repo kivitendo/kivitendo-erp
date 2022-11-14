@@ -470,7 +470,7 @@ sub clone_and_reset_deep {
   my $clone = $self->clone_and_reset; # resets id and partnumber (primary key and unique constraint)
   $clone->makemodels(   map { $_->clone_and_reset } @{$self->makemodels}   ) if @{$self->makemodels};
   $clone->translations( map { $_->clone_and_reset } @{$self->translations} ) if @{$self->translations};
-
+  $clone->custom_variables( map { $_->clone_and_reset } @{$self->custom_variables} ) if @{$self->custom_variables};
   if ( $self->is_assortment ) {
     # use clone rather than reset_and_clone because the unique constraint would also remove parts_id
     $clone->assortment_items( map { $_->clone } @{$self->assortment_items} );
