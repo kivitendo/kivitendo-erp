@@ -456,8 +456,8 @@ sub send_email {
   my $query =
     qq|SELECT
          dcfg.email_body,     dcfg.email_subject, dcfg.email_attachment,
-         COALESCE (NULLIF(aba.dunning_email, ''), NULLIF(aba.email,''),
-                   NULLIF(c.dunning_email, ''),
+         COALESCE (NULLIF(aba.dunning_mail, ''), NULLIF(aba.email,''),
+                   NULLIF(c.dunning_mail, ''),
                    NULLIF(c.invoice_mail, ''), c.email) AS recipient, c.name,
          (SELECT login from employee where id = ar.employee_id) as invoice_employee_login
        FROM dunning d
