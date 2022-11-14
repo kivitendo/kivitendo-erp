@@ -3,6 +3,7 @@ package SL::Presenter::Order;
 use strict;
 
 use SL::Presenter::EscapedText qw(escape is_escaped);
+use SL::Presenter::Tag         qw(link_tag);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(sales_quotation sales_order request_quotation purchase_order);
@@ -42,17 +43,16 @@ sub _oe_record {
 
   my $number_method = $order->quotation ? 'quonumber' : 'ordnumber';
 
-  my $link_start = '';
-  my $link_end   = '';
-  unless ($params{no_link}) {
+  my $text = escape($order->$number_method);
+  if (! delete $params{no_link}) {
     my $action  = $::instance_conf->get_feature_experimental_order
                 ? 'controller.pl?action=Order/edit'
                 : 'oe.pl?action=edit';
-    $link_start = '<a href="' . $action . '&amp;type=' . $type . '&amp;id=' . escape($order->id) . '">';
-    $link_end   = '</a>';
+    my $href = $action
+               . '&type=' . $type
+               . '&id=' . escape($order->id);
+    $text = link_tag($href, $text, %params);
   }
-
-  my $text = join '', ($link_start, escape($order->$number_method), $link_end);
 
   is_escaped($text);
 }
@@ -99,15 +99,15 @@ Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the sales quotation object
 C<$object>.
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the objects's
-quotation number linked to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 
@@ -121,15 +121,15 @@ If falsish (the default) then the order number will be linked to the
 Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the sales order object C<$object>.
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the objects's
-order number linked to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 
@@ -144,15 +144,15 @@ Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the request for quotation object
 C<$object>.
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the objects's
-quotation number linked to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 
@@ -167,15 +167,15 @@ Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the purchase order object
 C<$object>.
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the objects's
-order number linked to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 

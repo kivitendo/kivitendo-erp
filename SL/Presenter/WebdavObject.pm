@@ -55,7 +55,8 @@ Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the webdav object
 C<$webdav_object>.
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 

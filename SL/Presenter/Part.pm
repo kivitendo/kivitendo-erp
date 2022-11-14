@@ -24,11 +24,12 @@ sub part {
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
-  my $text = join '', (
-    $params{no_link} ? '' : '<a href="controller.pl?action=Part/edit&part.id=' . escape($part->id) . '">',
-    escape($part->partnumber),
-    $params{no_link} ? '' : '</a>',
-  );
+  my $text = escape($part->partnumber);
+  if (! delete $params{no_link}) {
+    my $href = 'controller.pl?action=Part/edit'
+               . '&part.id=' . escape($part->id);
+    $text = link_tag($href, $text, %params);
+  }
 
   is_escaped($text);
 }
@@ -163,15 +164,20 @@ see L<SL::Presenter>
 Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the part object C<$object>
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 4
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the part's name linked
-to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
+
+=item * no_link
+
+If falsish (the default) then the part number will be linked to the "edit"
+dialog.
 
 =back
 

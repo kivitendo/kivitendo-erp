@@ -3,6 +3,7 @@ package SL::Presenter::Invoice;
 use strict;
 
 use SL::Presenter::EscapedText qw(escape is_escaped);
+use SL::Presenter::Tag         qw(link_tag);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(invoice sales_invoice ar_transaction purchase_invoice ap_transaction);
@@ -58,11 +59,12 @@ sub _is_ir_record {
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
-  my $text = join '', (
-    $params{no_link} ? '' : '<a href="' . $controller . '.pl?action=edit&amp;type=invoice&amp;id=' . escape($invoice->id) . '">',
-    escape($invoice->invnumber),
-    $params{no_link} ? '' : '</a>',
-  );
+  my $text = escape($invoice->invnumber);
+  if (! delete $params{no_link}) {
+    my $href = $controller . '.pl?action=edit&type=invoice'
+               . '&id=' . escape($invoice->id);
+    $text = link_tag($href, $text, %params);
+  }
 
   is_escaped($text);
 }
@@ -111,15 +113,15 @@ Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of an ar/ap/is/ir object C<$object> . Determines
 which type (sales or purchase, invoice or not) the object is.
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the invoice number linked
-to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 
@@ -134,15 +136,15 @@ Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the sales invoice object C<$object>
 .
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the invoice number linked
-to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 
@@ -157,15 +159,15 @@ Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the AR transaction object C<$object>
 .
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the invoice number linked
-to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 
@@ -180,15 +182,15 @@ Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the purchase invoice object
 C<$object>.
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the invoice number name
-linked to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 
@@ -203,15 +205,15 @@ Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the AP transaction object C<$object>
 .
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the invoice number linked
-to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 

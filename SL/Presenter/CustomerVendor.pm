@@ -3,7 +3,7 @@ package SL::Presenter::CustomerVendor;
 use strict;
 
 use SL::Presenter::EscapedText qw(escape is_escaped);
-use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag);
+use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag link_tag);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(customer_vendor customer vendor customer_vendor_picker customer_picker vendor_picker);
@@ -32,13 +32,12 @@ sub _customer_vendor {
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
-  my $callback = $params{callback} ? '&callback=' . $::form->escape($params{callback}) : '';
-
-  my $text = join '', (
-    $params{no_link} ? '' : '<a href="controller.pl?action=CustomerVendor/edit&amp;db=' . $type . '&amp;id=' . escape($cv->id) . '">',
-    escape($cv->name),
-    $params{no_link} ? '' : '</a>',
-  );
+  my $text = escape($cv->name);
+  if (! delete $params{no_link}) {
+    my $href = 'controller.pl?action=CustomerVendor/edit&db=' . $type
+               . '&id=' . escape($cv->id);
+    $text = link_tag($href, $text, %params);
+  }
 
   is_escaped($text);
 }
@@ -113,15 +112,15 @@ vendor Rose::DB objects
 Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the customer object C<$object>.
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the customer's name linked
-to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 
@@ -135,15 +134,15 @@ the "edit customer" dialog from the master data menu.
 Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the vendor object C<$object>.
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the vendor's name linked
-to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 

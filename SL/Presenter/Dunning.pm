@@ -18,7 +18,6 @@ sub dunning {
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
   my $text = escape($dunning->dunning_config->dunning_description);
-
   if (! delete $params{no_link}) {
     my @flags;
     push @flags, 'showold=1';

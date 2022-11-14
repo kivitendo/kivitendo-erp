@@ -3,6 +3,7 @@ package SL::Presenter::SepaExport;
 use strict;
 
 use SL::Presenter::EscapedText qw(escape is_escaped);
+use SL::Presenter::Tag         qw(link_tag);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(sepa_export);
@@ -16,11 +17,14 @@ sub sepa_export {
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
-  my $text = join '', (
-    $params{no_link} ? '' : '<a href="sepa.pl?action=bank_transfer_edit&amp;vc=' . escape($sepa_export->vc) . '&amp;id=' . escape($sepa_export->id) . '">',
-    escape($sepa_export->id),
-    $params{no_link} ? '' : '</a>',
-  );
+  my $text = escape($sepa_export->id);
+  if (! delete $params{no_link}) {
+    my $href = 'sepa.pl?action=bank_transfer_edit'
+               . '&vc=' . escape($sepa_export->vc)
+               . '&id=' . escape($sepa_export->id);
+    $text = link_tag($href, $text, %params);
+  }
+
   is_escaped($text);
 }
 

@@ -5,6 +5,7 @@ use strict;
 use SL::DB::DeliveryOrder::TypeData ();
 use SL::Locale::String qw(t8);
 use SL::Presenter::EscapedText qw(escape is_escaped);
+use SL::Presenter::Tag         qw(link_tag);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(sales_delivery_order purchase_delivery_order delivery_order_status_line);
@@ -57,11 +58,13 @@ sub _do_record {
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
-  my $text = join '', (
-    $params{no_link} ? '' : '<a href="do.pl?action=edit&amp;type=' . $type . '&amp;id=' . escape($delivery_order->id) . '">',
-    escape($delivery_order->donumber),
-    $params{no_link} ? '' : '</a>',
-  );
+  my $text = escape($delivery_order->donumber);
+  if (! delete $params{no_link}) {
+    my $href = 'do.pl?action=edit&type=' . $type
+               . '&id=' . escape($delivery_order->id);
+    $text = link_tag($href, $text, %params);
+  }
+
   is_escaped($text);
 }
 
@@ -128,15 +131,15 @@ Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the sales delivery order object
 C<$object>.
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the objects's delivery
-order number linked to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 
@@ -151,15 +154,15 @@ Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the purchase delivery order object
 C<$object>.
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the objects's delivery
-order number linked to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 

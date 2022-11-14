@@ -10,7 +10,7 @@ our @EXPORT_OK = qw(chart_picker chart);
 use Carp;
 use Data::Dumper;
 use SL::Presenter::EscapedText qw(escape is_escaped);
-use SL::Presenter::Tag qw(input_tag name_to_id html_tag);
+use SL::Presenter::Tag qw(input_tag name_to_id html_tag link_tag);
 
 sub chart {
   my ($chart, %params) = @_;
@@ -19,11 +19,11 @@ sub chart {
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
-  my $text = join '', (
-    $params{no_link} ? '' : '<a href="am.pl?action=edit_account&id=' . escape($chart->id) . '">',
-    escape($chart->accno),
-    $params{no_link} ? '' : '</a>',
-  );
+  my $text = escape($chart->accno);
+  if (! delete $params{no_link}) {
+    my $href = 'am.pl?action=edit_account&id=' . escape($chart->id);
+    $text = link_tag($href, $text, %params);
+  }
   is_escaped($text);
 }
 
@@ -82,15 +82,20 @@ see L<SL::Presenter>
 Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the chart object C<$object>
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
-=over 4
+=over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the chart's name linked
-to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
+
+=item * no_link
+
+If falsish (the default) then the account number will be linked to the "edit"
+dialog.
 
 =back
 

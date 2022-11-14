@@ -3,6 +3,7 @@ package SL::Presenter::EmailJournal;
 use strict;
 
 use SL::Presenter::EscapedText qw(escape is_escaped);
+use SL::Presenter::Tag         qw(link_tag);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(email_journal);
@@ -16,11 +17,12 @@ sub email_journal {
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
-  my $text = join '', (
-    $params{no_link} ? '' : '<a href="controller.pl?action=EmailJournal/show&amp;id=' . escape($email_journal_entry->id) . '">',
-    escape($email_journal_entry->subject),
-    $params{no_link} ? '' : '</a>',
-  );
+  my $text = escape($email_journal_entry->subject);
+  if (! delete $params{no_link}) {
+    my $href = 'controller.pl?action=EmailJournal/show'
+               . '&id=' . escape($email_journal_entry->id);
+    $text = link_tag($href, $text, %params);
+  }
 
   is_escaped($text);
 }
@@ -57,16 +59,14 @@ Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the email journal object C<$object>
 .
 
-
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the invoice number linked
-to the corresponding 'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function C<SL::Presenter::Tag::link_tag>.
 
 =item * no_link
 

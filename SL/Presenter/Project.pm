@@ -3,7 +3,7 @@ package SL::Presenter::Project;
 use strict;
 
 use SL::Presenter::EscapedText qw(escape is_escaped);
-use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag);
+use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag link_tag);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(project project_picker);
@@ -19,14 +19,19 @@ sub project {
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
-  my $description = $project->full_description(style => $params{style});
-  my $callback    = $params{callback} ? '&callback=' . $::form->escape($params{callback}) : '';
+  my $description = $project->full_description(style => delete $params{style});
+  my $callback    = $params{callback} ?
+                      '&callback=' . $::form->escape(delete $params{callback})
+                    : '';
 
-  my $text = join '', (
-    $params{no_link} ? '' : '<a href="controller.pl?action=Project/edit&amp;id=' . escape($project->id) . $callback . '">',
-    escape($description),
-    $params{no_link} ? '' : '</a>',
-  );
+  my $text = escape($description);
+  if (! delete $params{no_link}) {
+    my $href = 'controller.pl?action=Project/edit'
+               . '&id=' . escape($project->id)
+               . $callback;
+    $text = link_tag($href, $text, %params);
+  }
+
   is_escaped($text);
 }
 
@@ -81,21 +86,25 @@ SL::Presenter::Project - Presenter module for project Rose::DB objects
 Returns a rendered version (actually an instance of
 L<SL::Presenter::EscapedText>) of the project object C<$customer>.
 
-C<%params> can include:
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::link_tag>. It can include:
 
 =over 2
 
 =item * display
 
-Either C<inline> (the default) or C<table-cell>. At the moment both
-representations are identical and produce the project's description
-(controlled by the C<style> parameter) linked to the corresponding
-'edit' action.
+Either C<inline> (the default) or C<table-cell>. Is passed to the function
+C<SL::Presenter::Tag::link_tag>.
 
 =item * style
 
 Determines what exactly will be output. Can be one of the values with
 C<both> being the default if it is missing:
+
+=item * no_link
+
+If falsish (the default) then the description will be linked to the "edit"
+dialog.
 
 =over 2
 
