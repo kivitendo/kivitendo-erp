@@ -107,9 +107,9 @@ sub _generate_time_period_variables {
   my $config            = shift;
   my $period_start_date = shift;
 
-  my $period_end_date   = $config->periodicity eq 'o'
-                       ?  $period_start_date->clone->add(months => $config->get_order_value_period_length)->subtract(days => 1)
-                       :  $period_start_date->clone->add(months => $config->get_billing_period_length)    ->subtract(days => 1);
+  my $period_length   = $config->periodicity eq 'o' ? $config->get_order_value_period_length : $config->get_billing_period_length;
+  my $period_end_date = $period_start_date->clone->add(months => $period_length)->subtract(days => 1);
+
   my @month_names       = ('',
                            $::locale->text('January'), $::locale->text('February'), $::locale->text('March'),     $::locale->text('April'),   $::locale->text('May'),      $::locale->text('June'),
                            $::locale->text('July'),    $::locale->text('August'),   $::locale->text('September'), $::locale->text('October'), $::locale->text('November'), $::locale->text('December'));
