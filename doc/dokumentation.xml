@@ -5575,6 +5575,14 @@ digits_year: 4</programlisting>
                 <para>Lieferantenartikelnummer</para>
               </listitem>
             </varlistentry>
+
+            <varlistentry>
+              <term><varname>mm_part_description</varname></term>
+
+              <listitem>
+                <para>Lieferantenartikelbeschreibung</para>
+              </listitem>
+            </varlistentry>
           </variablelist>
         </sect3>
 
