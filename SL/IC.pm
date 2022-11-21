@@ -886,7 +886,7 @@ sub prepare_parts_for_printing {
   }
 
   my $placeholders = join ', ', ('?') x scalar(@part_ids);
-  my $query        = qq|SELECT mm.parts_id, mm.model, mm.lastcost, v.name AS make
+  my $query        = qq|SELECT mm.parts_id, mm.model, mm.part_description AS mm_part_description, mm.lastcost, v.name AS make
                         FROM makemodel mm
                         LEFT JOIN vendor v ON (mm.make = v.id)
                         WHERE mm.parts_id IN ($placeholders)|;
@@ -930,7 +930,7 @@ sub prepare_parts_for_printing {
   my %data    = selectall_as_map($form, $dbh, $query, 'id', \@columns, @part_ids);
 
   my %template_arrays;
-  map { $template_arrays{$_} = [] } (qw(make model customer_make customer_model), @columns);
+  map { $template_arrays{$_} = [] } (qw(make model mm_part_description customer_make customer_model), @columns);
 
   foreach my $i (1 .. $rowcount) {
     my $id = $form->{"${prefix}${i}"};
@@ -943,10 +943,11 @@ sub prepare_parts_for_printing {
 
     push @{ $template_arrays{make} },  [];
     push @{ $template_arrays{model} }, [];
+    push @{ $template_arrays{mm_part_description} }, [];
 
     if ($makemodel{$id}) {
       foreach my $ref (@{ $makemodel{$id} }) {
-        map { push @{ $template_arrays{$_}->[-1] }, $ref->{$_} } qw(make model);
+        map { push @{ $template_arrays{$_}->[-1] }, $ref->{$_} } qw(make model mm_part_description);
       }
     }
 

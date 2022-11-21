@@ -114,7 +114,7 @@
 
           <%if make%>
             <%foreach make%>
-              \ifthenelse{\equal{<%make%>}{<%name%>}}{&& \artikelnummer: <%model%>\\}{}
+              \ifthenelse{\equal{<%make%>}{<%name%>}}{&& \artikelnummer: <%model%>, \bezeichnung: <%mm_part_description%>\\}{}
             <%end foreach%>
           <%end if%>
 

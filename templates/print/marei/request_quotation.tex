@@ -71,7 +71,7 @@
   <%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
   <%if make%>%
   <%foreach make%>%
-  \Ifstr{<%make%>}{<%name%>}{\ExtraDescription{\artikelnummer: <%model%>}}{}
+  \Ifstr{<%make%>}{<%name%>}{\ExtraDescription{\artikelnummer: <%model%>} \ExtraDescription{\bezeichnung: <%mm_part_description%>}}{}
     <%end foreach%>%
     <%end if%>%
     \tabularnewline
