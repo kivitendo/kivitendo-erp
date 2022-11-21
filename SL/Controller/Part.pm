@@ -872,6 +872,7 @@ sub parse_form_makemodels {
                                      id         => $id,
                                      make       => $makemodel->{make},
                                      model      => $makemodel->{model} || '',
+                                     part_description => $makemodel->{part_description},
                                      lastcost   => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number}),
                                      sortorder  => $position,
                                    );
