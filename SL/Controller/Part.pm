@@ -868,13 +868,13 @@ sub parse_form_makemodels {
     my $vendor = SL::DB::Manager::Vendor->find_by(id => $makemodel->{make}) || die "Can't find vendor from make";
 
     my $id = $makemodels_map->{$makemodel->{id}} ? $makemodels_map->{$makemodel->{id}}->id : undef;
-    my $mm = SL::DB::MakeModel->new( # parts_id   => $self->part->id, # will be assigned by row add_makemodels
-                                     id         => $id,
-                                     make       => $makemodel->{make},
-                                     model      => $makemodel->{model} || '',
+    my $mm = SL::DB::MakeModel->new( # parts_id       => $self->part->id, # will be assigned by row add_makemodels
+                                     id               => $id,
+                                     make             => $makemodel->{make},
+                                     model            => $makemodel->{model} || '',
                                      part_description => $makemodel->{part_description},
-                                     lastcost   => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number}),
-                                     sortorder  => $position,
+                                     lastcost         => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number}),
+                                     sortorder        => $position,
                                    );
     if ($makemodels_map->{$mm->id} && !$makemodels_map->{$mm->id}->lastupdate && $makemodels_map->{$mm->id}->lastcost == 0 && $mm->lastcost == 0) {
       # lastupdate isn't set, original lastcost is 0 and new lastcost is 0
