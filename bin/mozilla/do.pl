@@ -848,7 +848,7 @@ sub orders {
     push @options, $locale->text('Part Number') . " : $form->{parts_partnumber}";
   }
   if ($form->{chargenumber}) {
-    push @options, $locale->text('Chargenumber') . " : $form->{chargenumber}";
+    push @options, $locale->text('Charge Number') . " : $form->{chargenumber}";
   }
   if ( $form->{transdatefrom} or $form->{transdateto} ) {
     push @options, $locale->text('Delivery Order Date');
