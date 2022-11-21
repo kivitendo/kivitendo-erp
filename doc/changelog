@@ -30,6 +30,8 @@ Kleinere neue Features und Detailverbesserungen:
    »config/kivitendo.conf« der Pfad in der Einstellung
    »[applications]« → »latex« umgestellt werden, z.B. auf »latexmk
    --pdflatex«.
+ - Neben Lieferantenartikelnummern kann auch eine Lieferantenartikelbeschreibung
+   in den Artikelstammdaten verwaltet werden.
 
 2022-09-19 - Release 3.7.0
 
