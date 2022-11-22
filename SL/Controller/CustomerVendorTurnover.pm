@@ -146,12 +146,12 @@ sub action_turnover {
          sum(amount)       as amount,
          sum(netamount)    as netamount,
          sum(paid)         as paid
-    FROM $db WHERE $cv_type = ?
-GROUP BY $group_by
-ORDER BY $order_by
+  FROM $db WHERE $cv_type = ?
+  GROUP BY $group_by
+  ORDER BY $order_by
 SQL
-   $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query, $cv);
-   $self->render('customer_vendor_turnover/count_turnover', { layout => 0 });
+  $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query, $cv);
+  $self->render('customer_vendor_turnover/count_turnover', { layout => 0 });
 }
 
 sub action_get_invoices {
