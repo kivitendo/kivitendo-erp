@@ -42,4 +42,23 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
     $('#turnovers').load(url);
   };
 
+  ns.cv_tabs_init = function () {
+    $("#customer_vendor_tabs").on('tabsbeforeactivate', function(event, ui){
+      if (ui.newPanel.attr('id') == 'quotations') {
+        ns.get_sales_quotations();
+      }
+      return 1;
+    });
+
+    $("#customer_vendor_tabs").on('tabscreate', function(event, ui){
+      if (ui.panel.attr('id') == 'quotations') {
+        ns.get_sales_quotations();
+      }
+      return 1;
+    });
+  };
+
+  $(function(){
+    ns.cv_tabs_init();
+  });
 });
