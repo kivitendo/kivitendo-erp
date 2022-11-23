@@ -250,9 +250,11 @@ sub setup_ir_action_bar {
   my $may_edit_create         = $::auth->assert('vendor_invoice_edit', 1);
 
   my $has_sepa_exports;
+  my $is_sepa_blocked;
   if ($form->{id}) {
     my $invoice = SL::DB::Manager::PurchaseInvoice->find_by(id => $form->{id});
     $has_sepa_exports = 1 if ($invoice->find_sepa_export_items()->[0]);
+    $is_sepa_blocked  = !!$invoice->is_sepa_blocked;
   }
 
   my $is_linked_bank_transaction;
@@ -310,6 +312,12 @@ sub setup_ir_action_bar {
                     : !$form->{id}                ? t8('This invoice has not been posted yet.')
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     :                               undef,
+        ],
+        action => [ $is_sepa_blocked ? t8('Unblock Bank transfer via SEPA') : t8('Block Bank transfer via SEPA'),
+          submit   => [ '#form', { action => "block_or_unblock_sepa_transfer", unblock_sepa => !!$is_sepa_blocked } ],
+          disabled => !$may_edit_create ? t8('You must not change this AP transaction.')
+                    : !$::form->{id}    ? t8('This invoice has not been posted yet.')
+                    :                     undef,
         ],
         action => [
           t8('Mark as paid'),
@@ -605,6 +613,16 @@ sub mark_as_paid {
   SL::DB::PurchaseInvoice->new(id => $::form->{id})->load->mark_as_paid;
 
   $::form->redirect($::locale->text("Marked as paid"));
+}
+
+sub block_or_unblock_sepa_transfer {
+  $::auth->assert('ap_transactions');
+
+  my $invoice = SL::DB::PurchaseInvoice->new(id => $::form->{id})->load;
+  $invoice->update_attributes(is_sepa_blocked => 0) if  $::form->{unblock_sepa} &&  $invoice->is_sepa_blocked;
+  $invoice->update_attributes(is_sepa_blocked => 1) if !$::form->{unblock_sepa} && !$invoice->is_sepa_blocked;
+
+  $::form->redirect($::form->{unblock_sepa} ? t8('Bank transfer via SEPA is unblocked') : t8('Bank transfer via SEPA is blocked'));
 }
 
 sub show_draft {

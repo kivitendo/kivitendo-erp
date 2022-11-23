@@ -54,7 +54,7 @@
 
      <tr class="listrow[% IF !invoice.vc_bank_info_ok && invoice.checked %]_error[% END %]">
       <td align="center">
-       [%- IF invoice.vc_bank_info_ok %]
+       [%- IF invoice.vc_bank_info_ok && !invoice.is_sepa_blocked %]
         [% L.checkbox_tag("ids[]", value=invoice.id, checked=invoice.checked) %]
        [%- END %]
       </td>
@@ -77,7 +77,12 @@
 
       <td>
        <a href="[% IF invoice.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&id=[% HTML.escape(invoice.id) %]">
-        [% HTML.escape(invoice.invnumber) %]
+         [%- GET HTML.escape(invoice.invnumber);
+             IF invoice.is_sepa_blocked;
+               GET ' <sup>(*)</sup>';
+               SET show_is_sepa_blocked_footnote = '1';
+             END;
+         -%]
        </a>
       </td>
 
@@ -131,7 +136,14 @@
    </p>
   [%- END %]
 
-  <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
+  [%- IF show_is_sepa_blocked_footnote %]
+   <p>
+    <sup>(*)</sup>
+     [%- 'For this invoice the bank tranfer via SEPA was blocked manually.' | $T8 %]
+   </p>
+   [%- END %]
+
+   <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
  </form>
 
  <script type="text/javascript">

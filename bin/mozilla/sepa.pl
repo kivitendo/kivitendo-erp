@@ -111,7 +111,7 @@ sub bank_transfer_create {
   my %invoices_map   = map { $_->{id} => $_ } @{ $invoices };
   my @bank_transfers =
     map  +{ %{ $invoices_map{ $_->{$arap_id} } }, %{ $_ } },
-    grep  { ($_->{selected} || $selected_ids{$_->{$arap_id}}) && (0 < $_->{amount}) && $invoices_map{ $_->{$arap_id} } }
+    grep  { ($_->{selected} || $selected_ids{$_->{$arap_id}}) && (0 < $_->{amount}) && $invoices_map{ $_->{$arap_id} } && !($invoices_map{ $_->{$arap_id} }->{is_sepa_blocked}) }
     map   { $_->{amount} = $form->parse_amount($myconfig, $_->{amount}); $_ }
           @{ $form->{bank_transfers} || [] };
 
