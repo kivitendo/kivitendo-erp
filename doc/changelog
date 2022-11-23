@@ -32,6 +32,8 @@ Kleinere neue Features und Detailverbesserungen:
    --pdflatex«.
  - Neben Lieferantenartikelnummern kann auch eine Lieferantenartikelbeschreibung
    in den Artikelstammdaten verwaltet werden.
+ - Umsatzübersicht im Kunden-/Lieferanten-Stamm als Chart. Umschalten zwischen
+   Monats/Jahresansicht per Klick.
 
 2022-09-19 - Release 3.7.0
 
