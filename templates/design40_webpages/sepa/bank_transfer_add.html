@@ -58,7 +58,7 @@
           <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(invoice.amount_less_skonto, 2) %]">
           <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.open_amount - invoice.open_sepa_transfer_amount, 2) %]">
           <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.skonto_amount, 2) %]">
-          [% IF invoice.vc_bank_info_ok %]
+          [% IF invoice.vc_bank_info_ok && !invoice.is_sepa_blocked %]
             [% L.checkbox_tag("ids[]", value=invoice.id, checked=invoice.checked) %]
           [% END %]
         </td>
@@ -80,7 +80,12 @@
         </td>
         <td>
          <a href="[% IF invoice.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&id=[% HTML.escape(invoice.id) %]">
-          [% HTML.escape(invoice.invnumber) %]
+          [%- GET HTML.escape(invoice.invnumber);
+              IF invoice.is_sepa_blocked;
+                GET ' <sup>(*)</sup>';
+                SET show_is_sepa_blocked_footnote = '1';
+              END;
+          -%]
          </a>
         </td>
         <td>[% LxERP.format_amount(invoice.invoice_amount-invoice.open_sepa_transfer_amount, 2) %]</td>
@@ -111,8 +116,9 @@
   </tbody>
 </table>
 
-[% IF show_vc_bank_info_footnote %]
+[% IF show_vc_bank_info_footnote || show_is_sepa_blocked_footnote %]
 <div class="long-desc wrapper">
+  [% IF show_vc_bank_info_footnote %]
   <p><sup>(1)</sup>
     [% IF is_vendor %]
       [% 'No bank information has been entered in this vendor\'s master data entry. You cannot create bank transfers unless you enter bank information.' | $T8 %]
@@ -133,6 +139,13 @@
       [% LxERP.t8("Additionally the invoice is marked for direct debit and would have been checked automatically had the bank information been entered.") %]
     [% END %]
   </p>
+  [%- END %]
+  [%- IF show_is_sepa_blocked_footnote %]
+  <p>
+    <sup>(*)</sup>
+    [%- 'For this invoice the bank tranfer via SEPA was blocked manually.' | $T8 %]
+  </p>
+  [%- END %]
 </div><!-- /.long-desc -->
 [% END %]
 
