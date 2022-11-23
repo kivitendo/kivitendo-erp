@@ -34,6 +34,8 @@ Kleinere neue Features und Detailverbesserungen:
    in den Artikelstammdaten verwaltet werden.
  - Umsatzübersicht im Kunden-/Lieferanten-Stamm als Chart. Umschalten zwischen
    Monats/Jahresansicht per Klick.
+ - Für Einkaufsrechnungen und Kreditorenbuchungen können Überweisungen via SEPA
+   manuell gesperrt werden.
 
 2022-09-19 - Release 3.7.0
 
