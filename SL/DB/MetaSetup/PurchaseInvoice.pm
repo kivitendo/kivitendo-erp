@@ -25,6 +25,7 @@ __PACKAGE__->meta->columns(
   intnotes                => { type => 'text' },
   invnumber               => { type => 'text', not_null => 1 },
   invoice                 => { type => 'boolean', default => 'false' },
+  is_sepa_blocked         => { type => 'boolean', default => 'false' },
   itime                   => { type => 'timestamp', default => 'now()' },
   language_id             => { type => 'integer' },
   mtime                   => { type => 'timestamp' },
