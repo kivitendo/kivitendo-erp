@@ -111,11 +111,11 @@
     [% END %]
     <tr>
       <th>[% 'Tax Included' | $T8 %]</th>
-      <th><input name="taxincluded" type="checkbox" value="1" [% if ( taxincluded ) %]checked[% end %]></th>
+      <th><input name="taxincluded" type="checkbox" value="1" [% IF ( taxincluded ) %]checked[% END %]></th>
     </tr>
     <tr>
       <th>[% 'direct debit' | $T8 %]</th>
-      <th><input name="direct_debit" type="checkbox" value="1" [% if (direct_debit) %]checked[% end %]> </th>
+      <th><input name="direct_debit" type="checkbox" value="1" [% IF (direct_debit) %]checked[% END %]> </th>
     </tr>
   </tbody>
 </table>
