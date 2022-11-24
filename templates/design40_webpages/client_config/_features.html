@@ -134,9 +134,68 @@
       <tr>
         <th>[% LxERP.t8('Email journal') %]</th>
         <td colspan="2"> [% L.select_tag('defaults.email_journal', [ [ 0, LxERP.t8('No Journal') ],[ 1, LxERP.t8('Without Attachments') ],[ 2, LxERP.t8('With Attachments') ] ], default=SELF.defaults.email_journal, class="wi-wide") %] <div class="description">[% 'Sent emails can be optionally stored in the database with or without their attachments.' | $T8 %]</div></td>
-
       </tr>
       <tr>
+       <th>[% LxERP.t8('Email Sender Sales Quotation') %]</th>
+       <td colspan="2">
+         [% L.input_tag('defaults.email_sender_sales_quotation', SELF.defaults.email_sender_sales_quotation, class='wi-wide') %]
+       <div class ="description">[% 'Generic email send address for this record type.' | $T8 %]</div></td>
+      </tr>
+      <tr>
+       <th>[% LxERP.t8('Email Sender Request Quotation') %]</th>
+       <td colspan="2">
+         [% L.input_tag('defaults.email_sender_request_quotation', SELF.defaults.email_sender_request_quotation, class='wi-wide') %]
+       <div class ="description">[% 'Generic email send address for this record type.' | $T8 %]</div></td>
+      </tr>
+      <tr>
+       <th>[% LxERP.t8('Email Sender Sales Order') %]</th>
+       <td colspan="2">
+         [% L.input_tag('defaults.email_sender_sales_order', SELF.defaults.email_sender_sales_order, class='wi-wide') %]
+       <div class ="description">[% 'Generic email send address for this record type.' | $T8 %]</div></td>
+      </tr>
+      <tr>
+       <th>[% LxERP.t8('Email Sender Purchase Order') %]</th>
+       <td colspan="2">
+         [% L.input_tag('defaults.email_sender_purchase_order', SELF.defaults.email_sender_purchase_order, class='wi-wide') %]
+       <div class ="description">[% 'Generic email send address for this record type.' | $T8 %]</div></td>
+      </tr>
+      <tr>
+       <th>[% LxERP.t8('Email Sender Sales Delivery Order') %]</th>
+       <td colspan="2">
+         [% L.input_tag('defaults.email_sender_sales_delivery_order', SELF.defaults.email_sender_sales_delivery_order, class='wi-wide') %]
+       <div class ="description">[% 'Generic email send address for this record type.' | $T8 %]</div></td>
+      </tr>
+      <tr>
+       <th>[% LxERP.t8('Email Sender Purchase Delivery Order') %]</th>
+       <td colspan="2">
+         [% L.input_tag('defaults.email_sender_purchase_delivery_order', SELF.defaults.email_sender_purchase_delivery_order, class='wi-wide') %]
+       <div class ="description">[% 'Generic email send address for this record type.' | $T8 %]</div></td>
+      </tr>
+      <tr>
+       <th>[% LxERP.t8('Email Sender Sales Invoice') %]</th>
+       <td colspan="2">
+         [% L.input_tag('defaults.email_sender_invoice', SELF.defaults.email_sender_invoice, class='wi-wide') %]
+       <div class ="description">[% 'Generic email send address for this record type.' | $T8 %]</div></td>
+      </tr>
+      <tr>
+       <th>[% LxERP.t8('Email Sender Sales Purchase Invoice') %]</th>
+       <td colspan="2">
+         [% L.input_tag('defaults.email_sender_purchase_invoice', SELF.defaults.email_sender_purchase_invoice, class='wi-wide') %]
+       <div class ="description">[% 'Generic email send address for this record type.' | $T8 %]</div></td>
+      </tr>
+      <tr>
+       <th>[% LxERP.t8('Email Sender Letter') %]</th>
+       <td colspan="2">
+         [% L.input_tag('defaults.email_sender_letter', SELF.defaults.email_sender_letter, class='wi-wide') %]
+       <div class ="description">[% 'Generic email send address for this record type.' | $T8 %]</div></td>
+      </tr>
+      <tr>
+       <th>[% LxERP.t8('Email Sender Dunning') %]</th>
+       <td colspan="2">
+         [% L.input_tag('defaults.email_sender_dunning', SELF.defaults.email_sender_dunning, class='wi-wide') %]
+       <div class ="description">[% 'Generic email send address for this record type.' | $T8 %]</div></td>
+      </tr>
+        <tr>
         <th class="caption" colspan="3">[% LxERP.t8("SEPA") %]</th>
       </tr>
       <tr>

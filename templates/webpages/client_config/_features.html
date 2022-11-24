@@ -333,7 +333,76 @@
    </td>
    <td>[% 'The invoice recipient can either be a selected contact person (default) or the email adress set in the master data of the customer. Additionally a contact persons mail and the company\'s invoicing mail can be combined.' | $T8 %]</td>
   </tr>
-
+  <tr>
+   <td align="right">[% LxERP.t8('Email Sender Sales Quotation') %]</td>
+   <td>
+     [% L.input_tag('defaults.email_sender_sales_quotation', SELF.defaults.email_sender_sales_quotation, style=style) %]
+   </td>
+   <td>[% 'Generic email send address for this record type.' | $T8 %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Email Sender Request Quotation') %]</td>
+   <td>
+     [% L.input_tag('defaults.email_sender_request_quotation', SELF.defaults.email_sender_request_quotation, style=style) %]
+   </td>
+   <td>[% 'Generic email send address for this record type.' | $T8 %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Email Sender Sales Order') %]</td>
+   <td>
+     [% L.input_tag('defaults.email_sender_sales_order', SELF.defaults.email_sender_sales_order, style=style) %]
+   </td>
+   <td>[% 'Generic email send address for this record type.' | $T8 %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Email Sender Purchase Order') %]</td>
+   <td>
+     [% L.input_tag('defaults.email_sender_purchase_order', SELF.defaults.email_sender_purchase_order, style=style) %]
+   </td>
+   <td>[% 'Generic email send address for this record type.' | $T8 %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Email Sender Sales Delivery Order') %]</td>
+   <td>
+     [% L.input_tag('defaults.email_sender_sales_delivery_order', SELF.defaults.email_sender_sales_delivery_order, style=style) %]
+   </td>
+   <td>[% 'Generic email send address for this record type.' | $T8 %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Email Sender Purchase Delivery Order') %]</td>
+   <td>
+     [% L.input_tag('defaults.email_sender_purchase_delivery_order', SELF.defaults.email_sender_purchase_delivery_order, style=style) %]
+   </td>
+   <td>[% 'Generic email send address for this record type.' | $T8 %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Email Sender Sales Invoice') %]</td>
+   <td>
+     [% L.input_tag('defaults.email_sender_invoice', SELF.defaults.email_sender_invoice, style=style) %]
+   </td>
+   <td>[% 'Generic email send address for this record type.' | $T8 %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Email Sender Sales Purchase Invoice') %]</td>
+   <td>
+     [% L.input_tag('defaults.email_sender_purchase_invoice', SELF.defaults.email_sender_purchase_invoice, style=style) %]
+   </td>
+   <td>[% 'Generic email send address for this record type.' | $T8 %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Email Sender Letter') %]</td>
+   <td>
+     [% L.input_tag('defaults.email_sender_letter', SELF.defaults.email_sender_letter, style=style) %]
+   </td>
+   <td>[% 'Generic email send address for this record type.' | $T8 %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Email Sender Dunning') %]</td>
+   <td>
+     [% L.input_tag('defaults.email_sender_dunning', SELF.defaults.email_sender_dunning, style=style) %]
+   </td>
+   <td>[% 'Generic email send address for this record type.' | $T8 %]</td>
+  </tr>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Requirement Specs") %]</td></tr>
   <tr>
    <td align="right">[% LxERP.t8('Default article for converting into quotations and orders') %]</td>

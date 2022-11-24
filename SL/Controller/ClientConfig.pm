@@ -76,13 +76,21 @@ sub action_save {
       $existing_currency->name($new_name);
     }
   }
-
   if ($::form->{new_currency} && $new_currency_names{ $::form->{new_currency} }) {
     $errors_idx{1} = t8('Currency names must be unique.');
   }
 
   my @errors = map { $errors_idx{$_} } sort keys %errors_idx;
 
+  # check valid mail adresses
+  foreach (qw(email_sender_sales_quotation email_sender_request_quotation email_sender_sales_order
+             email_sender_purchase_order email_sender_sales_delivery_order email_sender_purchase_delivery_order
+             email_sender_invoice email_sender_purchase_invoice email_sender_letter email_sender_dunning
+             global_bcc)) {
+    next unless $defaults->{$_};
+    next if     $defaults->{$_} =~ /^[a-z0-9.]+\@[a-z0-9.-]+$/;
+    push @errors, t8('The email entry for #1 looks invalid', $_);
+  }
   # Check templates
   $::form->{new_templates}        =~ s:/::g;
   $::form->{new_master_templates} =~ s:/::g;
