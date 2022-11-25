@@ -902,7 +902,8 @@ sub parse_template {
     my $file_obj = $self->store_pdf($self);
     $self->{print_file_id} = $file_obj->id if $file_obj;
   }
-  if ($self->{media} eq 'email') {
+  # dn has its own send email method, but sets media for print templates
+  if ($self->{media} eq 'email' && !$self->{dunning_id}) {
     if ( getcwd() eq $self->{"tmpdir"} ) {
       # in the case of generating pdf we are in the tmpdir, but WHY ???
       $self->{tmpfile} = $userspath."/".$self->{tmpfile};
