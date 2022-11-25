@@ -464,6 +464,7 @@ sub send_email {
        LEFT JOIN dunning_config dcfg ON (d.dunning_config_id = dcfg.id)
        LEFT JOIN ar                  ON (d.trans_id          = ar.id)
        LEFT JOIN customer c          ON (ar.customer_id      = c.id)
+       LEFT JOIN additional_billing_addresses aba ON (aba.id = ar.billing_address_id)
        WHERE (d.dunning_id = ?)
        LIMIT 1|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id);
