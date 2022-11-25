@@ -61,6 +61,20 @@ my %type_to_table = (
   sales_delivery_order    => 'delivery_orders',
   dunning                 => 'dunning',
 );
+my %type_to_email = (
+  sales_quotation         => sub { $::instance_conf->get_email_sender_sales_quotation         },
+  request_quotation       => sub { $::instance_conf->get_email_sender_request_quotation       },
+  sales_order             => sub { $::instance_conf->get_email_sender_sales_order             },
+  purchase_order          => sub { $::instance_conf->get_email_sender_purchase_order          },
+  invoice                 => sub { $::instance_conf->get_email_sender_invoice                 },
+  credit_note             => sub { $::instance_conf->get_email_sender_invoice                 },
+  purchase_invoice        => sub { $::instance_conf->get_email_sender_purchase_invoice        },
+  letter                  => sub { $::instance_conf->get_email_sender_letter                  },
+  purchase_delivery_order => sub { $::instance_conf->get_email_sender_purchase_delivery_order },
+  sales_delivery_order    => sub { $::instance_conf->get_email_sender_sales_delivery_order    },
+  dunning                 => sub { $::instance_conf->get_email_sender_dunning                 },
+);
+
 
 sub new {
   my ($type, %params) = @_;
@@ -258,7 +272,7 @@ sub send {
 
     return $error;
   }
-
+  $self->_default_from;  # set from for records if configured in client config
   # Set defaults & headers
   $self->{charset}        =  'UTF-8';
   $self->{content_type} ||=  "text/plain";
@@ -349,6 +363,15 @@ sub _create_record_link {
       to_id      => $self->{journalentry},
     );
   }
+}
+
+
+sub _default_from {
+  my ($self) = @_;
+
+  my $record_type  = $self->{record_type} || $::form->{type} || $self->{driver}{form}{formname};
+  my $record_email = exists $type_to_email{$record_type} ? $type_to_email{$record_type}->() : undef;
+  $self->{from}    = $record_email if $record_email;
 }
 
 1;
