@@ -36,6 +36,8 @@ Kleinere neue Features und Detailverbesserungen:
    Monats/Jahresansicht per Klick.
  - Für Einkaufsrechnungen und Kreditorenbuchungen können Überweisungen via SEPA
    manuell gesperrt werden.
+- Die E-Mail-Absenderadresse kann jetzt belegweise generisch gesetzt werden, konfigurierbar
+  in der Mandanteneinstellung auf Workflow-Ebene im Bereich Einkauf und Verkauf
 
 2022-09-19 - Release 3.7.0
 
