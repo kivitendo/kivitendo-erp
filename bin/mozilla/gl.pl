@@ -1464,8 +1464,8 @@ sub post {
 
   my $msg = $::locale->text("General ledger transaction '#1' posted (ID: #2)", $form->{reference}, $form->{id});
   if ($form->{callback} =~ /BankTransaction/ && $form->{bt_id}) {
-    $form->redirect($msg);
-
+    SL::Helper::Flash::flash_later('info', $msg) if $msg;
+    print $::form->redirect_header($form->{callback});
   } elsif ('doc-tab' eq $form->{after_action}) {
     # Redirect with callback containing a fragment does not work (by now)
     # because the callback info is stored in the session an parsing the
