@@ -7,10 +7,10 @@ use utf8;
 
 use Carp;
 use Data::Dumper;
-use Data::Compare;
 use Support::TestSetup;
+use Support::TestRoutines qw(test_deeply);
 use Test::Exception;
-use List::Util qw(zip);
+use List::MoreUtils qw(pairwise);
 
 use SL::DB::DeliveryOrder;
 use SL::DB::Reclamation;
@@ -197,14 +197,14 @@ my $converted_purchase_delivery_order = $purchase_reclamation->convert_to_delive
 
 
 #get items before strip
-my @purchase_reclamation_items = $purchase_reclamation->items_sorted;
-my @sales_reclamation_items    = $sales_reclamation->items_sorted;
-my @converted_purchase_reclamation_items = $converted_purchase_reclamation->items_sorted;
-my @converted_sales_reclamation_items    = $converted_sales_reclamation->items_sorted;
-my @purchase_delivery_order_items = $purchase_delivery_order->items_sorted;
-my @sales_delivery_order_items    = $sales_delivery_order->items_sorted;
-my @converted_purchase_delivery_order_items = $converted_purchase_delivery_order->items_sorted;
-my @converted_sales_delivery_order_items    = $converted_sales_delivery_order->items_sorted;
+my @purchase_reclamation_items              = @{$purchase_reclamation->items_sorted};
+my @sales_reclamation_items                 = @{$sales_reclamation->items_sorted};
+my @converted_purchase_reclamation_items    = @{$converted_purchase_reclamation->items_sorted};
+my @converted_sales_reclamation_items       = @{$converted_sales_reclamation->items_sorted};
+my @purchase_delivery_order_items           = @{$purchase_delivery_order->items_sorted};
+my @sales_delivery_order_items              = @{$sales_delivery_order->items_sorted};
+my @converted_purchase_delivery_order_items = @{$converted_purchase_delivery_order->items_sorted};
+my @converted_sales_delivery_order_items    = @{$converted_sales_delivery_order->items_sorted};
 
 
 ### TESTS #####################################################################
@@ -223,10 +223,7 @@ foreach (qw(
   $sales_reclamation_tmp->$_(undef);
   $purchase_reclamation_tmp->$_(undef);
 }
-foreach my $pair (zip(@purchase_reclamation_items, @sales_reclamation_items)) {
-  my ($first, $second) = @{$pair};
-  my $first_tmp = clone($first);
-  my $second_tmp = clone($second);
+pairwise  { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id reclamation_id
     itime mtime
@@ -235,7 +232,7 @@ foreach my $pair (zip(@purchase_reclamation_items, @sales_reclamation_items)) {
     $second_tmp->$_(undef);
   }
   is_deeply($first_tmp->strip->as_tree, $second_tmp->strip->as_tree);
-}
+} @purchase_reclamation_items, @sales_reclamation_items;
 is_deeply($purchase_reclamation_tmp->strip->as_tree, $sales_reclamation_tmp->strip->as_tree);
 
 ## created sales und purchase delivery_order should be nearly the same
@@ -252,10 +249,7 @@ foreach (qw(
   $sales_delivery_order_tmp->$_(undef);
   $purchase_delivery_order_tmp->$_(undef);
 }
-foreach my $pair (zip(@purchase_delivery_order_items, @sales_delivery_order_items)) {
-  my ($first, $second) = @{$pair};
-  my $first_tmp = clone($first);
-  my $second_tmp = clone($second);
+pairwise  { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id delivery_order_id
     itime mtime
@@ -264,7 +258,7 @@ foreach my $pair (zip(@purchase_delivery_order_items, @sales_delivery_order_item
     $second_tmp->$_(undef);
   }
   is_deeply($first_tmp->strip->as_tree, $second_tmp->strip->as_tree);
-}
+} @purchase_delivery_order_items, @sales_delivery_order_items;
 is_deeply($purchase_delivery_order_tmp->strip->as_tree, $sales_delivery_order_tmp->strip->as_tree);
 
 
@@ -284,75 +278,87 @@ is_deeply($linked_purchase_reclamation->strip->as_tree, $purchase_reclamation->l
 
 ## converted should be nealy the same
 # sales
-foreach my $pair (zip(@sales_delivery_order_items, @converted_sales_reclamation_items)) {
-  my ($first, $second) = @{$pair};
-  ok Compare($first->strip->as_tree, $second->strip->as_tree, {ignore_hash_keys => [qw(
-        id delivery_order_id reclamation_id itime mtime
-        cusordnumber marge_price_factor ordnumber transdate
-        description reason_description_ext reason_description_int reason_id
-      )]});
-}
-ok Compare($sales_delivery_order->strip->as_tree, $converted_sales_reclamation->strip->as_tree, {ignore_hash_keys => [qw(
-      id employee_id itime mtime reqdate
-      is_sales order_type ordnumber oreqnumber
-      amount exchangerate netamount
-      cp_id contact_id
-      cusordnumber cv_record_number
-      donumber record_number
-      )]});
+pairwise  {
+  test_deeply($a->strip->as_tree, $b->strip->as_tree,
+    "sales_delivery_order_items to sales_reclamation_items",
+    qw(
+      id delivery_order_id reclamation_id itime mtime
+      cusordnumber marge_price_factor ordnumber transdate
+      description reason_description_ext reason_description_int reason_id
+    ));
+} @sales_delivery_order_items, @converted_sales_reclamation_items;
+test_deeply($sales_delivery_order->strip->as_tree, $converted_sales_reclamation->strip->as_tree,
+  "sales_delivery_order to sales_reclamation",
+  qw(
+    id employee_id itime mtime reqdate
+    is_sales order_type ordnumber oreqnumber
+    amount exchangerate netamount
+    cp_id contact_id
+    cusordnumber cv_record_number
+    donumber record_number
+  ));
 
-foreach my $pair (zip(@sales_reclamation_items, @converted_sales_delivery_order_items)) {
-  my ($first, $second) = @{$pair};
-  ok Compare($first->strip->as_tree, $second->strip->as_tree, {ignore_hash_keys => [qw(
-        id delivery_order_id reclamation_id itime mtime
-        cusordnumber marge_price_factor ordnumber transdate
-        description reason_description_ext reason_description_int reason_id
-      )]});
-}
-ok Compare($sales_reclamation->strip->as_tree, $converted_sales_delivery_order->strip->as_tree, {ignore_hash_keys => [qw(
-      id employee_id itime mtime delivered reqdate
-      is_sales order_type ordnumber oreqnumber
-      amount exchangerate netamount
-      cp_id contact_id
-      cusordnumber cv_record_number
-      donumber record_number
-      )]});
+pairwise {
+  test_deeply($a->strip->as_tree, $b->strip->as_tree,
+    "sales_reclamation_items to sales_delivery_order_items",
+    qw(
+      id delivery_order_id reclamation_id itime mtime
+      cusordnumber marge_price_factor ordnumber transdate
+      description reason_description_ext reason_description_int reason_id
+    ));
+} @sales_reclamation_items, @converted_sales_delivery_order_items;
+test_deeply($sales_reclamation->strip->as_tree, $converted_sales_delivery_order->strip->as_tree,
+  "sales_reclamation to sales_delivery_order",
+  qw(
+    id employee_id itime mtime delivered reqdate
+    is_sales order_type ordnumber oreqnumber
+    amount exchangerate netamount
+    cp_id contact_id
+    cusordnumber cv_record_number
+    donumber record_number
+  ));
 
 
 # purchase
-foreach my $pair (zip(@purchase_delivery_order_items, @converted_purchase_reclamation_items)) {
-  my ($first, $second) = @{$pair};
-  ok Compare($first->strip->as_tree, $second->strip->as_tree, {ignore_hash_keys => [qw(
-        id delivery_order_id reclamation_id itime mtime
-        cusordnumber marge_price_factor ordnumber transdate
-        description reason_description_ext reason_description_int reason_id
-      )]});
-}
-ok Compare($purchase_delivery_order->strip->as_tree, $converted_purchase_reclamation->strip->as_tree, {ignore_hash_keys => [qw(
-      id employee_id itime mtime reqdate
-      is_sales order_type ordnumber oreqnumber
-      amount exchangerate netamount
-      cp_id contact_id
-      cusordnumber cv_record_number
-      donumber record_number
-      )]});
+pairwise {
+  test_deeply($a->strip->as_tree, $b->strip->as_tree,
+    "purchase_delivery_order_items to purchase_reclamation_items",
+    qw(
+      id delivery_order_id reclamation_id itime mtime
+      cusordnumber marge_price_factor ordnumber transdate
+      description reason_description_ext reason_description_int reason_id
+    ));
+} @purchase_delivery_order_items, @converted_purchase_reclamation_items;
+test_deeply($purchase_delivery_order->strip->as_tree, $converted_purchase_reclamation->strip->as_tree,
+  "purchase_delivery_order to purchase_reclamation",
+  qw(
+    id employee_id itime mtime reqdate
+    is_sales order_type ordnumber oreqnumber
+    amount exchangerate netamount
+    cp_id contact_id
+    cusordnumber cv_record_number
+    donumber record_number
+  ));
 
-foreach my $pair (zip(@purchase_reclamation_items, @converted_purchase_delivery_order_items)) {
-  my ($first, $second) = @{$pair};
-  ok Compare($first->strip->as_tree, $second->strip->as_tree, {ignore_hash_keys => [qw(
-        id delivery_order_id reclamation_id itime mtime
-        cusordnumber marge_price_factor ordnumber transdate
-        description reason_description_ext reason_description_int reason_id
-      )]});
-}
-ok Compare($purchase_reclamation->strip->as_tree, $converted_purchase_delivery_order->strip->as_tree, {ignore_hash_keys => [qw(
-      id employee_id itime mtime delivered reqdate
-      is_sales order_type ordnumber oreqnumber
-      amount exchangerate netamount
-      cp_id contact_id
-      cusordnumber cv_record_number
-      donumber record_number
-      )]});
+pairwise {
+  test_deeply($a->strip->as_tree, $b->strip->as_tree,
+    "purchase_reclamation_items to purchase_delivery_order_items",
+    qw(
+      id delivery_order_id reclamation_id itime mtime
+      cusordnumber marge_price_factor ordnumber transdate
+      description reason_description_ext reason_description_int reason_id
+    ));
+} @purchase_reclamation_items, @converted_purchase_delivery_order_items;
+test_deeply($purchase_reclamation->strip->as_tree, $converted_purchase_delivery_order->strip->as_tree,
+  "purchase_reclamation to purchase_delivery_order",
+  qw(
+    id employee_id itime mtime delivered reqdate
+    is_sales order_type ordnumber oreqnumber
+    amount exchangerate netamount
+    cp_id contact_id
+    cusordnumber cv_record_number
+    donumber record_number
+  ));
 
 
 

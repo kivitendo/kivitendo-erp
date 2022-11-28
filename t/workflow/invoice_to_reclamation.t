@@ -7,10 +7,10 @@ use utf8;
 
 use Carp;
 use Data::Dumper;
-use Data::Compare;
 use Support::TestSetup;
+use Support::TestRoutines qw(test_deeply);
 use Test::Exception;
-use List::Util qw(zip);
+use List::MoreUtils qw(pairwise);
 
 use SL::DB::Order;
 use SL::DB::Reclamation;
@@ -190,12 +190,12 @@ $converted_purchase_reclamation->items_sorted->[1]->reason($relamation_reason);
 $converted_purchase_reclamation->save->load;
 
 #get items before strip
-my @purchase_reclamation_items = $purchase_reclamation->items_sorted;
-my @sales_reclamation_items    = $sales_reclamation->items_sorted;
-my @converted_purchase_reclamation_items = $converted_purchase_reclamation->items_sorted;
-my @converted_sales_reclamation_items    = $converted_sales_reclamation->items_sorted;
-my @purchase_invoice_items = $purchase_invoice->items_sorted;
-my @sales_invoice_items    = $sales_invoice->items_sorted;
+my @purchase_reclamation_items           = @{$purchase_reclamation->items_sorted};
+my @sales_reclamation_items              = @{$sales_reclamation->items_sorted};
+my @converted_purchase_reclamation_items = @{$converted_purchase_reclamation->items_sorted};
+my @converted_sales_reclamation_items    = @{$converted_sales_reclamation->items_sorted};
+my @purchase_invoice_items               = @{$purchase_invoice->items_sorted};
+my @sales_invoice_items                  = @{$sales_invoice->items_sorted};
 
 
 ### TESTS #####################################################################
@@ -214,10 +214,7 @@ foreach (qw(
   $sales_reclamation_tmp->$_(undef);
   $purchase_reclamation_tmp->$_(undef);
 }
-foreach my $pair (zip(@purchase_reclamation_items, @sales_reclamation_items)) {
-  my ($first, $second) = @{$pair};
-  my $first_tmp = clone($first);
-  my $second_tmp = clone($second);
+pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id reclamation_id
     itime mtime
@@ -226,7 +223,7 @@ foreach my $pair (zip(@purchase_reclamation_items, @sales_reclamation_items)) {
     $second_tmp->$_(undef);
   }
   is_deeply($first_tmp->strip->as_tree, $second_tmp->strip->as_tree);
-}
+} @purchase_reclamation_items, @sales_reclamation_items;
 is_deeply($purchase_reclamation_tmp->strip->as_tree, $sales_reclamation_tmp->strip->as_tree);
 
 ## converted have to be linked to parent
@@ -237,38 +234,44 @@ is_deeply($linked_purchase_invoice->strip->as_tree, $purchase_invoice->strip->as
 
 
 ## converted should be nealy the same
-foreach my $pair (zip(@sales_invoice_items, @converted_sales_reclamation_items)) {
-  my ($first, $second) = @{$pair};
-  ok Compare($first->strip->as_tree, $second->strip->as_tree, {ignore_hash_keys => [qw(
-        id trans_id reclamation_id itime mtime
-        allocated assemblyitem cusordnumber deliverydate donumber fxsellprice marge_percent marge_price_factor marge_total optional ordnumber subtotal transdate
-        reason_description_ext reason_description_int reason_id reqdate
-      )]});
-}
-ok Compare($sales_invoice->strip->as_tree, $converted_sales_reclamation->strip->as_tree, {ignore_hash_keys => [qw(
-      id employee_id itime mtime transdate
-      datepaid delivery_customer_id delivery_vendor_id deliverydate direct_debit donumber duedate dunning_config_id gldate invnumber_for_credit_note invoice marge_percent marge_total orddate ordnumber paid qr_reference qr_unstructured_message qrbill_without_amount quodate quonumber storno storno_id type
-      delivered closed exchangerate reqdate vendor_id
-      cp_id contact_id
-      cusordnumber cv_record_number
-      invnumber record_number
-      )]});
+pairwise {
+  test_deeply($a->strip->as_tree, $b->strip->as_tree,
+    "sales_invoice_items to sales_reclamation_items",
+    qw(
+      id trans_id reclamation_id itime mtime
+      allocated assemblyitem cusordnumber deliverydate donumber fxsellprice marge_percent marge_price_factor marge_total optional ordnumber subtotal transdate
+      reason_description_ext reason_description_int reason_id reqdate
+    ));
+} @sales_invoice_items, @converted_sales_reclamation_items;
+test_deeply($sales_invoice->strip->as_tree, $converted_sales_reclamation->strip->as_tree,
+  "sales_invoice to sales_reclamation",
+  qw(
+    id employee_id itime mtime transdate
+    datepaid delivery_customer_id delivery_vendor_id deliverydate direct_debit donumber duedate dunning_config_id gldate invnumber_for_credit_note invoice marge_percent marge_total orddate ordnumber paid qr_reference qr_unstructured_message qrbill_without_amount quodate quonumber storno storno_id type
+    delivered closed exchangerate reqdate vendor_id
+    cp_id contact_id
+    cusordnumber cv_record_number
+    invnumber record_number
+  ));
 
-foreach my $pair (zip(@purchase_invoice_items, @converted_purchase_reclamation_items)) {
-  my ($first, $second) = @{$pair};
-  ok Compare($first->strip->as_tree, $second->strip->as_tree, {ignore_hash_keys => [qw(
-        id trans_id reclamation_id itime mtime
-        allocated assemblyitem cusordnumber deliverydate donumber fxsellprice marge_percent marge_price_factor marge_total optional ordnumber subtotal transdate
-        reason_description_ext reason_description_int reason_id reqdate
-      )]});
-}
-ok Compare($purchase_invoice->strip->as_tree, $converted_purchase_reclamation->strip->as_tree, {ignore_hash_keys => [qw(
-      id employee_id itime mtime transdate
-      datepaid deliverydate direct_debit duedate gldate invoice orddate ordnumber paid quodate quonumber storno storno_id type
-      billing_address_id customer_id cv_record_number delivered closed exchangerate reqdate salesman_id shippingpoint shipto_id
-      cp_id contact_id
-      invnumber record_number
-      )]});
+pairwise {
+  test_deeply($a->strip->as_tree, $b->strip->as_tree,
+    "purchase_invoice_items to purchase_reclamation_items",
+    qw(
+      id trans_id reclamation_id itime mtime
+      allocated assemblyitem cusordnumber deliverydate donumber fxsellprice marge_percent marge_price_factor marge_total optional ordnumber subtotal transdate
+      reason_description_ext reason_description_int reason_id reqdate
+    ));
+} @purchase_invoice_items, @converted_purchase_reclamation_items;
+test_deeply($purchase_invoice->strip->as_tree, $converted_purchase_reclamation->strip->as_tree,
+  "purchase_invoice to purchase_reclamation",
+  qw(
+    id employee_id itime mtime transdate
+    datepaid deliverydate direct_debit duedate gldate invoice orddate ordnumber paid quodate quonumber storno storno_id type is_sepa_blocked
+    billing_address_id customer_id cv_record_number delivered closed exchangerate reqdate salesman_id shippingpoint shipto_id
+    cp_id contact_id
+    invnumber record_number
+  ));
 
 # diag Dumper($sales_invoice->strip->as_tree);
 # diag Dumper($converted_sales_reclamation->strip->as_tree);

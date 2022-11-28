@@ -9,7 +9,7 @@ use Carp;
 use Data::Dumper;
 use Support::TestSetup;
 use Test::Exception;
-use List::Util qw(zip);
+use List::MoreUtils qw(pairwise);
 
 use SL::DB::Reclamation;
 use SL::DB::ReclamationReason;
@@ -162,12 +162,12 @@ $converted_sales_reclamation->customer_id($sales_reclamation->{customer_id});
 $converted_sales_reclamation->save->load;
 
 #get items before strip
-my @purchase_reclamation_items = $purchase_reclamation->items_sorted;
-my @sales_reclamation_items    = $sales_reclamation->items_sorted;
-my @new_purchase_reclamation_items = $new_purchase_reclamation->items_sorted;
-my @new_sales_reclamation_items    = $new_sales_reclamation->items_sorted;
-my @converted_purchase_reclamation_items = $converted_purchase_reclamation->items_sorted;
-my @converted_sales_reclamation_items    = $converted_sales_reclamation->items_sorted;
+my @purchase_reclamation_items           = @{$purchase_reclamation->items_sorted};
+my @sales_reclamation_items              = @{$sales_reclamation->items_sorted};
+my @new_purchase_reclamation_items       = @{$new_purchase_reclamation->items_sorted};
+my @new_sales_reclamation_items          = @{$new_sales_reclamation->items_sorted};
+my @converted_purchase_reclamation_items = @{$converted_purchase_reclamation->items_sorted};
+my @converted_sales_reclamation_items    = @{$converted_sales_reclamation->items_sorted};
 
 
 ### TESTS #####################################################################
@@ -185,10 +185,7 @@ foreach (qw(
   $purchase_tmp->$_(undef);
 }
 
-foreach my $pair (zip(@purchase_reclamation_items, @sales_reclamation_items)) {
-  my ($first, $second) = @{$pair};
-  my $first_tmp = clone($first);
-  my $second_tmp = clone($second);
+pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id reclamation_id
     itime mtime
@@ -197,7 +194,7 @@ foreach my $pair (zip(@purchase_reclamation_items, @sales_reclamation_items)) {
     $second_tmp->$_(undef);
   }
   is_deeply($first_tmp->strip->as_tree, $second_tmp->strip->as_tree);
-}
+} @purchase_reclamation_items, @sales_reclamation_items;
 is_deeply($purchase_tmp->strip->as_tree, $sales_tmp->strip->as_tree);
 
 
@@ -232,10 +229,7 @@ foreach (qw(
   $purchase_tmp2->$_(undef);
 }
 
-foreach my $pair (zip(@sales_reclamation_items, @new_sales_reclamation_items)) {
-  my ($first, $second) = @{$pair};
-  my $first_tmp = clone($first);
-  my $second_tmp = clone($second);
+pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id reclamation_id
     itime mtime
@@ -244,13 +238,10 @@ foreach my $pair (zip(@sales_reclamation_items, @new_sales_reclamation_items)) {
     $second_tmp->$_(undef);
   }
   is_deeply($first_tmp->strip->as_tree, $second_tmp->strip->as_tree);
-}
+} @sales_reclamation_items, @new_sales_reclamation_items;
 is_deeply($sales_tmp2->strip->as_tree, $new_sales_tmp->strip->as_tree);
 
-foreach my $pair (zip(@purchase_reclamation_items, @new_purchase_reclamation_items)) {
-  my ($first, $second) = @{$pair};
-  my $first_tmp = clone($first);
-  my $second_tmp = clone($second);
+pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id reclamation_id
     itime mtime
@@ -259,7 +250,7 @@ foreach my $pair (zip(@purchase_reclamation_items, @new_purchase_reclamation_ite
     $second_tmp->$_(undef);
   }
   is_deeply($first_tmp->strip->as_tree, $second_tmp->strip->as_tree);
-}
+} @purchase_reclamation_items, @new_purchase_reclamation_items;
 is_deeply($purchase_tmp2->strip->as_tree, $new_purchase_tmp->strip->as_tree);
 
 
@@ -286,10 +277,7 @@ foreach (qw(
 }
 
 # from sales to purchase
-foreach my $pair (zip(@sales_reclamation_items, @converted_purchase_reclamation_items)) {
-  my ($first, $second) = @{$pair};
-  my $first_tmp = clone($first);
-  my $second_tmp = clone($second);
+pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id reclamation_id
     sellprice discount
@@ -299,15 +287,12 @@ foreach my $pair (zip(@sales_reclamation_items, @converted_purchase_reclamation_
     $second_tmp->$_(undef);
   }
   is_deeply($first_tmp->strip->as_tree, $second_tmp->strip->as_tree);
-}
+} @sales_reclamation_items, @converted_purchase_reclamation_items;
 is_deeply($sales_tmp3->strip->as_tree, $converted_purchase_tmp->strip->as_tree);
 
 
 # from purchase to sales
-foreach my $pair (zip(@purchase_reclamation_items, @converted_sales_reclamation_items)) {
-  my ($first, $second) = @{$pair};
-  my $first_tmp = clone($first);
-  my $second_tmp = clone($second);
+pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id reclamation_id
     lastcost
@@ -317,7 +302,7 @@ foreach my $pair (zip(@purchase_reclamation_items, @converted_sales_reclamation_
     $second_tmp->$_(undef);
   }
   is_deeply($first_tmp->strip->as_tree, $second_tmp->strip->as_tree);
-}
+} @purchase_reclamation_items, @converted_sales_reclamation_items;
 is_deeply($purchase_tmp3->strip->as_tree, $converted_sales_tmp->strip->as_tree);
 
 #diag Dumper($first->strip->as_tree);
