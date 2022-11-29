@@ -11,7 +11,7 @@ our @EXPORT_OK = qw(
   html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag
   checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
   stringify_attributes textarea_tag link_tag date_tag
-  div_tag radio_button_tag img_tag);
+  div_tag radio_button_tag img_tag multi_level_select_tag);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use Carp;
@@ -242,6 +242,148 @@ sub select_tag {
   }
 
   return $select_html;
+}
+
+sub multi_level_select_tag {
+  my ($name, $collection, $levels, %attributes) = @_;
+
+  _set_id_attribute(\%attributes, $name);
+  my $id = $attributes{id};
+
+  $collection = [] if defined($collection) && !ref($collection) && ($collection eq '');
+
+  my $surround_tag = delete(%attributes{surround_tag});
+
+  my $multi_level_select_tag = "";
+  my %level_keys = ();
+
+  my $base_attributes  = delete($attributes{"level_1"}) || {};
+
+  my $base_name        = delete($base_attributes->{name});
+  my $base_value_key   = $base_attributes->{value_key} || 'id';
+  my $base_title_key   = $base_attributes->{title_key} || $base_value_key;
+  my $base_default     = $base_attributes->{default};
+  my $base_default_key = $base_attributes->{default_key};
+
+  $level_keys{1} = {
+    "value" => $base_value_key,
+    "title" => $base_title_key,
+  };
+  $base_attributes->{id} = $id . "_level_1";
+  $base_attributes->{onchange} = $id . "_on_chanche_level_1(this)";
+  my $current_select = select_tag(
+    $base_name,
+    $collection,
+    %{$base_attributes}
+  );
+  if ($surround_tag) {
+    $multi_level_select_tag .= html_tag($surround_tag, $current_select);
+  } else {
+    $multi_level_select_tag .= $current_select;
+  }
+
+  my $last_object;
+  if ($base_default) {
+    ($last_object) = grep { $_->{$base_value_key} eq $base_default } @{$collection};
+  } elsif ($base_default_key) {
+    ($last_object) = grep { $_->{$base_default_key} } @{$collection};
+  } else {
+    $last_object = $collection->[0];
+  }
+  foreach my $level (2 .. $levels) {
+    my $current_attributes = delete($attributes{"level_$level"}) || {};
+
+    my $current_name          = delete($current_attributes->{name});
+    my $current_value_key     = $current_attributes->{value_key} || 'id';
+    my $current_title_key     = $current_attributes->{title_key} || $current_value_key;
+    my $current_default       = $current_attributes->{default};
+    my $current_default_key   = $current_attributes->{default_key};
+    my $current_object_key    = delete($current_attributes->{object_key});
+    die "need object_key in level_$level in multi_level_select_tag" unless $current_object_key;
+
+    $level_keys{$level} = {
+      "value"  => $current_value_key,
+      "title"  => $current_title_key,
+      "object" => $current_object_key,
+    };
+
+    $current_attributes->{id} = $id . "_level_$level";
+    $current_attributes->{onchange} = $id . "_on_chanche_level_${level}(this)" unless $level eq $levels;
+    my $current_collection = $last_object->{$current_object_key};
+    my $current_select = select_tag(
+      $current_name,
+      $current_collection,
+      %{$current_attributes}
+    );
+    if ($surround_tag) {
+      $multi_level_select_tag .= html_tag($surround_tag, $current_select);
+    } else {
+      $multi_level_select_tag .= $current_select;
+    }
+
+    if ($current_default) {
+      ($last_object) = grep { $_->{$current_value_key} eq $current_default } @{$current_collection};
+    } elsif ($current_default_key) {
+      ($last_object) = grep { $_->{$current_default_key} } @{$current_collection};
+    } else {
+      $last_object = $current_collection->[0];
+    }
+  }
+
+  my $code = "";
+
+  if ($levels > 1) {
+    my $js_option_string = ""; # js hash map (level->value->{[value: 1, title: 'foo'], ...})
+
+    my @current_collections = @{$collection};
+    my @next_collections = ();
+    foreach my $level (1 .. ($levels - 1)) {
+      $js_option_string .= "'${level}': {";
+      foreach my $option (@current_collections) {
+        $js_option_string .= "'" . $option->{$level_keys{$level}{value}} . "': [";
+        map { $js_option_string .= "{ value: '" . $_->{$level_keys{$level + 1}{value}}
+                                .  "', title: '" . $_->{$level_keys{$level + 1}{title}}
+                                .  "'}," } @{$option->{$level_keys{$level + 1}{object}}};
+        $js_option_string .= "],";
+        push @next_collections, @{$option->{$level_keys{$level + 1}{object}}};
+      }
+      $js_option_string .= "},";
+      @current_collections = @next_collections;
+      @next_collections = ();
+    }
+
+    $code .= javascript( qq|
+      var ${id}_options = {
+        $js_option_string
+      };
+    |);
+    foreach my $level (1 .. ($levels - 1)) {
+      my $next_level = $level + 1;
+      $code .= javascript( qq|
+      function ${id}_on_chanche_level_${level}(select_${level}) {
+        var value = select_${level}.value;
+        for (var i = ${next_level}; i < $levels + 1; i++) {
+          var id = '${id}_level_' + i;
+          var select_i = document.getElementById(id);
+          while (select_i.options.length) {
+            select_i.options.remove(0);
+          }
+          select_i.disabled = true;
+        }
+        var id_${next_level} = '${id}_level_${next_level}';
+        var select_${next_level} = document.getElementById(id_${next_level});
+        for (var i=0; i < ${id}_options[${level}][value].length; i++) {
+          var option = new Option(${id}_options[${level}][value][i].title, ${id}_options[${level}][value][i].value)
+          select_${next_level}.options.add(option);
+        }
+        select_${next_level}.disabled = false;
+        select_${next_level}.selectedIndex = -1;
+      }
+      |);
+    }
+  }
+
+  return $multi_level_select_tag . $code;
 }
 
 sub checkbox_tag {
@@ -705,6 +847,104 @@ Example for use of optgroups:
 
   # Later in the template:
   [% L.select_tag('the_selection', COLLECTION, with_optgroups=1, title_key='name') %]
+
+=item C<multi_level_select_tag $name, \@collection, $levels, %attributes>
+
+Creates multiple HTML 'select' tags, one for each level. Each tag ist created
+with C<select_tag>.
+
+The parameters for C<select_tag> are created from the values stored in the
+corrosponding level attributes. The attributes for each level are in
+C<%attributes{level_i}>, starting with 1.
+
+The following are used directly from each level:
+
+=over 12
+
+=item I<name> is deleted from level attributes.
+The I<name> is used for the for the name of the 'select' tag.
+
+=item I<object_key> is deleted from level attriutes.
+The I<object_key> is used to get the level objects for the current level
+from the object of the previous level, this is intended for the use of RSDB object.
+Each level attributes musst contain I<object_key>, except level_1.
+
+=item I<id> is overridden.
+The I<id> is set to a specific value for use in JavaScript.
+
+=item I<value_key> names the key for the value of level object. Defaults to
+C<id>.
+
+=item I<title_key> names the key for the titel of level object. Defaults to
+C<$attributes{value_key}>.
+
+=item I<default> is used to find the default level object.
+
+=tiem I<default_key> names the key for the default feld of level object. Is
+ignored if I<default> is set.
+
+=back
+
+
+<\@collection> is used for the level object of level 1. The objects of the next
+level are taken from the previous level via the <object_key>. On each level the
+objects must be a hash reference or a blessed reference.
+
+A I<surround_tag> can be specified, which generates a C<html_tag> with the
+corrosponding tag around evey C<select_tag>.
+
+Example:
+
+  # First in a controller:
+    my @collection = (
+    { 'description' => 'foo_1', 'id' => '1',
+      'key_1' => [
+        { 'id' => 3, 'description' => "bar_1",
+          'key_2' => [
+            { 'id' => 1, 'value' => "foobar_1", },
+            { 'id' => 2, 'value' => "foobar_2", },
+          ], },
+        { 'id' => 4, 'description' => "bar_2",
+        'key_2' => [], },
+      ], },
+    { 'description' => 'foo_2', 'id' => '2',
+      'key_1' => [
+        { 'id' => 1, 'description' => "bar_1",
+          'key_2' => [
+            { 'id' => 3, 'value' => "foobar_3", },
+            { 'id' => 4, 'value' => "foobar_4", },
+          ], },
+        { 'id' => 2, 'description' => "bar_2",
+          'stock' => [
+            { 'id' => 5, 'value' => "test_5", },
+          ], },
+      ], },
+  );
+
+  # Later in the template (in a table):
+  [% L.multi_level_select_tag("multi_select_foo_bar_foobar", COLLECTION, 3,
+      surround_tag="td",
+      level_1={
+        name="foo.id",
+        value_key="id",
+        title_key="description",
+        default="2",
+      },
+      level_2={
+        object_key="key_1",
+        name="bar.id",
+        value_key="id",
+        title_key="description",
+        default="1",
+      },
+      level_3={
+        object_key="key_2",
+        name="foobar.id",
+        value_key="id",
+        title_key="value",
+        default="4",
+      },
+  ) %]
 
 =back
 

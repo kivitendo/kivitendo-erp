@@ -87,6 +87,7 @@ sub radio_button_tag         { return _call_presenter('radio_button_tag',       
 sub img_tag                  { return _call_presenter('img_tag',                  @_); }
 sub restricted_html          { return _call_presenter('restricted_html',          @_); }
 sub stripped_html            { return _call_presenter('stripped_html',            @_); }
+sub multi_level_select_tag   { return _call_presenter('multi_level_select_tag',   @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name, $unique) = @_;
