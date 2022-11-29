@@ -83,6 +83,11 @@ my %type_data = (
       edit => "purchase_delivery_order_edit",
       view => "purchase_delivery_order_edit | purchase_delivery_order_view",
     },
+    stock_direction => {
+      in_out => 'in',
+      in     => 1,
+      out    => 0,
+    },
   },
   SUPPLIER_DELIVERY_ORDER_TYPE() => {
     text => {

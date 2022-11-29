@@ -29,6 +29,7 @@ use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::TransferType;
+use SL::DB::Warehouse;
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
@@ -929,14 +930,48 @@ sub action_stock_in_out_dialog {
 
   $self->merge_stock_data($stock_info, \@contents, $part, $unit);
 
+    my @collection = (
+    { 'description' => 'foo_1', 'id' => '1',
+      'key_1' => [
+        { 'id' => 3, 'description' => "bar_1",
+          'key_2' => [
+            { 'id' => 1, 'value' => "foobar_1", },
+            { 'id' => 2, 'value' => "foobar_2", },
+          ],
+        },
+        { 'id' => 4, 'description' => "bar_2",
+        'key_2' => [],
+        },
+      ],
+    },
+    { 'description' => 'foo_2', 'id' => '2',
+      'key_1' => [
+        { 'id' => 1, 'description' => "bar_1",
+          'key_2' => [
+            { 'id' => 3, 'value' => "foobar_3", },
+            { 'id' => 4, 'value' => "foobar_4", },
+          ],
+        },
+        { 'id' => 2, 'description' => "bar_2",
+          'stock' => [
+            { 'id' => 5, 'value' => "test_5", },
+          ],
+        },
+      ],
+    },
+  );
+
   $self->render("delivery_order/stock_dialog", { layout => 0 },
     WHCONTENTS => $self->order->delivered ? $stock_info : \@contents,
+    WAREHOUSES => SL::DB::Manager::Warehouse->get_all(with_objects=> ["bins",]),
+    COLLECTION => \@collection,
     part       => $part,
     do_qty     => $qty,
     do_unit    => $unit->unit,
     delivered  => $self->order->delivered,
     row        => $row,
     item_id    => $item_id,
+    in_out     => $inout,
   );
 }
 
