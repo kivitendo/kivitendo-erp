@@ -1,60 +1,18 @@
 <tr class="listheading">
  <th>[% 'Warehouse' | $T8 %]</th>
  <th>[% 'Bin' | $T8 %]</th>
+ <th>[% 'Charge Number' | $T8 %]</th>
+ [% IF INSTANCE_CONF.get_show_bestbefore %]
+ <th>[% 'Best Before' | $T8 %]</th>
+ [% END %]
  <th align="right">[% 'Qty' | $T8 %]</th>
  <th align="right">[% 'Unit' | $T8 %]</th>
 </tr>
 
-<tr>
- [% L.multi_level_select_tag(
-      "test_tag", WAREHOUSES, 2, surround_tag="td",
-      level_1={
-        name="warehouse.id",
-        value_key="id",
-        title_key="description",
-      },
-      level_2={
-        object_key="bins",
-        name="bin.id",
-        value_key="id",
-        title_key="description",
-      },
-    ) %]
+[%- FOREACH row = STOCK_INFO %]
+[%- PROCESS delivery_order/stock_dialog/_stock_in_row.html PART=part ROW=row pos=loop.count %]
+[%- END %]
 
- <td>
-  [% L.input_tag("qty", LxERP.format_amount(do_qty), class="numeric data-qty", size="12") %]</td>
- <td>[% L.select_tag("unit_" _ loop.count, part.unit_obj.convertible_units, value_key="name", default=row.stock_unit, class="data-unit") %]</td>
-
- <td style="display:none">
-  [% L.hidden_tag("warehouse_id", row.warehouse_id, class="data-warehouse-id") %]
-  [% L.hidden_tag("bin_id", row.bin_id, class="data-bin-id") %]
-  [% L.hidden_tag("chargenumber", row.chargenumber, class="data-chargenumber") %]
-  [% L.hidden_tag("delivery_order_items_stock_id", row.delivery_order_items_stock_id, class="data-stock-id") %]
-  [% L.hidden_tag("bestbefore", row.bestbefore, class="data-bestbefore") IF INSTANCE_CONF.get_show_bestbefore %]
- </td>
-</tr>
-<tr>
-  [% L.multi_level_select_tag("multi_select_foo_bar_foobar", COLLECTION, 3,
-      surround_tag="td",
-      level_1={
-        name="foo.id",
-        value_key="id",
-        title_key="description",
-        default="2",
-      },
-      level_2={
-        object_key="key_1",
-        name="bar.id",
-        value_key="id",
-        title_key="description",
-        default="1",
-      },
-      level_3={
-        object_key="key_2",
-        name="foobar.id",
-        value_key="id",
-        title_key="value",
-        default="4",
-      },
-    ) %]
-</tr>
+[%- UNLESS STOCK_INFO.size %]
+[%- PROCESS delivery_order/stock_dialog/_stock_in_new_row.html PART=part remaining_qty=do_qty pos=0 %]
+[% END %]

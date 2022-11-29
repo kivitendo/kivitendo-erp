@@ -109,6 +109,37 @@ namespace('kivi.DeliveryOrder', function(ns) {
     });
   };
 
+  ns.add_stock_in_line_to_dialog = function() {
+    console.log("clicked");
+    console.log($("#parts_id"));
+    console.log($("#parts_id").val());
+    console.log($("#do_qty"));
+    console.log($("#do_qty").val());
+
+    let qty_sum = 0;
+    let row_count = 0;
+    $("#stock-in-out-table tr.listrow").each((i,row) => {
+      let qty = kivi.parse_amount($(row).find(".data-qty").val());
+
+      row_count = row_count + 1;
+      if (qty === 0) return;
+      if (qty === null) return;
+      qty_sum = qty_sum + qty;
+    });
+
+    let data = [];
+    data.push(
+      { name: 'action', value: 'DeliveryOrder/add_stock_in_line_to_dialog' },
+      { name: 'type', value: $("#type").val()},
+      { name: 'qty_sum', value: qty_sum },
+      { name: 'row_count', value: row_count},
+      { name: 'parts_id', value: $("#parts_id").val()},
+      { name: 'do_qty', value:  $("#do_qty").val()},
+    );
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   ns.save_updated_stock = function() {
     // stock information is saved in DOM as a yaml dump.
     // we don't want to do this in javascript so we do a tiny roundtrip to the backend
@@ -118,6 +149,7 @@ namespace('kivi.DeliveryOrder', function(ns) {
       let qty = kivi.parse_amount($(row).find(".data-qty").val());
 
       if (qty === 0) return;
+      if (qty === null) return;
 
       data.push({
         qty:                           qty,

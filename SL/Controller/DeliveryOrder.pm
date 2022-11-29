@@ -930,41 +930,10 @@ sub action_stock_in_out_dialog {
 
   $self->merge_stock_data($stock_info, \@contents, $part, $unit);
 
-    my @collection = (
-    { 'description' => 'foo_1', 'id' => '1',
-      'key_1' => [
-        { 'id' => 3, 'description' => "bar_1",
-          'key_2' => [
-            { 'id' => 1, 'value' => "foobar_1", },
-            { 'id' => 2, 'value' => "foobar_2", },
-          ],
-        },
-        { 'id' => 4, 'description' => "bar_2",
-        'key_2' => [],
-        },
-      ],
-    },
-    { 'description' => 'foo_2', 'id' => '2',
-      'key_1' => [
-        { 'id' => 1, 'description' => "bar_1",
-          'key_2' => [
-            { 'id' => 3, 'value' => "foobar_3", },
-            { 'id' => 4, 'value' => "foobar_4", },
-          ],
-        },
-        { 'id' => 2, 'description' => "bar_2",
-          'stock' => [
-            { 'id' => 5, 'value' => "test_5", },
-          ],
-        },
-      ],
-    },
-  );
-
   $self->render("delivery_order/stock_dialog", { layout => 0 },
-    WHCONTENTS => $self->order->delivered ? $stock_info : \@contents,
+    WHCONTENTS => \@contents,
+    STOCK_INFO => $stock_info,
     WAREHOUSES => SL::DB::Manager::Warehouse->get_all(with_objects=> ["bins",]),
-    COLLECTION => \@collection,
     part       => $part,
     do_qty     => $qty,
     do_unit    => $unit->unit,
@@ -973,6 +942,24 @@ sub action_stock_in_out_dialog {
     item_id    => $item_id,
     in_out     => $inout,
   );
+}
+
+sub action_add_stock_in_line_to_dialog {
+  my ($self) = @_;
+
+  my $do_qty       = _parse_number($::form->{do_qty});
+  my $qty_sum   = $::form->{qty_sum};
+  my $row_count = $::form->{row_count};
+  my $part      = SL::DB::Part->load_cached($::form->{parts_id}) or die "need parts_id";
+
+  my $row_as_html = $self->p->render('delivery_order/stock_dialog/_stock_in_new_row',
+    WAREHOUSES => SL::DB::Manager::Warehouse->get_all(with_objects=> ["bins",]),
+    PART => $part,
+    pos  => $row_count + 1,
+    remaining_qty => $do_qty - $qty_sum,
+  );
+
+  $self->js->append('#stock-in-out-table', $row_as_html)->render();
 }
 
 sub action_update_stock_information {
