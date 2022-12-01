@@ -80,8 +80,6 @@
 \opening{}
 \thispagestyle{kivitendo.letter.first}
 
-\biosaatgutbeistell
-
 \begin{PricingTabular*}[columns={pos,amount,desc}]
 % eigentliche Tabelle
 \FakeTable{
@@ -96,11 +94,9 @@
 		<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
 		<%foreach si_number%>%
 			\ExtraDescription{<%if si_chargenumber%>\charge: <%si_chargenumber%>
-      <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end si_bestbefore%>~--~<%si_qty%>~<%si_unit%>
+        <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end si_bestbefore%>~--~<%si_qty%>~<%si_unit%>
         <%end si_chargenumber%>%%
-      <%if ic_cvar_pp_pflicht%>
-
-      \Pflanzenpass{<%ic_cvar_bot_name%>}{DE-NI115145}{<%donumber%> : <%si_chargenumber%>}{DE}<%end ic_cvar_pp_pflicht%>}%
+      }%
 		<%end si_number%>%
 	\tabularnewline
 <%end number%>%
