@@ -300,7 +300,8 @@ sub action_print {
   $form->{formname}         = $formname;
   $form->{language}         = '_' . $self->order->language->template_code if $self->order->language;
   my $pdf_filename          = $form->generate_attachment_filename();
-
+  $main::lxdebug->dump(0, 'WH: FoRM ', $form);
+  $main::lxdebug->dump(0, 'WH: PDF ', $pdf_filename);
   my $pdf;
   my @errors = generate_pdf($self->order, \$pdf, { format     => $format,
                                                    formname   => $formname,

@@ -78,6 +78,9 @@ sub get_print_options {
     ($form->{type} =~ /^supplier_delivery_order$/) ? (
       opthash('supplier_delivery_order', $form->{PD}{supplier_delivery_order},  $locale->text('Supplier Delivery Order')),
     ) : undef,
+    ($form->{type} =~ /^rma_delivery_order$/) ? (
+      opthash('rma_delivery_order', $form->{PD}{rma_delivery_order},  $locale->text('RMA Delivery Order')),
+    ) : undef,
     ($form->{type} =~ /(sales|purchase)_delivery_order$/) ? (
       opthash($form->{type},         $form->{PD}{$form->{type}},       $locale->text('Delivery Order')),
       opthash('pick_list',           $form->{PD}{pick_list},           $locale->text('Pick List')),
