@@ -100,7 +100,7 @@ $( END )$%
     $( item.position )$ &%
     $( item.part.partnumber )$ &%
     \textbf{ $( KiviLatex.filter(item.description) )$ }%
-    $( IF (item.longdescription) )$\ExtraDescription{$( KiviLatex.filter(item.longdescription) )$}$( END )$%
+    $( IF (item.longdescription) )$\ExtraDescription{$( KiviLatex.filter_html(item.longdescription) )$}$( END )$%
     $( IF (item.reqdate) )$\ExtraDescription{\lieferdatum: $( item.reqdate_as_date )$}$( END )$%
     $( IF (item.serialnumber) )$\ExtraDescription{\seriennummer: $( KiviLatex.filter(item.serialnumber) )$}$( END )$%
     $( IF (item.projectnumber) )$\ExtraDescription{\projektnummer: $( KiviLatex.filter(item.projectnumber) )$}$( END )$%
