@@ -857,6 +857,8 @@ C<%attributes{level_i}>, starting with 1.
 
 The following are used directly from each level:
 
+=back
+
 =over 4
 
 =item I<name> is deleted from level attributes.
