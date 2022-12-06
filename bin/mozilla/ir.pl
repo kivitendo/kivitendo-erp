@@ -522,7 +522,7 @@ sub form_header {
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File kivi.SalesPurchase kivi.Part kivi.CustomerVendor kivi.Validator ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_project client_js));
 
-  setup_ir_action_bar(\%TMPL_VAR);
+  setup_ir_action_bar($TMPL_VAR);
 
   $form->header();
 
