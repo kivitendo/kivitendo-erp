@@ -4,15 +4,17 @@
 [%- USE LxERP %]
 [%- USE P %]
 
-<div id="phone-notes">
+<div id="phone-notes" class="wrapper">
  [% IF ( SELF.order.phone_notes && SELF.order.phone_notes.size ) %]
-  <table>
+  <table class="tbl-list">
+   <thead>
     <tr>
       <th class="listheading">[% 'Subject' | $T8 %]</th>
       <th class="listheading">[% 'Created on' | $T8 %]</th>
       <th class="listheading">[% 'Created by' | $T8 %]</th>
     </tr>
-
+   </thead>
+   <tbody>
     [%- FOREACH row = SELF.order.phone_notes %]
      <tr class="listrow">
        <td>[% P.link_tag('#', row.subject, onclick="kivi.Order.load_phone_note(" _ HTML.url(row.id) _ ", '" _ HTML.escape(row.subject) _ "', '" _ row.body _ "')") %]</td>
@@ -20,22 +22,25 @@
        <td>[% row.employee.safe_name | html %]</td>
      </tr>
     [% END %]
+   </tbody>
   </table>
  [% END %]
 
-  <h2 id='phone_note_edit_text'>[% 'Add note' | $T8 %]</h2>
-
   [% L.hidden_tag('phone_note.id') %]
 
-  <table>
-    <tr>
-      <td valign="right">[% 'Subject' | $T8 %]</td>
-      <td>[% L.input_tag('phone_note.subject', '', size = 50) %]</td>
-    </tr>
-    <tr>
-      <td valign="right" align="top">[% 'Body' | $T8 %]</td>
-      <td align="top">[% L.textarea_tag('phone_note.body', '', wrap="soft", style="width: 350px; height: 150px", class="texteditor") %]</td>
-    </tr>
+  <table tbl-horizontal>
+    <caption id='phone_note_edit_text'>[% 'Add note' | $T8 %]</caption>
+    <colgroup><col class="wi-verysmall"><col class="wi-wider"></colgroup>
+    <tbody>
+     <tr>
+      <th valign="right">[% 'Subject' | $T8 %]</th>
+      <td>[% L.input_tag('phone_note.subject', '', class="wi-wider") %]</td>
+     </tr>
+     <tr>
+      <th valign="right" align="top">[% 'Body' | $T8 %]</th>
+      <td align="top">[% L.textarea_tag('phone_note.body', '', wrap="soft", style="height: 350px", class="texteditor wi-wider") %]</td>
+     </tr>
+    </tbody>
   </table>
 
  <p>
