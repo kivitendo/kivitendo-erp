@@ -10,6 +10,6 @@
  </p>
 
  <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
-    [% L.input_tag('file', '', type => 'file', accept => '.pdf', onchange='kivi.ZUGFeRD.update_file_name();') %]
+    [% L.input_tag('file', '', type => 'file', accept => '.pdf,.xml', onchange='kivi.ZUGFeRD.update_file_name();') %]
     [% L.hidden_tag('file_name', '') %]
  </form>
