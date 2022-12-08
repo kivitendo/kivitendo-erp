@@ -15,6 +15,7 @@ my %mail_strings = (
   salutation_general                          => t8('Salutation general'),
   salutation_punctuation_mark                 => t8('Salutation punctuation mark'),
   preset_text_sales_quotation                 => t8('Preset email text for sales quotations'),
+  preset_text_sales_order_intake              => t8('Preset email text for sales order intakes'),
   preset_text_sales_order                     => t8('Preset email text for sales orders'),
   preset_text_sales_delivery_order            => t8('Preset email text for sales delivery orders'),
   preset_text_invoice                         => t8('Preset email text for sales invoices'),

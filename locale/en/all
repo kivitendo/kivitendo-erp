@@ -2855,6 +2855,7 @@ $self->{texts} = {
   'Preset email text for sales delivery orders' => '',
   'Preset email text for sales invoices' => '',
   'Preset email text for sales invoices with direct debit' => '',
+  'Preset email text for sales order intakes' => '',
   'Preset email text for sales orders' => '',
   'Preset email text for sales quotations' => '',
   'Preset email text for sales reclamations' => '',
