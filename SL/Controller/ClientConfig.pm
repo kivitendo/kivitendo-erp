@@ -88,7 +88,7 @@ sub action_save {
              email_sender_invoice email_sender_purchase_invoice email_sender_letter email_sender_dunning
              global_bcc)) {
     next unless $defaults->{$_};
-    next if     $defaults->{$_} =~ /^[a-z0-9.]+\@[a-z0-9.-]+$/;
+    next if     $defaults->{$_} =~ /^[a-z0-9.]+\@[a-z0-9.-]+$/i;
     push @errors, t8('The email entry for #1 looks invalid', $_);
   }
   # Check templates
