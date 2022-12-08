@@ -146,6 +146,10 @@
       <th>[% 'Closed' | $T8 %]</th>
       <td><input type="checkbox" name="closed" value="1" id="closed"></td>
     </tr>
+    <tr>
+      <th>[% 'Status' | $T8 %]</th>
+      <td>[% L.select_tag('order_status_id', ALL_ORDER_STATUSES, default = order_status_id, title_key = 'name', with_empty = 1, style=style) %]</td>
+    </tr>
     [% IF type == 'sales_order' OR type == 'purchase_order' %]
     <tr>
       <th>[% 'Not delivered' | $T8 %]</th>
@@ -204,6 +208,10 @@
   <div>
     <input name="l_salesman" id="l_salesman" type="checkbox" value="Y">
     <label for="l_salesman">[% 'Salesman' | $T8 %]</label>
+  </div>
+  <div>
+    <input name="l_order_status" id="l_order_status" class="checkbox" type="checkbox" value="Y">
+    <label for="l_order_status">[% 'Status' | $T8 %]</label>
   </div>
   <div>
    <input name="l_intnotes" id="l_intnotes" class="checkbox" type="checkbox" value="Y">

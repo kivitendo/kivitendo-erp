@@ -188,6 +188,18 @@
       <td>[% L.yes_no_tag('order.closed', SELF.order.closed, class='wi-small') %]</td>
     </tr>
     [% END %]
+
+    [%- IF SELF.all_statuses.size %]
+    <tr>
+      <th>[% 'Status' | $T8 %]</th>
+      <td>[% L.select_tag('order.order_status_id',
+        SELF.all_statuses,
+        default=SELF.order.order_status_id,
+        with_empty=1,
+        title_key='name') %]</td>
+    </tr>
+    [%- END -%]
+
     <tr>
       <th>[% 'Employee' | $T8 %]</th>
       <td>[% L.select_tag('order.employee_id',
