@@ -32,7 +32,6 @@ my @types = (
   { type => 'pricegroup', description => t8('Pricegroup'),         customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->pricegroup_id }, exclude_nulls => 1 },
   { type => 'partsgroup', description => t8('Partsgroup'),         customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->part->partsgroup_id }, exclude_nulls => 1 },
   { type => 'qty',        description => t8('Qty'),                customer => 1, vendor => 1, data_type => 'num',  data => sub { $_[1]->qty }, ops => 'num' },
-  { type => 'cvar',       description => t8('Custom Variables'),   customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->part->cvar_by_name('articlegroup')->id }, exclude_nulls => 1 },
 );
 
 # ITEM.part.cvar_by_name(var.config.name)
@@ -86,32 +85,88 @@ sub cached_cvar_types {
 # we only generate cvar types for cvar price_rules that are actually used to keep the query smaller
 # these are cached per request
 sub generate_cvar_types {
-  my $cvar_configs = SL::DB::Manager::CustomVariableConfig->get_all(query => [
-    id => [ \"(select distinct custom_variable_configs_id from price_rule_items where custom_variable_configs_id is not null)" ]
-  ]);
+  my $cvar_configs = SL::DB::Manager::CustomVariableConfig->get_all;
 
   my @types;
 
+  # text, textfield, bool are not supported
+  my %price_rule_type_by_cvar_type = (
+    select    => 'text',
+    customer  => 'int',
+    vendor    => 'int',
+    part      => 'int',
+    number    => 'num',
+    date      => 'date',
+  );
+
+  my %ops_by_cvar_type = (
+    number    => 'num',
+    date      => 'date',
+  );
+
   for my $config (@$cvar_configs) {
+    # cvars can be pretty complicated, but most of that luckily doesn't affect price rule filtering:
+    #   - editable flags are copied to submodule entries - so those need to be preferred
+    #   - cvars may be invalid - but in that case they just won't get crated so we won't find any
+    #   - cvars may be restricted to partgroups, but again, in that case we simply won't find any
+    #   - cvars may have different types of values () just like price_rule_items, but the ->value
+    #     accessor already handles that, so we only need to set the price_rule type accordingly
+
+
+    my %data_by_module = (
+      IC => sub {
+        raw_value(
+          $config->processed_flags->{editable}
+            ? $_[1]->cvar_by_name($config->name)->value
+            : $_[1]->part->cvar_by_name($config->name)->value
+        );
+      },
+      CT => sub {
+        raw_value(
+          $_[0]->customervendor->cvar_by_name($config->name)->value
+        );
+      },
+      Projects => sub {
+        raw_value(
+          $_[1]->project ? $_[1]->project->cvar_by_name($config->name)->value :
+          $_[0]->globalproject ? $_[0]->globalproject->cvar_by_name($config->name)->value : undef
+        );
+      },
+      Contacts => sub {
+        raw_value(
+          $_[0]->contact ? $_[0]->contact->cvar_by_name($config->name)->value : undef
+        );
+      },
+    );
+
+    my $data_type = $price_rule_type_by_cvar_type{$config->type} or
+      die "cvar type @{[$config->type]} is not supported in price rules";
+
+    my $ops = $ops_by_cvar_type{$config->type};
 
     push @types, {
       type          => "cvar_" . $config->id,
       description   => $config->description,
       customer      => 1,
       vendor        => 1,
-      data_type     => 'text',
-      data          => sub {
-        $config->processed_flags->{editable}
-          ? $_[1]->cvar_by_name($config->name)->value
-          : $_[1]->part->cvar_by_name($config->name)->value
-      },
+      data_type     => $data_type,
+      data          => $data_by_module{$config->module},
       exclude_nulls => 1,
       cvar_config   => $config->id,
-    } if $config->module eq 'IC' && $config->type eq 'select';
-
+      ops           => $ops,
+    };
   }
 
   @types;
+}
+
+sub raw_value {
+  my ($value) = @_;
+  return if !defined $value;
+  return $value->id if (ref $value) =~ /Part|Customer|Contact|Vendor|Project/;
+  return $value if (ref $value) =~ /DateTime/;
+  die "reference value unsupported for binding to price_rules, got ref " . ref $value if ref $value;
+  $value;
 }
 
 sub get_all_types {
