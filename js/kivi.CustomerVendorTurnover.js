@@ -70,18 +70,6 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
   };
 
   ns.draw_chart = function(data) {
-    // Todos are most probably better done in the perl backend.
-    // Todo: fill holes
-    // Todo: show amount/paid in one/each bar
-    // data = [
-    //   {date_part: 2022, netamount: 1234.4},
-    //   {date_part: 2022, netamount: 234.4},
-    //   {date_part: 2021, netamount: 234.4},
-    //   {date_part: 2021, netamount: 34.4},
-    //   {date_part: 2020, netamount: 134.4},
-    //   {date_part: 2018, netamount: 34.4}
-    // ];
-
     $(data).each(function(idx, elt) {
       elt.date_part = '' + elt.date_part;
     });
@@ -159,44 +147,6 @@ namespace('kivi.CustomerVendorTurnover', function(ns) {
             ns.show_turnover('m', data[dataX].date_part);
           } else {
             ns.show_turnover('y');
-          }
-        }
-      }
-    });
-  };
-
-  ns.sample_chart = function() {
-    const ctx = 'chart';
-    const myChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-        datasets: [{
-          label: '# of Votes',
-          data: [12, 19, 3, 5, 2, 3],
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)'
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true
           }
         }
       }
