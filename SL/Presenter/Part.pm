@@ -6,7 +6,7 @@ use SL::DB::Part;
 use SL::DB::PartClassification;
 use SL::Locale::String qw(t8);
 use SL::Presenter::EscapedText qw(escape is_escaped);
-use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag);
+use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag link_tag);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(
