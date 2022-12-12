@@ -343,6 +343,7 @@ sub reset_db {
       searchable  => 0,
       includeable => 0,
       included_by_default => 0,
+      flags => '',
     )->save->load;
 
     my $customer = new_customer()->save->load;
@@ -388,6 +389,7 @@ sub reset_db {
       searchable  => 0,
       includeable => 0,
       included_by_default => 0,
+      flags => '',
     )->save->load;
 
     my $price_rule = SL::DB::PriceRule->new(
@@ -419,5 +421,6 @@ sub reset_db {
   }
 }
 
+reset_db();
 
 done_testing();

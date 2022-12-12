@@ -40,7 +40,7 @@ sub parse_value {
 
   if ($type =~ m{^(?:customer|vendor|part|number)}) {
     return $self->number_value(!defined($unparsed) ? undef
-                               : (any { ref($unparsed) eq $_ } qw(SL::DB::Customer SL::DB::Vendor SL::DB::Part)) ? $unparsed->id * 1
+                               : (any { ref($unparsed) eq $_ } qw(SL::DB::Customer SL::DB::Vendor SL::DB::Part)) ? $unparsed->id
                                : $unparsed * 1);
   }
 
@@ -76,17 +76,17 @@ sub value {
   if ( $type eq 'customer' ) {
     require SL::DB::Customer;
 
-    my $id = int($self->number_value);
+    my $id = defined($self->number_value) ? int($self->number_value) : undef;
     return $id ? SL::DB::Customer->new(id => $id)->load() : undef;
   } elsif ( $type eq 'vendor' ) {
     require SL::DB::Vendor;
 
-    my $id = int($self->number_value);
+    my $id = defined($self->number_value) ? int($self->number_value) : undef;
     return $id ? SL::DB::Vendor->new(id => $id)->load() : undef;
   } elsif ( $type eq 'part' ) {
     require SL::DB::Part;
 
-    my $id = int($self->number_value);
+    my $id = defined($self->number_value) ? int($self->number_value) : undef;
     return $id ? SL::DB::Part->new(id => $id)->load() : undef;
   } elsif ( $type eq 'date' ) {
     return $self->timestamp_value ? $self->timestamp_value->clone->truncate(to => 'day') : undef;
