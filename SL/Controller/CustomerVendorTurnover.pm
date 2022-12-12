@@ -168,7 +168,7 @@ sub action_turnover {
 SQL
   $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query, $cv, ($::form->{year} || '') x !!('month' eq $::form->{mode} && $::form->{year}));
 
-  if ('month' eq $::form->{mode} && $fill_holes && @{$self->{turnover_statistic}} > 1) {
+  if ('month' eq $::form->{mode} && $fill_holes && ($::form->{year} || @{$self->{turnover_statistic}} > 1)) {
     my $date_part_to_months = sub { my ($m, $y) = $_[0] =~ m{^(\d{1,2})/(\d{1,4})$}; return $m + 12*$y; };
     my $months_to_date_part = sub { my $y = int(($_[0] - 1)/12); my $m = $_[0] - 12*$y; $m ||= 12; return "$m/$y"; };
 
