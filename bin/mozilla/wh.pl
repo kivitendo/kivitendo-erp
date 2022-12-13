@@ -728,14 +728,16 @@ sub generate_journal {
                                        'data'           => \@contents);
 
 
-  my %doc_types = ( 'sales_quotation'         => { script => 'oe', title => $locale->text('Sales quotation') },
-                    'sales_order'             => { script => 'oe', title => $locale->text('Sales Order') },
-                    'request_quotation'       => { script => 'oe', title => $locale->text('Request quotation') },
-                    'purchase_order'          => { script => 'oe', title => $locale->text('Purchase Order') },
-                    'sales_delivery_order'    => { script => 'do', title => $locale->text('Sales delivery order') },
-                    'purchase_delivery_order' => { script => 'do', title => $locale->text('Purchase delivery order') },
-                    'sales_invoice'           => { script => 'is', title => $locale->text('Sales Invoice') },
-                    'purchase_invoice'        => { script => 'ir', title => $locale->text('Purchase Invoice') },
+  my %doc_types = ( 'sales_quotation'         => { action => 'edit', script => 'oe', title => $locale->text('Sales quotation') },
+                    'sales_order'             => { action => 'edit', script => 'oe', title => $locale->text('Sales Order') },
+                    'request_quotation'       => { action => 'edit', script => 'oe', title => $locale->text('Request quotation') },
+                    'purchase_order'          => { action => 'edit', script => 'oe', title => $locale->text('Purchase Order') },
+                    'sales_delivery_order'    => { action => 'edit', script => 'do', title => $locale->text('Sales delivery order') },
+                    'purchase_delivery_order' => { action => 'edit', script => 'do', title => $locale->text('Purchase delivery order') },
+                    'supplier_delivery_order' => { action => 'DeliveryOrder/edit', script => 'controller', title => $locale->text('Supplier delivery order') },
+                    'rma_delivery_order'      => { action => 'DeliveryOrder/edit', script => 'controller', title => $locale->text('RMA delivery order') },
+                    'sales_invoice'           => { action => 'edit', script => 'is', title => $locale->text('Sales Invoice') },
+                    'purchase_invoice'        => { action => 'edit', script => 'ir', title => $locale->text('Purchase Invoice') },
                   );
 
   my $idx       = 0;
@@ -768,7 +770,7 @@ sub generate_journal {
 
       if ($info && $info->{id} && $info->{type} && $doc_types{$info->{type}}) {
         $row->{oe_id} = { data => $doc_types{ $info->{type} }->{title} . ' ' . $info->{number},
-                          link => build_std_url('script=' . $doc_types{ $info->{type} }->{script} . '.pl', 'action=edit', 'id=' . $info->{id}, 'type=' . $info->{type}) };
+                          link => build_std_url('script=' . $doc_types{ $info->{type} }->{script} . '.pl', 'action=' . $doc_types{ $info->{type} }->{action}, 'id=' . $info->{id}, 'type=' . $info->{type}) };
       }
     }
 

@@ -1113,6 +1113,7 @@ sub action_transfer_stock {
     for my $stock (@{ $item->delivery_order_stock_entries }) {
       my $transfer = SL::DB::Inventory->new_from($stock);
       $transfer->trans_type($trans_type);
+      $transfer->oe_id($order->id);
       $transfer->qty($transfer->qty * -1) if $inout eq 'out';
       $transfer->qty($transfer->qty * 1) if $inout eq 'in';
 

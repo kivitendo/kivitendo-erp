@@ -427,10 +427,7 @@ sub get_warehouse_journal {
   if ($form->{l_oe_id}) {
     $q_oe_id = <<SQL;
       SELECT dord.id AS id, dord.donumber AS number,
-        CASE
-          WHEN dord.customer_id IS NULL THEN 'purchase_delivery_order'
-          ELSE                               'sales_delivery_order'
-        END AS type
+      dord.order_type AS type
       FROM delivery_orders dord
       WHERE dord.id = ?
 
