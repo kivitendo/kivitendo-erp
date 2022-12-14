@@ -13,17 +13,6 @@
     \input{deutsch.tex}}{\input{deutsch.tex}}
 } % Ende EN
 
-%Bei manchen Belegen wird ein Fehler von Latex geworfen, wenn nach einer Longdescription
-%weitere ExtraDescrition kommen
-\ExplSyntaxOn
-\cs_set:Nn \__kivi_addExtraDescription:n {
-	\tl_set:Nx \l_tmpa_tl {\tl_item:nn {#1} { -1 } }
-	\exp_args:NV \tl_if_eq:nnTF \l_tmpa_tl {\par}
-	{\seq_gput_right:Nx \g_kivi_extraDescription_seq {\tl_range:nnn {#1} { 1 } { -2 }}}
-	{\seq_gput_right:Nn \g_kivi_extraDescription_seq {#1}}
-}
-\ExplSyntaxOff
-
 % Mandanten-/Firmenabhängigkeiten
 
 % Pfad zu firmenspez. Angaben, sofern kein Unterordner mit dem Datenbanknamen des Mandanten in der Vorlage existiert, wird der Unterordner „firma“ verwendet. Der Datenbankname ist ab hier im Makro \identpath gespeichert
@@ -44,7 +33,7 @@
 
 
 % Währungen/Konten
-% Die Konfiguration bedindet sich in der Datei
+% Die Konfiguration bedindet sich in der Datei 
 % \identpath/<euro/chf/usd>_account.tex
 % das optionale Argument ist als euro vorbelegt und gibt die Einstellung an, falls \lxcurrency nicht von kivitendo übergeben wird.
 
@@ -58,7 +47,7 @@
   parskip=half-,% Absatzkennzeichnung durch Abstand statt Einzug
 }
 % Hier ist es auch möglich zusätzliche Schriftarten zu laden.
-%
+% 
 % - Falls pdfLaTeX verwendet wird, findet man unter https://www.tug.org/FontCatalogue/ eine gute *bersicht, wie die Schrifteen geladen werden.
 %
 % In diesem Beispiel wird lediglich auf eine Serifenlose Schriftart umgestellt.
@@ -82,9 +71,9 @@
 % 4. Belegnummer {oder leer}
 % 5. Belegdatum {oder leer}
 % Beispiel: \ourhead{\kundennummer}{<%customernumber%>}{\angebot}{<%quonumber%>}{<%quodate%>}
-% Eine Anpassunge ist über Änderung dieses Makros möglich oder über direktes Befüllen der Felder
+% Eine Anpassunge ist über Änderung dieses Makros möglich oder über direktes Befüllen der Felder 
 % % \ifoot{<inhalt innen/links>}\cfoot{<inhalt zentriert>}\ofoot{<inhalt außen/rechts>}
-% dann sollte jedoch darauf geachtet werden, dass das Makro in den einzelnen Vorlagen aufgerufen wird und daher definiert sein sollte.
+% dann sollte jedoch darauf geachtet werden, dass das Makro in den einzelnen Vorlagen aufgerufen wird und daher definiert sein sollte. 
 \newcommand{\ourhead}[5] {
   \chead{
     \makebox[\textwidth]{
@@ -101,7 +90,7 @@
 
 
 %Beginn Anpassungen der Fußzeile:
-%Der folgende Block passt die Fußzeile so an, dass sich der untere Rand automatisch anpasst. Der Inhaltsteil ist entsprechend markiert, anstatt dieser Anpassungen ist es auch möglich den Fuß über die KOMA-Script-Makros
+%Der folgende Block passt die Fußzeile so an, dass sich der untere Rand automatisch anpasst. Der Inhaltsteil ist entsprechend markiert, anstatt dieser Anpassungen ist es auch möglich den Fuß über die KOMA-Script-Makros 
 % \ifoot{<inhalt innen/links>}\cfoot{<inhalt zentriert>}\ofoot{<inhalt außen/rechts>}
 % anzupassen.
 \normalfont %Basisschriftart aktivieren, damit der Fuß entsprechend gebaut wird.
