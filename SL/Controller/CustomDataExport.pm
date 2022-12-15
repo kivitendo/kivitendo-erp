@@ -104,7 +104,12 @@ sub action_export_with_rep_gen {
     push @objects, \%row_set;
   }
 
-  $self->report_generator_list_objects(report => $report, objects => \@objects);
+  $self->report_generator_list_objects(report  => $report,
+                                       objects => \@objects,
+                                       options => {
+                                         action_bar_additional_submit_values => { id => $::form->{id}, },
+                                       },
+  );
 }
 
 #
