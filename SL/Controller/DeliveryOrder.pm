@@ -1683,6 +1683,9 @@ sub save {
       my @converted_from_reclamation_ids = split ' ', $::form->{converted_from_reclamation_id};
       foreach my $converted_from_reclamation_id (@converted_from_reclamation_ids) {
         my $src = SL::DB::Reclamation->new(id => $converted_from_reclamation_id)->load;
+        if(!$::instance_conf->get_shipped_qty_require_stock_out || $self->order->delivered) {
+          $src->update_attributes(delivered => 1);
+        }
         $src->link_to_record($self->order);
       }
       if (scalar @{ $::form->{converted_from_reclamation_items_ids} || [] }) {
