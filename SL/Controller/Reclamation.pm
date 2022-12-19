@@ -580,7 +580,10 @@ sub action_save_and_order {
 
   my $to_type = $self->reclamation->is_sales ? 'sales_order'
                                              : 'purchase_order';
-  $self->save_and_redirect_to(
+
+  $self->save_with_render_error();
+  flash_later('info', t8('The reclamation has been saved'));
+  $self->redirect_to(
     controller => 'Order',
     action     => 'add_from_reclamation',
     type       => $to_type,
@@ -606,7 +609,9 @@ sub action_save_and_delivery_order {
 
   my $to_type = $self->reclamation->is_sales ? 'rma_delivery_order'
                                              : 'supplier_delivery_order';
-  $self->save_and_redirect_to(
+  $self->save_with_render_error();
+  flash_later('info', t8('The reclamation has been saved'));
+  $self->redirect_to(
     controller => 'controller.pl',
     action     => 'DeliveryOrder/add_from_reclamation',
     type       => $to_type,
@@ -627,7 +632,9 @@ sub action_save_and_credit_note {
     return $self->js->render();
   }
 
-  $self->save_and_redirect_to(
+  $self->save_with_render_error();
+  flash_later('info', t8('The reclamation has been saved'));
+  $self->redirect_to(
     controller => 'is.pl',
     action     => 'credit_note_from_reclamation',
     from_id    => $self->reclamation->id,
@@ -2481,16 +2488,6 @@ sub sales_reclamation_type {
 
 sub purchase_reclamation_type {
   'purchase_reclamation';
-}
-
-sub save_and_redirect_to {
-  my ($self, %params) = @_;
-
-  $self->save_with_render_error();
-
-  flash_later('info', t8('The reclamation has been saved'));
-
-  $self->redirect_to(%params);
 }
 
 sub save_history {
