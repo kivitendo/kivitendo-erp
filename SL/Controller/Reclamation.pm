@@ -593,12 +593,30 @@ sub action_save_and_order {
 
 # workflow from purchase to sales reclamation
 sub action_save_and_sales_reclamation {
-  $_[0]->workflow_save_and_sales_or_purchase_reclamation();
+  my ($self) = @_;
+
+  $self->save_with_render_error();
+  flash_later('info', t8('The reclamation has been saved'));
+  $self->redirect_to(
+    controller => 'Reclamation',
+    action     => 'add_from_reclamation',
+    from_id => $self->reclamation->id,
+    type => sales_reclamation_type(),
+  );
 }
 
 # workflow from sales to purchase reclamation
 sub action_save_and_purchase_reclamation {
-  $_[0]->workflow_save_and_sales_or_purchase_reclamation();
+  my ($self) = @_;
+
+  $self->save_with_render_error();
+  flash_later('info', t8('The reclamation has been saved'));
+  $self->redirect_to(
+    controller => 'Reclamation',
+    action     => 'add_from_reclamation',
+    from_id => $self->reclamation->id,
+    type => purchase_reclamation_type(),
+  );
 }
 
 # save the reclamation and redirect to the frontend subroutine for a new
@@ -1739,34 +1757,24 @@ sub save_with_render_error {
 }
 
 # sales → purchase or purchase → sales
-sub workflow_save_and_sales_or_purchase_reclamation {
+sub action_add_from_reclamation {
   my ($self) = @_;
 
-  # always save
-  $self->save_with_render_error();
+  my $destination_type = $::form->{destination_type};
 
-  my $destination_type = $::form->{type} eq purchase_reclamation_type() ? sales_reclamation_type()
-                       : $::form->{type} eq sales_reclamation_type()    ? purchase_reclamation_type()
-                       : '';
-
-  # check for direct delivery
-  # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
-  my $custom_shipto;
-  if (   ($::form->{type} eq sales_reclamation_type())
-      && ($destination_type eq purchase_reclamation_type())
-      && $::form->{use_shipto}
-      && $self->reclamation->shipto ) {
-    $custom_shipto = $self->reclamation->shipto->clone('SL::DB::Reclamation');
-  }
+  my $source_reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
 
   $self->reclamation(
     SL::DB::Reclamation->new_from(
-      $self->reclamation,
-      destination_type => $destination_type,
+      $source_reclamation,
+      destination_type => $::form->{type},
   ));
 
-  if ($::form->{type} eq sales_reclamation_type() && $destination_type eq purchase_reclamation_type()) {
+  # check for direct delivery
+  # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
+  if ($::form->{type} eq purchase_reclamation_type()) {
     if ($::form->{use_shipto}) {
+      my $custom_shipto = $source_reclamation->shipto->clone('SL::DB::Reclamation');
       $self->reclamation->custom_shipto($custom_shipto) if $custom_shipto;
     } else {
       # remove any custom shipto if not wanted
@@ -1774,7 +1782,6 @@ sub workflow_save_and_sales_or_purchase_reclamation {
     }
   }
 
-  $::form->{type} = $destination_type;
   $self->reinit_after_new_reclamation();
 
   $self->render(
