@@ -1774,6 +1774,7 @@ sub workflow_save_and_sales_or_purchase_reclamation {
     }
   }
 
+  $::form->{type} = $destination_type;
   $self->reinit_after_new_reclamation();
 
   $self->render(
