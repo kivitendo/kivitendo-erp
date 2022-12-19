@@ -2286,6 +2286,7 @@ $self->{texts} = {
   'Name of the goal/source (if field names remote_name and remote_name_1 exist they will be combined into field "remote_name")' => '',
   'Need a image title'          => '',
   'Need a valid Shop Part for updating Part' => '',
+  'Need a workflow for RMA Delivery Order.' => '',
   'Need a workflow for Supplier Delivery Order' => '',
   'Need at least one original position for the workflow Order to Delivery Order!' => '',
   'Need charge number!'         => '',

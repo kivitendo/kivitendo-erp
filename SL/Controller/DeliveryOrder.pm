@@ -1896,6 +1896,7 @@ sub setup_edit_action_bar {
           ],
           disabled => !$may_edit_create                        ? t8('You do not have the permissions to access this function.')
                     : $self->type eq 'supplier_delivery_order' ? t8('Need a workflow for Supplier Delivery Order')
+                    : $self->type eq 'rma_delivery_order'      ? t8('Need a workflow for RMA Delivery Order.')
                     : !$self->order->id                        ? t8('This object has not been saved yet.')
                     :                                            undef,
         ],
