@@ -1529,6 +1529,7 @@ $self->{texts} = {
   'Error: Stock problem'        => 'Fehler: Problem bei der Lagerbewegung',
   'Error: Stocking out would result in stock underrun' => 'Auslagern würde zu einem negativen Lagerbestand führen',
   'Error: Stocking out would result in stock underrun: #1' => 'Auslagern würde zu einem negativen Lagerbestand führen: #1',
+  'Error: This is not a sales reclamation.' => 'Fehler: Dies ist keine Verkaufreklamaiton.',
   'Error: Transfer would result in a negative target quantity.' => 'Fehler: Lagerbewegung würde zu einer negativen Zielmenge führen.',
   'Error: Unit missing or invalid' => 'Fehler: Einheit fehlt oder ungültig',
   'Error: Warehouse not found'  => 'Fehler: Lager nicht gefunden',

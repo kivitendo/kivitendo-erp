@@ -694,7 +694,7 @@ namespace('kivi.Reclamation', function(ns) {
 
   ns.purchase_reclamation_check_for_direct_delivery = function() {
     if ($('#type').val() != 'sales_reclamation') {
-      kivi.submit_form_with_action($('#reclamation_form'), 'Reclamation/save_and_purchase_reclamation');
+      return alert(kivi.t8("Error: This is not a sales reclamation."));
     }
 
     var empty = true;
@@ -704,13 +704,13 @@ namespace('kivi.Reclamation', function(ns) {
       shipto = $('#reclamation_shipto_id option:selected').text();
     } else {
       $('#shipto_inputs [id^="shipto"]').each(function(idx, elt) {
-        if (!empty)                                     return true;
-        if (/^shipto_to_copy/.test($(elt).prop('id')))  return true;
-        if (/^shiptocp_gender/.test($(elt).prop('id'))) return true;
-        if (/^shiptocvar_/.test($(elt).prop('id')))     return true;
+        if (!empty)                                     return;
+        if (/^shipto_to_copy/.test($(elt).prop('id')))  return;
+        if (/^shiptocp_gender/.test($(elt).prop('id'))) return;
+        if (/^shiptocvar_/.test($(elt).prop('id')))     return;
         if ($(elt).val() !== '') {
           empty = false;
-          return false;
+          return;
         }
       });
       var shipto_elements = [];
@@ -720,11 +720,10 @@ namespace('kivi.Reclamation', function(ns) {
       shipto = shipto_elements.join('; ');
     }
 
-    var use_it = false;
     if (!empty) {
       ns.direct_delivery_dialog(shipto);
     } else {
-      kivi.submit_form_with_action($('#reclamation_form'), 'Reclamation/save_and_purchase_reclamation');
+      ns.save('save_and_purchase_reclamation');
     }
   };
 
@@ -735,7 +734,7 @@ namespace('kivi.Reclamation', function(ns) {
       $('<input type="hidden" name="use_shipto">').appendTo('#reclamation_form').val('1');
     }
 
-    kivi.submit_form_with_action($('#reclamation_form'), 'Reclamation/save_and_purchase_reclamation');
+    ns.save('save_and_purchase_reclamation');
   };
 
   ns.direct_delivery_dialog = function(shipto) {

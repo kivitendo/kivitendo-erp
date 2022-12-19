@@ -1529,6 +1529,7 @@ $self->{texts} = {
   'Error: Stock problem'        => '',
   'Error: Stocking out would result in stock underrun' => '',
   'Error: Stocking out would result in stock underrun: #1' => '',
+  'Error: This is not a sales reclamation.' => '',
   'Error: Transfer would result in a negative target quantity.' => '',
   'Error: Unit missing or invalid' => '',
   'Error: Warehouse not found'  => '',

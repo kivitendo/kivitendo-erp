@@ -71,6 +71,7 @@ namespace("kivi").setupLocale({
 "Enter longdescription":"",
 "Error: #1":"",
 "Error: Name missing":"",
+"Error: This is not a sales reclamation.":"",
 "Feb":"",
 "February":"",
 "File upload":"",
