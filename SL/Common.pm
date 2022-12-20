@@ -340,7 +340,7 @@ sub get_vc_details {
 
   map { $form->{$_} = $form->format_amount($myconfig, $form->{$_} * 1) } qw(discount creditlimit);
 
-  $query = qq|SELECT * FROM shipto WHERE (trans_id = ?)|;
+  $query = qq|SELECT * FROM shipto WHERE (trans_id = ?) AND module LIKE 'CT'|;
   $form->{SHIPTO} = selectall_hashref_query($form, $dbh, $query, $vc_id);
 
   if ($vc eq 'customer') {
