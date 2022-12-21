@@ -5,7 +5,9 @@
 <table width="100%">
  <tr class="listheading">
   <th>[% L.checkbox_tag('record_links_check_all') %]</th>
+  [% IF vc %]
   <th>[% IF vc == 'customer' %][%- LxERP.t8("Customer") %][%- ELSE %][%- LxERP.t8("Vendor") %][%- END %]</th>
+  [% END %]
   <th>[%- LxERP.t8("Number") %]</th>
   [% IF date_column %]
    <th>[%- LxERP.t8("Date") %]</th>
@@ -19,7 +21,9 @@
  [%- FOREACH object = OBJECTS %]
  <tr class="listrow[% loop.count % 2 %]">
   <td>[% L.checkbox_tag('link_id[]', value=object.id) %]</td>
+  [% IF vc %]
   <td>[%- HTML.escape(object.$vc.name) %]</td>
+  [% END %]
   <td>[%- HTML.escape(object.$number_column) %]</td>
   [% IF date_column %]
    <td>[%- HTML.escape(object.$date_column.to_kivitendo) %]</td>

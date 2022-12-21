@@ -54,11 +54,11 @@ my @link_type_specifics = (
   { title => t8('Purchase Reclamation'),    type => 'purchase_reclamation',    model => 'Reclamation',     number => 'record_number',},
   { title => t8('Purchase Invoice'),        type => 'purchase_invoice',        model => 'PurchaseInvoice', number => 'invnumber', },
   { title => t8('Letter'),                  type => 'letter',                  model => 'Letter',          number => 'letternumber', description => 'subject', description_title => t8('Subject'), date => 'date', project => undef },
-  { title => t8('Email'),                   type => 'email_journal',           model => 'EmailJournal',    number => 'id', description => 'subject', description_title => t8('Subject'), },
+  { title => t8('Email'),                   type => 'email_journal',           model => 'EmailJournal',    number => 'id', description => 'subject', description_title => t8('Subject'), project => undef},
   { title => t8('AR Transaction'),          type => 'ar_transaction',          model => 'Invoice',         number => 'invnumber', },
   { title => t8('AP Transaction'),          type => 'ap_transaction',          model => 'PurchaseInvoice', number => 'invnumber', },
   { title => t8('Dunning'),                 type => 'dunning',                 model => 'Dunning',         number => 'dunning_id', },
-  { title => t8('GL Transaction'),          type => 'gl_transaction',          model => 'GLTransaction',   number => 'reference', },
+  { title => t8('GL Transaction'),          type => 'gl_transaction',          model => 'GLTransaction',   number => 'reference', project => undef},
 );
 
 my @link_types = map { +{ %link_type_defaults, %{ $_ } } } @link_type_specifics;
@@ -126,12 +126,14 @@ sub action_ajax_add_filter {
   my @link_type_select = map { [ $_->{type}, $_->{title} ] } @link_types;
   my @projects         = map { [ $_->id, $_->presenter->project(display => 'inline', style => 'both', no_link => 1) ] } @{ SL::DB::Manager::Project->get_all_sorted };
   my $is_sales         = $self->object->can('customer_id') && $self->object->customer_id;
+  my $is_purchase      = $self->object->can('vendor_id')   && $self->object->vendor_id;
 
   $self->render(
     'record_links/add_filter',
     { layout          => 0 },
     is_sales          => $is_sales,
-    DEFAULT_LINK_TYPE => $is_sales ? 'sales_quotation' : 'request_quotation',
+    is_purchase       => $is_purchase,
+    DEFAULT_LINK_TYPE => $is_sales ? 'sales_quotation' : $is_purchase ? 'request_quotation' : 'email_journal',
     LINK_TYPES        => \@link_type_select,
     PROJECTS          => \@projects,
   );
@@ -140,8 +142,11 @@ sub action_ajax_add_filter {
 sub action_ajax_add_list {
   my ($self) = @_;
 
+  my $class       = 'SL::DB::'          . $self->link_type_desc->{model};
   my $manager     = 'SL::DB::Manager::' . $self->link_type_desc->{model};
-  my $vc          = $self->link_type =~ m/shop|sales_|^invoice|requirement_spec|letter|^ar_/ ? 'customer' : 'vendor';
+  my $vc          = !($class->can('customer_id') || $class->can('vendor_id')) ? undef
+                  : $self->link_type =~ m/shop|sales_|^invoice|requirement_spec|letter|^ar_/ ? 'customer'
+                  : 'vendor';
   my $project     = $self->link_type_desc->{project};
   my $project_id  = "${project}_id";
   my $description = $self->link_type_desc->{description};
@@ -149,13 +154,12 @@ sub action_ajax_add_list {
   my $number      = $self->link_type_desc->{number};
 
   my @where = $filter && $manager->can($filter) ? $manager->$filter($self->link_type) : ();
-  push @where, ("${vc}.${vc}number"     => { ilike => like($::form->{vc_number}) })               if $::form->{vc_number};
-  push @where, ("${vc}.name"            => { ilike => like($::form->{vc_name}) })                 if $::form->{vc_name};
+  push @where, ("${vc}.${vc}number"     => { ilike => like($::form->{vc_number}) })               if $vc && $::form->{vc_number};
+  push @where, ("${vc}.name"            => { ilike => like($::form->{vc_name}) })                 if $vc && $::form->{vc_name};
   push @where, ($description            => { ilike => like($::form->{transaction_description}) }) if $::form->{transaction_description};
   push @where, ($project_id             => $::form->{globalproject_id})                           if $::form->{globalproject_id} && $manager->can($project_id);
 
   if ($::form->{number}) {
-    my $class    = 'SL::DB::' . $self->link_type_desc->{model};
     my $col_type = ref $class->meta->column($number);
     if ($col_type =~ /^Rose::DB::Object::Metadata::Column::(?:Integer|Serial)$/) {
       push @where, ($number => $::form->{number});
@@ -164,7 +168,8 @@ sub action_ajax_add_list {
     }
   }
 
-  my @with_objects = ($vc);
+  my @with_objects = ();
+  push @with_objects, $vc      if $vc;
   push @with_objects, $project if $manager->can($project_id);
 
   # show the newest records first (should be better for 80% of the cases TODO sortable click
