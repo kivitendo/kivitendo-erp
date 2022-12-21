@@ -73,8 +73,13 @@ function filter_record_links() {
   $.ajax({
     url: url,
     success: function(new_data) {
-      $("#record_list_filtered_list").html(new_data['html']);
-      $('#add_selected_record_links_button').prop('disabled', new_data['count'] == 0);
+      if (new_data['error']) {
+        $("#record_list_filtered_list").html(kivi.t8('Error: #1', [ new_data['error'] ]));
+        $('#add_selected_record_links_button').prop('disabled', true);
+      } else {
+        $("#record_list_filtered_list").html(new_data['html']);
+        $('#add_selected_record_links_button').prop('disabled', new_data['count'] == 0);
+      }
     }
   });
 }
