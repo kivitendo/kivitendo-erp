@@ -11,7 +11,8 @@ use SL::DB::Manager::ValidityToken;
 
 __PACKAGE__->meta->initialize;
 
-use constant SCOPE_SALES_INVOICE_POST => 'SalesInvoice::Post';
+use constant SCOPE_SALES_INVOICE_POST  => 'SalesInvoice::Post';
+use constant SCOPE_DELIVERY_ORDER_SAVE => 'DeliveryOrder::Save';
 
 sub create {
   my ($class, %params) = @_;

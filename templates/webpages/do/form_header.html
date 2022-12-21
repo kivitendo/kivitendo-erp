@@ -122,6 +122,10 @@
   <input type="hidden" name="lastmtime" id="lastmtime" value="[% HTML.escape(lastmtime) %]">
   <input type="hidden" name="tax_point" id="tax_point" value="[% HTML.escape(tax_point) %]">
 
+  [% IF !id %]
+  [%   L.hidden_tag('form_validity_token', form_validity_token) %]
+  [% END %]
+
   <p>
    <table width="100%">
     <tr valign="top">

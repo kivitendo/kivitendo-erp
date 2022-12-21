@@ -114,6 +114,10 @@ sub add {
   $form->{show_details} = $::myconfig{show_form_details};
   $form->{callback} = build_std_url('action=add', 'type', 'vc') unless ($form->{callback});
 
+  if (!$form->{form_validity_token}) {
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE())->token;
+  }
+
   order_links(is_new => 1);
   prepare_order();
   display_form();
@@ -987,6 +991,16 @@ sub save {
 
   $form->mtime_ischanged('delivery_orders');
 
+  my $validity_token;
+  if (!$form->{id}) {
+    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+      scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE(),
+      token => $form->{form_validity_token},
+    );
+
+    $form->error($::locale->text('The form is not valid anymore.')) if !$validity_token;
+  }
+
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
   $form->isblank("transdate", $locale->text('Delivery Order Date missing!'));
@@ -1041,6 +1055,10 @@ sub save {
     }
   }
   DO->save();
+
+  $validity_token->delete if $validity_token;
+  delete $form->{form_validity_token};
+
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|donumber_| . $form->{donumber};

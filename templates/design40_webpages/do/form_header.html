@@ -119,7 +119,9 @@ END ; %]
 <input type="hidden" name="lastmtime" id="lastmtime" value="[% HTML.escape(lastmtime) %]">
 <input type="hidden" name="tax_point" id="tax_point" value="[% HTML.escape(tax_point) %]">
 
-
+[% IF !id %]
+[%   L.hidden_tag('form_validity_token', form_validity_token) %]
+[% END %]
 
 <table class="tbl-horizontal col">
   <caption>[% 'Customer & Order Information' | $T8 %]</caption>

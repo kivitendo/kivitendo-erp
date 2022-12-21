@@ -2077,6 +2077,8 @@ sub delivery_order {
     $form->{type}  = 'purchase_delivery_order';
   }
 
+  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE())->token;
+
   $form->get_employee();
 
   require "bin/mozilla/do.pl";
