@@ -157,7 +157,7 @@ sub action_ajax_add_list {
   push @where, ("${vc}.${vc}number"     => { ilike => like($::form->{vc_number}) })               if $vc && $::form->{vc_number};
   push @where, ("${vc}.name"            => { ilike => like($::form->{vc_name}) })                 if $vc && $::form->{vc_name};
   push @where, ($description            => { ilike => like($::form->{transaction_description}) }) if $::form->{transaction_description};
-  push @where, ($project_id             => $::form->{globalproject_id})                           if $::form->{globalproject_id} && $manager->can($project_id);
+  push @where, ($project_id             => $::form->{globalproject_id})                           if $::form->{globalproject_id} && $class->can($project_id);
 
   if ($::form->{number}) {
     my $col_type = ref $class->meta->column($number);
@@ -170,7 +170,7 @@ sub action_ajax_add_list {
 
   my @with_objects = ();
   push @with_objects, $vc      if $vc;
-  push @with_objects, $project if $manager->can($project_id);
+  push @with_objects, $project if $class->can($project_id);
 
   # show the newest records first (should be better for 80% of the cases TODO sortable click
   my $objects = $manager->get_all(where => \@where, with_objects => \@with_objects, sort_by => 'itime',  sort_dir => 'ASC');
