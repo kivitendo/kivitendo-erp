@@ -394,11 +394,6 @@
         <td class="long-desc">[% LxERP.t8("If enabled sales invoices created using OpenDocument/OASIS format will include data for Swiss QR-Bill creation.") %]</td>
        </tr>
        <tr>
-        <th>[% LxERP.t8("Prevent browser's back button in sales invoices") %]</th>
-        <td>[% L.yes_no_tag("defaults.invoice_prevent_browser_back", SELF.defaults.invoice_prevent_browser_back) %]</td>
-        <td class="long-desc">[% LxERP.t8("If enabled try to overrule the brower's back button to prevent double booking of sales invoices.") %]</td>
-       </tr>
-       <tr>
         <th>[% LxERP.t8("Lock RFQ/Quotation and Order Subversion") %]</th>
         <td>[% L.yes_no_tag("defaults.lock_oe_subversions", SELF.defaults.lock_oe_subversions) %]</td>
         <td class="long-desc">[% LxERP.t8("If enabled RFQs, Quotations and Orders can only be send once via email. By creating another subversion the current record gets a minor subversion and can be send again via email.") %]</td>
