@@ -99,6 +99,7 @@ function record_links_change_form_to_match_type() {
   var type  = $('#record_links_add_filter_link_type').val();
   var title = type == 'requirement_spec' ? kivi.t8('Title')
             : type == 'letter'           ? kivi.t8('Subject')
+            : type == 'email_journal'    ? kivi.t8('Subject')
             :                              kivi.t8('Transaction description');
 
   if (type == 'letter' || type == 'email_journal' || type == 'gl_transaction') {

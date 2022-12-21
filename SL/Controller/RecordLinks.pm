@@ -54,7 +54,7 @@ my @link_type_specifics = (
   { title => t8('Purchase Reclamation'),    type => 'purchase_reclamation',    model => 'Reclamation',     number => 'record_number',},
   { title => t8('Purchase Invoice'),        type => 'purchase_invoice',        model => 'PurchaseInvoice', number => 'invnumber', },
   { title => t8('Letter'),                  type => 'letter',                  model => 'Letter',          number => 'letternumber', description => 'subject', description_title => t8('Subject'), date => 'date', project => undef },
-  { title => t8('Email'),                   type => 'email_journal',           model => 'EmailJournal',    number => 'id', description => 'subject', description_title => t8('Subject'), project => undef},
+  { title => t8('Email'),                   type => 'email_journal',           model => 'EmailJournal',    number => 'id', description => 'subject', description_title => t8('Subject'), project => undef, date => 'sent_on',},
   { title => t8('AR Transaction'),          type => 'ar_transaction',          model => 'Invoice',         number => 'invnumber', },
   { title => t8('AP Transaction'),          type => 'ap_transaction',          model => 'PurchaseInvoice', number => 'invnumber', },
   { title => t8('Dunning'),                 type => 'dunning',                 model => 'Dunning',         number => 'dunning_id', },
