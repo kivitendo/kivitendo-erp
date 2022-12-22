@@ -26,6 +26,7 @@ use SL::DB::PartsGroup;
 use SL::DB::Printer;
 use SL::DB::Note;
 use SL::DB::Language;
+use SL::DB::Reclamation;
 use SL::DB::RecordLink;
 use SL::DB::RequirementSpec;
 use SL::DB::Shipto;
@@ -95,7 +96,6 @@ sub action_add {
 sub action_add_from_reclamation {
   my ($self) = @_;
 
-  require SL::DB::Reclamation;
   my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
   my %params;
   $params{destination_type} = $reclamation->is_sales ? 'sales_order'
