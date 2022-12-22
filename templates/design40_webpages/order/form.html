@@ -22,6 +22,10 @@
   [% L.hidden_tag('converted_from_oe_id', SELF.converted_from_oe_id) %]
   [% L.hidden_tag('converted_from_reclamation_id', SELF.converted_from_reclamation_id) %]
 
+  [% IF !SELF.order.id %]
+  [%   L.hidden_tag('form_validity_token', FORM.form_validity_token) %]
+  [% END %]
+
   [% INCLUDE 'common/flash.html' %]
 
 <div class="tabwidget" id="order_tabs">
