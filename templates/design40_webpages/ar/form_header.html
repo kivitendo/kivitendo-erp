@@ -97,20 +97,33 @@
       [% END %]
       <tr>
         <th>[% 'Currency' | $T8 %]</th>
-        <td>[% L.select_tag("currency", currencies, default=currency, value_key="name", title_key="name") %]</td>
+        <td>
+          [%- IF readonly  %]
+            [% HTML.escape(currency) %]
+            [% L.hidden_tag("currency", currency) %]
+          [%- ELSE %]
+            [% L.select_tag("currency", currencies, default=currency, value_key="name", title_key="name") %]
+          [%- END %]
+        </td>
         [% L.hidden_tag('defaultcurrency', defaultcurrency) %]
         [% L.hidden_tag('fxgain_accno', fxgain_accno) %]
         [% L.hidden_tag('fxloss_accno', fxloss_accno) %]
         [% L.hidden_tag('forex', forex) %]
-        [% IF show_exch %]
-          <!-- PENDENT: Testen und Design ggf. anpassen -->
-          &nbsp; [% 'Exchangerate' | $T8 %]:
-          [% IF forex %]
-            [% L.hidden_tag('exchangerate', LxERP.format_amount(exchangerate, 5, 1)) %][% LxERP.format_amount(exchangerate, 5, 1) %]
-          [% ELSE %]
-            [% L.input_tag('exchangerate', LxERP.format_amount(exchangerate, 5, 1), size=10) %]
-          [% END %]
-        [% END %]
+      </tr>
+      [% IF show_exch %]
+      <tr>
+        <th>[% 'Exchangerate' | $T8 %]</th>
+        <td>
+          [%- IF readonly  %]
+            [% LxERP.format_amount(exchangerate, 5) %]
+            [% L.hidden_tag("exchangerate", LxERP.format_amount(exchangerate, 5)) %]
+          [%- ELSE %]
+            <input name="exchangerate" size="10" value="[% HTML.escape(LxERP.format_amount(exchangerate)) %]">
+          [%- END %]
+          [% IF record_forex %][% 'record exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
+        </td>
+      </tr>
+      [% END %]
       </tr>
       [% IF ALL_DEPARTMENTS %]
         <tr>

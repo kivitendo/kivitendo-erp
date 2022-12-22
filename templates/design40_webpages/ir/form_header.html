@@ -127,7 +127,14 @@
     [% IF currencies %]
       <tr>
         <th>[% 'Currency' | $T8 %]</th>
-        <td class="wi-small">[% currencies %]</td>
+          <td class="wi-small">
+          [%- IF readonly  %]
+            [% HTML.escape(currency) %]
+            [% L.hidden_tag("currency", currency) %]
+          [%- ELSE %]
+            [% currencies %]
+          [%- END %]
+          </td>
       </tr>
     [% END %]
     <input type="hidden" name="fxgain_accno" value="[% fxgain_accno %]">
@@ -136,11 +143,13 @@
       <tr>
         <th>[% 'Exchangerate' | $T8 %]</th>
         <td class="wi-small">
-          [% IF forex %]
-            <span class="data wi-small">[% LxERP.format_amount(exchangerate, 5) %]</span>
-          [% ELSE %]
-            <input type="text" name="exchangerate" class="wi-small" value="[% HTML.escape(LxERP.format_amount(exchangerate)) %]">
-          [% END %]
+        [%- IF readonly  %]
+          [% LxERP.format_amount(exchangerate, 5) %]
+          [% L.hidden_tag("exchangerate", LxERP.format_amount(exchangerate, 5)) %]
+        [% ELSE %]
+          <input type="text" name="exchangerate" class="wi-small" value="[% HTML.escape(LxERP.format_amount(exchangerate)) %]">
+        [% END %]
+        [% IF record_forex %][% 'record exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
         </td>
       </tr>
     [% END %]
