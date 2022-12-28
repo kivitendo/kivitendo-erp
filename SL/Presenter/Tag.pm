@@ -250,7 +250,7 @@ sub multi_level_select_tag {
 
   $collection = [] if defined($collection) && !ref($collection) && ($collection eq '');
 
-  my $surround_tag = delete(%attributes{surround_tag});
+  my $surround_tag = delete($attributes{surround_tag});
 
   my $multi_level_select_tag = "";
   my %level_keys = ();
