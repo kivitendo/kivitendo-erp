@@ -30,6 +30,7 @@ use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::TransferType;
+use SL::DB::ValidityToken;
 use SL::DB::Warehouse;
 
 use SL::Helper::CreatePDF qw(:all);
@@ -81,6 +82,11 @@ sub action_add {
 
 
   $self->pre_render();
+
+  if (!$::form->{form_validity_token}) {
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE())->token;
+  }
+
   $self->render(
     'delivery_order/form',
     title => $self->get_title_for('add'),
@@ -131,6 +137,10 @@ sub action_edit {
     # are loaded only on demand. So we need to keep the values from
     # the source.
     $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
+
+    if (!$::form->{form_validity_token}) {
+      $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE())->token;
+    }
   }
 
   $self->pre_render();
@@ -251,6 +261,10 @@ sub action_save_as_new {
 
   # no linked records on save as new
   delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);
+
+  if (!$::form->{form_validity_token}) {
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE())->token;
+  }
 
   # save
   $self->action_save();
@@ -1644,6 +1658,16 @@ sub delete {
 sub save {
   my ($self) = @_;
 
+  my $validity_token;
+  if (!$self->order->id) {
+    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+      scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE(),
+      token => $::form->{form_validity_token},
+    );
+
+    return [t8('The form is not valid anymore.')] if !$validity_token;
+  }
+
   my $errors = [];
   my $db     = $self->order->db;
 
@@ -1704,6 +1728,9 @@ sub save {
     }
 
     $self->save_history('SAVED');
+
+    $validity_token->delete if $validity_token;
+    delete $::form->{form_validity_token};
 
     1;
   }) || push(@{$errors}, $db->error);
