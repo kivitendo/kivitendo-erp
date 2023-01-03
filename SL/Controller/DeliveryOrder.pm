@@ -25,6 +25,7 @@ use SL::DB::PartClassification;
 use SL::DB::PartsGroup;
 use SL::DB::Printer;
 use SL::DB::Language;
+use SL::DB::Reclamation;
 use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
@@ -104,7 +105,6 @@ sub action_add_from_order {
 sub action_add_from_reclamation {
   my ($self) = @_;
 
-  require SL::DB::Reclamation;
   my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
   my $delivery_order = SL::DB::DeliveryOrder->new_from($reclamation);
   $self->{converted_from_reclamation_id} = $::form->{from_id};
