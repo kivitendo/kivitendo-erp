@@ -1454,6 +1454,9 @@ sub credit_note_from_reclamation {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
+  if (!$form->{form_validity_token}) {
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
+  }
 
   my $from_id = delete $form->{from_id};
   my $reclamation = SL::DB::Reclamation->new(id => $from_id)->load;
