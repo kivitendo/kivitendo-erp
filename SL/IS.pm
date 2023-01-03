@@ -2630,7 +2630,7 @@ sub retrieve_item {
          c3.new_chart_id AS expense_new_chart,
          date($transdate) - c3.valid_from AS expense_valid,
 
-         p.unit, p.part_type, p.onhand,
+         p.unit, p.part_type, onhands.onhand,
          p.notes AS partnotes, p.notes AS longdescription,
          p.not_discountable, p.formel, p.payment_id AS part_payment_id,
          p.price_factor_id, p.weight,
@@ -2640,6 +2640,7 @@ sub retrieve_item {
          pg.partsgroup
 
        FROM parts p
+       LEFT JOIN onhands ON (onhands.parts_id = p.id)
        LEFT JOIN chart c1 ON
          ((SELECT inventory_accno_id
            FROM buchungsgruppen

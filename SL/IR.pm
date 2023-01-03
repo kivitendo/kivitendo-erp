@@ -1255,7 +1255,7 @@ sub retrieve_item {
   my $query =
     qq|SELECT
          p.id, p.partnumber, p.description, p.lastcost AS sellprice, p.listprice,
-         p.unit, p.part_type, p.onhand, p.formel,
+         p.unit, p.part_type, onhands.onhand, p.formel,
          p.notes AS partnotes, p.notes AS longdescription, p.not_discountable,
          p.price_factor_id,
          p.ean,
@@ -1279,6 +1279,7 @@ sub retrieve_item {
          pg.partsgroup
 
        FROM parts p
+       LEFT JOIN onhands ON (onhands.parts_id = p.id)
        LEFT JOIN chart c1 ON
          ((SELECT inventory_accno_id
            FROM buchungsgruppen

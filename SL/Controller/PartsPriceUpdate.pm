@@ -104,7 +104,7 @@ sub _create_filter_for_priceupdate {
   # items which were never bought, sold or on an order
   if ($filter->{itemstatus} eq 'orphaned') {
     $where .=
-      qq| AND (p.onhand = 0)
+      qq| AND (onhands.onhand = 0)
           AND p.id NOT IN
             (
               SELECT DISTINCT parts_id FROM invoice
@@ -123,10 +123,10 @@ sub _create_filter_for_priceupdate {
     $where .= qq| AND p.obsolete = '1'|;
 
   } elsif ($filter->{itemstatus} eq 'onhand') {
-    $where .= qq| AND p.onhand > 0|;
+    $where .= qq| AND onhands.onhand > 0|;
 
   } elsif ($filter->{itemstatus} eq 'short') {
-    $where .= qq| AND p.onhand < p.rop|;
+    $where .= qq| AND onhands.onhand < p.rop|;
 
   }
 
@@ -162,6 +162,7 @@ sub get_num_matches_for_priceupdate {
            (SELECT p.id
             FROM parts p
             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+            LEFT JOIN onhands ON (onhands.parts_id = p.id)
             WHERE $where)|;
     my ($result)  = selectfirst_array_query($::form, $dbh, $query, @where_values);
     $num_updated += $result if (0 <= $result);
@@ -176,6 +177,7 @@ sub get_num_matches_for_priceupdate {
            (SELECT p.id
             FROM parts p
             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+            LEFT JOIN onhands ON (onhands.parts_id = p.id)
             WHERE $where)
          AND pricegroup_id IN (@{[ join ',', ('?')x@ids ]})|;
 
@@ -221,6 +223,7 @@ sub _update_prices {
            (SELECT p.id
             FROM parts p
             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+            LEFT JOIN onhands ON (onhands.parts_id = p.id)
             WHERE $where)|;
     my $result    = do_query($::form, $dbh, $query, $value, @where_values);
     $num_updated += $result if 0 <= $result;
@@ -232,6 +235,7 @@ sub _update_prices {
          (SELECT p.id
           FROM parts p
           LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+          LEFT JOIN onhands ON (onhands.parts_id = p.id)
           WHERE $where) AND (pricegroup_id = ?)|;
   my $sth_add = prepare_query($::form, $dbh, $q_add);
 
@@ -241,6 +245,7 @@ sub _update_prices {
          (SELECT p.id
           FROM parts p
           LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+          LEFT JOIN onhands ON (onhands.parts_id = p.id)
           WHERE $where) AND (pricegroup_id = ?)|;
   my $sth_multiply = prepare_query($::form, $dbh, $q_multiply);
 

@@ -103,11 +103,12 @@ sub assembly_item {
   my $query =
     qq|SELECT p.id, p.partnumber, p.description, p.sellprice,
        p.classification_id,
-       p.weight, p.onhand, p.unit, pg.partsgroup, p.lastcost,
+       p.weight, onhands.onhand, p.unit, pg.partsgroup, p.lastcost,
        p.price_factor_id, pfac.factor AS price_factor, p.notes as longdescription
        FROM parts p
        LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
        LEFT JOIN price_factors pfac ON pfac.id = p.price_factor_id
+       LEFT JOIN onhands ON (onhands.parts_id = p.id)
        WHERE $where|;
   $form->{item_list} = selectall_hashref_query($form, SL::DB->client->dbh, $query, @values);
 
@@ -248,6 +249,7 @@ sub all_parts {
      cv           => 'cv.',
      "ioi.id"     => ' ',
      "ioi.ioi"    => ' ',
+     onhand       => 'onhands.',
   );
 
   # if the join condition in these blocks are met, the column
@@ -391,11 +393,11 @@ sub all_parts {
         (SELECT DISTINCT parts_id FROM invoice UNION
          SELECT DISTINCT parts_id FROM assembly UNION
          SELECT DISTINCT parts_id FROM orderitems)'    if /orphaned/;
-    push @where_tokens, 'p.onhand = 0'                 if /orphaned/;
+    push @where_tokens, 'onhands.onhand = 0'           if /orphaned/;
     push @where_tokens, 'NOT p.obsolete'               if /active/;
     push @where_tokens, '    p.obsolete',              if /obsolete/;
-    push @where_tokens, 'p.onhand > 0',                if /onhand/;
-    push @where_tokens, 'p.onhand < p.rop',            if /short/;
+    push @where_tokens, 'onhands.onhand > 0',          if /onhand/;
+    push @where_tokens, 'onhands.onhand < p.rop',      if /short/;
   }
 
   my $q_assembly_lastcost =
@@ -549,6 +551,7 @@ sub all_parts {
   my $query = <<"  SQL";
     SELECT DISTINCT $select_clause
     FROM parts p
+    LEFT JOIN onhands ON (onhands.parts_id = p.id)
     $join_clause
     WHERE $where_clause
     $group_clause
@@ -846,7 +849,7 @@ sub get_basic_part_info {
 
   my $dbh      = $form->get_standard_dbh($myconfig);
 
-  my $query    = qq|SELECT * FROM parts WHERE id IN (| . join(', ', ('?') x scalar(@ids)) . qq|)|;
+  my $query    = qq|SELECT p.* onhands.onhand FROM parts p LEFT JOIN onhands ON (onhands.parts_id = p.id) WHERE p.id IN (| . join(', ', ('?') x scalar(@ids)) . qq|)|;
 
   my $info     = selectall_hashref_query($form, $dbh, $query, map { conv_i($_) } @ids);
 

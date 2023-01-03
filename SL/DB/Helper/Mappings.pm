@@ -166,6 +166,7 @@ my %kivitendo_package_names = (
   orderitems                     => 'order_item',
   oe                             => 'order',
   oe_version                     => 'order_version',
+  onhands                        => 'Onhand',
   parts                          => 'part',
   partsgroup                     => 'parts_group',
   part_classifications           => 'PartClassification',

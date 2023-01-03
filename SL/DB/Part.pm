@@ -82,6 +82,11 @@ __PACKAGE__->meta->add_relationships(
     column_map   => { id => 'part_id' },
     manager_args => { sort_by => 'valid_from DESC', limit => 1 },
   },
+  onhands => {
+    type => 'one to one',
+    class => 'SL::DB::Onhand',
+    column_map => {id => 'parts_id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;
@@ -358,6 +363,11 @@ sub get_stock {
   return $stock || 0; # never return undef
 };
 
+sub onhand {
+  my ($self) = @_;
+  return 0 unless $self->id;
+  return $self->onhands->onhand;
+}
 
 # this is designed to ignore chargenumbers, expiration dates and just give a list of how much <-> where
 sub get_simple_stock {
