@@ -25,6 +25,7 @@ use SL::DB::Language;
 use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
+use SL::DB::ValidityToken;
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
@@ -96,6 +97,10 @@ sub action_add {
 
   $self->pre_render();
 
+  if (!$::form->{form_validity_token}) {
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
+  }
+
   $self->render(
     'reclamation/form',
     title => $self->get_title_for('add'),
@@ -118,6 +123,10 @@ sub action_add_from_order {
   $self->reclamation($reclamation);
 
   $self->reinit_after_new_reclamation();
+
+  if (!$::form->{form_validity_token}) {
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
+  }
 
   $self->render(
     'reclamation/form',
@@ -142,6 +151,10 @@ sub action_add_from_delivery_order {
 
   $self->reinit_after_new_reclamation();
 
+  if (!$::form->{form_validity_token}) {
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
+  }
+
   $self->render(
     'reclamation/form',
     title => $self->get_title_for('add'),
@@ -164,6 +177,10 @@ sub action_add_from_sales_invoice {
   $self->reclamation($reclamation);
 
   $self->reinit_after_new_reclamation();
+
+  if (!$::form->{form_validity_token}) {
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
+  }
 
   $self->render(
     'reclamation/form',
@@ -188,6 +205,10 @@ sub action_add_from_purchase_invoice {
   $self->reclamation($reclamation);
 
   $self->reinit_after_new_reclamation();
+
+  if (!$::form->{form_validity_token}) {
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
+  }
 
   $self->render(
     'reclamation/form',
@@ -313,6 +334,10 @@ sub action_save_as_new {
              no_linked_records => 1,
            )
          );
+
+  if (!$::form->{form_validity_token}) {
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
+  }
 
   # save
   $self->action_save();
@@ -1721,6 +1746,16 @@ sub delete {
 sub save {
   my ($self) = @_;
 
+  my $validity_token;
+  if (!$self->reclamation->id) {
+    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+      scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE(),
+      token => $::form->{form_validity_token},
+    );
+
+    die t8('The form is not valid anymore.') if !$validity_token;
+  }
+
   my $errors = [];
   my $db     = $self->reclamation->db;
 
@@ -1738,6 +1773,9 @@ sub save {
     $self->reclamation->save(cascade => 1);
 
     $self->save_history('SAVED');
+
+    $validity_token->delete if $validity_token;
+    delete $::form->{form_validity_token};
 
     1;
   }) || push(@{$errors}, $db->error);
@@ -1783,6 +1821,10 @@ sub action_add_from_reclamation {
   }
 
   $self->reinit_after_new_reclamation();
+
+  if (!$::form->{form_validity_token}) {
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
+  }
 
   $self->render(
     'reclamation/form',

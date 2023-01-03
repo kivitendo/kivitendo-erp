@@ -24,6 +24,10 @@
   [% L.hidden_tag('converted_from_record_type_ref', SELF.reclamation.converted_from_record_type_ref) %]
   [% L.hidden_tag('converted_from_record_id',  SELF.reclamation.converted_from_record_id) %]
 
+  [% IF !SELF.reclamation.id %]
+  [%   L.hidden_tag('form_validity_token', FORM.form_validity_token) %]
+  [% END %]
+
   [%- INCLUDE 'common/flash.html' %]
 
   <div class="tabwidget" id="reclamation_tabs">
