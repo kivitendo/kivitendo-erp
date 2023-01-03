@@ -21,6 +21,9 @@
 <input type="hidden" name="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">
 <input type="hidden" name="follow_up_rowcount" value="1">
 <input type="hidden" name="lastmtime" value="[% HTML.escape(lastmtime) %]">
+[% IF !id %]
+[%   L.hidden_tag('form_validity_token', form_validity_token) %]
+[% END %]
 
 [%- INCLUDE 'common/flash.html' %]
 [%- INCLUDE 'generic/set_longdescription.html' %]

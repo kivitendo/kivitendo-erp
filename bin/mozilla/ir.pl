@@ -42,6 +42,7 @@ use SL::DB::Default;
 use SL::DB::Department;
 use SL::DB::Project;
 use SL::DB::PurchaseInvoice;
+use SL::DB::ValidityToken;
 use SL::DB::Vendor;
 use List::MoreUtils qw(uniq);
 use List::Util qw(max sum);
@@ -86,6 +87,10 @@ sub add {
   $form->{show_details} = $::myconfig{show_form_details};
 
   $form->{title} = $locale->text('Record Vendor Invoice');
+
+  if (!$form->{form_validity_token}) {
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
+  }
 
   &invoice_links;
   &prepare_invoice;
@@ -632,6 +637,7 @@ sub block_or_unblock_sepa_transfer {
 }
 
 sub show_draft {
+  $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
   update();
 }
 
@@ -803,6 +809,9 @@ sub storno {
   $form->{invnumber} = "Storno zu " . $form->{invnumber};
   $form->{rowcount}++;
   $form->{employee_id} = $employee_id;
+
+  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
+
   post();
   $main::lxdebug->leave_sub();
 
@@ -820,6 +829,8 @@ sub use_as_new {
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
   $form->{invdate} = $form->current_date(\%myconfig);
+
+  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
 
   $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
@@ -904,6 +915,17 @@ sub post {
   $main::auth->assert('vendor_invoice_edit');
 
   $form->mtime_ischanged('ap');
+
+  my $validity_token;
+  if (!$form->{id}) {
+    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+      scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST(),
+      token => $form->{form_validity_token},
+    );
+
+    $form->error($::locale->text('The form is not valid anymore.')) if !$validity_token;
+  }
+
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
   $form->isblank("invdate",   $locale->text('Invoice Date missing!'));
@@ -973,6 +995,10 @@ sub post {
 
   relink_accounts();
   if (IR->post_invoice(\%myconfig, \%$form)){
+
+    $validity_token->delete if $validity_token;
+    delete $form->{form_validity_token};
+
     # saving the history
     if(!exists $form->{addition} && $form->{id} ne "") {
       $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};

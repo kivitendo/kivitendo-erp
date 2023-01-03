@@ -1148,7 +1148,6 @@ sub invoice {
 
   $form->get_employee();
 
-  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   $form->{convert_from_do_ids} = $form->{id};
   # if we have a reqdate (Liefertermin), this is definetely the preferred
   # deliverydate for invoices
@@ -1167,12 +1166,14 @@ sub invoice {
     $form->{script} = 'ir.pl';
     $script         = "ir";
     $buysell        = 'sell';
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
 
   } else {
     $form->{title}  = $locale->text('Add Sales Invoice');
     $form->{script} = 'is.pl';
     $script         = "is";
     $buysell        = 'buy';
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   }
 
   for my $i (1 .. $form->{rowcount}) {

@@ -1656,7 +1656,6 @@ sub invoice {
 
   $main::auth->assert($form->{type} eq 'purchase_order' || $form->{type} eq 'request_quotation' ? 'vendor_invoice_edit' : 'invoice_edit');
 
-  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   $form->{old_salesman_id} = $form->{salesman_id};
   $form->get_employee();
 
@@ -1732,6 +1731,7 @@ sub invoice {
     $form->{script} = 'ir.pl';
     $script         = "ir";
     $buysell        = 'sell';
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
   }
 
   if (   $form->{type} eq 'sales_order'
@@ -1742,6 +1742,7 @@ sub invoice {
     $form->{script} = 'is.pl';
     $script         = "is";
     $buysell        = 'buy';
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   }
 
   # bo creates the id, reset it
