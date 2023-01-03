@@ -52,6 +52,7 @@ use SL::DB::Customer;
 use SL::DB::Department;
 use SL::DB::Invoice;
 use SL::DB::PaymentTerm;
+use SL::DB::Reclamation;
 use SL::DB::ValidityToken;
 use SL::Helper::QrBillFunctions qw(get_ref_number_formatted);
 
