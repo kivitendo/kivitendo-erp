@@ -104,7 +104,6 @@ my %kivitendo_package_names = (
   assortment_items               => 'assortment_item',
   background_jobs                => 'background_job',
   background_job_histories       => 'background_job_history',
-  ap                             => 'purchase_invoice',
   bank_accounts                  => 'bank_account',
   bank_transactions              => 'bank_transaction',
   bank_transaction_acc_trans     => 'bank_transaction_acc_trans',
