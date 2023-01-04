@@ -20,6 +20,10 @@
 [% L.hidden_tag('follow_up_rowcount', 1) %]
 <input type="hidden" name="lastmtime" value="[% HTML.escape(lastmtime) %]">
 
+[% IF !id %]
+[%   L.hidden_tag('form_validity_token', form_validity_token) %]
+[% END %]
+
 [%- IF saved_message %]<p>[% saved_message | html  %]</p>[% END %]
 
 <div class="tabwidget">

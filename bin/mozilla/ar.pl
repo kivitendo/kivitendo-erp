@@ -51,6 +51,7 @@ use SL::DB::Invoice;
 use SL::DB::InvoiceItem;
 use SL::DB::RecordTemplate;
 use SL::DB::Tax;
+use SL::DB::ValidityToken;
 use SL::Helper::Flash qw(flash flash_later);
 use SL::Locale::String qw(t8);
 use SL::Presenter::Tag;
@@ -174,6 +175,8 @@ sub load_record_template {
 
   flash('info', $::locale->text("The record template '#1' has been loaded.", $template->template_name));
 
+  $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
+
   update(
     keep_rows_without_amount => 1,
     dont_add_new_row         => 1,
@@ -259,6 +262,10 @@ sub add {
   if ($form->{customer_id}) {
     my $last_used_ar_chart = SL::DB::Customer->load_cached($form->{customer_id})->last_used_ar_chart;
     $form->{"AR_amount_chart_id_1"} = $last_used_ar_chart->id if $last_used_ar_chart;
+  }
+
+  if (!$form->{form_validity_token}) {
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   }
 
   &display_form;
@@ -585,6 +592,7 @@ sub mark_as_paid {
 sub show_draft {
   $::form->{transdate} = DateTime->today_local->to_kivitendo if !$::form->{transdate};
   $::form->{gldate}    = $::form->{transdate} if !$::form->{gldate};
+  $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   update();
 }
 
@@ -750,6 +758,16 @@ sub post {
 
   $form->mtime_ischanged('ar');
 
+  my $validity_token;
+  if (!$form->{id}) {
+    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+      scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST(),
+      token => $form->{form_validity_token},
+    );
+
+    $form->error($::locale->text('The form is not valid anymore.')) if !$validity_token;
+  }
+
   my ($datepaid);
 
   # check if there is an invoice number, invoice and due date
@@ -811,6 +829,9 @@ sub post {
 
   $form->{id} = 0 if $form->{postasnew};
   $form->error($locale->text('Cannot post transaction!')) unless AR->post_transaction(\%myconfig, \%$form);
+
+  $validity_token->delete if $validity_token;
+  delete $form->{form_validity_token};
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
@@ -879,6 +900,8 @@ sub use_as_new {
     my $payment_terms = SL::DB::Customer->load_cached($form->{customer_id})->payment;
     $form->{duedate}  = $payment_terms->calc_date(reference_date => $today)->to_kivitendo if $payment_terms;
   }
+
+  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
 
   &update;
 
