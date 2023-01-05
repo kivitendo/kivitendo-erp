@@ -53,6 +53,7 @@ use SL::DB::PaymentTerm;
 use SL::DB::PurchaseInvoice;
 use SL::DB::RecordTemplate;
 use SL::DB::Tax;
+use SL::DB::ValidityToken;
 use SL::Presenter::ItemsList;
 use SL::Webdav;
 use SL::Locale::String qw(t8);
@@ -182,6 +183,8 @@ sub load_record_template {
                                   $form_defaults->{AP_paid_1_suggestion},
                                 )) if $::form->{no_payment_bookings};
 
+  $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
+
   update(
     keep_rows_without_amount => 1,
     dont_add_new_row         => 1,
@@ -265,6 +268,10 @@ sub add {
 
     my $last_used_ap_chart = $vendor->last_used_ap_chart;
     $form->{"AP_amount_chart_id_1"} = $last_used_ap_chart->id if $last_used_ap_chart;
+  }
+
+  if (!$form->{form_validity_token}) {
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
   }
 
   &display_form;
@@ -639,6 +646,7 @@ sub block_or_unblock_sepa_transfer {
 sub show_draft {
   $::form->{transdate} = DateTime->today_local->to_kivitendo if !$::form->{transdate};
   $::form->{gldate}    = $::form->{transdate} if !$::form->{gldate};
+  $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
   update();
 }
 
@@ -798,6 +806,16 @@ sub post {
   $main::auth->assert('ap_transactions');
   $form->mtime_ischanged('ap');
 
+  my $validity_token;
+  if (!$form->{id}) {
+    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+      scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST(),
+      token => $form->{form_validity_token},
+    );
+
+    $form->error($::locale->text('The form is not valid anymore.')) if !$validity_token;
+  }
+
   my ($inline) = @_;
 
   # check if there is a vendor, invoice, due date and invnumber
@@ -875,6 +893,9 @@ sub post {
   $form->{id} = 0 if $form->{postasnew};
 
   if (AP->post_transaction(\%myconfig, \%$form)) {
+    $validity_token->delete if $validity_token;
+    delete $form->{form_validity_token};
+
     # create webdav folder
     if ($::instance_conf->get_webdav) {
       SL::Webdav->new(type     => 'accounts_payable',
@@ -965,6 +986,8 @@ sub use_as_new {
     my $payment_terms = SL::DB::Vendor->load_cached($form->{vendor_id})->payment;
     $form->{duedate}  = $payment_terms->calc_date(reference_date => $today)->to_kivitendo if $payment_terms;
   }
+
+  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
 
   &update;
 
@@ -1323,6 +1346,8 @@ sub add_from_purchase_order {
   my $last_used_ap_chart               = SL::DB::Vendor->load_cached($::form->{vendor_id})->last_used_ap_chart;
   $::form->{"AP_amount_chart_id_$row"} = $last_used_ap_chart->id if $last_used_ap_chart;
   $::form->{rowcount}                  = $row;
+
+  $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
 
   update(
     keep_rows_without_amount => 1,
