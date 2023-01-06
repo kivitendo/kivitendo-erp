@@ -160,6 +160,7 @@ __PACKAGE__->meta->columns(
   purchase_delivery_order_show_delete       => { type => 'boolean', default => 'true' },
   purchase_order_show_delete                => { type => 'boolean', default => 'true' },
   purchase_reclamation_show_delete          => { type => 'boolean', default => 'true', not_null => 1 },
+  qrbill_copy_invnumber                     => { type => 'boolean', default => 'false' },
   quick_search_modules                      => { type => 'array' },
   rdonumber                                 => { type => 'text' },
   reclamation_warn_duplicate_parts          => { type => 'boolean', default => 'true', not_null => 1 },
