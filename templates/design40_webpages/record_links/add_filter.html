@@ -35,7 +35,7 @@
       <th>[% LxERP.t8("Project") %]</tdh>
       <td>[% L.select_tag('globalproject_id', PROJECTS, default=SELF.object.globalproject_id, with_empty=1, class='wi-wide') %]</td>
     </tr>
-    <tr>
+    <tr id="record_links_add_filter_title_row">
       <th><span id="record_links_add_filter_title">[% LxERP.t8("Transaction description") %]</span></th>
       <td>[% L.input_tag('transaction_description', '', class='wi-wide') %]</td>
     </tr>
@@ -95,20 +95,27 @@ function record_links_change_form_to_match_type() {
             : type == 'email_journal'    ? kivi.t8('Subject')
             :                              kivi.t8('Transaction description');
 
-  if (type == 'letter' || type == 'email_journal' || type == 'gl_transaction') {
+  if (type == 'letter' || type == 'email_journal' || type == 'gl_transaction' ||
+      type == 'dunning' || type == 'shop_order') {
     $('#record_links_add_filter_project_row').hide();
 
   } else {
     $('#record_links_add_filter_project_row').show();
   }
 
-  if (type == 'email_journal' || type == 'gl_transaction') {
+  if (type == 'email_journal' || type == 'gl_transaction' || type == 'dunning') {
     $('.record_links_add_filter_cv_row').hide();
 
   } else {
     $('.record_links_add_filter_cv_row').show();
   }
 
-  $('#record_links_add_filter_title').html(title);
+  if (type == 'dunning' || type == 'shop_order') {
+    $('#record_links_add_filter_title_row').hide();
+
+  } else {
+    $('#record_links_add_filter_title').html(title);
+    $('#record_links_add_filter_title_row').show();
+  }
 }
 --></script>

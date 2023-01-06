@@ -12,7 +12,9 @@
   [% IF date_column %]
    <th>[%- LxERP.t8("Date") %]</th>
   [% END %]
-  <th>[% HTML.escape(description_title) %]</th>
+  [% IF description_column %]
+   <th>[% HTML.escape(description_title) %]</th>
+  [% END %]
   [% IF project_column %]
    <th>[%- LxERP.t8("Project") %]</th>
   [% END %]
@@ -28,7 +30,9 @@
   [% IF date_column %]
    <td>[%- HTML.escape(object.$date_column.to_kivitendo) %]</td>
   [% END %]
-  <td>[%- HTML.escape(object.$description_column) %]</td>
+  [% IF description_column %]
+   <td>[%- HTML.escape(object.$description_column) %]</td>
+  [% END %]
   [% IF project_column %]
    <td>[%- object.$project_column.presenter.project(no_link=1) %]</td>
   [% END %]
