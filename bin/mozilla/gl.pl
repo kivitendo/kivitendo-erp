@@ -43,6 +43,7 @@ use SL::DB::RecordTemplate;
 use SL::DB::ReconciliationLink;
 use SL::DB::BankTransactionAccTrans;
 use SL::DB::Tax;
+use SL::DB::ValidityToken;
 use SL::FU;
 use SL::GL;
 use SL::Helper::Flash qw(flash flash_later);
@@ -148,6 +149,8 @@ sub load_record_template {
 
   flash('info', $::locale->text("The record template '#1' has been loaded.", $template->template_name));
 
+  $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_GL_TRANSACTION_POST())->token;
+
   update(
     keep_rows_without_amount => 1,
     dont_add_new_row         => 1,
@@ -239,6 +242,10 @@ sub add {
   $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
   $form->{show_details} = $myconfig{show_form_details} unless defined $form->{show_details};
+
+  if (!$form->{form_validity_token}) {
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_GL_TRANSACTION_POST())->token;
+  }
 
   &display_form(1);
   $main::lxdebug->leave_sub();
@@ -659,6 +666,7 @@ sub generate_report {
 sub show_draft {
   $::form->{transdate} = DateTime->today_local->to_kivitendo if !$::form->{transdate};
   $::form->{gldate}    = $::form->{transdate} if !$::form->{gldate};
+  $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_GL_TRANSACTION_POST())->token;
   update();
 }
 
@@ -1448,6 +1456,16 @@ sub post {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
+  my $validity_token;
+  if (!$form->{id}) {
+    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+      scope => SL::DB::ValidityToken::SCOPE_GL_TRANSACTION_POST(),
+      token => $form->{form_validity_token},
+    );
+
+    $form->error($::locale->text('The form is not valid anymore.')) if !$validity_token;
+  }
+
   if ($::myconfig{mandatory_departments} && !$form->{department_id}) {
     $form->error($locale->text('You have to specify a department.'));
   }
@@ -1456,6 +1474,11 @@ sub post {
   $form->{storno} = 0;
 
   post_transaction();
+
+  # If we get here, the transaction is posted.
+  $validity_token->delete if $validity_token;
+  delete $form->{form_validity_token};
+
   if ($::instance_conf->get_webdav) {
     SL::Webdav->new(type     => 'general_ledger',
                     number   => $form->{id},

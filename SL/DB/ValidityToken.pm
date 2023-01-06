@@ -16,6 +16,7 @@ use constant SCOPE_PURCHASE_INVOICE_POST => 'PurchaseInvoice::Post';
 use constant SCOPE_DELIVERY_ORDER_SAVE   => 'DeliveryOrder::Save';
 use constant SCOPE_ORDER_SAVE            => 'Order::Save';
 use constant SCOPE_RECLAMATION_SAVE      => 'Reclamation::Save';
+use constant SCOPE_GL_TRANSACTION_POST   => 'GLTransaction::Post';
 
 sub create {
   my ($class, %params) = @_;

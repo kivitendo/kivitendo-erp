@@ -24,6 +24,10 @@
 [% L.hidden_tag(name, $name) %]
 [%- END %]
 
+[% IF !id %]
+[%   L.hidden_tag('form_validity_token', form_validity_token) %]
+[% END %]
+
 <input type=hidden name=title value="[% hide_title | html %]">
 
 <input type="hidden" name="follow_up_trans_id_1" value="[% id | html %]">
