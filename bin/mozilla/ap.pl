@@ -941,31 +941,6 @@ sub post {
   $main::lxdebug->leave_sub();
 }
 
-sub post_as_new {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  $main::auth->assert('ap_transactions');
-
-  $form->{postasnew} = 1;
-  # saving the history
-  if(!exists $form->{addition} && $form->{id} ne "") {
-    # does this work? post_as_new for ap doesn't immediately save the
-    # invoice, because the invnumber has to be entered by hand.
-    # And the value of $form->{postasnew} isn't checked when calling post
-    $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
-    $form->{addition}  = "POSTED AS NEW";
-    $form->{what_done} = "invoice";
-    $form->save_history;
-  }
-  # /saving the history
-  &post;
-
-  $main::lxdebug->leave_sub();
-}
-
 sub use_as_new {
   $main::lxdebug->enter_sub();
 

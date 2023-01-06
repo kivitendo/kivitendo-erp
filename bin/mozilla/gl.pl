@@ -1507,19 +1507,6 @@ sub post {
   $main::lxdebug->leave_sub();
 }
 
-sub post_as_new {
-  $main::lxdebug->enter_sub();
-
-  $main::auth->assert('gl_transactions');
-
-  my $form     = $main::form;
-
-  $form->{id} = 0;
-  &add;
-  $main::lxdebug->leave_sub();
-
-}
-
 sub storno {
   $main::lxdebug->enter_sub();
 

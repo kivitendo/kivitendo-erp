@@ -1700,21 +1700,6 @@ sub vendor_details {
   $main::lxdebug->leave_sub();
 }
 
-sub post_as_new {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-
-  _check_io_auth();
-
-  $form->{postasnew} = 1;
-  map { delete $form->{$_} } qw(printed emailed queued);
-
-  &post;
-
-  $main::lxdebug->leave_sub();
-}
-
 sub relink_accounts {
   $main::lxdebug->enter_sub();
 

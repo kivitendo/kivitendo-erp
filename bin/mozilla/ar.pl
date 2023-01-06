@@ -858,28 +858,6 @@ sub post {
   $main::lxdebug->leave_sub();
 }
 
-sub post_as_new {
-  $main::lxdebug->enter_sub();
-
-  $main::auth->assert('ar_transactions');
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  $form->{postasnew} = 1;
-  # saving the history
-  if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
-    $form->{what_done} = "invoice";
-    $form->{addition}  = "POSTED AS NEW";
-    $form->save_history;
-  }
-  # /saving the history
-  &post;
-
-  $main::lxdebug->leave_sub();
-}
-
 sub use_as_new {
   $main::lxdebug->enter_sub();
 
