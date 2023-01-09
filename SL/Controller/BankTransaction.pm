@@ -212,6 +212,7 @@ sub gather_bank_transactions_and_proposals {
   my @otherproposals = grep {
        ($_->{agreement} >= $proposal_threshold)
     && (1 == scalar @{ $_->{proposals} })
+    && ($_->{proposals}->[0]->forex == 0)      # nyi forex invoices for automatic booking
   } @{ $bank_transactions };
 
   push @proposals, @otherproposals;
@@ -512,8 +513,11 @@ sub save_invoices {
       push @{ $self->problems }, $self->save_single_bank_transaction(
         bank_transaction_id => $bank_transaction_id,
         invoice_ids         => $invoice_ids,
-        sources             => [  map { $::form->{"sources_${bank_transaction_id}_${_}"} } @{ $invoice_ids } ],
-        memos               => [  map { $::form->{"memos_${bank_transaction_id}_${_}"}   } @{ $invoice_ids } ],
+        sources             => [  map { $::form->{"sources_${bank_transaction_id}_${_}"}           } @{ $invoice_ids } ],
+        memos               => [  map { $::form->{"memos_${bank_transaction_id}_${_}"}             } @{ $invoice_ids } ],
+        book_fx_bank_fees   => [  map { $::form->{"book_fx_bank_fees_${bank_transaction_id}_${_}"} } @{ $invoice_ids } ],
+        currency_ids        => [  map { $::form->{"currency_id_${bank_transaction_id}_${_}"}       } @{ $invoice_ids } ],
+        exchangerates       => [  map { $::form->parse_amount(\%::myconfig, $::form->{"exchangerate_${bank_transaction_id}_${_}"}) } @{ $invoice_ids } ],
       );
       $count += scalar( @{$invoice_ids} );
     }
@@ -626,8 +630,11 @@ sub save_single_bank_transaction {
     my $n_invoices   = 0;
 
     foreach my $invoice (@{ $data{invoices} }) {
-      my $source = ($data{sources} // [])->[$n_invoices];
-      my $memo   = ($data{memos}   // [])->[$n_invoices];
+      my $source  = ($data{sources} // [])->[$n_invoices];
+      my $memo    = ($data{memos}   // [])->[$n_invoices];
+      my $fx_rate = ($data{exchangerates} // [])->[$n_invoices];
+      my $fx_book = ($data{book_fx_bank_fees}   // [])->[$n_invoices];
+      my $currency_id = ($data{currency_ids}   // [])->[$n_invoices];
 
       $n_invoices++ ;
       # safety check invoice open
@@ -663,25 +670,52 @@ sub save_single_bank_transaction {
       }
     # pay invoice
     # TODO rewrite this: really booked amount should be a return value of Payment.pm
+    # -> quick and dirty done -> really booked amount is the first element of return array
     # also this controller shouldnt care about how to calc skonto. we simply delegate the
     # payment_type to the helper and get the corresponding bank_transaction values back
     # hotfix to get the signs right - compare absolute values and later set the signs
     # should be better done elsewhere - changing not_assigned_amount to abs feels seriously bogus
-
+    # default open amount
     my $open_amount = $payment_type eq 'with_skonto_pt' ? $invoice->amount_less_skonto : $invoice->open_amount;
+    # if fx calc new open amount with skonto pt and set new exchange rate (default or for bank_transaction)
+    if ($fx_rate > 0) {
+      # 1. set new open amount
+      die "Exchangerate without currency"                     unless $currency_id;
+      die "Invoice currency differs from user input currency" unless $currency_id == $invoice->currency->id;
+      $open_amount  = $payment_type eq 'with_skonto_pt' ? $invoice->amount_less_skonto_fx($fx_rate) : $invoice->open_amount_fx($fx_rate);
+      # 2. set daily default or custom record exchange rate
+      my $default_rate = $invoice->get_exchangerate_for_bank_transaction($bank_transaction->id);
+      if (!$default_rate) { # set new daily default
+        my $buysell = $invoice->is_sales ? 'buy' : 'sell';
+        my $ex = SL::DB::Manager::Exchangerate->find_by(currency_id => $currency_id,
+                                                        transdate => $bank_transaction->valutadate)
+              ||              SL::DB::Exchangerate->new(currency_id => $currency_id,
+                                                        transdate   => $bank_transaction->valutadate);
+        $ex->update_attributes($buysell => $fx_rate);
+        $bank_transaction->exchangerate(undef);       # maybe user reassigned bank_transaction
+      } elsif ($default_rate != $fx_rate) {           # set record (banktransaction) exchangerate
+        $bank_transaction->exchangerate($fx_rate);    # custom rate, will be displayed in ap, ir, is
+      } elsif (abs($default_rate - $fx_rate) < 0.001) {
+        # last valid state default rate is (nearly) the same as user input -> do nothing
+      } else { die "Invalid exchange rate state:" . $default_rate . " " . $fx_rate; }
+    } # end fx hook
+
+    # open amount is in default currency -> free_skonto is in default currency, no need to change
     $open_amount            = abs($open_amount);
     $open_amount           -= $free_skonto_amount if ($payment_type eq 'free_skonto');
     my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
     my $amount_for_booking  = ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount;
+    my $fx_fee_amount       = $fx_book && ($open_amount < $not_assigned_amount) ? $not_assigned_amount - $open_amount : 0;
     my $amount_for_payment  = $amount_for_booking;
+    # add booking amount
+    # $amount_for_booking
 
     # get the right direction for the payment bookings (all amounts < 0 are stornos, credit notes or negative ap)
     $amount_for_payment *= -1 if $invoice->amount < 0;
     $free_skonto_amount *= -1 if ($free_skonto_amount && $invoice->amount < 0);
     # get the right direction for the bank transaction
+    # sign is simply the sign of amount in bank_transactions: positive for increase and negative for decrease
     $amount_for_booking *= $sign;
-
-    $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $amount_for_booking);
 
     # ... and then pay the invoice
     my @acc_ids = $invoice->pay_invoice(chart_id => $bank_transaction->local_bank_account->chart_id,
@@ -691,10 +725,24 @@ sub save_single_bank_transaction {
                           source        => $source,
                           memo          => $memo,
                           skonto_amount => $free_skonto_amount,
+                          exchangerate  => $fx_rate,
+                          fx_book       => $fx_book,
+                          fx_fee_amount => $fx_fee_amount,
+                          currency_id   => $currency_id,
                           bt_id         => $bt_id,
                           transdate     => $bank_transaction->valutadate->to_kivitendo);
+    # First element is the booked amount for accno bank
     my $bank_amount = shift @acc_ids;
-    die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless (abs($bank_amount->{return_bank_amount}) - abs($amount_for_booking) < 0.001);
+
+    if (!$invoice->forex) {
+      # die "Invalid state, calculated invoice_amount differs from expected invoice amount" unless (abs($bank_amount->{return_bank_amount}) - abs($amount_for_booking) < 0.001);
+      $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $amount_for_booking);
+    } else {
+      die "Invalid state, calculated invoice_amount differs from expected invoice amount: $amount_for_booking <> " . $bank_amount->{return_bank_amount}
+        unless $fx_book || (abs($bank_amount->{return_bank_amount}) - abs($amount_for_booking) < 0.005);
+      $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $bank_amount->{return_bank_amount});
+      #$bank_transaction->invoice_amount($bank_transaction->invoice_amount + $amount_for_booking);
+    }
     # ... and record the origin via BankTransactionAccTrans
     if (scalar(@acc_ids) < 2) {
       return {
@@ -805,11 +853,16 @@ sub action_unlink_bank_transaction {
         die ("invalid type") unless $type =~ m/^(ar|ap)$/;
 
         # recalc and set paid via database query
+        # add: fx_gain and fx_loss
         my $query = qq|UPDATE $type SET paid =
                         (SELECT COALESCE(abs(sum(amount)),0) FROM acc_trans
                          WHERE trans_id = ?
-                         AND chart_link ilike '%paid%')
-                       WHERE id = ?|;
+                         AND (chart_link ilike '%paid%'
+                              OR chart_id IN (SELECT fxgain_accno_id from defaults)
+                              OR chart_id IN (SELECT fxloss_accno_id from defaults)
+                             )
+                        )
+                        WHERE id = ?|;
 
         die if (do_query($::form, $bank_transaction->db->dbh, $query, $trans_id, $trans_id) == -1);
       }
@@ -818,6 +871,7 @@ sub action_unlink_bank_transaction {
 
       # 5. finally reset  this bank transaction
       $bank_transaction->invoice_amount(0);
+      $bank_transaction->exchangerate(undef);
       $bank_transaction->cleared(0);
       $bank_transaction->save;
       # 6. and add a log entry in history_erp

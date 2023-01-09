@@ -379,15 +379,11 @@ sub form_header {
   # $locale->text('Edit Accounts Receivables Transaction')
   $form->{title} = $locale->text("$title Accounts Receivables Transaction");
 
-  $readonly = ($form->{id}) ? "readonly" : "";
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+  if ($form->{currency} ne $form->{defaultcurrency}) {
+    ($form->{exchangerate}, $form->{record_forex}) = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, "buy", $form->{id}, 'ar');
+  }
 
-  $form->{radier} = ($::instance_conf->get_ar_changeable == 2)
-                      ? ($form->current_date(\%myconfig) eq $form->{gldate})
-                      : ($::instance_conf->get_ar_changeable == 1);
-  $readonly = ($form->{radier}) ? "" : $readonly;
-
-  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'buy');
-  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $rows = max 2, $form->numtextrows($form->{notes}, 50);
 
@@ -406,14 +402,20 @@ sub form_header {
 
   my %project_labels = map { $_->{id} => $_->{projectnumber} } @{ $form->{"ALL_PROJECTS"} };
 
-  my (@AR_paid_values, %AR_paid_labels);
+  my (@AR_paid_values, %AR_paid_labels, %bank_accounts);
   my $default_ar_amount_chart_id;
-
+  # don't add manual bookings for charts which are assigned to real bank accounts
+  my $bank_accounts = SL::DB::Manager::BankAccount->get_all();
+  foreach my $bank (@{ $bank_accounts }) {
+    my $accno_paid_bank = $bank->chart->accno;
+    $bank_accounts{$accno_paid_bank} = 1;
+  }
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
     if ($item->{link_split}{AR_amount}) {
       $default_ar_amount_chart_id //= $item->{id};
 
     } elsif ($item->{link_split}{AR_paid}) {
+      next if $bank_accounts{$item->{accno}};
       push(@AR_paid_values, $item->{accno});
       $AR_paid_labels{$item->{accno}} = "$item->{accno}--$item->{description}";
     }
@@ -481,6 +483,19 @@ sub form_header {
 
   my @payments;
   for my $i (1 .. $form->{paidaccounts}) {
+    # hook for calc of of fx_paid and check if banktransaction has a record exchangerate
+    if ($form->{"exchangerate_$i"}) {
+      my $bt_acc_trans = SL::DB::Manager::BankTransactionAccTrans->find_by(acc_trans_id => $form->{"acc_trans_id_$i"});
+        if ($bt_acc_trans) {
+          if ($bt_acc_trans->bank_transaction->exchangerate > 0) {
+            $form->{"exchangerate_$i"} = $bt_acc_trans->bank_transaction->exchangerate;
+            $form->{"forex_$i"}        = $form->{"exchangerate_$i"};
+            $form->{"record_forex_$i"} = 1;
+          }
+        }
+      $form->{"fx_paid_$i"} = $form->{"paid_$i"} / $form->{"exchangerate_$i"};
+      $form->{"fx_totalpaid"} +=  $form->{"fx_paid_$i"};
+    } # end hook fx_paid
     my $payment = {
       paid             => $form->{"paid_$i"},
       exchangerate     => $form->{"exchangerate_$i"} || '',
@@ -490,9 +505,12 @@ sub form_header {
       memo             => $form->{"memo_$i"},
       AR_paid          => $form->{"AR_paid_$i"},
       forex            => $form->{"forex_$i"},
+      record_forex     => $form->{"record_forex_$i"},
       datepaid         => $form->{"datepaid_$i"},
       paid_project_id  => $form->{"paid_project_id_$i"},
       gldate           => $form->{"gldate_$i"},
+      fx_paid          => $form->{"fx_paid_$i"},
+      fx_totalpaid     => $form->{"fx_totalpaid_$i"},
     };
 
     # default account for current assets (i.e. 1801 - SKR04) if no account is selected
@@ -539,10 +557,13 @@ sub form_header {
   );
 
   setup_ar_form_header_action_bar();
+  $::form->{paid_missing} =  $form->{is_linked_bank_transaction} && $form->{invoice_obj}->forex ?
+                           $form->{invoice_obj}->open_amount
+                        :  $::form->{invtotal} - $::form->{totalpaid};
 
   $form->header;
   print $::form->parse_html_template('ar/form_header', {
-    paid_missing         => $::form->{invtotal} - $::form->{totalpaid},
+    paid_missing         => $::form->{paidmissing},
     show_exch            => ($::form->{defaultcurrency} && ($::form->{currency} ne $::form->{defaultcurrency})),
     payments             => \@payments,
     transactions         => \@transactions,
@@ -792,8 +813,11 @@ sub post {
   $form->error($locale->text('Zero amount posting!'))
     unless grep $_*1, map $form->parse_amount(\%myconfig, $form->{"amount_$_"}), 1..$form->{rowcount};
 
-  $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
-    if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency}));
+  if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
+    $form->isblank("exchangerate", $locale->text('Exchangerate missing!'));
+    $form->error($locale->text('Cannot post invoice with negative exchange rate'))
+      unless ($form->parse_amount(\%myconfig, $form->{"exchangerate"}) > 0);
+  }
 
   delete($form->{AR});
 
@@ -1368,11 +1392,21 @@ sub setup_ar_form_header_action_bar {
 
   my $is_linked_bank_transaction;
   if ($::form->{id}
-      && SL::DB::Default->get->payments_changeable != 0
       && SL::DB::Manager::BankTransactionAccTrans->find_by(ar_id => $::form->{id})) {
 
     $is_linked_bank_transaction = 1;
   }
+  # add readonly state in $::form
+  $::form->{readonly} = !$may_edit_create                           ? 1
+                      : $is_closed                                  ? 1
+                      : $is_storno                                  ? 1
+                      : $has_storno                                 ? 1
+                      : ($::form->{id} && $change_never)            ? 1
+                      : ($::form->{id} && $change_on_same_day_only) ? 1
+                      : $is_linked_bank_transaction                 ? 1
+                      : 0;
+  # and is_linked_bank_transaction
+  $::form->{is_linked_bank_transaction} = $is_linked_bank_transaction;
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [

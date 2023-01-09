@@ -41,6 +41,7 @@
       <th>[% IF is_vendor %][% 'Vendor' | $T8 %][% ELSE %][% LxERP.t8('Customer') %][% END %]</th>
       <th>[% 'Invoice' | $T8 %]</th>
       <th>[% 'Amount' | $T8 %]</th>
+      <th>[% 'SEPA Transfer Amount' | $T8 %]</th>
       <th>[% 'Open amount' | $T8 %]</th>
       <th>[% 'Invoice Date' | $T8 %]</th>
       <th>[% 'Due Date' | $T8 %]</th>
@@ -56,7 +57,7 @@
         <td>
           <input type="hidden" name="bank_transfers[+].[% arap %]_id" value="[% HTML.escape(invoice.id) %]">
           <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(invoice.amount_less_skonto, 2) %]">
-          <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.open_amount - invoice.open_sepa_transfer_amount, 2) %]">
+          <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.open_amount - invoice.transfer_amount, 2) %]">
           <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.skonto_amount, 2) %]">
           [% IF invoice.vc_bank_info_ok && !invoice.is_sepa_blocked %]
             [% L.checkbox_tag("ids[]", value=invoice.id, checked=invoice.checked) %]
@@ -88,8 +89,9 @@
           -%]
          </a>
         </td>
-        <td>[% LxERP.format_amount(invoice.invoice_amount-invoice.open_sepa_transfer_amount, 2) %]</td>
-        <td>[% LxERP.format_amount(invoice.open_amount-invoice.open_sepa_transfer_amount, 2) %]</td>
+        <td>[% LxERP.format_amount(invoice.invoice_amount, 2) %]</td>
+        <td>[% LxERP.format_amount(invoice.transfer_amount * -1, 2) %]</td>
+        <td>[% IF invoice.within_skonto_period %] [% LxERP.format_amount(invoice.amount_less_skonto, 2) %] [% ELSE %] [% LxERP.format_amount(invoice.open_amount - invoice.transfer_amount, 2) %][% END %] </td>
         <td>[% invoice.transdate %]</td>
         <td>[% invoice.duedate %]</td>
         <td>
@@ -101,7 +103,7 @@
          <input type="text" name="bank_transfers[].reference" value="[% HTML.escape(reference.substr(0, 140)) %]" maxlength="140" size="30">
         </td>
         <td>
-          <input type="text" id=[% loop.count %] name="bank_transfers[].amount" id="amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.invoice_amount_suggestion, 2) %]" style="text-align: right" size="12">
+          <input type="text" id=[% loop.count %] name="bank_transfers[].amount" id="amount_[% loop.count %]" value="[% IF invoice.within_skonto_period %] [% LxERP.format_amount(invoice.amount_less_skonto, 2) %] [% ELSE %] [% LxERP.format_amount(invoice.open_amount - invoice.transfer_amount, 2) %][% END %]" style="text-align: right" size="12">
         </td>
         <td>
           [% L.select_tag('bank_transfers[].payment_type', invoice.payment_select_options, value_key => 'payment_type', title_key => 'display', id => 'payment_type_' _ loop.count, class => 'type_target' ) %]
@@ -164,8 +166,6 @@ $( ".type_target" ).change(function() {
   var id = type_id.match(/\d*$/);
   // alert("found id " + id);
   if ( $(this).val() == "without_skonto" ) {
-      $('#' + id).val( $('#invoice_open_amount_' + id).val() );
-  } else if ( $(this).val() == "difference_as_skonto" ) {
       $('#' + id).val( $('#invoice_open_amount_' + id).val() );
   } else if ( $(this).val() == "with_skonto_pt" ) {
             $('#' + id).val( $('#amount_less_skonto_' + id).val() );

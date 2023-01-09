@@ -353,9 +353,6 @@ sub create_links {
   # build the popup menus
   $form->{taxincluded} = ($form->{id}) ? $form->{taxincluded} : "checked";
 
-  # currencies
-  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
-
   $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
@@ -404,22 +401,15 @@ sub form_header {
   # type=submit $locale->text('Add Accounts Payables Transaction')
   # type=submit $locale->text('Edit Accounts Payables Transaction')
 
-  my $readonly = $form->{id} ? "readonly" : "";
-
-  $form->{radier} = ($::instance_conf->get_ap_changeable == 2)
-                      ? ($form->current_date(\%myconfig) eq $form->{gldate})
-                      : ($::instance_conf->get_ap_changeable == 1);
-  $readonly       = $form->{radier} ? "" : $readonly;
-
-  $form->{readonly} = $readonly;
-
-  $form->{forex} = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'sell');
-  if ( $form->{forex} ) {
-    $form->{exchangerate} = $form->{forex};
+  # currencies
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+  if ($form->{currency} ne $form->{defaultcurrency} && !$form->{exchangerate}) {
+    ($form->{exchangerate}, $form->{record_forex}) = $form->{id}
+                                                  ?  $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, "sell", $form->{id}, 'ap')
+                                                  :  $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, "sell");
   }
 
   # format amounts
-  $form->{exchangerate}    = $form->{exchangerate} ? $form->format_amount(\%myconfig, $form->{exchangerate}) : '';
   $form->{creditlimit}     = $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
   $form->{creditremaining} = $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
 
@@ -444,14 +434,21 @@ sub form_header {
 
   my %project_labels = map { $_->id => $_->projectnumber }  @{ SL::DB::Manager::Project->get_all };
 
-  my %charts;
+  my (%charts, %bank_accounts);
   my $default_ap_amount_chart_id;
+  # don't add manual bookings for charts which are assigned to real bank accounts
+  my $bank_accounts = SL::DB::Manager::BankAccount->get_all();
+  foreach my $bank (@{ $bank_accounts }) {
+    my $accno_paid_bank = $bank->chart->accno;
+    $bank_accounts{$accno_paid_bank} = 1;
+  }
 
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
     if ( grep({ $_ eq 'AP_amount' } @{ $item->{link_split} }) ) {
       $default_ap_amount_chart_id //= $item->{id};
 
     } elsif ( grep({ $_ eq 'AP_paid' } @{ $item->{link_split} }) ) {
+      next if $bank_accounts{$item->{accno}};
       push(@{ $form->{ALL_CHARTS_AP_paid} }, $item);
     }
 
@@ -545,6 +542,19 @@ sub form_header {
   $form->{accno_arap} = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
 
   for my $i (1 .. $form->{paidaccounts}) {
+    # hook for calc of of fx_paid and check if banktransaction has a record exchangerate
+    if ($form->{"exchangerate_$i"}) {
+      my $bt_acc_trans = SL::DB::Manager::BankTransactionAccTrans->find_by(acc_trans_id => $form->{"acc_trans_id_$i"});
+      if ($bt_acc_trans) {
+        if ($bt_acc_trans->bank_transaction->exchangerate > 0) {
+          $form->{"exchangerate_$i"} = $bt_acc_trans->bank_transaction->exchangerate;
+          $form->{"forex_$i"}        = $form->{"exchangerate_$i"};
+          $form->{"record_forex_$i"} = 1;
+        }
+      }
+      $form->{"fx_paid_$i"} = $form->{"paid_$i"} / $form->{"exchangerate_$i"};
+      $form->{"fx_totalpaid"} +=  $form->{"fx_paid_$i"};
+    } # end hook fx_paid
     # format amounts
     if ($form->{"paid_$i"}) {
       $form->{"paid_$i"} = $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
@@ -579,8 +589,9 @@ sub form_header {
        $form->{'AP_paid_' . $i} . " " . SL::DB::Manager::Chart->find_by(accno => $form->{'AP_paid_' . $i})->description
      : '';
   }
-
-  $form->{paid_missing} = $form->{invtotal_unformatted} - $form->{totalpaid};
+  $form->{paid_missing} =  $::form->{is_linked_bank_transaction} && $form->{invoice_obj}->forex ?
+                           $form->{invoice_obj}->open_amount
+                        :  $form->{invtotal_unformatted} - $form->{totalpaid};
 
   $form->{payment_id} = $form->{invoice_obj}->{payment_id} // $form->{payment_id};
   print $form->parse_html_template('ap/form_header', {
@@ -690,9 +701,6 @@ sub update {
   $form->redo_rows(\@flds, \@a, $count, $form->{rowcount});
 
   map { $form->{invtotal} += $form->{"amount_$_"} } (1 .. $form->{rowcount});
-
-  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'sell');
-  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $form->{invdate} = $form->{transdate};
 
@@ -855,8 +863,12 @@ sub post {
 
   $form->error($locale->text('Zero amount posting!')) if $zero_amount_posting;
 
-  $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
-    if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency}));
+  if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
+    $form->isblank("exchangerate", $locale->text('Exchangerate missing!'));
+    $form->error($locale->text('Cannot post invoice with negative exchange rate'))
+      unless ($form->parse_amount(\%myconfig, $form->{"exchangerate"}) > 0);
+  }
+
   delete($form->{AP});
 
   for my $i (1 .. $form->{paidaccounts}) {
@@ -1393,7 +1405,6 @@ sub setup_ap_display_form_action_bar {
 
   my $is_linked_bank_transaction;
   if ($::form->{id}
-      && SL::DB::Default->get->payments_changeable != 0
       && SL::DB::Manager::BankTransactionAccTrans->find_by(ap_id => $::form->{id})) {
 
     $is_linked_bank_transaction = 1;
@@ -1402,11 +1413,24 @@ sub setup_ap_display_form_action_bar {
   if ($::form->{id} && SL::DB::Manager::ApGl->find_by(ap_id => $::form->{id})) {
     $is_linked_gl_transaction = 1;
   }
+  # add readonly state in $::form
+  $::form->{readonly} = !$may_edit_create                           ? 1
+                      : $is_closed                                  ? 1
+                      : $is_storno                                  ? 1
+                      : $has_storno                                 ? 1
+                      : ($::form->{id} && $change_never)            ? 1
+                      : ($::form->{id} && $change_on_same_day_only) ? 1
+                      : $is_linked_bank_transaction                 ? 1
+                      : $has_sepa_exports                           ? 1
+                      : 0;
+  # and is_linked_bank_transaction
+  $::form->{is_linked_bank_transaction} = $is_linked_bank_transaction;
 
   my $create_post_action = sub {
     # $_[0]: description
     # $_[1]: after_action
     action => [
+
       $_[0],
       submit   => [ '#form', { action => "post", after_action => $_[1] } ],
       checks   => [ 'kivi.validate_form', 'kivi.AP.check_fields_before_posting', 'kivi.AP.check_duplicate_invnumber' ],
@@ -1490,7 +1514,7 @@ sub setup_ap_display_form_action_bar {
                     : $is_closed                  ? t8('The billing period has already been locked.')
                     : $has_sepa_exports           ? t8('This invoice has been linked with a sepa export, undo this first.')
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
-                    : $is_linked_gl_transaction   ? undef # linked transactions can be deleted, if period is not closed
+                    # : $is_linked_gl_transaction   ? undef # linked transactions can be deleted, if period is not closed
                     : $change_never               ? t8('Changing invoices has been disabled in the configuration.')
                     : $change_on_same_day_only    ? t8('Invoices can only be changed on the day they are posted.')
                     : $has_storno                 ? t8('This invoice has been canceled already.')

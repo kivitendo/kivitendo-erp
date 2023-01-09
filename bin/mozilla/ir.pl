@@ -181,6 +181,19 @@ sub invoice_links {
         $form->{"memo_$i"}   = $form->{acc_trans}{$key}->[$i - 1]->{memo};
 
         $form->{paidaccounts} = $i;
+        # hook for calc of of fx_paid and check if banktransaction has a record exchangerate
+        if ($form->{"exchangerate_$i"}) {
+          my $bt_acc_trans = SL::DB::Manager::BankTransactionAccTrans->find_by(acc_trans_id => $form->{"acc_trans_id_$i"});
+          if ($bt_acc_trans) {
+            if ($bt_acc_trans->bank_transaction->exchangerate > 0) {
+              $form->{"exchangerate_$i"} = $bt_acc_trans->bank_transaction->exchangerate;
+              $form->{"forex_$i"}        = $form->{"exchangerate_$i"};
+              $form->{"record_forex_$i"} = 1;
+            }
+          }
+          $form->{"fx_paid_$i"} = $form->{"paid_$i"} / $form->{"exchangerate_$i"};
+          $form->{"fx_totalpaid"} +=  $form->{"fx_paid_$i"};
+        } # end hook fx_paid
       }
     } else {
       $form->{$key} =
@@ -247,6 +260,7 @@ sub prepare_invoice {
 }
 
 sub setup_ir_action_bar {
+  my ($tmpl_var)              = @_;
   my $form                    = $::form;
   my $change_never            = $::instance_conf->get_ir_changeable == 0;
   my $change_on_same_day_only = $::instance_conf->get_ir_changeable == 2 && ($form->current_date(\%::myconfig) ne $form->{gldate});
@@ -269,6 +283,15 @@ sub setup_ir_action_bar {
 
     $is_linked_bank_transaction = 1;
   }
+  # add readonly state in tmpl_vars
+  $tmpl_var->{readonly} = !$may_edit_create                     ? 1
+                    : $form->{locked}                           ? 1
+                    : $form->{storno}                           ? 1
+                    : ($form->{id} && $change_never)            ? 1
+                    : ($form->{id} && $change_on_same_day_only) ? 1
+                    : $is_linked_bank_transaction               ? 1
+                    : $has_sepa_exports                         ? 1
+                    : 0;
 
   my $create_post_action = sub {
     # $_[0]: description
@@ -283,6 +306,7 @@ sub setup_ir_action_bar {
                 : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
                 : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
                 : ($form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                : $has_sepa_exports                         ? t8('This invoice has been linked with a sepa export, undo this first.')
                 : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                 :                                             undef,
     ],
@@ -498,7 +522,7 @@ sub form_header {
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File kivi.SalesPurchase kivi.Part kivi.CustomerVendor kivi.Validator ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_project client_js));
 
-  setup_ir_action_bar();
+  setup_ir_action_bar($TMPL_VAR);
 
   $form->header();
 
@@ -591,7 +615,12 @@ sub form_footer {
     if ($form->date_closed($form->{"gldate_$i"})) {
       $form->{"changeable_$i"} = 0;
     }
-
+    # don't add manual bookings for charts which are assigned to real bank accounts
+    my $bank_accounts = SL::DB::Manager::BankAccount->get_all();
+    foreach my $bank (@{ $bank_accounts }) {
+      my $accno_paid_bank = $bank->chart->accno;
+      $form->{selectAP_paid} =~ s/<option>$accno_paid_bank--(.*?)<\/option>//;
+    }
     $form->{"selectAP_paid_$i"} = $form->{selectAP_paid};
     if (!$form->{"AP_paid_$i"}) {
       $form->{"selectAP_paid_$i"} =~ s/option>$accno_arap--(.*?)>/option selected>$accno_arap--$1>/;
@@ -652,17 +681,24 @@ sub update {
   if (($form->{previous_vendor_id} || $form->{vendor_id}) != $form->{vendor_id}) {
     IR->get_vendor(\%myconfig, $form);
   }
-
-  if (!$form->{forex}) {        # read exchangerate from input field (not hidden)
-    $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate});
+  #
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+  if ($form->{defaultcurrency} ne $form->{currency}) {
+    if ($form->{exchangerate}) { # user input OR first default ->  leave this value
+      $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate});
+      # does this differ from daily default?
+      my $current_daily_rate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'sell');
+      $form->{record_forex}  = $current_daily_rate > 0 && $current_daily_rate != $form->{exchangerate}
+                           ?   1 : 0;
+    } else {                     # no value, but get defaults -> maybe user changes invdate as well ...
+      ($form->{exchangerate}, $form->{record_forex}) = $form->check_exchangerate(\%myconfig, $form->{currency},
+                                                                                 $form->{invdate}, 'sell', $form->{id}, 'ap');
+    }
   }
-  $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'sell');
-  $form->{exchangerate} = $form->{forex} if $form->{forex};
-
   for my $i (1 .. $form->{paidaccounts}) {
     next unless $form->{"paid_$i"};
     map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(paid exchangerate);
-    $form->{"forex_$i"}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell');
+    $form->{"forex_$i"}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell') unless $form->{"record_forex_$i"};
     $form->{"exchangerate_$i"} = $form->{"forex_$i"} if $form->{"forex_$i"};
   }
 
@@ -809,9 +845,10 @@ sub storno {
   $form->{invnumber} = "Storno zu " . $form->{invnumber};
   $form->{rowcount}++;
   $form->{employee_id} = $employee_id;
-
   $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
 
+  # post expects the field as user input
+  $form->{exchangerate} = $form->format_amount(\%myconfig, $form->{exchangerate});
   post();
   $main::lxdebug->leave_sub();
 
@@ -834,6 +871,7 @@ sub use_as_new {
 
   $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
+  $form->{exchangerate} = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'sell');
   $form->{useasnew} = 1;
   &display_form;
 
@@ -959,9 +997,11 @@ sub post {
   $form->error($locale->text('Cannot post invoice for a closed period!'))
     if ($invdate <= $closedto);
 
-  $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
-    if ($form->{currency} ne $form->{defaultcurrency});
-
+  if ($form->{currency} ne $form->{defaultcurrency}) {
+    $form->isblank("exchangerate", $locale->text('Exchangerate missing!'));
+    $form->error($locale->text('Cannot post invoice with negative exchange rate'))
+      unless ($form->parse_amount(\%myconfig, $form->{"exchangerate"}) > 0);
+  }
   my $i;
   for $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {

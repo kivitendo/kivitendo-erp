@@ -39,6 +39,8 @@ use List::Util qw(max sum0);
 use List::MoreUtils qw(any);
 
 use Carp;
+use Data::Dumper;
+
 use SL::AM;
 use SL::ARAP;
 use SL::CVar;
@@ -63,7 +65,6 @@ use SL::DB;
 use SL::Presenter::Part qw(type_abbreviation classification_abbreviation);
 use SL::Helper::QrBillFunctions qw(get_qrbill_account assemble_ref_number);
 use SL::Helper::ISO3166;
-use Data::Dumper;
 
 use strict;
 use constant PCLASS_OK             =>   0;
@@ -812,13 +813,22 @@ sub _post_invoice {
   if ($form->{currency} eq $defaultcurrency) {
     $form->{exchangerate} = 1;
   } else {
-    $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, 'buy');
-  }
+    $exchangerate         = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, 'buy');
+    $form->{exchangerate} = $form->parse_amount($myconfig, $form->{exchangerate}, 5);
 
-  $form->{exchangerate} =
-    ($exchangerate)
-    ? $exchangerate
-    : $form->parse_amount($myconfig, $form->{exchangerate});
+    # if default exchangerate is not defined, define one
+    unless ($exchangerate) {
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate}, $form->{exchangerate}, 0);
+      # delete records exchangerate -> if user sets new invdate for record
+      $query = qq|UPDATE ar set exchangerate = NULL where id = ?|;
+      do_query($form, $dbh, $query, $form->{"id"});
+    }
+    # update record exchangerate, if the default is set and differs from current
+    if ($exchangerate && ($form->{exchangerate} != $exchangerate)) {
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate},
+                                 $form->{exchangerate}, 0, $form->{id}, 'ar');
+    }
+  }
 
   $form->{expense_inventory} = "";
 
@@ -1099,12 +1109,6 @@ SQL
 
   # reverse AR
   $form->{amount}{ $form->{id} }{ $form->{AR} } *= -1;
-
-  # update exchangerate
-  if (($form->{currency} ne $defaultcurrency) && !$exchangerate) {
-    $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate},
-                               $form->{exchangerate}, 0);
-  }
 
   $project_id = conv_i($form->{"globalproject_id"});
   # entsprechend auch beim Bestimmen des Steuerschlüssels in Taxkey.pm berücksichtigen
@@ -1434,8 +1438,10 @@ SQL
 
       $diff = 0;
 
-      # update exchange rate
+      # update exchange rate for PAYMENTS
+      # exchangerate contains a new exchangerate of the payment date
       if (($form->{currency} ne $defaultcurrency) && !$exchangerate) {
+        $form->{script} = 'is.pl';
         $form->update_exchangerate($dbh, $form->{currency},
                                    $form->{"datepaid_$i"},
                                    $form->{"exchangerate_$i"}, 0);
@@ -2303,11 +2309,12 @@ sub _retrieve_invoice {
     $form->{mtime} = $form->{itime} if !$form->{mtime};
     $form->{lastmtime} = $form->{mtime};
 
-    $form->{exchangerate} = $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate}, "buy");
+    ($form->{exchangerate}, $form->{record_forex}) = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, "buy", $id, 'ar');
 
     foreach my $vc (qw(customer vendor)) {
       next if !$form->{"delivery_${vc}_id"};
-      ($form->{"delivery_${vc}_string"}) = selectrow_query($form, $dbh, qq|SELECT name FROM customer WHERE id = ?|, $id);
+      ($form->{"delivery_${vc}_string"}) = selectrow_query($form, $dbh, qq|SELECT name FROM customer WHERE id = ?|,
+                                                           $form->{"delivery_${vc}_id"});
     }
 
     # get shipto

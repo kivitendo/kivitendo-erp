@@ -235,6 +235,19 @@ sub invoice_links {
         $form->{"memo_$i"}         = $form->{acc_trans}{$key}->[$i - 1]->{memo};
 
         $form->{paidaccounts} = $i;
+        # hook for calc of of fx_paid and check if banktransaction has a record exchangerate
+        if ($form->{"exchangerate_$i"}) {
+          my $bt_acc_trans = SL::DB::Manager::BankTransactionAccTrans->find_by(acc_trans_id => $form->{"acc_trans_id_$i"});
+          if ($bt_acc_trans) {
+            if ($bt_acc_trans->bank_transaction->exchangerate > 0) {
+              $form->{"exchangerate_$i"} = $bt_acc_trans->bank_transaction->exchangerate;
+              $form->{"forex_$i"}        = $form->{"exchangerate_$i"};
+              $form->{"record_forex_$i"} = 1;
+            }
+          }
+          $form->{"fx_paid_$i"} = $form->{"paid_$i"} / $form->{"exchangerate_$i"};
+          $form->{"fx_totalpaid"} +=  $form->{"fx_paid_$i"};
+        } # end hook fx_paid
       }
     } else {
       $form->{$key} = "$form->{acc_trans}{$key}->[0]->{accno}--$form->{acc_trans}{$key}->[0]->{description}";
@@ -350,6 +363,14 @@ sub setup_is_action_bar {
     my $lr          = $invoice_obj->linked_records(direction => 'from', from => ['Order']);
     $is_invoice_for_advance_payment_from_order = scalar @$lr >= 1;
   }
+  # add readonly state in tmpl_vars
+  $tmpl_var->{readonly} = !$may_edit_create                     ? 1
+                    : $form->{locked}                           ? 1
+                    : $form->{storno}                           ? 1
+                    : ($form->{id} && $change_never)            ? 1
+                    : ($form->{id} && $change_on_same_day_only) ? 1
+                    : $is_linked_bank_transaction               ? 1
+                    : 0;
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -771,6 +792,12 @@ sub form_footer {
     if ($form->date_closed($form->{"gldate_$i"})) {
       $form->{"changeable_$i"} = 0;
     }
+    # don't add manual bookings for charts which are assigned to real bank accounts
+    my $bank_accounts = SL::DB::Manager::BankAccount->get_all();
+    foreach my $bank (@{ $bank_accounts }) {
+      my $accno_paid_bank = $bank->chart->accno;
+      $form->{selectAR_paid} =~ s/<option>$accno_paid_bank--(.*?)<\/option>//;
+    }
 
     $form->{"selectAR_paid_$i"} = $form->{selectAR_paid};
     if (!$form->{"AR_paid_$i"}) {
@@ -849,12 +876,19 @@ sub update {
 
   $form->{taxincluded} ||= $taxincluded;
 
-  if (!$form->{forex}) {        # read exchangerate from input field (not hidden)
-    $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate}) unless $recursive_call;
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+  if ($form->{defaultcurrency} ne $form->{currency}) {
+    if ($form->{exchangerate}) { # user input OR first default ->  leave this value
+      $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate}) unless $recursive_call;
+      # does this differ from daily default?
+      my $current_daily_rate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
+      $form->{record_forex}  = $current_daily_rate > 0 && $current_daily_rate != $form->{exchangerate}
+                           ?   1 : 0;
+    } else {                     # no value, but get defaults -> maybe user changes invdate as well ...
+      ($form->{exchangerate}, $form->{record_forex}) = $form->check_exchangerate(\%myconfig, $form->{currency},
+                                                                                 $form->{invdate}, 'buy', $form->{id}, 'ar');
+    }
   }
-  $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
-  $form->{exchangerate} = $form->{forex} if $form->{forex};
-
   for my $i (1 .. $form->{paidaccounts}) {
     next unless $form->{"paid_$i"};
     map { $form->{"${_}_$i"}   = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(paid exchangerate);
@@ -1075,8 +1109,12 @@ sub post {
   $form->error($locale->text('Cannot post invoice for a closed period!'))
     if ($invdate <= $closedto);
 
-  $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
-    if ($form->{currency} ne $form->{defaultcurrency});
+  if ($form->{currency} ne $form->{defaultcurrency}) {
+    $form->isblank("exchangerate", $locale->text('Exchangerate missing!'));
+    $form->error($locale->text('Cannot post invoice with negative exchange rate'))
+      unless ($form->parse_amount(\%myconfig, $form->{"exchangerate"}) > 0);
+  }
+
   # advance payment allows only one tax
   if ($form->{type} eq 'invoice_for_advance_payment') {
     my @current_taxaccounts = (split(/ /, $form->{taxaccounts}));
@@ -1356,7 +1394,9 @@ sub storno {
   $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
   $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
-
+  # post expects the field as user input
+  $form->{exchangerate} = $form->format_amount(\%myconfig, $form->{exchangerate});
+  $form->{script}       = 'is.pl';
   post();
   $main::lxdebug->leave_sub();
 }

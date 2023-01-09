@@ -3,7 +3,10 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
-Upgrade auf v3.x.x
+Upgrade auf v4.0
+
+Buchungskonten die mit einem Bankkonto verknüpft sind, können nicht mehr
+manuell in den Belegen bebucht werden.
 
 LaTeX-Druckvorlagen werden nun standardmäßig nicht mehr zwei mal durch
 den LaTeX-Interpreter übersetzt. Statt dessen wird in der
@@ -21,7 +24,6 @@ von »latexmk --help«.
 Upgrade auf v3.7.0
 
 Es sind keine neuen Perl-Abhängigkeiten hinzugekommen.
-
 
 Upgrade auf v3.6.1
 

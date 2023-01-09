@@ -80,9 +80,15 @@
      <td align="center">
   [% SET forex        = 'forex_'        _ i %]
   [% SET exchangerate = 'exchangerate_' _ i %]
+  [% SET fx_paid      = 'fx_paid_'      _ i %]
+  [% SET record_forex = 'record_forex_' _ i %]
   [% IF $forex %]
         <input type="hidden" name="exchangerate_[% i %]" value="[% LxERP.format_amount($exchangerate, 5) %]">
-        [% LxERP.format_amount($forex, 5) %]
+        <input type="hidden" name="record_forex_[% i %]" value="[% $record_forex %]">
+        <input type="hidden" name="forex_[% i %]"        value="[% $forex %]">
+        <input type="hidden" name="fx_paid_[% i %]"      value="[% $fx_paid %]">
+          [% LxERP.format_amount($forex, 5) %] = [% LxERP.format_amount($fx_paid, 5) %] [% currency %] </br>
+          [% IF $record_forex %][% 'bank transaction exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
   [% ELSE %]
      [% IF $changeable %]
         <input name="exchangerate_[% i %]" size="10" value="[% LxERP.format_amount($exchangerate, 5, 1) %]">
@@ -110,15 +116,22 @@
     <tr>
       <td></td>
       <td></td>
-      <td align="center">[% 'Total' | $T8 %]</td>
-      <td align="center">[% LxERP.format_amount(totalpaid, 2) | html %]</td>
+      <td align="center">[%- 'Total' | $T8 %]</td>
+      <td align="center">[% LxERP.format_amount(totalpaid, 2) | html %] [% defaultcurrency %]</td>
+      <td></td>
+      [% IF show_exchangerate %]
+        <td align="center">[% LxERP.format_amount(fx_totalpaid, 2) | html %] [% currency %]</td>
+        <input type="hidden" name="fx_totalpaid" value="[% fx_totalpaid %]">
+      [% END %]
     </tr>
+[% UNLESS show_exchangerate %]
     <tr>
       <td></td>
       <td></td>
-      <td align="center">[% 'Missing amount' | $T8 %]</td>
+      <td align="center">[%- 'Missing amount' | $T8 %]</td>
       <td align="center">[% LxERP.format_amount(paid_missing, 2) | html %]</td>
     </tr>
+[% END %]
 
      <input type="hidden" name="paidaccounts" value="[% paidaccounts %]">
      <input type="hidden" name="selectAP_paid" value="[% selectAP_paid %]">

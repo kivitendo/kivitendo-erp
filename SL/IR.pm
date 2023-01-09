@@ -91,7 +91,7 @@ sub _post_invoice {
 
   my $all_units = AM->retrieve_units($myconfig, $form);
 
-#markierung
+  #markierung
   if (!$payments_only) {
     if ($form->{id}) {
       &reverse_invoice($dbh, $form);
@@ -100,16 +100,25 @@ sub _post_invoice {
       do_query($form, $dbh, qq|INSERT INTO ap (id, invnumber, currency_id, taxzone_id) VALUES (?, '', (SELECT id FROM currencies WHERE name=?), ?)|, $form->{id}, $form->{currency}, $form->{taxzone_id});
     }
   }
-
   if ($form->{currency} eq $defaultcurrency) {
     $form->{exchangerate} = 1;
   } else {
-    $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, 'sell');
+    $exchangerate         = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, 'sell');
+    $form->{exchangerate} = $form->parse_amount($myconfig, $form->{exchangerate}, 5);
+
+    # if default exchangerate is not defined, define one
+    unless ($exchangerate) {
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate}, 0,  $form->{exchangerate});
+      # delete records exchangerate -> if user sets new invdate for record
+      $query = qq|UPDATE ap set exchangerate = NULL where id = ?|;
+      do_query($form, $dbh, $query, $form->{"id"});
+    }
+    # update record exchangerate, if the default is set and differs from current
+    if ($exchangerate && ($form->{exchangerate} != $exchangerate)) {
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate},
+                                 0, $form->{exchangerate}, $form->{id}, 'ap');
+    }
   }
-
-  $form->{exchangerate} = $exchangerate || $form->parse_amount($myconfig, $form->{exchangerate});
-  $form->{exchangerate} = 1 unless ($form->{exchangerate} * 1);
-
   my %item_units;
   my $q_item_unit = qq|SELECT unit FROM parts WHERE id = ?|;
   my $h_item_unit = prepare_query($form, $dbh, $q_item_unit);
@@ -223,6 +232,8 @@ sub _post_invoice {
       next if $payments_only;
 
       # update parts table by setting lastcost to current price, don't allow negative values by using abs
+      # maybe allow only 2 decimal places -> rounding error with fx can be too huge for datev checks
+      # @values = ($form->round_amount(abs($fxsellprice * $form->{exchangerate} / $basefactor), 2), conv_i($form->{"id_$i"}));
       $query = qq|UPDATE parts SET lastcost = ? WHERE id = ?|;
       @values = (abs($fxsellprice * $form->{exchangerate} / $basefactor), conv_i($form->{"id_$i"}));
       do_query($form, $dbh, $query, @values);
@@ -543,12 +554,7 @@ SQL
 
   $form->{paid} = $form->round_amount($form->{paid} * $form->{exchangerate} + $paiddiff, 2) if $form->{paid} != 0;
 
-# update exchangerate
-
-  $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate}, 0, $form->{exchangerate})
-    if ($form->{currency} ne $defaultcurrency) && !$exchangerate;
-
-# record acc_trans transactions
+  # record acc_trans transactions
   my $taxdate = $form->{tax_point} || $form->{deliverydate} || $form->{invdate};
   foreach my $trans_id (keys %{ $form->{amount} }) {
     foreach my $accno (keys %{ $form->{amount}{$trans_id} }) {
@@ -691,7 +697,8 @@ SQL
 
     $paiddiff = 0;
 
-    # update exchange rate
+    # update exchange rate for PAYMENTS
+    $form->{script} = 'ir.pl';
     $form->update_exchangerate($dbh, $form->{currency}, $form->{"datepaid_$i"}, 0, $form->{"exchangerate_$i"})
       if ($form->{currency} ne $defaultcurrency) && !$exchangerate;
   }
@@ -1009,7 +1016,7 @@ sub retrieve_invoice {
   $form->{mtime} = $form->{itime} if !$form->{mtime};
   $form->{lastmtime} = $form->{mtime};
 
-  $form->{exchangerate}  = $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate}, "sell");
+  ($form->{exchangerate}, $form->{record_forex}) = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, "sell", conv_i($form->{id}), 'ap');
 
   # get shipto
   $query = qq|SELECT * FROM shipto WHERE (trans_id = ?) AND (module = 'AP')|;

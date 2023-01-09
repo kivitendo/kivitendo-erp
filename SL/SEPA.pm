@@ -47,8 +47,8 @@ sub retrieve_open_invoices {
 
          ${arap}.amount - ${arap}.paid - COALESCE(open_transfers.amount, 0) AS open_amount,
          COALESCE(open_transfers.amount, 0) AS transfer_amount,
-         pt.description as pt_description
-
+         pt.description as pt_description,
+         (current_date < (${arap}.transdate + pt.terms_skonto)) as within_skonto_period
        FROM ${arap}
        LEFT JOIN ${vc} vc ON (${arap}.${vc}_id = vc.id)
        LEFT JOIN (SELECT sei.${arap}_id, SUM(sei.amount) + SUM(COALESCE(sei.skonto_amount,0)) AS amount
@@ -72,17 +72,14 @@ sub retrieve_open_invoices {
   # add some more data to $results:
   # create drop-down data for payment types and suggest amount to be paid according
   # to open amount or skonto
+  # One minor fault: amount_less_skonto does not subtract the not yet booked sepa transfer amounts
 
   foreach my $result ( @$results ) {
-    my $invoice = $vc eq 'customer' ? SL::DB::Manager::Invoice->find_by(         id => $result->{id} )
-                                    : SL::DB::Manager::PurchaseInvoice->find_by( id => $result->{id} );
-
-    $invoice->get_payment_suggestions(sepa => 1); # consider amounts of open entries in sepa_export_items
-    $result->{skonto_amount}             = $invoice->skonto_amount;
-    $result->{within_skonto_period}      = $invoice->within_skonto_period;
-    $result->{invoice_amount_suggestion} = $invoice->{invoice_amount_suggestion};
-    $result->{payment_select_options}    = $invoice->{payment_select_options};
-  };
+    my   @options;
+    push @options, { payment_type => 'without_skonto',  display => t8('without skonto') };
+    push @options, { payment_type => 'with_skonto_pt',  display => t8('with skonto acc. to pt'), selected => 1 } if $result->{within_skonto_period};
+    $result->{payment_select_options}  = \@options;
+  }
 
   $main::lxdebug->leave_sub();
 

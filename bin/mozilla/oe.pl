@@ -1795,25 +1795,6 @@ sub invoice {
   $main::lxdebug->leave_sub();
 }
 
-sub save_exchangerate {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  $form->isblank("exchangerate", $locale->text('Exchangerate missing!'));
-  $form->{exchangerate} =
-    $form->parse_amount(\%myconfig, $form->{exchangerate});
-  $form->save_exchangerate(\%myconfig, $form->{currency},
-                           $form->{exchangeratedate},
-                           $form->{exchangerate}, $form->{buysell});
-
-  &invoice;
-
-  $main::lxdebug->leave_sub();
-}
-
 sub save_as_new {
   $main::lxdebug->enter_sub();
 
