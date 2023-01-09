@@ -1,6 +1,8 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %]
+[%- USE P %]
+[%- USE LxERP %]
 
  <h1>[% HTML.escape(title) %]</h1>
 
@@ -13,7 +15,7 @@
   <input type="hidden" name="report_generator_chart_options_set" value="1">
   <input type="hidden" name="report_generator_dispatch_to" value="">
 
-  <table>
+  <table id="assigment_table">
    <tr>
      <th valign="top" align="right">[% 'Chart assignments' | $T8 %]: [% 'X axis' | $T8 %]</th>
      <td>
@@ -24,17 +26,19 @@
                        title_key = 'text') %]
      </td>
    </tr>
-   <tr>
+    <tr id="y_assignment_row">
      <th valign="top" align="right">[% 'Chart assignments' | $T8 %]: [% 'Y axis' | $T8 %]</th>
      <td>
-       [% L.select_tag('report_generator_chart_options_assignment_y',
+       [% L.select_tag('report_generator_chart_options_assignments_y[]',
                        fields,
-                       default = SELF.report_generator_chart_options_assignment_y
                        value_key = 'name',
                        title_key = 'text') %]
+       [% P.link_tag('', "✘", class='remove_data_assignment interact cursor-pointer', onclick='remove_data_assignment(this)', style='display:none') %]
      </td>
-   </tr>
+    </tr>
   </table>
+
+  [% L.button_tag('add_data_assignement()', LxERP.t8('Add row')) %]
 
 [%- IF CONTROLLER_DISPATCH %]
     <input type="hidden" name="CONTROLLER_DISPATCH" value="[% CONTROLLER_DISPATCH | html %]">
@@ -44,3 +48,18 @@
 
 
  </form>
+
+ <script type="text/javascript">
+  <!--
+   function add_data_assignement() {
+     const new_row = $('#y_assignment_row').clone();
+     new_row.removeAttr('id');
+     new_row.find('a').show();
+     new_row.find('*').removeAttr('id');
+     new_row.appendTo("#assigment_table");
+   }
+   function remove_data_assignment(clicked) {
+     $(clicked).closest('tr').remove();
+   }
+  -->
+ </script>

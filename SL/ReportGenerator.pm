@@ -55,8 +55,8 @@ sub new {
       'encoding'            => 'UTF-8',
     },
     'chart_export'          => {
-      'assignment_x'        => 'x',
-      'assignment_y'        => 'y1',
+      'assignment_x'        => '',
+      'assignments_y'       => [],
     },
   };
   $self->{export}   = {
@@ -876,19 +876,24 @@ sub generate_chart_content {
 
   my $opts            = $self->{options};
 
-  my $assignment_x = $opts->{chart_export}->{assignment_x};
-  my $assignment_y = $opts->{chart_export}->{assignment_y};
+  my $assignment_x  = $opts->{chart_export}->{assignment_x};
+  my $assignments_y = $opts->{chart_export}->{assignments_y};
 
-  my @data_x;
-  my @data_y;
+  my @labels;
+  my @datasets;
   foreach my $row_set (@{ $self->{data} }) {
     next if ('ARRAY' ne ref $row_set);
     foreach my $row (@{ $row_set }) {
-      my $x = $row->{$assignment_x}->{data}->[0];
-      my $y = $row->{$assignment_y}->{data}->[0];
-      if ($x) {
-        push @data_x, $x;
-        push @data_y, $y//0;
+      my $label = $row->{$assignment_x}->{data}->[0];
+      if ($label) {
+        push @labels, $label;
+
+        my @set;
+        foreach my $assignment_y (@$assignments_y) {
+          my $y = $row->{$assignment_y}->{data}->[0];
+          push @set, $y;
+        }
+        push @datasets, \@set;
       }
     }
   }
@@ -912,10 +917,9 @@ sub generate_chart_content {
   $::form->header;
   print $::form->parse_html_template('report_generator/chart_report',
                                       {
-                                        data_x => to_json(\@data_x),
-                                        data_y => to_json(\@data_y),
-                                        label_x => $assignment_x,
-                                        label_y => $assignment_y,
+                                        labels      => to_json(\@labels),
+                                        datasets    => to_json(\@datasets),
+                                        data_labels => to_json($assignments_y),
                                         %$variables,
                                       }
   );
