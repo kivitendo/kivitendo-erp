@@ -1521,6 +1521,17 @@ SQL
       $qr_reference = undef;
     }
   }
+  
+  # add invoice number to unstructured message if feature enabled in client config 
+  my $qr_unstructured_message = $form->{"qr_unstructured_message"};
+  if ($::instance_conf->get_qrbill_copy_invnumber && $form->{formname} eq 'invoice') {
+    my $invnumber = $form->{"invnumber"};
+    if ($qr_unstructured_message eq '') {
+      $qr_unstructured_message = $invnumber;
+    } elsif (rindex($qr_unstructured_message, $invnumber) == -1) {
+      $qr_unstructured_message .= '; ' . $invnumber;
+    }
+  }
 
   # save AR record
   #erweiterung fuer lieferscheinnummer (donumber) 12.02.09 jb
@@ -1553,7 +1564,7 @@ SQL
                 conv_i($form->{"globalproject_id"}),                              conv_i($form->{"delivery_customer_id"}),
                        $form->{transaction_description},                          conv_i($form->{"delivery_vendor_id"}),
                        $form->{"donumber"}, $form->{"invnumber_for_credit_note"},        $form->{direct_debit} ? 't' : 'f', $form->{qrbill_without_amount} ? 't' : 'f',
-                $qr_reference, $form->{"qr_unstructured_message"}, conv_i($form->{delivery_term_id}),
+                $qr_reference, $qr_unstructured_message, conv_i($form->{delivery_term_id}),
                 conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
 
