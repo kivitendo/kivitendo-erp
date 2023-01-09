@@ -161,7 +161,6 @@ my $sales_delivery_order = SL::Dev::Record::create_sales_delivery_order(
   payment_terms           => $payment_term,
   delivery_term           => $delivery_term,
   taxincluded             => 0,
-  is_sales                => 1,
   orderitems => [ SL::Dev::Record::create_delivery_order_item(part => $parts[0], qty =>  3, sellprice => 70),
                   SL::Dev::Record::create_delivery_order_item(part => $parts[1], qty => 10, sellprice => 50),
   ]
@@ -175,7 +174,6 @@ my $purchase_delivery_order = SL::Dev::Record::create_purchase_delivery_order(
   payment_terms           => $payment_term,
   delivery_term           => $delivery_term,
   taxincluded             => 0,
-  is_sales                => 0,
   orderitems => [ SL::Dev::Record::create_delivery_order_item(part => $parts[0], qty =>  3, sellprice => 70),
                   SL::Dev::Record::create_delivery_order_item(part => $parts[1], qty => 10, sellprice => 50),
   ]
@@ -241,7 +239,7 @@ my $purchase_delivery_order_tmp = clone($purchase_delivery_order);
 # clean different values
 foreach (qw(
   customer_id vendor_id
-  id is_sales order_type
+  id order_type
   donumber salesman_id
   transaction_description
   itime mtime
@@ -291,7 +289,7 @@ test_deeply($sales_delivery_order->strip->as_tree, $converted_sales_reclamation-
   "sales_delivery_order to sales_reclamation",
   qw(
     id employee_id itime mtime reqdate
-    is_sales order_type ordnumber oreqnumber
+    order_type ordnumber oreqnumber
     amount exchangerate netamount
     cp_id contact_id
     cusordnumber cv_record_number
@@ -311,7 +309,7 @@ test_deeply($sales_reclamation->strip->as_tree, $converted_sales_delivery_order-
   "sales_reclamation to sales_delivery_order",
   qw(
     id employee_id itime mtime delivered reqdate
-    is_sales order_type ordnumber oreqnumber
+    order_type ordnumber oreqnumber
     amount exchangerate netamount
     cp_id contact_id
     cusordnumber cv_record_number
@@ -333,7 +331,7 @@ test_deeply($purchase_delivery_order->strip->as_tree, $converted_purchase_reclam
   "purchase_delivery_order to purchase_reclamation",
   qw(
     id employee_id itime mtime reqdate
-    is_sales order_type ordnumber oreqnumber
+    order_type ordnumber oreqnumber
     amount exchangerate netamount
     cp_id contact_id
     cusordnumber cv_record_number
@@ -353,7 +351,7 @@ test_deeply($purchase_reclamation->strip->as_tree, $converted_purchase_delivery_
   "purchase_reclamation to purchase_delivery_order",
   qw(
     id employee_id itime mtime delivered reqdate
-    is_sales order_type ordnumber oreqnumber
+    order_type ordnumber oreqnumber
     amount exchangerate netamount
     cp_id contact_id
     cusordnumber cv_record_number

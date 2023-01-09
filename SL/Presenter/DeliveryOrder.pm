@@ -114,11 +114,11 @@ for sales and purchase delivery orders
 =head1 SYNOPSIS
 
   # Sales delivery orders:
-  my $object = SL::DB::Manager::DeliveryOrder->get_first(where => [ is_sales => 1 ]);
+  my $object = SL::DB::Manager::DeliveryOrder->get_first(where => [ order_type  => SALES_DELIVERY_ORDER_TYPE ]);
   my $html   = SL::Presenter::DeliveryOrder::sales_delivery_order($object, display => 'inline');
 
   # Purchase delivery orders:
-  my $object = SL::DB::Manager::DeliveryOrder->get_first(where => [ or => [ is_sales => undef, is_sales => 0 ]]);
+  my $object = SL::DB::Manager::DeliveryOrder->get_first(where => [ order_type  => PURCHASE_DELIVERY_ORDER_TYPE ]);
   my $html   = SL::Presenter::DeliveryOrder::purchase_delivery_order($object, display => 'inline');
 
 =head1 FUNCTIONS

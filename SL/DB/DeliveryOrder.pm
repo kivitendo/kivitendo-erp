@@ -351,8 +351,7 @@ sub new_from_time_recordings {
 
   } else {
     my %args = (
-      is_sales    => 1,
-      order_type  => 'sales_delivery_order',
+      order_type  => SALES_DELIVERY_ORDER_TYPE,
       delivered   => 0,
       customer_id => $sources->[0]->customer_id,
       taxzone_id  => $sources->[0]->customer->taxzone_id,
