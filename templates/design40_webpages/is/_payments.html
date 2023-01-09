@@ -84,9 +84,12 @@
           <td>
            [% SET forex        = 'forex_'        _ i %]
            [% SET exchangerate = 'exchangerate_' _ i %]
+           [% SET fx_paid      = 'fx_paid_'      _ i %]
+           [% SET record_forex = 'record_forex_' _ i %]
            [% IF $forex %]
              <input type="hidden" name="exchangerate_[% i %]" value="[% LxERP.format_amount($exchangerate, 5) %]">
-             [% LxERP.format_amount($forex, 5) %]
+             [% LxERP.format_amount($forex, 5) %] = [% $fx_paid %] [% currency %] </br>
+             [% IF $record_forex %][% 'bank transaction exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
            [% ELSE %]
              [% IF $changeable %]
                <input type="text" name="exchangerate_[% i %]" size="10" value="[% LxERP.format_amount($exchangerate, 5, 1) %]">
@@ -112,22 +115,29 @@
     <tr>
       <td colspan="2"></td>
       <td class="right">[% 'Total' | $T8 %]</td>
-      <td class="numeric">[% LxERP.format_amount(totalpaid, 2) | html %]</td>
-      <td colspan="2"></td>
+      <td class="numeric">[% LxERP.format_amount(totalpaid, 2) | html %] [% defaultcurrency %]</td>
+      <td></td>
+      [% IF show_exchangerate %]
+        <td align="center">[% LxERP.format_amount(fx_totalpaid, 2) | html %] [% currency %]</td>
+      [% ELSE %]
+      [% END %]
+        <td></td>
     </tr>
+[% UNLESS show_exchangerate %]
     <tr>
       <td colspan="2"></td>
       <td class="right">[% 'Missing amount' | $T8 %]</td>
       <td class="numeric">[% LxERP.format_amount(paid_missing, 2) | html %]</td>
       <td colspan="2">
-        <input type="hidden" name="paidaccounts" value="[% paidaccounts %]">
-        <input type="hidden" name="selectAR_paid" value="[% selectAR_paid %]">
-        <input type="hidden" name="oldinvtotal" value="[% oldinvtotal %]">
-        <input type="hidden" name="oldtotalpaid" value="[% totalpaid %]">
       </td>
    </tr>
+[% END %]
   </tfoot>
 </table>
+<input type="hidden" name="paidaccounts" value="[% paidaccounts %]">
+<input type="hidden" name="selectAR_paid" value="[% selectAR_paid %]">
+<input type="hidden" name="oldinvtotal" value="[% oldinvtotal %]">
+<input type="hidden" name="oldtotalpaid" value="[% totalpaid %]">
 
 <script type='text/javascript'>
   $('#is_set_to_paid_missing').click(function(){ $('input[name^="paid_"]:last').val("[% LxERP.format_amount(paid_missing, 2) %]") });
