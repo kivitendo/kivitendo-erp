@@ -398,11 +398,11 @@
         <td>[% L.yes_no_tag("defaults.qrbill_copy_invnumber", SELF.defaults.qrbill_copy_invnumber) %]</td>
         <td class="long-desc">[% LxERP.t8("If enabled the invoice number will be copied to the unstructured message upon booking. If there's a message already the invoice number will be appended to it.") %]</td>
       </tr>
-       <tr>
+      <tr>
         <th>[% LxERP.t8("Lock RFQ/Quotation and Order Subversion") %]</th>
         <td>[% L.yes_no_tag("defaults.lock_oe_subversions", SELF.defaults.lock_oe_subversions) %]</td>
         <td class="long-desc">[% LxERP.t8("If enabled RFQs, Quotations and Orders can only be send once via email. By creating another subversion the current record gets a minor subversion and can be send again via email.") %]</td>
-       </tr>
+      </tr>
       <tr>
         <th class="caption" colspan="3">[% LxERP.t8('Transport and service costs reminder') %]</th>
       </tr>
@@ -506,7 +506,7 @@
           </tr>
           [% END %]
           <tr>
-            <th align="left">[% 'Display' | $T8 %]:</th>
+            <th class="left">[% 'Display' | $T8 %]:</th>
             <td>
               [% L.hidden_tag("displayable_name_specs[+].module", module) %]
               [% L.input_tag("displayable_name_specs[].default", spec.prefs.get_default, size=50) %]
