@@ -97,6 +97,7 @@ Kleinere neue Features und Detailverbesserungen:
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 504 BDV Auswahlbox mit Checkbox ignoriert Parameter 7) Deaktiviert als Voreinstellung
 501 Gelöschten Benutzernamen für einen andere Person neu vergeben verursacht Durcheinander
+490 entfernen von ungenutzten `is_sales` aus Lieferscheintabelle
 
 
 2022-05-20 - Release 3.6.1
