@@ -132,8 +132,9 @@ sub _send_email {
   return if !$self->config || !$self->config->{send_email_to};
 
   my $user  = $self->_email_user;
-  my $email = $user ? $user->get_config_value('email') : undef;
-  my $email ||= $self->{options}->{mail_to};
+  my $email = $self->{options}->{mail_to} ? $self->{options}->{mail_to}
+            : $user                       ? $user->get_config_value('email')
+            : undef;
   return unless $email;
 
   $email .= $self->additional_email ? ',' . $self->additional_email : '';
