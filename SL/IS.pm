@@ -1521,8 +1521,8 @@ SQL
       $qr_reference = undef;
     }
   }
-  
-  # add invoice number to unstructured message if feature enabled in client config 
+
+  # add invoice number to unstructured message if feature enabled in client config
   my $qr_unstructured_message = $form->{"qr_unstructured_message"};
   if ($::instance_conf->get_qrbill_copy_invnumber && $form->{formname} eq 'invoice') {
     my $invnumber = $form->{"invnumber"};
