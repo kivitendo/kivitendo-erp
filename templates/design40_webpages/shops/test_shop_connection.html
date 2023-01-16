@@ -4,7 +4,7 @@
 
 [% IF ok %]
   <p class="message message_ok">[% LxERP.t8('The connection to the shop was established successfully.') %]</p>
-  <p>[% LxERP.t8('Version: ')%][% HTML.escape(version) %]</p>
+  <p>[% LxERP.t8('Version')%][% HTML.escape(version) %]</p>
 [% ELSE %]
   <p class="message message_error"> [% LxERP.t8('The connection to the shop could not be established.') %] [% LxERP.t8('Error message from the webshop api:') %] </p>
   <p>[% HTML.escape(version) %]</p>
