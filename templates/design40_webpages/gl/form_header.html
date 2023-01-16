@@ -105,6 +105,10 @@
       <td [%- departments_style -%]>[% L.select_tag('department_id', ALL_DEPARTMENTS, default=department_id, title_key='description', with_empty=1, class='wi-wide') %]</td>
     </tr>
     <tr>
+      <th>[% 'Transaction description' | $T8 %]</th>
+      <td>[% L.input_tag("transaction_description", transaction_description, class='wi-wide') %]</td>
+    </tr>
+    <tr>
       <th>[% 'Description' | $T8 %]</th>
       <td class="wi-wide">[% L.areainput_tag('description', description, readonly=readonly, cols=10, class='wi-wide') %]</td>
     </tr>

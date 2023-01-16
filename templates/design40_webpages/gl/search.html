@@ -14,11 +14,12 @@
   <tbody>
     <tr>
       <th>[% 'Reference / Invoice Number' | $T8 %]</th>
-      <td><input name="reference" class="wi-normal initial_focus" type="text"></td>
+      <td>[% L.input_tag('reference', '', class='wi-normal initial_focus', name='reference') %]</td>
     </tr>
     <tr>
       <th>[% 'Source' | $T8 %]</th>
-      <td><input name="source" class="wi-normal" type="text"></td>
+      <td>[% L.input_tag('source', '', class='wi-normal', name='source') %]</td>
+
     </tr>
     [% IF ALL_DEPARTMENTS %]
     <tr>
@@ -28,16 +29,20 @@
     [% END %]
     <tr>
       <th>[% 'Description' | $T8 %]</th>
-      <td><input name="description" class="wi-normal" type="text"></td>
+      <td>[% L.input_tag('description', '', class='wi-normal', name='description') %]</td>
     </tr>
     <tr>
       <th>[% 'Account Number' | $T8 %]</th>
-      <td><input name="accno" class="wi-normal" type="text"></td>
+      <td>[% L.input_tag('accno', '', class='wi-normal', name='accno') %]</td>
     </tr>
     <tr>
       <th>[% 'Notes' | $T8 %]</th>
-      <td><input name="notes" class="wi-normal" type="text"></td>
+      <td>[% L.input_tag('notes', '', class='wi-normal', name='notes') %]</td>
     </tr>
+    <tr>
+          <th>[% 'Transaction description' | $T8 %]</th>
+          <td>[% L.input_tag('transaction_description', '', class='wi-normal') %]</td>
+        </tr>
     <tr>
       <th>[% 'Project Number' | $T8 %]</th>
       <td>[% L.select_tag('project_id', ALL_PROJECTS, title_key='projectnumber', with_empty=1, class='wi-normal') %]</td>
