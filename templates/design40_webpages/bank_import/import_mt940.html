@@ -8,6 +8,7 @@
 [% IF preview %]
   <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
     [% L.hidden_tag('file_name', SELF.file_name) %]
+    [% L.hidden_tag('charset', SELF.charset) %]
   </form>
 [% END %]
 
