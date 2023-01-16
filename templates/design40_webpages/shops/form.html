@@ -16,6 +16,8 @@
 
 <div class="wrapper">
 <table class="tbl-horizontal">
+  <caption>[% 'Shopconfiguration' %]</caption>
+  <colgroup><col class="wi-wide"></colgroup>
   <tbody>
     <tr>
       <th>[% 'Description' | $T8 %]</th>
@@ -50,6 +52,11 @@
           <td>[% L.input_tag("shop.port", SELF.shop.port, class='wi-small') %]</td>
         </tr>
         <tr>
+          <th>[% 'Proxy' | $T8 %]</th>
+          <td>[% L.input_tag("shop.proxy", SELF.shop.proxy, class='wi-wide') %]</td>
+        </tr>
+        <tr>
+        <tr>
           <th>[% 'Path' | $T8 %]</th>
           <td>[% L.input_tag("shop.path", SELF.shop.path, class='wi-wide') %]</td>
         </tr>
@@ -77,6 +84,17 @@
           <th>[% 'Transaction description' | $T8 %]</th>
           <td>[% L.input_tag("shop.transaction_description", SELF.shop.transaction_description, class='wi-wide') %]</td>
         </tr>
+        <tr>
+          <th>[% 'Default part for shipping costs' | $T8 %]</th>
+          <td>[%- P.part.picker('shop.shipping_costs_parts_id', SELF.shop.shipping_costs_parts_id,
+            class='wi-wide') %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Use Long Description from Parts for Shop Long Description' | $T8 %]</th>
+          <td>[% L.yes_no_tag('shop.use_part_longdescription', SELF.shop.use_part_longdescription,
+            class='wi-small') %]</td>
+        </tr>
+
         <tr>
           <th>[% 'Obsolete' | $T8 %]</th>
           <td>[% L.checkbox_tag('shop.obsolete', checked = SELF.shop.obsolete, for_submit=1) %]</td>
