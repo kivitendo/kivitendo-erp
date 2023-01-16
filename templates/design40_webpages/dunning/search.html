@@ -37,6 +37,11 @@
       </td>
     </tr>
     <tr>
+      <th>[% 'Dunning number' | $T8 %]</th>
+      <td><input type="text" name="dunning_id" class="wi-lightwide">
+      </td>
+    </tr>
+    <tr>
       <th>[% 'Order Number' | $T8 %]</th>
       <td><input type="text" name="ordnumber" class="wi-lightwide">
       </td>
@@ -87,6 +92,27 @@
       <td><input type="checkbox" value="1" name="l_salesman">
       </td>
     </tr>
+    [%- IF INSTANCE_CONF.get_email_journal %]
+    <tr>
+      <th>[% 'Show E-Mails' | $T8 %]</th>
+      <td><input type="checkbox" value="1" name="l_mails" checked>
+      </td>
+    </tr>
+    [%- END %]
+    [%- IF INSTANCE_CONF.get_webdav %]
+    <tr>
+      <th>[% 'Show documents in WebDAV' | $T8 %]</th>
+      <td><input type="checkbox" value="1" name="l_webdav" checked>
+      </td>
+    </tr>
+    [%- END %]
+    [%- IF INSTANCE_CONF.get_doc_storage %]
+    <tr>
+      <th>[% 'Show documents in file storage' | $T8 %]</th>
+      <td><input type="checkbox" value="1" name="l_documents" checked>
+      </td>
+    </tr>
+    [%- END %]
   </tbody>
 </table>
 
