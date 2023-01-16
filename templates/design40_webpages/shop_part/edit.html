@@ -25,7 +25,13 @@
   <tbody>
     <tr>
       <th>[% LxERP.t8("Description") %]</th>
-      <td colspan="3">[% L.textarea_tag('shop_part.shop_description', SELF.shop_part.shop_description, wrap="soft", style="width: 350px; height: 150px", class="texteditor") %]</td>
+     <td colspan="3">
+       [% IF SELF.shop_part.shop.use_part_longdescription %]
+         [% L.textarea_tag('notes', SELF.shop_part.part.notes, wrap="soft", readonly="readonly", style="width: 350px; height: 150px", class="texteditor") %]
+       [% ELSE %]
+         [% L.textarea_tag('shop_part.shop_description', SELF.shop_part.shop_description, wrap="soft", style="width: 350px; height: 150px", class="texteditor") %]
+       [% END %]
+     </td>
     </tr>
     <tr>
       <th>[% LxERP.t8("Active") %]</th>
@@ -65,12 +71,8 @@
   [% IF SELF.shop_part.id %]
     [% L.button_tag("kivi.ShopPart.save_shop_part(" _ SELF.shop_part.id _ ")", LxERP.t8("Save"))  %]
   [% ELSE %]
-    [% L.button_tag("kivi.ShopPart.add_shop_part(" _ FORM.part_id _", " _ FORM.shop_id _")", LxERP.t8("Save"))  %]
+    [% L.button_tag("kivi.ShopPart.add_shop_part()", LxERP.t8("Save"))  %]
   [% END %]
-  [% # L.button_tag("kivi.ShopPart.update_partnumber()", LxERP.t8("Update Partnumber"))  %]
-
-  [% # L.hidden_tag("action", "ShopPart/dispatch") %]
-  [% # L.submit_tag('action_update', LxERP.t8('Save')) %]
 </div>
 
 [% IF SELF.shop_part.part.image && INSTANCE_CONF.get_parts_show_image %]
