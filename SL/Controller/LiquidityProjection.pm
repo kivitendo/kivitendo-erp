@@ -30,6 +30,7 @@ sub action_show {
     type              => 1,
     salesman          => 1,
     buchungsgruppe    => 1,
+    parts_group       => 1,
   };
 
   $self->setup_show_action_bar;

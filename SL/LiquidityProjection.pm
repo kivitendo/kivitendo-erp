@@ -40,11 +40,12 @@ sub new {
 # Monat ihre Saldierungsperiode haben, außer Wartungsverträgen, die
 # für den jeweiligen Monat bereits abgerechnet wurden.
 #
-# Diese Werte sollen zusätzlich optional nach Verkäufer(in) und nach
-# Buchungsgruppe aufgeschlüsselt werden.
+# Diese Werte sollen zusätzlich optional nach Verkäufer(in),
+# Buchungsgruppe und Warengruppe aufgeschlüsselt werden.
 #
 # Diese Lösung geht deshalb immer über die Positionen der Belege
-# (wegen der Buchungsgruppe) und berechnet die Summen daraus manuell.
+# (wegen der Buchungsgruppen & Warengruppen) und berechnet die Summen
+# daraus manuell.
 #
 # Alle Aufträge, deren Lieferdatum leer ist, oder deren Lieferdatum
 # vor dem aktuellen Monat liegt, werden in einer Kategorie 'alt'
@@ -70,12 +71,14 @@ sub new {
 # Monat vorgemerkt.
 #
 # 4. Es werden für alle offenen Kundenaufträge die Positionen
-# ausgelesen und mit Verkäufer(in), Buchungsgruppe verknüpft. Aus
-# Menge, Einzelpreis und Zeilenrabatt wird die Zeilensumme berechnet.
+# ausgelesen und mit Verkäufer(in), Buchungsgruppe, Warengruppe
+# verknüpft. Aus Menge, Einzelpreis und Zeilenrabatt wird die
+# Zeilensumme berechnet.
 #
 # 5. Mit den Informationen aus 3. und 4. werden Datenstrukturen
 # initialisiert, die für die Gesamtsummen, für alle Verkäufer(innen),
-# für alle Buchungsgruppen, für alle Monate Werte enthalten.
+# für alle Buchungsgruppen, für alle Warengruppen, für alle Monate
+# Werte enthalten.
 #
 # 6. Es wird über alle Einträge aus 4. iteriert. Die Zeilensummen
 # werden in den entsprechenden Datenstrukturen aus 5. addiert.
@@ -94,7 +97,8 @@ sub new {
 # den Aufträgen nie vorgekommen ist (sprich Rechnung enthält
 # Positionen, die im Auftrag nicht enthalten sind, und die komplett
 # andere Buchungsgruppen verwenden), so wird schlicht die allererste
-# in 4. gefundene Buchungsgruppe damit belastet.
+# in 4. gefundene Buchungsgruppe damit belastet. Analog passiert dies
+# auch für Warengruppen.
 
 sub create {
   my ($self)   = @_;
@@ -129,6 +133,7 @@ SQL
   $query = <<SQL;
     SELECT (oi.qty * (1 - oi.discount) * oi.sellprice) AS linetotal,
       bg.description AS buchungsgruppe,
+      pg.partsgroup AS parts_group,
       CASE WHEN COALESCE(e.name, '') = '' THEN e.login ELSE e.name END AS salesman,
       pcfg.periodicity, pcfg.order_value_periodicity, pcfg.id AS config_id,
       EXTRACT(year FROM pcfg.start_date) AS start_year, EXTRACT(month FROM pcfg.start_date) AS start_month
@@ -137,6 +142,7 @@ SQL
     LEFT JOIN periodic_invoices_configs pcfg ON (oi.trans_id                              = pcfg.oe_id)
     LEFT JOIN parts p                        ON (oi.parts_id                              = p.id)
     LEFT JOIN buchungsgruppen bg             ON (p.buchungsgruppen_id                     = bg.id)
+    LEFT JOIN partsgroup pg                  ON (p.partsgroup_id                          = pg.id)
     LEFT JOIN employee e                     ON (COALESCE(oe.salesman_id, oe.employee_id) = e.id)
     WHERE pcfg.active
       AND NOT pcfg.periodicity = 'o'
@@ -172,12 +178,14 @@ SQL
   $query = <<SQL;
     SELECT (oi.qty * (1 - oi.discount) * oi.sellprice) AS linetotal,
       bg.description AS buchungsgruppe,
+      pg.partsgroup AS parts_group,
       CASE WHEN COALESCE(e.name, '') = '' THEN e.login ELSE e.name END AS salesman,
       oe.ordnumber, EXTRACT(month FROM oe.reqdate) AS month, EXTRACT(year  FROM oe.reqdate) AS year
     FROM orderitems oi
     LEFT JOIN oe                 ON (oi.trans_id                              = oe.id)
     LEFT JOIN parts p            ON (oi.parts_id                              = p.id)
     LEFT JOIN buchungsgruppen bg ON (p.buchungsgruppen_id                     = bg.id)
+    LEFT JOIN partsgroup pg      ON (p.partsgroup_id                          = pg.id)
     LEFT JOIN employee e         ON (COALESCE(oe.salesman_id, oe.employee_id) = e.id)
     WHERE (oe.customer_id IS NOT NULL)
       AND NOT COALESCE(oe.quotation, FALSE)
@@ -190,6 +198,7 @@ SQL
   my @entries               = selectall_hashref_query($::form, $dbh, $query);
   my @salesmen              = uniq map { $_->{salesman}       } (@entries, @scentries);
   my @buchungsgruppen       = uniq map { $_->{buchungsgruppe} } (@entries, @scentries);
+  my @parts_groups          = uniq map { $_->{parts_group}    } (@entries, @scentries);
   my @now                   = localtime;
   my @dates                 = map { $self->_date_for($now[5] + 1900, $now[4] + $_) } (0..$self->{params}->{months} + 1);
   my %dates_by_ordnumber    = map { $_->{ordnumber} => $self->_date_for($_) } @entries;
@@ -202,9 +211,11 @@ SQL
                         support        =>               { map { $_ => 0 } @dates },
                         salesman       => { map { $_ => { map { $_ => 0 } @dates } } @salesmen        },
                         buchungsgruppe => { map { $_ => { map { $_ => 0 } @dates } } @buchungsgruppen },
+                        parts_group    => { map { $_ => { map { $_ => 0 } @dates } } @parts_groups    },
                         sorted         => { month          => [ sort { ($date_sorter{$a} || $a) cmp ($date_sorter{$b} || $b) } @dates           ],
                                             salesman       => [ sort { $a                       cmp $b                       } @salesmen        ],
                                             buchungsgruppe => [ sort { $a                       cmp $b                       } @buchungsgruppen ],
+                                            parts_group    => [ sort { $a                       cmp $b                       } @parts_groups    ],
                                             type           => [ qw(order partial support)                                                       ],
                                           },
                       };
@@ -217,6 +228,7 @@ SQL
     $projection->{order}->{$date}                                      += $ref->{linetotal};
     $projection->{salesman}->{ $ref->{salesman} }->{$date}             += $ref->{linetotal};
     $projection->{buchungsgruppe}->{ $ref->{buchungsgruppe} }->{$date} += $ref->{linetotal};
+    $projection->{parts_group}->{ $ref->{parts_group} }->{$date}       += $ref->{linetotal};
   }
 
   # 7. Aufsummieren der Wartungsvertragspositionen
@@ -227,6 +239,7 @@ SQL
     $projection->{support}->{$date}                                    += $ref->{linetotal};
     $projection->{salesman}->{ $ref->{salesman} }->{$date}             += $ref->{linetotal};
     $projection->{buchungsgruppe}->{ $ref->{buchungsgruppe} }->{$date} += $ref->{linetotal};
+    $projection->{parts_group}->{ $ref->{parts_group} }->{$date}       += $ref->{linetotal};
   }
 
   if (%dates_by_ordnumber) {
@@ -235,11 +248,13 @@ SQL
     $query         = <<SQL;
       SELECT (i.qty * (1 - i.discount) * i.sellprice) AS linetotal,
         bg.description AS buchungsgruppe,
+        pg.partsgroup AS parts_group,
         ar.ordnumber
       FROM invoice i
       LEFT JOIN ar                 ON (i.trans_id           = ar.id)
       LEFT JOIN parts p            ON (i.parts_id           = p.id)
       LEFT JOIN buchungsgruppen bg ON (p.buchungsgruppen_id = bg.id)
+      LEFT JOIN partsgroup pg      ON (p.partsgroup_id      = pg.id)
       WHERE (ar.ordnumber IN ($ordnumbers))
 SQL
 
@@ -250,11 +265,13 @@ SQL
       my $date           = $dates_by_ordnumber{    $ref->{ordnumber} } || die;
       my $salesman       = $salesman_by_ordnumber{ $ref->{ordnumber} } || die;
       my $buchungsgruppe = $projection->{buchungsgruppe}->{ $ref->{buchungsgruppe} } ? $ref->{buchungsgruppe} : $buchungsgruppen[0];
+      my $parts_group    = $projection->{parts_group}->{    $ref->{parts_group}    } ? $ref->{parts_group}    : $parts_groups[0];
 
       $projection->{partial}->{$date}                           -= $ref->{linetotal};
       $projection->{total}->{$date}                             -= $ref->{linetotal};
       $projection->{salesman}->{$salesman}->{$date}             -= $ref->{linetotal};
       $projection->{buchungsgruppe}->{$buchungsgruppe}->{$date} -= $ref->{linetotal};
+      $projection->{parts_group}->{$parts_group}->{$date}       -= $ref->{linetotal};
     }
   }
 
