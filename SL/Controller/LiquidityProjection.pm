@@ -11,8 +11,7 @@ use SL::Util qw(_hashify);
 __PACKAGE__->run_before('check_auth');
 
 use Rose::Object::MakeMethods::Generic (
-  scalar                  => [ qw(liquidity) ],
-  'scalar --get_set_init' => [ qw(oe_report_columns_str) ],
+  scalar => [ qw(liquidity) ],
 );
 
 
@@ -36,6 +35,21 @@ sub action_show {
   $self->render('liquidity_projection/show', title => t8('Liquidity projection'));
 }
 
+sub action_list_orders {
+  my ($self) = @_;
+
+  my @orders = SL::LiquidityProjection->orders_for_time_period(
+    after  => $::form->{after}  ? DateTime->from_kivitendo($::form->{after})  : undef,
+    before => $::form->{before} ? DateTime->from_kivitendo($::form->{before}) : undef,
+  );
+
+  $self->render(
+    'liquidity_projection/list_orders',
+    title  => t8('Sales Orders'),
+    ORDERS => \@orders,
+  );
+}
+
 #
 # filters
 #
@@ -53,30 +67,25 @@ sub link_to_old_orders {
 
   my $reqdate = $params{reqdate};
   my $months  = $params{months} * 1;
+  my $today   = DateTime->today_local->truncate(to => 'month');
+  my %url_params;
 
   my $fields  = '';
 
   if ($reqdate eq 'old') {
-    $fields .= '&reqdate_unset_or_old=Y';
+    $url_params{before} = $today->to_kivitendo;
 
   } elsif ($reqdate eq 'future') {
-    my @now  = localtime;
-    $fields .= '&reqdatefrom=' . $self->iso_to_display(SL::LiquidityProjection::_the_date($now[5] + 1900, $now[4] + 1 + $months) . '-01');
+    $url_params{after} = $today->add(months => $months)->to_kivitendo;
 
   } else {
-    $reqdate =~ m/(\d+)-(\d+)/;
-    $fields .=  '&reqdatefrom=' . $self->iso_to_display($reqdate . '-01');
-    $fields .=  '&reqdateto='   . $self->iso_to_display($reqdate . sprintf('-%02d', DateTime->last_day_of_month(year => $1, month => $2)->day));
-
+    $reqdate            =~ m/(\d+)-(\d+)/;
+    my $date            = DateTime->new_local(year => $1, month => $2, day => 1);
+    $url_params{after}  = $date->to_kivitendo;
+    $url_params{before} = $date->add(months => 1)->to_kivitendo;
   }
 
-  return "oe.pl?action=orders&type=sales_order&vc=customer&" . $self->oe_report_columns_str . $fields;
-}
-
-sub iso_to_display {
-  my ($self, $date) = @_;
-
-  $::locale->reformat_date({ dateformat => 'yyyy-mm-dd' }, $date, $::myconfig{dateformat});
+  return $self->url_for(action => 'list_orders', %url_params);
 }
 
 sub setup_show_action_bar {
