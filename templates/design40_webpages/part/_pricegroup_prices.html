@@ -7,8 +7,8 @@
 <table class="tbl-horizontal">
   <caption>[% 'Pricegroups' | $T8 %]</caption>
   <colgroup>
-    <col class="wi-small">
-    <col class="wi-lightwide">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
   </colgroup>
   <thead>
     <tr>
@@ -26,7 +26,7 @@
         [% L.hidden_tag('prices[].price_id', price.id) # id not used? %]
         [% L.hidden_tag('prices[].pricegroup', pricegroup.pricegroup) %][% HTML.escape(pricegroup.pricegroup) %]
       </th>
-      <td> [% L.input_tag('prices[].price', price.price_as_number, size=11, class='wi-small numeric reformat_number') %] </td>
+      <td> [% L.input_tag('prices[].price', price.price_as_number, size=11, class='wi-mediumsmall numeric reformat_number') %] </td>
     </tr>
   [% END %]
   [% # followed by Storage-Table %]
