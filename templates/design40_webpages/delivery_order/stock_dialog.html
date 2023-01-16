@@ -1,0 +1,60 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+
+<form>
+ <table class="tbl-horizontal col">
+  <tr>
+   <td>[% 'Part Number' | $T8 %]</td>
+   <td><span class="data wi-small">[% part.partnumber %]</span></td>
+  </tr>
+  <tr>
+   <td>[% 'Description' | $T8 %]</td>
+   <td><span class="data wi-small">[% part.description %]</span></td>
+  </tr>
+  <tr>
+   <td>[% 'Qty according to delivery order' | $T8 %]</td>
+   <td><span class="data wi-small">[% LxERP.format_amount(do_qty) %] [% do_unit | html %]</span></td>
+  </tr>
+ </table>
+
+ [% L.hidden_tag("in_out", in_out) %]
+ [% L.hidden_tag("parts_id", part.id) %]
+ [% L.hidden_tag("do_qty", do_qty) %]
+ [% L.hidden_tag("do_unit", do_unit) %]
+ [% L.hidden_tag("row", row, class="data-row") %]
+ [% L.hidden_tag("item_id", item_id) %]
+
+ [%- IF delivered %]
+  [% PROCESS "delivery_order/stock_dialog/_stock_delivered_dialog.html" %]
+ [%- ELSE %]
+
+  [%- IF in_out == "in" %]
+  <p>
+  <table id="stock-info-table" class="tbl-list">
+    [%- PROCESS "delivery_order/stock_dialog/_stock_info_table.html" %]
+  </table>
+  </p>
+  [%- END %]
+
+  <p>
+   <table id="stock-in-out-table" class="tbl-list">
+    [%- IF in_out == "in" %]
+     [%- PROCESS "delivery_order/stock_dialog/_stock_in_table.html" %]
+    [%- ELSE %]
+     [%- PROCESS "delivery_order/stock_dialog/_stock_out_table.html" %]
+    [%- END %]
+   </table>
+  </p>
+
+  [%- IF in_out == "in" %]
+  [% L.button_tag('kivi.DeliveryOrder.add_stock_in_line_to_dialog()', LxERP.t8('+')) %]
+  [%- END %]
+
+  <hr size="3" noshade>
+
+  <p>[% L.button_tag('kivi.DeliveryOrder.save_updated_stock()', LxERP.t8('Save')) %]</p>
+
+  [%- END %]
+ </form>

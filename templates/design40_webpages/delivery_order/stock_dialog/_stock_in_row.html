@@ -1,0 +1,34 @@
+[%- USE L %]
+[%- USE LxERP %]
+[% # L.dump( PART ) %] [% # L.dump( pos ) %] [% # L.dump( ROW ) %]
+<tr>
+ [% L.multi_level_select_tag(
+      # name has to be unique
+      "wh_bin_" _ pos, WAREHOUSES, 2, surround_tag="td",
+      level_1={
+        name="warehouse_id",
+        value_key="id",
+        title_key="description",
+        default=ROW.warehouse_id,
+        class="data-warehouse-id wi-small",
+      },
+      level_2={
+        object_key="bins",
+        name="bin_id",
+        value_key="id",
+        title_key="description",
+        default=ROW.bin_id,
+        class="data-bin-id wi-small",
+      },
+    ) %]
+
+ <td>[% L.input_tag("chargenumber", ROW.chargenumber, class="numeric data-chargenumber wi-small") %]</td>
+ [%- IF INSTANCE_CONF.get_show_bestbefore %]
+ <td>[% L.date_tag("bestbefore", ROW.bestbefore, class="data-bestbefore wi-small") %]</td>
+ [%- END %]
+ <td>[% L.input_tag("qty", LxERP.format_amount(ROW.qty), class="numeric data-qty wi-small") %]</td>
+ <td>[% L.select_tag("unit", PART.unit_obj.convertible_units, value_key="name", default=ROW.stock_unit, class="data-unit wi-small") %]</td>
+ <td style="display:none">
+  [% L.hidden_tag("delivery_order_items_stock_id", ROW.delivery_order_items_stock_id, class="data-stock-id wi-small") %]
+ </td>
+</tr>

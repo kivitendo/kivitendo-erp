@@ -1,0 +1,285 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+[%- USE P %]
+
+[%- INCLUDE 'generic/set_longdescription.html' %]
+
+<div id="ui-tabs-basic-data">
+
+<div class="wrapper" id="wrapper-1">
+[% INCLUDE 'generic/toggle_wrapper.html' %]
+
+
+<div class="col">
+
+  <table class="tbl-horizontal col">
+    <caption>[% 'Customer & Order Information' | $T8 %]</caption>
+    <colgroup><col class="wi-mediumsmall"><col class="wi-lightwide"></colgroup>
+    <tbody>
+      <tr>
+        <th>[%- SELF.cv == "customer" ? LxERP.t8('Customer') : LxERP.t8('Vendor') -%]</th>
+        [% SET cv_id = SELF.cv _ '_id' %]
+        <td class="wi-lightwide">
+          [% P.customer_vendor.picker("order.${SELF.cv}" _ '_id', SELF.order.$cv_id, type=SELF.cv, class='wi-lightwide') %]
+          [%- L.img_tag(src="image/detail.png",
+                      alt=LxERP.t8('Show details'),
+                      title= LxERP.t8('Show details'),
+                      onclick="kivi.DeliveryOrder.show_vc_details_dialog();",
+                      class="button-image info") %]
+        </td>
+      </tr>
+
+      <tr id='cp_row' [%- IF !SELF.order.${SELF.cv}.contacts.size %]style='display:none'[%- END %]>
+        <th align="right">[% 'Contact Person' | $T8 %]</th>
+        <td>[% L.select_tag('order.cp_id',
+                            SELF.order.${SELF.cv}.contacts,
+                            default=SELF.order.cp_id,
+                            title_key='full_name_dep',
+                            value_key='cp_id',
+                            with_empty=1,
+                            class='wi-lightwide') %]</td>
+      </tr>
+
+      <tr>
+        <th>[% 'Shipping Address' | $T8 %]</th>
+        <td>
+          <span id='shipto_selection' [%- IF !SELF.order.${SELF.cv}.shipto.size %]style='display:none'[%- END %]>
+            [% shiptos = [ { shipto_id => "", displayable_id => LxERP.t8("No/individual shipping address") } ] ;
+               FOREACH s = SELF.order.${SELF.cv}.shipto ;
+                 shiptos.push(s) ;
+               END ;
+               L.select_tag('order.shipto_id',
+                             shiptos,
+                             default=SELF.order.shipto_id,
+                             title_key='displayable_id',
+                             value_key='shipto_id',
+                             with_empty=0,
+                             style='width: 300px') %]
+          </span>
+          [% L.button_tag("kivi.DeliveryOrder.edit_custom_shipto()", LxERP.t8("Custom shipto")) %]
+        </td>
+      </tr>
+
+      [%- PROCESS delivery_order/tabs/_business_info_row.html SELF=SELF %]
+
+[%- IF SELF.all_languages.size %]
+      <tr>
+        <th>[% 'Language' | $T8 %]</th>
+        <td>
+          [% L.select_tag('order.language_id', SELF.all_languages, default=SELF.order.language_id, title_key='description', with_empty=1, class='wi-lightwide') %]
+        </td>
+      </tr>
+[%- END %]
+
+[%- IF SELF.all_departments.size %]
+      <tr>
+        <th>[% 'Department' | $T8 %]</th>
+        <td>
+          [% L.select_tag('order.department_id', SELF.all_departments, default=SELF.order.department_id, title_key='description', with_empty=1, class='wi-lightwide') %]
+        </td>
+      </tr>
+[%- END %]
+
+      <tr>
+        <th>[% 'Shipping Point' | $T8 %]</th>
+        <td>[% L.input_tag('order.shippingpoint', SELF.order.shippingpoint, class='wi-lightwide') %]</td>
+      </tr>
+
+      <tr>
+        <th>[% 'Ship via' | $T8 %]</th>
+        <td>[% L.input_tag('order.shipvia', SELF.order.shipvia, class='wi-lightwide') %]</td>
+      </tr>
+
+      <tr>
+        <th>[% 'Transaction description' | $T8 %]</th>
+        <td>[% L.input_tag('order.transaction_description', SELF.order.transaction_description, 'data-validate'=INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : '', class='wi-lightwide') %]</td>
+      </tr>
+
+      <tr>
+        <th>[% 'Project Number' | $T8 %]</th>
+        <td>[% P.project.picker('order.globalproject_id', SELF.order.globalproject_id, class='wi-lightwide') %]</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tbl-horizontal col">
+    <caption>[% 'Terms' | $T8 %]</caption>
+    <colgroup><col class="wi-mediumsmall"><col class="wi-lightwide"></colgroup>
+    <tbody>
+      <tr>
+        <td colspan="2">
+          <span class="label above">[% 'Payment Terms' | $T8 %]</span>
+          [% L.select_tag('order.payment_id',
+          SELF.all_payment_terms,
+          default = SELF.order.payment_id,
+          with_empty = 1,
+          title_key = 'description',
+          class = 'wi-mediumsmall-lightwide') %]
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <span class="label above">[% 'Delivery Terms' | $T8 %]</span>
+          [% L.select_tag('order.delivery_term_id',
+          SELF.all_delivery_terms,
+          default = SELF.order.delivery_term_id,
+          with_empty = 1,
+          title_key = 'description',
+          style = 'width: 250px') %]
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div><!-- /.col -->
+
+<table class="tbl-horizontal col">
+  <caption>[% 'Notes' | $T8 %]</caption>
+  <colgroup><col class="wi-wide"></colgroup>
+  <tbody>
+    <tr>
+      <td class="wi-wide">
+        [% L.textarea_tag('order.notes', SELF.order.notes, wrap="soft", rows=7, class="texteditor wi-wide") %]
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="label above">[% 'Internal Notes' | $T8 %]</span>
+        [% L.textarea_tag('order.intnotes', SELF.order.intnotes, wrap="soft", style="height: 150px", class="wi-wide") %]
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal col">
+  <caption>[% 'Handling, Numbers & Dates' | $T8 %]</caption>
+  <colgroup> <col class="wi-mediumsmall"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    <tr>
+      <td colspan="2" align="center" id="data-status-line">[% SELF.order.presenter.status_line %]</td>
+    </tr>
+
+    <tr>
+      <th>[% 'Employee' | $T8 %]</th>
+      <td>[% L.select_tag('order.employee_id',
+        SELF.all_employees,
+        default=(SELF.order.employee_id ? SELF.order.employee_id : SELF.current_employee_id),
+        title_key='safe_name') %]</td>
+    </tr>
+
+    [% IF SELF.cv == 'customer' %]
+    <tr>
+      <th>[% 'Salesman' | $T8 %]</th>
+      <td>[% L.select_tag('order.salesman_id',
+        SELF.all_salesmen,
+        default=(SELF.order.salesman_id ? SELF.order.salesman_id : SELF.current_employee_id),
+        title_key='safe_name') %]</td>
+    </tr>
+    [% END %]
+
+    <tr>
+      <th>[% 'Delivery Order Number' | $T8 %]</th>
+      <td>[% L.input_tag('order.donumber', SELF.order.donumber, onchange='kivi.DeliveryOrder.set_number_in_title(this)', class='wi-small numeric') %]</td>
+    </tr>
+
+    <tr>
+      <th>[% 'Order Number' | $T8 %]</th>
+      <td>[% L.input_tag('order.ordnumber', SELF.order.ordnumber, class='wi-small') %]</td>
+    </tr>
+
+    <tr>
+      <th>[% IF SELF.type_data.properties('is_customer') %][% 'Customer Order Number' | $T8 %][% ELSE %][% 'Vendor Order Number' | $T8 %][% END %]</th>
+      <td>[% L.input_tag('order.cusordnumber', SELF.order.cusordnumber, class='wi-small numeric') %]</td>
+    </tr>
+
+    <tr>
+      <th>[% 'Delivery Order Date' | $T8 %]</th>
+      <td>[% L.date_tag('order.transdate_as_date', SELF.order.transdate_as_date, class='wi-date') %]</td>
+    </tr>
+
+    <tr>
+      <th>[% 'Reqdate' | $T8 %]</th>
+      <td>[% L.date_tag('order.reqdate_as_date', SELF.order.reqdate_as_date, class="wi-date" _ reqdate_class) %]</td>
+    </tr>
+
+    <tr>
+      <th>[% 'Insert Date' | $T8 %]</th>
+      <td><span class="data wi-small">[% SELF.order.itime_as_date %]</span></td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+[%- PROCESS delivery_order/tabs/_item_input.html SELF=SELF %]
+
+
+[%- IF SELF.positions_scrollbar_height -%]
+  [%- SET scroll_style = 'style="overflow-y: auto; height:' _ SELF.positions_scrollbar_height _ 'vh;"' -%]
+[%- ELSE -%]
+  [%- SET scroll_style = '' -%]
+[%- END -%]
+<div id="row_table_scroll_id" class="wrapper horizontal-scroll-wrapper" [%- scroll_style -%]>
+
+<table id="row_table_id" class="tbl-list">
+  <caption>[% 'Articles' | $T8 %]</caption>
+  <thead>
+    <tr>
+      <th class="center" style='text-align:center' nowrap width="1">
+        [%- IF MYCONFIG.show_form_details %]
+          [%- L.img_tag(src="image/collapse.svg", alt=LxERP.t8('Hide all details'), title=LxERP.t8('Hide all details'), id='expand_all', "data-expanded"="1") %]
+        [%- ELSE %]
+          [%- L.img_tag(src="image/expand.svg", alt=LxERP.t8('Show all details'), title=LxERP.t8('Show all details'), id='expand_all') %]
+        [%- END %]
+      </th>
+      <th nowrap width="3">[%- 'position' | $T8 %] </th>
+      <th style='text-align:center'><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
+      <th style='text-align:center'><img src="image/close.png" alt="[%- LxERP.t8('delete item') %]"></th>
+      [%- IF SELF.show_update_button -%]
+      <th class="listheading" style='text-align:center' nowrap width="1">
+        [%- L.img_tag(src="image/rotate_cw.svg",
+                      alt=LxERP.t8('Update from master data'),
+                      title= LxERP.t8('Update from master data'),
+                      onclick="if (!confirm('" _ LxERP.t8("Are you sure to update all positions from master data?") _ "')) return false; kivi.DeliveryOrder.update_all_rows_from_master_data();",
+                      id='update_from_master',
+                      class='expand',
+                      ) %]
+      </th>
+      [%- END %]
+      <th id="partnumber_header_id"><a href='#' onClick='javascript:kivi.DeliveryOrder.reorder_items("partnumber")'> [%- 'Partnumber'  | $T8 %]</a></th>
+      [%- IF SELF.search_cvpartnumber -%]
+      <th id="cvpartnumber_header_id"><a href='#' onClick='javascript:kivi.DeliveryOrder.reorder_items("cvpartnumber")' > [%- SELF.cv == "customer" ? LxERP.t8('Customer Part Number') : LxERP.t8('Model') %]</a></th>
+      [%- END -%]
+      <th id="partclass_header_id">[%- 'Type'  | $T8 %]</th>
+      <th id="description_header_id"><a href='#' onClick='javascript:kivi.DeliveryOrder.reorder_items("description")'>[%- 'Description' | $T8 %]</a></th>
+      [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
+      <th id="shipped_qty_header_id"><a href='#' onClick='javascript:kivi.DeliveryOrder.reorder_items("shipped_qty")'>[%- 'Delivered'   | $T8 %]</a></th>
+      [%- END -%]
+      <th id="qty_header_id"><a href='#' onClick='javascript:kivi.DeliveryOrder.reorder_items("qty")'>        [%- 'Qty'         | $T8 %]</a></th>
+      <th>[%- 'Unit'         | $T8 %] </th>
+      [% IF in_out == 'in' %]
+      <th>[%- 'Transfer To Stock' | $T8 %] </th>
+      [% END %]
+      [% IF in_out == 'out' %]
+      <th>[%- 'Release From Stock' | $T8 %] </th>
+      [% END %]
+    </tr>
+  </thead>
+
+  [%- FOREACH item = SELF.order.items_sorted %]
+    [%- PROCESS delivery_order/tabs/_row.html ITEM=item ID=(item.id||item.new_fake_id)  -%]
+  [%- END %]
+
+  <tfoot>
+  </tfoot>
+</table>
+
+</div><!-- /#row_table_scroll_id /.wrapper -->
+
+[% L.hidden_tag('order.taxzone_id', SELF.order.taxzone_id) %]
+
+</div><!-- /#ui-tabs-basic-data -->
+
+[% L.sortable_element('#row_table_id') %]
