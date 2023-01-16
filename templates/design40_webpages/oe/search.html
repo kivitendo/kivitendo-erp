@@ -10,7 +10,6 @@
 [% SET vcnumberlabel = vc == 'customer' ? LxERP.t8('Customer Number') : LxERP.t8('Vendor Number') %]
 [% SET vctypelabel = vc == 'customer' ? LxERP.t8('Customer type') : LxERP.t8('Vendor type') %]
 [% SET vcdefault = 'old' _ vc %]
-[% SET style="width: 250px" %]
 
 <form method="post" action="oe.pl" id="form">
 
@@ -68,8 +67,18 @@
     </tr>
     <tr>
       <th>[% 'Internal Notes' | $T8 %]</th>
-      <td>[% L.input_tag('intnotes', '', style=style) %]</td>
+      <td>[% L.input_tag('intnotes', '', class="wi-lightwide") %]</td>
     </tr>
+    <tr>
+      <th>[% 'Phone Notes' | $T8 %]</th>
+      <td>[% L.input_tag('phone_notes', '', class="wi-lightwide") %]</td>
+     </tr>
+     [%- IF type == 'sales_order' %]
+     <tr>
+      <th>[% 'Full Text' | $T8 %]</th>
+      <td>[% L.input_tag('fulltext', '', class="wi-lightwide") %]</td>
+     </tr>
+     [%- END %]
     <tr>
       <th>[% IF is_order %][% 'Order Date' | $T8 %][% ELSE %][% 'Quotation Date' | $T8 %][% END %] [% 'From' | $T8 %]</th>
       <td>[% L.date_tag('transdatefrom','', class='wi-date') %] [% 'Bis' | $T8 %] [% L.date_tag('transdateto','', class='wi-date') %]</td>
@@ -148,7 +157,7 @@
     </tr>
     <tr>
       <th>[% 'Status' | $T8 %]</th>
-      <td>[% L.select_tag('order_status_id', ALL_ORDER_STATUSES, default = order_status_id, title_key = 'name', with_empty = 1, style=style) %]</td>
+      <td>[% L.select_tag('order_status_id', ALL_ORDER_STATUSES, default = order_status_id, title_key = 'name', with_empty = 1, class="wi-lightwide") %]</td>
     </tr>
     [% IF type == 'sales_order' OR type == 'purchase_order' %]
     <tr>
