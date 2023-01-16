@@ -9,6 +9,19 @@
 
 <form name="Form" action="oe.pl" method="post">
 
+[% IF popup_dialog %]
+  <div class="buttons">
+    [% L.button_tag(popup_js_assign_function, LxERP.t8('Assign')) %]
+    [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel'), class='neutral') %]
+  </div>
+[% ELSE %]
+  <div class="buttons">
+    [% L.hidden_tag('action', 'save_periodic_invoices_config') %]
+    [% L.submit_tag('', LxERP.t8('Assign')) %]
+    [% L.submit_tag('', LxERP.t8('Cancel'), onclick => "self.close(); return false;", class='neutral') %]
+  </div>
+[% END %]
+
 <div class="wrapper">
 
 <table class="tbl-horizontal">
@@ -98,7 +111,7 @@
     </tr>
     <tr class="rule-before">
      <th>[% LxERP.t8("Send invoice via email") %]</th>
-     <td>[% L.checkbox_tag("send_email", onclick => "toggle_send_email_ctrl()", checked=config.send_email) %]</td>
+     <td>[% L.checkbox_tag("send_email", onclick => "toggle_send_email_ctrl()", checked=config.send_email, disabled = postal_invoice) %]</td>
     </tr>
     <tr>
      <th>[%- LxERP.t8("Email of the invoice recipient") %]</th>
@@ -122,25 +135,12 @@
     </tr>
     <tr>
      <th>[% LxERP.t8("Message") %]</th>
-     <td>[% L.textarea_tag("email_body", config.email_body, disabled=!config.send_email, rows=8, style=style) %]</td>
+     <td>[% L.textarea_tag("email_body", config.email_body, disabled=!config.send_email, rows=8, style=style, class="texteditor texteditor-space-for-toolbar") %]</td>
     </tr>
   </tbody>
 </table>
 
 </div><!-- /.wrapper -->
-
-[% IF popup_dialog %]
-  <div class="buttons">
-    [% L.button_tag(popup_js_assign_function, LxERP.t8('Assign')) %]
-    [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel')) %]
-  </div>
-[% ELSE %]
-  <div class="buttons">
-    [% L.hidden_tag('action', 'save_periodic_invoices_config') %]
-    [% L.submit_tag('', LxERP.t8('Assign')) %]
-    [% L.submit_tag('', LxERP.t8('Cancel'), onclick => "self.close(); return false;") %]
-  </div>
-[% END %]
 
 </form>
 
@@ -165,5 +165,6 @@
     $('#email_sender').prop('disabled', disabled);
     $('#email_subject').prop('disabled', disabled);
     $('#email_body').prop('disabled', disabled);
+    $('#email_body').data('ckeditorInstance').setReadOnly(disabled);
   }
 --></script>
