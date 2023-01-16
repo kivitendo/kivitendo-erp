@@ -491,7 +491,7 @@ sub action_save_and_show_email_dialog {
   $email_form->{to}   = $self->reclamation->contact->cp_email if $self->reclamation->contact;
   $email_form->{to} ||= $self->reclamation->customervendor->email;
   $email_form->{cc}   = $self->reclamation->customervendor->cc;
-  $email_form->{bcc}  = join ', ', grep $_, $self->reclamation->customervendor->bcc, SL::DB::Default->get->global_bcc;
+  $email_form->{bcc}  = join ', ', grep $_, $self->reclamation->customervendor->bcc;
   # TODO: get addresses from shipto, if any
   $email_form->{subject}             = $form->generate_email_subject();
   $email_form->{attachment_filename} = $form->generate_attachment_filename();

@@ -428,7 +428,7 @@ sub action_save_and_show_email_dialog {
   $email_form->{to}   = $self->order->contact->cp_email if $self->order->contact;
   $email_form->{to} ||= $self->order->$cv_method->email;
   $email_form->{cc}   = $self->order->$cv_method->cc;
-  $email_form->{bcc}  = join ', ', grep $_, $self->order->$cv_method->bcc, SL::DB::Default->get->global_bcc;
+  $email_form->{bcc}  = join ', ', grep $_, $self->order->$cv_method->bcc;
   # Todo: get addresses from shipto, if any
 
   my $form = Form->new;
