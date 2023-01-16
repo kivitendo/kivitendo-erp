@@ -9,42 +9,26 @@
 
 <form action="controller.pl" method="post">
   [% BLOCK recurse %]
-    [% # path = '' %]<!-- TODO: Pfad wg neuer Kategorie im Shop anlegen -->
-    <ul>
-      [% FOREACH obj = data %]
+    [% FOREACH categorie = categories_array %]
+      <ul>
         <li>
-          [% checked = '' %]
-          [% # path = path _ obj.name %]
-          [% # test = path.split('\|') %]
-          [% IF SELF.shop_part.shop_category.1.grep(obj.name).size %]
+        [% checked = '' %]
+        [% FOREACH cat_row = SELF.shop_part.shop_category %]
+          [% IF (cat_row.0 == categorie.id) || (SELF.shop_part.shop.connector == 'shopware6' && cat_row == categorie.id) %]
             [% checked = 'checked' %]
-          [% ELSE %]
-            [% FOREACH cat_row = SELF.shop_part.shop_category %]
-              [% IF cat_row.1.grep(obj.name).size %]
-                [% checked = 'checked' %]
-              [% END %]
-            [% END %]
           [% END %]
-          [% L.checkbox_tag('categories[]',value=obj.id, checked=checked) %][% HTML.escape(obj.name) %][% L.hidden_tag("cat_id_" _ obj.id, obj.name) %]
-        </li>
-        [% IF obj.childrenCount >= 1 %]
-          [% # path = path _ '|' %]
-          [% INCLUDE recurse data=obj.children %]
         [% END %]
-      [% END %]
-    </ul>
+        [% L.checkbox_tag('categories[]',value=categorie.id, checked=checked) %][% HTML.escape(categorie.name) %][% L.hidden_tag("cat_id_" _ categorie.id, categorie.name) %]
+        </li>
+        [% IF categorie.children.size %]
+          [% INCLUDE recurse categories_array=categorie.children %]
+        [% END %]
+      </ul>
+    [% END %]
   [% END %]
   <div>
     <h2>[% LxERP.t8("Shopcategories") %]</h2>
-      [% FOREACH row = CATEGORIES %]
-        <!-- TODO: Is still hardcoded 'Root' is shopware specified -->
-        [% IF row.name == 'Root' %]
-          [% IF row.childrenCount >= 1 %]
-            [% path = '' %]
-            [% INCLUDE recurse data=row.children path=path %]
-          [% END %]
-        [% END %]
-      [% END %]
+    [% INCLUDE recurse categories_array=CATEGORIES %]
   </div>
     [% L.button_tag("kivi.ShopPart.save_categories(" _ SELF.shop_part.id _", " _ SELF.shop_part.shop.id _")", LxERP.t8("Save"))  %]</td>
 </form>
