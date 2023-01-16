@@ -81,6 +81,15 @@
         [% L.button_tag("kivi.SalesPurchase.edit_custom_shipto()", LxERP.t8("Custom shipto"), class="inline below wi-lightwide neutral") %]
       </td>
     </tr>
+    [% IF is_sales && vc_obj.additional_billing_addresses.as_list.size %]
+    <tr>
+      <th>[% 'Custom Billing Address' | $T8 %]</th>
+      <td>
+        [% L.select_tag('billing_address_id', vc_obj.additional_billing_addresses,
+                        with_empty=1, default=billing_address_id, value_key='id', title_key='displayable_id', style='width: 250px') %]
+      </td>
+    </tr>
+    [% END %]
     [% IF business %]
       <tr>
         <th>[% business_label %]</th>
@@ -254,12 +263,30 @@
       [% IF is_order %]
         <tr>
           <th>[% 'Order Number' | $T8 %]</th>
-          <td><input type="text" name="ordnumber" id="ordnumber" size="11" value="[% HTML.escape(ordnumber) %]" class="wi-small"></td>
+          <td>
+            [% IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
+              [% L.input_tag("ordnumber", ordnumber, size="11") %]
+            [% ELSIF id %]
+              [% HTML.escape(ordnumber) %]
+              [% L.hidden_tag("ordnumber", ordnumber) %]
+            [% ELSE %]
+              [% LxERP.t8("will be set upon saving") %]
+            [% END %]
+          </td>
         </tr>
       [% END %]
       <tr>
         <th>[% IF is_req_quo %][% 'RFQ Number' | $T8 %][% ELSE %][% 'Quotation Number' | $T8 %][% END %]</th>
-        <td><input type="text" name="quonumber" id="quonumber" size="11" value="[% HTML.escape(quonumber) %]" class="wi-small"></td>
+        <td>
+          [% IF is_order || INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
+            [% L.input_tag("quonumber", quonumber, size="11") %]
+          [% ELSIF id %]
+            [% HTML.escape(quonumber) %]
+            [% L.hidden_tag("quonumber", quonumber) %]
+          [% ELSE %]
+            [% LxERP.t8("will be set upon saving") %]
+          [% END %]
+        </td>
       </tr>
       [% IF is_order %]
         <tr>
