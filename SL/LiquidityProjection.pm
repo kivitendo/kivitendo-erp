@@ -318,4 +318,53 @@ sub _date_for {
   :                              $date;
 }
 
+sub orders_for_time_period {
+  my ($class, %params) = @_;
+
+  my $dbh = SL::DB::Order->new->db->dbh;
+
+  my @recurring_orders;
+
+  # 1. Alle aktiven Konfigurationen für wiederkehrende Rechnungen auslesen.
+
+  my $configs = SL::DB::Manager::PeriodicInvoicesConfig->get_all(where => [ active => 1 ]);
+
+  my %calc_params;
+  $calc_params{start_date} = $params{after}->clone                   if $params{after};
+  $calc_params{end_date}   = $params{before}->clone->add(days => -1) if $params{before};
+  $calc_params{end_date} //= $calc_params{start_date}->clone->add(years => 1);
+
+  foreach my $config (@{ $configs }) {
+    my @dates = $config->calculate_invoice_dates(%calc_params);
+    next unless @dates;
+
+    my $order = SL::DB::Order->new(id => $config->oe_id)->load(with_objects => [ qw(customer employee) ]);
+    $order->{is_recurring} = 1;
+
+    push @recurring_orders, $order;
+  }
+
+  my @where = (
+    '!customer_id' => undef,
+    or             => [ quotation => undef, quotation => 0, ],
+    or             => [ closed    => undef, closed    => 0, ],
+  );
+  push @where, (reqdate => { ge => $params{after}->clone })  if $params{after};
+  push @where, (reqdate => { lt => $params{before}->clone }) if $params{before};
+  push @where, '!id' => [ map { $_->id } @recurring_orders ] if @recurring_orders;
+
+  # 1. Auslesen aller offenen Aufträge, deren Lieferdatum im
+  # gewünschten Bereich liegt
+  my $regular_orders = SL::DB::Manager::Order->get_all(
+    where        => \@where,
+    with_objects => [ qw(customer employee) ],
+  );
+
+  return sort {
+         ($a->transdate          <=> $b->transdate)
+      || ($a->reqdate            <=> $b->reqdate)
+      || (lc($a->customer->name) cmp lc($b->customer->name))
+  } (@recurring_orders, @{ $regular_orders });
+}
+
 1;
