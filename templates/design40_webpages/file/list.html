@@ -1,5 +1,7 @@
 [% USE LxERP %]
 [% USE L %]
+[% USE T8 %]
+[% USE Base64 %]
 [% USE HTML %]
 
 <!-- PENDENT: Ueberpruefen, Tabelle und Buttons -->
@@ -30,6 +32,7 @@
         </th>
         <th>[% source.chkall_title %]</th>
       [% END %]
+      <th>[%  LxERP.t8('Version') %]</th>
       <th>[%  LxERP.t8('Date') %]</th>
       <th>[%  source.file_title %]</th>
       [% IF file_type == 'image' %]
@@ -37,30 +40,55 @@
         <th>[%  LxERP.t8('ImagePreview') %]</th>
         <th>[%  LxERP.t8('Description') %]</th>
       [% ELSE %]
-        <th></th>
+        <th>[%  LxERP.t8('ImagePreview') %]</th>
       [% END %]
    </tr>
   </thead>
   <tbody>
     [% FOREACH file = source.files %]
-      <tr>
+      [%- is_other_version = 1 IF last_id == file.id %]
+      [%- last_id = file.id %]
+      [%- IF !is_other_version %]
+        <tr>
+      [%- ELSE %]
+        <tr class="[% 'version_row_' _ file.id %] hidden">
+      [%- END %]
         [% IF edit_attachments %]
           <td>[% L.checkbox_tag(checkname _ '[]', 'value'=file.id _ '_' _ file.version, 'class'=checkname) %]</td>
           <td></td>
         [% END %]
-        <td>[% file.mtime_as_timestamp_s %][% L.hidden_tag("version[]", file.version) %]</td>
+          <td class="right[%- IF file.version_count > 1 && !is_other_version %] cursor-pointer" onclick="kivi.File.toggle_versions('[% file.id %]')"[%- ELSE -%]"[%- END %]>[%#"%]
+            [%- IF file.version_count > 1 && !is_other_version %]<span id="[% 'version_toggle_' _ file.id %]">⏷ </span>[% END %]
+            [% file.version _ '/' _ file.version_count %]
+            [% L.hidden_tag("version[]", file.version) %]
+          </td>
+        <td>[% file.mtime_as_timestamp_s %]</td>
         <td>
           <a href="controller.pl?action=File/download&id=[% file.id %][% IF file.version %]&version=[% file.version %][% END %]">
-          <span id="[% "filename_" _ file.id %][% IF file.version %]_[% file.version %][% END %]">[% file.file_name %]</span></a>
+            <span id="[% "filename_" _ file.id %][% IF file.version %]_[% file.version %][% END %]">[% file.file_name %]</span>
+          </a>
         </td>
         [% IF file_type == 'image' %]
           <td>[% file.title %]</td>
           <td><img src="controller.pl?action=File/download&id=[% file.id %][% IF file.version %]&version=[% file.version %][% END %]" alt="[% file.title %]"></td>
           <td>[% file.description %]</td>
         [% ELSE %]
-          <td></td>
+          <td class="left">
+            [%- IF file.thumbnail %]
+              <div class="overlay_div">
+                <img id="thumb_[% file.id %]" class="thumbnail"
+                     data-file-id="[% file.id %]" data-file-version="[% file.version %]"
+                     src="data:[% HTML.escape(file.thumbnail.thumbnail_img_content_type) %];base64,[% file.thumbnail.thumbnail_img_content.encode_base64 %]"
+                     alt="[% file.file_name %]">
+                <img id="enlarged_thumb_[% file.id %][% IF file.version %]_[% file.version %][% END %]" class="overlay_img" style="display:none;"
+                     data-file-id="[% file.id %]" data-file-version="[% file.version %]">
+              </div>
+            [%- ELSE %]
+              -
+            [%- END %]
+          </td>
         [% END %]
-      </tr>
+        </tr>
     [% END %]
   </tbody>
 </table>
@@ -79,11 +107,19 @@
     [% can_rename = 1 %]
     [% L.button_tag("kivi.File.rename(" _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ checkname _ "'," _ is_global _ ");",  source.rename_title ) %]
   [% END %]
-  [% IF source.can_upload %]
-    [% L.button_tag("kivi.File.upload(" _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ source.upload_title _ "'," _ is_global _ ");", source.upload_title ) %]
-  [% END %]
   [% IF source.can_import %]
     [% L.button_tag("kivi.File.import("   _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ source.name _ "','" _ source.path _"');",  source.import_title ) %]
+  [% END %]
+  [% IF source.can_upload %]
+    [% L.button_tag("kivi.File.upload(" _ object_id _ ",'" _ object_type _ "','" _ file_type _ "','" _ source.upload_title _ "'," _ is_global _ ");", source.upload_title ) %]
+      <span class="upload_drop_zone"
+            data-object-type="[% object_type %]"
+            data-object-id="[% object_id %]"
+            data-file-type="[% file_type %]"
+            data-is-global="[% is_global %]"
+            data-maxsize="[% INSTANCE_CONF.get_doc_max_filesize %]">
+        [% 'Drag and drop files here' | $T8 %]
+      </span>
   [% END %]
 </div><!-- /.buttons -->
 
@@ -104,3 +140,10 @@
     [% END %]
   [% END %]
 [% END %]
+
+<script>
+  $(function() {
+    kivi.File.list_div_id = "[% file_type %]_list_[% object_type %]";
+    kivi.File.init();
+  });
+</script>
