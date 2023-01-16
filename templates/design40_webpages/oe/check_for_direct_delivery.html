@@ -4,7 +4,7 @@
 <h1>[% 'Carry over shipping address' | $T8 %]</h1>
 <p>[% 'You have entered or selected the following shipping address for this customer:' | $T8 %]</p>
 
- 
+
 <table class="tbl-horizontal">
   <tbody>
     <tr>
@@ -55,17 +55,17 @@
       <th>[% 'E-mail' | $T8 %]:</th>
       <td>[% HTML.escape(CFDD_shiptoemail) %]</td>
     </tr>
-    [% FOREACH var = cvars %] 
+    [% FOREACH var = cvars %]
       <tr>
         <th>[% HTML.escape(var.config.description) %]</th>
         <td>[% HTML.escape(var.value_as_text) %]</td>
       </tr>
-    [% END %] 
+    [% END %]
   </tbody>
 </table>
 
 
-<p>[% 'Do you want to carry this shipping address over to the new purchase order so that the vendor can deliver the goods directly to your customer?' | $T8 %]</p>
+<p>[% 'Do you want to carry this shipping address over to the new purchase document so that the vendor can deliver the goods directly to your customer?' | $T8 %]</p>
 
 <form method="post" action="oe.pl">
 
