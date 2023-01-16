@@ -8,28 +8,30 @@
 
 [%- INCLUDE 'common/flash.html' -%]
 
-<table>
-  <thead class="listheading">
-    <tr>
-      <th>[% 'Dunning number' | $T8 %]</th>
-      <th width="250px">[% 'Invoice Number' | $T8 %]</th>
-      <th>[% 'Include original Invoices?' | $T8 %]</th>
-      <th>[% 'eMail?' | $T8 %]</th>
-      <th>[% 'Status' | $T8 %]</th>
-    </tr>
-  </thead>
-  <tbody>
-    [% FOREACH s = status -%]
-    <tr class=[%- IF s.error %]"listrow_error"[% ELSE %]"listrow"[% END %]>
-      <td>[% IF !s.error %][% P.link_tag('dn.pl?action=show_dunning&showold=1&dunning_id=' _ s.dunning_id, s.dunning_id) %][% END %]</td>
-      <td>[% s.invnumbers.join(", ") %]</td>
-      <td>[% s.print_original_invoice ? LxERP.t8('Yes') : LxERP.t8('No') %]</td>
-      <td>[% s.send_email ? LxERP.t8('Yes') : LxERP.t8('No') %]</td>
-      <td>[% s.error ? s.error : LxERP.t8('Ok') %]</td>
-    </tr>
-    [%- END %]
-  </tbody>
-</table>
+<div class="wrapper">
+  <table class="tbl-list">
+    <thead>
+      <tr>
+        <th>[% 'Dunning number' | $T8 %]</th>
+        <th>[% 'Invoice Number' | $T8 %]</th>
+        <th>[% 'Include original Invoices?' | $T8 %]</th>
+        <th>[% 'eMail?' | $T8 %]</th>
+        <th>[% 'Status' | $T8 %]</th>
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH s = status -%]
+      <tr class=[%- IF s.error %]"listrow_error"[% ELSE %]"listrow"[% END %]>
+        <td>[% IF !s.error %][% P.link_tag('dn.pl?action=show_dunning&showold=1&dunning_id=' _ s.dunning_id, s.dunning_id) %][% END %]</td>
+        <td>[% s.invnumbers.join(", ") %]</td>
+        <td>[% s.print_original_invoice ? LxERP.t8('Yes') : LxERP.t8('No') %]</td>
+        <td>[% s.send_email ? LxERP.t8('Yes') : LxERP.t8('No') %]</td>
+        <td>[% s.error ? s.error : LxERP.t8('Ok') %]</td>
+      </tr>
+      [%- END %]
+    </tbody>
+  </table>
+</div>
 
 [%- IF pdf_filename && pdf_content -%]
   <script type="text/javascript">
