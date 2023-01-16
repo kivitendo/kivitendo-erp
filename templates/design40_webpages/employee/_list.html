@@ -1,10 +1,20 @@
 [% USE T8 %]
-<table>
+
+<div class="wrapper">
+<table class="tbl-list">
+ <colgroup>
+   <col class="wi-verysmall">
+   <col>
+   <col class="wi-verysmall">
+ </colgroup>
+ <thead>
  <tr>
   <th>[% 'Login of User' | $T8 %]</th>
   <th>[% 'Name' | $T8 %]</th>
   <th>[% 'Deleted' | $T8 %]</th>
  </tr>
+ </thead>
+ <tbody>
 [% FOREACH row IN SELF.employees %]
  <tr class='listrow[% loop.count % 2 %]'>
   <td><a href='[% SELF.url_for(action="edit", "employee.id"=row.id) %]'>[% row.login | html %]</a></td>
@@ -12,4 +22,6 @@
   <td>[% row.deleted_as_bool_yn | html %]</td>
  </tr>
 [% END %]
- </table>
+ </tbody>
+</table>
+</div><!-- /.wrapper -->

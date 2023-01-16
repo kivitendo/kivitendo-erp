@@ -1,0 +1,26 @@
+[%- USE LxERP -%][%- USE L -%][%- USE T8 -%]<h1>[% title | html %]</h1>
+
+[% INCLUDE "common/flash.html" %]
+
+<div class="wrapper">
+<form action="controller.pl" method="POST" id="form">
+
+ <table class="tbl-horizontal">
+  <tr>
+   <th align="right" class="">[% "Login of User" | $T8 %]:</th>
+   <td>[% SELF.employee.login | html %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% "Name" | $T8 %]:</th>
+   <td>[% SELF.employee.name | html %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% "Deleted" | $T8 %]:</th>
+   <td> [% L.radio_button_tag("employee.deleted", value=1, checked=SELF.employee.deleted, label=LxERP.t8("Yes")) %] [% L.radio_button_tag("employee.deleted", value=0, checked=!SELF.employee.deleted, label=LxERP.t8("No")) %]
+   </td>
+  </tr>
+ </table>
+
+ [%- L.hidden_tag("employee.id", SELF.employee.id) %]
+</form>
+</div><!-- /.wrapper -->
