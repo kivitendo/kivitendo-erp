@@ -859,7 +859,7 @@ C<%attributes{level_i}>, starting with 1.
 
 The following are used directly from each level:
 
-=over 12
+=over 4
 
 =item I<name> is deleted from level attributes.
 The I<name> is used for the for the name of the 'select' tag.
@@ -880,13 +880,10 @@ C<$attributes{value_key}>.
 
 =item I<default> is used to find the default level object.
 
-=tiem I<default_key> names the key for the default feld of level object. Is
+=item I<default_key> names the key for the default feld of level object. Is
 ignored if I<default> is set.
 
-=back
-
-
-<\@collection> is used for the level object of level 1. The objects of the next
+=item I<\@collection> is used for the level object of level 1. The objects of the next
 level are taken from the previous level via the <object_key>. On each level the
 objects must be a hash reference or a blessed reference.
 
