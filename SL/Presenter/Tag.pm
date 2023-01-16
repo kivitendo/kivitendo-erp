@@ -172,6 +172,8 @@ sub select_tag {
   } elsif (ref($default_coll) eq 'HASH') {
     %selected = %{ $default_coll };
 
+  } elsif ($default_coll) {
+    $default_coll = [ $default_coll ] unless 'ARRAY' eq ref $default_coll;
 
     %selected = $default_val_key ? map({ ($normalize_entry->('value', $_, undef, $default_val_key) => 1) } @{ $default_coll })
               :                    map({ ($_                                                       => 1) } @{ $default_coll });
@@ -857,9 +859,7 @@ C<%attributes{level_i}>, starting with 1.
 
 The following are used directly from each level:
 
-=back
-
-=over 4
+=over 12
 
 =item I<name> is deleted from level attributes.
 The I<name> is used for the for the name of the 'select' tag.
@@ -880,11 +880,13 @@ C<$attributes{value_key}>.
 
 =item I<default> is used to find the default level object.
 
-=item I<default_key> names the key for the default feld of level object. Is
+=tiem I<default_key> names the key for the default feld of level object. Is
 ignored if I<default> is set.
 
+=back
 
-=item I<\@collection> is used for the level object of level 1. The objects of the next
+
+<\@collection> is used for the level object of level 1. The objects of the next
 level are taken from the previous level via the <object_key>. On each level the
 objects must be a hash reference or a blessed reference.
 
