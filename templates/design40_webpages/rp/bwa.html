@@ -506,6 +506,7 @@ colspan="11">&nbsp;</td></tr>
 <table>
 <tr>
   <th>[% 'Chart'    | $T8 %]</th>
+  <th>[% 'Description'  | $T8 %]</th>
   <th>[% 'Amount'   | $T8 %]</th>
   <th>[% 'Category' | $T8 %]</th>
 </tr>
@@ -515,6 +516,7 @@ colspan="11">&nbsp;</td></tr>
 [% END %]
 <tr>
  <td>[% charts.$key.accno %]</td>
+ <td>[% charts.$key.description %]</td>
  <td class="numeric">[%  LxERP.format_amount( charts.$key.amount, 2 ) %]</td>
  <td>[% HTML.escape(category_names.item(charts.$key.pos_bwa)) %]</td>
 </tr>
