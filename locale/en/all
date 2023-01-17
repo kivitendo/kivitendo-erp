@@ -2971,6 +2971,7 @@ $self->{texts} = {
   'RFQ'                         => '',
   'RFQ Date'                    => '',
   'RFQ Number'                  => '',
+  'RFQ/Order Status'            => '',
   'RFQ/Order Statuses'          => '',
   'RFQs'                        => '',
   'RMA Delivery Order'          => '',
