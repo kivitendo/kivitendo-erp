@@ -13,11 +13,11 @@
   <thead>
     <tr>
       <th style="display:none"></th>
-      [% IF SELF.orphaned %]
+      [% IF SELF.orphaned || AUTH.assert('assortment_edit', 1) %]
         <th style="text-align:center"><img src="image/close.png" alt="[% LxERP.t8('delete item') %]"></th>
       [% END %]
       <th>[% 'Position' | $T8 %] </th>
-      [% IF SELF.orphaned %]
+      [% IF SELF.orphaned || AUTH.assert('assortment_edit', 1) %]
         <th style="text-align:center"><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]"></th>
       [% END %]
       <th id="partnumber_header_id" >
@@ -48,7 +48,7 @@
   </tbody>
   <tfoot id="assortment_input">
     <tr>
-      [% IF SELF.orphaned %]
+      [% IF SELF.orphaned || AUTH.assert('assortment_edit', 1) %]
         <td></td>
         <td></td>
         <td></td>
@@ -72,7 +72,7 @@
       <td class="numeric" id="items_sum_diff"     >[% LxERP.format_amount(items_sum_diff,      2, 0) %]</td>
     </tr>
     <tr class="blank">
-     [% IF SELF.orphaned %]
+     [% IF SELF.orphaned || AUTH.assert('assortment_edit', 1) %]
        <td></td>
        <td></td>
        <td></td>

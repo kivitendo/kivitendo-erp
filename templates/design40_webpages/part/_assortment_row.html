@@ -6,11 +6,11 @@
 
 <tr>
   <td style="display:none">
-    [% IF orphaned %]
+    [% IF orphaned || AUTH.assert('assortment_edit', 1) %]
       [% L.hidden_tag("assortment_items[+].parts_id", ITEM.part.id) %]
     [% END %]
   </td>
-  <td class="center"[% UNLESS orphaned %] style="display:none"[% END %]>
+  <td class="center"[% UNLESS orphaned || AUTH.assert('assortment_edit', 1) %] style="display:none"[% END %]>
     [% L.button_tag("kivi.Part.delete_item_row(this)", LxERP.t8("✖"), class="wi-verytiny neutral delete-item") %] [% # , confirm=LxERP.t8("Are you sure?")) %]
   </td>
   <td class="center">
@@ -18,7 +18,7 @@
       [% HTML.escape(position) or HTML.escape(ITEM.position) %]
     </div>
   </td>
-  <td class="center"[% UNLESS orphaned %] style="display:none"[% END %]>
+  <td class="center"[% UNLESS orphaned || AUTH.assert('assortment_edit', 1) %] style="display:none"[% END %]>
     <img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]" class="dragdrop">
   </td>
   <td>
@@ -28,7 +28,7 @@
      [% HTML.escape(ITEM.part.description) %]
   </td>
   <td class="numeric">
-    [% IF orphaned %]
+    [% IF orphaned || AUTH.assert('assortment_edit', 1) %]
       [% L.input_tag("assortment_items[].qty_as_number",
                       ITEM.qty_as_number,
                       maxsize = 10,
@@ -39,7 +39,7 @@
     [% END %]
   </td>
   <td>
-    [% IF orphaned %]
+    [% IF orphaned || AUTH.assert('assortment_edit', 1) %]
       [% L.select_tag("assortment_items[].unit",
                       ITEM.part.available_units,
                       default = ITEM.part.unit,
@@ -51,7 +51,7 @@
     [% END %]
   </td>
   <td class="center">
-    [% IF orphaned %]
+    [% IF orphaned || AUTH.assert('assortment_edit', 1) %]
       [% L.checkbox_tag('assortment_items[].charge', checked => ITEM.charge, class => 'checkbox', for_submit=1) %]
     [% ELSE %]
       [% IF ITEM.charge %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %]
