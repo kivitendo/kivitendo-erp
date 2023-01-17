@@ -127,7 +127,7 @@
           default = SELF.order.delivery_term_id,
           with_empty = 1,
           title_key = 'description',
-          style = 'width: 250px') %]
+          class = 'wi-mediumsmall-lightwide') %]
         </td>
       </tr>
     </tbody>
@@ -155,10 +155,11 @@
 
 <table class="tbl-horizontal col">
   <caption>[% 'Handling, Numbers & Dates' | $T8 %]</caption>
-  <colgroup> <col class="wi-mediumsmall"><col class="wi-lightwide"> </colgroup>
+  <colgroup> <col class="wi-mediumsmall"><col class="wi-small"> </colgroup>
   <tbody>
     <tr>
-      <td colspan="2" align="center" id="data-status-line">[% SELF.order.presenter.status_line %]</td>
+      <th>[% 'Status' | $T8 %]</th>
+      <td id="data-status-line"><span class="data wi-small" style="height:auto;overflow:visible;">[% SELF.order.presenter.status_line %]</span></td>
     </tr>
 
     <tr>
@@ -166,7 +167,9 @@
       <td>[% L.select_tag('order.employee_id',
         SELF.all_employees,
         default=(SELF.order.employee_id ? SELF.order.employee_id : SELF.current_employee_id),
-        title_key='safe_name') %]</td>
+        title_key='safe_name',
+        class="wi-small",
+        ) %]</td>
     </tr>
 
     [% IF SELF.cv == 'customer' %]
@@ -175,7 +178,9 @@
       <td>[% L.select_tag('order.salesman_id',
         SELF.all_salesmen,
         default=(SELF.order.salesman_id ? SELF.order.salesman_id : SELF.current_employee_id),
-        title_key='safe_name') %]</td>
+        title_key='safe_name',
+        class="wi-small",
+        ) %]</td>
     </tr>
     [% END %]
 
