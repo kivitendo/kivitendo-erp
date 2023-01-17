@@ -23,6 +23,10 @@
                             [ 'to',   LxERP.t8("The existing record has been created from the link target to add."), ], ],
                             class='wi-verywide') %]</td>
     </tr>
+    <tr>
+      <td>[%- LxERP.t8("Record number") %]:</td>
+      <td>[% L.input_tag('number', '', class='wi-wide') %]</td>
+    </tr>
     <tr class="record_links_add_filter_cv_row">
       <th>[% LxERP.t8("Customer/Vendor Number") %]</th>
       <td>[% L.input_tag('vc_number', is_sales ? SELF.object.customer.customernumber : SELF.object.vendor.vendornumber, class='wi-wide') %]</td>
