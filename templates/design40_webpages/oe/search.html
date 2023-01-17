@@ -306,7 +306,7 @@
   [% END %]
 </div>
 <div class="list col">
-  <h4>Order info</h4>
+  <h4>[% 'Customer & Order Information' | $T8 %]</h4>
   <div>
     <input name="l_department" id="l_department" type="checkbox" value="Y">
     <label for="l_department"> [% 'Department' | $T8 %] </label>
@@ -333,10 +333,12 @@
   </div>
   [% END %]
 </div>
+  [% IF CT_CUSTOM_VARIABLES.size %]
 <div class="list col">
-  <h4>Custom Variables</h4><!-- PENDENT: Perl-Code anpassen (es werden keine DIVs gesetzt) -->
+  <h4>[% 'Custom Variables' | $T8 %] </h4><!-- PENDENT: Perl-Code anpassen (es werden keine DIVs gesetzt) -->
   [% CT_CUSTOM_VARIABLES_INCLUSION_CODE %]
 </div>
+  [% END %]
 
 
 </div>
