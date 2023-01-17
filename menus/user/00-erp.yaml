@@ -1663,3 +1663,9 @@
   order: 500
   params:
     action: JSTests/run
+- parent: develop
+  id: css_documentation_in_german_html
+  name: CSS-Documentation
+  order: 600
+  href: css/design40/manual/index.html
+  target: _blank
