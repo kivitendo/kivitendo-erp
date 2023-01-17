@@ -245,6 +245,11 @@
     <div>
       <input name="l_direct_debit" id="l_direct_debit" type="checkbox"><label for="l_direct_debit">[% 'direct debit' | $T8 %]</label>
     </div>
+    <div>
+    [% IF INSTANCE_CONF.get_doc_storage -%]
+      <input name="l_attachments" id="l_attachments" class=checkbox type=checkbox value=Y>[% 'Attachments' | $T8 %]
+    [% END-%]
+    </div>
   </div>
   <div class="list col">
     <h4>[% 'Employee' | $T8 %]</h4>
