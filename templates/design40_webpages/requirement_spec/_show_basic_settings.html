@@ -1,5 +1,6 @@
 [% USE HTML %]
 [% USE LxERP %]
+[% USE L %]
 
 <div id="basic_settings" class="basic-settings-context-menu">
 <div class="wrapper">
@@ -39,7 +40,13 @@
       [% FOREACH var = cvars %]
         <tr>
           <th>[% HTML.escape(var.config.description) %]</th>
-          <td>[% HTML.escape(var.value_as_text) %]</td>
+          <td>
+            [%- IF var.config.type == 'htmlfield' -%]
+              [%- L.restricted_html(var.value_as_text) -%]
+            [%- ELSE -%]
+              [%- HTML.escape(var.value_as_text) -%]
+            [%- END -%]
+          </td>
         </tr>
       [% END %]
     [% END %]
