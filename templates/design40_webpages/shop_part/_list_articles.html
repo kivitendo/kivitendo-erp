@@ -14,7 +14,8 @@
 
 [% IF SHOP_PARTS.size > 0 %]
 
-<table id="shoplist" class="tbl-list">
+<div class="wrapper">
+<table id="shoplist" class="tbl-list wi-moderate">
   <thead>
     <tr>
     <th>[% L.checkbox_tag('check_all') %]</th>
@@ -137,6 +138,7 @@
     [% END %]
   </tbody>
 </table>
+</div>
 
 <div class="wrapper">
   <div class="buttons">
