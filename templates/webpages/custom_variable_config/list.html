@@ -8,7 +8,7 @@
 </p>
 
 [%- IF SELF.module == 'IC' %]
-  [%- SET W="12.5%" %]
+  [%- SET W="10.5%" %]
 [%- ELSE %]
   [%- SET W="20%" %]
 [%- END %]
@@ -26,6 +26,7 @@
      <th width="[%- W -%]">[% 'Editable' | $T8 %]</th>
      <th width="[%- W -%]">[% 'Deactivate by default' | $T8 %]</th>
      <th width="[%- W -%]">[% 'Filter by Partsgroups' | $T8 %]</th>
+     <th width="[%- W -%]">[% 'Display in basic data tab' | $T8 %]</th>
     [%- END %]
    </tr>
   </thead>
@@ -48,6 +49,7 @@
       <td>[%- IF cfg.flags.match('editable=1') %][% 'Yes' | $T8 %][%- ELSE %][% 'No' | $T8 %][%- END %]</td>
       <td>[%- IF cfg.flags.match('defaults_to_invalid=1') %][% 'Yes' | $T8 %][%- ELSE %][% 'No' | $T8 %][%- END %]</td>
       <td>[%- IF cfg.flags.match('partsgroup_filter=1') %][% 'Yes' | $T8 %][%- ELSE %][% 'No' | $T8 %][%- END %]</td>
+      <td>[% IF cfg.first_tab %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %]</td>
      [%- END %]
     </tr>
     [%- END %]
