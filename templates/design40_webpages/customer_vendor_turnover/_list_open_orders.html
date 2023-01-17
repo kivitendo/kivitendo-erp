@@ -3,18 +3,20 @@
 [%- USE L %]
 [%- USE HTML %]
 
-<div id="orders_report">
-  <table width="100%">
-    <caption class="listtop">[%- HTML.escape(title) %]</caption>
-    <tbody>
+<div id="orders_report" class="wrapper">
+  <table class="table-list wi-moderate">
+    <caption>[%- HTML.escape(title) %]</caption>
+    <thead>
       <tr>
-        <td class="listheading">[% 'Type' | $T8 %]</td>
-        <td class="listheading">[% 'Order/RFQ Number' | $T8 %]</td>
-        <td class="listheading">[% 'Date' | $T8 %]</td>
-        <td class="listheading">[% 'Amount' | $T8 %]</td>
-        <td class="listheading">[% 'Salesman' | $T8 %]</td>
-        <td class="listheading">[% 'Transaction description' | $T8 %]</td>
+        <th>[% 'Type' | $T8 %]</th>
+        <th>[% 'Order/RFQ Number' | $T8 %]</th>
+        <th>[% 'Date' | $T8 %]</th>
+        <th>[% 'Amount' | $T8 %]</th>
+        <th>[% 'Salesman' | $T8 %]</th>
+        <th>[% 'Transaction description' | $T8 %]</th>
       </tr>
+    </thead>
+    <tbody>
 
       [%- FOREACH row = orders %]
       <tr class="listrow[% loop.count % 2 %]">
