@@ -112,6 +112,10 @@
           [% L.date_tag('datepaidto') %]
          </td>
         </tr>
+        <tr>
+         <th>[% 'Steuersatz' | $T8 %]</th>
+         <td>[% L.select_tag('taxzone_id', ALL_TAXZONES, with_empty=1, title_key='description', style=style) %]</td>
+        </tr>
         [% IF CT_CUSTOM_VARIABLES.size %]
           <tr>
             <th class="caption" colspan="2">[% 'Custom variables for module' | $T8 %]: [%'Customers and vendors' | $T8 %]</th>
