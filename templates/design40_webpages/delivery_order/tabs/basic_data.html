@@ -32,7 +32,7 @@
       </tr>
 
       <tr id='cp_row' [%- IF !SELF.order.${SELF.cv}.contacts.size %]style='display:none'[%- END %]>
-        <th align="right">[% 'Contact Person' | $T8 %]</th>
+        <th>[% 'Contact Person' | $T8 %]</th>
         <td>[% L.select_tag('order.cp_id',
                             SELF.order.${SELF.cv}.contacts,
                             default=SELF.order.cp_id,
@@ -56,7 +56,7 @@
                              title_key='displayable_id',
                              value_key='shipto_id',
                              with_empty=0,
-                             style='width: 300px') %]
+                             style='wi-lightwide') %]
           </span>
           [% L.button_tag("kivi.DeliveryOrder.edit_custom_shipto()", LxERP.t8("Custom shipto")) %]
         </td>
@@ -155,11 +155,11 @@
 
 <table class="tbl-horizontal col">
   <caption>[% 'Handling, Numbers & Dates' | $T8 %]</caption>
-  <colgroup> <col class="wi-mediumsmall"><col class="wi-small"> </colgroup>
+  <colgroup> <col class="wi-mediumsmall"><col class="wi-normal"> </colgroup>
   <tbody>
     <tr>
       <th>[% 'Status' | $T8 %]</th>
-      <td id="data-status-line"><span class="data wi-small" style="height:auto;overflow:visible;">[% SELF.order.presenter.status_line %]</span></td>
+      <td id="data-status-line"><span class="data wi-normal">[% SELF.order.presenter.status_line %]</span></td>
     </tr>
 
     <tr>
@@ -168,7 +168,7 @@
         SELF.all_employees,
         default=(SELF.order.employee_id ? SELF.order.employee_id : SELF.current_employee_id),
         title_key='safe_name',
-        class="wi-small",
+        class="wi-normal",
         ) %]</td>
     </tr>
 
@@ -179,24 +179,24 @@
         SELF.all_salesmen,
         default=(SELF.order.salesman_id ? SELF.order.salesman_id : SELF.current_employee_id),
         title_key='safe_name',
-        class="wi-small",
+        class="wi-normal",
         ) %]</td>
     </tr>
     [% END %]
 
     <tr>
       <th>[% 'Delivery Order Number' | $T8 %]</th>
-      <td>[% L.input_tag('order.donumber', SELF.order.donumber, onchange='kivi.DeliveryOrder.set_number_in_title(this)', class='wi-small numeric') %]</td>
+      <td>[% L.input_tag('order.donumber', SELF.order.donumber, onchange='kivi.DeliveryOrder.set_number_in_title(this)', class='wi-normal numeric') %]</td>
     </tr>
 
     <tr>
       <th>[% 'Order Number' | $T8 %]</th>
-      <td>[% L.input_tag('order.ordnumber', SELF.order.ordnumber, class='wi-small') %]</td>
+      <td>[% L.input_tag('order.ordnumber', SELF.order.ordnumber, class='wi-normal') %]</td>
     </tr>
 
     <tr>
       <th>[% IF SELF.type_data.properties('is_customer') %][% 'Customer Order Number' | $T8 %][% ELSE %][% 'Vendor Order Number' | $T8 %][% END %]</th>
-      <td>[% L.input_tag('order.cusordnumber', SELF.order.cusordnumber, class='wi-small numeric') %]</td>
+      <td>[% L.input_tag('order.cusordnumber', SELF.order.cusordnumber, class='wi-normal numeric') %]</td>
     </tr>
 
     <tr>
@@ -206,12 +206,12 @@
 
     <tr>
       <th>[% 'Reqdate' | $T8 %]</th>
-      <td>[% L.date_tag('order.reqdate_as_date', SELF.order.reqdate_as_date, class="wi-date" _ reqdate_class) %]</td>
+      <td>[% L.date_tag('order.reqdate_as_date', SELF.order.reqdate_as_date, class="wi-date " _ reqdate_class) %]</td>
     </tr>
 
     <tr>
       <th>[% 'Insert Date' | $T8 %]</th>
-      <td><span class="data wi-small">[% SELF.order.itime_as_date %]</span></td>
+      <td><span class="data wi-normal">[% SELF.order.itime_as_date %]</span></td>
     </tr>
   </tbody>
 </table>

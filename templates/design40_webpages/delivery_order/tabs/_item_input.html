@@ -1,6 +1,6 @@
 [%- USE T8 %][%- USE HTML %][%- USE LxERP %][%- USE L %][%- USE P %]
 
-<div class="wrapper">
+<div class="wrapper" style="display:flex">
   <div class="input-panel control-panel">
     <table id="input_row_table_id" class="tbl-plain condensed">
       <caption>[% 'Add Parts here!' | $T8 %]</caption>
@@ -42,7 +42,7 @@
     <div style="clear:both">[% L.button_tag('kivi.DeliveryOrder.open_multi_items_dialog()', LxERP.t8('Add multiple items'), class='neutral') %]</div>
   </div><!-- /.entry-panel -->
 
-  <div class="input-panel control-panel">
+  <div class="input-panel control-panel" style="min-width:10%">
     <table id="create_part_table_id" class="tbl-plain condensed">
       <caption>[% 'Create a new part' | $T8 %]!</caption>
       <tbody>
@@ -59,9 +59,5 @@
         </tr>
       </tbody>
     </table>
-    <!-- same space as 'Add multiple items' button -->
-    <div style="clear:both;height:15.6pt">
-      &nbsp;
-    </div>
   </div><!-- /.entry-panel -->
 </div><!-- /.wrapper -->
