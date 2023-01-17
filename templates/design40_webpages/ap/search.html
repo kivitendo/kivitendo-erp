@@ -16,7 +16,7 @@
   <tbody>
     <tr>
       <th>[% 'Vendor' | $T8 %]</th>
-      <td>[% L.input_tag("vendor", vendor, style=style, class="initial_focus wi-normal") %]</td>
+      <td>[% L.input_tag("vendor", vendor, class="initial_focus wi-normal") %]</td>
     </tr>
     <tr>
       <th>[% 'Contact Person' | $T8 %]</th>
@@ -60,19 +60,19 @@
     </tr>
     <tr>
       <th>[% 'Invoice Number' | $T8 %]</th>
-      <td>[% L.input_tag("invnumber", "", class="wi-small") %]</td>
+      <td>[% L.input_tag("invnumber", "", class="wi-normal") %]</td>
     </tr>
     <tr>
       <th>[% 'Order Number' | $T8 %]</th>
-      <td>[% L.input_tag("ordnumber", "", class="wi-small") %]</td>
+      <td>[% L.input_tag("ordnumber", "", class="wi-normal") %]</td>
     </tr>
     <tr>
       <th>[% 'Part Number' | $T8 %]</th>
-      <td>[% L.input_tag("parts_partnumber", "", class="wi-small") %]</td>
+      <td>[% L.input_tag("parts_partnumber", "", class="wi-normal") %]</td>
     </tr>
     <tr>
       <th>[% 'Project Number' | $T8 %]</th>
-      <td>[% P.project.picker("project_id", project_id, active="both", valid="both", class="wi-small") %]</td>
+      <td>[% P.project.picker("project_id", project_id, active="both", valid="both", class="wi-normal") %]</td>
     </tr>
     <tr>
       <th>[% 'Steuersatz' | $T8 %]</th>
