@@ -5,13 +5,15 @@
 [% SET style="width: 400px" %]
 
 <form method="post" action="controller.pl" id="form">
-<table id="reclamation_reasons">
+<div class="wrapper" id="wrapper-1">
+<table id="reclamation_reasons" class="tbl-list">
  <thead>
   <tr>
     <th align="center"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
-    <th align="left">[% 'Reclamation Reason' | $T8 %]</th>
-    <th align="left">[% 'Description' | $T8 %]</th>
-    <th align="left">[% 'Valid for'    | $T8 %]</th>
+    <th>[% 'Reclamation Reason' | $T8 %]</th>
+    <th>[% 'Description' | $T8 %]</th>
+    <th>[% 'Valid for Sales' | $T8 %]</th>
+    <th>[% 'Valid for Purchase' | $T8 %]</th>
   </tr>
  </thead>
 
@@ -19,6 +21,7 @@
   [% PROCESS 'reclamation_reason/_sort_list_row.html', RECLAMATION_REASONS = RECLAMATION_REASONS %]
   </tbody>
 </table>
+</div>
 </form>
 
 [% L.sortable_element('#table_body', url=SELF.url_for(action='reorder'), with='reclamation_reason_id') %]

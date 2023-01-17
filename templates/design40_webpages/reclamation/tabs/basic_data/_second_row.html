@@ -5,7 +5,8 @@
 [%- USE P %]
 
 <table>
-  <tr><td colspan="100%">
+  <tr>
+    <td>
       <b>[%- 'Serial No.' | $T8 %]</b>&nbsp;
       [%- L.input_tag("reclamation.reclamation_items[].serialnumber", ITEM.serialnumber, size = 15) %]&nbsp;
     <b>[%- 'Project' | $T8 %]</b>&nbsp;
@@ -25,7 +26,8 @@
       <span[%- IF ITEM.part.onhand < ITEM.part.rop -%] class="numeric plus0"[%- END -%]>
         [%- ITEM.part.onhand_as_number -%]&nbsp;[%- ITEM.part.unit -%]
       </span>&nbsp;
-  </td></tr>
+    </td>
+  </tr>
 
   <tr>
     [%- SET n = 0 %]

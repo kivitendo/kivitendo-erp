@@ -12,7 +12,7 @@
   [% L.hidden_tag("converted_from_record_item_ids[+]",       ITEM.converted_from_record_item_id) %]
   [% L.hidden_tag("reclamation.reclamation_items[+].id", ITEM.id, id='item_' _ ID) %]
   [% L.hidden_tag("reclamation.reclamation_items[].parts_id", ITEM.parts_id) %]
-    <td align="center">
+    <td>
       [%- IF MYCONFIG.show_form_details %]
         [% L.img_tag(src="image/collapse.svg",
                      alt=LxERP.t8('Hide details'), title=LxERP.t8('Hide details'), class="expand") %]
@@ -22,25 +22,27 @@
       [%- END %]
     </td>
     <td>
-      <div name="position" class="numeric">
+      <div name="position" class="center">
         [% HTML.escape(ITEM.position) %]
       </div>
     </td>
     <td align="center">
       <img src="image/updown.png" alt="[%- LxERP.t8('reclamation item') %]" class="dragdrop">
     </td>
-    <td align="center">
+    <td>
       [%- L.button_tag("kivi.Reclamation.delete_reclamation_item_row(this)",
                        LxERP.t8("X"),
                        confirm=LxERP.t8("Are you sure?")) %]
     </td>
     [%- IF SELF.show_update_button -%]
-    <td align="center">
+    <td>
       [%- L.img_tag(src="image/rotate_cw.svg",
                     alt=LxERP.t8('Update from master data'),
                     title= LxERP.t8('Update from master data'),
                     onclick="if (!confirm('" _ LxERP.t8("Are you sure to update this position from master data?") _ "')) return false; kivi.Reclamation.update_row_from_master_data(this);",
-                    id='update_from_master') %]
+                    id='update_from_master',
+                    class="expand",
+                    ) %]
     </td>
     [%- END -%]
     <td>
@@ -60,36 +62,38 @@
       [% L.areainput_tag("reclamation.reclamation_items[].description",
                      ITEM.description,
                      size='40',
-                     style='width: 300px') %]
+                     class='wi-lightwide') %]
       [%- L.hidden_tag("reclamation.reclamation_items[].longdescription", ITEM.longdescription) %]
-      [%- L.button_tag("kivi.Reclamation.show_longdescription_dialog(this)", LxERP.t8("L")) %]
+      [%- L.button_tag("kivi.Reclamation.show_longdescription_dialog(this)", LxERP.t8("L"), class="wi-tiny neutral") %]
     </td>
     <td>[% L.select_tag("reclamation.reclamation_items[].reason_id",
                         SELF.reclamation.valid_reclamation_reasons,
                         default=ITEM.reason_id,
                         title_key = 'name',
                         value_key = 'id',
-                        with_empty=1,) %]
+                        with_empty=1,
+                        class="wi-small",
+                        ) %]
     </td>
     <td>
       [% L.areainput_tag("reclamation.reclamation_items[].reason_description_ext",
-                     ITEM.reason_description_ext,
-                     size='40',
-                     style='width: 150px') %]
+                         ITEM.reason_description_ext,
+                         class="wi-mediumsmall",
+                         ) %]
     </td>
     <td>
       [% L.areainput_tag("reclamation.reclamation_items[].reason_description_int",
-                     ITEM.reason_description_int,
-                     size='40',
-                     style='width: 150px') %]
+                         ITEM.reason_description_int,
+                         class="wi-mediumsmall",
+                         ) %]
     </td>
-    <td nowrap>
+    <td>
       [%- L.input_tag("reclamation.reclamation_items[].qty_as_number",
                       ITEM.qty_as_number,
                       size = 5,
-                      class="recalc reformat_number numeric") %]
+                      class="recalc reformat_number numeric wi-verysmall") %]
       [%- IF ITEM.part.formel -%]
-        [%- L.button_tag("kivi.Reclamation.show_calculate_qty_dialog(this)", LxERP.t8("*/")) %]
+        [%- L.button_tag("kivi.Reclamation.show_calculate_qty_dialog(this)", LxERP.t8("*/"), class="neutral") %]
         [%- L.hidden_tag("formula[+]", ITEM.part.formel) -%]
       [%- END -%]
     </td>
@@ -99,22 +103,24 @@
                        default = ITEM.price_factor_id,
                        title_key = 'description',
                        with_empty = 1,
-                       class="recalc") %]
+                       class="recalc wi-mediumsmall") %]
     </td>
-    <td nowrap>
+    <td>
       [%- L.select_tag("reclamation.reclamation_items[].unit",
                       ITEM.part.available_units,
                       default = ITEM.unit,
                       title_key = 'name',
                       value_key = 'name',
-                      class = 'unitselect') %]
+                      class = 'unitselect wi-mediumsmall') %]
     </td>
     <td>
       [%- SET EDIT_PRICE_SOURCE = !(ITEM.is_linked_to_record) %]
       <div name="editable_price_source" [%- IF !EDIT_PRICE_SOURCE %]style="display:none"[%- END %]>
         [%- L.button_tag("kivi.Reclamation.price_chooser_item_row(this)",
                          ITEM.active_price_source.source_description _ ' | ' _ ITEM.active_discount_source.source_description,
-                         name = "price_chooser_button") %]
+                         name = "price_chooser_button",
+                         class = "neutral",
+                         ) %]
       </div>
       <div name="not_editable_price_source" [%- IF EDIT_PRICE_SOURCE %]style="display:none"[%- END %]>
         [%- L.div_tag(ITEM.active_price_source.description _ ' | ' _ ITEM.active_discount_source.source_description, style="white-space:nowrap;") %]
@@ -135,10 +141,10 @@
                         ITEM.sellprice_as_number,
                         size = 10,
                         disabled=(EDIT_PRICE? '' : 1),
-                        class="recalc reformat_number numeric") %]
+                        class="recalc reformat_number numeric wi-verysmall") %]
       </div>
       <div name="not_editable_price" [%- IF EDIT_PRICE %]style="display:none"[%- END %]>
-        [%- L.div_tag(ITEM.sellprice_as_number, name="sellprice_text", class="numeric") %]
+        [%- L.div_tag(ITEM.sellprice_as_number, name="sellprice_text", class="numeric plain-data") %]
         [%- L.hidden_tag("reclamation.reclamation_items[].sellprice_as_number",
                          ITEM.sellprice_as_number,
                          disabled=(EDIT_PRICE? 1 : '')) %]
@@ -161,7 +167,7 @@
                          disabled=(EDIT_DISCOUNT? 1 : '')) %]
       </div>
     </td>
-    <td align="right">
+    <td>
       [%- L.div_tag(LxERP.format_amount(ITEM.linetotal, 2, 0), name="linetotal") %]
     </td>
 
