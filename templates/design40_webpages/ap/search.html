@@ -63,6 +63,10 @@
       <th>[% 'Project Number' | $T8 %]</th>
       <td>[% P.project.picker("project_id", project_id, active="both", valid="both", class="wi-small") %]</td>
     </tr>
+    <tr>
+      <th>[% 'Steuersatz' | $T8 %]</th>
+      <td>[% L.select_tag('taxzone_id', ALL_TAXZONES, with_empty=1, title_key='description', class="wi-normal") %]</td>
+    </tr>
   </tbody>
 </table>
 
