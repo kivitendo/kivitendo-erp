@@ -1995,6 +1995,22 @@ table.tbl-list td span.wi-date input[type="date"],
 table.tbl-plain td span.wi-date input[type="date"] {
   width: 92px;
 }
+table.tbl-horizontal td.clear input[type="radio"],
+table.tbl-list td.clear input[type="radio"],
+table.tbl-plain td.clear input[type="radio"],
+table.tbl-horizontal td.clear input[type="checkbox"],
+table.tbl-list td.clear input[type="checkbox"],
+table.tbl-plain td.clear input[type="checkbox"] {
+  float: none;
+}
+table.tbl-horizontal td.clear input[type="radio"] ~ label,
+table.tbl-list td.clear input[type="radio"] ~ label,
+table.tbl-plain td.clear input[type="radio"] ~ label,
+table.tbl-horizontal td.clear input[type="checkbox"] ~ label,
+table.tbl-list td.clear input[type="checkbox"] ~ label,
+table.tbl-plain td.clear input[type="checkbox"] ~ label {
+  float: none;
+}
 div.fake-textarea {
   width: 220px;
   height: 150px;
