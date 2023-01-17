@@ -4,6 +4,7 @@
 
 <div class="wrapper">
   <table class="tbl-horizontal">
+    <colgroup><col class="wi-mediumsmall"><col class="wi-wide"></colgroup>
     <tbody>
       <tr>
         <th> [% LxERP.t8("Language") %] </th>
@@ -28,6 +29,10 @@
       <tr>
         <th> [% LxERP.t8("Long Dates") %] </th>
         <td> [% L.yes_no_tag("object.output_longdates", SELF.object.output_longdates, class='wi-wider') %] </td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8("Obsolete") %]</th>
+        <td>[% L.yes_no_tag("object.obsolete", SELF.object.obsolete, class='wi-wider') %]</td>
       </tr>
     </tbody>
   </table>
