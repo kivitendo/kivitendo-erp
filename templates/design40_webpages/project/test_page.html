@@ -3,6 +3,8 @@
 
 <h1>Projekt-Picker-Testpage</h1>
 
+<div class="wrapper">
+
 <br>
 [% P.project.picker('project_id', '', style='width: 600px') %] text<br>
 
@@ -46,8 +48,11 @@
 [% P.project.picker('project12_id', '', active='both', valid='both',style='width: 300px') %] all (active, inactive, valid, invalid)
 <br>
 
+
 Runtime test:<br>
-<div id='runtime_picker'>'
+<div id='runtime_picker'>
+
+</div><!-- /.wrapper -->
 
 <script>
 $(function() {
