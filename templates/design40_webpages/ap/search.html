@@ -34,6 +34,11 @@
       <th>[% 'Notes' | $T8 %]</th>
       <td>[% L.input_tag("notes", "", class="wi-normal") %]</td>
     </tr>
+    <tr>
+      <th>[% 'Transaction description' | $T8 %]</th>
+      <td>[% L.input_tag("transaction_description", "", class="wi-normal") %]</td>
+    <tr>
+
   </tbody>
 </table>
 
@@ -125,6 +130,9 @@
     </div>
     <div>
       <input name="l_globalprojectnumber" id="l_globalprojectnumber" type="checkbox" value="Y"><label for="l_globalprojectnumber">[% 'Document Project Number' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_transaction_description" id="l_transaction_description" class=checkbox type=checkbox value=Y[% IF INSTANCE_CONF.get_require_transaction_description_ps %] checked[% END %]> [% 'Transaction description' | $T8 %]
     </div>
   </div>
 
