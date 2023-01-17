@@ -9,7 +9,6 @@
 
 <div class="wrapper">
 
-  <div class="col">
     <table class="tbl-horizontal">
       <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
       <caption>[% 'Customer' | $T8 %]</caption>
@@ -58,9 +57,7 @@
         </tr>
       </tbody>
     </table>
-  </div><!-- /.col -->
 
-  <div class="col">
     <table class="tbl-horizontal">
       <caption>[% 'Record numbers and dates' | $T8 %]</caption>
       <tbody>
@@ -124,7 +121,21 @@
         [% END %]
       </tbody>
     </table>
-  </div><!-- /.col -->
+
+   <table class="tbl-horizontal">
+     <caption>[% 'Status' | $T8 %]</caption>
+     <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+     <tbody>
+       <tr>
+         <th>[% 'Open' | $T8 %]</th>
+         <td><input name="open" id="open" type="checkbox" value="Y" checked></td>
+       </tr>
+       <tr>
+         <th>[% 'Closed' | $T8 %]</th>
+         <td><input name="closed" id="closed" type="checkbox" value="Y"></td>
+       </tr>
+     </tbody>
+   </table>
 
 </div><!-- /.wrapper -->
 
