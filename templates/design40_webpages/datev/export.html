@@ -1,7 +1,8 @@
 [% USE T8 %]
+[%- USE L %]
 <h1>[% 'DATEV - Export Assistent' | $T8 %]</h1>
 
-<form method='post' action='[% script %]' id='form'>
+<form method='post' action='[% script | html %]' id='form'>
 
 <table width=100%>
   <tr>
@@ -13,47 +14,32 @@
       <table>
         <tr>
           <td>[% 'Beraternummer' | $T8 %]</td>
-          <td><input type="text" name=beraternr size=10 maxlength=7 value="[% beraternr %]"></td>
+          <td>[% L.input_tag("beraternr", beraternr, size=10, maxlength=7) %]</td>
 
           <td>[% 'DFV-Kennzeichen' | $T8 %]</td>
-          <td><input type="text" name=dfvkz size=5 maxlength=2 value="[% dfvkz %]"></td>
+          <td>[% L.input_tag("dfvkz", dfvkz, size=5, maxlength=2) %]</td>
         </tr>
         <tr>
           <td>[% 'Beratername' | $T8 %]</td>
-          <td><input type="text" name=beratername size=10 maxlength=9 value="[% beratername %]"></td>
+          <td>[% L.input_tag("beratername", berater, size=10, maxlength=9) %]</td>
 
           <td>[% 'Password' | $T8 %]</td>
           <!-- PENDENT: Maxlenght 4 ist ein wenig unrealistisch -->
-          <td><input type="text" name=passwort size=5 maxlength=4 value="[% passwort %]"></td>
+          <td>[% L.input_tag("passwort", passwort, size=5, maxlength=4) %]</td>
         </tr>
         <tr>
           <td>[% 'Mandantennummer' | $T8 %]</td>
-          <td><input type="text" name=mandantennr size=10 maxlength=5 value="[% mandantennr %]"></td>
+          <td>[% L.input_tag("mandantennr", mandantennr, size=10, maxlength=5) %]</td>
 
           <td>[% 'Medium Number' | $T8 %]</td>
-          <td><input type="text" name=datentraegernr size=5 maxlength=3 value="[% datentraegernr %]"></td>
+          <td>[% L.input_tag("datentraegernr", datentraegernr, size=5, maxlength=3) %]</td>
         </tr>
         <tr>
           <td></td>
           <td></td>
 
           <td>[% 'Abrechnungsnummer' | $T8 %]</td>
-          <td><input type="text" name=abrechnungsnr size=5 maxlength=3 value="[% abrechnungsnr %]"></td>
-        </tr>
-
-        <tr>
-          <td><input name=exporttype type=radio value=0 checked> [% 'Export Buchungsdaten' | $T8 %]</td>
-          <td></td>
-
-          <td><input name=exporttype type=radio value=1> [% 'Export Stammdaten' | $T8 %]</td>
-          <td></td>
-        </tr>
-        <tr>
-          <td><input name=exportformat type=radio class=radio value=csv checked> [% 'CSV' | $T8 %]</td>
-          <td></td>
-
-          <td><input name=exportformat type=radio class=radio value=kne> [% 'KNE' | $T8 %]</td>
-          <td></td>
+          <td>[% L.input_tag("abrechnungsnr", abrechnungsnr, size=5, maxlength=3) %]</td>
         </tr>
       </table>
     </td>
@@ -62,4 +48,6 @@
     <td><hr size=3 noshade></td>
   </tr>
 </table>
+[%- L.hidden_tag("exporttype",  0) %]
+[%- L.hidden_tag("exportformat",  'csv') %]
 </form>
