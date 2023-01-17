@@ -29,6 +29,7 @@
                       title= LxERP.t8('Show details'),
                       onclick="kivi.Order.show_vc_details_dialog();",
                       class="button-image info") %]
+          [% P.link_tag("javascript:void(0);", LxERP.t8('Edit'), title=LxERP.t8('Open in new window'), onclick="kivi.Order.open_customervendor_tab('#order_${SELF.cv}_id', '${SELF.cv}')") %]
         </td>
       </tr>
       <tr id='cp_row' [% IF !SELF.order.${SELF.cv}.contacts.size %]style='display:none'[% END %]>
@@ -55,11 +56,25 @@
                              title_key='displayable_id',
                              value_key='shipto_id',
                              with_empty=0,
-                             style='width: 300px') %]
+                             class='wi-lightwide') %]
           </span>
           [% L.button_tag("kivi.Order.edit_custom_shipto()", LxERP.t8("Custom shipto")) %]
         </td>
       </tr>
+      [%- IF SELF.cv == "customer" %]
+      <tr id="billing_address_row"[% IF !SELF.order.customer.additional_billing_addresses.as_list.size %]style="display:none"[% END %]>
+        <th>[% 'Custom Billing Address' | $T8 %]</th>
+        <td>
+          [% L.select_tag('order.billing_address_id',
+                           SELF.order.customer.additional_billing_addresses,
+                           default=SELF.order.billing_address_id,
+                           title_key='displayable_id',
+                           value_key='id',
+                           with_empty=1,
+                           class='wi-lightwide') %]
+        </td>
+      </tr>
+      [%- END %]
       [% PROCESS order/tabs/_business_info_row.html SELF=SELF %]
       <tr>
         <th>[% 'Steuersatz' | $T8 %]</th>
@@ -68,12 +83,12 @@
       [% SET currency_id = SELF.order.currency_id || INSTANCE_CONF.get_currency_id  # use default currency for new order %]
       <tr id="currency_settings">
         <th>[% 'Currency' | $T8 %]</th>
-        <td>[% L.select_tag('order.currency_id', SELF.all_currencies, default=currency_id, value_key='id', title_key='name') %]</td>
+        <td>[% L.select_tag('order.currency_id', SELF.all_currencies, default=currency_id, value_key='id', title_key='name', class='wi-lightwide') %]</td>
       </tr>
       <tr id="exchangerate_settings" [%- IF SELF.order.currency_id==INSTANCE_CONF.get_currency_id %]style='display:none'[%- END %]>
         <th>[% 'Exchangerate' | $T8 %]</th>
         <td> 1 <span id="currency_name">[% SELF.order.currency.name %]</span> =
-          [% L.input_tag('order.exchangerate_as_null_number', SELF.order.exchangerate_as_null_number, size="15", class="reformat_number_as_null_number numeric") %]
+          [% L.input_tag('order.exchangerate_as_null_number', SELF.order.exchangerate_as_null_number, class="reformat_number_as_null_number numeric wi-lightwide") %]
           [% INSTANCE_CONF.default_currency %]
           [% L.hidden_tag('old_currency_id', currency_id) %]
           [% L.hidden_tag('old_exchangerate', SELF.order.exchangerate_as_null_number) %]
@@ -83,7 +98,7 @@
         <tr>
           <th>[% 'Language' | $T8 %]</th>
           <td>
-            [% L.select_tag('order.language_id', SELF.all_languages, default=SELF.order.language_id, title_key='description', with_empty=1, style='width:300px') %]
+            [% L.select_tag('order.language_id', SELF.all_languages, default=SELF.order.language_id, title_key='description', with_empty=1, class='wi-lightwide') %]
           </td>
         </tr>
       [% END %]
@@ -205,6 +220,7 @@
       <td>[% L.select_tag('order.employee_id',
         SELF.all_employees,
         default=(SELF.order.employee_id ? SELF.order.employee_id : SELF.current_employee_id),
+        class='wi-normal',
         title_key='safe_name') %]</td>
     </tr>
     [% IF SELF.cv == 'customer' %]
@@ -213,13 +229,23 @@
         <td>[% L.select_tag('order.salesman_id',
           SELF.all_salesmen,
           default=(SELF.order.salesman_id ? SELF.order.salesman_id : SELF.current_employee_id),
+          class='wi-normal',
           title_key='safe_name') %]</td>
       </tr>
     [% END %]
     [% IF (SELF.type == "sales_order" || SELF.type == "purchase_order") %]
       <tr>
         <th>[% 'Order Number' | $T8 %]</th>
-        <td>[% L.input_tag('order.ordnumber', SELF.order.ordnumber, size = 11, onchange='kivi.Order.set_number_in_title(this)', class='wi-small numeric') %]</td>
+        <td>
+          [%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
+            [% L.input_tag('order.ordnumber', SELF.order.ordnumber, onchange='kivi.Order.set_number_in_title(this)', class='wi-normal') %]
+          [%- ELSIF SELF.order.id %]
+            [% HTML.escape(SELF.order.ordnumber) %]
+            [% L.hidden_tag("order.ordnumber", SELF.order.ordnumber) %]
+          [% ELSE %]
+            [% LxERP.t8("will be set upon saving") %]
+          [%- END %]
+        </td>
       </tr>
     [% END %]
     [% IF (SELF.type == "sales_order" || SELF.type == "sales_quotation") %]
@@ -229,16 +255,23 @@
     [% END %]
     <tr>
       <th>[% quo_nr_txt | $T8 %]</th>
-      [% IF (SELF.type == "sales_order" || SELF.type == "purchase_order") %]
-        <td>[% L.input_tag('order.quonumber', SELF.order.quonumber, size=5, class='wi-small') %]</td>
-      [% ELSE %]
-        <td>[% L.input_tag('order.quonumber', SELF.order.quonumber, class='wi-small numeric', size=5, class='wi-small', onchange='kivi.Order.set_number_in_title(this)') %]</td>
-      [% END %]
+      <td>
+        [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
+          [% L.input_tag('order.quonumber', SELF.order.quonumber, class='wi-normal') %]
+        [%- ELSIF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
+          [% L.input_tag('order.quonumber', SELF.order.quonumber, onchange='kivi.Order.set_number_in_title(this)', class='wi-normal') %]
+        [%- ELSIF SELF.order.id %]
+          [% HTML.escape(SELF.order.quonumber) %]
+          [% L.hidden_tag("order.quonumber", SELF.order.quonumber) %]
+        [% ELSE %]
+          [% LxERP.t8("will be set upon saving") %]
+        [%- END %]
+      </td>
     </tr>
     [% IF (SELF.type == "sales_order" || SELF.type == "purchase_order") %]
       <tr>
         <th>[% 'Customer Order Number' | $T8 %]</th>
-        <td>[% L.input_tag('order.cusordnumber', SELF.order.cusordnumber, size=5, class='wi-small numeric') %]</td>
+        <td>[% L.input_tag('order.cusordnumber', SELF.order.cusordnumber, class='wi-normal') %]</td>
       </tr>
     [% END %]
     [% IF (SELF.type == "sales_order" || SELF.type == "purchase_order") %]
