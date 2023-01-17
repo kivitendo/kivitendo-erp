@@ -141,6 +141,7 @@
       <th>[% 'To Date' | $T8 %]</th>
       <td> <span class="wi-date">[% L.date_tag('todate') %]</span> </td>
     </tr>
+  [% CUSTOM_VARIABLES_FILTER_CODE %]
   </tbody>
 </table>
 
@@ -218,7 +219,7 @@
     <label for="l_employee">[% 'Employee' | $T8 %]</label>
   </div>
   <div>
-    <input name="l_oe_id" id="l_oe_id" type="checkbox" value="Y">
+    <input name="l_oe_id" id="l_oe_id" type="checkbox" value="Y" checked>
     <label for="l_oe_id">[% 'Document' | $T8 %]</label>
   </div>
   <div>
@@ -226,8 +227,17 @@
     <label for="l_projectnumber">[% 'Project Number' | $T8 %]</label>
   </div>
 </div>
+[% IF CUSTOM_VARIABLES.size %]
+  <div class="col list">
+    <h4>[% 'Custom Variables' | $T8 %]</h4>
+    <div>
+       [% CUSTOM_VARIABLES_INCLUSION_CODE %]
+      </div>
+  </div>
+[% END %]
 
-</div><!-- /.form-addition -->
+
+<!-- /.form-addition -->
 
 
 </form>

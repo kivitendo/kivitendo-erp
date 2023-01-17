@@ -110,6 +110,10 @@
       </td>
     </tr>
     <tr>
+      <th nowrap>[% 'Partsgroup' | $T8 %]:</th>
+      <td>[% L.select_tag('partsgroup_id', PARTSGROUPS, value_key = 'id', title_key = 'partsgroup', with_empty = 1, class='wi-normal') %]</td>
+     </tr>
+    <tr>
       <th>[% 'Charge Number' | $T8 %]:</th>
       <td><input type="text" name="chargenumber" class="wi-normal">
       </td>
@@ -154,6 +158,12 @@
         [% L.yes_no_tag("allrows", 1) %]
       </td>
     </tr>
+    <tr>
+      <th>[% "Results per page" | $T8 %]:</th>
+      <td>[% L.input_number_tag("per_page", 20, size=4) %]</td>
+    </tr>
+    [% CUSTOM_VARIABLES_FILTER_CODE %]
+
   </tbody>
 </table>
 
@@ -213,6 +223,11 @@
     <input name="l_list_price" id="l_list_price" type="checkbox" value="Y">
     <label for="l_list_price">[% 'List Price' | $T8 %]</label>
   </div>
+  <div class="list col">
+    <h4>[% 'Custom Variables' | $T8 %]</h4>
+   [% CUSTOM_VARIABLES_INCLUSION_CODE %]
+  </div>
+
 </div>
 <!-- /.form-addition -->
 
