@@ -43,12 +43,12 @@
   </tr>
 
   <tr>
-   <th valign="top" align="left">[% LxERP.t8("Number of deliveryorders created:") %]</th>
+   <th valign="top" align="left">[% LxERP.t8("Number of delivery orders created:") %]</th>
    <td valign="top">[% IF data.status > 0 %][% HTML.escape(data.num_created) %] / [% HTML.escape(data.record_ids.size) %][% ELSE %]–[% END %]</td>
   </tr>
 
   <tr>
-   <th valign="top" align="left">[% LxERP.t8("Number of deliveryorders printed:") %]</th>
+   <th valign="top" align="left">[% LxERP.t8("Number of delivery orders printed:") %]</th>
    <td valign="top">[% IF data.status > 1 %][% HTML.escape(data.num_printed) %] / [% HTML.escape(data.record_ids.size) %][% ELSE %]–[% END %]</td>
   </tr>
 
