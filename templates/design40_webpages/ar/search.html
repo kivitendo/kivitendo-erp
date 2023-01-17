@@ -6,6 +6,7 @@
 
 <form method=post name="search" id="form" action=[% script %]>
 [% L.hidden_tag("action", nextsub) %]
+[% L.hidden_tag("sort", "transdate") %]
 
 <div class="wrapper">
 
@@ -119,7 +120,6 @@
         [% END %]
       </tbody>
     </table>
-    <input type=hidden name=sort value=transdate>
   </div><!-- /.col -->
 
 </div><!-- /.wrapper -->
