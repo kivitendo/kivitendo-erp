@@ -32,9 +32,12 @@
                           class="recalc reformat_number numeric") %]
       [% END %]
       <b>[% 'On Hand' | $T8 %]</b>
-        <span class="numeric[% IF ITEM.part.onhand < ITEM.part.rop %] plus0[% END %]">
-          [% ITEM.part.onhand_as_number %] [% ITEM.part.unit %]
+        <span class="numeric[%- IF ITEM.part.onhand < ITEM.part.rop -%] plus0[%- END -%]">
+          [%- ITEM.part.onhand_as_number -%]&nbsp;[%- ITEM.part.unit -%]
         </span>
+      <b>[% 'Optional' | $T8 %]</b>&nbsp;
+        [%- L.yes_no_tag("order.orderitems[].optional", ITEM.optional
+                          class="recalc") %]&nbsp;
     </td>
   </tr>
   <tr>
