@@ -1,16 +1,27 @@
-[%- USE LxERP -%]
-[%- USE L -%]
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+
 <div class="wrapper">
-<table class="tbl-horizontal">
-  <tbody>
-    <tr>
-      <th> [% LxERP.t8("Description") %] </th>
-      <td> [%- L.input_tag("object.pricegroup", SELF.object.pricegroup, "data-validate"="required", "data-title"=LxERP.t8("Description")) %] </td>
-    </tr>
-    <tr>
-      <th> [% LxERP.t8("Obsolete") %] </th>
-      <td> [% L.checkbox_tag("object.obsolete", checked=SELF.object.obsolete, for_submit=1) %] </td>
-    </tr>
-  </tbody>
-</table>
+  <table class="tbl-horizontal">
+    <caption>[% 'Pricegroup' | $T8 %]</caption>
+    <colgroup><col class="wi-mediumsmall"><col class="wi-wide"></colgroup>
+    <tbody>
+      <tr>
+        <th> [% LxERP.t8("Description") %] </th>
+        <td> [%- L.input_tag("object.pricegroup", SELF.object.pricegroup, "data-validate"="required", "data-title"=LxERP.t8("Description"), class="wi-wider") %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Obsolete") %] </th>
+        <td> [% L.checkbox_tag("object.obsolete", checked=SELF.object.obsolete, for_submit=1) %] </td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8("Delete for Customers") %]</th>
+        <td>
+          [% L.checkbox_tag("SELF.remove_customer_pricegroup", checked=SELF.remove_customer_pricegroup, for_submit=1) %]
+          [% LxERP.t8("This will also remove this pricegroup for all customers.") %]
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
