@@ -198,7 +198,7 @@
 
 <table class="tbl-horizontal col">
   <caption>[% 'Handling, Numbers & Dates' | $T8 %]</caption>
-  <colgroup> <col class="wi-mediumsmall"><col class="wi-lightwide"> </colgroup>
+  <colgroup> <col class="wi-mediumsmall"><col class="wi-normal"> </colgroup>
   <tbody>
 
     [%- IF SELF.reclamation.id %]
@@ -207,7 +207,7 @@
         <label for="reclamation.delivered">[% 'Delivery Order(s) for full qty created' | $T8 %]</label>
       </th>
       <td>
-          [% L.yes_no_tag('reclamation.delivered', SELF.reclamation.delivered, class="wi-small") %]
+          [% L.yes_no_tag('reclamation.delivered', SELF.reclamation.delivered, class="wi-normal") %]
       </td>
     </tr>
     <tr>
@@ -215,7 +215,7 @@
         <label for="reclamation.closed">[% 'Closed' | $T8 %]</label>
       </th>
       <td>
-        [% L.yes_no_tag('reclamation.closed', SELF.reclamation.closed, class="wi-small") %]
+        [% L.yes_no_tag('reclamation.closed', SELF.reclamation.closed, class="wi-normal") %]
       </td>
     </tr>
     [%- END %]
@@ -226,7 +226,7 @@
         SELF.all_employees,
         default=(SELF.reclamation.employee_id ? SELF.reclamation.employee_id : SELF.current_employee_id),
         title_key='safe_name',
-        class='wi-small',
+        class='wi-normal',
         ) %]</td>
     </tr>
 
@@ -237,19 +237,19 @@
         SELF.all_salesmen,
         default=(SELF.reclamation.salesman_id ? SELF.reclamation.salesman_id : SELF.current_employee_id),
         title_key='safe_name',
-        class='wi-small',
+        class='wi-normal',
         ) %]</td>
     </tr>
     [% END %]
 
     <tr>
       <th>[% 'Reclamation Number' | $T8 %]</th>
-      <td>[% L.input_tag('reclamation.record_number', SELF.reclamation.record_number, onchange='kivi.Reclamation.set_number_in_title(this)', class='wi-small') %]</td>
+      <td>[% L.input_tag('reclamation.record_number', SELF.reclamation.record_number, onchange='kivi.Reclamation.set_number_in_title(this)', class='wi-normal') %]</td>
     </tr>
 
     <tr>
       <th>[% 'Customer Record Number' | $T8 %]</th>
-      <td>[% L.input_tag('reclamation.cv_record_number', SELF.reclamation.cv_record_number, class='wi-small') %]</td>
+      <td>[% L.input_tag('reclamation.cv_record_number', SELF.reclamation.cv_record_number, class='wi-normal') %]</td>
     </tr>
 
     <tr>
@@ -269,7 +269,7 @@
 
     <tr>
       <th>[% 'Insert Date' | $T8 %]</th>
-      <td><span class="data wi-small">[% SELF.reclamation.itime_as_date %]</span></td>
+      <td><span class="data wi-normal">[% SELF.reclamation.itime_as_date %]</span></td>
     </tr>
 
   </tbody>
