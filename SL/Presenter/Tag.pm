@@ -862,12 +862,12 @@ The following are used directly from each level:
 =over 4
 
 =item I<name> is deleted from level attributes.
-The I<name> is used for the for the name of the 'select' tag.
+The I<name> is used for the name of the 'select' tag.
 
 =item I<object_key> is deleted from level attriutes.
 The I<object_key> is used to get the level objects for the current level
 from the object of the previous level, this is intended for the use of RSDB object.
-Each level attributes musst contain I<object_key>, except level_1.
+Each level attributes must contain I<object_key>, except level_1.
 
 =item I<id> is overridden.
 The I<id> is set to a specific value for use in JavaScript.
@@ -889,8 +889,8 @@ objects must be a hash reference or a blessed reference.
 
 =back
 
-A I<surround_tag> can be specified, which generates a C<html_tag> with the
-corrosponding tag around evey C<select_tag>.
+A I<surround_tag> can be specified, which generates an C<html_tag> with the
+corresponding tag around every C<select_tag>.
 
 Example:
 
