@@ -14,13 +14,13 @@
 [% L.hidden_tag('accounttype', accounttype) %]
 
 <table class="tbl-horizontal">
-  <colgroup> <col style="width:1.4em;"><col class="wi-small"><col class="wi-lightwide"> </colgroup> 
+  <colgroup> <col style="width:1.4em;"><col class="wi-small"><col class="wi-lightwide"> </colgroup>
   <caption>[% 'Periods' | $T8 %]</caption>
   <tbody>
     <tr>
       <th colspan="3">
         <h4>
-          [% L.radio_button_tag('reporttype', value='custom', id='reporttype_custom') %] 
+          [% L.radio_button_tag('reporttype', value='custom', id='reporttype_custom') %]
           <label for="reporttype_custom">[% LxERP.t8('Customized Report') %]</label>
         </h4>
       </th>
@@ -69,7 +69,7 @@
     </tr>
     <tr>
       <th colspan="3">
-        <h4>[% L.radio_button_tag('reporttype', value='free',id='reporttype_free') %] 
+        <h4>[% L.radio_button_tag('reporttype', value='free',id='reporttype_free') %]
         <label for="reporttype_free">[% LxERP.t8('Free report period') %]</label></h4>
       </th>
     </tr>
