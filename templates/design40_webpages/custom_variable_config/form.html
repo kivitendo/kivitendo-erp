@@ -101,6 +101,13 @@
           %]
       </td>
     </tr>
+    <tr data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
+      <td>[% 'Display in basic data tab' | $T8 %]</td>
+      <td class="horizontal">
+        [% L.radio_button_tag('config.first_tab', value='1', id='config.first_tab', label=LxERP.t8('Yes'), checked=(SELF.config.first_tab ?  1 : '')) %]
+        [% L.radio_button_tag('config.first_tab', value='0', id='config.first_tab', label=LxERP.t8('No'),  checked=(SELF.config.first_tab ? '' :  1)) %]
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -115,7 +122,7 @@
   <li><sup>(3)</sup> [% 'For type "customer" the perl module JSON is required. Please check this on system level: $ ./scripts/installation_check.pl' | $T8 %]</li>
   <li><sup>(4)</sup> [% 'The default value depends on the variable type:' | $T8 %]
     <ul>
-      <li>[% 'Text, text field and number variables: The default value will be used as-is.' | $T8 %]</li>
+      <li>[% 'Text, text field, HTML field and number variables: The default value will be used as-is.' | $T8 %]</li>
       <li>[% 'Boolean variables: If the default value is non-empty then the checkbox will be checked by default and unchecked otherwise.' | $T8 %]</li>
       <li>[% 'Date and timestamp variables: If the default value equals \'NOW\' then the current date/current timestamp will be used. Otherwise the default value is copied as-is.' | $T8 %]</li>
     </ul>
@@ -123,7 +130,8 @@
   <li><sup>(5)</sup> [% 'The available options depend on the varibale type:' | $T8 %]
     <ul>
       <li>[% 'Text variables: \'MAXLENGTH=n\' sets the maximum entry length to \'n\'.' | $T8 %]</li>
-      <li>[% 'Text field variables: \'WIDTH=w HEIGHT=h\' sets the width and height of the text field. They default to 30 and 5 respectively.' | $T8 %]</li>
+      <li>[% 'Text field and HTML field variables: \'WIDTH=w HEIGHT=h\' sets the width and height
+        of the text field. They default to 225 and 90 respectively.' | $T8 %]</li>
       <li>[% 'Number variables: \'PRECISION=n\' forces numbers to be shown with exactly n decimal places.' | $T8 %]</li>
       <li>[% 'Selection fields: The option field must contain the available options for the selection. Options are separated by \'##\', for example \'Early##Normal##Late\'.' | $T8 %]</li>
     </ul>
