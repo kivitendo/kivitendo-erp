@@ -1,0 +1,15 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <colgroup><col class="wi-mediumsmall"><col class="wi-wide"></colgroup>
+    <tr>
+      <th>[% LxERP.t8("Article") %]</th>
+      <td>
+        [% P.part.picker('object.part_id', SELF.object.part, convertible_unit='min', "data-validate"="required", "data-title"=LxERP.t8("Article"), class="wi-wider") %]
+      </td>
+    </tr>
+  </table>
+</div>
