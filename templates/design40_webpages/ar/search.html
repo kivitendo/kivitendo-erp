@@ -1,7 +1,6 @@
 [% USE T8 %]
 [% USE L %]
 [% USE P %]
-[% SET style="width: 250px" %]
 <h1>[% title %]</h1>
 
 <form method=post name="search" id="form" action=[% script %]>
@@ -12,49 +11,50 @@
 
   <div class="col">
     <table class="tbl-horizontal">
+      <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
       <caption>[% 'Customer' | $T8 %]</caption>
       <tbody>
         <tr>
           <th>[% 'Customer' | $T8 %]</th>
-          <td>[% L.input_tag("customer", customer, style=style, class="initial_focus") %]</td>
+          <td>[% L.input_tag("customer", customer, class="initial_focus") %]</td>
         </tr>
         <tr>
           <th>[% 'Contact Person' | $T8 %]</th>
-          <td>[% L.input_tag("cp_name", '', style=style) %]</td>
+          <td>[% L.input_tag("cp_name", '') %]</td>
         </tr>
         <tr>
           <th>[% 'Department' | $T8 %]</th>
-          <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, title_key = 'description', with_empty = 1, style=style) %]</td>
+          <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, title_key = 'description', with_empty = 1) %]</td>
         </tr>
         <tr>
           <th class="caption" colspan="2">[% 'Employee' | $T8 %]</th>
         </tr>
         <tr>
           <th>[% 'Employee' | $T8 %]</th>
-          <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1, style=style) %]</td>
+          <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1) %]</td>
         </tr>
         <tr>
           <th>[% 'Salesman' | $T8 %]</th>
-          <td>[% L.select_tag('salesman_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1, style=style) %]</td>
+          <td>[% L.select_tag('salesman_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1) %]</td>
         </tr>
         <tr>
           <th class="caption" colspan="2">[% 'Miscellaneous' | $T8 %]</th>
         </tr>
         <tr>
           <th>[% 'Transaction description' | $T8 %]</th>
-          <td>[% L.input_tag("transaction_description", "", style=style) %]</td>
+          <td>[% L.input_tag("transaction_description", "") %]</td>
         </tr>
         <tr>
           <th>[% 'Notes' | $T8 %]</th>
-          <td>[% L.input_tag("notes", "", style=style) %]</td>
+          <td>[% L.input_tag("notes", "") %]</td>
         </tr>
         <tr>
           <th>[% 'Part Description' | $T8 %]</th>
-          <td>[% L.input_tag("parts_description", "", style=style) %]</td>
+          <td>[% L.input_tag("parts_description", "") %]</td>
         </tr>
         <tr>
           <th>[% 'Part Number' | $T8 %]</th>
-          <td>[% L.input_tag("parts_partnumber", "", style=style) %]</td>
+          <td>[% L.input_tag("parts_partnumber", "") %]</td>
         </tr>
       </tbody>
     </table>
@@ -66,24 +66,24 @@
       <tbody>
         <tr>
           <th>[% 'Invoice Number' | $T8 %]</th>
-          <td>[% L.input_tag("invnumber", "", style=style) %]</td>
+          <td>[% L.input_tag("invnumber", "") %]</td>
         </tr>
         <tr>
           <th>[% 'Order Number' | $T8 %]</th>
-          <td>[% L.input_tag("ordnumber", "", style=style) %]</td>
+          <td>[% L.input_tag("ordnumber", "") %]</td>
         </tr>
         <tr>
           <th>[% 'Customer Order Number' | $T8 %]</th>
-          <td>[% L.input_tag("cusordnumber", "", style=style) %]</td>
+          <td>[% L.input_tag("cusordnumber", "") %]</td>
         </tr>
         <tr>
           <th>[% 'Project Number' | $T8 %]</th>
-          <td>[% P.project.picker("project_id", project_id, active="both", valid="both", style=style) %]</td>
+          <td>[% P.project.picker("project_id", project_id, active="both", valid="both") %]</td>
         </tr>
         [% IF ALL_BUSINESS_TYPES.as_list.size > 0 %]
           <tr>
             <th>[% 'Customer type' | $T8 %]</th>
-            <td>[% L.select_tag("business_id", ALL_BUSINESS_TYPES, with_empty=1, title_key="description", style=style) %]</td>
+            <td>[% L.select_tag("business_id", ALL_BUSINESS_TYPES, with_empty=1, title_key="description") %]</td>
           </tr>
         [% END %]
         <tr>
@@ -114,7 +114,7 @@
         </tr>
         <tr>
          <th>[% 'Steuersatz' | $T8 %]</th>
-         <td>[% L.select_tag('taxzone_id', ALL_TAXZONES, with_empty=1, title_key='description', style=style) %]</td>
+         <td>[% L.select_tag('taxzone_id', ALL_TAXZONES, with_empty=1, title_key='description') %]</td>
         </tr>
         [% IF CT_CUSTOM_VARIABLES.size %]
           <tr>
