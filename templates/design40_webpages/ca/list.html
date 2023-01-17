@@ -4,7 +4,8 @@
 [% USE LxERP %]
 <h1>[% title | html %]</h1>
 
-<form method=post action="[% script %]">
+<form method=post action="[% script | html %]">
+
 
 <div class="wrapper">
 [% L.hidden_tag('accno', accno) %]
