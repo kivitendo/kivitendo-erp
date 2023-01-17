@@ -887,6 +887,8 @@ ignored if I<default> is set.
 level are taken from the previous level via the <object_key>. On each level the
 objects must be a hash reference or a blessed reference.
 
+=back
+
 A I<surround_tag> can be specified, which generates a C<html_tag> with the
 corrosponding tag around evey C<select_tag>.
 
