@@ -8,10 +8,22 @@
 <h1>[% title %] &nbsp; <small>[% 'Number of data sets' | $T8 %]: [% SHOPORDERS.size %]</small></h1>
 
 [% PROCESS 'shop_order/_filter.html' filter=SELF.models.filtered.laundered %]
-<!-- Bitte in Zukunft schoener mit Einzuegen und Zeilenumbruechen versehen, sodass der duemmste Designer den Code bearbeiten und HTML-Fehler ausmerzen kann. Danke! -->
 
-<table id="shoplist" class="tbl-list wi-moderate">
+<div class="wrapper">
+<table id="shoplist" class="tbl-list wi-moderate ">
   <caption>[% 'Orders in Webshop' | $T8 %]</caption>
+  <colgroup>
+    <col>
+    <col>
+    <col>
+    <col>
+    <col>
+    <col class="wi-wide">
+    <col>
+    <col class="wi-wider">
+    <col>
+    <col>
+  </colgroup>
   <thead class="links-condensed">
    <tr>
     <th>[% 'Shop' | $T8 %]</th>
@@ -228,7 +240,7 @@
   [% END %]
   </tbody>
 </table>
-
+</div> <!-- ende wrapper -->
 <div id="status_mass_transfer" style="display: none;">
   [% INCLUDE 'shop_order/_transfer_status.html' %]
 </div>
