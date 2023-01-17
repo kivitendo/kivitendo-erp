@@ -103,6 +103,14 @@
           <th>[% 'Due Date' | $T8 %]</th>
           <td> [% L.date_tag('duedatefrom') %] [% 'Bis' | $T8 %] [% L.date_tag('duedateto') %] </td>
         </tr>
+        <tr>
+        <th>[% 'Date Paid' | $T8 %]</th>
+         <td>
+          [% L.date_tag('datepaidfrom') %]
+          [% 'Bis' | $T8 %]
+          [% L.date_tag('datepaidto') %]
+         </td>
+        </tr>
         [% IF CT_CUSTOM_VARIABLES.size %]
           <tr>
             <th class="caption" colspan="2">[% 'Custom variables for module' | $T8 %]: [%'Customers and vendors' | $T8 %]</th>
