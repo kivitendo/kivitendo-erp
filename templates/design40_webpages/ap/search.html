@@ -5,6 +5,8 @@
 <h1>[% title %]</h1>
 
 <form method="post" name="search" action="ap.pl" id="form">
+ [% L.hidden_tag("sort", "transdate") %]
+
 
 <div class="wrapper">
 
@@ -84,8 +86,6 @@
     </tr>
   </tbody>
 </table>
-
-<input type="hidden" name="sort" value="transdate">
 
 </div><!-- /.wrapper -->
 <div class="form-addition control-panel">
