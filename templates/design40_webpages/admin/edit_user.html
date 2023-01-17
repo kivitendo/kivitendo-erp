@@ -81,9 +81,9 @@
   </tr>
   <tr>
     <th>[% LxERP.t8("Mandatory Departments") %]</th>
-    <td>
-      [% L.radio_button_tag('user.config_values.mandatory_departments', value='0', id='user.config_values.mandatory_departments_0', label=LxERP.t8('No'), checked=!props.mandatory_departments) %] <br>
-      [% L.radio_button_tag('user.config_values.mandatory_departments', value='1', id='user.config_values.mandatory_departments_1', label=LxERP.t8('Yes'), checked= props.mandatory_departments) %] </td>
+    <td class="clear">
+      [% L.radio_button_tag('user.config_values.mandatory_departments', value='0', id='user.config_values.mandatory_departments_0', label=LxERP.t8('No'), checked=!props.mandatory_departments) %]
+      [% L.radio_button_tag('user.config_values.mandatory_departments', value='1', id='user.config_values.mandatory_departments_1', label=LxERP.t8('Yes'), checked= props.mandatory_departments)%] </td>
   </tr>
   </tbody>
 </table>
