@@ -17,6 +17,7 @@
             <td>
               [% P.customer_vendor.picker("reclamation.${SELF.cv}" _ '_id', SELF.reclamation.$cv_id, type=SELF.cv, style='width: 300px') %]
               [% P.button_tag("kivi.Reclamation.show_cv_details_dialog()", LxERP.t8("Details (one letter abbreviation)")) %]
+              [% P.link_tag("javascript:void(0);", LxERP.t8('Edit'), title=LxERP.t8('Open in new window'), onclick="kivi.Reclamation.open_customervendor_tab('#reclamation_${SELF.cv}_id', '${SELF.cv}')") %]
             </td>
           </tr>
 

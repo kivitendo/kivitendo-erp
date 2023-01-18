@@ -795,6 +795,11 @@ namespace('kivi.Reclamation', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.open_customervendor_tab = function(id_selector, db) {
+    if (!ns.check_cv()) return;
+    window.open("controller.pl?action=CustomerVendor/edit&db=" + encodeURIComponent(db) + "&id=" + encodeURIComponent($(id_selector).val()), '_blank');
+  };
+
 });
 
 $(function() {

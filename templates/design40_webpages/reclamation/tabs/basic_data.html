@@ -27,6 +27,7 @@
                       title= LxERP.t8('Show details'),
                       onclick="kivi.Reclamation.show_cv_details_dialog();",
                       class="button-image info") %]
+          [% P.link_tag("javascript:void(0);", LxERP.t8('Edit'), title=LxERP.t8('Open in new window'), onclick="kivi.Reclamation.open_customervendor_tab('#reclamation_${SELF.cv}_id', '${SELF.cv}')") %]
         </td>
       </tr>
 
