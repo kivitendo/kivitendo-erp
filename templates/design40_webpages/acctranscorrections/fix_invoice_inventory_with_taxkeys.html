@@ -1,4 +1,4 @@
-[% USE T8 %]
+[%- USE T8 %]
 [% USE HTML %]
 
 <h1>[% title %]</h1>
@@ -15,3 +15,25 @@
     <input type="submit" value="[% 'Re-run analysis' | $T8 %]">
   </form>
 </p>
+||||||| constructed merge base
+=======
+[%- USE T8 %]
+[% USE HTML %]
+<h1>[% title %]</h1>
+<div class="wrapper">
+  <p>
+  [% 'The wrong taxkeys for inventory transactions for sales and purchase invoices have been fixed.' | $T8 %]
+
+  [% 'Please re-run the analysis for broken general ledger entries by clicking this button:' | $T8 %]
+  </p>
+
+  <p>
+  <form action="acctranscorrections.pl" method="post">
+
+    <input type="hidden" name="action" value="redirect">
+    <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+    <input type="submit" value="[% 'Re-run analysis' | $T8 %]">
+  </form>
+  </p>
+</div>
+>>>>>>> Design 4.0: Bücherkontrolle angepasst
