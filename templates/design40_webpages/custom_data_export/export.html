@@ -1,7 +1,7 @@
 [% USE HTML %][% USE L %][% USE LxERP %]
 
 <h1>[% FORM.title %]</h1>
-<div class="wrapper">
+<div class="wrapper ">
   [%- INCLUDE 'common/flash.html' %]
 
   <form method="post" action="controller.pl" id="form">
@@ -14,18 +14,16 @@
     </p>
 
     [% ELSE %]
-
-    <table class="tbl-horizontal wi-moderate">
-      <thead>
-        <tr>
-          <th>[% LxERP.t8("Variable Name") %]</th>
-          <th>[% LxERP.t8("Type") %]</th>
-          <th>[% LxERP.t8("Value") %]</th>
-          <th>[% LxERP.t8("Description") %]</th>
-        </tr>
-      </thead>
-
+    <div class="input-panel control-panel">
+    <table class="tbl-plain wi-moderate">
       <tbody>
+        <tr>
+          <td>[% LxERP.t8("Variable Name") %]</td>
+          <td>[% LxERP.t8("Type") %]</td>
+          <td>[% LxERP.t8("Value") %]</td>
+          <td>[% LxERP.t8("Description") %]</td>
+        </tr>
+
         [% FOREACH parameter = SELF.parameters %]
         <tr>
           <td>
@@ -51,6 +49,7 @@
         </tr>
         [% END %]
       </tbody>
+</div>
       [% END %]
   </form>
 </div>
