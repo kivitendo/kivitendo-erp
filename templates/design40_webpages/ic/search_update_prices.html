@@ -47,7 +47,7 @@
   <tbody>
     <tr>
      <th>[% 'Make' | $T8 %]</th>
-     <td>[% L.input_tag('filter.make', FORM.filter.make, size=20) %]</td>
+     <td>[% P.customer_vendor.picker('filter.make', FORM.filter.make, type='vendor', size=20) %]</td>
     </tr>
     <tr>
      <th>[% 'Model' | $T8 %]</th>
