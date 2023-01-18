@@ -2623,21 +2623,11 @@ sub create_links {
     $ref = selectfirst_hashref_query($self, $dbh, $query);
     map { $self->{$_} = $ref->{$_} } keys %$ref;
 
-    if ($self->{"$self->{vc}_id"}) {
-
-      # only setup currency
-      ($self->{currency}) = $self->{defaultcurrency} if !$self->{currency};
-
-    } else {
-
-      $self->lastname_used($dbh, $myconfig, $table, $module);
-
-      # get exchangerate for currency
-      $self->{exchangerate} =
-        $self->check_exchangerate($myconfig, $self->{currency}, $self->{transdate}, $fld);
-
-    }
-
+    # failsafe, set currency if caller has not yet assigned one
+    $self->lastname_used($dbh, $myconfig, $table, $module) unless ($self->{"$self->{vc}_id"});
+    $self->{currency} = $self->{defaultcurrency}           unless $self->{currency};
+    $self->{exchangerate} =
+      $self->check_exchangerate($myconfig, $self->{currency}, $self->{transdate}, $fld);
   }
 
   $main::lxdebug->leave_sub();
