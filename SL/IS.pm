@@ -50,6 +50,7 @@ use SL::DBUtils;
 use SL::DO;
 use SL::GenericTranslations;
 use SL::HTML::Restrict;
+use SL::Locale::String qw(t8);
 use SL::MoreCommon;
 use SL::IC;
 use SL::IO;
@@ -65,7 +66,6 @@ use SL::DB;
 use SL::Presenter::Part qw(type_abbreviation classification_abbreviation);
 use SL::Helper::QrBillFunctions qw(get_qrbill_account assemble_ref_number);
 use SL::Helper::ISO3166;
-
 use strict;
 use constant PCLASS_OK             =>   0;
 use constant PCLASS_NOTFORSALE     =>   1;
@@ -2503,7 +2503,7 @@ sub get_customer {
        LEFT JOIN currencies cu ON (c.currency_id=cu.id)
        WHERE 1 = 1 $where|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
-
+  die t8("Cannot find a single customer. Maybe there is no customer yet?") unless $ref;
   delete $ref->{salesman_id} if !$ref->{salesman_id};
   delete $ref->{payment_id}  if !$ref->{payment_id};
 

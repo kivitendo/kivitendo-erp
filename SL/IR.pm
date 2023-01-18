@@ -46,6 +46,7 @@ use SL::DO;
 use SL::GenericTranslations;
 use SL::HTML::Restrict;
 use SL::IO;
+use SL::Locale::String qw(t8);
 use SL::MoreCommon;
 use SL::DB::Default;
 use SL::DB::TaxZone;
@@ -1166,6 +1167,8 @@ sub get_vendor {
        LEFT JOIN currencies cu    ON (v.currency_id = cu.id)
        WHERE 1=1 $where|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
+  die t8("Cannot find a single vendor. Maybe there is no vendor yet?") unless $ref;
+
   map { $params->{$_} = $ref->{$_} } keys %$ref;
 
   # use vendor currency
