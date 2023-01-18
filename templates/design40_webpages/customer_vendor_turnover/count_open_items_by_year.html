@@ -3,14 +3,15 @@
 [%- USE L %]
 [%- USE HTML %]
 <div id="dun_statistic">
-  <table width="100%">
-    <tbody>
+  <table class="tbl-list wi-moderate">
+    <thead>
       <tr>
-        <td class="listheading">[% 'Month/Year' | $T8 %]</td>
-        <td class="listheading">[% 'Dunnings' | $T8 %]</td>
-        <td class="listheading">[% 'Highest Dunninglevel' | $T8 %]</td>
+        <th>[% 'Month/Year' | $T8 %]</th>
+        <th>[% 'Dunnings' | $T8 %]</th>
+        <th>[% 'Highest Dunninglevel' | $T8 %]</th>
       </tr>
-
+    </thead>
+    <tbody>
       [%- FOREACH row = SELF.dun_statistic %]
       <tr class="listrow[% loop.count % 2 %]">
         <td>[% row.date_part | html %]</td>

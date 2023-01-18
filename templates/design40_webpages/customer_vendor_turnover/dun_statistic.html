@@ -3,9 +3,9 @@
 [%- USE L %]
 [%- USE HTML %]
 
-<p>
+<div class="wrapper">
 [% L.radio_button_tag('period', value='year', label= LxERP.t8('Year'), onclick='kivi.CustomerVendorTurnover.show_dun_stat("y");') %]
-
+<br>
 [% L.radio_button_tag('period', value='month', label= LxERP.t8('Month'), onclick='kivi.CustomerVendorTurnover.show_dun_stat("m");') %]
-</p>
-<div id="duns"></div>
+</div>
+<div id="duns" class="wrapper"></div>
