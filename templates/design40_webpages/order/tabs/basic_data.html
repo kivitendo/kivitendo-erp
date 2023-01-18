@@ -58,7 +58,9 @@
                              with_empty=0,
                              class='wi-lightwide') %]
           </span>
-          [% L.button_tag("kivi.Order.edit_custom_shipto()", LxERP.t8("Custom shipto")) %]
+          [% L.button_tag("kivi.Order.edit_custom_shipto()",
+                          LxERP.t8("Custom shipto"),
+                          class='button neutral below wi-lightwide') %]
         </td>
       </tr>
       [%- IF SELF.cv == "customer" %]
@@ -307,12 +309,12 @@
       </tr>
       <tr>
         <th>[% 'Expected billing date' | $T8 %]</th>
-        <td>[% L.date_tag('order.expected_billing_date_as_date', SELF.order.expected_billing_date_as_date) %]</td>
+        <td>[% L.date_tag('order.expected_billing_date_as_date', SELF.order.expected_billing_date_as_date, class='wi-date') %]</td>
       </tr>
     [% END %]
     <tr>
       <th>[% 'Insert Date' | $T8 %]</th>
-      <td><span class="data wi-small">[% SELF.order.itime_as_date %]</span></td>
+      <td><span class="data wi-normal">[% SELF.order.itime_as_date %]</span></td>
     </tr>
   </tbody>
 </table>
