@@ -1,7 +1,7 @@
 package SL::Layout::None;
 
 use strict;
-use parent qw(SL::Layout::Base);
+use parent qw(SL::Layout::Design40Switch);
 
 use List::MoreUtils qw(apply);
 
