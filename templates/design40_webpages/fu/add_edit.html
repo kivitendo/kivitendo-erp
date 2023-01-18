@@ -1,6 +1,7 @@
 [% USE T8 %]
 [% USE L %]
 [% USE HTML %]
+[% USE LxERP %]
 <h1>[% title %]</h1>
 
 <script type="text/javascript">
@@ -20,37 +21,76 @@
 <input type="hidden" name="POPUP_MODE" value="[% HTML.escape(POPUP_MODE) %]">
 
 
-<table class="tbl-horizontal">
-<tbody>
-  <tr>
-    <th>[% 'Follow-Up for user' | $T8 %]</th>
-    <td>
-      <select name="created_for_user" class="wi-wider">
-        [% FOREACH row = EMPLOYEES %]
-          <option value="[% HTML.escape(row.id) %]"[% IF created_for_user== row.id %] selected[% END %]>
-            [% IF row.name %][% HTML.escape(row.name) %] ([% HTML.escape(row.login) %])[% ELSE %][% HTML.escape(row.login) %][% END %]
-          </option>
+[% IF done_at -%]
+  <div class="message_ok">
+    [% 'Finished' | $T8 %] [% 'by' | $T8 %] [% HTML.escape(done_by_employee_name) %]
+    [% 'at' | $T8 %] [% HTML.escape(done_at) %]
+  </div>
+[% END %]
+
+<div.wrapper>
+  <table class="tbl-horizontal">
+    <caption>[% 'Follow-Up for user' | $T8 %]</caption>
+    <thead>
+      <tr>
+        <th>[% L.checkbox_tag('checkall_checkboxes', label='', id='ckeckall', checkall="[data-checkall=1]") %]</th>
+        <th>[% LxERP.t8('All users') %]</th>
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH employee = all_employees %]
+        [% SET checked = 0 %]
+        [% FOREACH cfe = created_for_employees %]
+          [% IF cfe.id == employee.id %][% SET checked = 1 %][% LAST %][% END %]
         [% END %]
-      </select>
-    </td>
-  </tr>
-  <tr>
-    <th>[% 'Follow-Up Date' | $T8 %]</th>
-    <td>[% L.date_tag('follow_up_date', follow_up_date) %]</td>
-  </tr>
-  <tr>
-    <th>[% 'Subject' | $T8 %]</th>
-    <td><input type="text" name="subject" value="[% HTML.escape(subject) %]" class="wi-wider"></td>
-  </tr>
-  <tr>
-    <th>[% 'Body' | $T8 %]</th>
-    <td><textarea class="wi-wider" rows="10" name="body">[% HTML.escape(body) %]</textarea>
-    </td>
-  </tr>
-</tbody>
-</table>
+        <tr>
+          <td>[% L.checkbox_tag('created_for_employees[]', value=employee.id, checked=checked, "data-checkall"=1, class="employee_check") %]</td>
+          <td><label for='created_for_employees[]'>[% HTML.escape(employee.safe_name) %]</label><td>
+        </tr>
+        [% END %]
+    </tbody>
+  </table>
+  <table class="tbl-list">
+    <thead>
+      <tr>
+        <th>[% LxERP.t8('Users that are a member in this group') %]<br />([% LxERP.t8('click on a group to add the group\'s users') %])</th>
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH auth_group = all_auth_groups %]
+        <tr onclick="follow_up_do_select(this)" data-ids='[% FOREACH employee = auth_group.get_employees %][% employee.id %][% IF !loop.last %],[% END%][% END%]' class="interactive cursor-pointer">
+          <td><b>←&nbsp;[% auth_group.name %]</b>: [% auth_group.description %]
+          <br />
+          <ul>
+            [% FOREACH employee = auth_group.get_employees %]
+              <li>&nbsp;&nbsp;&nbsp;[% employee.safe_name %]</li>
+            [% END %]
+          </ul>
+          </td>
+        </tr>
+      [% END %]
+    </tbody>
+  </table>
+</div>
 
-
+<div.wrapper>
+  <table class="tbl-horizontal">
+    <tbody>
+      <tr>
+        <th>[% 'Follow-Up Date' | $T8 %]</th>
+        <td>[% L.date_tag('follow_up_date', follow_up_date, class="wi-date") %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Subject' | $T8 %]</th>
+        <td><input type="text" name="subject" value="[% HTML.escape(subject) %]" class="wi-wider"></td>
+      </tr>
+      <tr>
+        <th>[% 'Body' | $T8 %]</th>
+        <td><textarea class="wi-wider" rows="10" name="body">[% HTML.escape(body) %]</textarea></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 [% IF POPUP_MODE %]
 <div class="buttons">
@@ -60,14 +100,18 @@
     <input type="submit" name="action_finish" value="[% 'Finish' | $T8 %]">
     <input type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
   [% END %]
-  <input type="submit" onclick="window.close()" value="[% 'Cancel' | $T8 %]">
+  <input type="submit" onclick="window.close()" value="[% 'Cancel' | $T8 %]" class="neutral">
 </div>
 
-[% IF FOLLOW_UPS.size %]
-
-<h2>[% 'Existing pending follow-ups for this item' | $T8 %]</h2>
-
+[%- IF FOLLOW_UPS_PENDING.size %]
 <table class="tbl-list">
+  <caption>[% 'Existing pending follow-ups for this item' | $T8 %]</caption>
+  <colgroup>
+    <col class="wi-date">
+    <col class="wi-normal">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+  </colgroup>
   <thead>
     <tr>
       <th>[% 'Follow-Up Date' | $T8 %]</th>
@@ -77,19 +121,49 @@
     </tr>
   </thead>
   <tbody>
-    [% FOREACH row = FOLLOW_UPS %]
-    <tr class="listrow[% loop.count % 2 %]">
-      <td>[% HTML.escape(row.follow_up_date) %]</td>
-      <td><a href="fu.pl?action=edit&id=[% HTML.escape(row.id) %][% IF POPUP_MODE %]&POPUP_MODE=1[% END %]">[% HTML.escape(row.subject) %]</a></td>
-      <td>[% HTML.escape(row.created_by_name) %]</td>
-      <td>[% HTML.escape(row.created_for_user_name) %]</td>
+    [% FOREACH row = FOLLOW_UPS_PENDING %]
+    <tr>
+      <td class="top">[% HTML.escape(row.follow_up_date) %]</td>
+      <td class="top"><a href="fu.pl?action=edit&id=[% HTML.escape(row.id) %][% IF POPUP_MODE %]&POPUP_MODE=1[% END %]">[% HTML.escape(row.subject) %]</a></td>
+      <td class="top">[% HTML.escape(row.created_by_name) %]</td>
+      <td class="top">[% HTML.escape(row.created_for_user_name) | html_line_break %]</td>
     </tr>
     [% END %]
   </tbody>
 </table>
+[% END %]
 
+[%- IF FOLLOW_UPS_DONE.size %]
+<table class="tbl-list">
+  <caption>[% 'Existing finished follow-ups for this item' | $T8 %]</caption>
+  <colgroup>
+    <col class="wi-date">
+    <col class="wi-normal">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>[% 'Follow-Up Date' | $T8 %]</th>
+      <th>[% 'Subject' | $T8 %]</th>
+      <th>[% 'Created by' | $T8 %]</th>
+      <th>[% 'Follow-up for' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH row = FOLLOW_UPS_DONE %]
+    <tr>
+      <td class="top">[% HTML.escape(row.follow_up_date) %]</td>
+      <td class="top"><a href="fu.pl?action=edit&id=[% HTML.escape(row.id) %][% IF POPUP_MODE %]&POPUP_MODE=1[% END %]">[% HTML.escape(row.subject) %]</a></td>
+      <td class="top">[% HTML.escape(row.created_by_name) %]</td>
+      <td class="top">[% HTML.escape(row.created_for_user_name) | html_line_break %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
 [% END %]
-[% END %]
+
+[% END #IF POPUP_MODE %]
 
 [% FOREACH row = LINKS %]
   <input type="hidden" name="trans_id_[% loop.count %]"   value="[% HTML.escape(row.trans_id) %]">
