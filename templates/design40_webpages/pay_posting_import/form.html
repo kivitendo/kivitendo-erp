@@ -1,0 +1,52 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+[%- USE T8 %]
+[%- INCLUDE 'common/flash.html' %]
+
+<h1>[% FORM.title %]</h1>
+
+<div class="wrapper">
+[% IF (SELF.gl_trans.size) %]
+ <table class="tbl-list" id="gl_trans">
+  <caption>[% SELF.gl_trans.size %]&nbsp;[% "entries imported" | $T8 %].</caption>
+  <thead>
+   <tr>
+    <th>[%- LxERP.t8("Date") %]</th>
+    <th>[%- LxERP.t8("Description") %]</th>
+    <th>[%- LxERP.t8("Debit") %]</th>
+    <th>[%- LxERP.t8("Credit") %]</th>
+    <th>[%- LxERP.t8("Amount") %]</th>
+   </tr>
+  </thead>
+  <tbody>
+  [%- FOREACH gl = SELF.gl_trans %]
+    <tr>
+    <td>[%- gl.transdate.to_kivitendo -%]</td>
+    <td>[%- gl.description -%]</td>
+    <td>[%- gl.transactions.1.chart.accno -%]&nbsp;[%- gl.transactions.1.chart.description -%]</td>
+    <td>[%- gl.transactions.0.chart.accno -%]&nbsp;[%- gl.transactions.0.chart.description -%]</td>
+    <td class="numeric"> [%- LxERP.format_amount(gl.transactions.0.amount    , 2) %]</td>
+   </tr>
+  [% END %]
+  </tbody>
+ </table>
+[% END %]
+<form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
+<table class="tbl-horizontal">
+  <caption>[% "Import a File:" | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8("CSV File") %]:</th>
+      <td></td>
+      <td>[% L.input_tag('file', '', type => 'file', accept => '.csv') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Close Books up to' | $T8 %]:</th>
+      <td>[% L.checkbox_tag('set_closedto', value => 1, checked => 1, class => 'checkbox') %]</td>
+      <td>[% L.date_tag('closedto', closedto) %]</td>
+    </tr>
+  <tbody>
+</table>
+</form>
+</div><!-- /.cols -->
