@@ -13,21 +13,24 @@
   }
 --></script>
 
+<div class="wrapper">
+
 <form name="Form">
 
 <input type="hidden" name="input_subject" value="[% HTML.escape(input_subject) %]">
 <input type="hidden" name="input_body" value="[% HTML.escape(input_body) %]">
 <input type="hidden" name="input_attachment" value="[% HTML.escape(input_attachment) %]">
 
+<div class="wrapper">
 <table class="tbl-horizontal">
   <tbody>
     <tr>
       <th>[% 'Subject:' | $T8 %]</th>
-      <td><input type="text" id="email_subject" name="email_subject" size="40" value="[% HTML.escape(email_subject) %]"></td>
+      <td><input type="text" id="email_subject" name="email_subject" value="[% HTML.escape(email_subject) %]" class="wi-verywide"></td>
     </tr>
     <tr>
       <th>[% 'Body:' | $T8 %]</th>
-      <td>[% L.textarea_tag('email_body', email_body, rows=20, cols=70, class='texteditor') %]</td>
+      <td>[% L.textarea_tag('email_body', email_body, rows=18, class='texteditor wi-verywide') %]</td>
     </tr>
     <tr>
       <th>[% 'Attach PDF:' | $T8 %]</th>
@@ -35,8 +38,12 @@
     </tr>
   </tbody>
 </table>
+</div>
 
-
-<button type="button" onclick="email_updated()">[% 'Save and close' | $T8 %]</button>
+<div class="buttons">
+  <button type="button" onclick="email_updated()">[% 'Save and close' | $T8 %]</button>
+</div>
 
 </form>
+
+</div>
