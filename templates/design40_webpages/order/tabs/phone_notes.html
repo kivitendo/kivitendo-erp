@@ -33,12 +33,12 @@
     <colgroup><col class="wi-verysmall"><col class="wi-wider"></colgroup>
     <tbody>
      <tr>
-      <th valign="right">[% 'Subject' | $T8 %]</th>
+      <th>[% 'Subject' | $T8 %]</th>
       <td>[% L.input_tag('phone_note.subject', '', class="wi-wider") %]</td>
      </tr>
      <tr>
-      <th valign="right" align="top">[% 'Body' | $T8 %]</th>
-      <td align="top">[% L.textarea_tag('phone_note.body', '', wrap="soft", style="height: 350px", class="texteditor wi-wider") %]</td>
+      <th>[% 'Body' | $T8 %]</th>
+      <td>[% L.textarea_tag('phone_note.body', '', wrap="soft", style="height: 350px", class="texteditor wi-wider") %]</td>
      </tr>
     </tbody>
   </table>
@@ -46,7 +46,7 @@
  <p>
    [% P.button_tag("kivi.Order.save_phone_note()",   LxERP.t8('Save')) %]
    [% P.button_tag("kivi.Order.delete_phone_note()", LxERP.t8('Delete'), id = 'phone_note_delete_button', style='display:none') %]
-   [% P.button_tag("kivi.Order.cancel_phone_note()", LxERP.t8('Cancel')) %]
+   [% P.button_tag("kivi.Order.cancel_phone_note()", LxERP.t8('Cancel'), class="neutral") %]
  </p>
 
 </div>
