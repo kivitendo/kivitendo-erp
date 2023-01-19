@@ -4,7 +4,7 @@
 <div class="loading" id="rename_dialog_[% file_type %]" style="display:none">
 <div class="wrapper">
 
-<table class="tbl-plain test">
+<table class="tbl-plain">
   <tbody>
     <tr>
       <td id="rename_extra_text_[% file_type %]"></td>
@@ -15,21 +15,18 @@
         <input class="wi-lightwide" name="newfilename" id="newfilename_id_[% file_type %]" value="">
       </td>
     </tr>
-    <tr>
-      <td> 
-        <input type="hidden" name="next_ids" id="next_ids_id_[% file_type %]" value="">
-        <input type="hidden" name="sessionfile" id="sessionfile_id_[% file_type %]" value="">
-        <input type="hidden" name="rename_id" id="rename_id_id_[% file_type %]" value="">
-        <input type="hidden" name="is_global" id="is_global_id_[% file_type %]" value="">
-        [% L.button_tag("return kivi.File.renameaction('" _ file_type _ "');", LxERP.t8('Continue'), id => "rename_cont_btn", class="button") %] 
-        [% L.button_tag("return kivi.File.renameclose('" _ file_type _"');" , LxERP.t8('Cancel') , class => "submit button neutral") %]
-      </td>
-    </tr>
   </tbody>
 </table>
-  
+
+<input type="hidden" name="next_ids" id="next_ids_id_[% file_type %]" value="">
+<input type="hidden" name="sessionfile" id="sessionfile_id_[% file_type %]" value="">
+<input type="hidden" name="rename_id" id="rename_id_id_[% file_type %]" value="">
+<input type="hidden" name="is_global" id="is_global_id_[% file_type %]" value="">
+
+<div class="buttons">
+  [% L.button_tag("return kivi.File.renameaction('" _ file_type _ "');", LxERP.t8('Continue'), id => "rename_cont_btn") %]
+  [% L.button_tag("return kivi.File.renameclose('" _ file_type _"');" , LxERP.t8('Cancel') , class => "submit neutral") %]
+</div>
+
 </div><!-- /.wrapper -->
 </div><!-- /.loading /Rename Dialog -->
-
-
-
