@@ -1,5 +1,6 @@
 [% USE T8 %]
 [% USE HTML %]
+[% USE LxERP %]
 
 <h1>
 [% IF is_customer %][% 'Customer details' | $T8 %]
@@ -13,9 +14,15 @@
         <caption>[% 'Jump to' | $T8 %]</caption>
         <tbody>
           <tr><td colspan="2"><a href="#billing">[% 'Billing Address' | $T8 %]</a></td></tr>
+          [% FOREACH additional_billing_addresses = ADDITIONAL_BILLING_ADDRESSES %]
+            <tr>
+              <td><a href="#additional_billing_address[% loop.count %]">[% 'Additional Billing Address' | $T8 %]</a></td>
+              <td><a href="#additional_billing_address[% loop.count %]">&quot;[% HTML.escape(additional_billing_addresses.name) %]&quot;</a></td>
+            </tr>
+          [% END %]
           [% FOREACH shipto = SHIPTO %]
             <tr>
-              <td class="cell"><a href="#shipping[% loop.count %]"> [% 'Shipping Address' | $T8 %]</a></td>
+              <td><a href="#shipping[% loop.count %]"> [% 'Shipping Address' | $T8 %]</a></td>
               <td><a href="#shipping[% loop.count %]">&quot;[% HTML.escape(shipto.shiptoname) %]&quot;</a></td>
             </tr>
           [% END %]
@@ -33,7 +40,7 @@
 
 <div class="wrapper">
 
-[% INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
+[% INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO, ADDITIONAL_BILLING_ADDRESSES = ADDITIONAL_BILLING_ADDRESSES %]
 
 <table class="tbl-horizontal checkered">
   <caption><a name="billing">[% 'Billing Address' | $T8 %]</a></caption>
@@ -166,11 +173,75 @@
 </div><!-- /.wrapper -->
 
 
+[% FOREACH row = ADDITIONAL_BILLING_ADDRESSES %]
+<div class="wrapper">
+
+[% INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO, ADDITIONAL_BILLING_ADDRESSES = ADDITIONAL_BILLING_ADDRESSES %]
+
+<table class="tbl-horizontal checkered">
+  <caption><a id="additional_billing_address[% loop.count %]">[% 'Additional Billing Address' | $T8 %] &quot;[% HTML.escape(row.name) %]&quot;</a></caption>
+  <tbody>
+    <tr>
+      <th>[% 'Default Billing Address' | $T8 %]</th>
+      <td>[% row.default_address ? LxERP.t8('yes') : LxERP.t8('no') %]</td>
+   </tr>
+   <tr>
+     <th>[% 'Name' | $T8 %]</th>
+     <td>[% HTML.escape(row.name) %]</td>
+   </tr>
+   <tr>
+     <th>[% 'Department' | $T8 %]</th>
+     <td>
+       [% HTML.escape(row.department_1) %]
+       [% IF row.department_2 %]
+         [% IF row.department_1 %]; [% END %]
+         [% HTML.escape(row.department_2) %]
+       [% END %]
+     </td>
+   </tr>
+   <tr>
+     <th>[% 'Street' | $T8 %]</th>
+     <td>[% HTML.escape(row.street) %]</td>
+   </tr>
+    <tr>
+      <th>[% 'Zip, City' | $T8 %]</th>
+      <td>[% HTML.escape(row.zipcode) %] [% HTML.escape(row.city) %]</td>
+    </tr>
+   <tr>
+     <th>[% 'Country' | $T8 %]</th>
+     <td>[% HTML.escape(row.country) %]</td>
+   </tr>
+    <tr>
+      <th>[% 'GLN' | $T8 %]</th>
+      <td>[% HTML.escape(row.gln) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Contact' | $T8 %]</th>
+      <td>[% HTML.escape(row.contact) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Phone' | $T8 %]</th>
+      <td>[% HTML.escape(row.phone) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Fax' | $T8 %]</th>
+      <td>[% HTML.escape(row.fax) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'E-mail' | $T8 %]</th>
+      <td>[% HTML.escape(row.email) %]</td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+[% END %]
+
 
 [% FOREACH row = SHIPTO %]
 <div class="wrapper">
 
-[% INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
+[% INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO, ADDITIONAL_BILLING_ADDRESSES = ADDITIONAL_BILLING_ADDRESSES %]
 
 <table class="tbl-horizontal checkered">
   <caption><a id="shipping[% loop.count %]">[% 'Shipping Address' | $T8 %] &quot;[% HTML.escape(row.shiptoname) %]&quot;</a></caption>
@@ -228,13 +299,10 @@
 [% END %]
 
 
-
-
-
 [% FOREACH row = CONTACTS %]
 <div class="wrapper">
 
-[% INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
+[% INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO, ADDITIONAL_BILLING_ADDRESSES = ADDITIONAL_BILLING_ADDRESSES %]
 
 <table class="tbl-horizontal checkered">
   <caption><a id="contact[% loop.count %]">[% 'Contact Person' | $T8 %] &quot;[% HTML.escape(row.cp_name) %]&quot;</a></caption>
@@ -312,5 +380,3 @@
 
 </div><!-- /.wrapper -->
 [% END %]
-
-
