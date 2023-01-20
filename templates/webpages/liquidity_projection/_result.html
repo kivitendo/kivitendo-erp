@@ -1,5 +1,5 @@
 [%- USE HTML -%][%- USE LxERP -%]
-[%- SET name_col = FORM.params.salesman || FORM.params.buchungsgruppe || FORM.params.type %]
+[%- SET name_col = FORM.params.salesman || FORM.params.buchungsgruppe || FROM.params.parts_group || FORM.params.type %]
 
 <table border="0">
  <tr>
@@ -51,6 +51,19 @@
 
     [%- FOREACH month = SELF.liquidity.sorted.month %]
      <td align="right">[% LxERP.format_amount(SELF.liquidity.buchungsgruppe.$buchungsgruppe.$month, 2) %]</td>
+    [%- END %]
+   </tr>
+  [%- END %]
+ [%- END %]
+
+ [%- IF FORM.params.parts_group %]
+  [%- FOREACH parts_group = SELF.liquidity.sorted.parts_group %]
+   <tr class="listrow">
+    <td>[% IF loop.first %][% LxERP.t8("Partsgroup") %][% END %]</td>
+    <td>[%- HTML.escape(parts_group) || LxERP.t8('no partsgroup') %]</td>
+
+    [%- FOREACH month = SELF.liquidity.sorted.month %]
+     <td align="right">[% LxERP.format_amount(SELF.liquidity.parts_group.$parts_group.$month, 2) %]</td>
     [%- END %]
    </tr>
   [%- END %]
