@@ -166,6 +166,7 @@ SQL
                            salesman       => $ref->{salesman},
                            linetotal      => $ref->{linetotal} * $billing_len / $order_value_len,
                            date           => $date,
+                           parts_group    => $ref->{parts_group},
                          };
       }
 
