@@ -295,6 +295,7 @@ test_deeply( $sales_order->strip->as_tree, $converted_sales_reclamation->strip->
     cp_id contact_id
     cusordnumber cv_record_number
     ordnumber record_number
+    intake
   ));
 
 pairwise {
@@ -315,6 +316,7 @@ test_deeply($sales_reclamation->strip->as_tree, $converted_sales_order->strip->a
     cp_id contact_id
     cusordnumber cv_record_number
     ordnumber record_number
+    intake
   ));
 
 # purchase
@@ -336,6 +338,7 @@ test_deeply($purchase_order->strip->as_tree, $converted_purchase_reclamation->st
     cp_id contact_id
     cusordnumber cv_record_number
     ordnumber record_number
+    intake
   ));
 
 pairwise {
@@ -356,6 +359,7 @@ test_deeply($purchase_reclamation->strip->as_tree, $converted_purchase_order->st
     cp_id contact_id
     cusordnumber cv_record_number
     ordnumber record_number
+    intake
   ));
 
 # diag Dumper($sales_order->strip->as_tree);
