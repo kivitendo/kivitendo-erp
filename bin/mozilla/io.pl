@@ -258,11 +258,9 @@ sub display_row {
     my $record_item = $record->id && $record->items ? $record->items->[$i-1] : _make_record_item($i);
 
     # undo formatting
-    $main::lxdebug->dump(0, "TST: before parse_amount", $form->{"sellprice_$i"});
     map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) }
       qw(qty discount sellprice lastcost price_new price_old)
         unless ($form->{simple_save});
-    $main::lxdebug->dump(0, "TST: after parse_amount", $form->{"sellprice_$i"});
 
     if ($form->{"prices_$i"} && ($form->{"new_pricegroup_$i"} != $form->{"old_pricegroup_$i"})) {
       $form->{"sellprice_$i"} = $form->{"price_new_$i"};
