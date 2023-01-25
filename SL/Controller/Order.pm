@@ -2246,7 +2246,7 @@ sub pre_render {
                                                                            sort_by => 'name');
   $self->{all_payment_terms}          = SL::DB::Manager::PaymentTerm->get_all_sorted(where => [ or => [ id => $self->order->payment_id,
                                                                                                         obsolete => 0 ] ]);
-  $self->{all_delivery_terms}         = SL::DB::Manager::DeliveryTerm->get_all_sorted();
+  $self->{all_delivery_terms}         = SL::DB::Manager::DeliveryTerm->get_valid($self->order->delivery_term_id);
   $self->{all_statuses}               = SL::DB::Manager::OrderStatus->get_all_sorted(where => [ or => [ id => $self->order->order_status_id,
                                                                                                         obsolete => 0,  ] ] );
   $self->{current_employee_id}        = SL::DB::Manager::Employee->current->id;

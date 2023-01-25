@@ -28,6 +28,11 @@
      </td>
     </tr>
    [%- END %]
+
+   <tr>
+    <td>[% 'Obsolete' | $T8 %]</td>
+    <td>[% L.checkbox_tag('delivery_term.obsolete', checked=SELF.delivery_term.obsolete, for_submit=1) %]</td>
+   </tr>
   </table>
 
   [% P.hidden_tag("id", SELF.delivery_term.id) %]

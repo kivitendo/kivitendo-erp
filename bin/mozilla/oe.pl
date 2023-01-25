@@ -563,7 +563,7 @@ sub form_header {
     ]);
 
   $TMPL_VAR->{ALL_PROJECTS}          = SL::DB::Manager::Project->get_all_sorted(query => \@conditions);
-  $TMPL_VAR->{ALL_DELIVERY_TERMS}    = SL::DB::Manager::DeliveryTerm->get_all_sorted();
+  $TMPL_VAR->{ALL_DELIVERY_TERMS}    = SL::DB::Manager::DeliveryTerm->get_valid($form->{delivery_term_id});
   $form->{ALL_PROJECTS}            = $TMPL_VAR->{ALL_PROJECTS}; # make projects available for second row drop-down in io.pl
 
   # label subs
