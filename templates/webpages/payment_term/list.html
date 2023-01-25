@@ -40,7 +40,7 @@
      <td align="right">[%- HTML.escape(payment_term.terms_netto_as_number) %]</td>
      <td align="right">[%- HTML.escape(payment_term.terms_skonto_as_number) %]</td>
      <td align="right">[%- HTML.escape(payment_term.percent_skonto_as_percent) %] %</td>
-     <td align="right">[%- HTML.escape(payment_term.obsolete) %]</td>
+     <td align="right">[% IF payment_term.obsolete %][% LxERP.t8("yes") %][% ELSE %][% LxERP.t8("no") %][% END %]</td>
     </tr>
     [%- END %]
     </tbody>
