@@ -341,7 +341,7 @@
           \setlength{\linewidth}{\hsize}
           \addtolength{\leftmargini}{\l_kivi_tab_desc_leftskip_dim}
           \usekomafont{extraDescription}
-          \seq_use:Nn \g_kivi_extraDescription_seq {\\}
+          \seq_use:Nn \g_kivi_extraDescription_seq {\ifhmode\\\fi}
           \par
           \endgroup
         }
