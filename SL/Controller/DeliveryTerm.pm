@@ -112,7 +112,7 @@ sub create_or_update {
     $self->{delivery_term}->save_attribute_translation('description_long', $language, $::form->{"translation_" . $language->id});
   }
 
-  if ($::form->{remove_customer_delivery_terms}) {
+  if ($::form->{remove_customer_vendor_delivery_terms}) {
     foreach my $class (qw(Customer Vendor)) {
       "SL::DB::Manager::${class}"->update_all(
         set   => { delivery_term_id => undef },
