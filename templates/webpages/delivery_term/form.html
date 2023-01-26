@@ -33,6 +33,11 @@
     <td>[% 'Obsolete' | $T8 %]</td>
     <td>[% L.checkbox_tag('delivery_term.obsolete', checked=SELF.delivery_term.obsolete, for_submit=1) %]</td>
    </tr>
+
+   <tr>
+    <td>[% "Delete for customers & vendors" | $T8 %]</td>
+    <td>[% L.checkbox_tag("remove_customer_vendor_delivery_terms", checked=remove_customer_vendor_delivery_terms, for_submit=1, label=LxERP.t8("This will also remove these delivery terms for all customers & vendors.")) %]</td>
+   </tr>
   </table>
 
   [% P.hidden_tag("id", SELF.delivery_term.id) %]
