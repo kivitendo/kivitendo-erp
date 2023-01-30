@@ -13,6 +13,13 @@ fi
 
 doc=${PWD}/doc
 
+if [[ ! -d doc/build/dobudish ]]; then
+  echo "  ERROR: looks like 'doc/build/dobudish' DIR is missing"
+  echo "   - You need to get 'dobudish-nojre-1.1.4.zip' from http://code.google.com/p/dobudish/downloads/list"
+  echo "   - Download and unpack ( unzip dobudish-nojre-1.1.4.zip -d doc/build )"
+  echo "   - create dobudish symlink ( ln -sf dobudish-1.1.4 doc/build/dobudish )"
+fi
+
 html=1
 pdf=1
 images=1
@@ -36,14 +43,7 @@ if [[ ! -z $1 ]] ; then
   done
 fi
 
-dobudish=$(ls -d doc/build/dobudish* 2> /dev/null)
-
-if [[ -z $dobudish ]] || [[ ! -d ${dobudish} ]]; then
-  echo "There's no dobudish directory inside doc/build OR more than one file / dir starting with dobudish (hint: zip file downloaded there?)."
-  exit 1
-fi
-
-cd ${dobudish}
+cd doc/build/dobudish
 
 base=documents/dokumentation
 if [[ ! -d $base ]]; then
