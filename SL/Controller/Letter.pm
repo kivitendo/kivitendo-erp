@@ -301,6 +301,7 @@ sub action_delete_drafts {
   my @ids = @{ $::form->{ids} || [] };
   SL::DB::Manager::LetterDraft->delete_all(where => [ id => \@ids ]) if @ids;
 
+  flash('info', t8('Draft deleted'));
   $self->action_add(skip_drafts => 1);
 }
 
@@ -600,7 +601,7 @@ sub setup_load_letter_draft_action_bar {
       ],
       action => [
         t8('Delete'),
-        submit  => [ '#form', { action => 'delete_drafts' } ],
+        submit  => [ '#form', { action => 'Letter/delete_drafts' } ],
         checks  => [ [ 'kivi.check_if_entries_selected', '[name="ids[+]"]' ] ],
         confirm => t8('Do you really want to delete this draft?'),
       ],
