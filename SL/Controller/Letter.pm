@@ -160,16 +160,6 @@ sub action_delete {
   $self->redirect_to(action => 'list');
 }
 
-sub action_delete_letter_drafts {
-  my ($self, %params) = @_;
-
-  my @ids =  grep { /^checked_(.*)/ && $::form->{$_} } keys %$::form;
-
-  SL::DB::Manager::LetterDraft->delete_all(query => [ ids => \@ids ]) if @ids;
-
-  $self->redirect_to(action => 'add');
-}
-
 sub action_list {
   my ($self, %params) = @_;
 
