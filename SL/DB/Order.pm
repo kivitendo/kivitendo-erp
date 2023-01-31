@@ -479,7 +479,7 @@ sub new_from {
                                                           marge_percent marge_price_factor marge_total
                                                           ordnumber parts_id price_factor price_factor_id pricegroup_id
                                                           project_id qty reqdate sellprice serialnumber ship subtotal transdate unit
-                                                          optional
+                                                          optional recurring_billing_mode
                                                        )),
                                                    custom_variables => \@custom_variables,
       );
