@@ -284,6 +284,7 @@ pairwise {
       id trans_id reclamation_id itime mtime
       cusordnumber marge_percent marge_price_factor marge_total optional ordnumber ship subtotal transdate
       reason_description_ext reason_description_int reason_id
+      recurring_billing_mode recurring_billing_invoice_id
     ));
 } @sales_order_items, @converted_sales_reclamation_items;
 test_deeply( $sales_order->strip->as_tree, $converted_sales_reclamation->strip->as_tree,
@@ -303,6 +304,7 @@ pairwise {
       id trans_id reclamation_id itime mtime
       cusordnumber marge_percent marge_price_factor marge_total optional ordnumber ship subtotal transdate
       reason_description_ext reason_description_int reason_id
+      recurring_billing_mode recurring_billing_invoice_id
     ));
 } @sales_reclamation_items, @converted_sales_order_items;
 test_deeply($sales_reclamation->strip->as_tree, $converted_sales_order->strip->as_tree,
@@ -323,6 +325,7 @@ pairwise {
       id trans_id reclamation_id itime mtime
       cusordnumber marge_percent marge_price_factor marge_total optional ordnumber ship subtotal transdate
       reason_description_ext reason_description_int reason_id
+      recurring_billing_mode recurring_billing_invoice_id
     ));
 } @purchase_order_items, @converted_purchase_reclamation_items;
 test_deeply($purchase_order->strip->as_tree, $converted_purchase_reclamation->strip->as_tree,
@@ -342,6 +345,7 @@ pairwise {
       id trans_id reclamation_id itime mtime
       cusordnumber marge_percent marge_price_factor marge_total optional ordnumber ship subtotal transdate
       reason_description_ext reason_description_int reason_id
+      recurring_billing_mode recurring_billing_invoice_id
     ));
 } @purchase_reclamation_items, @converted_purchase_order_items;
 test_deeply($purchase_reclamation->strip->as_tree, $converted_purchase_order->strip->as_tree,
