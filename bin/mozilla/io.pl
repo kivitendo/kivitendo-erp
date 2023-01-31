@@ -171,7 +171,7 @@ sub display_row {
     bin stock_in_out
   );
   my @row2_sort   = qw(
-    serialnr projectnr reqdate subtotal marge listprice lastcost onhand
+    serialnr projectnr reqdate subtotal recurring_billing_mode marge listprice lastcost onhand
   );
   # serialnr is important for delivery_orders
   if ($form->{type} eq 'sales_delivery_order') {
@@ -201,6 +201,7 @@ sub display_row {
     stock_in_out  => { width => 10,    value => $stock_in_out_title,                   display => $is_delivery_order, },
     reqdate       => {                 value => $locale->text('Reqdate'),              display => $is_s_p_order || $is_delivery_order || $is_invoice, },
     subtotal      => {                 value => $locale->text('Subtotal'),             display => 1, },
+    recurring_billing_mode => {        value => $locale->text('Recurring billing'),    display => $form->{type} eq 'sales_order', },
     marge         => {                 value => $locale->text('Ertrag'),               display => $show_marge, },
     listprice     => {                 value => $locale->text('LP'),                   display => $show_marge, },
     lastcost      => {                 value => $locale->text('EK'),                   display => $show_marge, },
@@ -258,11 +259,9 @@ sub display_row {
     my $record_item = $record->id && $record->items ? $record->items->[$i-1] : _make_record_item($i);
 
     # undo formatting
-    $main::lxdebug->dump(0, "TST: before parse_amount", $form->{"sellprice_$i"});
     map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) }
       qw(qty discount sellprice lastcost price_new price_old)
         unless ($form->{simple_save});
-    $main::lxdebug->dump(0, "TST: after parse_amount", $form->{"sellprice_$i"});
 
     if ($form->{"prices_$i"} && ($form->{"new_pricegroup_$i"} != $form->{"old_pricegroup_$i"})) {
       $form->{"sellprice_$i"} = $form->{"price_new_$i"};
@@ -408,8 +407,13 @@ sub display_row {
     ));
     $column_data{reqdate}   = qq|<input name="reqdate_$i" size="11" data-validate="date" value="$form->{"reqdate_$i"}">|;
     $column_data{subtotal}  = sprintf qq|<input type="checkbox" name="subtotal_$i" value="1" %s>|, $form->{"subtotal_$i"} ? 'checked' : '';
+    $column_data{recurring_billing_mode} = SL::Presenter::Tag::select_tag(
+      "recurring_billing_mode_$i",
+      [[ 'always', $::locale->text('always') ], [ 'once',   $::locale->text('once')   ], [ 'never',  $::locale->text('never')  ]],
+      default => $::form->{"recurring_billing_mode_$i"} || 'always',
+    );
 
-# begin marge calculations
+    # begin marge calculations
     $form->{"lastcost_$i"}     *= 1;
     $form->{"marge_percent_$i"} = 0;
 
@@ -836,7 +840,7 @@ sub remove_emptied_rows {
                 active_price_source active_discount_source delivery_order_items_id
                 invoice_id converted_from_orderitems_id
                 converted_from_delivery_order_items_id converted_from_invoice_id
-                converted_from_reclamation_items_id);
+                converted_from_reclamation_items_id recurring_billing_mode);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };

@@ -131,7 +131,7 @@ SQL
 
   # 2. Auslesen aktiver Wartungsvertragskonfigurationen
   $query = <<SQL;
-    SELECT (oi.qty * (1 - oi.discount) * oi.sellprice) AS linetotal,
+    SELECT (oi.qty * (1 - oi.discount) * oi.sellprice) AS linetotal, oi.recurring_billing_mode,
       bg.description AS buchungsgruppe,
       pg.partsgroup AS parts_group,
       CASE WHEN COALESCE(e.name, '') = '' THEN e.login ELSE e.name END AS salesman,
@@ -145,7 +145,10 @@ SQL
     LEFT JOIN partsgroup pg                  ON (p.partsgroup_id                          = pg.id)
     LEFT JOIN employee e                     ON (COALESCE(oe.salesman_id, oe.employee_id) = e.id)
     WHERE pcfg.active
-      AND NOT pcfg.periodicity = 'o'
+      AND (pcfg.periodicity <> 'o')
+      AND (   (oi.recurring_billing_mode = 'always')
+           OR (    (oi.recurring_billing_mode = 'once')
+               AND (oi.recurring_billing_invoice_id IS NULL)))
 SQL
 
   # 3. Iterieren über Saldierungsintervalle, vormerken
@@ -159,6 +162,15 @@ SQL
       my $billing_len = $SL::DB::PeriodicInvoicesConfig::PERIOD_LENGTHS{ $ref->{periodicity} } || 1;
 
       if (($date ge $self->{min_date}) && (!$periodic_invoices{ $ref->{config_id} } || !$periodic_invoices{ $ref->{config_id} }->{$date})) {
+        if ($ref->{recurring_billing_mode} eq 'once') {
+          push @scentries, { buchungsgruppe => $ref->{buchungsgruppe},
+                             salesman       => $ref->{salesman},
+                             linetotal      => $ref->{linetotal},
+                             date           => $date,
+                           };
+          last;
+        }
+
         my $order_value_periodicity = $ref->{order_value_periodicity} eq 'p' ? $ref->{periodicity} : $ref->{order_value_periodicity};
         my $order_value_len         = $SL::DB::PeriodicInvoicesConfig::ORDER_VALUE_PERIOD_LENGTHS{$order_value_periodicity} || 1;
 

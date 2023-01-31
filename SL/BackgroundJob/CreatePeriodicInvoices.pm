@@ -229,7 +229,7 @@ sub _create_periodic_invoice {
   if (!$self->{db_obj}->db->with_transaction(sub {
     1;                          # make Emacs happy
 
-    $invoice = SL::DB::Invoice->new_from($order);
+    $invoice = SL::DB::Invoice->new_from($order, honor_recurring_billing_mode => 1);
 
     my $tax_point = ($invoice->tax_point // $time_period_vars->{period_end_date}->[0])->clone;
 
@@ -272,6 +272,10 @@ sub _create_periodic_invoice {
             delete $item->{"converted_from_${_}_id"};
          }
       }
+    }
+
+    foreach my $item (grep { ($_->recurring_billing_mode eq 'once') && !$_->recurring_billing_invoice_id } @{ $order->orderitems }) {
+      $item->update_attributes(recurring_billing_invoice_id => $invoice->id);
     }
 
     SL::DB::PeriodicInvoice->new(config_id         => $config->id,

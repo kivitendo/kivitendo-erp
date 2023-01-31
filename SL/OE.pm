@@ -752,7 +752,7 @@ sub _save {
          UPDATE orderitems SET
           trans_id = ?, position = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?, base_qty = ?,
           sellprice = ?, discount = ?, unit = ?, reqdate = ?, project_id = ?, serialnumber = ?, ship = ?,
-          pricegroup_id = ?, subtotal = ?,
+          pricegroup_id = ?, subtotal = ?, recurring_billing_mode = ?,
           marge_percent = ?, marge_total = ?, lastcost = ?, price_factor_id = ?,
           active_price_source = ?, active_discount_source = ?,
           price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?
@@ -765,7 +765,7 @@ SQL
            $fxsellprice, $form->{"discount_$i"},
            $form->{"unit_$i"}, conv_date($reqdate), conv_i($form->{"project_id_$i"}),
            $form->{"serialnumber_$i"}, $form->{"ship_$i"},
-           $pricegroup_id, $form->{"subtotal_$i"} ? 't' : 'f',
+           $pricegroup_id, $form->{"subtotal_$i"} ? 't' : 'f', $form->{"recurring_billing_mode_$i"},
            $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
            $form->{"lastcost_$i"}, conv_i($form->{"price_factor_id_$i"}),
            $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
@@ -1286,7 +1286,7 @@ sub _retrieve {
            p.classification_id,
            o.sellprice, o.parts_id AS id, o.unit, o.discount, p.notes AS partnotes, p.part_type,
            o.reqdate, o.project_id, o.serialnumber, o.ship, o.lastcost,
-           o.ordnumber, o.transdate, o.cusordnumber, o.subtotal, o.longdescription,
+           o.ordnumber, o.transdate, o.cusordnumber, o.subtotal, o.recurring_billing_mode, o.longdescription,
            o.price_factor_id, o.price_factor, o.marge_price_factor, o.active_price_source, o.active_discount_source,
            pr.projectnumber, p.formel,
            pg.partsgroup, o.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=o.pricegroup_id) as pricegroup
