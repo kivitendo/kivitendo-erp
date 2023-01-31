@@ -61,7 +61,7 @@ sub retrieve_open_invoices {
 
        LEFT JOIN payment_terms pt ON (${arap}.payment_id = pt.id)
 
-       WHERE ${arap}.amount > (COALESCE(open_transfers.amount, 0) + ${arap}.paid)
+       WHERE (${arap}.amount - (COALESCE(open_transfers.amount, 0) + ${arap}.paid)) >= 0.01
 
        ORDER BY lower(vc.name) ASC, lower(${arap}.invnumber) ASC
 |;

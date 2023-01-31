@@ -18,4 +18,20 @@ sub _sort_spec {
                       });
 }
 
+sub get_valid {
+  my ($class, $with_this_id) = @_;
+
+  my @conditions = (obsolete => 0);
+
+  if ($with_this_id) {
+    @conditions = (
+      or => [
+        id => $with_this_id,
+        @conditions,
+      ]);
+  }
+
+  return $class->get_all_sorted(query => \@conditions);
+}
+
 1;

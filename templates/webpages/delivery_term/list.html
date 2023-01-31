@@ -16,6 +16,7 @@
      <th align="center"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
      <th>[%- 'Description' | $T8 %]</th>
      <th>[%- 'Long Description' | $T8 %]</th>
+     <th>[%- 'Obsolete' | $T8 %]</th>
     </tr>
     </thead>
 
@@ -29,6 +30,7 @@
       </a>
      </td>
      <td>[%- HTML.escape(delivery_term.description_long) %]</td>
+     <td>[% IF delivery_term.obsolete %][% LxERP.t8("yes") %][% ELSE %][% LxERP.t8("no") %][% END %]</td>
     </tr>
     [%- END %]
     </tbody>

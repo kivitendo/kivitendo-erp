@@ -160,16 +160,6 @@ sub action_delete {
   $self->redirect_to(action => 'list');
 }
 
-sub action_delete_letter_drafts {
-  my ($self, %params) = @_;
-
-  my @ids =  grep { /^checked_(.*)/ && $::form->{$_} } keys %$::form;
-
-  SL::DB::Manager::LetterDraft->delete_all(query => [ ids => \@ids ]) if @ids;
-
-  $self->redirect_to(action => 'add');
-}
-
 sub action_list {
   my ($self, %params) = @_;
 
@@ -249,15 +239,16 @@ sub action_print_letter {
 
     # set some form defaults for printing webdav copy variables
     if ( $::form->{media} eq 'email') {
-      my $mail             = Mailer->new;
-      my $signature        = $::myconfig{signature};
-      $mail->{$_}          = $params{email}->{$_} for qw(to cc subject message bcc);
-      $mail->{from}        = qq|"$::myconfig{name}" <$::myconfig{email}>|;
-      $mail->{attachments} = [{ path => $result{file_name},
-                                name => $params{email}->{attachment_filename} }];
-      $mail->{message}    .=  "\n-- \n$signature";
-      $mail->{message}     =~ s/\r//g;
-      $mail->{record_id}   =  $letter->id;
+      my $mail              = Mailer->new;
+      my $signature         = $::myconfig{signature};
+      $mail->{$_}           = $params{email}->{$_} for qw(to cc subject message bcc);
+      $mail->{from}         = qq|"$::myconfig{name}" <$::myconfig{email}>|;
+      $mail->{attachments}  = [{ path => $result{file_name},
+                                 name => $params{email}->{attachment_filename} }];
+      $mail->{message}     .=  "\n-- \n$signature";
+      $mail->{message}      =~ s/\r//g;
+      $mail->{record_id}    =  $letter->id;
+      $mail->{content_type} = 'text/html';
       $mail->send;
       unlink $result{file_name};
 
@@ -310,6 +301,7 @@ sub action_delete_drafts {
   my @ids = @{ $::form->{ids} || [] };
   SL::DB::Manager::LetterDraft->delete_all(where => [ id => \@ids ]) if @ids;
 
+  flash('info', t8('Draft deleted'));
   $self->action_add(skip_drafts => 1);
 }
 
@@ -609,7 +601,7 @@ sub setup_load_letter_draft_action_bar {
       ],
       action => [
         t8('Delete'),
-        submit  => [ '#form', { action => 'delete_drafts' } ],
+        submit  => [ '#form', { action => 'Letter/delete_drafts' } ],
         checks  => [ [ 'kivi.check_if_entries_selected', '[name="ids[+]"]' ] ],
         confirm => t8('Do you really want to delete this draft?'),
       ],

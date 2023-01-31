@@ -4,6 +4,7 @@
   <td align="center" class="dragdrop"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></td>
   <td><a href="[% SELF.url_for(action='edit', id=reason.id) %]">[% HTML.escape(reason.name) %]</a></td>
   <td>[% reason.description | $T8 %]</td>
-  <td>[% reason.valid_for | $T8 %]</td>
+  <td>[% reason.valid_for_sales_as_bool_yn %]</td>
+  <td>[% reason.valid_for_purchase_as_bool_yn %]</td>
 </tr>
 [% END %]

@@ -4,8 +4,10 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use SL::DB::Customer;
 use SL::DB::DeliveryTerm;
 use SL::DB::Language;
+use SL::DB::Vendor;
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 
@@ -108,6 +110,15 @@ sub create_or_update {
   $self->{delivery_term}->save;
   foreach my $language (@{ $self->{languages} }) {
     $self->{delivery_term}->save_attribute_translation('description_long', $language, $::form->{"translation_" . $language->id});
+  }
+
+  if ($::form->{remove_customer_vendor_delivery_terms}) {
+    foreach my $class (qw(Customer Vendor)) {
+      "SL::DB::Manager::${class}"->update_all(
+        set   => { delivery_term_id => undef },
+        where => [ delivery_term_id => $self->{delivery_term}->id ],
+      );
+    }
   }
 
   flash_later('info', $is_new ? $::locale->text('The delivery term has been created.') : $::locale->text('The delivery term has been saved.'));

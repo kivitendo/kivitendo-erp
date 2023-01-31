@@ -75,13 +75,13 @@ sub test_compile_file {
 
   if ($loginfo =~ /syntax ok$/im) {
     if ($loginfo ne "$file syntax OK\n") {
-      ok(0,$file." --WARNING");
+      ok(0,$file." --WARNING\n" . ( split /\n/, $loginfo )[0]);
       print $fh $loginfo;
     } else {
       ok(1,$file);
     }
   } else {
-    ok(0,$file." --ERROR");
+    ok(0,$file." --ERROR\n" . ( split /\n/, $loginfo )[0]);
     print $fh $loginfo;
   }
 }
