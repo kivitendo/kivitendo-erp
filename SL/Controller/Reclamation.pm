@@ -1746,20 +1746,20 @@ sub delete {
 sub save {
   my ($self) = @_;
 
-  my $validity_token;
-  if (!$self->reclamation->id) {
-    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
-      scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE(),
-      token => $::form->{form_validity_token},
-    );
-
-    die t8('The form is not valid anymore.') if !$validity_token;
-  }
-
   my $errors = [];
   my $db     = $self->reclamation->db;
 
   $db->with_transaction(sub {
+    my $validity_token;
+    if (!$self->reclamation->id) {
+      $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+        scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE(),
+        token => $::form->{form_validity_token},
+      );
+
+      die $::locale->text('The form is not valid anymore.') if !$validity_token;
+    }
+
     # delete custom shipto if it is to be deleted or if it is empty
     if ($self->reclamation->custom_shipto
         && ($self->is_custom_shipto_to_delete

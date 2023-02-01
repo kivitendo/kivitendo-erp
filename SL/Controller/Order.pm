@@ -2120,16 +2120,6 @@ sub delete {
 sub save {
   my ($self) = @_;
 
-  my $validity_token;
-  if (!$self->order->id) {
-    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
-      scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
-      token => $::form->{form_validity_token},
-    );
-
-    return [t8('The form is not valid anymore.')] if !$validity_token;
-  }
-
   $self->recalc();
   $self->get_unalterable_data();
 
@@ -2160,6 +2150,16 @@ sub save {
   }
 
   $db->with_transaction(sub {
+    my $validity_token;
+    if (!$self->order->id) {
+      $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+        scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
+        token => $::form->{form_validity_token},
+      );
+
+      die $::locale->text('The form is not valid anymore.') if !$validity_token;
+    }
+
     # delete custom shipto if it is to be deleted or if it is empty
     if ($self->order->custom_shipto && ($self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty)) {
       $self->order->custom_shipto->delete if $self->order->custom_shipto->shipto_id;
