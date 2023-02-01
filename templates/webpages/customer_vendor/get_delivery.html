@@ -34,7 +34,7 @@
               [%- END -%]
               <td>[% HTML.escape(row.transdate)   || '&nbsp;' %]</td>
               <td>[% HTML.escape(row.description) || '&nbsp;' %]</td>
-              <td>[% HTML.escape(row.qty)         || '&nbsp;' %]</td>
+              <td>[% LxERP.format_amount(HTML.escape(row.qty), 2) || '&nbsp;' %]</td>
               <td>[% HTML.escape(row.unit)        || '&nbsp;' %]</td>
               <td>[% LxERP.format_amount(row.sellprice, 2) || '&nbsp;' %]</td>
             </tr>
