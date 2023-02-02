@@ -27,7 +27,8 @@ sub fetch_valid_token {
       scope       => $params{scope},
       token       => $params{token},
       valid_until => { ge => DateTime->now_local },
-    ]);
+    ],
+    for_update => 1);
 
   return $token_obj;
 }
