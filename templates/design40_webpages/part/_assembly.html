@@ -69,7 +69,11 @@
       <td colspan="8"></td>
       <td align="right">[% 'Margepercent' | $T8 %]:</td>
       <td></td>
-      <td id="items_sum_diff"      class="numeric">[%- LxERP.format_amount(100 - items_lastcost_sum / items_sellprice_sum * 100,      2, 0) %]</td>
+      <td id="items_sum_diff"      class="numeric">
+      [% IF items_sellprice_sum > 0 %]
+        [%- LxERP.format_amount(100 - items_lastcost_sum / items_sellprice_sum * 100,      2, 0) %]
+      [% END %]
+      </td>
       <td colspan="2"></td>
     </tr>
     <tr>
