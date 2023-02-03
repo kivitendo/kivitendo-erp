@@ -892,8 +892,6 @@ sub post {
   }
   $form->{storno}       = 0;
 
-  $form->{id} = 0 if $form->{postasnew};
-
   if (AP->post_transaction(\%myconfig, \%$form)) {
     # create webdav folder
     if ($::instance_conf->get_webdav) {

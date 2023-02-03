@@ -1020,9 +1020,6 @@ sub post {
   ($form->{AP_paid}) = split /--/, $form->{AP_paid};
   $form->{storno}  ||= 0;
 
-  $form->{id} = 0 if $form->{postasnew};
-
-
   relink_accounts();
   if (IR->post_invoice(\%myconfig, \%$form)){
     # saving the history

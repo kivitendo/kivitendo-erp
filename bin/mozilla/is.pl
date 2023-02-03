@@ -1143,17 +1143,6 @@ sub post {
 
   $form->{label} = $form->{type} eq 'credit_note' ? $locale->text('Credit Note') : $locale->text('Invoice');
 
-  $form->{id} = 0 if $form->{postasnew};
-
-  # get new invnumber in sequence if no invnumber is given or if posasnew was requested
-  if ($form->{postasnew}) {
-    if ($form->{type} eq "credit_note") {
-      undef($form->{cnnumber});
-    } else {
-      undef($form->{invnumber});
-    }
-  }
-
   relink_accounts();
 
   my $terms        = get_payment_terms_for_invoice();

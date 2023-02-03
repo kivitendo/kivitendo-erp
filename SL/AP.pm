@@ -180,7 +180,7 @@ sub _post_transaction {
 
     # Link this record to the record it was created from.
     my $convert_from_oe_id = delete $form->{convert_from_oe_id};
-    if (!$form->{postasnew} && $convert_from_oe_id) {
+    if ($convert_from_oe_id) {
       RecordLinks->create_links('dbh'        => $dbh,
                                 'mode'       => 'ids',
                                 'from_table' => 'oe',
