@@ -342,6 +342,7 @@ sub create_links {
     $saved{duedate} = $form->{duedate} if $form->{duedate};
     $saved{currency} = $form->{currency} if $form->{currency};
     $saved{taxincluded} = $form->{taxincluded} if $form->{taxincluded};
+    $saved{intnotes} = $form->{intnotes} if $form->{intnotes};
   }
 
   IR->get_vendor(\%myconfig, \%$form);
