@@ -4,6 +4,7 @@ use strict;
 
 use SL::Presenter::Chart;
 use SL::Presenter::CustomerVendor;
+use SL::Presenter::DatePeriod;
 use SL::Presenter::DeliveryOrder;
 use SL::Presenter::Dunning;
 use SL::Presenter::EscapedText;
@@ -28,6 +29,7 @@ use SL::Presenter::MaterialComponents;
 our %presenters = (
   chart                       => 'SL::Presenter::Chart',
   customer_vendor             => 'SL::Presenter::CustomerVendor',
+  date_period                 => 'SL::Presenter::DatePeriod',
   delivery_order              => 'SL::Presenter::DeliveryOrder',
   dunning                     => 'SL::Presenter::Dunning',
   escaped_text                => 'SL::Presenter::EscapedText',

@@ -3282,6 +3282,7 @@ $self->{texts} = {
   'Select federal state...'     => '',
   'Select file to upload'       => '',
   'Select from one of the items below' => '',
+  'Select from preset'          => '',
   'Select postscript or PDF!'   => '',
   'Select tax office...'        => '',
   'Select template to paste'    => '',
