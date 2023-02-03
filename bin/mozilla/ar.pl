@@ -779,16 +779,6 @@ sub post {
 
   $form->mtime_ischanged('ar');
 
-  my $validity_token;
-  if (!$form->{id}) {
-    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
-      scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST(),
-      token => $form->{form_validity_token},
-    );
-
-    $form->error($::locale->text('The form is not valid anymore.')) if !$validity_token;
-  }
-
   my ($datepaid);
 
   # check if there is an invoice number, invoice and due date
@@ -853,9 +843,6 @@ sub post {
 
   $form->{id} = 0 if $form->{postasnew};
   $form->error($locale->text('Cannot post transaction!')) unless AR->post_transaction(\%myconfig, \%$form);
-
-  $validity_token->delete if $validity_token;
-  delete $form->{form_validity_token};
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {

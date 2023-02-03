@@ -46,6 +46,7 @@ use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
 use SL::DB::Chart;
 use SL::DB::Draft;
+use SL::DB::ValidityToken;
 use SL::Util qw(trim);
 use SL::DB;
 
@@ -76,6 +77,16 @@ sub post_transaction {
 sub _post_transaction {
   my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
+
+  my $validity_token;
+  if (!$form->{id}) {
+    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+      scope => SL::DB::ValidityToken::SCOPE_GL_TRANSACTION_POST(),
+      token => $form->{form_validity_token},
+    );
+
+    die $::locale->text('The form is not valid anymore.') if !$validity_token;
+  }
 
   my ($debit, $credit) = (0, 0);
   my $project_id;
@@ -212,6 +223,9 @@ sub _post_transaction {
       die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;
     }
   }
+
+  $validity_token->delete if $validity_token;
+  delete $form->{form_validity_token};
 
   return 1;
 }

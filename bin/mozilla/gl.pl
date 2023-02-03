@@ -1456,16 +1456,6 @@ sub post {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
-  my $validity_token;
-  if (!$form->{id}) {
-    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
-      scope => SL::DB::ValidityToken::SCOPE_GL_TRANSACTION_POST(),
-      token => $form->{form_validity_token},
-    );
-
-    $form->error($::locale->text('The form is not valid anymore.')) if !$validity_token;
-  }
-
   if ($::myconfig{mandatory_departments} && !$form->{department_id}) {
     $form->error($locale->text('You have to specify a department.'));
   }
@@ -1474,10 +1464,6 @@ sub post {
   $form->{storno} = 0;
 
   post_transaction();
-
-  # If we get here, the transaction is posted.
-  $validity_token->delete if $validity_token;
-  delete $form->{form_validity_token};
 
   if ($::instance_conf->get_webdav) {
     SL::Webdav->new(type     => 'general_ledger',

@@ -44,6 +44,7 @@ use SL::CVar;
 use SL::DB::DeliveryOrder;
 use SL::DB::DeliveryOrder::TypeData qw(:types is_valid_type);
 use SL::DB::Status;
+use SL::DB::ValidityToken;
 use SL::DBUtils;
 use SL::Helper::ShippedQty;
 use SL::HTML::Restrict;
@@ -330,6 +331,16 @@ sub _save {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
+  my $validity_token;
+  if (!$form->{id}) {
+    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+      scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE(),
+      token => $form->{form_validity_token},
+    );
+
+    die $::locale->text('The form is not valid anymore.') if !$validity_token;
+  }
+
   my $dbh = SL::DB->client->dbh;
   my $restricter = SL::HTML::Restrict->create;
 
@@ -605,6 +616,9 @@ SQL
   $form->{saved_cusordnumber} = $form->{cusordnumber};
 
   Common::webdav_folder($form);
+
+  $validity_token->delete if $validity_token;
+  delete $form->{form_validity_token};
 
   $main::lxdebug->leave_sub();
 

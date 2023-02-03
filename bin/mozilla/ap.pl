@@ -814,16 +814,6 @@ sub post {
   $main::auth->assert('ap_transactions');
   $form->mtime_ischanged('ap');
 
-  my $validity_token;
-  if (!$form->{id}) {
-    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
-      scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST(),
-      token => $form->{form_validity_token},
-    );
-
-    $form->error($::locale->text('The form is not valid anymore.')) if !$validity_token;
-  }
-
   my ($inline) = @_;
 
   # check if there is a vendor, invoice, due date and invnumber
@@ -905,9 +895,6 @@ sub post {
   $form->{id} = 0 if $form->{postasnew};
 
   if (AP->post_transaction(\%myconfig, \%$form)) {
-    $validity_token->delete if $validity_token;
-    delete $form->{form_validity_token};
-
     # create webdav folder
     if ($::instance_conf->get_webdav) {
       SL::Webdav->new(type     => 'accounts_payable',

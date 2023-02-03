@@ -61,6 +61,7 @@ use SL::DB::Default;
 use SL::DB::Draft;
 use SL::DB::Tax;
 use SL::DB::TaxZone;
+use SL::DB::ValidityToken;
 use SL::TransNumber;
 use SL::DB;
 use SL::Presenter::Part qw(type_abbreviation classification_abbreviation);
@@ -760,6 +761,16 @@ sub post_invoice {
 
 sub _post_invoice {
   my ($self, $myconfig, $form, $provided_dbh, %params) = @_;
+
+  my $validity_token;
+  if (!$form->{id}) {
+    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+      scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST(),
+      token => $form->{form_validity_token},
+    );
+
+    die $::locale->text('The form is not valid anymore.') if !$validity_token;
+  }
 
   my $payments_only = $params{payments_only};
   my $dbh = $provided_dbh || SL::DB->client->dbh;
@@ -1680,6 +1691,9 @@ SQL
     my $shop = SL::Shop->new( config => $shop_config );
     $shop->connector->set_orderstatus($shop_order->shop_trans_id, "completed");
   }
+
+  $validity_token->delete if $validity_token;
+  delete $form->{form_validity_token};
 
   return 1;
 }

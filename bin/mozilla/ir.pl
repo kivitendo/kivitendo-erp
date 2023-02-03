@@ -954,16 +954,6 @@ sub post {
 
   $form->mtime_ischanged('ap');
 
-  my $validity_token;
-  if (!$form->{id}) {
-    $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
-      scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST(),
-      token => $form->{form_validity_token},
-    );
-
-    $form->error($::locale->text('The form is not valid anymore.')) if !$validity_token;
-  }
-
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
   $form->isblank("invdate",   $locale->text('Invoice Date missing!'));
@@ -1035,10 +1025,6 @@ sub post {
 
   relink_accounts();
   if (IR->post_invoice(\%myconfig, \%$form)){
-
-    $validity_token->delete if $validity_token;
-    delete $form->{form_validity_token};
-
     # saving the history
     if(!exists $form->{addition} && $form->{id} ne "") {
       $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
