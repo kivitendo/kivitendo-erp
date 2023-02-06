@@ -664,7 +664,7 @@ sub ap_transactions {
     push(@values, like($form->{notes}));
   }
   if ($form->{intnotes}) {
-    $where .= " AND v.notes ILIKE ?";
+    $where .= " AND a.intnotes ILIKE ?";
     push(@values, like($form->{intnotes}));
   }
   if ($form->{project_id}) {
