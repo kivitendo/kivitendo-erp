@@ -360,7 +360,8 @@ sub parse {
   close(OUT);
 
   my $is_qr_bill = $::instance_conf->get_create_qrbill_invoices &&
-                   $form->{formname} eq 'invoice' &&
+                   ($form->{formname} eq 'invoice' ||
+                    $form->{formname} eq 'invoice_for_advance_payment') &&
                    $form->{'template_meta'}->{'printer'}->{'template_code'} =~ m/qr/ ?
                    1 : 0;
 
@@ -559,7 +560,7 @@ sub generate_qr_code {
   $form->{'iban_formatted'} = get_iban_formatted($form->{qrbill_iban});
   $form->{'amount_formatted'} = $amount_formatted;
   $form->{'unstructured_message'} = $form->{'qr_unstructured_message'};
-  
+
   # set outfile
   my $outfile = $form->{"tmpdir"} . '/' . 'qr-code.png';
 
@@ -693,7 +694,7 @@ sub convert_to_pdf {
   } else {
     $ENV{'HOME'} = getcwd() . "/" . $self->{"userspath"};
   }
-  
+
   my $outdir = dirname($filename);
 
   if (!$::lx_office_conf{print_templates}->{openofficeorg_daemon}) {
