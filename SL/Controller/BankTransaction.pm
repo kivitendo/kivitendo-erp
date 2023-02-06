@@ -958,8 +958,17 @@ sub prepare_report {
                                align => 'right' },
     invoice_amount        => { sub   => sub { $_[0]->invoice_amount_as_number },
                                align => 'right' },
-    invoices              => { sub   => sub { my @invnumbers; for my $obj (@{ $_[0]->linked_invoices }) {
-                                                                next unless $obj; push @invnumbers, $obj->invnumber } return \@invnumbers } },
+    invoices              => { sub      => sub { my @invnumbers; for my $obj (@{ $_[0]->linked_invoices }) {
+                                                                next unless $obj; push @invnumbers, $obj->invnumber } return \@invnumbers },
+                               obj_link => sub { my @links;      for my $obj (@{ $_[0]->linked_invoices }) {
+                                                                next unless $obj; my $script =  ref $obj eq 'SL::DB::GLTransaction' ? 'gl.pl'
+                                                                                            :   $obj->is_sales &&  $obj->invoice    ? 'is.pl'
+                                                                                            :   $obj->is_sales && !$obj->invoice    ? 'ar.pl'
+                                                                                            :  !$obj->is_sales &&  $obj->invoice    ? 'ir.pl'
+                                                                                            :  !$obj->is_sales && !$obj->invoice    ? 'ap.pl'
+                                                                                            :  die "Invalid invoice state for link";
+                                                                push @links,$script . "?action=edit&id=" . $obj->id } return \@links }
+                             },
     currency              => { sub   => sub { $_[0]->currency->name } },
     purpose               => { },
     local_account_number  => { sub   => sub { $_[0]->local_bank_account->account_number } },
