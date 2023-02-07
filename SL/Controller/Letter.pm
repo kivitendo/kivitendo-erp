@@ -240,7 +240,6 @@ sub action_print_letter {
     # set some form defaults for printing webdav copy variables
     if ( $::form->{media} eq 'email') {
       my $mail              = Mailer->new;
-      my $signature         = $::myconfig{signature};
       $mail->{$_}           = $params{email}->{$_} for qw(to cc subject message bcc);
       $mail->{from}         = qq|"$::myconfig{name}" <$::myconfig{email}>|;
       $mail->{attachments}  = [{ path => $result{file_name},
