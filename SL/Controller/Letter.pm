@@ -245,8 +245,8 @@ sub action_print_letter {
       $mail->{from}         = qq|"$::myconfig{name}" <$::myconfig{email}>|;
       $mail->{attachments}  = [{ path => $result{file_name},
                                  name => $params{email}->{attachment_filename} }];
-      $mail->{message}     .=  "\n-- \n$signature";
       $mail->{message}      =~ s/\r//g;
+      $mail->{message}     .=  $::form->create_email_signature();
       $mail->{record_id}    =  $letter->id;
       $mail->{content_type} = 'text/html';
       $mail->send;
