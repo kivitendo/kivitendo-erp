@@ -1758,6 +1758,7 @@ $self->{texts} = {
   'General settings'            => '',
   'Generate and print sales delivery orders' => '',
   'Generating the document failed: #1' => '',
+  'Generic Presenter Test'      => '',
   'Generic email send address for this record type.' => '',
   'Germany'                     => '',
   'Get one order'               => '',
