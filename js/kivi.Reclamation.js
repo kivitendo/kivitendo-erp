@@ -800,6 +800,72 @@ namespace('kivi.Reclamation', function(ns) {
     window.open("controller.pl?action=CustomerVendor/edit&db=" + encodeURIComponent(db) + "&id=" + encodeURIComponent($(id_selector).val()), '_blank');
   };
 
+  ns.get_selected_rows = function() {
+    let selected_rows = [];
+    $('[name^="multi_id_"]').each( function() {
+      if (this.checked) {
+        selected_rows.push($(this).parents("tr").first());
+      }
+    });
+    return selected_rows;
+  }
+
+  ns.toggle_selected_rows = function() {
+    let selected_rows = [];
+    $('[name^="multi_id_"]').each( function() {
+      this.checked = !this.checked;
+    });
+    return selected_rows;
+  }
+
+  ns.delete_selected_rows = function() {
+    selected_rows = ns.get_selected_rows();
+    let row_count = selected_rows.length;
+    if (row_count == 0) {
+      alert(kivi.t8("No row selected."));
+      return;
+    }
+    if (!confirm(kivi.t8("Do you want delete #1 rows?", [row_count]))) {
+      return;
+    }
+    selected_rows.forEach(function(row) {
+      $(row).remove();
+    });
+    ns.renumber_positions();
+    ns.recalc_amounts_and_taxes();
+  };
+
+  ns.set_selected_to_reason = function() {
+    let reason_id = $("#reason_for_selected").val();
+    let selected_rows = ns.get_selected_rows();
+    selected_rows.forEach(function(row) {
+      $(row).find('[name="reclamation.reclamation_items[].reason_id"]').val(
+        reason_id
+      );
+    });
+
+  };
+
+  ns.set_selected_to_reason_description_ext = function() {
+    desc_ext_text = $("[name=reason_description_ext_for_selected]").val();
+    let selected_rows = ns.get_selected_rows();
+    selected_rows.forEach(function(row) {
+      $(row).find('[name="reclamation.reclamation_items[].reason_description_ext"]').val(
+        desc_ext_text
+      );
+    });
+  };
+
+  ns.set_selected_to_reason_description_int = function() {
+    desc_int_text = $("[name=reason_description_int_for_selected]").val();
+    let selected_rows = ns.get_selected_rows();
+    selected_rows.forEach(function(row) {
+      $(row).find('[name="reclamation.reclamation_items[].reason_description_int"]').val(
+        desc_int_text
+      );
+    });
+  };
+
 });
 
 $(function() {
@@ -857,6 +923,13 @@ $(function() {
       });
     }
     return false;
+  });
+
+  $('#select_all').click( function() {
+    var checked = this.checked
+    $('[name^="multi_id_"]').each(function() {
+      this.checked =  checked;
+    });
   });
 
   $('.reformat_number_as_null_number').change(kivi.Reclamation.reformat_number_as_null_number);

@@ -22,6 +22,9 @@
       [%- END %]
     </td>
     <td>
+      [% L.checkbox_tag('multi_id_' _ ITEM.position, value=ITEM.id, checked=0) %]
+    </td>
+    <td>
       <div name="position" class="numeric">
         [% HTML.escape(ITEM.position) %]
       </div>

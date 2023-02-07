@@ -301,6 +301,9 @@
             [%- L.img_tag(src="image/expand.svg", alt=LxERP.t8('Show all details'), title=LxERP.t8('Show all details'), id='expand_all') %]
           [%- END %]
         </th>
+          <th>
+            [% L.checkbox_tag("select_all_multi_id", checked=0, alt=LxERP.t8('Select/Deselect all'), title=LxERP.t8('Select/Deselect all'), id='select_all') %]
+          </th>
         <th>[% 'position' | $T8 %] </th>
         <th style='text-align:center'><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
         <th style='text-align:center'><img src="image/close.png" alt="[%- LxERP.t8('delete item') %]"></th>
@@ -332,6 +335,62 @@
         <th id="discount_header_id"><a href='#' onClick='javascript:kivi.Reclamation.reorder_items("discount")'>  [%- 'Discount'    | $T8 %]</a></th>
         <th>[%- 'Extended' | $T8 %] </th>
       </tr>
+      <tr>
+        <th></th>
+        <th class="center">
+          [%- L.button_tag('kivi.Reclamation.toggle_selected_rows();', "🔄",
+                           title=LxERP.t8("Toggle selection"),
+                           alt=LxERP.t8("Toggle selection"),
+                           ) %]
+        </th>
+        <th colspan="2"></th>
+        <th class="center">
+          [%- L.button_tag('kivi.Reclamation.delete_selected_rows();', LxERP.t8("X"),
+                           title=LxERP.t8("Delete selected rows"),
+                           alt=LxERP.t8("Delete selected rows"),
+                           ) %]
+        </th>
+        [%- IF SELF.show_update_button -%]
+        <th></th>
+        [%- END -%]
+        <th colspan="3"></th>
+        <th>
+          [% L.select_tag("reason_for_selected",
+                          SELF.reclamation.valid_reclamation_reasons,
+                          title_key = 'name',
+                          value_key = 'id',
+                          with_empty=1,
+                          class="wi-small",
+                          ) %]
+          [%- L.button_tag('kivi.Reclamation.set_selected_to_reason()', "↓",
+                           alt=LxERP.t8('Apply to selected rows'),
+                           title=LxERP.t8('Apply to selected rows'),
+                           ) %]
+        </th>
+        <th>
+          [% L.areainput_tag("reason_description_ext_for_selected",
+                             "",
+                             size='40',
+                             class="wi-mediumsmall",
+                             ) %]
+          [%- L.button_tag('kivi.Reclamation.set_selected_to_reason_description_ext()', "↓",
+                           alt=LxERP.t8('Apply to selected rows'),
+                           title=LxERP.t8('Apply to selected rows'),
+                           ) %]
+        </th>
+        <th>
+          [% L.areainput_tag("reason_description_int_for_selected",
+                             "",
+                             size='40',
+                             class="wi-mediumsmall",
+                             ) %]
+          [%- L.button_tag('kivi.Reclamation.set_selected_to_reason_description_int()', "↓",
+                           alt=LxERP.t8('Apply to selected rows'),
+                           title=LxERP.t8('Apply to selected rows'),
+                           ) %]
+        </th>
+        <th colspan="7"></th>
+      </tr>
     </thead>
 
     [%- FOREACH item = SELF.reclamation.items_sorted %]
@@ -340,7 +399,7 @@
 
     <tfoot>
       <tr id="subtotal_row_id">
-        <td colspan="13"></td>
+        <td colspan="14"></td>
         [%- IF SELF.show_update_button -%]
         <td></td>
         [%- END -%]
@@ -351,7 +410,7 @@
         [%- PROCESS reclamation/tabs/basic_data/_tax_row.html TAX=tax TAXINCLUDED=SELF.reclamation.taxincluded %]
       [%- END %]
       <tr id="amount_row_id">
-        <td colspan="13"></td>
+        <td colspan="14"></td>
         [%- IF SELF.show_update_button -%]
         <td></td>
         [%- END -%]
