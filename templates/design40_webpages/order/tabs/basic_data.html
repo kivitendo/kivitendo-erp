@@ -383,6 +383,9 @@
     [% END %]
     <tr id="subtotal_row_id">
       <td colspan="[%- 10 + add_col %]"></td>
+      [%- IF SELF.show_update_button -%]
+      <td></td>
+      [%- END -%]
       <th colspan="3">[% IF SELF.order.taxincluded %][% 'Subtotal' | $T8 %][% END %]</th>
       <td>[% IF SELF.order.taxincluded %][% L.div_tag(SELF.order.netamount_as_number, id='netamount_id') %][% END %]</td>
     </tr>
@@ -398,6 +401,9 @@
       <td class="numeric">[%- LxERP.format_amount(SELF.order.marge_percent, 2) %] %</td>
       [%- ELSE -%]
       <td colspan="7"></td>
+      [%- END -%]
+      [%- IF SELF.show_update_button -%]
+      <td></td>
       [%- END -%]
       <td colspan="[%- 3 + add_col %]"></td>
       <th colspan="3">[% 'Total' | $T8 %]</th>
