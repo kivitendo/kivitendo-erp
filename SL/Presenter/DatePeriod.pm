@@ -57,7 +57,8 @@ sub get_dialog_defaults_from_report_generator {
   );
   my %defaults_dialog;
   for (keys %fallback_dateperiod_dialog) {
-    $defaults_dialog{$_} = $::form->{'report_generator_hidden_' . $id . '_selected_preset_' . $_} //
+    $defaults_dialog{$_} = $::form->{$id . '_selected_preset_' . $_} //
+                            $::form->{'report_generator_hidden_' . $id . '_selected_preset_' . $_} //
                             $fallback_dateperiod_dialog{$_};
   }
   return \%defaults_dialog;
@@ -212,11 +213,13 @@ E.g.:
   my @hidden_variables = qw(chart_id);    # e.g.
   populate_hidden_variables('dateperiod', \@hidden_variables);
 
-
 =item C<get_dialog_defaults_from_report_generator $name>
 
 Convenience function to get the dialog defaults from hidden report generator
 fields. (Use in controller.)
+
+First uses form fields: C<$id . '_selected_preset_' ...>.
+Then report generator fields: C<'report_generator_hidden_' . $id . '_selected_preset_' ...>
 
 C<$name> name of the date picker.
 
