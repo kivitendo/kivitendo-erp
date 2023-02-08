@@ -386,8 +386,8 @@
       [%- IF SELF.show_update_button -%]
       <td></td>
       [%- END -%]
-      <th colspan="3">[% IF SELF.order.taxincluded %][% 'Subtotal' | $T8 %][% END %]</th>
-      <td>[% IF SELF.order.taxincluded %][% L.div_tag(SELF.order.netamount_as_number, id='netamount_id') %][% END %]</td>
+      <th colspan="3">[% IF !SELF.order.taxincluded %][% 'Subtotal' | $T8 %][% END %]</th>
+      <td class="numeric">[% IF !SELF.order.taxincluded %][% L.div_tag(SELF.order.netamount_as_number, id='netamount_id') %][% END %]</td>
     </tr>
     [% FOREACH tax = SELF.taxes %]
       [% PROCESS order/tabs/_tax_row.html TAX=tax TAXINCLUDED=SELF.order.taxincluded QUOTATION=SELF.order.quotation %]

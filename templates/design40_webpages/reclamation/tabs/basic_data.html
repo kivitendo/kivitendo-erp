@@ -344,8 +344,8 @@
         [%- IF SELF.show_update_button -%]
         <td></td>
         [%- END -%]
-        <th colspan="3">[%- 'Subtotal' | $T8 %]</th>
-        <td class="numeric">[% IF SELF.reclamation.taxincluded %][%- L.div_tag(SELF.reclamation.netamount_as_number, id='netamount_id') %][% END %]</td>
+        <th colspan="3">[% IF !SELF.reclamation.taxincluded %][%- 'Subtotal' | $T8 %][% END %]</th>
+        <td class="numeric">[% IF !SELF.reclamation.taxincluded %][%- L.div_tag(SELF.reclamation.netamount_as_number, id='netamount_id') %][% END %]</td>
       </tr>
       [%- FOREACH tax = SELF.reclamation.taxes %]
         [%- PROCESS reclamation/tabs/basic_data/_tax_row.html TAX=tax TAXINCLUDED=SELF.reclamation.taxincluded %]

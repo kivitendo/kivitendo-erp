@@ -1836,6 +1836,7 @@ sub build_tax_rows {
   foreach my $tax (sort { $a->{tax}->rate cmp $b->{tax}->rate } @{ $self->{taxes} }) {
     $rows_as_html .= $self->p->render(
       'order/tabs/_tax_row',
+      SELF => $self,
       TAX => $tax,
       TAXINCLUDED => $self->order->taxincluded,
       QUOTATION => $self->order->quotation

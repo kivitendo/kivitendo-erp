@@ -1423,6 +1423,7 @@ sub build_tax_rows {
   foreach my $tax (sort { $a->{tax}->rate cmp $b->{tax}->rate } @{ $self->reclamation->taxes }) {
     $rows_as_html .= $self->p->render(
                        'reclamation/tabs/basic_data/_tax_row',
+                       SELF => $self,
                        TAX => $tax,
                        TAXINCLUDED => $self->reclamation->taxincluded,
                      );
