@@ -3,30 +3,31 @@ package SL::Controller::Part;
 use strict;
 use parent qw(SL::Controller::Base);
 
+use Carp;
 use Clone qw(clone);
+use Data::Dumper;
+use DateTime;
+use File::Temp;
+use List::Util qw(sum);
+use List::UtilsBy qw(extract_by);
+use POSIX qw(strftime);
+use Text::CSV_XS;
+
+use SL::CVar;
+use SL::Controller::Helper::GetModels;
+use SL::DB::Helper::ValidateAssembly qw(validate_assembly);
+use SL::DB::History;
 use SL::DB::Part;
 use SL::DB::PartsGroup;
 use SL::DB::PriceRuleItem;
 use SL::DB::Shop;
-use SL::Controller::Helper::GetModels;
-use SL::Locale::String qw(t8);
-use SL::JSON;
-use File::Temp;
-use List::Util qw(sum);
-use List::UtilsBy qw(extract_by);
 use SL::Helper::Flash;
-use Data::Dumper;
-use DateTime;
-use POSIX qw(strftime);
-use SL::DB::History;
-use SL::DB::Helper::ValidateAssembly qw(validate_assembly);
-use SL::CVar;
+use SL::JSON;
+use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(save_form);
-use Carp;
 use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Part;
 use SL::Presenter::Tag qw(select_tag);
-use Text::CSV_XS;
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(parts models part p warehouses multi_items_models
