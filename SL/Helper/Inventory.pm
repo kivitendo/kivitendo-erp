@@ -8,6 +8,7 @@ use List::Util qw(min sum);
 use List::UtilsBy qw(sort_by);
 use List::MoreUtils qw(any);
 use POSIX qw(ceil);
+use Scalar::Util qw(blessed);
 
 use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(listify);
@@ -196,9 +197,12 @@ sub allocate {
     last if $rest_qty == 0;
   }
   if ($rest_qty > 0) {
-    die SL::X::Inventory::Allocation->new(
-      code    => 'not enough to allocate',
-      message => t8("can not allocate #1 units of #2, missing #3 units", _format_number($qty), $part->displayable_name, _format_number($rest_qty)),
+    die SL::X::Inventory::Allocation::MissingQty->new(
+      code             => 'not enough to allocate',
+      message          => t8("can not allocate #1 units of #2, missing #3 units", _format_number($qty), $part->displayable_name, _format_number($rest_qty)),
+      part_description => $part->displayable_name,
+      to_allocate_qty  => $qty,
+      missing_qty      => $rest_qty,
     );
   } else {
     if ($params{constraints}) {
@@ -228,20 +232,41 @@ sub allocate_for_assembly {
     $parts_to_allocate{ $assembly->part->id } += $assembly->qty * $qty;
   }
 
-  my @allocations;
+  my (@allocations, @errors);
 
   for my $part_id (keys %parts_to_allocate) {
     my $part = SL::DB::Part->load_cached($part_id);
-    push @allocations, allocate(%params, part => $part, qty => $parts_to_allocate{$part_id});
-    if ($wh_strict) {
-      die SL::X::Inventory::Allocation->new(
-        code    => "wrong warehouse for part",
-        message => t8('Part #1 exists in warehouse #2, but not in warehouse #3 ',
-                        $part->partnumber . ' ' . $part->description,
-                        SL::DB::Manager::Warehouse->find_by(id => $allocations[-1]->{warehouse_id})->description,
-                        $wh->description),
-      ) unless $allocations[-1]->{warehouse_id} == $wh->id;
-    }
+
+    eval {
+      push @allocations, allocate(%params, part => $part, qty => $parts_to_allocate{$part_id});
+      if ($wh_strict) {
+        die SL::X::Inventory::Allocation->new(
+          code    => "wrong warehouse for part",
+          message => t8('Part #1 exists in warehouse #2, but not in warehouse #3 ',
+                          $part->partnumber . ' ' . $part->description,
+                          SL::DB::Manager::Warehouse->find_by(id => $allocations[-1]->{warehouse_id})->description,
+                          $wh->description),
+        ) unless $allocations[-1]->{warehouse_id} == $wh->id;
+      }
+      1;
+    } or do {
+      my $ex = $@;
+      die $ex unless blessed($ex) && $ex->can('rethrow');
+
+      if ($ex->isa('SL::X::Inventory::Allocation')) {
+        push @errors, $@;
+      } else {
+        $ex->rethrow;
+      }
+    };
+  }
+
+  if (@errors) {
+    die SL::X::Inventory::Allocation::Multi->new(
+      code    => "multiple errors during allocation",
+      message => "multiple errors during allocation",
+      errors  => \@errors,
+    );
   }
 
   @allocations;
