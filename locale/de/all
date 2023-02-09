@@ -709,6 +709,7 @@ $self->{texts} = {
   'Choose a Tax Number'         => 'Bitte eine Steuernummer angeben',
   'Choose bank account for reconciliation' => 'Wählen Sie das Bankkonto für den Kontenabgleich',
   'City'                        => 'Stadt',
+  'Classification'              => 'Klassifizierung',
   'Clear'                       => 'Löschen',
   'Clear fields'                => 'Felder leeren',
   'Cleared Balance'             => 'abgeschlossen',
