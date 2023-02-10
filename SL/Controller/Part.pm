@@ -693,8 +693,10 @@ sub action_show {
   }
 }
 
-sub action_export_assembly_components {
+sub action_export_assembly_assortment_components {
   my ($self) = @_;
+
+  my $bom_or_charge = $self->part->is_assembly ? 'bom' : 'charge';
 
   my @rows = ([
     $::locale->text('Partnumber'),
@@ -703,7 +705,7 @@ sub action_export_assembly_components {
     $::locale->text('Classification'),
     $::locale->text('Qty'),
     $::locale->text('Unit'),
-    $::locale->text('BOM'),
+    $self->part->is_assembly ? $::locale->text('BOM') : $::locale->text('Charge'),
     $::locale->text('Line Total'),
     $::locale->text('Sellprice'),
     $::locale->text('Lastcost'),
@@ -720,7 +722,7 @@ sub action_export_assembly_components {
       SL::Presenter::Part::classification_abbreviation($part->classification_id),
       $item->qty_as_number,
       $part->unit,
-      $item->bom ? $::locale->text('yes') : $::locale->text('no'),
+      $item->$bom_or_charge ? $::locale->text('yes') : $::locale->text('no'),
       $::form->format_amount(\%::myconfig, $item->linetotal_sellprice, 3, 0),
       $part->sellprice_as_number,
       $part->lastcost_as_number,
@@ -744,10 +746,11 @@ sub action_export_assembly_components {
 
   $file_handle->close;
 
-  my $timestamp       = strftime('_%Y-%m-%d_%H-%M-%S', localtime());
+  my $type_prefix     = $self->part->is_assembly ? 'assembly' : 'assortment';
   my $part_number     = $self->part->partnumber;
   $part_number        =~ s{[^[:word:]]+}{_}g;
-  my $attachment_name = sprintf('assembly_components_%s_%s.csv', $part_number, $timestamp);
+  my $timestamp       = strftime('_%Y-%m-%d_%H-%M-%S', localtime());
+  my $attachment_name = sprintf('%s_components_%s_%s.csv', $type_prefix, $part_number, $timestamp);
 
   $self->send_file(
     $file_name,
@@ -1466,17 +1469,17 @@ sub _setup_form_action_bar {
       combobox => [
         action => [
           t8('Export'),
-          only_if => $self->part->is_assembly,
+          only_if => $self->part->is_assembly || $self->part->is_assortment,
         ],
         action => [
-          t8('Assembly items'),
-          submit   => [ '#ic', { action => "Part/export_assembly_components" } ],
+          $self->part->is_assembly ? t8('Assembly items') : t8('Assortment items'),
+          submit   => [ '#ic', { action => "Part/export_assembly_assortment_components" } ],
           checks   => ['kivi.validate_form'],
           disabled => !$self->part->id                                    ? t8('The object has not been saved yet.')
                     : !$may_edit                                          ? t8('You do not have the permissions to access this function.')
                     : !$::auth->assert('purchase_order_edit', 'may fail') ? t8('You do not have the permissions to access this function.')
                     :                                                       undef,
-          only_if  => $self->part->is_assembly,
+          only_if  => $self->part->is_assembly || $self->part->is_assortment,
         ],
       ],
 
