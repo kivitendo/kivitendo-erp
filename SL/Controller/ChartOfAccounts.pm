@@ -19,7 +19,7 @@ __PACKAGE__->run_before(sub { $::auth->assert('report'); });
 
 sub action_list {
   my ($self) = @_;
-  
+
   if ( $::instance_conf->get_accounting_method eq 'cash' ) {
     $::form->{method} = "cash";
   }
@@ -66,7 +66,7 @@ sub set_report_data {
 
   my $debit_sum = 0.;
   my $credit_sum = 0.;
-  
+
   # i tried to use the get_balance function from SL::DB::Manager::Chart here,
   # but the results i got were different (numbers and defined balance/amount),
   # the database queries in CA are more sophisticated, therefore i'm still using these for now,
@@ -103,8 +103,8 @@ sub set_report_data {
     debit       => { data => $::form->format_amount(\%::myconfig, $debit_sum * -1., 2)},
     credit      => { data => $::form->format_amount(\%::myconfig, $credit_sum, 2)},
   );
-  %data_total{$_}->{align} = 'right' for qw(debit credit);
-  %data_total{$_}->{class} = 'listtotal' for keys %data_total;
+  $data_total{$_}->{align} = 'right' for qw(debit credit);
+  $data_total{$_}->{class} = 'listtotal' for keys %data_total;
 
   $self->report->add_data(\%data_total);
 }
