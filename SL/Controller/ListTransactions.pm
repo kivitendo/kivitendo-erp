@@ -265,7 +265,11 @@ sub set_report_data {
     # formatting
     my $credit = $tr->{credit} ? $::form->format_amount(\%::myconfig, $tr->{credit}, 2) : '0';
     my $debit = $tr->{debit} ? $::form->format_amount(\%::myconfig, $tr->{debit}, 2) : '0';
-    my $ustrate = $::form->format_amount(\%::myconfig, $tr->{ustrate} * 100, 2) if ($tr->{ustrate} != 0);
+    my $ustrate = '';
+    if ($tr->{ustrate}) {
+      # only format to decimal point when not zero (analog to previous behavior in ca.pl)
+      $ustrate = $tr->{ustrate} != 0 ? $::form->format_amount(\%::myconfig, $tr->{ustrate} * 100, 2) : '0';
+    }
 
     my $gegenkonto_string = "";
     foreach my $gegenkonto (@{ $tr->{GEGENKONTO} }) {
