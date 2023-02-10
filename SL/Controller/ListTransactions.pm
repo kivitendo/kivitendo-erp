@@ -307,6 +307,7 @@ sub set_report_data {
       my %data = map { $_ => { class => 'listtotal' } } keys %{ $self->report->{columns} };
       $data{credit}->{data} = $::form->format_amount(\%::myconfig, $subtotal_credit, 2);
       $data{debit}->{data} = $::form->format_amount(\%::myconfig, $subtotal_debit, 2);
+      $data{$_}->{align} = 'right' for qw(debit credit);
       push @row_set, \%data;
 
       $subtotal_credit = 0.;
