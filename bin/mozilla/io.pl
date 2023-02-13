@@ -2195,12 +2195,15 @@ sub show_sales_purchase_email_dialog {
   my $email = '';
   my $email_cc = '';
   my $record_email;
+
+  my $is_invoice_mail = $::form->{type} =~ m{final_invoice|credit_note|invoice_for_advance_payment|invoice};
+
   if ($::form->{cp_id}) {
     $email = SL::DB::Contact->load_cached($::form->{cp_id})->cp_email;
   }
   # write a dispatch table if a third type enters
   # check record mail for sales_invoice
-  if ($::form->{type} eq 'invoice' && (!$email || $::instance_conf->get_invoice_mail_settings ne 'cp')) {
+  if ($is_invoice_mail && (!$email || $::instance_conf->get_invoice_mail_settings ne 'cp')) {
     # check for invoice_mail if defined (vc.invoice_email)
     $record_email = SL::DB::Customer->load_cached($::form->{vc_id})->invoice_mail;
     if ($record_email) {
@@ -2261,7 +2264,7 @@ sub show_sales_purchase_email_dialog {
     show_bcc        => $::auth->assert('email_bcc', 'may fail'),
     FILES           => \%files,
     is_customer     => $::form->{vc} eq 'customer',
-    is_invoice_mail => ($record_email && $::form->{type} eq 'invoice'),
+    is_invoice_mail => ($record_email && $is_invoice_mail),
     ALL_EMPLOYEES   => \@employees_with_email,
     ALL_PARTNER_EMAIL_ADDRESSES => $all_partner_email_addresses,
   });
