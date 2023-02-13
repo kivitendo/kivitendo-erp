@@ -3,25 +3,30 @@ package SL::Controller::Part;
 use strict;
 use parent qw(SL::Controller::Base);
 
+use Carp;
 use Clone qw(clone);
+use Data::Dumper;
+use DateTime;
+use File::Temp;
+use List::Util qw(sum);
+use List::UtilsBy qw(extract_by);
+use POSIX qw(strftime);
+use Text::CSV_XS;
+
+use SL::CVar;
+use SL::Controller::Helper::GetModels;
+use SL::DB::Helper::ValidateAssembly qw(validate_assembly);
+use SL::DB::History;
 use SL::DB::Part;
 use SL::DB::PartsGroup;
 use SL::DB::PriceRuleItem;
 use SL::DB::Shop;
-use SL::Controller::Helper::GetModels;
-use SL::Locale::String qw(t8);
-use SL::JSON;
-use List::Util qw(sum);
-use List::UtilsBy qw(extract_by);
 use SL::Helper::Flash;
-use Data::Dumper;
-use DateTime;
-use SL::DB::History;
-use SL::DB::Helper::ValidateAssembly qw(validate_assembly);
-use SL::CVar;
+use SL::JSON;
+use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(save_form);
-use Carp;
 use SL::Presenter::EscapedText qw(escape is_escaped);
+use SL::Presenter::Part;
 use SL::Presenter::Tag qw(select_tag);
 
 use Rose::Object::MakeMethods::Generic (
@@ -686,6 +691,73 @@ sub action_show {
 
     $self->render(\ SL::JSON::to_json($part_hash), { layout => 0, type => 'json', process => 0 });
   }
+}
+
+sub action_export_assembly_assortment_components {
+  my ($self) = @_;
+
+  my $bom_or_charge = $self->part->is_assembly ? 'bom' : 'charge';
+
+  my @rows = ([
+    $::locale->text('Partnumber'),
+    $::locale->text('Description'),
+    $::locale->text('Type'),
+    $::locale->text('Classification'),
+    $::locale->text('Qty'),
+    $::locale->text('Unit'),
+    $self->part->is_assembly ? $::locale->text('BOM') : $::locale->text('Charge'),
+    $::locale->text('Line Total'),
+    $::locale->text('Sellprice'),
+    $::locale->text('Lastcost'),
+    $::locale->text('Partsgroup'),
+  ]);
+
+  foreach my $item (@{ $self->part->items }) {
+    my $part = $item->part;
+
+    my @row = (
+      $part->partnumber,
+      $part->description,
+      SL::Presenter::Part::type_abbreviation($part->part_type),
+      SL::Presenter::Part::classification_abbreviation($part->classification_id),
+      $item->qty_as_number,
+      $part->unit,
+      $item->$bom_or_charge ? $::locale->text('yes') : $::locale->text('no'),
+      $::form->format_amount(\%::myconfig, $item->linetotal_sellprice, 3, 0),
+      $part->sellprice_as_number,
+      $part->lastcost_as_number,
+      $part->partsgroup ? $part->partsgroup->partsgroup : '',
+    );
+
+    push @rows, \@row;
+  }
+
+  my $csv = Text::CSV_XS->new({
+    sep_char => ';',
+    eol      => "\n",
+    binary   => 1,
+  });
+
+  my ($file_handle, $file_name) = File::Temp::tempfile;
+
+  binmode $file_handle, ":encoding(utf8)";
+
+  $csv->print($file_handle, $_) for @rows;
+
+  $file_handle->close;
+
+  my $type_prefix     = $self->part->is_assembly ? 'assembly' : 'assortment';
+  my $part_number     = $self->part->partnumber;
+  $part_number        =~ s{[^[:word:]]+}{_}g;
+  my $timestamp       = strftime('_%Y-%m-%d_%H-%M-%S', localtime());
+  my $attachment_name = sprintf('%s_components_%s_%s.csv', $type_prefix, $part_number, $timestamp);
+
+  $self->send_file(
+    $file_name,
+    content_type => 'text/csv',
+    name         => $attachment_name,
+  );
+
 }
 
 # helper functions
@@ -1391,6 +1463,23 @@ sub _setup_form_action_bar {
                     : !$::auth->assert('purchase_order_edit', 'may fail') ? t8('You do not have the permissions to access this function.')
                     :                                                       undef,
           only_if  => !$::form->{inline_create},
+        ],
+      ],
+
+      combobox => [
+        action => [
+          t8('Export'),
+          only_if => $self->part->is_assembly || $self->part->is_assortment,
+        ],
+        action => [
+          $self->part->is_assembly ? t8('Assembly items') : t8('Assortment items'),
+          submit   => [ '#ic', { action => "Part/export_assembly_assortment_components" } ],
+          checks   => ['kivi.validate_form'],
+          disabled => !$self->part->id                                    ? t8('The object has not been saved yet.')
+                    : !$may_edit                                          ? t8('You do not have the permissions to access this function.')
+                    : !$::auth->assert('purchase_order_edit', 'may fail') ? t8('You do not have the permissions to access this function.')
+                    :                                                       undef,
+          only_if  => $self->part->is_assembly || $self->part->is_assortment,
         ],
       ],
 
