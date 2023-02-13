@@ -2746,7 +2746,7 @@ dialog. Maybe there could be used one code source.
 
 =item *
 
-A warning when leaving the page without saveing unchanged inputs.
+A warning when leaving the page without saving unchanged inputs.
 
 =back
 

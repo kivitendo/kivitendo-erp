@@ -50,6 +50,7 @@ postition
 primt
 puchase
 puhs
+saveing
 sekf
 seperat
 substract

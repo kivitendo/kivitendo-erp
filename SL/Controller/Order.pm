@@ -3097,7 +3097,7 @@ editor or on text processing application).
 
 =item *
 
-A warning when leaving the page without saveing unchanged inputs.
+A warning when leaving the page without saving unchanged inputs.
 
 
 =back
