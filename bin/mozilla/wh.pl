@@ -32,8 +32,10 @@
 #
 #######################################################################
 
+use Carp;
 use List::Util qw(min max first);
 use POSIX qw(strftime);
+use Scalar::Util qw(blessed);
 
 use SL::Form;
 use SL::User;
@@ -396,7 +398,8 @@ sub create_assembly {
     $form->{bestbefore} = '';
   }
 
-  produce_assembly(
+  eval {
+    produce_assembly(
               part           => $assembly,               # target assembly
               qty            => $form->{qty},            # qty
               auto_allocate  => 1,
@@ -404,7 +407,24 @@ sub create_assembly {
               chargenumber   => $form->{chargenumber},   # optional
               bestbefore     => $form->{bestbefore},
               comment        => $form->{comment},        # optional
-  );
+    );
+    1;
+
+  } or do {
+    my $ex = $@;
+    die $ex unless blessed($ex) && $ex->isa('SL::X::Inventory::Allocation::Multi');
+
+    $form->{title} = $locale->text('Produce Assembly');
+    $form->header;
+    print $form->parse_html_template(
+      'wh/produce_assembly_error',
+      {
+        missing_qty_exceptions => [ grep {  $_->isa('SL::X::Inventory::Allocation::MissingQty') } @{ $ex->errors } ],
+        other_exceptions       => [ grep { !$_->isa('SL::X::Inventory::Allocation::MissingQty') } @{ $ex->errors } ],
+      });
+
+    return $::lxdebug->leave_sub();
+  };
 
   delete @{$form}{qw(parts_id partnumber description qty unit chargenumber bestbefore comment)};
 
