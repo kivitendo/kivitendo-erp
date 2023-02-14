@@ -61,6 +61,20 @@ sub delete {
   # fehler: exception
 }
 
+sub _save_history {
+  my ($record, $addition, %history) = @_;
+
+  my $number_type = $record->type =~ m{order} ? 'ordnumber' : 'quonumber';
+  my $snumbers    = $number_type . '_' . $record->$number_type;
+
+  SL::DB::History->new(
+    trans_id    => $record->id,
+    employee_id => SL::DB::Manager::Employee->current->id,
+    what_done   => $record->type,
+    snumbers    => $snumbers,
+    addition    => $addition,
+  )->save;
+}
 sub save {
   my ($class, $record, %params) = @_;
 
