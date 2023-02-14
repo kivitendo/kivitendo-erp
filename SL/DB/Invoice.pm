@@ -272,10 +272,13 @@ sub new_from {
                                donumber         => ref($item_parent) eq 'SL::DB::DeliveryOrder' ? $item_parent->donumber  : $source_item->can('donumber') ? $source_item->donumber : '',
                              );
 
-    $current_invoice_item->{"converted_from_orderitems_id"}           = $_->{id} if ref($item_parent) eq 'SL::DB::Order';
-    $current_invoice_item->{"converted_from_delivery_order_items_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::DeliveryOrder';
+    $current_invoice_item->{RECORD_ITEM_ID()}           = $_->{id};
+    $current_invoice_item->{RECORD_ITEM_TYPE_REF()}     = ref $source_item;
     $current_invoice_item;
   } @{ $items };
+
+  $invoice->{RECORD_ID()}           = $source->id;
+  $invoice->{RECORD_TYPE_REF()}     = ref $source;
 
   @items = grep { $params{item_filter}->($_) } @items if $params{item_filter};
   @items = grep { $_->qty * 1 } @items if $params{skip_items_zero_qty};

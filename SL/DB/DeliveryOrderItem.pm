@@ -10,6 +10,7 @@ use SL::DB::MetaSetup::DeliveryOrderItem;
 use SL::DB::Manager::DeliveryOrderItem;
 use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::LinkedRecords;
+use SL::DB::Helper::RecordLink qw(RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::RecordItem;
 use SL::DB::Helper::CustomVariables (
   sub_module  => 'delivery_order_items',
@@ -107,13 +108,10 @@ sub new_from {
 
   my $item = $class->new(%item_args);
 
-  my $source_table = '';
-  if( ref($source) eq 'SL::DB::OrderItem' ) {
-    $source_table = 'orderitems';
-  } elsif ( ref($source) eq 'SL::DB::ReclamationItem' ) {
-    $source_table = 'reclamation_items';
+  unless ($params{no_linked_records}) {
+    $item->{ RECORD_ITEM_ID() } = $source->id;
+    $item->{ RECORD_ITEM_TYPE_REF() } = ref $source;
   }
-  $item->{"converted_from_". $source_table ."_id"} = $_->{id};
 
   return $item;
 }

@@ -249,13 +249,18 @@ sub new_from {
   my $items = delete($params{items}) || $source->items_sorted;
   my @items = ( $delivery_order->is_type(SUPPLIER_DELIVERY_ORDER_TYPE) && ref($source) ne 'SL::DB::Reclamation' ) ?
                 ()
-              : map { SL::DB::DeliveryOrderItem->new_from($_) } @{ $items };
+              : map { SL::DB::DeliveryOrderItem->new_from($_, %params) } @{ $items };
 
   @items = grep { $params{item_filter}->($_) } @items if $params{item_filter};
   @items = grep { $_->qty * 1 } @items if $params{skip_items_zero_qty};
   @items = grep { $_->qty >=0 } @items if $params{skip_items_negative_qty};
 
   $delivery_order->items(\@items);
+
+  unless ($params{no_linked_records}) {
+    $delivery_order->{ RECORD_ID() } = $source->id;
+    $delivery_order->{ RECORD_TYPE_REF() } = ref $source;
+  }
 
   return $delivery_order;
 }
@@ -405,22 +410,6 @@ sub convert_to_invoice {
   if (!$self->db->with_transaction(sub {
     require SL::DB::Invoice;
     $invoice = SL::DB::Invoice->new_from($self, %params)->post || die;
-    $self->link_to_record($invoice);
-    # TODO extend link_to_record for items, otherwise long-term no d.r.y.
-    foreach my $item (@{ $invoice->items }) {
-      foreach (qw(delivery_order_items)) {    # expand if needed (orderitems)
-        if ($item->{"converted_from_${_}_id"}) {
-          die unless $item->{id};
-          RecordLinks->create_links('mode'       => 'ids',
-                                    'from_table' => $_,
-                                    'from_ids'   => $item->{"converted_from_${_}_id"},
-                                    'to_table'   => 'invoice',
-                                    'to_id'      => $item->{id},
-          ) || die;
-          delete $item->{"converted_from_${_}_id"};
-        }
-      }
-    }
     $self->update_attributes(closed => 1);
     1;
   })) {
