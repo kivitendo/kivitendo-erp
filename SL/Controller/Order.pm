@@ -33,6 +33,7 @@ use SL::DB::RequirementSpec;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::ValidityToken;
+use SL::Model::Record;
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
@@ -107,9 +108,9 @@ sub action_add_from_reclamation {
 
   my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
   my %params;
-  $params{destination_type} = $reclamation->is_sales ? 'sales_order'
-                                              : 'purchase_order';
-  my $order = SL::DB::Order->new_from($reclamation, %params);
+  my $target_type = $reclamation->is_sales ? 'sales_order'
+                                           : 'purchase_order';
+  my $order = SL::Model::Record->new_from_workflow($reclamation, $target_type);
   $self->{converted_from_reclamation_id} = $::form->{from_id};
 
   $self->order($order);

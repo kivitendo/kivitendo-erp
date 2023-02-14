@@ -2,8 +2,14 @@ package SL::Model::Record;
 
 use strict;
 
-use SL::Locale::String qw(t8);
+use Carp;
 
+use SL::DB::Order;
+use SL::DB::DeliveryOrder;
+use SL::DB::Reclamation;
+use SL::DB::Invoice;
+
+use SL::Locale::String qw(t8);
 
 sub new {
   my ($class, $target_type, %flags) = @_;
@@ -18,14 +24,13 @@ sub new {
 }
 
 sub new_from_workflow {
-  my ($class, $source_objects, $target_type, %flags) = @_;
+  my ($class, $source_object, $target_subtype, %flags) = @_;
 
-  # source: entweder das einzelne quellobjekt oder ein arrayref von quellobjekten.
-  #   - wenn ein arrayref übergeben wurde muss der code testen ob die objekte alle subtype gleich sind und evtl customer/vendor gleich sind
+  # source: ein quellobjekt
   # target type: sollte ein subtype sein. wer das hier implementiert, sollte auch eine subtype registratur bauen in der man subtypes nachschlagen kann
   # flags: welche extra behandlungen sollen gemacht werden, z.B. record_links setzen
 
-  # muss prüfen ob diese umwandlung korrekt ist
+  # (muss prüfen ob diese umwandlung korrekt ist)
   # muss das entsprechende new_from in den objekten selber benutzen
   # und dann evtl nachbearbeitung machen (die bisher im controller stand)
 
@@ -33,6 +38,35 @@ sub new_from_workflow {
 
   # fehlerfall: exception aus unterliegendem code bubblen oder neue exception werfen
   # rückgabe: das neue objekt
+
+  $flags{destination_type} = $target_subtype;
+  my %defaults_flags = (
+    no_linked_records => 0,
+  );
+  %flags = (%flags, %defaults_flags);
+
+  my %subtype_to_type = (
+    # Order
+    "request_quotation" => "SL::DB::Order",
+    "purchase_order"    => "SL::DB::Order",
+    "sales_quotation"   => "SL::DB::Order",
+    "sales_order"       => "SL::DB::Order",
+    # DeliveryOrder
+    "sales_delivery_order"    => "SL::DB::DeliveryOrder",
+    "purchase_delivery_order" => "SL::DB::DeliveryOrder",
+    "rma_delivery_order"      => "SL::DB::DeliveryOrder",
+    "supplier_delivery_order" => "SL::DB::DeliveryOrder",
+    # Reclamation
+    "sales_reclamation"    => "SL::DB::Reclamation",
+    "purchase_reclamation" => "SL::DB::Reclamation",
+  );
+  my $target_type = $subtype_to_type{$target_subtype};
+  unless ($target_type) {
+    croak("Conversion not supported to $target_subtype");
+  }
+
+  my $target_object = ${target_type}->new_from($source_object, %flags);
+  return $target_object;
 }
 
 # im Moment nur bei Aufträgen

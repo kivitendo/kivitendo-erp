@@ -32,6 +32,7 @@ use SL::DB::Translation;
 use SL::DB::TransferType;
 use SL::DB::ValidityToken;
 use SL::DB::Warehouse;
+use SL::Model::Record;
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
@@ -103,7 +104,9 @@ sub action_add_from_order {
 
   my $order = SL::DB::Order->new(id => $self->{converted_from_oe_id})->load;
 
-  $self->order(SL::DB::DeliveryOrder->new_from($order, type => $::form->{type}));
+  my $target_type = $::form->{type};
+  my $delivery_order = SL::Model::Record->new_from_workflow($order, $target_type);
+  $self->order($delivery_order);
 
   $self->action_add;
 }
@@ -112,7 +115,9 @@ sub action_add_from_reclamation {
   my ($self) = @_;
 
   my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
-  my $delivery_order = SL::DB::DeliveryOrder->new_from($reclamation);
+  my $target_type = $reclamation->is_sales ? 'rma_delivery_order'
+                                           : 'supplier_delivery_order';
+  my $delivery_order = SL::Model::Record->new_from_workflow($reclamation, $target_type);
   $self->{converted_from_reclamation_id} = $::form->{from_id};
   $self->order($delivery_order);
 
@@ -1755,7 +1760,8 @@ sub workflow_sales_or_request_for_quotation {
 
   my $destination_type = $self->type_data->workflow("to_quotation_type");
 
-  $self->order(SL::DB::DeliveryOrder->new_from($self->order, destination_type => $destination_type));
+  my $delivery_order = SL::Model::Record->new_from_workflow($self->order, $destination_type, {});
+  $self->order($delivery_order);
   $self->{converted_from_oe_id} = delete $::form->{id};
 
   # set item ids to new fake id, to identify them as new items
@@ -1804,7 +1810,8 @@ sub workflow_sales_or_purchase_order {
     $custom_shipto = $self->order->shipto->clone('SL::DB::DeliveryOrder');
   }
 
-  $self->order(SL::DB::DeliveryOrder->new_from($self->order, destination_type => $destination_type));
+  my $delivery_order = SL::Model::Record->new_from_workflow($self->order, $destination_type, {});
+  $self->order($delivery_order);
   $self->{converted_from_oe_id} = delete $::form->{id};
 
   # set item ids to new fake id, to identify them as new items

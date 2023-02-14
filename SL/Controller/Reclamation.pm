@@ -34,6 +34,11 @@ use SL::Helper::UserPreferences::UpdatePositions;
 
 use SL::Controller::Helper::GetModels;
 
+use SL::DB::Order;
+use SL::DB::DeliveryOrder;
+use SL::DB::Invoice;
+use SL::Model::Record;
+
 use List::Util qw(first sum0);
 use List::UtilsBy qw(sort_by uniq_by);
 use List::MoreUtils qw(any none pairwise first_index);
@@ -116,9 +121,10 @@ sub action_add_from_order {
     return $self->js->render();
   }
 
-  require SL::DB::Order;
   my $order = SL::DB::Order->new(id => $::form->{from_id})->load;
-  my $reclamation = $order->convert_to_reclamation();
+  my $target_type = $order->is_sales ? 'sales_reclamation'
+                                     : 'purchase_reclamation';
+  my $reclamation = SL::Model::Record->new_from_workflow($order, $target_type);
 
   $self->reclamation($reclamation);
 
@@ -143,9 +149,10 @@ sub action_add_from_delivery_order {
     return $self->js->render();
   }
 
-  require SL::DB::DeliveryOrder;
   my $delivery_order = SL::DB::DeliveryOrder->new(id => $::form->{from_id})->load;
-  my $reclamation = $delivery_order->convert_to_reclamation();
+  my $target_type = $delivery_order->is_sales ? 'sales_reclamation'
+                                              : 'purchase_reclamation';
+  my $reclamation = SL::Model::Record->new_from_workflow($delivery_order, $target_type);
 
   $self->reclamation($reclamation);
 
@@ -170,9 +177,9 @@ sub action_add_from_sales_invoice {
     return $self->js->render();
   }
 
-  require SL::DB::Invoice;
   my $invoice = SL::DB::Invoice->new(id => $::form->{from_id})->load;
-  my $reclamation = $invoice->convert_to_reclamation();
+  my $target_type = 'sales_reclamation';
+  my $reclamation = SL::Model::Record->new_from_workflow($invoice, $target_type);
 
   $self->reclamation($reclamation);
 
@@ -200,7 +207,8 @@ sub action_add_from_purchase_invoice {
   require SL::DB::PurchaseInvoice;
   my $invoice = SL::DB::PurchaseInvoice->new(id => $::form->{from_id})->load;
   $invoice->{type} = $invoice->invoice_type; #can't add type → invoice_type in SL/DB/PurchaseInvoice
-  my $reclamation = $invoice->convert_to_reclamation();
+  my $target_type = 'purchase_reclamation';
+  my $reclamation = SL::Model::Record->new_from_workflow($invoice, $target_type);
 
   $self->reclamation($reclamation);
 

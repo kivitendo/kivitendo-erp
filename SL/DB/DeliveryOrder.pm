@@ -152,7 +152,7 @@ sub new_from {
     employee => SL::DB::Manager::Employee->current,
     closed    => 0,
     delivered => 0,
-    order_type => $params{type},
+    order_type => $params{destination_type},
     transdate => DateTime->today_local,
   );
 
