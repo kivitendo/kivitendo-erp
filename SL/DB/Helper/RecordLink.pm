@@ -3,6 +3,10 @@ package SL::DB::Helper::RecordLink;
 use strict;
 use parent qw(Exporter);
 
+use Carp qw(croak);
+
+use SL::MoreCommon qw(listify);
+
 use constant RECORD_ID            => 'converted_from_record_id';
 use constant RECORD_TYPE_REF      => 'converted_from_record_type_ref';
 use constant RECORD_ITEM_ID       => 'converted_from_record_item_id';
@@ -12,20 +16,24 @@ our @EXPORT_OK = qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_RE
 
 
 sub link_records {
-  my ($self, $allowed_linked_records, $allowed_linked_record_items) = @_;
+  my ($self, $allowed_linked_records, $allowed_linked_record_items, %flags) = @_;
 
   my %allowed_linked_records = map {$_ => 1} @$allowed_linked_records;
   my %allowed_linked_record_items = map {$_ => 1} @$allowed_linked_record_items;
 
-  return 1 unless my $from_record_id = $self->{RECORD_ID()};
+  return 1 unless my $from_record_ids = $self->{RECORD_ID()};
 
   my $from_record_type = $self->{RECORD_TYPE_REF()};
   unless ($allowed_linked_records{$from_record_type}) {
     croak("Not allowed @{[ RECORD_TYPE_REF ]}: $from_record_type");
   }
 
-  $from_record_type->new(id => $from_record_id)->load
-    ->link_to_record($self);
+  for my $id (listify($from_record_ids)) {
+    my $from_record = $from_record_type->new(id => $id)->load;
+    $from_record->link_to_record($self);
+
+    close_quotations($from_record, %flags);
+  }
 
   #clear converted_from;
   delete $self->{$_} for RECORD_ID, RECORD_TYPE_REF;
@@ -53,6 +61,18 @@ sub link_record_item {
   #clear converted_from;
   delete $record_item->{$_} for RECORD_ITEM_ID, RECORD_ITEM_TYPE_REF;
 }
+
+
+sub close_quotations {
+  my ($from_record, %flags) = @_;
+
+  return unless $flags{close_source_quotations};
+  return unless 'SL::DB::Order' eq  ref $from_record;
+  return unless $from_record->type =~ /quotation/;
+
+  $from_record->update_attributes(closed => 1);
+}
+
 
 1;
 
