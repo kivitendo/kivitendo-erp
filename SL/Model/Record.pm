@@ -132,7 +132,7 @@ sub delete {
       my $spool = $::lx_office_conf{paths}->{spool};
       unlink map { "$spool/$_" } @spoolfiles if $spool;
 
-      _save_history($record,'DELETED', \$params{history});
+      _save_history($record,'DELETED', %{$params{history}});
 
       1;
   }) || push(@{$errors}, $db->error);
@@ -153,14 +153,11 @@ sub delete {
 sub _save_history {
   my ($record, $addition, %history) = @_;
 
-  my $number_type = $record->type =~ m{order} ? 'ordnumber' : 'quonumber';
-  my $snumbers    = $number_type . '_' . $record->$number_type;
-
   SL::DB::History->new(
     trans_id    => $record->id,
     employee_id => SL::DB::Manager::Employee->current->id,
     what_done   => $record->type,
-    snumbers    => $snumbers,
+    snumbers    => $history{snumbers},
     addition    => $addition,
   )->save;
 }
