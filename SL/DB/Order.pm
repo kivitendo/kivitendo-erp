@@ -860,6 +860,12 @@ saved.
 
 C<params> other then C<sort_sources_by> are passed to C<new_from>.
 
+=head2 C<increment_version_number>
+
+Checks if the current version of the order is finalized, increments
+the version number and adds a new order_version to the order.
+Dies if the version is not final.
+
 =head1 BUGS
 
 Nothing here yet.

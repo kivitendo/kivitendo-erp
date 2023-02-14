@@ -216,6 +216,10 @@ SL::Model::Record - shared computations for orders (Order), delivery orders (Del
 
 =over 4
 
+=item C<increment_subversion>
+
+Increments the record's subversion number.
+
 =item C<delete>
 
 Deletes the whole record and puts an entry in the history.
