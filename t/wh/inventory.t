@@ -218,7 +218,7 @@ SL::Helper::Inventory::produce_assembly(
 );
 }, "producing for wrong warehouse dies");
 
-# same test, but check exception class
+# same test, but check exception class and error messages
 throws_ok{
 SL::Helper::Inventory::produce_assembly(
   part          => $assembly1,
@@ -228,19 +228,11 @@ SL::Helper::Inventory::produce_assembly(
   bin          => $bin_moon,
   chargenumber => "Lunar Dust inside",
 );
- } "SL::X::Inventory::Allocation", "producing for wrong warehouse throws correct error class";
-
-# same test, but check user feedback for the error message
-throws_ok{
-SL::Helper::Inventory::produce_assembly(
-  part          => $assembly1,
-  qty           => 1,
-  auto_allocate => 1,
-  # where to put it
-  bin          => $bin_moon,
-  chargenumber => "Lunar Dust inside",
-);
- } qr/Part ap (1|2) Testpart (1|2) exists in warehouse Warehouse, but not in warehouse Our warehouse location at the moon/, "producing for wrong warehouse throws correct error message";
+} "SL::X::Inventory::Allocation::Multi", "producing for wrong warehouse throws correct error class";
+my $e = $@;
+like $e, qr/multiple errors during allocation/, "producing for wrong warehouse throws correct error message for multiple errors";
+like $e->errors->[0]->message, qr/Part ap (1|2) Testpart (1|2) exists in warehouse Warehouse, but not in warehouse Our warehouse location at the moon/,
+  "producing for wrong warehouse throws correct error message";
 
 # try to produce without allocations dies
 
@@ -351,7 +343,11 @@ throws_ok{
     # where to put it
     bin          => $bin1,
   );
-} qr/can not allocate 1,2 units of service number 1 We really need this service, missing 1,2 units/, "producing assembly with services and unstocked service throws correct error message";
+} "SL::X::Inventory::Allocation::Multi", "producing assembly with services and unstocked service throws correct error class";
+$e = $@;
+like $e, qr/multiple errors during allocation/, "producing assembly with services and unstocked service throws correct error message for multiple errors";
+like $e->errors->[0]->message, qr/can not allocate 1,2 units of service number 1 We really need this service, missing 1,2 units/,
+  "producing assembly with services and unstocked service throws correct error message";
 
 is(SL::Helper::Inventory::get_stock(part => $assembly_service), "1.00000", 'produce without service does not work');
 is(SL::Helper::Inventory::get_stock(part => $part1), "12.00000", 'and does not consume...');
