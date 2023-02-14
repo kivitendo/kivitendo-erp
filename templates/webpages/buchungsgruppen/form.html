@@ -43,5 +43,10 @@
     [%- END %]
   </tr>
 [%- END %]
+
+  <tr>
+    <th align="right">[% 'Obsolete' | $T8 %]</td>
+    <td>[% L.checkbox_tag('config.obsolete', checked=SELF.config.obsolete, for_submit=1) %]</td>
+  </tr>
 </table>
 </form>

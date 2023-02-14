@@ -21,7 +21,21 @@ sub validate {
     push(@errors, $::locale->text('Booking group #1 needs a valid inventory account', $self->description)) unless $inventory_accno;
   } else {
     push @errors, $::locale->text('The booking group needs an inventory account.');
-  };
+  }
+
+  if ($self->id && $self->obsolete) {
+    require SL::DB::Part;
+
+    my $in_use = SL::DB::Manager::Part->get_first(
+      where => [
+        buchungsgruppen_id => $self->id,
+        obsolete           => 0,
+      ]);
+
+    if ($in_use) {
+      push @errors, $::locale->text('The booking group cannot be marked obsolete while still being used by active parts.');
+    }
+  }
 
   return @errors;
 }
