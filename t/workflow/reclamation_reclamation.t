@@ -22,6 +22,7 @@ use SL::DB::DeliveryTerm;
 use SL::DB::Employee;
 use SL::DB::Part;
 use SL::DB::Unit;
+use SL::Model::Record;
 
 use Rose::DB::Object::Helpers qw(clone);
 
@@ -150,14 +151,14 @@ my $purchase_reclamation = SL::Dev::Record::create_purchase_reclamation(
 )->load;
 
 # new
-my $new_sales_reclamation = SL::DB::Reclamation->new_from($sales_reclamation, destination_type => 'sales_reclamation')->save->load;
-my $new_purchase_reclamation = SL::DB::Reclamation->new_from($purchase_reclamation, destination_type => 'purchase_reclamation')->save->load;
+my $new_sales_reclamation = SL::Model::Record->new_from_workflow($sales_reclamation, 'sales_reclamation')->save->load;
+my $new_purchase_reclamation = SL::Model::Record->new_from_workflow($purchase_reclamation, 'purchase_reclamation')->save->load;
 
 # convert
-my $converted_purchase_reclamation = SL::DB::Reclamation->new_from($sales_reclamation, destination_type => 'purchase_reclamation');
+my $converted_purchase_reclamation = SL::Model::Record->new_from_workflow($sales_reclamation, 'purchase_reclamation');
 $converted_purchase_reclamation->vendor_id($purchase_reclamation->{vendor_id});
 $converted_purchase_reclamation->save->load;
-my $converted_sales_reclamation = SL::DB::Reclamation->new_from($purchase_reclamation, destination_type => 'sales_reclamation');
+my $converted_sales_reclamation = SL::Model::Record->new_from_workflow($purchase_reclamation, 'sales_reclamation');
 $converted_sales_reclamation->customer_id($sales_reclamation->{customer_id});
 $converted_sales_reclamation->save->load;
 

@@ -24,6 +24,7 @@ use SL::DB::DeliveryTerm;
 use SL::DB::Employee;
 use SL::DB::Part;
 use SL::DB::Unit;
+use SL::Model::Record;
 
 use Rose::DB::Object::Helpers qw(clone);
 
@@ -180,15 +181,16 @@ my $purchase_delivery_order = SL::Dev::Record::create_purchase_delivery_order(
 )->load;
 
 # convert order → reclamation
-my $converted_sales_reclamation = $sales_delivery_order->convert_to_reclamation;
+my $converted_sales_reclamation = SL::Model::Record->new_from_workflow($sales_delivery_order, "sales_reclamation");
 $converted_sales_reclamation->items_sorted->[0]->reason($relamation_reason);
 $converted_sales_reclamation->items_sorted->[1]->reason($relamation_reason);
 $converted_sales_reclamation->save->load;
-my $converted_purchase_reclamation = $purchase_delivery_order->convert_to_reclamation;
+my $converted_purchase_reclamation = SL::Model::Record->new_from_workflow($purchase_delivery_order, "purchase_reclamation");
 $converted_purchase_reclamation->items_sorted->[0]->reason($relamation_reason);
 $converted_purchase_reclamation->items_sorted->[1]->reason($relamation_reason);
 $converted_purchase_reclamation->save->load;
 
+# TODO: use SL::Model::Record for conversion
 # convert reclamation → order
 my $converted_sales_delivery_order = $sales_reclamation->convert_to_delivery_order->save->load;
 my $converted_purchase_delivery_order = $purchase_reclamation->convert_to_delivery_order->save->load;

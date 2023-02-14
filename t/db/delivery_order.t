@@ -40,7 +40,7 @@ is $delivery_order->type, PURCHASE_DELIVERY_ORDER_TYPE, "new_from purchase order
 is scalar @{ $delivery_order->items }, 2, "purchase delivery order keeps items";
 is $delivery_order->vendor_id, $order1->vendor_id, "purchase delivery order keeps vendor";
 
-my $supplier_delivery_order = SL::DB::DeliveryOrder->new_from($order1, type => SUPPLIER_DELIVERY_ORDER_TYPE);
+my $supplier_delivery_order = SL::DB::DeliveryOrder->new_from($order1, destination_type => SUPPLIER_DELIVERY_ORDER_TYPE);
 
 is $supplier_delivery_order->type, SUPPLIER_DELIVERY_ORDER_TYPE, "new_from purchase order with given type gives supplier delivery order";
 is scalar @{ $supplier_delivery_order->items }, 0, "supplier delivery order ignores items";
