@@ -674,7 +674,9 @@ sub get_invoices {
          a.direct_debit,
          pt.description as payment_term,
          dep.description as departmentname,
-         ct.invoice_mail AS cv_email,
+         COALESCE (NULLIF(aba.dunning_mail, ''), NULLIF(aba.email,''),
+                   NULLIF(ct.dunning_mail, ''),
+                   NULLIF(ct.invoice_mail, '')) AS recipient,
          cfg.dunning_description, cfg.dunning_level,
 
          d.transdate AS dunning_date, d.duedate AS dunning_duedate,
@@ -691,6 +693,7 @@ sub get_invoices {
        FROM ar a
 
        LEFT JOIN customer ct ON (a.customer_id = ct.id)
+       LEFT JOIN additional_billing_addresses aba ON (aba.id = a.billing_address_id)
        LEFT JOIN department dep ON (a.department_id = dep.id)
        LEFT JOIN payment_terms pt ON (a.payment_id = pt.id)
        LEFT JOIN dunning_config cfg ON (a.dunning_config_id = cfg.id)
@@ -721,7 +724,7 @@ sub get_invoices {
 
        $where
 
-       ORDER BY a.id, transdate, duedate, name|;
+       ORDER BY a.id, transdate, duedate, ct.name|;
   my $sth = prepare_execute_query($form, $dbh, $query, $id_for_max_dunning_level, @values);
 
   $form->{DUNNINGS} = [];
