@@ -2,7 +2,7 @@ package SL::Model::Record;
 
 use strict;
 
-
+use SL::Locale::String qw(t8);
 
 
 sub new {
@@ -49,8 +49,26 @@ sub increment_subversion {
 }
 
 sub delete {
-  my ($class, $record, %flags) = @_;
+  my ($class, $record, %params) = @_;
 
+  my $errors = [];
+  my $db = $record->db;
+
+  $db->with_transaction(
+    sub {
+      my @spoolfiles = grep { $_ } map { $_->spoolfile } @{ SL::DB::Manager::Status->get_all(where => [ trans_id => $record->id ]) };
+      $record->delete;
+      my $spool = $::lx_office_conf{paths}->{spool};
+      unlink map { "$spool/$_" } @spoolfiles if $spool;
+
+      _save_history($record,'DELETED', \$params{history});
+
+      1;
+  }) || push(@{$errors}, $db->error);
+
+  if (scalar @{ $errors} ){
+    croak(t8('Error delete record'));
+  };
   # das hier sollte der code sein der in sub delete aus den controllern liegt
   # nicht nur record->delete, sondern auch andere elemente aufräumen
   # spool aufräumen
