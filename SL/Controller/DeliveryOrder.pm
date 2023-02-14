@@ -192,13 +192,10 @@ sub action_edit_collective {
 sub action_delete {
   my ($self) = @_;
 
-  my $errors = $self->delete();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
-
+  my $number_type = $self->type_data;
+  my %history = (snumbers => $self->type . '_' . $self->order->number);
+  my %params = (history => \%history);
+  SL::Model::Record->delete($self->order,%params);
   flash_later('info', $self->type_data->text("delete"));
 
   my @redirect_params = (
@@ -1633,30 +1630,6 @@ sub get_unalterable_data {
     }
     $item->parse_custom_variable_values;
   }
-}
-
-# delete the order
-#
-# And remove related files in the spool directory
-sub delete {
-  my ($self) = @_;
-
-  my $errors = [];
-  my $db     = $self->order->db;
-
-  $db->with_transaction(
-    sub {
-      my @spoolfiles = grep { $_ } map { $_->spoolfile } @{ SL::DB::Manager::Status->get_all(where => [ trans_id => $self->order->id ]) };
-      $self->order->delete;
-      my $spool = $::lx_office_conf{paths}->{spool};
-      unlink map { "$spool/$_" } @spoolfiles if $spool;
-
-      $self->save_history('DELETED');
-
-      1;
-  }) || push(@{$errors}, $db->error);
-
-  return $errors;
 }
 
 # save the order
