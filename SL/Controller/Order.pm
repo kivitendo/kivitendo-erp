@@ -43,7 +43,6 @@ use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::UpdatePositions;
 
 use SL::Controller::Helper::GetModels;
-use SL::Model::Record;
 
 use List::Util qw(first sum0);
 use List::UtilsBy qw(sort_by uniq_by);
