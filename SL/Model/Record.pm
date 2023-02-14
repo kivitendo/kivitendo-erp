@@ -69,6 +69,35 @@ sub new_from_workflow {
   return $target_object;
 }
 
+sub new_from_workflow_multi {
+  my ($class, $source_objects, $target_subtype, %flags) = @_;
+  # source: ein arrayref von quellobjekten.
+  # target type: sollte ein subtype sein. wer das hier implementiert, sollte auch eine subtype registratur bauen in der man subtypes nachschlagen kann
+  # flags: welche extra behandlungen sollen gemacht werden, z.B. record_links setzen
+
+  # muss prüfen ob diese umwandlung korrekt ist
+  # muss das entsprechende new_from_multi in den objekten selber benutzen
+  # und dann evtl nachbearbeitung machen (die bisher im controller stand)
+
+  # new_from_workflow_multi: (aus action_edit_collective) workflow umwandlung von bestehenden records
+
+  # fehlerfall: exception aus unterliegendem code bubblen oder neue exception werfen
+  # rückgabe: das neue objekt
+
+  my %subtype_to_type = (
+    # Order
+    "sales_order" => "SL::DB::Order",
+  );
+  my $target_type = $subtype_to_type{$target_subtype};
+  unless ($target_type) {
+    croak("Conversion not supported to $target_subtype");
+  }
+
+  my $target_object = ${target_type}->new_from_multi($source_objects, %flags);
+
+  return $target_object;
+}
+
 # im Moment nur bei Aufträgen
 sub increment_subversion {
   my ($class, $record, %flags) = @_;
