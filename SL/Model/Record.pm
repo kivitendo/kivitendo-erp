@@ -7,7 +7,9 @@ use Carp;
 use SL::DB::Order;
 use SL::DB::DeliveryOrder;
 use SL::DB::Reclamation;
+use SL::DB::History;
 use SL::DB::Invoice;
+use SL::DB::Status;
 
 use SL::Locale::String qw(t8);
 
@@ -162,6 +164,7 @@ sub _save_history {
     addition    => $addition,
   )->save;
 }
+
 sub save {
   my ($class, $record, %params) = @_;
 
