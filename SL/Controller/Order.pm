@@ -43,6 +43,7 @@ use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::UpdatePositions;
 
 use SL::Controller::Helper::GetModels;
+use SL::Model::Record;
 
 use List::Util qw(first sum0);
 use List::UtilsBy qw(sort_by uniq_by);
@@ -205,13 +206,10 @@ sub action_edit_collective {
 sub action_delete {
   my ($self) = @_;
 
-  my $errors = $self->delete();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
-
+  my $number_type = $self->order->type =~ m{order} ? 'ordnumber' : 'quonumber';
+  my %history = (snumbers => $number_type . '_' . $self->order->$number_type);
+  my %params = (history => \%history);
+  SL::Model::Record->delete($self->order, %params);
   my $text = $self->type eq sales_order_intake_type()        ? $::locale->text('The order intake has been deleted')
            : $self->type eq sales_order_type()               ? $::locale->text('The order confirmation has been deleted')
            : $self->type eq purchase_order_type()            ? $::locale->text('The order has been deleted')
@@ -2158,30 +2156,6 @@ sub get_unalterable_data {
     }
     $item->parse_custom_variable_values;
   }
-}
-
-# delete the order
-#
-# And remove related files in the spool directory
-sub delete {
-  my ($self) = @_;
-
-  my $errors = [];
-  my $db     = $self->order->db;
-
-  $db->with_transaction(
-    sub {
-      my @spoolfiles = grep { $_ } map { $_->spoolfile } @{ SL::DB::Manager::Status->get_all(where => [ trans_id => $self->order->id ]) };
-      $self->order->delete;
-      my $spool = $::lx_office_conf{paths}->{spool};
-      unlink map { "$spool/$_" } @spoolfiles if $spool;
-
-      $self->save_history('DELETED');
-
-      1;
-  }) || push(@{$errors}, $db->error);
-
-  return $errors;
 }
 
 # save the order
