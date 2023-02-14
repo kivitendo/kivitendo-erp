@@ -214,14 +214,18 @@ SL::Model::Record - shared computations for orders (Order), delivery orders (Del
 
 =head1 DESCRIPTION
 
+=over 4
+
 =item C<delete>
 
-deletes the whole record and put an entree in the history.
+Deletes the whole record and puts an entry in the history.
 Expects a record with %params for history params{history} = \%history
 
 =item C<_save_history>
 
 Expects a record for id, addition for text (SAVED,...) and %history{snumber}
+
+=back
 
 =head1 BUGS
 
