@@ -142,6 +142,8 @@ sub with_transaction {
     if (blessed $error) {
       if ($error->isa('SL::X::DBError')) {
         # gobble the exception
+      } elsif ($error->isa('SL::Locale::String')) {
+        die $self->error;
       } else {
         $error->rethrow;
       }
