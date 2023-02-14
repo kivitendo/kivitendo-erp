@@ -113,18 +113,63 @@ SL::DB::Helper::RecordLink - creates record links that are stored in the gived o
       my ($self) = @_;
       SL::DB::Helper::RecordLink::link_records(
         $self,
-        qw(SL::DB::Order),     # list of allowed record sources
-        qw(SL::DB::OrderItem), # list of allowed record item sources
+        qw(SL::DB::Order),            # list of allowed record sources
+        qw(SL::DB::OrderItem),        # list of allowed record item sources
+        close_source_quotations => 1, # if the link source is a quotation - close it
       )
+    }
+
+    # set conversion data in record
+    sub prepare_linked_records {
+      my @converted_from_ids      = @{ $::form->{converted_from_oe_ids} };
+      my @converted_from_item_ids = @{ $::form->{converted_from_orderitem_ids} };
+
+      set_record_link_conversion(
+        $self->order,                                     # the record to modify
+        'SL::DB::Order'     => \@converted_from_ids,      # singular or multiple source record ids
+        'SL::DB::OrderItem' => \@converted_from_item_ids  # ids of items, each item will get one id
+      );
     }
 
 =head1 DESCRIPTION
 
-...
+This module implements reusable after save hooks for dealing with record links for records created from other records.
+
+It reacts to non-rose attributes set in the underlying hashes of the given record:
+
+=over 4
+
+=item * C<converted_from_record_id>
+
+=item * C<converted_from_record_type_ref>
+
+=item * C<converted_from_record_item_id>
+
+=item * C<converted_from_record_item_type_ref>
+
+=back
+
+If a typeref is given that is not explicitely whitelisted, an error will be thrown.
+
+The older C<converted_from_oe_ids> etc forms can be converted with TODO
 
 =head1 METHODS
 
-...
+=over 4
+
+=item * C<set_record_link_conversions> $record, $record_type => \@ids, $item_type => \@item_ids
+
+Register the given ids in the object to be linked after saving.
+
+Item ids will be assigned one by one to sorted_items.
+
+=item * C<link_records> $record, \@allowed_record_types, \@allowed_item_types
+
+Intended as a post-save hook.
+Evaluates the stored ids from L </set_record_link_conversions>
+and links the creating objects to the given one.
+
+=back
 
 =head1 BUGS
 
