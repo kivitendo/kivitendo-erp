@@ -45,6 +45,7 @@ trait listen:
   - hat periodic invoices
   - exchangerate
   - close_quotations?
+  - payments (nur für rechnungen)
 
 
 
