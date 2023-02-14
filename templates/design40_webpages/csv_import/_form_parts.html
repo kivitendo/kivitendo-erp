@@ -1,0 +1,89 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<tr>
+  <th>[% LxERP.t8('Parts with existing part numbers') %]:</th>
+  <td>
+    [% opts = [
+      [ 'update_parts', LxERP.t8('Update properties of existing entries') ],
+      [ 'update_parts_sn', LxERP.t8('Update properties of existing entries / skip non-existent') ],
+      [ 'update_prices', LxERP.t8('Update prices of existing entries') ],
+      [ 'update_prices_sn', LxERP.t8('Update prices of existing entries / skip non-existent') ],
+      [ 'insert_new', LxERP.t8('Insert with new part number') ],
+      [ 'skip', LxERP.t8('Skip entry') ] ] %]
+    [% L.select_tag('settings.article_number_policy', opts,
+                    default = SELF.profile.get('article_number_policy'), class='wi-wide') %]
+  </td>
+</tr>
+<tr>
+  <th>[% LxERP.t8('Sellprice significant places') %]:</th>
+  <td>
+    [% L.select_tag('settings.sellprice_places', [ 0, 1, 2, 3, 4, 5 ],
+                    default = SELF.profile.get('sellprice_places'), class='wi-wide') %]
+  </td>
+</tr>
+<tr>
+  <th>[% LxERP.t8('Sellprice adjustment') %]:</th>
+  <td>
+    [% L.input_tag('settings.sellprice_adjustment',
+                    LxERP.format_amount(SELF.profile.get('sellprice_adjustment')),
+                    size => "5") %]
+    [% opts = [
+      [ 'percent', LxERP.t8('percental') ],
+      [ 'absolute', LxERP.t8('absolute') ] ] %]
+    [% L.select_tag('settings.sellprice_adjustment_type', opts,
+                    default = SELF.profile.get('sellprice_adjustment_type')) %]
+  </td>
+</tr>
+<tr>
+  <th>[% LxERP.t8('Mark as shop article if column missing') %]:</th>
+  <td>
+    [% opts = [ [ '1', LxERP.t8('yes') ], [ '0', LxERP.t8('no') ] ] %]
+    [% L.select_tag('settings.shoparticle_if_missing', opts,
+                    default = SELF.profile.get('shoparticle_if_missing'), class='wi-wide') %]
+  </td>
+</tr>
+<tr>
+  <th>[% LxERP.t8('Type') %]:</th>
+  <td>
+    [% opts = [
+      [ 'part', LxERP.t8('Parts') ],
+      [ 'service', LxERP.t8('Services') ],
+      [ 'mixed', LxERP.t8('Mixed (requires column "type" or "pclass")') ] ] %]
+    [% L.select_tag('settings.part_type', opts,
+                    default = SELF.profile.get('part_type'), class='wi-wide') %]
+  </td>
+</tr>
+<tr>
+  <th>[% LxERP.t8('Parts Classification') %]:</th>
+  <td>
+    [% P.part.select_classification('settings.part_classification',
+                                    default = SELF.profile.get('part_classification'),
+                                    class='wi-wide') %]
+  </td>
+  </tr>
+<tr>
+  <th>[% LxERP.t8('Default booking group') %]:</th>
+  <td>
+    [% L.select_tag('settings.default_buchungsgruppe', SELF.all_buchungsgruppen,
+                    title_key = 'description',
+                    default = SELF.profile.get('default_buchungsgruppe'),
+                    class='wi-wide') %]
+    <br>
+    [% opts = [
+      [ 'never', LxERP.t8('Do not set default booking group') ],
+      [ 'all', LxERP.t8('Apply to all parts') ],
+      [ 'missing', LxERP.t8('Apply to parts without booking group') ] ] %]
+    [% L.select_tag('settings.apply_buchungsgruppe', opts,
+                    default = SELF.profile.get('apply_buchungsgruppe'), class='wi-wide') %]
+  </td>
+  </tr>
+<tr>
+  <th>[% LxERP.t8('Default unit') %]:</th>
+  <td>
+    [% L.select_tag('settings.default_unit', SELF.all_units, title_key='name',
+                    value_key='name', default=SELF.profile.get('default_unit'),
+                    class='wi-wide') %]
+  </td>
+</tr>

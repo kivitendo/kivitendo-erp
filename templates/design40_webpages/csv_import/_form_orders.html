@@ -1,0 +1,18 @@
+[% USE LxERP %]
+[% USE L %]
+
+<tr>
+  <th>[% LxERP.t8('Order/Item row name') %]:</th>
+  <td>
+    [% L.input_tag('settings.order_column', SELF.profile.get('order_column'), class='wi-normal') %]
+    [% L.input_tag('settings.item_column', SELF.profile.get('item_column'), class='wi-normal') %]
+  </td>
+</tr>
+<tr>
+  <th>[% LxERP.t8('Maximal amount difference') %]:</th>
+  <td>
+    [% L.input_tag('settings.max_amount_diff',
+                    LxERP.format_amount(SELF.profile.get('max_amount_diff')),
+                    class='wi-verysmall') %]
+  </td>
+</tr>

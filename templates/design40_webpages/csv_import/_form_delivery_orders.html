@@ -1,0 +1,19 @@
+[% USE LxERP %]
+[% USE L %]
+
+<tr>
+  <th>[% LxERP.t8('Order/Item/Stock row name') %]:</th>
+  <td>
+    [% L.input_tag('settings.order_column', SELF.profile.get('order_column'), class='wi-normal') %]
+    [% L.input_tag('settings.item_column',  SELF.profile.get('item_column'), class='wi-normal') %]
+    [% L.input_tag('settings.stock_column', SELF.profile.get('stock_column'), class='wi-normal') %]
+  </td>
+</tr>
+<tr>
+  <th>[% LxERP.t8('Error handling') %]:</th>
+  <td>
+    [% L.checkbox_tag('settings.ignore_faulty_positions',
+                      label   => LxERP.t8('Ignore faulty positions'),
+                      checked => SELF.profile.get('ignore_faulty_positions')) %]
+  </td>
+</tr>

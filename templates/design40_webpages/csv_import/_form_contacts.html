@@ -1,0 +1,15 @@
+[% USE LxERP %]
+[% USE L %]
+
+<tr>
+  <th>[% LxERP.t8("Existing contacts (with column 'cp_id')") %]:</th>
+  <td>
+    [% opts = [
+      [ 'update_existing', LxERP.t8('Update properties of existing entries') ],
+      [ 'insert_new', LxERP.t8('Insert with new database ID') ],
+      [ 'skip', LxERP.t8('Skip entry') ] ] %]
+    [% L.select_tag('settings.update_policy',
+                    opts, default = SELF.profile.get('update_policy'),
+                    class='wi-wide') %]
+  </td>
+</tr>

@@ -1,0 +1,38 @@
+[% USE LxERP %]
+[% USE L %]
+
+<tr>
+  <th>[% LxERP.t8('Warehouse') %]/[% LxERP.t8('Bin') %]:</th>
+  <td>
+    [% L.input_tag('settings.warehouse', SELF.profile.get('warehouse'), class='wi-wide') %]
+    <br>
+    [% opts = [
+      [ 'never', LxERP.t8('Do not set this warehouse') ],
+      [ 'missing', LxERP.t8('Apply to transfers without warehouse') ],
+      [ 'all', LxERP.t8('Apply to all transfers') ] ] %]
+    [% L.select_tag('settings.apply_warehouse', opts,
+                    default = SELF.profile.get('apply_warehouse'), class='wi-wide') %]
+    <br>
+    [% L.input_tag('settings.bin', SELF.profile.get('bin'), class='wi-wide') %]
+    <br>
+    [% opts = [
+      [ 'never', LxERP.t8('Do not set this bin') ],
+      [ 'missing', LxERP.t8('Apply to transfers without bin') ],
+      [ 'all', LxERP.t8('Apply to all transfers') ] ] %]
+    [% L.select_tag('settings.apply_bin', opts,
+                    default = SELF.profile.get('apply_bin'), class='wi-wide') %]
+  </td>
+</tr>
+<tr>
+  <th>[% LxERP.t8('Comment') %]:</th>
+  <td>
+    [% L.input_tag('settings.comment', SELF.profile.get('comment'), class='wi-wide') %]
+    <br>
+    [% opts = [
+      [ 'never', LxERP.t8('Do not set this comment') ],
+      [ 'missing', LxERP.t8('Apply to transfers without comment') ],
+      [ 'all', LxERP.t8('Apply to all transfers') ] ] %]
+    [% L.select_tag('settings.apply_comment', opts,
+                    default = SELF.profile.get('apply_comment'), class='wi-wide') %]
+  </td>
+</tr>

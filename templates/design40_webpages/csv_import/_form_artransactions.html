@@ -1,0 +1,19 @@
+[% USE LxERP %]
+[% USE L %]
+
+<tr>
+  <th>[% LxERP.t8('AR Transaction/AccTrans Item row names') %]:</th>
+  <td>
+    [% L.input_tag('settings.ar_column', SELF.profile.get('ar_column'), class='wi-normal') %]
+    [% L.input_tag('settings.transaction_column', SELF.profile.get('transaction_column'),
+                    class='wi-normal') %]
+  </td>
+</tr>
+<tr>
+  <th>[% LxERP.t8('Maximal amount difference') %]:</th>
+  <td>
+    [% L.input_tag('settings.max_amount_diff',
+                    LxERP.format_amount(SELF.profile.get('max_amount_diff')),
+                    class='wi-verysmall') %]
+  </td>
+</tr>
