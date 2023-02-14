@@ -250,13 +250,10 @@ sub action_edit {
 sub action_delete {
   my ($self) = @_;
 
-  my $errors = $self->delete();
 
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
-
+  my %history = (snumbers => 'record_number_' . $self->reclamation->record_number);
+  my %params = (history => \%history);
+  SL::Model::Record->delete($self->reclamation, %params);
   flash_later('info', t8('The reclamation has been deleted'));
 
   my @redirect_params = (
@@ -1729,30 +1726,6 @@ sub get_record_links_data_from_form {
       $reclamation_item->{converted_from_record_item_type_ref} = $from_record_item_type_refs->[$idx];
     }
   }
-}
-
-# delete the reclamation
-#
-# And remove related files in the spool directory
-sub delete {
-  my ($self) = @_;
-
-  my $errors = [];
-  my $db     = $self->reclamation->db;
-
-  $db->with_transaction(
-    sub {
-      my @spoolfiles = grep { $_ } map { $_->spoolfile } @{ SL::DB::Manager::Status->get_all(where => [ trans_id => $self->reclamation->id ]) };
-      $self->reclamation->delete;
-      my $spool = $::lx_office_conf{paths}->{spool};
-      unlink map { "$spool/$_" } @spoolfiles if $spool;
-
-      $self->save_history('DELETED');
-
-      1;
-  }) || push(@{$errors}, $db->error);
-
-  return $errors;
 }
 
 # save the reclamation
