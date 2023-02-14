@@ -270,18 +270,23 @@ sub action_save {
 sub action_add_subversion {
   my ($self) = @_;
 
-  my $current_version_number = $self->order->current_version_number;
-  my $new_version_number     = $current_version_number + 1;
+  SL::DB->client->with_transaction(
+    sub {
+      SL::Model::Record->increment_subversion($self->order);
 
-  my $new_number = $self->order->number;
-  $new_number    =~ s/-$current_version_number$//;
-  $self->order->number($new_number . '-' . $new_version_number);
-  $self->order->add_order_version(SL::DB::OrderVersion->new(oe_id   => $self->order->id,
-                                                            version => $new_version_number));
+      # Todo: Call SL::Model::Record->save when implemented
+      # SL::Model::Record->save($self->order);
+      my $errors = $self->save();
+      die join "\n", @{ $errors } if scalar @{ $errors };
 
-  # call the save action
-  $self->action_save();
+      1;
+    }
+  );
 
+  $self->redirect_to(action => 'edit',
+                     type   => $self->type,
+                     id     => $self->order->id,
+  );
 }
 
 # save the order as new document and open it for edit

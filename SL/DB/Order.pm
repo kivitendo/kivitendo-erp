@@ -672,6 +672,20 @@ sub is_final_version {
   return $final_version;
 }
 
+sub increment_version_number {
+  my ($self) = @_;
+
+  die t8('This sub-version is not yet finalized') if !$self->is_final_version;
+
+  my $current_version_number = $self->current_version_number;
+  my $new_version_number     = $current_version_number + 1;
+
+  my $new_number = $self->number;
+  $new_number    =~ s/-$current_version_number$//;
+  $self->number($new_number . '-' . $new_version_number);
+  $self->add_order_version(SL::DB::OrderVersion->new(version => $new_version_number));
+}
+
 sub netamount_base_currency {
   my ($self) = @_;
 

@@ -109,6 +109,12 @@ sub increment_subversion {
   #
   # return - nichts
   # fehlerfall: exception
+
+  # Todo: check type data if this is allowed/supported for this record
+
+  $record->increment_version_number;
+
+  return;
 }
 
 sub delete {
@@ -223,3 +229,7 @@ None yet. :)
 
 =head1 AUTHORS
 
+Bernd Bleßmann E<lt>bernd@kivitendo-premium.deE<gt>
+...
+
+=cut
