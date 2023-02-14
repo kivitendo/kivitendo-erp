@@ -13,6 +13,7 @@
         <th width="20%">[% 'Revenue' | $T8 %] [% HTML.escape(tz.description) %]</th>
         <th width="20%">[% 'Expense' | $T8 %] [% HTML.escape(tz.description) %]</th>
      [%- END %]
+    <th>[% 'Obsolete' | $T8 %]</th>
    </tr>
   </thead>
 
@@ -26,6 +27,8 @@
         <td>[% HTML.escape(CHARTLIST.${bg.id}.${tz.id}.income_accno) %]</td>
         <td>[% HTML.escape(CHARTLIST.${bg.id}.${tz.id}.expense_accno) %]</td>
      [%- END %]
+     <td>[% IF bg.obsolete %][% LxERP.t8("yes") %][% ELSE %][% LxERP.t8("no") %][% END %]</td>
+    </tr>
    [%- END %]
   </tbody>
  </table>

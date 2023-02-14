@@ -1176,11 +1176,18 @@ sub init_all_partsgroups {
 
 sub init_all_buchungsgruppen {
   my ($self) = @_;
-  if ( $self->part->orphaned ) {
-    return SL::DB::Manager::Buchungsgruppe->get_all_sorted;
-  } else {
+  if (!$self->part->orphaned) {
     return SL::DB::Manager::Buchungsgruppe->get_all_sorted(where => [ id => $self->part->buchungsgruppen_id ]);
   }
+
+  return SL::DB::Manager::Buchungsgruppe->get_all_sorted(
+    where => [
+      or => [
+        id       => $self->part->buchungsgruppen_id,
+        obsolete => 0,
+      ],
+    ]
+  );
 }
 
 sub init_shops_not_assigned {
@@ -1324,6 +1331,21 @@ sub form_check_partnumber_is_unique {
   return 1;
 }
 
+sub form_check_buchungsgruppe {
+  my ($self) = @_;
+
+  return 1 if $::form->{part}->{obsolete};
+
+  my $buchungsgruppe = SL::DB::Buchungsgruppe->new(id => $::form->{part}->{buchungsgruppen_id})->load;
+
+  return 1 if !$buchungsgruppe->obsolete;
+
+  $self->js->flash('error', t8("The booking group '#1' is obsolete and cannot be used with active articles.", $buchungsgruppe->description))
+    ->focus('#part_buchungsgruppen_id');
+
+  return 0;
+}
+
 # general checking functions
 
 sub check_part_id {
@@ -1338,6 +1360,7 @@ sub check_form {
   $self->form_check_assortment_items_unique || return 0;
   $self->form_check_assembly_items_exist    || return 0;
   $self->form_check_partnumber_is_unique    || return 0;
+  $self->form_check_buchungsgruppe          || return 0;
 
   return 1;
 }
