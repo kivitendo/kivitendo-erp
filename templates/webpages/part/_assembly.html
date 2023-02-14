@@ -10,6 +10,7 @@
 
 [% L.hidden_tag('assembly_id', SELF.part.id) %]
 
+<div style="overflow-y: auto; height:65vh;">
 <table id="assembly_items">
  <thead>
    <tr class="listheading">
@@ -108,7 +109,7 @@
 </tr>
 </tbody>
 </table>
-
+</div>
 [% L.sortable_element('#assembly_rows') %]
 
 <div>

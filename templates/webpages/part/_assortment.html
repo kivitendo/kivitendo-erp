@@ -10,6 +10,7 @@
 
 [% L.hidden_tag('assortment_id', SELF.part.id) %]
 
+<div style="overflow-y: auto; height:65vh;">
 <table id="assortment_items">
  <thead>
    <tr class="listheading">
@@ -55,9 +56,9 @@
  [% END %]
  <td></td>
  <td align="right">[% 'Totals' | $T8 %]:</td>
- <th id="items_sellprice_sum" class="numeric">[%- LxERP.format_amount(items_sellprice_sum, 2, 0) %]</td>
- <th id="items_lastcost_sum"  class="numeric">[%- LxERP.format_amount(items_lastcost_sum,  2, 0) %]</td>
- <th id="items_sum_diff"      class="numeric">[%- LxERP.format_amount(items_sum_diff,      2, 0) %]</td>
+ <th id="items_sellprice_sum" class="numeric">[%- LxERP.format_amount(items_sellprice_sum, 2, 0) %]</th>
+ <th id="items_lastcost_sum"  class="numeric">[%- LxERP.format_amount(items_lastcost_sum,  2, 0) %]</th>
+ <th id="items_sum_diff"      class="numeric">[%- LxERP.format_amount(items_sum_diff,      2, 0) %]</th>
 </tr>
 <tr>
  [% IF SELF.orphaned || AUTH.assert('assortment_edit', 1) %]
@@ -77,7 +78,7 @@
 </tr>
 </tbody>
 </table>
-
+</div>
 [% L.sortable_element('#assortment_rows') %]
 
 </div>
