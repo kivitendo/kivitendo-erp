@@ -26,6 +26,7 @@ use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::ValidityToken;
+use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
@@ -1713,8 +1714,8 @@ sub get_record_links_data_from_form {
 
   my $reclamation = $self->reclamation;
 
-  $reclamation->{converted_from_record_id} = delete $::form->{converted_from_record_id};
-  $reclamation->{converted_from_record_type_ref} = delete $::form->{converted_from_record_type_ref};
+  $reclamation->{RECORD_ID()} = delete $::form->{converted_from_record_id};
+  $reclamation->{RECORD_TYPE_REF()} = delete $::form->{converted_from_record_type_ref};
 
   my $from_record_item_ids = delete $::form->{converted_from_record_item_ids} ;
   my $from_record_item_type_refs = delete $::form->{converted_from_record_item_type_refs} ;
@@ -1722,8 +1723,8 @@ sub get_record_links_data_from_form {
   if (scalar @{ $from_record_item_ids || [] }) {
     for my $idx (0 .. $#{ $reclamation->items_sorted }) {
       my $reclamation_item = $reclamation->items_sorted->[$idx];
-      $reclamation_item->{converted_from_record_item_id} = $from_record_item_ids->[$idx];
-      $reclamation_item->{converted_from_record_item_type_ref} = $from_record_item_type_refs->[$idx];
+      $reclamation_item->{RECORD_ITEM_ID()} = $from_record_item_ids->[$idx];
+      $reclamation_item->{RECORD_ITEM_TYPE_REF()} = $from_record_item_type_refs->[$idx];
     }
   }
 }

@@ -33,6 +33,7 @@ use SL::DB::RequirementSpec;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::ValidityToken;
+use SL::DB::Helper::RecordLink qw(set_record_link_conversions);
 use SL::Model::Record;
 
 use SL::Helper::CreatePDF qw(:all);
@@ -2222,49 +2223,21 @@ sub save {
     # link records
     if ($::form->{converted_from_oe_id}) {
       my @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};
-
-      foreach my $converted_from_oe_id (@converted_from_oe_ids) {
-        my $src = SL::DB::Order->new(id => $converted_from_oe_id)->load;
-        $src->update_attributes(closed => 1) if $src->type =~ /_quotation$/;
-        $src->update_attributes(closed => 1) if $src->type eq purchase_quotation_intake_type() && $self->type eq purchase_order_type();
-        $src->link_to_record($self->order);
-      }
-      if (scalar @{ $::form->{converted_from_orderitems_ids} || [] }) {
-        my $idx = 0;
-        foreach (@{ $self->order->items_sorted }) {
-          my $from_id = $::form->{converted_from_orderitems_ids}->[$idx];
-          next if !$from_id;
-          SL::DB::RecordLink->new(from_table => 'orderitems',
-                                  from_id    => $from_id,
-                                  to_table   => 'orderitems',
-                                  to_id      => $_->id
-          )->save;
-          $idx++;
-        }
-      }
+      set_record_link_conversions(
+        $self->order,
+        'SL::DB::Order'     => \@converted_from_oe_ids,
+        'SL::DB::OrderItem' => $::form->{converted_from_orderitems_ids},
+      );
 
       $self->link_requirement_specs_linking_to_created_from_objects(@converted_from_oe_ids);
     }
     if ($::form->{converted_from_reclamation_id}) {
       my @converted_from_reclamation_ids = split ' ', $::form->{converted_from_reclamation_id};
-
-      foreach my $converted_from_reclamation_id (@converted_from_reclamation_ids) {
-        my $src = SL::DB::Reclamation->new(id => $converted_from_reclamation_id)->load;
-        $src->link_to_record($self->order);
-      }
-      if (scalar @{ $::form->{converted_from_reclamation_items_ids} || [] }) {
-        my $idx = 0;
-        foreach (@{ $self->order->items_sorted }) {
-          my $from_id = $::form->{converted_from_reclamation_items_ids}->[$idx];
-          next if !$from_id;
-          SL::DB::RecordLink->new(from_table => 'reclamation_items',
-                                  from_id    => $from_id,
-                                  to_table   => 'orderitems',
-                                  to_id      => $_->id
-          )->save;
-          $idx++;
-        }
-      }
+      set_record_links_conversions(
+        $self->order,
+        'SL::DB::Reclamation'     => \@converted_from_reclamation_ids,
+        'SL::DB::ReclamationItem' => $::form->{converted_from_reclamation_items_ids},
+      );
     }
 
     $self->set_project_in_linked_requirement_specs if $self->order->globalproject_id;
