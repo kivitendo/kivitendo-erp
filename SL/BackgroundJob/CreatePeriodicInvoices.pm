@@ -257,23 +257,6 @@ sub _create_periodic_invoice {
 
     $invoice->post(ar_id => $config->ar_chart_id) || die;
 
-    $order->link_to_record($invoice);
-
-    foreach my $item (@{ $invoice->items }) {
-      foreach (qw(orderitems)) {    # expand if needed (delivery_order_items)
-          if ($item->{"converted_from_${_}_id"}) {
-            die unless $item->{id};
-            RecordLinks->create_links('mode'       => 'ids',
-                                      'from_table' => $_,
-                                      'from_ids'   => $item->{"converted_from_${_}_id"},
-                                      'to_table'   => 'invoice',
-                                      'to_id'      => $item->{id},
-            ) || die;
-            delete $item->{"converted_from_${_}_id"};
-         }
-      }
-    }
-
     foreach my $item (grep { ($_->recurring_billing_mode eq 'once') && !$_->recurring_billing_invoice_id } @{ $order->orderitems }) {
       $item->update_attributes(recurring_billing_invoice_id => $invoice->id);
     }
