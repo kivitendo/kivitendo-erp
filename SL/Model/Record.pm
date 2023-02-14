@@ -137,9 +137,7 @@ sub delete {
       1;
   }) || push(@{$errors}, $db->error);
 
-  if (scalar @{ $errors} ){
-    croak(t8('Error delete record'));
-  };
+    croak t8("Errors delete records:") . "\n" . join("\n", @{$errors}) . "\n" if scalar @{$errors};
   # das hier sollte der code sein der in sub delete aus den controllern liegt
   # nicht nur record->delete, sondern auch andere elemente aufräumen
   # spool aufräumen
