@@ -35,18 +35,24 @@
     <tr>
       <th>[% LxERP.t8('Existing profiles') %]:</th>
       <td>
-        [% L.select_tag('profile.id', SELF.all_profiles, title_key = 'name', default = SELF.profile.id, style = 'width: 300px') %] <br>
-        [% L.submit_tag('action_new', LxERP.t8('Load profile')) %]
-        [% L.submit_tag('action_destroy', LxERP.t8('Delete profile'), confirm => LxERP.t8('Do you really want to delete this object?')) %]
+        [% L.select_tag('profile.id', SELF.all_profiles, title_key = 'name', default = SELF.profile.id, class='wi-wide') %]
+        <div class="buttons below">
+          [% L.submit_tag('action_new', LxERP.t8('Load profile')) %]
+          [% L.submit_tag('action_destroy', LxERP.t8('Delete profile'), confirm => LxERP.t8('Do you really want to delete this object?')) %]
+        </div>
       </td>
     </tr>
     [% END %]
     <tr>
       <th>[% LxERP.t8('Save settings as') %]:</th>
       <td>
-        [% L.input_tag('profile.name', '', style => 'width: 300px') %]<br>
-        [% L.checkbox_tag('profile.is_default', label => LxERP.t8('Make default profile')) %]<br>
-        <div class="buttons below">[% L.submit_tag('action_save', LxERP.t8('Save profile'), class='below') %]</div>
+        [% L.input_tag('profile.name', '', class='wi-wide') %]
+        <div class="below">
+          [% L.checkbox_tag('profile.is_default', label => LxERP.t8('Make default profile'), class='below') %]
+        </div>
+        <div class="buttons below">
+          [% L.submit_tag('action_save', LxERP.t8('Save profile')) %]
+        </div>
       </td>
     </tr>
   </tbody>
@@ -79,13 +85,13 @@
     <tr>
       <th>[% LxERP.t8('Separator') %]:</th>
       <td>
-      [% SET custom_sep_char = SELF.sep_char %]
-      [% FOREACH entry = SELF.all_sep_chars %]
-        [% IF SELF.sep_char == entry.first %] [% SET custom_sep_char = '' %] [% END %]
-        [% L.radio_button_tag('sep_char', value => entry.first, label => entry.last, checked => SELF.sep_char == entry.first) %]<br>
-      [% END %]
-      [% L.radio_button_tag('sep_char', value => 'custom', checked => custom_sep_char != '') %]
-      [% L.input_tag('custom_sep_char', custom_sep_char, size => 3, maxlength => 1) %]
+        [% SET custom_sep_char = SELF.sep_char %]
+        [% FOREACH entry = SELF.all_sep_chars %]
+          [% IF SELF.sep_char == entry.first %] [% SET custom_sep_char = '' %] [% END %]
+          [% L.radio_button_tag('sep_char', value => entry.first, label => entry.last, checked => SELF.sep_char == entry.first) %]<br>
+        [% END %]
+        [% L.radio_button_tag('sep_char', value => 'custom', checked => custom_sep_char != '') %]
+        [% L.input_tag('custom_sep_char', custom_sep_char, size => 3, maxlength => 1) %]
       </td>
     </tr>
     <tr>
@@ -132,7 +138,7 @@
           [% opts = [ [ 'no_check',  LxERP.t8('Do not check for duplicates') ],
                       [ 'check_csv', LxERP.t8('Discard duplicate entries in CSV file') ],
                       [ 'check_db',  LxERP.t8('Discard entries with duplicates in database or CSV file') ] ] %]
-          [% L.select_tag('settings.duplicates', opts, default = SELF.profile.get('duplicates'), style = 'width: 300px') %]
+          [% L.select_tag('settings.duplicates', opts, default = SELF.profile.get('duplicates'), class='wi-wide') %]
         </td>
       </tr>
     [% END %]
@@ -365,21 +371,19 @@
 
 
 <script type="text/javascript">
-  <!--
-    $(document).ready(function() {
-      $('#action_save').click(function() {
-        if ($('#profile_name').val() != '')
-          return true;
-        alert('[% LxERP.t8('Please enter a profile name.') %]');
-        return false;
-      });
-      $('#add_empty_mapping_line').click(function(){
-        $.get('controller.pl', { action: 'CsvImport/add_empty_mapping_line', 'profile.type': $('#profile_type').val() }, kivi.eval_json_result);
-      });
-      $('#add_mapping_from_upload').click(function(){
-        $.get('controller.pl?action_add_mapping_from_upload=1', $('form').serialize() , kivi.eval_json_result);
-      });
-      $('#csv_import_mappings').on('click', '.remove_line', function(){ $(this).closest('tr').remove(); if (1==$('#csv_import_mappings tr:visible').length) $('#mapping_empty').show() });
+  $(document).ready(function() {
+    $('#action_save').click(function() {
+      if ($('#profile_name').val() != '')
+        return true;
+      alert('[% LxERP.t8('Please enter a profile name.') %]');
+      return false;
     });
-    -->
+    $('#add_empty_mapping_line').click(function(){
+      $.get('controller.pl', { action: 'CsvImport/add_empty_mapping_line', 'profile.type': $('#profile_type').val() }, kivi.eval_json_result);
+    });
+    $('#add_mapping_from_upload').click(function(){
+      $.get('controller.pl?action_add_mapping_from_upload=1', $('form').serialize() , kivi.eval_json_result);
+    });
+    $('#csv_import_mappings').on('click', '.remove_line', function(){ $(this).closest('tr').remove(); if (1==$('#csv_import_mappings tr:visible').length) $('#mapping_empty').show() });
+  });
 </script>
