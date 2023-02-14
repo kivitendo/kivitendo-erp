@@ -12,8 +12,7 @@ use constant RECORD_TYPE_REF      => 'converted_from_record_type_ref';
 use constant RECORD_ITEM_ID       => 'converted_from_record_item_id';
 use constant RECORD_ITEM_TYPE_REF => 'converted_from_record_item_type_ref';
 
-our @EXPORT_OK = qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
-
+our @EXPORT_OK = qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF set_record_link_conversions);
 
 sub link_records {
   my ($self, $allowed_linked_records, $allowed_linked_record_items, %flags) = @_;
@@ -71,6 +70,27 @@ sub close_quotations {
   return unless $from_record->type =~ /quotation/;
 
   $from_record->update_attributes(closed => 1);
+}
+
+sub set_record_link_conversions {
+  my ($record, $from_type, $from_ids, $item_type, $item_ids) = @_;
+
+  return unless listify($from_ids);
+
+  $record->{ RECORD_TYPE_REF() } = $from_type;
+  $record->{ RECORD_ID() } = $from_ids;
+
+  my $idx = 0;
+  my $items = $record->sorted_items;
+
+  croak "more item ids than items in record" if @$item_ids > @$items;
+
+  for my $idx (0..$#$item_ids) {
+    my $item = $items->[$idx];
+
+    $item->{ RECORD_ITEM_TYPE_REF() } = $item_type;
+    $item->{ RECORD_ITEM_ID() }       = $item_ids->[$idx];
+  }
 }
 
 
