@@ -20,6 +20,7 @@ use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::Payment qw(forex);
+use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::Locale::String qw(t8);
 use SL::RecordLinks;
 use Rose::DB::Object::Helpers qw(as_tree strip);
@@ -77,6 +78,7 @@ __PACKAGE__->before_save('_before_save_set_ord_quo_number');
 __PACKAGE__->before_save('_before_save_create_new_project');
 __PACKAGE__->before_save('_before_save_remove_empty_custom_shipto');
 __PACKAGE__->before_save('_before_save_set_custom_shipto_module');
+__PACKAGE__->after_save('_after_save_link_records');
 
 # hooks
 
@@ -133,6 +135,21 @@ sub _before_save_set_custom_shipto_module {
 
   return 1;
 }
+
+sub _after_save_link_records {
+  my ($self) = @_;
+
+  my @allowed_record_sources = qw(SL::DB::Reclamation SL::DB::Order);
+  my @allowed_item_sources = qw(SL::DB::ReclamationItem SL::DB::OrderItem);
+
+  SL::DB::Helper::RecordLink::link_records(
+    $self,
+    \@allowed_record_sources,
+    \@allowed_item_sources,
+    close_source_quotations => 1,
+  );
+}
+
 
 # methods
 
