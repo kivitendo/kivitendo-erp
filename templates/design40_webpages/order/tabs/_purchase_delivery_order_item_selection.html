@@ -1,0 +1,24 @@
+[%- USE LxERP -%][%- USE L -%]
+<div id="convert_to_purchase_delivery_order_item_selection">
+  <div class="wrapper">
+    [% L.button_tag("kivi.Order.convert_to_purchase_delivery_order()", LxERP.t8("Create delivery order")) %]
+  </div>
+
+  <div class="wrapper">
+    <table class="tbl-list">
+      <thead>
+        <tr class="listheading">
+          <th>[% L.checkbox_tag("purchase_delivery_order_item_selection_checkall", checkall="input.purchase_delivery_order_item_selection_checkall") %]</th>
+          <th>[% LxERP.t8("Position") %]</th>
+          <th>[% LxERP.t8("Partnumber") %]</th>
+          <th>[% LxERP.t8("Description") %]</th>
+          <th>[% LxERP.t8("Qty") %]</th>
+          <th>[% LxERP.t8("Unit") %]</th>
+        </tr>
+      </thead>
+
+      <tbody id="convert_to_purchase_delivery_order_item_selection_items" class="row_entry listrow">
+      </tbody>
+    </table>
+  </div>
+</div>
