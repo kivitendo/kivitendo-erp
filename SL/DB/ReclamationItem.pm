@@ -12,6 +12,7 @@ use SL::DB::ReclamationReason;
 use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::RecordItem;
+use SL::DB::Helper::RecordLink qw(RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::CustomVariables (
   sub_module  => 'reclamation_items',
   cvars_alias => 1,
@@ -30,7 +31,7 @@ __PACKAGE__->configure_acts_as_list(group_by => [qw(reclamation_id)]);
 sub is_linked_to_record {
   my ($self) = @_;
 
-  if(scalar(@{$self->linked_records}) || $self->{converted_from_record_item_type_ref}) {
+  if(scalar(@{$self->linked_records}) || $self->{RECORD_ITEM_TYPE_REF()}) {
     return 1;
   }
 
@@ -99,8 +100,8 @@ sub new_from {
   $item->assign_attributes(%{ $params{attributes} }) if $params{attributes};
 
   unless ($params{no_linked_records}) {
-    $item->{"converted_from_record_item_type_ref"} = ref($source);
-    $item->{"converted_from_record_item_id"} = $source->id;
+    $item->{RECORD_ITEM_TYPE_REF()} = ref($source);
+    $item->{RECORD_ITEM_ID()} = $source->id;
   }
 
   return $item;
