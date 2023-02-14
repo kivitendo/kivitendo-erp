@@ -194,7 +194,9 @@ sub action_edit_collective {
   # make new order from given orders
   my @multi_orders = map { SL::DB::Order->new(id => $_)->load } @multi_ids;
   $self->{converted_from_oe_id} = join ' ', map { $_->id } @multi_orders;
-  $self->order(SL::DB::Order->new_from_multi(\@multi_orders, sort_sources_by => 'transdate'));
+  my $target_type = "sales_order";
+  my $order = SL::Model::Record->new_from_workflow_multi(\@multi_orders, $target_type, sort_sources_by => 'transdate');
+  $self->order($order);
 
   $self->action_edit();
 }
