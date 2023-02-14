@@ -206,22 +206,6 @@ sub convert_to_order {
     require SL::DB::Order;
     $order = SL::DB::Order->new_from($self, %params);
     $order->save;
-    $self->link_to_record($order);
-    foreach my $item (@{ $order->items }) {
-      foreach (qw(reclamation_item)) {
-        if ($item->{"converted_from_${_}_id"}) {
-          die unless $item->{id};
-          RecordLinks->create_links('dbh'        => $self->db->dbh,
-                                    'mode'       => 'ids',
-                                    'from_table' => 'reclamation_items',
-                                    'from_ids'   => $item->{"converted_from_${_}_id"},
-                                    'to_table'   => 'orderitems',
-                                    'to_id'      => $item->{id},
-          ) || die;
-          delete $item->{"converted_from_${_}_id"};
-        }
-      }
-    }
 
     1;
   })) {
@@ -239,23 +223,6 @@ sub convert_to_delivery_order {
     require SL::DB::DeliveryOrder;
     $delivery_order = SL::DB::DeliveryOrder->new_from($self, %params);
     $delivery_order->save;
-    $self->link_to_record($delivery_order);
-    # TODO extend link_to_record for items, otherwise long-term no d.r.y.
-    foreach my $item (@{ $delivery_order->items }) {
-      foreach (qw(reclamation_items)) {
-        if ($item->{"converted_from_${_}_id"}) {
-          die unless $item->{id};
-          RecordLinks->create_links('dbh'        => $self->db->dbh,
-                                    'mode'       => 'ids',
-                                    'from_table' => $_,
-                                    'from_ids'   => $item->{"converted_from_${_}_id"},
-                                    'to_table'   => 'delivery_order_items',
-                                    'to_id'      => $item->{id},
-          ) || die;
-          delete $item->{"converted_from_${_}_id"};
-        }
-      }
-    }
 
     $self->update_attributes(delivered => 1) unless $::instance_conf->get_shipped_qty_require_stock_out;
     1;

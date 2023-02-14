@@ -275,22 +275,6 @@ sub convert_to_invoice {
   if (!$self->db->with_transaction(sub {
     require SL::DB::Invoice;
     $invoice = SL::DB::Invoice->new_from($self, %params)->post || die;
-    $self->link_to_record($invoice);
-    # TODO extend link_to_record for items, otherwise long-term no d.r.y.
-    foreach my $item (@{ $invoice->items }) {
-      foreach (qw(orderitems)) {
-        if ($item->{"converted_from_${_}_id"}) {
-          die unless $item->{id};
-          RecordLinks->create_links('mode'       => 'ids',
-                                    'from_table' => $_,
-                                    'from_ids'   => $item->{"converted_from_${_}_id"},
-                                    'to_table'   => 'invoice',
-                                    'to_id'      => $item->{id},
-          ) || die;
-          delete $item->{"converted_from_${_}_id"};
-        }
-      }
-    }
     $self->update_attributes(closed => 1);
     1;
   })) {
@@ -308,23 +292,6 @@ sub convert_to_delivery_order {
     require SL::DB::DeliveryOrder;
     $delivery_order = SL::DB::DeliveryOrder->new_from($self, @args);
     $delivery_order->save;
-    $self->link_to_record($delivery_order);
-    # TODO extend link_to_record for items, otherwise long-term no d.r.y.
-    foreach my $item (@{ $delivery_order->items }) {
-      foreach (qw(orderitems)) {    # expand if needed (delivery_order_items)
-        if ($item->{"converted_from_${_}_id"}) {
-          die unless $item->{id};
-          RecordLinks->create_links('dbh'        => $self->db->dbh,
-                                    'mode'       => 'ids',
-                                    'from_table' => $_,
-                                    'from_ids'   => $item->{"converted_from_${_}_id"},
-                                    'to_table'   => 'delivery_order_items',
-                                    'to_id'      => $item->{id},
-          ) || die;
-          delete $item->{"converted_from_${_}_id"};
-        }
-      }
-    }
 
     $self->update_attributes(delivered => 1) unless $::instance_conf->get_shipped_qty_require_stock_out;
     1;
@@ -543,8 +510,8 @@ sub new_from {
     if ( $is_abbr_any->(qw(poso rqsq rqso pqisq pqiso)) ) {
       $current_oe_item->lastcost($source_item->sellprice);
     }
-    $current_oe_item->{"converted_from_orderitems_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::Order';
-    $current_oe_item->{"converted_from_reclamation_item_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::Reclamation';
+    $current_oe_item->{ RECORD_ITEM_ID() } = $_->{id};
+    $current_oe_item->{ RECORD_ITEM_TYPE_REF() } = ref($source_item);
     $current_oe_item;
   } @{ $items };
 
@@ -553,6 +520,9 @@ sub new_from {
   @items = grep { $_->qty >=0 } @items if $params{skip_items_negative_qty};
 
   $order->items(\@items);
+
+  $order->{ RECORD_ID() } = $source->{id};
+  $order->{ RECORD_TYPE_REF() } = ref($source);
 
   return $order;
 }
