@@ -3,7 +3,6 @@ package SL::DB::DeliveryOrder::TypeData;
 use strict;
 use Carp;
 use Exporter qw(import);
-use Scalar::Util qw(weaken);
 use SL::Locale::String qw(t8);
 
 use constant {
