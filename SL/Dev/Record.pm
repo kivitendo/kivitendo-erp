@@ -11,6 +11,7 @@ our @EXPORT_OK = qw(
                     create_invoice_item
                     create_reclamation_item
 
+                    create_sales_quotation
                     create_sales_order
                     create_sales_delivery_order
                     create_sales_invoice
@@ -48,6 +49,7 @@ my %record_type_to_item_type = ( sales_invoice        => 'SL::DB::InvoiceItem',
                                  purchase_invoice     => 'SL::DB::InvoiceItem',
                                  credit_note          => 'SL::DB::InvoiceItem',
                                  sales_order          => 'SL::DB::OrderItem',
+                                 sales_quotation      => 'SL::DB::OrderItem',
                                  purchase_order       => 'SL::DB::OrderItem',
                                  sales_delivery_order => 'SL::DB::DeliveryOrderItem',
                                  purchase_delivery_order => 'SL::DB::DeliveryOrderItem',
@@ -206,35 +208,16 @@ sub create_purchase_delivery_order {
   return $delivery_order;
 }
 
+sub create_sales_quotation {
+  my (%params) = @_;
+  $params{type} = 'sales_quotation';
+  _create_sales_order_or_quotation(%params);
+}
+
 sub create_sales_order {
   my (%params) = @_;
-
-  my $record_type = 'sales_order';
-  my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
-  _check_items($orderitems, $record_type);
-
-  my $save = delete $params{save} // 0;
-
-  my $customer = $params{customer} // new_customer(name => 'Testcustomer')->save;
-  die "illegal customer" unless ref($customer) eq 'SL::DB::Customer';
-
-  my $order = SL::DB::Order->new(
-    customer_id  => delete $params{customer_id} // $customer->id,
-    taxzone_id   => delete $params{taxzone_id}  // $customer->taxzone->id,
-    currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
-    taxincluded  => delete $params{taxincluded} // 0,
-    employee_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
-    salesman_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
-    transdate    => delete $params{transdate}   // DateTime->today,
-    orderitems   => $orderitems,
-  );
-  $order->assign_attributes(%params) if %params;
-
-  if ( $save ) {
-    $order->calculate_prices_and_taxes;
-    $order->save;
-  }
-  return $order;
+  $params{type} = 'sales_order';
+  _create_sales_order_or_quotation(%params);
 }
 
 sub create_purchase_order {
@@ -763,6 +746,41 @@ sub create_gl_transaction {
   return $gl_transaction;
 }
 
+sub _create_sales_order_or_quotation {
+  my (%params) = @_;
+
+  my $record_type = $params{type};
+  die "illegal type" unless $record_type eq 'sales_order' or $record_type eq 'sales_quotation';
+
+  my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
+  _check_items($orderitems, $record_type);
+
+  my $save = delete $params{save} // 0;
+
+  my $customer = $params{customer} // new_customer(name => 'Testcustomer')->save;
+  die "illegal customer" unless ref($customer) eq 'SL::DB::Customer';
+
+  my $record = SL::DB::Order->new(
+    customer_id  => delete $params{customer_id} // $customer->id,
+    taxzone_id   => delete $params{taxzone_id}  // $customer->taxzone->id,
+    currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
+    taxincluded  => delete $params{taxincluded} // 0,
+    employee_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    salesman_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    transdate    => delete $params{transdate}   // DateTime->today,
+    quotation    => $record_type eq 'sales_quotation' ? 1 : 0,
+    orderitems   => $orderitems,
+  );
+  $record->assign_attributes(%params) if %params;
+
+  if ( $save ) {
+    $record->calculate_prices_and_taxes;
+    $record->save;
+  }
+  return $record;
+}
+
+
 sub _transaction_tax_helper {
   # checks for hash-entries with key tax, tax_id or taxkey
   # returns an SL::DB::Tax object
@@ -901,6 +919,10 @@ Example: create 100 orders with the same part for 100 new customers:
     taxincluded  => 0,
     orderitems => [ SL::Dev::Record::create_order_item(part => $part1, qty => 1, sellprice => 9) ]
   ) for 1 .. 100;
+
+=head2 C<create_sales_quotation %PARAMS>
+
+See C<create_sales_order>
 
 =head2 C<create_purchase_order %PARAMS>
 
