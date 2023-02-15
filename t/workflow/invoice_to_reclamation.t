@@ -114,7 +114,7 @@ reset_state();
 
 #####
 
-my $sales_reclamation = SL::Dev::Record::create_sales_reclamation(
+my $sales_reclamation = create_sales_reclamation(
   save                    => 1,
   employee                => $employee,
   shippingpoint           => "sp",
@@ -123,18 +123,18 @@ my $sales_reclamation = SL::Dev::Record::create_sales_reclamation(
   delivery_term           => $delivery_term,
   taxincluded             => 0,
   reclamation_items       => [
-    SL::Dev::Record::create_reclamation_item(
+    create_reclamation_item(
       part => $parts[0], qty =>  3, sellprice => 70,
       reason => $relamation_reason,
     ),
-    SL::Dev::Record::create_reclamation_item(
+    create_reclamation_item(
       part => $parts[1], qty => 10, sellprice => 50,
       reason => $relamation_reason,
     ),
   ],
 )->load;
 
-my $purchase_reclamation = SL::Dev::Record::create_purchase_reclamation(
+my $purchase_reclamation = create_purchase_reclamation(
   save                    => 1,
   employee                => $employee,
   shippingpoint           => "sp",
@@ -143,11 +143,11 @@ my $purchase_reclamation = SL::Dev::Record::create_purchase_reclamation(
   delivery_term           => $delivery_term,
   taxincluded             => 0,
   reclamation_items       => [
-    SL::Dev::Record::create_reclamation_item(
+    create_reclamation_item(
       part => $parts[0], qty =>  3, sellprice => 70,
       reason => $relamation_reason,
     ),
-    SL::Dev::Record::create_reclamation_item(
+    create_reclamation_item(
       part => $parts[1], qty => 10, sellprice => 50,
       reason => $relamation_reason,
     ),
@@ -155,7 +155,7 @@ my $purchase_reclamation = SL::Dev::Record::create_purchase_reclamation(
 )->load;
 
 
-my $sales_invoice = SL::Dev::Record::create_sales_invoice(
+my $sales_invoice = create_sales_invoice(
   save                    => 1,
   employee                => $employee,
   shippingpoint           => "sp",
@@ -176,8 +176,8 @@ my $purchase_invoice = create_minimal_purchase_invoice(
   payment_terms           => $payment_term,
   delivery_term           => $delivery_term,
   taxincluded             => 0,
-  invoiceitems => [ SL::Dev::Record::create_invoice_item(part => $parts[0], qty =>  3, sellprice => 70),
-                  SL::Dev::Record::create_invoice_item(part => $parts[1], qty => 10, sellprice => 50),
+  invoiceitems => [ create_invoice_item(part => $parts[0], qty =>  3, sellprice => 70),
+                    create_invoice_item(part => $parts[1], qty => 10, sellprice => 50),
   ]
 )->load;
 
