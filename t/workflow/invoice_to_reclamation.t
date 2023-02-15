@@ -163,12 +163,12 @@ my $sales_invoice = SL::Dev::Record::create_sales_invoice(
   payment_terms           => $payment_term,
   delivery_term           => $delivery_term,
   taxincluded             => 0,
-  invoiceitems => [ SL::Dev::Record::create_invoice_item(part => $parts[0], qty =>  3, sellprice => 70),
-                  SL::Dev::Record::create_invoice_item(part => $parts[1], qty => 10, sellprice => 50),
+  invoiceitems => [ create_invoice_item(part => $parts[0], qty =>  3, sellprice => 70),
+                    create_invoice_item(part => $parts[1], qty => 10, sellprice => 50),
   ]
 )->load;
 
-my $purchase_invoice = SL::Dev::Record::create_purchase_invoice(
+my $purchase_invoice = create_minimal_purchase_invoice(
   save                    => 1,
   employee                => $employee,
   invnumber               => "t1",
