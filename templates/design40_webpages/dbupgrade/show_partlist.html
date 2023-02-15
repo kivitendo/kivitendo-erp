@@ -2,7 +2,10 @@
 [% USE L %]
 [% USE HTML %]
 [% USE LxERP %]
+
 <h1>[% 'Show parts' | $T8 %]</h1>
+
+<div class="wrapper">
 
 <form method="post" action="controller.pl">
   [% L.hidden_tag("action", "LoginScreen/login") %]
@@ -86,3 +89,5 @@
 </div>
 
 </form>
+
+</div><!-- /.wrapper -->

@@ -1,20 +1,21 @@
 [% USE T8 %]
 [% USE HTML %]
 [% USE LxERP %]
+
 <h1>[% 'Double partnumbers' | $T8 %]</h1>
 
 <script type="text/javascript">
-<!--
-function show_parts(vc) {
-  var width = 750;
-  var height = 550;
-  var parm = centerParms(width, height) + ",width=" + width + ",height=" + height + ",status=yes,scrollbars=yes";
-  url = "controller.pl?action=LoginScreen/login&upgrade_action=filter_parts&no_layout=1"
-  //alert(url);
-  window.open(url, "_new_generic", parm);
-}
-//-->
+  function show_parts(vc) {
+    var width = 750;
+    var height = 550;
+    var parm = centerParms(width, height) + ",width=" + width + ",height=" + height + ",status=yes,scrollbars=yes";
+    url = "controller.pl?action=LoginScreen/login&upgrade_action=filter_parts&no_layout=1"
+    //alert(url);
+    window.open(url, "_new_generic", parm);
+  }
 </script>
+
+<div class="wrapper">
 
 <form name="Form" method="post" action="login.pl">
 <input type="hidden" name="action" value="login">
@@ -59,3 +60,5 @@ function show_parts(vc) {
 <input type="submit" value="[% 'Continue' | $T8 %]">
 
 </form>
+
+</div><!-- /.wrapper -->

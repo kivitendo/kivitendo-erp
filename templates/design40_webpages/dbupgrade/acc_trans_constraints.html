@@ -1,7 +1,10 @@
 [% USE T8 %]
 [% USE L %]
 [% USE HTML %]
+
 <h1>[% 'Invalid transactions' | $T8 %]</h1>
+
+<div class="wrapper">
 
 <form name="Form" method="post" action="login.pl">
 <input type="hidden" name="action" value="login">
@@ -88,3 +91,5 @@
 <p><a href="http://www.kivitendo.de/partner.html" target="_blank">[% 'Here' | $T8 %]</a> [% 'you can find professional help.' | $T8 %]</p>
 
 </form>
+
+</div><!-- /.wrapper -->
