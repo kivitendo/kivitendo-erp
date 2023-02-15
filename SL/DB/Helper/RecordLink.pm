@@ -107,14 +107,14 @@ SL::DB::Helper::RecordLink - creates record links that are stored in the gived o
 =head1 SYNOPSIS
 
     # in the consuming class
-    __PCAKAGE__->after_save_hook("link_records_hook");
+    __PACKAGE__->after_save_hook("link_records_hook");
 
     sub link_records_hook {
       my ($self) = @_;
       SL::DB::Helper::RecordLink::link_records(
         $self,
-        qw(SL::DB::Order),            # list of allowed record sources
-        qw(SL::DB::OrderItem),        # list of allowed record item sources
+        [ qw(SL::DB::Order) ],        # list of allowed record sources
+        [ qw(SL::DB::OrderItem) ],    # list of allowed record item sources
         close_source_quotations => 1, # if the link source is a quotation - close it
       )
     }
@@ -153,7 +153,7 @@ If a typeref is given that is not explicitely whitelisted, an error will be thro
 
 The older C<converted_from_oe_ids> etc forms can be converted with TODO
 
-=head1 METHODS
+=head1 FUNCTIONS
 
 =over 4
 
@@ -163,11 +163,29 @@ Register the given ids in the object to be linked after saving.
 
 Item ids will be assigned one by one to sorted_items.
 
+This function can be exported on demand to the calling package.
+
 =item * C<link_records> $record, \@allowed_record_types, \@allowed_item_types
 
 Intended as a post-save hook.
 Evaluates the stored ids from L </set_record_link_conversions>
 and links the creating objects to the given one.
+
+=back
+
+=head1 CONSTANTS
+
+Aöll of these can be exported on demand if the calling code wants to set or read the markers in a record manually.
+
+=over 4
+
+=item * C<RECORD_ID> = C<converted_from_record_id>
+
+=item * C<RECORD_TYPE_REF> = C<converted_from_record_type_ref>
+
+=item * C<RECORD_ITEM_ID> = C<converted_from_record_item_id>
+
+=item * C<RECORD_ITEM_TYPE_REF> = C<converted_from_record_item_type_ref>
 
 =back
 
