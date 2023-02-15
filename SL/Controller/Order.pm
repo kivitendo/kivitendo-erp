@@ -206,9 +206,7 @@ sub action_edit_collective {
 sub action_delete {
   my ($self) = @_;
 
-  my $number_type = $self->order->type =~ m{order} ? 'ordnumber' : 'quonumber';
-  my %history = (snumbers => $number_type . '_' . $self->order->$number_type);
-  my %params = (history => \%history);
+  my %params = (history => { snumbers => $self->get_history_snumbers() });
   SL::Model::Record->delete($self->order, %params);
   my $text = $self->type eq sales_order_intake_type()        ? $::locale->text('The order intake has been deleted')
            : $self->type eq sales_order_type()               ? $::locale->text('The order confirmation has been deleted')
@@ -2918,17 +2916,23 @@ sub save_and_redirect_to {
   $self->redirect_to(%params, id => $self->order->id);
 }
 
-sub save_history {
-  my ($self, $addition) = @_;
+sub get_history_snumbers {
+  my ($self) = @_;
 
   my $number_type = $self->order->type =~ m{order} ? 'ordnumber' : 'quonumber';
   my $snumbers    = $number_type . '_' . $self->order->$number_type;
+
+  return $snumbers;
+}
+
+sub save_history {
+  my ($self, $addition) = @_;
 
   SL::DB::History->new(
     trans_id    => $self->order->id,
     employee_id => SL::DB::Manager::Employee->current->id,
     what_done   => $self->order->type,
-    snumbers    => $snumbers,
+    snumbers    => $self->get_history_snumbers(),
     addition    => $addition,
   )->save;
 }
