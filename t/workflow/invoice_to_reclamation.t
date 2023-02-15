@@ -38,7 +38,7 @@ my (
   $unit,
   @parts,
   $department,
-  $relamation_reason,
+  $reclamation_reason,
 );
 
 
@@ -101,7 +101,7 @@ sub reset_state {
     partnumber => 'Serv_2'
   )->save;
 
-  $relamation_reason = SL::DB::ReclamationReason->new(
+  $reclamation_reason = SL::DB::ReclamationReason->new(
     name => "test_reason",
     description => "",
     position => 1,
@@ -125,11 +125,11 @@ my $sales_reclamation = create_sales_reclamation(
   reclamation_items       => [
     create_reclamation_item(
       part => $parts[0], qty =>  3, sellprice => 70,
-      reason => $relamation_reason,
+      reason => $reclamation_reason,
     ),
     create_reclamation_item(
       part => $parts[1], qty => 10, sellprice => 50,
-      reason => $relamation_reason,
+      reason => $reclamation_reason,
     ),
   ],
 )->load;
@@ -145,11 +145,11 @@ my $purchase_reclamation = create_purchase_reclamation(
   reclamation_items       => [
     create_reclamation_item(
       part => $parts[0], qty =>  3, sellprice => 70,
-      reason => $relamation_reason,
+      reason => $reclamation_reason,
     ),
     create_reclamation_item(
       part => $parts[1], qty => 10, sellprice => 50,
-      reason => $relamation_reason,
+      reason => $reclamation_reason,
     ),
   ],
 )->load;
@@ -183,12 +183,12 @@ my $purchase_invoice = create_minimal_purchase_invoice(
 
 # convert invoice → reclamation
 my $converted_sales_reclamation =SL::Model::Record->new_from_workflow($sales_invoice, "sales_reclamation");
-$converted_sales_reclamation->items_sorted->[0]->reason($relamation_reason);
-$converted_sales_reclamation->items_sorted->[1]->reason($relamation_reason);
+$converted_sales_reclamation->items_sorted->[0]->reason($reclamation_reason);
+$converted_sales_reclamation->items_sorted->[1]->reason($reclamation_reason);
 $converted_sales_reclamation->save->load;
 my $converted_purchase_reclamation = SL::Model::Record->new_from_workflow($purchase_invoice, "purchase_reclamation");
-$converted_purchase_reclamation->items_sorted->[0]->reason($relamation_reason);
-$converted_purchase_reclamation->items_sorted->[1]->reason($relamation_reason);
+$converted_purchase_reclamation->items_sorted->[0]->reason($reclamation_reason);
+$converted_purchase_reclamation->items_sorted->[1]->reason($reclamation_reason);
 $converted_purchase_reclamation->save->load;
 
 #get items before strip
