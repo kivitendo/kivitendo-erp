@@ -46,6 +46,7 @@ sub clear_up {
   foreach (qw(
     Invoice PurchaseInvoice InvoiceItem
     Reclamation ReclamationItem
+    ReclamationReason
     Part
     Customer Vendor
     Department PaymentTerm DeliveryTerm
