@@ -227,6 +227,10 @@ sub save {
 
     $record->save(cascade => 1);
 
+    if ($params{objects_to_close} && @{$params{objects_to_close}}) {
+      $_->update_attributes(closed => 1) for @{$params{objects_to_close}};
+    }
+
     # link records for requirement specs
     if (my $converted_from_ids = $params{link_requirement_specs_linking_to_created_from_objects}) {
       _link_requirement_specs_linking_to_created_from_objects($record, $converted_from_ids);
