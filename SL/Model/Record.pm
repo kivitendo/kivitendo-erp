@@ -4,6 +4,7 @@ use strict;
 
 use Carp;
 
+use SL::DB::Employee;
 use SL::DB::Order;
 use SL::DB::DeliveryOrder;
 use SL::DB::Reclamation;
