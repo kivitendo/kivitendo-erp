@@ -1,12 +1,12 @@
 [% USE HTML %]
-[% USE LxERP -%]
-[% USE P -%]
-[% USE T8 -%]
-[% USE Base64 -%]
+[% USE LxERP %]
+[% USE P %]
+[% USE T8 %]
+[% USE Base64 %]
 
 <h1>[% title | html %]</h1>
 
-[%- INCLUDE 'common/flash.html' -%]
+[% INCLUDE 'common/flash.html' %]
 
 <div class="wrapper">
   <table class="tbl-list">
@@ -28,15 +28,13 @@
         <td>[% s.send_email ? LxERP.t8('Yes') : LxERP.t8('No') %]</td>
         <td>[% s.error ? s.error : LxERP.t8('Ok') %]</td>
       </tr>
-      [%- END %]
+      [% END %]
     </tbody>
   </table>
 </div>
 
-[%- IF pdf_filename && pdf_content -%]
+[% IF pdf_filename && pdf_content %]
   <script type="text/javascript">
-    <!--
-      $(function() {kivi.save_file('[% pdf_content.encode_base64 %]', 'application/pdf', 0, '[% pdf_filename %]');});
-    -->
+    $(function() {kivi.save_file('[% pdf_content.encode_base64 %]', 'application/pdf', 0, '[% pdf_filename %]');});
   </script>
-[%- END %]
+[% END %]
