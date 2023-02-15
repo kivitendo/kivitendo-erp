@@ -17,16 +17,70 @@ use SL::DB::ValidityToken;
 use SL::Util qw(trim);
 use SL::Locale::String qw(t8);
 
-sub new {
-  my ($class, $target_type, %flags) = @_;
+sub update_after_new {
+  my ($class, $new_record, $subtype, %flags) = @_;
 
-  # target_type: der angeforderte typ
+  my $type_info = {
+    # order
+    sales_quotation => {
+      get_new_reqdate => sub {
+        if ($::instance_conf->get_reqdate_on) {
+          return DateTime->today_local->next_workday(
+            extra_days => $::instance_conf->get_reqdate_interval());
+        } else {
+          return '';
+        }
+      },
+    },
+    sales_order => {
+      get_new_reqdate => sub {
+        if ($::instance_conf->get_deliverydate_on) {
+          return DateTime->today_local->next_workday(
+            extra_days => $::instance_conf->get_delivery_date_interval());
+        } else {
+          return '';
+        }
+      },
+    },
+    request_quotation => {
+      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
+    },
+    purchase_order => {
+      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
+    },
+    # delivery_order
+    rma_delivery_order => {
+      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
+    },
+    sales_delivery_order => {
+      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
+    },
+    supplier_delivery_order => {
+      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
+    },
+    purchase_delivery_order => {
+      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
+    },
+    # reclamation
+    sales_reclamation => {
+      get_new_reqdate => sub { return; },
+    },
+    purchase_reclamation => {
+      get_new_reqdate => sub { return; },
+    },
+  };
+
+  $new_record->transdate(DateTime->now_local());
+  $new_record->reqdate($type_info->{$subtype}->{get_new_reqdate}->());
+
+  # new_record: der neuerstellte objekt
   # flags: zusätzliche informationen zu der behanldung (soll    )
 
   # (aus add) neues record mit vorbereitenden sachen wie transdate/reqdate
   #
   # rückgabe: neues objekt
   # fehlerfall: exception
+  return $new_record;
 }
 
 sub new_from_workflow {

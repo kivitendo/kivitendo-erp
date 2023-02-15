@@ -78,18 +78,7 @@ __PACKAGE__->run_before('check_auth_for_edit',
 sub action_add {
   my ($self) = @_;
 
-  $self->order->transdate(DateTime->now_local());
-  my $extra_days = $self->type eq sales_quotation_type()    ? $::instance_conf->get_reqdate_interval       :
-                   $self->type eq sales_order_type()        ? $::instance_conf->get_delivery_date_interval :
-                   $self->type eq sales_order_intake_type() ? $::instance_conf->get_delivery_date_interval : 1;
-
-  if (($self->type eq sales_order_intake_type() &&  $::instance_conf->get_deliverydate_on)
-      || ($self->type eq sales_order_type()     &&  $::instance_conf->get_deliverydate_on)
-      || ($self->type eq sales_quotation_type() &&  $::instance_conf->get_reqdate_on)
-      && (!$self->order->reqdate)) {
-    $self->order->reqdate(DateTime->today_local->next_workday(extra_days => $extra_days));
-  }
-
+  $self->order(SL::Model::Record->update_after_new($self->order, $self->type));
 
   $self->pre_render();
 
