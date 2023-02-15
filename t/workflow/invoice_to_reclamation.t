@@ -235,7 +235,7 @@ my $linked_purchase_invoice = $converted_purchase_reclamation->linked_records->[
 is_deeply($linked_purchase_invoice->strip->as_tree, $purchase_invoice->strip->as_tree);
 
 
-## converted should be nealy the same
+## converted should be nearly the same
 pairwise {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
     "sales_invoice_items to sales_reclamation_items",

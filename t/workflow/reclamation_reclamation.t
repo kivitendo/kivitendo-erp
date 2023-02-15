@@ -214,7 +214,7 @@ is_deeply($linked_sales_reclamation_c->strip->as_tree, $sales_reclamation->load-
 is_deeply($linked_purchase_reclamation_c->strip->as_tree, $purchase_reclamation->load->strip->as_tree);
 
 
-## new reclamations should be nealy the same
+## new reclamations should be nearly the same
 my $new_sales_tmp = clone($new_sales_reclamation);
 my $sales_tmp2 = clone($sales_reclamation);
 my $new_purchase_tmp = clone($new_purchase_reclamation);
@@ -256,7 +256,7 @@ pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
 is_deeply($purchase_tmp2->strip->as_tree, $new_purchase_tmp->strip->as_tree);
 
 
-## converted reclamation should be nealy the same
+## converted reclamation should be nearly the same
 my $sales_tmp3 = clone($sales_reclamation);
 my $converted_sales_tmp = clone($converted_sales_reclamation);
 my $purchase_tmp3 = clone($purchase_reclamation);

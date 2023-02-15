@@ -276,7 +276,7 @@ is_deeply($linked_purchase_delivery_order->strip->as_tree, $purchase_delivery_or
 is_deeply($linked_purchase_reclamation->strip->as_tree, $purchase_reclamation->load->strip->as_tree);
 
 
-## converted should be nealy the same
+## converted should be nearly the same
 # sales
 pairwise  {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
