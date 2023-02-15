@@ -12,6 +12,7 @@ use SL::DB::Helper::AttrHTML;
 use SL::DB::Helper::AttrSorted;
 use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
+use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF);
 
@@ -425,6 +426,10 @@ sub digest {
     $self->donumber,
     $self->customervendor->name,
     $self->date->to_kivitendo;
+}
+
+sub type_data {
+  SL::DB::Helper::TypeDataProxy->new(ref $_[0], $_[0]->type);
 }
 
 1;

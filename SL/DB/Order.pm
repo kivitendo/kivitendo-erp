@@ -18,6 +18,7 @@ use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
+use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::Payment qw(forex);
 use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
@@ -687,6 +688,10 @@ sub netamount_base_currency {
   } else {
     return $self->netamount * $self->daily_exchangerate;
   }
+}
+
+sub type_data {
+  SL::DB::Helper::TypeDataProxy->new(ref $_[0], $_[0]->type);
 }
 
 1;
