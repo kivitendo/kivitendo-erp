@@ -294,9 +294,6 @@ sub action_save_as_new {
 
   $self->order($updated_order);
 
-  # no linked records on save as new
-  delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);
-
   # Warn on obsolete items
   my @obsolete_positions = map { $_->position } grep { $_->part->obsolete } @{ $self->order->items_sorted };
   flash_later('warning', t8('This record containts obsolete items at position #1', join ', ', @obsolete_positions)) if @obsolete_positions;
