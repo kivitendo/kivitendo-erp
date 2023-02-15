@@ -19,6 +19,7 @@ use SL::DB::AdditionalBillingAddress;
 use SL::DB::AuthUser;
 use SL::DB::History;
 use SL::DB::Order;
+use SL::DB::OrderItem;
 use SL::DB::Default;
 use SL::DB::Unit;
 use SL::DB::Part;
@@ -229,12 +230,7 @@ sub action_delete {
 sub action_save {
   my ($self) = @_;
 
-  my $errors = $self->save();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
+  $self->save();
 
   my $text = $self->type eq sales_order_intake_type()         ? $::locale->text('The order intake has been saved')
            : $self->type eq sales_order_type()                ? $::locale->text('The order confirmation has been saved')
@@ -269,12 +265,7 @@ sub action_add_subversion {
   SL::DB->client->with_transaction(
     sub {
       SL::Model::Record->increment_subversion($self->order);
-
-      # Todo: Call SL::Model::Record->save when implemented
-      # SL::Model::Record->save($self->order);
-      my $errors = $self->save();
-      die join "\n", @{ $errors } if scalar @{ $errors };
-
+      $self->save();
       1;
     }
   );
@@ -357,12 +348,7 @@ sub action_save_as_new {
 sub action_print {
   my ($self) = @_;
 
-  my $errors = $self->save();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
+  $self->save();
 
   $self->js_reset_order_and_item_ids_after_save;
 
@@ -446,11 +432,7 @@ sub action_print {
 sub action_preview_pdf {
   my ($self) = @_;
 
-  my $errors = $self->save();
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
+  $self->save();
 
   $self->js_reset_order_and_item_ids_after_save;
 
@@ -505,12 +487,7 @@ sub action_save_and_show_email_dialog {
   my ($self) = @_;
 
   if (!$self->is_final_version) {
-    my $errors = $self->save();
-
-    if (scalar @{ $errors }) {
-      $self->js->flash('error', $_) foreach @{ $errors };
-      return $self->js->render();
-    }
+    $self->save();
 
     $self->js_reset_order_and_item_ids_after_save;
   }
@@ -575,13 +552,13 @@ sub action_send_email {
   my ($self) = @_;
 
   if (!$self->is_final_version) {
-    my $errors = $self->save();
-
-    if (scalar @{ $errors }) {
+    eval {
+      $self->save();
+      1;
+    } or do {
       $self->js->run('kivi.Order.close_email_dialog');
-      $self->js->flash('error', $_) foreach @{ $errors };
-      return $self->js->render();
-    }
+      die $EVAL_ERROR;
+    };
 
     $self->js_reset_order_and_item_ids_after_save;
   }
@@ -863,12 +840,8 @@ sub action_save_and_supplier_delivery_order {
 sub action_save_and_reclamation {
   my ($self) = @_;
 
-  # cann't use save_and_redirect_to, because id is set!
-  my $errors = $self->save();
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
+  # can't use save_and_redirect_to, because id is set!
+  $self->save();
 
   my $to_type = $self->order->is_sales ? 'sales_reclamation'
                                        : 'purchase_reclamation';
@@ -2162,12 +2135,6 @@ sub get_unalterable_data {
 sub save {
   my ($self) = @_;
 
-  $self->recalc();
-  $self->get_unalterable_data();
-
-  my $errors = [];
-  my $db     = $self->order->db;
-
   if (scalar @{$self->order->items} == 0 && !grep { $self->type eq $_ } @{$::instance_conf->get_allowed_documents_with_no_positions() || []}) {
     return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
   }
@@ -2195,6 +2162,9 @@ sub save {
     $self->order->add_phone_notes($phone_note) if $is_new;
   }
 
+  # create first version if none exists
+  $self->order->add_order_version(SL::DB::OrderVersion->new(version => 1)) if !$self->order->order_version;
+
   my @converted_from_oe_ids;
   if ($::form->{converted_from_oe_id}) {
     @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};
@@ -2214,52 +2184,17 @@ sub save {
   }
 
   my $is_new = !$self->order->id;
-  $db->with_transaction(sub {
-    my $validity_token;
-    if (!$self->order->id) {
-      $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
-        scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
-        token => $::form->{form_validity_token},
-      );
 
-      die $::locale->text('The form is not valid anymore.') if !$validity_token;
-    }
+  my $items_to_delete = scalar @{ $self->item_ids_to_delete || [] }
+                      ? SL::DB::Manager::OrderItem->get_all(where => [id => $self->item_ids_to_delete])
+                      : undef;
 
-    # delete custom shipto if it is to be deleted or if it is empty
-    if ($self->order->custom_shipto && ($self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty)) {
-      $self->order->custom_shipto->delete if $self->order->custom_shipto->shipto_id;
-      $self->order->custom_shipto(undef);
-    }
-
-    SL::DB::OrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete || []};
-    $self->order->save(cascade => 1);
-    # create first version if none exists
-    SL::DB::OrderVersion->new(oe_id => $self->order->id, version => 1)->save unless scalar @{ $self->order->order_version };
-
-    # link records
-    if (@converted_from_oe_ids) {
-      $self->link_requirement_specs_linking_to_created_from_objects(@converted_from_oe_ids);
-    }
-
-    $self->set_project_in_linked_requirement_specs if $self->order->globalproject_id;
-
-    # Close reachable sales order intakes in the from-workflow if this is a sales order
-    if (sales_order_type() eq $self->type) {
-      my $lr = $self->order->linked_records(direction => 'from', recursive => 1);
-      $lr    = [grep { 'SL::DB::Order' eq ref $_ && !$_->closed && $_->is_type('sales_order_intake')} @$lr];
-      if (@$lr) {
-        SL::DB::Manager::Order->update_all(set   => {closed => 1},
-                                           where => [id => [map {$_->id} @$lr]]);
-      }
-    }
-
-    $self->save_history('SAVED');
-
-    $validity_token->delete if $validity_token;
-    delete $::form->{form_validity_token};
-
-    1;
-  }) || push(@{$errors}, $db->error);
+  SL::Model::Record->save($self->order,
+                          with_validity_token  => { scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(), token => $::form->{form_validity_token} },
+                          delete_custom_shipto => $self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty,
+                          items_to_delete      => $items_to_delete,
+                          history              => { snumbers => $self->get_history_snumbers() },
+  );
 
   if ($is_new && $self->order->is_sales) {
     my $imap_client = SL::IMAPClient->new();
@@ -2268,8 +2203,7 @@ sub save {
     }
   }
 
-
-  return $errors;
+  delete $::form->{form_validity_token};
 }
 
 sub pre_render {
@@ -2897,12 +2831,7 @@ sub nr_key {
 sub save_and_redirect_to {
   my ($self, %params) = @_;
 
-  my $errors = $self->save();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
+  $self->save();
 
   my $text = $self->type eq sales_order_intake_type()        ? $::locale->text('The order intake has been saved')
            : $self->type eq sales_order_type()               ? $::locale->text('The order confirmation has been saved')
