@@ -1,7 +1,6 @@
 package SL::DB::Helper::TypeDataProxy;
 
 use strict;
-use Scalar::Util qw(weaken);
 
 sub new {
   my ($class, $record_class, $type) = @_;
@@ -17,23 +16,26 @@ sub new {
 
 # convenience methods for common topics in type data
 sub text {
-  my $self = shift;
-  $self->[1]->can("get3")->($self->[0], "text", @_);
+  _via("get3", [ "text" ], @_);
 }
 
 sub properties {
-  my $self = shift;
-  $self->[1]->can("get3")->($self->[0], "properties", @_);
+  _via("get3", [ "properties" ], @_);
 }
 
 sub show_menu {
-  my $self = shift;
-  $self->[1]->can("get3")->($self->[0], "show_menu", @_);
+  _via("get3", [ "show_menu" ], @_);
 }
 
 sub rights {
+  _via("get3", [ "rights" ], @_);
+}
+
+sub _via {
+  my $method = shift;
+  my $additional_args = shift;
   my $self = shift;
-  $self->[1]->can("get3")->($self->[0], "rights", @_);
+  $self->[1]->can($method)->($self->[0], @$additional_args, @_);
 }
 
 sub AUTOLOAD {
