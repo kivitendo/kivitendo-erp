@@ -12,6 +12,7 @@ use SL::DB::Invoice;
 use SL::DB::Status;
 use SL::DB::ValidityToken;
 
+use SL::Util qw(trim);
 use SL::Locale::String qw(t8);
 
 sub new {
@@ -240,15 +241,102 @@ sub save {
 }
 
 sub update_for_save_as_new {
-  my ($class, $record, %params) = @_;
+  my ($class, $saved_record, $changed_record, %params) = @_;
 
   # der übergebene beleg wurde mit new_from erstellt und muss nachbearbeitet werden:
   # - transadte, reqdate müssen überschrieben werden
   # - number muss überschrieben werden
   # - employee auf aktuellen setzen
 
+  my $type_info = {
+    # order
+    sales_quotation => {
+      get_new_reqdate => sub {
+        if ($::instance_conf->get_reqdate_on) {
+          return '';
+        } else {
+          return DateTime->today_local->next_workday(
+            extra_days => $::instance_conf->get_reqdate_interval());
+        }
+      },
+    },
+    sales_order => {
+      get_new_reqdate => sub {
+        if ($::instance_conf->get_deliverydate_on) {
+          return '';
+        } else {
+          return DateTime->today_local->next_workday(
+            extra_days => $::instance_conf->get_delivery_date_interval());
+        }
+      },
+    },
+    request_quotation => {
+      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
+    },
+    purchase_order => {
+      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
+    },
+    # delivery_order
+    rma_delivery_order => {
+      get_new_reqdate => sub {
+        DateTime->today_local->next_workday(extra_days => 1);
+      },
+    },
+    sales_delivery_order => {
+      get_new_reqdate => sub {
+        DateTime->today_local->next_workday(extra_days => 1);
+      },
+    },
+    supplier_delivery_order => {
+      get_new_reqdate => sub {
+        DateTime->today_local->next_workday(extra_days => 1);
+      },
+    },
+    purchase_delivery_order => {
+      get_new_reqdate => sub {
+        DateTime->today_local->next_workday(extra_days => 1);
+      },
+    },
+    # reclamation
+    sales_reclamation => {
+      get_new_reqdate => sub {
+        '';
+      },
+    },
+    purchase_reclamation => {
+      get_new_reqdate => sub {
+        '';
+      },
+    },
+  };
+
+  # changed_record
+  my %new_attrs;
+  # Lets assign a new number if the user hasn't changed the previous one.
+  # If it has been changed manually then use it as-is.
+  $new_attrs{number}    = (trim($changed_record->number) eq $saved_record->number)
+                        ? ''
+                        : trim($changed_record->number);
+
+  # Clear transdate unless changed
+  $new_attrs{transdate} = ($changed_record->transdate == $saved_record->transdate)
+                        ? DateTime->today_local
+                        : $changed_record->transdate;
+
+  # Set new reqdate unless changed if it is enabled in client config
+  if ($changed_record->reqdate == $saved_record->reqdate) {
+      $new_attrs{reqdate} = $type_info->{$saved_record->type}->{get_new_reqdate}->();
+  }
+
+  # Update employee
+  $new_attrs{employee}  = SL::DB::Manager::Employee->current;
+
+
+  my $new_record = SL::Model::Record->new_from_workflow($changed_record, $saved_record->type, no_linked_records => 1, attributes => \%new_attrs);
+
   # return: nichts
   # fehler: exception
+  return $new_record;
 }
 
 
@@ -292,6 +380,7 @@ None yet. :)
 =head1 AUTHORS
 
 Bernd Bleßmann E<lt>bernd@kivitendo-premium.deE<gt>
+Tamino Steinert E<lt>tamino.steinert@tamino.stE<gt>
 ...
 
 =cut

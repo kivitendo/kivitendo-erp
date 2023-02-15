@@ -287,50 +287,19 @@ sub action_save_as_new {
     return $self->js->render();
   }
 
-  # load order from db to check if values changed
   my $saved_order = SL::DB::Order->new(id => $order->id)->load;
 
-  my %new_attrs;
-  # Lets assign a new number if the user hasn't changed the previous one.
-  # If it has been changed manually then use it as-is.
-  $new_attrs{number}    = (trim($order->number) eq $saved_order->number)
-                        ? ''
-                        : trim($order->number);
-
-  # Clear transdate unless changed
-  $new_attrs{transdate} = ($order->transdate == $saved_order->transdate)
-                        ? DateTime->today_local
-                        : $order->transdate;
-
-  # Set new reqdate unless changed if it is enabled in client config
-  if ($order->reqdate == $saved_order->reqdate) {
-    my $extra_days = $self->type eq sales_quotation_type()    ? $::instance_conf->get_reqdate_interval       :
-                     $self->type eq sales_order_type()        ? $::instance_conf->get_delivery_date_interval :
-                     $self->type eq sales_order_intake_type() ? $::instance_conf->get_delivery_date_interval : 1;
-
-    if (   ($self->type eq sales_order_intake_type() &&  !$::instance_conf->get_deliverydate_on)
-        || ($self->type eq sales_order_type()        &&  !$::instance_conf->get_deliverydate_on)
-        || ($self->type eq sales_quotation_type()    &&  !$::instance_conf->get_reqdate_on)) {
-      $new_attrs{reqdate} = '';
-    } else {
-      $new_attrs{reqdate} = DateTime->today_local->next_workday(extra_days => $extra_days);
-    }
-  } else {
-    $new_attrs{reqdate} = $order->reqdate;
-  }
-
-  # Update employee
-  $new_attrs{employee}  = SL::DB::Manager::Employee->current;
-
-  # Warn on obsolete items
-  my @obsolete_positions = map { $_->position } grep { $_->part->obsolete } @{ $order->items_sorted };
-  flash_later('warning', t8('This record containts obsolete items at position #1', join ', ', @obsolete_positions)) if @obsolete_positions;
-
   # Create new record from current one
-  $self->order(SL::DB::Order->new_from($order, destination_type => $order->type, attributes => \%new_attrs));
+  my $updated_order = SL::Model::Record->update_for_save_as_new($saved_order, $order);
+
+  $self->order($updated_order);
 
   # no linked records on save as new
   delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);
+
+  # Warn on obsolete items
+  my @obsolete_positions = map { $_->position } grep { $_->part->obsolete } @{ $self->order->items_sorted };
+  flash_later('warning', t8('This record containts obsolete items at position #1', join ', ', @obsolete_positions)) if @obsolete_positions;
 
   if (!$::form->{form_validity_token}) {
     $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
