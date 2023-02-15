@@ -223,7 +223,6 @@ sub new_from {
     $record_args{cp_id} = $source->contact_id;
     $record_args{cusordnumber} = $source->cv_record_number;
     $record_args{is_sales} = $source->is_sales;
-    $record_args{type} = $source->is_sales ? 'rma_delivery_order' : 'supplier_delivery_order';
     # }}} for vim folds
   }
 
