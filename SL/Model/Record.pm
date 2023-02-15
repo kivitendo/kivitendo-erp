@@ -8,6 +8,7 @@ use SL::DB::Employee;
 use SL::DB::Order;
 use SL::DB::DeliveryOrder;
 use SL::DB::Reclamation;
+use SL::DB::RequirementSpecOrder;
 use SL::DB::History;
 use SL::DB::Invoice;
 use SL::DB::Status;
@@ -226,12 +227,14 @@ sub save {
 
     $record->save(cascade => 1);
 
-    # # link records
-    # if (@converted_from_oe_ids) {
-    #   $self->link_requirement_specs_linking_to_created_from_objects(@converted_from_oe_ids);
-    # }
+    # link records for requirement specs
+    if (my $converted_from_ids = $params{link_requirement_specs_linking_to_created_from_objects}) {
+      _link_requirement_specs_linking_to_created_from_objects($record, $converted_from_ids);
+    }
 
-    # $self->set_project_in_linked_requirement_specs if $self->order->globalproject_id;
+    if ($params{set_project_in_linked_requirement_specs}) { # flag?
+      _set_project_in_linked_requirement_specs($record);
+    }
 
     _save_history($record, 'SAVED', %{$params{history}});
 
@@ -239,6 +242,36 @@ sub save {
 
     1;
   });
+}
+
+# Todo: put this into SL::DB::Order?
+sub _link_requirement_specs_linking_to_created_from_objects {
+  my ($record, $converted_from_oe_ids) = @_;
+
+  return unless  $converted_from_oe_ids;
+  return unless @$converted_from_oe_ids;
+
+  my $rs_orders = SL::DB::Manager::RequirementSpecOrder->get_all(where => [ order_id => $converted_from_oe_ids ]);
+  foreach my $rs_order (@{ $rs_orders }) {
+    SL::DB::RequirementSpecOrder->new(
+      order_id            => $record->id,
+      requirement_spec_id => $rs_order->requirement_spec_id,
+      version_id          => $rs_order->version_id,
+    )->save;
+  }
+}
+
+sub _set_project_in_linked_requirement_specs {
+  my ($record) = @_;
+
+  return unlsess $record->globalproject_id;
+
+  my $rs_orders = SL::DB::Manager::RequirementSpecOrder->get_all(where => [ order_id => $record->id ]);
+  foreach my $rs_order (@{ $rs_orders }) {
+    next if $rs_order->requirement_spec->project_id == $record->globalproject_id;
+
+    $rs_order->requirement_spec->update_attributes(project_id => $record->globalproject_id);
+  }
 }
 
 sub update_for_save_as_new {
