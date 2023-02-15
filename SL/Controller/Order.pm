@@ -2150,6 +2150,8 @@ sub save {
 
   my $is_new = !$self->order->id;
 
+  my $objects_to_close = SL::DB::Manager::Order->get_all(where => [id => \@converted_from_oe_ids, quotation => 1]);
+
   my $items_to_delete = scalar @{ $self->item_ids_to_delete || [] }
                       ? SL::DB::Manager::OrderItem->get_all(where => [id => $self->item_ids_to_delete])
                       : undef;
@@ -2158,6 +2160,7 @@ sub save {
                           with_validity_token  => { scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(), token => $::form->{form_validity_token} },
                           delete_custom_shipto => $self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty,
                           items_to_delete      => $items_to_delete,
+                          objects_to_close     => $objects_to_close,
                           history              => { snumbers => $self->get_history_snumbers() },
                           link_requirement_specs_linking_to_created_from_objects => \@converted_from_oe_ids,
                           set_project_in_linked_requirement_specs                => 1,
