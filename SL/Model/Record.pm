@@ -253,20 +253,20 @@ sub update_for_save_as_new {
     sales_quotation => {
       get_new_reqdate => sub {
         if ($::instance_conf->get_reqdate_on) {
-          return '';
-        } else {
           return DateTime->today_local->next_workday(
             extra_days => $::instance_conf->get_reqdate_interval());
+        } else {
+          return '';
         }
       },
     },
     sales_order => {
       get_new_reqdate => sub {
         if ($::instance_conf->get_deliverydate_on) {
-          return '';
-        } else {
           return DateTime->today_local->next_workday(
             extra_days => $::instance_conf->get_delivery_date_interval());
+        } else {
+          return '';
         }
       },
     },
