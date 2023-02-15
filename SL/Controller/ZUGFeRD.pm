@@ -163,7 +163,7 @@ sub action_import_zugferd {
 
   if ( ! ($metadata{'ustid'} or $metadata{'taxnumber'}) ) {
     die t8("Cannot process this invoice: neither VAT ID nor tax ID present.");
-    }
+  }
 
   $vendor = find_vendor($metadata{'ustid'}, $metadata{'taxnumber'});
 
@@ -238,9 +238,10 @@ sub action_import_zugferd {
     my $tax_rate = $item{'tax_rate'} / 100; # XML data is usually in percent
 
     my $taxes = SL::DB::Manager::Tax->get_all(
-      where   => [ chart_categories => { like => '%' . $default_ap_amount_chart->category . '%' },
-                   rate => $tax_rate,
-                 ],
+      where   => [
+        chart_categories => { like => '%' . $default_ap_amount_chart->category . '%' },
+        rate => $tax_rate,
+      ],
     );
 
     # If we really can't find any tax definition (a simple rounding error may
@@ -254,12 +255,12 @@ sub action_import_zugferd {
 
     my $tax = ${$taxes}[0];
 
-    my $item_obj = SL::DB::RecordTemplateItem
-      ->new(amount1 => $net_total,
-            record_template_id => $template_ap->id,
-            chart_id      => $default_ap_amount_chart->id,
-            tax_id      => $tax->id,
-        );
+    my $item_obj = SL::DB::RecordTemplateItem->new(
+      amount1 => $net_total,
+      record_template_id => $template_ap->id,
+      chart_id      => $default_ap_amount_chart->id,
+      tax_id      => $tax->id,
+    );
     $item_obj->save;
     }
 
