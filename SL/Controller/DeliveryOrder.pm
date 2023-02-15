@@ -1646,6 +1646,24 @@ sub save {
     return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
   }
 
+  # link records
+  if ($::form->{converted_from_oe_id}) {
+    my @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};
+    set_record_link_conversions(
+      $self->order,
+      'SL::DB::Order'     => \@converted_from_oe_ids,
+      'SL::DB::OrderItem' => $::form->{converted_from_orderitems_ids},
+    );
+  }
+  if ($::form->{converted_from_reclamation_id}) {
+    my @converted_from_reclamation_ids = split ' ', $::form->{converted_from_reclamation_id};
+    set_record_link_conversions(
+      $self->order,
+      'SL::DB::Reclamation'     => \@converted_from_reclamation_ids,
+      'SL::DB::ReclamationItem' => $::form->{converted_from_reclamation_items_ids},
+    );
+  }
+
   $db->with_transaction(sub {
     my $validity_token;
     if (!$self->order->id) {
@@ -1665,24 +1683,6 @@ sub save {
 
     SL::DB::DeliveryOrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete || []};
     $self->order->save(cascade => 1);
-
-    # link records
-    if ($::form->{converted_from_oe_id}) {
-      my @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};
-      set_record_link_conversions(
-        $self->order,
-        'SL::DB::Order'     => \@converted_from_oe_ids,
-        'SL::DB::OrderItem' => $::form->{converted_from_orderitems_ids},
-      );
-    }
-    if ($::form->{converted_from_reclamation_id}) {
-      my @converted_from_reclamation_ids = split ' ', $::form->{converted_from_reclamation_id};
-      set_record_link_conversions(
-        $self->order,
-        'SL::DB::Reclamation'     => \@converted_from_reclamation_ids,
-        'SL::DB::ReclamationItem' => $::form->{converted_from_reclamation_items_ids},
-      );
-    }
 
     $self->save_history('SAVED');
 

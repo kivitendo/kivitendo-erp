@@ -2197,6 +2197,24 @@ sub save {
     $self->order->add_phone_notes($phone_note) if $is_new;
   }
 
+  my @converted_from_oe_ids;
+  if ($::form->{converted_from_oe_id}) {
+    @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};
+    set_record_link_conversions(
+      $self->order,
+      'SL::DB::Order'     => \@converted_from_oe_ids,
+      'SL::DB::OrderItem' => $::form->{converted_from_orderitems_ids},
+    );
+  }
+  if ($::form->{converted_from_reclamation_id}) {
+    my @converted_from_reclamation_ids = split ' ', $::form->{converted_from_reclamation_id};
+    set_record_links_conversions(
+      $self->order,
+      'SL::DB::Reclamation'     => \@converted_from_reclamation_ids,
+      'SL::DB::ReclamationItem' => $::form->{converted_from_reclamation_items_ids},
+    );
+  }
+
   my $is_new = !$self->order->id;
   $db->with_transaction(sub {
     my $validity_token;
@@ -2221,23 +2239,8 @@ sub save {
     SL::DB::OrderVersion->new(oe_id => $self->order->id, version => 1)->save unless scalar @{ $self->order->order_version };
 
     # link records
-    if ($::form->{converted_from_oe_id}) {
-      my @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};
-      set_record_link_conversions(
-        $self->order,
-        'SL::DB::Order'     => \@converted_from_oe_ids,
-        'SL::DB::OrderItem' => $::form->{converted_from_orderitems_ids},
-      );
-
+    if (@converted_from_oe_ids) {
       $self->link_requirement_specs_linking_to_created_from_objects(@converted_from_oe_ids);
-    }
-    if ($::form->{converted_from_reclamation_id}) {
-      my @converted_from_reclamation_ids = split ' ', $::form->{converted_from_reclamation_id};
-      set_record_links_conversions(
-        $self->order,
-        'SL::DB::Reclamation'     => \@converted_from_reclamation_ids,
-        'SL::DB::ReclamationItem' => $::form->{converted_from_reclamation_items_ids},
-      );
     }
 
     $self->set_project_in_linked_requirement_specs if $self->order->globalproject_id;
