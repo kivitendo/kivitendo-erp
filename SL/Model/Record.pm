@@ -10,6 +10,7 @@ use SL::DB::Reclamation;
 use SL::DB::History;
 use SL::DB::Invoice;
 use SL::DB::Status;
+use SL::DB::ValidityToken;
 
 use SL::Locale::String qw(t8);
 
@@ -181,6 +182,61 @@ sub save {
 
   # rückgabe: nichts
   # fehler: exception
+
+  $record->calculate_prices_and_taxes() if $params{calculate_prices_and_taxes}; # flag or type data?
+
+  foreach my $item (@{ $record->items }) {
+    # autovivify all cvars that are not in the form (cvars_by_config can do it).
+    # workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
+    foreach my $var (@{ $item->cvars_by_config }) {
+      $var->unparsed_value($::form->parse_amount(\%::myconfig, $var->{__unparsed_value})) if ($var->config->type eq 'number' && exists($var->{__unparsed_value}));
+    }
+    $item->parse_custom_variable_values;
+  }
+
+  SL::DB->client->with_transaction(sub {
+    # validity token
+    my $validity_token;
+    if (my $validity_token_specs = $params{with_validity_token}) {
+      if (!defined $validity_token_specs->{scope} || !defined $validity_token_specs->{token}) {
+        croak ('you must provide a hash ref "with_validity_token" with the keys "scope" and "token" if you want the token to be handled');
+      }
+
+      if (!$record->id) {
+        $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
+          scope => $validity_token_specs->{scope},
+          token => $validity_token_specs->{token},
+        );
+
+        die $::locale->text('The form is not valid anymore.') if !$validity_token;
+      }
+    }
+
+    # delete custom shipto if it is to be deleted or if it is empty
+    if ($params{delete_custom_shipto}) { # flag?
+      if ($record->custom_shipto) {
+        $record->custom_shipto->delete if $record->custom_shipto->shipto_id;
+        $record->custom_shipto(undef);
+      }
+    }
+
+    $_->delete for @{ $params{items_to_delete} || [] };
+
+    $record->save(cascade => 1);
+
+    # # link records
+    # if (@converted_from_oe_ids) {
+    #   $self->link_requirement_specs_linking_to_created_from_objects(@converted_from_oe_ids);
+    # }
+
+    # $self->set_project_in_linked_requirement_specs if $self->order->globalproject_id;
+
+    _save_history($record, 'SAVED', %{$params{history}});
+
+    $validity_token->delete if $validity_token;
+
+    1;
+  });
 }
 
 sub update_for_save_as_new {
