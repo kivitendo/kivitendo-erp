@@ -790,7 +790,7 @@ sub orders {
 
   $form->{title}       = $locale->text('Delivery Orders');
 
-  my $attachment_basename = $form->{vc} eq 'vendor' ? $locale->text('purchase_delivery_order_list') : $locale->text('sales_delivery_order_list');
+  my $attachment_basename = SL::DB::DeliveryOrder::TypeData::get3($form->{type}, "text", "attachment");
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
