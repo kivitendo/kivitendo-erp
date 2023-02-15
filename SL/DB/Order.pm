@@ -510,8 +510,10 @@ sub new_from {
     if ( $is_abbr_any->(qw(poso rqsq rqso pqisq pqiso)) ) {
       $current_oe_item->lastcost($source_item->sellprice);
     }
-    $current_oe_item->{ RECORD_ITEM_ID() } = $_->{id};
-    $current_oe_item->{ RECORD_ITEM_TYPE_REF() } = ref($source_item);
+    unless ($params{no_linked_records}) {
+      $current_oe_item->{ RECORD_ITEM_ID() } = $_->{id};
+      $current_oe_item->{ RECORD_ITEM_TYPE_REF() } = ref($source_item);
+    }
     $current_oe_item;
   } @{ $items };
 
@@ -521,8 +523,10 @@ sub new_from {
 
   $order->items(\@items);
 
-  $order->{ RECORD_ID() } = $source->{id};
-  $order->{ RECORD_TYPE_REF() } = ref($source);
+  unless ($params{no_linked_records}) {
+    $order->{ RECORD_ID() } = $source->{id};
+    $order->{ RECORD_TYPE_REF() } = ref($source);
+  }
 
   return $order;
 }
