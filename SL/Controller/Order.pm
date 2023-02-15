@@ -30,7 +30,6 @@ use SL::DB::Note;
 use SL::DB::Language;
 use SL::DB::Reclamation;
 use SL::DB::RecordLink;
-use SL::DB::RequirementSpec;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::ValidityToken;
@@ -2160,6 +2159,8 @@ sub save {
                           delete_custom_shipto => $self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty,
                           items_to_delete      => $items_to_delete,
                           history              => { snumbers => $self->get_history_snumbers() },
+                          link_requirement_specs_linking_to_created_from_objects => \@converted_from_oe_ids,
+                          set_project_in_linked_requirement_specs                => 1,
   );
 
   if ($is_new && $self->order->is_sales) {
@@ -2875,32 +2876,6 @@ sub store_doc_to_webdav_and_filemanagement {
   }
 
   return @errors;
-}
-
-sub link_requirement_specs_linking_to_created_from_objects {
-  my ($self, @converted_from_oe_ids) = @_;
-
-  return unless @converted_from_oe_ids;
-
-  my $rs_orders = SL::DB::Manager::RequirementSpecOrder->get_all(where => [ order_id => \@converted_from_oe_ids ]);
-  foreach my $rs_order (@{ $rs_orders }) {
-    SL::DB::RequirementSpecOrder->new(
-      order_id            => $self->order->id,
-      requirement_spec_id => $rs_order->requirement_spec_id,
-      version_id          => $rs_order->version_id,
-    )->save;
-  }
-}
-
-sub set_project_in_linked_requirement_specs {
-  my ($self) = @_;
-
-  my $rs_orders = SL::DB::Manager::RequirementSpecOrder->get_all(where => [ order_id => $self->order->id ]);
-  foreach my $rs_order (@{ $rs_orders }) {
-    next if $rs_order->requirement_spec->project_id == $self->order->globalproject_id;
-
-    $rs_order->requirement_spec->update_attributes(project_id => $self->order->globalproject_id);
-  }
 }
 
 1;
