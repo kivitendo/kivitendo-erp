@@ -58,3 +58,23 @@ trait listen:
 - clone_and_reset (für save_as_new)
 
 
+======== second run ========
+
+- S:M:R->delete bzw. _save_history: type data: snumber für history
+- S:M:R->delete: kein croak, wenn transaction einen Fehler wirft
+- S:M:R->new_from_workflow: type data: subtype_to_type
+- S:M:R->new_from_workflow: no_linked_records als opt. flag
+- S:M:R->increment_subversion: als trait bzw. type data: wer kann das überhaupt
+- S:M:R->save implementieren
+
+- bleiben item_ids der linked records/items beim Sortieren erhalten?
+
+Allgemein:
+- Geoffrey: Typos suchen
+- S:M:R: alle inline Kommentare prüfen, übersetzen und ins POD verlagen
+
+- Umwandeln Beleg/Beleg new_from / convert gegen linked records/items testen
+- Umwandeln im front-end / Workflows gegen linked records/items testen
+
+Bugs:
+- S:M:R->delete: snumbers in history ist leer
