@@ -43,6 +43,7 @@ my (
 sub clear_up {
   foreach (qw(
     Reclamation ReclamationItem
+    ReclamationReason
     Part
     Customer Vendor
     Department PaymentTerm DeliveryTerm
