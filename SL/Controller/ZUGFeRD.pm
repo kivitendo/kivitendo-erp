@@ -167,7 +167,12 @@ sub action_import_zugferd {
 
   $vendor = find_vendor($metadata{'ustid'}, $metadata{'taxnumber'});
 
-  die t8("Please add a valid VAT ID or tax number for this vendor: #1", $metadata{'vendor_name'}) unless $vendor;
+  die t8("Vendor with VAT ID (#1) and/or tax ID (#2) not found. Please check if the vendor " .
+          "#3 exists and whether it has the correct tax ID/VAT ID." ,
+           $metadata{'ustid'},
+           $metadata{'taxnumber'},
+           $metadata{'vendor_name'},
+  ) unless $vendor;
 
 
   # Create a record template for this imported invoice
@@ -216,7 +221,7 @@ sub action_import_zugferd {
     );
 
   $template_ap->assign_attributes(
-    template_name       => "Faktur-X/ZUGFeRD/XRechnung Import $vendor->name, $invnumber",
+    template_name       => t8("Faktur-X/ZUGFeRD/XRechnung import #1, #2", $vendor->name, $invnumber),
     template_type       => 'ap_transaction',
     direct_debit        => $metadata{'direct_debit'},
     notes               => "Faktur-X/ZUGFeRD/XRechnung Import. Type: $metadata{'type'}\nIBAN: " . $ibanmessage,
@@ -248,7 +253,7 @@ sub action_import_zugferd {
     # be sufficient for that to happen), grab the first tax fitting the default
     # category, just like the AP form would do it for manual entry.
     if ( scalar @{$taxes} == 0 ) {
-      $taxes = SL::D::ManagerTax->get_all(
+      $taxes = SL::DB::Manager::Tax->get_all(
         where   => [ chart_categories => { like => '%' . $default_ap_amount_chart->category . '%' } ],
       );
     }
