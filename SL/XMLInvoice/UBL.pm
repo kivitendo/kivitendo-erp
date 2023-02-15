@@ -1,5 +1,12 @@
 package SL::XMLInvoice::UBL;
 
+use strict;
+use warnings;
+
+use parent qw(SL::XMLInvoice);
+
+use constant ITEMS_XPATH => '//cac:InvoiceLine';
+
 =head1 NAME
 
 SL::XMLInvoice::UBL - XML parser for Universal Business Language invoices
@@ -46,11 +53,6 @@ returned by the C<items()> method.
   Johannes Grassler <info@computer-grassler.de>
 
 =cut
-
-use strict;
-use parent qw(SL::XMLInvoice);
-
-use constant ITEMS_XPATH => '//cac:InvoiceLine';
 
 # XML XPath expression for
 sub scalar_xpaths {
@@ -145,16 +147,15 @@ sub parse_xml {
   # have to guess whether it's a tax ID or VAT ID (not using
   # SL::VATIDNr->validate here to keep this code portable):
 
-  if ( ${$self->{_metadata}}{'ustid'} =~ qr"/" )
-    {
+  if ( ${$self->{_metadata}}{'ustid'} =~ qr"/" ) {
       # Unset this since the 'taxid' key has been retrieved with the same xpath
       # expression.
       ${$self->{_metadata}}{'ustid'} = undef;
-    } else {
+  } else {
       # Unset this since the 'ustid' key has been retrieved with the same xpath
       # expression.
       ${$self->{_metadata}}{'taxnumber'} = undef;
-    }
+  }
 
   my @items;
   $self->{_items} = \@items;

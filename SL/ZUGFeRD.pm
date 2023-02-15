@@ -20,9 +20,9 @@ our %EXPORT_TAGS     = (PROFILES => \@EXPORT_PROFILES);
 use constant PROFILE_FACTURX_EXTENDED => 0;
 use constant PROFILE_XRECHNUNG        => 1;
 
-use constant RES_OK                              => 0;
-use constant RES_ERR_FILE_OPEN                   => -1;
-use constant RES_ERR_NO_ATTACHMENT               => -2;
+use constant RES_OK => 0;
+use constant RES_ERR_FILE_OPEN => -1;
+use constant RES_ERR_NO_ATTACHMENT => -2;
 
 our @customer_settings = (
   [ 0,                                  t8('Do not create Factur-X/ZUGFeRD invoices')                                    ],
@@ -89,9 +89,11 @@ sub _extract_zugferd_invoice_xml {
         if ( $parser->{status} == SL::XMLInvoice::RES_OK ){
           return $parser;
         } else {
-          push @res, t8("Could not parse PDF embedded attachment #1: #2",
-                       $k,
-                       $parser->{result});
+          push @res, t8(
+            "Could not parse PDF embedded attachment #1: #2",
+            $k,
+            $parser->{result}
+          );
         }
       }
     }
@@ -101,8 +103,9 @@ sub _extract_zugferd_invoice_xml {
   # this point - if there were no attachments at all, we would have bailed out
   # a lot earlier.
 
-  %res_fail = ( result  => RES_ERR_FILE_OPEN(),
-                message => join("; ", @res),
+  %res_fail = (
+    result  => RES_ERR_FILE_OPEN(),
+    message => join("; ", @res),
   );
 
   return \%res_fail;

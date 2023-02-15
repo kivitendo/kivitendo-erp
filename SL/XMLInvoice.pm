@@ -1,5 +1,17 @@
 package SL::XMLInvoice;
 
+use strict;
+use warnings;
+
+use XML::LibXML;
+
+use SL::XMLInvoice::UBL;
+use SL::XMLInvoice::CrossIndustryInvoice;
+
+use constant RES_OK => 0;
+use constant RES_XML_PARSING_FAILED => 1;
+use constant RES_UNKNOWN_ROOT_NODE_TYPE => 2;
+
 =head1 NAME
 
 SL::XMLInvoice - Top level factory class for XML Invoice parsers.
@@ -26,11 +38,6 @@ below.
   my @items = @{$invoice_parser->items};
                                                         
 =cut
-
-use strict;
-use warnings;
-
-use XML::LibXML;
 
 =head1 ATTRIBUTES
 
@@ -66,10 +73,6 @@ C<ubl:Invoice> are supported.
 =back
 
 =cut
-
-use constant RES_OK                                  => 0;
-use constant RES_XML_PARSING_FAILED                  => 1;
-use constant RES_UNKNOWN_ROOT_NODE_TYPE              => 2;
 
 =head1 METHODS
 
@@ -163,7 +166,7 @@ C<undef> for any data items not present or empty in the XML document.
 sub metadata {
   my $self = shift;
   die "Children of $self must implement a metadata() method returning the bill's metadata as a hash.";
-  }
+}
 
 =item items()
 
@@ -178,7 +181,7 @@ document.
 sub items {
   my $self = shift;
   die "Children of $self must implement a item() method returning the bill's items as a hash.";
-  }
+}
 
 =item parse_xml()
 
@@ -195,7 +198,7 @@ created by the C<SL::XMLInvoice> constructor.
 sub parse_xml {
   my $self = shift;
   die "Children of $self must implement a parse_xml() method.";
-  }
+}
 
 =head2 Internal methods
 
@@ -212,9 +215,6 @@ you add any child classes for new XML document types you need to add them to
 this hash and add a use statement to make it available from C<SL::XMLInvoice>.
 
 =cut
-
-use SL::XMLInvoice::UBL;
-use SL::XMLInvoice::CrossIndustryInvoice;
 
 sub _document_nodenames {
   return { 
@@ -235,7 +235,7 @@ C<data_keys>. Omitting this method from a child class will cause an exception.
 sub _data_keys {
   my $self = shift;
   die "Children of $self must implement a _data_keys() method returning the keys an invoice item hash will contain.";
-  }
+}
 
 =item _item_keys()
 
@@ -253,11 +253,10 @@ C<item_keys>. Omitting this method from a child class will cause an exception.
 sub _item_keys {
   my $self = shift;
   die "Children of $self must implement a _item_keys() method returning the keys an invoice item hash will contain.";
-  }
+}
 
 
-sub new
-  {
+sub new {
   my ($self, $xml_data) = @_;
   my $type = undef;
   $self = {};
@@ -271,13 +270,13 @@ sub new
     $self->{message} = $::locale->text("Parsing the XML data failed: $xml_data");
     $self->{result} = RES_XML_PARSING_FAILED;
     return $self;
-    }
+  }
 
   # Determine parser class to use
   my $document_nodename = $self->{dom}->documentElement->nodeName;
   if ( ${$self->_document_nodenames}{$document_nodename} ) {
     $type = ${$self->_document_nodenames}{$document_nodename}
-    }
+  }
 
   unless ( $type ) {
     $self->{result} = RES_UNKNOWN_ROOT_NODE_TYPE;
@@ -286,17 +285,13 @@ sub new
                            $node_types,
                            $document_nodename);
     return $self;
-    }
+  }
 
   bless $self, $type;
 
   # Implementation sanity check for child classes: make sure they are aware of
   # the keys the hash returned by their metadata() method must contain.
-  my @missing_data_keys = ();
-  foreach my $data_key ( @{$self->data_keys} )
-    {
-    unless ( ${$self->_data_keys}{$data_key}) { push @missing_data_keys, $data_key; }
-    }
+  my @missing_data_keys = grep { !${$self->_data_keys}{$data_key} } @{ $self->data_keys };
   if ( scalar(@missing_data_keys) > 0 ) {
     die "Incomplete implementation: the following metadata keys appear to be missing from $type: " . join(", ", @missing_data_keys);
   }
@@ -304,10 +299,9 @@ sub new
   # Implementation sanity check for child classes: make sure they are aware of
   # the keys the hashes returned by their items() method must contain.
   my @missing_item_keys = ();
-  foreach my $item_key ( @{$self->item_keys} )
-    {
+  foreach my $item_key ( @{$self->item_keys} ) {
     unless ( ${$self->_item_keys}{$item_key}) { push @missing_item_keys, $item_key; }
-    }
+  }
   if ( scalar(@missing_item_keys) > 0 ) {
     die "Incomplete implementation: the following item keys appear to be missing from $type: " . join(", ", @missing_item_keys);
   }
@@ -320,7 +314,7 @@ sub new
 
   $self->{result} = RES_OK;
   return $self;
-  }
+}
 
 1;
 
