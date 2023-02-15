@@ -5,8 +5,8 @@ use warnings;
 
 use XML::LibXML;
 
-use SL::XMLInvoice::UBL;
-use SL::XMLInvoice::CrossIndustryInvoice;
+require SL::XMLInvoice::UBL;
+require SL::XMLInvoice::CrossIndustryInvoice;
 
 use constant RES_OK => 0;
 use constant RES_XML_PARSING_FAILED => 1;
@@ -92,7 +92,7 @@ to discover the metadata keys guaranteed to be present.
 
 =cut
 
-sub data_keys  {
+sub data_keys {
   my @keys = (
     'currency',      # The bill's currency, such as "EUR"
     'direct_debit',  # Boolean: whether the bill will get paid by direct debit (1) or not (0)
@@ -267,7 +267,7 @@ sub new {
   $self->{dom} = eval { XML::LibXML->load_xml(string => $xml_data) };
 
   if ( ! $self->{dom} ) {
-    $self->{message} = $::locale->text("Parsing the XML data failed: $xml_data");
+    $self->{message} = t8("Parsing the XML data failed: #1", $xml_data);
     $self->{result} = RES_XML_PARSING_FAILED;
     return $self;
   }
@@ -280,10 +280,11 @@ sub new {
 
   unless ( $type ) {
     $self->{result} = RES_UNKNOWN_ROOT_NODE_TYPE;
-    my $node_types = keys %{ $self->_document_nodenames };
+    my $node_types = join(",", keys %{ $self->_document_nodenames });
     $self->{message} =  t8("Could not parse XML Invoice: unknown root node name (#1) (supported: (#2))",
+                           $document_nodename,
                            $node_types,
-                           $document_nodename);
+                        );
     return $self;
   }
 
@@ -291,7 +292,7 @@ sub new {
 
   # Implementation sanity check for child classes: make sure they are aware of
   # the keys the hash returned by their metadata() method must contain.
-  my @missing_data_keys = grep { !${$self->_data_keys}{$data_key} } @{ $self->data_keys };
+  my @missing_data_keys = grep { !${$self->_data_keys}{$_} } @{ $self->data_keys };
   if ( scalar(@missing_data_keys) > 0 ) {
     die "Incomplete implementation: the following metadata keys appear to be missing from $type: " . join(", ", @missing_data_keys);
   }
