@@ -78,9 +78,7 @@ __PACKAGE__->run_before('get_unalterable_data',
 sub action_add {
   my ($self) = @_;
 
-  $self->order->transdate(DateTime->now_local());
-  $self->type_data->set_reqdate_by_type;
-
+  $self->order(SL::Model::Record->update_after_new($self->order, $self->type));
 
   $self->pre_render();
 

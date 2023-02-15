@@ -98,7 +98,7 @@ __PACKAGE__->run_before('get_record_links_data_from_form',
 sub action_add {
   my ($self) = @_;
 
-  $self->reclamation->transdate(DateTime->now_local());
+  $self->reclamation(SL::Model::Record->update_after_new($self->reclamation, $self->type));
 
   $self->pre_render();
 
