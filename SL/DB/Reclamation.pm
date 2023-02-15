@@ -281,7 +281,6 @@ sub new_from {
     closed    => 0,
     delivered => 0,
     transdate => DateTime->today_local,
-    reqdate => DateTime->today_local->next_workday(),
   );
   if ( $is_abbr_any->(qw(srsr prpr srpr prsr)) ) { #Reclamation
     map { $record_args{$_} = $source->$_ } # {{{ for vim folds
@@ -301,6 +300,7 @@ sub new_from {
       netamount
       notes
       payment_id
+      reqdate
       salesman_id
       shippingpoint
       shipvia

@@ -14,7 +14,6 @@ use SL::Controller::Helper::ReportGenerator;
 use SL::Webdav;
 use SL::File;
 use SL::MIME;
-use SL::Util qw(trim);
 use SL::YAML;
 use SL::DB::History;
 use SL::DB::Reclamation;
@@ -311,35 +310,11 @@ sub action_save_as_new {
     return $self->js->render();
   }
 
-  # load reclamation from db to check if values changed
   my $saved_reclamation = SL::DB::Reclamation->new(id => $reclamation->id)->load;
 
-  my %new_attrs;
-  # If it has been changed manually then use it as-is, otherwise change.
-  $new_attrs{record_number} = (trim($reclamation->record_number) eq $saved_reclamation->record_number)
-                            ? ''
-                            : trim($reclamation->record_number);
-  $new_attrs{transdate} = ($reclamation->transdate == $saved_reclamation->transdate)
-                        ? DateTime->today_local
-                        : $reclamation->transdate;
-  if ($reclamation->reqdate == $saved_reclamation->reqdate) {
-    $new_attrs{reqdate} = '';
-  } else {
-    $new_attrs{reqdate} = $reclamation->reqdate;
-  }
-
-  # Update employee
-  $new_attrs{employee}  = SL::DB::Manager::Employee->current;
-
   # Create new record from current one
-  $self->reclamation(
-           SL::DB::Reclamation->new_from(
-             $reclamation,
-             destination_type   => $reclamation->type,
-             attributes         => \%new_attrs,
-             no_linked_records => 1,
-           )
-         );
+  my $new_reclamation = SL::Model::Record->update_for_save_as_new($saved_reclamation, $reclamation);
+  $self->reclamation($new_reclamation);
 
   if (!$::form->{form_validity_token}) {
     $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;

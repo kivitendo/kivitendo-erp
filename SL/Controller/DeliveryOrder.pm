@@ -13,7 +13,6 @@ use SL::PriceSource;
 use SL::Webdav;
 use SL::File;
 use SL::MIME;
-use SL::Util qw(trim);
 use SL::YAML;
 use SL::DB::History;
 use SL::DB::Order;
@@ -240,29 +239,12 @@ sub action_save_as_new {
     return $self->js->render();
   }
 
-  # load order from db to check if values changed
   my $saved_order = SL::DB::DeliveryOrder->new(id => $order->id)->load;
 
-  my %new_attrs;
-  # Lets assign a new number if the user hasn't changed the previous one.
-  # If it has been changed manually then use it as-is.
-  $new_attrs{number}    = (trim($order->number) eq $saved_order->number)
-                        ? ''
-                        : trim($order->number);
-
-  # Clear transdate unless changed
-  $new_attrs{transdate} = ($order->transdate == $saved_order->transdate)
-                        ? DateTime->today_local
-                        : $order->transdate;
-
-  # Set new reqdate unless changed if it is enabled in client config
-  $new_attrs{reqdate} = $self->type_data->get_reqdate_by_type($order->reqdate, $saved_order->reqdate);
-
-  # Update employee
-  $new_attrs{employee}  = SL::DB::Manager::Employee->current;
-
   # Create new record from current one
-  $self->order(SL::DB::DeliveryOrder->new_from($order, destination_type => $order->type, attributes => \%new_attrs));
+  my $updated_order = SL::Model::Record->update_for_save_as_new($saved_order, $order);
+
+  $self->order($updated_order);
 
   # no linked records on save as new
   delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);
