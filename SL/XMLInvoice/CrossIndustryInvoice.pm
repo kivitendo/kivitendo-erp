@@ -1,5 +1,11 @@
 package SL::XMLInvoice::CrossIndustryInvoice;
+
+use strict;
+use warnings;
+
 use parent qw(SL::XMLInvoice);
+
+use constant ITEMS_XPATH => '//ram:IncludedSupplyChainTradeLineItem';
 
 =head1 NAME
 
@@ -47,9 +53,6 @@ returned by the C<items()> method.
   Johannes Grassler <info@computer-grassler.de>
 
 =cut
-
-use strict;
-use constant ITEMS_XPATH => '//ram:IncludedSupplyChainTradeLineItem';
 
 # XML XPath expressions for global metadata
 sub scalar_xpaths {
@@ -171,7 +174,6 @@ sub parse_xml {
     }
     push @items, \%line_item;
   }
-
 
 }
 
