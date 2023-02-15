@@ -1,0 +1,39 @@
+[% USE T8 %]
+[% USE HTML %]
+
+<h1>[% HTML.escape(title) %]</h1>
+
+<div class="wrapper">
+
+[% IF message %]
+  <p>[% HTML.escape(message) %]</p>
+[% END %]
+
+<form method="post" action="generictranslations.pl" id="form">
+
+<table class="tbl-list">
+  <thead>
+    <tr>
+      <th>&nbsp;</th>
+      <th>[% 'Factur-X/ZUGFeRD notes for each invoice' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH language = LANGUAGES %]
+      <tr>
+        <td>
+          [% IF language.id == 'default' %]
+          [% 'Default (no language selected)' | $T8 %]
+          [% ELSE %]
+          [% HTML.escape(language.description) %]
+          [% END %]
+        </td>
+        <td><input name="translation__[% language.id %]" size="40" value="[% HTML.escape(language.translation) %]"></td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>
+
+</form>
+
+</div><!-- /.wrapper -->
