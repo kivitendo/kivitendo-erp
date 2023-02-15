@@ -20,7 +20,7 @@ our @EXPORT_OK = qw(
 
                     create_purchase_order
                     create_purchase_delivery_order
-                    create_purchase_invoice
+                    create_minimal_purchase_invoice
                     create_purchase_reclamation
 
                     create_ap_transaction
@@ -88,7 +88,7 @@ sub create_sales_invoice {
   return $invoice;
 }
 
-sub create_purchase_invoice {
+sub create_minimal_purchase_invoice {
   my (%params) = @_;
 
   my $record_type = 'purchase_invoice';
@@ -113,6 +113,9 @@ sub create_purchase_invoice {
     invoiceitems => $invoiceitems,
   );
   $invoice->assign_attributes(%params) if %params;
+
+  # TODO: PTC can't deal with purchase invoices, so for now just save via Rose,
+  # no amount/tax/acc_trans calculations.
 
   $invoice->save;
   return $invoice;
@@ -868,6 +871,16 @@ Example with params:
     transdate   => DateTime->today->subtract(days => 7),
     taxincluded => 1,
   );
+
+=head2 C<create_minimal_purchase_invoice %PARAMS>
+
+Creates a new purchase invoice (table ap, invoice = 1), without any acc_trans
+entries, amount or tax calculations! (PTC can't deal with purchase invoices yet)
+
+Should only be used for basic testing of conversions from one record_type to
+another, and specifically for testing the individual items of conversions.
+
+For usage examples see C<create_sales_invoice>.
 
 =head2 C<create_credit_note %PARAMS>
 
