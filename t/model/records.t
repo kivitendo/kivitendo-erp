@@ -242,7 +242,7 @@ foreach my $target_record_type ( qw(sales_delivery_order sales_reclamation) ) {
   note "  testing from quotation -> $target_record_type";
   my $new_record = SL::Model::Record->new_from_workflow($sales_order1, $target_record_type);
   if ( 'SL::DB::Reclamation' eq ref($new_record) ) {
-    map { $_->reason($reclamation_reason) } @{ $new_record->items };
+    $_->reason($reclamation_reason) foreach @{ $new_record->items };
   };
   SL::Model::Record->save($new_record);
   $new_record->load;
