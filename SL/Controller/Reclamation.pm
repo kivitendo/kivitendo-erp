@@ -269,11 +269,8 @@ sub action_delete {
 sub action_save {
   my ($self) = @_;
 
-  my $errors = $self->save();
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
+  $self->save();
+
   flash_later('info', t8('The reclamation has been saved'));
 
   my @redirect_params = (
@@ -333,7 +330,7 @@ sub action_save_as_new {
 sub action_print {
   my ($self) = @_;
 
-  $self->save_with_render_error();
+  $self->save();
 
   $self->js_reset_reclamation_and_item_ids_after_save;
 
@@ -407,7 +404,7 @@ sub action_print {
 sub action_preview_pdf {
   my ($self) = @_;
 
-  $self->save_with_render_error();
+  $self->save();
 
   $self->js_reset_reclamation_and_item_ids_after_save;
 
@@ -449,7 +446,7 @@ sub action_preview_pdf {
 sub action_save_and_show_email_dialog {
   my ($self) = @_;
 
-  $self->save_with_render_error();
+  $self->save();
 
   unless ($self->reclamation->customervendor) {
     return $self->js->flash('error',
@@ -502,13 +499,13 @@ sub action_save_and_show_email_dialog {
 sub action_send_email {
   my ($self) = @_;
 
-  my $errors = $self->save();
-
-  if (scalar @{ $errors }) {
+  eval {
+    $self->save();
+    1;
+  } or do {
     $self->js->run('kivi.Reclamation.close_email_dialog');
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
+    die $EVAL_ERROR;
+  };
 
   $self->js_reset_reclamation_and_item_ids_after_save;
 
@@ -588,7 +585,8 @@ sub action_save_and_order {
   my $to_type = $self->reclamation->is_sales ? SALES_ORDER_TYPE()
                                              : PURCHASE_ORDER_TYPE();
 
-  $self->save_with_render_error();
+  $self->save();
+
   flash_later('info', t8('The reclamation has been saved'));
   $self->redirect_to(
     controller => 'Order',
@@ -602,7 +600,8 @@ sub action_save_and_order {
 sub action_save_and_sales_reclamation {
   my ($self) = @_;
 
-  $self->save_with_render_error();
+  $self->save();
+
   flash_later('info', t8('The reclamation has been saved'));
   $self->redirect_to(
     controller => 'Reclamation',
@@ -616,7 +615,8 @@ sub action_save_and_sales_reclamation {
 sub action_save_and_purchase_reclamation {
   my ($self) = @_;
 
-  $self->save_with_render_error();
+  $self->save();
+
   flash_later('info', t8('The reclamation has been saved'));
   $self->redirect_to(
     controller => 'Reclamation',
@@ -634,7 +634,8 @@ sub action_save_and_delivery_order {
 
   my $to_type = $self->reclamation->is_sales ? 'rma_delivery_order'
                                              : 'supplier_delivery_order';
-  $self->save_with_render_error();
+  $self->save();
+
   flash_later('info', t8('The reclamation has been saved'));
   $self->redirect_to(
     controller => 'controller.pl',
@@ -650,14 +651,13 @@ sub action_save_and_credit_note {
   my ($self) = @_;
 
   # always save
-  $self->save_with_render_error();
+  $self->save();
 
   if (!$self->reclamation->is_sales) {
     $self->js->flash('error', t8("Can't convert Purchase Reclamation to Credit Note"));
     return $self->js->render();
   }
 
-  $self->save_with_render_error();
   flash_later('info', t8('The reclamation has been saved'));
   $self->redirect_to(
     controller => 'is.pl',
@@ -1711,57 +1711,21 @@ sub get_record_links_data_from_form {
 sub save {
   my ($self) = @_;
 
-  my $errors = [];
-  my $db     = $self->reclamation->db;
-
   if (scalar @{$self->reclamation->items} == 0 && !grep { $self->type eq $_ } @{$::instance_conf->get_allowed_documents_with_no_positions() || []}) {
     return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
   }
 
-  $db->with_transaction(sub {
-    my $validity_token;
-    if (!$self->reclamation->id) {
-      $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
-        scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE(),
-        token => $::form->{form_validity_token},
-      );
+  my $items_to_delete  = scalar @{ $self->item_ids_to_delete || [] }
+                       ? SL::DB::Manager::ReclamationItem->get_all(where => [id => $self->item_ids_to_delete])
+                       : undef;
 
-      die $::locale->text('The form is not valid anymore.') if !$validity_token;
-    }
+  SL::Model::Record->save($self->order,
+                          with_validity_token  => { scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE(), token => $::form->{form_validity_token} },
+                          delete_custom_shipto => $self->is_custom_shipto_to_delete || $self->reclamation->custom_shipto->is_empty,
+                          items_to_delete      => $items_to_delete,
+  );
 
-    # delete custom shipto if it is to be deleted or if it is empty
-    if ($self->reclamation->custom_shipto
-        && ($self->is_custom_shipto_to_delete
-            || $self->reclamation->custom_shipto->is_empty)
-       ) {
-      $self->reclamation->custom_shipto->delete if $self->reclamation->custom_shipto->shipto_id;
-      $self->reclamation->custom_shipto(undef);
-    }
-
-    SL::DB::ReclamationItem->new(id => $_)->delete for @{$self->item_ids_to_delete || []};
-    $self->reclamation->save(cascade => 1);
-
-    $self->save_history('SAVED');
-
-    $validity_token->delete if $validity_token;
-    delete $::form->{form_validity_token};
-
-    1;
-  }) || push(@{$errors}, $db->error);
-
-  return $errors;
-}
-
-sub save_with_render_error {
-  my ($self) = @_;
-
-  my $errors = $self->save();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    $self->js->render();
-    $::dispatcher->end_request;
-  }
+  delete $::form->{form_validity_token};
 }
 
 # sales → purchase or purchase → sales
