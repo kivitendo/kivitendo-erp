@@ -81,7 +81,7 @@ sub set_record_link_conversions {
   $record->{ RECORD_ID() } = $from_ids;
 
   my $idx = 0;
-  my $items = $record->sorted_items;
+  my $items = $record->items_sorted;
 
   croak "more item ids than items in record" if @$item_ids > @$items;
 
