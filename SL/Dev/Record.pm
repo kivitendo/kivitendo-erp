@@ -45,6 +45,7 @@ use List::Util qw(sum);
 use Data::Dumper;
 use SL::Locale::String qw(t8);
 use SL::DATEV;
+use SL::Model::Record;
 
 my %record_type_to_item_type = ( sales_invoice        => 'SL::DB::InvoiceItem',
                                  purchase_invoice     => 'SL::DB::InvoiceItem',
@@ -181,7 +182,7 @@ sub create_sales_delivery_order {
     orderitems   => $orderitems,
   );
   $delivery_order->assign_attributes(%params) if %params;
-  $delivery_order->save;
+  SL::Model::Record->save($delivery_order);
   return $delivery_order;
 }
 
@@ -209,7 +210,7 @@ sub create_purchase_delivery_order {
     orderitems   => $orderitems,
   );
   $delivery_order->assign_attributes(%params) if %params;
-  $delivery_order->save;
+  SL::Model::Record->save($delivery_order);
   return $delivery_order;
 }
 
@@ -262,8 +263,7 @@ sub create_sales_reclamation {
   $reclamation->assign_attributes(%params) if %params;
 
   if ( $save ) {
-    $reclamation->calculate_prices_and_taxes; # not tested
-    $reclamation->save;
+    SL::Model::Record->save($reclamation);
   }
   return $reclamation;
 }
@@ -292,8 +292,7 @@ sub create_purchase_reclamation {
   $reclamation->assign_attributes(%params) if %params;
 
   if ( $save ) {
-    $reclamation->calculate_prices_and_taxes; # not tested
-    $reclamation->save;
+    SL::Model::Record->save($reclamation);
   }
   return $reclamation;
 }
@@ -762,8 +761,7 @@ sub _create_sales_order_or_quotation {
   $record->assign_attributes(%params) if %params;
 
   if ( $save ) {
-    $record->calculate_prices_and_taxes;
-    $record->save;
+    SL::Model::Record->save($record);
   }
   return $record;
 }
@@ -794,8 +792,7 @@ sub _create_purchase_order_or_quotation {
   $record->assign_attributes(%params) if %params;
 
   if ( $save ) {
-    $record->calculate_prices_and_taxes; # not tested for purchase orders
-    $record->save;
+    SL::Model::Record->save($record);
   }
   return $record;
 };
