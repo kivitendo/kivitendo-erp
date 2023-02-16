@@ -63,7 +63,7 @@ trait listen:
 -       S:M:R->delete/save bzw. _save_history: type data: snumber für history
 -       S:M:R->delete: kein croak sondern die, wenn transaction einen Fehler wirft
 -       S:M:R->new_from_workflow: type data: subtype_to_type
--       S:M:R->new_from_workflow: no_linked_records als opt. flag
+- DONE: S:M:R->new_from_workflow: no_linked_records als opt. flag
 -       S:M:R->increment_subversion: als trait bzw. type data: wer kann das überhaupt
 - WIP:  S:M:R->save implementieren
 
