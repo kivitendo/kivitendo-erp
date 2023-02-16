@@ -254,13 +254,20 @@ foreach my $target_record_type ( qw(sales_delivery_order sales_reclamation) ) {
   test_record_links($new_record, "converted $target_record_type");
 };
 
-# TODO: {
-#   local $TODO = "currently this test fails";
-#   my $invoice_history = SL::DB::Manager::History->find_by(trans_id => $sales_invoice1->id, what_done => 'invoice', addition => 'DELETED');
-#   # is($invoice_history->snumbers , 'foo', "history snumbers of invoice ok");
-# }
+note ('testing multi');
+clear_up();
+reset_state();
+reset_basic_sales_records();
+reset_basic_purchase_records();
 
-####
+note('combining several sales orders to one combined order');
+my @sales_orders;
+push(@sales_orders, SL::Model::Record->new_from_workflow($sales_quotation1, 'sales_order')->save->load) for 1 .. 3;
+my $combined_order = SL::Model::Record->new_from_workflow_multi(\@sales_orders, 'sales_order', sort_sources_by => 'transdate');
+SL::Model::Record->save($combined_order);
+cmp_ok($combined_order->netamount, '==', 3*710, "netamount of combined order ok");
+
+
 clear_up();
 done_testing;
 
