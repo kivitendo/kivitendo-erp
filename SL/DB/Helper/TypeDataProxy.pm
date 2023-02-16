@@ -39,6 +39,10 @@ sub workflow {
   _via("get3", [ "workflow" ], @_);
 }
 
+sub features {
+  _via("get3", [ "features" ], @_);
+}
+
 sub part_classification_query {
   _via("get", [ "part_classification_query" ], @_);
 }

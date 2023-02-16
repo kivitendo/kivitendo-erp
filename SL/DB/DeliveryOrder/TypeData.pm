@@ -55,6 +55,10 @@ my %type_data = (
       edit => "sales_delivery_order_edit",
       view => "sales_delivery_order_edit | sales_delivery_order_view",
     },
+    features => {
+      price_tax => 0,
+      stock     => 1,
+    },
   },
   PURCHASE_DELIVERY_ORDER_TYPE() => {
     text => {
@@ -91,6 +95,10 @@ my %type_data = (
     rights => {
       edit => "purchase_delivery_order_edit",
       view => "purchase_delivery_order_edit | purchase_delivery_order_view",
+    },
+    features => {
+      price_tax => 0,
+      stock     => 1,
     },
   },
   SUPPLIER_DELIVERY_ORDER_TYPE() => {
@@ -129,6 +137,10 @@ my %type_data = (
       edit => "purchase_delivery_order_edit",
       view => "purchase_delivery_order_edit | purchase_delivery_order_view",
     },
+    features => {
+      price_tax => 0,
+      stock     => 1,
+    },
   },
   RMA_DELIVERY_ORDER_TYPE() => {
     text => {
@@ -165,6 +177,10 @@ my %type_data = (
     rights => {
       edit => "sales_delivery_order_edit",
       view => "sales_delivery_order_edit | sales_delivery_order_view",
+    },
+    features => {
+      price_tax => 0,
+      stock     => 1,
     },
   },
 );

@@ -62,6 +62,10 @@ my %type_data = (
       edit => "sales_order_edit",
       view => "sales_order_edit | sales_order_view",
     },
+    features => {
+      price_tax => 1,
+      stock     => 0,
+    },
   },
   PURCHASE_ORDER_TYPE() => {
     text => {
@@ -98,6 +102,10 @@ my %type_data = (
     rights => {
       edit => "purchase_order_edit",
       view => "purchase_order_edit | purchase_order_view",
+    },
+    features => {
+      price_tax => 1,
+      stock     => 0,
     },
   },
   SALES_QUOTATION_TYPE() => {
@@ -143,6 +151,10 @@ my %type_data = (
       edit => "sales_quotation_edit",
       view => "sales_quotation_edit | sales_quotation_view",
     },
+    features => {
+      price_tax => 1,
+      stock     => 0,
+    },
   },
   REQUEST_QUOTATION_TYPE() => {
     text => {
@@ -179,6 +191,10 @@ my %type_data = (
     rights => {
       edit => "purchase_quotation_edit",
       view => "purchase_quotation_edit | purchase_quotation_view",
+    },
+    features => {
+      price_tax => 1,
+      stock     => 0,
     },
   },
 );
