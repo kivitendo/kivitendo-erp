@@ -252,9 +252,7 @@ sub action_delete {
   my ($self) = @_;
 
 
-  my %history = (snumbers => 'record_number_' . $self->reclamation->record_number);
-  my %params = (history => \%history);
-  SL::Model::Record->delete($self->reclamation, %params);
+  SL::Model::Record->delete($self->reclamation);
   flash_later('info', t8('The reclamation has been deleted'));
 
   my @redirect_params = (
