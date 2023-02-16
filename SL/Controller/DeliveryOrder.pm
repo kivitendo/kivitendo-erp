@@ -35,6 +35,7 @@ use SL::DB::Helper::RecordLink qw(set_record_link_conversions);
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::DeliveryOrder;
 use SL::DB::DeliveryOrder::TypeData qw(:types);
+use SL::DB::DeliveryOrderItemsStock;
 use SL::Model::Record;
 
 use SL::Helper::CreatePDF qw(:all);
