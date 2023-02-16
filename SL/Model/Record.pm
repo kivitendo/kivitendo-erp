@@ -59,7 +59,7 @@ sub new_from_workflow {
   my %defaults_flags = (
     no_linked_records => 0,
   );
-  %flags = (%flags, %defaults_flags);
+  %flags = (%defaults_flags, %flags);
 
   my %subtype_to_type = (
     # Order
