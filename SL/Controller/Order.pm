@@ -34,6 +34,7 @@ use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::ValidityToken;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions);
+use SL::DB::Helper::TypeDataProxy;
 use SL::Model::Record;
 
 use SL::Helper::CreatePDF qw(:all);
@@ -59,7 +60,7 @@ use Rose::Object::MakeMethods::Generic
  'scalar --get_set_init' => [ qw(order valid_types type cv p all_price_factors
                               search_cvpartnumber show_update_button
                               part_picker_classification_ids
-                              is_final_version) ],
+                              is_final_version type_data) ],
 );
 
 
@@ -2862,6 +2863,10 @@ sub store_doc_to_webdav_and_filemanagement {
   }
 
   return @errors;
+}
+
+sub init_type_data {
+  SL::DB::Helper::TypeDataProxy->new('SL::DB::Order', $::form->{type});
 }
 
 1;
