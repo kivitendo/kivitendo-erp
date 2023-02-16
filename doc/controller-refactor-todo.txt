@@ -49,32 +49,36 @@ trait listen:
 
 
 
-- new: (aus add) neues record mit vorbereitenden sachen wie transdate/reqdate
-- new_from_workflow: (aus add_from_*) workflow umwandlung von bestehenden records
-- new_from_multi
-- increment_subversion
-- delete
-- save mit voller vor/nach behandlung und transactio
-- clone_and_reset (für save_as_new)
+- WIP:  new: (aus add) neues record mit vorbereitenden sachen wie transdate/reqdate
+- DONE: new_from_workflow: (aus add_from_*) workflow umwandlung von bestehenden records
+- DONE: new_from_multi
+- DONE: increment_subversion
+- DONE: delete
+- WIP:  save mit voller vor/nach behandlung und transactio
+- WIP:  clone_and_reset (für save_as_new)
 
 
 ======== second run ========
 
-- S:M:R->delete bzw. _save_history: type data: snumber für history
-- S:M:R->delete: kein croak, wenn transaction einen Fehler wirft
-- S:M:R->new_from_workflow: type data: subtype_to_type
-- S:M:R->new_from_workflow: no_linked_records als opt. flag
-- S:M:R->increment_subversion: als trait bzw. type data: wer kann das überhaupt
-- S:M:R->save implementieren
+-       S:M:R->delete/save bzw. _save_history: type data: snumber für history
+-       S:M:R->delete: kein croak sondern die, wenn transaction einen Fehler wirft
+-       S:M:R->new_from_workflow: type data: subtype_to_type
+-       S:M:R->new_from_workflow: no_linked_records als opt. flag
+-       S:M:R->increment_subversion: als trait bzw. type data: wer kann das überhaupt
+- WIP:  S:M:R->save implementieren
 
-- bleiben item_ids der linked records/items beim Sortieren erhalten?
+-       bleiben item_ids der linked records/items beim Sortieren erhalten?
 
 Allgemein:
-- Geoffrey: Typos suchen
-- S:M:R: alle inline Kommentare prüfen, übersetzen und ins POD verlagen
+-        Geoffrey: Typos suchen
+-        S:M:R: alle inline Kommentare prüfen, übersetzen und ins POD verlagen
 
-- Umwandeln Beleg/Beleg new_from / convert gegen linked records/items testen
-- Umwandeln im front-end / Workflows gegen linked records/items testen
+-        Umwandeln Beleg/Beleg new_from / convert gegen linked records/items testen
+-        Umwandeln im front-end / Workflows gegen linked records/items testen
 
 Bugs:
-- S:M:R->delete: snumbers in history ist leer
+-        S:M:R->delete: snumbers in history ist leer
+
+======== third run ========
+-        genaueren Typ (type data) irgendwie im Objekt/db speichern für Order und Reclamation (wie bei DeliveryOrder)
+
