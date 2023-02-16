@@ -60,8 +60,8 @@ trait listen:
 
 ======== second run ========
 
--       S:M:R->delete/save bzw. _save_history: type data: snumber für history
--       S:M:R->delete: kein croak sondern die, wenn transaction einen Fehler wirft
+- DONE: S:M:R->delete/save bzw. _save_history: type data: snumber für history
+- DONE: S:M:R->delete: kein croak sondern die, wenn transaction einen Fehler wirft
 -       S:M:R->new_from_workflow: type data: subtype_to_type
 - DONE: S:M:R->new_from_workflow: no_linked_records als opt. flag
 -       S:M:R->increment_subversion: als trait bzw. type data: wer kann das überhaupt
@@ -77,8 +77,9 @@ Allgemein:
 -        Umwandeln im front-end / Workflows gegen linked records/items testen
 
 Bugs:
--        S:M:R->delete: snumbers in history ist leer
+- DONE:  S:M:R->delete: snumbers in history ist leer
 
 ======== third run ========
 -        genaueren Typ (type data) irgendwie im Objekt/db speichern für Order und Reclamation (wie bei DeliveryOrder)
 -        S:C:Order/DeliveryOrder/Reclamation: Records verlinken: Vorbereitung im Objekt in make_order/reclamation verschieben?
+-        an der Oberfläche testen, testen, testen ...
