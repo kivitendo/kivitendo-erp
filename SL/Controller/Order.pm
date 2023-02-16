@@ -526,7 +526,7 @@ sub action_send_email {
 
   # Set the error handler to reload the document and display errors later,
   # because the document is already saved and saving can have some side effects
-  # such as generating a document number, project number or reocrd links,
+  # such as generating a document number, project number or record links,
   # which will be up to date when the document is reloaded.
   # Hint: Do not use "die" here and try to catch exceptions in subroutine
   # calls. You should use "$::form->error" which respects the error handler.
