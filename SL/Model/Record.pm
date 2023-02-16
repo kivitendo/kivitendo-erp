@@ -211,7 +211,7 @@ sub save {
     # validity token
     my $validity_token;
     if (my $validity_token_specs = $params{with_validity_token}) {
-      if (!defined $validity_token_specs->{scope} || !defined $validity_token_specs->{token}) {
+      if (!defined $validity_token_specs->{scope} || !exists $validity_token_specs->{token}) {
         croak ('you must provide a hash ref "with_validity_token" with the keys "scope" and "token" if you want the token to be handled');
       }
 
