@@ -228,8 +228,11 @@ foreach my $target_record_type ( qw(sales_order sales_delivery_order) ) {
   note "  testing from quotation -> $target_record_type";
   my $new_record = SL::Model::Record->new_from_workflow($sales_quotation1, $target_record_type);
 
-  $new_record->save->load;
+  SL::Model::Record->save($new_record);
+  $new_record->load;
   cmp_ok($new_record->netamount, '==', 710, "converted $target_record_type netamount ok") if $new_record->can('netamount');
+  my $record_history = SL::DB::Manager::History->find_by(trans_id => $new_record->id, addition => 'SAVED');
+  ok($record_history->snumbers =~ m/_/, "history snumbers of record " . $record_history->snumbers . " ok");
   test_record_links($new_record, "converted $target_record_type");
 };
 
@@ -241,7 +244,12 @@ foreach my $target_record_type ( qw(sales_delivery_order sales_reclamation) ) {
   if ( 'SL::DB::Reclamation' eq ref($new_record) ) {
     map { $_->reason($reclamation_reason) } @{ $new_record->items };
   };
-  $new_record->save->load;
+  SL::Model::Record->save($new_record);
+  $new_record->load;
+  my $record_history = SL::DB::Manager::History->find_by(trans_id => $new_record->id, what_done => $target_record_type, addition => 'SAVED');
+
+  ok($record_history->snumbers =~ m/_/, "history snumbers of record " . $record_history->snumbers . " ok");
+
   cmp_ok($new_record->netamount, '==', 710, "converted $target_record_type netamount ok") if $new_record->can('netamount');
   test_record_links($new_record, "converted $target_record_type");
 };
