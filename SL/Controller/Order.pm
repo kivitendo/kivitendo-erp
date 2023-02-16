@@ -196,8 +196,7 @@ sub action_edit_collective {
 sub action_delete {
   my ($self) = @_;
 
-  my %params = (history => { snumbers => $self->get_history_snumbers() });
-  SL::Model::Record->delete($self->order, %params);
+  SL::Model::Record->delete($self->order);
   my $text = $self->type eq sales_order_intake_type()        ? $::locale->text('The order intake has been deleted')
            : $self->type eq sales_order_type()               ? $::locale->text('The order confirmation has been deleted')
            : $self->type eq purchase_order_type()            ? $::locale->text('The order has been deleted')
@@ -2145,7 +2144,6 @@ sub save {
                           delete_custom_shipto       => $self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty,
                           items_to_delete            => $items_to_delete,
                           objects_to_close           => $objects_to_close,
-                          history                    => { snumbers => $self->get_history_snumbers() },
                           link_requirement_specs_linking_to_created_from_objects => \@converted_from_oe_ids,
                           set_project_in_linked_requirement_specs                => 1,
   );
@@ -2797,15 +2795,6 @@ sub save_and_redirect_to {
   flash_later('info', $text);
 
   $self->redirect_to(%params, id => $self->order->id);
-}
-
-sub get_history_snumbers {
-  my ($self) = @_;
-
-  my $number_type = $self->order->type =~ m{order} ? 'ordnumber' : 'quonumber';
-  my $snumbers    = $number_type . '_' . $self->order->$number_type;
-
-  return $snumbers;
 }
 
 sub save_history {

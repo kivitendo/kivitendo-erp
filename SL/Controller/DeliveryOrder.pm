@@ -192,9 +192,7 @@ sub action_edit_collective {
 sub action_delete {
   my ($self) = @_;
 
-  my %history = (snumbers => $self->type . '_' . $self->order->number);
-  my %params = (history => \%history);
-  SL::Model::Record->delete($self->order,%params);
+  SL::Model::Record->delete($self->order);
   flash_later('info', $self->type_data->text("delete"));
 
   my @redirect_params = (
