@@ -345,11 +345,61 @@ __END__
 
 SL::Model::Record - shared computations for orders (Order), delivery orders (DeliveryOrder), invoices (Invoice) and reclamations (Reclamation)
 
-=head1 SYNOPSIS
-
-
-
 =head1 DESCRIPTION
+
+This module contains shared behaviour among the main record object types. A given record needs to be already parsed into a Rose object.
+All records are treated agnostically and the underlying class needs to implement a type_data call to query for differing behaviour.
+
+Currently the following types and subtypes are supported:
+
+=over 4
+
+=item * L<SL::DB::Order>
+
+=over 4
+
+=item * C<sales_order>
+
+=item * C<purchase_order>
+
+=item * C<sales_quotation>
+
+=item * C<purchase_quotation>
+
+=back
+
+=item * L<SL::DB::DeliveryOrder>
+
+=over 4
+
+=item * C<sales_delivery_order>
+
+=item * C<purchase_delivery_order>
+
+=item * C<supplier_delivery_order>
+
+=item * C<rma_delivery_order>
+
+=back
+
+=item * L<SL::DB::Reclamation>
+
+=over 4
+
+=item * C<sales_reclamation>
+
+=item * C<purchase_reclamation>
+
+=back
+
+=back
+
+The base record types need to implement a type_data call that can be queried
+for various type informations.
+
+Invoices are not supported as of now, but are planned for the future.
+
+=head1 METHODS
 
 =over 4
 
