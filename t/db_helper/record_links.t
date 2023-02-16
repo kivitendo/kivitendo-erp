@@ -222,7 +222,7 @@ $links = $o1->linked_records(direction => 'from', from => 'Order');
 is $links->[0]->{_record_link_direction}, 'from',  '_record_link_direction from';
 is $links->[0]->{_record_link}->to_id, $o1->id,  '_record_link from';
 
-# check if bidi returns an array of links even if aready existing
+# check if bidi returns an array of links even if already existing
 my @links = $d->link_to_record($o2, bidirectional => 1);
 # at this point the structure is:
 #
@@ -306,7 +306,7 @@ is_deeply $sorted, [$d, $o1, $i, $o2], 'sorting by transdate desc';
 $links = $o1->linked_records(direction => 'to', recursive => 1, save_path => 1);
 is @$links, 4, 'recursive finds all 4 (backlink to self because of bidi o1<->o2)';
 
-# because of the link o1->d the longest path should be legth 2. test that
+# because of the link o1->d the longest path should be length 2. test that
 is max(map { $_->{_record_link_depth} } @$links), 2, 'longest path is 2';
 
 $links = $o2->linked_records(direction => 'to', recursive => 1);
