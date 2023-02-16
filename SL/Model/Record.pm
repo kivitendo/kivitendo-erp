@@ -146,7 +146,7 @@ sub delete {
       my $spool = $::lx_office_conf{paths}->{spool};
       unlink map { "$spool/$_" } @spoolfiles if $spool;
 
-      _save_history($record,'DELETED', %{$params{history}});
+      _save_history($record,'DELETED');
 
       1;
   }) || push(@{$errors}, $db->error);
@@ -162,14 +162,23 @@ sub delete {
   # fehler: exception
 }
 
+sub _get_history_snumbers {
+  my ($record) = @_;
+
+  my $number_type = $record->type_data->properties( 'nr_key');
+  my $snumbers    = $number_type . '_' . $record->$number_type;
+
+  return $snumbers;
+}
+
 sub _save_history {
-  my ($record, $addition, %history) = @_;
+  my ($record, $addition) = @_;
 
   SL::DB::History->new(
     trans_id    => $record->id,
     employee_id => SL::DB::Manager::Employee->current->id,
     what_done   => $record->type,
-    snumbers    => $history{snumbers},
+    snumbers    => _get_history_snumbers($record),
     addition    => $addition,
   )->save;
 }
@@ -250,7 +259,7 @@ sub save {
       _set_project_in_linked_requirement_specs($record);
     }
 
-    _save_history($record, 'SAVED', %{$params{history}});
+    _save_history($record, 'SAVED');
 
     $validity_token->delete if $validity_token;
 
@@ -351,11 +360,10 @@ Increments the record's subversion number.
 =item C<delete>
 
 Deletes the whole record and puts an entry in the history.
-Expects a record with %params for history params{history} = \%history
 
 =item C<_save_history>
 
-Expects a record for id, addition for text (SAVED,...) and %history{snumber}
+Expects a record for id, addition for text (SAVED,...)
 
 =back
 
