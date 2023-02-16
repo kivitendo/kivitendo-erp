@@ -2082,26 +2082,21 @@ sub get_unalterable_data {
   }
 }
 
-# save the order
+# check for new or updated phone notes
 #
-# And delete items that are deleted in the form.
-sub save {
+# And put them into the order object.
+sub handle_phone_note {
   my ($self) = @_;
 
-  if (scalar @{$self->order->items} == 0 && !grep { $self->type eq $_ } @{$::instance_conf->get_allowed_documents_with_no_positions() || []}) {
-    return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
-  }
-
-  # check for new or updated phone note
   if ($::form->{phone_note}->{subject} || $::form->{phone_note}->{body}) {
     if (!$::form->{phone_note}->{subject} || !$::form->{phone_note}->{body}) {
-      return [t8('Phone note needs a subject and a body.')];
+      die t8('Phone note needs a subject and a body.');
     }
 
     my $phone_note;
     if ($::form->{phone_note}->{id}) {
       $phone_note = first { $_->id == $::form->{phone_note}->{id} } @{$self->order->phone_notes};
-      return [t8('Phone note not found for this order.')] if !$phone_note;
+      die t8('Phone note not found for this order.') if !$phone_note;
     }
 
     $phone_note = SL::DB::Note->new() if !$phone_note;
@@ -2114,6 +2109,19 @@ sub save {
 
     $self->order->add_phone_notes($phone_note) if $is_new;
   }
+}
+
+# save the order
+#
+# And delete items that are deleted in the form.
+sub save {
+  my ($self) = @_;
+
+  if (scalar @{$self->order->items} == 0 && !grep { $self->type eq $_ } @{$::instance_conf->get_allowed_documents_with_no_positions() || []}) {
+    return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
+  }
+
+  $self->handle_phone_note;
 
   # create first version if none exists
   $self->order->add_order_version(SL::DB::OrderVersion->new(version => 1)) if !$self->order->order_version;
