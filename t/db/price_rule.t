@@ -22,6 +22,7 @@ sub reset_db {
   SL::DB::Manager::CustomVariable->delete_all(all => 1);
   SL::DB::Manager::CustomVariableConfig->delete_all(all => 1);
   SL::DB::Manager::Order->delete_all(all => 1);
+  SL::DB::Manager::Shipto->delete_all(all => 1);
 
   $::request->{_cache} = {};
 }
@@ -131,6 +132,7 @@ sub reset_db {
 #  - Contact
 #  - IC
 #  - Project
+#  - ShipTo
 #
 # and the cvars themselves can have these types:
 #  - select
@@ -418,6 +420,190 @@ sub reset_db {
     $item->part->cvar_by_name($name)->value(15);
     $item->part->cvar_by_name($name)->save;
     test($price_rule, $order, $item, "$name -- matching", 1);
+  }
+
+  {
+    reset_db();
+
+    my $name = "shipto cvar and price rule matching that";
+
+    my $config = SL::DB::CustomVariableConfig->new(
+      module => 'ShipTo',
+      type => 'number',
+      name => $name,
+      description => $name,
+      searchable  => 0,
+      includeable => 0,
+      included_by_default => 0,
+      flags => '',
+    )->save->load;
+
+    my $price_rule = SL::DB::PriceRule->new(
+      name  => $name,
+      price => 1,
+      type  => "customer",
+      items => [
+        SL::DB::PriceRuleItem->new(
+          custom_variable_configs => $config,
+          value_num               => 15,
+          op                      => "eq",
+          type                    => "cvar",
+        ),
+      ],
+    )->save;
+
+    my $order = create_sales_order()->save->load;
+    my $item = $order->items_sorted->[0];
+    my $shipto = SL::DB::Shipto->new;
+    $order->shipto($shipto);
+    $order->save->load;
+
+    test($price_rule, $order, $item, "$name -- default value", 0);
+
+    $order->shipto->cvar_by_name($name)->value(20);
+    $order->shipto->cvar_by_name($name)->save;
+    test($price_rule, $order, $item, "$name -- not matching", 0);
+
+    $order->shipto->cvar_by_name($name)->value(15);
+    $order->shipto->cvar_by_name($name)->save;
+    test($price_rule, $order, $item, "$name -- matching", 1);
+  }
+
+  {
+    reset_db();
+
+    my $name = "custom shipto cvar and price rule matching that";
+
+    my $config = SL::DB::CustomVariableConfig->new(
+      module => 'ShipTo',
+      type => 'number',
+      name => $name,
+      description => $name,
+      searchable  => 0,
+      includeable => 0,
+      included_by_default => 0,
+      flags => '',
+    )->save->load;
+
+    my $price_rule = SL::DB::PriceRule->new(
+      name  => $name,
+      price => 1,
+      type  => "customer",
+      items => [
+        SL::DB::PriceRuleItem->new(
+          custom_variable_configs => $config,
+          value_num               => 15,
+          op                      => "eq",
+          type                    => "cvar",
+        ),
+      ],
+    )->save;
+
+    my $order = create_sales_order()->save->load;
+    my $item = $order->items_sorted->[0];
+    my $shipto = SL::DB::Shipto->new(trans_id => $order->id, module => 'OE')->save;
+
+    ok(ref $order->custom_shipto eq 'SL::DB::Shipto', 'custom shipto is readable from order');
+
+    test($price_rule, $order, $item, "$name -- default value", 0);
+
+    $order->custom_shipto->cvar_by_name($name)->value(20);
+    $order->custom_shipto->cvar_by_name($name)->save;
+    test($price_rule, $order, $item, "$name -- not matching", 0);
+
+    $order->custom_shipto->cvar_by_name($name)->value(15);
+    $order->custom_shipto->cvar_by_name($name)->save;
+    test($price_rule, $order, $item, "$name -- matching", 1);
+  }
+
+  {
+    reset_db();
+
+    my $name = "custom shipto cvar and price rule matching that";
+
+    my $config = SL::DB::CustomVariableConfig->new(
+      module => 'ShipTo',
+      type => 'number',
+      name => $name,
+      description => $name,
+      searchable  => 0,
+      includeable => 0,
+      included_by_default => 0,
+      flags => '',
+    )->save->load;
+
+    my $price_rule = SL::DB::PriceRule->new(
+      name  => $name,
+      price => 1,
+      type  => "customer",
+      items => [
+        SL::DB::PriceRuleItem->new(
+          custom_variable_configs => $config,
+          value_num               => 15,
+          op                      => "eq",
+          type                    => "cvar",
+        ),
+      ],
+    )->save;
+
+    my $order = create_sales_order()->save->load;
+    my $item = $order->items_sorted->[0];
+    my $shipto1 = SL::DB::Shipto->new;
+    $order->shipto($shipto1);
+    my $shipto2 = SL::DB::Shipto->new(trans_id => $order->id, module => 'OE')->save;
+    $order->save->load;
+
+    test($price_rule, $order, $item, "$name -- default value", 0);
+
+    $order->custom_shipto->cvar_by_name($name)->value(20);
+    $order->custom_shipto->cvar_by_name($name)->save;
+    test($price_rule, $order, $item, "$name -- not matching custom", 0);
+
+    $order->shipto->cvar_by_name($name)->value(15);
+    $order->shipto->cvar_by_name($name)->save;
+    test($price_rule, $order, $item, "$name -- not matching custom, matching shipto", 0);
+
+    $order->custom_shipto->cvar_by_name($name)->value(15);
+    $order->custom_shipto->cvar_by_name($name)->save;
+    test($price_rule, $order, $item, "$name -- matching both", 1);
+
+    $order->shipto->cvar_by_name($name)->value(20);
+    $order->shipto->cvar_by_name($name)->save;
+    test($price_rule, $order, $item, "$name -- matching custom, not matching shipto", 1);
+  }
+
+  {
+    reset_db();
+
+    my $name = "no price rule, but cvars exist with module requirementsspecs or type text";
+
+    my $config1 = SL::DB::CustomVariableConfig->new(
+      module => 'RequirementSpecs',
+      type => 'number',
+      name => $name,
+      description => $name,
+      searchable  => 0,
+      includeable => 0,
+      included_by_default => 0,
+      flags => '',
+    )->save->load;
+
+    my $config2 = SL::DB::CustomVariableConfig->new(
+      module => 'Customer',
+      type => 'text',
+      name => $name,
+      description => $name,
+      searchable  => 0,
+      includeable => 0,
+      included_by_default => 0,
+      flags => '',
+    )->save->load;
+
+    my $order = create_sales_order()->save->load;
+    my $item = $order->items_sorted->[0];
+    $order->save->load;
+
+    test(undef, $order, $item, "$name -- nothing to match", 0);
   }
 }
 
