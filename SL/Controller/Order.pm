@@ -2142,9 +2142,9 @@ sub save {
                        ? SL::DB::Manager::Order->get_all(where => [id => \@converted_from_oe_ids, quotation => 1])
                        : undef;
 
-  my $items_to_delete = scalar @{ $self->item_ids_to_delete || [] }
-                      ? SL::DB::Manager::OrderItem->get_all(where => [id => $self->item_ids_to_delete])
-                      : undef;
+  my $items_to_delete  = scalar @{ $self->item_ids_to_delete || [] }
+                       ? SL::DB::Manager::OrderItem->get_all(where => [id => $self->item_ids_to_delete])
+                       : undef;
 
   SL::Model::Record->save($self->order,
                           calculate_prices_and_taxes => 1,
