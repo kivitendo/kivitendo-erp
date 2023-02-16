@@ -18,6 +18,7 @@ our @EXPORT_OK = qw(
                     create_credit_note
                     create_sales_reclamation
 
+                    create_purchase_quotation
                     create_purchase_order
                     create_purchase_delivery_order
                     create_minimal_purchase_invoice
@@ -50,6 +51,7 @@ my %record_type_to_item_type = ( sales_invoice        => 'SL::DB::InvoiceItem',
                                  credit_note          => 'SL::DB::InvoiceItem',
                                  sales_order          => 'SL::DB::OrderItem',
                                  sales_quotation      => 'SL::DB::OrderItem',
+                                 purchase_quotation   => 'SL::DB::OrderItem',
                                  purchase_order       => 'SL::DB::OrderItem',
                                  sales_delivery_order => 'SL::DB::DeliveryOrderItem',
                                  purchase_delivery_order => 'SL::DB::DeliveryOrderItem',
@@ -223,35 +225,18 @@ sub create_sales_order {
   _create_sales_order_or_quotation(%params);
 }
 
+sub create_purchase_quotation {
+  my (%params) = @_;
+  $params{type} = 'purchase_quotation';
+  # TODO: set a with reqdate
+  _create_purchase_order_or_quotation(%params);
+}
+
 sub create_purchase_order {
   my (%params) = @_;
-
-  my $record_type = 'purchase_order';
-  my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
-  _check_items($orderitems, $record_type);
-
-  my $save = delete $params{save} // 0;
-
-  my $vendor = $params{vendor} // new_vendor(name => 'Testvendor')->save;
-  die "illegal vendor" unless ref($vendor) eq 'SL::DB::Vendor';
-
-  my $order = SL::DB::Order->new(
-    vendor_id    => delete $params{vendor_id}   // $vendor->id,
-    taxzone_id   => delete $params{taxzone_id}  // $vendor->taxzone->id,
-    currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
-    taxincluded  => delete $params{taxincluded} // 0,
-    transdate    => delete $params{transdate}   // DateTime->today,
-    'closed'     => undef,
-    orderitems   => $orderitems,
-  );
-  $order->assign_attributes(%params) if %params;
-
-  if ( $save ) {
-    $order->calculate_prices_and_taxes; # not tested for purchase orders
-    $order->save;
-  }
-  return $order;
-};
+  $params{type} = 'purchase_order';
+  _create_purchase_order_or_quotation(%params);
+}
 
 sub create_sales_reclamation {
   my (%params) = @_;
@@ -783,6 +768,37 @@ sub _create_sales_order_or_quotation {
   return $record;
 }
 
+sub _create_purchase_order_or_quotation {
+  my (%params) = @_;
+
+  my $record_type = $params{type};
+  die "illegal type" unless $record_type eq 'purchase_order' or $record_type eq 'purchase_quotation';
+  my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
+  _check_items($orderitems, $record_type);
+
+  my $save = delete $params{save} // 0;
+
+  my $vendor = $params{vendor} // new_vendor(name => 'Testvendor')->save;
+  die "illegal vendor" unless ref($vendor) eq 'SL::DB::Vendor';
+
+  my $record = SL::DB::Order->new(
+    vendor_id    => delete $params{vendor_id}   // $vendor->id,
+    taxzone_id   => delete $params{taxzone_id}  // $vendor->taxzone->id,
+    currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
+    taxincluded  => delete $params{taxincluded} // 0,
+    transdate    => delete $params{transdate}   // DateTime->today,
+    'closed'     => undef,
+    quotation    => $record_type eq 'purchase_quotation' ? 1 : 0,
+    orderitems   => $orderitems,
+  );
+  $record->assign_attributes(%params) if %params;
+
+  if ( $save ) {
+    $record->calculate_prices_and_taxes; # not tested for purchase orders
+    $record->save;
+  }
+  return $record;
+};
 
 sub _transaction_tax_helper {
   # checks for hash-entries with key tax, tax_id or taxkey
@@ -937,6 +953,14 @@ Example: create 100 orders with the same part for 100 new customers:
 
 See C<create_sales_order>
 
+=head2 C<create_purchase_quotation %PARAMS>
+
+See comments for C<create_sales_quotation>.
+
+Example:
+
+  my $purchase_quotation = SL::Dev::Record::create_purchase_quotation(save => 1);
+
 =head2 C<create_purchase_order %PARAMS>
 
 See comments for C<create_sales_order>.
@@ -944,7 +968,6 @@ See comments for C<create_sales_order>.
 Example:
 
   my $purchase_order = SL::Dev::Record::create_purchase_order(save => 1);
-
 
 =head2 C<create_item %PARAMS>
 
