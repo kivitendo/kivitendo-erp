@@ -322,7 +322,7 @@ sub _link_requirement_specs_linking_to_created_from_objects {
 sub _set_project_in_linked_requirement_specs {
   my ($record) = @_;
 
-  return unlsess $record->globalproject_id;
+  return unless $record->globalproject_id;
 
   my $rs_orders = SL::DB::Manager::RequirementSpecOrder->get_all(where => [ order_id => $record->id ]);
   foreach my $rs_order (@{ $rs_orders }) {
