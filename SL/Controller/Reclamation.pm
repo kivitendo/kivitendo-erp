@@ -313,7 +313,7 @@ sub action_save_as_new {
   my $saved_reclamation = SL::DB::Reclamation->new(id => $reclamation->id)->load;
 
   # Create new record from current one
-  my $new_reclamation = SL::Model::Record->update_for_save_as_new($saved_reclamation, $reclamation);
+  my $new_reclamation = SL::Model::Record->clone_for_save_as_new($saved_reclamation, $reclamation);
   $self->reclamation($new_reclamation);
 
   if (!$::form->{form_validity_token}) {

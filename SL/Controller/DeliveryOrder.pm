@@ -240,9 +240,8 @@ sub action_save_as_new {
   my $saved_order = SL::DB::DeliveryOrder->new(id => $order->id)->load;
 
   # Create new record from current one
-  my $updated_order = SL::Model::Record->update_for_save_as_new($saved_order, $order);
-
-  $self->order($updated_order);
+  my $new_order = SL::Model::Record->clone_for_save_as_new($saved_order, $order);
+  $self->order($new_order);
 
   # no linked records on save as new
   delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);

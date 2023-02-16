@@ -278,9 +278,8 @@ sub action_save_as_new {
   my $saved_order = SL::DB::Order->new(id => $order->id)->load;
 
   # Create new record from current one
-  my $updated_order = SL::Model::Record->update_for_save_as_new($saved_order, $order);
-
-  $self->order($updated_order);
+  my $new_order = SL::Model::Record->clone_for_save_as_new($saved_order, $order);
+  $self->order($new_order);
 
   # Warn on obsolete items
   my @obsolete_positions = map { $_->position } grep { $_->part->obsolete } @{ $self->order->items_sorted };
