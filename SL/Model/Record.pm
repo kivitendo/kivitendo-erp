@@ -332,7 +332,7 @@ sub _set_project_in_linked_requirement_specs {
   }
 }
 
-sub update_for_save_as_new {
+sub clone_for_save_as_new {
   my ($class, $saved_record, $changed_record, %params) = @_;
 
   # der übergebene beleg wurde mit new_from erstellt und muss nachbearbeitet werden:
