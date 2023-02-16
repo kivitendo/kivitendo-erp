@@ -45,10 +45,10 @@ my %type_data = (
       transfer       => 'out',
       transnumber    => 'sdonumber',
     },
-    changes => {
-      get_new_reqdate => sub {
+    defaults => {
+      reqdate => sub {
         DateTime->today_local->next_workday(extra_days => 1);
-      }
+      },
     },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
@@ -82,10 +82,10 @@ my %type_data = (
       transfer       => 'in',
       transnumber    => 'pdonumber',
     },
-    changes => {
-      get_new_reqdate => sub {
+    defaults => {
+      reqdate => sub {
         DateTime->today_local->next_workday(extra_days => 1);
-      }
+      },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
@@ -124,10 +124,10 @@ my %type_data = (
       transfer       => 'out',
       transnumber    => 'sudonumber',
     },
-    changes => {
-      get_new_reqdate => sub {
+    defaults => {
+      reqdate => sub {
         DateTime->today_local->next_workday(extra_days => 1);
-      }
+      },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
@@ -161,10 +161,10 @@ my %type_data = (
       transfer       => 'in',
       transnumber    => 'rdonumber',
     },
-    changes => {
-      get_new_reqdate => sub {
+    defaults => {
+      reqdate => sub {
         DateTime->today_local->next_workday(extra_days => 1);
-      }
+      },
     },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {

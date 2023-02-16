@@ -27,7 +27,7 @@ sub update_after_new {
   # build TypeDataProxy
   # TODO: remove when type is set in record and not infered form customer/vendor_id
   my $type_data_proxy = SL::DB::Helper::TypeDataProxy->new(ref $new_record, $subtype);
-  $new_record->reqdate($type_data_proxy->changes('get_new_reqdate'));
+  $new_record->reqdate($type_data_proxy->defaults('reqdate'));
 
   # new_record: der neuerstellte objekt
   # flags: zusätzliche informationen zu der behanldung (soll    )
@@ -311,7 +311,7 @@ sub clone_for_save_as_new {
 
   # Set new reqdate unless changed if it is enabled in client config
   if ($changed_record->reqdate == $saved_record->reqdate) {
-      $new_attrs{reqdate} = $changed_record->type_data->changes('get_new_reqdate');
+      $new_attrs{reqdate} = $changed_record->type_data->defaults('reqdate');
   }
 
   # Update employee
