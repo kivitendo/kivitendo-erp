@@ -26,6 +26,7 @@ use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::ValidityToken;
 use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
+use SL::DB::Helper::TypeDataProxy;
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
@@ -52,7 +53,7 @@ use Rose::Object::MakeMethods::Generic
  scalar => [ qw(item_ids_to_delete is_custom_shipto_to_delete) ],
  'scalar --get_set_init' => [qw(
     all_price_factors cv models p part_picker_classification_ids reclamation
-    search_cvpartnumber show_update_button type valid_types
+    search_cvpartnumber show_update_button type valid_types type_data
  )],
 );
 
@@ -2565,6 +2566,10 @@ sub store_pdf_to_webdav_and_filemanagement {
   }
 
   return @errors;
+}
+
+sub init_type_data {
+  SL::DB::Helper::TypeDataProxy->new('SL::DB::Reclamation', $_[0]->type);
 }
 
 1;
