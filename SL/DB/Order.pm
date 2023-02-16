@@ -26,6 +26,9 @@ use SL::Locale::String qw(t8);
 use SL::RecordLinks;
 use Rose::DB::Object::Helpers qw(as_tree strip);
 
+use SL::DB::Order::TypeData qw(:types);
+use SL::DB::Reclamation::TypeData qw(:types);
+
 __PACKAGE__->meta->add_relationship(
   orderitems => {
     type         => 'one to many',
@@ -99,7 +102,7 @@ sub _before_save_create_new_project {
   my ($self) = @_;
 
   # force new project, if not set yet
-  if ($::instance_conf->get_order_always_project && !$self->globalproject_id && ($self->type eq 'sales_order')) {
+  if ($::instance_conf->get_order_always_project && !$self->globalproject_id && ($self->type eq SALES_ORDER_TYPE())) {
 
     die t8("Error while creating project with project number of new order number, project number #1 already exists!", $self->ordnumber)
       if SL::DB::Manager::Project->find_by(projectnumber => $self->ordnumber);
@@ -161,12 +164,12 @@ sub record_number { goto &number; }
 sub type {
   my $self = shift;
 
-  return 'sales_order_intake'        if $self->customer_id &&   $self->intake;
-  return 'sales_order'               if $self->customer_id && ! $self->quotation;
-  return 'purchase_order'            if $self->vendor_id   && ! $self->quotation;
-  return 'sales_quotation'           if $self->customer_id &&   $self->quotation;
-  return 'request_quotation'         if $self->vendor_id   &&   $self->quotation  && ! $self->intake;
-  return 'purchase_quotation_intake' if $self->vendor_id   &&   $self->quotation  &&   $self->intake;
+  return SALES_ORDER_INTAKE_TYPE()        if $self->customer_id &&   $self->intake;
+  return SALES_ORDER_TYPE()               if $self->customer_id && ! $self->quotation;
+  return PURCHASE_ORDER_TYPE()            if $self->vendor_id   && ! $self->quotation;
+  return SALES_QUOTATION_TYPE()           if $self->customer_id &&   $self->quotation;
+  return REQUEST_QUOTATION_TYPE()         if $self->vendor_id   &&   $self->quotation  && ! $self->intake;
+  return PURCHASE_QUOTATION_INTAKE_TYPE() if $self->vendor_id   &&   $self->quotation  &&   $self->intake;
 
   return;
 }
@@ -180,7 +183,7 @@ sub deliverydate {
   # But this has a different meaning for sales quotations.
   # deliverydate can be used to determine tax if tax_point isn't set.
 
-  return $_[0]->reqdate if $_[0]->type ne 'sales_quotation';
+  return $_[0]->reqdate if $_[0]->type ne SALES_QUOTATION_TYPE();
 }
 
 sub effective_tax_point {
@@ -192,10 +195,10 @@ sub effective_tax_point {
 sub displayable_type {
   my $type = shift->type;
 
-  return $::locale->text('Sales quotation')   if $type eq 'sales_quotation';
-  return $::locale->text('Request quotation') if $type eq 'request_quotation';
-  return $::locale->text('Sales Order')       if $type eq 'sales_order';
-  return $::locale->text('Purchase Order')    if $type eq 'purchase_order';
+  return $::locale->text('Sales quotation')   if $type eq SALES_QUOTATION_TYPE();
+  return $::locale->text('Request quotation') if $type eq REQUEST_QUOTATION_TYPE();
+  return $::locale->text('Sales Order')       if $type eq SALES_ORDER_TYPE();
+  return $::locale->text('Purchase Order')    if $type eq PURCHASE_ORDER_TYPE();
 
   die 'invalid type';
 }
@@ -214,8 +217,8 @@ sub daily_exchangerate {
 
   return 1 if $self->currency_id == $::instance_conf->get_currency_id;
 
-  my $rate = (any { $self->is_type($_) } qw(sales_quotation sales_order))      ? 'buy'
-           : (any { $self->is_type($_) } qw(request_quotation purchase_order)) ? 'sell'
+  my $rate = (any { $self->is_type($_) } (SALES_QUOTATION_TYPE(), SALES_ORDER_TYPE()))      ? 'buy'
+           : (any { $self->is_type($_) } (REQUEST_QUOTATION_TYPE(), PURCHASE_ORDER_TYPE())) ? 'sell'
            : undef;
   return if !$rate;
 
@@ -305,8 +308,8 @@ sub convert_to_delivery_order {
 
 sub convert_to_reclamation {
   my ($self, %params) = @_;
-  $params{destination_type} = $self->is_sales ? 'sales_reclamation'
-                                              : 'purchase_reclamation';
+  $params{destination_type} = $self->is_sales ? SALES_RECLAMATION_TYPE()
+                                              : PURCHASE_RECLAMATION_TYPE();
 
   require SL::DB::Reclamation;
   my $reclamation = SL::DB::Reclamation->new_from($self, %params);
@@ -337,33 +340,33 @@ sub new_from {
   my $destination_type  = delete $params{destination_type};
 
   my @from_tos = (
-    { from => 'sales_quotation',           to => 'sales_order',               abbr => 'sqso'   },
-    { from => 'request_quotation',         to => 'purchase_order',            abbr => 'rqpo'   },
-    { from => 'sales_quotation',           to => 'sales_quotation',           abbr => 'sqsq'   },
-    { from => 'sales_order',               to => 'sales_order',               abbr => 'soso'   },
-    { from => 'request_quotation',         to => 'request_quotation',         abbr => 'rqrq'   },
-    { from => 'purchase_order',            to => 'purchase_order',            abbr => 'popo'   },
-    { from => 'sales_order',               to => 'purchase_order',            abbr => 'sopo'   },
-    { from => 'purchase_order',            to => 'sales_order',               abbr => 'poso'   },
-    { from => 'sales_order',               to => 'sales_quotation',           abbr => 'sosq'   },
-    { from => 'purchase_order',            to => 'request_quotation',         abbr => 'porq'   },
-    { from => 'request_quotation',         to => 'sales_quotation',           abbr => 'rqsq'   },
-    { from => 'request_quotation',         to => 'sales_order',               abbr => 'rqso'   },
-    { from => 'sales_quotation',           to => 'request_quotation',         abbr => 'sqrq'   },
-    { from => 'sales_order',               to => 'request_quotation',         abbr => 'sorq'   },
-    { from => 'sales_reclamation',         to => 'sales_order',               abbr => 'srso'   },
-    { from => 'purchase_reclamation',      to => 'purchase_order',            abbr => 'prpo'   },
-    { from => 'sales_order_intake',        to => 'sales_order_intake',        abbr => 'soisoi' },
-    { from => 'sales_order_intake',        to => 'sales_quotation',           abbr => 'soisq'  },
-    { from => 'sales_order_intake',        to => 'request_quotation',         abbr => 'soirq'  },
-    { from => 'sales_order_intake',        to => 'sales_order',               abbr => 'soiso'  },
-    { from => 'sales_order_intake',        to => 'purchase_order',            abbr => 'soipo'  },
-    { from => 'sales_quotation',           to => 'sales_order_intake',        abbr => 'sqsoi'  },
-    { from => 'purchase_quotation_intake', to => 'purchase_quotation_intake', abbr => 'pqipqi' },
-    { from => 'purchase_quotation_intake', to => 'sales_quotation',           abbr => 'pqisq'  },
-    { from => 'purchase_quotation_intake', to => 'sales_order',               abbr => 'pqiso'  },
-    { from => 'purchase_quotation_intake', to => 'purchase_order',            abbr => 'pqipo'  },
-    { from => 'request_quotation',         to => 'purchase_quotation_intake', abbr => 'rqpqi'  },
+    { from => SALES_QUOTATION_TYPE(),           to => SALES_ORDER_TYPE(),               abbr => 'sqso'   },
+    { from => REQUEST_QUOTATION_TYPE(),         to => PURCHASE_ORDER_TYPE(),            abbr => 'rqpo'   },
+    { from => SALES_QUOTATION_TYPE(),           to => SALES_QUOTATION_TYPE(),           abbr => 'sqsq'   },
+    { from => SALES_ORDER_TYPE(),               to => SALES_ORDER_TYPE(),               abbr => 'soso'   },
+    { from => REQUEST_QUOTATION_TYPE(),         to => REQUEST_QUOTATION_TYPE(),         abbr => 'rqrq'   },
+    { from => PURCHASE_ORDER_TYPE(),            to => PURCHASE_ORDER_TYPE(),            abbr => 'popo'   },
+    { from => SALES_ORDER_TYPE(),               to => PURCHASE_ORDER_TYPE(),            abbr => 'sopo'   },
+    { from => PURCHASE_ORDER_TYPE(),            to => SALES_ORDER_TYPE(),               abbr => 'poso'   },
+    { from => SALES_ORDER_TYPE(),               to => SALES_QUOTATION_TYPE(),           abbr => 'sosq'   },
+    { from => PURCHASE_ORDER_TYPE(),            to => REQUEST_QUOTATION_TYPE(),         abbr => 'porq'   },
+    { from => REQUEST_QUOTATION_TYPE(),         to => SALES_QUOTATION_TYPE(),           abbr => 'rqsq'   },
+    { from => REQUEST_QUOTATION_TYPE(),         to => SALES_ORDER_TYPE(),               abbr => 'rqso'   },
+    { from => SALES_QUOTATION_TYPE(),           to => REQUEST_QUOTATION_TYPE(),         abbr => 'sqrq'   },
+    { from => SALES_ORDER_TYPE(),               to => REQUEST_QUOTATION_TYPE(),         abbr => 'sorq'   },
+    { from => SALES_RECLAMATION_TYPE(),         to => SALES_ORDER_TYPE(),               abbr => 'srso'   },
+    { from => PURCHASE_RECLAMATION_TYPE(),      to => PURCHASE_ORDER_TYPE(),            abbr => 'prpo'   },
+    { from => SALES_ORDER_INTAKE_TYPE(),        to => SALES_ORDER_INTAKE_TYPE(),        abbr => 'soisoi' },
+    { from => SALES_ORDER_INTAKE_TYPE(),        to => SALES_QUOTATION_TYPE(),           abbr => 'soisq'  },
+    { from => SALES_ORDER_INTAKE_TYPE(),        to => REQUEST_QUOTATION_TYPE(),         abbr => 'soirq'  },
+    { from => SALES_ORDER_INTAKE_TYPE(),        to => SALES_ORDER_TYPE(),               abbr => 'soiso'  },
+    { from => SALES_ORDER_INTAKE_TYPE(),        to => PURCHASE_ORDER_TYPE(),            abbr => 'soipo'  },
+    { from => SALES_QUOTATION_TYPE(),           to => SALES_ORDER_INTAKE_TYPE(),        abbr => 'sqsoi'  },
+    { from => PURCHASE_QUOTATION_INTAKE_TYPE(), to => PURCHASE_QUOTATION_INTAKE_TYPE(), abbr => 'pqipqi' },
+    { from => PURCHASE_QUOTATION_INTAKE_TYPE(), to => SALES_QUOTATION_TYPE(),           abbr => 'pqisq'  },
+    { from => PURCHASE_QUOTATION_INTAKE_TYPE(), to => SALES_ORDER_TYPE(),               abbr => 'pqiso'  },
+    { from => PURCHASE_QUOTATION_INTAKE_TYPE(), to => PURCHASE_ORDER_TYPE(),            abbr => 'pqipo'  },
+    { from => REQUEST_QUOTATION_TYPE(),         to => PURCHASE_QUOTATION_INTAKE_TYPE(), abbr => 'rqpqi'  },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") if !$from_to;
@@ -596,7 +599,7 @@ sub new_from_multi {
   push @items, @{$_->items_sorted} for @$sources;
   # make order from first source and all items
   my $order = $class->new_from($sources->[0],
-                               destination_type => 'sales_order',
+                               destination_type => SALES_ORDER_TYPE(),
                                attributes       => \%attributes,
                                items            => \@items,
                                %params);
@@ -610,12 +613,12 @@ sub number {
   return if !$self->type;
 
   my %number_method = (
-    sales_order_intake        => 'ordnumber',
-    sales_order               => 'ordnumber',
-    sales_quotation           => 'quonumber',
-    purchase_order            => 'ordnumber',
-    request_quotation         => 'quonumber',
-    purchase_quotation_intake => 'quonumber',
+    SALES_ORDER_INTAKE_TYPE()        => 'ordnumber',
+    SALES_ORDER_TYPE()               => 'ordnumber',
+    SALES_QUOTATION_TYPE()           => 'quonumber',
+    PURCHASE_ORDER_TYPE()            => 'ordnumber',
+    REQUEST_QUOTATION_TYPE()         => 'quonumber',
+    PURCHASE_QUOTATION_INTAKE_TYPE() => 'quonumber',
   );
 
   return $self->${ \ $number_method{$self->type} }(@_);

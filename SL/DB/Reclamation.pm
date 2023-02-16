@@ -8,6 +8,8 @@ use DateTime;
 use List::Util qw(max sum0);
 use List::MoreUtils qw(any);
 
+use SL::DB::DeliveryOrder::TypeData qw(:types);
+use SL::DB::Reclamation::TypeData qw(:types);
 use SL::DB::MetaSetup::Reclamation;
 use SL::DB::Manager::Reclamation;
 use SL::DB::Helper::Attr;
@@ -107,8 +109,8 @@ sub record_items { goto &reclamation_items; }
 sub type {
   my ($self) = @_;
 
-  return 'sales_reclamation'    if $self->customer_id;
-  return 'purchase_reclamation' if $self->vendor_id;
+  return SALES_RECLAMATION_TYPE()    if $self->customer_id;
+  return PURCHASE_RECLAMATION_TYPE() if $self->vendor_id;
 
   return;
 }
@@ -127,8 +129,8 @@ sub effective_tax_point {
 sub displayable_type {
   my $type = shift->type;
 
-  return $::locale->text('Sales Reclamation')    if $type eq 'sales_reclamation';
-  return $::locale->text('Purchase Reclamation') if $type eq 'purchase_reclamation';
+  return $::locale->text('Sales Reclamation')    if $type eq SALES_RECLAMATION_TYPE();
+  return $::locale->text('Purchase Reclamation') if $type eq PURCHASE_RECLAMATION_TYPE();
 
   die 'invalid type';
 }
@@ -147,8 +149,8 @@ sub daily_exchangerate {
 
   return 1 if $self->currency_id == $::instance_conf->get_currency_id;
 
-  my $rate = (any { $self->is_type($_) } qw(sales_reclamation))    ? 'buy'
-           : (any { $self->is_type($_) } qw(purchase_reclamation)) ? 'sell'
+  my $rate = (any { $self->is_type($_) } (SALES_RECLAMATION_TYPE()))    ? 'buy'
+           : (any { $self->is_type($_) } (PURCHASE_RECLAMATION_TYPE())) ? 'sell'
            : undef;
   return if !$rate;
 
@@ -201,8 +203,8 @@ sub convert_to_order {
   my ($self, %params) = @_;
 
   my $order;
-  $params{destination_type} = $self->is_sales ? 'sales_order'
-                                              : 'purchase_order';
+  $params{destination_type} = $self->is_sales ? SALES_ORDER_TYPE()
+                                              : PURCHASE_ORDER_TYPE();
   if (!$self->db->with_transaction(sub {
     require SL::DB::Order;
     $order = SL::DB::Order->new_from($self, %params);
@@ -253,19 +255,19 @@ sub new_from {
 
   my @from_tos = (
     #Reclamation
-    { from => 'sales_reclamation',       to => 'sales_reclamation',    abbr => 'srsr', },
-    { from => 'purchase_reclamation',    to => 'purchase_reclamation', abbr => 'prpr', },
-    { from => 'sales_reclamation',       to => 'purchase_reclamation', abbr => 'srpr', },
-    { from => 'purchase_reclamation',    to => 'sales_reclamation',    abbr => 'prsr', },
+    { from => SALES_RECLAMATION_TYPE(),       to => SALES_RECLAMATION_TYPE(),    abbr => 'srsr', },
+    { from => PURCHASE_RECLAMATION_TYPE(),    to => PURCHASE_RECLAMATION_TYPE(), abbr => 'prpr', },
+    { from => SALES_RECLAMATION_TYPE(),       to => PURCHASE_RECLAMATION_TYPE(), abbr => 'srpr', },
+    { from => PURCHASE_RECLAMATION_TYPE(),    to => SALES_RECLAMATION_TYPE(),    abbr => 'prsr', },
     #Order
-    { from => 'sales_order',             to => 'sales_reclamation',    abbr => 'sosr', },
-    { from => 'purchase_order',          to => 'purchase_reclamation', abbr => 'popr', },
+    { from => SALES_ORDER_TYPE(),             to => SALES_RECLAMATION_TYPE(),    abbr => 'sosr', },
+    { from => PURCHASE_ORDER_TYPE(),          to => PURCHASE_RECLAMATION_TYPE(), abbr => 'popr', },
     #Delivery Order
-    { from => 'sales_delivery_order',    to => 'sales_reclamation',    abbr => 'sdsr', },
-    { from => 'purchase_delivery_order', to => 'purchase_reclamation', abbr => 'pdpr', },
+    { from => SALES_DELIVERY_ORDER_TYPE(),    to => SALES_RECLAMATION_TYPE(),    abbr => 'sdsr', },
+    { from => PURCHASE_DELIVERY_ORDER_TYPE(), to => PURCHASE_RECLAMATION_TYPE(), abbr => 'pdpr', },
     #Invoice
-    { from => 'invoice',                 to => 'sales_reclamation',    abbr => 'sisr', },
-    { from => 'purchase_invoice',        to => 'purchase_reclamation', abbr => 'pipr', },
+    { from => 'invoice',                 to => SALES_RECLAMATION_TYPE(),    abbr => 'sisr', },
+    { from => 'purchase_invoice',        to => PURCHASE_RECLAMATION_TYPE(), abbr => 'pipr', },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   if (!$from_to) {
