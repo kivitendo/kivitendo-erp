@@ -19,6 +19,7 @@ our %EXPORT_TAGS = (types => \@export_types, subs => \@export_subs);
 my %type_data = (
   SALES_RECLAMATION_TYPE() => {
     text => {
+      delete     => t8('The reclamation has been deleted'),
       list       => t8("Sales Reclamations"),
       add        => t8("Add Sales Reclamation"),
       edit       => t8("Edit Sales Reclamation"),
@@ -50,6 +51,7 @@ my %type_data = (
   },
   PURCHASE_RECLAMATION_TYPE() => {
     text => {
+      delete     => t8('The reclamation has been deleted'),
       list       => t8("Purchase Reclamations"),
       add        => t8("Add Purchase Reclamation"),
       edit       => t8("Edit Purchase Reclamation"),
