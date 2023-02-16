@@ -32,6 +32,9 @@ use SL::DB::TransferType;
 use SL::DB::ValidityToken;
 use SL::DB::Warehouse;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions);
+use SL::DB::Helper::TypeDataProxy;
+use SL::DB::DeliveryOrder;
+use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::Model::Record;
 
 use SL::Helper::CreatePDF qw(:all);
@@ -42,7 +45,6 @@ use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::UpdatePositions;
 
 use SL::Controller::Helper::GetModels;
-use SL::Controller::DeliveryOrder::TypeData qw(:types);
 
 use List::Util qw(first sum0);
 use List::UtilsBy qw(sort_by uniq_by);
@@ -98,7 +100,7 @@ sub action_add_from_order {
   # this interfers with init_order
   $self->{converted_from_oe_id} = delete $::form->{id};
 
-  $self->type_data->validate($::form->{type});
+  $self->type_data->validate;
 
   my $order = SL::DB::Order->new(id => $self->{converted_from_oe_id})->load;
 
@@ -190,7 +192,6 @@ sub action_edit_collective {
 sub action_delete {
   my ($self) = @_;
 
-  my $number_type = $self->type_data;
   my %history = (snumbers => $self->type . '_' . $self->order->number);
   my %params = (history => \%history);
   SL::Model::Record->delete($self->order,%params);
@@ -436,7 +437,7 @@ sub action_save_and_show_email_dialog {
                                   email_form  => $email_form,
                                   show_bcc    => $::auth->assert('email_bcc', 'may fail'),
                                   FILES       => \%files,
-                                  is_customer => $self->type_data->is_customer,
+                                  is_customer => $self->type_data->properties("is_customer"),
                                   ALL_EMPLOYEES => $self->{all_employees},
   );
 
@@ -699,7 +700,7 @@ sub action_add_item {
                                      ITEM => $item,
                                      ID   => $item_id,
                                      SELF => $self,
-                                     in_out => $self->type_data->transfer,
+                                     in_out => $self->type_data->properties("transfer"),
   );
 
   if ($::form->{insert_before_item_id}) {
@@ -787,7 +788,7 @@ sub action_add_multi_items {
                                        ITEM => $item,
                                        ID   => $item_id,
                                        SELF => $self,
-                                       in_out => $self->type_data->transfer,
+                                       in_out => $self->type_data->properties("transfer"),
     );
 
     if ($::form->{insert_before_item_id}) {
@@ -930,7 +931,7 @@ sub action_stock_in_out_dialog {
   my $item_id = $::form->{item_id};
   my $qty     = _parse_number($::form->{qty_as_number});
 
-  my $inout = $self->type_data->transfer;
+  my $inout = $self->type_data->properties("transfer");
 
   my @contents   = DO->get_item_availability(parts_id => $part->id);
   my $stock_info = DO->unpack_stock_information(packed => $stock);
@@ -1261,7 +1262,7 @@ sub init_type {
 sub init_cv {
   my ($self) = @_;
 
-  return $self->type_data->customervendor;
+  return $self->type_data->properties("customervendor");
 }
 
 sub init_search_cvpartnumber {
@@ -1302,13 +1303,13 @@ sub init_part_picker_classification_ids {
 sub check_auth {
   my ($self) = @_;
 
-  $::auth->assert($self->type_data->access('view') || 'DOES_NOT_EXIST');
+  $::auth->assert($self->type_data->rights('view') || 'DOES_NOT_EXIST');
 }
 
 sub check_auth_for_edit {
   my ($self) = @_;
 
-  $::auth->assert($self->type_data->access('edit') || 'DOES_NOT_EXIST');
+  $::auth->assert($self->type_data->rights('edit') || 'DOES_NOT_EXIST');
 }
 
 # build the selection box for contacts
@@ -1396,7 +1397,7 @@ sub make_order {
   # order here solves this problem.
   my $order;
   $order   = SL::DB::DeliveryOrder->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
-  $order ||= SL::DB::DeliveryOrder->new(orderitems  => [], currency_id => $::instance_conf->get_currency_id(), order_type => $self->type_data->validate($::form->{type}));
+  $order ||= SL::DB::DeliveryOrder->new(orderitems  => [], currency_id => $::instance_conf->get_currency_id(), order_type => $self->type_data->validate);
 
   my $cv_id_method = $self->cv . '_id';
   if (!$::form->{id} && $::form->{$cv_id_method}) {
@@ -1815,7 +1816,7 @@ sub pre_render {
     $item->active_discount_source($price_source->discount_from_source($item->active_discount_source));
   }
 
-  if ($self->order->${\ $self->type_data->nr_key } && $::instance_conf->get_webdav) {
+  if ($self->order->${\ $self->type_data->properties("nr_key") } && $::instance_conf->get_webdav) {
     my $webdav = SL::Webdav->new(
       type     => $self->type,
       number   => $self->order->number,
@@ -1827,7 +1828,7 @@ sub pre_render {
                                                 } } @all_objects;
   }
 
-  $self->{template_args}{in_out}                                 = $self->type_data->transfer;
+  $self->{template_args}{in_out}                                 = $self->type_data->properties("transfer");
   $self->{template_args}{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
 
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
@@ -1841,7 +1842,7 @@ sub setup_edit_action_bar {
   my ($self, %params) = @_;
 
   my $deletion_allowed = $self->type_data->show_menu("delete");
-  my $may_edit_create  = $::auth->assert($self->type_data->access('edit') || 'DOES_NOT_EXIST', 1);
+  my $may_edit_create  = $::auth->assert($self->type_data->rights('edit') || 'DOES_NOT_EXIST', 1);
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -2174,7 +2175,7 @@ sub get_part_texts {
 }
 
 sub nr_key {
-  return $_[0]->type_data->nr_key;
+  return $_[0]->type_data->properties("nr_key");
 }
 
 sub save_and_redirect_to {
@@ -2278,7 +2279,7 @@ sub calculate_stock_in_out {
 }
 
 sub init_type_data {
-  SL::Controller::DeliveryOrder::TypeData->new($_[0]);
+  SL::DB::Helper::TypeDataProxy->new('SL::DB::DeliveryOrder', $::form->{type});
 }
 
 sub init_valid_types {

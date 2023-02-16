@@ -35,6 +35,14 @@ sub rights {
   _via("get3", [ "rights" ], @_);
 }
 
+sub workflow {
+  _via("get3", [ "workflow" ], @_);
+}
+
+sub part_classification_query {
+  _via("get", [ "part_classification_query" ], @_);
+}
+
 sub _via {
   my $method = shift;
   my $additional_args = shift;
