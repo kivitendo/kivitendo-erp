@@ -406,9 +406,9 @@ sub clone_for_save_as_new {
   my %new_attrs;
   # Lets assign a new number if the user hasn't changed the previous one.
   # If it has been changed manually then use it as-is.
-  $new_attrs{number}    = (trim($changed_record->number) eq $saved_record->number)
+  $new_attrs{record_number}    = (trim($changed_record->record_number) eq $saved_record->record_number)
                         ? ''
-                        : trim($changed_record->number);
+                        : trim($changed_record->record_number);
 
   # Clear transdate unless changed
   $new_attrs{transdate} = ($changed_record->transdate == $saved_record->transdate)
