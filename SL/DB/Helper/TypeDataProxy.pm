@@ -23,6 +23,10 @@ sub properties {
   _via("get3", [ "properties" ], @_);
 }
 
+sub changes {
+  _via("get3", [ "changes" ], @_);
+}
+
 sub show_menu {
   _via("get3", [ "show_menu" ], @_);
 }

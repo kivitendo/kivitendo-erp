@@ -13,65 +13,21 @@ use SL::DB::History;
 use SL::DB::Invoice;
 use SL::DB::Status;
 use SL::DB::ValidityToken;
+use SL::DB::Helper::TypeDataProxy;
 
 use SL::Util qw(trim);
 use SL::Locale::String qw(t8);
 
+
 sub update_after_new {
   my ($class, $new_record, $subtype, %flags) = @_;
 
-  my $type_info = {
-    # order
-    sales_quotation => {
-      get_new_reqdate => sub {
-        if ($::instance_conf->get_reqdate_on) {
-          return DateTime->today_local->next_workday(
-            extra_days => $::instance_conf->get_reqdate_interval());
-        } else {
-          return '';
-        }
-      },
-    },
-    sales_order => {
-      get_new_reqdate => sub {
-        if ($::instance_conf->get_deliverydate_on) {
-          return DateTime->today_local->next_workday(
-            extra_days => $::instance_conf->get_delivery_date_interval());
-        } else {
-          return '';
-        }
-      },
-    },
-    request_quotation => {
-      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
-    },
-    purchase_order => {
-      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
-    },
-    # delivery_order
-    rma_delivery_order => {
-      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
-    },
-    sales_delivery_order => {
-      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
-    },
-    supplier_delivery_order => {
-      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
-    },
-    purchase_delivery_order => {
-      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
-    },
-    # reclamation
-    sales_reclamation => {
-      get_new_reqdate => sub { return; },
-    },
-    purchase_reclamation => {
-      get_new_reqdate => sub { return; },
-    },
-  };
-
   $new_record->transdate(DateTime->now_local());
-  $new_record->reqdate($type_info->{$subtype}->{get_new_reqdate}->());
+
+  # build TypeDataProxy
+  # TODO: remove when type is set in record and not infered form customer/vendor_id
+  my $type_data_proxy = SL::DB::Helper::TypeDataProxy->new(ref $new_record, $subtype);
+  $new_record->reqdate($type_data_proxy->changes('get_new_reqdate'));
 
   # new_record: der neuerstellte objekt
   # flags: zusätzliche informationen zu der behanldung (soll    )
@@ -340,68 +296,6 @@ sub clone_for_save_as_new {
   # - number muss überschrieben werden
   # - employee auf aktuellen setzen
 
-  my $type_info = {
-    # order
-    sales_quotation => {
-      get_new_reqdate => sub {
-        if ($::instance_conf->get_reqdate_on) {
-          return DateTime->today_local->next_workday(
-            extra_days => $::instance_conf->get_reqdate_interval());
-        } else {
-          return '';
-        }
-      },
-    },
-    sales_order => {
-      get_new_reqdate => sub {
-        if ($::instance_conf->get_deliverydate_on) {
-          return DateTime->today_local->next_workday(
-            extra_days => $::instance_conf->get_delivery_date_interval());
-        } else {
-          return '';
-        }
-      },
-    },
-    request_quotation => {
-      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
-    },
-    purchase_order => {
-      get_new_reqdate => sub { DateTime->today_local->next_workday(extra_days => 1); },
-    },
-    # delivery_order
-    rma_delivery_order => {
-      get_new_reqdate => sub {
-        DateTime->today_local->next_workday(extra_days => 1);
-      },
-    },
-    sales_delivery_order => {
-      get_new_reqdate => sub {
-        DateTime->today_local->next_workday(extra_days => 1);
-      },
-    },
-    supplier_delivery_order => {
-      get_new_reqdate => sub {
-        DateTime->today_local->next_workday(extra_days => 1);
-      },
-    },
-    purchase_delivery_order => {
-      get_new_reqdate => sub {
-        DateTime->today_local->next_workday(extra_days => 1);
-      },
-    },
-    # reclamation
-    sales_reclamation => {
-      get_new_reqdate => sub {
-        '';
-      },
-    },
-    purchase_reclamation => {
-      get_new_reqdate => sub {
-        '';
-      },
-    },
-  };
-
   # changed_record
   my %new_attrs;
   # Lets assign a new number if the user hasn't changed the previous one.
@@ -417,7 +311,7 @@ sub clone_for_save_as_new {
 
   # Set new reqdate unless changed if it is enabled in client config
   if ($changed_record->reqdate == $saved_record->reqdate) {
-      $new_attrs{reqdate} = $type_info->{$saved_record->type}->{get_new_reqdate}->();
+      $new_attrs{reqdate} = $changed_record->type_data->changes('get_new_reqdate');
   }
 
   # Update employee
