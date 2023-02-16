@@ -2777,11 +2777,14 @@ sub save_and_redirect_to {
 sub save_history {
   my ($self, $addition) = @_;
 
+  my $number_type = $self->order->type =~ m{order} ? 'ordnumber' : 'quonumber';
+  my $snumbers    = $number_type . '_' . $self->order->$number_type;
+
   SL::DB::History->new(
     trans_id    => $self->order->id,
     employee_id => SL::DB::Manager::Employee->current->id,
     what_done   => $self->order->type,
-    snumbers    => $self->get_history_snumbers(),
+    snumbers    => $snumbers,
     addition    => $addition,
   )->save;
 }
