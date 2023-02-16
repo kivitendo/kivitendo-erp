@@ -97,6 +97,9 @@ sub generate_cvar_types {
     part      => 'int',
     number    => 'num',
     date      => 'date',
+    text      => undef,
+    textfield => undef,
+    bool      => undef,
   );
 
   my %ops_by_cvar_type = (
@@ -139,8 +142,14 @@ sub generate_cvar_types {
       },
     );
 
-    my $data_type = $price_rule_type_by_cvar_type{$config->type} or
+    my $data_type;
+    if (exists $price_rule_type_by_cvar_type{$config->type}) {
+      # known but undef typedefs are ignored.
+      # those cvar configs are not supported and can not be used in price rules
+      $data_type = $price_rule_type_by_cvar_type{$config->type} or next;
+    } else {
       die "cvar type @{[$config->type]} is not supported in price rules";
+    }
 
     my $ops = $ops_by_cvar_type{$config->type};
 
