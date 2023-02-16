@@ -85,7 +85,9 @@ sub cached_cvar_types {
 # we only generate cvar types for cvar price_rules that are actually used to keep the query smaller
 # these are cached per request
 sub generate_cvar_types {
-  my $cvar_configs = SL::DB::Manager::CustomVariableConfig->get_all;
+  my @supported_cvar_modules = qw(CT Contacts IC Projects ShipTo);
+
+  my $cvar_configs = SL::DB::Manager::CustomVariableConfig->get_all(query => [ module => \@supported_cvar_modules ]);
 
   my @types;
 
@@ -138,6 +140,12 @@ sub generate_cvar_types {
       Contacts => sub {
         raw_value(
           $_[0]->contact ? $_[0]->contact->cvar_by_name($config->name)->value : undef
+        );
+      },
+      ShipTo => sub {
+        raw_value(
+          $_[0]->custom_shipto ? $_[0]->custom_shipto->cvar_by_name($config->name)->value :
+          $_[0]->shipto ? $_[0]->shipto->cvar_by_name($config->name)->value : undef
         );
       },
     );
