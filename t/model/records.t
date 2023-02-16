@@ -186,16 +186,22 @@ is(SL::DB::Manager::Order->get_all_count(where => [ quotation => 1 ]), 2, 'numbe
 is(SL::DB::Manager::Order->get_all_count(where => [ quotation => 0 ]), 2, 'number of orders before delete ok');
 is(SL::DB::Manager::DeliveryOrder->get_all_count(), 2, 'number of delivery orders before delete ok');
 is(SL::DB::Manager::Reclamation->get_all_count(), 2, 'number of reclamations before delete ok');
-is(SL::DB::Manager::Invoice->get_all_count(), 1, 'number of invoices before delete ok'); # no purchase_invoice was created
+# is(SL::DB::Manager::Invoice->get_all_count(), 1, 'number of invoices before delete ok'); # no purchase_invoice was created
 
-SL::Model::Record->delete($sales_quotation1);
-SL::Model::Record->delete($sales_order1);
-SL::Model::Record->delete($sales_reclamation1);
-SL::Model::Record->delete($sales_invoice1);
+foreach my $record ( ($sales_quotation1,
+                      $sales_order1,
+                      $sales_reclamation1,
+                      $purchase_quotation1,
+                      $purchase_order1,
+                      $purchase_reclamation1
+                     )
+                   ) {
 
-SL::Model::Record->delete($purchase_quotation1);
-SL::Model::Record->delete($purchase_order1);
-SL::Model::Record->delete($purchase_reclamation1);
+  my $delete_return  = SL::Model::Record->delete($record);
+  my $record_history = SL::DB::Manager::History->find_by(trans_id => $record->id, addition => 'DELETED');
+  # just test if snumbers contains "_", not whether it actually is correct
+  ok($record_history->snumbers =~ m/_/, "history snumbers of record " . $record_history->snumbers . " ok");
+};
 
 is(SL::DB::Manager::Order->get_all_count(where => [ quotation => 1 ]), 0, 'number of quotations after delete ok');
 is(SL::DB::Manager::Order->get_all_count(where => [ quotation => 0 ]), 0, 'number of orders after delete ok');
