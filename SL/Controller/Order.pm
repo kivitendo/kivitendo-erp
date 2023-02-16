@@ -1396,23 +1396,8 @@ sub action_update_row_from_master_data {
 sub action_save_phone_note {
   my ($self) = @_;
 
-  if (!$::form->{phone_note}->{subject} || !$::form->{phone_note}->{body}) {
-    return $self->js->flash('error', t8('Phone note needs a subject and a body.'))->render;
-  }
-
-  my $phone_note;
-  if ($::form->{phone_note}->{id}) {
-    $phone_note = first { $_->id == $::form->{phone_note}->{id} } @{$self->order->phone_notes};
-    return $self->js->flash('error', t8('Phone note not found for this order.'))->render if !$phone_note;
-  }
-
-  $phone_note = SL::DB::Note->new() if !$phone_note;
-  my $is_new  = !$phone_note->id;
-
-  $phone_note->assign_attributes(%{ $::form->{phone_note} },
-                                 trans_id     => $self->order->id,
-                                 trans_module => 'oe',
-                                 employee     => SL::DB::Manager::Employee->current);
+  my $phone_note = $self->parse_phone_note;
+  my $is_new     = !$phone_note->id;
 
   $phone_note->save;
   $self->order(SL::DB::Order->new(id => $self->order->id)->load);
@@ -2082,33 +2067,32 @@ sub get_unalterable_data {
   }
 }
 
-# check for new or updated phone notes
+# parse new or updated phone note
 #
 # And put them into the order object.
-sub handle_phone_note {
+sub parse_phone_note {
   my ($self) = @_;
 
-  if ($::form->{phone_note}->{subject} || $::form->{phone_note}->{body}) {
-    if (!$::form->{phone_note}->{subject} || !$::form->{phone_note}->{body}) {
-      die t8('Phone note needs a subject and a body.');
-    }
-
-    my $phone_note;
-    if ($::form->{phone_note}->{id}) {
-      $phone_note = first { $_->id == $::form->{phone_note}->{id} } @{$self->order->phone_notes};
-      die t8('Phone note not found for this order.') if !$phone_note;
-    }
-
-    $phone_note = SL::DB::Note->new() if !$phone_note;
-    my $is_new  = !$phone_note->id;
-
-    $phone_note->assign_attributes(%{ $::form->{phone_note} },
-                                   trans_id     => $self->order->id,
-                                   trans_module => 'oe',
-                                   employee     => SL::DB::Manager::Employee->current);
-
-    $self->order->add_phone_notes($phone_note) if $is_new;
+  if (!$::form->{phone_note}->{subject} || !$::form->{phone_note}->{body}) {
+    die t8('Phone note needs a subject and a body.');
   }
+
+  my $phone_note;
+  if ($::form->{phone_note}->{id}) {
+    $phone_note = first { $_->id == $::form->{phone_note}->{id} } @{$self->order->phone_notes};
+    die t8('Phone note not found for this order.') if !$phone_note;
+  }
+
+  $phone_note = SL::DB::Note->new() if !$phone_note;
+  my $is_new  = !$phone_note->id;
+
+  $phone_note->assign_attributes(%{ $::form->{phone_note} },
+                                 trans_id     => $self->order->id,
+                                 trans_module => 'oe',
+                                 employee     => SL::DB::Manager::Employee->current);
+
+  $self->order->add_phone_notes($phone_note) if $is_new;
+  return $phone_note;
 }
 
 # save the order
@@ -2121,7 +2105,7 @@ sub save {
     return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
   }
 
-  $self->handle_phone_note;
+  $self->parse_phone_note if $::form->{phone_note}->{subject} || $::form->{phone_note}->{body};
 
   # create first version if none exists
   $self->order->add_order_version(SL::DB::OrderVersion->new(version => 1)) if !$self->order->order_version;
