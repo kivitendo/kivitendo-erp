@@ -2104,6 +2104,14 @@ sub oe_prepare_xyz_from_order {
   return if !$::form->{id};
 
   my $order = SL::DB::Order->new(id => $::form->{id})->load;
+
+  if (exists $::form->{only_items}) {
+    my @wanted_indexes = sort { $a <=> $b } map { $_ - 1 } split(",", $::form->{only_items} // "");
+    my @items          = $order->items;
+    @items             = @items[@wanted_indexes];
+    $order->items(\@items);
+  }
+
   $order->flatten_to_form($::form, format_amounts => 1);
   $::form->{taxincluded_changed_by_user} = 1;
 

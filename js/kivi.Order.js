@@ -60,6 +60,7 @@ namespace('kivi.Order', function(ns) {
     data.push({ name: 'action', value: 'Order/' + action });
 
     if (back_to_caller) data.push({ name: 'back_to_caller', value: '1' });
+    if (params.convert_to_purchase_delivery_order_selected_items_only) data.push({ name: 'convert_to_purchase_delivery_order_selected_items_only', value: '1' });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -954,6 +955,54 @@ namespace('kivi.Order', function(ns) {
     window.open("controller.pl?action=CustomerVendor/edit&db=" + encodeURIComponent(db) + "&id=" + encodeURIComponent($(id_selector).val()), '_blank');
   };
 
+  ns.convert_to_purchase_delivery_order_select_items = function(params) {
+    $("#purchase_delivery_order_item_selection_checkall").attr("checked", "checked");
+
+    var $src  = $("#row_table_id");
+    var $dest = $("#convert_to_purchase_delivery_order_item_selection_items");
+
+    $dest.data("params", params);
+    $dest.empty();
+
+    $("#row_table_id tbody>tr:first-child").each(function(idx, tr) {
+      const $row        = $(tr);
+      const partnumber  = $row.find("div[name=partnumber]").text().replaceAll(" ", "");
+      const description = $row.find("input[name='order.orderitems[].description']").val();
+      const qty         = $row.find("input[name='order.orderitems[].qty_as_number']").val();
+      const unit        = $row.find("select[name='order.orderitems[].unit']").val();
+      var html          =
+          "<tr class=\"listrow\">" +
+          "  <td><input type=\"checkbox\" name=\"purchase_delivery_order_item_selection_indexes[+]\" class=\"purchase_delivery_order_item_selection_checkall\" value=\"" + (idx + 1) + "\" checked=\"checked\"></td>" +
+          "  <td align=\"right\" class=\"numeric\">" + (idx + 1) + "</td>" +
+          "  <td>" + partnumber + "</td>" +
+          "  <td>" + description + "</td>" +
+          "  <td align=\"right\" class=\"numeric\">" + qty + "</td>" +
+          "  <td>" + unit + "</td>" +
+          "</tr>";
+
+      $dest.append(html);
+    });
+
+    kivi.popup_dialog({
+      id: "convert_to_purchase_delivery_order_item_selection",
+      dialog: {
+        title: kivi.t8("Select items for delivery order"),
+      }
+    });
+  };
+
+  ns.convert_to_purchase_delivery_order = function() {
+    var $dlg = $("#convert_to_purchase_delivery_order_item_selection");
+    $dlg.dialog('close');
+
+    var params = $("#convert_to_purchase_delivery_order_item_selection_items").data("params");
+    params.convert_to_purchase_delivery_order_selected_items_only = 1;
+
+    $dlg.remove();
+    $('#order_form').append($dlg);
+
+    kivi.Order.save(params);
+  };
 });
 
 $(function() {

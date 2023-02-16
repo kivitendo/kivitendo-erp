@@ -147,6 +147,7 @@ namespace("kivi").setupLocale({
 "Save and keep open":"Speichern und geöffnet lassen",
 "Section/Function block actions":"Abschnitts-/Funktionsblockaktionen",
 "Select from preset":"Aus Voreinstellung wählen",
+"Select items for delivery order":"Positionen für Lieferschein auswählen",
 "Select template to paste":"Einzufügende Vorlage auswählen",
 "Send email":"E-Mail verschicken",
 "Sep":"Sep",

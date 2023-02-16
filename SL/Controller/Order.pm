@@ -816,9 +816,16 @@ sub action_get_has_active_periodic_invoices {
 sub action_save_and_delivery_order {
   my ($self) = @_;
 
+  my %params;
+
+  if ($::form->{convert_to_purchase_delivery_order_selected_items_only}) {
+    $params{only_items} = join(',', @{ $::form->{purchase_delivery_order_item_selection_indexes} || [] });
+  }
+
   $self->save_and_redirect_to(
     controller => 'oe.pl',
     action     => 'oe_delivery_order_from_order',
+    %params,
   );
 }
 
@@ -2428,6 +2435,17 @@ sub setup_edit_action_bar {
                          @req_trans_cost_art, @req_cusordnumber,
           ],
           only_if   => (any { $self->type eq $_ } (sales_order_type(), purchase_order_type())),
+          disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
+        ],
+        action => [
+          t8('Save and Delivery Order with item selection'),
+          call      => [ 'kivi.Order.convert_to_purchase_delivery_order_select_items',
+                         { action             => 'save_and_delivery_order',
+                           warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+                           warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
+                       ],
+          checks    => [ @req_trans_cost_art, @req_cusordnumber ],
+          only_if   => (any { $self->type eq $_ } (purchase_order_type())),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
