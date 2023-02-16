@@ -8,6 +8,7 @@ use DateTime;
 use List::Util qw(max sum0);
 use List::MoreUtils qw(any);
 
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
 use SL::DB::MetaSetup::Reclamation;
