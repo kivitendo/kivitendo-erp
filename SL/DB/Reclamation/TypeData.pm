@@ -36,6 +36,9 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "record_number",
     },
+    changes => {
+      get_new_reqdate => sub { return; }
+    },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       edit => "sales_reclamation_edit",
@@ -59,6 +62,9 @@ my %type_data = (
       customervendor => "vendor",
       is_customer    => 0,
       nr_key         => "record_number",
+    },
+    changes => {
+      get_new_reqdate => sub { return; }
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {

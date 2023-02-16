@@ -47,6 +47,16 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "ordnumber",
     },
+    changes => {
+      get_new_reqdate => sub {
+        if ($::instance_conf->get_deliverydate_on) {
+          return DateTime->today_local->next_workday(
+            extra_days => $::instance_conf->get_delivery_date_interval());
+        } else {
+          return ;
+        }
+      },
+    },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       edit => "sales_order_edit",
@@ -80,6 +90,9 @@ my %type_data = (
       customervendor => "vendor",
       is_customer    => 0,
       nr_key         => "ordnumber",
+    },
+    changes => {
+      get_new_reqdate => sub { return; },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
@@ -115,6 +128,16 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "quonumber",
     },
+    changes => {
+      get_new_reqdate => sub {
+        if ($::instance_conf->get_reqdate_on) {
+          return DateTime->today_local->next_workday(
+            extra_days => $::instance_conf->get_reqdate_interval());
+        } else {
+          return ;
+        }
+      },
+    },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       edit => "sales_quotation_edit",
@@ -148,6 +171,9 @@ my %type_data = (
       customervendor => "vendor",
       is_customer    => 0,
       nr_key         => "quonumber",
+    },
+    changes => {
+      get_new_reqdate => sub { return; },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
