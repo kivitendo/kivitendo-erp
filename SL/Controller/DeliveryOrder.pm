@@ -35,6 +35,7 @@ use SL::DB::Helper::RecordLink qw(set_record_link_conversions);
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::DeliveryOrder;
 use SL::DB::DeliveryOrder::TypeData qw(:types);
+use SL::DB::Manager::DeliveryOrderItem;
 use SL::DB::DeliveryOrderItemsStock;
 use SL::Model::Record;
 
@@ -208,12 +209,7 @@ sub action_delete {
 sub action_save {
   my ($self) = @_;
 
-  my $errors = $self->save();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
+  $self->save();
 
   flash_later('info', $self->type_data->text("saved"));
 
@@ -263,13 +259,7 @@ sub action_print {
   my ($self) = @_;
 
   if ( !$self->order->delivered ) {
-    my $errors = $self->save();
-
-    if (scalar @{ $errors }) {
-      $self->js->flash('error', $_) foreach @{ $errors };
-      return $self->js->render();
-    }
-
+    $self->save();
     $self->js_reset_order_and_item_ids_after_save;
   }
 
@@ -346,12 +336,7 @@ sub action_preview_pdf {
   my ($self) = @_;
 
   if ( !$self->order->delivered ) {
-    my $errors = $self->save();
-    if (scalar @{ $errors }) {
-      $self->js->flash('error', $_) foreach @{ $errors };
-      return $self->js->render();
-    }
-
+    $self->save();
     $self->js_reset_order_and_item_ids_after_save;
   }
 
@@ -393,12 +378,7 @@ sub action_save_and_show_email_dialog {
   my ($self) = @_;
 
   if ( !$self->order->delivered ) {
-    my $errors = $self->save();
-
-    if (scalar @{ $errors }) {
-      $self->js->flash('error', $_) foreach @{ $errors };
-      return $self->js->render();
-    }
+    $self->save();
   }
 
   my $cv_method = $self->cv;
@@ -453,16 +433,9 @@ sub action_send_email {
   my ($self) = @_;
 
   if ( !$self->order->delivered ) {
-    my $errors = $self->save();
-
-    if (scalar @{ $errors }) {
-      $self->js->run('kivi.DeliveryOrder.close_email_dialog');
-      $self->js->flash('error', $_) foreach @{ $errors };
-      return $self->js->render();
-    }
+    $self->save();
     $self->js_reset_order_and_item_ids_after_save;
   }
-
 
   my $email_form  = delete $::form->{email_form};
   my %field_names = (to => 'email');
@@ -1618,9 +1591,6 @@ sub get_unalterable_data {
 sub save {
   my ($self) = @_;
 
-  my $errors = [];
-  my $db     = $self->order->db;
-
   if (scalar @{$self->order->items} == 0 && !grep { $self->type eq $_ } @{$::instance_conf->get_allowed_documents_with_no_positions() || []}) {
     return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
   }
@@ -1643,47 +1613,24 @@ sub save {
     );
   }
 
-  $db->with_transaction(sub {
-    my $validity_token;
-    if (!$self->order->id) {
-      $validity_token = SL::DB::Manager::ValidityToken->fetch_valid_token(
-        scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE(),
-        token => $::form->{form_validity_token},
-      );
+  my $items_to_delete  = scalar @{ $self->item_ids_to_delete || [] }
+                       ? SL::DB::Manager::DeliveryOrderItem->get_all(where => [id => $self->item_ids_to_delete])
+                       : undef;
 
-      die $::locale->text('The form is not valid anymore.') if !$validity_token;
-    }
+  SL::Model::Record->save($self->order,
+                          with_validity_token        => { scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE(), token => $::form->{form_validity_token} },
+                          delete_custom_shipto       => $self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty,
+                          items_to_delete            => $items_to_delete,
+  );
 
-    # delete custom shipto if it is to be deleted or if it is empty
-    if ($self->order->custom_shipto && ($self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty)) {
-      $self->order->custom_shipto->delete if $self->order->custom_shipto->shipto_id;
-      $self->order->custom_shipto(undef);
-    }
-
-    SL::DB::DeliveryOrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete || []};
-    $self->order->save(cascade => 1);
-
-    $self->save_history('SAVED');
-
-    $validity_token->delete if $validity_token;
-    delete $::form->{form_validity_token};
-
-    1;
-  }) || push(@{$errors}, $db->error);
-
-  return $errors;
+  delete $::form->{form_validity_token};
 }
 
 sub workflow_sales_or_request_for_quotation {
   my ($self) = @_;
 
   # always save
-  my $errors = $self->save();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) for @{ $errors };
-    return $self->js->render();
-  }
+  $self->save();
 
   my $destination_type = $self->type_data->workflow("to_quotation_type");
 
@@ -1721,12 +1668,7 @@ sub workflow_sales_or_purchase_order {
   my ($self) = @_;
 
   # always save
-  my $errors = $self->save();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
+  $self->save();
 
   my $destination_type = $self->type_data->workflow("to_order_type");
 
@@ -2180,12 +2122,7 @@ sub nr_key {
 sub save_and_redirect_to {
   my ($self, %params) = @_;
 
-  my $errors = $self->save();
-
-  if (scalar @{ $errors }) {
-    $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
-  }
+  $self->save();
 
   flash_later('info', $self->type_data->text("saved"));
 
