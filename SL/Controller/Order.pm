@@ -2138,7 +2138,9 @@ sub save {
 
   my $is_new = !$self->order->id;
 
-  my $objects_to_close = SL::DB::Manager::Order->get_all(where => [id => \@converted_from_oe_ids, quotation => 1]);
+  my $objects_to_close = scalar @converted_from_oe_ids
+                       ? SL::DB::Manager::Order->get_all(where => [id => \@converted_from_oe_ids, quotation => 1])
+                       : undef;
 
   my $items_to_delete = scalar @{ $self->item_ids_to_delete || [] }
                       ? SL::DB::Manager::OrderItem->get_all(where => [id => $self->item_ids_to_delete])
