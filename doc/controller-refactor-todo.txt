@@ -81,4 +81,4 @@ Bugs:
 
 ======== third run ========
 -        genaueren Typ (type data) irgendwie im Objekt/db speichern für Order und Reclamation (wie bei DeliveryOrder)
-
+-        S:C:Order/DeliveryOrder/Reclamation: Records verlinken: Vorbereitung im Objekt in make_order/reclamation verschieben?
