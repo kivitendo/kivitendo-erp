@@ -205,7 +205,7 @@ sub save {
   # rückgabe: nichts
   # fehler: exception
 
-  $record->calculate_prices_and_taxes() if $params{calculate_prices_and_taxes}; # flag or type data?
+  $record->calculate_prices_and_taxes() if $record->type_data->features('price_tax');
 
   foreach my $item (@{ $record->items }) {
     # autovivify all cvars that are not in the form (cvars_by_config can do it).
