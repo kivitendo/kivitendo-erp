@@ -43,6 +43,10 @@ my %type_data = (
     rights => {
       edit => "sales_reclamation_edit",
     },
+    features => {
+      price_tax => 1,
+      stock     => 0,
+    },
   },
   PURCHASE_RECLAMATION_TYPE() => {
     text => {
@@ -69,6 +73,10 @@ my %type_data = (
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
       edit => "purchase_reclamation_edit",
+    },
+    features => {
+      price_tax => 1,
+      stock     => 0,
     },
   },
 );
