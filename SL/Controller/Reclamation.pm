@@ -39,6 +39,8 @@ use SL::DB::Order;
 use SL::DB::DeliveryOrder;
 use SL::DB::Invoice;
 use SL::Model::Record;
+use SL::DB::Order::TypeData qw(:types);
+use SL::DB::Reclamation::TypeData qw(:types);
 
 use List::Util qw(first sum0);
 use List::UtilsBy qw(sort_by uniq_by);
@@ -123,8 +125,8 @@ sub action_add_from_order {
   }
 
   my $order = SL::DB::Order->new(id => $::form->{from_id})->load;
-  my $target_type = $order->is_sales ? 'sales_reclamation'
-                                     : 'purchase_reclamation';
+  my $target_type = $order->is_sales ? SALES_RECLAMATION_TYPE()
+                                     : PURCHASE_RECLAMATION_TYPE();
   my $reclamation = SL::Model::Record->new_from_workflow($order, $target_type);
 
   $self->reclamation($reclamation);
@@ -151,8 +153,8 @@ sub action_add_from_delivery_order {
   }
 
   my $delivery_order = SL::DB::DeliveryOrder->new(id => $::form->{from_id})->load;
-  my $target_type = $delivery_order->is_sales ? 'sales_reclamation'
-                                              : 'purchase_reclamation';
+  my $target_type = $delivery_order->is_sales ? SALES_RECLAMATION_TYPE()
+                                              : PURCHASE_RECLAMATION_TYPE();
   my $reclamation = SL::Model::Record->new_from_workflow($delivery_order, $target_type);
 
   $self->reclamation($reclamation);
@@ -179,7 +181,7 @@ sub action_add_from_sales_invoice {
   }
 
   my $invoice = SL::DB::Invoice->new(id => $::form->{from_id})->load;
-  my $target_type = 'sales_reclamation';
+  my $target_type = SALES_RECLAMATION_TYPE();
   my $reclamation = SL::Model::Record->new_from_workflow($invoice, $target_type);
 
   $self->reclamation($reclamation);
@@ -208,7 +210,7 @@ sub action_add_from_purchase_invoice {
   require SL::DB::PurchaseInvoice;
   my $invoice = SL::DB::PurchaseInvoice->new(id => $::form->{from_id})->load;
   $invoice->{type} = $invoice->invoice_type; #can't add type → invoice_type in SL/DB/PurchaseInvoice
-  my $target_type = 'purchase_reclamation';
+  my $target_type = PURCHASE_RECLAMATION_TYPE();
   my $reclamation = SL::Model::Record->new_from_workflow($invoice, $target_type);
 
   $self->reclamation($reclamation);
@@ -583,8 +585,8 @@ sub action_send_email {
 sub action_save_and_order {
   my ($self) = @_;
 
-  my $to_type = $self->reclamation->is_sales ? 'sales_order'
-                                             : 'purchase_order';
+  my $to_type = $self->reclamation->is_sales ? SALES_ORDER_TYPE()
+                                             : PURCHASE_ORDER_TYPE();
 
   $self->save_with_render_error();
   flash_later('info', t8('The reclamation has been saved'));
@@ -606,7 +608,7 @@ sub action_save_and_sales_reclamation {
     controller => 'Reclamation',
     action     => 'add_from_reclamation',
     from_id => $self->reclamation->id,
-    type => sales_reclamation_type(),
+    type => SALES_RECLAMATION_TYPE(),
   );
 }
 
@@ -620,7 +622,7 @@ sub action_save_and_purchase_reclamation {
     controller => 'Reclamation',
     action     => 'add_from_reclamation',
     from_id => $self->reclamation->id,
-    type => purchase_reclamation_type(),
+    type => PURCHASE_RECLAMATION_TYPE(),
   );
 }
 
@@ -1213,7 +1215,7 @@ sub js_reset_reclamation_and_item_ids_after_save {
 #
 
 sub init_valid_types {
-  [ sales_reclamation_type(), purchase_reclamation_type() ];
+  $_[0]->type_data->valid_types;
 }
 
 sub init_type {
@@ -1229,8 +1231,8 @@ sub init_type {
 sub init_cv {
   my ($self) = @_;
 
-  my $cv = (any { $self->type eq $_ } (sales_reclamation_type()))   ? 'customer'
-         : (any { $self->type eq $_ } (purchase_reclamation_type())) ? 'vendor'
+  my $cv = (any { $self->type eq $_ } (SALES_RECLAMATION_TYPE()))   ? 'customer'
+         : (any { $self->type eq $_ } (PURCHASE_RECLAMATION_TYPE())) ? 'vendor'
          : die "Not a valid type for reclamation";
 
   return $cv;
@@ -1273,7 +1275,7 @@ sub init_models {
       language                => t8('Language'),
       department              => t8('Department'),
       globalproject           => t8('Project Number'),
-      cv_record_number        => ($self->type eq 'sales_reclamation' ? t8('Customer Record Number') : t8('Vendor Record Number')),
+      cv_record_number        => ($self->type eq SALES_RECLAMATION_TYPE() ? t8('Customer Record Number') : t8('Vendor Record Number')),
       transaction_description => t8('Description'),
       notes                   => t8('Notes'),
       intnotes                => t8('Internal Notes'),
@@ -1325,7 +1327,7 @@ sub init_all_price_factors {
 
 sub init_part_picker_classification_ids {
   my ($self)    = @_;
-  my $attribute = 'used_for_' . ($self->type eq sales_reclamation_type() ? 'sale' : 'purchase');
+  my $attribute = 'used_for_' . ($self->type eq SALES_RECLAMATION_TYPE() ? 'sale' : 'purchase');
 
   return [ map { $_->id } @{ SL::DB::Manager::PartClassification->get_all(where => [ $attribute => 1 ]) } ];
 }
@@ -1778,7 +1780,7 @@ sub action_add_from_reclamation {
 
   # check for direct delivery
   # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
-  if ($::form->{type} eq purchase_reclamation_type()) {
+  if ($::form->{type} eq PURCHASE_RECLAMATION_TYPE()) {
     if ($::form->{use_shipto}) {
       my $custom_shipto = $source_reclamation->shipto->clone('SL::DB::Reclamation');
       $self->reclamation->custom_shipto($custom_shipto) if $custom_shipto;
@@ -2074,7 +2076,7 @@ sub prepare_report {
       sub      => sub { $_[0]->closed ? t8('Yes') : t8('No') },
     },
   );
-  if ($self->type eq sales_reclamation_type()) {
+  if ($self->type eq SALES_RECLAMATION_TYPE()) {
     $column_defs{customer} = ({
       raw_data => sub { $_[0]->customervendor->presenter->customer(display => 'table-cell', callback => $callback) },
       sub      => sub { $_[0]->customervendor->name },
@@ -2089,7 +2091,7 @@ sub prepare_report {
       },
       sub      => sub { $_[0]->contact ? $_[0]->contact->cp_name : '' },
     });
-  } elsif ($self->type eq purchase_reclamation_type()) {
+  } elsif ($self->type eq PURCHASE_RECLAMATION_TYPE()) {
     $column_defs{vendor} = ({
       raw_data => sub { $_[0]->customervendor->presenter->vendor(display => 'table-cell', callback => $callback) },
       sub      => sub { $_[0]->customervendor->name },
@@ -2151,7 +2153,7 @@ sub prepare_report {
      { output => 0 },
      models => $self->models
     ),
-    title                 => $self->type eq sales_reclamation_type() ? t8('Sales Reclamations') : t8('Purchase Reclamations'),
+    title                 => $self->type eq SALES_RECLAMATION_TYPE() ? t8('Sales Reclamations') : t8('Purchase Reclamations'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
   );
@@ -2166,9 +2168,9 @@ sub prepare_report {
 sub _setup_edit_action_bar {
   my ($self, %params) = @_;
 
-  my $deletion_allowed = ($self->type eq sales_reclamation_type()
+  my $deletion_allowed = ($self->type eq SALES_RECLAMATION_TYPE()
                           && $::instance_conf->get_sales_reclamation_show_delete)
-                      || ($self->type eq purchase_reclamation_type()
+                      || ($self->type eq PURCHASE_RECLAMATION_TYPE()
                           && $::instance_conf->get_purchase_reclamation_show_delete);
 
   for my $bar ($::request->layout->get('actionbar')) {
@@ -2206,12 +2208,12 @@ sub _setup_edit_action_bar {
             $::instance_conf->get_reclamation_warn_duplicate_parts,
             $::instance_conf->get_reclamation_warn_no_reqdate,
           ],
-          only_if  => (any { $self->type eq $_ } (purchase_reclamation_type())),
+          only_if  => (any { $self->type eq $_ } (PURCHASE_RECLAMATION_TYPE())),
         ],
         action => [
           t8('Save and Purchase Reclamation'),
           call      => [ 'kivi.Reclamation.purchase_reclamation_check_for_direct_delivery' ],
-          only_if   => (any { $self->type eq $_ } (sales_reclamation_type())),
+          only_if   => (any { $self->type eq $_ } (SALES_RECLAMATION_TYPE())),
         ],
         action => [
           t8('Save and Order'),
@@ -2228,7 +2230,7 @@ sub _setup_edit_action_bar {
             $::instance_conf->get_reclamation_warn_duplicate_parts,
             $::instance_conf->get_reclamation_warn_no_reqdate,
           ],
-          only_if   => (any { $self->type eq $_ } (sales_reclamation_type())),
+          only_if   => (any { $self->type eq $_ } (SALES_RECLAMATION_TYPE())),
         ],
         action => [
           t8('Save and Supplier Delivery Order'),
@@ -2237,7 +2239,7 @@ sub _setup_edit_action_bar {
             $::instance_conf->get_reclamation_warn_duplicate_parts,
             $::instance_conf->get_reclamation_warn_no_reqdate,
           ],
-          only_if   => (any { $self->type eq $_ } (purchase_reclamation_type())),
+          only_if   => (any { $self->type eq $_ } (PURCHASE_RECLAMATION_TYPE())),
         ],
         action => [
           t8('Save and Credit Note'),
@@ -2246,7 +2248,7 @@ sub _setup_edit_action_bar {
             $::instance_conf->get_reclamation_warn_duplicate_parts,
             $::instance_conf->get_reclamation_warn_no_reqdate,
           ],
-          only_if   => (any { $self->type eq $_ } (sales_reclamation_type())),
+          only_if   => (any { $self->type eq $_ } (SALES_RECLAMATION_TYPE())),
         ],
       ], # end of combobox "Workflow"
 
@@ -2462,8 +2464,8 @@ sub get_title_for {
   # t8("Edit Purchase Reclamation");
 
   $action = ucfirst(lc($action));
-  return $self->type eq sales_reclamation_type()    ? t8("$action Sales Reclamation")
-       : $self->type eq purchase_reclamation_type() ? t8("$action Purchase Reclamation")
+  return $self->type eq SALES_RECLAMATION_TYPE()    ? t8("$action Sales Reclamation")
+       : $self->type eq PURCHASE_RECLAMATION_TYPE() ? t8("$action Purchase Reclamation")
        : '';
 }
 
@@ -2504,14 +2506,6 @@ sub get_part_texts {
   $texts->{longdescription} = $translation->longdescription if $translation && $translation->longdescription;
 
   return $texts;
-}
-
-sub sales_reclamation_type {
-  'sales_reclamation';
-}
-
-sub purchase_reclamation_type {
-  'purchase_reclamation';
 }
 
 sub save_history {
@@ -2567,7 +2561,7 @@ sub store_pdf_to_webdav_and_filemanagement {
 }
 
 sub init_type_data {
-  SL::DB::Helper::TypeDataProxy->new('SL::DB::Reclamation', $_[0]->type);
+  SL::DB::Helper::TypeDataProxy->new('SL::DB::Reclamation', $::form->{type});
 }
 
 1;

@@ -20,6 +20,7 @@ use SL::DB::Part;
 use SL::DB::Unit;
 
 use SL::DB::DeliveryOrder::TypeData qw(:types);
+use SL::DB::Reclamation::TypeData qw(:types);
 
 use SL::Helper::Number qw(_format_total _round_total);
 
@@ -93,7 +94,7 @@ sub sales_order {
     ],
   );
 
-  return first { $_->is_type('sales_order') } @{ $orders };
+  return first { $_->is_type(SALES_ORDER_TYPE()) } @{ $orders };
 }
 
 sub type {
@@ -107,8 +108,8 @@ sub is_type {
 sub displayable_type {
   my $type = shift->type;
 
-  return $::locale->text('Sales Delivery Order')    if $type eq 'sales_delivery_order';
-  return $::locale->text('Purchase Delivery Order') if $type eq 'purchase_delivery_order';
+  return $::locale->text('Sales Delivery Order')    if $type eq SALES_DELIVERY_ORDER_TYPE();
+  return $::locale->text('Purchase Delivery Order') if $type eq PURCHASE_DELIVERY_ORDER_TYPE();
 
   die 'invalid type';
 }
@@ -145,8 +146,8 @@ sub _clone_orderitem_cvar {
 sub convert_to_reclamation {
   my ($self, %params) = @_;
 
-  $params{destination_type} = $self->is_sales ? 'sales_reclamation'
-                                              : 'purchase_reclamation';
+  $params{destination_type} = $self->is_sales ? SALES_RECLAMATION_TYPE()
+                                              : PURCHASE_RECLAMATION_TYPE();
 
   my $reclamation = SL::DB::Reclamation->new_from($self, %params);
 
@@ -238,16 +239,16 @@ sub new_from {
   }
 
   # infer type from legacy fields if not given
-  $record_args{order_type} //= $source->customer_id ? 'sales_delivery_order'
-                      : $source->vendor_id   ? 'purchase_delivery_order'
-                      : $source->is_sales    ? 'sales_delivery_order'
+  $record_args{order_type} //= $source->customer_id ? SALES_DELIVERY_ORDER_TYPE()
+                      : $source->vendor_id   ? PURCHASE_DELIVERY_ORDER_TYPE()
+                      : $source->is_sales    ? SALES_DELIVERY_ORDER_TYPE()
                       : croak "need some way to set delivery order type from source";
 
   my $delivery_order = $class->new(%record_args);
   $delivery_order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
 
   my $items = delete($params{items}) || $source->items_sorted;
-  my @items = ( $delivery_order->is_type(SUPPLIER_DELIVERY_ORDER_TYPE) && ref($source) ne 'SL::DB::Reclamation' ) ?
+  my @items = ( $delivery_order->is_type(SUPPLIER_DELIVERY_ORDER_TYPE()) && ref($source) ne 'SL::DB::Reclamation' ) ?
                 ()
               : map { SL::DB::DeliveryOrderItem->new_from($_, %params) } @{ $items };
 

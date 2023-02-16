@@ -14,6 +14,9 @@ use SL::DB::Invoice;
 use SL::DB::Status;
 use SL::DB::ValidityToken;
 use SL::DB::Helper::TypeDataProxy;
+use SL::DB::Order::TypeData qw(:types);
+use SL::DB::DeliveryOrder::TypeData qw(:types);
+use SL::DB::Reclamation::TypeData qw(:types);
 
 use SL::Util qw(trim);
 use SL::Locale::String qw(t8);
@@ -63,18 +66,18 @@ sub new_from_workflow {
 
   my %subtype_to_type = (
     # Order
-    "request_quotation" => "SL::DB::Order",
-    "purchase_order"    => "SL::DB::Order",
-    "sales_quotation"   => "SL::DB::Order",
-    "sales_order"       => "SL::DB::Order",
+    REQUEST_QUOTATION_TYPE() => "SL::DB::Order",
+    PURCHASE_ORDER_TYPE()    => "SL::DB::Order",
+    SALES_QUOTATION_TYPE()   => "SL::DB::Order",
+    SALES_ORDER_TYPE()       => "SL::DB::Order",
     # DeliveryOrder
-    "sales_delivery_order"    => "SL::DB::DeliveryOrder",
-    "purchase_delivery_order" => "SL::DB::DeliveryOrder",
-    "rma_delivery_order"      => "SL::DB::DeliveryOrder",
-    "supplier_delivery_order" => "SL::DB::DeliveryOrder",
+    SALES_DELIVERY_ORDER_TYPE()    => "SL::DB::DeliveryOrder",
+    PURCHASE_DELIVERY_ORDER_TYPE() => "SL::DB::DeliveryOrder",
+    RMA_DELIVERY_ORDER_TYPE()      => "SL::DB::DeliveryOrder",
+    SUPPLIER_DELIVERY_ORDER_TYPE() => "SL::DB::DeliveryOrder",
     # Reclamation
-    "sales_reclamation"    => "SL::DB::Reclamation",
-    "purchase_reclamation" => "SL::DB::Reclamation",
+    SALES_RECLAMATION_TYPE()    => "SL::DB::Reclamation",
+    PURCHASE_RECLAMATION_TYPE() => "SL::DB::Reclamation",
   );
   my $target_type = $subtype_to_type{$target_subtype};
   unless ($target_type) {
@@ -102,7 +105,7 @@ sub new_from_workflow_multi {
 
   my %subtype_to_type = (
     # Order
-    "sales_order" => "SL::DB::Order",
+    SALES_ORDER_TYPE() => "SL::DB::Order",
   );
   my $target_type = $subtype_to_type{$target_subtype};
   unless ($target_type) {
