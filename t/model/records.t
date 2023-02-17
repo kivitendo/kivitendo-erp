@@ -129,8 +129,6 @@ my $combined_order = SL::Model::Record->new_from_workflow_multi(\@sales_orders, 
 SL::Model::Record->save($combined_order);
 cmp_ok($combined_order->netamount, '==', 3*710, "netamount of combined order ok");
 
-die;
-
 clear_up();
 done_testing;
 
