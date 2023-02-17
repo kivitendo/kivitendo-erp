@@ -125,7 +125,7 @@ sub action_add_from_order {
   }
 
   my $order = SL::DB::Order->new(id => $::form->{from_id})->load;
-  my $reclamation = SL::Model::Record->new_from_workflow($order, ref($self->reclamaiton), $self->type);
+  my $reclamation = SL::Model::Record->new_from_workflow($order, ref($self->reclamation), $self->type);
 
   $self->reclamation($reclamation);
 
