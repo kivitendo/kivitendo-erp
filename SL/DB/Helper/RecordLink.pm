@@ -15,7 +15,7 @@ use constant RECORD_ITEM_TYPE_REF => 'converted_from_record_item_type_ref';
 our @EXPORT_OK = qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF set_record_link_conversions);
 
 sub link_records {
-  my ($self, $allowed_linked_records, $allowed_linked_record_items, %flags) = @_;
+  my ($self, $allowed_linked_records, $allowed_linked_record_items) = @_;
 
   my %allowed_linked_records = map {$_ => 1} @$allowed_linked_records;
   my %allowed_linked_record_items = map {$_ => 1} @$allowed_linked_record_items;
@@ -30,8 +30,6 @@ sub link_records {
   for my $id (listify($from_record_ids)) {
     my $from_record = $from_record_type->new(id => $id)->load;
     $from_record->link_to_record($self);
-
-    close_quotations($from_record, %flags);
   }
 
   #clear converted_from;
@@ -61,16 +59,6 @@ sub link_record_item {
   delete $record_item->{$_} for RECORD_ITEM_ID, RECORD_ITEM_TYPE_REF;
 }
 
-
-sub close_quotations {
-  my ($from_record, %flags) = @_;
-
-  return unless $flags{close_source_quotations};
-  return unless 'SL::DB::Order' eq  ref $from_record;
-  return unless $from_record->type =~ /quotation/;
-
-  $from_record->update_attributes(closed => 1);
-}
 
 sub set_record_link_conversions {
   my ($record, $from_type, $from_ids, $item_type, $item_ids) = @_;
@@ -115,7 +103,6 @@ SL::DB::Helper::RecordLink - creates record links that are stored in the gived o
         $self,
         [ qw(SL::DB::Order) ],        # list of allowed record sources
         [ qw(SL::DB::OrderItem) ],    # list of allowed record item sources
-        close_source_quotations => 1, # if the link source is a quotation - close it
       )
     }
 
