@@ -78,9 +78,22 @@ foreach my $target_record_type ( qw(sales_order sales_delivery_order) ) {
   note "  testing from quotation -> $target_record_type";
   my $new_record = SL::Model::Record->new_from_workflow($sales_quotation1, $target_record_type);
 
-  SL::Model::Record->save($new_record);
+  is($new_record->closed, 0, "new quotation is open");
+  # in the future closing sales quotations should probably happen as an after-save hook of orders,
+  # but for now we copy the behaviour of the controller and pass the sales quotations as an argument
+  SL::Model::Record->save($new_record, objects_to_close => [ $sales_quotation1 ]);
+
   $new_record->load;
   cmp_ok($new_record->netamount, '==', 710, "converted $target_record_type netamount ok") if $new_record->can('netamount');
+
+  # test whether quotations get closed when sales_order is created
+  if ( $target_record_type eq 'sales_order' ) {
+    $sales_quotation1->load;
+    is($sales_quotation1->closed, 1, "quotation is closed after creating an order");
+  }
+
+  # TODO: test whether orders get closed when all items are deliverd
+
   my $record_history = SL::DB::Manager::History->find_by(trans_id => $new_record->id, addition => 'SAVED');
   ok($record_history->snumbers =~ m/_/, "history snumbers of record " . $record_history->snumbers . " ok");
   test_record_links($new_record, "converted $target_record_type");
