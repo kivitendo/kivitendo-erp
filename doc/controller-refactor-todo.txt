@@ -80,6 +80,9 @@ Bugs:
 -        genaueren Typ (type data) irgendwie im Objekt/db speichern für Order und Reclamation (wie bei DeliveryOrder)
 -        S:C:Order/DeliveryOrder/Reclamation: Records verlinken: Vorbereitung im Objekt in make_order/reclamation verschieben?
 
+======== fourth run ========
+-        prüfen, ob Angebote/Aufträge/Lieferscheine richtig auf geschlossen/geliefert gesetzt werden nach Workflows
+
 ======== an der Oberfläche testen, testen, testen ... ========
 -        bleiben item_ids der linked records/items beim Sortieren erhalten?
 -        Umwandeln Beleg/Beleg new_from / convert gegen linked records/items testen
