@@ -49,11 +49,12 @@
 
   <table class="tbl-horizontal">
     <caption>[% 'Customer &amp; Order' | $T8 %]</caption>
+    <colgroup><col class="wi-small"><col class="wi-lightwide"></colgroup>
     <tbody>
       <tr>
         <th>[% 'Customer' | $T8 %]</th>
         <td>
-         [% P.customer_vendor.picker("customer_id", customer_id, type="customer", style="width: 300px", class=(initial_focus == 'customer_id' ? "initial_focus" : ""), onchange="\$('#update_button').click()") %]
+         [% P.customer_vendor.picker("customer_id", customer_id, type="customer", class=(initial_focus == 'customer_id' ? "initial_focus" : ""), onchange="\$('#update_button').click()") %]
          [% L.button_tag("show_vc_details('customer')", LxERP.t8('Details (one letter abbreviation)')) %]
          [% L.hidden_tag("previous_customer_id", customer_id) %]
          [% L.hidden_tag('terms', terms) %]
@@ -132,6 +133,10 @@
         </tr>
       [% END %]
       <tr>
+        <th>[% 'Transaction description' | $T8 %]</th>
+        <td>[% L.input_tag("transaction_description", transaction_description, "data-validate"=INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : '', class="wi-lightwide") %]</td>
+      </tr>
+      <tr>
         <th></th>
         <td>[% L.checkbox_tag('taxincluded', checked=taxincluded) %] <label for="taxincluded">[% 'Tax Included' | $T8 %]</label></td>
       </tr>
@@ -161,6 +166,7 @@
 
   <table class="tbl-horizontal">
     <caption>[% 'Numbers & Dates' | $T8 %]</caption>
+    <colgroup><col class="wi-small"><col class="wi-lightwide"></colgroup>
     <tbody>
       <tr>
         <th>[% 'Salesperson' | $T8 %]</th>
@@ -358,5 +364,5 @@
 </div><!-- ./tabwidget -->
 
 <script type="text/javascript">
- $('#ar_set_to_paid_missing').click(function(){ $('input[name^="paid_"]:last').val('[% LxERP.format_amount(paid_missing, 2) %]') });
+ $('#ar_set_to_paid_missing').click(function(){ $('input[name^="paid_"]:last').val("[% LxERP.format_amount(paid_missing, 2) %]") });
 </script>
