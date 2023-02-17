@@ -111,7 +111,7 @@ sub action_add {
 
   $self->render(
     'reclamation/form',
-    title => $self->get_title_for('add'),
+    title => $self->type_data->text('add'),
     %{$self->{template_args}},
   );
 }
@@ -125,9 +125,7 @@ sub action_add_from_order {
   }
 
   my $order = SL::DB::Order->new(id => $::form->{from_id})->load;
-  my $target_type = $order->is_sales ? SALES_RECLAMATION_TYPE()
-                                     : PURCHASE_RECLAMATION_TYPE();
-  my $reclamation = SL::Model::Record->new_from_workflow($order, $target_type);
+  my $reclamation = SL::Model::Record->new_from_workflow($order, $self->type);
 
   $self->reclamation($reclamation);
 
@@ -139,7 +137,7 @@ sub action_add_from_order {
 
   $self->render(
     'reclamation/form',
-    title => $self->get_title_for('add'),
+    title => $self->type_data->text('add'),
     %{$self->{template_args}},
   );
 }
@@ -153,9 +151,7 @@ sub action_add_from_delivery_order {
   }
 
   my $delivery_order = SL::DB::DeliveryOrder->new(id => $::form->{from_id})->load;
-  my $target_type = $delivery_order->is_sales ? SALES_RECLAMATION_TYPE()
-                                              : PURCHASE_RECLAMATION_TYPE();
-  my $reclamation = SL::Model::Record->new_from_workflow($delivery_order, $target_type);
+  my $reclamation = SL::Model::Record->new_from_workflow($delivery_order, $self->type);
 
   $self->reclamation($reclamation);
 
@@ -167,7 +163,7 @@ sub action_add_from_delivery_order {
 
   $self->render(
     'reclamation/form',
-    title => $self->get_title_for('add'),
+    title => $self->type_data->text('add'),
     %{$self->{template_args}},
   );
 }
@@ -181,8 +177,7 @@ sub action_add_from_sales_invoice {
   }
 
   my $invoice = SL::DB::Invoice->new(id => $::form->{from_id})->load;
-  my $target_type = SALES_RECLAMATION_TYPE();
-  my $reclamation = SL::Model::Record->new_from_workflow($invoice, $target_type);
+  my $reclamation = SL::Model::Record->new_from_workflow($invoice, $self->type);
 
   $self->reclamation($reclamation);
 
@@ -194,7 +189,7 @@ sub action_add_from_sales_invoice {
 
   $self->render(
     'reclamation/form',
-    title => $self->get_title_for('add'),
+    title => $self->type_data->text('add'),
     %{$self->{template_args}},
   );
 }
@@ -210,8 +205,7 @@ sub action_add_from_purchase_invoice {
   require SL::DB::PurchaseInvoice;
   my $invoice = SL::DB::PurchaseInvoice->new(id => $::form->{from_id})->load;
   $invoice->{type} = $invoice->invoice_type; #can't add type → invoice_type in SL/DB/PurchaseInvoice
-  my $target_type = PURCHASE_RECLAMATION_TYPE();
-  my $reclamation = SL::Model::Record->new_from_workflow($invoice, $target_type);
+  my $reclamation = SL::Model::Record->new_from_workflow($invoice, $self->type);
 
   $self->reclamation($reclamation);
 
@@ -223,7 +217,7 @@ sub action_add_from_purchase_invoice {
 
   $self->render(
     'reclamation/form',
-    title => $self->get_title_for('add'),
+    title => $self->type_data->text('add'),
     %{$self->{template_args}},
   );
 }
@@ -244,7 +238,7 @@ sub action_edit {
 
   $self->render(
     'reclamation/form',
-    title => $self->get_title_for('edit'),
+    title => $self->type_data->text('edit'),
     %{$self->{template_args}},
   );
 }
@@ -255,7 +249,7 @@ sub action_delete {
 
 
   SL::Model::Record->delete($self->reclamation);
-  flash_later('info', t8('The reclamation has been deleted'));
+  flash_later('info', $self->type_data->text('delete'));
 
   my @redirect_params = (
     action => 'add',
@@ -450,10 +444,10 @@ sub action_save_and_show_email_dialog {
 
   unless ($self->reclamation->customervendor) {
     return $self->js->flash('error',
-                            $self->cv eq 'customer' ?
-                                t8('Cannot send E-mail without customer given')
-                              : t8('Cannot send E-mail without vendor given'))
-                    ->render($self);
+      $self->type_data->properties('is_customer') ?
+          t8('Cannot send E-mail without customer given')
+        : t8('Cannot send E-mail without vendor given'))
+      ->render($self);
   }
 
   my $form = Form->new;
@@ -483,7 +477,7 @@ sub action_save_and_show_email_dialog {
                                   email_form  => $email_form,
                                   show_bcc    => $::auth->assert('email_bcc', 'may fail'),
                                   FILES       => \%files,
-                                  is_customer => $self->cv eq 'customer',
+                                  is_customer => $self->type_data->properties('is_customer'),
                                   ALL_EMPLOYEES => $self->{all_employees},
   );
 
@@ -674,8 +668,6 @@ sub action_customer_vendor_changed {
 
   $self->recalc();
 
-  my $cv_method = $self->cv;
-
   if ( $self->reclamation->customervendor->contacts
        && scalar @{ $self->reclamation->customervendor->contacts } > 0) {
     $self->js->show('#cp_row');
@@ -716,9 +708,9 @@ sub action_customer_vendor_changed {
 sub action_show_customer_vendor_details_dialog {
   my ($self) = @_;
 
-  my $is_sales = ($self->cv eq 'customer');
+  my $is_customer = ($self->type_data->properties('is_customer'));
   my $cv;
-  if ($is_sales) {
+  if ($is_customer) {
     $cv = SL::DB::Customer->new(id => $::form->{cv_id})->load;
   } else {
     $cv = SL::DB::Vendor->new(id => $::form->{cv_id})->load;
@@ -731,7 +723,7 @@ sub action_show_customer_vendor_details_dialog {
   $details{language}            = $cv->language_obj->description  if $cv->language_obj;
   $details{delivery_terms}      = $cv->delivery_term->description if $cv->delivery_term;
   $details{payment_terms}       = $cv->payment->description       if $cv->payment;
-  $details{pricegroup}          = $cv->pricegroup->pricegroup     if !$is_sales && $cv->pricegroup;
+  $details{pricegroup}          = $cv->pricegroup->pricegroup     if !$is_customer && $cv->pricegroup;
 
   foreach my $entry (@{ $cv->shipto }) {
     push @{ $details{SHIPTO} },   { map { $_ => $entry->$_ } @{$entry->meta->columns} };
@@ -741,7 +733,7 @@ sub action_show_customer_vendor_details_dialog {
   }
 
   $_[0]->render('common/show_vc_details', { layout => 0 },
-                is_customer => !$is_sales,
+                is_customer => $is_customer,
                 %details);
 }
 
@@ -1032,7 +1024,7 @@ sub action_return_from_create_part {
 
   $self->render(
     'reclamation/form',
-    title => $self->get_title_for('edit'),
+    title => $self->type_data->text('edit'),
     %{$self->{template_args}}
   );
 }
@@ -1231,11 +1223,7 @@ sub init_type {
 sub init_cv {
   my ($self) = @_;
 
-  my $cv = (any { $self->type eq $_ } (SALES_RECLAMATION_TYPE()))   ? 'customer'
-         : (any { $self->type eq $_ } (PURCHASE_RECLAMATION_TYPE())) ? 'vendor'
-         : die "Not a valid type for reclamation";
-
-  return $cv;
+  $self->type_data->properties('customervendor');
 }
 
 sub init_search_cvpartnumber {
@@ -1243,8 +1231,11 @@ sub init_search_cvpartnumber {
 
   my $user_prefs = SL::Helper::UserPreferences::PartPickerSearch->new();
   my $search_cvpartnumber;
-  $search_cvpartnumber = !!$user_prefs->get_sales_search_customer_partnumber() if $self->cv eq 'customer';
-  $search_cvpartnumber = !!$user_prefs->get_purchase_search_makemodel()        if $self->cv eq 'vendor';
+  if ($self->type_data->properties('is_customer')) {
+    $search_cvpartnumber = !!$user_prefs->get_sales_search_customer_partnumber()
+  } else {
+    $search_cvpartnumber = !!$user_prefs->get_purchase_search_makemodel();
+  }
 
   return $search_cvpartnumber;
 }
@@ -1275,7 +1266,7 @@ sub init_models {
       language                => t8('Language'),
       department              => t8('Department'),
       globalproject           => t8('Project Number'),
-      cv_record_number        => ($self->type eq SALES_RECLAMATION_TYPE() ? t8('Customer Record Number') : t8('Vendor Record Number')),
+      cv_record_number        => ($self->type_data->properties('is_customer') ? t8('Customer Record Number') : t8('Vendor Record Number')),
       transaction_description => t8('Description'),
       notes                   => t8('Notes'),
       intnotes                => t8('Internal Notes'),
@@ -1327,20 +1318,13 @@ sub init_all_price_factors {
 
 sub init_part_picker_classification_ids {
   my ($self)    = @_;
-  my $attribute = 'used_for_' . ($self->type eq SALES_RECLAMATION_TYPE() ? 'sale' : 'purchase');
 
-  return [ map { $_->id } @{ SL::DB::Manager::PartClassification->get_all(where => [ $attribute => 1 ]) } ];
+  return [ map { $_->id } @{ SL::DB::Manager::PartClassification->get_all(where => $self->type_data->part_classification_query()) } ];
 }
 
 sub check_auth {
   my ($self) = @_;
-
-  my $right_for = { map { $_ => $_.'_edit' } @{$self->valid_types} };
-
-  my $right   = $right_for->{ $self->type };
-  $right    ||= 'DOES_NOT_EXIST';
-
-  $::auth->assert($right);
+  $::auth->assert($self->type_data->rights('edit'));
 }
 
 # build the selection box for contacts
@@ -1484,10 +1468,6 @@ sub make_reclamation {
                      reclamation_items  => [],
                      currency_id => $::instance_conf->get_currency_id(),
                    );
-    my $cv_id_method = $self->cv . '_id';
-    if ($::form->{$cv_id_method}) {
-      $reclamation->$cv_id_method($::form->{$cv_id_method});
-    }
   }
 
   my $form_reclamation_items = delete $::form->{reclamation}->{reclamation_items};
@@ -1719,7 +1699,7 @@ sub save {
                        ? SL::DB::Manager::ReclamationItem->get_all(where => [id => $self->item_ids_to_delete])
                        : undef;
 
-  SL::Model::Record->save($self->order,
+  SL::Model::Record->save($self->reclamation,
                           with_validity_token  => { scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE(), token => $::form->{form_validity_token} },
                           delete_custom_shipto => $self->is_custom_shipto_to_delete || $self->reclamation->custom_shipto->is_empty,
                           items_to_delete      => $items_to_delete,
@@ -1744,7 +1724,7 @@ sub action_add_from_reclamation {
 
   # check for direct delivery
   # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
-  if ($::form->{type} eq PURCHASE_RECLAMATION_TYPE()) {
+  if (!$self->type_data->properties('is_customer')) {
     if ($::form->{use_shipto}) {
       my $custom_shipto = $source_reclamation->shipto->clone('SL::DB::Reclamation');
       $self->reclamation->custom_shipto($custom_shipto) if $custom_shipto;
@@ -1762,7 +1742,7 @@ sub action_add_from_reclamation {
 
   $self->render(
     'reclamation/form',
-    title => $self->get_title_for('add'),
+    title => $self->type_data->text('add'),
     %{$self->{template_args}}
   );
 }
@@ -2040,7 +2020,7 @@ sub prepare_report {
       sub      => sub { $_[0]->closed ? t8('Yes') : t8('No') },
     },
   );
-  if ($self->type eq SALES_RECLAMATION_TYPE()) {
+  if ($self->type_data->properties('is_customer')) {
     $column_defs{customer} = ({
       raw_data => sub { $_[0]->customervendor->presenter->customer(display => 'table-cell', callback => $callback) },
       sub      => sub { $_[0]->customervendor->name },
@@ -2055,7 +2035,7 @@ sub prepare_report {
       },
       sub      => sub { $_[0]->contact ? $_[0]->contact->cp_name : '' },
     });
-  } elsif ($self->type eq PURCHASE_RECLAMATION_TYPE()) {
+  } else {
     $column_defs{vendor} = ({
       raw_data => sub { $_[0]->customervendor->presenter->vendor(display => 'table-cell', callback => $callback) },
       sub      => sub { $_[0]->customervendor->name },
@@ -2117,7 +2097,7 @@ sub prepare_report {
      { output => 0 },
      models => $self->models
     ),
-    title                 => $self->type eq SALES_RECLAMATION_TYPE() ? t8('Sales Reclamations') : t8('Purchase Reclamations'),
+    title                 => $self->type_data->text('list'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
   );
@@ -2131,11 +2111,6 @@ sub prepare_report {
 
 sub _setup_edit_action_bar {
   my ($self, %params) = @_;
-
-  my $deletion_allowed = ($self->type eq SALES_RECLAMATION_TYPE()
-                          && $::instance_conf->get_sales_reclamation_show_delete)
-                      || ($self->type eq PURCHASE_RECLAMATION_TYPE()
-                          && $::instance_conf->get_purchase_reclamation_show_delete);
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -2172,12 +2147,12 @@ sub _setup_edit_action_bar {
             $::instance_conf->get_reclamation_warn_duplicate_parts,
             $::instance_conf->get_reclamation_warn_no_reqdate,
           ],
-          only_if  => (any { $self->type eq $_ } (PURCHASE_RECLAMATION_TYPE())),
+          only_if  => $self->type_data->show_menu('save_and_sales_reclamation'),
         ],
         action => [
           t8('Save and Purchase Reclamation'),
           call      => [ 'kivi.Reclamation.purchase_reclamation_check_for_direct_delivery' ],
-          only_if   => (any { $self->type eq $_ } (SALES_RECLAMATION_TYPE())),
+          only_if  => $self->type_data->show_menu('save_and_purchase_reclamation'),
         ],
         action => [
           t8('Save and Order'),
@@ -2194,7 +2169,7 @@ sub _setup_edit_action_bar {
             $::instance_conf->get_reclamation_warn_duplicate_parts,
             $::instance_conf->get_reclamation_warn_no_reqdate,
           ],
-          only_if   => (any { $self->type eq $_ } (SALES_RECLAMATION_TYPE())),
+          only_if  => $self->type_data->show_menu('save_and_rma_delivery_order'),
         ],
         action => [
           t8('Save and Supplier Delivery Order'),
@@ -2203,7 +2178,7 @@ sub _setup_edit_action_bar {
             $::instance_conf->get_reclamation_warn_duplicate_parts,
             $::instance_conf->get_reclamation_warn_no_reqdate,
           ],
-          only_if   => (any { $self->type eq $_ } (PURCHASE_RECLAMATION_TYPE())),
+          only_if  => $self->type_data->show_menu('save_and_supplier_delivery_order'),
         ],
         action => [
           t8('Save and Credit Note'),
@@ -2212,7 +2187,7 @@ sub _setup_edit_action_bar {
             $::instance_conf->get_reclamation_warn_duplicate_parts,
             $::instance_conf->get_reclamation_warn_no_reqdate,
           ],
-          only_if   => (any { $self->type eq $_ } (SALES_RECLAMATION_TYPE())),
+          only_if  => $self->type_data->show_menu('save_and_credit_note'),
         ],
       ], # end of combobox "Workflow"
 
@@ -2259,7 +2234,7 @@ sub _setup_edit_action_bar {
         call     => [ 'kivi.Reclamation.delete_reclamation' ],
         confirm  => t8('Do you really want to delete this object?'),
         disabled => !$self->reclamation->id ? t8('This object has not been saved yet.') : undef,
-        only_if  => $deletion_allowed,
+        only_if  => $self->type_data->show_menu('delete'),
       ],
 
       combobox => [
@@ -2416,33 +2391,16 @@ sub get_files_for_email_dialog {
   return %files;
 }
 
-sub get_title_for {
-  my ($self, $action) = @_;
-
-  return '' if none { lc($action)} qw(add edit);
-
-  # for locales:
-  # t8("Add Sales Reclamation");
-  # t8("Add Purchase Reclamation");
-  # t8("Edit Sales Reclamation");
-  # t8("Edit Purchase Reclamation");
-
-  $action = ucfirst(lc($action));
-  return $self->type eq SALES_RECLAMATION_TYPE()    ? t8("$action Sales Reclamation")
-       : $self->type eq PURCHASE_RECLAMATION_TYPE() ? t8("$action Purchase Reclamation")
-       : '';
-}
-
 sub get_item_cvpartnumber {
   my ($self, $item) = @_;
 
   return if !$self->search_cvpartnumber;
   return if !$self->reclamation->customervendor;
 
-  if ($self->cv eq 'vendor') {
+  if (!$self->reclamation->is_sales) {
     my @mms = grep { $_->make eq $self->reclamation->customervendor->id } @{$item->part->makemodels};
     $item->{cvpartnumber} = $mms[0]->model if scalar @mms;
-  } elsif ($self->cv eq 'customer') {
+  } elsif ($self->reclamation->is_sales) {
     my @cps = grep { $_->customer_id eq $self->reclamation->customervendor->id } @{$item->part->customerprices};
     $item->{cvpartnumber} = $cps[0]->customer_partnumber if scalar @cps;
   }
