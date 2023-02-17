@@ -102,6 +102,7 @@ sub generate_cvar_types {
     text      => undef,
     textfield => undef,
     bool      => undef,
+    htmlfield => undef,
   );
 
   my %ops_by_cvar_type = (
@@ -156,7 +157,7 @@ sub generate_cvar_types {
       # those cvar configs are not supported and can not be used in price rules
       $data_type = $price_rule_type_by_cvar_type{$config->type} or next;
     } else {
-      die "cvar type @{[$config->type]} is not supported in price rules";
+      die "cvar type @{[$config->type]} " . $config->description . " is not supported in price rules";
     }
 
     my $ops = $ops_by_cvar_type{$config->type};
