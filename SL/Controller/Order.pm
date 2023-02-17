@@ -2124,7 +2124,7 @@ sub save {
   }
   if ($::form->{converted_from_reclamation_id}) {
     my @converted_from_reclamation_ids = split ' ', $::form->{converted_from_reclamation_id};
-    set_record_links_conversions(
+    set_record_link_conversions(
       $self->order,
       'SL::DB::Reclamation'     => \@converted_from_reclamation_ids,
       'SL::DB::ReclamationItem' => $::form->{converted_from_reclamation_items_ids},
