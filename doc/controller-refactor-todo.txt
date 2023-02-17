@@ -64,7 +64,7 @@ trait listen:
 - DONE: S:M:R->delete: kein croak sondern die, wenn transaction einen Fehler wirft
 -       S:M:R->new_from_workflow: type data: subtype_to_type
 - DONE: S:M:R->new_from_workflow: no_linked_records als opt. flag
--       S:M:R->increment_subversion: als trait bzw. type data: wer kann das überhaupt
+- DONE: S:M:R->increment_subversion: als trait bzw. type data: wer kann das überhaupt
 - WIP:  S:M:R->save implementieren
 
 
@@ -85,7 +85,7 @@ Bugs:
 -        Typen in Objekten selbst speichern, nicht über customer/vendor id holen
 
 ======== an der Oberfläche testen, testen, testen ... ========
--        bleiben item_ids der linked records/items beim Sortieren erhalten?
--        Umwandeln Beleg/Beleg new_from / convert gegen linked records/items testen
+- DONE:  bleiben item_ids der linked records/items beim Sortieren erhalten?
+- WIP:   Umwandeln Beleg/Beleg new_from / convert gegen linked records/items testen
 -        Umwandeln im front-end / Workflows gegen linked records/items testen
 -        Fehlerzustände in Controllern provozieren und prüfen, ob z.B. autom. vergebene Belegnummer erhalten bleibt
