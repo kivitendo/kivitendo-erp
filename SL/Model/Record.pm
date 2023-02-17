@@ -403,6 +403,77 @@ Expects a record, returns snumber for the history entry.
 
 None yet. :)
 
+=head1 FURTHER WORK
+
+=over 4
+
+=item *
+
+Handling of price sources and prices in controllers
+
+=item *
+
+Handling of shippedqty calculations in controllers
+
+=item *
+
+Autovivification of unparsed cvar configs is still in parsing code
+
+=item *
+
+Handling of changed customer/vendor
+
+=item *
+
+sellprice changed handling
+
+=back
+
+
+The traits currently encoded in the type data classes should also be extended to cover:
+
+=over 4
+
+=item *
+
+PeriodicInvoices
+
+=item *
+
+Exchangerates
+
+=item *
+
+Payments for invoices
+
+=back
+
+In later stages the following things should be implemented:
+
+=over 4
+
+=item *
+
+For SL::DB::Order and SL::DB::Reclamations the subtype should be saved in the database and not inferred from customer/vendor.
+
+=item *
+
+Further encapsulate the linking logic for creating linked records.
+
+=item *
+
+Better tests for auto-close of quotations and auto-delivered of delivery orders on save. Best to move those into post-save hooks as well.
+
+=item *
+
+More tests of workflow related conversions from frontend (current tests are mostly at the SL::Model::Record boundary).
+
+=item *
+
+More tests for error handling in controllers. I.e. if the given recordnumber is kept.
+
+=back
+
 =head1 AUTHORS
 
 Bernd Bleßmann E<lt>bernd@kivitendo-premium.deE<gt>
