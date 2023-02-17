@@ -233,11 +233,6 @@ sub _set_project_in_linked_requirement_specs {
 sub clone_for_save_as_new {
   my ($class, $saved_record, $changed_record, %params) = @_;
 
-  # der übergebene beleg wurde mit new_from erstellt und muss nachbearbeitet werden:
-  # - transadte, reqdate müssen überschrieben werden
-  # - number muss überschrieben werden
-  # - employee auf aktuellen setzen
-
   # changed_record
   my %new_attrs;
   # Lets assign a new number if the user hasn't changed the previous one.
