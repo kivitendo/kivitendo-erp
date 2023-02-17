@@ -82,6 +82,7 @@ Bugs:
 
 ======== fourth run ========
 -        prüfen, ob Angebote/Aufträge/Lieferscheine richtig auf geschlossen/geliefert gesetzt werden nach Workflows
+-        Typen in Objekten selbst speichern, nicht über customer/vendor id holen
 
 ======== an der Oberfläche testen, testen, testen ... ========
 -        bleiben item_ids der linked records/items beim Sortieren erhalten?
