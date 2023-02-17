@@ -32,31 +32,11 @@ sub update_after_new {
   my $type_data_proxy = SL::DB::Helper::TypeDataProxy->new(ref $new_record, $subtype);
   $new_record->reqdate($type_data_proxy->defaults('reqdate'));
 
-  # new_record: der neuerstellte objekt
-  # flags: zusätzliche informationen zu der behanldung (soll    )
-
-  # (aus add) neues record mit vorbereitenden sachen wie transdate/reqdate
-  #
-  # rückgabe: neues objekt
-  # fehlerfall: exception
   return $new_record;
 }
 
 sub new_from_workflow {
   my ($class, $source_object, $target_subtype, %flags) = @_;
-
-  # source: ein quellobjekt
-  # target type: sollte ein subtype sein. wer das hier implementiert, sollte auch eine subtype registratur bauen in der man subtypes nachschlagen kann
-  # flags: welche extra behandlungen sollen gemacht werden, z.B. record_links setzen
-
-  # (muss prüfen ob diese umwandlung korrekt ist)
-  # muss das entsprechende new_from in den objekten selber benutzen
-  # und dann evtl nachbearbeitung machen (die bisher im controller stand)
-
-  # new_from_workflow: (aus add_from_*) workflow umwandlung von bestehenden records
-
-  # fehlerfall: exception aus unterliegendem code bubblen oder neue exception werfen
-  # rückgabe: das neue objekt
 
   $flags{destination_type} = $target_subtype;
   my %defaults_flags = (
@@ -90,18 +70,6 @@ sub new_from_workflow {
 
 sub new_from_workflow_multi {
   my ($class, $source_objects, $target_subtype, %flags) = @_;
-  # source: ein arrayref von quellobjekten.
-  # target type: sollte ein subtype sein. wer das hier implementiert, sollte auch eine subtype registratur bauen in der man subtypes nachschlagen kann
-  # flags: welche extra behandlungen sollen gemacht werden, z.B. record_links setzen
-
-  # muss prüfen ob diese umwandlung korrekt ist
-  # muss das entsprechende new_from_multi in den objekten selber benutzen
-  # und dann evtl nachbearbeitung machen (die bisher im controller stand)
-
-  # new_from_workflow_multi: (aus action_edit_collective) workflow umwandlung von bestehenden records
-
-  # fehlerfall: exception aus unterliegendem code bubblen oder neue exception werfen
-  # rückgabe: das neue objekt
 
   my %subtype_to_type = (
     # Order
@@ -117,17 +85,8 @@ sub new_from_workflow_multi {
   return $target_object;
 }
 
-# im Moment nur bei Aufträgen
 sub increment_subversion {
   my ($class, $record, %flags) = @_;
-
-  # erhöht die version des auftrags
-  # setzt die neue auftragsnummer
-  # legt OrderVersion objekt an
-  # speichert
-  #
-  # return - nichts
-  # fehlerfall: exception
 
   $record->increment_version_number if $record->type_data->features('subversions');
 
@@ -135,7 +94,7 @@ sub increment_subversion {
 }
 
 sub delete {
-  my ($class, $record, %params) = @_;
+  my ($class, $record, %flags) = @_;
 
   my $errors = [];
   my $db = $record->db;
@@ -153,14 +112,6 @@ sub delete {
   }) || push(@{$errors}, $db->error);
 
     die t8("Errors delete records:") . "\n" . join("\n", @{$errors}) . "\n" if scalar @{$errors};
-  # das hier sollte der code sein der in sub delete aus den controllern liegt
-  # nicht nur record->delete, sondern auch andere elemente aufräumen
-  # spool aufräumen
-  # status aufräumen
-  # history eintrag
-  #
-  # return: nichts
-  # fehler: exception
 }
 
 sub _get_history_snumbers {
@@ -186,25 +137,6 @@ sub _save_history {
 
 sub save {
   my ($class, $record, %params) = @_;
-
-  # record: das zu speichernde objekt
-  # params:
-  #   - with_validity_token -> scope
-  #   - delete custom shipto if empty
-  #   - item_ids_to_delete
-  #   - order version behandlung
-
-
-  # muss linked_records aus converted_from_* erzeugen -> verschieben in after_save hooks
-  # wenn aus quotation erstellt, muss beim speichern das angebot geschlossen werden
-  # wenn aus lieferschein erstellt muss beim speichern delivered setzen (wenn in config aktiviert)
-  # muss auch link requirement_specs machen (was tut das?)
-  # set project in linked requirementspecs (nur aufträge -> flag)
-  #
-  # history einträge erstellen
-
-  # rückgabe: nichts
-  # fehler: exception
 
   $record->calculate_prices_and_taxes() if $record->type_data->features('price_tax');
 
@@ -400,21 +332,105 @@ for various type informations.
 
 Invoices are not supported as of now, but are planned for the future.
 
+The old deliveryorder C<sales_delivery_order> and C<purchase_delivery_order> must be implemented
+in the new DeliveryOrder Controller
+
 =head1 METHODS
 
 =over 4
 
+=item C<update_after_new>
+
+Creates a new record_object by record_type and sub_type
+set reqdate and transdate if required by type_data
+
+Returns the record object.
+
+=item C<new_from_workflow>
+
+Expects source_object, target_object, can have flags.
+Creates a new record from source_subtype by target_type->new_from(source_record)
+Set default flag no_link_record to false and looks up the correct target_type
+
+Throws an error if target_type not exists.
+
+Returns the new record_object.
+
+=item C<new_from_workflow_multi>
+
+Expects an arrayref with source_objects and a target_object, can have flags.
+Creates a new record_objects from one or more source_objects. By now only for orders.
+Looks up the correct target_type throws an error if it doesn't exist.
+
+Return the new record_object.
+
 =item C<increment_subversion>
+
+Only orders.
 
 Increments the record's subversion number.
 
+TODO: check type data if this is allowed/supported for this record and trow exception or error
+
 =item C<delete>
 
+Expects a record to delete.
 Deletes the whole record and puts an entry in the history.
+Cleans up the spool directory.
+Dies and throws an error if dberror.
+
+TODO: check status order when old deliveryorder (do) will be implemented.
+
+=item C<save>
+
+Expects a record to save and params to handles stuff like validity_token, custom_shipto,
+items_to_delete, close objects, requirement_specs
+
+=over 2
+
+=item * L<params:>
+
+=over 4
+
+=item * C<with_validity_token -E<gt> scope>
+
+=item * C<delete custom shipto if empty>
+
+=item * C<items_to_delete>
+
+=item * C<objects_to_close>
+
+=item * C<link_requirement_specs_linking_to_created_from_objects>
+
+=item * C<set_project_in_linked_requirement_specs>
+
+=back
+
+Sets an entry in history
+
+Dies and throws error when error
+
+=back
+
+=back
+
+=over 4
+
+=item C<clone_for_save_as_new>
+
+Expects the saved record and the record to change.
+
+Sets the actual employee.
+
+Sets also new transdate, new reqdate and an empty recordnumber if not allready changed in record to change.
 
 =item C<_save_history>
 
-Expects a record for id, addition for text (SAVED,...)
+Expects a record for id, addition for text (SAVED,DELETED,...)
+
+=item C<_get_history_snumbers>
+
+Expects a record returns snumber for history_entry
 
 =back
 
