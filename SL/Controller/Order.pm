@@ -104,7 +104,9 @@ sub action_add_from_reclamation {
   my $target_type = $reclamation->is_sales ? SALES_ORDER_TYPE()
                                            : PURCHASE_ORDER_TYPE();
   my $order = SL::Model::Record->new_from_workflow($reclamation, ref($self->order), $target_type);
-  $self->{converted_from_reclamation_id} = $::form->{from_id};
+
+  $self->{converted_from_reclamation_id}       = $order->{ RECORD_ID()      };
+  $_   ->{converted_from_reclamation_items_id} = $_    ->{ RECORD_ITEM_ID() } for @{ $order->items_sorted };
 
   $self->order($order);
 
