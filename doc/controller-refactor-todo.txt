@@ -49,13 +49,13 @@ trait listen:
 
 
 
-- WIP:  new: (aus add) neues record mit vorbereitenden sachen wie transdate/reqdate
+- DONE: new -> update_after_new: (aus add) neues record mit vorbereitenden sachen wie transdate/reqdate
 - DONE: new_from_workflow: (aus add_from_*) workflow umwandlung von bestehenden records
 - DONE: new_from_multi
 - DONE: increment_subversion
 - DONE: delete
-- WIP:  save mit voller vor/nach behandlung und transactio
-- WIP:  clone_and_reset (für save_as_new)
+- DONE: save mit voller vor/nach behandlung und transaction
+- DONE: clone_for_save_as_new (für save_as_new)
 
 
 ======== second run ========
@@ -67,14 +67,11 @@ trait listen:
 -       S:M:R->increment_subversion: als trait bzw. type data: wer kann das überhaupt
 - WIP:  S:M:R->save implementieren
 
--       bleiben item_ids der linked records/items beim Sortieren erhalten?
 
 Allgemein:
 -        Geoffrey: Typos suchen
--        S:M:R: alle inline Kommentare prüfen, übersetzen und ins POD verlagen
+WIP:     S:M:R: alle inline Kommentare prüfen, übersetzen und ins POD verlagen
 
--        Umwandeln Beleg/Beleg new_from / convert gegen linked records/items testen
--        Umwandeln im front-end / Workflows gegen linked records/items testen
 
 Bugs:
 - DONE:  S:M:R->delete: snumbers in history ist leer
@@ -82,4 +79,9 @@ Bugs:
 ======== third run ========
 -        genaueren Typ (type data) irgendwie im Objekt/db speichern für Order und Reclamation (wie bei DeliveryOrder)
 -        S:C:Order/DeliveryOrder/Reclamation: Records verlinken: Vorbereitung im Objekt in make_order/reclamation verschieben?
--        an der Oberfläche testen, testen, testen ...
+
+======== an der Oberfläche testen, testen, testen ... ========
+-        bleiben item_ids der linked records/items beim Sortieren erhalten?
+-        Umwandeln Beleg/Beleg new_from / convert gegen linked records/items testen
+-        Umwandeln im front-end / Workflows gegen linked records/items testen
+-        Fehlerzustände in Controllern provozieren und prüfen, ob z.B. autom. vergebene Belegnummer erhalten bleibt
