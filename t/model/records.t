@@ -24,163 +24,13 @@ my ($dbh);
 my ($sales_quotation1,    $sales_order1,    $sales_invoice1,    $sales_delivery_order1,    $sales_reclamation1);
 my ($purchase_quotation1, $purchase_order1, $purchase_invoice1, $purchase_delivery_order1, $purchase_reclamation1);
 
-sub clear_up {
-  foreach (qw(InvoiceItem Invoice
-              DeliveryOrderItem DeliveryOrder
-              OrderItem Order OrderVersion
-              Reclamation ReclamationItem ReclamationReason
-              Part Customer Vendor PaymentTerm DeliveryTerm)
-          ) {
-    "SL::DB::Manager::${_}"->delete_all(all => 1);
-  }
-  SL::DB::Manager::History->delete_all(all => 1);
-  SL::DB::Manager::Employee->delete_all(where => [ login => 'testuser' ]);
-};
-
-sub reset_basic_sales_records {
-  $dbh->do("UPDATE defaults SET sonumber = 'ord-00', sqnumber = 'quo-00', sdonumber = 'do-00'");
-
-  $sales_quotation1 = create_sales_quotation(
-    save        => 1,
-    customer    => $customer,
-    taxincluded => 0,
-    orderitems => [ create_order_item(part => $parts[0], qty =>  3, sellprice => 70),
-                    create_order_item(part => $parts[1], qty => 10, sellprice => 50),
-                  ]
-  );
-
-  $sales_order1 = create_sales_order(
-    save        => 1,
-    customer    => $customer,
-    taxincluded => 0,
-    orderitems => [ create_order_item(part => $parts[0], qty =>  3, sellprice => 70),
-                    create_order_item(part => $parts[1], qty => 10, sellprice => 50),
-                  ]
-  );
-
-  $sales_delivery_order1 = create_sales_delivery_order(
-    save        => 1,
-    customer    => $customer,
-    taxincluded => 0,
-    orderitems => [ create_delivery_order_item(part => $parts[0], qty =>  3, sellprice => 70),
-                    create_delivery_order_item(part => $parts[1], qty => 10, sellprice => 50),
-                  ]
-  );
-
-  $sales_reclamation1 = create_sales_reclamation(
-    save        => 1,
-    # customer    => $customer,
-    employee     => $employee,
-    taxincluded => 0,
-    reclamation_items => [ create_reclamation_item(part => $parts[0], qty =>  3, sellprice => 70, reason => $reclamation_reason),
-                           create_reclamation_item(part => $parts[1], qty => 10, sellprice => 50, reason => $reclamation_reason),
-                         ]
-  );
-
-  # disabled sales_invoice
-  # $sales_invoice1 = create_sales_invoice(
-  #   save        => 1,
-  #   customer    => $customer,
-  #   taxincluded => 0,
-  #   invoiceitems => [ create_invoice_item(part => $parts[0], qty =>  3, sellprice => 70),
-  #                     create_invoice_item(part => $parts[1], qty => 10, sellprice => 50),
-  #                   ]
-  # );
-}
-
-sub reset_basic_purchase_records {
-  $dbh->do("UPDATE defaults SET rfqnumber = 'rfq-00', ponumber = 'po-00', pdonumber = 'pdo-00'");
-
-  $purchase_quotation1 = create_purchase_quotation (
-    save        => 1,
-    vendor      => $vendor,
-    taxincluded => 0,
-    orderitems  => [ create_order_item(part => $parts[0], qty =>  3, sellprice => 70),
-                     create_order_item(part => $parts[1], qty => 10, sellprice => 50),
-                   ]
-  );
-
-  $purchase_order1 = create_purchase_order (
-    save        => 1,
-    vendor      => $vendor,
-    taxincluded => 0,
-    orderitems  => [ create_order_item(part => $parts[0], qty =>  3, sellprice => 70),
-                     create_order_item(part => $parts[1], qty => 10, sellprice => 50),
-                   ]
-  );
-
-  $purchase_delivery_order1 = create_purchase_delivery_order(
-    save        => 1,
-    vendor      => $vendor,
-    taxincluded => 0,
-    orderitems => [ create_delivery_order_item(part => $parts[0], qty =>  3, sellprice => 70),
-                    create_delivery_order_item(part => $parts[1], qty => 10, sellprice => 50),
-                  ]
-  );
-
-  $purchase_reclamation1 = create_purchase_reclamation(
-    save              => 1,
-    # vendor             => $vendor,
-    employee          => $employee,
-    taxincluded       => 0,
-    reclamation_items => [ create_reclamation_item(part => $parts[0], qty =>  3, sellprice => 70, reason => $reclamation_reason),
-                           create_reclamation_item(part => $parts[1], qty => 10, sellprice => 50, reason => $reclamation_reason),
-                         ]
-  );
-}
-
-sub reset_state {
-  my %params = @_;
-
-  clear_up();
-
-  $customer = new_customer()->save;
-  $vendor   = new_vendor()->save;
-
-  $employee = SL::DB::Employee->new(
-    'login' => 'testuser',
-    'name'  => 'Test User',
-  )->save;
-
-  $payment_term = create_payment_terms(
-     'description'      => '14Tage 2%Skonto, 30Tage netto',
-     'description_long' => "Innerhalb von 14 Tagen abzüglich 2 % Skonto, innerhalb von 30 Tagen rein netto.|Bei einer Zahlung bis zum <%skonto_date%> gewähren wir 2 % Skonto (EUR <%skonto_amount%>) entspricht EUR <%total_wo_skonto%>.Bei einer Zahlung bis zum <%netto_date%> ist der fällige Betrag in Höhe von <%total%> <%currency%> zu überweisen.",
-     'percent_skonto'   => '0.02',
-     'terms_netto'      => 30,
-     'terms_skonto'     => 14
-  );
-
-  $delivery_term = SL::DB::DeliveryTerm->new(
-    'description'      => 'Test Delivey Term',
-    'description_long' => 'Test Delivey Term Test Delivey Term',
-  )->save;
-
-  # some parts/services
-  @parts = ();
-  push @parts, new_part(
-    partnumber => 'a',
-  )->save;
-  push @parts, new_part(
-    partnumber => 'b',
-  )->save;
-
-  $reclamation_reason = SL::DB::ReclamationReason->new(
-    name        => "test_reason",
-    description => "",
-    position    => 1,
-  );
-
-}
-
 Support::TestSetup::login();
 $dbh = SL::DB->client->dbh;
 
-clear_up();
+note "testing deletions";
 reset_state();
 reset_basic_sales_records();
 reset_basic_purchase_records();
-
-note "testing deletions";
 
 is(SL::DB::Manager::Order->get_all_count(where => [ quotation => 1 ]), 2, 'number of quotations before delete ok');
 is(SL::DB::Manager::Order->get_all_count(where => [ quotation => 0 ]), 2, 'number of orders before delete ok');
@@ -255,7 +105,6 @@ foreach my $target_record_type ( qw(sales_delivery_order sales_reclamation) ) {
 };
 
 note ('testing multi');
-clear_up();
 reset_state();
 reset_basic_sales_records();
 reset_basic_purchase_records();
@@ -267,6 +116,7 @@ my $combined_order = SL::Model::Record->new_from_workflow_multi(\@sales_orders, 
 SL::Model::Record->save($combined_order);
 cmp_ok($combined_order->netamount, '==', 3*710, "netamount of combined order ok");
 
+die;
 
 clear_up();
 done_testing;
@@ -281,6 +131,143 @@ sub test_record_links {
     $number_of_item_record_links += scalar @{ $item->linked_records };
   };
   is($number_of_item_record_links, 2, "2 record links for $text items created ok"); # just check if they exist, not if they are actually correct
+}
+
+sub clear_up {
+  foreach (qw(InvoiceItem Invoice
+              DeliveryOrderItem DeliveryOrder
+              OrderItem Order OrderVersion
+              Reclamation ReclamationItem ReclamationReason
+              Part Customer Vendor PaymentTerm DeliveryTerm)
+          ) {
+    "SL::DB::Manager::${_}"->delete_all(all => 1);
+  }
+  SL::DB::Manager::History->delete_all(all => 1);
+  SL::DB::Manager::Employee->delete_all(where => [ login => 'testuser' ]);
+};
+
+sub reset_basic_sales_records {
+  $dbh->do("UPDATE defaults SET sonumber = 'ord-00', sqnumber = 'quo-00', sdonumber = 'do-00', s_reclamation_record_number = 'srecl-00'");
+
+  $sales_quotation1 = create_sales_quotation(
+    save       => 1,
+    customer   => $customer,
+    orderitems => [ create_order_item(part => $parts[0], qty =>  3, sellprice => 70),
+                    create_order_item(part => $parts[1], qty => 10, sellprice => 50),
+                  ]
+  );
+
+  $sales_order1 = create_sales_order(
+    save       => 1,
+    customer   => $customer,
+    orderitems => [ create_order_item(part => $parts[0], qty =>  3, sellprice => 70),
+                    create_order_item(part => $parts[1], qty => 10, sellprice => 50),
+                  ]
+  );
+
+  $sales_delivery_order1 = create_sales_delivery_order(
+    save       => 1,
+    customer   => $customer,
+    orderitems => [ create_delivery_order_item(part => $parts[0], qty =>  3, sellprice => 70),
+                    create_delivery_order_item(part => $parts[1], qty => 10, sellprice => 50),
+                  ]
+  );
+
+  $sales_reclamation1 = create_sales_reclamation(
+    save              => 1,
+    employee          => $employee,
+    reclamation_items => [ create_reclamation_item(part => $parts[0], qty =>  3, sellprice => 70, reason => $reclamation_reason),
+                           create_reclamation_item(part => $parts[1], qty => 10, sellprice => 50, reason => $reclamation_reason),
+                         ]
+  );
+
+  # disabled sales_invoice
+  # $sales_invoice1 = create_sales_invoice(
+  #   save        => 1,
+  #   customer    => $customer,
+  #   invoiceitems => [ create_invoice_item(part => $parts[0], qty =>  3, sellprice => 70),
+  #                     create_invoice_item(part => $parts[1], qty => 10, sellprice => 50),
+  #                   ]
+  # );
+}
+
+sub reset_basic_purchase_records {
+  $dbh->do("UPDATE defaults SET rfqnumber = 'rfq-00', ponumber = 'po-00', pdonumber = 'pdo-00', p_reclamation_record_number = 'precl-00'");
+
+  $purchase_quotation1 = create_purchase_quotation (
+    save        => 1,
+    vendor      => $vendor,
+    orderitems  => [ create_order_item(part => $parts[0], qty =>  3, sellprice => 70),
+                     create_order_item(part => $parts[1], qty => 10, sellprice => 50),
+                   ]
+  );
+
+  $purchase_order1 = create_purchase_order (
+    save        => 1,
+    vendor      => $vendor,
+    orderitems  => [ create_order_item(part => $parts[0], qty =>  3, sellprice => 70),
+                     create_order_item(part => $parts[1], qty => 10, sellprice => 50),
+                   ]
+  );
+
+  $purchase_delivery_order1 = create_purchase_delivery_order(
+    save       => 1,
+    vendor     => $vendor,
+    orderitems => [ create_delivery_order_item(part => $parts[0], qty =>  3, sellprice => 70),
+                    create_delivery_order_item(part => $parts[1], qty => 10, sellprice => 50),
+                  ]
+  );
+
+  $purchase_reclamation1 = create_purchase_reclamation(
+    save              => 1,
+    employee          => $employee,
+    reclamation_items => [ create_reclamation_item(part => $parts[0], qty =>  3, sellprice => 70, reason => $reclamation_reason),
+                           create_reclamation_item(part => $parts[1], qty => 10, sellprice => 50, reason => $reclamation_reason),
+                         ]
+  );
+}
+
+sub reset_state {
+  my %params = @_;
+
+  clear_up();
+
+  $customer = new_customer()->save;
+  $vendor   = new_vendor()->save;
+
+  $employee = SL::DB::Employee->new(
+    'login' => 'testuser',
+    'name'  => 'Test User',
+  )->save;
+
+  $payment_term = create_payment_terms(
+     'description'      => '14Tage 2%Skonto, 30Tage netto',
+     'description_long' => "Innerhalb von 14 Tagen abzüglich 2 % Skonto, innerhalb von 30 Tagen rein netto.|Bei einer Zahlung bis zum <%skonto_date%> gewähren wir 2 % Skonto (EUR <%skonto_amount%>) entspricht EUR <%total_wo_skonto%>.Bei einer Zahlung bis zum <%netto_date%> ist der fällige Betrag in Höhe von <%total%> <%currency%> zu überweisen.",
+     'percent_skonto'   => '0.02',
+     'terms_netto'      => 30,
+     'terms_skonto'     => 14
+  );
+
+  $delivery_term = SL::DB::DeliveryTerm->new(
+    'description'      => 'Test Delivey Term',
+    'description_long' => 'Test Delivey Term Test Delivey Term',
+  )->save;
+
+  # some parts/services
+  @parts = ();
+  push @parts, new_part(
+    partnumber => 'a',
+  )->save;
+  push @parts, new_part(
+    partnumber => 'b',
+  )->save;
+
+  $reclamation_reason = SL::DB::ReclamationReason->new(
+    name        => "test_reason",
+    description => "",
+    position    => 1,
+  );
+
 }
 
 1;
