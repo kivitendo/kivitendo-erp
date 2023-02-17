@@ -34,6 +34,21 @@ my @types = (
   { type => 'qty',        description => t8('Qty'),                customer => 1, vendor => 1, data_type => 'num',  data => sub { $_[1]->qty }, ops => 'num' },
 );
 
+# text, textfield, htmlfield, bool are not supported
+our %price_rule_type_by_cvar_type = (
+  select    => 'text',
+  customer  => 'int',
+  vendor    => 'int',
+  part      => 'int',
+  number    => 'num',
+  date      => 'date',
+  text      => undef,
+  textfield => undef,
+  htmlfield => undef,
+  bool      => undef,
+);
+
+
 # ITEM.part.cvar_by_name(var.config.name)
 
 sub not_matching_sql_and_values {
@@ -90,20 +105,6 @@ sub generate_cvar_types {
   my $cvar_configs = SL::DB::Manager::CustomVariableConfig->get_all(query => [ module => \@supported_cvar_modules ]);
 
   my @types;
-
-  # text, textfield, bool are not supported
-  my %price_rule_type_by_cvar_type = (
-    select    => 'text',
-    customer  => 'int',
-    vendor    => 'int',
-    part      => 'int',
-    number    => 'num',
-    date      => 'date',
-    text      => undef,
-    textfield => undef,
-    bool      => undef,
-    htmlfield => undef,
-  );
 
   my %ops_by_cvar_type = (
     number    => 'num',

@@ -10,6 +10,8 @@ use Data::Dumper;
 use Support::TestSetup;
 use Test::Exception;
 
+use SL::Controller::CustomVariableConfig;
+
 use SL::Dev::ALL qw(:ALL);
 use SL::DB::PriceRule;
 use SL::DB::Project;
@@ -123,7 +125,10 @@ sub reset_db {
 
 }
 
-
+# structural test: check whether the registered CVar types in SL::DB::Manager::PriceRuleItem have all the possible types of SL::Controller::CustomVariableConfigs
+for (@SL::Controller::CustomVariableConfig::types) {
+  ok(exists $SL::DB::Manager::PriceRuleItem::price_rule_type_by_cvar_type{$_}, "PriceRuleItem has cvar config type $_ registered");
+}
 
 # k, now for a more broad test:
 #
