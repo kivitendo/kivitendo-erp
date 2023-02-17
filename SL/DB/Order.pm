@@ -150,7 +150,6 @@ sub _after_save_link_records {
     $self,
     \@allowed_record_sources,
     \@allowed_item_sources,
-    close_source_quotations => 1,
   );
 }
 
