@@ -1669,13 +1669,6 @@ sub workflow_sales_or_purchase_order {
   # always save
   $self->save();
 
-  # check for direct delivery
-  # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
-  my $custom_shipto;
-  if ($self->type_data->workflow("to_order_copy_shipto") && $::form->{use_shipto} && $self->order->shipto) {
-    $custom_shipto = $self->order->shipto->clone('SL::DB::DeliveryOrder');
-  }
-
   my $delivery_order = SL::Model::Record->new_from_workflow($self->order, $destination_type, {});
   $self->order($delivery_order);
   $self->{converted_from_oe_id} = delete $::form->{id};
@@ -1683,15 +1676,6 @@ sub workflow_sales_or_purchase_order {
   # set item ids to new fake id, to identify them as new items
   foreach my $item (@{$self->order->items_sorted}) {
     $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-  }
-
-  if ($self->type_data->workflow("to_order_copy_shipto")) {
-    if ($::form->{use_shipto}) {
-      $self->order->custom_shipto($custom_shipto) if $custom_shipto;
-    } else {
-      # remove any custom shipto if not wanted
-      $self->order->custom_shipto(SL::DB::Shipto->new(module => 'OE', custom_variables => []));
-    }
   }
 
   # change form type
