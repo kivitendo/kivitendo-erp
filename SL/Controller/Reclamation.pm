@@ -125,7 +125,7 @@ sub action_add_from_order {
   }
 
   my $order = SL::DB::Order->new(id => $::form->{from_id})->load;
-  my $reclamation = SL::Model::Record->new_from_workflow($order, $self->type);
+  my $reclamation = SL::Model::Record->new_from_workflow($order, ref($self->reclamaiton), $self->type);
 
   $self->reclamation($reclamation);
 
@@ -151,7 +151,7 @@ sub action_add_from_delivery_order {
   }
 
   my $delivery_order = SL::DB::DeliveryOrder->new(id => $::form->{from_id})->load;
-  my $reclamation = SL::Model::Record->new_from_workflow($delivery_order, $self->type);
+  my $reclamation = SL::Model::Record->new_from_workflow($delivery_order, ref($self->reclamaiton), $self->type);
 
   $self->reclamation($reclamation);
 
@@ -177,7 +177,7 @@ sub action_add_from_sales_invoice {
   }
 
   my $invoice = SL::DB::Invoice->new(id => $::form->{from_id})->load;
-  my $reclamation = SL::Model::Record->new_from_workflow($invoice, $self->type);
+  my $reclamation = SL::Model::Record->new_from_workflow($invoice, ref($self->reclamaiton), $self->type);
 
   $self->reclamation($reclamation);
 
@@ -205,7 +205,7 @@ sub action_add_from_purchase_invoice {
   require SL::DB::PurchaseInvoice;
   my $invoice = SL::DB::PurchaseInvoice->new(id => $::form->{from_id})->load;
   $invoice->{type} = $invoice->invoice_type; #can't add type → invoice_type in SL/DB/PurchaseInvoice
-  my $reclamation = SL::Model::Record->new_from_workflow($invoice, $self->type);
+  my $reclamation = SL::Model::Record->new_from_workflow($invoice, ref($self->reclamaiton), $self->type);
 
   $self->reclamation($reclamation);
 

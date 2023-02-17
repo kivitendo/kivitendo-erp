@@ -9,6 +9,7 @@ use Carp;
 use Data::Dumper;
 use Support::TestSetup;
 use Test::Exception;
+use List::Util qw(pairs);
 
 use SL::DB::PaymentTerm;
 use SL::DB::DeliveryTerm;
@@ -73,10 +74,11 @@ is(SL::DB::Manager::Order->get_all_count(where => [quotation => 0]), 2, 'number 
 
 
 note "testing new_from_workflow for quotation";
-foreach my $target_record_type ( qw(sales_order sales_delivery_order) ) {
+foreach my $pair ( pairs @{['SL::DB::Order' => 'sales_order', 'SL::DB::DeliveryOrder' => 'sales_delivery_order']} ) {
   # TODO: invoice
-  note "  testing from quotation -> $target_record_type";
-  my $new_record = SL::Model::Record->new_from_workflow($sales_quotation1, $target_record_type);
+  my ($target_record_type, $target_record_subtype) = @$pair;
+  note "  testing from quotation -> $target_record_subtype";
+  my $new_record = SL::Model::Record->new_from_workflow($sales_quotation1, $target_record_type, $target_record_subtype);
 
   is($new_record->closed, 0, "new quotation is open");
   # in the future closing sales quotations should probably happen as an after-save hook of orders,
@@ -84,10 +86,10 @@ foreach my $target_record_type ( qw(sales_order sales_delivery_order) ) {
   SL::Model::Record->save($new_record, objects_to_close => [ $sales_quotation1 ]);
 
   $new_record->load;
-  cmp_ok($new_record->netamount, '==', 710, "converted $target_record_type netamount ok") if $new_record->can('netamount');
+  cmp_ok($new_record->netamount, '==', 710, "converted $target_record_subtype netamount ok") if $new_record->can('netamount');
 
   # test whether quotations get closed when sales_order is created
-  if ( $target_record_type eq 'sales_order' ) {
+  if ( $target_record_subtype eq 'sales_order' ) {
     $sales_quotation1->load;
     is($sales_quotation1->closed, 1, "quotation is closed after creating an order");
   }
@@ -96,25 +98,26 @@ foreach my $target_record_type ( qw(sales_order sales_delivery_order) ) {
 
   my $record_history = SL::DB::Manager::History->find_by(trans_id => $new_record->id, addition => 'SAVED');
   ok($record_history->snumbers =~ m/_/, "history snumbers of record " . $record_history->snumbers . " ok");
-  test_record_links($new_record, "converted $target_record_type");
+  test_record_links($new_record, "converted $target_record_subtype");
 };
 
 note "testing new_from_workflow for order";
-foreach my $target_record_type ( qw(sales_delivery_order sales_reclamation) ) {
+foreach my $pair (pairs @{['SL::DB::DeliveryOrder' => 'sales_delivery_order', 'SL::DB::Reclamation' => 'sales_reclamation']}) {
   # TODO: invoice
-  note "  testing from quotation -> $target_record_type";
-  my $new_record = SL::Model::Record->new_from_workflow($sales_order1, $target_record_type);
+  my ($target_record_type, $target_record_subtype) = @$pair;
+  note "  testing from quotation -> $target_record_subtype";
+  my $new_record = SL::Model::Record->new_from_workflow($sales_order1, $target_record_type, $target_record_subtype);
   if ( 'SL::DB::Reclamation' eq ref($new_record) ) {
     $_->reason($reclamation_reason) foreach @{ $new_record->items };
   };
   SL::Model::Record->save($new_record);
   $new_record->load;
-  my $record_history = SL::DB::Manager::History->find_by(trans_id => $new_record->id, what_done => $target_record_type, addition => 'SAVED');
+  my $record_history = SL::DB::Manager::History->find_by(trans_id => $new_record->id, what_done => $target_record_subtype, addition => 'SAVED');
 
   ok($record_history->snumbers =~ m/_/, "history snumbers of record " . $record_history->snumbers . " ok");
 
-  cmp_ok($new_record->netamount, '==', 710, "converted $target_record_type netamount ok") if $new_record->can('netamount');
-  test_record_links($new_record, "converted $target_record_type");
+  cmp_ok($new_record->netamount, '==', 710, "converted $target_record_subtype netamount ok") if $new_record->can('netamount');
+  test_record_links($new_record, "converted $target_record_subtype");
 };
 
 note ('testing multi');
@@ -124,8 +127,8 @@ reset_basic_purchase_records();
 
 note('combining several sales orders to one combined order');
 my @sales_orders;
-push(@sales_orders, SL::Model::Record->new_from_workflow($sales_quotation1, 'sales_order')->save->load) for 1 .. 3;
-my $combined_order = SL::Model::Record->new_from_workflow_multi(\@sales_orders, 'sales_order', sort_sources_by => 'transdate');
+push(@sales_orders, SL::Model::Record->new_from_workflow($sales_quotation1, 'SL::DB::Order', 'sales_order')->save->load) for 1 .. 3;
+my $combined_order = SL::Model::Record->new_from_workflow_multi(\@sales_orders, 'SL::DB::Order','sales_order', sort_sources_by => 'transdate');
 SL::Model::Record->save($combined_order);
 cmp_ok($combined_order->netamount, '==', 3*710, "netamount of combined order ok");
 

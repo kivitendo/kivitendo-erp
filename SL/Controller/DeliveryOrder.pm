@@ -108,7 +108,7 @@ sub action_add_from_order {
   my $order = SL::DB::Order->new(id => $self->{converted_from_oe_id})->load;
 
   my $target_type = $::form->{type};
-  my $delivery_order = SL::Model::Record->new_from_workflow($order, $target_type);
+  my $delivery_order = SL::Model::Record->new_from_workflow($order, ref($self->order), $target_type);
   $self->order($delivery_order);
 
   $self->action_add;
@@ -120,7 +120,7 @@ sub action_add_from_reclamation {
   my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
   my $target_type = $reclamation->is_sales ? 'rma_delivery_order'
                                            : 'supplier_delivery_order';
-  my $delivery_order = SL::Model::Record->new_from_workflow($reclamation, $target_type);
+  my $delivery_order = SL::Model::Record->new_from_workflow($reclamation, ref($self->order), $target_type);
   $self->{converted_from_reclamation_id} = $::form->{from_id};
   $self->order($delivery_order);
 
@@ -185,7 +185,7 @@ sub action_edit_collective {
   my @multi_orders = map { SL::DB::DeliveryOrder->new(id => $_)->load } @multi_ids;
   $self->{converted_from_oe_id} = join ' ', map { $_->id } @multi_orders;
   my $target_type = SALES_DELIVERY_ORDER_TYPE();
-  my $delivery_order = SL::Model::Record->new_from_workflow_multi(\@multi_orders, $target_type, sort_sources_by => 'transdate');
+  my $delivery_order = SL::Model::Record->new_from_workflow_multi(\@multi_orders, ref($self->order), $target_type, sort_sources_by => 'transdate');
   $self->order($delivery_order);
 
   $self->action_edit();
@@ -1633,7 +1633,7 @@ sub workflow_sales_or_request_for_quotation {
   # always save
   $self->save();
 
-  my $delivery_order = SL::Model::Record->new_from_workflow($self->order, $destination_type, {});
+  my $delivery_order = SL::Model::Record->new_from_workflow($self->order, ref($self->order), $destination_type);
   $self->order($delivery_order);
   $self->{converted_from_oe_id} = delete $::form->{id};
 
@@ -1669,7 +1669,7 @@ sub workflow_sales_or_purchase_order {
   # always save
   $self->save();
 
-  my $delivery_order = SL::Model::Record->new_from_workflow($self->order, $destination_type, {});
+  my $delivery_order = SL::Model::Record->new_from_workflow($self->order, ref($self->order), $destination_type);
   $self->order($delivery_order);
   $self->{converted_from_oe_id} = delete $::form->{id};
 
