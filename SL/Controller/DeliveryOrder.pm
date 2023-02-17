@@ -35,6 +35,7 @@ use SL::DB::Helper::RecordLink qw(set_record_link_conversions);
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::DeliveryOrder;
 use SL::DB::DeliveryOrder::TypeData qw(:types);
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::Manager::DeliveryOrderItem;
 use SL::DB::DeliveryOrderItemsStock;
 use SL::Model::Record;
@@ -530,22 +531,22 @@ sub action_save_and_invoice {
 
 # workflow from sales order to sales quotation
 sub action_sales_quotation {
-  $_[0]->workflow_sales_or_request_for_quotation();
+  $_[0]->workflow_sales_or_request_for_quotation(SALES_QUOTATION_TYPE());
 }
 
 # workflow from sales order to sales quotation
 sub action_request_for_quotation {
-  $_[0]->workflow_sales_or_request_for_quotation();
+  $_[0]->workflow_sales_or_request_for_quotation(REQUEST_QUOTATION_TYPE());
 }
 
 # workflow from sales quotation to sales order
 sub action_sales_order {
-  $_[0]->workflow_sales_or_purchase_order();
+  $_[0]->workflow_sales_or_purchase_order(SALES_ORDER_TYPE());
 }
 
 # workflow from rfq to purchase order
 sub action_purchase_order {
-  $_[0]->workflow_sales_or_purchase_order();
+  $_[0]->workflow_sales_or_purchase_order(PURCHASE_ORDER_TYPE());
 }
 
 # workflow from purchase order to ap transaction
@@ -1627,12 +1628,10 @@ sub save {
 }
 
 sub workflow_sales_or_request_for_quotation {
-  my ($self) = @_;
+  my ($self, $destination_type) = @_;
 
   # always save
   $self->save();
-
-  my $destination_type = $self->type_data->workflow("to_quotation_type");
 
   my $delivery_order = SL::Model::Record->new_from_workflow($self->order, $destination_type, {});
   $self->order($delivery_order);
@@ -1665,12 +1664,10 @@ sub workflow_sales_or_request_for_quotation {
 }
 
 sub workflow_sales_or_purchase_order {
-  my ($self) = @_;
+  my ($self, $destination_type) = @_;
 
   # always save
   $self->save();
-
-  my $destination_type = $self->type_data->workflow("to_order_type");
 
   # check for direct delivery
   # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
