@@ -33,7 +33,7 @@ use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::ValidityToken;
-use SL::DB::Helper::RecordLink qw(set_record_link_conversions);
+use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_ITEM_ID);
 use SL::DB::Helper::TypeDataProxy;
 use SL::Model::Record;
 use SL::DB::Order::TypeData qw(:types);
@@ -877,15 +877,16 @@ sub action_order_workflow {
     $custom_shipto = $self->order->shipto->clone('SL::DB::Order');
   }
 
-  $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
+  my $no_linked_records =    (any { $destination_type eq $_ } (SALES_QUOTATION_TYPE(), REQUEST_QUOTATION_TYPE()))
+                          && $from_side eq $to_side;
 
-  # no linked records to quotations from the same side (sales -> sales or purchase -> purchase)
-  if (    (any { $destination_type eq $_ } (SALES_QUOTATION_TYPE(), REQUEST_QUOTATION_TYPE()))
-       && $from_side eq $to_side) {
-    delete $::form->{id};
-    delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);
-  } else {
-    $self->{converted_from_oe_id} = delete $::form->{id};
+  $self->order(SL::Model::Record->new_from_workflow($self->order, $destination_type, no_linked_records => $no_linked_records));
+
+  delete $::form->{id};
+
+  if (!$no_linked_records) {
+    $self->{converted_from_oe_id}         = $self->order->{ RECORD_ID()      };
+    $_   ->{converted_from_orderitems_id} = $_          ->{ RECORD_ITEM_ID() } for @{ $self->order->items_sorted };
   }
 
   # set item ids to new fake id, to identify them as new items
