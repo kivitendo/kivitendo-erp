@@ -45,8 +45,9 @@ my %type_data = (
       edit => "sales_reclamation_edit",
     },
     features => {
-      price_tax => 1,
-      stock     => 0,
+      price_tax   => 1,
+      stock       => 0,
+      subversions => 0,
     },
   },
   PURCHASE_RECLAMATION_TYPE() => {
@@ -77,8 +78,9 @@ my %type_data = (
       edit => "purchase_reclamation_edit",
     },
     features => {
-      price_tax => 1,
-      stock     => 0,
+      price_tax   => 1,
+      stock       => 0,
+      subversions => 0,
     },
   },
 );

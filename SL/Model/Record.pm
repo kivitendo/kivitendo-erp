@@ -129,9 +129,7 @@ sub increment_subversion {
   # return - nichts
   # fehlerfall: exception
 
-  # Todo: check type data if this is allowed/supported for this record
-
-  $record->increment_version_number;
+  $record->increment_version_number if $record->type_data->features('subversions');
 
   return;
 }
