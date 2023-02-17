@@ -182,18 +182,18 @@ my $purchase_order = SL::Dev::Record::create_purchase_order(
 )->load;
 
 # convert order → reclamation
-my $converted_sales_reclamation = SL::Model::Record->new_from_workflow($sales_order, "sales_reclamation");
+my $converted_sales_reclamation = SL::Model::Record->new_from_workflow($sales_order, 'SL::DB::Reclamation', "sales_reclamation");
 $converted_sales_reclamation->items_sorted->[0]->reason($reclamation_reason);
 $converted_sales_reclamation->items_sorted->[1]->reason($reclamation_reason);
 $converted_sales_reclamation->save->load;
-my $converted_purchase_reclamation = SL::Model::Record->new_from_workflow($purchase_order, "purchase_reclamation");
+my $converted_purchase_reclamation = SL::Model::Record->new_from_workflow($purchase_order, 'SL::DB::Reclamation', "purchase_reclamation");
 $converted_purchase_reclamation->items_sorted->[0]->reason($reclamation_reason);
 $converted_purchase_reclamation->items_sorted->[1]->reason($reclamation_reason);
 $converted_purchase_reclamation->save->load;
 
 # convert reclamation → order
-my $converted_sales_order = SL::Model::Record->new_from_workflow($sales_reclamation, 'sales_order')->save->load;
-my $converted_purchase_order = SL::Model::Record->new_from_workflow($purchase_reclamation, 'purchase_order')->save->load;
+my $converted_sales_order = SL::Model::Record->new_from_workflow($sales_reclamation, 'SL::DB::Order', 'sales_order')->save->load;
+my $converted_purchase_order = SL::Model::Record->new_from_workflow($purchase_reclamation, 'SL::DB::Order', 'purchase_order')->save->load;
 
 
 #get items before strip

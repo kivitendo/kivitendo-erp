@@ -36,7 +36,7 @@ sub update_after_new {
 }
 
 sub new_from_workflow {
-  my ($class, $source_object, $target_subtype, %flags) = @_;
+  my ($class, $source_object, $target_type, $target_subtype, %flags) = @_;
 
   $flags{destination_type} = $target_subtype;
   my %defaults_flags = (
@@ -44,41 +44,12 @@ sub new_from_workflow {
   );
   %flags = (%defaults_flags, %flags);
 
-  my %subtype_to_type = (
-    # Order
-    REQUEST_QUOTATION_TYPE() => "SL::DB::Order",
-    PURCHASE_ORDER_TYPE()    => "SL::DB::Order",
-    SALES_QUOTATION_TYPE()   => "SL::DB::Order",
-    SALES_ORDER_TYPE()       => "SL::DB::Order",
-    # DeliveryOrder
-    SALES_DELIVERY_ORDER_TYPE()    => "SL::DB::DeliveryOrder",
-    PURCHASE_DELIVERY_ORDER_TYPE() => "SL::DB::DeliveryOrder",
-    RMA_DELIVERY_ORDER_TYPE()      => "SL::DB::DeliveryOrder",
-    SUPPLIER_DELIVERY_ORDER_TYPE() => "SL::DB::DeliveryOrder",
-    # Reclamation
-    SALES_RECLAMATION_TYPE()    => "SL::DB::Reclamation",
-    PURCHASE_RECLAMATION_TYPE() => "SL::DB::Reclamation",
-  );
-  my $target_type = $subtype_to_type{$target_subtype};
-  unless ($target_type) {
-    croak("Conversion not supported to $target_subtype");
-  }
-
   my $target_object = ${target_type}->new_from($source_object, %flags);
   return $target_object;
 }
 
 sub new_from_workflow_multi {
-  my ($class, $source_objects, $target_subtype, %flags) = @_;
-
-  my %subtype_to_type = (
-    # Order
-    SALES_ORDER_TYPE() => "SL::DB::Order",
-  );
-  my $target_type = $subtype_to_type{$target_subtype};
-  unless ($target_type) {
-    croak("Conversion not supported to $target_subtype");
-  }
+  my ($class, $source_objects, $target_type, $target_subtype, %flags) = @_;
 
   my $target_object = ${target_type}->new_from_multi($source_objects, %flags);
 
@@ -255,7 +226,7 @@ sub clone_for_save_as_new {
   $new_attrs{employee}  = SL::DB::Manager::Employee->current;
 
 
-  my $new_record = SL::Model::Record->new_from_workflow($changed_record, $saved_record->type, no_linked_records => 1, attributes => \%new_attrs);
+  my $new_record = SL::Model::Record->new_from_workflow($changed_record, ref($changed_record), $saved_record->type, no_linked_records => 1, attributes => \%new_attrs);
 
   # return: nichts
   # fehler: exception
@@ -343,9 +314,9 @@ Returns the record object.
 
 =item C<new_from_workflow>
 
-Expects source_object, target_object, can have flags.
-Creates a new record from a source_subtype by target_type->new_from(source_record).
-Set default flag no_link_record to false and looks up the correct target_type.
+Expects source_object, target_type, target_subtype and can have flags.
+Creates a new record from a target_subtype by target_type->new_from(source_record).
+Set default flag no_link_record to false.
 
 Throws an error if the target_type doesn't exist.
 
@@ -353,9 +324,8 @@ Returns the new record object.
 
 =item C<new_from_workflow_multi>
 
-Expects an arrayref with source_objects and a target_object, can have flags.
-Creates a new record object from one or more source objects. For now only for orders.
-Looks up the correct target type and throws an error if it doesn't exist.
+Expects an arrayref with source_objects, target_type, target_subtype and can have flags.
+Creates a new record object from one or more source objects.
 
 Returns the new record object.
 

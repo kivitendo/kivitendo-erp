@@ -103,7 +103,7 @@ sub action_add_from_reclamation {
   my %params;
   my $target_type = $reclamation->is_sales ? SALES_ORDER_TYPE()
                                            : PURCHASE_ORDER_TYPE();
-  my $order = SL::Model::Record->new_from_workflow($reclamation, $target_type);
+  my $order = SL::Model::Record->new_from_workflow($reclamation, ref($self->order), $target_type);
   $self->{converted_from_reclamation_id} = $::form->{from_id};
 
   $self->order($order);
@@ -188,7 +188,7 @@ sub action_edit_collective {
   my @multi_orders = map { SL::DB::Order->new(id => $_)->load } @multi_ids;
   $self->{converted_from_oe_id} = join ' ', map { $_->id } @multi_orders;
   my $target_type = "sales_order";
-  my $order = SL::Model::Record->new_from_workflow_multi(\@multi_orders, $target_type, sort_sources_by => 'transdate');
+  my $order = SL::Model::Record->new_from_workflow_multi(\@multi_orders, ref($self->order), $target_type, sort_sources_by => 'transdate');
   $self->order($order);
 
   $self->action_edit();
