@@ -425,7 +425,11 @@ None yet. :)
 =head1 AUTHORS
 
 Bernd Bleßmann E<lt>bernd@kivitendo-premium.deE<gt>
+
 Tamino Steinert E<lt>tamino.steinert@tamino.stE<gt>
+
+Werner Hahn E<lt>wh@futureworldsearch.netE<gt>
+
 ...
 
 =cut
