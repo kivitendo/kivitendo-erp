@@ -1,32 +1,34 @@
-[%- USE LxERP -%][%- USE L -%]
-<div id="convert_to_purchase_delivery_order_item_selection">
-  <div>
-    [% L.button_tag("kivi.Order.convert_to_purchase_delivery_order()", LxERP.t8("Create delivery order")) %]
-  </div>
+[%- USE LxERP -%][%- USE L -%][%- USE HTML -%]
+<div>
+  [% L.button_tag("kivi.Order.convert_to_purchase_delivery_order()", LxERP.t8("Create delivery order")) %]
+</div>
 
-  <div>
-    <table>
-      <thead>
-        <tr class="listheading">
-          <th>[% L.checkbox_tag("purchase_delivery_order_item_selection_checkall", checkall="input.purchase_delivery_order_item_selection_checkall") %]</th>
-          <th>[% LxERP.t8("Position") %]</th>
-          <th>[% LxERP.t8("Partnumber") %]</th>
-          <th>[% LxERP.t8("Description") %]</th>
-          <th>[% LxERP.t8("Qty") %]</th>
-          <th>[% LxERP.t8("Unit") %]</th>
-        </tr>
-      </thead>
+<div>
+  <table>
+    <thead>
+      <tr class="listheading">
+        <th>[% L.checkbox_tag("purchase_delivery_order_item_selection_checkall", checkall="input.purchase_delivery_order_item_selection_checkall", checked="checked") %]</th>
+        <th>[% LxERP.t8("Position") %]</th>
+        <th>[% LxERP.t8("Partnumber") %]</th>
+        <th>[% LxERP.t8("Vendor Part Number") %]</th>
+        <th>[% LxERP.t8("Description") %]</th>
+        <th>[% LxERP.t8("Qty") %]</th>
+        <th>[% LxERP.t8("Unit") %]</th>
+      </tr>
+    </thead>
 
-      <tbody id="convert_to_purchase_delivery_order_item_selection_items">
+    <tbody>
+      [% FOREACH item = ITEMS %]
         <tr class="listrow">
-          <td>[% L.checkbox_tag("purchase_delivery_order_item_selection_indexes[+]", class="purchase_delivery_order_item_selection_checkall", value="42", checked="checked") %]</td>
-          <td>1</td>
-          <td align="right">4</td>
-          <td>Moo Cow Chunky Bacon</td>
-          <td align="right">17,5</td>
-          <td>Kuh</td>
+          <td>[% L.checkbox_tag("purchase_delivery_order_item_selection_indexes[+]", class="purchase_delivery_order_item_selection_checkall", value=loop.count, checked="checked") %]</td>
+          <td align="right">[% loop.count %]</td>
+          <td>[% HTML.escape(item.partnumber) %]</td>
+          <td>[% HTML.escape(item.vendor_partnumber) %]</td>
+          <td>[% HTML.escape(item.description) %]</td>
+          <td align="right">[% HTML.escape(item.qty_as_number) %]</td>
+          <td>[% HTML.escape(item.unit) %]</td>
         </tr>
-      </tbody>
-    </table>
-  </div>
+      [% END %]
+    </tbody>
+  </table>
 </div>

@@ -44,7 +44,7 @@ use SL::Controller::Helper::GetModels;
 
 use List::Util qw(first sum0);
 use List::UtilsBy qw(sort_by uniq_by);
-use List::MoreUtils qw(any none pairwise first_index);
+use List::MoreUtils qw(uniq any none pairwise first_index);
 use English qw(-no_match_vars);
 use File::Spec;
 use Cwd;
@@ -1544,6 +1544,35 @@ sub action_close_quotations {
 
   flash_later('info', t8('The selected quotations where closed.'));
   $self->redirect_to(@redirect_params);
+}
+
+sub action_show_conversion_to_purchase_delivery_order_item_selection {
+  my ($self) = @_;
+
+  my @items = @{ $::form->{order}->{orderitems} // [] };
+
+  if (@items) {
+    my @part_ids          = uniq map { $_->{parts_id} } @items;
+    my %parts_by_id       = map { ($_->id => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => \@part_ids ]) };
+    my %make_models_by_id = map { ($_->parts_id => $_->model) } @{
+      SL::DB::Manager::MakeModel->get_all(
+        where => [
+          parts_id => \@part_ids,
+          make     => $::form->{order}->{vendor_id},
+        ])
+    };
+
+    foreach my $item (@items) {
+      $item->{partnumber}        = $parts_by_id{ $item->{parts_id} }->partnumber;
+      $item->{vendor_partnumber} = $make_models_by_id{ $item->{parts_id} };
+    }
+  }
+
+  $self->render(
+    'order/tabs/_purchase_delivery_order_item_selection',
+    { layout => 0 },
+    ITEMS => \@items,
+  );
 }
 
 sub js_load_second_row {

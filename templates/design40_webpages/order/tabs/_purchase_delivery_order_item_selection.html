@@ -1,24 +1,34 @@
-[%- USE LxERP -%][%- USE L -%]
-<div id="convert_to_purchase_delivery_order_item_selection">
-  <div class="wrapper">
-    [% L.button_tag("kivi.Order.convert_to_purchase_delivery_order()", LxERP.t8("Create delivery order")) %]
-  </div>
+[%- USE LxERP -%][%- USE L -%][%- USE HTML -%]
+<div class="wrapper">
+  [% L.button_tag("kivi.Order.convert_to_purchase_delivery_order()", LxERP.t8("Create delivery order")) %]
+</div>
 
-  <div class="wrapper">
-    <table class="tbl-list">
-      <thead>
-        <tr class="listheading">
-          <th>[% L.checkbox_tag("purchase_delivery_order_item_selection_checkall", checkall="input.purchase_delivery_order_item_selection_checkall") %]</th>
-          <th>[% LxERP.t8("Position") %]</th>
-          <th>[% LxERP.t8("Partnumber") %]</th>
-          <th>[% LxERP.t8("Description") %]</th>
-          <th>[% LxERP.t8("Qty") %]</th>
-          <th>[% LxERP.t8("Unit") %]</th>
+<div class="wrapper">
+  <table class="tbl-list">
+    <thead>
+      <tr class="listheading">
+        <th>[% L.checkbox_tag("purchase_delivery_order_item_selection_checkall", checkall="input.purchase_delivery_order_item_selection_checkall") %]</th>
+        <th>[% LxERP.t8("Position") %]</th>
+        <th>[% LxERP.t8("Partnumber") %]</th>
+        <th>[% LxERP.t8("Vendor Part Number") %]</th>
+        <th>[% LxERP.t8("Description") %]</th>
+        <th>[% LxERP.t8("Qty") %]</th>
+        <th>[% LxERP.t8("Unit") %]</th>
+      </tr>
+    </thead>
+
+    <tbody id="convert_to_purchase_delivery_order_item_selection_items" class="row_entry listrow">
+      [% FOREACH item = ITEMS %]
+        <tr class="listrow">
+          <td>[% L.checkbox_tag("purchase_delivery_order_item_selection_indexes[+]", class="purchase_delivery_order_item_selection_checkall", value=loop.count, checked="checked") %]</td>
+          <td class="numeric">[% loop.count %]</td>
+          <td>[% HTML.escape(item.partnumber) %]</td>
+          <td>[% HTML.escape(item.vendor_partnumber) %]</td>
+          <td>[% HTML.escape(item.description) %]</td>
+          <td class="numeric">[% HTML.escape(item.qty_as_number) %]</td>
+          <td>[% HTML.escape(item.unit) %]</td>
         </tr>
-      </thead>
-
-      <tbody id="convert_to_purchase_delivery_order_item_selection_items" class="row_entry listrow">
-      </tbody>
-    </table>
-  </div>
+      [% END %]
+    </tbody>
+  </table>
 </div>
