@@ -327,7 +327,7 @@ for various type informations.
 
 Invoices are not supported as of now, but are planned for the future.
 
-The old deliveryorder C<sales_delivery_order> and C<purchase_delivery_order> must be implemented
+The old delivery order C<sales_delivery_order> and C<purchase_delivery_order> must be implemented
 in the new DeliveryOrder Controller
 
 =head1 METHODS
@@ -336,32 +336,32 @@ in the new DeliveryOrder Controller
 
 =item C<update_after_new>
 
-Creates a new record_object by record_type and sub_type
-set reqdate and transdate if required by type_data
+Creates a new record_object by record_type and sub_type.
+Sets reqdate and transdate if required by type_data.
 
 Returns the record object.
 
 =item C<new_from_workflow>
 
 Expects source_object, target_object, can have flags.
-Creates a new record from source_subtype by target_type->new_from(source_record)
-Set default flag no_link_record to false and looks up the correct target_type
+Creates a new record from a source_subtype by target_type->new_from(source_record).
+Set default flag no_link_record to false and looks up the correct target_type.
 
-Throws an error if target_type not exists.
+Throws an error if the target_type doesn't exist.
 
-Returns the new record_object.
+Returns the new record object.
 
 =item C<new_from_workflow_multi>
 
 Expects an arrayref with source_objects and a target_object, can have flags.
-Creates a new record_objects from one or more source_objects. By now only for orders.
-Looks up the correct target_type throws an error if it doesn't exist.
+Creates a new record object from one or more source objects. For now only for orders.
+Looks up the correct target type and throws an error if it doesn't exist.
 
-Return the new record_object.
+Returns the new record object.
 
 =item C<increment_subversion>
 
-Only orders.
+Only for orders.
 
 Increments the record's subversion number.
 
@@ -372,14 +372,14 @@ TODO: check type data if this is allowed/supported for this record and trow exce
 Expects a record to delete.
 Deletes the whole record and puts an entry in the history.
 Cleans up the spool directory.
-Dies and throws an error if dberror.
+Dies and throws an error if there is a dberror.
 
-TODO: check status order when old deliveryorder (do) will be implemented.
+TODO: check status order once old deliveryorder (do) is implemented.
 
 =item C<save>
 
-Expects a record to save and params to handles stuff like validity_token, custom_shipto,
-items_to_delete, close objects, requirement_specs
+Expects a record to be saved and params to handle stuff like validity_token, custom_shipto,
+items_to_delete, close objects and requirement_specs.
 
 =over 2
 
@@ -387,7 +387,7 @@ items_to_delete, close objects, requirement_specs
 
 =over 4
 
-=item * C<with_validity_token -E<gt> scope>
+=item * C<with_validity_token → scope>
 
 =item * C<delete custom shipto if empty>
 
@@ -401,9 +401,9 @@ items_to_delete, close objects, requirement_specs
 
 =back
 
-Sets an entry in history
+Sets an entry in the history.
 
-Dies and throws error when error
+Dies and throws an error when there is an error.
 
 =back
 
@@ -413,19 +413,19 @@ Dies and throws error when error
 
 =item C<clone_for_save_as_new>
 
-Expects the saved record and the record to change.
+Expects the saved record and the record to be changed.
 
 Sets the actual employee.
 
-Sets also new transdate, new reqdate and an empty recordnumber if not allready changed in record to change.
+Also sets a new transdate, new reqdate and an empty recordnumber if it wasn't already changed in the old record.
 
 =item C<_save_history>
 
-Expects a record for id, addition for text (SAVED,DELETED,...)
+Expects a record and an addition reason for the history (SAVED,DELETED,...)
 
 =item C<_get_history_snumbers>
 
-Expects a record returns snumber for history_entry
+Expects a record, returns snumber for the history entry.
 
 =back
 
