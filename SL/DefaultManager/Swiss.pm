@@ -4,7 +4,7 @@ use strict;
 use parent qw(Rose::Object);
 
 # client defaults
-sub chart_of_accounts       { 'Switzerland-deutsch-MWST-2014' }
+sub chart_of_accounts       { 'Switzerland-deutsch-MWST-2023' }
 sub accounting_method       { 'accrual' }
 sub inventory_system        { 'periodic' }
 sub profit_determination    { 'balance' }
