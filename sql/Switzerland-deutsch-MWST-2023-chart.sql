@@ -1,9 +1,10 @@
 -- deutschsprachiger Kontenplan nach Schweizer Kontenrahmen KMU für Firmen in der Schweiz, die mehrwertsteuerpflichtig sind
 -- Erstellt am 4.6.2014
--- Korrigiert: November 2015 und Juli 2017
+-- Korrigiert: November 2015, Juli 2017, Februar 2023
 -- Grundlage: Revision OR Stand 1.1.2013, insbesondere Art. 957a Abs. 2
+-- MWST: 7.7% und 2.5%
 -- Redaktion: revamp-it, http://www.revamp-it.ch
--- Copyright 2014,2015,2017
+-- Copyright 2014,2015,2017,2023
 
 -- This file is part of kivitendo.
 -- kivitendo is free software; you can redistribute it and/or modify
