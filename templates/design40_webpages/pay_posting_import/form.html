@@ -1,12 +1,13 @@
-[%- USE HTML %]
-[%- USE LxERP %]
-[%- USE L %]
-[%- USE T8 %]
-[%- INCLUDE 'common/flash.html' %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+[% INCLUDE 'common/flash.html' %]
 
 <h1>[% FORM.title %]</h1>
 
 <div class="wrapper">
+
 [% IF (SELF.gl_trans.size) %]
  <table class="tbl-list" id="gl_trans">
   <caption>[% SELF.gl_trans.size %]&nbsp;[% "entries imported" | $T8 %].</caption>
@@ -34,19 +35,22 @@
 [% END %]
 <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
 <table class="tbl-horizontal">
-  <caption>[% "Import a File:" | $T8 %]</caption>
+  <caption>[% "Import a File" | $T8 %]</caption>
+  <colgroup>
+    <col class="wi-normal">
+    <col class="wi-lightwide">
+  </colgroup>
   <tbody>
     <tr>
-      <th>[% LxERP.t8("CSV File") %]:</th>
-      <td></td>
+      <th>[% LxERP.t8("CSV File") %]</th>
       <td>[% L.input_tag('file', '', type => 'file', accept => '.csv') %]</td>
     </tr>
     <tr>
-      <th>[% 'Close Books up to' | $T8 %]:</th>
-      <td>[% L.checkbox_tag('set_closedto', value => 1, checked => 1, class => 'checkbox') %]</td>
-      <td>[% L.date_tag('closedto', closedto) %]</td>
+      <th><label for="set_closedto">[% LxERP.t8("Close Books up to") %]</label></th>
+      <td>[% L.checkbox_tag('set_closedto', value => 1, checked => 1, id => 'set_closedto') %]&nbsp;[% L.date_tag('closedto', closedto) %]</td>
     </tr>
   <tbody>
 </table>
 </form>
-</div><!-- /.cols -->
+
+</div><!-- /.wrapper -->

@@ -1919,6 +1919,7 @@ $self->{texts} = {
   'Import Pay Postings'         => '',
   'Import Status'               => '',
   'Import a Factur-X/ZUGFeRD file:' => '',
+  'Import a File'               => '',
   'Import a File:'              => '',
   'Import a MT940 file:'        => '',
   'Import all'                  => '',
