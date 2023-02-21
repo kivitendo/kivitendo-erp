@@ -66,7 +66,8 @@ sub get_version_count {
   my ($self, %params) = @_;
   die "no dbfile" unless $params{dbfile};
   ## TODO
-  return 1;
+  # Webdav doesn't have versions by now. And delete checks for version, so return 0 for now
+  return 0;
 }
 
 sub get_mtime {
