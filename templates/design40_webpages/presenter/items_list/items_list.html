@@ -1,6 +1,8 @@
-[% USE L %][% USE LxERP %][%- USE P -%][%- USE T8 -%]
+[% USE L %]
+[% USE LxERP %]
+[% USE P %]
+[% USE T8 %]
 
-<font size="-2">
 [%- IF items.size > 0 %]
  <table class="tbl-list">
    <colgroup>
@@ -35,4 +37,3 @@
   <a href="javascript:void(0);" onClick="javascript:$('.item_row_toggle_[% items.0.id %]').toggle();$('.item_row_toggle_[% items.0.id %]').is(':hidden') ? $('#toggle_text_[% items.0.id %]').html('… ⏷') : $('#toggle_text_[% items.0.id %]').html('⏶');"><span id='toggle_text_[% items.0.id %]'>… ⏷</span></a>
  [%- END %]
 [%- END %]
-</font>
