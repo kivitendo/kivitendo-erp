@@ -1373,6 +1373,10 @@ sub action_return_from_create_part {
   $_->{render_second_row}      = 1 for @{ $self->order->items_sorted };
   $_->{render_longdescription} = 1 for @{ $self->order->items_sorted };
 
+  if (!$::form->{form_validity_token}) {
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
+  }
+
   $self->render(
     'order/form',
     title => $self->get_title_for('edit'),
