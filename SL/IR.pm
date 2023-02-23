@@ -1056,12 +1056,14 @@ sub retrieve_invoice {
         i.price_factor_id, i.price_factor, i.marge_price_factor, i.discount, i.active_price_source, i.active_discount_source,
         p.partnumber, p.part_type, pr.projectnumber, pg.partsgroup
         ,p.classification_id
+        ,i.expense_chart_id, ec.accno AS expense_chart_accno, i.tax_id, i.inventory_chart_id
 
         FROM invoice i
         JOIN parts p ON (i.parts_id = p.id)
         LEFT JOIN chart c1 ON ((SELECT inventory_accno_id             FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c1.id)
         LEFT JOIN chart c2 ON ((SELECT tc.income_accno_id FROM taxzone_charts tc where tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c2.id)
         LEFT JOIN chart c3 ON ((SELECT tc.expense_accno_id FROM taxzone_charts tc where tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c3.id)
+        LEFT JOIN chart ec ON (expense_chart_id = ec.id)
         LEFT JOIN project pr    ON (i.project_id = pr.id)
         LEFT JOIN partsgroup pg ON (pg.id = p.partsgroup_id)
 
@@ -1089,27 +1091,40 @@ sub retrieve_invoice {
     }
 
     # get tax rates and description
-    my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
-    $query =
-      qq|SELECT c.accno, t.taxdescription, t.rate, t.id as tax_id,
-                c.accno as taxnumber   -- taxnumber is same as accno, but still accessed as taxnumber in code
-         FROM tax t
-         LEFT JOIN chart c ON (c.id = t.chart_id)
-         WHERE t.id in
-           (SELECT tk.tax_id FROM taxkeys tk
-            WHERE tk.chart_id = (SELECT id FROM chart WHERE accno = ?)
-              AND (startdate <= $transdate)
-            ORDER BY startdate DESC
-            LIMIT 1)
-         ORDER BY c.accno|;
-    my $stw = prepare_execute_query($form, $dbh, $query, $accno_id);
-    $ref->{taxaccounts} = "";
+    my $get_default_tax = $ref->{tax_id} eq '' ? 1 : 0;
+    my $stw;
+    if ($get_default_tax) {
+      my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
+      my $query =
+        qq|SELECT c.accno, t.taxdescription, t.rate, t.id as tax_id,
+                  c.accno as taxnumber   -- taxnumber is same as accno, but still accessed as taxnumber in code
+           FROM tax t
+           LEFT JOIN chart c ON (c.id = t.chart_id)
+           WHERE t.id in
+             (SELECT tk.tax_id FROM taxkeys tk
+              WHERE tk.chart_id = (SELECT id FROM chart WHERE accno = ?)
+                AND (startdate <= $transdate)
+              ORDER BY startdate DESC
+              LIMIT 1)
+           ORDER BY c.accno|;
+      $stw = prepare_execute_query($form, $dbh, $query, $accno_id);
 
-    my $i = 0;
+    } else { # use saved tax_id
+      my $query =
+        qq|SELECT c.accno, t.taxdescription, t.rate, t.id as tax_id,
+                  c.accno as taxnumber   -- taxnumber is same as accno, but still accessed as taxnumber in code
+           FROM tax t
+           LEFT JOIN chart c ON (c.id = t.chart_id)
+           WHERE t.id = ?
+           ORDER BY c.accno|;
+
+      $stw = prepare_execute_query($form, $dbh, $query, $ref->{tax_id});
+    }
+
+    $ref->{taxaccounts} = "";
     while (my $ptr = $stw->fetchrow_hashref("NAME_lc")) {
       if (($ptr->{accno} eq "") && ($ptr->{rate} == 0)) {
-        $i++;
-        $ptr->{accno} = $i;
+        $ptr->{accno} = "NO_ACCNO_" . $ptr->{tax_id};
       }
 
       $ref->{taxaccounts} .= "$ptr->{accno} ";
