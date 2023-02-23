@@ -92,6 +92,7 @@ __PACKAGE__->attr_sorted({ unsorted => 'customerprices', position => 'sortorder'
 
 __PACKAGE__->before_save('_before_save_set_partnumber');
 __PACKAGE__->before_save('_before_save_set_assembly_weight');
+__PACKAGE__->after_save('_set_lastcost_assemblies_and_assortiments');
 
 sub _before_save_set_partnumber {
   my ($self) = @_;
@@ -544,6 +545,29 @@ sub items_weight_sum {
   return unless $self->items;
   sum map { $_->linetotal_weight} @{$self->items};
 };
+
+sub _set_lastcost_assemblies_and_assortiments {
+  my ($self) = @_;
+
+  return 1 unless $self->lastcost;  # not saved yet
+  return 1 unless $::form->{lastcost_modified};
+
+  # 1. check all
+  my $assortments = SL::DB::Manager::AssortmentItem->get_all(where => [parts_id => $self->id ]);
+  my $assemblies  = SL::DB::Manager::Assembly->get_all(      where => [parts_id => $self->id ]);
+
+  foreach my $assembly (@{ $assemblies }) {
+    next unless ref $assembly eq 'SL::DB::Assembly';
+    my $a = SL::DB::Part->load_cached($assembly->id);
+    $a->update_attributes(lastcost => $a->items_lastcost_sum);
+  }
+  foreach my $assortment (@{ $assortments }) {
+    next unless ref $assortment eq 'SL::DB::AssortmentItem';
+    my $a = SL::DB::Part->load_cached($assortment->assortment_id);
+    $a->update_attributes(lastcost => $a->items_lastcost_sum);
+  }
+  return 1;
+}
 
 1;
 
