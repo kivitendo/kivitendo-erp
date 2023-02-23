@@ -433,6 +433,7 @@ sub _post_invoice {
                            project_id = ?, serialnumber = ?, price_factor_id = ?,
                            price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?,
                            active_price_source = ?, active_discount_source = ?
+                           ,expense_chart_id = ?, tax_id = ?, inventory_chart_id = ?
         WHERE id = ?
 SQL
 
@@ -443,6 +444,7 @@ SQL
                conv_i($form->{"project_id_$i"}), $form->{"serialnumber_$i"},
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"marge_price_factor_$i"}),
                $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
+               $form->{"expense_chart_id_$i"}, $form->{"tax_id_$i"}, $form->{"inventory_chart_id_$i"},
                conv_i($form->{"invoice_id_$i"}));
     do_query($form, $dbh, $query, @values);
     push @processed_invoice_ids, $form->{"invoice_id_$i"};
@@ -1056,14 +1058,13 @@ sub retrieve_invoice {
         i.price_factor_id, i.price_factor, i.marge_price_factor, i.discount, i.active_price_source, i.active_discount_source,
         p.partnumber, p.part_type, pr.projectnumber, pg.partsgroup
         ,p.classification_id
-        ,i.expense_chart_id, ec.accno AS expense_chart_accno, i.tax_id, i.inventory_chart_id
+        ,i.expense_chart_id, i.tax_id, i.inventory_chart_id
 
         FROM invoice i
         JOIN parts p ON (i.parts_id = p.id)
         LEFT JOIN chart c1 ON ((SELECT inventory_accno_id             FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c1.id)
         LEFT JOIN chart c2 ON ((SELECT tc.income_accno_id FROM taxzone_charts tc where tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c2.id)
         LEFT JOIN chart c3 ON ((SELECT tc.expense_accno_id FROM taxzone_charts tc where tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c3.id)
-        LEFT JOIN chart ec ON (expense_chart_id = ec.id)
         LEFT JOIN project pr    ON (i.project_id = pr.id)
         LEFT JOIN partsgroup pg ON (pg.id = p.partsgroup_id)
 
