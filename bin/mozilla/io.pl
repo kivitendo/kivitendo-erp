@@ -54,6 +54,8 @@ use SL::IO;
 use SL::File;
 use SL::PriceSource;
 use SL::Presenter::Part;
+use SL::Presenter::Chart;
+use SL::Presenter::Tag;
 use SL::Util qw(trim);
 
 use SL::DB::AuthUser;
@@ -171,7 +173,7 @@ sub display_row {
     bin stock_in_out
   );
   my @row2_sort   = qw(
-    serialnr projectnr reqdate subtotal recurring_billing_mode marge listprice lastcost onhand
+    expense_chart tax inventory_chart serialnr projectnr reqdate subtotal recurring_billing_mode marge listprice lastcost onhand
   );
   # serialnr is important for delivery_orders
   if ($form->{type} eq 'sales_delivery_order') {
@@ -207,6 +209,9 @@ sub display_row {
     lastcost      => {                 value => $locale->text('EK'),                   display => $show_marge, },
     onhand        => {                 value => $locale->text('On Hand'),              display => 1, },
     vendor_partnumber => { width => 8, value => $locale->text('Vendor Part Number'),   display => $is_delivery_order && $is_purchase, },
+    expense_chart => {                 value => $locale->text('Expense Account'),      display => $is_purchase && $is_invoice },
+    tax           => {                 value => $locale->text('Tax'),                  display => $is_purchase && $is_invoice },
+    inventory_chart => {               value => "",                                    display => $is_purchase && $is_invoice }, # only disply for type='part'
   );
   my @HEADER = map { $column_def{$_} } @header_sort;
 
@@ -396,6 +401,47 @@ sub display_row {
 
     if ($is_delivery_order) {
       $column_data{stock_in_out} =  calculate_stock_in_out($i);
+    }
+
+    $column_data{expense_chart} = SL::Presenter::Chart::chart_picker(
+      "expense_chart_id_$i", $form->{"expense_chart_id_$i"},
+      type => "AP_amount", style => "width: 150px") .
+      '<script type="text/javascript">
+      <!--
+      $(document).ready(function() {
+        $("#expense_chart_id_' . $i . q'").on("set_item:ChartPicker", function(e, item) {
+          kivi.io.update_tax_ids(this);
+        });
+      });
+      -->
+      </script>
+      '; # change tax dropdown after change
+
+    my $tax_value_title_sub = sub {
+      my $item = shift;
+      return [
+        $item->{id},
+        $item->{taxkey} . ' - ' . $item->{taxdescription} .' '. ($item->{rate} * 100) .' %',
+      ];
+    };
+
+    my @taxes = ();
+    if ($form->{"expense_chart_id_$i"}) {
+      @taxes = IO->get_active_taxes_for_chart($form->{"expense_chart_id_$i"},
+        $form->{"reqdate_$i"} // $form->{deliverydate} // $form->{transdate});
+    }
+    # tax_id_ is used in io.js->update_tax_ids
+    $column_data{tax} = SL::Presenter::Tag::select_tag(
+      "tax_id_$i", \@taxes, default => $form->{"tax_id_$i"},
+      value_title_sub => $tax_value_title_sub,
+      style => "width: 100px");
+
+    if ($record_item && $record_item->part && ($record_item->part->type eq 'part')) {
+      $column_data{inventory_chart} =
+      '<b>' . $locale->text('Inventory Account') . '<b> ' .
+      SL::Presenter::Chart::chart_picker(
+        "inventory_chart_id_$i", $form->{"inventory_chart_id_$i"},
+        type => "IC", style => "width: 150px");
     }
 
     $column_data{serialnr}  = qq|<input name="serialnumber_$i" size="15" value="$form->{"serialnumber_$i"}">|;
@@ -2291,3 +2337,17 @@ sub download_factur_x_xml {
 
   $::locale->with_raw_io(\*STDOUT, sub { print $xml_content });
 }
+
+sub get_taxes_dropdown {
+  my $transdate         = $::form->{transdate}    ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
+  my $deliverydate      = $::form->{deliverydate} ? DateTime->from_kivitendo($::form->{deliverydate}) : undef;
+  my $item_deliverydate = $::form->{item_deliverydate} ? DateTime->from_kivitendo($::form->{item_deliverydate}) : undef;
+
+  my @taxes = IO->get_active_taxes_for_chart($::form->{chart_id},
+    $item_deliverydate // $deliverydate // $transdate);
+  my $html  = $::form->parse_html_template("ir/update_taxes", { TAXES => \@taxes });
+
+  print $::form->ajax_response_header, $html;
+}
+
+1;

@@ -49,4 +49,20 @@ namespace('kivi.io', function(ns) {
     if (discount_str) $('#discount_' + row).val(discount_str);
     $('#update_button').click();
   }
+
+  ns.update_tax_ids = function(obj) {
+    var row = $(obj).attr('name').replace(/.*_/, '');
+
+    $.ajax({
+      url: 'io.pl?action=get_taxes_dropdown',
+      data: { chart_id:          $(obj).val(),
+              transdate:         $('#transdate').val(),
+              deliverydate:      $('#deliverydate').val() },
+              item_deliverydate: $("[name='reqdate_" + row + "']").val(), // has no id
+      dataType: 'html',
+      success: function (new_html) {
+        $("#tax_id_" + row).html(new_html);
+      }
+    });
+  };
 });
