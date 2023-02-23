@@ -96,7 +96,7 @@ sub _post_invoice {
 
   my ($query, $sth, @values, $project_id);
   my ($allocated, $taxrate, $taxamount, $taxdiff, $item);
-  my ($amount, $linetotal, $lastinventoryaccno, $lastexpenseaccno);
+  my ($amount, $linetotal, $last_inventory_accno_tax_id_key, $last_expense_accno_tax_id_key);
   my ($netamount, $invoicediff, $expensediff) = (0, 0, 0);
   my $exchangerate = 0;
   my ($basefactor, $baseqty, @taxaccounts, $totaltax);
@@ -176,6 +176,14 @@ sub _post_invoice {
     $allocated   = 0;
     $taxrate     = 0;
 
+    # preset tax_id and accno for all taxaccounts
+    foreach $item (@taxaccounts) {
+      my $accno  = $item;
+      my $tax_id = $form->{"${item}_tax_id"};
+      $form->{amount}{$item . "_" . $tax_id}{tax_id} = $tax_id;
+      $form->{amount}{$item . "_" . $tax_id}{accno}  = $item;
+    }
+
     $form->{"sellprice_$i"} = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
     (my $fxsellprice = $form->{"sellprice_$i"}) =~ /\.(\d+)/;
     my $dec = length $1;
@@ -213,17 +221,18 @@ sub _post_invoice {
           foreach $item (@taxaccounts) {
             $taxamount =
               $form->round_amount($linetotal * $form->{"${item}_rate"} / (1 + abs($form->{"${item}_rate"})), 2);
-            $taxdiff                              += $taxamount;
-            $form->{amount}{ $form->{id} }{$item} -= $taxamount;
+            $taxdiff += $taxamount;
+            $form->{amount}{$item . "_" . $form->{"${item}_tax_id"}}{amount} -= $taxamount;
           }
-          $form->{amount}{ $form->{id} }{ $taxaccounts[0] } += $taxdiff;
+          my $first_taxaccno = $taxaccounts[0];
+          $form->{amount}{ $first_taxaccno . "_" . $form->{"${first_taxaccno}_tax_id"} }{amount} += $taxdiff;
 
         } else {
-          map { $form->{amount}{ $form->{id} }{$_} -= $linetotal * $form->{"${_}_rate"} } @taxaccounts;
+          map { $form->{amount}{$_ . "_" . $form->{"${_}_tax_id"}}{amount} -= $linetotal * $form->{"${_}_rate"} } @taxaccounts;
         }
 
       } else {
-        map { $form->{amount}{ $form->{id} }{$_} -= $taxamount * $form->{"${_}_rate"} / $taxrate } @taxaccounts;
+        map { $form->{amount}{$_ . "_" . $form->{"${_}_tax_id"}}{amount} -= $taxamount * $form->{"${_}_rate"} / $taxrate } @taxaccounts;
       }
 
       # add purchase to inventory, this one is without the tax!
@@ -234,12 +243,15 @@ sub _post_invoice {
       # this is the difference for the inventory
       $invoicediff += ($amount - $linetotal);
 
-      $form->{amount}{ $form->{id} }{ $form->{"inventory_accno_$i"} } -= $linetotal;
+      my $inventory_key = $form->{"inventory_accno_$i"} . "_" . $form->{"expense_accno_tax_id_$i"};
+      $form->{amount}{$inventory_key}{amount} -= $linetotal;
+      $form->{amount}{$inventory_key}{accno}   = $form->{"inventory_accno_$i"};
+      $form->{amount}{$inventory_key}{tax_id}  = $form->{"expense_accno_tax_id_$i"};
 
       # adjust and round sellprice
       $form->{"sellprice_$i"} = $form->round_amount($form->{"sellprice_$i"} * $form->{exchangerate}, $decimalplaces);
 
-      $lastinventoryaccno = $form->{"inventory_accno_$i"};
+      $last_inventory_accno_tax_id_key = $inventory_key;
 
       next if $payments_only;
 
@@ -375,13 +387,13 @@ sub _post_invoice {
           foreach $item (@taxaccounts) {
             $taxamount = $linetotal * $form->{"${item}_rate"} / (1 + abs($form->{"${item}_rate"}));
             $totaltax += $taxamount;
-            $form->{amount}{ $form->{id} }{$item} -= $taxamount;
+            $form->{amount}{$item . "_" . $form->{"${item}_tax_id"}}{amount} -= $taxamount;
           }
         } else {
-          map { $form->{amount}{ $form->{id} }{$_} -= $linetotal * $form->{"${_}_rate"} } @taxaccounts;
+          map { $form->{amount}{$_ . "_" . $form->{"${_}_tax_id"}}{amount} -= $linetotal * $form->{"${_}_rate"} } @taxaccounts;
         }
       } else {
-        map { $form->{amount}{ $form->{id} }{$_} -= $taxamount * $form->{"${_}_rate"} / $taxrate } @taxaccounts;
+        map { $form->{amount}{$_ . "_" . $form->{"${_}_tax_id"}}{amount} -= $taxamount * $form->{"${_}_rate"} / $taxrate } @taxaccounts;
       }
 
       $amount    = $form->{"sellprice_$i"} * $form->{"qty_$i"} * $form->{exchangerate} / $price_factor;
@@ -392,9 +404,12 @@ sub _post_invoice {
       $expensediff += ($amount - $linetotal);
 
       # add amount to expense
-      $form->{amount}{ $form->{id} }{ $form->{"expense_accno_$i"} } -= $linetotal;
+      my $expense_key = $form->{"expense_accno_$i"} . "_" . $form->{"expense_accno_tax_id_$i"};
+      $form->{amount}{$expense_key}{amount} -= $linetotal;
+      $form->{amount}{$expense_key}{accno}   = $form->{"expense_accno_$i"};
+      $form->{amount}{$expense_key}{tax_id}  = $form->{"expense_accno_tax_id_$i"};
 
-      $lastexpenseaccno = $form->{"expense_accno_$i"};
+      $last_expense_accno_tax_id_key = $expense_key;
 
       # adjust and round sellprice
       $form->{"sellprice_$i"} = $form->round_amount($form->{"sellprice_$i"} * $form->{exchangerate}, $decimalplaces);
@@ -502,10 +517,11 @@ SQL
     $netamount = $amount;
 
     foreach $item (split / /, $form->{taxaccounts}) {
-      $amount                               = $form->{amount}{ $form->{id} }{$item} * $form->{exchangerate};
-      $form->{amount}{ $form->{id} }{$item} = $form->round_amount($amount, 2);
+      my $key = $item . "_" . $form->{"${item}_tax_id"};
+      $amount = $form->{amount}{$key}{amount} * $form->{exchangerate};
+      $form->{amount}{$key}{amount} = $form->round_amount($amount, 2);
 
-      $amount     = $form->{amount}{ $form->{id} }{$item} * -1;
+      $amount     = $form->{amount}{$key}{amount} * -1;
       $tax       += $amount;
       $netamount -= $amount;
     }
@@ -518,33 +534,33 @@ SQL
     # in the sales invoice case rounding errors only have to be corrected for
     # income accounts, it is enough to add the total rounding error to one of
     # the income accounts, with the one assigned to the last row being used
-    # (lastinventoryaccno)
+    # (last_inventory_accno_tax_id_key)
 
     # in the purchase invoice case rounding errors may be split between
     # inventory accounts and expense accounts. After rounding, an error of 1
     # cent is introduced if the total rounding error exceeds 0.005. The total
     # error is made up of $invoicediff and $expensediff, however, so if both
     # values are below 0.005, but add up to a total >= 0.005, correcting
-    # lastinventoryaccno and lastexpenseaccno separately has no effect after
+    # last_inventory_accno_tax_id_key and last_expense_accno_tax_id_key separately has no effect after
     # rounding. This caused bug 1579. Therefore when the combined total exceeds
     # 0.005, but neither do individually, the account with the larger value
     # shall receive the total rounding error, and the next time it is rounded
     # the 1 cent correction will be introduced.
 
-    $form->{amount}{ $form->{id} }{$lastinventoryaccno} -= $invoicediff if $lastinventoryaccno;
-    $form->{amount}{ $form->{id} }{$lastexpenseaccno}   -= $expensediff if $lastexpenseaccno;
+    $form->{amount}{$last_inventory_accno_tax_id_key}{amount} -= $invoicediff if $last_inventory_accno_tax_id_key;
+    $form->{amount}{$last_expense_accno_tax_id_key}{amount}   -= $expensediff if $last_expense_accno_tax_id_key;
 
     if ( (abs($expensediff)+abs($invoicediff)) >= 0.005 and abs($expensediff) < 0.005 and abs($invoicediff) < 0.005 ) {
 
       # in total the rounding error adds up to 1 cent effectively, correct the
       # larger of the two numbers
 
-      if ( abs($form->{amount}{ $form->{id} }{$lastinventoryaccno}) > abs($form->{amount}{ $form->{id} }{$lastexpenseaccno}) ) {
+      if ( abs($form->{amount}{$last_inventory_accno_tax_id_key}{amount}) > abs($form->{amount}{$last_expense_accno_tax_id_key}{amount}) ) {
         # $invoicediff has already been deducted, now also deduct expensediff
-        $form->{amount}{ $form->{id} }{$lastinventoryaccno}   -= $expensediff;
+        $form->{amount}{$last_inventory_accno_tax_id_key}{amount} -= $expensediff;
       } else {
         # expensediff has already been deducted, now also deduct invoicediff
-        $form->{amount}{ $form->{id} }{$lastexpenseaccno}   -= $invoicediff;
+        $form->{amount}{$last_expense_accno_tax_id_key}{amount}   -= $invoicediff;
       };
     };
 
@@ -554,52 +570,65 @@ SQL
     $netamount = $amount;
 
     foreach my $item (split / /, $form->{taxaccounts}) {
-      $form->{amount}{ $form->{id} }{$item}  = $form->round_amount($form->{amount}{ $form->{id} }{$item}, 2);
-      $amount                                = $form->round_amount( $form->{amount}{ $form->{id} }{$item} * $form->{exchangerate} * -1, 2);
-      $paiddiff                             += $amount - $form->{amount}{ $form->{id} }{$item} * $form->{exchangerate} * -1;
-      $form->{amount}{ $form->{id} }{$item}  = $form->round_amount($amount * -1, 2);
-      $amount                                = $form->{amount}{ $form->{id} }{$item} * -1;
-      $tax                                  += $amount;
+      my $key = $item . "_" . $form->{"${item}_tax_id"};
+      $form->{amount}{$key}{amount}  = $form->round_amount($form->{amount}{$key}{amount}, 2);
+      $amount                        = $form->round_amount( $form->{amount}{$key}{amount} * $form->{exchangerate} * -1, 2);
+      $paiddiff                     += $amount - $form->{amount}{$key}{amount} * $form->{exchangerate} * -1;
+      $form->{amount}{$key}{amount}  = $form->round_amount($amount * -1, 2);
+      $amount                        = $form->{amount}{$key}{amount} * -1;
+      $tax                          += $amount;
     }
   }
-
-  $form->{amount}{ $form->{id} }{ $form->{AP} } = $netamount + $tax;
-
-
-  $form->{paid} = $form->round_amount($form->{paid} * $form->{exchangerate} + $paiddiff, 2) if $form->{paid} != 0;
 
   # record acc_trans transactions
   my $taxdate = $form->{tax_point} || $form->{deliverydate} || $form->{invdate};
-  foreach my $trans_id (keys %{ $form->{amount} }) {
-    foreach my $accno (keys %{ $form->{amount}{$trans_id} }) {
-      $form->{amount}{$trans_id}{$accno} = $form->round_amount($form->{amount}{$trans_id}{$accno}, 2);
+  foreach my $accno_tax_id_key (keys %{ $form->{amount} }) {
+    $form->{amount}{$accno_tax_id_key}{amount} = $form->round_amount($form->{amount}{$accno_tax_id_key}{amount}, 2);
 
 
-      next if $payments_only || !$form->{amount}{$trans_id}{$accno};
+    next if $payments_only || !$form->{amount}{$accno_tax_id_key}{amount};
+    my $amount = $form->{amount}{$accno_tax_id_key}{amount};
+    my $accno  = $form->{amount}{$accno_tax_id_key}{accno};
+    my $tax_id = $form->{amount}{$accno_tax_id_key}{tax_id};
 
-      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id, tax_id, chart_link)
-                  VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
-                  (SELECT taxkey_id
-                   FROM taxkeys
-                   WHERE chart_id= (SELECT id
-                                    FROM chart
-                                    WHERE accno = ?)
-                   AND startdate <= ?
-                   ORDER BY startdate DESC LIMIT 1),
-                  ?,
-                  (SELECT tax_id
-                   FROM taxkeys
-                   WHERE chart_id= (SELECT id
-                                    FROM chart
-                                    WHERE accno = ?)
-                   AND startdate <= ?
-                   ORDER BY startdate DESC LIMIT 1),
-                  (SELECT link FROM chart WHERE accno = ?))|;
-      @values = ($trans_id, $accno, $form->{amount}{$trans_id}{$accno},
-                 conv_date($form->{invdate}), $accno, conv_date($taxdate), $project_id, $accno, conv_date($taxdate), $accno);
-      do_query($form, $dbh, $query, @values);
-    }
+    $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id, tax_id, chart_link)
+                VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
+                (SELECT taxkey
+                 FROM tax
+                 WHERE id = ?),
+                ?,
+                ?,
+                (SELECT link FROM chart WHERE accno = ?))|;
+    @values = (conv_i($form->{id}), $accno, $amount,
+               conv_date($form->{invdate}), $tax_id, $project_id, $tax_id, $accno);
+    do_query($form, $dbh, $query, @values);
   }
+
+  my $ap_amount = $netamount + $tax;
+  my $ap_accno  = $form->{AP};
+  $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id, tax_id, chart_link)
+              VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
+              (SELECT taxkey_id
+               FROM taxkeys
+               WHERE chart_id= (SELECT id
+                                FROM chart
+                                WHERE accno = ?)
+               AND startdate <= ?
+               ORDER BY startdate DESC LIMIT 1),
+              ?,
+              (SELECT tax_id
+               FROM taxkeys
+               WHERE chart_id= (SELECT id
+                                FROM chart
+                                WHERE accno = ?)
+               AND startdate <= ?
+               ORDER BY startdate DESC LIMIT 1),
+              (SELECT link FROM chart WHERE accno = ?))|;
+  @values = (conv_i($form->{id}), $ap_accno, $ap_amount,
+             conv_date($form->{invdate}), $ap_accno, conv_date($taxdate), $project_id, $ap_accno, conv_date($taxdate), $ap_accno);
+  do_query($form, $dbh, $query, @values);
+
+  $form->{paid} = $form->round_amount($form->{paid} * $form->{exchangerate} + $paiddiff, 2) if $form->{paid} != 0;
 
   # deduct payment differences from paiddiff
   for my $i (1 .. $form->{paidaccounts}) {
@@ -611,7 +640,7 @@ SQL
 
   # force AP entry if 0
 
-  $form->{amount}{ $form->{id} }{ $form->{AP} } = $form->{paid} if $form->{amount}{$form->{id}}{$form->{AP}} == 0;
+  $ap_amount = $form->{paid} if $ap_amount == 0;
 
   my %already_cleared = %{ $params{already_cleared} // {} };
 
@@ -639,7 +668,7 @@ SQL
                     :                                                                                'f';
 
     # record AP
-    if ($form->{amount}{ $form->{id} }{ $form->{AP} } != 0) {
+    if ($ap_amount != 0) {
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id, cleared, tax_id, chart_link)
                   VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
                           (SELECT taxkey_id
