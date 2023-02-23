@@ -197,6 +197,7 @@ sub webdav_path {
     $dbfile->backend_data($number);
     $dbfile->save;
   }
+  $number =~ s/\//-/; # replace forbidden char;
   $main::lxdebug->message(LXDebug->DEBUG2(), "file_name=" . $dbfile->file_name ." number=".$number);
 
   my @fileparts = split(/_/, $dbfile->file_name);
