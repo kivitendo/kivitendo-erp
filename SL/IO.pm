@@ -77,5 +77,30 @@ SQL
   $main::lxdebug->leave_sub();
 }
 
+sub get_active_taxes_for_chart {
+  my ($self, $chart_id, $transdate, $tax_id) = @_;
+
+  my $chart         = SL::DB::Chart->new(id => $chart_id)->load;
+  my $active_taxkey = $chart->get_active_taxkey($transdate);
+
+  my $where = [ chart_categories => { like => '%' . $chart->category . '%' } ];
+
+  if ( defined $tax_id && $tax_id >= 0 ) {
+    $where = [ or => [ chart_categories => { like => '%' . $chart->category . '%' },
+                       id               => $tax_id
+                     ]
+             ];
+  }
+
+  my $taxes         = SL::DB::Manager::Tax->get_all(
+    where   => $where,
+    sort_by => 'taxkey, rate',
+  );
+
+  my $default_tax            = first { $active_taxkey->tax_id == $_->id } @{ $taxes };
+  $default_tax->{is_default} = 1 if $default_tax;
+
+  return @{ $taxes };
+}
 
 1;

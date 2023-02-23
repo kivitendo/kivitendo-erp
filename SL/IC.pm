@@ -811,14 +811,18 @@ SQL
     }
 
     $form->{"${_}_accno_$index"} = $accounts{"${_}_accno"} for qw(inventory income expense);
+    $form->{"${_}_accno_id_$index"} = $accounts{"${_}_accno_id"} for qw(inventory expense); # only for purchase_invoice
 
     $sth_tax->execute($accounts{$inc_exp}, quote_db_date($transdate)) || $::form->dberror($query_tax);
-    $ref = $sth_tax->fetchrow_hashref or next;
+    my $tax_ref;
+    $tax_ref = $sth_tax->fetchrow_hashref or next;
 
-    $form->{"taxaccounts_$index"} = $ref->{"accno"};
-    $form->{"taxaccounts"} .= "$ref->{accno} "if $form->{"taxaccounts"} !~ /$ref->{accno}/;
+    $form->{"expense_accno_tax_id_$index"} = $tax_ref->{tax_id}; # only for purchase_invoice
 
-    $form->{"$ref->{accno}_${_}"} = $ref->{$_} for qw(rate description taxnumber tax_id);
+    $form->{"taxaccounts_$index"} = $tax_ref->{"accno"};
+    $form->{"taxaccounts"} .= "$tax_ref->{accno} "if $form->{"taxaccounts"} !~ /$ref->{accno}/;
+
+    $form->{"$tax_ref->{accno}_${_}"} = $tax_ref->{$_} for qw(rate description taxnumber tax_id);
   }
 
   $sth_tax->finish;

@@ -44,6 +44,8 @@ use SL::DB::Project;
 use SL::DB::PurchaseInvoice;
 use SL::DB::ValidityToken;
 use SL::DB::Vendor;
+use SL::DB::Tax;
+use SL::DB::Chart;
 use List::MoreUtils qw(uniq);
 use List::Util qw(max sum);
 use List::UtilsBy qw(sort_by);
@@ -520,7 +522,7 @@ sub form_header {
   $TMPL_VAR->{payment_terms_obj} = get_payment_terms_for_invoice();
   $form->{duedate}             = $TMPL_VAR->{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{duedate})->to_kivitendo if $TMPL_VAR->{payment_terms_obj};
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File kivi.SalesPurchase kivi.Part kivi.CustomerVendor kivi.Validator ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_project client_js));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File kivi.SalesPurchase kivi.Part kivi.CustomerVendor kivi.Validator ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_project client_js autocomplete_chart));
 
   setup_ir_action_bar($TMPL_VAR);
 
@@ -820,6 +822,7 @@ sub storno {
   invoice_links();
   prepare_invoice();
   relink_accounts();
+  set_taxaccounts_and_accnos();
 
   # Payments must not be recorded for the new storno invoice.
   $form->{paidaccounts} = 0;
@@ -1021,6 +1024,7 @@ sub post {
   $form->{storno}  ||= 0;
 
   relink_accounts();
+  set_taxaccounts_and_accnos();
   if (IR->post_invoice(\%myconfig, \%$form)){
     # saving the history
     if(!exists $form->{addition} && $form->{id} ne "") {
@@ -1094,6 +1098,7 @@ sub display_form {
   _assert_access();
 
   relink_accounts();
+  set_taxaccounts_and_accnos();
 
   my $new_rowcount = $::form->{"rowcount"} * 1 + 1;
   $::form->{"project_id_${new_rowcount}"} = $::form->{"globalproject_id"};
@@ -1143,5 +1148,69 @@ sub get_duedate_vendor {
   );
 
   print $::form->ajax_response_header, $result;
+  $::lxdebug->leave_sub;
+}
+
+# set values form relink_accounts as default
+# otherwiese override with user selected values
+# recalc taxaccounts string
+sub set_taxaccounts_and_accnos {
+  $main::lxdebug->enter_sub;
+
+  for my $i (1 .. $::form->{rowcount}) {
+
+    # fill with default, ids can be 0
+    if ('' eq $::form->{"expense_chart_id_$i"}) {
+      $::form->{"expense_chart_id_$i"} = $::form->{"expense_accno_id_$i"};
+    }
+    if ('' eq $::form->{"tax_id_$i"}) {
+      $::form->{"tax_id_$i"} = $::form->{"expense_accno_tax_id_$i"};
+    }
+    if ('' eq $::form->{"inventory_chart_id_$i"}) {
+      $::form->{"inventory_chart_id_$i"} = $::form->{"inventory_accno_id_$i"};
+    }
+
+    # if changed override with user values
+    if ($::form->{"expense_chart_id_$i"} ne $::form->{"expense_accno_id_$i"}) {
+      $::form->{"expense_accno_id_$i"} = $::form->{"expense_chart_id_$i"};
+      my $chart = SL::DB::Chart->new(id => $::form->{"expense_chart_id_$i"})->load;
+      $::form->{"expense_accno_$i"}    = $chart->accno;
+    }
+    if ($::form->{"tax_id_$i"} ne $::form->{"expense_accno_tax_id_$i"}) {
+      $::form->{"expense_accno_tax_id_$i"} = $::form->{"tax_id_$i"};
+      my $tax = SL::DB::Tax->new(id => $::form->{"tax_id_$i"})->load;
+      my $tax_accno;
+      if (defined $tax->chart_id) {
+        my $chart  = SL::DB::Chart->new(id => $tax->chart_id)->load;
+        $tax_accno = $chart->accno;
+      } else {
+        $tax_accno = "NO_ACCNO_" . $tax->id;
+      }
+      $::form->{"taxaccounts_$i"} = $tax_accno;
+      if (!($::form->{taxaccounts} =~ /\Q$tax_accno\E/)) {
+        # add tax info if missing
+        $::form->{"${tax_accno}_rate"}        = $tax->rate;
+        $::form->{"${tax_accno}_description"} = $tax->taxdescription;
+        $::form->{"${tax_accno}_tax_id"}      = $tax->id;
+        $::form->{"${tax_accno}_taxnumber"}   = $::form->{"expense_accno_$i"};
+      }
+    }
+    if ($::form->{"inventory_chart_id_$i"} ne $::form->{"inventory_accno_id_$i"}) {
+      $::form->{"inventory_accno_id_$i"} = $::form->{"inventory_chart_id_$i"};
+      my $chart = SL::DB::Chart->new(id => $::form->{"inventory_chart_id_$i"})->load;
+      $::form->{"inventory_accno_$i"}    = $chart->accno;
+    }
+
+  }
+
+  # recalc taxaccounts string
+  $::form->{taxaccounts} = "";
+  for my $i (1 .. $::form->{rowcount}) {
+    my $taxaccounts_i = $::form->{"taxaccounts_$i"};
+    if (!($::form->{taxaccounts} =~ /\Q$taxaccounts_i\E/)) {
+      $::form->{taxaccounts} .= "$taxaccounts_i ";
+    }
+  }
+
   $::lxdebug->leave_sub;
 }

@@ -1669,4 +1669,18 @@ sub get_duedate {
   return $duedate;
 }
 
+
+sub get_taxes_dropdown {
+  my $transdate         = $::form->{transdate}    ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
+  my $deliverydate      = $::form->{deliverydate} ? DateTime->from_kivitendo($::form->{deliverydate}) : undef;
+  my $item_deliverydate = $::form->{item_deliverydate} ? DateTime->from_kivitendo($::form->{item_deliverydate}) : undef;
+
+  my @taxes = IO->get_active_taxes_for_chart($::form->{chart_id},
+    $item_deliverydate // $deliverydate // $transdate);
+  my $html  = $::form->parse_html_template("ir/update_taxes", { TAXES => \@taxes });
+
+  print $::form->ajax_response_header, $html;
+}
+
+
 1;
