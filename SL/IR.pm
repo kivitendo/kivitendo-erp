@@ -243,17 +243,10 @@ sub _post_invoice {
 
       next if $payments_only;
 
-      # update parts table by setting lastcost to current price, don't allow negative values by using abs
-      # maybe allow only 2 decimal places -> rounding error with fx can be too huge for datev checks
-      # @values = ($form->round_amount(abs($fxsellprice * $form->{exchangerate} / $basefactor), 2), conv_i($form->{"id_$i"}));
-      #$query = qq|UPDATE parts SET lastcost = ? WHERE id = ?|;
-      #@values = (abs($fxsellprice * $form->{exchangerate} / $basefactor), conv_i($form->{"id_$i"}));
-      #do_query($form, $dbh, $query, @values);
       # after_save hook changes lastcost for all assemblies and assortments recursively
-      $::form->{lastcost_modified} = 1;
       my $a = SL::DB::Part->load_cached(conv_i($form->{"id_$i"}));
       $a->update_attributes(lastcost => abs($fxsellprice * $form->{exchangerate} / $basefactor));
-
+      $a->set_lastcost_assemblies_and_assortiments;
 
       # check if we sold the item already and
       # make an entry for the expense and inventory

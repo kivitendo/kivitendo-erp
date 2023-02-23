@@ -140,13 +140,14 @@ sub action_save {
 
     $::form->{"cvar_" . $_->{name} . "_valid"} = 1 for @default_valid_configs;
   } else {
-    $::form->{lastcost_modified} = $self->check_lastcost_modified;
+    $self->{lastcost_modified} = $self->check_lastcost_modified;
   }
 
   # $self->part has been loaded, parsed and validated without errors and is ready to be saved
   $self->part->db->with_transaction(sub {
 
     $self->part->save(cascade => 1);
+    $self->part->set_lastcost_assemblies_and_assortiments if $self->{lastcost_modified};
 
     SL::DB::History->new(
       trans_id    => $self->part->id,
@@ -864,7 +865,6 @@ sub check_part_not_modified {
 
 sub check_lastcost_modified {
   my ($self) = @_;
-
   return abs($self->part->lastcost - $self->part->last_price_update->lastcost) < 0.009 ? undef : 1;
 }
 
