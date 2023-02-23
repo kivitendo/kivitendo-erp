@@ -19,8 +19,10 @@ __PACKAGE__->meta->columns(
   description            => { type => 'text' },
   discount               => { type => 'float', precision => 4, scale => 4 },
   donumber               => { type => 'text' },
+  expense_chart_id       => { type => 'integer' },
   fxsellprice            => { type => 'numeric', precision => 15, scale => 5 },
   id                     => { type => 'integer', not_null => 1, sequence => 'invoiceid' },
+  inventory_chart_id     => { type => 'integer' },
   itime                  => { type => 'timestamp', default => 'now()' },
   lastcost               => { type => 'numeric', precision => 15, scale => 5 },
   longdescription        => { type => 'text' },
@@ -39,6 +41,7 @@ __PACKAGE__->meta->columns(
   sellprice              => { type => 'numeric', precision => 15, scale => 5 },
   serialnumber           => { type => 'text' },
   subtotal               => { type => 'boolean', default => 'false' },
+  tax_id                 => { type => 'integer' },
   trans_id               => { type => 'integer' },
   transdate              => { type => 'text' },
   unit                   => { type => 'varchar', length => 20 },
@@ -49,6 +52,16 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
+  expense_chart => {
+    class       => 'SL::DB::Chart',
+    key_columns => { expense_chart_id => 'id' },
+  },
+
+  inventory_chart => {
+    class       => 'SL::DB::Chart',
+    key_columns => { inventory_chart_id => 'id' },
+  },
+
   part => {
     class       => 'SL::DB::Part',
     key_columns => { parts_id => 'id' },
@@ -67,6 +80,11 @@ __PACKAGE__->meta->foreign_keys(
   project => {
     class       => 'SL::DB::Project',
     key_columns => { project_id => 'id' },
+  },
+
+  tax => {
+    class       => 'SL::DB::Tax',
+    key_columns => { tax_id => 'id' },
   },
 
   unit_obj => {
