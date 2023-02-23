@@ -1,0 +1,18 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+
+[% INCLUDE 'common/flash.html' %]
+
+<h1>[% FORM.title %]</h1>
+
+<div class="wrapper">
+
+  <p>[% "Import a Factur-X/ZUGFeRD file:" | $T8 %]</p>
+
+  <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
+    [% L.input_tag('file', '', type => 'file', accept => '.pdf') %]
+  </form>
+
+</div>
