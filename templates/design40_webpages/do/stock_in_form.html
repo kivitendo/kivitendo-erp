@@ -137,7 +137,14 @@ $(function(){
           [% IF INSTANCE_CONF.get_show_bestbefore %]
             <td>[% L.date_tag('bestbefore_'_ loop.count, row.bestbefore) %]</td>
           [% END %]
-          <td><input type="text" name="qty_[% loop.count %]" size="12" value="[% HTML.escape(LxERP.format_amount(row.qty)) %]"></td>
+          <td>
+            <input type="text" name="qty_[% loop.count %]" size="12"
+              [%- IF (!row.qty) && (loop.count == 1) -%]
+                value="[% HTML.escape(do_qty) %]"
+              [%- ELSE -%]
+                value="[% HTML.escape(LxERP.format_amount(row.qty)) %]"
+              [%- END -%]>
+          </td>
           <td>
             <select name="unit_[% loop.count %]">
               [% FOREACH unit = UNITS %]
