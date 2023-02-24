@@ -1152,7 +1152,7 @@ sub get_duedate_vendor {
 }
 
 # set values form relink_accounts as default
-# otherwiese override with user selected values
+# otherwise override with user selected values
 # recalc taxaccounts string
 sub set_taxaccounts_and_accnos {
   $main::lxdebug->enter_sub;
