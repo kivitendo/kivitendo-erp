@@ -239,7 +239,7 @@ pairwise {
     "sales_invoice_items to sales_reclamation_items",
     qw(
       id trans_id reclamation_id itime mtime
-      allocated assemblyitem cusordnumber deliverydate donumber fxsellprice marge_percent marge_price_factor marge_total optional ordnumber subtotal transdate
+      allocated assemblyitem cusordnumber deliverydate donumber fxsellprice marge_percent marge_price_factor marge_total optional ordnumber subtotal transdate expense_chart_id tax_id inventory_chart_id
       reason_description_ext reason_description_int reason_id reqdate
     ));
 } @sales_invoice_items, @converted_sales_reclamation_items;
@@ -259,7 +259,7 @@ pairwise {
     "purchase_invoice_items to purchase_reclamation_items",
     qw(
       id trans_id reclamation_id itime mtime
-      allocated assemblyitem cusordnumber deliverydate donumber fxsellprice marge_percent marge_price_factor marge_total optional ordnumber subtotal transdate
+      allocated assemblyitem cusordnumber deliverydate donumber fxsellprice marge_percent marge_price_factor marge_total optional ordnumber subtotal transdate expense_chart_id tax_id inventory_chart_id
       reason_description_ext reason_description_int reason_id reqdate
     ));
 } @purchase_invoice_items, @converted_purchase_reclamation_items;
