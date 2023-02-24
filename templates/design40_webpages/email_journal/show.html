@@ -1,6 +1,7 @@
 [% USE HTML %]
 [% USE L %]
 [% USE LxERP %]
+[% USE P %]
 
 <h1>[% FORM.title %]</h1>
 
@@ -39,7 +40,13 @@
     </tr>
     <tr>
       <th>[% LxERP.t8("Body") %]</th>
-      <td><pre>[% HTML.escape(SELF.entry.body) %]</pre></td>
+      <td>
+        [% IF SELF.entry.headers.match('(?i)content-type:.*text/html') %]
+          [% P.restricted_html(SELF.entry.body) %]
+        [% ELSE %]
+          <pre>[% HTML.escape(SELF.entry.body) %]</pre>
+        [% END %]
+      </td>
     </tr>
   </tbody>
 </table>
