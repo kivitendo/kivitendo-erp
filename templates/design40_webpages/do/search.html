@@ -209,6 +209,10 @@
       <input name="l_transaction_description" id="l_transaction_description" type="checkbox" value="Y" [% IF (instance_conf.get_require_transaction_description_ps) %] checked[% END %]>
       <label for="l_transaction_description">[% 'Transaction description' | $T8 %]</label>
     </div>
+    <div>
+      <input name="l_items" id="l_items" type="checkbox" value="Y">
+      <label for="l_items">[% 'Positions' | $T8 %]</label>
+    </div>
   </div>
   <div class="list col">
     <h4>[% 'Handling' | $T8 %]</h4>
