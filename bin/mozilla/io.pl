@@ -886,7 +886,9 @@ sub remove_emptied_rows {
                 active_price_source active_discount_source delivery_order_items_id
                 invoice_id converted_from_orderitems_id
                 converted_from_delivery_order_items_id converted_from_invoice_id
-                converted_from_reclamation_items_id recurring_billing_mode);
+                converted_from_reclamation_items_id recurring_billing_mode
+                expense_chart_id tax_id inventory_chart_id
+              );
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
