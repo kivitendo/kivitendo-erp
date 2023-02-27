@@ -50,6 +50,22 @@ namespace('kivi.io', function(ns) {
     $('#update_button').click();
   }
 
+  ns.update_taxzone = function() {
+    let expense_chart_ids = $('[name^="expense_chart_id_"]');
+    expense_chart_ids.each(function (_idx, element) {
+      element.value = null;
+    });
+    let tax_ids = $('[name^="tax_id_"]');
+    tax_ids.each(function (_idx, element) {
+      element.value = null;
+    });
+    let inventory_chart_ids = $('[name^="inventory_chart_id_"]');
+    inventory_chart_ids.each(function (_idx, element) {
+      element.value = null;
+    });
+    $('#update_button').click();
+  }
+
   ns.update_tax_ids = function(obj) {
     var row = $(obj).attr('name').replace(/.*_/, '');
 
