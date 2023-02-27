@@ -121,7 +121,7 @@
                          title_key = 'description',
                          disabled = (id ? 1 : 0),
                          class='wi-wide',
-                         onchange = "document.getElementById('update_button').click();"
+                         onchange = "kivi.io.update_taxzone()"
         ) %]
         [% IF id %]
           <input type='hidden' name='taxzone_id' value='[% taxzone_id %]'>
