@@ -1,0 +1,42 @@
+[% USE L %]
+[% USE LxERP %]
+[% USE HTML %]
+
+[% BLOCK filter_toggle_panel %]
+  <table id="filter_table" class="tbl-horizontal">
+    <colgroup> <col class="wi-mediumsmall"><col class="wi-lightwide"> </colgroup>
+    <tbody>
+      <tr>
+      <th>[% LxERP.t8('Customer') %]</th>
+      <td>[% L.input_tag('filter.customer.name:substr::ilike', filter.customer.name_substr__ilike, size = 20) %]</td>
+      </tr>
+      <tr>
+      <th>[% LxERP.t8('Shipping address (name)') %]</th>
+      <td>[% L.input_tag('filter.shipto.shiptoname:substr::ilike', filter.shipto.shiptoname_substr__ilike, size = 20) %]</td>
+      </tr>
+      <tr>
+      <th>[% LxERP.t8('Delivery Date') %] [% LxERP.t8('From Date') %]</th>
+      <td>[% L.date_tag('filter.reqdate:date::ge', filter.reqdate_date__ge) %]</td>
+      </tr>
+      <tr>
+      <th>[% LxERP.t8('Delivery Date') %] [% LxERP.t8('To Date') %]</th>
+      <td>[% L.date_tag('filter.reqdate:date::le', filter.reqdate_date__le) %]</td>
+      </tr>
+    </tbody>
+  </table>
+
+   [% L.hidden_tag('action', 'ODMassPrint/dispatch') %]
+   [% L.hidden_tag('sort_by', FORM.sort_by) %]
+   [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+   [% L.hidden_tag('page', FORM.page) %]
+   [% L.submit_tag(LIST_ACTION, LxERP.t8('Continue'))%]
+   <div class="buttons">
+    [% L.button_tag('$("#search_form").resetForm()', LxERP.t8('Reset'), class='neutral') %]
+  </div>
+[% END %]
+
+<form action="controller.pl" method="post" id="search_form">
+  <div class="wrapper">
+    [% PROCESS common/toggle_panel.html display_status = 'open' %]
+  </div>
+</form>
