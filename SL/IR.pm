@@ -148,7 +148,10 @@ sub _post_invoice {
     $form->{"qty_$i"}  = $form->parse_amount($myconfig, $form->{"qty_$i"});
     $form->{"qty_$i"} *= -1 if $form->{storno};
 
-    if ( $::instance_conf->get_inventory_system eq 'periodic') {
+    if ( ($form->{"tax_chart_type_$i"} eq 'expense')
+      || ($form->{"tax_chart_type_$i"} eq ''
+          && $::instance_conf->get_inventory_system eq 'periodic')
+    ) {
       # inventory account number is overwritten with expense account number, so
       # never book incoming to inventory account but always to expense account
       $form->{"inventory_accno_$i"} = $form->{"expense_accno_$i"}

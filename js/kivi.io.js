@@ -66,6 +66,16 @@ namespace('kivi.io', function(ns) {
     $('#update_button').click();
   }
 
+  ns.update_tax_chart_picker = function(tax_chart_type, row_i) {
+    $('#expense_chart_span_'   + row_i)[0].style.display = 'none';
+    $('#inventory_chart_span_' + row_i)[0].style.display = 'none';
+
+    let current_chart_picker_span = $('#' + tax_chart_type + '_chart_span_' + row_i)[0];
+    current_chart_picker_span.style.display = 'inline';
+
+    kivi.io.update_tax_ids($('#' + tax_chart_type + '_chart_id_' + row_i)[0]);
+  }
+
   ns.update_tax_ids = function(obj) {
     var row = $(obj).attr('name').replace(/.*_/, '');
 
