@@ -402,82 +402,84 @@ sub display_row {
       $column_data{stock_in_out} =  calculate_stock_in_out($i);
     }
 
-    # tax_chart
-    my ($tax_chart_id, $chart_title, $chart_picker);
-    if ($record_item && $record_item->part && ($record_item->part->type eq 'part')) {
-      my $tax_chart_type = $form->{"tax_chart_type_$i"};
-      $tax_chart_type ||=
-        $::instance_conf->get_inventory_system eq 'periodic' ? 'expense'
-                                                             : 'inventory';
-      $tax_chart_id = $form->{"${tax_chart_type}_chart_id_$i"};
+    # tax_chart and tax
+    if ($is_purchase && $is_invoice) { #only calc if used
+      my ($tax_chart_id, $chart_title, $chart_picker);
+      if ($record_item && $record_item->part && ($record_item->part->type eq 'part')) {
+        my $tax_chart_type = $form->{"tax_chart_type_$i"};
+        $tax_chart_type ||=
+          $::instance_conf->get_inventory_system eq 'periodic' ? 'expense'
+                                                               : 'inventory';
+        $tax_chart_id = $form->{"${tax_chart_type}_chart_id_$i"};
 
-      $chart_title = SL::Presenter::Tag::select_tag("tax_chart_type_$i", [
-          {value => 'expense',   title => $locale->text('Expense Account')},
-          {value => 'inventory', title => $locale->text('Inventory Account')},
-        ],
-        value_key => 'value', title_key => 'title',
-        default  => $tax_chart_type,
-        onchange => "kivi.io.update_tax_chart_picker(this.value, $i)",
-      );
-
-      $chart_picker =
-        SL::Presenter::Tag::html_tag('span',
-          SL::Presenter::Chart::chart_picker(
-            "expense_chart_id_$i", $form->{"expense_chart_id_$i"},
-            type => "AP_amount", style => "width: 150px"),
-          id => "expense_chart_span_$i",
-          style => $tax_chart_type eq 'expense' ? '' : 'display:none',
-        )
-        .
-        SL::Presenter::Tag::html_tag('span',
-          SL::Presenter::Chart::chart_picker(
-            "inventory_chart_id_$i", $form->{"inventory_chart_id_$i"},
-            type => "IC", style => "width: 150px"),
-          id => "inventory_chart_span_$i",
-          style => $tax_chart_type eq 'inventory' ? '' : 'display:none',
+        $chart_title = SL::Presenter::Tag::select_tag("tax_chart_type_$i", [
+            {value => 'expense',   title => $locale->text('Expense Account')},
+            {value => 'inventory', title => $locale->text('Inventory Account')},
+          ],
+          value_key => 'value', title_key => 'title',
+          default  => $tax_chart_type,
+          onchange => "kivi.io.update_tax_chart_picker(this.value, $i)",
         );
-    } else {
-      $tax_chart_id = $form->{"expense_chart_id_$i"};
-      $chart_title = $locale->text('Expense Account');
-      $chart_picker = SL::Presenter::Chart::chart_picker(
-        "expense_chart_id_$i", $form->{"expense_chart_id_$i"},
-        type => "AP_amount", style => "width: 150px");
-    }
-    # change tax dropdown after change
-    my $js_set_on_select_item = '<script type="text/javascript">
-      <!--
-      $(document).ready(function() {
-        $("#expense_chart_id_' . $i . '").on("set_item:ChartPicker", function(e, item) {
-          kivi.io.update_tax_ids(this);
-        });
-        $("#inventory_chart_id_' . $i . '").on("set_item:ChartPicker", function(e, item) {
-          kivi.io.update_tax_ids(this);
-        });
-      });
-      -->
-      </script>
-      ';
-    $column_data{tax_chart} = SL::Presenter::Tag::html_tag('span',
-      $chart_title . $chart_picker . $js_set_on_select_item);
 
-    my $tax_value_title_sub = sub {
-      my $item = shift;
-      return [
-        $item->{id},
-        $item->{taxkey} . ' - ' . $item->{taxdescription} .' '. ($item->{rate} * 100) .' %',
-      ];
-    };
+        $chart_picker =
+          SL::Presenter::Tag::html_tag('span',
+            SL::Presenter::Chart::chart_picker(
+              "expense_chart_id_$i", $form->{"expense_chart_id_$i"},
+              type => "AP_amount", style => "width: 150px"),
+            id => "expense_chart_span_$i",
+            style => $tax_chart_type eq 'expense' ? '' : 'display:none',
+          )
+          .
+          SL::Presenter::Tag::html_tag('span',
+            SL::Presenter::Chart::chart_picker(
+              "inventory_chart_id_$i", $form->{"inventory_chart_id_$i"},
+              type => "IC", style => "width: 150px"),
+            id => "inventory_chart_span_$i",
+            style => $tax_chart_type eq 'inventory' ? '' : 'display:none',
+          );
+      } else {
+        $tax_chart_id = $form->{"expense_chart_id_$i"};
+        $chart_title = $locale->text('Expense Account');
+        $chart_picker = SL::Presenter::Chart::chart_picker(
+          "expense_chart_id_$i", $form->{"expense_chart_id_$i"},
+          type => "AP_amount", style => "width: 150px");
+      }
+      # change tax dropdown after change
+      my $js_set_on_select_item = '<script type="text/javascript">
+        <!--
+        $(document).ready(function() {
+          $("#expense_chart_id_' . $i . '").on("set_item:ChartPicker", function(e, item) {
+            kivi.io.update_tax_ids(this);
+          });
+          $("#inventory_chart_id_' . $i . '").on("set_item:ChartPicker", function(e, item) {
+            kivi.io.update_tax_ids(this);
+          });
+        });
+        -->
+        </script>
+        ';
+      $column_data{tax_chart} = SL::Presenter::Tag::html_tag('span',
+        $chart_title . $chart_picker . $js_set_on_select_item);
 
-    my @taxes = ();
-    if ($form->{"expense_chart_id_$i"}) {
-      @taxes = IO->get_active_taxes_for_chart($tax_chart_id,
-        $form->{"reqdate_$i"} // $form->{deliverydate} // $form->{transdate});
+      my $tax_value_title_sub = sub {
+        my $item = shift;
+        return [
+          $item->{id},
+          $item->{taxkey} . ' - ' . $item->{taxdescription} .' '. ($item->{rate} * 100) .' %',
+        ];
+      };
+
+      my @taxes = ();
+      if ($form->{"expense_chart_id_$i"}) {
+        @taxes = IO->get_active_taxes_for_chart($tax_chart_id,
+          $form->{"reqdate_$i"} // $form->{deliverydate} // $form->{transdate});
+      }
+      # tax_id_ is used in io.js->update_tax_ids
+      $column_data{tax} = SL::Presenter::Tag::select_tag(
+        "tax_id_$i", \@taxes, default => $form->{"tax_id_$i"},
+        value_title_sub => $tax_value_title_sub,
+        style => "width: 100px");
     }
-    # tax_id_ is used in io.js->update_tax_ids
-    $column_data{tax} = SL::Presenter::Tag::select_tag(
-      "tax_id_$i", \@taxes, default => $form->{"tax_id_$i"},
-      value_title_sub => $tax_value_title_sub,
-      style => "width: 100px");
 
     $column_data{serialnr}  = qq|<input name="serialnumber_$i" size="15" value="$form->{"serialnumber_$i"}">|;
     $column_data{projectnr} = NTI($cgi->popup_menu(
