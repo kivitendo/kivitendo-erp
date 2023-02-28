@@ -46,6 +46,9 @@ Kleinere neue Features und Detailverbesserungen:
  - Schnellsuche für Projekte eingeführt
  - In der benutzerkonfigurierten Kundenanzeige kann man nun auch das Land mit
    anzeigen
+- Einkaufsrechnungen können positionsweise mit Aufwands- oder Bestandskonten
+und einem Steuerschlüssel überlagert werden (sichtbar in der 2.
+Positionszeile)
 
 2022-09-19 - Release 3.7.0
 
