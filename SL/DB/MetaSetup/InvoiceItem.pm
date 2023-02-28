@@ -41,6 +41,7 @@ __PACKAGE__->meta->columns(
   sellprice              => { type => 'numeric', precision => 15, scale => 5 },
   serialnumber           => { type => 'text' },
   subtotal               => { type => 'boolean', default => 'false' },
+  tax_chart_type         => { type => 'varchar', length => 20 },
   tax_id                 => { type => 'integer' },
   trans_id               => { type => 'integer' },
   transdate              => { type => 'text' },

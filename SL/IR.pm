@@ -449,7 +449,7 @@ sub _post_invoice {
                            project_id = ?, serialnumber = ?, price_factor_id = ?,
                            price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?,
                            active_price_source = ?, active_discount_source = ?
-                           ,expense_chart_id = ?, tax_id = ?, inventory_chart_id = ?
+                           ,expense_chart_id = ?, inventory_chart_id = ?, tax_id = ?, tax_chart_type = ?
         WHERE id = ?
 SQL
 
@@ -460,7 +460,7 @@ SQL
                conv_i($form->{"project_id_$i"}), $form->{"serialnumber_$i"},
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"marge_price_factor_$i"}),
                $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
-               $form->{"expense_chart_id_$i"}, $form->{"tax_id_$i"}, $form->{"inventory_chart_id_$i"},
+               $form->{"expense_chart_id_$i"}, $form->{"inventory_chart_id_$i"}, $form->{"tax_id_$i"}, $form->{"tax_chart_type_$i"},
                conv_i($form->{"invoice_id_$i"}));
     do_query($form, $dbh, $query, @values);
     push @processed_invoice_ids, $form->{"invoice_id_$i"};
@@ -1088,7 +1088,7 @@ sub retrieve_invoice {
         i.price_factor_id, i.price_factor, i.marge_price_factor, i.discount, i.active_price_source, i.active_discount_source,
         p.partnumber, p.part_type, pr.projectnumber, pg.partsgroup
         ,p.classification_id
-        ,i.expense_chart_id, i.tax_id, i.inventory_chart_id
+        ,i.expense_chart_id, i.inventory_chart_id, i.tax_id, i.tax_chart_type
 
         FROM invoice i
         JOIN parts p ON (i.parts_id = p.id)
