@@ -10,11 +10,11 @@ jobs:
         run: |
           sudo add-apt-repository universe
           sudo apt-get update
-          sudo apt-get install postgresql postgresql-contrib libtest-deep-perl libtest-exception-perl libtest-output-perl libwww-perl liburi-find-perl libsys-cpu-perl libthread-pool-simple-perl libdbd-pg-perl libdbi-perl      
+          sudo apt-get install postgresql postgresql-contrib libtest-deep-perl libtest-exception-perl libtest-output-perl libwww-perl liburi-find-perl libsys-cpu-perl libthread-pool-simple-perl libdbd-pg-perl libdbi-perl liblist-moreutils-perl libyaml-perl libconfig-std-perl libalgorithm-checkdigits-perl libarchive-zip-perl libcam-pdf-perl libdaemon-generic-perl libdatetime-perl libdatetime-event-cron-perl libdatetime-format-strptime-perl libdatetime-set-perl libexception-class-perl libemail-address-perl libemail-mime-perl libfile-copy-recursive-perl libfile-flock-perl libfile-mimeinfo-perl libfile-slurp-perl libgd-gd2-perl libhtml-restrict-perl libimage-info-perl libimager-perl libimager-qrcode-perl libipc-run-perl liblist-utilsby-perl libmath-round-perl libparams-validate-perl libpbkdf2-tiny-perl libpdf-api2-perl libregexp-ipv6-perl librest-client-perl librose-object-perl librose-db-perl librose-db-object-perl libset-infinite-perl libstring-shellquote-perl libtemplate-perl libtext-csv-xs-perl libxml-writer-perl poppler-utils      
       - name: Configurieren
         run: |
           cp config/kivitendo.conf.default config/kivitendo.conf
-          sed -i '/db[ ]*=/ s/$/ testdb/' config/kivitendo.conf
+          sed -i '/db[ ]*=/ s/$/ testdb/; /host/ s/localhost/127\.0\.0\.1/' config/kivitendo.conf
           sudo sed -i '/host[ ]*all[ ]*all[ ]*127/s/scram-sha-256/trust/' /etc/postgresql/14/main/pg_hba.conf
       - name: Postgresql starten
         run: sudo service postgresql start
