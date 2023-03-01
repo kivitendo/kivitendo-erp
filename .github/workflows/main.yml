@@ -18,7 +18,5 @@ jobs:
           sudo sed -i '/host[ ]*all[ ]*all[ ]*127/s/scram-sha-256/trust/' /etc/postgresql/14/main/pg_hba.conf
       - name: Postgresql starten
         run: sudo service postgresql start
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
       - name: Starten der Tests...
         run: t/test.pl
