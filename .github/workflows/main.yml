@@ -11,6 +11,7 @@ jobs:
           sudo add-apt-repository universe
           sudo apt-get update
           sudo apt-get install postgresql postgresql-contrib libtest-deep-perl libtest-exception-perl libtest-output-perl libwww-perl liburi-find-perl libsys-cpu-perl libthread-pool-simple-perl libdbd-pg-perl libdbi-perl      - name: Configurieren
+      - name: Configurieren
         run: |
           cp config/kivitendo.conf.default config/kivitendo.conf
           sed -i '/db[ ]*=/ s/$/ testdb/' config/kivitendo.conf
