@@ -10,8 +10,7 @@ jobs:
         run: |
           sudo add-apt-repository universe
           sudo apt-get update
-          sudo apt-get install libarchive-zip-perl libclone-perl libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl libemail-address-perl  libemail-mime-perl libfcgi-perl libjson-perl liblist-moreutils-perl libnet-smtp-ssl-perl libnet-sslglue-perl libparams-validate-perl libpdf-api2-perl librose-db-object-perl librose-db-perl librose-object-perl libsort-naturally-perl libstring-shellquote-perl libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl postgresql-contrib poppler-utils libhtml-restrict-perl libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl libdatetime-event-cron-perl libexception-class-perl libcam-pdf-perl libxml-libxml-perl libtry-tiny-perl libmath-round-perl libimager-perl libimager-qrcode-perl librest-client-perl libipc-run-perl
-      - name: Configurieren
+          sudo apt-get install postgresql postgresql-contrib libtest-deep-perl libtest-exception-perl libtest-output-perl libwww-perl liburi-find-perl libsys-cpu-perl libthread-pool-simple-perl libdbd-pg-perl libdbi-perl      - name: Configurieren
         run: |
           cp config/kivitendo.conf.default config/kivitendo.conf
           sed -i '/db[ ]*=/ s/$/ testdb/' config/kivitendo.conf
