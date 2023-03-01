@@ -11,4 +11,4 @@ jobs:
           sudo apt-get update
           sudo apt-get install postgresql
       - name: Starten der Tests...
-      - run: t/test.pl
+        run: t/test.pl
