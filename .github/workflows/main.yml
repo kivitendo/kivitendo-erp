@@ -16,5 +16,7 @@ jobs:
           cp config/kivitendo.conf.default config/kivitendo.conf
           sed -i '/db[ ]*=/ s/$/ testdb/' config/kivitendo.conf
           sudo sed -i '/host[ ]*all[ ]*all[ ]*127/s/md5/trust/' /etc/postgresql/14/main/pg_hba.conf
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
       - name: Starten der Tests...
         run: t/test.pl
