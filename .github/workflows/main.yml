@@ -1,0 +1,14 @@
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Installiere postgrsql 
+        run: |
+          sudo apt-get update
+          sudo apt-get install postgresql
+      - name: Starten der Tests...
+      - run: t/test.pl
