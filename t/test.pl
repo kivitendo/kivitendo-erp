@@ -7,7 +7,7 @@ use File::Find ();
 use Test::Harness qw(runtests execute_tests);
 use Getopt::Long;
 
-BEGIN {
+BEgGIN {
   use FindBin;
 
   unshift(@INC, $FindBin::Bin . '/../modules/override'); # Use our own versions of various modules (e.g. YAML).
