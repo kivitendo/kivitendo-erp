@@ -2,6 +2,7 @@ on: push
 
 jobs:
   build:
+    name: kivi-tests
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repository code
