@@ -50,7 +50,7 @@ sub is_empty {
   # todo: consider cvars
   my @fields_to_consider = grep { !m{^ (?: itime | mtime | shipto_id | trans_id | shiptocp_gender | module ) $}x } map {$_->name} $self->meta->columns;
 
-  return all { trim($self->$_) eq '' } @fields_to_consider;
+  return all { (trim($self->$_)||'') eq '' } @fields_to_consider;
 }
 
 sub detach {
