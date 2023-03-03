@@ -315,9 +315,21 @@ sub _make_objects {
   local $::myconfig{numberformat} = $self->numberformat if $self->numberformat;
   local $::myconfig{dateformat}   = $self->dateformat   if $self->dateformat;
 
+  my $line_nr = 0;
   for my $line (@{ $self->_data }) {
-    my $tmp_obj = $self->dispatcher->dispatch($line);
-    push @objs, $tmp_obj;
+    $line_nr++;
+    eval {
+      my $tmp_obj = $self->dispatcher->dispatch($line);
+      push @objs, $tmp_obj;
+      1;
+    } or do {
+      $self->_push_error([
+        $line,
+        0,
+        "making objects failed: $@",
+        0,
+        $line_nr]);
+    };
   }
 
   $self->_objects(\@objs);
@@ -442,14 +454,16 @@ Parse the data into objects and return those.
 
 This method will return an arrayref of all objects.
 
+If an error occurs while making the objects, it is put errors, too.
+
 =item C<get_data>
 
 Returns an arrayref of the raw lines as hashrefs.
 
 =item C<errors>
 
-Return all errors that came up during parsing. See error handling for detailed
-information.
+Return all errors that came up during parsing or making objects.
+See error handling for detailed information.
 
 =back
 
@@ -641,6 +655,9 @@ Note that the last entry can be off, but will give an estimate.
 
 Error handling is also known to break on new Perl versions and need to be
 adjusted from time to time due to changes in Text::CSV_XS.
+
+If an error occurs while making the objects, it is put into errors, too.
+Here the line is also an estimation.
 
 =head1 CAVEATS
 
