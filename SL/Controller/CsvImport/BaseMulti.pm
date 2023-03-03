@@ -71,6 +71,10 @@ sub run {
   $self->controller->info_headers($info_headers);
 
   my $objects  = $self->csv->get_objects;
+  if ($self->csv->errors) {
+    $self->controller->errors([ $self->csv->errors ]) ;
+    return;
+  }
 
   $self->controller->track_progress(progress => 70);
 
