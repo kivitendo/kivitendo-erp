@@ -2106,6 +2106,7 @@ $self->{texts} = {
   'Last Sales Quotation Number' => '',
   'Last Sales Reclamation Number' => '',
   'Last Service Number'         => '',
+  'Last Supplier Delivery Order Number' => '',
   'Last Transaction'            => '',
   'Last Vendor Number'          => '',
   'Last command output'         => '',
