@@ -36,6 +36,8 @@ use SL::DB::Order;
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder;
 use SL::DB::DeliveryOrder::TypeData qw(:types);
+use SL::DB::Reclamation;
+use SL::DB::Reclamation::TypeData qw(:types);
 use SL::DB::Employee;
 use SL::Dev::Part qw(new_part);
 use SL::Dev::CustomerVendor qw(new_vendor new_customer);
@@ -245,7 +247,7 @@ sub create_purchase_order {
 sub create_sales_reclamation {
   my (%params) = @_;
 
-  my $record_type = 'sales_reclamation';
+  my $record_type = SALES_RECLAMATION_TYPE();
   my $reclamation_items = delete $params{reclamation_items} // _create_two_items($record_type);
   _check_items($reclamation_items, $record_type);
 
@@ -255,6 +257,7 @@ sub create_sales_reclamation {
   die "'customer' is not of type SL::DB::Customer" unless ref($customer) eq 'SL::DB::Customer';
 
   my $reclamation = SL::DB::Reclamation->new(
+    record_type  => $record_type,
     customer_id  => delete $params{customer_id} // $customer->id,
     taxzone_id   => delete $params{taxzone_id}  // $customer->taxzone->id,
     currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
@@ -274,7 +277,7 @@ sub create_sales_reclamation {
 sub create_purchase_reclamation {
   my (%params) = @_;
 
-  my $record_type = 'sales_reclamation';
+  my $record_type = PURCHASE_RECLAMATION_TYPE();
   my $reclamation_items = delete $params{reclamation_items} // _create_two_items($record_type);
   _check_items($reclamation_items, $record_type);
 
@@ -284,6 +287,7 @@ sub create_purchase_reclamation {
   die "'vendor' is not of type SL::DB::Vendor" unless ref($vendor) eq 'SL::DB::Vendor';
 
   my $reclamation = SL::DB::Reclamation->new(
+    record_type  => $record_type,
     vendor_id    => delete $params{vendor_id}   // $vendor->id,
     taxzone_id   => delete $params{taxzone_id}  // $vendor->taxzone->id,
     currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,

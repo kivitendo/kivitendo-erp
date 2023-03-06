@@ -108,12 +108,12 @@ sub add_items { goto &add_reclamation_items; }
 sub record_items { goto &reclamation_items; }
 
 sub type {
-  my ($self) = @_;
-
-  return SALES_RECLAMATION_TYPE()    if $self->customer_id;
-  return PURCHASE_RECLAMATION_TYPE() if $self->vendor_id;
-
-  return;
+  my $self = shift;
+  die "invalid type: " . $self->record_type if (!any { $self->record_type eq $_ } (
+      SALES_RECLAMATION_TYPE(),
+      PURCHASE_RECLAMATION_TYPE(),
+    ));
+  return $self->record_type;
 }
 
 sub is_type {
@@ -281,6 +281,7 @@ sub new_from {
 
   my %record_args = (
     record_number => undef,
+    record_type   => $destination_type,
     employee => SL::DB::Manager::Employee->current,
     closed    => 0,
     delivered => 0,
