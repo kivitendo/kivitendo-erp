@@ -31,6 +31,7 @@ __PACKAGE__->meta->columns(
   notes                   => { type => 'text' },
   payment_id              => { type => 'integer' },
   record_number           => { type => 'text', not_null => 1 },
+  record_type             => { type => 'enum', check_in => [ 'sales_reclamation', 'purchase_reclamation' ], db_type => 'reclamation_types', not_null => 1 },
   reqdate                 => { type => 'date' },
   salesman_id             => { type => 'integer' },
   shippingpoint           => { type => 'text' },
