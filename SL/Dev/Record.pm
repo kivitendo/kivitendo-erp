@@ -34,6 +34,7 @@ use SL::DB::Invoice;
 use SL::DB::InvoiceItem;
 use SL::DB::Order;
 use SL::DB::Order::TypeData qw(:types);
+use SL::DB::DeliveryOrder;
 use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Employee;
 use SL::Dev::Part qw(new_part);
