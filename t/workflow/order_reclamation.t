@@ -214,7 +214,7 @@ my $sales_reclamation_tmp = clone($sales_reclamation);
 my $purchase_reclamation_tmp = clone($purchase_reclamation);
 # clean different values
 foreach (qw(
-  customer_id vendor_id
+  record_type customer_id vendor_id
   id record_number
   salesman_id
   transaction_description
@@ -241,7 +241,7 @@ my $sales_order_tmp = clone($sales_order);
 my $purchase_order_tmp = clone($purchase_order);
 # clean different values
 foreach (qw(
-  customer_id vendor_id
+  record_type customer_id vendor_id
   id
   ordnumber salesman_id
   transaction_description
@@ -278,91 +278,65 @@ is_deeply($linked_purchase_reclamation->strip->as_tree, $purchase_reclamation->l
 
 
 ## converted should be nealy the same
+my @different_record_values = qw(
+  id record_type employee_id itime mtime reqdate transdate
+  delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability order_status_id proforma quonumber quotation
+  cp_id contact_id
+  cusordnumber cv_record_number
+  ordnumber record_number
+  intake
+);
+my @different_record_item_values = qw(
+  id trans_id reclamation_id itime mtime
+  cusordnumber marge_percent marge_price_factor marge_total optional ordnumber ship subtotal transdate
+  reason_description_ext reason_description_int reason_id
+  recurring_billing_mode recurring_billing_invoice_id
+);
 # sales
 pairwise {
   test_deeply( $a->strip->as_tree, $b->strip->as_tree,
     "sales_order_items to sales_reclamation_items",
-    qw(
-      id trans_id reclamation_id itime mtime
-      cusordnumber marge_percent marge_price_factor marge_total optional ordnumber ship subtotal transdate
-      reason_description_ext reason_description_int reason_id
-      recurring_billing_mode recurring_billing_invoice_id
-    ));
+    @different_record_item_values
+  );
 } @sales_order_items, @converted_sales_reclamation_items;
 test_deeply( $sales_order->strip->as_tree, $converted_sales_reclamation->strip->as_tree,
   "sales_order to sales_reclamation",
-  qw(
-    id employee_id itime mtime reqdate transdate
-    delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability order_status_id proforma quonumber quotation
-    cp_id contact_id
-    cusordnumber cv_record_number
-    ordnumber record_number
-    intake
-  ));
+  @different_record_values
+);
 
 pairwise {
   test_deeply( $a->strip->as_tree, $b->strip->as_tree,
     "sales_reclamation_items to sales_order_items",
-    qw(
-      id trans_id reclamation_id itime mtime
-      cusordnumber marge_percent marge_price_factor marge_total optional ordnumber ship subtotal transdate
-      reason_description_ext reason_description_int reason_id
-      recurring_billing_mode recurring_billing_invoice_id
-    ));
+    @different_record_item_values
+  );
 } @sales_reclamation_items, @converted_sales_order_items;
 test_deeply($sales_reclamation->strip->as_tree, $converted_sales_order->strip->as_tree,
   "sales_reclamation to sales_order",
-  qw(
-    id employee_id itime mtime reqdate transdate
-    delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability order_status_id proforma quonumber quotation
-    cp_id contact_id
-    cusordnumber cv_record_number
-    ordnumber record_number
-    intake
-  ));
+  @different_record_values
+);
 
 # purchase
 pairwise {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
     "purchase_order_items to purchase_reclamation_items",
-    qw(
-      id trans_id reclamation_id itime mtime
-      cusordnumber marge_percent marge_price_factor marge_total optional ordnumber ship subtotal transdate
-      reason_description_ext reason_description_int reason_id
-      recurring_billing_mode recurring_billing_invoice_id
-    ));
+    @different_record_item_values
+  );
 } @purchase_order_items, @converted_purchase_reclamation_items;
 test_deeply($purchase_order->strip->as_tree, $converted_purchase_reclamation->strip->as_tree,
   "purchase_order to purchase_reclamation",
-  qw(
-    id employee_id itime mtime reqdate transdate
-    delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability order_status_id proforma quonumber quotation
-    cp_id contact_id
-    cusordnumber cv_record_number
-    ordnumber record_number
-    intake
-  ));
+  @different_record_values
+);
 
 pairwise {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
     "purchase_reclamation_items to purchase_order_items",
-    qw(
-      id trans_id reclamation_id itime mtime
-      cusordnumber marge_percent marge_price_factor marge_total optional ordnumber ship subtotal transdate
-      reason_description_ext reason_description_int reason_id
-      recurring_billing_mode recurring_billing_invoice_id
-    ));
+    @different_record_item_values
+  );
 } @purchase_reclamation_items, @converted_purchase_order_items;
 test_deeply($purchase_reclamation->strip->as_tree, $converted_purchase_order->strip->as_tree,
   "purchase_reclamation to purchase_order",
-  qw(
-    id employee_id itime mtime reqdate transdate
-    delivery_customer_id delivery_vendor_id expected_billing_date marge_percent marge_total order_probability order_status_id proforma quonumber quotation
-    cp_id contact_id
-    cusordnumber cv_record_number
-    ordnumber record_number
-    intake
-  ));
+  @different_record_values
+);
 
 # diag Dumper($sales_order->strip->as_tree);
 # diag Dumper($converted_sales_reclamation->strip->as_tree);

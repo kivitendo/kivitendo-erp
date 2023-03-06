@@ -214,7 +214,7 @@ my $sales_reclamation_tmp = clone($sales_reclamation);
 my $purchase_reclamation_tmp = clone($purchase_reclamation);
 # clean different values
 foreach (qw(
-  customer_id vendor_id
+  record_type customer_id vendor_id
   id record_number
   salesman_id
   transaction_description
@@ -277,88 +277,67 @@ is_deeply($linked_purchase_reclamation->strip->as_tree, $purchase_reclamation->l
 
 
 ## converted should be nearly the same
+my @different_record_values = qw(
+    id employee_id itime mtime reqdate
+    order_type ordnumber oreqnumber
+    amount exchangerate netamount
+    order_type record_type
+    cp_id contact_id
+    cusordnumber cv_record_number
+    donumber record_number
+);
+my @different_record_item_values = qw(
+  id delivery_order_id reclamation_id itime mtime
+  cusordnumber marge_price_factor ordnumber transdate
+  description reason_description_ext reason_description_int reason_id
+);
+
 # sales
 pairwise  {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
     "sales_delivery_order_items to sales_reclamation_items",
-    qw(
-      id delivery_order_id reclamation_id itime mtime
-      cusordnumber marge_price_factor ordnumber transdate
-      description reason_description_ext reason_description_int reason_id
-    ));
+    @different_record_item_values
+  );
 } @sales_delivery_order_items, @converted_sales_reclamation_items;
 test_deeply($sales_delivery_order->strip->as_tree, $converted_sales_reclamation->strip->as_tree,
   "sales_delivery_order to sales_reclamation",
-  qw(
-    id employee_id itime mtime reqdate
-    order_type ordnumber oreqnumber
-    amount exchangerate netamount
-    cp_id contact_id
-    cusordnumber cv_record_number
-    donumber record_number
-  ));
+  @different_record_values
+);
 
 pairwise {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
     "sales_reclamation_items to sales_delivery_order_items",
-    qw(
-      id delivery_order_id reclamation_id itime mtime
-      cusordnumber marge_price_factor ordnumber transdate
-      description reason_description_ext reason_description_int reason_id
-    ));
+    @different_record_item_values
+  );
 } @sales_reclamation_items, @converted_sales_delivery_order_items;
 test_deeply($sales_reclamation->strip->as_tree, $converted_sales_delivery_order->strip->as_tree,
   "sales_reclamation to sales_delivery_order",
-  qw(
-    id employee_id itime mtime delivered reqdate
-    order_type ordnumber oreqnumber
-    amount exchangerate netamount
-    cp_id contact_id
-    cusordnumber cv_record_number
-    donumber record_number
-  ));
+  @different_record_values
+);
 
 
 # purchase
 pairwise {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
     "purchase_delivery_order_items to purchase_reclamation_items",
-    qw(
-      id delivery_order_id reclamation_id itime mtime
-      cusordnumber marge_price_factor ordnumber transdate
-      description reason_description_ext reason_description_int reason_id
-    ));
+    @different_record_item_values
+  );
 } @purchase_delivery_order_items, @converted_purchase_reclamation_items;
 test_deeply($purchase_delivery_order->strip->as_tree, $converted_purchase_reclamation->strip->as_tree,
   "purchase_delivery_order to purchase_reclamation",
-  qw(
-    id employee_id itime mtime reqdate
-    order_type ordnumber oreqnumber
-    amount exchangerate netamount
-    cp_id contact_id
-    cusordnumber cv_record_number
-    donumber record_number
-  ));
+  @different_record_values
+);
 
 pairwise {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
     "purchase_reclamation_items to purchase_delivery_order_items",
-    qw(
-      id delivery_order_id reclamation_id itime mtime
-      cusordnumber marge_price_factor ordnumber transdate
-      description reason_description_ext reason_description_int reason_id
-    ));
+    @different_record_item_values
+  );
 } @purchase_reclamation_items, @converted_purchase_delivery_order_items;
 test_deeply($purchase_reclamation->strip->as_tree, $converted_purchase_delivery_order->strip->as_tree,
   "purchase_reclamation to purchase_delivery_order",
-  qw(
-    id employee_id itime mtime delivered reqdate
-    order_type ordnumber oreqnumber
-    amount exchangerate netamount
-    cp_id contact_id
-    cusordnumber cv_record_number
-    donumber record_number
-  ));
+  @different_record_values
+);
 
 
 
