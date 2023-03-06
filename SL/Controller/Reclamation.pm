@@ -1465,6 +1465,7 @@ sub make_reclamation {
     $reclamation = SL::DB::Reclamation->new(id => $::form->{id})->load();
   } else {
     $reclamation = SL::DB::Reclamation->new(
+                     record_type        => $self->type,
                      reclamation_items  => [],
                      currency_id => $::instance_conf->get_currency_id(),
                    );
