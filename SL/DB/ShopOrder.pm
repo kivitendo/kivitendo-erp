@@ -47,6 +47,7 @@ sub convert_to_sales_order {
           : @{ $self->shop_order_items };
 
   require SL::DB::Order;
+  use SL::DB::Order::TypeData qw(:types);
   require SL::DB::OrderItem;
   require SL::DB::Part;
   require SL::DB::Shipto;
@@ -115,6 +116,7 @@ sub convert_to_sales_order {
       currency_id             => $customer->currency_id,
       transaction_description => $shop->transaction_description,
       transdate               => $transdate,
+      record_type             => SALES_ORDER_TYPE(),
     );
      return $order;
    }else{

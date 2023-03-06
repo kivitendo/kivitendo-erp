@@ -1876,6 +1876,7 @@ sub make_order {
   my $order;
   $order   = SL::DB::Order->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
   $order ||= SL::DB::Order->new(orderitems  => [],
+                                record_type => $self->type,
                                 quotation   => (any { $self->type eq $_ } (SALES_QUOTATION_TYPE(), REQUEST_QUOTATION_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())),
                                 intake      => (any { $self->type eq $_ } (SALES_ORDER_INTAKE_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())),
                                 currency_id => $::instance_conf->get_currency_id(),);

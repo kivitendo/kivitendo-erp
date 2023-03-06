@@ -10,6 +10,7 @@ use List::Util qw(first);
 
 use SL::DB::Customer;
 use SL::DB::Order;
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::Part;
 use SL::DB::RequirementSpec;
 use SL::DB::RequirementSpecOrder;
@@ -368,7 +369,9 @@ sub create_order {
   my $reqdate    = !$::form->{quotation} ? undef
                  : $customer->payment_id ? $customer->payment->calc_date
                  :                         DateTime->today_local->next_workday(extra_days => $::instance_conf->get_reqdate_interval)->to_kivitendo;
+  my $record_type = $::form->{quotation} ? SALES_QUOTATION_TYPE() : SALES_ORDER_TYPE();
   my $order      = SL::DB::Order->new(
+    record_type             => $record_type,
     globalproject_id        => $self->requirement_spec->project_id,
     transdate               => DateTime->today_local,
     reqdate                 => $reqdate,

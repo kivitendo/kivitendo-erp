@@ -18,6 +18,7 @@ use SL::DB::Customer;
 use SL::DB::Employee;
 use SL::DB::Invoice;
 use SL::DB::Order;
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder;
 use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Part;
@@ -68,6 +69,7 @@ sub new_order {
   my %params  = @_;
 
   return SL::DB::Order->new(
+    record_type => SALES_ORDER_TYPE(),
     customer_id => $customer->id,
     currency_id => $currency_id,
     employee_id => $employee->id,
