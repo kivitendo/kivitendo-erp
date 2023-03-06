@@ -115,7 +115,7 @@ sub parse {
       if ($line->[0] =~ m{^:86:\d+([^\d])(.+)}) {
         # structured
         my ($separator, $rest) = ($1, $2);
-        my %parts              = map { ((substr($_, 0, 2) // '0') * 1 => substr($_, 2)) } split $separator, $rest;
+        my %parts              = map { ((substr($_, 0, 2) // '0') * 1 => substr($_, 2)) } split quotemeta($separator), $rest;
 
         $transaction{purpose}               = _join_entries(\%parts, 20, 29);
         $transaction{remote_name}           = _join_entries(\%parts, 32, 33, '');
