@@ -820,7 +820,7 @@ SQL
     $form->{"expense_accno_tax_id_$index"} = $tax_ref->{tax_id}; # only for purchase_invoice
 
     $form->{"taxaccounts_$index"} = $tax_ref->{"accno"};
-    $form->{"taxaccounts"} .= "$tax_ref->{accno} "if $form->{"taxaccounts"} !~ /$ref->{accno}/;
+    $form->{"taxaccounts"} .= "$tax_ref->{accno} "if $form->{"taxaccounts"} !~ /$tax_ref->{accno}/;
 
     $form->{"$tax_ref->{accno}_${_}"} = $tax_ref->{$_} for qw(rate description taxnumber tax_id);
   }
