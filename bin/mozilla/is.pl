@@ -1264,6 +1264,7 @@ sub further_invoice_for_advance_payment {
   $form->{employee_id}         = SL::DB::Manager::Employee->current->id;
   $form->{forex}               = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
   $form->{exchangerate}        = $form->{forex} if $form->{forex};
+  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
 
   $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
@@ -1291,6 +1292,7 @@ sub final_invoice {
   $form->{employee_id}         = SL::DB::Manager::Employee->current->id;
   $form->{forex}               = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
   $form->{exchangerate}        = $form->{forex} if $form->{forex};
+  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
 
   foreach my $i (1 .. $form->{"rowcount"}) {
     delete $form->{"id_$i"};
