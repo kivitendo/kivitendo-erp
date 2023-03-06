@@ -162,15 +162,15 @@ sub record_number { goto &number; }
 
 sub type {
   my $self = shift;
-
-  return SALES_ORDER_INTAKE_TYPE()        if $self->customer_id &&   $self->intake;
-  return SALES_ORDER_TYPE()               if $self->customer_id && ! $self->quotation;
-  return PURCHASE_ORDER_TYPE()            if $self->vendor_id   && ! $self->quotation;
-  return SALES_QUOTATION_TYPE()           if $self->customer_id &&   $self->quotation;
-  return REQUEST_QUOTATION_TYPE()         if $self->vendor_id   &&   $self->quotation  && ! $self->intake;
-  return PURCHASE_QUOTATION_INTAKE_TYPE() if $self->vendor_id   &&   $self->quotation  &&   $self->intake;
-
-  return;
+  die "invalid type: " . $self->record_type if (!any { $self->record_type eq $_ } (
+      SALES_ORDER_INTAKE_TYPE(),
+      SALES_ORDER_TYPE(),
+      PURCHASE_ORDER_TYPE(),
+      REQUEST_QUOTATION_TYPE(),
+      SALES_QUOTATION_TYPE(),
+      PURCHASE_QUOTATION_INTAKE_TYPE(),
+    ));
+  return $self->record_type;
 }
 
 sub is_type {
@@ -468,6 +468,8 @@ sub new_from {
   } else {
     $args{shipto_id} = $source->shipto_id;
   }
+
+  $args{record_type} = $destination_type;
 
   my $order = $class->new(%args);
   $order->assign_attributes(%{ $params{attributes} }) if $params{attributes};

@@ -32,6 +32,8 @@ our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use SL::DB::Invoice;
 use SL::DB::InvoiceItem;
+use SL::DB::Order;
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Employee;
 use SL::Dev::Part qw(new_part);
@@ -52,7 +54,7 @@ my %record_type_to_item_type = ( sales_invoice        => 'SL::DB::InvoiceItem',
                                  credit_note          => 'SL::DB::InvoiceItem',
                                  sales_order          => 'SL::DB::OrderItem',
                                  sales_quotation      => 'SL::DB::OrderItem',
-                                 purchase_quotation   => 'SL::DB::OrderItem',
+                                 request_quotation    => 'SL::DB::OrderItem',
                                  purchase_order       => 'SL::DB::OrderItem',
                                  sales_delivery_order => 'SL::DB::DeliveryOrderItem',
                                  purchase_delivery_order => 'SL::DB::DeliveryOrderItem',
@@ -216,26 +218,26 @@ sub create_purchase_delivery_order {
 
 sub create_sales_quotation {
   my (%params) = @_;
-  $params{type} = 'sales_quotation';
+  $params{type} = SALES_QUOTATION_TYPE();
   _create_sales_order_or_quotation(%params);
 }
 
 sub create_sales_order {
   my (%params) = @_;
-  $params{type} = 'sales_order';
+  $params{type} = SALES_ORDER_TYPE();
   _create_sales_order_or_quotation(%params);
 }
 
 sub create_purchase_quotation {
   my (%params) = @_;
-  $params{type} = 'purchase_quotation';
+  $params{type} = REQUEST_QUOTATION_TYPE();
   # TODO: set a with reqdate
   _create_purchase_order_or_quotation(%params);
 }
 
 sub create_purchase_order {
   my (%params) = @_;
-  $params{type} = 'purchase_order';
+  $params{type} = PURCHASE_ORDER_TYPE();
   _create_purchase_order_or_quotation(%params);
 }
 
@@ -737,7 +739,7 @@ sub _create_sales_order_or_quotation {
   my (%params) = @_;
 
   my $record_type = $params{type};
-  die "illegal type" unless $record_type eq 'sales_order' or $record_type eq 'sales_quotation';
+  die "illegal type" unless $record_type eq SALES_ORDER_TYPE() or $record_type eq SALES_QUOTATION_TYPE();
 
   my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
   _check_items($orderitems, $record_type);
@@ -748,6 +750,7 @@ sub _create_sales_order_or_quotation {
   die "illegal customer" unless ref($customer) eq 'SL::DB::Customer';
 
   my $record = SL::DB::Order->new(
+    record_type  => delete $params{type},
     customer_id  => delete $params{customer_id} // $customer->id,
     taxzone_id   => delete $params{taxzone_id}  // $customer->taxzone->id,
     currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
@@ -770,7 +773,7 @@ sub _create_purchase_order_or_quotation {
   my (%params) = @_;
 
   my $record_type = $params{type};
-  die "illegal type" unless $record_type eq 'purchase_order' or $record_type eq 'purchase_quotation';
+  die "illegal type" unless $record_type eq PURCHASE_ORDER_TYPE() or $record_type eq REQUEST_QUOTATION_TYPE();
   my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
   _check_items($orderitems, $record_type);
 
@@ -780,13 +783,14 @@ sub _create_purchase_order_or_quotation {
   die "illegal vendor" unless ref($vendor) eq 'SL::DB::Vendor';
 
   my $record = SL::DB::Order->new(
+    record_type  => delete $params{type},
     vendor_id    => delete $params{vendor_id}   // $vendor->id,
     taxzone_id   => delete $params{taxzone_id}  // $vendor->taxzone->id,
     currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
     taxincluded  => delete $params{taxincluded} // 0,
     transdate    => delete $params{transdate}   // DateTime->today,
     'closed'     => undef,
-    quotation    => $record_type eq 'purchase_quotation' ? 1 : 0,
+    quotation    => $record_type eq REQUEST_QUOTATION_TYPE() ? 1 : 0,
     orderitems   => $orderitems,
   );
   $record->assign_attributes(%params) if %params;
