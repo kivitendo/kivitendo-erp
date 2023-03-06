@@ -299,6 +299,7 @@ SQL
       if ($form->{l_items}) {
         do_statement($form, $items_sth, $items_query, $dord->{id});
         $dord->{item_ids} = $dbh->selectcol_arrayref($items_sth);
+        $dord->{item_ids} = undef if !@{$dord->{item_ids}};
       }
 
       next unless ($dord->{ordnumber});
