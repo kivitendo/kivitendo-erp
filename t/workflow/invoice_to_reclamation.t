@@ -207,7 +207,7 @@ my $sales_reclamation_tmp = clone($sales_reclamation);
 my $purchase_reclamation_tmp = clone($purchase_reclamation);
 # clean different values
 foreach (qw(
-  customer_id vendor_id
+  record_type customer_id vendor_id
   id record_number
   salesman_id
   transaction_description
@@ -236,46 +236,49 @@ is_deeply($linked_purchase_invoice->strip->as_tree, $purchase_invoice->strip->as
 
 
 ## converted should be nearly the same
+my @different_record_values = qw(
+  id employee_id itime mtime transdate
+  datepaid delivery_customer_id delivery_vendor_id deliverydate direct_debit donumber duedate dunning_config_id gldate invnumber_for_credit_note invoice marge_percent marge_total orddate ordnumber paid qr_reference qr_unstructured_message qrbill_without_amount quodate quonumber storno storno_id type
+  delivered closed exchangerate record_type reqdate vendor_id
+  cp_id contact_id
+  cusordnumber cv_record_number
+  invnumber record_number
+);
+my @different_record_item_values = qw(
+  id trans_id reclamation_id itime mtime
+  allocated assemblyitem cusordnumber deliverydate donumber fxsellprice marge_percent marge_price_factor marge_total optional ordnumber subtotal transdate expense_chart_id tax_id inventory_chart_id
+  reason_description_ext reason_description_int reason_id reqdate
+  tax_chart_type
+);
 pairwise {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
     "sales_invoice_items to sales_reclamation_items",
-    qw(
-      id trans_id reclamation_id itime mtime
-      allocated assemblyitem cusordnumber deliverydate donumber fxsellprice marge_percent marge_price_factor marge_total optional ordnumber subtotal transdate expense_chart_id tax_id inventory_chart_id
-      reason_description_ext reason_description_int reason_id reqdate
-      tax_chart_type
-    ));
+    @different_record_item_values
+  );
 } @sales_invoice_items, @converted_sales_reclamation_items;
 test_deeply($sales_invoice->strip->as_tree, $converted_sales_reclamation->strip->as_tree,
   "sales_invoice to sales_reclamation",
-  qw(
-    id employee_id itime mtime transdate
-    datepaid delivery_customer_id delivery_vendor_id deliverydate direct_debit donumber duedate dunning_config_id gldate invnumber_for_credit_note invoice marge_percent marge_total orddate ordnumber paid qr_reference qr_unstructured_message qrbill_without_amount quodate quonumber storno storno_id type
-    delivered closed exchangerate reqdate vendor_id
-    cp_id contact_id
-    cusordnumber cv_record_number
-    invnumber record_number
-  ));
+  @different_record_values
+);
 
+
+my @different_record_values2 = qw(
+    id employee_id itime mtime transdate
+    datepaid deliverydate direct_debit duedate gldate invoice orddate ordnumber paid quodate quonumber storno storno_id type is_sepa_blocked
+    billing_address_id customer_id cv_record_number delivered closed exchangerate record_type reqdate salesman_id shippingpoint shipto_id
+    cp_id contact_id
+    invnumber record_number qrbill_data
+);
 pairwise {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
     "purchase_invoice_items to purchase_reclamation_items",
-    qw(
-      id trans_id reclamation_id itime mtime
-      allocated assemblyitem cusordnumber deliverydate donumber fxsellprice marge_percent marge_price_factor marge_total optional ordnumber subtotal transdate expense_chart_id tax_id inventory_chart_id
-      reason_description_ext reason_description_int reason_id reqdate
-      tax_chart_type
-    ));
+    @different_record_item_values
+  );
 } @purchase_invoice_items, @converted_purchase_reclamation_items;
 test_deeply($purchase_invoice->strip->as_tree, $converted_purchase_reclamation->strip->as_tree,
   "purchase_invoice to purchase_reclamation",
-  qw(
-    id employee_id itime mtime transdate
-    datepaid deliverydate direct_debit duedate gldate invoice orddate ordnumber paid quodate quonumber storno storno_id type is_sepa_blocked
-    billing_address_id customer_id cv_record_number delivered closed exchangerate reqdate salesman_id shippingpoint shipto_id
-    cp_id contact_id
-    invnumber record_number qrbill_data
-  ));
+  @different_record_values2
+);
 
 # diag Dumper($sales_invoice->strip->as_tree);
 # diag Dumper($converted_sales_reclamation->strip->as_tree);

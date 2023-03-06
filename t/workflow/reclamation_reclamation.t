@@ -174,24 +174,28 @@ my @converted_sales_reclamation_items    = @{$converted_sales_reclamation->items
 
 ### TESTS #####################################################################
 
+my @different_record_values = qw(
+  record_type customer_id vendor_id
+  id record_number transaction_description employee_id
+  itime mtime
+);
+
+my @different_record_item_values = qw(
+  id reclamation_id
+  itime mtime
+);
+
 ## created sales und purchase reclamation should be nearly the same
 my $sales_tmp = clone($sales_reclamation);
 my $purchase_tmp = clone($purchase_reclamation);
 # clean different values
-foreach (qw(
-  customer_id vendor_id
-  id record_number transaction_description
-  itime mtime
-  )) {
+foreach (@different_record_values) {
   $sales_tmp->$_(undef);
   $purchase_tmp->$_(undef);
 }
 
 pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
-  foreach (qw(
-    id reclamation_id
-    itime mtime
-    )) {
+  foreach (@different_record_item_values) {
     $first_tmp->$_(undef);
     $second_tmp->$_(undef);
   }
@@ -220,11 +224,7 @@ my $sales_tmp2 = clone($sales_reclamation);
 my $new_purchase_tmp = clone($new_purchase_reclamation);
 my $purchase_tmp2 = clone($purchase_reclamation);
 # clean different values
-foreach (qw(
-  id record_number
-  reqdate employee_id transdate
-  itime mtime
-  )) {
+foreach (@different_record_values) {
   $new_sales_tmp->$_(undef);
   $sales_tmp2->$_(undef);
   $new_purchase_tmp->$_(undef);
@@ -232,10 +232,7 @@ foreach (qw(
 }
 
 pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
-  foreach (qw(
-    id reclamation_id
-    itime mtime
-    )) {
+  foreach (@different_record_item_values) {
     $first_tmp->$_(undef);
     $second_tmp->$_(undef);
   }
@@ -244,10 +241,7 @@ pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
 is_deeply($sales_tmp2->strip->as_tree, $new_sales_tmp->strip->as_tree);
 
 pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
-  foreach (qw(
-    id reclamation_id
-    itime mtime
-    )) {
+  foreach (@different_record_item_values) {
     $first_tmp->$_(undef);
     $second_tmp->$_(undef);
   }
@@ -261,9 +255,10 @@ my $sales_tmp3 = clone($sales_reclamation);
 my $converted_sales_tmp = clone($converted_sales_reclamation);
 my $purchase_tmp3 = clone($purchase_reclamation);
 my $converted_purchase_tmp = clone($converted_purchase_reclamation);
-# clean changing values
-foreach (qw(
+
+my @different_converted_record_values = qw(
   transdate
+  record_type
   customer_id vendor_id
   id record_number
   employee_id reqdate
@@ -271,7 +266,16 @@ foreach (qw(
 
   delivery_term_id
   payment_id
-  )) {
+);
+
+my @different_converted_record_item_values = qw(
+  id reclamation_id
+  sellprice discount lastcost
+  itime mtime
+);
+
+# clean changing values
+foreach (@different_converted_record_values) {
   $sales_tmp3->$_(undef);
   $converted_sales_tmp->$_(undef);
   $purchase_tmp3->$_(undef);
@@ -280,11 +284,7 @@ foreach (qw(
 
 # from sales to purchase
 pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
-  foreach (qw(
-    id reclamation_id
-    sellprice discount
-    itime mtime
-    )) {
+  foreach (@different_converted_record_item_values) {
     $first_tmp->$_(undef);
     $second_tmp->$_(undef);
   }
@@ -295,11 +295,7 @@ is_deeply($sales_tmp3->strip->as_tree, $converted_purchase_tmp->strip->as_tree);
 
 # from purchase to sales
 pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
-  foreach (qw(
-    id reclamation_id
-    lastcost
-    itime mtime
-    )) {
+  foreach (@different_converted_record_item_values) {
     $first_tmp->$_(undef);
     $second_tmp->$_(undef);
   }
