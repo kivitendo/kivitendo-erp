@@ -4,9 +4,12 @@ use strict;
 
 use parent qw(SL::DB::Helper::Manager);
 
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::Helper::Paginated;
 use SL::DB::Helper::Sorted;
 use SL::DB::Helper::Filtered;
+
+use List::MoreUtils qw(any);
 
 sub object_class { 'SL::DB::Order' }
 
@@ -28,12 +31,14 @@ sub type_filter {
   my $type   = lc(shift || '');
   my $prefix = shift || '';
 
-  return (and => [ "!${prefix}customer_id" => undef,         "${prefix}quotation" => 1                                                          ]) if $type eq 'sales_quotation';
-  return (and => [ "!${prefix}vendor_id"   => undef,         "${prefix}quotation" => 1, "${prefix}intake"    => 0                               ]) if $type eq 'request_quotation';
-  return (and => [ "!${prefix}customer_id" => undef,         "${prefix}intake"    => 1                                                          ]) if $type eq 'sales_order_intake';
-  return (and => [ "!${prefix}vendor_id"   => undef,         "${prefix}intake"    => 1, "${prefix}quotation" => 1                               ]) if $type eq 'purchase_quotation_intake';
-  return (and => [ "!${prefix}customer_id" => undef, or => [ "${prefix}quotation" => 0, "${prefix}quotation" => undef ], "${prefix}intake" => 0 ]) if $type eq 'sales_order';
-  return (and => [ "!${prefix}vendor_id"   => undef, or => [ "${prefix}quotation" => 0, "${prefix}quotation" => undef ]                         ]) if $type eq 'purchase_order';
+  return ("${prefix}record_type" => $type) if( any {$type eq $_} (
+      SALES_ORDER_INTAKE_TYPE(),
+      SALES_ORDER_TYPE(),
+      SALES_QUOTATION_TYPE(),
+      PURCHASE_ORDER_TYPE(),
+      REQUEST_QUOTATION_TYPE(),
+      PURCHASE_QUOTATION_INTAKE_TYPE(),
+    ));
 
   die "Unknown type $type";
 }
