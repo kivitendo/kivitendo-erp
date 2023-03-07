@@ -192,8 +192,8 @@ my %type_data = (
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
-      edit => "purchase_quotation_edit",
-      view => "purchase_quotation_edit | purchase_quotation_view",
+      edit => "request_quotation_edit",
+      view => "request_quotation_edit | request_quotation_view",
     },
     features => {
       price_tax   => 1,
