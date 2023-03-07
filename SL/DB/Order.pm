@@ -93,8 +93,7 @@ sub _before_save_set_ord_quo_number {
   # least an empty string, even if we're saving a quotation.
   $self->ordnumber('') if !$self->ordnumber;
 
-  my $field = $self->quotation ? 'quonumber' : 'ordnumber';
-  $self->create_trans_number if !$self->$field;
+  $self->create_trans_number if !$self->record_number;
 
   return 1;
 }
@@ -175,6 +174,30 @@ sub type {
 
 sub is_type {
   return shift->type eq shift;
+}
+
+sub quotation {
+  my $type = shift->type();
+  if (any { $type eq $_ } (
+      SALES_ORDER_INTAKE_TYPE(),
+      SALES_QUOTATION_TYPE(),
+      REQUEST_QUOTATION_TYPE(),
+      PURCHASE_QUOTATION_INTAKE_TYPE(),
+    )) {
+    return 1;
+  };
+  return 0;
+}
+
+sub intake {
+  my $type = shift->type();
+  if (any { $type eq $_ } (
+      SALES_ORDER_INTAKE_TYPE(),
+      PURCHASE_QUOTATION_INTAKE_TYPE(),
+    )) {
+    return 1;
+  };
+  return 0;
 }
 
 sub deliverydate {
@@ -391,8 +414,6 @@ sub new_from {
                                                ordnumber payment_id quonumber reqdate salesman_id shippingpoint shipvia taxincluded tax_point taxzone_id
                                                transaction_description vendor_id billing_address_id
                                             )),
-                 quotation => !!(($destination_type =~ m{quotation$}) || ($destination_type eq 'purchase_quotation_intake')),
-                 intake    => !!($destination_type =~ m{intake$}),
                  closed    => 0,
                  delivered => 0,
                  transdate => DateTime->today_local,
