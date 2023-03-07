@@ -81,7 +81,7 @@ __PACKAGE__->run_before('check_auth_for_edit',
 sub action_add {
   my ($self) = @_;
 
-  $self->order(SL::Model::Record->update_after_new($self->order, $self->type));
+  $self->order(SL::Model::Record->update_after_new($self->order));
 
   $self->pre_render();
 

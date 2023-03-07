@@ -13,7 +13,6 @@ use SL::DB::History;
 use SL::DB::Invoice;
 use SL::DB::Status;
 use SL::DB::ValidityToken;
-use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
@@ -23,14 +22,12 @@ use SL::Locale::String qw(t8);
 
 
 sub update_after_new {
-  my ($class, $new_record, $subtype, %flags) = @_;
+  my ($class, $new_record, %flags) = @_;
 
   $new_record->transdate(DateTime->now_local());
 
-  # build TypeDataProxy
-  # TODO: remove when type is set in record and not infered form customer/vendor_id
-  my $type_data_proxy = SL::DB::Helper::TypeDataProxy->new(ref $new_record, $subtype);
-  $new_record->reqdate($type_data_proxy->defaults('reqdate'));
+  my $default_reqdate = $new_record->type_data->defaults('reqdate');
+  $new_record->reqdate($default_reqdate);
 
   return $new_record;
 }
@@ -307,8 +304,8 @@ in the new DeliveryOrder Controller
 
 =item C<update_after_new>
 
-Creates a new record_object by record_type and sub_type.
-Sets reqdate and transdate if required by type_data.
+Updates a record_object corresponding to type_data.
+Sets reqdate and transdate.
 
 Returns the record object.
 
@@ -451,10 +448,6 @@ Payments for invoices
 In later stages the following things should be implemented:
 
 =over 4
-
-=item *
-
-For SL::DB::Order and SL::DB::Reclamations the subtype should be saved in the database and not inferred from customer/vendor.
 
 =item *
 
