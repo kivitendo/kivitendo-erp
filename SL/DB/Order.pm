@@ -26,7 +26,7 @@ use SL::Locale::String qw(t8);
 use SL::RecordLinks;
 use Rose::DB::Object::Helpers qw(as_tree strip);
 
-use SL::DB::Order::TypeData qw(:types);
+use SL::DB::Order::TypeData qw(:types validate_type);
 use SL::DB::Reclamation::TypeData qw(:types);
 
 __PACKAGE__->meta->add_relationship(
@@ -161,14 +161,7 @@ sub record_number { goto &number; }
 
 sub type {
   my $self = shift;
-  die "invalid type: " . $self->record_type if (!any { $self->record_type eq $_ } (
-      SALES_ORDER_INTAKE_TYPE(),
-      SALES_ORDER_TYPE(),
-      PURCHASE_ORDER_TYPE(),
-      REQUEST_QUOTATION_TYPE(),
-      SALES_QUOTATION_TYPE(),
-      PURCHASE_QUOTATION_INTAKE_TYPE(),
-    ));
+  SL::DB::Order::TypeData::validate_type($self->record_type);
   return $self->record_type;
 }
 
@@ -215,14 +208,9 @@ sub effective_tax_point {
 }
 
 sub displayable_type {
-  my $type = shift->type;
+  my ($self) = @_;
 
-  return $::locale->text('Sales quotation')   if $type eq SALES_QUOTATION_TYPE();
-  return $::locale->text('Request quotation') if $type eq REQUEST_QUOTATION_TYPE();
-  return $::locale->text('Sales Order')       if $type eq SALES_ORDER_TYPE();
-  return $::locale->text('Purchase Order')    if $type eq PURCHASE_ORDER_TYPE();
-
-  die 'invalid type';
+  return $self->type_data->text('list');
 }
 
 sub displayable_name {
@@ -639,18 +627,8 @@ sub new_from_multi {
 sub number {
   my $self = shift;
 
-  return if !$self->type;
-
-  my %number_method = (
-    SALES_ORDER_INTAKE_TYPE()        => 'ordnumber',
-    SALES_ORDER_TYPE()               => 'ordnumber',
-    SALES_QUOTATION_TYPE()           => 'quonumber',
-    PURCHASE_ORDER_TYPE()            => 'ordnumber',
-    REQUEST_QUOTATION_TYPE()         => 'quonumber',
-    PURCHASE_QUOTATION_INTAKE_TYPE() => 'quonumber',
-  );
-
-  return $self->${ \ $number_method{$self->type} }(@_);
+  my $nr_key = $self->type_data->properties('nr_key');
+  return $self->$nr_key(@_);
 }
 
 sub customervendor {
