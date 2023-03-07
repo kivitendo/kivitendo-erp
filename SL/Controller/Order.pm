@@ -91,7 +91,7 @@ sub action_add {
 
   $self->render(
     'order/form',
-    title => $self->get_title_for('add'),
+    title => $self->type_data->text('add'),
     %{$self->{template_args}}
   );
 }
@@ -119,7 +119,7 @@ sub action_add_from_reclamation {
 
   $self->render(
     'order/form',
-    title => $self->get_title_for('edit'),
+    title => $self->type_data->text('edit'),
     %{$self->{template_args}}
   );
 }
@@ -159,7 +159,7 @@ sub action_edit {
   $self->pre_render();
   $self->render(
     'order/form',
-    title => $self->get_title_for('edit'),
+    title => $self->type_data->text('edit'),
     %{$self->{template_args}}
   );
 }
@@ -492,7 +492,7 @@ sub action_save_and_show_email_dialog {
                                   email_form    => $email_form,
                                   show_bcc      => $::auth->assert('email_bcc', 'may fail'),
                                   FILES         => \%files,
-                                  is_customer   => $self->cv eq 'customer',
+                                  is_customer   => $self->type_data->properties('is_customer'),
                                   ALL_EMPLOYEES => \@employees_with_email,
                                   ALL_PARTNER_EMAIL_ADDRESSES => $all_partner_email_addresses,
                                   is_final_version => $self->is_final_version,
@@ -926,7 +926,7 @@ sub action_order_workflow {
 
   $self->render(
     'order/form',
-    title => $self->get_title_for('edit'),
+    title => $self->type_data->text('edit'),
     %{$self->{template_args}}
   );
 }
@@ -986,7 +986,7 @@ sub action_customer_vendor_changed {
 sub action_show_customer_vendor_details_dialog {
   my ($self) = @_;
 
-  my $is_customer = 'customer' eq $::form->{vc};
+  my $is_customer = $self->type_data->properties('is_customer');
   my $cv;
   if ($is_customer) {
     $cv = SL::DB::Customer->new(id => $::form->{vc_id})->load;
@@ -1330,7 +1330,7 @@ sub action_return_from_create_part {
 
   $self->render(
     'order/form',
-    title => $self->get_title_for('edit'),
+    title => $self->type_data->text('edit'),
     %{$self->{template_args}}
   );
 
@@ -1649,11 +1649,7 @@ sub init_type {
 sub init_cv {
   my ($self) = @_;
 
-  my $cv = (any { $self->type eq $_ } (SALES_ORDER_INTAKE_TYPE(), SALES_ORDER_TYPE(),       SALES_QUOTATION_TYPE()))           ? 'customer'
-         : (any { $self->type eq $_ } (PURCHASE_ORDER_TYPE(),     REQUEST_QUOTATION_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())) ? 'vendor'
-         : die "Not a valid type for order";
-
-  return $cv;
+  return $self->type_data->properties('customervendor');
 }
 
 sub init_search_cvpartnumber {
@@ -1687,9 +1683,9 @@ sub init_all_price_factors {
 
 sub init_part_picker_classification_ids {
   my ($self)    = @_;
-  my $attribute = 'used_for_' . ($self->type =~ m{sales} ? 'sale' : 'purchase');
 
-  return [ map { $_->id } @{ SL::DB::Manager::PartClassification->get_all(where => [ $attribute => 1 ]) } ];
+  return [ map { $_->id } @{ SL::DB::Manager::PartClassification->get_all(
+    where => $self->type_data->part_classification_query()) } ];
 }
 
 sub init_is_final_version {
@@ -1708,28 +1704,12 @@ sub init_is_final_version {
 
 sub check_auth {
   my ($self) = @_;
-
-  my $right_for = { map { $_ => $_.'_edit' . ' | ' . $_.'_view' } @{$self->valid_types} };
-  $right_for->{ SALES_ORDER_INTAKE_TYPE()        } = 'sales_order_edit | sales_order_view';
-  $right_for->{ PURCHASE_QUOTATION_INTAKE_TYPE() } = 'request_quotation_edit | request_quotation_view';
-
-  my $right   = $right_for->{ $self->type };
-  $right    ||= 'DOES_NOT_EXIST';
-
-  $::auth->assert($right);
+  $::auth->assert($self->type_data->rights('view'));
 }
 
 sub check_auth_for_edit {
   my ($self) = @_;
-
-  my $right_for = { map { $_ => $_.'_edit' } @{$self->valid_types} };
-  $right_for->{ SALES_ORDER_INTAKE_TYPE()        } = 'sales_order_edit';
-  $right_for->{ PURCHASE_QUOTATION_INTAKE_TYPE() } = 'request_quotation_edit';
-
-  my $right   = $right_for->{ $self->type };
-  $right    ||= 'DOES_NOT_EXIST';
-
-  $::auth->assert($right);
+  $::auth->assert($self->type_data->rights('edit'));
 }
 
 # build the selection box for contacts
@@ -2242,11 +2222,6 @@ sub pre_render {
 sub setup_edit_action_bar {
   my ($self, %params) = @_;
 
-  my $deletion_allowed = (any { $self->type eq $_ } (SALES_QUOTATION_TYPE(), REQUEST_QUOTATION_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE()))
-                      || (($self->type eq SALES_ORDER_TYPE())        && $::instance_conf->get_sales_order_show_delete)
-                      || (($self->type eq SALES_ORDER_INTAKE_TYPE()) && $::instance_conf->get_sales_order_show_delete)
-                      || (($self->type eq PURCHASE_ORDER_TYPE())     && $::instance_conf->get_purchase_order_show_delete);
-
   my @req_trans_cost_art = qw(kivi.Order.check_transport_cost_article_presence) x!!$::instance_conf->get_transport_cost_reminder_article_number_id;
   my @req_cusordnumber   = qw(kivi.Order.check_cusordnumber_presence)           x(( any {$self->type eq $_} (SALES_ORDER_INTAKE_TYPE(), SALES_ORDER_TYPE()) ) && $::instance_conf->get_order_warn_no_cusordnumber);
 
@@ -2262,12 +2237,7 @@ sub setup_edit_action_bar {
     $has_final_invoice               = any {'SL::DB::Invoice' eq ref $_ && "final_invoice" eq $_->type} @$lr;
   }
 
-  my $right_for         = { map { $_ => $_.'_edit' } @{$self->valid_types} };
-  $right_for->{ SALES_ORDER_INTAKE_TYPE() } = 'sales_order_edit';
-  $right_for->{ PURCHASE_QUOTATION_INTAKE_TYPE() } = 'request_quotation_edit';
-  my $right             = $right_for->{ $self->type };
-  $right              ||= 'DOES_NOT_EXIST';
-  my $may_edit_create   = $::auth->assert($right, 'may fail');
+  my $may_edit_create   = $::auth->assert($self->type_data->rights('edit'), 'may fail');
 
   my $is_final_version = $self->is_final_version;
 
@@ -2329,13 +2299,13 @@ sub setup_edit_action_bar {
           t8('Save and Quotation'),
           call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => SALES_QUOTATION_TYPE()), '#order_form' ],
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
-          only_if  => (any { $self->type eq $_ } (SALES_ORDER_INTAKE_TYPE(), SALES_ORDER_TYPE(), REQUEST_QUOTATION_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())),
+          only_if  => $self->type_data->show_menu('save_and_quotation'),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and RFQ'),
           call     => [ 'kivi.Order.purchase_check_for_direct_delivery', { to_type => REQUEST_QUOTATION_TYPE() } ],
-          only_if  => (any { $self->type eq $_ } (SALES_ORDER_INTAKE_TYPE(), SALES_ORDER_TYPE(), SALES_QUOTATION_TYPE(), PURCHASE_ORDER_TYPE())),
+          only_if  => $self->type_data->show_menu('save_and_rfq'),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
@@ -2354,14 +2324,14 @@ sub setup_edit_action_bar {
           t8('Save and Sales Order Confirmation'),
           call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => SALES_ORDER_TYPE()), '#order_form' ],
           checks   => [ @req_trans_cost_art ],
-          only_if  => (any { $self->type eq $_ } (SALES_QUOTATION_TYPE(), SALES_ORDER_INTAKE_TYPE(), REQUEST_QUOTATION_TYPE(), PURCHASE_ORDER_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())),
+          only_if  => $self->type_data->show_menu('save_and_sales_order'),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Purchase Order'),
           call      => [ 'kivi.Order.purchase_check_for_direct_delivery', { to_type => PURCHASE_ORDER_TYPE() } ],
           checks    => [ @req_trans_cost_art, @req_cusordnumber ],
-          only_if   => (any { $self->type eq $_ } (SALES_ORDER_INTAKE_TYPE(), SALES_ORDER_TYPE(), REQUEST_QUOTATION_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())),
+          only_if   => $self->type_data->show_menu('save_and_purchase_order'),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
@@ -2373,7 +2343,7 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          only_if   => (any { $self->type eq $_ } (SALES_ORDER_TYPE(), PURCHASE_ORDER_TYPE())),
+          only_if   => $self->type_data->show_menu('save_and_delivery_order'),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
@@ -2396,7 +2366,7 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          only_if   => (any { $self->type eq $_ } (PURCHASE_ORDER_TYPE())),
+          only_if   => $self->type_data->show_menu('save_and_supplier_delivery_order'),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
@@ -2404,7 +2374,7 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', { action             => 'save_and_reclamation',
                                               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts },
           ],
-          only_if   => (any { $self->type eq $_ } (SALES_ORDER_TYPE(), PURCHASE_ORDER_TYPE()))
+          only_if   =>$self->type_data->show_menu('save_and_reclamation')
         ],
         action => [
           t8('Save and Invoice'),
@@ -2415,7 +2385,7 @@ sub setup_edit_action_bar {
                          @req_trans_cost_art, @req_cusordnumber,
           ],
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
-          not_if    => (any { $self->type eq $_ } (SALES_ORDER_INTAKE_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())),
+          only_if   => $self->type_data->show_menu('save_and_invoice'),
         ],
         action => [
           ($has_invoice_for_advance_payment ? t8('Save and Further Invoice for Advance Payment') : t8('Save and Invoice for Advance Payment')),
@@ -2428,7 +2398,7 @@ sub setup_edit_action_bar {
           disabled  => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
                      : $has_final_invoice ? t8('This order has already a final invoice.')
                      :                      undef,
-          only_if   => (any { $self->type eq $_ } (SALES_ORDER_TYPE())),
+          only_if   => $self->type_data->show_menu('save_and_invoice_for_advance_payment'),
         ],
         action => [
           t8('Save and Final Invoice'),
@@ -2441,14 +2411,14 @@ sub setup_edit_action_bar {
           disabled  => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
                      : $has_final_invoice ? t8('This order has already a final invoice.')
                      :                      undef,
-          only_if   => (any { $self->type eq $_ } (SALES_ORDER_TYPE())) && $has_invoice_for_advance_payment,
+          only_if   => $self->type_data->show_menu('save_and_final_invoice') && $has_invoice_for_advance_payment,
         ],
         action => [
           t8('Save and AP Transaction'),
           call      => [ 'kivi.Order.save', { action             => 'save_and_ap_transaction',
                                               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts },
           ],
-          only_if   => (any { $self->type eq $_ } (PURCHASE_ORDER_TYPE())),
+          only_if   => $self->type_data->show_menu('save_and_ap_transaction'),
           disabled  => !$may_edit_create  ? t8('You do not have the permissions to access this function.') : undef,
         ],
 
@@ -2503,7 +2473,7 @@ sub setup_edit_action_bar {
         disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
                   : !$self->order->id  ? t8('This object has not been saved yet.')
                   :                      undef,
-        only_if  => $deletion_allowed,
+        only_if  => $self->type_data->show_menu('delete'),
       ],
 
       combobox => [
@@ -2648,35 +2618,6 @@ sub get_periodic_invoices_status {
   return $active ? t8('active') : t8('inactive');
 }
 
-sub get_title_for {
-  my ($self, $action) = @_;
-
-  return '' if none { lc($action)} qw(add edit);
-
-  # for locales:
-  # $::locale->text("Add Sales Order Intake");
-  # $::locale->text("Add Sales Order");
-  # $::locale->text("Add Purchase Order");
-  # $::locale->text("Add Quotation");
-  # $::locale->text("Add Request for Quotation");
-  # $::locale->text("Add Purchase Quotation Intake");
-  # $::locale->text("Edit Sales Order Intake");
-  # $::locale->text("Edit Sales Order");
-  # $::locale->text("Edit Purchase Order");
-  # $::locale->text("Edit Quotation");
-  # $::locale->text("Edit Request for Quotation");
-  # $::locale->text("Edit Purchase Quotation Intake");
-
-  $action = ucfirst(lc($action));
-  return $self->type eq SALES_ORDER_INTAKE_TYPE()        ? $::locale->text("$action Sales Order Intake")
-       : $self->type eq SALES_ORDER_TYPE()               ? $::locale->text("$action Sales Order")
-       : $self->type eq PURCHASE_ORDER_TYPE()            ? $::locale->text("$action Purchase Order")
-       : $self->type eq SALES_QUOTATION_TYPE()           ? $::locale->text("$action Quotation")
-       : $self->type eq REQUEST_QUOTATION_TYPE()         ? $::locale->text("$action Request for Quotation")
-       : $self->type eq PURCHASE_QUOTATION_INTAKE_TYPE() ? $::locale->text("$action Purchase Quotation Intake")
-       : '';
-}
-
 sub get_item_cvpartnumber {
   my ($self, $item) = @_;
 
@@ -2752,13 +2693,9 @@ sub get_best_price_and_discount_source {
 }
 
 sub nr_key {
-  return $_[0]->type eq SALES_ORDER_INTAKE_TYPE()        ? 'ordnumber'
-       : $_[0]->type eq SALES_ORDER_TYPE()               ? 'ordnumber'
-       : $_[0]->type eq PURCHASE_ORDER_TYPE()            ? 'ordnumber'
-       : $_[0]->type eq SALES_QUOTATION_TYPE()           ? 'quonumber'
-       : $_[0]->type eq REQUEST_QUOTATION_TYPE()         ? 'quonumber'
-       : $_[0]->type eq PURCHASE_QUOTATION_INTAKE_TYPE() ? 'quonumber'
-       : '';
+  my ($self) = @_;
+
+  return $self->type_data->properties('nr_key');
 }
 
 sub save_and_redirect_to {
@@ -2766,14 +2703,7 @@ sub save_and_redirect_to {
 
   $self->save();
 
-  my $text = $self->type eq SALES_ORDER_INTAKE_TYPE()        ? $::locale->text('The order intake has been saved')
-           : $self->type eq SALES_ORDER_TYPE()               ? $::locale->text('The order confirmation has been saved')
-           : $self->type eq PURCHASE_ORDER_TYPE()            ? $::locale->text('The order has been saved')
-           : $self->type eq SALES_QUOTATION_TYPE()           ? $::locale->text('The quotation has been saved')
-           : $self->type eq REQUEST_QUOTATION_TYPE()         ? $::locale->text('The rfq has been saved')
-           : $self->type eq PURCHASE_QUOTATION_INTAKE_TYPE() ? $::locale->text('The quotation intake has been saved')
-           : '';
-  flash_later('info', $text);
+  flash_later('info', $self->type_data->text('saved'));
 
   $self->redirect_to(%params, id => $self->order->id);
 }
