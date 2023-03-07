@@ -37,25 +37,10 @@ sub action_list {
 sub action_export {
   my ($self) = @_;
 
-  if (!$::form->{format}) {
+  if (!$::form->{parameters_set}) {
     $self->setup_export_action_bar;
     return $self->render('custom_data_export/export', title => t8("Execute custom data export '#1'", $self->query->name));
   }
-
-  $self->execute_query;
-
-  if (scalar(@{ $self->rows // [] }) == 1) {
-    $self->setup_empty_result_set_action_bar;
-    return $self->render('custom_data_export/empty_result_set', title => t8("Execute custom data export '#1'", $self->query->name));
-  }
-
-
-  my $method = "export_as_" . $::form->{format};
-  $self->$method;
-}
-
-sub action_export_with_rep_gen {
-  my ($self) = @_;
 
   $self->execute_query;
 
@@ -89,7 +74,7 @@ sub action_export_with_rep_gen {
   $report->set_columns(%column_defs);
   $report->set_column_order(@{ $self->rows->[0] });
 
-  $report->set_export_options(qw(export_with_rep_gen id parameters));
+  $report->set_export_options(qw(export id parameters_set parameters));
   $report->set_options_from_form;
 
   # Setup data objects (which in this case is an array of hashes).
@@ -152,20 +137,10 @@ sub setup_export_action_bar {
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
-      combobox => [
-        action => [
-          t8('Export'),
-        ],
-        action => [
-          t8('Direct Export'),
-          submit    => [ '#form', { action => 'CustomDataExport/export' } ],
-          checks    => [ 'kivi.validate_form' ],
-        ],
-        action => [
-          t8('Export with RepGen'),
-          submit    => [ '#form', { action => 'CustomDataExport/export_with_rep_gen' } ],
-          checks    => [ 'kivi.validate_form' ],
-        ],
+      action => [
+        t8('Export'),
+        submit    => [ '#form', { action => 'CustomDataExport/export' } ],
+        checks    => [ 'kivi.validate_form' ],
       ],
       action => [
         t8('Back'),
@@ -236,34 +211,6 @@ sub execute_query {
     \@names,
     @data,
   ]);
-}
-
-sub export_as_csv {
-  my ($self) = @_;
-
-  my $csv = Text::CSV_XS->new({
-    binary   => 1,
-    sep_char => ';',
-    eol      => "\n",
-  });
-
-  my ($file_handle, $file_name) = File::Temp::tempfile;
-
-  binmode $file_handle, ":encoding(utf8)";
-
-  $csv->print($file_handle, $_) for @{ $self->rows };
-
-  $file_handle->close;
-
-  my $report_name =  $self->query->name;
-  $report_name    =~ s{[^[:word:]]+}{_}ig;
-  $report_name   .=  strftime('_%Y-%m-%d_%H-%M-%S.csv', localtime());
-
-  $self->send_file(
-    $file_name,
-    content_type => 'text/csv',
-    name         => $report_name,
-  );
 }
 
 1;
