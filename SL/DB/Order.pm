@@ -231,7 +231,14 @@ sub displayable_name {
 
 sub is_sales {
   croak 'not an accessor' if @_ > 1;
-  return !!shift->customer_id;
+  my $type = shift->type();
+  if (any { $type eq $_ } (
+      SALES_ORDER_TYPE(),
+      SALES_QUOTATION_TYPE(),
+    )) {
+    return 1;
+  };
+  return 0;
 }
 
 sub daily_exchangerate {
