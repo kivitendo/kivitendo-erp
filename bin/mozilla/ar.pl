@@ -35,6 +35,7 @@
 use POSIX qw(strftime);
 use List::Util qw(sum first max);
 use List::UtilsBy qw(sort_by);
+use Archive::Zip;
 
 use SL::AR;
 use SL::Controller::Base;
@@ -48,6 +49,7 @@ use SL::DB::Currency;
 use SL::DB::Default;
 use SL::DB::Employee;
 use SL::DB::Invoice;
+use SL::DB::Manager::Invoice;
 use SL::DB::InvoiceItem;
 use SL::DB::RecordTemplate;
 use SL::DB::Tax;
@@ -58,6 +60,11 @@ use SL::Presenter::Tag;
 use SL::Presenter::Chart;
 use SL::Presenter::ItemsList;
 use SL::ReportGenerator;
+use SL::File::Object;
+use SL::DB::Manager::File;
+use SL::File::Backend::Filesystem;
+use SL::Webdav;
+use SL::File::Backend::Webdav;
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -937,6 +944,10 @@ sub setup_ar_transactions_action_bar {
   my %params          = @_;
   my $may_edit_create = $::auth->assert('invoice_edit', 1);
 
+  my $webdav_enabled = SL::DB::Default->get->webdav
+                       && SL::DB::Default->get->webdav_documents;
+  my $files_enabled  = SL::DB::Default->get->doc_storage;
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
@@ -946,7 +957,23 @@ sub setup_ar_transactions_action_bar {
                   : !$params{num_rows} ? $::locale->text('The report doesn\'t contain entries.')
                   :                      undef,
       ],
-
+      combobox => [
+        action => [ $::locale->text('Record-Export') ],
+        action => [
+          t8('WebDAV'),
+          submit   => [ '#report_form', { action => 'webdav_pdf_export' } ],
+          checks   => [ ['kivi.check_if_entries_selected', '[name="id[]"]'] ],
+          disabled => !$webdav_enabled ? t8('No webdav backend enabled.')
+                                       : undef,
+        ],
+        action => [
+          t8('Files'),
+          submit   => [ '#report_form', { action => 'files_pdf_export' } ],
+          checks   => [ ['kivi.check_if_entries_selected', '[name="id[]"]'] ],
+          disabled => !$files_enabled ? t8('No files backend enabled.')
+                                      : undef,
+        ],
+      ],
       combobox => [
         action => [ $::locale->text('Create new') ],
         action => [
@@ -1508,5 +1535,109 @@ sub setup_ar_form_header_action_bar {
   }
   $::request->layout->add_javascripts('kivi.Validator.js');
 }
+
+sub webdav_pdf_export {
+  $main::lxdebug->enter_sub();
+
+  # TODO(Tamino): rights?
+  $::auth->assert('ar_transactions');
+  $::auth->assert('invoice_edit');
+
+  my $form = $main::form;
+  my $ids  = $form->{id};
+
+  my $invoices = SL::DB::Manager::Invoice->get_all(where => [ id => $ids ]);
+
+  my %file_name_to_path = ();
+  my $no_files = "";
+  foreach my $invoice (@{$invoices}) {
+    if ($invoice->type eq '') {
+      $no_files .= $invoice->displayable_name() . "\n";
+      $main::lxdebug->dump(0, "TST: no_files loop", $no_files);
+      next;
+    }
+    my $webdav = SL::Webdav->new(
+      type     => $invoice->type,
+      number   => $invoice->record_number,
+    );
+    my @latest_object = $webdav->get_all_latest();
+    if (scalar @latest_object) {
+      my $file_name = $latest_object[0]->basename . "." . $latest_object[0]->extension;
+      $file_name_to_path{$file_name} = $latest_object[0]->full_filedescriptor();
+    } else {
+      $no_files .= $invoice->displayable_name() . "\n";
+    }
+  }
+
+  _create_and_send_zip(\%file_name_to_path, $no_files);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub files_pdf_export {
+  $main::lxdebug->enter_sub();
+
+  # TODO(Tamino): rights?
+  $::auth->assert('ar_transactions');
+  $::auth->assert('invoice_edit');
+
+  my $form = $main::form;
+  my $ids  = $form->{id};
+
+  my $invoices = SL::DB::Manager::Invoice->get_all(where => [ id => $ids ]);
+
+  my %file_name_to_path = ();
+  my $no_files = "";
+  foreach my $invoice (@{$invoices}) {
+    my $file_entry = SL::DB::Manager::File->get_first(
+      query => [
+        object_type => $invoice->type,
+        object_id   => $invoice->id,
+      ],
+    );
+    if ($file_entry) {
+      my $file = SL::File::Object->new(
+        db_file => $file_entry,
+        id => $file_entry->id,
+        loaded => 1,
+      );
+      $file_name_to_path{$file->file_name()} = $file->get_file();
+    } else {
+      $no_files .= $invoice->displayable_name() . "\n";
+    }
+  }
+
+
+  _create_and_send_zip(\%file_name_to_path, $no_files);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _create_and_send_zip {
+  my ($file_name_to_path, $no_files) = @_;
+  $main::lxdebug->enter_sub();
+
+  my ($fh, $zipfile) = File::Temp::tempfile();
+  my $zip = Archive::Zip->new();
+  foreach my $name (keys %{$file_name_to_path}) {
+    $zip->addFile($file_name_to_path->{$name}, $name);
+  }
+  if ($no_files ne '') {
+    $zip->addString($no_files, t8('no_file_found.txt'));
+  }
+  $zip->writeToFileHandle($fh) == Archive::Zip::AZ_OK() or die 'error writing zip file';
+  close($fh);
+
+  my $controller = SL::Controller::Base->new;
+
+  $controller->send_file(
+    $zipfile,
+    name => t8('pdf_records.zip'), unlink => 1,
+    type => 'application/zip',
+  );
+
+  $main::lxdebug->leave_sub();
+}
+
 
 1;
