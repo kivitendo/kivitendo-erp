@@ -9,6 +9,12 @@ Größere neue Features:
  - Reklamationscontroller
    Zum Erfassen und Auswerten von Einkaufs- und Verkaufsreklamationen
 
+Mittelgroße neue Features:
+
+  - Export-Option als Chart/Grafik für den Report-Generator und damit für
+    alle Berichte
+  - Benutzerdefinierter Datenexport verwendet Report-Generator
+
 Kleinere neue Features und Detailverbesserungen:
 
  - Die Variablen zur Ersetzung der Zahlungsbedingungen stehen auch als einzelne
