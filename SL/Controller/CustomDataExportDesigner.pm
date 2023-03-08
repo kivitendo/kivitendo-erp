@@ -27,13 +27,13 @@ sub action_list {
   my ($self) = @_;
 
   $self->setup_list_action_bar;
-  $self->render('custom_data_export_designer/list', title => $::locale->text('Design custom data export queries'));
+  $self->render('custom_data_export_designer/list', title => $::locale->text('Design custom report queries'));
 }
 
 sub action_edit {
   my ($self) = @_;
 
-  my $title = $self->query->id ? t8('Edit custom data export query') : t8('Add custom data export query');
+  my $title = $self->query->id ? t8('Edit custom report query') : t8('Add custom report query');
 
   $self->setup_edit_action_bar;
   $self->render('custom_data_export_designer/edit', title => $title);
@@ -42,7 +42,7 @@ sub action_edit {
 sub action_edit_parameters {
   my ($self) = @_;
 
-  my $title     = $self->query->id ? t8('Edit custom data export query') : t8('Add custom data export query');
+  my $title     = $self->query->id ? t8('Edit custom report query') : t8('Add custom report query');
   my @parameters = $self->gather_query_data;
 
   $self->setup_edit_parameters_action_bar;
@@ -58,7 +58,7 @@ sub action_save {
 
   $self->query->save;
 
-  flash_later('info', t8('The custom data export has been saved.'));
+  flash_later('info', t8('The custom report has been saved.'));
 
   $self->redirect_to($self->url_for(action => 'list'));
 }
@@ -68,7 +68,7 @@ sub action_delete {
 
   $self->query->delete;
 
-  flash_later('info', t8('The custom data export has been deleted.'));
+  flash_later('info', t8('The custom report has been deleted.'));
 
   $self->redirect_to($self->url_for(action => 'list'));
 }

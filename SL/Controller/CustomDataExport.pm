@@ -31,7 +31,7 @@ __PACKAGE__->run_before('setup_javascripts');
 sub action_list {
   my ($self) = @_;
 
-  $self->render('custom_data_export/list', title => $::locale->text('Execute a custom data export query'));
+  $self->render('custom_data_export/list', title => $::locale->text('Execute a custom report query'));
 }
 
 sub action_export {
@@ -39,14 +39,14 @@ sub action_export {
 
   if (!$::form->{parameters_set}) {
     $self->setup_export_action_bar;
-    return $self->render('custom_data_export/export', title => t8("Execute custom data export '#1'", $self->query->name));
+    return $self->render('custom_data_export/export', title => t8("Execute custom report '#1'", $self->query->name));
   }
 
   $self->execute_query;
 
   if (scalar(@{ $self->rows // [] }) == 1) {
     $self->setup_empty_result_set_action_bar;
-    return $self->render('custom_data_export/empty_result_set', title => t8("Execute custom data export '#1'", $self->query->name));
+    return $self->render('custom_data_export/empty_result_set', title => t8("Execute custom report '#1'", $self->query->name));
   }
 
   my $report = SL::ReportGenerator->new(\%::myconfig, $::form);
@@ -139,7 +139,7 @@ sub setup_export_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Export'),
+        t8('Execute'),
         submit    => [ '#form', { action => 'CustomDataExport/export' } ],
         checks    => [ 'kivi.validate_form' ],
       ],
