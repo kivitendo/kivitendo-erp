@@ -625,13 +625,13 @@ sub get_warehouse_report {
      "partdescription"      => "p.description",
      "classification_id"    => "p.classification_id",
      "part_type"            => "p.part_type",
-     "bindescription"       => "b.description",
+     "bin"                  => "b.description",
      "binid"                => "b.id",
      "chargenumber"         => "i.chargenumber",
      "bestbefore"           => "i.bestbefore",
      "ean"                  => "p.ean",
      "chargeid"             => "c.id",
-     "warehousedescription" => "w.description",
+     "warehouse"            => "w.description",
      "partunit"             => "p.unit",
      "stock_value"          => ($form->{stock_value_basis} // '') eq 'list_price' ? "p.listprice / COALESCE(pfac.factor, 1)" : "p.lastcost / COALESCE(pfac.factor, 1)",
      "purchase_price"       => "p.lastcost",
@@ -721,8 +721,8 @@ sub get_warehouse_report {
   if ($form->{include_empty_bins}) {
     $query =
       qq|SELECT
-           w.id AS warehouseid, w.description AS warehousedescription,
-           b.id AS binid, b.description AS bindescription
+           w.id AS warehouseid, w.description AS warehouse,
+           b.id AS binid, b.description AS bin
          FROM bin b
          LEFT JOIN warehouse w ON (b.warehouse_id = w.id)|;
 
@@ -745,7 +745,7 @@ sub get_warehouse_report {
     }
     $sth->finish();
 
-    if (grep { $orderby eq $_ } qw(bindescription warehousedescription)) {
+    if (grep { $orderby eq $_ } qw(bin warehouse)) {
       @contents = sort { ($a->{$orderby} cmp $b->{$orderby}) * (($form->{order}) ? 1 : -1) } @contents;
     }
   }
