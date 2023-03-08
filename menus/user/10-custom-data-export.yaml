@@ -1,13 +1,13 @@
 ---
 - parent: reports
   id: custom_data_export
-  name: Custom data export
+  name: Custom report
   order: 9000
   params:
     action: CustomDataExport/list
 - parent: system
   id: custom_data_export_designer
-  name: Custom data export
+  name: Custom report
   order: 2250
   access: custom_data_export_designer
   params:

@@ -80,6 +80,17 @@
     <input type="hidden" name="report_generator_hidden_[% var.key %]" value="[% HTML.escape(var.value) %]">
   [% END %]
 
+  [% IF ALLOW_CHART_EXPORT %]
+    [% FOREACH row = HEADER_ROWS %]
+      [% FOREACH col = row %]
+        [% IF col.name && col.text %]
+          <input type="hidden" name="report_generator_chart_fields[+].name" value="[% HTML.escape(col.name) %]">
+          <input type="hidden" name="report_generator_chart_fields[].text"  value="[% HTML.escape(col.text) %]">
+        [% END %]
+      [% END %]
+    [% END %]
+  [% END %]
+
   [% IF CONTROLLER_DISPATCH %]
     [% IF !SKIP_BUTTONS %]
       <input type="hidden" name="action" value="[% CONTROLLER_DISPATCH %]/dispatch">

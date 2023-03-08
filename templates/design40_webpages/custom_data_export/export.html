@@ -6,7 +6,7 @@
 
   <form method="post" action="controller.pl" id="form">
     [% L.hidden_tag("id", SELF.query.id) %]
-    [% L.hidden_tag("format", "csv") %]
+    [% L.hidden_tag("parameters_set", "1") %]
 
     [% IF !SELF.parameters.size %]
     <p>
