@@ -12,15 +12,34 @@ use File::Slurp qw(read_file);
 sub _join_entries {
   my ($parts, $from, $to, $separator) = @_;
 
-  $separator //= ' ';
+  $separator //= '';
 
   return
     join $separator,
     grep { $_ }
-    map  { s{^\s+|\s+$}{}g; $_ }
-    grep { $_ }
     map  { $parts->{$_} }
     ($from..$to);
+}
+
+sub _join_entries_sepa {
+  my ($parts) = @_;
+
+  my $line = '';
+
+  foreach my $field (grep { $_ } map  { $parts->{$_} } (20..29)) {
+    if (($line ne '') && ($field =~ m{^[A-Z]+\+})) {
+      $line .= ' ';
+    }
+    $line .= $field;
+  }
+
+  return $line;
+}
+
+sub _join_entries_austria {
+  my ($parts) = @_;
+
+  return _join_entries($parts, 20, 23, ' ');
 }
 
 sub parse {
@@ -112,13 +131,19 @@ sub parse {
       );
 
     } elsif (%transaction && ($line->[0] =~ m{^:86:})) {
-      if ($line->[0] =~ m{^:86:\d+([^\d])(.+)}) {
+      if ($line->[0] =~ m{^:86:(\d{3})([^\d])(.+)}) {
         # structured
-        my ($separator, $rest) = ($1, $2);
-        my %parts              = map { ((substr($_, 0, 2) // '0') * 1 => substr($_, 2)) } split quotemeta($separator), $rest;
+        my $code       = $1;
+        my $separator  = $2;
+        my $rest       = $3;
+        my $is_austria = $separator eq '~';
+        my $is_sepa    = !$is_austria && ($code =~ m{^1});
+        my %parts      = map { ((substr($_, 0, 2) // '0') * 1 => substr($_, 2)) } split quotemeta($separator), $rest;
 
-        $transaction{purpose}               = _join_entries(\%parts, 20, 29);
-        $transaction{remote_name}           = _join_entries(\%parts, 32, 33, '');
+        $transaction{purpose}               = $is_sepa    ? _join_entries_sepa(\%parts)
+                                            : $is_austria ? _join_entries(\%parts, 20, 23, ' ')
+                                            :               _join_entries(\%parts, 20, 29);
+        $transaction{remote_name}           = _join_entries(\%parts, 32, 33);
         $transaction{remote_bank_code}      = $parts{30};
         $transaction{remote_account_number} = $parts{31};
 
