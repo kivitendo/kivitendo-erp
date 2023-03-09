@@ -765,7 +765,7 @@ SQL
            $fxsellprice, $form->{"discount_$i"},
            $form->{"unit_$i"}, conv_date($reqdate), conv_i($form->{"project_id_$i"}),
            $form->{"serialnumber_$i"}, $form->{"ship_$i"},
-           $pricegroup_id, $form->{"subtotal_$i"} ? 't' : 'f', $form->{"recurring_billing_mode_$i"},
+           $pricegroup_id, $form->{"subtotal_$i"} ? 't' : 'f', $form->{"recurring_billing_mode_$i"} || 'always',
            $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
            $form->{"lastcost_$i"}, conv_i($form->{"price_factor_id_$i"}),
            $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
