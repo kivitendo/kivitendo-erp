@@ -1301,7 +1301,7 @@ sub _retrieve {
       ($form->{id}
        ? qq|WHERE o.trans_id = ?|
        : qq|WHERE o.trans_id IN (| . join(", ", map("?", @ids)) . qq|)|) .
-      qq|ORDER BY o.trans_id, o.position|;
+      qq| ORDER BY o.trans_id, o.position|;
 
     @ids = $form->{id} ? ($form->{id}) : @ids;
     $sth = prepare_execute_query($form, $dbh, $query, @values);
