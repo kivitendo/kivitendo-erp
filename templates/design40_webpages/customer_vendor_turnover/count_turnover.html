@@ -2,18 +2,20 @@
 [%- USE LxERP %]
 [%- USE L %]
 [%- USE HTML %]
-<div id="turnover_statistic">
-  <table width="100%">
-    <tbody>
+<div class="wrapper" id="turnover_statistic">
+  <table class="tbl-list wi-moderate">
+    <thead>
       <tr>
-        <td class="listheading">[% 'Month/Year' | $T8 %]</td>
-        <td class="listheading">[% 'Invoices' | $T8 %]</td>
-        <td class="listheading">[% 'Turnover' | $T8 %]</td>
-        <td class="listheading">[% 'Net.Turnover' | $T8 %]</td>
-        <td class="listheading">[% 'Paid' | $T8 %]</td>
+        <th>[% 'Month/Year' | $T8 %]</td>
+        <th>[% 'Invoices' | $T8 %]</td>
+        <th>[% 'Turnover' | $T8 %]</td>
+        <th>[% 'Net.Turnover' | $T8 %]</td>
+        <th>[% 'Paid' | $T8 %]</td>
       </tr>
+    </thead>
+    <tbody>
       [%- FOREACH row = SELF.turnover_statistic %]
-      <tr class="listrow[% loop.count % 2 %]">
+      <tr>
         <td>[% row.date_part | html %]</td>
         <td>[% row.count | html %]</td>
         <td class="numeric">[%- LxERP.format_amount(row.amount,2) %]</td>
@@ -21,7 +23,6 @@
         <td class="numeric">[%- LxERP.format_amount(row.paid,2) %]</td>
       </tr>
       [% END %]
-
     </tbody>
   </table>
 </div>
