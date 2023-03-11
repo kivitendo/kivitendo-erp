@@ -142,6 +142,7 @@ sub setup_export_action_bar {
         t8('Execute'),
         submit    => [ '#form', { action => 'CustomDataExport/export' } ],
         checks    => [ 'kivi.validate_form' ],
+        accesskey => 'enter',
       ],
       action => [
         t8('Back'),
