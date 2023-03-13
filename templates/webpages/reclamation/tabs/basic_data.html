@@ -273,37 +273,43 @@
                 [%- END -%]
                 <th colspan="3"></th>
                 <th>
-                  [% L.select_tag("reason_for_selected",
+                  [% L.select_tag("reason_id_for_selected",
                                   SELF.reclamation.valid_reclamation_reasons,
                                   title_key = 'name',
                                   value_key = 'id',
                                   with_empty=1,
                                   class="wi-small",
                                   ) %]
-                  [%- L.button_tag('kivi.Reclamation.set_selected_to_reason()', "↓",
-                                   alt=LxERP.t8('Apply to selected rows'),
-                                   title=LxERP.t8('Apply to selected rows'),
-                                   ) %]
+                  [%- L.button_tag(
+                        'kivi.Reclamation.set_selected_to_value("reason_id")',
+                        "↓",
+                        alt=LxERP.t8('Apply to selected rows'),
+                        title=LxERP.t8('Apply to selected rows'),
+                  ) %]
                 </th>
                 <th>
                   [% L.areainput_tag("reason_description_ext_for_selected",
                                      "",
                                      class="wi-mediumsmall",
                                      ) %]
-                  [%- L.button_tag('kivi.Reclamation.set_selected_to_reason_description_ext()', "↓",
-                                   alt=LxERP.t8('Apply to selected rows'),
-                                   title=LxERP.t8('Apply to selected rows'),
-                                   ) %]
+                  [%- L.button_tag(
+                        'kivi.Reclamation.set_selected_to_value("reason_description_ext")',
+                        "↓",
+                        alt=LxERP.t8('Apply to selected rows'),
+                        title=LxERP.t8('Apply to selected rows'),
+                  ) %]
                 </th>
                 <th>
                   [% L.areainput_tag("reason_description_int_for_selected",
                                      "",
                                      class="wi-mediumsmall",
                                      ) %]
-                  [%- L.button_tag('kivi.Reclamation.set_selected_to_reason_description_int()', "↓",
-                                   alt=LxERP.t8('Apply to selected rows'),
-                                   title=LxERP.t8('Apply to selected rows'),
-                                   ) %]
+                  [%- L.button_tag(
+                        'kivi.Reclamation.set_selected_to_value("reason_description_int")',
+                        "↓",
+                        alt=LxERP.t8('Apply to selected rows'),
+                        title=LxERP.t8('Apply to selected rows'),
+                  ) %]
                 </th>
                 <th colspan="7"></th>
               </tr>
