@@ -835,33 +835,14 @@ namespace('kivi.Reclamation', function(ns) {
     ns.recalc_amounts_and_taxes();
   };
 
-  ns.set_selected_to_reason = function() {
-    let reason_id = $("#reason_for_selected").val();
+  ns.set_selected_to_value = function(value_name) {
+    let value = $('[name="' + value_name + '_for_selected"]').val();
     let selected_rows = ns.get_selected_rows();
     selected_rows.forEach(function(row) {
-      $(row).find('[name="reclamation.reclamation_items[].reason_id"]').val(
-        reason_id
-      );
-    });
-
-  };
-
-  ns.set_selected_to_reason_description_ext = function() {
-    desc_ext_text = $("[name=reason_description_ext_for_selected]").val();
-    let selected_rows = ns.get_selected_rows();
-    selected_rows.forEach(function(row) {
-      $(row).find('[name="reclamation.reclamation_items[].reason_description_ext"]').val(
-        desc_ext_text
-      );
-    });
-  };
-
-  ns.set_selected_to_reason_description_int = function() {
-    desc_int_text = $("[name=reason_description_int_for_selected]").val();
-    let selected_rows = ns.get_selected_rows();
-    selected_rows.forEach(function(row) {
-      $(row).find('[name="reclamation.reclamation_items[].reason_description_int"]').val(
-        desc_int_text
+      $(row).find(
+        '[name="reclamation.reclamation_items[].' + value_name  + '"]'
+      ).val(
+        value
       );
     });
   };
