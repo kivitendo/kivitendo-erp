@@ -829,7 +829,7 @@ namespace('kivi.Reclamation', function(ns) {
       return;
     }
     selected_rows.forEach(function(row) {
-      $(row).remove();
+      $(row.parents("tbody").first()).remove();
     });
     ns.renumber_positions();
     ns.recalc_amounts_and_taxes();
