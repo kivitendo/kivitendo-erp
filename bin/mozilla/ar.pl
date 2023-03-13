@@ -944,8 +944,9 @@ sub setup_ar_transactions_action_bar {
   my %params          = @_;
   my $may_edit_create = $::auth->assert('invoice_edit', 1);
 
-  my $webdav_enabled = SL::File::Backend::Webdav->enabled();
-  my $files_enabled  = SL::File::Backend::Filesystem->enabled();
+  my $webdav_enabled = SL::DB::Default->get->webdav
+                       && SL::DB::Default->get->webdav_documents;
+  my $files_enabled  = SL::DB::Default->get->doc_storage;
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
