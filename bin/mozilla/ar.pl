@@ -1624,7 +1624,11 @@ sub _create_and_send_zip {
 
   my $controller = SL::Controller::Base->new;
 
-  $controller->send_file($zipfile, name => t8('pdf_records.zip'), unlink => 1);
+  $controller->send_file(
+    $zipfile,
+    name => t8('pdf_records.zip'), unlink => 1,
+    type => 'application/zip',
+  );
 
   $main::lxdebug->leave_sub();
 }
