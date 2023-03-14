@@ -225,8 +225,6 @@ sub clone_for_save_as_new {
 
   my $new_record = SL::Model::Record->new_from_workflow($changed_record, ref($changed_record), $saved_record->type, no_linked_records => 1, attributes => \%new_attrs);
 
-  # return: nichts
-  # fehler: exception
   return $new_record;
 }
 
@@ -295,8 +293,8 @@ for various type informations.
 
 Invoices are not supported as of now, but are planned for the future.
 
-The old delivery order C<sales_delivery_order> and C<purchase_delivery_order> must be implemented
-in the new DeliveryOrder Controller
+The old delivery order C<sales_delivery_order> and C<purchase_delivery_order>
+must be implemented in the new DeliveryOrder Controller
 
 =head1 METHODS
 
