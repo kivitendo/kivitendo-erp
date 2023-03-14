@@ -565,7 +565,7 @@ sub action_save_and_ap_transaction {
 sub action_customer_vendor_changed {
   my ($self) = @_;
 
-  setup_order_from_cv($self->order);
+  $self->order(SL::Model::Record->update_after_customer_vendor_change($self->order));
 
   my $cv_method = $self->cv;
 
@@ -1375,7 +1375,7 @@ sub make_order {
   my $cv_id_method = $self->cv . '_id';
   if (!$::form->{id} && $::form->{$cv_id_method}) {
     $order->$cv_id_method($::form->{$cv_id_method});
-    setup_order_from_cv($order);
+    $order = SL::Model::Record->update_after_customer_vendor_change($order);
   }
 
   my $form_orderitems                  = delete $::form->{order}->{orderitems};
@@ -1528,22 +1528,6 @@ sub new_item {
   $item->assign_attributes(%new_attr, %{ $texts });
 
   return $item;
-}
-
-sub setup_order_from_cv {
-  my ($order) = @_;
-
-  $order->$_($order->customervendor->$_) for (qw(taxzone_id payment_id delivery_term_id currency_id));
-
-  $order->intnotes($order->customervendor->notes);
-
-  if ($order->is_sales) {
-    $order->salesman_id($order->customer->salesman_id || SL::DB::Manager::Employee->current->id);
-    $order->taxincluded(defined($order->customer->taxincluded_checked)
-                        ? $order->customer->taxincluded_checked
-                        : $::myconfig{taxincluded_checked});
-  }
-
 }
 
 # setup custom shipto from form

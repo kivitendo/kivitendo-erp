@@ -32,6 +32,33 @@ sub update_after_new {
   return $new_record;
 }
 
+sub update_after_customer_vendor_change {
+  my ($class, $record) = @_;
+  my $new_customervendor = $record->customervendor;
+
+  $record->$_($new_customervendor->$_) for (qw(
+    taxzone_id payment_id delivery_term_id currency_id language_id
+    ));
+
+  $record->intnotes($new_customervendor->notes);
+
+  return if !$record->is_sales;
+  if ($record->is_sales) {
+    my $new_customer = $new_customervendor;
+    $record->salesman_id($new_customer->salesman_id
+      || SL::DB::Manager::Employee->current->id);
+    $record->taxincluded(defined($new_customer->taxincluded_checked)
+      ? $new_customer->taxincluded_checked
+      : $::myconfig{taxincluded_checked});
+    if ($record->type_data->features('price_tax')) {
+      my $address = $new_customer->default_billing_address;;
+      $record->billing_address_id($address ? $address->id : undef);
+    }
+  }
+
+  return $record;
+}
+
 sub new_from_workflow {
   my ($class, $source_object, $target_type, $target_subtype, %flags) = @_;
 
@@ -307,6 +334,15 @@ Sets reqdate and transdate.
 
 Returns the record object.
 
+=item C<update_after_customer_vendor_change>
+
+Updates a record_object corresponding to customer/vendor and type_data.
+Sets taxzone_id, payment_id, delivery_term_id, currency_id, language_id and
+intnotes to customer/vendor. For sales records salesman and taxincluded is set.
+Also for sales record with the feature 'price_tax' the billing address is updated.
+
+Returns the record object.
+
 =item C<new_from_workflow>
 
 Expects source_object, target_type, target_subtype and can have flags.
@@ -413,10 +449,6 @@ Handling of shippedqty calculations in controllers
 =item *
 
 Autovivification of unparsed cvar configs is still in parsing code
-
-=item *
-
-Handling of changed customer/vendor
 
 =item *
 
