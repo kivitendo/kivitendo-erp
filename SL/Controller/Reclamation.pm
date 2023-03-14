@@ -666,6 +666,9 @@ sub action_save_and_credit_note {
 sub action_customer_vendor_changed {
   my ($self) = @_;
 
+  $self->reclamation(
+    SL::Model::Record->update_after_customer_vendor_change($self->reclamation));
+
   $self->recalc();
 
   if ( $self->reclamation->customervendor->contacts
@@ -1469,6 +1472,12 @@ sub make_reclamation {
                      reclamation_items  => [],
                      currency_id => $::instance_conf->get_currency_id(),
                    );
+  }
+
+  my $cv_id_method = $self->cv . '_id';
+  if (!$::form->{id} && $::form->{$cv_id_method}) {
+    $reclamation->$cv_id_method($::form->{$cv_id_method});
+    $reclamation = SL::Model::Record->update_after_customer_vendor_change($reclamation);
   }
 
   my $form_reclamation_items = delete $::form->{reclamation}->{reclamation_items};
