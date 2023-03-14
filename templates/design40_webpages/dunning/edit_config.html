@@ -169,6 +169,15 @@
       <td>[% L.select_tag('dunning_creator', [ [ 'current_employee', LxERP.t8('Current Employee') ],[ 'invoice_employee', LxERP.t8('Employee from the original invoice') ]  ], default=dunning_creator) %]
       </td>
     </tr>
+    <tr>
+      <th align="right">[% 'Original Invoice' | $T8 %]</th>
+      <td>[% L.select_tag('dunning_original_invoice_creation_mode', [
+                 [ 'create_new', LxERP.t8('Create new record.') ],
+                 [ 'use_last_created_or_create_new',
+                   LxERP.t8('Use last created record or create new.') ],
+              ], default=dunning_original_invoice_creation_mode) %]
+      </td>
+    </tr>
   </tbody>
 </table>
 

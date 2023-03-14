@@ -78,9 +78,11 @@ sub get_config {
   }
 
   $query =
-    qq|SELECT dunning_ar_amount_fee, dunning_ar_amount_interest, dunning_ar, dunning_creator
+    qq|SELECT dunning_ar_amount_fee, dunning_ar_amount_interest, dunning_ar, dunning_creator,
+              dunning_original_invoice_creation_mode
        FROM defaults|;
-  ($form->{AR_amount_fee}, $form->{AR_amount_interest}, $form->{AR}, $form->{dunning_creator})
+  ($form->{AR_amount_fee}, $form->{AR_amount_interest}, $form->{AR}, $form->{dunning_creator},
+   $form->{dunning_original_invoice_creation_mode})
     = selectrow_query($form, $dbh, $query);
 
   $main::lxdebug->leave_sub();
@@ -147,9 +149,9 @@ sub _save_config {
   }
 
   $query  = qq|UPDATE defaults SET dunning_ar_amount_fee = ?, dunning_ar_amount_interest = ?, dunning_ar = ?,
-               dunning_creator = ?|;
+               dunning_creator = ?, dunning_original_invoice_creation_mode = ?|;
   @values = (conv_i($form->{AR_amount_fee}), conv_i($form->{AR_amount_interest}), conv_i($form->{AR}),
-             $form->{dunning_creator});
+             $form->{dunning_creator}, $form->{dunning_original_invoice_creation_mode});
   do_query($form, $dbh, $query, @values);
 
   return 1;
@@ -1206,6 +1208,59 @@ sub print_original_invoice {
   my $invoice = SL::DB::Invoice->new(id => $invoice_id)->load;
 
   die "Invalid invoice object" unless ref($invoice) eq 'SL::DB::Invoice';
+
+  my $filestore_enabled = SL::DB::Default->get->webdav
+                       || SL::DB::Default->get->doc_storage;
+  if ($::instance_conf->get_dunning_original_invoice_creation_mode eq 'use_last_created_or_create_new'
+      && $filestore_enabled) {
+    my ($file_name, $file_path);
+    # search file in files and webdav
+    if (SL::DB::Default->get->doc_storage) {
+      my $file_entry = SL::DB::Manager::File->get_first(
+        query => [
+          object_type => $invoice->type,
+          object_id   => $invoice->id,
+        ],
+      );
+      if ($file_entry) {
+        my $file = SL::File::Object->new(
+          db_file => $file_entry,
+          id => $file_entry->id,
+          loaded => 1,
+        );
+        $file_name = $file->file_name();
+        $file_path = $file->get_file();
+      }
+    } elsif (SL::DB::Default->get->webdav) {
+      my $webdav = SL::Webdav->new(
+        type   => $invoice->type,
+        number => $invoice->record_number,
+      );
+      my @latest_object = $webdav->get_all_latest();
+      if (scalar @latest_object) {
+        $file_name = $latest_object[0]->basename . "." . $latest_object[0]->extension;
+        $file_path = $latest_object[0]->full_filedescriptor();
+      }
+    } # end file search
+
+    my $attachment_filename    = $form->get_formname_translation('invoice') . "_" . $invoice->invnumber . ".pdf";
+    if ($file_name ne '' and $file_path ne '') {
+      my $spool = $::lx_office_conf{paths}->{spool};
+      my $spool_path = File::Spec->catfile($spool, $file_name);
+
+      copy($file_path, $spool_path) or die "The copy operation failed: $!";
+
+      push @{ $form->{DUNNING_PDFS} }        , $file_name;
+      push @{ $form->{DUNNING_PDFS_EMAIL} }  , {
+        'path'       => $file_path,
+        'name'       => $file_name, };
+      push @{ $form->{DUNNING_PDFS_STORAGE} }, {
+        'dunning_id' => $dunning_id,
+        'path'       => $file_path,
+        'name'       => $file_name };
+      return;
+    }
+  }
 
   my $print_form          = Form->new('');
   $print_form->{type}     = 'invoice';

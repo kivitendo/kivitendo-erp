@@ -79,6 +79,7 @@ __PACKAGE__->meta->columns(
   dunning_ar_amount_fee                     => { type => 'integer' },
   dunning_ar_amount_interest                => { type => 'integer' },
   dunning_creator                           => { type => 'enum', check_in => [ 'current_employee', 'invoice_employee' ], db_type => 'dunning_creator', default => 'current_employee' },
+  dunning_original_invoice_creation_mode    => { type => 'enum', check_in => [ 'create_new', 'use_last_created_or_create_new' ], db_type => 'invoice_creation_mode', default => 'create_new' },
   duns                                      => { type => 'text' },
   email_attachment_part_files_checked       => { type => 'boolean', default => 'true' },
   email_attachment_record_files_checked     => { type => 'boolean', default => 'true' },
