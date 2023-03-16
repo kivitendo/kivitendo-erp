@@ -110,6 +110,8 @@ sub action_export_all_charts {
   my $zip = Archive::Zip->new();
 
   for my $account (@{ $self->accounts_list }) {
+    next if $account->{charttype} eq "H" || !defined($account->{balance});
+
     $::form->{accno} = $account->{accno};
 
     my $sfile = SL::SessionFile::Random->new(mode => "w");
@@ -469,6 +471,8 @@ sub init_accounts_list {
     text => "$_->{accno} - $_->{description}",
     accno => $_->{accno},
     chart_id => $_->{id},
+    balance => $_->{amount},
+    charttype => $_->{charttype},
   } } @{ $::form->{CA} };
   \@accounts_list;
 }
