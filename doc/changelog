@@ -56,6 +56,45 @@ Kleinere neue Features und Detailverbesserungen:
 und einem Steuerschlüssel überlagert werden (sichtbar in der 2.
 Positionszeile)
 
+Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+570 Test invoice_to_reclamation.t kaputt
+568 Fehler bei "Positionen" anzeigen in Berichte Lieferschein
+566 Beistelllieferschein Nummernkreis
+565 Artikel->Lieferantenauftrag Meldung: Das Formular ist nicht mehr gültig
+562 DMS mit Backend WebDAV Datei hochladen stürzt ab, sobald ein '/' in der Rechnungsnummer, bzw. Buchungsbeschreibung vorkommt
+559 E-Mail-Versand von Briefen, berücksichtigt nicht die Firmensignatur
+558 Lagerbestand für den Import kompatibel machen
+556 Design4.0: Web-Templates für neues Design werden nicht gezogen
+553 Adminbereich: Beim Editieren von Benutzer*innen fehlt Anzeige der Gruppen und Mandantenzugehörigkeit
+550 Lieferschein - Datenbank stimmt nich mit MetaSetup überein
+549 Workflow EK-Reklamation -> VK-Reklamation geht nicht
+548 Workflow VK-Reklamation -> EK-Reklamation landet bei VK-Reklamation
+547 Workflow Reklamation -> Auftrag; dann Auftrag speicher schlägt fehl
+546 Workflow Reklamation -> Auftrag (direkt ohne speichern)
+545 Ausgelagerte Beistell-Lieferscheine können nicht mehr gedruckt werden
+544 Verknüpfte Belege: Manuelle Auswahl von Dialogbuchung liefert keine Suchtreffer im Popup
+535 Lieferbedingungen können nicht ungültig gesetzt werden
+534 "Das Formular ist nicht mehr gültig." beim Erzeugen einer Schlussrechnung/weitere Anzahlungsrechnung
+531 Retourenlieferschein: Es gibt keinen Eintrag für Dokument im Bericht Lagerbuchungen
+530 Reklamationscontroller: Workflow VK-Auftrag -> VK-Lieferschein ist defekt: Fehler: Invalid action 'undefined' for controller SL::Controller::Order
+529 Retourenlieferschein: Verkaufs-Retouren können nur auf schon bebuchte Lagerplätze gesetzt werden
+527 Design4.0 Kunden/Lieferantenmaske Reiter "Belege" Inhalt sieht unschön aus
+526 Design4.0 Reiter "Dateianhänge" fehlt das DROP-Feld "Dateien hierher ziehen und fallen lassen"
+521 System -> UStVa Einstellungen Maske erscheint in ungewöhnlich grosser Schrift.
+520 Mandantenkonfiguration: design40_webpages erscheint in der Liste existierender Druckvorlagen
+519 locales.pl neues Design verursacht Fehler
+518 Neues Design - Fehler in Rechnung/Gutschrift erfassen
+517 Neues Design - Fehler in Mandantenkonfiguration
+516 Neues Design - Fehler in der Kunden/Lieferantenmaske
+515 Design4.0 Benutzer lässt sich nicht speichern
+512 Rechnung aus Lieferscheinen buchen geht nicht mehr bei Version 3.7
+506 Beistelllieferschein lässt nach auslagern nicht mehr drucken
+493 Cannot rethrow string ... bei Fehler in der Kreditoren-Transaktion
+490 DeliveryOrder order_type db upgrade
+451 Design4.0: Radiobuttons/Texte verschoben (Status Feedback)
+317 DATEV KNE-Export komplett entfernen
+
+
 2022-09-19 - Release 3.7.0
 
 Größere neue Features:
@@ -109,7 +148,6 @@ Kleinere neue Features und Detailverbesserungen:
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 504 BDV Auswahlbox mit Checkbox ignoriert Parameter 7) Deaktiviert als Voreinstellung
 501 Gelöschten Benutzernamen für einen andere Person neu vergeben verursacht Durcheinander
-490 entfernen von ungenutzten `is_sales` aus Lieferscheintabelle
 
 
 2022-05-20 - Release 3.6.1
