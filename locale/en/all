@@ -4248,6 +4248,7 @@ $self->{texts} = {
   'To user login'               => '',
   'Today'                       => '',
   'Toggle marker'               => '',
+  'Toggle selection'            => '',
   'Too many results (#1 from #2).' => '',
   'Too much recursions in assembly tree (>100)' => '',
   'Top'                         => '',
