@@ -373,7 +373,7 @@
     </tr>
   </thead>
   [% FOREACH item = SELF.order.items_sorted %]
-    [% PROCESS order/tabs/_row.html ITEM=item ID=(item.id||item.new_fake_id) TYPE=SELF.type ALL_PRICE_FACTORS=SELF.all_price_factors SEARCH_CVPARTNUMBER=SELF.search_cvpartnumber %]
+    [% PROCESS order/tabs/_row.html ITEM=item ID=(item.id||item.new_fake_id) %]
   [% END %]
   <tfoot>
     [% IF (SELF.type == "sales_quotation") || (SELF.type == "request_quotation") %]
