@@ -3,7 +3,7 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
-Upgrade auf v4.0
+Upgrade auf v3.8.0-beta
 
 Buchungskonten die mit einem Bankkonto verknüpft sind, können nicht mehr
 manuell in den Belegen bebucht werden.
@@ -19,6 +19,8 @@ Bei existierenden Installationen muss dafür in der Konfigurationsdatei
 »latex« umgestellt werden, z.B. auf »latexmk --pdflatex«. Andere
 TeX-Interpreter wie luatex werden ebenfalls unterstützt; siehe Ausgabe
 von »latexmk --help«.
+
+Es sind keine neuen Perl-Abhängigkeiten hinzugekommen.
 
 
 Upgrade auf v3.7.0
