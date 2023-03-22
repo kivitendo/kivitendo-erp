@@ -570,7 +570,7 @@ sub check_ar_paid_acc_trans {
   my $query = qq|
           select sum(ac.amount) as paid_amount, ar.invnumber,ar.paid
           from acc_trans ac left join ar on (ac.trans_id = ar.id)
-          WHERE ac.chart_link like '%AR_paid%'
+          WHERE ac.chart_link like '%AR_paid%' OR ac.fx_transaction
           AND ac.trans_id in (SELECT trans_id from acc_trans ac where ac.transdate >= ? AND ac.transdate <= ?)
           group by invnumber, paid having sum(ac.amount) <> ar.paid*-1|;
 
