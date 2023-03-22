@@ -516,7 +516,7 @@ sub get_warehouse_report {
   # filters
   my (@filter_ary, @filter_vars, @wh_bin_filter_ary, @wh_bin_filter_vars);
 
-  delete $form->{include_empty_bins} unless ($form->{l_warehousedescription} || $form->{l_bindescription});
+  delete $form->{include_empty_bins} unless ($form->{l_warehouse} || $form->{l_bin});
 
   if ($filter{warehouse_id}) {
     push @wh_bin_filter_ary,  "w.id = ?";
