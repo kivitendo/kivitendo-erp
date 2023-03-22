@@ -301,7 +301,7 @@ sub action_create_invoice {
   ));
 
   # if we have exactly one ap match, use this directly
-  if (1 == scalar @{ $templates_ap }) {
+  if ($use_vendor_filter && 1 == scalar @{ $templates_ap }) {
     $self->redirect_to($self->load_ap_record_template_url($templates_ap->[0]));
 
   } else {
