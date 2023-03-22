@@ -269,7 +269,7 @@ sub get_warehouse_journal {
 
   # if of a property number or description is requested,
   # automatically check the matching id too.
-  map { $form->{"l_${_}id"} = "Y" if ($form->{"l_${_}description"} || $form->{"l_${_}number"}); } qw(warehouse bin);
+  map { $form->{"l_${_}id"} = "Y" if ($form->{"l_${_}"} || $form->{"l_${_}number"}); } qw(warehouse bin);
 
   # customize shown entry for not available fields.
   $filter{na} = '-' unless $filter{na};
@@ -319,32 +319,32 @@ sub get_warehouse_journal {
   }
 
   $select_tokens{'trans'} = {
-     "parts_id"             => "i1.parts_id",
-     "qty"                  => "ABS(SUM(i1.qty))",
-     "partnumber"           => "p.partnumber",
-     "partdescription"      => "p.description",
-     "classification_id"    => "p.classification_id",
-     "part_type"            => "p.part_type",
-     "bindescription"       => "b.description",
-     "chargenumber"         => "i1.chargenumber",
-     "bestbefore"           => "i1.bestbefore",
-     "warehousedescription" => "w.description",
-     "partunit"             => "p.unit",
-     "bin_from"             => "b1.description",
-     "bin_to"               => "b2.description",
-     "warehouse_from"       => "w1.description",
-     "warehouse_to"         => "w2.description",
-     "comment"              => "i1.comment",
-     "trans_type"           => "tt.description",
-     "trans_id"             => "i1.trans_id",
-     "id"                   => "i1.id",
-     "oe_id"                => "COALESCE(i1.oe_id, i2.oe_id)",
-     "invoice_id"           => "COALESCE(i1.invoice_id, i2.invoice_id)",
-     "date"                 => "i1.shippingdate",
-     "itime"                => "i1.itime",
-     "shippingdate"         => "i1.shippingdate",
-     "employee"             => "e.name",
-     "projectnumber"        => "COALESCE(pr.projectnumber, '$filter{na}')",
+     "parts_id"          => "i1.parts_id",
+     "qty"               => "ABS(SUM(i1.qty))",
+     "partnumber"        => "p.partnumber",
+     "partdescription"   => "p.description",
+     "classification_id" => "p.classification_id",
+     "part_type"         => "p.part_type",
+     "bin"               => "b.description",
+     "chargenumber"      => "i1.chargenumber",
+     "bestbefore"        => "i1.bestbefore",
+     "warehouse"         => "w.description",
+     "partunit"          => "p.unit",
+     "bin_from"          => "b1.description",
+     "bin_to"            => "b2.description",
+     "warehouse_from"    => "w1.description",
+     "warehouse_to"      => "w2.description",
+     "comment"           => "i1.comment",
+     "trans_type"        => "tt.description",
+     "trans_id"          => "i1.trans_id",
+     "id"                => "i1.id",
+     "oe_id"             => "COALESCE(i1.oe_id, i2.oe_id)",
+     "invoice_id"        => "COALESCE(i1.invoice_id, i2.invoice_id)",
+     "date"              => "i1.shippingdate",
+     "itime"             => "i1.itime",
+     "shippingdate"      => "i1.shippingdate",
+     "employee"          => "e.name",
+     "projectnumber"     => "COALESCE(pr.projectnumber, '$filter{na}')",
      };
 
   $select_tokens{'out'} = {
@@ -597,7 +597,7 @@ sub get_warehouse_report {
 
   # if of a property number or description is requested,
   # automatically check the matching id too.
-  map { $form->{"l_${_}id"} = "Y" if ($form->{"l_${_}description"} || $form->{"l_${_}number"}); } qw(warehouse bin);
+  map { $form->{"l_${_}id"} = "Y" if ($form->{"l_${_}"} || $form->{"l_${_}number"}); } qw(warehouse bin);
 
   # make order, search in $filter and $form
   my $sort_col    =  $form->{sort};
