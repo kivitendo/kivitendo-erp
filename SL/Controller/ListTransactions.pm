@@ -237,9 +237,10 @@ sub set_report_data {
 
   # this data is used in custom header
   $self->{eb_value} = $::form->{beginning_balance};
-  $self->{saldo_old} += $::form->{beginning_balance};
-  $self->{debit_old} += $::form->{beginning_balance};
-  $self->{credit_old} += $::form->{beginning_balance};
+  $self->{saldo_old} = $::form->{saldo_old} + $::form->{beginning_balance};
+  # "Jahresverkehrszahlen alt"
+  $self->{debit_old} = $::form->{old_balance_debit};
+  $self->{credit_old} = $::form->{old_balance_credit};
 
   $self->set_report_custom_headers();
 
@@ -327,6 +328,12 @@ sub set_report_data {
   $data{$_}->{align} = 'right' for qw(debit credit balance);
   $self->report->add_data(\%data);
 
+  # get data for the footer line from the CA->all_transactions request
+  $self->{saldo_new} = $::form->{saldo_new} + $::form->{beginning_balance};
+  # "Jahresverkehrszahlen neu"
+  $self->{debit_new} = $::form->{current_balance_debit};
+  $self->{credit_new} = $::form->{current_balance_credit};
+
   $self->set_report_footer_lines();
 }
 
@@ -342,9 +349,9 @@ sub set_report_footer_lines {
   # line 2
   my %data2 = map { $_ => { class => 'listtotal' } } keys %{ $self->report->{columns} };
   $data2{reference}->{data} = format_debit_credit($self->{eb_value});
-  $data2{description} = { data => format_debit_credit($self->{balance}), class => 'listtotal', colspan => 2 };
-  $data2{debit}->{data} = $::form->format_amount(\%::myconfig, abs($self->{total_debit}), 2) . " S";
-  $data2{credit}->{data} = $::form->format_amount(\%::myconfig, $self->{total_credit}, 2) . " H";
+  $data2{description} = { data => format_debit_credit($self->{saldo_new}), class => 'listtotal', colspan => 2 };
+  $data2{debit}->{data} = $::form->format_amount(\%::myconfig, abs($self->{debit_new}) , 2) . " S";
+  $data2{credit}->{data} = $::form->format_amount(\%::myconfig, $self->{credit_new}, 2) . " H";
   $self->report->add_data(\%data2);
 }
 
