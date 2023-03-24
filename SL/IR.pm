@@ -1195,7 +1195,7 @@ sub get_vendor {
   $dateformat .= "yy" if $myconfig->{dateformat} !~ /^y/;
 
   my $vid = conv_i($params->{vendor_id});
-  my $vnr = conv_i($params->{vendornumber});
+  my $vnr = $params->{vendornumber};
 
   my $duedate =
     ($params->{invdate})
@@ -1208,8 +1208,7 @@ sub get_vendor {
   if ($vid) {
     $where .= 'AND v.id = ?';
     push @values, $vid;
-  }
-  if ($vnr) {
+  } elsif ($vnr) {
     $where .= 'AND v.vendornumber = ?';
     push @values, $vnr;
   }
