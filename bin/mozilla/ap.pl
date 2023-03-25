@@ -1489,7 +1489,8 @@ sub setup_ap_display_form_action_bar {
                     : $is_storno           ? t8('Reversal invoices cannot be canceled.')
                     : $::form->{totalpaid} ? t8('Invoices with payments cannot be canceled.')
                     : $has_sepa_exports    ? t8('This invoice has been linked with a sepa export, undo this first.')
-                    : $is_linked_gl_transaction ? t8('This transaction is linked with a gl transaction. Please delete the ap transaction booking if needed.')
+                    : $is_linked_gl_transaction   ? t8('This transaction is linked with a gl transaction. Please delete the ap transaction booking if needed.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     :                        undef,
         ],
         action => [ t8('Delete'),
