@@ -19,6 +19,17 @@
   <colgroup><col class="wi-small"><col class="wi-lightwide"></colgroup>
   <tbody>
     <tr>
+      <th>[% 'Greeting' | $T8 %]</th>
+      <td>
+        [% IF INSTANCE_CONF.get_vc_greetings_use_textfield %]
+          [% L.input_tag('cv.greeting', SELF.cv.greeting, class='wi-mediumsmall') %]
+          [% L.select_tag('cv_greeting_select', SELF.all_greetings, default = SELF.cv.greeting, value_key = 'description', title_key = 'description', with_empty = 1, onchange = '$("#cv_greeting").val(this.value);', class='wi-small addition') %]
+        [% ELSE %]
+          [% L.select_tag('cv.greeting', SELF.all_greetings, default = SELF.cv.greeting, value_key = 'description', title_key = 'description', with_empty = 1, class='wi-lightwide') %]
+        [% END %]
+      </td>
+    </tr>
+    <tr>
       <th>[% IF SELF.is_vendor() %] [% 'Vendor Name' | $T8 %] [% ELSE %] [% 'Customer Name' | $T8 %] [% END %]</th>
       <td>[% L.input_tag('cv.name', SELF.cv.name, type='text', class='wi-lightwide') %]</td>
     </tr>
@@ -57,16 +68,6 @@
     <tr>
       <th>[% 'GLN' | $T8 %]</th>
       <td>[% L.input_tag('cv.gln', SELF.cv.gln, class='wi-lightwide') %]</td>
-    </tr>
-    <tr>
-      <th>[% 'Greeting' | $T8 %]</th>
-      <td>
-        [% IF INSTANCE_CONF.get_vc_greetings_use_textfield %]
-          [% L.input_tag('cv.greeting', SELF.cv.greeting, class='wi-lightwide') %]<br>
-          [% L.select_tag('cv_greeting_select', SELF.all_greetings, default = SELF.cv.greeting, value_key = 'description', title_key = 'description', with_empty = 1, onchange = '$("#cv_greeting").val(this.value);', class='wi-lightwide addition') %]
-        [% ELSE %]
-          [% L.select_tag('cv.greeting', SELF.all_greetings, default = SELF.cv.greeting, value_key = 'description', title_key = 'description', with_empty = 1, class='wi-lightwide') %]
-        [% END %]
     </tr>
   </tbody>
 </table>
