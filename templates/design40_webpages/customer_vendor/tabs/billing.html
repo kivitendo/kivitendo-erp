@@ -303,6 +303,10 @@
     </tr>
     [% IF ( SELF.is_customer() ) %]
       <tr>
+        <th><label for="cv_dunning_lock">[% 'Dunning lock' | $T8 %]</label></th>
+        <td>[% L.checkbox_tag('cv.dunning_lock', checked = SELF.cv.dunning_lock, for_submit=1) %]</td>
+      </tr>
+      <tr>
         <th><label for="cv_order_lock">[% 'Shoporderlock' | $T8 %]</label></th>
         <td>[% L.checkbox_tag('cv.order_lock', checked = SELF.cv.order_lock, for_submit=1) %]</td>
       </tr>

@@ -1306,6 +1306,7 @@ $self->{texts} = {
   'Dunning Process started for selected invoices!' => 'Mahnprozess für selektierte Rechnungen gestartet',
   'Dunning email'               => 'Mahnungsemail',
   'Dunning level'               => 'Mahnstufe',
+  'Dunning lock'                => 'Mahnsperre',
   'Dunning number'              => 'Mahnungsnummer',
   'Dunning overview'            => 'Mahnungsübersicht',
   'Dunning status'              => 'Mahnstatus',
