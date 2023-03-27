@@ -978,6 +978,7 @@ sub search {
   $form->{ALL_DEPARTMENTS}    = SL::DB::Manager::Department->get_all_sorted;
   $form->{ALL_BUSINESS_TYPES} = SL::DB::Manager::Business  ->get_all_sorted;
   $form->{ALL_TAXZONES}       = SL::DB::Manager::TaxZone   ->get_all_sorted;
+  $form->{ALL_PAYMENT_TERMS}  = SL::DB::Manager::PaymentTerm->get_all_sorted;
 
   $form->{CT_CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
   ($form->{CT_CUSTOM_VARIABLES_FILTER_CODE},
@@ -1055,7 +1056,7 @@ sub ar_transactions {
   push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber cusordnumber transaction_description notes project_id
                                            transdatefrom transdateto duedatefrom duedateto datepaidfrom datepaidto
                                            employee_id salesman_id business_id parts_partnumber parts_description department_id show_marked_as_closed show_not_mailed
-                                           shippingpoint shipvia taxzone_id);
+                                           shippingpoint shipvia taxzone_id payment_id);
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
   $href =  $params{want_binary_pdf} ? '' : build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
@@ -1153,6 +1154,10 @@ sub ar_transactions {
   }
   if ($form->{transaction_description}) {
     push @options, $locale->text('Transaction description') . " : $form->{transaction_description}";
+  }
+  if ($form->{payment_id}) {
+    my $payment_term = SL::DB::Manager::PaymentTerm->find_by( id => $form->{payment_id} );
+    push @options, $locale->text('Payment Term') . " : " . $payment_term->description;
   }
   if ($form->{parts_partnumber}) {
     push @options, $locale->text('Part Number') . " : $form->{parts_partnumber}";

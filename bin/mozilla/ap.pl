@@ -999,6 +999,7 @@ sub search {
 
   $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
   $::form->{ALL_TAXZONES}    = SL::DB::Manager::TaxZone   ->get_all_sorted;
+  $::form->{ALL_PAYMENT_TERMS} = SL::DB::Manager::PaymentTerm->get_all_sorted;
 
   # constants and subs for template
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
@@ -1058,7 +1059,7 @@ sub ap_transactions {
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id
                                            transdatefrom transdateto duedatefrom duedateto datepaidfrom datepaidto
-                                           parts_partnumber parts_description department_id taxzone_id);
+                                           parts_partnumber parts_description department_id taxzone_id payment_id);
 
   my $href = build_std_url('action=ap_transactions', grep { $form->{$_} } @hidden_variables);
 
@@ -1134,6 +1135,10 @@ sub ap_transactions {
   push @options, $locale->text('Date Paid') . " " . $locale->text('to')   . " " . $locale->date(\%myconfig, $form->{datepaidto},   1)     if ($form->{datepaidto});
   push @options, $locale->text('Open')                                                                   if ($form->{open});
   push @options, $locale->text('Closed')                                                                 if ($form->{closed});
+  if ($form->{payment_id}) {
+    my $payment_term = SL::DB::Manager::PaymentTerm->find_by( id => $form->{payment_id} );
+    push @options, $locale->text('Payment Term') . " : " . $payment_term->description;
+  }
 
   $report->set_options('top_info_text'        => join("\n", @options),
                        'output_format'        => 'HTML',
