@@ -34,6 +34,7 @@ __PACKAGE__->meta->columns(
   depositor                 => { type => 'text' },
   direct_debit              => { type => 'boolean', default => 'false' },
   discount                  => { type => 'float', precision => 4, scale => 4 },
+  dunning_lock              => { type => 'boolean', default => 'false', not_null => 1 },
   dunning_mail              => { type => 'text' },
   email                     => { type => 'text' },
   fax                       => { type => 'text' },
