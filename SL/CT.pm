@@ -88,6 +88,7 @@ sub search {
       "ustid"              => "ct.ustid",
       "creditlimit"        => "ct.creditlimit",
       "commercial_court"   => "ct.commercial_court",
+      "dunning_lock"       => "ct.dunning_lock",
     );
 
   $form->{sort} ||= "name";
@@ -102,7 +103,7 @@ sub search {
   }
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
-  if ($sortorder !~ /(business|creditlimit|id|discount|itime)/ && !$join_records) {
+  if ($sortorder !~ /(business|creditlimit|id|discount|itime|dunning_lock)/ && !$join_records) {
     $sortorder  = "lower($sortorder) ${sortdir}";
   } else {
     $sortorder .= " ${sortdir}";
@@ -229,6 +230,11 @@ sub search {
   if($form->{insertdateto}) {
     $where .= qq| AND (ct.itime::DATE <= ?)|;
     push @values, conv_date($form->{insertdateto});
+  }
+
+  if($form->{dunning_lock} ne '') {
+    $where .= qq| AND ct.dunning_lock = ?|;
+    push @values, $form->{dunning_lock};
   }
 
   if ($form->{all}) {

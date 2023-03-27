@@ -37,6 +37,12 @@
           <th>[% 'All phone numbers' | $T8 %]</th>
           <td><input type="text" name="all_phonenumbers" class="wi-normal"></td>
         </tr>
+        [% IF IS_CUSTOMER %]
+        <tr>
+          <th>[% 'Dunning lock' | $T8 %]</th>
+          <td>[% L.yes_no_tag('dunning_lock', dunning_lock, default='', with_empty=1, class="wi-normal") %]</td>
+        </tr>
+        [% END %]
       </tbody>
     </table>
 
@@ -165,6 +171,10 @@
     <div>
       <input name="l_creditlimit" id="l_creditlimit" type="checkbox" class="checkbox" value="Y">
       <label for="l_creditlimit">[% 'Credit Limit' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_dunning_lock" id="l_dunning_lock" type="checkbox" class="checkbox" value="Y">
+      <label for="l_dunning_lock">[% 'Dunning lock' | $T8 %]</label>
     </div>
     <div>
       <input name="l_commercial_court" id="l_commercial_court" type="checkbox" class="checkbox" value="Y">

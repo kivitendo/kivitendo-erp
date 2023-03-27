@@ -91,6 +91,12 @@
       [% L.date_tag('insertdateto') %]
     </td>
    </tr>
+[% IF IS_CUSTOMER %]
+   <tr>
+     <th align="right" nowrap>[% 'Dunning lock' | $T8 %]</th>
+     <td>[% L.yes_no_tag('dunning_lock', dunning_lock, default='', with_empty=1) %]</td>
+   </tr>
+[% END %]
 
    [% CUSTOM_VARIABLES_FILTER_CODE %]
 
@@ -262,7 +268,10 @@
         <input name="l_department_2" id="l_department_2" type="checkbox" class="checkbox" value="Y">
         <label for="l_department_2">[% 'Department' | $T8 %] 2</label>
        </td>
-        <td></td>
+       <td>
+        <input name="l_dunning_lock" id="l_dunning_lock" type="checkbox" class="checkbox" value="Y">
+        <label for="l_dunning_lock">[% 'Dunning lock' | $T8 %]</label>
+       </td>
       </tr>
       [% END %]
 

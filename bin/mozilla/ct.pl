@@ -160,6 +160,7 @@ sub list_names {
   push @options, $locale->text('Billing/shipping address (GLN)')     . " : $form->{addr_gln}"              if $form->{addr_gln};
   push @options, $locale->text('Quick Search')                       . " : $form->{all}"                   if $form->{all};
   push @options, $locale->text('Factur-X/ZUGFeRD settings')          . " : $zugferd_filter"                if $zugferd_filter;
+  push @options, $locale->text('Dunning lock')                       . " : $form->{dunning_lock}"          if $form->{dunning_lock} ne '';
 
   if ($form->{business_id}) {
     my $business = SL::DB::Manager::Business->find_by(id => $form->{business_id});
@@ -187,7 +188,7 @@ sub list_names {
     'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
     'business',  'payment', 'invnumber', 'ordnumber',           'quonumber', 'salesman',
     'country',   'gln',     'insertdate',           'pricegroup', 'contact_origin', 'invoice_mail',
-    'creditlimit', 'ustid', 'commercial_court', 'delivery_order_mail'
+    'creditlimit', 'ustid', 'commercial_court', 'delivery_order_mail', 'dunning_lock'
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -230,6 +231,7 @@ sub list_names {
     'ustid'             => { 'text' => $locale->text('VAT ID'), },
     'commercial_court'  => { 'text' => $locale->text('Commercial court'), },
     create_zugferd_invoices => { text => $locale->text('Factur-X/ZUGFeRD settings'), },
+    'dunning_lock'      => { 'text' => $locale->text('Dunning lock'), },
     %column_defs_cvars,
   );
 
@@ -238,7 +240,7 @@ sub list_names {
   my @hidden_variables  = ( qw(
       db status obsolete name contact email cp_name addr_street addr_zipcode
       addr_city addr_country addr_gln business_id salesman_id insertdateto insertdatefrom all
-      all_phonenumbers
+      all_phonenumbers dunning_lock
     ), "$form->{db}number",
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
     map({'cvar_'. $_->{name} .'_from'} grep({$_->{type} eq 'date'} @searchable_custom_variables)),
