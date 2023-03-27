@@ -78,6 +78,10 @@
       <th>[% 'Steuersatz' | $T8 %]</th>
       <td>[% L.select_tag('taxzone_id', ALL_TAXZONES, with_empty=1, title_key='description', class="wi-normal") %]</td>
     </tr>
+    <tr>
+      <th>[% 'Payment Term' | $T8 %]</th>
+      <td>[% L.select_tag('payment_id', ALL_PAYMENT_TERMS, with_empty=1, title_key='description', class="wi-normal") %]</td>
+    </tr>
   </tbody>
 </table>
 
