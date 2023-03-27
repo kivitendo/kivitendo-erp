@@ -14,6 +14,16 @@ Mittelgroße neue Features:
   - Export-Option als Chart/Grafik für den Report-Generator und damit für
     alle Berichte
   - Benutzerdefinierter Datenexport verwendet Report-Generator
+  - Überarbeitung von Berichte -> Kontenübersicht und Buchungsliste
+    Die Buchungsliste hat neu einen eigenen Menüpunkt. Dort kann das Konto,
+    zusammen mit dem Zeitraum und den Einstellungen, ausgewählt und dann die
+    Buchungsliste angezeigt werden. Die Auswahl des Kontos über die
+    Kontenübersicht ist weiterhin möglich. Zusätzlich gibt es in der
+    Buchungsliste, via Action-bar, neu die Funktion: Export -> Alle Konten als
+    CSV exportieren (ZIP-Datei) Diese exportiert die Buchungslisten aller
+    bebuchten Konten als CSV und bietet diese in einer ZIP Datei zum Download
+    an. Die Datumsauswahl zum Zeitraum ist neu in einem kompakten Modul mit
+    optionalen Voreinstellungen (in einem popup) untergebracht.
 
 Kleinere neue Features und Detailverbesserungen:
 
