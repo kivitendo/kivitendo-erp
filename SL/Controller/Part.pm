@@ -113,66 +113,9 @@ sub action_add {
 sub action_save {
   my ($self, %params) = @_;
 
-  # checks that depend only on submitted $::form
-  $self->check_form or return $self->js->render;
+  my $is_new = !$self->part->id;
 
-  my $is_new = !$self->part->id; # $ part gets loaded here
-
-  # check that the part hasn't been modified
-  unless ( $is_new ) {
-    $self->check_part_not_modified or
-      return $self->js->error(t8('The document has been changed by another user. Please reopen it in another window and copy the changes to the new window'))->render;
-  }
-
-  if (    $is_new
-       && $::form->{part}{partnumber}
-       && SL::DB::Manager::Part->find_by(partnumber => $::form->{part}{partnumber})
-     ) {
-    return $self->js->error(t8('The partnumber is already being used'))->render;
-  }
-
-  $self->parse_form;
-
-  my @errors = $self->part->validate;
-  return $self->js->error(@errors)->render if @errors;
-
-  if ($is_new) {
-    # Ensure CVars that should be enabled by default actually are when
-    # creating new parts.
-    my @default_valid_configs =
-      grep { ! $_->{flag_defaults_to_invalid} }
-      grep { $_->{module} eq 'IC' }
-      @{ CVar->get_configs() };
-
-    $::form->{"cvar_" . $_->{name} . "_valid"} = 1 for @default_valid_configs;
-  } else {
-    $self->{lastcost_modified} = $self->check_lastcost_modified;
-  }
-
-  # $self->part has been loaded, parsed and validated without errors and is ready to be saved
-  $self->part->db->with_transaction(sub {
-
-    $self->part->save(cascade => 1);
-    $self->part->set_lastcost_assemblies_and_assortiments if $self->{lastcost_modified};
-
-    SL::DB::History->new(
-      trans_id    => $self->part->id,
-      snumbers    => 'partnumber_' . $self->part->partnumber,
-      employee_id => SL::DB::Manager::Employee->current->id,
-      what_done   => 'part',
-      addition    => 'SAVED',
-    )->save();
-
-    CVar->save_custom_variables(
-      dbh           => $self->part->db->dbh,
-      module        => 'IC',
-      trans_id      => $self->part->id,
-      variables     => $::form, # $::form->{cvar} would be nicer
-      save_validity => 1,
-    );
-
-    1;
-  }) or return $self->js->error(t8('The item couldn\'t be saved!') . " " . $self->part->db->error )->render;
+  $self->save_with_render_error() or return;
 
   flash_later('info', $is_new ? t8('The item has been created.') . " " . $self->part->displayable_name : t8('The item has been saved.'));
 
@@ -1242,6 +1185,101 @@ sub build_bin_select {
   );
 }
 
+sub save {
+  my ($self) = @_;
+  my @errors = ();
+
+  my $is_new = !$self->part->id;
+
+  # check that the part hasn't been modified
+  unless ( $is_new ) {
+    $self->check_part_not_modified or
+      return [t8('The document has been changed by another user. Please reopen it in another window and copy the changes to the new window')];
+  }
+
+  if (    $is_new
+       && $::form->{part}{partnumber}
+       && SL::DB::Manager::Part->find_by(partnumber => $::form->{part}{partnumber})
+     ) {
+    return $self->js->error(t8('The partnumber is already being used'))->render;
+  }
+
+  $self->parse_form;
+
+  @errors = $self->part->validate;
+  return \@errors if @errors;
+
+  if ($is_new) {
+    # Ensure CVars that should be enabled by default actually are when
+    # creating new parts.
+    my @default_valid_configs =
+      grep { ! $_->{flag_defaults_to_invalid} }
+      grep { $_->{module} eq 'IC' }
+      @{ CVar->get_configs() };
+
+    $::form->{"cvar_" . $_->{name} . "_valid"} = 1 for @default_valid_configs;
+  } else {
+    $self->{lastcost_modified} = $self->check_lastcost_modified;
+  }
+
+  # $self->part has been loaded, parsed and validated without errors and is ready to be saved
+  $self->part->db->with_transaction(sub {
+
+    $self->part->save(cascade => 1);
+    $self->part->set_lastcost_assemblies_and_assortiments if $self->{lastcost_modified};
+
+    SL::DB::History->new(
+      trans_id    => $self->part->id,
+      snumbers    => 'partnumber_' . $self->part->partnumber,
+      employee_id => SL::DB::Manager::Employee->current->id,
+      what_done   => 'part',
+      addition    => 'SAVED',
+    )->save();
+
+    CVar->save_custom_variables(
+      dbh           => $self->part->db->dbh,
+      module        => 'IC',
+      trans_id      => $self->part->id,
+      variables     => $::form, # $::form->{cvar} would be nicer
+      save_validity => 1,
+    );
+
+    1;
+  }) || push(@errors, $self->part->db->error);
+
+  return \@errors;
+}
+
+sub save_with_render_error {
+  my ($self) = @_;
+
+  # checks that depend only on submitted $::form
+  if (!$self->check_form) {
+    $self->js->render();
+    return 0;
+  }
+
+  my $errors = $self->save();
+
+  if (scalar @{ $errors }) {
+    $self->js->error(t8('The item couldn\'t be saved!'));
+    $self->js->error(@{ $errors });
+    $self->js->render();
+    return 0;
+  }
+
+  return 1;
+}
+
+sub js_reset_part_after_save {
+  my ($self) = @_;
+
+  $self->js
+    ->val('#part_id',               $self->part->id)
+    ->val('#part_partnumber',       $self->part->partnumber)
+    ->val('#part_weight_as_number', $self->part->weight_as_number)
+    ->val('#last_modification',    "$self->part->last_modification");
+}
 
 # get_set_inits for partpicker
 
@@ -2132,6 +2170,26 @@ Takes two params:
 Depending on the price_type the lastcost sum or sellprice sum is returned.
 
 Doesn't work for recursive items.
+
+=item C<save>
+
+Helper function for saving the part object in $self->part. Returns a error list
+on failure.
+
+=item C<save_with_render_error>
+
+Helper function for checking the form, saving the part object and error
+rendering. Returns 1 on success and 0 when a error is rendered.
+
+It can be called like this:
+
+  $self->save_with_render_error() or return;
+
+=item C<js_reset_part_after_save>
+
+Helper function for updating changed values after save in the form via js. It
+chances 'part_id', 'part_partnumber', 'part_weight_as_number' and
+'last_modification'.
 
 =back
 
