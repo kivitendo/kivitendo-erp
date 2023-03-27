@@ -25,6 +25,7 @@ use SL::DB::PriceRuleItem;
 use SL::DB::PurchaseBasketItem;
 use SL::DB::Shop;
 use SL::Helper::Flash;
+use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
 use SL::Helper::UserPreferences::PartPickerSearch;
 use SL::JSON;
@@ -40,6 +41,7 @@ use Rose::Object::MakeMethods::Generic (
                                   customerprices
                                   orphaned
                                   assortment assortment_items assembly assembly_items
+                                  print_options
                                   all_pricegroups all_translations all_partsgroups all_units
                                   all_buchungsgruppen all_payment_terms all_warehouses
                                   parts_classification_filter
@@ -126,6 +128,80 @@ sub action_save {
     # default behaviour after save: reload item, this also resets last_modification!
     $self->redirect_to(controller => 'Part', action => 'edit', 'part.id' => $self->part->id);
   }
+}
+
+sub action_save_and_print {
+  my ($self) = @_;
+
+  $self->save_with_render_error() or return;
+  flash_later('info', t8('The item has been saved.'));
+  $self->js_reset_part_after_save();
+
+  my $formname    = $::form->{print_options}->{formname};
+  my $language    = $::form->{print_options}->{language};
+  my $format      = $::form->{print_options}->{format};
+  my $media       = $::form->{print_options}->{media};
+  my $printer_id  = $::form->{print_options}->{printer_id};
+  my $copies      = $::form->{print_options}->{copies};
+
+  my %result;
+  eval {
+    %result = SL::Template::LaTeX->parse_and_create_pdf(
+       $formname . ".tex",
+       SELF        => $self,
+       part        => $self->part,
+       template_meta => {
+          formname   => 'part',
+          language   => $language,
+          extension  => 'pdf',
+          format     => $format,
+          media      => $media,
+          today      => DateTime->today,
+          lxconfig   => \%::lx_office_conf,
+        },
+      );
+    if ($result{error}) {
+      die t8('Conversion to PDF failed: #1', $result{error});
+    }
+
+    my $pdf = $result{file_name};
+
+    if ($media eq 'screen') {
+      my $file_name =  $formname . '.pdf';
+      $file_name    =~ s{[^\w\.]+}{_}g;
+
+      $self->send_file(
+        $pdf,
+        type => 'application/pdf',
+        name => $file_name,
+        js_no_render => 1,
+      );
+      unlink $result{file_name};
+    } elsif ($media eq 'printer') {
+      my $printer = SL::DB::Printer->new(id => $printer_id)->load;
+      $printer->print_document(
+        copies  => $copies,
+        file_name => $result{file_name},
+      );
+
+      flash_later('info', t8('The document has been sent to the printer \'#1\'.', $printer->printer_description));
+      unlink $result{file_name} if $result{file_name};
+    } else {
+      die t8('Media \'#1\' is not supported yet/anymore.', $media);
+    }
+
+    1;
+  } or do {
+    unlink $result{file_name} if $result{file_name};
+    flash_later('error', t8("Creating the PDF failed!"));
+    flash_later('error', $@);
+  };
+
+  my $redirect_url = $self->url_for(
+    'action'  => 'edit',
+    'part.id' => $self->part->id,
+  );
+  $self->js->redirect_to($redirect_url)->render;
 }
 
 sub action_save_and_purchase_order {
@@ -1542,6 +1618,24 @@ sub init_parts_classification_filter {
   die "no query rules for parts_classification_type " . $::form->{parts_classification_type};
 }
 
+sub init_print_options {
+
+  my $print_form = Form->new('');
+  $print_form->{type}      = 'part';
+  $print_form->{printers}  = SL::DB::Manager::Printer->get_all_sorted;
+  $print_form->{languages} = SL::DB::Manager::Language->get_all_sorted;
+
+  return SL::Helper::PrintOptions->get_print_options(
+      form => $print_form,
+      options => {dialog_name_prefix => 'print_options.',
+                  show_headers       => 1,
+                  no_queue           => 1,
+                  no_postscript      => 1,
+                  no_opendocument    => 1,
+                  no_html            => 1},
+    );
+}
+
 # simple checks to run on $::form before saving
 
 sub form_check_part_description_exists {
@@ -1804,7 +1898,12 @@ sub _setup_form_action_bar {
       combobox => [
         action => [
           t8('Export'),
-          only_if => $self->part->is_assembly || $self->part->is_assortment,
+        ],
+        action => [
+          t8('Save and print'),
+          call     => [ 'kivi.Part.show_print_options' ],
+          disabled => !$may_edit ? t8('You do not have the permissions to access this function.') : undef,
+          checks   => [ 'kivi.validate_form' ],
         ],
         action => [
           $self->part->is_assembly ? t8('Assembly items') : t8('Assortment items'),
@@ -1971,6 +2070,11 @@ template.
 =item C<action_save>
 
 Saves the current part and then reloads the edit page for the part.
+
+=item C<action_save_and_print>
+
+Saves the current part, prints the selected template and then reloads the edit
+page for the part.
 
 =item C<action_use_as_new>
 
