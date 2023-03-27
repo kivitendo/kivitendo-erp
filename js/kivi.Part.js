@@ -22,6 +22,27 @@ namespace('kivi.Part', function(ns) {
     $('#ic').submit();
   };
 
+ ns.show_print_options = function() {
+    kivi.popup_dialog({
+      id: 'print_options',
+      dialog: {
+        title:  kivi.t8('Print options'),
+        width:  800,
+        height: 300
+      }
+    });
+  }
+
+  ns.save_and_print = function() {
+    $('#print_options').dialog('close');
+
+    var data = $('#ic').serializeArray();
+    data = data.concat($('#print_options_form').serializeArray());
+    data.push({ name: 'action', value: 'Part/save_and_print' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   ns.delete = function() {
     var data = $('#ic').serializeArray();
     data.push({ name: 'action', value: 'Part/delete' });
