@@ -1,0 +1,17 @@
+% config: use-template-toolkit=1
+% config: tag-style=$( )$
+$( USE KiviLatex )$
+$( USE P )$
+
+\documentclass[oneside]{scrartcl}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+%\setlength{\textwidth}{50cm}
+%\usepackage[paperwidth=80mm, paperheight=55mm, margin=3mm]{geometry}
+
+%\setlength{\parindent}{0pt}
+
+\begin{document}
+Art.Nr.:~~ $( KiviLatex.filter(part.partnumber) )$ \\[1em]
+\end{document}
