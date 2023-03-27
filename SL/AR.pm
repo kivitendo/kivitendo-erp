@@ -519,7 +519,7 @@ sub ar_transactions {
     qq|  a.type, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  c.name, c.customernumber, c.country, c.ustid, b.description as customertype, | .
-    qq|  c.id as customer_id, | .
+    qq|  c.id as customer_id, c.dunning_lock as customer_dunning_lock,| .
     qq|  e.name AS employee, | .
     qq|  e2.name AS salesman, | .
     qq|  dc.dunning_description, | .
