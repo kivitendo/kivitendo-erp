@@ -1043,7 +1043,7 @@ sub ar_transactions {
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
        marge_total marge_percent globalprojectnumber customernumber country ustid taxzone
        payment_terms charts customertype direct_debit dunning_description department attachments
-       items);
+       items customer_dunning_lock);
 
   my $ct_cvar_configs                 = CVar->get_configs('module' => 'CT');
   my @ct_includeable_custom_variables = grep { $_->{includeable} } @{ $ct_cvar_configs };
@@ -1100,6 +1100,7 @@ sub ar_transactions {
     dunning_description       => { 'text' => $locale->text('Dunning level'), },
     attachments               => { 'text' => $locale->text('Attachments'), },
     items                     => { 'text' => $locale->text('Positions'), },
+    customer_dunning_lock     => { 'text' => $locale->text('Dunning lock'), },
     %column_defs_cvars,
   );
 
