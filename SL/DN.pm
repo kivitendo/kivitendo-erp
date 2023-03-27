@@ -705,6 +705,7 @@ sub get_invoices {
        ))
         $paid
         AND (a.duedate < current_date)
+        AND ct.dunning_lock = false
 
        $where
 
