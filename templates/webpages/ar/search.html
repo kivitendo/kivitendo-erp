@@ -66,6 +66,10 @@
       <td>[% L.input_tag("shipvia", "", style=style) %]</td>
      </tr>
      <tr>
+      <th align="right" nowrap>[% 'Payment Term' | $T8 %]</th>
+      <td>[% L.select_tag('payment_id', ALL_PAYMENT_TERMS, with_empty=1, title_key="description", style=style) %]</td>
+     </tr>
+     <tr>
       <th align="right">[% 'Project Number' | $T8 %]</th>
       <td>[% P.project.picker("project_id", project_id, active="both", valid="both", style=style) %]</td>
      </tr>

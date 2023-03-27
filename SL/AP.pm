@@ -646,6 +646,10 @@ sub ap_transactions {
     $where .= " AND a.taxzone_id = ?";
     push(@values, $form->{taxzone_id});
   }
+  if ($form->{payment_id}) {
+    $where .= " AND a.payment_id = ?";
+    push(@values, $form->{payment_id});
+  }
   if ($form->{transaction_description}) {
     $where .= " AND a.transaction_description ILIKE ?";
     push(@values, like($form->{transaction_description}));
