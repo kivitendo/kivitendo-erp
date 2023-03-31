@@ -55,6 +55,8 @@ require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
 require "bin/mozilla/reportgenerator.pl";
 
+use SL::Helper::Flash qw(flash flash_later render_flash);
+
 use strict;
 
 1;
@@ -1011,11 +1013,19 @@ sub save {
   validate_items();
 
   # check for serial number if part needs one
+  my $missing_serialnr = '';
   for my $i (1 .. $form->{rowcount} - 1) {
-    next unless $form->{"has_sernumber_$i"};
-    $form->isblank("serialnumber_$i",
-                   $locale->text('Serial Number missing in Row') . " $i");
+    next if !$form->{"has_sernumber_$i"} || $form->{"serialnumber_$i"} ne '';
+    $missing_serialnr .= $missing_serialnr ? ", $i" : " $i";
   }
+  if ($missing_serialnr ne '') {
+    flash('error', $locale->text('Serial Number missing in Row') . $missing_serialnr);
+    render_flash();
+    &update;
+    $::dispatcher->end_request;
+    return;
+  }
+
   # if the name changed get new values
   my $vc = $form->{vc};
   if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
