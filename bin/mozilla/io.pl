@@ -172,12 +172,13 @@ sub display_row {
     unit weight price_source sellprice discount linetotal
     bin stock_in_out
   );
+  # position of serialnr is used below!
   my @row2_sort   = qw(
     tax_chart tax serialnr projectnr reqdate subtotal recurring_billing_mode marge listprice lastcost onhand
   );
   # serialnr is important for delivery_orders
   if ($form->{type} eq 'sales_delivery_order') {
-    splice @row2_sort, 0, 1;
+    splice @row2_sort, 0, 3;
     splice @header_sort, 4, 0, "serialnr";
   }
 
