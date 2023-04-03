@@ -2678,6 +2678,7 @@ $self->{texts} = {
   'Payment / Delivery Options'  => '',
   'Payment Date'                => '',
   'Payment Reminder'            => '',
+  'Payment Term'                => '',
   'Payment Terms'               => '',
   'Payment Terms missing in row ' => '',
   'Payment bookings disallowed. After the booking this record may be suggested with the amount of \'#1\' or otherwise has to be choosen manually. No automatic payment booking will be done to chart \'#2\'.' => '',
