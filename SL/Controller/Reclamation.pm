@@ -2633,15 +2633,9 @@ the bottom.
 
 =item *
 
-<<<<<<< HEAD
-Ordering item rows with drag and drop is possible. Sorting item rows is possible
-(by partnumber, description, reason, reason_description_int,
-reason_description_ext, qty, sellprice and discount for now).
-=======
 Ordering item rows with drag and drop is possible. Sorting item rows is
 possible (by partnumber, description, reason, qty, sellprice
 and discount for now).
->>>>>>> 66ac9fa6c7 (Reclamation: don't need shipped_qty)
 
 =item *
 
