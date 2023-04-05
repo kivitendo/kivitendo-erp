@@ -148,6 +148,8 @@ sub list_names {
   my $zugferd_filter        = $form->{create_zugferd_invoices} eq '' ? undef : $zugferd_settings_list[$form->{create_zugferd_invoices} + 1]->[1];
 
   push @options, $locale->text('Name')                               . " : $form->{name}"                  if $form->{name};
+  push @options, $locale->text('Department') . ' 1'                  . " : $form->{department_1}"          if $form->{department_1};
+  push @options, $locale->text('Department') . ' 2'                  . " : $form->{department_2}"          if $form->{department_2};
   push @options, $locale->text('Contact')                            . " : $form->{contact}"               if $form->{contact};
   push @options, $locale->text('Number')                           . qq| : $form->{"$form->{db}number"}|   if $form->{"$form->{db}number"};
   push @options, $locale->text('E-mail')                             . " : $form->{email}"                 if $form->{email};
@@ -240,7 +242,7 @@ sub list_names {
   my @hidden_variables  = ( qw(
       db status obsolete name contact email cp_name addr_street addr_zipcode
       addr_city addr_country addr_gln business_id salesman_id insertdateto insertdatefrom all
-      all_phonenumbers dunning_lock
+      all_phonenumbers dunning_lock department_1 department_2
     ), "$form->{db}number",
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
     map({'cvar_'. $_->{name} .'_from'} grep({$_->{type} eq 'date'} @searchable_custom_variables)),

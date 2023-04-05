@@ -22,6 +22,14 @@
           <td><input type="text" id="name" name="name" class="initial_focus wi-normal"></td>
         </tr>
         <tr>
+          <th>[% 'Department' | $T8 %]</th>
+          <td><input type="text" name="department_1" class="wi-normal"></td>
+        </tr>
+        <tr>
+          <th></th>
+          <td><input type="text" name="department_2" class="wi-normal"></td>
+        </tr>
+        <tr>
           <th>[% 'Contact' | $T8 %] </th>
           <td><input type="text" name="contact" class="wi-normal"></td>
         </tr>
@@ -148,6 +156,14 @@
     <div>
       <input name="l_name" id="l_name" type="checkbox" value="Y" checked>
       <label for="l_name"> [% IF IS_CUSTOMER %][% 'Customer Name' | $T8 %][% ELSE %][% 'Vendor Name' | $T8 %][% END %] </label>
+    </div>
+    <div>
+      <input name="l_department_1" id="l_department_1" type="checkbox" value="Y">
+      <label for="l_department_1"> [% 'Department' | $T8 %] 1</label>
+    </div>
+    <div>
+      <input name="l_department_2" id="l_department_2" type="checkbox" value="Y">
+      <label for="l_department_2"> [% 'Department' | $T8 %] 2</label>
     </div>
     <div>
       <input name="l_contact" id="l_contact" type="checkbox" value="Y" checked>
