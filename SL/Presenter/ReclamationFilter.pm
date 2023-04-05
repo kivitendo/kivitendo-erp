@@ -473,7 +473,7 @@ sub _create_input_div {
       ),
       style => "flex:1");
   }
-  
+
   my $input_div = html_tag('div', $div_columns, style => "display:flex;flex-wrap:wrap");
 
   return $input_div;

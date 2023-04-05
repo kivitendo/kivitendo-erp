@@ -15,7 +15,7 @@ sub get_qrbill_account {
   my $qr_account;
 
   my $bank_accounts = SL::DB::Manager::BankAccount->get_all_sorted;
-  
+
   $qr_account = first { $_->use_for_qrbill } @{ $bank_accounts };
 
   if (!$qr_account) {
@@ -112,7 +112,7 @@ sub get_amount_formatted {
   my $amount = $_[0];
 
   # parameter should be a string containing a number
-  # with 2 digits after the pointi'm also getting in the town 
+  # with 2 digits after the pointi'm also getting in the town
   unless ($amount =~ /^\d+\.\d{2}$/) {
     return undef;
   }
