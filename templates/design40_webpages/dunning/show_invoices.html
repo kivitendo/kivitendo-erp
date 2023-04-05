@@ -39,6 +39,7 @@
     <th>[% 'Customername' | $T8 %]</th>
     <th>[% 'Department' | $T8 %]</th>
     <th>[% 'Language' | $T8 %]</th>
+    <th>[% 'Type' | $T8 %]</th>
     <th>[% 'Invno.' | $T8 %]</th>
     <th>[% 'Invdate' | $T8 %]</th>
     <th>[% 'Inv. Duedate' | $T8 %]</th>
@@ -76,6 +77,13 @@
          <td><input type="hidden" name="customername_[% loop.count %]" size="6" value="[% HTML.escape(row.customername) %]">[% HTML.escape(row.customername) %]</td>
          <td><input type="hidden" name="department_[% loop.count %]" size="6" value="[% HTML.escape(row.departmentname) %]">[% HTML.escape(row.departmentname) %]</td>
          <td><input type="hidden" name="language_id_[% loop.count %]" size="6" value="[% HTML.escape(row.language_id) %]">[% HTML.escape(row.language) %]</td>
+         <td>
+           [% IF row.invoice %]
+             [% 'Invoice (one letter abbreviation)' | $T8 %]
+           [% ELSE %]
+             [% 'AR Transaction (abbreviation)' | $T8 %]
+           [% END %]
+         </td>
          <td>
            <input type="hidden" name="invnumber_[% loop.count %]" size="6" value="[% HTML.escape(row.invnumber) %]">
            <a href="[% IF row.invoice %]is[% ELSE %]ar[% END %].pl?action=edit&type=invoice&id=[% row.id | url %]">[% HTML.escape(row.invnumber) %]</a>
