@@ -1,4 +1,5 @@
 [%- USE T8 %][%- USE L %]
+[% USE LxERP %]
 [% USE HTML %]<script type="text/javascript" src="js/common.js"></script>
 <h1>[% title %]</h1>
 
@@ -46,6 +47,11 @@
    <tr>
     <th align="right" nowrap>[% 'Payment Term' | $T8 %]</th>
     <td colspan="3">[% L.select_tag('payment_id', ALL_PAYMENT_TERMS, with_empty=1, title_key='description', with_empty=1) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap>[% 'Type' | $T8 %]</th>
+    <th>[% L.select_tag('invoice', [ ['t', LxERP.t8('Invoice (No Dunning Fees)')], ['f', LxERP.t8('AR transactions (Dunning Fees)')], ], with_empty=1) %]
    </tr>
 
    <tr>
