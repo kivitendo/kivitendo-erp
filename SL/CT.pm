@@ -224,6 +224,11 @@ sub search {
     push(@values, conv_i($form->{salesman_id}));
   }
 
+  if ($form->{payment_id}) {
+    $where .= qq| AND (ct.payment_id = ?)|;
+    push(@values, $form->{payment_id});
+  }
+
   if($form->{insertdatefrom}) {
     $where .= qq| AND (ct.itime::DATE >= ?)|;
     push@values, conv_date($form->{insertdatefrom});

@@ -74,6 +74,11 @@
    </tr>
    [% END %]
 
+   <tr>
+     <th align="right" nowrap>[% 'Payment Term' | $T8 %]</th>
+     <td>[% L.select_tag('payment_id', ALL_PAYMENT_TERMS, with_empty=1, title_key='description', with_empty=1) %]</td>
+   </tr>
+
 [% IF IS_CUSTOMER %]
    <tr>
      <th align="right" nowrap>[% LxERP.t8("Factur-X/ZUGFeRD settings") %]</th>
