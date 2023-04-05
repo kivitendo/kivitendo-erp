@@ -66,6 +66,8 @@ sub search {
       "customernumber"     => "ct.customernumber",
       "vendornumber"       => "ct.vendornumber",
       "name"               => "ct.name",
+      "department_1"       => "ct.department_1",
+      "department_2"       => "ct.department_2",
       "contact"            => "ct.contact",
       "phone"              => "ct.phone",
       "fax"                => "ct.fax",
@@ -114,8 +116,8 @@ sub search {
     push(@values, like($form->{"${cv}number"}));
   }
 
-  foreach my $key (qw(name contact email)) {
-    if ($form->{$key}) {
+  foreach my $key (qw(name department_1 department_2 contact email)) {
+    if ($form->{$key} ne '') {
       $where .= " AND ct.$key ILIKE ?";
       push(@values, like($form->{$key}));
     }
