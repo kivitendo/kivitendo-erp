@@ -44,6 +44,11 @@
    </tr>
 
    <tr>
+    <th align="right" nowrap>[% 'Payment Term' | $T8 %]</th>
+    <td colspan="3">[% L.select_tag('payment_id', ALL_PAYMENT_TERMS, with_empty=1, title_key='description', with_empty=1) %]</td>
+   </tr>
+
+   <tr>
     <th align="right" nowrap>[% 'Notes' | $T8 %]</th>
     <td colspan="3"><input name="notes" size="40"></td>
    </tr>
