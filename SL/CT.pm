@@ -86,6 +86,7 @@ sub search {
       "insertdate"         => "ct.itime",
       "salesman"           => "e.name",
       "payment"            => "pt.description",
+      "taxzone"            => "tz.description",
       "pricegroup"         => "pg.pricegroup",
       "ustid"              => "ct.ustid",
       "creditlimit"        => "ct.creditlimit",
@@ -229,6 +230,11 @@ sub search {
     push(@values, $form->{payment_id});
   }
 
+  if ($form->{taxzone_id}) {
+    $where .= qq| AND (ct.taxzone_id = ?)|;
+    push(@values, $form->{taxzone_id});
+  }
+
   if($form->{insertdatefrom}) {
     $where .= qq| AND (ct.itime::DATE >= ?)|;
     push@values, conv_date($form->{insertdatefrom});
@@ -300,7 +306,7 @@ sub search {
   }
   my $query =
     qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-    qq|  pt.description as payment | .
+    qq|  pt.description as payment, tz.description as taxzone | .
     $pg_select .
     $main_cp_select .
     (qq|, NULL AS invnumber, NULL AS ordnumber, NULL AS quonumber, NULL AS invid, NULL AS module, NULL AS formtype, NULL AS closed | x!! $join_records) .
@@ -308,6 +314,7 @@ sub search {
     qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
     qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
     qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
+    qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
     $pg_join .
     qq|WHERE $where|;
 

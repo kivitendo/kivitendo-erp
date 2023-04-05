@@ -56,6 +56,7 @@ use SL::DB::Business;
 use SL::DB::Default;
 use SL::DB::DeliveryTerm;
 use SL::DB::Manager::PaymentTerm;
+use SL::DB::Manager::TaxZone;
 use SL::ReportGenerator;
 use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(uri_encode);
@@ -85,6 +86,7 @@ sub search {
   $form->get_lists("business_types" => "ALL_BUSINESS_TYPES",
                    "salesmen"       => "ALL_SALESMEN");
   $form->{ALL_PAYMENT_TERMS} = SL::DB::Manager::PaymentTerm->get_all_sorted;
+  $form->{ALL_TAXZONES}      = SL::DB::Manager::TaxZone    ->get_all_sorted;
   $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
 
   $form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
@@ -187,6 +189,13 @@ sub list_names {
     }
   }
 
+  if ($form->{taxzone_id}) {
+    my $tax_zone = SL::DB::Manager::TaxZone->find_by(id => $form->{taxzone_id});
+    if ($tax_zone) {
+      push @options, $locale->text('Tax rate') . " : " . $tax_zone->description;
+    }
+  }
+
   if ( $form->{insertdatefrom} or $form->{insertdateto} ) {
     push @options, $locale->text('Insert Date');
     push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{insertdatefrom}, 1) if $form->{insertdatefrom};
@@ -197,7 +206,7 @@ sub list_names {
     'id',        'name',    "$form->{db}number",   'contact', 'main_contact_person',
     'department_1',         'department_2',        'phone',   'discount',
     'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
-    'business',  'payment', 'invnumber', 'ordnumber',           'quonumber', 'salesman',
+    'business',  'payment', 'taxzone', 'invnumber', 'ordnumber',           'quonumber', 'salesman',
     'country',   'gln',     'insertdate',           'pricegroup', 'contact_origin', 'invoice_mail',
     'creditlimit', 'ustid', 'commercial_court', 'delivery_order_mail', 'dunning_lock'
   );
@@ -233,6 +242,7 @@ sub list_names {
     'salesman'          => { 'text' => $locale->text('Salesman'), },
     'discount'          => { 'text' => $locale->text('Discount'), },
     'payment'           => { 'text' => $locale->text('Payment Terms'), },
+    'taxzone'           => { 'text' => $locale->text('Tax rate'), },
     'insertdate'        => { 'text' => $locale->text('Insert Date'), },
     'pricegroup'        => { 'text' => $locale->text('Pricegroup'), },
     'invoice_mail'      => { 'text' => $locale->text('Email of the invoice recipient'), },
@@ -251,7 +261,7 @@ sub list_names {
   my @hidden_variables  = ( qw(
       db status obsolete name contact email cp_name addr_street addr_zipcode
       addr_city addr_country addr_gln business_id salesman_id insertdateto insertdatefrom all
-      all_phonenumbers dunning_lock department_1 department_2 payment_id
+      all_phonenumbers dunning_lock department_1 department_2 payment_id taxzone_id
     ), "$form->{db}number",
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
     map({'cvar_'. $_->{name} .'_from'} grep({$_->{type} eq 'date'} @searchable_custom_variables)),
