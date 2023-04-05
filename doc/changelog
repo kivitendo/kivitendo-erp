@@ -11,19 +11,19 @@ Größere neue Features:
 
 Mittelgroße neue Features:
 
-  - Export-Option als Chart/Grafik für den Report-Generator und damit für
-    alle Berichte
-  - Benutzerdefinierter Datenexport verwendet Report-Generator
-  - Überarbeitung von Berichte -> Kontenübersicht und Buchungsliste
-    Die Buchungsliste hat neu einen eigenen Menüpunkt. Dort kann das Konto,
-    zusammen mit dem Zeitraum und den Einstellungen, ausgewählt und dann die
-    Buchungsliste angezeigt werden. Die Auswahl des Kontos über die
-    Kontenübersicht ist weiterhin möglich. Zusätzlich gibt es in der
-    Buchungsliste, via Action-bar, neu die Funktion: Export -> Alle Konten als
-    CSV exportieren (ZIP-Datei) Diese exportiert die Buchungslisten aller
-    bebuchten Konten als CSV und bietet diese in einer ZIP Datei zum Download
-    an. Die Datumsauswahl zum Zeitraum ist neu in einem kompakten Modul mit
-    optionalen Voreinstellungen (in einem popup) untergebracht.
+ - Export-Option als Chart/Grafik für den Report-Generator und damit für
+   alle Berichte
+ - Benutzerdefinierter Datenexport verwendet Report-Generator
+ - Überarbeitung von Berichte -> Kontenübersicht und Buchungsliste
+   Die Buchungsliste hat neu einen eigenen Menüpunkt. Dort kann das Konto,
+   zusammen mit dem Zeitraum und den Einstellungen, ausgewählt und dann die
+   Buchungsliste angezeigt werden. Die Auswahl des Kontos über die
+   Kontenübersicht ist weiterhin möglich. Zusätzlich gibt es in der
+   Buchungsliste, via Action-bar, neu die Funktion: Export -> Alle Konten als
+   CSV exportieren (ZIP-Datei) Diese exportiert die Buchungslisten aller
+   bebuchten Konten als CSV und bietet diese in einer ZIP Datei zum Download
+   an. Die Datumsauswahl zum Zeitraum ist neu in einem kompakten Modul mit
+   optionalen Voreinstellungen (in einem popup) untergebracht.
 
 Kleinere neue Features und Detailverbesserungen:
 
@@ -57,14 +57,14 @@ Kleinere neue Features und Detailverbesserungen:
    Monats/Jahresansicht per Klick.
  - Für Einkaufsrechnungen und Kreditorenbuchungen können Überweisungen via SEPA
    manuell gesperrt werden.
-- Die E-Mail-Absenderadresse kann jetzt belegweise generisch gesetzt werden, konfigurierbar
-  in der Mandanteneinstellung auf Workflow-Ebene im Bereich Einkauf und Verkauf
+ - Die E-Mail-Absenderadresse kann jetzt belegweise generisch gesetzt werden, konfigurierbar
+   in der Mandanteneinstellung auf Workflow-Ebene im Bereich Einkauf und Verkauf
  - Schnellsuche für Projekte eingeführt
  - In der benutzerkonfigurierten Kundenanzeige kann man nun auch das Land mit
    anzeigen
-- Einkaufsrechnungen können positionsweise mit Aufwands- oder Bestandskonten
-und einem Steuerschlüssel überlagert werden (sichtbar in der 2.
-Positionszeile)
+ - Einkaufsrechnungen können positionsweise mit Aufwands- oder Bestandskonten
+   und einem Steuerschlüssel überlagert werden (sichtbar in der 2.
+   Positionszeile)
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 570 Test invoice_to_reclamation.t kaputt
