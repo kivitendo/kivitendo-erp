@@ -55,6 +55,7 @@ use SL::Request qw(flatten);
 use SL::DB::Business;
 use SL::DB::Default;
 use SL::DB::DeliveryTerm;
+use SL::DB::Manager::PaymentTerm;
 use SL::ReportGenerator;
 use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(uri_encode);
@@ -83,6 +84,7 @@ sub search {
 
   $form->get_lists("business_types" => "ALL_BUSINESS_TYPES",
                    "salesmen"       => "ALL_SALESMEN");
+  $form->{ALL_PAYMENT_TERMS} = SL::DB::Manager::PaymentTerm->get_all_sorted;
   $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
 
   $form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
@@ -178,6 +180,13 @@ sub list_names {
     }
   }
 
+  if ($form->{payment_id}) {
+    my $payment = SL::DB::Manager::PaymentTerm->find_by(id => $form->{payment_id});
+    if ($payment) {
+      push @options, $locale->text('Payment Term') . " : " . $payment->description;
+    }
+  }
+
   if ( $form->{insertdatefrom} or $form->{insertdateto} ) {
     push @options, $locale->text('Insert Date');
     push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{insertdatefrom}, 1) if $form->{insertdatefrom};
@@ -242,7 +251,7 @@ sub list_names {
   my @hidden_variables  = ( qw(
       db status obsolete name contact email cp_name addr_street addr_zipcode
       addr_city addr_country addr_gln business_id salesman_id insertdateto insertdatefrom all
-      all_phonenumbers dunning_lock department_1 department_2
+      all_phonenumbers dunning_lock department_1 department_2 payment_id
     ), "$form->{db}number",
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
     map({'cvar_'. $_->{name} .'_from'} grep({$_->{type} eq 'date'} @searchable_custom_variables)),

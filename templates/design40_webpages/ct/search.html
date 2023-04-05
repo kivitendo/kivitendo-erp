@@ -106,6 +106,10 @@
           <th>[% 'Insert Date' | $T8 %] [% 'From' | $T8 %] </th>
           <td>[% L.date_tag('insertdatefrom') %] [% 'Bis' | $T8 %] [% L.date_tag('insertdateto') %] <!-- PENDENT: Klassen implementieren in Funktion --></td>
         </tr>
+        <tr>
+          <th>[% 'Payment Term' | $T8 %]</th>
+          <td>[% L.select_tag('payment_id', ALL_PAYMENT_TERMS, with_empty=1, title_key='description', with_empty=1, class="wi-lightwide") %]</td>
+        </tr>
       [% CUSTOM_VARIABLES_FILTER_CODE %]
       <tr>
         <th>[% 'Scope' | $T8 %] </th>
