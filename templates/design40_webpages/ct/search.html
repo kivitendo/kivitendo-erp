@@ -110,6 +110,10 @@
           <th>[% 'Payment Term' | $T8 %]</th>
           <td>[% L.select_tag('payment_id', ALL_PAYMENT_TERMS, with_empty=1, title_key='description', with_empty=1, class="wi-lightwide") %]</td>
         </tr>
+        <tr>
+          <th>[% 'Tax rate' | $T8 %]</th>
+          <td>[% L.select_tag('taxzone_id', ALL_TAXZONES, with_empty=1, title_key='description', class="wi-lightwide") %]</td>
+        </tr>
       [% CUSTOM_VARIABLES_FILTER_CODE %]
       <tr>
         <th>[% 'Scope' | $T8 %] </th>
@@ -276,6 +280,10 @@
     <div>
       <input name="l_payment" id="l_payment" type="checkbox" value="Y">
       <label for="l_payment"> [% 'Payment Terms' | $T8 %] </label>
+    </div>
+    <div>
+      <input name="l_taxzone" id="l_taxzone" type="checkbox" value="Y">
+      <label for="l_taxzone"> [% 'Tax rate' | $T8 %] </label>
     </div>
   </div>
 

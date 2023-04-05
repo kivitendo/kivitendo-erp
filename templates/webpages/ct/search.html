@@ -79,6 +79,11 @@
      <td>[% L.select_tag('payment_id', ALL_PAYMENT_TERMS, with_empty=1, title_key='description', with_empty=1) %]</td>
    </tr>
 
+    <tr>
+     <th align="right">[% 'Tax rate' | $T8 %]</th>
+     <td>[% L.select_tag('taxzone_id', ALL_TAXZONES, with_empty=1, title_key='description') %]</td>
+    </tr>
+
 [% IF IS_CUSTOMER %]
    <tr>
      <th align="right" nowrap>[% LxERP.t8("Factur-X/ZUGFeRD settings") %]</th>
@@ -217,6 +222,10 @@
        <td>
         <input name="l_payment" id="l_payment" type="checkbox" class="checkbox" value="Y">
         <label for="l_payment">[% 'Payment Terms' | $T8 %]</label>
+       </td>
+       <td>
+        <input name="l_taxzone" id="l_taxzone" type="checkbox" class="checkbox" value="Y">
+        <label for="l_taxzone">[% 'Tax rate' | $T8 %]</label>
        </td>
        <td>
         <input name="l_insertdate" id="l_insertdate" class="checkbox" type="checkbox" value="Y">
