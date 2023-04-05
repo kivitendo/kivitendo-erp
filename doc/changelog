@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2023-03-17 - Release 3.8.0-beta
+2023-04-05 - Release 3.8.0
 
 Größere neue Features:
 
@@ -24,6 +24,7 @@ Mittelgroße neue Features:
    bebuchten Konten als CSV und bietet diese in einer ZIP Datei zum Download
    an. Die Datumsauswahl zum Zeitraum ist neu in einem kompakten Modul mit
    optionalen Voreinstellungen (in einem popup) untergebracht.
+ - Buchungsgruppen können auf "ungültig" gesetzt werden.
 
 Kleinere neue Features und Detailverbesserungen:
 
@@ -65,8 +66,15 @@ Kleinere neue Features und Detailverbesserungen:
  - Einkaufsrechnungen können positionsweise mit Aufwands- oder Bestandskonten
    und einem Steuerschlüssel überlagert werden (sichtbar in der 2.
    Positionszeile)
+ - Die Rechnungsberichte Verkauf und Einkauf können nach Zahlungsbedingung
+   gefiltert werden.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+585 Lieferschein läss sich nicht mehr auslagern/speichern wenn Seriennummer ist Pflicht
+584 SL/Controller/Reclamation.pm merge marker in POD
+583 ListTransactions (Buchungsliste) (neuer controller) Saldo alt / Jahresverkehrszahlen alt / Bilanz falsch
+580 Umbuchung im Lager gleicher Fehler wie bei Lagerentnahme
+579 Lagerntnahme wirft DBI fehler
 570 Test invoice_to_reclamation.t kaputt
 568 Fehler bei "Positionen" anzeigen in Berichte Lieferschein
 566 Beistelllieferschein Nummernkreis
