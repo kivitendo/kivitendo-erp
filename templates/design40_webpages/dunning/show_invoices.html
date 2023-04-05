@@ -74,7 +74,9 @@
          <td class="center"><input type="checkbox" name="active_[% loop.count %]" value="1" [% IF row.active %]checked[% END %]></td>
          <td class="center"><input type="checkbox" name="email_[% loop.count %]" value="1" [% IF row.email && row.cv_email %]checked[% END %]>[% HTML.escape(row.cv_email) %]</td>
          <td class="center"><input type="checkbox" name="include_invoice_[% loop.count %]" value="1" [% IF row.print_original_invoice %]checked[% END %]></td>
-         <td><input type="hidden" name="customername_[% loop.count %]" size="6" value="[% HTML.escape(row.customername) %]">[% HTML.escape(row.customername) %]</td>
+         <td><input type="hidden" name="customername_[% loop.count %]" size="6" value="[% HTML.escape(row.customername) %]">
+           <a href="controller.pl?action=CustomerVendor/edit&db=customer&id=[% row.customer_id %]">[% HTML.escape(row.customername) %]</a>
+         </td>
          <td><input type="hidden" name="department_[% loop.count %]" size="6" value="[% HTML.escape(row.departmentname) %]">[% HTML.escape(row.departmentname) %]</td>
          <td><input type="hidden" name="language_id_[% loop.count %]" size="6" value="[% HTML.escape(row.language_id) %]">[% HTML.escape(row.language) %]</td>
          <td>
