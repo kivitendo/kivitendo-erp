@@ -620,6 +620,11 @@ sub get_invoices {
     push(@values, $form->{department_id});
   }
 
+  if ($form->{payment_id}) {
+    $where .= " AND a.payment_id = ?";
+    push(@values, $form->{payment_id});
+  }
+
   my %columns = (
     "ordnumber" => "a.ordnumber",
     "invnumber" => "a.invnumber",

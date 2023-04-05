@@ -41,6 +41,7 @@ use SL::IS;
 use SL::DN;
 use SL::DB::Department;
 use SL::DB::Dunning;
+use SL::DB::Manager::PaymentTerm;
 use SL::File;
 use SL::Helper::Flash qw(flash);
 use SL::Locale::String qw(t8);
@@ -111,6 +112,7 @@ sub add {
   DN->get_config(\%myconfig, \%$form);
 
   $form->get_lists("departments" => "ALL_DEPARTMENTS");
+  $::form->{ALL_PAYMENT_TERMS} = SL::DB::Manager::PaymentTerm->get_all_sorted;
 
   $form->{SHOW_DUNNING_LEVEL_SELECTION} = $form->{DUNNING}         && scalar @{ $form->{DUNNING} };
   $form->{SHOW_DEPARTMENT_SELECTION}    = $form->{ALL_DEPARTMENTS} && scalar @{ $form->{ALL_DEPARTMENTS} || [] };
