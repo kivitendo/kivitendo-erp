@@ -1,0 +1,3 @@
+-- @tag: release_3_8_0
+-- @description: Abhängigkeitsscript für Release 3.8.0
+-- @depends: release_3_7_0 rights_for_reclamation
