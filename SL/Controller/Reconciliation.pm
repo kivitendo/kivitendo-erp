@@ -257,7 +257,7 @@ sub _get_proposals {
       if ($linked_record->to_table eq 'ar') {
         $invoice = SL::DB::Manager::Invoice->find_by(id => $linked_record->to_id);
         #find payments
-        my $payments = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice->id, chart_link => { like => '%AR_paid%' }, transdate => $bt->transdate ]);
+        my $payments = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice->id, chart_id => $bt->local_bank_account->chart_id , transdate => $bt->transdate ]);
         foreach my $payment (@{ $payments }) {
           $check_sum += $payment->amount;
           push @{ $proposal->{BB} }, $payment;
@@ -266,7 +266,7 @@ sub _get_proposals {
       if ($linked_record->to_table eq 'ap') {
         $invoice = SL::DB::Manager::PurchaseInvoice->find_by(id => $linked_record->to_id);
         #find payments
-        my $payments = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice->id, chart_link => { like => '%AP_paid%' }, transdate => $bt->transdate ]);
+        my $payments = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice->id, chart_id => $bt->local_bank_account->chart_id, transdate => $bt->transdate ]);
         foreach my $payment (@{ $payments }) {
           $check_sum += $payment->amount;
           push @{ $proposal->{BB} }, $payment;
