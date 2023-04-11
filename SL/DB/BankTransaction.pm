@@ -157,10 +157,10 @@ sub get_agreement_with_invoice {
   # invnumber has to have at least 3 characters
   my $squashed_purpose = $self->purpose;
   $squashed_purpose =~ s/ //g;
-  if (length($invnumber) > 4 && $squashed_purpose =~ /$invnumber/ && $invoice->is_sales){
+  if (length($invnumber) > 4 && $squashed_purpose =~ /\Q$invnumber/ && $invoice->is_sales){
     $agreement      += $points{own_invoice_in_purpose};
     $rule_matches   .= 'own_invoice_in_purpose(' . $points{'own_invoice_in_purpose'} . ') ';
-  } elsif (length($invnumber) > 3 && $squashed_purpose =~ /$invnumber/ ) {
+  } elsif (length($invnumber) > 3 && $squashed_purpose =~ /\Q$invnumber/ ) {
     $agreement      += $points{invoice_in_purpose};
     $rule_matches   .= 'invoice_in_purpose(' . $points{'invoice_in_purpose'} . ') ';
   } else {
