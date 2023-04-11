@@ -919,6 +919,9 @@ sub make_filter_summary {
     [ $filter->{"amount:number"},           $::locale->text('Amount')                                          ],
     [ $filter->{"bank_account_id:integer"}, $::locale->text('Local bank account')                              ],
     [ $filter->{"remote_name:substr::ilike"}, $::locale->text('Remote name')                                   ],
+    [ $filter->{"remote_account_number:substr::ilike"}, $::locale->text('Remote account number')               ],
+    [ $filter->{"remote_bank_code:substr::ilike"}     , $::locale->text('Remote bank code')                    ],
+    [ $filter->{"purpose:substr::ilike"}              , $::locale->text('Purpose')                             ],
   );
 
   for (@filters) {
