@@ -103,7 +103,7 @@ sub action_add_from_reclamation {
   my %params;
   my $target_type = $reclamation->is_sales ? SALES_ORDER_TYPE()
                                            : PURCHASE_ORDER_TYPE();
-  my $order = SL::Model::Record->new_from_workflow($reclamation, ref($self->order), $target_type);
+  my $order = SL::Model::Record->new_from_workflow($reclamation, 'SL::DB::Order', ref($self->order), $target_type);
 
   $self->{converted_from_reclamation_id}       = $order->{ RECORD_ID()      };
   $_   ->{converted_from_reclamation_items_id} = $_    ->{ RECORD_ITEM_ID() } for @{ $order->items_sorted };
@@ -882,7 +882,7 @@ sub action_order_workflow {
   my $no_linked_records =    (any { $destination_type eq $_ } (SALES_QUOTATION_TYPE(), REQUEST_QUOTATION_TYPE()))
                           && $from_side eq $to_side;
 
-  $self->order(SL::Model::Record->new_from_workflow($self->order, $destination_type, no_linked_records => $no_linked_records));
+  $self->order(SL::Model::Record->new_from_workflow($self->order, 'SL::DB::Order', $destination_type, no_linked_records => $no_linked_records));
 
   delete $::form->{id};
 
