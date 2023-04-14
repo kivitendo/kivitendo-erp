@@ -38,6 +38,7 @@ use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
 use SL::Model::Record;
 use SL::DB::Order::TypeData qw(:types);
+use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
 
 use SL::Helper::CreatePDF qw(:all);
@@ -2228,10 +2229,11 @@ sub setup_edit_action_bar {
       combobox => [
         action => [
           t8('Save'),
-          call      => [ 'kivi.Order.save', { action             => 'save',
-                                              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
-                                              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
-          ],
+          call      => [ 'kivi.Order.save', {
+              action             => 'save',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+            }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'],
                          @req_trans_cost_art, @req_cusordnumber,
           ],
@@ -2240,11 +2242,14 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and Close'),
-          call      => [ 'kivi.Order.save', { action             => 'save',
-                                              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
-                                              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
-                                              back_to_caller     => 1 },
-          ],
+          call      => [ 'kivi.Order.save', {
+              action             => 'save',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+              form_params        => [
+                { name => 'back_to_caller', value => 1 },
+              ],
+            }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'],
                          @req_trans_cost_art, @req_cusordnumber,
           ],
@@ -2253,7 +2258,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Create Sub-Version'),
-          call      => [ 'kivi.Order.save', { action => 'add_subversion' }, ],
+          call      => [ 'kivi.Order.save', { action => 'add_subversion' } ],
           only_if   => $::instance_conf->get_lock_oe_subversions,
           disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
                     : !$is_final_version ? t8('This sub-version is not yet finalized')
@@ -2261,9 +2266,10 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save as new'),
-          call      => [ 'kivi.Order.save', { action             => 'save_as_new',
-                                              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts },
-          ],
+          call      => [ 'kivi.Order.save', {
+              action             => 'save_as_new',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+            }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
@@ -2318,10 +2324,11 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and Delivery Order'),
-          call      => [ 'kivi.Order.save', { action             => 'save_and_delivery_order',
-                                              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
-                                              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
-          ],
+          call      => [ 'kivi.Order.save', {
+              action             => 'save_and_delivery_order',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+            }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
@@ -2341,10 +2348,14 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and Supplier Delivery Order'),
-          call      => [ 'kivi.Order.save', { action             => 'save_and_supplier_delivery_order',
-                                              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
-                                              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
-          ],
+          call      => [ 'kivi.Order.save', {
+              action             => 'save_and_new_record',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+              form_params        => [
+                { name => 'to_type', value => SUPPLIER_DELIVERY_ORDER_TYPE() },
+              ],
+            }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
@@ -2353,16 +2364,23 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and Reclamation'),
-          call      => [ 'kivi.Order.save', { action             => 'save_and_reclamation',
-                                              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts },
-          ],
+          call      => [ 'kivi.Order.save', {
+              action             => 'save_and_new_record',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              form_params        => [
+                { name => 'to_type',
+                  value => $self->order->is_sales ? SALES_RECLAMATION_TYPE()
+                                                  : PURCHASE_RECLAMATION_TYPE() },
+              ],
+            }],
           only_if   =>$self->type_data->show_menu('save_and_reclamation')
         ],
         action => [
           t8('Save and Invoice'),
-          call      => [ 'kivi.Order.save', { action             => 'save_and_invoice',
-                                              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts },
-          ],
+          call      => [ 'kivi.Order.save', {
+              action             => 'save_and_invoice',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+            }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
@@ -2371,9 +2389,10 @@ sub setup_edit_action_bar {
         ],
         action => [
           ($has_invoice_for_advance_payment ? t8('Save and Further Invoice for Advance Payment') : t8('Save and Invoice for Advance Payment')),
-          call      => [ 'kivi.Order.save', { action             => 'save_and_invoice_for_advance_payment',
-                                              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts },
-          ],
+          call      => [ 'kivi.Order.save', {
+              action             => 'save_and_invoice_for_advance_payment',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+            }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
@@ -2384,9 +2403,10 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and Final Invoice'),
-          call      => [ 'kivi.Order.save', { action             => 'save_and_final_invoice',
-                                              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts },
-          ],
+          call      => [ 'kivi.Order.save', {
+              action             => 'save_and_final_invoice',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+            }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
@@ -2397,9 +2417,10 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and AP Transaction'),
-          call      => [ 'kivi.Order.save', { action             => 'save_and_ap_transaction',
-                                              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts },
-          ],
+          call      => [ 'kivi.Order.save', {
+              action             => 'save_and_ap_transaction',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+            }],
           only_if   => $self->type_data->show_menu('save_and_ap_transaction'),
           disabled  => !$may_edit_create  ? t8('You do not have the permissions to access this function.') : undef,
         ],
@@ -2412,10 +2433,11 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and preview PDF'),
-          call     => [ 'kivi.Order.save', { action             => 'preview_pdf',
-                                             warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
-                                             warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
-          ],
+          call     => [ 'kivi.Order.save', {
+              action             => 'preview_pdf',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+            }],
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : $is_final_version ? t8('This record is the final version. Please create a new sub-version') : undef,
@@ -2432,10 +2454,11 @@ sub setup_edit_action_bar {
         action => [
           ($is_final_version ? t8('E-mail') : t8('Save and E-mail')),
           id       => 'save_and_email_action',
-          call     => [ 'kivi.Order.save', { action             => 'save_and_show_email_dialog',
-                                             warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
-                                             warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
-          ],
+          call     => [ 'kivi.Order.save', {
+              action             => 'save_and_show_email_dialog',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+            }],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : !$self->order->id ? t8('This object has not been saved yet.')
                     : undef,

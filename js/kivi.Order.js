@@ -51,7 +51,7 @@ namespace('kivi.Order', function(ns) {
     const action             = params.action;
     const warn_on_duplicates = params.warn_on_duplicates;
     const warn_on_reqdate    = params.warn_on_reqdate;
-    const back_to_caller     = params.back_to_caller;
+    const form_params        = params.form_params;
 
     if (warn_on_duplicates && !ns.check_duplicate_parts()) return;
     if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
@@ -59,8 +59,15 @@ namespace('kivi.Order', function(ns) {
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/' + action });
 
-    if (back_to_caller) data.push({ name: 'back_to_caller', value: '1' });
-    if (params.convert_to_purchase_delivery_order_selected_items_only) data.push({ name: 'convert_to_purchase_delivery_order_selected_items_only', value: '1' });
+    if (form_params) {
+      if (Array.isArray(form_params)) {
+        form_params.forEach(function(item) {
+          data.push(item);
+        });
+      } else {
+        data.push(form_params);
+      }
+    }
 
     if (params.data)
       data = $.merge(data, params.data);
@@ -976,7 +983,7 @@ namespace('kivi.Order', function(ns) {
 
   ns.convert_to_purchase_delivery_order = function() {
     var params = $("body").data("convert_to_purchase_delivery_order_item_selection_params");
-    params.convert_to_purchase_delivery_order_selected_items_only = 1;
+    params.form_params.convert_to_purchase_delivery_order_selected_items_only = 1;
 
     var $dlg    = $("#convert_to_purchase_delivery_order_item_selection");
     params.data = $dlg.find("tbody input").serializeArray();

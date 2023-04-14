@@ -51,12 +51,23 @@ namespace('kivi.DeliveryOrder', function(ns) {
     const action             = params.action;
     const warn_on_duplicates = params.warn_on_duplicates;
     const warn_on_reqdate    = params.warn_on_reqdate;
+    const form_params        = params.form_params;
 
     if (warn_on_duplicates && !ns.check_duplicate_parts()) return;
     if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
 
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'DeliveryOrder/' + action });
+
+    if (form_params) {
+      if (Array.isArray(form_params)) {
+        form_params.forEach(function(item) {
+          data.push(item);
+        });
+      } else {
+        data.push(form_params);
+      }
+    }
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };

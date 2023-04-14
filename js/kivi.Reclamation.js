@@ -63,14 +63,29 @@ namespace('kivi.Reclamation', function(ns) {
     }
   };
 
-  ns.save = function(action, warn_on_duplicates, warn_on_reqdate) {
+  ns.save = function(params) {
     if (!ns.check_cv()) return;
+
+    const action             = params.action;
+    const warn_on_duplicates = params.warn_on_duplicates;
+    const warn_on_reqdate    = params.warn_on_reqdate;
+    const form_params        = params.form_params;
+
     if (warn_on_duplicates && !ns.check_duplicate_parts()) return;
     if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
     if (!ns.check_valid_reasons())                     return;
 
     var data = $('#reclamation_form').serializeArray();
     data.push({ name: 'action', value: 'Reclamation/' + action });
+    if (form_params) {
+      if (Array.isArray(form_params)) {
+        form_params.forEach(function(item) {
+          data.push(item);
+        });
+      } else {
+        data.push(form_params);
+      }
+    }
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -692,7 +707,7 @@ namespace('kivi.Reclamation', function(ns) {
     kivi.SalesPurchase.edit_custom_shipto();
   };
 
-  ns.purchase_reclamation_check_for_direct_delivery = function() {
+  ns.purchase_reclamation_check_for_direct_delivery = function(save_params) {
     if ($('#type').val() != 'sales_reclamation') {
       return alert(kivi.t8("Error: This is not a sales reclamation."));
     }
@@ -703,7 +718,7 @@ namespace('kivi.Reclamation', function(ns) {
       empty = false;
       shipto = $('#reclamation_shipto_id option:selected').text();
     } else {
-      $('#shipto_inputs [id^="shipto"]').each(function(idx, elt) {
+      $('#shipto_inputs [id^="shipto"]').each(function(_idx, elt) {
         if (!empty)                                     return;
         if (/^shipto_to_copy/.test($(elt).prop('id')))  return;
         if (/^shiptocp_gender/.test($(elt).prop('id'))) return;
@@ -714,39 +729,69 @@ namespace('kivi.Reclamation', function(ns) {
         }
       });
       var shipto_elements = [];
-      $([$('#shiptoname').val(), $('#shiptostreet').val(), $('#shiptozipcode').val(), $('#shiptocity').val()]).each(function(idx, elt) {
+      $([$('#shiptoname').val(), $('#shiptostreet').val(), $('#shiptozipcode').val(), $('#shiptocity').val()]).each(function(_idx, elt) {
         if (elt !== '') shipto_elements.push(elt);
       });
       shipto = shipto_elements.join('; ');
     }
 
     if (!empty) {
-      ns.direct_delivery_dialog(shipto);
+      ns.direct_delivery_dialog(shipto, save_params);
     } else {
-      ns.save('save_and_purchase_reclamation');
+      ns.save(save_params);
     }
   };
 
-  ns.direct_delivery_callback = function(accepted) {
+  ns.direct_delivery_callback = function(accepted, save_params) {
     $('#direct-delivery-dialog').dialog('close');
 
     if (accepted) {
       $('<input type="hidden" name="use_shipto">').appendTo('#reclamation_form').val('1');
     }
 
-    ns.save('save_and_purchase_reclamation');
+    ns.save(save_params);
   };
 
-  ns.direct_delivery_dialog = function(shipto) {
+  ns.direct_delivery_dialog = function(shipto, save_params) {
     $('#direct-delivery-dialog').remove();
+
+    var save_params_string = '{';
+    if (save_params) {
+      const action             = save_params.action;
+      const warn_on_duplicates = save_params.warn_on_duplicates;
+      const warn_on_reqdate    = save_params.warn_on_reqdate;
+      const form_params        = save_params.form_params;
+
+
+      console.log(form_params)
+      console.log(Array.isArray(form_params))
+      if (action)
+        save_params_string += `'action':'${action}',`;
+      if (warn_on_duplicates)
+        save_params_string += `'warn_on_duplicates':'${warn_on_duplicates}',`;
+      if (warn_on_reqdate)
+        save_params_string += `'warn_on_reqdate':'${warn_on_reqdate}',`;
+      if (Array.isArray(form_params)) {
+        save_params_string += 'form_params:['
+        form_params.forEach(function(item) {
+          save_params_string += `{'name':'${item.name}','value':'${item.value}'},`;
+        });
+        save_params_string += ']';
+      } else {
+        save_params_string += `'form_params':{'name':'${form_params.name}','value':'${form_params.value}'}`;
+      }
+    }
+    save_params_string += '}';
+
+    console.log(save_params_string);
 
     var text1 = kivi.t8('You have entered or selected the following shipping address for this customer:');
     var text2 = kivi.t8('Do you want to carry this shipping address over to the new purchase reclamation so that the vendor can deliver the goods directly to your customer?');
     var html  = '<div id="direct-delivery-dialog"><p>' + text1 + '</p><p>' + shipto + '</p><p>' + text2 + '</p>';
     html      = html + '<hr><p>';
-    html      = html + '<input type="button" value="' + kivi.t8('Yes') + '" size="30" onclick="kivi.Reclamation.direct_delivery_callback(true)">';
+    html      = html + '<input type="button" value="' + kivi.t8('Yes') + '" size="30" onclick="kivi.Reclamation.direct_delivery_callback(true,' + save_params_string + ')">';
     html      = html + '&nbsp;';
-    html      = html + '<input type="button" value="' + kivi.t8('No')  + '" size="30" onclick="kivi.Reclamation.direct_delivery_callback(false)">';
+    html      = html + '<input type="button" value="' + kivi.t8('No')  + '" size="30" onclick="kivi.Reclamation.direct_delivery_callback(false,' + save_params_string + ')">';
     html      = html + '</p></div>';
     $(html).hide().appendTo('#reclamation_form');
 
