@@ -60,6 +60,12 @@ sub update_after_customer_vendor_change {
   return $record;
 }
 
+sub get_record {
+  my ($class, $type, $id) = @_;
+  my $record_class = get_class_from_type($type);
+  return $record_class->new(id => $id)->load;
+}
+
 sub new_from_workflow {
   my ($class, $source_object, $target_type, %flags) = @_;
 
