@@ -33,6 +33,7 @@ use SL::DB::ValidityToken;
 use SL::DB::Warehouse;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions);
 use SL::DB::Helper::TypeDataProxy;
+use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
 use SL::DB::DeliveryOrder;
 use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Order::TypeData qw(:types);
@@ -98,30 +99,20 @@ sub action_add {
   );
 }
 
-sub action_add_from_order {
+sub action_add_from_record {
   my ($self) = @_;
-  # this interfers with init_order
-  $self->{converted_from_oe_id} = delete $::form->{id};
+  my $from_type = $::form->{from_type};
+  my $from_id   = $::form->{from_id};
 
-  $self->type_data->validate;
+  unless ($from_type && $from_id) {
+    $self->js->flash('error', t8("Can't create new record."));
+    $self->js->flash('error', t8("No 'from_type' was given.")) unless ($from_type);
+    $self->js->flash('error', t8("No 'from_id' was given."))   unless ($from_id);
+    return $self->js->render();
+  }
 
-  my $order = SL::DB::Order->new(id => $self->{converted_from_oe_id})->load;
-
-  my $target_type = $::form->{type};
-  my $delivery_order = SL::Model::Record->new_from_workflow($order, $target_type);
-  $self->order($delivery_order);
-
-  $self->action_add;
-}
-
-sub action_add_from_reclamation {
-  my ($self) = @_;
-
-  my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
-  my $target_type = $reclamation->is_sales ? 'rma_delivery_order'
-                                           : 'supplier_delivery_order';
-  my $delivery_order = SL::Model::Record->new_from_workflow($reclamation, $target_type);
-  $self->{converted_from_reclamation_id} = $::form->{from_id};
+  my $record = SL::Model::Record->get_record($from_type, $from_id);
+  my $delivery_order = SL::Model::Record->new_from_workflow($record, $self->type);
   $self->order($delivery_order);
 
   $self->action_add;
@@ -505,6 +496,23 @@ sub action_send_email {
   );
 
   $self->redirect_to(@redirect_params);
+}
+
+sub action_save_and_new_record {
+  my ($self) = @_;
+  my $to_type = $::form->{to_type};
+  my $to_controller = get_object_name_from_type($to_type);
+
+  $self->save();
+  flash_later('info', $self->type_data->text('saved'));
+
+  $self->redirect_to(
+    controller => $to_controller,
+    action     => 'add_from_record',
+    type       => $to_type,
+    from_id    => $self->order->id,
+    from_type  => $self->order->type,
+  );
 }
 
 # save the order and redirect to the frontend subroutine for a new

@@ -35,6 +35,7 @@ use SL::DB::Translation;
 use SL::DB::ValidityToken;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_ITEM_ID);
 use SL::DB::Helper::TypeDataProxy;
+use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
 use SL::Model::Record;
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
@@ -96,19 +97,27 @@ sub action_add {
   );
 }
 
-sub action_add_from_reclamation {
+sub action_add_from_record {
   my ($self) = @_;
+  my $from_type = $::form->{from_type};
+  my $from_id   = $::form->{from_id};
 
-  my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
-  my %params;
-  my $target_type = $reclamation->is_sales ? SALES_ORDER_TYPE()
-                                           : PURCHASE_ORDER_TYPE();
-  my $order = SL::Model::Record->new_from_workflow($reclamation, $target_type);
+  unless ($from_type && $from_id) {
+    $self->js->flash('error', t8("Can't create new record."));
+    $self->js->flash('error', t8("No 'from_type' was given.")) unless ($from_type);
+    $self->js->flash('error', t8("No 'from_id' was given."))   unless ($from_id);
+    return $self->js->render();
+  }
 
-  $self->{converted_from_reclamation_id}       = $order->{ RECORD_ID()      };
-  $_   ->{converted_from_reclamation_items_id} = $_    ->{ RECORD_ITEM_ID() } for @{ $order->items_sorted };
-
+  my $record = SL::Model::Record->get_record($from_type, $from_id);
+  my $order = SL::Model::Record->new_from_workflow($record, $self->type);
   $self->order($order);
+
+  if (ref($record) eq 'SL::DB::Reclamation') {
+    $self->{converted_from_reclamation_id}       = $order->{ RECORD_ID()      };
+    $_   ->{converted_from_reclamation_items_id} = $_    ->{ RECORD_ITEM_ID() } for @{ $order->items_sorted };
+  }
+
 
   $self->recalc();
   $self->pre_render();
@@ -119,7 +128,7 @@ sub action_add_from_reclamation {
 
   $self->render(
     'order/form',
-    title => $self->type_data->text('edit'),
+    title => $self->type_data->text('add'),
     %{$self->{template_args}}
   );
 }
@@ -765,6 +774,23 @@ sub action_get_has_active_periodic_invoices {
   $_[0]->render(\ !!$has_active_periodic_invoices, { type => 'text' });
 }
 
+sub action_save_and_new_record {
+  my ($self) = @_;
+  my $to_type = $::form->{to_type};
+  my $to_controller = get_object_name_from_type($to_type);
+
+  $self->save();
+  flash_later('info', $self->type_data->text('saved'));
+
+  $self->redirect_to(
+    controller => $to_controller,
+    action     => 'add_from_record',
+    type       => $to_type,
+    from_id    => $self->order->id,
+    from_type  => $self->order->type,
+  );
+}
+
 # save the order and redirect to the frontend subroutine for a new
 # delivery order
 sub action_save_and_delivery_order {
@@ -780,33 +806,6 @@ sub action_save_and_delivery_order {
     controller => 'oe.pl',
     action     => 'oe_delivery_order_from_order',
     %params,
-  );
-}
-
-sub action_save_and_supplier_delivery_order {
-  my ($self) = @_;
-
-  $self->save_and_redirect_to(
-    controller => 'controller.pl',
-    action     => 'DeliveryOrder/add_from_order',
-    type       => 'supplier_delivery_order',
-  );
-}
-
-# save the order and redirect to the frontend subroutine for a new reclamation
-sub action_save_and_reclamation {
-  my ($self) = @_;
-
-  # can't use save_and_redirect_to, because id is set!
-  $self->save();
-
-  my $to_type = $self->order->is_sales ? SALES_RECLAMATION_TYPE()
-                                       : PURCHASE_RECLAMATION_TYPE();
-  $self->redirect_to(
-    controller => 'Reclamation',
-    action     => 'add_from_order',
-    type       => $to_type,
-    from_id    => $self->order->id,
   );
 }
 

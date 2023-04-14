@@ -1366,6 +1366,7 @@ sub invoice_multi {
 
 sub save_and_reclamation {
   my $form     = $main::form;
+  my $id       = $form->{id};
   my $type     = $form->{type};
 
   # save the delivery order
@@ -1375,9 +1376,11 @@ sub save_and_reclamation {
     $type eq 'sales_delivery_order' ? 'sales_reclamation'
                                     : 'purchase_reclamation';
   $form->{callback} =
-    'controller.pl?action=Reclamation/add_from_delivery_order' .
-    '&type=' . $to_reclamation_type .
-    '&from_id=' . $form->escape($form->{id});
+    'controller.pl?action=Reclamation/add_from_record'
+    . '&type='      . $to_reclamation_type
+    . '&from_id='   . $form->escape($id)
+    . '&from_type=' . $form->escape($type)
+    ;
   $form->redirect;
 }
 

@@ -27,6 +27,7 @@ use SL::DB::Translation;
 use SL::DB::ValidityToken;
 use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
+use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
@@ -67,9 +68,7 @@ __PACKAGE__->run_before('recalc',
                         only => [qw(
                           save save_as_new print preview_pdf send_email
                           save_and_show_email_dialog
-                          workflow_save_and_sales_or_purchase_reclamation
-                          save_and_order
-                          save_and_delivery_order
+                          save_and_new_record
                           save_and_credit_note
                        )]);
 
@@ -77,9 +76,7 @@ __PACKAGE__->run_before('get_unalterable_data',
                         only => [qw(
                           save save_as_new print preview_pdf send_email
                           save_and_show_email_dialog
-                          workflow_save_and_sales_or_purchase_reclamation
-                          save_and_order
-                          save_and_delivery_order
+                          save_and_new_record
                           save_and_credit_note
                         )]);
 
@@ -87,9 +84,7 @@ __PACKAGE__->run_before('get_record_links_data_from_form',
                         only => [qw(
                           save save_as_new print preview_pdf send_email
                           save_and_show_email_dialog
-                          workflow_save_and_sales_or_purchase_reclamation
-                          save_and_order
-                          save_and_delivery_order
+                          save_and_new_record
                           save_and_credit_note
                         )]);
 
@@ -116,98 +111,32 @@ sub action_add {
   );
 }
 
-sub action_add_from_order {
+sub action_add_from_record {
   my ($self) = @_;
+  my $from_type = $::form->{from_type};
+  my $from_id   = $::form->{from_id};
 
-  unless ($::form->{from_id}) {
-    $self->js->flash('error', t8("Can't create new reclamation. No 'from_id' was given."));
+  unless ($from_type && $from_id) {
+    $self->js->flash('error', t8("Can't create new record."));
+    $self->js->flash('error', t8("No 'from_type' was given.")) unless ($from_type);
+    $self->js->flash('error', t8("No 'from_id' was given."))   unless ($from_id);
     return $self->js->render();
   }
 
-  my $order = SL::DB::Order->new(id => $::form->{from_id})->load;
-  my $reclamation = SL::Model::Record->new_from_workflow($order, $self->type);
-
+  my $record = SL::Model::Record->get_record($from_type, $from_id);
+  my $reclamation = SL::Model::Record->new_from_workflow($record, $self->type);
   $self->reclamation($reclamation);
 
-  $self->reinit_after_new_reclamation();
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
+  if ($record->type eq SALES_RECLAMATION_TYPE()) { # check for direct delivery
+    # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
+    if ($::form->{use_shipto}) {
+      my $custom_shipto = $record->shipto->clone('SL::DB::Reclamation');
+      $self->reclamation->custom_shipto($custom_shipto) if $custom_shipto;
+    } else {
+      # remove any custom shipto if not wanted
+      $self->reclamation->custom_shipto(SL::DB::Shipto->new(module => 'RC', custom_variables => []));
+    }
   }
-
-  $self->render(
-    'reclamation/form',
-    title => $self->type_data->text('add'),
-    %{$self->{template_args}},
-  );
-}
-
-sub action_add_from_delivery_order {
-  my ($self) = @_;
-
-  unless ($::form->{from_id}) {
-    $self->js->flash('error', t8("Can't create new reclamation. No 'from_id' was given."));
-    return $self->js->render();
-  }
-
-  my $delivery_order = SL::DB::DeliveryOrder->new(id => $::form->{from_id})->load;
-  my $reclamation = SL::Model::Record->new_from_workflow($delivery_order, $self->type);
-
-  $self->reclamation($reclamation);
-
-  $self->reinit_after_new_reclamation();
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
-  }
-
-  $self->render(
-    'reclamation/form',
-    title => $self->type_data->text('add'),
-    %{$self->{template_args}},
-  );
-}
-
-sub action_add_from_sales_invoice {
-  my ($self) = @_;
-
-  unless ($::form->{from_id}) {
-    $self->js->flash('error', t8("Can't create new reclamation. No 'from_id' was given."));
-    return $self->js->render();
-  }
-
-  my $invoice = SL::DB::Invoice->new(id => $::form->{from_id})->load;
-  my $reclamation = SL::Model::Record->new_from_workflow($invoice, $self->type);
-
-  $self->reclamation($reclamation);
-
-  $self->reinit_after_new_reclamation();
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
-  }
-
-  $self->render(
-    'reclamation/form',
-    title => $self->type_data->text('add'),
-    %{$self->{template_args}},
-  );
-}
-
-sub action_add_from_purchase_invoice {
-  my ($self) = @_;
-
-  unless ($::form->{from_id}) {
-    $self->js->flash('error', t8("Can't create new reclamation. No 'from_id' was given."));
-    return $self->js->render();
-  }
-
-  require SL::DB::PurchaseInvoice;
-  my $invoice = SL::DB::PurchaseInvoice->new(id => $::form->{from_id})->load;
-  $invoice->{type} = $invoice->invoice_type; #can't add type → invoice_type in SL/DB/PurchaseInvoice
-  my $reclamation = SL::Model::Record->new_from_workflow($invoice, ref($self->reclamaiton), $self->type);
-
-  $self->reclamation($reclamation);
 
   $self->reinit_after_new_reclamation();
 
@@ -573,69 +502,20 @@ sub action_send_email {
   $self->redirect_to(@redirect_params);
 }
 
-sub action_save_and_order {
+sub action_save_and_new_record {
   my ($self) = @_;
-
-  my $to_type = $self->reclamation->is_sales ? SALES_ORDER_TYPE()
-                                             : PURCHASE_ORDER_TYPE();
+  my $to_type = $::form->{to_type};
+  my $to_controller = get_object_name_from_type($to_type);
 
   $self->save();
-
   flash_later('info', t8('The reclamation has been saved'));
+
   $self->redirect_to(
-    controller => 'Order',
-    action     => 'add_from_reclamation',
+    controller => $to_controller,
+    action     => 'add_from_record',
     type       => $to_type,
     from_id    => $self->reclamation->id,
-  );
-}
-
-# workflow from purchase to sales reclamation
-sub action_save_and_sales_reclamation {
-  my ($self) = @_;
-
-  $self->save();
-
-  flash_later('info', t8('The reclamation has been saved'));
-  $self->redirect_to(
-    controller => 'Reclamation',
-    action     => 'add_from_reclamation',
-    from_id => $self->reclamation->id,
-    type => SALES_RECLAMATION_TYPE(),
-  );
-}
-
-# workflow from sales to purchase reclamation
-sub action_save_and_purchase_reclamation {
-  my ($self) = @_;
-
-  $self->save();
-
-  flash_later('info', t8('The reclamation has been saved'));
-  $self->redirect_to(
-    controller => 'Reclamation',
-    action     => 'add_from_reclamation',
-    from_id => $self->reclamation->id,
-    type => PURCHASE_RECLAMATION_TYPE(),
-  );
-}
-
-# save the reclamation and redirect to the frontend subroutine for a new
-# delivery order
-
-sub action_save_and_delivery_order {
-  my ($self) = @_;
-
-  my $to_type = $self->reclamation->is_sales ? 'rma_delivery_order'
-                                             : 'supplier_delivery_order';
-  $self->save();
-
-  flash_later('info', t8('The reclamation has been saved'));
-  $self->redirect_to(
-    controller => 'controller.pl',
-    action     => 'DeliveryOrder/add_from_reclamation',
-    type       => $to_type,
-    from_id    => $self->reclamation->id,
+    from_type  => $self->reclamation->type,
   );
 }
 
@@ -1716,45 +1596,6 @@ sub save {
   );
 
   delete $::form->{form_validity_token};
-}
-
-# sales → purchase or purchase → sales
-sub action_add_from_reclamation {
-  my ($self) = @_;
-
-  my $destination_type = $::form->{destination_type};
-
-  my $source_reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
-
-  $self->reclamation(
-    SL::DB::Reclamation->new_from(
-      $source_reclamation,
-      destination_type => $::form->{type},
-  ));
-
-  # check for direct delivery
-  # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
-  if (!$self->type_data->properties('is_customer')) {
-    if ($::form->{use_shipto}) {
-      my $custom_shipto = $source_reclamation->shipto->clone('SL::DB::Reclamation');
-      $self->reclamation->custom_shipto($custom_shipto) if $custom_shipto;
-    } else {
-      # remove any custom shipto if not wanted
-      $self->reclamation->custom_shipto(SL::DB::Shipto->new(module => 'RC', custom_variables => []));
-    }
-  }
-
-  $self->reinit_after_new_reclamation();
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
-  }
-
-  $self->render(
-    'reclamation/form',
-    title => $self->type_data->text('add'),
-    %{$self->{template_args}}
-  );
 }
 
 sub reinit_after_new_reclamation {
