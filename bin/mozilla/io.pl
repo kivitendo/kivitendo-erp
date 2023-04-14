@@ -1206,27 +1206,31 @@ sub request_for_quotation {
 
 sub sales_reclamation {
   my $id = $::form->{id};
+  my $type = $::form->{type};
 
   require SL::Controller::Reclamation;
   my $c = SL::Controller::Reclamation->new();
   $c->redirect_to(
     controller => 'Reclamation',
-    action => 'add_from_sales_invoice',
-    from_id => $id,
-    type => 'sales_reclamation',
+    action     => 'add_from_record',
+    type       => 'sales_reclamation',
+    from_id    => $id,
+    from_type  => $type,
   );
 }
 
 sub purchase_reclamation {
   my $id = $::form->{id};
+  my $type = $::form->{type};
 
   require SL::Controller::Reclamation;
   my $c = SL::Controller::Reclamation->new();
   $c->redirect_to(
     controller => 'Reclamation',
-    action => 'add_from_purchase_invoice',
-    from_id => $id,
-    type => 'purchase_reclamation',
+    action     => 'add_from_record',
+    type       => 'purchase_reclamation',
+    from_id    => $id,
+    from_type  => $type,
   );
 }
 
