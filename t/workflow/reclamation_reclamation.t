@@ -153,13 +153,13 @@ my $purchase_reclamation = create_purchase_reclamation(
 
 # new
 my $new_sales_reclamation = SL::Model::Record->new_from_workflow($sales_reclamation, 'SL::DB::Reclamation', 'sales_reclamation')->save->load;
-my $new_purchase_reclamation = SL::Model::Record->new_from_workflow($purchase_reclamation, 'SL::DB::Reclamation', 'purchase_reclamation')->save->load;
+my $new_purchase_reclamation = SL::Model::Record->new_from_workflow($purchase_reclamation, 'purchase_reclamation')->save->load;
 
 # convert
-my $converted_purchase_reclamation = SL::Model::Record->new_from_workflow($sales_reclamation, 'SL::DB::Reclamation', 'purchase_reclamation');
+my $converted_purchase_reclamation = SL::Model::Record->new_from_workflow($sales_reclamation, 'purchase_reclamation');
 $converted_purchase_reclamation->vendor_id($purchase_reclamation->{vendor_id});
 $converted_purchase_reclamation->save->load;
-my $converted_sales_reclamation = SL::Model::Record->new_from_workflow($purchase_reclamation, 'SL::DB::Reclamation', 'sales_reclamation');
+my $converted_sales_reclamation = SL::Model::Record->new_from_workflow($purchase_reclamation, 'sales_reclamation');
 $converted_sales_reclamation->customer_id($sales_reclamation->{customer_id});
 $converted_sales_reclamation->save->load;
 

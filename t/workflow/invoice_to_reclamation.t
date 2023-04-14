@@ -182,11 +182,11 @@ my $purchase_invoice = create_minimal_purchase_invoice(
 )->load;
 
 # convert invoice → reclamation
-my $converted_sales_reclamation =SL::Model::Record->new_from_workflow($sales_invoice, 'SL::DB::Reclamation', "sales_reclamation");
+my $converted_sales_reclamation =SL::Model::Record->new_from_workflow($sales_invoice, "sales_reclamation");
 $converted_sales_reclamation->items_sorted->[0]->reason($reclamation_reason);
 $converted_sales_reclamation->items_sorted->[1]->reason($reclamation_reason);
 $converted_sales_reclamation->save->load;
-my $converted_purchase_reclamation = SL::Model::Record->new_from_workflow($purchase_invoice, 'SL::DB::Reclamation', "purchase_reclamation");
+my $converted_purchase_reclamation = SL::Model::Record->new_from_workflow($purchase_invoice, "purchase_reclamation");
 $converted_purchase_reclamation->items_sorted->[0]->reason($reclamation_reason);
 $converted_purchase_reclamation->items_sorted->[1]->reason($reclamation_reason);
 $converted_purchase_reclamation->save->load;
