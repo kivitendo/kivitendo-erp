@@ -16,6 +16,7 @@ use SL::DB::ValidityToken;
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
+use SL::DB::Helper::Record qw(get_class_from_type);
 
 use SL::Util qw(trim);
 use SL::Locale::String qw(t8);
@@ -60,22 +61,24 @@ sub update_after_customer_vendor_change {
 }
 
 sub new_from_workflow {
-  my ($class, $source_object, $target_type, $target_subtype, %flags) = @_;
+  my ($class, $source_object, $target_type, %flags) = @_;
 
-  $flags{destination_type} = $target_subtype;
+  $flags{destination_type} = $target_type;
   my %defaults_flags = (
     no_linked_records => 0,
   );
   %flags = (%defaults_flags, %flags);
 
-  my $target_object = ${target_type}->new_from($source_object, %flags);
+  my $target_class = get_class_from_type($target_type);
+  my $target_object = ${target_class}->new_from($source_object, %flags);
   return $target_object;
 }
 
 sub new_from_workflow_multi {
-  my ($class, $source_objects, $target_type, $target_subtype, %flags) = @_;
+  my ($class, $source_objects, $target_type, %flags) = @_;
 
-  my $target_object = ${target_type}->new_from_multi($source_objects, %flags);
+  my $target_class = get_class_from_type($target_type);
+  my $target_object = ${target_class}->new_from_multi($source_objects, %flags);
 
   return $target_object;
 }
@@ -250,7 +253,7 @@ sub clone_for_save_as_new {
   $new_attrs{employee}  = SL::DB::Manager::Employee->current;
 
 
-  my $new_record = SL::Model::Record->new_from_workflow($changed_record, ref($changed_record), $saved_record->type, no_linked_records => 1, attributes => \%new_attrs);
+  my $new_record = SL::Model::Record->new_from_workflow($changed_record, $saved_record->type, no_linked_records => 1, attributes => \%new_attrs);
 
   return $new_record;
 }
@@ -271,7 +274,7 @@ SL::Model::Record - shared computations for orders (Order), delivery orders (Del
 This module contains shared behaviour among the main record object types. A given record needs to be already parsed into a Rose object.
 All records are treated agnostically and the underlying class needs to implement a type_data call to query for differing behaviour.
 
-Currently the following types and subtypes are supported:
+Currently the following classes and types are supported:
 
 =over 4
 
@@ -345,8 +348,8 @@ Returns the record object.
 
 =item C<new_from_workflow>
 
-Expects source_object, target_type, target_subtype and can have flags.
-Creates a new record from a target_subtype by target_type->new_from(source_record).
+Expects source_object, target_type and can have flags.
+Creates a new record from a by target_class->new_from(source_record).
 Set default flag no_link_record to false.
 
 Throws an error if the target_type doesn't exist.
@@ -355,7 +358,7 @@ Returns the new record object.
 
 =item C<new_from_workflow_multi>
 
-Expects an arrayref with source_objects, target_type, target_subtype and can have flags.
+Expects an arrayref with source_objects, target_type and can have flags.
 Creates a new record object from one or more source objects.
 
 Returns the new record object.
