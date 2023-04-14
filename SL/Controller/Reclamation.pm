@@ -41,6 +41,7 @@ use SL::DB::DeliveryOrder;
 use SL::DB::Invoice;
 use SL::Model::Record;
 use SL::DB::Order::TypeData qw(:types);
+use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
 
 use List::Util qw(first sum0);
@@ -1968,21 +1969,21 @@ sub _setup_edit_action_bar {
       combobox => [
         action => [
           t8('Save'),
-          call      => [
-            'kivi.Reclamation.save', 'save',
-            $::instance_conf->get_reclamation_warn_duplicate_parts,
-            $::instance_conf->get_reclamation_warn_no_reqdate,
-          ],
+          call      => [ 'kivi.Reclamation.save', {
+              action             => 'save',
+              warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+            }],
           checks    => [
             ['kivi.validate_form','#reclamation_form'],
           ],
         ],
         action => [
           t8('Save as new'),
-          call      => [
-            'kivi.Reclamation.save', 'save_as_new',
-            $::instance_conf->get_reclamation_warn_duplicate_parts,
-          ],
+          call      => [ 'kivi.Reclamation.save', {
+              action             => 'save_as_new',
+              warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
+            }],
           disabled  => !$self->reclamation->id ? t8('This object has not been saved yet.') : undef,
         ],
       ], # end of combobox "Save"
@@ -1993,51 +1994,76 @@ sub _setup_edit_action_bar {
         ],
         action => [
           t8('Save and Sales Reclamation'),
-          call      => [
-            'kivi.Reclamation.save', 'save_and_sales_reclamation',
-            $::instance_conf->get_reclamation_warn_duplicate_parts,
-            $::instance_conf->get_reclamation_warn_no_reqdate,
-          ],
+          call      => [ 'kivi.Reclamation.save', {
+              action             => 'save_and_new_record',
+              warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+              form_params        => [
+                { name => 'to_type', value => SALES_RECLAMATION_TYPE() },
+              ],
+            }],
           only_if  => $self->type_data->show_menu('save_and_sales_reclamation'),
         ],
         action => [
           t8('Save and Purchase Reclamation'),
-          call      => [ 'kivi.Reclamation.purchase_reclamation_check_for_direct_delivery' ],
+          call      => [ 'kivi.Reclamation.purchase_reclamation_check_for_direct_delivery', {
+              action             => 'save_and_new_record',
+              warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+              form_params        => [
+                { name => 'to_type', value => PURCHASE_RECLAMATION_TYPE() },
+              ],
+            }
+          ],
           only_if  => $self->type_data->show_menu('save_and_purchase_reclamation'),
         ],
         action => [
           t8('Save and Order'),
-          call      => [
-            'kivi.Reclamation.save', 'save_and_order',
-            $::instance_conf->get_reclamation_warn_duplicate_parts,
-            $::instance_conf->get_reclamation_warn_no_reqdate,
-          ],
+          call      => [ 'kivi.Reclamation.save', {
+              action             => 'save_and_new_record',
+              warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+              form_params        => [
+                { name => 'to_type',
+                  value => $self->reclamation->is_sales ? SALES_ORDER_TYPE()
+                                                        : PURCHASE_ORDER_TYPE() },
+              ],
+            }],
         ],
         action => [
           t8('Save and RMA Delivery Order'),
-          call      => [
-            'kivi.Reclamation.save', 'save_and_delivery_order',
-            $::instance_conf->get_reclamation_warn_duplicate_parts,
-            $::instance_conf->get_reclamation_warn_no_reqdate,
-          ],
+          call      => [ 'kivi.Reclamation.save', {
+              action             => 'save_and_new_record',
+              warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+              form_params        => [
+                { name => 'to_type', value => RMA_DELIVERY_ORDER_TYPE() },
+              ],
+            }],
           only_if  => $self->type_data->show_menu('save_and_rma_delivery_order'),
         ],
         action => [
           t8('Save and Supplier Delivery Order'),
-          call      => [
-            'kivi.Reclamation.save', 'save_and_delivery_order',
-            $::instance_conf->get_reclamation_warn_duplicate_parts,
-            $::instance_conf->get_reclamation_warn_no_reqdate,
-          ],
+          call      => [ 'kivi.Reclamation.save', {
+              action             => 'save_and_new_record',
+              warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+              form_params        => [
+                { name => 'to_type', value => SUPPLIER_DELIVERY_ORDER_TYPE() },
+              ],
+            }],
           only_if  => $self->type_data->show_menu('save_and_supplier_delivery_order'),
         ],
         action => [
           t8('Save and Credit Note'),
-          call      => [
-            'kivi.Reclamation.save', 'save_and_credit_note',
-            $::instance_conf->get_reclamation_warn_duplicate_parts,
-            $::instance_conf->get_reclamation_warn_no_reqdate,
-          ],
+          call      => [ 'kivi.Reclamation.save', {
+              action             => 'save_and_credit_note',
+              warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+              form_params        => [
+                { name => 'to_type', value => 'credit_note' },
+              ],
+            }],
           only_if  => $self->type_data->show_menu('save_and_credit_note'),
         ],
       ], # end of combobox "Workflow"
@@ -2048,11 +2074,11 @@ sub _setup_edit_action_bar {
         ],
         action => [
           t8('Save and preview PDF'),
-           call => [
-             'kivi.Reclamation.save', 'preview_pdf',
-             $::instance_conf->get_reclamation_warn_duplicate_parts,
-             $::instance_conf->get_reclamation_warn_no_reqdate,
-           ],
+          call      => [ 'kivi.Reclamation.save', {
+              action             => 'preview_pdf',
+              warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+            }],
         ],
         action => [
           t8('Save and print'),
@@ -2065,11 +2091,11 @@ sub _setup_edit_action_bar {
         action => [
           t8('Save and E-mail'),
           id   => 'save_and_email_action',
-          call => [
-            'kivi.Reclamation.save', 'save_and_show_email_dialog',
-            $::instance_conf->get_reclamation_warn_duplicate_parts,
-            $::instance_conf->get_reclamation_warn_no_reqdate,
-          ],
+          call      => [ 'kivi.Reclamation.save', {
+              action             => 'save_and_show_email_dialog',
+              warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+            }],
           disabled => !$self->reclamation->id ? t8('This object has not been saved yet.') : undef,
         ],
         action => [
