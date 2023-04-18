@@ -769,7 +769,6 @@ sub import_data_to_shop_order {
     #Mapping Positions
     my %discount_identifier;
     foreach my $pos (@positions) {
-      $position++;
       if ($pos->{type} eq 'promotion') {
         next unless $pos->{payload}->{discountType} eq 'percentage';
         foreach my $discount_pos (@{ $pos->{payload}->{composition} }) {
@@ -778,6 +777,7 @@ sub import_data_to_shop_order {
         }
         next;
       }
+      $position++;
       my $price       = $::form->round_amount($pos->{unitPrice}, 2); # unit
       my %pos_columns = ( description          => $pos->{product}->{name},
                           partnumber           => $pos->{product}->{productNumber},
@@ -1104,6 +1104,14 @@ Many error messages are thrown, but at least the more common cases should be loc
 By guessing the correct german name for the english language some translation for parts can
 also be synced. This should be more clear (language configuration for shops) and the order
 synchronisation should also handle this (longdescription is simply copied from part.notes)
+
+=item * Shopware6 Promotion Codes
+
+Shopware6 Promotion Codes with discounts for specific positions (called line items in Shopware)
+are in a single line item of the type 'promotion'. kivitendo uses a simple real number in the
+range of 0 .. 1 to add a discount for a line item.
+This implementation adds a percentual discount for the correct positions and does not process
+the discount line item afterwards. The original Shopware Promotion Code is also saved.
 
 =back
 
