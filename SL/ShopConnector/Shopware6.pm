@@ -798,7 +798,7 @@ sub import_data_to_shop_order {
     # add discount if percentage
     while ((my $identifier, my $discount_ref) = each (%discount_identifier)) {
       # load and update shop order position
-      my $soi = SL::DB::ShopOrderItem->find_by(identifier => $identifier);
+      my $soi = SL::DB::Manager::ShopOrderItem->find_by(identifier => $identifier);
       die "No Shop Order Item for discount found! identfier: " . $identifier unless ref $soi eq 'SL::DB::ShopOrderItem';
 
       $soi->update_attributes(discount      => $discount_ref->{discount_percentage} / 100,
