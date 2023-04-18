@@ -6,4 +6,4 @@
 
 ALTER TABLE shop_order_items ADD COLUMN discount      REAL;
 ALTER TABLE shop_order_items ADD COLUMN discount_code TEXT;
-ALTER TABLE shop_order_items ADD COLUMN identitfier   TEXT;
+ALTER TABLE shop_order_items ADD COLUMN identifier    TEXT;
