@@ -218,12 +218,12 @@
           <tr>
             <td>
               [% SET selected_chart_id = "AP_amount_chart_id_"_ i %]
-              [% P.chart.picker("AP_amount_chart_id_" _ i, $selected_chart_id, style="width: 400px", type="AP_amount", class=(initial_focus == 'row_' _ i ? "initial_focus" : "")) %]
+              [% P.chart.picker("AP_amount_chart_id_" _ i, $selected_chart_id, style="width: 400px", type="AP_amount", invalid=0, disabled=readonly, class=(initial_focus == 'row_' _ i ? "initial_focus" : "")) %]
               [% L.hidden_tag("previous_AP_amount_chart_id_" _ i, $selected_chart_id) %]
               <input type="hidden" name="tax_[% i %]" value="[% temp = "tax"_ i %][% $temp | html %]">
             </td>
             <td>
-              <input name="amount_[% i %]" size="10" value="[% temp = "amount_"_ i %][% $temp | html %]">
+              <input name="amount_[% i %]" size="10" disabled=readonly value="[% temp = "amount_"_ i %][% $temp | html %]">
             </td>
             <td>
               [% temp_r = "tax_reverse_"_ i %]
