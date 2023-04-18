@@ -14,7 +14,7 @@ __PACKAGE__->meta->columns(
   discount            => { type => 'float', precision => 4, scale => 4 },
   discount_code       => { type => 'text' },
   id                  => { type => 'serial', not_null => 1 },
-  identitfier         => { type => 'text' },
+  identifier          => { type => 'text' },
   partnumber          => { type => 'text' },
   position            => { type => 'integer' },
   price               => { type => 'numeric', precision => 15, scale => 5 },
