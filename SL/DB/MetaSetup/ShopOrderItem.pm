@@ -11,7 +11,10 @@ __PACKAGE__->meta->table('shop_order_items');
 __PACKAGE__->meta->columns(
   active_price_source => { type => 'text' },
   description         => { type => 'text' },
+  discount            => { type => 'float', precision => 4, scale => 4 },
+  discount_code       => { type => 'text' },
   id                  => { type => 'serial', not_null => 1 },
+  identitfier         => { type => 'text' },
   partnumber          => { type => 'text' },
   position            => { type => 'integer' },
   price               => { type => 'numeric', precision => 15, scale => 5 },
