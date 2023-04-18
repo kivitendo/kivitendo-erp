@@ -776,8 +776,6 @@ sub import_data_to_shop_order {
           $discount_identifier{$discount_pos->{id}} = { discount_percentage => $pos->{payload}->{value},
                                                         discount_code       => $pos->{payload}->{code}   };
         }
-        use Data::Dumper;
-        $main::lxdebug->message(0, 'referenzierte rabatte' . Dumper %discount_identifier);
         next;
       }
       my $price       = $::form->round_amount($pos->{unitPrice}, 2); # unit
