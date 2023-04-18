@@ -55,6 +55,7 @@ sub convert_to_sales_order {
         unit                => $part->unit,
         position            => $_->position,
         active_price_source => $_->active_price_source,
+        discount            => $_->discount,
       );
     }
   }@{ $self->shop_order_items };

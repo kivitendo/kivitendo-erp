@@ -767,8 +767,19 @@ sub import_data_to_shop_order {
     my $position = 0;
     my $active_price_source = $self->config->price_source;
     #Mapping Positions
+    my %discount_identifier;
     foreach my $pos (@positions) {
       $position++;
+      if ($pos->{type} eq 'promotion') {
+        next unless $pos->{payload}->{discountType} eq 'percentage';
+        foreach my $discount_pos (@{ $pos->{payload}->{composition} }) {
+          $discount_identifier{$discount_pos->{id}} = { discount_percentage => $pos->{payload}->{value},
+                                                        discount_code       => $pos->{payload}->{code}   };
+        }
+        use Data::Dumper;
+        $main::lxdebug->message(0, 'referenzierte rabatte' . Dumper %discount_identifier);
+        next;
+      }
       my $price       = $::form->round_amount($pos->{unitPrice}, 2); # unit
       my %pos_columns = ( description          => $pos->{product}->{name},
                           partnumber           => $pos->{product}->{productNumber},
@@ -779,9 +790,19 @@ sub import_data_to_shop_order {
                           shop_trans_id        => $pos->{id}, # pos id or shop_trans_id ? or dont care?
                           shop_order_id        => $id,
                           active_price_source  => $active_price_source,
+                          identifier           => $pos->{identifier},
                         );
       my $pos_insert = SL::DB::ShopOrderItem->new(%pos_columns);
       $pos_insert->save;
+    }
+    # add discount if percentage
+    while ((my $identifier, my $discount_ref) = each (%discount_identifier)) {
+      # load and update shop order position
+      my $soi = SL::DB::ShopOrderItem->find_by(identifier => $identifier);
+      die "No Shop Order Item for discount found! identfier: " . $identifier unless ref $soi eq 'SL::DB::ShopOrderItem';
+
+      $soi->update_attributes(discount      => $discount_ref->{discount_percentage} / 100,
+                              discount_code => $discount_ref->{discount_code}       );
     }
     $shop_order->positions($position);
 
