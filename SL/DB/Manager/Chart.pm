@@ -38,7 +38,27 @@ __PACKAGE__->add_filter_specs(
     my ($key, $value) = @_;
     return __PACKAGE__->booked_filter($value);
   },
+  invalid => sub {
+    my ($key, $value) = @_;
+    return __PACKAGE__->invalid_filter($value);
+  },
+
 );
+sub invalid_filter {
+  my ($class, $invalid) = @_;
+
+  $invalid //= 0;
+  my @filter;
+
+  if ( $invalid ) {
+     push @filter, ( id => [ \"SELECT id FROM chart" ] );
+  } else {
+     push @filter, ( id => [ \"SELECT id FROM chart WHERE NOT invalid" ] );
+  };
+
+  return @filter;
+}
+
 
 sub booked_filter {
   my ($class, $booked) = @_;

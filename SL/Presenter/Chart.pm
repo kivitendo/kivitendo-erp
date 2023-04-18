@@ -29,7 +29,6 @@ sub chart {
 
 sub chart_picker {
   my ($name, $value, %params) = @_;
-
   $value = SL::DB::Manager::Chart->find_by(id => $value) if $value && !ref $value;
   my $id = delete($params{id}) || name_to_id($name);
   my $fat_set_item = delete $params{fat_set_item};
@@ -40,7 +39,7 @@ sub chart_picker {
 
   my $ret =
     input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
-    join('', map { $params{$_} ? input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(type category choose booked)) .
+    join('', map { $params{$_} ? input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(type category choose booked invalid)) .
     input_tag("", (ref $value && $value->can('displayable_name')) ? $value->displayable_name : '', id => "${id}_name", %params);
 
   $::request->layout->add_javascripts('autocomplete_chart.js');
