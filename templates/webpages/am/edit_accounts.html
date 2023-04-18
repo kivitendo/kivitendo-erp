@@ -75,6 +75,10 @@ $(function() {
 [% END %]
       </td>
     </tr>
+    <tr>
+     <td>[% 'Invalid' | $T8 %] </td>
+     <td>[% L.checkbox_tag('invalid', value => 1, checked => invalid, class => 'checkbox') %]</td>
+    </tr>
   </table>
 </fieldset>
 
