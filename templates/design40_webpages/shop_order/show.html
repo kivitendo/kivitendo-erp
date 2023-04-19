@@ -425,6 +425,8 @@
         <th>[% 'Partdescriptipion' | $T8 %]</th>
         <th>[% 'Qty'               | $T8 %]</th>
         <th>[% 'Price'             | $T8 %]</th>
+        <th>[% 'Discount'          | $T8 %]</th>
+        <th>[% 'Promotion Code'    | $T8 %]</th>
         <th>[% 'Extended'          | $T8 %]</th>
       </tr>
     </thead>
@@ -436,6 +438,8 @@
           <td>[% HTML.escape(pos.description)                    %]</td>
           <td>[% pos.quantity_as_number                          %]</td>
           <td>[% pos.price_as_number                             %]</td>
+          <td>[% pos.discount_as_number * 100                  %] %</td>
+          <td>[% pos.discount_code                               %]</td>
           <td>[% LxERP.format_amount(pos.price * pos.quantity,2) %]</td>
         </tr>
       [% END %]
