@@ -111,7 +111,12 @@
        </td>
        <td align="right">[% bt.transdate_as_date %]</td>
        <td align="right">[% LxERP.format_amount(bt.amount, 2) %]</td>
-       <td align="right" id="invoice_amount_[% HTML.escape(bt.id) %]" data-invoice-amount="[% HTML.escape(bt.invoice_amount) %]">[% HTML.escape(LxERP.format_amount(bt.invoice_amount, 2)) %]</td>
+       <td align="right" id="invoice_amount_[% HTML.escape(bt.id) %]"
+        data-invoice-amount="[% HTML.escape(bt.invoice_amount) %]" >
+        <span [% IF bt.invoice_amount %] style="background-color:#FF8000;" [% END %]>
+         [% HTML.escape(LxERP.format_amount(bt.invoice_amount, 2)) %]
+        </span>
+       </td>
        <td>[% HTML.escape(bt.remote_name) %]</td>
        <td>[% HTML.escape(bt.purpose) %]</td>
        <td>[% HTML.escape(bt.transaction_text) %]</td>
