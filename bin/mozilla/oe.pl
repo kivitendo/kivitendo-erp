@@ -2107,7 +2107,7 @@ sub oe_prepare_xyz_from_order {
 
   if (exists $::form->{only_items}) {
     my @wanted_indexes = sort { $a <=> $b } map { $_ - 1 } split(",", $::form->{only_items} // "");
-    my @items          = $order->items;
+    my @items          = @{ $order->items_sorted };
     @items             = @items[@wanted_indexes];
     $order->items(\@items);
   }
