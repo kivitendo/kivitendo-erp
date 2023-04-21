@@ -150,38 +150,6 @@ sub action_edit {
   );
 }
 
-# edit a collective order (consisting of one or more existing orders)
-sub action_edit_collective {
-  my ($self) = @_;
-
-  # collect order ids
-  my @multi_ids = map {
-    $_ =~ m{^multi_id_(\d+)$} && $::form->{'multi_id_' . $1} && $::form->{'trans_id_' . $1} && $::form->{'trans_id_' . $1}
-  } grep { $_ =~ m{^multi_id_\d+$} } keys %$::form;
-
-  # fall back to add if no ids are given
-  if (scalar @multi_ids == 0) {
-    $self->action_add();
-    return;
-  }
-
-  # fall back to save as new if only one id is given
-  if (scalar @multi_ids == 1) {
-    $self->order(SL::DB::DeliveryOrder->new(id => $multi_ids[0])->load);
-    $self->action_save_as_new();
-    return;
-  }
-
-  # make new order from given orders
-  my @multi_orders = map { SL::DB::DeliveryOrder->new(id => $_)->load } @multi_ids;
-  $self->{converted_from_oe_id} = join ' ', map { $_->id } @multi_orders;
-  my $target_type = SALES_DELIVERY_ORDER_TYPE();
-  my $delivery_order = SL::Model::Record->new_from_workflow_multi(\@multi_orders, $target_type, sort_sources_by => 'transdate');
-  $self->order($delivery_order);
-
-  $self->action_edit();
-}
-
 # delete the order
 sub action_delete {
   my ($self) = @_;
@@ -230,9 +198,6 @@ sub action_save_as_new {
   # Create new record from current one
   my $new_order = SL::Model::Record->clone_for_save_as_new($saved_order, $order);
   $self->order($new_order);
-
-  # no linked records on save as new
-  delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);
 
   if (!$::form->{form_validity_token}) {
     $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE())->token;
@@ -516,17 +481,6 @@ sub action_save_and_new_record {
 }
 
 # save the order and redirect to the frontend subroutine for a new
-# delivery order
-sub action_save_and_delivery_order {
-  my ($self) = @_;
-
-  $self->save_and_redirect_to(
-    controller => 'oe.pl',
-    action     => 'oe_delivery_order_from_order',
-  );
-}
-
-# save the order and redirect to the frontend subroutine for a new
 # invoice
 sub action_save_and_invoice {
   my ($self) = @_;
@@ -535,26 +489,6 @@ sub action_save_and_invoice {
     controller => 'oe.pl',
     action     => 'oe_invoice_from_order',
   );
-}
-
-# workflow from sales order to sales quotation
-sub action_sales_quotation {
-  $_[0]->workflow_sales_or_request_for_quotation(SALES_QUOTATION_TYPE());
-}
-
-# workflow from sales order to sales quotation
-sub action_request_for_quotation {
-  $_[0]->workflow_sales_or_request_for_quotation(REQUEST_QUOTATION_TYPE());
-}
-
-# workflow from sales quotation to sales order
-sub action_sales_order {
-  $_[0]->workflow_sales_or_purchase_order(SALES_ORDER_TYPE());
-}
-
-# workflow from rfq to purchase order
-sub action_purchase_order {
-  $_[0]->workflow_sales_or_purchase_order(PURCHASE_ORDER_TYPE());
 }
 
 # workflow from purchase order to ap transaction
@@ -836,16 +770,6 @@ sub action_reorder_items {
   $self->js
     ->run('kivi.DeliveryOrder.redisplay_items', \@to_sort)
     ->render;
-}
-
-# show the popup to choose a price/discount source
-sub action_price_popup {
-  my ($self) = @_;
-
-  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{orderitem_ids} };
-  my $item = $self->order->items_sorted->[$idx];
-
-  $self->render_price_dialog($item);
 }
 
 # save the order in a session variable and redirect to the part controller
@@ -1269,10 +1193,6 @@ sub init_p {
 
 sub init_order {
   $_[0]->make_order;
-}
-
-sub init_all_price_factors {
-  SL::DB::Manager::PriceFactor->get_all;
 }
 
 sub init_part_picker_classification_ids {
@@ -1790,40 +1710,6 @@ sub setup_edit_action_bar {
       combobox => [
         action => [
           t8('Workflow'),
-        ],
-        action => [
-          t8('Save and Quotation'),
-          submit   => [ '#order_form', { action => "DeliveryOrder/sales_quotation" } ],
-          only_if  => $self->type_data->show_menu("save_and_quotation"),
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
-        ],
-        action => [
-          t8('Save and RFQ'),
-          submit   => [ '#order_form', { action => "DeliveryOrder/request_for_quotation" } ],
-          only_if  => $self->type_data->show_menu("save_and_rfq"),
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
-        ],
-        action => [
-          t8('Save and Sales Order'),
-          submit   => [ '#order_form', { action => "DeliveryOrder/sales_order" } ],
-          only_if  => $self->type_data->show_menu("save_and_sales_order"),
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
-        ],
-        action => [
-          t8('Save and Purchase Order'),
-          call     => [ 'kivi.DeliveryOrder.purchase_order_check_for_direct_delivery' ],
-          only_if  => $self->type_data->show_menu("save_and_purchase_order"),
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
-        ],
-        action => [
-          t8('Save and Delivery Order'),
-          call     => [ 'kivi.DeliveryOrder.save', {
-              action             => 'save_and_delivery_order',
-              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
-              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
-            }],
-          only_if  => $self->type_data->show_menu("save_and_delivery_order"),
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Invoice'),
