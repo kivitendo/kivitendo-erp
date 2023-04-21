@@ -192,6 +192,34 @@ sub transactions {
     push @values, conv_date($form->{insertdateto});
   }
 
+  $form->{fulltext} = trim($form->{fulltext});
+  if ($form->{fulltext}) {
+    my @fulltext_fields = qw(dord.notes
+                             dord.intnotes
+                             dord.shippingpoint
+                             dord.shipvia
+                             dord.transaction_description
+                             dord.donumber
+                             dord.ordnumber
+                             dord.cusordnumber
+                             dord.oreqnumber
+                             );
+    my $tmp_where = '';
+    $tmp_where .= join ' OR ', map {"$_ ILIKE ?"} @fulltext_fields;
+    push(@values, like($form->{fulltext})) for 1 .. (scalar @fulltext_fields);
+
+    $tmp_where .= <<SQL;
+      OR EXISTS (
+        SELECT files.id FROM files LEFT JOIN file_full_texts ON (file_full_texts.file_id = files.id)
+          WHERE files.object_id = dord.id AND files.object_type = ?
+            AND file_full_texts.full_text ILIKE ?)
+SQL
+    push(@values, $form->{type});
+    push(@values, like($form->{fulltext}));
+    push @where, $tmp_where;
+
+  }
+
   if ($form->{parts_partnumber}) {
     push @where, <<SQL;
       EXISTS (
