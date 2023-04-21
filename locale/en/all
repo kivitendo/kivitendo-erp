@@ -2919,6 +2919,7 @@ $self->{texts} = {
   'Projects'                    => '',
   'Projects: edit the list of employees allowed to view invoices' => '',
   'Projecttransactions'         => '',
+  'Promotion Code'              => '',
   'Proposal'                    => '',
   'Proposals'                   => '',
   'Protocol'                    => '',
