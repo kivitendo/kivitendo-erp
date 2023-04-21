@@ -39,7 +39,7 @@ sub chart_picker {
 
   my $ret =
     input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
-    join('', map { $params{$_} ? input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(type category choose booked invalid)) .
+    join('', map { $params{$_} ? input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(type category choose booked status)) .
     input_tag("", (ref $value && $value->can('displayable_name')) ? $value->displayable_name : '', id => "${id}_name", %params);
 
   $::request->layout->add_javascripts('autocomplete_chart.js');
@@ -160,6 +160,13 @@ the item object. There is an example on the test page.
 
 Without fat_set_item only the variables id and name (displayable name) are
 available.
+
+=item * status
+
+If C<%params> contains C<status> only charts of this status will be used
+for autocompletion. C<status> can be one of the following strings:
+C<valid>, C<invalid> or C<all>. C<valid> is the default if C<status> is
+not given.
 
 =back
 

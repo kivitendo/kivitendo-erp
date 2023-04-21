@@ -9,8 +9,9 @@
 <p>
 All charts: [% P.chart.picker('chart_id', '', style=style) %]text after icon<br>
 Only booked charts: [% P.chart.picker('chart_id_booked', '', booked=1, style=style) %]<br>
-Only valid charts: [% P.chart.picker('chart_id_valid', '', invalid=0, style=style) %]<br>
-Only invalid charts: [% P.chart.picker('chart_id_invalid', '', invalid=1, style=style) %]<br>
+Only valid charts: [% P.chart.picker('chart_id_valid', '', style=style) %]<br>
+Only invalid charts: [% P.chart.picker('chart_id_invalid', '', status='invalid', style=style) %]<br>
+Valid and invalid charts: [% P.chart.picker('chart_id_all', '', status='all', style=style) %]<br>
 All charts choose: [% P.chart.picker('chart_id_choose', '', choose=1, style=style) %]<br>
 </p>
 
