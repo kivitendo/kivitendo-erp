@@ -48,6 +48,10 @@
       <td>[% L.input_tag("parts_description", "", style=style) %]</td>
      </tr>
      <tr>
+      <th align="right">[% 'Full Text' | $T8 %]</th>
+      <td>[% L.input_tag('fulltext', '', style=style) %]</td>
+     </tr>
+     <tr>
       <th align="right">[% 'Project Number' | $T8 %]</th>
       <td>[% P.project.picker("project_id", project_id, active="both", valid="both", style=style) %]</td>
       <th align="right">[% 'Part Number' | $T8 %]</th>

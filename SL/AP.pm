@@ -701,6 +701,29 @@ sub ap_transactions {
     }
   }
 
+  $form->{fulltext} = trim($form->{fulltext});
+  if ($form->{fulltext}) {
+    my @fulltext_fields = qw(a.notes
+                             a.intnotes
+                             a.shipvia
+                             a.transaction_description
+                             a.quonumber
+                             a.ordnumber
+                             a.invnumber);
+    $where .= ' AND (';
+    $where .= join ' OR ', map {"$_ ILIKE ?"} @fulltext_fields;
+
+    $where .= <<SQL;
+      OR EXISTS (
+        SELECT files.id FROM files LEFT JOIN file_full_texts ON (file_full_texts.file_id = files.id)
+          WHERE files.object_id = a.id AND files.object_type = 'purchase_invoice'
+            AND file_full_texts.full_text ILIKE ?)
+SQL
+    $where .= ')'; # end AND
+
+    push(@values, like($form->{fulltext})) for 1 .. (scalar @fulltext_fields) + 1;
+  }
+
   if ($form->{parts_partnumber}) {
     $where .= <<SQL;
  AND EXISTS (
