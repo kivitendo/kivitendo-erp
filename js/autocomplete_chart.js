@@ -38,7 +38,7 @@ namespace('kivi', function(k){
     var $category = $('#' + real_id + '_category');  // hidden input_field of the chart_picker, added in Presenter, never changes
     var $choose = $('#' + real_id + '_choose');
     var $booked = $('#' + real_id + '_booked');
-    var $invalid = $('#' + real_id + '_invalid');
+    var $status = $('#' + real_id + '_status');
     var state   = STATES.PICKED;
     var last_real = $real.val();
     var last_dummy = $dummy.val();
@@ -85,9 +85,8 @@ namespace('kivi', function(k){
       if ($category && $category.val())
         data['filter.category'] = $category.val().split(',');
 
-      data['filter.invalid'] = ($invalid && $invalid.val()) ? 1 : 0;
-      //data['invalid'] = 1;
-
+      // show only valid charts
+      data['filter.status'] = ($status && $status.val()) ? $status.val() : 'valid';
 
       return data;
     }

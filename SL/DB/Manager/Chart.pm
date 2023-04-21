@@ -9,8 +9,10 @@ use SL::DB::Helper::Sorted;
 use SL::DB::Helper::Paginated;
 use SL::DB::Helper::Filtered;
 use SL::MoreCommon qw(listify);
-use DateTime;
 use SL::DBUtils;
+
+use Carp;
+use DateTime;
 use Data::Dumper;
 
 sub object_class { 'SL::DB::Chart' }
@@ -38,23 +40,26 @@ __PACKAGE__->add_filter_specs(
     my ($key, $value) = @_;
     return __PACKAGE__->booked_filter($value);
   },
-  invalid => sub {
+  status => sub {
     my ($key, $value) = @_;
     return __PACKAGE__->invalid_filter($value);
   },
 
 );
 sub invalid_filter {
-  my ($class, $invalid) = @_;
+  my ($class, $status) = @_;
 
-  $invalid //= 0;
+  croak "Wrong call, need status invalid, all or valid, got:" . $status unless $status =~ m/invalid|all|valid/;
+
   my @filter;
 
-  if ( $invalid ) {
+  if ($status eq 'all') {
      push @filter, ( id => [ \"SELECT id FROM chart" ] );
-  } else {
+  } elsif ($status eq 'valid') {
      push @filter, ( id => [ \"SELECT id FROM chart WHERE NOT invalid" ] );
-  };
+  } elsif ($status eq 'invalid') {
+     push @filter, ( id => [ \"SELECT id FROM chart WHERE invalid" ] );
+  } else { die "Wrong state for invalid_filter"; }
 
   return @filter;
 }
