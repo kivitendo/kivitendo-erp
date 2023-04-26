@@ -2813,6 +2813,7 @@ $self->{texts} = {
   'Preset email body for periodic invoices' => '',
   'Preset email strings'        => '',
   'Preset email subject for periodic invoices' => '',
+  'Preset email text for credit notes' => '',
   'Preset email text for purchase orders' => '',
   'Preset email text for purchase reclamations' => '',
   'Preset email text for requests (rfq)' => '',
