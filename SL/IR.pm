@@ -40,6 +40,7 @@ use SL::ARAP;
 use SL::Common;
 use SL::CVar;
 use SL::DATEV qw(:CONSTANTS);
+use SL::Util qw(trim);
 use SL::DBUtils;
 use SL::DB::Draft;
 use SL::DO;
@@ -457,7 +458,7 @@ SQL
                $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}), $form->{"qty_$i"} * -1,
                $baseqty * -1, $form->{"sellprice_$i"}, $fxsellprice, $form->{"discount_$i"}, $allocated,
                $form->{"unit_$i"}, conv_date($form->{deliverydate}),
-               conv_i($form->{"project_id_$i"}), $form->{"serialnumber_$i"},
+               conv_i($form->{"project_id_$i"}), trim($form->{"serialnumber_$i"}),
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"marge_price_factor_$i"}),
                $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
                $form->{"expense_chart_id_$i"}, $form->{"inventory_chart_id_$i"}, $form->{"tax_id_$i"}, $form->{"tax_chart_type_$i"},

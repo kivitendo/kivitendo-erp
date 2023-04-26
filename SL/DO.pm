@@ -502,7 +502,7 @@ SQL
                $form->{"qty_$i"}, $baseqty,
                $form->{"sellprice_$i"}, $form->{"discount_$i"} / 100,
                $form->{"unit_$i"}, conv_date($items_reqdate), conv_i($form->{"project_id_$i"}),
-               $form->{"serialnumber_$i"},
+               trim($form->{"serialnumber_$i"}),
                $form->{"lastcost_$i"},
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
                conv_i($form->{"marge_price_factor_$i"}),
