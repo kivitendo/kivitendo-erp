@@ -7,7 +7,7 @@
 <table>
   <tr><td colspan="100%">
       <b>[%- 'Serial No.' | $T8 %]</b>&nbsp;
-      [%- L.input_tag("reclamation.reclamation_items[].serialnumber", ITEM.serialnumber, size = 15) %]&nbsp;
+      [%- L.input_tag("reclamation.reclamation_items[].serialnumber", ITEM.serialnumber, size = 15 "data-validate"="trimmed_whitespaces") %]&nbsp;
     <b>[%- 'Project' | $T8 %]</b>&nbsp;
     [% P.project.picker("reclamation.reclamation_items[].project_id", ITEM.project_id, size = 15) %]&nbsp;
       <b>[%- 'Reqdate' | $T8 %]</b>&nbsp;
