@@ -482,7 +482,7 @@ sub display_row {
         style => "width: 100px");
     }
 
-    $column_data{serialnr}  = qq|<input name="serialnumber_$i" size="15" value="$form->{"serialnumber_$i"}">|;
+    $column_data{serialnr}  = qq|<input name="serialnumber_$i" size="15" value="$form->{"serialnumber_$i"}" data-validate="trimmed_whitespaces">|;
     $column_data{projectnr} = NTI($cgi->popup_menu(
       '-name' => "project_id_$i",
       '-values' => \@projectnumber_values,

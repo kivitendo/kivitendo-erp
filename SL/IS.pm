@@ -46,6 +46,7 @@ use SL::ARAP;
 use SL::CVar;
 use SL::Common;
 use SL::DATEV qw(:CONSTANTS);
+use SL::Util qw(trim);
 use SL::DBUtils;
 use SL::DO;
 use SL::GenericTranslations;
@@ -1013,7 +1014,7 @@ SQL
                  $form->{"sellprice_$i"}, $fxsellprice,
                  $form->{"discount_$i"}, $allocated, 'f',
                  $form->{"unit_$i"}, conv_date($form->{"reqdate_$i"}), conv_i($form->{"project_id_$i"}),
-                 $form->{"serialnumber_$i"}, $pricegroup_id,
+                 trim($form->{"serialnumber_$i"}), $pricegroup_id,
                  $baseqty, $form->{"subtotal_$i"} ? 't' : 'f',
                  $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
                  $form->{"lastcost_$i"},
@@ -1763,7 +1764,7 @@ sub transfer_out {
     my ($err, $qty, $wh_id, $bin_id, $chargenumber);
 
     if ($::instance_conf->get_sales_serial_eq_charge && $form->{"serialnumber_$i"}) {
-      my @serials = split(" ", $form->{"serialnumber_$i"});
+      my @serials = split(" ", trim($form->{"serialnumber_$i"}));
       if (scalar @serials != $form->{"qty_$i"}) {
         push @errors, $::locale->text("Cannot transfer #1 qty with #2 serial number(s)", $form->{"qty_$i"}, scalar @serials);
         last;
