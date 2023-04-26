@@ -8,7 +8,7 @@
   <tr>
     <td>
       [% IF (TYPE == "sales_order" || TYPE == "purchase_order") %]
-        <b>[% 'Serial No.' | $T8 %]</b> [% L.input_tag("order.orderitems[].serialnumber", ITEM.serialnumber, size = 15) %]
+        <b>[% 'Serial No.' | $T8 %]</b> [% L.input_tag("order.orderitems[].serialnumber", ITEM.serialnumber, size = 15, "data-validate"="trimmed_whitespaces") %]
       [% END %]
       <b>[% 'Project' | $T8 %]</b> [% P.project.picker("order.orderitems[].project_id", ITEM.project_id, size = 15) %]
       [% IF (TYPE == "sales_order" || TYPE == "purchase_order") %]
