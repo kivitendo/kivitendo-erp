@@ -31,7 +31,7 @@
       <th align="right" nowrap>[% 'Name' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('additional_billing_address.name', SELF.additional_billing_address.name,  size = 35) %]
+        [% L.input_tag_trim('additional_billing_address.name', SELF.additional_billing_address.name,  size = 35) %]
       </td>
     </tr>
 
@@ -39,8 +39,8 @@
       <th align="right" nowrap>[% 'Department' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('additional_billing_address.department_1', SELF.additional_billing_address.department_1,  size = 16) %]
-        [% L.input_tag('additional_billing_address.department_2', SELF.additional_billing_address.department_2,  size = 16) %]
+        [% L.input_tag_trim('additional_billing_address.department_1', SELF.additional_billing_address.department_1,  size = 16) %]
+        [% L.input_tag_trim('additional_billing_address.department_2', SELF.additional_billing_address.department_2,  size = 16) %]
       </td>
     </tr>
 
@@ -48,7 +48,7 @@
       <th align="right" nowrap>[% 'Street' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('additional_billing_address.street', SELF.additional_billing_address.street,  size = 35) %]
+        [% L.input_tag_trim('additional_billing_address.street', SELF.additional_billing_address.street,  size = 35) %]
 
         <span id="additional_billing_address_map"></span>
         <script type="text/javascript">
@@ -64,8 +64,8 @@
       <th align="right" nowrap>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('additional_billing_address.zipcode', SELF.additional_billing_address.zipcode,  size = 5) %]
-        [% L.input_tag('additional_billing_address.city', SELF.additional_billing_address.city,  size = 30) %]
+        [% L.input_tag_trim('additional_billing_address.zipcode', SELF.additional_billing_address.zipcode,  size = 5) %]
+        [% L.input_tag_trim('additional_billing_address.city', SELF.additional_billing_address.city,  size = 30) %]
       </td>
     </tr>
 
@@ -73,7 +73,7 @@
       <th align="right" nowrap>[% 'Country' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('additional_billing_address.country', SELF.additional_billing_address.country,  size = 35) %]
+        [% L.input_tag_trim('additional_billing_address.country', SELF.additional_billing_address.country,  size = 35) %]
       </td>
     </tr>
 
@@ -81,7 +81,7 @@
       <th align="right" nowrap>[% 'GLN' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('additional_billing_address.gln', SELF.additional_billing_address.gln,  size = 30) %]
+        [% L.input_tag_trim('additional_billing_address.gln', SELF.additional_billing_address.gln,  size = 30) %]
       </td>
     </tr>
 
@@ -89,7 +89,7 @@
       <th align="right" nowrap>[% 'Contact' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('additional_billing_address.contact', SELF.additional_billing_address.contact,  size = 30) %]
+        [% L.input_tag_trim('additional_billing_address.contact', SELF.additional_billing_address.contact,  size = 30) %]
       </td>
     </tr>
 
@@ -97,7 +97,7 @@
       <th align="right" nowrap>[% 'Phone' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('additional_billing_address.phone', SELF.additional_billing_address.phone,  size = 30) %]
+        [% L.input_tag_trim('additional_billing_address.phone', SELF.additional_billing_address.phone,  size = 30) %]
       </td>
     </tr>
 
@@ -105,7 +105,7 @@
       <th align="right" nowrap>[% 'Fax' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('additional_billing_address.fax', SELF.additional_billing_address.fax,  size = 30) %]
+        [% L.input_tag_trim('additional_billing_address.fax', SELF.additional_billing_address.fax,  size = 30) %]
       </td>
     </tr>
 
@@ -113,14 +113,14 @@
       <th align="right" nowrap>[% 'E-mail' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('additional_billing_address.email', SELF.additional_billing_address.email,  size = 45) %]
+        [% L.input_tag_trim('additional_billing_address.email', SELF.additional_billing_address.email,  size = 45) %]
       </td>
     </tr>
     <tr>
       <th align="right" nowrap>[% 'Dunning email' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('additional_billing_address.dunning_mail', SELF.additional_billing_address.dunning_mail,  size = 45) %]
+        [% L.input_tag_trim('additional_billing_address.dunning_mail', SELF.additional_billing_address.dunning_mail,  size = 45) %]
       </td>
     </tr>
 

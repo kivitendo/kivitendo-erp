@@ -77,7 +77,7 @@
     [% END %]
     <tr>
       <th>[% 'Subject' | $T8 %]</th>
-      <td>[% L.input_tag('note.subject', SELF.note.subject, class="wi-verywide") %]</td>
+      <td>[% L.input_tag_trim('note.subject', SELF.note.subject, class="wi-verywide") %]</td>
     </tr>
     <tr>
       <th>[% 'Follow-Up On' | $T8 %]</th>

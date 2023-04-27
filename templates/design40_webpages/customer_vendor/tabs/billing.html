@@ -22,7 +22,7 @@
       <th>[% 'Greeting' | $T8 %]</th>
       <td>
         [% IF INSTANCE_CONF.get_vc_greetings_use_textfield %]
-          [% L.input_tag('cv.greeting', SELF.cv.greeting, class='wi-mediumsmall') %]
+          [% L.input_tag_trim('cv.greeting', SELF.cv.greeting, class='wi-mediumsmall') %]
           [% L.select_tag('cv_greeting_select', SELF.all_greetings, default = SELF.cv.greeting, value_key = 'description', title_key = 'description', with_empty = 1, onchange = '$("#cv_greeting").val(this.value);', class='wi-small addition') %]
         [% ELSE %]
           [% L.select_tag('cv.greeting', SELF.all_greetings, default = SELF.cv.greeting, value_key = 'description', title_key = 'description', with_empty = 1, class='wi-lightwide') %]
@@ -31,7 +31,7 @@
     </tr>
     <tr>
       <th>[% IF SELF.is_vendor() %] [% 'Vendor Name' | $T8 %] [% ELSE %] [% 'Customer Name' | $T8 %] [% END %]</th>
-      <td>[% L.input_tag('cv.name', SELF.cv.name, type='text', class='wi-lightwide') %]</td>
+      <td>[% L.input_tag_trim('cv.name', SELF.cv.name, type='text', class='wi-lightwide') %]</td>
     </tr>
     <tr>
       <th><label for="cv_natural_person">[% 'natural person' | $T8 %]</label></th>
@@ -40,15 +40,15 @@
     <tr>
       <th>[% 'Department' | $T8 %]</th>
       <td>
-        [% L.input_tag('cv.department_1', SELF.cv.department_1, class='wi-lightwide') %]<br>
-        [% L.input_tag('cv.department_2', SELF.cv.department_2, class='wi-lightwide addition') %]
+        [% L.input_tag_trim('cv.department_1', SELF.cv.department_1, class='wi-lightwide') %]<br>
+        [% L.input_tag_trim('cv.department_2', SELF.cv.department_2, class='wi-lightwide addition') %]
       <br>
       </td>
     </tr>
     <tr>
       <th>[% 'Street' | $T8 %]</th>
       <td>
-        [% L.input_tag('cv.street', SELF.cv.street, class='wi-lightwide') %]<button id="billing_map" type="button" class="icon"></button>
+        [% L.input_tag_trim('cv.street', SELF.cv.street, class='wi-lightwide') %]<button id="billing_map" type="button" class="icon"></button>
         <script type="text/javascript">
           billingMapWidget = new kivi.CustomerVendor.MapWidget('cv_', '[% JavaScript.escape(SELF.home_address_for_google_maps) %]');
           $(function() {
@@ -59,15 +59,15 @@
     </tr>
     <tr>
       <th>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
-      <td>[% L.input_tag('cv.zipcode', SELF.cv.zipcode, class='wi-verysmall') %][% L.input_tag('cv.city', SELF.cv.city, class='wi-small', class='wi-lightwide--verysmall') %]</td>
+      <td>[% L.input_tag_trim('cv.zipcode', SELF.cv.zipcode, class='wi-verysmall') %][% L.input_tag_trim('cv.city', SELF.cv.city, class='wi-small', class='wi-lightwide--verysmall') %]</td>
     </tr>
     <tr>
       <th>[% 'Country' | $T8 %]</th>
-      <td>[% L.input_tag('cv.country', SELF.cv.country, class='wi-lightwide') %]</td>
+      <td>[% L.input_tag_trim('cv.country', SELF.cv.country, class='wi-lightwide') %]</td>
     </tr>
     <tr>
       <th>[% 'GLN' | $T8 %]</th>
-      <td>[% L.input_tag('cv.gln', SELF.cv.gln, class='wi-lightwide') %]</td>
+      <td>[% L.input_tag_trim('cv.gln', SELF.cv.gln, class='wi-lightwide') %]</td>
     </tr>
   </tbody>
 </table>
@@ -78,41 +78,41 @@
   <tbody>
     <tr>
       <th>[% 'Contact' | $T8 %]</th>
-      <td>[% L.input_tag('cv.contact', SELF.cv.contact, class='wi-lightwide') %]</td>
+      <td>[% L.input_tag_trim('cv.contact', SELF.cv.contact, class='wi-lightwide') %]</td>
     </tr>
     <tr>
       <th>[% 'Phone' | $T8 %]</th>
-      <td>[% L.input_tag('cv.phone', SELF.cv.phone, class='wi-lightwide') %]</td>
+      <td>[% L.input_tag_trim('cv.phone', SELF.cv.phone, class='wi-lightwide') %]</td>
     </tr>
     <tr>
       <th>[% 'Fax' | $T8 %]</th>
-      <td>[% L.input_tag('cv.fax', SELF.cv.fax, class='wi-lightwide') %]</td>
+      <td>[% L.input_tag_trim('cv.fax', SELF.cv.fax, class='wi-lightwide') %]</td>
     </tr>
     <tr>
       <th>[% IF SELF.cv.email %]<a href="mailto:[% SELF.cv.email %]">[% END %][% 'E-mail' | $T8 %][% IF SELF.cv.email %]</a>[% END %]</th>
-      <td>[% L.input_tag('cv.email', SELF.cv.email, class='wi-lightwide') %]</td>
+      <td>[% L.input_tag_trim('cv.email', SELF.cv.email, class='wi-lightwide') %]</td>
     </tr>
     <tr>
       <th>[% IF SELF.cv.cc %]<a href="mailto:[% SELF.cv.cc %]">[% END %][% 'Cc E-mail' | $T8 %][% IF SELF.cv.cc %]</a>[% END %]</th>
-      <td>[% L.input_tag('cv.cc', SELF.cv.cc, class='wi-lightwide') %]</td>
+      <td>[% L.input_tag_trim('cv.cc', SELF.cv.cc, class='wi-lightwide') %]</td>
     </tr>
     <tr>
       <th>[% IF SELF.cv.bcc %]<a href="mailto:[% SELF.cv.bcc %]">[% END %][% 'Bcc E-mail' | $T8 %][% IF SELF.cv.bcc %]</a>[% END %]</th>
-      <td>[% L.input_tag('cv.bcc', SELF.cv.bcc, class='wi-lightwide') %]</td>
+      <td>[% L.input_tag_trim('cv.bcc', SELF.cv.bcc, class='wi-lightwide') %]</td>
     </tr>
     <tr><!-- PENDENT: Funktion der Link-Erzeugung verbessern, z.B. falls z.B. Schema (http:// oder https://) schon angegeben -->
       <th>[% IF SELF.cv.homepage %]<a href="http://[% HTML.escape(SELF.cv.homepage) %]" title="[% 'Open in new window' | $T8 %]" target="_blank">[% 'Homepage' | $T8 %]</a>[% ELSE %][% 'Homepage' | $T8 %][% END %]</th>
-      <td>[% L.input_tag('cv.homepage', SELF.cv.homepage, class='wi-lightwide', title = LxERP.t8('Example: http://kivitendo.de')) %]</td>
+      <td>[% L.input_tag_trim('cv.homepage', SELF.cv.homepage, class='wi-lightwide', title = LxERP.t8('Example: http://kivitendo.de')) %]</td>
     </tr>
 
     [% IF ( SELF.is_customer() ) %]
     <tr>
       <th>[% 'Email of the invoice recipient' | $T8 %]</th>
-      <td>[% L.input_tag('cv.invoice_mail', SELF.cv.invoice_mail, class='wi-lightwide') %]</td>
+      <td>[% L.input_tag_trim('cv.invoice_mail', SELF.cv.invoice_mail, class='wi-lightwide') %]</td>
     </tr>
     <tr>
       <th>[% 'Email of the delivery order recipient' | $T8 %]</th>
-      <td>[% L.input_tag('cv.delivery_order_mail', SELF.cv.delivery_order_mail, class='wi-lightwide') %]</td>
+      <td>[% L.input_tag_trim('cv.delivery_order_mail', SELF.cv.delivery_order_mail, class='wi-lightwide') %]</td>
     </tr>
     [% END %]
     [% IF ( SELF.is_customer() ) %]
@@ -124,7 +124,7 @@
     [% IF ( SELF.is_customer() ) %]
     <tr>
       <th>[% 'Commercial court' | $T8 %]</th>
-      <td>[% L.input_tag('cv.commercial_court', SELF.cv.commercial_court, class='wi-lightwide') %] </td>
+      <td>[% L.input_tag_trim('cv.commercial_court', SELF.cv.commercial_court, class='wi-lightwide') %] </td>
     </tr>
     [% END %]
 
@@ -182,15 +182,15 @@
     <tr>
       [% IF SELF.is_vendor() %]
         <th>[% 'Vendor Number' | $T8 %]</th>
-        <td>[% L.input_tag('cv.vendornumber', SELF.cv.vendornumber, class='wi-normal') %]</td>
+        <td>[% L.input_tag_trim('cv.vendornumber', SELF.cv.vendornumber, class='wi-normal') %]</td>
       [% ELSE %]
         <th>[% 'Customer Number' | $T8 %]</th>
-        <td>[% L.input_tag('cv.customernumber', SELF.cv.customernumber, class='wi-normal') %]</td>
+        <td>[% L.input_tag_trim('cv.customernumber', SELF.cv.customernumber, class='wi-normal') %]</td>
       [% END %]
     </tr>
     <tr>
       <th>[% 'Tax Number / SSN' | $T8 %]</th>
-      <td>[% L.input_tag('cv.taxnumber', SELF.cv.taxnumber, class='wi-normal') %]</td>
+      <td>[% L.input_tag_trim('cv.taxnumber', SELF.cv.taxnumber, class='wi-normal') %]</td>
     </tr>
     <tr>
 <!--
@@ -198,21 +198,21 @@
   Anm.: R&B 15.11.2008     VAT Reg No ist Ust-ID in GB, aber generell sollte es laut Richardson die sales tax id sein
 -->
       <th>[% 'sales tax identification number' | $T8 %]</th>
-      <td>[% L.input_tag('cv.ustid', SELF.cv.ustid, class='wi-normal' ) %]</td>
+      <td>[% L.input_tag_trim('cv.ustid', SELF.cv.ustid, class='wi-normal' ) %]</td>
     </tr>
     [% IF ( SELF.is_vendor() ) %]
       <tr>
           <th>[% 'Customer Number' | $T8 %]</th>
-          <td>[% L.input_tag('cv.v_customer_id', SELF.cv.v_customer_id, class='wi-normal') %]</td>
+          <td>[% L.input_tag_trim('cv.v_customer_id', SELF.cv.v_customer_id, class='wi-normal') %]</td>
       </tr>
     [% ELSE %]
       <tr>
         <th>[% 'our vendor number at customer' | $T8 %]</th>
-        <td>[% L.input_tag('cv.c_vendor_id', SELF.cv.c_vendor_id, class='wi-normal') %]</td>
+        <td>[% L.input_tag_trim('cv.c_vendor_id', SELF.cv.c_vendor_id, class='wi-normal') %]</td>
       </tr>
       <tr>
         <th>[% 'Our routing id at customer' | $T8 %]</th>
-        <td>[% L.input_tag('cv.c_vendor_routing_id', SELF.cv.c_vendor_routing_id, size = 20) %]</td>
+        <td>[% L.input_tag_trim('cv.c_vendor_routing_id', SELF.cv.c_vendor_routing_id, size = 20) %]</td>
       </tr>
     [% END %]
 <!-- </tbody> -->
@@ -237,11 +237,11 @@
  -->
     <tr>
       <th>[% 'Username' | $T8 %]</th>
-      <td>[% L.input_tag('cv.username', SELF.cv.username, class='wi-normal') %]</td>
+      <td>[% L.input_tag_trim('cv.username', SELF.cv.username, class='wi-normal') %]</td>
     </tr>
     <tr>
       <th>[% 'Password' | $T8 %]</th>
-      <td>[% L.input_tag('cv.user_password', SELF.cv.user_password, class='wi-normal') %]</td>
+      <td>[% L.input_tag_trim('cv.user_password', SELF.cv.user_password, class='wi-normal') %]</td>
     </tr>
   </tbody>
 </table>
@@ -278,12 +278,12 @@
     </tr>
     <tr>
       <th>[% 'Discount' | $T8 %]</th>
-      <td>[% L.input_tag('cv.discount_as_percent', SELF.cv.discount_as_percent, class='wi-small numeric') %]% </td>
+      <td>[% L.input_tag_trim('cv.discount_as_percent', SELF.cv.discount_as_percent, class='wi-small numeric') %]% </td>
     </tr>
     [% IF ( SELF.is_customer() ) %]
       <tr>
         <th>[% LxERP.t8("Hourly rate") %]</th>
-        <td>[% L.input_tag("cv.hourly_rate_as_number", SELF.cv.hourly_rate_as_number, class='wi-small numeric') %]</td>
+        <td>[% L.input_tag_trim("cv.hourly_rate_as_number", SELF.cv.hourly_rate_as_number, class='wi-small numeric') %]</td>
       <tr>
         <th>[% LxERP.t8("Create sales invoices with Factur-X/ZUGFeRD data") %]</th>
         <td>[% L.select_tag("cv.create_zugferd_invoices", SELF.zugferd_settings, default=SELF.cv.create_zugferd_invoices) %]</td>
@@ -299,7 +299,7 @@
   <tbody>
     <tr>
       <th>[% 'Credit Limit' | $T8 %]</th>
-      <td>[% L.input_tag('cv.creditlimit_as_number', SELF.cv.creditlimit_as_number, class='wi-small numeric') %]</td>
+      <td>[% L.input_tag_trim('cv.creditlimit_as_number', SELF.cv.creditlimit_as_number, class='wi-small numeric') %]</td>
     </tr>
     [% IF ( SELF.is_customer() ) %]
       <tr>
