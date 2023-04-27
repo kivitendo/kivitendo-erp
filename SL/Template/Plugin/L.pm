@@ -72,6 +72,7 @@ sub hidden_tag    { return _call_presenter('hidden_tag',    @_); }
 sub select_tag    { return _call_presenter('select_tag',    @_); }
 sub checkbox_tag  { return _call_presenter('checkbox_tag',  @_); }
 sub input_tag     { return _call_presenter('input_tag',     @_); }
+sub input_tag_trim{ return _call_presenter('input_tag_trim',@_); }
 sub javascript    { return _call_presenter('javascript',    @_); }
 sub truncate      { return _call_presenter('truncate',      @_); }
 sub simple_format { return _call_presenter('simple_format', @_); }
@@ -426,6 +427,8 @@ The following functions are just forwarded to L<SL::Presenter::Tag>:
 =over 2
 
 =item * C<input_tag $name, $value, %attributes>
+
+=item * C<input_tag_trim $name, $value, %attributes>
 
 =item * C<hidden_tag $name, $value, %attributes>
 

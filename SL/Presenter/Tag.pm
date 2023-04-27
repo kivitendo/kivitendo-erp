@@ -11,7 +11,7 @@ our @EXPORT_OK = qw(
   html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag
   checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
   stringify_attributes textarea_tag link_tag date_tag
-  div_tag radio_button_tag img_tag multi_level_select_tag);
+  div_tag radio_button_tag img_tag multi_level_select_tag input_tag_trim);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use Carp;
@@ -85,6 +85,17 @@ sub input_tag {
   $attributes{type} ||= 'text';
 
   html_tag('input', undef, %attributes, name => $name, value => $value);
+}
+
+sub input_tag_trim {
+  my ($name, $value, %attributes) = @_;
+  $attributes{'data-validate'} .= ' trimmed_whitespaces';
+
+  _set_id_attribute(\%attributes, $name);
+  $::request->layout->add_javascripts('kivi.Validator.js');
+  $::request->presenter->need_reinit_widgets($attributes{id});
+
+  input_tag($name, $value, %attributes);
 }
 
 sub hidden_tag {
@@ -652,6 +663,12 @@ must not contain non-ASCII characters for browsers to accept them.
 Creates a HTML 'input type=text' tag named C<$name> with the value
 C<$value> and with arbitrary HTML attributes from C<%attributes>. The
 tag's C<id> defaults to C<name_to_id($name)>.
+
+=item C<input_tag_trim $name, $value, %attributes>
+
+This is a wrapper around C<input_tag> that adds ' trimmed_whitespaces' to
+$attributes{'data-validate'} and loads C<js/kivi.Validator.js>. This will trim
+the whitespaces around the input.
 
 =item C<submit_tag $name, $value, %attributes>
 
