@@ -85,7 +85,7 @@
         <td valign="right">[% 'Subject' | $T8 %]</td>
 
         <td colspan="3">
-          [% L.input_tag('note.subject', SELF.note.subject, size = 50) %]
+          [% L.input_tag_trim('note.subject', SELF.note.subject, size = 50) %]
         </td>
       </tr>
 

@@ -32,19 +32,19 @@
     <tbody>
       <tr>
         <th>[% 'Name' | $T8 %]</th>
-        <td>[% L.input_tag('additional_billing_address.name', SELF.additional_billing_address.name, class="wi-wide") %]</td>
+        <td>[% L.input_tag_trim('additional_billing_address.name', SELF.additional_billing_address.name, class="wi-wide") %]</td>
       </tr>
       <tr>
         <th>[% 'Department' | $T8 %]</th>
         <td>
-          [% L.input_tag('additional_billing_address.department_1', SELF.additional_billing_address.department_1, class="wi-wide") %]<br>
-          [% L.input_tag('additional_billing_address.department_2', SELF.additional_billing_address.department_2, class="wi-wide addition") %]
+          [% L.input_tag_trim('additional_billing_address.department_1', SELF.additional_billing_address.department_1, class="wi-wide") %]<br>
+          [% L.input_tag_trim('additional_billing_address.department_2', SELF.additional_billing_address.department_2, class="wi-wide addition") %]
         </td>
       </tr>
       <tr>
         <th>[% 'Street' | $T8 %]</th>
         <td>
-          [% L.input_tag('additional_billing_address.street', SELF.additional_billing_address.street, class="wi-wide") %]
+          [% L.input_tag_trim('additional_billing_address.street', SELF.additional_billing_address.street, class="wi-wide") %]
 
           <span id="additional_billing_address_map"></span>
           <script type="text/javascript">
@@ -58,16 +58,16 @@
       <tr>
         <th>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
         <td>
-          [% L.input_tag('additional_billing_address.zipcode', SELF.additional_billing_address.zipcode, class="wi-verysmall") %][% L.input_tag('additional_billing_address.city', SELF.additional_billing_address.city, class="wi-wide--verysmall") %]
+          [% L.input_tag_trim('additional_billing_address.zipcode', SELF.additional_billing_address.zipcode, class="wi-verysmall") %][% L.input_tag_trim('additional_billing_address.city', SELF.additional_billing_address.city, class="wi-wide--verysmall") %]
         </td>
       </tr>
       <tr>
         <th>[% 'Country' | $T8 %]</th>
-        <td>[% L.input_tag('additional_billing_address.country', SELF.additional_billing_address.country, class="wi-wide") %]</td>
+        <td>[% L.input_tag_trim('additional_billing_address.country', SELF.additional_billing_address.country, class="wi-wide") %]</td>
       </tr>
       <tr>
         <th>[% 'GLN' | $T8 %]</th>
-        <td>[% L.input_tag('additional_billing_address.gln', SELF.additional_billing_address.gln, class="wi-wide") %]</td>
+        <td>[% L.input_tag_trim('additional_billing_address.gln', SELF.additional_billing_address.gln, class="wi-wide") %]</td>
       </tr>
     </tbody>
   </table>
@@ -77,19 +77,19 @@
     <tbody>
       <tr>
         <th>[% 'Contact' | $T8 %]</th>
-        <td>[% L.input_tag('additional_billing_address.contact', SELF.additional_billing_address.contact, class="wi-wide") %]</td>
+        <td>[% L.input_tag_trim('additional_billing_address.contact', SELF.additional_billing_address.contact, class="wi-wide") %]</td>
       </tr>
       <tr>
         <th>[% 'Phone' | $T8 %]</th>
-        <td>[% L.input_tag('additional_billing_address.phone', SELF.additional_billing_address.phone, class="wi-wide") %]</td>
+        <td>[% L.input_tag_trim('additional_billing_address.phone', SELF.additional_billing_address.phone, class="wi-wide") %]</td>
       </tr>
       <tr>
         <th>[% 'Fax' | $T8 %]</th>
-        <td>[% L.input_tag('additional_billing_address.fax', SELF.additional_billing_address.fax, class="wi-wide") %]</td>
+        <td>[% L.input_tag_trim('additional_billing_address.fax', SELF.additional_billing_address.fax, class="wi-wide") %]</td>
       </tr>
       <tr>
         <th>[% 'E-mail' | $T8 %]</th>
-        <td>[% L.input_tag('additional_billing_address.email', SELF.additional_billing_address.email, class="wi-wide") %]</td>
+        <td>[% L.input_tag_trim('additional_billing_address.email', SELF.additional_billing_address.email, class="wi-wide") %]</td>
       </tr>
     </tbody>
   </table>
