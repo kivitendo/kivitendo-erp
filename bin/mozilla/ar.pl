@@ -1537,15 +1537,34 @@ sub setup_ar_form_header_action_bar {
   $::request->layout->add_javascripts('kivi.Validator.js');
 }
 
+sub _check_access_right_for_ids {
+  my ($ids) = @_;
+  $main::lxdebug->enter_sub();
+
+  my $form = Form->new;
+  AR->ar_transactions(\%::myconfig, \%$form);
+  my %allowed_ids = ();
+
+  my @allowed_ar_ids = map {$_->{id}} @{$form->{AR}};
+  foreach my $ar_id (@allowed_ar_ids) {
+    $allowed_ids{$ar_id} = 1 ;
+  }
+  foreach my $id (@$ids) {
+    unless ($allowed_ids{$id}) {
+      $::auth->deny_access();
+    }
+  }
+
+  $main::lxdebug->leave_sub();
+}
+
 sub webdav_pdf_export {
   $main::lxdebug->enter_sub();
 
-  # TODO(Tamino): rights?
-  $::auth->assert('ar_transactions');
-  $::auth->assert('invoice_edit');
-
   my $form = $main::form;
   my $ids  = $form->{id};
+
+  _check_access_right_for_ids($ids);
 
   my $invoices = SL::DB::Manager::Invoice->get_all(where => [ id => $ids ]);
 
@@ -1554,7 +1573,6 @@ sub webdav_pdf_export {
   foreach my $invoice (@{$invoices}) {
     if ($invoice->type eq '') {
       $no_files .= $invoice->displayable_name() . "\n";
-      $main::lxdebug->dump(0, "TST: no_files loop", $no_files);
       next;
     }
     my $webdav = SL::Webdav->new(
@@ -1578,12 +1596,10 @@ sub webdav_pdf_export {
 sub files_pdf_export {
   $main::lxdebug->enter_sub();
 
-  # TODO(Tamino): rights?
-  $::auth->assert('ar_transactions');
-  $::auth->assert('invoice_edit');
-
   my $form = $main::form;
   my $ids  = $form->{id};
+
+  _check_access_right_for_ids($ids);
 
   my $invoices = SL::DB::Manager::Invoice->get_all(where => [ id => $ids ]);
 
