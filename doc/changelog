@@ -2,6 +2,19 @@
 # Veränderungen von kivitendo #
 ###############################
 
+2023-xx-xx - Release 3.9.0 unstable
+
+Kleinere neue Features und Detailverbesserungen:
+
+  - Mahnsperre beim Kunden
+  - Bei Mahnungen den schon erstellten Beleg mitversenden (Optional einstellbar in der
+    Mahnunskonfiguration.
+  - Schon erstelle Belege aus dem Webdav/DMS als zip herunterladen.
+  - Volltextsuche auch für Einkaufsbelege EK-Rechnungen/Kreditorenbuchungen
+  - Volltextsuche auch für Lieferscheine
+  - weitere Filtermöglichkeiten wie Zahlungsbedingen und Typ bei Mahnungen erzeugen
+  - In diversen Formularfeldern Kunden/Lieferanten trailing withespaces nicht speichern
+
 2023-04-05 - Release 3.8.0
 
 Größere neue Features:
