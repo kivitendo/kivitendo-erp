@@ -2147,12 +2147,13 @@ sub prepare_report {
   }
   $column_defs{$_}->{text} ||= t8( $self->models->get_sort_spec->{$_}->{title} || $_ ) for keys %column_defs;
 
-  my @columns_to_show = grep { $::form->{active_in_report}->{"$_"} } keys %column_defs;
-  unless (scalar(@columns_to_show)){ @columns_to_show = @default_columns; }
-
-  my %active_in_report = map { $_ => 1 } @columns_to_show;
-  $self->models->add_additional_url_params(map { "active_in_report." . $_ => 1 } @columns_to_show); #for reorder
-  my %columns_in_report = map {$_ => $column_defs{$_}} @columns_to_show;
+  unless ($::form->{active_in_report}) {
+    $::form->{active_in_report}->{$_} = 1 foreach @default_columns;
+  }
+  $self->models->add_additional_url_params(
+    active_in_report => $::form->{active_in_report});
+  map { $column_defs{$_}->{visible} = $::form->{active_in_report}->{"$_"} }
+    keys %column_defs;
 
   ## add cvars TODO(Tamino): Add own cvars
   #my %cvar_column_defs = map {
@@ -2170,10 +2171,10 @@ sub prepare_report {
   #my @cvar_column_form_names = ('_include_cvars_from_form', map { "include_cvars_" . $_->name } @{ $self->includeable_cvar_configs });
 
   # make all sortable
-  my @sortable = keys %columns_in_report;
+  my @sortable = keys %column_defs;
 
   my $filter_html = SL::Presenter::ReclamationFilter::filter(
-    $::form->{filter}, $self->type, active_in_report => \%active_in_report
+    $::form->{filter}, $self->type, active_in_report => $::form->{active_in_report}
   );
 
   $report->set_options(
@@ -2194,10 +2195,10 @@ sub prepare_report {
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
   );
-  $report->set_columns(%columns_in_report);
+  $report->set_columns(%column_defs);
   $report->set_column_order(@columns_order);
   #$report->set_export_options(qw(list filter), @cvar_column_form_names); TODO(Tamino): for cvars
-  $report->set_export_options(qw(list filter));
+  $report->set_export_options(qw(list filter active_in_report));
   $report->set_options_from_form;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
 }
