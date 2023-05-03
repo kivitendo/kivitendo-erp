@@ -654,16 +654,16 @@ sub form_header {
   $TMPL_VAR{creditwarning} = ($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update};
   $TMPL_VAR{is_credit_remaining_negativ} = $form->{creditremaining} =~ /-/;
 
-# qr reference
-my $has_qr_reference = $::instance_conf->get_create_qrbill_invoices == 1 &&
-                       $form->{formname} eq 'invoice' ? 1 : 0;
-$TMPL_VAR{has_qr_reference} = $has_qr_reference;
+  # qr reference
+  my $has_qr_reference = $::instance_conf->get_create_qrbill_invoices == 1 &&
+                         $form->{formname} eq 'invoice' ? 1 : 0;
+  $TMPL_VAR{has_qr_reference} = $has_qr_reference;
 
-if ($has_qr_reference && defined $form->{qr_reference}) {
-  $TMPL_VAR{qr_reference_formatted} = get_ref_number_formatted($form->{qr_reference});
-}
+  if ($has_qr_reference && defined $form->{qr_reference}) {
+    $TMPL_VAR{qr_reference_formatted} = get_ref_number_formatted($form->{qr_reference});
+  }
 
-# set option selected
+  # set option selected
   foreach my $item (qw(AR)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
