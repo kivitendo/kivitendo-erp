@@ -1943,7 +1943,7 @@ sub prepare_report {
 
   $self->{report} = $report;
 
-  # TODO(Tamino): shipto_id is not linked to custom_shipto
+  # TODO: shipto_id is not linked to custom_shipto
   my @columns_order = qw(
     id
     record_number
@@ -2043,7 +2043,7 @@ sub prepare_report {
     shipvia => {
       sub      => sub { $_[0]->shipvia },
     },
-    # TODO(Tamino): custom ship to is not safed in reclamation
+    # TODO: custom ship to is not safed in reclamation
     #shipto_id => {
     #  sub      => sub { $_[0]->shipto ? $_[0]->shipto->shiptoname : '' },
     #},
@@ -2155,7 +2155,7 @@ sub prepare_report {
   map { $column_defs{$_}->{visible} = $::form->{active_in_report}->{"$_"} }
     keys %column_defs;
 
-  ## add cvars TODO(Tamino): Add own cvars
+  ## add cvars TODO: Add own cvars
   #my %cvar_column_defs = map {
   #  my $cfg = $_;
   #  (('cvar_' . $cfg->name) => {
@@ -2197,7 +2197,7 @@ sub prepare_report {
   );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns_order);
-  #$report->set_export_options(qw(list filter), @cvar_column_form_names); TODO(Tamino): for cvars
+  #$report->set_export_options(qw(list filter), @cvar_column_form_names); TODO: for cvars
   $report->set_export_options(qw(list filter active_in_report));
   $report->set_options_from_form;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
