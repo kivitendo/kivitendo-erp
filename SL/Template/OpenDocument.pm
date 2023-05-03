@@ -533,14 +533,17 @@ sub generate_qr_code {
 
   my %ref_nr_data;
   if ($::instance_conf->get_create_qrbill_invoices == 1) {
+    # fill reference number with zeros when printing preview (before booking)
+    my $reference_number = $form->{'id'} ? $form->{'qr_reference'} : '0' x 27;
+
     %ref_nr_data = (
       'type' => 'QRR',
-      'ref_number' => $form->{'qr_reference'},
+      'ref_number' => $reference_number,
     );
     # get ref. number/iban formatted with spaces and set into form for template
     # processing
-    $form->{'ref_number'} = $form->{'qr_reference'};
-    $form->{'ref_number_formatted'} = get_ref_number_formatted($form->{'qr_reference'});
+    $form->{'ref_number'} = $reference_number;
+    $form->{'ref_number_formatted'} = get_ref_number_formatted($reference_number);
   } elsif ($::instance_conf->get_create_qrbill_invoices == 2) {
     %ref_nr_data = (
       'type' => 'NON',
