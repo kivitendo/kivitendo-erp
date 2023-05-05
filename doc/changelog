@@ -81,6 +81,8 @@ Kleinere neue Features und Detailverbesserungen:
    Positionszeile)
  - Die Rechnungsberichte Verkauf und Einkauf können nach Zahlungsbedingung
    gefiltert werden.
+ - Buchungskonten haben ein Attribut ungültig und stehen damit standardmäßig nicht
+   mehr zur Auswahl bei neu erfassten Buchungen
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 585 Lieferschein läss sich nicht mehr auslagern/speichern wenn Seriennummer ist Pflicht
