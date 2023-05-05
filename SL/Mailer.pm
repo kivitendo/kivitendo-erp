@@ -350,7 +350,7 @@ sub _create_record_link {
   my ($self) = @_;
 
   # check for custom/overloaded types and ids (form != controller)
-  my $record_type = $self->{record_type} || $::form->{type};
+  my $record_type = $self->{record_type} || $::form->{type} || '';
   my $record_id   = $self->{record_id}   || $::form->{id};
 
   # you may send mails for unsaved objects (no record_id => unlinkable case)
@@ -369,7 +369,7 @@ sub _create_record_link {
 sub _default_from {
   my ($self) = @_;
 
-  my $record_type  = $self->{record_type} || $::form->{type} || $self->{driver}{form}{formname};
+  my $record_type  = $self->{record_type} || $::form->{type} || $self->{driver}{form}{formname} || '';
   my $record_email = exists $type_to_email{$record_type} ? $type_to_email{$record_type}->() : undef;
   $self->{from}    = $record_email if $record_email;
 }
