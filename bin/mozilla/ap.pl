@@ -997,8 +997,8 @@ sub search {
 
   $form->{title} = $locale->text('Vendor Invoices & AP Transactions');
 
-  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
-  $::form->{ALL_TAXZONES}    = SL::DB::Manager::TaxZone   ->get_all_sorted;
+  $::form->{ALL_DEPARTMENTS}   = SL::DB::Manager::Department ->get_all_sorted;
+  $::form->{ALL_TAXZONES}      = SL::DB::Manager::TaxZone    ->get_all_sorted;
   $::form->{ALL_PAYMENT_TERMS} = SL::DB::Manager::PaymentTerm->get_all_sorted;
 
   # constants and subs for template
