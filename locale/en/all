@@ -1307,6 +1307,7 @@ $self->{texts} = {
   'Dunning Process started for selected invoices!' => '',
   'Dunning email'               => '',
   'Dunning level'               => '',
+  'Dunning lock'                => '',
   'Dunning number'              => '',
   'Dunning overview'            => '',
   'Dunning status'              => '',
