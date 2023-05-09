@@ -79,6 +79,12 @@
       <th>[% LxERP.t8("Loss carried forward account") %]</th>
       <td>[% P.chart.picker('defaults.loss_carried_forward_chart_id', SELF.defaults.loss_carried_forward_chart_id, category='A', choose=1, style=style) %]</td>
     </tr>
+    <tr>
+   <th>[% LxERP.t8("Transit Items account") %]</th>
+   <td>[% P.chart.picker('defaults.transit_items_chart_id', SELF.defaults.transit_items_chart_id , category='A', choose=1, style=style) %]<td>
+  </tr>
+
+
   </tbody>
 </table>
 

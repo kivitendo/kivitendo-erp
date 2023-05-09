@@ -214,6 +214,7 @@ __PACKAGE__->meta->columns(
   transfer_default_ignore_onhand            => { type => 'boolean', default => 'false' },
   transfer_default_services                 => { type => 'boolean', default => 'true' },
   transfer_default_use_master_default_bin   => { type => 'boolean', default => 'false' },
+  transit_items_chart_id                    => { type => 'integer' },
   transport_cost_reminder_article_number_id => { type => 'integer' },
   undo_transfer_interval                    => { type => 'integer', default => 7 },
   vc_greetings_use_textfield                => { type => 'boolean' },
