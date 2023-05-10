@@ -104,13 +104,18 @@ sub get_custom_variables {
 
   my $sub_module = $params{sub_module} ? $params{sub_module} : '';
 
-  my $q_var    =
-    qq|SELECT text_value, timestamp_value, timestamp_value::date AS date_value, number_value, bool_value
-       FROM custom_variables
-       WHERE (config_id = ?) AND (trans_id = ?) AND (sub_module = ?)|;
-  my $h_var    = prepare_query($form, $dbh, $q_var);
-
   my $custom_variables = $self->get_configs(module => $params{module});
+
+  my $q_var =
+    qq|SELECT config_id, text_value, timestamp_value, timestamp_value::date AS date_value, number_value, bool_value
+       FROM custom_variables
+       WHERE (config_id IN (| . join(', ', ('?') x scalar( @$custom_variables )) . qq|))
+       AND (trans_id = ?) AND (sub_module = ?)|;
+
+  my $results_var = [];
+  if ($params{trans_id} && scalar( @$custom_variables )) {
+    $results_var = selectall_hashref_query($form, $dbh, $q_var, (map( { conv_i($_->{id}) } @$custom_variables), conv_i($params{trans_id}), $sub_module));
+  }
 
   foreach my $cvar (@{ $custom_variables }) {
     if ($cvar->{type} =~ m{^(?:html|text)field}) {
@@ -132,11 +137,7 @@ sub get_custom_variables {
 
     my ($act_var, $valid);
     if ($params{trans_id}) {
-      my @values = (conv_i($cvar->{id}), conv_i($params{trans_id}), $sub_module);
-
-      do_statement($form, $h_var, $q_var, @values);
-      $act_var = $h_var->fetchrow_hashref();
-
+      $act_var = first { $_->{config_id} == $cvar->{id} } @$results_var;
       $valid = $self->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{trans_id}, sub_module => $params{sub_module});
     } else {
       $valid = !$cvar->{flag_defaults_to_invalid};
@@ -193,8 +194,6 @@ sub get_custom_variables {
       $cvar->{value} = SL::DB::Manager::Part->find_by(id => $cvar->{value} * 1);
     }
   }
-
-  $h_var->finish();
 
   $main::lxdebug->leave_sub();
 
