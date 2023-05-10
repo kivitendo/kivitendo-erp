@@ -37,6 +37,8 @@ Kleinere neue Features und Detailverbesserungen:
   - Volltextsuche auch für Lieferscheine
   - weitere Filtermöglichkeiten wie Zahlungsbedingungen und Typ bei Mahnungen erzeugen
   - In diversen Formularfeldern Kunden/Lieferanten trailing withespaces nicht speichern
+  - Bericht Lagerbestand nach text-artigen benutzer definierten Variablen
+    sortieren lassen
   - Neben Lieferantenartikelnummern kann auch ein Langtext hierzu in
     den Artikelstammdaten verwaltet werden.
   - Zu kundenspezifischen Preisen/Artikelnummern können jetzt auch
@@ -79,7 +81,6 @@ Kleinere neue Features und Detailverbesserungen:
   - Bei Wechselkursgewinnen oder -verlusten wird dieser jetzt im Beleg angezeigt für
     deutsche Kontenrahmen (chart_link nachträglich korrigiert)
   - Rechnungsversand per E-Mail, auch bei Anzahlungs- und Schlußrechnung
-
 
 2023-04-05 - Release 3.8.0
 

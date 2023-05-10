@@ -656,6 +656,25 @@ sub get_warehouse_report {
         ( grep( { !/qty/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
           qw(l_parts_id l_qty l_partunit) );
 
+  # add cvar for sorting
+  if ($form->{sort} =~ /^cvar_/) {
+    my $sort_name = $form->{sort};
+    my $cvar_name = $sort_name;
+    $cvar_name =~ s/^cvar_//;
+
+    $select_clause .= ", cvar_fields.$sort_name";
+    $group_clause  .= ", cvar_fields.$sort_name";
+    $joins .= qq|
+      LEFT JOIN (
+        SELECT text_value as $sort_name, trans_id
+        FROM custom_variable_configs cvar_cfg
+        LEFT JOIN custom_variables cvar
+        ON (cvar_cfg.module = 'IC' AND cvar_cfg.name = '$cvar_name'
+            AND cvar_cfg.id = cvar.config_id)
+      ) cvar_fields ON (cvar_fields.trans_id = p.id)
+      |;
+  }
+
   my ($cvar_where, @cvar_values) = CVar->build_filter_query(
     module         => 'IC',
     trans_id_field => 'p.id',
