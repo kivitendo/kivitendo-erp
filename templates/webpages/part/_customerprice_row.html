@@ -19,5 +19,5 @@
          <td>[% customerprice.customer.name         | html %] </td>
          <td>[% L.input_tag('customerprices[].customer_partnumber', customerprice.customer_partnumber, size=30 ) %]</td>
          <td>[% L.input_tag('customerprices[].price_as_number'    , customerprice.price_as_number    , size=15 , class="reformat_number numeric") %]</td>
-         <td>[% L.hidden_tag('customerprices[].lastupdate'         , customerprice.lastupdate.to_kivitendo) %][% customerprice.lastupdate.to_kivitendo | html %]</td>
+         <td>[% L.hidden_tag('customerprices[].lastupdate'        , customerprice.lastupdate.to_kivitendo) %][% customerprice.lastupdate.to_kivitendo | html %]</td>
         </tr>

@@ -13,11 +13,11 @@
   <td><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]" class="dragdrop"></td>
   <td>[% makemodel.vendor.vendornumber | html %]</td>
   <td>[% makemodel.vendor.name         | html %]</td>
-  <td>[% L.input_tag('makemodels[].model', makemodel.model, class='wi-mediumsmall', size=10 ) %] </td>
-  <td>[% L.input_tag('makemodels[].part_description', makemodel.part_description, class='wi-mediumsmall', size=10 ) %]</td>
+  <td>[% L.input_tag('makemodels[].model', makemodel.model, class='wi-mediumsmall', size=10) %] </td>
+  <td>[% L.input_tag('makemodels[].part_description', makemodel.part_description, class='wi-mediumsmall', size=10) %]</td>
   <td>[% L.input_tag('makemodels[].lastcost_as_number', makemodel.lastcost_as_number, class='reformat_number numeric wi-small', size=10) %] </td>
   <td>
-    [% L.hidden_tag('makemodels[].lastupdate' , makemodel.lastupdate.to_kivitendo) %]
+    [% L.hidden_tag('makemodels[].lastupdate', makemodel.lastupdate.to_kivitendo) %]
     [% makemodel.lastupdate.to_kivitendo | html %]
   </td>
 </tr>
