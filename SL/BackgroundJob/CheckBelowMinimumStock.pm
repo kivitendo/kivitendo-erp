@@ -80,7 +80,7 @@ sub send_email {
   my $err = $mail->send;
 
   if ($err) {
-    my $error = $self->{job_obj}->data_as_hash->{errors} . ('Mailer error #1', $err);
+    my $error = $self->{job_obj}->data_as_hash->{errors} . t8('Mailer error #1', $err);
     $self->{job_obj}->set_data(errors => $error)->save;
   }
 }
