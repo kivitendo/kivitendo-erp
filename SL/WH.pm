@@ -648,6 +648,7 @@ sub get_warehouse_report {
         ( grep( { !/qty/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
           qw(l_parts_id l_partunit) );
 
+  my @join_values = ();
   my %join_tokens = (
     "stock_value" => "LEFT JOIN price_factors pfac ON (p.price_factor_id = pfac.id)",
     );
@@ -669,11 +670,13 @@ sub get_warehouse_report {
         SELECT text_value as $sort_name, trans_id
         FROM custom_variable_configs cvar_cfg
         LEFT JOIN custom_variables cvar
-        ON (cvar_cfg.module = 'IC' AND cvar_cfg.name = '$cvar_name'
+        ON (cvar_cfg.module = 'IC' AND cvar_cfg.name = ?
             AND cvar_cfg.id = cvar.config_id)
       ) cvar_fields ON (cvar_fields.trans_id = p.id)
       |;
+    push @join_values, $cvar_name
   }
+  @filter_vars = (@join_values, @filter_vars);
 
   my ($cvar_where, @cvar_values) = CVar->build_filter_query(
     module         => 'IC',
