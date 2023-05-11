@@ -9,16 +9,17 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('makemodel');
 
 __PACKAGE__->meta->columns(
-  id               => { type => 'serial', not_null => 1 },
-  itime            => { type => 'timestamp', default => 'now()' },
-  lastcost         => { type => 'numeric', precision => 15, scale => 5 },
-  lastupdate       => { type => 'date' },
-  make             => { type => 'integer' },
-  model            => { type => 'text' },
-  mtime            => { type => 'timestamp' },
-  part_description => { type => 'text' },
-  parts_id         => { type => 'integer' },
-  sortorder        => { type => 'integer' },
+  id                   => { type => 'serial', not_null => 1 },
+  itime                => { type => 'timestamp', default => 'now()' },
+  lastcost             => { type => 'numeric', precision => 15, scale => 5 },
+  lastupdate           => { type => 'date' },
+  make                 => { type => 'integer' },
+  model                => { type => 'text' },
+  mtime                => { type => 'timestamp' },
+  part_description     => { type => 'text' },
+  part_longdescription => { type => 'text' },
+  parts_id             => { type => 'integer' },
+  sortorder            => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
