@@ -261,6 +261,17 @@ email_subject  = kivitendo self test report
 # template. currently txt and html templates are recognized and correctly mime send.
 email_template = templates/mail/self_test/status_mail.txt
 
+[check_below_minimum_stock]
+# The user name or email address a report about the under stock parts is sent
+# to.
+send_email_to  =
+# The "From:" header for said email.
+email_from     = kivitendo Daemon <root@localhost>
+# The subject for said email.
+email_subject  = Benachrichtigung: Artikel unter Mindestbestand
+# The template file used for the email's body.
+email_template = templates/mail/below_minimum_stock/error_email.html
+
 [follow_up_reminder]
 # Email notifications for due follow ups.
 # The "From:" header for said email.
