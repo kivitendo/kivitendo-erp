@@ -14,6 +14,8 @@ Kleinere neue Features und Detailverbesserungen:
   - Volltextsuche auch für Lieferscheine
   - weitere Filtermöglichkeiten wie Zahlungsbedingen und Typ bei Mahnungen erzeugen
   - In diversen Formularfeldern Kunden/Lieferanten trailing withespaces nicht speichern
+  - Hintergrung-Job zum Überprüfen des Mindestlagerbestand für Artikeln, der
+    Emailversand kann über die Konfigurationsdatei geingestellt werden.
 
 2023-04-05 - Release 3.8.0
 
