@@ -66,8 +66,10 @@ sub pay_invoice {
     # amount, but if amount is passed, make sure it matches the expected value
     # note: the parameter isn't used at all - amount_less_skonto will always be used
     # partial skonto payments are therefore impossible to book
-    croak "amount $params{amount} doesn't match amount less skonto: " . $self->amount_less_skonto . "\n" if $params{amount} && abs($self->amount_less_skonto - $params{amount} ) > 0.0000001;
-    croak "payment type with_skonto_pt can't be used if payments have already been made" if $self->paid != 0;
+    croak "amount $params{amount} doesn't match open amount less skonto: "
+          . $self->open_amount_less_skonto . "\n" if $params{amount}
+                                                  && abs($self->open_amount_less_skonto - $params{amount} ) > 0.0000001;
+    # croak "payment type with_skonto_pt can't be used if payments have already been made" if $self->paid != 0;
   }
 
   my $transdate_obj;
@@ -157,7 +159,7 @@ sub pay_invoice {
       # stage because we don't use $params{amount} ?!
 
       my $pay_amount = $rounded_params_amount;
-      $pay_amount = $self->amount_less_skonto if $params{payment_type} eq 'with_skonto_pt';
+      $pay_amount = $self->open_amount_less_skonto if $params{payment_type} eq 'with_skonto_pt';
 
       # bank account and AR/AP
       $paid_amount += $pay_amount;
