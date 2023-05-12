@@ -403,6 +403,7 @@ sub setup_do_action_bar {
         action => [
           t8('Save and Reclamation'),
           submit => [ '#form', { action => "save_and_reclamation" } ],
+          disabled => !$::form->{id} ? t8('This record has not been saved yet.') : undef,
         ],
       ],
 
