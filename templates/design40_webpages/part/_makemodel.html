@@ -15,6 +15,7 @@
       <th>[% 'Vendor'           | $T8 %]</th>
       <th>[% 'Model'            | $T8 %]</th>
       <th>[% 'Part Description' | $T8 %]</th>
+      <th>[% 'Long Description' | $T8 %]</th>
       <th>[% 'Last Cost'        | $T8 %]</th>
       <th>[% 'Updated'          | $T8 %]</th>
     </tr>
@@ -38,7 +39,7 @@
         [% P.customer_vendor.picker('add_makemodel', '', type='vendor', class='add_makemodel_input wi-small tooltipstered tooltipster-html', title=titleaddmodel, action={commit_one='kivi.Part.add_makemodel_row'}, size=10) %]
       </td>
      <td>[% L.button_tag('kivi.Part.add_makemodel_row()', LxERP.t8('Add')) %]</td>
-     <td colspan="3"></td>
+     <td colspan="4"></td>
     </tr>
   </tfoot>
 </table>

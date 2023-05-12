@@ -503,12 +503,13 @@ sub action_add_makemodel_row {
 
   my $position = scalar @{$self->makemodels} + 1;
 
-  my $mm = SL::DB::MakeModel->new(# parts_id       => $::form->{part}->{id},
-                                  make             => $vendor->id,
-                                  model            => '',
-                                  part_description => '',
-                                  lastcost         => 0,
-                                  sortorder        => $position,
+  my $mm = SL::DB::MakeModel->new(# parts_id           => $::form->{part}->{id},
+                                  make                 => $vendor->id,
+                                  model                => '',
+                                  part_description     => '',
+                                  part_longdescription => '',
+                                  lastcost             => 0,
+                                  sortorder            => $position,
                                  ) or die "Can't create MakeModel object";
 
   my $row_as_html = $self->p->render('part/_makemodel_row',
@@ -951,13 +952,14 @@ sub parse_form_makemodels {
     my $vendor = SL::DB::Manager::Vendor->find_by(id => $makemodel->{make}) || die "Can't find vendor from make";
 
     my $id = $makemodels_map->{$makemodel->{id}} ? $makemodels_map->{$makemodel->{id}}->id : undef;
-    my $mm = SL::DB::MakeModel->new( # parts_id       => $self->part->id, # will be assigned by row add_makemodels
-                                     id               => $id,
-                                     make             => $makemodel->{make},
-                                     model            => $makemodel->{model} || '',
-                                     part_description => $makemodel->{part_description},
-                                     lastcost         => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number}),
-                                     sortorder        => $position,
+    my $mm = SL::DB::MakeModel->new( # parts_id           => $self->part->id, # will be assigned by row add_makemodels
+                                     id                   => $id,
+                                     make                 => $makemodel->{make},
+                                     model                => $makemodel->{model} || '',
+                                     part_description     => $makemodel->{part_description},
+                                     part_longdescription => $makemodel->{part_longdescription},
+                                     lastcost             => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number}),
+                                     sortorder            => $position,
                                    );
     if ($makemodels_map->{$mm->id} && !$makemodels_map->{$mm->id}->lastupdate && $makemodels_map->{$mm->id}->lastcost == 0 && $mm->lastcost == 0) {
       # lastupdate isn't set, original lastcost is 0 and new lastcost is 0
@@ -1111,12 +1113,13 @@ sub init_makemodels {
     next unless $makemodel->{make};
     $position++;
     my $mm = SL::DB::MakeModel->new( # parts_id   => $self->part->id, # will be assigned by row add_makemodels
-                                    id               => $makemodel->{id},
-                                    make             => $makemodel->{make},
-                                    model            => $makemodel->{model} || '',
-                                    part_description => $makemodel->{part_description} || '',
-                                    lastcost         => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number} || 0),
-                                    sortorder        => $position,
+                                    id                   => $makemodel->{id},
+                                    make                 => $makemodel->{make},
+                                    model                => $makemodel->{model} || '',
+                                    part_description     => $makemodel->{part_description} || '',
+                                    part_longdescription => $makemodel->{part_longdescription} || '',
+                                    lastcost             => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number} || 0),
+                                    sortorder            => $position,
                                   ) or die "Can't create mm";
     # $mm->id($makemodel->{id}) if $makemodel->{id};
     push(@makemodel_array, $mm);
