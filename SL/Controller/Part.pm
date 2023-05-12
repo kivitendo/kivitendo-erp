@@ -503,11 +503,12 @@ sub action_add_makemodel_row {
 
   my $position = scalar @{$self->makemodels} + 1;
 
-  my $mm = SL::DB::MakeModel->new(# parts_id    => $::form->{part}->{id},
-                                  make        => $vendor->id,
-                                  model       => '',
-                                  lastcost    => 0,
-                                  sortorder    => $position,
+  my $mm = SL::DB::MakeModel->new(# parts_id       => $::form->{part}->{id},
+                                  make             => $vendor->id,
+                                  model            => '',
+                                  part_description => '',
+                                  lastcost         => 0,
+                                  sortorder        => $position,
                                  ) or die "Can't create MakeModel object";
 
   my $row_as_html = $self->p->render('part/_makemodel_row',
@@ -1110,11 +1111,12 @@ sub init_makemodels {
     next unless $makemodel->{make};
     $position++;
     my $mm = SL::DB::MakeModel->new( # parts_id   => $self->part->id, # will be assigned by row add_makemodels
-                                    id        => $makemodel->{id},
-                                    make      => $makemodel->{make},
-                                    model     => $makemodel->{model} || '',
-                                    lastcost  => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number} || 0),
-                                    sortorder => $position,
+                                    id               => $makemodel->{id},
+                                    make             => $makemodel->{make},
+                                    model            => $makemodel->{model} || '',
+                                    part_description => $makemodel->{part_description} || '',
+                                    lastcost         => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number} || 0),
+                                    sortorder        => $position,
                                   ) or die "Can't create mm";
     # $mm->id($makemodel->{id}) if $makemodel->{id};
     push(@makemodel_array, $mm);
