@@ -908,6 +908,7 @@ sub action_order_workflow {
   # change form type
   $::form->{type} = $destination_type;
   $self->type($self->init_type);
+  $self->type_data($self->init_type_data);
   $self->cv  ($self->init_cv);
   $self->check_auth;
 
@@ -2343,7 +2344,7 @@ sub setup_edit_action_bar {
                            warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
                        ],
           checks    => [ @req_trans_cost_art, @req_cusordnumber ],
-          only_if   => (any { $self->type eq $_ } (purchase_order_type())),
+          only_if   => (any { $self->type eq $_ } (PURCHASE_ORDER_TYPE())),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
