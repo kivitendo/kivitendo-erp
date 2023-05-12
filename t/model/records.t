@@ -136,7 +136,7 @@ reset_basic_purchase_records();
 note('combining several sales orders to one combined order');
 my @sales_orders;
 push(@sales_orders, SL::Model::Record->new_from_workflow($sales_quotation1, 'sales_order')->save->load) for 1 .. 3;
-my $combined_order = SL::Model::Record->new_from_workflow_multi(\@sales_orders, sort_sources_by => 'transdate');
+my $combined_order = SL::Model::Record->new_from_workflow_multi(\@sales_orders, 'sales_order', sort_sources_by => 'transdate');
 SL::Model::Record->save($combined_order);
 cmp_ok($combined_order->netamount, '==', 3*710, "netamount of combined order ok");
 

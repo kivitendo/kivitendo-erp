@@ -152,7 +152,7 @@ my $purchase_reclamation = create_purchase_reclamation(
 )->load;
 
 # new
-my $new_sales_reclamation = SL::Model::Record->new_from_workflow($sales_reclamation, 'SL::DB::Reclamation', 'sales_reclamation')->save->load;
+my $new_sales_reclamation = SL::Model::Record->new_from_workflow($sales_reclamation, 'sales_reclamation')->save->load;
 my $new_purchase_reclamation = SL::Model::Record->new_from_workflow($purchase_reclamation, 'purchase_reclamation')->save->load;
 
 # convert
