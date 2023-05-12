@@ -1,0 +1,32 @@
+[%- USE T8 %]
+[%- USE L %]
+[%- USE P %]
+[%- USE HTML %]
+[%- USE LxERP %]
+
+<table id="businessmodel_table" class="tbl-list wi-moderate">
+  <caption>[% 'Business Type Model' | $T8 %]</caption>
+  <thead>
+    <tr>
+      <th class="center"><img src="image/close.png" alt="[%- LxERP.t8('delete item') %]"></th>
+      <th>[% 'Business'            | $T8 %]</th>
+      <th>[% 'Business Type Model' | $T8 %]</th>
+      <th>[% 'Part Description'    | $T8 %]</th>
+      <th>[% 'Long Description'    | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody id="businessmodel_rows">
+    [%- FOREACH businessmodel = SELF.part.businessmodels %]
+      [% PROCESS 'part/_businessmodel_row.html' businessmodel=businessmodel %]
+    [%- END %]
+  </tbody>
+  <tfoot>
+    <tr>
+      <td></td>
+      <th class="right"><span class="label">[% 'Business' | $T8 %]</th>
+      <td>[% P.select_tag('add_businessmodel', SELF.all_businesses, title_key="description", with_empty=1, class='wi-mediumsmall', onchange='kivi.Part.add_businessmodel_row()') %]</td>
+      <td>[% L.button_tag('kivi.Part.add_businessmodel_row()', LxERP.t8('Add')) %]</td>
+      <td></td>
+    </tr>
+  </tfoot>
+</table>
