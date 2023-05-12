@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction forex _skonto_charts_and_tax_correction get_exchangerate_for_bank_transaction get_exchangerate _add_bank_fx_fees open_amount_fx);
+our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction forex _skonto_charts_and_tax_correction get_exchangerate_for_bank_transaction get_exchangerate _add_bank_fx_fees open_amount_fx open_amount_less_skonto);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -495,6 +495,19 @@ sub amount_less_skonto {
   return _round($self->amount - ( $self->amount * $percent_skonto) );
 
 }
+sub open_amount_less_skonto {
+  # amount that has to be paid if skonto applies, always return positive rounded values
+  # no, rare case, but credit_notes and negative ap have negative amounts
+  # and therefore this comment may be misguiding
+  # the result is rounded so we can directly compare it with the user input
+  my $self = shift;
+
+  my $percent_skonto = $self->percent_skonto || 0;
+
+  my $open_amount = ($self->amount // 0) - ($self->paid // 0);
+  return _round($open_amount - ( $self->amount * $percent_skonto) );
+
+}
 sub _add_bank_fx_fees {
   my ($self, %params)   = @_;
   my $amount = $params{fee};
@@ -977,6 +990,15 @@ whether skonto applies (i.e. skonto doesn't wasn't exceeded), it just subtracts
 the configured percentage (e.g. 2%) from the total amount.
 
 The returned value is rounded to two decimals.
+
+=item C<open_amount_less_skonto>
+
+The same as amount_less_skonto but calculates skonto against the current
+open amount, i.e. some amount of the invoice is reduced because of a linked
+credit note.
+
+The returned value is rounded to two decimals.
+
 
 =item C<skonto_date>
 
