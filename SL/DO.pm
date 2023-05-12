@@ -307,7 +307,7 @@ SQL
       qq|SELECT id
          FROM oe
          WHERE (record_type = '$record_type'
-           AND (ordnumber = ?)|;
+           AND ordnumber = ?)|;
 
     my $sth = prepare_query($form, $dbh, $query);
 
