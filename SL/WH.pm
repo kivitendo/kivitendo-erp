@@ -36,6 +36,7 @@
 package WH;
 
 use Carp qw(croak);
+use List::MoreUtils qw(any);
 
 use SL::AM;
 use SL::DBUtils;
@@ -662,6 +663,14 @@ sub get_warehouse_report {
     my $sort_name = $form->{sort};
     my $cvar_name = $sort_name;
     $cvar_name =~ s/^cvar_//;
+    my $cvar_configs = CVar->get_configs('module' => 'IC');
+    my @allowed_cvar_names =
+      map {$_->{name}}
+      grep {$_->{type} =~ m/text|textfield|htmlfield/}
+      @$cvar_configs;
+    unless (any {$sort_name eq 'cvar_' . $_} @allowed_cvar_names) {
+      die "unsupported sort on cvar field";
+    }
 
     $select_clause .= ", cvar_fields.$sort_name";
     $group_clause  .= ", cvar_fields.$sort_name";
