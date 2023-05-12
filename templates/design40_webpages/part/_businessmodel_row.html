@@ -1,0 +1,15 @@
+[%- USE T8 %]
+[%- USE L %]
+[%- USE HTML %]
+[%- USE LxERP %]
+
+<tr class="businessmodel_row">
+  <td style='display:none'>
+    [%- L.hidden_tag("businessmodels[+].business_id", businessmodel.business_id) -%]
+  </td>
+  <td>[%- L.button_tag("kivi.Part.delete_businessmodel_row(this)", LxERP.t8("X"), class="wi-verytiny neutral") %] [% # , confirm=LxERP.t8("Are you sure?")) %]</td>
+  <td>[% businessmodel.business.description | html %]</td>
+  <td>[% L.input_tag('businessmodels[].model',                    businessmodel.model,                class='wi-mediumsmall', size=30) %]</td>
+  <td>[% L.input_tag('businessmodels[].part_description',         businessmodel.part_description,     class='wi-mediumsmall', size=10) %]</td>
+  <td>[% L.areainput_tag('businessmodels[].part_longdescription', businessmodel.part_longdescription, class='wi-mediumsmall', size=10) %]
+</tr>
