@@ -152,7 +152,7 @@
 
   <tr>
    <td align="right">[% LxERP.t8('Hourly Rate') %]</td>
-   <td>[% L.input_tag('defaults.customer_hourly_rate', LxERP.format_amount(SELF.defaults.customer_hourly_rate, 2), style=style) %]</td>
+   <td>[% L.input_tag('defaults.customer_hourly_rate_as_number', SELF.defaults.customer_hourly_rate_as_number, style=style) %]</td>
    <td>[% LxERP.t8('Default hourly rate for new customers') %]</td>
   </tr>
 

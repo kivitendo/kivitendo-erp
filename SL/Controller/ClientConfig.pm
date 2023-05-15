@@ -52,8 +52,6 @@ sub action_save {
     undef $defaults->{$_} if !$defaults->{$_};
   }
 
-  $defaults->{$_} = $::form->parse_amount(\%::myconfig, $defaults->{$_}) for qw(customer_hourly_rate);
-
   $self->defaults->assign_attributes(%{ $defaults });
 
   my %errors_idx;
