@@ -70,7 +70,7 @@
     </tr>
     <tr>
       <th>[% LxERP.t8('Undo Transfer Interval') %]</th>
-      <td>[% L.input_tag('defaults.undo_transfer_interval', LxERP.format_amount(SELF.defaults.undo_transfer_interval, 0), class='wi-verysmall') %]</td>
+      <td>[% L.input_tag('defaults.undo_transfer_interval_as_number', SELF.defaults.undo_transfer_interval_as_number, class='wi-verysmall') %]</td>
       <td class="long-desc">[% LxERP.t8('Defines the interval where undoing transfers from a delivery order are allowed.') %]</td>
     </tr>
     <tr><th class="caption" colspan="3"> [% 'Best Before' | $T8 %] </th></tr>
