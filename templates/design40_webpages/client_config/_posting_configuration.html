@@ -138,7 +138,7 @@
      </tr>
     <tr>
       <th>[% LxERP.t8('Sales Quotation valid interval') %]</th>
-      <td>[% L.input_tag('defaults.reqdate_interval', LxERP.format_amount(SELF.defaults.reqdate_interval, 0), class='wi-verysmall') %]</td>
+      <td>[% L.input_tag('defaults.reqdate_interval_as_number', SELF.defaults.reqdate_interval_as_number, class='wi-verysmall') %]</td>
       <td class="longdesc">[% LxERP.t8('Usually the sales quotation is valid until the next working day. If a value is set here then the quotation will be valid for at least that many days. The resulting date will be adjusted to the next working day if it ends up on a weekend.') %]</td>
     </tr>
     <tr>
@@ -148,7 +148,7 @@
     </tr>
     <tr>
       <th>[% LxERP.t8('Sales Order delivery date interval') %]</th>
-      <td>[% L.input_tag('defaults.delivery_date_interval', LxERP.format_amount(SELF.defaults.delivery_date_interval, 0), class='wi-verysmall') %]</td>
+      <td>[% L.input_tag('defaults.delivery_date_interval_as_number', SELF.defaults.delivery_date_interval_as_number, class='wi-verysmall') %]</td>
       <td class="longdesc">[% LxERP.t8('Usually the delivery date of an order is the next working day. If a value is set here this value will be added to the delivery date of the sales order. The resulting date will be adjusted to the next working day if it ends up on a weekend.') %]</td>
     </tr>
   </tbody>

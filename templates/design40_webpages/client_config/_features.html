@@ -215,7 +215,7 @@
       </tr>
       <tr>
         <th>[% 'Execution Date Buffer' | $T8 %]</th>
-        <td>[% L.input_tag('defaults.sepa_set_skonto_date_buffer_in_days', LxERP.format_amount(SELF.defaults.sepa_set_skonto_date_buffer_in_days, 0), size=10, class='wi-small' ) %]</td>
+        <td>[% L.input_tag('defaults.sepa_set_skonto_date_buffer_in_days_as_number', SELF.defaults.sepa_set_skonto_date_buffer_in_days_as_number, size=10, class='wi-small' ) %]</td>
         <td class="long-desc">[% LxERP.t8('In addition to the above date functions, subtract the following amount of days from the calculated date as a buffer.') %]</td>
       </tr>
 
