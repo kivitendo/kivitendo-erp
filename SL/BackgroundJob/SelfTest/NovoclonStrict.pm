@@ -8,6 +8,7 @@ use DateTime;
 use List::MoreUtils qw(none notall);
 use SL::DB::DeliveryOrder;
 use SL::DB::Order;
+use SL::DB::PurchaseInvoice;
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(start_date) ],
@@ -21,7 +22,7 @@ sub init_start_date {
 sub run {
   my ($self) = @_;
 
-  $self->tester->plan(tests => 6);
+  $self->tester->plan(tests => 8);
 
   $self->check_no_missing_invoices;
   $self->check_no_missing_deliveries;
@@ -29,6 +30,8 @@ sub run {
   $self->check_invoices_mailed;
   $self->check_order_confirmations_mailed;
   $self->check_quotations_mailed;
+  $self->check_purchase_invoices_sums_against_purchase_orders;
+  $self->check_purchase_invoices_sums_against_sales_orders;
 }
 
 sub check_no_missing_invoices {
@@ -246,6 +249,61 @@ sub complain_documtens_not_mailed {
   }
 }
 
+# Check for all purchase invoices if the sum of all related purchase
+# orders is greater than the sum of all related purchase invoices.
+sub check_purchase_invoices_sums_against_purchase_orders {
+  my ($self) = @_;
+
+  my $title = "Die Summe der Einkaufsrechnungen ist kleiner als die Summe der Lieferantenaufträge.";
+
+  my $purchase_invoices = SL::DB::Manager::PurchaseInvoice->get_all_sorted(where => ['!storno' => 1,
+                                                                                     invoice   => 1,
+                                                                                     transdate => {ge => $self->start_date},]);
+
+  my @purchase_invoices_with_wrong_sums;
+  foreach my $purchase_invoice (@$purchase_invoices) {
+    if (!$purchase_invoice->check_sums_against_purchase_orders($purchase_invoice)) {
+      push @purchase_invoices_with_wrong_sums, $purchase_invoice;
+    }
+  }
+
+  if (@purchase_invoices_with_wrong_sums) {
+    $self->tester->ok(0, $title);
+    $self->tester->diag("Folgende " . scalar @purchase_invoices_with_wrong_sums . " Einkaufsrechnungen haben eine zu hohe Summe:");
+    $self->tester->diag("Einkaufsrechnungs-Nummer vom " . $_->transdate_as_date . ": " . $_->record_number) for @purchase_invoices_with_wrong_sums;
+
+  } else {
+    $self->tester->ok(1, $title);
+  }
+}
+
+# Check for all purchase invoices if the sum of all related sales
+# orders is greater than the sum of all related purchase invoices.
+sub check_purchase_invoices_sums_against_sales_orders {
+  my ($self) = @_;
+
+  my $title = "Die Summe der Einkaufsrechnungen ist kleiner als die Summe der Auftragsbestätigungen.";
+
+  my $purchase_invoices = SL::DB::Manager::PurchaseInvoice->get_all_sorted(where => ['!storno' => 1,
+                                                                                     invoice   => 1,
+                                                                                     transdate => {ge => $self->start_date},]);
+
+  my @purchase_invoices_with_wrong_sums;
+  foreach my $purchase_invoice (@$purchase_invoices) {
+    if (!$purchase_invoice->check_sums_against_sales_orders($purchase_invoice)) {
+      push @purchase_invoices_with_wrong_sums, $purchase_invoice;
+    }
+  }
+
+  if (@purchase_invoices_with_wrong_sums) {
+    $self->tester->ok(0, $title);
+    $self->tester->diag("Folgende " . scalar @purchase_invoices_with_wrong_sums . " Einkaufsrechnungen haben eine zu hohe Summe:");
+    $self->tester->diag("Einkaufsrechnungs vom " . $_->transdate_as_date . ": " . $_->record_number) for @purchase_invoices_with_wrong_sums;
+
+  } else {
+    $self->tester->ok(1, $title);
+  }
+}
 
 1;
 
