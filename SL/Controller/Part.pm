@@ -540,11 +540,14 @@ sub action_add_businessmodel_row {
     $self->js->flash('info', t8("This business has already been added."));
   };
 
+  my $position = scalar @{ $self->businessmodels } + 1;
+
   my $bm = SL::DB::BusinessModel->new(#parts_id             => $::form->{part}->{id},
                                       business             => $business,
                                       model                => '',
                                       part_description     => '',
                                       part_longdescription => '',
+                                      position             => $position,
   ) or die "Can't create BusinessModel object";
 
   my $row_as_html = $self->p->render('part/_businessmodel_row',
@@ -1023,15 +1026,18 @@ sub parse_form_businessmodels {
 
   $self->part->businessmodels([]);
 
+  my $position = 0;
   my $businessmodels = delete($::form->{businessmodels}) || [];
   foreach my $businessmodel ( @{$businessmodels} ) {
     next unless $businessmodel->{business_id};
 
+    $position++;
     my $bm = SL::DB::BusinessModel->new( #parts_id            => $self->part->id,            # will be assigned by row add_businessmodels
                                          business_id          => $businessmodel->{business_id},
                                          model                => $businessmodel->{model} || '',
                                          part_description     => $businessmodel->{part_description} || '',
                                          part_longdescription => $businessmodel->{part_longdescription} || '',
+                                         position             => $position,
     );
 
     $self->part->add_businessmodels($bm);

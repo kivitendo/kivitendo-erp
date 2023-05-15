@@ -6,6 +6,7 @@ package SL::DB::BusinessModel;
 use strict;
 
 use SL::DB::MetaSetup::BusinessModel;
+use SL::DB::Helper::ActsAsList(group_by => [ qw(parts_id) ]);
 
 __PACKAGE__->meta->initialize;
 
