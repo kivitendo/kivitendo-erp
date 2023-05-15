@@ -16,6 +16,7 @@ __PACKAGE__->meta->columns(
   part_description     => { type => 'text' },
   part_longdescription => { type => 'text' },
   parts_id             => { type => 'integer', not_null => 1 },
+  position             => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'parts_id', 'business_id' ]);

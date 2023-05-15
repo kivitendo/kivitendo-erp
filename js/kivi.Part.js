@@ -265,9 +265,17 @@ namespace('kivi.Part', function(ns) {
   };
 
   // businessmodel
+  ns.businessmodel_renumber_positions = function() {
+    $('.businessmodel_row [name="position"]').each(function(idx, elt) {
+      $(elt).html(idx+1);
+    });
+  };
+
   ns.delete_businessmodel_row = function(clicked) {
     var row = $(clicked).closest('tr');
     $(row).remove();
+
+    ns.businessmodel_renumber_positions();
   };
 
   ns.add_businessmodel_row = function() {
@@ -809,6 +817,10 @@ namespace('kivi.Part', function(ns) {
 
     kivi.run_once_for('#makemodel_rows', 'makemodel_row_sort_renumber', function(elt) {
       $(elt).on('sortstop', kivi.Part.makemodel_renumber_positions);
+    });
+
+    kivi.run_once_for('#businessmodel_rows', 'businessmodel_row_sort_renumber', function(elt) {
+      $(elt).on('sortstop', kivi.Part.businessmodel_renumber_positions);
     });
   };
 

@@ -94,6 +94,7 @@ __PACKAGE__->meta->initialize;
 __PACKAGE__->attr_html('notes');
 __PACKAGE__->attr_sorted({ unsorted => 'makemodels',     position => 'sortorder' });
 __PACKAGE__->attr_sorted({ unsorted => 'customerprices', position => 'sortorder' });
+__PACKAGE__->attr_sorted('businessmodels');
 
 __PACKAGE__->before_save('_before_save_set_partnumber');
 __PACKAGE__->before_save('_before_save_set_assembly_weight');
