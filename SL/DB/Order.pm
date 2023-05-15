@@ -418,6 +418,9 @@ sub new_from {
                    ? $::instance_conf->get_deliverydate_on
                    ? DateTime->today_local->next_workday(extra_days => $::instance_conf->get_delivery_date_interval)->to_kivitendo
                    : undef
+                   : $from_to->{to} =~ m/^sales_order_intake$/
+                   # ? $source->reqdate
+                   ? undef
                    : die "Wrong state for reqdate";
   } elsif ( ref($source) eq 'SL::DB::Reclamation') {
     %args = ( map({ ( $_ => $source->$_ ) } qw(
