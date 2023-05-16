@@ -254,7 +254,7 @@ sub complain_documtens_not_mailed {
 sub check_purchase_invoices_sums_against_purchase_orders {
   my ($self) = @_;
 
-  my $title = "Die Summe der Einkaufsrechnungen ist kleiner als die Summe der Lieferantenaufträge.";
+  my $title = "Die Netto-Summe der Einkaufsrechnungen ist kleiner oder gleich der Netto-Summe der Lieferantenaufträge.";
 
   my $purchase_invoices = SL::DB::Manager::PurchaseInvoice->get_all_sorted(where => ['!storno' => 1,
                                                                                      invoice   => 1,
@@ -269,7 +269,7 @@ sub check_purchase_invoices_sums_against_purchase_orders {
 
   if (@purchase_invoices_with_wrong_sums) {
     $self->tester->ok(0, $title);
-    $self->tester->diag("Folgende " . scalar @purchase_invoices_with_wrong_sums . " Einkaufsrechnungen haben eine zu hohe Summe:");
+    $self->tester->diag("Folgende " . scalar @purchase_invoices_with_wrong_sums . " Einkaufsrechnungen ergeben eine viel höhere Netto-Summe alsergeben eine viel höhere Netto-Summe als ursprüngliche beauftragt:");
     $self->tester->diag("Einkaufsrechnungs-Nummer vom " . $_->transdate_as_date . ": " . $_->record_number) for @purchase_invoices_with_wrong_sums;
 
   } else {
@@ -282,7 +282,7 @@ sub check_purchase_invoices_sums_against_purchase_orders {
 sub check_purchase_invoices_sums_against_sales_orders {
   my ($self) = @_;
 
-  my $title = "Die Summe der Einkaufsrechnungen ist kleiner als die Summe der Auftragsbestätigungen.";
+  my $title = "Die Summe der Einkaufsrechnungen ist kleiner oder gleich der Summe der Auftragsbestätigungen.";
 
   my $purchase_invoices = SL::DB::Manager::PurchaseInvoice->get_all_sorted(where => ['!storno' => 1,
                                                                                      invoice   => 1,
