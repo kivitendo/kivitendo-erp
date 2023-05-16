@@ -442,6 +442,7 @@ $self->{texts} = {
   'Automatic deletion of leading, trailing and excessive (repetitive) spaces in part description and part notes. Affects the CSV import as well.' => 'Automatisches Löschen von voran-/nachgestellten und aufeinanderfolgenden Leerzeichen in Artikelbeschreibungen und -bemerkungen. Betrifft auch den CSV-Import.',
   'Automatic skonto chart purchase' => 'Skontoautomatik Einkauf',
   'Automatic skonto chart sales' => 'Skontoautomatik Verkauf',
+  'Automatically assigned with bank transaction' => 'Automatisch beim Kontoauszug verbuchen angelegt',
   'Automatically create new bins' => 'Automatisches Zuweisen der Lagerplätze',
   'Automatically created invoice for fee and interest for dunning %s' => 'Automatisch erzeugte Rechnung für Gebühren und Zinsen zu Mahnung %s',
   'Available'                   => 'Verfügbar',
