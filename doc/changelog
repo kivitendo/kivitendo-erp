@@ -48,6 +48,13 @@ Kleinere neue Features und Detailverbesserungen:
     folgender JSON-Konfiguration im Feld 'Daten' aktivierbar (email tauschen):
     email: prozessueberwacher@meinkunde.com
     modules: NovoclonStrict
+  - Gutschriften können beim Kontoauszug verbuchen gegen Rechnungen über durchlaufende
+    Posten ausgebucht werden. Funktioniert bei exakt einer Rechnung und einer Gutschrift
+    die mit einer Banktbewegung vom Anwender verknüpft wird. Die Automatik wird
+    beim Zurücksetzen einer Bankbewegung auch entsprechend aufgelöst. Die Buchungen
+    bekommen zusätzlich einen Hinweis auf eine Automatik im Feld 'Memo'
+  - Kontoauszug verbuchen setzt automatisch ein unscharfes Skonto bei Skonto-Abweichungen
+    bis 0,5 % des Original-Rechnungbetrags
 
 2023-04-05 - Release 3.8.0
 
