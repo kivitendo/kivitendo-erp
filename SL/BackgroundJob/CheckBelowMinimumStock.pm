@@ -8,7 +8,8 @@ use parent qw(SL::BackgroundJob::Base);
 use SL::Mailer;
 use SL::DB::Part;
 use SL::Presenter::Part qw(part);
-use SL::Presenter::Tag qw(html_tag);
+use SL::Presenter::Tag qw(html_tag link_tag);
+use SL::Presenter::EscapedText qw(escape);
 use SL::DBUtils qw(selectall_hashref_query);
 use SL::Locale::String qw(t8);
 
@@ -111,7 +112,15 @@ sub _prepare_report {
 
   $table_body .= html_tag('tr', $_ ) for
     map {
-      html_tag('td', part($_)). # TODO: links only to current site
+      html_tag('td',
+        link_tag(
+          $ENV{HTTP_ORIGIN} . $ENV{REQUEST_URI}
+          . '?action=Part/edit'
+          . '&part.id=' . escape($_->id)
+          # text
+          , $_->partnumber
+        )
+      ).
       html_tag('td', $_->rop).
       html_tag('td', $_->onhand)
     } @parts;
