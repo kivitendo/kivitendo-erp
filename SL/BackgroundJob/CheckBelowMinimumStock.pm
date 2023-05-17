@@ -98,7 +98,7 @@ sub _prepare_report {
   my $content_type   = $filename =~ m/.html$/ ? 'text/html' : 'text/plain';
 
   my @ids = @{$self->{job_obj}->data_as_hash->{ids}};
-  my @parts = @{SL::DB::Manager::Part->get_all(id => @ids)};
+  my @parts = @{SL::DB::Manager::Part->get_all(where => [id => @ids])};
 
 
   my $table_head = html_tag('tr',
