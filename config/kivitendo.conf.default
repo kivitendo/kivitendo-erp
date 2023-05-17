@@ -162,6 +162,18 @@ security = none
 login =
 password =
 
+[sent_emails_in_imap]
+enabled = 0
+hostname = localhost
+username =
+password =
+# Use / for subfolders
+folder = INBOX/Sent
+# Port only needs to be changed if it is not the default port.
+# port = 143
+# If SSL is used, default port is 993
+ssl = 1
+
 [applications]
 # Location of OpenOffice.org/LibreOffice writer
 openofficeorg_writer = lowriter

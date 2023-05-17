@@ -23,6 +23,9 @@
 
 package Mailer;
 
+use IO::Socket::INET;
+use IO::Socket::SSL;
+use Mail::IMAPClient;
 use Email::Address;
 use Email::MIME::Creator;
 use Encode;
@@ -303,6 +306,11 @@ sub send {
 
   $error = $@ if !$ok;
 
+  $self->_store_in_imap_sent_folder() or do {
+    $ok = 0;
+    push @$error, $@;
+  };
+
   # create journal and link to record
   $self->{journalentry} = $self->_store_in_journal;
   $self->_create_record_link if $self->{journalentry};
@@ -314,6 +322,68 @@ sub _all_recipients {
   my ($self) = @_;
   $self->{addresses} ||= {};
   return map { @{ $self->{addresses}->{$_} || [] } } qw(to cc bcc);
+}
+
+sub _get_header_string {
+  my ($self) = @_;
+  my $header_string =
+    join "\r\n",
+      (bundle_by { join(': ', @_) } 2, @{ $self->{headers} || [] });
+  return $header_string;
+}
+
+sub _store_in_imap_sent_folder {
+  my ($self) = @_;
+  my $config = $::lx_office_conf{sent_emails_in_imap} || {};
+  return unless ($config->{enabled} && $config->{hostname});
+
+  my $socket;
+  if ($config->{ssl}) {
+    $socket = IO::Socket::SSL->new(
+      Proto    => 'tcp',
+      PeerAddr => $config->{hostname},
+      PeerPort => $config->{port} || 993,
+    );
+  } else {
+    $socket = IO::Socket::INET->new(
+      Proto    => 'tcp',
+      PeerAddr => $config->{hostname},
+      PeerPort => $config->{port} || 143,
+    );
+  }
+  if (!$socket) {
+    die "Failed to create socket for IMAP client: $@\n";
+  }
+
+  # TODO: get email and password for each user
+  my $imap = Mail::IMAPClient->new(
+    Socket   => $socket,
+    User     => $config->{username},
+    Password => $config->{password},
+  ) or do {
+    die "Failed to create IMAP Client: $@\n"
+  };
+
+  $imap->IsAuthenticated() or do {
+    die "IMAP Client login failed: " . $imap->LastError() . "\n";
+  };
+
+  my $separator =  $imap->separator();
+  my $folder    =  $config->{folder} || 'INBOX/Sent';
+  $folder       =~ s|/|${separator}|g;
+
+  my $header_string = $self->_get_header_string;
+  my $email_string = $header_string. "\n" . $self->{message};
+
+  # TODO: doesn't stop with non ASCII-Chars
+  # In test file it works like a charm !?
+  $imap->append_string($folder, $email_string) or do {
+    $imap->logout();
+    die "IMAP Client append failed: " . $imap->LastError() . "\n";
+  };
+
+  $imap->logout();
+  return 1;
 }
 
 sub _store_in_journal {
@@ -328,7 +398,7 @@ sub _store_in_journal {
   $extended_status //= $self->{driver}->extended_status if $self->{driver};
   $extended_status //= 'unknown error';
 
-  my $headers = join "\r\n", (bundle_by { join(': ', @_) } 2, @{ $self->{headers} || [] });
+  my $headers = $self->_get_header_string;
 
   my $jentry = SL::DB::EmailJournal->new(
     sender          => SL::DB::Manager::Employee->current,
