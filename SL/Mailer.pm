@@ -337,29 +337,12 @@ sub _store_in_imap_sent_folder {
   my $config = $::lx_office_conf{sent_emails_in_imap} || {};
   return unless ($config->{enabled} && $config->{hostname});
 
-  my $socket;
-  if ($config->{ssl}) {
-    $socket = IO::Socket::SSL->new(
-      Proto    => 'tcp',
-      PeerAddr => $config->{hostname},
-      PeerPort => $config->{port} || 993,
-    );
-  } else {
-    $socket = IO::Socket::INET->new(
-      Proto    => 'tcp',
-      PeerAddr => $config->{hostname},
-      PeerPort => $config->{port} || 143,
-    );
-  }
-  if (!$socket) {
-    die "Failed to create socket for IMAP client: $@\n";
-  }
-
-  # TODO: get email and password for each user
   my $imap = Mail::IMAPClient->new(
-    Socket   => $socket,
+    Server   => $config->{hostname},
     User     => $config->{username},
     Password => $config->{password},
+    Port     => $config->{port},
+    Ssl      => $config->{ssl},
   ) or do {
     die "Failed to create IMAP Client: $@\n"
   };
