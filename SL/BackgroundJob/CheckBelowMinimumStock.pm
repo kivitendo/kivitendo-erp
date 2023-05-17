@@ -5,6 +5,7 @@ use warnings;
 
 use parent qw(SL::BackgroundJob::Base);
 
+use SL::Mailer;
 use SL::DB::Part;
 use SL::Presenter::Part qw(part);
 use SL::Presenter::Tag qw(html_tag);
@@ -49,24 +50,19 @@ SQL
 
 sub _email_user {
   my ($self) = @_;
-  $self->{email_user} ||= SL::DB::Manager::AuthUser->find_by(login => $self->{config}->{send_email_to});
+  return unless ($self->{config} && $self->{config}->{send_email_to});
+  SL::DB::Manager::AuthUser->find_by(login => $self->{config}->{send_email_to})->get_config_value('email');
 }
 
 
 sub send_email {
   my ($self) = @_;
 
-  my @ids = @{$self->{job_obj}->data_as_hash->{ids}};
-  return unless (scalar @ids && $self->{config} && $self->{config}->{send_email_to});
-
-  my $user  = $self->_email_user;
-  my $email = $self->{job_obj}->data_as_hash->{mail_to} ? $self->{job_obj}->data_as_hash->{mail_to}
-            : $user                                     ? $user->get_config_value('email')
-            : undef;
+  my $email = $self->{job_obj}->data_as_hash->{send_email_to} or $self->_email_user;
   return unless $email;
 
   # additional email
-  $email .= $self->{job_obj}->data_as_hash->{email} if $self->{job_obj}->data_as_hash->{email} =~ m/(\S+)@(\S+)$/;
+  $email .= " " . $self->{job_obj}->data_as_hash->{additional_email} if $self->{job_obj}->data_as_hash->{additional_email} =~ m/(\S+)@(\S+)$/;
 
   my ($output, $content_type) = $self->_prepare_report;
 
@@ -83,6 +79,8 @@ sub send_email {
     my $error = $self->{job_obj}->data_as_hash->{errors} . t8('Mailer error #1', $err);
     $self->{job_obj}->set_data(errors => $error)->save;
   }
+
+  return
 }
 
 sub _prepare_report {
@@ -140,10 +138,12 @@ sub run {
 
   $self->check_below_minimum_stock();
 
-  $self->send_email();
-
   my $data = $job_obj->data_as_hash;
-  die $data->{errors} if $data->{errors};
+  if ($data->{errors}) {
+      # on error we have to inform the user
+      $self->send_email();
+      die $data->{errors};
+  }
 
   $job_obj->set_data(status => DONE())->save;
   return ;
