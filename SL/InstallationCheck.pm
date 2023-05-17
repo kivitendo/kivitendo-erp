@@ -52,6 +52,7 @@ BEGIN {
   { name => "LWP::Authen::Digest",                 url => "http://search.cpan.org/~gaas/",      debian => 'libwww-perl', dist_name => 'libwww-perl' },
   { name => "LWP::UserAgent",                      url => "http://search.cpan.org/~gaas/",      debian => 'libwww-perl', dist_name => 'libwww-perl' },
   { name => "Math::Round",                         url => "https://metacpan.org/pod/Math::Round", debian => 'libmath-round-perl' },
+  { name => "Mail::IMAPClient",                    url => "https://metacpan.org/pod/Mail::IMAPClient", debian => 'libmail-imapclient-perl' },
   { name => "Params::Validate",                    url => "http://search.cpan.org/~drolsky/",   debian => 'libparams-validate-perl' },
   { name => "PBKDF2::Tiny",    version => '0.005', url => "http://search.cpan.org/~dagolden/",  debian => 'libpbkdf2-tiny-perl' },
   { name => "PDF::API2",       version => '2.000', url => "http://search.cpan.org/~areibens/",  debian => 'libpdf-api2-perl' },
