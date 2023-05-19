@@ -628,7 +628,8 @@ SQL
               (SELECT link FROM chart WHERE accno = ?))|;
   @values = (conv_i($form->{id}), $ap_accno, $ap_amount,
              conv_date($form->{invdate}), $ap_accno, conv_date($taxdate), $project_id, $ap_accno, conv_date($taxdate), $ap_accno);
-  do_query($form, $dbh, $query, @values);
+  do_query($form, $dbh, $query, @values) unless $payments_only;
+
 
   $form->{paid} = $form->round_amount($form->{paid} * $form->{exchangerate} + $paiddiff, 2) if $form->{paid} != 0;
 
