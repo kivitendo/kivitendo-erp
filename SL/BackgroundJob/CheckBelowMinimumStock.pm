@@ -59,7 +59,7 @@ sub _email_user {
 sub send_email {
   my ($self) = @_;
 
-  my $email = $self->{job_obj}->data_as_hash->{send_email_to} or $self->_email_user;
+  my $email = $self->{job_obj}->data_as_hash->{mail_to} || $self->_email_user || undef;
   return unless $email;
 
   # additional email
