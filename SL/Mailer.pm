@@ -361,7 +361,6 @@ sub _store_in_imap_sent_folder {
     die "Failed to create socket for IMAP client: $@\n";
   }
 
-  # TODO: get email and password for each user
   my $imap = Mail::IMAPClient->new(
     Socket   => $socket,
     User     => $config->{username},
