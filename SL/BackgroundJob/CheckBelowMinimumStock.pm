@@ -61,7 +61,7 @@ sub send_email {
   return unless $email;
 
   # additional email
-  $email .= " " . $self->{job_obj}->data_as_hash->{additional_email} if $self->{job_obj}->data_as_hash->{additional_email} =~ m/(\S+)@(\S+)$/;
+  $email .= " " . $self->{job_obj}->data_as_hash->{email} if $self->{job_obj}->data_as_hash->{email} =~ m/(\S+)@(\S+)$/;
 
   my ($output, $content_type) = $self->_prepare_report;
 
