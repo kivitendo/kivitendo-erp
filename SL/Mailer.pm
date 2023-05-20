@@ -361,8 +361,9 @@ sub _store_in_imap_sent_folder {
   # TODO: doesn't stop with non ASCII-Chars
   # In test file it works like a charm !?
   $imap->append_string($folder, $email_string) or do {
+    my $last_error = $imap->LastError();
     $imap->logout();
-    die "IMAP Client append failed: " . $imap->LastError() . "\n";
+    die "IMAP Client append failed: $last_error\n";
   };
 
   $imap->logout();
