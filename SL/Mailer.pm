@@ -308,10 +308,14 @@ sub send {
 
   $error = $@ if !$ok;
 
-  $self->_store_in_imap_sent_folder($email_as_string) or do {
-    $ok = 0;
-    push @$error, $@;
-  };
+  # TODO: Error is not for sending emial
+  # in SL::Form->send_email error is treated as error for sending email
+  if ($ok) {
+    eval {$self->_store_in_imap_sent_folder($email_as_string)} or do {
+      $ok = 0;
+      $error = $@;
+    };
+  }
 
   # create journal and link to record
   $self->{journalentry} = $self->_store_in_journal;
