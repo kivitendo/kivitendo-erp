@@ -41,10 +41,8 @@ SQL
           . "\n";
       push @ids, $part_hash->{id};
     }
-    $self->{job_obj}->set_data(
-      errors => $error_string,
-      ids => \@ids,
-    )->save;
+    $self->{errors} = $error_string;
+    $self->{ids}    = \@ids;
   }
   return;
 }
@@ -77,8 +75,7 @@ sub send_email {
   my $err = $mail->send;
 
   if ($err) {
-    my $error = $self->{job_obj}->data_as_hash->{errors} . t8('Mailer error #1', $err);
-    $self->{job_obj}->set_data(errors => $error)->save;
+    $self->{errors} .= t8('Mailer error #1', $err);
   }
 
   return
@@ -98,7 +95,7 @@ sub _prepare_report {
   my $filename       = $email_template || ( (SL::DB::Default->get->templates || "templates/mails") . "/below_minimum_stock/error_email.html" );
   my $content_type   = $filename =~ m/.html$/ ? 'text/html' : 'text/plain';
 
-  my @ids = @{$self->{job_obj}->data_as_hash->{ids}};
+  my @ids = @{$self->{ids}};
   my @parts = @{SL::DB::Manager::Part->get_all(where => [id => @ids])};
 
 
@@ -147,11 +144,10 @@ sub run {
 
   $self->check_below_minimum_stock();
 
-  my $data = $job_obj->data_as_hash;
-  if ($data->{errors}) {
+  if ($self->{errors}) {
       # on error we have to inform the user
       $self->send_email();
-      die $data->{errors};
+      die $self->{errors};
   }
 
   $job_obj->set_data(status => DONE())->save;
