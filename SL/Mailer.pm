@@ -287,6 +287,7 @@ sub send {
   );
   $self->{mail_attachments} = [];
 
+  my $email_as_string;
   my $error;
   my $ok = eval {
     # Clean up To/Cc/Bcc address fields
@@ -301,12 +302,13 @@ sub send {
     $self->{driver}->print($email->as_string);
     $self->{driver}->send;
 
+    $email_as_string = $email->as_string;
     1;
   };
 
   $error = $@ if !$ok;
 
-  $self->_store_in_imap_sent_folder() or do {
+  $self->_store_in_imap_sent_folder($email_as_string) or do {
     $ok = 0;
     push @$error, $@;
   };
@@ -333,7 +335,7 @@ sub _get_header_string {
 }
 
 sub _store_in_imap_sent_folder {
-  my ($self) = @_;
+  my ($self, $email_as_string) = @_;
   my $config = $::lx_office_conf{sent_emails_in_imap} || {};
   return unless ($config->{enabled} && $config->{hostname});
 
@@ -355,12 +357,7 @@ sub _store_in_imap_sent_folder {
   my $folder    =  $config->{folder} || 'INBOX/Sent';
   $folder       =~ s|/|${separator}|g;
 
-  my $header_string = $self->_get_header_string;
-  my $email_string = $header_string. "\n" . $self->{message};
-
-  # TODO: doesn't stop with non ASCII-Chars
-  # In test file it works like a charm !?
-  $imap->append_string($folder, $email_string) or do {
+  $imap->append_string($folder, $email_as_string) or do {
     my $last_error = $imap->LastError();
     $imap->logout();
     die "IMAP Client append failed: $last_error\n";
