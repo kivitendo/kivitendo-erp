@@ -370,7 +370,7 @@ sub filter {
     push @filter_elements, $filter_element;
   }
 
-  my $filter_form_div = _create_filter_form_div(\@filter_elements, %params);
+  my $filter_form_div = _create_filter_form(\@filter_elements, %params);
 
   is_escaped($filter_form_div);
 }
@@ -428,21 +428,14 @@ sub _create_input_element {
   return $element_th . $element_input_td . $element_checkbox_td;
 }
 
-sub _create_filter_form_div {
+sub _create_filter_form {
   my ($ref_elements, %params) = @_;
-
-  my $toggle_button_show =  html_tag('a', t8('Show Filter'), href => '#', onclick => '$(".filter_toggle").toggle()' );
-  my $toggle_button_show_div = html_tag('div', $toggle_button_show, class => 'filter_toggle', style => 'display:none');
-
-
-  my $toggle_button_hide =  html_tag('a', t8('Hide Filter'), href => '#', onclick => '$(".filter_toggle").toggle()' );
 
   my $filter_table = _create_input_div($ref_elements, %params);
 
   my $filter_form = html_tag('form', $filter_table, method => 'post', action => 'controller.pl', id => 'search_form');
-  my $filter_form_div = $toggle_button_show_div . html_tag('div', $toggle_button_hide . $filter_form . $toggle_button_hide, class => 'filter_toggle');
 
-  return $filter_form_div;
+  return $filter_form;
 }
 
 sub _create_input_div {
