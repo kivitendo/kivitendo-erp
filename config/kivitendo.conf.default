@@ -310,6 +310,12 @@ email_subject  = kivitendo: fällige Wiedervorlagen
 # If empty fu/follow_up_reminder_mail.html will be used.
 email_template =
 
+[follow_up_notify]
+# Email notification for new follow ups.
+email_from     = kivitendo Daemon <root@localhost>
+email_subject  = kivitendo: neue Wiedervorlagen für Sie von <%creator_name%>
+email_template = templates/mail/follow_up_notify/email_body.txt
+
 [console]
 # Automatic login will only work if both "client" and "login" are
 # given.  "client" can be a client's database ID or its name. "login"
