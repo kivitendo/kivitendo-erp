@@ -69,6 +69,13 @@
       <th>[% 'GLN' | $T8 %]</th>
       <td>[% L.input_tag_trim('cv.gln', SELF.cv.gln, class='wi-lightwide') %]</td>
     </tr>
+    [% IF ( SELF.is_customer() ) %]
+    <tr>
+      <th>[% 'Commercial court' | $T8 %]</th>
+      <td>[% L.input_tag_trim('cv.commercial_court', SELF.cv.commercial_court, class='wi-lightwide') %] </td>
+    </tr>
+    [% END %]
+
   </tbody>
 </table>
 
@@ -115,18 +122,6 @@
       <td>[% L.input_tag_trim('cv.delivery_order_mail', SELF.cv.delivery_order_mail, class='wi-lightwide') %]</td>
     </tr>
     [% END %]
-    [% IF ( SELF.is_customer() ) %]
-    <tr>
-      <th>[% 'Origin of personal data' | $T8 %]</th>
-      <td>[% L.textarea_tag('cv.contact_origin', SELF.cv.contact_origin, rows=6, class='wi-small-lightwide') %]</td>
-    </tr>
-    [% END %]
-    [% IF ( SELF.is_customer() ) %]
-    <tr>
-      <th>[% 'Commercial court' | $T8 %]</th>
-      <td>[% L.input_tag_trim('cv.commercial_court', SELF.cv.commercial_court, class='wi-lightwide') %] </td>
-    </tr>
-    [% END %]
 
   </tbody>
 </table>
@@ -163,9 +158,17 @@
     <tr>
       <th colspan="2">
         <span class="label above">[% 'Internal Notes' | $T8 %]</span>
-        [% L.textarea_tag('cv.notes', SELF.cv.notes, rows=6, class='wi-small-lightwide') %]
-    </th>
+        [% L.textarea_tag('cv.notes', SELF.cv.notes, rows=4, class='wi-small-lightwide') %]
+      </th>
     </tr>
+    [% IF ( SELF.is_customer() ) %]
+    <tr>
+      <th colspan="2">
+        <span class="label above">[% 'Origin of personal data' | $T8 %]</span>
+        [% L.textarea_tag('cv.contact_origin', SELF.cv.contact_origin, rows=4, class='wi-small-lightwide') %]
+      </th>
+    </tr>
+    [% END %]
   </tbody>
 </table>
 
@@ -286,7 +289,7 @@
         <td>[% L.input_tag_trim("cv.hourly_rate_as_number", SELF.cv.hourly_rate_as_number, class='wi-small numeric') %]</td>
       <tr>
         <th>[% LxERP.t8("Create sales invoices with Factur-X/ZUGFeRD data") %]</th>
-        <td>[% L.select_tag("cv.create_zugferd_invoices", SELF.zugferd_settings, default=SELF.cv.create_zugferd_invoices) %]</td>
+        <td class='wi-wider'>[% L.select_tag("cv.create_zugferd_invoices", SELF.zugferd_settings, default=SELF.cv.create_zugferd_invoices) %]</td>
       </tr>
     [% END %]
   </tbody>
