@@ -8,7 +8,10 @@ use SL::Common;
 use SL::DBUtils;
 use SL::DB;
 use SL::DB::FollowUpCreatedForEmployee;
+use SL::Mailer;
 use SL::Notes;
+use SL::Template;
+use SL::Template::Simple;
 
 use strict;
 
@@ -16,7 +19,11 @@ sub save {
   my ($self, %params) = @_;
   $main::lxdebug->enter_sub();
 
+  my $is_new   = !$params{id};
+
   my $rc = SL::DB->client->with_transaction(\&_save, $self, %params);
+
+  FU->send_email_notification(%params) if ($is_new);
 
   $::lxdebug->leave_sub;
   return $rc;
@@ -543,6 +550,81 @@ sub retrieve_access_rights {
   $main::lxdebug->leave_sub();
 
   return $access;
+}
+
+sub send_email_notification {
+  $main::lxdebug->enter_sub();
+  my ($self, %params) = @_;
+
+  my $notify_cfg = $main::lx_office_conf{follow_up_notify};
+  if (!$notify_cfg
+   || !$notify_cfg->{email_subject}
+   || !$notify_cfg->{email_from}
+   || !$notify_cfg->{email_template}) {
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
+  my $employee = SL::DB::Manager::Employee->current;
+
+  my @for_employees_ids = @{$params{created_for_employees}};
+
+  my $placeholders = join ', ', map {'?'} @for_employees_ids;
+  my $query = <<SQL;
+  SELECT login
+  FROM employee
+  WHERE id in ($placeholders)
+SQL
+
+  my $dbh = $employee->dbh;
+  my $hash_key = 'login';
+  my $hashref = $dbh->selectall_hashref(
+    $query, $hash_key, undef, @for_employees_ids
+  );
+  my @logins = keys %$hashref;
+
+  foreach my $login (@logins) {
+    my %recipient  = $main::auth->read_user(
+      login => conv_i($login),
+    );
+
+    if (!$recipient{follow_up_notify_by_email} || !$recipient{email}) {
+      next;
+    }
+
+    my %template_params = (
+      follow_up_subject => $params{subject},
+      follow_up_body    => $params{body},
+      follow_up_date    => $params{follow_up_date},
+      creator_name      => $employee->name  || $::form->{login},
+      recipient_name    => $recipient{name} || $recipient{login},
+    );
+
+    my $template = Template->new({ENCODING    => 'utf8'});
+
+    my $body_file = $notify_cfg->{email_template};
+    my $content_type   = $body_file =~ m/.html$/ ? 'text/html' : 'text/plain';
+
+    my $message;
+    $template->process($body_file, \%template_params, \$message)
+    || die $template->error;
+
+    my $param_form = Form->new();
+    $param_form->{$_} = $template_params{$_} for keys %template_params;
+
+    my $mail              = Mailer->new();
+    $mail->{from}         = $notify_cfg->{email_from};
+    $mail->{to}           = $recipient{email};
+    $mail->{subject}      = SL::Template::Simple->new(form => $param_form)
+                              ->substitute_vars($notify_cfg->{email_subject});
+    $mail->{content_type} = $content_type;
+    $mail->{message}      = $message;
+    $mail->{charset}      = 'UTF-8';
+
+    $mail->send();
+  }
+
+  $main::lxdebug->leave_sub();
 }
 
 1;
