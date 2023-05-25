@@ -638,25 +638,14 @@
 \cs_if_exist:NF \Ifkomavarempty {\let\Ifkomavarempty\ifkomavarempty}
 
 %Definitionen für die insettings.tex
-
-\newcommand*{\setupIdentpath}[1]{
-  \int_set:Nn \l_kivi_tmp_int {1}
-  \bool_set_true:N \l_kivi_tmp_bool
-  \bool_while_do:Nn \l_kivi_tmp_bool {
-    \file_if_exist:nTF {firma\int_use:N \l_kivi_tmp_int/ident.tex}
-    {
-      \exp_args:Nf \str_if_in:nnTF {#1} {Firma\int_use:N \l_kivi_tmp_int}
-      {
-        \newcommand*{\identpath}{firma\int_use:N \l_kivi_tmpa_int}
-        \bool_set_false:N \l_kivi_tmp_bool
-      }
-      {\int_incr:N \l_kivi_tmp_int}
-    }
-    {
-      \bool_set_false:N \l_kivi_tmp_bool
-      \newcommand*{\identpath}{firma}
-    }
-  }
+\NewDocumentCommand{\setupIdentpath}{sm}{
+		\file_if_exist:nTF {#2/ident.tex}
+		{
+			\newcommand*{\identpath}{#2}
+		} {
+			\newcommand*{\identpath}{firma}
+		}
+	}
 }
 
 \newcommand*{\setupCurrencyConfig}[3][euro]{
