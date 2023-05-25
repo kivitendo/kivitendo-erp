@@ -345,6 +345,8 @@ Größere neue Features:
   Buchhalterische Änderungen:
   Die Anzahlungsrechnung wird nicht auf das Standard-Ertragkonto gebucht,
   sondern auf ein definiertes Transferkonto, ferner wird keine Mehrwertsteuer gebucht.
+  Wichtig ist in diesem Fall, dass dieses Transferkonten in der Mandatenkonfiguration
+  beim Reiter Standardkonten hinterlegt werden muss.
   Sobald der Zahlungseingang zu dieser Anzahlungsrechnung verbucht wird (per Bankimport),
   wird die Mehrwertsteuer entsprechend zum Zahlbetrag brutto verbucht.
   Damit das ganze DATEV konform bleibt, wird der entsprechende netto Betrag des Zahlbetrags
