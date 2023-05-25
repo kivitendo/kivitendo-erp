@@ -14,6 +14,7 @@
 \ExplSyntaxOn
 \newif\if@kivi@infobox
 \newif\if@kivi@footer
+\newcommand*{\SetupKiviletter}[1]{\keys_set:nn {kiviletter} {#1}}
 \keys_define:nn {kiviletter} {
   infobox .choices:nn = {true,false} {\use:c {@kivi@infobox\l_keys_choice_tl}},
   infobox .default:n = true,
