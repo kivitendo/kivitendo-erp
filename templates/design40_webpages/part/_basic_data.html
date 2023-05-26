@@ -44,6 +44,10 @@
         <th>[% 'EAN-Code' | $T8 %]</th>
         <td>[% L.input_tag("part.ean", SELF.part.ean, class='wi-wide', size=10, "data-validate"="trimmed_whitespaces") %]</td>
       </tr>
+      <tr>
+        <th>[% 'Tariff Code' | $T8 %]</th>
+        <td>[% L.input_tag("part.tariff_code", SELF.part.tariff_code, class='wi-wide', size=10, "data-validate"="trimmed_whitespaces") %]</td>
+      </tr>
       [% IF SELF.all_partsgroups.size %]
       <tr>
         <th>[% 'Partsgroup' | $T8 %]</th>

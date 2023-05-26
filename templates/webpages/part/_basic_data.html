@@ -36,6 +36,10 @@
                <td>[% L.input_tag("part.ean", SELF.part.ean, size=40, "data-validate"="trimmed_whitespaces") %]</td>
              </tr>
              <tr>
+               <th align="right">[% 'Tariff Code' | $T8 %]</th>
+               <td>[% L.input_tag("part.tariff_code", SELF.part.tariff_code, size=40, "data-validate"="trimmed_whitespaces") %]</td>
+             </tr>
+             <tr>
               [%- IF SELF.all_partsgroups.size %]
               <th align="right">[% 'Partsgroup' | $T8 %]</th>
               <td>[%- L.select_tag('part.partsgroup_id', SELF.all_partsgroups, default=SELF.part.partsgroup_id, title_key='partsgroup', value_key='id', with_empty=1 style='width: 200px') %]</td>
