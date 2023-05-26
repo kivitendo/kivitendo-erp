@@ -925,7 +925,7 @@ sub prepare_parts_for_printing {
 
   $sth->finish();
 
-  my @columns = qw(ean image microfiche drawing);
+  my @columns = qw(ean image microfiche drawing tariff_code);
 
   $query      = qq|SELECT id, | . join(', ', @columns) . qq|
                    FROM parts
