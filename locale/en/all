@@ -3778,6 +3778,7 @@ $self->{texts} = {
   'Target Qty'                  => '',
   'Target bank account'         => '',
   'Target table'                => '',
+  'Tariff Code'                 => 'Tariff code',
   'Task Server is not running, starting it now. If this does not change, please check your task server config' => '',
   'Task server'                 => '',
   'Task server control'         => '',
