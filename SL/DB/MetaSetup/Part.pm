@@ -41,6 +41,7 @@ __PACKAGE__->meta->columns(
   sellprice          => { type => 'numeric', precision => 15, scale => 5 },
   shop               => { type => 'boolean', default => 'false' },
   stockable          => { type => 'boolean', default => 'false' },
+  tariff_code        => { type => 'text' },
   unit               => { type => 'varchar', length => 20, not_null => 1 },
   ve                 => { type => 'integer' },
   warehouse_id       => { type => 'integer' },
