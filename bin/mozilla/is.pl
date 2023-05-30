@@ -1228,7 +1228,7 @@ sub use_as_new {
 
   $main::auth->assert('invoice_edit');
 
-  delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked)};
+  delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked qr_unstructured_message)};
   $form->{rowcount}--;
   $form->{paidaccounts} = 1;
   $form->{invdate}      = $form->current_date(\%myconfig);
