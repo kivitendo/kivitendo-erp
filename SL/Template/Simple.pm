@@ -142,7 +142,8 @@ sub substitute_vars {
 
     my $value               = $self->_get_loop_variable($var, 0, @indices);
     $value                  = $form->parse_amount({ numberformat => $::myconfig{output_numberformat} || $::myconfig{numberformat} }, $value) if     $options{NOFORMAT};
-    $value                  = $self->format_string($value, $var)                                                                             unless $options{NOESCAPE};
+    # TODO: format_string is not implemented yet
+    # $value                  = $self->format_string($value, $var)                                                                             unless $options{NOESCAPE};
 
     substr($text, $tag_pos, $tag_len, $value);
   }
