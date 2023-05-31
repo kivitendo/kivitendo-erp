@@ -133,6 +133,13 @@ sub action_edit {
   if ($::form->{id}) {
     $self->load_order;
 
+    if ($self->order->is_sales) {
+      my $imap_client = SL::IMAPClient->new();
+      if ($imap_client) {
+        $imap_client->update_emails_for_record($self->order);
+      }
+    }
+
   } else {
     # this is to edit an order from an unsaved order object
 
