@@ -162,6 +162,17 @@ security = none
 login =
 password =
 
+[imap_client]
+enabled = 0
+hostname = local
+username =
+password =
+# Port only needs to be changed if it is not the default port.
+# port = 993
+base_folder = INBOX
+# If SSL is to be used, then set port to 993 or leave empty
+ssl = 1
+
 [sent_emails_in_imap]
 enabled = 0
 hostname = localhost
