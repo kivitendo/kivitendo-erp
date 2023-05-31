@@ -430,7 +430,7 @@ sub action_ajax_add_list {
 
   my @all_open_invoices = @{ $all_open_ar_invoices };
   # add ap invoices, filtering out subcent open amounts
-  push @all_open_invoices, grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ap_invoices };
+  push @all_open_invoices, grep { abs($_->amount - $_->paid) >= 0.005 } @{ $all_open_ap_invoices };
 
   @all_open_invoices = sort { $a->id <=> $b->id } @all_open_invoices;
 
