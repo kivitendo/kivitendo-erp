@@ -54,6 +54,7 @@ sub get_all {
   push @query, (mime_type     => $params{mime_type})     if $params{mime_type};
   push @query, (source        => $params{source})        if $params{source};
   push @query, (print_variant => $params{print_variant}) if $params{print_variant};
+  push @query, (uid           => $params{uid})           if $params{uid};
 
   my $sortby = $params{sort_by} || 'itime DESC,file_name ASC';
 
@@ -105,6 +106,7 @@ sub get_all_count {
   push @query, (mime_type     => $params{mime_type})     if $params{mime_type};
   push @query, (source        => $params{source})        if $params{source};
   push @query, (print_variant => $params{print_variant}) if $params{print_variant};
+  push @query, (uid           => $params{uid})           if $params{uid};
 
   my $cnt = SL::DB::Manager::File->get_all_count(query => [@query]);
   return $cnt;
@@ -222,6 +224,7 @@ sub _save {
         title          => $params{title},
         description    => $params{description},
         print_variant  => $params{print_variant},
+        uid            => $params{uid},
       );
       $file->itime($params{mtime})    if $params{mtime};
       $params{itime} = $params{mtime} if $params{mtime};
@@ -293,6 +296,7 @@ sub rename {
                                                   mime_type     => $file->mime_type,
                                                   source        => $file->source,
                                                   file_type     => $file->file_type,
+                                                  uid           => $file->uid,
                                                   file_name     => $params{to}
                                                 ) > 0;
 
