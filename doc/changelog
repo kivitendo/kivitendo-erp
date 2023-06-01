@@ -14,6 +14,11 @@ Kleinere neue Features und Detailverbesserungen:
   - Volltextsuche auch für Lieferscheine
   - weitere Filtermöglichkeiten wie Zahlungsbedingen und Typ bei Mahnungen erzeugen
   - In diversen Formularfeldern Kunden/Lieferanten trailing withespaces nicht speichern
+  - Gesendete Emails können im Email-Server gespeichert werden
+  - Bei der Erstellung von VK-Angebote und VK-Aufträge können automatisch Ordner
+    im Email-Server angelegt werden
+  - Bei der Bearbeitung von VK-Angebote und VK-Aufträgen können die Emails aus
+    den angelegten Ordner im Email-Server automatisch importiert werden
 
 2023-04-05 - Release 3.8.0
 
