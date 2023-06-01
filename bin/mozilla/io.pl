@@ -2308,7 +2308,7 @@ sub send_sales_purchase_email {
 
   } else {
     print_form("return");
-    Common->save_email_status(\%::myconfig, $::form);
+    Common->save_email_status(\%::myconfig, $::form) unless ($::instance_conf->get_email_journal);
   }
 
   flash_later('info', $::locale->text('The email has been sent.'));
