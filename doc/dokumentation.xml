@@ -5513,9 +5513,12 @@ digits_year: 4</programlisting>
           </variablelist>
 
           <para>Für jeden Posten gibt es ein Unterarray mit den Informationen
-          über Lieferanten und Lieferantenartikelnummer. Diese müssen mit
+          über Lieferanten und Lieferantenartikelnummer, Kunde und Kundenartikelnummer
+          und Kunden- bzw. Lieferantentyp und zugehöriger Artikelnummer mit Beschreibung
+          und Langtext. Diese müssen jeweils mit
           einer <function>foreach</function>-Schleife ausgegeben werden, da
-          für jeden Artikel mehrere Lieferanteninformationen hinterlegt sein
+          für jeden Artikel mehrere Lieferanten- und Kundeninformationen bzw.
+          kunden- bzw. lieferantenspezifische Informationen hinterlegt sein
           können. Die Variablen dafür lauten:</para>
 
           <variablelist>
@@ -5542,7 +5545,81 @@ digits_year: 4</programlisting>
                 <para>Lieferantenartikelbeschreibung</para>
               </listitem>
             </varlistentry>
+
+            <varlistentry>
+              <term><varname>mm_part_longdescription</varname></term>
+
+              <listitem>
+                <para>Lieferantenartikelbeschreibung (Langtext)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>customer_make</varname></term>
+
+              <listitem>
+                <para>Kunde</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>customer_model</varname></term>
+
+              <listitem>
+                <para>Kundenartikelnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>cm_part_description</varname></term>
+
+              <listitem>
+                <para>Kundenartikelbeschreibung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>cm_part_longdescription</varname></term>
+
+              <listitem>
+                <para>Kundenartikelbeschreibung (Langtext)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>business_make</varname></term>
+
+              <listitem>
+                <para>Kunden-/Lieferantentyp</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>business_model</varname></term>
+
+              <listitem>
+                <para>Kunden-/Lieferantentyp-spezifische Artikelnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>bm_part_description</varname></term>
+
+              <listitem>
+                <para>Kunden-/Lieferantentyp-spezifische Artikelbeschreibung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>bm_part_longdescription</varname></term>
+
+              <listitem>
+                <para>Kunden-/Lieferantentyp-spezifische Artikelbeschreibung (Langtext)</para>
+              </listitem>
+            </varlistentry>
+
           </variablelist>
+
         </sect3>
 
         <sect3 id="dokumentenvorlagen-und-variablen.invoice-zahlungen">
