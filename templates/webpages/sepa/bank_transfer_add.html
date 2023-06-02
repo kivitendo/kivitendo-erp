@@ -65,11 +65,11 @@
          [%- GET HTML.escape(invoice.vcname);
              SET previous_vcname = invoice.vcname;
              IF !invoice.vc_bank_info_ok;
-               IF invoice.checked;
-                 GET ' <sup>(2)</sup>';
-               ELSE;
-                 GET ' <sup>(1)</sup>';
-               END;
+               GET ' <sup>(1)</sup>';
+               SET show_vc_bank_info_footnote = '1';
+             END;
+             IF !invoice.checked;
+               GET ' <sup>(2)</sup>';
                SET show_vc_bank_info_footnote = '1';
              END; -%]
         </a>
@@ -127,13 +127,9 @@
    <p>
     <sup>(2)</sup>
     [%- IF is_vendor %]
-     [%- 'No bank information has been entered in this vendor\'s master data entry. You cannot create bank transfers unless you enter bank information.' | $T8 %]
-     [% "The required information consists of the IBAN and the BIC." | $T8 %]
-     [% LxERP.t8("Additionally the invoice is not marked for direct debit and would have been checked automatically had the bank information been entered.") %]
+     [% LxERP.t8("This invoice is marked for direct debit and cannot be selected for a SEPA Export.") %]
     [%- ELSE %]
-     [%- 'No bank information has been entered in this customer\'s master data entry. You cannot create bank collections unless you enter bank information.' | $T8 %]
-     [% "The required information consists of the IBAN, the BIC, the mandator ID and the mandate's date of signature." | $T8 %]
-     [% LxERP.t8("Additionally the invoice is marked for direct debit and would have been checked automatically had the bank information been entered.") %]
+     [% LxERP.t8("This invoice is not marked for direct debit and cannot be selected for a SEPA Export.") %]
     [%- END %]
    </p>
   [%- END %]
