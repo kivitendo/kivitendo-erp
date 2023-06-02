@@ -4,6 +4,11 @@
 
 2023-xx-xx - Release 3.9.0 unstable
 
+Mittelgroße neue Features:
+  - Neben Artikelnummern pro Lieferant und pro Kunden können auch
+    Artikelnummern pro Kunden-/Lieferantentyp mit Beschreibung und
+    Langtext verwaltet werden.
+
 Kleinere neue Features und Detailverbesserungen:
 
   - Mahnsperre beim Kunden
@@ -14,6 +19,11 @@ Kleinere neue Features und Detailverbesserungen:
   - Volltextsuche auch für Lieferscheine
   - weitere Filtermöglichkeiten wie Zahlungsbedingen und Typ bei Mahnungen erzeugen
   - In diversen Formularfeldern Kunden/Lieferanten trailing withespaces nicht speichern
+  - Neben Lieferantenartikelnummern kann auch ein Langtext hierzu in
+    den Artikelstammdaten verwaltet werden.
+  - Zu kundenspezifischen Preisen/Artikelnummern können jetzt auch
+    Beschreibung und Langtext in den Artikelstammdaten verwaltet
+    werden.
 
 2023-04-05 - Release 3.8.0
 
