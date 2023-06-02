@@ -537,7 +537,10 @@ sub action_add_businessmodel_row {
     return $self->js->error(t8("No business selected or found!"))->render;
 
   if ( grep { $business_id == $_->business_id } @{ $self->businessmodels } ) {
-    $self->js->flash('info', t8("This business has already been added."));
+    return $self->js
+      ->scroll_into_view('#content')
+      ->flash('error', (t8("This business has already been added.")))
+      ->render;
   };
 
   my $position = scalar @{ $self->businessmodels } + 1;
