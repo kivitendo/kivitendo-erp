@@ -6,6 +6,16 @@
 
 <table id="businessmodel_table" class="tbl-list wi-moderate">
   <caption>[% 'Business Type Model' | $T8 %]</caption>
+  <colgroup>
+    <col class="wi-verytiny">
+    <col>
+    <col class="wi-verytiny">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+  </colgroup>
   <thead>
     <tr>
       <th class="center"><img src="image/close.png" alt="[%- LxERP.t8('delete item') %]"></th>
@@ -29,7 +39,7 @@
       <td></td>
       <td></td>
       <th class="right"><span class="label">[% 'Business' | $T8 %]</th>
-      <td>[% P.select_tag('add_businessmodel', SELF.all_businesses, title_key="description", with_empty=1, class='wi-mediumsmall', onchange='kivi.Part.add_businessmodel_row()') %]</td>
+      <td>[% P.select_tag('add_businessmodel', SELF.all_businesses, title_key="description", with_empty=1, class="wi-mediumsmall", onchange='kivi.Part.add_businessmodel_row()') %]</td>
       <td>[% L.button_tag('kivi.Part.add_businessmodel_row()', LxERP.t8('Add')) %]</td>
       <td></td>
       <td></td>

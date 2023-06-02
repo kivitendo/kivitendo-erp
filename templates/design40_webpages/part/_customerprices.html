@@ -5,6 +5,18 @@
 
 <table id="customerprice_table" class="tbl-list wi-moderate">
   <caption>[% 'Customer specific Price' | $T8 %]</caption>
+  <colgroup>
+    <col class="wi-verytiny">
+    <col>
+    <col class="wi-verytiny">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+    <col class="wi-small">
+    <col class="wi-small">
+  </colgroup>
   <thead>
     <tr>
       <th class="center"><img src="image/close.png" alt="[% LxERP.t8('delete item') %]"></th>
@@ -32,7 +44,7 @@
    <td></td>
    <td></td>
    <th class="right"><span class="label">[% 'Search & Add Customer' | $T8 %]</span></th>
-   <td>[% P.customer_vendor.customer_picker('add_customerprice', '', class="add_customerprice_input wi-small tooltipstered tooltipster-html", action={commit_one='kivi.Part.add_customerprice_row'}, title=LxERP.t8("Search customer by name and add by selecting")) %]</td>
+   <td>[% P.customer_vendor.customer_picker('add_customerprice', '', class="add_customerprice_input tooltipstered tooltipster-html wi-mediumsmall", action={commit_one='kivi.Part.add_customerprice_row'}, title=LxERP.t8("Search customer by name and add by selecting")) %]</td>
    <td>[% L.button_tag('kivi.Part.add_customerprice_row()', LxERP.t8('Add')) %]</td>
    <td colspan="4"></td>
   </tr>
