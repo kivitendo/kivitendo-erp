@@ -6,6 +6,18 @@
 
 <table id="makemodel_table" class="tbl-list wi-moderate">
   <caption>[% 'Makemodel Price' | $T8 %]</caption>
+  <colgroup>
+    <col class="wi-verytiny">
+    <col>
+    <col class="wi-verytiny">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+    <col class="wi-mediumsmall">
+    <col class="wi-small">
+    <col class="wi-small">
+  </colgroup>
   <thead>
     <tr>
       <th class="center"><img src="image/close.png" alt="[% LxERP.t8('delete item') %]"></th>
@@ -36,7 +48,7 @@
      <th class="right"><span class="label">[% 'Search & Add Vendor' | $T8 %]</span></th>
      <td>
         [% SET titleaddmodel=LxERP.t8('Search & Add Vendor by Name') %]
-        [% P.customer_vendor.picker('add_makemodel', '', type='vendor', class='add_makemodel_input wi-small tooltipstered tooltipster-html', title=titleaddmodel, action={commit_one='kivi.Part.add_makemodel_row'}, size=10) %]
+        [% P.customer_vendor.picker('add_makemodel', '', type='vendor', class='add_makemodel_input tooltipstered tooltipster-html wi-mediumsmall', title=titleaddmodel, action={commit_one='kivi.Part.add_makemodel_row'}, size=10) %]
       </td>
      <td>[% L.button_tag('kivi.Part.add_makemodel_row()', LxERP.t8('Add')) %]</td>
      <td colspan="4"></td>
