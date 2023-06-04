@@ -2279,7 +2279,7 @@ sub save {
   }) || push(@{$errors}, $db->error);
 
   if ($is_new && $self->order->is_sales) {
-    my $imap_client = SL::Mail::IMAP::Client->new();
+    my $imap_client = SL::IMAPClient->new();
     if ($imap_client) {
       $imap_client->create_folder_for_record($self->order);
     }
