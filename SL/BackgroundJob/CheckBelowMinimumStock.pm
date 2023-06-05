@@ -13,10 +13,6 @@ use SL::Presenter::EscapedText qw(escape);
 use SL::DBUtils qw(selectall_hashref_query);
 use SL::Locale::String qw(t8);
 
-use constant WAITING_FOR_EXECUTION => 0;
-use constant START                 => 1;
-use constant DONE                  => 2;
-
 sub check_below_minimum_stock {
   my ($self) = @_;
 
@@ -138,8 +134,6 @@ sub run {
   my ($self, $job_obj) = @_;
   $self->{job_obj} = $job_obj;
 
-  $job_obj->set_data(status => START())->save;
-
   $self->{config} = $::lx_office_conf{check_below_minimum_stock} || {};
 
   $self->check_below_minimum_stock();
@@ -150,7 +144,6 @@ sub run {
       die $self->{errors};
   }
 
-  $job_obj->set_data(status => DONE())->save;
   return ;
 }
 
