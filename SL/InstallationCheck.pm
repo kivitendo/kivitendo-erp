@@ -34,6 +34,7 @@ BEGIN {
   { name => "Exception::Class", version => '1.44', url => "https://metacpan.org/pod/Exception::Class", debian => 'libexception-class-perl' },
   { name => "Email::Address",  version => '1.888', url => "http://search.cpan.org/~rjbs/",      debian => 'libemail-address-perl' },
   { name => "Email::MIME",                         url => "http://search.cpan.org/~rjbs/",      debian => 'libemail-mime-perl' },
+  { name => "Encode::IMAPUTF7",                    url => "https://metacpan.org/pod/Encode::IMAPUTF7", debian => 'libencode-imaputf7-perl' },
   { name => "FCGI",            version => '0.72',  url => "http://search.cpan.org/~mstrout/",   debian => 'libfcgi-perl' },
   { name => "File::Copy::Recursive",               url => "http://search.cpan.org/~dmuey/",     debian => 'libfile-copy-recursive-perl' },
   { name => "File::Flock",   version => '2008.01', url => "http://search.cpan.org/~muir/",      debian => 'libfile-flock-perl' },
