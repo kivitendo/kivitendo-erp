@@ -1475,6 +1475,13 @@
   params:
     action: CsvImport/new
     profile.type: ar_transactions
+- parent: system_import_csv
+  id: system_import_csv_ap_transactions
+  name: AP Transactions
+  order: 820
+  params:
+    action: CsvImport/new
+    profile.type: ap_transactions
 - parent: system
   id: system_templates
   name: Templates
