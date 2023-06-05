@@ -23,6 +23,7 @@ use SL::Controller::CsvImport::Project;
 use SL::Controller::CsvImport::Order;
 use SL::Controller::CsvImport::DeliveryOrder;
 use SL::Controller::CsvImport::ARTransaction;
+use SL::Controller::CsvImport::APTransaction;
 use SL::JSON;
 use SL::Controller::CsvImport::BankTransaction;
 use SL::BackgroundJob::CsvImport;
@@ -312,7 +313,7 @@ sub check_auth {
 sub check_type {
   my ($self) = @_;
 
-  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts inventories customers_vendors billing_addresses addresses contacts projects orders delivery_orders bank_transactions ar_transactions);
+  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts inventories customers_vendors billing_addresses addresses contacts projects orders delivery_orders bank_transactions ar_transactions ap_transactions);
   $self->type($::form->{profile}->{type});
 }
 
@@ -363,9 +364,10 @@ sub render_inputs {
             : $self->type eq 'delivery_orders'   ? $::locale->text('CSV import: delivery orders')
             : $self->type eq 'bank_transactions' ? $::locale->text('CSV import: bank transactions')
             : $self->type eq 'ar_transactions'   ? $::locale->text('CSV import: ar transactions')
+            : $self->type eq 'ap_transactions'   ? $::locale->text('CSV import: ap transactions')
             : die;
 
-  if ( any { $_ eq $self->{type} } qw(customers_vendors orders delivery_orders ar_transactions) ) {
+  if ( any { $_ eq $self->{type} } qw(customers_vendors orders delivery_orders ar_transactions ap_transactions) ) {
     $self->all_taxzones(SL::DB::Manager::TaxZone->get_all_sorted(query => [ obsolete => 0 ]));
   };
 
@@ -514,7 +516,7 @@ sub profile_from_form {
     $::form->{settings}->{sellprice_adjustment} = $::form->parse_amount(\%::myconfig, $::form->{settings}->{sellprice_adjustment});
   }
 
-  if ($self->type eq 'orders' or $self->{type} eq 'ar_transactions') {
+  if ( any { $_ eq $self->{type} } qw(orders ar_transactions ap_transactions) ) {
     $::form->{settings}->{max_amount_diff} = $::form->parse_amount(\%::myconfig, $::form->{settings}->{max_amount_diff});
   }
 
@@ -735,6 +737,7 @@ sub init_worker {
        : $self->{type} eq 'delivery_orders'   ? SL::Controller::CsvImport::DeliveryOrder->new(@args)
        : $self->{type} eq 'bank_transactions' ? SL::Controller::CsvImport::BankTransaction->new(@args)
        : $self->{type} eq 'ar_transactions'   ? SL::Controller::CsvImport::ARTransaction->new(@args)
+       : $self->{type} eq 'ap_transactions'   ? SL::Controller::CsvImport::APTransaction->new(@args)
        :                                        die "Program logic error";
 }
 

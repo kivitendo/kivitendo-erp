@@ -280,6 +280,8 @@
  [%- INCLUDE 'csv_import/_form_delivery_orders.html' %]
 [%- ELSIF SELF.type == 'ar_transactions' %]
  [%- INCLUDE 'csv_import/_form_artransactions.html' %]
+[%- ELSIF SELF.type == 'ap_transactions' %]
+ [%- INCLUDE 'csv_import/_form_aptransactions.html' %]
 [%- ELSIF SELF.type == 'bank_transactions' %]
  [%- INCLUDE 'csv_import/_form_banktransactions.html' %]
 [%- END %]
