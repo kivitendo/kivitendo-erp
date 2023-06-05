@@ -264,6 +264,32 @@ namespace('kivi.Part', function(ns) {
     $("#makemodel_rows tr:last").find('input[type=text]').filter(':visible:first').focus();
   };
 
+  // businessmodel
+  ns.businessmodel_renumber_positions = function() {
+    $('.businessmodel_row [name="position"]').each(function(idx, elt) {
+      $(elt).html(idx+1);
+    });
+  };
+
+  ns.delete_businessmodel_row = function(clicked) {
+    var row = $(clicked).closest('tr');
+    $(row).remove();
+
+    ns.businessmodel_renumber_positions();
+  };
+
+  ns.add_businessmodel_row = function() {
+    if ($('#add_businessmodel').val() === '') return;
+
+    var data = $('#businessmodel_table :input').serializeArray();
+    data.push({ name: 'action', value: 'Part/add_businessmodel_row' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.focus_last_businessmodel_input = function () {
+    $("#businessmodel_rows tr:last").find('input[type=text]').filter(':visible:first').focus();
+  };
 
   // customerprice
   ns.customerprice_renumber_positions = function() {
@@ -791,6 +817,10 @@ namespace('kivi.Part', function(ns) {
 
     kivi.run_once_for('#makemodel_rows', 'makemodel_row_sort_renumber', function(elt) {
       $(elt).on('sortstop', kivi.Part.makemodel_renumber_positions);
+    });
+
+    kivi.run_once_for('#businessmodel_rows', 'businessmodel_row_sort_renumber', function(elt) {
+      $(elt).on('sortstop', kivi.Part.businessmodel_renumber_positions);
     });
   };
 

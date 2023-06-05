@@ -27,6 +27,7 @@ use SL::DB::BankTransactionAccTrans;
 use SL::DB::Bin;
 use SL::DB::Buchungsgruppe;
 use SL::DB::Business;
+use SL::DB::BusinessModel;
 use SL::DB::Chart;
 use SL::DB::Contact;
 use SL::DB::ContactDepartment;

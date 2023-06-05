@@ -529,16 +529,37 @@
                      </span></dt><dd><p>Einheit</p></dd><dt><span class="term">
                         <code class="varname">weight</code>
                      </span></dt><dd><p>Gewicht</p></dd></dl></div><p>Für jeden Posten gibt es ein Unterarray mit den Informationen
-          über Lieferanten und Lieferantenartikelnummer. Diese müssen mit
+          über Lieferanten und Lieferantenartikelnummer, Kunde und Kundenartikelnummer
+          und Kunden- bzw. Lieferantentyp und zugehöriger Artikelnummer mit Beschreibung
+          und Langtext. Diese müssen jeweils mit
           einer <code class="function">foreach</code>-Schleife ausgegeben werden, da
-          für jeden Artikel mehrere Lieferanteninformationen hinterlegt sein
+          für jeden Artikel mehrere Lieferanten- und Kundeninformationen bzw.
+          kunden- bzw. lieferantenspezifische Informationen hinterlegt sein
           können. Die Variablen dafür lauten:</p><div class="variablelist"><dl><dt><span class="term">
                         <code class="varname">make</code>
                      </span></dt><dd><p>Lieferant</p></dd><dt><span class="term">
                         <code class="varname">model</code>
                      </span></dt><dd><p>Lieferantenartikelnummer</p></dd><dt><span class="term">
                         <code class="varname">mm_part_description</code>
-                     </span></dt><dd><p>Lieferantenartikelbeschreibung</p></dd></dl></div></div><div class="sect3" title="3.3.8.4. Variablen für die einzelnen Zahlungseingänge"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.invoice-zahlungen"></a>3.3.8.4. Variablen für die einzelnen Zahlungseingänge</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                     </span></dt><dd><p>Lieferantenartikelbeschreibung</p></dd><dt><span class="term">
+                        <code class="varname">mm_part_longdescription</code>
+                     </span></dt><dd><p>Lieferantenartikelbeschreibung (Langtext)</p></dd><dt><span class="term">
+                        <code class="varname">customer_make</code>
+                     </span></dt><dd><p>Kunde</p></dd><dt><span class="term">
+                        <code class="varname">customer_model</code>
+                     </span></dt><dd><p>Kundenartikelnummer</p></dd><dt><span class="term">
+                        <code class="varname">cm_part_description</code>
+                     </span></dt><dd><p>Kundenartikelbeschreibung</p></dd><dt><span class="term">
+                        <code class="varname">cm_part_longdescription</code>
+                     </span></dt><dd><p>Kundenartikelbeschreibung (Langtext)</p></dd><dt><span class="term">
+                        <code class="varname">business_make</code>
+                     </span></dt><dd><p>Kunden-/Lieferantentyp</p></dd><dt><span class="term">
+                        <code class="varname">business_model</code>
+                     </span></dt><dd><p>Kunden-/Lieferantentyp-spezifische Artikelnummer</p></dd><dt><span class="term">
+                        <code class="varname">bm_part_description</code>
+                     </span></dt><dd><p>Kunden-/Lieferantentyp-spezifische Artikelbeschreibung</p></dd><dt><span class="term">
+                        <code class="varname">bm_part_longdescription</code>
+                     </span></dt><dd><p>Kunden-/Lieferantentyp-spezifische Artikelbeschreibung (Langtext)</p></dd></dl></div></div><div class="sect3" title="3.3.8.4. Variablen für die einzelnen Zahlungseingänge"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.invoice-zahlungen"></a>3.3.8.4. Variablen für die einzelnen Zahlungseingänge</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
                         <code class="varname">payment</code>
                      </span></dt><dd><p>Betrag</p></dd><dt><span class="term">
                         <code class="varname">paymentaccount</code>
@@ -649,7 +670,7 @@
                         <code class="varname">invdate</code>
                      </span></dt><dd><p>Rechnungsdatum</p></dd><dt><span class="term">
                         <code class="varname">invnumber</code>
-                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6084"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
+                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6165"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
           Rechnung. Allerdings heißen die Variablen, die mit
           <code class="varname">inv</code> beginnen, jetzt anders. Bei den Angeboten
           fangen sie mit <code class="varname">quo</code> für "quotation" an:

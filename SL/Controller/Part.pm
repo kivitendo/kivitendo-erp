@@ -15,6 +15,8 @@ use Text::CSV_XS;
 
 use SL::CVar;
 use SL::Controller::Helper::GetModels;
+use SL::DB::Business;
+use SL::DB::BusinessModel;
 use SL::DB::Helper::ValidateAssembly qw(validate_assembly);
 use SL::DB::History;
 use SL::DB::Part;
@@ -31,14 +33,15 @@ use SL::Presenter::Tag qw(select_tag);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(parts models part p warehouses multi_items_models
-                                  makemodels shops_not_assigned
+                                  makemodels businessmodels shops_not_assigned
                                   customerprices
                                   orphaned
                                   assortment assortment_items assembly assembly_items
                                   all_pricegroups all_translations all_partsgroups all_units
                                   all_buchungsgruppen all_payment_terms all_warehouses
                                   parts_classification_filter
-                                  all_languages all_units all_price_factors) ],
+                                  all_languages all_units all_price_factors
+                                  all_businesses) ],
   'scalar'                => [ qw(warehouse bin stock_amounts journal) ],
 );
 
@@ -503,11 +506,13 @@ sub action_add_makemodel_row {
 
   my $position = scalar @{$self->makemodels} + 1;
 
-  my $mm = SL::DB::MakeModel->new(# parts_id    => $::form->{part}->{id},
-                                  make        => $vendor->id,
-                                  model       => '',
-                                  lastcost    => 0,
-                                  sortorder    => $position,
+  my $mm = SL::DB::MakeModel->new(# parts_id           => $::form->{part}->{id},
+                                  make                 => $vendor->id,
+                                  model                => '',
+                                  part_description     => '',
+                                  part_longdescription => '',
+                                  lastcost             => 0,
+                                  sortorder            => $position,
                                  ) or die "Can't create MakeModel object";
 
   my $row_as_html = $self->p->render('part/_makemodel_row',
@@ -520,6 +525,42 @@ sub action_add_makemodel_row {
     ->append('#makemodel_rows', $row_as_html)  # append in tbody
     ->val('.add_makemodel_input', '')
     ->run('kivi.Part.focus_last_makemodel_input')
+    ->render;
+}
+
+sub action_add_businessmodel_row {
+  my ($self) = @_;
+
+  my $business_id = $::form->{add_businessmodel};
+
+  my $business = SL::DB::Manager::Business->find_by(id => $business_id) or
+    return $self->js->error(t8("No business selected or found!"))->render;
+
+  if ( grep { $business_id == $_->business_id } @{ $self->businessmodels } ) {
+    return $self->js
+      ->scroll_into_view('#content')
+      ->flash('error', (t8("This business has already been added.")))
+      ->render;
+  };
+
+  my $position = scalar @{ $self->businessmodels } + 1;
+
+  my $bm = SL::DB::BusinessModel->new(#parts_id             => $::form->{part}->{id},
+                                      business             => $business,
+                                      model                => '',
+                                      part_description     => '',
+                                      part_longdescription => '',
+                                      position             => $position,
+  ) or die "Can't create BusinessModel object";
+
+  my $row_as_html = $self->p->render('part/_businessmodel_row',
+                                     businessmodel => $bm);
+
+  # after selection focus on the model field in the row that was just added
+  $self->js
+    ->append('#businessmodel_rows', $row_as_html)  # append in tbody
+    ->val('#add_businessmodel', '')
+    ->run('kivi.Part.focus_last_businessmodel_input')
     ->render;
 }
 
@@ -538,10 +579,12 @@ sub action_add_customerprice_row {
   my $position = scalar @{ $self->customerprices } + 1;
 
   my $cu = SL::DB::PartCustomerPrice->new(
-                      customer_id         => $customer->id,
-                      customer_partnumber => '',
-                      price               => 0,
-                      sortorder           => $position,
+                      customer_id          => $customer->id,
+                      customer_partnumber  => '',
+                      part_description     => '',
+                      part_longdescription => '',
+                      price                => 0,
+                      sortorder            => $position,
   ) or die "Can't create Customerprice object";
 
   my $row_as_html = $self->p->render(
@@ -902,6 +945,7 @@ sub parse_form {
 
   $self->parse_form_customerprices;
   $self->parse_form_makemodels;
+  $self->parse_form_businessmodels;
 }
 
 sub parse_form_prices {
@@ -948,13 +992,14 @@ sub parse_form_makemodels {
     my $vendor = SL::DB::Manager::Vendor->find_by(id => $makemodel->{make}) || die "Can't find vendor from make";
 
     my $id = $makemodels_map->{$makemodel->{id}} ? $makemodels_map->{$makemodel->{id}}->id : undef;
-    my $mm = SL::DB::MakeModel->new( # parts_id       => $self->part->id, # will be assigned by row add_makemodels
-                                     id               => $id,
-                                     make             => $makemodel->{make},
-                                     model            => $makemodel->{model} || '',
-                                     part_description => $makemodel->{part_description},
-                                     lastcost         => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number}),
-                                     sortorder        => $position,
+    my $mm = SL::DB::MakeModel->new( # parts_id           => $self->part->id, # will be assigned by row add_makemodels
+                                     id                   => $id,
+                                     make                 => $makemodel->{make},
+                                     model                => $makemodel->{model} || '',
+                                     part_description     => $makemodel->{part_description},
+                                     part_longdescription => $makemodel->{part_longdescription},
+                                     lastcost             => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number}),
+                                     sortorder            => $position,
                                    );
     if ($makemodels_map->{$mm->id} && !$makemodels_map->{$mm->id}->lastupdate && $makemodels_map->{$mm->id}->lastcost == 0 && $mm->lastcost == 0) {
       # lastupdate isn't set, original lastcost is 0 and new lastcost is 0
@@ -969,6 +1014,36 @@ sub parse_form_makemodels {
     };
     $self->part->makemodel( scalar @{$self->part->makemodels} ? 1 : 0 ); # do we need this boolean anymore?
     $self->part->add_makemodels($mm);
+  };
+}
+
+sub parse_form_businessmodels {
+  my ($self) = @_;
+
+  my $make_key = sub { return $_[0]->parts_id . '+' . $_[0]->business_id; };
+
+  my $businessmodels_map;
+  if ( $self->part->businessmodels ) { # check for new parts or parts without businessmodels
+    $businessmodels_map = { map { $make_key->($_) => Rose::DB::Object::Helpers::clone($_) } @{$self->part->businessmodels} };
+  };
+
+  $self->part->businessmodels([]);
+
+  my $position = 0;
+  my $businessmodels = delete($::form->{businessmodels}) || [];
+  foreach my $businessmodel ( @{$businessmodels} ) {
+    next unless $businessmodel->{business_id};
+
+    $position++;
+    my $bm = SL::DB::BusinessModel->new( #parts_id            => $self->part->id,            # will be assigned by row add_businessmodels
+                                         business_id          => $businessmodel->{business_id},
+                                         model                => $businessmodel->{model} || '',
+                                         part_description     => $businessmodel->{part_description} || '',
+                                         part_longdescription => $businessmodel->{part_longdescription} || '',
+                                         position             => $position,
+    );
+
+    $self->part->add_businessmodels($bm);
   };
 }
 
@@ -994,6 +1069,8 @@ sub parse_form_customerprices {
                                      id                   => $id,
                                      customer_id          => $customerprice->{customer_id},
                                      customer_partnumber  => $customerprice->{customer_partnumber} || '',
+                                     part_description     => $customerprice->{part_description},
+                                     part_longdescription => $customerprice->{part_longdescription},
                                      price                => $::form->parse_amount(\%::myconfig, $customerprice->{price_as_number}),
                                      sortorder            => $position,
                                    );
@@ -1037,7 +1114,7 @@ sub init_part {
   # used by edit, save, delete and add
 
   if ( $::form->{part}{id} ) {
-    return SL::DB::Part->new(id => $::form->{part}{id})->load(with => [ qw(makemodels customerprices prices translations partsgroup shop_parts shop_parts.shop) ]);
+    return SL::DB::Part->new(id => $::form->{part}{id})->load(with => [ qw(makemodels businessmodels customerprices prices translations partsgroup shop_parts shop_parts.shop) ]);
   } elsif ( $::form->{id} ) {
     return SL::DB::Part->new(id => $::form->{id})->load; # used by inventory tab
   } else {
@@ -1106,16 +1183,40 @@ sub init_makemodels {
     next unless $makemodel->{make};
     $position++;
     my $mm = SL::DB::MakeModel->new( # parts_id   => $self->part->id, # will be assigned by row add_makemodels
-                                    id        => $makemodel->{id},
-                                    make      => $makemodel->{make},
-                                    model     => $makemodel->{model} || '',
-                                    lastcost  => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number} || 0),
-                                    sortorder => $position,
+                                    id                   => $makemodel->{id},
+                                    make                 => $makemodel->{make},
+                                    model                => $makemodel->{model} || '',
+                                    part_description     => $makemodel->{part_description} || '',
+                                    part_longdescription => $makemodel->{part_longdescription} || '',
+                                    lastcost             => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number} || 0),
+                                    sortorder            => $position,
                                   ) or die "Can't create mm";
     # $mm->id($makemodel->{id}) if $makemodel->{id};
     push(@makemodel_array, $mm);
   };
   return \@makemodel_array;
+}
+
+sub init_businessmodels {
+  my ($self) = @_;
+
+  my @businessmodel_array = ();
+  my $businessmodels = delete($::form->{businessmodels}) || [];
+
+  foreach my $businessmodel ( @{$businessmodels} ) {
+    next unless $businessmodel->{business_id};
+
+    my $bm = SL::DB::BusinessModel->new(#parts_id            => $self->part->id,             # will be assigned by row add_businessmodels
+                                        business_id          => $businessmodel->{business_id},
+                                        model                => $businessmodel->{model} || '',
+                                        part_description     => $businessmodel->{part_description} || '',
+                                        part_longdescription => $businessmodel->{part_longdescription} || '',
+                                  ) or die "Can't create bm";
+
+    push(@businessmodel_array, $bm);
+  };
+
+  return \@businessmodel_array;
 }
 
 sub init_customerprices {
@@ -1129,11 +1230,13 @@ sub init_customerprices {
     next unless $customerprice->{customer_id};
     $position++;
     my $cu = SL::DB::PartCustomerPrice->new( # parts_id   => $self->part->id, # will be assigned by row add_customerprices
-                                    id                  => $customerprice->{id},
-                                    customer_partnumber => $customerprice->{customer_partnumber},
-                                    customer_id         => $customerprice->{customer_id} || '',
-                                    price               => $::form->parse_amount(\%::myconfig, $customerprice->{price_as_number} || 0),
-                                    sortorder           => $position,
+                                    id                   => $customerprice->{id},
+                                    customer_partnumber  => $customerprice->{customer_partnumber},
+                                    customer_id          => $customerprice->{customer_id} || '',
+                                    part_description     => $customerprice->{part_description},
+                                    part_longdescription => $customerprice->{part_longdescription},
+                                    price                => $::form->parse_amount(\%::myconfig, $customerprice->{price_as_number} || 0),
+                                    sortorder            => $position,
                                   ) or die "Can't create cu";
     # $cu->id($customerprice->{id}) if $customerprice->{id};
     push(@customerprice_array, $cu);
@@ -1222,6 +1325,10 @@ sub init_all_price_factors {
 
 sub init_all_pricegroups {
   SL::DB::Manager::Pricegroup->get_all_sorted(query => [ obsolete => 0 ]);
+}
+
+sub init_all_businesses {
+  SL::DB::Manager::Business->get_all_sorted;
 }
 
 # model used to filter/display the parts in the multi-items dialog

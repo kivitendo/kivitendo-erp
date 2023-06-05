@@ -1742,8 +1742,8 @@ sub add_shipto {
                      shiptocontact = ?,
                      shiptophone = ?,
                      shiptofax = ?,
-                     shiptoemail = ?
-                     shiptocp_gender = ?,
+                     shiptoemail = ?,
+                     shiptocp_gender = ?
                    WHERE shipto_id = ?|;
     do_query($self, $dbh, $query, @values, $self->{shipto_id});
   } else {

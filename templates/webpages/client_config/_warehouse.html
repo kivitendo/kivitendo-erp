@@ -108,7 +108,7 @@
   </tr>
   <tr>
    <td align="right">[% LxERP.t8('Undo Transfer Interval') %]</td>
-   <td>[% L.input_tag('defaults.undo_transfer_interval', LxERP.format_amount(SELF.defaults.undo_transfer_interval, 0), style=style) %]</td>
+   <td>[% L.input_tag('defaults.undo_transfer_interval_as_number', SELF.defaults.undo_transfer_interval_as_number, style=style) %]</td>
    <td>[% LxERP.t8('Defines the interval where undoing transfers from a delivery order are allowed.') %]</td>
   </tr>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Produce Assembly Configuration") %]</td></tr>

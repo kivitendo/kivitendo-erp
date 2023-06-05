@@ -152,7 +152,7 @@
 
   <tr>
    <td align="right">[% LxERP.t8('Hourly Rate') %]</td>
-   <td>[% L.input_tag('defaults.customer_hourly_rate', LxERP.format_amount(SELF.defaults.customer_hourly_rate, 2), style=style) %]</td>
+   <td>[% L.input_tag('defaults.customer_hourly_rate_as_number', SELF.defaults.customer_hourly_rate_as_number, style=style) %]</td>
    <td>[% LxERP.t8('Default hourly rate for new customers') %]</td>
   </tr>
 
@@ -489,7 +489,7 @@
   </tr>
   <tr>
    <td align="right">[% LxERP.t8('In addition to the above date functions, subtract the following amount of days from the calculated date as a buffer.') %]</td>
-   <td>[% L.input_tag('defaults.sepa_set_skonto_date_buffer_in_days', LxERP.format_amount(SELF.defaults.sepa_set_skonto_date_buffer_in_days, 0), style=style) %]</td>
+   <td>[% L.input_tag('defaults.sepa_set_skonto_date_buffer_in_days_as_number', SELF.defaults.sepa_set_skonto_date_buffer_in_days_as_number, style=style) %]</td>
   </tr>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Experimental Features") %]</td></tr>
   <tr>
