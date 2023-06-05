@@ -220,6 +220,10 @@
           </listitem>
 
           <listitem>
+            <para><literal>Encode::IMAPUTF7</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>Exception::Class</literal></para>
           </listitem>
 
@@ -291,6 +295,10 @@
 
           <listitem>
             <para>LWP::UserAgent</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>Mail::IMAPClient</literal></para>
           </listitem>
 
           <listitem>
@@ -391,6 +399,9 @@
           </listitem>
         </itemizedlist>
 
+        <para>Seit Version größer v3.9.0 sind die folgenden Pakete hinzugekommen:
+          <literal>Mail::IMAPClient</literal>, <literal>Encode::IMAPUTF7</literal>
+        </para>
 
         <para>In der Version v3.8.0 sind keine neuen Pakete hinzugekommen.</para>
 
