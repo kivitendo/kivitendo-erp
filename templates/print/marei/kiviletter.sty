@@ -639,13 +639,12 @@
 
 %Definitionen für die insettings.tex
 \NewDocumentCommand{\setupIdentpath}{sm}{
-		\file_if_exist:nTF {#2/ident.tex}
-		{
-			\newcommand*{\identpath}{#2}
-		} {
-			\newcommand*{\identpath}{firma}
-		}
-	}
+  \file_if_exist:nTF {#2/ident.tex}
+  {
+    \newcommand*{\identpath}{#2}
+  } {
+    \newcommand*{\identpath}{firma}
+  }
 }
 
 \newcommand*{\setupCurrencyConfig}[3][euro]{
