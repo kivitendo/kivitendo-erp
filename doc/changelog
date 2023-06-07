@@ -18,12 +18,14 @@ Kleinere neue Features und Detailverbesserungen:
   - Volltextsuche auch für Einkaufsbelege EK-Rechnungen/Kreditorenbuchungen
   - Volltextsuche auch für Lieferscheine
   - weitere Filtermöglichkeiten wie Zahlungsbedingen und Typ bei Mahnungen erzeugen
-  - In diversen Formularfeldern Kunden/Lieferanten trailing withespaces nicht speichern
+  - In diversen Formularfeldern Kunden/Lieferanten trailing withespaces nicht speichern 
   - Neben Lieferantenartikelnummern kann auch ein Langtext hierzu in
     den Artikelstammdaten verwaltet werden.
   - Zu kundenspezifischen Preisen/Artikelnummern können jetzt auch
     Beschreibung und Langtext in den Artikelstammdaten verwaltet
     werden.
+  - Hintergrung-Job zum Überprüfen des Mindestlagerbestand für Artikeln, der
+    Emailversand kann über die Konfigurationsdatei geingestellt werden.
 
 2023-04-05 - Release 3.8.0
 
