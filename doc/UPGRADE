@@ -3,6 +3,16 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v3.9.0
+
+Einige neue Perl-Module sind hinzugekommen, Hilfe zum Installieren bietet wie
+immer das Skript 'scripts/installation_check.pl -v'.
+
+  * Neue Perl Abhängigkeiten:
+
+  * Encode::IMAPUTF7
+  * Mail::IMAPClient
+
 Upgrade auf v3.8.0
 
 Buchungskonten die mit einem Bankkonto verknüpft sind, können nicht mehr

@@ -8,6 +8,7 @@ use SL::HTML::Util;
 use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
+use SL::IMAPClient;
 use SL::PriceSource;
 use SL::Webdav;
 use SL::File;
@@ -131,6 +132,13 @@ sub action_edit {
 
   if ($::form->{id}) {
     $self->load_order;
+
+    if ($self->order->is_sales) {
+      my $imap_client = SL::IMAPClient->new();
+      if ($imap_client) {
+        $imap_client->update_emails_for_record($self->order);
+      }
+    }
 
   } else {
     # this is to edit an order from an unsaved order object
@@ -2190,6 +2198,7 @@ sub save {
     $self->order->add_phone_notes($phone_note) if $is_new;
   }
 
+  my $is_new = !$self->order->id;
   $db->with_transaction(sub {
     my $validity_token;
     if (!$self->order->id) {
@@ -2268,6 +2277,14 @@ sub save {
 
     1;
   }) || push(@{$errors}, $db->error);
+
+  if ($is_new && $self->order->is_sales) {
+    my $imap_client = SL::IMAPClient->new();
+    if ($imap_client) {
+      $imap_client->create_folder_for_record($self->order);
+    }
+  }
+
 
   return $errors;
 }

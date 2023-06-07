@@ -23,6 +23,9 @@
 
 package Mailer;
 
+use IO::Socket::INET;
+use IO::Socket::SSL;
+use Mail::IMAPClient;
 use Email::Address;
 use Email::MIME::Creator;
 use Encode;
@@ -284,6 +287,7 @@ sub send {
   );
   $self->{mail_attachments} = [];
 
+  my $email_as_string;
   my $error;
   my $ok = eval {
     # Clean up To/Cc/Bcc address fields
@@ -298,10 +302,20 @@ sub send {
     $self->{driver}->print($email->as_string);
     $self->{driver}->send;
 
+    $email_as_string = $email->as_string;
     1;
   };
 
   $error = $@ if !$ok;
+
+  # TODO: Error is not for sending emial
+  # in SL::Form->send_email error is treated as error for sending email
+  if ($ok) {
+    eval {$self->_store_in_imap_sent_folder($email_as_string)} or do {
+      $ok = 0;
+      $error = $@;
+    };
+  }
 
   # create journal and link to record
   $self->{journalentry} = $self->_store_in_journal;
@@ -316,6 +330,63 @@ sub _all_recipients {
   return map { @{ $self->{addresses}->{$_} || [] } } qw(to cc bcc);
 }
 
+sub _get_header_string {
+  my ($self) = @_;
+  my $header_string =
+    join "\r\n",
+      (bundle_by { join(': ', @_) } 2, @{ $self->{headers} || [] });
+  return $header_string;
+}
+
+sub _store_in_imap_sent_folder {
+  my ($self, $email_as_string) = @_;
+  my $config = $::lx_office_conf{sent_emails_in_imap} || {};
+  return unless ($config->{enabled} && $config->{hostname});
+
+  my $socket;
+  if ($config->{ssl}) {
+    $socket = IO::Socket::SSL->new(
+      Proto    => 'tcp',
+      PeerAddr => $config->{hostname},
+      PeerPort => $config->{port} || 993,
+    );
+  } else {
+    $socket = IO::Socket::INET->new(
+      Proto    => 'tcp',
+      PeerAddr => $config->{hostname},
+      PeerPort => $config->{port} || 143,
+    );
+  }
+  if (!$socket) {
+    die "Failed to create socket for IMAP client: $@\n";
+  }
+
+  my $imap = Mail::IMAPClient->new(
+    Socket   => $socket,
+    User     => $config->{username},
+    Password => $config->{password},
+  ) or do {
+    die "Failed to create IMAP Client: $@\n"
+  };
+
+  $imap->IsAuthenticated() or do {
+    die "IMAP Client login failed: " . $imap->LastError() . "\n";
+  };
+
+  my $separator =  $imap->separator();
+  my $folder    =  $config->{folder} || 'INBOX/Sent';
+  $folder       =~ s|/|${separator}|g;
+
+  $imap->append_string($folder, $email_as_string) or do {
+    my $last_error = $imap->LastError();
+    $imap->logout();
+    die "IMAP Client append failed: $last_error\n";
+  };
+
+  $imap->logout();
+  return 1;
+}
+
 sub _store_in_journal {
   my ($self, $status, $extended_status) = @_;
 
@@ -328,7 +399,7 @@ sub _store_in_journal {
   $extended_status //= $self->{driver}->extended_status if $self->{driver};
   $extended_status //= 'unknown error';
 
-  my $headers = join "\r\n", (bundle_by { join(': ', @_) } 2, @{ $self->{headers} || [] });
+  my $headers = $self->_get_header_string;
 
   my $jentry = SL::DB::EmailJournal->new(
     sender          => SL::DB::Manager::Employee->current,

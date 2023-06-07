@@ -23,6 +23,7 @@ __PACKAGE__->meta->columns(
   print_variant => { type => 'text' },
   source        => { type => 'text', not_null => 1 },
   title         => { type => 'varchar', length => 45 },
+  uid           => { type => 'text' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
