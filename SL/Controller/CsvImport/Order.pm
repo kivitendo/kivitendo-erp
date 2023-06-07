@@ -14,7 +14,6 @@ use SL::DB::PaymentTerm;
 use SL::DB::Contact;
 use SL::DB::Department;
 use SL::DB::PriceFactor;
-use SL::DB::Pricegroup;
 use SL::DB::Project;
 use SL::DB::Shipto;
 use SL::DB::TaxZone;
@@ -26,7 +25,7 @@ use parent qw(SL::Controller::CsvImport::BaseMulti);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(settings languages_by all_parts parts_by part_counts_by contacts_by ct_shiptos_by price_factors_by pricegroups_by units_by) ],
+ 'scalar --get_set_init' => [ qw(settings languages_by all_parts parts_by part_counts_by contacts_by ct_shiptos_by price_factors_by units_by) ],
 );
 
 
@@ -248,13 +247,6 @@ sub init_price_factors_by {
 
   my $all_price_factors = SL::DB::Manager::PriceFactor->get_all;
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_price_factors } } ) } qw(id description) };
-}
-
-sub init_pricegroups_by {
-  my ($self) = @_;
-
-  my $all_pricegroups = SL::DB::Manager::Pricegroup->get_all;
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_pricegroups } } ) } qw(id pricegroup) };
 }
 
 sub init_units_by {
@@ -643,31 +635,6 @@ sub check_price_factor {
     }
 
     $object->price_factor_id($price_factor->id);
-  }
-
-  return 1;
-}
-
-sub check_pricegroup {
-  my ($self, $entry) = @_;
-
-  my $object = $entry->{object};
-
-  # Check whether or not pricegroup ID is valid.
-  if ($object->pricegroup_id && !$self->pricegroups_by->{id}->{ $object->pricegroup_id }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid price group');
-    return 0;
-  }
-
-  # Map pricegroup to ID if given.
-  if (!$object->pricegroup_id && $entry->{raw_data}->{pricegroup}) {
-    my $pricegroup = $self->pricegroups_by->{pricegroup}->{ $entry->{raw_data}->{pricegroup} };
-    if (!$pricegroup) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid price group');
-      return 0;
-    }
-
-    $object->pricegroup_id($pricegroup->id);
   }
 
   return 1;
