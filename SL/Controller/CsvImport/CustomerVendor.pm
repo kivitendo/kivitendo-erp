@@ -82,6 +82,7 @@ sub check_objects {
     $self->check_taxzone($entry,  take_default => 1);
     $self->check_currency($entry, take_default => 1);
     $self->check_salesman($entry);
+    $self->check_pricegroup($entry);
 
     next if @{ $entry->{errors} };
 
@@ -116,7 +117,7 @@ sub check_objects {
     $i++;
   }
 
-  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(language business payment delivery_term taxzone));
+  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(language business payment delivery_term taxzone pricegroup));
   $self->add_cvar_raw_data_columns;
 }
 
@@ -294,6 +295,7 @@ sub setup_displayable_columns {
                                  { name => 'homepage',          description => $::locale->text('Homepage')                        },
                                  { name => 'iban',              description => $::locale->text('IBAN')                            },
                                  { name => 'pricegroup_id',     description => $::locale->text('Price group (database ID)')       },
+                                 { name => 'pricegroup',        description => $::locale->text('Price group (name)')              },
                                  { name => 'language_id',       description => $::locale->text('Language (database ID)')          },
                                  { name => 'language',          description => $::locale->text('Language (name)')                 },
                                  { name => 'name',              description => $::locale->text('Name')                            },
