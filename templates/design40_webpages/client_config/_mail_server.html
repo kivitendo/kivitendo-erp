@@ -1,0 +1,136 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+
+<div id="mail_server">
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <caption>[% 'Mail Delivery' | $T8 %]</caption>
+    <colgroup>
+      <col class="wi-small">
+      <col class="wi-normal">
+      <col class="wi-wide">
+    </colgroup>
+    <thead>
+      <tr>
+        <td colspan="3">[% 'If configured, this mail server will be used for sending mails.' | $T8 %]</td>
+      </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <th>[% 'Server' | $T8 %]</th>
+      <td>[% L.input_tag_trim('defaults.mail_delivery_host', SELF.defaults.mail_delivery_host, class='wi-normal') %]</td>
+      <td class="long-desc">[% 'If this is empty, no mails will be sent.' | $T8 %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Security' | $T8 %]</th>
+      <td>[% L.select_tag('defaults.mail_delivery_security', [ ['tls', LxERP.t8('tls')], ['ssl', LxERP.t8('ssl')], ['none', LxERP.t8('none')] ], default=SELF.defaults.mail_delivery_security, class='wi-normal') %]</td>
+      <td class="long-desc">[% 'This determines whether or not encryption is used and which kind.' | $T8 %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Port' | $T8 %]</th>
+      <td>[% L.input_tag('defaults.mail_delivery_port', SELF.defaults.mail_delivery_port, class='wi-normal') %]</td>
+      <td class="long-desc">[% "Default: 25 for 'security=none' or 'security=tls', 465 for 'security=ssl'" | $T8 %]</td>
+    <tr>
+      <th>[% 'User name' | $T8 %]</th>
+      <td>[% L.input_tag('defaults.mail_delivery_login', SELF.defaults.mail_delivery_login, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Password' | $T8 %]</th>
+      <td>[% L.input_tag('defaults.mail_delivery_password', SELF.defaults.mail_delivery_password, class='wi-normal') %]</td>
+    </tbody>
+  </table>
+</div><!-- /.wrapper -->
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <caption>[% 'IMAP Client' | $T8 %]</caption>
+    <colgroup>
+      <col class="wi-small">
+      <col class="wi-normal">
+      <col class="wi-wide">
+    </colgroup>
+    <thead>
+      <tr>
+        <td colspan="3">[% 'If this option is enabled, this IMAP server will be used to retrieve mails. When creating a new quote and order, a new folder will be created on the IMAP server. The mails in the corresponding folder will be loaded to the record in kivitendo.' | $T8 %]</td>
+      </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <th>[% 'Enabled' | $T8 %]</th>
+      <td>[% L.checkbox_tag('defaults.imap_client_enabled', checked=SELF.defaults.imap_client_enabled, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'SSL' | $T8 %]</th>
+      <td>[% L.checkbox_tag('defaults.imap_client_ssl', checked=SELF.defaults.imap_client_ssl, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Base Folder' | $T8 %]</th>
+      <td>[% L.input_tag_trim('defaults.imap_client_base_folder', SELF.defaults.imap_client_base_folder, class='wi-normal') %]</td>
+      <td class="long-desc">[% "Use '/' for subfolder." | $T8 %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Server' | $T8 %]</th>
+      <td>[% L.input_tag_trim('defaults.imap_client_hostname', SELF.defaults.imap_client_hostname, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Port' | $T8 %]</th>
+      <td>[% L.input_tag_trim('defaults.imap_client_port', SELF.defaults.imap_client_port, class='wi-normal') %]</td>
+      <td class="long-desc">[% "Default: 993 for 'ssl' enabled else 143." | $T8 %]</td>
+    </tr>
+    <tr>
+      <th>[% 'User name' | $T8 %]</th>
+      <td>[% L.input_tag('defaults.imap_client_username', SELF.defaults.imap_client_username, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Password' | $T8 %]</th>
+      <td>[% L.input_tag('defaults.imap_client_password', SELF.defaults.imap_client_password, class='wi-normal') %]</td>
+    </tr>
+  </table>
+</div><!-- /.wrapper -->
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <caption>[% 'Sent E-Mails IMAP Server' | $T8 %]</caption>
+    <colgroup>
+      <col class="wi-small">
+      <col class="wi-normal">
+      <col class="wi-wide">
+    </colgroup>
+    <thead>
+      <tr>
+        <td colspan="3">[% 'If this option is enabled, this IMAP server will be used to store sent mails. When sending a mail, a copy will be stored in the folder on the IMAP server.' | $T8 %]</td>
+      </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <th>[% 'Enabled' | $T8 %]</th>
+      <td>[% L.checkbox_tag('defaults.sent_emails_in_imap_enabled', checked=SELF.defaults.sent_emails_in_imap_enabled, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'SSL' | $T8 %]</th>
+      <td>[% L.checkbox_tag('defaults.sent_emails_in_imap_ssl', checked=SELF.defaults.sent_emails_in_imap_ssl, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Folder' | $T8 %]</th>
+      <td>[% L.input_tag_trim('defaults.sent_emails_in_imap_folder', SELF.defaults.sent_emails_in_imap_folder, class='wi-normal') %]</td>
+      <td class="long-desc">[% "Use '/' for subfolder." | $T8 %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Server' | $T8 %]</th>
+      <td>[% L.input_tag_trim('defaults.sent_emails_in_imap_hostname', SELF.defaults.sent_emails_in_imap_hostname, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Port' | $T8 %]</th>
+      <td>[% L.input_tag_trim('defaults.sent_emails_in_imap_port', SELF.defaults.sent_emails_in_imap_port, class='wi-normal') %]</td>
+      <td class="long-desc">[% "Default: 993 for 'ssl' enabled else 143." | $T8 %]</td>
+    </tr>
+    <tr>
+      <th>[% 'User name' | $T8 %]</th>
+      <td>[% L.input_tag('defaults.sent_emails_in_imap_username', SELF.defaults.sent_emails_in_imap_username, class='wi-normal') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Password' | $T8 %]</th>
+      <td>[% L.input_tag('defaults.sent_emails_in_imap_password', SELF.defaults.sent_emails_in_imap_password, class='wi-normal') %]</td>
+    </tr>
+</div><!-- /.wrapper -->
+</div><!-- /#stocktaking -->
