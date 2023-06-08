@@ -24,7 +24,13 @@ sub init {
     extended_status => 'no send attempt made',
   );
 
-  my $cfg           = $::lx_office_conf{mail_delivery} || {};
+  my $cfg           = {
+    host     => $::instance_conf->get_mail_delivery_host,
+    port     => $::instance_conf->get_mail_delivery_port,
+    login    => $::instance_conf->get_mail_delivery_login,
+    password => $::instance_conf->get_mail_delivery_password,
+    security => $::instance_conf->get_mail_delivery_security,
+  };
   $self->{security} = exists $security_config{lc $cfg->{security}} ? lc $cfg->{security} : 'none';
   my $sec_cfg       = $security_config{ $self->{security} };
 
@@ -46,10 +52,7 @@ sub init {
     };
   }
 
-  # Backwards compatibility: older Versions used 'user' instead of the
-  # intended 'login'. Support both.
-  my $login = $cfg->{login} || $cfg->{user};
-
+  my $login = $cfg->{login};
   return 1 unless $login;
 
   if (!$self->{smtp}->auth($login, $cfg->{password})) {

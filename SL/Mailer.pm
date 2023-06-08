@@ -340,8 +340,16 @@ sub _get_header_string {
 
 sub _store_in_imap_sent_folder {
   my ($self, $email_as_string) = @_;
-  my $config = $::lx_office_conf{sent_emails_in_imap} || {};
-  return unless ($config->{enabled} && $config->{hostname});
+  my $config = {
+    enabled  => $::instance_conf->get_sent_emails_in_imap_enabled,
+    hostname => $::instance_conf->get_sent_emails_in_imap_hostname,
+    port     => $::instance_conf->get_sent_emails_in_imap_port,
+    ssl      => $::instance_conf->get_sent_emails_in_imap_ssl,
+    username => $::instance_conf->get_sent_emails_in_imap_username,
+    password => $::instance_conf->get_sent_emails_in_imap_password,
+    folder   => $::instance_conf->get_sent_emails_in_imap_folder || 'Sent',
+  };
+  return unless ($config->{enabled});
 
   my $socket;
   if ($config->{ssl}) {
@@ -374,7 +382,7 @@ sub _store_in_imap_sent_folder {
   };
 
   my $separator =  $imap->separator();
-  my $folder    =  $config->{folder} || 'INBOX/Sent';
+  my $folder    =  $config->{folder};
   $folder       =~ s|/|${separator}|g;
 
   $imap->append_string($folder, $email_as_string) or do {

@@ -4,6 +4,7 @@
 [% USE T8 %]
 
 <div id="mail_server">
+[% IF LXCONFIG.mail_delivery.method == 'smtp' %]
 <div>
   <table>
     <colgroup>
@@ -40,6 +41,7 @@
     </tbody>
   </table>
 </div>
+[% END %]
 <div>
   <table>
     <colgroup>

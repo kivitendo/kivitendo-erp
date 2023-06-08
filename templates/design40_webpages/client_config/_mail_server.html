@@ -4,6 +4,7 @@
 [% USE T8 %]
 
 <div id="mail_server">
+[% IF LXCONFIG.mail_delivery.method == 'smtp' %]
 <div class="wrapper">
   <table class="tbl-horizontal">
     <caption>[% 'Mail Delivery' | $T8 %]</caption>
@@ -42,6 +43,7 @@
     </tbody>
   </table>
 </div><!-- /.wrapper -->
+[% END %]
 <div class="wrapper">
   <table class="tbl-horizontal">
     <caption>[% 'IMAP Client' | $T8 %]</caption>
