@@ -21,15 +21,17 @@ my %TYPE_TO_FOLDER = (
 
 sub new {
   my ($class, %params) = @_;
-  my $config = $::lx_office_conf{imap_client} || {};
+  my %config = (
+    enabled     => $::instance_conf->get_imap_client_enabled,
+    hostname    => $::instance_conf->get_imap_client_hostname,
+    port        => $::instance_conf->get_imap_client_port,
+    ssl         => $::instance_conf->get_imap_client_ssl,
+    username    => $::instance_conf->get_imap_client_username,
+    password    => $::instance_conf->get_imap_client_password,
+    base_folder => $::instance_conf->get_imap_client_base_folder || 'INBOX',
+  );
   my $self = bless {
-    enabled     => $config->{enabled},
-    hostname    => $config->{hostname},
-    port        => $config->{port},
-    ssl         => $config->{ssl},
-    username    => $config->{username},
-    password    => $config->{password},
-    base_folder => $config->{base_folder} || 'INBOX',
+    %config,
     %params,
   }, $class;
   return unless $self->{enabled};
@@ -188,10 +190,10 @@ SL::IMAPClient - Base class for interacting with email server from kivitendo
 
   use SL::IMAPClient;
 
-  # uses the config in config/kivitendo.conf
+  # uses the config form the client
   my $imap_client = SL::IMAPClient->new();
 
-  # can also be used with a custom config, overriding the global config
+  # can also be used with a custom config, overriding the client config
   my %config = (
     enabled     => 1,
     hostname    => 'imap.example.com',
@@ -236,7 +238,7 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
 =item C<new>
 
   Creates a new SL::IMAPClient object. If no config is passed, the config
-  from config/kivitendo.conf is used. If a config is passed, the global
+  from the current client is used. If a config is passed, the client
   config is overridden.
 
 =item C<DESTROY>
