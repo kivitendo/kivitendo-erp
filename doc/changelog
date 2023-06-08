@@ -26,12 +26,13 @@ Kleinere neue Features und Detailverbesserungen:
     werden.
   - Hintergrung-Job zum Überprüfen des Mindestlagerbestand für Artikeln, der
     Emailversand kann über die Konfigurationsdatei eingestellt werden.
-  - Gesendete Emails können im Email-Server (IMAP-Ordner Sent) gespeichert werden
+  - Gesendete Emails können im Email-Server (IMAP-Ordner Sent) gespeichert
+    werden (konfigurierbar in der Mandantenkonfiguration->E-Mail-Server)
   - Bei der Erstellung von VK-Angebote und VK-Aufträge können automatisch Ordner
-    im Email-Server angelegt werden (konfigurierbar in kivitendo.conf)
+    im Email-Server angelegt werden (konfigurierbar in der
+    Mandantenkonfiguration->E-Mail-Server)
   - Bei der Bearbeitung von VK-Angebote und VK-Aufträgen können die Emails aus
-    den angelegten Ordner im Email-Server automatisch importiert werden (s.a.
-    kivitendo.conf)
+    den angelegten Ordner im Email-Server automatisch importiert werden (siehe oben)
 
 2023-04-05 - Release 3.8.0
 
