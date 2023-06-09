@@ -459,10 +459,10 @@ sub button_tag {
 
   $onclick = 'if (!confirm("'. _J(delete($attributes{confirm})) .'")) return false; ' . $onclick if $attributes{confirm};
 
-  if ( $attributes{tag} == 'input' ) {
+  if ( $attributes{tag} eq 'input' ) {
     html_tag('input', undef, %attributes, value => $value, (onclick => $onclick)x!!$onclick)
   }
-  elsif ( $attributes{tag} == 'button' ) {
+  elsif ( $attributes{tag} eq 'button' ) {
     html_tag('button', undef, %attributes, value => $value, (onclick => $onclick)x!!$onclick);
   }
 }
