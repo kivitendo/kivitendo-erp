@@ -4,6 +4,7 @@ use strict;
 
 use Carp;
 use Data::Dumper;
+use List::Util qw(sum);
 
 use SL::DB::MetaSetup::PurchaseInvoice;
 use SL::DB::Manager::PurchaseInvoice;
@@ -224,6 +225,77 @@ sub add_ap_amount_row {
   return $acc_trans;
 }
 
+sub validate_acc_trans {
+  my ($self, %params) = @_;
+  # should be able to check unsaved invoice objects with several acc_trans lines
+
+  die "validate_acc_trans can't check invoice object with empty transactions" unless $self->transactions;
+
+  my @transactions = @{$self->transactions};
+  # die "invoice has no acc_transactions" unless scalar @transactions > 0;
+
+  return 0 unless scalar @transactions > 0;
+  return 0 unless $self->has_loaded_related('transactions');
+
+  $::lxdebug->message(LXDebug->DEBUG1(), sprintf("starting validatation of purchase invoice %s with trans_id %s and taxincluded %s\n", $self->invnumber // '', $self->id // '', $self->taxincluded // ''));
+  foreach my $acc ( @transactions ) {
+    $::lxdebug->message(LXDebug->DEBUG1(), sprintf("chart: %s  amount: %s   tax_id: %s  link: %s\n", $acc->chart->accno, $acc->amount, $acc->tax_id, $acc->chart->link));
+  }
+
+  my $acc_trans_sum = sum map { $_->amount } @transactions;
+
+  unless ( $::form->round_amount($acc_trans_sum, 10) == 0 ) {
+    my $string = "sum of acc_transactions isn't 0: $acc_trans_sum\n";
+
+    foreach my $trans ( @transactions ) {
+      $string .= sprintf("  %s %s %s\n", $trans->chart->accno, $trans->taxkey, $trans->amount);
+    }
+    $::lxdebug->message(LXDebug->DEBUG1(), $string);
+    return 0;
+  }
+
+  # only use the first AP entry, so it also works for paid invoices
+  my @ap_transactions = map { $_->amount } grep { $_->chart_link eq 'AP' } @transactions;
+  my $ap_sum = $ap_transactions[0];
+  # my $ap_sum = sum map { $_->amount } grep { $_->chart_link eq 'AP' } @transactions;
+
+  my $sign = $self->vendor_id ? 1 : -1;
+
+  unless ( $::form->round_amount($ap_sum * $sign, 2) == $::form->round_amount($self->amount, 2) ) {
+
+    $::lxdebug->message(LXDebug->DEBUG1(), sprintf("debug: (ap_sum) %s = %s (amount)\n",  $::form->round_amount($ap_sum * $sign, 2) , $::form->round_amount($self->amount, 2) ) );
+    foreach my $trans ( @transactions ) {
+      $::lxdebug->message(LXDebug->DEBUG1(), sprintf("  %s %s %s %s\n", $trans->chart->accno, $trans->taxkey, $trans->amount, $trans->chart->link));
+    }
+
+    die sprintf("sum of ap (%s) isn't equal to invoice amount (%s)", $::form->round_amount($ap_sum * $sign, 2), $::form->round_amount($self->amount, 2));
+  }
+
+  return 1;
+}
+
+sub recalculate_amounts {
+  my ($self, %params) = @_;
+  # calculate and set amount and netamount from acc_trans objects
+
+  croak ("Can only recalculate amounts for ap transactions") if $self->invoice;
+
+  return undef unless $self->has_loaded_related('transactions');
+
+  my ($netamount, $taxamount);
+
+  my @transactions = @{$self->transactions};
+
+  foreach my $acc ( @transactions ) {
+    $netamount += $acc->amount if $acc->chart->link =~ /AP_amount/;
+    $taxamount += $acc->amount if $acc->chart->link =~ /AP_tax/;
+  }
+
+  my $sign = $self->vendor_id ? -1 : 1;
+  $self->amount   (($netamount + $taxamount) * $sign);
+  $self->netamount(($netamount)              * $sign);
+}
+
 sub mark_as_paid {
   my ($self) = @_;
 
@@ -258,6 +330,17 @@ SL::DB::PurchaseInvoice: Rose model for purchase invoices (table "ap")
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<create_ap_row>
+
+=item C<add_ap_amount_row>
+
+=item C<validate_acc_trans>
+
+=item C<recalculate_amounts>
+
+These functions are similar to the ones in the C<SL::DB::Invoice> module. See
+there for more information.
 
 =item C<mark_as_paid>
 
