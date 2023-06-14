@@ -144,6 +144,8 @@ sub create_ap_row {
   # only allow this method for ap invoices (Kreditorenbuchung)
   die if $self->invoice and not $self->vendor_id;
 
+  return 0 unless scalar @{$self->transactions} > 0;
+
   my $acc_trans = [];
   my $chart = $params{chart} || SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_ap_chart_id);
   die "illegal chart in create_ap_row" unless $chart;
