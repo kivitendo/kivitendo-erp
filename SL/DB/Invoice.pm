@@ -380,7 +380,9 @@ sub add_ar_amount_row {
   if ( $tax and $tax->rate != 0 ) {
     ($netamount, $taxamount) = Form->calculate_tax($params{amount}, $tax->rate, $self->taxincluded, $roundplaces);
   };
-  next unless $netamount; # netamount mustn't be zero
+
+  return unless $netamount; # netamount mustn't be zero
+
   my $sign = $self->customer_id ? 1 : -1;
   my $acc = SL::DB::AccTransaction->new(
     amount     => $netamount * $sign,
