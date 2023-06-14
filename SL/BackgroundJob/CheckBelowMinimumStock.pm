@@ -91,8 +91,8 @@ sub _prepare_report {
   my $filename       = $email_template || ( (SL::DB::Default->get->templates || "templates/mails") . "/below_minimum_stock/error_email.html" );
   my $content_type   = $filename =~ m/.html$/ ? 'text/html' : 'text/plain';
 
-  my @ids = @{$self->{ids}};
-  my @parts = @{SL::DB::Manager::Part->get_all(where => [id => @ids])};
+  my @ids   = @{ $self->{ids} };
+  my @parts = @{ SL::DB::Manager::Part->get_all(where => [id => \@ids]) };
 
 
   my $table_head = html_tag('tr',
