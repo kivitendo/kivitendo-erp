@@ -59,7 +59,7 @@ __PACKAGE__->attr_sorted('items');
 
 sub items { goto &invoiceitems; }
 sub add_items { goto &add_invoiceitems; }
-sub record_number { goto &invnumber; };
+sub record_number { goto &invnumber; }
 
 sub is_sales {
   # For compatibility with Order, DeliveryOrder
@@ -87,7 +87,7 @@ sub abbreviation {
   return t8('Invoice (one letter abbreviation)'). '(' . t8('Storno (one letter abbreviation)') . ')' if $self->storno;
   return t8('Invoice (one letter abbreviation)');
 
-};
+}
 
 sub oneline_summary {
   my $self = shift;
@@ -123,7 +123,7 @@ sub displayable_type {
 
 sub displayable_name {
   join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
-};
+}
 
 sub convert_to_reclamation {
   my ($self, %params) = @_;
@@ -165,7 +165,7 @@ sub create_ap_row {
   $self->add_transactions( $acc );
   push( @$acc_trans, $acc );
   return $acc_trans;
-};
+}
 
 sub add_ap_amount_row {
   my ($self, %params ) = @_;
@@ -186,7 +186,7 @@ sub add_ap_amount_row {
 
   if ( $tax and $tax->rate != 0 ) {
     ($netamount, $taxamount) = Form->calculate_tax($params{amount}, $tax->rate, $self->taxincluded, $roundplaces);
-  };
+  }
 
   return unless $netamount; # netamount mustn't be zero
 
@@ -218,9 +218,9 @@ sub add_ap_amount_row {
      );
      $self->add_transactions( $acc );
      push( @$acc_trans, $acc );
-  };
+  }
   return $acc_trans;
-};
+}
 
 sub mark_as_paid {
   my ($self) = @_;
