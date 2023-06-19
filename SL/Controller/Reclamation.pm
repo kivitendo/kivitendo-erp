@@ -2374,6 +2374,7 @@ sub generate_pdf {
   $print_form->{media}       = $params->{media}    || 'file';
   $print_form->{groupitems}  = $params->{groupitems};
   $print_form->{printer_id}  = $params->{printer_id};
+  $print_form->{language_id} = $params->{language} ? $params->{language}->id : undef;
   $print_form->{media}       = 'file'       if $print_form->{media} eq 'screen';
 
   $reclamation->language($params->{language});
