@@ -97,6 +97,8 @@ $( END )$
 
 \vspace{0.5cm}
 
+%% Diese Variable kann auf 1 gesetzt werden, wenn Preise angezeigt werden sollen.
+$( SET show_prices = 0 )$
 
 %
 % - longtable kann innerhalb der Tabelle umbrechen
@@ -108,19 +110,33 @@ $( END )$
 %
 \setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
 \setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
+$( IF show_prices -)$
 \begin{longtable}{@{}rrp{7cm}@{\extracolsep{\fill}}rrr@{}}
+$( ELSE -)$
+\begin{longtable}{@{}rrp{10.7cm}@{\extracolsep{\fill}}r@{}}
+$( END -)$
+
 % Tabellenkopf
 \hline
+$( IF show_prices -)$
 \textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
+$( ELSE -)$
+\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} \\
+$( END -)$
 \hline\\
 \endhead
 
 % Tabellenkopf erste Seite
 \hline
+$( IF show_prices -)$
 \textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
+$( ELSE -)$
+\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} \\
+$( END -)$
 \hline\\[-0.5em]
 \endfirsthead
 
+$( IF show_prices -)$
 % Tabellenende
 \\
 \multicolumn{6}{@{}r@{}}{\weiteraufnaechsterseite}
@@ -135,16 +151,26 @@ $( END )$
 \multicolumn{5}{@{}l}{\textbf{\schlussbetrag}} &  \textbf{$( reclamation.amount_as_number )$} \currency\\
 \hline\hline\\
 \endlastfoot
+$( ELSE -)$ %% IF show_prices
+% Tabellenende
+\\
+\multicolumn{4}{@{}r@{}}{\weiteraufnaechsterseite}
+\endfoot
+
+% Tabellenende letzte Seite
+\hline\\
+\endlastfoot
+$( END )$ %% IF show_prices
 
 % eigentliche Tabelle
-$( FOREACH item = reclamation.items_sorted )$
+$( FOREACH item = reclamation.items_sorted -)$
   $( item.position )$ &
   $( KiviLatex.filter(item.part.partnumber) )$ &
   \textbf{$( KiviLatex.filter(item.description) )$} &
-  \raggedleft $( item.qty_as_number )$ $( KiviLatex.filter(item.unit_obj.get_translation(reclamation.language_id, item.qty)) )$ &
+  $( item.qty_as_number )$ $( KiviLatex.filter(item.unit_obj.get_translation(reclamation.language_id, item.qty)) )$ $( IF show_prices -)$ &
   $( item.sellprice_as_number )$ \currency &
   \ifthenelse{\equal{$( item.discount )$}{0}}{}{\sffamily\scriptsize{(-$( item.discount_as_percent )$ \%)}}
-  \ourfont{$( LxERP.format_amount(item.linetotal, 2) )$ \currency} \\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden
+  \ourfont{$( LxERP.format_amount(item.linetotal, 2) )$ \currency} $( END -)$\\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden
 
   $( IF item.longdescription )$ && \scriptsize $( KiviLatex.filter_html(item.longdescription) )$\\$( END )$
   $( IF item.reqdate )$         && \scriptsize \lieferdatum: $( item.reqdate_as_date )$\\$( END )$
