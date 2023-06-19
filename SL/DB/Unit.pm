@@ -1,7 +1,7 @@
 package SL::DB::Unit;
 
 use List::MoreUtils qw(any);
-
+use List::Util qw(first);
 
 use strict;
 
@@ -14,6 +14,11 @@ __PACKAGE__->meta->add_relationships(
     type         => 'many to one',
     class        => 'SL::DB::Unit',
     column_map   => { base_unit => 'name' },
+  },
+  translations => {
+    type         => 'one to many',
+    class        => 'SL::DB::UnitsLanguage',
+    column_map   => { name => 'unit' },
   },
 );
 
@@ -64,6 +69,25 @@ sub is_time_based {
   my ($self) = @_;
 
   return any { $_->id == $self->id } @{ SL::DB::Manager::Unit->time_based_units };
+}
+
+sub get_translation_obj {
+  my ($self, $language) = @_;
+
+  my $language_id = (ref($language) eq 'SL::DB::Language' ? $language->id : $language) || undef;
+
+  return first { $_->language_id => $language_id } @{ $self->translations || [] };
+}
+
+sub get_translation {
+  my ($self, $language, $qty) = @_;
+
+  my $translation     = $self->name; # fallback, if no translation found
+  my $translation_obj = $self->get_translation_obj(language => $language);
+  if ($translation_obj) {
+    $translation = (($qty // 0) > 1 || ($qty // 0) == 0) ? $translation_obj->localized_plural : $translation_obj->localized;
+  }
+  return $translation;
 }
 
 1;
