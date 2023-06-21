@@ -565,8 +565,8 @@ sub add_transactions_to_ap {
         if ( $ap_entry->{object}->{apchart} && $ap_entry->{object}->{apchart}->isa('SL::DB::Chart') ) {
           $ap_entry->{object}->recalculate_amounts; # determine and set amount and netamount for ap
           $ap_entry->{object}->create_ap_row(chart => $ap_entry->{object}->{apchart});
-          $ap_entry->{info_data}->{amount}    = $ap_entry->{object}->amount;
-          $ap_entry->{info_data}->{netamount} = $ap_entry->{object}->netamount;
+          $ap_entry->{info_data}->{calc_amount}    = $ap_entry->{object}->amount_as_number;
+          $ap_entry->{info_data}->{calc_netamount} = $ap_entry->{object}->netamount_as_number;
         } else {
           push @{ $entry->{errors} }, $::locale->text("ap_chart isn't a valid chart");
         };
@@ -594,8 +594,8 @@ sub add_transactions_to_ap {
   if ( $ap_entry->{object} ) {
     if ( $ap_entry->{object}->{apchart} && $ap_entry->{object}->{apchart}->isa('SL::DB::Chart') ) {
       $ap_entry->{object}->recalculate_amounts;
-      $ap_entry->{info_data}->{amount}    = $ap_entry->{object}->amount;
-      $ap_entry->{info_data}->{netamount} = $ap_entry->{object}->netamount;
+      $ap_entry->{info_data}->{calc_amount}    = $ap_entry->{object}->amount_as_number;
+      $ap_entry->{info_data}->{calc_netamount} = $ap_entry->{object}->netamount_as_number;
 
       $ap_entry->{object}->create_ap_row(chart => $ap_entry->{object}->{apchart});
     } else {
