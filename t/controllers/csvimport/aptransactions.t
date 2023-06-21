@@ -84,6 +84,8 @@ sub test_import {
     sep_char     => ',',
     quote_char   => '"',
     numberformat => $::myconfig{numberformat},
+    duplicates   => 'check_db',
+    duplicates_vendor_and_invnumber => 1,
   );
 
   my $csv_aptransactions_import = SL::Controller::CsvImport::APTransaction->new(
@@ -187,29 +189,56 @@ is $entry->{object}->netamount, '159.48', 'basic test: ap netamount tax not incl
 
 $saved_invoices++;
 
-##### test for duplicate invnumber
-# $file = \<<"EOL";
-# datatype,vendornumber,currency_id,invnumber,taxincluded,apchart,transdate
-# datatype,accno,amount,taxkey
-# "Rechnung",2,1,"invoice 1",f,1600,"$transdate_string"
-# "AccTransaction",3400,159.48,3
-# EOL
-# $entries = test_import($file);
-# $entry = $entries->[0];
-# $entry->{object}->validate_acc_trans;
-# is $entry->{errors}->[0], 'Error: invnumber already exists', 'detects verify_amount differences';
+##### test for duplicate invnumber for same vendor
+$file = \<<"EOL";
+datatype,vendornumber,currency_id,invnumber,taxincluded,apchart,transdate
+datatype,accno,amount,taxkey
+"Rechnung",2,1,"invoice 1",f,1600,"$transdate_string"
+"AccTransaction",3400,159.48,9
+EOL
+
+$entries = test_import($file);
+$entry = $entries->[0];
+is $entry->{errors}->[0], 'Duplicate in database', 'detects duplicate invnumer for same vendor';
+
+##### test for duplicate invnumber for different vendor
+my $different_vendor = new_vendor(
+  name         => 'anderer Testlieferant',
+  currency_id  => $currency_id,
+  taxzone_id   => $taxzone->id,
+  vendornumber => 777,
+)->save;
+
+$file = \<<"EOL";
+datatype,vendornumber,currency_id,invnumber,taxincluded,apchart,transdate
+datatype,accno,amount,taxkey
+"Rechnung",777,1,"invoice 1",f,1600,"$transdate_string"
+"AccTransaction",3400,159.48,9
+EOL
+
+$entries = test_import($file);
+is $entries->[0]->{errors}->[0], undef, 'duplicate invnumber, different vendor: no errors in ap row';
+is $entries->[1]->{errors}->[0], undef, 'duplicate invnumber, different vendor: no errors in acc_trans row';
+
+$entry = $entries->[0];
+is $entry->{object}->invnumber, 'invoice 1',           'duplicate invnumber, different vendor: invnumber ok';
+is $entry->{object}->vendor_id, $different_vendor->id, 'duplicate invnumber, different vendor: vendor_id ok';
+
+$saved_invoices++;
 
 ##### test for no invnumber given
-# $file = \<<"EOL";
-# datatype,vendornumber,currency_id,taxincluded,apchart,transdate
-# datatype,accno,amount,taxkey
-# "Rechnung",2,1,f,1600,"$transdate_string"
-# "AccTransaction",3400,159.48,3
-# EOL
-# $entries = test_import($file);
-# $entry = $entries->[0];
-# $entry->{object}->validate_acc_trans;
-# is $entry->{object}->invnumber =~ /^\d+$/, 1, 'invnumber assigned automatically';
+$file = \<<"EOL";
+datatype,vendornumber,currency_id,taxincluded,apchart,transdate
+datatype,accno,amount,taxkey
+"Rechnung",2,1,f,1600,"$transdate_string"
+"AccTransaction",3400,159.48,9
+EOL
+
+$entries = test_import($file);
+$entry = $entries->[0];
+$entry->{object}->validate_acc_trans;
+is $entry->{errors}->[0], 'Error: Invoice Number missing', 'detects missing invnubmer';
+
 
 ##### basic test without amounts in Rechnung, only specified in AccTransaction
 $file = \<<"EOL";
@@ -588,9 +617,9 @@ is $entries->[7]->{errors}->[0], undef, 'ap amount test: no errors in 3. acc_tra
 $entry = $entries->[0];
 is $entry->{object}->validate_acc_trans,    1,               'ap amount test: acc_trans validates';
 is $entry->{object}->duedate->to_kivitendo, '30.04.2016',    'duedate';
-is $entry->{info_data}->{amount},           '326', "First invoice amount displayed in info data";
+is $entry->{info_data}->{calc_amount},      '326.00',        "First calculated invoice amount displayed in info data";
 $entry = $entries->[4];
-is $entry->{info_data}->{amount},           '326', "Second invoice amount displayed in info data";
+is $entry->{info_data}->{calc_amount},      '326.00',        "Second calculated invoice amount displayed in info data";
 
 $saved_invoices++;
 $saved_invoices++;
@@ -656,7 +685,7 @@ is $entry->{errors}->[0], "Error: ap transaction doesn't validate", 'detects inv
 $file = \<<EOL;
 datatype,vendornumber,currency_id,invnumber,taxincluded,apchart
 datatype,accno,amount,taxkey
-"Rechnung",2,1,"invoice 1 tax included no amounts",t,1600
+"Rechnung",2,1,"invoice 2 tax included no amounts",t,1600
 "AccTransaction",3400,189.78,8
 EOL
 
