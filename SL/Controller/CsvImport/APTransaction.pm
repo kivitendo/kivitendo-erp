@@ -229,10 +229,12 @@ sub check_objects {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
     if ($entry->{raw_data}->{datatype} eq $self->_ap_column) {
+      $entry->{info_data}->{datatype} = $::locale->text($self->_ap_column);
       $self->handle_invoice($entry);
       $invoice_entry = $entry;
     } elsif ($entry->{raw_data}->{datatype} eq $self->_transaction_column ) {
       die "Cannot process transaction row without an invoice row" if !$invoice_entry;
+      $entry->{info_data}->{datatype} = $::locale->text($self->_transaction_column);
       $self->handle_transaction($entry, $invoice_entry);
     } else {
       die "unknown datatype";
@@ -241,6 +243,9 @@ sub check_objects {
   } continue {
     $i++;
   } # finished data parsing
+
+  $self->add_info_columns($self->_ap_column,          { header => 'datatype', method => 'datatype' });
+  $self->add_info_columns($self->_transaction_column, { header => 'datatype', method => 'datatype' });
 
   $self->add_transactions_to_ap(); # go through all data entries again, adding payable entry to ap lines while calculating amount and netamount
 
