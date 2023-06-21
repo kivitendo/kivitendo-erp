@@ -323,6 +323,10 @@ sub handle_invoice {
     push @{ $entry->{errors} }, $::locale->text('Error: Vendor missing');
   }
 
+  if (!$entry->{raw_data}->{invnumber}) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invoice Number missing');
+  }
+
   $self->check_apchart($entry); # checks for payable account
   $self->check_payment($entry); # currency default from vendor used below
   $self->check_department($entry);
