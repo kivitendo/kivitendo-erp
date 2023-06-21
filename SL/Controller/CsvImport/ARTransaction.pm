@@ -534,8 +534,8 @@ sub add_transactions_to_ar {
         if ( $ar_entry->{object}->{archart} && $ar_entry->{object}->{archart}->isa('SL::DB::Chart') ) {
           $ar_entry->{object}->recalculate_amounts; # determine and set amount and netamount for ar
           $ar_entry->{object}->create_ar_row(chart => $ar_entry->{object}->{archart});
-          $ar_entry->{info_data}->{amount}    = $ar_entry->{object}->amount;
-          $ar_entry->{info_data}->{netamount} = $ar_entry->{object}->netamount;
+          $ar_entry->{info_data}->{calc_amount}    = $ar_entry->{object}->amount_as_number;
+          $ar_entry->{info_data}->{calc_netamount} = $ar_entry->{object}->netamount_as_number;
         } else {
           push @{ $entry->{errors} }, $::locale->text("ar_chart isn't a valid chart");
         };
@@ -563,8 +563,8 @@ sub add_transactions_to_ar {
   if ( $ar_entry->{object} ) {
     if ( $ar_entry->{object}->{archart} && $ar_entry->{object}->{archart}->isa('SL::DB::Chart') ) {
       $ar_entry->{object}->recalculate_amounts;
-      $ar_entry->{info_data}->{amount}    = $ar_entry->{object}->amount;
-      $ar_entry->{info_data}->{netamount} = $ar_entry->{object}->netamount;
+      $ar_entry->{info_data}->{calc_amount}    = $ar_entry->{object}->amount_as_number;
+      $ar_entry->{info_data}->{calc_netamount} = $ar_entry->{object}->netamount_as_number;
 
       $ar_entry->{object}->create_ar_row(chart => $ar_entry->{object}->{archart});
     } else {
