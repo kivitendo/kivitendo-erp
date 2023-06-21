@@ -1548,6 +1548,7 @@ $self->{texts} = {
   'Error: Invalid warehouse'    => 'Fehler: Ungültiges Lager',
   'Error: Invalid warehouse id' => 'Ungültige Lager-ID',
   'Error: Invalid warehouse name #1' => 'Ungültiger Lagername \'#1\'',
+  'Error: Invoice Number missing' => 'Fehler: Rechnungsnummer fehlt',
   'Error: More than one source order found' => 'Fehler: mehr als ein Quell-Auftrag gefunden',
   'Error: Name missing'         => 'Fehler: Name fehlt',
   'Error: Not enough parts in stock' => 'Fehler: Nicht genügend Artikel eingelagert',

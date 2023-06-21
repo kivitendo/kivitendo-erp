@@ -1548,6 +1548,7 @@ $self->{texts} = {
   'Error: Invalid warehouse'    => '',
   'Error: Invalid warehouse id' => '',
   'Error: Invalid warehouse name #1' => '',
+  'Error: Invoice Number missing' => '',
   'Error: More than one source order found' => '',
   'Error: Name missing'         => '',
   'Error: Not enough parts in stock' => '',
