@@ -4535,6 +4535,7 @@ $self->{texts} = {
   'Vendor Order Number'         => '',
   'Vendor Part Number'          => '',
   'Vendor Record Number'        => '',
+  'Vendor and Invoice Number'   => '',
   'Vendor deleted!'             => '',
   'Vendor details'              => '',
   'Vendor missing!'             => '',

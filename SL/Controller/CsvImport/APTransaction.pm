@@ -76,6 +76,76 @@ sub init_profile {
   return $profile;
 }
 
+sub init_existing_objects {
+  my ($self) = @_;
+
+  # only use objects of main class (the first one)
+  #eval "require " . $self->class->[0];
+  $self->existing_objects($self->manager_class->[0]->get_all);
+}
+
+sub get_duplicate_check_fields {
+  return {
+    vendor_and_invnumber => {
+      label     => $::locale->text('Vendor and Invoice Number'),
+      default   => 1,
+      std_check => 1,
+      maker     => sub {
+        my ($object, $worker) = @_;
+        return if ref $object ne $worker->class->[0];
+        return '__' . $object->vendor_id . '__' . $object->invnumber . '__';
+      },
+    },
+  };
+}
+
+sub check_std_duplicates {
+  my $self = shift;
+
+  my $duplicates = {};
+
+  my $all_fields = $self->get_duplicate_check_fields();
+
+  foreach my $key (keys(%{ $all_fields })) {
+    if ( $self->controller->profile->get('duplicates_'. $key) && (!exists($all_fields->{$key}->{std_check}) || $all_fields->{$key}->{std_check} )  ) {
+      $duplicates->{$key} = {};
+    }
+  }
+
+  my @duplicates_keys = keys(%{ $duplicates });
+
+  if ( !scalar(@duplicates_keys) ) {
+    return;
+  }
+
+  if ( $self->controller->profile->get('duplicates') eq 'check_db' ) {
+    foreach my $object (@{ $self->existing_objects }) {
+      foreach my $key (@duplicates_keys) {
+        my $value = exists($all_fields->{$key}->{maker}) ? $all_fields->{$key}->{maker}->($object, $self) : $object->$key;
+        $duplicates->{$key}->{$value} = 'db';
+      }
+    }
+  }
+
+  # only check main class (the first one)
+  foreach my $entry (@{ $self->controller->data }) {
+    my $object = $entry->{object};
+
+    next if ref $object ne $self->class->[0];
+    next if scalar @{ $entry->{errors} };
+
+    foreach my $key (@duplicates_keys) {
+      my $value = exists($all_fields->{$key}->{maker}) ? $all_fields->{$key}->{maker}->($object, $self) : $object->$key;
+
+      if ( exists($duplicates->{$key}->{$value}) ) {
+        push(@{ $entry->{errors} }, $duplicates->{$key}->{$value} eq 'db' ? $::locale->text('Duplicate in database') : $::locale->text('Duplicate in CSV file'));
+        last;
+      } else {
+        $duplicates->{$key}->{$value} = 'csv';
+      }
+    }
+  }
+}
 
 sub setup_displayable_columns {
   my ($self) = @_;
