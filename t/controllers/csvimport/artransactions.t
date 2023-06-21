@@ -487,8 +487,8 @@ $entries = test_import($file);
 $entry = $entries->[0];
 $entry->{object}->validate_acc_trans;
 is $entry->{object}->duedate->to_kivitendo,      '30.04.2016',    'duedate';
-is $entry->{info_data}->{amount}, '326', "First invoice amount displayed in info data";
-is $entries->[4]->{info_data}->{amount}, '326', "Second invoice amount displayed in info data";
+is $entry->{info_data}->{calc_amount},           '326.00',        "First invoice amount displayed in info data";
+is $entries->[4]->{info_data}->{calc_amount},    '326.00',        "Second invoice amount displayed in info data";
 
 # multiple entries, taxincluded = f
 $file = \<<EOL;
