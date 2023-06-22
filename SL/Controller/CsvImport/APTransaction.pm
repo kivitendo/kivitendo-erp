@@ -32,17 +32,18 @@ sub set_profile_defaults {
   my ($self) = @_;
 
   $self->controller->profile->_set_defaults(
-                       ap_column          => $::locale->text('Invoice'),
-                       transaction_column => $::locale->text('AccTransaction'),
-                       max_amount_diff    => 0.02,
-                      );
+    ap_column                    => $::locale->text('Invoice'),
+    transaction_column           => $::locale->text('AccTransaction'),
+    max_amount_diff              => 0.02,
+    dont_save_anything_on_errors => 0,
+  );
 };
 
 
 sub init_settings {
   my ($self) = @_;
 
-  return { map { ( $_ => $self->controller->profile->get($_) ) } qw(ap_column transaction_column max_amount_diff) };
+  return { map { ( $_ => $self->controller->profile->get($_) ) } qw(ap_column transaction_column max_amount_diff dont_save_anything_on_errors) };
 }
 
 sub init_profile {
@@ -287,6 +288,16 @@ sub check_objects {
   $self->add_columns($self->_transaction_column, 'amount');
 
   $self->add_info_columns($self->_transaction_column, { header => $::locale->text('Project Number'), method => 'projectnumber' }) if $self->controller->data->[1]->{info_data}->{projectnumber};
+
+  # If requested to not save anything on errors, set all ap rows without error to an error
+  if ($self->controller->profile->get('dont_save_anything_on_errors')) {
+    my $any_errors = any { scalar @{ $_->{errors} } } @{ $self->controller->data };
+    if ($any_errors) {
+      foreach my $entry (grep { ($_->{raw_data}->{datatype} eq $self->_ap_column) && !scalar @{ $_->{errors} } } @{ $self->controller->data }) {
+        push @{ $entry->{errors} }, $::locale->text('There are some errors in the file and it was requested to not save any datasets on errors.');
+      }
+    }
+  }
 
   # If invoice has errors, add error for acc_trans items
   # If acc_trans item has an error, add an error to the invoice item
