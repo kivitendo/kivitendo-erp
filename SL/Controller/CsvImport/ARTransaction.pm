@@ -532,7 +532,7 @@ sub add_transactions_to_ar {
           $ar_entry->{info_data}->{calc_amount}    = $ar_entry->{object}->amount_as_number;
           $ar_entry->{info_data}->{calc_netamount} = $ar_entry->{object}->netamount_as_number;
         } else {
-          push @{ $entry->{errors} }, $::locale->text("ar_chart isn't a valid chart");
+          push @{ $ar_entry->{errors} }, $::locale->text("ar_chart isn't a valid chart");
         };
       };
       $ar_entry = $entry; # remember as last ar_entry
