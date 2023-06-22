@@ -578,7 +578,7 @@ sub add_transactions_to_ap {
           $ap_entry->{info_data}->{calc_amount}    = $ap_entry->{object}->amount_as_number;
           $ap_entry->{info_data}->{calc_netamount} = $ap_entry->{object}->netamount_as_number;
         } else {
-          push @{ $ap_entry->{errors} }, $::locale->text("ap_chart isn't a valid chart");
+          push @{ $ap_entry->{errors} }, $::locale->text("The payable chart isn't a valid chart.");
         };
       };
       $ap_entry = $entry; # remember as last ap_entry
