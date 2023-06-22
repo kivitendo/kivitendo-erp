@@ -547,11 +547,6 @@ sub check_verify_amounts {
 
     # check differences
     foreach my $entry (@{ $self->controller->data }) {
-      if ( @{ $entry->{errors} } ) {
-        push @{ $entry->{errors} }, $::locale->text($tv->{err_msg});
-        return 0;
-      };
-
       if ($entry->{raw_data}->{datatype} eq $self->_ap_column) {
         next if !$entry->{raw_data}->{ $tv->{raw_column} };
         my $parsed_value = $::form->parse_amount(\%::myconfig, $entry->{raw_data}->{ $tv->{raw_column} });
