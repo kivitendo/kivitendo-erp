@@ -135,6 +135,7 @@ __PACKAGE__->meta->columns(
   letternumber                              => { type => 'integer' },
   lock_oe_subversions                       => { type => 'boolean', default => 'false', not_null => 1 },
   loss_carried_forward_chart_id             => { type => 'integer' },
+  margin_percentage                         => { type => 'numeric', default => '1.0', not_null => 1, precision => 8, scale => 2 },
   max_future_booking_interval               => { type => 'integer', default => 360 },
   mtime                                     => { type => 'timestamp' },
   normalize_part_descriptions               => { type => 'boolean', default => 'true' },

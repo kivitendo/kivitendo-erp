@@ -220,6 +220,12 @@
    <td>[% LxERP.t8('If enabled, when saving parts the partsgroup must be not be empty.') %]</td>
  </tr>
 
+ <tr>
+   <td align="right">[% LxERP.t8('Default margin percentage on articles') %]</td>
+   <td>[% L.input_tag('defaults.margin_percentage_as_number', LxERP.format_amount(SELF.defaults.margin_percentage_as_number, 2), style=style) %]</td>
+   <td>[% LxERP.t8('The margin field in the Adjust Sell Price dialog (Article View) will be preset with this this default value.') %]</td>
+ </tr>
+
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Purchasing & Sales") %]</td></tr>
 
   <tr>

@@ -1,0 +1,34 @@
+[%- USE LxERP -%]
+[%- USE L -%]
+[%- USE HTML -%]
+
+</p>
+<p>
+</p>
+<p>
+ <table onload="kivi.Part.calculate_sellprice()">
+  <tr>
+   <th align="left">[% LxERP.t8("Last Cost") %]</th>
+   <th align="left">[% LxERP.t8("Sell Price Adjustment") %]</th>
+   <th align="left">[% LxERP.t8("Sell Price Adjustment Type") %]</th>
+   <th align="left">[% LxERP.t8("Sell Price") %]</th>
+   <th></th>
+  </tr>
+
+  <tr>
+   <td name="adjustment_dialog_lastcost_vendor" class="reformat_number numeric">[% lastcost_vendor %]</td>
+   <td>[% L.input_tag('adjustment_dialog_adjustment' , LxERP.format_amount(margin_percentage), size=15 , class="reformat_number numeric") %]</td>
+   <td>
+    [% opts = [ [ 'percent', LxERP.t8('percental') ], [ 'absolute', LxERP.t8('absolute') ] ] %]
+    [% L.select_tag('adjustment_dialog_type', opts, default = 'percent') %]
+   </td>
+   <td>[% L.input_tag('adjustment_dialog_sellprice' , default_margined_sellprice, size=15 , class="reformat_number numeric") %]</td>
+   <td>[% L.button_tag("kivi.Part.calculate_sellprice()", LxERP.t8("Calculate")) %]</td>
+  </tr>
+ </table>
+
+ <p>
+  [% L.button_tag("kivi.Part.adjust_sellprice()", LxERP.t8("Assign")) %]
+  <a onclick="$('#adjust_sell_price_dialog').dialog('close');" href="#">[% LxERP.t8("Abort") %]</a>
+ </p>
+</div>

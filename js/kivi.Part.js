@@ -159,6 +159,80 @@ namespace('kivi.Part', function(ns) {
     }
   };
 
+  ns.adjust_sellprice_dialog = function(clicked) {
+    var id = $("#part_id").val();
+    var part_type = $("#part_part_type").val();
+
+    var row = $(clicked).closest('tr');
+    var lastcost_row = $(row).find("input[name$=lastcost_as_number]").val();
+    var default_margined_sellprice = $(row).find("span[name$=default_margined_sell_price]").html();
+
+    kivi.popup_dialog({
+      url:    'controller.pl?action=Part/adjust_sell_price&part.id=' + id
+                                                                     + '&part.lastcost_vendor=' + lastcost_row
+                                                                     + '&part.part_type=' + part_type
+                                                                     + '&part.default_margined_sellprice=' + default_margined_sellprice,
+      dialog: { title: kivi.t8('Adjust Sell Price') },
+      id: 'adjust_sell_price_dialog',
+    });
+  };
+
+  ns.closeAdjustSellPriceDialog = function() {
+    $('#adjust_sell_price_dialog').dialog('close');
+  };
+
+  ns.adjust_sellprice = function() {
+    var calculated_sellprice = $("#adjustment_dialog_sellprice").val();
+    $("#part_sellprice_as_number").val(calculated_sellprice);
+    ns.closeAdjustSellPriceDialog();
+  };
+
+  ns.quick_update_sellprice = function(clicked) {
+    var row = $(clicked).closest('tr');
+    var sellprice_row = $(row).find("span[name$=default_margined_sell_price]").html();
+    $("#part_sellprice_as_number").val(sellprice_row);
+  };
+
+  ns.recalc_sellprices = function() {
+    $('.listrow.makemodel_row').each(function(idx, elt) {
+      var lastcost = kivi.parse_amount($(elt).find("input[name$=lastcost_as_number]").val());
+      var margin_percentage = kivi.parse_amount($("span[name$=default_margin_percentage]").html());
+      var sellprice = lastcost + (lastcost * (margin_percentage / 100));
+      var sellprice_element = $(elt).find("span[name$=default_margined_sell_price]");
+
+      sellprice_element.html(kivi.format_amount(sellprice, 2));
+    });
+  };
+
+
+  ns.update_lastcost = function(clicked) {
+    var row = $(clicked).closest('tr');
+    var lastcost_row = $(row).find("input[name$=lastcost_as_number]").val();
+    $("#part_lastcost_as_number").val(lastcost_row);
+  };
+
+  ns.calculate_sellprice = function(clicked) {
+    var lastcost = kivi.parse_amount($("[name=adjustment_dialog_lastcost_vendor]").html());
+    var sellprice_field = $("#adjustment_dialog_sellprice")
+    var sellprice = kivi.parse_amount(sellprice_field.val());
+    var adjustment_type = $("#adjustment_dialog_type").val();
+    var adjustment = kivi.parse_amount($("#adjustment_dialog_adjustment").val());
+
+    if ( adjustment_type === 'percent' ) {
+      sellprice = lastcost + (adjustment/100.0 * lastcost);
+    } else if ( adjustment_type === 'absolute' ) {
+      sellprice = lastcost + adjustment;
+    }
+
+    sellprice_field.val(kivi.format_amount(sellprice, 2));
+  };
+
+  ns.update_lastcost = function(clicked) {
+    var row = $(clicked).closest('tr');
+    var lastcost_row = $(row).find("input[name$=lastcost_as_number]").val();
+    $("#part_lastcost_as_number").val(lastcost_row);
+  };
+
   ns.add_assortment_item = function() {
     if ($('#assortment_picker').val() === '') return;
 
@@ -261,6 +335,9 @@ namespace('kivi.Part', function(ns) {
   };
 
   ns.focus_last_makemodel_input = function () {
+    // make sure there's an onChange handler for newly added row's sellprice field
+    ns.reinit_widgets();
+
     $("#makemodel_rows tr:last").find('input[type=text]').filter(':visible:first').focus();
   };
 
@@ -806,6 +883,8 @@ namespace('kivi.Part', function(ns) {
   };
 
   ns.reinit_widgets = function() {
+    ns.recalc_sellprices();
+
     kivi.run_once_for('input.part_autocomplete', 'part_picker', function(elt) {
       if (!$(elt).data('part_picker'))
         $(elt).data('part_picker', new kivi.Part.Picker($(elt)));
@@ -821,6 +900,10 @@ namespace('kivi.Part', function(ns) {
 
     kivi.run_once_for('#businessmodel_rows', 'businessmodel_row_sort_renumber', function(elt) {
       $(elt).on('sortstop', kivi.Part.businessmodel_renumber_positions);
+    });
+
+    kivi.run_once_for('input[name$=lastcost_as_number]', 'recalc_sellprice', function(elt) {
+      $(elt).change(ns.recalc_sellprices);
     });
   };
 

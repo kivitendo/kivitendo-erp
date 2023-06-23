@@ -11,6 +11,7 @@ namespace("kivi").setupLocale({
 "Add sub function block":"Unterfunktionsblock hinzufügen",
 "Add text block":"Textblock erfassen",
 "Additional articles actions":"Aktionen zu zusätzlichen Artikeln",
+"Adjust Sell Price":"Verkaufspreis anpassen",
 "An error occurred while transferring the file.":"Bei Übertragung der Datei trat ein Fehler auf",
 "Apr":"Apr",
 "April":"April",

@@ -311,6 +311,15 @@ sub action_history {
                                   history_entries => $history_entries);
 }
 
+sub action_adjust_sell_price {
+  my ($self) = @_;
+
+  $_[0]->render('part/sellprice_dialog', { layout => 0 },
+                'default_margined_sellprice' => $::form->{part}{default_margined_sellprice},
+                'lastcost_vendor' => $::form->{part}{lastcost_vendor},
+                'margin_percentage' => $::instance_conf->get_margin_percentage);
+}
+
 sub action_inventory {
   my ($self) = @_;
 
