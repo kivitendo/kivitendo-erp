@@ -149,7 +149,7 @@ sub _send_email {
   $mail->{message}      = $$output;
 
   my $err = $mail->send;
-  $self->add_errors('Mailer error #1', $err) if $err;
+  $self->add_errors($::locale->text('Mailer error #1', $err)) if $err;
 
 }
 
