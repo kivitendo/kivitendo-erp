@@ -24,6 +24,7 @@ __PACKAGE__->meta->columns(
   sortkey                         => { type => 'integer', not_null => 1 },
   use_for_qrbill                  => { type => 'boolean', default => 'false', not_null => 1 },
   use_for_zugferd                 => { type => 'boolean', default => 'false', not_null => 1 },
+  use_with_bank_import            => { type => 'boolean', default => 'true', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
