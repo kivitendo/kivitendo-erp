@@ -618,10 +618,13 @@ sub form_footer {
       $form->{"changeable_$i"} = 0;
     }
     # don't add manual bookings for charts which are assigned to real bank accounts
+    # and are flagged for use with bank import
     my $bank_accounts = SL::DB::Manager::BankAccount->get_all();
     foreach my $bank (@{ $bank_accounts }) {
-      my $accno_paid_bank = $bank->chart->accno;
-      $form->{selectAP_paid} =~ s/<option>$accno_paid_bank--(.*?)<\/option>//;
+      if ($bank->use_with_bank_import) {
+        my $accno_paid_bank = $bank->chart->accno;
+        $form->{selectAP_paid} =~ s/<option>$accno_paid_bank--(.*?)<\/option>//;
+      }
     }
     $form->{"selectAP_paid_$i"} = $form->{selectAP_paid};
     if (!$form->{"AP_paid_$i"}) {
