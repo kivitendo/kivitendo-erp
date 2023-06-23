@@ -698,6 +698,28 @@ is $entry->{object}->transactions->[1]->taxkey, '8', 'taxkey differs from active
 
 $saved_invoices++;
 
+##### verify amounts, error only once
+$file = \<<EOL;
+datatype,vendornumber,currency_id,invnumber,taxincluded,apchart,verify_netamount,verify_amount
+datatype,accno,amount,taxkey
+"Rechnung",2,1,"first invoice",f,1600,39.87,47.44
+"AccTransaction",3400,39.87,9
+"Rechnung",2,1,"second invoice",f,1600,39.78,78.39
+"AccTransaction",3400,39.87,9
+EOL
+
+$entries = test_import($file);
+
+$entry = $entries->[0];
+is $entry->{errors}->[0], undef,                         'verify amounts, error only once: no error in first invoice';
+
+$entry = $entries->[2];
+is $entry->{errors}->[0], "Amounts differ too much",     'verify amounts, error only once: amount differs';
+is $entry->{errors}->[1], "Net amounts differ too much", 'verify amounts, error only once: netamount differs';
+is $entry->{errors}->[2], undef,                         'verify amounts, error only once: nothing else';
+
+$saved_invoices++;
+
 #####
 my $number_of_imported_invoices = SL::DB::Manager::PurchaseInvoice->get_all_count;
 is $number_of_imported_invoices, $saved_invoices, 'All invoices saved';

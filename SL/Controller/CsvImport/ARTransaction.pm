@@ -181,10 +181,7 @@ sub check_objects {
 
   $self->add_transactions_to_ar(); # go through all data entries again, adding receivable entry to ar lines while calculating amount and netamount
 
-  foreach my $entry (@{ $self->controller->data }) {
-    next unless ($entry->{raw_data}->{datatype} eq $self->_ar_column);
-    $self->check_verify_amounts($entry->{object});
-  };
+  $self->check_verify_amounts();
 
   foreach my $entry (@{ $self->controller->data }) {
     next unless ($entry->{raw_data}->{datatype} eq $self->_ar_column);
