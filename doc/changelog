@@ -11,6 +11,9 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+  - Bei den Bankkonten Auswahlmöglichkeit hinzugefügt, ob das Konto für den Bankimport
+    verwendet (und somit für manuelle buchungen gesperrt) werden soll
+    (Standardwert und bestehende: Ja)
   - Mahnsperre beim Kunden
   - Bei Mahnungen den schon erstellten Beleg mitversenden (Optional einstellbar in der
     Mahnunskonfiguration.

@@ -168,6 +168,13 @@ sub check_bank_account {
     $object->local_bank_account_id($bank_account->id);
     $entry->{info_data}->{local_bank_name} = $bank_account->name;
   }
+
+  # Check if local bank account is marked for bank import
+  if ($object->local_bank_account_id && !$self->bank_accounts_by->{id}->{ $object->local_bank_account_id }->use_with_bank_import) {
+    push @{ $entry->{errors} }, $::locale->text('Error: local bank account is not marked for bank import, check settings under System -> Bank Accounts');
+    return 0;
+  }
+
   return $object->local_bank_account_id ? 1 : 0;
 }
 
