@@ -250,10 +250,7 @@ sub check_objects {
 
   $self->add_transactions_to_ap(); # go through all data entries again, adding payable entry to ap lines while calculating amount and netamount
 
-  foreach my $entry (@{ $self->controller->data }) {
-    next unless ($entry->{raw_data}->{datatype} eq $self->_ap_column);
-    $self->check_verify_amounts($entry->{object});
-  };
+  $self->check_verify_amounts();
 
   foreach my $entry (@{ $self->controller->data }) {
     next unless ($entry->{raw_data}->{datatype} eq $self->_ap_column);

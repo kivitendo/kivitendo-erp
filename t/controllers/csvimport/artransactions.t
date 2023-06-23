@@ -1,4 +1,4 @@
-use Test::More tests => 70;
+use Test::More tests => 74;
 
 use strict;
 
@@ -539,8 +539,28 @@ $entries = test_import($file);
 $entry = $entries->[0];
 is $entry->{errors}->[0], "Error: ar transaction doesn't validate", 'detects invalid ar, maybe acc_trans entry missing';
 
+# verify amounts, error only once
+$file = \<<EOL;
+datatype,customer_id,taxzone_id,currency_id,invnumber,taxincluded,archart,verify_netamount,verify_amount
+datatype,accno,amount,taxkey
+"Rechnung",960,4,1,"first invoice",f,1400,39.87,47.44
+"AccTransaction",8400,39.87,3
+"Rechnung",960,4,1,"second invoice",f,1400,39.78,78.39
+"AccTransaction",8400,39.87,3
+EOL
+$entries = test_import($file);
+
+$entry = $entries->[0];
+is $entry->{errors}->[0], undef,                         'verify amounts, error only once: no error in first invoice';
+
+$entry = $entries->[2];
+is $entry->{errors}->[0], "Amounts differ too much",     'verify amounts, error only once: amount differs';
+is $entry->{errors}->[1], "Net amounts differ too much", 'verify amounts, error only once: netamount differs';
+is $entry->{errors}->[2], undef,                         'verify amounts, error only once: nothing else';
+
+#####
 my $number_of_imported_invoices = SL::DB::Manager::Invoice->get_all_count;
-is $number_of_imported_invoices, 19, 'All invoices saved';
+is $number_of_imported_invoices, 20, 'All invoices saved';
 
 #### taxkey differs from active_taxkey
 $file = \<<EOL;
