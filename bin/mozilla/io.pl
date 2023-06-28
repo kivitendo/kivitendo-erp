@@ -175,6 +175,7 @@ sub display_row {
   # position of serialnr is used below!
   my @row2_sort   = qw(
     tax_chart tax serialnr projectnr reqdate subtotal recurring_billing_mode marge listprice lastcost onhand
+    orderer
   );
   # serialnr is important for delivery_orders
   if ($form->{type} eq 'sales_delivery_order') {
@@ -212,6 +213,7 @@ sub display_row {
     vendor_partnumber => { width => 8, value => $locale->text('Vendor Part Number'),   display => $is_delivery_order && $is_purchase, },
     tax_chart     => {                 value => "",                                    display => $is_purchase && $is_invoice },
     tax           => {                 value => $locale->text('Tax'),                  display => $is_purchase && $is_invoice },
+    orderer       => { width => 10,    value => $locale->text('Orderer'),              display => 1, },
   );
   my @HEADER = map { $column_def{$_} } @header_sort;
 
@@ -497,6 +499,9 @@ sub display_row {
       default => $::form->{"recurring_billing_mode_$i"} || 'always',
     );
 
+    # Orderer
+    $column_data{orderer}   = qq|: $form->{"orderer_$i"}|;
+
     # begin marge calculations
     $form->{"lastcost_$i"}     *= 1;
     $form->{"marge_percent_$i"} = 0;
@@ -580,6 +585,7 @@ sub display_row {
           $cgi->hidden("-name" => "price_new_$i", "-value" => $form->format_amount(\%myconfig, $form->{"price_new_$i"})),
           map { ($cgi->hidden("-name" => $_, "-id" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
             (qw(bo price_old id inventory_accno bin partsgroup partnotes active_price_source active_discount_source
+                orderer_id
                 income_accno expense_accno listprice part_type taxaccounts ordnumber donumber transdate cusordnumber
                 longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
     );

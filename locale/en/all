@@ -2641,6 +2641,7 @@ $self->{texts} = {
   'Order/RFQ Number'            => '',
   'OrderItem'                   => '',
   'Ordered'                     => '',
+  'Orderer'                     => '',
   'Orders'                      => '',
   'Orders / Delivery Orders deleteable' => '',
   'Orders in Webshop'           => '',

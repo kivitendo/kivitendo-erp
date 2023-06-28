@@ -288,7 +288,7 @@ my @different_record_values = qw(
 );
 my @different_record_item_values = qw(
   id trans_id reclamation_id itime mtime
-  cusordnumber marge_percent marge_price_factor marge_total optional ordnumber ship subtotal transdate
+  cusordnumber marge_percent marge_price_factor marge_total optional ordnumber ship subtotal transdate orderer_id
   reason_description_ext reason_description_int reason_id
   recurring_billing_mode recurring_billing_invoice_id
 );
