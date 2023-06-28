@@ -160,6 +160,10 @@
            <th align="right" nowrap="true">[% 'ROP' | $T8 %]</th>
            <td>[% L.input_tag("part.rop_as_number", SELF.part.rop_as_number, size=10, class="reformat_number numeric") %]</td>
           </tr>
+          <tr>
+           <th align="right" nowrap="true">[% 'Order Size' | $T8 %]</th>
+           <td>[% L.input_tag("part.order_qty_as_number", SELF.part.order_qty_as_number, size=10, class="numeric") %]</td>
+          </tr>
           [% IF SELF.all_warehouses.size %]
           <tr>
            <th align="right" nowrap="true">[% 'Default Warehouse' | $T8 %]</th>
