@@ -109,6 +109,7 @@ use SL::DB::ProjectPhaseParticipant;
 use SL::DB::ProjectRole;
 use SL::DB::ProjectStatus;
 use SL::DB::ProjectType;
+use SL::DB::PurchaseBasketItem;
 use SL::DB::PurchaseInvoice;
 use SL::DB::Reclamation;
 use SL::DB::ReclamationItem;

@@ -188,6 +188,7 @@ my %kivitendo_package_names = (
   project_roles                  => 'project_role',
   project_statuses               => 'project_status',
   project_types                  => 'project_type',
+  purchase_basket_items          => 'purchase_basket_item',
   reclamations                   => 'Reclamation',
   reclamation_items              => 'ReclamationItem',
   reclamation_reasons            => 'ReclamationReason',
