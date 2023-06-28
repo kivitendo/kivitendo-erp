@@ -90,6 +90,75 @@ SQL
   return %qty_by_id;
 }
 
+sub get_open_ordered_qty {
+  my $class    = shift;
+  my $part_id  = shift;
+  return () unless $part_id;
+
+  my $query = <<SQL;
+WITH
+open_qty AS (
+  SELECT parts_id, sum(oi.qty) as sum
+  FROM orderitems oi
+  LEFT OUTER JOIN oe o ON (oi.trans_id = o.id)
+  WHERE
+    oi.parts_id = ?
+    AND (NOT COALESCE(o.quotation, FALSE))
+    AND (NOT COALESCE(o.closed,    FALSE))
+    AND (NOT COALESCE(o.delivered, FALSE))
+    AND (COALESCE(o.vendor_id, 0) <> 0)
+  GROUP BY oi.parts_id
+),
+
+open_orderitems_ids AS (
+  SELECT oi.id, parts_id
+  FROM orderitems oi
+  LEFT OUTER JOIN oe o ON (oi.trans_id = o.id)
+  WHERE
+    oi.parts_id = ?
+    AND (NOT COALESCE(o.quotation, FALSE))
+    AND (NOT COALESCE(o.closed,    FALSE))
+    AND (NOT COALESCE(o.delivered, FALSE))
+    AND (o.vendor_id is not null)
+),
+
+delivered_qty AS (
+  SELECT parts_id, sum(qty) AS sum
+  FROM delivery_order_items
+  WHERE id IN (
+    SELECT to_id from record_links
+    WHERE
+      from_id IN ( SELECT id FROM open_orderitems_ids)
+      AND from_table = 'orderitems'
+      AND to_table = 'delivery_order_items'
+  ) AND parts_id = ?
+  GROUP BY parts_id
+),
+
+open_ordered_qty AS (
+  SELECT
+    oq.parts_id,
+    oq.sum AS ordered_sum,
+    COALESCE(dq.sum,0.00) AS sum,
+    sum(COALESCE(oq.sum,0.00) - COALESCE(dq.sum,0.00)) AS open_qty
+  FROM open_qty oq
+  LEFT JOIN delivered_qty dq ON dq.parts_id = oq.parts_id
+  GROUP BY oq.parts_id, oq.sum, dq.sum
+)
+
+SELECT open_qty FROM open_ordered_qty
+
+SQL
+
+  my ($open_qty) = selectfirst_array_query(
+    $::form, $class->object_class->init_db->dbh,
+    $query, $part_id, $part_id, $part_id
+  );
+
+  $open_qty ||= 0;
+  return $open_qty
+}
+
 sub _sort_spec {
   (
     default  => [ 'partnumber', 1 ],
