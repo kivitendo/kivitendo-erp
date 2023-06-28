@@ -1,0 +1,15 @@
+---
+- parent: ap
+  id: ap_disp_manager_onhand
+  name: List short onhand
+  order: 160
+  access: request_quotation_edit
+  params:
+    action: DispositionManager/list_parts
+- parent: ap
+  id: ap_disp_manager_basket
+  name: Show purchase basket
+  order: 170
+  access: request_quotation_edit
+  params:
+    action: DispositionManager/show_basket
