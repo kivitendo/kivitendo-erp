@@ -835,6 +835,13 @@ namespace('kivi.Part', function(ns) {
     ns.reinit_widgets();
   };
 
+  ns.add_to_basket = function() {
+    var data = $('#ic').serializeArray();
+    data.push({ name: 'action', value: 'Part/add_to_basket' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   $(function(){
     $('#ic').on('focusout', '.reformat_number', function(event) {
       ns.reformat_number(event);

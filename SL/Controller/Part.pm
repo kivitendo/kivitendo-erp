@@ -22,6 +22,7 @@ use SL::DB::History;
 use SL::DB::Part;
 use SL::DB::PartsGroup;
 use SL::DB::PriceRuleItem;
+use SL::DB::PurchaseBasketItem;
 use SL::DB::Shop;
 use SL::Helper::Flash;
 use SL::Helper::PrintOptions;
@@ -259,6 +260,30 @@ sub action_edit {
   my ($self, %params) = @_;
 
   $self->render_form;
+}
+
+sub action_add_to_basket {
+  my ( $self ) = @_;
+
+  if ( !$self->_is_in_purchase_basket && scalar @{$self->part->makemodels}) {
+
+    my $part = $self->part;
+
+    my $needed_qty = $part->order_qty < ($part->rop - $part->onhandqty) ?
+                     $part->rop - $part->onhandqty
+                   : $part->order_qty;
+
+    my $basket_part = SL::DB::PurchaseBasketItem->new(
+      part_id     => $part->id,
+      qty         => $needed_qty,
+      orderer     => SL::DB::Manager::Employee->current,
+    )->save;
+
+    $self->js->flash('info', t8('Part added to purchasebasket'))->render;
+  } else {
+    $self->js->flash('error', t8('Part already in purchasebasket or has no vendor'))->render;
+  }
+  return 1;
 }
 
 sub render_form {
@@ -1664,6 +1689,18 @@ sub parse_add_items_to_objects {
   return \@item_objects;
 }
 
+sub _is_in_purchase_basket {
+  my ( $self ) = @_;
+
+  return SL::DB::Manager::PurchaseBasketItem->get_all_count( query => [ part_id => $self->part->id ] );
+}
+
+sub _is_ordered {
+  my ( $self ) = @_;
+
+  return $self->part->get_ordered_qty( $self->part->id );
+}
+
 sub _setup_form_action_bar {
   my ($self) = @_;
 
@@ -1734,6 +1771,16 @@ sub _setup_form_action_bar {
                   : !$self->part->orphaned ? t8('This object has already been used.')
                   : $used_in_pricerules    ? t8('This object is used in price rules.')
                   :                          undef,
+      ],
+
+      action => [
+        t8('Add to basket'),
+        call     => [ 'kivi.Part.add_to_basket' ],
+        disabled => !$self->part->id       ? t8('This object has not been saved yet.')
+                  : $self->_is_in_purchase_basket ? t8('Part already in purchasebasket')
+                  : $self->_is_ordered ? t8('Part already ordered')
+                  : !scalar @{$self->part->makemodels} ? t8('No vendors to add to purchasebasket')
+                  : undef,
       ],
 
       'separator',
