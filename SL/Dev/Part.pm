@@ -141,8 +141,7 @@ SL::Dev::Part - create part objects for testing, with minimal defaults
   # see individual functions for special parameters
   my $part     = new_part(
     partnumber   => 'Test 001',
-    warehouse_id => $bin->warehouse->id,
-    bin_id       => $bin->id,
+    rop          => 20,
   );
 
 =head1 FUNCTIONS
