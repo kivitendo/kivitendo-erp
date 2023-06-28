@@ -12,6 +12,7 @@ use Exporter qw(import);
 our @EXPORT_OK = qw(
   part_picker part select_classification classification_abbreviation
   type_abbreviation separate_abbreviation typeclass_abbreviation
+  vendor_price_dropdown
 );
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
@@ -133,6 +134,24 @@ sub select_classification {
   select_tag( $name, $collection, %attributes );
 }
 
+sub vendor_price_dropdown {
+  my ($name, $part, %attributes) = @_;
+
+  $attributes{value_key} = 'id';
+  $attributes{title_key} = 'text';
+
+  my @vendor_price_list = map {{
+        id => $_->vendor->id,
+        text => $_->vendor->vendornumber . "--" .$_->vendor->name
+                   . " ("
+                     . $::form->format_amount(\%::myconfig, $_->lastcost, 2)
+                   . ")",
+      }}
+    @{$part->makemodels};
+
+  select_tag( $name, \@vendor_price_list, %attributes );
+}
+
 1;
 
 __END__
@@ -212,6 +231,25 @@ C<%params> can include:
 =item * default
 
 The id of the selected item.
+
+=back
+
+=back
+
+=over 2
+
+=item C<vendor_price_dropdown $name, $part, %params>
+
+Returns an HTML select tag with all available vendors with the best price
+for the given part. The value of the select tag is the vendor id.
+
+C<%params> can include:
+
+=over 4
+
+=item * default
+
+The id of the selected vendor.
 
 =back
 
