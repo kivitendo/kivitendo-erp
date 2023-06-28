@@ -47,6 +47,7 @@ namespace("kivi").setupLocale({
 "Delete requirement spec":"",
 "Delete template":"",
 "Delete text block":"",
+"Details of article number \"#1\"":"",
 "Do you really want to cancel?":"",
 "Do you really want to continue?":"",
 "Do you really want to delete the selected documents?":"",

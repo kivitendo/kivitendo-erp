@@ -47,6 +47,7 @@ namespace("kivi").setupLocale({
 "Delete requirement spec":"Pflichtenheft löschen",
 "Delete template":"Vorlage löschen",
 "Delete text block":"Textblock löschen",
+"Details of article number \"#1\"":"Details von Artikel \"#1\"",
 "Do you really want to cancel?":"Möchten Sie wirklich abbrechen?",
 "Do you really want to continue?":"Möchten Sie wirklich fortfahren?",
 "Do you really want to delete the selected documents?":"Möchten Sie wirklich diese Dateien löschen?",
