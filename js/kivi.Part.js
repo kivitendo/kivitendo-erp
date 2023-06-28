@@ -22,6 +22,13 @@ namespace('kivi.Part', function(ns) {
     $('#ic').submit();
   };
 
+  ns.print_from_showdetail = function(part_id) {
+    var data = $('#print_options_form').serializeArray();
+    data.push({ name: 'action', value: 'Part/print_label' });
+    data.push({ name: 'part.id', value: part_id });
+  $.download("controller.pl", data);
+  };
+
   ns.delete = function() {
     var data = $('#ic').serializeArray();
     data.push({ name: 'action', value: 'Part/delete' });
