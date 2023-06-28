@@ -31,6 +31,7 @@ __PACKAGE__->meta->columns(
   notes              => { type => 'text' },
   obsolete           => { type => 'boolean', default => 'false', not_null => 1 },
   onhand             => { type => 'numeric', default => '0', precision => 25, scale => 5 },
+  order_qty          => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
   part_type          => { type => 'enum', check_in => [ 'part', 'service', 'assembly', 'assortment' ], db_type => 'part_type_enum', not_null => 1 },
   partnumber         => { type => 'text', not_null => 1 },
   partsgroup_id      => { type => 'integer' },

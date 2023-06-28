@@ -2628,6 +2628,7 @@ $self->{texts} = {
   'Order Intake'                => '',
   'Order Number'                => '',
   'Order Number missing!'       => '',
+  'Order Size'                  => '',
   'Order amount'                => '',
   'Order data'                  => '',
   'Order deleted!'              => '',
