@@ -24,6 +24,7 @@ __PACKAGE__->meta->columns(
   marge_total                  => { type => 'numeric', precision => 15, scale => 5 },
   mtime                        => { type => 'timestamp' },
   optional                     => { type => 'boolean', default => 'false' },
+  orderer_id                   => { type => 'integer' },
   ordnumber                    => { type => 'text' },
   parts_id                     => { type => 'integer' },
   position                     => { type => 'integer', not_null => 1 },
@@ -52,6 +53,11 @@ __PACKAGE__->meta->foreign_keys(
   order => {
     class       => 'SL::DB::Order',
     key_columns => { trans_id => 'id' },
+  },
+
+  orderer => {
+    class       => 'SL::DB::Employee',
+    key_columns => { orderer_id => 'id' },
   },
 
   part => {

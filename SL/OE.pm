@@ -1325,7 +1325,8 @@ sub _retrieve {
            o.ordnumber, o.transdate, o.cusordnumber, o.subtotal, o.recurring_billing_mode, o.longdescription,
            o.price_factor_id, o.price_factor, o.marge_price_factor, o.active_price_source, o.active_discount_source,
            pr.projectnumber, p.formel,
-           pg.partsgroup, o.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=o.pricegroup_id) as pricegroup
+           pg.partsgroup, o.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=o.pricegroup_id) as pricegroup,
+           e.name as orderer, e.id as orderer_id
          FROM orderitems o
          JOIN parts p ON (o.parts_id = p.id)
          JOIN oe ON (o.trans_id = oe.id)
@@ -1333,7 +1334,8 @@ sub _retrieve {
          LEFT JOIN chart c2 ON ((SELECT tc.income_accno_id  FROM taxzone_charts tc WHERE tc.taxzone_id = ? and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c2.id)
          LEFT JOIN chart c3 ON ((SELECT tc.expense_accno_id FROM taxzone_charts tc WHERE tc.taxzone_id = ? and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c3.id)
          LEFT JOIN project pr ON (o.project_id = pr.id)
-         LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id) | .
+         LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+         LEFT JOIN employee e ON (o.orderer_id = e.id) | .
       ($form->{id}
        ? qq|WHERE o.trans_id = ?|
        : qq|WHERE o.trans_id IN (| . join(", ", map("?", @ids)) . qq|)|) .
@@ -1560,6 +1562,7 @@ sub order_details {
   my @arrays =
     qw(runningnumber number description longdescription qty qty_nofmt ship ship_nofmt unit bin
        partnotes serialnumber reqdate sellprice sellprice_nofmt listprice listprice_nofmt netprice netprice_nofmt
+       orderer
        discount discount_nofmt p_discount discount_sub discount_sub_nofmt nodiscount_sub nodiscount_sub_nofmt
        linetotal linetotal_nofmt nodiscount_linetotal nodiscount_linetotal_nofmt tax_rate projectnumber projectdescription
        price_factor price_factor_name partsgroup weight weight_nofmt lineweight lineweight_nofmt optional);
