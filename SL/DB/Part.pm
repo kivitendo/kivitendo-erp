@@ -8,6 +8,7 @@ use List::Util qw(sum);
 use Rose::DB::Object::Helpers qw(as_tree);
 
 use SL::Locale::String qw(t8);
+use SL::Helper::Inventory;
 use SL::DBUtils;
 use SL::DB::MetaSetup::Part;
 use SL::DB::Manager::Part;
@@ -91,6 +92,9 @@ __PACKAGE__->meta->add_relationships(
 
 __PACKAGE__->meta->initialize;
 
+use Rose::Object::MakeMethods::Generic (
+  'scalar --get_set_init' => [ qw(onhandqty stockqty get_open_ordered_qty) ],
+);
 __PACKAGE__->attr_html('notes');
 __PACKAGE__->attr_sorted({ unsorted => 'makemodels',     position => 'sortorder' });
 __PACKAGE__->attr_sorted({ unsorted => 'customerprices', position => 'sortorder' });
@@ -576,6 +580,25 @@ sub set_lastcost_assemblies_and_assortiments {
     $a->set_lastcost_assemblies_and_assortiments;
   }
   return 1;
+}
+
+sub init_onhandqty{
+  my ($self) = @_;
+  my $qty = SL::Helper::Inventory::get_onhand(part => $self->id) || 0;
+  return $qty;
+}
+
+sub init_stockqty{
+  my ($self) = @_;
+  my $qty = SL::Helper::Inventory::get_stock(part => $self->id) || 0;
+  return $qty;
+}
+
+sub init_get_open_ordered_qty {
+  my ($self) = @_;
+  my $result = SL::DB::Manager::Part->get_open_ordered_qty($self->id);
+
+  return $result;
 }
 
 1;
