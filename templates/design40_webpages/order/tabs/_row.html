@@ -112,7 +112,6 @@
         [% L.div_tag(ITEM.sellprice_as_number, name="sellprice_text", class="numeric plain-data") %]  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
         [% L.hidden_tag("order.orderitems[].sellprice_as_number",
                          ITEM.sellprice_as_number,
-
                          disabled=(EDIT_PRICE? 1 : '')) %]
       </div>
     </td>
@@ -133,7 +132,7 @@
                          disabled=(EDIT_DISCOUNT? 1 : '')) %]
       </div>
     </td>
-    <td>[% L.div_tag(LxERP.format_amount(ITEM.linetotal, 2, 0), name="linetotal") %]</td>
+    <td>[% L.div_tag(LxERP.format_amount(ITEM.linetotal, 2, 0), name="linetotal", class="numeric") %]</td>
   </tr>
   <tr [% IF !MYCONFIG.show_form_details %]style="display:none"[% END %]>
     <td colspan="100%">
