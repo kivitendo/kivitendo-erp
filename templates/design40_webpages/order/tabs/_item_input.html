@@ -36,7 +36,7 @@
         </td>
         [%- SET price = '' %]
         [%- IF SELF.created_part %]
-          [%- SET price = LxERP.format_amount(((SELF.type == 'sales_quotation' || SELF.type == 'sales_order') ? SELF.created_part.sellprice : SELF.created_part.lastcost), -2) -%]
+          [%- SET price = LxERP.format_amount(((SELF.type == 'sales_quotation' || SELF.type == 'sales_order_intake' || SELF.type == 'sales_order') ? SELF.created_part.sellprice : SELF.created_part.lastcost), -2) -%]
         [%- END %]
         <td>
           <span class="label above">[% 'Price' | $T8 %]</span>
