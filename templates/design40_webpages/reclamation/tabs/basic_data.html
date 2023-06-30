@@ -395,7 +395,7 @@
                 title=LxERP.t8('Apply to selected rows'),
           ) %]
         </th>
-        <th colspan="7"></th>
+        <th colspan="[% (SELF.search_cvpartnumber ? 8 : 7) %]"></th>
       </tr>
     </thead>
 
@@ -405,7 +405,7 @@
 
     <tfoot>
       <tr id="subtotal_row_id">
-        <td colspan="14"></td>
+        <td colspan="[% (SELF.search_cvpartnumber ? 15 : 14) %]"></td>
         [%- IF SELF.show_update_button -%]
         <td></td>
         [%- END -%]
@@ -416,7 +416,7 @@
         [%- PROCESS reclamation/tabs/basic_data/_tax_row.html TAX=tax TAXINCLUDED=SELF.reclamation.taxincluded %]
       [%- END %]
       <tr id="amount_row_id">
-        <td colspan="14"></td>
+        <td colspan="[% (SELF.search_cvpartnumber ? 15 : 14) %]"></td>
         [%- IF SELF.show_update_button -%]
         <td></td>
         [%- END -%]

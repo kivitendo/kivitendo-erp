@@ -3,8 +3,9 @@
 [%- USE LxERP %]
 [%- USE L %]
 
+[% SET n_col = (SELF.search_cvpartnumber ? 15 : 14) %]
 <tr class="tax_row">
-  <td colspan="14"></td>
+  <td colspan="[% n_col %]"></td>
   [%- IF SELF.show_update_button -%]
   <td></td>
   [%- END -%]
@@ -13,7 +14,7 @@
 </tr>
 [%- IF TAXINCLUDED %]
 <tr class="tax_row">
-  <td colspan="14"></td>
+  <td colspan="[% n_col %]"></td>
   [%- IF SELF.show_update_button -%]
   <td></td>
   [%- END -%]
