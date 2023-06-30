@@ -65,6 +65,7 @@ my %file_types = (
   'final_invoice'               => { gen => 1, gltype => 'ar', dir =>'SalesInvoice',         model => 'Invoice',        right => 'import_ar'  },
   'credit_note'                 => { gen => 1, gltype => '',   dir =>'CreditNote',           model => 'Invoice',        right => 'import_ar'  },
   'request_quotation'           => { gen => 7, gltype => '',   dir =>'RequestForQuotation',  model => 'Order',          right => 'import_ap'  },
+  'purchase_quotation_intake'   => { gen => 7, gltype => '',   dir =>'PurchaseQuotationIntake', model => 'Order',          right => 'import_ap'  },
   'purchase_order'              => { gen => 7, gltype => '',   dir =>'PurchaseOrder',        model => 'Order',          right => 'import_ap'  },
   'purchase_delivery_order'     => { gen => 7, gltype => '',   dir =>'PurchaseDeliveryOrder',model => 'DeliveryOrder',  right => 'import_ap'  },
   'purchase_reclamation'        => { gen => 7, gltype => '',   dir =>'PurchaseReclamation',  model => 'Reclamation',    right => 'import_ap'  },
