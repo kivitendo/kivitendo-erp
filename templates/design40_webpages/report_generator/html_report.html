@@ -42,7 +42,7 @@
       [% ELSE %]
         <tr>
         [% FOREACH col = row.COLUMNS %]
-          <td[% IF col.align %] class="[% col.align %]"[% END %][% IF col.colspan && col.colspan>1 %] colspan="[% HTML.escape(col.colspan) %]"[% END %]>
+          <td class="[%- IF col.align -%][% col.align %][%- END -%][%- IF col.class -%] [% col.class %][%- END -%]"[% IF col.colspan && col.colspan>1 %] colspan="[% HTML.escape(col.colspan) %]"[% END %]>
             [% IF col.raw_data %]
               [% col.raw_data %]
             [% ELSE %]
