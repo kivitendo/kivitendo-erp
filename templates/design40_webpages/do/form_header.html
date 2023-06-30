@@ -224,7 +224,7 @@ END ; %]
     </tr>
     <tr>
       <th>[% 'Transaction description' | $T8 %]</th>
-      <td>[% L.input_tag("transaction_description", transaction_description, class="wi-wide tooltipstered", "data-validate"=(INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : ''), readonly=delivered, title=transaction_description) %]</td>
+      <td>[% L.input_tag("transaction_description", transaction_description, class="wi-wide", "data-validate"=(INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : ''), readonly=delivered) %]</td>
     </tr>
     <tr>
       <td colspan="2">
