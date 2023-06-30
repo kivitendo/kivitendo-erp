@@ -123,6 +123,8 @@ END ; %]
 [%   L.hidden_tag('form_validity_token', form_validity_token) %]
 [% END %]
 
+[% IF delivered %][% SET RO=' readonly' %][% END %]
+
 <table class="tbl-horizontal col">
   <caption>[% 'Customer & Order Information' | $T8 %]</caption>
   <colgroup><col class="wi-mediumsmall"><col class="wi-wide"></colgroup>
@@ -226,13 +228,6 @@ END ; %]
       <th>[% 'Transaction description' | $T8 %]</th>
       <td>[% L.input_tag("transaction_description", transaction_description, class="wi-wide", "data-validate"=(INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : ''), readonly=delivered) %]</td>
     </tr>
-    <tr>
-      <td colspan="2">
-        <span class="label above">[% 'Internal Notes' | $T8 %]</span>
-        [% IF delivered %][% SET RO=' readonly' %][% END %]
-        [% L.textarea_tag("notes", notes, wrap="soft", style="width: 350px; height: 150px", class="texteditor") %]
-      </td>
-    </tr>
   </tbody>
 </table>
 
@@ -256,6 +251,12 @@ END ; %]
         [% ELSE %]
           [% L.textarea_tag("notes", notes, wrap="soft", rows=3, cols=10, class="texteditor wi-wide") %]
         [% END %]
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <span class="label above">[% 'Internal Notes' | $T8 %]</span>
+        [% L.textarea_tag("intnotes", intnotes, wrap="soft", class="wi-wide") %]
       </td>
     </tr>
   </tbody>
