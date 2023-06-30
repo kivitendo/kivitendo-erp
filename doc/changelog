@@ -8,6 +8,8 @@ Mittelgroße neue Features:
   - Neben Artikelnummern pro Lieferant und pro Kunden können auch
     Artikelnummern pro Kunden-/Lieferantentyp mit Beschreibung und
     Langtext verwaltet werden.
+  - Neuer Workflow Auftrags-Eingang auf der Verkaufsseite zwischen Angebot
+    und Auftrag.
 
 Kleinere neue Features und Detailverbesserungen:
 
