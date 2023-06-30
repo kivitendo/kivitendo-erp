@@ -235,7 +235,7 @@
           title_key='safe_name') %]</td>
       </tr>
     [% END %]
-    [% IF (SELF.type == "sales_order" || SELF.type == "purchase_order") %]
+    [% IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order") %]
       <tr>
         <th>[% 'Order Number' | $T8 %]</th>
         <td>
@@ -250,7 +250,7 @@
         </td>
       </tr>
     [% END %]
-    [% IF (SELF.type == "sales_order" || SELF.type == "sales_quotation") %]
+    [% IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "sales_quotation") %]
       [% SET quo_nr_txt = 'Quotation Number' %]
     [% ELSE %]
       [% SET quo_nr_txt = 'RFQ Number' %]
@@ -258,7 +258,7 @@
     <tr>
       <th>[% quo_nr_txt | $T8 %]</th>
       <td>
-        [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
+        [%- IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
           [% L.input_tag('order.quonumber', SELF.order.quonumber, class='wi-normal') %]
         [%- ELSIF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
           [% L.input_tag('order.quonumber', SELF.order.quonumber, onchange='kivi.Order.set_number_in_title(this)', class='wi-normal') %]
@@ -270,13 +270,13 @@
         [%- END %]
       </td>
     </tr>
-    [% IF (SELF.type == "sales_order" || SELF.type == "purchase_order") %]
+    [% IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order") %]
       <tr>
         <th>[% 'Customer Order Number' | $T8 %]</th>
         <td>[% L.input_tag('order.cusordnumber', SELF.order.cusordnumber, class='wi-normal') %]</td>
       </tr>
     [% END %]
-    [% IF (SELF.type == "sales_order" || SELF.type == "purchase_order") %]
+    [% IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order") %]
       [% SET transdate_txt = 'Order Date' %]
     [% ELSIF SELF.type == "sales_quotation" %]
       [% SET transdate_txt = 'Quotation Date' %]
@@ -291,7 +291,7 @@
       <th>[% 'Tax point' | $T8 %]</th>
       <td>[% L.date_tag('order.tax_point_as_date', SELF.order.tax_point_as_date, class='wi-date recalc') %]</td>
     </tr>
-    [% IF (SELF.type == "sales_order" || SELF.type == "purchase_order") %]
+    [% IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order") %]
       [% SET reqdate_txt = 'Reqdate'; SET reqdate_class = 'recalc' %]
     [% ELSIF SELF.type == "sales_quotation" %]
       [% SET reqdate_txt = 'Valid until'; SET reqdate_class = '' %]
@@ -360,7 +360,7 @@
       [%- END -%]
       <th id="partclass_header_id">[% 'Type'  | $T8 %]</th>
       <th id="description_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("description")'>[% 'Description' | $T8 %]</a></th>
-      [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
+      [%- IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
       <th id="shipped_qty_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("shipped_qty")'>[% 'Delivered' | $T8 %]</a></th>
       [%- END -%]
       <th id="qty_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("qty")'>        [% 'Qty'         | $T8 %]</a></th>
@@ -396,7 +396,7 @@
       [% PROCESS order/tabs/_tax_row.html TAX=tax TAXINCLUDED=SELF.order.taxincluded QUOTATION=SELF.order.quotation %]
     [% END %]
     <tr id="amount_row_id">
-      [%- IF (SELF.type == "sales_order" || SELF.type == "sales_quotation") -%]
+      [%- IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "sales_quotation") -%]
       [%- SET marge_class = (SELF.order.marge_total < 0) ? 'plus0' : '' -%]
       <th colspan="2">[% 'Ertrag' | $T8 %]</th>
       <td colspan="2" class="numeric">[%- L.div_tag(SELF.order.marge_total_as_number, id='marge_total_id', class=marge_class) %]</td>

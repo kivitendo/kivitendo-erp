@@ -5,7 +5,7 @@
 [% SET best_price = price_source.best_price %]
 [% SET best_discount = price_source.best_discount %]
 [% SET price_editable = 0 %]
-[% IF (FORM.type == "sales_order" || FORM.type == "sales_quotation") %]
+[% IF (FORM.type == "sales_order" || FORM.type == "sales_order_intake" || FORM.type == "sales_quotation") %]
   [% SET price_editable = AUTH.assert('sales_edit_prices', 1) %]
 [% END %]
 [% IF (FORM.type == "purchase_order" || FORM.type == "request_quotation") %]
