@@ -381,6 +381,9 @@
     [% ELSE %]
       [% SET add_col = 1 %]
     [% END %]
+    [% IF SELF.search_cvpartnumber %]
+      [% SET add_col = add_col + 1 %]
+    [% END %]
     <tr id="subtotal_row_id">
       <td colspan="[%- 10 + add_col %]"></td>
       [%- IF SELF.show_update_button -%]
