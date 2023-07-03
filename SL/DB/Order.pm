@@ -143,11 +143,12 @@ sub record_number { goto &number; }
 sub type {
   my $self = shift;
 
-  return 'sales_order_intake' if $self->customer_id &&   $self->intake;
-  return 'sales_order'        if $self->customer_id && ! $self->quotation;
-  return 'purchase_order'     if $self->vendor_id   && ! $self->quotation;
-  return 'sales_quotation'    if $self->customer_id &&   $self->quotation;
-  return 'request_quotation'  if $self->vendor_id   &&   $self->quotation;
+  return 'sales_order_intake'        if $self->customer_id &&   $self->intake;
+  return 'sales_order'               if $self->customer_id && ! $self->quotation;
+  return 'purchase_order'            if $self->vendor_id   && ! $self->quotation;
+  return 'sales_quotation'           if $self->customer_id &&   $self->quotation;
+  return 'request_quotation'         if $self->vendor_id   &&   $self->quotation  && ! $self->intake;
+  return 'purchase_quotation_intake' if $self->vendor_id   &&   $self->quotation  &&   $self->intake;
 
   return;
 }
