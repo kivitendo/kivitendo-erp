@@ -374,6 +374,11 @@ sub new_from {
     { from => 'sales_order_intake', to => 'sales_order',        abbr => 'soiso'  },
     { from => 'sales_order_intake', to => 'purchase_order',     abbr => 'soipo'  },
     { from => 'sales_quotation',    to => 'sales_order_intake', abbr => 'sqsoi'   },
+    { from => 'purchase_quotation_intake', to => 'purchase_quotation_intake', abbr => 'pqipqi' },
+    { from => 'purchase_quotation_intake', to => 'sales_quotation',           abbr => 'pqisq'  },
+    { from => 'purchase_quotation_intake', to => 'sales_order',               abbr => 'pqiso'  },
+    { from => 'purchase_quotation_intake', to => 'purchase_order',            abbr => 'pqipo'  },
+    { from => 'request_quotation',         to => 'purchase_quotation_intake', abbr => 'rqpqi'   },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") if !$from_to;
@@ -399,7 +404,7 @@ sub new_from {
                                                ordnumber payment_id quonumber reqdate salesman_id shippingpoint shipvia taxincluded tax_point taxzone_id
                                                transaction_description vendor_id billing_address_id
                                             )),
-                 quotation => !!($destination_type =~ m{quotation$}),
+                 quotation => !!(($destination_type =~ m{quotation$}) || ($destination_type eq 'purchase_quotation_intake')),
                  intake    => !!($destination_type =~ m{intake$}),
                  closed    => 0,
                  delivered => 0,
@@ -422,6 +427,8 @@ sub new_from {
                    : $from_to->{to} =~ m/^sales_order_intake$/
                    # ? $source->reqdate
                    ? undef
+                   : $from_to->{to} =~ m/^purchase_quotation_intake$/
+                   ? $source->reqdate
                    : die "Wrong state for reqdate";
   } elsif ( ref($source) eq 'SL::DB::Reclamation') {
     %args = ( map({ ( $_ => $source->$_ ) } qw(
@@ -438,7 +445,7 @@ sub new_from {
    );
   }
 
-  if ( $is_abbr_any->(qw(soipo sopo poso rqso soisq sosq porq rqsq sqrq soirq sorq)) ) {
+  if ( $is_abbr_any->(qw(soipo sopo poso rqso soisq sosq porq rqsq sqrq soirq sorq poisq poiso)) ) {
     $args{ordnumber} = undef;
     $args{quonumber} = undef;
   }
@@ -448,7 +455,7 @@ sub new_from {
     $args{payment_id}       = undef;
     $args{delivery_term_id} = undef;
   }
-  if ( $is_abbr_any->(qw(poso rqsq)) ) {
+  if ( $is_abbr_any->(qw(poso rqsq pqisq pqiso)) ) {
     $args{vendor_id} = undef;
   }
   if ( $is_abbr_any->(qw(soso)) ) {
@@ -459,6 +466,9 @@ sub new_from {
   }
   if ( $is_abbr_any->(qw(soiso)) ) {
     $args{ordnumber} = undef;
+  }
+  if ( $is_abbr_any->(qw(rqpqi pqisq)) ) {
+    $args{quonumber} = undef;
   }
 
   # Custom shipto addresses (the ones specific to the sales/purchase
@@ -513,7 +523,7 @@ sub new_from {
       $current_oe_item->sellprice($source_item->lastcost);
       $current_oe_item->discount(0);
     }
-    if ( $is_abbr_any->(qw(poso rqsq rqso)) ) {
+    if ( $is_abbr_any->(qw(poso rqsq rqso pqisq pqiso)) ) {
       $current_oe_item->lastcost($source_item->sellprice);
     }
     $current_oe_item->{"converted_from_orderitems_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::Order';
@@ -613,6 +623,7 @@ sub number {
     sales_quotation    => 'quonumber',
     purchase_order     => 'ordnumber',
     request_quotation  => 'quonumber',
+    purchase_quotation_intake => 'quonumber',
   );
 
   return $self->${ \ $number_method{$self->type} }(@_);
