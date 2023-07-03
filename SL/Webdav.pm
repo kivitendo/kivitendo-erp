@@ -21,6 +21,7 @@ my %type_to_path = (
   sales_order_intake          => 'auftragseingaenge',
   sales_order                 => 'bestellungen',
   request_quotation           => 'anfragen',
+  purchase_quotation_intake   => 'angebotseingaenge',
   purchase_order              => 'lieferantenbestellungen',
   sales_delivery_order        => 'verkaufslieferscheine',
   purchase_delivery_order     => 'einkaufslieferscheine',
