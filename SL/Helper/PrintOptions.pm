@@ -64,6 +64,9 @@ sub get_print_options {
       opthash('sales_quotation',     $form->{PD}{sales_quotation},     $locale->text('Quotation')) : undef,
     ($form->{type} =~ /request_quotation$/) ?
       opthash('request_quotation',   $form->{PD}{request_quotation},   $locale->text('Request for Quotation')) : undef,
+    ($form->{type} eq 'purchase_quotation_intake') ? (
+      opthash("purchase_quotation_intake", $form->{PD}{purchase_quotation_intake},  $locale->text('Purchase Quotation Intake')),
+    ) : undef,
     ($form->{type} eq 'invoice') ? (
       opthash("invoice",             $form->{PD}{invoice},             $locale->text('Invoice')),
       opthash("proforma",            $form->{PD}{proforma},            $locale->text('Proforma Invoice')),
