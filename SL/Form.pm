@@ -1103,6 +1103,7 @@ sub get_formname_translation {
     proforma                    => $main::locale->text('Proforma Invoice'),
     purchase_order              => $main::locale->text('Purchase Order'),
     request_quotation           => $main::locale->text('RFQ'),
+    purchase_quotation_intake   => $main::locale->text('Purchase Quotation Intake'),
     sales_order_intake          => $main::locale->text('Sales Order Intake'),
     sales_order                 => $main::locale->text('Confirmation'),
     sales_quotation             => $main::locale->text('Quotation'),
@@ -1147,7 +1148,7 @@ sub get_number_prefix_for_type {
 
   my $prefix =
       (first { $self->{type} eq $_ } qw(invoice invoice_for_advance_payment final_invoice credit_note)) ? 'inv'
-    : ($self->{type} =~ /_quotation$/)                                                                  ? 'quo'
+    : ($self->{type} =~ /_quotation/)                                                                   ? 'quo'
     : ($self->{type} =~ /_delivery_order$/)                                                             ? 'do'
     : ($self->{type} =~ /letter/)                                                                       ? 'letter'
     :                                                                                                     'ord';
@@ -2928,6 +2929,7 @@ sub save_status {
 # $main::locale->text('bin_list')
 # $main::locale->text('sales_quotation')
 # $main::locale->text('request_quotation')
+# $main::locale->text('purchase_quotation_intake')
 
 sub save_history {
   $main::lxdebug->enter_sub();
@@ -3158,7 +3160,7 @@ sub prepare_for_printing {
 
   if ($self->{type} =~ /_delivery_order$/) {
     DO->order_details(\%::myconfig, $self);
-  } elsif ($self->{type} =~ /sales_order|sales_quotation|request_quotation|purchase_order/) {
+  } elsif ($self->{type} =~ /sales_order|sales_quotation|request_quotation|purchase_order|purchase_quotation_intake/) {
     OE->order_details(\%::myconfig, $self);
   } else {
     IS->invoice_details(\%::myconfig, $self, $::locale);
