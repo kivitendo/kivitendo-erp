@@ -250,7 +250,7 @@
         </td>
       </tr>
     [% END %]
-    [% IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "sales_quotation") %]
+    [% IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "sales_quotation" || SELF.type == "purchase_quotation_intake") %]
       [% SET quo_nr_txt = 'Quotation Number' %]
     [% ELSE %]
       [% SET quo_nr_txt = 'RFQ Number' %]
@@ -278,7 +278,7 @@
     [% END %]
     [% IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order") %]
       [% SET transdate_txt = 'Order Date' %]
-    [% ELSIF SELF.type == "sales_quotation" %]
+    [% ELSIF (SELF.type == "sales_quotation" || SELF.type == "purchase_quotation_intake") %]
       [% SET transdate_txt = 'Quotation Date' %]
     [% ELSE %]
       [% SET transdate_txt = 'RFQ Date' %]
@@ -376,7 +376,7 @@
     [% PROCESS order/tabs/_row.html ITEM=item ID=(item.id||item.new_fake_id) %]
   [% END %]
   <tfoot>
-    [% IF (SELF.type == "sales_quotation") || (SELF.type == "request_quotation") %]
+    [% IF (SELF.type == "sales_quotation") || (SELF.type == "request_quotation")  || (SELF.type == "purchase_quotation_intake") %]
       [% SET add_col = 0 %]
     [% ELSE %]
       [% SET add_col = 1 %]
