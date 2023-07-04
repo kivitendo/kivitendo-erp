@@ -43,39 +43,39 @@ sub grouped_record_list {
   my %groups = _sort_grouped_lists(_group_records($list));
   my $output = '';
 
-  $output .= _requirement_spec_list(       $groups{requirement_specs},        %params) if $groups{requirement_specs};
-  $output .= _shop_order_list(             $groups{shop_orders},              %params) if $groups{shop_orders};
-  $output .= _sales_quotation_list(        $groups{sales_quotations},         %params) if $groups{sales_quotations};
-  $output .= _sales_order_intake_list(     $groups{sales_order_intakes},      %params) if $groups{sales_order_intakes};
-  $output .= _sales_order_list(            $groups{sales_orders},             %params) if $groups{sales_orders};
-  $output .= _sales_delivery_order_list(   $groups{sales_delivery_orders},    %params) if $groups{sales_delivery_orders};
-  $output .= _rma_delivery_order_list(     $groups{rma_delivery_orders},      %params) if $groups{rma_delivery_orders};
-  $output .= _sales_reclamation_list(      $groups{sales_reclamation},        %params) if $groups{sales_reclamation};
-  $output .= _sales_invoice_list(          $groups{sales_invoices},           %params) if $groups{sales_invoices};
-  $output .= _ar_transaction_list(         $groups{ar_transactions},          %params) if $groups{ar_transactions};
+  $output .= _requirement_spec_list(          $groups{requirement_specs},          %params) if $groups{requirement_specs};
+  $output .= _shop_order_list(                $groups{shop_orders},                %params) if $groups{shop_orders};
+  $output .= _sales_quotation_list(           $groups{sales_quotations},           %params) if $groups{sales_quotations};
+  $output .= _sales_order_intake_list(        $groups{sales_order_intakes},        %params) if $groups{sales_order_intakes};
+  $output .= _sales_order_list(               $groups{sales_orders},               %params) if $groups{sales_orders};
+  $output .= _sales_delivery_order_list(      $groups{sales_delivery_orders},      %params) if $groups{sales_delivery_orders};
+  $output .= _rma_delivery_order_list(        $groups{rma_delivery_orders},        %params) if $groups{rma_delivery_orders};
+  $output .= _sales_reclamation_list(         $groups{sales_reclamation},          %params) if $groups{sales_reclamation};
+  $output .= _sales_invoice_list(             $groups{sales_invoices},             %params) if $groups{sales_invoices};
+  $output .= _ar_transaction_list(            $groups{ar_transactions},            %params) if $groups{ar_transactions};
 
-  $output .= _request_quotation_list(      $groups{purchase_quotations},      %params) if $groups{purchase_quotations};
+  $output .= _request_quotation_list(         $groups{purchase_quotations},        %params) if $groups{purchase_quotations};
   $output .= _purchase_quotation_intake_list( $groups{purchase_quotation_intakes}, %params) if $groups{purchase_quotation_intakes};
-  $output .= _purchase_order_list(         $groups{purchase_orders},          %params) if $groups{purchase_orders};
-  $output .= _purchase_delivery_order_list($groups{purchase_delivery_orders}, %params) if $groups{purchase_delivery_orders};
-  $output .= _supplier_delivery_order_list($groups{supplier_delivery_orders}, %params) if $groups{supplier_delivery_orders};
-  $output .= _purchase_reclamation_list(   $groups{purchase_reclamation},     %params) if $groups{purchase_reclamation};
-  $output .= _purchase_invoice_list(       $groups{purchase_invoices},        %params) if $groups{purchase_invoices};
-  $output .= _ap_transaction_list(         $groups{ap_transactions},          %params) if $groups{ap_transactions};
+  $output .= _purchase_order_list(            $groups{purchase_orders},            %params) if $groups{purchase_orders};
+  $output .= _purchase_delivery_order_list(   $groups{purchase_delivery_orders},   %params) if $groups{purchase_delivery_orders};
+  $output .= _supplier_delivery_order_list(   $groups{supplier_delivery_orders},   %params) if $groups{supplier_delivery_orders};
+  $output .= _purchase_reclamation_list(      $groups{purchase_reclamation},       %params) if $groups{purchase_reclamation};
+  $output .= _purchase_invoice_list(          $groups{purchase_invoices},          %params) if $groups{purchase_invoices};
+  $output .= _ap_transaction_list(            $groups{ap_transactions},            %params) if $groups{ap_transactions};
 
-  $output .= _gl_transaction_list(         $groups{gl_transactions},          %params) if $groups{gl_transactions};
+  $output .= _gl_transaction_list(            $groups{gl_transactions},            %params) if $groups{gl_transactions};
 
-  $output .= _bank_transactions(           $groups{bank_transactions},        %params) if $groups{bank_transactions};
+  $output .= _bank_transactions(              $groups{bank_transactions},          %params) if $groups{bank_transactions};
 
-  $output .= _sepa_collection_list(        $groups{sepa_collections},         %params) if $groups{sepa_collections};
-  $output .= _sepa_transfer_list(          $groups{sepa_transfers},           %params) if $groups{sepa_transfers};
+  $output .= _sepa_collection_list(           $groups{sepa_collections},           %params) if $groups{sepa_collections};
+  $output .= _sepa_transfer_list(             $groups{sepa_transfers},             %params) if $groups{sepa_transfers};
 
-  $output .= _letter_list(                 $groups{letters},                  %params) if $groups{letters};
-  $output .= _email_journal_list(          $groups{email_journals},           %params) if $groups{email_journals};
+  $output .= _letter_list(                    $groups{letters},                    %params) if $groups{letters};
+  $output .= _email_journal_list(             $groups{email_journals},             %params) if $groups{email_journals};
 
-  $output .= _dunning_list(                $groups{dunnings},                 %params) if $groups{dunnings};
+  $output .= _dunning_list(                   $groups{dunnings},                   %params) if $groups{dunnings};
 
-  $output  = SL::Presenter->get->render('presenter/record/grouped_record_list', %params, output => $output);
+  $output  = SL::Presenter->get->render('presenter/record/grouped_record_list',    %params, output => $output);
 
   return $output;
 }
@@ -187,31 +187,31 @@ sub list { goto &record_list }
 sub _group_records {
   my ($list) = @_;
   my %matchers = (
-    requirement_specs        => sub { (ref($_[0]) eq 'SL::DB::RequirementSpec')                                         },
-    shop_orders              => sub { (ref($_[0]) eq 'SL::DB::ShopOrder')       &&  $_[0]->id                           },
-    sales_quotations         => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_quotation')   },
-    sales_order_intakes      => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_order_intake') },
-    sales_orders             => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_order')       },
-    sales_delivery_orders    => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('sales_delivery_order') },
-    rma_delivery_orders      => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('rma_delivery_order')   },
-    sales_reclamation        => sub { (ref($_[0]) eq 'SL::DB::Reclamation')     &&  $_[0]->is_type('sales_reclamation') },
-    sales_invoices           => sub { (ref($_[0]) eq 'SL::DB::Invoice')         &&  $_[0]->invoice                      },
-    ar_transactions          => sub { (ref($_[0]) eq 'SL::DB::Invoice')         && !$_[0]->invoice                      },
-    purchase_quotations      => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('request_quotation') },
-    purchase_quotation_intakes => sub { (ref($_[0]) eq 'SL::DB::Order')         &&  $_[0]->is_type('purchase_quotation_intake') },
-    purchase_orders          => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('purchase_order')    },
-    purchase_delivery_orders => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('purchase_delivery_order') },
-    supplier_delivery_orders => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('supplier_delivery_order') },
-    purchase_reclamation     => sub { (ref($_[0]) eq 'SL::DB::Reclamation')     &&  $_[0]->is_type('purchase_reclamation')},
-    purchase_invoices        => sub { (ref($_[0]) eq 'SL::DB::PurchaseInvoice') &&  $_[0]->invoice                      },
-    ap_transactions          => sub { (ref($_[0]) eq 'SL::DB::PurchaseInvoice') && !$_[0]->invoice                      },
-    sepa_collections         => sub { (ref($_[0]) eq 'SL::DB::SepaExportItem')  &&  $_[0]->ar_id                        },
-    sepa_transfers           => sub { (ref($_[0]) eq 'SL::DB::SepaExportItem')  &&  $_[0]->ap_id                        },
-    gl_transactions          => sub { (ref($_[0]) eq 'SL::DB::GLTransaction')                                           },
-    bank_transactions        => sub { (ref($_[0]) eq 'SL::DB::BankTransaction') &&  $_[0]->id                           },
-    letters                  => sub { (ref($_[0]) eq 'SL::DB::Letter')          &&  $_[0]->id                           },
-    email_journals           => sub { (ref($_[0]) eq 'SL::DB::EmailJournal')    &&  $_[0]->id                           },
-    dunnings                 => sub { (ref($_[0]) eq 'SL::DB::Dunning')                                                 },
+    requirement_specs          => sub { (ref($_[0]) eq 'SL::DB::RequirementSpec')                                         },
+    shop_orders                => sub { (ref($_[0]) eq 'SL::DB::ShopOrder')       &&  $_[0]->id                           },
+    sales_quotations           => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_quotation')   },
+    sales_order_intakes        => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_order_intake') },
+    sales_orders               => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_order')       },
+    sales_delivery_orders      => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('sales_delivery_order') },
+    rma_delivery_orders        => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('rma_delivery_order')   },
+    sales_reclamation          => sub { (ref($_[0]) eq 'SL::DB::Reclamation')     &&  $_[0]->is_type('sales_reclamation') },
+    sales_invoices             => sub { (ref($_[0]) eq 'SL::DB::Invoice')         &&  $_[0]->invoice                      },
+    ar_transactions            => sub { (ref($_[0]) eq 'SL::DB::Invoice')         && !$_[0]->invoice                      },
+    purchase_quotations        => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('request_quotation') },
+    purchase_quotation_intakes => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('purchase_quotation_intake') },
+    purchase_orders            => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('purchase_order')    },
+    purchase_delivery_orders   => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('purchase_delivery_order') },
+    supplier_delivery_orders   => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('supplier_delivery_order') },
+    purchase_reclamation       => sub { (ref($_[0]) eq 'SL::DB::Reclamation')     &&  $_[0]->is_type('purchase_reclamation')},
+    purchase_invoices          => sub { (ref($_[0]) eq 'SL::DB::PurchaseInvoice') &&  $_[0]->invoice                      },
+    ap_transactions            => sub { (ref($_[0]) eq 'SL::DB::PurchaseInvoice') && !$_[0]->invoice                      },
+    sepa_collections           => sub { (ref($_[0]) eq 'SL::DB::SepaExportItem')  &&  $_[0]->ar_id                        },
+    sepa_transfers             => sub { (ref($_[0]) eq 'SL::DB::SepaExportItem')  &&  $_[0]->ap_id                        },
+    gl_transactions            => sub { (ref($_[0]) eq 'SL::DB::GLTransaction')                                           },
+    bank_transactions          => sub { (ref($_[0]) eq 'SL::DB::BankTransaction') &&  $_[0]->id                           },
+    letters                    => sub { (ref($_[0]) eq 'SL::DB::Letter')          &&  $_[0]->id                           },
+    email_journals             => sub { (ref($_[0]) eq 'SL::DB::EmailJournal')    &&  $_[0]->id                           },
+    dunnings                   => sub { (ref($_[0]) eq 'SL::DB::Dunning')                                                 },
   );
 
   my %groups;
