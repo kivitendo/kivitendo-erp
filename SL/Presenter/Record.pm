@@ -55,6 +55,7 @@ sub grouped_record_list {
   $output .= _ar_transaction_list(         $groups{ar_transactions},          %params) if $groups{ar_transactions};
 
   $output .= _request_quotation_list(      $groups{purchase_quotations},      %params) if $groups{purchase_quotations};
+  $output .= _purchase_quotation_intake_list( $groups{purchase_quotation_intakes}, %params) if $groups{purchase_quotation_intakes};
   $output .= _purchase_order_list(         $groups{purchase_orders},          %params) if $groups{purchase_orders};
   $output .= _purchase_delivery_order_list($groups{purchase_delivery_orders}, %params) if $groups{purchase_delivery_orders};
   $output .= _supplier_delivery_order_list($groups{supplier_delivery_orders}, %params) if $groups{supplier_delivery_orders};
@@ -197,6 +198,7 @@ sub _group_records {
     sales_invoices           => sub { (ref($_[0]) eq 'SL::DB::Invoice')         &&  $_[0]->invoice                      },
     ar_transactions          => sub { (ref($_[0]) eq 'SL::DB::Invoice')         && !$_[0]->invoice                      },
     purchase_quotations      => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('request_quotation') },
+    purchase_quotation_intakes => sub { (ref($_[0]) eq 'SL::DB::Order')         &&  $_[0]->is_type('purchase_quotation_intake') },
     purchase_orders          => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('purchase_order')    },
     purchase_delivery_orders => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('purchase_delivery_order') },
     supplier_delivery_orders => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('supplier_delivery_order') },
@@ -303,6 +305,26 @@ sub _request_quotation_list {
     columns => [
       [ $::locale->text('Quotation Date'),          'transdate'                                                                ],
       [ $::locale->text('Quotation Number'),        sub { $_[0]->presenter->request_quotation(display => 'table-cell') }       ],
+      [ $::locale->text('Vendor'),                  'vendor'                                                                   ],
+      [ $::locale->text('Net amount'),              'netamount'                                                                ],
+      [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
+      [ $::locale->text('Project'),                 'globalproject', ],
+      [ $::locale->text('Closed'),                  'closed'                                                                   ],
+    ],
+    %params,
+  );
+}
+
+sub _purchase_quotation_intake_list {
+  my ($list, %params) = @_;
+
+  return record_list(
+    $list,
+    title   => $::locale->text('Purchase Quotation Intakes'),
+    type    => 'purchase_quotation_intake',
+    columns => [
+      [ $::locale->text('Quotation Date'),          'transdate'                                                                ],
+      [ $::locale->text('Quotation Number'),        sub { $_[0]->presenter->purchase_quotation_intake(display => 'table-cell') } ],
       [ $::locale->text('Vendor'),                  'vendor'                                                                   ],
       [ $::locale->text('Net amount'),              'netamount'                                                                ],
       [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
