@@ -24,6 +24,7 @@ my @available_modules = (
   'SL::Controller::TopQuickSearch::SalesOrder',
   'SL::Controller::TopQuickSearch::SalesDeliveryOrder',
   'SL::Controller::TopQuickSearch::RequestForQuotation',
+  'SL::Controller::TopQuickSearch::PurchaseQuotationIntake',
   'SL::Controller::TopQuickSearch::PurchaseOrder',
   'SL::Controller::TopQuickSearch::PurchaseDeliveryOrder',
   'SL::Controller::TopQuickSearch::GLTransaction',
