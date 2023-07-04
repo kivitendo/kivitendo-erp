@@ -341,6 +341,7 @@ sub sort_linked_records {
               'SL::DB::DeliveryOrder'   =>  sub { $scores{ $_[0]->type } },
               'SL::DB::Invoice'         =>  50,
               request_quotation         => 120,
+              purchase_quotation_intake => 125,
               purchase_order            => 130,
               purchase_delivery_order   => 140,
               'SL::DB::PurchaseInvoice' => 150,
