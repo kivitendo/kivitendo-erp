@@ -82,6 +82,11 @@ sub transactions {
     $quotation = '1';
     $ordnumber = 'quonumber';
 
+  } elsif ($form->{type} eq 'purchase_quotation_intake') {
+    $intake = '1';
+    $quotation = '1';
+    $ordnumber = 'quonumber';
+
   } elsif ($form->{type} =~ /_order_intake$/) {
     $intake = '1';
 
