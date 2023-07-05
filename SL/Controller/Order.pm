@@ -2188,6 +2188,10 @@ sub save {
   my $errors = [];
   my $db     = $self->order->db;
 
+  if (scalar @{$self->order->items} == 0) {
+    return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
+  }
+
   # check for new or updated phone note
   if ($::form->{phone_note}->{subject} || $::form->{phone_note}->{body}) {
     if (!$::form->{phone_note}->{subject} || !$::form->{phone_note}->{body}) {
