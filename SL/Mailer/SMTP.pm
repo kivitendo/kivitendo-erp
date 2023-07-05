@@ -20,7 +20,7 @@ sub init {
 
   Rose::Object::init(
     @_,
-    status          => 'failed',
+    status          => 'send_failed',
     extended_status => 'no send attempt made',
   );
 
@@ -96,7 +96,7 @@ sub send {
 
   my $ok = $self->{smtp}->dataend;
   $self->extended_status($self->{smtp}->message);
-  $self->status('ok') if $ok;
+  $self->status('sent') if $ok;
 
   $self->{smtp}->quit;
 

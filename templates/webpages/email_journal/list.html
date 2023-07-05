@@ -52,11 +52,15 @@
    </td>
    <td>[%- HTML.escape(entry.sent_on.to_lxoffice('precision' => 'second')) %]</td>
    <td>
-    [%- IF entry.status == 'ok' %]
-     [%- LxERP.t8('succeeded') %]
-    [% ELSE %]
-     [%- LxERP.t8('failed') %]
-    [%- END %]
+     [% IF entry.status == 'sent' %]
+       [% LxERP.t8('sent') %]
+     [% ELSIF entry.status == 'send_failed' %]
+       [% LxERP.t8('send failed') %]
+     [% ELSIF entry.status == 'imported' %]
+       [% LxERP.t8('imported') %]
+     [% ELSE %]
+       [% entry.status %]
+     [% END %]
    </td>
    <td>[%- HTML.escape(entry.extended_status) %]</td>
   </tr>

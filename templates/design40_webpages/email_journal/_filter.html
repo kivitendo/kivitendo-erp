@@ -22,7 +22,7 @@
     </tr>
     <tr>
       <th>[% LxERP.t8("Status") %]</th>
-      <td>[% L.select_tag("filter.status:eq_ignore_empty", [ [ "", "" ], [ "failed", LxERP.t8("failed") ], [ "ok", LxERP.t8("succeeded") ] ], default=filter.status_eq_ignore_empty) %]
+      <td>[% L.select_tag("filter.status:eq_ignore_empty", [ [ "", "" ], [ "send_failed", LxERP.t8("send failed") ], [ "sent", LxERP.t8("sent") ], [ "imported", LxERP.t8("imported") ] ], default=filter.status_eq_ignore_empty) %]</td>
       </td>
     </tr>
     </tbody>
