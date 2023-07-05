@@ -29,11 +29,15 @@
    <tr class="listrow">
     <th>[%- LxERP.t8("Status") %]</th>
     <td>
-     [%- IF SELF.entry.status == "ok" %]
-      [%- LxERP.t8("succeeded") %]
-     [%- ELSE %]
-      [%- LxERP.t8("failed") %]
-     [%- END %]
+      [% IF SELF.entry.status == 'sent' %]
+        [% LxERP.t8('sent') %]
+      [% ELSIF SELF.entry.status == 'send_failed' %]
+        [% LxERP.t8('send failed') %]
+      [% ELSIF SELF.entry.status == 'imported' %]
+        [% LxERP.t8('imported') %]
+      [% ELSE %]
+        [% SELF.entry.status %]
+      [% END %]
     </td>
    </tr>
 

@@ -270,7 +270,7 @@ sub send {
   $self->{driver} = eval { $self->_create_driver };
   if (!$self->{driver}) {
     my $error = $@;
-    $self->_store_in_journal('failed', 'driver could not be created; check your configuration & log files');
+    $self->_store_in_journal('send_failed', 'driver could not be created; check your configuration & log files');
     $::lxdebug->message(LXDebug::WARN(), "Mailer error during 'send': $error");
 
     return $error;
@@ -395,7 +395,7 @@ sub _store_in_journal {
   return if $journal_enable == 0;
 
   $status          //= $self->{driver}->status if $self->{driver};
-  $status          //= 'failed';
+  $status          //= 'send_failed';
   $extended_status //= $self->{driver}->extended_status if $self->{driver};
   $extended_status //= 'unknown error';
 
