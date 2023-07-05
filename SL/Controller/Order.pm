@@ -2241,6 +2241,7 @@ sub save {
       foreach my $converted_from_oe_id (@converted_from_oe_ids) {
         my $src = SL::DB::Order->new(id => $converted_from_oe_id)->load;
         $src->update_attributes(closed => 1) if $src->type =~ /_quotation$/;
+        $src->update_attributes(closed => 1) if $src->type eq purchase_quotation_intake_type() && $self->type eq purchase_order_type();
         $src->link_to_record($self->order);
       }
       if (scalar @{ $::form->{converted_from_orderitems_ids} || [] }) {
