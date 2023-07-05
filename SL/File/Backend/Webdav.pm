@@ -170,8 +170,8 @@ my %type_to_model = (
 );
 
 my %model_to_number = (
-  Order           => 'ordnumber',
-  DeliveryOrder   => 'ordnumber',
+  Order           => 'record_number',
+  DeliveryOrder   => 'record_number',
   Reclamation     => 'record_number',
   Invoice         => 'invnumber',
   PurchaseInvoice => 'invnumber',
