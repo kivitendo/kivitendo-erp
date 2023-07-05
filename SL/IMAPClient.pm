@@ -7,12 +7,15 @@ use utf8;
 use IO::Socket::INET;
 use IO::Socket::SSL;
 use Mail::IMAPClient;
+use Email::MIME;
 use File::MimeInfo::Magic;
 use Encode qw(encode decode);
 use Encode::IMAPUTF7;
 
 use SL::SessionFile;
 use SL::Locale::String qw(t8);
+use SL::DB::EmailImport;
+use SL::DB::EmailJournal;
 
 my %TYPE_TO_FOLDER = (
   sales_quotation             => t8('Sales Quotations'),
@@ -42,6 +45,122 @@ sub DESTROY {
   if ($self->{imap_client}) {
     $self->{imap_client}->logout();
   }
+}
+
+sub update_emails_from_folder {
+  my ($self, $folder_path) = @_;
+
+  my $folder_string = $self->get_folder_string_from_path($folder_path);
+
+  $self->{imap_client}->select($folder_string)
+    or die "Could not select IMAP folder '$folder_string': $@\n";
+
+  my $msg_uids = $self->{imap_client}->messages
+    or die "Could not messages via IMAP: $@\n";
+
+  my $query = <<SQL;
+    SELECT uid
+    FROM email_imports ei
+    LEFT JOIN email_journal ej
+      ON ej.email_import_id = ei.id
+    WHERE ei.host_name = ?
+      AND ei.user_name = ?
+      AND ej.folder = ?
+SQL
+  my $dbh = SL::DB->client->dbh;
+  my $existing_uids = $dbh->selectall_hashref($query, 'uid', undef,
+    $self->{hostname}, $self->{username}, $folder_path);
+
+  my @new_msg_uids = grep { !$existing_uids->{$_} } @$msg_uids;
+
+  return unless @new_msg_uids;
+
+  SL::DB->client->with_transaction(sub {
+    my $email_import = $self->_create_email_import($folder_path);
+    $email_import->save(); # save to get id
+
+    foreach my $new_uid (@new_msg_uids) {
+      my $new_email_string = $self->{imap_client}->message_string($new_uid);
+      my $email = Email::MIME->new($new_email_string);
+      my $email_journal = $self->_create_email_journal(
+        $email, $email_import, $new_uid, $folder_path
+      );
+      $email_journal->save();
+    }
+  });
+
+  return;
+}
+
+sub _create_email_import {
+  my ($self, $folder_path) = @_;
+  my $email_import = SL::DB::EmailImport->new(
+    host_name => $self->{hostname},
+    user_name => $self->{username},
+    folder    => $folder_path,
+  );
+  return $email_import;
+}
+
+sub _create_email_journal {
+  my ($self, $email, $email_import, $uid, $folder_path) = @_;
+
+  my @email_parts = $email->parts; # get parts or self
+  my $text_part = $email_parts[0]; # TODO: check if its allways the first part
+  my $body = $text_part->body;
+
+  my $header_string = join "\r\n",
+    (map { $_ . ': ' . $email->header($_) } $email->header_names);
+
+  my $date = $self->_parse_date($email->header('Date'));
+
+  my $recipients = $email->header('To');
+  $recipients .= ', ' . $email->header('Cc') if ($email->header('Cc'));
+  $recipients .= ', ' . $email->header('Bcc') if ($email->header('Bcc'));
+
+  my @attachments = ();
+  $email->walk_parts(sub {
+    my ($part) = @_;
+    my $filename = $part->filename;
+    if ($filename) {
+      my $content_type = $part->content_type;
+      my $content = $part->body;
+      my $attachment = SL::DB::EmailJournalAttachment->new(
+        name      => $filename,
+        content   => $content,
+        mime_type => $content_type,
+      );
+      push @attachments, $attachment;
+    }
+  });
+
+  my $email_journal = SL::DB::EmailJournal->new(
+    email_import_id => $email_import->id,
+    folder          => $folder_path,
+    uid             => $uid,
+    status          => 'imported',
+    extended_status => '',
+    from            => $email->header('From') || '',
+    recipients      => $recipients,
+    sent_on         => $date,
+    subject         => $email->header('Subject') || '',
+    body            => $body,
+    headers         => $header_string,
+    attachments     => \@attachments,
+  );
+
+  return $email_journal;
+}
+
+sub _parse_date {
+  my ($self, $date) = @_;
+  return '' unless $date;
+  my $strp = DateTime::Format::Strptime->new(
+    pattern   => '%a, %d %b %Y %H:%M:%S %z',
+    time_zone => 'UTC',
+  );
+  my $dt = $strp->parse_datetime($date);
+  return $dt->strftime('%Y-%m-%d %H:%M:%S');
 }
 
 sub update_emails_for_record {
