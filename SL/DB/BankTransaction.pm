@@ -79,6 +79,7 @@ sub get_agreement_with_invoice {
     payment_within_30_days      => 1,
     remote_account_number       => 3,
     skonto_exact_amount         => 5,
+    skonto_fuzzy_amount         => 3,
     wrong_sign                  => -4,
     sepa_export_item            => 5,
     batch_sepa_transaction      => 20,
@@ -150,6 +151,10 @@ sub get_agreement_with_invoice {
     $agreement += $points{skonto_exact_amount};
     $rule_matches .= 'skonto_exact_amount(' . $points{'skonto_exact_amount'} . ') ';
     $invoice->{skonto_type} = 'with_skonto_pt';
+  } elsif ( $invoice->skonto_date && abs(abs($invoice->amount_less_skonto) - abs($self->amount)) < 0.2) {
+    $agreement += $points{skonto_fuzzy_amount};
+    $rule_matches .= 'skonto_fuzzy_amount(' . $points{'skonto_fuzzy_amount'} . ') ';
+    $invoice->{skonto_type} = 'with_fuzzy_skonto_pt';
   }
 
   #search invoice number in purpose

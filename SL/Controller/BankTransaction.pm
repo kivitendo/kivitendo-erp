@@ -671,8 +671,12 @@ sub save_single_bank_transaction {
       } else {
         $payment_type = 'without_skonto';
       }
-
-      if ($payment_type eq 'free_skonto') {
+      # hack payment type use free_skonto for with_fuzzy_skonto
+      if ($payment_type eq 'with_fuzzy_skonto_pt') {
+        $free_skonto_amount = abs($invoice->open_amount - abs($bank_transaction->not_assigned_amount));
+        die "Invalid state for fuzzy skonto amount" unless $free_skonto_amount > 0;
+        $payment_type = 'free_skonto';  # we have a valid free_skonto amount, therefore go ...
+      } elsif ($payment_type eq 'free_skonto') {
         # parse user input > 0
         if ($::form->parse_amount(\%::myconfig, $::form->{"free_skonto_amount"}->{"$bt_id"}{$invoice->id}) > 0) {
           $free_skonto_amount = $::form->parse_amount(\%::myconfig, $::form->{"free_skonto_amount"}->{"$bt_id"}{$invoice->id});
