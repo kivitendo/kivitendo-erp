@@ -24,7 +24,9 @@ sub init {
     extended_status => 'no send attempt made',
   );
 
-  my $cfg           = $::lx_office_conf{mail_delivery} || {};
+  my $email         = $self->myconfig->{email};
+  my $cfg           = $::lx_office_conf{"mail_delivery/email/$email"} || $::lx_office_conf{mail_delivery} || {};
+
   $self->{security} = exists $security_config{lc $cfg->{security}} ? lc $cfg->{security} : 'none';
   my $sec_cfg       = $security_config{ $self->{security} };
 
