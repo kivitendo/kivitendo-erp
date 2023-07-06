@@ -44,8 +44,6 @@ is specified in the data field 'folder' of the background job, by default the
 folder 'INBOX' is used. Sub folders are separated by a forward slash,
 e.g. 'INBOX/Archive'. Subfolders are not synced.
 
-=back
-
 =head1 BUGS
 
 Nothing here yet.
