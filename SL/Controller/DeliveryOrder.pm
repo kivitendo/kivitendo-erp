@@ -1661,6 +1661,10 @@ sub save {
   my $errors = [];
   my $db     = $self->order->db;
 
+  if (scalar @{$self->order->items} == 0) {
+    return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
+  }
+
   $db->with_transaction(sub {
     my $validity_token;
     if (!$self->order->id) {
