@@ -432,7 +432,6 @@ sub form_header {
   my %project_labels = map { $_->id => $_->projectnumber }  @{ SL::DB::Manager::Project->get_all };
 
   my (%charts, %bank_accounts);
-  my $default_ap_amount_chart_id;
   # don't add manual bookings for charts which are assigned to real bank accounts
   # and are flagged for use with bank import
   my $bank_accounts = SL::DB::Manager::BankAccount->get_all();
@@ -444,10 +443,7 @@ sub form_header {
   }
 
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
-    if ( grep({ $_ eq 'AP_amount' } @{ $item->{link_split} }) ) {
-      $default_ap_amount_chart_id //= $item->{id};
-
-    } elsif ( grep({ $_ eq 'AP_paid' } @{ $item->{link_split} }) ) {
+    if ( grep({ $_ eq 'AP_paid' } @{ $item->{link_split} }) ) {
       next if $bank_accounts{$item->{accno}};
       push(@{ $form->{ALL_CHARTS_AP_paid} }, $item);
     }
@@ -476,6 +472,9 @@ sub form_header {
 
   for my $i (1 .. $form->{rowcount}) {
 
+    my $amount_chart_id = $form->{"AP_amount_chart_id_$i"};
+    next if $amount_chart_id eq '';
+
     # format amounts
     $form->{"amount_$i"} = $form->format_amount(\%myconfig, $form->{"amount_$i"}, 2);
     $form->{"tax_$i"} = $form->format_amount(\%myconfig, $form->{"tax_$i"}, 2);
@@ -485,7 +484,6 @@ sub form_header {
     if ( $form->{"taxchart_$i"} ) {
       ($used_tax_id) = split(/--/, $form->{"taxchart_$i"});
     }
-    my $amount_chart_id = $form->{"AP_amount_chart_id_$i"} || $default_ap_amount_chart_id;
 
     my @taxcharts       = GL->get_active_taxes_for_chart($amount_chart_id, $taxdate, $used_tax_id);
     foreach my $item (@taxcharts) {
@@ -685,7 +683,8 @@ sub update {
   my (@a, $j, $totaltax);
   for my $i (1 .. $form->{rowcount}) {
     $form->{"amount_$i"} = $form->parse_amount(\%myconfig, $form->{"amount_$i"});
-    if ($form->{"amount_$i"} || $params{keep_rows_without_amount}) {
+    if (($form->{"amount_$i"} || $params{keep_rows_without_amount})
+        && $form->{"AP_amount_chart_id_$i"}) {
       push @a, {};
       $j = $#a;
       my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
@@ -838,6 +837,7 @@ sub post {
 
   my $zero_amount_posting = 1;
   for my $i (1 .. $form->{rowcount}) {
+    next if $form->{"AP_amount_chart_id_$i"} eq '';
 
     # no taxincluded for reverse charge
     my ($used_tax_id) = split(/--/, $form->{"taxchart_$i"});
