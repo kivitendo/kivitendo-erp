@@ -2439,6 +2439,7 @@ $self->{texts} = {
   'No function blocks have been created yet.' => '',
   'No groups have been created yet.' => '',
   'No internal phone extensions have been configured yet.' => '',
+  'No invoice email found.'     => '',
   'No invoices have been selected.' => '',
   'No part was selected.'       => '',
   'No payment term has been created yet.' => '',
