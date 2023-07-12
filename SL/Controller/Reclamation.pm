@@ -1795,7 +1795,8 @@ sub save_with_render_error {
 
   if (scalar @{ $errors }) {
     $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
+    $self->js->render();
+    $::dispatcher->end_request;
   }
 }
 
