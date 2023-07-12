@@ -519,7 +519,8 @@ sub send_email {
   $mail->{record_id}   = \@ids;
   $mail->{record_type} = 'dunning';
 
-  $mail->send();
+  my $error = $mail->send();
+  die "Mailer error during 'send': $error\n" if $error;
 
   $main::lxdebug->leave_sub();
 }
