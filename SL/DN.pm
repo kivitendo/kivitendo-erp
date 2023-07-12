@@ -676,7 +676,7 @@ sub get_invoices {
          dep.description as departmentname,
          COALESCE (NULLIF(aba.dunning_mail, ''), NULLIF(aba.email,''),
                    NULLIF(ct.dunning_mail, ''),
-                   NULLIF(ct.invoice_mail, '')) AS recipient,
+                   NULLIF(ct.invoice_mail, ''), ct.email) AS recipient,
          cfg.dunning_description, cfg.dunning_level,
 
          d.transdate AS dunning_date, d.duedate AS dunning_duedate,
