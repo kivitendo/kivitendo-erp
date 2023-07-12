@@ -339,7 +339,6 @@ sub create_links {
   my %saved;
   if (!$params{dont_save}) {
     %saved = map { ($_ => $form->{$_}) } qw(direct_debit taxincluded);
-    $saved{duedate} = $form->{duedate} if $form->{duedate};
     $saved{currency} = $form->{currency} if $form->{currency};
     $saved{taxincluded} = $form->{taxincluded} if $form->{taxincluded};
     $saved{intnotes} = $form->{intnotes} if $form->{intnotes};
