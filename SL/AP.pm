@@ -794,24 +794,6 @@ SQL
   $main::lxdebug->leave_sub();
 }
 
-sub get_transdate {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = SL::DB->client->dbh;
-
-  my $query =
-    "SELECT COALESCE(" .
-    "  (SELECT transdate FROM ap WHERE id = " .
-    "    (SELECT MAX(id) FROM ap) LIMIT 1), " .
-    "  current_date)";
-  ($form->{transdate}) = $dbh->selectrow_array($query);
-
-  $main::lxdebug->leave_sub();
-}
-
 sub _delete_payments {
   $main::lxdebug->enter_sub();
 

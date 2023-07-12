@@ -255,7 +255,6 @@ sub add {
 
   $form->{callback} = "ap.pl?action=add" unless $form->{callback};
 
-  AP->get_transdate(\%myconfig, $form);
   create_links(dont_save => 1);
 
   if ($form->{vendor_id}) {
