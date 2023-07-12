@@ -262,9 +262,7 @@ sub add {
   $form->{callback} = "ar.pl?action=add" unless $form->{callback};
 
   AR->get_transdate(\%myconfig, $form);
-  $form->{initial_transdate} = $form->{transdate};
   create_links(dont_save => 1);
-  $form->{transdate} = $form->{initial_transdate};
 
   if ($form->{customer_id}) {
     my $last_used_ar_chart = SL::DB::Customer->load_cached($form->{customer_id})->last_used_ar_chart;

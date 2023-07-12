@@ -2613,7 +2613,7 @@ sub create_links {
     # get date
     $query =
        qq|SELECT
-            current_date AS transdate, d.closedto, d.revtrans,
+            d.closedto, d.revtrans,
             (SELECT cu.name FROM currencies cu WHERE cu.id=d.currency_id) AS defaultcurrency,
             (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
             (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id) AS fxloss_accno,
@@ -2627,7 +2627,7 @@ sub create_links {
     $self->lastname_used($dbh, $myconfig, $table, $module) unless ($self->{"$self->{vc}_id"});
     $self->{currency} = $self->{defaultcurrency}           unless $self->{currency};
     $self->{exchangerate} =
-      $self->check_exchangerate($myconfig, $self->{currency}, $self->{transdate}, $fld);
+      $self->check_exchangerate($myconfig, $self->{currency}, $self->current_date(), $fld);
   }
 
   $main::lxdebug->leave_sub();

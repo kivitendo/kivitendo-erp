@@ -256,9 +256,7 @@ sub add {
   $form->{callback} = "ap.pl?action=add" unless $form->{callback};
 
   AP->get_transdate(\%myconfig, $form);
-  $form->{initial_transdate} = $form->{transdate};
   create_links(dont_save => 1);
-  $form->{transdate} = $form->{initial_transdate};
 
   if ($form->{vendor_id}) {
     my $vendor = SL::DB::Vendor->load_cached($form->{vendor_id});
@@ -422,7 +420,7 @@ sub form_header {
   $form->{creditremaining_plus} = ($form->{creditremaining} =~ /-/) ? "0" : "1";
 
   $form->get_lists("charts"    => { "key"       => "ALL_CHARTS",
-                                    "transdate" => $form->{transdate} },
+                                    "transdate" => $form->{transdate} || $form->current_date, },
                   );
 
   map(
