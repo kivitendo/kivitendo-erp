@@ -138,7 +138,7 @@ sub action_edit {
     if ($self->order->is_sales) {
       my $imap_client = SL::IMAPClient->new();
       if ($imap_client) {
-        $imap_client->update_emails_for_record($self->order);
+        $imap_client->update_email_files_for_record($self->order);
       }
     }
 

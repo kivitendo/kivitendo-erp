@@ -16,11 +16,15 @@ use SL::SessionFile;
 use SL::Locale::String qw(t8);
 use SL::DB::EmailImport;
 use SL::DB::EmailJournal;
+use SL::DB::EmailJournalAttachment;
 
-my %TYPE_TO_FOLDER = (
+use SL::DB::Order;
+
+my %RECORD_TYPE_TO_FOLDER = (
   sales_quotation             => t8('Sales Quotations'),
   sales_order                 => t8('Sales Orders'),
 );
+my %RECORD_FOLDER_TO_TYPE = reverse %RECORD_TYPE_TO_FOLDER;
 
 sub new {
   my ($class, %params) = @_;
@@ -49,47 +53,75 @@ sub DESTROY {
 
 sub update_emails_from_folder {
   my ($self, $folder_path) = @_;
+  $folder_path ||= $self->{base_folder};
 
   my $folder_string = $self->get_folder_string_from_path($folder_path);
+  my $email_import =
+    _update_emails_from_folder_strings($self, $folder_path, [$folder_string]);
 
-  $self->{imap_client}->select($folder_string)
-    or die "Could not select IMAP folder '$folder_string': $@\n";
+  return $email_import;
+}
 
-  my $msg_uids = $self->{imap_client}->messages
-    or die "Could not messages via IMAP: $@\n";
+sub update_emails_from_subfolders {
+  my ($self, $base_folder_path) = @_;
+  $base_folder_path ||= $self->{base_folder};
+  my $base_folder_string = $self->get_folder_string_from_path($base_folder_path);
 
-  my $query = <<SQL;
-    SELECT uid
-    FROM email_imports ei
-    LEFT JOIN email_journal ej
-      ON ej.email_import_id = ei.id
-    WHERE ei.host_name = ?
-      AND ei.user_name = ?
-      AND ej.folder = ?
-SQL
+  my @subfolder_strings = $self->{imap_client}->folders($base_folder_string)
+    or die "Could not get subfolders via IMAP: $@\n";
+  @subfolder_strings = grep { $_ ne $base_folder_string } @subfolder_strings;
+
+  my $email_import =
+    _update_emails_from_folder_strings($self, $base_folder_path, \@subfolder_strings);
+
+  return $email_import;
+}
+
+sub _update_emails_from_folder_strings {
+  my ($self, $base_folder_path, $folder_strings) = @_;
+
   my $dbh = SL::DB->client->dbh;
-  my $existing_uids = $dbh->selectall_hashref($query, 'uid', undef,
-    $self->{hostname}, $self->{username}, $folder_path);
 
-  my @new_msg_uids = grep { !$existing_uids->{$_} } @$msg_uids;
-
-  return unless @new_msg_uids;
-
+  my $email_import;
   SL::DB->client->with_transaction(sub {
-    my $email_import = $self->_create_email_import($folder_path);
-    $email_import->save(); # save to get id
+    foreach my $folder_string (@$folder_strings) {
+      $self->{imap_client}->select($folder_string)
+        or die "Could not select IMAP folder '$folder_string': $@\n";
 
-    foreach my $new_uid (@new_msg_uids) {
-      my $new_email_string = $self->{imap_client}->message_string($new_uid);
-      my $email = Email::MIME->new($new_email_string);
-      my $email_journal = $self->_create_email_journal(
-        $email, $email_import, $new_uid, $folder_path
-      );
-      $email_journal->save();
+      my $msg_uids = $self->{imap_client}->messages
+        or die "Could not get messages via IMAP: $@\n";
+
+      my $query = <<SQL;
+        SELECT uid
+        FROM email_imports ei
+        LEFT JOIN email_journal ej
+          ON ej.email_import_id = ei.id
+        WHERE ei.host_name = ?
+          AND ei.user_name = ?
+          AND ej.folder = ?
+SQL
+
+      my $existing_uids = $dbh->selectall_hashref($query, 'uid', undef,
+        $self->{hostname}, $self->{username}, $folder_string);
+
+      my @new_msg_uids = grep { !$existing_uids->{$_} } @$msg_uids;
+
+      next unless @new_msg_uids;
+
+      $email_import ||= $self->_create_email_import($base_folder_path)->save();
+
+      foreach my $new_uid (@new_msg_uids) {
+        my $new_email_string = $self->{imap_client}->message_string($new_uid);
+        my $email = Email::MIME->new($new_email_string);
+        my $email_journal = $self->_create_email_journal(
+          $email, $email_import, $new_uid, $folder_string
+        );
+        $email_journal->save();
+      }
     }
   });
 
-  return;
+  return $email_import;
 }
 
 sub _create_email_import {
@@ -106,7 +138,7 @@ sub _create_email_journal {
   my ($self, $email, $email_import, $uid, $folder_path) = @_;
 
   my @email_parts = $email->parts; # get parts or self
-  my $text_part = $email_parts[0]; # TODO: check if its allways the first part
+  my $text_part = $email_parts[0];
   my $body = $text_part->body;
 
   my $header_string = join "\r\n",
@@ -163,7 +195,7 @@ sub _parse_date {
   return $dt->strftime('%Y-%m-%d %H:%M:%S');
 }
 
-sub update_emails_for_record {
+sub update_email_files_for_record {
   my ($self, $record) = @_;
 
   my $folder_string = $self->_get_folder_string_for_record($record);
@@ -172,7 +204,7 @@ sub update_emails_for_record {
     or die "Could not select IMAP folder '$folder_string': $@\n";
 
   my $msg_uids = $self->{imap_client}->messages
-    or die "Could not messages via IMAP: $@\n";
+    or die "Could not get messages via IMAP: $@\n";
 
   my $dbh = $record->dbh;
   my $query = <<SQL;
@@ -210,7 +242,44 @@ SQL
     );
     unlink($sfile->file_name);
   }
+}
 
+sub update_email_files_for_all_records {
+  my ($self) = @_;
+  my $record_folder_path = $self->{base_folder};
+
+  my $subfolder_strings = $self->{imap_client}->folders($record_folder_path)
+    or die "Could not get folders via IMAP: $@\n";
+  my @record_folder_strings = grep { $_ ne $record_folder_path }
+    @$subfolder_strings;
+
+  foreach my $record_folder_string (@record_folder_strings) {
+    my $ilike_folder_path = $self->get_ilike_folder_path_from_string($record_folder_string);
+    my (
+      $ilike_record_folder_path, # is greedily matched
+      $ilike_customer_number, # no spaces allowed
+      $ilike_customer_name,
+      $record_folder,
+      $ilike_record_number
+    ) = $ilike_folder_path =~ m|^(.+)/([^\s]+) (.+)/(.+)/(.+)|;
+
+    my $record_type = $RECORD_FOLDER_TO_TYPE{$record_folder};
+    next unless $record_type;
+
+    my $is_quotation = $record_type eq 'sales_quotation' ? 1 : 0;
+    my $number_field = $is_quotation ? 'quonumber' : 'ordnumber';
+    my $order = SL::DB::Manager::Order->get_first(
+      query => [
+        and => [
+          vendor_id => undef,
+          quotation => $is_quotation,
+          $number_field => { ilike => $ilike_record_number },
+        ],
+    ]);
+    next unless $order;
+
+    $self->update_email_files_for_record($order);
+  }
 }
 
 sub create_folder {
@@ -224,11 +293,22 @@ sub create_folder {
 sub get_folder_string_from_path {
   my ($self, $folder_path) = @_;
   my $separator = $self->{imap_client}->separator();
-  my $replace_sep = $separator eq '_' ? '-' : '_';
-  $folder_path =~ s|\Q${separator}|$replace_sep|g; # \Q -> escape special chars
-  $folder_path =~ s|/|${separator}|g; # replace / with separator
+  if ($separator ne '/') {
+    my $replace_sep = $separator ne '_' ? '_' : '-';
+    $folder_path =~ s|\Q${separator}|$replace_sep|g; # \Q -> escape special chars
+    $folder_path =~ s|/|${separator}|g; # replace / with separator
+  }
   my $folder_string = encode('IMAP-UTF-7', $folder_path);
   return $folder_string;
+}
+
+sub get_ilike_folder_path_from_string {
+  my ($self, $folder_string) = @_;
+  my $separator = $self->{imap_client}->separator();
+  my $folder_path = decode('IMAP-UTF-7', $folder_string);
+  $folder_path =~ s|\Q${separator}|/|g; # \Q -> escape special chars
+  $folder_path =~ s|-|_|g; # for ilike matching
+  return $folder_path;
 }
 
 sub create_folder_for_record {
@@ -238,15 +318,48 @@ sub create_folder_for_record {
   return;
 }
 
+sub clean_up_record_folders {
+  my ($self, $active_records) = @_;
+  my $record_folder_path = $self->{base_folder};
+
+  $self->update_email_files_for_all_records();
+
+  my $base_folder_string = $self->get_folder_string_from_path($record_folder_path);
+  my @folders = $self->{imap_client}->folders($base_folder_string)
+    or die "Could not get folders via IMAP: $@\n";
+
+  my @active_folders = map { $self->_get_folder_string_for_record($_) }
+    @$active_records;
+  push @active_folders, $base_folder_string;
+
+  my %keep_folder = map { $_ => 1 } @active_folders;
+  my @folders_to_delete = grep { !$keep_folder{$_} } @folders;
+
+  foreach my $folder (@folders_to_delete) {
+    $self->{imap_client}->delete($folder)
+      or die "Could not delete IMAP folder '$folder': $@\n";
+  }
+}
+
 sub _get_folder_string_for_record {
   my ($self, $record) = @_;
 
   my $customer_vendor = $record->customervendor;
+
+  #repalce / with _
+  my %string_parts = ();
+  $string_parts{cv_number}     = $customer_vendor->number;
+  $string_parts{cv_name}       = $customer_vendor->name;
+  $string_parts{record_number} = $record->number;
+  foreach my $key (keys %string_parts) {
+    $string_parts{$key} =~ s|/|_|g;
+  }
+
   my $record_folder_path =
     $self->{base_folder} . '/' .
-    $customer_vendor->number . ' ' . $customer_vendor->name . '/' .
-    $TYPE_TO_FOLDER{$record->type} . '/' .
-    $record->number;
+    $string_parts{cv_number} . ' ' . $string_parts{cv_name} . '/' .
+    $RECORD_TYPE_TO_FOLDER{$record->type} . '/' .
+    $string_parts{record_number};
   my $folder_string = $self->get_folder_string_from_path($record_folder_path);
   return $folder_string;
 }
@@ -329,7 +442,7 @@ SL::IMAPClient - Base class for interacting with email server from kivitendo
 
   # update emails for record
   # fetches all emails from the IMAP server and saves them as attachments
-  $imap_client->update_emails_for_record($record);
+  $imap_client->update_email_files_for_record($record);
 
 =head1 OVERVIEW
 
@@ -340,11 +453,15 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
 
 =over 2
 
-=item C<%TYPE_TO_FOLDER>
+=item C<%RECORD_TYPE_TO_FOLDER>
 
   Due to the lack of a single global mapping for $record->type,
   type is mapped to the corresponding translation. All types which
   use this module are currently mapped and should be mapped.
+
+=item C<%RECORD_FOLDER_TO_TYPE>
+
+  The reverse mapping of %RECORD_TYPE_TO_FOLDER.
 
 =back
 
@@ -362,10 +479,32 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
 
   Destructor. Disconnects from the IMAP server.
 
-=item C<update_emails_for_record>
+=item C<update_emails_from_folder>
 
-  Updates the emails for a record. Checks which emails are missing and
+  Updates the emails for a folder. Checks which emails are missing and
+  fetches these from the IMAP server. Returns the created email import object.
+
+=item C<update_emails_from_subfolders>
+
+  Updates the emails for all subfolders of a folder. Checks which emails are
+  missing and fetches these from the IMAP server. Returns the created email
+  import object.
+
+=item C<_update_emails_from_folder_strings>
+
+  Updates the emails for a list of folder strings. Checks which emails are
+  missing and fetches these from the IMAP server. Returns the created
+  email import object.
+
+=item C<update_email_files_for_record>
+
+  Updates the email files for a record. Checks which emails are missing and
   fetches these from the IMAP server.
+
+=item C<update_email_files_for_all_records>
+  
+    Updates the email files for all records. Checks which emails are missing and
+    fetches these from the IMAP server.
 
 =item C<create_folder>
 
@@ -378,12 +517,28 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
   on unix filesystem. The folder string is the path on the IMAP server.
   The folder string is encoded in IMAP-UTF-7.
 
+=item C<get_ilike_folder_path_from_string>
+  
+  Converts a folder string to a folder path. The folder path is like path
+  on unix filesystem. The folder string is the path on the IMAP server.
+  The folder string is encoded in IMAP-UTF-7. It can happend that
+  C<get_folder_string_from_path> and C<get_ilike_folder_path_from_string>
+  don't cancel each other out. This is because the IMAP server has a different
+  separator than the unix filesystem. The changes are made so that a ILIKE
+  query on the database works.
+
 =item C<create_folder_for_record>
 
   Creates a folder for a record on the IMAP server. The folder structure
   is like this: base_folder/customer_vendor_number customer_vendor_name/type/record_number
   e.g. INBOX/1234 Testkunde/Angebot/123
   If the folder already exists, nothing happens.
+
+=item C<clean_up_record_folders>
+
+  Gets a list of acitve records. First syncs the folders on the IMAP server with
+  the corresponding record, by creating email files. Then deletes all folders
+  which are not corresponding to an active record.
 
 =item C<_get_folder_string_for_record>
 
