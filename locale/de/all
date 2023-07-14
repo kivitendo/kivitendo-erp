@@ -1275,6 +1275,7 @@ $self->{texts} = {
   'Documentation about variables in a new window/tab' => 'Dokumentation zu Variablen in neuem Fenster/Tab',
   'Documents'                   => 'Dokumente',
   'Documents in the WebDAV repository' => 'Dokumente im WebDAV-Repository',
+  'Documents which are allowed to be saved with no positions' => 'Belege, die ohne Positionen gespeichert werden dürfen',
   'Don\'t include a printout of the record with the email' => 'Keinen Belegausdruck mit E-Mail schicken',
   'Don\'t include a printout of the record with the email, only selected files' => 'Keinen Belegausdruck mit E-Mail schicken, sondern nur ausgewählte Dateien',
   'Done'                        => 'Fertig',

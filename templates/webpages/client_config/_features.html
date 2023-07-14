@@ -311,6 +311,23 @@
    <td>[% L.yes_no_tag("defaults.lock_oe_subversions", SELF.defaults.lock_oe_subversions) %]</td>
    <td>[% LxERP.t8("If enabled RFQs, Quotations and Orders can only be send once via email. By creating another subversion the current record gets a minor subversion and can be send again via email.") %]</td>
   </tr>
+  <tr>
+    <td align="right">[% 'Documents which are allowed to be saved with no positions' | $T8 %]</td>
+    <td colspan=2>
+      <div class="clearfix">
+        [% L.select_tag("defaults.allowed_documents_with_no_positions[]",
+                        SELF.available_documents_with_no_positions,
+                        default=SELF.defaults.allowed_documents_with_no_positions,
+                        multiple=1,
+                        with_empty=1,
+                        value_key="name",
+                        title_key="description",
+                        id="defaults_allowed_documents_with_no_positions",
+                        size=SELF.available_documents_with_no_positions.size+1) %]
+      </div>
+    </td>
+  </tr>
+
   <tr><td class="listheading" colspan="4">[% LxERP.t8("E-mail") %]</td></tr>
 
   <tr>

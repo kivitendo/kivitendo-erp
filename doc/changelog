@@ -39,6 +39,9 @@ Kleinere neue Features und Detailverbesserungen:
   - Bei der Bearbeitung von VK-Angebote und VK-Aufträgen können die Emails aus
     den angelegten Ordner im Email-Server automatisch importiert werden (s.a.
     kivitendo.conf)
+  - Belege ("neue" Controller, sprich Angebot/Auftrag/Beistelllieferschein/RMA/
+    Reklamation) können nicht mehr ohne Positionen gespeichert werden. Ausnahmen
+    lassen sich in der Mandantenkonfiguration einstellen.
 
 2023-04-05 - Release 3.8.0
 
