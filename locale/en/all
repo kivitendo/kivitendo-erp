@@ -1275,6 +1275,7 @@ $self->{texts} = {
   'Documentation about variables in a new window/tab' => '',
   'Documents'                   => '',
   'Documents in the WebDAV repository' => '',
+  'Documents which are allowed to be saved with no positions' => '',
   'Don\'t include a printout of the record with the email' => '',
   'Don\'t include a printout of the record with the email, only selected files' => '',
   'Done'                        => '',
