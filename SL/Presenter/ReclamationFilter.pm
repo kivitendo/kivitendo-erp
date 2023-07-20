@@ -282,7 +282,7 @@ sub filter {
     },
     'reqdate' => {
       'position' => 28,
-      'text' => t8("Due Date"),
+      'text' => t8("Deadline"),
       'input_type' => 'date_tag',
       'input_name' => 'reqdate',
       'input_default_ge' => $filter->{'reqdate' . ':date::ge'},
