@@ -1285,14 +1285,14 @@ sub init_models {
       },
       id                      => t8('ID'),
       record_number           => t8('Reclamation Number'),
-      employee_id             => t8('Employee'),
-      salesman_id             => t8('Salesman'),
-      customer_id             => t8('Customer'),
-      vendor_id               => t8('Vendor'),
-      contact_id              => t8('Contact'),
-      language_id             => t8('Language'),
-      department_id           => t8('Department'),
-      globalproject_id        => t8('Project Number'),
+      employee                => t8('Employee'),
+      salesman                => t8('Salesman'),
+      customer                => t8('Customer'),
+      vendor                  => t8('Vendor'),
+      contact                 => t8('Contact'),
+      language                => t8('Language'),
+      department              => t8('Department'),
+      globalproject           => t8('Project Number'),
       cv_record_number        => ($self->type eq 'sales_reclamation' ? t8('Customer Record Number') : t8('Vendor Record Number')),
       transaction_description => t8('Description'),
       notes                   => t8('Notes'),
@@ -1302,12 +1302,12 @@ sub init_models {
       shipto_id               => t8('Shipping Address'),
       amount                  => t8('Total'),
       netamount               => t8('Subtotal'),
-      delivery_term_id        => t8('Delivery Terms'),
-      payment_id              => t8('Payment Terms'),
-      currency_id             => t8('Currency'),
+      delivery_term           => t8('Delivery Terms'),
+      payment                 => t8('Payment Terms'),
+      currency                => t8('Currency'),
       exchangerate            => t8('Exchangerate'),
       taxincluded             => t8('Tax Included'),
-      taxzone_id              => t8('Tax zone'),
+      taxzone                 => t8('Tax zone'),
       tax_point               => t8('Tax point'),
       reqdate                 => t8('Deadline'),
       transdate               => t8('Booking Date'),
@@ -1322,7 +1322,13 @@ sub init_models {
       (employee_id => SL::DB::Manager::Employee->current->id) x ($self->reclamation->is_sales  && !$::auth->assert('sales_all_edit', 1)),
       (employee_id => SL::DB::Manager::Employee->current->id) x (!$self->reclamation->is_sales && !$::auth->assert('purchase_all_edit', 1)),
     ],
-  );
+
+    with_objects => [
+        'customer',      'vendor',   'employee',   'salesman',
+        'contact',       'language', 'department', 'globalproject',
+        'delivery_term', 'payment',  'currency',   'taxzone',
+      ],
+    );
 }
 
 sub init_p {
@@ -1936,14 +1942,14 @@ sub prepare_report {
   my @columns_order = qw(
     id
     record_number
-    employee_id
-    salesman_id
-    customer_id
-    vendor_id
-    contact_id
-    language_id
-    department_id
-    globalproject_id
+    employee
+    salesman
+    customer
+    vendor
+    contact
+    language
+    department
+    globalproject
     cv_record_number
     transaction_description
     notes
@@ -1952,12 +1958,12 @@ sub prepare_report {
     shipvia
     amount
     netamount
-    delivery_term_id
-    payment_id
-    currency_id
+    delivery_term
+    payment
+    currency
     exchangerate
     taxincluded
-    taxzone_id
+    taxzone
     tax_point
     reqdate
     transdate
@@ -1969,9 +1975,9 @@ sub prepare_report {
 
   my @default_columns = qw(
     record_number
-    employee_id
-    department_id
-    globalproject_id
+    employee
+    department
+    globalproject
     cv_record_number
     transaction_description
     amount
@@ -1992,19 +1998,19 @@ sub prepare_report {
       obj_link => sub {$self->url_for(action => 'edit', id => $_[0]->id, type => $self->type, callback => $callback)},
       sub      => sub { $_[0]->record_number },
     },
-    employee_id => {
+    employee => {
       sub      => sub { $_[0]->employee ? $_[0]->employee->name : '' },
     },
-    salesman_id => {
+    salesman => {
       sub      => sub { $_[0]->salesman ? $_[0]->salesman->name : '' },
     },
-    language_id => {
+    language => {
       sub      => sub { $_[0]->language ? $_[0]->language->article_code : '' },
     },
-    department_id => {
+    department => {
       sub      => sub { $_[0]->department ? $_[0]->department->description : '' },
     },
-    globalproject_id => {
+    globalproject => {
       obj_link => sub { $_[0]->globalproject_id ?
        $self->url_for(
           controller => "controller.pl",
@@ -2042,7 +2048,7 @@ sub prepare_report {
     netamount  => {
       sub      => sub { $_[0]->netamount_as_number },
     },
-    delivery_term_id => {
+    delivery_term => {
       obj_link => sub { $_[0]->delivery_term_id ?
        $self->url_for(
           controller => "controller.pl",
@@ -2052,7 +2058,7 @@ sub prepare_report {
         ) : '' },
       sub      => sub { $_[0]->delivery_term ? $_[0]->delivery_term->description : '' },
     },
-    payment_id => {
+    payment => {
       obj_link => sub { $_[0]->payment_id ?
        $self->url_for(
           controller => "controller.pl",
@@ -2062,7 +2068,7 @@ sub prepare_report {
         ) : '' },
       sub      => sub { $_[0]->payment ? $_[0]->payment->description : '' },
     },
-    currency_id => {
+    currency => {
       sub      => sub { $_[0]->currency ? $_[0]->currency->name : '' },
     },
     exchangerate  => {
@@ -2071,7 +2077,7 @@ sub prepare_report {
     taxincluded => {
       sub      => sub { $_[0]->taxincluded ? t8('Yes') : t8('No') },
     },
-    taxzone_id => {
+    taxzone => {
       obj_link => sub { $_[0]->taxzone_id ?
        $self->url_for(
           controller => "controller.pl",
@@ -2104,11 +2110,11 @@ sub prepare_report {
     },
   );
   if ($self->type eq sales_reclamation_type()) {
-    $column_defs{customer_id} = ({
+    $column_defs{customer} = ({
       raw_data => sub { $_[0]->customervendor->presenter->customer(display => 'table-cell', callback => $callback) },
       sub      => sub { $_[0]->customervendor->name },
     });
-    $column_defs{contact_id} = ({
+    $column_defs{contact} = ({
       obj_link => sub { $self->url_for(
           controller => "controller.pl",
           action => 'CustomerVendor/edit',
@@ -2119,11 +2125,11 @@ sub prepare_report {
       sub      => sub { $_[0]->contact ? $_[0]->contact->cp_name : '' },
     });
   } elsif ($self->type eq purchase_reclamation_type()) {
-    $column_defs{vendor_id} = ({
+    $column_defs{vendor} = ({
       raw_data => sub { $_[0]->customervendor->presenter->vendor(display => 'table-cell', callback => $callback) },
       sub      => sub { $_[0]->customervendor->name },
     });
-    $column_defs{contact_id} = ({
+    $column_defs{contact} = ({
       obj_link => sub { $self->url_for(
           controller => "controller.pl",
           action => 'CustomerVendor/edit',

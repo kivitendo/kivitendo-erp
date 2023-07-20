@@ -47,7 +47,15 @@ sub _sort_spec {
       customer                => 'lower(customer.name)',
       vendor                  => 'lower(vendor.name)',
       employee                => 'lower(employee.name)',
+      salesman                => 'lower(salesman.name)',
+      contact                 => 'lower(contact.cp_name)',
+      language                => 'lower(language.article_code)',
+      department              => 'lower(department.description)',
       globalprojectnumber     => 'lower(globalproject.projectnumber)',
+      delivery_term           => 'lower(delivery_term.description)',
+      payment                 => 'lower(payment.description)',
+      currency                => 'lower(currency.name)',
+      taxzone                 => 'lower(taxzone.description)',
 
       # Bug in Rose::DB::Object: the next should be
       # "globalproject.project_type.description". This workaround will

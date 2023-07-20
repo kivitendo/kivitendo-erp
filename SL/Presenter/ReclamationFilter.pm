@@ -33,7 +33,7 @@ sub filter {
       'input_name' => 'filter.id:number',
       'input_default' =>$filter->{'id:number'},
       'report_id' => 'id',
-      'active' => 1,
+      'active' => 0,
     },
     'record_number' => {
       'position' => 3,
@@ -44,41 +44,41 @@ sub filter {
       'report_id' => 'record_number',
       'active' => 1,
     },
-    'employee_name' => {
+    'employee' => {
       'position' => 4,
       'text' => t8("Employee Name"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.employee.name:substr::ilike',
       'input_default' =>$filter->{employee}->{'name:substr::ilike'},
-      'report_id' => 'employee_id',
+      'report_id' => 'employee',
       'active' => 1,
     },
-    'salesman_name' => {
+    'salesman' => {
       'position' => 5,
       'text' => t8("Salesman Name"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.salesman.name:substr::ilike',
       'input_default' =>$filter->{salesman}->{'name:substr::ilike'},
-      'report_id' => 'salesman_id',
+      'report_id' => 'salesman',
       'active' => 1,
     },
     # 6,7 for Customer/Vendor
-    'customer_name' => {
+    'customer' => {
       'position' => 6,
       'text' => t8("Customer Name"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.customer.name:substr::ilike',
       'input_default' => $filter->{customer}->{'name:substr::ilike'},
-      'report_id' => 'customer_id',
+      'report_id' => 'customer',
       'active' => ($reclamation_type eq 'sales_reclamation' ? 1 : 0),
     },
-    'vendor_name' => {
+    'vendor' => {
       'position' => 6,
-      'text' => t8("Vendor"),
+      'text' => t8("Vendor Name"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.vendor.name:substr::ilike',
       'input_default' => $filter->{vendor}->{'name:substr::ilike'},
-      'report_id' => 'vendor_id',
+      'report_id' => 'vendor',
       'active' => ($reclamation_type eq 'purchase_reclamation' ? 1 : 0),
     },
     'customer_number' => {
@@ -103,7 +103,7 @@ sub filter {
       'input_type' => 'input_tag',
       'input_name' => 'filter.contact.cp_name:substr::ilike',
       'input_default' =>$filter->{contact}->{'cp_name:substr::ilike'},
-      'report_id' => 'contact_id',
+      'report_id' => 'contact',
       'active' => 1,
     },
     'language_code' => {
@@ -112,7 +112,7 @@ sub filter {
       'input_type' => 'input_tag',
       'input_name' => 'filter.language.article_code:substr::ilike',
       'input_default' =>$filter->{language}->{'article_code:substr::ilike'},
-      'report_id' => 'language_id',
+      'report_id' => 'language',
       'active' => 1,
     },
     'department_description' => {
@@ -121,7 +121,7 @@ sub filter {
       'input_type' => 'input_tag',
       'input_name' => 'filter.department.description:substr::ilike',
       'input_default' =>$filter->{department}->{'description:substr::ilike'},
-      'report_id' => 'department_id',
+      'report_id' => 'department',
       'active' => 1,
     },
     'globalproject_projectnumber' => {
@@ -130,7 +130,7 @@ sub filter {
       'input_type' => 'input_tag',
       'input_name' => 'filter.globalproject.projectnumber:substr::ilike',
       'input_default' =>$filter->{globalproject}->{'projectnumber:substr::ilike'},
-      'report_id' => 'globalproject_id',
+      'report_id' => 'globalproject',
       'active' => 1,
     },
     'globalproject_description' => {
@@ -222,7 +222,7 @@ sub filter {
       'input_type' => 'input_tag',
       'input_name' => 'filter.delivery_term.description:substr::ilike',
       'input_default' =>$filter->{delivery_term}->{'description:substr::ilike'},
-      'report_id' => 'delivery_term_id',
+      'report_id' => 'delivery_term',
       'active' => 1,
     },
     'payment_description' => {
@@ -231,7 +231,7 @@ sub filter {
       'input_type' => 'input_tag',
       'input_name' => 'filter.payment.description:substr::ilike',
       'input_default' =>$filter->{payment}->{'description:substr::ilike'},
-      'report_id' => 'payment_id',
+      'report_id' => 'payment',
       'active' => 1,
     },
     'currency_name' => {
@@ -240,7 +240,7 @@ sub filter {
       'input_type' => 'input_tag',
       'input_name' => 'filter.currency.name:substr::ilike',
       'input_default' =>$filter->{currency}->{'name:substr::ilike'},
-      'report_id' => 'currency_id',
+      'report_id' => 'currency',
       'active' => 1,
     },
     'exchangerate' => {
@@ -267,7 +267,7 @@ sub filter {
       'input_type' => 'input_tag',
       'input_name' => 'filter.taxzone.description:substr::ilike',
       'input_default' =>$filter->{taxzone}->{'description:substr::ilike'},
-      'report_id' => 'taxzone_id',
+      'report_id' => 'taxzone',
       'active' => 1,
     },
     'tax_point' => {
