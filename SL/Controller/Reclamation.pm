@@ -1309,7 +1309,7 @@ sub init_models {
       taxincluded             => t8('Tax Included'),
       taxzone_id              => t8('Tax zone'),
       tax_point               => t8('Tax point'),
-      reqdate                 => t8('Due Date'),
+      reqdate                 => t8('Deadline'),
       transdate               => t8('Booking Date'),
       itime                   => t8('Creation Time'),
       mtime                   => t8('Last modification Time'),
