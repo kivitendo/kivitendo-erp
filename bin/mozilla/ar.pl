@@ -1068,12 +1068,16 @@ sub ar_transactions {
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  @columns =
-    qw(ids transdate id type invnumber ordnumber cusordnumber donumber deliverydate name netamount tax amount paid
-       datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
-       marge_total marge_percent globalprojectnumber customernumber country ustid taxzone
-       payment_terms charts customertype direct_debit dunning_description department attachments
-       items customer_dunning_lock);
+  @columns = qw(
+    ids transdate id type invnumber ordnumber cusordnumber donumber
+    deliverydate name netamount tax amount paid datepaid due duedate
+    transaction_description notes salesman employee shippingpoint shipvia
+    marge_total marge_percent globalprojectnumber customernumber country
+    ustid taxzone payment_terms charts customertype direct_debit
+    dunning_description department attachments items customer_dunning_lock
+    shiptoname shiptodepartment_1 shiptodepartment_2 shiptostreet
+    shiptozipcode shiptocity shiptocountry
+  );
 
   my $ct_cvar_configs                 = CVar->get_configs('module' => 'CT');
   my @ct_includeable_custom_variables = grep { $_->{includeable} } @{ $ct_cvar_configs };
@@ -1083,10 +1087,15 @@ sub ar_transactions {
   push @columns, map { "cvar_$_->{name}" } @ct_includeable_custom_variables;
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber cusordnumber transaction_description notes project_id
-                                           transdatefrom transdateto duedatefrom duedateto datepaidfrom datepaidto
-                                           employee_id salesman_id business_id parts_partnumber parts_description department_id show_marked_as_closed show_not_mailed
-                                           shippingpoint shipvia taxzone_id payment_id);
+  push @hidden_variables, "l_subtotal", qw(
+    open closed customer invnumber ordnumber cusordnumber
+    transaction_description notes project_id transdatefrom transdateto
+    duedatefrom duedateto datepaidfrom datepaidto employee_id salesman_id
+    business_id parts_partnumber parts_description department_id
+    show_marked_as_closed show_not_mailed shippingpoint shipvia taxzone_id
+    payment_id shiptoname shiptodepartment_1 shiptodepartment_2 shiptostreet
+    shiptozipcode shiptocity shiptocountry
+  );
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
   $href =  $params{want_binary_pdf} ? '' : build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
@@ -1131,6 +1140,13 @@ sub ar_transactions {
     attachments               => { 'text' => $locale->text('Attachments'), },
     items                     => { 'text' => $locale->text('Positions'), },
     customer_dunning_lock     => { 'text' => $locale->text('Dunning lock'), },
+    shiptoname                => { 'text' => $locale->text('Name (Shipping)'), },
+    shiptodepartment_1        => { 'text' => $locale->text('Department 1 (Shipping)'), },
+    shiptodepartment_2        => { 'text' => $locale->text('Department 2 (Shipping)'), },
+    shiptostreet              => { 'text' => $locale->text('Street (Shipping)'), },
+    shiptozipcode             => { 'text' => $locale->text('Zipcode (Shipping)'), },
+    shiptocity                => { 'text' => $locale->text('City (Shipping)'), },
+    shiptocountry             => { 'text' => $locale->text('Country (Shipping)'), },
     %column_defs_cvars,
   );
 
@@ -1234,7 +1250,27 @@ sub ar_transactions {
   if ($form->{shippingpoint}) {
     push @options, $locale->text('Shipping Point') . " : $form->{shippingpoint}";
   }
-
+  if ($form->{shiptoname}) {
+    push @options, $locale->text('Name (Shipping)') . " : $form->{shiptoname}";
+  }
+  if ($form->{shiptodepartment_1}) {
+    push @options, $locale->text('Department 1 (Shipping)') . " : $form->{shiptodepartment_1}";
+  }
+  if ($form->{shiptodepartment_2}) {
+    push @options, $locale->text('Department 2 (Shipping)') . " : $form->{shiptodepartment_2}";
+  }
+  if ($form->{shiptostreet}) {
+    push @options, $locale->text('Street (Shipping)') . " : $form->{shiptostreet}";
+  }
+  if ($form->{shiptozipcode}) {
+    push @options, $locale->text('Zipcode (Shipping)') . " : $form->{shiptozipcode}";
+  }
+  if ($form->{shiptocity}) {
+    push @options, $locale->text('City (Shipping)') . " : $form->{shiptocity}";
+  }
+  if ($form->{shiptocountry}) {
+    push @options, $locale->text('Country (Shipping)') . " : $form->{shiptocountry}";
+  }
 
   $form->{ALL_PRINTERS} = SL::DB::Manager::Printer->get_all_sorted;
 

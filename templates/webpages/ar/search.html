@@ -66,6 +66,34 @@
       <td>[% L.input_tag("shipvia", "", style=style) %]</td>
      </tr>
      <tr>
+      <th align=right nowarp>[% 'Name (Shipping)' | $T8 %]</th>
+      <td>[% L.input_tag("shiptoname", "", style=style) %]</td>
+     </tr>
+     <tr>
+      <th align=right nowarp>[% 'Department 1 (Shipping)' | $T8 %]</th>
+      <td>[% L.input_tag("shiptodepartment_1", "", style=style) %]</td>
+     </tr>
+     <tr>
+      <th align=right nowarp>[% 'Department 2 (Shipping)' | $T8 %]</th>
+      <td>[% L.input_tag("shiptodepartment_2", "", style=style) %]</td>
+     </tr>
+     <tr>
+      <th align=right nowarp>[% 'Street (Shipping)' | $T8 %]</th>
+      <td>[% L.input_tag("shiptostreet", "", style=style) %]</td>
+     </tr>
+     <tr>
+      <th align=right nowarp>[% 'Zipcode (Shipping)' | $T8 %]</th>
+      <td>[% L.input_tag("shiptozipcode", "", style=style) %]</td>
+     </tr>
+     <tr>
+      <th align=right nowarp>[% 'City (Shipping)' | $T8 %]</th>
+      <td>[% L.input_tag("shiptocity", "", style=style) %]</td>
+     </tr>
+     <tr>
+      <th align=right nowarp>[% 'Country (Shipping)' | $T8 %]</th>
+      <td>[% L.input_tag("shiptocountry", "", style=style) %]</td>
+     </tr>
+     <tr>
       <th align="right" nowrap>[% 'Payment Term' | $T8 %]</th>
       <td>[% L.select_tag('payment_id', ALL_PAYMENT_TERMS, with_empty=1, title_key="description", style=style) %]</td>
      </tr>
@@ -240,6 +268,27 @@
            <td nowrap>[% 'USt-IdNr.' | $T8 %]</td>
            <td align=right><input name="l_customer_dunning_lock" id="l_customer_dunning_lock" class=checkbox type=checkbox value=Y></td>
            <td nowrap>[% 'Dunning lock' | $T8 %]</td>
+          </tr>
+          <tr>
+           <td colspan=4 align=left><b>[% 'Shipping Address' | $T8 %]</b></td>
+          </tr>
+          <tr>
+           <td align=right><input name="l_shiptoname" id="l_shiptoname" type="checkbox"></td>
+           <td nowrap>[% 'Name' | $T8 %]</td>
+           <td align=right><input name="l_shiptodepartment_1" id="l_shiptodepartment_1" type="checkbox"></td>
+           <td nowrap>[% 'Department 1' | $T8 %]</td>
+           <td align=right><input name="l_shiptodepartment_2" id="l_shiptodepartment_2" type="checkbox"></td>
+           <td nowrap>[% 'Department 2' | $T8 %]</td>
+          </tr>
+          <tr>
+           <td align=right><input name="l_shiptostreet" id="l_shiptostreet" type="checkbox"></td>
+           <td nowrap>[% 'Street' | $T8 %]</td>
+           <td align=right><input name="l_shiptozipcode" id="l_shiptozipcode" type="checkbox"></td>
+           <td nowrap>[% 'Zipcode' | $T8 %]</td>
+           <td align=right><input name="l_shiptocity" id="l_shiptocity" type="checkbox"></td>
+           <td nowrap>[% 'City' | $T8 %]</td>
+           <td align=right><input name="l_shiptocountry" id="l_shiptocountry" type="checkbox"></td>
+           <td nowrap>[% 'Country' | $T8 %]</td>
           </tr>
 
           <table>

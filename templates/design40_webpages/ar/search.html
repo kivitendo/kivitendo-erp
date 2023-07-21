@@ -126,6 +126,41 @@
       </tbody>
     </table>
 
+    <table class="tbl-horizontal">
+      <caption>[% 'Shipping Address' | $T8 %]</caption>
+      <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+      <tbody>
+        <tr>
+          <th>[% 'Name' | $T8 %]</th>
+          <td>[% L.input_tag("shiptoname", "") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Department 1' | $T8 %]</th>
+          <td>[% L.input_tag("shiptodepartment_1", "") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Department 2' | $T8 %]</th>
+          <td>[% L.input_tag("shiptodepartment_2", "") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Street' | $T8 %]</th>
+          <td>[% L.input_tag("shiptostreet", "") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Zipcode' | $T8 %]</th>
+          <td>[% L.input_tag("shiptozipcode", "") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'City' | $T8 %]</th>
+          <td>[% L.input_tag("shiptocity", "") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Country' | $T8 %]</th>
+          <td>[% L.input_tag("shiptocountry", "") %]</td>
+        </tr>
+      </tbody>
+    </table>
+
    <table class="tbl-horizontal">
      <caption>[% 'Status' | $T8 %]</caption>
      <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
@@ -215,6 +250,30 @@
     </div>
     <div>
       <input name="l_customer_dunning_lock" id="l_customer_dunning_lock" type="checkbox"><label for="l_customer_dunning_lock">[% 'Dunning lock' | $T8 %]</label>
+    </div>
+  </div>
+  <div class="list col">
+    <h4>[% 'Shipping Address' | $T8 %]</h4>
+    <div>
+      <input name="l_shiptoname" id="l_shiptoname" type="checkbox"><label for="l_shiptoname">[% 'Name' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_shiptodepartment_1" id="l_shiptodepartment_1" type="checkbox"><label for="l_shiptodepartment_1">[% 'Department 1' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_shiptodepartment_2" id="l_shiptodepartment_2" type="checkbox"><label for="l_shiptodepartment_2">[% 'Department 2' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_shiptostreet" id="l_shiptostreet" type="checkbox"><label for="l_shiptostreet">[% 'Street' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_shiptozipcode" id="l_shiptozipcode" type="checkbox"><label for="l_shiptozipcode">[% 'Zipcode' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_shiptocity" id="l_shiptocity" type="checkbox"><label for="l_shiptocity">[% 'City' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_shiptocountry" id="l_shiptocountry" type="checkbox"><label for="l_shiptocountry">[% 'Country' | $T8 %]</label>
     </div>
   </div>
   <div class="list col">
