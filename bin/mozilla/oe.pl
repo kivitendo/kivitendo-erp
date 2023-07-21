@@ -1074,6 +1074,8 @@ sub orders {
     "order_probability",       "expected_billing_date", "expected_netamount",
     "payment_terms",           "intnotes",              "order_status",
     "items",
+    "shiptoname", "shiptodepartment_1", "shiptodepartment_2", "shiptostreet",
+    "shiptozipcode", "shiptocity", "shiptocountry",
   );
 
   # only show checkboxes if gotten here via sales_order form.
@@ -1123,12 +1125,18 @@ sub orders {
   push @columns, map { "cvar_$_->{name}" } @ct_includeable_custom_variables;
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber cusordnumber
-                                                        transaction_description transdatefrom transdateto type vc employee_id salesman_id
-                                                        reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
-                                                        business_id shippingpoint taxzone_id reqdate_unset_or_old insertdatefrom insertdateto
-                                                        order_probability_op order_probability_value expected_billing_date_from expected_billing_date_to
-                                                        parts_partnumber parts_description all department_id intnotes phone_notes fulltext order_status_id);
+  push @hidden_variables, "l_subtotal", $form->{vc}, qw(
+    l_closed l_notdelivered open closed delivered notdelivered ordnumber
+    quonumber cusordnumber transaction_description transdatefrom transdateto
+    type vc employee_id salesman_id reqdatefrom reqdateto projectnumber
+    project_id periodic_invoices_active periodic_invoices_inactive
+    business_id shippingpoint taxzone_id reqdate_unset_or_old insertdatefrom
+    insertdateto order_probability_op order_probability_value
+    expected_billing_date_from expected_billing_date_to parts_partnumber
+    parts_description all department_id intnotes phone_notes fulltext
+    order_status_id shiptoname shiptodepartment_1 shiptodepartment_2
+    shiptostreet shiptozipcode shiptocity shiptocountry
+  );
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
   my   @keys_for_url = grep { $form->{$_} } @hidden_variables;
@@ -1176,6 +1184,13 @@ sub orders {
     'intnotes'                => { 'text' => $locale->text('Internal Notes'), },
     'order_status'            => { 'text' => $locale->text('Status'), },
     'items'                   => { 'text' => $locale->text('Positions'), },
+    shiptoname                => { 'text' => $locale->text('Name (Shipping)'), },
+    shiptodepartment_1        => { 'text' => $locale->text('Department 1 (Shipping)'), },
+    shiptodepartment_2        => { 'text' => $locale->text('Department 2 (Shipping)'), },
+    shiptostreet              => { 'text' => $locale->text('Street (Shipping)'), },
+    shiptozipcode             => { 'text' => $locale->text('Zipcode (Shipping)'), },
+    shiptocity                => { 'text' => $locale->text('City (Shipping)'), },
+    shiptocountry             => { 'text' => $locale->text('Country (Shipping)'), },
     %column_defs_cvars,
   );
 
@@ -1222,6 +1237,20 @@ sub orders {
   push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"         if $form->{transaction_description};
   push @options, $locale->text('Quick Search')            . " : $form->{all}"                             if $form->{all};
   push @options, $locale->text('Shipping Point')          . " : $form->{shippingpoint}"                   if $form->{shippingpoint};
+  push @options, $locale->text('Name (Shipping)')         . " : $form->{shiptoname}"
+                  if $form->{shiptoname};
+  push @options, $locale->text('Department 1 (Shipping)') . " : $form->{shiptodepartment_1}"
+                  if $form->{shiptodepartment_1};
+  push @options, $locale->text('Department 2 (Shipping)') . " : $form->{shiptodepartment_2}"
+                  if $form->{shiptodepartment_2};
+  push @options, $locale->text('Street (Shipping)')       . " : $form->{shiptostreet}"
+                  if $form->{shiptostreet};
+  push @options, $locale->text('Zipcode (Shipping)')      . " : $form->{shiptozipcode}"
+                  if $form->{shiptozipcode};
+  push @options, $locale->text('City (Shipping)')         . " : $form->{shiptocity}"
+                  if $form->{shiptocity};
+  push @options, $locale->text('Country (Shipping)')      . " : $form->{shiptocountry}"
+                  if $form->{shiptocountry};
   push @options, $locale->text('Part Description')        . " : $form->{parts_description}"               if $form->{parts_description};
   push @options, $locale->text('Part Number')             . " : $form->{parts_partnumber}"                if $form->{parts_partnumber};
   push @options, $locale->text('Phone Notes')             . " : $form->{phone_notes}"                     if $form->{phone_notes};

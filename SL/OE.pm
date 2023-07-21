@@ -148,6 +148,8 @@ sub transactions {
     qq|  e.name AS employee, s.name AS salesman, | .
     qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id,  | .
     qq|  tz.description AS taxzone, | .
+    qq|  shipto.shiptoname, shipto.shiptodepartment_1, shipto.shiptodepartment_2, | .
+    qq|  shipto.shiptostreet, shipto.shiptozipcode, shipto.shiptocity, shipto.shiptocountry, | .
     qq|  order_statuses.name AS order_status | .
     $periodic_invoices_columns .
     $phone_notes_columns .
@@ -164,6 +166,10 @@ sub transactions {
     qq|LEFT JOIN tax_zones tz ON (o.taxzone_id = tz.id) | .
     qq|LEFT JOIN department   ON (o.department_id = department.id) | .
     qq|LEFT JOIN order_statuses ON (o.order_status_id = order_statuses.id) | .
+    qq|LEFT JOIN shipto ON (
+        (o.shipto_id = shipto.shipto_id) or
+        (o.id = shipto.trans_id and shipto.module = 'OE')
+       )| .
     qq|$periodic_invoices_joins | .
     $phone_notes_join .
     qq|WHERE (o.quotation = ?) | .
@@ -404,6 +410,35 @@ SQL
       )
 SQL
     push @values, like($form->{parts_description});
+  }
+
+  if ($form->{shiptoname}) {
+    $query .= " AND shipto.shiptoname ILIKE ?";
+    push(@values, like($form->{shiptoname}));
+  }
+  if ($form->{shiptodepartment_1}) {
+    $query .= " AND shipto.shiptodepartment_1 ILIKE ?";
+    push(@values, like($form->{shiptodepartment_1}));
+  }
+  if ($form->{shiptodepartment_2}) {
+    $query .= " AND shipto.shiptodepartment_2 ILIKE ?";
+    push(@values, like($form->{shiptodepartment_2}));
+  }
+  if ($form->{shiptostreet}) {
+    $query .= " AND shipto.shiptostreet ILIKE ?";
+    push(@values, like($form->{shiptostreet}));
+  }
+  if ($form->{shiptozipcode}) {
+    $query .= " AND shipto.shiptozipcode ILIKE ?";
+    push(@values, like($form->{shiptozipcode}));
+  }
+  if ($form->{shiptocity}) {
+    $query .= " AND shipto.shiptocity ILIKE ?";
+    push(@values, like($form->{shiptocity}));
+  }
+  if ($form->{shiptocountry}) {
+    $query .= " AND shipto.shiptocountry ILIKE ?";
+    push(@values, like($form->{shiptocountry}));
   }
 
   if ($form->{all}) {
