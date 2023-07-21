@@ -526,6 +526,8 @@ sub ar_transactions {
     qq|  tz.description AS taxzone, | .
     qq|  pt.description AS payment_terms, | .
     qq|  d.description AS department, | .
+    qq|  s.shiptoname, s.shiptodepartment_1, s.shiptodepartment_2, | .
+    qq|  s.shiptostreet, s.shiptozipcode, s.shiptocity, s.shiptocountry, | .
     qq{  ( SELECT ch.accno || ' -- ' || ch.description
            FROM acc_trans at
            LEFT JOIN chart ch ON ch.id = at.chart_id
@@ -543,6 +545,10 @@ sub ar_transactions {
     qq|LEFT JOIN tax_zones tz ON (tz.id = a.taxzone_id)| .
     qq|LEFT JOIN payment_terms pt ON (pt.id = a.payment_id)| .
     qq|LEFT JOIN business b ON (b.id = c.business_id)| .
+    qq|LEFT JOIN shipto s ON (
+        (a.shipto_id = s.shipto_id) or
+        (a.id = s.trans_id and s.module = 'AR')
+       )| .
     qq|LEFT JOIN department d ON (d.id = a.department_id)|;
 
   my $where = "1 = 1";
@@ -709,6 +715,35 @@ SQL
     ';
     unshift @values, '%AR_paid%';
     $where .= ' AND COALESCE(paid_difference.amount, 0) + a.paid != 0';
+  }
+
+  if ($form->{shiptoname}) {
+    $where .= " AND s.shiptoname ILIKE ?";
+    push(@values, like($form->{shiptoname}));
+  }
+  if ($form->{shiptodepartment_1}) {
+    $where .= " AND s.shiptodepartment_1 ILIKE ?";
+    push(@values, like($form->{shiptodepartment_1}));
+  }
+  if ($form->{shiptodepartment_2}) {
+    $where .= " AND s.shiptodepartment_2 ILIKE ?";
+    push(@values, like($form->{shiptodepartment_2}));
+  }
+  if ($form->{shiptostreet}) {
+    $where .= " AND s.shiptostreet ILIKE ?";
+    push(@values, like($form->{shiptostreet}));
+  }
+  if ($form->{shiptozipcode}) {
+    $where .= " AND s.shiptozipcode ILIKE ?";
+    push(@values, like($form->{shiptozipcode}));
+  }
+  if ($form->{shiptocity}) {
+    $where .= " AND s.shiptocity ILIKE ?";
+    push(@values, like($form->{shiptocity}));
+  }
+  if ($form->{shiptocountry}) {
+    $where .= " AND s.shiptocountry ILIKE ?";
+    push(@values, like($form->{shiptocountry}));
   }
 
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',
