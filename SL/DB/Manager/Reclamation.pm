@@ -17,11 +17,25 @@ __PACKAGE__->add_filter_specs(
     my ($key, $value, $prefix) = @_;
     return __PACKAGE__->type_filter($value, $prefix);
   },
-  # todo when is this used?
-  #all => sub {
-  #  my ($key, $value, $prefix) = @_;
-  #  return or => [ map { $prefix . $_ => $value } qw(record_number customer.name vendor.name transaction_description) ]
-  #}
+  shipto_name => sub {
+    return __PACKAGE__->shipto_filter(@_);
+  },
+  shipto_department => sub {
+    my ($key, $value, $prefix) = @_;
+    return __PACKAGE__->shipto_filter(['shipto_department_1','shipto_department_2'], $value, $prefix);
+  },
+  shipto_street => sub {
+    return __PACKAGE__->shipto_filter(@_);
+  },
+  shipto_zipcode => sub {
+    return __PACKAGE__->shipto_filter(@_);
+  },
+  shipto_city => sub {
+    return __PACKAGE__->shipto_filter(@_);
+  },
+  shipto_country => sub {
+    return __PACKAGE__->shipto_filter(@_);
+  },
 );
 
 sub type_filter {
@@ -33,6 +47,24 @@ sub type_filter {
   return (and => [ "!vendor_id"   => undef ]) if $type eq 'purchase_reclamation';
 
   die "Unknown type $type";
+}
+
+sub shipto_filter {
+  my ($class, $key, $value, $prefix) = @_;
+
+  my $keys;
+  if (ref $keys ne 'ARRAY') {
+    $keys = [$key];
+  }
+
+  my @or = ();
+  for my $key (@$keys) {
+    $key =~ s/^shipto_//;
+    push @or, $prefix . 'shipto.shipto' . $key       , $value;
+    push @or, $prefix . 'custom_shipto.shipto' . $key, $value;
+  }
+
+  return or => \@or, ['shipto', 'custom_shipto'];
 }
 
 sub _sort_spec {

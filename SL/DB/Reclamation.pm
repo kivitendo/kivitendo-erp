@@ -37,6 +37,7 @@ __PACKAGE__->meta->add_relationship(
     class                  => 'SL::DB::Shipto',
     column_map             => { id => 'trans_id' },
     query_args             => [ module => 'Reclamation' ],
+    # query_args             => [ module => [ 'Reclamation', undef ] ],
   },
   exchangerate_obj         => {
     type                   => 'one to one',

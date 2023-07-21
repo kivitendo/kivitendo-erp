@@ -1938,7 +1938,6 @@ sub prepare_report {
 
   $self->{report} = $report;
 
-  # TODO(Tamino): shipto_id is not linked to custom_shipto
   my @columns_order = qw(
     id
     record_number
@@ -1956,6 +1955,12 @@ sub prepare_report {
     intnotes
     shippingpoint
     shipvia
+    shipto_name
+    shipto_department
+    shipto_street
+    shipto_zipcode
+    shipto_city
+    shipto_country
     amount
     netamount
     delivery_term
@@ -2038,10 +2043,48 @@ sub prepare_report {
     shipvia => {
       sub      => sub { $_[0]->shipvia },
     },
-    # TODO(Tamino): custom ship to is not safed in reclamation
-    #shipto_id => {
-    #  sub      => sub { $_[0]->shipto ? $_[0]->shipto->shiptoname : '' },
-    #},
+    shipto_name => {
+      sub      => sub {
+        $_[0]->custom_shipto ? $_[0]->custom_shipto->shiptoname :
+        $_[0]->shipto        ? $_[0]->shipto->shiptoname        :
+        '';
+      },
+    },
+    shipto_department => {
+      sub      => sub {
+        $_[0]->custom_shipto ? join "\n" , ($_[0]->custom_shipto->shiptodepartment_1, $_[0]->custom_shipto->shiptodepartment_2):
+        $_[0]->shipto ?        $_[0]->shipto->shiptodepartment_1 . $_[0]->shipto->shiptodepartment_2:
+        '';
+      },
+    },
+    shipto_street => {
+      sub      => sub {
+        $_[0]->custom_shipto ? $_[0]->custom_shipto->shiptostreet :
+        $_[0]->shipto ?        $_[0]->shipto->shiptostreet :
+        '';
+      },
+    },
+    shipto_zipcode => {
+      sub      => sub {
+        $_[0]->custom_shipto ? $_[0]->custom_shipto->shiptozipcode :
+        $_[0]->shipto ?        $_[0]->shipto->shiptozipcode :
+        '';
+      },
+    },
+    shipto_city => {
+      sub      => sub {
+        $_[0]->custom_shipto ? $_[0]->custom_shipto->shiptocity :
+        $_[0]->shipto ?        $_[0]->shipto->shiptocity :
+        '';
+      },
+    },
+    shipto_country => {
+      sub      => sub {
+        $_[0]->custom_shipto ? $_[0]->custom_shipto->shiptocountry :
+        $_[0]->shipto ?        $_[0]->shipto->shiptocountry :
+        '';
+      },
+    },
     amount  => {
       sub      => sub { $_[0]->amount_as_number },
     },
