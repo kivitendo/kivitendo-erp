@@ -634,7 +634,7 @@ sub _get_sources {
   return @sources;
 }
 
-# ignores all errros
+# ignores all errors
 # todo: cache thumbs?
 sub _create_thumbnail {
   my ($file, $size) = @_;
