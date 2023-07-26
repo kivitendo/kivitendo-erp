@@ -335,14 +335,14 @@ sub save_dunning {
 
   # Save PDFs in filemanagement and webdav after transation succeeded,
   # because otherwise files in the storage may exists if the transaction
-  # failed. Ignore all errros.
-  # Todo: Maybe catch errros and display them as warnings or non fatal errors in the status.
+  # failed. Ignore all errors.
+  # Todo: Maybe catch errors and display them as warnings or non fatal errors in the status.
   if (!$error && $form->{DUNNING_PDFS_STORAGE} && scalar @{ $form->{DUNNING_PDFS_STORAGE} }) {
     _store_pdf_to_webdav_and_filemanagement($_->{dunning_id}, $_->{path}, $_->{name}) for @{ $form->{DUNNING_PDFS_STORAGE} };
   }
 
-  $error       = 'unknown errror' if !$error && !$rc;
-  $rc->{error} = $error           if $error;
+  $error       = 'unknown error' if !$error && !$rc;
+  $rc->{error} = $error          if $error;
 
   $::lxdebug->leave_sub;
 
