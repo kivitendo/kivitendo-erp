@@ -42,6 +42,12 @@ Kleinere neue Features und Detailverbesserungen:
   - Belege ("neue" Controller, sprich Angebot/Auftrag/Beistelllieferschein/RMA/
     Reklamation) können nicht mehr ohne Positionen gespeichert werden. Ausnahmen
     lassen sich in der Mandantenkonfiguration einstellen.
+  - Projektspezifische Testfälle 'NovoclonStrict' sind im Standard verfügbar.
+    Optimiert für die Branche 'Handel', die in der Regel nur eine Handelsware pro
+    Vorgang Einkaufen und Verkaufen. Das Modul ist als einzelner SelfTest mit
+    folgender JSON-Konfiguration im Feld 'Daten' aktivierbar (email tauschen):
+    email: prozessueberwacher@meinkunde.com
+    modules: NovoclonStrict
 
 2023-04-05 - Release 3.8.0
 
