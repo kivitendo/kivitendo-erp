@@ -15,7 +15,7 @@ use Rose::Object::MakeMethods::Generic (
 );
 
 sub init_start_date {
-  DateTime->new(year => 2022, month => 11, day => 1);
+  DateTime->new(day => 1, month => 1, year => DateTime->today->year);
 }
 
 
