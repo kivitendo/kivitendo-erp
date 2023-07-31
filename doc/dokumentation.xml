@@ -8185,6 +8185,59 @@ document_path = /var/local/kivi_documents
         <para>Einen individuellen Reklamationsbericht kann über einen "benutzerdefinierten Datenexport" erstellt werden</para>
       </sect2>
     </sect1>
+
+    <sect1 id="features.dispositionsmanager">
+      <title>Dispositionsmanager/Einkaufshelfer</title>
+
+      <para> Der Einkaufshelfer generiert Lieferantenaufträge anhand eines Warenkorbes. Der Warenkorb kann
+      einzeln oder mit dem Meldebestandsbericht gefüllt werden. Mit dem Filter „Lieferant“ im
+      Warenkorb werden die Artikel einem Lieferanten zugeordnet und können dann bestellt, d.h. ein
+      Lieferantenauftragerstellt, werden.</para>
+
+      <sect2>
+        <title>So kommen die Artikel in den Einkaufswarenkorb:</title>
+        <para>1) Sofern ein Artikel einen oder mehrere Lieferanten hat kann dieser über den Button „Einkaufen“
+        in den Einkaufswarenkorn gelegt werden. Soll der Einkauf über den Mindestlagerbestand gesteuert werden sind die Felder "Mindestlagerbestand" und "Bestellmenge" auszufüllen.</para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/Disp-Artikel.png"/>
+          </imageobject>
+        </mediaobject>
+        <para>Der Button „Einkaufen“ ist deaktiviert, wenn es keinen Lieferanten zu diesem Artikel gibt oder der
+        Artikel schon im Einkaufswarenkorb liegt.</para>
+      <para>2) Bericht „Meldebestand“
+      Über das Menu "Einkauf->Meldebestand" kann der Meldebestand abgerufen werden</para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/Disp-Einkauf-meldeb.png"/>
+          </imageobject>
+        </mediaobject>
+        <para>Die obere Tabelle zeigt die Artikel an, die den Mindestbestand unterschritten haben und können
+        sofern markiert über die Aktion "Einkaufen" in den Einkaufswarenkorb gelegt werden. Hierzu muss
+        das Feld Mindesbestand in den Artikelstammdaten einen Wert > 0 haben</para>
+      <para>Die untere Tabelle zeigt die Artikel an, die den Mindestbestand unterschritten haben aber bestellt sind.</para>
+      </sect2>
+
+      <sect2>
+        <title>Der Einkaufswarenkorb</title>
+        <para>Ohne Filter: der erste Lieferant ist ausgewählt. Hier kann jetzt auch ein anderer Lieferant
+        ausgewählt werden.</para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/Disp-Einkauf-wrnkrb1.png"/>
+          </imageobject>
+        </mediaobject>
+        <para>Wird dann nach einem Lieferanten gefiltert und dieser ist und bleibt eindeutig, kann daraus ein
+        Lieferantenauftrag erstellt werden.</para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/Disp-Einkauf-wrnkrb.png"/>
+          </imageobject>
+        </mediaobject>
+        <para>Die obere Tabelle zeigt die Artikel an, die den Mindestbestand unterschritten haben, der untere Teil zeigt alle 
+        Artikel des Lieferanten an, somit ist es möglich diese Artikel auszuwählen und gleich mitzubestellen</para>
+      </sect2>
+    </sect1>
   </chapter>
 
   <chapter>
