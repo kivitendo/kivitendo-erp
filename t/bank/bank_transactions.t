@@ -1,4 +1,4 @@
-use Test::More tests => 399;
+use Test::More tests =>402;
 
 use strict;
 
@@ -703,7 +703,6 @@ sub test_full_workflow_ar_multiple_inv_skonto_reconciliate_and_undo {
   is (ref $rl->[0], '', "$testname record link removed");
   # double safety and check ar.paid
   # load all three invoices and check for paid-link via acc_trans and paid in general
-
   $ar_transaction->load;
   $ar_transaction_2->load;
   $ar_transaction_skonto->load;
@@ -721,6 +720,10 @@ sub test_full_workflow_ar_multiple_inv_skonto_reconciliate_and_undo {
   is($ar_transaction->paid , '0.00000' , "$testname: 'salesinv fully unpaid");
   is($ar_transaction_2->paid , '0.00000' , "$testname: 'salesinv 2 fully unpaid");
   is($ar_transaction_skonto->paid , '0.00000' , "$testname: 'salesinv skonto fully unpaid");
+
+  is($ar_transaction_skonto->datepaid, undef, "$testname: 'salesinv skonto no date paid");
+  is($ar_transaction_2->datepaid,      undef, "$testname: 'salesinv 2 no date paid");
+  is($ar_transaction->datepaid ,       undef, "$testname: 'salesinv no date paid");
 
   # whew. w(h)a(n)t a whole lotta test
 }
