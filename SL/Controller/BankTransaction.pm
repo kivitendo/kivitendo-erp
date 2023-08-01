@@ -853,7 +853,6 @@ sub action_unlink_bank_transaction {
         die ("invalid type") unless $type =~ m/^(ar|ap)$/;
 
         # recalc and set paid via database query
-        # add: fx_gain and fx_loss
         my $query = qq|UPDATE $type SET paid =
                         (SELECT COALESCE(abs(sum(amount)),0) FROM acc_trans
                          WHERE trans_id = ?
@@ -865,6 +864,10 @@ sub action_unlink_bank_transaction {
                         WHERE id = ?|;
 
         die if (do_query($::form, $bank_transaction->db->dbh, $query, $trans_id, $trans_id) == -1);
+
+        # undo datepaid if no payment exists
+        $query = qq|UPDATE $type SET datepaid = null WHERE ID = ? AND paid = 0|;
+        die if (do_query($::form, $bank_transaction->db->dbh, $query, $trans_id) == -1);
       }
       # 4. and delete all (if any) record links
       my $rl = SL::DB::Manager::RecordLink->delete_all(where => [ from_id => $bt_id, from_table => 'bank_transactions' ]);
