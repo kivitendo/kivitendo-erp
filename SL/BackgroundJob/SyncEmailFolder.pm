@@ -1,4 +1,4 @@
-package SL::BackgroundJob::SyncEmailInbox;
+package SL::BackgroundJob::SyncEmailFolder;
 
 use strict;
 use warnings;
