@@ -374,7 +374,7 @@ sub _store_in_imap_sent_folder {
   };
 
   my $separator =  $imap->separator();
-  my $folder    =  $config->{folder} || 'INBOX/Sent';
+  my $folder    =  $config->{folder} || 'Sent/Kivitendo';
   $folder       =~ s|/|${separator}|g;
 
   $imap->append_string($folder, $email_as_string) or do {

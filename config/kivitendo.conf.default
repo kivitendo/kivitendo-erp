@@ -167,9 +167,13 @@ enabled = 0
 hostname = local
 username =
 password =
+# This folder can be managed with kivitendo through the background jobs
+# CleanUpEmailSubfolders and SyncEmailFolder. Create no subfolder in the
+# base folder by hand.
+# Use / for subfolders
+base_folder = INBOX
 # Port only needs to be changed if it is not the default port.
 # port = 993
-base_folder = INBOX
 # If SSL is to be used, then set port to 993 or leave empty
 ssl = 1
 
@@ -179,7 +183,7 @@ hostname = localhost
 username =
 password =
 # Use / for subfolders
-folder = INBOX/Sent
+folder = Sent/Kivitendo
 # Port only needs to be changed if it is not the default port.
 # port = 143
 # If SSL is used, default port is 993
