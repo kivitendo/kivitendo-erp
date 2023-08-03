@@ -105,6 +105,7 @@ sub prepare_report {
   my $top    = $self->render('disposition_manager/list_parts', { output => 0 },
                              noshow => $noshow,
                              PARTS => $parts,
+                             title => t8('Short onhand Ordered'),
                            );
   my $bottom = $noshow ? undef : $self->render(
     'disposition_manager/reorder_level_list/report_bottom',
@@ -395,7 +396,7 @@ sub _setup_list_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Action'),
+        t8('Purchasebasket'),
         submit  => [
           '#form', { action => "DispositionManager/add_to_purchase_basket" } ],
         tooltip => t8('Add to purchase basket'),
