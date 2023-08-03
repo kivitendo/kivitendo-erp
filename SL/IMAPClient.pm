@@ -244,17 +244,22 @@ SQL
   }
 }
 
-sub update_email_files_for_all_records {
+sub update_email_subfolders_and_files_for_records {
   my ($self) = @_;
-  my $record_folder_path = $self->{base_folder};
+  my $base_folder_path = $self->{base_folder};
+  my $base_folder_string = $self->get_folder_string_from_path($base_folder_path);
 
-  my $subfolder_strings = $self->{imap_client}->folders($record_folder_path)
+  my $folder_strings = $self->{imap_client}->folders($base_folder_string)
     or die "Could not get folders via IMAP: $@\n";
-  my @record_folder_strings = grep { $_ ne $record_folder_path }
-    @$subfolder_strings;
+  my @subfolder_strings = grep { $_ ne $base_folder_string } @$folder_strings;
 
-  foreach my $record_folder_string (@record_folder_strings) {
-    my $ilike_folder_path = $self->get_ilike_folder_path_from_string($record_folder_string);
+  # Store all emails in journal
+  my $email_import =
+    $self->_update_emails_from_folder_strings($base_folder_path, \@subfolder_strings);
+
+  # Store the emails to the records
+  foreach my $subfolder_string (@subfolder_strings) {
+    my $ilike_folder_path = $self->get_ilike_folder_path_from_string($subfolder_string);
     my (
       $ilike_record_folder_path, # is greedily matched
       $ilike_customer_number, # no spaces allowed
@@ -266,9 +271,10 @@ sub update_email_files_for_all_records {
     my $record_type = $RECORD_FOLDER_TO_TYPE{$record_folder};
     next unless $record_type;
 
+    # TODO make it generic for all records
     my $is_quotation = $record_type eq 'sales_quotation' ? 1 : 0;
     my $number_field = $is_quotation ? 'quonumber' : 'ordnumber';
-    my $order = SL::DB::Manager::Order->get_first(
+    my $record = SL::DB::Manager::Order->get_first(
       query => [
         and => [
           vendor_id => undef,
@@ -276,10 +282,11 @@ sub update_email_files_for_all_records {
           $number_field => { ilike => $ilike_record_number },
         ],
     ]);
-    next unless $order;
-
-    $self->update_email_files_for_record($order);
+    next unless $record;
+    $self->update_email_files_for_record($record);
   }
+
+  return ($email_import, \@subfolder_strings);
 }
 
 sub create_folder {
@@ -318,27 +325,25 @@ sub create_folder_for_record {
   return;
 }
 
-sub clean_up_record_folders {
+sub clean_up_subfolders {
   my ($self, $active_records) = @_;
   my $record_folder_path = $self->{base_folder};
 
-  $self->update_email_files_for_all_records();
-
-  my $base_folder_string = $self->get_folder_string_from_path($record_folder_path);
-  my @folders = $self->{imap_client}->folders($base_folder_string)
-    or die "Could not get folders via IMAP: $@\n";
+  my ($email_import, $synced_folders) =
+    $self->update_email_subfolders_and_files_for_records();
 
   my @active_folders = map { $self->_get_folder_string_for_record($_) }
     @$active_records;
-  push @active_folders, $base_folder_string;
 
   my %keep_folder = map { $_ => 1 } @active_folders;
-  my @folders_to_delete = grep { !$keep_folder{$_} } @folders;
+  my @folders_to_delete = grep { !$keep_folder{$_} } @$synced_folders;
 
   foreach my $folder (@folders_to_delete) {
     $self->{imap_client}->delete($folder)
       or die "Could not delete IMAP folder '$folder': $@\n";
   }
+
+  return $email_import;
 }
 
 sub _get_folder_string_for_record {
@@ -501,10 +506,9 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
   Updates the email files for a record. Checks which emails are missing and
   fetches these from the IMAP server.
 
-=item C<update_email_files_for_all_records>
-  
-    Updates the email files for all records. Checks which emails are missing and
-    fetches these from the IMAP server.
+=item C<update_email_subfolders_and_files_for_records>
+
+    Updates all subfolders and the email files for all records.
 
 =item C<create_folder>
 
@@ -518,14 +522,14 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
   The folder string is encoded in IMAP-UTF-7.
 
 =item C<get_ilike_folder_path_from_string>
-  
+
   Converts a folder string to a folder path. The folder path is like path
   on unix filesystem. The folder string is the path on the IMAP server.
   The folder string is encoded in IMAP-UTF-7. It can happend that
   C<get_folder_string_from_path> and C<get_ilike_folder_path_from_string>
-  don't cancel each other out. This is because the IMAP server has a different
-  separator than the unix filesystem. The changes are made so that a ILIKE
-  query on the database works.
+  don't cancel each other out. This is because the IMAP server can has a
+  different Ieparator than the unix filesystem. The changes are made so that a
+  ILIKE query on the database works.
 
 =item C<create_folder_for_record>
 
@@ -534,11 +538,11 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
   e.g. INBOX/1234 Testkunde/Angebot/123
   If the folder already exists, nothing happens.
 
-=item C<clean_up_record_folders>
+=item C<clean_up_subfolders>
 
-  Gets a list of acitve records. First syncs the folders on the IMAP server with
-  the corresponding record, by creating email files. Then deletes all folders
-  which are not corresponding to an active record.
+  Gets a list of acitve records. Syncs all subfolders and add email files to
+  the records. Then deletes all subfolders which are not corresponding to an
+  active record.
 
 =item C<_get_folder_string_for_record>
 
@@ -556,7 +560,9 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
 
 =head1 BUGS
 
-Nothing here yet.
+The mapping from record to email folder is not bijective. If the record or
+customer number has special characters, the mapping can fail. Read
+C<get_ilike_folder_path_from_string> for more information.
 
 =head1 AUTHOR
 
