@@ -166,10 +166,10 @@ sub get_agreement_with_invoice {
   } else {
     # only check number part of invoice number
     $invnumber      =~ s/[A-Za-z_]+//g;
-    if (length($invnumber) > 4 && $squashed_purpose =~ /$invnumber/ && $invoice->is_sales){
+    if (length($invnumber) > 4 && $squashed_purpose =~ /\Q$invnumber/ && $invoice->is_sales){
       $agreement    += $points{own_invnumber_in_purpose};
       $rule_matches .= 'own_invnumber_in_purpose(' . $points{'own_invnumber_in_purpose'} . ') ';
-    } elsif (length($invnumber) > 3 && $squashed_purpose =~ /$invnumber/ ) {
+    } elsif (length($invnumber) > 3 && $squashed_purpose =~ /\Q$invnumber/ ) {
       $agreement    += $points{invnumber_in_purpose};
       $rule_matches .= 'invnumber_in_purpose(' . $points{'invnumber_in_purpose'} . ') ';
     }
