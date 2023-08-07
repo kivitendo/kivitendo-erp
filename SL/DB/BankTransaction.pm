@@ -151,7 +151,7 @@ sub get_agreement_with_invoice {
     $agreement += $points{skonto_exact_amount};
     $rule_matches .= 'skonto_exact_amount(' . $points{'skonto_exact_amount'} . ') ';
     $invoice->{skonto_type} = 'with_skonto_pt';
-  } elsif ( $invoice->skonto_date && abs(abs($invoice->amount_less_skonto) - abs($self->amount)) < 0.2) {
+  } elsif ( $invoice->skonto_date && abs(abs($invoice->amount_less_skonto) - abs($self->amount)) < abs($invoice->amount / 200)) {
     $agreement += $points{skonto_fuzzy_amount};
     $rule_matches .= 'skonto_fuzzy_amount(' . $points{'skonto_fuzzy_amount'} . ') ';
     $invoice->{skonto_type} = 'with_fuzzy_skonto_pt';
