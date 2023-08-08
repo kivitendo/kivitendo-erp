@@ -253,10 +253,6 @@ sub update_email_subfolders_and_files_for_records {
     or die "Could not get folders via IMAP: $@\n";
   my @subfolder_strings = grep { $_ ne $base_folder_string } @$folder_strings;
 
-  # Store all emails in journal
-  my $email_import =
-    $self->_update_emails_from_folder_strings($base_folder_path, \@subfolder_strings);
-
   # Store the emails to the records
   foreach my $subfolder_string (@subfolder_strings) {
     my $ilike_folder_path = $self->get_ilike_folder_path_from_string($subfolder_string);
@@ -286,7 +282,7 @@ sub update_email_subfolders_and_files_for_records {
     $self->update_email_files_for_record($record);
   }
 
-  return ($email_import, \@subfolder_strings);
+  return \@subfolder_strings;
 }
 
 sub create_folder {
@@ -327,23 +323,20 @@ sub create_folder_for_record {
 
 sub clean_up_subfolders {
   my ($self, $active_records) = @_;
-  my $record_folder_path = $self->{base_folder};
 
-  my ($email_import, $synced_folders) =
+  my $subfolder_strings =
     $self->update_email_subfolders_and_files_for_records();
 
-  my @active_folders = map { $self->_get_folder_string_for_record($_) }
+  my @active_folder_strings = map { $self->_get_folder_string_for_record($_) }
     @$active_records;
 
-  my %keep_folder = map { $_ => 1 } @active_folders;
-  my @folders_to_delete = grep { !$keep_folder{$_} } @$synced_folders;
+  my %keep_folder = map { $_ => 1 } @active_folder_strings;
+  my @folders_to_delete = grep { !$keep_folder{$_} } @$subfolder_strings;
 
   foreach my $folder (@folders_to_delete) {
     $self->{imap_client}->delete($folder)
       or die "Could not delete IMAP folder '$folder': $@\n";
   }
-
-  return $email_import;
 }
 
 sub _get_folder_string_for_record {
