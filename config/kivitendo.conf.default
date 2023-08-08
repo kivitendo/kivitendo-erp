@@ -177,6 +177,8 @@ base_folder = INBOX
 # If SSL is to be used, then set port to 993 or leave empty
 ssl = 1
 
+# Define a server for a specific email (e.g. info@test.de) with
+# '[sent_emails_in_imap/email/info@test.de]'
 [sent_emails_in_imap]
 enabled = 0
 hostname = localhost

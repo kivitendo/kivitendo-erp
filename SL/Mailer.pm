@@ -340,7 +340,12 @@ sub _get_header_string {
 
 sub _store_in_imap_sent_folder {
   my ($self, $email_as_string) = @_;
-  my $config = $::lx_office_conf{sent_emails_in_imap} || {};
+
+  my $email = $::myconfig{email};
+  my $config =
+       $::lx_office_conf{"sent_emails_in_imap/email/$email"}
+    || $::lx_office_conf{sent_emails_in_imap}
+    || {};
   return unless ($config->{enabled} && $config->{hostname});
 
   my $socket;
