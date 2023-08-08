@@ -164,13 +164,12 @@ password =
 
 [imap_client]
 enabled = 0
-hostname = local
+hostname = localhost
 username =
 password =
 # This folder can be managed with kivitendo through the background jobs
 # CleanUpEmailSubfolders and SyncEmailFolder. Create no subfolder in the
-# base folder by hand.
-# Use / for subfolders
+# base folder by hand. Use / for subfolders.
 base_folder = INBOX
 # Port only needs to be changed if it is not the default port.
 # port = 993
@@ -184,7 +183,7 @@ enabled = 0
 hostname = localhost
 username =
 password =
-# Use / for subfolders
+# This folder must exist. Use / for subfolders.
 folder = Sent/Kivitendo
 # Port only needs to be changed if it is not the default port.
 # port = 143

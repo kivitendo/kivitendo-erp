@@ -757,6 +757,16 @@ $ service apache2 restart                   # webserver starten!
           </listitem>
 
           <listitem>
+            <para><literal>imap_client</literal> (siehe Abschnitt "<xref
+            linkend="config.imap_client"/>)</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>sent_emails_in_imap</literal> (siehe Abschnitt "<xref
+            linkend="config.sent_emails_in_imap"/>)</para>
+          </listitem>
+
+          <listitem>
             <para><literal>applications</literal></para>
           </listitem>
 
@@ -2063,66 +2073,163 @@ digits_year: 4</programlisting>
       </sect2>
     </sect1>
 
-    <sect1 id="config.sending-email"
-           xreflabel="E-Mail-Versand aus kivitendo heraus">
-      <title>E-Mail-Versand aus kivitendo heraus</title>
+    <sect1 id="Email">
+      <title>E-Mail</title>
 
-      <para>kivitendo kann direkt aus dem Programm heraus E-Mails versenden,
-      z.B. um ein Angebot direkt an einen Kunden zu verschicken. Damit dies
-      funktioniert, muss eingestellt werden, über welchen Server die E-Mails
-      verschickt werden sollen. kivitendo unterstützt dabei zwei Mechanismen:
-      Versand über einen lokalen E-Mail-Server (z.B. mit
-      <productname>Postfix</productname> oder <productname>Exim</productname>,
-      was auch die standardmäßig aktive Methode ist) sowie Versand über einen
-      SMTP-Server (z.B. der des eigenen Internet-Providers).</para>
+        <para>
+          kivitendo kann sowohl E-Mails direkt aus dem Programm heraus E-Mails
+          versenden, als auch in das Programm importiern. Damit dies
+          funktioniert, müssen die E-Mail-Parameter korrekt konfiguriert sein.
+          Dazu mehr in den folgenden Abschnitten.
+        </para>
 
-      <para>Welche Methode und welcher Server verwendet werden, wird über die
-      Konfigurationsdatei <filename>config/kivitendo.conf</filename>
-      festgelegt. Dort befinden sich alle Einstellungen zu diesem Thema im
-      Abschnitt '<literal>[mail_delivery]</literal>'.</para>
+      <sect2 id="config.sending-email"
+             xreflabel="E-Mail-Versand aus kivitendo heraus">
+        <title>E-Mail-Versand aus kivitendo heraus</title>
 
-      <sect2 id="config.sending-email.sendmail"
-             xreflabel="E-Mail-Versand über lokalen E-Mail-Server">
-        <title>Versand über lokalen E-Mail-Server</title>
+        <para>Das Versenden von E-Mails kann zum Verschicken von Belegen genutzt
+        werden, z.B. um ein Angebot direkt an einen Kunden zu verschicken. Damit
+        dies funktioniert, muss eingestellt werden, über welchen Server die
+        E-Mails verschickt werden sollen. kivitendo unterstützt dabei zwei
+        Mechanismen: Versand über einen lokalen E-Mail-Server (z.B. mit
+        <productname>Postfix</productname> oder <productname>Exim</productname>,
+        was auch die standardmäßig aktive Methode ist) sowie Versand über einen
+        SMTP-Server (z.B. der des eigenen Internet-Providers).</para>
 
-        <para>Diese Methode bietet sich an, wenn auf dem Server, auf dem
-        kivitendo läuft, bereits ein funktionsfähiger E-Mail-Server wie z.B.
-        <productname>Postfix</productname>, <productname>Exim</productname>
-        oder <productname>Sendmail</productname> läuft.</para>
+        <para>Welche Methode und welcher Server verwendet werden, wird über die
+        Konfigurationsdatei <filename>config/kivitendo.conf</filename>
+        festgelegt. Dort befinden sich alle Einstellungen zu diesem Thema im
+        Abschnitt '<literal>[mail_delivery]</literal>'.</para>
 
-        <para>Um diese Methode auszuwählen, muss der Konfigurationsparameter
-        '<literal>method = sendmail</literal>' gesetzt sein. Dies ist
-        gleichzeitig der Standardwert, falls er nicht verändert wird.</para>
+        <sect3 id="config.sending-email.sendmail"
+               xreflabel="E-Mail-Versand über lokalen E-Mail-Server">
+          <title>Versand über lokalen E-Mail-Server</title>
 
-        <para>Um zu kontrollieren, wie das Programm zum Einliefern gestartet
-        wird, dient der Parameter '<literal>sendmail = ...</literal>'. Der
-        Standardwert verweist auf das Programm
-        <filename>/usr/bin/sendmail</filename>, das bei allen oben genannten
-        E-Mail-Serverprodukten für diesen Zweck funktionieren sollte.</para>
+          <para>Diese Methode bietet sich an, wenn auf dem Server, auf dem
+          kivitendo läuft, bereits ein funktionsfähiger E-Mail-Server wie z.B.
+          <productname>Postfix</productname>, <productname>Exim</productname>
+          oder <productname>Sendmail</productname> läuft.</para>
 
-        <para>Die Konfiguration des E-Mail-Servers selber würde den Rahmen
-        dieses sprengen. Hierfür sei auf die Dokumentation des E-Mail-Servers
-        verwiesen.</para>
+          <para>Um diese Methode auszuwählen, muss der Konfigurationsparameter
+          '<literal>method = sendmail</literal>' gesetzt sein. Dies ist
+          gleichzeitig der Standardwert, falls er nicht verändert wird.</para>
+
+          <para>Um zu kontrollieren, wie das Programm zum Einliefern gestartet
+          wird, dient der Parameter '<literal>sendmail = ...</literal>'. Der
+          Standardwert verweist auf das Programm
+          <filename>/usr/bin/sendmail</filename>, das bei allen oben genannten
+          E-Mail-Serverprodukten für diesen Zweck funktionieren sollte.</para>
+
+          <para>Die Konfiguration des E-Mail-Servers selber würde den Rahmen
+          dieses sprengen. Hierfür sei auf die Dokumentation des E-Mail-Servers
+          verwiesen.</para>
+        </sect3>
+
+        <sect3 id="config.sending-email.smtp"
+               xreflabel="E-Mail-Versand über einen SMTP-Server">
+          <title>Versand über einen SMTP-Server</title>
+
+          <para>Diese Methode bietet sich an, wenn kein lokaler E-Mail-Server
+          vorhanden ist oder einer vorhanden, dieser aber nicht konfiguriert
+          ist.</para>
+
+          <para>Um diese Methode auszuwählen, muss der Konfigurationsparameter
+          '<literal>method = smtp</literal>' gesetzt sein. Die folgenden
+          Parameter dienen dabei der weiteren Konfiguration:</para>
+
+          <variablelist>
+            <varlistentry>
+              <term><varname>hostname</varname></term>
+
+              <listitem>
+                <para>Name oder IP-Adresse des SMTP-Servers. Standardwert:
+                '<literal>localhost</literal>'</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>port</varname></term>
+
+              <listitem>
+                <para>Portnummer. Der Standardwert hängt von der verwendeten
+                Verschlüsselungsmethode ab. Gilt '<literal>security =
+                none</literal>' oder '<literal>security = tls</literal>', so ist
+                25 die Standardportnummer. Für '<literal>security =
+                ssl</literal>' ist 465 die Portnummer. Muss normalerweise nicht
+                geändert werden.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>security</varname></term>
+
+              <listitem>
+                <para>Wahl der zu verwendenden Verschlüsselung der Verbindung
+                mit dem Server. Standardwert ist '<literal>none</literal>',
+                wodurch keine Verschlüsselung verwendet wird. Mit
+                '<literal>tls</literal>' wird TLS-Verschlüsselung eingeschaltet,
+                und mit '<literal>ssl</literal>' wird Verschlüsselung via SSL
+                eingeschaltet. Achtung: Für '<literal>tls</literal>' und
+                '<literal>ssl</literal>' werden zusätzliche Perl-Module benötigt
+                (siehe unten).</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>login</varname> und
+              <varname>password</varname></term>
+
+              <listitem>
+                <para>Falls der E-Mail-Server eine Authentifizierung verlangt,
+                so können mit diesen zwei Parametern der Benutzername und das
+                Passwort angegeben werden. Wird Authentifizierung verwendet, so
+                sollte aus Sicherheitsgründen auch eine Form von Verschlüsselung
+                aktiviert werden.</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
       </sect2>
 
-      <sect2 id="config.sending-email.smtp"
-             xreflabel="E-Mail-Versand über einen SMTP-Server">
-        <title>Versand über einen SMTP-Server</title>
+      <sect2 id="config.sent_emails_in_imap"
+             xreflabel="Versendete E-Mails über IMAP exportieren">
+        <title>Versendete E-Mails über IMAP exportieren</title>
 
-        <para>Diese Methode bietet sich an, wenn kein lokaler E-Mail-Server
-        vorhanden oder zwar einer vorhanden, dieser aber nicht konfiguriert
-        ist.</para>
+        <para>
+          Es können versendete E-Mails über IMAP exportiert werden. Dazu muss
+          werden der entsprechende Server, auf dem die E-Mails abgelegt werden
+          sollen, konfiguriert werden. Dies geschieht in der Konfigurationsdatei
+          <filename>config/kivitendo.conf</filename> im Abschnitt
+          '<literal>[sent_emails_in_imap]</literal>'. Es können auch Server für
+          spezifische E-Mail-Adressen konfiguriert werden, indem der Abschnitt
+          kopiert wird und mit dem Namen
+          '<literal>[sent_emails_in_imap/email/EMAILADDRESS]</literal>', wobei
+          '<literal>EMAILADDRESS</literal>' die entsprechenden E-Mail-Adresse
+          ist, versehen wird.
+        </para>
 
-        <para>Um diese Methode auszuwählen, muss der Konfigurationsparameter
-        '<literal>method = smtp</literal>' gesetzt sein. Die folgenden
-        Parameter dienen dabei der weiteren Konfiguration:</para>
+        <para>Die folgenden Parameter dienen der Konfiguration:</para>
 
         <variablelist>
+          <varlistentry>
+            <term><varname>enabled</varname></term>
+
+            <listitem>
+              <para>
+                Falls '<literal>enabled = 0</literal>' gesetzt ist, wird der
+                Export von E-Mails deaktiviert. Dies ist der Standardwert. Falls
+                '<literal>enabled = 1</literal>' gesetzt ist, wird ist der
+                Export von E-Mails aktiviert.
+              </para>
+            </listitem>
+          </varlistentry>
+
           <varlistentry>
             <term><varname>hostname</varname></term>
 
             <listitem>
-              <para>Name oder IP-Adresse des SMTP-Servers. Standardwert:
+              <para>Name oder IP-Adresse des IMAP-Servers. Standardwert:
               '<literal>localhost</literal>'</para>
             </listitem>
           </varlistentry>
@@ -2131,43 +2238,182 @@ digits_year: 4</programlisting>
             <term><varname>port</varname></term>
 
             <listitem>
-              <para>Portnummer. Der Standardwert hängt von der verwendeten
-              Verschlüsselungsmethode ab. Gilt '<literal>security =
-              none</literal>' oder '<literal>security = tls</literal>', so ist
-              25 die Standardportnummer. Für '<literal>security =
-              ssl</literal>' ist 465 die Portnummer. Muss normalerweise nicht
-              geändert werden.</para>
+              <para>
+                Portnummer. Der Standardwert hängt von der verwendeten
+                Verschlüsselungsmethode ab. Gilt '<literal>ssl = 0</literal>',
+                so ist 993 die Standardportnummer. Für
+                '<literal>ssl = 0</literal>' ist 143 die Portnummer. Muss
+                normalerweise nicht geändert werden.
+              </para>
             </listitem>
           </varlistentry>
 
           <varlistentry>
-            <term><varname>security</varname></term>
+            <term><varname>ssl</varname></term>
 
             <listitem>
-              <para>Wahl der zu verwendenden Verschlüsselung der Verbindung
-              mit dem Server. Standardwert ist '<literal>none</literal>',
-              wodurch keine Verschlüsselung verwendet wird. Mit
-              '<literal>tls</literal>' wird TLS-Verschlüsselung eingeschaltet,
-              und mit '<literal>ssl</literal>' wird Verschlüsselung via SSL
-              eingeschaltet. Achtung: Für '<literal>tls</literal>' und
-              '<literal>ssl</literal>' werden zusätzliche Perl-Module benötigt
-              (siehe unten).</para>
+              <para>
+                Wahl ob eine Verschlüsselung bei der Verbindung mit dem Server
+                verwendendet wird. Standardwert ist '<literal>1</literal>',
+                wodurch eine SSL-Verschlüsselung verwendet wird. Mit
+                '<literal>0</literal>' wird keine Verschlüsselung genutzt.
+              </para>
             </listitem>
           </varlistentry>
 
           <varlistentry>
-            <term><varname>login</varname> und
+            <term><varname>username</varname> und
             <varname>password</varname></term>
 
             <listitem>
-              <para>Falls der E-Mail-Server eine Authentifizierung verlangt,
-              so können mit diesen zwei Parametern der Benutzername und das
-              Passwort angegeben werden. Wird Authentifizierung verwendet, so
-              sollte aus Sicherheitsgründen auch eine Form von Verschlüsselung
-              aktiviert werden.</para>
+              <para>
+                Falls der IMAP-Server eine Authentifizierung verlangt, so können
+                mit diesen zwei Parametern der Nutzername und das Passwort
+                angegeben werden. Wird Authentifizierung verwendet, so sollte
+                aus Sicherheitsgründen auch Verschlüsselung aktiviert werden.
+              </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>folder</varname></term>
+
+            <listitem>
+              <para>
+                Wahl des Ordners, in den kivitendo gesendete E-Mails
+                gespeichert. Standardwert ist
+                '<literal>Sent/Kivitendo</literal>'. Ordnerhierarchien können
+                mit einem Slash ('<literal>/</literal>') getrennt werden.
+                Beispiel: '<literal>INBOX/kivitendo</literal>'. Dieser Ordner
+                muss existieren.
+              </para>
             </listitem>
           </varlistentry>
         </variablelist>
+      </sect2>
+
+      <sect2 id="config.imap_client"
+             xreflabel="E-Mails in kivitendo importieren">
+        <title>E-Mails in kivitendo importieren</title>
+
+        <para>
+          Um E-Mails in kivitendo zu importieren, muss der entsprechende
+          Server, von dem die E-Mails abgeholt werden sollen, konfiguriert
+          werden. Dies geschieht in der Konfigurationsdatei
+          <filename>config/kivitendo.conf</filename> im Abschnitt
+          '<literal>[imap_client]</literal>'.
+        </para>
+
+        <para>Die folgenden Parameter dienen der Konfiguration:</para>
+
+        <variablelist>
+          <varlistentry>
+            <term><varname>enabled</varname></term>
+
+            <listitem>
+              <para>
+                Falls '<literal>enabled = 0</literal>' gesetzt ist, wird der
+                Import von E-Mails deaktiviert. Dies ist der Standardwert. Falls
+                '<literal>enabled = 1</literal>' gesetzt ist, wird ist der
+                Import von E-Mails aktiviert.
+              </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>hostname</varname></term>
+
+            <listitem>
+              <para>Name oder IP-Adresse des IMAP-Servers. Standardwert:
+              '<literal>localhost</literal>'</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>port</varname></term>
+
+            <listitem>
+              <para>
+                Portnummer. Der Standardwert hängt von der verwendeten
+                Verschlüsselungsmethode ab. Gilt '<literal>ssl = 0</literal>',
+                so ist 993 die Standardportnummer. Für
+                '<literal>ssl = 0</literal>' ist 143 die Portnummer. Muss
+                normalerweise nicht geändert werden.
+              </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>ssl</varname></term>
+
+            <listitem>
+              <para>
+                Wahl ob eine Verschlüsselung bei der Verbindung mit dem Server
+                verwendendet wird. Standardwert ist '<literal>1</literal>',
+                wodurch eine SSL-Verschlüsselung verwendet wird. Mit
+                '<literal>0</literal>' wird keine Verschlüsselung genutzt.
+              </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>username</varname> und
+            <varname>password</varname></term>
+
+            <listitem>
+              <para>
+                Falls der IMAP-Server eine Authentifizierung verlangt, so können
+                mit diesen zwei Parametern der Nutzername und das Passwort
+                angegeben werden. Wird Authentifizierung verwendet, so sollte
+                aus Sicherheitsgründen auch Verschlüsselung aktiviert werden.
+              </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>base_folder</varname></term>
+
+            <listitem>
+              <para>
+                Wahl des Ordners, den kivitendo als Basis für das erstellen von
+                Unterordnern und das abholen von E-Mails verwendet. Standardwert
+                ist '<literal>INBOX</literal>'. Ordnerhierarchien können mit
+                einem Slash ('<literal>/</literal>') getrennt werden. Beispiel:
+                '<literal>INBOX/kivitendo</literal>'. In diesem Ordner dürfen
+                keine Unterordner existieren und keine manuell angelegt werden.
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+
+        <para>
+          Wenn eingeschaltet, wird beim Anlegen von Verkaufsangeboten und
+          -aufträgen ein Unterordner im E-Mail-Client für den entsprechenden
+          Beleg angelegt. E-Mails, in diesen Ordner werden automatisch beim
+          Öffnen des Belegs in kivitendo importiert. Um die E-Mails übersichtlich
+          zu halten, kann der Hintergrund-Job
+          '<literal>CleanUpEmailSubfolders</literal>' genutzt werden. Dieser
+          importiert alle E-Mails und löscht alle Unterordnern, die nicht zu
+          einem Offenen Beleg gehören. Importierte E-Mails werden werden nicht
+          gelöscht, erst beim Löschen des Unterordners werden sie gelöscht.
+        </para>
+
+        <para>
+          Es können auch E-Mails in kivitendo importiert werden, die nicht zu
+          einem Beleg gehören. Dafür kann der Hintergrund-Job
+          '<literal>SyncEmailFolder</literal>' verwendet werden. Dieser
+          synchronisiert standartmäßig den Ordner der in
+          '<literal>base_folder</literal>' angegeben ist. Dies kann mit dem
+          Job-Parameter '<literal>folder</literal>' geändert. Die Importierten
+          E-Mails werden im E-Mail-Journal gespeichert.
+        </para>
+
+        <para>
+          Beim Umzug des E-Mail-Servers kann kivitendo die E-Mails schon
+          importierten E-Mails nicht mehr erkennen. Dies führt dazu, dass alle
+          E-Mails erneut importiert werden.
+        </para>
+
       </sect2>
     </sect1>
 
