@@ -88,6 +88,9 @@ sub _update_emails_from_folder_strings {
       $self->{imap_client}->select($folder_string)
         or die "Could not select IMAP folder '$folder_string': $@\n";
 
+      my $folder_uidvalidity = $self->{imap_client}->uidvalidity($folder_string)
+        or die "Could not get UIDVALIDITY for folder '$folder_string': $@\n";
+
       my $msg_uids = $self->{imap_client}->messages
         or die "Could not get messages via IMAP: $@\n";
 
@@ -99,10 +102,11 @@ sub _update_emails_from_folder_strings {
         WHERE ei.host_name = ?
           AND ei.user_name = ?
           AND ej.folder = ?
+          AND ej.folder_uidvalidity = ?
 SQL
 
       my $existing_uids = $dbh->selectall_hashref($query, 'uid', undef,
-        $self->{hostname}, $self->{username}, $folder_string);
+        $self->{hostname}, $self->{username}, $folder_string, $folder_uidvalidity);
 
       my @new_msg_uids = grep { !$existing_uids->{$_} } @$msg_uids;
 
@@ -114,7 +118,7 @@ SQL
         my $new_email_string = $self->{imap_client}->message_string($new_uid);
         my $email = Email::MIME->new($new_email_string);
         my $email_journal = $self->_create_email_journal(
-          $email, $email_import, $new_uid, $folder_string
+          $email, $email_import, $new_uid, $folder_string, $folder_uidvalidity
         );
         $email_journal->save();
       }
@@ -135,7 +139,7 @@ sub _create_email_import {
 }
 
 sub _create_email_journal {
-  my ($self, $email, $email_import, $uid, $folder_path) = @_;
+  my ($self, $email, $email_import, $uid, $folder_string, $folder_uidvalidity) = @_;
 
   my @email_parts = $email->parts; # get parts or self
   my $text_part = $email_parts[0];
@@ -167,18 +171,19 @@ sub _create_email_journal {
   });
 
   my $email_journal = SL::DB::EmailJournal->new(
-    email_import_id => $email_import->id,
-    folder          => $folder_path,
-    uid             => $uid,
-    status          => 'imported',
-    extended_status => '',
-    from            => $email->header('From') || '',
-    recipients      => $recipients,
-    sent_on         => $date,
-    subject         => $email->header('Subject') || '',
-    body            => $body,
-    headers         => $header_string,
-    attachments     => \@attachments,
+    email_import_id    => $email_import->id,
+    folder             => $folder_string,
+    folder_uidvalidity => $folder_uidvalidity,
+    uid                => $uid,
+    status             => 'imported',
+    extended_status    => '',
+    from               => $email->header('From') || '',
+    recipients         => $recipients,
+    sent_on            => $date,
+    subject            => $email->header('Subject') || '',
+    body               => $body,
+    headers            => $header_string,
+    attachments        => \@attachments,
   );
 
   return $email_journal;
