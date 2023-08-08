@@ -18,10 +18,7 @@ sub clean_up_subfolders {
     ],
   );
 
-  my $email_import = $imap_client->clean_up_subfolders($open_sales_orders);
-  return unless $email_import;
-
-  $self->{job_obj}->set_data(last_email_import_id => $email_import->id)->save;
+  $imap_client->clean_up_subfolders($open_sales_orders);
 }
 
 sub run {
