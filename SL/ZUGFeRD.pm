@@ -267,7 +267,7 @@ can be one of the following constants:
 
 =item C<RES_OK> (0): parsing was OK.
 
-=item C<RES_ERR_…> (all values E<!=> 0): parsing failed. Values > 0 indicate a failure
+=item C<RES_ERR_…> (all values != 0): parsing failed. Values > 0 indicate a failure
 in C<SL::XMLInvoice>, Values < 0 indicate a failure in C<SL::ZUGFeRD>.
 
 =back
@@ -301,7 +301,7 @@ can be one of the following constants:
 
 =item C<RES_OK> (0): parsing was OK.
 
-=item C<RES_ERR_…> (all values E<!=> 0): parsing failed. Values > 0 indicate a failure
+=item C<RES_ERR_…> (all values != 0): parsing failed. Values > 0 indicate a failure
 in C<SL::XMLInvoice>, Values < 0 indicate a failure in C<SL::ZUGFeRD>.
 
 =back
