@@ -15,7 +15,7 @@ namespace('kivi.DispositionManager', function(ns) {
   }
 
   ns.display_vendor_parts = function(vendor_id) {
-    var url = 'controller.pl?action=DispositionManager/show_vendor_items&v_id=' + vendor_id;
+    var url = 'controller.pl?action=DispositionManager/show_vendor_items&vendor_id=' + vendor_id;
     $('#vendor_parts').load(url);
   }
 

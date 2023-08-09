@@ -163,14 +163,18 @@ sub action_show_basket {
 sub action_show_vendor_items {
   my ($self) = @_;
 
-  my $makemodels_parts = SL::DB::Manager::Part->get_all(
-    query => [
-      'makemodels.make' => $::form->{v_id},
-      'makemodels.sortorder' => 1,
-    ],
-    sort_by => 'onhand',
-    with_objects => [ 'makemodels' ]
-  );
+  my $makemodels_parts;
+  if ($::form->{vendor_id}) {
+    $makemodels_parts = SL::DB::Manager::Part->get_all(
+      query => [
+        'purchase_basket_item.id' => undef,
+        'makemodels.make' => $::form->{vendor_id},
+      ],
+      sort_by => 'onhand',
+      with_objects => [ 'makemodels', 'purchase_basket_item' ]
+    );
+  };
+
   $self->render(
     'disposition_manager/_show_vendor_parts',
     { layout => 0 },
