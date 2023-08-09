@@ -306,8 +306,6 @@ sub action_delete_purchase_basket_items {
 
   my $basket_item_ids = $::form->{ids};
 
-  $main::lxdebug->dump(0, "TST: basket_items_ids", $basket_item_ids);
-
   if ($basket_item_ids && scalar @{ $basket_item_ids}) {
     SL::DB::Manager::PurchaseBasketItem->delete_all(
       where => [ id => $basket_item_ids]);
@@ -380,6 +378,7 @@ sub init_models {
      },
     query => [
       (id => \@parts) x !!@parts,
+      (id => undef) x !@parts,
     ],
     paginated => {
       form_params => [ qw(page per_page) ],
