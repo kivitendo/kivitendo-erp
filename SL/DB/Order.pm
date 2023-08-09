@@ -9,6 +9,7 @@ use List::Util qw(max);
 use List::MoreUtils qw(any);
 
 use SL::DBUtils ();
+use SL::DB::PurchaseBasketItem;
 use SL::DB::MetaSetup::Order;
 use SL::DB::Manager::Order;
 use SL::DB::Helper::Attr;
@@ -84,6 +85,7 @@ __PACKAGE__->before_save('_before_save_remove_empty_custom_shipto');
 __PACKAGE__->before_save('_before_save_set_custom_shipto_module');
 __PACKAGE__->after_save('_after_save_link_records');
 __PACKAGE__->after_save('_after_save_close_reachable_intakes'); # uses linked records (order matters)
+__PACKAGE__->before_save('_before_save_delete_from_purchase_basket');
 
 # hooks
 
@@ -166,6 +168,20 @@ sub _after_save_close_reachable_intakes {
       SL::DB::Manager::Order->update_all(set   => {closed => 1},
                                          where => [id => [map {$_->id} @$lr]]);
     }
+  }
+
+  return 1;
+}
+
+sub _before_save_delete_from_purchase_basket {
+  my ($self) = @_;
+
+  my @basket_item_ids = grep { $_ ne ''} map { $_->{basket_item_id} } $self->orderitems;
+
+  if (scalar @basket_item_ids) {
+    SL::DB::Manager::PurchaseBasketItem->delete_all(
+      where => [ id => \@basket_item_ids]
+    );
   }
 
   return 1;
@@ -346,6 +362,94 @@ sub _clone_orderitem_cvar {
   $cloned->sub_module('orderitems');
 
   return $cloned;
+}
+
+sub create_from_purchase_basket {
+  my ($class, $basket_item_ids, $vendor_item_ids, $vendor_id) = @_;
+
+  my ($vendor, $employee);
+  $vendor   = SL::DB::Manager::Vendor->find_by(id => $vendor_id);
+  $employee = SL::DB::Manager::Employee->current;
+
+  my @orderitem_maps = (); # part, qty, orderer_id
+  if ($basket_item_ids && scalar @{ $basket_item_ids}) {
+    my $basket_items = SL::DB::Manager::PurchaseBasketItem->get_all(
+      query => [ id => $basket_item_ids ],
+      with_objects => ['part'],
+    );
+    push @orderitem_maps, map {{
+        basket_item_id => $_->id,
+        part       => $_->part,
+        qty        => $_->qty,
+        orderer_id => $_->orderer_id,
+      }} @{$basket_items};
+  }
+  if ($vendor_item_ids && scalar @{ $vendor_item_ids}) {
+    my $vendor_items = SL::DB::Manager::Part->get_all(
+      query => [ id => $vendor_item_ids ] );
+    push @orderitem_maps, map {{
+        basket_item_id => undef,
+        part       => $_,
+        qty        => $_->order_qty || 1,
+        orderer_id => $employee->id,
+      }} @{$vendor_items};
+  }
+
+  my $order = $class->new(
+    vendor_id               => $vendor->id,
+    employee_id             => $employee->id,
+    intnotes                => $vendor->notes,
+    salesman_id             => $employee->id,
+    payment_id              => $vendor->payment_id,
+    delivery_term_id        => $vendor->delivery_term_id,
+    taxzone_id              => $vendor->taxzone_id,
+    currency_id             => $vendor->currency_id,
+    transdate               => DateTime->today_local
+  );
+
+  my @order_items;
+  my $i = 0;
+  foreach my $orderitem_map (@orderitem_maps) {
+    $i++;
+    my $part = $orderitem_map->{part};
+    my $qty = $orderitem_map->{qty};
+    my $orderer_id = $orderitem_map->{orderer_id};
+
+    my $order_item = SL::DB::OrderItem->new(
+      part                => $part,
+      qty                 => $qty,
+      unit                => $part->unit,
+      description         => $part->description,
+      price_factor_id     => $part->price_factor_id,
+      price_factor        =>
+        $part->price_factor_id ? $part->price_factor->factor
+                               : '',
+      orderer_id          => $orderer_id,
+      position            => $i,
+    );
+    $order_item->{basket_item_id} = $orderitem_map->{basket_item_id};
+
+    my $price_source  = SL::PriceSource->new(
+      record_item => $order_item, record => $order);
+    $order_item->sellprice(
+      $price_source->best_price ? $price_source->best_price->price
+                                : 0);
+    $order_item->active_price_source(
+      $price_source->best_price ? $price_source->best_price->source
+                                : '');
+    push @order_items, $order_item;
+  }
+
+  $order->assign_attributes(orderitems => \@order_items);
+
+  $order->calculate_prices_and_taxes;
+
+  foreach my $item(@{ $order->orderitems }){
+    $item->parse_custom_variable_values;
+    $item->{custom_variables} = \@{ $item->cvars_by_config };
+  }
+
+  return $order;
 }
 
 sub new_from {

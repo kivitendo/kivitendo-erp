@@ -19,7 +19,7 @@ namespace('kivi.DispositionManager', function(ns) {
     $('#vendor_parts').load(url);
   }
 
-  ns.create_order = function() {
+  ns.create_purchase_order = function() {
     var data = $('#purchasebasket').serializeArray();
     data.push({ name: 'action', value: 'DispositionManager/transfer_to_purchase_order' });
     $.post("controller.pl", data, kivi.eval_json_result);

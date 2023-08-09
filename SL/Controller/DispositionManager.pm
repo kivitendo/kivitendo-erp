@@ -182,120 +182,37 @@ sub action_transfer_to_purchase_order {
   my ($self) = @_;
   my @error_report;
 
-  my $basket_items_ids = $::form->{ids};
-  my $vendor_items_ids = $::form->{vendor_part_ids};
+  my $basket_item_ids = $::form->{ids};
+  my $vendor_item_ids = $::form->{vendor_part_ids};
 
-  unless (($basket_items_ids && scalar @{ $basket_items_ids})
-      || ( $vendor_items_ids && scalar @{ $vendor_items_ids}))
+  unless (($basket_item_ids && scalar @{ $basket_item_ids})
+      || ( $vendor_item_ids && scalar @{ $vendor_item_ids}))
     {
     $self->js->flash('error', t8('There are no items selected'));
     return $self->js->render();
   }
-  my $v_id =  $::form->{vendor_ids}->[0] ;
 
-  my ($vendor, $employee);
-  $vendor   = SL::DB::Manager::Vendor->find_by(id => $v_id);
-  $employee = SL::DB::Manager::Employee->current;
+  my $vendor_id =  $::form->{vendor_ids}->[0];
 
-
-  my @orderitem_maps = (); # part, qty, orderer_id
-  if ($basket_items_ids && scalar @{ $basket_items_ids}) {
-    my $basket_items = SL::DB::Manager::PurchaseBasketItem->get_all(
-      query => [ id => $basket_items_ids ],
-      with_objects => ['part'],
-    );
-    push @orderitem_maps, map {{
-        part       => $_->part,
-        qty        => $_->qty,
-        orderer_id => $_->orderer_id,
-      }} @{$basket_items};
+  # check for same vendor
+  my %basket_id_vendor_id_map =
+    map {$::form->{basket_ids}->[$_] => $::form->{vendor_ids}->[$_]}
+    (0..$#{$::form->{vendor_ids}});
+  my @different_vendor_ids =
+    grep { $basket_id_vendor_id_map{$_} ne $vendor_id }
+    @{$basket_item_ids};
+  if (scalar @different_vendor_ids) {
+    $self->js->flash('error', t8('There are mulitple vendors selected'));
+    return $self->js->render();
   }
-  if ($vendor_items_ids && scalar @{ $vendor_items_ids}) {
-    my $vendor_items = SL::DB::Manager::Part->get_all(
-      query => [ id => $vendor_items_ids ] );
-    push @orderitem_maps, map {{
-        part       => $_,
-        qty        => $_->order_qty || 1,
-        orderer_id => $employee->id,
-      }} @{$vendor_items};
-  }
-
-  my $order = SL::DB::Order->new(
-    vendor_id               => $vendor->id,
-    employee_id             => $employee->id,
-    intnotes                => $vendor->notes,
-    salesman_id             => $employee->id,
-    payment_id              => $vendor->payment_id,
-    delivery_term_id        => $vendor->delivery_term_id,
-    taxzone_id              => $vendor->taxzone_id,
-    currency_id             => $vendor->currency_id,
-    transdate               => DateTime->today_local
-  );
-
-  my @order_items;
-  my $i = 0;
-  foreach my $orderitem_map (@orderitem_maps) {
-    $i++;
-    my $part = $orderitem_map->{part};
-    my $qty = $orderitem_map->{qty};
-    my $orderer_id = $orderitem_map->{orderer_id};
-
-    my $order_item = SL::DB::OrderItem->new(
-      part                => $part,
-      qty                 => $qty,
-      unit                => $part->unit,
-      description         => $part->description,
-      price_factor_id     => $part->price_factor_id,
-      price_factor        =>
-        $part->price_factor_id ? $part->price_factor->factor
-                               : '',
-      orderer_id          => $orderer_id,
-      position            => $i,
-    );
-
-    my $price_source  = SL::PriceSource->new(
-      record_item => $order_item, record => $order);
-    $order_item->sellprice(
-      $price_source->best_price ? $price_source->best_price->price
-                                : 0);
-    $order_item->active_price_source(
-      $price_source->best_price ? $price_source->best_price->source
-                                : '');
-    push @order_items, $order_item;
-  }
-
-  $order->assign_attributes(orderitems => \@order_items);
-
-  $order->db->with_transaction( sub {
-    $order->calculate_prices_and_taxes;
-    $order->save;
-
-    my $snumbers = "ordernumber_" . $order->ordnumber;
-    SL::DB::History->new(
-                      trans_id    => $order->id,
-                      snumbers    => $snumbers,
-                      employee_id => SL::DB::Manager::Employee->current->id,
-                      addition    => 'SAVED',
-                      what_done   => 'PurchaseBasket->Order',
-                    )->save();
-    foreach my $item(@{ $order->orderitems }){
-      $item->parse_custom_variable_values->save;
-      $item->{custom_variables} = \@{ $item->cvars_by_config };
-      $item->save;
-    }
-    if ($basket_items_ids && scalar @{ $basket_items_ids}) {
-      SL::DB::Manager::PurchaseBasketItem->delete_all(
-        where => [ id => $basket_items_ids]);
-    }
-    return 1;
-  }) || die "error: " . $order->db->error;
 
   $self->redirect_to(
     controller => 'Order',
-    action     => 'edit',
+    action     => 'add_from_purchase_basket',
     type       => 'purchase_order',
-    vc         => 'vendor',
-    id         => $order->id,
+    basket_item_ids => $basket_item_ids,
+    vendor_item_ids => $vendor_item_ids,
+    vendor_id       => $vendor_id,
   );
 }
 
@@ -417,7 +334,7 @@ sub _setup_show_basket_action_bar {
       ],
       action => [
         t8('Action'),
-        call    => [ 'kivi.DispositionManager.create_order' ],
+        call    => [ 'kivi.DispositionManager.create_purchase_order' ],
         tooltip => t8('Create purchase order'),
       ],
       action => [
