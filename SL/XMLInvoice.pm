@@ -5,9 +5,6 @@ use warnings;
 
 use XML::LibXML;
 
-require SL::XMLInvoice::UBL;
-require SL::XMLInvoice::CrossIndustryInvoice;
-
 use constant RES_OK => 0;
 use constant RES_XML_PARSING_FAILED => 1;
 use constant RES_UNKNOWN_ROOT_NODE_TYPE => 2;
@@ -288,6 +285,7 @@ sub new {
     return $self;
   }
 
+  eval {require $type}; # Load the parser class
   bless $self, $type;
 
   # Implementation sanity check for child classes: make sure they are aware of
