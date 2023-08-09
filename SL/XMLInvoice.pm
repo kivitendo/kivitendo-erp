@@ -33,7 +33,7 @@ below.
   # @items is an array of hashes, each representing a line
   # item on the bill
   my @items = @{$invoice_parser->items};
-                                                        
+
 =cut
 
 =head1 ATTRIBUTES
@@ -78,7 +78,7 @@ C<ubl:Invoice> are supported.
 These methods are only implemented in C<SL::XMLInvoice> itself and define the
 data structures to be exposed by any child classes.
 
-=over 4 
+=over 4
 
 =item data_keys()
 
@@ -203,6 +203,7 @@ These methods' purpose is child classs selection and making sure child classes
 implent the interface promised by C<SL::XMLInvoice>. You can safely ignore them
 if you don't plan on implementing any child classes.
 
+=over 4
 
 =item _document_nodenames()
 
@@ -214,7 +215,7 @@ this hash and add a use statement to make it available from C<SL::XMLInvoice>.
 =cut
 
 sub _document_nodenames {
-  return { 
+  return {
     'rsm:CrossIndustryInvoice' => 'SL::XMLInvoice::CrossIndustryInvoice',
     'ubl:Invoice' => 'SL::XMLInvoice::UBL',
   };
@@ -240,6 +241,8 @@ Returns a list of all keys present in the hashes returned by the class'
 C<items()> method. Must be implemented in all classes inheriting from
 C<SL::XMLInvoice> This list must contain the same keys as the list returned by
 C<item_keys>. Omitting this method from a child class will cause an exception.
+
+=back
 
 =head1 AUTHOR
 
