@@ -149,7 +149,14 @@ sub vendor_price_dropdown {
       }}
     @{$part->makemodels};
 
-  select_tag( $name, \@vendor_price_list, %attributes );
+  my $count = scalar(@vendor_price_list);
+  if ($count) {
+    $attributes{size}    = $count;
+    $attributes{default} = $vendor_price_list[0]->{id};
+    select_tag( $name, \@vendor_price_list, %attributes );
+  } else {
+    html_tag('span', $::locale->text('No vendor available'));
+  }
 }
 
 1;
