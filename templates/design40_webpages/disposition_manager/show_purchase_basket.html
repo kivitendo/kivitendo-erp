@@ -6,11 +6,8 @@
 
 [%- INCLUDE 'common/flash.html' %]
 <h1>[% title %]</h1>
-<form id="purchasebasket">
 
 <div class="wrapper" id="wrapper-1">
-[% INCLUDE 'generic/toggle_wrapper.html' %]
-
 <div class="col">
   <table class="tbl-horizontal">
     <caption>[% 'Vendor' | $T8 %]</caption>
@@ -21,8 +18,9 @@
     </tbody>
   </table>
 </div>
-
 </div><!-- /.wrapper -->
+
+<form id="purchasebasket">
 
 <div class="wrapper">
   <table id="baskettable" class="tbl-list">

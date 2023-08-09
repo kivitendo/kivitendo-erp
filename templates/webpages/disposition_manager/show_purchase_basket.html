@@ -6,13 +6,15 @@
 
 [%- INCLUDE 'common/flash.html' %]
 <h1>[% title %]</h1>
+
+<div>
+  <p>
+    [% 'Vendor' | $T8 %]:
+    [% P.customer_vendor.picker('vendor_id', '', type='vendor') %]
+  </p>
+</div>
+
 <form id="purchasebasket" style="margin:1em;">
-  <div>
-    <p>
-      [% 'Vendor' | $T8 %]:
-      [% P.customer_vendor.picker('vendor_id', '', type='vendor') %]
-    </p>
-  </div>
 <div>
   <table id="baskettable" width="100%">
     <thead>
