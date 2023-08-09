@@ -458,13 +458,6 @@ sub _force_mandatory_packages {
 
       next;
 
-    } elsif ($line =~ m/^ *\\documentclass/) {
-      if ($self->{pdf_a} && $self->{pdf_a}->{xmp}) {
-        push @new_lines, (
-          "\\RequirePackage{pdfmanagement-testphase}\n",
-          "\\DocumentMetadata{pdfstandard=A-3b}\n",
-        );
-      }
     }
 
     push @new_lines, $line;
