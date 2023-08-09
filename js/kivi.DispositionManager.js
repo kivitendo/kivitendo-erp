@@ -1,12 +1,15 @@
 namespace('kivi.DispositionManager', function(ns) {
   ns.sort_vendors = function() {
-    ns.display_vendor_parts($('#vendor_id2').val());
-    $("tbody tr").each(function(index) {
-      if ( index !== 0 ) {
-        $row = $(this);
-        if( $row.find("select[name='vendor_ids[]']").val() != $('#vendor_id2').val()) {
-          $row.remove();
-        }
+    ns.display_vendor_parts($('#vendor_id').val());
+    $("#basket_items tr").each(function(_index) {
+      if(
+        $(this).find("select[name='vendor_ids[]']").val() != $('#vendor_id').val()
+        && $('#vendor_id').val() != ''
+      ) {
+        $(this).find("[name='ids[+]']").prop("checked", false);
+        this.style.display = "none";
+      } else {
+        this.style.removeProperty('display');
       }
     });
   }
@@ -48,4 +51,10 @@ namespace('kivi.DispositionManager', function(ns) {
     }
     return true;
   };
+});
+
+$(function() {
+ $('#vendor_id').change('set_item:CustomerVendorPicker', function(_e,_o) {
+   kivi.DispositionManager.sort_vendors();
+ })
 });

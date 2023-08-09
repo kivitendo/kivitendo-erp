@@ -10,7 +10,7 @@
   <div>
     <p>
       [% 'Vendor' | $T8 %]:
-      [% P.customer_vendor.picker('vendor_id2', FORM.vendor_id2, type='vendor') %]
+      [% P.customer_vendor.picker('vendor_id', '', type='vendor') %]
     </p>
   </div>
 <div>
@@ -29,7 +29,7 @@
        <th>[% 'Vendor'                                          | $T8 %] </th>
      </tr>
     </thead>
-    <tbody>
+    <tbody id="basket_items">
     [% FOREACH basket_item = BASKET_ITEMS %]
 
       <tr class="listrow">
@@ -64,11 +64,3 @@
 <div id="vendor_parts"></div>
 </form>
 <hr>
-<script type="text/javascript">
-<!--
-
- $('#vendor_id2').change('set_item:CustomerVendorPicker', function(e,o) {
-   kivi.DispositionManager.sort_vendors();
- })
--->
-</script>
