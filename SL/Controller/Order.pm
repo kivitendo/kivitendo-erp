@@ -74,6 +74,7 @@ __PACKAGE__->run_before('check_auth',
 
 __PACKAGE__->run_before('check_auth_for_edit',
                         except => [ qw(edit show_customer_vendor_details_dialog price_popup load_second_rows close_quotations) ]);
+__PACKAGE__->run_before('get_basket_info_from_from');
 
 #
 # actions
@@ -141,6 +142,28 @@ sub action_add_from_record {
     title => $self->type_data->text('add'),
     %{$self->{template_args}}
   );
+}
+
+sub action_add_from_purchase_basket {
+  my ($self) = @_;
+
+  my $basket_item_ids = $::form->{basket_item_ids};
+  my $vendor_item_ids = $::form->{vendor_item_ids};
+  my $vendor_id       = $::form->{vendor_id};
+
+
+  unless (scalar @{ $basket_item_ids} || scalar @{ $vendor_item_ids}) {
+    $self->js->flash('error', t8('There are no items selected'));
+    return $self->js->render();
+  }
+
+  my $order = SL::DB::Order->create_from_purchase_basket(
+    $basket_item_ids, $vendor_item_ids, $vendor_id
+  );
+
+  $self->order($order);
+
+  $self->action_add();
 }
 
 # edit an existing order
@@ -1620,6 +1643,7 @@ sub js_reset_order_and_item_ids_after_save {
   }
   $self->js->val('[name="converted_from_orderitems_ids[+]"]', '');
   $self->js->val('[name="converted_from_reclamation_items_ids[+]"]', '');
+  $self->js->val('[name="basket_item_ids[+]"]', '');
 }
 
 #
@@ -1965,6 +1989,19 @@ sub new_item {
   $item->assign_attributes(%new_attr, %{ $texts });
 
   return $item;
+}
+
+sub get_basket_info_from_from {
+  my ($self) = @_;
+
+  my $order = $self->order;
+  my $basket_item_ids = $::form->{basket_item_ids};
+  if (scalar @{ $basket_item_ids || [] }) {
+    for my $idx (0 .. $#{ $order->items_sorted }) {
+      my $order_item = $order->items_sorted->[$idx];
+      $order_item->{basket_item_id} = $basket_item_ids->[$idx];
+    }
+  }
 }
 
 # setup custom shipto from form

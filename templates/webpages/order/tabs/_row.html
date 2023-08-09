@@ -19,6 +19,7 @@
       [% L.hidden_tag("converted_from_reclamation_items_ids[+]", ITEM.converted_from_reclamation_items_id) %]
       [% L.hidden_tag("order.orderitems[+].id", ITEM.id, id='item_' _ ID) %]
       [% L.hidden_tag("order.orderitems[].parts_id", ITEM.parts_id) %]
+      [% L.hidden_tag("purchase_basket_item_ids[+]", ITEM.purchase_basket_item_ids) %]
     </td>
     <td>
       <div name="position" class="numeric">

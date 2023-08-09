@@ -33,7 +33,9 @@
     [% FOREACH basket_item = BASKET_ITEMS %]
 
       <tr class="listrow">
-        <td>[% L.checkbox_tag('ids[+]', "data-checkall"=1, checked = '1',  value=basket_item.id) %] [% HTML.escape(basket_item.part.partsgroup.partsgroup) %]
+        <td>
+          [% L.checkbox_tag('ids[+]', "data-checkall"=1, checked = '1',  value=basket_item.id) %]
+          [% L.hidden_tag('basket_ids[+]', basket_item.id) %]
         </td>
         <td> [% basket_item.part.presenter.part(target = '_blank') %]
           [% P.button_tag(
