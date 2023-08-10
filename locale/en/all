@@ -4293,6 +4293,7 @@ $self->{texts} = {
   'This sales order has an active configuration for periodic invoices. If you save then all subsequently created invoices will contain those changes as well, but not those that have already been created. Do you want to continue?' => '',
   'This status output will be refreshed every five seconds.' => '',
   'This sub-version is not yet finalized' => '',
+  'This transaction has been cleared. Please undo the clearing if needed.' => '',
   'This transaction has to be split into several transactions manually.' => '',
   'This transaction is linked with a AP transaction. Please undo and redo the AP transaction booking if needed.' => '',
   'This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.' => '',

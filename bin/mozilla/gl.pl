@@ -39,6 +39,7 @@ use POSIX qw(strftime);
 use List::Util qw(first sum);
 
 use SL::DB::ApGl;
+use SL::DB::Cleared;
 use SL::DB::RecordTemplate;
 use SL::DB::ReconciliationLink;
 use SL::DB::BankTransactionAccTrans;
@@ -983,7 +984,7 @@ sub setup_gl_action_bar {
   my $form   = $::form;
   my $change_never            = $::instance_conf->get_gl_changeable == 0;
   my $change_on_same_day_only = $::instance_conf->get_gl_changeable == 2 && ($form->current_date(\%::myconfig) ne $form->{gldate});
-  my ($is_linked_bank_transaction, $is_linked_ap_transaction, $is_reconciled_bank_transaction);
+  my ($is_linked_bank_transaction, $is_linked_ap_transaction, $is_reconciled_bank_transaction, $is_cleared);
 
   if ($form->{id} && SL::DB::Manager::BankTransactionAccTrans->find_by(gl_id => $form->{id})) {
     $is_linked_bank_transaction = 1;
@@ -991,11 +992,14 @@ sub setup_gl_action_bar {
   if ($form->{id} && SL::DB::Manager::ApGl->find_by(gl_id => $form->{id})) {
     $is_linked_ap_transaction = 1;
   }
-  # dont edit reconcilated bookings!
+  # don't edit reconciled or cleared bookings!
   if ($form->{id}) {
     my @acc_trans_ids = map { $_->acc_trans_id } @{ SL::DB::Manager::AccTransaction->get_all(select => ["acc_trans_id"], where => [ trans_id => $form->{id} ] ) };
     if (scalar @acc_trans_ids && scalar @{ SL::DB::Manager::ReconciliationLink->get_all(where => [ acc_trans_id  => [ @acc_trans_ids ] ]) }) {
       $is_reconciled_bank_transaction = 1;
+    }
+    if (scalar @acc_trans_ids && scalar @{ SL::DB::Manager::Cleared->get_all(where => [ acc_trans_id  => [ @acc_trans_ids ] ]) }) {
+      $is_cleared = 1;
     }
   }
   my $create_post_action = sub {
@@ -1011,6 +1015,7 @@ sub setup_gl_action_bar {
                 : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                 : $is_linked_ap_transaction                 ? t8('This transaction is linked with a AP transaction. Please undo and redo the AP transaction booking if needed.')
                 : $is_reconciled_bank_transaction           ? t8('This transaction is reconciled with a bank transaction. Please undo the reconciliation if needed.')
+                : $is_cleared                               ? t8('This transaction has been cleared. Please undo the clearing if needed.')
                 : undef,
     ],
   };
@@ -1044,6 +1049,7 @@ sub setup_gl_action_bar {
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     : $is_linked_ap_transaction   ? t8('This transaction is linked with a AP transaction. Please undo and redo the AP transaction booking if needed.')
                     : $is_reconciled_bank_transaction ? t8('This transaction is reconciled with a bank transaction. Please undo the reconciliation if needed.')
+                    : $is_cleared                     ? t8('This transaction has been cleared. Please undo the clearing if needed.')
                     : undef,
         ],
         action => [ t8('Delete'),
@@ -1056,6 +1062,7 @@ sub setup_gl_action_bar {
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     : $is_linked_ap_transaction   ? t8('This transaction is linked with a AP transaction. Please undo and redo the AP transaction booking if needed.')
                     : $is_reconciled_bank_transaction ? t8('This transaction is reconciled with a bank transaction. Please undo the reconciliation if needed.')
+                    : $is_cleared                     ? t8('This transaction has been cleared. Please undo the clearing if needed.')
                     : $form->{storno}             ? t8('A canceled general ledger transaction cannot be deleted.')
                     : undef,
         ],
