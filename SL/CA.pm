@@ -266,10 +266,12 @@ sub all_transactions {
     # get all transactions
     $query =
       qq|SELECT ac.itime, a.id, a.reference, a.description, ac.transdate, ac.chart_id, | .
+      qq|       case when cleared.cleared_group_id is null then false else true end as cleared, | .
       qq|  FALSE AS invoice, ac.amount, 'gl' as module, | .
       qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo § .
       qq|FROM acc_trans ac | .
       qq|     JOIN gl a ON (ac.trans_id = a.id) | .
+      qq|     LEFT JOIN cleared on (ac.acc_trans_id = cleared.acc_trans_id) | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
       qq|  AND ac.chart_id = ? | .
@@ -278,11 +280,13 @@ sub all_transactions {
       qq|UNION ALL | .
 
       qq|SELECT ac.itime, a.id, a.invnumber, c.name, ac.transdate, ac.chart_id, | .
+      qq|       case when cleared.cleared_group_id is null then false else true end as cleared, | .
       qq|  a.invoice, ac.amount, 'ar' as module, | .
       qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo  § .
       qq|FROM acc_trans ac | .
       qq|     JOIN ar a ON (ac.trans_id = a.id) | .
       qq|     JOIN customer c ON (a.customer_id = c.id) | .
+      qq|LEFT JOIN cleared on (ac.acc_trans_id = cleared.acc_trans_id) | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
       qq| AND ac.chart_id = ? | .
@@ -291,11 +295,13 @@ sub all_transactions {
       qq|UNION ALL | .
 
       qq|SELECT ac.itime, a.id, a.invnumber, v.name, ac.transdate, ac.chart_id, | .
+      qq|       case when cleared.cleared_group_id is null then false else true end as cleared, | .
       qq|  a.invoice, ac.amount, 'ap' as module, | .
       qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo  § .
       qq|FROM acc_trans ac | .
       qq|     JOIN ap a ON (ac.trans_id = a.id) | .
       qq|     JOIN vendor v ON (a.vendor_id = v.id) | .
+      qq|LEFT JOIN cleared on (ac.acc_trans_id = cleared.acc_trans_id) | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
       qq| AND ac.chart_id = ? | .
