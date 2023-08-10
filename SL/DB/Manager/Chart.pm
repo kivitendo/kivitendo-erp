@@ -94,7 +94,7 @@ sub type_filter {
 
   # filter by link or several defined custom types
   # special types:
-  # bank, guv, balance
+  # bank, guv, balance, clearing
 
   return () unless $type;
 
@@ -113,6 +113,8 @@ sub type_filter {
      push @filter, ( category => [ 'I', 'E' ] );
     } elsif ( $type eq 'balance' ) {
      push @filter, ( category => [ 'A', 'Q', 'L' ] );
+    } elsif ( $type eq 'clearing' ) {
+     push @filter, ( clearing => 1 );
     } else {
       push @filter, $class->link_filter($type);
     };
