@@ -1,0 +1,49 @@
+/* the selection box */
+div.selection {
+  background-color: lightgray;
+}
+
+.bookings tr.cleared {
+  background-color: lightgreen;
+}
+
+.bookings tr.selected {
+  background-color: lightgray;
+}
+
+.bookings tr.selected_cleared_group {
+  background-color: orange;
+}
+
+.bookings tr:hover {
+  border-color: black;
+  outline: thin solid;
+}
+
+div.overflow {
+   padding: 20px;
+   resize: both;
+   overflow-y: auto;
+   max-height: 500px;
+}
+
+.table { border-collapse: collapse; }
+.table th, .table td { border: 1px solid silver; padding: 3px}
+.sortable { cursor: pointer; }
+.sorted { background-color: #B5E0FF; }
+
+table.grid th { text-align: right; }
+
+.flex-container {
+  display:flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.flexing {
+  position: sticky;
+  top: 0;
+  margin: 2px;
+  min-width: 200px;
+  border: 2px solid;
+}

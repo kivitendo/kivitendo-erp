@@ -1,0 +1,318 @@
+[%- USE HTML -%]
+[%- USE LxERP -%]
+[%- USE T8 -%]
+[%- USE L -%]
+[%- USE P -%]
+
+[% INCLUDE 'common/flash.html' %]
+
+[% SET style="width: 300px" %]
+[% SET style2="width: 200px" %]
+
+<h1>[% 'Clear bookings' | $T8 %]: <!-- ko if: selectedChart --><span data-bind="text: selectedChart().displayable_name"></span><!-- /ko --></h1>
+
+<div id="chart">
+ <div data-bind="hidden: selectedChartId">
+  [% 'Please choose an account for clearing:' | $T8 %]
+ </div>
+ <div>
+  [% 'Chart' | $T8 %]: [% P.chart.picker('chart_id', chart_id,
+                                          fat_set_item=1,
+                                          style=style,
+                                          type='clearing'
+                                        ) %]
+  <button type="button" data-bind="visible: selectedChartId && calink() !== undefined, click: redirect_chartlist">[% 'List Transactions' | $T8 %]</button>
+ </div>
+</div> <!-- chart -->
+
+<div id="top" data-bind="visible: selectedChartId">
+ <div id="filter">
+  <div data-bind="visible: false">
+   [% 'Precision' %]: <input data-bind="value: precision"></input>
+  </div>
+  <form id="clearing_filter" name="clearing_filter" data-bind="submit: BookingListViewModel.update">
+   <fieldset>
+    <legend>[% 'Record filters' | $T8 %] <button data-bind="toggle: show_filter"><span data-bind="text: show_filter() ? '⌃' : '⌄'"></span></button></legend>
+    <div data-bind="visible: show_filter">
+    <table class="grid">
+     <tbody>
+      <tr>
+       <th>[% 'Invoice Date' | $T8 %]</th>
+       <td>[% 'From'  | $T8 %] [% L.date_tag("filter.fromdate", SELF.fromdate || FORM.filter.fromdate, class="filter") %]
+           [% 'Until' | $T8 %] [% L.date_tag('filter.todate',   SELF.todate   || FORM.filter.todate, class="filter")   %]
+       </td>
+      </tr>
+      <tr>
+       <th>[% 'Project' | $T8 %]</th>
+       <td>[% P.project.picker('filter.project_id', SELF.project_id, description_style='both', style=style, class="filter") %]</td>
+
+      </tr>
+      [% IF SELF.all_departments.size %]
+      <tr>
+       <th>[% 'Department' | $T8 %]</th><td>[% L.select_tag('filter.department_id', SELF.all_departments, default=SELF.department_id, title_key='description', with_empty=1, style='width:300px') %]</td>
+      </tr>
+      [% END %]
+      <tr>
+       <th>[% 'Load cleared bookings' | $T8 %]</th>
+       <td>[% P.checkbox_tag("filter.load_cleared", value=1, checked=FORM.load_cleared, class="filter") %]</td>
+      </tr>
+     </tbody>
+    </table>
+    <button type="submit" data-bind="enable: selectedChartId">[% 'Update' | $T8 %]</button>
+    <button type="button" id="reset_form_filter">[% 'Reset' | $T8 %]</button>
+    </div>
+   </fieldset>
+  </form>
+ </div> <!-- filter -->
+</div> <!-- top -->
+
+<div id="flexsettings" class="flex-container" data-bind="visible: selectedChartId">
+ <div id="settings" class="flexing">
+ <h2>[% 'Settings' | $T8 %]</h2>
+  <table>
+   <tr>
+     <td>[% 'Hide cleared' | $T8 %]:</td>
+     <td><input type="checkbox" data-bind="checked: hideCleared"></input>
+   </tr>
+   <tr>
+     <td>[% 'Automatic clearing' | $T8 %]:</td>
+     <td><input id="automaticClearing" type="checkbox" data-bind="checked: automaticClearing"></input>
+         <span style="display: none" id="automatic_clearing_info">([% 'when sum 0 is reached / bookings are balanced' | $T8 %])</span>
+     </td>
+   </tr>
+  </table>
+ </div> <!-- settings flex -->
+
+  <div id="autofilters" class="flexing">
+   <h2>[% 'Automatically filter when matching' | $T8 %]:</h2>
+   <table>
+   <tbody>
+   <tr>
+     <td>[% 'Contra Amount' | $T8 %]:</td><td><input type="checkbox" data-bind="checked: automaticAmountFiltering"></input></td>
+     <td></td>
+     <td>[% 'Employee' | $T8 %]:</td><td><input type="checkbox" data-bind="checked: automaticEmployeeFiltering"></input></td>
+   </tr>
+   <tr>
+     <td>[% 'Reference' | $T8 %]</td><td><input type="checkbox" data-bind="checked: automaticReferenceFiltering"></input></td>
+     <td></td>
+     <td>[% 'Project' | $T8 %]</td><td><input type="checkbox" data-bind="checked: automaticProjectFiltering"</input></td>
+   </tr>
+   <tr>
+     <td>[% 'Date' | $T8%]</td>
+     <td><input type="checkbox" data-bind="checked: automaticDateFiltering"></input></td>
+     <td></td>
+     <td></td>
+   </tr>
+   </tbody>
+   </table>
+  </div> <!-- autofilters flex -->
+
+  <div id="fuzzyfilters" class="flexing">
+   <h2>[% 'Fuzzy filter' | $T8 %]</h2>
+   <table>
+    <tr>
+      <td>[% 'Amount' | $T8 %]</td>
+      <td><input type="checkbox" data-bind="checked: fuzzyAmountFilter"></input>
+          ±<input size="2" class="numeric" data-bind="value: fuzzyAmountFormatted, enable: fuzzyAmountFilter"></input>%
+    </tr>
+    <tr>
+      <td>[% 'Date' | $T8 %]</td>
+      <td><input type="checkbox" data-bind="checked: fuzzyDateFilter"></input>
+          ±<input size="1" class="numeric" data-bind="value: fuzzyDateDays, enable: fuzzyDateFilter"></input> [% 'Days' | $T8 %]</td>
+    </tr>
+   </table>
+  </div> <!-- fuzzyfilters flex -->
+ </div> <!-- flex-container -->
+
+</div> <!-- flexsetting flexcontainer -->
+
+<div id="flexbookings" class="flex-container" data-bind="visible: selectedChartId">
+ <div id="bookings" class="flexing">
+  <div> <!-- buttons -->
+   <button style="margin: 10px; padding: 5px;" data-bind="click: resetColumnFilters, visible: hasColumnFilter">[% 'Reset column filters' | $T8 %]</button>
+   <button style="margin: 10px; padding: 5px;" data-bind="click: deselectAll, visible: selectedBookings.hasBookings()">[% 'Reset selected bookings' | $T8 %]</button>
+  </div> <!-- buttons -->
+  <div class="overflow">
+   <table class="table tablestriped">
+    <thead>
+     <tr data-bind="foreach: $root.headers">
+      <th class="sortable" data-bind="click: $root.toggleSort,
+                                      text: kivi.t8(title),
+                                      css: { sorted: $data === $root.sortHeader(),
+                                             hidden: key === 'cleared' && $root.hideCleared()
+                                           }
+                                     "></th>
+     </tr>
+     <tr>
+      <th><input id="searchDate" data-bind="datepicker: searchTransdate" />
+      <th><input size="10" data-bind="value: searchReference, valueUpdate: 'afterkeydown'"/></th>
+      <th colspan="2"><input class="numeric" size="6" data-bind="value: searchAmount, valueUpdate: 'XXXafterkeydown'"/></th>
+      <th><input size="10" data-bind="value: searchGegenChart, valueUpdate: 'afterkeydown'"/></th>
+      <th><input size="10" data-bind="value: searchEmployee, valueUpdate: 'afterkeydown'"/></th>
+      <th>[% P.project.picker("project_id", project_id, active="both", valid="both", style=style2) %]</th>
+
+      <th data-bind="hidden: hideCleared()"></th>
+     </tr>
+    </thead>
+    <tbody class="bookings table-striped" data-bind="foreach: filteredBookings">
+     <tr data-bind="class: cleared_group_id() === $root.selectedClearedGroupId() ? 'selected_cleared_group' : xclass,
+                    click: $root.click">
+      <td data-bind="text: transdate.formatted"></td>
+      <td style="max-width: 20em" data-bind="text: reference"></td>
+      <td class="numeric" data-bind="formatted_amount: debit, precision: $root.precision"></td>
+      <td class="numeric" data-bind="formatted_amount: credit, precision: $root.precision"></td>
+      <td class="numeric" data-bind="text: gegen_chart_accnos"></td>
+      <td class="numeric" data-bind="text: employee"></td()>
+      <td class="numeric" data-bind="text: project"></td()>
+      <td align="center" data-bind="hidden: $parent.hideCleared()"><span data-bind="text: cleared.formatted"></span></td>
+     </tr>
+    </tbody>
+    <tfoot>
+     <tr>
+      <th></th>
+      <th></th>
+      <th class="numeric"><span data-bind="formatted_amount: filteredBookings.debitSum"></span></th>
+      <th class="numeric"><span data-bind="formatted_amount: filteredBookings.creditSum"></span></th>
+      <th></th>
+      <th></th>
+     </tr>
+     <tr data-bind="visible: bookings.hasDebitSaldo() || bookings.hasCreditSaldo()">
+      <th></th>
+      <th></th>
+      <th class="numeric"><span data-bind="visible: bookings.hasDebitSaldo(), text: bookings.saldo_cd"></span></th>
+      <th class="numeric"><span data-bind="visible: bookings.hasCreditSaldo(), text: bookings.saldo_cd"></span></th>
+      <th></th>
+      <th></th>
+     </tr>
+    </tfoot>
+   </table>
+  </div><!-- overflow -->
+
+  <div id="sumstable">
+   <table style="margin: 10px">
+      <tr>
+       <th></th>
+       <th>[% 'Debit'              | $T8 %]</th>
+       <th>[% 'Credit'             | $T8 %]</th>
+       <th>[% 'Balance'            | $T8 %]</th>
+       <th>[% 'Number of bookings' | $T8 %]</th>
+      </tr>
+      <tr>
+       <th>[% 'Totals' | $T8 %]</th>
+       <td class="numeric" data-bind="formatted_amount: bookings.debitSum"></td>
+       <td class="numeric" data-bind="formatted_amount: bookings.creditSum"></td>
+       <td class="numeric" data-bind="text: bookings.saldo_cd"></td>
+       <td class="numeric" data-bind="text: bookings().length"></td>
+      </tr>
+      <tr data-bind="hidden: filteredBookings().length === bookings().length">
+       <th>[% 'Filtered' | $T8 %]</th>
+       <td class="numeric" data-bind="formatted_amount: filteredBookings.debitSum"></td>
+       <td class="numeric" data-bind="formatted_amount: filteredBookings.creditSum"></td>
+       <td class="numeric" data-bind="text: filteredBookings.saldo_cd"></td>
+       <td class="numeric" data-bind="text: filteredBookings().length"></td>
+      </tr>
+      <tr data-bind="visible: selectedBookings.hasBookings()">
+       <th>[% 'Selected' | $T8 %]</th>
+       <td class="numeric" data-bind="formatted_amount: selectedBookings.debitSum"></td>
+       <td class="numeric" data-bind="formatted_amount: selectedBookings.creditSum"></td>
+       <td class="numeric" data-bind="text: selectedBookings.saldo_cd"></td>
+       <td class="numeric" data-bind="text: selectedBookings().length"></td>
+      </tr>
+
+   </table>
+  </div> <!-- sumstable -->
+ </div><!-- bookings flex-->
+
+ <!-- ko if: isClearedGroupSelected -->
+ <div id="selected_cleared" class="flexing selection" data-bind="with: isClearedGroupSelected">
+  <h3>[% 'Cleared group' | $T8 %]</h3>
+  <table>
+      <th align="right">[% 'Cleared at' | $T8 %]</th>
+      <td><span data-bind="text: selectedClearedBookings()[0].formatted_itime"></span></td>
+    </tr>
+    <tr>
+      <th align="right">[% 'Employee' | $T8 %]</th>
+      <td><span data-bind="text: selectedClearedBookings()[0].employee"</td>
+    </tr>
+  </table>
+
+  <table>
+   <thead>
+    <tr>
+     <th>[% 'Booking Date' | $T8 %]</th>
+     <th>[% 'Reference'    | $T8 %]</th>
+     <th>[% 'Debit'        | $T8 %]</th>
+     <th>[% 'Credit'       | $T8 %]</th>
+    </tr>
+   </thead>
+   <tbody data-bind="foreach: selectedClearedBookings">
+    <tr>
+     <td data-bind="formatted_date: transdate"></td>
+     <td data-bind="text: reference"></td>
+     <td data-bind="formatted_amount: debit"></td>
+     <td data-bind="formatted_amount: credit"></td>
+    </tr>
+   </tbody>
+   <tfoot>
+    <tr>
+     <th></th>
+     <th></th>
+     <th class="numeric"><span data-bind="formatted_amount: selectedClearedBookings.debitSum"></span></th>
+     <th class="numeric"><span data-bind="formatted_amount: selectedClearedBookings.creditSum"></span></th>
+    </tr>
+   </tfoot>
+  </table>
+  <button data-bind="click: remove_cleared_group">[% 'Cancel clearing' | $T8 %]</button>
+  <button data-bind="click: deselectClearedGroup">[% 'Cancel' | $T8 %]</button>
+ </div> <!-- selected_cleared -->
+ <!-- /ko -->
+
+ <div id="selected" class="flexing selection" data-bind="visible: showSelectedBookings">
+  <h3>[% 'Selection' | $T8 %]:</h3>
+  <table>
+   <thead>
+    <tr>
+     <th>[% 'Transdate' | $T8 %]</th>
+     <th>[% 'Reference' | $T8 %]</th>
+     <th>[% 'Debit'     | $T8 %]</th>
+     <th>[% 'Credit'    | $T8 %]</th>
+    </tr>
+   </thead>
+   <tbody class="bookings" data-bind="foreach: selectedBookings">
+    <tr data-bind="click: toggle_selected">
+     <td data-bind="formatted_date: transdate"></td>
+     <td style="max-width: 20em" data-bind="text: reference"></td>
+     <td class="numeric" data-bind="formatted_amount: debit"></td>
+     <td class="numeric" data-bind="formatted_amount: credit"></td>
+    </tr>
+   </tbody>
+   <tfoot>
+    <tr>
+     <th></th>
+     <th></th>
+     <th class="numeric" data-bind="formatted_amount: selectedBookings.debitSum"></th>
+     <th class="numeric" data-bind="formatted_amount: selectedBookings.creditSum"></th>
+    </tr>
+    <tr>
+     <th></th>
+     <th></th>
+     <th align="center" colspan="2" data-bind="visible: selectedBookings.isBalanced()"><button data-bind="click: create_cleared_group">[% 'Clear bookings' | $T8 %]</button></th>
+     <th class="numeric" data-bind="visible: !selectedBookings.isBalanced()"><span data-bind="text: selectedBookings.saldo_cd, visible: selectedBookings.hasDebitSaldo()"></span></th>
+     <th class="numeric" data-bind="visible: !selectedBookings.isBalanced()"><span data-bind="text: selectedBookings.saldo_cd, visible: selectedBookings.hasCreditSaldo()"></span></th>
+    </tr>
+   </tfoot>
+  </table>
+
+  <button data-bind="visible: selectedBookings.hasBookings(), click: deselectAll">[% 'Cancel' | $T8 %]</button>
+  <button data-bind="visible: filteredBookings.debitSum() === filteredBookings.creditSum(), click: selectAll">[% 'Select all' | $T8 %]</button><!--  one of the items has to have been selected -->
+ </div><!-- selected -->
+</div> <!-- flexbookings flexcontainer -->
+
+<script language="javascript">
+  $( document ).ready(function() {
+    [% IF chart_id %]
+      BookingListViewModel.selectedChartId([% chart_id %]);
+      $("#chart_id").trigger('change');
+    [% END %]
+  });
+</script>
