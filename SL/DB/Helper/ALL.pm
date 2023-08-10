@@ -29,6 +29,8 @@ use SL::DB::Buchungsgruppe;
 use SL::DB::Business;
 use SL::DB::BusinessModel;
 use SL::DB::Chart;
+use SL::DB::Cleared;
+use SL::DB::ClearedGroup;
 use SL::DB::Contact;
 use SL::DB::ContactDepartment;
 use SL::DB::ContactTitle;

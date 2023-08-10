@@ -12,6 +12,7 @@ __PACKAGE__->meta->columns(
   accno          => { type => 'text', not_null => 1 },
   category       => { type => 'character', length => 1 },
   charttype      => { type => 'character', default => 'A', length => 1 },
+  clearing       => { type => 'boolean', default => 'false', not_null => 1 },
   datevautomatik => { type => 'boolean', default => 'false' },
   description    => { type => 'text' },
   id             => { type => 'integer', not_null => 1, sequence => 'id' },
