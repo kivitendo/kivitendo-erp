@@ -12,6 +12,11 @@ Mittelgroße neue Features:
     und Auftrag.
   - Neuer Workflow Angebots-Eingang auf der Einkaufsseite zwischen Preisanfrage
     und Lieferantenauftrag.
+  - Neues Fibu-Feature Ausziffern - damit kann man Buchungen auf temporären
+    Zwischenkonten (deren Saldo 0 ergeben soll, z.B. Durchlaufende Posten)
+    gruppieren und "abhaken". Nützlich um Buchungen auf Zwischenkonten zu finden,
+    die nicht aufgehen / nicht korrigiert wurden. Dieses Feature hat nicht
+    unbedingt mit Zahlungen/offenen Posten zu tun.
 
 Kleinere neue Features und Detailverbesserungen:
 
