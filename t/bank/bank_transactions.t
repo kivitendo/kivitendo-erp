@@ -1,4 +1,4 @@
-use Test::More tests =>402;
+use Test::More tests => 411;
 
 use strict;
 
@@ -84,6 +84,7 @@ negative_ap_transaction_fx_gain_fees();
 test_negative_ar_transaction_fx_loss();
 test_ar_transaction_fx_loss();
 test_ar_transaction_fx_gain();
+test_ar_transaction_fx_partial_payment();
 #test_neg_sales_invoice_fx();
 negative_ap_transaction_fx_gain_fees_error();
 
@@ -1793,7 +1794,81 @@ sub test_negative_ar_transaction_fx_loss {
   is($bt->invoice_amount  , '-297.38000' , "$testname: bt invoice amount was assigned");
 }
 
+sub test_ar_transaction_fx_partial_payment {
+  my (%params) = @_;
+  my $netamount = $::form->round_amount($params{amount}, 2) || 3674580*0.08613;
+  # set exchangerate
+  my $ex = SL::DB::Manager::Exchangerate->find_by(currency_id => $currency_usd->id,
+                                                  transdate => $dt)
+        ||              SL::DB::Exchangerate->new(currency_id => $currency_usd->id,
+                                                  transdate   => $dt);
+  $ex->update_attributes(buy => 0.08613);
 
+  my $testname = 'test_ar_transaction_fx_partial_payment';
+
+  my $invoice   = SL::DB::Invoice->new(
+      invoice      => 0,
+      invnumber    => $params{invnumber} || undef, # let it use its own invnumber
+      amount       => $netamount,
+      netamount    => $netamount,
+      transdate    => $dt,
+      taxincluded  => $params{taxincluded } || 0,
+      customer_id  => $customer->id,
+      taxzone_id   => $customer->taxzone_id,
+      currency_id  => $currency_usd->id,
+      transactions => [],
+      payment_id   => $params{payment_id} || undef,
+      notes        => 'test_ar_transaction_fx_partial_payment',
+  );
+  my $acno_8100 = SL::DB::Manager::Chart->find_by( accno => '8100' );
+  $invoice->add_ar_amount_row(
+    amount => $invoice->netamount,
+    chart  => $acno_8100, # Erlöse steuerfrei
+    tax_id => 0,
+  );
+  $invoice->create_ar_row(chart => $ar_chart);
+  $invoice->save;
+
+  is($invoice->currency_id , $currency_usd->id , 'currency_id has been saved');
+  is($invoice->netamount   , '316491.5754'           , 'fx ar amount has been converted');
+  is($invoice->taxincluded , 0                 , 'fx ar transaction doesn\'t have taxincluded');
+
+  my $bt = create_bank_transaction(record        => $invoice,
+                                   bank_chart_id => $bank->id,
+                                   transdate     => $dt,
+                                   valutadate    => $dt,
+                                   amount        => 315636.49,
+                                  ) or die "Couldn't create bank_transaction";
+
+  is($bt->amount           , '315636.49' , "$testname: positive bt amount");
+  $::form->{invoice_ids} = {
+    $bt->id => [ $invoice->id ]
+  };
+  $::form->{"exchangerate_"      . $bt->id . "_" . $invoice->id}  = "0,08726"; # will be parsed
+  $::form->{"currency_id_"       . $bt->id . "_" . $invoice->id}  = $currency_usd->id;
+
+
+  save_btcontroller_to_string();
+
+  $invoice->load;
+  $bt->load;
+
+  is(scalar @{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [bank_transaction_id => $bt->id ] )},
+       3, "$testname 3 acc_trans entries created");
+
+  my $gl_fee_booking = SL::DB::Manager::BankTransactionAccTrans->get_all(where => [bank_transaction_id => $bt->id, '!gl_id' => undef ] );
+  is(scalar @{ $gl_fee_booking }, 0, 'Zero GL acc_trans bookings');
+
+  my $fx_gain_transactions = SL::DB::Manager::AccTransaction->get_all(where =>
+                                [ trans_id => $invoice->id, chart_id => $fxgain_chart->id ],
+                                  sort_by => ('acc_trans_id'));
+
+  is($fx_gain_transactions->[0]->amount,  '4087.43000', "$testname: fx gain amount ok");
+
+
+  is($invoice->paid       , '311549.06000' , "$testname: ar transaction was paid partially");
+  is($bt->invoice_amount  , '315636.49000' , "$testname: bt invoice amount was assigned");
+}
 
 sub test_ar_transaction_fx_gain {
   my (%params) = @_;
