@@ -801,6 +801,7 @@ $self->{texts} = {
   'Clear fields'                => '',
   'Cleared Balance'             => '',
   'Cleared/uncleared only'      => '',
+  'Clearing'                    => '',
   'Clearing Tax Received (No 71)' => '',
   'Clearing account for advance payments' => '',
   'Client'                      => '',
