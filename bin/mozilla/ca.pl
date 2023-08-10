@@ -38,6 +38,7 @@ use POSIX qw(strftime);
 use SL::CA;
 use SL::DB::Default;
 use SL::ReportGenerator;
+use utf8;
 
 require "bin/mozilla/reportgenerator.pl";
 
@@ -352,11 +353,23 @@ sub list_transactions {
 
   my @hidden_variables = qw(accno fromdate todate description accounttype l_heading subtotal department projectnumber project_id sort method);
 
+  my $chart_has_clearing = SL::DB::Manager::Chart->get_first(
+    where  => [ accno => $form->{accno} ],
+    select => [ qw(clearing) ]
+  )->clearing;
+
+  if ( $chart_has_clearing ) {
+    $column_defs{'cleared'} = { 'text' => $locale->text('Cleared') };
+    push(@columns, 'cleared');
+    push(@hidden_variables, 'cleared');
+  };
+
   my $link = build_std_url('action=list_transactions', grep { $form->{$_} } @hidden_variables);
 
   $form->{callback} = $link . '&sort=' . E($form->{sort});
 
   my %column_alignment = map { $_ => 'right' } qw(debit credit balance);
+  $column_alignment{'cleared'} = 'center';
 
   my @custom_headers = ();
  # Zeile 1:
@@ -388,9 +401,15 @@ sub list_transactions {
    { 'text' => $locale->text('Balance'), },
  ];
 
-
-
-
+  if ( $chart_has_clearing ) {
+    # add a new heading with its own link, which leads to Cleared controller rather than sorting rows
+    my $cleared_link;
+    {
+      local $form->{script} = 'controller.pl';
+      $cleared_link = build_std_url('action=Clearing/form', grep { $form->{$_} } @hidden_variables);
+    }
+    push @{$custom_headers[2]}, { 'text' => $locale->text('Cleared'), 'link' => $cleared_link };
+  };
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
   $report->set_custom_headers(@custom_headers);
@@ -443,6 +462,10 @@ sub list_transactions {
     }
 
     my $row = { };
+
+    if ( $chart_has_clearing ) {
+      $ca->{cleared} = $ca->{cleared} ? '✓' : '';
+    }
 
     $ca->{ustrate} = $form->format_amount(\%myconfig, $ca->{ustrate} * 100, 2) if ($ca->{ustrate} != 0);
 
