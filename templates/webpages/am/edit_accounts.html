@@ -292,6 +292,10 @@ $(function() {
           <th align="left">[% 'Valid from' | $T8 %]</th>
           <td><input name="valid_from" value="[% valid_from %]"></td>
         </tr>
+        <tr>
+          <th align="left">[% 'Clear chart' | $T8 %]</th>
+          <td colspan="3">[% L.checkbox_tag('clearing', value => 1, checked => clearing, class => 'checkbox') %]</td>
+        </tr>
   </table>
 [% END %]
 </fieldset>

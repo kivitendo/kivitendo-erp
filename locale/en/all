@@ -733,6 +733,7 @@ $self->{texts} = {
   'City'                        => '',
   'Classification'              => '',
   'Clear'                       => '',
+  'Clear chart'                 => '',
   'Clear fields'                => '',
   'Cleared Balance'             => '',
   'Cleared/uncleared only'      => '',

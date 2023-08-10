@@ -91,7 +91,7 @@ sub get_account {
 
     my @chart_fields = qw(accno description charttype category link pos_bilanz
                           pos_eur pos_er new_chart_id valid_from pos_bwa datevautomatik
-                          invalid);
+                          invalid clearing);
     foreach my $cf ( @chart_fields ) {
       $form->{"$cf"} = $chart_obj->$cf;
     }
@@ -234,6 +234,7 @@ sub _save_account {
                   new_chart_id = ?,
                   valid_from = ?,
                   datevautomatik = ?,
+                  clearing = ?,
                   invalid = ?
                 WHERE id = ?|;
 
@@ -250,6 +251,7 @@ sub _save_account {
                   conv_i($form->{new_chart_id}),
                   conv_date($form->{valid_from}),
                   ($form->{datevautomatik} eq 'T') ? 'true':'false',
+                  ($form->{clearing} == 1) ? 'true':'false',
                   $form->{invalid} ? 'true' : 'false',
                 $form->{id},
     );
