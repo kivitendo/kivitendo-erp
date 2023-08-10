@@ -746,6 +746,7 @@ $self->{texts} = {
   'Cleared bookings'            => 'Buchungen ausgeziffert',
   'Cleared group'               => 'Ausziffergruppe',
   'Cleared/uncleared only'      => 'Status abgeglichen',
+  'Clearing'                    => 'Ausziffern',
   'Clearing Tax Received (No 71)' => 'Verrechnung des Erstattungsbetrages erwünscht (Zeile 71)',
   'Clearing account for advance payments' => 'Verrechnungskonto für Anzahlungen',
   'Client'                      => 'Mandant',

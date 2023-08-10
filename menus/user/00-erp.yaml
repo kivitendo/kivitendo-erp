@@ -700,6 +700,13 @@
   params:
     action: PayPostingImport/upload_pay_postings
 - parent: general_ledger
+  id: clearing
+  name: Clearing
+  order: 497
+  access: general_ledger
+  params:
+    action: Clearing/form
+- parent: general_ledger
   id: general_ledger_reports
   name: Reports
   icon: gl_report
