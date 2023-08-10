@@ -22,6 +22,12 @@ Mittelgroße neue Features:
   Zudem lässt sich in der Mandantenkonfiguration einstellen, ob automatisch
   Dokumente von verknüpften Lieferscheinen angehängt werden sollen.
 
+- Neues Fibu-Feature Ausziffern - damit kann man Buchungen auf temporären
+  Zwischenkonten (deren Saldo 0 ergeben soll, z.B. Durchlaufende Posten)
+  gruppieren und "abhaken". Nützlich um Buchungen auf Zwischenkonten zu finden,
+  die nicht aufgehen / nicht korrigiert wurden. Dieses Feature hat nicht
+  unbedingt mit Zahlungen/offenen Posten zu tun.
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Verschiedene E-Mail-relevante Felder in der Mandantenkonfiguration sind nun
