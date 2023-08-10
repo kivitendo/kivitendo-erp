@@ -993,8 +993,8 @@ sub setup_gl_action_bar {
   }
   # dont edit reconcilated bookings!
   if ($form->{id}) {
-    my @acc_trans = map { $_->acc_trans_id } @{ SL::DB::Manager::AccTransaction->get_all( where => [ trans_id => $form->{id} ] ) };
-    if (scalar @acc_trans && scalar @{ SL::DB::Manager::ReconciliationLink->get_all(where => [ acc_trans_id  => [ @acc_trans ] ]) }) {
+    my @acc_trans_ids = map { $_->acc_trans_id } @{ SL::DB::Manager::AccTransaction->get_all(select => ["acc_trans_id"], where => [ trans_id => $form->{id} ] ) };
+    if (scalar @acc_trans_ids && scalar @{ SL::DB::Manager::ReconciliationLink->get_all(where => [ acc_trans_id  => [ @acc_trans_ids ] ]) }) {
       $is_reconciled_bank_transaction = 1;
     }
   }
