@@ -54,7 +54,8 @@ Kleinere neue Features und Detailverbesserungen:
     beim Zurücksetzen einer Bankbewegung auch entsprechend aufgelöst. Die Buchungen
     bekommen zusätzlich einen Hinweis auf eine Automatik im Feld 'Memo'
   - Kontoauszug verbuchen setzt automatisch ein unscharfes Skonto bei Skonto-Abweichungen
-    bis 0,5 % des Original-Rechnungbetrags
+    bis 0,5 % des Original-Rechnungbetrags. Der Prozentwert kann mandantenweit konfiguriert werden
+    und die Funktion kann deaktiviert werden, s.a. Mandantenkonfig->Buchungskonfiguration
 
 2023-04-05 - Release 3.8.0
 
