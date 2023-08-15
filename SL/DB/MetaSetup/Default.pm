@@ -111,6 +111,8 @@ __PACKAGE__->meta->columns(
   feature_experimental_assortment           => { type => 'boolean', default => 'true', not_null => 1 },
   feature_experimental_order                => { type => 'boolean', default => 'true', not_null => 1 },
   feature_ustva                             => { type => 'boolean', default => 'true', not_null => 1 },
+  fuzzy_skonto                              => { type => 'boolean', default => 'true' },
+  fuzzy_skonto_percentage                   => { type => 'float', default => '0.5', precision => 4, scale => 4 },
   fxgain_accno_id                           => { type => 'integer' },
   fxloss_accno_id                           => { type => 'integer' },
   gl_add_doc                                => { type => 'boolean', default => 'false', not_null => 1 },
