@@ -585,11 +585,14 @@ sub save_single_bank_transaction {
   }
   my (@warnings);
 
+  my $transit_items_account = SL::DB::Manager::Chart->find_by(id => SL::DB::Default->get->transit_items_chart_id);
+
   my $worker = sub {
     my $bt_id                 = $data{bank_transaction_id};
     my $sign                  = $bank_transaction->amount < 0 ? -1 : 1;
     my $payment_received      = $bank_transaction->amount > 0;
     my $payment_sent          = $bank_transaction->amount < 0;
+    my ($has_negative_record, $has_positive_record);
 
 
     foreach my $invoice_id (@{ $params{invoice_ids} }) {
@@ -601,9 +604,22 @@ sub save_single_bank_transaction {
           message => $::locale->text("The ID #1 is not a valid database ID.", $invoice_id),
         };
       }
+      $has_positive_record = 1 if $invoice->amount > 0; # invoice
+      $has_negative_record = 1 if $invoice->amount < 0; # credit_note
       push @{ $data{invoices} }, $invoice;
     }
 
+    if (ref $transit_items_account eq 'SL::DB::Chart' && $has_positive_record
+        &&           scalar @{ $data{invoices} } == 2 && $has_negative_record) {
+
+      $self->_check_and_book_credit_note(
+        invoices      => $data{invoices},
+        chart_id      => $transit_items_account->id,
+        bt_id         => $bt_id,
+        transdate     => $bank_transaction->valutadate,
+        transit_chart => $transit_items_account         );
+
+    }
     if (   $payment_received
         && any {    ( $_->is_sales && ($_->amount < 0))
                  || (!$_->is_sales && ($_->amount > 0))
@@ -655,8 +671,12 @@ sub save_single_bank_transaction {
       } else {
         $payment_type = 'without_skonto';
       }
-
-      if ($payment_type eq 'free_skonto') {
+      # hack payment type use free_skonto for with_fuzzy_skonto
+      if ($payment_type eq 'with_fuzzy_skonto_pt') {
+        $free_skonto_amount = abs($invoice->open_amount - abs($bank_transaction->not_assigned_amount));
+        die "Invalid state for fuzzy skonto amount" unless $free_skonto_amount > 0;
+        $payment_type = 'free_skonto';  # we have a valid free_skonto amount, therefore go ...
+      } elsif ($payment_type eq 'free_skonto') {
         # parse user input > 0
         if ($::form->parse_amount(\%::myconfig, $::form->{"free_skonto_amount"}->{"$bt_id"}{$invoice->id}) > 0) {
           $free_skonto_amount = $::form->parse_amount(\%::myconfig, $::form->{"free_skonto_amount"}->{"$bt_id"}{$invoice->id});
@@ -1009,6 +1029,101 @@ sub prepare_report {
   );
 }
 
+sub _check_and_book_credit_note {
+  my $self   = shift;
+  my %params = @_;
+  Common::check_params(\%params, qw(chart_id transdate bt_id invoices transit_chart));
+
+  croak "No invoice "              unless (ref $params{invoices}->[0] eq 'SL::DB::PurchaseInvoice')
+                                       || (ref $params{invoices}->[0] eq 'SL::DB::Invoice'        );
+  croak "Not a valid date"         unless ref $params{transdate}      eq 'DateTime';
+  croak "Not a valid chart"        unless ref $params{transit_chart}  eq 'SL::DB::Chart';
+  croak "Need exactly two records" unless scalar @{ $params{invoices} } == 2;
+
+
+  my ($has_one_credit_note, $has_one_invoice, $amount, $credit_note_index, $credit_note_no, $invoice_no);
+  my $index = 0;
+  foreach my $invoice (@{ $params{invoices} }) {
+    if (   ( $invoice->is_sales && $invoice->type         eq 'credit_note')
+        || (!$invoice->is_sales && $invoice->invoice_type eq 'purchase_credit_note')) {
+      #     credit_notes          | purchase_credit_note
+      #  -1397.11000 | AR         |     504.74000 |  AP
+      #   1397.11000 | AR_paid    |    -504.74000 |  AP_paid
+
+      my $mult = $invoice->is_sales ? -1 : 1;  # multiplier for getting the right sign for credit_notes
+      $amount  = ($invoice->amount - $invoice->paid) * $mult;
+      #          (-200             - (-10))          * $mult = AR_paid (positive) |AP_paid (negative)
+
+      $has_one_credit_note += 1;
+      $credit_note_index    = $index;
+      $credit_note_no       = $invoice->invnumber;
+    } else {
+      $has_one_invoice     += 1;
+      $invoice_no           = $invoice->invnumber;
+    }
+    $index++;
+  }
+  die "Invalid state" unless ($has_one_credit_note == 1 && $has_one_invoice == 1);
+
+  foreach my $invoice (@{ $params{invoices} }) {
+    my $is_credit_note = $invoice->invoice_type =~ m/credit_note/ ? 1 : undef;
+    my $sign       = $invoice->invoice_type =~ m/credit_note/ ?  1 : -1;  # correct sign for bookings
+    my $paid_sign  = $invoice->invoice_type =~ m/credit_note/ ? -1 :  1;  # paid is always negative for credit_note
+
+    my $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $invoice->id,
+                                                    chart_id   => $params{transit_chart}->id,
+                                                    chart_link => $params{transit_chart}->link,
+                                                    amount     => $amount * $sign,
+                                                    transdate  => $params{transdate},
+                                                    source     => $is_credit_note ?  $invoice_no : $credit_note_no,
+                                                    memo       => t8('Automatically assigned with bank transaction'),
+                                                    taxkey     => 0,
+                                                    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+
+    my $arap_booking= SL::DB::AccTransaction->new(trans_id   => $invoice->id,
+                                                  chart_id   => $invoice->reference_account->id,
+                                                  chart_link => $invoice->reference_account->link,
+                                                  amount     => $amount * $sign * -1,
+                                                  transdate  => $params{transdate},
+                                                  source     => '',
+                                                  taxkey     => 0,
+                                                  tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+    $new_acc_trans->save;
+    $arap_booking->save;
+    $invoice->update_attributes(paid => $invoice->paid + (abs($amount) * $paid_sign), datepaid => $params{transdate});
+
+    # link both acc_trans transactions
+    my $id_type = $invoice->is_sales ? 'ar' : 'ap';
+    my  %props_acc = (
+                       acc_trans_id        => $new_acc_trans->acc_trans_id,
+                       bank_transaction_id => $params{bt_id},
+                       $id_type            => $invoice->id,
+                     );
+    SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
+        %props_acc = (
+                       acc_trans_id        => $arap_booking->acc_trans_id,
+                       bank_transaction_id => $params{bt_id},
+                       $id_type            => $invoice->id,
+                     );
+    SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
+    # done
+
+    # Record a record link from the bank transaction to the credit note
+    if ($invoice->invoice_type =~ m/credit_note/) {
+      my %props = (
+        from_table => 'bank_transactions',
+        from_id    => $params{bt_id},
+        to_table   => $id_type,
+        to_id      => $invoice->id,
+      );
+      SL::DB::RecordLink->new(%props)->save;
+    }
+  }
+  # throw away the credit note
+  splice @{ $params{invoices} }, $credit_note_index, 1;
+  # and return nothing. hook is completely done
+}
+
 sub init_problems { [] }
 
 sub init_models {
@@ -1205,6 +1320,18 @@ This method can be used to parse, filter and convert the bank transaction's
 purpose string before it will be assigned to the description field of a
 gl transaction or to the notes field of an ap transaction.
 You have to write your own custom code.
+
+=item C<_check_and_book_credit_note>
+
+This method takes a array of invoices with two entries one one valid credit note
+and books the amount of the credit note against the invoice via the default
+transfer items account (i.e. SKR04 1370) and adds a source and memo entry for the
+payment booking.
+Logical and visual linking of the payment booking and credit note record to the bank
+transaction will also be done (necessary cond. for unlinking a bank transaction).
+If the methods success the credit note will be deleted from
+the original caller's array and he can further process the data without pondering
+about the removed credit note data.
 
 =back
 

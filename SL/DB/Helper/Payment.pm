@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction forex _skonto_charts_and_tax_correction get_exchangerate_for_bank_transaction get_exchangerate _add_bank_fx_fees open_amount_fx);
+our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction forex _skonto_charts_and_tax_correction get_exchangerate_for_bank_transaction get_exchangerate _add_bank_fx_fees open_amount_fx open_amount_less_skonto);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -66,8 +66,10 @@ sub pay_invoice {
     # amount, but if amount is passed, make sure it matches the expected value
     # note: the parameter isn't used at all - amount_less_skonto will always be used
     # partial skonto payments are therefore impossible to book
-    croak "amount $params{amount} doesn't match amount less skonto: " . $self->amount_less_skonto . "\n" if $params{amount} && abs($self->amount_less_skonto - $params{amount} ) > 0.0000001;
-    croak "payment type with_skonto_pt can't be used if payments have already been made" if $self->paid != 0;
+    croak "amount $params{amount} doesn't match open amount less skonto: "
+          . $self->open_amount_less_skonto . "\n" if $params{amount}
+                                                  && abs($self->open_amount_less_skonto - $params{amount} ) > 0.0000001;
+    # croak "payment type with_skonto_pt can't be used if payments have already been made" if $self->paid != 0;
   }
 
   my $transdate_obj;
@@ -157,7 +159,7 @@ sub pay_invoice {
       # stage because we don't use $params{amount} ?!
 
       my $pay_amount = $rounded_params_amount;
-      $pay_amount = $self->amount_less_skonto if $params{payment_type} eq 'with_skonto_pt';
+      $pay_amount = $self->open_amount_less_skonto if $params{payment_type} eq 'with_skonto_pt';
 
       # bank account and AR/AP
       $paid_amount += $pay_amount;
@@ -495,6 +497,19 @@ sub amount_less_skonto {
   return _round($self->amount - ( $self->amount * $percent_skonto) );
 
 }
+sub open_amount_less_skonto {
+  # amount that has to be paid if skonto applies, always return positive rounded values
+  # no, rare case, but credit_notes and negative ap have negative amounts
+  # and therefore this comment may be misguiding
+  # the result is rounded so we can directly compare it with the user input
+  my $self = shift;
+
+  my $percent_skonto = $self->percent_skonto || 0;
+
+  my $open_amount = ($self->amount // 0) - ($self->paid // 0);
+  return _round($open_amount - ( $self->amount * $percent_skonto) );
+
+}
 sub _add_bank_fx_fees {
   my ($self, %params)   = @_;
   my $amount = $params{fee};
@@ -744,9 +759,11 @@ sub get_payment_select_options_for_bank_transaction {
   if (eval { $self->within_skonto_period(transdate => $bt->transdate); 1; } ) {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
     push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });
+    push(@options, { payment_type => 'with_fuzzy_skonto_pt', display => t8('with fuzzy skonto acc. to pt')});
   } else {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') , selected => 1 });
     push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt')});
+    push(@options, { payment_type => 'with_fuzzy_skonto_pt', display => t8('with fuzzy skonto acc. to pt')});
   }
   push(@options, { payment_type => 'free_skonto', display => t8('free skonto') });
   return @options;
@@ -977,6 +994,15 @@ whether skonto applies (i.e. skonto doesn't wasn't exceeded), it just subtracts
 the configured percentage (e.g. 2%) from the total amount.
 
 The returned value is rounded to two decimals.
+
+=item C<open_amount_less_skonto>
+
+The same as amount_less_skonto but calculates skonto against the current
+open amount, i.e. some amount of the invoice is reduced because of a linked
+credit note.
+
+The returned value is rounded to two decimals.
+
 
 =item C<skonto_date>
 
