@@ -117,7 +117,7 @@ sub parse {
         my ($separator, $rest) = ($1, $2);
         my %parts              = map { ((substr($_, 0, 2) // '0') * 1 => substr($_, 2)) } split quotemeta($separator), $rest;
 
-        $transaction{purpose}               = _join_entries(\%parts, 20, 29);
+        $transaction{purpose}               = join ' ', grep({ $_ ne '' } _join_entries(\%parts, 20, 29), _join_entries(\%parts, 60, 63));
         $transaction{remote_name}           = _join_entries(\%parts, 32, 33, '');
         $transaction{remote_bank_code}      = $parts{30};
         $transaction{remote_account_number} = $parts{31};
