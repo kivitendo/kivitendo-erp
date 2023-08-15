@@ -89,8 +89,14 @@
           <td>[% proposed_invoice.transdate_as_date %]
               [% L.hidden_tag("invoice_ids." _ proposal.id _ "[]", proposed_invoice.id) %]</td>
           <td align="right">[% proposed_invoice.realamount %]</td>
-          <td>[% proposed_invoice.skonto_type | $T8 %]
-              [% L.hidden_tag("invoice_skontos." _ proposal.id _ "[]", proposed_invoice.skonto_type) %]</td>
+          <td>
+              [% IF proposal.rule_matches.0.match('skonto_exact_amount') %]
+                [% 'with_skonto_pt' | $T8 %]
+                [% L.hidden_tag("invoice_skontos." _ proposal.id _ "[]", 'with_skonto_pt') %]</td>
+              [% ELSIF proposal.rule_matches.0.match('skonto_fuzzy_amount') %]
+                [% 'with_fuzzy_skonto_pt' | $T8 %]
+                [% L.hidden_tag("invoice_skontos." _ proposal.id _ "[]", 'with_fuzzy_skonto_pt') %]</td>
+              [% END %]
           <td[% IF proposed_invoice.invnumber == invnumber_found %] class="invoice_number_highlight"[% END %]>[% proposed_invoice.link %]</td>
           [% IF INSTANCE_CONF.get_create_qrbill_invoices == 1 %]
             <td>
