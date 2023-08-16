@@ -1,0 +1,140 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>2.7. Webserver-Konfiguration</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.8.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s06.html" title="2.6. Anpassung der PostgreSQL-Konfiguration"><link rel="next" href="ch02s08.html" title="2.8. Der Task-Server"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.7. Webserver-Konfiguration</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s06.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s08.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.7. Webserver-Konfiguration"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Apache-Konfiguration"></a>2.7. Webserver-Konfiguration</h2></div></div></div><div class="sect2" title="2.7.1. Grundkonfiguration mittels CGI"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1254"></a>2.7.1. Grundkonfiguration mittels CGI</h3></div></div></div><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>Für einen deutlichen Performanceschub sorgt die Ausführung
+          mittels FastCGI/FCGI. Die Einrichtung wird ausführlich im Abschnitt
+          <a class="xref" href="ch02s07.html#Apache-Konfiguration.FCGI" title="2.7.2. Konfiguration für FastCGI/FCGI">Konfiguration für FastCGI/FCGI</a> beschrieben.</p></td></tr></table></div><p>Der Zugriff auf das Programmverzeichnis muss in der Apache
+        Webserverkonfigurationsdatei <code class="literal">httpd.conf</code> eingestellt
+        werden. Fügen Sie den folgenden Abschnitt dieser Datei oder einer
+        anderen Datei hinzu, die beim Starten des Webservers eingelesen
+        wird:</p><pre class="programlisting">AliasMatch ^/kivitendo-erp/[^/]+\.pl /var/www/kivitendo-erp/dispatcher.pl
+Alias /kivitendo-erp/ /var/www/kivitendo-erp/
+
+&lt;Directory /var/www/kivitendo-erp&gt;
+ AddHandler cgi-script .pl
+ Options ExecCGI Includes FollowSymlinks
+&lt;/Directory&gt;
+
+&lt;Directory /var/www/kivitendo-erp/users&gt;
+ Require all granted
+&lt;/Directory&gt;</pre><p>Ersetzen Sie dabei die Pfade durch diejenigen, in die Sie vorher
+        das kivitendo-Archiv entpacket haben.</p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>Vor den einzelnen Optionen muss bei einigen Distributionen ein
+          Plus ‘<code class="literal">+</code>’ gesetzt werden.</p><p>Bei einigen Distribution (Ubuntu ab 14.04, Debian ab 8.2) muss
+          noch explizit das cgi-Modul mittels </p><pre class="programlisting">a2enmod cgi</pre><p>
+          aktiviert werden.</p></td></tr></table></div><p>Auf einigen Webservern werden manchmal die Grafiken und
+        Style-Sheets nicht ausgeliefert. In solchen Fällen hat es oft
+        geholfen, die folgende Option in die Konfiguration aufzunehmen:</p><pre class="programlisting">EnableSendfile Off</pre></div><div class="sect2" title="2.7.2. Konfiguration für FastCGI/FCGI"><div class="titlepage"><div><div><h3 class="title"><a name="Apache-Konfiguration.FCGI"></a>2.7.2. Konfiguration für FastCGI/FCGI</h3></div></div></div><div class="sect3" title="2.7.2.1. Was ist FastCGI?"><div class="titlepage"><div><div><h4 class="title"><a name="Apache-Konfiguration.FCGI.WasIstEs"></a>2.7.2.1. Was ist FastCGI?</h4></div></div></div><p>Direkt aus <a class="ulink" href="http://de.wikipedia.org/wiki/FastCGI" target="_top">Wikipedia</a>
+          kopiert:</p><p>
+                  [<span class="citation"> FastCGI ist ein Standard für die Einbindung
+          externer Software zur Generierung dynamischer Webseiten in einem
+          Webserver. FastCGI ist vergleichbar zum Common Gateway Interface
+          (CGI), wurde jedoch entwickelt, um dessen Performance-Probleme zu
+          umgehen. </span>]
+               </p></div><div class="sect3" title="2.7.2.2. Warum FastCGI?"><div class="titlepage"><div><div><h4 class="title"><a name="Apache-Konfiguration.FCGI.Warum"></a>2.7.2.2. Warum FastCGI?</h4></div></div></div><p>Perl Programme (wie kivitendo eines ist) werden nicht statisch
+          kompiliert. Stattdessen werden die Quelldateien bei jedem Start
+          übersetzt, was bei kurzen Laufzeiten einen Großteil der Laufzeit
+          ausmacht. Während SQL Ledger einen Großteil der Funktionalität in
+          einzelne Module kapselt, um immer nur einen kleinen Teil laden zu
+          müssen, ist die Funktionalität von kivitendo soweit gewachsen, dass
+          immer mehr Module auf den Rest des Programms zugreifen. Zusätzlich
+          benutzen wir umfangreiche Bibliotheken um Funktionaltät nicht selber
+          entwickeln zu müssen, die zusätzliche Ladezeit kosten. All dies
+          führt dazu dass ein kivitendo Aufruf der Kernmasken mittlerweile
+          deutlich länger dauert als früher, und dass davon 90% für das Laden
+          der Module verwendet wird.</p><p>Mit FastCGI werden nun die Module einmal geladen, und danach
+          wird nur die eigentliche Programmlogik ausgeführt.</p></div><div class="sect3" title="2.7.2.3. Getestete Kombinationen aus Webservern und Plugin"><div class="titlepage"><div><div><h4 class="title"><a name="Apache-Konfiguration.FCGI.WebserverUndPlugin"></a>2.7.2.3. Getestete Kombinationen aus Webservern und Plugin</h4></div></div></div><p>Folgende Kombinationen sind getestet:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Apache 2.4.7 (Ubuntu 14.04.2 LTS) und mod_fcgid.</p></li><li class="listitem"><p>Apache 2.4.18 (Ubuntu 16.04 LTS) und mod_fcgid</p></li><li class="listitem"><p>Apache 2.4.29 (Ubuntu 18.04 LTS) und mod_fcgid</p></li><li class="listitem"><p>Apache 2.4.41 (Ubuntu 20.04 LTS) und mod_fcgid</p></li></ul></div><p>Als Perl Backend wird das Modul <code class="filename">FCGI.pm</code>
+          verwendet.</p><div class="warning" title="Warnung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warnung]" src="system/docbook-xsl/images/warning.png"></td><th align="left">Warnung</th></tr><tr><td align="left" valign="top"><p>FCGI-Versionen ab 0.69 und bis zu 0.71 inklusive sind extrem
+            strict in der Behandlung von Unicode, und verweigern bestimmte
+            Eingaben von kivitendo. Falls es Probleme mit Umlauten in Ihrer
+            Installation gibt, muss zwingend Version 0.68 oder aber Version
+            0.72 und neuer eingesetzt werden.</p><p>Mit <a class="ulink" href="http://www.cpan.org" target="_top">CPAN</a> lässt sie
+            sich die Vorgängerversion wie folgt installieren:</p><pre class="programlisting">force install M/MS/MSTROUT/FCGI-0.68.tar.gz</pre></td></tr></table></div></div><div class="sect3" title="2.7.2.4. Konfiguration des Webservers"><div class="titlepage"><div><div><h4 class="title"><a name="Apache-Konfiguration.FCGI.Konfiguration"></a>2.7.2.4. Konfiguration des Webservers</h4></div></div></div><p>Bevor Sie versuchen, eine kivitendo Installation unter FCGI
+          laufen zu lassen, empfiehlt es sich die Installation ersteinmal
+          unter CGI aufzusetzen. FCGI macht es nicht einfach Fehler zu
+          debuggen die beim ersten aufsetzen auftreten können. Sollte die
+          Installation schon funktionieren, lesen Sie weiter.</p><p>Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann
+          unter Debian/Ubuntu z.B. mit folgendem Befehl geschehen:</p><pre class="programlisting">a2enmod fcgid</pre><p>Die Konfiguration für die Verwendung von kivitendo mit FastCGI
+          erfolgt durch Anpassung der vorhandenen <code class="function">Alias</code>-
+          und <code class="function">Directory</code>-Direktiven. Dabei wird zwischen
+          dem Installationspfad von kivitendo im Dateisystem
+          ("<code class="filename">/path/to/kivitendo-erp</code>") und der URL
+          unterschieden, unter der kivitendo im Webbrowser erreichbar ist
+          ("<code class="filename">/url/for/kivitendo-erp</code>").</p><p>Folgender Konfigurationsschnipsel funktioniert mit
+          mod_fastcgi:</p><pre class="programlisting">AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fcgi
+Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
+
+&lt;Directory /path/to/kivitendo-erp&gt;
+  AllowOverride All
+  Options ExecCGI Includes FollowSymlinks
+  Require all granted
+&lt;/Directory&gt;
+
+&lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
+Require all denied
+&lt;/DirectoryMatch&gt;</pre><div class="warning" title="Warnung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warnung]" src="system/docbook-xsl/images/warning.png"></td><th align="left">Warnung</th></tr><tr><td align="left" valign="top"><p>Wer einen älteren Apache als Version 2.4 im Einsatz hat,
+            muss entsprechend die Syntax der Directorydirektiven verändert.
+            Statt</p><pre class="programlisting">Require all granted</pre><p>muß man Folgendes einstellen:</p><pre class="programlisting">
+  Order Allow,Deny
+  Allow from All </pre><p>und statt</p><pre class="programlisting">Require all denied</pre><p>muss stehen:</p><pre class="programlisting">
+  Order Deny,Allow
+  Deny from All </pre></td></tr></table></div><p>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
+          die maximale Größe eines Requests. Diese sollte wie folgt
+          hochgesetzt werden:</p><pre class="programlisting">FcgidMaxRequestLen 10485760</pre><p>Das Ganze sollte dann so aussehen:</p><pre class="programlisting">AddHandler fcgid-script .fpl
+AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fpl
+Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
+FcgidMaxRequestLen 10485760
+
+&lt;Directory /path/to/kivitendo-erp&gt;
+  AllowOverride All
+  Options ExecCGI Includes FollowSymlinks
+  Require all granted
+&lt;/Directory&gt;
+
+&lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
+Require all denied
+&lt;/DirectoryMatch&gt;</pre><p>Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle
+          Zugriffe auf die einzelnen Scripte werden auf diesen umgeleitet.
+          Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
+          gibt es hier kleine Performance-Einbußen.</p><p>Es ist möglich, die gleiche kivitendo Version parallel unter
+          CGI und FastCGI zu betreiben. Dafür bleiben die Directorydirektiven
+          wie oben beschrieben, die URLs werden aber umgeleitet:</p><pre class="programlisting"># Zugriff über CGI
+Alias       /url/for/kivitendo-erp                /path/to/kivitendo-erp
+
+# Zugriff mit mod_fcgid:
+AliasMatch ^/url/for/kivitendo-erp-fcgid/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fpl
+Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</pre><p>Dann ist unter <code class="filename">/url/for/kivitendo-erp/</code>
+          die normale Version erreichbar, und unter
+          <code class="constant">/url/for/kivitendo-erp-fcgid/</code> die
+          FastCGI-Version.</p></div></div><div class="sect2" title="2.7.3. Authentifizierung mittels HTTP Basic Authentication"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1408"></a>2.7.3. Authentifizierung mittels HTTP Basic Authentication</h3></div></div></div><p>
+        Kivitendo unterstützt, dass Benutzerauthentifizierung über den Webserver mittels des »Basic«-HTTP-Authentifizierungs-Schema erfolgt
+        (siehe <a class="ulink" href="https://tools.ietf.org/html/rfc7617" target="_top">RFC 7617</a>). Dazu ist es aber nötig, dass der dabei vom Client
+        mitgeschickte Header <code class="constant">Authorization</code> vom Webserver an Kivitendo über die Umgebungsvariable
+        <code class="constant">HTTP_AUTHORIZATION</code> weitergegeben wird, was standardmäßig nicht der Fall ist. Für Apache kann dies über die
+        folgende Konfigurationsoption aktiviert werden:
+       </p><pre class="programlisting">SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1</pre></div><div class="sect2" title="2.7.4. Aktivierung von mod_rewrite/directory_match für git basierte Installationen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1424"></a>2.7.4. Aktivierung von mod_rewrite/directory_match für git basierte Installationen</h3></div></div></div><p>
+        Aufgrund von aktuellen (Mitte 2020) Sicherheitswarnungen für git basierte Webanwendungen ist die mitausgelieferte .htaccess
+        restriktiver geworden und verhindert somit das Auslesen von git basierten Daten.
+        Für debian/ubuntu muss das Modul mod_rewrite einmalig so aktiviert werden:
+        </p><pre class="programlisting">a2enmod rewrite</pre><p>
+        Alternativ und für Installationen ohne Apache ist folgender Artikel interessant:
+        <a class="ulink" href="https://www.cyberscan.io/blog/git-luecke" target="_top">git-lücke</a>.
+        Anstelle des dort beschriebenen DirectoryMatch für Apache2 würden wir etwas weitergehend auch noch das Verzeichnis config miteinbeziehen
+        sowie ferner auch die Möglichkeit nicht ausschließen, dass es in Unterverzeichnissen auch noch .git Repositories geben kann.
+        Die Empfehlung für Apache 2.4 wäre damit:
+        </p><pre class="programlisting">
+        &lt;DirectoryMatch "/(\.git|config)/"&gt;
+          Require all denied
+        &lt;/DirectoryMatch&gt;</pre><p>
+       
+            </p></div><div class="sect2" title="2.7.5. Weitergehende Konfiguration"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1438"></a>2.7.5. Weitergehende Konfiguration</h3></div></div></div><p>Für einen deutlichen Sicherheitsmehrwert sorgt die Ausführung
+        von kivitendo nur über https-verschlüsselten Verbindungen, sowie
+        weiteren Zusatzmassnahmen, wie beispielsweise Basic Authenticate. Die
+        Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser
+        Anleitung, hier ein Hinweis auf einen entsprechenden <a class="ulink" href="http://redmine.kivitendo-premium.de/boards/1/topics/142" target="_top">Foreneintrag
+        (Stand Sept. 2015)</a> und einen aktuellen (Stand Mai 2017) <a class="ulink" href="https://mozilla.github.io/server-side-tls/ssl-config-generator/" target="_top">
+        SSL-Konfigurations-Generator</a>.</p></div><div class="sect2" title="2.7.6. Aktivierung von Apache2 modsecurity"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1449"></a>2.7.6. Aktivierung von Apache2 modsecurity</h3></div></div></div><p>Aufgrund des OpenSource Charakters ist kivitendo nicht "out of the box" sicher.
+  Organisatorisch empfehlen wir hier die enge Zusammenarbeit mit einem kivitendo Partner der auch in der
+Lage ist weiterführende Fragen in Bezug auf Datenschutz und Datensicherheit zu beantworten.
+Unabhängig davon empfehlen wir im Webserver Bereich die Aktivierung und Konfiguration des Moduls modsecurity für den Apache2, damit
+XSS und SQL-Injections verhindert werden.</p><p> Als Idee hierfür sei dieser Blog-Eintrag genannt:
+<a class="ulink" href="https://doxsec.wordpress.com/2017/06/11/using-modsecurity-web-application-firewall-to-prevent-sql-injection-and-xss-using-blocking-rules/" target="_top">
+        Test Apache2 modsecurity for SQL Injection</a>.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s06.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s08.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.6. Anpassung der PostgreSQL-Konfiguration&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.8. Der Task-Server</td></tr></table></div></body></html>
