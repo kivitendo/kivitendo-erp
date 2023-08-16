@@ -1,107 +1,119 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>2.8. Benutzerauthentifizierung und Administratorpasswort</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.8.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s07.html" title="2.7. Der Task-Server"><link rel="next" href="ch02s09.html" title="2.9. Mandanten-, Benutzer- und Gruppenverwaltung"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.8. Benutzerauthentifizierung und Administratorpasswort</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s07.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s09.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.8. Benutzerauthentifizierung und Administratorpasswort"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Benutzerauthentifizierung-und-Administratorpasswort"></a>2.8. Benutzerauthentifizierung und Administratorpasswort</h2></div></div></div><p>Informationen über die Einrichtung der Benutzerauthentifizierung,
-      über die Verwaltung von Gruppen und weitere Einstellungen</p><div class="sect2" title="2.8.1. Grundlagen zur Benutzerauthentifizierung"><div class="titlepage"><div><div><h3 class="title"><a name="Grundlagen-zur-Benutzerauthentifizierung"></a>2.8.1. Grundlagen zur Benutzerauthentifizierung</h3></div></div></div><p>kivitendo verwaltet die Benutzerinformationen in einer
-        Datenbank, die im folgenden “Authentifizierungsdatenbank” genannt
-        wird. Für jeden Benutzer kann dort eine eigene Datenbank für die
-        eigentlichen Finanzdaten hinterlegt sein. Diese beiden Datenbanken
-        können, müssen aber nicht unterschiedlich sein.</p><p>Im einfachsten Fall gibt es für kivitendo nur eine einzige
-        Datenbank, in der sowohl die Benutzerinformationen als auch die Daten
-        abgelegt werden.</p><p>Zusätzlich ermöglicht es kivitendo, dass die Benutzerpasswörter gegen die Authentifizierungsdatenbank oder gegen einen oder
-        mehrere LDAP-Server überprüft werden.</p><p>Welche Art der Passwortüberprüfung kivitendo benutzt und wie
-        kivitendo die Authentifizierungsdatenbank erreichen kann, wird in der
-        Konfigurationsdatei <code class="filename">config/kivitendo.conf</code>
-        festgelegt. Diese muss bei der Installation und bei einem Upgrade von
-        einer Version vor v2.6.0 angelegt werden. Eine
-        Beispielkonfigurationsdatei
-        <code class="filename">config/kivitendo.conf.default</code> existiert, die als
-        Vorlage benutzt werden kann.</p></div><div class="sect2" title="2.8.2. Administratorpasswort"><div class="titlepage"><div><div><h3 class="title"><a name="Administratorpasswort"></a>2.8.2. Administratorpasswort</h3></div></div></div><p>Das Passwort, das zum Zugriff auf das Administrationsinterface
-        von kivitendo benutzt wird, wird ebenfalls in dieser Datei
-        gespeichert. Es kann auch nur dort und nicht mehr im
-        Administrationsinterface selber geändert werden. Der Parameter dazu
-        heißt <code class="varname">admin_password</code> im Abschnitt
-        <code class="varname">[authentication]</code>.</p></div><div class="sect2" title="2.8.3. Authentifizierungsdatenbank"><div class="titlepage"><div><div><h3 class="title"><a name="Authentifizierungsdatenbank"></a>2.8.3. Authentifizierungsdatenbank</h3></div></div></div><p>Die Verbindung zur Authentifizierungsdatenbank wird mit den
-        Parametern in <code class="varname">[authentication/database]</code>
-        konfiguriert. Hier sind die folgenden Parameter anzugeben:</p><div class="variablelist"><dl><dt><span class="term">
-                     <code class="literal">host</code>
-                  </span></dt><dd><p>Der Rechnername oder die IP-Adresse des
-              Datenbankservers</p></dd><dt><span class="term">
-                     <code class="literal">port</code>
-                  </span></dt><dd><p>Die Portnummer des Datenbankservers, meist 5432</p></dd><dt><span class="term">
-                     <code class="literal">db</code>
-                  </span></dt><dd><p>Der Name der Authentifizierungsdatenbank</p></dd><dt><span class="term">
-                     <code class="literal">user</code>
-                  </span></dt><dd><p>Der Benutzername, mit dem sich kivitendo beim
-              Datenbankserver anmeldet (z.B.
-              "<code class="literal">postgres</code>")</p></dd><dt><span class="term">
-                     <code class="literal">password</code>
-                  </span></dt><dd><p>Das Passwort für den Datenbankbenutzer</p></dd></dl></div><p>Die Datenbank muss noch nicht existieren. kivitendo kann sie
-        automatisch anlegen (mehr dazu siehe unten).</p></div><div class="sect2" title="2.8.4. Passwortüberprüfung"><div class="titlepage"><div><div><h3 class="title"><a name="Passwort%C3%BCberpr%C3%BCfung"></a>2.8.4. Passwortüberprüfung</h3></div></div></div><p>kivitendo unterstützt Passwortüberprüfung auf zwei Arten: gegen
-        die Authentifizierungsdatenbank und gegen externe LDAP- oder
-        Active-Directory-Server. Welche davon benutzt wird, regelt der
-        Parameter <code class="varname">module</code> im Abschnitt
-        <code class="varname">[authentication]</code>.</p><p>Dieser Parameter listet die zu verwendenden Authentifizierungsmodule auf. Es muss mindestens ein Modul angegeben werden, es
-        können aber auch mehrere angegeben werden. Weiterhin ist es möglich, das LDAP-Modul mehrfach zu verwenden und für jede Verwendung
-        eine unterschiedliche Konfiguration zu nutzen, z.B. um einen Fallback-Server anzugeben, der benutzt wird, sofern der Hauptserver
-        nicht erreichbar ist.</p><p>Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank geprüft werden, so muss der Parameter
-        <code class="varname">module</code> das Modul <code class="literal">DB</code> enthalten. Sofern das Modul in der Liste enthalten ist, egal an welcher
-        Position, können sowohl der Administrator als auch die Benutzer selber ihre Passwörter in kivitendo ändern.</p><p>Wenn Passwörter gegen einen oder mehrere externe LDAP- oder Active-Directory-Server geprüft werden, so muss der Parameter
-        <code class="varname">module</code> den Wert <code class="literal">LDAP</code> enthalten. In diesem Fall müssen zusätzliche Informationen über den
-        LDAP-Server im Abschnitt <code class="literal">[authentication/ldap]</code> angegeben werden. Das Modul kann auch mehrfach angegeben werden,
-        wobei jedes Modul eine eigene Konfiguration bekommen sollte. Der Name der Konfiguration wird dabei mit einem Doppelpunkt getrennt an
-        den Modulnamen angehängt (<code class="literal">LDAP:Name-der-Konfiguration</code>). Der entsprechende Abschnitt in der Konfigurationsdatei
-        lautet dann <code class="literal">[authentication/Name-der-Konfiguration]</code>.</p><p>Die verfügbaren Parameter für die LDAP-Konfiguration lauten:</p><div class="variablelist"><dl><dt><span class="term">
-                     <code class="literal">host</code>
-                  </span></dt><dd><p>Der Rechnername oder die IP-Adresse des LDAP- oder
-              Active-Directory-Servers. Diese Angabe ist zwingend
-              erforderlich.</p></dd><dt><span class="term">
-                     <code class="literal">port</code>
-                  </span></dt><dd><p>Die Portnummer des LDAP-Servers; meist 389.</p></dd><dt><span class="term">
-                     <code class="literal">tls</code>
-                  </span></dt><dd><p>Wenn Verbindungsverschlüsselung gewünscht ist, so diesen
-              Wert auf ‘<code class="literal">1</code>’ setzen, andernfalls auf
-              ‘<code class="literal">0</code>’ belassen</p></dd><dt><span class="term">
-                     <code class="literal">verify</code>
-                  </span></dt><dd><p>Wenn Verbindungsverschlüsselung gewünscht und der Parameter <em class="parameter"><code>tls</code></em> gesetzt ist, so gibt dieser
-              Parameter an, ob das Serverzertifikat auf Gültigkeit geprüft wird. Mögliche Werte sind <code class="literal">require</code> (Zertifikat
-              wird überprüft und muss gültig sei; dies ist der Standard) und <code class="literal">none</code> (Zertifikat wird nicht
-              überpfüft).</p></dd><dt><span class="term">
-                     <code class="literal">attribute</code>
-                  </span></dt><dd><p>Das LDAP-Attribut, in dem der Benutzername steht, den der
-              Benutzer eingegeben hat. Für Active-Directory-Server ist dies
-              meist ‘<code class="literal">sAMAccountName</code>’, für andere
-              LDAP-Server hingegen ‘<code class="literal">uid</code>’. Diese Angabe ist
-              zwingend erforderlich.</p></dd><dt><span class="term">
-                     <code class="literal">base_dn</code>
-                  </span></dt><dd><p>Der Abschnitt des LDAP-Baumes, der durchsucht werden soll.
-              Diese Angabe ist zwingend erforderlich.</p></dd><dt><span class="term">
-                     <code class="literal">filter</code>
-                  </span></dt><dd><p>Ein optionaler LDAP-Filter. Enthält dieser Filter das Wort
-              <code class="literal">&lt;%login%&gt;</code>, so wird dieses durch den vom
-              Benutzer eingegebenen Benutzernamen ersetzt. Andernfalls wird
-              der LDAP-Baum nach einem Element durchsucht, bei dem das oben
-              angegebene Attribut mit dem Benutzernamen identisch ist.</p></dd><dt><span class="term">
-                     <code class="literal">bind_dn</code> und
-            <code class="literal">bind_password</code>
-                  </span></dt><dd><p>Wenn der LDAP-Server eine Anmeldung erfordert, bevor er
-              durchsucht werden kann (z.B. ist dies bei
-              Active-Directory-Servern der Fall), so kann diese hier angegeben
-              werden. Für Active-Directory-Server kann als
-              ‘<code class="literal">bind_dn</code>’ entweder eine komplette LDAP-DN wie
-              z.B. ‘<code class="literal">cn=Martin
-              Mustermann,cn=Users,dc=firmendomain</code>’ auch nur der
-              volle Name des Benutzers eingegeben werden; in diesem Beispiel
-              also ‘<code class="literal">Martin Mustermann</code>’.</p></dd><dt><span class="term">
-                     <code class="literal">timeout</code>
-                  </span></dt><dd><p>Timeout beim Verbindungsversuch, bevor der Server als nicht erreichbar gilt; Standardwert: 10</p></dd></dl></div></div><div class="sect2" title="2.8.5. Name des Session-Cookies"><div class="titlepage"><div><div><h3 class="title"><a name="Name-des-Session-Cookies"></a>2.8.5. Name des Session-Cookies</h3></div></div></div><p>Sollen auf einem Server mehrere kivitendo-Installationen
-        aufgesetzt werden, so müssen die Namen der Session-Cookies für alle
-        Installationen unterschiedlich sein. Der Name des Cookies wird mit dem
-        Parameter <code class="varname">cookie_name</code> im Abschnitt
-        <code class="varname">[authentication]</code>gesetzt.</p><p>Diese Angabe ist optional, wenn nur eine Installation auf dem
-        Server existiert.</p></div><div class="sect2" title="2.8.6. Anlegen der Authentifizierungsdatenbank"><div class="titlepage"><div><div><h3 class="title"><a name="Anlegen-der-Authentifizierungsdatenbank"></a>2.8.6. Anlegen der Authentifizierungsdatenbank</h3></div></div></div><p>Nachdem alle Einstellungen in
-        <code class="filename">config/kivitendo.conf</code> vorgenommen wurden, muss
-        kivitendo die Authentifizierungsdatenbank anlegen. Dieses geschieht
-        automatisch, wenn Sie sich im Administrationsmodul anmelden, das unter
-        der folgenden URL erreichbar sein sollte:</p><p>
-               <a class="ulink" href="http://localhost/kivitendo-erp/controller.pl?action=Admin/login" target="_top">http://localhost/kivitendo-erp/controller.pl?action=Admin/login</a>
-            </p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s07.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s09.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.7. Der Task-Server&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.9. Mandanten-, Benutzer- und Gruppenverwaltung</td></tr></table></div></body></html>
+   <title>2.8. Der Task-Server</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.8.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s07.html" title="2.7. Webserver-Konfiguration"><link rel="next" href="ch02s09.html" title="2.9. Benutzerauthentifizierung und Administratorpasswort"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.8. Der Task-Server</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s07.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s09.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.8. Der Task-Server"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="config.task-server"></a>2.8. Der Task-Server</h2></div></div></div><p>Der Task-Server ist ein Prozess, der im Hintergrund läuft, in
+      regelmäßigen Abständen nach abzuarbeitenden Aufgaben sucht und diese zu
+      festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser Prozess
+      wird u.a. für die Erzeugung der wiederkehrenden Rechnungen und weitere
+      essenzielle Aufgaben benutzt.</p><p>Der Task-Server muss einmalig global in der Konfigurationsdatei
+      konfiguriert werden. Danach wird er für jeden Mandanten, für den er
+      laufen soll, in der Adminsitrationsmaske eingeschaltet.</p><p>Beachten Sie, dass der Task-Server in den Boot-Vorgang Ihres
+      Servers integriert werden muss, damit er automatisch gestartet wird.
+      Dies kann kivitendo nicht für Sie erledigen.</p><p>Da der Task-Server als Perlscript läuft, wird Arbeitsspeicher, der
+      einmal benötigt wurde, nicht mehr an das Betriebssystem zurückgegeben,
+      solange der Task-Server läuft. Dies kann dazu führen, dass ein länger
+      laufender Task-Server mit der Zeit immer mehr Arbeitsspeicher für sich
+      beansprucht. Es ist deshalb sinnvoll, dass der Task-Server in
+      regelmässigen Abständen neu gestartet wird. Allerdings berücksichtigt der
+      Task-Server ein Memory-Limit, wenn dieses in der Konfigurationsdatei
+      angegeben ist. Bei Überschreiten dieses Limits beendet sich der
+      Task-Server. Sofern der Task-Server als systemd-Service mit dem
+      mitgelieferten Skript eingerichtet wurde, startet dieser danach
+      automatisch erneut.</p><div class="sect2" title="2.8.1. Verfügbare und notwendige Konfigurationsoptionen"><div class="titlepage"><div><div><h3 class="title"><a name="Konfiguration-des-Task-Servers"></a>2.8.1. Verfügbare und notwendige Konfigurationsoptionen</h3></div></div></div><p>Die Konfiguration erfolgt über den Abschnitt
+        <code class="literal">[task_server]</code> in der Datei
+        <code class="filename">config/kivitendo.conf</code>. Die dort verfügbaren
+        Optionen sind:</p><div class="variablelist"><dl><dt><span class="term">
+                     <code class="varname">run_as</code>
+                  </span></dt><dd><p>Wird der Server vom Systembenutzer <code class="literal">root</code>
+              gestartet, so wechselt er auf den mit <code class="literal">run_as</code>
+              angegebenen Systembenutzer. Der Systembenutzer muss dieselben
+              Lese- und Schreibrechte haben, wie auch der Webserverbenutzer
+              (siehe see <a class="xref" href="ch02s04.html" title="2.4. Manuelle Installation des Programmpaketes">Manuelle Installation des Programmpaketes</a>). Daher
+              ist es erforderlich, hier denselben Systembenutzer einzutragen,
+              unter dem auch der Webserver läuft.</p></dd><dt><span class="term">
+                     <code class="varname">debug</code>
+                  </span></dt><dd><p>Schaltet Debug-Informationen an und aus.</p></dd></dl></div></div><div class="sect2" title="2.8.2. Konfiguration der Mandanten für den Task-Server"><div class="titlepage"><div><div><h3 class="title"><a name="Konfiguration-der-Mandanten-fuer-den-Task-Servers"></a>2.8.2. Konfiguration der Mandanten für den Task-Server</h3></div></div></div><p>Ist der Task-Server grundlegend konfiguriert, so muss
+        anschließend jeder Mandant, für den der Task-Server laufen soll,
+        einmalig konfiguriert werden. Dazu kann in der Maske zum Bearbeiten
+        von Mandanten im Administrationsbereich eine kivitendo-Benutzerkennung
+        ausgewählt werden, unter der der Task-Server seine Arbeit
+        verrichtet.</p><p>Ist in dieser Einstellung keine Benutzerkennung ausgewählt, so
+        wird der Task-Server für diesen Mandanten keine Aufgaben
+        ausführen.</p></div><div class="sect2" title="2.8.3. Automatisches Starten des Task-Servers beim Booten"><div class="titlepage"><div><div><h3 class="title"><a name="Einbinden-in-den-Boot-Prozess"></a>2.8.3. Automatisches Starten des Task-Servers beim Booten</h3></div></div></div><p>Der Task-Server verhält sich von seinen Optionen her wie ein
+        reguläres SystemV-kompatibles Boot-Script. Außerdem wechselt er beim
+        Starten automatisch in das kivitendo-Installationsverzeichnis.</p><p>Deshalb ist es möglich, ihn durch Setzen eines symbolischen
+        Links aus einem der Runlevel-Verzeichnisse heraus in den Boot-Prozess
+        einzubinden. Da das bei neueren Linux-Distributionen aber nicht
+        zwangsläufig funktioniert, werden auch Start-Scripte mitgeliefert, die
+        anstelle eines symbolischen Links verwendet werden können.</p><div class="sect3" title="2.8.3.1. SystemV-basierende Systeme (z.B. ältere Debian, ältere openSUSE, ältere Fedora)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1470"></a>2.8.3.1. SystemV-basierende Systeme (z.B. ältere Debian, ältere
+          openSUSE, ältere Fedora)</h4></div></div></div><p>Kopieren Sie die Datei
+          <code class="filename">scripts/boot/system-v/kivitendo-task-server</code>
+          nach <code class="filename">/etc/init.d/kivitendo-task-server</code>. Passen
+          Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
+          <code class="literal">DAEMON=....</code>). Binden Sie das Script in den
+          Boot-Prozess ein. Dies ist distributionsabhängig:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian-basierende Systeme:</p><pre class="programlisting">update-rc.d kivitendo-task-server defaults
+insserv kivitendo-task-server</pre></li><li class="listitem"><p>Ältere openSUSE und ältere Fedora:</p><pre class="programlisting">chkconfig --add kivitendo-task-server</pre></li></ul></div><p>Danach kann der Task-Server mit dem folgenden Befehl gestartet
+          werden:</p><pre class="programlisting">/etc/init.d/kivitendo-task-server start</pre></div><div class="sect3" title="2.8.3.2. Upstart-basierende Systeme (z.B. Ubuntu bis 14.04)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1499"></a>2.8.3.2. Upstart-basierende Systeme (z.B. Ubuntu bis 14.04)</h4></div></div></div><p>Kopieren Sie die Datei
+          <code class="filename">scripts/boot/upstart/kivitendo-task-server.conf</code>
+          nach <code class="filename">/etc/init/kivitendo-task-server.conf</code>.
+          Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
+          <code class="literal">exec ....</code>).</p><p>Danach kann der Task-Server mit dem folgenden Befehl gestartet
+          werden:</p><pre class="programlisting">service kivitendo-task-server start</pre></div><div class="sect3" title="2.8.3.3. systemd-basierende Systeme (z.B. neure openSUSE, neuere Fedora, neuere Ubuntu und neuere Debians)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1517"></a>2.8.3.3. systemd-basierende Systeme (z.B. neure openSUSE, neuere
+          Fedora, neuere Ubuntu und neuere Debians)</h4></div></div></div><p>Kopieren Sie die Datei
+          <code class="filename">scripts/boot/systemd/kivitendo-task-server.service</code>
+          nach <code class="filename">/etc/systemd/system/</code>. Passen Sie in der
+          kopierten Datei den Pfad zum Task-Server an (Zeilen
+          <code class="literal">ExecStart=....</code> und
+          <code class="literal">ExecStop=...</code>).</p><p>Machen Sie anschließend das Script systemd bekannt, und binden
+          Sie es in den Boot-Prozess ein. Dazu führen Sie die folgenden Befehl
+          aus:</p><pre class="programlisting">systemctl daemon-reload
+systemctl enable kivitendo-task-server.service</pre><p>Wenn Sie den Task-Server jetzt sofort starten möchten, anstatt
+          den Server neu zu starten, so können Sie das mit dem folgenden
+          Befehl tun:</p><pre class="programlisting">systemctl start kivitendo-task-server.service</pre><p>Ein so eingerichteter Task-Server startet nach Beendigung
+          automatisch erneut. Das betrifft eine Beendigung über die Oberfläche,
+          eine Beendingung über die Prozesskontrolle und eine Beendigung bei
+          Überschreiten des Memory-Limits. Soll der Task-Server nicht erneut
+          starten, so können Sie ihn mit folgendem Befehl stoppen:</p><pre class="programlisting">systemctl stop kivitendo-task-server.service</pre></div></div><div class="sect2" title="2.8.4. Wie der Task-Server gestartet und beendet wird"><div class="titlepage"><div><div><h3 class="title"><a name="Prozesskontrolle"></a>2.8.4. Wie der Task-Server gestartet und beendet wird</h3></div></div></div><p>Der Task-Server wird wie folgt kontrolliert:</p><pre class="programlisting">./scripts/task_server.pl Befehl</pre><p>
+               <code class="literal">Befehl</code> ist dabei eine der folgenden
+        Optionen:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     <code class="literal">start</code> startet eine neue Instanz des
+            Task-Servers. Die Prozess-ID wird innerhalb des
+            <code class="filename">users</code>-Verzeichnisses abgelegt.</p></li><li class="listitem"><p>
+                     <code class="literal">stop</code> beendet einen laufenden
+            Task-Server.</p></li><li class="listitem"><p>
+                     <code class="literal">restart</code> beendet und startet ihn
+            neu.</p></li><li class="listitem"><p>
+                     <code class="literal">status</code> berichtet, ob der Task-Server
+            läuft.</p></li></ul></div><p>Der Task-Server wechselt beim Starten automatisch in das
+        kivitendo-Installationsverzeichnis.</p><p>Dieselben Optionen können auch für die SystemV-basierenden
+        Runlevel-Scripte benutzt werden (siehe oben).</p><p>Wurde der Task-Server als systemd-Service eingerichtet (s.o.),
+        so startet dieser nach Beendigung automatisch erneut.</p></div><div class="sect2" title="2.8.5. Exemplarische Konfiguration eines Hintergrund-Jobs, der die Jahreszahl in allen Nummernkreisen zum Jahreswechsel erhöht"><div class="titlepage"><div><div><h3 class="title"><a name="Tasks-konfigurieren"></a>2.8.5. Exemplarische Konfiguration eines Hintergrund-Jobs, der die Jahreszahl in allen Nummernkreisen zum Jahreswechsel erhöht</h3></div></div></div><p>Hintergrund-Jobs werden über System -&gt; Hintergrund-Jobs und Task-Server -&gt; Aktuelle Hintergrund-Jobs anzeigen -&gt; Aktions-Knopf 'erfassen' angelegt. </p><p>Nachdem wir über das Menü dort angelangt sind, legen wir unseren exemplarischen Hintergrund-Jobs "Erhöhung der Nummernkreise" mit folgenden Werten an:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     <code class="literal">Aktiv:</code> Hier ein 'Ja' auswählen</p></li><li class="listitem"><p>
+                     <code class="literal">Ausführungsart:</code> 'wiederholte Ausführung' auswählen</p></li><li class="listitem"><p>
+                     <code class="literal">Paketname:</code> 'SetNumberRange' auswählen</p></li><li class="listitem"><p>
+                     <code class="literal">Ausführungszeitplan:</code> Hier entsprechend Werte wie in der crontab eingeben.</p><p>Syntax:</p><pre class="programlisting">* * * * *
+┬ ┬ ┬ ┬ ┬
+│ │ │ │ │
+│ │ │ │ └──── Wochentag (0-7, Sonntag ist 0 oder 7)
+│ │ │ └────── Monat (1-12)
+│ │ └──────── Tag (1-31)
+│ └────────── Stunde (0-23)
+└──────────── Minute (0-59)  </pre><p>Die Sterne können folgende Werte haben:</p><pre class="programlisting">
+1 2 3 4 5
+
+1 = Minute (0-59)
+2 = Stunde (0-23)
+3 = Tag (0-31)
+4 = Monat (1-12)
+5 = Wochentag (0-7, Sonntag ist 0 oder 7)
+</pre><p>Um die Ausführung auf eine Minute vor Sylvester zu setzen, müssen die folgenden Werte eingetragen werden:</p><pre class="programlisting">59 23 31 12 *</pre></li><li class="listitem"><p>
+                     <code class="literal">Daten:</code>In diesem Feld können optionale Parameter für den Hintergrund im JSON-Format gesetzt werden. Der Hintergrund-Job <code class="literal">SetNumberRange</code> akzeptiert zwei Variable nämlich <code class="literal">digit_year</code> sowieso <code class="literal">multiplier</code>.</p><p> 
+                     <code class="literal">digit_year</code> kann zwei Werte haben entweder 2 oder 4, darüber wird gesteuert ob die Jahreszahl zwei oder vierstellig kodiert wird (für 2019, dann entweder 19 oder 2019). Der Standardwert ist vierstellig.</p><p> 
+                     <code class="literal">multiplier</code> ist ein Vielfaches von 10, darüber wird die erste Nummer im Nummernkreis (die Anzahl der Stellen) wie folgt bestimmt:</p><pre class="programlisting">
+multiplier     Nummernkreis 2020
+10        -&gt;   20200
+100       -&gt;   202000
+1000      -&gt;   2020000
+</pre><p>Wir gehen jetzt beispielhaft von einer letzten Rechnungsnummer von RE2019456 aus. Demnach sollte ab Januar 2020 die erste Nummer RE2020001 sein. Da der Task auch Präfixe berücksichtigt, kann dies mit folgenden JSON-kodierten Werten umgesetzt werden:</p><p>
+                     <code class="literal">Daten:</code>
+                  </p><pre class="programlisting">multiplier: 100
+digits_year: 4</pre></li></ul></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s07.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s09.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.7. Webserver-Konfiguration&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.9. Benutzerauthentifizierung und Administratorpasswort</td></tr></table></div></body></html>
