@@ -579,43 +579,48 @@
     </sect1>
     <sect1 id="Installation mittels Ansible"
 	   xreflabel="Inatallation mittels Ansible">
-      <title>Installation mittels Ansible</title>
-      <para>
-        Kivitendo lässt sich auch mithilfe von Ansible installieren.
-      </para>
+      <title>Installation mittels Ansible auf Ubuntu 22.04</title>
       <para>
         Ansible ist ein Open-Source-Automatisierungstool, das verwendet
         wird, um die Bereitstellung, Konfiguration und Verwaltung von
         IT-Systemen zu automatisieren. Dabei führt es Aufgaben über SSH auf
         entfernten Rechnern (Hosts) aus. Die Aufgaben werden dabei
-        deklarativ als YAML Dateien, den sogenannten Playbooks , übergeben.
+        deklarativ als YAML Dateien, den sogenannten Playbooks, übergeben.
+        Benötigt wird lediglich python und ansible ab Version 2.10.
       </para>
       <para>
-        Um die installation von Kivitendo einfacher zu gestalten liegt ein
-        Playbook im scripts Ordner, welches die Installation von Kivitendo
-        auf einer Ubuntu Umgebung automatisiert.
+        Alle benötigten Konfigurationsdateien und das Playbook sind auf dem kivitendo github Account
+        unter dem Repository namens <ulink
+      url="https://github.com/kivitendo/kivitendo-ansible">kivitendo-ansible</ulink> verfügbar.
+        Das Repo kann lokal mit folgendem git-Befehl "geklont" werden:
+    <programlisting>git clone https://github.com/kivitendo/kivitendo-ansible</programlisting>
+      In diesem Repository befindet sich auch eine Readme.md, die aktuelle Installationshinweise auf englisch enthält.
       </para>
       <para>
-        Zur Installation mit Ansible liegt auf dem Git Repository im ansible
-        Ordner mit dem benötigtem Playbook und Konfigurationsdateien.
+        Um die Installation zu starten,  wechseln Sie dann zunächst in den erstellten Ordner 'kivitendo-ansible' und
+        editieren die Datei inventory.
+
+        <programlisting>cd kivitendo-ansible
+vim inventory</programlisting>
+
+        Der/die Hosts auf denen Kivitendo installiert werden soll wird dann in
+        dieser Datei ('inventory') eingefügt, bspw. die
+
+        <programlisting>192.168.1.121</programlisting>
+        oder als Namen:
+        <programlisting>kivi.meine-lokale-domaene.de</programlisting>
+        Zusätzliche Parameter könnten erforderlich sein, bspw. der Benutzer für den SSH-Login:
+        <programlisting>kivi.meine-lokale-domaene.de ansible_user=myuser</programlisting>
       </para>
       <para>
-        Um die installation zu starten wechseln sie zunächst in den Order
-        <literal>scripts/ansible</literal> und führen dann folgenden Befehl
-        aus.
-      </para>
-      <programlisting>
-    ansible-playbook --ask-become-pass main.yaml --extra-vars&quot;target=ZIEL_RECHNER&quot;
-    </programlisting>
-      <para>
-        Der/die Hosts auf denen Kivitendo installiert werden soll wird in
-        der Variable target übergeben. Als nächstes werden sie von Ansible
+      Danach kann das Playbook mittels:
+      <programlisting>ansible-playbook --ask-become main.yml</programlisting>
+        ausgeführt werden, je nach Konfiguration wird man noch
         aufgefordert das BECOME password einzutragen, hierbei handelt es
-        sich um das Passwort des nutzers, über den die Installation laufen
-        wird.
+        sich um das Passwort des Benutzers, über den die Installation dann auf dem Ziel-Rechner ausgeführt wird.
       </para>
       <para>
-        Nach ausführen des Playbooks ist Kivitendo über den Browser
+        Nach erfolgreichen Ausführen des Playbooks ist Kivitendo dann über den Browser
         erreichbar unter
         <literal>http://&lt;IP des rechners&gt;/kivitendo-erp/</literal>
       </para>
@@ -624,6 +629,8 @@
         werden. Dies kann über die Weboberfläche getan werden, indem man
         sich mit dem Passwort <literal>admin123</literal> in der
         Administrationsoberfläche anmeldet.
+        Weitere Details siehe Abschnitt "<xref
+            linkend="Benutzerauthentifizierung-und-Administratorpasswort"/>"
       </para>
     </sect1>
     <sect1 id="Manuelle-Installation-des-Programmpaketes"
@@ -2301,14 +2308,19 @@ digits_year: 4</programlisting>
         <filename>./templates/[Neuer Name]</filename></para>
       </sect2>
  <sect2 id="Aufbau des marei Vorlagensatzes">
-  <title>Aufbau des marei Vorlagensatzes</title>
+  <title>Der Druckvorlagensatz marei</title>
+          <note id="marei.document.link">
+            <para>Die aktuelle Dokumentation inkl. dem Foliensatz vom kivi-Treffen im August 2023 befindet sich hier:
+            <ulink url="https://peitex.de/materialien/2023-08-04_kivitendo/"> https://peitex.de/materialien/2023-08-04_kivitendo/</ulink>
+            </para>
+          </note>
 
   <sect3 id="Quickstart – Wo kann was angepasst werden?">
     <title>Quickstart – Wo kann was angepasst werden?</title>
-
+    <note id="do-not-edit-marei">
     <para>In keinem Fall sollten Dateien mit der Endung <filename>*.cls</filename> oder <filename>*.sty</filename> geändert werden. Durch Änderungen an diesen Dateien verhindert man Updates auf neuer Versionen.
     Zwar kopiert kivitendo die Datei und bearbeitet diese beim Update nicht. Allerdings sind sämtliche Änderungen über die Konfigurationsdateien möglich und erhöhen die Wartbarkeit.</para>
-
+    </note>
     <itemizedlist>
       <listitem>
         <para><filename>insettings.tex</filename> :</para>
@@ -2349,8 +2361,7 @@ digits_year: 4</programlisting>
                               Dafür eine Sprache mit Vorlagenkürzel DE anlegen
         \item[english.tex] Textschnipsel für Englisch\\
                               Dafür eine Sprache mit Vorlagenkürzel EN anlegen
-        \end{description}
-        </programlisting>
+        \end{description}</programlisting>
     </itemizedlist>
 
     <para>Alle dokumententypspezifischen Einstellungen müssen in der jeweiligen Template-Datei modifiziert werden.</para>
@@ -2447,8 +2458,7 @@ digits_year: 4</programlisting>
     von |\setupCurrencyConfig| anpassen, z.B.</para>
 
     <programlisting>
-    \setupCurrencyConfig[chf]{\identpath}{\lxcurrency}
-    </programlisting>
+    \setupCurrencyConfig[chf]{\identpath}{\lxcurrency}</programlisting>
     <para>für Schweizer Franken als Standardwährung.</para>
 
 
@@ -2490,8 +2500,7 @@ digits_year: 4</programlisting>
     <para>Neben den in Abschnitt \ref{sec:options}  beschriebenen Optionen zum Abschalten der Fußzeile kann
     der Inhalt der Fußzeile über die \pck{scrlayer-scrpage} Makros, wie</para>
     <programlisting>
-      \cfoot[|\meta{Inhalt auf der ersten Briefseite}|]{|\meta{Inhalt auf folgenden Briefseiten}|}
-    </programlisting>
+      \cfoot[|\meta{Inhalt auf der ersten Briefseite}|]{|\meta{Inhalt auf folgenden Briefseiten}|}    </programlisting>
 
     <para>geändert werden.</para>
 
@@ -2499,8 +2508,7 @@ digits_year: 4</programlisting>
     Hierfür wird das Makro |\ourhead| in der <filename>insettings.tex</filename> definiert.</para>
 
     <programlisting>
-      \DescribeMacro{\ourhead}\marg{Bezeichner}\marg{Eintrag}\marg{Titel}\marg{Nummer}\marg{Datum}
-    </programlisting>
+      \DescribeMacro{\ourhead}\marg{Bezeichner}\marg{Eintrag}\marg{Titel}\marg{Nummer}\marg{Datum}    </programlisting>
 
     <para>Diese Definition kann ebenfalls über die <filename>insettings.tex</filename> angepasst oder auch nachträglich überschrieben werden:</para>
 
@@ -2538,8 +2546,7 @@ digits_year: 4</programlisting>
       \smallskip
       Erzeugt mit dem Aufruf
       \ourhead{arg1}{arg2}{arg3}{arg4}{arg5}
-      \endgroup
-    </programlisting>
+      \endgroup    </programlisting>
 
 
   </sect3>
@@ -2571,8 +2578,7 @@ digits_year: 4</programlisting>
           \locationentry{fromphone}
           \locationentry*{fromemail}
         }
-      }
-    </programlisting>
+      }    </programlisting>
 
     <para>Um die Reihenfolge der Variablenausgabe zu verändern, kann diese Definition als Basis in
     die <filename>insettings.tex</filename> oder <filename>ident.tex</filename> (Falls nur für eine Firma) kopiert und dort entsprechend modifiziert werden.</para>
@@ -2581,12 +2587,11 @@ digits_year: 4</programlisting>
 
 
   </sect3>
-</sect2>
-<sect2 id="Allgemeine TeXnische Hinweise">
+<sect3 id="Allgemeine TeXnische Hinweise">
   <title>Allgemeine TeXnische Hinweise</title>
 
 
-  <sect3 id="Änderung der Basisschriftart">
+  <sect4 id="Änderung der Basisschriftart">
     <title>Änderung der Basisschriftart</title>
 
     <para>\LaTeX{} kann grundsätzlich beliebige Schriftarten verwenden. Hierfür sollte allerdings immer darauf geachtet werden,
@@ -2601,41 +2606,39 @@ digits_year: 4</programlisting>
     Mandant*innen gelten soll oder in der Mantant*innenspezifischen Konfigurationsdatei gsesetzt.</para>
 
 
-    <sect4>
+    <sect5>
       <title>Änderung, falls es ein Schriftpaket gibt</title>
 
       <para>Wenn möglich sollte die Schriftart über ein entsprechendes Konfigurationspaket gesetzt werden.
         Ob ein solches existiert kann man sehr leicht über eine Suche nach dem Namen unter \url{ctan.org} herausfinden.</para>
 
-    </sect4>
+    </sect5>
 
-    <sect4>
+    <sect5>
       <title>Änderung der Basisschriftart auf eine Schriftart mit Serifen</title>
 
     <programlisting>
-      \setmainfont{|\meta{Name der Schriftart, z.B. SourceSerifPro}|}
-    </programlisting>
+      \setmainfont{|\meta{Name der Schriftart, z.B. SourceSerifPro}|}    </programlisting>
 
-    </sect4>
+    </sect5>
 
-    <sect4>
+    <sect5>
       <title>Änderung der Basisschriftart auf eine Schriftart ohne Serifen</title>
 
     <programlisting>
       \setsansfont{|\meta{Name der Schriftart, z.B. SourceSansPro}|}
-      \renewcommand*{\familydefault}{\sfdefault}
-    </programlisting>
+      \renewcommand*{\familydefault}{\sfdefault}    </programlisting>
 
-    </sect4>
+    </sect5>
 
 
-  </sect3>
-  <sect3 id="Unterscheidungen durch String-Vergleich">
+  </sect4>
+  <sect4 id="Unterscheidungen durch String-Vergleich">
     <title>Unterscheidungen durch String-Vergleich</title>
 
     <programlisting>
-    \Ifstr{\lxmedia}{printer}{Falls gedruckt werden soll} {sonst}
-    </programlisting>
+    \Ifstr{\lxmedia}{printer}{Falls gedruckt werden soll} {sonst}    </programlisting>
+  </sect4>
   </sect3>
 </sect2>
       <sect2 id="Vorlagen-RB">
