@@ -143,10 +143,12 @@ sub record_number { goto &number; }
 sub type {
   my $self = shift;
 
-  return 'sales_order'       if $self->customer_id && ! $self->quotation;
-  return 'purchase_order'    if $self->vendor_id   && ! $self->quotation;
-  return 'sales_quotation'   if $self->customer_id &&   $self->quotation;
-  return 'request_quotation' if $self->vendor_id   &&   $self->quotation;
+  return 'sales_order_intake'        if $self->customer_id &&   $self->intake;
+  return 'sales_order'               if $self->customer_id && ! $self->quotation;
+  return 'purchase_order'            if $self->vendor_id   && ! $self->quotation;
+  return 'sales_quotation'           if $self->customer_id &&   $self->quotation;
+  return 'request_quotation'         if $self->vendor_id   &&   $self->quotation  && ! $self->intake;
+  return 'purchase_quotation_intake' if $self->vendor_id   &&   $self->quotation  &&   $self->intake;
 
   return;
 }
@@ -350,22 +352,33 @@ sub new_from {
   my $destination_type  = delete $params{destination_type};
 
   my @from_tos = (
-    { from => 'sales_quotation',   to => 'sales_order',       abbr => 'sqso' },
-    { from => 'request_quotation', to => 'purchase_order',    abbr => 'rqpo' },
-    { from => 'sales_quotation',   to => 'sales_quotation',   abbr => 'sqsq' },
-    { from => 'sales_order',       to => 'sales_order',       abbr => 'soso' },
-    { from => 'request_quotation', to => 'request_quotation', abbr => 'rqrq' },
-    { from => 'purchase_order',    to => 'purchase_order',    abbr => 'popo' },
-    { from => 'sales_order',       to => 'purchase_order',    abbr => 'sopo' },
-    { from => 'purchase_order',    to => 'sales_order',       abbr => 'poso' },
-    { from => 'sales_order',       to => 'sales_quotation',   abbr => 'sosq' },
-    { from => 'purchase_order',    to => 'request_quotation', abbr => 'porq' },
-    { from => 'request_quotation', to => 'sales_quotation',   abbr => 'rqsq' },
-    { from => 'request_quotation', to => 'sales_order',       abbr => 'rqso' },
-    { from => 'sales_quotation',   to => 'request_quotation', abbr => 'sqrq' },
-    { from => 'sales_order',       to => 'request_quotation', abbr => 'sorq' },
-    { from => 'sales_reclamation', to => 'sales_order',       abbr => 'srso' },
-    { from => 'purchase_reclamation', to => 'purchase_order', abbr => 'prpo' },
+    { from => 'sales_quotation',           to => 'sales_order',               abbr => 'sqso'   },
+    { from => 'request_quotation',         to => 'purchase_order',            abbr => 'rqpo'   },
+    { from => 'sales_quotation',           to => 'sales_quotation',           abbr => 'sqsq'   },
+    { from => 'sales_order',               to => 'sales_order',               abbr => 'soso'   },
+    { from => 'request_quotation',         to => 'request_quotation',         abbr => 'rqrq'   },
+    { from => 'purchase_order',            to => 'purchase_order',            abbr => 'popo'   },
+    { from => 'sales_order',               to => 'purchase_order',            abbr => 'sopo'   },
+    { from => 'purchase_order',            to => 'sales_order',               abbr => 'poso'   },
+    { from => 'sales_order',               to => 'sales_quotation',           abbr => 'sosq'   },
+    { from => 'purchase_order',            to => 'request_quotation',         abbr => 'porq'   },
+    { from => 'request_quotation',         to => 'sales_quotation',           abbr => 'rqsq'   },
+    { from => 'request_quotation',         to => 'sales_order',               abbr => 'rqso'   },
+    { from => 'sales_quotation',           to => 'request_quotation',         abbr => 'sqrq'   },
+    { from => 'sales_order',               to => 'request_quotation',         abbr => 'sorq'   },
+    { from => 'sales_reclamation',         to => 'sales_order',               abbr => 'srso'   },
+    { from => 'purchase_reclamation',      to => 'purchase_order',            abbr => 'prpo'   },
+    { from => 'sales_order_intake',        to => 'sales_order_intake',        abbr => 'soisoi' },
+    { from => 'sales_order_intake',        to => 'sales_quotation',           abbr => 'soisq'  },
+    { from => 'sales_order_intake',        to => 'request_quotation',         abbr => 'soirq'  },
+    { from => 'sales_order_intake',        to => 'sales_order',               abbr => 'soiso'  },
+    { from => 'sales_order_intake',        to => 'purchase_order',            abbr => 'soipo'  },
+    { from => 'sales_quotation',           to => 'sales_order_intake',        abbr => 'sqsoi'  },
+    { from => 'purchase_quotation_intake', to => 'purchase_quotation_intake', abbr => 'pqipqi' },
+    { from => 'purchase_quotation_intake', to => 'sales_quotation',           abbr => 'pqisq'  },
+    { from => 'purchase_quotation_intake', to => 'sales_order',               abbr => 'pqiso'  },
+    { from => 'purchase_quotation_intake', to => 'purchase_order',            abbr => 'pqipo'  },
+    { from => 'request_quotation',         to => 'purchase_quotation_intake', abbr => 'rqpqi'  },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") if !$from_to;
@@ -391,7 +404,8 @@ sub new_from {
                                                ordnumber payment_id quonumber reqdate salesman_id shippingpoint shipvia taxincluded tax_point taxzone_id
                                                transaction_description vendor_id billing_address_id
                                             )),
-                 quotation => !!($destination_type =~ m{quotation$}),
+                 quotation => !!(($destination_type =~ m{quotation$}) || ($destination_type eq 'purchase_quotation_intake')),
+                 intake    => !!($destination_type =~ m{intake$}),
                  closed    => 0,
                  delivered => 0,
                  transdate => DateTime->today_local,
@@ -410,6 +424,11 @@ sub new_from {
                    ? $::instance_conf->get_deliverydate_on
                    ? DateTime->today_local->next_workday(extra_days => $::instance_conf->get_delivery_date_interval)->to_kivitendo
                    : undef
+                   : $from_to->{to} =~ m/^sales_order_intake$/
+                   # ? $source->reqdate
+                   ? undef
+                   : $from_to->{to} =~ m/^purchase_quotation_intake$/
+                   ? $source->reqdate
                    : die "Wrong state for reqdate";
   } elsif ( ref($source) eq 'SL::DB::Reclamation') {
     %args = ( map({ ( $_ => $source->$_ ) } qw(
@@ -426,24 +445,30 @@ sub new_from {
    );
   }
 
-  if ( $is_abbr_any->(qw(sopo poso rqso sosq porq rqsq sqrq sorq)) ) {
+  if ( $is_abbr_any->(qw(soipo sopo poso rqso soisq sosq porq rqsq sqrq soirq sorq poisq poiso)) ) {
     $args{ordnumber} = undef;
     $args{quonumber} = undef;
   }
-  if ( $is_abbr_any->(qw(sopo sqrq sorq)) ) {
+  if ( $is_abbr_any->(qw(soipo sopo sqrq soirq sorq)) ) {
     $args{customer_id}      = undef;
     $args{salesman_id}      = undef;
     $args{payment_id}       = undef;
     $args{delivery_term_id} = undef;
   }
-  if ( $is_abbr_any->(qw(poso rqsq)) ) {
+  if ( $is_abbr_any->(qw(poso rqsq pqisq pqiso)) ) {
     $args{vendor_id} = undef;
   }
   if ( $is_abbr_any->(qw(soso)) ) {
     $args{periodic_invoices_config} = $source->periodic_invoices_config->clone_and_reset if $source->periodic_invoices_config;
   }
-  if ( $is_abbr_any->(qw(sqrq sorq)) ) {
+  if ( $is_abbr_any->(qw(sqrq soirq sorq)) ) {
     $args{cusordnumber} = undef;
+  }
+  if ( $is_abbr_any->(qw(soiso)) ) {
+    $args{ordnumber} = undef;
+  }
+  if ( $is_abbr_any->(qw(rqpqi pqisq)) ) {
+    $args{quonumber} = undef;
   }
 
   # Custom shipto addresses (the ones specific to the sales/purchase
@@ -494,11 +519,11 @@ sub new_from {
         custom_variables => \@custom_variables,
       );
     }
-    if ( $is_abbr_any->(qw(sopo)) ) {
+    if ( $is_abbr_any->(qw(soipo sopo)) ) {
       $current_oe_item->sellprice($source_item->lastcost);
       $current_oe_item->discount(0);
     }
-    if ( $is_abbr_any->(qw(poso rqsq rqso)) ) {
+    if ( $is_abbr_any->(qw(poso rqsq rqso pqisq pqiso)) ) {
       $current_oe_item->lastcost($source_item->sellprice);
     }
     $current_oe_item->{"converted_from_orderitems_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::Order';
@@ -593,10 +618,12 @@ sub number {
   return if !$self->type;
 
   my %number_method = (
-    sales_order       => 'ordnumber',
-    sales_quotation   => 'quonumber',
-    purchase_order    => 'ordnumber',
-    request_quotation => 'quonumber',
+    sales_order_intake        => 'ordnumber',
+    sales_order               => 'ordnumber',
+    sales_quotation           => 'quonumber',
+    purchase_order            => 'ordnumber',
+    request_quotation         => 'quonumber',
+    purchase_quotation_intake => 'quonumber',
   );
 
   return $self->${ \ $number_method{$self->type} }(@_);

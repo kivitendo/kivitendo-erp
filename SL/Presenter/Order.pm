@@ -16,6 +16,12 @@ sub sales_quotation {
   return _oe_record($order, 'sales_quotation', %params);
 }
 
+sub sales_order_intake {
+  my ($order, %params) = @_;
+
+  return _oe_record($order, 'sales_order_intake', %params);
+}
+
 sub sales_order {
   my ($order, %params) = @_;
 
@@ -26,6 +32,12 @@ sub request_quotation {
   my ($order, %params) = @_;
 
   return _oe_record($order, 'request_quotation', %params);
+}
+
+sub purchase_quotation_intake {
+  my ($order, %params) = @_;
+
+  return _oe_record($order, 'purchase_quotation_intake', %params);
 }
 
 sub purchase_order {
@@ -69,7 +81,8 @@ __END__
 =head1 NAME
 
 SL::Presenter::Order - Presenter module for Rose::DB objects for sales
-quotations, sales orders, requests for quotations and purchase orders
+quotations, sales order_intakes, sales orders,
+requests for quotations, purchase_quotation_intakes and purchase orders
 
 =head1 SYNOPSIS
 

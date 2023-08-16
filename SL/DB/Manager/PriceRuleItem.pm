@@ -147,7 +147,8 @@ sub generate_cvar_types {
       ShipTo => sub {
         raw_value(
           $_[0]->custom_shipto ? $_[0]->custom_shipto->cvar_by_name($config->name)->value :
-          $_[0]->shipto ? $_[0]->shipto->cvar_by_name($config->name)->value : undef
+          $_[0]->can('shipto') && $_[0]->shipto ? $_[0]->shipto->cvar_by_name($config->name)->value : undef
+
         );
       },
     );

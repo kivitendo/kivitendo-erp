@@ -63,7 +63,7 @@
       [%- L.hidden_tag("order.orderitems[].longdescription", ITEM.longdescription) %]
       [%- L.button_tag("kivi.Order.show_longdescription_dialog(this)", LxERP.t8("L")) %]
     </td>
-    [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
+    [%- IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
     <td nowrap>
       [%- L.div_tag(LxERP.format_amount(ITEM.shipped_qty, 2, 0) _ ' ' _ ITEM.unit, name="shipped_qty", class="numeric") %]
     </td>
@@ -100,10 +100,10 @@
                        name = "price_chooser_button") %]
     </td>
     [% SET RIGHT_TO_EDIT_PRICES = 0 %]
-    [% IF (SELF.type == "sales_order" || SELF.type == "sales_quotation") %]
+    [% IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "sales_quotation") %]
       [% SET RIGHT_TO_EDIT_PRICES = AUTH.assert('sales_edit_prices', 1) %]
     [% END %]
-    [% IF (SELF.type == "purchase_order" || SELF.type == "request_quotation") %]
+    [% IF (SELF.type == "purchase_order" || SELF.type == "request_quotation" || SELF.type == "purchase_quotation_intake") %]
       [% SET RIGHT_TO_EDIT_PRICES = AUTH.assert('purchase_edit_prices', 1) %]
     [% END %]
     <td>

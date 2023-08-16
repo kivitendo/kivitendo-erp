@@ -11,6 +11,11 @@
 % settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
 \input{insettings.tex}
 
+<%if template_meta.formname == "sales_order_intake"%>
+  \renewcommand{\auftragsbestaetigung}{\auftragseingang}
+  \renewcommand{\auftragsnummer}{\auftragseingangnummer}
+  \renewcommand{\auftragsformel}{\auftragseingangformel}
+<%end if%>
 
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\auftragsbestaetigung}{<%ordnumber%>}{<%orddate%>}
@@ -129,9 +134,9 @@
 \lieferung ~<%delivery_term.description_long%>\\
 <%end delivery_term%>%
 
-<%if reqdate%>%
+<%if template_meta.formname != "sales_order_intake"%><%if reqdate%>
 \lieferungErfolgtAm ~<%reqdate%>.
-<%end if%>%
+<%end if%><%end if%>
 
 \textit{\auftragpruefen}
 

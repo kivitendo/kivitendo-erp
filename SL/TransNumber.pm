@@ -17,7 +17,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 my @SUPPORTED_TYPES = (
-  qw(invoice invoice_for_advance_payment final_invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order purchase_order sales_quotation request_quotation part service assembly assortment letter),
+  qw(invoice invoice_for_advance_payment final_invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order_intake sales_order purchase_order sales_quotation request_quotation purchase_quotation_intake part service assembly assortment letter),
   @{ SL::DB::DeliveryOrder::TypeData::valid_types() },
 );
 
@@ -65,12 +65,25 @@ sub _get_filters {
     $filters{where}         = 'NOT COALESCE(quotation, FALSE)';
     $filters{where}        .= $type =~ /^sales/ ? ' AND (customer_id IS NOT NULL)' : ' AND (vendor_id IS NOT NULL)';
 
+  } elsif ($type =~ /^sales_order_intake$/) {
+    $filters{trans_number}  = "ordnumber";
+    $filters{numberfield}   = "soinumber";
+    $filters{table}         = "oe";
+    $filters{where}         = 'NOT COALESCE(quotation, FALSE)';
+    $filters{where}        .= $type =~ /^sales/ ? ' AND (customer_id IS NOT NULL)' : ' AND (vendor_id IS NOT NULL)';
+
   } elsif ($type =~ /_quotation$/) {
     $filters{trans_number}  = "quonumber";
     $filters{numberfield}   = $type eq 'sales_quotation' ? "sqnumber" : "rfqnumber";
     $filters{table}         = "oe";
     $filters{where}         = 'COALESCE(quotation, FALSE)';
     $filters{where}        .= $type =~ /^sales/ ? ' AND (customer_id IS NOT NULL)' : ' AND (vendor_id IS NOT NULL)';
+
+  } elsif ($type =~ /^purchase_quotation_intake$/) {
+    $filters{trans_number}  = "quonumber";
+    $filters{numberfield}   = "pqinumber";
+    $filters{table}         = "oe";
+    $filters{where}         = 'COALESCE(quotation, FALSE) AND (vendor_id IS NOT NULL)';
 
   } elsif ($type =~ /^(part|service|assembly|assortment)$/) {
     $filters{trans_number}  = "partnumber";

@@ -79,6 +79,7 @@ sub get_agreement_with_invoice {
     payment_within_30_days      => 1,
     remote_account_number       => 3,
     skonto_exact_amount         => 5,
+    skonto_fuzzy_amount         => 3,
     wrong_sign                  => -4,
     sepa_export_item            => 5,
     batch_sepa_transaction      => 20,
@@ -150,6 +151,14 @@ sub get_agreement_with_invoice {
     $agreement += $points{skonto_exact_amount};
     $rule_matches .= 'skonto_exact_amount(' . $points{'skonto_exact_amount'} . ') ';
     $invoice->{skonto_type} = 'with_skonto_pt';
+  } elsif (   $::instance_conf->get_fuzzy_skonto
+           && $invoice->skonto_date && $::instance_conf->get_fuzzy_skonto_percentage > 0
+           && abs(abs($invoice->amount_less_skonto) - abs($self->amount))
+              < abs($invoice->amount / (100 / $::instance_conf->get_fuzzy_skonto_percentage))) {
+    # we have a skonto within the range of fuzzy skonto percentage (default 0.5%)
+    $agreement += $points{skonto_fuzzy_amount};
+    $rule_matches .= 'skonto_fuzzy_amount(' . $points{'skonto_fuzzy_amount'} . ') ';
+    $invoice->{skonto_type} = 'with_fuzzy_skonto_pt';
   }
 
   #search invoice number in purpose
@@ -166,10 +175,10 @@ sub get_agreement_with_invoice {
   } else {
     # only check number part of invoice number
     $invnumber      =~ s/[A-Za-z_]+//g;
-    if (length($invnumber) > 4 && $squashed_purpose =~ /$invnumber/ && $invoice->is_sales){
+    if (length($invnumber) > 4 && $squashed_purpose =~ /\Q$invnumber/ && $invoice->is_sales){
       $agreement    += $points{own_invnumber_in_purpose};
       $rule_matches .= 'own_invnumber_in_purpose(' . $points{'own_invnumber_in_purpose'} . ') ';
-    } elsif (length($invnumber) > 3 && $squashed_purpose =~ /$invnumber/ ) {
+    } elsif (length($invnumber) > 3 && $squashed_purpose =~ /\Q$invnumber/ ) {
       $agreement    += $points{invnumber_in_purpose};
       $rule_matches .= 'invnumber_in_purpose(' . $points{'invnumber_in_purpose'} . ') ';
     }

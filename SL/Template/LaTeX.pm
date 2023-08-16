@@ -448,8 +448,6 @@ sub _force_mandatory_packages {
 
         push @new_lines, (
           "\\usepackage[a-${version},mathxmp]{pdfx}[2018/12/22]\n",
-          "\\usepackage[genericmode]{tagpdf}\n",
-          "\\tagpdfsetup{activate-all}\n",
           "\\hypersetup{pdfstartview=}\n",
         );
       }
@@ -459,6 +457,7 @@ sub _force_mandatory_packages {
       push @new_lines, map { $self->_embed_file_directive($_) } @{ $self->{pdf_attachments} // [] };
 
       next;
+
     }
 
     push @new_lines, $line;

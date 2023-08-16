@@ -37,6 +37,8 @@ cofigur
 custemer
 databasa
 dependan
+errror
+errros
 execept
 existance
 existant

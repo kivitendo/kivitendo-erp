@@ -43,8 +43,12 @@
       <td>[% P.chart.picker("object.chart_id", SELF.object.chart_id, type='AR_paid,AP_paid', category='A,L,Q', choose=1, class='wi-wider', "data-validate"="required", "data-title"=LxERP.t8("Chart")) %]</td>
     </tr>
     <tr>
-      <th></th>
-      <td>[% LxERP.t8('This chart cannot be booked manually after assigning it to a real bank account.') %]</td>
+      <th>[% LxERP.t8('Use with bank import') %]</th>
+      <td>
+        [% L.checkbox_tag('object.use_with_bank_import', checked = SELF.object.use_with_bank_import, for_submit=1) %]
+        <br>
+        <strong>[% LxERP.t8('Warning') %]:</strong> [% LxERP.t8('If this option is disabled, the bank import is not possible for this account anymore. In the case of invoices and accounts payable and receivable entries, incoming and outgoing payments can then be posted directly to the account manually.') %]
+      </td>
     </tr>
     <tr>
      <th>[% LxERP.t8('Use for Factur-X/ZUGFeRD') %]</th>

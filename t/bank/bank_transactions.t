@@ -1,4 +1,4 @@
-use Test::More tests => 399;
+use Test::More tests => 433;
 
 use strict;
 
@@ -84,6 +84,7 @@ negative_ap_transaction_fx_gain_fees();
 test_negative_ar_transaction_fx_loss();
 test_ar_transaction_fx_loss();
 test_ar_transaction_fx_gain();
+test_ar_transaction_fx_partial_payment();
 #test_neg_sales_invoice_fx();
 negative_ap_transaction_fx_gain_fees_error();
 
@@ -115,8 +116,10 @@ reset_state();
 test_bt_rule1();
 reset_state();
 test_two_banktransactions();
-# remove all created data at end of test
 test_closedto();
+test_fuzzy_skonto_pt();
+test_fuzzy_skonto_pt_not_in_range();
+# remove all created data at end of test
 clear_up();
 
 done_testing();
@@ -703,7 +706,6 @@ sub test_full_workflow_ar_multiple_inv_skonto_reconciliate_and_undo {
   is (ref $rl->[0], '', "$testname record link removed");
   # double safety and check ar.paid
   # load all three invoices and check for paid-link via acc_trans and paid in general
-
   $ar_transaction->load;
   $ar_transaction_2->load;
   $ar_transaction_skonto->load;
@@ -721,6 +723,10 @@ sub test_full_workflow_ar_multiple_inv_skonto_reconciliate_and_undo {
   is($ar_transaction->paid , '0.00000' , "$testname: 'salesinv fully unpaid");
   is($ar_transaction_2->paid , '0.00000' , "$testname: 'salesinv 2 fully unpaid");
   is($ar_transaction_skonto->paid , '0.00000' , "$testname: 'salesinv skonto fully unpaid");
+
+  is($ar_transaction_skonto->datepaid, undef, "$testname: 'salesinv skonto no date paid");
+  is($ar_transaction_2->datepaid,      undef, "$testname: 'salesinv 2 no date paid");
+  is($ar_transaction->datepaid ,       undef, "$testname: 'salesinv no date paid");
 
   # whew. w(h)a(n)t a whole lotta test
 }
@@ -1071,6 +1077,84 @@ sub test_neg_sales_invoice {
   is($bt->amount              , '-345.10000', "$testname: bt amount ok");
   is($bt->invoice_amount      , '-345.10000', "$testname: bt invoice_amount ok");
 }
+sub test_fuzzy_skonto_pt {
+
+  my $testname = 'test_fuzzy_skonto_pt';
+
+  $ar_transaction = test_ar_transaction(invnumber => 'salesinv fuzzy skonto',
+                                        payment_id => $payment_terms->id,
+                                       );
+  my $fuzzy_amount_within_threshold = $ar_transaction->amount_less_skonto - 0.57;
+  my $bt = create_bank_transaction(record        => $ar_transaction,
+                                   bank_chart_id => $bank->id,
+                                   transdate     => $dt,
+                                   valutadate    => $dt,
+                                   amount        => $fuzzy_amount_within_threshold,
+                                  ) or die "Couldn't create bank_transaction";
+
+  my ($agreement1, $rule_matches1) = $bt->get_agreement_with_invoice($ar_transaction);
+  is($agreement1, 14, "bt1 14 points for ar_transaction_1 in $testname ok");
+  is($rule_matches1,
+     "remote_account_number(3) skonto_fuzzy_amount(3) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) ",
+     "$testname: rule_matches ok");
+  my $skonto_type;
+  $skonto_type = 'with_fuzzy_skonto_pt' if $rule_matches1 =~ m/skonto_fuzzy_amount/;
+  $::form->{invoice_ids} = {
+    $bt->id => [ $ar_transaction->id ]
+  };
+  $::form->{invoice_skontos} = {
+    $bt->id => [ $skonto_type ]
+  };
+
+  save_btcontroller_to_string();
+
+  $ar_transaction->load;
+  $bt->load;
+  is($ar_transaction->paid   , '119.00000' , "$testname: salesinv skonto was paid");
+  is($ar_transaction->closed , 1           , "$testname: salesinv skonto is closed");
+  is($bt->invoice_amount     , '112.48000' , "$testname: bt invoice amount was assigned");
+
+}
+
+sub test_fuzzy_skonto_pt_not_in_range {
+
+  my $testname = 'test_fuzzy_skonto_pt_not_in_range';
+
+  $ar_transaction = test_ar_transaction(invnumber => 'salesinv fuzzy skonto not in range',
+                                        payment_id => $payment_terms->id,
+                                       );
+  my $fuzzy_amount_within_threshold = $ar_transaction->amount_less_skonto - 0.7;
+  my $bt = create_bank_transaction(record        => $ar_transaction,
+                                   bank_chart_id => $bank->id,
+                                   transdate     => $dt,
+                                   valutadate    => $dt,
+                                   amount        => $fuzzy_amount_within_threshold,
+                                  ) or die "Couldn't create bank_transaction";
+
+  my ($agreement1, $rule_matches1) = $bt->get_agreement_with_invoice($ar_transaction);
+  is($agreement1, 11, "bt1 14 points for ar_transaction_1 in $testname ok");
+  is($rule_matches1,
+     "remote_account_number(3) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) ",
+     "$testname: rule_matches ok");
+  my $skonto_type;
+  $skonto_type = 'with_fuzzy_skonto_pt' if $rule_matches1 =~ m/skonto_fuzzy_amount/;
+  $::form->{invoice_ids} = {
+    $bt->id => [ $ar_transaction->id ]
+  };
+  $::form->{invoice_skontos} = {
+    $bt->id => [ $skonto_type ]
+  };
+
+  save_btcontroller_to_string();
+
+  $ar_transaction->load;
+  $bt->load;
+  is($ar_transaction->paid   , '112.35000' , "$testname: salesinv skonto was not paid");
+  is($ar_transaction->closed , ''          , "$testname: salesinv skonto is not closed");
+  is($bt->invoice_amount     , '112.35000' , "$testname: bt invoice amount was assigned");
+
+}
+
 
 sub test_bt_rule1 {
 
@@ -1790,7 +1874,81 @@ sub test_negative_ar_transaction_fx_loss {
   is($bt->invoice_amount  , '-297.38000' , "$testname: bt invoice amount was assigned");
 }
 
+sub test_ar_transaction_fx_partial_payment {
+  my (%params) = @_;
+  my $netamount = $::form->round_amount($params{amount}, 2) || 3674580*0.08613;
+  # set exchangerate
+  my $ex = SL::DB::Manager::Exchangerate->find_by(currency_id => $currency_usd->id,
+                                                  transdate => $dt)
+        ||              SL::DB::Exchangerate->new(currency_id => $currency_usd->id,
+                                                  transdate   => $dt);
+  $ex->update_attributes(buy => 0.08613);
 
+  my $testname = 'test_ar_transaction_fx_partial_payment';
+
+  my $invoice   = SL::DB::Invoice->new(
+      invoice      => 0,
+      invnumber    => $params{invnumber} || undef, # let it use its own invnumber
+      amount       => $netamount,
+      netamount    => $netamount,
+      transdate    => $dt,
+      taxincluded  => $params{taxincluded } || 0,
+      customer_id  => $customer->id,
+      taxzone_id   => $customer->taxzone_id,
+      currency_id  => $currency_usd->id,
+      transactions => [],
+      payment_id   => $params{payment_id} || undef,
+      notes        => 'test_ar_transaction_fx_partial_payment',
+  );
+  my $acno_8100 = SL::DB::Manager::Chart->find_by( accno => '8100' );
+  $invoice->add_ar_amount_row(
+    amount => $invoice->netamount,
+    chart  => $acno_8100, # Erlöse steuerfrei
+    tax_id => 0,
+  );
+  $invoice->create_ar_row(chart => $ar_chart);
+  $invoice->save;
+
+  is($invoice->currency_id , $currency_usd->id , 'currency_id has been saved');
+  is($invoice->netamount   , '316491.5754'           , 'fx ar amount has been converted');
+  is($invoice->taxincluded , 0                 , 'fx ar transaction doesn\'t have taxincluded');
+
+  my $bt = create_bank_transaction(record        => $invoice,
+                                   bank_chart_id => $bank->id,
+                                   transdate     => $dt,
+                                   valutadate    => $dt,
+                                   amount        => 315636.49,
+                                  ) or die "Couldn't create bank_transaction";
+
+  is($bt->amount           , '315636.49' , "$testname: positive bt amount");
+  $::form->{invoice_ids} = {
+    $bt->id => [ $invoice->id ]
+  };
+  $::form->{"exchangerate_"      . $bt->id . "_" . $invoice->id}  = "0,08726"; # will be parsed
+  $::form->{"currency_id_"       . $bt->id . "_" . $invoice->id}  = $currency_usd->id;
+
+
+  save_btcontroller_to_string();
+
+  $invoice->load;
+  $bt->load;
+
+  is(scalar @{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [bank_transaction_id => $bt->id ] )},
+       3, "$testname 3 acc_trans entries created");
+
+  my $gl_fee_booking = SL::DB::Manager::BankTransactionAccTrans->get_all(where => [bank_transaction_id => $bt->id, '!gl_id' => undef ] );
+  is(scalar @{ $gl_fee_booking }, 0, 'Zero GL acc_trans bookings');
+
+  my $fx_gain_transactions = SL::DB::Manager::AccTransaction->get_all(where =>
+                                [ trans_id => $invoice->id, chart_id => $fxgain_chart->id ],
+                                  sort_by => ('acc_trans_id'));
+
+  is($fx_gain_transactions->[0]->amount,  '4087.43000', "$testname: fx gain amount ok");
+
+
+  is($invoice->paid       , '311549.06000' , "$testname: ar transaction was paid partially");
+  is($bt->invoice_amount  , '315636.49000' , "$testname: bt invoice amount was assigned");
+}
 
 sub test_ar_transaction_fx_gain {
   my (%params) = @_;
@@ -1988,4 +2146,5 @@ sub create_ap_fx_transaction {
   $invoice->save;
   return $invoice;
 }
+
 1;

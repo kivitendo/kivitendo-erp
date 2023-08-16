@@ -152,7 +152,7 @@ sub add_chart_booking {
     $taxamount *= -1;
   };
 
-  next unless $netamount; # skip entries with netamount 0
+  return unless $netamount; # skip entries with netamount 0
 
   # initialise transactions if it doesn't exist yet
   $self->transactions([]) unless $self->transactions;

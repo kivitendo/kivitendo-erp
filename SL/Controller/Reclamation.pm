@@ -1750,6 +1750,10 @@ sub save {
   my $errors = [];
   my $db     = $self->reclamation->db;
 
+  if (scalar @{$self->reclamation->items} == 0 && !grep { $self->type eq $_ } @{$::instance_conf->get_allowed_documents_with_no_positions() || []}) {
+    return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
+  }
+
   $db->with_transaction(sub {
     my $validity_token;
     if (!$self->reclamation->id) {
@@ -1791,7 +1795,8 @@ sub save_with_render_error {
 
   if (scalar @{ $errors }) {
     $self->js->flash('error', $_) foreach @{ $errors };
-    return $self->js->render();
+    $self->js->render();
+    $::dispatcher->end_request;
   }
 }
 
@@ -2374,6 +2379,7 @@ sub generate_pdf {
   $print_form->{media}       = $params->{media}    || 'file';
   $print_form->{groupitems}  = $params->{groupitems};
   $print_form->{printer_id}  = $params->{printer_id};
+  $print_form->{language_id} = $params->{language} ? $params->{language}->id : undef;
   $print_form->{media}       = 'file'       if $print_form->{media} eq 'screen';
 
   $reclamation->language($params->{language});

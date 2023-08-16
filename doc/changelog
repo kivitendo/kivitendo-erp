@@ -19,30 +19,62 @@ Mittelgroße neue Features:
     Für das Verfahren wird das optionale Paket HTTP::DAV benötigt, s.a. (scripts/installation_check.pl -ov)
     Der Hintergrund-Job kann ferner auch direkt auf Unterordner des entfernten WebDAV-Repos
     zugreifen, bspw. nextclound (https://nc.firma.de/remote.php/webdav/dateien für den stb)
+  - Neuer Workflow Auftrags-Eingang auf der Verkaufsseite zwischen Angebot
+    und Auftrag.
+  - Neuer Workflow Angebots-Eingang auf der Einkaufsseite zwischen Preisanfrage
+    und Lieferantenauftrag.
 
 Kleinere neue Features und Detailverbesserungen:
 
+  - Bei den Bankkonten Auswahlmöglichkeit hinzugefügt, ob das Konto für den Bankimport
+    verwendet (und somit für manuelle Buchungen gesperrt) werden soll
+    (Standardwert und für bestehende Mandanten: Ja)
   - Mahnsperre beim Kunden
-  - Bei Mahnungen den schon erstellten Beleg mitversenden (Optional einstellbar in der
-    Mahnunskonfiguration.
-  - Schon erstelle Belege aus dem Webdav/DMS als zip herunterladen.
+  - Bei Mahnungen den schon erstellten Beleg mitversenden (optional einstellbar in der
+    Mahnungskonfiguration.
+  - Schon erstellte Belege aus dem Webdav/DMS als zip herunterladen.
   - Volltextsuche auch für Einkaufsbelege EK-Rechnungen/Kreditorenbuchungen
   - Volltextsuche auch für Lieferscheine
-  - weitere Filtermöglichkeiten wie Zahlungsbedingen und Typ bei Mahnungen erzeugen
+  - weitere Filtermöglichkeiten wie Zahlungsbedingungen und Typ bei Mahnungen erzeugen
   - In diversen Formularfeldern Kunden/Lieferanten trailing withespaces nicht speichern
   - Neben Lieferantenartikelnummern kann auch ein Langtext hierzu in
     den Artikelstammdaten verwaltet werden.
   - Zu kundenspezifischen Preisen/Artikelnummern können jetzt auch
     Beschreibung und Langtext in den Artikelstammdaten verwaltet
     werden.
-  - Hintergrung-Job zum Überprüfen des Mindestlagerbestand für Artikeln, der
+  - Hintergrund-Job zum Überprüfen des Mindestlagerbestands für Artikel, der
     Emailversand kann über die Konfigurationsdatei eingestellt werden.
   - Gesendete Emails können im Email-Server (IMAP-Ordner Sent) gespeichert werden
-  - Bei der Erstellung von VK-Angebote und VK-Aufträge können automatisch Ordner
+  - Bei der Erstellung von VK-Angeboten und VK-Aufträgen können automatisch Ordner
     im Email-Server angelegt werden (konfigurierbar in kivitendo.conf)
-  - Bei der Bearbeitung von VK-Angebote und VK-Aufträgen können die Emails aus
-    den angelegten Ordner im Email-Server automatisch importiert werden (s.a.
+  - Bei der Bearbeitung von VK-Angeboten und VK-Aufträgen können die Emails aus
+    dem angelegten Ordner im Email-Server automatisch importiert werden (s.a.
     kivitendo.conf)
+  - Belege ("neue" Controller, sprich Angebot/Auftrag/Beistelllieferschein/RMA/
+    Reklamation) können nicht mehr ohne Positionen gespeichert werden. Ausnahmen
+    lassen sich in der Mandantenkonfiguration einstellen.
+  - Projektspezifische Testfälle 'NovoclonStrict' sind im Standard verfügbar.
+    Optimiert für die Branche 'Handel', die in der Regel nur eine Handelsware pro
+    Vorgang einkaufen und verkaufen. Das Modul ist als einzelner SelfTest mit
+    folgender JSON-Konfiguration im Feld 'Daten' aktivierbar (email tauschen):
+    email: prozessueberwacher@meinkunde.com
+    modules: NovoclonStrict
+  - Gutschriften können beim Kontoauszug verbuchen gegen Rechnungen über durchlaufende
+    Posten ausgebucht werden. Funktioniert bei exakt einer Rechnung und einer Gutschrift
+    die mit einer Banktbewegung vom Anwender verknüpft wird. Die Automatik wird
+    beim Zurücksetzen einer Bankbewegung auch entsprechend aufgelöst. Die Buchungen
+    bekommen zusätzlich einen Hinweis auf eine Automatik im Feld 'Memo'
+  - Kontoauszug verbuchen setzt automatisch ein unscharfes Skonto bei Skonto-Abweichungen
+    bis 0,5 % des Original-Rechnungbetrags. Der Prozentwert kann mandantenweit konfiguriert werden
+    und die Funktion kann deaktiviert werden, s.a. Mandantenkonfig->Buchungskonfiguration
+  - Mahnungsversand per E-Mail, nimmt Daten von der abweichenden Rechnungsadresse und priorisiert
+    ansonsten nach Mahnungsempfänger (E-Mail) und Rechnungsempfänger (E-Mail). Falls überhaupt
+    keine gültige E-Mail gefunden wird, ist die Funktion an der Oberfläche für den Anwender
+    deaktiviert.
+  - Bei Wechselkursgewinnen oder -verlusten wird dieser jetzt im Beleg angezeigt für
+    deutsche Kontenrahmen (chart_link nachträglich korrigiert)
+  - Rechnungsversand per E-Mail, auch bei Anzahlungs- und Schlußrechnung
+
 
 2023-04-05 - Release 3.8.0
 

@@ -181,10 +181,7 @@ sub check_objects {
 
   $self->add_transactions_to_ar(); # go through all data entries again, adding receivable entry to ar lines while calculating amount and netamount
 
-  foreach my $entry (@{ $self->controller->data }) {
-    next unless ($entry->{raw_data}->{datatype} eq $self->_ar_column);
-    $self->check_verify_amounts($entry->{object});
-  };
+  $self->check_verify_amounts();
 
   foreach my $entry (@{ $self->controller->data }) {
     next unless ($entry->{raw_data}->{datatype} eq $self->_ar_column);
@@ -501,11 +498,6 @@ sub check_verify_amounts {
 
     # check differences
     foreach my $entry (@{ $self->controller->data }) {
-      if ( @{ $entry->{errors} } ) {
-        push @{ $entry->{errors} }, $::locale->text($tv->{err_msg});
-        return 0;
-      };
-
       if ($entry->{raw_data}->{datatype} eq $self->_ar_column) {
         next if !$entry->{raw_data}->{ $tv->{raw_column} };
         my $parsed_value = $::form->parse_amount(\%::myconfig, $entry->{raw_data}->{ $tv->{raw_column} });
@@ -534,10 +526,10 @@ sub add_transactions_to_ar {
         if ( $ar_entry->{object}->{archart} && $ar_entry->{object}->{archart}->isa('SL::DB::Chart') ) {
           $ar_entry->{object}->recalculate_amounts; # determine and set amount and netamount for ar
           $ar_entry->{object}->create_ar_row(chart => $ar_entry->{object}->{archart});
-          $ar_entry->{info_data}->{amount}    = $ar_entry->{object}->amount;
-          $ar_entry->{info_data}->{netamount} = $ar_entry->{object}->netamount;
+          $ar_entry->{info_data}->{calc_amount}    = $ar_entry->{object}->amount_as_number;
+          $ar_entry->{info_data}->{calc_netamount} = $ar_entry->{object}->netamount_as_number;
         } else {
-          push @{ $entry->{errors} }, $::locale->text("ar_chart isn't a valid chart");
+          push @{ $ar_entry->{errors} }, $::locale->text("The receivables chart isn't a valid chart.");
         };
       };
       $ar_entry = $entry; # remember as last ar_entry
@@ -563,8 +555,8 @@ sub add_transactions_to_ar {
   if ( $ar_entry->{object} ) {
     if ( $ar_entry->{object}->{archart} && $ar_entry->{object}->{archart}->isa('SL::DB::Chart') ) {
       $ar_entry->{object}->recalculate_amounts;
-      $ar_entry->{info_data}->{amount}    = $ar_entry->{object}->amount;
-      $ar_entry->{info_data}->{netamount} = $ar_entry->{object}->netamount;
+      $ar_entry->{info_data}->{calc_amount}    = $ar_entry->{object}->amount_as_number;
+      $ar_entry->{info_data}->{calc_netamount} = $ar_entry->{object}->netamount_as_number;
 
       $ar_entry->{object}->create_ar_row(chart => $ar_entry->{object}->{archart});
     } else {

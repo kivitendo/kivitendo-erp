@@ -23,6 +23,22 @@
       <td></td>
     </tr>
     <tr>
+      <th>[% LxERP.t8('Invoice') %]</th>
+      <td>[% L.input_tag("defaults.invnumber", SELF.defaults.invnumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Credit Note') %]</th>
+      <td>[% L.input_tag("defaults.cnnumber", SELF.defaults.cnnumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Order Intake') %]</th>
+      <td>[% L.input_tag("defaults.soinumber", SELF.defaults.soinumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8('Quotation Intake') %]</th>
+      <td>[% L.input_tag("defaults.pqinumber", SELF.defaults.pqinumber, size="15", class="wi-normal") %]</td>
+    </tr>
+    <tr>
       <th>[% LxERP.t8('Order') %]</th>
       <td>[% L.input_tag("defaults.sonumber", SELF.defaults.sonumber, size="15", class="wi-normal") %]</td>
     </tr>
@@ -33,14 +49,6 @@
     <tr>
       <th>[% LxERP.t8('Sales quotation') %]</th>
       <td>[% L.input_tag("defaults.sqnumber", SELF.defaults.sqnumber, size="15", class="wi-normal") %]</td>
-    </tr>
-    <tr>
-      <th>[% LxERP.t8('Invoice') %]</th>
-      <td>[% L.input_tag("defaults.invnumber", SELF.defaults.invnumber, size="15", class="wi-normal") %]</td>
-    </tr>
-    <tr>
-      <th>[% LxERP.t8('Credit Note') %]</th>
-      <td>[% L.input_tag("defaults.cnnumber", SELF.defaults.cnnumber, size="15", class="wi-normal") %]</td>
     </tr>
     <tr>
       <th>[% LxERP.t8('RFQ') %]</th>

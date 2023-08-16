@@ -335,11 +335,13 @@ sub sort_linked_records {
               'SL::DB::RequirementSpec' =>  15,
               'SL::DB::Order'           =>  sub { $scores{ $_[0]->type } },
               sales_quotation           =>  20,
+              sales_order_intake        =>  25,
               sales_order               =>  30,
               sales_delivery_order      =>  40,
               'SL::DB::DeliveryOrder'   =>  sub { $scores{ $_[0]->type } },
               'SL::DB::Invoice'         =>  50,
               request_quotation         => 120,
+              purchase_quotation_intake => 125,
               purchase_order            => 130,
               purchase_delivery_order   => 140,
               'SL::DB::PurchaseInvoice' => 150,
@@ -412,7 +414,11 @@ sub sales_order_centric_linked_records {
     push @$all_linked_records, $self;
   }
 
-  my $filtered_orders = [ grep { 'SL::DB::Order' eq ref $_ && $_->is_type('sales_order') && $_->{_record_link_direction} eq 'from' } @$all_linked_records ];
+  my $filtered_orders = [ grep {
+    'SL::DB::Order' eq ref $_ &&
+    ($_->is_type('sales_order') || $_->is_type('sales_order_intake')) &&
+    $_->{_record_link_direction} eq 'from'
+  } @$all_linked_records ];
 
   # no orders no call to linked_records via batch mode
   # but instead return default list

@@ -438,10 +438,13 @@ sub form_header {
   my (%charts, %bank_accounts);
   my $default_ap_amount_chart_id;
   # don't add manual bookings for charts which are assigned to real bank accounts
+  # and are flagged for use with bank import
   my $bank_accounts = SL::DB::Manager::BankAccount->get_all();
   foreach my $bank (@{ $bank_accounts }) {
-    my $accno_paid_bank = $bank->chart->accno;
-    $bank_accounts{$accno_paid_bank} = 1;
+    if ($bank->use_with_bank_import) {
+      my $accno_paid_bank = $bank->chart->accno;
+      $bank_accounts{$accno_paid_bank} = 1;
+    }
   }
 
   foreach my $item (@{ $form->{ALL_CHARTS} }) {

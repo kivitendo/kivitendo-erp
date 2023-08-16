@@ -92,7 +92,7 @@ table {
       color: @t-cell-label-text ;
     }
     &.highlight { background-color: @t-row-zebra-bg-highlight ; }
-
+    div.numeric           { text-align:      right  !important ; }
 
     // -----------------------
     //  Headings (within TD & TH)
@@ -246,6 +246,20 @@ table {
         font-weight: bold ;
         color: @t-cell-text-color ;
       }
+    }
+    td.listsubtotal {
+      height: 2.0em ;
+      border-top: 1px solid @table-border-color ;
+      border-bottom: 2px solid @table-border-color ;
+      font-weight: bold ;
+      color: @t-cell-text-color ;
+    }
+    td.listtotal {
+      height: 2.0em ;
+      border-top: 1px solid @table-border-color ;
+      border-bottom: 2px solid @table-border-color ;
+      font-weight: bold ;
+      color: @t-cell-text-color ;
     }
 
     // -----------------------

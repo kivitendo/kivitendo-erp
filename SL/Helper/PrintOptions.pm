@@ -52,6 +52,9 @@ sub get_print_options {
     ) : undef,
     ($form->{type} eq 'credit_note') ?
       opthash("credit_note",         $form->{PD}{credit_note},         $locale->text('Credit Note')) : undef,
+    ($form->{type} eq 'sales_order_intake') ? (
+      opthash("sales_order_intake",  $form->{PD}{sales_order_intake},  $locale->text('Sales Order Intake')),
+    ) : undef,
     ($form->{type} eq 'sales_order') ? (
       opthash("sales_order",         $form->{PD}{sales_order},         $locale->text('Confirmation')),
       opthash("proforma",            $form->{PD}{proforma},            $locale->text('Proforma Invoice')),
@@ -61,6 +64,9 @@ sub get_print_options {
       opthash('sales_quotation',     $form->{PD}{sales_quotation},     $locale->text('Quotation')) : undef,
     ($form->{type} =~ /request_quotation$/) ?
       opthash('request_quotation',   $form->{PD}{request_quotation},   $locale->text('Request for Quotation')) : undef,
+    ($form->{type} eq 'purchase_quotation_intake') ? (
+      opthash("purchase_quotation_intake", $form->{PD}{purchase_quotation_intake},  $locale->text('Purchase Quotation Intake')),
+    ) : undef,
     ($form->{type} eq 'invoice') ? (
       opthash("invoice",             $form->{PD}{invoice},             $locale->text('Invoice')),
       opthash("proforma",            $form->{PD}{proforma},            $locale->text('Proforma Invoice')),

@@ -115,8 +115,10 @@ sub enabled {
 
 my %type_to_path = (
   sales_quotation             => 'angebote',
+  sales_order_intake          => 'auftragseingaenge',
   sales_order                 => 'bestellungen',
   request_quotation           => 'anfragen',
+  purchase_quotation_intake   => 'angebotseingaenge',
   purchase_order              => 'lieferantenbestellungen',
   sales_delivery_order        => 'verkaufslieferscheine',
   purchase_delivery_order     => 'einkaufslieferscheine',
@@ -143,8 +145,10 @@ my %type_to_path = (
 
 my %type_to_model = (
   sales_quotation             => 'Order',
+  sales_order_intake          => 'Order',
   sales_order                 => 'Order',
   request_quotation           => 'Order',
+  purchase_quotation_intake   => 'Order',
   purchase_order              => 'Order',
   sales_delivery_order        => 'DeliveryOrder',
   purchase_delivery_order     => 'DeliveryOrder',
@@ -170,8 +174,8 @@ my %type_to_model = (
 );
 
 my %model_to_number = (
-  Order           => 'ordnumber',
-  DeliveryOrder   => 'ordnumber',
+  Order           => 'record_number',
+  DeliveryOrder   => 'record_number',
   Reclamation     => 'record_number',
   Invoice         => 'invnumber',
   PurchaseInvoice => 'invnumber',

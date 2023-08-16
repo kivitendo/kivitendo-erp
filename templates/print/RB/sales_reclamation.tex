@@ -1,0 +1,217 @@
+% config: use-template-toolkit=1
+% config: tag-style=$( )$
+$( USE KiviLatex )$
+$( USE L )$
+$( USE LxERP )$
+
+\input{inheaders.tex}
+$( KiviLatex.required_packages_for_html )$
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {$( template_meta.language.template_code )$}
+\newcommand{\lxmedia} {$( media )$}
+\newcommand{\lxcurrency} {$( reclamation.currency.name )$}
+\newcommand{\kivicompany} {$( employee_company )$}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+% laufende Kopfzeile:
+\ourhead{\kundennummer}{$( KiviLatex.filter(reclamation.customervendor.number) )$}{\vkreklamation}{$( KiviLatex.filter(reclamation.record_number) )$}{$( reclamation.transdate_as_date )$}
+
+\begin{document}
+
+\ourfont
+\begin{minipage}[t]{8cm}
+  \scriptsize
+
+  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
+  \normalsize
+
+  \vspace*{0.3cm}
+
+  $( KiviLatex.filter(reclamation.customervendor.name ) )$
+
+  $( IF (reclamation.customervendor.department_1) )$$( KiviLatex.filter(reclamation.customervendor.department_1) )$\\$( END )$%
+
+  $( IF (reclamation.customervendor.department_2) )$$( KiviLatex.filter(reclamation.customervendor.department_2) )$\\$( END )$%
+
+  $( KiviLatex.filter(reclamation.contact.cp_givenname) )$ $( KiviLatex.filter(reclamation.contact.cp_name) )$
+
+  $( KiviLatex.filter(reclamation.customervendor.street) )$
+
+  ~
+  
+  $( KiviLatex.filter(reclamation.customervendor.zipcode) )$ $( KiviLatex.filter(reclamation.customervendor.city) )$
+
+  $( KiviLatex.filter(reclamation.customervendor.country) )$
+\end{minipage}
+\hfill
+\begin{minipage}[t]{6cm}
+  \hfill{\LARGE\textbf{\vkreklamation}}
+
+  \vspace*{0.2cm}
+
+  \hfill{\large\textbf{\nr ~$( KiviLatex.filter(reclamation.record_number) )$}}
+
+  \vspace*{0.2cm}
+
+  \datum:\hfill $( reclamation.transdate_as_date )$
+
+  \kundennummer:\hfill $( KiviLatex.filter(reclamation.customervendor.number) )$
+
+  \ansprechpartner:\hfill $( KiviLatex.filter(employee_name) )$
+
+  \textTelefon \hfill $( KiviLatex.filter(employee_tel) )$
+
+  \textEmail \hfill $( KiviLatex.filter(employee_email) )$
+\end{minipage}
+
+$( IF (reclamation.shipto.shiptoname) )$%
+  \vspace{0.8cm}
+  \scriptsize \underline{\abweichendeLieferadresse:}\\
+  \normalsize    $( KiviLatex.filter(reclamation.shipto.shiptoname) )$
+
+                 $( IF reclamation.shipto.shiptocontact )$ $( KiviLatex.filter(reclamation.shipto.shiptocontact) )$$( END )$
+
+                 $( KiviLatex.filter(reclamation.shipto.shiptodepartment_1) )$
+
+                 $( KiviLatex.filter(reclamation.shipto.shiptodepartment_2) )$
+
+                 $( KiviLatex.filter(reclamation.shipto.shiptostreet) )$
+
+                 $( KiviLatex.filter(reclamation.shipto.shiptozipcode) )$ $( KiviLatex.filter(reclamation.shipto.shiptocity) )$
+$( END )$
+\vspace*{1.5cm}
+
+\hfill
+
+% Bei Kontaktperson Anrede nach Geschlecht unterscheiden.
+% Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
+\ifthenelse{\equal{$( reclamation.contact.cp_name )$}{}}{
+  $( IF reclamation.customervendor.natural_person )$$( KiviLatex.filter(reclamation.customervendor.greeting) )$ $( KiviLatex.filter(reclamation.customervendor.name) )$,$( ELSE )$\anrede$( END )$}{
+  \ifthenelse{\equal{$( reclamation.contact.cp_gender )$}{f}}
+    {\anredefrau}{\anredeherr} $( KiviLatex.filter(reclamation.contact.cp_title) )$ $( KiviLatex.filter(reclamation.contact.cp_name) )$,}\\
+
+\vkreklamationsformel\\
+
+\vspace{0.5cm}
+
+%% Diese Variable kann auf 1 gesetzt werden, wenn Preise angezeigt werden sollen.
+$( SET show_prices = 0 )$
+
+%
+% - longtable kann innerhalb der Tabelle umbrechen
+% - da der Umbruch nicht von Lx-Office kontrolliert wird, kann man keinen
+%   Übertrag machen
+% - Innerhalb des Langtextes $( longdescription )$ wird nicht umgebrochen.
+%   Falls das gewünscht ist, \\ mit \renewcommand umschreiben (siehe dazu:
+%   http://www.lx-office.org/uploads/media/Lx-Office_Anwendertreffen_LaTeX-Druckvorlagen-31.01.2011_01.pdf)
+%
+\setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
+\setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
+$( IF show_prices -)$
+\begin{longtable}{@{}rrp{7cm}@{\extracolsep{\fill}}rrr@{}}
+$( ELSE -)$
+\begin{longtable}{@{}rrp{10.7cm}@{\extracolsep{\fill}}r@{}}
+$( END -)$
+
+% Tabellenkopf
+\hline
+$( IF show_prices -)$
+\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
+$( ELSE -)$
+\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} \\
+$( END -)$
+\hline\\
+\endhead
+
+% Tabellenkopf erste Seite
+\hline
+$( IF show_prices -)$
+\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
+$( ELSE -)$
+\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} \\
+$( END -)$
+\hline\\[-0.5em]
+\endfirsthead
+
+$( IF show_prices -)$
+% Tabellenende
+\\
+\multicolumn{6}{@{}r@{}}{\weiteraufnaechsterseite}
+\endfoot
+
+% Tabellenende letzte Seite
+\hline\\
+\multicolumn{5}{@{}l}{\nettobetrag} & $( reclamation.netamount_as_number )$ \currency\\
+$( FOREACH tax = reclamation.taxes )$
+\multicolumn{5}{@{}l}{$( KiviLatex.filter(tax.tax.translated_attribute('taxdescription', reclamation.language_id)) )$} & $( LxERP.format_amount(tax.amount, 2) )$ \currency\\
+$( END )$
+\multicolumn{5}{@{}l}{\textbf{\schlussbetrag}} &  \textbf{$( reclamation.amount_as_number )$} \currency\\
+\hline\hline\\
+\endlastfoot
+$( ELSE -)$ %% IF show_prices
+% Tabellenende
+\\
+\multicolumn{4}{@{}r@{}}{\weiteraufnaechsterseite}
+\endfoot
+
+% Tabellenende letzte Seite
+\hline\\
+\endlastfoot
+$( END )$ %% IF show_prices
+
+% eigentliche Tabelle
+$( FOREACH item = reclamation.items_sorted -)$
+  $( item.position )$ &
+  $( KiviLatex.filter(item.part.partnumber) )$ &
+  \textbf{$( KiviLatex.filter(item.description) )$} &
+  $( item.qty_as_number )$ $( KiviLatex.filter(item.unit_obj.get_translation(reclamation.language_id, item.qty)) )$ $( IF show_prices -)$ &
+  $( item.sellprice_as_number )$ \currency &
+  \ifthenelse{\equal{$( item.discount )$}{0}}{}{\sffamily\scriptsize{(-$( item.discount_as_percent )$ \%)}}
+  \ourfont{$( LxERP.format_amount(item.linetotal, 2) )$ \currency} $( END -)$\\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden
+
+  $( IF item.longdescription )$ && \scriptsize $( KiviLatex.filter_html(item.longdescription) )$\\$( END )$
+  $( IF item.reqdate )$         && \scriptsize \lieferdatum: $( item.reqdate_as_date )$\\$( END )$
+  $( IF item.serialnumber )$    && \scriptsize \seriennummer: $( KiviLatex.filter(item.serialnumber) )$\\$( END )$
+  $( IF item.part.ean )$        && \scriptsize \ean: $( KiviLatex.filter(item.part.ean) )$\\$( END )$
+  $( IF item.projectnumber )$   && \scriptsize \projektnummer: $( KiviLatex.filter(item.projectnumber) )$\\$( END )$
+  $( IF item.part.customerprices.size )$
+    $( FOREACH customerprice = item.part.customerprices )$
+      $( IF customerprice.customer_id == reclamation.customervendor.id )$
+        && \kundenartnr: $( KiviLatex.filter(customerprice.customer_partnumber) )$\\
+        $( LAST )$
+      $( END )$
+    $( END )$
+  $( END )$
+
+  $( IF (item.reason.description) )$     && \scriptsize \grund: $( KiviLatex.filter(item.reason.description) )$\\$( END )$
+  $( IF (item.reason_description_ext) )$ && \scriptsize $( KiviLatex.filter(item.reason_description_ext) )$\\$( END )$
+  \\[-0.8em]
+$( END )$
+
+\end{longtable}
+
+
+\vspace{0.2cm}
+
+$( IF reclamation.notes )$
+  \vspace{5mm}
+  $( KiviLatex.filter_html(reclamation.notes) )$
+\vspace{5mm}
+$( END )$
+
+$( IF reclamation.delivery_term )$
+  \lieferung ~$( KiviLatex.filter(reclamation.delivery_term.translated_attribute('description_long', reclamation.language_id)) )$\\
+$( END )$
+
+$( IF reclamation.reqdate )$
+  \lieferungErfolgtAm ~$( reclamation.reqdate_as_date )$. \\
+$( END )$
+
+\gruesse \\ \\ \\
+$( KiviLatex.filter(employee_name) )$
+
+\end{document}
+

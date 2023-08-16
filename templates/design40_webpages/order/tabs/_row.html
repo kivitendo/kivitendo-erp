@@ -54,7 +54,7 @@
       [% L.hidden_tag("order.orderitems[].longdescription", ITEM.longdescription) %]
       [% L.button_tag("kivi.Order.show_longdescription_dialog(this)", LxERP.t8("L"), class="wi-tiny neutral") %]
     </td>
-    [% IF (SELF.type == "sales_order" || SELF.type == "purchase_order") %]
+    [% IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order") %]
     <td>
       [%- L.div_tag(LxERP.format_amount(ITEM.shipped_qty, 2, 0) _ ' ' _ ITEM.unit, name="shipped_qty", class="numeric") %]
     </td>
@@ -92,10 +92,10 @@
                        class = "neutral") %]
     </td>
     [% SET RIGHT_TO_EDIT_PRICES = 0 %]
-    [% IF (SELF.type == "sales_order" || SELF.type == "sales_quotation") %]
+    [% IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "sales_quotation") %]
       [% SET RIGHT_TO_EDIT_PRICES = AUTH.assert('sales_edit_prices', 1) %]
     [% END %]
-    [% IF (SELF.type == "purchase_order" || SELF.type == "request_quotation") %]
+    [% IF (SELF.type == "purchase_order" || SELF.type == "request_quotation" || SELF.type == "purchase_quotation_intake") %]
       [% SET RIGHT_TO_EDIT_PRICES = AUTH.assert('purchase_edit_prices', 1) %]
     [% END %]
     <td>
@@ -112,7 +112,6 @@
         [% L.div_tag(ITEM.sellprice_as_number, name="sellprice_text", class="numeric plain-data") %]  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
         [% L.hidden_tag("order.orderitems[].sellprice_as_number",
                          ITEM.sellprice_as_number,
-
                          disabled=(EDIT_PRICE? 1 : '')) %]
       </div>
     </td>
@@ -133,7 +132,7 @@
                          disabled=(EDIT_DISCOUNT? 1 : '')) %]
       </div>
     </td>
-    <td>[% L.div_tag(LxERP.format_amount(ITEM.linetotal, 2, 0), name="linetotal") %]</td>
+    <td>[% L.div_tag(LxERP.format_amount(ITEM.linetotal, 2, 0), name="linetotal", class="numeric") %]</td>
   </tr>
   <tr [% IF !MYCONFIG.show_form_details %]style="display:none"[% END %]>
     <td colspan="100%">

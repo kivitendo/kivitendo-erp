@@ -335,14 +335,14 @@ sub save_dunning {
 
   # Save PDFs in filemanagement and webdav after transation succeeded,
   # because otherwise files in the storage may exists if the transaction
-  # failed. Ignore all errros.
-  # Todo: Maybe catch errros and display them as warnings or non fatal errors in the status.
+  # failed. Ignore all errors.
+  # Todo: Maybe catch errors and display them as warnings or non fatal errors in the status.
   if (!$error && $form->{DUNNING_PDFS_STORAGE} && scalar @{ $form->{DUNNING_PDFS_STORAGE} }) {
     _store_pdf_to_webdav_and_filemanagement($_->{dunning_id}, $_->{path}, $_->{name}) for @{ $form->{DUNNING_PDFS_STORAGE} };
   }
 
-  $error       = 'unknown errror' if !$error && !$rc;
-  $rc->{error} = $error           if $error;
+  $error       = 'unknown error' if !$error && !$rc;
+  $rc->{error} = $error          if $error;
 
   $::lxdebug->leave_sub;
 
@@ -519,7 +519,8 @@ sub send_email {
   $mail->{record_id}   = \@ids;
   $mail->{record_type} = 'dunning';
 
-  $mail->send();
+  my $error = $mail->send();
+  die "Mailer error during 'send': $error\n" if $error;
 
   $main::lxdebug->leave_sub();
 }
@@ -674,7 +675,9 @@ sub get_invoices {
          a.direct_debit,
          pt.description as payment_term,
          dep.description as departmentname,
-         ct.invoice_mail AS cv_email,
+         COALESCE (NULLIF(aba.dunning_mail, ''), NULLIF(aba.email,''),
+                   NULLIF(ct.dunning_mail, ''),
+                   NULLIF(ct.invoice_mail, ''), ct.email) AS recipient,
          cfg.dunning_description, cfg.dunning_level,
 
          d.transdate AS dunning_date, d.duedate AS dunning_duedate,
@@ -691,6 +694,7 @@ sub get_invoices {
        FROM ar a
 
        LEFT JOIN customer ct ON (a.customer_id = ct.id)
+       LEFT JOIN additional_billing_addresses aba ON (aba.id = a.billing_address_id)
        LEFT JOIN department dep ON (a.department_id = dep.id)
        LEFT JOIN payment_terms pt ON (a.payment_id = pt.id)
        LEFT JOIN dunning_config cfg ON (a.dunning_config_id = cfg.id)
@@ -721,7 +725,7 @@ sub get_invoices {
 
        $where
 
-       ORDER BY a.id, transdate, duedate, name|;
+       ORDER BY a.id, transdate, duedate, ct.name|;
   my $sth = prepare_execute_query($form, $dbh, $query, $id_for_max_dunning_level, @values);
 
   $form->{DUNNINGS} = [];

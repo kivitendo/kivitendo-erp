@@ -17,6 +17,9 @@ use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 use SL::PriceSource::ALL;
 use SL::Template;
+use SL::Controller::DeliveryOrder;
+use SL::Controller::Order;
+use SL::Controller::Reclamation;
 use SL::Controller::TopQuickSearch;
 use SL::DB::Helper::AccountingPeriod qw(get_balance_startdate_method_options);
 use SL::VATIDNr;
@@ -28,7 +31,7 @@ use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_price_sources h_unit_name available_quick_search_modules
                                   all_project_statuses all_project_types zugferd_settings
                                   posting_options payment_options accounting_options inventory_options profit_options balance_startdate_method_options
-                                  displayable_name_specs_by_module) ],
+                                  displayable_name_specs_by_module available_documents_with_no_positions) ],
 );
 
 sub action_edit {
@@ -230,6 +233,27 @@ sub init_displayable_name_specs_by_module {
        prefs => SL::DB::Part->displayable_name_prefs,
      },
   };
+}
+
+sub init_available_documents_with_no_positions {
+  return [] if !$::instance_conf->get_feature_experimental_order;
+
+  my @docs = ( @{SL::Controller::Order        ->new->valid_types},
+               @{SL::Controller::DeliveryOrder->new->valid_types},
+               @{SL::Controller::Reclamation  ->new->valid_types} );
+
+  # normal delivery orders are not yet handeld by new controller code
+  @docs = grep { $_ ne 'sales_delivery_order' && $_ ne 'purchase_delivery_order' } @docs;
+
+  # $::form->get_formname_translation does not distinguish between sales and purchase
+  @docs = grep { $_ ne 'sales_reclamation' && $_ ne 'purchase_reclamation' } @docs;
+
+  my @available_docs = map { {name => $_, description => $::form->get_formname_translation($_)} } @docs;
+
+  push @available_docs, {name => 'sales_reclamation',    description => t8('Sales Reclamation')};
+  push @available_docs, {name => 'purchase_reclamation', description => t8('Purchase Reclamation')};
+
+  return \@available_docs;
 }
 
 #
