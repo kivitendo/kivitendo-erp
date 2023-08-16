@@ -579,12 +579,52 @@
     </sect1>
     <sect1 id="Installation mittels Ansible"
 	   xreflabel="Inatallation mittels Ansible">
-        <title>Installation mittels Ansible</title>
-        <para> Zur Installation mit Ansible liegt auf dem Git Repository im ansible Ordner mit dem benötigtem Playbook und Konfigurationsdateien.</para>
-        <para> Der/die Hosts auf denen Kivitendo installiert werden soll wird in einer Variable übergeben.</para>
-        <para> Installiert werden kann das playbook mit folgendem Befehl:
-        	<programlisting>ansible-playbook --ask-become-pass main.yaml --extra-vars &quot;target=ZIEL_RECHNER&quot;</programlisting>
-        </para>
+      <title>Installation mittels Ansible</title>
+      <para>
+        Kivitendo lässt sich auch mithilfe von Ansible installieren.
+      </para>
+      <para>
+        Ansible ist ein Open-Source-Automatisierungstool, das verwendet
+        wird, um die Bereitstellung, Konfiguration und Verwaltung von
+        IT-Systemen zu automatisieren. Dabei führt es Aufgaben über SSH auf
+        entfernten Rechnern (Hosts) aus. Die Aufgaben werden dabei
+        deklarativ als YAML Dateien, den sogenannten Playbooks , übergeben.
+      </para>
+      <para>
+        Um die installation von Kivitendo einfacher zu gestalten liegt ein
+        Playbook im scripts Ordner, welches die Installation von Kivitendo
+        auf einer Ubuntu Umgebung automatisiert.
+      </para>
+      <para>
+        Zur Installation mit Ansible liegt auf dem Git Repository im ansible
+        Ordner mit dem benötigtem Playbook und Konfigurationsdateien.
+      </para>
+      <para>
+        Um die installation zu starten wechseln sie zunächst in den Order
+        <literal>scripts/ansible</literal> und führen dann folgenden Befehl
+        aus.
+      </para>
+      <programlisting>
+    ansible-playbook --ask-become-pass main.yaml --extra-vars&quot;target=ZIEL_RECHNER&quot;
+    </programlisting>
+      <para>
+        Der/die Hosts auf denen Kivitendo installiert werden soll wird in
+        der Variable target übergeben. Als nächstes werden sie von Ansible
+        aufgefordert das BECOME password einzutragen, hierbei handelt es
+        sich um das Passwort des nutzers, über den die Installation laufen
+        wird.
+      </para>
+      <para>
+        Nach ausführen des Playbooks ist Kivitendo über den Browser
+        erreichbar unter
+        <literal>http://&lt;IP des rechners&gt;/kivitendo-erp/</literal>
+      </para>
+      <para>
+        Nun muss noch eine Datenbank für Benutzer und Mandanten angelegt
+        werden. Dies kann über die Weboberfläche getan werden, indem man
+        sich mit dem Passwort <literal>admin123</literal> in der
+        Administrationsoberfläche anmeldet.
+      </para>
     </sect1>
     <sect1 id="Manuelle-Installation-des-Programmpaketes"
            xreflabel="Manuelle Installation des Programmpaketes">
