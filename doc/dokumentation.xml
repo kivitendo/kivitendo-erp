@@ -1309,7 +1309,7 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
         weiteren Zusatzmassnahmen, wie beispielsweise Basic Authenticate. Die
         Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser
         Anleitung, hier ein Hinweis auf einen entsprechenden <ulink
-        url="http://redmine.kivitendo-premium.de/boards/1/topics/142">Foreneintrag
+        url="https://www.kivitendo.de/boards/1/topics/142">Foreneintrag
         (Stand Sept. 2015)</ulink> und einen aktuellen (Stand Mai 2017) <ulink
         url="https://mozilla.github.io/server-side-tls/ssl-config-generator/">
         SSL-Konfigurations-Generator</ulink>.</para>
@@ -2180,7 +2180,7 @@ digits_year: 4</programlisting>
       debianoiden Betriebssystemen installiert man die Pakete mit:</para>
 
       <para><programlisting>apt install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
-  texlive-latex-extra texlive-lang-german ghostscript</programlisting></para>
+  texlive-latex-extra texlive-lang-german ghostscript latexmk</programlisting></para>
 
       <para>Für Fedora benötigen Sie die folgenden Pakete:</para>
 
