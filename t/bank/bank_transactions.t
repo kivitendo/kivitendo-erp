@@ -1,4 +1,4 @@
-use Test::More tests => 411;
+use Test::More tests => 433;
 
 use strict;
 
@@ -116,8 +116,10 @@ reset_state();
 test_bt_rule1();
 reset_state();
 test_two_banktransactions();
-# remove all created data at end of test
 test_closedto();
+test_fuzzy_skonto_pt();
+test_fuzzy_skonto_pt_not_in_range();
+# remove all created data at end of test
 clear_up();
 
 done_testing();
@@ -1075,6 +1077,84 @@ sub test_neg_sales_invoice {
   is($bt->amount              , '-345.10000', "$testname: bt amount ok");
   is($bt->invoice_amount      , '-345.10000', "$testname: bt invoice_amount ok");
 }
+sub test_fuzzy_skonto_pt {
+
+  my $testname = 'test_fuzzy_skonto_pt';
+
+  $ar_transaction = test_ar_transaction(invnumber => 'salesinv fuzzy skonto',
+                                        payment_id => $payment_terms->id,
+                                       );
+  my $fuzzy_amount_within_threshold = $ar_transaction->amount_less_skonto - 0.57;
+  my $bt = create_bank_transaction(record        => $ar_transaction,
+                                   bank_chart_id => $bank->id,
+                                   transdate     => $dt,
+                                   valutadate    => $dt,
+                                   amount        => $fuzzy_amount_within_threshold,
+                                  ) or die "Couldn't create bank_transaction";
+
+  my ($agreement1, $rule_matches1) = $bt->get_agreement_with_invoice($ar_transaction);
+  is($agreement1, 14, "bt1 14 points for ar_transaction_1 in $testname ok");
+  is($rule_matches1,
+     "remote_account_number(3) skonto_fuzzy_amount(3) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) ",
+     "$testname: rule_matches ok");
+  my $skonto_type;
+  $skonto_type = 'with_fuzzy_skonto_pt' if $rule_matches1 =~ m/skonto_fuzzy_amount/;
+  $::form->{invoice_ids} = {
+    $bt->id => [ $ar_transaction->id ]
+  };
+  $::form->{invoice_skontos} = {
+    $bt->id => [ $skonto_type ]
+  };
+
+  save_btcontroller_to_string();
+
+  $ar_transaction->load;
+  $bt->load;
+  is($ar_transaction->paid   , '119.00000' , "$testname: salesinv skonto was paid");
+  is($ar_transaction->closed , 1           , "$testname: salesinv skonto is closed");
+  is($bt->invoice_amount     , '112.48000' , "$testname: bt invoice amount was assigned");
+
+}
+
+sub test_fuzzy_skonto_pt_not_in_range {
+
+  my $testname = 'test_fuzzy_skonto_pt_not_in_range';
+
+  $ar_transaction = test_ar_transaction(invnumber => 'salesinv fuzzy skonto not in range',
+                                        payment_id => $payment_terms->id,
+                                       );
+  my $fuzzy_amount_within_threshold = $ar_transaction->amount_less_skonto - 0.7;
+  my $bt = create_bank_transaction(record        => $ar_transaction,
+                                   bank_chart_id => $bank->id,
+                                   transdate     => $dt,
+                                   valutadate    => $dt,
+                                   amount        => $fuzzy_amount_within_threshold,
+                                  ) or die "Couldn't create bank_transaction";
+
+  my ($agreement1, $rule_matches1) = $bt->get_agreement_with_invoice($ar_transaction);
+  is($agreement1, 11, "bt1 14 points for ar_transaction_1 in $testname ok");
+  is($rule_matches1,
+     "remote_account_number(3) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) ",
+     "$testname: rule_matches ok");
+  my $skonto_type;
+  $skonto_type = 'with_fuzzy_skonto_pt' if $rule_matches1 =~ m/skonto_fuzzy_amount/;
+  $::form->{invoice_ids} = {
+    $bt->id => [ $ar_transaction->id ]
+  };
+  $::form->{invoice_skontos} = {
+    $bt->id => [ $skonto_type ]
+  };
+
+  save_btcontroller_to_string();
+
+  $ar_transaction->load;
+  $bt->load;
+  is($ar_transaction->paid   , '112.35000' , "$testname: salesinv skonto was not paid");
+  is($ar_transaction->closed , ''          , "$testname: salesinv skonto is not closed");
+  is($bt->invoice_amount     , '112.35000' , "$testname: bt invoice amount was assigned");
+
+}
+
 
 sub test_bt_rule1 {
 
@@ -2066,4 +2146,5 @@ sub create_ap_fx_transaction {
   $invoice->save;
   return $invoice;
 }
+
 1;
