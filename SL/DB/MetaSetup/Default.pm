@@ -229,6 +229,10 @@ __PACKAGE__->meta->columns(
   warn_no_delivery_order_for_invoice        => { type => 'boolean', default => 'false' },
   webdav                                    => { type => 'boolean', default => 'false' },
   webdav_documents                          => { type => 'boolean', default => 'false' },
+  webdav_sync_extern                        => { type => 'boolean', default => 'false' },
+  webdav_sync_extern_login                  => { type => 'text' },
+  webdav_sync_extern_pass                   => { type => 'text' },
+  webdav_sync_extern_url                    => { type => 'text' },
   weightunit                                => { type => 'varchar', length => 5 },
   workflow_po_ap_chart_id                   => { type => 'integer' },
 );

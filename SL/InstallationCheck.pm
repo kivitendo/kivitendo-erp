@@ -77,6 +77,7 @@ BEGIN {
 );
 
 @optional_modules = (
+  { name => 'HTTP::DAV', version => 0.46,          url => 'http://search.cpan.org/~cosimo/',    debian => 'libhttp-dav-perl' },
   { name => "IO::Socket::SSL",                     url => "http://search.cpan.org/~sullr/",     debian => 'libio-socket-ssl-perl' },
   { name => "Net::LDAP",                           url => "http://search.cpan.org/~gbarr/",     debian => 'libnet-ldap-perl' },
   # Net::SMTP is core since 5.7.3

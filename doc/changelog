@@ -5,9 +5,20 @@
 2023-xx-xx - Release 3.9.0 unstable
 
 Mittelgroße neue Features:
-  - Neben Artikelnummern pro Lieferant und pro Kunde können auch
+
+  - Neben Artikelnummern pro Lieferant und pro Kunden können auch
     Artikelnummern pro Kunden-/Lieferantentyp mit Beschreibung und
     Langtext verwaltet werden.
+  - Das WebDAV Repository kann mit einem externen WebDAV-Repo in eine Richtung (kivi -> WebDAV)
+    mittels Hintergrund-Job periodisch synchronisiert werden. Der entsprechende Job heißt
+    ExternalSyncWebDAV. Die Einstellungen für das externe Repo befinden sich in der Mandanten-
+    konfiguration. Der Job kann mit dem Daten-Parameter delete: 1 aufgerufen werden und anstatt
+    die Daten zu kopieren wird das externe Repo gelöscht. Mit delete: 0 wird dann wieder normal
+    synchronisiert. Ferner wird nur das  WebDAV-Repo des eingeloggten Benutzers synchronisiert
+    (alle Einträge unterhalb $KIVI/webdav/$MANDANT/, z.B. /usr/local/src/kivitendo/webdav/2/).
+    Für das Verfahren wird das optionale Paket HTTP::DAV benötigt, s.a. (scripts/installation_check.pl -ov)
+    Der Hintergrund-Job kann ferner auch direkt auf Unterordner des entfernten WebDAV-Repos
+    zugreifen, bspw. nextclound (https://nc.firma.de/remote.php/webdav/dateien für den stb)
   - Neuer Workflow Auftrags-Eingang auf der Verkaufsseite zwischen Angebot
     und Auftrag.
   - Neuer Workflow Angebots-Eingang auf der Einkaufsseite zwischen Preisanfrage
