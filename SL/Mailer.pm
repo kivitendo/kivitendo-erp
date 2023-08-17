@@ -341,9 +341,11 @@ sub _get_header_string {
 sub _store_in_imap_sent_folder {
   my ($self, $email_as_string) = @_;
 
-  my $email = $::myconfig{email};
+  my $from_email = $self->{from};
+  my $user_email = $::myconfig{email};
   my $config =
-       $::lx_office_conf{"sent_emails_in_imap/email/$email"}
+       $::lx_office_conf{"sent_emails_in_imap/email/$from_email"}
+    || $::lx_office_conf{"sent_emails_in_imap/email/$user_email"}
     || $::lx_office_conf{sent_emails_in_imap}
     || {};
   return unless ($config->{enabled} && $config->{hostname});
