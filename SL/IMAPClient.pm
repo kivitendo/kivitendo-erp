@@ -51,6 +51,16 @@ sub DESTROY {
   }
 }
 
+sub store_email_in_email_folder {
+  my ($self, $email_string, $folder_path) = @_;
+  $folder_path ||= $self->{base_folder};
+
+  my $folder_string = $self->get_folder_string_from_path($folder_path);
+  $self->{imap_client}->append_string($folder_string, $email_string)
+    or die "Could not store email in folder '$folder_string': "
+           . $self->{imap_client}->LastError() . "\n";
+}
+
 sub update_emails_from_folder {
   my ($self, $folder_path) = @_;
   $folder_path ||= $self->{base_folder};
