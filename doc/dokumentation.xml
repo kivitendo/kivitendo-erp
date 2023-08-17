@@ -2198,7 +2198,7 @@ digits_year: 4</programlisting>
 
         <para>
           Es können versendete E-Mails über IMAP exportiert werden. Dazu muss
-          werden der entsprechende Server, auf dem die E-Mails abgelegt werden
+          der entsprechende Server, auf dem die E-Mails abgelegt werden
           sollen, konfiguriert werden. Dies geschieht in der Konfigurationsdatei
           <filename>config/kivitendo.conf</filename> im Abschnitt
           '<literal>[sent_emails_in_imap]</literal>'. Es können auch Server für
@@ -2208,6 +2208,26 @@ digits_year: 4</programlisting>
           '<literal>EMAILADDRESS</literal>' die entsprechenden E-Mail-Adresse
           ist, versehen wird.
         </para>
+
+        <para>
+          Die Reihenfolge für die Auswahl der Konfiguration ist wie folgt:
+        </para>
+
+        <orderedlist>
+          <listitem>
+            <para> Falls es für die Absender-Adresse eine Konfiguration gibt nimm
+            diese. </para>
+          </listitem>
+          <listitem>
+            <para> Falls es es für die benutzerbezogene E-Mail-Adresse eine
+            Konfiguration gibt dann nimm diese. </para>
+          </listitem>
+          <listitem>
+            <para> Falls es eine generelle Konfiguration gibt dann nimm diese.
+            </para>
+          </listitem>
+        </orderedlist>
+
 
         <para>Die folgenden Parameter dienen der Konfiguration:</para>
 
@@ -2254,7 +2274,7 @@ digits_year: 4</programlisting>
             <listitem>
               <para>
                 Wahl ob eine Verschlüsselung bei der Verbindung mit dem Server
-                verwendendet wird. Standardwert ist '<literal>1</literal>',
+                verwendet wird. Standardwert ist '<literal>1</literal>',
                 wodurch eine SSL-Verschlüsselung verwendet wird. Mit
                 '<literal>0</literal>' wird keine Verschlüsselung genutzt.
               </para>
@@ -2284,12 +2304,21 @@ digits_year: 4</programlisting>
                 gespeichert. Standardwert ist
                 '<literal>Sent/Kivitendo</literal>'. Ordnerhierarchien können
                 mit einem Slash ('<literal>/</literal>') getrennt werden.
-                Beispiel: '<literal>INBOX/kivitendo</literal>'. Dieser Ordner
-                muss existieren.
+                Der gewählte Ordner muss existieren.
               </para>
             </listitem>
           </varlistentry>
         </variablelist>
+
+        <para>
+          Bei einem Fehler bricht die Funktion ab und der Anwender bekommt die
+          Fehlermeldung, dass die E-Mail prinzipiell nicht verschickt werden
+          konnte. An dieser Stelle muss der kivitendo-Admin etwas genauer
+          prüfen, ob der Mail-Versand und/oder die Synchronisation den Fehler
+          verursacht hat. Ein Blick ins Email-Journal kann helfen den Fehler
+          einzuschränken.
+        </para>
+
       </sect2>
 
       <sect2 id="config.imap_client"
