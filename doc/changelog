@@ -79,6 +79,9 @@ Kleinere neue Features und Detailverbesserungen:
   - Bei Wechselkursgewinnen oder -verlusten wird dieser jetzt im Beleg angezeigt für
     deutsche Kontenrahmen (chart_link nachträglich korrigiert)
   - Rechnungsversand per E-Mail, auch bei Anzahlungs- und Schlußrechnung
+  - Bei neuen Wiedervorlagen wird der Benutzer automatisch per E-Mail informiert.
+    Dies kann in den Benutzereinstellungen deaktiviert werden. Die E-Mail kann
+    in kivitendo.conf [follow_up_notify] konfiguriert werden.
 
 
 2023-04-05 - Release 3.8.0
