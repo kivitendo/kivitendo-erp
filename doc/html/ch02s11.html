@@ -58,7 +58,7 @@
                 sollte aus Sicherheitsgründen auch eine Form von Verschlüsselung
                 aktiviert werden.</p></dd></dl></div></div></div><div class="sect2" title="2.11.2. Versendete E-Mails über IMAP exportieren"><div class="titlepage"><div><div><h3 class="title"><a name="config.sent_emails_in_imap"></a>2.11.2. Versendete E-Mails über IMAP exportieren</h3></div></div></div><p>
           Es können versendete E-Mails über IMAP exportiert werden. Dazu muss
-          werden der entsprechende Server, auf dem die E-Mails abgelegt werden
+          der entsprechende Server, auf dem die E-Mails abgelegt werden
           sollen, konfiguriert werden. Dies geschieht in der Konfigurationsdatei
           <code class="filename">config/kivitendo.conf</code> im Abschnitt
           '<code class="literal">[sent_emails_in_imap]</code>'. Es können auch Server für
@@ -67,7 +67,12 @@
           '<code class="literal">[sent_emails_in_imap/email/EMAILADDRESS]</code>', wobei
           '<code class="literal">EMAILADDRESS</code>' die entsprechenden E-Mail-Adresse
           ist, versehen wird.
-        </p><p>Die folgenden Parameter dienen der Konfiguration:</p><div class="variablelist"><dl><dt><span class="term">
+        </p><p>
+          Die Reihenfolge für die Auswahl der Konfiguration ist wie folgt:
+        </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p> Falls es für die Absender-Adresse eine Konfiguration gibt nimm
+            diese. </p></li><li class="listitem"><p> Falls es es für die benutzerbezogene E-Mail-Adresse eine
+            Konfiguration gibt dann nimm diese. </p></li><li class="listitem"><p> Falls es eine generelle Konfiguration gibt dann nimm diese.
+            </p></li></ol></div><p>Die folgenden Parameter dienen der Konfiguration:</p><div class="variablelist"><dl><dt><span class="term">
                      <code class="varname">enabled</code>
                   </span></dt><dd><p>
                 Falls '<code class="literal">enabled = 0</code>' gesetzt ist, wird der
@@ -89,7 +94,7 @@
                      <code class="varname">ssl</code>
                   </span></dt><dd><p>
                 Wahl ob eine Verschlüsselung bei der Verbindung mit dem Server
-                verwendendet wird. Standardwert ist '<code class="literal">1</code>',
+                verwendet wird. Standardwert ist '<code class="literal">1</code>',
                 wodurch eine SSL-Verschlüsselung verwendet wird. Mit
                 '<code class="literal">0</code>' wird keine Verschlüsselung genutzt.
               </p></dd><dt><span class="term">
@@ -107,9 +112,15 @@
                 gespeichert. Standardwert ist
                 '<code class="literal">Sent/Kivitendo</code>'. Ordnerhierarchien können
                 mit einem Slash ('<code class="literal">/</code>') getrennt werden.
-                Beispiel: '<code class="literal">INBOX/kivitendo</code>'. Dieser Ordner
-                muss existieren.
-              </p></dd></dl></div></div><div class="sect2" title="2.11.3. E-Mails in kivitendo importieren"><div class="titlepage"><div><div><h3 class="title"><a name="config.imap_client"></a>2.11.3. E-Mails in kivitendo importieren</h3></div></div></div><p>
+                Der gewählte Ordner muss existieren.
+              </p></dd></dl></div><p>
+          Bei einem Fehler bricht die Funktion ab und der Anwender bekommt die
+          Fehlermeldung, dass die E-Mail prinzipiell nicht verschickt werden
+          konnte. An dieser Stelle muss der kivitendo-Admin etwas genauer
+          prüfen, ob der Mail-Versand und/oder die Synchronisation den Fehler
+          verursacht hat. Ein Blick ins Email-Journal kann helfen den Fehler
+          einzuschränken.
+        </p></div><div class="sect2" title="2.11.3. E-Mails in kivitendo importieren"><div class="titlepage"><div><div><h3 class="title"><a name="config.imap_client"></a>2.11.3. E-Mails in kivitendo importieren</h3></div></div></div><p>
           Um E-Mails in kivitendo zu importieren, muss der entsprechende
           Server, von dem die E-Mails abgeholt werden sollen, konfiguriert
           werden. Dies geschieht in der Konfigurationsdatei
