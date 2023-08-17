@@ -25,7 +25,6 @@ package Mailer;
 
 use IO::Socket::INET;
 use IO::Socket::SSL;
-use Mail::IMAPClient;
 use Email::Address;
 use Email::MIME::Creator;
 use Encode;
@@ -41,6 +40,7 @@ use SL::DB::Employee;
 use SL::Locale::String qw(t8);
 use SL::Template;
 use SL::Version;
+use SL::IMAPClient;
 
 use strict;
 
@@ -348,49 +348,15 @@ sub _store_in_imap_sent_folder {
     || $::lx_office_conf{"sent_emails_in_imap/email/$user_email"}
     || $::lx_office_conf{sent_emails_in_imap}
     || {};
-  return unless ($config->{enabled} && $config->{hostname});
+  return unless ($config->{enabled});
 
-  my $socket;
-  if ($config->{ssl}) {
-    $socket = IO::Socket::SSL->new(
-      Proto    => 'tcp',
-      PeerAddr => $config->{hostname},
-      PeerPort => $config->{port} || 993,
-    );
-  } else {
-    $socket = IO::Socket::INET->new(
-      Proto    => 'tcp',
-      PeerAddr => $config->{hostname},
-      PeerPort => $config->{port} || 143,
-    );
-  }
-  if (!$socket) {
-    die "Failed to create socket for IMAP client: $@\n";
-  }
+  my $imap_client = SL::IMAPClient->new(%$config);
 
-  my $imap = Mail::IMAPClient->new(
-    Socket   => $socket,
-    User     => $config->{username},
-    Password => $config->{password},
-  ) or do {
-    die "Failed to create IMAP Client: $@\n"
-  };
+  $imap_client->store_email_in_email_folder(
+    $email_as_string,
+    $config->{folder} ||'Sent/Kivitendo'
+  );
 
-  $imap->IsAuthenticated() or do {
-    die "IMAP Client login failed: " . $imap->LastError() . "\n";
-  };
-
-  my $separator =  $imap->separator();
-  my $folder    =  $config->{folder} || 'Sent/Kivitendo';
-  $folder       =~ s|/|${separator}|g;
-
-  $imap->append_string($folder, $email_as_string) or do {
-    my $last_error = $imap->LastError();
-    $imap->logout();
-    die "IMAP Client append failed: $last_error\n";
-  };
-
-  $imap->logout();
   return 1;
 }
 
