@@ -15,7 +15,7 @@ doc=${PWD}/doc
 
 if [[ ! -d doc/build/dobudish ]]; then
   echo "  ERROR: looks like 'doc/build/dobudish' DIR is missing"
-  echo "   - You need to get 'dobudish-nojre-1.1.4.zip' from http://code.google.com/p/dobudish/downloads/list"
+  echo "   - You need to get 'dobudish-nojre-1.1.4.zip' from https://code.google.com/archive/p/dobudish/downloads"
   echo "   - Download and unpack ( unzip dobudish-nojre-1.1.4.zip -d doc/build )"
   echo "   - create dobudish symlink ( ln -sf dobudish-1.1.4 doc/build/dobudish )"
 fi
