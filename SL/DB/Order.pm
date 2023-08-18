@@ -176,7 +176,10 @@ sub _after_save_close_reachable_intakes {
 sub _before_save_delete_from_purchase_basket {
   my ($self) = @_;
 
-  my @basket_item_ids = grep { $_ ne ''} map { $_->{basket_item_id} } $self->orderitems;
+  my @basket_item_ids =
+    grep { defined($_) && $_ ne ''}
+    map { $_->{basket_item_id} }
+    $self->orderitems;
   return 1 unless scalar @basket_item_ids;
 
   # check if all items are still in the basket
