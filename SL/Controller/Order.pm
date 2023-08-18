@@ -2120,6 +2120,27 @@ sub save {
     );
   }
 
+  # check for purchase basket items
+  my %basket_item_id_to_orderitem =
+    map { $_->{basket_item_id} => $_ }
+    grep { $_->{basket_item_id} ne '' }
+    $self->order->orderitems;
+  my @basket_item_ids = keys %basket_item_id_to_orderitem;
+  if (scalar @basket_item_ids) {
+    my $basket_items = SL::DB::Manager::PurchaseBasketItem->get_all(
+      where => [ id => \@basket_item_ids ]);
+    if (scalar @$basket_items != scalar @basket_item_ids) {
+      my %basket_item_exists = map { $_->id => 1 } @$basket_items;
+      my @missing_for_positions =
+        map { $_->position }
+        map { $basket_item_id_to_orderitem{$_} }
+        grep { !$basket_item_exists{$_} }
+        @basket_item_ids;
+      return [t8('Purchase basket item not existing any more for position(s): #1.',
+                 join(',', @missing_for_positions))];
+    }
+  }
+
   my $is_new = !$self->order->id;
 
   my $objects_to_close = scalar @converted_from_oe_ids
