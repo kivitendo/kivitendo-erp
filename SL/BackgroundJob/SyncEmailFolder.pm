@@ -17,7 +17,7 @@ sub sync_email_folder {
   my $email_import = $imap_client->update_emails_from_folder($folder);
   return unless $email_import;
 
-  $self->{job_obj}->set_data(last_email_import_id => $email_import->id)->save;
+  return "Created email import: " . $email_import->id;
 }
 
 sub delete_email_imports {
@@ -27,24 +27,27 @@ sub delete_email_imports {
   my $email_import_ids_to_delete =
     $job_obj->data_as_hash->{email_import_ids_to_delete} || [];
 
+  my @deleted_email_imports_ids;
   foreach my $email_import_id (@$email_import_ids_to_delete) {
     my $email_import = SL::DB::Manager::EmailImport->find_by(id => $email_import_id);
     next unless $email_import;
     $email_import->delete(cascade => 1);
+    push @deleted_email_imports_ids, $email_import_id;
   }
+  return unless @deleted_email_imports_ids;
 
-  $job_obj->set_data(email_import_ids_to_delete => [])->save;
+  return "Deleted email import(s): " . join(', ', @deleted_email_imports_ids);
 }
 
 sub run {
   my ($self, $job_obj) = @_;
   $self->{job_obj} = $job_obj;
 
-  $self->delete_email_imports();
+  my @results;
+  push @results, $self->delete_email_imports();
+  push @results, $self->sync_email_folder();
 
-  $self->sync_email_folder();
-
-  return;
+  return join(". ", grep { $_ ne ''} @results);
 }
 
 1;
