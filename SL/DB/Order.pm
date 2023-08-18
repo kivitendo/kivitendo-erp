@@ -177,6 +177,15 @@ sub _before_save_delete_from_purchase_basket {
   my ($self) = @_;
 
   my @basket_item_ids = grep { $_ ne ''} map { $_->{basket_item_id} } $self->orderitems;
+  return 1 unless scalar @basket_item_ids;
+
+  # check if all items are still in the basket
+  my $basket_item_count = SL::DB::Manager::PurchaseBasketItem->get_all_count(
+    where => [ id => \@basket_item_ids ]
+  );
+  if ($basket_item_count != scalar @basket_item_ids) {
+    die "Error while saving order: some items are not in the purchase basket anymore.";
+  }
 
   if (scalar @basket_item_ids) {
     SL::DB::Manager::PurchaseBasketItem->delete_all(
