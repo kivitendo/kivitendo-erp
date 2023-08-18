@@ -768,92 +768,79 @@ sub action_show {
 sub action_showdetails {
   my ($self, %params) = @_;
 
-  eval {
-      my @bindata;
-      my $bins = SL::DB::Manager::Bin->get_all(with_objects => ['warehouse' ]);
-      my %bins_by_id = map { $_->id => $_ } @$bins;
-      my $inventories = SL::DB::Manager::Inventory->get_all(where => [ parts_id => $self->part->id],
-                             with_objects => ['parts', 'trans_type' ], sort_by => 'bin_id ASC');
-      foreach my $bin (@{ $bins }) {
-          $bin->{qty} = 0;
-      }
+  my @bindata;
+  my $bins = SL::DB::Manager::Bin->get_all(with_objects => ['warehouse' ]);
+  my %bins_by_id = map { $_->id => $_ } @$bins;
+  my $inventories = SL::DB::Manager::Inventory->get_all(where => [ parts_id => $self->part->id],
+    with_objects => ['parts', 'trans_type' ], sort_by => 'bin_id ASC');
+  foreach my $bin (@{ $bins }) {
+    $bin->{qty} = 0;
+  }
 
-      foreach my $inv (@{ $inventories }) {
-          my $bin = $bins_by_id{ $inv->bin_id };
-          $bin->{qty}      += $inv->qty;
-          $bin->{unit}     =  $inv->parts->unit;
-          $bin->{reserved} =  defined $inv->reserve_for_id ? 1 : 0;
-      }
-      my $sum = 0;
-      my $reserve_sum = 0;
-      for my $bin (@{ $bins }) {
-        push @bindata , {
-          'warehouse'    => $bin->warehouse->forreserve ? $bin->warehouse->description.' (R)' : $bin->warehouse->description,
-          'description'  => $bin->description,
-          'qty'          => $bin->{qty},
-          'unit'         => $bin->{unit},
-        } if $bin->{qty} != 0;
+  foreach my $inv (@{ $inventories }) {
+    my $bin = $bins_by_id{ $inv->bin_id };
+    $bin->{qty}      += $inv->qty;
+    $bin->{unit}     =  $inv->parts->unit;
+  }
+  my $sum = 0;
+  for my $bin (@{ $bins }) {
+    push @bindata , {
+      'warehouse'    => $bin->warehouse->description,
+      'description'  => $bin->description,
+      'qty'          => $bin->{qty},
+      'unit'         => $bin->{unit},
+    } if $bin->{qty} != 0;
 
-        $sum += $bin->{qty};
-        if($bin->warehouse->forreserve || defined $bin->warehouse->{reserve_for_id}){
-          $reserve_sum += $bin->{qty};
-        }
-      }
-      # Einfacher ? $sum = $self->part->onhand
-      my $todate   = DateTime->now_local;
-      my $fromdate = DateTime->now_local->add_duration(DateTime::Duration->new(years => -1));
-      my $average  = 0;
-      foreach my $inv (@{ $inventories }) {
-        $average += abs($inv->qty) if $inv->shippingdate && $inv->trans_type->direction eq 'out' &&
-          DateTime->compare($inv->shippingdate,$fromdate) != -1 &&
-          DateTime->compare($inv->shippingdate,$todate)   == -1;
-      }
-      my $openitems = SL::DB::Manager::OrderItem->get_all(where => [ parts_id => $self->part->id, 'order.closed' => 0 ],
-                                                           with_objects => ['order'],);
-      my ($not_delivered, $ordered) = 0;
-      for my $openitem (@{ $openitems }) {
-        if($openitem -> order -> type eq 'sales_order') {
-          $not_delivered += $openitem->qty - $openitem->shipped_qty;
-        } elsif ( $openitem->order->type eq 'purchase_order' ) {
-          $ordered += $openitem->qty - $openitem->delivered_qty;
-        }
-      }
-      my $print_form = Form->new('');
-      my $part = $self->part;
+    $sum += $bin->{qty};
+  }
 
-      my $stock_amounts = $self->part->get_simple_stock_sql;
-      $print_form->{type}      = 'part';
-      $print_form->{printers}  = SL::DB::Manager::Printer->get_all_sorted;
-      my $output = SL::Presenter->get->render('part/showdetails',
-          part          => $self->part,
-          BINS          => \@bindata,
-          stock_amounts => $stock_amounts,
-          average       => $average/12,
-          fromdate      => $fromdate,
-          todate        => $todate,
-          sum           => $sum,
-          reserve_sum   => $reserve_sum,
-          not_delivered => $not_delivered,
-          ordered       => $ordered,
-          type_beleg    => $::form->{type},
-          type_id       => $::form->{type_id},
-          maker_id      => $::form->{maker_id},
-          drawing       => $::form->{drawing},
+  my $todate   = DateTime->now_local;
+  my $fromdate = DateTime->now_local->add_duration(DateTime::Duration->new(years => -1));
+  my $average  = 0;
+  foreach my $inv (@{ $inventories }) {
+    $average += abs($inv->qty) if $inv->shippingdate && $inv->trans_type->direction eq 'out' &&
+    DateTime->compare($inv->shippingdate,$fromdate) != -1 &&
+    DateTime->compare($inv->shippingdate,$todate)   == -1;
+  }
+  my $openitems = SL::DB::Manager::OrderItem->get_all(where => [ parts_id => $self->part->id, 'order.closed' => 0 ],
+    with_objects => ['order'],);
+  my ($not_delivered, $ordered) = 0;
+  for my $openitem (@{ $openitems }) {
+    if($openitem -> order -> type eq 'sales_order') {
+      $not_delivered += $openitem->qty - $openitem->shipped_qty;
+    } elsif ( $openitem->order->type eq 'purchase_order' ) {
+      $ordered += $openitem->qty - $openitem->delivered_qty;
+    }
+  }
+
+  my $stock_amounts = $self->part->get_simple_stock_sql;
+
+  my $output = SL::Presenter->get->render('part/showdetails',
+    part          => $self->part,
+    stock_amounts => $stock_amounts,
+    average       => $average/12,
+    fromdate      => $fromdate,
+    todate        => $todate,
+    sum           => $sum,
+    not_delivered => $not_delivered,
+    ordered       => $ordered,
     print_options   => SL::Helper::PrintOptions->get_print_options(
-      form => $print_form,
-      options => {dialog_name_prefix => 'print_options.',
-                  show_headers       => 1,
-                  no_queue           => 1,
-                  no_postscript      => 1,
-                  no_opendocument    => 1,
-                  hide_language_id_print => 1,
-                  no_html            => 1},
+      form => Form->new(
+        type     => 'part',
+        printers => SL::DB::Manager::Printer->get_all_sorted,
+      ),
+      options => {
+        dialog_name_prefix     => 'print_options.',
+        show_headers           => 1,
+        no_queue               => 1,
+        no_postscript          => 1,
+        no_opendocument        => 1,
+        hide_language_id_print => 1,
+        no_html                => 1,
+      },
     ),
-      );
-      $self->render(\$output, { layout => 0, process => 0 });
-    1;
-  } or do {
-  };
+  );
+  $self->render(\$output, { layout => 0, process => 0 });
 }
 
 sub action_print_label {
