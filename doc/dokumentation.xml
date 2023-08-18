@@ -2628,15 +2628,13 @@ digits_year: 4</programlisting>
         </itemizedlist>
 
       <listitem>
-        <para>Sprache/Übersetzungen.\\Es muss mindestens eine Sprache angelegt werden!</para>
-      </listitem>
-        <programlisting>
-        \begin{description}
+        <para>Sprache/Übersetzungen.\\Es muss mindestens eine Sprache angelegt werden!        <programlisting>
         \item[deutsch.tex] Textschnipsel für Deutsch\\
                               Dafür eine Sprache mit Vorlagenkürzel DE anlegen
         \item[english.tex] Textschnipsel für Englisch\\
                               Dafür eine Sprache mit Vorlagenkürzel EN anlegen
-        \end{description}</programlisting>
+        </programlisting></para>
+      </listitem>
     </itemizedlist>
 
     <para>Alle dokumententypspezifischen Einstellungen müssen in der jeweiligen Template-Datei modifiziert werden.</para>
