@@ -83,14 +83,13 @@ sub prepare_report {
     controller_class     => 'DispositionManager',
     output_format        => 'HTML',
     title                => t8($title),
-    allow_pdf_export      => 1,
-    allow_csv_export      => 1,
-    no_data_message       => !$noshow,
+    allow_pdf_export     => 0,
+    allow_csv_export     => 0,
+    allow_chart_export   => 0,
+    no_data_message      => !$noshow,
   );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_export_options(qw(list_parts));
-  $report->set_options_from_form;
 
   unless ( $noshow ) {
     if ($report->{options}{output_format} =~ /^(pdf|csv)$/i) {
