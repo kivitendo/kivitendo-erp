@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 9;
+use Test::More tests => 16;
 
 use lib 't';
 use Support::TestSetup;
@@ -8,6 +8,7 @@ use SL::DB::Part;
 use SL::DB::Inventory;
 use SL::DB::MakeModel;
 use SL::DB::PurchaseBasketItem;
+use SL::DB::Order;
 use SL::Controller::DispositionManager;
 use DateTime;
 use Data::Dumper;
@@ -40,6 +41,7 @@ my $part2 = new_part(
   description  => 'Testpart 2 norop',
   rop          => 60,
   order_qty    => 2,
+  makemodels   => [ _create_makemodel_for_vendor(vendor => $vendor) ],
 )->save;
 set_stock(part => $part2, bin_id => $bin->id, qty => 80);
 
@@ -84,29 +86,47 @@ note('making purchase order from purchase basket items');
 my $purchase_basket_items = SL::DB::Manager::PurchaseBasketItem->get_all;
 $::form = Support::TestSetup->create_new_form;
 $::form->{ids}        = [ map { $_->id       } @{ $purchase_basket_items } ];
+$::form->{basket_ids} = [ map { $_->id       } @{ $purchase_basket_items } ];
 $::form->{vendor_ids} = [ map { $vendor->id  } @{ $purchase_basket_items } ];
 
 open($outputFH, '>', \$output) or die;
 $oldFH = select $outputFH;
-$controller->action_transfer_to_purchase_order;
+my $ret = $controller->action_transfer_to_purchase_order;
 select $oldFH;
 close $outputFH;
+is($ret, 1, "action_transfer_to_purchase_order ok");
+
+my @basket_item_ids = map { $_->id } @{ $purchase_basket_items } ;
+my $purchase_order = SL::DB::Order->create_from_purchase_basket(
+  \@basket_item_ids, [], $vendor->id
+);
+$purchase_order->save;
 
 is(SL::DB::Manager::Order->get_all_count( where => [ SL::DB::Manager::Order->type_filter('purchase_order') ] ), 1, "1 purchase order created ok");
 is(SL::DB::Manager::PurchaseBasketItem->get_all_count(), 0, "purchase basket empty after purchase order was created");
 
-my $purchase_order = SL::DB::Manager::Order->get_first();
-
 is( scalar @{$purchase_order->items}, 5, "Purchase order has 5 item ok");
-# print "PART\n";
-# print Dumper($part1);
 my $first_item = $purchase_order->items_sorted->[0];
-# print "FIRST\n";
-# print Dumper($first_item);
 is( $first_item->parts_id, $part1->id, "Purchase order: first item is part1");
 is( $first_item->qty, '20.00000', "Purchase order: first item has qty 20");
 cmp_ok( $purchase_order->netamount, '==', 240, "Purchase order: netamount ok");
 is( $first_item->active_price_source, 'makemodel/' . $part1->makemodels->[0]->id, "Purchase order: first item has correct active_price_source" . $first_item->part->partnumber);
+
+
+my @vendor_item_ids = ( $part1->id, $part2->id );
+
+my $purchase_order2 = SL::DB::Order->create_from_purchase_basket(
+  [], \@vendor_item_ids, $vendor->id
+);
+
+is( scalar @{$purchase_order2->items}, 2, "Purchase order 2 has 2 item ok");
+my $item_1 = $purchase_order2->items_sorted->[0];
+is( $item_1->parts_id, $part1->id, "Purchase order 2: first item is part1");
+my $item_2 = $purchase_order2->items_sorted->[1];
+is( $item_2->parts_id, $part2->id, "Purchase order 2: secound item is part2");
+is( $item_1->qty, '1.00000', "Purchase order 2: first item has qty 1");
+is( $item_2->qty, '2.00000', "Purchase order 2: secound item has qty 2");
+is( $item_1->active_price_source, 'makemodel/' . $part1->makemodels->[0]->id, "Purchase order 2: first item has correct active_price_source" . $first_item->part->partnumber);
 
 clear_up();
 done_testing();
