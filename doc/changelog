@@ -5,9 +5,20 @@
 2023-xx-xx - Release 3.9.0 unstable
 
 Mittelgroße neue Features:
-  - Neben Artikelnummern pro Lieferant und pro Kunde können auch
+
+  - Neben Artikelnummern pro Lieferant und pro Kunden können auch
     Artikelnummern pro Kunden-/Lieferantentyp mit Beschreibung und
     Langtext verwaltet werden.
+  - Das WebDAV Repository kann mit einem externen WebDAV-Repo in eine Richtung (kivi -> WebDAV)
+    mittels Hintergrund-Job periodisch synchronisiert werden. Der entsprechende Job heißt
+    ExternalSyncWebDAV. Die Einstellungen für das externe Repo befinden sich in der Mandanten-
+    konfiguration. Der Job kann mit dem Daten-Parameter delete: 1 aufgerufen werden und anstatt
+    die Daten zu kopieren wird das externe Repo gelöscht. Mit delete: 0 wird dann wieder normal
+    synchronisiert. Ferner wird nur das  WebDAV-Repo des eingeloggten Benutzers synchronisiert
+    (alle Einträge unterhalb $KIVI/webdav/$MANDANT/, z.B. /usr/local/src/kivitendo/webdav/2/).
+    Für das Verfahren wird das optionale Paket HTTP::DAV benötigt, s.a. (scripts/installation_check.pl -ov)
+    Der Hintergrund-Job kann ferner auch direkt auf Unterordner des entfernten WebDAV-Repos
+    zugreifen, bspw. nextclound (https://nc.firma.de/remote.php/webdav/dateien für den stb)
   - Neuer Workflow Auftrags-Eingang auf der Verkaufsseite zwischen Angebot
     und Auftrag.
   - Neuer Workflow Angebots-Eingang auf der Einkaufsseite zwischen Preisanfrage
@@ -26,6 +37,8 @@ Kleinere neue Features und Detailverbesserungen:
   - Volltextsuche auch für Lieferscheine
   - weitere Filtermöglichkeiten wie Zahlungsbedingungen und Typ bei Mahnungen erzeugen
   - In diversen Formularfeldern Kunden/Lieferanten trailing withespaces nicht speichern
+  - Bericht Lagerbestand nach text-artigen benutzer definierten Variablen
+    sortieren lassen
   - Neben Lieferantenartikelnummern kann auch ein Langtext hierzu in
     den Artikelstammdaten verwaltet werden.
   - Zu kundenspezifischen Preisen/Artikelnummern können jetzt auch
@@ -34,11 +47,16 @@ Kleinere neue Features und Detailverbesserungen:
   - Hintergrund-Job zum Überprüfen des Mindestlagerbestands für Artikel, der
     Emailversand kann über die Konfigurationsdatei eingestellt werden.
   - Gesendete Emails können im Email-Server (IMAP-Ordner Sent) gespeichert werden
-  - Bei der Erstellung von VK-Angeboten und VK-Aufträgen können automatisch Ordner
-    im Email-Server angelegt werden (konfigurierbar in kivitendo.conf)
-  - Bei der Bearbeitung von VK-Angeboten und VK-Aufträgen können die Emails aus
-    dem angelegten Ordner im Email-Server automatisch importiert werden (s.a.
-    kivitendo.conf)
+    (konfigurierbar in kivitendo.conf [sent_emails_in_imap])
+  - IMAP Client (konfigurierbar in kivitendo.conf [imap_client]):
+    - Bei der Erstellung von VK-Angebote und VK-Aufträge können automatisch
+      Ordner im Email-Server angelegt werden
+    - Bei der Bearbeitung von VK-Angebote und VK-Aufträgen können die Emails aus
+      den angelegten Ordner im Email-Server automatisch importiert werden
+    - Hintergrung-Job zum Aufräumen der erstellten Email-Unterordner, nur
+      Unterordner für offene Belege werden behalten
+    - Hintergrung-Job zum Synchronisieren von Email-Ordner. Emails werden in das
+      E-Mail-Journal importiert, wenn sie nicht schon vorhanden sind
   - Belege ("neue" Controller, sprich Angebot/Auftrag/Beistelllieferschein/RMA/
     Reklamation) können nicht mehr ohne Positionen gespeichert werden. Ausnahmen
     lassen sich in der Mandantenkonfiguration einstellen.
@@ -63,7 +81,9 @@ Kleinere neue Features und Detailverbesserungen:
   - Bei Wechselkursgewinnen oder -verlusten wird dieser jetzt im Beleg angezeigt für
     deutsche Kontenrahmen (chart_link nachträglich korrigiert)
   - Rechnungsversand per E-Mail, auch bei Anzahlungs- und Schlußrechnung
-
+  - Bei neuen Wiedervorlagen wird der Benutzer automatisch per E-Mail informiert.
+    Dies kann in den Benutzereinstellungen deaktiviert werden. Die E-Mail kann
+    in kivitendo.conf [follow_up_notify] konfiguriert werden.
 
 2023-04-05 - Release 3.8.0
 

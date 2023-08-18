@@ -670,6 +670,7 @@ sub config {
   $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();
   $form->{todo_cfg}            = { TODO->get_user_config('login' => $::myconfig{login}) };
   $form->{title}               = $locale->text('Edit Preferences for #1', $::myconfig{login});
+  $form->{follow_up_notify_by_email} = $myconfig{follow_up_notify_by_email};
 
   $::request->{layout}->use_javascript("${_}.js") for qw(jquery.multiselect2side ckeditor/ckeditor ckeditor/adapters/jquery);
 

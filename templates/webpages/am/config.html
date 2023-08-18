@@ -12,6 +12,7 @@
     <li><a href="#page_display_options">[% 'Display options' | $T8 %]</a></li>
     <li><a href="#page_print_options">[% 'Print options' | $T8 %]</a></li>
     <li><a href="#page_todo_list_options">[% 'TODO list options' | $T8 %]</a></li>
+    <li><a href="#page_follow_up_options">[% 'Follow-up options' | $T8 %]</a></li>
    </ul>
 
    <div id="page_personal_settings">
@@ -342,5 +343,20 @@
      [%- END %]
     </table>
    </div>
+
+   <div id="page_follow_up_options">
+    <table>
+     <tr>
+      <th align="right">[% 'Notify me by email for follow-ups' | $T8 %]</th>
+      <td colspan="2">
+       <input type="radio" name="follow_up_notify_by_email" id="follow_up_notify_by_email_1" value="1"[% IF follow_up_notify_by_email %] checked[% END %]>
+       <label for="follow_up_notify_by_email_1">[% 'Yes' | $T8 %]</label>
+       <input type="radio" name="follow_up_notify_by_email" id="follow_up_notify_by_email_0" value="0"[% IF !follow_up_notify_by_email %] checked[% END %]>
+       <label for="follow_up_notify_by_email_0">[% 'No' | $T8 %]</label>
+      </td>
+     </tr>
+    </table>
+   </div>
+
   </div>
  </form>

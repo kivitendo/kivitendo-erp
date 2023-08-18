@@ -128,8 +128,9 @@ sub init_filter_summary {
                        @filters;
 
   my %status = (
-    failed  => $::locale->text('failed'),
-    ok      => $::locale->text('succeeded'),
+    send_failed => $::locale->text('send failed'),
+    sent        => $::locale->text('sent'),
+    imported    => $::locale->text('imported'),
   );
   push @filter_strings, $status{ $filter->{'status:eq_ignore_empty'} } if $filter->{'status:eq_ignore_empty'};
 

@@ -1,0 +1,7 @@
+Hallo [%recipient_name%],
+
+[%creator_name%] hat eine neue Wiedervorlage für Sie für das
+Datum [%follow_up_date%] mit dem Betreff "[%follow_up_subject%]"
+und dem folgenden Inhalt erstellt:
+
+[%follow_up_body%]

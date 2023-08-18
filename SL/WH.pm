@@ -36,6 +36,7 @@
 package WH;
 
 use Carp qw(croak);
+use List::MoreUtils qw(any);
 
 use SL::AM;
 use SL::DBUtils;
@@ -648,6 +649,7 @@ sub get_warehouse_report {
         ( grep( { !/qty/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
           qw(l_parts_id l_partunit) );
 
+  my @join_values = ();
   my %join_tokens = (
     "stock_value" => "LEFT JOIN price_factors pfac ON (p.price_factor_id = pfac.id)",
     );
@@ -655,6 +657,35 @@ sub get_warehouse_report {
   my $joins = join ' ', grep { $_ } map { +/^l_/; $join_tokens{"$'"} }
         ( grep( { !/qty/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
           qw(l_parts_id l_qty l_partunit) );
+
+  # add cvar for sorting
+  if ($form->{sort} =~ /^cvar_/) {
+    my $sort_name = $form->{sort};
+    my $cvar_name = $sort_name;
+    $cvar_name =~ s/^cvar_//;
+    my $cvar_configs = CVar->get_configs('module' => 'IC');
+    my @allowed_cvar_names =
+      map {$_->{name}}
+      grep {$_->{type} =~ m/text|textfield|htmlfield/}
+      @$cvar_configs;
+    unless (any {$sort_name eq 'cvar_' . $_} @allowed_cvar_names) {
+      die "unsupported sort on cvar field";
+    }
+
+    $select_clause .= ", cvar_fields.$sort_name";
+    $group_clause  .= ", cvar_fields.$sort_name";
+    $joins .= qq|
+      LEFT JOIN (
+        SELECT text_value as $sort_name, trans_id
+        FROM custom_variable_configs cvar_cfg
+        LEFT JOIN custom_variables cvar
+        ON (cvar_cfg.module = 'IC' AND cvar_cfg.name = ?
+            AND cvar_cfg.id = cvar.config_id)
+      ) cvar_fields ON (cvar_fields.trans_id = p.id)
+      |;
+    push @join_values, $cvar_name
+  }
+  @filter_vars = (@join_values, @filter_vars);
 
   my ($cvar_where, @cvar_values) = CVar->build_filter_query(
     module         => 'IC',

@@ -18,7 +18,7 @@ sub init {
 
   Rose::Object::init(
     @_,
-    status          => 'failed',
+    status          => 'send_failed',
     extended_status => 'no send attempt made',
   );
 
@@ -48,7 +48,7 @@ sub send {
 
   $self->{sendmail}->close or do { $self->extended_status("sendmail: $!"); die $self->extended_status; };
 
-  $self->status('ok');
+  $self->status('sent');
   $self->extended_status('');
 
   delete $self->{sendmail};

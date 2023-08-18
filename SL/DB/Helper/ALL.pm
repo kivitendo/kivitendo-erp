@@ -56,6 +56,7 @@ use SL::DB::Department;
 use SL::DB::Draft;
 use SL::DB::Dunning;
 use SL::DB::DunningConfig;
+use SL::DB::EmailImport;
 use SL::DB::EmailJournal;
 use SL::DB::EmailJournalAttachment;
 use SL::DB::Employee;

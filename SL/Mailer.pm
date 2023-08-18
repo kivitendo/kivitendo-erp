@@ -25,7 +25,6 @@ package Mailer;
 
 use IO::Socket::INET;
 use IO::Socket::SSL;
-use Mail::IMAPClient;
 use Email::Address;
 use Email::MIME::Creator;
 use Encode;
@@ -41,6 +40,7 @@ use SL::DB::Employee;
 use SL::Locale::String qw(t8);
 use SL::Template;
 use SL::Version;
+use SL::IMAPClient;
 
 use strict;
 
@@ -270,7 +270,7 @@ sub send {
   $self->{driver} = eval { $self->_create_driver };
   if (!$self->{driver}) {
     my $error = $@;
-    $self->_store_in_journal('failed', 'driver could not be created; check your configuration & log files');
+    $self->_store_in_journal('send_failed', 'driver could not be created; check your configuration & log files');
     $::lxdebug->message(LXDebug::WARN(), "Mailer error during 'send': $error");
 
     return $error;
@@ -340,50 +340,23 @@ sub _get_header_string {
 
 sub _store_in_imap_sent_folder {
   my ($self, $email_as_string) = @_;
-  my $config = $::lx_office_conf{sent_emails_in_imap} || {};
-  return unless ($config->{enabled} && $config->{hostname});
 
-  my $socket;
-  if ($config->{ssl}) {
-    $socket = IO::Socket::SSL->new(
-      Proto    => 'tcp',
-      PeerAddr => $config->{hostname},
-      PeerPort => $config->{port} || 993,
-    );
-  } else {
-    $socket = IO::Socket::INET->new(
-      Proto    => 'tcp',
-      PeerAddr => $config->{hostname},
-      PeerPort => $config->{port} || 143,
-    );
-  }
-  if (!$socket) {
-    die "Failed to create socket for IMAP client: $@\n";
-  }
+  my $from_email = $self->{from};
+  my $user_email = $::myconfig{email};
+  my $config =
+       $::lx_office_conf{"sent_emails_in_imap/email/$from_email"}
+    || $::lx_office_conf{"sent_emails_in_imap/email/$user_email"}
+    || $::lx_office_conf{sent_emails_in_imap}
+    || {};
+  return unless ($config->{enabled});
 
-  my $imap = Mail::IMAPClient->new(
-    Socket   => $socket,
-    User     => $config->{username},
-    Password => $config->{password},
-  ) or do {
-    die "Failed to create IMAP Client: $@\n"
-  };
+  my $imap_client = SL::IMAPClient->new(%$config);
 
-  $imap->IsAuthenticated() or do {
-    die "IMAP Client login failed: " . $imap->LastError() . "\n";
-  };
+  $imap_client->store_email_in_email_folder(
+    $email_as_string,
+    $config->{folder} ||'Sent/Kivitendo'
+  );
 
-  my $separator =  $imap->separator();
-  my $folder    =  $config->{folder} || 'INBOX/Sent';
-  $folder       =~ s|/|${separator}|g;
-
-  $imap->append_string($folder, $email_as_string) or do {
-    my $last_error = $imap->LastError();
-    $imap->logout();
-    die "IMAP Client append failed: $last_error\n";
-  };
-
-  $imap->logout();
   return 1;
 }
 
@@ -395,7 +368,7 @@ sub _store_in_journal {
   return if $journal_enable == 0;
 
   $status          //= $self->{driver}->status if $self->{driver};
-  $status          //= 'failed';
+  $status          //= 'send_failed';
   $extended_status //= $self->{driver}->extended_status if $self->{driver};
   $extended_status //= 'unknown error';
 

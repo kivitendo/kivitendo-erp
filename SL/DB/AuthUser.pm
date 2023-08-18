@@ -11,7 +11,9 @@ use SL::DB::Helper::Util;
 use constant CONFIG_VARS => qw(copies countrycode dateformat timeformat default_media default_printer_id
                                email favorites fax hide_cvar_search_options mandatory_departments menustyle name
                                numberformat show_form_details signature stylesheet taxincluded_checked tel
-                               template_format focus_position form_cvars_nr_cols item_multiselect);
+                               template_format focus_position form_cvars_nr_cols item_multiselect
+                               follow_up_notify_by_email
+                               );
 
 __PACKAGE__->meta->add_relationship(
   groups => {

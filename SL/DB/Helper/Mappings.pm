@@ -138,6 +138,7 @@ my %kivitendo_package_names = (
   drafts                         => 'draft',
   dunning                        => 'dunning',
   dunning_config                 => 'dunning_config',
+  email_imports                  => 'EmailImport',
   email_journal                  => 'EmailJournal',
   email_journal_attachments      => 'EmailJournalAttachment',
   employee                       => 'employee',

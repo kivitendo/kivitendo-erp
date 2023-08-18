@@ -513,6 +513,9 @@ sub read_user {
 
   my %user_data;
 
+  # Set defaults for options not present in database
+  $user_data{follow_up_notify_by_email} = 1;
+
   while (my $ref = $sth->fetchrow_hashref()) {
     $user_data{$ref->{cfg_key}} = $ref->{cfg_value};
     @user_data{qw(id login)}    = @{$ref}{qw(id login)};

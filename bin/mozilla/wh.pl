@@ -978,7 +978,14 @@ sub generate_report {
   my $href = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
   $href .= "&maxrows=".$form->{maxrows};
 
-  map { $column_defs{$_}->{link} = $href . "&page=".$page."&sort=${_}&order=" . Q($_ eq $sort_col ? 1 - $form->{order} : $form->{order}) } grep {!/^cvar_/} @columns;
+  my %cvar_is_text = ();
+  $cvar_is_text{"cvar_$_->{name}"} = 1 for
+    grep {$_->{type} =~ m/text|textfield|htmlfield/}
+    @$cvar_configs;
+
+  map { $column_defs{$_}->{link} = $href . "&page=".$page."&sort=${_}&order=" . Q($_ eq $sort_col ? 1 - $form->{order} : $form->{order}) }
+    grep {!/^cvar_/ or $cvar_is_text{$_}}
+    @columns;
 
   my %column_alignment = map { $_ => 'right' } qw(qty list_price purchase_price stock_value);
 

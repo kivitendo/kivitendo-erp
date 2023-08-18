@@ -35,6 +35,26 @@
         <td class="long-desc">[% LxERP.t8('Save document in WebDAV repository') %]</td>
       </tr>
       <tr>
+        <th>[% LxERP.t8('WebDAV sync extern') %]</td>
+        <td>[% L.yes_no_tag('defaults.webdav_sync_extern', SELF.defaults.webdav_sync_extern) %]</td>
+        <td class="long-desc">[% LxERP.t8('Synchronize WebDAV with owncloud repository') %]</td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8('Destination URL for sync') %]</td>
+        <td class="long-desc"> [% L.input_tag('defaults.webdav_sync_extern_url', SELF.defaults.webdav_sync_extern_url, style=style) %]</td>
+        <td>[% LxERP.t8('Complete URL for WebDAV sync external, including port and folders, i.e.: https://foo.com:4433/owncloud/kivitendo') %]</td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8('Login for sync') %]</td>
+        <td class="long-desc">[% L.input_tag('defaults.webdav_sync_extern_login', SELF.defaults.webdav_sync_extern_login, style=style) %]</td>
+        <td>[% LxERP.t8('Login for WebDAV sync external') %]</td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8('Password for sync') %]</td>
+        <td class="long-desc">[% L.input_tag('defaults.webdav_sync_extern_pass', SELF.defaults.webdav_sync_extern_pass, style=style) %]</td>
+        <td>[% LxERP.t8('Password for WebDAV sync external') %]</td>
+      </tr>
+      <tr>
         <th>[% LxERP.t8('Filemanagement') %]</th>
         <td>[% L.yes_no_tag('defaults.doc_storage', SELF.defaults.doc_storage) %]</td>
         <td class="long-desc">[% LxERP.t8('Use Filemanagement') %]</td>
