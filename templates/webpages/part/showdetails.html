@@ -5,10 +5,7 @@
       <tr>
         <td><b>[%  LxERP.t8('Description') %]</b></td><td colspan="3">[% part.description %]</td>
       </tr>
-      <tr>
-        <td style="background:wheat;"><b>[%  LxERP.t8('Internal Notes') %]</b></td><td colspan="3" style="background:wheat;">[% part.intnotes %]</td>
-      </tr>
-      <tr>
+     <tr>
         <td><b>[%  LxERP.t8('Default Warehouse') %]</b></td><td>[% part.warehouse.description %]</td>
         <td><b>[%  LxERP.t8('Default Bin') %]</b></td><td>[% part.bin.description %]</td>
       </tr>
@@ -64,16 +61,11 @@
       <tr>
         <td><b>[%  LxERP.t8('Sum Amount') %]</b></td><td>[% LxERP.format_amount(sum, 2) %] [% part.unit %]</td>
         <td rowspan="5">
-          [% file = part.default_partimage %]
-          [%- IF file && INSTANCE_CONF.get_parts_show_image %]
-          <img src="controller.pl?action=File/download&id=[% file.id %][%- IF file.version %]&version=[%- file.version %][%- END %]" alt="[% file.title %]" style="[% INSTANCE_CONF.get_parts_image_css %]">
+          [%- IF part.image && INSTANCE_CONF.get_parts_show_image %]
+          <a href="[% part.image | html %]" target="_blank"><img style="[% INSTANCE_CONF.get_parts_image_css %]" src="[% part.image | html %]"/></a>
           [% END %]
         </td>
         <td rowspan="5">
-  [%- FOREACH file = part.get_files %]
-      <a href="controller.pl?action=File/download&id=[% file.id %][%- IF file.version %]&version=[%- file.version %][%- END %]">
-        <span id="[% "filename_" _ file.id %][%- IF file.version %]_[% file.version %][%- END %]">[% file.file_name %]</span></a><br><br>
-  [%- END %]
         </td>
       </tr>
       <tr>
@@ -81,9 +73,6 @@
       </tr>
       <tr>
         <td><b>[%  LxERP.t8('Ordered, but not delivered (purchase)') %]</b></td><td colspan="3">[% LxERP.format_amount(ordered, 2) %] [% part.unit %]</td></tr>
-      </tr>
-      <tr>
-        <td><b>[%  LxERP.t8('Reserved amount') %]</b></td><td colspan="3">[% LxERP.format_amount(part.stockqty - part.onhandqty, 2) %] [% part.unit %]</td></tr>
       </tr>
       <tr>
         <td><b>[%  LxERP.t8('Available amount') %]</b></td><td colspan="3">[% LxERP.format_amount(part.onhandqty, 2) %] [% part.unit %]</td></tr>

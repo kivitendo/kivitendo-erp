@@ -35,19 +35,21 @@ namespace('kivi.DispositionManager', function(ns) {
 
   ns.show_detail_dialog = function(part_id,partnumber) {
     if ( part_id && partnumber ) {
-        var title  = kivi.t8('Details of article number "#1"',[partnumber]);
-        kivi.popup_dialog({
-                         url:     'controller.pl',
-                         data: {
-                                 action: 'Part/showdetails',
-                                 id    : part_id,
-                               },
-                         id:     'detail_menu',
-                         dialog: { title: title
-                                  , width:  1000
-                                  , height: 450
-                                  , modal:  false }
-                        });
+      var title  = kivi.t8('Details of article number "#1"',[partnumber]);
+      kivi.popup_dialog({
+        url:     'controller.pl',
+        data: {
+          action: 'Part/showdetails',
+          id    : part_id,
+        },
+        id:     'detail_menu',
+        dialog: {
+          title: title,
+          width:  900,
+          height: 600,
+          modal:  false
+        }
+      });
     }
     return true;
   };
