@@ -11,7 +11,7 @@ use SL::DB::FollowUpCreatedForEmployee;
 use SL::Mailer;
 use SL::Notes;
 use SL::Template;
-use SL::Template::Simple;
+use SL::Template::PlainText;
 
 use strict;
 
@@ -615,7 +615,7 @@ SQL
     my $mail              = Mailer->new();
     $mail->{from}         = $notify_cfg->{email_from};
     $mail->{to}           = $recipient{email};
-    $mail->{subject}      = SL::Template::Simple->new(form => $param_form)
+    $mail->{subject}      = SL::Template::PlainText->new(form => $param_form)
                               ->substitute_vars($notify_cfg->{email_subject});
     $mail->{content_type} = $content_type;
     $mail->{message}      = $message;
