@@ -13,7 +13,7 @@
     <caption>[% 'Vendor' | $T8 %]</caption>
     <tbody>
       <tr>
-        <td>[% P.customer_vendor.picker('vendor_id', '', type='vendor') %]</td>
+        <td>[% P.customer_vendor.picker('vendor_id', '', type='vendor', fat_set_item=1) %]</td>
       </tr>
     </tbody>
   </table>
@@ -22,6 +22,7 @@
 
 <form id="purchasebasket">
 
+[% L.hidden_tag('vendor_id_selected') %]
 <div class="wrapper">
   <table id="baskettable" class="tbl-list">
   <caption>[% 'Purchase basket' | $T8 %]</caption>
@@ -47,11 +48,11 @@
           [% L.checkbox_tag('ids[+]', "data-checkall"=1, checked = '1',  value=basket_item.id) %]
           [% L.hidden_tag('basket_ids[+]', basket_item.id) %]
         </td>
-        <td> [% basket_item.part.presenter.part(target = '_blank') %]
+        <td class="numeric"> [% basket_item.part.presenter.part(target = '_blank') %]
           [% P.button_tag(
                "kivi.DispositionManager.show_detail_dialog("
-                 _  basket_item.part.id _ "," _ basket_item.part.partnumber _
-               ")",
+                 _  basket_item.part.id _ ",'" _ basket_item.part.partnumber _
+               "')",
                LxERP.t8('Details (one letter abbreviation)'),
                title=LxERP.t8('Article details'), class="button") %]
         </td>

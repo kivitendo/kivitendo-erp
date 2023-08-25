@@ -147,8 +147,8 @@ sub action_add_from_record {
 sub action_add_from_purchase_basket {
   my ($self) = @_;
 
-  my $basket_item_ids = $::form->{basket_item_ids};
-  my $vendor_item_ids = $::form->{vendor_item_ids};
+  my $basket_item_ids = $::form->{basket_item_ids} || [];
+  my $vendor_item_ids = $::form->{vendor_item_ids} || [];
   my $vendor_id       = $::form->{vendor_id};
 
 
