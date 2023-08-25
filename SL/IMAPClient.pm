@@ -11,6 +11,7 @@ use Email::MIME;
 use File::MimeInfo::Magic;
 use Encode qw(encode decode);
 use Encode::IMAPUTF7;
+use SL::Locale;
 
 use SL::SessionFile;
 use SL::Locale::String qw(t8);
@@ -20,15 +21,15 @@ use SL::DB::EmailJournalAttachment;
 
 use SL::DB::Order;
 
-my %RECORD_TYPE_TO_FOLDER = (
-  sales_quotation             => t8('Sales Quotations'),
-  sales_order                 => t8('Sales Orders'),
-);
-my %RECORD_FOLDER_TO_TYPE = reverse %RECORD_TYPE_TO_FOLDER;
-
 sub new {
   my ($class, %params) = @_;
   my $config = $::lx_office_conf{imap_client} || {};
+  my $server_locale = Locale->new($::lx_office_conf{server}->{language});
+  my %record_type_to_folder = (
+    sales_quotation => $server_locale->text('Sales Quotations'),
+    sales_order     => $server_locale->text('Sales Orders'),
+  );
+  my %record_folder_to_type = reverse %record_type_to_folder;
   my $self = bless {
     enabled     => $config->{enabled},
     hostname    => $config->{hostname},
@@ -37,6 +38,8 @@ sub new {
     username    => $config->{username},
     password    => $config->{password},
     base_folder => $config->{base_folder} || 'INBOX',
+    record_type_to_folder => \%record_type_to_folder,
+    record_folder_to_type => \%record_folder_to_type,
     %params,
   }, $class;
   return unless $self->{enabled};
@@ -279,7 +282,7 @@ sub update_email_subfolders_and_files_for_records {
       $ilike_record_number
     ) = $ilike_folder_path =~ m|^(.+)/([^\s]+) (.+)/(.+)/(.+)|;
 
-    my $record_type = $RECORD_FOLDER_TO_TYPE{$record_folder};
+    my $record_type = $self->{record_folder_to_type}->{$record_folder};
     next unless $record_type;
 
     # TODO make it generic for all records
@@ -373,7 +376,7 @@ sub _get_folder_string_for_record {
   my $record_folder_path =
     $self->{base_folder} . '/' .
     $string_parts{cv_number} . ' ' . $string_parts{cv_name} . '/' .
-    $RECORD_TYPE_TO_FOLDER{$record->type} . '/' .
+    $self->{record_type_to_folder}->{$record->type} . '/' .
     $string_parts{record_number};
   my $folder_string = $self->get_folder_string_from_path($record_folder_path);
   return $folder_string;
@@ -468,15 +471,15 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
 
 =over 2
 
-=item C<%RECORD_TYPE_TO_FOLDER>
+=item C<%$self->{record_type_to_folder}>
 
   Due to the lack of a single global mapping for $record->type,
   type is mapped to the corresponding translation. All types which
   use this module are currently mapped and should be mapped.
 
-=item C<%RECORD_FOLDER_TO_TYPE>
+=item C<%$self->record_folder_to_type>
 
-  The reverse mapping of %RECORD_TYPE_TO_FOLDER.
+  The reverse mapping of C<%$self->{record_type_to_folder}>.
 
 =back
 
