@@ -58,5 +58,6 @@ namespace('kivi.DispositionManager', function(ns) {
 $(function() {
  $('#vendor_id').change('set_item:CustomerVendorPicker', function(_e,_o) {
    kivi.DispositionManager.sort_vendors();
+   $('#vendor_id_selected').val($('#vendor_id').val());
  })
 });

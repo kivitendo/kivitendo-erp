@@ -195,12 +195,13 @@ sub action_transfer_to_purchase_order {
     return $self->js->render();
   }
 
-  my $vendor_id =  $::form->{vendor_ids}->[0];
-
   # check for same vendor
   my %basket_id_vendor_id_map =
     map {$::form->{basket_ids}->[$_] => $::form->{vendor_ids}->[$_]}
     (0..$#{$::form->{vendor_ids}});
+
+  my $vendor_id = $::form->{vendor_id_selected} || $basket_id_vendor_id_map{@{$basket_item_ids}[0]} || $basket_id_vendor_id_map{@{$basket_item_ids}[0]};
+
   my @different_vendor_ids =
     grep { $basket_id_vendor_id_map{$_} ne $vendor_id }
     @{$basket_item_ids};
