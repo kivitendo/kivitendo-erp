@@ -305,6 +305,8 @@ sub create_folder {
   return if $self->{imap_client}->exists($folder_name);
   $self->{imap_client}->create($folder_name)
     or die "Could not create IMAP folder '$folder_name': $@\n";
+  $self->{imap_client}->subscribe($folder_name)
+    or die "Could not subscribe to IMAP folder '$folder_name': $@\n";
   return;
 }
 
