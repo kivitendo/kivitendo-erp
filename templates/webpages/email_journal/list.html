@@ -29,7 +29,7 @@
 
   <tbody>
   [%- FOREACH entry = ENTRIES %]
-  <tr class="listrow[% IF entry.status != 'ok' %]_error[% END %]" id="email_journal_id_[% entry.id %]">
+  <tr class="listrow[% IF entry.status == 'send_failed' %]_error[% END %]" id="email_journal_id_[% entry.id %]">
    [% IF SELF.can_view_all %]
     <td>
      [% IF entry.sender %]

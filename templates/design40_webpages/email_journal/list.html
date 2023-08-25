@@ -28,7 +28,7 @@
   </thead>
   <tbody>
     [% FOREACH entry = ENTRIES %]
-    <tr[% IF entry.status != 'ok' %] class="row_error[% END %]" id="email_journal_id_[% entry.id %]">
+    <tr id="email_journal_id_[% entry.id %]">
       [% IF SELF.can_view_all %]
         <td>[% IF entry.sender %] [% HTML.escape(entry.sender.name) %] [% ELSE %] [% LxERP.t8("kivitendo") %] [% END %]</td>
       [% END %]
