@@ -163,7 +163,7 @@ sub action_add_from_purchase_basket {
 
   $self->order($order);
 
-  $self->action_add();
+  $self->action_edit();
 }
 
 # edit an existing order
