@@ -4,8 +4,22 @@ $( USE KiviLatex )$
 $( USE P )$
 $( USE Dumper )$
 $( USE LxERP )$
-\input{inheaders.tex}
+\documentclass[a4paper]{scrartcl}[10pt]
+
+% Schriftart, Eingabelayout der Tastatur
+\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{german}
+\usepackage{ifthen}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{eurosym}
+\usepackage{substr}
+\usepackage{scrlayer-scrpage}
+\usepackage{wallpaper} % Hintergrundbilder
+\usepackage{xcolor,colortbl}
+\usepackage{lastpage}
+\usepackage{geometry}
 
 $( KiviLatex.required_packages_for_html )$
 % Variablen, die in settings verwendet werden
@@ -42,22 +56,6 @@ $( KiviLatex.required_packages_for_html )$
     \IfSubStringInString{EUR}{\lxcurrency}{\input{\identpath/euro_account.tex}}{\input{\identpath/euro_account.tex}}
   } % Ende CHF
 } % Ende USD
-
-% Briefkopf, Logo oder Briefpapier
-%% \IfSubStringInString{mail}{\lxmedia}{    % nur bei Mail
-  % Grafik als Briefkopf
-  %%\setlength{\wpYoffset}{380pt} % Verschiebung von der Mitte nach oben
-  %%\setlength{\wpYoffset}{130mm} % Verschiebung von der Mitte nach oben
-  %%\CenterWallPaper{0.885}{\identpath/briefkopf.png} % mit Skalierung
-
-  % oder nur ein Logo oben rechts
-  %% \setlength{\wpXoffset}{180pt} % Verschiebung von der Mitte nach rechts
-  %% \setlength{\wpYoffset}{380pt} % Verschiebung von der Mitte nach oben
-  %% \CenterWallPaper{0.1}{\identpath/logo.png} % mit Skalierung
-
-  % oder ganzer Briefbogen als Hintergrund
-   % \CenterWallPaper{1}{\identpath/Briefpapier.pdf}
-%% }
 
 
 % keine Absätze nach rechts einrücken
@@ -166,7 +164,7 @@ $(# Dumper.dump_html(part.assemblies) )$
   $(IF KiviLatex.filter(part.image))$
     \begin{minipage}{2cm}
       %          \begin{pspicture}(-5cm,2em)(1.5in,0.5in)
-            \includegraphics[width=7cm ]{$( part.image )$}
+            \includegraphics[width=7cm ]{../$( part.image )$}
       %    \end{pspicture}
     \end{minipage}
   $(END)$
