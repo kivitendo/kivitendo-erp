@@ -34,7 +34,7 @@ sub run {
        $shop->connector->set_orderstatus($shop_order->shop_trans_id, "paid");
     }
   }
-  return t8("The following Shop Orders: ") . join (', ', @shoporders) . $dry_run ? t8(" would be set to the state 'paid'") : t8(" have been so to the state 'paid'");
+  return t8("The following Shop Orders: ") . join (', ', @shoporders) . $dry_run ? t8(" would be set to the state 'paid'") : t8(" have been set to the state 'paid'");
 }
 
 1;
