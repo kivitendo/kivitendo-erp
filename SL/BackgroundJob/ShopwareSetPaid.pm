@@ -31,7 +31,7 @@ sub run {
        next if $dry_run;
        my $shop_config = SL::DB::Manager::Shop->get_first( query => [ id => $shop_order->shop_id ] );
        my $shop = SL::Shop->new( config => $shop_config );
-       $shop->connector->set_orderstatus($shop_order->shop_trans_id, "paid");
+       $shop->connector->set_order_transaction_status($shop_order->shop_ordernumber, "paid");
     }
   }
   # nothing found
