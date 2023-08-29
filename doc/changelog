@@ -84,6 +84,11 @@ Kleinere neue Features und Detailverbesserungen:
   - Bei neuen Wiedervorlagen wird der Benutzer automatisch per E-Mail informiert.
     Dies kann in den Benutzereinstellungen deaktiviert werden. Die E-Mail kann
     in kivitendo.conf [follow_up_notify] konfiguriert werden.
+  - Bei der Übernahme von Shop-Aufträgen kann jetzt auch nur eine teilweise Auswahl
+    der Artikel übernommen werden (hilfreich für den Fall Artikel existiert im Shop
+    aber so nicht in kivitendo oder es handelt sich um nicht abrechenbare Artikel)
+  - Ein Hintergrundjob ShopwareSetPaid setzt den Bezahlstatus eines Shopauftrags.
+    Sollte standardmäßig nach jedem Werktag angeschaltet werden, s.a. API-Doku im POD-Format.
 
 2023-04-05 - Release 3.8.0
 
