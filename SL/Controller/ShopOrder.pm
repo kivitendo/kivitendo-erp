@@ -135,13 +135,17 @@ sub action_undelete_order {
 sub action_transfer {
   my ( $self ) = @_;
 
+  $::form->{customer} ||= $::form->{partial_transfer_customer_id};
+
   my $customer = SL::DB::Manager::Customer->find_by(id => $::form->{customer});
-  die "Can't find customer" unless $customer;
+  die "Can't find customer" unless ref $customer eq 'SL::DB::Customer';
+
   my $employee = SL::DB::Manager::Employee->current;
   die "Can't find employee" unless $employee;
 
   die "Can't load shop_order form form->import_id" unless $self->shop_order;
-  my $order = $self->shop_order->convert_to_sales_order(customer => $customer, employee => $employee);
+  my $order = $self->shop_order->convert_to_sales_order(customer => $customer, employee => $employee,
+                                                        pos_ids  => $::form->{pos_ids}               );
 
   if ($order->{error}){
     flash_later('error',@{$order->{errors}});
@@ -370,6 +374,8 @@ Marks the shoporder obsolete = false
 =item C<action_transfer>
 
 Transfers one shoporder to an order.
+If the optional  $::form->{pos_ids} exists, they will be added
+as a param for the convert_to_sales_order method
 
 =item C<action_apply_customer>
 

@@ -30,8 +30,21 @@ sub convert_to_sales_order {
   my $customer  = delete $params{customer};
   my $employee  = delete $params{employee};
   my $transdate = delete $params{transdate} // DateTime->today_local;
+
   croak "param customer is missing" unless ref($customer) eq 'SL::DB::Customer';
   croak "param employee is missing" unless ref($employee) eq 'SL::DB::Employee';
+
+  # check if caller wants optional partial transfer and create partial soi array
+  my $partial_transfer;
+  my %pos_ids;
+  if ($params{pos_ids}) {
+    $partial_transfer = 1;
+    %pos_ids          =  %{ delete $params{pos_ids} };
+    # TODO check if pos_ids is a valid hash
+  }
+  my @soi = $partial_transfer
+          ? grep { $pos_ids{$_->id} } @{ $self->shop_order_items }
+          : @{ $self->shop_order_items };
 
   require SL::DB::Order;
   require SL::DB::OrderItem;
@@ -58,8 +71,7 @@ sub convert_to_sales_order {
         discount            => $_->discount,
       );
     }
-  }@{ $self->shop_order_items };
-
+  } @soi;
   if(!scalar(@error_report)){
 
     my $shipto_id;

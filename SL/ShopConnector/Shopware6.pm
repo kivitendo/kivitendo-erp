@@ -712,6 +712,62 @@ sub set_orderstatus {
   die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code eq '200';
 
 }
+sub set_order_transaction_status {
+  my ($self, $ordnumber, $transition) = @_;
+
+  croak t8("No Order Number")         unless $ordnumber;
+  croak "NO valid transition value"   unless $transition =~ m/(paid)/;
+
+  # first fetch order_transaction id
+  my %fetched_order  = $self->get_fetched_order_structure;
+  my $assoc          = $self->all_open_orders();
+
+  # overwrite filter for exactly one ordnumber
+  $assoc->{filter}->[0]->{value} = $ordnumber;
+  $assoc->{filter}->[0]->{type}  = 'equals';
+  $assoc->{filter}->[0]->{field} = 'orderNumber';
+
+  # 1. fetch the order and import it as a kivi order
+  # 2. return the number of processed order (1)
+  my $one_order = $self->connector->POST('api/search/order', to_json($assoc));
+  # 1. check for bad request or connection problems
+  if ($one_order->responseCode() != 200) {
+    $fetched_order{error}   = 1;
+    $fetched_order{message} = $one_order->responseCode() . ' ' . $one_order->responseContent();
+    die "Invalid response code:" . $fetched_order{message};
+  }
+
+  # 1.1 parse json or exit
+  my $content;
+  try {
+    $content = from_json($one_order->responseContent());
+  } catch {
+    $fetched_order{error}   = 1;
+    $fetched_order{message} = "Malformed JSON Data: $_ " . $one_order->responseContent();
+    die "Invalid JSON Data:" . $fetched_order{message};
+  };
+
+  # 2. check if we found ONE order at all
+  my $total = $content->{total};
+  if ($total == 0) {
+    $fetched_order{number_of_orders} = 0;
+    die \%fetched_order;
+  } elsif ($total != 1) {
+    $fetched_order{error}   = 1;
+    $fetched_order{message} = "More than one Order returned. Invalid State: $total";
+    die "Invalid State:" . $fetched_order{message};
+  }
+  # we assume just one transaction at all
+  die "Can only sync one single Transaction " unless scalar @{ $content->{data}->[0]->{transactions} } == 1;
+
+  my $order_transaction_id = $content->{data}->[0]->{transactions}->[0]->{id};
+  my $ret;
+  $ret = $self->connector->POST("/api/_action/order_transaction/$order_transaction_id/state/$transition");
+
+  my $response_code = $ret->responseCode();
+  die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code eq '200';
+
+}
 
 sub init_connector {
   my ($self) = @_;

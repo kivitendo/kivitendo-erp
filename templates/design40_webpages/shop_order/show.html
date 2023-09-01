@@ -417,34 +417,43 @@
 </div>
 
 <div class="wrapper" id="wrapper-3">
-  <table class="tbl-list" style="width:100%">
-    <thead>
-      <tr>
-        <th>[% 'Position'          | $T8 %]</th>
-        <th>[% 'Partnumber'        | $T8 %]</th>
-        <th>[% 'Partdescriptipion' | $T8 %]</th>
-        <th>[% 'Qty'               | $T8 %]</th>
-        <th>[% 'Price'             | $T8 %]</th>
-        <th>[% 'Discount'          | $T8 %]</th>
-        <th>[% 'Promotion Code'    | $T8 %]</th>
-        <th>[% 'Extended'          | $T8 %]</th>
-      </tr>
-    </thead>
-    <tbody>
-      [% FOREACH pos = IMPORT.shop_order_items %]
+  <form method="post" action="controller.pl" id="create_partial_order">
+  [% L.hidden_tag('import_id', IMPORT.id) %]
+    <table class="tbl-list" style="width:100%">
+      <thead>
         <tr>
-          <td>[% loop.count                                      %]</td>
-          <td>[% HTML.escape(pos.partnumber)                     %]</td>
-          <td>[% HTML.escape(pos.description)                    %]</td>
-          <td>[% pos.quantity_as_number                          %]</td>
-          <td>[% pos.price_as_number                             %]</td>
-          <td>[% pos.discount_as_number * 100                  %] %</td>
-          <td>[% pos.discount_code                               %]</td>
-          <td>[% LxERP.format_amount(pos.price * pos.quantity,2) %]</td>
+          <th>[% 'Assign'            | $T8 %]</th>
+          <th>[% 'Position'          | $T8 %]</th>
+          <th>[% 'Partnumber'        | $T8 %]</th>
+          <th>[% 'Partdescriptipion' | $T8 %]</th>
+          <th>[% 'Qty'               | $T8 %]</th>
+          <th>[% 'Price'             | $T8 %]</th>
+          <th>[% 'Discount'          | $T8 %]</th>
+          <th>[% 'Promotion Code'    | $T8 %]</th>
+          <th>[% 'Extended'          | $T8 %]</th>
         </tr>
-      [% END %]
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        [% FOREACH pos = IMPORT.shop_order_items %]
+          <tr>
+            <td>[% L.checkbox_tag("pos_ids." _ pos.id _ "[]", value=1, checked=1) %]</td>
+            <td>[% loop.count                                      %]</td>
+            <td>[% HTML.escape(pos.partnumber)                     %]</td>
+            <td>[% HTML.escape(pos.description)                    %]</td>
+            <td>[% pos.quantity_as_number                          %]</td>
+            <td>[% pos.price_as_number                             %]</td>
+            <td>[% pos.discount_as_number * 100                  %] %</td>
+            <td>[% pos.discount_code                               %]</td>
+            <td>[% LxERP.format_amount(pos.price * pos.quantity,2) %]</td>
+          </tr>
+        [% END %]
+      </tbody>
+    </table>
+    <div id="partial_transfer" style="float:left; display:none;">
+      [% L.hidden_tag('partial_transfer_customer_id') %]
+      [% L.ajax_submit_tag('controller.pl?action=ShopOrder/transfer', "#create_partial_order", LxERP.t8('Create partial order')) %]
+    </div>
+  </form>
 </div>
 
 
@@ -454,5 +463,7 @@
     var cv_id = $("input[type=radio][id="+ this.id + "]").val();
     $('#shop_update_customer_'+ cv_id).css("display", 'block');
     $('#transfer').css("display", 'block');
+    $('#partial_transfer').css("display", 'block');
+    $('#partial_transfer_customer_id').val(cv_id);
   });
 </script>
