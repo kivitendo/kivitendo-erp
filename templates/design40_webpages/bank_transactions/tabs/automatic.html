@@ -3,12 +3,14 @@
 [% USE L %]
 [% USE T8 %]
 
-<form method="post" id="list_automatic_form">
+<form method="post" id="list_automatic_form" class="box">
 [% L.hidden_tag('filter.bank_account', FORM.filter.bank_account) %]
 [% L.hidden_tag('filter.fromdate', FORM.filter.fromdate) %]
 [% L.hidden_tag('filter.todate',   FORM.filter.todate) %]
 [% L.hidden_tag('action', 'BankTransaction/dispatch') %]
 [% L.hidden_tag('ui_tab', ui_tab) %]
+
+<div class="horizontal-scroll-wrapper">
 
 <table id="bank_transactions_proposals" class="tbl-list">
   <thead>
@@ -115,6 +117,8 @@
     [% END %]
   [% END %]
 </table>
+
+</div><!-- .horizontal-scroll-wrapper -->
 
 <div class="buttons">
  [% L.submit_tag('action_save_proposals', LxERP.t8('Save proposals')) %]
