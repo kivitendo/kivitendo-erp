@@ -169,6 +169,7 @@ sub action_save_user {
       my $timestamp = $now->format_cldr('yyyyMMddHHmmss');
 
       my $dbh = $client->dbconnect(AutoCommit => 1);
+      next if !$dbh;
       $dbh->do(qq|UPDATE employee SET login = ? WHERE login = ?;|,undef,
                $params->{'login'} . $timestamp, $params->{'login'});
       $dbh->disconnect;
@@ -789,6 +790,7 @@ sub check_loginname_previously_used() {
   my $clients = SL::DB::Manager::AuthClient->get_all_sorted;
   for my $client (@$clients) {
     my $dbh = $client->dbconnect();
+    next if !$dbh;
     my ($result) = $dbh->selectrow_array(qq|SELECT login FROM employee WHERE login = ?;|,undef,
                                         $self->user->{'login'});
     $dbh->disconnect;
