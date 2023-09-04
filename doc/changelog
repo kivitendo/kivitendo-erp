@@ -89,6 +89,7 @@ Kleinere neue Features und Detailverbesserungen:
     aber so nicht in kivitendo oder es handelt sich um nicht abrechenbare Artikel)
   - Ein Hintergrundjob ShopwareSetPaid setzt den Bezahlstatus eines Shopauftrags.
     Sollte standardmäßig nach jedem Werktag angeschaltet werden, s.a. API-Doku im POD-Format.
+  - Lieferplan filtert auch nach Artikelnummer des Erzeugnisbestandteils
 
 2023-04-05 - Release 3.8.0
 
