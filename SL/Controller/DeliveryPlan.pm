@@ -95,6 +95,7 @@ sub prepare_report {
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->finalize; # for filter laundering
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
+  $self->{assembly_item_number} = $::form->{assembly_item_number} ? $::form->{assembly_item_number} : undef;
   $report->set_options(
     raw_top_info_text     => $self->render('delivery_plan/report_top',    { output => 0 }),
     raw_bottom_info_text  => $self->render('delivery_plan/report_bottom', { output => 0 }, models => $self->models),
@@ -115,7 +116,7 @@ sub calc_qtys {
 sub make_filter_summary {
   my ($self) = @_;
   my $vc     = $self->vc;
-  my ($business, $employee, $department);
+  my ($business, $employee, $department, $assembly_item_number);
 
   my $filter = $::form->{filter} || {};
   my @filter_strings;
@@ -123,6 +124,7 @@ sub make_filter_summary {
   $business = SL::DB::Business->new(id => $filter->{order}{customer}{"business_id"})->load->description if $filter->{order}{customer}{"business_id"};
   $employee = SL::DB::Employee->new(id => $filter->{order}{employee_id})->load->name if $filter->{order}{employee_id};
   $department = SL::DB::Department->new(id => $filter->{order}{department_id})->load->description if $filter->{order}{department_id};
+  $assembly_item_number = $::form->{assembly_item_number};
 
   my @filters = (
     [ $filter->{order}{"ordnumber:substr::ilike"},                    $::locale->text('Number')                                             ],
@@ -139,6 +141,7 @@ sub make_filter_summary {
     [ $business,                                                      $::locale->text('Customer type')                                      ],
     [ $department,                                                    $::locale->text('Department')                                         ],
     [ $employee,                                                      $::locale->text('Employee')                                           ],
+    [ $assembly_item_number,                                          $::locale->text('Assembly Item Number')                               ],
   );
 
   my %flags = (
@@ -217,6 +220,28 @@ sub init_models {
   my $vc     = $self->vc;
 
   my $query = $self->delivery_plan_query_linked_items;
+
+  if ($::form->{assembly_item_number}) {
+
+    my $assembly_parts = SL::DB::Manager::Part->get_all(where => [ partnumber => { ilike => '%' . $::form->{assembly_item_number} . '%' } ]);
+
+    my @assemblies;
+
+    foreach my $assembly_part (@{ $assembly_parts }) {
+      push @assemblies, SL::DB::Manager::Assembly->get_all(where => [parts_id =>$assembly_part->id]);
+    }
+
+    if (scalar @assemblies > 0) {
+      my %assembly_ids;
+      foreach my $list (@assemblies) {
+        foreach my $assembly (@{ $list }) {
+          $assembly_ids{$assembly->id} = 1;
+        }
+      }
+      my @assembly_ids_array = (keys %assembly_ids);
+      $::form->{filter}{part}{id} = { or => [ @assembly_ids_array ] };
+    }
+  }
 
   SL::Controller::Helper::GetModels->new(
     controller   => $self,
