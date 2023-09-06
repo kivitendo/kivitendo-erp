@@ -110,3 +110,48 @@ sub set_report_data {
 }
 
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Controller::ChartOfAccounts - Controller for the chart of accounts report
+
+=head1 SYNOPSIS
+
+New controller for Reports -> Chart of Accounts.
+
+This replaces the old bin/mozilla/ca.pl chart_of_accounts sub.
+
+The rest of the functions from ca.pl are separated into the new ListTransactions.pm
+controller.
+
+=head1 DESCRIPTION
+
+Displays a list of all accounts with their balance.
+
+Clicking on an account number will open the form for Reports -> List Transactions, with
+the account number preselected.
+
+Export to PDF, CSV and Chart is possible.
+
+=head1 CAVEATS / TODO
+
+Database queries are still from SL::CA.
+
+I tried to use the get_balance function from SL::DB::Manager::Chart here,
+but the results i got were different (numbers and defined balance/amount).
+The database queries in CA are more sophisticated, therefore i'm still using these for now.
+Also performance wise they seem faster.
+
+=head1 BUGS
+
+None yet.
+
+=head1 AUTHOR
+
+Cem Aydin E<lt>cem.aydin@revamp-it.chE<gt>
+
+=cut
