@@ -485,3 +485,57 @@ sub init_accounts_list {
 }
 
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Controller::ListTransactions - Controller for the ListTransactions report
+
+=head1 SYNOPSIS
+
+New controller for Reports -> ListTransactions.
+
+This replaces the functions from bin/mozilla/ca.pl.
+
+The chart_of_accounts functionality is implemented separately in
+SL::Controller::ChartOfAccounts.
+
+=head1 DESCRIPTION / Key Features
+
+A form is shown to select the accounts and the date period, as well as
+options and the sorting of the report.
+
+At this point, exporting all accounts is possible via Export -> Export all
+accounts to CSV (ZIP file).
+
+This will export all accounts for the selected time period and options,
+and offer the resulting file for download.
+
+The date period selection makes use of a new presenter SL::Presenter::DatePeriod.
+
+If no date is selected all transactions are shown.
+
+The resulting report should be equivalent to the old behavior, except
+for the sorting, that has to be selected in advance now.
+
+=head1 CAVEATS / TODO
+
+Database queries are still from SL::CA.
+
+The database queries in SL::CA are quite sophisticated, therefore i'm still using
+these for now.
+
+TODO: Exporting all accounts to PDF (ZIP file) should be added.
+
+=head1 BUGS
+
+None yet.
+
+=head1 AUTHOR
+
+Cem Aydin E<lt>cem.aydin@revamp-it.chE<gt>
+
+=cut
