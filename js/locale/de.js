@@ -180,7 +180,7 @@ namespace("kivi").setupLocale({
 "The transport cost article '#1' is missing. Do you want to continue anyway?":"Der Transportkostenartikel »#1« fehlt. Möchten Sie trotzdem fortfahren?",
 "The uploaded filename still exists.<br>If you not modify the name this is a new version of the file":"Der Dateiname existiert bereits.<br>Wenn Sie den Namen nicht ändern gibt dies eine neue Version der Datei",
 "There are duplicate parts at positions":"Es gibt doppelte Artikel bei den Positionen",
-"There are parts with no reclamation reason at position:":"Es git Artikel mit keinem Reklamationsgrund an Position:",
+"There are parts with no reclamation reason at position:":"Es gibt Artikel mit keinem Reklamationsgrund an Position:",
 "There are still transfers not matching the qty of the delivery order. Stock operations can not be changed later. Do you really want to proceed?":"Einige der Lagerbewegungen sind nicht vollständig und Lagerbewegungen können nachträglich nicht mehr verändert werden. Möchten Sie wirklich fortfahren?",
 "There is one or more sections for which no part has been assigned yet; therefore creating the new record is not possible yet.":"Es gibt einen oder mehrere Abschnitte ohne Artikelzuweisung; daher kann der neue Beleg noch nicht erstellt werden.",
 "This field must not be empty.":"Dieses Feld darf nicht leer sein.",
