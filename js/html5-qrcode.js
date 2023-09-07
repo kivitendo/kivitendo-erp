@@ -1,0 +1,1 @@
+html5-qrcode/html5-qrcode-2.3.7.min.js
