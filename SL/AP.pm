@@ -50,6 +50,7 @@ use SL::DB;
 use Data::Dumper;
 use List::Util qw(sum0);
 use strict;
+use URI::Escape;
 
 sub post_transaction {
   my ($self, $myconfig, $form, $provided_dbh, %params) = @_;
@@ -161,7 +162,8 @@ sub _post_transaction {
                 transdate = ?, ordnumber = ?, vendor_id = ?, taxincluded = ?,
                 amount = ?, duedate = ?, deliverydate = ?, tax_point = ?, paid = ?, netamount = ?,
                 currency_id = (SELECT id FROM currencies WHERE name = ?), notes = ?, department_id = ?, storno = ?, storno_id = ?,
-                globalproject_id = ?, direct_debit = ?, payment_id = ?, transaction_description = ?, intnotes = ?
+                globalproject_id = ?, direct_debit = ?, payment_id = ?, transaction_description = ?, intnotes = ?,
+                qrbill_data = ?
                WHERE id = ?|;
     @values = ($form->{invnumber}, conv_date($form->{transdate}),
                   $form->{ordnumber}, conv_i($form->{vendor_id}),
@@ -174,6 +176,7 @@ sub _post_transaction {
                   $form->{direct_debit} ? 't' : 'f',
                   conv_i($form->{payment_id}), $form->{transaction_description},
                   $form->{intnotes},
+                  $form->{qrbill_data_encoded} ? uri_unescape($form->{qrbill_data_encoded}) : undef,
                   $form->{id});
     do_query($form, $dbh, $query, @values);
 

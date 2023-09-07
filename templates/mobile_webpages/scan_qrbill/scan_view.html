@@ -1,0 +1,86 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+[% USE P %]
+[% USE T8 %]
+
+<div id="main-content">
+  <div class="container">
+    <div class="row">
+
+      <h4>[% 'Scan swiss QR bill' | $T8 %]</h4>
+
+      <div id="QRreader" width="600px"></div>
+
+      [% IF developer %]
+        <p>[% P.M.button_tag("kivi.ScanQRBill.sendTestCode(0);", "sendTestCode 0" ) %]</p>
+        <p>[% P.M.button_tag("kivi.ScanQRBill.sendTestCode(1);", "sendTestCode 1" ) %]</p>
+        <p>[% P.M.button_tag("kivi.ScanQRBill.sendTestCode(2);", "sendTestCode 2" ) %]</p>
+        <p>[% P.M.button_tag("kivi.ScanQRBill.sendTestCode(3);", "sendTestCode 3 XSS" ) %]</p>
+        <p>[% P.M.button_tag("kivi.ScanQRBill.sendTestCode(4);", "sendTestCode 4 XSS (invalid)" ) %]</p>
+      [% END %]
+    </div>
+  </div>
+  <hr>
+</div>
+
+<div id="qr_code_invalid_modal" class="modal">
+  <div class="modal-content">
+    <h4>[% 'QR-Code invalid' | $T8 %]</h4>
+
+    <p>[% 'The scanned code is not a valid QR bill.' | $T8 %]</p>
+    <p>[% 'Error' | $T8 %]: <span id="qr_code_invalid_error"></span></p>
+
+  </div>
+  <div class="modal-footer">
+    [% P.M.button_tag("startCamera();", LxERP.t8("Try again"), class="modal-close") %]
+  </div>
+</div>
+
+<div id="vendor_not_found_error" class="modal">
+  <div class="modal-content">
+    <h4>[% 'Vendor not found' | $T8 %]</h4>
+
+    <p>[% 'The vendor could not be found. Please register the vendor with the exact name from the QR bill as shown below.' | $T8 %]</p>
+    <p>[% 'Vendor Name' | $T8 %]: '<span id="vendor_name"></span>'</p>
+
+  </div>
+  <div class="modal-footer">
+    [% P.M.button_tag("startCamera();", LxERP.t8("Try again"), class="modal-close") %]
+  </div>
+</div>
+
+<div id="transaction_successful_modal" class="modal">
+  <div class="modal-content">
+    <h4>[% 'AP transaction posted successfully' | $T8 %]</h4>
+
+    <p>[% 'Invoice number' | $T8 %]: [% invoice_number | html %]</p>
+  </div>
+  <div class="modal-footer">
+    [% P.M.button_tag("", LxERP.t8("Ok"), class="modal-close") %]
+  </div>
+</div>
+
+[% L.hidden_tag("transaction_success", transaction_success) %]
+
+<script>
+  const html5Qrcode = new Html5Qrcode("QRreader",
+    { formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ] });
+
+  const startCamera = () => {
+    html5Qrcode.start({ facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      kivi.ScanQRBill.onScanSuccess, kivi.ScanQRBill.onScanFailure
+    );
+  };
+
+  window.onload = () => {
+    // using $(document).ready didn't work here
+    //$(document).ready(() => {
+    if ($('#transaction_success').val() === '1') {
+      $('#transaction_successful_modal').modal('open');
+    }
+
+    startCamera();
+  };
+</script>

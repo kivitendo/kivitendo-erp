@@ -1,0 +1,73 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+[% USE P %]
+[% USE T8 %]
+
+<div class="container">
+  <div class="row">
+
+    <form method="post" action="ap.pl?action=post" id="form" class="col s12">
+      [% L.hidden_tag("rowcount", "1") %]
+      [% L.hidden_tag('form_validity_token', form_validity_token) %]
+      [% L.hidden_tag('callback', 'ScanQRCode') %]
+      [% L.hidden_tag('paidaccounts', '1') %]
+      [% L.hidden_tag('taxincluded', '1') %]
+
+      [% L.hidden_tag('qrbill_data_encoded', qrbill.data_encoded) %]
+
+      <h4>[% 'Add Accounts Payables Transaction' | $T8 %]</h4>
+
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">[% 'Vendor & Order' | $T8 %]</span>
+          <p>
+            [% 'Vendor' | $T8 %]: [% vendor.number | html %] [% vendor.name | html %]
+            [% L.hidden_tag("vendor_id", vendor.id) %]
+            [% L.hidden_tag("previous_vendor_id", vendor.id) %]
+          </p>
+
+          <p>
+            [% 'Currency' | $T8 %]: [% qrbill.currency | html %]
+            [% L.hidden_tag("currency", qrbill.currency) %]
+          </p>
+        </div>
+      </div>
+
+      <h5>[% 'Notes' | $T8 %]</h5>
+      <div class="row">
+        [% P.M.textarea_tag("notes", notes, label=LxERP.t8('Notes'), class="col s12") %]
+        [% P.M.textarea_tag("intnotes", intnotes, label=LxERP.t8('Internal Notes'), class="col s12") %]
+      </div>
+      <h5>[% 'Numbers & Dates' | $T8 %]</h5>
+      <div class="row">
+        [% P.M.input_tag("invnumber", qrbill.unstructured_message, label=LxERP.t8('Invoice Number'), class="col s12") %]
+        [% P.M.input_tag("ordnumber", '', label=LxERP.t8('Order Number'), class="col s12") %]
+        [% P.M.date_tag('transdate', '', label=LxERP.t8('Invoice Date'), icon="date_range", class="col s12") %]
+        [% P.M.date_tag('duedate', '', label=LxERP.t8('Due Date'), icon="date_range", class="col s12") %]
+      </div>
+      <h5>[% 'Transactions' | $T8 %]</h5>
+      <div class="row">
+        [% P.M.select_tag("AP_amount_chart_id_1", accounts_AP_amount, title_key='text'
+                          label=LxERP.t8('Account'), class="col s12") %]
+        [% L.hidden_tag("AP_amount_chart_id_1_type", "AP_amount") %]
+
+        [% P.M.input_tag("amount_1", qrbill.amount, label=LxERP.t8('Amount'), class="col s12") %]
+        [% P.M.select_tag("taxchart_1", taxcharts, title_key='text'
+                            label=LxERP.t8('Taxkey'), class="col s12") %]
+
+        [% P.M.select_tag("AP_chart_id", accounts_AP, title_key='text'
+                          label=LxERP.t8('Contra Account'), class="col s12") %]
+        [% L.hidden_tag("AP_chart_id_type", "AP") %]
+      </div>
+
+      <div class="row">
+        [% P.M.submit_tag("", LxERP.t8('Post'), class="col s12") %]
+      </div>
+      <div class="row">
+        [% P.M.button_tag("", LxERP.t8('Cancel'), class="col s12", flat=1, small=1, href="controller.pl?action=ScanQRBill/scan_view") %]
+      </div>
+    </form>
+
+  </div>
+</div>
