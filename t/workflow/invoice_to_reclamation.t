@@ -272,7 +272,7 @@ test_deeply($purchase_invoice->strip->as_tree, $converted_purchase_reclamation->
     datepaid deliverydate direct_debit duedate gldate invoice orddate ordnumber paid quodate quonumber storno storno_id type is_sepa_blocked
     billing_address_id customer_id cv_record_number delivered closed exchangerate reqdate salesman_id shippingpoint shipto_id
     cp_id contact_id
-    invnumber record_number
+    invnumber record_number qrbill_data
   ));
 
 # diag Dumper($sales_invoice->strip->as_tree);
