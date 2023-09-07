@@ -2,12 +2,62 @@ package SL::Helper::QrBillFunctions;
 
 use List::Util qw(first);
 
+use SL::Util qw(trim);
+
 use strict;
 use warnings;
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(get_qrbill_account assemble_ref_number get_ref_number_formatted
-  get_iban_formatted get_amount_formatted);
+our @EXPORT_OK = qw(
+  get_street_name_from_address_line
+  get_building_number_from_address_line
+  get_postal_code_from_address_line
+  get_town_name_from_address_line
+  get_qrbill_account
+  assemble_ref_number
+  get_ref_number_formatted
+  get_iban_formatted
+  get_amount_formatted
+);
+
+use constant {
+  REGEX_STREET_NAME_FROM_ADDRESS_LINE     => qr{^([^\d]+)\s*},
+  REGEX_BUILDING_NUMBER_FROM_ADDRESS_LINE => qr{(\d+.*)},
+  REGEX_POSTAL_CODE_FROM_ADDRESS_LINE     => qr{^(\d+).*$},
+  REGEX_TOWN_FROM_ADDRESS_LINE            => qr{^\d+\s(.*)$},
+};
+
+sub get_street_name_from_address_line {
+  my $address_line = $_[0];
+
+  my ($street_name) = $address_line =~ REGEX_STREET_NAME_FROM_ADDRESS_LINE;
+
+  return trim($street_name) // '';
+}
+
+sub get_building_number_from_address_line {
+  my $address_line = $_[0];
+
+  my ($building_number) = $address_line =~ REGEX_BUILDING_NUMBER_FROM_ADDRESS_LINE;
+
+  return trim($building_number) // '';
+}
+
+sub get_postal_code_from_address_line {
+  my $address_line = $_[0];
+
+  my ($postal_code) = $address_line =~ REGEX_POSTAL_CODE_FROM_ADDRESS_LINE;
+
+  return trim($postal_code) // '';
+}
+
+sub get_town_name_from_address_line {
+  my $address_line = $_[0];
+
+  my ($town_name) = $address_line =~ REGEX_TOWN_FROM_ADDRESS_LINE;
+
+  return trim($town_name) // '';
+}
 
 sub get_qrbill_account {
   $main::lxdebug->enter_sub();
@@ -201,6 +251,22 @@ Helper functions moved from SL::Template::OpenDocument.
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<get_street_name_from_address_line>
+
+Returns the street name from a combined street name and number.
+
+=item C<get_street_number_from_address_line>
+
+Returns the street number from a combined street name and number.
+
+=item C<get_postal_code_from_address_line>
+
+Returns the postal code from an combined postal code and town.
+
+=item C<get_town_name_from_address_line>
+
+Returns the town name from an combined postal code and town.
 
 =item C<get_qrbill_account>
 

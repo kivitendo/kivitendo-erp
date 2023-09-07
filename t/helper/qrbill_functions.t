@@ -1,14 +1,42 @@
-use Test::More tests => 22;
+use Test::More tests => 38;
 
 use strict;
 
 use lib 't';
 use Support::TestSetup;
 
-use_ok('SL::Helper::QrBillFunctions', qw(assemble_ref_number get_ref_number_formatted
-  get_iban_formatted get_amount_formatted));
+use_ok('SL::Helper::QrBillFunctions', qw(
+  get_street_name_from_address_line
+  get_building_number_from_address_line
+  get_postal_code_from_address_line
+  get_town_name_from_address_line
+  assemble_ref_number
+  get_ref_number_formatted
+  get_iban_formatted
+  get_amount_formatted
+));
 
 Support::TestSetup::login();
+
+is(get_street_name_from_address_line('Musterstrasse 12'), 'Musterstrasse', 'get_street_name_from_address_line');
+is(get_street_name_from_address_line('Musterstrasse St. Jakob 22'), 'Musterstrasse St. Jakob', 'get_street_name_from_address_line_with_multi_word_street_name');
+is(get_street_name_from_address_line('Musterstrasse St. Jakob 22b'), 'Musterstrasse St. Jakob', 'get_street_name_from_address_line_with_multi_word_street_name_and_letter');
+is(get_street_name_from_address_line('Musterstrasse 12a'), 'Musterstrasse', 'get_street_name_from_address_line_with_building_number');
+is(get_street_name_from_address_line('Musterstrasse 12a 1234 Musterhausen'), 'Musterstrasse', 'get_street_name_from_address_line_with_building_number_and_zip');
+is(get_street_name_from_address_line('Musterstrasse'), 'Musterstrasse', 'get_street_name_from_address_line_without_building_number');
+
+is(get_building_number_from_address_line('Musterstrasse 12'), '12', 'get_building_number_from_address_line');
+is(get_building_number_from_address_line('Musterstrasse 12a'), '12a', 'get_building_number_from_address_line_with_building_number');
+is(get_building_number_from_address_line('Musterstrasse 12a 1234 Musterhausen'), '12a 1234 Musterhausen', 'get_building_number_from_address_line_with_building_number_and_zip');
+is(get_building_number_from_address_line('Musterstrasse'), '', 'get_building_number_from_address_line_without_building_number');
+
+is(get_postal_code_from_address_line('8000 Zürich'), '8000', 'get_postal_code_from_address_line');
+is(get_postal_code_from_address_line('8000 Zürich 1'), '8000', 'get_postal_code_from_address_line_with_zip_extension');
+is(get_postal_code_from_address_line('8000'), '8000', 'get_postal_code_from_address_line_without_town_name');
+
+is(get_town_name_from_address_line('8000 Zürich'), 'Zürich', 'get_town_name_from_address_line');
+is(get_town_name_from_address_line('8000 Zürich 1'), 'Zürich 1', 'get_town_name_from_address_line_with_zip_extension');
+is(get_town_name_from_address_line('8000'), '', 'get_town_name_from_address_line_without_town_name');
 
 # assemble_ref_number returns successfully
 is_deeply([ assemble_ref_number('123123', 'c1', 'R2022-02') ],
