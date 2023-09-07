@@ -238,6 +238,11 @@
         <td>[% L.input_tag('defaults.sepa_set_skonto_date_buffer_in_days_as_number', SELF.defaults.sepa_set_skonto_date_buffer_in_days_as_number, size=10, class='wi-small' ) %]</td>
         <td class="long-desc">[% LxERP.t8('In addition to the above date functions, subtract the following amount of days from the calculated date as a buffer.') %]</td>
       </tr>
+      <tr>
+        <th>[% 'Activate Swiss Bank Transfer XML Export' | $T8 %]</th>
+        <td>[% L.yes_no_tag('defaults.sepa_swiss_xml_export', SELF.defaults.sepa_swiss_xml_export) %]</td>
+        <td class="long-desc">[% LxERP.t8('Bank transfer via SEPA is replaced by Bank transfer via swiss XML. According to Swiss Payment Standards, Customer Credit Transfer Initiation (pain.001).') %]</td>
+      </tr>
 
       <tr>
         <th class="caption" colspan="3">[% LxERP.t8("Experimental Features") %]</th>

@@ -31,6 +31,9 @@ sub retrieve_open_invoices {
 
   my $is_sepa_blocked = $params{vc} eq 'customer' ? 'FALSE' : "${arap}.is_sepa_blocked";
 
+  my $swiss_data = $::instance_conf->get_sepa_swiss_xml_export eq 1 && $arap eq 'ap' ?
+                    " vc.iban AS vc_iban, vc.bic AS vc_bic, ap.qrbill_data AS qrbill_data, " : '';
+
   # open_amount is not the current open amount according to bookkeeping, but
   # the open amount minus the SEPA transfer amounts that haven't been closed yet
   my $query =
@@ -39,9 +42,11 @@ sub retrieve_open_invoices {
          (${arap}.transdate + pt.terms_skonto) as skonto_date, (pt.percent_skonto * 100) as percent_skonto,
          (${arap}.amount - (${arap}.amount * pt.percent_skonto)) as amount_less_skonto,
          (${arap}.amount * pt.percent_skonto) as skonto_amount,
-         vc.name AS vcname, vc.language_id, ${arap}.duedate as duedate, ${arap}.direct_debit,
+         vc.name AS vcname, vc.language_id, vc.iban AS vc_iban, vc.bic AS vc_bic,
+         ${arap}.duedate as duedate, ${arap}.direct_debit,
          ${is_sepa_blocked} AS is_sepa_blocked,
          vc.${vc_vc_id} as vc_vc_id,
+         $swiss_data
 
          COALESCE(vc.iban, '') <> '' AND COALESCE(vc.bic, '') <> '' ${mandate} AS vc_bank_info_ok,
 
@@ -237,10 +242,17 @@ sub retrieve_export {
     my $mandator_id = $params{vc} eq 'customer' ? ', mandator_id, mandate_date_of_signature' : '';
 
     if ($params{details}) {
-      $columns = qq|, arap.invnumber, arap.invoice, arap.transdate AS reference_date, vc.name AS vc_name, vc.${vc}number AS vc_number, c.accno AS chart_accno, c.description AS chart_description ${mandator_id}|;
+      $columns = qq|, arap.invnumber, arap.invoice, arap.transdate AS reference_date,
+                      arap.qrbill_data AS qrbill_data, vc.name AS vc_name,
+                      vc.${vc}number AS vc_number, vc.street AS vc_street,
+                      vc.zipcode AS vc_zipcode, vc.city AS vc_city, vc.country AS vc_country,
+                      c.accno AS chart_accno, c.description AS chart_description ${mandator_id},
+                      cur.name AS currency_name|;
       $joins   = qq|LEFT JOIN ${arap} arap ON (sei.${arap}_id = arap.id)
                     LEFT JOIN ${vc} vc     ON (arap.${vc}_id  = vc.id)
-                    LEFT JOIN chart c      ON (sei.chart_id   = c.id)|;
+                    LEFT JOIN chart c      ON (sei.chart_id   = c.id)
+                    LEFT JOIN currencies cur ON (arap.currency_id = cur.id)
+                    |;
     }
 
     $query = qq|SELECT sei.*

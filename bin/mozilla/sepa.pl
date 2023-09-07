@@ -14,6 +14,14 @@ use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 use SL::SEPA;
 use SL::SEPA::XML;
+use SL::SEPA::SwissXML;
+use SL::Helper::QrBillParser;
+use SL::Helper::ISO3166;
+
+use SL::Helper::QrBillFunctions qw(
+  get_street_name_from_address_line
+  get_building_number_from_address_line
+);
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -26,7 +34,13 @@ sub bank_transfer_add {
   my $vc            = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
   my $vc_no         = $form->{vc} eq 'customer' ? $::locale->text('VN') : $::locale->text('CN');
 
-  $form->{title}    = $vc eq 'customer' ? $::locale->text('Prepare bank collection via SEPA XML') : $locale->text('Prepare bank transfer via SEPA XML');
+  my $swiss_export = $::instance_conf->get_sepa_swiss_xml_export;
+
+  $form->{title}    = $vc eq 'customer' ?
+                        $::locale->text('Prepare bank collection via SEPA XML') :
+                        $swiss_export ?
+                          $locale->text('Prepare bank transfer via swiss XML') :
+                          $locale->text('Prepare bank transfer via SEPA XML');
 
   my $bank_accounts = SL::DB::Manager::BankAccount->get_all_sorted( query => [ obsolete => 0 ] );
 
@@ -66,6 +80,32 @@ sub bank_transfer_add {
     $invoice->{reference_prefix_vc}  = ' '  . $prefix_vc_number unless $prefix_vc_number =~ m/^ /;
   }
 
+  # for swiss export override database check because of different cases
+  if ($swiss_export) {
+    foreach my $invoice (@{ $invoices }) {
+      # determine invoice type
+      if ($invoice->{qrbill_data}) {
+        $invoice->{type} = 'QRBILL';
+
+        # vendor iban comes from qrbill data
+        # no further checks needed
+        $invoice->{vc_bank_info_ok} = 1;
+
+      } elsif ($invoice->{vc_iban} =~ m/^(CH|LI)/) {
+        $invoice->{type} = 'DOMESTIC';
+
+        # vendor iban is needed
+        $invoice->{vc_bank_info_ok} = $invoice->{vc_iban} ? 1 : 0;
+
+      } else {
+        $invoice->{type} = 'SEPA';
+
+        # vendor iban and bic are needed
+        $invoice->{vc_bank_info_ok} = $invoice->{vc_iban} && $invoice->{vc_bic} ? 1 : 0
+      }
+    }
+  }
+
   setup_sepa_add_transfer_action_bar();
 
   $form->header();
@@ -86,7 +126,13 @@ sub bank_transfer_create {
   my $myconfig      = \%main::myconfig;
   my $vc            = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
-  $form->{title}    = $vc eq 'customer' ? $::locale->text('Create bank collection via SEPA XML') : $locale->text('Create bank transfer via SEPA XML');
+  my $swiss_export = $::instance_conf->get_sepa_swiss_xml_export;
+
+  $form->{title}    = $vc eq 'customer' ?
+                        $::locale->text('Create bank collection via SEPA XML') :
+                        $swiss_export ?
+                          $locale->text('Create bank transfer via swiss XML') :
+                          $locale->text('Create bank transfer via SEPA XML');
 
   my $bank_accounts = SL::DB::Manager::BankAccount->get_all_sorted( query => [ obsolete => 0 ] );
   if (!scalar @{ $bank_accounts }) {
@@ -149,26 +195,34 @@ sub bank_transfer_create {
 
   my ($vc_bank_info);
   my $error_message;
-
   my @bank_columns    = qw(iban bic);
-  push @bank_columns, qw(mandator_id mandate_date_of_signature) if $vc eq 'customer';
 
-  if ($form->{confirmation}) {
-    $vc_bank_info = { map { $_->{id} => $_ } @{ $form->{vc_bank_info} || [] } };
+  # separate validation for swiss export
+  if (!$swiss_export) {
+    push @bank_columns, qw(mandator_id mandate_date_of_signature) if $vc eq 'customer';
 
-    foreach my $info (values %{ $vc_bank_info }) {
-      if (any { !$info->{$_} } @bank_columns) {
-        $error_message = $locale->text('The bank information must not be empty.');
-        last;
+    if ($form->{confirmation}) {
+      $vc_bank_info = { map { $_->{id} => $_ } @{ $form->{vc_bank_info} || [] } };
+
+      foreach my $info (values %{ $vc_bank_info }) {
+        if (any { !$info->{$_} } @bank_columns) {
+          $error_message = $locale->text('The bank information must not be empty.');
+          last;
+        }
       }
     }
+  } else {
+    ($error_message, $vc_bank_info) = validate_vendors_swiss_export(\@bank_transfers);
   }
 
   if ($error_message || !$form->{confirmation}) {
-    my @vc_ids                 = uniq map { $_->{vc_id} } @bank_transfers;
-    $vc_bank_info            ||= CT->get_bank_info('vc' => $vc,
-                                                   'id' => \@vc_ids);
-    my @vc_bank_info           = sort { lc $a->{name} cmp lc $b->{name} } values %{ $vc_bank_info };
+    if (!$swiss_export) {
+      my @vc_ids = uniq map { $_->{vc_id} } @bank_transfers;
+
+      $vc_bank_info ||= CT->get_bank_info('vc' => $vc, 'id' => \@vc_ids);
+    }
+
+    my @vc_bank_info = sort { lc $a->{name} cmp lc $b->{name} } values %{ $vc_bank_info };
 
     setup_sepa_create_transfer_action_bar(is_vendor => $vc eq 'vendor');
 
@@ -198,10 +252,58 @@ sub bank_transfer_create {
                                      'vc'             => $vc);
 
     $form->header();
-    print $form->parse_html_template('sepa/bank_transfer_created', { 'id' => $id, 'vc' => $vc });
+    print $form->parse_html_template('sepa/bank_transfer_created',
+                                      {
+                                        'id' => $id,
+                                        'vc' => $vc,
+                                      });
   }
 
   $main::lxdebug->leave_sub();
+}
+
+sub validate_vendors_swiss_export {
+  my ($bank_transfers) = @_;
+
+  my $form          = $main::form;
+  my $locale        = $main::locale;
+  my $myconfig      = \%main::myconfig;
+
+  # determine unique vendor types
+  my %unique_vendor_types;
+  for my $bt (@$bank_transfers) {
+    my $uid = "$bt->{vc_id}_$bt->{type}";
+    $unique_vendor_types{$uid} = {
+      vc_id => $bt->{vc_id},
+      type => $bt->{type}
+    } unless defined $unique_vendor_types{$uid};
+  }
+
+  # get bank info for unique vendor types
+  my $vendors = $form->{vc_bank_info} ?
+    { map { $_->{id} => $_ } @{ $form->{vc_bank_info} } } :
+    CT->get_bank_info('vc' => 'vendor', 'id' => [ map { $_->{vc_id} } values %unique_vendor_types ]);
+
+  # combine bank info with unique vendor types
+  for my $unique_vendor (values %unique_vendor_types) {
+    $vendors->{$unique_vendor->{vc_id}}->{type} = $unique_vendor->{type};
+  }
+
+  # validate bank info for unique vendor types
+  my $error_message;
+  for my $vendor (values %$vendors) {
+    #my $bank_info = $unique_vendor->{bank_info};
+    next if ($vendor->{type} eq 'QRBILL');
+    if ($vendor->{type} eq 'DOMESTIC' && !$vendor->{iban}) {
+        $error_message = $locale->text('The bank information must not be empty.');
+        last;
+    } elsif ($vendor->{type} eq 'SEPA' && (!$vendor->{iban} || !$vendor->{bic})) {
+        $error_message = $locale->text('The bank information must not be empty.');
+        last;
+    }
+  }
+
+  return $error_message, $vendors;
 }
 
 sub bank_transfer_search {
@@ -267,7 +369,7 @@ sub bank_transfer_list {
     'closed'      => { 'text' => $locale->text('Closed'), },
     num_invoices  => { 'text' => $locale->text('Number of invoices'), },
     sum_amounts   => { 'text' => $locale->text('Sum of all amounts'), },
-    message_ids   => { 'text' => $locale->text('SEPA message IDs'), },
+    message_ids   => { 'text' => !$::instance_conf->get_sepa_swiss_xml_export ? $locale->text('SEPA message IDs') : $locale->text('Message IDs'), },
   );
 
   my @columns = qw(selected id export_date employee executed closed num_invoices sum_amounts message_ids);
@@ -390,7 +492,9 @@ sub bank_transfer_edit {
     has_executed              => $has_executed,
   );
 
-  $form->{title}    = $locale->text('View SEPA export');
+  $form->{title}    = !$::instance_conf->get_sepa_swiss_xml_export ?
+                        $locale->text('View SEPA export') :
+                        $locale->text('View bank transfer');
   $form->header();
   print $form->parse_html_template('sepa/bank_transfer_edit',
                                    { ids                       => \@ids,
@@ -514,6 +618,8 @@ sub bank_transfer_download_sepa_xml {
   my $vc       = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
   my $defaults = SL::DB::Default->get;
 
+  my $swiss_export = $::instance_conf->get_sepa_swiss_xml_export;
+
   if (!$defaults->company) {
     $form->show_generic_error($locale->text('You have to enter a company name in the client configuration.'));
   }
@@ -547,13 +653,20 @@ sub bank_transfer_download_sepa_xml {
 
   my $message_id = strftime('MSG%Y%m%d%H%M%S', localtime) . sprintf('%06d', $$);
 
-  my $sepa_xml   = SL::SEPA::XML->new('company'     => $defaults->company,
-                                      'creditor_id' => $defaults->sepa_creditor_id,
-                                      'src_charset' => 'UTF-8',
-                                      'message_id'  => $message_id,
-                                      'grouped'     => 1,
-                                      'collection'  => $vc eq 'customer',
-    );
+  my $sepa_xml;
+  my %sepa_xml_params = (
+    'company'     => $defaults->company,
+    'creditor_id' => $defaults->sepa_creditor_id,
+    'src_charset' => 'UTF-8',
+    'message_id'  => $message_id,
+    'grouped'     => 1,
+    'collection'  => $vc eq 'customer',
+  );
+  if (!$swiss_export) {
+      $sepa_xml = SL::SEPA::XML->new(%sepa_xml_params);
+  } else {
+      $sepa_xml = SL::SEPA::SwissXML->new(%sepa_xml_params);
+  }
 
   foreach my $item (@items) {
     my $requested_execution_date;
@@ -573,19 +686,108 @@ sub bank_transfer_download_sepa_xml {
       }
     }
 
-    $sepa_xml->add_transaction({ 'src_iban'       => $item->{our_iban},
-                                 'src_bic'        => $item->{our_bic},
-                                 'dst_iban'       => $item->{vc_iban},
-                                 'dst_bic'        => $item->{vc_bic},
-                                 'company'        => $item->{vc_name},
-                                 'company_number' => $item->{vc_number},
-                                 'amount'         => $item->{amount},
-                                 'reference'      => $item->{reference},
-                                 'mandator_id'    => $mandator_id,
-                                 'reference_date' => $item->{reference_date},
-                                 'execution_date' => $requested_execution_date,
-                                 'end_to_end_id'  => $item->{end_to_end_id},
-                                 'date_of_signature' => $item->{mandate_date_of_signature}, });
+    my $transaction_data = {
+      'src_iban'       => $item->{our_iban},
+      'src_bic'        => $item->{our_bic},
+      'dst_iban'       => $item->{vc_iban},
+      'dst_bic'        => $item->{vc_bic},
+      'company'        => $item->{vc_name},
+      'company_number' => $item->{vc_number},
+      'amount'         => $item->{amount},
+      'reference'      => $item->{reference},
+      'mandator_id'    => $mandator_id,
+      'reference_date' => $item->{reference_date},
+      'execution_date' => $requested_execution_date,
+      'end_to_end_id'  => $item->{end_to_end_id},
+      'date_of_signature' => $item->{mandate_date_of_signature},
+    };
+
+    # set data for swiss xml export
+    if ($swiss_export) {
+
+      $transaction_data->{currency} = $item->{currency_name};
+      $transaction_data->{is_qrbill} = 0;
+      $transaction_data->{is_sepa_payment} = 0;
+
+      if ($item->{qrbill_data}) {
+        my $qr_obj = SL::Helper::QrBillParser->new($item->{qrbill_data});
+        # check if valid qr-bill
+        if (!$qr_obj->is_valid) {
+          $form->show_generic_error($locale->text('QR bill data invalid.'));
+        }
+        $transaction_data->{is_qrbill} = 1;
+
+        # set qr reference type
+        # setting these according to example pain_001_Example_PT_D_QRR_SCOR.xml
+        # 'QRR'
+        if ($qr_obj->{payment_reference}->{reference_type} eq 'QRR') {
+          $transaction_data->{end_to_end_id} = 'ENDTOENDID-QRR';
+        }
+        # 'SCOR'
+        elsif ($qr_obj->{payment_reference}->{reference_type} eq 'SCOR') {
+          $transaction_data->{end_to_end_id} = 'ENDTOENDID-SCOR';
+        }
+        # 'NON'
+        # (using the default end_to_end_id given above)
+
+        # data for remittance information
+        # this contains the reference for 'QRR' or 'SCOR'
+        $transaction_data->{reference} = $qr_obj->{payment_reference}->{reference};
+        # this can be used in any case
+        $transaction_data->{unstructured_message} = $qr_obj->{additional_information}->{unstructured_message};
+
+        # set currency and amount
+        $transaction_data->{currency} = $qr_obj->{payment_amount_information}->{currency};
+        $transaction_data->{amount} = $qr_obj->{payment_amount_information}->{amount};
+
+        # set creditor name and address from qr data
+        $transaction_data->{creditor_name} = $qr_obj->{creditor}->{name};
+        $transaction_data->{creditor_street_name} = $qr_obj->get_creditor_street_name;
+        $transaction_data->{creditor_building_number} = $qr_obj->get_creditor_building_number;
+        $transaction_data->{creditor_postal_code} = $qr_obj->get_creditor_post_code;
+        $transaction_data->{creditor_town_name} = $qr_obj->get_creditor_town_name;
+        $transaction_data->{creditor_country} = $qr_obj->{creditor}->{country};
+
+        # set creditor iban
+        $transaction_data->{dst_iban} = $qr_obj->{creditor_information}->{iban};
+      } else {
+        # if no qr-bill data is given, we want to set the creditor address from the vc data
+        # this is not needed for the creditor name as it is set above
+
+        $transaction_data->{has_creditor_address} = 0;
+
+        if ($item->{vc_zipcode} && $item->{vc_city} && $item->{vc_country}) {
+          $transaction_data->{has_creditor_address} = 1;
+
+          $transaction_data->{creditor_street_name} = get_street_name_from_address_line($item->{vc_street});
+          $transaction_data->{creditor_building_number} = get_building_number_from_address_line($item->{vc_building_number});
+
+          $transaction_data->{creditor_postal_code} = $item->{vc_zipcode};
+          $transaction_data->{creditor_town_name} = $item->{vc_city};
+          # use ISO 3166-1 alpha-2 country code
+          $transaction_data->{creditor_country} = SL::Helper::ISO3166::map_name_to_alpha_2_code($item->{vc_country});
+        }
+
+        # if the Iban does not start with 'CH' or 'LI' we assume it is a SEPA payment
+        if ($item->{vc_iban} !~ /^(CH|LI)/) {
+          $transaction_data->{is_sepa_payment} = 1;
+
+          # check if currency is EUR
+          if ($transaction_data->{currency} ne 'EUR') {
+            $form->show_generic_error($locale->text('SEPA payments must be in EUR.'));
+          }
+
+          # check if destination BIC is set
+          if (!$transaction_data->{dst_bic}) {
+            $form->show_generic_error($locale->text('SEPA payments require a destination BIC.'));
+          }
+          # TODO: set reference (unstructured or SCOR)
+          # -> where should the data come from?
+        }
+      }
+    }
+
+    $sepa_xml->add_transaction($transaction_data);
   }
 
   # Store the message ID used in each of the entries in order to
@@ -599,9 +801,23 @@ sub bank_transfer_download_sepa_xml {
 
   my $xml = $sepa_xml->to_xml();
 
-  print $cgi->header('-type'                => 'application/octet-stream',
-                     '-content-disposition' => 'attachment; filename="SEPA_' . $message_id . ($vc eq 'customer' ? '.cdd' : '.cct') . '"',
-                     '-content-length'      => length $xml);
+  my $header;
+  if ($swiss_export) {
+    # I had to use encode for the length here, otherwise the xml output was cut off
+    $header = {
+      '-type' => 'text/xml; charset=utf-8',
+      '-content-disposition' => 'attachment; filename="SWISS_' . $message_id . '.xml' . '"',
+      '-content-length' => length Encode::encode('utf-8', $xml),
+    };
+  } else {
+    $header = {
+      '-type' => 'application/octet-stream',
+      '-content-disposition' => 'attachment; filename="SEPA_' . $message_id . ($vc eq 'customer' ? '.cdd' : '.cct') . '"',
+      '-content-length' => length $xml,
+    };
+  }
+
+  print $cgi->header($header);
   print $xml;
 
   $main::lxdebug->leave_sub();
@@ -711,7 +927,7 @@ sub setup_sepa_list_transfers_action_bar {
       combobox => [
         action => [ t8('Actions') ],
         action => [
-          t8('SEPA XML download'),
+          !$::instance_conf->get_sepa_swiss_xml_export ? t8('SEPA XML download') : t8('Swiss XML download'),
           submit => [ '#form', { action => 'bank_transfer_download_sepa_xml' } ],
           checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
         ],
@@ -724,14 +940,18 @@ sub setup_sepa_list_transfers_action_bar {
           t8('Mark as closed'),
           submit => [ '#form', { action => 'bank_transfer_mark_as_closed' } ],
           checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
-          confirm => [ $params{is_vendor} ? t8('Do you really want to close the selected SEPA exports? No payment will be recorded for bank transfers that haven\'t been marked as executed yet.')
-                                          : t8('Do you really want to close the selected SEPA exports? No payment will be recorded for bank collections that haven\'t been marked as executed yet.') ],
+          confirm => [ !$::instance_conf->get_sepa_swiss_xml_export ?
+                          $params{is_vendor} ? t8('Do you really want to close the selected SEPA exports? No payment will be recorded for bank transfers that haven\'t been marked as executed yet.')
+                                             : t8('Do you really want to close the selected SEPA exports? No payment will be recorded for bank collections that haven\'t been marked as executed yet.')
+                                             : t8('Do you really want to close the selected Swiss XML exports? No payment will be recorded for bank transfers that haven\'t been marked as executed yet.') ],
         ],
         action => [
-          t8('Undo SEPA exports'),
+          !$::instance_conf->get_sepa_swiss_xml_export ? t8('Undo SEPA exports') : t8('Undo Swiss XML exports'),
           submit => [ '#form', { action => 'bank_transfer_undo_sepa_xml' } ],
           checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
-          confirm => [ t8('Do you really want to undo the selected SEPA exports? You have to reassign the export again.') ],
+          confirm => [ !$::instance_conf->get_sepa_swiss_xml_export ?
+            t8('Do you really want to undo the selected SEPA exports? You have to reassign the export again.') :
+            t8('Do you really want to undo the selected Swiss XML exports? You have to reassign the export again.') ],
         ],
       ], # end of combobox "Actions"
     );
