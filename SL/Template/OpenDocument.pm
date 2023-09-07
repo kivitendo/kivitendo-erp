@@ -12,10 +12,8 @@ use File::Basename;
 use SL::Iconv;
 use SL::Template::OpenDocument::Styles;
 
-use SL::DB::BankAccount;
 use SL::Helper::QrBill;
 use SL::Helper::QrBillFunctions qw(get_ref_number_formatted get_iban_formatted get_amount_formatted);
-use SL::Helper::ISO3166;
 
 use Cwd;
 # use File::Copy;
