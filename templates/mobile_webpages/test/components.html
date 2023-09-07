@@ -32,6 +32,12 @@
 [% P.M.input_tag("", "", placeholder="with placeholder", label="test input with placeholder") %]
 [% P.M.input_tag("", "default value", placeholder="with placeholder", label="test input with placeholder and default value") %]
 
+<h3>Textarea:</h3>
+[% P.M.textarea_tag("", "", label="Notes") %]
+[% P.M.textarea_tag("", "default value\nmulti-line", label="Notes with multi-line default value") %]
+[% P.M.textarea_tag("", "", placeholder="with placeholder", label="Notes with placeholder") %]
+[% P.M.textarea_tag("", "default value\nmulti-line", placeholder="with placeholder", label="Notes with placeholder and multi-line default value") %]
+
 <h3>With grid:</h3>
 <div class="row">
 [% P.M.input_tag("", "", label="2 cols", class="col s6") %]
