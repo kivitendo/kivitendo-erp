@@ -3,6 +3,13 @@ package SL::Helper::QrBillParser;
 use strict;
 use warnings;
 
+use SL::Helper::QrBillFunctions qw(
+  get_street_name_from_address_line
+  get_building_number_from_address_line
+  get_postal_code_from_address_line
+  get_town_name_from_address_line
+);
+
 use Rose::Object::MakeMethods::Generic(
   scalar                  => [ qw(is_valid error raw_data) ],
   'scalar --get_set_init' => [ qw(spec) ],
@@ -29,10 +36,6 @@ use constant {
   REGEX_TRAILER              => qr{^EPD$},
   REGEX_BILL_INFORMATION     => qr{^.{0,140}$},
   REGEX_ALTERNATIVE_SCHEME_PARAMETER      => qr{^.{0,100}$},
-  REGEX_STREET_NAME_FROM_ADDRESS_LINE     => qr{^(.*)\s+\d.*$},
-  REGEX_BUILDING_NUMBER_FROM_ADDRESS_LINE => qr{^.*\s+(\d+.*)$},
-  REGEX_POSTAL_CODE_FROM_ADDRESS_LINE     => qr{^(\d+).*$},
-  REGEX_TOWN_FROM_ADDRESS_LINE            => qr{^\d+\s(.*)$},
 };
 
 sub new {
@@ -74,54 +77,46 @@ sub init {
 
 sub get_creditor_field {
   my $self = shift;
-  my ($structured_field, $extract_field, $extract_regex) = @_;
+  my ($structured_field, $extract_field, $extract_fn) = @_;
 
   if ($self->{creditor}->{address_type} eq 'S') {
     return $self->{creditor}->{$structured_field};
   }
   # extract
-  $self->{creditor}->{$extract_field} =~ $extract_regex;
+  my $r = $extract_fn->($self->{creditor}->{$extract_field});
 
-  return $1 // '';
+  return $r // '';
 }
 
 sub get_creditor_street_name {
-  # extract street name from street_or_address_line_1
-  # the regex matches everything until the first digit
   return shift->get_creditor_field(
     'street_or_address_line_1',
     'street_or_address_line_1',
-    REGEX_STREET_NAME_FROM_ADDRESS_LINE
+    \&get_street_name_from_address_line
   );
 }
 
 sub get_creditor_building_number {
-  # extract building number from street_or_address_line_1
-  # the regex matches the first digit and everything after
   return shift->get_creditor_field(
     'building_number_or_address_line_2',
     'street_or_address_line_1',
-    REGEX_BUILDING_NUMBER_FROM_ADDRESS_LINE
+    \&get_building_number_from_address_line
   );
 }
 
 sub get_creditor_post_code {
-  # extract post code from building_number_or_address_line_2
-  # the regex matches the first digits
   return shift->get_creditor_field(
     'postal_code',
     'building_number_or_address_line_2',
-    REGEX_POSTAL_CODE_FROM_ADDRESS_LINE
+    \&get_postal_code_from_address_line
   );
 }
 
 sub get_creditor_town_name {
-  # extract town name from building_number_or_address_line_2
-  # the regex matches everything after the first digits
   return shift->get_creditor_field(
     'town',
     'building_number_or_address_line_2',
-    REGEX_TOWN_FROM_ADDRESS_LINE
+    \&get_town_name_from_address_line
   );
 }
 
