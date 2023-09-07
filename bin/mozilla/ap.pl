@@ -919,7 +919,15 @@ sub post {
         SL::Helper::Flash::flash_later('info', $msg);
         print $form->redirect_header($form->{callback});
         $::dispatcher->end_request;
-
+      } elsif ($form->{callback} =~ /ScanQRCode/) {
+        # callback/redirect when coming from mobile view (swiss qr bill scan)
+        print $form->redirect_header(build_std_url(
+          "script=controller.pl",
+          'action=ScanQRBill/scan_view',
+          'transaction_success=1',
+          'invnumber=' . E($form->{invnumber})
+        ));
+        $::dispatcher->end_request;
       } elsif ('doc-tab' eq $form->{after_action}) {
         # Redirect with callback containing a fragment does not work (by now)
         # because the callback info is stored in the session an parsing the
