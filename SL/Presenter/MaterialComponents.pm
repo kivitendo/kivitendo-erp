@@ -13,6 +13,7 @@ use Exporter qw(import);
 our @EXPORT_OK = qw(
   button_tag
   input_tag
+  textarea_tag
   date_tag
   submit_tag
   icon
@@ -226,6 +227,28 @@ sub input_tag {
   html_tag('div',
     $icon .
     html_tag('input', undef, value => $value, %attributes, name => $name) .
+    $label,
+    class => [ grep $_, $class, INPUT_FIELD ],
+  );
+}
+
+sub textarea_tag {
+  my ($name, $value, %attributes) = @_;
+
+  _set_id_attribute(\%attributes, $attributes{name});
+
+  my $class = delete $attributes{class};
+  my $icon  = $attributes{icon}
+    ? icon(delete $attributes{icon}, class => 'prefix')
+    : '';
+
+  my $label = $attributes{label}
+    ? html_tag('label', delete $attributes{label}, for => $attributes{id})
+    : '';
+
+  html_tag('div',
+    $icon .
+    html_tag('textarea', $value, class => 'materialize-textarea', %attributes, name => $name) .
     $label,
     class => [ grep $_, $class, INPUT_FIELD ],
   );
