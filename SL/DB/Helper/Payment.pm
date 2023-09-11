@@ -286,12 +286,17 @@ sub pay_invoice {
     $arap_booking->save;
     push @new_acc_ids, $arap_booking->acc_trans_id;
 
+    $self->paid($self->paid + _round($paid_amount)) if $paid_amount;
+    $self->datepaid($transdate_obj);
+    $self->save;
+
     # hook for invoice_for_advance_payment DATEV always pairs, acc_trans_id has to be higher than arap_booking ;-)
     if ($self->invoice_type eq 'invoice_for_advance_payment') {
       my $clearing_chart = SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_clearing_chart_id)->load;
       die "No Clearing Chart for Advance Payment" unless ref $clearing_chart eq 'SL::DB::Chart';
 
       # what does ptc say
+      # DONT SAVE $self sellprice, fxsellprice trouble: redmine #352
       my %inv_calc = $self->calculate_prices_and_taxes();
       my @trans_ids = keys %{ $inv_calc{amounts} };
       die "Invalid state for advance payment more than one trans_id" if (scalar @trans_ids > 1);
@@ -347,10 +352,6 @@ sub pay_invoice {
         push @new_acc_ids, $tax_booking->acc_trans_id;
       }
     }
-    $self->paid($self->paid + _round($paid_amount)) if $paid_amount;
-    $self->datepaid($transdate_obj);
-    $self->save;
-
     # make sure transactions will be reloaded the next time $self->transactions
     # is called, as pay_invoice saves the acc_trans objects individually rather
     # than adding them to the transaction relation array.
