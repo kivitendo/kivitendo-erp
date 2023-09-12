@@ -341,7 +341,7 @@ sub create_folder_for_record {
   return;
 }
 
-sub clean_up_subfolders {
+sub clean_up_record_subfolders {
   my ($self, $active_records) = @_;
 
   my $subfolder_strings =
@@ -551,7 +551,7 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
   e.g. INBOX/1234 Testkunde/Angebot/123
   If the folder already exists, nothing happens.
 
-=item C<clean_up_subfolders>
+=item C<clean_up_record_subfolders>
 
   Gets a list of acitve records. Syncs all subfolders and add email files to
   the records. Then deletes all subfolders which are not corresponding to an
