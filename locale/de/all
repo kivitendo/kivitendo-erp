@@ -396,6 +396,7 @@ $self->{texts} = {
   'Assemblies'                  => 'Erzeugnisse',
   'Assembly'                    => 'Erzeugnis',
   'Assembly (typeabbreviation)' => 'E',
+  'Assembly Item Number'        => 'Artikelnummer des Erzeugnisbestandteils',
   'Assembly Item Qty'           => 'Menge für Erzeugnis',
   'Assembly Last Cost'          => 'Erzeugnis-Einkaufspreis',
   'Assembly Number missing!'    => 'Erzeugnisnummer fehlt!',

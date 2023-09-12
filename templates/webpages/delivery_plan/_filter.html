@@ -35,6 +35,10 @@
    <td>[% L.date_tag('filter.reqdate:date::le', filter.reqdate_date__le) %]</td>
   </tr>
   <tr>
+   <th align="right">[% 'Assembly Item Number' | $T8 %]</th>
+   <td>[% L.input_tag('assembly_item_number', SELF.assembly_item_number, size = 20) %]</td>
+  </tr>
+  <tr>
    <th align="right">[% 'Quantity' | $T8 %]</th>
    <td>[% L.input_tag('filter.qty:number', filter.qty_number, size = 20) %]</td>
   </tr>
