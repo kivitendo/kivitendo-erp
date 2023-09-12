@@ -341,6 +341,52 @@ sub create_folder_for_record {
   return;
 }
 
+sub clean_up_imported_emails_from_folder {
+  my ($self, $folder_path) = @_;
+  $folder_path ||= $self->{base_folder};
+
+  my $folder_string = $self->get_folder_string_from_path($folder_path);
+  $self->_clean_up_imported_emails_from_folder_strings([$folder_string]);
+}
+
+
+sub _clean_up_imported_emails_from_folder_strings {
+  my ($self, $folder_strings) = @_;
+  my $dbh = SL::DB->client->dbh;
+
+  foreach my $folder_string (@$folder_strings) {
+    $self->{imap_client}->select($folder_string)
+      or die "Could not select IMAP folder '$folder_string': $@\n";
+
+    my $folder_uidvalidity = $self->{imap_client}->uidvalidity($folder_string)
+      or die "Could not get UIDVALIDITY for folder '$folder_string': $@\n";
+
+    my $msg_uids = $self->{imap_client}->messages
+      or die "Could not get messages via IMAP: $@\n";
+
+    my $query = <<SQL;
+      SELECT uid
+      FROM email_imports ei
+      LEFT JOIN email_journal ej
+        ON ej.email_import_id = ei.id
+      WHERE ei.host_name = ?
+        AND ei.user_name = ?
+        AND ej.folder = ?
+        AND ej.folder_uidvalidity = ?
+SQL
+
+    my $existing_uids = $dbh->selectall_hashref($query, 'uid', undef,
+      $self->{hostname}, $self->{username}, $folder_string, $folder_uidvalidity);
+
+    my @imported_msg_uids = grep { $existing_uids->{$_} } @$msg_uids;
+
+    next unless scalar @imported_msg_uids;
+
+    $self->{imap_client}->delete_message(\@imported_msg_uids)
+      or die "Could not delete messages via IMAP: $@\n";
+  }
+}
+
 sub clean_up_record_subfolders {
   my ($self, $active_records) = @_;
 
