@@ -7,6 +7,7 @@ use SL::Locale::String qw(t8);
 use SL::Helper::DateTime;
 use SL::VATIDNr;
 use SL::ZUGFeRD;
+use SL::SessionFile;
 
 use XML::LibXML;
 
@@ -16,17 +17,19 @@ __PACKAGE__->run_before('check_auth');
 sub action_upload_zugferd {
   my ($self, %params) = @_;
 
-  $self->setup_zugferd_action_bar;
+  $self->pre_render();
   $self->render('zugferd/form', title => $::locale->text('Factur-X/ZUGFeRD import'));
 }
 
 sub action_import_zugferd {
   my ($self, %params) = @_;
+  my $file = $::form->{file};
+  my $file_name = $::form->{file_name};
 
-  die t8("missing file for action import") unless $::form->{file};
-  die t8("can only parse a pdf file")      unless $::form->{file} =~ m/^%PDF/;
+  die t8("missing file for action import") unless $file;
+  die t8("can only parse a pdf file")      unless $file =~ m/^%PDF/;
 
-  my $info = SL::ZUGFeRD->extract_from_pdf($::form->{file});
+  my $info = SL::ZUGFeRD->extract_from_pdf($file);
 
   if ($info->{result} != SL::ZUGFeRD::RES_OK()) {
     # An error occurred; log message from parser:
@@ -126,7 +129,12 @@ sub action_import_zugferd {
   my $ibanmessage;
   $ibanmessage = $iban ne $vendor->iban ? "Record IBAN $iban doesn't match vendor IBAN " . $vendor->iban : $iban if $iban;
 
-  my $url = $self->url_for(
+  # save the zugferd file to session file for reuse in ap.pl
+  my $session_file = SL::SessionFile->new($file_name, mode => 'w');
+  $session_file->fh->print($file);
+  $session_file->fh->close;
+
+  $self->redirect_to(
     controller                           => 'ap.pl',
     action                               => 'load_record_template',
     id                                   => $template_ap->id,
@@ -138,10 +146,9 @@ sub action_import_zugferd {
     'form_defaults.paid_1_suggestion'    => $::form->format_amount(\%::myconfig, $total, 2),
     'form_defaults.notes'                => "ZUGFeRD Import. Type: $type\nIBAN: " . $ibanmessage,
     'form_defaults.taxincluded'          => 0,
-    'form_defaults.direct_debit'          => $direct_debit,
+    'form_defaults.direct_debit'         => $direct_debit,
+    'form_defaults.zugferd_session_file' => $file_name,
   );
-
-  $self->redirect_to($url);
 
 }
 
@@ -160,6 +167,16 @@ sub setup_zugferd_action_bar {
       ],
     );
   }
+}
+
+sub pre_render {
+  my ($self) = @_;
+
+  $::request->{layout}->use_javascript("${_}.js") for qw(
+    kivi.ZUGFeRD
+  );
+
+  $self->setup_zugferd_action_bar;
 }
 
 
