@@ -65,18 +65,18 @@ sub store_email_in_email_folder {
 }
 
 sub update_emails_from_folder {
-  my ($self, $folder_path) = @_;
+  my ($self, $folder_path, $params) = @_;
   $folder_path ||= $self->{base_folder};
 
   my $folder_string = $self->get_folder_string_from_path($folder_path);
   my $email_import =
-    _update_emails_from_folder_strings($self, $folder_path, [$folder_string]);
+    _update_emails_from_folder_strings($self, $folder_path, [$folder_string], $params);
 
   return $email_import;
 }
 
 sub update_emails_from_subfolders {
-  my ($self, $base_folder_path) = @_;
+  my ($self, $base_folder_path, $params) = @_;
   $base_folder_path ||= $self->{base_folder};
   my $base_folder_string = $self->get_folder_string_from_path($base_folder_path);
 
@@ -85,13 +85,13 @@ sub update_emails_from_subfolders {
   @subfolder_strings = grep { $_ ne $base_folder_string } @subfolder_strings;
 
   my $email_import =
-    _update_emails_from_folder_strings($self, $base_folder_path, \@subfolder_strings);
+    _update_emails_from_folder_strings($self, $base_folder_path, \@subfolder_strings, $params);
 
   return $email_import;
 }
 
 sub _update_emails_from_folder_strings {
-  my ($self, $base_folder_path, $folder_strings) = @_;
+  my ($self, $base_folder_path, $folder_strings, $params) = @_;
 
   my $dbh = SL::DB->client->dbh;
 
@@ -131,7 +131,7 @@ SQL
         my $new_email_string = $self->{imap_client}->message_string($new_uid);
         my $email = Email::MIME->new($new_email_string);
         my $email_journal = $self->_create_email_journal(
-          $email, $email_import, $new_uid, $folder_string, $folder_uidvalidity
+          $email, $email_import, $new_uid, $folder_string, $folder_uidvalidity, $params->{email_journal}
         );
         $email_journal->save();
       }
@@ -152,7 +152,7 @@ sub _create_email_import {
 }
 
 sub _create_email_journal {
-  my ($self, $email, $email_import, $uid, $folder_string, $folder_uidvalidity) = @_;
+  my ($self, $email, $email_import, $uid, $folder_string, $folder_uidvalidity, $params) = @_;
 
   my @email_parts = $email->parts; # get parts or self
   my $text_part = $email_parts[0];
@@ -197,6 +197,7 @@ sub _create_email_journal {
     body               => $body,
     headers            => $header_string,
     attachments        => \@attachments,
+    %$params,
   );
 
   return $email_journal;

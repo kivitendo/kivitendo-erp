@@ -190,6 +190,21 @@ folder = Sent/Kivitendo
 # If SSL is used, default port is 993
 ssl = 1
 
+# Import emails for purchase invoices
+[purchase_invoice_emails_imap]
+enabled = 0
+hostname = localhost
+username =
+password =
+# This folder can be managed with kivitendo through the background
+# ImportPurchaseInvoiceEmails. Create no subfolder in the base folder by hand.
+# Use / for subfolders.
+base_folder = INBOX
+# Port only needs to be changed if it is not the default port.
+# port = 993
+# If SSL is to be used, then set port to 993 or leave empty
+ssl = 1
+
 [applications]
 # Location of OpenOffice.org/LibreOffice writer
 openofficeorg_writer = lowriter
