@@ -1283,7 +1283,6 @@ sub invoice_multi {
                               $locale->text('You cannot create an invoice for delivery orders from different vendors.'),
                               'back_button' => 1);
   }
-  $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
 
   my $source_type              = $form->{type};
   $form->{convert_from_do_ids} = join ' ', @do_ids;
@@ -1307,12 +1306,14 @@ sub invoice_multi {
     $form->{script} = 'ir.pl';
     $script         = "ir";
     $buysell        = 'sell';
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
 
   } else {
     $form->{title}  = $locale->text('Add Sales Invoice');
     $form->{script} = 'is.pl';
     $script         = "is";
     $buysell        = 'buy';
+    $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   }
 
   map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued);
