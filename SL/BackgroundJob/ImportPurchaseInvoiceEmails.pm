@@ -10,18 +10,16 @@ use SL::DB::Manager::EmailImport;
 
 sub sync_email_folder {
   my ($self) = @_;
-  my $folder = $self->{job_obj}->data_as_hash->{folder};
 
-  my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{purchase_invoice_emails_imap}});
-
-  my $email_import = $imap_client->update_emails_from_folder(
-    $folder,
+  my $email_import = $self->{imap_client}->update_emails_from_folder(
+    $self->{folder},
     {
       email_journal => {
         extended_status => 'purchase_invoice_import',
       },
     }
   );
+  $self->{email_import} = $email_import;
   return unless $email_import;
 
   return "Created email import: " . $email_import->id;
@@ -48,11 +46,8 @@ sub delete_email_imports {
 
 sub clean_up_imported_emails {
   my ($self) = @_;
-  my $folder = $self->{job_obj}->data_as_hash->{folder};
 
-  my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{purchase_invoice_emails_imap}});
-
-  $imap_client->clean_up_imported_emails_from_folder($folder);
+  $self->{imap_client}->clean_up_imported_emails_from_folder($self->{folder});
 
   return "Cleaned imported emails";
 }
@@ -60,6 +55,8 @@ sub clean_up_imported_emails {
 sub run {
   my ($self, $job_obj) = @_;
   $self->{job_obj} = $job_obj;
+  $self->{imap_client} = SL::IMAPClient->new(%{$::lx_office_conf{purchase_invoice_emails_imap}});
+  $self->{folder} = $self->{job_obj}->data_as_hash->{folder};
 
   my @results;
   push @results, $self->delete_email_imports();
