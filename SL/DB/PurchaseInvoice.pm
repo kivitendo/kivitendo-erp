@@ -14,6 +14,7 @@ use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::Payment qw(:ALL);
 use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::SalesPurchaseInvoice;
+use SL::DB::Helper::ZUGFeRD qw(:IMPORT);
 use SL::Locale::String qw(t8);
 use Rose::DB::Object::Helpers qw(has_loaded_related forget_related as_tree strip);
 
@@ -157,6 +158,14 @@ sub convert_to_reclamation {
   my $reclamation = SL::DB::Reclamation->new_from($self, %params);
 
   return $reclamation;
+}
+
+sub create_from_zugferd_xml {
+  my ($class, $zugferd_xml) = @_;
+
+  my $ap_invoice = $class->new();
+
+  $ap_invoice->import_zugferd_xml($zugferd_xml)->save();
 }
 
 sub create_ap_row {
