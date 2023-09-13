@@ -52,6 +52,19 @@ sub clean_up_imported_emails {
   return "Cleaned imported emails";
 }
 
+sub process_imported_purchase_invoice_emails {
+  my ($self) = @_;
+  return unless $self->{email_import};
+
+  my $emails = $self->{email_import}->email_journals;
+
+  foreach my $email (@$emails) {
+    $email->process_attachments_as_purchase_invoices();
+  }
+
+  return "Processed imported emails";
+}
+
 sub run {
   my ($self, $job_obj) = @_;
   $self->{job_obj} = $job_obj;
@@ -63,6 +76,9 @@ sub run {
   push @results, $self->sync_email_folder();
   if ($self->{job_obj}->data_as_hash->{clean_up_imported_emails}) {
     push @results, $self->clean_up_imported_emails();
+  }
+  if ($self->{job_obj}->data_as_hash->{process_imported_purchase_invoice_emails}) {
+    push @results, $self->process_imported_purchase_invoice_emails();
   }
 
   return join(". ", grep { $_ ne ''} @results);
