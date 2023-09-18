@@ -64,6 +64,28 @@ sub store_email_in_email_folder {
            . $self->{imap_client}->LastError() . "\n";
 }
 
+sub set_flag_for_email {
+  my ($self, $email_journal, $imap_flag) = @_;
+  return unless $imap_flag;
+
+  my $folder_string = $email_journal->folder;
+
+  $self->{imap_client}->select($folder_string)
+    or die "Could not select IMAP folder '$folder_string': $@\n";
+
+  my $folder_uidvalidity = $self->{imap_client}->uidvalidity($folder_string)
+    or die "Could not get UIDVALIDITY for folder '$folder_string': $@\n";
+
+  if ($folder_uidvalidity != $email_journal->folder_uidvalidity) {
+    die "Folder has changed: $folder_string\n"
+  }
+
+  my $uid = $email_journal->uid;
+  $self->{imap_client}->set_flag($imap_flag, [$uid])
+    or die "Could not add flag '$imap_flag' to message '$uid': "
+           . $self->{imap_client}->LastError() . "\n";
+}
+
 sub update_emails_from_folder {
   my ($self, $folder_path, $params) = @_;
   $folder_path ||= $self->{base_folder};
