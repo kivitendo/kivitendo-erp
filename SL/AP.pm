@@ -224,7 +224,7 @@ sub _post_transaction {
                    $form->{"AP_amount_chart_id_$i"});
         do_query($form, $dbh, $query, @values);
 
-        if ($form->{"tax_$i"} != 0) {
+        if ($form->{"tax_$i"} != 0 && !$form->{"reverse_charge_$i"}) {
           # insert detail records in acc_trans
           $query =
             qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, | .
