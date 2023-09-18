@@ -165,7 +165,7 @@ sub create_from_zugferd_xml {
 
   my $ap_invoice = $class->new();
 
-  $ap_invoice->import_zugferd_xml($zugferd_xml)->save();
+  $ap_invoice->import_zugferd_xml($zugferd_xml);
 }
 
 sub create_ap_row {
