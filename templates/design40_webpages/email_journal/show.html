@@ -7,7 +7,9 @@
 
 [% INCLUDE 'common/flash.html' %]
 
-<div class="wrapper" id="wrapper-1">
+<div class="wrapper" id="wrapper-0">
+
+<div class="input-panel" style="vertical-align:top;" id="wrapper-1">
 
 <table id="email_journal_details" class="tbl-horizontal">
   <tbody>
@@ -60,10 +62,11 @@
 
 </div> <!-- wrapper-1 -->
 
-<div class="wrapper" id="wrapper-2">
 [% SET attachments = SELF.entry.attachments_sorted %]
-[% IF attachments.size %]
 
+<div class="input-panel" style="vertical-align:top;" id="wrapper-2">
+
+[% IF attachments.size %]
 <table id="email_journal_details" class="tbl-list">
   <caption>[% LxERP.t8("Attachments") %]</caption>
   <thead>
@@ -83,10 +86,26 @@
     [% END %]
   </tbody>
 </table>
-
-[% ELSE %]
-
-<p>[% LxERP.t8("No attachments") %]</p>
-
 [% END %]
+
+<form method="post" action="controller.pl" id="attachment_form">
+  [% L.hidden_tag('id', SELF.entry.id) %]
+  [% L.select_tag('attachment_id',
+       attachments, value_key='id', title_key='name',
+       with_empty=1, empty_value='', empty_title=LxERP.t8("No attachment"),
+       'data-title'=LxERP.t8("Attachment"), class="wi-normal",
+       onchange='kivi.EmailJournal.update_attachment_preview();'
+       )
+    %]
+  [% L.select_tag('record_type', [ ["value", "Name"] ], class="wi-normal") %]
+
+  [% L.button_tag('kivi.EmailJournal.create_record();', LxERP.t8('Create Record with Attachment')) %]
+</form>
+
+<!--  <div id="attachment_preview"> -->
+[% P.email_journal.attachment_preview(attachments.0,
+     style="width:489px;border:1px solid black;margin:9px") %]
+
 </div> <!-- wrapper-2 -->
+
+</div> <!-- wrapper-0 -->

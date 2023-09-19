@@ -11,6 +11,7 @@ use SL::DB::EmailJournalAttachment;
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::System::TaskServer;
+use SL::Presenter::EmailJournal;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -19,6 +20,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 __PACKAGE__->run_before('add_stylesheet');
+__PACKAGE__->run_before('add_js');
 
 #
 # actions
@@ -76,6 +78,26 @@ sub action_download_attachment {
   $self->send_file($ref, name => $attachment->name, type => $attachment->mime_type);
 }
 
+sub action_update_attachment_preview {
+  my ($self) = @_;
+  $::auth->assert('email_journal');
+  my $attachment_id = $::form->{attachment_id};
+
+  my $attachment;
+  $attachment = SL::DB::EmailJournalAttachment->new(
+    id => $attachment_id,
+  )->load if $attachment_id;
+
+  $self->js
+    ->replaceWith('#attachment_preview',
+      SL::Presenter::EmailJournal::attachment_preview(
+        $attachment,
+        style => "width:489px;border:1px solid black;margin:9px"
+      )
+    )
+    ->render();
+}
+
 #
 # filters
 #
@@ -87,6 +109,12 @@ sub add_stylesheet {
 #
 # helpers
 #
+
+sub add_js {
+  $::request->{layout}->use_javascript("${_}.js") for qw(
+    kivi.EmailJournal
+    );
+}
 
 sub init_can_view_all { $::auth->assert('email_employee_readall', 1) }
 

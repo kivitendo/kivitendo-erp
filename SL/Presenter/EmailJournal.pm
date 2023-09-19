@@ -47,6 +47,10 @@ sub entry_status {
 sub attachment_preview {
   my ($attachment, %params) = @_;
 
+  if (! $attachment) {
+    return is_escaped(html_tag('div', '', id => 'attachment_preview'));
+  }
+
   # clean up mime_type
   my $mime_type = $attachment->mime_type;
   $mime_type =~ s/;.*//;
