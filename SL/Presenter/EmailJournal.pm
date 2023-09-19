@@ -3,11 +3,12 @@ package SL::Presenter::EmailJournal;
 use strict;
 
 use SL::Presenter::EscapedText qw(escape is_escaped);
-use SL::Presenter::Tag         qw(link_tag);
+use SL::Presenter::Tag         qw(link_tag img_tag html_tag);
 use SL::Locale::String qw(t8);
+use SL::SessionFile::Random;
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(email_journal entry_status);
+our @EXPORT_OK = qw(email_journal entry_status attachment_preview);
 
 use Carp;
 
@@ -41,6 +42,68 @@ sub entry_status {
   my $text   = $status_to_text{$status} || $status;
 
   return $text;
+}
+
+sub attachment_preview {
+  my ($attachment, %params) = @_;
+
+  # clean up mime_type
+  my $mime_type = $attachment->mime_type;
+  $mime_type =~ s/;.*//;
+
+  # parse to img tag
+  my $image_tags = '';
+  if ($mime_type =~ m{^image/}) {
+    my $image_content = $attachment->content;
+    my $img_base64 = "data:$mime_type;base64," . MIME::Base64::encode_base64($image_content);
+    my $image_tag = img_tag(
+      src => $img_base64,
+      alt => escape($attachment->name),
+      %params);
+    $image_tags .= $image_tag;
+  } elsif ($mime_type =~ m{^application/pdf}) {
+    my $pdf_content = $attachment->content;
+    my $session_file = SL::SessionFile::Random->new(mode => 'w');
+    $session_file->fh->print($pdf_content);
+    $session_file->fh->close;
+    my $image_size = 2048;
+
+    my $file_name = $session_file->file_name;
+
+    # files are created in session_files folder
+    my $command = 'pdftoppm -forcenum -scale-to '
+                  . $image_size . ' -png' . ' '
+                  . $file_name . ' ' . $file_name;
+    my $ans = system($command);
+    if ($ans != 0) {
+      return;
+    }
+
+
+    my @image_file_names = glob($file_name . '-*.png');
+    unlink($file_name);
+
+    my $image_count = scalar @image_file_names;
+    my $counter = 1;
+    foreach my $image_file_name (@image_file_names) {
+      my $image_file = SL::SessionFile->new($image_file_name, mode => 'r');
+      my $file_size = -s $image_file->file_name;
+      my $image_content;
+      read($image_file->fh, $image_content, $file_size);
+      my $img_base64 = 'data:image/png;base64,' . MIME::Base64::encode_base64($image_content);
+      my $name_ending = $image_count > 1 ? "-($counter/$image_count)" : '';
+      my $image_tag = img_tag(
+        src => $img_base64,
+        alt => escape($attachment->name) . $name_ending,
+        %params);
+      unlink($image_file->file_name);
+      $image_tags .= $image_tag;
+    }
+  }
+
+  my $attachment_preview = html_tag('div', $image_tags, id => 'attachment_preview');
+
+  return is_escaped($attachment_preview);
 }
 
 1;
