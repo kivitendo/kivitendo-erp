@@ -7,55 +7,64 @@
 
 [% INCLUDE 'common/flash.html' %]
 
+<div class="wrapper" id="wrapper-1">
 
-<table id="email_journal_details" class="tbl-horizontal email_journal_details">
+<table id="email_journal_details" class="tbl-horizontal">
   <tbody>
     <tr>
       <th>[% LxERP.t8("From") %]</th>
-      <td>[% HTML.escape(SELF.entry.from) %]</td>
+      <td>[% L.input_tag('from', HTML.escape(SELF.entry.from), style="color:black", class="wi-verywide", disabled=1) %]</td>
     </tr>
     <tr>
       <th>[% LxERP.t8("Recipients") %]</th>
-      <td>[% HTML.escape(SELF.entry.recipients) %]</td>
+      <td>[% L.input_tag('recipients', HTML.escape(SELF.entry.recipients), style="color:black", class="wi-verywide", disabled=1) %]</td>
     </tr>
     <tr>
       <th>[% LxERP.t8("Subject") %]</th>
-      <td>[% HTML.escape(SELF.entry.subject) %]</td>
+      <td>[% L.input_tag('subject', HTML.escape(SELF.entry.subject), style="color:black", class="wi-verywide", disabled=1) %]</td>
     </tr>
     <tr>
       <th>[% LxERP.t8("Sent on") %]</th>
-      <td>[% HTML.escape(SELF.entry.sent_on.to_lxoffice("precision" => "second")) %]</td>
+      <td>[% L.input_tag('sent_on', HTML.escape(SELF.entry.sent_on.to_lxoffice("precision" => "second")), style="color:black", class="wi-verywide", disabled=1) %]</td>
     </tr>
     <tr>
       <th>[% LxERP.t8("Status") %]</th>
-      <td>[% IF SELF.entry.status == 'sent' %] [% LxERP.t8('sent') %] [% ELSIF SELF.entry.status == 'send_failed' %] [% LxERP.t8('send failed') %] [% ELSIF SELF.entry.status == 'imported' %] [% LxERP.t8('imported') %] [% ELSE %] [% SELF.entry.status %] [% END %] </td>
+      <td>[% L.input_tag('status', P.email_journal.entry_status(SELF.entry), style="color:black", class="wi-verywide", disabled=1) %]</td>
     </tr>
     <tr>
       <th>[% LxERP.t8("Extended status") %]</th>
-      <td><pre>[% HTML.escape(SELF.entry.extended_status) %]</pre></td>
+      <td>
+        [% L.textarea_tag('extended_status', HTML.escape(SELF.entry.extended_status), wrap="soft", style="color:black; height:25px", class="wi-verywide", disabled=1) %]
+      </td>
     </tr>
     <tr>
       <th>[% LxERP.t8("Headers") %]</th>
-      <td><pre>[% HTML.escape(SELF.entry.headers) %]</pre></td>
+      <td>
+        [% L.textarea_tag('headers', HTML.escape(SELF.entry.headers), wrap="soft", style="color:black; height:25px", class="wi-verywide", disabled=1) %]
+      </td>
     </tr>
     <tr>
       <th>[% LxERP.t8("Body") %]</th>
       <td>
         [% IF SELF.entry.headers.match('(?i)content-type:.*text/html') %]
+          <div style="border:1px solid black;">
           [% P.restricted_html(SELF.entry.body) %]
+          </div>
         [% ELSE %]
-          <pre>[% HTML.escape(SELF.entry.body) %]</pre>
+          [% L.textarea_tag('body', HTML.escape(SELF.entry.body), wrap="soft", style="color:black; height:200px", class="wi-verywide", disabled=1) %]
         [% END %]
       </td>
     </tr>
   </tbody>
 </table>
 
+</div> <!-- wrapper-1 -->
 
+<div class="wrapper" id="wrapper-2">
 [% SET attachments = SELF.entry.attachments_sorted %]
 [% IF attachments.size %]
 
-<table id="email_journal_details" class="tbl-list email_journal_details">
+<table id="email_journal_details" class="tbl-list">
   <caption>[% LxERP.t8("Attachments") %]</caption>
   <thead>
     <tr>
@@ -75,4 +84,9 @@
   </tbody>
 </table>
 
+[% ELSE %]
+
+<p>[% LxERP.t8("No attachments") %]</p>
+
 [% END %]
+</div> <!-- wrapper-2 -->
