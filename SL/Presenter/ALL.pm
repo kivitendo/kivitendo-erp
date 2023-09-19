@@ -7,6 +7,7 @@ use SL::Presenter::CustomerVendor;
 use SL::Presenter::DatePeriod;
 use SL::Presenter::DeliveryOrder;
 use SL::Presenter::Dunning;
+use SL::Presenter::EmailJournal;
 use SL::Presenter::EscapedText;
 use SL::Presenter::FileObject;
 use SL::Presenter::Invoice;
@@ -32,6 +33,7 @@ our %presenters = (
   date_period                 => 'SL::Presenter::DatePeriod',
   delivery_order              => 'SL::Presenter::DeliveryOrder',
   dunning                     => 'SL::Presenter::Dunning',
+  email_journal               => 'SL::Presenter::EmailJournal',
   escaped_text                => 'SL::Presenter::EscapedText',
   file_object                 => 'SL::Presenter::FileObject',
   invoice                     => 'SL::Presenter::Invoice',

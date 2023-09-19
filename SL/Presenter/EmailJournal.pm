@@ -4,9 +4,10 @@ use strict;
 
 use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Tag         qw(link_tag);
+use SL::Locale::String qw(t8);
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(email_journal);
+our @EXPORT_OK = qw(email_journal entry_status);
 
 use Carp;
 
@@ -25,6 +26,21 @@ sub email_journal {
   }
 
   is_escaped($text);
+}
+
+sub entry_status {
+  my ($email_journal_entry, %params) = @_;
+
+  my %status_to_text = (
+    sent        => t8('sent'),
+    send_failed => t8('send failed'),
+    imported    => t8('imported'),
+  );
+
+  my $status = $email_journal_entry->status;
+  my $text   = $status_to_text{$status} || $status;
+
+  return $text;
 }
 
 1;
