@@ -105,7 +105,7 @@ sub may_employee_view_project_invoices {
     LIMIT 1
 EOSQL
 
-  return !!$self->db->dbh->selectrow_arrayref($query, undef, $employee_id, $self->id)->[0];
+  return !!($self->db->dbh->selectrow_arrayref($query, undef, $employee_id, $self->id)||[])->[0];
 }
 
 1;
