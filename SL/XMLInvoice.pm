@@ -3,6 +3,7 @@ package SL::XMLInvoice;
 use strict;
 use warnings;
 
+use SL::Locale::String qw(t8);
 use XML::LibXML;
 
 use constant RES_OK => 0;
