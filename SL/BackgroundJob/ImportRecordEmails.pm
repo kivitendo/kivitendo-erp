@@ -18,8 +18,8 @@ sub sync_record_email_folder {
     $folder,
     {
       email_journal => {
-        # TODO: status => 'record_import',
-        extended_status => 'record_import_' . "$record_type",
+        status => 'record_imported',
+        extended_status => $record_type,
       },
     }
   );
