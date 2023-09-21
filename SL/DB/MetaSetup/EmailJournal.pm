@@ -22,7 +22,7 @@ __PACKAGE__->meta->columns(
   recipients         => { type => 'text', not_null => 1 },
   sender_id          => { type => 'integer' },
   sent_on            => { type => 'timestamp', default => 'now()', not_null => 1 },
-  status             => { type => 'enum', check_in => [ 'sent', 'send_failed', 'imported' ], db_type => 'email_journal_status', not_null => 1 },
+  status             => { type => 'enum', check_in => [ 'sent', 'send_failed', 'imported', 'record_imported' ], db_type => 'email_journal_status', not_null => 1 },
   subject            => { type => 'text', not_null => 1 },
   uid                => { type => 'integer' },
 );

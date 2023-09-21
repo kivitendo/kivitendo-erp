@@ -33,9 +33,10 @@ sub entry_status {
   my ($email_journal_entry, %params) = @_;
 
   my %status_to_text = (
-    sent        => t8('sent'),
-    send_failed => t8('send failed'),
-    imported    => t8('imported'),
+    sent            => t8('sent'),
+    send_failed     => t8('send failed'),
+    imported        => t8('imported'),
+    record_imported => t8('record imported'),
   );
 
   my $status = $email_journal_entry->status;
