@@ -188,6 +188,12 @@ sub invoice_links {
   # create links
   $form->create_links("AR", \%myconfig, "customer");
 
+  my $transfer_chart_id = $::instance_conf->get_advance_payment_clearing_chart_id;
+  if ($transfer_chart_id) {
+    # remove transfer chart for select box AR
+    @{ $form->{AR_links}{AR} } =  grep { $_->{chart_id} != $transfer_chart_id } @{ $form->{AR_links}{AR} };
+  }
+
   _assert_access();
 
   my $editing = $form->{id};
