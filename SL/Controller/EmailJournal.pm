@@ -8,6 +8,7 @@ use SL::Controller::Helper::GetModels;
 use SL::DB::Employee;
 use SL::DB::EmailJournal;
 use SL::DB::EmailJournalAttachment;
+use SL::DB::Order;
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::System::TaskServer;
@@ -21,6 +22,32 @@ use Rose::Object::MakeMethods::Generic
 
 __PACKAGE__->run_before('add_stylesheet');
 __PACKAGE__->run_before('add_js');
+
+my %RECORD_TYPES_INFO = (
+  # Order
+  Order => {
+    controller => 'Order',
+    model      => 'SL::DB::Order',
+    types => [
+      'purchase_order',
+      'purchase_quotation_intake',
+      'request_quotation',
+      'sales_order',
+      'sales_order_intake',
+      'sales_quotation',
+    ],
+  },
+);
+my %RECORD_TYPE_TO_CONTROLLER =
+  map {
+    my $controller = $RECORD_TYPES_INFO{$_}->{controller};
+    map { $_ => $controller } @{ $RECORD_TYPES_INFO{$_}->{types} }
+  } keys %RECORD_TYPES_INFO;
+my %RECORD_TYPE_TO_MODEL =
+  map {
+    my $model = $RECORD_TYPES_INFO{$_}->{model};
+    map { $_ => $model } @{ $RECORD_TYPES_INFO{$_}->{types} }
+  } keys %RECORD_TYPES_INFO;
 
 #
 # actions
@@ -56,7 +83,7 @@ sub action_show {
 
   $self->setup_show_action_bar;
   $self->render('email_journal/show',
-                title   => $::locale->text('View sent email'),
+                title   => $::locale->text('View email'),
                 back_to => $back_to);
 }
 
@@ -78,6 +105,50 @@ sub action_download_attachment {
   $self->send_file($ref, name => $attachment->name, type => $attachment->mime_type);
 }
 
+sub action_apply_record_action {
+  my ($self) = @_;
+  my $email_journal_id = $::form->{email_journal_id};
+  my $attachment_id = $::form->{attachment_id};
+  my $record_action = $::form->{record_action};
+  my $vendor_id = $::form->{vendor_id};
+  my $customer_id = $::form->{customer_id};
+
+  if ( $record_action =~ s/^link_// ) { # remove prefix
+
+    # Load record
+    my $record_type = $record_action;
+    my $record_id = $::form->{$record_type . "_id"};
+    my $record_type_model = $RECORD_TYPE_TO_MODEL{$record_type};
+    my $record = $record_type_model->new(id => $record_id)->load;
+    my $email_journal = SL::DB::EmailJournal->new(id => $email_journal_id)->load;
+
+    if ($attachment_id) {
+      my $attachment = SL::DB::EmailJournalAttachment->new(id => $attachment_id)->load;
+      $attachment->add_file_to_record($record);
+    }
+
+    $email_journal->link_to_record($record);
+
+    return $self->js->flash('info',  $::locale->text('Linked to e-mail ') . $record->displayable_name)->render();
+  }
+
+  my %additional_params = ();
+  if ( $record_action =~ s/^customer_// ) {  # remove prefix
+    $additional_params{customer_id} = $customer_id;
+  } elsif ( $record_action =~ s/^vendor_// ) { # remove prefix
+    $additional_params{vendor_id} = $vendor_id;
+  }
+  $additional_params{type} = $record_action;
+  $additional_params{controller} = $RECORD_TYPE_TO_CONTROLLER{$record_action};
+
+  $self->redirect_to(
+    action           => 'add',
+    email_journal_id => $email_journal_id,
+    attachment_id    => $attachment_id,
+    %additional_params,
+  );
+}
+
 sub action_update_attachment_preview {
   my ($self) = @_;
   $::auth->assert('email_journal');
@@ -92,7 +163,7 @@ sub action_update_attachment_preview {
     ->replaceWith('#attachment_preview',
       SL::Presenter::EmailJournal::attachment_preview(
         $attachment,
-        style => "width:489px;border:1px solid black;margin:9px"
+        style => "width:655px;border:1px solid black;margin:9px"
       )
     )
     ->render();
@@ -109,6 +180,67 @@ sub add_stylesheet {
 #
 # helpers
 #
+
+sub find_cv_from_email {
+  my ($self, $cv_type, $email_journal) = @_;
+  my $email_address = $email_journal->from;
+
+  # search for customer or vendor or both
+  my $customer;
+  my $vendor;
+  if ($cv_type ne 'vendor') {
+    $customer = SL::DB::Manager::Customer->get_first(
+      where => [
+        or => [
+          email => $email_address,
+          cc    => $email_address,
+          bcc   => $email_address,
+          'contacts.cp_email' => $email_address,
+          'contacts.cp_privatemail' => $email_address,
+          'shipto.shiptoemail' => $email_address,
+        ],
+      ],
+      with_objects => [ 'contacts', 'shipto' ],
+    );
+  } elsif ($cv_type ne 'customer') {
+    $vendor = SL::DB::Manager::Vendor->get_first(
+      where => [
+        or => [
+          email => $email_address,
+          cc    => $email_address,
+          bcc   => $email_address,
+          'contacts.cp_email' => $email_address,
+          'contacts.cp_privatemail' => $email_address,
+          'shipto.shiptoemail' => $email_address,
+        ],
+      ],
+      with_objects => [ 'contacts', 'shipto' ],
+    );
+  }
+
+  return $customer || $vendor;
+}
+
+sub find_customer_from_email {
+  my ($self, $email_journal) = @_;
+  my $email_address = $email_journal->from;
+
+  my $customer = SL::DB::Manager::Customer->get_first(
+    where => [
+      or => [
+        email => $email_address,
+        cc    => $email_address,
+        bcc   => $email_address,
+        'contacts.cp_email' => $email_address,
+        'contacts.cp_privatemail' => $email_address,
+        'shipto.shiptoemail' => $email_address,
+      ],
+    ],
+    with_objects => [ 'contacts', 'shipto' ],
+  );
+
+  return $customer;
+}
 
 sub add_js {
   $::request->{layout}->use_javascript("${_}.js") for qw(
