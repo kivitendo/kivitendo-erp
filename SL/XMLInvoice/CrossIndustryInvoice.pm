@@ -9,7 +9,7 @@ use constant ITEMS_XPATH => '//ram:IncludedSupplyChainTradeLineItem';
 
 =head1 NAME
 
-SL::XMLInvoice::FakturX - XML parser for UN/CEFACT Cross Industry Invoice
+SL::XMLInvoice::CrossIndustryInvoice - XML parser for UN/CEFACT Cross Industry Invoice
 
 =head1 DESCRIPTION
 
@@ -53,6 +53,25 @@ returned by the C<items()> method.
   Johannes Grassler <info@computer-grassler.de>
 
 =cut
+
+sub supported {
+  my @supported = ( "UN/CEFACT Cross Industry Invoice (urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100)" );
+  return @supported;
+}
+
+sub check_signature {
+  my ($self, $dom) = @_;
+
+  my $rootnode = $dom->documentElement;
+
+  foreach my $attr ( $rootnode->attributes ) {
+    if ( $attr->getData =~ m/urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100/ ) {
+      return 1;
+      }
+    }
+
+  return 0;
+}
 
 # XML XPath expressions for global metadata
 sub scalar_xpaths {
