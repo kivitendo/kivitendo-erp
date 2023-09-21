@@ -54,7 +54,26 @@ returned by the C<items()> method.
 
 =cut
 
-# XML XPath expression for
+sub supported {
+  my @supported = ( "Oasis Universal Business Language (UBL) invoice version 2 (urn:oasis:names:specification:ubl:schema:xsd:Invoice-2)" );
+  return @supported;
+}
+
+sub check_signature {
+  my ($self, $dom) = @_;
+
+  my $rootnode = $dom->documentElement;
+
+  foreach my $attr ( $rootnode->attributes ) {
+    if ( $attr->getData =~ m/urn:oasis:names:specification:ubl:schema:xsd:Invoice-2/ ) {
+      return 1;
+      }
+    }
+
+  return 0;
+}
+
+# XML XPath expressions for scalar metadata
 sub scalar_xpaths {
   return {
     currency => '//cbc:DocumentCurrencyCode',
@@ -72,6 +91,7 @@ sub scalar_xpaths {
   };
 }
 
+# XML XPath expressions for parsing bill items
 sub item_xpaths {
   return {
     'currency' => './cbc:LineExtensionAmount[attribute::currencyID]',

@@ -3,6 +3,8 @@ package SL::XMLInvoice;
 use strict;
 use warnings;
 
+use Module::Load;
+
 use SL::Locale::String qw(t8);
 use XML::LibXML;
 
@@ -166,6 +168,36 @@ sub metadata {
   die "Children of $self must implement a metadata() method returning the bill's metadata as a hash.";
 }
 
+=item check_signature($dom)
+
+This static method takes a DOM object and returns 1 if this DOM object can be
+parsed by the child class in question, 0 otherwise. C<SL::XMLInvoice> uses this
+method to determine which child class to instantiate for a given document. All
+child classes must implement this method.
+
+=cut
+
+sub check_signature {
+  my $self = shift;
+  die "Children of $self must implement a check_signature() method returning 1 for supported XML, 0 for unsupported XML.";
+}
+
+=item supported()
+
+This static method returns an array of free-form strings describing XML invoice
+types parseable by the child class. C<SL::XMLInvoice> uses this method to
+output a list of supported XML invoice types if its constructor fails to find
+to find an appropriate child class to parse the given document with. All child
+classes must implement this method.
+
+=cut
+
+sub supported {
+  my $self = shift;
+  die "Children of $self must implement a supported() method returning a list of supported XML invoice types.";
+}
+
+
 =item items()
 
 This method returns an array of hashes containing line item metadata, such as
@@ -180,6 +212,7 @@ sub items {
   my $self = shift;
   die "Children of $self must implement a item() method returning the bill's items as a hash.";
 }
+
 
 =item parse_xml()
 
@@ -206,20 +239,20 @@ if you don't plan on implementing any child classes.
 
 =over 4
 
-=item _document_nodenames()
+=item _document_modules()
 
-This method is implemented in C<SL::XMLInvoice> only and returns a hash mapping
-XML document root node name to a child class implementing a parser for it. If
-you add any child classes for new XML document types you need to add them to
-this hash and add a use statement to make it available from C<SL::XMLInvoice>.
+This method is implemented in C<SL::XMLInvoice> only and returns a list of
+child classes, each implementing an XML invoice parser. If you add any child
+classes for new XML document types you need to add them to this list to make it
+available from C<SL::XMLInvoice>.
 
 =cut
 
-sub _document_nodenames {
-  return {
-    'rsm:CrossIndustryInvoice' => 'SL::XMLInvoice::CrossIndustryInvoice',
-    'ubl:Invoice' => 'SL::XMLInvoice::UBL',
-  };
+sub _document_modules {
+  return (
+    'SL::XMLInvoice::CrossIndustryInvoice',
+    'SL::XMLInvoice::UBL',
+  );
 }
 
 =item _data_keys()
@@ -260,6 +293,7 @@ sub _item_keys {
 sub new {
   my ($self, $xml_data) = @_;
   my $type = undef;
+
   $self = {};
 
   bless $self;
@@ -274,22 +308,31 @@ sub new {
   }
 
   # Determine parser class to use
-  my $document_nodename = $self->{dom}->documentElement->nodeName;
-  if ( ${$self->_document_nodenames}{$document_nodename} ) {
-    $type = ${$self->_document_nodenames}{$document_nodename}
-  }
+  foreach my $module ( $self->_document_modules )
+    {
+    load $module;
+    if ( $module->check_signature($self->{dom}) ) {
+      $type = $module;
+      last;
+      }
+    }
 
   unless ( $type ) {
     $self->{result} = RES_UNKNOWN_ROOT_NODE_TYPE;
-    my $node_types = join(",", keys %{ $self->_document_nodenames });
-    $self->{message} =  t8("Could not parse XML Invoice: unknown root node name (#1) (supported: (#2))",
-                           $document_nodename,
-                           $node_types,
+    my @supported = ();
+
+    foreach my $module ( $self->_document_modules ) {
+      my @module_list = $module->supported();
+      push @supported, @module_list;
+    }
+
+    my $supported_types = join(",\n", @supported);
+    $self->{message} =  t8("Could not parse XML Invoice: unknown XML invoice type\nsupported: #1",
+                           $supported_types,
                         );
     return $self;
   }
 
-  eval {require $type}; # Load the parser class
   bless $self, $type;
 
   # Implementation sanity check for child classes: make sure they are aware of
