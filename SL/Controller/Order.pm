@@ -32,6 +32,8 @@ use SL::DB::Reclamation;
 use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
+use SL::DB::EmailJournal;
+use SL::DB::EmailJournalAttachment;
 use SL::DB::ValidityToken;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
@@ -154,6 +156,18 @@ sub action_add_from_purchase_basket {
   $self->order($order);
 
   $self->action_edit();
+}
+
+sub action_add_from_email_journal {
+  my ($self) = @_;
+  my $email_journal_id    = $::form->{from_id};
+  my $email_attachment_id = $::form->{email_attachment_id};
+
+  $self->order->{RECORD_ID()}       = $email_journal_id;
+  $self->order->{RECORD_TYPE_REF()} = 'SL::DB::EmailJournal';
+  $self->{email_attachment_id} = $email_attachment_id;
+
+  $self->action_add();
 }
 
 # edit an existing order
@@ -2111,6 +2125,11 @@ sub save {
                           link_requirement_specs_linking_to_created_from_objects => \@converted_from_oe_ids,
                           set_project_in_linked_requirement_specs                => 1,
   );
+
+  if ($::form->{email_attachment_id}) {
+    my $attachment = SL::DB::EmailJournalAttachment->new(id => $::form->{email_attachment_id})->load;
+    $attachment->add_file_to_record($self->order);
+  }
 
   if ($is_new && $self->order->is_sales) {
     my $imap_client = SL::IMAPClient->new();

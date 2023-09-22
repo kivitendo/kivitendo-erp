@@ -23,6 +23,7 @@
   [% L.hidden_tag('id',                   SELF.order.id) %]
   [% L.hidden_tag('converted_from_record_type_ref', SELF.order.converted_from_record_type_ref) %]
   [% L.hidden_tag('converted_from_record_id',  SELF.order.converted_from_record_id) %]
+  [% L.hidden_tag('email_attachment_id'   , SELF.email_attachment_id) %]
 
   [% IF !SELF.order.id %]
   [%   L.hidden_tag('form_validity_token', FORM.form_validity_token) %]
@@ -34,6 +35,9 @@
 
 <ul>
   <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
+  [% IF SELF.email_attachment_id %]
+    <li><a href="#ui-tabs-email-attachment-preview">[% 'Email Attachment Preview' | $T8 %]</a></li>
+  [% END %]
   [% IF INSTANCE_CONF.get_webdav %]
     <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
   [% END %]
@@ -66,6 +70,18 @@
     cvars=SELF.order.custom_shipto.cvars_by_config
     id_selector='#order_shipto_id' %]
 </div>
+[% IF SELF.email_attachment_id %]
+<div id="ui-tabs-email-attachment-preview">
+  <div class="wrapper" id="email_attachment_wrapper">
+    [% P.email_journal.attachment_preview(
+          SELF.email_attachment_id,
+          style="border:1px solid black;margin:9px"
+          );
+     %]
+  </div><!-- /.wrapper -->
+</div><!-- /#ui-tabs-attachment-preview -->
+[% END %]
+
 
 </div><!-- /.tabwidget -->
 </form>

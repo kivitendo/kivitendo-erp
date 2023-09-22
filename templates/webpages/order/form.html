@@ -23,6 +23,7 @@
   [% L.hidden_tag('id',                   SELF.order.id) %]
   [% L.hidden_tag('converted_from_record_type_ref', SELF.order.converted_from_record_type_ref) %]
   [% L.hidden_tag('converted_from_record_id',  SELF.order.converted_from_record_id) %]
+  [% L.hidden_tag('email_attachment_id'   , SELF.email_attachment_id) %]
 
   [% IF !SELF.order.id %]
   [%   L.hidden_tag('form_validity_token', FORM.form_validity_token) %]

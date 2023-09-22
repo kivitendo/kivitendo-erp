@@ -142,9 +142,10 @@ sub action_apply_record_action {
   $additional_params{controller} = $RECORD_TYPE_TO_CONTROLLER{$record_action};
 
   $self->redirect_to(
-    action           => 'add',
-    email_journal_id => $email_journal_id,
-    attachment_id    => $attachment_id,
+    action              => 'add_from_email_journal',
+    from_id             => $email_journal_id,
+    from_type           => 'email_journal',
+    email_attachment_id => $attachment_id,
     %additional_params,
   );
 }
