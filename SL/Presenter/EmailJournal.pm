@@ -6,6 +6,7 @@ use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Tag         qw(link_tag img_tag html_tag);
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
+use SL::DB::EmailJournalAttachment;
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(email_journal entry_status attachment_preview);
@@ -46,11 +47,13 @@ sub entry_status {
 }
 
 sub attachment_preview {
-  my ($attachment, %params) = @_;
+  my ($attachment_or_id, %params) = @_;
 
-  if (! $attachment) {
+  if (! $attachment_or_id) {
     return is_escaped(html_tag('div', '', id => 'attachment_preview'));
   }
+  my $attachment = ref $attachment_or_id ? $attachment_or_id
+     : SL::DB::EmailJournalAttachment->new(id => $attachment_or_id)->load;
 
   # clean up mime_type
   my $mime_type = $attachment->mime_type;
