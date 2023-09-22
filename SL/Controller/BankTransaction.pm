@@ -669,7 +669,7 @@ sub save_single_bank_transaction {
 
       my ($payment_type, $free_skonto_amount);
       if ( defined $::form->{invoice_skontos}->{"$bt_id"} ) {
-        $payment_type = shift(@{ $::form->{invoice_skontos}->{"$bt_id"} });
+        $payment_type = shift(@{ $::form->{invoice_skontos}->{"$bt_id"} }) || '';
       } else {
         $payment_type = 'without_skonto';
       }
