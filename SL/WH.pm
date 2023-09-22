@@ -659,7 +659,7 @@ sub get_warehouse_report {
           qw(l_parts_id l_qty l_partunit) );
 
   # add cvar for sorting
-  if ($form->{sort} =~ /^cvar_/) {
+  if (($form->{sort} // '') =~ /^cvar_/) {
     my $sort_name = $form->{sort};
     my $cvar_name = $sort_name;
     $cvar_name =~ s/^cvar_//;
