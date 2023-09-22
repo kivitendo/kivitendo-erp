@@ -250,6 +250,7 @@ available from C<SL::XMLInvoice>.
 
 sub _document_modules {
   return (
+    'SL::XMLInvoice::CrossIndustryDocument',
     'SL::XMLInvoice::CrossIndustryInvoice',
     'SL::XMLInvoice::UBL',
   );
