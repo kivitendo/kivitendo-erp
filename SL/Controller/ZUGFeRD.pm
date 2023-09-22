@@ -138,9 +138,9 @@ sub action_import_zugferd {
   die t8("can only parse a pdf or xml file")      unless $file =~ m/^%PDF|<\?xml/;
 
   if ( $::form->{file} =~ m/^%PDF/ ) {
-    %res = %{SL::ZUGFeRD->extract_from_pdf($::form->{file})}
+    %res = %{SL::ZUGFeRD->extract_from_pdf($file)};
   } else {
-    %res = %{SL::ZUGFeRD->extract_from_xml($::form->{file})};
+    %res = %{SL::ZUGFeRD->extract_from_xml($file)};
   }
 
   if ($res{'result'} != SL::ZUGFeRD::RES_OK()) {
