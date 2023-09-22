@@ -846,8 +846,10 @@ sub post {
     # no taxincluded for reverse charge
     my ($used_tax_id) = split(/--/, $form->{"taxchart_$i"});
     my $tax = SL::DB::Manager::Tax->find_by(id => $used_tax_id);
-    if ($tax->reverse_charge_chart_id && $form->{taxincluded}) {
-      $form->error($locale->text('Cannot Post AP transaction with tax included!'));
+    # mark entry
+    if ($tax->reverse_charge_chart_id) {
+      $form->error($locale->text('Cannot Post AP transaction with tax included!')) if $form->{taxincluded};
+      $form->{"reverse_charge_$i"} = 1;
     }
 
     if ($form->parse_amount(\%myconfig, $form->{"amount_$i"})) {
