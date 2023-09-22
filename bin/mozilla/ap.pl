@@ -912,6 +912,54 @@ sub post {
       $form->{what_done} = "invoice";
       $form->save_history;
     }
+    # save zugferd file
+    my $file_name = delete $form->{zugferd_session_file};
+    if ($file_name) {
+      my $file = SL::SessionFile->new($file_name, mode => '<');
+      if (!$file->fh) {
+        SL::Helper::Flash::flash_later('error',
+          t8('Could not open ZUGFeRD file for reading: #1', $@));
+      } else {
+
+        # copy file to webdav folder
+        if ($form->{invnumber} && $::instance_conf->get_webdav_documents) {
+          my $webdav = SL::Webdav->new(
+            type     => 'accounts_payable',
+            number   => $form->{invnumber},
+          );
+          my $webdav_file = SL::Webdav::File->new(
+            webdav => $webdav,
+            filename => $file_name,
+          );
+          eval {
+            $webdav_file->store(file => $file->file_name());
+            1;
+          } or do {
+            $form->{zugferd_session_file} = $file_name;
+            SL::Helper::Flash::flash_later('error',
+              t8('Storing the ZUGFeRD file to the WebDAV folder failed: #1', $@));
+          };
+        }
+        if ($form->{id} && $::instance_conf->get_doc_storage) {
+          eval {
+            SL::File->save(
+              object_id     => $form->{id},
+              object_type   => 'purchase_invoice',
+              mime_type     => 'application/pdf',
+              source        => 'uploaded',
+              file_type     => 'document',
+              file_name     => $file_name,
+              file_path     => $file->file_name(),
+            );
+            1;
+          } or do {
+            $form->{zugferd_session_file} = $file_name;
+            SL::Helper::Flash::flash_later('error',
+              t8('Storing the ZUGFeRD file in the storage backend failed: #1', $@));
+          };
+        }
+      }
+    }
 
     if (!$inline) {
       my $msg = $locale->text("AP transaction '#1' posted (ID: #2)", $form->{invnumber}, $form->{id});

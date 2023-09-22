@@ -41,6 +41,7 @@
 <input type="hidden" name="rowcount" value="[% rowcount | html %]">
 
 <input type="hidden" name="paidaccounts" value="[% paidaccounts | html %]">
+[% L.hidden_tag('zugferd_session_file', zugferd_session_file) %]
 
 [%- P.hidden_tag('convert_from_oe_id', convert_from_oe_id) -%]
 
