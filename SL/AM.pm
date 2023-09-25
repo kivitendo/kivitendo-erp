@@ -97,8 +97,10 @@ sub get_account {
     }
 
     my $active_taxkey = $chart_obj->get_active_taxkey;
-    $form->{$_}  = $active_taxkey->$_ foreach qw(taxkey_id pos_ustva tax_id startdate);
-    $form->{tax} = $active_taxkey->tax_id . '--' . $active_taxkey->taxkey_id;
+    if ($active_taxkey) {
+      $form->{$_}  = $active_taxkey->$_ foreach qw(taxkey_id pos_ustva tax_id startdate);
+      $form->{tax} = $active_taxkey->tax_id . '--' . $active_taxkey->taxkey_id;
+    }
 
     # check if there are any transactions for this chart
     $form->{orphaned} = $chart_obj->has_transaction ? 0 : 1;
