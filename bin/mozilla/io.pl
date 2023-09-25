@@ -515,7 +515,7 @@ sub display_row {
     } else {
       $real_sellprice            = $linetotal;
     };
-    my $real_lastcost            = $form->round_amount($form->{"lastcost_$i"} * $form->{"qty_$i"} / $price_factor, 2);
+    my $real_lastcost            = $form->round_amount($form->{"lastcost_$i"} * $form->{"qty_$i"}, 2);
     my $marge_percent_warn       = $myconfig{marge_percent_warn} * 1 || 15;
     my $marge_adjust_credit_note = $form->{type} eq 'credit_note' ? -1 : 1;
 
