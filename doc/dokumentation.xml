@@ -687,7 +687,7 @@ tar xvzf kivitendo-erp-*.tgz</programlisting>
       <programlisting>chown www-data templates users</programlisting>
 
       <note>
-        <para>Wir empfehlen eine Installation mittels des Versionsmanagager
+        <para>Wir empfehlen eine Installation mittels des Versionsmanager
         git. Hierfür muss ein git-Client installiert sein. Damit ist man sehr
         viel flexibler für zukünftige Upgrades. Installations-Anleitung (bitte
         die Pfade anpassen) bspw. wie folgt: <programlisting>cd /var/www/
