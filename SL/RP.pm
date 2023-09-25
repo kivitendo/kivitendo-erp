@@ -1055,7 +1055,6 @@ sub trial_balance {
          $customer_join
          WHERE $saldowhere
            $dpt_where_without_arapgl
-           $dpt_where
            $customer_where
            $project
          AND c.accno = ? AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)) AS saldo,
@@ -1066,7 +1065,6 @@ sub trial_balance {
          $customer_join
          WHERE $sumwhere
            $dpt_where_without_arapgl
-           $dpt_where
            $customer_where
            $project
          AND ac.amount > 0
@@ -1077,7 +1075,6 @@ sub trial_balance {
          JOIN chart c ON (ac.chart_id = c.id)
          $customer_join
          WHERE $sumwhere
-           $dpt_where
            $dpt_where_without_arapgl
            $customer_where
            $project
