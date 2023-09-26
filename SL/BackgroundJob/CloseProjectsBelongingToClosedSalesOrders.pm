@@ -24,8 +24,7 @@ sub run {
       SELECT oe.globalproject_id
       FROM oe
       WHERE (oe.globalproject_id IS NOT NULL)
-        AND (oe.customer_id      IS NOT NULL)
-        AND NOT COALESCE(oe.quotation, FALSE)
+        AND oe.record_type = 'sales_order'
         AND     COALESCE(oe.closed,    FALSE)
     )
 EOSQL

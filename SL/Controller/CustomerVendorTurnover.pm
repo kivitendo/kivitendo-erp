@@ -8,6 +8,7 @@ use SL::DBUtils;
 use SL::DB::AccTransaction;
 use SL::DB::Invoice;
 use SL::DB::Order;
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::EmailJournal;
 use SL::DB::Letter;
 use SL::DB;
@@ -282,7 +283,7 @@ sub action_get_orders {
     $orders = SL::DB::Manager::Order->get_all(
       query   => [
                    customer_id => $cv,
-                   quotation   => ($type eq 'quotation' ? 'T' : 'F')
+                   record_type => ($type eq 'quotation' ? SALES_QUOTATION_TYPE() : SALES_ORDER_TYPE())
                  ],
       sort_by => 'transdate DESC',
     );
@@ -290,7 +291,7 @@ sub action_get_orders {
     $orders = SL::DB::Manager::Order->get_all(
       query   => [
                    vendor_id => $cv,
-                   quotation => ($type eq 'quotation' ? 'T' : 'F')
+                   record_type => ($type eq 'quotation' ? REQUEST_QUOTATION_TYPE() : PURCHASE_ORDER_TYPE())
                  ],
       sort_by => 'transdate DESC',
     );
@@ -346,7 +347,7 @@ sub action_get_mails {
     $query = <<SQL;
 WITH
 oe_emails_customer
-       AS (SELECT rc.to_id, rc.from_id, oe.quotation, oe.quonumber, oe.ordnumber, c.id
+       AS (SELECT rc.to_id, rc.from_id, oe.record_type, oe.quonumber, oe.ordnumber, c.id
      FROM record_links rc
 LEFT JOIN oe oe      ON rc.from_id = oe.id
 LEFT JOIN customer c ON oe.customer_id = c.id
@@ -379,12 +380,12 @@ LEFT JOIN customer c ON l.customer_id = c.id
 
 SELECT ej.*,
  CASE
-  oec.quotation WHEN 'F' THEN 'Sales Order'
-                ELSE 'Quotation'
+  oec.record_type WHEN 'sales_order' THEN 'Sales Order'
+                  ELSE 'Quotation'
  END AS type,
  CASE
-  oec.quotation WHEN 'F' THEN oec.ordnumber
-                ELSE oec.quonumber
+  oec.record_type WHEN 'sales_order' THEN oec.ordnumber
+                  ELSE oec.quonumber
  END    AS recordnumber,
  oec.id AS record_id
      FROM email_journal ej
@@ -425,7 +426,7 @@ SQL
     $query = <<SQL;
 WITH
 oe_emails_vendor
-       AS (SELECT rc.to_id, rc.from_id, oe.quotation, oe.quonumber, oe.ordnumber, c.id
+       AS (SELECT rc.to_id, rc.from_id, oe.record_type, oe.quonumber, oe.ordnumber, c.id
      FROM record_links rc
 LEFT JOIN oe oe ON rc.from_id = oe.id
 LEFT JOIN vendor c ON oe.vendor_id = c.id
@@ -458,12 +459,12 @@ LEFT JOIN vendor c ON l.vendor_id = c.id
 
 SELECT ej.*,
  CASE
-  oec.quotation WHEN 'F' THEN 'Purchase Order'
-                ELSE 'Request quotation'
+  oec.record_type WHEN 'purchase_order' THEN 'Purchase Order'
+                  ELSE 'Request quotation'
  END AS type,
  CASE
-  oec.quotation WHEN 'F' THEN oec.ordnumber
-                ELSE oec.quonumber
+  oec.record_type WHEN 'purchase_order' THEN oec.ordnumber
+                  ELSE oec.quonumber
  END   AS recordnumber,
 oec.id AS record_id
      FROM email_journal ej

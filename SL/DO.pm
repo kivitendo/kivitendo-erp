@@ -301,13 +301,13 @@ SQL
 
   $form->{DO} = selectall_hashref_query($form, $dbh, $query, @values);
 
+  my $record_type = $vc eq 'customer' ? 'sales_order' : 'purchase_order';
   if (scalar @{ $form->{DO} }) {
     $query =
       qq|SELECT id
          FROM oe
-         WHERE NOT COALESCE(quotation, FALSE)
-           AND (ordnumber = ?)
-           AND (COALESCE(${vc}_id, 0) != 0)|;
+         WHERE (record_type = '$record_type'
+           AND (ordnumber = ?)|;
 
     my $sth = prepare_query($form, $dbh, $query);
 

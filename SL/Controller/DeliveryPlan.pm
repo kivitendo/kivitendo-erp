@@ -164,14 +164,13 @@ sub make_filter_summary {
 
 sub delivery_plan_query_linked_items {
   my ($self) = @_;
-  my $vc     = $self->vc;
+  my $record_type = ($self->vc eq 'customer' ? SALES_ORDER_TYPE() : PURCHASE_ORDER_TYPE());
   my $employee_id = SL::DB::Manager::Employee->current->id;
   my $oe_owner = $_[0]->all_edit_right ? '' : " oe.employee_id = $employee_id AND";
 
   [
-  "order.${vc}_id" => { gt => 0 },
+  record_type => $record_type,
   'order.closed' => 0,
-  or => [ 'order.quotation' => 0, 'order.quotation' => undef ],
 
   # filter by shipped_qty < qty, read from innermost to outermost
   'id' => [ \"
@@ -180,8 +179,7 @@ sub delivery_plan_query_linked_items {
       FROM orderitems oi, oe, record_links rl, delivery_order_items doi
       WHERE
         oe.id = oi.trans_id AND
-        oe.${vc}_id IS NOT NULL AND
-        (oe.quotation = 'f' OR oe.quotation IS NULL) AND
+        oe.record_type = '$record_type' AND
         NOT oe.closed AND
         $oe_owner
         doi.id = rl.to_id AND
@@ -199,8 +197,7 @@ sub delivery_plan_query_linked_items {
     SELECT oi.id FROM orderitems oi, oe
     WHERE
       oe.id = oi.trans_id AND
-      oe.${vc}_id IS NOT NULL AND
-      (oe.quotation = 'f' OR oe.quotation IS NULL) AND
+      oe.record_type = '$record_type' AND
       NOT oe.closed AND
       $oe_owner
       NOT EXISTS (

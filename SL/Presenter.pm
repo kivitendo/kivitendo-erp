@@ -153,7 +153,9 @@ SL::Presenter - presentation layer class
   use SL::DB::Order;
   use SL::Presenter::Record qw(grouped_record_list);
 
-  my $quotation = SL::DB::Manager::Order->get_first(where => { quotation => 1 });
+  my $quotation = SL::DB::Manager::Order->get_first(
+    where => [ or => ['record_type' => 'sales_quotation',
+                      'record_type' => 'request_quotation' ]]);
   my $records   = $quotation->linked_records(direction => 'to');
   my $html      = grouped_record_list($records);
 

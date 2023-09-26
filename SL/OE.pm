@@ -68,8 +68,7 @@ sub transactions {
 
   my $query;
   my $ordnumber = 'ordnumber';
-  my $quotation = '0';
-  my $intake    = '0';
+  my $record_type = $form->{type};
 
   my @values;
   my $where;
@@ -79,17 +78,10 @@ sub transactions {
   my $rate = ($form->{vc} eq 'customer') ? 'buy' : 'sell';
 
   if ($form->{type} =~ /_quotation$/) {
-    $quotation = '1';
     $ordnumber = 'quonumber';
 
   } elsif ($form->{type} eq 'purchase_quotation_intake') {
-    $intake = '1';
-    $quotation = '1';
     $ordnumber = 'quonumber';
-
-  } elsif ($form->{type} =~ /_order_intake$/) {
-    $intake = '1';
-
   } elsif ($form->{type} eq 'sales_order') {
     $periodic_invoices_columns = qq| , COALESCE(pcfg.active, 'f') AS periodic_invoices |;
     $periodic_invoices_joins   = qq| LEFT JOIN periodic_invoices_configs pcfg ON (o.id = pcfg.oe_id) |;
@@ -172,10 +164,8 @@ sub transactions {
        )| .
     qq|$periodic_invoices_joins | .
     $phone_notes_join .
-    qq|WHERE (o.quotation = ?) | .
-    qq|  AND (o.intake = ?) |;
-  push(@values, $quotation);
-  push(@values, $intake);
+    qq|WHERE (o.record_type = ?) |;
+  push(@values, $record_type);
 
   if ($form->{department_id}) {
     $query .= qq| AND o.department_id = ?|;
@@ -565,7 +555,7 @@ sub transactions_for_todo_list {
        LEFT JOIN customer c ON (oe.customer_id = c.id)
        LEFT JOIN vendor v   ON (oe.vendor_id   = v.id)
        LEFT JOIN employee e ON (oe.employee_id = e.id)
-       WHERE (COALESCE(quotation, FALSE) = TRUE)
+       WHERE ((oe.record_type = 'sales_quotation') OR (oe.record_type = 'request_quotation'))
          AND (COALESCE(closed,    FALSE) = FALSE)
          AND ((oe.employee_id = ?) OR (oe.salesman_id = ?))
          AND NOT (oe.reqdate ISNULL)
@@ -1088,14 +1078,14 @@ sub _close_quotations_rfqs {
 
   SL::DB->client->with_transaction(sub {
 
-    my $query    = qq|SELECT quotation FROM oe WHERE id = ?|;
+    my $query    = qq|SELECT record_type FROM oe WHERE id = ?|;
     my $sth      = prepare_query($form, $dbh, $query);
 
     do_statement($form, $sth, $query, conv_i($params{to_id}));
 
-    my ($quotation) = $sth->fetchrow_array();
+    my ($record_type) = $sth->fetchrow_array();
 
-    if ($quotation) {
+    if ($record_type =~ /_quotation$/) {
       return 1;
     }
 
@@ -1104,8 +1094,8 @@ sub _close_quotations_rfqs {
     foreach my $from_id (@{ $params{from_id} }) {
       $from_id = conv_i($from_id);
       do_statement($form, $sth, $query, $from_id);
-      ($quotation) = $sth->fetchrow_array();
-      push @close_ids, $from_id if ($quotation);
+      ($record_type) = $sth->fetchrow_array();
+      push @close_ids, $from_id if ($record_type =~ /_quotation$/);
     }
 
     $sth->finish();

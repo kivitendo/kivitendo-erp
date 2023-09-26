@@ -39,8 +39,7 @@
 SELECT extract(YEAR FROM oe.transdate) AS &quot;Jahr&quot;, SUM(oe.amount) AS &quot;Angebotssumme&quot;
 FROM oe
 LEFT JOIN employee ON (oe.employee_id = employee.id)
-WHERE (oe.customer_id IS NOT NULL)
-  AND COALESCE(oe.quotation, FALSE)
+WHERE record_type = 'sales_quotation'
   AND (employee.login = &lt;%Benutzer-Login%&gt;)
 GROUP BY &quot;Jahr&quot;
 ORDER BY &quot;Jahr&quot;

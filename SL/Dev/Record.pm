@@ -743,7 +743,7 @@ sub create_gl_transaction {
 sub _create_sales_order_or_quotation {
   my (%params) = @_;
 
-  my $record_type = $params{type};
+  my $record_type = delete $params{type};
   die "illegal type" unless $record_type eq SALES_ORDER_TYPE() or $record_type eq SALES_QUOTATION_TYPE();
 
   my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
@@ -755,7 +755,7 @@ sub _create_sales_order_or_quotation {
   die "illegal customer" unless ref($customer) eq 'SL::DB::Customer';
 
   my $record = SL::DB::Order->new(
-    record_type  => delete $params{type},
+    record_type  => $record_type,
     customer_id  => delete $params{customer_id} // $customer->id,
     taxzone_id   => delete $params{taxzone_id}  // $customer->taxzone->id,
     currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
@@ -763,7 +763,6 @@ sub _create_sales_order_or_quotation {
     employee_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
     salesman_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
     transdate    => delete $params{transdate}   // DateTime->today,
-    quotation    => $record_type eq 'sales_quotation' ? 1 : 0,
     orderitems   => $orderitems,
   );
   $record->assign_attributes(%params) if %params;
@@ -777,7 +776,7 @@ sub _create_sales_order_or_quotation {
 sub _create_purchase_order_or_quotation {
   my (%params) = @_;
 
-  my $record_type = $params{type};
+  my $record_type = delete $params{type};
   die "illegal type" unless $record_type eq PURCHASE_ORDER_TYPE() or $record_type eq REQUEST_QUOTATION_TYPE();
   my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
   _check_items($orderitems, $record_type);
@@ -788,14 +787,13 @@ sub _create_purchase_order_or_quotation {
   die "illegal vendor" unless ref($vendor) eq 'SL::DB::Vendor';
 
   my $record = SL::DB::Order->new(
-    record_type  => delete $params{type},
+    record_type  => $record_type,
     vendor_id    => delete $params{vendor_id}   // $vendor->id,
     taxzone_id   => delete $params{taxzone_id}  // $vendor->taxzone->id,
     currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
     taxincluded  => delete $params{taxincluded} // 0,
     transdate    => delete $params{transdate}   // DateTime->today,
     'closed'     => undef,
-    quotation    => $record_type eq REQUEST_QUOTATION_TYPE() ? 1 : 0,
     orderitems   => $orderitems,
   );
   $record->assign_attributes(%params) if %params;

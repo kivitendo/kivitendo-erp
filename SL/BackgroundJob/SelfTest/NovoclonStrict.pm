@@ -66,9 +66,7 @@ sub check_no_missing_deliveries {
   my $title          = "Alle offenen Auftragsbestätigungen mit Liefertermin vor mindestens $days_delta Werktagen haben eine Lieferung.";
 
   my $latest_reqdate = DateTime->today_local->subtract_businessdays(days => $days_delta);
-  my $orders         = SL::DB::Manager::Order->get_all_sorted(where => ['!customer_id'  => undef,
-                                                                        or              => [quotation => undef, quotation => 0],
-                                                                        or              => [intake    => undef, intake    => 0],
+  my $orders         = SL::DB::Manager::Order->get_all_sorted(where => [record_type     => 'sales_order',
                                                                         or              => [closed    => undef, closed    => 0],
                                                                         reqdate         => {le => $latest_reqdate},
                                                                         transdate       => {ge => $self->start_date},]);
@@ -122,9 +120,7 @@ sub check_no_missing_order_confirmations {
 
   my $latest_transdate = DateTime->today_local->subtract_businessdays(days => $days_delta);
 
-  my $orders           = SL::DB::Manager::Order->get_all_sorted(where => ['!customer_id'  => undef,
-                                                                          intake          => 1,
-                                                                          or              => [quotation => undef, quotation => 0],
+  my $orders           = SL::DB::Manager::Order->get_all_sorted(where => [record_type     => 'sales_order_intake',
                                                                           or              => [closed    => undef, closed    => 0],
                                                                           transdate       => {le => $latest_transdate},
                                                                           transdate       => {ge => $self->start_date},]);
@@ -179,9 +175,7 @@ sub check_order_confirmations_mailed {
 
   my $latest_transdate = DateTime->today_local->subtract_businessdays(days => $days_delta);
 
-  my $orders           = SL::DB::Manager::Order->get_all_sorted(where => ['!customer_id'  => undef,
-                                                                          or              => [quotation => undef, quotation => 0],
-                                                                          or              => [intake    => undef, intake    => 0],
+  my $orders           = SL::DB::Manager::Order->get_all_sorted(where => [record_type     => 'sales_order',
                                                                           or              => [closed    => undef, closed    => 0],
                                                                           transdate       => {le => $latest_transdate},
                                                                           transdate       => {ge => $self->start_date},]);
@@ -203,9 +197,7 @@ sub check_quotations_mailed {
 
   my $latest_transdate = DateTime->today_local->subtract_businessdays(days => $days_delta);
 
-  my $orders           = SL::DB::Manager::Order->get_all_sorted(where => ['!customer_id'  => undef,
-                                                                          quotation       => 1,
-                                                                          or              => [intake    => undef, intake    => 0],
+  my $orders           = SL::DB::Manager::Order->get_all_sorted(where => [record_type     => 'request_quotion',
                                                                           or              => [closed    => undef, closed    => 0],
                                                                           transdate       => {le => $latest_transdate},
                                                                           transdate       => {ge => $self->start_date},]);

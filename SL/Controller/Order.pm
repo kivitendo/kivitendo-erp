@@ -1451,13 +1451,11 @@ sub action_close_quotations {
 
   my $sales_quotations   = SL::DB::Manager::Order->get_all(where => [id            => $::form->{ids},
                                                                      or             => [closed => 0, closed => undef],
-                                                                     quotation      => 1,
-                                                                     '!customer_id' => undef]);
+                                                                     record_type    => SALES_QUOTATION_TYPE()]);
 
   my $request_quotations = SL::DB::Manager::Order->get_all(where => [id            => $::form->{ids},
                                                                      or             => [closed => 0, closed => undef],
-                                                                     quotation      => 1,
-                                                                     '!vendor_id'   => undef]);
+                                                                     record_type    => REQUEST_QUOTATION_TYPE()]);
 
   $::auth->assert('sales_quotation_edit')   if scalar @$sales_quotations;
   $::auth->assert('request_quotation_edit') if scalar @$request_quotations;
@@ -1877,8 +1875,6 @@ sub make_order {
   $order   = SL::DB::Order->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
   $order ||= SL::DB::Order->new(orderitems  => [],
                                 record_type => $self->type,
-                                quotation   => (any { $self->type eq $_ } (SALES_QUOTATION_TYPE(), REQUEST_QUOTATION_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())),
-                                intake      => (any { $self->type eq $_ } (SALES_ORDER_INTAKE_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())),
                                 currency_id => $::instance_conf->get_currency_id(),);
 
   my $cv_id_method = $self->cv . '_id';
@@ -2137,7 +2133,11 @@ sub save {
   my $is_new = !$self->order->id;
 
   my $objects_to_close = scalar @converted_from_oe_ids
-                       ? SL::DB::Manager::Order->get_all(where => [id => \@converted_from_oe_ids, quotation => 1])
+                       ? SL::DB::Manager::Order->get_all(where => [
+                           id => \@converted_from_oe_ids,
+                           or => [ record_type => SALES_QUOTATION_TYPE(),
+                                   record_type => REQUEST_QUOTATION_TYPE()]
+                           ])
                        : undef;
 
   my $items_to_delete  = scalar @{ $self->item_ids_to_delete || [] }

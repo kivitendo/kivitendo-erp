@@ -306,7 +306,7 @@ sub sort_linked_records {
   $sort_dir = $sort_dir * 1 ? 1 : -1;
 
   my %numbers = ( 'SL::DB::SalesProcess'    => sub { $_[0]->id },
-                  'SL::DB::Order'           => sub { $_[0]->quotation ? $_[0]->quonumber : $_[0]->ordnumber },
+                  'SL::DB::Order'           => sub { $_[0]->record_number },
                   'SL::DB::DeliveryOrder'   => sub { $_[0]->donumber },
                   'SL::DB::Invoice'         => sub { $_[0]->invnumber },
                   'SL::DB::PurchaseInvoice' => sub { $_[0]->invnumber },

@@ -33,8 +33,12 @@ reset_state();
 reset_basic_sales_records();
 reset_basic_purchase_records();
 
-is(SL::DB::Manager::Order->get_all_count(where => [ quotation => 1 ]), 2, 'number of quotations before delete ok');
-is(SL::DB::Manager::Order->get_all_count(where => [ quotation => 0 ]), 2, 'number of orders before delete ok');
+is(SL::DB::Manager::Order->get_all_count(
+    where => [ or  => ['record_type'  => 'sales_quotation', 'record_type'  => 'request_quotation' ]]),
+  2, 'number of quotations before delete ok');
+is(SL::DB::Manager::Order->get_all_count(
+    where => [ and => ['!record_type' => 'sales_quotation', '!record_type' => 'request_quotation' ]]),
+  2, 'number of orders before delete ok');
 is(SL::DB::Manager::DeliveryOrder->get_all_count(), 2, 'number of delivery orders before delete ok');
 is(SL::DB::Manager::Reclamation->get_all_count(), 2, 'number of reclamations before delete ok');
 # is(SL::DB::Manager::Invoice->get_all_count(), 1, 'number of invoices before delete ok'); # no purchase_invoice was created
@@ -54,8 +58,12 @@ foreach my $record ( ($sales_quotation1,
   ok($record_history->snumbers =~ m/_/, "history snumbers of record " . $record_history->snumbers . " ok");
 };
 
-is(SL::DB::Manager::Order->get_all_count(where => [ quotation => 1 ]), 0, 'number of quotations after delete ok');
-is(SL::DB::Manager::Order->get_all_count(where => [ quotation => 0 ]), 0, 'number of orders after delete ok');
+is(SL::DB::Manager::Order->get_all_count(
+    where => [ or  => ['record_type'  => 'sales_quotation', 'record_type'  => 'request_quotation' ]]),
+  0, 'number of quotations after delete ok');
+is(SL::DB::Manager::Order->get_all_count(
+    where => [ and => ['!record_type' => 'sales_quotation', '!record_type' => 'request_quotation' ]]),
+  0, 'number of orders after delete ok');
 # is(SL::DB::Manager::Invoice->get_all_count(), 0, 'number of invoices after delete ok');
 is(SL::DB::Manager::Reclamation->get_all_count(), 0, 'number of orders after delete ok');
 
@@ -70,7 +78,9 @@ is($sales_order1->ordnumber, "ord-01", "ordnumber before increment_subversion ok
 SL::DB::OrderVersion->new(oe_id => $sales_order1->id, version => 1, final_version => 1)->save;
 SL::Model::Record->increment_subversion($sales_order1);
 is($sales_order1->ordnumber, "ord-01-2", "ordnumber after increment_subversion ok");
-is(SL::DB::Manager::Order->get_all_count(where => [quotation => 0]), 2, 'number of orders after incremented subversion ok');
+is(SL::DB::Manager::Order->get_all_count(
+    where => [ and => ['!record_type' => 'sales_quotation', '!record_type' => 'request_quotation' ]]),
+  2, 'number of orders after incremented subversion ok');
 
 
 note "testing new_from_workflow for quotation";

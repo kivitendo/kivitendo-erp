@@ -67,15 +67,16 @@ sub reset_state {
 
 sub new_order {
   my %params  = @_;
+  my $record_type = delete $params{record_type};
+  $record_type ||= SALES_ORDER_TYPE();
 
   return SL::DB::Order->new(
-    record_type => SALES_ORDER_TYPE(),
+    record_type => $record_type,
     customer_id => $customer->id,
     currency_id => $currency_id,
     employee_id => $employee->id,
     salesman_id => $employee->id,
     taxzone_id  => $taxzone->id,
-    quotation   => 0,
     %params,
   )->save;
 }
@@ -152,14 +153,14 @@ $links = $i->linked_records(direction => 'from', from => 'Order');
 is @$links, 0, 'no dangling link after delete';
 
 # can we distinguish between types?
-$o1 = new_order(quotation => 1);
+$o1 = new_order(record_type => SALES_QUOTATION_TYPE());
 $o2 = new_order();
 $o1->link_to_record($o2);
 
-$links = $o2->linked_records(direction => 'from', from => 'Order', query => [ quotation => 1 ]);
+$links = $o2->linked_records(direction => 'from', from => 'Order', query => [ record_type => SALES_QUOTATION_TYPE() ]);
 is $links->[0]->id, $o1->id, 'query restricted retrieve 1';
 
-$links = $o2->linked_records(direction => 'from', from => 'Order', query => [ quotation => 0 ]);
+$links = $o2->linked_records(direction => 'from', from => 'Order', query => [ record_type => SALES_ORDER_TYPE() ]);
 is @$links, 0, 'query restricted retrieve 2';
 
 # try bidirectional linking

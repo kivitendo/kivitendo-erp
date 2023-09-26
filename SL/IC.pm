@@ -216,9 +216,9 @@ sub all_parts {
        ) AS ioi ON ioi.parts_id = p.id|,
     apoe       =>
       q|LEFT JOIN (
-         SELECT id, transdate, 'ir' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation, NULL AS customer_id,         vendor_id,    NULL AS deliverydate, globalproject_id, 'invoice'    AS ioi FROM ap UNION
-         SELECT id, transdate, 'is' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation,         customer_id, NULL AS vendor_id,            deliverydate, globalproject_id, 'invoice'    AS ioi FROM ar UNION
-         SELECT id, transdate, 'oe' AS module, ordnumber, quonumber, NULL AS invnumber,          quotation,         customer_id,         vendor_id, reqdate AS deliverydate, globalproject_id, 'orderitems' AS ioi FROM oe
+         SELECT id, transdate, 'ir' AS module, ordnumber, quonumber,         invnumber, 'purchase_invoice' AS record_type, NULL AS customer_id,         vendor_id,    NULL AS deliverydate, globalproject_id, 'invoice'    AS ioi FROM ap UNION
+         SELECT id, transdate, 'is' AS module, ordnumber, quonumber,         invnumber, 'sales_invoice'    AS record_type,         customer_id, NULL AS vendor_id,            deliverydate, globalproject_id, 'invoice'    AS ioi FROM ar UNION
+         SELECT id, transdate, 'oe' AS module, ordnumber, quonumber, NULL AS invnumber,                       record_type,         customer_id,         vendor_id, reqdate AS deliverydate, globalproject_id, 'orderitems' AS ioi FROM oe
        ) AS apoe ON ((ioi.trans_id = apoe.id) AND (ioi.ioi = apoe.ioi))|,
     cv         =>
       q|LEFT JOIN (
@@ -244,7 +244,7 @@ sub all_parts {
      description  => 'p.',
      qty          => 'ioi.',
      serialnumber => 'ioi.',
-     quotation    => 'apoe.',
+     record_type  => 'apoe.',
      cv           => 'cv.',
      "ioi.id"     => ' ',
      "ioi.ioi"    => ' ',
@@ -441,15 +441,15 @@ sub all_parts {
   my $bsooqr        = any { $form->{$_} } @oe_flags;
   my @bsooqr_tokens = ();
 
-  push @select_tokens, @qsooqr_flags, 'quotation', 'cv', 'ioi.id', 'ioi.ioi'  if $bsooqr;
+  push @select_tokens, @qsooqr_flags, 'record_type', 'cv', 'ioi.id', 'ioi.ioi'  if $bsooqr;
   push @select_tokens, @deliverydate_flags                                    if $bsooqr && $form->{l_deliverydate};
   push @select_tokens, $q_assembly_lastcost                                   if $form->{l_assembly} && $form->{l_lastcost};
   push @bsooqr_tokens, q|module = 'ir' AND NOT ioi.assemblyitem|              if $form->{bought};
   push @bsooqr_tokens, q|module = 'is' AND NOT ioi.assemblyitem|              if $form->{sold};
-  push @bsooqr_tokens, q|module = 'oe' AND NOT quotation AND cv = 'customer'| if $form->{ordered};
-  push @bsooqr_tokens, q|module = 'oe' AND NOT quotation AND cv = 'vendor'|   if $form->{onorder};
-  push @bsooqr_tokens, q|module = 'oe' AND     quotation AND cv = 'customer'| if $form->{quoted};
-  push @bsooqr_tokens, q|module = 'oe' AND     quotation AND cv = 'vendor'|   if $form->{rfq};
+  push @bsooqr_tokens, q|module = 'oe' AND record_type = 'sales_order'|       if $form->{ordered};
+  push @bsooqr_tokens, q|module = 'oe' AND record_type = 'purchase_order'|    if $form->{onorder};
+  push @bsooqr_tokens, q|module = 'oe' AND record_type = 'sales_quotation'|   if $form->{quoted};
+  push @bsooqr_tokens, q|module = 'oe' AND record_type = 'request_quotation'| if $form->{rfq};
   push @where_tokens, join ' OR ', map { "($_)" } @bsooqr_tokens              if $bsooqr;
 
   $joins_needed{partsgroup}  = 1;
