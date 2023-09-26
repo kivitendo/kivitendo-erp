@@ -97,7 +97,7 @@ sub sales_order {
 }
 
 sub type {
-  goto &order_type;
+  goto &record_type;
 }
 
 sub is_type {
