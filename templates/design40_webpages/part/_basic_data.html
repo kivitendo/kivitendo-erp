@@ -256,26 +256,42 @@
   </table>
 </div><!-- /.col -->
 
+[% IF CUSTOM_VARIABLES_FIRST_TAB %]
 <div class="col">
-  <table class="tbl-horizontal">
-    <caption>[% 'Custom Variables' | $T8 %]</caption>
-    <colgroup> <col class="wi-small"><col class="wi-mediumsmall"> </colgroup>
-    <tbody>
-      [% IF CUSTOM_VARIABLES_FIRST_TAB %]
-      <tr><td>[% 'Unchecked custom variables will not appear in orders and invoices.' | $T8 %]</td></tr>
-      [%- FOREACH var = CUSTOM_VARIABLES_FIRST_TAB %]
-      <tr>
-        <td align="left" valign="top">[% var.VALID_BOX %]
-          [%- IF !var.partsgroup_filtered %]
+<table id="custom_variables_table" class="tbl-list wi-moderate">
+  <caption>[% 'Custom Variables' | $T8 %]</caption>
+  <colgroup>
+    <col class="wi-smallest">
+    <col class="wi-small">
+    <col class="wi-lightwide">
+  </colgroup>
+  <thead>
+    <tr>
+      <th></th>
+      <th>[% 'Description' | $T8 %]</th>
+      <th>[% 'Value' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+  [%- FOREACH var = CUSTOM_VARIABLES_FIRST_TAB %]
+    <tr>
+      <td>[% var.VALID_BOX %]</td>
+      <td>
+        [%- IF !var.partsgroup_filtered %]
           [% HTML.escape(var.description) %]
-          [%- END %]
-      </tr>
-      <tr><td>[% var.HTML_CODE %]</td></tr>
-      [%- END %]
-      [% END %]
-    </tbody>
-  </table>
+        [%- END %]
+      </td>
+      <td>[% var.HTML_CODE %]</td>
+    </tr>
+  [%- END %]
+  </tbody>
+</table>
+<div class="wrapper">
+  <p>[% 'Note' | $T8 %]: [% 'Unchecked custom variables will not appear in orders and invoices.' | $T8 %]</p>
+</div>
 </div><!-- /.col -->
+[% END %]
+
 </div><!-- /.wrapper -->
 
 <div id="customerprices" class="wrapper">
