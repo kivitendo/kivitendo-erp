@@ -241,7 +241,7 @@ sub invoice_links {
         $form->{"memo_$i"}         = $form->{acc_trans}{$key}->[$i - 1]->{memo};
 
         $form->{paidaccounts} = $i;
-        # hook for calc of of fx_paid and check if banktransaction has a record exchangerate
+        # hook for calc of of defaultcurrency_paid and check if banktransaction has a record exchangerate
         if ($form->{"exchangerate_$i"}) {
           my $bt_acc_trans = SL::DB::Manager::BankTransactionAccTrans->find_by(acc_trans_id => $form->{"acc_trans_id_$i"});
           if ($bt_acc_trans) {
@@ -251,9 +251,10 @@ sub invoice_links {
               $form->{"record_forex_$i"} = 1;
             }
           }
-          $form->{"fx_paid_$i"} = $form->{"paid_$i"} / $form->{"exchangerate_$i"};
-          $form->{"fx_totalpaid"} +=  $form->{"fx_paid_$i"};
-        } # end hook fx_paid
+          $form->{"defaultcurrency_paid_$i"} = $form->{"paid_$i"} * $form->{"exchangerate_$i"};
+          $form->{"defaultcurrency_totalpaid"} +=  $form->{"defaultcurrency_paid_$i"};
+        } # end hook defaultcurrency_paid
+
       }
     } else {
       $form->{$key} = "$form->{acc_trans}{$key}->[0]->{accno}--$form->{acc_trans}{$key}->[0]->{description}";
