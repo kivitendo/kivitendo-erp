@@ -1247,7 +1247,7 @@ sub get_vendor {
                  WHERE (e.currency_id = o.currency_id)
                    AND (e.transdate = o.transdate)) AS exch
               FROM oe o
-              WHERE (o.vendor_id = ?) AND (o.quotation = '0') AND (o.closed = '0')|;
+              WHERE (o.vendor_id = ?) AND (o.record_type = 'purchase_order') AND (o.closed = '0')|;
   my $sth = prepare_execute_query($form, $dbh, $query, $vid);
   while (my ($amount, $exch) = $sth->fetchrow_array()) {
     $exch = 1 unless $exch;

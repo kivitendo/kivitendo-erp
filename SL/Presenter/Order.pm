@@ -53,9 +53,7 @@ sub _oe_record {
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
-  my $number_method = $order->quotation ? 'quonumber' : 'ordnumber';
-
-  my $text = escape($order->$number_method);
+  my $text = escape($order->record_number);
   if (! delete $params{no_link}) {
     my $action  = $::instance_conf->get_feature_experimental_order
                 ? 'controller.pl?action=Order/edit'

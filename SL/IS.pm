@@ -2573,7 +2573,7 @@ sub get_customer {
             AND e.transdate = o.transdate)
        FROM oe o
        WHERE o.customer_id = ?
-         AND o.quotation = '0'
+         AND o.record_type = 'sales_order'
          AND o.closed = '0'|;
   my $sth = prepare_execute_query($form, $dbh, $query, $cid);
 

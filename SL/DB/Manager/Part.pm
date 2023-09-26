@@ -78,10 +78,9 @@ sub get_ordered_qty {
     FROM orderitems oi
     LEFT JOIN oe ON (oi.trans_id = oe.id)
     WHERE (oi.parts_id IN ($placeholders))
-      AND (NOT COALESCE(oe.quotation, FALSE))
+      AND oe.record_type = 'purchase_order'
       AND (NOT COALESCE(oe.closed,    FALSE))
       AND (NOT COALESCE(oe.delivered, FALSE))
-      AND (COALESCE(oe.vendor_id, 0) <> 0)
     GROUP BY oi.parts_id
 SQL
 

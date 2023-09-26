@@ -200,8 +200,7 @@ SQL
     LEFT JOIN buchungsgruppen bg ON (p.buchungsgruppen_id                     = bg.id)
     LEFT JOIN partsgroup pg      ON (p.partsgroup_id                          = pg.id)
     LEFT JOIN employee e         ON (COALESCE(oe.salesman_id, oe.employee_id) = e.id)
-    WHERE (oe.customer_id IS NOT NULL)
-      AND NOT COALESCE(oe.quotation, FALSE)
+    WHERE oe.record_type = 'sales_order'
       AND NOT COALESCE(oe.closed,    FALSE)
       AND (oe.id NOT IN (SELECT oe_id FROM periodic_invoices_configs WHERE periodicity <> 'o'))
 SQL
@@ -357,8 +356,7 @@ sub orders_for_time_period {
   }
 
   my @where = (
-    '!customer_id' => undef,
-    or             => [ quotation => undef, quotation => 0, ],
+    record_type    => 'sales_order',
     or             => [ closed    => undef, closed    => 0, ],
   );
   push @where, (reqdate => { ge => $params{after}->clone })  if $params{after};

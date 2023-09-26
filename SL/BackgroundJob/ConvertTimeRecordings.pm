@@ -287,7 +287,7 @@ sub get_order_for_time_recording {
     }
 
     $orders = SL::DB::Manager::Order->get_all(where        => [customer_id      => $tr->customer_id,
-                                                               or               => [quotation => undef, quotation => 0],
+                                                               record_type      => 'sales_order',
                                                                globalproject_id => $project_id, ],
                                               with_objects => ['orderitems']);
 

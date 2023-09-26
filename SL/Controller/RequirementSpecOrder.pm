@@ -94,7 +94,7 @@ sub action_update {
   my $order    = $self->rs_order->order;
   my $sections = $self->requirement_spec->sections_sorted;
 
-  if (!$::auth->assert($order->quotation ? 'sales_quotation_edit' : 'sales_order_edit', 1)) {
+  if (!$::auth->assert($order->type_data->rights('edit'), 1)) {
     return $self->js->flash('error', t8("You do not have the permissions to access this function."))->render;
   }
 
@@ -375,7 +375,6 @@ sub create_order {
     globalproject_id        => $self->requirement_spec->project_id,
     transdate               => DateTime->today_local,
     reqdate                 => $reqdate,
-    quotation               => !!$::form->{quotation},
     orderitems              => [ @orderitems, @add_items ],
     customer_id             => $customer->id,
     taxincluded             => $customer->taxincluded,

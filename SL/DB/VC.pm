@@ -32,7 +32,7 @@ SQL
          AND e.transdate = o.transdate)
     FROM oe o
     WHERE (o.${type}_id = ?)
-      AND NOT COALESCE(o.quotation, FALSE)
+      AND ((o.record_type = 'sales_order') OR (o.record_type = 'purchase_order'))
       AND NOT COALESCE(o.closed,    FALSE)
 SQL
 
