@@ -310,7 +310,7 @@
          <td align=center>
     [%- IF row.forex || !row.changeable%]
           <input type=hidden name="exchangerate_[% loop.count %]" value="[%- LxERP.format_amount(row.exchangerate, 5, 1) -%]">
-      [%- LxERP.format_amount(row.exchangerate, 5, 0) -%] = [% LxERP.format_amount(row.fx_paid, 2) %] [% currency %]</br>
+      [%- LxERP.format_amount(row.exchangerate, 5, 0) -%] = [% LxERP.format_amount(row.defaultcurrency_paid, 2) %] [% defaultcurrency %]</br>
       [% IF $record_forex %][% 'bank transaction exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
     [%- ELSE %]
           <input name="exchangerate_[% loop.count %]" size=10 value="[%- LxERP.format_amount(row.exchangerate, 5, 1) -%]">
@@ -342,11 +342,11 @@
           <td></td>
           <td></td>
           <td align="center">[% 'Total' | $T8 %]</td>
-          <td align="center">[% LxERP.format_amount(totalpaid, 2) | html %]  [% defaultcurrency %] </td>
+          <td align="center">[% LxERP.format_amount(totalpaid, 2) | html %]  [% currency %] </td>
         [% IF show_exch %]
             <td></td>
-            <td align="center">[% LxERP.format_amount(fx_totalpaid, 2) | html %] [% currency %]</td>
-            <input type="hidden" name="fx_totalpaid" value="[% fx_totalpaid %]">
+            <td align="center">[% LxERP.format_amount(defaultcurrency_totalpaid, 2) | html %] [% defaultcurrency %]</td>
+            <input type="hidden" name="defaultcurrency_totalpaid" value="[% defaultcurrency_totalpaid %]">
             <input type="hidden" name="is_linked_bank_transaction" value="[% is_linked_bank_transaction %]">
         [% END %]
         </tr>
@@ -354,7 +354,7 @@
           <td></td>
           <td></td>
           <td align="center">[% 'Missing amount' | $T8 %]</td>
-          <td align="center">[% LxERP.format_amount(paid_missing, 2) | html %]</td>
+          <td align="center">[% LxERP.format_amount(paid_missing, 2) | html %] [% currency %]</td>
         </tr>
         <input type=hidden name=paidaccounts value='[% paidaccounts %]'>
 
