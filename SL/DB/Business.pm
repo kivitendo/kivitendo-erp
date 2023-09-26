@@ -39,4 +39,27 @@ sub displayable_name {
   return join ' ', grep $_, $self->id, $self->description;
 }
 
+sub orphaned {
+  my ($self) = @_;
+  die 'not an accessor' if @_ > 1;
+
+  return 1 unless $self->id;
+
+  my @relations = qw(
+    SL::DB::Customer
+    SL::DB::Vendor
+    SL::DB::BusinessModel
+  );
+
+  for my $class (@relations) {
+    eval "require $class";
+    return 0 if $class->_get_manager_class->get_all_count(query => [ business_id => $self->id ]);
+  }
+
+  eval "require SL::DB::PriceRuleItem";
+  return 0 if SL::DB::Manager::PriceRuleItem->get_all_count(query => [ type => 'business', value_int => $self->id ]);
+
+  return 1;
+}
+
 1;
