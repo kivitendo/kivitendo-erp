@@ -129,6 +129,12 @@
         </select>
       </td>
     </tr>
+    <tr>
+      <th>[% 'Longdescription dialog size percentage from main window (0 means fix values)' | $T8 %]</th>
+      <td>
+        [% L.input_tag('longdescription_dialog_size_percentage', longdescription_dialog_size_percentage, size = 5) %]
+      </td>
+    </tr>
     [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
     <tr>
       <th>[% 'Scrollbar height percentage for form postion area (0 means no scrollbar)' | $T8 %]</th>
