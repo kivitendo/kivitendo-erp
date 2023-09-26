@@ -77,6 +77,9 @@ sub orphaned {
     return 0 if $class->_get_manager_class->get_all_count(query => [ active_price_source => 'pricegroup/' . $self->id ]);
   }
 
+  eval "require SL::DB::PriceRuleItem";
+  return 0 if SL::DB::Manager::PriceRuleItem->get_all_count(query => [ type => 'pricegroup', value_int => $self->id ]);
+
   return 1;
 }
 
