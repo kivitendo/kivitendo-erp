@@ -672,7 +672,7 @@ sub config {
   $form->{title}               = $locale->text('Edit Preferences for #1', $::myconfig{login});
   $form->{follow_up_notify_by_email} = $myconfig{follow_up_notify_by_email};
 
-  $::request->{layout}->use_javascript("${_}.js") for qw(jquery.multiselect2side ckeditor/ckeditor ckeditor/adapters/jquery);
+  $::request->{layout}->use_javascript("${_}.js") for qw(jquery.multiselect2side ckeditor5/ckeditor ckeditor5/translations/de);
 
   setup_am_config_action_bar();
   $form->header();
