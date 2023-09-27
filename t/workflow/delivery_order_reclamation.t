@@ -241,7 +241,7 @@ my $purchase_delivery_order_tmp = clone($purchase_delivery_order);
 # clean different values
 foreach (qw(
   customer_id vendor_id
-  id order_type
+  id record_type
   donumber salesman_id
   transaction_description
   itime mtime
@@ -279,9 +279,9 @@ is_deeply($linked_purchase_reclamation->strip->as_tree, $purchase_reclamation->l
 ## converted should be nearly the same
 my @different_record_values = qw(
     id employee_id itime mtime reqdate
-    order_type ordnumber oreqnumber
+    ordnumber oreqnumber
     amount exchangerate netamount
-    order_type record_type
+    record_type
     cp_id contact_id
     cusordnumber cv_record_number
     donumber record_number

@@ -169,7 +169,7 @@ sub new_from {
     employee => SL::DB::Manager::Employee->current,
     closed    => 0,
     delivered => 0,
-    order_type => $params{destination_type},
+    record_type => $params{destination_type},
     transdate => DateTime->today_local,
   );
 
@@ -238,10 +238,10 @@ sub new_from {
   }
 
   # infer type from legacy fields if not given
-  $record_args{order_type} //= $source->customer_id ? SALES_DELIVERY_ORDER_TYPE()
-                      : $source->vendor_id   ? PURCHASE_DELIVERY_ORDER_TYPE()
-                      : $source->is_sales    ? SALES_DELIVERY_ORDER_TYPE()
-                      : croak "need some way to set delivery order type from source";
+  $record_args{record_type} //= $source->customer_id ? SALES_DELIVERY_ORDER_TYPE()
+                              : $source->vendor_id   ? PURCHASE_DELIVERY_ORDER_TYPE()
+                              : $source->is_sales    ? SALES_DELIVERY_ORDER_TYPE()
+                              : croak "need some way to set delivery order type from source";
 
   my $delivery_order = $class->new(%record_args);
   $delivery_order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
@@ -372,7 +372,7 @@ sub new_from_time_recordings {
 
   } else {
     my %args = (
-      order_type  => SALES_DELIVERY_ORDER_TYPE,
+      record_type => SALES_DELIVERY_ORDER_TYPE,
       delivered   => 0,
       customer_id => $sources->[0]->customer_id,
       taxzone_id  => $sources->[0]->customer->taxzone_id,
@@ -391,14 +391,14 @@ sub new_from_time_recordings {
 # legacy for compatibility
 # use type_data cusomtervendor and transfer direction instead
 sub is_sales {
-  if ($_[0]->order_type) {
-   return SL::DB::DeliveryOrder::TypeData::get3($_[0]->order_type, "properties", "is_customer");
+  if ($_[0]->record_type) {
+   return SL::DB::DeliveryOrder::TypeData::get3($_[0]->record_type, "properties", "is_customer");
   }
   return $_[0]{is_sales};
 }
 
 sub customervendor {
-  SL::DB::DeliveryOrder::TypeData::get3($_[0]->order_type, "properties", "is_customer") ? $_[0]->customer : $_[0]->vendor;
+  SL::DB::DeliveryOrder::TypeData::get3($_[0]->record_type, "properties", "is_customer") ? $_[0]->customer : $_[0]->vendor;
 }
 
 sub convert_to_invoice {
