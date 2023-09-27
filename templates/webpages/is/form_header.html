@@ -143,8 +143,7 @@
         <tr>
           <th align="right" nowrap>[% 'Record in' | $T8 %]</th>
           <td colspan="3">
-            <select name="AR" style="width:250px;">[% selectAR %]</select>
-            <input type="hidden" name="selectAR" value="[% selectAR | html %]">
+            [% P.chart.picker("AR_chart_id", AR_chart_id, style="width:259px;", type="AR") %]
           </td>
         </tr>
         <tr>
