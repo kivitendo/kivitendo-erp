@@ -2088,8 +2088,9 @@ sub save {
   my $objects_to_close = scalar @converted_from_oe_ids
                        ? SL::DB::Manager::Order->get_all(where => [
                            id => \@converted_from_oe_ids,
-                           or => [ record_type => SALES_QUOTATION_TYPE(),
-                                   record_type => REQUEST_QUOTATION_TYPE()]
+                           or => [  record_type => SALES_QUOTATION_TYPE(),
+                                    record_type => REQUEST_QUOTATION_TYPE(),
+                                   (record_type => PURCHASE_QUOTATION_INTAKE_TYPE()) x $self->is_type(PURCHASE_ORDER_TYPE())  ]
                            ])
                        : undef;
 
