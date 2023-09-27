@@ -52,8 +52,8 @@ sub _get_filters {
     $filters{table}         = $type;
 
   } elsif ($type =~ /_delivery_order$/ && SL::DB::DeliveryOrder::TypeData::is_valid_type($type)) {
-    $filters{trans_number}  = SL::DB::DeliveryOrder::TypeData::get3($type, 'properties', 'nr_key'),
-    $filters{numberfield}   = SL::DB::DeliveryOrder::TypeData::get3($type, 'properties', 'transnumber'),
+    $filters{trans_number}  = SL::DB::DeliveryOrder::TypeData::get3($type, 'properties', 'nr_key');
+    $filters{numberfield}   = SL::DB::DeliveryOrder::TypeData::get3($type, 'properties', 'transnumber');
     $filters{table}         = "delivery_orders";
     $filters{where}         = "order_type = ?";
     $filters{values}        = [ $::form->{type} ];
