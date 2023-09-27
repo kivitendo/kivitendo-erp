@@ -270,9 +270,9 @@ sub new_from {
     { from => 'invoice',                 to => SALES_RECLAMATION_TYPE(),    abbr => 'sisr', },
     { from => 'purchase_invoice',        to => PURCHASE_RECLAMATION_TYPE(), abbr => 'pipr', },
   );
-  my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
+  my $from_to = (grep { $_->{from} eq $source->record_type && $_->{to} eq $destination_type} @from_tos)[0];
   if (!$from_to) {
-    croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'");
+    croak("Cannot convert from '" . $source->record_type . "' to '" . $destination_type . "'");
   }
 
   my $is_abbr_any = sub {
