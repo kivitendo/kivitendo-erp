@@ -2296,12 +2296,14 @@ sub setup_edit_action_bar {
           t8('Save and Purchase Quotation Intake'),
           call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => PURCHASE_QUOTATION_INTAKE_TYPE()), '#order_form' ],
           only_if  => (any { $self->type eq $_ } (REQUEST_QUOTATION_TYPE())),
+          only_if  => $self->type_data->show_menu('save_and_purchase_quotation_intake'),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Sales Order Intake'),
           call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => SALES_ORDER_INTAKE_TYPE()), '#order_form' ],
           only_if  => (any { $self->type eq $_ } (SALES_QUOTATION_TYPE())),
+          only_if  => $self->type_data->show_menu('save_and_sales_order_intake'),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
