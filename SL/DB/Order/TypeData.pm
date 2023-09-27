@@ -24,8 +24,8 @@ our %EXPORT_TAGS = (types => \@export_types, subs => \@export_subs);
 my %type_data = (
   SALES_ORDER_TYPE() => {
     text => {
-      delete => t8('The order has been deleted'),
-      saved  => t8('The order has been saved'),
+      delete => t8('The order confirmation has been deleted'),
+      saved  => t8('The order confirmation has been saved'),
       add    => t8("Add Sales Order"),
       edit   => t8("Edit Sales Order"),
       list   => t8("Sales Orders"),
