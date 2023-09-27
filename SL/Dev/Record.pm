@@ -174,7 +174,7 @@ sub create_sales_delivery_order {
   die "illegal customer" unless ref($customer) eq 'SL::DB::Customer';
 
   my $delivery_order = SL::DB::DeliveryOrder->new(
-    order_type   => SALES_DELIVERY_ORDER_TYPE,
+    record_type  => SALES_DELIVERY_ORDER_TYPE,
     'closed'     => undef,
     customer_id  => $customer->id,
     taxzone_id   => $customer->taxzone_id,
@@ -202,7 +202,7 @@ sub create_purchase_delivery_order {
   die "illegal vendor" unless ref($vendor) eq 'SL::DB::Vendor';
 
   my $delivery_order = SL::DB::DeliveryOrder->new(
-    order_type   => PURCHASE_DELIVERY_ORDER_TYPE,
+    record_type  => PURCHASE_DELIVERY_ORDER_TYPE,
     'closed'     => undef,
     vendor_id    => $vendor->id,
     taxzone_id   => $vendor->taxzone_id,

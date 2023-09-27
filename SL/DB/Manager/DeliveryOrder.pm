@@ -30,7 +30,7 @@ sub type_filter {
   my $type  = lc(shift || '');
   my $prefix = shift // '';
 
-  return "${prefix}order_type" => validate_type($type);
+  return "${prefix}record_type" => validate_type($type);
 }
 
 sub _sort_spec {

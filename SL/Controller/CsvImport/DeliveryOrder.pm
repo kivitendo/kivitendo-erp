@@ -218,7 +218,7 @@ sub setup_displayable_columns {
                                  { name => 'language',                description => $::locale->text('Language (name)')                       },
                                  { name => 'language_id',             description => $::locale->text('Language (database ID)')                },
                                  { name => 'notes',                   description => $::locale->text('Notes')                                 },
-                                 { name => 'order_type',              description => $::locale->text('Delivery Order Type')                   },
+                                 { name => 'record_type',             description => $::locale->text('Delivery Order Type')                   },
                                  { name => 'ordnumber',               description => $::locale->text('Order Number')                          },
                                  { name => 'payment',                 description => $::locale->text('Payment terms (name)')                  },
                                  { name => 'payment_id',              description => $::locale->text('Payment terms (database ID)')           },
@@ -664,7 +664,7 @@ sub handle_stock {
       parts_id      => $item_obj->parts_id,
       warehouse_id  => $object->warehouse_id,
       bin_id        => $object->bin_id,
-      trans_type_id => $trans_type_id,
+      PURCHASE_DELIVERY_ORDER_TYPE() => $trans_type_id,
       qty           => $qty,
       chargenumber  => $object->chargenumber,
       employee_id   => $order_obj->employee_id,
@@ -681,11 +681,11 @@ sub handle_stock {
 sub handle_type {
   my ($self, $entry) = @_;
 
-  if (!exists $entry->{raw_data}->{order_type}) {
+  if (!exists $entry->{raw_data}->{record_type}) {
     # if no type is present - set to sales delivery order or purchase delivery
     # order depending on is_sales or customer/vendor
 
-    $entry->{object}->order_type(
+    $entry->{object}->record_type(
       $entry->{object}->customer_id  ? SALES_DELIVERY_ORDER_TYPE :
       $entry->{object}->vendor_id    ? PURCHASE_DELIVERY_ORDER_TYPE :
       $entry->{raw_data}->{is_sales} ? SALES_DELIVERY_ORDER_TYPE :
