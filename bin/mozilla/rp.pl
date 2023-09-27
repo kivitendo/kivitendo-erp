@@ -1005,7 +1005,7 @@ sub aging {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
-  $::request->{layout}->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery);
+  $::request->{layout}->use_javascript("${_}.js") for qw(ckeditor5/ckeditor ckeditor5/translations/de);
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 

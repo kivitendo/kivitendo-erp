@@ -551,7 +551,7 @@ sub form_header {
   $form->{follow_up_trans_info} = $form->{donumber} .'('. $form->{VC_OBJ}->name .')' if $form->{VC_OBJ};
   $form->{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.File kivi.MassDeliveryOrderPrint kivi.SalesPurchase kivi.Part kivi.CustomerVendor kivi.Validator ckeditor/ckeditor ckeditor/adapters/jquery kivi.io));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.File kivi.MassDeliveryOrderPrint kivi.SalesPurchase kivi.Part kivi.CustomerVendor kivi.Validator ckeditor5/ckeditor ckeditor5/translations/de kivi.io));
 
   setup_do_action_bar();
 
