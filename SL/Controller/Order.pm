@@ -2195,7 +2195,7 @@ sub pre_render {
 sub setup_edit_action_bar {
   my ($self, %params) = @_;
 
-  my @valid = qw( 
+  my @valid = qw(
     kivi.Order.check_cv
   );
   push @valid, "kivi.Order.check_duplicate_parts" if $::instance_conf->get_order_warn_duplicate_parts;
