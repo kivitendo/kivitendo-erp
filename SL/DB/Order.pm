@@ -151,6 +151,8 @@ sub _after_save_link_records {
     \@allowed_record_sources,
     \@allowed_item_sources,
   );
+
+  return 1;
 }
 
 sub _after_save_close_reachable_intakes {
@@ -165,6 +167,8 @@ sub _after_save_close_reachable_intakes {
                                          where => [id => [map {$_->id} @$lr]]);
     }
   }
+
+  return 1;
 }
 
 # methods
