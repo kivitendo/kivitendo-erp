@@ -165,6 +165,9 @@
     $('#email_sender').prop('disabled', disabled);
     $('#email_subject').prop('disabled', disabled);
     $('#email_body').prop('disabled', disabled);
-    $('#email_body').data('ckeditorInstance').setReadOnly(disabled);
+    if (disabled)
+      $('#email_body').data('ckeditorInstance').enableReadOnlyMode('disabled')
+    else
+      $('#email_body').data('ckeditorInstance').disableReadOnlyMode('disabled');
   }
 --></script>
