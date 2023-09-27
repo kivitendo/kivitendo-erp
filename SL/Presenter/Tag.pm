@@ -535,6 +535,10 @@ sub textarea_tag {
   $attributes{rows}  *= 1; # required by standard
   $attributes{cols}  *= 1; # required by standard
 
+  if (join_values(class => $attributes{class}) =~ /\btexteditor\b/) {
+    $::request->{layout}->add_javascripts("$_.js") for qw(ckeditor5/ckeditor ckeditor5/translations/de);
+  }
+
   html_tag('textarea', $content, %attributes, name => $name);
 }
 
