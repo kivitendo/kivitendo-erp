@@ -22,7 +22,7 @@ function insert_selected_predefined_text() {
     title_ctrl.val(pt.title);
 
   if ((pt.text || '') != '')
-    $('#[% id_base %][% text_ctrl_id %]').ckeditorGet().insertHtml(pt.text);
+    $('#[% id_base %][% text_ctrl_id %]').data('ckeditorInstance').setData(pt.text);
 
   return false;
 }
