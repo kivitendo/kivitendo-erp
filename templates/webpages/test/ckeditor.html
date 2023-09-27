@@ -19,10 +19,36 @@
 </form>
 </fieldset>
 
+<h3>inside div with enter listener</h3>
+
+<fieldset>
+  <div id='name3div'>
+    [% P.textarea_tag('name3', "<p>Try to hit enter here</p>", class="texteditor") %]
+  </div>
+  <script>
+    document.querySelector('#name3div').addEventListener('keypress', function(e) {
+      alert("got keypressed event!" + e);
+    });
+  </script>
+</fieldset>
+
+<h3>inside div with jquery enter listener</h3>
+
+<fieldset>
+  <div id='name4div'>
+    [% P.textarea_tag('name4', "<p>Try to hit enter here</p>", class="texteditor") %]
+  </div>
+  <script>
+    $('#name4div').on('keypress', function(e) {
+      alert("got keypressed event!" + e);
+    });
+  </script>
+</fieldset>
+
 <h3>initial focus</h3>
 
-[% P.textarea_tag('name4', "<p>this is a text</p>", class="texteditor texteditor-autofocus") %]
+[% P.textarea_tag('name5', "<p>this is a text</p>", class="texteditor texteditor-autofocus") %]
 
 <h3>with custom width/height</h3>
 
-[% P.textarea_tag('name5', "<p>this is a text</p>", style="width: 350px; height: 150px", class="texteditor") %]
+[% P.textarea_tag('name6', "<p>this is a text</p>", style="width: 350px; height: 150px", class="texteditor") %]
