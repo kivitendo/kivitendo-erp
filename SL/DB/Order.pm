@@ -83,6 +83,7 @@ __PACKAGE__->before_save('_before_save_create_new_project');
 __PACKAGE__->before_save('_before_save_remove_empty_custom_shipto');
 __PACKAGE__->before_save('_before_save_set_custom_shipto_module');
 __PACKAGE__->after_save('_after_save_link_records');
+__PACKAGE__->after_save('_after_save_close_reachable_intakes'); # uses linked records (order matters)
 
 # hooks
 
@@ -152,6 +153,19 @@ sub _after_save_link_records {
   );
 }
 
+sub _after_save_close_reachable_intakes {
+  my ($self) = @_;
+
+  # Close reachable sales order intakes in the from-workflow if this is a sales order
+  if (SALES_ORDER_TYPE() eq $self->type) {
+    my $lr = $self->linked_records(direction => 'from', recursive => 1);
+    $lr    = [grep { 'SL::DB::Order' eq ref $_ && !$_->closed && $_->is_type(SALES_ORDER_INTAKE_TYPE()) } @$lr];
+    if (@$lr) {
+      SL::DB::Manager::Order->update_all(set   => {closed => 1},
+                                         where => [id => [map {$_->id} @$lr]]);
+    }
+  }
+}
 
 # methods
 
