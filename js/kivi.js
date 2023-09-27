@@ -320,16 +320,31 @@ namespace("kivi", function(ns) {
       }
     })
     .then(editor => {
+      // save instance in data
       $element.data('ckeditorInstance', editor);
 
+      // handle auto focus
       if ($element.hasClass('texteditor-autofocus'))
         ns.focus_ckeditor($element);
 
+      // trigger delayed hooks on the editor
       $element.trigger('ckeditor-ready');
 
+      // make sure blur events copy back to the textarea
+      // this catches most of the non-submit ways that ckeditor doesn't handle
+      // on its own. if you have any bugs, make sure to call updateSourceElement
+      // directly before serializing the form
+      editor.ui.focusTracker.on( 'change:isFocused', (evt, name, is_focused) => {
+        if (!is_focused) {
+          editor.updateSourceElement();
+        }
+      });
+
+      // handle inital disabled
       if ($element.attr('disabled'))
         editor.enableReadOnlyMode('disabled')
 
+      // handle initial height
       const element = $element.get(0);
       if (element.style.height)
         editor.editing.view.change((writer) => {
