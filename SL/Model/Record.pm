@@ -115,7 +115,7 @@ sub delete {
       1;
   }) || push(@{$errors}, $db->error);
 
-    die t8("Errors delete records:") . "\n" . join("\n", @{$errors}) . "\n" if scalar @{$errors};
+  die t8("Errors while deleting record:") . "\n" . join("\n", @{$errors}) . "\n" if scalar @{$errors};
 }
 
 sub _get_history_snumbers {
