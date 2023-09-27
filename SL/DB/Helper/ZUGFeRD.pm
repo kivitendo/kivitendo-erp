@@ -23,6 +23,7 @@ use SL::Helper::ISO4217;
 use SL::Helper::UNECERecommendation20;
 use SL::VATIDNr;
 use SL::ZUGFeRD qw(:PROFILES);
+use SL::Locale::String qw(t8);
 
 use Carp;
 use Encode qw(encode);
