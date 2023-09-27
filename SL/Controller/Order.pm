@@ -103,12 +103,8 @@ sub action_add_from_record {
   my $from_type = $::form->{from_type};
   my $from_id   = $::form->{from_id};
 
-  unless ($from_type && $from_id) {
-    $self->js->flash('error', t8("Can't create new record."));
-    $self->js->flash('error', t8("No 'from_type' was given.")) unless ($from_type);
-    $self->js->flash('error', t8("No 'from_id' was given."))   unless ($from_id);
-    return $self->js->render();
-  }
+  die "No 'from_type' was given." unless ($from_type);
+  die "No 'from_id' was given."   unless ($from_id);
 
   my $record = SL::Model::Record->get_record($from_type, $from_id);
   my $order = SL::Model::Record->new_from_workflow($record, $self->type);
