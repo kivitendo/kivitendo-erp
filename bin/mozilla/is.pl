@@ -48,6 +48,7 @@ use English qw(-no_match_vars);
 
 use SL::DB::BankTransactionAccTrans;
 use SL::DB::Default;
+use SL::DB::Chart;
 use SL::DB::Customer;
 use SL::DB::Department;
 use SL::DB::Invoice;
@@ -262,7 +263,14 @@ sub invoice_links {
 
   $form->{paidaccounts} = 1 unless (exists $form->{paidaccounts});
 
+  foreach my $ref (@{ $form->{AR_links}{AR} } ) {
+    if ( $ref->{chart_id} == $::instance_conf->get_ar_chart_id ) {
+      $form->{AR_1} = "$ref->{accno}--$ref->{description}";
+    }
+  }
   $form->{AR} = $form->{AR_1} unless $form->{id};
+  my ($chart_accno)      = split /--/, $form->{AR};
+  $form->{AR_chart_id} = $form->{id} ? SL::DB::Manager::Chart->find_by( accno => $chart_accno)->id : $::instance_conf->get_ar_chart_id ;
 
   $form->{locked} = ($form->datetonum($form->{invdate},  \%myconfig)
                   <= $form->datetonum($form->{closedto}, \%myconfig));
@@ -694,7 +702,7 @@ sub form_header {
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber', $_.'_tax_id' } split / /, $form->{taxaccounts}];
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File kivi.SalesPurchase kivi.Part kivi.CustomerVendor kivi.Validator ckeditor/ckeditor ckeditor/adapters/jquery kivi.io client_js));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File kivi.SalesPurchase kivi.Part kivi.CustomerVendor kivi.Validator ckeditor/ckeditor ckeditor/adapters/jquery kivi.io client_js autocomplete_chart));
 
   $TMPL_VAR{payment_terms_obj} = get_payment_terms_for_invoice();
   $form->{duedate}             = $TMPL_VAR{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{duedate})->to_kivitendo if $TMPL_VAR{payment_terms_obj};
@@ -1046,7 +1054,8 @@ sub post_payment {
     }
   }
 
-  ($form->{AR})      = split /--/, $form->{AR};
+  #($form->{AR})      = split /--/, $form->{AR};
+  $form->{AR}      = SL::DB::Manager::Chart->find_by( id => $form->{AR_chart_id} )->accno;
   ($form->{AR_paid}) = split /--/, $form->{AR_paid};
   relink_accounts();
   if ( IS->post_payment(\%myconfig, \%$form) ) {
@@ -1146,7 +1155,8 @@ sub post {
     }
   }
 
-  ($form->{AR})        = split /--/, $form->{AR};
+  #($form->{AR})        = split /--/, $form->{AR};
+  $form->{AR}      = SL::DB::Manager::Chart->find_by( id => $form->{AR_chart_id} )->accno;
   ($form->{AR_paid})   = split /--/, $form->{AR_paid};
   $form->{storno}    ||= 0;
 

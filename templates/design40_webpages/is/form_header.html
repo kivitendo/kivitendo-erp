@@ -144,10 +144,7 @@
     [% END %]
     <tr>
       <th>[% 'Record in' | $T8 %]</th>
-      <td>
-        <select name="AR" class="wi-wide">[% selectAR %]</select>
-        <input type="hidden" name="selectAR" value="[% selectAR | html %]">
-      </td>
+      <td>[% P.chart.picker("AR_chart_id", AR_chart_id, class="wi-wide", type="AR") %]</td>
     </tr>
     [% IF currencies %]
       <tr>

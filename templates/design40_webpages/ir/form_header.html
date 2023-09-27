@@ -105,12 +105,7 @@
     [% END %]
     <tr>
       <th>[% 'Record in' | $T8 %]</th>
-      <td>
-      <select name="AP" class="wi-wide strict">
-        [% selectAP %]
-      </select>
-      <input type="hidden" name="selectAP" value="[% selectAP %]">
-      </td>
+      <td>[% P.chart.picker("AP_chart_id", AP_chart_id, class="wi-wide", type="AP") %]</td>
     </tr>
     <tr>
       <th>[% 'Steuersatz' | $T8 %]</th>
