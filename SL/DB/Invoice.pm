@@ -109,6 +109,7 @@ sub _after_save_link_records {
 sub items { goto &invoiceitems; }
 sub add_items { goto &add_invoiceitems; }
 sub record_number { goto &invnumber; };
+sub record_type { goto &invoice_type; };
 
 sub is_sales {
   # For compatibility with Order, DeliveryOrder

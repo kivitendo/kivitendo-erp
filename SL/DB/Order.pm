@@ -390,8 +390,8 @@ sub new_from {
     { from => PURCHASE_QUOTATION_INTAKE_TYPE(), to => PURCHASE_ORDER_TYPE(),            abbr => 'pqipo'  },
     { from => REQUEST_QUOTATION_TYPE(),         to => PURCHASE_QUOTATION_INTAKE_TYPE(), abbr => 'rqpqi'  },
   );
-  my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
-  croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") if !$from_to;
+  my $from_to = (grep { $_->{from} eq $source->recrod_type && $_->{to} eq $destination_type} @from_tos)[0];
+  croak("Cannot convert from '" . $source->recrod_type . "' to '" . $destination_type . "'") if !$from_to;
 
   my $is_abbr_any = sub {
     any { $from_to->{abbr} eq $_ } @_;
