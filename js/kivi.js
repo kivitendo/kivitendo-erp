@@ -268,39 +268,17 @@ namespace("kivi", function(ns) {
   };
 
   ns.focus_ckeditor_when_ready = function(element) {
-    $(element).data('ckeditorInstance').on('instanceReady', function() { ns.focus_ckeditor(element); });
+    $(element).on('ckeditor-ready', () => ns.focus_ckeditor(element));
   };
 
   ns.focus_ckeditor = function(element) {
-    $(element).data('ckeditorInstance').focus();
-  };
-
-  ns.selectall_ckeditor = function(element) {
-    var editor   = $(element).ckeditorGet();
-    var editable = editor.editable();
-    if (editable.is('textarea')) {
-      var textarea = editable.$;
-
-      if (CKEDITOR.env.ie)
-        textarea.createTextRange().execCommand('SelectAll');
-      else {
-        textarea.selectionStart = 0;
-        textarea.selectionEnd   = textarea.value.length;
-      }
+    const editor = $(element).data('ckeditorInstance');
+    if (editor) {
+      editor.editing.view.focus();
     } else {
-      if (editable.is('body'))
-        editor.document.$.execCommand('SelectAll', false, null);
-
-      else {
-        var range = editor.createRange();
-        range.selectNodeContents(editable);
-        range.select();
-      }
-
-      editor.forceNextSelectionCheck();
-      editor.selectionChange();
+      ns.focus_ckeditor_when_ready(element);
     }
-  }
+  };
 
   ns.init_tabwidget = function(element) {
     var $element   = $(element);
@@ -322,41 +300,49 @@ namespace("kivi", function(ns) {
     $element.tabs(tabsParams);
   };
 
-  ns.init_text_editor = function(element) {
-    var layouts = {
-      all:     [ [ 'Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript' ], [ 'BulletedList', 'NumberedList' ], [ 'RemoveFormat' ] ],
-      default: [ [ 'Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript' ], [ 'BulletedList', 'NumberedList' ], [ 'RemoveFormat' ] ]
-    };
+  ns.init_text_editor5 = function($element) {
+    ClassicEditor
+    .create($element.get(0), {
+      toolbar: [
+        'bold', 'italic', 'underline', 'strikethrough',
+        '|',
+        'subscript', 'superscript',
+        '|',
+        'bulletedList', 'numberedList', 'horizontalLine',
+        '|',
+        'undo', 'redo', 'removeFormat',
+        '|',
+        'sourceEditing'
+      ],
+      language: {
+        ui: kivi.myconfig.countrycode,
+        content: kivi.myconfig.countrycode
+      }
+    })
+    .then(editor => {
+      $element.data('ckeditorInstance', editor);
 
-    var $e      = $(element);
-    var buttons = layouts[ $e.data('texteditor-layout') || 'default' ] || layouts['default'];
-    var config  = {
-      entities:      false,
-      language:      'de',
-      removePlugins: 'resize',
-      extraPlugins:  'inline_resize',
-      toolbar:       buttons,
-      disableAutoInline: true,
-      title:         false,
-      disableNativeSpellChecker: false
-    };
+      if ($element.hasClass('texteditor-autofocus'))
+        ns.focus_ckeditor($element);
 
-    config.height = $e.height();
-    config.width  = $e.width();
+      $element.trigger('ckeditor-ready');
 
-    var editor = CKEDITOR.inline($e.get(0), config);
-    $e.data('ckeditorInstance', editor);
+      if ($element.attr('disabled'))
+        editor.enableReadOnlyMode('disabled')
 
-    if ($e.hasClass('texteditor-space-for-toolbar'))
-      editor.on('instanceReady', function() {
-        var editor   = $e.ckeditorGet();
-        var editable = editor.editable();
-        $(editable.$).css("margin-top", "30px");
-      });
-
-
-    if ($e.hasClass('texteditor-autofocus'))
-      editor.on('instanceReady', function() { ns.focus_ckeditor($e); });
+      const element = $element.get(0);
+      if (element.style.height)
+        editor.editing.view.change((writer) => {
+          writer.setStyle(
+            "height",
+            element.style.height,
+            editor.editing.view.document.getRoot()
+          );
+        });
+    })
+    .catch(err => {
+      console.error(err);
+    });
   };
 
   ns.filter_select = function() {
@@ -415,7 +401,7 @@ namespace("kivi", function(ns) {
     });
 
     ns.run_once_for('.tabwidget', 'tabwidget', kivi.init_tabwidget);
-    ns.run_once_for('.texteditor', 'texteditor', kivi.init_text_editor);
+    ns.run_once_for('.texteditor', 'texteditor', kivi.init_text_editor5);
   };
 
   ns.submit_ajax_form = function(url, form_selector, additional_data) {
@@ -510,7 +496,7 @@ namespace("kivi", function(ns) {
       dialog =
         $('#' + id)
         .bind('dialogopen', function() {
-          ns.run_once_for('.texteditor-in-dialog,.texteditor-dialog', 'texteditor', kivi.init_text_editor);
+          ns.run_once_for('.texteditor-in-dialog,.texteditor-dialog', 'texteditor', kivi.init_text_editor5);
         })
         .dialog(dialog_params);
       return true;
