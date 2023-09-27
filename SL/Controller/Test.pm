@@ -14,4 +14,10 @@ sub action_dump_form {
   $self->render(\$output, { type => 'text' });
 }
 
+sub action_ckeditor_test_page {
+  my ($self) = @_;
+
+  $self->render("test/ckeditor");
+}
+
 1;
