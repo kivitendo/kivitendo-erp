@@ -961,8 +961,8 @@ sub orders {
       'align'    => 'center',
     };
 
-    $row->{donumber}->{link}  = SL::DB::DeliveryOrder::TypeData::get3($dord->{order_type}, "show_menu", "new_controller")
-                              ? SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id}, type => $dord->{order_type})
+    $row->{donumber}->{link}  = SL::DB::DeliveryOrder::TypeData::get3($dord->{record_type}, "show_menu", "new_controller")
+                              ? SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id}, type => $dord->{record_type})
                               : $edit_url  . "&id=" . E($dord->{id})      . "&callback=${callback}";
     $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
 

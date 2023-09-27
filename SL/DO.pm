@@ -81,7 +81,7 @@ sub transactions {
          dord.transaction_description, dord.itime::DATE AS insertdate,
          pr.projectnumber AS globalprojectnumber,
          dep.description AS department,
-         dord.order_type,
+         dord.record_type,
          e.name AS employee,
          sm.name AS salesman
        FROM delivery_orders dord
@@ -94,7 +94,7 @@ sub transactions {
 |;
 
   if ($form->{type} && is_valid_type($form->{type})) {
-    push @where, 'dord.order_type = ?';
+    push @where, 'dord.record_type = ?';
     push @values, $form->{type};
   }
 
@@ -406,7 +406,7 @@ sub _save {
     $query = qq|SELECT nextval('id')|;
     ($form->{id}) = selectrow_query($form, $dbh, $query);
 
-    $query = qq|INSERT INTO delivery_orders (id, donumber, employee_id, currency_id, taxzone_id, order_type) VALUES (?, '', ?, (SELECT currency_id FROM defaults LIMIT 1), ?, ?)|;
+    $query = qq|INSERT INTO delivery_orders (id, donumber, employee_id, currency_id, taxzone_id, record_type) VALUES (?, '', ?, (SELECT currency_id FROM defaults LIMIT 1), ?, ?)|;
     do_query($form, $dbh, $query, $form->{id}, conv_i($form->{employee_id}), $form->{taxzone_id}, SALES_DELIVERY_ORDER_TYPE);
   }
 
@@ -593,7 +593,7 @@ SQL
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, closed = ?,
          delivered = ?, department_id = ?, language_id = ?, shipto_id = ?, billing_address_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?,
-         order_type = ?, taxzone_id = ?, taxincluded = ?, payment_id = ?, currency_id = (SELECT id FROM currencies WHERE name = ?),
+         record_type = ?, taxzone_id = ?, taxincluded = ?, payment_id = ?, currency_id = (SELECT id FROM currencies WHERE name = ?),
          delivery_term_id = ?
        WHERE id = ?|;
 
