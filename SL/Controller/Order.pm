@@ -234,14 +234,7 @@ sub action_save {
 
   $self->save();
 
-  my $text = $self->type eq SALES_ORDER_INTAKE_TYPE()         ? $::locale->text('The order intake has been saved')
-           : $self->type eq SALES_ORDER_TYPE()                ? $::locale->text('The order confirmation has been saved')
-           : $self->type eq PURCHASE_ORDER_TYPE()             ? $::locale->text('The order has been saved')
-           : $self->type eq SALES_QUOTATION_TYPE()            ? $::locale->text('The quotation has been saved')
-           : $self->type eq REQUEST_QUOTATION_TYPE()          ? $::locale->text('The rfq has been saved')
-           : $self->type eq PURCHASE_QUOTATION_INTAKE_TYPE()  ? $::locale->text('The quotation intake has been saved')
-           : '';
-  flash_later('info', $text);
+  flash_later('info', $self->type_data->text('saved'));
 
   my @redirect_params;
   if ($::form->{back_to_caller}) {
