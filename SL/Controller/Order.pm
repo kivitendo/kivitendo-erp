@@ -2388,7 +2388,7 @@ sub pre_render {
 
   $self->{template_args}->{num_phone_notes} = scalar @{ $self->order->phone_notes || [] };
 
-  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.Validator kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery
+  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.Validator kivi.SalesPurchase kivi.Order kivi.File
                                                          edit_periodic_invoices_config calculate_qty follow_up show_history);
   $self->setup_edit_action_bar;
 }
