@@ -1677,6 +1677,13 @@
   params:
     action: Project/test_page
 - parent: develop
+  id: ckeditor_test
+  name: CKEditor5 Test
+  access: developer
+  order: 450
+  params:
+    action: Test/ckeditor_test_page
+- parent: develop
   id: js_tests
   name: JS Tests
   access: developer
