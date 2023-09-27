@@ -1582,10 +1582,6 @@ sub get_record_links_data_from_form {
 sub save {
   my ($self) = @_;
 
-  if (scalar @{$self->reclamation->items} == 0 && !grep { $self->type eq $_ } @{$::instance_conf->get_allowed_documents_with_no_positions() || []}) {
-    return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
-  }
-
   my $items_to_delete  = scalar @{ $self->item_ids_to_delete || [] }
                        ? SL::DB::Manager::ReclamationItem->get_all(where => [id => $self->item_ids_to_delete])
                        : undef;

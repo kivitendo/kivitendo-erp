@@ -1641,10 +1641,6 @@ sub get_unalterable_data {
 sub save {
   my ($self) = @_;
 
-  if (scalar @{$self->order->items} == 0 && !grep { $self->type eq $_ } @{$::instance_conf->get_allowed_documents_with_no_positions() || []}) {
-    return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
-  }
-
   # link records
   if ($::form->{converted_from_oe_id}) {
     my @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};

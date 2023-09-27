@@ -2067,10 +2067,6 @@ sub parse_phone_note {
 sub save {
   my ($self) = @_;
 
-  if (scalar @{$self->order->items} == 0 && !grep { $self->type eq $_ } @{$::instance_conf->get_allowed_documents_with_no_positions() || []}) {
-    return [t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.')];
-  }
-
   $self->parse_phone_note if $::form->{phone_note}->{subject} || $::form->{phone_note}->{body};
 
   # create first version if none exists
