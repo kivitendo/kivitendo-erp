@@ -4,6 +4,65 @@
 
 2023-xx-xx - Release 3.9.0 unstable
 
+Größere Features und Komponentenupdates
+
+  - Update CKEditor auf CKEditor5 39.0.2
+    Featureabgleich mit ckeditor4:
+    - die folgenden Features sind alle weiterhin verfügbar, können aus alten
+      Daten gelesen werden und funktionieren in Export und Print
+      - bold
+      - italic
+      - strikethrough
+      - underline
+      - superscript
+      - subscript
+      - numbered list
+      - bulleted list
+      - remove format
+    - zusätzlich sind in der neuen Konfiguration noch:
+      - undo/redo (for free)
+      - horizontal line (wurde in ein paar Kundenprojekten verwendet, ist
+        default konfiguriert)
+      - source editor (wurde in einigen Anpassungen verwendet, ist jetzt
+        default konfiguriert)
+      wenn etwas davon nicht gewünscht ist, einfach in js/kivi.js aus der
+      toolbar entfernen.
+    - mehr als eine Instanz in der gleichen Seite funktioniert
+    - Lokalisierung des Editors auf die Benutzersprache
+      (myconfig.countrycode) funktioniert für de und en.
+    - cut/copy/paste aus dem alten Editor gibt es nicht mehr
+    - Enter events im Editor werden nicht an umliegende Forms gebubblet
+    - Focus, initial Fokus und focus_when_ready funktionieren wie vorher
+      auch
+    - die folgenden Attribute im unterliegenden <textarea> werden korrekt
+      interpretiert:
+      - disabled
+      - style: height
+    - clientjs fokus funktioniert
+    
+    Wichtige Änderungen:
+    
+    - die funktion kivi.selectall_ckeditor wurde nicht mehr verwendet und
+      wurde entfernt.
+    - Der neue Editor ist jetzt wieder Classic und NICHT Inline. Der Grund
+      dafür ist:
+      - Inline funktioniert nicht auf <textarea> Tags sondern brauch
+        zwingend <div> tags. Das würde deutlich mehr Migrationsaufwand
+        bedeuten.
+      - Inline kopiert nicht automatisch den Inhalt des ckeditors zurück in
+        das originale DOM Element, was zu versteckten Bugs führen könnte.
+      Wenn Inline gewünscht ist, bitte separat bauen.
+    - CSS Theme Anpassungen sind nicht mehr kompatibel. Die Klassen und der
+      DOM Aufbau haben sich geändert. Die Standardversion sieht aber in
+      allen Stylesheets gut genug aus, dass das erstmal so bleiben kann.
+    - Das "width" Attribut im unterliegenden <textarea> wird nicht mehr
+      benutzt um den Editor zu dimensionieren. Der ckeditor nimmt sich immer
+      die volle Breite des umliegenden Containers.
+    - dymanisches resize ist nicht mehr unterstützt.
+    - es gibt keinen jquery adapter mehr. Interaktion mit dem editor müssen
+      mit der API des ckeditors passieren. Das Editor Objekt ist weiterhin
+      im data-ckeditorInstance des unterliegenden <textarea>.
+
 Mittelgroße neue Features:
 
   - Neben Artikelnummern pro Lieferant und pro Kunden können auch
