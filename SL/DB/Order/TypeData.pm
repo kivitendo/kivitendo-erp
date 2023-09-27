@@ -243,7 +243,7 @@ my %type_data = (
     features => {
       price_tax   => 1,
       stock       => 0,
-      subversions => $::instance_conf->get_lock_oe_subversions,
+      subversions => sub { $::instance_conf->get_lock_oe_subversions },
     },
   },
   SALES_ORDER_INTAKE_TYPE() => {
@@ -292,7 +292,7 @@ my %type_data = (
     features => {
       price_tax   => 1,
       stock       => 0,
-      subversions => $::instance_conf->get_lock_oe_subversions,
+      subversions => sub { $::instance_conf->get_lock_oe_subversions },
     },
   },
 );
