@@ -233,14 +233,7 @@ sub displayable_name {
 
 sub is_sales {
   croak 'not an accessor' if @_ > 1;
-  my $type = shift->type();
-  if (any { $type eq $_ } (
-      SALES_ORDER_TYPE(),
-      SALES_QUOTATION_TYPE(),
-    )) {
-    return 1;
-  };
-  return 0;
+  $_[0]->type_data->properties('is_customer');
 }
 
 sub daily_exchangerate {
@@ -646,7 +639,7 @@ sub number {
 }
 
 sub customervendor {
-  $_[0]->is_sales ? $_[0]->customer : $_[0]->vendor;
+  $_[0]->type_data->properties('is_customer') ? $_[0]->customer : $_[0]->vendor;
 }
 
 sub date {
