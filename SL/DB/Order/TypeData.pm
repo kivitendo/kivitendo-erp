@@ -6,13 +6,16 @@ use Exporter qw(import);
 use SL::Locale::String qw(t8);
 
 use constant {
-  SALES_ORDER_TYPE       => 'sales_order',
-  PURCHASE_ORDER_TYPE    => 'purchase_order',
-  SALES_QUOTATION_TYPE   => 'sales_quotation',
-  REQUEST_QUOTATION_TYPE => 'request_quotation',
+  SALES_ORDER_TYPE               => 'sales_order',
+  PURCHASE_ORDER_TYPE            => 'purchase_order',
+  SALES_QUOTATION_TYPE           => 'sales_quotation',
+  REQUEST_QUOTATION_TYPE         => 'request_quotation',
+  PURCHASE_QUOTATION_INTAKE_TYPE => 'purchase_quotation_intake',
+  SALES_ORDER_INTAKE_TYPE        => 'sales_order_intake',
 };
 
-my @export_types = qw(SALES_ORDER_TYPE PURCHASE_ORDER_TYPE REQUEST_QUOTATION_TYPE SALES_QUOTATION_TYPE);
+my @export_types = qw(SALES_ORDER_TYPE PURCHASE_ORDER_TYPE REQUEST_QUOTATION_TYPE SALES_QUOTATION_TYPE
+                      PURCHASE_QUOTATION_INTAKE_TYPE SALES_ORDER_INTAKE_TYPE);
 my @export_subs = qw(valid_types validate_type is_valid_type get get3);
 
 our @EXPORT_OK = (@export_types, @export_subs);
@@ -201,6 +204,97 @@ my %type_data = (
       subversions => 1,
     },
   },
+  PURCHASE_QUOTATION_INTAKE_TYPE() => {
+    text => {
+      delete     => t8('The quotation intake has been deleted'),
+      saved      => t8('The quotation intake has been saved'),
+      add        => t8('Add Purchase Quotation Intake'),
+      edit       => t8('Edit Purchase Quotation Intake'),
+      list       => t8('Purchase Quotation Intakes'),
+      attachment => t8('purchase_quotation_intake_list'),
+    },
+    show_menu => {
+      save_and_quotation      => 1,
+      save_and_rfq            => 0,
+      save_and_sales_order    => 1,
+      save_and_purchase_order => 1,
+      save_and_delivery_order => 0,
+      save_and_supplier_delivery_order => 0,
+      save_and_reclamation    => 0,
+      save_and_invoice_for_advance_payment => 0,
+      save_and_final_invoice  => 0,
+      save_and_ap_transaction => 0,
+      save_and_invoice        => 0,
+      delete                  => 1,
+    },
+    properties => {
+      customervendor => "vendor",
+      is_customer    => 0,
+      nr_key         => "quonumber",
+    },
+    defaults => {
+      reqdate => sub { return; },
+    },
+    part_classification_query => [ "used_for_purchase" => 1 ],
+    rights => {
+      edit => "request_quotation_edit",
+      view => "request_quotation_edit | request_quotation_view",
+    },
+    features => {
+      price_tax   => 1,
+      stock       => 0,
+      subversions => $::instance_conf->get_lock_oe_subversions,
+    },
+  },
+  SALES_ORDER_INTAKE_TYPE() => {
+    text => {
+      delete => t8('The order intake has been deleted'),
+      saved  => t8('The order intake has been saved'),
+      add    => t8("Add Sales Order Intake"),
+      edit   => t8("Edit Sales Order Intake"),
+      list   => t8("Sales Order Intakes"),
+      attachment => t8("sales_order_intake_list"),
+    },
+    show_menu => {
+      save_and_quotation                   => 1,
+      save_and_rfq                         => 1,
+      save_and_sales_order                 => 1,
+      save_and_purchase_order              => 1,
+      save_and_delivery_order              => 0,
+      save_and_supplier_delivery_order     => 0,
+      save_and_reclamation                 => 0,
+      save_and_invoice_for_advance_payment => 0,
+      save_and_final_invoice               => 0,
+      save_and_ap_transaction              => 0,
+      save_and_invoice                     => 0,
+      delete                               => sub { $::instance_conf->get_sales_order_show_delete },
+    },
+    properties => {
+      customervendor => "customer",
+      is_customer    => 1,
+      nr_key         => "ordnumber",
+    },
+    defaults => {
+      reqdate => sub {
+        if ($::instance_conf->get_deliverydate_on) {
+          return DateTime->today_local->next_workday(
+            extra_days => $::instance_conf->get_delivery_date_interval());
+        } else {
+          return ;
+        }
+      },
+    },
+    part_classification_query => [ "used_for_sale" => 1 ],
+    rights => {
+      edit => "sales_order_edit",
+      view => "sales_order_edit | sales_order_view",
+    },
+    features => {
+      price_tax   => 1,
+      stock       => 0,
+      subversions => $::instance_conf->get_lock_oe_subversions,
+    },
+  },
 );
 
 my @valid_types = (
@@ -208,6 +302,8 @@ my @valid_types = (
   PURCHASE_ORDER_TYPE,
   SALES_QUOTATION_TYPE,
   REQUEST_QUOTATION_TYPE,
+  PURCHASE_QUOTATION_INTAKE_TYPE,
+  SALES_ORDER_INTAKE_TYPE,
 );
 
 my %valid_types = map { $_ => $_ } @valid_types;
