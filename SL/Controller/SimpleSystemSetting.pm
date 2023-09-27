@@ -389,7 +389,7 @@ sub check_type_and_auth {
 }
 
 sub setup_javascript {
-  $::request->layout->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery);
+  $::request->layout->use_javascript("${_}.js") for qw();
 }
 
 sub init_class               { "SL::DB::"          . $_[0]->config->{class}                  }

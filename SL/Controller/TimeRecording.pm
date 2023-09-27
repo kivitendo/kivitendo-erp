@@ -102,7 +102,7 @@ sub action_mark_as_booked {
 sub action_edit {
   my ($self) = @_;
 
-  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.TimeRecording ckeditor/ckeditor ckeditor/adapters/jquery kivi.Validator);
+  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.TimeRecording kivi.Validator);
 
   if ($self->use_duration) {
     flash('warning', t8('This entry is using start and end time. This information will be overwritten on saving.')) if !$self->time_recording->is_duration_used;
