@@ -90,7 +90,7 @@ sub new_delivery_order {
     employee_id => $employee->id,
     salesman_id => $employee->id,
     taxzone_id  => $taxzone->id,
-    order_type => SALES_DELIVERY_ORDER_TYPE,
+    record_type => SALES_DELIVERY_ORDER_TYPE,
     %params,
   )->save;
 }
