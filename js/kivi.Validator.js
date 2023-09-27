@@ -33,12 +33,13 @@ namespace("kivi.Validator", function(ns) {
   };
 
   ns.validate = function($e) {
+    /*
     var $e_annotate;
     if ($e.data('ckeditorInstance')) {
       $e_annotate = $($e.data('ckeditorInstance').editable().$);
       if ($e.data('title'))
         $e_annotate.data('title', $e.data('title'));
-    }
+    }*/
     var tests = $e.data('validate').split(/ +/);
 
     for (var test_idx in tests) {
@@ -47,7 +48,7 @@ namespace("kivi.Validator", function(ns) {
         continue;
 
       if (ns.checks[test]) {
-        if (!ns.checks[test]($e, $e_annotate))
+        if (!ns.checks[test]($e))
           return false;
       } else {
         var error = "kivi.validate_form: unknown test '" + test + "' for element ID '" + $e.prop('id') + "'";
@@ -60,11 +61,25 @@ namespace("kivi.Validator", function(ns) {
     return true;
   }
 
+  ns.val = function($e, data) {
+    if ($e.data('ckeditorInstance')) {
+      if (data === undefined)
+        return $e.data('ckeditorInstance').getData()
+      else
+        $e.data('ckeditorInstance').setData(data)
+    } else {
+      if (data === undefined)
+        return $e.val();
+      else
+        $e.val(data);
+    }
+  }
+
   ns.checks = {
     required: function($e, $e_annotate) {
       $e_annotate = $e_annotate || $e;
 
-      if ($e.val() === '') {
+      if (ns.val($e) === '') {
         ns.annotate($e_annotate, kivi.t8("This field must not be empty."));
         return false;
       } else {
@@ -75,12 +90,12 @@ namespace("kivi.Validator", function(ns) {
     number: function($e, $e_annotate) {
       $e_annotate = $e_annotate || $e;
 
-      var number_string = $e.val();
+      var number_string = ns.val($e);
 
       var parsed_number = kivi.parse_amount(number_string);
 
       if (parsed_number === null) {
-        $e.val('');
+        ns.val($e, '');
         ns.annotate($e_annotate);
         return true;
       } else
@@ -91,7 +106,7 @@ namespace("kivi.Validator", function(ns) {
       {
         var formatted_number = kivi.format_amount(parsed_number);
         if (formatted_number != number_string)
-          $e.val(formatted_number);
+          ns.val($e, formatted_number);
         ns.annotate($e_annotate);
         return true;
       }
@@ -99,12 +114,12 @@ namespace("kivi.Validator", function(ns) {
     date: function($e, $e_annotate) {
       $e_annotate = $e_annotate || $e;
 
-      var date_string = $e.val();
+      var date_string = ns.val($e);
 
       var parsed_date = kivi.parse_date(date_string);
 
       if (parsed_date === null) {
-        $e.val('');
+        ns.val($e, '');
         ns.annotate($e_annotate);
         return true;
       } else
@@ -115,7 +130,7 @@ namespace("kivi.Validator", function(ns) {
       {
         var formatted_date = kivi.format_date(parsed_date);
         if (formatted_date != date_string)
-          $e.val(formatted_date);
+          ns.val($e, formatted_date);
         ns.annotate($e_annotate);
         return true;
       }
@@ -123,11 +138,11 @@ namespace("kivi.Validator", function(ns) {
     time: function($e, $e_annotate) {
       $e_annotate = $e_annotate || $e;
 
-      var time_string = $e.val();
+      var time_string = ns.val($e);
 
       var parsed_time = kivi.parse_time(time_string);
       if (parsed_time === null) {
-        $e.val('');
+        ns.val($e, '');
         ns.annotate($e_annotate);
         return true;
       } else
@@ -138,7 +153,7 @@ namespace("kivi.Validator", function(ns) {
       {
         var formatted_time = kivi.format_time(parsed_time);
         if (formatted_time != time_string)
-          $e.val(formatted_time);
+          ns.val($e, formatted_time);
         ns.annotate($e_annotate);
         return true;
       }
@@ -146,13 +161,13 @@ namespace("kivi.Validator", function(ns) {
     trimmed_whitespaces: function($e, $e_annotate) {
       $e_annotate = $e_annotate || $e;
 
-      var string = $e.val();
+      var string = ns.val($e);
 
       if ($e.hasClass('tooltipstered'))
         $e.tooltipster('destroy');
 
       if (string.match(/^\s|\s$/)) {
-        $e.val(string.trim());
+        ns.val($e, string.trim());
 
         $e.tooltipster({
           content: kivi.t8("Leading and trailing whitespaces have been removed."),
@@ -166,6 +181,14 @@ namespace("kivi.Validator", function(ns) {
   };
 
   ns.annotate = function($e, error) {
+      // if element is ckeditor:
+    if ($e.data('ckeditorInstance')) {
+      const $orig_e = $e;
+      $e = $($orig_e.data('ckeditorInstance').ui.view.editable._editableElement);
+      if ($orig_e.data('title'))
+        $e.data('title', $orig_e.data('title'));
+    }
+
     if (error) {
       $e.addClass('kivi-validator-invalid');
       if ($e.hasClass('tooltipstered'))
