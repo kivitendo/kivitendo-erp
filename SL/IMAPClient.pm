@@ -228,11 +228,21 @@ sub _create_email_journal {
 sub _parse_date {
   my ($self, $date) = @_;
   return '' unless $date;
+  my $parse_date = $date;
+  # replace whitespaces with single space
+  $parse_date =~ s/\s+/ /g;
+  # remove leading and trailing whitespaces
+  $parse_date =~ s/^\s+|\s+$//g;
+  # remove day-name
+  $parse_date =~ s/^[A-Z][a-z][a-z], //;
+  # add missing seconds
+  $parse_date =~ s/( \d\d:\d\d) /$1:00 /;
   my $strp = DateTime::Format::Strptime->new(
-    pattern   => '%a, %d %b %Y %H:%M:%S %z',
+    pattern   => '%d %b %Y %H:%M:%S %z',
     time_zone => 'UTC',
   );
-  my $dt = $strp->parse_datetime($date);
+  my $dt = $strp->parse_datetime($parse_date)
+    or die "Could not parse date: $date\n";
   return $dt->strftime('%Y-%m-%d %H:%M:%S');
 }
 
