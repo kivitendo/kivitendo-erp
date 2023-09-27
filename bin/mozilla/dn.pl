@@ -321,7 +321,7 @@ sub set_email {
   $form->{"title"} = $locale->text("Set eMail text");
   $form->header(
     no_layout       => 1,
-    use_javascripts => [ qw(ckeditor/ckeditor ckeditor/adapters/jquery) ],
+    use_javascripts => [ qw(ckeditor5/ckeditor ckeditor5/translations/de) ],
   );
   print($form->parse_html_template("dunning/set_email"));
 
