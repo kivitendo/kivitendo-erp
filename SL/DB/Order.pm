@@ -184,27 +184,21 @@ sub is_type {
 }
 
 sub quotation {
-  my $type = shift->type();
-  if (any { $type eq $_ } (
-      SALES_ORDER_INTAKE_TYPE(),
-      SALES_QUOTATION_TYPE(),
-      REQUEST_QUOTATION_TYPE(),
-      PURCHASE_QUOTATION_INTAKE_TYPE(),
-    )) {
-    return 1;
-  };
-  return 0;
+  my $type = $_[0]->type();
+  any { $type eq $_ } (
+    SALES_ORDER_INTAKE_TYPE(),
+    SALES_QUOTATION_TYPE(),
+    REQUEST_QUOTATION_TYPE(),
+    PURCHASE_QUOTATION_INTAKE_TYPE(),
+  );
 }
 
 sub intake {
-  my $type = shift->type();
-  if (any { $type eq $_ } (
-      SALES_ORDER_INTAKE_TYPE(),
-      PURCHASE_QUOTATION_INTAKE_TYPE(),
-    )) {
-    return 1;
-  };
-  return 0;
+  my $type = $_[0]->type();
+  any { $type eq $_ } (
+    SALES_ORDER_INTAKE_TYPE(),
+    PURCHASE_QUOTATION_INTAKE_TYPE(),
+  );
 }
 
 sub deliverydate {
