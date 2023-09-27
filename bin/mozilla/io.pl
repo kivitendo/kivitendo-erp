@@ -2130,8 +2130,8 @@ sub _make_record {
 
   $obj->items(@items) if @items;
 
-  if ($class eq 'SL::DB::DeliveryOrder' && !$obj->order_type) {
-    $obj->order_type(SL::DB::DeliveryOrder::TypeData::validate_type($::form->{type}));
+  if ($class eq 'SL::DB::DeliveryOrder' && !$obj->record_type) {
+    $obj->record_type(SL::DB::DeliveryOrder::TypeData::validate_type($::form->{type}));
   }
 
   if ($class eq 'SL::DB::Invoice') {
