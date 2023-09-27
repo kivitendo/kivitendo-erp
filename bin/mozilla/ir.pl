@@ -38,6 +38,7 @@ use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::IR;
 use SL::IS;
 use SL::DB::BankTransactionAccTrans;
+use SL::DB::Chart;
 use SL::DB::Default;
 use SL::DB::Department;
 use SL::DB::Project;
@@ -206,7 +207,14 @@ sub invoice_links {
 
   $form->{paidaccounts} = 1 unless (exists $form->{paidaccounts});
 
+  foreach my $ref (@{ $form->{AP_links}{AP} } ) {
+    if ( $ref->{chart_id} == $::instance_conf->get_ap_chart_id ) {
+      $form->{AP_1} = "$ref->{accno}--$ref->{description}";
+    }
+  }
   $form->{AP} = $form->{AP_1} unless $form->{id};
+  my ($chart_accno)      = split /--/, $form->{AP};
+  $form->{AP_chart_id} = $form->{id} ? SL::DB::Manager::Chart->find_by( accno => $chart_accno)->id : $::instance_conf->get_ap_chart_id ;
 
   $form->{locked} =
     ($form->datetonum($form->{invdate}, \%myconfig) <=
@@ -916,7 +924,7 @@ sub post_payment {
     }
   }
 
-  ($form->{AP})      = split /--/, $form->{AP};
+  $form->{AP}      = SL::DB::Manager::Chart->find_by( id => $form->{AP_chart_id} )->accno;
   ($form->{AP_paid}) = split /--/, $form->{AP_paid};
   if (IR->post_payment(\%myconfig, \%$form)){
     if (!exists $form->{addition} && $form->{id} ne "") {
@@ -1022,7 +1030,7 @@ sub post {
     }
   }
 
-  ($form->{AP})      = split /--/, $form->{AP};
+  $form->{AP}      = SL::DB::Manager::Chart->find_by( id => $form->{AP_chart_id} )->accno;
   ($form->{AP_paid}) = split /--/, $form->{AP_paid};
   $form->{storno}  ||= 0;
 

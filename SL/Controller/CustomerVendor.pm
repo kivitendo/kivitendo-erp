@@ -867,7 +867,7 @@ sub is_orphaned {
   }
 
   my $arap      = $self->is_vendor ? 'ap' : 'ar';
-  my $num_args  = 3;
+  my $num_args  = 4;
 
   my $cv = $self->is_vendor ? 'vendor' : 'customer';
 
@@ -889,7 +889,13 @@ sub is_orphaned {
     SELECT a.id
     FROM delivery_orders a
     JOIN '. $cv .' ct ON (a.'. $cv .'_id = ct.id)
-    WHERE ct.id = ?';
+    WHERE ct.id = ?
+
+    UNION
+
+    SELECT id
+    FROM price_rule_items
+    WHERE type LIKE \''. $cv .'\' AND value_int = ?';
 
 
   if ( $self->is_vendor ) {
