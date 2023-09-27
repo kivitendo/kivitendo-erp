@@ -349,7 +349,7 @@ namespace("kivi", function(ns) {
       if (element.style.height)
         editor.editing.view.change((writer) => {
           writer.setStyle(
-            "height",
+            "min-height",
             element.style.height,
             editor.editing.view.document.getRoot()
           );
