@@ -2090,7 +2090,7 @@ sub save {
                            id => \@converted_from_oe_ids,
                            or => [  record_type => SALES_QUOTATION_TYPE(),
                                     record_type => REQUEST_QUOTATION_TYPE(),
-                                   (record_type => PURCHASE_QUOTATION_INTAKE_TYPE()) x $self->is_type(PURCHASE_ORDER_TYPE())  ]
+                                   (record_type => PURCHASE_QUOTATION_INTAKE_TYPE()) x $self->order->is_type(PURCHASE_ORDER_TYPE())  ]
                            ])
                        : undef;
 
