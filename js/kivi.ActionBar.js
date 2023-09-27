@@ -94,6 +94,13 @@ namespace('kivi.ActionBar', function(k){
               || (e.target.tagName == 'SELECT')))
         return true;
 
+      // special case ckeditor: if the event originates from the editable area of the ckeditor, ignore it, otherwise we drown in Enter events
+      if (e.target.classList.contains('ck-content'))
+        return true;
+
+      console.warn(e);
+      console.warn(this);
+
       if ((target in kivi.ActionBar.Accesskeys.actions) && (accesskey in kivi.ActionBar.Accesskeys.actions[target])) {
         e.stopPropagation();
         kivi.ActionBar.Accesskeys.actions[target][accesskey].click();
