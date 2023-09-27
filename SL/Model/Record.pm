@@ -142,6 +142,13 @@ sub _save_history {
 sub save {
   my ($class, $record, %params) = @_;
 
+  # Test for no items
+  if (scalar @{$record->items} == 0
+      && !grep { $record->record_type eq $_ }
+         @{$::instance_conf->get_allowed_documents_with_no_positions() || []}) {
+    die t8('The action you\'ve chosen has not been executed because the document does not contain any item yet.');
+  }
+
   $record->calculate_prices_and_taxes() if $record->type_data->features('price_tax');
 
   foreach my $item (@{ $record->items }) {
