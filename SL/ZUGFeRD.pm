@@ -104,7 +104,7 @@ sub _extract_zugferd_invoice_xml {
   # a lot earlier.
 
   %res_fail = (
-    result  => RES_ERR_FILE_OPEN(),
+    result  => RES_ERR_FILE_OPEN,
     message => join("; ", @res),
   );
 
@@ -128,8 +128,8 @@ sub extract_from_pdf {
   my $pdf_doc = CAM::PDF->new($file_name);
 
   if (!$pdf_doc) {
-    return \{
-      result  => RES_ERR_FILE_OPEN(),
+    return {
+      result  => RES_ERR_FILE_OPEN,
       message => $::locale->text('The file \'#1\' could not be opened for reading.', $file_name),
     };
   }
