@@ -208,7 +208,7 @@ sub save {
     $validity_token->delete if $validity_token;
 
     1;
-  });
+  }) or die t8('Saving the record failed: #1', SL::DB->client->error);
 }
 
 # Todo: put this into SL::DB::Order?
