@@ -249,6 +249,7 @@
 <h3 class="caption">[% LxERP.t8('Help on column names') %]</h3>
 
 [% BLOCK panel_3 %]
+  <div class="horizontal-scroll-wrapper">
   [% IF SELF.worker.is_multiplexed %]
     <table>
       <tbody>
@@ -300,6 +301,7 @@
       </tbody>
     </table>
   [% END %]
+  </div><!-- /.horizontal-scroll-wrapper -->
   [% IF SELF.type == 'contacts' %]
     <p>
       [% LxERP.t8("You can update existing contacts by providing the 'cp_id' column with their database IDs. Otherwise: ") %]
