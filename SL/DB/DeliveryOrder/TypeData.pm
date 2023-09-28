@@ -31,7 +31,6 @@ my %type_data = (
       save_and_ap_transaction => 0,
       save_and_invoice        => 0,
       delete                  => sub { $::instance_conf->get_sales_delivery_order_show_delete },
-      new_controller          => 0,
     },
     properties => {
       customervendor => "customer",
@@ -68,7 +67,6 @@ my %type_data = (
       save_and_ap_transaction => 0,
       save_and_invoice        => 0,
       delete                  => sub { $::instance_conf->get_sales_delivery_order_show_delete },
-      new_controller          => 0,
     },
     properties => {
       customervendor => "vendor",
@@ -105,7 +103,6 @@ my %type_data = (
       save_and_ap_transaction => 0,
       save_and_invoice        => 0,
       delete                  => sub { $::instance_conf->get_sales_delivery_order_show_delete },
-      new_controller          => 1,
     },
     properties => {
       customervendor => "vendor",
@@ -142,7 +139,6 @@ my %type_data = (
       save_and_ap_transaction => 0,
       save_and_invoice        => 0,
       delete                  => sub { $::instance_conf->get_sales_delivery_order_show_delete },
-      new_controller          => 1,
     },
     properties => {
       customervendor => "customer",
