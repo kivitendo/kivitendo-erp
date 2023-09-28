@@ -1,4 +1,5 @@
 use Test::More;
+use Test::Exception;
 
 use strict;
 
@@ -76,7 +77,15 @@ note "testing subversion of order";
 # make current version a final version, currently this is handled via frontend/controller
 is($sales_order1->ordnumber, "ord-01", "ordnumber before increment_subversion ok");
 SL::DB::OrderVersion->new(oe_id => $sales_order1->id, version => 1, final_version => 1)->save;
-SL::Model::Record->increment_subversion($sales_order1);
+# feature incrementing subversion disabled throws an error
+throws_ok {
+  local $::instance_conf->data->{lock_oe_subversions} = 0;
+  SL::Model::Record->increment_subversion($sales_order1);
+} qr{Subversions are not supported or disabled for this record type.}, 'feature subversion disabled throws error when trying to increment';
+{
+  local $::instance_conf->data->{lock_oe_subversions} = 1;
+  SL::Model::Record->increment_subversion($sales_order1);
+}
 is($sales_order1->ordnumber, "ord-01-2", "ordnumber after increment_subversion ok");
 is(SL::DB::Manager::Order->get_all_count(
     where => [ and => ['!record_type' => 'sales_quotation', '!record_type' => 'request_quotation' ]]),

@@ -3698,6 +3698,7 @@ $self->{texts} = {
   'Subtotal'                    => '',
   'Subtotal cannot distinguish betweens record types. Only one of the selected record types will be displayed: #1' => '',
   'Subtotals per quarter'       => '',
+  'Subversions are not supported or disabled for this record type.' => '',
   'Such entries cannot be exported into the DATEV format and have to be fixed as well.' => '',
   'Suggested invoice'           => '',
   'Sum Credit'                  => '',
