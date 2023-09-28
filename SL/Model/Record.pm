@@ -303,6 +303,10 @@ Currently the following classes and types are supported:
 
 =item * C<purchase_quotation>
 
+=item * C<purchase_quotation_intake>
+
+=item * C<sales_order_intake>
+
 =back
 
 =item * L<SL::DB::DeliveryOrder>
