@@ -81,7 +81,7 @@ __PACKAGE__->run_before('check_auth_for_edit',
 
 __PACKAGE__->run_before('get_unalterable_data',
   only => [ qw(
-    save save_as_new save_and_delivery_order save_and_invoice
+    save save_as_new save_and_new_record save_and_invoice
     save_and_ap_transaction print send_email
     ) ]);
 
@@ -118,8 +118,17 @@ sub action_add_from_record {
   die "No 'from_type' was given." unless ($from_type);
   die "No 'from_id' was given."   unless ($from_id);
 
+  my %flags = ();
+  if (defined($::form->{from_item_ids})) {
+    my %use_item = map { $_ => 1 } @{$::form->{from_item_ids}};
+    $flags{item_filter} = sub {
+      my ($item) = @_;
+      return %use_item{$item->id};
+    }
+  }
+
   my $record = SL::Model::Record->get_record($from_type, $from_id);
-  my $delivery_order = SL::Model::Record->new_from_workflow($record, $self->type);
+  my $delivery_order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->order($delivery_order);
 
   $self->action_add;
@@ -515,6 +524,12 @@ sub action_save_and_new_record {
   my $to_type = $::form->{to_type};
   my $to_controller = get_object_name_from_type($to_type);
 
+  my %additional_params = ();
+  if ($::form->{only_selected_items}) {
+    my $from_item_ids = $::form->{selected_items} || [];
+    $additional_params{from_item_ids} = $from_item_ids;
+  }
+
   $self->save();
   flash_later('info', $self->type_data->text('saved'));
 
@@ -524,6 +539,7 @@ sub action_save_and_new_record {
     type       => $to_type,
     from_id    => $self->order->id,
     from_type  => $self->order->type,
+    %additional_params,
   );
 }
 

@@ -106,8 +106,17 @@ sub action_add_from_record {
   die "No 'from_type' was given." unless ($from_type);
   die "No 'from_id' was given."   unless ($from_id);
 
+  my %flags = ();
+  if (defined($::form->{from_item_ids})) {
+    my %use_item = map { $_ => 1 } @{$::form->{from_item_ids}};
+    $flags{item_filter} = sub {
+      my ($item) = @_;
+      return %use_item{$item->id};
+    }
+  }
+
   my $record = SL::Model::Record->get_record($from_type, $from_id);
-  my $order = SL::Model::Record->new_from_workflow($record, $self->type);
+  my $order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->order($order);
 
   if (ref($record) eq 'SL::DB::Reclamation') {
@@ -772,12 +781,19 @@ sub action_save_and_new_record {
   $self->save();
   flash_later('info', $self->type_data->text('saved'));
 
+  my %additional_params = ();
+  if ($::form->{only_selected_items}) {
+    my $from_item_ids = $::form->{selected_items} || [];
+    $additional_params{from_item_ids} = $from_item_ids;
+  }
+
   $self->redirect_to(
     controller => $to_controller,
     action     => 'add_from_record',
     type       => $to_type,
     from_id    => $self->order->id,
     from_type  => $self->order->type,
+    %additional_params,
   );
 }
 
