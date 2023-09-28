@@ -34,6 +34,7 @@ sub action_list {
   }
 
   $self->setup_list_action_bar;
+  $::form->{title} = t8('Booking groups');
   $::form->header;
   $self->render('buchungsgruppen/list',
                 title           => t8('Booking groups'),
@@ -54,6 +55,7 @@ sub show_form {
 
   $self->setup_show_form_action_bar;
   $self->render('buchungsgruppen/form', %params,
+                 title          => t8('Booking groups'),
                  TAXZONES       => SL::DB::Manager::TaxZone->get_all_sorted());
 }
 

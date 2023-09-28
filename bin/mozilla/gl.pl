@@ -359,6 +359,7 @@ sub search {
 
   setup_gl_search_action_bar();
 
+  $::form->{title} = t8('Journal');
   $::form->header;
   print $::form->parse_html_template('gl/search', {
     employee_label => sub { "$_[0]{id}--$_[0]{name}" },

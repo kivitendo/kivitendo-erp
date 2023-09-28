@@ -30,7 +30,10 @@ sub action_search {
   my ($self) = @_;
 
   $self->setup_search_action_bar;
-  $self->render('reconciliation/search');
+  $self->render('reconciliation/search',
+                title => t8('Reconciliation with bank'),
+               );
+
 }
 
 sub action_reconciliation {
@@ -45,7 +48,8 @@ sub action_reconciliation {
   $self->setup_reconciliation_action_bar;
   $self->render('reconciliation/form',
                 ui_tab => scalar(@{$self->{PROPOSALS}}) > 0?1:0,
-                title => t8('Reconciliation'));
+                title => t8('Reconciliation'),
+               );
 }
 
 sub action_load_overview {

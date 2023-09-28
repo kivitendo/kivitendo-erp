@@ -66,6 +66,7 @@ sub prepare_report {
   my $vc          = $self->vc;
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   my $csv_option  = $::form->{report_generator_output_format};
+  $report->{title} = t8('Delivery Value Report');
   $self->{report} = $report;
 
   my @columns     = qw(reqdate customer vendor ordnumber partnumber description unit qty netto_qty

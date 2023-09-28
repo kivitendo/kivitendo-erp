@@ -51,6 +51,7 @@ sub reconciliation {
 
   setup_rc_reconciliation_action_bar();
 
+  $::form->{title} = t8('Reconciliation');
   $::form->header;
   print $::form->parse_html_template('rc/step1', {
     selection_sub => sub { ("$_[0]{accno}--$_[0]{description}")x2 },

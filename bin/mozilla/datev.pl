@@ -51,7 +51,7 @@ sub export {
   my $stamm = SL::DATEV->new->get_datev_stamm;
 
   setup_datev_export_action_bar();
-
+  $::form->{title} = t8('DATEV - Export Assistent');
   $::form->header;
   print $::form->parse_html_template('datev/export', $stamm);
 

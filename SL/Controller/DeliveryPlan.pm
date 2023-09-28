@@ -51,6 +51,7 @@ sub prepare_report {
 
   my $vc          = $self->vc;
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
+  $report->{title} = t8('Delivery Plan');
   $self->{report} = $report;
 
   my @columns     = qw(reqdate customer vendor ordnumber partnumber description qty shipped_qty not_shipped_qty);

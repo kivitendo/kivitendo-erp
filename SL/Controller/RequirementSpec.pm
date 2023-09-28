@@ -478,10 +478,10 @@ sub create_or_update {
 }
 
 sub prepare_report {
-  my ($self)      = @_;
-
-  my $is_template = $::form->{is_template};
-  my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
+  my ($self)       = @_;
+  my $is_template  = $::form->{is_template};
+  my $report       = SL::ReportGenerator->new(\%::myconfig, $::form);
+  $report->{title} = t8('Requirement Spec Templates');
 
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->finalize; # for filter laundering
