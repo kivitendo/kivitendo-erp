@@ -67,7 +67,7 @@
 
  [% FOREACH error = data.conversion_errors %]
      <tr>
-      <td valign="top">[% IF error.id %][% L.link(SELF.url_for(controller='do.pl', action='edit', type='sales_delivery_order', id=error.id), HTML.escape(error.number), target="_blank") %][% ELSE %]–[% END %]</td>
+      <td valign="top">[% IF error.id %][% L.link(SELF.url_for(controller='controller.pl', action='DeliveryOrder/edit', id=error.id), HTML.escape(error.number), target="_blank") %][% ELSE %]–[% END %]</td>
       <td valign="top">[% HTML.escape(error.message) %]</td>
      </tr>
  [% END %]

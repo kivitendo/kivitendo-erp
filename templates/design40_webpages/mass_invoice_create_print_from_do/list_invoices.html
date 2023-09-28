@@ -41,7 +41,7 @@
               <td>[% L.link(SELF.url_for(controller="is.pl", action="edit", type="sales_invoice", id=invoice.id), invoice.invnumber) %]</td>
               <td>
                 [% IF delivery_order %]
-                  [% L.link(SELF.url_for(controller="do.pl", action="edit", id=delivery_order.id), delivery_order.donumber) %]
+                  [% L.link(SELF.url_for(controller="controller.pl", action="DeliveryOrder/edit", id=delivery_order.id), delivery_order.donumber) %]
                 [% ELSE %]
                   [% HTML.escape(invoice.donumber) %]
                 [% END %]

@@ -60,7 +60,7 @@ sub _do_record {
 
   my $text = escape($delivery_order->donumber);
   if (! delete $params{no_link}) {
-    my $href = 'do.pl?action=edit&type=' . $type
+    my $href = 'controller.pl?action=DeliveryOrder/edit'
                . '&id=' . escape($delivery_order->id);
     $text = link_tag($href, $text, %params);
   }

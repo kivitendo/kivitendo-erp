@@ -40,7 +40,7 @@
       <td>[% L.checkbox_tag('id[]', value=delivery_order.id, "data-checkall"=1, checked=selected_ids.$delivery_order_id) %]</td>
       <td>[% HTML.escape(delivery_order.transdate_as_date) %]</td>
       <td>[% HTML.escape(delivery_order.reqdate_as_date) %]</td>
-      <td>[% L.link(SELF.url_for(controller="do.pl", action="edit", type="sales_delivery_order", id=delivery_order.id), delivery_order.donumber) %]</td>
+      <td>[% L.link(SELF.url_for(controller="controller.pl", action="DeliveryOrder/edit", id=delivery_order.id), delivery_order.donumber) %]</td>
       <td>[% HTML.escape(delivery_order.ordnumber) %]</td>
       <td>[% HTML.escape(delivery_order.customer.name) %]</td>
       <td>[% HTML.escape(SELF.make_shipto_title(delivery_order.shipto || delivery_order.custom_shipto)) %]</td>
