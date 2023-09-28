@@ -798,24 +798,6 @@ sub action_save_and_new_record {
 }
 
 # save the order and redirect to the frontend subroutine for a new
-# delivery order
-sub action_save_and_delivery_order {
-  my ($self) = @_;
-
-  my %params;
-
-  if ($::form->{convert_to_purchase_delivery_order_selected_items_only}) {
-    $params{only_items} = join(',', @{ $::form->{purchase_delivery_order_item_selection_indexes} || [] });
-  }
-
-  $self->save_and_redirect_to(
-    controller => 'oe.pl',
-    action     => 'oe_delivery_order_from_order',
-    %params,
-  );
-}
-
-# save the order and redirect to the frontend subroutine for a new
 # invoice
 sub action_save_and_invoice {
   my ($self) = @_;
@@ -2334,25 +2316,48 @@ sub setup_edit_action_bar {
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
-          t8('Save and Delivery Order'),
+          t8('Save and Sales Delivery Order'),
           call      => [ 'kivi.Order.save', {
-              action             => 'save_and_delivery_order',
+              action             => 'save_and_new_record',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+              form_params        => [
+                { name => 'to_type', value => SALES_DELIVERY_ORDER_TYPE() },
+              ],
             }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
                          @req_trans_cost_art, @req_cusordnumber,
           ],
-          only_if   => $self->type_data->show_menu('save_and_delivery_order'),
+          only_if   => $self->type_data->show_menu('save_and_sales_delivery_order'),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
-          t8('Save and Delivery Order with item selection'),
-          call      => [ 'kivi.Order.convert_to_purchase_delivery_order_select_items',
-                         { action             => 'save_and_delivery_order',
-                           warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
-                           warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
-                       ],
+          t8('Save and Purchase Delivery Order'),
+          call      => [ 'kivi.Order.save', {
+              action             => 'save_and_new_record',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+              form_params        => [
+                { name => 'to_type', value => PURCHASE_DELIVERY_ORDER_TYPE() },
+              ],
+            }],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
+                         @req_trans_cost_art, @req_cusordnumber,
+          ],
+          only_if   => $self->type_data->show_menu('save_and_purchase_delivery_order'),
+          disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
+        ],
+        action => [
+          t8('Save and Purchase Delivery Order with item selection'),
+          call      => [
+            'kivi.Order.show_purchase_delivery_order_select_items', {
+              action             => 'save_and_new_record',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+              form_params        => [
+                { name => 'to_type', value => PURCHASE_DELIVERY_ORDER_TYPE() },
+              ],
+            }],
           checks    => [ @req_trans_cost_art, @req_cusordnumber ],
           only_if   => (any { $self->type eq $_ } (PURCHASE_ORDER_TYPE())),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,

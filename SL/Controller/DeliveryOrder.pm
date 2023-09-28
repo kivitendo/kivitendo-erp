@@ -1426,7 +1426,7 @@ sub make_order {
     $order = SL::DB::DeliveryOrder->new(
       orderitems  => [],
       currency_id => $::instance_conf->get_currency_id(),
-      record_type => $self->type_data->validate
+      record_type => $self->type
     );
   }
 

@@ -965,7 +965,7 @@ namespace('kivi.Order', function(ns) {
     window.open("controller.pl?action=CustomerVendor/edit&db=" + encodeURIComponent(db) + "&id=" + encodeURIComponent($(id_selector).val()), '_blank');
   };
 
-  ns.convert_to_purchase_delivery_order_select_items = function(params) {
+  ns.show_purchase_delivery_order_select_items = function(params) {
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/show_conversion_to_purchase_delivery_order_item_selection' });
 
@@ -981,15 +981,27 @@ namespace('kivi.Order', function(ns) {
     });
   };
 
-  ns.convert_to_purchase_delivery_order = function() {
-    var params = $("body").data("convert_to_purchase_delivery_order_item_selection_params");
-    params.form_params.convert_to_purchase_delivery_order_selected_items_only = 1;
+  ns.convert_to_purchase_delivery_order_item_selection = function() {
+    let params = $("body").data("convert_to_purchase_delivery_order_item_selection_params");
 
-    var $dlg    = $("#convert_to_purchase_delivery_order_item_selection");
-    params.data = $dlg.find("tbody input").serializeArray();
+    let $dialog = $("#convert_to_purchase_delivery_order_item_selection");
+    let selected_items = $dialog.find("tbody input.item_selection_checkall").serializeArray();
+    params.data = selected_items;
 
-    $dlg.dialog('close');
-    $dlg.remove();
+    additional_param = { name: 'only_selected_items', value: 1 };
+    if (params.form_params) {
+      if (Array.isArray(params.form_params)) {
+        params.form_params.push(additional_param);
+      } else {
+        params.form_params = [params.form_params];
+        params.form_params.push(additional_param);
+      }
+    } else {
+      params.form_params = [additional_param];
+    }
+
+    $dialog.dialog('close');
+    $dialog.remove();
 
     kivi.Order.save(params);
   };
