@@ -31,7 +31,7 @@ use SL::DB::Translation;
 use SL::DB::TransferType;
 use SL::DB::ValidityToken;
 use SL::DB::Warehouse;
-use SL::DB::Helper::RecordLink qw(set_record_link_conversions);
+use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_ITEM_ID);
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
 use SL::DB::DeliveryOrder;
@@ -130,6 +130,15 @@ sub action_add_from_record {
   my $record = SL::Model::Record->get_record($from_type, $from_id);
   my $delivery_order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->order($delivery_order);
+
+  if (ref($record) eq 'SL::DB::Reclamation') {
+    $self->{converted_from_reclamation_id}       = $delivery_order->{ RECORD_ID()      };
+    $_   ->{converted_from_reclamation_items_id} = $_             ->{ RECORD_ITEM_ID() } for @{ $delivery_order->items_sorted };
+  }
+  if (ref($record) eq 'SL::DB::Order') {
+    $self->{converted_from_oe_id}       = $delivery_order->{ RECORD_ID()      };
+    $_   ->{converted_from_oe_items_id} = $_             ->{ RECORD_ITEM_ID() } for @{ $delivery_order->items_sorted };
+  }
 
   $self->action_add;
 }
