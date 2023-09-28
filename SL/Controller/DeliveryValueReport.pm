@@ -5,6 +5,7 @@ use parent qw(SL::Controller::Base);
 
 use Clone qw(clone);
 use SL::DB::OrderItem;
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::Business;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
@@ -193,6 +194,7 @@ sub make_filter_summary {
 sub init_models {
   my ($self) = @_;
   my $vc     = $self->vc;
+  my $record_type = ($vc eq 'customer' ? SALES_ORDER_TYPE() : PURCHASE_ORDER_TYPE());
   SL::Controller::Helper::GetModels->new(
     controller            => $self,
     model                 => 'OrderItem',
@@ -205,7 +207,7 @@ sub init_models {
     },
     # show only open (sales|purchase) orders
     query                 => [ 'order.closed' => '0',  "order.${vc}_id" => { gt => 0 },
-                               'order.quotation' => 0                                  ],
+                               'order.record_type' => $record_type                       ],
     with_objects          => [ 'order', "order.$vc", 'part' ],
     additional_url_params => { vc => $vc},
   )
