@@ -334,6 +334,19 @@ Currently the following classes and types are supported:
 The base record types need to implement a type_data call that can be queried
 for various type informations.
 
+     +-------+              type_data()      +-------------------------+
+     | Order | ---------------proxy------->  | SL::DB::Order::TypeData |
+     +-------+                               +-------------------------+
+
+     +---------------+      type_data()      +---------------------------------+
+     | DeliveryOrder |  ------proxy------->  | SL::DB::DeliveryOrder::TypeData |
+     +---------------+                       +---------------------------------+
+
+     ...
+
+Any Record that implements the necessary type_data callbacks can be used as a
+record in here .
+
 Invoices are not supported as of now, but are planned for the future.
 
 The old delivery order C<sales_delivery_order> and C<purchase_delivery_order>
