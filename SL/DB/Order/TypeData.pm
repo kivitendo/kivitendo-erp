@@ -70,7 +70,7 @@ my %type_data = (
     features => {
       price_tax   => 1,
       stock       => 0,
-      subversions => 1,
+      subversions => sub { $::instance_conf->get_lock_oe_subversions },
     },
   },
   PURCHASE_ORDER_TYPE() => {
@@ -114,7 +114,7 @@ my %type_data = (
     features => {
       price_tax   => 1,
       stock       => 0,
-      subversions => 1,
+      subversions => sub { $::instance_conf->get_lock_oe_subversions },
     },
   },
   SALES_QUOTATION_TYPE() => {
@@ -165,7 +165,7 @@ my %type_data = (
     features => {
       price_tax   => 1,
       stock       => 0,
-      subversions => 1,
+      subversions => sub { $::instance_conf->get_lock_oe_subversions },
     },
   },
   REQUEST_QUOTATION_TYPE() => {
@@ -209,7 +209,7 @@ my %type_data = (
     features => {
       price_tax   => 1,
       stock       => 0,
-      subversions => 1,
+      subversions => sub { $::instance_conf->get_lock_oe_subversions },
     },
   },
   PURCHASE_QUOTATION_INTAKE_TYPE() => {
