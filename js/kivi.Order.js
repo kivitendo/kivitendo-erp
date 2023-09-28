@@ -970,25 +970,25 @@ namespace('kivi.Order', function(ns) {
     data.push({ name: 'action', value: 'Order/show_conversion_to_purchase_delivery_order_item_selection' });
 
     kivi.popup_dialog({
-      id:     "convert_to_purchase_delivery_order_item_selection",
+      id:     "convert_to_purchase_delivery_order_item_position_selection",
       url:    "controller.pl",
       data:   data,
       type:   "POST",
       dialog: { title: kivi.t8("Select items for delivery order") },
       load:   function() {
-        $("body").data("convert_to_purchase_delivery_order_item_selection_params", params);
+        $("body").data("convert_to_purchase_delivery_order_item_position_selection_params", params);
       }
     });
   };
 
   ns.convert_to_purchase_delivery_order_item_selection = function() {
-    let params = $("body").data("convert_to_purchase_delivery_order_item_selection_params");
+    let params = $("body").data("convert_to_purchase_delivery_order_item_position_selection_params");
 
-    let $dialog = $("#convert_to_purchase_delivery_order_item_selection");
-    let selected_items = $dialog.find("tbody input.item_selection_checkall").serializeArray();
+    let $dialog = $("#convert_to_purchase_delivery_order_item_position_selection");
+    let selected_items = $dialog.find("tbody input.item_position_selection_checkall").serializeArray();
     params.data = selected_items;
 
-    additional_param = { name: 'only_selected_items', value: 1 };
+    additional_param = { name: 'only_selected_item_positions', value: 1 };
     if (params.form_params) {
       if (Array.isArray(params.form_params)) {
         params.form_params.push(additional_param);

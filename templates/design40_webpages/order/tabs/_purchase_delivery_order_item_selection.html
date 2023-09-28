@@ -7,7 +7,7 @@
   <table class="tbl-list">
     <thead>
       <tr class="listheading">
-        <th>[% L.checkbox_tag("item_selection_checkall", checkall="input.item_selection_checkall") %]</th>
+        <th>[% L.checkbox_tag("item_position_selection_checkall", checkall="input.item_position_selection_checkall") %]</th>
         <th>[% LxERP.t8("Position") %]</th>
         <th>[% LxERP.t8("Partnumber") %]</th>
         <th>[% LxERP.t8("Vendor Part Number") %]</th>
@@ -17,10 +17,10 @@
       </tr>
     </thead>
 
-    <tbody id="item_selection" class="row_entry listrow">
+    <tbody id="item_position_selection" class="row_entry listrow">
       [% FOREACH item = ITEMS %]
         <tr class="listrow">
-          <td>[% L.checkbox_tag("selected_items[+]", class="item_selection_checkall", value=item.id, checked="checked") %]</td>
+          <td>[% L.checkbox_tag("selected_item_positions[+]", class="item_position_selection_checkall", value=loop.count, checked="checked") %]</td>
           <td class="numeric">[% loop.count %]</td>
           <td>[% HTML.escape(item.partnumber) %]</td>
           <td>[% HTML.escape(item.vendor_partnumber) %]</td>

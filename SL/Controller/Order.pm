@@ -111,7 +111,7 @@ sub action_add_from_record {
     my %use_item = map { $_ => 1 } @{$::form->{from_item_ids}};
     $flags{item_filter} = sub {
       my ($item) = @_;
-      return %use_item{$item->id};
+      return %use_item{$item->{RECORD_ITEM_ID()}};
     }
   }
 
@@ -786,9 +786,10 @@ sub action_save_and_new_record {
   flash_later('info', $self->type_data->text('saved'));
 
   my %additional_params = ();
-  if ($::form->{only_selected_items}) {
-    my $from_item_ids = $::form->{selected_items} || [];
-    $additional_params{from_item_ids} = $from_item_ids;
+  if ($::form->{only_selected_item_positions}) { # ids can be unset before save
+    my $item_positions = $::form->{selected_item_positions} || [];
+    my @from_item_ids = map { $self->order->items_sorted->[$_]->id } @$item_positions;
+    $additional_params{from_item_ids} = \@from_item_ids;
   }
 
   $self->redirect_to(
