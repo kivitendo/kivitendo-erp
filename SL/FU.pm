@@ -391,14 +391,14 @@ sub link_details {
   } elsif ($params{trans_type} eq 'sales_delivery_order') {
 
     $link = {
-      'url'   => 'do.pl?action=edit&type=sales_delivery_order&id=' . $params{trans_id} . '&edit_note_id=' . $form->quote($params{note_id}),
+      'url'   => 'controller.pl?action=DeliveryOrder/edit&id=' . $params{trans_id} . '&edit_note_id=' . $form->quote($params{note_id}),
       'title' => $locale->text('Sales delivery order') .' '. $params{trans_info},
     };
 
   } elsif ($params{trans_type} eq 'purchase_delivery_order') {
 
     $link = {
-      'url'   => 'do.pl?action=edit&type=purchase_delivery_order&id=' . $params{trans_id} . '&edit_note_id=' . $form->quote($params{note_id}),
+      'url'   => 'controller.pl?action=DeliveryOrder/edit&id=' . $params{trans_id} . '&edit_note_id=' . $form->quote($params{note_id}),
       'title' => $locale->text('Purchase delivery order') .' '. $params{trans_info},
     };
 

@@ -204,9 +204,8 @@
   icon: delivery_order_add
   order: 400
   access: sales_delivery_order_edit
-  module: do.pl
   params:
-    action: add
+    action: DeliveryOrder/add
     type: sales_delivery_order
 - parent: ar
   id: ar_add_sales_reclamation
@@ -433,9 +432,8 @@
   name: Add Delivery Note
   order: 300
   access: client/allow_new_purchase_delivery_order & purchase_delivery_order_edit
-  module: do.pl
   params:
-    action: add
+    action: DeliveryOrder/add
     type: purchase_delivery_order
 - parent: ap
   id: ap_add_purchase_reclamation
