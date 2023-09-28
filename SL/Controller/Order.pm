@@ -123,6 +123,10 @@ sub action_add_from_record {
     $self->{converted_from_reclamation_id}       = $order->{ RECORD_ID()      };
     $_   ->{converted_from_reclamation_items_id} = $_    ->{ RECORD_ITEM_ID() } for @{ $order->items_sorted };
   }
+  if (ref($record) eq 'SL::DB::Order') {
+    $self->{converted_from_oe_id}       = $order->{ RECORD_ID()      };
+    $_   ->{converted_from_oe_items_id} = $_    ->{ RECORD_ITEM_ID() } for @{ $order->items_sorted };
+  }
 
 
   $self->recalc();
