@@ -4,8 +4,6 @@
 [% USE L %]
 <h1>[% title | html %]</h1>
 
-[%- INCLUDE 'common/flash.html' %]
-
 <script type="text/javascript">
   <!--
   function copy_debit_to_credit() {
@@ -19,6 +17,8 @@
 <script type="text/javascript" src="js/kivi.Draft.js"></script>
 
 <form method="post" name="gl" action="gl.pl" id="form">
+
+[%- INCLUDE 'common/flash.html' %]
 
 [% FOREACH name IN [ 'id', 'closedto', 'locked', 'storno', 'storno_id', 'previous_id', 'previous_gldate' ] %]
   [% L.hidden_tag(name, $name) %]
@@ -51,7 +51,6 @@
 </ul>
 
 <div id="ui-tabs-basic-data">
-[% INCLUDE 'common/flash.html' %][% # PENDENT: SOLL DAS AUCH IN DEN ANDEREN TABS STEHEN? WIRD SCHWIERIG ZUM CSS-PLAZIEREN %]
 
 <div class="wrapper">
 
