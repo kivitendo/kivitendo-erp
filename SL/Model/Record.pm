@@ -92,7 +92,11 @@ sub new_from_workflow_multi {
 sub increment_subversion {
   my ($class, $record, %flags) = @_;
 
-  $record->increment_version_number if $record->type_data->features('subversions');
+  if ($record->type_data->features('subversions')) {
+    $record->increment_version_number;
+  } else {
+    die t8('Subversions are not supported or disabled for this record type.');
+  }
 
   return;
 }
@@ -398,8 +402,6 @@ Returns the new record object.
 Only for orders.
 
 Increments the record's subversion number.
-
-TODO: check type data if this is allowed/supported for this record and trow exception or error
 
 =item C<delete>
 
