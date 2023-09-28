@@ -5,6 +5,7 @@ use parent qw(SL::Controller::Base);
 
 use Clone qw(clone);
 use SL::DB::OrderItem;
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::Business;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
