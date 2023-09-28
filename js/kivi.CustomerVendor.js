@@ -70,7 +70,7 @@ namespace('kivi.CustomerVendor', function(ns) {
         kivi.Part.Picker($ctrl).set_item({ id: cvar.id, name: cvar.value });
 
       else
-        $ctrl.val(cvar.value);
+        $ctrl.val(cvar.value).change();
     }
   };
 
