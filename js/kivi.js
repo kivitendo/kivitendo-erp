@@ -323,6 +323,12 @@ namespace("kivi", function(ns) {
       // save instance in data
       $element.data('ckeditorInstance', editor);
 
+      // sync data if javascript changes the underlying textarea
+      // make sure to actually send change! $e.val(data) does not trigger it!
+      $element.on('change', (e) => {
+        editor.setData($element.val())
+      });
+
       // handle auto focus
       if ($element.hasClass('texteditor-autofocus'))
         ns.focus_ckeditor($element);
