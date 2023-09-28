@@ -925,7 +925,7 @@ namespace('kivi.Order', function(ns) {
     $('#phone_note_edit_text').html(kivi.t8('Edit note'));
     $('#phone_note_id').val(id);
     $('#phone_note_subject').val(subject);
-    $('#phone_note_body').val(body);
+    $('#phone_note_body').val(body).change();
     $('#phone_note_delete_button').show();
   };
 
@@ -933,7 +933,7 @@ namespace('kivi.Order', function(ns) {
     $('#phone_note_edit_text').html(kivi.t8('Add note'));
     $('#phone_note_id').val('');
     $('#phone_note_subject').val('');
-    $('#phone_note_body').val('');
+    $('#phone_note_body').val('').change();
     $('#phone_note_delete_button').hide();
   };
 
