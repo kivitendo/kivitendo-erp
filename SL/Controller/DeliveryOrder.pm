@@ -1115,12 +1115,7 @@ sub action_transfer_stock {
 
   my $inout = $self->type_data->properties('transfer');
 
-  my $errors = $self->save;
-
-  if (@$errors) {
-    $self->js->flash('error', $_) for @$errors;
-    return $self->js->render;
-  }
+  $self->save;
 
   my $order = $self->order;
 
