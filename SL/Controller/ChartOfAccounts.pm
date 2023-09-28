@@ -36,6 +36,7 @@ sub prepare_report {
 
   $self->report(SL::ReportGenerator->new(\%::myconfig, $::form));
 
+  $self->report->{title} = t8 ('Chart of Accounts');
   my @columns     = qw(accno description debit credit);
   my %column_defs = (
     accno       => { text => t8('Account') },

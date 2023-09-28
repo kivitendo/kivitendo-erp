@@ -51,6 +51,7 @@ sub action_list {
   my $configs = SL::DB::Manager::CustomVariableConfig->get_all_sorted(where => [ module => $self->module ]);
 
   $self->setup_list_action_bar;
+  $::form->{title} = t8('List of custom variables');
   $::form->header;
   $self->render('custom_variable_config/list',
                 title   => t8('List of custom variables'),

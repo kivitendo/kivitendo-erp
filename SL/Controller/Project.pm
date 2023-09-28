@@ -305,6 +305,7 @@ sub prepare_report {
   my $callback    = $self->models->get_callback;
 
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
+  $report->{title} = t8('Projects');
   $self->{report} = $report;
 
   my @columns     = qw(project_status customer projectnumber description active valid project_type);

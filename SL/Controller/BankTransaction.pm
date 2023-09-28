@@ -55,7 +55,9 @@ sub action_search {
 
   $self->setup_search_action_bar;
   $self->render('bank_transactions/search',
-                 BANK_ACCOUNTS => $bank_accounts);
+                 BANK_ACCOUNTS => $bank_accounts,
+                 title         => t8('Search bank transactions'),
+               );
 }
 
 sub action_list_all {
@@ -955,17 +957,18 @@ sub make_filter_summary {
 }
 
 sub prepare_report {
-  my ($self)      = @_;
+  my ($self)       = @_;
 
-  my $callback    = $self->models->get_callback;
+  my $callback     = $self->models->get_callback;
 
-  my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
-  $self->{report} = $report;
+  my $report       = SL::ReportGenerator->new(\%::myconfig, $::form);
+  $report->{title} = t8('Bank transactions');
+  $self->{report}  = $report;
 
-  my @columns     = qw(ids local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount invoice_amount invoices currency purpose local_account_number local_bank_code id);
-  my @sortable    = qw(local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount                                  purpose local_account_number local_bank_code);
+  my @columns      = qw(ids local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount invoice_amount invoices currency purpose local_account_number local_bank_code id);
+  my @sortable     = qw(local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount                                  purpose local_account_number local_bank_code);
 
-  my %column_defs = (
+  my %column_defs  = (
     ids                 => { raw_header_data => checkbox_tag("", id => "check_all", checkall  => "[data-checkall=1]"),
                              'align'         => 'center',
                              raw_data        => sub { if (@{ $_[0]->linked_invoices }) {

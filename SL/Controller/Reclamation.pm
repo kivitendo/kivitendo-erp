@@ -1931,9 +1931,13 @@ sub pre_render {
 }
 
 sub prepare_report {
-  my ($self)      = @_;
+  my ($self)         = @_;
 
-  my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
+  my $report         =  SL::ReportGenerator->new(\%::myconfig, $::form);
+  $report->{title}   =  t8('Sales Reclamations');
+  if ($self->type eq purchase_reclamation_type()){
+    $report->{title} = t8('Purchase Reclamations');
+  }
 
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->add_additional_url_params(type => $self->type);

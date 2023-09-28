@@ -191,6 +191,10 @@ sub prepare_report {
   if ( $report->{options}{output_format} =~ /^(pdf|csv)$/i ) {
     $self->models->disable_plugin('paginated');
   }
+
+  my $title        = t8('Price Rules');
+  $report->{title} = $title; #for browser titlebar (title-tag)
+
   $report->set_options(
     std_column_visibility => 1,
     controller_class      => 'PriceRule',

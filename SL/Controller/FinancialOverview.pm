@@ -41,7 +41,7 @@ sub prepare_report {
   my ($self)      = @_;
 
   $self->report(SL::ReportGenerator->new(\%::myconfig, $::form));
-
+  $self->report->{title} =t8('Financial Overview');
   my @columns = (qw(year quarter month), @{ $self->types });
 
   $self->number_columns([ grep { !m/^(?:month|year|quarter)$/ } @columns ]);
