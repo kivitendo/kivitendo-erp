@@ -4,6 +4,8 @@ use strict;
 
 use lib 't';
 
+use SL::DB::Helper::ALL;
+
 use Data::Dumper;
 use Test::More;
 
