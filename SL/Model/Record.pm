@@ -43,7 +43,7 @@ sub update_after_customer_vendor_change {
 
   $record->intnotes($new_customervendor->notes);
 
-  return if !$record->is_sales;
+  return $record if !$record->is_sales;
   if ($record->is_sales) {
     my $new_customer = $new_customervendor;
     $record->salesman_id($new_customer->salesman_id
