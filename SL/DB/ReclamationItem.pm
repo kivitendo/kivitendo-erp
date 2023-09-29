@@ -8,7 +8,6 @@ use Rose::DB::Object::Helpers qw(as_tree strip);
 
 use SL::DB::MetaSetup::ReclamationItem;
 use SL::DB::Manager::ReclamationItem;
-use SL::DB::ReclamationReason;
 use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::RecordItem;

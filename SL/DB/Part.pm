@@ -11,7 +11,6 @@ use SL::Locale::String qw(t8);
 use SL::DBUtils;
 use SL::DB::MetaSetup::Part;
 use SL::DB::Manager::Part;
-use SL::DB::Chart;
 use SL::DB::Helper::AttrHTML;
 use SL::DB::Helper::AttrSorted;
 use SL::DB::Helper::TransNumberGenerator;
@@ -310,6 +309,7 @@ sub get_taxkey {
 
 sub get_chart {
   my ($self, %params) = @_;
+  require SL::DB::Chart;
 
   my $type    = (any { $_ eq $params{type} } qw(income expense inventory)) ? $params{type} : croak("Invalid 'type' parameter '$params{type}'");
   my $taxzone = $params{ defined($params{taxzone}) ? 'taxzone' : 'taxzone_id' } * 1;

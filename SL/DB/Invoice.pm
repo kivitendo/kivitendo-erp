@@ -20,7 +20,6 @@ use SL::DB::Helper::SalesPurchaseInvoice;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::ZUGFeRD;
 use SL::Locale::String qw(t8);
-use SL::DB::CustomVariable;
 
 __PACKAGE__->meta->add_relationship(
   invoiceitems => {
