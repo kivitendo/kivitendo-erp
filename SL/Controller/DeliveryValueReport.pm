@@ -63,11 +63,11 @@ sub action_list {
 sub prepare_report {
   my ($self)      = @_;
 
-  my $vc          = $self->vc;
-  my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
-  my $csv_option  = $::form->{report_generator_output_format};
+  my $vc           = $self->vc;
+  my $report       = SL::ReportGenerator->new(\%::myconfig, $::form);
+  my $csv_option   = $::form->{report_generator_output_format};
   $report->{title} = t8('Delivery Value Report');
-  $self->{report} = $report;
+  $self->{report}  = $report;
 
   my @columns     = qw(reqdate customer vendor ordnumber partnumber description unit qty netto_qty
                        not_shipped_qty netto_not_shipped_qty shipped_qty netto_shipped_qty delivered_qty
