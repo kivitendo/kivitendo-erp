@@ -33,7 +33,7 @@ sub action_list {
       $chartlist{ $gruppe->id } = SL::DB::TaxzoneChart->get_all_accounts_by_buchungsgruppen_id($gruppe->id);
   }
 
-   my $title = t8('Booking groups');
+  my $title = t8('Booking groups');
   $self->setup_list_action_bar;
   $::form->{title} = $title;
   $::form->header;
