@@ -193,9 +193,10 @@
 %]
 
 </div><!-- /.col -->
-<div class="col wi-verywide">
 
 [% UNLESS SELF.worker.is_multiplexed %]
+
+<div class="col wi-verywide">
 
 <h3>[% 'Mappings (csv_import)' | $T8 %]</h3>
 
@@ -234,9 +235,9 @@
   button_open    = LxERP.t8("Hide mappings (csv_import)")
 %]
 
-[% END # UNLESS SELF.worker.is_multiplexed %]
-
 </div><!-- /.col -->
+
+[% END # UNLESS SELF.worker.is_multiplexed %]
 
 [% IF SELF.deferred %]
   <div id="results" class="horizontal-scroll-wrapper">
