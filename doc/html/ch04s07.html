@@ -28,8 +28,8 @@
 }</pre></li><li class="listitem"><p>Schließende geschweifte Klammern sind so weit eingerückt wie
           der Befehl / die öffnende schließende Klammer, die den Block
           gestartet hat, und nicht auf der Ebene des Inhalts. Die gleichen
-          Beispiele wie bei 3. gelten.</p></li><li class="listitem"><p>Die Wörter "<code class="function">else</code>",
-          "<code class="function">elsif</code>", "<code class="function">while</code>" befinden
+          Beispiele wie bei 3. gelten.</p></li><li class="listitem"><p>Die Wörter <code class="function">else</code>,
+          <code class="function">elsif</code>, <code class="function">while</code> befinden
           sich auf der gleichen Zeile wie schließende geschweifte Klammern.
           Beispiele:</p><pre class="programlisting">if ($form-&gt;{sum} &gt; 1000) {
   ...
@@ -108,11 +108,11 @@ $some_hash{42}    = 54;</pre></li><li class="listitem"><p>Die maximale Zeilenlä
           Debugmeldungen auch.</p><p>kivitendo bietet mit dem Modul <code class="classname">LXDebug</code>
           einen brauchbaren Trace-/Debug-Mechanismus. Es gibt also keinen
           Grund, nach <code class="varname">STDERR</code> zu schreiben.</p><p>Die <code class="classname">LXDebug</code>-Methode
-          "<code class="function">message</code>" nimmt als ersten Paramter außerdem
-          eine Flagmaske, für die die Meldung angezeigt wird, wobei "0" immer
+          <code class="function">message</code> nimmt als ersten Parameter außerdem
+          eine Flagmaske, für die die Meldung angezeigt wird, wobei <code class="literal">0</code> immer
           angezeigt wird. Solche Meldungen sollten nicht eingecheckt werden
           und werden in den meisten Fällen auch vom Repository
-          zurückgewiesen.</p></li><li class="listitem"><p>Alle neuen Module müssen use strict verwenden.</p><p>
+          zurückgewiesen.</p></li><li class="listitem"><p>Alle neuen Module müssen <code class="literal">use strict</code> verwenden.</p><p>
                   <code class="varname">$form</code>, <code class="varname">$auth</code>,
           <code class="varname">$locale</code>, <code class="varname">$lxdebug</code> und
           <code class="varname">%myconfig</code> werden derzeit aus dem main package

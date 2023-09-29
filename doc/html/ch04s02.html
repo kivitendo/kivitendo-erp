@@ -10,28 +10,27 @@
         am Laufen zu halten. Man kann mit <code class="function">die</code>,
         <code class="function">confess</code> oder <code class="function">carp</code> Fehler
         ausgeben, die dann vom Dispatcher angezeigt werden. Die kivitendo
-        eigene <code class="function">$::form-</code>error()&gt; tut im Prinzip das
+        eigene <code class="function">$::form-error()</code> tut im Prinzip das
         Gleiche, mit ein paar Extraoptionen. <code class="function">warn</code> und
         <code class="function">exit</code> hingegen werden nicht abgefangen.
-        <code class="function">warn</code> wird direkt nach STDERR, also in Server Log
+        <code class="function">warn</code> wird direkt nach STDERR, also im Server-Log
         eine Nachricht schreiben (sofern in der Konfiguration nicht die
-        Warnungen in das kivitendo Log umgeleitet wurden), und
+        Warnungen in das kivitendo-Log umgeleitet wurden), und
         <code class="function">exit</code> wird die Ausführung beenden.</p><p>Prinzipiell ist es kein Beinbruch, wenn sich der Prozess
         beendet, fcgi wird ihn sofort neu starten. Allerdings sollte das die
         Ausnahme sein. Quintessenz: Bitte kein <code class="function">exit</code>
         benutzen, alle anderen Exceptionmechanismen sind ok.</p></div><div class="sect2" title="4.2.3. Globale Variablen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.fcgi.globals"></a>4.2.3. Globale Variablen</h3></div></div></div><p>Um zu vermeiden, dass Informationen von einem Request in einen
         anderen gelangen, müssen alle globalen Variablen vor einem Request
-        sauber initialisiert werden. Das ist besonders wichtig im
-        <code class="varname">$::cgi</code> und <code class="varname">$::auth</code> Objekt, weil
-        diese nicht gelöscht werden pro Instanz, sondern persistent gehalten
-        werden.</p><p>In <code class="classname">SL::Dispatcher</code> gibt es einen sauber
+        sauber initialisiert werden. Das ist besonders wichtig im Falle von
+        <code class="varname">$::auth</code> Objekt, weil dieses persistent gehalten,
+        und nicht per Instanz gelöscht wird.</p><p>In <code class="classname">SL::Dispatcher</code> gibt es einen sauber
         abgetrennten Block, der alle kanonischen globalen Variablen listet und
-        erklärt. Bitte keine anderen einführen ohne das sauber zu
-        dokumentieren.</p><p>Datenbankverbindungen wird noch ein Guide verfasst werden, wie
+        erklärt. Bitte keine anderen einführen, ohne das sauber zu
+        dokumentieren.</p><p>Zu Datenbankverbindungen wird noch ein Guide verfasst werden, wie
         man sicher geht, dass man die richtige erwischt.</p></div><div class="sect2" title="4.2.4. Performance und Statistiken"><div class="titlepage"><div><div><h3 class="title"><a name="devel.fcgi.performance"></a>4.2.4. Performance und Statistiken</h3></div></div></div><p>Die kritischen Pfade des Programms sind die Belegmasken, und
         unter diesen ganz besonders die Verkaufsrechnungsmaske. Ein Aufruf der
         Rechnungsmaske in kivitendo 2.4.3 stable dauert auf einem Core2duo mit
         4GB Arbeitsspeicher und Ubuntu 9.10 eine halbe Sekunde. In der 2.6.0
-        sind es je nach Menge der definierten Variablen 1-2s. Ab der
-        Moose/Rose::DB Version sind es 5-6s.</p><p>Mit FastCGI ist die neuste Version auf 0,26 Sekunden selbst in
+        sind es je nach Menge der definierten Variablen 1-2s. Ab (mutmaßlich)
+        2.6.2 sind es mit der Einführung von <span class="productname">Rose</span>™ und <span class="productname">Moose</span>™ 5-6s.</p><p>Mit FastCGI ist die neueste Version auf 0,26 Sekunden selbst in
         den kritischen Pfaden, unter 0,15 sonst.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch04.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch04.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04s03.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">Kapitel 4. Entwicklerdokumentation&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;4.3. Programmatische API-Aufrufe</td></tr></table></div></body></html>

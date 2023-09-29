@@ -485,7 +485,8 @@
   libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
   libdatetime-event-cron-perl libexception-class-perl libcam-pdf-perl \
   libxml-libxml-perl libtry-tiny-perl libmath-round-perl \
-  libimager-perl libimager-qrcode-perl librest-client-perl libipc-run-perl
+  libimager-perl libimager-qrcode-perl librest-client-perl libipc-run-perl \
+  libencode-imaputf7-perl libmail-imapclient-perl
           </programlisting>
 
           <para>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</para>
@@ -640,8 +641,45 @@ vim inventory</programlisting>
       <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github
       gehostet und kann <ulink
       url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink>
-      heruntergeladen werden.</para>
+      heruntergeladen werden. Für mehr Flexibilität empfehlen wir das Klonen
+      mit <filename>git</filename>, das natürlich installiert sein muss:
+      <programlisting>cd /var/www/
+        git clone https://github.com/kivitendo/kivitendo-erp.git
+        cd kivitendo-erp/
+        # wähle aktuellste Version ohne Prerelease-Suffix:
+        git checkout $(git tag -l | egrep -ve "(alpha|beta|rc)" | tail -1)
+      </programlisting>
+      Eigene Anpassungen sollten in einem eigenen Branch verwaltet werden.
+      <programlisting>git checkout -b meine_eigenen_änderungen</programlisting>
+      Ein beispielhafter Workflow für Druckvorlagen-Anpassungen von
+      3.4.1 nach 3.5: <programlisting>
+$ git clone https://github.com/kivitendo/kivitendo-erp.git
+$ cd kivitendo-erp/
+$ git checkout release-3.4.1                # das ist ein alter release aus dem wir starten ...
+$ git checkout -b meine_eigene_änderungen   # unser lokaler branch - unabhängig von allen anderen
+$ git add templates/mein_druck              # das sind unsere druckvorlagen inkl. produktbilder
+$ git commit -m "juhu tolle änderungen"
 
+[meine_aenderungen 1d89e41] juhu tolle ändernungen
+ 4 files changed, 380 insertions(+)
+ create mode 100644 templates/mein_druck/img/webdav/tesla.png
+ create mode 100644 templates/mein_druck/mahnung.tex
+ create mode 100644 templates/mein_druck/zahlungserinnerung_zwei.tex
+ create mode 100644 templates/mein_druck/zahlungserinnerung_zwei_invoice.tex
+
+# 5 Jahre später ...
+# webserver abschalten!
+
+$ git checkout master
+$ git pull                                  # oder git fetch und danach ein stable release tag auswählen (s.o.)
+$ git checkout meine_eigenen_änderungen
+$ git rebase master
+
+Zunächst wird der Branch zurückgespult, um Ihre Änderungen
+darauf neu anzuwenden ...
+Wende an: juhu tolle änderungen
+$ service apache2 restart                   # webserver starten!
+</programlisting></para>      
       <para>Das aktuelleste kivitendo ERP-Archiv
       (<filename>kivitendo-erp-*.tgz</filename>) wird dann im
       Dokumentenverzeichnis des Webservers (z.B.
@@ -686,54 +724,6 @@ tar xvzf kivitendo-erp-*.tgz</programlisting>
 
       <programlisting>chown www-data templates users</programlisting>
 
-      <note>
-        <para>Wir empfehlen eine Installation mittels des Versionsmanagager
-        git. Hierfür muss ein git-Client installiert sein. Damit ist man sehr
-        viel flexibler für zukünftige Upgrades. Installations-Anleitung (bitte
-        die Pfade anpassen) bspw. wie folgt: <programlisting>cd /var/www/
-git clone https://github.com/kivitendo/kivitendo-erp.git
-cd kivitendo-erp/
-git checkout `git tag -l | egrep -ve "(alpha|beta|rc)" | tail -1`</programlisting>
-        Erläuterung: Der Befehl wechselt zur letzten Stable-Version (git tag
-        -l listet alle Tags auf, das egrep schmeisst alle Einträge mit alpha,
-        beta oder rc raus und das tail gibt davon den obersten Treffer
-        zurück). Sehr sinnvoll ist es, direkt im Anschluss einen eigenen
-        Branch zu erzeugen, um bspw. seine eigenen Druckvorlagen-Anpassungen
-        damit zu verwalten. Hierfür reicht ein simples <programlisting>  git checkout -b meine_eigenen_änderungen</programlisting>
-        nach dem letzten Kommando (weiterführende Informationen <ulink
-        url="http://www-cs-students.stanford.edu/~blynn/gitmagic/index.html">
-        Git Magic</ulink>).</para>
-
-        <para>Ein beispielhafter Workflow für Druckvorlagen-Anpassungen von
-        3.4.1 nach 3.5: <programlisting>
-$ git clone https://github.com/kivitendo/kivitendo-erp.git
-$ cd kivitendo-erp/
-$ git checkout release-3.4.1                # das ist ein alter release aus dem wir starten ...
-$ git checkout -b meine_eigene_änderungen   # unser lokaler branch - unabhängig von allen anderen
-$ git add templates/mein_druck              # das sind unsere druckvorlagen inkl. produktbilder
-$ git commit -m "juhu tolle änderungen"
-
-[meine_aenderungen 1d89e41] juhu tolle ändernungen
- 4 files changed, 380 insertions(+)
- create mode 100644 templates/mein_druck/img/webdav/tesla.png
- create mode 100644 templates/mein_druck/mahnung.tex
- create mode 100644 templates/mein_druck/zahlungserinnerung_zwei.tex
- create mode 100644 templates/mein_druck/zahlungserinnerung_zwei_invoice.tex
-
-# 5 Jahre später ...
-# webserver abschalten!
-
-$ git checkout master
-$ git pull                                  # oder git fetch und danach ein stable release tag auswählen (s.o.)
-$ git checkout meine_eigenen_änderungen
-$ git rebase master
-
-Zunächst wird der Branch zurückgespult, um Ihre Änderungen
-darauf neu anzuwenden ...
-Wende an: juhu tolle änderungen
-$ service apache2 restart                   # webserver starten!
-</programlisting></para>
-      </note>
     </sect1>
 
     <sect1 id="config.config-file">
@@ -955,7 +945,7 @@ default_manager = german</programlisting>
       <title>Anpassung der PostgreSQL-Konfiguration</title>
 
       <para>PostgreSQL muss auf verschiedene Weisen angepasst werden.</para>
-      <para>Dies variert je nach eingesetzter Distribution, da distributionsabhängig unterschiedliche Strategien beim Upgrade der Postgres Version eingesetzt werden.
+      <para>Dies variert je nach eingesetzter Distribution, da distributionsabhängig unterschiedliche Strategien beim Upgrade der <productname>Postgres</productname>-Version eingesetzt werden.
             Als Hinweis einige Links zu den drei Distribution (Stand Dezember 2018):</para>
           <itemizedlist>
             <listitem>
@@ -976,7 +966,8 @@ default_manager = german</programlisting>
         Serverinstallationen braucht man hier meist nicht einzugreifen.</para>
 
         <para>Das Encoding des Datenbankservers kann überprüft werden. Ist das
-        Encoding der Datenbank "template1" "Unicode" bzw. "UTF-8", so braucht
+        Encoding der Datenbank <literal>template1</literal> entweder
+        <literal>Unicode</literal> oder <literal>UTF-8</literal>, so braucht
         man nichts weiteres diesbezüglich unternehmen. Zum Testen:</para>
 
         <programlisting>su postgres
@@ -1176,7 +1167,7 @@ Alias /kivitendo-erp/ /var/www/kivitendo-erp/
           einzelne Module kapselt, um immer nur einen kleinen Teil laden zu
           müssen, ist die Funktionalität von kivitendo soweit gewachsen, dass
           immer mehr Module auf den Rest des Programms zugreifen. Zusätzlich
-          benutzen wir umfangreiche Bibliotheken um Funktionaltät nicht selber
+          benutzen wir umfangreiche Bibliotheken, um Funktionaltät nicht selber
           entwickeln zu müssen, die zusätzliche Ladezeit kosten. All dies
           führt dazu dass ein kivitendo Aufruf der Kernmasken mittlerweile
           deutlich länger dauert als früher, und dass davon 90% für das Laden
@@ -1229,8 +1220,8 @@ Alias /kivitendo-erp/ /var/www/kivitendo-erp/
 
           <para>Bevor Sie versuchen, eine kivitendo Installation unter FCGI
           laufen zu lassen, empfiehlt es sich die Installation ersteinmal
-          unter CGI aufzusetzen. FCGI macht es nicht einfach Fehler zu
-          debuggen die beim ersten aufsetzen auftreten können. Sollte die
+          unter CGI aufzusetzen. FCGI macht es nicht einfach, Fehler zu
+          debuggen, die beim ersten aufsetzen auftreten können. Sollte die
           Installation schon funktionieren, lesen Sie weiter.</para>
 
           <para>Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann
@@ -1355,8 +1346,9 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
         <programlisting>a2enmod rewrite</programlisting>
         Alternativ und für Installationen ohne Apache ist folgender Artikel interessant:
         <ulink url="https://www.cyberscan.io/blog/git-luecke">git-lücke</ulink>.
-        Anstelle des dort beschriebenen DirectoryMatch für Apache2 würden wir etwas weitergehend auch noch das Verzeichnis config miteinbeziehen
-        sowie ferner auch die Möglichkeit nicht ausschließen, dass es in Unterverzeichnissen auch noch .git Repositories geben kann.
+        <!-- dead link, gist here https://www.ionos.de/digitalguide/websites/web-entwicklung/git-tutorial/ -->
+        Anstelle des dort beschriebenen <literal>DirectoryMatch</literal> für Apache2 würden wir etwas weitergehend auch noch das Verzeichnis config miteinbeziehen
+        sowie ferner auch die Möglichkeit nicht ausschließen, dass es in Unterverzeichnissen auch noch <filename>.git</filename> Repositories geben kann.
         Die Empfehlung für Apache 2.4 wäre damit:
         <programlisting>
         &lt;DirectoryMatch "/(\.git|config)/"&gt;
@@ -1383,9 +1375,9 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
         <title>Aktivierung von Apache2 modsecurity</title>
 
         <para>Aufgrund des OpenSource Charakters ist kivitendo nicht "out of the box" sicher.
-  Organisatorisch empfehlen wir hier die enge Zusammenarbeit mit einem kivitendo Partner der auch in der
-Lage ist weiterführende Fragen in Bezug auf Datenschutz und Datensicherheit zu beantworten.
-Unabhängig davon empfehlen wir im Webserver Bereich die Aktivierung und Konfiguration des Moduls modsecurity für den Apache2, damit
+  Organisatorisch empfehlen wir hier die enge Zusammenarbeit mit einem kivitendo Partner, der auch in der
+Lage ist, weiterführende Fragen in Bezug auf Datenschutz und Datensicherheit zu beantworten.
+Unabhängig davon empfehlen wir, im Webserver-Bereich die Aktivierung und Konfiguration des Moduls <literal>modsecurity</literal> für den Apache2, damit
 XSS und SQL-Injections verhindert werden.</para>
 <para> Als Idee hierfür sei dieser Blog-Eintrag genannt:
 <ulink url="https://doxsec.wordpress.com/2017/06/11/using-modsecurity-web-application-firewall-to-prevent-sql-injection-and-xss-using-blocking-rules/">
@@ -2132,8 +2124,8 @@ digits_year: 4</programlisting>
       <title>E-Mail</title>
 
         <para>
-          kivitendo kann sowohl E-Mails direkt aus dem Programm heraus E-Mails
-          versenden, als auch in das Programm importiern. Damit dies
+          kivitendo kann E-Mails sowohl direkt aus dem Programm heraus
+          versenden, als auch in das Programm importieren. Damit dies
           funktioniert, müssen die E-Mail-Parameter korrekt konfiguriert sein.
           Dazu mehr in den folgenden Abschnitten.
         </para>
@@ -2270,15 +2262,15 @@ digits_year: 4</programlisting>
 
         <orderedlist>
           <listitem>
-            <para> Falls es für die Absender-Adresse eine Konfiguration gibt nimm
+            <para> Falls es für die Absender-Adresse eine Konfiguration gibt, nimm
             diese. </para>
           </listitem>
           <listitem>
             <para> Falls es es für die benutzerbezogene E-Mail-Adresse eine
-            Konfiguration gibt dann nimm diese. </para>
+            Konfiguration gibt, dann nimm diese. </para>
           </listitem>
           <listitem>
-            <para> Falls es eine generelle Konfiguration gibt dann nimm diese.
+            <para> Falls es eine generelle Konfiguration gibt, dann nimm diese.
             </para>
           </listitem>
         </orderedlist>
@@ -2419,7 +2411,7 @@ digits_year: 4</programlisting>
             <listitem>
               <para>
                 Portnummer. Der Standardwert hängt von der verwendeten
-                Verschlüsselungsmethode ab. Gilt '<literal>ssl = 0</literal>',
+                Verschlüsselungsmethode ab. Gilt '<literal>ssl = 1</literal>',
                 so ist 993 die Standardportnummer. Für
                 '<literal>ssl = 0</literal>' ist 143 die Portnummer. Muss
                 normalerweise nicht geändert werden.
@@ -2432,7 +2424,7 @@ digits_year: 4</programlisting>
 
             <listitem>
               <para>
-                Wahl ob eine Verschlüsselung bei der Verbindung mit dem Server
+                Wahl, ob eine Verschlüsselung bei der Verbindung mit dem Server
                 verwendendet wird. Standardwert ist '<literal>1</literal>',
                 wodurch eine SSL-Verschlüsselung verwendet wird. Mit
                 '<literal>0</literal>' wird keine Verschlüsselung genutzt.
@@ -2477,7 +2469,7 @@ digits_year: 4</programlisting>
           Öffnen des Belegs in kivitendo importiert. Um die E-Mails übersichtlich
           zu halten, kann der Hintergrund-Job
           '<literal>CleanUpEmailSubfolders</literal>' genutzt werden. Dieser
-          importiert alle E-Mails und löscht alle Unterordnern, die nicht zu
+          importiert alle E-Mails und löscht alle Unterordner, die nicht zu
           einem Offenen Beleg gehören. Importierte E-Mails werden werden nicht
           gelöscht, erst beim Löschen des Unterordners werden sie gelöscht.
         </para>
@@ -2493,7 +2485,7 @@ digits_year: 4</programlisting>
         </para>
 
         <para>
-          Beim Umzug des E-Mail-Servers kann kivitendo die E-Mails schon
+          Beim Umzug des E-Mail-Servers kann kivitendo die schon
           importierten E-Mails nicht mehr erkennen. Dies führt dazu, dass alle
           E-Mails erneut importiert werden.
         </para>
@@ -2565,7 +2557,7 @@ digits_year: 4</programlisting>
             <para><option>Vorlagen auswählen</option>: Wählen Sie hier den
             Vorlagensatz aus, der kopiert werden soll
             (<filename>RB</filename>, <filename>marei</filename> oder
-            <filename>odt-rev</filename>.)</para>
+            <filename>odt-rev</filename>.)</para><!-- reihenfolge hier anders als bei den details -->
           </listitem>
 
           <listitem>
@@ -2628,7 +2620,7 @@ digits_year: 4</programlisting>
         </itemizedlist>
 
       <listitem>
-        <para>Sprache/Übersetzungen.\\Es muss mindestens eine Sprache angelegt werden!        <programlisting>
+        <para>Sprache/Übersetzungen. Es muss mindestens eine Sprache angelegt werden!        <programlisting>
         \item[deutsch.tex] Textschnipsel für Deutsch\\
                               Dafür eine Sprache mit Vorlagenkürzel DE anlegen
         \item[english.tex] Textschnipsel für Englisch\\
@@ -2696,10 +2688,10 @@ digits_year: 4</programlisting>
     <title>Mandant*innen / Firma</title>
 
     <para>Um gleiche Vorlagen für verschiedene Firmen verwenden zu können, wird je
-    nach dem Wert der Kivitendo-Variablen \kivivar{kivicompany} ein
+    nach dem Wert der Kivitendo-Variablen <varname>\kivivar{kivicompany}</varname> ein
     Firmenverzeichnis ausgewählt (siehe <filename>insettings.tex</filename>), in dem Briefkopf,
     Identitäten und Währungs-/Kontoeinstellungen hinterlegt sind.
-    \kivivar{kivicompany} enthält den Namen des verwendeten Mandant*innendaten.
+    <varname>\kivivar{kivicompany}</varname> enthält den Namen des verwendeten Mandant*innendaten.
     Ist kein Firmenname eingetragen, so wird das
     generische Unterverzeichnis *firma* verwendet.</para>
 
@@ -2709,8 +2701,8 @@ digits_year: 4</programlisting>
     <title>Identitäten</title>
 
     <para>In jedem Firmen-Unterverzeichnis soll eine Datei <filename>ident.tex</filename>
-    vorhanden sein, die mit |\newcommand| Werte für |\telefon|, |\fax|,
-    |\firma|, |\strasse|, |\ort|, |\ustid|, |\email| und |\homepage| definiert.</para>
+      vorhanden sein, die mit <literal>\newcommand</literal> Werte für <literal>\telefon</literal>, <literal>\fax</literal>,
+      <literal>\firma</literal>, <literal>\strasse</literal>, <literal>\ort</literal>, <literal>\ustid</literal>, <literal>\email</literal> und <literal>\homepage</literal> definiert.</para>
 
 
   </sect3>
@@ -2718,9 +2710,9 @@ digits_year: 4</programlisting>
     <title>Währungen/Konten</title>
 
     <para>Für jede Währung (siehe <filename>insettings.tex</filename>) soll eine Datei vorhanden
-    sein, die das Währungssymbol (|\currency|) und folgende Angaben für
-    ein Konto in dieser Währung enthält |\kontonummer|, |\bank|,
-    |\bankleitzahl|, |\bic| und |\iban|.
+    sein, die das Währungssymbol (<literal>\currency</literal>) und folgende Angaben für
+    ein Konto in dieser Währung enthält <literal>\kontonummer</literal>, <literal>\bank</literal>,
+    <literal>\bankleitzahl</literal>, <literal>\bic</literal> und <literal>\iban</literal>.
     So kann in den Dokumenten je nach Währung ein anderes Konto
     angegeben werden.
     Nach demselben Schema können auch weitere, alternative Bankverbindungen
@@ -2728,7 +2720,7 @@ digits_year: 4</programlisting>
 
     <para>Als Fallback (falls kivitendo keine Währung an das Druckvorlagen-System übergibt)
     ist Euro eingestellt. Dies lässt sich in der <filename>insettings.tex</filename> über das optionale Argument
-    von |\setupCurrencyConfig| anpassen, z.B.</para>
+    von <literal>\setupCurrencyConfig</literal> anpassen, z.B.</para>
 
     <programlisting>
     \setupCurrencyConfig[chf]{\identpath}{\lxcurrency}</programlisting>
@@ -2747,9 +2739,9 @@ digits_year: 4</programlisting>
     Grafik als Briefkopf, nur ein Logo, oder ein komplettes A4-PDF
     als Briefpapier.</para>
 
-    <para>Absolute Positionierung innerhalb des Brief-Layouts ist über die entsprechende Dokumentation des scrlayer-Paketes möglich.
+  <para>Absolute Positionierung innerhalb des Brief-Layouts ist über die entsprechende Dokumentation des <literal>scrlayer</literal>-Paketes möglich.
     Da die Voreinstellungen bereits einige Sonderfälle automatisch berücksichtigen ist mit den Anpassungen Vorsicht geboten.
-    Sämtliche Einstellungen sollten jedoch außerhalb der *.sty-Dateien vorgenommen werden.
+  Sämtliche Einstellungen sollten jedoch außerhalb der <filename>.sty</filename>-Dateien vorgenommen werden.
     Anpassungen der <filename>insettings.tex</filename> betreffen hierbei alle Mandant*innen. Spezifischere Einstellungen sind über die zugehörige Konfigurationsdatei (<filename>ident.tex</filename>) möglich.
     In diesem Fall kann zum Ende der insettings eine weitere Konfigurationsdatei über die Verwendung von |\identpath| geladen werden. Ein Beispiel ist in der <filename>insettings.tex</filename> enthalten.</para>
 
@@ -2767,18 +2759,18 @@ digits_year: 4</programlisting>
   <sect3 id="Seitenstil/Basislayout">
     <title>Seitenstil/Basislayout</title>
 
-    <para>Das Seitenlayout wird über \pck{scrlayer-scrpage} bestimmt. Die ausführliche Dokumentation findet sich in \cite{scrguide}.
+    <para>Das Seitenlayout wird über <literal>pck{scrlayer-scrpage</literal> bestimmt. Die ausführliche Dokumentation findet sich in <literal>cite{scrguide</literal><!-- WTF? -->.
     Es existieren in der Datei <filename>insettings.tex</filename> einige Hinweise zu den Anpassungen. Die Basiskonfiguration ist ebenfalls dort eingetragen.</para>
 
-    <para>Neben den in Abschnitt \ref{sec:options}  beschriebenen Optionen zum Abschalten der Fußzeile kann
-    der Inhalt der Fußzeile über die \pck{scrlayer-scrpage} Makros, wie</para>
+  <para>Neben den in Abschnitt <literal>ref{sec:options</literal><!-- WTF? -->  beschriebenen Optionen zum Abschalten der Fußzeile kann
+    der Inhalt der Fußzeile über die <literal>pck{scrlayer-scrpage</literal> Makros, wie</para>
     <programlisting>
       \cfoot[|\meta{Inhalt auf der ersten Briefseite}|]{|\meta{Inhalt auf folgenden Briefseiten}|}    </programlisting>
 
     <para>geändert werden.</para>
 
     <para>Die Kopfzeile unterscheidet sich von Dokumententyp zu Dokumententyp leicht, da diese über Datenbankvariablen befüllt wird.
-    Hierfür wird das Makro |\ourhead| in der <filename>insettings.tex</filename> definiert.</para>
+    Hierfür wird das Makro <literal>\ourhead</literal> in der <filename>insettings.tex</filename> definiert.</para>
 
     <programlisting>
       \DescribeMacro{\ourhead}\marg{Bezeichner}\marg{Eintrag}\marg{Titel}\marg{Nummer}\marg{Datum}    </programlisting>
@@ -2826,7 +2818,7 @@ digits_year: 4</programlisting>
   <sect3 id="Absenderergänzung">
     <title>Absenderergänzung</title>
 
-    <para>Die Absenderergänzung wird über die Variable |location| in der |kiviletter.sty| folgendermaßen belegt:</para>
+    <para>Die Absenderergänzung wird über die Variable <literal>location</literal> in der <filename>kiviletter.sty</filename> folgendermaßen belegt:</para>
 
     <programlisting>
       \setkomavar{location}{
@@ -2867,23 +2859,23 @@ digits_year: 4</programlisting>
   <sect4 id="Änderung der Basisschriftart">
     <title>Änderung der Basisschriftart</title>
 
-    <para>\LaTeX{} kann grundsätzlich beliebige Schriftarten verwenden. Hierfür sollte allerdings immer darauf geachtet werden,
+    <para>>LaTeX kann grundsätzlich beliebige Schriftarten verwenden. Hierfür sollte allerdings immer darauf geachtet werden,
     dass die Lizenz der Schriftart das einbetten von Glyphen erlaubt. Dies liegt in der Verantwortung der Anwender*innen.
     Darüber hinaus ist wichtig, welches Kompilierungsprogramm verwendet werden muss. Um TrueType oder OpenType Schriftarten
-    zu nutzen sollte |lualatex| verwendet werden. Bei Type1 Schriftarten, die speziell für \LaTeX{} installiert wurden, ist pdfLaTeX möglich.
+    zu nutzen, sollte <literal>lualatex</literal> verwendet werden. Bei Type1 Schriftarten, die speziell für LaTeX installiert wurden, ist pdfLaTeX möglich.
     Da man heutzutage nur noch moderne Schriftformate Verwenden sollte, wird hier lediglich die Variante für |lualatex| aufgelistet.</para>
 
-    <para>Die Konfiguration läuft hierbei über das \pck{fontspec} Paket (Doku siehe \cite{fontspec}).
+  <para>Die Konfiguration läuft hierbei über das <literal>pck{fontspec</literal> Paket (Doku siehe <literal>cite{fontspec</literal><!-- WTF= -->).
     Dann hängt es davon ab, ob die Basisschriftart eine Serifenschriftart ist oder nicht.
     In jedem Fall wird die Änderung entweder in der <filename>insettings.tex</filename>, sofern sie für alle
-    Mandant*innen gelten soll oder in der Mantant*innenspezifischen Konfigurationsdatei gsesetzt.</para>
+    Mandant*innen gelten soll oder in der mandant*innenspezifischen Konfigurationsdatei gsesetzt.</para>
 
 
     <sect5>
       <title>Änderung, falls es ein Schriftpaket gibt</title>
 
       <para>Wenn möglich sollte die Schriftart über ein entsprechendes Konfigurationspaket gesetzt werden.
-        Ob ein solches existiert kann man sehr leicht über eine Suche nach dem Namen unter \url{ctan.org} herausfinden.</para>
+        Ob ein solches existiert, kann man sehr leicht über eine Suche nach dem Namen unter <ulink url="ctan.org">ctan.org</ulink> herausfinden.</para>
 
     </sect5>
 
@@ -2918,13 +2910,13 @@ digits_year: 4</programlisting>
         <title>Der Druckvorlagensatz RB</title>
 
         <para>Hierbei handelt es sich um einen vollständigen LaTeX
-        Dokumentensatz mit alternativem Design. Die odt oder html-Varianten
+        Dokumentensatz mit alternativem Design. Die ODT- oder HTML-Varianten
         sind nicht gepflegt.</para>
 
         <para>Die konzeptionelle Idee der Vorlagen wird <ulink
         url="http://www.kivitendo-support.de/vortraege/Lx-Office%20Anwendertreffen%20LaTeX-Druckvorlagen-Teil3-finale.pdf">hier</ulink>
         auf Folie 5 bis 10 vorgestellt. Informationen zur Anpassung an die
-        eigenen Firmendaten finden sich in der Datei Readme.tex im
+        eigenen Firmendaten finden sich in der Datei <filename>Readme.tex</filename> im
         Vorlagenverzeichnis.</para>
 
         <para>Eine kurze Übersicht der Features:</para>
@@ -2957,9 +2949,9 @@ digits_year: 4</programlisting>
         <title>Der Druckvorlagensatz rev-odt</title>
 
         <para>Hierbei handelt es sich um einen Dokumentensatz der mit
-        odt-Vorlagen erstellt wurde. Es gibt in dem Verzeichnis eine
+        ODT-Vorlagen erstellt wurde. Es gibt in dem Verzeichnis eine
         Readme-Datei, die eventuell aktueller als die Dokumentation hier ist.
-        Die odt-Vorlagen in diesem Verzeichnis "rev-odt" wurden von revamp-it,
+        Die odt-Vorlagen in diesem Verzeichnis <filename>rev-odt</filename> wurden von revamp-it,
         Zürich erstellt und werden laufend aktualisiert. Ein paar der
         Formulierungen in den Druckvorlagen entsprechen dem Schweizer
         Sprachgebrauch, z.B. "Offerte" oder "allfällig".</para>
@@ -2971,19 +2963,19 @@ digits_year: 4</programlisting>
         wird. Das Feld kann auch komplett leer bleiben. Wer dies anders
         handhaben möchte, muss die Vorlagen entsprechend anpassen.</para>
 
-        <para>odt-Vorlagen können mit LibreOffice oder OpenOffice editiert und
+        <para>ODT-Vorlagen können mit LibreOffice oder OpenOffice editiert und
         den eigenen Bedürfnissen angepasst werden. Wichtig beim Editieren von
-        if-Blöcken ist, dass immer der gesamte Block überschrieben werden muss
-        und nicht nur Teile davon, da dies sonst oft zu einer odt-Datei führt,
+        <literal>if</literal>-Blöcken ist, dass immer der gesamte Block überschrieben werden muss
+        und nicht nur Teile davon, da dies sonst oft zu einer ODT-Datei führt,
         die vom Parser nicht korrekt gelesen werden kann.</para>
 
         <para>Mahnungen können unter folgenden Einschränkungen mit den
-        odt-Vorlagen im Vorlagensatz rev-odt erzeugt werden:</para>
+        ODT-Vorlagen im Vorlagensatz <literal>rev-odt</literal> erzeugt werden:</para>
 
         <itemizedlist>
           <listitem>
             <para>als Druckoption steht nur 'PDF(OpenDocument/OASIS)' zur
-            Verfügung, das heisst, die Mahnungen werden als PDF-Datei
+            Verfügung, das heißt, die Mahnungen werden als PDF-Datei
             ausgegeben.</para>
           </listitem>
 
@@ -2997,17 +2989,17 @@ digits_year: 4</programlisting>
         <para>Mehrere Mahnungen für eine Kundin / einen Kunden werden zu einer
         PDF-Datei zusammengefasst</para>
 
-        <para>Die Vorlagen zahlungserinnerung.odt sowie mahnung.odt sind für
+        <para>Die Vorlagen <filename>zahlungserinnerung.odt</filename> sowie <filename>mahnung.odt</filename> sind für
         das Erstellen einer Zahlungserinnerung bzw. Mahnung selbst vorgesehen,
-        die Vorlage mahnung_invoice.odt für das Erstellen einer Rechnung über
+        die Vorlage <filename>mahnung_invoice.odt</filename> für das Erstellen einer Rechnung über
         die verrechneten Mahngebühren und Verzugszinsen.</para>
 
         <para>Zur Zeit gibt es in kivitendo noch keine Möglichkeit,
-        odt-Vorlagen bei Briefen und Pflichtenheften einzusetzen.
+        ODT-Vorlagen bei Briefen und Pflichtenheften einzusetzen.
         Entsprechende Vorlagen sind deshalb nicht vorhanden.</para>
 
         <para>Fehlermeldungen, Anregungen und Wünsche bitte senden an:
-        empfang@revamp-it.ch</para>
+        <email>empfang@revamp-it.ch</email></para>
       </sect2>
 
       <sect2 id="allgemeine-hinweise-zu-latex">
@@ -3021,15 +3013,15 @@ digits_year: 4</programlisting>
 
         <itemizedlist>
           <listitem>
-            <para>! LaTeX Error: File `eurosym.sty' not found. Die
+            <para><literal>! LaTeX Error: File `eurosym.sty' not found.</literal> Die
             entsprechende LaTeX-Bibliothek wurde nicht gefunden. Das tritt vor
             allem bei Vorlagen aus der Community auf. Installieren Sie die
             entsprechenden Pakete.</para>
           </listitem>
 
           <listitem>
-            <para>! Package inputenc Error: Unicode char \u8:... set up for
-            use with LaTeX. Dieser Fehler tritt auf, wenn sie versuchen mit
+            <para><literal>! Package inputenc Error: Unicode char \u8:... set up for
+            use with LaTeX.</literal> Dieser Fehler tritt auf, wenn sie versuchen mit
             einer Standardinstallation exotische utf8 Zeichen zu drucken.
             TeXLive unterstützt von Haus nur romanische Schriften und muss mit
             diversen Tricks dazu gebracht werden andere Zeichen zu
@@ -3042,7 +3034,7 @@ digits_year: 4</programlisting>
         Templates, heißt das normalerweise, dass das LaTeX Binary nicht
         gefunden wurde. Prüfen Sie den Namen in der Konfiguration (Standard:
         <literal>latexmk --pdflatex</literal>), und stellen Sie sicher, dass
-        latexmk (oder das von Ihnen verwendete System) vom Webserver ausgeführt
+        <filename>latexmk</filename> (oder das von Ihnen verwendete System) vom Webserver ausgeführt
         werden darf.</para>
 
         <para>Wenn sich das Problem nicht auf Grund der Ausgabe im Webbrowser
@@ -3050,14 +3042,13 @@ digits_year: 4</programlisting>
 
         <itemizedlist>
           <listitem>
-            <para>editiere [kivitendo-home]/config/kivitendo.conf und ändere
-            "keep_temp_files" auf 1</para>
+            <para>editiere <filename>[kivitendo-home]/config/kivitendo.conf</filename> und ändere</para>
 
             <para><programlisting>keep_temp_files = 1;</programlisting></para>
           </listitem>
 
           <listitem>
-            <para>bei fastcgi oder mod_perl den Webserver neu Starten</para>
+            <para>bei <literal>fastcgi</literal> oder <literal>mod_perl</literal> den Webserver neu Starten</para>
           </listitem>
 
           <listitem>
@@ -3065,7 +3056,7 @@ digits_year: 4</programlisting>
           </listitem>
 
           <listitem>
-            <para>wechsel in das users Verzeichnis von kivitendo</para>
+            <para>wechsel in das Verzeichnis von <filename>[kivitendo-home]/users</filename></para>
 
             <para><programlisting>cd [kivitendo-home]/users</programlisting></para>
           </listitem>
@@ -3086,12 +3077,12 @@ digits_year: 4</programlisting>
           </listitem>
 
           <listitem>
-            <para>für besseren Hinweis auf Fehler texdatei nochmals
+            <para>für besseren Hinweis auf Fehler texdatei<!-- anderer Stil als ... --> nochmals
             übersetzen</para>
 
             <para><programlisting>pdflatex ./1*.tex</programlisting></para>
 
-            <para>in der *.tex datei nach dem Fehler suchen.</para>
+            <para>in der *.tex datei<!-- ... hier --> nach dem Fehler suchen.</para>
           </listitem>
         </itemizedlist>
       </sect2>
@@ -3124,11 +3115,11 @@ digits_year: 4</programlisting>
         weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
         LibreOffice oder OpenOffice benötigt.</para>
 
-        <para>Unter Debian kann dieses installiert werden mit:</para>
+      <para>Unter <productname>Debian</productname> kann dieses installiert werden mit:</para>
 
         <programlisting>apt install libreoffice</programlisting>
 
-        <para>Der Pfad zu LibreOffice kann in der Datei
+        <para>Der Pfad zu <productname>LibreOffice</productname> kann in der Datei
         <filename>config/kivitendo.conf</filename>, im Abschnitt
         <literal>applications</literal>, angepasst werden. Unter Debian sollte
         dies nicht notwendig sein.</para>
@@ -3162,7 +3153,7 @@ digits_year: 4</programlisting>
           <para>Die Optionen <literal>python_uno</literal> und
           <literal>python_uno_path</literal> in der Konfigurationsdatei
           <filename>config/kivitendo.conf</filename> dienen zur Anpassung der
-          Python uno Pfade. Unter Debian sollte keine Anpassung notwendig
+          Python uno-Pfade. Unter Debian sollte keine Anpassung notwendig
           sein.</para>
         </sect3>
       </sect2>
@@ -3195,14 +3186,14 @@ digits_year: 4</programlisting>
 
             <listitem>
               <para>Druckbefehl → beliebiger Text (hat für das Erzeugen von
-              Aufträgen oder Rechnungen als odt-Datei keine Bedeutung, darf
+              Aufträgen oder Rechnungen als ODT-Datei keine Bedeutung, darf
               aber nicht leer sein)</para>
             </listitem>
 
             <listitem>
               <para>Vorlagenkürzel → besr bzw. selbst gewähltes Vorlagensuffix
               (muss genau der Zeichenfolge entsprechen, die zwischen
-              "invoice_" bzw. "sales_order_" und ".odt" steht.)</para>
+              <literal>invoice_</literal> bzw. <literal>sales_order_</literal> und <literal>.odt</literal> steht.)</para>
             </listitem>
 
             <listitem>
@@ -3249,7 +3240,7 @@ digits_year: 4</programlisting>
 
         <sect3>
           <title>Auswahl der Druckvorlage in kivitendo beim Erzeugen einer
-          odt-Rechnung (analog bei Auftrag)</title>
+          ODT-Rechnung (analog bei Auftrag)</title>
 
           <para>Im Fussbereich der Rechnungsmaske muss neben Rechnung,
           OpenDocument/OASIS und Bildschirm die im Adminbereich erstellte
@@ -3263,7 +3254,7 @@ digits_year: 4</programlisting>
         <title>Schweizer QR-Rechnung mit OpenDocument Vorlagen</title>
 
         <para>Mit der Version 3.6.0 unterstützt Kivitendo die Erstellung von
-        Schweizer QR-Rechnungen gemäss <ulink
+        Schweizer QR-Rechnungen gemäß <ulink
         url="https://www.paymentstandards.ch/dam/downloads/ig-qr-bill-de.pdf">Swiss
         Payment Standards, Version 2.2</ulink>. Implementiert sind hierbei die
         Varianten:</para>
@@ -3315,7 +3306,7 @@ digits_year: 4</programlisting>
               <para>Diese werden von der jeweiligen Bank vergeben.</para>
             </tip>
 
-            <para>Sind mehrere Konten ausgewählt wird das erste
+            <para>Sind mehrere Konten ausgewählt, wird das erste
             verwendet.</para>
           </sect4>
 
@@ -3344,7 +3335,7 @@ digits_year: 4</programlisting>
           <para>Die Adressdaten zum Zahlungspflichtigen stammen aus den
           Kundendaten der jeweiligen Rechnung.</para>
 
-          <para>Ist bei den Adressdaten kein Land angegeben, wird standardmässig
+          <para>Ist bei den Adressdaten kein Land angegeben, wird standardmäßig
           Schweiz verwendet. Akzeptiert werden Ländername oder Ländercode, also
           z.B. "Schweiz" oder "CH".</para>
 
@@ -3359,7 +3350,7 @@ digits_year: 4</programlisting>
         <sect3>
           <title>Referenznummer</title>
 
-          <para>Die Referenznummer wird in Kivitendo erzeugt und setzt sich
+          <para>Die Referenznummer wird in kivitendo erzeugt und setzt sich
           wiefolgt zusammen:</para>
 
           <itemizedlist>
@@ -3392,19 +3383,19 @@ digits_year: 4</programlisting>
           <title>Vorlage</title>
 
           <para>Der Vorlagensatz "rev-odt" enthält die Vorlage
-          <literal>invoice_qr.odt</literal>, welche für die Erstellung von
-          QR-Rechnungen vorgesehen ist. Damit diese verwendet werden kann muss
+          <filename>invoice_qr.odt</filename>, welche für die Erstellung von
+          QR-Rechnungen vorgesehen ist. Damit diese verwendet werden kann, muss
           wie obenstehend beschrieben ein Drucker hinzugefügt werden, allerdings
           mit dem Vorlagenkürzel <literal>qr</literal> (siehe <xref
           linkend="opendocument-druckvorlagen-mit-makros.vorbereitungen"/>).
           Weitere Vorlagen für die QR-Rechnung müssen im Dateinamen, bzw.
           Vorlagenkürzel, ebenfalls die Zeichenfolge <literal>qr</literal>
-          enthalten, also z.b. <literal>invoice_qr2.odt</literal> etc.</para>
+          enthalten, also z.b. <filename>invoice_qr2.odt</filename> etc.</para>
 
           <para>Die Vorlagen können beliebig angepasst werden. Zwingend müssen
-          diese jedoch das QR-Code Platzhalter Bild, als eingebettetes Bild,
+          diese jedoch das QR-Code-Platzhalter-Bild, als eingebettetes Bild,
           enthalten. Da dieses beim Ausdrucken/Erzeugen der Rechnung durch das
-          neu generierte QR-Code Bild ersetzt wird. Das Bild muss den Namen
+          neu generierte QR-Code-Bild ersetzt wird. Das Bild muss den Namen
           <literal>QRCodePlaceholder</literal> tragen. In Libreoffice unter
           <emphasis>Bild-Kontextmenü → </emphasis><emphasis>Einstellungen →
           Optionen → Name</emphasis> einstellbar. Siehe dazu auch die
@@ -3472,10 +3463,10 @@ digits_year: 4</programlisting>
             Date</option>, code: <option>Transdate</option>)</para>
 
             <para>bezeichnet das buchhaltungstechnisch für eine Buchung
-            relevante Datum</para>
+            relevante Datum.</para>
 
             <para>Das <option>Rechnungsdatum</option> bei Verkaufs- und
-            Einkaufsrechnungen entspricht dem Buchungsdatum. Das heisst, in
+            Einkaufsrechnungen entspricht dem Buchungsdatum. Das heißt, in
             Berichten wie dem Buchungsjournal, in denen eine Spalte
             <option>Buchungsdatum</option> angezeigt werden kann, erscheint
             hier im Fall von Rechnungen das Rechnungsdatum.</para>
@@ -3543,8 +3534,8 @@ digits_year: 4</programlisting>
             <listitem>
               <para>Dieser Parameter steuert die Buchungs- und
               Berechnungsmethoden für die Versteuerungsart. Er enthält
-              entweder <literal>accrual</literal> für die Soll-Versteuerung
-              oder <literal>cash</literal> für die Ist-Versteuerung.</para>
+              entweder <varname>accrual</varname> für die Soll-Versteuerung
+              oder <varname>cash</varname> für die Ist-Versteuerung.</para>
             </listitem>
           </varlistentry>
 
@@ -3599,7 +3590,7 @@ digits_year: 4</programlisting>
         <varname>[system]</varname> <literal>default_manager = swiss</literal>
         eingestellt ist.</para>
 
-        <para>Beim Upgrade bestehender Mandanten wird eur ausgelesen und die
+        <para>Beim Upgrade bestehender Mandanten wird <literal>eur</literal> ausgelesen und die
         Variablen werden so gesetzt, daß sich an der Funktionalität nichts
         ändert.</para>
 
@@ -3619,7 +3610,7 @@ digits_year: 4</programlisting>
 
         <para>Die Bestandsmethode ist eigentlich eine sehr elegante Methode,
         funktioniert in kivitendo aber nur unter bestimmten Bedingungen:
-        Voraussetzung ist, daß auch immer alle Einkaufsrechnungen gepflegt
+        Voraussetzung ist, dass auch immer alle Einkaufsrechnungen gepflegt
         werden, und man beim Jahreswechsel nicht mit einer leeren Datenbank
         anfängt, da bei jedem Verkauf anhand der gesamten Rechnungshistorie
         der Einkaufswert der Ware nach dem FIFO-Prinzip aus den
@@ -3636,7 +3627,7 @@ digits_year: 4</programlisting>
 
         <para>Bei bestimmten Berichten kann man derzeit noch inviduell
         einstellen, ob man nach Ist- oder Sollversteuerung auswertet, und es
-        werden im Code Variablen wie $accrual oder $cash gesetzt. Diese
+        werden im Code Variablen wie <literal>$accrual</literal> oder <literal>$cash</literal> gesetzt. Diese
         Codestellen wurden noch nicht angepasst, sondern nur die, wo bisher
         die Konfigurationsvariable
         <varname>$::lx_office_conf{system}-&gt;{eur}</varname> ausgewertet
@@ -3648,7 +3639,7 @@ digits_year: 4</programlisting>
     </sect1>
 
     <sect1 id="config.skr04-update-3804">
-      <title>SKR04 19% Umstellung für innergemeinschaftlichen Erwerb</title>
+      <title>SKR04 19%-Umstellung für innergemeinschaftlichen Erwerb</title>
 
       <sect2 id="config.skr04-update-3804.introduction">
         <title>Einführung</title>
@@ -3684,7 +3675,7 @@ digits_year: 4</programlisting>
 
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/skr04-update-3804/konto3804.png"/>
+              <imagedata fileref="images/skr04-update-3804/konto3804.png" scalefit="1" />
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -3701,7 +3692,7 @@ digits_year: 4</programlisting>
 
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/skr04-update-3804/steuer3803.png"/>
+              <imagedata fileref="images/skr04-update-3804/steuer3803.png" scalefit="1" />
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -3716,7 +3707,7 @@ digits_year: 4</programlisting>
 
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/skr04-update-3804/steuer3804.png"/>
+              <imagedata fileref="images/skr04-update-3804/steuer3804.png" scalefit="1" />
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -3735,7 +3726,7 @@ digits_year: 4</programlisting>
 
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/skr04-update-3804/konto4315.png"/>
+              <imagedata fileref="images/skr04-update-3804/konto4315.png" scalefit="1" />
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -3750,7 +3741,7 @@ digits_year: 4</programlisting>
 
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/skr04-update-3804/steuerliste.png"/>
+              <imagedata fileref="images/skr04-update-3804/steuerliste.png" scalefit="1" />
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -3762,7 +3753,7 @@ digits_year: 4</programlisting>
 
       <para>Bis Version 3.0 wurde "closedto" ("Bücher schließen zum") als
       Grundlage für das Startdatum benutzt. Schließt man die Bücher allerdings
-      monatsweise führt dies zu falschen Werten.</para>
+      monatsweise, führt dies zu falschen Werten.</para>
 
       <para>In der Mandantenkonfiguration kann man dieses Verhalten genau
       einstellen indem man:</para>
@@ -3784,7 +3775,7 @@ digits_year: 4</programlisting>
           <para>- mit Jahresanfang als Alternative wenn es keine EB-Buchungen
           gibt</para>
 
-          <para>- oder mit "alle Buchungen" als Alternative"</para>
+          <para>- oder mit "alle Buchungen" als Alternative</para>
         </listitem>
 
         <listitem>
@@ -3797,10 +3788,10 @@ digits_year: 4</programlisting>
         </listitem>
       </itemizedlist>
 
-      <para>Folgende Hinweise zu den Optionen: Das "Bücher schließen Datum"
+      <para>Hinweise zu den Optionen: Das "Bücher schließen Datum"
       ist sinnvoll, wenn man nur komplette Jahre schließt. Bei Wirtschaftsjahr
       = Kalendarjahr entspricht dies aber auch dem Jahresanfang. "Alle
-      Buchungen" kann z.B. sinnvoll sein wenn man ohne Jahresabschluß
+      Buchungen" kann z.B. sinnvoll sein, wenn man ohne Jahresabschluß
       durchbucht. Eröffnungsbuchung mit "alle Buchungen" als Fallback ist z.B.
       sinnvoll, wenn man am sich Anfang des zweiten Buchungsjahres befindet,
       und noch keinen Jahreswechsel und auch noch keine EB-Buchungen hat. Bei
@@ -3819,7 +3810,7 @@ digits_year: 4</programlisting>
 
       <para>Die Erfolgsrechnung kann in der Mandantenkonfiguration unter
       Features an- oder abgeschaltet werden. Mit der Einstellung
-      <varname>default_manager = swiss </varname> in der
+      <varname>default_manager = swiss</varname> in der
       <filename>config/kivitendo.conf</filename> wird beim neu Erstellen einer
       Datenbank automatisch die Anzeige der Erfolgsrechnung im Menü
       <guimenu>Berichte </guimenu> ausgewählt und ersetzt dort die GUV.</para>
@@ -3885,7 +3876,7 @@ digits_year: 4</programlisting>
       </varname>in der Spalte <varname>precision</varname> gespeichert.</para>
 
       <para>In allen Verkaufsangeboten, Verkaufsaufträgen, Verkaufsrechnungen
-      und Verkaufsgutschriften wird der Endbetrag inkl. MWST gerundet, wenn
+      und Verkaufsgutschriften wird der Endbetrag inkl. MwSt gerundet, wenn
       dieser nicht der eingestellten Genauigkeit entspricht.</para>
 
       <para>Beim Buchen einer Verkaufsrechnung wird der Rundungsbetrag
@@ -3893,7 +3884,7 @@ digits_year: 4</programlisting>
       Standardkonten für Rundungserträge bzw. Rundungsaufwendungen
       gebucht.</para>
 
-      <para>(Die berechnete MWST wird durch den Rundungsbetrag nicht mehr
+      <para>(Die berechnete MwSt wird durch den Rundungsbetrag nicht mehr
       verändert.)</para>
 
       <para>Die in den Druckvorlagen zur Verfügung stehenden Variablen
@@ -3904,7 +3895,7 @@ digits_year: 4</programlisting>
       anderen Währungen als der Standardwährung erstellt, so muss in kivitendo
       ab Version 3.4.1 die Genauigkeit 0.01 verwendet werden.</para>
 
-      <para>Das heisst, Firmen in der Schweiz, die teilweise
+      <para>Das heißt, Firmen in der Schweiz, die teilweise
       Verkaufsrechnungen in Euro oder anderen Währungen erstellen wollen,
       müssen beim Erstellen der Datenbank als Genauigkeit 0.01 wählen und
       können zur Zeit die 5er Rundung noch nicht nutzen.</para>
@@ -4360,7 +4351,7 @@ digits_year: 4</programlisting>
         <literal>Abrechnungszeitrum: &lt;%period_start_date FORMAT=%m/%Y%&gt;
         bis &lt;%period_end_date FORMAT=%m/%Y%&gt;</literal></para>
 
-        <para>Beim automatischen Versand der Rechnugen via E-Mail können neben diesen speziellen Variablen auch einige Eigenschaften der
+        <para>Beim automatischen Versand der Rechnungen via E-Mail können neben diesen speziellen Variablen auch einige Eigenschaften der
         Rechnung selber als Variablen im Betreff &amp; dem Text der E-Mails genutzt werden. Beispiele sind
         <varname>&lt;%invnumber%&gt;</varname> für die Rechnungsnummber oder <varname>&lt;transaction_description%&gt;</varname> für die
         Vorgangsbezeichnung. Diese Variablen stehen beim Erzeugen der Rechnung logischerweise noch nicht zur Verfügung.</para>
@@ -4662,7 +4653,7 @@ digits_year: 4</programlisting>
       <sect2 id="dokumentenvorlagen-und-variablen.dateinamen-erweitert">
         <title>Sprache, Drucker und E-Mail</title>
 
-        <para>Angeforderte Sprache und Druckerkürzel in den Dateinamen mit
+        <para>Angeforderte Sprache und Druckerkürzel sind in den Dateinamen mit
         eingearbeitet. So wird aus der Vorlage
         <filename>sales_order.ext</filename> bei Sprache
         <function>de</function> und Druckerkürzel <function>lpr2</function>
@@ -4711,7 +4702,7 @@ digits_year: 4</programlisting>
                xreflabel="Metainformationen zur angeforderten Vorlage">
           <title>Metainformationen zur angeforderten Vorlage</title>
 
-          <para>Diese Variablen liefern Informationen darüber welche Variante
+          <para>Diese Variablen liefern Informationen darüber, welche Variante
           einer Vorlage der Benutzer angefragt hat. Sie sind nützlich für
           Vorlagenautoren, die aus einer zentralen Layoutvorlage die einzelnen
           Formulare einbinden möchten.</para>
@@ -4742,7 +4733,7 @@ digits_year: 4</programlisting>
 
               <listitem>
                 <para>Vorlagenkürzel der verwendeten Sprache, identisch mit
-                dem Kürzel das im Dateinamen verwendetet wird.</para>
+                dem Kürzel, das im Dateinamen verwendetet wird.</para>
               </listitem>
             </varlistentry>
 
@@ -4815,7 +4806,7 @@ digits_year: 4</programlisting>
 
               <listitem>
                 <para>Vorlagenürzel des ausgewählten Druckers, identisch mit
-                dem Kürzel das im Dateinamen verwendetet wird.</para>
+                dem Kürzel, das im Dateinamen verwendetet wird.</para>
               </listitem>
             </varlistentry>
 
@@ -7202,7 +7193,7 @@ Beschreibung: &lt;%description%&gt;
       <sect2 id="excel-templates.usage">
         <title>Bedienung</title>
 
-        <para>Der Excel Mechanismus muss in der Konfigurationsdatei aktiviert
+        <para>Der <productname>Excel</productname>-Mechanismus muss in der Konfigurationsdatei aktiviert
         werden. Die Konfigurationsoption heißt <varname>excel_templates =
         1</varname> im Abschnitt <varname>[print_templates]</varname>.</para>
 
@@ -7210,7 +7201,7 @@ Beschreibung: &lt;%description%&gt;
         anderen Vorlage mit der Endung <filename>.xls</filename> gespeichert
         werden. In den normalen Verkaufsmasken taucht nun
         <constant>Excel</constant> als auswählbares Format auf und kann von da
-        an wie LaTeX- oder OpenOffice-Vorlagen benutzt werden.</para>
+        an wie <productname>LaTeX</productname>- oder <productname>OpenOffice</productname>-Vorlagen benutzt werden.</para>
 
         <para>Der Sonderfall der Angebote aus der Kundenmaske ist ebenfalls
         eine Angebotsvorlage und wird unter dem internen Namen der Angebote
@@ -7337,19 +7328,19 @@ Beschreibung: &lt;%description%&gt;
       insbesondere <literal>Art.957a Abs.2</literal>.</para>
 
       <para>Beim Vereinskontenplan sind standardmässig nur die Konten 1100
-      (Debitoren CHF) und 1101 (Debitoren EUR) als Buchungskonten im Verkauf
+      (Debitoren CHF) und 1101 (Debitoren EUR) als Buchungskonten im Verkauf,
       sowie die Konten 2000 (Kreditoren CHF) und 2001 (Kreditoren EUR) als
       Buchungskonten im Einkauf vorgesehen. Weitere Konten können bei Bedarf
       in den Konto-Detaileinstellungen als Einkaufs- oder Verkaufskonten
       konfiguriert werden.</para>
 
-      <para>Die Möglichkeit, Saldosteuersätze zu verwenden ist in der
+      <para>Die Möglichkeit, Saldosteuersätze zu verwenden, ist in der
       aktuellen Version von kivitendo noch nicht integriert.</para>
 
       <para>Trotzdem können auch Firmen, die per Saldosteuersatz mit der
       Eidgenössischen Steuerverwaltung abrechnen, kivitendo bereits nutzen.
-      Dazu wird der Kontenplan mit MWST ausgewählt. Anschliessend müssen alle
-      Aufwandskonten editiert werden und dort der Steuersatz auf 0% gesetzt
+      Dazu wird der Kontenplan mit MwSt ausgewählt. Anschliessend müssen alle
+      Aufwandskonten editiert und dort der Steuersatz auf 0% gesetzt
       werden.</para>
 
       <para>So werden bei Kreditorenbuchungen keine Vorsteuern
@@ -7360,7 +7351,7 @@ Beschreibung: &lt;%description%&gt;
 
       <para>Wünsche für Anpassungen an den Schweizer Kontenplänen sowie
       Vorschläge für weitere (z.B. branchenspezifische) Kontenpläne bitte an
-      <literal>empfang@revamp-it.ch</literal> senden.</para>
+      <email>empfang@revamp-it.ch</email> senden.</para>
     </sect1>
 
     <sect1 id="features.part_classification">
@@ -7373,7 +7364,7 @@ Beschreibung: &lt;%description%&gt;
         Gliederung, um zum Beispiel den Einkauf vom Verkauf zu trennen,
         gekennzeichnet durch eine Beschreibung (z.B. "Einkauf") und ein Kürzel
         (z.B. "E"). Für jede Klassifizierung besteht eine Beschreibung und
-        eine Abkürzung die normalerweise aus einem Zeichen besteht, kann aber
+        eine Abkürzung, die normalerweise aus einem Zeichen besteht. Sie kann aber
         auf mehrere Zeichen erweitert werden, falls zur Unterscheidung
         notwendig. Sinnvoll sind jedoch nur maximal 2 Zeichen.</para>
       </sect2>
@@ -7513,7 +7504,7 @@ Beschreibung: &lt;%description%&gt;
 
           <mediaobject>
             <imageobject>
-              <imagedata contentwidth="600" fileref="images/DMS-Overview.png"/>
+              <imagedata fileref="images/DMS-Overview.png" scalefit="1" />
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -7607,7 +7598,7 @@ Beschreibung: &lt;%description%&gt;
       <sect2>
         <title>Anwendung</title>
 
-        <para>Die Daten werden bei den ERP-Objekten als extra Reiter
+        <para>Die Daten werden bei den ERP-Objekten als eigener Reiter
         dargestellt. Eine Verkaufsrechnung z.B. hat die Reiter "Dokumente" und
         "Dateianhänge".</para>
 
@@ -7616,7 +7607,7 @@ Beschreibung: &lt;%description%&gt;
 
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/DMS-Anhaenge.png" scale="50"/>
+              <imagedata fileref="images/DMS-Anhaenge.png" scale="50" scalefit="1" />
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -7649,7 +7640,7 @@ Beschreibung: &lt;%description%&gt;
 
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/DMS-Dokumente.png" width="500"/>
+              <imagedata fileref="images/DMS-Dokumente.png" width="500" scalefit="1" />
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -7701,7 +7692,7 @@ Beschreibung: &lt;%description%&gt;
 
               <mediaobject>
                 <imageobject>
-                  <imagedata fileref="images/DMS-ClientConfig.png" width="500"/>
+                  <imagedata fileref="images/DMS-ClientConfig.png" width="500" scalefit="1" />
                 </imageobject>
               </mediaobject>
             </screenshot>
@@ -7745,7 +7736,7 @@ Beschreibung: &lt;%description%&gt;
 
           <para>Die zusätzlichen Quellen für "email" oder ein oder mehrere
           Scanner sind derzeit vom Administrator direkt in der
-          Datenbanktabelle "user_preferences" einzurichten. Die "value" ist im
+          Datenbanktabelle "user_preferences" einzurichten. Die Spalte "value" ist im
           JSON-Format mit den jeweiligen Werten des Verzeichnisses und der
           Beschreibung der Quelle.</para>
 
@@ -7787,7 +7778,7 @@ document_path = /var/local/kivi_documents
     <sect1>
       <title>Webshop-Api</title>
 
-      <para>Das Shopmodul bietet die Möglichkeit Onlineshopartikel und
+      <para>Das Shopmodul bietet die Möglichkeit, Onlineshopartikel und
       Onlineshopbestellungen zu verwalten und zu bearbeiten.</para>
 
       <para>Es ist Multishopfähig, d.h. Artikel können mehreren oder
@@ -7857,7 +7848,7 @@ document_path = /var/local/kivi_documents
 
           <para>Die Artikelgruppen werden direkt vom Shopsystem geholt somit
           ist es möglich einen Artikel auch mehreren Gruppen
-          zuzuordenen</para>
+          zuzuordnen.</para>
         </sect3>
 
         <sect3>
@@ -7871,7 +7862,7 @@ document_path = /var/local/kivi_documents
 
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/Shop_Artikel_Listing.png"/>
+              <imagedata fileref="images/Shop_Artikel_Listing.png" scalefit="1" />
             </imageobject>
           </mediaobject>
         </sect3>
@@ -7881,14 +7872,14 @@ document_path = /var/local/kivi_documents
         <title>Bestellimport</title>
 
         <para>Unter dem Menupunkt Webshop-&gt;Webshop Import öffnet sich die
-        Bestellimportsliste. Hier ist sind Möglichkeiten gegeben Neue
+        Bestellimportsliste. Hier ist sind Möglichkeiten, gegeben Neue
         Bestellungen vom Shop abzuholen, geholte Bestellungen im Stapel oder
         einzeln als Auftrag zu transferieren. Die Liste kann nach
         verschiedenen Kriterien gefiltert werden.</para>
 
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/Shop_Bestell.png"/>
+            <imagedata fileref="images/Shop_Bestell.png" scalefit="1" />
           </imageobject>
         </mediaobject>
 
@@ -7931,8 +7922,9 @@ document_path = /var/local/kivi_documents
             tooltip zu den Positionen.</para>
           </listitem>
         </itemizedlist>
+        </sect2>
 
-        <para>Maske Auftrag erstellen</para>
+        <sect2><title>Maske "Auftrag erstellen"</title>
 
         <para>Viele Shopsysteme haben drei verschieden Adresstypen Kunden-,
         Rechnungs-, und Lieferadresse, die sich auch alle unterscheiden
@@ -7983,11 +7975,11 @@ document_path = /var/local/kivi_documents
         <title>Mapping der Daten</title>
 
         <para>Das Mapping der kivitendo Daten mit den Shopdaten geschieht in
-        der Datei SL/ShopConnector/&lt;SHOPCONNECTORNAME&gt;.pm
-        z.B.:SL/ShopConnector/Shopware.pm</para>
+        der Datei <filename>SL/ShopConnector/&lt;SHOPCONNECTORNAME&gt;.pm</filename>,
+        z.B.:<filename>SL/ShopConnector/Shopware.pm</filename>.</para>
 
-        <para>In dieser Datei gibt es einen Bereich wo die Bestellpostionen,
-        die Bestellkopfdaten und die Artikeldaten gemapt werden. In dieser
+        <para>In dieser Datei gibt es einen Bereich, wo die Bestellpostionen,
+        die Bestellkopfdaten und die Artikeldaten zugeordnet werden. In dieser
         Datei kann ein individelles Mapping dann gemacht werden. Zu Shopware
         gibt es hier eine sehr gute Dokumentation: <ulink
         url="https://developers.shopware.com/developers-guide/rest-api/">https://developers.shopware.com/developers-guide/rest-api/</ulink></para>
@@ -8029,14 +8021,14 @@ document_path = /var/local/kivi_documents
       <sect2 id="features.zugferd.summary">
         <title>Übersicht</title>
 
-        <para>Mit der Version 3.5.6 bietet kivitendo die Möglichkeit ZUGFeRD
-        Rechnungen zu erstellen, sowie auch  ZUGFeRD Rechnungen direkt in
+        <para>Mit der Version 3.5.6 bietet kivitendo die Möglichkeit, ZUGFeRD
+        Rechnungen zu erstellen, sowie auch ZUGFeRD Rechnungen direkt in
         kivitendo einzulesen. </para>
 
-        <para>Bei  ZUGFeRD Rechnungen handelt es sich um eine PDF Datei in
+        <para>Bei  ZUGFeRD Rechnungen handelt es sich um eine PDF Datei, in
         der eine XML-Datei eingebettet ist. Der Aufbau der XML-Datei ist
         standardisiert und ermöglicht so den Austausch zwischen
-        den verschiedenen Softwareprodukten. Kivitendo setzt mit der
+        den verschiedenen Softwareprodukten. kivitendo setzt mit der
         Version 3.5.6 den ZUGFeRD 2.1 Standard um.</para>
 
         <para>Weiter Details zu ZUGFeRD sind unter diesem Link zu finden:
@@ -8045,9 +8037,9 @@ document_path = /var/local/kivi_documents
       </sect2>
       <sect2 id="features.zugferd.create_zugferd_bills">
 
-        <title>Erstellen von ZUGFeRD Rechnungen in Kivitendo</title>
+        <title>Erstellen von ZUGFeRD Rechnungen in kivitendo</title>
         <para>Für die Erstellung von ZUGFeRD Rechnungen bedarf es in
-        kivitendo zwei Dinge:</para>
+        kivitendo zweier Dinge:</para>
 
         <orderedlist>
 
@@ -8101,10 +8093,10 @@ document_path = /var/local/kivi_documents
 
       <sect2 id="features.zugferd.read_zugferd_bills">
 
-        <title>Einlesen von ZUGFeRD Rechnungen in Kivitendo</title>
+        <title>Einlesen von ZUGFeRD Rechnungen in kivitendo</title>
 
         <para>Es lassen sich auch Rechnungen von Kreditoren, die im
-        ZUGFeRD Format erstellt wurden, nach Kivitendo importieren.
+        ZUGFeRD-Format erstellt wurden, nach kivitendo importieren.
         Hierfür müssen auch zwei Voraussetzungen erfüllt werden:
         </para>
 
@@ -8125,7 +8117,7 @@ document_path = /var/local/kivi_documents
         über „Finanzbuchhaltung“ → „Factur-X-/ZUGFeRD-Import“ über die „Durchsuchen“
         Schaltfläche ausgewählt werden und über die Schaltfläche „Import“
         eingeladen werden. Es öffnet sich daraufhin die Kreditorenbuchung.
-        Die auslesbaren Daten aus dem eingebetteten XML der PDF Datei
+        Die auslesbaren Daten aus dem eingebetteten XML- der PDF-Datei
         werden in der Kreditorenbuchung ergänzt.</para>
 
       </sect2>
@@ -8143,35 +8135,35 @@ document_path = /var/local/kivi_documents
         <para>Unter dem Menu "System->Reklamationsgründe" muss mindestens ein Reklamationsgrund erfasst werden.</para>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/Reklamationsgruende_anlegen.png"/>
+            <imagedata fileref="images/Reklamationsgruende_anlegen.png" scalefit="1" />
           </imageobject>
         </mediaobject>
         <para>Aufgrund der Gründe können später in den Berichten Auswertungen gemacht werden.</para>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/Reklamationsgruende_liste.png"/>
+            <imagedata fileref="images/Reklamationsgruende_liste.png" scalefit="1" />
           </imageobject>
         </mediaobject>
       </sect2>
       <sect2>
         <title>Reklamation erfassen</title>
-        <para>Aus den Belegen EK/VK Auftrag, EK/VK Lieferschein, EK/VK Rechnung kann unter "Workflow->Reklöamation erfassen" eine dem Workflow zugehörige Reklamation erfasst werden.
-          Die Reklamationsmaske ähnelt im großem die der Auftragsmaske.</para>
+        <para>Aus den Belegen EK/VK Auftrag, EK/VK Lieferschein, EK/VK Rechnung kann unter "Workflow->Reklamation erfassen" eine dem Workflow zugehörige Reklamation erfasst werden.
+          Die Reklamationsmaske ähnelt im Großen die der Auftragsmaske.</para>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/Reklamation_erfassen.png"/>
+            <imagedata fileref="images/Reklamation_erfassen.png" scalefit="1" />
           </imageobject>
         </mediaobject>
-        <para>Es werden alle Positionen aus dem Beleg übernomen. Deswegen müssen hie die Positionen angepasst werden.
+        <para>Es werden alle Positionen aus dem Beleg übernomen. Deswegen müssen hier die Positionen angepasst werden.
           Zusätzlich muss noch ein Reklamationsgrund angegeben werden.</para>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/Reklamation_erfassen_grund.png"/>
+            <imagedata fileref="images/Reklamation_erfassen_grund.png" scalefit="1" />
           </imageobject>
         </mediaobject>
         <para>Die Reklamationsgründe sind für spätere Auswertungen notwendig</para>
         <note id="reclamations.anmerkung_grund_einkauf">
-          <para>Anmerkung: Da bei einem Auftrag, sowohl im EK als auch im VK, noch keine Ware versendet bzw. empfangen wurde, könnte hier ein Reklamationsgrund "Lieferver sein.</para>
+          <para>Anmerkung: Da bei einem Auftrag, sowohl im EK als auch im VK, noch keine Ware versendet bzw. empfangen wurde, könnte hier ein Reklamationsgrund "Lieferverzug" sein.</para>
         </note>
       </sect2>
       <sect2>
@@ -8179,7 +8171,7 @@ document_path = /var/local/kivi_documents
         <para>Bisher gibt es nur eine Liste mit Reklamationen und deren Filtermöglichkeiten.</para>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/Reklamation_erfassen_grund.png"/>
+            <imagedata fileref="images/Reklamation_erfassen_grund.png" scalefit="1" />
           </imageobject>
         </mediaobject>
         <para>Einen individuellen Reklamationsbericht kann über einen "benutzerdefinierten Datenexport" erstellt werden</para>
@@ -8197,7 +8189,7 @@ document_path = /var/local/kivi_documents
         <title>Wie sehen globale Variablen in Perl aus?</title>
 
         <para>Globale Variablen liegen in einem speziellen namespace namens
-        "main", der von überall erreichbar ist. Darüber hinaus sind bareword
+        <literal>main</literal>, der von überall erreichbar ist. Darüber hinaus sind bareword
         globs global und die meisten speziellen Variablen sind...
         speziell.</para>
 
@@ -8240,7 +8232,7 @@ document_path = /var/local/kivi_documents
         <para>Im Gegensatz zu <productname>PHP</productname> gibt es kein
         Schlüsselwort wie "<function>global</function>", mit dem man
         importieren kann. <function>my</function>, <function>our</function>
-        und <function>local</function> machen was anderes.</para>
+        und <function>local</function> machen etwas anderes.</para>
 
         <variablelist>
           <varlistentry>
@@ -8266,7 +8258,7 @@ document_path = /var/local/kivi_documents
 
             <listitem>
               <para>Alle Änderungen an <varname>$form</varname> werden am Ende
-              des scopes zurückgesetzt</para>
+              des scopes zurückgesetzt.</para>
             </listitem>
           </varlistentry>
         </variablelist>
@@ -8286,11 +8278,11 @@ document_path = /var/local/kivi_documents
         brauchen.</para>
 
         <para>Das zweite Problem ist <function>strict</function>. Unter
-        <function>strict</function> werden alle Variablen die nicht explizit
+        <function>strict</function> werden alle Variablen, die nicht explizit
         mit <function>Package</function>, <function>my</function> oder
-        <function>our</function> angegeben werden als Tippfehler angemarkert,
-        dies hat, seit der Einführung, u.a. schon so manche langwierige
-        Bug-Suche verkürzt. Da globale Variablen aber implizit mit Package
+        <function>our</function> angegeben werden, als Tippfehler angemarkert.
+        Dies hat seit der Einführung u.a. schon so manche langwierige
+        Bug-Suche verkürzt. Da globale Variablen aber implizit mit <literal>Package</literal>
         angegeben werden, werden die nicht geprüft, und somit kann sich
         schnell ein Tippfehler einschleichen.</para>
       </sect2>
@@ -8298,7 +8290,7 @@ document_path = /var/local/kivi_documents
       <sect2>
         <title>Kanonische globale Variablen</title>
 
-        <para>Um dieses Problem im Griff zu halten gibt es einige wenige
+        <para>Um dieses Problem im Griff zu halten, gibt es einige wenige
         globale Variablen, die kanonisch sind, d.h. sie haben bestimmte
         vorgegebenen Eigenschaften, und alles andere sollte anderweitig
         umhergereicht werden.</para>
@@ -8353,7 +8345,7 @@ document_path = /var/local/kivi_documents
           <itemizedlist>
             <listitem>
               <para>Ist ein Objekt der Klasse
-              "<classname>Form</classname>"</para>
+              <classname>Form</classname></para>
             </listitem>
 
             <listitem>
@@ -8378,14 +8370,14 @@ document_path = /var/local/kivi_documents
 
           <para><varname>$::form</varname> wurde unter <productname>SQL
           Ledger</productname> als Gottobjekt für alles missbraucht. Sämtliche
-          alten Funktionen unter SL/ mutieren <varname>$::form</varname>, das
+          alten Funktionen unter <filename>SL/</filename> mutieren <varname>$::form</varname>, das
           heißt, alles was einem lieb ist (alle Variablen die einem ans Herz
-          gewachsen sind), sollte man vor einem Aufruf (!) von zum Beispiel
+          gewachsen sind), sollte man <emphasis>vor</emphasis> einem Aufruf von zum Beispiel
           <function>IS-&gt;retrieve_customer()</function> in Sicherheit
           bringen.</para>
 
-          <para>Z.B. das vom Benutzer eingestellte Zahlenformat, bevor man
-          Berechnung in einem bestimmten Format durchführt (SL/Form.pm Zeile
+        <para>Betrachten wir als Beispiel das vom Benutzer eingestellte Zahlenformat.
+        bevor man Berechnung in einem bestimmten Format durchführt (<filename>SL/Form.pm</filename> Zeile
           3552, Stand version 2.7beta), um dies hinterher wieder auf den
           richtigen Wert zu setzen:</para>
 
@@ -8394,8 +8386,8 @@ document_path = /var/local/kivi_documents
   # (...) div Berechnungen
   $::myconfig{numberformat} = $saved_numberformat;</programlisting>
 
-          <para>Das Objekt der Klasse Form hat leider im Moment noch viele
-          zentrale Funktionen die vom internen Zustand abhängen, deshalb bitte
+        <para>Das Objekt der Klasse <classname>Form</classname> hat leider im Moment noch viele
+          zentrale Funktionen, die vom internen Zustand abhängen, deshalb bitte
           nie einfach zerstören oder überschreiben (zumindestens nicht kurz
           vor einem Release oder in Absprache über bspw. die devel-Liste ;-).
           Es geht ziemlich sicher etwas kaputt.</para>
@@ -8416,7 +8408,7 @@ document_path = /var/local/kivi_documents
 # (... Zeig die Auswahlliste Kunden-/Lieferantentyp an)
 [%- END %]</programlisting>
 
-          <para>Entweder wird hier dann $::form-&gt;{business} ausgewertet
+          <para>Entweder wird hier dann <literal>$::form-&gt;{business}</literal> ausgewertet
           oder aber der Funktion
           <function>$form-&gt;parse_html_template</function> wird explizit
           noch ein zusätzlicher Hash übergeben, der dann auch in den
@@ -8426,7 +8418,7 @@ document_path = /var/local/kivi_documents
 
           <para>Innerhalb von Schleifen wird
           <varname>$::form-&gt;{TEMPLATE_ARRAYS}{var}[$index]</varname>
-          bevorzugt, wenn vorhanden. Ein Beispiel findet sich in SL/DO.pm,
+          bevorzugt, wenn vorhanden. Ein Beispiel findet sich in <filename>SL/DO.pm</filename>,
           welches über alle Positionen eines Lieferscheins in Schleife
           läuft:</para>
 
@@ -8448,7 +8440,7 @@ document_path = /var/local/kivi_documents
             </listitem>
 
             <listitem>
-              <para>Wird spätestens benötigt wenn auf die Datenbank
+              <para>Wird spätestens benötigt, wenn auf die Datenbank.
               zugegriffen wird</para>
             </listitem>
 
@@ -8457,22 +8449,22 @@ document_path = /var/local/kivi_documents
             </listitem>
 
             <listitem>
-              <para>Enthält die Userdaten des aktuellen Logins</para>
+              <para>Enthält die Userdaten des aktuellen Logins.</para>
             </listitem>
 
             <listitem>
               <para>Sollte nicht ohne Filterung irgendwo gedumpt werden oder
               extern serialisiert werden, weil da auch der Datenbankzugriff
-              für diesen user drinsteht.</para>
+              für den aktuellen user drinsteht.</para>
             </listitem>
 
             <listitem>
-              <para>Enthält unter anderem Datumsformat dateformat und
-              Nummernformat numberformat</para>
+              <para>Enthält unter anderem das Datumsformat <literal>dateformat</literal> und
+              Nummernformat <literal>numberformat</literal>.</para>
             </listitem>
 
             <listitem>
-              <para>Enthält Datenbankzugriffinformationen</para>
+              <para>Enthält Datenbankzugriffinformationen.</para><!-- redundant? -->
             </listitem>
           </itemizedlist>
 
@@ -8482,7 +8474,7 @@ document_path = /var/local/kivi_documents
           <varname>%::myconfig</varname>. Innerhalb der Anwendungen sind dies
           überwiegend die Daten, die sich unter <guimenu>Programm</guimenu>
           -&gt; <guimenuitem>Einstellungen</guimenuitem> befinden, bzw. die
-          Informationen über den Benutzer die über die
+          Informationen, über den Benutzer die über die
           Administrator-Schnittstelle eingegeben wurden.</para>
         </sect3>
 
@@ -8491,11 +8483,11 @@ document_path = /var/local/kivi_documents
 
           <itemizedlist>
             <listitem>
-              <para>Objekt der Klasse "Locale"</para>
+              <para>Objekt der Klasse <classname>Locale</classname>.</para>
             </listitem>
 
             <listitem>
-              <para>Wird pro Request erstellt</para>
+              <para>Wird pro Request erstellt.</para>
             </listitem>
 
             <listitem>
@@ -8505,7 +8497,7 @@ document_path = /var/local/kivi_documents
 
             <listitem>
               <para>Cached intern über Requestgrenzen hinweg benutzte
-              Locales</para>
+              Locales.</para>
             </listitem>
           </itemizedlist>
 
@@ -8518,16 +8510,16 @@ document_path = /var/local/kivi_documents
 
           <itemizedlist>
             <listitem>
-              <para>Objekt der Klasse "LXDebug"</para>
+              <para>Objekt der Klasse <classname>LXDebug</classname></para>
             </listitem>
 
             <listitem>
-              <para>Wird global gecached</para>
+              <para>Wird global gecached.</para>
             </listitem>
 
             <listitem>
               <para>Muss immer verfügbar sein, in nahezu allen
-              Funktionen</para>
+              Funktionen.</para>
             </listitem>
           </itemizedlist>
 
@@ -8536,8 +8528,8 @@ document_path = /var/local/kivi_documents
           "<function>leave_sub</function>", mit denen in den alten Modulen ein
           brauchbares Tracing gebaut ist, "<function>log_time</function>", mit
           der man die Wallclockzeit seit Requeststart loggen kann, sowie
-          "<function>message</function>" und "<function>dump</function>" mit
-          denen man flott Informationen ins Log (tmp/kivitendo-debug.log)
+          "<function>message</function>" und "<function>dump</function>", mit
+          denen man flott Informationen ins Log (<filename>tmp/kivitendo-debug.log</filename>)
           packen kann.</para>
 
           <para>Beispielsweise so:</para>
@@ -8551,15 +8543,15 @@ $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{
 
           <itemizedlist>
             <listitem>
-              <para>Objekt der Klasse "SL::Auth"</para>
+              <para>Objekt der Klasse <classname>SL::Auth</classname></para>
             </listitem>
 
             <listitem>
-              <para>Wird global gecached</para>
+              <para>Wird global gecached.</para>
             </listitem>
 
             <listitem>
-              <para>Hat eine permanente DB Verbindung zur Authdatenbank</para>
+              <para>Hat eine permanente DB Verbindung zur Authdatenbank.</para>
             </listitem>
 
             <listitem>
@@ -8567,9 +8559,9 @@ $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{
             </listitem>
           </itemizedlist>
 
-          <para><varname>$::auth</varname> stellt Funktionen bereit um die
+          <para><varname>$::auth</varname> stellt Funktionen bereit, um die
           Rechte des aktuellen Users abzufragen. Obwohl diese Informationen
-          vom aktuellen User abhängen wird das Objekt aus
+          vom aktuellen User abhängen, wird das Objekt aus
           Geschwindigkeitsgründen nur einmal angelegt und dann nach jedem
           Request kurz resettet.</para>
 
@@ -8603,7 +8595,7 @@ $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{
           und danach nicht mehr angefasst. Es ist derzeit nicht geplant, dass
           das Programm die Konfiguration ändern kann oder sollte.</para>
 
-          <para>Beispielsweise ist über den Konfigurationseintrag [debug] die
+        <para>Beispielsweise ist über den Konfigurationseintrag <literal>[debug]</literal> die
           Debug- und Trace-Log-Datei wie folgt konfiguriert und
           verfügbar:</para>
 
@@ -8626,16 +8618,16 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
           <itemizedlist>
             <listitem>
               <para>Objekt der Klasse
-              "<classname>SL::InstanceConfiguration</classname>"</para>
+              <classname>SL::InstanceConfiguration</classname></para>
             </listitem>
 
             <listitem>
-              <para>wird pro Request neu erstellt</para>
+              <para>wird pro Request neu erstellt.</para>
             </listitem>
           </itemizedlist>
 
           <para>Funktioniert wie <varname>$::lx_office_conf</varname>,
-          speichert aber Daten die von der Instanz abhängig sind. Eine Instanz
+          speichert aber Daten, die von der Instanz abhängig sind. Eine Instanz
           ist hier eine Mandantendatenbank. Beispielsweise überprüft
           <programlisting>$::instance_conf-&gt;get_inventory_system eq 'perpetual'</programlisting>
           ob die berüchtigte Bestandsmethode zur Anwendung kommt.</para>
@@ -8647,7 +8639,7 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
           <itemizedlist>
             <listitem>
               <para>Objekt der Klasse
-              "<varname>SL::Dispatcher</varname>"</para>
+              <classname>SL::Dispatcher</classname></para>
             </listitem>
 
             <listitem>
@@ -8655,12 +8647,12 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
             </listitem>
 
             <listitem>
-              <para>enthält Informationen über die technische Verbindung zum
-              Server</para>
+              <para>Enthält Informationen über die technische Verbindung zum
+              Server.</para>
             </listitem>
           </itemizedlist>
 
-          <para>Der dritte Punkt ist auch der einzige Grund warum das Objekt
+          <para>Der dritte Punkt ist auch der einzige Grund, warum das Objekt
           global gespeichert wird. Wird vermutlich irgendwann in einem anderen
           Objekt untergebracht.</para>
         </sect3>
@@ -8695,7 +8687,7 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
           <itemizedlist>
             <listitem>
               <para>Kommt es vom User, und soll unverändert wieder an den
-              User? Dann <varname>$::form</varname>, steht da eh schon</para>
+              User? Dann <varname>$::form</varname>, steht da eh schon.</para>
             </listitem>
 
             <listitem>
@@ -8724,19 +8716,19 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
 
           <itemizedlist>
             <listitem>
-              <para>war nötig, weil cookie Methoden nicht als
-              Klassenfunktionen funktionieren</para>
+              <para>War nötig, weil cookie Methoden nicht als
+              Klassenfunktionen funktionieren.</para>
             </listitem>
 
             <listitem>
-              <para>Aufruf als Klasse erzeugt Dummyobjekt was im
+              <para>Aufruf als Klasse erzeugt Dummyobjekt, das im
               Klassennamespace gehalten wird und über Requestgrenzen
-              leaked</para>
+              leaked.</para>
             </listitem>
 
             <listitem>
-              <para>liegt jetzt unter
-              <varname>$::request-&gt;{cgi}</varname></para>
+              <para>Liegt jetzt unter
+              <varname>$::request-&gt;{cgi}</varname>.</para>
             </listitem>
           </itemizedlist>
         </sect3>
@@ -8746,15 +8738,15 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
 
           <itemizedlist>
             <listitem>
-              <para>war nötig, weil einige Funktionen in Schleifen zum Teil
+              <para>War nötig, weil einige Funktionen in Schleifen zum Teil
               ein paar hundert mal pro Request eine Liste der Einheiten
-              brauchen, und de als Parameter durch einen Riesenstack von
+              brauchen, und die als Parameter durch einen Riesenstack von
               Funktionen geschleift werden müssten.</para>
             </listitem>
 
             <listitem>
               <para>Liegt jetzt unter
-              <varname>$::request-&gt;{cache}{all_units}</varname></para>
+              <varname>$::request-&gt;{cache}{all_units}</varname>.</para>
             </listitem>
 
             <listitem>
@@ -8814,12 +8806,12 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
         am Laufen zu halten. Man kann mit <function>die</function>,
         <function>confess</function> oder <function>carp</function> Fehler
         ausgeben, die dann vom Dispatcher angezeigt werden. Die kivitendo
-        eigene <function>$::form-</function>error()&gt; tut im Prinzip das
+        eigene <function>$::form-error()</function> tut im Prinzip das
         Gleiche, mit ein paar Extraoptionen. <function>warn</function> und
         <function>exit</function> hingegen werden nicht abgefangen.
-        <function>warn</function> wird direkt nach STDERR, also in Server Log
+        <function>warn</function> wird direkt nach STDERR, also im Server-Log
         eine Nachricht schreiben (sofern in der Konfiguration nicht die
-        Warnungen in das kivitendo Log umgeleitet wurden), und
+        Warnungen in das kivitendo-Log umgeleitet wurden), und
         <function>exit</function> wird die Ausführung beenden.</para>
 
         <para>Prinzipiell ist es kein Beinbruch, wenn sich der Prozess
@@ -8833,17 +8825,16 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
 
         <para>Um zu vermeiden, dass Informationen von einem Request in einen
         anderen gelangen, müssen alle globalen Variablen vor einem Request
-        sauber initialisiert werden. Das ist besonders wichtig im
-        <varname>$::cgi</varname> und <varname>$::auth</varname> Objekt, weil
-        diese nicht gelöscht werden pro Instanz, sondern persistent gehalten
-        werden.</para>
+        sauber initialisiert werden. Das ist besonders wichtig im Falle von
+        <varname>$::auth</varname> Objekt, weil dieses persistent gehalten,
+        und nicht per Instanz gelöscht wird.</para>
 
         <para>In <classname>SL::Dispatcher</classname> gibt es einen sauber
         abgetrennten Block, der alle kanonischen globalen Variablen listet und
-        erklärt. Bitte keine anderen einführen ohne das sauber zu
+        erklärt. Bitte keine anderen einführen, ohne das sauber zu
         dokumentieren.</para>
 
-        <para>Datenbankverbindungen wird noch ein Guide verfasst werden, wie
+        <para>Zu Datenbankverbindungen wird noch ein Guide verfasst werden, wie
         man sicher geht, dass man die richtige erwischt.</para>
       </sect2>
 
@@ -8854,10 +8845,10 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
         unter diesen ganz besonders die Verkaufsrechnungsmaske. Ein Aufruf der
         Rechnungsmaske in kivitendo 2.4.3 stable dauert auf einem Core2duo mit
         4GB Arbeitsspeicher und Ubuntu 9.10 eine halbe Sekunde. In der 2.6.0
-        sind es je nach Menge der definierten Variablen 1-2s. Ab der
-        Moose/Rose::DB Version sind es 5-6s.</para>
+        sind es je nach Menge der definierten Variablen 1-2s. Ab (mutmaßlich)
+        2.6.2 sind es mit der Einführung von <productname>Rose</productname> und <productname>Moose</productname> 5-6s.</para>
 
-        <para>Mit FastCGI ist die neuste Version auf 0,26 Sekunden selbst in
+        <para>Mit FastCGI ist die neueste Version auf 0,26 Sekunden selbst in
         den kritischen Pfaden, unter 0,15 sonst.</para>
       </sect2>
     </sect1>
@@ -8871,7 +8862,7 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
         <para>
          Es ist möglich, Funktionen in kivitendo programmatisch aus anderen Programmen aufzurufen. Dazu ist nötig, dass
          Authentifizierungsinformationen in jedem Aufruf mitgegeben werden. Dafür gibt es zwei Methoden: die HTTP-»Basic«-Authentifizierung
-         oder die Übergabe als spziell benannte GET-Parameter. Neben den Authentifizierungsinformationen muss auch der zu verwendende Mandant
+         oder die Übergabe als speziell benannte GET-Parameter. Neben den Authentifizierungsinformationen muss auch der zu verwendende Mandant
          übergeben werden.
         </para>
       </sect2>
@@ -8886,7 +8877,7 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
         </para>
 
         <para>
-         Wird in einem Request kein Mandant mitgegeben, so wird derjenige Mandant genommen, wer als Standardmandant markiert wurde. Gibt es
+         Wird in einem Request kein Mandant mitgegeben, so wird der Standardmandant genommen. Gibt es
          keinen solchen, kommt es zu einer Fehlermeldung.
         </para>
       </sect2>
@@ -8936,7 +8927,7 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
         <title>Beispiele</title>
 
         <para>
-         Das folgende Beispiel nutzt das Kommandozeilenprogramm »curl« und ruft die Funktion auf, die eine vorhandene Telefonnummer in den
+          Das folgende Beispiel nutzt das Kommandozeilenprogramm <productname>curl</productname> und ruft die Funktion auf, die eine vorhandene Telefonnummer in den
          Ansprechpersonen sucht und dazu Informationen zurückliefert. Dabei wird die HTTP-»Basic«-Authentifizierung genutzt.
         </para>
 
@@ -9000,16 +8991,16 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
 
             <listitem>
               <para>Wird zwingend benötigt. Dies ist der "Name" des Upgrades.
-              Dieser "tag" kann von anderen Kontrolldateien in ihren
+              Dieser <varname>tag</varname> kann von anderen Kontrolldateien in ihren
               Abhängigkeiten verwendet werden (Schlüsselwort
-              "<varname>depends</varname>"). Der "tag" ist auch der Name, der
+              <varname>depends</varname>). Der <varname>tag</varname> ist auch der Name, der
               in der Datenbank eingetragen wird.</para>
 
               <para>Normalerweise sollte die Kontrolldatei genau so heißen wie
-              der "tag", nur mit der Endung ".sql" bzw. "pl".</para>
+              der <varname>tag</varname>, nur mit der Endung <filename>.sql</filename> bzw. <filename>.pl</filename>.</para>
 
-              <para>Ein Tag darf nur aus alphanumerischen Zeichen sowie den
-              Zeichen _ - ( ) bestehen. Insbesondere sind Leerzeichen nicht
+            <para>Ein <varname>tag</varname> darf nur aus alphanumerischen Zeichen sowie den
+            Zeichen <literal>_ - ( )</literal> bestehen. Insbesondere sind Leerzeichen nicht
               erlaubt und sollten stattdessen mit Unterstrichen ersetzt
               werden.</para>
             </listitem>
@@ -9020,12 +9011,12 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
 
             <listitem>
               <para>Empfohlen. Gibt den Zeichensatz an, in dem das Script
-              geschrieben wurde, z.B. "<literal>UTF-8</literal>". Aus
+              geschrieben wurde, z.B. <literal>UTF-8</literal>. Aus
               Kompatibilitätsgründen mit alten Upgrade-Scripten wird bei
-              Abwesenheit des Tags für SQL-Upgradedateien der Zeichensatz
-              "<literal>ISO-8859-15</literal>" angenommen. Perl-Upgradescripte
-              hingegen müssen immer in UTF-8 encodiert sein und sollten
-              demnach auch ein "<literal>use utf8;</literal>"
+              Abwesenheit des Schlüssels für SQL-Upgradedateien der Zeichensatz
+              <literal>ISO-8859-15</literal> angenommen. Perl-Upgradescripte
+              hingegen müssen immer in <literal>UTF-8</literal> encodiert sein und sollten
+              demnach auch ein <literal>use utf8;</literal>
               enthalten.</para>
             </listitem>
           </varlistentry>
@@ -9036,7 +9027,7 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
             <listitem>
               <para>Benötigt. Eine Beschreibung, was in diesem Update
               passiert. Diese wird dem Benutzer beim eigentlichen
-              Datenbankupdate angezeigt. Während der Tag in Englisch gehalten
+              Datenbankupdate angezeigt. Während der <varname>tag</varname> in Englisch gehalten
               sein sollte, sollte die Beschreibung auf Deutsch
               erfolgen.</para>
             </listitem>
@@ -9046,7 +9037,8 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
             <term><varname>depends</varname></term>
 
             <listitem>
-              <para>Optional. Eine mit Leerzeichen getrennte Liste von "tags",
+              <para>Optional. Eine mit Leerzeichen getrennte Liste von Namen,
+              die <varname>tag</varname> einer jeden Upgrade-Datei,
               von denen dieses Upgradescript abhängt. kivitendo stellt sicher,
               dass die in dieser Liste aufgeführten Scripte bereits
               durchgeführt wurden, bevor dieses Script ausgeführt wird.</para>
@@ -9078,7 +9070,7 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
               abhängt und "y" von "x", so hat "z" eine Abhängigkeitstiefe von
               2, "y" von 1 und "x" von 0. "x" würde hier zuerst ausgeführt,
               dann "y", dann "z"), dann nach der Priorität und bei gleicher
-              Priorität alphabetisch nach dem "tag".</para>
+              Priorität alphabetisch nach dem <varname>tag</varname>.</para>
             </listitem>
           </varlistentry>
 
@@ -9100,25 +9092,25 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
         Datenbankupgradescripten</title>
 
         <para>In Perl geschriebene Datenbankscripte werden nicht einfach so
-        ausgeführt sondern müssen sich an gewisse Konventionen halten. Dafür
+        ausgeführt, sondern müssen sich an gewisse Konventionen halten. Dafür
         bekommen sie aber auch einige Komfortfunktionen bereitgestellt.</para>
 
         <para>Ein Upgradescript stellt dabei eine vollständige Objektklasse
-        dar, die vom Elternobjekt "<literal>SL::DBUpgrade2::Base</literal>"
-        erben und eine Funktion namens "<literal>run</literal>" zur Verfügung
+        dar, die vom Elternobjekt <classname>SL::DBUpgrade2::Base</classname>
+        erben und eine Funktion namens "<function>run</function>" zur Verfügung
         stellen muss. Das Script wird ausgeführt, indem eine Instanz dieser
-        Klasse erzeugt und darauf die erwähnte "<literal>run</literal>"
+        Klasse erzeugt und darauf die erwähnte <function>run</function>"
         aufgerufen wird.</para>
 
         <para>Zu beachten ist, dass sich der Paketname der Datei aus dem Wert
-        für "<literal>@tag</literal>" ableitet. Dabei werden alle Zeichen, die
+        für <varname>@tag</varname> ableitet. Dabei werden alle Zeichen, die
         in Paketnamen ungültig wären (gerade Bindestriche), durch Unterstriche
         ersetzt. Insgesamt sieht der Paketname wie folgt aus:
-        "<literal>SL::DBUpgrade2::tag</literal>".</para>
+        <literal>SL::DBUpgrade2::tag</literal>.</para>
 
         <para>Welche Komfortfunktionen zur Verfügung stehen, erfahren Sie in
         der Perl-Dokumentation zum oben genannten Modul; aufzurufen mit
-        "<command>perldoc SL/DBUpgrade2/Base.pm</command>".</para>
+        <command>perldoc SL/DBUpgrade2/Base.pm</command>.</para>
 
         <para>Ein Mindestgerüst eines gültigen Perl-Upgradescriptes sieht wie
         folgt aus:</para>
@@ -9151,7 +9143,7 @@ sub run {
 
         <para>Um die Arbeit mit den Abhängigkeiten etwas zu erleichtern,
         existiert ein Hilfsscript namens
-        "<filename>scripts/dbupgrade2_tool.pl</filename>". Es muss aus dem
+        <filename>scripts/dbupgrade2_tool.pl</filename>. Es muss aus dem
         kivitendo-ERP-Basisverzeichnis heraus aufgerufen werden. Dieses Tool
         liest alle Datenbankupgradescripte aus dem Verzeichnis
         <filename>sql/Pg-upgrade2</filename> aus. Es benutzt dafür die
@@ -9165,20 +9157,20 @@ sub run {
 
         <itemizedlist>
           <listitem>
-            <para>Listenform: "<command>./scripts/dbupgrade2_tool.pl
-            --list</command>"</para>
+            <para>Listenform: <command>./scripts/dbupgrade2_tool.pl
+            --list</command></para>
 
             <para>Gibt eine Liste aller Scripte aus. Die Liste ist in der
             Reihenfolge sortiert, in der kivitendo die Scripte ausführen
-            würde. Es werden neben der Listenposition der Tag, die
-            Abhängigkeitstiefe und die Priorität ausgegeben.</para>
+            würde. Es werden neben der Listenposition der <varname>tag</varname>, die
+            Abhängigkeitstiefe und die <varname>priotity</varname> ausgegeben.</para>
           </listitem>
 
           <listitem>
-            <para>Baumform: "<command>./scripts/dbupgrade2_tool.pl
-            --tree</command>"</para>
+            <para>Baumform: <command>./scripts/dbupgrade2_tool.pl
+            --tree</command></para>
 
-            <para>Listet alle Tags in Baumform basierend auf den
+        <para>Listet jedes <varname>tag</varname> in Baumform basierend auf den
             Abhängigkeiten auf. Die "Wurzelknoten" sind dabei die Scripte, von
             denen keine anderen abhängen. Die Unterknoten sind Scripte, die
             beim übergeordneten Script als Abhängigkeit eingetragen
@@ -9186,10 +9178,10 @@ sub run {
           </listitem>
 
           <listitem id="db-upgrade-files.dbupgrade-tool.reverse-tree">
-            <para>Umgekehrte Baumform: "<command>./scripts/dbupgrade2_tool.pl
-            --rtree</command>"</para>
+            <para>Umgekehrte Baumform: <command>./scripts/dbupgrade2_tool.pl
+            --rtree</command></para>
 
-            <para>Listet alle Tags in Baumform basierend auf den
+        <para>Listet jedes <varname>tag</varname> in Baumform basierend auf den
             Abhängigkeiten auf. Die "Wurzelknoten" sind dabei die Scripte mit
             der geringsten Abhängigkeitstiefe. Die Unterknoten sind Scripte,
             die das übergeordnete Script als Abhängigkeit eingetragen
@@ -9198,14 +9190,14 @@ sub run {
 
           <listitem>
             <para>Baumform mit Postscriptausgabe:
-            "<command>./scripts/dbupgrade2_tool.pl
-            --graphviz</command>"</para>
+            <command>./scripts/dbupgrade2_tool.pl
+            --graphviz</command></para>
 
-            <para>Benötigt das Tool "<command>graphviz</command>", um mit
+            <para>Benötigt das Tool <command>graphviz</command>, um mit
             seiner Hilfe die <link
             linkend="db-upgrade-files.dbupgrade-tool.reverse-tree">umgekehrte
             Baumform</link> in eine Postscriptdatei namens
-            "<filename>db_dependencies.ps</filename>" auszugeben. Dies ist
+            <filename>db_dependencies.ps</filename> auszugeben. Dies ist
             vermutlich die übersichtlichste Form, weil hierbei jeder Knoten
             nur einmal ausgegeben wird. Bei den Textmodusbaumformen hingegen
             können Knoten und all ihre Abhängigkeiten mehrfach ausgegeben
@@ -9214,9 +9206,9 @@ sub run {
 
           <listitem>
             <para>Scripte, von denen kein anderes Script abhängt:
-            "<command>./scripts/dbupgrade2_tool.pl --nodeps</command>"</para>
+            <command>./scripts/dbupgrade2_tool.pl --nodeps</command></para>
 
-            <para>Listet die Tags aller Scripte auf, von denen keine anderen
+          <para>Listet jedes <varname>tag</varname> aller Scripte auf, von denen keine anderen
             Scripte abhängen.</para>
           </listitem>
         </itemizedlist>
@@ -9224,7 +9216,7 @@ sub run {
     </sect1>
 
     <sect1 id="translations-languages" xreflabel="Translations and languages">
-      <title>Translations and languages</title>
+      <title>Translations und languages</title>
 
       <sect2 id="translations-languages.introduction"
              xreflabel="Introduction to translations and languages">
@@ -9237,7 +9229,7 @@ sub run {
 
         <para>This section describes how localization packages in kivitendo
         are built. Currently the only language fully supported is German, and
-        since most of the internal messages are held in English the English
+        since most of the internal messages are held in English, the English
         version is usable too.</para>
       </sect2>
 
@@ -9257,7 +9249,7 @@ sub run {
 
         <programlisting>kivitendo/locale/&lt;langcode&gt;/</programlisting>
 
-        <para>where &lt;langcode&gt; stands for an abbreviation of the
+        <para>where <literal>&lt;langcode&gt;</literal> stands for an abbreviation of the
         language package. The builtin packages use two letter <ulink
         url="http://en.wikipedia.org/wiki/ISO_639-1">ISO 639-1</ulink> codes,
         but the actual name is not relevant for the program and can easily be
@@ -9304,10 +9296,10 @@ sub run {
               <programlisting>$ scripts/locales.pl en
 English - 0.6% - 2015/2028 missing</programlisting>
 
-              <para>A file named "<filename>missing</filename>" will be
+              <para>A file named <filename>missing</filename> will be
               generated and can be edited. You can also edit the
-              "<filename>all</filename>" file directly. Edit everything you
-              like to fit the target language and execute
+              <filename>all</filename> file directly. Edit everything you
+              would like to fit the target language and execute
               <command>locales.pl</command> again. See how the missing words
               get fewer.</para>
             </listitem>
@@ -9322,7 +9314,7 @@ English - 0.6% - 2015/2028 missing</programlisting>
               <literal>1523 =&gt; one thousand five hundred twenty
               three</literal>. If you want to provide it, it must be inlinable
               Perl code which provides a <function>num2text</function> sub. If
-              an <function>init</function> sub exists it will be executed
+              an <function>init</function> sub exists, it will be executed
               first.</para>
 
               <para>Only used in the check and receipt printing module.</para>
@@ -9345,7 +9337,7 @@ English - 0.6% - 2015/2028 missing</programlisting>
               interpolated, so <literal>\n</literal>, <literal>\x20</literal>
               and <literal>\\</literal> all work.</para>
 
-              <para>After that every entry is a special char that should be
+              <para>After that, every entry is a special char that should be
               translated when writing text into such a file.</para>
 
               <para>Example:</para>
@@ -9358,11 +9350,12 @@ order=&amp; &lt; &gt; \n
 \n=&lt;br&gt;</programlisting>
 
               <para>Note the importance of the order in this example.
-              Substituting &lt; and &gt; befor &amp; would lead to $gt; become
-              &amp;amp;gt;</para>
+              Substituting <literal>&lt;</literal> and <literal>&gt;</literal>
+              before <literal>&amp;</literal> would lead to <literal>$gt</literal>; become
+              <literal>&amp;amp;gt;</literal></para>
 
               <para>For a list of valid formats, see the German
-              <filename>special_chars</filename> entry. As of this writing the
+              <filename>special_chars</filename> entry. As of this writing, the
               following are recognized:</para>
 
               <programlisting>HTML
@@ -9377,8 +9370,8 @@ filenames</programlisting>
               a lot of characters are forbidden by some filesystems, for
               example MS Windows doesn't like ':' in its files where Linux
               doesn't mind that. If you want the files created with your
-              language pack to be portable, find all chars that could cause
-              trouble.</para>
+              language pack to be portable, restrict filenames to letters,
+              digits, underscores, and possibly hyphens.</para>
             </listitem>
           </varlistentry>
 
@@ -9391,7 +9384,7 @@ filenames</programlisting>
 
               <para>This is a file generated by
               <command>scripts/locales.pl</command> while processing your
-              locales. It's only to have the missing entries singled out and
+              locales. It exists only to have the missing entries singled out and
               does not belong to a language package.</para>
             </listitem>
           </varlistentry>
@@ -9421,12 +9414,12 @@ filenames</programlisting>
               <para>This subdir and file is not a part of the language package
               itself.</para>
 
-              <para>If the directory more exists and contains a file called
-              all it will be parsed in addition to the mandatory all (see
+            <para>If the directory <filename>more/</filename> exists and contains a file called
+            <filename>all</filename>, it will be parsed in addition to the mandatory <filename>all</filename> (see
               above). The file is useful if you want to change some
               translations for the current installation without conflicting
               further upgrades. The file is not autogenerated and has the same
-              format as the all, but needs another key (more_texts). See the
+            format as <filename>all</filename>, but needs another key (more_texts). See the
               german translation for an example or copy the following code:
               <programlisting>
 #!/usr/bin/perl
@@ -9491,8 +9484,8 @@ $self-&gt;{more_texts} = {
       <sect2 id="devel.testsuite.prerequisites">
         <title>Voraussetzungen</title>
 
-        <para>Für die Ausführung werden neben den für kivitendo eh schon
-        benötigten Module noch weitere Perl-Module benötigt. Diese
+        <para>Für die Ausführung werden neben den für kivitendo bereits zuvor
+        benötigten noch weitere Perl-Module benötigt. Diese
         sind:</para>
 
         <itemizedlist>
@@ -9573,7 +9566,7 @@ $self-&gt;{more_texts} = {
         <title>Existierende Tests ausführen</title>
 
         <para>Es gibt mehrere Möglichkeiten zum Ausführen der Tests: entweder,
-        man lässt alle Tests auf einmal ausführen, oder man führt gezielt
+        man lässt alle Tests auf einmal laufen, oder man führt gezielt
         einzelne Scripte aus. Für beide Fälle gibt es das Helferscript
         <filename>t/test.pl</filename>.</para>
 
@@ -9737,7 +9730,7 @@ Support::TestSetup::login();</programlisting>
           <literal>testing.login</literal> ein gültiger Login-Name eingetragen
           sein. Dieser wird für die Datenbankverbindung benötigt.</para>
 
-          <para>Wir keine vollständig initialisierte Umgebung benötigt, so
+          <para>Wird keine vollständig initialisierte Umgebung benötigt, so
           kann die letzte Zeile <programlisting>Support::TestSetup::login();</programlisting>
           weggelassen werden, was die Ausführungszeit des Scripts leicht
           verringert.</para>
@@ -9808,8 +9801,8 @@ Support::TestSetup::login();</programlisting>
         </listitem>
 
         <listitem>
-          <para>Die Wörter "<function>else</function>",
-          "<function>elsif</function>", "<function>while</function>" befinden
+          <para>Die Wörter <function>else</function>,
+          <function>elsif</function>, <function>while</function> befinden
           sich auf der gleichen Zeile wie schließende geschweifte Klammern.
           Beispiele:</para>
 
@@ -9975,15 +9968,15 @@ $some_hash{42}    = 54;</programlisting>
           Grund, nach <varname>STDERR</varname> zu schreiben.</para>
 
           <para>Die <classname>LXDebug</classname>-Methode
-          "<function>message</function>" nimmt als ersten Paramter außerdem
-          eine Flagmaske, für die die Meldung angezeigt wird, wobei "0" immer
+          <function>message</function> nimmt als ersten Parameter außerdem
+          eine Flagmaske, für die die Meldung angezeigt wird, wobei <literal>0</literal> immer
           angezeigt wird. Solche Meldungen sollten nicht eingecheckt werden
           und werden in den meisten Fällen auch vom Repository
           zurückgewiesen.</para>
         </listitem>
 
         <listitem>
-          <para>Alle neuen Module müssen use strict verwenden.</para>
+          <para>Alle neuen Module müssen <literal>use strict</literal> verwenden.</para>
 
           <para><varname>$form</varname>, <varname>$auth</varname>,
           <varname>$locale</varname>, <varname>$lxdebug</varname> und
@@ -10077,7 +10070,7 @@ unzip $HOME/Downloads/dobudish-nojre-1.1.4.zip</programlisting>
         <title>Einchecken in das Git-Repository</title>
 
         <para>Sowohl die XML-Datei als auch die erzeugten PDF- und
-        HTML-Dateien sind Bestandteil des Git-Repositories. Daraus folgt, dass
+        HTML-Dateien sind Bestandteil des <productname>Git</productname>-Repositories. Daraus folgt, dass
         nach Änderungen am XML die PDF- und HTML-Dokumente ebenfalls gebaut
         und alles zusammen in einem Commit eingecheckt werden sollten.</para>
 

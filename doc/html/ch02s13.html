@@ -44,7 +44,7 @@
                            <code class="filename">firma/ident.tex</code> Mandant*innenspezifische Konfiguration, Adressdaten</p></li><li class="listitem"><p>
                            <code class="filename">firma/$währungskürzel_account.tex</code>
                         </p></li></ul></div><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-                        <code class="filename">insettings.tex</code> :</p></li><li class="listitem"><p>Sprache/Übersetzungen.\\Es muss mindestens eine Sprache angelegt werden!        </p><pre class="programlisting">
+                        <code class="filename">insettings.tex</code> :</p></li><li class="listitem"><p>Sprache/Übersetzungen. Es muss mindestens eine Sprache angelegt werden!        </p><pre class="programlisting">
         \item[deutsch.tex] Textschnipsel für Deutsch\\
                               Dafür eine Sprache mit Vorlagenkürzel DE anlegen
         \item[english.tex] Textschnipsel für Englisch\\
@@ -54,38 +54,38 @@
     der Dokumentenklasse <code class="filename">scrartcl.cls</code> basieren und
     das Paket <code class="filename">kiviletter.sty</code> benutzen.</p><p>Mandant*innenspezifische Konfiguration findet sich in der Datei <code class="filename">insettings.tex</code> und
     dem Ordner eines spezifischen Mandant*innen (default=*firma/*).</p></div><div class="sect3" title="2.13.2.3. Mandant*innen / Firma"><div class="titlepage"><div><div><h4 class="title"><a name="Mandant*innen / Firma"></a>2.13.2.3. Mandant*innen / Firma</h4></div></div></div><p>Um gleiche Vorlagen für verschiedene Firmen verwenden zu können, wird je
-    nach dem Wert der Kivitendo-Variablen \kivivar{kivicompany} ein
+    nach dem Wert der Kivitendo-Variablen <code class="varname">\kivivar{kivicompany}</code> ein
     Firmenverzeichnis ausgewählt (siehe <code class="filename">insettings.tex</code>), in dem Briefkopf,
     Identitäten und Währungs-/Kontoeinstellungen hinterlegt sind.
-    \kivivar{kivicompany} enthält den Namen des verwendeten Mandant*innendaten.
+    <code class="varname">\kivivar{kivicompany}</code> enthält den Namen des verwendeten Mandant*innendaten.
     Ist kein Firmenname eingetragen, so wird das
     generische Unterverzeichnis *firma* verwendet.</p></div><div class="sect3" title="2.13.2.4. Identitäten"><div class="titlepage"><div><div><h4 class="title"><a name="Identit%C3%A4ten"></a>2.13.2.4. Identitäten</h4></div></div></div><p>In jedem Firmen-Unterverzeichnis soll eine Datei <code class="filename">ident.tex</code>
-    vorhanden sein, die mit |\newcommand| Werte für |\telefon|, |\fax|,
-    |\firma|, |\strasse|, |\ort|, |\ustid|, |\email| und |\homepage| definiert.</p></div><div class="sect3" title="2.13.2.5. Währungen/Konten"><div class="titlepage"><div><div><h4 class="title"><a name="W%C3%A4hrungen/Konten"></a>2.13.2.5. Währungen/Konten</h4></div></div></div><p>Für jede Währung (siehe <code class="filename">insettings.tex</code>) soll eine Datei vorhanden
-    sein, die das Währungssymbol (|\currency|) und folgende Angaben für
-    ein Konto in dieser Währung enthält |\kontonummer|, |\bank|,
-    |\bankleitzahl|, |\bic| und |\iban|.
+      vorhanden sein, die mit <code class="literal">\newcommand</code> Werte für <code class="literal">\telefon</code>, <code class="literal">\fax</code>,
+      <code class="literal">\firma</code>, <code class="literal">\strasse</code>, <code class="literal">\ort</code>, <code class="literal">\ustid</code>, <code class="literal">\email</code> und <code class="literal">\homepage</code> definiert.</p></div><div class="sect3" title="2.13.2.5. Währungen/Konten"><div class="titlepage"><div><div><h4 class="title"><a name="W%C3%A4hrungen/Konten"></a>2.13.2.5. Währungen/Konten</h4></div></div></div><p>Für jede Währung (siehe <code class="filename">insettings.tex</code>) soll eine Datei vorhanden
+    sein, die das Währungssymbol (<code class="literal">\currency</code>) und folgende Angaben für
+    ein Konto in dieser Währung enthält <code class="literal">\kontonummer</code>, <code class="literal">\bank</code>,
+    <code class="literal">\bankleitzahl</code>, <code class="literal">\bic</code> und <code class="literal">\iban</code>.
     So kann in den Dokumenten je nach Währung ein anderes Konto
     angegeben werden.
     Nach demselben Schema können auch weitere, alternative Bankverbindungen
     angelegt werden, die dann in <code class="filename">insettings.tex</code> als Variable in der Fußzeile eingefügt werden.</p><p>Als Fallback (falls kivitendo keine Währung an das Druckvorlagen-System übergibt)
     ist Euro eingestellt. Dies lässt sich in der <code class="filename">insettings.tex</code> über das optionale Argument
-    von |\setupCurrencyConfig| anpassen, z.B.</p><pre class="programlisting">
+    von <code class="literal">\setupCurrencyConfig</code> anpassen, z.B.</p><pre class="programlisting">
     \setupCurrencyConfig[chf]{\identpath}{\lxcurrency}</pre><p>für Schweizer Franken als Standardwährung.</p></div><div class="sect3" title="2.13.2.6. Briefbogen/Logos"><div class="titlepage"><div><div><h4 class="title"><a name="Briefbogen/Logos"></a>2.13.2.6. Briefbogen/Logos</h4></div></div></div><p>Eine Hintergrundgrafik oder ein Logo kann in Abhängigkeit vom
     Medium (z.B. nur beim Verschicken mit E-Mail) eingebunden
     werden.</p><p>Desweiteren sind (auskommentierte) Beispiele enthalten für eine
     Grafik als Briefkopf, nur ein Logo, oder ein komplettes A4-PDF
-    als Briefpapier.</p><p>Absolute Positionierung innerhalb des Brief-Layouts ist über die entsprechende Dokumentation des scrlayer-Paketes möglich.
+    als Briefpapier.</p><p>Absolute Positionierung innerhalb des Brief-Layouts ist über die entsprechende Dokumentation des <code class="literal">scrlayer</code>-Paketes möglich.
     Da die Voreinstellungen bereits einige Sonderfälle automatisch berücksichtigen ist mit den Anpassungen Vorsicht geboten.
-    Sämtliche Einstellungen sollten jedoch außerhalb der *.sty-Dateien vorgenommen werden.
+  Sämtliche Einstellungen sollten jedoch außerhalb der <code class="filename">.sty</code>-Dateien vorgenommen werden.
     Anpassungen der <code class="filename">insettings.tex</code> betreffen hierbei alle Mandant*innen. Spezifischere Einstellungen sind über die zugehörige Konfigurationsdatei (<code class="filename">ident.tex</code>) möglich.
     In diesem Fall kann zum Ende der insettings eine weitere Konfigurationsdatei über die Verwendung von |\identpath| geladen werden. Ein Beispiel ist in der <code class="filename">insettings.tex</code> enthalten.</p></div><div class="sect3" title="2.13.2.7. Fußzeile"><div class="titlepage"><div><div><h4 class="title"><a name="Fu%C3%9Fzeile"></a>2.13.2.7. Fußzeile</h4></div></div></div><p>Die Tabelle im Fuß verwendet die Angaben aus <code class="filename">firma/ident.tex</code> und
     *firma/<code class="filename">\_account.tex</code>. Ihre Struktur wird in der <code class="filename">insettings.tex</code> definiert.
-    Sie kann anschließend auch Mandant*innenspezifisch überschrieben werden.</p></div><div class="sect3" title="2.13.2.8. Seitenstil/Basislayout"><div class="titlepage"><div><div><h4 class="title"><a name="Seitenstil/Basislayout"></a>2.13.2.8. Seitenstil/Basislayout</h4></div></div></div><p>Das Seitenlayout wird über \pck{scrlayer-scrpage} bestimmt. Die ausführliche Dokumentation findet sich in \cite{scrguide}.
-    Es existieren in der Datei <code class="filename">insettings.tex</code> einige Hinweise zu den Anpassungen. Die Basiskonfiguration ist ebenfalls dort eingetragen.</p><p>Neben den in Abschnitt \ref{sec:options}  beschriebenen Optionen zum Abschalten der Fußzeile kann
-    der Inhalt der Fußzeile über die \pck{scrlayer-scrpage} Makros, wie</p><pre class="programlisting">
+    Sie kann anschließend auch Mandant*innenspezifisch überschrieben werden.</p></div><div class="sect3" title="2.13.2.8. Seitenstil/Basislayout"><div class="titlepage"><div><div><h4 class="title"><a name="Seitenstil/Basislayout"></a>2.13.2.8. Seitenstil/Basislayout</h4></div></div></div><p>Das Seitenlayout wird über <code class="literal">pck{scrlayer-scrpage</code> bestimmt. Die ausführliche Dokumentation findet sich in <code class="literal">cite{scrguide</code>.
+    Es existieren in der Datei <code class="filename">insettings.tex</code> einige Hinweise zu den Anpassungen. Die Basiskonfiguration ist ebenfalls dort eingetragen.</p><p>Neben den in Abschnitt <code class="literal">ref{sec:options</code>  beschriebenen Optionen zum Abschalten der Fußzeile kann
+    der Inhalt der Fußzeile über die <code class="literal">pck{scrlayer-scrpage</code> Makros, wie</p><pre class="programlisting">
       \cfoot[|\meta{Inhalt auf der ersten Briefseite}|]{|\meta{Inhalt auf folgenden Briefseiten}|}    </pre><p>geändert werden.</p><p>Die Kopfzeile unterscheidet sich von Dokumententyp zu Dokumententyp leicht, da diese über Datenbankvariablen befüllt wird.
-    Hierfür wird das Makro |\ourhead| in der <code class="filename">insettings.tex</code> definiert.</p><pre class="programlisting">
+    Hierfür wird das Makro <code class="literal">\ourhead</code> in der <code class="filename">insettings.tex</code> definiert.</p><pre class="programlisting">
       \DescribeMacro{\ourhead}\marg{Bezeichner}\marg{Eintrag}\marg{Titel}\marg{Nummer}\marg{Datum}    </pre><p>Diese Definition kann ebenfalls über die <code class="filename">insettings.tex</code> angepasst oder auch nachträglich überschrieben werden:</p><pre class="programlisting">
       \newcommand{\ourhead}[5] {%
         \chead{%
@@ -117,7 +117,7 @@
       \smallskip
       Erzeugt mit dem Aufruf
       \ourhead{arg1}{arg2}{arg3}{arg4}{arg5}
-      \endgroup    </pre></div><div class="sect3" title="2.13.2.9. Absenderergänzung"><div class="titlepage"><div><div><h4 class="title"><a name="Absendererg%C3%A4nzung"></a>2.13.2.9. Absenderergänzung</h4></div></div></div><p>Die Absenderergänzung wird über die Variable |location| in der |kiviletter.sty| folgendermaßen belegt:</p><pre class="programlisting">
+      \endgroup    </pre></div><div class="sect3" title="2.13.2.9. Absenderergänzung"><div class="titlepage"><div><div><h4 class="title"><a name="Absendererg%C3%A4nzung"></a>2.13.2.9. Absenderergänzung</h4></div></div></div><p>Die Absenderergänzung wird über die Variable <code class="literal">location</code> in der <code class="filename">kiviletter.sty</code> folgendermaßen belegt:</p><pre class="programlisting">
       \setkomavar{location}{
         \Ifkomavarempty{transaction}{}{{
               \usekomafont{transaction}
@@ -141,32 +141,32 @@
           \locationentry*{fromemail}
         }
       }    </pre><p>Um die Reihenfolge der Variablenausgabe zu verändern, kann diese Definition als Basis in
-    die <code class="filename">insettings.tex</code> oder <code class="filename">ident.tex</code> (Falls nur für eine Firma) kopiert und dort entsprechend modifiziert werden.</p><p>Das Vorgehen geht für alle vorbelegten Variablen analog.</p></div><div class="sect3" title="2.13.2.10. Allgemeine TeXnische Hinweise"><div class="titlepage"><div><div><h4 class="title"><a name="Allgemeine TeXnische Hinweise"></a>2.13.2.10. Allgemeine TeXnische Hinweise</h4></div></div></div><div class="sect4" title="2.13.2.10.1. Änderung der Basisschriftart"><div class="titlepage"><div><div><h5 class="title"><a name="%C3%84nderung der Basisschriftart"></a>2.13.2.10.1. Änderung der Basisschriftart</h5></div></div></div><p>\LaTeX{} kann grundsätzlich beliebige Schriftarten verwenden. Hierfür sollte allerdings immer darauf geachtet werden,
+    die <code class="filename">insettings.tex</code> oder <code class="filename">ident.tex</code> (Falls nur für eine Firma) kopiert und dort entsprechend modifiziert werden.</p><p>Das Vorgehen geht für alle vorbelegten Variablen analog.</p></div><div class="sect3" title="2.13.2.10. Allgemeine TeXnische Hinweise"><div class="titlepage"><div><div><h4 class="title"><a name="Allgemeine TeXnische Hinweise"></a>2.13.2.10. Allgemeine TeXnische Hinweise</h4></div></div></div><div class="sect4" title="2.13.2.10.1. Änderung der Basisschriftart"><div class="titlepage"><div><div><h5 class="title"><a name="%C3%84nderung der Basisschriftart"></a>2.13.2.10.1. Änderung der Basisschriftart</h5></div></div></div><p>&gt;LaTeX kann grundsätzlich beliebige Schriftarten verwenden. Hierfür sollte allerdings immer darauf geachtet werden,
     dass die Lizenz der Schriftart das einbetten von Glyphen erlaubt. Dies liegt in der Verantwortung der Anwender*innen.
     Darüber hinaus ist wichtig, welches Kompilierungsprogramm verwendet werden muss. Um TrueType oder OpenType Schriftarten
-    zu nutzen sollte |lualatex| verwendet werden. Bei Type1 Schriftarten, die speziell für \LaTeX{} installiert wurden, ist pdfLaTeX möglich.
-    Da man heutzutage nur noch moderne Schriftformate Verwenden sollte, wird hier lediglich die Variante für |lualatex| aufgelistet.</p><p>Die Konfiguration läuft hierbei über das \pck{fontspec} Paket (Doku siehe \cite{fontspec}).
+    zu nutzen, sollte <code class="literal">lualatex</code> verwendet werden. Bei Type1 Schriftarten, die speziell für LaTeX installiert wurden, ist pdfLaTeX möglich.
+    Da man heutzutage nur noch moderne Schriftformate Verwenden sollte, wird hier lediglich die Variante für |lualatex| aufgelistet.</p><p>Die Konfiguration läuft hierbei über das <code class="literal">pck{fontspec</code> Paket (Doku siehe <code class="literal">cite{fontspec</code>).
     Dann hängt es davon ab, ob die Basisschriftart eine Serifenschriftart ist oder nicht.
     In jedem Fall wird die Änderung entweder in der <code class="filename">insettings.tex</code>, sofern sie für alle
-    Mandant*innen gelten soll oder in der Mantant*innenspezifischen Konfigurationsdatei gsesetzt.</p><div class="sect5" title="2.13.2.10.1.1. Änderung, falls es ein Schriftpaket gibt"><div class="titlepage"><div><div><h6 class="title"><a name="d0e2805"></a>2.13.2.10.1.1. Änderung, falls es ein Schriftpaket gibt</h6></div></div></div><p>Wenn möglich sollte die Schriftart über ein entsprechendes Konfigurationspaket gesetzt werden.
-        Ob ein solches existiert kann man sehr leicht über eine Suche nach dem Namen unter \url{ctan.org} herausfinden.</p></div><div class="sect5" title="2.13.2.10.1.2. Änderung der Basisschriftart auf eine Schriftart mit Serifen"><div class="titlepage"><div><div><h6 class="title"><a name="d0e2810"></a>2.13.2.10.1.2. Änderung der Basisschriftart auf eine Schriftart mit Serifen</h6></div></div></div><pre class="programlisting">
-      \setmainfont{|\meta{Name der Schriftart, z.B. SourceSerifPro}|}    </pre></div><div class="sect5" title="2.13.2.10.1.3. Änderung der Basisschriftart auf eine Schriftart ohne Serifen"><div class="titlepage"><div><div><h6 class="title"><a name="d0e2815"></a>2.13.2.10.1.3. Änderung der Basisschriftart auf eine Schriftart ohne Serifen</h6></div></div></div><pre class="programlisting">
+    Mandant*innen gelten soll oder in der mandant*innenspezifischen Konfigurationsdatei gsesetzt.</p><div class="sect5" title="2.13.2.10.1.1. Änderung, falls es ein Schriftpaket gibt"><div class="titlepage"><div><div><h6 class="title"><a name="d0e2911"></a>2.13.2.10.1.1. Änderung, falls es ein Schriftpaket gibt</h6></div></div></div><p>Wenn möglich sollte die Schriftart über ein entsprechendes Konfigurationspaket gesetzt werden.
+        Ob ein solches existiert, kann man sehr leicht über eine Suche nach dem Namen unter <a class="ulink" href="ctan.org" target="_top">ctan.org</a> herausfinden.</p></div><div class="sect5" title="2.13.2.10.1.2. Änderung der Basisschriftart auf eine Schriftart mit Serifen"><div class="titlepage"><div><div><h6 class="title"><a name="d0e2919"></a>2.13.2.10.1.2. Änderung der Basisschriftart auf eine Schriftart mit Serifen</h6></div></div></div><pre class="programlisting">
+      \setmainfont{|\meta{Name der Schriftart, z.B. SourceSerifPro}|}    </pre></div><div class="sect5" title="2.13.2.10.1.3. Änderung der Basisschriftart auf eine Schriftart ohne Serifen"><div class="titlepage"><div><div><h6 class="title"><a name="d0e2924"></a>2.13.2.10.1.3. Änderung der Basisschriftart auf eine Schriftart ohne Serifen</h6></div></div></div><pre class="programlisting">
       \setsansfont{|\meta{Name der Schriftart, z.B. SourceSansPro}|}
       \renewcommand*{\familydefault}{\sfdefault}    </pre></div></div><div class="sect4" title="2.13.2.10.2. Unterscheidungen durch String-Vergleich"><div class="titlepage"><div><div><h5 class="title"><a name="Unterscheidungen durch String-Vergleich"></a>2.13.2.10.2. Unterscheidungen durch String-Vergleich</h5></div></div></div><pre class="programlisting">
     \Ifstr{\lxmedia}{printer}{Falls gedruckt werden soll} {sonst}    </pre></div></div></div><div class="sect2" title="2.13.3. Der Druckvorlagensatz RB"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-RB"></a>2.13.3. Der Druckvorlagensatz RB</h3></div></div></div><p>Hierbei handelt es sich um einen vollständigen LaTeX
-        Dokumentensatz mit alternativem Design. Die odt oder html-Varianten
+        Dokumentensatz mit alternativem Design. Die ODT- oder HTML-Varianten
         sind nicht gepflegt.</p><p>Die konzeptionelle Idee der Vorlagen wird <a class="ulink" href="http://www.kivitendo-support.de/vortraege/Lx-Office%20Anwendertreffen%20LaTeX-Druckvorlagen-Teil3-finale.pdf" target="_top">hier</a>
         auf Folie 5 bis 10 vorgestellt. Informationen zur Anpassung an die
-        eigenen Firmendaten finden sich in der Datei Readme.tex im
+        eigenen Firmendaten finden sich in der Datei <code class="filename">Readme.tex</code> im
         Vorlagenverzeichnis.</p><p>Eine kurze Übersicht der Features:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Mehrsprachenfähig, mit Deutscher und Englischer
             Übersetzung</p></li><li class="listitem"><p>Zentrale Konfigurationsdateien, die für alle Belege benutzt
             werden, z.B. für Kopf- und Fußzeilen, und Infos wie
             Bankdaten</p></li><li class="listitem"><p>mehrere vordefinierte Varianten für
             Logos/Hintergrundbilder</p></li><li class="listitem"><p>Berücksichtigung für Steuerzonen "EU mit USt-ID Nummer" oder
             "Außerhalb EU"</p></li></ul></div></div><div class="sect2" title="2.13.4. Der Druckvorlagensatz rev-odt"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-rev-odt"></a>2.13.4. Der Druckvorlagensatz rev-odt</h3></div></div></div><p>Hierbei handelt es sich um einen Dokumentensatz der mit
-        odt-Vorlagen erstellt wurde. Es gibt in dem Verzeichnis eine
+        ODT-Vorlagen erstellt wurde. Es gibt in dem Verzeichnis eine
         Readme-Datei, die eventuell aktueller als die Dokumentation hier ist.
-        Die odt-Vorlagen in diesem Verzeichnis "rev-odt" wurden von revamp-it,
+        Die odt-Vorlagen in diesem Verzeichnis <code class="filename">rev-odt</code> wurden von revamp-it,
         Zürich erstellt und werden laufend aktualisiert. Ein paar der
         Formulierungen in den Druckvorlagen entsprechen dem Schweizer
         Sprachgebrauch, z.B. "Offerte" oder "allfällig".</p><p>Hinweis zum Einsatz des Feldes "Land" bei den Stammdaten für
@@ -174,31 +174,34 @@
         Vorlagensatz vorhandenen Vorlagen erwarten für "Land" das
         entsprechende Kürzel, das in Adressen vor die Postleitzahl gesetzt
         wird. Das Feld kann auch komplett leer bleiben. Wer dies anders
-        handhaben möchte, muss die Vorlagen entsprechend anpassen.</p><p>odt-Vorlagen können mit LibreOffice oder OpenOffice editiert und
+        handhaben möchte, muss die Vorlagen entsprechend anpassen.</p><p>ODT-Vorlagen können mit LibreOffice oder OpenOffice editiert und
         den eigenen Bedürfnissen angepasst werden. Wichtig beim Editieren von
-        if-Blöcken ist, dass immer der gesamte Block überschrieben werden muss
-        und nicht nur Teile davon, da dies sonst oft zu einer odt-Datei führt,
+        <code class="literal">if</code>-Blöcken ist, dass immer der gesamte Block überschrieben werden muss
+        und nicht nur Teile davon, da dies sonst oft zu einer ODT-Datei führt,
         die vom Parser nicht korrekt gelesen werden kann.</p><p>Mahnungen können unter folgenden Einschränkungen mit den
-        odt-Vorlagen im Vorlagensatz rev-odt erzeugt werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>als Druckoption steht nur 'PDF(OpenDocument/OASIS)' zur
-            Verfügung, das heisst, die Mahnungen werden als PDF-Datei
+        ODT-Vorlagen im Vorlagensatz <code class="literal">rev-odt</code> erzeugt werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>als Druckoption steht nur 'PDF(OpenDocument/OASIS)' zur
+            Verfügung, das heißt, die Mahnungen werden als PDF-Datei
             ausgegeben.</p></li><li class="listitem"><p>für jede Rechnung muss eine eigene Mahnung erzeugt werden
             (auch wenn bei einzelnen KundInnen mehrere überfällige Rechnungen
             vorhanden sind).</p></li></ul></div><p>Mehrere Mahnungen für eine Kundin / einen Kunden werden zu einer
-        PDF-Datei zusammengefasst</p><p>Die Vorlagen zahlungserinnerung.odt sowie mahnung.odt sind für
+        PDF-Datei zusammengefasst</p><p>Die Vorlagen <code class="filename">zahlungserinnerung.odt</code> sowie <code class="filename">mahnung.odt</code> sind für
         das Erstellen einer Zahlungserinnerung bzw. Mahnung selbst vorgesehen,
-        die Vorlage mahnung_invoice.odt für das Erstellen einer Rechnung über
+        die Vorlage <code class="filename">mahnung_invoice.odt</code> für das Erstellen einer Rechnung über
         die verrechneten Mahngebühren und Verzugszinsen.</p><p>Zur Zeit gibt es in kivitendo noch keine Möglichkeit,
-        odt-Vorlagen bei Briefen und Pflichtenheften einzusetzen.
+        ODT-Vorlagen bei Briefen und Pflichtenheften einzusetzen.
         Entsprechende Vorlagen sind deshalb nicht vorhanden.</p><p>Fehlermeldungen, Anregungen und Wünsche bitte senden an:
-        empfang@revamp-it.ch</p></div><div class="sect2" title="2.13.5. Allgemeine Hinweise zu LaTeX Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="allgemeine-hinweise-zu-latex"></a>2.13.5. Allgemeine Hinweise zu LaTeX Vorlagen</h3></div></div></div><p>In den allermeisten Installationen sollte das Drucken jetzt
+        <code class="email">&lt;<a class="email" href="mailto:empfang@revamp-it.ch">empfang@revamp-it.ch</a>&gt;</code>
+            </p></div><div class="sect2" title="2.13.5. Allgemeine Hinweise zu LaTeX Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="allgemeine-hinweise-zu-latex"></a>2.13.5. Allgemeine Hinweise zu LaTeX Vorlagen</h3></div></div></div><p>In den allermeisten Installationen sollte das Drucken jetzt
         schon funktionieren. Sollte ein Fehler auftreten, wirft TeX sehr lange
         Fehlerbeschreibungen, der eigentliche Fehler ist immer die erste
         Zeile, die mit einem Ausrufezeichen anfängt. Häufig auftretende Fehler
-        sind zum Beispiel:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>! LaTeX Error: File `eurosym.sty' not found. Die
+        sind zum Beispiel:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     <code class="literal">! LaTeX Error: File `eurosym.sty' not found.</code> Die
             entsprechende LaTeX-Bibliothek wurde nicht gefunden. Das tritt vor
             allem bei Vorlagen aus der Community auf. Installieren Sie die
-            entsprechenden Pakete.</p></li><li class="listitem"><p>! Package inputenc Error: Unicode char \u8:... set up for
-            use with LaTeX. Dieser Fehler tritt auf, wenn sie versuchen mit
+            entsprechenden Pakete.</p></li><li class="listitem"><p>
+                     <code class="literal">! Package inputenc Error: Unicode char \u8:... set up for
+            use with LaTeX.</code> Dieser Fehler tritt auf, wenn sie versuchen mit
             einer Standardinstallation exotische utf8 Zeichen zu drucken.
             TeXLive unterstützt von Haus nur romanische Schriften und muss mit
             diversen Tricks dazu gebracht werden andere Zeichen zu
@@ -207,12 +210,12 @@
         Templates, heißt das normalerweise, dass das LaTeX Binary nicht
         gefunden wurde. Prüfen Sie den Namen in der Konfiguration (Standard:
         <code class="literal">latexmk --pdflatex</code>), und stellen Sie sicher, dass
-        latexmk (oder das von Ihnen verwendete System) vom Webserver ausgeführt
+        <code class="filename">latexmk</code> (oder das von Ihnen verwendete System) vom Webserver ausgeführt
         werden darf.</p><p>Wenn sich das Problem nicht auf Grund der Ausgabe im Webbrowser
-        verifizieren lässt:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>editiere [kivitendo-home]/config/kivitendo.conf und ändere
-            "keep_temp_files" auf 1</p><p>
+        verifizieren lässt:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>editiere <code class="filename">[kivitendo-home]/config/kivitendo.conf</code> und ändere</p><p>
                      </p><pre class="programlisting">keep_temp_files = 1;</pre><p>
-                  </p></li><li class="listitem"><p>bei fastcgi oder mod_perl den Webserver neu Starten</p></li><li class="listitem"><p>Nochmal einen Druckversuch im Webfrontend auslösen</p></li><li class="listitem"><p>wechsel in das users Verzeichnis von kivitendo</p><p>
+                  </p></li><li class="listitem"><p>bei <code class="literal">fastcgi</code> oder <code class="literal">mod_perl</code> den Webserver neu Starten</p></li><li class="listitem"><p>Nochmal einen Druckversuch im Webfrontend auslösen</p></li><li class="listitem"><p>wechsel in das Verzeichnis von <code class="filename">[kivitendo-home]/users</code>
+                  </p><p>
                      </p><pre class="programlisting">cd [kivitendo-home]/users</pre><p>
                   </p></li><li class="listitem"><p>LaTeX Suchpfad anpassen:</p><p>
                      </p><pre class="programlisting">export TEXINPUTS=".:[kivitendo-home]/templates/[aktuelles_template_verzeichniss]:"</pre><p>

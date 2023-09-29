@@ -84,7 +84,7 @@
                   </span></dt><dd><p>Mahnung (Dateiname im Programm konfigurierbar)</p></dd><dt><span class="term">
                      <code class="filename">zahlungserinnerung_invoice.ext</code>
                   </span></dt><dd><p>Rechnung über Mahngebühren (Dateiname im Programm
-              konfigurierbar)</p></dd></dl></div></div><div class="sect2" title="3.3.6. Sprache, Drucker und E-Mail"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.dateinamen-erweitert"></a>3.3.6. Sprache, Drucker und E-Mail</h3></div></div></div><p>Angeforderte Sprache und Druckerkürzel in den Dateinamen mit
+              konfigurierbar)</p></dd></dl></div></div><div class="sect2" title="3.3.6. Sprache, Drucker und E-Mail"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.dateinamen-erweitert"></a>3.3.6. Sprache, Drucker und E-Mail</h3></div></div></div><p>Angeforderte Sprache und Druckerkürzel sind in den Dateinamen mit
         eingearbeitet. So wird aus der Vorlage
         <code class="filename">sales_order.ext</code> bei Sprache
         <code class="function">de</code> und Druckerkürzel <code class="function">lpr2</code>
@@ -108,7 +108,7 @@
                   </p></li></ol></div><p>Die kurzen Varianten dieser Vorlagentitel müssen dann entweder
         Standardwerte anzeigen, oder die angeforderten Werte selbst auswerten,
         siehe dazu <a class="xref" href="ch03s03.html#dokumentenvorlagen-und-variablen.allgemeine-variablen.meta" title="3.3.7.1. Metainformationen zur angeforderten Vorlage">Metainformationen zur angeforderten Vorlage</a>.</p></div><div class="sect2" title="3.3.7. Allgemeine Variablen, die in allen Vorlagen vorhanden sind"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.allgemeine-variablen"></a>3.3.7. Allgemeine Variablen, die in allen Vorlagen vorhanden
-        sind</h3></div></div></div><div class="sect3" title="3.3.7.1. Metainformationen zur angeforderten Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.allgemeine-variablen.meta"></a>3.3.7.1. Metainformationen zur angeforderten Vorlage</h4></div></div></div><p>Diese Variablen liefern Informationen darüber welche Variante
+        sind</h3></div></div></div><div class="sect3" title="3.3.7.1. Metainformationen zur angeforderten Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.allgemeine-variablen.meta"></a>3.3.7.1. Metainformationen zur angeforderten Vorlage</h4></div></div></div><p>Diese Variablen liefern Informationen darüber, welche Variante
           einer Vorlage der Benutzer angefragt hat. Sie sind nützlich für
           Vorlagenautoren, die aus einer zentralen Layoutvorlage die einzelnen
           Formulare einbinden möchten.</p><div class="variablelist"><dl><dt><span class="term">
@@ -121,7 +121,7 @@
                      </span></dt><dd><p>Beschreibung der verwendeten Sprache</p></dd><dt><span class="term">
                         <code class="varname">template_meta.language.template_code</code>
                      </span></dt><dd><p>Vorlagenkürzel der verwendeten Sprache, identisch mit
-                dem Kürzel das im Dateinamen verwendetet wird.</p></dd><dt><span class="term">
+                dem Kürzel, das im Dateinamen verwendetet wird.</p></dd><dt><span class="term">
                         <code class="varname">template_meta.language.output_numberformat</code>
                      </span></dt><dd><p>Zahlenformat der verwendeten Sprache in der Form
                 "<code class="constant">1.000,00</code>". Experimentell! Nur
@@ -152,7 +152,7 @@
                      </span></dt><dd><p>Beschreibung des ausgewählten Druckers</p></dd><dt><span class="term">
                         <code class="varname">template_meta.printer.template_code</code>
                      </span></dt><dd><p>Vorlagenürzel des ausgewählten Druckers, identisch mit
-                dem Kürzel das im Dateinamen verwendetet wird.</p></dd><dt><span class="term">
+                dem Kürzel, das im Dateinamen verwendetet wird.</p></dd><dt><span class="term">
                         <code class="varname">template_meta.tmpfile</code>
                      </span></dt><dd><p>Datei-Prefix für temporäre Dateien.</p></dd></dl></div></div><div class="sect3" title="3.3.7.2. Stammdaten von Kunden und Lieferanten"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.allgemeine-variablen.kunden-lieferanten"></a>3.3.7.2. Stammdaten von Kunden und Lieferanten</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
                         <code class="varname">account_number</code>
@@ -421,7 +421,7 @@
                      </span></dt><dd><p>Vorgangsbezeichnung</p></dd><dt><span class="term">
                         <code class="varname">transdate</code>
                      </span></dt><dd><p>Auftragsdatum wenn die Rechnung aus einem Auftrag
-                erstellt wurde</p></dd></dl></div></div><div class="sect3" title="3.3.8.2. Variablen für die schweizer QR-Rechnung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5775"></a>3.3.8.2. Variablen für die schweizer QR-Rechnung</h4></div></div></div><p>Diese Variablen können mit dem LaTeX Modul qrbill verwendet
+                erstellt wurde</p></dd></dl></div></div><div class="sect3" title="3.3.8.2. Variablen für die schweizer QR-Rechnung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5953"></a>3.3.8.2. Variablen für die schweizer QR-Rechnung</h4></div></div></div><p>Diese Variablen können mit dem LaTeX Modul qrbill verwendet
           werden: <a class="ulink" href="https://ctan.org/pkg/qrbill?lang=de" target="_top">https://ctan.org/pkg/qrbill?lang=de</a>
                </p><p>Für die Erstellung von QR-Rechnungen mit OpenDocument Vorlagen
           siehe: <a class="xref" href="ch02s14.html" title="2.14. OpenDocument-Vorlagen">Abschnitt&nbsp;2.14, „OpenDocument-Vorlagen“</a>
@@ -670,7 +670,7 @@
                         <code class="varname">invdate</code>
                      </span></dt><dd><p>Rechnungsdatum</p></dd><dt><span class="term">
                         <code class="varname">invnumber</code>
-                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6719"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
+                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6897"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
           Rechnung. Allerdings heißen die Variablen, die mit
           <code class="varname">inv</code> beginnen, jetzt anders. Bei den Angeboten
           fangen sie mit <code class="varname">quo</code> für "quotation" an:
