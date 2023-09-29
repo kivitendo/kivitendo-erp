@@ -245,13 +245,7 @@ sub init_available_documents_with_no_positions {
   # normal delivery orders are not yet handeld by new controller code
   @docs = grep { $_ ne 'sales_delivery_order' && $_ ne 'purchase_delivery_order' } @docs;
 
-  # $::form->get_formname_translation does not distinguish between sales and purchase
-  @docs = grep { $_ ne 'sales_reclamation' && $_ ne 'purchase_reclamation' } @docs;
-
   my @available_docs = map { {name => $_, description => $::form->get_formname_translation($_)} } @docs;
-
-  push @available_docs, {name => 'sales_reclamation',    description => t8('Sales Reclamation')};
-  push @available_docs, {name => 'purchase_reclamation', description => t8('Purchase Reclamation')};
 
   return \@available_docs;
 }
