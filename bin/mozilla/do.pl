@@ -1145,6 +1145,7 @@ sub invoice_from_delivery_order_controller {
   my $delivery_order = SL::DB::DeliveryOrder->new(id => $from_id)->load;
 
   $delivery_order->flatten_to_form($form, format_amounts => 1);
+  $form->{rowcount}++;
 
   &invoice;
   $main::lxdebug->leave_sub();
