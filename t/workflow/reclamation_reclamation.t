@@ -177,7 +177,7 @@ my @converted_sales_reclamation_items    = @{$converted_sales_reclamation->items
 my @different_record_values = qw(
   record_type customer_id vendor_id
   id record_number transaction_description employee_id
-  itime mtime
+  transdate itime mtime
 );
 
 my @different_record_item_values = qw(

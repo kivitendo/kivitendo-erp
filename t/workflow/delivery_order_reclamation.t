@@ -278,7 +278,7 @@ is_deeply($linked_purchase_reclamation->strip->as_tree, $purchase_reclamation->l
 
 ## converted should be nearly the same
 my @different_record_values = qw(
-    id employee_id itime mtime reqdate
+    id employee_id itime mtime reqdate transdate
     ordnumber oreqnumber
     amount exchangerate netamount
     record_type
