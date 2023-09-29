@@ -4,7 +4,7 @@ use strict;
 
 use Carp;
 
-use Rose::DB::Object::Helpers ();
+use Rose::DB::Object::Helpers qw(as_tree strip);
 
 use SL::DB::MetaSetup::DeliveryOrder;
 use SL::DB::Manager::DeliveryOrder;
@@ -13,15 +13,10 @@ use SL::DB::Helper::AttrSorted;
 use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::TransNumberGenerator;
-
-use SL::DB::Part;
-use SL::DB::Unit;
-
 use SL::DB::DeliveryOrder::TypeData qw(:types);
 
 use SL::Helper::Number qw(_format_total _round_total);
 
-use Rose::DB::Object::Helpers qw(as_tree strip);
 use List::Util qw(first);
 use List::MoreUtils qw(any pairwise);
 use Math::Round qw(nhimult);
@@ -246,6 +241,8 @@ sub new_from {
 
 sub new_from_time_recordings {
   my ($class, $sources, %params) = @_;
+  require SL::DB::Part;
+  require SL::DB::Unit;
 
   croak("Unsupported object type in sources")                                      if any { ref($_) ne 'SL::DB::TimeRecording' }            @$sources;
   croak("Cannot create delivery order from source records of different customers") if any { $_->customer_id != $sources->[0]->customer_id } @$sources;
