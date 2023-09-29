@@ -2395,7 +2395,8 @@ sub setup_edit_action_bar {
                                                   : PURCHASE_RECLAMATION_TYPE() },
               ],
             }],
-          only_if   =>$self->type_data->show_menu('save_and_reclamation')
+          only_if   => $self->type_data->show_menu('save_and_reclamation'),
+          disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Invoice'),
