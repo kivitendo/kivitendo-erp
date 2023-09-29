@@ -33,11 +33,12 @@ sub action_list {
       $chartlist{ $gruppe->id } = SL::DB::TaxzoneChart->get_all_accounts_by_buchungsgruppen_id($gruppe->id);
   }
 
+   my $title = t8('Booking groups');
   $self->setup_list_action_bar;
-  $::form->{title} = t8('Booking groups');
+  $::form->{title} = $title;
   $::form->header;
   $self->render('buchungsgruppen/list',
-                title           => t8('Booking groups'),
+                title           => $title,
                 BUCHUNGSGRUPPEN => $buchungsgruppen,
                 CHARTLIST       => \%chartlist,
                 TAXZONES        => $taxzones);
@@ -55,7 +56,6 @@ sub show_form {
 
   $self->setup_show_form_action_bar;
   $self->render('buchungsgruppen/form', %params,
-                 title          => t8('Booking groups'),
                  TAXZONES       => SL::DB::Manager::TaxZone->get_all_sorted());
 }
 

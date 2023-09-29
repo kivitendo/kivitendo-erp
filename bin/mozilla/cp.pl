@@ -129,7 +129,7 @@ sub form_header {
 
   setup_cp_form_action_bar(can_post => !!$form->{rowcount});
 
-  $::form->{title} = t8('Receipt');
+  $form->{title} = t8('Receipt');
   $form->header;
 
   $arap = lc $form->{ARAP};
