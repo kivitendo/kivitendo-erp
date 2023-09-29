@@ -29,12 +29,12 @@
 [% END %]
 
 <div class="wrapper">
-  <table class="tbl-horizontal">
+  <table class="tbl-list">
     <caption>[% 'Follow-Up for user' | $T8 %]</caption>
     <thead>
       <tr>
-        <th>[% L.checkbox_tag('checkall_checkboxes', label='', id='ckeckall', checkall="[data-checkall=1]") %]</th>
-        <th>[% LxERP.t8('All users') %]</th>
+        <th>[% L.checkbox_tag('checkall_checkboxes', label='', id='checkall', checkall="[data-checkall=1]") %]</th>
+        <th><label for='checkall'>[% LxERP.t8('All users') %]</label></th>
       </tr>
     </thead>
     <tbody>
@@ -44,10 +44,11 @@
           [% IF cfe.id == employee.id %][% SET checked = 1 %][% LAST %][% END %]
         [% END %]
         <tr>
-          <td>[% L.checkbox_tag('created_for_employees[]', value=employee.id, checked=checked, "data-checkall"=1, class="employee_check") %]</td>
-          <td><label for='created_for_employees[]'>[% HTML.escape(employee.safe_name) %]</label><td>
+          <td>[% L.checkbox_tag('created_for_employees[]', value=employee.id, checked=checked, "data-checkall"=1, class="employee_check",
+                                id='created_for_employees_' _ employee.id) %]</td>
+          <td><label for='[% 'created_for_employees_' _ employee.id %]'>[% HTML.escape(employee.safe_name) %]</label></td>
         </tr>
-        [% END %]
+      [% END %]
     </tbody>
   </table>
   <table class="tbl-list">
