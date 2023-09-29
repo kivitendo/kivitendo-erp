@@ -361,9 +361,9 @@ sub _update {
 sub prepare_report {
   my ($self) = @_;
 
-  my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
+  my $report       = SL::ReportGenerator->new(\%::myconfig, $::form);
   $report->{title} = t8('Letters');
-  $self->{report} = $report;
+  $self->{report}  = $report;
 
   my @columns  = qw(date subject letternumber customer_id vendor_id contact date);
   my @sortable = qw(date subject letternumber customer_id vendor_id contact date);

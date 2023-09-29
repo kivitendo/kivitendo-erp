@@ -867,9 +867,9 @@ sub prepare_stocktaking_report {
 
   my $callback    = $self->stocktaking_models->get_callback;
 
-  my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
+  my $report       = SL::ReportGenerator->new(\%::myconfig, $::form);
   $report->{title} = t8('Stocktaking Journal');
-  $self->{report} = $report;
+  $self->{report}  = $report;
 
   my @columns     = qw(itime employee ean partnumber part qty unit bin chargenumber comment cutoff_date);
   my @sortable    = qw(itime employee ean partnumber part qty bin chargenumber comment cutoff_date);

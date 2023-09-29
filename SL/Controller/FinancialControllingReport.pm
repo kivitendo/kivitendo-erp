@@ -46,9 +46,9 @@ sub action_list {
 sub prepare_report {
   my ($self)      = @_;
 
-  my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
+  my $report       = SL::ReportGenerator->new(\%::myconfig, $::form);
   $report->{title} = t8('Financial Controlling Report');
-  $self->{report} = $report;
+  $self->{report}  = $report;
 
   my @columns     = qw(customer globalprojectnumber globalproject_type transaction_description ordnumber net_amount delivered_amount delivered_amount_p billed_amount billed_amount_p paid_amount paid_amount_p
                        billable_amount billable_amount_p other_amount);
