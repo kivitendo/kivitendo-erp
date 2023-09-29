@@ -1110,11 +1110,12 @@ sub init_valid_types {
 sub init_type {
   my ($self) = @_;
 
-  if (none { $::form->{type} eq $_ } @{$self->valid_types}) {
+  my $type = $self->reclamation->record_type : $::form->{type};
+  if (none { $type eq $_ } @{$self->valid_types}) {
     die "Not a valid type for reclamation";
   }
 
-  $self->type($::form->{type});
+  $self->type($type);
 }
 
 sub init_cv {
@@ -1362,13 +1363,13 @@ sub make_reclamation {
     $reclamation = SL::DB::Reclamation->new(id => $::form->{id})->load();
   } else {
     $reclamation = SL::DB::Reclamation->new(
-                     record_type        => $self->type,
+                     record_type        => $::form->{type},
                      reclamation_items  => [],
                      currency_id => $::instance_conf->get_currency_id(),
                    );
   }
 
-  my $cv_id_method = $self->cv . '_id';
+  my $cv_id_method = $reclamation->type_data->properties('customervendor'). '_id';
   if (!$::form->{id} && $::form->{$cv_id_method}) {
     $reclamation->$cv_id_method($::form->{$cv_id_method});
     $reclamation = SL::Model::Record->update_after_customer_vendor_change($reclamation);
@@ -2369,7 +2370,8 @@ sub store_pdf_to_webdav_and_filemanagement {
 }
 
 sub init_type_data {
-  SL::DB::Helper::TypeDataProxy->new('SL::DB::Reclamation', $::form->{type});
+  my ($self) = @_;
+  SL::DB::Helper::TypeDataProxy->new('SL::DB::Reclamation', $self->reclamation->record_type);
 }
 
 1;
