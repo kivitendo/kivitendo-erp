@@ -1137,6 +1137,19 @@ sub delete_transfers {
   $main::lxdebug->leave_sub();
 }
 
+sub invoice_from_delivery_order_controller {
+  $main::lxdebug->enter_sub();
+  my $form     = $main::form;
+
+  my $from_id = delete $form->{from_id};
+  my $delivery_order = SL::DB::DeliveryOrder->new(id => $from_id)->load;
+
+  $delivery_order->flatten_to_form($form, format_amounts => 1);
+
+  &invoice;
+  $main::lxdebug->leave_sub();
+}
+
 sub invoice {
   $main::lxdebug->enter_sub();
 

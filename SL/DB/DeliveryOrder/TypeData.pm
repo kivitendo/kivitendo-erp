@@ -28,9 +28,9 @@ my %type_data = (
       attachment => t8("sales_delivery_order_list"),
     },
     show_menu => {
-      save_and_ap_transaction => 0,
-      save_and_invoice        => 0,
-      delete                  => sub { $::instance_conf->get_sales_delivery_order_show_delete },
+      workflow_invoice     => 1,
+      workflow_reclamation => 1,
+      delete => sub { $::instance_conf->get_sales_delivery_order_show_delete },
     },
     properties => {
       customervendor => "customer",
@@ -64,9 +64,9 @@ my %type_data = (
       attachment => t8("purchase_delivery_order_list"),
     },
     show_menu => {
-      save_and_ap_transaction => 0,
-      save_and_invoice        => 0,
-      delete                  => sub { $::instance_conf->get_sales_delivery_order_show_delete },
+      workflow_invoice     => 1,
+      workflow_reclamation => 1,
+      delete => sub { $::instance_conf->get_sales_delivery_order_show_delete },
     },
     properties => {
       customervendor => "vendor",
@@ -100,9 +100,9 @@ my %type_data = (
       attachment => t8("supplier_delivery_order_list"),
     },
     show_menu => {
-      save_and_ap_transaction => 0,
-      save_and_invoice        => 0,
-      delete                  => sub { $::instance_conf->get_sales_delivery_order_show_delete },
+      workflow_invoice     => 0,
+      workflow_reclamation => 0,
+      delete => sub { $::instance_conf->get_sales_delivery_order_show_delete },
     },
     properties => {
       customervendor => "vendor",
@@ -136,9 +136,9 @@ my %type_data = (
       attachment => t8("rma_delivery_order_list"),
     },
     show_menu => {
-      save_and_ap_transaction => 0,
-      save_and_invoice        => 0,
-      delete                  => sub { $::instance_conf->get_sales_delivery_order_show_delete },
+      workflow_invoice     => 0,
+      workflow_reclamation => 0,
+      delete => sub { $::instance_conf->get_sales_delivery_order_show_delete },
     },
     properties => {
       customervendor => "customer",
