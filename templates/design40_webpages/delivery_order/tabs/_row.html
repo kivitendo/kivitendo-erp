@@ -20,6 +20,19 @@
       [% L.hidden_tag("order.orderitems[+].id", ITEM.id, id='item_' _ ID) %]
       [% L.hidden_tag("order.orderitems[].stock_info", ITEM.stock_info, class="data-stock-info") %]
       [% L.hidden_tag("order.orderitems[].parts_id", ITEM.parts_id) %]
+      [% L.hidden_tag("order.orderitems[].sellprice", ITEM.sellprice) %]
+      [% L.hidden_tag("order.orderitems[].discount", ITEM.discount) %]
+      [% L.hidden_tag("order.orderitems[].ordnumber", ITEM.ordnumber) %]
+      [% L.hidden_tag("order.orderitems[].transdate", ITEM.transdate) %]
+      [% L.hidden_tag("order.orderitems[].cusordnumber", ITEM.cusordnumber) %]
+      [% L.hidden_tag("order.orderitems[].base_qty", ITEM.base_qty) %]
+      [% L.hidden_tag("order.orderitems[].lastcost", ITEM.lastcost) %]
+      [% L.hidden_tag("order.orderitems[].price_factor_id", ITEM.price_factor_id) %]
+      [% L.hidden_tag("order.orderitems[].price_factor", ITEM.price_factor) %]
+      [% L.hidden_tag("order.orderitems[].marge_price_factor", ITEM.marge_price_factor) %]
+      [% L.hidden_tag("order.orderitems[].pricegroup_id", ITEM.pricegroup_id) %]
+      [% L.hidden_tag("order.orderitems[].active_price_source", ITEM.active_price_source) %]
+      [% L.hidden_tag("order.orderitems[].active_discount_source", ITEM.active_discount_source) %]
     </td>
     <td class="center">
       <div name="position">[% HTML.escape(ITEM.position) %]</div>
