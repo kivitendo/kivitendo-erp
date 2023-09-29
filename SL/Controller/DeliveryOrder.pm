@@ -1268,11 +1268,12 @@ sub js_reset_order_and_item_ids_after_save {
 sub init_type {
   my ($self) = @_;
 
-  if (none { $::form->{type} eq $_ } @{$self->valid_types}) {
+  my $type = $self->order->record_type;
+  if (none { $type eq $_ } @{$self->valid_types}) {
     die "Not a valid type for delivery order";
   }
 
-  $self->type($::form->{type});
+  $self->type($type);
 }
 
 sub init_cv {
@@ -1422,11 +1423,11 @@ sub make_order {
     $order = SL::DB::DeliveryOrder->new(
       orderitems  => [],
       currency_id => $::instance_conf->get_currency_id(),
-      record_type => $self->type
+      record_type => $::form->{type}
     );
   }
 
-  my $cv_id_method = $self->cv . '_id';
+  my $cv_id_method = $order->type_data->properties('customervendor'). '_id';
   if (!$::form->{id} && $::form->{$cv_id_method}) {
     $order->$cv_id_method($::form->{$cv_id_method});
     $order = SL::Model::Record->update_after_customer_vendor_change($order);
@@ -2220,7 +2221,8 @@ sub calculate_stock_in_out {
 }
 
 sub init_type_data {
-  SL::DB::Helper::TypeDataProxy->new('SL::DB::DeliveryOrder', $::form->{type});
+  my ($self) = @_;
+  SL::DB::Helper::TypeDataProxy->new('SL::DB::DeliveryOrder', $self->order->record_type);
 }
 
 sub init_valid_types {
