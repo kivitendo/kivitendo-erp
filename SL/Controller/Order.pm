@@ -1481,10 +1481,10 @@ sub action_close_quotations {
 sub action_show_conversion_to_purchase_delivery_order_item_selection {
   my ($self) = @_;
 
-  my @items = @{ $::form->{order}->{orderitems} // [] };
+  my $items = $self->order->items_sorted;
 
-  if (@items) {
-    my @part_ids          = uniq map { $_->{parts_id} } @items;
+  if (@$items) {
+    my @part_ids          = uniq map { $_->{parts_id} } @$items;
     my %parts_by_id       = map { ($_->id => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => \@part_ids ]) };
     my %make_models_by_id = map { ($_->parts_id => $_->model) } @{
       SL::DB::Manager::MakeModel->get_all(
@@ -1494,7 +1494,7 @@ sub action_show_conversion_to_purchase_delivery_order_item_selection {
         ])
     };
 
-    foreach my $item (@items) {
+    foreach my $item (@$items) {
       $item->{partnumber}        = $parts_by_id{ $item->{parts_id} }->partnumber;
       $item->{vendor_partnumber} = $make_models_by_id{ $item->{parts_id} };
     }
@@ -1503,7 +1503,7 @@ sub action_show_conversion_to_purchase_delivery_order_item_selection {
   $self->render(
     'order/tabs/_purchase_delivery_order_item_selection',
     { layout => 0 },
-    ITEMS => \@items,
+    ITEMS => $items,
   );
 }
 
