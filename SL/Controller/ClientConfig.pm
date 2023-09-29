@@ -17,9 +17,9 @@ use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 use SL::PriceSource::ALL;
 use SL::Template;
-use SL::Controller::DeliveryOrder;
-use SL::Controller::Order;
-use SL::Controller::Reclamation;
+use SL::DB::Order::TypeData;
+use SL::DB::DeliveryOrder::TypeData;
+use SL::DB::Reclamation::TypeData;
 use SL::Controller::TopQuickSearch;
 use SL::DB::Helper::AccountingPeriod qw(get_balance_startdate_method_options);
 use SL::VATIDNr;
@@ -238,12 +238,9 @@ sub init_displayable_name_specs_by_module {
 sub init_available_documents_with_no_positions {
   return [] if !$::instance_conf->get_feature_experimental_order;
 
-  my @docs = ( @{SL::Controller::Order        ->new->valid_types},
-               @{SL::Controller::DeliveryOrder->new->valid_types},
-               @{SL::Controller::Reclamation  ->new->valid_types} );
-
-  # normal delivery orders are not yet handeld by new controller code
-  @docs = grep { $_ ne 'sales_delivery_order' && $_ ne 'purchase_delivery_order' } @docs;
+  my @docs = ( @{SL::DB::Order::TypeData::valid_types()},
+               @{SL::DB::DeliveryOrder::TypeData::valid_types()},
+               @{SL::DB::Reclamation::TypeData::valid_types()} );
 
   my @available_docs = map { {name => $_, description => $::form->get_formname_translation($_)} } @docs;
 
