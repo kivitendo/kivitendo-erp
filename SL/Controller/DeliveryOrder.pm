@@ -25,6 +25,7 @@ use SL::DB::PartsGroup;
 use SL::DB::Printer;
 use SL::DB::Language;
 use SL::DB::Reclamation;
+use SL::DB::Reclamation::TypeData qw(:types);
 use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
@@ -81,7 +82,7 @@ __PACKAGE__->run_before('check_auth_for_edit',
 
 __PACKAGE__->run_before('get_unalterable_data',
   only => [ qw(
-    save save_as_new save_and_new_record save_and_invoice
+    save save_as_new workflow_new_record workflow_invoice
     save_and_ap_transaction print send_email
     ) ]);
 
@@ -528,12 +529,10 @@ sub action_send_email {
   $self->redirect_to(@redirect_params);
 }
 
-sub action_save_and_new_record {
+sub action_workflow_new_record {
   my ($self) = @_;
   my $to_type = $::form->{to_type};
   my $to_controller = get_object_name_from_type($to_type);
-
-  $self->save();
 
   my %additional_params = ();
   if ($::form->{only_selected_item_positions}) { # ids can be unset before save
@@ -556,22 +555,13 @@ sub action_save_and_new_record {
 
 # save the order and redirect to the frontend subroutine for a new
 # invoice
-sub action_save_and_invoice {
+sub action_workflow_invoice {
   my ($self) = @_;
 
-  $self->save_and_redirect_to(
-    controller => 'oe.pl',
-    action     => 'oe_invoice_from_order',
-  );
-}
-
-# workflow from purchase order to ap transaction
-sub action_save_and_ap_transaction {
-  my ($self) = @_;
-
-  $self->save_and_redirect_to(
-    controller => 'ap.pl',
-    action     => 'add_from_purchase_order',
+  $self->redirect_to(
+    controller => 'do.pl',
+    action     => 'invoice_from_delivery_order_controller',
+    from_id    => $self->order->id,
   );
 }
 
@@ -1807,6 +1797,11 @@ sub setup_edit_action_bar {
     $self->type_data->rights('edit') || 'DOES_NOT_EXIST', 1
   );
 
+  my $confirmation_on_workflow = $self->order->delivered ? undef
+    : ( $self->order->is_sales && $::instance_conf->get_sales_delivery_order_check_stocked)    ? t8('This record has not been stocked out. Proceed?')
+    : (!$self->order->is_sales && $::instance_conf->get_purchase_delivery_order_check_stocked) ? t8('This record has not been stocked in. Proceed?')
+    : undef;
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       combobox => [
@@ -1841,22 +1836,33 @@ sub setup_edit_action_bar {
           t8('Workflow'),
         ],
         action => [
-          t8('Save and Invoice'),
+          t8('Create Invoice'),
           call     => [ 'kivi.DeliveryOrder.save', {
-              action             => 'save_and_invoice',
+              action             => 'workflow_invoice',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
             }],
-          only_if  => $self->type_data->show_menu("save_and_invoice"),
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
+          only_if  => $self->type_data->show_menu("workflow_invoice"),
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id ? t8('This object has not been saved yet.')
+                    : undef,
+          confirm  =>   $confirmation_on_workflow,
         ],
         action => [
-          t8('Save and AP Transaction'),
-          call     => [ 'kivi.DeliveryOrder.save', {
-              action             => 'save_and_ap_transaction',
+          t8('Create Reclamation'),
+          call      => [ 'kivi.DeliveryOrder.save', {
+              action             => 'workflow_new_record',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              form_params        => [
+                { name => 'to_type',
+                  value => $self->order->is_sales ? SALES_RECLAMATION_TYPE()
+                                                  : PURCHASE_RECLAMATION_TYPE() },
+              ],
             }],
-          only_if  => $self->type_data->show_menu("save_and_ap_transaction"),
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
+          only_if  => $self->type_data->show_menu('workflow_reclamation'),
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id ? t8('This object has not been saved yet.')
+                    : undef,
+          confirm  => $confirmation_on_workflow,
         ],
 
       ], # end of combobox "Workflow"
@@ -2126,16 +2132,6 @@ sub get_part_texts {
 
 sub nr_key {
   return $_[0]->type_data->properties("nr_key");
-}
-
-sub save_and_redirect_to {
-  my ($self, %params) = @_;
-
-  $self->save();
-
-  flash_later('info', $self->type_data->text("saved"));
-
-  $self->redirect_to(%params, id => $self->order->id);
 }
 
 sub save_history {
