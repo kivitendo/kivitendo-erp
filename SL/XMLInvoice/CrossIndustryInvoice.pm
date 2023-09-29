@@ -3,7 +3,7 @@ package SL::XMLInvoice::CrossIndustryInvoice;
 use strict;
 use warnings;
 
-use parent qw(SL::XMLInvoice);
+use parent qw(SL::XMLInvoice::Base);
 
 use constant ITEMS_XPATH => '//ram:IncludedSupplyChainTradeLineItem';
 
