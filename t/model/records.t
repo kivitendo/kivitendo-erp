@@ -29,6 +29,9 @@ my ($purchase_quotation1, $purchase_order1, $purchase_invoice1, $purchase_delive
 Support::TestSetup::login();
 $dbh = SL::DB->client->dbh;
 
+# set locale to en so we can match errors
+local $::locale = Locale->new('en');
+
 note "testing deletions";
 reset_state();
 reset_basic_sales_records();
