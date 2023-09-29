@@ -7,6 +7,7 @@ use Module::Load;
 
 use SL::Locale::String qw(t8);
 use XML::LibXML;
+use SL::Locale::String qw(t8);
 
 use constant RES_OK => 0;
 use constant RES_XML_PARSING_FAILED => 1;

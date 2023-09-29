@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
-use CAM::PDF;
+use PDF::API2;
 use Data::Dumper;
 use List::Util qw(first);
 use XML::LibXML;
@@ -47,14 +47,38 @@ sub _extract_zugferd_invoice_xml {
   my $doc        = shift;
   my %res_fail;
 
-  $res_fail{'result'}  = RES_ERR_NO_ATTACHMENT();
-  $res_fail{'message'} = "PDF does not have a Names dictionary.";
-  my $names_dict = $doc->getValue($doc->getRootDict->{Names}) or return \%res_fail;
+  # unfortunately PDF::API2 has no public facing api to access the actual pdf name dictionaries
+  # so we need to use the internal data, just like with PDF::CAM before
+  #
+  # PDF::API2 will internally read $doc->{pdf}{Root}{Names} for us, but after that every entry
+  # in the tree may be an indirect object (Objind) before realising it.
+  #
+  # The actual embedded files will be located at $doc->{pdf}{Root}{Names}{EmbeddedFiles}
+  #
 
-  $res_fail{'message'} = "PDF does not have a EmbeddedFiles tree.";
-  my $files_tree = $names_dict->{EmbeddedFiles}               or return \%res_fail;
+  my $node = $doc->{pdf};
+  for (qw(Root Names EmbeddedFiles)) {
+    $node = $node->{$_};
+    if (!ref $node) {
+      return {
+        result  => RES_ERR_NO_ATTACHMENT(),
+        message => "unexpected unbless node while trying to access $_ node",
+      }
+    }
+    if ('PDF::API2::Basic::PDF::Objind' eq ref $node) {
+      $node->realise;
+    }
+    # after realising it should be a Dict
+    if ('PDF::API2::Basic::PDF::Dict' ne ref $node) {
+      return {
+        result  => RES_ERR_NO_ATTACHMENT(),
+        message => "unexpected node type [@{[ref($node)]}] after realising $_ node",
+      }
+    }
+  }
 
-  my @agenda     = $files_tree;
+  # now we have an array of possible attachments
+  my @agenda     = $node;
 
   my $parser;  # SL::XMLInvoice object used as return value
   my @res;     # Temporary storage for error messages encountered during
@@ -63,26 +87,25 @@ sub _extract_zugferd_invoice_xml {
   # Hardly ever more than single leaf, but...
 
   while (@agenda) {
-    my $item = $doc->getValue(shift @agenda);
+    my $item = shift @agenda;
 
     if ($item->{Kids}) {
-      my $kids = $doc->getValue($item->{Kids});
-      push @agenda, @$kids
+      my @kids = $item->{Kids}->realise->elements;
+      push @agenda, @kids;
 
     } else {
-      my $nodes = $doc->getValue($item->{Names});
-      my @names = map { $doc->getValue($_)} @$nodes;
+      my @names = $item->{Names}->realise->elements;
 
+      TRY_NEXT:
       while (@names) {
         my ($k, $v)  = splice @names, 0, 2;
-        my $ef_node  = $v->{EF};
-        my $ef_dict  = $doc->getValue($ef_node);
-        my $fnode    = (values %$ef_dict)[0];
-        my $any_num  = $fnode->{value};
-        my $obj_node = $doc->dereference($any_num);
-        my $content  = $doc->decodeOne($obj_node->{value}, 0) // '';
+        my $fnode    = $v->realise->{EF}->realise->{F}->realise;
 
-        $parser = $parser = SL::XMLInvoice->new($content);
+        $fnode->read_stream(1);
+
+        my $content  = $fnode->{' stream'};
+
+        $parser = SL::XMLInvoice->new($content);
 
         # Caveat: this will only ever catch the first attachment looking like
         #         an XML invoice.
@@ -114,18 +137,14 @@ sub _extract_zugferd_invoice_xml {
 sub _get_xmp_metadata {
   my ($doc) = @_;
 
-  my $node = $doc->getValue($doc->getRootDict->{Metadata});
-  if ($node && $node->{StreamData} && defined($node->{StreamData}->{value})) {
-    return $node->{StreamData}->{value};
-  }
-  return undef;
+  $doc->xmpMetadata;
 }
 
 sub extract_from_pdf {
   my ($self, $file_name) = @_;
   my @warnings;
 
-  my $pdf_doc = CAM::PDF->new($file_name);
+  my $pdf_doc = PDF::API2->openScalar($file_name);
 
   if (!$pdf_doc) {
     return {
@@ -200,7 +219,7 @@ sub extract_from_xml {
   my %res;
 
   my $invoice_xml = SL::XMLInvoice->new($data);
-  
+
   %res = (
     result       => $invoice_xml->{result},
     message      => $invoice_xml->{message},
