@@ -1110,7 +1110,7 @@ sub init_valid_types {
 sub init_type {
   my ($self) = @_;
 
-  my $type = $self->reclamation->record_type : $::form->{type};
+  my $type = $self->reclamation->record_type;
   if (none { $type eq $_ } @{$self->valid_types}) {
     die "Not a valid type for reclamation";
   }
