@@ -218,7 +218,7 @@ sub get_agreement_with_invoice {
   my $depositorname;
   $depositorname = $invoice->customer->depositor if $invoice->is_sales;
   $depositorname = $invoice->vendor->depositor   if ! $invoice->is_sales;
-  if ( $depositorname && $self->remote_name =~ /$depositorname/ ) {
+  if ( $depositorname && $self->remote_name =~ /\Q$depositorname/ ) {
     $agreement += $points{depositor_matches};
     $rule_matches .= 'depositor_matches(' . $points{'depositor_matches'} . ') ';
   }
