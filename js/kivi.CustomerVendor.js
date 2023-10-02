@@ -508,6 +508,51 @@ namespace('kivi.CustomerVendor', function(ns) {
     });
   }
 
+  this.check_cv = function(cv_id, input_element_id, cv_type) {
+    if (cv_id === '' || $(input_element_id).val() === '') {
+      if (cv_type === 'customer') {
+        alert(kivi.t8('Please select a customer.'));
+      } else {
+        alert(kivi.t8('Please select a vendor.'));
+      }
+      return false;
+    }
+    return true;
+  };
+
+  this.show_cv_details_dialog = function(id_selector, cv_type) {
+
+    const input_element_id = `${id_selector}_name`;
+    const cv_id = $(id_selector).val();
+
+    if (!this.check_cv(cv_id, input_element_id, cv_type)) return;
+
+    kivi.popup_dialog({
+      url:    'controller.pl',
+      data:   { action: 'CustomerVendor/show_customer_vendor_details_dialog',
+                type  : $('#type').val(),
+                cv    : cv_type,
+                cv_id : cv_id
+              },
+      id:     'jq_customer_vendor_details_dialog',
+      dialog: {
+        title:  cv_type === 'customer' ? kivi.t8('Customer details') : kivi.t8('Vendor details'),
+        width:  800,
+        height: 650
+      }
+    });
+    return true;
+  };
+
+  this.open_customervendor_tab = function(id_selector, cv_type) {
+    const input_element_id = `${id_selector}_name`;
+    const cv_id = $(id_selector).val();
+
+    if (!this.check_cv(cv_id, input_element_id, cv_type)) return;
+
+    window.open("controller.pl?action=CustomerVendor/edit&db=" + encodeURIComponent(cv_type) + "&id=" + encodeURIComponent(cv_id), '_blank');
+  };
+
   $(function(){
     ns.init();
     ns.price_list_init();

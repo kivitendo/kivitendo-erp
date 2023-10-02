@@ -851,6 +851,46 @@ sub action_ajax_list_prices {
   $self->report_generator_list_objects(report => $report, objects => $prices, layout => 0, header => 0);
 }
 
+# open the dialog for customer/vendor details
+# called from SL::Presenter::customer_vendor
+sub action_show_customer_vendor_details_dialog {
+  my ($self) = @_;
+
+  my $is_customer = 'customer' eq $::form->{cv};
+  my $cv;
+  if ($is_customer) {
+    $cv = SL::DB::Customer->new(id => $::form->{cv_id})->load;
+  } else {
+    $cv = SL::DB::Vendor->new(id => $::form->{cv_id})->load;
+  }
+
+  my %details = map { $_ => $cv->$_ } @{$cv->meta->columns};
+  $details{discount_as_percent} = $cv->discount_as_percent;
+  $details{creditlimt}          = $cv->creditlimit_as_number;
+  $details{business}            = $cv->business->description      if $cv->business;
+  $details{language}            = $cv->language_obj->description  if $cv->language_obj;
+  $details{delivery_terms}      = $cv->delivery_term->description if $cv->delivery_term;
+  $details{payment_terms}       = $cv->payment->description       if $cv->payment;
+  $details{pricegroup}          = $cv->pricegroup->pricegroup     if $is_customer && $cv->pricegroup;
+
+  if ($is_customer) {
+    foreach my $entry (@{ $cv->additional_billing_addresses }) {
+      push @{ $details{ADDITIONAL_BILLING_ADDRESSES} },   { map { $_ => $entry->$_ } @{$entry->meta->columns} };
+    }
+  }
+  foreach my $entry (@{ $cv->shipto }) {
+    push @{ $details{SHIPTO} },   { map { $_ => $entry->$_ } @{$entry->meta->columns} };
+  }
+  foreach my $entry (@{ $cv->contacts }) {
+    push @{ $details{CONTACTS} }, { map { $_ => $entry->$_ } @{$entry->meta->columns} };
+  }
+
+  $_[0]->render('common/show_vc_details', { layout => 0 },
+                is_customer => $is_customer,
+                %details);
+
+}
+
 sub is_vendor {
   return $::form->{db} eq 'vendor';
 }

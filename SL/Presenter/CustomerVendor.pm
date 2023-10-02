@@ -3,7 +3,7 @@ package SL::Presenter::CustomerVendor;
 use strict;
 
 use SL::Presenter::EscapedText qw(escape is_escaped);
-use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag link_tag);
+use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag link_tag img_tag);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(customer_vendor customer vendor customer_vendor_picker customer_picker vendor_picker);
@@ -64,11 +64,23 @@ sub customer_vendor_picker {
   # do not use reserved html attribute 'type' for cv type
   $params{cv_type} = delete $params{type};
 
+  my $show_details = delete $params{show_details} // 0;
+
   my $ret =
     input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
       'data-customer-vendor-picker-data' => JSON::to_json(\%params),
     ) .
     input_tag("", ref $value  ? $value->displayable_name : '', id => "${id}_name", %params);
+
+  if ($show_details) {
+    $ret .= img_tag(src => 'image/detail.png', alt => $::locale->text('Show details'),
+      title => $::locale->text('Show details'), class => "button-image info",
+      onclick => "kivi.CustomerVendor.show_cv_details_dialog('#${id}', '$params{cv_type}')" );
+
+    $ret .= link_tag('javascript:;', $::locale->text('Edit'),
+      title => $::locale->text('Open in new window'),
+      onclick => "kivi.CustomerVendor.open_customervendor_tab('#${id}', '$params{cv_type}')" );
+  }
 
   $::request->layout->add_javascripts('kivi.CustomerVendor.js');
   $::request->presenter->need_reinit_widgets($id);
