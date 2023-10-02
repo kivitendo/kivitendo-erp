@@ -58,7 +58,7 @@
       [% ELSE %]
         <td></td>
         <td></td>
-        <td colspan="4"></td>
+        <td colspan="3"></td>
       [% END %]
       <td colspan="3" class="right">[% #'Totals' | $T8 %][% #":" %]</td>
       <td id="items_sellprice_sum" class="numeric">[% LxERP.format_amount(items_sellprice_sum, 2, 0) %]</td>
@@ -66,7 +66,11 @@
       <td></td>
     </tr>
     <tr>
+      [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
       <td colspan="8"></td>
+      [% ELSE %]
+      <td colspan="6"></td>
+      [% END %]
       <td align="right">[% 'Margepercent' | $T8 %]:</td>
       <td></td>
       <td id="items_sum_diff"      class="numeric">
@@ -78,7 +82,11 @@
     </tr>
     <tr>
     <tr>
+      [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
       <td colspan="8"></td>
+      [% ELSE %]
+      <td colspan="6"></td>
+      [% END %]
       <td align="right">[% 'Margetotal' | $T8 %]:</td>
       <td></td>
       <td id="items_sum_diff"      class="numeric">[%- LxERP.format_amount(items_sum_diff,      2, 0) %]</td>

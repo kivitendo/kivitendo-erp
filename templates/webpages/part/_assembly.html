@@ -62,8 +62,10 @@
  <td></td>
 </tr>
 <tr>
+ [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
  <td></td>
  <td></td>
+ [% END %]
  <td></td>
  <td></td>
  <td></td>
@@ -79,8 +81,10 @@
  </td>
 </tr>
 <tr>
+ [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
  <td></td>
  <td></td>
+ [% END %]
  <td></td>
  <td></td>
  <td></td>
