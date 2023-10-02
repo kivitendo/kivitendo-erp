@@ -39,6 +39,7 @@
     <td class="center">[% IF ITEM.bom %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %]</td>
   [% END %]
   <td class="right">[% L.div_tag(LxERP.format_amount(ITEM.linetotal_sellprice, 3, 0), name="linetotal") %]</td>
+  <td class="right">[% ITEM.part.price_factor.description %]</td>
   <td class="right">[% ITEM.part.sellprice_as_number %]</td>
   <td class="right">[% ITEM.part.lastcost_as_number %]</td>
   <td>[% HTML.escape(ITEM.part.partsgroup.partsgroup) %]</td>
