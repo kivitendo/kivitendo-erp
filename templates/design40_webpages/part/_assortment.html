@@ -32,6 +32,7 @@
       <th>[% 'Unit'         | $T8 %] </th>
       <th>[% 'Charge'       | $T8 %] </th>
       <th>[% 'Line Total'   | $T8 %] </th>
+      <th class="right">[% 'Price Factor' | $T8 %]</th>
       <th id="sellprice_header_id" class="right">
         <a href='javascript:kivi.Part.reorder_items("sellprice")'> [% 'Sellprice' | $T8 %]</a>
       </th>
@@ -66,6 +67,7 @@
       [% END %]
       <td></td>
       <td></td>
+      <td></td>
       <td class="numeric" id="items_sellprice_sum">[% LxERP.format_amount(items_sellprice_sum, 2, 0) %]</td>
       <td class="numeric" id="items_lastcost_sum" >[% LxERP.format_amount(items_lastcost_sum,  2, 0) %]</td>
       <td class="numeric" id="items_sum_diff"     >[% LxERP.format_amount(items_sum_diff,      2, 0) %]</td>
@@ -81,6 +83,7 @@
        <td></td>
        <td></td>
      [% END %]
+     <td></td>
      <td></td>
      <td></td>
      <td></td>
