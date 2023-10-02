@@ -86,8 +86,7 @@
     <tr>
       <th>[% 'Vendor' | $T8 %]</th>
       <td class="wi-lightwide">
-        [% P.customer_vendor.picker("vendor_id", vendor_id, type="vendor", onchange="\$('#update_button').click()") %]
-        [% L.button_tag("show_vc_details('vendor')", LxERP.t8('Details (one letter abbreviation)'), class='wi-tiny neutral') %]
+        [% P.customer_vendor.picker("vendor_id", vendor_id, type="vendor", show_details="1") %]
         [% L.hidden_tag("previous_vendor_id", vendor_id) %]
       </td>
     </tr>

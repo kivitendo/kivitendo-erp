@@ -94,8 +94,8 @@
               <tr>
                 <th align="right" nowrap>[% 'Vendor' | $T8 %]</th>
                 <td colspan="3">
-                 [% P.customer_vendor.picker("vendor_id", vendor_id, type="vendor", style="width: 330px", onchange="\$('#update_button').click()") %]
-                 [% L.button_tag("show_vc_details('vendor')", LxERP.t8('Details (one letter abbreviation)')) %]
+                 [% P.customer_vendor.picker("vendor_id", vendor_id, type="vendor", show_details="1",
+                      style="width: 330px", class=(initial_focus == 'vendor_id' ? "initial_focus" : "")) %]
                  [% L.hidden_tag("previous_vendor_id", vendor_id) %]
                 </td>
               </tr>
