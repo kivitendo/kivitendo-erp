@@ -871,7 +871,7 @@ sub generate_report {
   my $sort_col     = $form->{sort};
 
   my %filter;
-  my @columns = qw(warehouse bin partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit list_price purchase_price stock_value);
+  my @columns = qw(warehouse bin partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit list_price purchase_price price_factor stock_value);
 
   # filter stuff
   map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description partsgroup_id chargenumber bestbefore date include_invalid_warehouses);
@@ -970,6 +970,7 @@ sub generate_report {
     'stock_value'          => { 'text' => $locale->text('Stock value'), },
     'purchase_price'       => { 'text' => $locale->text('Purchase price'), },
     'list_price'           => { 'text' => $locale->text('List Price'), },
+    'price_factor'         => { 'text' => $locale->text('Price Factor'), },
   );
 
   my %column_defs_cvars = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
@@ -987,7 +988,7 @@ sub generate_report {
     grep {!/^cvar_/ or $cvar_is_text{$_}}
     @columns;
 
-  my %column_alignment = map { $_ => 'right' } qw(qty list_price purchase_price stock_value);
+  my %column_alignment = map { $_ => 'right' } qw(qty list_price purchase_price price_factor stock_value);
 
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
 
