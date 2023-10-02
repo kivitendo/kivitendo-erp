@@ -207,6 +207,7 @@ sub generate_report {
     'bin'                => { 'text' => $locale->text('Default Bin'), },
     'make'               => { 'text' => $locale->text('Make'), },
     'model'              => { 'text' => $locale->text('Model'), },
+    'price_factor_description' => { 'text' => $locale->text('Price Factor'), },
   );
 
   $revers     = $form->{revers};
@@ -391,7 +392,7 @@ sub generate_report {
 
   my @columns = qw(
     partnumber type_and_classific description notes partsgroup warehouse bin
-    make model assembly_qty onhand rop soldtotal unit listprice
+    make model assembly_qty onhand rop soldtotal unit price_factor_description listprice
     linetotallistprice sellprice linetotalsellprice lastcost assembly_lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription
@@ -420,7 +421,7 @@ sub generate_report {
 
   %column_defs = (%column_defs, %column_defs_cvars, %column_defs_pricegroups);
   map { $column_defs{$_}->{visible} ||= $form->{"l_$_"} ? 1 : 0 } @columns;
-  map { $column_defs{$_}->{align}   = 'right' } qw(assembly_qty onhand sellprice listprice lastcost assembly_lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal shop), @pricegroup_columns;
+  map { $column_defs{$_}->{align}   = 'right' } qw(assembly_qty onhand sellprice listprice lastcost assembly_lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal shop price_factor_description), @pricegroup_columns;
 
   my @hidden_variables = (
     qw(l_subtotal l_linetotal searchitems itemstatus bom l_pricegroups insertdatefrom insertdateto),
@@ -436,7 +437,7 @@ sub generate_report {
 
   my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
-  my @sort_full        = qw(partnumber description onhand soldtotal deliverydate insertdate shop);
+  my @sort_full        = qw(partnumber description onhand soldtotal deliverydate insertdate shop price_factor_description);
   my @sort_no_revers   = qw(partsgroup invnumber ordnumber quonumber name image drawing serialnumber);
 
   foreach my $col (@sort_full) {

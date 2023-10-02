@@ -186,7 +186,7 @@ sub all_parts {
   my @like_filters         = (@simple_filters, @invoice_oi_filters);
   my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, @project_filters, qw(serialnumber));
   my @simple_l_switches    = (@all_columns, qw(notes listprice sellprice lastcost priceupdate weight unit rop image shop insertdate));
-  my %no_simple_l_switches = (warehouse => 'wh.description as warehouse', bin => 'bin.description as bin');
+  my %no_simple_l_switches = (warehouse => 'wh.description as warehouse', bin => 'bin.description as bin',  price_factor_description => 'pfac.description as price_factor_description');
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
   my @qsooqr_flags         = qw(invnumber ordnumber quonumber trans_id name module qty);
   my @deliverydate_flags   = qw(deliverydate);
