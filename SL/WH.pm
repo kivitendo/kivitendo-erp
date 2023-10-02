@@ -637,9 +637,11 @@ sub get_warehouse_report {
      "stock_value"          => ($form->{stock_value_basis} // '') eq 'list_price' ? "p.listprice / COALESCE(pfac.factor, 1)" : "p.lastcost / COALESCE(pfac.factor, 1)",
      "purchase_price"       => "p.lastcost",
      "list_price"           => "p.listprice",
+     "price_factor"         => ($form->{l_purchase_price} || $form->{l_list_price}) ? "pfac.description" : undef,
   );
   $form->{l_classification_id}  = 'Y';
   $form->{l_part_type}          = 'Y';
+  $form->{l_price_factor}       = 'Y' if $form->{l_purchase_price} || $form->{l_list_price};
 
   my $select_clause = join ', ', map { +/^l_/; "$select_tokens{$'} AS $'" }
         ( grep( { !/qty/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
@@ -651,8 +653,9 @@ sub get_warehouse_report {
 
   my @join_values = ();
   my %join_tokens = (
-    "stock_value" => "LEFT JOIN price_factors pfac ON (p.price_factor_id = pfac.id)",
-    );
+    "stock_value"  => "LEFT JOIN price_factors pfac ON (p.price_factor_id = pfac.id)",
+  );
+  $join_tokens{price_factor} = "LEFT JOIN price_factors pfac ON (p.price_factor_id = pfac.id)" if !$form->{l_stock_value};
 
   my $joins = join ' ', grep { $_ } map { +/^l_/; $join_tokens{"$'"} }
         ( grep( { !/qty/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
