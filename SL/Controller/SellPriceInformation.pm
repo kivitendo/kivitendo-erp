@@ -65,27 +65,29 @@ sub set_sort_params {
 sub column_defs {
   my ($self) = @_;
   return {
-    transdate   => { text => $::locale->text('Date'),
-                      sub => sub { $_[0]->order->transdate_as_date }},
-    ordnumber   => { text => $::locale->text('Number'),
-                      sub => sub { $_[0]->order->number },
-                 obj_link => sub { $self->link_to($_[0]->order) }},
-    customer    => { text => $::locale->text('Customer'),
-                      sub => sub { $_[0]->order->customer->name },
-                 obj_link => sub { $self->link_to($_[0]->order->customer) }},
-    customer    => { text => $::locale->text('Customer'),
-                      sub => sub { $_[0]->order->customer->name },
-                 obj_link => sub { $self->link_to($_[0]->order->customer) }},
-    ship        => { text => $::locale->text('Delivered'),
-                      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty) . ' ' . $_[0]->unit }},
-    qty         => { text => $::locale->text('Qty'),
-                      sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit }},
-    sellprice   => { text => $::locale->text('Sell Price'),
-                      sub => sub { $_[0]->sellprice_as_number }},
-    discount    => { text => $::locale->text('Discount'),
-                      sub => sub { $_[0]->discount_as_percent . "%" }},
-    amount      => { text => $::locale->text('Amount'),
-                      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty * $_[0]->sellprice * (1 - $_[0]->discount), 2) }},
+    transdate    => { text => $::locale->text('Date'),
+                       sub => sub { $_[0]->order->transdate_as_date }},
+    ordnumber    => { text => $::locale->text('Number'),
+                       sub => sub { $_[0]->order->number },
+                  obj_link => sub { $self->link_to($_[0]->order) }},
+    customer     => { text => $::locale->text('Customer'),
+                       sub => sub { $_[0]->order->customer->name },
+                  obj_link => sub { $self->link_to($_[0]->order->customer) }},
+    customer     => { text => $::locale->text('Customer'),
+                       sub => sub { $_[0]->order->customer->name },
+                  obj_link => sub { $self->link_to($_[0]->order->customer) }},
+    ship         => { text => $::locale->text('Delivered'),
+                       sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty) . ' ' . $_[0]->unit }},
+    qty          => { text => $::locale->text('Qty'),
+                       sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit }},
+    price_factor => { text => $::locale->text('Price Factor'),
+                      sub => sub { $_[0]->price_factor_as_number }},
+    sellprice    => { text => $::locale->text('Sell Price'),
+                       sub => sub { $_[0]->sellprice_as_number }},
+    discount     => { text => $::locale->text('Discount'),
+                       sub => sub { $_[0]->discount_as_percent . "%" }},
+    amount       => { text => $::locale->text('Amount'),
+                       sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty * $_[0]->sellprice * (1 - $_[0]->discount) / ($_[0]->price_factor ? $_[0]->price_factor : 1.0), 2) }},
   };
 }
 
@@ -99,9 +101,9 @@ sub prepare_report {
   my $title    = $::locale->text('Sales Price information');
   $title      .= ': ' . $::locale->text($::form->{filter}->{order}{type}) if $::form->{filter}->{order}{type};
 
-  my @columns  = qw(transdate ordnumber customer ship qty sellprice discount amount);
-  my @visible  = qw(transdate ordnumber customer ship qty sellprice discount amount);
-  my @sortable = qw(transdate ordnumber customer          sellprice discount       );
+  my @columns  = qw(transdate ordnumber customer ship qty price_factor sellprice discount amount);
+  my @visible  = qw(transdate ordnumber customer ship qty price_factor sellprice discount amount);
+  my @sortable = qw(transdate ordnumber customer          sellprice              discount       );
 
   my $column_defs = $self->column_defs;
 
