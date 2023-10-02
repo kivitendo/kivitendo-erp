@@ -28,6 +28,7 @@
      <th class="listheading" nowrap width="5" >[%- 'Unit'         | $T8 %] </th>
      <th class="listheading" nowrap width="5" >[%- 'Charge'       | $T8 %] </th>
      <th class="listheading" nowrap width="5" >[%- 'Line Total'   | $T8 %] </th>
+     <th class="listheading" nowrap width="5" >[%- 'Price Factor' | $T8 %] </th>
      <th id="sellprice_header_id"   class="listheading" nowrap width="10" ><a href='#' onClick='javascript:kivi.Part.reorder_items("sellprice")'> [%- 'Sellprice'   | $T8 %]</a></th>
      <th id="lastcost_header_id"   class="listheading" nowrap width="10" ><a href='#' onClick='javascript:kivi.Part.reorder_items("lastcost")'> [%- 'Lastcost'      | $T8 %]</a></th>
      <th id="_header_id"   class="listheading" nowrap width="15" ><a href='#' onClick='javascript:kivi.Part.reorder_items("partsgroup")'> [%- 'Partsgroup'       | $T8 %]</a></th>
@@ -54,6 +55,7 @@
  <td></td>
  [% END %]
  <td></td>
+ <td></td>
  <td align="right">[% 'Totals' | $T8 %]:</td>
  <th id="items_sellprice_sum" class="numeric">[%- LxERP.format_amount(items_sellprice_sum, 2, 0) %]</th>
  <th id="items_lastcost_sum"  class="numeric">[%- LxERP.format_amount(items_lastcost_sum,  2, 0) %]</th>
@@ -64,6 +66,7 @@
  <td></td>
  <td></td>
  [% END %]
+ <td></td>
  <td></td>
  <td></td>
  <td></td>

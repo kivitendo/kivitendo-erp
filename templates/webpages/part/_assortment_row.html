@@ -60,6 +60,9 @@
       [%- L.div_tag(LxERP.format_amount(ITEM.linetotal_sellprice, 2, 0), name="linetotal") %]
       </td>
     <td align="right">
+      [% ITEM.part.price_factor.description %]
+      </td>
+    <td align="right">
       [% ITEM.part.sellprice_as_number %]
       </td>
     <td align="right">
