@@ -303,10 +303,11 @@ sub select_tag {
     : '';
 
   my $label = $attributes{label}
-    ? html_tag('label', delete $attributes{label}, for => $attributes{id})
+    ? html_tag('label', delete $attributes{label}, for => $attributes{id}, class => 'active')
     : '';
 
-  my $select_html = SL::Presenter::Tag::select_tag($name, $collection, %attributes);
+  my $select_html = SL::Presenter::Tag::select_tag($name, $collection, %attributes,
+    class => 'browser-default');
 
   html_tag('div',
     $icon . $select_html . $label,
@@ -366,9 +367,20 @@ directly as classes.
 
 =back
 
-=head1 BUGS
+=head1 BUGS & ISSUES
 
-Nothing here yet.
+There is a bug in MaterializeCSS, when using a Materialize select element on an iphone,
+the wrong element is selected. This is currently worked around in the presenter by using
+the 'browser-default' class on the select element as well as the 'active' class on the
+label (to prevent the label from overlapping the select element).
+This should be fixed, upstream, in MaterializeCSS. However it seems that the project is
+not maintained anymore (according to github issues[^1]). There is a community fork[^2],
+which it's still maintained and where the problem seems to be fixed already. It is currently
+in alpha V. 2.0.3-alpha. Maybe it would be good to consider switching to that fork at some
+point.
+
+[1]: e.g. https://github.com/Dogfalo/materialize/issues/6688
+[2]: https://github.com/materializecss/materialize
 
 =head1 AUTHOR
 
