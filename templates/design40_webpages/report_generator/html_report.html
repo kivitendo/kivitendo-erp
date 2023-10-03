@@ -37,29 +37,29 @@
     </thead>
     <tbody>
     [% FOREACH row = ROWS %]
-      [% IF row.IS_CONTROL %]
-        [% IF row.IS_COLSPAN_DATA %]<tr><td colspan="[% row.NUM_COLUMNS %]">[% row.data %]</td></tr>[% END %]
-      [% ELSE %]
+      [%- IF row.IS_CONTROL %]
+        [%- IF row.IS_COLSPAN_DATA %]<tr><td colspan="[% row.NUM_COLUMNS %]">[% row.data %]</td></tr>[% END %]
+      [%- ELSE %]
         <tr>
-        [% FOREACH col = row.COLUMNS %]
+        [%- FOREACH col = row.COLUMNS %]
           <td class="[%- IF col.align -%][% col.align %][%- END -%][%- IF col.class -%] [% col.class %][%- END -%]"[% IF col.colspan && col.colspan>1 %] colspan="[% HTML.escape(col.colspan) %]"[% END %]>
-            [% IF col.raw_data %]
-              [% col.raw_data %]
-            [% ELSE %]
-              [% USE iterator(col.CELL_ROWS) %]
-              [% FOREACH cell_row = iterator %]
-                [% IF cell_row.data != '' %]
-                  [% IF cell_row.link %]<a href="[% HTML.escape(cell_row.link) %]"[% IF cell_row.link_class %] class="[% cell_row.link_class %]"[% END %]>[% END %]
-                  [% cell_row.data %]
-                  [% IF cell_row.link %]</a>[% END %]
-                [% END %]
-                [% UNLESS iterator.last %]<br>[% END %]
-              [% END %]
-            [% END %]
+            [%- IF col.raw_data %]
+              [%- col.raw_data %]
+            [%- ELSE %]
+              [%- USE iterator(col.CELL_ROWS) %]
+              [%- FOREACH cell_row = iterator %]
+                [%- IF cell_row.data != '' %]
+                  [%- IF cell_row.link %]<a href="[% HTML.escape(cell_row.link) %]"[% IF cell_row.link_class %] class="[% cell_row.link_class %]"[% END %]>[% END %]
+                  [%- cell_row.data %]
+                  [%- IF cell_row.link %]</a>[% END %]
+                [%- END %]
+                [%- UNLESS iterator.last %]<br>[% END %]
+              [%- END %]
+            [%- END -%]
           </td>
-        [% END %]
+        [%- END %]
         </tr>
-      [% END %]
+      [%- END %]
     [% END %]
     </tbody>
   </table>
