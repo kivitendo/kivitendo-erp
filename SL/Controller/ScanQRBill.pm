@@ -107,7 +107,7 @@ sub init_accounts_AP_amount {
       chart_id => $_->{id},
     } } @{ SL::DB::Manager::Chart->get_all(
       query   => [ SL::DB::Manager::Chart->link_filter('AP_amount') ],
-      sort_by => 'id ASC') }
+      sort_by => 'accno ASC') }
   ];
 }
 
@@ -119,7 +119,7 @@ sub init_accounts_AP {
       chart_id => $_->{id},
     } } @{ SL::DB::Manager::Chart->get_all(
       query   => [ SL::DB::Manager::Chart->link_filter('AP') ],
-      sort_by => 'id ASC') }
+      sort_by => 'accno ASC') }
   ];
 }
 
