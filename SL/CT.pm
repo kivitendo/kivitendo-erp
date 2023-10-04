@@ -330,7 +330,7 @@ sub search {
       $query .=
         qq| UNION | .
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-        qq|  pt.description as payment | .
+        qq|  pt.description as payment, tz.description as taxzone | .
         $pg_select .
         $main_cp_select .
         qq|, a.invnumber, a.ordnumber, a.quonumber, a.id AS invid, | .
@@ -341,6 +341,7 @@ sub search {
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
+        qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
         $pg_join .
         qq|WHERE $where AND (a.invoice = '1')|;
     }
@@ -350,7 +351,7 @@ sub search {
       $query .=
         qq| UNION | .
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-        qq|  pt.description as payment | .
+        qq|  pt.description as payment, tz.description as taxzone | .
         $pg_select .
         $main_cp_select .
         qq|, ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
@@ -360,6 +361,7 @@ sub search {
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
+        qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
         $pg_join .
         qq|WHERE $where AND ((o.record_type = 'sales_order') OR (o.record_type = 'purchase_order'))|;
     }
@@ -369,7 +371,7 @@ sub search {
       $query .=
         qq| UNION | .
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-        qq|  pt.description as payment | .
+        qq|  pt.description as payment, tz.description as taxzone | .
         $pg_select .
         $main_cp_select .
         qq|, ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
@@ -379,6 +381,7 @@ sub search {
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
+        qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
         $pg_join .
         qq|WHERE $where AND ((o.record_type = 'sales_quotation') OR (o.record_type = 'request_quotation'))|;
     }
