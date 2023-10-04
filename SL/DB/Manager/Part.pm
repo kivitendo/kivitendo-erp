@@ -103,7 +103,7 @@ open_qty AS (
   LEFT OUTER JOIN oe o ON (oi.trans_id = o.id)
   WHERE
     oi.parts_id = ?
-    AND (NOT COALESCE(o.quotation, FALSE))
+    AND (o.record_type = 'purchase_order')
     AND (NOT COALESCE(o.closed,    FALSE))
     AND (NOT COALESCE(o.delivered, FALSE))
     AND (COALESCE(o.vendor_id, 0) <> 0)
@@ -116,7 +116,7 @@ open_orderitems_ids AS (
   LEFT OUTER JOIN oe o ON (oi.trans_id = o.id)
   WHERE
     oi.parts_id = ?
-    AND (NOT COALESCE(o.quotation, FALSE))
+    AND (o.record_type = 'purchase_order')
     AND (NOT COALESCE(o.closed,    FALSE))
     AND (NOT COALESCE(o.delivered, FALSE))
     AND (o.vendor_id is not null)

@@ -416,7 +416,8 @@ sub create_from_purchase_basket {
     delivery_term_id        => $vendor->delivery_term_id,
     taxzone_id              => $vendor->taxzone_id,
     currency_id             => $vendor->currency_id,
-    transdate               => DateTime->today_local
+    transdate               => DateTime->today_local,
+    record_type             => PURCHASE_ORDER_TYPE(),
   );
 
   my @order_items;
