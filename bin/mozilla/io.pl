@@ -2134,6 +2134,10 @@ sub _make_record {
     $obj->record_type(SL::DB::DeliveryOrder::TypeData::validate_type($::form->{type}));
   }
 
+  if ($class eq 'SL::DB::Order' && !$obj->record_type) {
+    $obj->record_type(SL::DB::Order::TypeData::validate_type($::form->{type}));
+  }
+
   if ($class eq 'SL::DB::Invoice') {
     my $paid = $factor *
       sum
