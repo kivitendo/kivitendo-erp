@@ -70,10 +70,11 @@ sub column_defs {
   my ($self) = @_;
 
   return {
-    valid_from => { text => $::locale->text('Date'),       sub => sub { $_[0]->valid_from_as_timestamp }},
-    lastcost   => { text => $::locale->text('Lastcost'),   sub => sub { $_[0]->lastcost_as_number }},
-    listprice  => { text => $::locale->text('List Price'), sub => sub { $_[0]->listprice_as_number }},
-    sellprice  => { text => $::locale->text('Sell Price'), sub => sub { $_[0]->sellprice_as_number }},
+    valid_from   => { text => $::locale->text('Date'),         sub => sub { $_[0]->valid_from_as_timestamp }},
+    lastcost     => { text => $::locale->text('Lastcost'),     sub => sub { $_[0]->lastcost_as_number }},
+    listprice    => { text => $::locale->text('List Price'),   sub => sub { $_[0]->listprice_as_number }},
+    sellprice    => { text => $::locale->text('Sell Price'),   sub => sub { $_[0]->sellprice_as_number }},
+    price_factor => { text => $::locale->text('Price Factor'), sub => sub { $_[0]->price_factor_as_number }},
   };
 }
 
@@ -86,7 +87,7 @@ sub prepare_report {
 
   my $title       = $::locale->text('Price history for master data');
 
-  my @columns     = qw(valid_from lastcost listprice sellprice);
+  my @columns     = qw(valid_from lastcost listprice sellprice price_factor);
 
   my $column_defs = $self->column_defs;
 
