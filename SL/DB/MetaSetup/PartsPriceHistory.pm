@@ -9,12 +9,13 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('parts_price_history');
 
 __PACKAGE__->meta->columns(
-  id         => { type => 'serial', not_null => 1 },
-  lastcost   => { type => 'numeric', precision => 15, scale => 5 },
-  listprice  => { type => 'numeric', precision => 15, scale => 5 },
-  part_id    => { type => 'integer', not_null => 1 },
-  sellprice  => { type => 'numeric', precision => 15, scale => 5 },
-  valid_from => { type => 'timestamp', not_null => 1 },
+  id           => { type => 'serial', not_null => 1 },
+  lastcost     => { type => 'numeric', precision => 15, scale => 5 },
+  listprice    => { type => 'numeric', precision => 15, scale => 5 },
+  part_id      => { type => 'integer', not_null => 1 },
+  price_factor => { type => 'numeric', default => 1, precision => 15, scale => 5 },
+  sellprice    => { type => 'numeric', precision => 15, scale => 5 },
+  valid_from   => { type => 'timestamp', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
