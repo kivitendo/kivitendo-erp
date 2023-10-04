@@ -218,7 +218,7 @@ sub all_parts {
       q|LEFT JOIN (
          SELECT id, transdate, 'ir' AS module, ordnumber, quonumber,         invnumber, 'purchase_invoice' AS record_type, NULL AS customer_id,         vendor_id,    NULL AS deliverydate, globalproject_id, 'invoice'    AS ioi FROM ap UNION
          SELECT id, transdate, 'is' AS module, ordnumber, quonumber,         invnumber, 'sales_invoice'    AS record_type,         customer_id, NULL AS vendor_id,            deliverydate, globalproject_id, 'invoice'    AS ioi FROM ar UNION
-         SELECT id, transdate, 'oe' AS module, ordnumber, quonumber, NULL AS invnumber,                       record_type,         customer_id,         vendor_id, reqdate AS deliverydate, globalproject_id, 'orderitems' AS ioi FROM oe
+         SELECT id, transdate, 'oe' AS module, ordnumber, quonumber, NULL AS invnumber,                       record_type::text,   customer_id,         vendor_id, reqdate AS deliverydate, globalproject_id, 'orderitems' AS ioi FROM oe
        ) AS apoe ON ((ioi.trans_id = apoe.id) AND (ioi.ioi = apoe.ioi))|,
     cv         =>
       q|LEFT JOIN (
