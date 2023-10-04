@@ -51,6 +51,7 @@ pirce
 postition
 primt
 puchase
+purcharse
 puhs
 saveing
 sekf
