@@ -1154,7 +1154,7 @@ sub get_number_prefix_for_type {
     :                                                                                                     'ord';
 
   # better default like this?
-  # : ($self->{type} =~ /(sales|purcharse)_order/           :  'ord';
+  # : ($self->{type} =~ /(sales|purchase)_order/           :  'ord';
   # :                                                           'prefix_undefined';
 
   $main::lxdebug->leave_sub();

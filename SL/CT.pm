@@ -361,7 +361,7 @@ sub search {
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
         $pg_join .
-        qq|WHERE $where AND ((o.record_type = 'sales_order') OR (o.record_type = 'purcharse_order'))|;
+        qq|WHERE $where AND ((o.record_type = 'sales_order') OR (o.record_type = 'purchase_order'))|;
     }
 
     if ( $form->{l_quonumber} ) {
