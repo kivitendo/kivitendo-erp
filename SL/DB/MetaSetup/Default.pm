@@ -198,6 +198,7 @@ __PACKAGE__->meta->columns(
   sepa_set_duedate_as_default_exec_date     => { type => 'boolean', default => 'false' },
   sepa_set_skonto_date_as_default_exec_date => { type => 'boolean', default => 'false' },
   sepa_set_skonto_date_buffer_in_days       => { type => 'integer', default => '0' },
+  sepa_swiss_xml_export                     => { type => 'boolean', default => 'false' },
   servicenumber                             => { type => 'text' },
   shipped_qty_require_stock_out             => { type => 'boolean', default => 'false', not_null => 1 },
   show_bestbefore                           => { type => 'boolean', default => 'false' },
