@@ -75,13 +75,19 @@
           [% L.hidden_tag('vc_bank_info[+].id', vbi.id) %]
           [% L.hidden_tag('vc_bank_info[].type', vbi.type) %]
           [% IF vbi.type == 'QRBILL' %]
-            [% L.hidden_tag('vc_bank_info[].name', vbi.name) %]
+            <td>
+              [% HTML.escape(vbi.name) %]
+              [% L.hidden_tag('vc_bank_info[].name', vbi.name) %]
+            </td>
+            <td>[% HTML.escape(vbi.qr_iban) %]</td>
+            <td>-</td>
           [% ELSIF vbi.type == 'DOMESTIC' %]
             <td>
               [% HTML.escape(vbi.name) %]
               [% L.hidden_tag('vc_bank_info[].name', vbi.name) %]
             </td>
             <td>[% L.input_tag('vc_bank_info[].iban', vbi.iban) %]</td>
+            <td>-</td>
           [% ELSE %]
             <td>
               [% HTML.escape(vbi.name) %]
