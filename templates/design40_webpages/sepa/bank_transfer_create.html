@@ -50,7 +50,9 @@
       <th>[% IF is_vendor %][% 'Vendor' | $T8 %][% ELSE %][% LxERP.t8('Customer') %][% END %]</th>
       <th>[% 'IBAN' | $T8 %]</th>
       <th>[% 'BIC' | $T8 %]</th>
-      <th>[% 'Bank' | $T8 %]</th>
+      [% IF !INSTANCE_CONF.get_sepa_swiss_xml_export %]
+        <th>[% 'Bank' | $T8 %]</th>
+      [% END %]
       [% IF vc == 'customer' %]
         <th>[% 'Mandator ID' | $T8 %]</th>
         <th>[% 'Mandate Date of Signature' | $T8 %]</th>
@@ -60,13 +62,34 @@
   <tbody>
     [% FOREACH vbi = VC_BANK_INFO %]
       <tr class="listrow[% loop.count % 1 %]">
-        <td> <input type="hidden" name="vc_bank_info[+].id" value="[% HTML.escape(vbi.id) %]"> <input type="hidden" name="vc_bank_info[].name" value="[% HTML.escape(vbi.name) %]"> [% HTML.escape(vbi.name) %] </td>
-        <td><input type="text" name="vc_bank_info[].iban" size="34" value="[% HTML.escape(vbi.iban.substr(0, 34)) %]" maxlength="34"></td>
-        <td><input type="text" name="vc_bank_info[].bic" size="20" value="[% HTML.escape(vbi.bic.substr(0, 20)) %]" maxlength="20"></td>
-        <td><input type="text" name="vc_bank_info[].bank" size="30" value="[% HTML.escape(vbi.bank) %]"></td>
-        [% IF vc == 'customer' %]
-          <td><input type="text" name="vc_bank_info[].mandator_id" size="30" value="[% HTML.escape(vbi.mandator_id) %]"></td>
-          <td>[% L.date_tag("vc_bank_info[].mandate_date_of_signature", vbi.mandate_date_of_signature) %]</td>
+        [% IF !INSTANCE_CONF.get_sepa_swiss_xml_export %]
+          <td> <input type="hidden" name="vc_bank_info[+].id" value="[% HTML.escape(vbi.id) %]"> <input type="hidden" name="vc_bank_info[].name" value="[% HTML.escape(vbi.name) %]"> [% HTML.escape(vbi.name) %] </td>
+          <td><input type="text" name="vc_bank_info[].iban" size="34" value="[% HTML.escape(vbi.iban.substr(0, 34)) %]" maxlength="34"></td>
+          <td><input type="text" name="vc_bank_info[].bic" size="20" value="[% HTML.escape(vbi.bic.substr(0, 20)) %]" maxlength="20"></td>
+          <td><input type="text" name="vc_bank_info[].bank" size="30" value="[% HTML.escape(vbi.bank) %]"></td>
+          [% IF vc == 'customer' %]
+            <td><input type="text" name="vc_bank_info[].mandator_id" size="30" value="[% HTML.escape(vbi.mandator_id) %]"></td>
+            <td>[% L.date_tag("vc_bank_info[].mandate_date_of_signature", vbi.mandate_date_of_signature) %]</td>
+          [% END %]
+        [% ELSE %]
+          [% L.hidden_tag('vc_bank_info[+].id', vbi.id) %]
+          [% L.hidden_tag('vc_bank_info[].type', vbi.type) %]
+          [% IF vbi.type == 'QRBILL' %]
+            [% L.hidden_tag('vc_bank_info[].name', vbi.name) %]
+          [% ELSIF vbi.type == 'DOMESTIC' %]
+            <td>
+              [% HTML.escape(vbi.name) %]
+              [% L.hidden_tag('vc_bank_info[].name', vbi.name) %]
+            </td>
+            <td>[% L.input_tag('vc_bank_info[].iban', vbi.iban) %]</td>
+          [% ELSE %]
+            <td>
+              [% HTML.escape(vbi.name) %]
+              [% L.hidden_tag('vc_bank_info[].name', vbi.name) %]
+            </td>
+            <td>[% L.input_tag('vc_bank_info[].iban', vbi.iban) %]</td>
+            <td>[% L.input_tag('vc_bank_info[].bic', vbi.bic) %]</td>
+          [% END %]
         [% END %]
       </tr>
     [% END %]
@@ -99,6 +122,9 @@
           <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.amount_less_skonto, 2) %]">
           <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.skonto_amount, 2) %]">
           <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.open_amount, 2) %]">
+          [% IF INSTANCE_CONF.get_sepa_swiss_xml_export %]
+            [% L.hidden_tag('bank_transfers[].type', bank_transfer.type) %]
+          [% END %]
           [% IF loop.first || (previous_vcname != bank_transfer.vcname) %]
             <a href="controller.pl?action=CustomerVendor/edit&db=[% vc %]&id=[% HTML.url(bank_transfer.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
               [% GET HTML.escape(bank_transfer.vcname); SET previous_vcname = bank_transfer.vcname; %]

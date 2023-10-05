@@ -18,7 +18,13 @@
     </tr>
 
     <tr>
-     <td align="right">[% LxERP.t8("SEPA message ID") %]</td>
+     <td align="right">
+      [%- IF !INSTANCE_CONF.get_sepa_swiss_xml_export %]
+        [% LxERP.t8("SEPA message ID") %]
+      [%- ELSE %]
+        [% LxERP.t8("Message ID") %]
+      [%- END %]
+     </td>
      <td>[% L.input_tag("f_message_id") %]</td>
     </tr>
 
