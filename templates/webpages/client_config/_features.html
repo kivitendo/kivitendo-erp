@@ -528,6 +528,10 @@
    <td align="right">[% LxERP.t8('In addition to the above date functions, subtract the following amount of days from the calculated date as a buffer.') %]</td>
    <td>[% L.input_tag('defaults.sepa_set_skonto_date_buffer_in_days_as_number', SELF.defaults.sepa_set_skonto_date_buffer_in_days_as_number, style=style) %]</td>
   </tr>
+  <tr>
+    <td align="right">[% LxERP.t8('Bank transfer via SEPA is replaced by Bank transfer via swiss XML. According to Swiss Payment Standards, Customer Credit Transfer Initiation (pain.001).') %]</td>
+    <td>[% L.yes_no_tag('defaults.sepa_swiss_xml_export', SELF.defaults.sepa_swiss_xml_export) %]</td>
+  </tr>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Experimental Features") %]</td></tr>
   <tr>
    <td align="right">[% LxERP.t8('new order controller') %]</td>

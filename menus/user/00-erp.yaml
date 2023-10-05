@@ -770,7 +770,16 @@
   id: cash_bank_transfer_via_sepa
   name: Bank transfer via SEPA
   order: 400
-  access: cash
+  access: cash & !client/sepa_swiss_xml_export
+  module: sepa.pl
+  params:
+    action: bank_transfer_add
+    vc: vendor
+- parent: cash
+  id: cash_bank_transfer_via_swiss_xml
+  name: Bank transfer via swiss XML
+  order: 450
+  access: cash & client/sepa_swiss_xml_export
   module: sepa.pl
   params:
     action: bank_transfer_add
@@ -854,7 +863,16 @@
   id: cash_reports_bank_transfers_via_sepa
   name: Bank transfers via SEPA
   order: 400
-  access: cash
+  access: cash & !client/sepa_swiss_xml_export
+  module: sepa.pl
+  params:
+    action: bank_transfer_search
+    vc: vendor
+- parent: cash_reports
+  id: cash_reports_bank_transfers_via_swiss_xml
+  name: Bank transfers via swiss XML
+  order: 400
+  access: cash & client/sepa_swiss_xml_export
   module: sepa.pl
   params:
     action: bank_transfer_search
