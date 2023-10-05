@@ -273,9 +273,19 @@ sub validate_vendors_swiss_export {
   my %unique_vendor_types;
   for my $bt (@$bank_transfers) {
     my $uid = "$bt->{vc_id}_$bt->{type}";
+
+    # if qr-bill get iban from qr-bill data to display in vendor account information,
+    # important for manual verification
+    my $qr_iban;
+    if ($bt->{type} eq 'QRBILL') {
+      my $qr_bill_data = SL::Helper::QrBillParser->new($bt->{qrbill_data});
+      $qr_iban = $qr_bill_data->{creditor_information}->{iban};
+    }
+
     $unique_vendor_types{$uid} = {
       vc_id => $bt->{vc_id},
-      type => $bt->{type}
+      type => $bt->{type},
+      qr_iban => $qr_iban,
     } unless defined $unique_vendor_types{$uid};
   }
 
@@ -287,6 +297,9 @@ sub validate_vendors_swiss_export {
   # combine bank info with unique vendor types
   for my $unique_vendor (values %unique_vendor_types) {
     $vendors->{$unique_vendor->{vc_id}}->{type} = $unique_vendor->{type};
+    if ($unique_vendor->{type} eq 'QRBILL') {
+      $vendors->{$unique_vendor->{vc_id}}->{qr_iban} = $unique_vendor->{qr_iban};
+    }
   }
 
   # validate bank info for unique vendor types
