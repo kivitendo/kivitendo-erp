@@ -142,7 +142,7 @@ sub displayable_name {
 
 sub is_sales {
   croak 'not an accessor' if @_ > 1;
-  return !!shift->customer_id;
+  $_[0]->type_data->properties('is_customer');
 }
 
 sub daily_exchangerate {
