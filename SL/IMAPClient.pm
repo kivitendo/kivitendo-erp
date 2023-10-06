@@ -194,12 +194,13 @@ sub _create_email_journal {
     my ($part) = @_;
     my $filename = $part->filename;
     if ($filename) {
-      my $content_type = $part->content_type;
+      my $mime_type = $part->content_type;
+      $mime_type =~ s/;.*//; # clean up mime_type
       my $content = $part->body;
       my $attachment = SL::DB::EmailJournalAttachment->new(
         name      => $filename,
         content   => $content,
-        mime_type => $content_type,
+        mime_type => $mime_type,
       );
       push @attachments, $attachment;
     }
