@@ -21,8 +21,8 @@
   [% L.hidden_tag('callback',             FORM.callback) %]
   [% L.hidden_tag('type',                 FORM.type) %]
   [% L.hidden_tag('id',                   SELF.order.id) %]
-  [% L.hidden_tag('converted_from_oe_id', SELF.converted_from_oe_id) %]
-  [% L.hidden_tag('converted_from_reclamation_id', SELF.converted_from_reclamation_id) %]
+  [% L.hidden_tag('converted_from_record_type_ref', SELF.order.converted_from_record_type_ref) %]
+  [% L.hidden_tag('converted_from_record_id',  SELF.order.converted_from_record_id) %]
 
   [% IF !SELF.order.id %]
   [%   L.hidden_tag('form_validity_token', FORM.form_validity_token) %]

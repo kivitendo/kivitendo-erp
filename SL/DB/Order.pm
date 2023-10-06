@@ -514,16 +514,6 @@ sub new_from {
     any { $from_to->{abbr} eq $_ } @_;
   };
 
-  my ($item_parent_id_column, $item_parent_column);
-
-  if (ref($source) eq 'SL::DB::Order') {
-    $item_parent_id_column = 'trans_id';
-    $item_parent_column    = 'order';
-  } elsif ( ref($source) eq 'SL::DB::Reclamation') {
-    $item_parent_id_column = 'reclamation_id';
-    $item_parent_column    = 'reclamation';
-  }
-
   my %args;
   if (ref($source) eq 'SL::DB::Order') {
     %args = ( map({ ( $_ => $source->$_ ) } qw(amount cp_id currency_id cusordnumber customer_id delivery_customer_id delivery_term_id delivery_vendor_id
@@ -613,15 +603,9 @@ sub new_from {
   $order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
   my $items = delete($params{items}) || $source->items_sorted;
 
-  my %item_parents;
-
   my @items = map {
     my $source_item      = $_;
-    my $source_item_id   = $_->$item_parent_id_column;
     my @custom_variables = map { _clone_orderitem_cvar($_) } @{ $source_item->custom_variables };
-
-    $item_parents{$source_item_id} ||= $source_item->$item_parent_column;
-    my $item_parent                  = $item_parents{$source_item_id};
 
     my $current_oe_item;
     if (ref($source) eq 'SL::DB::Order') {
@@ -654,7 +638,7 @@ sub new_from {
       $current_oe_item->lastcost($source_item->sellprice);
     }
     unless ($params{no_linked_records}) {
-      $current_oe_item->{ RECORD_ITEM_ID() } = $_->{id};
+      $current_oe_item->{ RECORD_ITEM_ID() } = $source_item->{id};
       $current_oe_item->{ RECORD_ITEM_TYPE_REF() } = ref($source_item);
     }
     $current_oe_item;
@@ -742,6 +726,7 @@ sub new_from_multi {
                                attributes       => \%attributes,
                                items            => \@items,
                                %params);
+  $order->{RECORD_ID()} = join ' ', map { $_->id } @$sources; # link all sources
 
   return $order;
 }
