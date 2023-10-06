@@ -113,17 +113,17 @@
           [% END %]
         </td>
       </tr>
-      [% UNLESS SELF.part.is_assembly %]
       <tr>
         <th>[% 'Last Cost' | $T8 %]</th>
         <td>
-          [% L.input_tag("part.lastcost_as_number", SELF.part.lastcost_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]
-          [% IF SELF.part.is_assortment %]
+          [%- UNLESS SELF.part.is_assembly %]
+            [% L.input_tag("part.lastcost_as_number", SELF.part.lastcost_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]
+          [% END %]
+          [% IF SELF.part.is_assortment || SELF.part.is_assembly %]
             <span id="items_lastcost_sum_basic" class="data below wi-mediumsmall numeric">([% LxERP.format_amount(SELF.part.items_lastcost_sum, 2) %])</span>
           [% END %]
         </td>
       </tr>
-      [% END %]
       [% IF SELF.all_price_factors.size %]
       <tr>
         <th>[% 'Price Factor' | $T8 %]</th>
