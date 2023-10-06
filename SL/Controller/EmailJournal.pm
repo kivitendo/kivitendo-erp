@@ -87,6 +87,22 @@ sub action_show {
                 back_to => $back_to);
 }
 
+sub action_show_attachment {
+  my ($self) = @_;
+
+  $::auth->assert('email_journal');
+
+  my $attachment_id      = $::form->{attachment_id};
+  my $attachment = SL::DB::EmailJournalAttachment->new(id => $attachment_id)->load;
+
+  return $self->send_file(
+    \$attachment->content,
+    name => $attachment->name,
+    type => $attachment->mime_type,
+    content_disposition => 'inline',
+  );
+}
+
 sub action_download_attachment {
   my ($self) = @_;
 
@@ -164,7 +180,7 @@ sub action_update_attachment_preview {
     ->replaceWith('#attachment_preview',
       SL::Presenter::EmailJournal::attachment_preview(
         $attachment,
-        style => "width:655px;border:1px solid black;margin:9px"
+        style => "height:1800px"
       )
     )
     ->render();

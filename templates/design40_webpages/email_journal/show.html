@@ -75,7 +75,7 @@
 
 [% SET attachments = SELF.entry.attachments_sorted %]
 
-<div class="input-panel" style="vertical-align:top;" id="wrapper-2">
+<div class="wrapper input-panel" style="vertical-align:top;" id="wrapper-2">
 
 [% IF attachments.size %]
 <table id="email_journal_details" class="tbl-list">
@@ -120,7 +120,7 @@
     [% L.select_tag('record_action',
        # id has to start with customer_ or vendor_ for picker selection
        [
-         [ LxERP.t8("Hard linking"), [
+         [ LxERP.t8("Linking"), [
            {id => "link_sales_quotation",           name => LxERP.t8("Link to sales quotation")},
            {id => "link_sales_order_intake",        name => LxERP.t8("Link to sales order intake")},
            {id => "link_sales_order",               name => LxERP.t8("Link to sales order")},
