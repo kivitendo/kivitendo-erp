@@ -156,6 +156,7 @@ sub send_file {
   }
 
   my $content_type    =  $params{type} || 'application/octet_stream';
+  my $content_disposition = $params{content_disposition} || 'attachment';
   my $attachment_name =  $params{name} || (!ref($file_name_or_content) ? $file_name_or_content : '');
   $attachment_name    =~ s:.*//::g;
 
@@ -165,7 +166,7 @@ sub send_file {
     $self->js->render unless $params{js_no_render};
   } else {
     print $::form->create_http_response(content_type        => $content_type,
-                                        content_disposition => 'attachment; filename="' . $attachment_name . '"',
+                                        content_disposition => $content_disposition . '; filename="' . $attachment_name . '"',
                                         content_length      => $size);
 
     if (!ref $file_name_or_content) {
