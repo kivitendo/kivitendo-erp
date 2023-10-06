@@ -86,7 +86,7 @@ __PACKAGE__->meta->add_relationships(
     type         => 'one to one',
     class        => 'SL::DB::PartsPriceHistory',
     column_map   => { id => 'part_id' },
-    manager_args => { sort_by => 'valid_from DESC', limit => 1 },
+    manager_args => { sort_by => 'valid_from DESC, id DESC', limit => 1 },
   },
   purchase_basket_item => {
     type         => 'one to one',
