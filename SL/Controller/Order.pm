@@ -33,7 +33,7 @@ use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::ValidityToken;
-use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_ITEM_ID);
+use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
 use SL::Model::Record;
@@ -119,16 +119,6 @@ sub action_add_from_record {
   my $record = SL::Model::Record->get_record($from_type, $from_id);
   my $order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->order($order);
-
-  if (ref($record) eq 'SL::DB::Reclamation') {
-    $self->{converted_from_reclamation_id}       = $order->{ RECORD_ID()      };
-    $_   ->{converted_from_reclamation_items_id} = $_    ->{ RECORD_ITEM_ID() } for @{ $order->items_sorted };
-  }
-  if (ref($record) eq 'SL::DB::Order') {
-    $self->{converted_from_oe_id}       = $order->{ RECORD_ID()      };
-    $_   ->{converted_from_oe_items_id} = $_    ->{ RECORD_ITEM_ID() } for @{ $order->items_sorted };
-  }
-
 
   $self->recalc();
   $self->pre_render();
@@ -230,8 +220,7 @@ sub action_edit_collective {
 
   # make new order from given orders
   my @multi_orders = map { SL::DB::Order->new(id => $_)->load } @multi_ids;
-  $self->{converted_from_oe_id} = join ' ', map { $_->id } @multi_orders;
-  my $target_type = "sales_order";
+  my $target_type = SALES_ORDER_TYPE();
   my $order = SL::Model::Record->new_from_workflow_multi(\@multi_orders, $target_type, sort_sources_by => 'transdate');
   $self->order($order);
 
@@ -1588,8 +1577,8 @@ sub js_reset_order_and_item_ids_after_save {
 
   $self->js
     ->val('#id', $self->order->id)
-    ->val('#converted_from_oe_id', '')
-    ->val('#converted_from_reclamation_id', '')
+    ->val('#converted_from_record_type_ref', '')
+    ->val('#converted_from_record_id',  '')
     ->val('#order_' . $self->nr_key(), $self->order->number);
 
   my $idx = 0;
@@ -1603,8 +1592,8 @@ sub js_reset_order_and_item_ids_after_save {
   } continue {
     $idx++;
   }
-  $self->js->val('[name="converted_from_orderitems_ids[+]"]', '');
-  $self->js->val('[name="converted_from_reclamation_items_ids[+]"]', '');
+  $self->js->val('[name="converted_from_record_item_type_refs[+]"]', '');
+  $self->js->val('[name="converted_from_record_item_ids[+]"]', '');
   $self->js->val('[name="basket_item_ids[+]"]', '');
 }
 
@@ -2059,27 +2048,24 @@ sub parse_phone_note {
 sub save {
   my ($self) = @_;
 
+  my $is_new = !$self->order->id;
+
   $self->parse_phone_note if $::form->{phone_note}->{subject} || $::form->{phone_note}->{body};
 
   # create first version if none exists
   $self->order->add_order_version(SL::DB::OrderVersion->new(version => 1)) if !$self->order->order_version;
 
+  set_record_link_conversions($self->order,
+    delete $::form->{RECORD_TYPE_REF()}
+      => delete $::form->{RECORD_ID()},
+    delete $::form->{RECORD_ITEM_TYPE_REF()}
+      => delete $::form->{RECORD_ITEM_ID()},
+  );
+
   my @converted_from_oe_ids;
-  if ($::form->{converted_from_oe_id}) {
-    @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};
-    set_record_link_conversions(
-      $self->order,
-      'SL::DB::Order'     => \@converted_from_oe_ids,
-      'SL::DB::OrderItem' => $::form->{converted_from_orderitems_ids},
-    );
-  }
-  if ($::form->{converted_from_reclamation_id}) {
-    my @converted_from_reclamation_ids = split ' ', $::form->{converted_from_reclamation_id};
-    set_record_link_conversions(
-      $self->order,
-      'SL::DB::Reclamation'     => \@converted_from_reclamation_ids,
-      'SL::DB::ReclamationItem' => $::form->{converted_from_reclamation_items_ids},
-    );
+  if ($self->order->{RECORD_TYPE_REF()} eq 'SL::DB::Order'
+      && $self->order->{RECORD_ID()}) {
+    @converted_from_oe_ids = split ' ', $self->order->{RECORD_ID()};
   }
 
   # check for purchase basket items
@@ -2102,8 +2088,6 @@ sub save {
                  join(',', @missing_for_positions))];
     }
   }
-
-  my $is_new = !$self->order->id;
 
   my $objects_to_close = scalar @converted_from_oe_ids
                        ? SL::DB::Manager::Order->get_all(where => [

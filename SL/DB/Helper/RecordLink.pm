@@ -71,6 +71,7 @@ sub set_record_link_conversions {
   my $idx = 0;
   my $items = $record->items_sorted;
 
+  $item_ids ||= [];
   croak "more item ids than items in record" if @$item_ids > @$items;
 
   for my $idx (0..$#$item_ids) {
