@@ -1018,7 +1018,9 @@ sub check_part_not_modified {
 
 sub check_lastcost_modified {
   my ($self) = @_;
-  return abs($self->part->lastcost - $self->part->last_price_update->lastcost) < 0.009 ? undef : 1;
+
+  return    (abs($self->part->lastcost                                               - $self->part->last_price_update->lastcost)     >= 0.009)
+         || (abs(($self->part->price_factor ? $self->part->price_factor->factor : 1) - $self->part->last_price_update->price_factor) >= 0.009);
 }
 
 sub parse_form {
