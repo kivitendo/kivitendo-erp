@@ -11,43 +11,49 @@ namespace('kivi.EmailJournal', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   }
 
-  ns.update_extra_div_selection = function() {
-    let record_action = $('#record_action').val();
-    if (record_action == undefined) { return; }
+  ns.update_customer_vendor_selection = function() {
+    let customer_vendor = $('#customer_vendor_selection').val();
 
     $('#customer_div').hide();
+    $('#customer_record_types_div').hide();
     $('#vendor_div').hide();
+    $('#vendor_record_types_div').hide();
 
-    $('#link_sales_quotation_div').hide();
-    $('#link_sales_order_intake_div').hide();
-    $('#link_sales_order_div').hide();
-    $('#link_request_quotation_div').hide();
-    $('#link_purchase_quotation_intake_div').hide();
-    $('#link_purchase_order_div').hide();
-
-    $('#placeholder_div').hide();
-
-    // customer vendor
-    if (record_action.match(/^customer/)) {
+    if (customer_vendor == 'customer') {
       $('#customer_div').show();
-    } else if (record_action.match(/^vendor/)) {
+      $('#customer_record_types_div').show();
+    } else { // if (customer_vendor == 'vendor')
       $('#vendor_div').show();
-    // link
-    } else if (record_action.match(/^link_/)) {
-      $('#'+record_action+'_div').show();
-    // placeholder
+      $('#vendor_record_types_div').show();
+    }
+    kivi.EmailJournal.update_record_type_selection(customer_vendor);
+  }
+
+  ns.update_action_selection = function() {
+    let record_action = $('#action_selection').val();
+
+    $('#record_type_div').hide();
+    $('#no_record_type_div').hide();
+
+    if (record_action == 'create_new') {
+      $('#no_record_type_div').show();
     } else {
-      $('#placeholder_div').show();
+      $('#record_type_div').show();
     }
   }
 
-  ns.apply_record_action = function() {
-    let record_action = $('#record_action').val();
-    if (record_action == '') {
-      alert(kivi.t8('Please select an action.'));
-      return;
-    }
+  ns.update_record_type_selection = function(customer_vendor) {
+    let record_type = $('#' + customer_vendor + '_record_type_selection').val();
 
+    $('.record_type').hide();
+    if (record_type != '') {
+      $('#' + record_type + '_div').show();
+    } else {
+      $('#record_type_placeholder_div').show();
+    }
+  }
+
+  ns.apply_action_with_attachment = function() {
     let data = $('#record_action_form').serializeArray();
     data.push({ name: 'action', value: 'EmailJournal/apply_record_action' });
 
@@ -57,5 +63,4 @@ namespace('kivi.EmailJournal', function(ns) {
 
 $(function() {
   kivi.EmailJournal.update_attachment_preview();
-  kivi.EmailJournal.update_extra_div_selection();
 });

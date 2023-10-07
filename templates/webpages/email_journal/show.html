@@ -1,59 +1,17 @@
-[% USE HTML %][% USE L %][% USE LxERP %][%- USE P -%]
+[% USE HTML %][% USE L %][% USE LxERP %][%- USE P -%] [% USE T8 %]
 
  <h1>[% FORM.title %]</h1>
 
 [%- INCLUDE 'common/flash.html' %]
 
- <table id="email_journal_details" class="email_journal_details">
-  <tbody>
-   <tr class="listrow">
-    <th>[%- LxERP.t8("From") %]</th>
-    <td>[%- HTML.escape(SELF.entry.from) %]</td>
-   </tr>
+<div class="tabwidget" id="email_tabs">
+  <ul>
+    <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
+    <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=EmailJournal&object_id=[% HTML.url(SELF.entry.id) %]">[% 'Linked Records' | $T8 %]</a></li>
+  </ul>
 
-   <tr class="listrow">
-    <th>[%- LxERP.t8("Recipients") %]</th>
-    <td>[%- HTML.escape(SELF.entry.recipients) %]</td>
-   </tr>
-
-   <tr class="listrow">
-    <th>[%- LxERP.t8("Subject") %]</th>
-    <td>[%- HTML.escape(SELF.entry.subject) %]</td>
-   </tr>
-
-   <tr class="listrow">
-    <th>[%- LxERP.t8("Sent on") %]</th>
-    <td>[%- HTML.escape(SELF.entry.sent_on.to_lxoffice("precision" => "second")) %]</td>
-   </tr>
-
-   <tr class="listrow">
-    <th>[%- LxERP.t8("Status") %]</th>
-    <td>
-        [% P.email_journal.entry_status(SELF.entry) %]
-    </td>
-   </tr>
-
-   <tr class="listrow">
-    <th>[%- LxERP.t8("Extended status") %]</th>
-    <td><pre>[%- HTML.escape(SELF.entry.extended_status) %]</pre></td>
-   </tr>
-
-   <tr class="listrow">
-    <th>[%- LxERP.t8("Headers") %]</th>
-    <td><pre>[% HTML.escape(SELF.entry.headers) %]</pre></td>
-   </tr>
-
-   <tr class="listrow">
-    <th>[%- LxERP.t8("Body") %]</th>
-    <td>
-     [%- IF SELF.entry.headers.match('(?i)content-type:.*text/html') %]
-      [% P.restricted_html(SELF.entry.body) %]
-     [%- ELSE %]
-      <pre>[% HTML.escape(SELF.entry.body) %]</pre>
-     [%- END %]
-    </td>
-   </tr>
- </table>
+[% PROCESS "email_journal/tabs/basic_data.html" %]
+</div> <!-- /.tabwidget -->
 
  [% SET attachments = SELF.entry.attachments_sorted %]
   <h2>[% LxERP.t8("Attachments") %]</h2>
@@ -97,69 +55,103 @@
     </td>
 
     <td>
-      [% L.select_tag('record_action',
-         # id has to start with customer_ or vendor_ for picker selection
+      [% L.select_tag('customer_vendor_selection',
          [
-           [ LxERP.t8("Linking"), [
-             {id => "link_sales_quotation",           name => LxERP.t8("Link to sales quotation")},
-             {id => "link_sales_order_intake",        name => LxERP.t8("Link to sales order intake")},
-             {id => "link_sales_order",               name => LxERP.t8("Link to sales order")},
-             {id => "link_request_quotation",         name => LxERP.t8("Link to request quotation")},
-             {id => "link_purchase_quotation_intake", name => LxERP.t8("Link to purchase quotation intake")},
-             {id => "link_purchase_order",            name => LxERP.t8("Link to purchase order")},
-
-           ] ],
-           [ LxERP.t8("Sales"), [
-               {id => "customer_sales_order",  name => LxERP.t8("Create sales order")},
-               {id => "customer_sales_order_intake",  name => LxERP.t8("Create sales order intake")},
-               {id => "customer_sales_quotation",  name => LxERP.t8("Create sales quotation")},
-           ] ],
-           [ LxERP.t8("Purchase"), [
-               {id => "vendor_purchase_order", name => LxERP.t8("Create purchase order")},
-               {id => "vendor_purchase_quotation_intake", name => LxERP.t8("Create purchase quotation intake")},
-               {id => "vendor_request_quotation", name => LxERP.t8("Create request quotation")},
-
-           ] ],
+           {value => "customer", name => LxERP.t8("Sales")},
+           {value => "vendor",   name => LxERP.t8("Purchase")},
          ],
-         value_key='id', title_key='name',
-         with_empty=1, empty_value='', empty_title=LxERP.t8("No action"),
-         with_optgroups=1,
-         class="wi-normal",
-         onchange='kivi.EmailJournal.update_extra_div_selection();'
+         default = CV_TYPE_FOUND,
+         value_key='value', title_key='name',
+         class="wi-verysmall",
+         onchange='kivi.EmailJournal.update_customer_vendor_selection();'
          ) %]
     </td>
 
     <td>
-      [% FOREACH cv_type_name = [['customer', 'Customer'], ['vendor', 'Vendor']] %]
-      [% SET cv_type = cv_type_name.0 %]
-      [% SET cv_name = cv_type_name.1 %]
-      <div id="[% cv_type _ "_div" %]" style="display:none">
+      [% FOREACH cv_option = [
+           ['customer', 'Customer', 1],
+           ['vendor',   'Vendor',   0],
+           ] %]
+      [% SET cv_type        = cv_option.0 %]
+      [% SET cv_name        = cv_option.1 %]
+      [% SET cv_is_cusotmer = cv_option.2 %]
+      <div
+        id="[% cv_type _ "_div" %]" class="col"
+        style=[% IF cv_type == CV_TYPE_FOUND %] "display:block" [% ELSE %] "display:none" [% END %]
+        >
         [% P.customer_vendor.picker(
-             cv_type _ "_id", SELF.find_cv_from_email(cv_type, SELF.entry),
+             cv_type _ "_id",
+             CUSTOMER_VENDOR.is_customer == cv_is_cusotmer ? CUSTOMER_VENDOR : undef,
              type=cv_type, class="wi-normal", placeholder=LxERP.t8(cv_name)
              ) %]
       </div>
-      [% END %]
-      [% FOREACH record_type  = [
-           'sales_quotation', 'sales_order_intake', 'sales_order',
-           'request_quotation', 'purchase_quotation_intake', 'purchase_order'
-           ] %]
-      <div id="[% "link_" _ record_type _ "_div" %]" style="display:none">
-        [% L.input_tag(record_type _ "_id", '',
-             style="color:black", class="wi-normal",
-             placeholder=record_type _ " id") %]
+    [% END %]
+    </td>
+
+    <td>
+      [% L.select_tag('action_selection',
+         [
+           {value => "workflow",   name => LxERP.t8("Create from Workflow")},
+           {value => "linking",    name => LxERP.t8("Linking to Record")},
+           {value => "create_new", name => LxERP.t8("Create new")},
+         ],
+         value_key='value', title_key='name',
+         class="wi-normal",
+         onchange='kivi.EmailJournal.update_action_selection();'
+         ) %]
+    </td>
+
+    <td>
+      [% FOREACH customer_vendor = ['customer', 'vendor'] %]
+      <div id="[% customer_vendor _ "_record_types_div" %]" class="col"
+        style=[% IF customer_vendor == CV_TYPE_FOUND %] "display:block" [% ELSE %] "display:none" [% END %]
+        >
+
+        [%
+          SET options = [];
+          FOREACH record_info = RECORD_TYPES_WITH_INFO;
+            IF (record_info.customervendor == customer_vendor);
+              options.push({value => record_info.record_type, name => record_info.text});
+            END;
+          END;
+        %]
+      [% L.select_tag(customer_vendor _ '_record_type_selection',
+         options,
+         value_key='value', title_key='name',
+         with_empty=1, empty_value='', empty_title=LxERP.t8("Select record type"),
+         class="wi-normal",
+         onchange='kivi.EmailJournal.update_record_type_selection("' _ customer_vendor _ '");'
+         ) %]
       </div>
       [% END %]
-      <div id="placeholder_div" style="display:block">
+    </td>
+
+    <td>
+      <div id="record_type_div" class="col" style="display:block">
+        [% FOREACH record_info = RECORD_TYPES_WITH_INFO %]
+        <div id="[% record_info.record_type _ "_div" %]" class="col record_type" style="display:none">
+          [% L.input_tag(record_info.record_type _ "_id", '',
+               style="color:black", class="wi-normal",
+               placeholder=record_info.record_type _ " id") %]
+        </div>
+        [% END %]
+        <div id="record_type_placeholder_div" class="col record_type" style="display:block">
+          [% L.input_tag('cv_placeholder', '',
+               style="color:black", class="wi-normal", disabled=1,
+               placeholder=LxERP.t8("Select record type first"),
+               ) %]
+        </div>
+      </div>
+      <div id="no_record_type_div" class="col" style="display:none">
         [% L.input_tag('cv_placeholder', '',
              style="color:black", class="wi-normal", disabled=1,
-             placeholder=LxERP.t8("Select action first"),
+             placeholder=LxERP.t8("No record needed"),
              ) %]
       </div>
     </td>
 
     <td>
-      [% L.button_tag('kivi.EmailJournal.apply_record_action();', LxERP.t8('Apply with Attachment')) %]
+      [% L.button_tag('kivi.EmailJournal.apply_action_with_attachment();', LxERP.t8('Apply with Attachment')) %]
     </td>
   </tr> </table>
 </form>
