@@ -23,6 +23,7 @@ my %type_data = (
       list       => t8("Sales Reclamations"),
       add        => t8("Add Sales Reclamation"),
       edit       => t8("Edit Sales Reclamation"),
+      type       => t8("Sales Reclamation"),
     },
     show_menu => {
       save_and_sales_reclamation       => 0,
@@ -56,6 +57,7 @@ my %type_data = (
       list       => t8("Purchase Reclamations"),
       add        => t8("Add Purchase Reclamation"),
       edit       => t8("Edit Purchase Reclamation"),
+      type       => t8("Purchase Reclamation"),
     },
     show_menu => {
       save_and_sales_reclamation       => 1,

@@ -30,6 +30,7 @@ my %type_data = (
       add    => t8("Add Sales Order"),
       edit   => t8("Edit Sales Order"),
       list   => t8("Sales Orders"),
+      type   => t8("Sales Order"),
       attachment => t8("sales_order_list"),
     },
     show_menu => {
@@ -85,6 +86,7 @@ my %type_data = (
       add    => t8("Add Purchase Order"),
       edit   => t8("Edit Purchase Order"),
       list   => t8("Purchase Orders"),
+      type   => t8("Purchase Order"),
       attachment => t8("purchase_order_list"),
     },
     show_menu => {
@@ -133,6 +135,7 @@ my %type_data = (
       add    => t8("Add Quotation"),
       edit   => t8("Edit Quotation"),
       list   => t8("Quotations"),
+      type   => t8("Quotation"),
       attachment => t8("quotation_list"),
     },
     show_menu => {
@@ -188,6 +191,7 @@ my %type_data = (
       add    => t8("Add Request for Quotation"),
       edit   => t8("Edit Request for Quotation"),
       list   => t8("Request for Quotations"),
+      type   => t8("Request for Quotation"),
       attachment => t8("rfq_list"),
     },
     show_menu => {
@@ -236,6 +240,7 @@ my %type_data = (
       add        => t8('Add Purchase Quotation Intake'),
       edit       => t8('Edit Purchase Quotation Intake'),
       list       => t8('Purchase Quotation Intakes'),
+      type       => t8('Purchase Quotation Intake'),
       attachment => t8('purchase_quotation_intake_list'),
     },
     show_menu => {
@@ -284,6 +289,7 @@ my %type_data = (
       add    => t8("Add Sales Order Intake"),
       edit   => t8("Edit Sales Order Intake"),
       list   => t8("Sales Order Intakes"),
+      type   => t8("Sales Order Intake"),
       attachment => t8("sales_order_intake_list"),
     },
     show_menu => {

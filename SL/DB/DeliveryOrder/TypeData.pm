@@ -25,6 +25,8 @@ my %type_data = (
       saved  => t8('Delivery Order has been saved'),
       add    => t8("Add Sales Delivery Order"),
       edit   => t8("Edit Sales Delivery Order"),
+      list   => t8("Sales Delivery Orders"),
+      type   => t8("Sales Delivery Order"),
       attachment => t8("sales_delivery_order_list"),
     },
     show_menu => {
@@ -61,6 +63,8 @@ my %type_data = (
       saved  => t8('Delivery Order has been saved'),
       add    => t8("Add Purchase Delivery Order"),
       edit   => t8("Edit Purchase Delivery Order"),
+      list   => t8("Purchase Delivery Orders"),
+      type   => t8("Purchase Delivery Order"),
       attachment => t8("purchase_delivery_order_list"),
     },
     show_menu => {
@@ -97,6 +101,8 @@ my %type_data = (
       saved  => t8('Supplier Delivery Order has been saved'),
       add    => t8("Add Supplier Delivery Order"),
       edit   => t8("Edit Supplier Delivery Order"),
+      list   => t8("Supplier Delivery Orders"),
+      type   => t8("Supplier Delivery Order"),
       attachment => t8("supplier_delivery_order_list"),
     },
     show_menu => {
@@ -133,6 +139,8 @@ my %type_data = (
       saved  => t8('Delivery Order has been saved'),
       add    => t8("Add RMA Delivery Order"),
       edit   => t8("Edit RMA Delivery Order"),
+      list   => t8("RMA Delivery Orders"),
+      type   => t8("RMA Delivery Order"),
       attachment => t8("rma_delivery_order_list"),
     },
     show_menu => {
