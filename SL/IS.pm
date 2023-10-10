@@ -636,7 +636,9 @@ sub invoice_details {
     my $biller_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($biller_country);
     $form->{qrbill_biller_countrycode} = $biller_countrycode;
 
-    my $customer_country = $form->{'country'} || 'CH';
+    my $customer_country = $form->{billing_address_id} ?
+                            $form->{billing_address_country} || 'CH' :
+                            $form->{country} || 'CH';
     my $customer_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($customer_country);
     $form->{qrbill_customer_countrycode} = $customer_countrycode;
 

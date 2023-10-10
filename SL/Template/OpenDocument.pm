@@ -521,11 +521,18 @@ sub generate_qr_code {
   if (!$form->{qrbill_customer_countrycode}) {
     $::form->error($::locale->text('Error mapping customer countrycode.'));
   }
+
   my %invoice_recipient_data = (
     'address_type' => 'K',
-    'name' => $form->{'name'},
-    'address_row1' => $form->{'street'},
-    'address_row2' => $form->{'zipcode'} . ' ' . $form->{'city'},
+    'name' => $form->{billing_address_id} ?
+              $form->{'billing_address_name'} :
+              $form->{'name'},
+    'address_row1' => $form->{billing_address_id} ?
+                      $form->{'billing_address_street'} :
+                      $form->{'street'},
+    'address_row2' => $form->{billing_address_id} ?
+                      $form->{'billing_address_zipcode'} . ' ' . $form->{'billing_address_city'} :
+                      $form->{'zipcode'} . ' ' . $form->{'city'},
     'countrycode' => $form->{qrbill_customer_countrycode},
   );
 
