@@ -573,14 +573,12 @@ sub set_lastcost_assemblies_and_assortiments {
   my $assemblies  = SL::DB::Manager::Assembly->get_all(      where => [parts_id => $self->id ]);
 
   foreach my $assembly (@{ $assemblies }) {
-    next unless ref $assembly eq 'SL::DB::Assembly';
-    my $a = SL::DB::Part->load_cached($assembly->id);
+    my $a = $assembly->assembly_part;
     $a->update_attributes(lastcost => $a->items_lastcost_sum);
     $a->set_lastcost_assemblies_and_assortiments;
   }
   foreach my $assortment (@{ $assortments }) {
-    next unless ref $assortment eq 'SL::DB::AssortmentItem';
-    my $a = SL::DB::Part->load_cached($assortment->assortment_id);
+    my $a = $assortment->assortment;
     $a->update_attributes(lastcost => $a->items_lastcost_sum);
     $a->set_lastcost_assemblies_and_assortiments;
   }
