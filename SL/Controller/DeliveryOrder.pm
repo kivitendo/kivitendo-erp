@@ -32,7 +32,7 @@ use SL::DB::Translation;
 use SL::DB::TransferType;
 use SL::DB::ValidityToken;
 use SL::DB::Warehouse;
-use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_ITEM_ID);
+use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
 use SL::DB::DeliveryOrder;
@@ -131,15 +131,6 @@ sub action_add_from_record {
   my $record = SL::Model::Record->get_record($from_type, $from_id);
   my $delivery_order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->order($delivery_order);
-
-  if (ref($record) eq 'SL::DB::Reclamation') {
-    $self->{converted_from_reclamation_id}       = $delivery_order->{ RECORD_ID()      };
-    $_   ->{converted_from_reclamation_items_id} = $_             ->{ RECORD_ITEM_ID() } for @{ $delivery_order->items_sorted };
-  }
-  if (ref($record) eq 'SL::DB::Order') {
-    $self->{converted_from_oe_id}       = $delivery_order->{ RECORD_ID()      };
-    $_   ->{converted_from_oe_items_id} = $_             ->{ RECORD_ITEM_ID() } for @{ $delivery_order->items_sorted };
-  }
 
   $self->action_add;
 }
@@ -1213,8 +1204,8 @@ sub js_reset_order_and_item_ids_after_save {
 
   $self->js
     ->val('#id', $self->order->id)
-    ->val('#converted_from_oe_id', '')
-    ->val('#converted_from_reclamation_id', '')
+    ->val('#converted_from_record_type_ref', '')
+    ->val('#converted_from_record_id',  '')
     ->val('#order_' . $self->nr_key(), $self->order->number);
 
   my $idx = 0;
@@ -1231,8 +1222,8 @@ sub js_reset_order_and_item_ids_after_save {
   } continue {
     $idx++;
   }
-  $self->js->val('[name="converted_from_orderitems_ids[+]"]', '');
-  $self->js->val('[name="converted_from_reclamation_items_ids[+]"]', '');
+  $self->js->val('[name="converted_from_record_item_type_refs[+]"]', '');
+  $self->js->val('[name="converted_from_record_item_ids[+]"]', '');
 }
 
 #
@@ -1624,24 +1615,12 @@ sub get_unalterable_data {
 sub save {
   my ($self) = @_;
 
-  # link records
-  if ($::form->{converted_from_oe_id}) {
-    my @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};
-    set_record_link_conversions(
-      $self->order,
-      'SL::DB::Order'     => \@converted_from_oe_ids,
-      'SL::DB::OrderItem' => $::form->{converted_from_orderitems_ids},
-    );
-  }
-  if ($::form->{converted_from_reclamation_id}) {
-    my @converted_from_reclamation_ids =
-      split ' ', $::form->{converted_from_reclamation_id};
-    set_record_link_conversions(
-      $self->order,
-      'SL::DB::Reclamation'     => \@converted_from_reclamation_ids,
-      'SL::DB::ReclamationItem' => $::form->{converted_from_reclamation_items_ids},
-    );
-  }
+  set_record_link_conversions($self->order,
+    delete $::form->{RECORD_TYPE_REF()}
+      => delete $::form->{RECORD_ID()},
+    delete $::form->{RECORD_ITEM_TYPE_REF()}
+      => delete $::form->{RECORD_ITEM_ID()},
+  );
 
   my $items_to_delete  = scalar @{ $self->item_ids_to_delete || [] }
                        ? SL::DB::Manager::DeliveryOrderItem->get_all(where => [id => $self->item_ids_to_delete])
