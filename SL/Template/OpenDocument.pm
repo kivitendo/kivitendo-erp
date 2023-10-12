@@ -199,7 +199,7 @@ sub find_end {
 
     } elsif ((substr($text, $pos + 4, 4) eq 'else') && (1 == $depth)) {
       if (!$var) {
-        $self->{"error"} = '<%else%> outside of <%if%> / <%ifnot%>.';
+        $self->{error} = '<%else%> outside of <%if%> / <%ifnot%>.';
         return undef;
       }
 
@@ -255,7 +255,7 @@ sub parse_block {
 
           ($table_row, $contents) = $self->find_end($contents, length($1));
           if (!$table_row) {
-            $self->{"error"} = "Unclosed <\%foreachrow\%>." unless ($self->{"error"});
+            $self->{error} = "Unclosed <\%foreachrow\%>." unless ($self->{"error"});
             $main::lxdebug->leave_sub();
             return undef;
           }
@@ -310,7 +310,7 @@ sub parse_block {
         substr($contents, 0, $pos_foreach) = "";
 
         if ($contents !~ m|^(\&lt;\%foreach (.*?)\%\&gt;)|) {
-          $self->{"error"} = "Malformed <\%foreach\%>.";
+          $self->{error} = "Malformed <\%foreach\%>.";
           $main::lxdebug->leave_sub();
           return undef;
         }
@@ -322,7 +322,7 @@ sub parse_block {
         my $block;
         ($block, $contents) = $self->find_end($contents);
         if (!$block) {
-          $self->{"error"} = "Unclosed <\%foreach\%>." unless ($self->{"error"});
+          $self->{error} = "Unclosed <\%foreach\%>." unless ($self->{error});
           $main::lxdebug->leave_sub();
           return undef;
         }
@@ -353,14 +353,14 @@ sub parse {
   my $self = $_[0];
 
   local *OUT = $_[1];
-  my $form = $self->{"form"};
+  my $form = $self->{form};
 
   close(OUT);
 
   my $is_qr_bill = $::instance_conf->get_create_qrbill_invoices &&
                    ($form->{formname} eq 'invoice' ||
                     $form->{formname} eq 'invoice_for_advance_payment') &&
-                   $form->{'template_meta'}->{'printer'}->{'template_code'} =~ m/qr/ ?
+                   $form->{template_meta}->{printer}->{template_code} =~ m/qr/ ?
                    1 : 0;
 
   my $qr_image_path;
@@ -372,22 +372,22 @@ sub parse {
   }
 
   my $file_name;
-  if ($form->{"IN"} =~ m|^/|) {
-    $file_name = $form->{"IN"};
+  if ($form->{IN} =~ m|^/|) {
+    $file_name = $form->{IN};
   } else {
-    $file_name = $form->{"templates"} . "/" . $form->{"IN"};
+    $file_name = $form->{templates} . "/" . $form->{IN};
   }
 
   my $zip = Archive::Zip->new();
   if (Archive::Zip->AZ_OK != $zip->read($file_name)) {
-    $self->{"error"} = "File not found/is not a OpenDocument file.";
+    $self->{error} = "File not found/is not a OpenDocument file.";
     $main::lxdebug->leave_sub();
     return 0;
   }
 
   my $contents = Encode::decode('utf-8-strict', $zip->contents("content.xml"));
   if (!$contents) {
-    $self->{"error"} = "File is not a OpenDocument file.";
+    $self->{error} = "File is not a OpenDocument file.";
     $main::lxdebug->leave_sub();
     return 0;
   }
@@ -462,10 +462,10 @@ sub parse {
     );
   }
 
-  $zip->writeToFileNamed($form->{"tmpfile"}, 1);
+  $zip->writeToFileNamed($form->{tmpfile}, 1);
 
   my $res = 1;
-  if ($form->{"format"} =~ /pdf/) {
+  if ($form->{format} =~ /pdf/) {
     $res = $self->convert_to_pdf();
   }
 
@@ -476,7 +476,7 @@ sub parse {
 sub generate_qr_code {
   $main::lxdebug->enter_sub();
   my $self = $_[0];
-  my $form = $self->{"form"};
+  my $form = $self->{form};
 
   # assemble data for QR-Code
 
@@ -485,22 +485,22 @@ sub generate_qr_code {
   }
 
   my %biller_information = (
-    'iban' => $form->{qrbill_iban}
+    iban => $form->{qrbill_iban}
   );
 
   if (!$form->{qrbill_biller_countrycode}) {
     $::form->error($::locale->text('Error mapping biller countrycode.'));
   }
   my %biller_data = (
-    'address_type' => 'K',
-    'company' => $::instance_conf->get_company(),
-    'address_row1' => $::instance_conf->get_address_street1(),
-    'address_row2' => $::instance_conf->get_address_zipcode() . ' ' . $::instance_conf->get_address_city(),
-    'countrycode' => $form->{qrbill_biller_countrycode},
+    address_type => 'K',
+    company => $::instance_conf->get_company(),
+    address_row1 => $::instance_conf->get_address_street1(),
+    address_row2 => $::instance_conf->get_address_zipcode() . ' ' . $::instance_conf->get_address_city(),
+    countrycode => $form->{qrbill_biller_countrycode},
   );
 
   my ($amount, $amount_formatted);
-  if ($form->{'qrbill_without_amount'}) {
+  if ($form->{qrbill_without_amount}) {
     $amount = '';
     $amount_formatted = '';
   } else {
@@ -514,8 +514,8 @@ sub generate_qr_code {
   }
 
   my %payment_information = (
-    'amount' => $amount,
-    'currency' => $form->{'currency'},
+    amount => $amount,
+    currency => $form->{currency},
   );
 
   if (!$form->{qrbill_customer_countrycode}) {
@@ -523,54 +523,54 @@ sub generate_qr_code {
   }
 
   my %invoice_recipient_data = (
-    'address_type' => 'K',
-    'name' => $form->{billing_address_id} ?
-              $form->{'billing_address_name'} :
-              $form->{'name'},
-    'address_row1' => $form->{billing_address_id} ?
-                      $form->{'billing_address_street'} :
-                      $form->{'street'},
-    'address_row2' => $form->{billing_address_id} ?
-                      $form->{'billing_address_zipcode'} . ' ' . $form->{'billing_address_city'} :
-                      $form->{'zipcode'} . ' ' . $form->{'city'},
-    'countrycode' => $form->{qrbill_customer_countrycode},
+    address_type => 'K',
+    name => $form->{billing_address_id} ?
+              $form->{billing_address_name} :
+              $form->{name},
+    address_row1 => $form->{billing_address_id} ?
+                      $form->{billing_address_street} :
+                      $form->{street},
+    address_row2 => $form->{billing_address_id} ?
+                      $form->{billing_address_zipcode} . ' ' . $form->{billing_address_city} :
+                      $form->{zipcode} . ' ' . $form->{city},
+    countrycode => $form->{qrbill_customer_countrycode},
   );
 
   my %ref_nr_data;
   if ($::instance_conf->get_create_qrbill_invoices == 1) {
     # fill reference number with zeros when printing preview (before booking)
-    my $reference_number = $form->{'id'} ? $form->{'qr_reference'} : '0' x 27;
+    my $reference_number = $form->{id} ? $form->{qr_reference} : '0' x 27;
 
     %ref_nr_data = (
-      'type' => 'QRR',
-      'ref_number' => $reference_number,
+      type => 'QRR',
+      ref_number => $reference_number,
     );
     # get ref. number/iban formatted with spaces and set into form for template
     # processing
-    $form->{'ref_number'} = $reference_number;
-    $form->{'ref_number_formatted'} = get_ref_number_formatted($reference_number);
+    $form->{ref_number} = $reference_number;
+    $form->{ref_number_formatted} = get_ref_number_formatted($reference_number);
   } elsif ($::instance_conf->get_create_qrbill_invoices == 2) {
     %ref_nr_data = (
-      'type' => 'NON',
-      'ref_number' => '',
+      type => 'NON',
+      ref_number => '',
     );
   } else {
     $::form->error($::locale->text('Error getting QR-Bill type.'));
   }
 
   my %additional_information = (
-    'unstructured_message' => $form->{'qr_unstructured_message'}
+    unstructured_message => $form->{qr_unstructured_message}
   );
 
   # set into form for template processing
-  $form->{'biller_information'} = \%biller_information;
-  $form->{'biller_data'} = \%biller_data;
-  $form->{'iban_formatted'} = get_iban_formatted($form->{qrbill_iban});
-  $form->{'amount_formatted'} = $amount_formatted;
-  $form->{'unstructured_message'} = $form->{'qr_unstructured_message'};
+  $form->{biller_information} = \%biller_information;
+  $form->{biller_data} = \%biller_data;
+  $form->{iban_formatted} = get_iban_formatted($form->{qrbill_iban});
+  $form->{amount_formatted} = $amount_formatted;
+  $form->{unstructured_message} = $form->{qr_unstructured_message};
 
   # set outfile
-  my $outfile = $form->{"tmpdir"} . '/' . 'qr-code.png';
+  my $outfile = $form->{tmpdir} . '/' . 'qr-code.png';
 
   # generate QR-Code Image
   eval {
@@ -675,7 +675,7 @@ sub spawn_openoffice {
   }
 
   if (!$res) {
-    $self->{"error"} = "Conversion from OpenDocument to PDF failed because " .
+    $self->{error} = "Conversion from OpenDocument to PDF failed because " .
       "OpenOffice could not be started.";
   }
 
@@ -689,18 +689,18 @@ sub convert_to_pdf {
 
   my ($self) = @_;
 
-  my $form = $self->{"form"};
+  my $form = $self->{form};
 
-  my $filename = $form->{"tmpfile"};
+  my $filename = $form->{tmpfile};
   $filename =~ s/.odt$//;
   if (substr($filename, 0, 1) ne "/") {
     $filename = getcwd() . "/${filename}";
   }
 
-  if (substr($self->{"userspath"}, 0, 1) eq "/") {
-    $ENV{'HOME'} = $self->{"userspath"};
+  if (substr($self->{userspath}, 0, 1) eq "/") {
+    $ENV{HOME} = $self->{userspath};
   } else {
-    $ENV{'HOME'} = getcwd() . "/" . $self->{"userspath"};
+    $ENV{HOME} = getcwd() . "/" . $self->{userspath};
   }
 
   my $outdir = dirname($filename);
@@ -723,7 +723,7 @@ sub convert_to_pdf {
 
   my $res = $?;
   if ((0 == $?) || (-f "${filename}.pdf" && -s "${filename}.pdf")) {
-    $form->{"tmpfile"} =~ s/odt$/pdf/;
+    $form->{tmpfile} =~ s/odt$/pdf/;
 
     unlink($filename . ".odt");
 
@@ -733,7 +733,7 @@ sub convert_to_pdf {
   }
 
   unlink($filename . ".odt", $filename . ".pdf");
-  $self->{"error"} = "Conversion from OpenDocument to PDF failed. " .
+  $self->{error} = "Conversion from OpenDocument to PDF failed. " .
     "Exit code: $res";
 
   $main::lxdebug->leave_sub();
@@ -754,7 +754,7 @@ sub format_string {
 sub get_mime_type() {
   my ($self) = @_;
 
-  if ($self->{"form"}->{"format"} =~ /pdf/) {
+  if ($self->{form}->{format} =~ /pdf/) {
     return "application/pdf";
   } else {
     return "application/vnd.oasis.opendocument.text";
