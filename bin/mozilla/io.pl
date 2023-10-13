@@ -1018,6 +1018,9 @@ sub validate_items {
 sub order {
   $main::lxdebug->enter_sub();
 
+  $::form->{email_journal_id}    = delete $::form->{workflow_email_journal_id};
+  $::form->{email_attachment_id} = delete $::form->{workflow_email_attachment_id};
+
   _order();
 
   if ($::instance_conf->get_feature_experimental_order) {
@@ -1220,6 +1223,8 @@ sub sales_reclamation {
     controller => 'Reclamation',
     action     => 'add_from_record',
     type       => 'sales_reclamation',
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
     from_id    => $id,
     from_type  => $type,
   );
@@ -1235,6 +1240,8 @@ sub purchase_reclamation {
     controller => 'Reclamation',
     action     => 'add_from_record',
     type       => 'purchase_reclamation',
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
     from_id    => $id,
     from_type  => $type,
   );

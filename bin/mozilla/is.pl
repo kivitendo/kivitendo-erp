@@ -54,6 +54,7 @@ use SL::DB::Department;
 use SL::DB::Invoice;
 use SL::DB::PaymentTerm;
 use SL::DB::Reclamation;
+use SL::DB::EmailJournal;
 use SL::DB::ValidityToken;
 use SL::Helper::QrBillFunctions qw(get_ref_number_formatted);
 
@@ -120,6 +121,20 @@ sub add {
   &display_form;
 
   $main::lxdebug->leave_sub();
+}
+
+sub add_from_email_journal {
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  &add;
+}
+
+sub edit_with_email_journal_workflow {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
+  $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+
+  &edit;
 }
 
 sub edit {
@@ -1212,6 +1227,14 @@ sub post {
     $form->save_history;
   }
 
+  if ($form->{email_journal_id} && $form->{id} ne "") {
+    my $invoice = SL::DB::Invoice->new(id => $form->{id})->load;
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $form->{email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment($invoice, delete $::form->{email_attachment_id});
+  }
+
   if (!$form->{no_redirect_after_post}) {
     $form->{action} = 'edit';
     $form->{script} = 'is.pl';
@@ -1247,6 +1270,9 @@ sub use_as_new {
 
   $main::auth->assert('invoice_edit');
 
+  $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
+  $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+
   delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked qr_unstructured_message)};
   $form->{rowcount}--;
   $form->{paidaccounts} = 1;
@@ -1272,6 +1298,9 @@ sub further_invoice_for_advance_payment {
 
   $main::auth->assert('invoice_edit');
 
+  $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
+  $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+
   delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked)};
   $form->{convert_from_ar_ids} = $form->{id};
   $form->{id}                  = '';
@@ -1295,6 +1324,9 @@ sub final_invoice {
   my %myconfig = %main::myconfig;
 
   $main::auth->assert('invoice_edit');
+
+  $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
+  $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
 
   my $related_invoices = IS->_get_invoices_for_advance_payment($form->{id});
 
@@ -1368,7 +1400,12 @@ sub storno {
   $form->{addition}  = "STORNO";
   $form->save_history;
 
+  my $email_journal_id    = delete $form->{workflow_email_journal_id};
+  my $email_attachment_id = delete $form->{workflow_email_attachment_id};
   map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password type))); } keys(%{ $form }));
+
+  $form->{email_journal_id}    = $email_journal_id;
+  $form->{email_attachment_id} = $email_attachment_id;
 
   invoice_links();
   prepare_invoice();
@@ -1422,6 +1459,9 @@ sub credit_note {
   my $locale   = $main::locale;
 
   $main::auth->assert('invoice_edit');
+
+  $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
+  $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
 
   $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
 
