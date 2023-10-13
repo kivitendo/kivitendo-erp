@@ -2,7 +2,11 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %][%- USE P -%]
-<h1>[% title %]</h1>
+
+<h1>
+  [% IF workflow_email_journal_id; LxERP.t8("Email Journal Workflow") _ " - "; END; %]
+  [% title %]
+</h1>
 
 [%- SET follow_up_trans_info = invnumber _ ' (' _ vendor_obj.name _ ')' %]
 <script type="text/javascript" src="js/common.js"></script>
@@ -24,6 +28,10 @@
 [% IF !id %]
 [%   L.hidden_tag('form_validity_token', form_validity_token) %]
 [% END %]
+[% L.hidden_tag('email_journal_id',             email_journal_id) %]
+[% L.hidden_tag('email_attachment_id',          email_attachment_id) %]
+[% L.hidden_tag('workflow_email_journal_id',    workflow_email_journal_id) %]
+[% L.hidden_tag('workflow_email_attachment_id', workflow_email_attachment_id) %]
 
 [%- INCLUDE 'common/flash.html' %]
 [%- INCLUDE 'generic/set_longdescription.html' %]
@@ -31,6 +39,9 @@
 <div id="ir_tabs" class="tabwidget">
  <ul>
   <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
+[% IF email_attachment_id || workflow_email_attachment_id %]
+  <li><a href="controller.pl?action=EmailJournal/attachment_preview&attachment_id=[% HTML.url(email_attachment_id || workflow_email_attachment_id) %]">[% 'Email Attachment Preview' | $T8 %]</a></li>
+[% END %]
 [%- IF INSTANCE_CONF.get_webdav %]
   <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
 [%- END %]

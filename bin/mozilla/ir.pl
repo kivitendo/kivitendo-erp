@@ -43,6 +43,7 @@ use SL::DB::Default;
 use SL::DB::Department;
 use SL::DB::Project;
 use SL::DB::PurchaseInvoice;
+use SL::DB::EmailJournal;
 use SL::DB::ValidityToken;
 use SL::DB::Vendor;
 use SL::DB::Tax;
@@ -100,6 +101,20 @@ sub add {
   &display_form;
 
   $main::lxdebug->leave_sub();
+}
+
+sub add_from_email_journal {
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  &add;
+}
+
+sub edit_with_email_journal_workflow {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
+  $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+
+  &edit;
 }
 
 sub edit {
@@ -818,6 +833,9 @@ sub storno {
 
   $main::auth->assert('vendor_invoice_edit');
 
+  $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
+  $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+
   if ($form->{storno}) {
     $form->error($locale->text('Cannot storno storno invoice!'));
   }
@@ -875,6 +893,9 @@ sub use_as_new {
   my %myconfig = %main::myconfig;
 
   $main::auth->assert('vendor_invoice_edit');
+
+  $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
+  $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
 
   map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
@@ -1045,6 +1066,14 @@ sub post {
       $form->save_history;
     }
     # /saving the history
+
+    if ($form->{email_journal_id}) {
+      my $purchase_invoice = SL::DB::PurchaseInvoice->new(id => $form->{id})->load;
+      my $email_journal = SL::DB::EmailJournal->new(
+        id => delete $form->{email_journal_id}
+      )->load;
+      $email_journal->link_to_record_with_attachment($purchase_invoice, delete $::form->{email_attachment_id});
+    }
 
     my $redirect_url;
     if ('doc-tab' eq $form->{after_action}) {
