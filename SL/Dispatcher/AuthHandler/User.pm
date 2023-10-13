@@ -6,6 +6,7 @@ use parent qw(Rose::Object);
 use Encode ();
 use MIME::Base64 ();
 
+use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::Layout::Dispatcher;
 
 sub handle {
@@ -26,6 +27,11 @@ sub handle {
   return $self->_error(%param) unless $::myconfig{login};
 
   $::locale = Locale->new($::myconfig{countrycode});
+
+  # user can force a layout version
+  my $user_prefs = SL::Helper::UserPreferences::DisplayPreferences->new();
+  $::request->is_mobile(0) if ($user_prefs->get_layout_style || '') eq 'desktop';
+  $::request->is_mobile(1) if ($user_prefs->get_layout_style || '') eq 'mobile';
   $::request->{layout} = $::request->is_mobile
     ? SL::Layout::Dispatcher->new(style => 'mobile')
     : SL::Layout::Dispatcher->new(style => $::myconfig{menustyle});
