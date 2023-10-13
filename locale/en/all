@@ -597,6 +597,7 @@ $self->{texts} = {
   'CB Transaction'              => '',
   'CB Transactions'             => '',
   'CC to Employee'              => '',
+  'CKEditor5 Test'              => '',
   'CN'                          => '',
   'CR'                          => '',
   'CSS style for pictures'      => '',
