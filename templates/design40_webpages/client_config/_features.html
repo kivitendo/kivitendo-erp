@@ -524,7 +524,18 @@
       </div>
       </td>
     </tr>
-    <tr><th colspan="4">[% 'Displayable Name Preferences' | $T8 %]</th></tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+<div class="wrapper">
+
+<table class="tbl-horizontal expanded">
+  <caption>[% LxERP.t8("Display options") %]</caption>
+  <colgroup> <col class="wi-normal"><col class="wi-verywide"><col class="wi-normal"> </colgroup>
+  <tbody>
+    <tr><th class="caption", colspan="4">[% 'Displayable Name Preferences' | $T8 %]</th></tr>
     [% FOREACH module=SELF.displayable_name_specs_by_module.keys.sort %]
     [%- SET spec=SELF.displayable_name_specs_by_module.$module -%]
     <tr>
@@ -557,6 +568,12 @@
       [% END %]
     </tr>
     [% END %]
+    <tr><th class="caption">[% 'Forced Layout Style' | $T8 %]</th></tr>
+    <tr>
+      <th>[% 'Force a layout style' | $T8 %]</th>
+      <td>[% L.select_tag('defaults.layout_style', [['', LxERP.t8('Automatic')], ['mobile', LxERP.t8('mobile version')], ['desktop', LxERP.t8('desktop version')]], default=SELF.defaults.layout_style, with_empty=0, style="width: 200px") %]</td>
+      <td class="long-desc">[% 'The layout style normally is choosen by the user agent string the browser sends. Here you can force the desktop or mobile version. Users can override this setting in their user preferences.' | $T8 %]</td>
+    </tr>
   </tbody>
 </table>
 

@@ -569,8 +569,13 @@
     </td>
     [% END %]
   </tr>
-  [% END %]
-
+ [% END %]
+ <tr><td class="listheading" colspan="4">[% 'Forced Layout Style' | $T8 %]</td></tr>
+ <tr>
+  <td align="right">[% 'Force a layout style' | $T8 %]</td>
+  <td>[% L.select_tag('defaults.layout_style', [['', LxERP.t8('Automatic')], ['mobile', LxERP.t8('mobile version')], ['desktop', LxERP.t8('desktop version')]], default=SELF.defaults.layout_style, with_empty=0) %]</td>
+  <td>[% 'The layout style normally is choosen by the user agent string the browser sends. Here you can force the desktop or mobile version. Users can override this setting in their user preferences.' | $T8 %]</td>
+ </tr>
 
 </table>
 </div>
