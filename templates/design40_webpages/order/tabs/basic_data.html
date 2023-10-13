@@ -9,12 +9,12 @@
 <div id="ui-tabs-basic-data">
 <!-- PENDENT: EXPERIMENTELL -->
 
-[% IF SELF.email_attachment_id %]
+[% IF FORM.email_attachment_id || FORM.workflow_email_attachment_id%]
   <div class="wrapper" id="email_attachment_wrapper">
     [%
       BLOCK panel_1;
         P.email_journal.attachment_preview(
-             SELF.email_attachment_id,
+             FORM.email_attachment_id || FORM.workflow_email_attachment_id,
              style="height:600px"
              );
       END;

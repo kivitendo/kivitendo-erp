@@ -33,7 +33,6 @@ use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::EmailJournal;
-use SL::DB::EmailJournalAttachment;
 use SL::DB::ValidityToken;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
@@ -160,14 +159,18 @@ sub action_add_from_purchase_basket {
 
 sub action_add_from_email_journal {
   my ($self) = @_;
-  my $email_journal_id    = $::form->{from_id};
-  my $email_attachment_id = $::form->{email_attachment_id};
-
-  $self->order->{RECORD_ID()}       = $email_journal_id;
-  $self->order->{RECORD_TYPE_REF()} = 'SL::DB::EmailJournal';
-  $self->{email_attachment_id} = $email_attachment_id;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
 
   $self->action_add();
+}
+
+sub action_edit_with_email_journal_workflow {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
+  $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+
+  $self->action_edit();
 }
 
 # edit an existing order
@@ -825,6 +828,8 @@ sub action_save_and_new_record {
     type       => $to_type,
     from_id    => $self->order->id,
     from_type  => $self->order->type,
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
     %additional_params,
   );
 }
@@ -837,6 +842,8 @@ sub action_save_and_invoice {
   $self->save_and_redirect_to(
     controller => 'oe.pl',
     action     => 'oe_invoice_from_order',
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
   );
 }
 
@@ -847,6 +854,8 @@ sub action_save_and_invoice_for_advance_payment {
     controller       => 'oe.pl',
     action           => 'oe_invoice_from_order',
     new_invoice_type => 'invoice_for_advance_payment',
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
   );
 }
 
@@ -857,6 +866,8 @@ sub action_save_and_final_invoice {
     controller       => 'oe.pl',
     action           => 'oe_invoice_from_order',
     new_invoice_type => 'final_invoice',
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
   );
 }
 
@@ -867,6 +878,8 @@ sub action_save_and_order_workflow {
     type       => $_[0]->type,
     to_type    => $::form->{to_type},
     use_shipto => $::form->{use_shipto},
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
   );
 }
 
@@ -877,6 +890,8 @@ sub action_save_and_ap_transaction {
   $self->save_and_redirect_to(
     controller => 'ap.pl',
     action     => 'add_from_purchase_order',
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
   );
 }
 
@@ -2126,9 +2141,14 @@ sub save {
                           set_project_in_linked_requirement_specs                => 1,
   );
 
-  if ($::form->{email_attachment_id}) {
-    my $attachment = SL::DB::EmailJournalAttachment->new(id => $::form->{email_attachment_id})->load;
-    $attachment->add_file_to_record($self->order);
+  if ($::form->{email_journal_id}) {
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $::form->{email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment(
+      $self->order,
+      delete $::form->{email_attachment_id}
+    );
   }
 
   if ($is_new && $self->order->is_sales) {
