@@ -17,6 +17,27 @@ sub store_longdescription_dialog_size_percentage {
   $_[0]->user_prefs->store('longdescription_dialog_size_percentage', $_[1]);
 }
 
+sub get_layout_style {
+  my $value   = $_[0]->user_prefs->get('layout_style');
+  $value    //= $::instance_conf->get_layout_style;
+  return $value;
+}
+
+sub store_layout_style {
+  my ($self, $style) = @_;
+
+  if (!$style) {
+    $self->user_prefs->delete('layout_style');
+    return;
+  }
+
+  if ( !($style eq 'desktop' || $style eq 'mobile') ) {
+    die "unknown layout style '$style'";
+  }
+
+  $self->user_prefs->store('layout_style', $style);
+}
+
 sub init_user_prefs {
   SL::Helper::UserPreferences->new(
     namespace => $_[0]->namespace,
@@ -52,8 +73,23 @@ to store user settings for various display settings.
 
 This module manages storing the user's choise for settings for
 various display settings.
-For now the preferred procentual size of the edit-dialog for longdescriptions
+
+=head2 These settings are supported:
+
+=over 4
+
+=item longdescription_dialog_size_percentage
+
+The preferred procentual size of the edit-dialog for longdescriptions
 of positions can be stored.
+
+=item layout_style
+
+Here the layout style can be forced to be 'desktop' or 'mobile'
+regardless of the user agend string. If this user setting is unset
+then the setting from the client configuration will be used.
+
+=back
 
 =head1 BUGS
 
