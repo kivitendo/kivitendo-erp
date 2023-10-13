@@ -561,6 +561,10 @@ sub longdescription_dialog_size_percentage {
   SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
 }
 
+sub layout_style {
+  SL::Helper::UserPreferences::DisplayPreferences->new()->get_layout_style();
+}
+
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
@@ -603,6 +607,9 @@ sub save_preferences {
   }
   if (exists $form->{longdescription_dialog_size_percentage}) {
     SL::Helper::UserPreferences::DisplayPreferences->new()->store_longdescription_dialog_size_percentage($form->{longdescription_dialog_size_percentage})
+  }
+  if (exists $form->{layout_style}) {
+    SL::Helper::UserPreferences::DisplayPreferences->new()->store_layout_style($form->{layout_style})
   }
 
   $main::lxdebug->leave_sub();

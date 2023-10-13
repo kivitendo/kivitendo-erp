@@ -133,6 +133,13 @@
      </tr>
 
      <tr>
+      <th align="right">[% 'Forced Layout Style' | $T8 %]</th>
+      <td>
+        [% L.select_tag('layout_style', [['', LxERP.t8('Use settings from client configuration')], ['auto', LxERP.t8('Automatic')], ['mobile', LxERP.t8('mobile version')], ['desktop', LxERP.t8('desktop version')]], default=layout_style, with_empty=0) %]
+      </td>
+     </tr>
+
+     <tr>
       <th align="right">[% 'Stylesheet' | $T8 %]</th>
       <td>
         [% L.select_tag('usestylesheet', STYLESHEETS, value_key = 'value', title_key = 'name') %]
