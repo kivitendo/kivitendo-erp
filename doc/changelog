@@ -152,6 +152,9 @@ Kleinere neue Features und Detailverbesserungen:
   - Ein Hintergrundjob ShopwareSetPaid setzt den Bezahlstatus eines Shopauftrags.
     Sollte standardmäßig nach jedem Werktag angeschaltet werden, s.a. API-Doku im POD-Format.
   - Lieferplan filtert auch nach Artikelnummer des Erzeugnisbestandteils
+  - In der Mandantenkonfiguration bzw. Benutzereinstellungen kann ausgewählt
+    werden, ob immer das Desktop-Layout gewählt wird. Das kann nützlich sein,
+    wenn man die kivi klassisch auf dem Tablet oder Smartphone verwenden will.
 
 2023-04-05 - Release 3.8.0
 
