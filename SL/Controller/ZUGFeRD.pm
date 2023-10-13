@@ -129,7 +129,6 @@ sub action_import_zugferd {
   my %res;          # result data structure returned by SL::ZUGFeRD->extract_from_{pdf,xml}()
   my $parser;       # SL::XMLInvoice object created by SL::ZUGFeRD->extract_from_{pdf,xml}()
   my $dom;          # DOM object for parsed XML data
-  my $template_ap;  # SL::DB::RecordTemplate object
   my $vendor;       # SL::DB::Vendor object
 
   my $ibanmessage;  # Message to display if vendor's database and invoice IBANs don't match up
@@ -145,7 +144,6 @@ sub action_import_zugferd {
 
   if ($res{'result'} != SL::ZUGFeRD::RES_OK()) {
     # An error occurred; log message from parser:
-    $::lxdebug->message(LXDebug::DEBUG1(), "Could not extract ZUGFeRD data, error message: " . $res{'message'});
     die(t8("Could not extract Factur-X/ZUGFeRD data, data and error message:") . " $res{'message'}");
   }
 
@@ -174,11 +172,6 @@ sub action_import_zugferd {
            $metadata{'vendor_name'},
   ) unless $vendor;
 
-
-  # Create a record template for this imported invoice
-  $template_ap = SL::DB::RecordTemplate->new(
-      vendor_id=>$vendor->id,
-  );
 
   # Check IBAN specified on bill matches the one we've got in
   # the database for this vendor.
@@ -220,67 +213,21 @@ sub action_import_zugferd {
     name => $metadata{'currency'},
     );
 
-  $template_ap->assign_attributes(
-    template_name       => t8("Faktur-X/ZUGFeRD/XRechnung import #1, #2", $vendor->name, $invnumber),
-    template_type       => 'ap_transaction',
-    direct_debit        => $metadata{'direct_debit'},
-    notes               => "Faktur-X/ZUGFeRD/XRechnung Import. Type: $metadata{'type'}\nIBAN: " . $ibanmessage,
-    taxincluded         => 0,
-    currency_id         => $currency->id,
-    ar_ap_chart_id      => $ap_chart_id,
-    );
-
-  $template_ap->save;
-
-  my $default_ap_amount_chart = SL::DB::Manager::Chart->find_by(charttype => 'A');
-
-  foreach my $i ( @items )
-    {
-    my %item = %{$i};
-
-    my $net_total = $item{'subtotal'};
-    my $desc = $item{'description'};
-    my $tax_rate = $item{'tax_rate'} / 100; # XML data is usually in percent
-
-    my $taxes = SL::DB::Manager::Tax->get_all(
-      where   => [
-        chart_categories => { like => '%' . $default_ap_amount_chart->category . '%' },
-        rate => $tax_rate,
-      ],
-    );
-
-    # If we really can't find any tax definition (a simple rounding error may
-    # be sufficient for that to happen), grab the first tax fitting the default
-    # category, just like the AP form would do it for manual entry.
-    if ( scalar @{$taxes} == 0 ) {
-      $taxes = SL::DB::Manager::Tax->get_all(
-        where   => [ chart_categories => { like => '%' . $default_ap_amount_chart->category . '%' } ],
-      );
-    }
-
-    my $tax = ${$taxes}[0];
-
-    my $item_obj = SL::DB::RecordTemplateItem->new(
-      amount1 => $net_total,
-      record_template_id => $template_ap->id,
-      chart_id      => $default_ap_amount_chart->id,
-      tax_id      => $tax->id,
-    );
-    $item_obj->save;
-    }
-
   $self->redirect_to(
     controller                           => 'ap.pl',
-    action                               => 'load_record_template',
-    id                                   => $template_ap->id,
+    action                               => 'load_zugferd',
     'form_defaults.no_payment_bookings'  => 0,
     'form_defaults.paid_1_suggestion'    => $::form->format_amount(\%::myconfig, $metadata{'total'}, 2),
     'form_defaults.invnumber'            => $invnumber,
+    'form_defaults.AP_chart_id'          => $ap_chart_id,
+    'form_defaults.currency'             => $currency->name,
     'form_defaults.duedate'              => $metadata{'duedate'},
     'form_defaults.transdate'            => $metadata{'transdate'},
     'form_defaults.notes'                => "ZUGFeRD Import. Type: $metadata{'type'}\nIBAN: " . $ibanmessage,
     'form_defaults.taxincluded'          => 0,
     'form_defaults.direct_debit'         => $metadata{'direct_debit'},
+    'form_defaults.vendor'               => $vendor->name,
+    'form_defaults.vendor_id'            => $vendor->id,
     'form_defaults.zugferd_session_file' => $file_name,
   );
 
