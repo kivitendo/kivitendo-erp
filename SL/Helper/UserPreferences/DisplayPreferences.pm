@@ -45,7 +45,7 @@ to store user settings for various display settings.
   use SL::Helper::UserPreferences::DisplayPreferences;
   my $prefs = SL::Helper::UserPreferences::DisplayPreferences->new();
 
-  $prefs->store_use_duration(1);
+  $prefs->store_longdescription_dialog_size_percentage(25);
   my $value = $prefs->get_longdescription_dialog_size_percentage;
 
 =head1 DESCRIPTION
