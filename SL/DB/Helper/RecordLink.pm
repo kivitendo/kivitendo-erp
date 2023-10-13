@@ -21,13 +21,14 @@ sub link_records {
   my %allowed_linked_record_items = map {$_ => 1} @$allowed_linked_record_items;
 
   return 1 unless my $from_record_ids = $self->{RECORD_ID()};
+  my @from_record_ids = split / /, $from_record_ids;
 
   my $from_record_type = $self->{RECORD_TYPE_REF()};
   unless ($allowed_linked_records{$from_record_type}) {
     croak("Not allowed @{[ RECORD_TYPE_REF ]}: $from_record_type");
   }
 
-  for my $id (listify($from_record_ids)) {
+  for my $id (@from_record_ids) {
     my $from_record = $from_record_type->new(id => $id)->load;
     $from_record->link_to_record($self);
   }
