@@ -10,6 +10,7 @@ use List::MoreUtils qw(all any apply);
 use Exporter qw(import);
 
 use SL::Common;
+use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::JSON;
 use SL::MoreCommon qw(uri_encode uri_decode);
 use SL::Layout::None;
@@ -40,6 +41,11 @@ sub init_is_ajax {
 }
 
 sub init_is_mobile {
+  # user can force a layout version
+  my $user_prefs = SL::Helper::UserPreferences::DisplayPreferences->new();
+  return 0 if ($user_prefs->get_layout_style || '') eq 'desktop';
+  return 1 if ($user_prefs->get_layout_style || '') eq 'mobile';
+
   # mobile clients will change their user agent when the user requests
   # desktop version so user agent is the most reliable way to identify
   return ($ENV{HTTP_USER_AGENT} || '') =~ /Mobi/ ? 1 : 0;
