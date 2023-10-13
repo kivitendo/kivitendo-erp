@@ -39,6 +39,7 @@
       </div>
 
       <div class="row">
+        [% L.hidden_tag("callback", callback) %]
         [% L.hidden_tag("action", "LoginScreen/login") %]
         [% P.M.submit_tag("btn_login", "Login", class="col s12", large=1) %]
       </div>
