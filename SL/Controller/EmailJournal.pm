@@ -172,6 +172,38 @@ sub action_show {
   );
 }
 
+sub action_attachment_preview {
+  my ($self) = @_;
+
+  eval {
+    $::auth->assert('email_journal');
+
+    my $attachment_id = $::form->{attachment_id};
+    die "no 'attachment_id' was given" unless $attachment_id;
+
+    my $attachment;
+    $attachment = SL::DB::EmailJournalAttachment->new(
+      id => $attachment_id,
+    )->load;
+
+
+    if (!$self->can_view_all
+        && $attachment->email_journal->sender_id
+        && ($attachment->email_journal->sender_id != SL::DB::Manager::Employee->current->id)) {
+      $::form->error(t8('You do not have permission to access this entry.'));
+    }
+
+    my $output = SL::Presenter::EmailJournal::attachment_preview(
+      $attachment,
+      style => "height: 1800px"
+    );
+
+    $self->render( \$output, { layout => 0, process => 0,});
+  } or do {
+    $self->render('generic/error', { layout => 0 }, label_error => $@);
+  };
+}
+
 sub action_show_attachment {
   my ($self) = @_;
 
@@ -179,6 +211,10 @@ sub action_show_attachment {
 
   my $attachment_id      = $::form->{attachment_id};
   my $attachment = SL::DB::EmailJournalAttachment->new(id => $attachment_id)->load;
+
+  if (!$self->can_view_all && ($attachment->email_journal->sender_id != SL::DB::Manager::Employee->current->id)) {
+    $::form->error(t8('You do not have permission to access this entry.'));
+  }
 
   return $self->send_file(
     \$attachment->content,
