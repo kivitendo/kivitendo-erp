@@ -665,6 +665,7 @@ sub config {
   $form->{positions_show_update_button}           = AM->positions_show_update_button();
   $form->{time_recording_use_duration}            = AM->time_recording_use_duration();
   $form->{longdescription_dialog_size_percentage} = AM->longdescription_dialog_size_percentage();
+  $form->{layout_style}                           = AM->layout_style();
 
   $myconfig{show_form_details} = 1 unless (defined($myconfig{show_form_details}));
   $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();

@@ -31,7 +31,7 @@ sub store_layout_style {
     return;
   }
 
-  if ( !($style eq 'desktop' || $style eq 'mobile') ) {
+  if ( !($style eq 'desktop' || $style eq 'mobile' || $style eq 'auto') ) {
     die "unknown layout style '$style'";
   }
 
