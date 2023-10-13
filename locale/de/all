@@ -597,6 +597,7 @@ $self->{texts} = {
   'CB Transaction'              => 'SB-Buchung',
   'CB Transactions'             => 'SB-Buchungen',
   'CC to Employee'              => 'CC an Mitarbeiter',
+  'CKEditor5 Test'              => 'CKEditor5-Test',
   'CN'                          => 'Kd-Nr.',
   'CR'                          => 'H',
   'CSS style for pictures'      => 'CSS Style für Bilder',
