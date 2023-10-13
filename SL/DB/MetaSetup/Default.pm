@@ -132,6 +132,7 @@ __PACKAGE__->meta->columns(
   is_transfer_out                           => { type => 'boolean', default => 'false', not_null => 1 },
   itime                                     => { type => 'timestamp', default => 'now()' },
   language_id                               => { type => 'integer' },
+  layout_style                              => { type => 'text' },
   letternumber                              => { type => 'integer' },
   lock_oe_subversions                       => { type => 'boolean', default => 'false', not_null => 1 },
   loss_carried_forward_chart_id             => { type => 'integer' },
