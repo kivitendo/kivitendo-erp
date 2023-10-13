@@ -25,6 +25,7 @@ use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::ValidityToken;
+use SL::DB::EmailJournal;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
@@ -147,6 +148,22 @@ sub action_add_from_record {
     title => $self->type_data->text('add'),
     %{$self->{template_args}},
   );
+}
+
+sub action_add_from_email_journal {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+
+  $self->action_add();
+}
+
+sub action_edit_with_email_journal_workflow {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
+  $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+
+  $self->action_edit();
 }
 
 # edit an existing reclamation
@@ -521,6 +538,8 @@ sub action_save_and_new_record {
     type       => $to_type,
     from_id    => $self->reclamation->id,
     from_type  => $self->reclamation->type,
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
     %additional_params,
   );
 }
@@ -543,6 +562,8 @@ sub action_save_and_credit_note {
     controller => 'is.pl',
     action     => 'credit_note_from_reclamation',
     from_id    => $self->reclamation->id,
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
   );
 }
 
@@ -1550,6 +1571,16 @@ sub save {
                           delete_custom_shipto => $self->is_custom_shipto_to_delete || $self->reclamation->custom_shipto->is_empty,
                           items_to_delete      => $items_to_delete,
   );
+
+  if ($::form->{email_journal_id}) {
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $::form->{email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment(
+      $self->reclamation,
+      delete $::form->{email_attachment_id}
+    );
+  }
 
   delete $::form->{form_validity_token};
 }
