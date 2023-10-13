@@ -32,6 +32,7 @@ use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::TransferType;
 use SL::DB::ValidityToken;
+use SL::DB::EmailJournal;
 use SL::DB::Warehouse;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
@@ -143,6 +144,22 @@ sub action_add_from_record {
   $self->order($delivery_order);
 
   $self->action_add;
+}
+
+sub action_add_from_email_journal {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+
+  $self->action_add();
+}
+
+sub action_edit_with_email_journal_workflow {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
+  $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+
+  $self->action_edit();
 }
 
 # edit an existing order
@@ -548,6 +565,8 @@ sub action_workflow_new_record {
     type       => $to_type,
     from_id    => $self->order->id,
     from_type  => $self->order->type,
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
     %additional_params,
   );
 }
@@ -561,6 +580,8 @@ sub action_workflow_invoice {
     controller => 'do.pl',
     action     => 'invoice_from_delivery_order_controller',
     from_id    => $self->order->id,
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
   );
 }
 
@@ -1787,6 +1808,16 @@ sub save {
     delete_custom_shipto       => $self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty,
     items_to_delete            => $items_to_delete,
   );
+
+  if ($::form->{email_journal_id}) {
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $::form->{email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment(
+      $self->order,
+      delete $::form->{email_attachment_id}
+    );
+  }
 
   delete $::form->{form_validity_token};
 }
