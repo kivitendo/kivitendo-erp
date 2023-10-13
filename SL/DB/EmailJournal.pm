@@ -2,6 +2,9 @@ package SL::DB::EmailJournal;
 
 use strict;
 
+use Carp qw(croak);
+use List::Util qw(first);
+
 use SL::Webdav;
 use SL::File;
 
@@ -31,6 +34,21 @@ sub compare_to {
   my $result = 0;
   $result    = $other->sent_on <=> $self->sent_on;
   return $result || ($self->id <=> $other->id);
+}
+
+sub link_to_record_with_attachment {
+  my ($self, $record, $attachment_or_id) = @_;
+
+  if ($attachment_or_id ne '') {
+    my $attachment = ref $attachment_or_id ?
+        $attachment_or_id
+      : first {$_->id == $attachment_or_id} @{$self->attachments_sorted};
+    croak "Email journal attachment does not belong to this email journal"
+      unless  $attachment && $attachment->email_journal_id == $self->id;
+    $attachment->add_file_to_record($record);
+  }
+
+  $self->link_to_record($record);
 }
 
 sub process_attachments_as_purchase_invoices {

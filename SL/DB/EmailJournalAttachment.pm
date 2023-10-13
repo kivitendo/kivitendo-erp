@@ -17,8 +17,10 @@ sub add_file_to_record {
   # copy file to webdav folder
   if ($::instance_conf->get_webdav_documents) {
     my $record_type = $record->record_type;
-    # TODO: file and webdav use different types for ap_transaction
+    # TODO: file and webdav use different types
     $record_type = 'accounts_payable' if $record_type eq 'ap_transaction';
+    $record_type = 'general_ledger'   if $record_type eq 'ar_transaction';
+    $record_type = 'invoice'          if $record_type eq 'invoice_storno';
     my $webdav = SL::Webdav->new(
       type     => $record_type,
       number   => $record->record_number,
@@ -37,8 +39,10 @@ sub add_file_to_record {
   # copy file to doc storage
   if ($::instance_conf->get_doc_storage) {
     my $record_type = $record->record_type;
-    # TODO: file and webdav use different types for ap_invoice
+    # TODO: file and webdav use different types
     $record_type = 'purchase_invoice' if $record_type eq 'ap_transaction';
+    $record_type = 'invoice'          if $record_type eq 'ar_transaction';
+    $record_type = 'invoice'          if $record_type eq 'invoice_storno';
     eval {
       SL::File->save(
         object_id     => $record->id,

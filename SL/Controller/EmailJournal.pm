@@ -50,11 +50,17 @@ my %RECORD_TYPES_INFO = (
     model      => 'SL::DB::Reclamation',
     types => SL::DB::Reclamation::TypeData->valid_types(),
   },
-  Invoice => {
+  ArTransaction => {
     controller => 'ar.pl',
     model      => 'SL::DB::Invoice',
     types => [
       'ar_transaction',
+    ],
+  },
+  Invoice => {
+    controller => 'is.pl',
+    model      => 'SL::DB::Invoice',
+    types => [
       'invoice',
       'invoice_for_advance_payment',
       'invoice_for_advance_payment_storno',
@@ -64,11 +70,17 @@ my %RECORD_TYPES_INFO = (
       'credit_note_storno',
     ],
   },
-  PurchaseInvoice => {
+  ApTransaction => {
     controller => 'ap.pl',
     model      => 'SL::DB::PurchaseInvoice',
     types => [
       'ap_transaction',
+    ],
+  },
+  PurchaseInvoice => {
+    controller => 'ir.pl',
+    model      => 'SL::DB::PurchaseInvoice',
+    types => [
       'purchase_invoice',
       'purchase_credit_note',
     ],
@@ -117,6 +129,7 @@ sub action_show {
     $::form->error(t8('You do not have permission to access this entry.'));
   }
 
+  # TODO: what record types can be created, which are only available in workflows?
   my @record_types_with_info = ();
   for my $record_class ('SL::DB::Order', 'SL::DB::DeliveryOrder', 'SL::DB::Reclamation') {
     my $valid_types = "${record_class}::TypeData"->valid_types();
@@ -217,15 +230,14 @@ sub action_apply_record_action {
     $additional_params{action} = 'add_from_email_journal';
     $additional_params{"${customer_vendor}_id"} = $customer_vendor_id;
   } else {
-    $additional_params{action} = 'edit_from_email_journal';
+    $additional_params{action} = 'edit_with_email_journal_workflow';
     $additional_params{id} = $record_id;
   }
 
   $self->redirect_to(
     controller          => $RECORD_TYPE_TO_CONTROLLER{$record_type},
     type                => $record_type,
-    from_id             => $email_journal_id,
-    from_type           => 'email_journal',
+    email_journal_id    => $email_journal_id,
     email_attachment_id => $attachment_id,
     %additional_params,
   );
