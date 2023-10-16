@@ -58,6 +58,7 @@ sekf
 seperat
 substract
 sucess
+sytle
 unkown
 varsion
 wether
