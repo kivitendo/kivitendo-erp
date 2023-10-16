@@ -144,7 +144,7 @@
     [% END %]
     <tr>
       <th>[% 'Record in' | $T8 %]</th>
-      <td>[% P.chart.picker("AR_chart_id", AR_chart_id, class="wi-wide", type="AR") %]</td>
+      <td>[% P.chart.picker("AR_chart_id", AR_chart_id, class="wi-wide", type="AR", "data-validate"="required") %]</td>
     </tr>
     [% IF currencies %]
       <tr>

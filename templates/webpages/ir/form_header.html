@@ -97,7 +97,7 @@
 [%- END %]
         <tr>
           <th align="right" nowrap>[% 'Record in' | $T8 %]</th>
-          <td colspan="3">[% P.chart.picker("AP_chart_id", AP_chart_id, style="width:250px;", type="AP") %]</td>
+          <td colspan="3">[% P.chart.picker("AP_chart_id", AP_chart_id, style="width:250px;", type="AP", "data-validate"="required") %]</td>
         </tr>
         <tr>
           <th align="right">[% 'Steuersatz' | $T8 %]</th>
