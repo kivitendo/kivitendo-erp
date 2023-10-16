@@ -214,8 +214,8 @@ sub action_transfer_to_purchase_order {
     controller => 'Order',
     action     => 'add_from_purchase_basket',
     type       => 'purchase_order',
-    basket_item_ids => $basket_item_ids,
-    vendor_item_ids => $vendor_item_ids,
+    basket_item_ids => $basket_item_ids || [],
+    vendor_item_ids => $vendor_item_ids || [],
     vendor_id       => $vendor_id,
   );
 }
