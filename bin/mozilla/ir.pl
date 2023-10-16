@@ -214,7 +214,7 @@ sub invoice_links {
   }
   $form->{AP} = $form->{AP_1} unless $form->{id};
   my ($chart_accno)      = split /--/, $form->{AP};
-  $form->{AP_chart_id} = $form->{id} ? SL::DB::Manager::Chart->find_by( accno => $chart_accno)->id : $::instance_conf->get_ap_chart_id ;
+  $form->{AP_chart_id} = $form->{id} ? SL::DB::Manager::Chart->find_by( accno => $chart_accno)->id : $::instance_conf->get_ap_chart_id || $form->{AP_links}->{AP}->[0]->{chart_id};
 
   $form->{locked} =
     ($form->datetonum($form->{invdate}, \%myconfig) <=
