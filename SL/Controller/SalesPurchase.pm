@@ -19,9 +19,9 @@ sub action_check_duplicate_invnumber {
                  );
   # we are modifying a existing daily booking - allow this if
   # booking conditions are not super strict
-  undef $exists_ap if ($::instance_conf->get_ap_changeable != 0
+  undef $exists_ap if ($exists_ap
+                    && $::instance_conf->get_ap_changeable != 0
                     && $exists_ap->gldate == DateTime->today_local);
-
 
   $_[0]->render(\ !!$exists_ap, { type => 'text' });
 }
