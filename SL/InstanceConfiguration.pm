@@ -62,6 +62,11 @@ sub get_address {
   return join "\n", grep { $_ } ($self->get_address_street1, $self->get_address_street2, $zipcode_city, $self->get_address_country);
 }
 
+sub get_layout_style {
+  return $_[0]->data->{layout_style} if exists $_[0]->data->{layout_style};
+  return '';
+}
+
 sub AUTOLOAD {
   our $AUTOLOAD;
 
@@ -120,6 +125,11 @@ Returns an array of configured currencies.
 
 Returns the default currency or undef if no currency has been
 configured.
+
+=item C<get_layout_style>
+
+Returns the forced default layout style or '' if the database column
+does not exist yet.
 
 =item C<get_accounting_method>
 
