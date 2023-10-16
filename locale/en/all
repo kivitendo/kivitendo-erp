@@ -4994,7 +4994,6 @@ $self->{texts} = {
   'missing'                     => '',
   'missing file for action import' => '',
   'missing_br'                  => 'missing',
-  'mobile version'              => '',
   'month'                       => '',
   'monthly'                     => '',
   'more'                        => '',
