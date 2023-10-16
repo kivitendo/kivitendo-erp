@@ -253,9 +253,9 @@ sub _get_parts {
    LEFT JOIN warehouse w ON inv.warehouse_id = w.id
    WHERE NOT w.invalid
    GROUP BY inv.parts_id
- 
+
    UNION ALL
- 
+
    SELECT p.id, 0 as sum
    FROM parts p
    WHERE p.id NOT IN ( SELECT distinct parts_id from inventory)
