@@ -518,6 +518,17 @@ sub generate_qr_code {
     'currency' => $form->{'currency'},
   );
 
+  # validate address data
+  if (!$form->{'street'}) {
+    $::form->error($::locale->text('No street given.'));
+  }
+  if ($form->{'zipcode'} !~ m/^\d{4,}$/) {
+    $::form->error($::locale->text('Zipcode missing or wrong format.'));
+  }
+  if (!$form->{'city'}) {
+    $::form->error($::locale->text('No city given.'));
+  }
+
   if (!$form->{qrbill_customer_countrycode}) {
     $::form->error($::locale->text('Error mapping customer countrycode.'));
   }
