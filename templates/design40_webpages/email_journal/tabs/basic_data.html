@@ -47,13 +47,13 @@
     <tr>
       <th>[% 'Body' | $T8 %]</th>
       <td>
-        [% IF SELF.entry.headers.match('(?i)content-type:.*text/html') %]
-          <div style="border:1px solid black;">
-          [% P.restricted_html(SELF.entry.body) %]
-          </div>
-        [% ELSE %]
-          [% L.textarea_tag('body', SELF.entry.body, wrap="soft", style="color:black; height:200px", class="wi-verywide", disabled=1) %]
-        [% END %]
+        <div style="border:1px solid black; resize: both; overflow: auto; min-height:50px">
+          [% IF SELF.entry.headers.match('(?i)content-type:.*text/html') %]
+            [% P.restricted_html(SELF.entry.body) %]
+          [% ELSE %]
+            <pre>[% SELF.entry.body | html %]</pre>
+          [% END %]
+        </div>
       </td>
     </tr>
   </tbody>
