@@ -301,8 +301,8 @@
   $('document').ready(function(){
   [% IF creditwarning != '' %]
     alert('[% 'Credit Limit exceeded!!!' | $T8 %]');
-  [% ELSE %]
   [% END %]
+    kivi.File.doc_tab_init('ir_tabs', 'ui-tabs-docs', $('#id').val(), 'purchase_invoice');
      });
 //--></script>
 
