@@ -176,18 +176,29 @@ sub _create_email_import {
 sub _create_email_journal {
   my ($self, $email, $email_import, $uid, $folder_string, $folder_uidvalidity, $params) = @_;
 
+  if ($email->content_type) { # decode header
+    my $charset = $email->content_type =~ /charset="(.+)"/ ? $1 : undef;
+    if ($charset) {
+      map { $email->header_str_set($_ => decode($charset, $email->header($_))) }
+        $email->header_names;
+    }
+  }
+
   my @email_parts = $email->parts; # get parts or self
   my $text_part = $email_parts[0];
-  my $body = $text_part->body;
+  my $body_text = $text_part->body_str;
 
+  my %header_map = map { $_ => $email->header_str($_) } $email->header_names;
+  # We need to store the Content-Type header for the text part
+  $header_map{'Content-Type'} = $text_part->content_type;
   my $header_string = join "\r\n",
-    (map { $_ . ': ' . $email->header($_) } $email->header_names);
+    (map { $_ . ': ' . $header_map{$_} } keys %header_map);
 
-  my $date = $self->_parse_date($email->header('Date'));
+  my $date = $self->_parse_date($email->header_str('Date'));
 
-  my $recipients = $email->header('To');
-  $recipients .= ', ' . $email->header('Cc') if ($email->header('Cc'));
-  $recipients .= ', ' . $email->header('Bcc') if ($email->header('Bcc'));
+  my $recipients = $email->header_str('To');
+  $recipients .= ', ' . $email->header_str('Cc')  if ($email->header_str('Cc'));
+  $recipients .= ', ' . $email->header_str('Bcc') if ($email->header_str('Bcc'));
 
   my @attachments = ();
   $email->walk_parts(sub {
@@ -213,11 +224,11 @@ sub _create_email_journal {
     uid                => $uid,
     status             => 'imported',
     extended_status    => '',
-    from               => $email->header('From') || '',
+    from               => $email->header_str('From') || '',
     recipients         => $recipients,
     sent_on            => $date,
-    subject            => $email->header('Subject') || '',
-    body               => $body,
+    subject            => $email->header_str('Subject') || '',
+    body               => $body_text,
     headers            => $header_string,
     attachments        => \@attachments,
     %$params,
