@@ -91,15 +91,15 @@ names configured via user preferences
   # Controller configuring a displayable name
   # can get specs to display title and options
   # and the user prefs to read and set them
-  my specs => SL::DB::SomeObject->displayable_name_specs;
-  my prefs => SL::DB::SomeObject->displayable_name_prefs;
+  my specs = SL::DB::SomeObject->displayable_name_specs;
+  my prefs = SL::DB::SomeObject->displayable_name_prefs;
 
 
 This mixin provides a method C<displayable_name> for the calling module
-which returns the a string depending on the settings of the
-C<UserPreferences> (see also L<SL::Helper::UserPrefernces::DisplayableName>.
-The value in the user preferences is scanned for a pattern like E<lt>%name%E<gt>, which
-will be replaced by the value of C<$object-E<gt>name>.
+which returns a string depending on the settings of the
+C<UserPreferences> (see also L<SL::Helper::UserPrefernces::DisplayableName>).
+The value in the user preferences is scanned for a pattern like
+E<lt>%name%E<gt>, which will be replaced by the value of C<$object-E<gt>name>.
 
 =head1 CONFIGURATION
 
@@ -134,7 +134,7 @@ user.
 
 =item C<displayable_name_prefs>
 
-This returns an instance of the L<SL::Helper::UserPrefernces::DisplayableName>
+This returns an instance of the L<SL::Helper::UserPreferences::DisplayableName>
 (see there) for the calling class. This can be used to read and set the
 preferences.
 
