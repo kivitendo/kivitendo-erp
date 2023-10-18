@@ -322,7 +322,7 @@ sub prepare_report {
     order        => { text => t8('Sales Order'),  sub => sub { $_[0]->order && $_[0]->order->number } },
     customer     => { text => t8('Customer'),     sub => sub { $_[0]->customer->displayable_name } },
     part         => { text => t8('Article'),      sub => sub { $_[0]->part && $_[0]->part->displayable_name } },
-    project      => { text => t8('Project'),      sub => sub { $_[0]->project && $_[0]->project->displayable_namefull_description(style => 'both') } },
+    project      => { text => t8('Project'),      sub => sub { $_[0]->project && $_[0]->project->full_description(style => 'both') } },
     description  => { text => t8('Description'),  sub => sub { $_[0]->description_as_stripped_html },
                       raw_data => sub { $_[0]->description_as_restricted_html }, # raw_data only used for html(?)
                       obj_link => sub { $self->url_for(action => 'edit', 'id' => $_[0]->id, callback => $self->models->get_callback) }  },
