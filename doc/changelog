@@ -88,6 +88,8 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+  - Schweizer QR-Rechnungen: Bei der Erzeugung via OpenDocument, innerhalb des QR-Code
+    Adresstyp S anstatt K verwenden
   - Bei den Bankkonten Auswahlmöglichkeit hinzugefügt, ob das Konto für den Bankimport
     verwendet (und somit für manuelle Buchungen gesperrt) werden soll
     (Standardwert und für bestehende Mandanten: Ja)
