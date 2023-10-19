@@ -150,7 +150,12 @@ sub load_zugferd {
       %metadata = %{$parser->metadata};
       @items = @{$parser->items};
 
-      $default_ap_amount_chart = SL::DB::Manager::Chart->find_by(charttype => 'A');
+      $default_ap_amount_chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_expense_accno_id);
+
+      # Fallback if there's no default AP amount chart configured
+      unless ( $default_ap_amount_chart ) {
+        $default_ap_amount_chart = SL::DB::Manager::Chart->find_by(charttype => 'A');
+      }
 
       my $row = 0;
       foreach my $i (@items) {
@@ -162,12 +167,15 @@ sub load_zugferd {
         my $desc = $item{'description'};
         my $tax_rate = $item{'tax_rate'} / 100; # XML data is usually in percent
 
-        my $taxes = SL::DB::Manager::Tax->get_all(
-          where   => [
-            chart_categories => { like => '%' . $default_ap_amount_chart->category . '%' },
-            rate => $tax_rate,
-          ],
+        my $active_taxkey = $default_ap_amount_chart->taxkey_id;
+        my $taxes         = SL::DB::Manager::Tax->get_all(
+          where   => [ chart_categories => { like => '%' . $default_ap_amount_chart->category . '%' }],
+          sort_by => 'taxkey, rate',
         );
+
+        my $tax   = first { $tax_rate          == $_->rate } @{ $taxes };
+        $tax    //= first { $active_taxkey->tax_id == $_->id } @{ $taxes };
+        $tax    //= $taxes->[0];
 
         # If we really can't find any tax definition (a simple rounding error may
         # be sufficient for that to happen), grab the first tax fitting the default
@@ -178,15 +186,13 @@ sub load_zugferd {
           );
         }
 
-        my $tax = ${$taxes}[0];
-
         if (!$tax) {
           $row--;
           next;
         }
 
-        $::form->{"AP_amount_chart_id_${row}"}          = $default_ap_amount_chart->id; # FIXME: add heuristic for picking a better one
-        $::form->{"previous_AP_amount_chart_id_${row}"} = $default_ap_amount_chart->id; # FIXME: add heuristic for picking a better one
+        $::form->{"AP_amount_chart_id_${row}"}          = $default_ap_amount_chart->id;
+        $::form->{"previous_AP_amount_chart_id_${row}"} = $default_ap_amount_chart->id;
         $::form->{"amount_${row}"}                      = $net_total;
         $::form->{"taxchart_${row}"}                    = $tax->id . '--' . $tax->rate;
       }
