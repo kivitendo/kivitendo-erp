@@ -2514,7 +2514,6 @@ $self->{texts} = {
   'No shipto selected to delete' => '',
   'No start date given, setting to #1' => '',
   'No stock to transfer'        => '',
-  'No street given.'            => '',
   'No such job #1 in the database.' => '',
   'No summary account'          => '',
   'No superuser credentials were entered.' => '',

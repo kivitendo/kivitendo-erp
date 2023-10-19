@@ -13,7 +13,10 @@ use SL::Iconv;
 use SL::Template::OpenDocument::Styles;
 
 use SL::Helper::QrBill;
-use SL::Helper::QrBillFunctions qw(get_ref_number_formatted get_iban_formatted get_amount_formatted);
+use SL::Helper::QrBillFunctions qw(
+  get_ref_number_formatted get_iban_formatted get_amount_formatted
+  get_street_name_from_address_line get_building_number_from_address_line
+);
 
 use Cwd;
 # use File::Copy;
@@ -492,10 +495,12 @@ sub generate_qr_code {
     $::form->error($::locale->text('Error mapping biller countrycode.'));
   }
   my %biller_data = (
-    address_type => 'K',
+    address_type => 'S',
     company => $::instance_conf->get_company(),
-    address_row1 => $::instance_conf->get_address_street1(),
-    address_row2 => $::instance_conf->get_address_zipcode() . ' ' . $::instance_conf->get_address_city(),
+    street => get_street_name_from_address_line($::instance_conf->get_address_street1()),
+    street_no => get_building_number_from_address_line($::instance_conf->get_address_street1()),
+    postalcode => $::instance_conf->get_address_zipcode(),
+    city => $::instance_conf->get_address_city(),
     countrycode => $form->{qrbill_biller_countrycode},
   );
 
@@ -518,32 +523,40 @@ sub generate_qr_code {
     currency => $form->{currency},
   );
 
+  # get address data from billing address if given, otherwise from invoice
+  my $street_name = get_street_name_from_address_line($form->{billing_address_id} ?
+      $form->{billing_address_street} :
+      $form->{street});
+  my $building_number = get_building_number_from_address_line($form->{billing_address_id} ?
+      $form->{billing_address_street} :
+      $form->{street});
+  my $postalcode = $form->{billing_address_id} ?
+      $form->{billing_address_zipcode} :
+      $form->{zipcode};
+  my $city = $form->{billing_address_id} ?
+      $form->{billing_address_city} :
+      $form->{city};
+
   # validate address data
-  if (!$form->{'street'}) {
-    $::form->error($::locale->text('No street given.'));
-  }
-  if ($form->{'zipcode'} !~ m/^\d{4,}$/) {
+  if ($postalcode !~ m/^\d{4,}$/) {
     $::form->error($::locale->text('Zipcode missing or wrong format.'));
   }
-  if (!$form->{'city'}) {
+  if (!$city) {
     $::form->error($::locale->text('No city given.'));
   }
-
   if (!$form->{qrbill_customer_countrycode}) {
     $::form->error($::locale->text('Error mapping customer countrycode.'));
   }
 
   my %invoice_recipient_data = (
-    address_type => 'K',
+    address_type => 'S',
     name => $form->{billing_address_id} ?
               $form->{billing_address_name} :
               $form->{name},
-    address_row1 => $form->{billing_address_id} ?
-                      $form->{billing_address_street} :
-                      $form->{street},
-    address_row2 => $form->{billing_address_id} ?
-                      $form->{billing_address_zipcode} . ' ' . $form->{billing_address_city} :
-                      $form->{zipcode} . ' ' . $form->{city},
+    street => $street_name,
+    street_no => $building_number,
+    postalcode => $postalcode,
+    city => $city,
     countrycode => $form->{qrbill_customer_countrycode},
   );
 
