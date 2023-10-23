@@ -115,12 +115,8 @@ sub is_type {
 }
 
 sub displayable_type {
-  my $type = shift->type;
-
-  return $::locale->text('Sales Delivery Order')    if $type eq SALES_DELIVERY_ORDER_TYPE();
-  return $::locale->text('Purchase Delivery Order') if $type eq PURCHASE_DELIVERY_ORDER_TYPE();
-
-  die 'invalid type';
+  my ($self) = @_;
+  return $self->type_data->text('type');
 }
 
 sub displayable_name {

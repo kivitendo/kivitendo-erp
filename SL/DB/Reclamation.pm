@@ -128,12 +128,8 @@ sub effective_tax_point {
 }
 
 sub displayable_type {
-  my $type = shift->type;
-
-  return $::locale->text('Sales Reclamation')    if $type eq SALES_RECLAMATION_TYPE();
-  return $::locale->text('Purchase Reclamation') if $type eq PURCHASE_RECLAMATION_TYPE();
-
-  die 'invalid type';
+  my ($self) = @_;
+  return $self->type_data->text('type');
 }
 
 sub displayable_name {

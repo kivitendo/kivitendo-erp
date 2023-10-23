@@ -345,6 +345,7 @@ my %type_data = (
       add    => t8("Add Purchase Order Confirmation"),
       edit   => t8("Edit Purchase Order Confirmation"),
       list   => t8("Purchase Order Confirmations"),
+      type   => t8("Purchase Order Confirmation"),
       attachment => t8("purchase_order_confirmation_list"),
     },
     show_menu => {

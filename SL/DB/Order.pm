@@ -249,8 +249,7 @@ sub effective_tax_point {
 
 sub displayable_type {
   my ($self) = @_;
-
-  return $self->type_data->text('list');
+  return $self->type_data->text('type');
 }
 
 sub displayable_name {
