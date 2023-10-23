@@ -42,6 +42,11 @@
   </tr>
 
   <tr>
+   <td align="right" nowrap>[% LxERP.t8('Last Purchase Order Confirmation Number') %]</td>
+   <td>[% L.input_tag("defaults.pocnumber", SELF.defaults.pocnumber, size="15") %]</td>
+  </tr>
+
+  <tr>
    <td align="right" nowrap>[% LxERP.t8('Last Sales Quotation Number') %]</td>
    <td>[% L.input_tag("defaults.sqnumber", SELF.defaults.sqnumber, size="15") %]</td>
    <td align="right" nowrap>[% LxERP.t8('Last Service Number') %]</td>

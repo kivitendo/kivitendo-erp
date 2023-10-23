@@ -151,6 +151,7 @@ __PACKAGE__->meta->columns(
   partsgroup_required                       => { type => 'boolean', default => 'false', not_null => 1 },
   payments_changeable                       => { type => 'integer', default => '0', not_null => 1 },
   pdonumber                                 => { type => 'text' },
+  pocnumber                                 => { type => 'text' },
   ponumber                                  => { type => 'text' },
   pqinumber                                 => { type => 'text' },
   precision                                 => { type => 'numeric', default => '0.01', not_null => 1, precision => 15, scale => 5 },
