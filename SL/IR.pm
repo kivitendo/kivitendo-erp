@@ -422,9 +422,14 @@ sub _post_invoice {
 
       next if $payments_only;
 
-      # update lastcost
-      $query = qq|UPDATE parts SET lastcost = ? WHERE id = ?|;
-      do_query($form, $dbh, $query, $form->{"sellprice_$i"} / $basefactor, conv_i($form->{"id_$i"}));
+      # change lastcost for part and all assemblies and assortments recursively
+      my $a = SL::DB::Part->load_cached(conv_i($form->{"id_$i"}));
+      my $part_price_factor = $a->price_factor_id ? $a->price_factor->factor : 1;
+      my $new_lastcost      = abs($fxsellprice * $form->{exchangerate} / $basefactor / $price_factor * $part_price_factor);
+      if ( abs($a->lastcost - $new_lastcost) >= 0.009 ) {
+        $a->update_attributes(lastcost => $new_lastcost);
+        $a->set_lastcost_assemblies_and_assortiments;
+      }
     }
 
     next if $payments_only;
