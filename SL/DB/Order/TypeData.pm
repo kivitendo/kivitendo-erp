@@ -12,10 +12,11 @@ use constant {
   REQUEST_QUOTATION_TYPE         => 'request_quotation',
   PURCHASE_QUOTATION_INTAKE_TYPE => 'purchase_quotation_intake',
   SALES_ORDER_INTAKE_TYPE        => 'sales_order_intake',
+  PURCHASE_ORDER_CONFIRMATION_TYPE => 'purchase_order_confirmation',
 };
 
 my @export_types = qw(SALES_ORDER_TYPE PURCHASE_ORDER_TYPE REQUEST_QUOTATION_TYPE SALES_QUOTATION_TYPE
-                      PURCHASE_QUOTATION_INTAKE_TYPE SALES_ORDER_INTAKE_TYPE);
+                      PURCHASE_QUOTATION_INTAKE_TYPE SALES_ORDER_INTAKE_TYPE PURCHASE_ORDER_CONFIRMATION_TYPE);
 my @export_subs = qw(valid_types validate_type is_valid_type get get3);
 
 our @EXPORT_OK = (@export_types, @export_subs);
@@ -38,6 +39,7 @@ my %type_data = (
       save_and_sales_order_intake          => 0,
       save_and_sales_order                 => 0,
       save_and_purchase_order              => 1,
+      save_and_purchase_order_confirmation => 0,
       save_and_sales_delivery_order        => 1,
       save_and_purchase_delivery_order     => 0,
       save_and_supplier_delivery_order     => 0,
@@ -90,6 +92,7 @@ my %type_data = (
       save_and_sales_order_intake          => 0,
       save_and_sales_order                 => 1,
       save_and_purchase_order              => 0,
+      save_and_purchase_order_confirmation => 1,
       save_and_sales_delivery_order        => 0,
       save_and_purchase_delivery_order     => 1,
       save_and_supplier_delivery_order     => 1,
@@ -135,6 +138,7 @@ my %type_data = (
       save_and_sales_order_intake          => 1,
       save_and_sales_order                 => 1,
       save_and_purchase_order              => 0,
+      save_and_purchase_order_confirmation => 0,
       save_and_sales_delivery_order        => 0,
       save_and_purchase_delivery_order     => 0,
       save_and_supplier_delivery_order     => 0,
@@ -187,6 +191,7 @@ my %type_data = (
       save_and_sales_order_intake          => 0,
       save_and_sales_order                 => 1,
       save_and_purchase_order              => 1,
+      save_and_purchase_order_confirmation => 0,
       save_and_sales_delivery_order        => 0,
       save_and_purchase_delivery_order     => 0,
       save_and_supplier_delivery_order     => 0,
@@ -232,6 +237,7 @@ my %type_data = (
       save_and_sales_order_intake          => 0,
       save_and_sales_order                 => 1,
       save_and_purchase_order              => 1,
+      save_and_purchase_order_confirmation => 0,
       save_and_sales_delivery_order        => 0,
       save_and_purchase_delivery_order     => 0,
       save_and_supplier_delivery_order     => 0,
@@ -277,6 +283,7 @@ my %type_data = (
       save_and_sales_order_intake          => 0,
       save_and_sales_order                 => 1,
       save_and_purchase_order              => 1,
+      save_and_purchase_order_confirmation => 0,
       save_and_sales_delivery_order        => 0,
       save_and_purchase_delivery_order     => 0,
       save_and_supplier_delivery_order     => 0,
@@ -313,6 +320,52 @@ my %type_data = (
       subversions => sub { $::instance_conf->get_lock_oe_subversions },
     },
   },
+  PURCHASE_ORDER_CONFIRMATION_TYPE() => {
+    text => {
+      delete => t8('The order confirmation has been deleted'),
+      saved  => t8('The order confirmation has been saved'),
+      add    => t8("Add Purchase Order Confirmation"),
+      edit   => t8("Edit Purchase Order Confirmation"),
+      list   => t8("Purchase Order Confirmations"),
+      attachment => t8("purchase_order_confirmation_list"),
+    },
+    show_menu => {
+      save_and_quotation                   => 1,
+      save_and_rfq                         => 0,
+      save_and_purchase_quotation_intake   => 0,
+      save_and_sales_order_intake          => 0,
+      save_and_sales_order                 => 1,
+      save_and_purchase_order              => 1,
+      save_and_purchase_order_confirmation => 0,
+      save_and_sales_delivery_order        => 0,
+      save_and_purchase_delivery_order     => 1,
+      save_and_supplier_delivery_order     => 1,
+      save_and_reclamation                 => 1,
+      save_and_invoice_for_advance_payment => 0,
+      save_and_final_invoice               => 0,
+      save_and_ap_transaction              => 1,
+      save_and_invoice                     => 1,
+      delete => sub { $::instance_conf->get_purchase_order_show_delete },
+    },
+    properties => {
+      customervendor => "vendor",
+      is_customer    => 0,
+      nr_key         => "ordnumber",
+    },
+    defaults => {
+      reqdate => sub { return; },
+    },
+    part_classification_query => [ "used_for_purchase" => 1 ],
+    rights => {
+      edit => "purchase_order_edit",
+      view => "purchase_order_edit | sales_order_view",
+    },
+    features => {
+      price_tax   => 1,
+      stock       => 0,
+      subversions => sub { $::instance_conf->get_lock_oe_subversions },
+    },
+  },
 );
 
 my @valid_types = (
@@ -322,6 +375,7 @@ my @valid_types = (
   REQUEST_QUOTATION_TYPE,
   PURCHASE_QUOTATION_INTAKE_TYPE,
   SALES_ORDER_INTAKE_TYPE,
+  PURCHASE_ORDER_CONFIRMATION_TYPE,
 );
 
 my %valid_types = map { $_ => $_ } @valid_types;
