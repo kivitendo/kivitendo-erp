@@ -462,7 +462,7 @@ sub link_and_add_attachment_to_record {
   $email_journal->link_to_record($record);
 
   $self->js->flash('info',
-    $::locale->text('Linked e-mail and attachment to ') . $record->displayable_name
+    $::locale->text('Linked email and attachment to ') . $record->displayable_name
   )->render();
 }
 

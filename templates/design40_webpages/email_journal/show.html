@@ -52,7 +52,7 @@
 <div class="wrapper input-panel control-panel" style="display:block">
   <form method="post" action="controller.pl" id="record_action_form">
     [% L.hidden_tag('email_journal_id', SELF.entry.id) %]
-    <h2>[% LxERP.t8("Email-Workflow") %]</h2>
+    <h2>[% LxERP.t8("Email Journal Workflow") %]</h2>
 
     <div id="action_div"><div class="input-panel" style="margin:0">
 
@@ -152,7 +152,6 @@
                {value => "0", name => LxERP.t8("Only open")},
              ],
              default = 0, value_key='value', title_key='name',
-             class="wi-small",
              onchange='kivi.EmailJournal.update_record_list();'
              ) %]
         </div>
