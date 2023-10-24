@@ -6,12 +6,12 @@ use Exporter qw(import);
 use SL::Locale::String qw(t8);
 
 use constant {
-  SALES_ORDER_TYPE               => 'sales_order',
-  PURCHASE_ORDER_TYPE            => 'purchase_order',
-  SALES_QUOTATION_TYPE           => 'sales_quotation',
-  REQUEST_QUOTATION_TYPE         => 'request_quotation',
-  PURCHASE_QUOTATION_INTAKE_TYPE => 'purchase_quotation_intake',
-  SALES_ORDER_INTAKE_TYPE        => 'sales_order_intake',
+  SALES_ORDER_TYPE                 => 'sales_order',
+  PURCHASE_ORDER_TYPE              => 'purchase_order',
+  SALES_QUOTATION_TYPE             => 'sales_quotation',
+  REQUEST_QUOTATION_TYPE           => 'request_quotation',
+  PURCHASE_QUOTATION_INTAKE_TYPE   => 'purchase_quotation_intake',
+  SALES_ORDER_INTAKE_TYPE          => 'sales_order_intake',
   PURCHASE_ORDER_CONFIRMATION_TYPE => 'purchase_order_confirmation',
 };
 
