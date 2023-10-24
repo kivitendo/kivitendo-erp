@@ -1,0 +1,19 @@
+- parent: ap
+  id: ap_add_purchase_order_confirmation_experimental
+  name: Add Purchase Order Confirmation
+  icon: purchase_order_add
+  order: 250
+  access: purchase_order_edit & client/feature_experimental_order
+  params:
+    action: Order/add
+    type: purchase_order_confirmation
+- parent: ap_reports
+  id: ap_reports_purchase_order_confirmations
+  name: Purchase Order Confirmations
+  icon: purchase_order_report
+  order: 250
+  access: purchase_order_edit | purchase_order_view
+  module: oe.pl
+  params:
+    action: search
+    type: purchase_order_confirmation
