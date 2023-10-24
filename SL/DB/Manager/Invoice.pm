@@ -16,6 +16,9 @@ sub type_filter {
   my $type  = lc(shift || '');
 
   return (or  => [ invoice => 0, invoice => undef                                               ]) if $type eq 'ar_transaction';
+  return (type => 'invoice_for_advance_payment'                                                  ) if $type eq 'invoice_for_advance_payment';
+  return (and => [ type => 'invoice_for_advance_payment', amount => { lt => 0 }                 ]) if $type eq 'invoice_for_advance_payment_storno';
+  return (type => 'final_invoice'                                                                ) if $type eq 'final_invoice';
   return (and => [ invoice => 1, amount  => { ge => 0 }, or => [ storno => 0, storno => undef ] ]) if $type =~ m/^(?:sales_)?invoice$/;
   return (and => [ invoice => 1, amount  => { lt => 0 }, or => [ storno => 0, storno => undef ] ]) if $type eq 'credit_note';
   return (and => [ invoice => 1, amount  => { lt => 0 },         storno => 1                    ]) if $type =~ m/(?:invoice_)?storno/;

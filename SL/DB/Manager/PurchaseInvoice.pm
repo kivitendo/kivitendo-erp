@@ -16,7 +16,8 @@ sub type_filter {
   my $type  = lc(shift || '');
 
   return (or  => [ invoice => 0, invoice => undef                       ]) if $type eq 'ap_transaction';
-  return (and => [ invoice => 1, or => [ storno => 0, storno => undef ] ]) if $type =~ m/^(?:purchase_)?invoice$/;
+  return (and => [ invoice => 1, amount => { lt => 0 }, or => [ storno => 0, storno => undef ] ]) if $type eq 'purchase_credit_note';
+  return (and => [ invoice => 1, amount => { ge => 0 }, or => [ storno => 0, storno => undef ] ]) if $type =~ m/^(?:purchase_)?invoice$/;
   return (and => [ invoice => 1,         storno => 1                    ]) if $type =~ m/(?:invoice_)?storno/;
 
   die "Unknown type $type";
