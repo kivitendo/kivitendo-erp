@@ -104,6 +104,16 @@ my %RECORD_TYPE_TO_MANAGER =
     map { $_ => "SL::DB::Manager::$class" } @{ $RECORD_TYPES_INFO{$_}->{types} }
   } keys %RECORD_TYPES_INFO;
 my @ALL_RECORD_TYPES = map { @{ $RECORD_TYPES_INFO{$_}->{types} } } keys %RECORD_TYPES_INFO;
+my %RECORD_TYPE_TO_NR_KEY =
+  map {
+    my $model = $RECORD_TYPE_TO_MODEL{$_};
+    if (any {$model eq $_} qw(SL::DB::Invoice SL::DB::PurchaseInvoice)) {
+      $_ => 'invnumber';
+    } else {
+      my $type_data = SL::DB::Helper::TypeDataProxy->new($model, $_);
+      $_ => $type_data->properties('nr_key');
+    }
+  } @ALL_RECORD_TYPES;
 
 # has do be done at runtime for translation to work
 sub get_record_types_with_info {
@@ -186,7 +196,8 @@ sub action_show {
     $record_types,
     customer_vendor_type => $cv_type,
     customer_vendor_id   => $customer_vendor && $customer_vendor->id,
-    with_closed     => 0,
+    record_number        => '',
+    with_closed          => 0,
   );
 
   $self->setup_show_action_bar;
@@ -205,9 +216,10 @@ sub get_records_for_types {
   my ($self, $record_types, %params) = @_;
   $record_types = [ $record_types ] unless ref $record_types eq 'ARRAY';
 
-  my $cv_type     = $params{customer_vendor_type};
-  my $cv_id       = $params{customer_vendor_id};
-  my $with_closed = $params{with_closed};
+  my $cv_type       = $params{customer_vendor_type};
+  my $cv_id         = $params{customer_vendor_id};
+  my $record_number = $params{record_number};
+  my $with_closed   = $params{with_closed};
 
   my @records = ();
   foreach my $record_type (@$record_types) {
@@ -216,6 +228,10 @@ sub get_records_for_types {
     my %additional_where = ();
     if ($cv_type && $cv_id) {
       $additional_where{"${cv_type}_id"} = $cv_id;
+    }
+    if ($record_number) {
+      my $nr_key = $RECORD_TYPE_TO_NR_KEY{$record_type};
+      $additional_where{$nr_key} = { ilike => "%$record_number%" };
     }
     unless ($with_closed) {
       if (any {$_ eq 'closed' } $model->meta->columns) {
@@ -373,9 +389,10 @@ sub action_update_record_list {
   my ($self) = @_;
   $::auth->assert('email_journal');
   my $customer_vendor_type = $::form->{customer_vendor_selection};
-  my $customer_vendor_id = $::form->{"${customer_vendor_type}_id"};
-  my $record_type = $::form->{"${customer_vendor_type}_record_type_selection"};
-  my $with_closed = $::form->{with_closed};
+  my $customer_vendor_id   = $::form->{"${customer_vendor_type}_id"};
+  my $record_type          = $::form->{"${customer_vendor_type}_record_type_selection"};
+  my $record_number        = $::form->{record_number};
+  my $with_closed          = $::form->{with_closed};
 
   $record_type ||= $self->record_types_for_customer_vendor_type($customer_vendor_type);
 
@@ -383,6 +400,7 @@ sub action_update_record_list {
     $record_type,
     customer_vendor_type => $customer_vendor_type,
     customer_vendor_id   => $customer_vendor_id,
+    record_number        => $record_number,
     with_closed          => $with_closed,
   );
 

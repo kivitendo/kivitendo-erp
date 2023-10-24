@@ -131,6 +131,12 @@
        ) %]
     </div>
     [% END %]
+    <div id="record_number_div" class="col">
+      [% L.input_tag('record_number', '',
+         class="wi-normal", placeholder=LxERP.t8("Record number")
+         onchange='kivi.EmailJournal.update_record_list();'
+         ) %]
+    </div>
 
     <div id="with_closed_div" class="col">
       [% L.select_tag('with_closed',
