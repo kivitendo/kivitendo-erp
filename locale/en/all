@@ -2225,6 +2225,7 @@ $self->{texts} = {
   'Link to'                     => '',
   'Link to invoice'             => '',
   'Link to the following project:' => '',
+  'Linked'                      => '',
   'Linked Records'              => '',
   'Linked email and attachment to ' => '',
   'Linked invoices'             => '',

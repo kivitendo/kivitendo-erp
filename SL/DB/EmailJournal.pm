@@ -51,6 +51,12 @@ sub link_to_record_with_attachment {
   $self->link_to_record($record);
 }
 
+sub linked {
+  my ($self) = @_;
+
+  return !!scalar @{$self->linked_records};
+}
+
 sub process_attachments_as_purchase_invoices {
   my ($self) = @_;
 

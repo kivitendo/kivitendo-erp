@@ -25,6 +25,7 @@
       <th>[% L.sortable_table_header("sent_on") %]</th>
       <th>[% L.sortable_table_header("status") %]</th>
       <th>[% L.sortable_table_header("extended_status") %]</th>
+      <th>[% L.sortable_table_header("linked") %]</th>
     </tr>
   </thead>
   <tbody>
@@ -39,6 +40,7 @@
       <td>[% HTML.escape(entry.sent_on.to_lxoffice('precision' => 'second')) %]</td>
       <td> [% P.email_journal.entry_status(entry) %] </td>
       <td>[% HTML.escape(entry.extended_status) %]</td>
+      <td>[% entry.linked ? LxERP.t8('Yes') : LxERP.t8('No') %]</td>
     </tr>
     [% END %]
   </tbody>

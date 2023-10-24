@@ -17,6 +17,15 @@ sub _sort_spec {
     columns => {
       SIMPLE => 'ALL',
       sender => 'sender.name',
+      linked => "(
+        SELECT count(*) from record_links where
+          ( record_links.from_table = 'email_journal'::varchar(50)
+            AND record_links.from_id = email_journal.id
+          ) OR (
+            record_links.to_table = 'email_journal'::varchar(50)
+            AND record_links.to_id = email_journal.id
+          )
+      ) > 0"
     },
   );
 }

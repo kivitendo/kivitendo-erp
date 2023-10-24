@@ -531,6 +531,7 @@ sub init_models {
       sent_on         => t8('Sent on'),
       status          => t8('Status'),
       extended_status => t8('Extended status'),
+      linked          => t8('Linked'),
     },
   );
 }
@@ -551,9 +552,10 @@ sub init_filter_summary {
                        @filters;
 
   my %status = (
-    send_failed => $::locale->text('send failed'),
-    sent        => $::locale->text('sent'),
-    imported    => $::locale->text('imported'),
+    send_failed     => $::locale->text('send failed'),
+    sent            => $::locale->text('sent'),
+    imported        => $::locale->text('imported'),
+    record_imported => $::locale->text('record imported'),
   );
   push @filter_strings, $status{ $filter->{'status:eq_ignore_empty'} } if $filter->{'status:eq_ignore_empty'};
 
