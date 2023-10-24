@@ -3,7 +3,6 @@ namespace('kivi.EmailJournal', function(ns) {
 
   ns.update_attachment_preview = function() {
     let $form = $('#record_action_form');
-    if ($form == undefined) { return; }
 
     let data = $form.serializeArray();
     data.push({ name: 'action', value: 'EmailJournal/update_attachment_preview' });
@@ -32,13 +31,14 @@ namespace('kivi.EmailJournal', function(ns) {
   ns.update_action_selection = function() {
     let record_action = $('#action_selection').val();
 
-    $('#record_div').hide();
-    $('#no_record_div').hide();
+    $('#record_selection_div').hide();
+    $('#create_new_div').hide();
 
     if (record_action == 'create_new') {
-      $('#no_record_div').show();
+      $('#create_new_div').show();
+      $('#create_new_div').css('display','inline-block')
     } else {
-      $('#record_div').show();
+      $('#record_selection_div').show();
     }
   }
 
@@ -51,14 +51,12 @@ namespace('kivi.EmailJournal', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   }
 
-  ns.apply_action_with_attachment = function() {
+  ns.apply_action_with_attachment = function(record_id, record_type) {
     let data = $('#record_action_form').serializeArray();
     data.push({ name: 'action', value: 'EmailJournal/apply_record_action' });
+    data.push({ name: 'record_id', value: record_id });
+    data.push({ name: 'record_type', value: record_type });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   }
-});
-
-$(function() {
-  kivi.EmailJournal.update_attachment_preview();
 });

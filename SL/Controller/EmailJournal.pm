@@ -9,7 +9,7 @@ use SL::DB::Employee;
 use SL::DB::EmailJournal;
 use SL::DB::EmailJournalAttachment;
 use SL::Presenter::EmailJournal;
-use SL::Presenter::Tag qw(html_tag div_tag radio_button_tag);
+use SL::Presenter::Tag qw(html_tag div_tag button_tag);
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 
@@ -103,7 +103,8 @@ my %RECORD_TYPE_TO_MANAGER =
     my $class = $RECORD_TYPES_INFO{$_}->{class};
     map { $_ => "SL::DB::Manager::$class" } @{ $RECORD_TYPES_INFO{$_}->{types} }
   } keys %RECORD_TYPES_INFO;
-my @ALL_RECORD_TYPES = map { @{ $RECORD_TYPES_INFO{$_}->{types} } } keys %RECORD_TYPES_INFO;
+my @ALL_RECORD_TYPES =
+  map { @{ $RECORD_TYPES_INFO{$_}->{types} } } keys %RECORD_TYPES_INFO;
 my %RECORD_TYPE_TO_NR_KEY =
   map {
     my $model = $RECORD_TYPE_TO_MODEL{$_};
@@ -329,21 +330,22 @@ sub action_apply_record_action {
   my $customer_vendor    = $::form->{customer_vendor_selection};
   my $customer_vendor_id = $::form->{"${customer_vendor}_id"};
   my $action             = $::form->{action_selection};
-  my $record_type_id     = $::form->{"record_type_id"};
-  die t8("No record is selected.") unless $record_type_id || $action eq 'create_new';
+  my $record_id          = $::form->{"record_id"};
+  my $record_type        = $::form->{"record_type"};
+     $record_type      ||= $::form->{"${customer_vendor}_record_type_selection"};
 
+  die t8("No record is selected.")               unless $record_id || $action eq 'create_new';
+  die t8("No record type is selected.")          unless $record_type;
   die "no 'email_journal_id' was given"          unless $email_journal_id;
   die "no 'customer_vendor_selection' was given" unless $customer_vendor;
   die "no 'action_selection' was given"          unless $action;
 
-  my ($record_type, $record_id) = split(/-/, $record_type_id);
-
   if ($action eq 'linking') {
     return $self->link_and_add_attachment_to_record({
-        email_journal_id    => $email_journal_id,
-        attachment_id       => $attachment_id,
-        record_type         => $record_type,
-        record_id           => $record_id,
+        email_journal_id => $email_journal_id,
+        attachment_id    => $attachment_id,
+        record_type      => $record_type,
+        record_id        => $record_id,
       });
   }
 
@@ -404,28 +406,28 @@ sub action_update_record_list {
     with_closed          => $with_closed,
   );
 
-  unless (@records) {
-    $self->js->replaceWith('#record_list', div_tag(
-      html_tag('h3', t8('No records found.')),
-      id => 'record_list',
-    ))->render();
-    return;
+  my $new_list;
+  if (@records) {
+    $new_list = join('', map {
+        button_tag(
+          "kivi.EmailJournal.apply_action_with_attachment('${\$_->id}', '${\$_->record_type}');",
+          $_->displayable_name,
+          class => "record_button",
+        );
+      } @records);
+  } else {
+    $new_list = html_tag('h3', t8('No records found.'));
   }
-
   my $new_div = div_tag(
-    join('', map {
-      div_tag(
-        radio_button_tag('record_type_id',
-        value => $_->record_type . "-" . $_->id, label => $_->displayable_name,
-        class => "record_radio", label_class => "record_radio",
-        ),
-        id => "record_$_->{id}",
-      )
-    } @records),
+    $new_list,
     id => 'record_list',
   );
 
-  $self->js->replaceWith('#record_list', $new_div)->render();
+
+  $self->js->replaceWith('#record_list', $new_div);
+  $self->js->hide('#record_toggle_closed') if scalar @records < 20;
+  $self->js->show('#record_toggle_open')   if scalar @records < 20;
+  $self->js->render();
 }
 
 #
@@ -443,10 +445,10 @@ sub add_stylesheet {
 sub link_and_add_attachment_to_record {
  my ($self, $params) = @_;
 
-  my $email_journal_id   = $params->{email_journal_id};
-  my $attachment_id      = $params->{attachment_id};
-  my $record_type        = $params->{record_type};
-  my $record_id          = $params->{record_id};
+  my $email_journal_id = $params->{email_journal_id};
+  my $attachment_id    = $params->{attachment_id};
+  my $record_type      = $params->{record_type};
+  my $record_id        = $params->{record_id};
 
   my $record_type_model = $RECORD_TYPE_TO_MODEL{$record_type};
   my $record = $record_type_model->new(id => $record_id)->load;
@@ -459,7 +461,9 @@ sub link_and_add_attachment_to_record {
 
   $email_journal->link_to_record($record);
 
-  return $self->js->flash('info',  $::locale->text('Linked e-mail and attachment to ') . $record->displayable_name)->render();
+  $self->js->flash('info',
+    $::locale->text('Linked e-mail and attachment to ') . $record->displayable_name
+  )->render();
 }
 
 sub find_customer_vendor_from_email {
@@ -499,27 +503,6 @@ sub find_customer_vendor_from_email {
   }
 
   return $customer_vendor;
-}
-
-sub find_customer_from_email {
-  my ($self, $email_journal) = @_;
-  my $email_address = $email_journal->from;
-
-  my $customer = SL::DB::Manager::Customer->get_first(
-    where => [
-      or => [
-        email => $email_address,
-        cc    => $email_address,
-        bcc   => $email_address,
-        'contacts.cp_email' => $email_address,
-        'contacts.cp_privatemail' => $email_address,
-        'shipto.shiptoemail' => $email_address,
-      ],
-    ],
-    with_objects => [ 'contacts', 'shipto' ],
-  );
-
-  return $customer;
 }
 
 sub add_js {

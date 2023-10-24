@@ -1,20 +1,9 @@
 /* E-Mail-Journal */
-input.record_radio {
-    visibility:hidden;
-    position:absolute;
-    float: left;
-}
-label.record_radio {
-    cursor: pointer;
-    float: left;
-    overflow: hidden;
-    width: 200px;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 5px;
-    border: 1px solid;
-    text-align: center;
-}
-input.record_radio:checked + label {
+input.record_button {
+  color: var(--color-dark);
   background-color: var(--color-lighter);
+  width: 200px;
+  padding: 5px;
+  margin: 5px;
+  float: left;
 }
