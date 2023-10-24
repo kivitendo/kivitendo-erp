@@ -26,31 +26,29 @@ namespace('kivi.EmailJournal', function(ns) {
       $('#vendor_div').show();
       $('#vendor_record_types_div').show();
     }
-    kivi.EmailJournal.update_record_type_selection(customer_vendor);
+    kivi.EmailJournal.update_record_list();
   }
 
   ns.update_action_selection = function() {
     let record_action = $('#action_selection').val();
 
-    $('#record_type_div').hide();
-    $('#no_record_type_div').hide();
+    $('#record_div').hide();
+    $('#no_record_div').hide();
 
     if (record_action == 'create_new') {
-      $('#no_record_type_div').show();
+      $('#no_record_div').show();
     } else {
-      $('#record_type_div').show();
+      $('#record_div').show();
     }
   }
 
-  ns.update_record_type_selection = function(customer_vendor) {
-    let record_type = $('#' + customer_vendor + '_record_type_selection').val();
+  ns.update_record_list = function() {
+    let $form = $('#record_action_form');
 
-    $('.record_type').hide();
-    if (record_type != '') {
-      $('#' + record_type + '_div').show();
-    } else {
-      $('#record_type_placeholder_div').show();
-    }
+    let data = $form.serializeArray();
+    data.push({ name: 'action', value: 'EmailJournal/update_record_list' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
   }
 
   ns.apply_action_with_attachment = function() {

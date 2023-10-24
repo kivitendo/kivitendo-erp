@@ -91,6 +91,7 @@
            cv_type _ "_id",
            CUSTOMER_VENDOR.is_customer == cv_is_cusotmer ? CUSTOMER_VENDOR : undef,
            type=cv_type, class="wi-normal", placeholder=LxERP.t8(cv_name)
+           onchange='kivi.EmailJournal.update_record_list();'
            ) %]
     </div>
     [% END %]
@@ -126,37 +127,57 @@
        value_key='value', title_key='name',
        with_empty=1, empty_value='', empty_title=LxERP.t8("Select record type"),
        class="wi-normal",
-       onchange='kivi.EmailJournal.update_record_type_selection("' _ customer_vendor _ '");'
+       onchange='kivi.EmailJournal.update_record_list();'
        ) %]
     </div>
     [% END %]
 
-    <div id="record_type_div" class="col" style="display:block">
-      [% FOREACH record_info = RECORD_TYPES_WITH_INFO %]
-      <div id="[% record_info.record_type _ "_div" %]" class="col record_type" style="display:none">
-        [% L.input_tag(record_info.record_type _ "_id", '',
-             style="color:black", class="wi-normal",
-             placeholder=record_info.record_type _ " id") %]
-      </div>
-      [% END %]
-      <div id="record_type_placeholder_div" class="col record_type" style="display:block">
-        [% L.input_tag('cv_placeholder', '',
-             style="color:black", class="wi-normal", disabled=1,
-             placeholder=LxERP.t8("Select record type first"),
-             ) %]
-      </div>
+    <div id="with_closed_div" class="col">
+      [% L.select_tag('with_closed',
+         [
+           {value => "1", name => LxERP.t8("With closed")},
+           {value => "0", name => LxERP.t8("Only open")},
+         ],
+         default = 0, value_key='value', title_key='name',
+         class="wi-small",
+         onchange='kivi.EmailJournal.update_record_list();'
+         ) %]
     </div>
-    <div id="no_record_type_div" class="col" style="display:none">
-      [% L.input_tag('cv_placeholder', '',
-           style="color:black", class="wi-normal", disabled=1,
-           placeholder=LxERP.t8("No record needed"),
-           ) %]
-    </div>
+
 
     <div class="col">
       [% L.button_tag('kivi.EmailJournal.apply_action_with_attachment();', LxERP.t8('Apply with Attachment')) %]
     </div>
   </div> <!-- action_div -->
+
+  [% BLOCK panel_1 %]
+      <div id="record_div">
+        <div id="record_list">
+        [% FOREACH record = RECORDS %]
+          <div id="record_[% record.id %]">
+            [% L.radio_button_tag('record_type_id', class="record_radio",
+                value=record.record_type _ '-' _ record.id,
+                label_class="record_radio", label=record.displayable_name) %]
+          </div>
+        [% END %]
+        [% IF RECORDS.size == 0 %]
+          <div id="no_record_div">
+            <h3> [% LxERP.t8("No records found.") %] </h3>
+          </div>
+        [% END %]
+      </div>
+    </div>
+    <div id="no_record_div" class="col" style="display:none">
+      <h3> [% LxERP.t8("No record needed.") %] </h3>
+    </div>
+  [% END %]
+  [% SET display_status = (RECORDS.size > 20 ? 'closed' : 'open');
+     INCLUDE 'common/toggle_panel.html'
+      block_name='panel_1'
+      button_closed  = LxERP.t8('Show Records')
+      button_open    = LxERP.t8('Hide Records')
+      ;
+  %]
 </form>
 
 <!-- kivi.EmailJournal.update_attachment_preview -->

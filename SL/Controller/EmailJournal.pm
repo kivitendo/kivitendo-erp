@@ -8,10 +8,10 @@ use SL::Controller::Helper::GetModels;
 use SL::DB::Employee;
 use SL::DB::EmailJournal;
 use SL::DB::EmailJournalAttachment;
+use SL::Presenter::EmailJournal;
+use SL::Presenter::Tag qw(html_tag div_tag radio_button_tag);
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
-use SL::System::TaskServer;
-use SL::Presenter::EmailJournal;
 
 use SL::DB::Order;
 use SL::DB::Order::TypeData;
@@ -25,6 +25,8 @@ use SL::DB::PurchaseInvoice;
 use SL::DB::Manager::Customer;
 use SL::DB::Manager::Vendor;
 
+use List::MoreUtils qw(any);
+
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(entry) ],
@@ -37,29 +39,29 @@ __PACKAGE__->run_before('add_js');
 my %RECORD_TYPES_INFO = (
   Order => {
     controller => 'Order',
-    model      => 'SL::DB::Order',
+    class      => 'Order',
     types => SL::DB::Order::TypeData->valid_types(),
   },
   DeliveryOrder => {
     controller => 'DeliveryOrder',
-    model      => 'SL::DB::DeliveryOrder',
+    class      => 'DeliveryOrder',
     types => SL::DB::DeliveryOrder::TypeData->valid_types(),
   },
   Reclamation => {
     controller => 'Reclamation',
-    model      => 'SL::DB::Reclamation',
+    class      => 'Reclamation',
     types => SL::DB::Reclamation::TypeData->valid_types(),
   },
   ArTransaction => {
     controller => 'ar.pl',
-    model      => 'SL::DB::Invoice',
+    class      => 'Invoice',
     types => [
       'ar_transaction',
     ],
   },
   Invoice => {
     controller => 'is.pl',
-    model      => 'SL::DB::Invoice',
+    class      => 'Invoice',
     types => [
       'invoice',
       'invoice_for_advance_payment',
@@ -72,14 +74,14 @@ my %RECORD_TYPES_INFO = (
   },
   ApTransaction => {
     controller => 'ap.pl',
-    model      => 'SL::DB::PurchaseInvoice',
+    class      => 'PurchaseInvoice',
     types => [
       'ap_transaction',
     ],
   },
   PurchaseInvoice => {
     controller => 'ir.pl',
-    model      => 'SL::DB::PurchaseInvoice',
+    class      => 'PurchaseInvoice',
     types => [
       'purchase_invoice',
       'purchase_credit_note',
@@ -93,9 +95,54 @@ my %RECORD_TYPE_TO_CONTROLLER =
   } keys %RECORD_TYPES_INFO;
 my %RECORD_TYPE_TO_MODEL =
   map {
-    my $model = $RECORD_TYPES_INFO{$_}->{model};
-    map { $_ => $model } @{ $RECORD_TYPES_INFO{$_}->{types} }
+    my $class = $RECORD_TYPES_INFO{$_}->{class};
+    map { $_ => "SL::DB::$class" } @{ $RECORD_TYPES_INFO{$_}->{types} }
   } keys %RECORD_TYPES_INFO;
+my %RECORD_TYPE_TO_MANAGER =
+  map {
+    my $class = $RECORD_TYPES_INFO{$_}->{class};
+    map { $_ => "SL::DB::Manager::$class" } @{ $RECORD_TYPES_INFO{$_}->{types} }
+  } keys %RECORD_TYPES_INFO;
+my @ALL_RECORD_TYPES = map { @{ $RECORD_TYPES_INFO{$_}->{types} } } keys %RECORD_TYPES_INFO;
+
+# has do be done at runtime for translation to work
+sub get_record_types_with_info {
+  # TODO: what record types can be created, which are only available in workflows?
+  my @record_types_with_info = ();
+  for my $record_class ('SL::DB::Order', 'SL::DB::DeliveryOrder', 'SL::DB::Reclamation') {
+    my $valid_types = "${record_class}::TypeData"->valid_types();
+    for my $type (@$valid_types) {
+
+      my $type_data = SL::DB::Helper::TypeDataProxy->new($record_class, $type);
+      push @record_types_with_info, {
+        record_type    => $type,
+        customervendor => $type_data->properties('customervendor'),
+        text           => $type_data->text('type'),
+      };
+    }
+  }
+  push @record_types_with_info, (
+    # invoice
+    { record_type => 'invoice',                             customervendor => 'customer',  text => t8('Invoice') },
+    { record_type => 'invoice_for_advance_payment',         customervendor => 'customer',  text => t8('Invoice for Advance Payment')},
+    { record_type => 'invoice_for_advance_payment_storno',  customervendor => 'customer',  text => t8('Storno Invoice for Advance Payment')},
+    { record_type => 'final_invoice',                       customervendor => 'customer',  text => t8('Final Invoice')},
+    { record_type => 'invoice_storno',                      customervendor => 'customer',  text => t8('Storno Invoice')},
+    { record_type => 'credit_note',                         customervendor => 'customer',  text => t8('Credit Note')},
+    { record_type => 'credit_note_storno',                  customervendor => 'customer',  text => t8('Storno Credit Note')},
+    { record_type => 'ar_transaction',                      customervendor => 'customer',  text => t8('AR Transaction')},
+    # purchase invoice
+    { record_type => 'purchase_invoice',      customervendor => 'vendor',  text => t8('Purchase Invoice')},
+    { record_type => 'purchase_credit_note',  customervendor => 'vendor',  text => t8('Purchase Credit Note')},
+    { record_type => 'ap_transaction',        customervendor => 'vendor',  text => t8('AP Transaction')},
+  );
+  return @record_types_with_info;
+}
+
+sub record_types_for_customer_vendor_type {
+  my ($self, $customer_vendor_type) = @_;
+  return [ map { $_->{record_type} } grep { $_->{customervendor} eq $customer_vendor_type } $self->get_record_types_with_info ];
+}
 
 #
 # actions
@@ -129,37 +176,18 @@ sub action_show {
     $::form->error(t8('You do not have permission to access this entry.'));
   }
 
-  # TODO: what record types can be created, which are only available in workflows?
-  my @record_types_with_info = ();
-  for my $record_class ('SL::DB::Order', 'SL::DB::DeliveryOrder', 'SL::DB::Reclamation') {
-    my $valid_types = "${record_class}::TypeData"->valid_types();
-    for my $type (@$valid_types) {
-
-      my $type_data = SL::DB::Helper::TypeDataProxy->new($record_class, $type);
-      push @record_types_with_info, {
-        record_type    => $type,
-        customervendor => $type_data->properties('customervendor'),
-        text           => $type_data->text('type'),
-      };
-    }
-  }
-  push @record_types_with_info, (
-    # invoice
-    { record_type => 'ar_transaction'                    ,  customervendor => 'customer',  text => t8('AR Transaction')},
-    { record_type => 'invoice'                           ,  customervendor => 'customer',  text => t8('Invoice') },
-    { record_type => 'invoice_for_advance_payment'       ,  customervendor => 'customer',  text => t8('Invoice for Advance Payment')},
-    { record_type => 'invoice_for_advance_payment_storno',  customervendor => 'customer',  text => t8('Storno Invoice for Advance Payment')},
-    { record_type => 'final_invoice'                     ,  customervendor => 'customer',  text => t8('Final Invoice')},
-    { record_type => 'invoice_storno'                    ,  customervendor => 'customer',  text => t8('Storno Invoice')},
-    { record_type => 'credit_note'                       ,  customervendor => 'customer',  text => t8('Credit Note')},
-    { record_type => 'credit_note_storno'                ,  customervendor => 'customer',  text => t8('Storno Credit Note')},
-    # purchase invoice
-    { record_type => 'ap_transaction'      ,  customervendor => 'vendor',  text => t8('AP Transaction')},
-    { record_type => 'purchase_invoice'    ,  customervendor => 'vendor',  text => t8('Purchase Invoice')},
-    { record_type => 'purchase_credit_note',  customervendor => 'vendor',  text => t8('Purchase Credit Note')},
-  );
+  my @record_types_with_info = $self->get_record_types_with_info();
 
   my $customer_vendor = $self->find_customer_vendor_from_email($self->entry);
+  my $cv_type = $customer_vendor && $customer_vendor->is_vendor ? 'vendor' : 'customer';
+
+  my $record_types = $self->record_types_for_customer_vendor_type($cv_type);
+  my @records = $self->get_records_for_types(
+    $record_types,
+    customer_vendor_type => $cv_type,
+    customer_vendor_id   => $customer_vendor && $customer_vendor->id,
+    with_closed     => 0,
+  );
 
   $self->setup_show_action_bar;
   $self->render(
@@ -168,8 +196,44 @@ sub action_show {
     CUSTOMER_VENDOR => , $customer_vendor,
     CV_TYPE_FOUND => $customer_vendor && $customer_vendor->is_vendor ? 'vendor' : 'customer',
     RECORD_TYPES_WITH_INFO => \@record_types_with_info,
+    RECORDS => \@records,
     back_to  => $back_to
   );
+}
+
+sub get_records_for_types {
+  my ($self, $record_types, %params) = @_;
+  $record_types = [ $record_types ] unless ref $record_types eq 'ARRAY';
+
+  my $cv_type     = $params{customer_vendor_type};
+  my $cv_id       = $params{customer_vendor_id};
+  my $with_closed = $params{with_closed};
+
+  my @records = ();
+  foreach my $record_type (@$record_types) {
+    my $manager = $RECORD_TYPE_TO_MANAGER{$record_type};
+    my $model = $RECORD_TYPE_TO_MODEL{$record_type};
+    my %additional_where = ();
+    if ($cv_type && $cv_id) {
+      $additional_where{"${cv_type}_id"} = $cv_id;
+    }
+    unless ($with_closed) {
+      if (any {$_ eq 'closed' } $model->meta->columns) {
+        $additional_where{closed} = 0;
+      } elsif (any {$_ eq 'paid' } $model->meta->columns) {
+        $additional_where{amount} = { gt => \'paid' };
+      }
+    }
+    my $records_of_type = $manager->get_all(
+      where => [
+        $manager->type_filter($record_type),
+        %additional_where,
+      ],
+    );
+    push @records, @$records_of_type;
+  }
+
+  return @records;
 }
 
 sub action_attachment_preview {
@@ -249,8 +313,14 @@ sub action_apply_record_action {
   my $customer_vendor    = $::form->{customer_vendor_selection};
   my $customer_vendor_id = $::form->{"${customer_vendor}_id"};
   my $action             = $::form->{action_selection};
-  my $record_type        = $::form->{"${customer_vendor}_record_type_selection"};
-  my $record_id          = $::form->{"${record_type}_id"};
+  my $record_type_id     = $::form->{"record_type_id"};
+  die t8("No record is selected.") unless $record_type_id || $action eq 'create_new';
+
+  die "no 'email_journal_id' was given"          unless $email_journal_id;
+  die "no 'customer_vendor_selection' was given" unless $customer_vendor;
+  die "no 'action_selection' was given"          unless $action;
+
+  my ($record_type, $record_id) = split(/-/, $record_type_id);
 
   if ($action eq 'linking') {
     return $self->link_and_add_attachment_to_record({
@@ -297,6 +367,47 @@ sub action_update_attachment_preview {
       )
     )
     ->render();
+}
+
+sub action_update_record_list {
+  my ($self) = @_;
+  $::auth->assert('email_journal');
+  my $customer_vendor_type = $::form->{customer_vendor_selection};
+  my $customer_vendor_id = $::form->{"${customer_vendor_type}_id"};
+  my $record_type = $::form->{"${customer_vendor_type}_record_type_selection"};
+  my $with_closed = $::form->{with_closed};
+
+  $record_type ||= $self->record_types_for_customer_vendor_type($customer_vendor_type);
+
+  my @records = $self->get_records_for_types(
+    $record_type,
+    customer_vendor_type => $customer_vendor_type,
+    customer_vendor_id   => $customer_vendor_id,
+    with_closed          => $with_closed,
+  );
+
+  unless (@records) {
+    $self->js->replaceWith('#record_list', div_tag(
+      html_tag('h3', t8('No records found.')),
+      id => 'record_list',
+    ))->render();
+    return;
+  }
+
+  my $new_div = div_tag(
+    join('', map {
+      div_tag(
+        radio_button_tag('record_type_id',
+        value => $_->record_type . "-" . $_->id, label => $_->displayable_name,
+        class => "record_radio", label_class => "record_radio",
+        ),
+        id => "record_$_->{id}",
+      )
+    } @records),
+    id => 'record_list',
+  );
+
+  $self->js->replaceWith('#record_list', $new_div)->render();
 }
 
 #

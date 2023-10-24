@@ -1,13 +1,20 @@
 /* E-Mail-Journal */
-.email_journal_details tbody pre {
-  margin: 0px;
+input.record_radio {
+    visibility:hidden;
+    position:absolute;
+    float: left;
 }
-
-.email_journal_details tbody th {
-  text-align: right;
-  vertical-align: top;
+label.record_radio {
+    cursor: pointer;
+    float: left;
+    overflow: hidden;
+    width: 200px;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 1px solid;
+    text-align: center;
 }
-
-.email_journal_details tbody td {
-  vertical-align: top;
+input.record_radio:checked + label {
+  background-color: var(--color-lighter);
 }
