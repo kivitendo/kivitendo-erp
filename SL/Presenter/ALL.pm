@@ -25,6 +25,7 @@ use SL::Presenter::ShopOrder;
 use SL::Presenter::Text;
 use SL::Presenter::Tag;
 use SL::Presenter::BankAccount;
+use SL::Presenter::BankTransaction;
 use SL::Presenter::MaterialComponents;
 
 our %presenters = (
@@ -51,6 +52,7 @@ our %presenters = (
   text                        => 'SL::Presenter::Text',
   tag                         => 'SL::Presenter::Tag',
   bank_account                => 'SL::Presenter::BankAccount',
+  bank_transaction            => 'SL::Presenter::BankTransaction',
   M                           => 'SL::Presenter::MaterialComponents',
 );
 
