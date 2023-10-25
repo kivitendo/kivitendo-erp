@@ -6,9 +6,11 @@ use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Tag         qw(link_tag);
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(gl_transaction);
+our @EXPORT_OK = qw(show gl_transaction);
 
 use Carp;
+
+sub show {goto &gl_transaction};
 
 sub gl_transaction {
   my ($gl_transaction, %params) = @_;
@@ -42,10 +44,16 @@ SL::Presenter::GL - Presenter module for GL transaction
 
   my $object = SL::DB::Manager::GLTransaction->get_first();
   my $html   = SL::Presenter::GL::gl_transaction($object, display => 'inline');
+  # or
+  my $html   = $object->presenter->show();
 
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<show $object %params>
+
+Alias for C<gl_transaction $object %params>.
 
 =item C<gl_transaction $object, %params>
 

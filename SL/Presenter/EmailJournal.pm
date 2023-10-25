@@ -9,9 +9,11 @@ use SL::SessionFile::Random;
 use SL::DB::EmailJournalAttachment;
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(email_journal entry_status attachment_preview);
+our @EXPORT_OK = qw(show email_journal entry_status attachment_preview);
 
 use Carp;
+
+sub show {goto &email_journal};
 
 sub email_journal {
   my ($email_journal_entry, %params) = @_;
@@ -91,6 +93,8 @@ SL::Presenter::EmailJournal - Presenter module for mail entries in email_journal
 
   my $journal_entry = SL::DB::Manager::EmailJournal->get_first();
   my $html   = SL::Presenter::EmailJournal::email_journal($journal_entry, display => 'inline');
+  # or
+  my $html   = $journal_entry->presenter->show();
 
   # pp $html
   # <a href="controller.pl?action=EmailJournal/show&amp;id=1">IDEV Daten fuer webdav/idev/2017-KW-26.csv erzeugt</a>
@@ -98,6 +102,10 @@ SL::Presenter::EmailJournal - Presenter module for mail entries in email_journal
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<show $object %params>
+
+Alias for C<email_journal $object %params>.
 
 =item C<email_journal $object, %params>
 

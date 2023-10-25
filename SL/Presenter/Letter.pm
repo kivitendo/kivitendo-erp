@@ -6,9 +6,11 @@ use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Tag         qw(link_tag);
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(letter);
+our @EXPORT_OK = qw(show letter);
 
 use Carp;
+
+sub show {goto &letter};
 
 sub letter {
   my ($letter, %params) = @_;
@@ -43,10 +45,16 @@ SL::Presenter::Letter - Presenter module for letter objects
 
   my $letter = SL::DB::Manager::Letter->get_first(where => [ … ]);
   my $html   = SL::Presenter::Letter::letter($letter, display => 'inline');
+  # or
+  my $html   = $letter->presenter->show();
 
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<show $object>
+
+Alias for C<letter $object %params>.
 
 =item C<letter $object, %params>
 
