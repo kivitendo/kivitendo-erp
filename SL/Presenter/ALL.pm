@@ -21,6 +21,7 @@ use SL::Presenter::RequirementSpec;
 use SL::Presenter::RequirementSpecItem;
 use SL::Presenter::RequirementSpecTextBlock;
 use SL::Presenter::SepaExport;
+use SL::Presenter::SepaExportItem;
 use SL::Presenter::ShopOrder;
 use SL::Presenter::Text;
 use SL::Presenter::Tag;
@@ -48,6 +49,7 @@ our %presenters = (
   requirement_spec_item       => 'SL::Presenter::RequirementSpecItem',
   requirement_spec_text_block => 'SL::Presenter::RequirementSpecTextBlock',
   sepa_export                 => 'SL::Presenter::SepaExport',
+  sepa_exprot_item            => 'SL::Presenter::SepaExportItem',
   shop_order                  => 'SL::Presenter::ShopOrder',
   text                        => 'SL::Presenter::Text',
   tag                         => 'SL::Presenter::Tag',
