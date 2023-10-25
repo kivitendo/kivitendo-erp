@@ -479,37 +479,37 @@ sub new_from {
   my $destination_type  = delete $params{destination_type};
 
   my @from_tos = (
-    { from => SALES_QUOTATION_TYPE(),           to => SALES_ORDER_TYPE(),               abbr => 'sqso'   },
-    { from => REQUEST_QUOTATION_TYPE(),         to => PURCHASE_ORDER_TYPE(),            abbr => 'rqpo'   },
-    { from => SALES_QUOTATION_TYPE(),           to => SALES_QUOTATION_TYPE(),           abbr => 'sqsq'   },
-    { from => SALES_ORDER_TYPE(),               to => SALES_ORDER_TYPE(),               abbr => 'soso'   },
-    { from => REQUEST_QUOTATION_TYPE(),         to => REQUEST_QUOTATION_TYPE(),         abbr => 'rqrq'   },
-    { from => PURCHASE_ORDER_TYPE(),            to => PURCHASE_ORDER_TYPE(),            abbr => 'popo'   },
-    { from => SALES_ORDER_TYPE(),               to => PURCHASE_ORDER_TYPE(),            abbr => 'sopo'   },
-    { from => PURCHASE_ORDER_TYPE(),            to => SALES_ORDER_TYPE(),               abbr => 'poso'   },
-    { from => SALES_ORDER_TYPE(),               to => SALES_QUOTATION_TYPE(),           abbr => 'sosq'   },
-    { from => PURCHASE_ORDER_TYPE(),            to => REQUEST_QUOTATION_TYPE(),         abbr => 'porq'   },
-    { from => REQUEST_QUOTATION_TYPE(),         to => SALES_QUOTATION_TYPE(),           abbr => 'rqsq'   },
-    { from => REQUEST_QUOTATION_TYPE(),         to => SALES_ORDER_TYPE(),               abbr => 'rqso'   },
-    { from => SALES_QUOTATION_TYPE(),           to => REQUEST_QUOTATION_TYPE(),         abbr => 'sqrq'   },
-    { from => SALES_ORDER_TYPE(),               to => REQUEST_QUOTATION_TYPE(),         abbr => 'sorq'   },
-    { from => SALES_RECLAMATION_TYPE(),         to => SALES_ORDER_TYPE(),               abbr => 'srso'   },
-    { from => PURCHASE_RECLAMATION_TYPE(),      to => PURCHASE_ORDER_TYPE(),            abbr => 'prpo'   },
-    { from => SALES_ORDER_INTAKE_TYPE(),        to => SALES_ORDER_INTAKE_TYPE(),        abbr => 'soisoi' },
-    { from => SALES_ORDER_INTAKE_TYPE(),        to => SALES_QUOTATION_TYPE(),           abbr => 'soisq'  },
-    { from => SALES_ORDER_INTAKE_TYPE(),        to => REQUEST_QUOTATION_TYPE(),         abbr => 'soirq'  },
-    { from => SALES_ORDER_INTAKE_TYPE(),        to => SALES_ORDER_TYPE(),               abbr => 'soiso'  },
-    { from => SALES_ORDER_INTAKE_TYPE(),        to => PURCHASE_ORDER_TYPE(),            abbr => 'soipo'  },
-    { from => SALES_QUOTATION_TYPE(),           to => SALES_ORDER_INTAKE_TYPE(),        abbr => 'sqsoi'  },
-    { from => PURCHASE_QUOTATION_INTAKE_TYPE(), to => PURCHASE_QUOTATION_INTAKE_TYPE(), abbr => 'pqipqi' },
-    { from => PURCHASE_QUOTATION_INTAKE_TYPE(), to => SALES_QUOTATION_TYPE(),           abbr => 'pqisq'  },
-    { from => PURCHASE_QUOTATION_INTAKE_TYPE(), to => SALES_ORDER_TYPE(),               abbr => 'pqiso'  },
-    { from => PURCHASE_QUOTATION_INTAKE_TYPE(), to => PURCHASE_ORDER_TYPE(),            abbr => 'pqipo'  },
-    { from => REQUEST_QUOTATION_TYPE(),         to => PURCHASE_QUOTATION_INTAKE_TYPE(), abbr => 'rqpqi'  },
+    { from => SALES_QUOTATION_TYPE(),             to => SALES_ORDER_TYPE(),                 abbr => 'sqso'   },
+    { from => REQUEST_QUOTATION_TYPE(),           to => PURCHASE_ORDER_TYPE(),              abbr => 'rqpo'   },
+    { from => SALES_QUOTATION_TYPE(),             to => SALES_QUOTATION_TYPE(),             abbr => 'sqsq'   },
+    { from => SALES_ORDER_TYPE(),                 to => SALES_ORDER_TYPE(),                 abbr => 'soso'   },
+    { from => REQUEST_QUOTATION_TYPE(),           to => REQUEST_QUOTATION_TYPE(),           abbr => 'rqrq'   },
+    { from => PURCHASE_ORDER_TYPE(),              to => PURCHASE_ORDER_TYPE(),              abbr => 'popo'   },
+    { from => SALES_ORDER_TYPE(),                 to => PURCHASE_ORDER_TYPE(),              abbr => 'sopo'   },
+    { from => PURCHASE_ORDER_TYPE(),              to => SALES_ORDER_TYPE(),                 abbr => 'poso'   },
+    { from => SALES_ORDER_TYPE(),                 to => SALES_QUOTATION_TYPE(),             abbr => 'sosq'   },
+    { from => PURCHASE_ORDER_TYPE(),              to => REQUEST_QUOTATION_TYPE(),           abbr => 'porq'   },
+    { from => REQUEST_QUOTATION_TYPE(),           to => SALES_QUOTATION_TYPE(),             abbr => 'rqsq'   },
+    { from => REQUEST_QUOTATION_TYPE(),           to => SALES_ORDER_TYPE(),                 abbr => 'rqso'   },
+    { from => SALES_QUOTATION_TYPE(),             to => REQUEST_QUOTATION_TYPE(),           abbr => 'sqrq'   },
+    { from => SALES_ORDER_TYPE(),                 to => REQUEST_QUOTATION_TYPE(),           abbr => 'sorq'   },
+    { from => SALES_RECLAMATION_TYPE(),           to => SALES_ORDER_TYPE(),                 abbr => 'srso'   },
+    { from => PURCHASE_RECLAMATION_TYPE(),        to => PURCHASE_ORDER_TYPE(),              abbr => 'prpo'   },
+    { from => SALES_ORDER_INTAKE_TYPE(),          to => SALES_ORDER_INTAKE_TYPE(),          abbr => 'soisoi' },
+    { from => SALES_ORDER_INTAKE_TYPE(),          to => SALES_QUOTATION_TYPE(),             abbr => 'soisq'  },
+    { from => SALES_ORDER_INTAKE_TYPE(),          to => REQUEST_QUOTATION_TYPE(),           abbr => 'soirq'  },
+    { from => SALES_ORDER_INTAKE_TYPE(),          to => SALES_ORDER_TYPE(),                 abbr => 'soiso'  },
+    { from => SALES_ORDER_INTAKE_TYPE(),          to => PURCHASE_ORDER_TYPE(),              abbr => 'soipo'  },
+    { from => SALES_QUOTATION_TYPE(),             to => SALES_ORDER_INTAKE_TYPE(),          abbr => 'sqsoi'  },
+    { from => PURCHASE_QUOTATION_INTAKE_TYPE(),   to => PURCHASE_QUOTATION_INTAKE_TYPE(),   abbr => 'pqipqi' },
+    { from => PURCHASE_QUOTATION_INTAKE_TYPE(),   to => SALES_QUOTATION_TYPE(),             abbr => 'pqisq'  },
+    { from => PURCHASE_QUOTATION_INTAKE_TYPE(),   to => SALES_ORDER_TYPE(),                 abbr => 'pqiso'  },
+    { from => PURCHASE_QUOTATION_INTAKE_TYPE(),   to => PURCHASE_ORDER_TYPE(),              abbr => 'pqipo'  },
+    { from => REQUEST_QUOTATION_TYPE(),           to => PURCHASE_QUOTATION_INTAKE_TYPE(),   abbr => 'rqpqi'  },
     { from => PURCHASE_ORDER_CONFIRMATION_TYPE(), to => PURCHASE_ORDER_CONFIRMATION_TYPE(), abbr => 'pocpoc' },
-    { from => PURCHASE_ORDER_CONFIRMATION_TYPE(), to => SALES_QUOTATION_TYPE(),         abbr => 'pocsq' },
-    { from => PURCHASE_ORDER_CONFIRMATION_TYPE(), to => PURCHASE_ORDER_TYPE(),          abbr => 'pocpo' },
-    { from => PURCHASE_ORDER_TYPE(),            to => PURCHASE_ORDER_CONFIRMATION_TYPE(), abbr => 'popoc' },
+    { from => PURCHASE_ORDER_CONFIRMATION_TYPE(), to => SALES_QUOTATION_TYPE(),             abbr => 'pocsq' },
+    { from => PURCHASE_ORDER_CONFIRMATION_TYPE(), to => PURCHASE_ORDER_TYPE(),              abbr => 'pocpo' },
+    { from => PURCHASE_ORDER_TYPE(),              to => PURCHASE_ORDER_CONFIRMATION_TYPE(), abbr => 'popoc' },
   );
   my $from_to = (grep { $_->{from} eq $source->record_type && $_->{to} eq $destination_type} @from_tos)[0];
   croak("Cannot convert from '" . $source->record_type . "' to '" . $destination_type . "'") if !$from_to;
@@ -673,7 +673,7 @@ sub new_from {
   $order->items(\@items);
 
   unless ($params{no_linked_records}) {
-    $order->{ RECORD_ID() } = $source->{id};
+    $order->{ RECORD_ID()       } = $source->{id};
     $order->{ RECORD_TYPE_REF() } = ref($source);
   }
 
