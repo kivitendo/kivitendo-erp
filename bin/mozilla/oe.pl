@@ -84,6 +84,7 @@ my $oe_access_map = {
   'sales_order_intake'        => 'sales_order_edit',
   'sales_order'               => 'sales_order_edit',
   'purchase_order'            => 'purchase_order_edit',
+  'purchase_order_confirmation' => 'purchase_order_edit',
   'request_quotation'         => 'request_quotation_edit',
   'sales_quotation'           => 'sales_quotation_edit',
   'purchase_quotation_intake' => 'request_quotation_edit',
@@ -93,6 +94,7 @@ my $oe_view_access_map = {
   'sales_order_intake'        => 'sales_order_edit       | sales_order_view',
   'sales_order'               => 'sales_order_edit       | sales_order_view',
   'purchase_order'            => 'purchase_order_edit    | purchase_order_view',
+  'purchase_order_confirmation' => 'purchase_order_edit  | purchase_order_view',
   'request_quotation'         => 'request_quotation_edit | request_quotation_view',
   'sales_quotation'           => 'sales_quotation_edit   | sales_quotation_view',
   'purchase_quotation_intake' => 'request_quotation_edit | request_quotation_view',
@@ -949,6 +951,12 @@ sub search {
     $form->{title}     = $locale->text('Purchase Orders');
     $form->{ordlabel}  = $locale->text('Order Number');
 
+  } elsif ($form->{type} eq 'purchase_order_confirmation') {
+    $form->{vc}        = 'vendor';
+    $form->{ordnrname} = 'ordnumber';
+    $form->{title}     = $locale->text('Purchase Order Confirmations');
+    $form->{ordlabel}  = $locale->text('Order Number');
+
   } elsif ($form->{type} eq 'request_quotation') {
     $form->{vc}        = 'vendor';
     $form->{ordnrname} = 'quonumber';
@@ -1047,7 +1055,7 @@ sub orders {
   my %params   = @_;
   check_oe_access(with_view => 1);
 
-  my $ordnumber = ($form->{type} =~ /_order_intake$|_order$/) ? "ordnumber" : "quonumber";
+  my $ordnumber = ($form->{type} =~ /_order_intake$|_order$|purchase_order_confirmation/) ? "ordnumber" : "quonumber";
 
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
   report_generator_set_default_sort('transdate', 1);
@@ -1094,6 +1102,9 @@ sub orders {
     if ($form->{type} eq 'purchase_order') {
       $form->{title}       = $locale->text('Purchase Orders');
       $attachment_basename = $locale->text('purchase_order_list');
+    } elsif ($form->{type} eq 'purchase_order_confirmation') {
+      $form->{title}       = $locale->text('Purchase Order Confirmations');
+      $attachment_basename = $locale->text('purchase_order_confirmation_list');
     } elsif ($form->{type} eq 'purchase_quotation_intake') {
       $form->{title}       = $locale->text('Purchase Quotation Intakes');
       $attachment_basename = $locale->text('purchase_quotation_intake_list');
