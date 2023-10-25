@@ -246,6 +246,7 @@ sub action_delete {
   my $text = $self->type eq SALES_ORDER_INTAKE_TYPE()        ? $::locale->text('The order intake has been deleted')
            : $self->type eq SALES_ORDER_TYPE()               ? $::locale->text('The order confirmation has been deleted')
            : $self->type eq PURCHASE_ORDER_TYPE()            ? $::locale->text('The order has been deleted')
+           : $self->type eq PURCHASE_ORDER_CONFIRMATION_TYPE() ? $::locale->text('The order confirmation has been deleted')
            : $self->type eq SALES_QUOTATION_TYPE()           ? $::locale->text('The quotation has been deleted')
            : $self->type eq REQUEST_QUOTATION_TYPE()         ? $::locale->text('The rfq has been deleted')
            : $self->type eq PURCHASE_QUOTATION_INTAKE_TYPE() ? $::locale->text('The quotation intake has been deleted')
@@ -2148,7 +2149,8 @@ sub save {
                            id => \@converted_from_oe_ids,
                            or => [  record_type => SALES_QUOTATION_TYPE(),
                                     record_type => REQUEST_QUOTATION_TYPE(),
-                                   (record_type => PURCHASE_QUOTATION_INTAKE_TYPE()) x $self->order->is_type(PURCHASE_ORDER_TYPE())  ]
+                                   (record_type => PURCHASE_QUOTATION_INTAKE_TYPE()) x $self->order->is_type(PURCHASE_ORDER_TYPE()),
+                                   (record_type => PURCHASE_ORDER_TYPE())            x $self->order->is_type(PURCHASE_ORDER_CONFIRMATION_TYPE())  ]
                            ])
                        : undef;
 
@@ -2217,7 +2219,7 @@ sub pre_render {
     $item->active_discount_source($price_source->discount_from_source($item->active_discount_source));
   }
 
-  if (any { $self->type eq $_ } (SALES_ORDER_INTAKE_TYPE(), SALES_ORDER_TYPE(), PURCHASE_ORDER_TYPE())) {
+  if (any { $self->type eq $_ } (SALES_ORDER_INTAKE_TYPE(), SALES_ORDER_TYPE(), PURCHASE_ORDER_TYPE(), PURCHASE_ORDER_CONFIRMATION_TYPE())) {
     # Calculate shipped qtys here to prevent calling calculate for every item via the items method.
     # Do not use write_to_objects to prevent order->delivered to be set, because this should be
     # the value from db, which can be set manually or is set when linked delivery orders are saved.
@@ -2377,6 +2379,13 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.purchase_check_for_direct_delivery', { to_type => PURCHASE_ORDER_TYPE() } ],
           checks    => [ @valid, @req_trans_cost_art, @req_cusordnumber ],
           only_if   => $self->type_data->show_menu('save_and_purchase_order'),
+          disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
+        ],
+        action => [
+          t8('Save and Purchase Order Confirmation'),
+          call      => [ 'kivi.Order.purchase_check_for_direct_delivery', { to_type => PURCHASE_ORDER_CONFIRMATION_TYPE() } ],
+          checks    => [ @valid, @req_trans_cost_art, @req_cusordnumber ],
+          only_if   => $self->type_data->show_menu('save_and_purchase_order_confirmation'),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [

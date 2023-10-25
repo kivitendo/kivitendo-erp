@@ -865,7 +865,7 @@ namespace('kivi.Order', function(ns) {
     var type = $('#type').val();
 
     var number_info = '';
-    if ($('#type').val() == 'sales_order_intake' || $('#type').val() == 'sales_order' || $('#type').val() == 'purchase_order') {
+    if ($('#type').val() == 'sales_order_intake' || $('#type').val() == 'sales_order' || $('#type').val() == 'purchase_order' || $('#type').val() == 'purchase_order_confirmation') {
       number_info = $('#order_ordnumber').val();
     } else if ($('#type').val() == 'sales_quotation' || $('#type').val() == 'request_quotation' || $('#type').val() == 'purchase_quotation_intake') {
       number_info = $('#order_quonumber').val();
@@ -874,7 +874,7 @@ namespace('kivi.Order', function(ns) {
     var name_info = '';
     if ($('#type').val() == 'sales_order_intake' || $('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation') {
       name_info = $('#order_customer_id_name').val();
-    } else if ($('#type').val() == 'purchase_order' || $('#type').val() == 'request_quotation' || $('#type').val() == 'purchase_quotation_intake') {
+    } else if ($('#type').val() == 'purchase_order' || $('#type').val() == 'purchase_order_confirmation' || $('#type').val() == 'request_quotation' || $('#type').val() == 'purchase_quotation_intake') {
       name_info = $('#order_vendor_id_name').val();
     }
 
