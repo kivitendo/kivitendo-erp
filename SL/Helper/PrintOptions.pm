@@ -50,6 +50,9 @@ sub get_print_options {
       opthash("purchase_order",      $form->{PD}{purchase_order},      $locale->text('Purchase Order')),
       opthash("bin_list",            $form->{PD}{bin_list},            $locale->text('Bin List'))
     ) : undef,
+    ($form->{type} eq 'purchase_order_confirmation') ? (
+      opthash("purchase_order_confirmation", $form->{PD}{purchase_order}, $locale->text('Purchase Order Confirmation')),
+    ) : undef,
     ($form->{type} eq 'credit_note') ?
       opthash("credit_note",         $form->{PD}{credit_note},         $locale->text('Credit Note')) : undef,
     ($form->{type} eq 'sales_order_intake') ? (
