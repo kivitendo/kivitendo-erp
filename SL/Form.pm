@@ -1102,6 +1102,7 @@ sub get_formname_translation {
     pick_list                   => $main::locale->text('Pick List'),
     proforma                    => $main::locale->text('Proforma Invoice'),
     purchase_order              => $main::locale->text('Purchase Order'),
+    purchase_order_confirmation => $main::locale->text('Purchase Order Confirmation'),
     request_quotation           => $main::locale->text('RFQ'),
     purchase_quotation_intake   => $main::locale->text('Purchase Quotation Intake'),
     sales_order_intake          => $main::locale->text('Sales Order Intake'),
@@ -2926,6 +2927,7 @@ sub save_status {
 # $main::locale->text('sales_order')
 # $main::locale->text('pick_list')
 # $main::locale->text('purchase_order')
+# $main::locale->text('purchase_order_confirmation')
 # $main::locale->text('bin_list')
 # $main::locale->text('sales_quotation')
 # $main::locale->text('request_quotation')
