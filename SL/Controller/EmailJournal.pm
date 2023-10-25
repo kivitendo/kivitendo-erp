@@ -531,7 +531,7 @@ sub init_models {
       sent_on         => t8('Sent on'),
       status          => t8('Status'),
       extended_status => t8('Extended status'),
-      linked          => t8('Linked'),
+      linked_to       => t8('Linked to'),
     },
   );
 }
