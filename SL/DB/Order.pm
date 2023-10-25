@@ -506,6 +506,11 @@ sub new_from {
     { from => PURCHASE_QUOTATION_INTAKE_TYPE(), to => SALES_ORDER_TYPE(),               abbr => 'pqiso'  },
     { from => PURCHASE_QUOTATION_INTAKE_TYPE(), to => PURCHASE_ORDER_TYPE(),            abbr => 'pqipo'  },
     { from => REQUEST_QUOTATION_TYPE(),         to => PURCHASE_QUOTATION_INTAKE_TYPE(), abbr => 'rqpqi'  },
+    { from => PURCHASE_ORDER_CONFIRMATION_TYPE(), to => PURCHASE_ORDER_CONFIRMATION_TYPE(), abbr => 'pocpoc' },
+    { from => PURCHASE_ORDER_CONFIRMATION_TYPE(), to => SALES_QUOTATION_TYPE(),             abbr => 'pocsq' },
+    { from => PURCHASE_ORDER_CONFIRMATION_TYPE(), to => SALES_ORDER_TYPE(),                 abbr => 'pocso' },
+    { from => PURCHASE_ORDER_CONFIRMATION_TYPE(), to => PURCHASE_ORDER_TYPE(),              abbr => 'pocpo' },
+    { from => PURCHASE_ORDER_TYPE(),            to => PURCHASE_ORDER_CONFIRMATION_TYPE(), abbr => 'popoc' },
   );
   my $from_to = (grep { $_->{from} eq $source->record_type && $_->{to} eq $destination_type} @from_tos)[0];
   croak("Cannot convert from '" . $source->record_type . "' to '" . $destination_type . "'") if !$from_to;
@@ -561,6 +566,8 @@ sub new_from {
                    ? undef
                    : $from_to->{to} =~ m/^purchase_quotation_intake$/
                    ? $source->reqdate
+                   : $from_to->{to} =~ m/^purchase_order_confirmation$/
+                   ? $source->reqdate
                    : die "Wrong state for reqdate";
   } elsif ( ref($source) eq 'SL::DB::Reclamation') {
     %args = ( map({ ( $_ => $source->$_ ) } qw(
@@ -577,7 +584,7 @@ sub new_from {
    );
   }
 
-  if ( $is_abbr_any->(qw(soipo sopo poso rqso soisq sosq porq rqsq sqrq soirq sorq pqisq pqiso)) ) {
+  if ( $is_abbr_any->(qw(soipo sopo poso rqso soisq sosq porq rqsq sqrq soirq sorq pqisq pqiso pocsq pocso)) ) {
     $args{ordnumber} = undef;
     $args{quonumber} = undef;
   }
@@ -587,7 +594,7 @@ sub new_from {
     $args{payment_id}       = undef;
     $args{delivery_term_id} = undef;
   }
-  if ( $is_abbr_any->(qw(poso rqsq pqisq pqiso)) ) {
+  if ( $is_abbr_any->(qw(poso rqsq pqisq pqiso pocsq pocso)) ) {
     $args{vendor_id} = undef;
   }
   if ( $is_abbr_any->(qw(soso)) ) {
@@ -596,7 +603,7 @@ sub new_from {
   if ( $is_abbr_any->(qw(sqrq soirq sorq)) ) {
     $args{cusordnumber} = undef;
   }
-  if ( $is_abbr_any->(qw(soiso)) ) {
+  if ( $is_abbr_any->(qw(soiso pocpoc pocpo popoc)) ) {
     $args{ordnumber} = undef;
   }
   if ( $is_abbr_any->(qw(rqpqi pqisq)) ) {
@@ -657,7 +664,7 @@ sub new_from {
       $current_oe_item->sellprice($source_item->lastcost);
       $current_oe_item->discount(0);
     }
-    if ( $is_abbr_any->(qw(poso rqsq rqso pqisq pqiso)) ) {
+    if ( $is_abbr_any->(qw(poso rqsq rqso pqisq pqiso pocsq pocso)) ) {
       $current_oe_item->lastcost($source_item->sellprice);
     }
     unless ($params{no_linked_records}) {
