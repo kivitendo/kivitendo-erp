@@ -51,6 +51,7 @@ my @link_type_specifics = (
   { title => t8('Request for Quotation'),     type => 'request_quotation',         model => 'Order',           number => 'quonumber',     },
   { title => t8('Purchase Quotation Intake'), type => 'purchase_quotation_intake', model => 'Order',           number => 'quonumber',     },
   { title => t8('Purchase Order'),            type => 'purchase_order',            model => 'Order',           number => 'ordnumber',     },
+  { title => t8('Purchase Order Confirmation'), type => 'purchase_order_confirmation', model => 'Order',       number => 'ordnumber',     },
   { title => t8('Purchase delivery order'),   type => 'purchase_delivery_order',   model => 'DeliveryOrder',   number => 'donumber',      },
   { title => t8('Supplier delivery order'),   type => 'supplier_delivery_order',   model => 'DeliveryOrder',   number => 'sdonumber',     },
   { title => t8('Purchase Reclamation'),      type => 'purchase_reclamation',      model => 'Reclamation',     number => 'record_number', },

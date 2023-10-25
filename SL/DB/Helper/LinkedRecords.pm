@@ -343,6 +343,7 @@ sub sort_linked_records {
               request_quotation         => 120,
               purchase_quotation_intake => 125,
               purchase_order            => 130,
+              purchase_order_confirmation => 135,
               purchase_delivery_order   => 140,
               'SL::DB::PurchaseInvoice' => 150,
               'SL::DB::GLTransaction'   => 170,

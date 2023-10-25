@@ -57,6 +57,7 @@ sub grouped_record_list {
   $output .= _request_quotation_list(         $groups{purchase_quotations},        %params) if $groups{purchase_quotations};
   $output .= _purchase_quotation_intake_list( $groups{purchase_quotation_intakes}, %params) if $groups{purchase_quotation_intakes};
   $output .= _purchase_order_list(            $groups{purchase_orders},            %params) if $groups{purchase_orders};
+  $output .= _purchase_order_confirmation_list($groups{purchase_order_confirmations}, %params) if $groups{purchase_order_confirmations};
   $output .= _purchase_delivery_order_list(   $groups{purchase_delivery_orders},   %params) if $groups{purchase_delivery_orders};
   $output .= _supplier_delivery_order_list(   $groups{supplier_delivery_orders},   %params) if $groups{supplier_delivery_orders};
   $output .= _purchase_reclamation_list(      $groups{purchase_reclamation},       %params) if $groups{purchase_reclamation};
@@ -200,6 +201,7 @@ sub _group_records {
     purchase_quotations        => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('request_quotation') },
     purchase_quotation_intakes => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('purchase_quotation_intake') },
     purchase_orders            => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('purchase_order')    },
+    purchase_order_confirmations => sub { (ref($_[0]) eq 'SL::DB::Order')         &&  $_[0]->is_type('purchase_order_confirmation') },
     purchase_delivery_orders   => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('purchase_delivery_order') },
     supplier_delivery_orders   => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_type('supplier_delivery_order') },
     purchase_reclamation       => sub { (ref($_[0]) eq 'SL::DB::Reclamation')     &&  $_[0]->is_type('purchase_reclamation')},
@@ -393,6 +395,26 @@ sub _purchase_order_list {
       [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
       [ $::locale->text('Project'),                 'globalproject', ],
       [ $::locale->text('Closed'),                  'closed'                                                                   ],
+    ],
+    %params,
+  );
+}
+
+sub _purchase_order_confirmation_list {
+  my ($list, %params) = @_;
+
+  return record_list(
+    $list,
+    title   => $::locale->text('Purchase Order Confirmations'),
+    type    => 'purchase_order_confirmation',
+    columns => [
+      [ $::locale->text('Order Date'),              'transdate'                                                                    ],
+      [ $::locale->text('Order Number'),            sub { $_[0]->presenter->purchase_order_confirmation(display => 'table-cell') } ],
+      [ $::locale->text('Vendor'),                  'vendor'                                                                       ],
+      [ $::locale->text('Net amount'),              'netamount'                                                                    ],
+      [ $::locale->text('Transaction description'), 'transaction_description'                                                      ],
+      [ $::locale->text('Project'),                 'globalproject',                                                               ],
+      [ $::locale->text('Closed'),                  'closed'                                                                       ],
     ],
     %params,
   );
