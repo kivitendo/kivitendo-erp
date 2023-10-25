@@ -81,23 +81,23 @@ use strict;
 # $locale->text('Workflow sales_quotation');
 
 my $oe_access_map = {
-  'sales_order_intake'        => 'sales_order_edit',
-  'sales_order'               => 'sales_order_edit',
-  'purchase_order'            => 'purchase_order_edit',
+  'sales_order_intake'          => 'sales_order_edit',
+  'sales_order'                 => 'sales_order_edit',
+  'purchase_order'              => 'purchase_order_edit',
   'purchase_order_confirmation' => 'purchase_order_edit',
-  'request_quotation'         => 'request_quotation_edit',
-  'sales_quotation'           => 'sales_quotation_edit',
-  'purchase_quotation_intake' => 'request_quotation_edit',
+  'request_quotation'           => 'request_quotation_edit',
+  'sales_quotation'             => 'sales_quotation_edit',
+  'purchase_quotation_intake'   => 'request_quotation_edit',
 };
 
 my $oe_view_access_map = {
-  'sales_order_intake'        => 'sales_order_edit       | sales_order_view',
-  'sales_order'               => 'sales_order_edit       | sales_order_view',
-  'purchase_order'            => 'purchase_order_edit    | purchase_order_view',
+  'sales_order_intake'          => 'sales_order_edit       | sales_order_view',
+  'sales_order'                 => 'sales_order_edit       | sales_order_view',
+  'purchase_order'              => 'purchase_order_edit    | purchase_order_view',
   'purchase_order_confirmation' => 'purchase_order_edit  | purchase_order_view',
-  'request_quotation'         => 'request_quotation_edit | request_quotation_view',
-  'sales_quotation'           => 'sales_quotation_edit   | sales_quotation_view',
-  'purchase_quotation_intake' => 'request_quotation_edit | request_quotation_view',
+  'request_quotation'           => 'request_quotation_edit | request_quotation_view',
+  'sales_quotation'             => 'sales_quotation_edit   | sales_quotation_view',
+  'purchase_quotation_intake'   => 'request_quotation_edit | request_quotation_view',
 };
 
 sub check_oe_access {
