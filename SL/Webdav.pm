@@ -23,6 +23,7 @@ my %type_to_path = (
   request_quotation           => 'anfragen',
   purchase_quotation_intake   => 'angebotseingaenge',
   purchase_order              => 'lieferantenbestellungen',
+  purchase_order_confirmation => 'lieferantenauftragsbestaetigungen',
   sales_delivery_order        => 'verkaufslieferscheine',
   purchase_delivery_order     => 'einkaufslieferscheine',
   supplier_delivery_order     => 'beistelllieferscheine',
