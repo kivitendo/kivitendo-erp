@@ -6,10 +6,8 @@ package SL::DB::ShopOrder;
 use strict;
 
 use SL::DBUtils;
-use SL::DB::Shop;
 use SL::DB::MetaSetup::ShopOrder;
 use SL::DB::Manager::ShopOrder;
-use SL::DB::PaymentTerm;
 use SL::DB::Helper::LinkedRecords;
 use SL::Locale::String qw(t8);
 use Carp;
@@ -51,6 +49,7 @@ sub convert_to_sales_order {
   require SL::DB::OrderItem;
   require SL::DB::Part;
   require SL::DB::Shipto;
+  require SL::DB::Shop;
   my @error_report;
 
   my @items = map{

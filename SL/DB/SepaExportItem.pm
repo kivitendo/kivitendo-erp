@@ -1,8 +1,6 @@
 package SL::DB::SepaExportItem;
 
 use strict;
-use SL::DB::SepaExport;
-
 use SL::DB::MetaSetup::SepaExportItem;
 
 __PACKAGE__->meta->initialize;

@@ -56,6 +56,7 @@ use SL::DB::Tax;
 use SL::DB::ValidityToken;
 use SL::Presenter::ItemsList;
 use SL::Webdav;
+use SL::ZUGFeRD;
 use SL::Locale::String qw(t8);
 
 require "bin/mozilla/common.pl";
@@ -107,6 +108,105 @@ sub _assert_access {
 
   $cache->{_may_view_or_edit_this_invoice} = _may_view_or_edit_this_invoice()                              if !exists $cache->{_may_view_or_edit_this_invoice};
   $::form->show_generic_error($::locale->text("You do not have the permissions to access this function.")) if !       $cache->{_may_view_or_edit_this_invoice};
+}
+
+sub load_zugferd {
+  $::auth->assert('ap_transactions');
+
+  my $data;    # buffer for holding file contents
+
+  my $form_defaults = $::form->{form_defaults};
+  my $file = SL::SessionFile->new($form_defaults->{zugferd_session_file}, mode => '<');
+  my $file_name = $file->file_name;
+
+  $::form->{$_} = $form_defaults->{$_} for keys %{ $form_defaults // {} };
+
+  # Defaults
+  $::form->{title}            = "Add";
+  $::form->{paidaccounts}     = 1;
+
+  $file->open('<');
+  if ( ! defined($file->fh->read($data, -s $file->fh)) ) {
+      SL::Helper::Flash::flash_later('error',
+        t8('Could not open ZUGFeRD file for reading: #1', $!));
+  } else {
+
+      my %res;          # result data structure returned by SL::ZUGFeRD->extract_from_{pdf,xml}()
+      my $parser;       # SL::XMLInvoice object created by SL::ZUGFeRD->extract_from_{pdf,xml}()
+      my $template_ap;  # SL::DB::RecordTemplate object
+      my $vendor;       # SL::DB::Vendor object
+      my %metadata;     # structured data extracted from XML payload
+      my @items;        # list of invoice items
+      my $default_ap_amount_chart;
+
+      if ( $data =~ m/^%PDF/ ) {
+        %res = %{SL::ZUGFeRD->extract_from_pdf($data)};
+      } else {
+        %res = %{SL::ZUGFeRD->extract_from_xml($data)};
+      }
+
+
+      $parser = $res{'invoice_xml'};
+      %metadata = %{$parser->metadata};
+      @items = @{$parser->items};
+
+      $default_ap_amount_chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_expense_accno_id);
+
+      # Fallback if there's no default AP amount chart configured
+      unless ( $default_ap_amount_chart ) {
+        $default_ap_amount_chart = SL::DB::Manager::Chart->find_by(charttype => 'A');
+      }
+
+      my $row = 0;
+      foreach my $i (@items) {
+        $row++;
+
+        my %item = %{$i};
+
+        my $net_total = $::form->format_amount(\%::myconfig, $item{'subtotal'}, 2);
+        my $desc = $item{'description'};
+        my $tax_rate = $item{'tax_rate'} / 100; # XML data is usually in percent
+
+        my $active_taxkey = $default_ap_amount_chart->taxkey_id;
+        my $taxes         = SL::DB::Manager::Tax->get_all(
+          where   => [ chart_categories => { like => '%' . $default_ap_amount_chart->category . '%' }],
+          sort_by => 'taxkey, rate',
+        );
+
+        my $tax   = first { $tax_rate          == $_->rate } @{ $taxes };
+        $tax    //= first { $active_taxkey->tax_id == $_->id } @{ $taxes };
+        $tax    //= $taxes->[0];
+
+        # If we really can't find any tax definition (a simple rounding error may
+        # be sufficient for that to happen), grab the first tax fitting the default
+        # AP amount chart, just like the AP form would do it for manual entry.
+        if ( scalar @{$taxes} == 0 ) {
+          $taxes = SL::DB::Manager::Tax->get_all(
+            where   => [ chart_categories => { like => '%' . $default_ap_amount_chart->category . '%' } ],
+          );
+        }
+
+        if (!$tax) {
+          $row--;
+          next;
+        }
+
+        $::form->{"AP_amount_chart_id_${row}"}          = $default_ap_amount_chart->id;
+        $::form->{"previous_AP_amount_chart_id_${row}"} = $default_ap_amount_chart->id;
+        $::form->{"amount_${row}"}                      = $net_total;
+        $::form->{"taxchart_${row}"}                    = $tax->id . '--' . $tax->rate;
+      }
+
+      flash('info', $::locale->text("The ZUGFeRD/Factur-X invoice '#1' has been loaded.", $file_name));
+
+      $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
+      $::form->{rowcount}         = $row;
+
+      update(
+        keep_rows_without_amount => 1,
+        dont_add_new_row         => 1,
+      );
+    }
 }
 
 sub load_record_template {
