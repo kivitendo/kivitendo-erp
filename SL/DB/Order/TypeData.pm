@@ -48,6 +48,8 @@ my %type_data = (
       save_and_final_invoice               => 1,
       save_and_ap_transaction              => 0,
       save_and_invoice                     => 1,
+      save_and_print                       => 1,
+      save_and_email                       => 1,
       delete => sub { $::instance_conf->get_sales_order_show_delete },
     },
     properties => {
@@ -101,6 +103,8 @@ my %type_data = (
       save_and_final_invoice               => 0,
       save_and_ap_transaction              => 1,
       save_and_invoice                     => 1,
+      save_and_print                       => 1,
+      save_and_email                       => 1,
       delete => sub { $::instance_conf->get_purchase_order_show_delete },
     },
     properties => {
@@ -147,6 +151,8 @@ my %type_data = (
       save_and_final_invoice               => 0,
       save_and_ap_transaction              => 0,
       save_and_invoice                     => 1,
+      save_and_print                       => 1,
+      save_and_email                       => 1,
       delete => 1,
     },
     properties => {
@@ -200,6 +206,8 @@ my %type_data = (
       save_and_final_invoice               => 0,
       save_and_ap_transaction              => 0,
       save_and_invoice                     => 1,
+      save_and_print                       => 1,
+      save_and_email                       => 1,
       delete => 1,
     },
     properties => {
@@ -246,6 +254,8 @@ my %type_data = (
       save_and_final_invoice               => 0,
       save_and_ap_transaction              => 0,
       save_and_invoice                     => 0,
+      save_and_print                       => 1,
+      save_and_email                       => 1,
       delete => 1,
     },
     properties => {
@@ -292,6 +302,8 @@ my %type_data = (
       save_and_final_invoice               => 0,
       save_and_ap_transaction              => 0,
       save_and_invoice                     => 0,
+      save_and_print                       => 1,
+      save_and_email                       => 1,
       delete => sub { $::instance_conf->get_sales_order_show_delete },
     },
     properties => {
@@ -345,6 +357,8 @@ my %type_data = (
       save_and_final_invoice               => 0,
       save_and_ap_transaction              => 1,
       save_and_invoice                     => 1,
+      save_and_print                       => 0,
+      save_and_email                       => 0,
       delete => sub { $::instance_conf->get_purchase_order_show_delete },
     },
     properties => {

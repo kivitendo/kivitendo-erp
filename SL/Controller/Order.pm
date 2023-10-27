@@ -2494,6 +2494,7 @@ sub setup_edit_action_bar {
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : $is_final_version ? t8('This record is the final version. Please create a new sub-version') : undef,
+          only_if  => $self->type_data->show_menu('save_and_print'),
         ],
         action => [
           t8('Save and print'),
@@ -2503,6 +2504,7 @@ sub setup_edit_action_bar {
           checks   => [ @req_trans_cost_art, @req_cusordnumber ],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : $is_final_version ? t8('This record is the final version. Please create a new sub-version') : undef,
+          only_if  => $self->type_data->show_menu('save_and_print'),
         ],
         action => [
           ($is_final_version ? t8('E-mail') : t8('Save and E-mail')),
@@ -2515,6 +2517,7 @@ sub setup_edit_action_bar {
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : !$self->order->id ? t8('This object has not been saved yet.')
                     : undef,
+          only_if  => $self->type_data->show_menu('save_and_email'),
         ],
         action => [
           t8('Download attachments of all parts'),
