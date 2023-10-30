@@ -139,7 +139,7 @@ sub _update {
 
 ### defaults stuff
 
-sub init_login             { SL::DB::Manager::Employee->current->login    }
+sub init_login             { $::myconfig{login}                           }
 sub init_namespace         { ref $_[0]                                    }
 sub init_upgrade_callbacks { +{}                                          }
 sub init_current_version   { version->parse((ref $_[0])->VERSION)->numify }
