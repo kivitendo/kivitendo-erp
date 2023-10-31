@@ -34,6 +34,12 @@
   this should have three '-' before and after touching:<br>
   ---[% P.customer_vendor.picker('vendor5_id', '', type='vendor') %]---
 
+  <br><hr>
+  widget including info button and link to edit<br>
+  customer: <br>
+  [% P.customer_vendor.picker('customer_id3', '', type='customer', show_details=1) %]<br>
+  vendor: <br>
+  [% P.customer_vendor.picker('vendor_id3', '', type='vendor', show_details=1) %]<br>
 </div>
 
 <script type="text/javascript">
