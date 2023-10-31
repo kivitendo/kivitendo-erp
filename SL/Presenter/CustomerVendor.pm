@@ -173,6 +173,37 @@ parameters.
 
 =back
 
+=over 4
+
+=item C<customer_vendor_picker $name, $value, %params>
+
+Renders a customer/vendor picker. The name will be both id and name
+of the resulting hidden C<id> input field (but the ID can be
+overwritten with C<$params{id}>).
+
+An additional dummy input field is rendered that will contain the
+customer/vendor's name.
+
+C<$value> can be a customer/vendor ID or a C<Rose::DB:Object> instance.
+If it is an instance then the type will be determined automatically.
+
+However the type, C<customer> or C<vendor>, can also be specified using
+C<$type>.
+
+On top of that there are wrapper functions C<customer_picker> and
+C<vendor_picker> that set the type automatically.
+
+If C<$show_details> is true then the picker will be rendered with an
+additional button to open the customer/vendor details dialog and a
+link to open the customer/vendor in a new tab. This can be used in the
+record views as well as in account receivable/payable.
+
+=back
+
+=head1 TESTS
+
+For the pickers see Developer tools -> Customer/Vendor Test.
+
 =head1 BUGS
 
 Nothing here yet.
