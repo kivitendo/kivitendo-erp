@@ -33,6 +33,12 @@ this one will be a reinit_widget after 4s:<br>
 this should have three '-' before and after touching:<br>
 ---[% P.customer_vendor.picker('vendor5_id', '', type='vendor') %]---
 
+<br><hr>
+widget including info button and link to edit<br>
+customer: <br>
+[% P.customer_vendor.picker('customer_id3', '', type='customer', id='foo', show_details=1) %]<br>
+vendor: <br>
+[% P.customer_vendor.picker('vendor_id3', '', type='vendor', show_details=1) %]<br>
 
 <script type='text/javascript'>
  $('#customer_id2').change(function() { $('#change1').html($('#customer_id2').val()) })
