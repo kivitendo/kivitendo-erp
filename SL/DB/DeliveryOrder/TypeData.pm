@@ -40,6 +40,7 @@ my %type_data = (
       nr_key         => "donumber",
       transfer       => 'out',
       transnumber    => 'sdonumber',
+      worflow_needed => 0,
     },
     defaults => {
       reqdate => sub {
@@ -78,6 +79,7 @@ my %type_data = (
       nr_key         => "donumber",
       transfer       => 'in',
       transnumber    => 'pdonumber',
+      worflow_needed => 0,
     },
     defaults => {
       reqdate => sub {
@@ -116,6 +118,7 @@ my %type_data = (
       nr_key         => "donumber",
       transfer       => 'out',
       transnumber    => 'sudonumber',
+      worflow_needed => 1,
     },
     defaults => {
       reqdate => sub {
@@ -154,6 +157,7 @@ my %type_data = (
       nr_key         => "donumber",
       transfer       => 'in',
       transnumber    => 'rdonumber',
+      worflow_needed => 1,
     },
     defaults => {
       reqdate => sub {
