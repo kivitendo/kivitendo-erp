@@ -15,8 +15,8 @@
             <th align="right">[%- SELF.cv == "customer" ? LxERP.t8('Customer') : LxERP.t8('Vendor') -%]</th>
             [% SET cv_id = SELF.cv _ '_id' %]
             <td>
-              [% P.customer_vendor.picker("order.${SELF.cv}" _ '_id', SELF.order.$cv_id, type=SELF.cv, style='width: 300px') %]
-              [% P.button_tag("kivi.DeliveryOrder.show_vc_details_dialog()", LxERP.t8("Details (one letter abbreviation)")) %]
+              [% P.customer_vendor.picker("order.${SELF.cv}" _ '_id', SELF.order.$cv_id, type=SELF.cv, style='width: 300px',
+                   show_details="1") %]
             </td>
           </tr>
 
