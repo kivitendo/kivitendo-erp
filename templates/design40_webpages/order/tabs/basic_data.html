@@ -23,13 +23,7 @@
         <th>[%- SELF.cv == "customer" ? LxERP.t8('Customer') : LxERP.t8('Vendor') -%]</th>
         [% SET cv_id = SELF.cv _ '_id' %]
         <td class="wi-lightwide">
-          [% P.customer_vendor.picker("order.${SELF.cv}" _ '_id', SELF.order.$cv_id, type=SELF.cv, class='wi-lightwide') %]
-          [%- L.img_tag(src="image/detail.png",
-                      alt=LxERP.t8('Show details'),
-                      title= LxERP.t8('Show details'),
-                      onclick="kivi.Order.show_vc_details_dialog();",
-                      class="button-image info") %]
-          [% P.link_tag("javascript:void(0);", LxERP.t8('Edit'), title=LxERP.t8('Open in new window'), onclick="kivi.Order.open_customervendor_tab('#order_${SELF.cv}_id', '${SELF.cv}')") %]
+          [% P.customer_vendor.picker("order.${SELF.cv}" _ '_id', SELF.order.$cv_id, type=SELF.cv, show_details="1") %]
         </td>
       </tr>
       <tr id='cp_row' [% IF !SELF.order.${SELF.cv}.contacts.size %]style='display:none'[% END %]>
