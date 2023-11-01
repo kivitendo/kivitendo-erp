@@ -22,12 +22,8 @@
         <th>[%- SELF.cv == "customer" ? LxERP.t8('Customer') : LxERP.t8('Vendor') -%]</th>
         [% SET cv_id = SELF.cv _ '_id' %]
         <td class="wi-lightwide">
-          [% P.customer_vendor.picker("order.${SELF.cv}" _ '_id', SELF.order.$cv_id, type=SELF.cv, class='wi-lightwide') %]
-          [%- L.img_tag(src="image/detail.png",
-                      alt=LxERP.t8('Show details'),
-                      title= LxERP.t8('Show details'),
-                      onclick="kivi.DeliveryOrder.show_vc_details_dialog();",
-                      class="button-image info") %]
+         [% P.customer_vendor.picker("order.${SELF.cv}" _ '_id', SELF.order.$cv_id, type=SELF.cv,
+              show_details="1") %]
         </td>
       </tr>
 

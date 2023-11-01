@@ -627,38 +627,6 @@ namespace('kivi.DeliveryOrder', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.show_vc_details_dialog = function() {
-    if (!ns.check_cv()) return;
-    var vc;
-    var vc_id;
-    var title;
-    if ($('#order_customer_id').val()) {
-      vc    = 'customer';
-      vc_id = $('#order_customer_id').val();
-      title = kivi.t8('Customer details');
-    } else {
-      vc    = 'vendor';
-      vc_id = $('#order_vendor_id').val();
-      title = kivi.t8('Vendor details');
-    }
-
-    kivi.popup_dialog({
-      url:    'controller.pl',
-      data:   { action: 'DeliveryOrder/show_customer_vendor_details_dialog',
-                type  : $('#type').val(),
-                vc    : vc,
-                vc_id : vc_id
-              },
-      id:     'jq_customer_vendor_details_dialog',
-      dialog: {
-        title:  title,
-        width:  800,
-        height: 650
-      }
-    });
-    return true;
-  };
-
   ns.update_row_from_master_data = function(clicked) {
     var row = $(clicked).parents("tbody").first();
     var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
