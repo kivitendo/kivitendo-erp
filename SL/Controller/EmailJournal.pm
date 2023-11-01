@@ -87,6 +87,15 @@ my %RECORD_TYPES_INFO = (
       'purchase_credit_note',
     ],
   },
+  RecordTemplate => {
+    controller => '',
+    class      => 'RecordTemplate',
+    types => [
+      'gl_transaction_template',
+      'ar_transaction_template',
+      'ap_transaction_template',
+    ],
+  }
 );
 my %RECORD_TYPE_TO_CONTROLLER =
   map {
@@ -110,6 +119,8 @@ my %RECORD_TYPE_TO_NR_KEY =
     my $model = $RECORD_TYPE_TO_MODEL{$_};
     if (any {$model eq $_} qw(SL::DB::Invoice SL::DB::PurchaseInvoice)) {
       $_ => 'invnumber';
+    } elsif (any {$model eq $_} qw(SL::DB::RecordTemplate)) {
+      $_ => 'template_name';
     } else {
       my $type_data = SL::DB::Helper::TypeDataProxy->new($model, $_);
       $_ => $type_data->properties('nr_key');
@@ -121,38 +132,62 @@ sub get_record_types_with_info {
   # TODO: what record types can be created, which are only available in workflows?
   my @record_types_with_info = ();
   for my $record_class ('SL::DB::Order', 'SL::DB::DeliveryOrder', 'SL::DB::Reclamation') {
-    my $valid_types = "${record_class}::TypeData"->valid_types();
+    my $type_data = "${record_class}::TypeData";
+    my $valid_types = $type_data->valid_types();
     for my $type (@$valid_types) {
-
-      my $type_data = SL::DB::Helper::TypeDataProxy->new($record_class, $type);
       push @record_types_with_info, {
-        record_type    => $type,
-        customervendor => $type_data->properties('customervendor'),
-        text           => $type_data->text('type'),
+        record_type     => $type,
+        text            => $type_data->can('get3')->($type, 'text', 'type'),
+        customervendor  => $type_data->can('get3')->($type, 'properties', 'customervendor'),
+        workflow_needed => $type_data->can('get3')->($type, 'properties', 'worflow_needed'),
+        can_workflow    => (
+          any {
+            $_ ne 'delete' && $type_data->can('get3')->($type, 'show_menu', $_)
+          } keys %{$type_data->can('get')->($type, 'show_menu')}
+        ),
       };
     }
   }
   push @record_types_with_info, (
     # invoice
-    { record_type => 'invoice',                             customervendor => 'customer',  text => t8('Invoice') },
-    { record_type => 'invoice_for_advance_payment',         customervendor => 'customer',  text => t8('Invoice for Advance Payment')},
-    { record_type => 'invoice_for_advance_payment_storno',  customervendor => 'customer',  text => t8('Storno Invoice for Advance Payment')},
-    { record_type => 'final_invoice',                       customervendor => 'customer',  text => t8('Final Invoice')},
-    { record_type => 'invoice_storno',                      customervendor => 'customer',  text => t8('Storno Invoice')},
-    { record_type => 'credit_note',                         customervendor => 'customer',  text => t8('Credit Note')},
-    { record_type => 'credit_note_storno',                  customervendor => 'customer',  text => t8('Storno Credit Note')},
-    { record_type => 'ar_transaction',                      customervendor => 'customer',  text => t8('AR Transaction')},
+    { record_type => 'invoice',                            customervendor => 'customer', workflow_needed => 0, can_workflow => 1, text => t8('Invoice') },
+    { record_type => 'invoice_for_advance_payment',        customervendor => 'customer', workflow_needed => 0, can_workflow => 1, text => t8('Invoice for Advance Payment')},
+    { record_type => 'invoice_for_advance_payment_storno', customervendor => 'customer', workflow_needed => 1, can_workflow => 1, text => t8('Storno Invoice for Advance Payment')},
+    { record_type => 'final_invoice',                      customervendor => 'customer', workflow_needed => 1, can_workflow => 1, text => t8('Final Invoice')},
+    { record_type => 'invoice_storno',                     customervendor => 'customer', workflow_needed => 1, can_workflow => 1, text => t8('Storno Invoice')},
+    { record_type => 'credit_note',                        customervendor => 'customer', workflow_needed => 0, can_workflow => 1, text => t8('Credit Note')},
+    { record_type => 'credit_note_storno',                 customervendor => 'customer', workflow_needed => 1, can_workflow => 1, text => t8('Storno Credit Note')},
     # purchase invoice
-    { record_type => 'purchase_invoice',      customervendor => 'vendor',  text => t8('Purchase Invoice')},
-    { record_type => 'purchase_credit_note',  customervendor => 'vendor',  text => t8('Purchase Credit Note')},
-    { record_type => 'ap_transaction',        customervendor => 'vendor',  text => t8('AP Transaction')},
+    { record_type => 'purchase_invoice',      customervendor => 'vendor', workflow_needed => 0, can_workflow => 1, text => t8('Purchase Invoice')},
+    { record_type => 'purchase_credit_note',  customervendor => 'vendor', workflow_needed => 0, can_workflow => 1, text => t8('Purchase Credit Note')},
+    # transactions
+    # TODO: create gl_transaction with email
+    # { record_type => 'gl_transaction', customervendor => 'customer', workflow_needed => 0, can_workflow => 0, text => t8('GL Transaction')},
+    # { record_type => 'gl_transaction', customervendor => 'vendor',   workflow_needed => 0, can_workflow => 0, text => t8('GL Transaction')},
+    { record_type => 'ar_transaction', customervendor => 'customer', workflow_needed => 0, can_workflow => 1, text => t8('AR Transaction')},
+    { record_type => 'ap_transaction', customervendor => 'vendor',   workflow_needed => 0, can_workflow => 1, text => t8('AP Transaction')},
+    # templates
+    { record_type => 'gl_transaction_template', is_template => 1, customervendor => 'customer', workflow_needed => 0, can_workflow => 0, text => t8('GL Transaction')},
+    { record_type => 'gl_transaction_template', is_template => 1, customervendor => 'vendor',   workflow_needed => 0, can_workflow => 0, text => t8('GL Transaction')},
+    { record_type => 'ar_transaction_template', is_template => 1, customervendor => 'customer', workflow_needed => 0, can_workflow => 0, text => t8('AR Transaction')},
+    { record_type => 'ap_transaction_template', is_template => 1, customervendor => 'vendor',   workflow_needed => 0, can_workflow => 0, text => t8('AP Transaction')},
   );
   return @record_types_with_info;
 }
 
-sub record_types_for_customer_vendor_type {
-  my ($self, $customer_vendor_type) = @_;
-  return [ map { $_->{record_type} } grep { $_->{customervendor} eq $customer_vendor_type } $self->get_record_types_with_info ];
+sub record_types_for_customer_vendor_type_and_action {
+  my ($self, $customer_vendor_type, $action) = @_;
+  return [
+    map { $_->{record_type} }
+    grep {
+      ($_->{customervendor} eq $customer_vendor_type)
+      && ($action eq 'workflow_record' ? $_->{can_workflow} : 1)
+      && ($action eq 'create_new'      ? $_->{workflow_needed} : 1)
+      && ($action eq 'linking_record'  ? $_->{record_type} !~ /_template$/ : 1)
+      && ($action eq 'template_record' ? $_->{record_type} =~ /_template$/ : 1)
+    }
+    $self->get_record_types_with_info()
+  ];
 }
 
 #
@@ -192,7 +227,7 @@ sub action_show {
   my $customer_vendor = $self->find_customer_vendor_from_email($self->entry);
   my $cv_type = $customer_vendor && $customer_vendor->is_vendor ? 'vendor' : 'customer';
 
-  my $record_types = $self->record_types_for_customer_vendor_type($cv_type);
+  my $record_types = $self->record_types_for_customer_vendor_type_and_action($cv_type, 'workflow_record');
   my @records = $self->get_records_for_types(
     $record_types,
     customer_vendor_type => $cv_type,
@@ -227,7 +262,7 @@ sub get_records_for_types {
     my $manager = $RECORD_TYPE_TO_MANAGER{$record_type};
     my $model = $RECORD_TYPE_TO_MODEL{$record_type};
     my %additional_where = ();
-    if ($cv_type && $cv_id) {
+    if ($cv_type && $cv_id && $record_type !~ /^gl_transaction/) {
       $additional_where{"${cv_type}_id"} = $cv_id;
     }
     if ($record_number) {
@@ -392,11 +427,12 @@ sub action_update_record_list {
   $::auth->assert('email_journal');
   my $customer_vendor_type = $::form->{customer_vendor_selection};
   my $customer_vendor_id   = $::form->{"${customer_vendor_type}_id"};
-  my $record_type          = $::form->{"${customer_vendor_type}_record_type_selection"};
+  my $action               = $::form->{action_selection};
+  my $record_type          = $::form->{"${customer_vendor_type}_${action}_type_selection"};
   my $record_number        = $::form->{record_number};
   my $with_closed          = $::form->{with_closed};
 
-  $record_type ||= $self->record_types_for_customer_vendor_type($customer_vendor_type);
+  $record_type ||= $self->record_types_for_customer_vendor_type_and_action($customer_vendor_type, $action);
 
   my @records = $self->get_records_for_types(
     $record_type,
@@ -422,7 +458,6 @@ sub action_update_record_list {
     $new_list,
     id => 'record_list',
   );
-
 
   $self->js->replaceWith('#record_list', $new_div);
   $self->js->hide('#record_toggle_closed') if scalar @records < 20;

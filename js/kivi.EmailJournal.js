@@ -10,35 +10,31 @@ namespace('kivi.EmailJournal', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   }
 
-  ns.update_customer_vendor_selection = function() {
+  ns.update_email_workflow_options = function() {
     let customer_vendor = $('#customer_vendor_selection').val();
-
-    $('#customer_div').hide();
-    $('#customer_record_types_div').hide();
-    $('#vendor_div').hide();
-    $('#vendor_record_types_div').hide();
-
-    if (customer_vendor == 'customer') {
-      $('#customer_div').show();
-      $('#customer_record_types_div').show();
-    } else { // if (customer_vendor == 'vendor')
-      $('#vendor_div').show();
-      $('#vendor_record_types_div').show();
-    }
-    kivi.EmailJournal.update_record_list();
-  }
-
-  ns.update_action_selection = function() {
     let record_action = $('#action_selection').val();
 
-    $('#record_selection_div').hide();
-    $('#create_new_div').hide();
+    // Hide all div
+    ['customer', 'vendor'].forEach(function(cv) {
+      $(`#${cv}_div`).hide();
+      ['workflow_record', 'template_record', 'linking_record', 'new_record'].forEach(function(action) {
+        $(`#${cv}_${action}_types_div`).hide();
 
-    if (record_action == 'create_new') {
-      $('#create_new_div').show();
-      $('#create_new_div').css('display','inline-block')
+      });
+    });
+    $('#new_record_div').hide();
+    $('#template_record_div').hide();
+    $('#record_selection_div').hide();
+
+    // Enable needed div
+    $(`#${customer_vendor}_div`).show();
+    $(`#${customer_vendor}_${record_action}_types_div`).show();
+    if (record_action == 'new_record') {
+      $('#new_record_div').show();
+      $('#new_record_div').css('display','inline-block')
     } else {
       $('#record_selection_div').show();
+      kivi.EmailJournal.update_record_list();
     }
   }
 

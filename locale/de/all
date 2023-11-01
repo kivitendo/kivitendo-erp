@@ -914,6 +914,7 @@ $self->{texts} = {
   'Create customers and vendors. Edit all vendors. Edit only customers where salesman equals employee (login)' => 'Kunden und Lieferanten erfassen. Alle Lieferanten bearbeiten. Nur Kunden bearbeiten bei denen der Verkäufer gleich Bearbeiter (login) ist',
   'Create delivery order'       => 'Lieferschein erstellen',
   'Create first invoice on'     => 'Erste Rechnung erzeugen am',
+  'Create from Record Template' => 'Mit Belegvorlage erstellen',
   'Create from Workflow'        => 'Workflow weiterführen von',
   'Create invoice'              => 'Buchung erstellen',
   'Create invoice?'             => 'Rechnung erstellen?',

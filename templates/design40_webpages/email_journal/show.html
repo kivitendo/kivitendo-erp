@@ -70,13 +70,14 @@
       <div id="action_div" class="col">
       [% L.select_tag('action_selection',
          [
-           {value => "workflow",   name => LxERP.t8("Create from Workflow")},
-           {value => "linking",    name => LxERP.t8("Linking to Record")},
-           {value => "create_new", name => LxERP.t8("Create new")},
+           {value => "workflow_record", name => LxERP.t8("Create from Workflow")},
+           {value => "linking_record",  name => LxERP.t8("Linking to Record")},
+           {value => "new_record",      name => LxERP.t8("Create new")},
+           {value => "template_record", name => LxERP.t8("Create from Record Template")},
          ],
          value_key='value', title_key='name',
          class="wi-normal",
-         onchange='kivi.EmailJournal.update_action_selection();'
+         onchange='kivi.EmailJournal.update_email_workflow_options();'
          ) %]
       </div>
 
@@ -89,24 +90,80 @@
          default = CV_TYPE_FOUND,
          value_key='value', title_key='name',
          class="wi-verysmall",
-         onchange='kivi.EmailJournal.update_customer_vendor_selection();'
+         onchange='kivi.EmailJournal.update_email_workflow_options();'
          ) %]
       </div>
 
       [% FOREACH customer_vendor = ['customer', 'vendor'] %]
-      <div id="[% customer_vendor _ "_record_types_div" %]" class="col"
+      <div id="[% customer_vendor _ "_workflow_record_types_div" %]" class="col"
         style=[% IF customer_vendor == CV_TYPE_FOUND %] "display:block" [% ELSE %] "display:none" [% END %]
         >
 
         [%
           SET options = [];
           FOREACH record_info = RECORD_TYPES_WITH_INFO;
-            IF (record_info.customervendor == customer_vendor);
+            IF (record_info.customervendor == customer_vendor && record_info.can_workflow && !record_info.is_template);
               options.push({value => record_info.record_type, name => record_info.text});
             END;
           END;
         %]
-      [% L.select_tag(customer_vendor _ '_record_type_selection',
+      [% L.select_tag(customer_vendor _ '_workflow_record_type_selection',
+         options,
+         value_key='value', title_key='name',
+         with_empty=1, empty_value='', empty_title=LxERP.t8("Select record type"),
+         onchange='kivi.EmailJournal.update_record_list();'
+         ) %]
+      </div>
+      <div id="[% customer_vendor _ "_new_record_types_div" %]" class="col"
+        style="display:none"
+        >
+        [%
+          SET options = [];
+          FOREACH record_info = RECORD_TYPES_WITH_INFO;
+            IF (record_info.customervendor == customer_vendor && !record_info.workflow_needed && !record_info.is_template);
+              options.push({value => record_info.record_type, name => record_info.text});
+            END;
+          END;
+        %]
+      [% L.select_tag(customer_vendor _ '_new_record_type_selection',
+         options,
+         value_key='value', title_key='name',
+         with_empty=1, empty_value='', empty_title=LxERP.t8("Select record type"),
+         onchange='kivi.EmailJournal.update_record_list();'
+         ) %]
+      </div>
+      <div id="[% customer_vendor _ "_linking_record_types_div" %]" class="col"
+        style="display:none"
+        >
+        [%
+          SET options = [];
+          FOREACH record_info = RECORD_TYPES_WITH_INFO;
+            IF (record_info.customervendor == customer_vendor && !record_info.is_template);
+              options.push({value => record_info.record_type, name => record_info.text});
+            END;
+          END;
+        %]
+      [% L.select_tag(customer_vendor _ '_linking_record_type_selection',
+         options,
+         value_key='value', title_key='name',
+         with_empty=1, empty_value='', empty_title=LxERP.t8("Select record type"),
+         onchange='kivi.EmailJournal.update_record_list();'
+         ) %]
+      </div>
+
+
+      <div id="[% customer_vendor _ "_template_record_types_div" %]" class="col"
+        style="display:none"
+        >
+        [%
+          SET options = [];
+          FOREACH record_info = RECORD_TYPES_WITH_INFO;
+            IF (record_info.customervendor == customer_vendor && record_info.is_template);
+              options.push({value => record_info.record_type, name => record_info.text});
+            END;
+          END;
+        %]
+      [% L.select_tag(customer_vendor _ '_template_record_type_selection',
          options,
          value_key='value', title_key='name',
          with_empty=1, empty_value='', empty_title=LxERP.t8("Select record type"),
@@ -217,8 +274,7 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
-    kivi.EmailJournal.update_action_selection();
-    kivi.EmailJournal.update_customer_vendor_selection();
+    kivi.EmailJournal.update_email_workflow_options();
     kivi.EmailJournal.update_record_list();
     kivi.EmailJournal.update_attachment_preview();
   });

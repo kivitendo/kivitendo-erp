@@ -914,6 +914,7 @@ $self->{texts} = {
   'Create customers and vendors. Edit all vendors. Edit only customers where salesman equals employee (login)' => '',
   'Create delivery order'       => '',
   'Create first invoice on'     => '',
+  'Create from Record Template' => '',
   'Create from Workflow'        => '',
   'Create invoice'              => '',
   'Create invoice?'             => '',
