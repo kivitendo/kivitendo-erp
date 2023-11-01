@@ -73,7 +73,7 @@ __PACKAGE__->run_before('check_auth',
                         except => [ qw(close_quotations) ]);
 
 __PACKAGE__->run_before('check_auth_for_edit',
-                        except => [ qw(edit show_customer_vendor_details_dialog price_popup load_second_rows close_quotations) ]);
+                        except => [ qw(edit price_popup load_second_rows close_quotations) ]);
 __PACKAGE__->run_before('get_basket_info_from_from');
 
 #
@@ -997,45 +997,6 @@ sub action_customer_vendor_changed {
   $self->js_redisplay_amounts_and_taxes;
   $self->js_redisplay_cvpartnumbers;
   $self->js->render();
-}
-
-# open the dialog for customer/vendor details
-sub action_show_customer_vendor_details_dialog {
-  my ($self) = @_;
-
-  my $is_customer = $self->type_data->properties('is_customer');
-  my $cv;
-  if ($is_customer) {
-    $cv = SL::DB::Customer->new(id => $::form->{vc_id})->load;
-  } else {
-    $cv = SL::DB::Vendor->new(id => $::form->{vc_id})->load;
-  }
-
-  my %details = map { $_ => $cv->$_ } @{$cv->meta->columns};
-  $details{discount_as_percent} = $cv->discount_as_percent;
-  $details{creditlimt}          = $cv->creditlimit_as_number;
-  $details{business}            = $cv->business->description      if $cv->business;
-  $details{language}            = $cv->language_obj->description  if $cv->language_obj;
-  $details{delivery_terms}      = $cv->delivery_term->description if $cv->delivery_term;
-  $details{payment_terms}       = $cv->payment->description       if $cv->payment;
-  $details{pricegroup}          = $cv->pricegroup->pricegroup     if $is_customer && $cv->pricegroup;
-
-  if ($is_customer) {
-    foreach my $entry (@{ $cv->additional_billing_addresses }) {
-      push @{ $details{ADDITIONAL_BILLING_ADDRESSES} },   { map { $_ => $entry->$_ } @{$entry->meta->columns} };
-    }
-  }
-  foreach my $entry (@{ $cv->shipto }) {
-    push @{ $details{SHIPTO} },   { map { $_ => $entry->$_ } @{$entry->meta->columns} };
-  }
-  foreach my $entry (@{ $cv->contacts }) {
-    push @{ $details{CONTACTS} }, { map { $_ => $entry->$_ } @{$entry->meta->columns} };
-  }
-
-  $_[0]->render('common/show_vc_details', { layout => 0 },
-                is_customer => $is_customer,
-                %details);
-
 }
 
 # called if a unit in an existing item row is changed
