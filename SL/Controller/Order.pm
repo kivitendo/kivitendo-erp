@@ -2423,7 +2423,7 @@ sub setup_edit_action_bar {
               ],
             }],
           checks    => [ @req_trans_cost_art, @req_cusordnumber ],
-          only_if   => (any { $self->type eq $_ } (PURCHASE_ORDER_TYPE())),
+          only_if   => $self->type_data->show_menu('save_and_purchase_delivery_order'),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
