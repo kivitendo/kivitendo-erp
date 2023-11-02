@@ -1722,7 +1722,7 @@ sub invoice {
   $form->get_employee();
 
 
-  if ($form->{type} =~ /_order$/) {
+  if ($form->{type} =~ /_order$|purchase_order_confirmation/) {
 
     # these checks only apply if the items don't bring their own ordnumbers/transdates.
     # The if clause ensures that by searching for empty ordnumber_#/transdate_# fields.
@@ -1788,6 +1788,7 @@ sub invoice {
 
   my ($script);
   if (   $form->{type} eq 'purchase_order'
+      || $form->{type} eq 'purchase_order_confirmation'
       || $form->{type} eq 'request_quotation') {
     $form->{title}  = $locale->text('Add Vendor Invoice');
     $form->{script} = 'ir.pl';
