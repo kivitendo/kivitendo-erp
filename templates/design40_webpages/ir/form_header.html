@@ -64,7 +64,10 @@
   <tbody>
     <tr>
       <th>[% 'Vendor' | $T8 %]</th>
-      <td class="wi-wide">[% P.customer_vendor.picker("vendor_id", vendor_id, type="vendor", class="wi-wide", class="initial_focus", onchange="\$('#update_button').click()") %][% P.button_tag("show_vc_details('vendor')", LxERP.t8('Details (one letter abbreviation)'), class='wi-tiny neutral') %] [% P.hidden_tag("previous_vendor_id", vendor_id) %]</td>
+      <td class="wi-wide">
+        [% P.customer_vendor.picker("vendor_id", vendor_id, type="vendor", class="initial_focus", show_details="1") %]
+        [% P.hidden_tag("previous_vendor_id", vendor_id) %]
+      </td>
     </tr>
     [% IF ALL_CONTACTS.size %]
     <tr>
@@ -261,7 +264,6 @@
 </div><!-- /.wrapper -->
 
 <script type="text/javascript" src="js/show_form_details.js"></script>
-<script type="text/javascript" src="js/show_vc_details.js"></script>
 <script type="text/javascript" src="js/show_history.js"></script>
 <script type="text/javascript"><!--
   $('document').ready(function(){
