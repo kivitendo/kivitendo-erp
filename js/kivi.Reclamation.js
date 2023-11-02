@@ -632,38 +632,6 @@ namespace('kivi.Reclamation', function(ns) {
     kivi.io.close_dialog();
   };
 
-  ns.show_cv_details_dialog = function() {
-    if (!ns.check_cv()) return;
-    var cv;
-    var cv_id;
-    var title;
-    if ($('#type').val() == 'sales_reclamation') {
-      cv    = 'customer';
-      cv_id = $('#reclamation_customer_id').val();
-      title = kivi.t8('Customer details');
-    } else {
-      cv    = 'vendor';
-      cv_id = $('#reclamation_vendor_id').val();
-      title = kivi.t8('Vendor details');
-    }
-
-    kivi.popup_dialog({
-      url:    'controller.pl',
-      data:   { action: 'Reclamation/show_customer_vendor_details_dialog',
-                type  : $('#type').val(),
-                cv    : cv,
-                cv_id : cv_id
-              },
-      id:     'jq_customer_vendor_details_dialog',
-      dialog: {
-        title:  title,
-        width:  800,
-        height: 650
-      }
-    });
-    return true;
-  };
-
   ns.update_row_from_master_data = function(clicked) {
     var row = $(clicked).parents("tbody").first();
     var item_id_dom = $(row).find('[name="reclamation_item_ids[+]"]');
@@ -838,11 +806,6 @@ namespace('kivi.Reclamation', function(ns) {
     data.push({ name: 'action', value: 'Reclamation/create_part' });
 
     $.post("controller.pl", data, kivi.eval_json_result);
-  };
-
-  ns.open_customervendor_tab = function(id_selector, db) {
-    if (!ns.check_cv()) return;
-    window.open("controller.pl?action=CustomerVendor/edit&db=" + encodeURIComponent(db) + "&id=" + encodeURIComponent($(id_selector).val()), '_blank');
   };
 
   ns.get_selected_rows = function() {
