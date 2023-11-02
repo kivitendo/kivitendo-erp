@@ -67,10 +67,8 @@
     <tr>
       <th>[% 'Customer' | $T8 %]</th>
       <td><!-- PENDENT: Type sollte text und nicht customer sein. Ueberall bei customer_vendor.picker aendern, auf allen Seiten -->
-        [% P.customer_vendor.picker("customer_id", customer_id, type="customer", class="wi-wide initial_focus", size=36, onchange="\$('#update_button').click()") %]
-        [% #L.button_tag("show_vc_details('customer')", LxERP.t8('Details (one letter abbreviation)'), class='wi-tiny neutral') %]
-        <a href="javascript:show_vc_details('customer')" class="button-image info tooltipster-html" title="[% 'Detailed information about this customer' | $T8 %]"><img src="image/detail.png"></a>
-        [% P.link_tag('controller.pl?action=CustomerVendor/edit&db=customer&id=' _ customer_id, LxERP.t8('Edit'), target="_blank", title=LxERP.t8('Open in new window')) %]
+        [% P.customer_vendor.picker("customer_id", customer_id, type="customer", class="wi-wide initial_focus",
+             show_details="1") %]
         [% L.hidden_tag("previous_customer_id", customer_id) %]
         [% L.hidden_tag("customer_pricegroup_id", customer_pricegroup_id) %]
       </td>
@@ -404,7 +402,6 @@
 <input type="hidden" name="webdav" value="[% webdav %]">
 
 <script type="text/javascript" src="js/show_form_details.js"></script>
-<script type="text/javascript" src="js/show_vc_details.js"></script>
 <script type="text/javascript" src="js/show_history.js"></script>
 [% IF (resubmit && is_format_html) || resubmit || creditwarning != '' %]
   <script type="text/javascript"><!--
