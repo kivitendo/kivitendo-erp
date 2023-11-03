@@ -778,7 +778,8 @@ sub orders {
   my @columns = qw(
     ids                     transdate               reqdate
     id                      donumber
-    ordnumber               customernumber          cusordnumber
+    ordnumber               customernumber          vendor_confirmation_number
+    cusordnumber
     name                    employee  salesman
     shipvia                 globalprojectnumber
     transaction_description department
@@ -799,7 +800,8 @@ sub orders {
   push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber cusordnumber
                                           transaction_description transdatefrom transdateto reqdatefrom reqdateto
                                           type vc employee_id salesman_id project_id parts_partnumber parts_description
-                                          insertdatefrom insertdateto business_id all department_id chargenumber full_text);
+                                          insertdatefrom insertdateto business_id all department_id chargenumber full_text
+                                          vendor_confirmation_number);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
@@ -823,9 +825,10 @@ sub orders {
     'department'              => { 'text' => $locale->text('Department'), },
     'insertdate'              => { 'text' => $locale->text('Insert Date'), },
     'items'                   => { 'text' => $locale->text('Positions'), },
+    'vendor_confirmation_number' => { 'text' => $locale->text('Vendor Confirmation Number'), },
   );
 
-  foreach my $name (qw(id transdate reqdate donumber ordnumber name employee salesman shipvia transaction_description department insertdate)) {
+  foreach my $name (qw(id transdate reqdate donumber ordnumber name employee salesman shipvia transaction_description department insertdate vendor_confirmation_number)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -860,6 +863,9 @@ sub orders {
   }
   if ($form->{ordnumber}) {
     push @options, $locale->text('Order Number') . " : $form->{ordnumber}";
+  }
+  if ($form->{vendor_confirmation_number}) {
+    push @options, $locale->text('Vendor Confirmation Number') . " : $form->{vendor_confirmation_number}";
   }
   push @options, $locale->text('Serial Number') . " : $form->{serialnumber}" if $form->{serialnumber};
   if ($form->{business_id}) {

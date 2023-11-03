@@ -75,6 +75,7 @@ sub transactions {
   my $query =
     qq|SELECT dord.id, dord.donumber, dord.ordnumber, dord.cusordnumber,
          dord.transdate, dord.reqdate,
+         dord.vendor_confirmation_number,
          ct.${vc}number, ct.name, ct.business_id,
          dord.${vc}_id, dord.globalproject_id,
          dord.closed, dord.delivered, dord.shippingpoint, dord.shipvia,
@@ -141,7 +142,7 @@ sub transactions {
     push @values, $::myconfig{login};
   }
 
-  foreach my $item (qw(donumber ordnumber cusordnumber transaction_description)) {
+  foreach my $item (qw(donumber ordnumber cusordnumber transaction_description vendor_confirmation_number)) {
     next unless ($form->{$item});
     push @where,  qq|dord.$item ILIKE ?|;
     push @values, like($form->{$item});
@@ -203,6 +204,7 @@ sub transactions {
                              dord.ordnumber
                              dord.cusordnumber
                              dord.oreqnumber
+                             dord.vendor_confirmation_number
                              );
     my $tmp_where = '';
     $tmp_where .= join ' OR ', map {"$_ ILIKE ?"} @fulltext_fields;
@@ -289,6 +291,7 @@ SQL
     "transaction_description" => "dord.transaction_description",
     "department"              => "lower(dep.description)",
     "insertdate"              => "dord.itime",
+    "vendor_confirmation_number" => "dord.vendor_confirmation_number",
   );
 
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
