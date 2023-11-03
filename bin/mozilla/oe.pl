@@ -1066,7 +1066,8 @@ sub orders {
   my @columns = (
     "transdate",               "reqdate",
     "id",                      $ordnumber,
-    "cusordnumber",            "customernumber",
+    "cusordnumber",            "vendor_confirmation_number",
+    "customernumber",
     "name",                    "netamount",
     "tax",                     "amount",
     "remaining_netamount",     "remaining_amount",
@@ -1147,6 +1148,7 @@ sub orders {
     parts_description all department_id intnotes phone_notes fulltext
     order_status_id shiptoname shiptodepartment_1 shiptodepartment_2
     shiptostreet shiptozipcode shiptocity shiptocountry
+    vendor_confirmation_number
   );
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
@@ -1202,13 +1204,14 @@ sub orders {
     shiptozipcode             => { 'text' => $locale->text('Zipcode (Shipping)'), },
     shiptocity                => { 'text' => $locale->text('City (Shipping)'), },
     shiptocountry             => { 'text' => $locale->text('Country (Shipping)'), },
+    vendor_confirmation_number => { 'text' => $locale->text('Vendor Confirmation Number'), },
     %column_defs_cvars,
   );
 
   foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber
                        name employee salesman shipvia transaction_description
                        shippingpoint taxzone insertdate payment_terms department
-                       intnotes order_status)) {
+                       intnotes order_status vendor_confirmation_number)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -1242,6 +1245,7 @@ sub orders {
   push @options, $locale->text('Contact Person')          . " : $form->{cp_name}"                         if $form->{cp_name};
   push @options, $locale->text('Department')              . " : $form->{department}"                      if $form->{department};
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                       if $form->{ordnumber};
+  push @options, $locale->text('Vendor Confirmation Number') . " : $form->{vendor_confirmation_number}"   if $form->{vendor_confirmation_number};
   push @options, $locale->text('Customer Order Number')   . " : $form->{cusordnumber}"                    if $form->{cusordnumber};
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                           if $form->{notes};
   push @options, $locale->text('Internal Notes')          . " : $form->{intnotes}"                        if $form->{intnotes};

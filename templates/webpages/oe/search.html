@@ -37,6 +37,12 @@
      <td colspan=3>[% L.select_tag('order_status_id', ALL_ORDER_STATUSES, default = order_status_id, title_key = 'name', with_empty = 1, style=style) %]</td>
     </tr>
 
+[% IF type == "purchase_order_confirmation" %]
+    <tr>
+     <th align="right">[% LxERP.t8("Vendor Confirmation Number") %]</th>
+     <td>[% L.input_tag("vendor_confirmation_number", '', style=style) %]</td>
+    </tr>
+[% END %]
 [% IF is_order %]
     <tr>
      <th align="right">[% LxERP.t8("Customer Order Number") %]</th>
@@ -226,12 +232,6 @@
          <label for="l_cusordnumber">[% LxERP.t8("Customer Order Number") %]</label>
         </td>
 [% END %]
-[% IF is_order %]
-        <td>
-         <input name="l_cusordnumber" id="l_cusordnumber" class="checkbox" type="checkbox" value="Y" checked>
-         <label for="l_cusordnumber">[% LxERP.t8("Customer Order Number") %]</label>
-        </td>
-[% END %]
        </tr>
        <tr>
         <td>
@@ -248,6 +248,12 @@
           <label for="l_insertdate">[% 'Insert Date' | $T8 %]</label>
         </td>
         [%- END %]
+[% IF type == "purchase_order_confirmation" %]
+        <td>
+         <input name="l_vendor_confirmation_number" id="l_vendor_confirmation_number" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_vendor_confirmation_number">[% LxERP.t8("Vendor Confirmation Number") %]</label>
+        </td>
+[% END %]
        </tr>
        <tr>
         <td>

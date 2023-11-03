@@ -43,6 +43,12 @@
       <th>[% HTML.escape(ordlabel) %]</th>
       <td>[% L.input_tag(ordnrname, "", class="wi-lightwide") %]</td>
     </tr>
+    [% IF type == "purchase_order_confirmation" %]
+    <tr>
+      <th>[% LxERP.t8("Vendor Confirmation Number") %]</th>
+      <td>[% L.input_tag("vendor_confirmation_number", '', class="wi-lightwide") %]</td>
+    </tr>
+    [% END %]
     [% IF is_order %]
     <tr>
       <th>[% LxERP.t8("Customer Order Number") %]</th>
@@ -236,6 +242,12 @@
     <input name="l_globalprojectnumber" id="l_globalprojectnumber" type="checkbox" value="Y">
     <label for="l_globalprojectnumber">[% 'Project Number' | $T8 %]</label>
   </div>
+  [% IF type == "purchase_order_confirmation" %]
+  <div>
+    <input name="l_vendor_confirmation_number" id="l_vendor_confirmation_number" type="checkbox" value="Y" checked>
+    <label for="l_vendor_confirmation_number">[% LxERP.t8("Vendor Confirmation Number") %]</label>
+  </div>
+  [% END %]
   [% IF is_order %]
   <div>
     <input name="l_cusordnumber" id="l_cusordnumber" type="checkbox" value="Y" checked>
