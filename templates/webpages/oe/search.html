@@ -161,7 +161,7 @@
     <tr>
      <th align="right">[% 'Order probability' | $T8 %]</th>
      <td>
-      [% L.select_tag('order_probability_op', [[ 'ge', '>=' ], [ 'le', '<=' ]]) %]
+      [% L.select_tag('order_probability_op', [[ 'ge', '>=' ], [ 'le', '<=' ]]) %] [%-# '> make emacs happy %]
       [% L.select_tag('order_probability_value', ORDER_PROBABILITIES, title='title', with_empty=1) %]
      </td>
     </tr>
@@ -220,6 +220,12 @@
          <input name="l_[% HTML.escape(ordnrname) %]" id="l_[% HTML.escape(ordnrname) %]" class="checkbox" type="checkbox" value="Y" checked>
          <label for="l_[% HTML.escape(ordnrname) %]">[% HTML.escape(ordlabel) %]</label>
         </td>
+[% IF is_order %]
+        <td>
+         <input name="l_cusordnumber" id="l_cusordnumber" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_cusordnumber">[% LxERP.t8("Customer Order Number") %]</label>
+        </td>
+[% END %]
 [% IF is_order %]
         <td>
          <input name="l_cusordnumber" id="l_cusordnumber" class="checkbox" type="checkbox" value="Y" checked>
