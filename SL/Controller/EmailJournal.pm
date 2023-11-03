@@ -52,6 +52,13 @@ my %RECORD_TYPES_INFO = (
     class      => 'Reclamation',
     types => SL::DB::Reclamation::TypeData->valid_types(),
   },
+  GlTransaction => {
+    controller => 'gl.pl',
+    class      => 'GLTransaction',
+    types => [
+      'gl_transaction',
+    ],
+  },
   ArTransaction => {
     controller => 'ar.pl',
     class      => 'Invoice',
@@ -87,15 +94,27 @@ my %RECORD_TYPES_INFO = (
       'purchase_credit_note',
     ],
   },
-  RecordTemplate => {
-    controller => '',
+  GlRecordTemplate => {
+    controller => 'gl.pl',
     class      => 'RecordTemplate',
     types => [
       'gl_transaction_template',
+    ],
+  },
+  ArRecordTemplate => {
+    controller => 'ar.pl',
+    class      => 'RecordTemplate',
+    types => [
       'ar_transaction_template',
+    ],
+  },
+  ApRecordTemplate => {
+    controller => 'ap.pl',
+    class      => 'RecordTemplate',
+    types => [
       'ap_transaction_template',
     ],
-  }
+  },
 );
 my %RECORD_TYPE_TO_CONTROLLER =
   map {
@@ -121,6 +140,8 @@ my %RECORD_TYPE_TO_NR_KEY =
       $_ => 'invnumber';
     } elsif (any {$model eq $_} qw(SL::DB::RecordTemplate)) {
       $_ => 'template_name';
+    } elsif (any {$model eq $_} qw(SL::DB::GLTransaction)) {
+      $_ => 'reference';
     } else {
       my $type_data = SL::DB::Helper::TypeDataProxy->new($model, $_);
       $_ => $type_data->properties('nr_key');
@@ -161,9 +182,9 @@ sub get_record_types_with_info {
     { record_type => 'purchase_invoice',      customervendor => 'vendor', workflow_needed => 0, can_workflow => 1, text => t8('Purchase Invoice')},
     { record_type => 'purchase_credit_note',  customervendor => 'vendor', workflow_needed => 0, can_workflow => 1, text => t8('Purchase Credit Note')},
     # transactions
-    # TODO: create gl_transaction with email
-    # { record_type => 'gl_transaction', customervendor => 'customer', workflow_needed => 0, can_workflow => 0, text => t8('GL Transaction')},
-    # { record_type => 'gl_transaction', customervendor => 'vendor',   workflow_needed => 0, can_workflow => 0, text => t8('GL Transaction')},
+    # gl_transaction can be for vendor and customer
+    { record_type => 'gl_transaction', customervendor => 'customer', workflow_needed => 0, can_workflow => 1, text => t8('GL Transaction')},
+    { record_type => 'gl_transaction', customervendor => 'vendor',   workflow_needed => 0, can_workflow => 1, text => t8('GL Transaction')},
     { record_type => 'ar_transaction', customervendor => 'customer', workflow_needed => 0, can_workflow => 1, text => t8('AR Transaction')},
     { record_type => 'ap_transaction', customervendor => 'vendor',   workflow_needed => 0, can_workflow => 1, text => t8('AP Transaction')},
     # templates
@@ -179,6 +200,11 @@ sub record_types_for_customer_vendor_type_and_action {
   my ($self, $customer_vendor_type, $action) = @_;
   return [
     map { $_->{record_type} }
+    grep {
+      # No gl_transaction in standard workflows
+      # They can't be filtered by customer/vendor or open/closed and polute the list
+      ($_->{record_type} ne 'gl_transaction')
+    }
     grep {
       ($_->{customervendor} eq $customer_vendor_type)
       && ($action eq 'workflow_record' ? $_->{can_workflow} : 1)
@@ -270,9 +296,9 @@ sub get_records_for_types {
       $additional_where{$nr_key} = { ilike => "%$record_number%" };
     }
     unless ($with_closed) {
-      if (any {$_ eq 'closed' } $model->meta->columns) {
+      if (any {$_ eq 'closed'} $model->meta->columns) {
         $additional_where{closed} = 0;
-      } elsif (any {$_ eq 'paid' } $model->meta->columns) {
+      } elsif (any {$_ eq 'paid'} $model->meta->columns) {
         $additional_where{amount} = { gt => \'paid' };
       }
     }
@@ -367,9 +393,9 @@ sub action_apply_record_action {
   my $action             = $::form->{action_selection};
   my $record_id          = $::form->{"record_id"};
   my $record_type        = $::form->{"record_type"};
-     $record_type      ||= $::form->{"${customer_vendor}_record_type_selection"};
+     $record_type      ||= $::form->{"${customer_vendor}_${action}_type_selection"};
 
-  die t8("No record is selected.")               unless $record_id || $action eq 'create_new';
+  die t8("No record is selected.")               unless $record_id || $action eq 'new_record';
   die t8("No record type is selected.")          unless $record_type;
   die "no 'email_journal_id' was given"          unless $email_journal_id;
   die "no 'customer_vendor_selection' was given" unless $customer_vendor;
@@ -385,10 +411,17 @@ sub action_apply_record_action {
   }
 
   my %additional_params = ();
-  if ($action eq 'create_new') {
+  if ($action eq 'new_record') {
     $additional_params{action} = 'add_from_email_journal';
     $additional_params{"${customer_vendor}_id"} = $customer_vendor_id;
-  } else {
+  } elsif ($action eq 'template_record') {
+    $additional_params{action} = 'load_record_template_from_email_journal';
+    $additional_params{id} = $record_id;
+    $additional_params{form_defaults} = {
+      email_journal_id => $email_journal_id,
+      email_attachment_id => $attachment_id,
+    };
+  } else { # workflow_record
     $additional_params{action} = 'edit_with_email_journal_workflow';
     $additional_params{id} = $record_id;
   }

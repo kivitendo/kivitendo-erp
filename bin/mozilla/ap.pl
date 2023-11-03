@@ -1457,6 +1457,11 @@ sub add_from_email_journal {
   &add;
 }
 
+sub load_record_template_from_email_journal {
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  &load_record_template;
+}
+
 sub edit_with_email_journal_workflow {
   my ($self) = @_;
   die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});

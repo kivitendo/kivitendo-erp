@@ -2,7 +2,7 @@
 input.record_button {
   color: var(--color-dark);
   background-color: var(--color-lighter);
-  width: 200px;
+  width: 300px;
   padding: 5px;
   margin: 5px;
   float: left;

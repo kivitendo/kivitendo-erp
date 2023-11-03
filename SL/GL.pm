@@ -47,6 +47,7 @@ use SL::DBUtils;
 use SL::DB::Chart;
 use SL::DB::Draft;
 use SL::DB::ValidityToken;
+use SL::DB::GLTransaction;
 use SL::Util qw(trim);
 use SL::DB;
 
@@ -797,6 +798,16 @@ sub _storno {
     do_query($form, $dbh, $query, (values %$row));
   }
 
+  if ($form->{workflow_email_journal_id}) {
+    my $ar_transaction_storno = SL::DB::GLTransaction->new(id => $new_id)->load;
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $form->{workflow_email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment(
+      $ar_transaction_storno,
+      delete $::form->{workflow_email_attachment_id}
+    );
+  }
   return 1;
 }
 

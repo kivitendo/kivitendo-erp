@@ -20,6 +20,7 @@ sub add_file_to_record {
     # TODO: file and webdav use different types
     $record_type = 'accounts_payable' if $record_type eq 'ap_transaction';
     $record_type = 'general_ledger'   if $record_type eq 'ar_transaction';
+    $record_type = 'general_ledger'   if $record_type eq 'gl_transaction';
     $record_type = 'invoice'          if $record_type eq 'invoice_storno';
     my $webdav = SL::Webdav->new(
       type     => $record_type,
