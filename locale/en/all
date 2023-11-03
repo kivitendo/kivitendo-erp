@@ -4656,6 +4656,7 @@ $self->{texts} = {
   'Vendor & Transaction'        => '',
   'Vendor (database ID)'        => '',
   'Vendor (name)'               => '',
+  'Vendor Confirmation Number'  => '',
   'Vendor Discount'             => '',
   'Vendor GLN'                  => '',
   'Vendor Invoice'              => '',

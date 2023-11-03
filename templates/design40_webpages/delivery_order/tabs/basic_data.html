@@ -192,6 +192,13 @@
       <td>[% L.input_tag('order.ordnumber', SELF.order.ordnumber, class='wi-normal') %]</td>
     </tr>
 
+    [%- IF SELF.type == 'purchase_delivery_order' %]
+    <tr>
+      <th>[% 'Vendor Confirmation Number' | $T8 %]</th>
+      <td>[% L.input_tag('order.vendor_confirmation_number', SELF.order.vendor_confirmation_number, class='wi-normal numeric') %]</td>
+    </tr>
+    [%- END %]
+
     <tr>
       <th>[% IF SELF.type_data.properties('is_customer') %][% 'Customer Order Number' | $T8 %][% ELSE %][% 'Vendor Order Number' | $T8 %][% END %]</th>
       <td>[% L.input_tag('order.cusordnumber', SELF.order.cusordnumber, class='wi-normal numeric') %]</td>

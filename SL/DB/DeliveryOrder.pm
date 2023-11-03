@@ -192,6 +192,7 @@ sub new_from {
       taxincluded
       taxzone_id
       transaction_description
+      vendor_confirmation_number
       vendor_id
     );
     # }}} for vim folds

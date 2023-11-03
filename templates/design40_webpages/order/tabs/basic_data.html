@@ -265,6 +265,12 @@
         [%- END %]
       </td>
     </tr>
+    [% IF (SELF.type == "purchase_order_confirmation") -%]
+      <tr>
+        <th>[% 'Vendor Confirmation Number' | $T8 %]</th>
+        <td>[% L.input_tag('order.vendor_confirmation_number', SELF.order.vendor_confirmation_number, class='wi-normal') %]</td>
+      </tr>
+    [%- END %]
     [% IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order" || SELF.type == "purchase_order_confirmation") %]
       <tr>
         <th>[% 'Customer Order Number' | $T8 %]</th>
