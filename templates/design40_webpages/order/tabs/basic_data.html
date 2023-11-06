@@ -90,7 +90,7 @@
       <tr id="exchangerate_settings" [%- IF SELF.order.currency_id==INSTANCE_CONF.get_currency_id %]style='display:none'[%- END %]>
         <th>[% 'Exchangerate' | $T8 %]</th>
         <td> 1 <span id="currency_name">[% SELF.order.currency.name %]</span> =
-          [% L.input_tag('order.exchangerate_as_null_number', SELF.order.exchangerate_as_null_number, class="reformat_number_as_null_number numeric wi-small") %]
+          [% L.input_tag('order.exchangerate_as_null_number', SELF.order.exchangerate_as_null_number, 'data-validate'='required', class="reformat_number_as_null_number numeric wi-small") %]
           [% INSTANCE_CONF.default_currency %]
           [% L.hidden_tag('old_currency_id', currency_id) %]
           [% L.hidden_tag('old_exchangerate', SELF.order.exchangerate_as_null_number) %]
