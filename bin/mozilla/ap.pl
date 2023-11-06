@@ -505,9 +505,10 @@ sub form_header {
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   if ($form->{currency} ne $form->{defaultcurrency} && !$form->{exchangerate}) {
+    my $transdate    = $form->{transdate}  ? DateTime->from_kivitendo($form->{transdate}) : DateTime->today_local;
     ($form->{exchangerate}, $form->{record_forex}) = $form->{id}
                                                   ?  $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, "sell", $form->{id}, 'ap')
-                                                  :  $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, "sell");
+                                                  :  $form->check_exchangerate(\%myconfig, $form->{currency}, $transdate, "sell");
   }
 
   # format amounts
