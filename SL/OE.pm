@@ -92,24 +92,27 @@ sub transactions {
   my %billed_amount;
   my %billed_netamount;
   if ($form->{l_remaining_amount} || $form->{l_remaining_netamount}) {
-    $query = <<'';
-      SELECT from_id, ar.amount, ar.netamount FROM (
+    my $arap = $form->{vc} eq "customer" ? "ar" : "ap";
+
+    $query = <<"SQL";
+      SELECT from_id, ${arap}.amount, $arap.netamount FROM (
         SELECT from_id, to_id
         FROM record_links
-        WHERE from_table = 'oe' AND to_table = 'ar'
+        WHERE from_table = 'oe' AND to_table = '$arap'
         UNION
         SELECT rl1.from_id, rl2.to_id
         FROM record_links rl1
         LEFT JOIN record_links rl2 ON (rl1.to_table = rl2.from_table AND rl1.to_id = rl2.from_id)
-        WHERE rl1.from_table = 'oe' AND rl2.to_table = 'ar'
+        WHERE rl1.from_table = 'oe' AND rl2.to_table = '$arap'
         UNION
         SELECT rl1.from_id, rl3.to_id
         FROM record_links rl1
         JOIN record_links rl2 ON (rl1.to_table = rl2.from_table AND rl1.to_id = rl2.from_id)
         JOIN record_links rl3 ON (rl2.to_table = rl3.from_table AND rl2.to_id = rl3.from_id)
-        WHERE rl1.from_table = 'oe' AND rl2.to_table = 'ar' AND rl3.to_table = 'ar'
+        WHERE rl1.from_table = 'oe' AND rl2.to_table = '$arap' AND rl3.to_table = '$arap'
       ) rl
-      LEFT JOIN ar ON ar.id = rl.to_id
+      LEFT JOIN $arap ON $arap.id = rl.to_id
+SQL
 
     for my $ref (@{ selectall_hashref_query($form, $dbh, $query) }) {
       $billed_amount{   $ref->{from_id}} += $ref->{amount};
