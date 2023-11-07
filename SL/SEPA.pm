@@ -513,9 +513,13 @@ sub _post_payment {
       die "sepa_export_item needs either ar_id or ap_id\n";
     };
 
+    # override the chart_id if sepa_transfer_chart_id is set
+    my $payment_chart_id = $params{sepa_transfer_chart_id} ? $params{sepa_transfer_chart_id}
+                                                           : $sepa_export_item->chart_id;
+
     $invoice->pay_invoice(amount       => $sepa_export_item->amount,
                           payment_type => $sepa_export_item->payment_type,
-                          chart_id     => $sepa_export_item->chart_id,
+                          chart_id     => $payment_chart_id,
                           source       => $sepa_export_item->reference,
                           transdate    => $item->{execution_date},  # value from user form
                          );

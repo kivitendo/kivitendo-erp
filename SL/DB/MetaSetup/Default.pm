@@ -197,6 +197,7 @@ __PACKAGE__->meta->columns(
   sepa_set_duedate_as_default_exec_date     => { type => 'boolean', default => 'false' },
   sepa_set_skonto_date_as_default_exec_date => { type => 'boolean', default => 'false' },
   sepa_set_skonto_date_buffer_in_days       => { type => 'integer', default => '0' },
+  sepa_transfer_chart_id                    => { type => 'integer' },
   servicenumber                             => { type => 'text' },
   shipped_qty_require_stock_out             => { type => 'boolean', default => 'false', not_null => 1 },
   show_bestbefore                           => { type => 'boolean', default => 'false' },
@@ -296,6 +297,11 @@ __PACKAGE__->meta->foreign_keys(
   requirement_spec_section_order_part => {
     class       => 'SL::DB::Part',
     key_columns => { requirement_spec_section_order_part_id => 'id' },
+  },
+
+  sepa_transfer_chart => {
+    class       => 'SL::DB::Chart',
+    key_columns => { sepa_transfer_chart_id => 'id' },
   },
 
   stocktaking_bin => {

@@ -2,6 +2,7 @@
 [% USE HTML %]
 [% USE LxERP %]
 [%- USE L %]
+[%- USE P %]
 [% IF vc == 'vendor' %]
  [% SET is_vendor = 1 %]
  [% SET arap = 'ap' %]
@@ -14,6 +15,26 @@
 <h1>[% title %]: [% HTML.escape(export.ids.join(', ')) %]</h1>
 
  <form action="sepa.pl" method="post" id="form">
+
+  [% IF vc == 'vendor' %]
+  <p>
+  <table>
+  <tr>
+  <td>
+  [% 'Money transit account' | $T8 %]:
+  </td>
+  <td>
+  [% P.chart.picker('sepa_transfer_chart_id', sepa_transfer_chart_id, type='AP_paid,AR_paid', choose=1) %]
+  </td>
+  <td>
+  [% 'If you choose a money transit account here, this account will be used for booking the payment, rather than the actual bank account. The intermediary money transit account then needs to be reconciled manually once the actual bank statements are available.' | $T8 %]<br>
+  [% 'If no money transit account is selected then the SEPA bank account will be booked directly.' | $T8 %]<br>
+  </td>
+  </tr>
+  </table>
+  </p>
+  [% END %]
+
   <p>
    <table>
     <tr>

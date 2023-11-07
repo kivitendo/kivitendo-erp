@@ -344,6 +344,10 @@ sub bank_transfer_edit {
   my $locale = $main::locale;
   my $vc     = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
+  my $defaults = SL::DB::Default->get;
+
+  $::request->layout->add_javascripts("autocomplete_chart.js");
+
   my @ids    = ();
   if (!$form->{mode} || ($form->{mode} eq 'single')) {
     push @ids, $form->{id};
@@ -397,6 +401,7 @@ sub bank_transfer_edit {
                                      export                    => $export,
                                      current_date              => $form->current_date(\%main::myconfig),
                                      show_post_payments_button => $show_post_payments_button,
+                                     sepa_transfer_chart_id    => $defaults->sepa_transfer_chart_id,
                                    });
 
   $main::lxdebug->leave_sub();
@@ -434,7 +439,14 @@ sub bank_transfer_post_payments {
     $form->show_generic_error($locale->text('You have to specify an execution date for each antry.'));
   }
 
-  SL::SEPA->post_payment('items' => \@items_to_post, vc => $vc);
+  my $sepa_transfer_chart_id;
+
+  if ( $form->{sepa_transfer_chart_id} ) {
+    my $chart = SL::DB::Chart->new(id => $form->{sepa_transfer_chart_id})->load;
+    $sepa_transfer_chart_id = $chart->id if $chart;
+  }
+
+  SL::SEPA->post_payment('items' => \@items_to_post, vc => $vc, sepa_transfer_chart_id => $sepa_transfer_chart_id);
 
   $form->show_generic_information($locale->text('The payments have been posted.'));
 

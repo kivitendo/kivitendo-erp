@@ -61,6 +61,10 @@
       <th>[% LxERP.t8("Account for workflow from purchase order to ap transaction") %]</th>
       <td>[% P.chart.picker('defaults.workflow_po_ap_chart_id', SELF.defaults.workflow_po_ap_chart_id, type='AP_amount', choose=1, style=style) %]</td>
     </tr>
+    <tr>
+      <th>[% LxERP.t8("SEPA transfer account") %]</th>
+      <td>[% P.chart.picker('defaults.sepa_transfer_chart_id', SELF.defaults.sepa_transfer_chart_id, type='AP_paid,AR_paid', choose=1, style=style) %]<td>
+    </tr>
   </tbody>
 </table>
 
