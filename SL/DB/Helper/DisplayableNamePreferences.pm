@@ -21,9 +21,6 @@ sub import {
   $params{title} && $params{options}  or croak 'need params title and options';
 
   $prefs_specs{$importing} = \%params;
-  $prefs{$importing}       = SL::Helper::UserPreferences::DisplayableName->new(
-    module => $importing
-  );
 
   # Don't 'goto' to Exporters import, it would try to parse @params
   __PACKAGE__->export_to_level(1, $class, @EXPORT);
@@ -50,7 +47,7 @@ sub displayable_name_prefs {
   my $class_or_self = shift;
   my $class         = ref($class_or_self) || $class_or_self;
 
-  return $prefs{$class};
+  return SL::Helper::UserPreferences::DisplayableName->new(module => $class);
 }
 
 sub displayable_name_specs {
