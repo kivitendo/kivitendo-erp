@@ -435,6 +435,68 @@ Die durchaus optionalen «<code>COLGROUP > COL</code>»-Angaben können nur in B
   </tfoot>
 </table>
 
+<div class="wrapper">
+
+<h3>Listen-Tabelle mit farblicher Hervorhebung</h3>
+
+<p>Zur farblichen Hervorhebung von Zeilen können folgende Klassen verwendet werden:</p>
+
+<pre><code>.listrow_ok
+.listrow_error
+.listrow_info
+.listrow_warning
+</code></pre>
+
+<p>Die Farben entsprechen dabei den standard Farben, welche auch z.B. bei den Flash Messages verwendet werden.
+Siehe dazu auch: <a href="farben.html" title="Details zum Einsatz von Farben in Kivitendo">Einsatz von Farben</a></p>
+
+<table class="tbl-list">
+  <caption>Listen-Tabelle mit Farben</caption>
+  <colgroup>
+    <col class="wi-small"><col class="wi-small"><col class="wi-small"><col class="wi-small"><col class="wi-small">
+  </colgroup>
+  <thead>
+  <tr>
+    <th></th>
+    <th>Column 1</th>
+    <th>Column 2</th>
+    <th>Column 3</th>
+    <th>Column 4</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="listrow_ok">
+    <th>Row 1</th>
+    <td>R1C1</td>
+    <td>R1C2R1C2R1C2R1C2</td>
+    <td>R1C3</td>
+    <td>R1C4</td>
+  </tr>
+  <tr class="listrow_error">
+    <th>Row 2</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_info">
+    <th>Row 3</th>
+    <td>R3C1</td>
+    <td>R3C2</td>
+    <td>R3C3</td>
+    <td>R3C4</td>
+  </tr>
+  <tr class="listrow_warning">
+    <th>Row 4</th>
+    <td>R4C1</td>
+    <td>R4C2</td>
+    <td>R4C3</td>
+    <td>R4C4</td>
+  </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
 
 </body>
 </html>
