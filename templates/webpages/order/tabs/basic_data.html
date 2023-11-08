@@ -178,7 +178,7 @@
 
           [%- IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order" || SELF.type == "purchase_order_confirmation") -%]
           <tr>
-            <th width="70%" align="right" nowrap>[% 'Order Number' | $T8 %]</th>
+            <th width="70%" align="right" nowrap>[% IF SELF.type == "purchase_order_confirmation" %][% 'Order Confirmation Number' | $T8 %][% ELSE %][% 'Order Number' | $T8 %][% END %]</th>
             <td>
               [%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
                 [% L.input_tag('order.ordnumber', SELF.order.ordnumber, size = 11, onchange='kivi.Order.set_number_in_title(this)') %]
@@ -191,6 +191,19 @@
             </td>
           </tr>
           [%- END -%]
+
+          [% IF SELF.type == "purchase_order_confirmation" %]
+          <tr>
+            <th width="70%" align="right" nowrap>[% 'Order Number' | $T8 %]</th>
+            [%-
+              numbers = [];
+              FOREACH p = SELF.order.preceding_purchase_orders();
+                numbers.push(p.ordnumber);
+              END;
+              %]
+            <td>[% numbers.join(', ') %]</td>
+          </tr>
+          [% END %]
 
           [%- IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "sales_quotation" || SELF.type == "purchase_quotation_intake") -%]
             [%- SET quo_nr_txt = 'Quotation Number' -%]
