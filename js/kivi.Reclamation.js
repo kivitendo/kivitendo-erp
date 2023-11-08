@@ -245,9 +245,11 @@ namespace('kivi.Reclamation', function(ns) {
           } else {
             rate_input.val('');
           }
+          $('#reclamation_exchangerate_as_null_number').data('validate', 'required');
           $('#exchangerate_settings').show();
         } else {
           rate_input.val('');
+          $('#reclamation_exchangerate_as_null_number').data('validate', '');
           $('#exchangerate_settings').hide();
         }
         if ($('#reclamation_currency_id').val() != $('#old_currency_id').val() ||

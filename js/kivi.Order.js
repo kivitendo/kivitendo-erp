@@ -251,9 +251,11 @@ namespace('kivi.Order', function(ns) {
           } else {
             rate_input.val('');
           }
+          $('#order_exchangerate_as_null_number').data('validate', 'required');
           $('#exchangerate_settings').show();
         } else {
           rate_input.val('');
+          $('#order_exchangerate_as_null_number').data('validate', '');
           $('#exchangerate_settings').hide();
         }
         if ($('#order_currency_id').val() != $('#old_currency_id').val() ||
