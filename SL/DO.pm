@@ -72,6 +72,15 @@ sub transactions {
 
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
 
+  my ($extra_selects, $extra_joins) = ('', '');
+
+  $form->{l_order_confirmation_number} = 'Y' if $form->{order_confirmation_number};
+  if ($form->{l_order_confirmation_number}) {
+    $extra_selects = qq|, oe.ordnumber AS order_confirmation_number|;
+    $extra_joins   = qq|LEFT JOIN record_links rl ON (rl.to_id = dord.id)
+                        LEFT JOIN oe ON (oe.id = rl.from_id)|;
+  }
+
   my $query =
     qq|SELECT dord.id, dord.donumber, dord.ordnumber, dord.cusordnumber,
          dord.transdate, dord.reqdate,
@@ -85,6 +94,7 @@ sub transactions {
          dord.record_type,
          e.name AS employee,
          sm.name AS salesman
+         $extra_selects
        FROM delivery_orders dord
        LEFT JOIN $vc ct ON (dord.${vc}_id = ct.id)
        LEFT JOIN contacts cp ON (dord.cp_id = cp.cp_id)
@@ -92,7 +102,12 @@ sub transactions {
        LEFT JOIN employee sm ON (dord.salesman_id = sm.id)
        LEFT JOIN project pr ON (dord.globalproject_id = pr.id)
        LEFT JOIN department dep ON (dord.department_id = dep.id)
+       $extra_joins
 |;
+
+  if ($form->{l_order_confirmation_number}) {
+    push @where, qq|rl.to_table = 'delivery_orders' AND rl.from_table = 'oe' AND oe.record_type::text LIKE 'purchase_order_confirmation'|;
+  }
 
   if ($form->{type} && is_valid_type($form->{type})) {
     push @where, 'dord.record_type = ?';
@@ -146,6 +161,11 @@ sub transactions {
     next unless ($form->{$item});
     push @where,  qq|dord.$item ILIKE ?|;
     push @values, like($form->{$item});
+  }
+
+  if ($form->{order_confirmation_number}) {
+    push @where,  qq|oe.ordnumber ILIKE ?|;
+    push @values, like($form->{order_confirmation_number});
   }
 
   if (($form->{open} || $form->{closed}) &&
@@ -205,7 +225,8 @@ sub transactions {
                              dord.cusordnumber
                              dord.oreqnumber
                              dord.vendor_confirmation_number
-                             );
+                             oe.ordnumber
+                            );
     my $tmp_where = '';
     $tmp_where .= join ' OR ', map {"$_ ILIKE ?"} @fulltext_fields;
     push(@values, like($form->{fulltext})) for 1 .. (scalar @fulltext_fields);
@@ -292,6 +313,7 @@ SQL
     "department"              => "lower(dep.description)",
     "insertdate"              => "dord.itime",
     "vendor_confirmation_number" => "dord.vendor_confirmation_number",
+    "order_confirmation_number"  => "order_confirmation_number",
   );
 
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';

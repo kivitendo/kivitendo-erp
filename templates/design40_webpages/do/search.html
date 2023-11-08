@@ -84,6 +84,11 @@
     </tr>
     [%- IF type == "purchase_delivery_order" %]
     <tr>
+      <th>[% 'Order Confirmation Number' | $T8 %]</th>
+      <td> <input type="text" name="order_confirmation_number" class="fixed_width wi-mediumsmall">
+      </td>
+    </tr>
+    <tr>
       <th>[% 'Vendor Confirmation Number' | $T8 %]</th>
       <td> <input type="text" name="vendor_confirmation_number" class="fixed_width wi-mediumsmall">
       </td>
@@ -179,6 +184,10 @@
       <label for="l_ordnumber">[% 'Order Number' | $T8 %]</label>
     </div>
     [%- IF type == "purchase_delivery_order" %]
+    <div>
+      <input name="l_order_confirmation_number" id="l_order_confirmation_number" type="checkbox" value="Y" checked>
+      <label for="l_order_confirmation_number">[% 'Order Confirmation Number' | $T8 %]</label>
+    </div>
     <div>
       <input name="l_vendor_confirmation_number" id="l_vendor_confirmation_number" type="checkbox" value="Y" checked>
       <label for="l_vendor_confirmation_number">[% 'Vendor Confirmation Number' | $T8 %]</label>
