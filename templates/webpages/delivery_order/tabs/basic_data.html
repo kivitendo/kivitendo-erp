@@ -131,6 +131,17 @@
 
           [%- IF SELF.type == 'purchase_delivery_order' %]
           <tr>
+            <th width="70%" align="right" nowrap>[% 'Order Confirmation Number' | $T8 %]</th>
+            [%-
+              numbers = [];
+              FOREACH p = SELF.order.preceding_purchase_order_confirmations();
+                numbers.push(p.ordnumber);
+              END;
+            %]
+            <td>[% numbers.join(', ') %]</td>
+          </tr>
+
+          <tr>
             <th width="70%" align="right" nowrap>[% 'Vendor Confirmation Number' | $T8 %]</th>
             <td>[% L.input_tag('order.vendor_confirmation_number', SELF.order.vendor_confirmation_number, size = 11) %]</td>
           </tr>

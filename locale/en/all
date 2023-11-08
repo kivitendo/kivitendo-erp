@@ -2648,6 +2648,7 @@ $self->{texts} = {
   'Order'                       => '',
   'Order & Articles'            => '',
   'Order & Numbers'             => '',
+  'Order Confirmation Number'   => '',
   'Order Controller'            => '',
   'Order Date'                  => '',
   'Order Date missing!'         => '',
