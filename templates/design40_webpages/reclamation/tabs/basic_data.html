@@ -81,14 +81,15 @@
       </tr>
 
       [% SET currency_id = SELF.reclamation.currency_id || INSTANCE_CONF.get_currency_id  # use default currency for new reclamation %]
+      [% SET show_exchangerate = (SELF.reclamation.currency_id != INSTANCE_CONF.get_currency_id) %]
       <tr id="currency_settings">
         <th>[% 'Currency' | $T8 %]</th>
         <td>[% L.select_tag('reclamation.currency_id', SELF.all_currencies, default=currency_id, value_key='id', title_key='name') %]</td>
       </tr>
-      <tr id="exchangerate_settings" [%- IF SELF.reclamation.currency_id==INSTANCE_CONF.get_currency_id %]style='display:none'[%- END %]>
+      <tr id="exchangerate_settings" [%- IF !show_exchangerate %]style='display:none'[%- END %]>
         <th>[% 'Exchangerate' | $T8 %]</th>
         <td> 1 <span id="currency_name">[% SELF.reclamation.currency.name %]</span> =
-          [% L.input_tag('reclamation.exchangerate_as_null_number', SELF.reclamation.exchangerate_as_null_number, 'data-validate'='required', size="15", class="reformat_number_as_null_number numeric") %]
+          [% L.input_tag('reclamation.exchangerate_as_null_number', SELF.reclamation.exchangerate_as_null_number, 'data-validate'=show_exchangerate ? 'required' : '', size="15", class="reformat_number_as_null_number numeric") %]
           [% INSTANCE_CONF.default_currency %]
           [% L.hidden_tag('old_currency_id', currency_id) %]
           [% L.hidden_tag('old_exchangerate', SELF.reclamation.exchangerate_as_null_number) %]

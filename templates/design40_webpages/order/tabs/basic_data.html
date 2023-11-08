@@ -77,14 +77,15 @@
         <td>[% L.select_tag('order.taxzone_id', SELF.all_taxzones, default=SELF.order.taxzone_id, title_key='description', class='recalc wi-lightwide') %]</td>
       </tr>
       [% SET currency_id = SELF.order.currency_id || INSTANCE_CONF.get_currency_id  # use default currency for new order %]
+      [% SET show_exchangerate = (SELF.order.currency_id != INSTANCE_CONF.get_currency_id) %]
       <tr id="currency_settings">
         <th>[% 'Currency' | $T8 %]</th>
         <td>[% L.select_tag('order.currency_id', SELF.all_currencies, default=currency_id, value_key='id', title_key='name', class='wi-lightwide') %]</td>
       </tr>
-      <tr id="exchangerate_settings" [%- IF SELF.order.currency_id==INSTANCE_CONF.get_currency_id %]style='display:none'[%- END %]>
+      <tr id="exchangerate_settings" [%- IF !show_exchangerate %]style='display:none'[%- END %]>
         <th>[% 'Exchangerate' | $T8 %]</th>
         <td> 1 <span id="currency_name">[% SELF.order.currency.name %]</span> =
-          [% L.input_tag('order.exchangerate_as_null_number', SELF.order.exchangerate_as_null_number, 'data-validate'='required', class="reformat_number_as_null_number numeric wi-small") %]
+          [% L.input_tag('order.exchangerate_as_null_number', SELF.order.exchangerate_as_null_number, 'data-validate'=show_exchangerate ? 'required' : '', class="reformat_number_as_null_number numeric wi-small") %]
           [% INSTANCE_CONF.default_currency %]
           [% L.hidden_tag('old_currency_id', currency_id) %]
           [% L.hidden_tag('old_exchangerate', SELF.order.exchangerate_as_null_number) %]
