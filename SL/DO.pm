@@ -68,7 +68,7 @@ sub transactions {
   # connect to database
   my $dbh = $form->get_standard_dbh($myconfig);
 
-  my (@where, @values, $where);
+  my (@where, @values);
 
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
 
