@@ -12,6 +12,7 @@ use SL::ZUGFeRD;
 use SL::SessionFile;
 
 use XML::LibXML;
+use List::Util qw(first);
 
 
 __PACKAGE__->run_before('check_auth');
@@ -128,13 +129,10 @@ sub action_import_zugferd {
 
   my %res;          # result data structure returned by SL::ZUGFeRD->extract_from_{pdf,xml}()
   my $parser;       # SL::XMLInvoice object created by SL::ZUGFeRD->extract_from_{pdf,xml}()
-  my $dom;          # DOM object for parsed XML data
   my $vendor;       # SL::DB::Vendor object
 
-  my $ibanmessage;  # Message to display if vendor's database and invoice IBANs don't match up
-
-  die t8("missing file for action import") unless $file;
-  die t8("can only parse a pdf or xml file")      unless $file =~ m/^%PDF|<\?xml/;
+  die t8("missing file for action import")   unless $file;
+  die t8("can only parse a pdf or xml file") unless $file =~ m/^%PDF|<\?xml/;
 
   if ( $::form->{file} =~ m/^%PDF/ ) {
     %res = %{SL::ZUGFeRD->extract_from_pdf($file)};
@@ -149,13 +147,10 @@ sub action_import_zugferd {
 
   $parser = $res{'invoice_xml'};
 
-  # Shouldn't be neccessary with SL::XMLInvoice doing the heavy lifting, but
-  # let's grab it, just in case.
-  $dom  = $parser->{dom};
-
   my %metadata = %{$parser->metadata};
   my @items = @{$parser->items};
 
+  my $notes = t8("ZUGFeRD Import. Type: #1", $metadata{'type'});
   my $iban = $metadata{'iban'};
   my $invnumber = $metadata{'invnumber'};
 
@@ -175,7 +170,12 @@ sub action_import_zugferd {
 
   # Check IBAN specified on bill matches the one we've got in
   # the database for this vendor.
-  $ibanmessage = $iban ne $vendor->iban ? "Record IBAN $iban doesn't match vendor IBAN " . $vendor->iban : $iban if $iban;
+ if ($iban) {
+   $notes .= "\nIBAN: ";
+   $notes .= $iban ne $vendor->iban ?
+         t8("Record IBAN #1 doesn't match vendor IBAN #2", $iban, $vendor->iban)
+       : $iban
+ }
 
   # save the zugferd file to session file for reuse in ap.pl
   my $session_file = SL::SessionFile->new($file_name, mode => 'w');
@@ -213,22 +213,64 @@ sub action_import_zugferd {
     name => $metadata{'currency'},
     );
 
+  my $default_ap_amount_chart = SL::DB::Manager::Chart->find_by(
+    id => $::instance_conf->get_expense_accno_id
+  );
+  # Fallback if there's no default AP amount chart configured
+  $default_ap_amount_chart ||= SL::DB::Manager::Chart->find_by(charttype => 'A');
+
+  my $active_taxkey = $default_ap_amount_chart->taxkey_id;
+  my $taxes = SL::DB::Manager::Tax->get_all(
+    where   => [ chart_categories => {
+        like => '%' . $default_ap_amount_chart->category . '%'
+      }],
+    sort_by => 'taxkey, rate',
+  );
+  die t8(
+    "No tax found for chart #1", $default_ap_amount_chart->displayable_name
+  ) unless scalar @{$taxes};
+
+  # parse items
+  my $row = 0;
+  my %item_form = ();
+  foreach my $i (@items) {
+    $row++;
+
+    my %item = %{$i};
+
+    my $net_total = $::form->format_amount(\%::myconfig, $item{'subtotal'}, 2);
+
+    my $tax_rate = $item{'tax_rate'};
+    $tax_rate /= 100 if $tax_rate > 1; # XML data is usually in percent
+
+    my $tax   = first { $tax_rate              == $_->rate } @{ $taxes };
+    $tax    //= first { $active_taxkey->tax_id == $_->id }   @{ $taxes };
+    $tax    //= $taxes->[0];
+
+    $item_form{"AP_amount_chart_id_${row}"}          = $default_ap_amount_chart->id;
+    $item_form{"previous_AP_amount_chart_id_${row}"} = $default_ap_amount_chart->id;
+    $item_form{"amount_${row}"}                      = $net_total;
+    $item_form{"taxchart_${row}"}                    = $tax->id . '--' . $tax->rate;
+  }
+  $item_form{rowcount} = $row;
+
   $self->redirect_to(
-    controller                           => 'ap.pl',
-    action                               => 'load_zugferd',
-    'form_defaults.no_payment_bookings'  => 0,
-    'form_defaults.paid_1_suggestion'    => $::form->format_amount(\%::myconfig, $metadata{'total'}, 2),
-    'form_defaults.invnumber'            => $invnumber,
-    'form_defaults.AP_chart_id'          => $ap_chart_id,
-    'form_defaults.currency'             => $currency->name,
-    'form_defaults.duedate'              => $metadata{'duedate'},
-    'form_defaults.transdate'            => $metadata{'transdate'},
-    'form_defaults.notes'                => "ZUGFeRD Import. Type: $metadata{'type'}\nIBAN: " . $ibanmessage,
-    'form_defaults.taxincluded'          => 0,
-    'form_defaults.direct_debit'         => $metadata{'direct_debit'},
-    'form_defaults.vendor'               => $vendor->name,
-    'form_defaults.vendor_id'            => $vendor->id,
-    'form_defaults.zugferd_session_file' => $file_name,
+    controller           => 'ap.pl',
+    action               => 'load_zugferd',
+    no_payment_bookings  => 0,
+    paid_1_suggestion    => $::form->format_amount(\%::myconfig, $metadata{'total'}, 2),
+    invnumber            => $invnumber,
+    AP_chart_id          => $ap_chart_id,
+    currency             => $currency->name,
+    duedate              => $metadata{'duedate'},
+    transdate            => $metadata{'transdate'},
+    notes                => $notes,
+    taxincluded          => 0,
+    direct_debit         => $metadata{'direct_debit'},
+    vendor               => $vendor->name,
+    vendor_id            => $vendor->id,
+    zugferd_session_file => $file_name,
+    %item_form,
   );
 
 }
