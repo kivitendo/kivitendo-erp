@@ -31,15 +31,38 @@ sub process_attachments_zugferd {
   my ($self, $email_journal, $attachment, %params) = @_;
 
   my $content = $attachment->content; # scalar ref
+  my $name = $attachment->name;
 
-  return 0 unless $content =~ m/^%PDF/;
+  return 0 unless $content =~ m/^%PDF|<\?xml/;
 
-  my $zugferd_info = SL::ZUGFeRD->extract_from_pdf($content);
-  return 0 unless $zugferd_info->{result} == SL::ZUGFeRD::RES_OK();
+  my %res;
+  if ( $content =~ m/^%PDF/ ) {
+    %res = %{SL::ZUGFeRD->extract_from_pdf($content)};
+  } else {
+    %res = %{SL::ZUGFeRD->extract_from_xml($content)};
+  }
 
-  my $zugferd_xml = XML::LibXML->load_xml(string => $zugferd_info->{invoice_xml});
+  unless ($res{'result'} == SL::ZUGFeRD::RES_OK()) {
+    my $error = $res{'message'};
+    $email_journal->extended_status(
+      join "\n", $email_journal->extended_status,
+      "Error processing ZUGFeRD attachment $name: $error"
+    )->save;
+    return 0;
+  }
 
-  my $purchase_invoice = SL::DB::PurchaseInvoice->create_from_zugferd_xml($zugferd_xml)->save();
+  my $purchase_invoice;
+  eval {
+    $purchase_invoice = SL::DB::PurchaseInvoice->create_from_zugferd_xml(\%res)->save();
+    1;
+  } or do {
+    my $error = $@;
+    $email_journal->extended_status(
+      join "\n", $email_journal->extended_status,
+      "Error processing ZUGFeRD attachment $name: $error"
+    )->save;
+    return 0;
+  };
 
   $self->_add_attachment_to_record($email_journal, $attachment, $purchase_invoice);
 
