@@ -160,12 +160,12 @@ sub convert_to_reclamation {
   return $reclamation;
 }
 
-sub create_from_zugferd_xml {
-  my ($class, $zugferd_xml) = @_;
+sub create_from_zugferd_data {
+  my ($class, $data) = @_;
 
   my $ap_invoice = $class->new();
 
-  $ap_invoice->import_zugferd_xml($zugferd_xml);
+  $ap_invoice->import_zugferd_data($data);
 }
 
 sub create_ap_row {

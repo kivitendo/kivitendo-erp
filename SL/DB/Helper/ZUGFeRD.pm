@@ -25,6 +25,8 @@ use SL::VATIDNr;
 use SL::ZUGFeRD qw(:PROFILES);
 use SL::Locale::String qw(t8);
 
+use SL::Controller::ZUGFeRD;
+
 use Carp;
 use Encode qw(encode);
 use List::MoreUtils qw(any pairwise);
@@ -709,169 +711,136 @@ sub create_zugferd_xmp_data {
   };
 }
 
-sub import_zugferd_xml {
-  my ($self, $zugferd_xml) = @_;
+sub import_zugferd_data {
+  my ($self, $zugferd_data) = @_;
 
-  # 1. check if ZUGFeRD SellerTradeParty has a VAT-ID
-  my $ustid = $zugferd_xml->findnodes(
-    '//ram:SellerTradeParty/ram:SpecifiedTaxRegistration'
-  )->string_value;
-  die t8("No VAT Info for this Factur-X/ZUGFeRD invoice," .
-         " please ask your vendor to add this for his Factur-X/ZUGFeRD data.") unless $ustid;
+  my $parser = $zugferd_data->{'invoice_xml'};
 
-  $ustid = SL::VATIDNr->normalize($ustid);
+  my %metadata = %{$parser->metadata};
+  my @items = @{$parser->items};
 
-  # 1.1 check if we a have a vendor with this VAT-ID (vendor.ustid)
-  my $vendor_name = $zugferd_xml->findnodes('//ram:SellerTradeParty/ram:Name')->string_value;
-  my $vendor = SL::DB::Manager::Vendor->find_by(
-    ustid => $ustid,
-    or    => [
-      obsolete => undef,
-      obsolete => 0,
-    ]);
+  my $notes = t8("ZUGFeRD Import. Type: #1", $metadata{'type'});
+  my $iban = $metadata{'iban'};
+  my $invnumber = $metadata{'invnumber'};
 
-  if (!$vendor) {
-    # 1.2 If no vendor with the exact VAT ID number is found, the
-    # number might be stored slightly different in the database
-    # (e.g. with spaces breaking up groups of numbers). Iterate over
-    # all existing vendors with VAT ID numbers, normalize their
-    # representation and compare those.
-
-    my $vendors = SL::DB::Manager::Vendor->get_all(
-      where => [
-        '!ustid' => undef,
-        '!ustid' => '',
-        or       => [
-          obsolete => undef,
-          obsolete => 0,
-        ],
-      ]);
-
-    foreach my $other_vendor (@{ $vendors }) {
-      next unless SL::VATIDNr->normalize($other_vendor->ustid) eq $ustid;
-
-      $vendor = $other_vendor;
-      last;
-    }
+  if ( ! ($metadata{'ustid'} or $metadata{'taxnumber'}) ) {
+    die t8("Cannot process this invoice: neither VAT ID nor tax ID present.");
   }
 
-  die t8("Please add a valid VAT-ID for this vendor: #1", $vendor_name)
-    unless (ref $vendor eq 'SL::DB::Vendor');
+  my $vendor = SL::Controller::ZUGFeRD::find_vendor($metadata{'ustid'}, $metadata{'taxnumber'});
 
-  # 2. check if we have a ap record template for this vendor (TODO only the oldest template is choosen)
-  my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $vendor->id]);
-  die t8("No AP Record Template for vendor #1 found, please add one", $vendor_name)
-    unless (ref $template_ap eq 'SL::DB::RecordTemplate');
+  die t8("Vendor with VAT ID (#1) and/or tax ID (#2) not found. Please check if the vendor " .
+          "#3 exists and whether it has the correct tax ID/VAT ID." ,
+           $metadata{'ustid'},
+           $metadata{'taxnumber'},
+           $metadata{'vendor_name'},
+  ) unless $vendor;
 
 
-  # 3. parse the zugferd data and fill the ap record template
-  # -> no need to check sign (credit notes will be negative) just record thei ZUGFeRD type in ap.notes
-  # -> check direct debit (defaults to no)
-  # -> set amount (net amount) and unset taxincluded
-  #    (template and user cares for tax and if there is more than one booking accno)
-  # -> date (can be empty)
-  # -> duedate (may be empty)
-  # -> compare record iban and generate a warning if this differs from vendor's master data iban
-  my $total = $zugferd_xml->findnodes(
-    '//ram:SpecifiedTradeSettlementHeaderMonetarySummation' .
-    '/ram:TaxBasisTotalAmount'
-  )->string_value;
+  # Check IBAN specified on bill matches the one we've got in
+  # the database for this vendor.
+ if ($iban) {
+   $notes .= "\nIBAN: ";
+   $notes .= $iban ne $vendor->iban ?
+         t8("Record IBAN #1 doesn't match vendor IBAN #2", $iban, $vendor->iban)
+       : $iban
+ }
 
-  my $invnumber = $zugferd_xml->findnodes(
-    '//rsm:ExchangedDocument/ram:ID'
-  )->string_value;
+  # Use invoice creation date as due date if there's no due date
+  $metadata{'duedate'} = $metadata{'transdate'} unless defined $metadata{'duedate'};
 
   # parse dates to kivi if set/valid
-  my %dates = (
-    transdate => {
-      key => '//ram:IssueDateTime',
-      value => undef,
-    },
-    duedate   => {
-      key => '//ram:DueDateDateTime',
-      value => undef,
-    },
-  );
-  foreach my $date (keys %dates) {
-    my $string_value = $zugferd_xml->findnodes($dates{$date}->{key})->string_value;
-    $string_value =~ s/^\s+|\s+$//g;
-    if ($string_value =~ /^[0-9]{8}$/) {
-      $dates{$date}->{value} = DateTime->new(
-        year  => substr($string_value,0,4),
-        month => substr ($string_value,4,2),
-        day   => substr($string_value,6,2)
-      )->to_kivitendo;
+  foreach my $key ( qw(transdate duedate) ) {
+    next unless defined $metadata{$key};
+    $metadata{$key} =~ s/^\s+|\s+$//g;
+
+    if ($metadata{$key} =~ /^([0-9]{4})-?([0-9]{2})-?([0-9]{2})$/) {
+    $metadata{$key} = DateTime->new(year  => $1,
+                                    month => $2,
+                                    day   => $3)->to_kivitendo;
     }
   }
-  my $transdate = $dates{transdate}->{value};
-  my $duedate   = $dates{duedate}->{value};
 
-  my $type = $zugferd_xml->findnodes(
-    '//rsm:ExchangedDocument/ram:TypeCode'
-  )->string_value;
+  # Try to fill in AP account to book against
+  my $ap_chart_id = $::instance_conf->get_ap_chart_id;
 
-  my $dd   = $zugferd_xml->findnodes(
-    '//ram:ApplicableHeaderTradeSettlement' .
-    '/ram:SpecifiedTradeSettlementPaymentMeans/ram:TypeCode'
-  )->string_value;
-  my $direct_debit = $dd == 59 ? 1 : 0;
+  unless ( defined $ap_chart_id ) {
+    # If no default account is configured, just use the first AP account found.
+    my $ap_chart = SL::DB::Manager::Chart->get_all(
+      where   => [ link => 'AP' ],
+      sort_by => [ 'accno' ],
+    );
+    $ap_chart_id = ${$ap_chart}[0]->id;
+  }
 
-  my $iban = $zugferd_xml->findnodes(
-    '//ram:ApplicableHeaderTradeSettlement/ram:SpecifiedTradeSettlementPaymentMeans' .
-    '/ram:PayeePartyCreditorFinancialAccount/ram:IBANID'
-  )->string_value;
+  my $currency = SL::DB::Manager::Currency->find_by(
+    name => $metadata{'currency'},
+    );
 
-  my $ibanmessage;
-  $ibanmessage = $iban ne $vendor->iban ?
-      "Record IBAN $iban doesn't match vendor IBAN " . $vendor->iban
-    : $iban if $iban;
+  my $default_ap_amount_chart = SL::DB::Manager::Chart->find_by(
+    id => $::instance_conf->get_expense_accno_id
+  );
+  # Fallback if there's no default AP amount chart configured
+  $default_ap_amount_chart ||= SL::DB::Manager::Chart->find_by(charttype => 'A');
 
-  # write values to self
+  my $active_taxkey = $default_ap_amount_chart->taxkey_id;
+  my $taxes = SL::DB::Manager::Tax->get_all(
+    where   => [ chart_categories => {
+        like => '%' . $default_ap_amount_chart->category . '%'
+      }],
+    sort_by => 'taxkey, rate',
+  );
+  die t8(
+    "No tax found for chart #1", $default_ap_amount_chart->displayable_name
+  ) unless scalar @{$taxes};
+
+
   my $today = DateTime->today_local;
-
-  my $additional_notes = "ZUGFeRD Import. Type: $type\nIBAN: " . $ibanmessage;
-
   my %params = (
     invoice      => 0,
-    vendor_id   => $vendor->id,
+    vendor_id    => $vendor->id,
     taxzone_id   => $vendor->taxzone_id,
-    currency_id => $template_ap->currency_id,
-    direct_debit => $direct_debit,
-    globalproject_id  => $template_ap->project_id,
-    payment_id  => $template_ap->payment_id,
+    currency_id  => $currency->id,
+    direct_debit => $metadata{'direct_debit'},
+    # globalproject_id  => $template_ap->project_id,
+    # payment_id  => $template_ap->payment_id,
     invnumber   => $invnumber,
-    transdate   => $transdate || $today->to_kivitendo,
-    duedate     => $duedate   || (
-      $template_ap->vendor->payment ?
-        $template_ap->vendor->payment->calc_date(reference_date => $today)->to_kivitendo
-      : $today->to_kivitendo
-    ),
-    department_id => $template_ap->department_id,
-    ordnumber => $template_ap->ordnumber,
+    transdate   => $metadata{transdate} || $today->to_kivitendo,
+    duedate     => $metadata{duedate}   || $today->to_kivitendo,
+    # department_id => $template_ap->department_id,
+    # ordnumber => $template_ap->ordnumber,
     taxincluded => 0,
-    notes    => join("\n", $template_ap->notes, $additional_notes),
+    notes       => $notes,
     transactions => [],
-    transaction_description => $template_ap->transaction_description,
+    # transaction_description => $template_ap->transaction_description,
   );
 
   $self->assign_attributes(%params);
 
-  foreach my $template_item (@{$template_ap->items}) {
+  # parse items
+  foreach my $i (@items) {
+    my %item = %{$i};
+
+    my $net_total = $::form->format_amount(\%::myconfig, $item{'subtotal'}, 2);
+
+    my $tax_rate = $item{'tax_rate'};
+    $tax_rate /= 100 if $tax_rate > 1; # XML data is usually in percent
+
+    my $tax   = first { $tax_rate              == $_->rate } @{ $taxes };
+    $tax    //= first { $active_taxkey->tax_id == $_->id }   @{ $taxes };
+    $tax    //= $taxes->[0];
+
     my %line_params = (
-      amount => $total,
-      project_id => $template_item->project_id,
-      tax_id => $template_item->tax_id,
-      chart  => $template_item->chart,
+      amount => $net_total,
+      tax_id => $tax->id,
+      chart  => $default_ap_amount_chart->chart,
     );
 
     $self->add_ap_amount_row(%line_params);
   }
   $self->recalculate_amounts();
 
-  my $ap_chart = SL::DB::Manager::Chart->get_first(
-    where => [id => $template_ap->ar_ap_chart_id]
-  );
-  $self->create_ap_row(chart => $ap_chart);
+  $self->create_ap_row(chart => $default_ap_amount_chart);
 
   return $self;
 }
