@@ -72,14 +72,7 @@ sub transactions {
 
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
 
-  my ($extra_selects, $extra_joins) = ('', '');
-
   $form->{l_order_confirmation_number} = 'Y' if $form->{order_confirmation_number};
-  if ($form->{l_order_confirmation_number}) {
-    $extra_selects = qq|, oe.ordnumber AS order_confirmation_number|;
-    $extra_joins   = qq|LEFT JOIN record_links rl ON (rl.to_id = dord.id)
-                        LEFT JOIN oe ON (oe.id = rl.from_id)|;
-  }
 
   my $query =
     qq|SELECT dord.id, dord.donumber, dord.ordnumber, dord.cusordnumber,
@@ -94,7 +87,6 @@ sub transactions {
          dord.record_type,
          e.name AS employee,
          sm.name AS salesman
-         $extra_selects
        FROM delivery_orders dord
        LEFT JOIN $vc ct ON (dord.${vc}_id = ct.id)
        LEFT JOIN contacts cp ON (dord.cp_id = cp.cp_id)
@@ -102,12 +94,7 @@ sub transactions {
        LEFT JOIN employee sm ON (dord.salesman_id = sm.id)
        LEFT JOIN project pr ON (dord.globalproject_id = pr.id)
        LEFT JOIN department dep ON (dord.department_id = dep.id)
-       $extra_joins
 |;
-
-  if ($form->{l_order_confirmation_number}) {
-    push @where, qq|rl.to_table = 'delivery_orders' AND rl.from_table = 'oe' AND oe.record_type::text LIKE 'purchase_order_confirmation'|;
-  }
 
   if ($form->{type} && is_valid_type($form->{type})) {
     push @where, 'dord.record_type = ?';
@@ -164,7 +151,15 @@ sub transactions {
   }
 
   if ($form->{order_confirmation_number}) {
-    push @where,  qq|oe.ordnumber ILIKE ?|;
+    push @where, qq|(EXISTS (SELECT id FROM oe
+                             WHERE ordnumber ILIKE ?
+                               AND record_type = 'purchase_order_confirmation'
+                               AND id IN
+                               (SELECT from_id FROM record_links
+                                WHERE to_id = dord.id
+                                  AND to_table = 'delivery_orders'
+                                  AND from_table = 'oe')
+                    ))|;
     push @values, like($form->{order_confirmation_number});
   }
 
@@ -313,7 +308,6 @@ SQL
     "department"              => "lower(dep.description)",
     "insertdate"              => "dord.itime",
     "vendor_confirmation_number" => "dord.vendor_confirmation_number",
-    "order_confirmation_number"  => "order_confirmation_number",
   );
 
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
@@ -348,11 +342,31 @@ SQL
       $items_sth = prepare_query($form, $dbh, $items_query);
     }
 
+    my ($order_confirmation_query, $order_confirmation_sth);
+    if ($form->{l_order_confirmation_number}) {
+      $order_confirmation_query =
+        qq|SELECT id, ordnumber FROM oe
+           WHERE id IN
+               (SELECT from_id FROM record_links
+                WHERE from_table = 'oe'
+                  AND to_table = 'delivery_orders'
+                  AND to_id = ?)
+             AND record_type = 'purchase_order_confirmation' ORDER BY ordnumber|;
+
+      $order_confirmation_sth = prepare_query($form, $dbh, $order_confirmation_query);
+    }
+
     foreach my $dord (@{ $form->{DO} }) {
       if ($form->{l_items}) {
         do_statement($form, $items_sth, $items_query, $dord->{id});
         $dord->{item_ids} = $dbh->selectcol_arrayref($items_sth);
         $dord->{item_ids} = undef if !@{$dord->{item_ids}};
+      }
+
+      if ($form->{l_order_confirmation_number}) {
+        do_statement($form, $order_confirmation_sth, $order_confirmation_query, $dord->{id});
+        my @r = @{$order_confirmation_sth->fetchall_arrayref()};
+        push @{$dord->{order_confirmation_numbers}}, { id => $_->[0], number => $_->[1] } for @r;
       }
 
       next unless ($dord->{ordnumber});
@@ -361,7 +375,8 @@ SQL
     }
 
     $sth->finish();
-    $items_sth->finish() if $form->{l_items};
+    $items_sth->finish()              if $form->{l_items};
+    $order_confirmation_sth->finish() if $form->{l_order_confirmation_number};
   }
 
   $main::lxdebug->leave_sub();
