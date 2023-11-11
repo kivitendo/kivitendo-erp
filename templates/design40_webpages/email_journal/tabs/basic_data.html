@@ -56,6 +56,12 @@
         </div>
       </td>
     </tr>
+    <tr>
+      <th>[% 'Obsolete' | $T8 %]</th>
+      <td>
+        [% L.input_tag('obsolete', SELF.entry.obsolete_as_bool_yn, style="color:black", class="wi-verysmall", disabled=1) %]
+        [% L.button_tag("kivi.EmailJournal.toggle_obsolete( $SELF.entry.id );", 'Toggle', class="wi-verysmall") %]
+      </td>
   </tbody>
 </table>
 </div><!-- /.wrapper -->

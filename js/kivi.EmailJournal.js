@@ -55,4 +55,12 @@ namespace('kivi.EmailJournal', function(ns) {
 
     $.post("controller.pl", data, kivi.eval_json_result);
   }
+
+  ns.toggle_obsolete = function(email_journal_id) {
+    let data = $('#record_action_form').serializeArray();
+    data.push({ name: 'action', value: 'EmailJournal/toggle_obsolete' });
+    data.push({ name: 'id', value: email_journal_id });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
 });

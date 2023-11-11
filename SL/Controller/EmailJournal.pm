@@ -498,6 +498,33 @@ sub action_update_record_list {
   $self->js->render();
 }
 
+sub action_toggle_obsolete {
+  my ($self) = @_;
+
+  $::auth->assert('email_journal');
+
+  my $back_to = $::form->{back_to} || $self->url_for(action => 'list');
+
+  $self->entry(SL::DB::EmailJournal->new(id => $::form->{id})->load);
+
+  if (!$self->can_view_all && ($self->entry->sender_id != SL::DB::Manager::Employee->current->id)) {
+    $::form->error(t8('You do not have permission to access this entry.'));
+  }
+
+  $self->entry->obsolete(!$self->entry->obsolete);
+  $self->entry->save;
+
+  $self->js
+  ->val('#obsolete', $self->entry->obsolete_as_bool_yn)
+  ->flash('info',
+    $self->entry->obsolete ?
+      $::locale->text('Email marked as obsolete.')
+    : $::locale->text('Email marked as not obsolete.')
+  )->render();
+
+  return;
+}
+
 #
 # filters
 #
