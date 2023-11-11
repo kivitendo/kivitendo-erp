@@ -1786,6 +1786,7 @@ $self->{texts} = {
   'Font size'                   => '',
   'For AP transactions it will replace the sales taxkeys with input taxkeys with the same tax rate.' => '',
   'For AR transactions it will replace the input taxkeys with sales taxkeys with the same tax rate.' => '',
+  'For Record Type'             => '',
   'For changeing goto USTVA Config' => '',
   'For further information read this: ' => '',
   'For part "#1" there are missing #2 #3 in the default warehouse/bin "#4/#5".' => '',

@@ -1786,6 +1786,7 @@ $self->{texts} = {
   'Font size'                   => 'Schriftgröße',
   'For AP transactions it will replace the sales taxkeys with input taxkeys with the same tax rate.' => 'Bei Kreditorenbuchungen werden die Umsatzsteuer-Steuerschlüssel durch Vorsteuer-Steuerschlüssel mit demselben Steuersatz ersetzt.',
   'For AR transactions it will replace the input taxkeys with sales taxkeys with the same tax rate.' => 'Bei Debitorenbuchungen werden die Vorsteuer-Steuerschlüssel durch Umsatzsteuer-Steuerschlüssel mit demselben Steuersatz ersetzt.',
+  'For Record Type'             => 'Für Belegtyp',
   'For changeing goto USTVA Config' => 'Zum Verändern bitte zu den UStVa Einstellungen gehen',
   'For further information read this: ' => 'Für weitere Informationen zu diesem Thema lesen Sie bitte: ',
   'For part "#1" there are missing #2 #3 in the default warehouse/bin "#4/#5".' => 'Es fehlen #2 #3 des Artikels "#1" im Standardlager "#4/#5".',
