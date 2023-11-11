@@ -5117,7 +5117,6 @@ $self->{texts} = {
   'reclamation item'            => '',
   'reclamation reasons'         => '',
   'record exchange rate'        => '',
-  'record imported'             => '',
   'release_material'            => '',
   'renew'                       => '',
   'reorder item'                => '',

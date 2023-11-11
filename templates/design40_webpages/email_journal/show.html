@@ -48,7 +48,7 @@
 </div>
 [% END %]
 
-[% IF SELF.entry.status == 'imported' || SELF.entry.status == 'record_imported' %]
+[% IF SELF.entry.status == 'imported' %]
 <div class="wrapper input-panel control-panel" style="display:block">
   <form method="post" action="controller.pl" id="record_action_form">
     [% L.hidden_tag('email_journal_id', SELF.entry.id) %]

@@ -18,8 +18,8 @@ sub sync_record_email_folder {
     $folder,
     {
       email_journal => {
-        status => 'record_imported',
-        extended_status => $record_type,
+        status => 'imported',
+        record_type => $record_type,
       },
     }
   );
