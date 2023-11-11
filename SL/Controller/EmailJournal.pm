@@ -209,8 +209,8 @@ sub record_types_for_customer_vendor_type_and_action {
       ($_->{customervendor} eq $customer_vendor_type)
       && ($action eq 'workflow_record' ? $_->{can_workflow} : 1)
       && ($action eq 'create_new'      ? $_->{workflow_needed} : 1)
-      && ($action eq 'linking_record'  ? $_->{record_type} !~ /_template$/ : 1)
-      && ($action eq 'template_record' ? $_->{record_type} =~ /_template$/ : 1)
+      && ($action eq 'linking_record'  ? !$_->{is_template} : 1)
+      && ($action eq 'template_record' ? $_->{is_template} : 1)
     }
     $self->get_record_types_with_info()
   ];
@@ -224,15 +224,20 @@ sub action_list {
   my ($self) = @_;
 
   $::auth->assert('email_journal');
+  # default filter
+  $::form->{filter} ||= {"obsolete:eq_ignore_empty" => 0};
 
   if ( $::instance_conf->get_email_journal == 0 ) {
     flash('info',  $::locale->text('Storing the emails in the journal is currently disabled in the client configuration.'));
   }
   $self->setup_list_action_bar;
+  my @record_types_with_info = $self->get_record_types_with_info();
   $self->render('email_journal/list',
                 title   => $::locale->text('Email journal'),
                 ENTRIES => $self->models->get,
-                MODELS  => $self->models);
+                MODELS  => $self->models,
+                RECORD_TYPES_WITH_INFO => \@record_types_with_info,
+              );
 }
 
 sub action_show {
@@ -626,6 +631,8 @@ sub init_models {
       sent_on         => t8('Sent on'),
       status          => t8('Status'),
       extended_status => t8('Extended status'),
+      record_type     => t8('Record Type'),
+      obsolete        => t8('Obsolete'),
       linked_to       => t8('Linked to'),
     },
   );
@@ -650,9 +657,18 @@ sub init_filter_summary {
     send_failed     => $::locale->text('send failed'),
     sent            => $::locale->text('sent'),
     imported        => $::locale->text('imported'),
-    record_imported => $::locale->text('record imported'),
   );
   push @filter_strings, $status{ $filter->{'status:eq_ignore_empty'} } if $filter->{'status:eq_ignore_empty'};
+
+
+  my %record_type = map { $_->{record_type} => $_->{text} } $self->get_record_types_with_info();
+  push @filter_strings, $record_type{ $filter->{'record_type:eq_ignore_empty'} } if $filter->{'record_type:eq_ignore_empty'};
+
+  push @filter_strings, $::locale->text('Obsolete')     if $filter->{'obsolete:eq_ignore_empty'} eq '1';
+  push @filter_strings, $::locale->text('Not obsolete') if $filter->{'obsolete:eq_ignore_empty'} eq '0';
+
+  push @filter_strings, $::locale->text('Linked')       if $filter->{'linked_to:eq_ignore_empty'} eq '1';
+  push @filter_strings, $::locale->text('Not linked')   if $filter->{'linked_to:eq_ignore_empty'} eq '0';
 
   return join ', ', @filter_strings;
 }

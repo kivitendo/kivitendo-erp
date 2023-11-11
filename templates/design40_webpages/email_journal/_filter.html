@@ -30,6 +30,39 @@
                ], default=filter.status_eq_ignore_empty) %]
       </td>
     </tr>
+    <tr>
+      <th>[% LxERP.t8("Record Type") %]</th>
+      <td>
+        [%
+          SET record_type_options = [];
+          FOREACH record_info = RECORD_TYPES_WITH_INFO;
+            IF (!record_info.is_template);
+              record_type_options.push(record_info);
+            END;
+          END;
+        %]
+        [% L.select_tag("filter.record_type:eq_ignore_empty",
+             record_type_options,
+             title_key = 'text', value_key = 'record_type',
+             with_empty=1, default=filter.record_type_eq_ignore_empty) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Obsolete") %]</th>
+      <td>[% L.yes_no_tag("filter.obsolete:eq_ignore_empty",
+            filter.obsolete, with_empty=1,
+            default=filter.obsolete_eq_ignore_empty
+            ) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% LxERP.t8("Linked") %]</th>
+      <td>[% L.yes_no_tag("filter.linked_to:eq_ignore_empty",
+            filter.linked_to, with_empty=1,
+            default=filter.linked_to_eq_ignore_empty
+            ) %]
+      </td>
+    </tr>
     </tbody>
   </table>
   [% L.hidden_tag("sort_by", FORM.sort_by) %]
