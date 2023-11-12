@@ -35,6 +35,11 @@
    <th>[%- LxERP.t8("Extended status") %]</th>
    <td><pre>[%- HTML.escape(SELF.entry.extended_status) %]</pre></td>
   </tr>
+  
+  <tr class="listrow">
+   <th>[%- LxERP.t8("For Record Type") %]</th>
+   <td>[%- HTML.escape(SELF.entry.record_type) %]</td>
+  </tr>
 
   <tr class="listrow">
    <th>[%- LxERP.t8("Headers") %]</th>
@@ -51,6 +56,13 @@
     [%- END %]
    </td>
   </tr>
+  <tr class="listrow">
+    <th>[% LxERP.t8("Obsolete") %]</th>
+      <td>
+        [% L.input_tag('obsolete', SELF.entry.obsolete_as_bool_yn, style="color:black", disabled=1) %]
+        [% L.button_tag("kivi.EmailJournal.toggle_obsolete( $SELF.entry.id );", 'Toggle') %]
+      </td>
+
 </table>
 
 </div><!-- /#ui-tabs-basic-data -->
