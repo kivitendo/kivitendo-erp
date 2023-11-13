@@ -81,14 +81,6 @@ __PACKAGE__->run_before('get_unalterable_data',
                           save_and_credit_note
                         )]);
 
-__PACKAGE__->run_before('get_record_links_data_from_form',
-                        only => [qw(
-                          save save_as_new print preview_pdf send_email
-                          save_and_show_email_dialog
-                          save_and_new_record
-                          save_and_credit_note
-                        )]);
-
 #
 # actions
 #
@@ -1536,32 +1528,18 @@ sub get_unalterable_data {
   }
 }
 
-# get data for record_links from form and store it in the object
-sub get_record_links_data_from_form {
-  my ($self) = @_;
-
-  my $reclamation = $self->reclamation;
-
-  $reclamation->{RECORD_ID()} = delete $::form->{converted_from_record_id};
-  $reclamation->{RECORD_TYPE_REF()} = delete $::form->{converted_from_record_type_ref};
-
-  my $from_record_item_ids = delete $::form->{converted_from_record_item_ids} ;
-  my $from_record_item_type_refs = delete $::form->{converted_from_record_item_type_refs} ;
-
-  if (scalar @{ $from_record_item_ids || [] }) {
-    for my $idx (0 .. $#{ $reclamation->items_sorted }) {
-      my $reclamation_item = $reclamation->items_sorted->[$idx];
-      $reclamation_item->{RECORD_ITEM_ID()} = $from_record_item_ids->[$idx];
-      $reclamation_item->{RECORD_ITEM_TYPE_REF()} = $from_record_item_type_refs->[$idx];
-    }
-  }
-}
-
 # save the reclamation
 #
 # And delete items that are deleted in the form.
 sub save {
   my ($self) = @_;
+
+  set_record_link_conversions($self->order,
+    delete $::form->{RECORD_TYPE_REF()}
+      => delete $::form->{RECORD_ID()},
+    delete $::form->{RECORD_ITEM_TYPE_REF()}
+      => delete $::form->{RECORD_ITEM_ID()},
+  );
 
   my $items_to_delete  = scalar @{ $self->item_ids_to_delete || [] }
                        ? SL::DB::Manager::ReclamationItem->get_all(where => [id => $self->item_ids_to_delete])

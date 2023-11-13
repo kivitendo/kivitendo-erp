@@ -8,8 +8,8 @@
 <tbody class="row_entry listrow" data-position="[%- HTML.escape(ITEM.position) -%]"[%- IF MYCONFIG.show_form_details -%] data-expanded="1"[%- END -%]>
   <tr>
   [% L.hidden_tag("reclamation_items_ids[+]", ID) %]
-  [% L.hidden_tag("converted_from_record_item_type_refs[+]", ITEM.converted_from_record_item_type_ref) %]
-  [% L.hidden_tag("converted_from_record_item_ids[+]",       ITEM.converted_from_record_item_id) %]
+  [% L.hidden_tag("converted_from_record_item_type_ref[+]", ITEM.converted_from_record_item_type_ref) %]
+  [% L.hidden_tag("converted_from_record_item_id[+]",       ITEM.converted_from_record_item_id) %]
   [% L.hidden_tag("reclamation.reclamation_items[+].id", ITEM.id, id='item_' _ ID) %]
   [% L.hidden_tag("reclamation.reclamation_items[].parts_id", ITEM.parts_id) %]
     <td align="center">
