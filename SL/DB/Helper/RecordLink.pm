@@ -61,7 +61,7 @@ sub link_record_item {
 
 
 sub set_record_link_conversions {
-  my ($record, $from_type, $from_ids, $item_type, $item_ids) = @_;
+  my ($record, $from_type, $from_ids, $item_types, $item_ids) = @_;
 
   return unless listify($from_ids);
 
@@ -76,7 +76,7 @@ sub set_record_link_conversions {
   for my $idx (0..$#$item_ids) {
     my $item = $items->[$idx];
 
-    $item->{ RECORD_ITEM_TYPE_REF() } = $item_type;
+    $item->{ RECORD_ITEM_TYPE_REF() } = $item_types->[$idx];
     $item->{ RECORD_ITEM_ID() }       = $item_ids->[$idx];
   }
 }
