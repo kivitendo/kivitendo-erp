@@ -408,8 +408,8 @@ sub _purchase_order_confirmation_list {
     title   => $::locale->text('Purchase Order Confirmations'),
     type    => 'purchase_order_confirmation',
     columns => [
-      [ $::locale->text('Order Date'),              'transdate'                                                                    ],
-      [ $::locale->text('Order Number'),            sub { $_[0]->presenter->purchase_order_confirmation(display => 'table-cell') } ],
+      [ $::locale->text('Confirmation Date'),       'transdate'                                                                    ],
+      [ $::locale->text('Confirmation Number'),     sub { $_[0]->presenter->purchase_order_confirmation(display => 'table-cell') } ],
       [ $::locale->text('Vendor'),                  'vendor'                                                                       ],
       [ $::locale->text('Net amount'),              'netamount'                                                                    ],
       [ $::locale->text('Transaction description'), 'transaction_description'                                                      ],
