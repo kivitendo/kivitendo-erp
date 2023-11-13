@@ -1107,6 +1107,8 @@ sub action_transfer_stock {
 
   $self->js
     ->flash("info", t8("Stock transfered"))
+    ->run('kivi.ActionBar.setDisabled', '#save_action',
+          t8('This record has already been delivered.'))
     ->run('kivi.ActionBar.setDisabled', '#transfer_out_action',
           t8('The parts for this order have already been transferred'))
     ->run('kivi.ActionBar.setDisabled', '#transfer_in_action',

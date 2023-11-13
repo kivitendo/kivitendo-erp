@@ -21,6 +21,7 @@ use SL::DB::Order::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
 
 use SL::Helper::Number qw(_format_total _round_total);
+use SL::Helper::ShippedQty;
 
 use List::Util qw(first);
 use List::MoreUtils qw(any pairwise);
@@ -46,6 +47,7 @@ __PACKAGE__->attr_sorted('items');
 
 __PACKAGE__->before_save('_before_save_set_donumber');
 __PACKAGE__->after_save('_after_save_link_records');
+__PACKAGE__->after_save('_mark_orders_if_delivered');
 
 # hooks
 
@@ -68,6 +70,17 @@ sub _after_save_link_records {
     \@allowed_record_sources,
     \@allowed_item_sources,
   );
+}
+
+sub _mark_orders_if_delivered {
+  my ($self) = @_;
+  my $orders = $self->linked_records(from => 'Order');
+  SL::Helper::ShippedQty->new->calculate($orders)->write_to_objects;
+  foreach my $order (@$orders) {
+    next if $order->is_sales != $self->is_sales;
+    $order->update_attributes(delivered => $order->{delivered});
+  }
+  return 1;
 }
 
 # methods
