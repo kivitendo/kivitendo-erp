@@ -570,7 +570,7 @@ sub new_from {
    );
   }
 
-  if ( $is_abbr_any->(qw(soipo sopo poso rqso soisq sosq porq rqsq sqrq soirq sorq poisq poiso)) ) {
+  if ( $is_abbr_any->(qw(soipo sopo poso rqso soisq sosq porq rqsq sqrq soirq sorq pqisq pqiso)) ) {
     $args{ordnumber} = undef;
     $args{quonumber} = undef;
   }
