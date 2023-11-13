@@ -1106,6 +1106,13 @@ sub action_transfer_stock {
     $_->save for @transfer_requests;
     $self->order->update_attributes(delivered => 1, closed => 1);
   });
+  # update stock info (set new delivery_order_items_stock_id)
+  foreach my $item (@{$self->order->items}) {
+    $self->order->prepare_stock_info($item);
+    my $item_position = $item->position;
+    my $selector = "[data-position=$item_position] .data-stock-info";
+    $self->js->val($selector, $item->{stock_info});
+  }
 
   $self->js
     ->flash("info", t8("Stock transfered"))
