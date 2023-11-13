@@ -20,7 +20,9 @@ use SL::DB::DeliveryOrder::TypeData;
 use SL::DB::Reclamation;
 use SL::DB::Reclamation::TypeData;
 use SL::DB::Invoice;
+use SL::DB::Invoice::TypeData;
 use SL::DB::PurchaseInvoice;
+use SL::DB::PurchaseInvoice::TypeData;
 
 use SL::DB::Manager::Customer;
 use SL::DB::Manager::Vendor;
@@ -69,15 +71,7 @@ my %RECORD_TYPES_INFO = (
   Invoice => {
     controller => 'is.pl',
     class      => 'Invoice',
-    types => [
-      'invoice',
-      'invoice_for_advance_payment',
-      'invoice_for_advance_payment_storno',
-      'final_invoice',
-      'invoice_storno',
-      'credit_note',
-      'credit_note_storno',
-    ],
+    types => SL::DB::Invoice::TypeData->valid_types(),
   },
   ApTransaction => {
     controller => 'ap.pl',
@@ -89,10 +83,7 @@ my %RECORD_TYPES_INFO = (
   PurchaseInvoice => {
     controller => 'ir.pl',
     class      => 'PurchaseInvoice',
-    types => [
-      'purchase_invoice',
-      'purchase_credit_note',
-    ],
+    types => SL::DB::PurchaseInvoice::TypeData->valid_types(),
   },
   GlRecordTemplate => {
     controller => 'gl.pl',
@@ -150,9 +141,11 @@ my %RECORD_TYPE_TO_NR_KEY =
 
 # has do be done at runtime for translation to work
 sub get_record_types_with_info {
-  # TODO: what record types can be created, which are only available in workflows?
   my @record_types_with_info = ();
-  for my $record_class ('SL::DB::Order', 'SL::DB::DeliveryOrder', 'SL::DB::Reclamation') {
+  for my $record_class (
+      'SL::DB::Order', 'SL::DB::DeliveryOrder', 'SL::DB::Reclamation',
+      'SL::DB::Invoice', 'SL::DB::PurchaseInvoice',
+    ) {
     my $type_data = "${record_class}::TypeData";
     my $valid_types = $type_data->valid_types();
     for my $type (@$valid_types) {
@@ -170,17 +163,6 @@ sub get_record_types_with_info {
     }
   }
   push @record_types_with_info, (
-    # invoice
-    { record_type => 'invoice',                            customervendor => 'customer', workflow_needed => 0, can_workflow => 1, text => t8('Invoice') },
-    { record_type => 'invoice_for_advance_payment',        customervendor => 'customer', workflow_needed => 0, can_workflow => 1, text => t8('Invoice for Advance Payment')},
-    { record_type => 'invoice_for_advance_payment_storno', customervendor => 'customer', workflow_needed => 1, can_workflow => 1, text => t8('Storno Invoice for Advance Payment')},
-    { record_type => 'final_invoice',                      customervendor => 'customer', workflow_needed => 1, can_workflow => 1, text => t8('Final Invoice')},
-    { record_type => 'invoice_storno',                     customervendor => 'customer', workflow_needed => 1, can_workflow => 1, text => t8('Storno Invoice')},
-    { record_type => 'credit_note',                        customervendor => 'customer', workflow_needed => 0, can_workflow => 1, text => t8('Credit Note')},
-    { record_type => 'credit_note_storno',                 customervendor => 'customer', workflow_needed => 1, can_workflow => 1, text => t8('Storno Credit Note')},
-    # purchase invoice
-    { record_type => 'purchase_invoice',      customervendor => 'vendor', workflow_needed => 0, can_workflow => 1, text => t8('Purchase Invoice')},
-    { record_type => 'purchase_credit_note',  customervendor => 'vendor', workflow_needed => 0, can_workflow => 1, text => t8('Purchase Credit Note')},
     # transactions
     # gl_transaction can be for vendor and customer
     { record_type => 'gl_transaction', customervendor => 'customer', workflow_needed => 0, can_workflow => 1, text => t8('GL Transaction')},
