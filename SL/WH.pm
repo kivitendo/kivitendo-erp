@@ -428,7 +428,7 @@ sub get_warehouse_journal {
   if ($form->{l_oe_id}) {
     $q_oe_id = <<SQL;
       SELECT dord.id AS id, dord.donumber AS number,
-      dord.record_type AS type
+      dord.record_type::text AS type
       FROM delivery_orders dord
       WHERE dord.id = ?
 
