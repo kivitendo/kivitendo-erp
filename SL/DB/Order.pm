@@ -511,7 +511,14 @@ sub new_from {
   croak("Cannot convert from '" . $source->record_type . "' to '" . $destination_type . "'") if !$from_to;
 
   my $is_abbr_any = sub {
-    any { $from_to->{abbr} eq $_ } @_;
+    my (@abbrs) = @_;
+
+    my $missing_abbr;
+    if (any { $missing_abbr = $_; !grep { $_->{abbr} eq $missing_abbr } @from_tos } @abbrs) {
+      die "no such workflow abbreviation '$missing_abbr'";
+    }
+
+    any { $from_to->{abbr} eq $_ } @abbrs;
   };
 
   my ($item_parent_id_column, $item_parent_column);
@@ -570,7 +577,7 @@ sub new_from {
    );
   }
 
-  if ( $is_abbr_any->(qw(soipo sopo poso rqso soisq sosq porq rqsq sqrq soirq sorq poisq poiso)) ) {
+  if ( $is_abbr_any->(qw(soipo sopo poso rqso soisq sosq porq rqsq sqrq soirq sorq pqisq pqiso)) ) {
     $args{ordnumber} = undef;
     $args{quonumber} = undef;
   }
