@@ -285,6 +285,7 @@ my @different_record_values = qw(
     cp_id contact_id
     cusordnumber cv_record_number
     donumber record_number
+    vendor_confirmation_number
 );
 my @different_record_item_values = qw(
   id delivery_order_id reclamation_id itime mtime

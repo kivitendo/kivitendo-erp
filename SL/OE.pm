@@ -136,6 +136,7 @@ SQL
     qq|  o.exchangerate, | .
     qq|  o.itime::DATE AS insertdate, | .
     qq|  o.intnotes,| .
+    qq|  o.vendor_confirmation_number,| .
     qq|  department.description as department, | .
     qq|  ex.$rate AS daily_exchangerate, | .
     qq|  pt.description AS payment_terms, | .
@@ -250,6 +251,11 @@ SQL
     push(@values, like($form->{cusordnumber}));
   }
 
+  if ($form->{vendor_confirmation_number}) {
+    $query .= qq| AND o.vendor_confirmation_number ILIKE ?|;
+    push(@values, like($form->{vendor_confirmation_number}));
+  }
+
   if($form->{transdatefrom}) {
     $query .= qq| AND o.transdate >= ?|;
     push(@values, conv_date($form->{transdatefrom}));
@@ -344,7 +350,8 @@ SQL
                              o.transaction_description
                              o.quonumber
                              o.ordnumber
-                             o.cusordnumber);
+                             o.cusordnumber
+                             o.vendor_confirmation_number);
     $query .= ' AND (';
     $query .= join ' ILIKE ? OR ', @fulltext_fields;
     $query .= ' ILIKE ?';
@@ -476,6 +483,7 @@ SQL
     "department"              => "department.description",
     "intnotes"                => "o.intnotes",
     "order_status"            => "order_statuses.name",
+    "vendor_confirmation_number" => "o.vendor_confirmation_number",
   );
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
     $sortorder = $allowed_sort_columns{$form->{sort}} . " ${sortdir}"  . ", o.itime ${sortdir}";

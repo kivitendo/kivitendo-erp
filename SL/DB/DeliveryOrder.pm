@@ -17,6 +17,7 @@ use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF);
 
 use SL::DB::DeliveryOrder::TypeData qw(:types);
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
 
 use SL::Helper::Number qw(_format_total _round_total);
@@ -129,6 +130,22 @@ sub number {
   goto &donumber;
 }
 
+sub preceding_purchase_order_confirmations {
+  my ($self) = @_;
+
+  my @lrs = ();
+  if ($self->id) {
+    @lrs = grep { $_->record_type eq PURCHASE_ORDER_CONFIRMATION_TYPE() } @{$self->linked_records(from => 'SL::DB::Order')};
+  } else {
+    if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
+      my $order = SL::DB::Order->load_cached($self->{RECORD_ID()});
+      push @lrs, $order if $order->record_type eq PURCHASE_ORDER_CONFIRMATION_TYPE();
+    }
+  }
+
+  return \@lrs;
+}
+
 sub _clone_orderitem_cvar {
   my ($cvar) = @_;
 
@@ -183,7 +200,6 @@ sub new_from {
       intnotes
       language_id
       notes
-      ordnumber
       payment_id
       reqdate
       salesman_id
@@ -192,8 +208,10 @@ sub new_from {
       taxincluded
       taxzone_id
       transaction_description
+      vendor_confirmation_number
       vendor_id
     );
+    $record_args{ordnumber} = $source->ordnumber if $source->record_type ne PURCHASE_ORDER_CONFIRMATION_TYPE();
     # }}} for vim folds
   } elsif ( ref($source) eq 'SL::DB::Reclamation' ) {
     map{ ( $record_args{$_} = $source->$_ ) } # {{{ for vim folds

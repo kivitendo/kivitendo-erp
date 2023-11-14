@@ -6,7 +6,7 @@ use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Tag         qw(link_tag);
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(sales_quotation sales_order request_quotation purchase_order);
+our @EXPORT_OK = qw(sales_quotation sales_order request_quotation purchase_order purchase_order_confirmation);
 
 use Carp;
 
@@ -46,6 +46,12 @@ sub purchase_order {
   return _oe_record($order, 'purchase_order', %params);
 }
 
+sub purchase_order_confirmation {
+  my ($order, %params) = @_;
+
+  return _oe_record($order, 'purchase_order_confirmation', %params);
+}
+
 sub _oe_record {
   my ($order, $type, %params) = @_;
 
@@ -80,7 +86,8 @@ __END__
 
 SL::Presenter::Order - Presenter module for Rose::DB objects for sales
 quotations, sales order_intakes, sales orders,
-requests for quotations, purchase_quotation_intakes and purchase orders
+requests for quotations, purchase_quotation_intakes,
+purchase orders and purchase order confirmations
 
 =head1 SYNOPSIS
 

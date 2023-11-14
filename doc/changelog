@@ -82,6 +82,8 @@ Mittelgroße neue Features:
     und Auftrag.
   - Neuer Workflow Angebots-Eingang auf der Einkaufsseite zwischen Preisanfrage
     und Lieferantenauftrag.
+  - Neuer Workflow Lieferantenauftragsbestätigung auf der Einkaufsseite nach
+    Lieferantenauftrag.
   - Scan Funktion für Schweizer QR-Rechnungen in mobilen templates. Die QR-Rechnung kann
     mittels eingebauter Kamera Funktion eingescannt werden. Anschließend wird die Rechnung
     einem Lieferanten zugeordnet und als Kreditorbuchung gespeichert.

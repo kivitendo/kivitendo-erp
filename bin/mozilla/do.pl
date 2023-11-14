@@ -778,7 +778,9 @@ sub orders {
   my @columns = qw(
     ids                     transdate               reqdate
     id                      donumber
-    ordnumber               customernumber          cusordnumber
+    ordnumber               order_confirmation_number
+    customernumber          vendor_confirmation_number
+    cusordnumber
     name                    employee  salesman
     shipvia                 globalprojectnumber
     transaction_description department
@@ -799,7 +801,8 @@ sub orders {
   push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber cusordnumber
                                           transaction_description transdatefrom transdateto reqdatefrom reqdateto
                                           type vc employee_id salesman_id project_id parts_partnumber parts_description
-                                          insertdatefrom insertdateto business_id all department_id chargenumber full_text);
+                                          insertdatefrom insertdateto business_id all department_id chargenumber full_text
+                                          vendor_confirmation_number order_confirmation_number);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
@@ -823,9 +826,11 @@ sub orders {
     'department'              => { 'text' => $locale->text('Department'), },
     'insertdate'              => { 'text' => $locale->text('Insert Date'), },
     'items'                   => { 'text' => $locale->text('Positions'), },
+    'vendor_confirmation_number' => { 'text' => $locale->text('Vendor Confirmation Number'), },
+    'order_confirmation_number'  => { 'text' => $locale->text('Order Confirmation Number'), },
   );
 
-  foreach my $name (qw(id transdate reqdate donumber ordnumber name employee salesman shipvia transaction_description department insertdate)) {
+  foreach my $name (qw(id transdate reqdate donumber ordnumber name employee salesman shipvia transaction_description department insertdate vendor_confirmation_number)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -860,6 +865,12 @@ sub orders {
   }
   if ($form->{ordnumber}) {
     push @options, $locale->text('Order Number') . " : $form->{ordnumber}";
+  }
+  if ($form->{order_confirmation_number}) {
+    push @options, $locale->text('Order Confirmation Number') . " : $form->{order_confirmation_number}";
+  }
+  if ($form->{vendor_confirmation_number}) {
+    push @options, $locale->text('Vendor Confirmation Number') . " : $form->{vendor_confirmation_number}";
   }
   push @options, $locale->text('Serial Number') . " : $form->{serialnumber}" if $form->{serialnumber};
   if ($form->{business_id}) {
@@ -951,7 +962,7 @@ sub orders {
     $dord->{open}      = $dord->{closed}    ? $locale->text('No')  : $locale->text('Yes');
     $dord->{delivered} = $dord->{delivered} ? $locale->text('Yes') : $locale->text('No');
 
-    my $row = { map { $_ => { 'data' => $dord->{$_} } } grep {$_ ne 'items'} @columns };
+    my $row = { map { $_ => { 'data' => $dord->{$_} } } grep {$_ ne 'items' || $_ ne 'order_confirmation_numbers'} @columns };
 
     my $ord_id = $dord->{id};
     $row->{ids}  = {
@@ -963,6 +974,15 @@ sub orders {
 
     $row->{donumber}->{link}  = SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id});
     $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
+
+    foreach my $order_confirmation (@{ $dord->{order_confirmation_numbers} }) {
+      if (lc($report->{options}->{output_format}) eq 'html') {
+        $row->{order_confirmation_number}->{raw_data} .= SL::Presenter::Tag::link_tag(build_std_url('script=controller.pl', 'action=Order/edit', 'id=' . $order_confirmation->{id}, 'type=' . 'purchase_order_confirmation'), $order_confirmation->{number} . '<br>');
+      } elsif (lc($report->{options}->{output_format}) ne 'html') {
+        my $sep = $row->{order_confirmation_number}->{data} ? ' ' : '';
+        $row->{order_confirmation_number}->{data}     .= $sep . $order_confirmation->{number};
+      }
+    }
 
     if ($form->{l_items}) {
       my $items = SL::DB::Manager::DeliveryOrderItem->get_all_sorted(where => [id => $dord->{item_ids}]);

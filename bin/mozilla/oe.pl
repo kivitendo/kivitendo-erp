@@ -81,21 +81,23 @@ use strict;
 # $locale->text('Workflow sales_quotation');
 
 my $oe_access_map = {
-  'sales_order_intake'        => 'sales_order_edit',
-  'sales_order'               => 'sales_order_edit',
-  'purchase_order'            => 'purchase_order_edit',
-  'request_quotation'         => 'request_quotation_edit',
-  'sales_quotation'           => 'sales_quotation_edit',
-  'purchase_quotation_intake' => 'request_quotation_edit',
+  'sales_order_intake'          => 'sales_order_edit',
+  'sales_order'                 => 'sales_order_edit',
+  'purchase_order'              => 'purchase_order_edit',
+  'purchase_order_confirmation' => 'purchase_order_edit',
+  'request_quotation'           => 'request_quotation_edit',
+  'sales_quotation'             => 'sales_quotation_edit',
+  'purchase_quotation_intake'   => 'request_quotation_edit',
 };
 
 my $oe_view_access_map = {
-  'sales_order_intake'        => 'sales_order_edit       | sales_order_view',
-  'sales_order'               => 'sales_order_edit       | sales_order_view',
-  'purchase_order'            => 'purchase_order_edit    | purchase_order_view',
-  'request_quotation'         => 'request_quotation_edit | request_quotation_view',
-  'sales_quotation'           => 'sales_quotation_edit   | sales_quotation_view',
-  'purchase_quotation_intake' => 'request_quotation_edit | request_quotation_view',
+  'sales_order_intake'          => 'sales_order_edit       | sales_order_view',
+  'sales_order'                 => 'sales_order_edit       | sales_order_view',
+  'purchase_order'              => 'purchase_order_edit    | purchase_order_view',
+  'purchase_order_confirmation' => 'purchase_order_edit  | purchase_order_view',
+  'request_quotation'           => 'request_quotation_edit | request_quotation_view',
+  'sales_quotation'             => 'sales_quotation_edit   | sales_quotation_view',
+  'purchase_quotation_intake'   => 'request_quotation_edit | request_quotation_view',
 };
 
 sub check_oe_access {
@@ -949,6 +951,12 @@ sub search {
     $form->{title}     = $locale->text('Purchase Orders');
     $form->{ordlabel}  = $locale->text('Order Number');
 
+  } elsif ($form->{type} eq 'purchase_order_confirmation') {
+    $form->{vc}        = 'vendor';
+    $form->{ordnrname} = 'ordnumber';
+    $form->{title}     = $locale->text('Purchase Order Confirmations');
+    $form->{ordlabel}  = $locale->text('Order Confirmation Number');
+
   } elsif ($form->{type} eq 'request_quotation') {
     $form->{vc}        = 'vendor';
     $form->{ordnrname} = 'quonumber';
@@ -1047,7 +1055,7 @@ sub orders {
   my %params   = @_;
   check_oe_access(with_view => 1);
 
-  my $ordnumber = ($form->{type} =~ /_order_intake$|_order$/) ? "ordnumber" : "quonumber";
+  my $ordnumber = ($form->{type} =~ /_order_intake$|_order$|purchase_order_confirmation/) ? "ordnumber" : "quonumber";
 
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
   report_generator_set_default_sort('transdate', 1);
@@ -1058,7 +1066,8 @@ sub orders {
   my @columns = (
     "transdate",               "reqdate",
     "id",                      $ordnumber,
-    "cusordnumber",            "customernumber",
+    "cusordnumber",            "vendor_confirmation_number",
+    "customernumber",
     "name",                    "netamount",
     "tax",                     "amount",
     "remaining_netamount",     "remaining_amount",
@@ -1094,6 +1103,9 @@ sub orders {
     if ($form->{type} eq 'purchase_order') {
       $form->{title}       = $locale->text('Purchase Orders');
       $attachment_basename = $locale->text('purchase_order_list');
+    } elsif ($form->{type} eq 'purchase_order_confirmation') {
+      $form->{title}       = $locale->text('Purchase Order Confirmations');
+      $attachment_basename = $locale->text('purchase_order_confirmation_list');
     } elsif ($form->{type} eq 'purchase_quotation_intake') {
       $form->{title}       = $locale->text('Purchase Quotation Intakes');
       $attachment_basename = $locale->text('purchase_quotation_intake_list');
@@ -1136,6 +1148,7 @@ sub orders {
     parts_description all department_id intnotes phone_notes fulltext
     order_status_id shiptoname shiptodepartment_1 shiptodepartment_2
     shiptostreet shiptozipcode shiptocity shiptocountry
+    vendor_confirmation_number
   );
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
@@ -1149,7 +1162,7 @@ sub orders {
     'transdate'               => { 'text' => $locale->text('Date'), },
     'reqdate'                 => { 'text' => $form->{type} =~ /_order/ ? $locale->text('Required by') : $locale->text('Valid until') },
     'id'                      => { 'text' => $locale->text('ID'), },
-    'ordnumber'               => { 'text' => $locale->text('Order'), },
+    'ordnumber'               => { 'text' => $form->{type} eq "purchase_order_confirmation" ? $locale->text('Confirmation'): $locale->text('Order'), },
     'quonumber'               => { 'text' => $form->{type} eq "request_quotation" ? $locale->text('RFQ') : $locale->text('Quotation'), },
     'cusordnumber'            => { 'text' => $locale->text('Customer Order Number'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
@@ -1191,13 +1204,14 @@ sub orders {
     shiptozipcode             => { 'text' => $locale->text('Zipcode (Shipping)'), },
     shiptocity                => { 'text' => $locale->text('City (Shipping)'), },
     shiptocountry             => { 'text' => $locale->text('Country (Shipping)'), },
+    vendor_confirmation_number => { 'text' => $locale->text('Vendor Confirmation Number'), },
     %column_defs_cvars,
   );
 
   foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber
                        name employee salesman shipvia transaction_description
                        shippingpoint taxzone insertdate payment_terms department
-                       intnotes order_status)) {
+                       intnotes order_status vendor_confirmation_number)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -1231,6 +1245,7 @@ sub orders {
   push @options, $locale->text('Contact Person')          . " : $form->{cp_name}"                         if $form->{cp_name};
   push @options, $locale->text('Department')              . " : $form->{department}"                      if $form->{department};
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                       if $form->{ordnumber};
+  push @options, $locale->text('Vendor Confirmation Number') . " : $form->{vendor_confirmation_number}"   if $form->{vendor_confirmation_number};
   push @options, $locale->text('Customer Order Number')   . " : $form->{cusordnumber}"                    if $form->{cusordnumber};
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                           if $form->{notes};
   push @options, $locale->text('Internal Notes')          . " : $form->{intnotes}"                        if $form->{intnotes};
@@ -1711,7 +1726,7 @@ sub invoice {
   $form->get_employee();
 
 
-  if ($form->{type} =~ /_order$/) {
+  if ($form->{type} =~ /_order$|purchase_order_confirmation/) {
 
     # these checks only apply if the items don't bring their own ordnumbers/transdates.
     # The if clause ensures that by searching for empty ordnumber_#/transdate_# fields.
@@ -1777,6 +1792,7 @@ sub invoice {
 
   my ($script);
   if (   $form->{type} eq 'purchase_order'
+      || $form->{type} eq 'purchase_order_confirmation'
       || $form->{type} eq 'request_quotation') {
     $form->{title}  = $locale->text('Add Vendor Invoice');
     $form->{script} = 'ir.pl';

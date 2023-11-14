@@ -25,6 +25,7 @@ my %mail_strings = (
   preset_text_request_quotation               => t8('Preset email text for requests (rfq)'),
   preset_text_purchase_quotation_intake       => t8('Preset email text for purchase quotation intakes'),
   preset_text_purchase_order                  => t8('Preset email text for purchase orders'),
+  preset_text_purchase_order_confirmation     => t8('Preset email text for purchase orders confirmations'),
   preset_text_purchase_reclamation            => t8('Preset email text for purchase reclamations'),
   preset_text_periodic_invoices_email_body    => t8('Preset email body for periodic invoices'),
   preset_text_periodic_invoices_email_subject => t8('Preset email subject for periodic invoices'),
