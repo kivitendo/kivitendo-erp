@@ -544,6 +544,18 @@ namespace('kivi.CustomerVendor', function(ns) {
     return true;
   };
 
+  this.contacts_update_email_fields = function() {
+    $('.update_email').each(function(idx, elt) {
+      let $link = $('#' + $(elt).attr('id') + '_link');
+      if ($(elt).val() !== '') {
+        $link.attr('href', 'mailto:' + $(elt).val());
+        $link.show();
+      } else {
+        $link.hide();
+      }
+    });
+  };
+
   this.open_customervendor_tab = function(id_selector, cv_type) {
     const input_element_id = `${id_selector}_name`;
     const cv_id = $(id_selector).val();
