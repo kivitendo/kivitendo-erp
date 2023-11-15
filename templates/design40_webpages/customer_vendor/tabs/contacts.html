@@ -2,6 +2,7 @@
 [% USE HTML %]
 [% USE LxERP %]
 [% USE L %]
+[% USE P %]
 
 <div id="contacts">
 
@@ -15,7 +16,9 @@
     empty_title = LxERP.t8('New contact'),
     value_key = 'cp_id',
     title_key = 'full_name',
-    onchange = "kivi.CustomerVendor.selectContact({onFormSet: function(){ contactsMapWidget.testInputs(); kivi.reinit_widgets(); }});",
+    onchange = "kivi.CustomerVendor.selectContact({onFormSet: function(){ contactsMapWidget.testInputs();
+                                                                          kivi.CustomerVendor.contacts_update_email_fields();
+                                                                          kivi.reinit_widgets(); }});",
   )%]
 </div>
 
@@ -128,7 +131,7 @@
   <tbody>
     <tr>
       <th>[% 'E-mail' | $T8 %]</th>
-      <td>[% L.input_tag_trim('contact.cp_email', SELF.contact.cp_email, class="wi-wide") %]</td>
+      <td>[% P.input_email_tag('contact.cp_email', SELF.contact.cp_email, class="update_email wi-wide") %]</td>
     </tr>
     <tr>
       <th>[% 'Phone1' | $T8 %]</th>
@@ -164,7 +167,7 @@
     </tr>
     <tr>
       <th>[% 'Private E-mail' | $T8 %]</th>
-      <td>[% L.input_tag_trim('contact.cp_privatemail', SELF.contact.cp_privatemail, class="wi-wide") %]</td>
+      <td>[% P.input_email_tag('contact.cp_privatemail', SELF.contact.cp_privatemail, class="update_email wi-wide") %]</td>
     </tr>
   </tbody>
 </table>
