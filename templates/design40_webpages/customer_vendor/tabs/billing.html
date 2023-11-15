@@ -2,6 +2,7 @@
 [% USE HTML %]
 [% USE LxERP %]
 [% USE L %]
+[% USE P %]
 [% USE JavaScript %]
 
 <div id="billing">
@@ -96,16 +97,16 @@
       <td>[% L.input_tag_trim('cv.fax', SELF.cv.fax, class='wi-lightwide') %]</td>
     </tr>
     <tr>
-      <th>[% IF SELF.cv.email %]<a href="mailto:[% SELF.cv.email %]">[% END %][% 'E-mail' | $T8 %][% IF SELF.cv.email %]</a>[% END %]</th>
-      <td>[% L.input_tag_trim('cv.email', SELF.cv.email, class='wi-lightwide') %]</td>
+      <th>[% 'E-mail' | $T8 %]</th>
+      <td>[% P.input_email_tag('cv.email', SELF.cv.email, class='wi-lightwide') %]</td>
     </tr>
     <tr>
-      <th>[% IF SELF.cv.cc %]<a href="mailto:[% SELF.cv.cc %]">[% END %][% 'Cc E-mail' | $T8 %][% IF SELF.cv.cc %]</a>[% END %]</th>
-      <td>[% L.input_tag_trim('cv.cc', SELF.cv.cc, class='wi-lightwide') %]</td>
+      <th>[% 'Cc E-mail' | $T8 %]</th>
+      <td>[% P.input_email_tag('cv.cc', SELF.cv.cc, class='wi-lightwide') %]</td>
     </tr>
     <tr>
-      <th>[% IF SELF.cv.bcc %]<a href="mailto:[% SELF.cv.bcc %]">[% END %][% 'Bcc E-mail' | $T8 %][% IF SELF.cv.bcc %]</a>[% END %]</th>
-      <td>[% L.input_tag_trim('cv.bcc', SELF.cv.bcc, class='wi-lightwide') %]</td>
+      <th>[% 'Bcc E-mail' | $T8 %]</th>
+      <td>[% P.input_email_tag('cv.bcc', SELF.cv.bcc, class='wi-lightwide') %]</td>
     </tr>
     <tr><!-- PENDENT: Funktion der Link-Erzeugung verbessern, z.B. falls z.B. Schema (http:// oder https://) schon angegeben -->
       <th>[% IF SELF.cv.homepage %]<a href="http://[% HTML.escape(SELF.cv.homepage) %]" title="[% 'Open in new window' | $T8 %]" target="_blank">[% 'Homepage' | $T8 %]</a>[% ELSE %][% 'Homepage' | $T8 %][% END %]</th>
@@ -115,11 +116,11 @@
     [% IF ( SELF.is_customer() ) %]
     <tr>
       <th>[% 'Email of the invoice recipient' | $T8 %]</th>
-      <td>[% L.input_tag_trim('cv.invoice_mail', SELF.cv.invoice_mail, class='wi-lightwide') %]</td>
+      <td>[% P.input_email_tag('cv.invoice_mail', SELF.cv.invoice_mail, class='wi-lightwide') %]</td>
     </tr>
     <tr>
       <th>[% 'Email of the delivery order recipient' | $T8 %]</th>
-      <td>[% L.input_tag_trim('cv.delivery_order_mail', SELF.cv.delivery_order_mail, class='wi-lightwide') %]</td>
+      <td>[% P.input_email_tag('cv.delivery_order_mail', SELF.cv.delivery_order_mail, class='wi-lightwide') %]</td>
     </tr>
     [% END %]
 
