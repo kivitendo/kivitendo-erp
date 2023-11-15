@@ -3,6 +3,7 @@ package SL::Presenter::Tag;
 use strict;
 
 use SL::HTML::Restrict;
+use SL::Locale::String qw(t8);
 use SL::Presenter::EscapedText qw(escape);
 use Scalar::Util qw(blessed);
 
@@ -11,7 +12,8 @@ our @EXPORT_OK = qw(
   html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag
   checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
   stringify_attributes textarea_tag link_tag date_tag
-  div_tag radio_button_tag img_tag multi_level_select_tag input_tag_trim);
+  div_tag radio_button_tag img_tag multi_level_select_tag input_tag_trim
+  input_email_tag);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use Carp;
@@ -509,6 +511,26 @@ sub input_number_tag {
   );
 }
 
+sub input_email_tag {
+  my ($name, $value, %params) = @_;
+
+  my $show_icon = $value || delete($params{show_icon_always});
+
+  # _set_id_attribute removes the no_id param
+  my $no_id_wanted = $params{no_id};
+  _set_id_attribute(\%params, $name);
+  $params{no_id} = $no_id_wanted;
+
+  my $html = input_tag_trim($name, $value, %params);
+
+  my $link_id   = $params{id} ? $params{id} . '_link' : undef;
+  $html        .= link_tag(escape('mailto:' . $value),
+                           img_tag(src => 'image/mail.png', alt => t8('Send email'), border => 0),
+                           (id    => $link_id)x!!$link_id,
+                           (style => 'display:none')x!$show_icon);
+
+  return '<span>' . $html . '</span>';
+}
 
 sub javascript {
   my ($data) = @_;
@@ -673,6 +695,20 @@ tag's C<id> defaults to C<name_to_id($name)>.
 This is a wrapper around C<input_tag> that adds ' trimmed_whitespaces' to
 $attributes{'data-validate'} and loads C<js/kivi.Validator.js>. This will trim
 the whitespaces around the input.
+
+=item C<input_email_tag $name, $value, %params>
+
+This creates an C<input_tag_trim> and a C<link_tag> with an C<img_tag> for an
+email icon. The link opens a 'mailto:' url with the value of the C<input_tag>.
+The style of the C<link_tag> is set to 'display:none' if there is no value or
+if the param C<show_icon_always> is truish.
+All but the C<show_icon_always> params are forwared to the C<input_tag_trim>
+as attributes.
+This tag does not offer any javascript magic. The input value is only
+evaluated when the tag is created.
+The 'id' attrubute of the C<link_tag> is set to the 'id' of the C<input_tag>
+with the string '_link' appended. This can be used to show/hide set the
+C<link_tag> or set the link target dynamically.
 
 =item C<submit_tag $name, $value, %attributes>
 
