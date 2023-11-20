@@ -211,7 +211,11 @@ sub new_from {
       vendor_confirmation_number
       vendor_id
     );
-    $record_args{ordnumber} = $source->ordnumber if $source->record_type ne PURCHASE_ORDER_CONFIRMATION_TYPE();
+    if ($source->record_type eq PURCHASE_ORDER_CONFIRMATION_TYPE()) {
+      $record_args{ordnumber} = join ' ', map { $_->ordnumber } @{$source->preceding_purchase_orders()};
+    } else {
+      $record_args{ordnumber} = $source->ordnumber;
+    }
     # }}} for vim folds
   } elsif ( ref($source) eq 'SL::DB::Reclamation' ) {
     map{ ( $record_args{$_} = $source->$_ ) } # {{{ for vim folds
