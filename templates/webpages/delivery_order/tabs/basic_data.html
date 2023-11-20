@@ -135,7 +135,7 @@
             [%-
               numbers = [];
               FOREACH p = SELF.order.preceding_purchase_order_confirmations();
-                numbers.push(p.ordnumber);
+                numbers.push(HTML.escape(p.ordnumber));
               END;
             %]
             <td>[% numbers.join(', ') %]</td>
