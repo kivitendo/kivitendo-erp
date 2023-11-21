@@ -931,7 +931,7 @@ sub action_add_stock_in_line_to_dialog {
     remaining_qty => $do_qty - $qty_sum,
   );
 
-  $self->js->append('#stock-in-out-table', $row_as_html)->render();
+  $self->js->append('#stock-in-out-table tbody', $row_as_html)->render();
 }
 
 sub action_update_stock_information {

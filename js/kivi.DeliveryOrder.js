@@ -121,15 +121,9 @@ namespace('kivi.DeliveryOrder', function(ns) {
   };
 
   ns.add_stock_in_line_to_dialog = function() {
-    console.log("clicked");
-    console.log($("#parts_id"));
-    console.log($("#parts_id").val());
-    console.log($("#do_qty"));
-    console.log($("#do_qty").val());
-
     let qty_sum = 0;
     let row_count = 0;
-    $("#stock-in-out-table tr.listrow").each((i,row) => {
+    $("#stock-in-out-table tr.data-row").each((i,row) => {
       let qty = kivi.parse_amount($(row).find(".data-qty").val());
 
       row_count = row_count + 1;
@@ -156,7 +150,7 @@ namespace('kivi.DeliveryOrder', function(ns) {
     // we don't want to do this in javascript so we do a tiny roundtrip to the backend
 
     let data = [];
-    $("#stock-in-out-table tr.listrow").each((i,row) => {
+    $("#stock-in-out-table tr.data-row").each((i,row) => {
       let qty = kivi.parse_amount($(row).find(".data-qty").val());
 
       if (qty === 0 || qty === null) return;

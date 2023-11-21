@@ -1,7 +1,7 @@
 [%- USE L %]
 [%- USE LxERP %]
 [% # L.dump( PART ) %] [% # L.dump( pos ) %] [% # L.dump( ROW ) %]
-<tr>
+<tr class="data-row">
  [% L.multi_level_select_tag(
       # name has to be unique
       "wh_bin_" _ pos, WAREHOUSES, 2, surround_tag="td",

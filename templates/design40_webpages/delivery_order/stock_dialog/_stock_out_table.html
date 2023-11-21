@@ -17,7 +17,7 @@
 </tr>
 
 [%- FOREACH row = WHCONTENTS %]
-<tr [% IF row.stock_error %]class="error"[% END %]>
+<tr [% IF row.stock_error %]class="error"[% ELSE %]class="data-row"[% END %]>
  <td>[% loop.count %]</td>
  <td>[% row.warehousedescription | html %]</td>
  <td>[% row.bindescription | html %]</td>
