@@ -14,6 +14,7 @@ use SL::Webdav;
 use SL::File;
 use SL::MIME;
 use SL::YAML;
+use SL::DBUtils qw(selectall_hashref_query);
 use SL::DB::History;
 use SL::DB::Order;
 use SL::DB::Default;
@@ -1053,7 +1054,7 @@ sub action_update_row_from_master_data {
 }
 
 sub action_transfer_stock {
-  my ($self) = @_;
+  my ($self, $default_transfer) = @_;
 
   if ($self->order->delivered) {
     return $self->js->flash("error",
@@ -1084,6 +1085,7 @@ sub action_transfer_stock {
       $transfer->oe_id($order->id);
       $transfer->qty($transfer->qty * -1) if $inout eq 'out';
       $transfer->qty($transfer->qty * 1) if $inout eq 'in';
+      $transfer->comment(t8("Default transfer delivery order")) if $default_transfer;
 
       push @transfer_requests, $transfer if defined $transfer->qty && $transfer->qty != 0;
     };
@@ -1097,12 +1099,16 @@ sub action_transfer_stock {
     $_->save for @transfer_requests;
     $self->order->update_attributes(delivered => 1, closed => 1);
   });
-  # update stock info (set new delivery_order_items_stock_id)
+  # update qty and stock info
   foreach my $item (@{$self->order->items}) {
     $self->order->prepare_stock_info($item);
+    my $stock_info_yaml = $item->{stock_info};
     my $item_position = $item->position;
+    my $stock_qty = $self->calculate_stock_in_out($item);
+    my $unit = $item->unit;
+    $self->js->text("[data-position=$item_position] .data-stock-qty", "$stock_qty $unit");
     my $selector = "[data-position=$item_position] .data-stock-info";
-    $self->js->val($selector, $item->{stock_info});
+    $self->js->val($selector, $stock_info_yaml);
   }
 
   $self->js
@@ -1111,7 +1117,11 @@ sub action_transfer_stock {
           t8('This record has already been delivered.'))
     ->run('kivi.ActionBar.setDisabled', '#transfer_out_action',
           t8('The parts for this order have already been transferred'))
+    ->run('kivi.ActionBar.setDisabled', '#transfer_out_default_action',
+          t8('The parts for this order have already been transferred'))
     ->run('kivi.ActionBar.setDisabled', '#transfer_in_action',
+          t8('The parts for this order have already been transferred'))
+    ->run('kivi.ActionBar.setDisabled', '#transfer_in_default_action',
           t8('The parts for this order have already been transferred'))
     ->run('kivi.ActionBar.setDisabled', '#delete_action',
           t8('The parts for this order have already been transferred'))
@@ -1119,6 +1129,140 @@ sub action_transfer_stock {
           t8('The parts for this order have already been transferred'))
     ->replaceWith('#data-status-line', delivery_order_status_line($self->order))
     ->render;
+}
+
+sub action_transfer_stock_default {
+  my ($self) = @_;
+  my $delivery_order = $self->order;
+  my @items = @{$delivery_order->items_sorted};
+
+  # get default bin if set in config
+  my ($default_warehouse_id, $default_bin_id);
+  if ($::instance_conf->get_transfer_default_use_master_default_bin) {
+    $default_warehouse_id = $::instance_conf->get_warehouse_id;
+    $default_bin_id       = $::instance_conf->get_bin_id;
+  }
+
+  my @transfer_requests = ();
+  my %parts_qty = ();
+  my %units_by_name = map { $_->name => $_ } @{ SL::DB::Manager::Unit->get_all };
+  foreach my $item (@items) {
+    my $part = $item->part;
+    my $base_unit_factor = $units_by_name{$part->unit}->factor || 1;
+    my $item_unit_factor = $units_by_name{$item->unit}->factor || 1;
+    my $qty = $item->qty * $item_unit_factor / $base_unit_factor;
+    return $self->js->flash('error', t8('Cannot transfer negative entries.'))->render() if $qty < 0;
+    $qty = 0 if (!$::instance_conf->get_transfer_default_services && $part->is_service);
+
+    $parts_qty{$part->id} += $qty if $qty;
+    push @transfer_requests, {
+      'delivery_order_item_id' => $item->id,
+      'warehouse_id'           => $part->warehouse_id || $default_warehouse_id,
+      'bin_id'                 => $part->bin_id       || $default_bin_id,
+      'unit'                   => $part->unit,
+      'qty'                    => $qty,
+      # added in check transfer_request out direction if possible
+      'chargenumber'           => undef, # $item->serialnumber, # Is not used in delivery order
+      'bestbefore'             => undef, # $item->bestbefore,   # Is not used in delivery order
+    }
+  }
+
+  # check transfer_requests are correctly
+  my %parts_errors = (); # missing_bin, missing_qty, multiple_options
+  my $grouped_qty_query = qq|
+    SELECT SUM(qty) as qty, chargenumber, bestbefore
+    FROM inventory
+    WHERE parts_id = ? AND bin_id = ?
+    GROUP BY chargenumber, bestbefore
+  |;
+  my $dbh = $self->order->dbh;
+  my $in_out_direction = $delivery_order->type_data->properties('transfer');
+  for my $idx (0 .. scalar @transfer_requests - 1) {
+    my $transfer_request = $transfer_requests[$idx];
+    next unless $transfer_request->{qty}; # empty request
+    my $item = $items[$idx];
+    my $part_id = $item->parts_id;
+    my $bin_id  = $transfer_request->{bin_id};
+    $parts_errors{$part_id}{missing_bin} = 1 unless $bin_id;
+    next                                     unless $bin_id;
+    if ($in_out_direction eq 'out') {
+      my @grouped_qty = selectall_hashref_query(
+        $::form, $dbh, $grouped_qty_query, $part_id, $bin_id);
+
+      if (1 < scalar grep {$_->{qty} != 0} @grouped_qty) {
+        $parts_errors{$part_id}{multiple_options} = 1;
+      }
+      my $max_qty = sum0(map {$_->{qty}} @grouped_qty);
+      if ($max_qty < $parts_qty{$part_id}) {
+        $parts_errors{$part_id}{missing_qty} = $parts_qty{$part_id} - $max_qty;
+      }
+
+      next if $parts_errors{$part_id};
+      # find correct chargenumber and bestbefore
+      my $stock_info = first {$_->{qty} >= $transfer_request->{qty}} @grouped_qty;
+      $transfer_request->{chargenumber} = $stock_info->{chargenumber};
+      $transfer_request->{bestbefore}   = $stock_info->{bestbefore};
+    }
+  }
+
+  # auslagern soll immer gehen, auch wenn nicht genügend auf lager ist.
+  # der lagerplatz ist hier extra konfigurierbar, bspw. Lager-Korrektur mit
+  # Lagerplatz Lagerplatz-Korrektur
+  my $default_warehouse_id_ignore_onhand = $::instance_conf->get_warehouse_id_ignore_onhand;
+  my $default_bin_id_ignore_onhand       = $::instance_conf->get_bin_id_ignore_onhand;
+  if ($::instance_conf->get_transfer_default_ignore_onhand && $default_bin_id_ignore_onhand) {
+    foreach my $part_id (keys %parts_errors) {
+      # entsprechende defaults holen
+      # falls chargenumber, bestbefore oder anzahl nicht stimmt, auf automatischen
+      # lagerplatz wegbuchen!
+      foreach (@transfer_requests) {
+        if ($_->{delivery_order_item}->parts_id eq $part_id){
+          $_->{bin_id}        = $default_bin_id_ignore_onhand;
+          $_->{warehouse_id}  = $default_warehouse_id_ignore_onhand;
+        }
+      }
+      delete %parts_errors{$part_id};
+    }
+  }
+
+  # render errors
+  if (scalar keys %parts_errors) {
+    my @multiple_options = ();
+    foreach my $part_id (keys %parts_errors) {
+      my $part = SL::DB::Part->new(id => $part_id)->load();
+      if ($parts_errors{$part_id}{missing_bin}){
+        $self->js->error(t8('No standard bin set for #1.', $part->displayable_name));
+      }
+      if ($parts_errors{$part_id}{missing_qty}) {
+        $self->js->error(
+          t8('There are #1 of "#2" missing from the standard bin #3 for transfer.',
+            $parts_errors{$part_id}{missing_qty}, $part->displayable_name, $part->bin->full_description));
+      }
+      if ($parts_errors{$part_id}{multiple_options}){
+        push @multiple_options, $part;
+      }
+    }
+    if (scalar @multiple_options) {
+        $self->js->error(t8(
+            "There are parts with multiple chargenumbers or bestbefore dates set. This can't be decided automatically. Pleas transfer this delivery order manually. Can't decided for #1.",
+            join ", ", map {$_->displayable_name} @multiple_options)
+        );
+    }
+    return $self->js->render();
+  }
+
+  # assign each delivery_order_item it's stock
+  for my $idx (0 .. scalar @transfer_requests - 1) {
+    my %transfer_request = %{$transfer_requests[$idx]};
+    next unless $transfer_request{qty}; # empty request
+
+    my $item = $items[$idx];
+    my @stocks = (SL::DB::DeliveryOrderItemsStock->new(%transfer_request));
+    $item->delivery_order_stock_entries(@stocks);
+  }
+
+  my $default_transfer = 1;
+  $self->action_transfer_stock($default_transfer);
 }
 
 sub action_undo_transfers {
@@ -1893,10 +2037,36 @@ sub setup_edit_action_bar {
           confirm  => t8('Do you really want to transfer the stock and set this order to delivered?'),
         ],
         action => [
+          t8('Transfer out via default'),
+          id       => 'transfer_out_default_action',
+          call     => [ 'kivi.DeliveryOrder.save', {
+              action => 'transfer_stock_default',
+            }],
+          disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id       ? t8('This object has not been saved yet.')
+                    : $self->order->delivered ? t8('The parts for this order have already been transferred')
+                    :                           undef,
+          only_if  => $self->type_data->properties('transfer') eq 'out',
+          confirm  => t8('Do you really want to transfer the stock and set this order to delivered?'),
+        ],
+        action => [
           t8('Transfer in'),
           id       => 'transfer_in_action',
           call     => [ 'kivi.DeliveryOrder.save', {
               action => 'transfer_stock',
+            }],
+          disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id       ? t8('This object has not been saved yet.')
+                    : $self->order->delivered ? t8('The parts for this order have already been transferred')
+                    :                           undef,
+          only_if  => $self->type_data->properties('transfer') eq 'in',
+          confirm  => t8('Do you really want to transfer the stock and set this order to delivered?'),
+        ],
+        action => [
+          t8('Transfer in via default'),
+          id       => 'transfer_in_default_action',
+          call     => [ 'kivi.DeliveryOrder.save', {
+              action => 'transfer_stock_default',
             }],
           disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
                     : !$self->order->id       ? t8('This object has not been saved yet.')
