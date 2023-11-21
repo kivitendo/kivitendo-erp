@@ -7,15 +7,15 @@
  <table class="tbl-horizontal col">
   <tr>
    <td>[% 'Part Number' | $T8 %]</td>
-   <td><span class="data wi-small">[% part.partnumber %]</span></td>
+   <td><span class="data">[% part.partnumber %]</span></td>
   </tr>
   <tr>
    <td>[% 'Description' | $T8 %]</td>
-   <td><span class="data wi-small">[% part.description %]</span></td>
+   <td><span class="data">[% part.description %]</span></td>
   </tr>
   <tr>
    <td>[% 'Qty according to delivery order' | $T8 %]</td>
-   <td><span class="data wi-small">[% LxERP.format_amount(do_qty) %] [% do_unit | html %]</span></td>
+   <td><span class="data">[% LxERP.format_amount(do_qty) %] [% do_unit | html %]</span></td>
   </tr>
  </table>
 
