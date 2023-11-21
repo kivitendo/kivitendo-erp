@@ -1,7 +1,7 @@
 [%- USE L %]
 [%- USE LxERP %]
 [% # L.dump( PART ) %] [% # L.dump( pos ) %] [% # L.dump( remaining_qty ) %]
-<tr class="listrow" >
+<tr class="listrow data-row" >
  [% L.multi_level_select_tag(
       "new_wh_bin_" _ pos, WAREHOUSES, 2, surround_tag="td",
       level_1={
