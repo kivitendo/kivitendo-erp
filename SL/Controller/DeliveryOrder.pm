@@ -16,10 +16,10 @@ use SL::MIME;
 use SL::YAML;
 use SL::DBUtils qw(selectall_hashref_query);
 use SL::DB::History;
-use SL::DB::Order;
 use SL::DB::Default;
 use SL::DB::Unit;
 use SL::DB::Order;
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::Part;
 use SL::DB::PartClassification;
 use SL::DB::PartsGroup;
@@ -38,7 +38,6 @@ use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
 use SL::DB::DeliveryOrder;
 use SL::DB::DeliveryOrder::TypeData qw(:types);
-use SL::DB::Order::TypeData qw(:types);
 use SL::DB::Manager::DeliveryOrderItem;
 use SL::DB::DeliveryOrderItemsStock;
 use SL::Model::Record;
@@ -130,6 +129,16 @@ sub action_add_from_record {
   }
 
   my $record = SL::Model::Record->get_record($from_type, $from_id);
+  if (ref $record eq 'SL::DB::Order') {
+    # Calculate shipped qtys here to prevent calling calculate for every item
+    # via the items method.
+    SL::Helper::ShippedQty->new->calculate($record)->write_to(\@{$record->items});
+    my @items_with_not_delivered_qty =
+      grep {$_->qty > 0}
+      map {$_->qty($_->qty - $_->shipped_qty); $_}
+      @{$record->items};
+    $flags{items} = \@items_with_not_delivered_qty;
+  }
   my $delivery_order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->order($delivery_order);
 
