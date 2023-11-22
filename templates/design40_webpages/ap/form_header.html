@@ -107,7 +107,7 @@
           [% HTML.escape(currency) %]
           [% L.hidden_tag("currency", currency) %]
         [%- ELSE %]
-          [% L.select_tag("currency", currencies, default=currency, value_key="name", title_key="name", class="wi-small") %]
+          [% L.select_tag("currency", currencies, default=currency, value_key="name", title_key="name", class="wi-lightwide") %]
         [%- END %]
       </td>
     </tr>
@@ -119,7 +119,7 @@
           [% LxERP.format_amount(exchangerate, 5) %]
           [% L.hidden_tag("exchangerate", LxERP.format_amount(exchangerate, 5)) %]
         [%- ELSE %]
-          <input name="exchangerate" size="10" value="[% HTML.escape(LxERP.format_amount(exchangerate)) %]">
+          [% L.input_tag("exchangerate", LxERP.format_amount(exchangerate), class="wi-lightwide") %]
         [%- END %]
         [% IF record_forex %][% 'record exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
         [% L.hidden_tag("record_forex", record_forex) %]
@@ -137,29 +137,29 @@
       <td>[% L.input_tag("transaction_description", transaction_description, class="wi-lightwide", "data-validate"=INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : '') %]</td>
     </tr>
     <tr>
-      <th>[% 'Tax Included' | $T8 %]</th>
-      <th><input name="taxincluded" type="checkbox" value="1" [% IF ( taxincluded ) %]checked[% END %]></th>
+      <th></th>
+      <td>[% L.checkbox_tag('taxincluded', checked=taxincluded, label=LxERP.t8('Tax Included')) %]</td>
     </tr>
     <tr>
-      <th>[% 'direct debit' | $T8 %]</th>
-      <th><input name="direct_debit" type="checkbox" value="1" [% IF (direct_debit) %]checked[% END %]> </th>
+      <th></th>
+      <td>[% L.checkbox_tag('direct_debit', checked=direct_debit, label=LxERP.t8('direct debit')) %]</td>
     </tr>
   </tbody>
 </table>
 
 <table class="tbl-horizontal">
   <caption>[% 'Notes' | $T8 %]</caption>
-  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+  <colgroup><col class="wi-wide"></colgroup>
   <tbody>
     <tr>
       <td>
-        [% L.textarea_tag("notes", notes, wrap="soft", rows=textarea_rows, cols=50, readonly=readonly) %]
+        [% L.textarea_tag("notes", HTML.escape(notes), wrap="soft", rows=textarea_rows, readonly=readonly, class="wi-wide") %]
       </td>
     </tr>
     <tr>
       <td>
         <span class="label above">[% 'Internal Notes' | $T8 %]</span>
-        [% L.textarea_tag("intnotes", intnotes, wrap="soft", rows=textarea_rows, cols=50, readonly=readonly) %]
+        [% L.textarea_tag("intnotes", HTML.escape(intnotes), wrap="soft", rows=textarea_rows, readonly=readonly, class="wi-wide") %]
       </td>
     </tr>
     <tr>
@@ -173,6 +173,7 @@
 
 <table class="tbl-horizontal">
   <caption>[% 'Numbers & Dates' | $T8 %]</caption>
+  <colgroup><col class="wi-mediumsmall"><col class="wi-lightwide"></colgroup>
   <tbody>
     <tr>
       <th>[% 'Invoice Number' | $T8 %]</th>
