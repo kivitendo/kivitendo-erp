@@ -16,7 +16,7 @@ my %price_sources_by_name = (
   vendor_discount   => 'SL::PriceSource::Vendor',
   pricegroup        => 'SL::PriceSource::Pricegroup',
   makemodel         => 'SL::PriceSource::Makemodel',
-  customerprice     => 'SL::PriceSource::CustomerPrice',
+  customer_price    => 'SL::PriceSource::CustomerPrice',
   business          => 'SL::PriceSource::Business',
   price_rules       => 'SL::PriceSource::PriceRules',
 );
@@ -27,7 +27,7 @@ my @price_sources_order = qw(
   vendor_discount
   pricegroup
   makemodel
-  customerprice
+  customer_price
   business
   price_rules
 );
