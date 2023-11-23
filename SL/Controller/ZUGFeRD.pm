@@ -219,7 +219,7 @@ sub action_import_zugferd {
   # Fallback if there's no default AP amount chart configured
   $default_ap_amount_chart ||= SL::DB::Manager::Chart->find_by(charttype => 'A');
 
-  my $active_taxkey = $default_ap_amount_chart->taxkey_id;
+  my $active_taxkey = $default_ap_amount_chart->get_active_taxkey;
   my $taxes = SL::DB::Manager::Tax->get_all(
     where   => [ chart_categories => {
         like => '%' . $default_ap_amount_chart->category . '%'
