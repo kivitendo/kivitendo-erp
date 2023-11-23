@@ -108,8 +108,9 @@
       <th>[% 'Bcc E-mail' | $T8 %]</th>
       <td>[% P.input_email_tag('cv.bcc', SELF.cv.bcc, class='wi-lightwide') %]</td>
     </tr>
-    <tr><!-- PENDENT: Funktion der Link-Erzeugung verbessern, z.B. falls z.B. Schema (http:// oder https://) schon angegeben -->
-      <th>[% IF SELF.cv.homepage %]<a href="http://[% HTML.escape(SELF.cv.homepage) %]" title="[% 'Open in new window' | $T8 %]" target="_blank">[% 'Homepage' | $T8 %]</a>[% ELSE %][% 'Homepage' | $T8 %][% END %]</th>
+    <tr>
+      <th>[% IF SELF.cv.homepage %]
+            <a href="[% IF SELF.cv.homepage.match('http[s]?:\/\/') %][% ELSE %]https://[% END %][% HTML.escape(SELF.cv.homepage) %]" title="[% 'Open in new window' | $T8 %]" target="_blank">[% 'Homepage' | $T8 %]</a>[% ELSE %][% 'Homepage' | $T8 %][% END %]</th>
       <td>[% L.input_tag_trim('cv.homepage', SELF.cv.homepage, class='wi-lightwide', title = LxERP.t8('Example: http://kivitendo.de')) %]</td>
     </tr>
 
