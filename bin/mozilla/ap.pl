@@ -113,15 +113,35 @@ sub _assert_access {
 sub load_zugferd {
   $::auth->assert('ap_transactions');
 
-  my $file_name = $::form->{zugferd_session_file};
-
-  # Defaults
-  $::form->{title}      ||= "Add";
-  $::form->{paidaccounts} = 1 if undef $::form->{paidaccounts};
-
-  $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
+  my $file_name = $::form->{form_defaults}->{zugferd_session_file};
   flash('info', $::locale->text(
       "The ZUGFeRD/Factur-X invoice '#1' has been loaded.", $file_name));
+
+  my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $::form->{form_defaults}->{vendor_id}]);
+  if ($template_ap) {
+    $::form->{id} = $template_ap->id;
+    # set default values for items
+    my $template_item = $template_ap->items->[0];
+    my $chart = SL::DB::Chart->new(id => $template_item->chart_id)->load();
+    my $tax = SL::DB::Tax->new(id => $template_item->tax_id)->load();
+    foreach my $pos (1 .. $::form->{form_defautls}->{rowcount}) {
+      $::form->{form_defautls}->{"AP_amount_chart_id_$pos"}          = $chart->id;
+      $::form->{form_defautls}->{"previous_AP_amount_chart_id_$pos"} = $chart->id;
+      $::form->{form_defautls}->{"taxchart_$pos"}   = $tax->id . '--' . $tax->rate;
+      $::form->{form_defautls}->{"project_id_$pos"} = $template_item->project_id;
+
+    }
+    $::form->{form_defaults}->{FLASH} = $::form->{FLASH}; # store flash, form gets cleared
+    return load_record_template();
+  } else {
+    flash('error', $::locale->text(
+        "No AP Record Template for vendor '#1' found.", $::form->{form_defaults}->{vendor}));
+  }
+
+  my $form_defaults = delete $::form->{form_defaults};
+  $::form->{$_} = $form_defaults->{$_} for keys %{ $form_defaults // {} };
+  $::form->{title} ||= "Add";
+  $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
   update(
     keep_rows_without_amount => 1,
     dont_add_new_row         => 1,

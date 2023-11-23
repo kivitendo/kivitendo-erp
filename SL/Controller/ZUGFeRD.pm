@@ -257,20 +257,22 @@ sub action_import_zugferd {
   $self->redirect_to(
     controller           => 'ap.pl',
     action               => 'load_zugferd',
-    no_payment_bookings  => 0,
-    paid_1_suggestion    => $::form->format_amount(\%::myconfig, $metadata{'total'}, 2),
-    invnumber            => $invnumber,
-    AP_chart_id          => $ap_chart_id,
-    currency             => $currency->name,
-    duedate              => $metadata{'duedate'},
-    transdate            => $metadata{'transdate'},
-    notes                => $notes,
-    taxincluded          => 0,
-    direct_debit         => $metadata{'direct_debit'},
-    vendor               => $vendor->name,
-    vendor_id            => $vendor->id,
-    zugferd_session_file => $file_name,
-    %item_form,
+    form_defaults => {
+      zugferd_session_file => $file_name,
+      vendor_id            => $vendor->id,
+      vendor               => $vendor->name,
+      invnumber            => $invnumber,
+      transdate            => $metadata{'transdate'},
+      duedate              => $metadata{'duedate'},
+      no_payment_bookings  => 0,
+      notes                => $notes,
+      taxincluded          => 0,
+      direct_debit         => $metadata{'direct_debit'},
+      currency             => $currency->name,
+      AP_chart_id          => $ap_chart_id,
+      paid_1_suggestion    => $::form->format_amount(\%::myconfig, $metadata{'total'}, 2),
+      %item_form,
+    },
   );
 
 }
@@ -351,23 +353,13 @@ implemented.
 This is just a very basic Parser for ZUGFeRD/Factur-X/XRechnung invoices.
 We assume that the invoice's creator is a company with a valid
 European VAT ID or German tax number and enrolled in
-Kivitendo. Currently, implementation is a bit hacky because
-invoice import uses AP record templates as a vessel for
-generating the AP record form with the imported data filled
-in.
+Kivitendo.
 
 =head1 TODO
 
 This implementation could be improved as follows:
 
 =over 4
-
-=item Direct creation of the filled in AP record form
-
-Creating an AP record template in the database is not
-very elegant, since it will spam the database with record
-templates that become redundant once the invoice has been
-booked. It would be preferable to fill in the form directly.
 
 =item Automatic upload of invoice
 
