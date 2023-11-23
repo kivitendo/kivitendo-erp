@@ -674,7 +674,7 @@ sub action_warehouse_changed {
     die unless ref($self->warehouse) eq 'SL::DB::Warehouse';
 
     if ( $self->warehouse->id and @{$self->warehouse->bins} ) {
-      $self->bin($self->warehouse->bins_sorted->[0]);
+      $self->bin($self->warehouse->bins_sorted_naturally->[0]);
       $self->js
         ->html('#bin', $self->build_bin_select)
         ->focus('#part_bin_id');
@@ -1202,7 +1202,7 @@ sub parse_form_customerprices {
 }
 
 sub build_bin_select {
-  select_tag('part.bin_id', [ @{ $_[0]->warehouse->bins_sorted } ],
+  select_tag('part.bin_id', [ @{ $_[0]->warehouse->bins_sorted_naturally } ],
     title_key => 'description',
     default   => $_[0]->bin->id,
   );

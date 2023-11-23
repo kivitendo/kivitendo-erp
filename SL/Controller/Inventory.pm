@@ -722,7 +722,7 @@ sub sanitize_target {
   my ($self) = @_;
 
   $self->warehouse($self->warehouses->[0])       if !$self->warehouse || !$self->warehouse->id;
-  $self->bin      ($self->warehouse->bins->[0])  if !$self->bin       || !$self->bin->id;
+  $self->bin      ($self->warehouse->bins_sorted_naturally->[0])  if !$self->bin       || !$self->bin->id;
 #  foreach my $warehouse ( $self->warehouses ) {
 #      $warehouse->{BINS} = [];
 #      foreach my $bin ( $self->bins ) {
@@ -768,7 +768,7 @@ sub build_warehouse_select {
 }
 
 sub build_bin_select {
-  select_tag('bin_id', [ $_[0]->warehouse->bins ],
+  select_tag('bin_id', [ $_[0]->warehouse->bins_sorted_naturally ],
     title_key => 'description',
     default   => $_[0]->bin->id,
   );
