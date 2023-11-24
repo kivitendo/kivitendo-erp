@@ -71,6 +71,10 @@ $(function() {
       <th>[% 'Account Type' | $T8 %]</th>
       <td><select name="category" id="AccountType" class="wi-wide">[% select_category %]</select></td>
     </tr>
+    <tr>
+     <td>[% 'Invalid' | $T8 %] </td>
+     <td>[% L.checkbox_tag('invalid', value => 1, checked => invalid, class => 'checkbox') %]</td>
+    </tr>
     [% IF ChartTypeIsAccount %]
     <tr>
       <th>[% 'Is this a summary account to record' | $T8 %]</th>
