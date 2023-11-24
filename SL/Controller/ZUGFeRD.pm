@@ -259,6 +259,7 @@ sub action_import_zugferd {
     action               => 'load_zugferd',
     form_defaults => {
       zugferd_session_file => $file_name,
+      callback             => $self->url_for(action => 'upload_zugferd'),
       vendor_id            => $vendor->id,
       vendor               => $vendor->name,
       invnumber            => $invnumber,
