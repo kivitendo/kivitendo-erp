@@ -200,7 +200,7 @@
       </tr>
       <tr>
         <th>[% 'Project Number' | $T8 %]</th>
-        <td>[% L.select_tag('globalproject_id', ALL_PROJECTS, title_key = 'projectnumber', default = globalproject_id, with_empty = 1, onChange = "document.getElementById('update_button').click();") %]</td>
+        <td>[% P.project.picker('globalproject_id', globalproject_id, onchange="document.getElementById('update_button').click();") %]</td>
       </tr>
     </tbody>
   </table>
@@ -229,7 +229,7 @@
       <td class="numeric">[% L.input_tag('amount_' _ loop.count, LxERP.format_amount(row.amount, 2), class='wi-small numeric') %]</td>
       <td class="numeric">[% L.hidden_tag('tax_' _ loop.count, LxERP.format_tax(row.tax, 2)) %][% LxERP.format_amount(row.tax, 2) | html %]</td>
       <td>[% row.taxchart %]</td>
-      <td>[% L.select_tag('project_id_' _ loop.count, ALL_PROJECTS, title_key='projectnumber', default=row.project_id, with_empty=1, class="wi-small") %]</td>
+      <td>[% P.project.picker("project_id_"_ loop.count, row.project_id) %]</td>
     </tr>
     [% END %]
   </tbody>
@@ -319,7 +319,7 @@
       </td>
       <td>
         [% IF row.changeable %]
-          [% L.select_tag('paid_project_id_' _ loop.count, ALL_PROJECTS, title_key='projectnumber', default=row.paid_project_id, with_empty=1, class='wi-small') %]
+          [% P.project.picker("paid_project_id_"_ loop.count, row.paid_project_id) %]
         [% ELSE %]
           [% project_labels.${row.paid_project_id} | html %]
           <input type="hidden" name="paid_project_id_[% loop.count %]" value="[% row.paid_project_id %]">
