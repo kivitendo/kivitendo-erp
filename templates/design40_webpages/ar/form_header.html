@@ -209,8 +209,10 @@
 
 [% L.hidden_tag('rowcount', rowcount) %]
 
-<table class="tbl-list" style="width:90%;">
-  <caption>[% 'Transaction' | $T8 %]</caption>
+<div class="wrapper">
+
+<table class="tbl-list">
+  <caption>[% 'Transactions' | $T8 %]</caption>
   <thead>
     <tr>
       <th>[% 'Account' | $T8 %]</th>
@@ -223,7 +225,7 @@
   <tbody>
     [% FOREACH row IN transactions %]
     <tr>
-      <td>[% row.selectAR_amount %]</td>
+      <td class="wi-wider">[% row.selectAR_amount %]</td>
       <td class="numeric">[% L.input_tag('amount_' _ loop.count, LxERP.format_amount(row.amount, 2), class='wi-small numeric') %]</td>
       <td class="numeric">[% L.hidden_tag('tax_' _ loop.count, LxERP.format_tax(row.tax, 2)) %][% LxERP.format_amount(row.tax, 2) | html %]</td>
       <td>[% row.taxchart %]</td>
@@ -233,7 +235,7 @@
   </tbody>
   <tfoot>
     <tr>
-      <td>[% P.chart.picker("AR_chart_id", AR_chart_id, style="width: 400px", type="AR") %]</td>
+      <td>[% P.chart.picker("AR_chart_id", AR_chart_id, type="AR", class="wi-wider") %]</td>
       <th class="numeric">[% LxERP.format_amount(invtotal, 2) | html %]</th>
         <input type="hidden" name="oldinvtotal" value="[% oldinvtotal %]">
         <input type="hidden" name="oldtotalpaid" value="[% oldtotalpaid %]">
@@ -286,7 +288,7 @@
       </td>
       <td class="numeric">
         [% IF row.changeable %]
-          <input name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]" type="text" data-validate="number" class="numeric">
+          <input name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]" size="11" type="text" data-validate="number" class="numeric">
         [% ELSE %]
           [% row.paid | html %]<input type="hidden" name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]"> [% defaultcurrency %]
         [% END %]
@@ -361,6 +363,7 @@
   </tfoot>
 </table>
 
+</div><!-- /.wrapper -->
 
 </div><!-- /#ui-tabs-basic-data -->
 </div><!-- ./tabwidget -->
