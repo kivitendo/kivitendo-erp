@@ -150,7 +150,7 @@ sub action_import_zugferd {
   my %metadata = %{$parser->metadata};
   my @items = @{$parser->items};
 
-  my $intnotes = t8("ZUGFeRD Import. Type: #1", $metadata{'type'});
+  my $intnotes = t8("ZUGFeRD Import. Type: #1", $metadata{'type'})->translated;
   my $iban = $metadata{'iban'};
   my $invnumber = $metadata{'invnumber'};
 
