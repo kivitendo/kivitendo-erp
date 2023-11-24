@@ -134,7 +134,7 @@ sub load_zugferd {
     $::form->{form_defaults}->{FLASH} = $::form->{FLASH}; # store flash, form gets cleared
     return load_record_template();
   } else {
-    flash('error', $::locale->text(
+    flash('warning', $::locale->text(
         "No AP Record Template for vendor '#1' found.", $::form->{form_defaults}->{vendor}));
   }
 
