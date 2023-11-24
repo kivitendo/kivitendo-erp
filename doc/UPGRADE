@@ -13,6 +13,20 @@ immer das Skript 'scripts/installation_check.pl -v'.
   * Encode::IMAPUTF7
   * Mail::IMAPClient
 
+
+Bei Verwendung von PostgreSQL kleiner Version 12, muss das Datenbank-Upgrade-
+Skript "oe_purchase_order_confirmation_order_types" deaktiviert und das
+enthaltene SQL-Kommando händisch ausgeführt werden. Der Grund dafür ist, dass
+die Upgrade-Skripte in einer Transaktion ablaufen und Typ-Werte erst ab
+PostgreSQL Version 12 innerhalb einer Transaktion hinzugefügt werden können.
+
+Shell-Befehl zum Deaktivieren des Skripts:
+  sed -i 's/ignore: 0/ignore: 1/' sql/Pg-upgrade2/oe_purchase_order_confirmation_order_types.sql
+
+SQL-Kommando, das ausgeführt werden muss:
+  ALTER TYPE order_types ADD VALUE IF NOT EXISTS 'purchase_order_confirmation';
+
+
 Upgrade auf v3.8.0
 
 Buchungskonten die mit einem Bankkonto verknüpft sind, können nicht mehr
