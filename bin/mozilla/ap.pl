@@ -124,11 +124,11 @@ sub load_zugferd {
     my $template_item = $template_ap->items->[0];
     my $chart = SL::DB::Chart->new(id => $template_item->chart_id)->load();
     my $tax = SL::DB::Tax->new(id => $template_item->tax_id)->load();
-    foreach my $pos (1 .. $::form->{form_defautls}->{rowcount}) {
-      $::form->{form_defautls}->{"AP_amount_chart_id_$pos"}          = $chart->id;
-      $::form->{form_defautls}->{"previous_AP_amount_chart_id_$pos"} = $chart->id;
-      $::form->{form_defautls}->{"taxchart_$pos"}   = $tax->id . '--' . $tax->rate;
-      $::form->{form_defautls}->{"project_id_$pos"} = $template_item->project_id;
+    foreach my $pos (1 .. $::form->{form_defaults}->{rowcount}) {
+      $::form->{form_defaults}->{"AP_amount_chart_id_$pos"}          = $chart->id;
+      $::form->{form_defaults}->{"previous_AP_amount_chart_id_$pos"} = $chart->id;
+      $::form->{form_defaults}->{"taxchart_$pos"}   = $tax->id . '--' . $tax->rate;
+      $::form->{form_defaults}->{"project_id_$pos"} = $template_item->project_id;
 
     }
     $::form->{form_defaults}->{FLASH} = $::form->{FLASH}; # store flash, form gets cleared
