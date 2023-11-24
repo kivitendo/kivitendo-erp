@@ -224,7 +224,7 @@
               <input type="hidden" name="tax_[% i %]" value="[% temp = "tax"_ i %][% $temp | html %]">
             </td>
             <td>
-              <input name="amount_[% i %]" size="10" [% disabled ? disabled : '' %] value="[% temp = "amount_"_ i %][% $temp | html %]">
+              <input name="amount_[% i %]" size="10" [% readonly ? 'readonly' : '' %] value="[% temp = "amount_"_ i %][% $temp | html %]">
             </td>
             <td>
               [% temp_r = "tax_reverse_"_ i %]
