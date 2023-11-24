@@ -150,7 +150,7 @@ sub action_import_zugferd {
   my %metadata = %{$parser->metadata};
   my @items = @{$parser->items};
 
-  my $notes = t8("ZUGFeRD Import. Type: #1", $metadata{'type'});
+  my $intnotes = t8("ZUGFeRD Import. Type: #1", $metadata{'type'});
   my $iban = $metadata{'iban'};
   my $invnumber = $metadata{'invnumber'};
 
@@ -171,8 +171,8 @@ sub action_import_zugferd {
   # Check IBAN specified on bill matches the one we've got in
   # the database for this vendor.
  if ($iban) {
-   $notes .= "\nIBAN: ";
-   $notes .= $iban ne $vendor->iban ?
+   $intnotes .= "\nIBAN: ";
+   $intnotes .= $iban ne $vendor->iban ?
          t8("Record IBAN #1 doesn't match vendor IBAN #2", $iban, $vendor->iban)
        : $iban
  }
@@ -265,7 +265,7 @@ sub action_import_zugferd {
       transdate            => $metadata{'transdate'},
       duedate              => $metadata{'duedate'},
       no_payment_bookings  => 0,
-      notes                => $notes,
+      intnotes             => $intnotes,
       taxincluded          => 0,
       direct_debit         => $metadata{'direct_debit'},
       currency             => $currency->name,
@@ -342,8 +342,8 @@ extracts the invoice's items.
 
 If the invoice has a IBAN also, it will be be compared to the
 IBAN saved for the vendor (if any). If they  don't match a
-warning will be writte in ap.notes. Furthermore the ZUGFeRD
-type code will be written to ap.notes. No callback
+warning will be writte in ap.intnotes. Furthermore the ZUGFeRD
+type code will be written to ap.intnotes. No callback
 implemented.
 
 =back
