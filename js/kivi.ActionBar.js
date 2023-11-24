@@ -98,9 +98,6 @@ namespace('kivi.ActionBar', function(k){
       if (e.target.classList.contains('ck-content'))
         return true;
 
-      console.warn(e);
-      console.warn(this);
-
       if ((target in kivi.ActionBar.Accesskeys.actions) && (accesskey in kivi.ActionBar.Accesskeys.actions[target])) {
         e.stopPropagation();
         kivi.ActionBar.Accesskeys.actions[target][accesskey].click();
