@@ -768,7 +768,7 @@ sub build_warehouse_select {
 }
 
 sub build_bin_select {
-  select_tag('bin_id', [ $_[0]->warehouse->bins_sorted_naturally ],
+  select_tag('bin_id', $_[0]->warehouse->bins_sorted_naturally,
     title_key => 'description',
     default   => $_[0]->bin->id,
   );
