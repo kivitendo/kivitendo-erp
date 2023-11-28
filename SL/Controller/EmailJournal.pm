@@ -250,11 +250,14 @@ sub action_show {
   );
 
   $self->setup_show_action_bar;
+  my $cv_type_found = $customer_vendor && $customer_vendor->is_vendor ? 'vendor' : 'customer';
+  # overwrite on record_type
+  $cv_type_found = 'vendor' if $self->entry->record_type eq 'ap_transaction';
   $self->render(
     'email_journal/show',
     title    => $::locale->text('View email'),
     CUSTOMER_VENDOR => , $customer_vendor,
-    CV_TYPE_FOUND => $customer_vendor && $customer_vendor->is_vendor ? 'vendor' : 'customer',
+    CV_TYPE_FOUND => $cv_type_found,
     RECORD_TYPES_WITH_INFO => \@record_types_with_info,
     RECORDS => \@records,
     back_to  => $back_to
