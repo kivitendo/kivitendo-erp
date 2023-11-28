@@ -582,6 +582,78 @@ sub find_customer_vendor_from_email {
       ],
       with_objects => [ 'shipto' ],
     );
+    if ($manager eq 'SL::DB::Manager::Customer') {
+      $customer_vendor ||= $manager->get_first(
+        where => [
+          or => [
+            'additional_billing_addresses.email' => $email_address,
+          ],
+        ],
+        with_objects => [ 'additional_billing_addresses' ],
+      );
+    }
+  }
+
+  # if no exact match is found search for domain and match only on one hit
+  unless ($customer_vendor) {
+    my $email_domain = $email_address;
+    $email_domain =~ s/.*@(.*)/$1/;
+    my @domain_hits_cusotmer_vendor = ();
+    foreach my $manager (qw(SL::DB::Manager::Customer SL::DB::Manager::Vendor)) {
+      my @domain_hits = ();
+      push @domain_hits, @{$manager->get_all(
+        where => [
+          or => [
+            email => {ilike => "%$email_domain"},
+            cc    => {ilike => "%$email_domain"},
+            bcc   => {ilike => "%$email_domain"},
+          ],
+        ],
+      )};
+      push @domain_hits, @{$manager->get_all(
+        where => [
+          or => [
+            'contacts.cp_email'       => {ilike => "%$email_domain"},
+            'contacts.cp_privatemail' => {ilike => "%$email_domain"},
+          ],
+        ],
+        with_objects => [ 'contacts'],
+      )};
+      push @domain_hits, @{$manager->get_all(
+        where => [
+          or => [
+            'shipto.shiptoemail' => {ilike => "%$email_domain"},
+          ],
+        ],
+        with_objects => [ 'shipto' ],
+      )};
+      push @domain_hits, @{$manager->get_all(
+        where => [
+          or => [
+            'shipto.shiptoemail' => {ilike => "%$email_domain"},
+          ],
+        ],
+        with_objects => [ 'shipto' ],
+      )};
+      if ($manager eq 'SL::DB::Manager::Customer') {
+        push @domain_hits, @{$manager->get_all(
+          where => [
+            or => [
+              'additional_billing_addresses.email' => {ilike => "%$email_domain"},
+            ],
+          ],
+          with_objects => [ 'additional_billing_addresses' ],
+        )};
+      }
+      # get every customer_vendor only once
+      my %id_to_customer_vendor = ();
+      $id_to_customer_vendor{$_->id} = $_ for @domain_hits;
+      push @domain_hits_cusotmer_vendor, $id_to_customer_vendor{$_} for keys %id_to_customer_vendor;
+    }
+
+    if (scalar @domain_hits_cusotmer_vendor == 1) {
+      $customer_vendor = $domain_hits_cusotmer_vendor[0];
+    }
   }
 
   return $customer_vendor;
