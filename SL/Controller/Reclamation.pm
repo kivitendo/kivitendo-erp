@@ -528,7 +528,7 @@ sub action_save_and_new_record {
   my %additional_params = ();
   if ($::form->{only_selected_item_positions}) { # ids can be unset before save
     my $item_positions = $::form->{selected_item_positions} || [];
-    my @from_item_ids = map { $self->order->items_sorted->[$_]->id } @$item_positions;
+    my @from_item_ids = map { $self->reclamation->items_sorted->[$_]->id } @$item_positions;
     $additional_params{from_item_ids} = \@from_item_ids;
   }
 
