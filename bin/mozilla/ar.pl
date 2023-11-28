@@ -908,6 +908,25 @@ sub post {
   $main::lxdebug->leave_sub();
 }
 
+sub post_and_close {
+  $main::lxdebug->enter_sub();
+  $main::auth->assert('ar_transactions');
+  my $locale = $main::locale;
+  my $form   = $::form;
+
+  # inline post
+  post(1);
+
+  my $callback = $form->{callback}
+    || "controller.pl?action=LoginScreen/user_login";
+    my $msg = $locale->text("AR transaction '#1' posted (ID: #2)", $form->{invnumber}, $form->{id});
+  SL::Helper::Flash::flash_later('info', $msg);
+  print $form->redirect_header($callback);
+  $::dispatcher->end_request;
+
+  $main::lxdebug->leave_sub();
+}
+
 sub use_as_new {
   $main::lxdebug->enter_sub();
 
@@ -1513,6 +1532,18 @@ sub setup_ar_form_header_action_bar {
         action => [
           t8('Post'),
           submit   => [ '#form', { action => "post" } ],
+          checks   => [ 'kivi.validate_form', 'kivi.AR.check_fields_before_posting' ],
+          disabled => !$may_edit_create                           ? t8('You must not change this AR transaction.')
+                    : $is_closed                                  ? t8('The billing period has already been locked.')
+                    : $is_storno                                  ? t8('A canceled invoice cannot be posted.')
+                    : ($::form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
+                    : ($::form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction                 ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                                               undef,
+        ],
+        action => [
+          t8('Post and Close'),
+          submit   => [ '#form', { action => "post_and_close" } ],
           checks   => [ 'kivi.validate_form', 'kivi.AR.check_fields_before_posting' ],
           disabled => !$may_edit_create                           ? t8('You must not change this AR transaction.')
                     : $is_closed                                  ? t8('The billing period has already been locked.')

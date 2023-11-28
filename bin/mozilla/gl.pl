@@ -1046,6 +1046,7 @@ sub setup_gl_action_bar {
   } else {
     %post_entry = $create_post_action->(t8('Post'));
   }
+  push @{$post_entry{combobox}}, $create_post_action->(t8('Post and Close'), 'callback');
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -1513,7 +1514,12 @@ sub post {
     SL::Helper::Flash::flash_later('info', $msg);
     print $form->redirect_header($add_doc_url);
     $::dispatcher->end_request;
-
+  } elsif ('callback' eq $form->{after_action}) {
+    my $callback = $form->{callback}
+      || "controller.pl?action=LoginScreen/user_login";
+    SL::Helper::Flash::flash_later('info', $msg);
+    print $form->redirect_header($callback);
+    $::dispatcher->end_request;
   } else {
     $form->{callback} = build_std_url("action=add", "show_details");
     $form->redirect($msg);

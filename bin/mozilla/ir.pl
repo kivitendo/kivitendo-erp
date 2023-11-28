@@ -346,6 +346,7 @@ sub setup_ir_action_bar {
   } else {
     @post_entries = ( $create_post_action->(t8('Post')) );
   }
+  push @post_entries, $create_post_action->(t8('Post and Close'), 'callback');
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -1078,6 +1079,9 @@ sub post {
     my $redirect_url;
     if ('doc-tab' eq $form->{after_action}) {
       $redirect_url = build_std_url("script=ir.pl", 'action=edit', 'id=' . E($form->{id}), 'fragment=ui-tabs-docs');
+    } elsif ('callback' eq $form->{after_action}) {
+      $redirect_url = $form->{callback}
+        || "controller.pl?action=LoginScreen/user_login";
     } else {
       $redirect_url = build_std_url("script=ir.pl", 'action=edit', 'id=' . E($form->{id}));
     }

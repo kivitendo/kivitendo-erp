@@ -428,6 +428,19 @@ sub setup_is_action_bar {
                     :                                             undef,
         ],
         action => [
+          t8('Post and Close'),
+          submit   => [ '#form', { action => "post_and_close" } ],
+          checks   => [ 'kivi.validate_form' ],
+          confirm  => t8('The invoice is not linked with a sales delivery order. Post anyway?') x !!$warn_unlinked_delivery_order,
+          disabled => !$may_edit_create                         ? t8('You must not change this invoice.')
+                    : $form->{locked}                           ? t8('The billing period has already been locked.')
+                    : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
+                    : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
+                    : ($form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                                             undef,
+        ],
+        action => [
           t8('Post Payment'),
           submit   => [ '#form', { action => "post_payment" } ],
           checks   => [ 'kivi.validate_form' ],
@@ -1241,6 +1254,24 @@ sub post {
     $form->{callback} = build_std_url(qw(action edit id callback saved_message));
     $form->redirect($form->{label} . " $form->{invnumber} " . $locale->text('posted!'));
   }
+
+  $main::lxdebug->leave_sub();
+}
+
+sub post_and_close {
+  $main::lxdebug->enter_sub();
+  my $locale   = $main::locale;
+  my $form = $::form;
+
+  $form->{no_redirect_after_post} = 1;
+  &post();
+
+  my $callback = $form->{callback}
+    || "controller.pl?action=LoginScreen/user_login";
+  my $msg = $form->{label} . " $form->{invnumber} " . $locale->text('posted!');
+  SL::Helper::Flash::flash_later('info', $msg);
+  print $form->redirect_header($callback);
+  $::dispatcher->end_request;
 
   $main::lxdebug->leave_sub();
 }

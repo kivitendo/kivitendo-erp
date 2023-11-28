@@ -220,11 +220,19 @@ sub action_save {
 
   flash_later('info', $self->type_data->text("saved"));
 
-  my @redirect_params = (
-    action => 'edit',
-    type   => $self->type,
-    id     => $self->order->id,
-  );
+  my @redirect_params;
+  if ($::form->{back_to_caller}) {
+    @redirect_params = $::form->{callback} ? ($::form->{callback})
+                                           : (controller => 'LoginScreen', action => 'user_login');
+
+  } else {
+    @redirect_params = (
+      action   => 'edit',
+      type     => $self->type,
+      id       => $self->order->id,
+      callback => $::form->{callback},
+    );
+  }
 
   $self->redirect_to(@redirect_params);
 }
@@ -1143,6 +1151,8 @@ sub action_transfer_stock {
     ->flash("info", t8("Stock transfered"))
     ->run('kivi.ActionBar.setDisabled', '#save_action',
           t8('This record has already been delivered.'))
+    ->run('kivi.ActionBar.setDisabled', '#save_and_close',
+          t8('This record has already been delivered.'))
     ->run('kivi.ActionBar.setDisabled', '#transfer_out_action',
           t8('The parts for this order have already been transferred'))
     ->run('kivi.ActionBar.setDisabled', '#transfer_out_default_action',
@@ -1950,6 +1960,21 @@ sub setup_edit_action_bar {
               action             => 'save',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+            }],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : $self->order->delivered ? t8('This record has already been delivered.')
+                    :                        undef,
+        ],
+        action => [
+          t8('Save and Close'),
+          id       => 'save_and_close',
+          call     => [ 'kivi.DeliveryOrder.save', {
+              action             => 'save',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+              form_params        => [
+                { name => 'back_to_caller', value => 1 },
+              ],
             }],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : $self->order->delivered ? t8('This record has already been delivered.')

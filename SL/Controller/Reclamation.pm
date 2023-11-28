@@ -211,11 +211,19 @@ sub action_save {
 
   flash_later('info', t8('The reclamation has been saved'));
 
-  my @redirect_params = (
-    action => 'edit',
-    type   => $self->type,
-    id     => $self->reclamation->id,
-  );
+  my @redirect_params;
+  if ($::form->{back_to_caller}) {
+    @redirect_params = $::form->{callback} ? ($::form->{callback})
+                                           : (controller => 'LoginScreen', action => 'user_login');
+  } else {
+    @redirect_params = (
+      action => 'edit',
+      type   => $self->type,
+      id     => $self->reclamation->id,
+      callback => $::form->{callback},
+    );
+  }
+
   $self->redirect_to(@redirect_params);
 }
 
@@ -1959,6 +1967,20 @@ sub _setup_edit_action_bar {
               action             => 'save',
               warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
               warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+            }],
+          checks    => [
+            ['kivi.validate_form','#reclamation_form'],
+          ],
+        ],
+        action => [
+          t8('Save and Close'),
+          call      => [ 'kivi.Reclamation.save', {
+              action             => 'save',
+              warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+              form_params        => [
+                { name => 'back_to_caller', value => 1 },
+              ],
             }],
           checks    => [
             ['kivi.validate_form','#reclamation_form'],

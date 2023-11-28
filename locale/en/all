@@ -2917,6 +2917,7 @@ $self->{texts} = {
   'Positions'                   => '',
   'Post'                        => '',
   'Post Payment'                => '',
+  'Post and Close'              => '',
   'Post and new booking'        => '',
   'Post and upload document'    => '',
   'Post payments'               => '',
