@@ -30,6 +30,7 @@
   [% L.hidden_tag('email_attachment_id',            FORM.email_attachment_id) %]
   [% L.hidden_tag('workflow_email_journal_id',      FORM.workflow_email_journal_id) %]
   [% L.hidden_tag('workflow_email_attachment_id',   FORM.workflow_email_attachment_id) %]
+  [% L.hidden_tag('workflow_email_callback',        FORM.workflow_email_callback) %]
 
   [% IF !SELF.reclamation.id %]
   [%   L.hidden_tag('form_validity_token', FORM.form_validity_token) %]

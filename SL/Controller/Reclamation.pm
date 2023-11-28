@@ -162,6 +162,7 @@ sub action_edit_with_email_journal_workflow {
   die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
   $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
   $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+  $::form->{workflow_email_callback}      = delete $::form->{callback};
 
   $self->action_edit();
 }
@@ -548,6 +549,7 @@ sub action_save_and_new_record {
     from_type  => $self->reclamation->type,
     email_journal_id    => $::form->{workflow_email_journal_id},
     email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
     %additional_params,
   );
 }
@@ -572,6 +574,7 @@ sub action_save_and_credit_note {
     from_id    => $self->reclamation->id,
     email_journal_id    => $::form->{workflow_email_journal_id},
     email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 

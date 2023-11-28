@@ -52,6 +52,7 @@
 <div class="wrapper input-panel control-panel" style="display:block">
   <form method="post" action="controller.pl" id="record_action_form">
     [% L.hidden_tag('email_journal_id', SELF.entry.id) %]
+    [% L.hidden_tag('back_to', back_to) %]
     <h2>[% LxERP.t8("Email Journal Workflow") %]</h2>
 
     <div id="action_div"><div class="input-panel" style="margin:0">

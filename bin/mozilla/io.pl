@@ -1020,6 +1020,7 @@ sub order {
 
   $::form->{email_journal_id}    = delete $::form->{workflow_email_journal_id};
   $::form->{email_attachment_id} = delete $::form->{workflow_email_attachment_id};
+  $::form->{callback}            = delete $::form->{workflow_email_callback};
 
   _order();
 
@@ -1225,6 +1226,7 @@ sub sales_reclamation {
     type       => 'sales_reclamation',
     email_journal_id    => $::form->{workflow_email_journal_id},
     email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
     from_id    => $id,
     from_type  => $type,
   );
@@ -1242,6 +1244,7 @@ sub purchase_reclamation {
     type       => 'purchase_reclamation',
     email_journal_id    => $::form->{workflow_email_journal_id},
     email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
     from_id    => $id,
     from_type  => $type,
   );

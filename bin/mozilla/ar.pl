@@ -297,6 +297,7 @@ sub edit_with_email_journal_workflow {
   die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
   $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
   $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+  $::form->{workflow_email_callback}      = delete $::form->{callback};
 
   &edit;
 }
@@ -937,6 +938,7 @@ sub use_as_new {
 
   $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
   $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+  $form->{callback}            = delete $form->{workflow_email_callback};
 
   map { delete $form->{$_} } qw(printed emailed queued invnumber deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;

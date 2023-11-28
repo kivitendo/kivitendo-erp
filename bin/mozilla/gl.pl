@@ -268,6 +268,7 @@ sub edit_with_email_journal_workflow {
   die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
   $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
   $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+  $::form->{workflow_email_callback}      = delete $::form->{callback};
 
   &edit;
 }

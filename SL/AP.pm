@@ -1114,8 +1114,9 @@ sub _storno {
     )->load;
     $email_journal->link_to_record_with_attachment(
       $ap_transaction_storno,
-      delete $::form->{workflow_email_attachment_id}
+      delete $form->{workflow_email_attachment_id}
     );
+    $form->{callback} = delete $form->{workflow_email_callback};
   }
 
   return 1;

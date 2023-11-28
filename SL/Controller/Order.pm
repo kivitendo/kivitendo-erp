@@ -169,6 +169,7 @@ sub action_edit_with_email_journal_workflow {
   die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
   $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
   $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+  $::form->{workflow_email_callback}      = delete $::form->{callback};
 
   $self->action_edit();
 }
@@ -830,6 +831,7 @@ sub action_save_and_new_record {
     from_type  => $self->order->type,
     email_journal_id    => $::form->{workflow_email_journal_id},
     email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
     %additional_params,
   );
 }
@@ -844,6 +846,7 @@ sub action_save_and_invoice {
     action     => 'oe_invoice_from_order',
     email_journal_id    => $::form->{workflow_email_journal_id},
     email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 
@@ -856,6 +859,7 @@ sub action_save_and_invoice_for_advance_payment {
     new_invoice_type => 'invoice_for_advance_payment',
     email_journal_id    => $::form->{workflow_email_journal_id},
     email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 
@@ -868,6 +872,7 @@ sub action_save_and_final_invoice {
     new_invoice_type => 'final_invoice',
     email_journal_id    => $::form->{workflow_email_journal_id},
     email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 
@@ -880,6 +885,7 @@ sub action_save_and_order_workflow {
     use_shipto => $::form->{use_shipto},
     email_journal_id    => $::form->{workflow_email_journal_id},
     email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 
@@ -892,6 +898,7 @@ sub action_save_and_ap_transaction {
     action     => 'add_from_purchase_order',
     email_journal_id    => $::form->{workflow_email_journal_id},
     email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 

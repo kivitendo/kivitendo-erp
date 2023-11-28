@@ -408,8 +408,9 @@ sub action_apply_record_action {
     $additional_params{action} = 'load_record_template_from_email_journal';
     $additional_params{id} = $record_id;
     $additional_params{form_defaults} = {
-      email_journal_id => $email_journal_id,
+      email_journal_id    => $email_journal_id,
       email_attachment_id => $attachment_id,
+      callback            => $::form->{back_to},
     };
   } else { # workflow_record
     $additional_params{action} = 'edit_with_email_journal_workflow';
@@ -421,6 +422,7 @@ sub action_apply_record_action {
     type                => $record_type,
     email_journal_id    => $email_journal_id,
     email_attachment_id => $attachment_id,
+    callback            => $::form->{back_to},
     %additional_params,
   );
 }
@@ -492,8 +494,6 @@ sub action_toggle_obsolete {
   my ($self) = @_;
 
   $::auth->assert('email_journal');
-
-  my $back_to = $::form->{back_to} || $self->url_for(action => 'list');
 
   $self->entry(SL::DB::EmailJournal->new(id => $::form->{id})->load);
 

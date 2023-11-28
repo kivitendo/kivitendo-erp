@@ -133,6 +133,7 @@ sub edit_with_email_journal_workflow {
   die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
   $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
   $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+  $::form->{workflow_email_callback}      = delete $::form->{callback};
 
   &edit;
 }
@@ -1303,6 +1304,7 @@ sub use_as_new {
 
   $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
   $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+  $form->{callback}            = delete $form->{workflow_email_callback};
 
   delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked qr_unstructured_message)};
   $form->{rowcount}--;
@@ -1331,6 +1333,7 @@ sub further_invoice_for_advance_payment {
 
   $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
   $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+  $form->{callback}            = delete $form->{workflow_email_callback};
 
   delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked)};
   $form->{convert_from_ar_ids} = $form->{id};
@@ -1358,6 +1361,7 @@ sub final_invoice {
 
   $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
   $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+  $form->{callback}            = delete $form->{workflow_email_callback};
 
   my $related_invoices = IS->_get_invoices_for_advance_payment($form->{id});
 
@@ -1433,10 +1437,12 @@ sub storno {
 
   my $email_journal_id    = delete $form->{workflow_email_journal_id};
   my $email_attachment_id = delete $form->{workflow_email_attachment_id};
+  my $callback            = delete $form->{workflow_email_callback};
   map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password type))); } keys(%{ $form }));
 
   $form->{email_journal_id}    = $email_journal_id;
   $form->{email_attachment_id} = $email_attachment_id;
+  $form->{callback}            = $callback;
 
   invoice_links();
   prepare_invoice();
@@ -1462,7 +1468,11 @@ sub storno {
   # post expects the field as user input
   $form->{exchangerate} = $form->format_amount(\%myconfig, $form->{exchangerate});
   $form->{script}       = 'is.pl';
-  post();
+  if ($form->{callback}) {
+    post_and_close();
+  } else {
+    post();
+  }
   $main::lxdebug->leave_sub();
 }
 
@@ -1493,6 +1503,7 @@ sub credit_note {
 
   $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
   $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+  $form->{callback}            = delete $form->{workflow_email_callback};
 
   $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
 
