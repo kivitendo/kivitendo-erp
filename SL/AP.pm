@@ -1119,6 +1119,7 @@ sub _storno {
     $form->{callback} = delete $form->{workflow_email_callback};
   }
 
+  $form->{storno_id} = $id;
   return 1;
 }
 
