@@ -41,6 +41,9 @@ my @ORDERED_TYPES = qw(
   letter
   email_journal
   dunning
+  gl_transaction_template
+  ar_transaction_template
+  ap_transaction_template
   );
 
 my %TYPE_TO_PARAMS = (
@@ -484,6 +487,52 @@ my %TYPE_TO_PARAMS = (
       %params,
     }
   },
+  gl_transaction_template => sub {
+    my (%params) = @_;
+    {
+      title   => $::locale->text('GL Transaction Template'),
+      type    => 'gl_transaction_template',
+      columns => [
+        [ $::locale->text('Name'),                    'template_name_to_use'              ],
+        [ $::locale->text('Transaction description'), 'transaction_description',          ],
+        [ $::locale->text('Create Date'),              sub { $_[0]->itime->to_kivitendo } ],
+        [ $::locale->text('Modification date'),        sub { $_[0]->mtime->to_kivitendo } ],
+      ],
+      %params,
+    }
+  },
+  ar_transaction_template => sub {
+    my (%params) = @_;
+    {
+      title   => $::locale->text('AR Transaction Template'),
+      type    => 'ar_transaction_template',
+      columns => [
+        [ $::locale->text('Name'),                    'template_name_to_use'             ],
+        [ $::locale->text('Customer'),                'customer'                         ],
+        [ $::locale->text('Project'),                 'project',                         ],
+        [ $::locale->text('Transaction description'), 'transaction_description',         ],
+        [ $::locale->text('Create Date'),             sub { $_[0]->itime->to_kivitendo } ],
+        [ $::locale->text('Modification date'),       sub { $_[0]->mtime->to_kivitendo } ],
+      ],
+      %params,
+    }
+  },
+  ap_transaction_template => sub {
+    my (%params) = @_;
+    {
+      title   => $::locale->text('AP Transaction Template'),
+      type    => 'ap_transaction_template',
+      columns => [
+        [ $::locale->text('Name'),                    'template_name_to_use'             ],
+        [ $::locale->text('Vendor'),                  'vendor'                           ],
+        [ $::locale->text('Project'),                 'project',                         ],
+        [ $::locale->text('Transaction description'), 'transaction_description',         ],
+        [ $::locale->text('Create Date'),             sub { $_[0]->itime->to_kivitendo } ],
+        [ $::locale->text('Modification date'),       sub { $_[0]->mtime->to_kivitendo } ],
+      ],
+      %params,
+    }
+  },
 );
 
 sub _get_type_params {
@@ -702,6 +751,9 @@ sub _group_records {
     letter                      => sub { (ref($_[0]) eq 'SL::DB::Letter')          &&  $_[0]->id                           },
     email_journal               => sub { (ref($_[0]) eq 'SL::DB::EmailJournal')    &&  $_[0]->id                           },
     dunning                     => sub { (ref($_[0]) eq 'SL::DB::Dunning')                                                 },
+    gl_transaction_template     => sub { (ref($_[0]) eq 'SL::DB::RecordTemplate')  &&  $_[0]->template_type eq 'gl_transaction' },
+    ar_transaction_template     => sub { (ref($_[0]) eq 'SL::DB::RecordTemplate')  &&  $_[0]->template_type eq 'ar_transaction' },
+    ap_transaction_template     => sub { (ref($_[0]) eq 'SL::DB::RecordTemplate')  &&  $_[0]->template_type eq 'ap_transaction' },
   );
 
   my %groups;
