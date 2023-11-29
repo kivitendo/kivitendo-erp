@@ -4,7 +4,7 @@ use strict;
 
 use SL::Presenter;
 use SL::Presenter::EscapedText qw(escape is_escaped);
-use SL::Presenter::Tag qw(html_tag);
+use SL::Presenter::Tag qw(html_tag button_tag);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(grouped_record_list empty_record_list record_list record);
@@ -529,7 +529,7 @@ sub grouped_record_list {
     $output .= record_list($groups{$type}, _get_type_params($type, %params)) if $groups{$type};
   }
 
-  $output  = SL::Presenter->get->render('presenter/record/grouped_record_list',       %params, output => $output);
+  $output  = SL::Presenter->get->render('presenter/record/grouped_record_list', %params, output => $output);
 
   return $output;
 }
@@ -594,6 +594,20 @@ sub record_list {
         : $_[0]->{_record_link_direction} eq 'from'
         ? $::locale->text('Row was source for current record')
         : $::locale->text('Row was created from current record') },
+    };
+  }
+  if ($with_columns{email_journal_action}) {
+    push @columns, {
+      title => $::locale->text('Action'),
+      data  => sub {
+        my $id = $_[0]->id;
+        my $record_type = $_[0]->record_type;
+        is_escaped(button_tag(
+            "kivi.EmailJournal.apply_action_with_attachment(
+            '$id', '$record_type');",
+            $::locale->text('Select'),
+          ))
+      },
     };
   }
 

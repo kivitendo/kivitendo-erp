@@ -9,6 +9,7 @@ use SL::DB::Employee;
 use SL::DB::EmailJournal;
 use SL::DB::EmailJournalAttachment;
 use SL::Presenter::EmailJournal;
+use SL::Presenter::Record qw(grouped_record_list);
 use SL::Presenter::Tag qw(html_tag div_tag button_tag);
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
@@ -241,13 +242,6 @@ sub action_show {
   my $cv_type = $customer_vendor && $customer_vendor->is_vendor ? 'vendor' : 'customer';
 
   my $record_types = $self->record_types_for_customer_vendor_type_and_action($cv_type, 'workflow_record');
-  my @records = $self->get_records_for_types(
-    $record_types,
-    customer_vendor_type => $cv_type,
-    customer_vendor_id   => $customer_vendor && $customer_vendor->id,
-    record_number        => '',
-    with_closed          => 0,
-  );
 
   $self->setup_show_action_bar;
   my $cv_type_found = $customer_vendor && $customer_vendor->is_vendor ? 'vendor' : 'customer';
@@ -259,49 +253,8 @@ sub action_show {
     CUSTOMER_VENDOR => , $customer_vendor,
     CV_TYPE_FOUND => $cv_type_found,
     RECORD_TYPES_WITH_INFO => \@record_types_with_info,
-    RECORDS => \@records,
     back_to  => $back_to
   );
-}
-
-sub get_records_for_types {
-  my ($self, $record_types, %params) = @_;
-  $record_types = [ $record_types ] unless ref $record_types eq 'ARRAY';
-
-  my $cv_type       = $params{customer_vendor_type};
-  my $cv_id         = $params{customer_vendor_id};
-  my $record_number = $params{record_number};
-  my $with_closed   = $params{with_closed};
-
-  my @records = ();
-  foreach my $record_type (@$record_types) {
-    my $manager = $RECORD_TYPE_TO_MANAGER{$record_type};
-    my $model = $RECORD_TYPE_TO_MODEL{$record_type};
-    my %additional_where = ();
-    if ($cv_type && $cv_id && $record_type !~ /^gl_transaction/) {
-      $additional_where{"${cv_type}_id"} = $cv_id;
-    }
-    if ($record_number) {
-      my $nr_key = $RECORD_TYPE_TO_NR_KEY{$record_type};
-      $additional_where{$nr_key} = { ilike => "%$record_number%" };
-    }
-    unless ($with_closed) {
-      if (any {$_ eq 'closed'} $model->meta->columns) {
-        $additional_where{closed} = 0;
-      } elsif (any {$_ eq 'paid'} $model->meta->columns) {
-        $additional_where{amount} = { gt => \'paid' };
-      }
-    }
-    my $records_of_type = $manager->get_all(
-      where => [
-        $manager->type_filter($record_type),
-        %additional_where,
-      ],
-    );
-    push @records, @$records_of_type;
-  }
-
-  return @records;
 }
 
 sub action_attachment_preview {
@@ -467,22 +420,7 @@ sub action_update_record_list {
     with_closed          => $with_closed,
   );
 
-  my $new_list;
-  if (@records) {
-    $new_list = join('', map {
-        button_tag(
-          "kivi.EmailJournal.apply_action_with_attachment('${\$_->id}', '${\$_->record_type}');",
-          $_->displayable_name,
-          class => "record_button",
-        );
-      } @records);
-  } else {
-    $new_list = html_tag('h3', t8('No records found.'));
-  }
-  my $new_div = div_tag(
-    $new_list,
-    id => 'record_list',
-  );
+  my $new_div = $self->get_records_div(\@records);
 
   $self->js->replaceWith('#record_list', $new_div);
   $self->js->hide('#record_toggle_closed') if scalar @records < 20;
@@ -526,6 +464,58 @@ sub add_stylesheet {
 #
 # helpers
 #
+
+sub get_records_for_types {
+  my ($self, $record_types, %params) = @_;
+  $record_types = [ $record_types ] unless ref $record_types eq 'ARRAY';
+
+  my $cv_type       = $params{customer_vendor_type};
+  my $cv_id         = $params{customer_vendor_id};
+  my $record_number = $params{record_number};
+  my $with_closed   = $params{with_closed};
+
+  my @records = ();
+  foreach my $record_type (@$record_types) {
+    my $manager = $RECORD_TYPE_TO_MANAGER{$record_type};
+    my $model = $RECORD_TYPE_TO_MODEL{$record_type};
+    my %additional_where = ();
+    if ($cv_type && $cv_id && $record_type !~ /^gl_transaction/) {
+      $additional_where{"${cv_type}_id"} = $cv_id;
+    }
+    if ($record_number) {
+      my $nr_key = $RECORD_TYPE_TO_NR_KEY{$record_type};
+      $additional_where{$nr_key} = { ilike => "%$record_number%" };
+    }
+    unless ($with_closed) {
+      if (any {$_ eq 'closed'} $model->meta->columns) {
+        $additional_where{closed} = 0;
+      } elsif (any {$_ eq 'paid'} $model->meta->columns) {
+        $additional_where{amount} = { gt => \'paid' };
+      }
+    }
+    my $records_of_type = $manager->get_all(
+      where => [
+        $manager->type_filter($record_type),
+        %additional_where,
+      ],
+    );
+    push @records, @$records_of_type;
+  }
+
+  return @records;
+}
+
+sub get_records_div {
+  my ($self, $records) = @_;
+  my $div = div_tag(
+    grouped_record_list(
+      $records,
+      with_columns => [ qw(email_journal_action) ],
+    ),
+    id => 'record_list',
+  );
+  return $div;
+}
 
 sub link_and_add_attachment_to_record {
  my ($self, $params) = @_;

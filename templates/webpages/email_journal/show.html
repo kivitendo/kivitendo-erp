@@ -206,45 +206,23 @@
              ) %]
         </div>
       </div>
+      <!-- gets updated on $(document).ready -->
       <div id="record_div">
-        [% SET show_records = (RECORDS.size < 20);
-           IF show_records;
-             SET display_toggle_off = 'style="display:none;"' ;
-             SET display_toggle_on  = 'style="display:block;"' ;
-           ELSE ;
-             SET display_toggle_off = 'style="display:block;"' ;
-             SET display_toggle_on  = 'style="display:none;"' ;
-           END ;
-        %]
         <div id="record_toggle_closed"
-          class="record_toggle toggle_panel control-panel" [% display_toggle_off %]>
+          class="record_toggle toggle_panel control-panel" style="display:block;">
           <a href="#" onClick='javascript:$(".record_toggle").toggle()'
              class="button toggle off neutral">
             [% LxERP.t8('Show Records') %]
           </a>
         </div><!-- /.record_toggle -->
-
         <div id="record_toggle_open"
-          class="record_toggle toggle_panel control-panel" [% display_toggle_on %]>
+          class="record_toggle toggle_panel control-panel" style="display:none;">
           <a href="#" onClick='javascript:$(".record_toggle").toggle()'
              class="button toggle on neutral with-panel">
             [% LxERP.t8('Hide Records') %]
           </a>
           <div class="toggle_panel_block">
-            <div id="record_list">
-            [% FOREACH record = RECORDS %]
-              [% L.button_tag(
-                  'kivi.EmailJournal.apply_action_with_attachment("'
-                  _ record.id _ '", "' _ record.record_type
-                  _ '");',
-                  record.displayable_name,
-                  class="record_button"
-                ) %]
-            [% END %]
-            [% IF RECORDS.size == 0 %]
-              <h3> [% LxERP.t8("No records found.") %] </h3>
-            [% END %]
-            </div>
+            <div id="record_list">LxERP.t8("Loading...")</div>
           </div>
         </div><!-- /.record_toggle -->
       </div><!-- record_div -->
@@ -265,7 +243,6 @@
 <script type="text/javascript">
   $(document).ready(function() {
     kivi.EmailJournal.update_email_workflow_options();
-    kivi.EmailJournal.update_record_list();
     kivi.EmailJournal.update_attachment_preview();
   });
 </script>
