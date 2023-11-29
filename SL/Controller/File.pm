@@ -94,8 +94,6 @@ my %file_types = (
 
 sub action_list {
   my ($self) = @_;
-  $main::lxdebug->dump(0, "TST: action_list", 1);
-
 
   my $is_json = 0;
   $is_json = 1 if $::form->{json};
@@ -423,7 +421,6 @@ sub _do_list {
                                       object_type => \@object_types,
                                       file_type   => $self->file_type,
                                      );
-  $main::lxdebug->dump(0, "TST: files", \@files);
 
   $self->files(\@files);
 
