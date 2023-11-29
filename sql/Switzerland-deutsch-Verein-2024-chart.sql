@@ -1,7 +1,7 @@
 -- deutschsprachiger Kontenplan nach Schweizer Kontenrahmen KMU spezifisch angepasst für mehrwertsteuerpflichtige Vereine in der Schweiz
--- für kivitendo aufbereitet am 11.4.2017, kleinere Korrekturen am 15.7.2017 und 19.2.2023
+-- für kivitendo aufbereitet am 11.4.2017, kleinere Korrekturen am 15.7.2017, 19.2.2023 und 29.11.2023
 -- Grundlage: Revision OR Stand 1.1.2013, insbesondere Art. 957a Abs. 2
--- MWST 7.7% und 2.5%
+-- MWST 8.1% und 2.6%
 -- Autor: Kurt Pfister, http://www.gotransparent.ch
 -- Redaktion: Andreas Rudin, http://www.revamp-it.ch
 -- Copyright 2014,2017,2023 Kurt Pfister, Andreas Rudin
@@ -299,12 +299,12 @@ INSERT INTO tax (taxkey, taxdescription, rate) VALUES
 (1, 'Mehrwertsteuerfrei', 0);
 
 INSERT INTO tax (taxkey, taxdescription, rate, taxnumber, chart_id) VALUES
-(2, 'MWST', 0.07700, '2200', (SELECT id FROM chart WHERE accno='2200')),
-(3, 'MWST', 0.02500, '2200', (SELECT id FROM chart WHERE accno='2200')),
-(4, 'MWST Aufwand', 0.07700, '1170', (SELECT id FROM chart WHERE accno='1170')),
-(5, 'MWST Aufwand', 0.02500, '1170', (SELECT id FROM chart WHERE accno='1170')),
-(6, 'MWST Investitionen', 0.07700, '1171', (SELECT id FROM chart WHERE accno='1171')),
-(7, 'MWST Investitionen', 0.02500, '1171', (SELECT id FROM chart WHERE accno='1171'));
+(2, 'MWST', 0.08100, '2200', (SELECT id FROM chart WHERE accno='2200')),
+(3, 'MWST', 0.02600, '2200', (SELECT id FROM chart WHERE accno='2200')),
+(4, 'MWST Aufwand', 0.08100, '1170', (SELECT id FROM chart WHERE accno='1170')),
+(5, 'MWST Aufwand', 0.02600, '1170', (SELECT id FROM chart WHERE accno='1170')),
+(6, 'MWST Investitionen', 0.08100, '1171', (SELECT id FROM chart WHERE accno='1171')),
+(7, 'MWST Investitionen', 0.02600, '1171', (SELECT id FROM chart WHERE accno='1171'));
 
 
 DELETE FROM taxkeys;
@@ -362,7 +362,7 @@ INSERT INTO defaults (
   0, 0,
   'kg',
   '',
-  '3.7.0 CH',
+  '3.9.0 CH',
   NULL,
   FALSE,
   0, 0, 0,
