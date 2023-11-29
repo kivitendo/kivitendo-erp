@@ -421,7 +421,7 @@
                      </span></dt><dd><p>Vorgangsbezeichnung</p></dd><dt><span class="term">
                         <code class="varname">transdate</code>
                      </span></dt><dd><p>Auftragsdatum wenn die Rechnung aus einem Auftrag
-                erstellt wurde</p></dd></dl></div></div><div class="sect3" title="3.3.8.2. Variablen für die schweizer QR-Rechnung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5775"></a>3.3.8.2. Variablen für die schweizer QR-Rechnung</h4></div></div></div><p>Diese Variablen können mit dem LaTeX Modul qrbill verwendet
+                erstellt wurde</p></dd></dl></div></div><div class="sect3" title="3.3.8.2. Variablen für die schweizer QR-Rechnung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5766"></a>3.3.8.2. Variablen für die schweizer QR-Rechnung</h4></div></div></div><p>Diese Variablen können mit dem LaTeX Modul qrbill verwendet
           werden: <a class="ulink" href="https://ctan.org/pkg/qrbill?lang=de" target="_top">https://ctan.org/pkg/qrbill?lang=de</a>
                </p><p>Für die Erstellung von QR-Rechnungen mit OpenDocument Vorlagen
           siehe: <a class="xref" href="ch02s14.html" title="2.14. OpenDocument-Vorlagen">Abschnitt&nbsp;2.14, „OpenDocument-Vorlagen“</a>
@@ -559,7 +559,16 @@
                         <code class="varname">bm_part_description</code>
                      </span></dt><dd><p>Kunden-/Lieferantentyp-spezifische Artikelbeschreibung</p></dd><dt><span class="term">
                         <code class="varname">bm_part_longdescription</code>
-                     </span></dt><dd><p>Kunden-/Lieferantentyp-spezifische Artikelbeschreibung (Langtext)</p></dd></dl></div></div><div class="sect3" title="3.3.8.4. Variablen für die einzelnen Zahlungseingänge"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.invoice-zahlungen"></a>3.3.8.4. Variablen für die einzelnen Zahlungseingänge</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                     </span></dt><dd><p>Kunden-/Lieferantentyp-spezifische Artikelbeschreibung (Langtext)</p></dd></dl></div></div><div class="sect3" title="3.3.8.4. Benutzerdefinierte Variablen für jeden Posten auf der Rechnung"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.invoice-posten-cvars"></a>3.3.8.4. Benutzerdefinierte Variablen für jeden Posten auf der Rechnung</h4></div></div></div><p>
+            Für jeden Posten stehen auch die benutzerdefinierten Variablen zum
+            Artikel zur Verfügung. Ihre Namen bestehen aus dem Präfix
+            <code class="varname">ic_cvar_</code> und dem vom Benutzer festgelegten
+            Variablennamen.
+          </p><p>
+            Ebenso stehen die benutzerdefinierten Variablen zum positionsbezogenen
+            Projekt unter dem Namen mit dem Präfix <code class="varname">project_cvar_</code>
+            und dem vom Benutzer festgelegten Variablennamen zur Verfügung.
+          </p></div><div class="sect3" title="3.3.8.5. Variablen für die einzelnen Zahlungseingänge"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.invoice-zahlungen"></a>3.3.8.5. Variablen für die einzelnen Zahlungseingänge</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
                         <code class="varname">payment</code>
                      </span></dt><dd><p>Betrag</p></dd><dt><span class="term">
                         <code class="varname">paymentaccount</code>
@@ -569,7 +578,7 @@
                         <code class="varname">paymentmemo</code>
                      </span></dt><dd><p>Memo</p></dd><dt><span class="term">
                         <code class="varname">paymentsource</code>
-                     </span></dt><dd><p>Beleg</p></dd></dl></div></div><div class="sect3" title="3.3.8.5. Benutzerdefinierte Kunden- und Lieferantenvariablen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.benutzerdefinierte-variablen-vc"></a>3.3.8.5. Benutzerdefinierte Kunden- und Lieferantenvariablen</h4></div></div></div><p>Die vom Benutzer definierten Variablen für Kunden und
+                     </span></dt><dd><p>Beleg</p></dd></dl></div></div><div class="sect3" title="3.3.8.6. Benutzerdefinierte Kunden- und Lieferantenvariablen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.benutzerdefinierte-variablen-vc"></a>3.3.8.6. Benutzerdefinierte Kunden- und Lieferantenvariablen</h4></div></div></div><p>Die vom Benutzer definierten Variablen für Kunden und
           Lieferanten stehen beim Ausdruck von Einkaufs- und Verkaufsbelegen
           ebenfalls zur Verfügung. Ihre Namen setzen sich aus dem Präfix
           <code class="varname">vc_cvar_</code> und dem vom Benutzer festgelegten
@@ -581,7 +590,9 @@
           unter einem ähnlichen Namensschema zur Verfügung. Hier lautet der
           Präfix <code class="varname">shiptocvar_</code>.</p><p>Analog stehen die benutzerdefinierten Variablen für
           Ansprechpersonen mit dem Namenspräfix <code class="varname">cp_cvar_</code>
-          zur Verfügung.</p></div></div><div class="sect2" title="3.3.9. Variablen in Mahnungen und Rechnungen über Mahngebühren"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.dunning"></a>3.3.9. Variablen in Mahnungen und Rechnungen über Mahngebühren</h3></div></div></div><div class="sect3" title="3.3.9.1. Namen der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.dunning-vorlagennamen"></a>3.3.9.1. Namen der Vorlagen</h4></div></div></div><p>Die Namen der Vorlagen werden im System-Menü vom Benutzer
+          zur Verfügung.</p><p>Auch für das globale Projekt des Belegs stehen die
+          benutzerdefinierten Variablen mit dem Namenspräfix
+          <code class="varname">project_cvar_</code> zur Verfügung.</p></div></div><div class="sect2" title="3.3.9. Variablen in Mahnungen und Rechnungen über Mahngebühren"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.dunning"></a>3.3.9. Variablen in Mahnungen und Rechnungen über Mahngebühren</h3></div></div></div><div class="sect3" title="3.3.9.1. Namen der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.dunning-vorlagennamen"></a>3.3.9.1. Namen der Vorlagen</h4></div></div></div><p>Die Namen der Vorlagen werden im System-Menü vom Benutzer
           eingegeben. Wird für ein Mahnlevel die Option zur automatischen
           Erstellung einer Rechnung über die Mahngebühren und Zinsen
           aktiviert, so wird der Name der Vorlage für diese Rechnung aus dem
@@ -670,7 +681,7 @@
                         <code class="varname">invdate</code>
                      </span></dt><dd><p>Rechnungsdatum</p></dd><dt><span class="term">
                         <code class="varname">invnumber</code>
-                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6719"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
+                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6728"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
           Rechnung. Allerdings heißen die Variablen, die mit
           <code class="varname">inv</code> beginnen, jetzt anders. Bei den Angeboten
           fangen sie mit <code class="varname">quo</code> für "quotation" an:
