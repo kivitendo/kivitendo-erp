@@ -6,44 +6,99 @@ use warnings;
 use parent qw(SL::BackgroundJob::Base);
 
 use SL::IMAPClient;
+use SL::DB::EmailJournal;
 use SL::DB::Manager::EmailImport;
 use SL::Helper::EmailProcessing;
 use SL::Presenter::Tag qw(link_tag);
-use SL::Presenter::EscapedText qw(escape);
+
+use List::MoreUtils qw(any);
 
 sub sync_record_email_folder {
-  my ($self, $imap_client, $record_type, $folder) = @_;
+  my ($self, $config) = @_;
+
+  my $imap_client = SL::IMAPClient->new(%$config);
+  return "IMAP client is disabled." unless $imap_client;
 
   my $email_import = $imap_client->update_emails_from_folder(
-    $folder,
+    $config->{folder},
     {
       email_journal => {
         status => 'imported',
-        record_type => $record_type,
+        record_type => $config->{record_type},
       },
     }
   );
+  return "No emails to import." unless $email_import;
 
-  return $email_import;
+  my $result = "Created email import with id " . $email_import->id . ".";
+
+  if ($config->{process_imported_emails}) {
+    my @function_names =
+      ref $config->{process_imported_emails} eq 'ARRAY' ?
+          @{$config->{process_imported_emails}}
+        : ($config->{process_imported_emails});
+    foreach my $email_journal (@{$email_import->email_journals}) {
+      my $created_records = 0;
+      foreach my $function_name (@function_names) {
+        eval {
+          my $processed = SL::Helper::EmailProcessing->process_attachments($function_name, $email_journal);
+          $created_records += $processed;
+          1;
+        } or do {
+          # # TODO: link not shown as link
+          # my $email_journal_link = link_tag(
+          #   $ENV{HTTP_ORIGIN} . $ENV{REQUEST_URI}
+          #   . '?action=EmailJournal/show'
+          #   . '&id=' . $email_journal->id
+          #   # text
+          #   , $email_journal->id
+          # );
+          my $email_journal_id = $email_journal->id;
+          $result .= "Error while processing email journal $email_journal_id attachments with $function_name: $@";
+        };
+      }
+      if ($created_records) {
+        $imap_client->set_flag_for_email(
+          $email_journal, $config->{processed_imap_flag});
+      } else {
+        $imap_client->set_flag_for_email(
+          $email_journal, $config->{not_processed_imap_flag});
+      }
+    }
+    $result .= "Processed attachments with "
+      . join(', ', @function_names) . "."
+      if scalar @function_names;
+  }
+
+  return $result;
 }
 
 sub delete_email_imports {
-  my ($self) = @_;
-  my $job_obj = $self->{job_obj};
+  my ($self, $email_import_ids_to_delete) = @_;
 
-  my $email_import_ids_to_delete =
-    $job_obj->data_as_hash->{email_import_ids_to_delete} || [];
-
-  my @deleted_email_imports_ids;
+  my @not_found_email_import_ids;
+  my @deleted_email_import_ids;
   foreach my $email_import_id (@$email_import_ids_to_delete) {
     my $email_import = SL::DB::Manager::EmailImport->find_by(id => $email_import_id);
-    next unless $email_import;
+    unless ($email_import) {
+      push @not_found_email_import_ids, $email_import_id;
+      next;
+    }
     $email_import->delete(cascade => 1);
-    push @deleted_email_imports_ids, $email_import_id;
+    push @deleted_email_import_ids, $email_import_id;
   }
-  return unless @deleted_email_imports_ids;
 
-  return "Deleted email import(s): " . join(', ', @deleted_email_imports_ids) . ".\n";
+  my $result = "";
+
+  $result .= "Deleted email import(s): "
+    . join(', ', @deleted_email_import_ids) . "."
+    if scalar @deleted_email_import_ids;
+
+  $result .= "Could not find email import(s): "
+    . join(', ', @not_found_email_import_ids) . " for deletion."
+    if scalar @not_found_email_import_ids;
+
+  return $result;
 }
 
 sub run {
@@ -52,70 +107,29 @@ sub run {
 
   my $data = $job_obj->data_as_hash;
 
-  my %configs = map { $_ => {
-      %{$data->{records}->{$_}},
-      config => $::lx_office_conf{"record_emails_imap/record/$_"}
-        || $::lx_office_conf{record_emails_imap}
-        || {},
-    } } keys %{$data->{records}};
+  my $email_import_ids_to_delete = $data->{email_import_ids_to_delete} || [];
 
-  my @results = ();
-  push @results, $self->delete_email_imports();
+  my $record_type = $data->{record_type};
+  my $config = $::lx_office_conf{"record_emails_imap/record_type/$record_type"}
+    || $::lx_office_conf{record_emails_imap}
+    || {};
+  # overwrite with background job data
+  $config->{$_} = $data->{$_} for keys %$data;
 
-  foreach my $import_key (keys %configs) {
-    my @record_results = ();
-    my $record_config = $configs{$import_key};
-    my $imap_client = SL::IMAPClient->new(%{$record_config->{config}});
-    my $record_folder = $record_config->{folder};
-
-    my $email_import = $self->sync_record_email_folder(
-      $imap_client, $import_key, $record_folder,
-    );
-
-    unless ($email_import) {
-      push @results, "$import_key No emails to import";
-      next;
+  $record_type = $config->{record_type};
+  if ($record_type) {
+    my $valid_record_types = SL::DB::EmailJournal->meta->{columns}->{record_type}->{check_in};
+    unless (any {$record_type eq $_} @$valid_record_types) {
+      die "record_type '$record_type' is not valid. Possible values:\n- " . join("\n- ", @$valid_record_types);
     }
-    push @record_results, "Created email import with id " . $email_import->id;
-
-    if ($record_config->{process_imported_emails}) {
-      my @function_names =
-        ref $record_config->{process_imported_emails} eq 'ARRAY' ?
-            @{$record_config->{process_imported_emails}}
-          : ($record_config->{process_imported_emails});
-      foreach my $email_journal (@{$email_import->email_journals}) {
-        my $created_records = 0;
-        foreach my $function_name (@function_names) {
-          eval {
-            my $processed = SL::Helper::EmailProcessing->process_attachments($function_name, $email_journal);
-            $created_records += $processed;
-            1;
-          } or do {
-            # TODO: link not shown as link
-            my $email_journal_link = link_tag(
-              $ENV{HTTP_ORIGIN} . $ENV{REQUEST_URI}
-              . '?action=EmailJournal/show'
-              . '&id=' . escape($email_journal->id)
-              # text
-              , $email_journal->id
-            );
-            push @record_results, "Error while processing email journal $email_journal_link attachments with $function_name: $@";
-          };
-        }
-        if ($created_records) {
-          $imap_client->set_flag_for_email(
-            $email_journal, $record_config->{processed_imap_flag});
-        } else {
-          $imap_client->set_flag_for_email(
-            $email_journal, $record_config->{not_processed_imap_flag});
-        }
-
-      }
-      push @record_results, "Processed attachments with " . join(', ', @function_names) . ".";
-    }
-
-    push @results, join("\n- ", "$import_key :", @record_results);
   }
+
+  my @results;
+  if (scalar $email_import_ids_to_delete) {
+    push @results, $self->delete_email_imports($email_import_ids_to_delete);
+  }
+
+  push @results, $self->sync_record_email_folder($config);
 
   return join("\n", grep { $_ ne ''} @results);
 }
@@ -139,42 +153,25 @@ SL::Helper::EmailProcessing.
 
 =head1 CONFIGURATION
 
-In kivitendo.conf the settings for the IMAP server must be specified. The
+In kivitendo.conf the settings for the IMAP server can be specified. The
 default config is under [record_emails_imap]. The config for a specific record
-type is under [record_emails_imap/record/<record_type>]. The config for a
-specific record type overrides the default config.
-
-In the data field 'records' of the background job, the record types to sync
-emails for are specified. The key is the record type, the value is a hashref.
-The hashref contains the following keys:
+type is under [record_emails_imap/record_type/<record_type>]. The config for a
+specific record type overwrites the default config. The data fields can
+overwrite single configration values.
 
 =over 4
+
+=item record_type
+
+The record type to set for each imported email journal. This is used to get
+a specific config under [record_emails_imap/record_type/<record_type>].
 
 =item folder
 
 The folder to sync emails from. Sub folders are separated by a forward slash,
 e.g. 'INBOX/Archive'. Subfolders are not synced.
 
-=item process_imported_emails
-
-The function name(s) to process the imported emails with. Multiple function
-names can be specified as an arrayref. The function names are passed to
-SL::Helper::EmailProcessing->process_attachments. The function names must be
-implemented in SL::Helper::EmailProcessing.
-
-=item processed_imap_flag
-
-The IMAP flag to set for emails that were processed successfully.
-
-=item not_processed_imap_flag
-
-The IMAP flag to set for emails that were not processed successfully.
-
 =back
-
-=head1 METHODS
-
-
 
 =head1 BUGS
 
