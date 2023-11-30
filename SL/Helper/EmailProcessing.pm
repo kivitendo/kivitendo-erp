@@ -53,14 +53,15 @@ sub process_attachments_zugferd {
 
   my $purchase_invoice;
   eval {
-    $purchase_invoice = SL::DB::PurchaseInvoice->create_from_zugferd_xml(\%res)->save();
+    $purchase_invoice = SL::DB::PurchaseInvoice->create_from_zugferd_data(\%res)->save();
     1;
   } or do {
     my $error = $@;
-    $email_journal->extended_status(
-      join "\n", $email_journal->extended_status,
-      "Error processing ZUGFeRD attachment $name: $error"
-    )->save;
+    $email_journal->update_attributes(
+      extended_status =>
+        join "\n", $email_journal->extended_status,
+        "Error processing ZUGFeRD attachment $name: $error"
+    );
     return 0;
   };
 
