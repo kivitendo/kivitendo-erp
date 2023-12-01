@@ -115,6 +115,7 @@ sub run {
     || {};
   # overwrite with background job data
   $config->{$_} = $data->{$_} for keys %$data;
+  $config->{record_type} ||= 'catch_all';
 
   $record_type = $config->{record_type};
   if ($record_type) {
@@ -164,7 +165,8 @@ overwrite single configration values.
 =item record_type
 
 The record type to set for each imported email journal. This is used to get
-a specific config under [record_emails_imap/record_type/<record_type>].
+a specific config under [record_emails_imap/record_type/<record_type>]. The
+default value is C<catch_all>
 
 =item folder
 

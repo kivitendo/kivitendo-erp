@@ -707,6 +707,7 @@ $self->{texts} = {
   'Cash'                        => 'Zahlungsverkehr',
   'Cash accounting'             => 'Ist-Versteuerung',
   'Cash basis accounting'       => 'Einnahmen-Überschuss-Rechnung',
+  'Catch-all'                   => 'Catch-All',
   'Category'                    => 'Artikelkategorie',
   'Cc'                          => 'Cc',
   'Cc E-mail'                   => 'CC (E-Mail)',

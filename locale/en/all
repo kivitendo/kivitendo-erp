@@ -707,6 +707,7 @@ $self->{texts} = {
   'Cash'                        => '',
   'Cash accounting'             => '',
   'Cash basis accounting'       => '',
+  'Catch-all'                   => '',
   'Category'                    => '',
   'Cc'                          => '',
   'Cc E-mail'                   => '',

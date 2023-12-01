@@ -35,6 +35,7 @@
       <td>
         [%
           SET record_type_options = [];
+          record_type_options.push({text=LxERP.t8("Catch-all"), record_type='catch_all'});
           FOREACH record_info = RECORD_TYPES_WITH_INFO;
             IF (!record_info.is_template);
               record_type_options.push(record_info);
