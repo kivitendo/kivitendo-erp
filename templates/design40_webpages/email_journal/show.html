@@ -172,6 +172,16 @@
          ) %]
       </div>
       [% END %]
+
+      <div id="zugferd_import_div" style="display:none">
+        <!-- get shown if the attachment is valid zugferd -->
+        [% L.button_tag('kivi.EmailJournal.zugferd_import_with_attachment();',
+          LxERP.t8('Factur-X/ZUGFeRD import'),
+          style="margin-top:5px"
+          )
+        %]
+      </div>
+
     </div></div> <!-- action_div -->
 
     <div id="record_selection_div">

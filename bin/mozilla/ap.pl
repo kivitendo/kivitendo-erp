@@ -115,8 +115,10 @@ sub load_zugferd {
   $::auth->assert('ap_transactions');
 
   my $file_name = $::form->{form_defaults}->{zugferd_session_file};
-  flash('info', $::locale->text(
-      "The ZUGFeRD/Factur-X invoice '#1' has been loaded.", $file_name));
+  if ($file_name) {
+    flash('info', $::locale->text(
+        "The ZUGFeRD/Factur-X invoice '#1' has been loaded.", $file_name));
+  }
 
   my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $::form->{form_defaults}->{vendor_id}]);
   if ($template_ap) {

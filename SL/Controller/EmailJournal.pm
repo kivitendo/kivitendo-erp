@@ -4,6 +4,8 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use SL::ZUGFeRD;
+use SL::Controller::ZUGFeRD;
 use SL::Controller::Helper::GetModels;
 use SL::DB::Employee;
 use SL::DB::EmailJournal;
@@ -380,6 +382,46 @@ sub action_apply_record_action {
   );
 }
 
+sub action_zugferd_import_with_attachment {
+  my ($self) = @_;
+
+  my $email_journal_id   = $::form->{email_journal_id};
+  my $attachment_id      = $::form->{attachment_id};
+
+  die "no 'email_journal_id' was given" unless $email_journal_id;
+  die "no 'attachment_id' was given"    unless $attachment_id;
+
+  my $attachment = SL::DB::EmailJournalAttachment->new(id => $attachment_id)->load();
+
+  my $content = $attachment->content; # scalar ref
+
+  die t8("can only parse a pdf or xml file") unless $content =~ m/^%PDF|<\?xml/;
+
+  my %res;
+  if ( $content =~ m/^%PDF/ ) {
+    %res = %{SL::ZUGFeRD->extract_from_pdf($content)};
+  } else {
+    %res = %{SL::ZUGFeRD->extract_from_xml($content)};
+  }
+
+  unless ($res{'result'} == SL::ZUGFeRD::RES_OK()) {
+    die(t8("Could not extract Factur-X/ZUGFeRD data, data and error message:") . " $res{'message'}");
+  }
+
+  my $form_defaults = SL::Controller::ZUGFeRD->build_ap_transaction_form_defaults(\%res);
+  $form_defaults->{email_journal_id}    = $email_journal_id;
+  $form_defaults->{email_attachment_id} = $attachment_id;
+  $form_defaults->{callback}            = $::form->{back_to};
+
+  flash_later('info',
+    t8("The ZUGFeRD/Factur-X invoice '#1' has been loaded.", $attachment->name));
+  $self->redirect_to(
+    controller    => 'ap.pl',
+    action        => 'load_zugferd',
+    form_defaults => $form_defaults,
+  );
+}
+
 sub action_update_attachment_preview {
   my ($self) = @_;
   $::auth->assert('email_journal');
@@ -389,6 +431,20 @@ sub action_update_attachment_preview {
   $attachment = SL::DB::EmailJournalAttachment->new(
     id => $attachment_id,
   )->load if $attachment_id;
+
+  $self->js->hide('#zugferd_import_div');
+  if ($attachment && $attachment->content =~ m/^%PDF|<\?xml/) {
+    my $content = $attachment->content;
+    my %res;
+    if ( $content =~ m/^%PDF/ ) {
+      %res = %{SL::ZUGFeRD->extract_from_pdf($content)};
+    } else {
+      %res = %{SL::ZUGFeRD->extract_from_xml($content)};
+    }
+    if ($res{'result'} == SL::ZUGFeRD::RES_OK()) {
+      $self->js->show('#zugferd_import_div');
+    }
+  }
 
   $self->js
     ->replaceWith('#attachment_preview',
