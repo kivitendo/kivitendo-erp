@@ -38,7 +38,7 @@
   
   <tr class="listrow">
    <th>[%- LxERP.t8("For Record Type") %]</th>
-   <td>[%- HTML.escape(SELF.entry.record_type) %]</td>
+   <td>[%- HTML.escape(RECORD_TYPES_TO_TEXT.${SELF.entry.record_type}) %]</td>
   </tr>
 
   <tr class="listrow">

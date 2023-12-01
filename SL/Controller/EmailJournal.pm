@@ -181,6 +181,17 @@ sub get_record_types_with_info {
   return @record_types_with_info;
 }
 
+# has do be done at runtime for translation to work
+sub get_record_types_to_text {
+  my @record_types_with_info = get_record_types_with_info();
+
+  my %record_types_to_text = ();
+  $record_types_to_text{$_->{record_type}} = $_->{text} for @record_types_with_info;
+  $record_types_to_text{'catch_all'} = t8("Catch-all");
+
+  return %record_types_to_text;
+}
+
 sub record_types_for_customer_vendor_type_and_action {
   my ($self, $customer_vendor_type, $action) = @_;
   return [
@@ -217,11 +228,13 @@ sub action_list {
   }
   $self->setup_list_action_bar;
   my @record_types_with_info = $self->get_record_types_with_info();
+  my %record_types_to_text   = $self->get_record_types_to_text();
   $self->render('email_journal/list',
                 title   => $::locale->text('Email journal'),
                 ENTRIES => $self->models->get,
                 MODELS  => $self->models,
                 RECORD_TYPES_WITH_INFO => \@record_types_with_info,
+                RECORD_TYPES_TO_TEXT   => \%record_types_to_text,
               );
 }
 
@@ -239,6 +252,7 @@ sub action_show {
   }
 
   my @record_types_with_info = $self->get_record_types_with_info();
+  my %record_types_to_text   = $self->get_record_types_to_text();
 
   my $customer_vendor = $self->find_customer_vendor_from_email($self->entry);
   my $cv_type = $customer_vendor && $customer_vendor->is_vendor ? 'vendor' : 'customer';
@@ -255,7 +269,8 @@ sub action_show {
     CUSTOMER_VENDOR => , $customer_vendor,
     CV_TYPE_FOUND => $cv_type_found,
     RECORD_TYPES_WITH_INFO => \@record_types_with_info,
-    back_to  => $back_to
+    RECORD_TYPES_TO_TEXT   => \%record_types_to_text,
+    back_to  => $back_to,
   );
 }
 
@@ -764,8 +779,8 @@ sub init_filter_summary {
   push @filter_strings, $status{ $filter->{'status:eq_ignore_empty'} } if $filter->{'status:eq_ignore_empty'};
 
 
-  my %record_type = map { $_->{record_type} => $_->{text} } $self->get_record_types_with_info();
-  push @filter_strings, $record_type{ $filter->{'record_type:eq_ignore_empty'} } if $filter->{'record_type:eq_ignore_empty'};
+  my %record_type_to_text = $self->get_record_types_to_text();
+  push @filter_strings, $record_type_to_text{ $filter->{'record_type:eq_ignore_empty'} } if $filter->{'record_type:eq_ignore_empty'};
 
   push @filter_strings, $::locale->text('Obsolete')     if $filter->{'obsolete:eq_ignore_empty'} eq '1';
   push @filter_strings, $::locale->text('Not obsolete') if $filter->{'obsolete:eq_ignore_empty'} eq '0';

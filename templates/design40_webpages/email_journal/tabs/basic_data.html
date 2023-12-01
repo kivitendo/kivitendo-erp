@@ -40,7 +40,7 @@
     </tr>
     <tr>
       <th>[% 'For Record Type' | $T8 %]</th>
-      <td>[% L.input_tag('record_type', SELF.entry.record_type, style="color:black", class="wi-verywide", disabled=1) %]</td>
+      <td>[% L.input_tag('record_type', RECORD_TYPES_TO_TEXT.${SELF.entry.record_type}, style="color:black", class="wi-verywide", disabled=1) %]</td>
     </tr>
     <tr>
       <th>[% 'Headers' | $T8 %]</th>

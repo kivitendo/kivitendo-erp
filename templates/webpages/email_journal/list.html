@@ -52,7 +52,7 @@
    <td>[%- HTML.escape(entry.sent_on.to_lxoffice('precision' => 'second')) %]</td>
    <td> [% P.email_journal.entry_status(entry) %] </td>
    <td>[%- HTML.escape(entry.extended_status) %]</td>
-   <td>[% HTML.escape(entry.record_type) %]</td>
+   <td>[% HTML.escape(RECORD_TYPES_TO_TEXT.${entry.record_type}) %]</td>
    <td>[% HTML.escape(entry.obsolete_as_bool_yn) %]</td>
    <td>
      [% P.record.simple_grouped_record_list(entry.linked_records) %]
