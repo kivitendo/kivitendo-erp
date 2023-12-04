@@ -47,6 +47,8 @@ my %specs = ( ar                          => { number_column => 'invnumber',    
               service                     => { number_column => 'partnumber',     number_range_column => 'servicenumber',                              },
               assembly                    => { number_column => 'partnumber',     number_range_column => 'assemblynumber',                             },
               assortment                  => { number_column => 'partnumber',     number_range_column => 'assortmentnumber',                           },
+              parent_variant              => { number_column => 'partnumber',     number_range_column => 'parent_variant_number',                      },
+              variant                     => { number_column => 'partnumber',     number_range_column => 'variant_number',                             },
             );
 
 sub get_next_trans_number {
