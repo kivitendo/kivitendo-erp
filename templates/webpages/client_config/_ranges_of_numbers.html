@@ -72,11 +72,15 @@
   <tr>
    <td align="right" nowrap>[% LxERP.t8('Last Purchase Delivery Order Number') %]</td>
    <td>[% L.input_tag("defaults.pdonumber", SELF.defaults.pdonumber, size="15") %]</td>
+   <td align="right" nowrap>[% LxERP.t8('Last Parent Variant Number') %]</td>
+   <td>[% L.input_tag("defaults.parent_variant_number", SELF.defaults.parent_variant_number, size="15") %]</td>
   </tr>
 
   <tr>
    <td align="right" nowrap>[% LxERP.t8('Last Supplier Delivery Order Number') %]</td>
    <td>[% L.input_tag("defaults.sudonumber", SELF.defaults.sudonumber, size="15") %]</td>
+   <td align="right" nowrap>[% LxERP.t8('Last Variant Number') %]</td>
+   <td>[% L.input_tag("defaults.variant_number", SELF.defaults.variant_number, size="15") %]</td>
   </tr>
 
   <tr>

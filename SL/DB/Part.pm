@@ -92,6 +92,30 @@ __PACKAGE__->meta->add_relationships(
     class        => 'SL::DB::PurchaseBasketItem',
     column_map   => { id => 'part_id' },
   },
+  variant_properties => {
+    map_class => 'SL::DB::VariantPropertyPart',
+    map_from  => 'part',
+    map_to    => 'variant_property',
+    type      => 'many to many',
+  },
+  variant_porperty_values => {
+    map_class => 'SL::DB::VariantPropertyValuePart',
+    map_from  => 'part',
+    map_to    => 'variant_property_value',
+    type      => 'many to many',
+  },
+  parent_variant => {
+    map_class => 'SL::DB::PartParentVariantPartVariant',
+    map_from  => 'variant',
+    map_to    => 'parent_variant',
+    type      => 'many to many', #should be 'many to one' but has no map_class
+  },
+  variants => {
+    map_class => 'SL::DB::PartParentVariantPartVariant',
+    map_from  => 'parent_variant',
+    map_to    => 'variant',
+    type      => 'many to many', #should be 'one to many' but has no map_class
+  }
 );
 
 __PACKAGE__->meta->initialize;
@@ -179,29 +203,19 @@ sub validate {
 sub is_type {
   my $self = shift;
   my $type  = lc(shift || '');
-  die 'invalid type' unless $type =~ /^(?:part|service|assembly|assortment)$/;
+  die 'invalid type' unless $type =~ /^(?:part|service|assembly|assortment|parent_variant|variant)$/;
 
   return $self->type eq $type ? 1 : 0;
 }
 
-sub is_part       { $_[0]->part_type eq 'part'       }
-sub is_assembly   { $_[0]->part_type eq 'assembly'   }
-sub is_service    { $_[0]->part_type eq 'service'    }
-sub is_assortment { $_[0]->part_type eq 'assortment' }
+sub is_part           { $_[0]->part_type eq 'part'       }
+sub is_assembly       { $_[0]->part_type eq 'assembly'   }
+sub is_service        { $_[0]->part_type eq 'service'    }
+sub is_assortment     { $_[0]->part_type eq 'assortment' }
+sub is_parent_varient { $_[0]->part_type eq 'parent_variant' }
+sub is_varient        { $_[0]->part_type eq 'variant' }
 
-sub type {
-  return $_[0]->part_type;
-  # my ($self, $type) = @_;
-  # if (@_ > 1) {
-  #   die 'invalid type' unless $type =~ /^(?:part|service|assembly)$/;
-  #   $self->assembly(          $type eq 'assembly' ? 1 : 0);
-  #   $self->inventory_accno_id($type ne 'service'  ? 1 : undef);
-  # }
-
-  # return 'assembly' if $self->assembly;
-  # return 'part'     if $self->inventory_accno_id;
-  # return 'service';
-}
+sub type { return $_[0]->part_type; }
 
 sub new_part {
   my ($class, %params) = @_;
@@ -221,6 +235,16 @@ sub new_service {
 sub new_assortment {
   my ($class, %params) = @_;
   $class->new(%params, part_type => 'assortment');
+}
+
+sub new_parent_variant {
+  my ($class, %params) = @_;
+  $class->new(%params, part_type => 'parent_variant');
+}
+
+sub new_variant {
+  my ($class, %params) = @_;
+  $class->new(%params, part_type => 'variant');
 }
 
 sub last_modification {
