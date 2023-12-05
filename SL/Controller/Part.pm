@@ -86,6 +86,13 @@ sub action_add_assortment {
   $self->add;
 };
 
+sub action_add_parent_variant {
+  my ($self, %params) = @_;
+
+  $self->part( SL::DB::Part->new_parent_variant );
+  $self->add;
+}
+
 sub action_add_from_record {
   my ($self) = @_;
 
@@ -103,10 +110,12 @@ sub action_add {
 
   check_has_valid_part_type($::form->{part_type});
 
-  $self->action_add_part       if $::form->{part_type} eq 'part';
-  $self->action_add_service    if $::form->{part_type} eq 'service';
-  $self->action_add_assembly   if $::form->{part_type} eq 'assembly';
-  $self->action_add_assortment if $::form->{part_type} eq 'assortment';
+  $self->action_add_part           if $::form->{part_type} eq 'part';
+  $self->action_add_service        if $::form->{part_type} eq 'service';
+  $self->action_add_assembly       if $::form->{part_type} eq 'assembly';
+  $self->action_add_assortment     if $::form->{part_type} eq 'assortment';
+  $self->action_add_parent_variant if $::form->{part_type} eq 'parent_variant';
+  $self->action_add_variant        if $::form->{part_type} eq 'variant';
 };
 
 sub action_save {
@@ -212,6 +221,64 @@ sub action_abort {
   }
 }
 
+sub action_create_variants {
+  my ($self) = @_;
+  my @variant_property_ids = sort keys %{$::form->{variant_properties}};
+
+  my $part = $self->part;
+  my $variant_properties = $part->variant_properties();
+  my @needed_variant_property_ids = sort map {$_->id} @$variant_properties;
+
+  if (@variant_property_ids != @needed_variant_property_ids) {
+    return $self->js->error(
+      t8('No property value selected for variant properties: #1.',
+        join(", ",
+          map {$_->name_translated}
+          grep {!defined $::form->{variant_properties}->{$_->id}->{selected_property_values}}
+          @$variant_properties
+        )
+      )
+    )->render();
+  }
+
+  my @grouped_variant_property_values = ();
+  push @grouped_variant_property_values,
+    SL::DB::Manager::VariantPropertyValue->get_all(
+      where => [ id => $::form->{variant_properties}->{$_}->{selected_property_values} ]
+    )
+    for @variant_property_ids;
+
+
+  my @variant_property_values_lists = ();
+  foreach my $variant_property_values (@grouped_variant_property_values) {
+    my @new_lists = ();
+    foreach my $variant_property_value (@$variant_property_values) {
+      unless (scalar @variant_property_values_lists) {
+        push @new_lists, [$variant_property_value];
+      }
+      foreach my $variant_property_values_list (@variant_property_values_lists) {
+        push @new_lists, [@$variant_property_values_list, $variant_property_value];
+      }
+    }
+    @variant_property_values_lists = @new_lists;
+  }
+
+  my @new_variants = ();
+  SL::DB->client->with_transaction(sub {
+    push @new_variants, $part->create_new_variant($_)
+      for @variant_property_values_lists;
+    1;
+  }) or do {
+    return $self->js->error(t8('Error while creating variants: ' . @_))->render();
+  };
+
+  $self->redirect_to(
+    controller => 'Part',
+    action     => 'edit',
+    'part.id'  => $self->part->id
+  );
+}
+
 sub action_delete {
   my ($self) = @_;
 
@@ -307,10 +374,12 @@ sub render_form {
     @{ $params{CUSTOM_VARIABLES_FIRST_TAB} }  = extract_by { $_->{first_tab} == 1 } @{ $params{CUSTOM_VARIABLES} };
   }
 
-  my %title_hash = ( part       => t8('Edit Part'),
-                     assembly   => t8('Edit Assembly'),
-                     service    => t8('Edit Service'),
-                     assortment => t8('Edit Assortment'),
+  my %title_hash = ( part           => t8('Edit Part'),
+                     assembly       => t8('Edit Assembly'),
+                     service        => t8('Edit Service'),
+                     assortment     => t8('Edit Assortment'),
+                     parent_variant => t8('Edit Parent Variant'),
+                     variant        => t8('Edit Variant'),
                    );
 
   $self->part->prices([])       unless $self->part->prices;
@@ -955,10 +1024,12 @@ sub add {
   $self->_set_javascript;
   $self->_setup_form_action_bar;
 
-  my %title_hash = ( part       => t8('Add Part'),
-                     assembly   => t8('Add Assembly'),
-                     service    => t8('Add Service'),
-                     assortment => t8('Add Assortment'),
+  my %title_hash = ( part           => t8('Add Part'),
+                     assembly       => t8('Add Assembly'),
+                     service        => t8('Add Service'),
+                     assortment     => t8('Add Assortment'),
+                     parent_variant => t8('Add Parent Variant'),
+                     variant        => t8('Add Variant'),
                    );
 
   $self->render(
@@ -970,7 +1041,7 @@ sub add {
 
 sub _set_javascript {
   my ($self) = @_;
-  $::request->layout->use_javascript("${_}.js")  for qw(kivi.Part kivi.File kivi.PriceRule kivi.ShopPart kivi.Validator);
+  $::request->layout->use_javascript("${_}.js")  for qw(kivi.Part kivi.File kivi.PriceRule kivi.ShopPart kivi.Validator jquery.selectboxes jquery.multiselect2side);
   $::request->layout->add_javascripts_inline("\$(function(){kivi.PriceRule.load_price_rules_for_part(@{[ $self->part->id ]})});") if $self->part->id;
 }
 
@@ -1585,7 +1656,7 @@ sub check_form {
 }
 
 sub check_has_valid_part_type {
-  die "invalid part_type" unless $_[0] =~ /^(part|service|assembly|assortment)$/;
+  die "invalid part_type" unless $_[0] =~ /^(part|service|assembly|assortment|parent_variant|variant)$/;
 }
 
 
