@@ -212,8 +212,8 @@ sub is_part           { $_[0]->part_type eq 'part'       }
 sub is_assembly       { $_[0]->part_type eq 'assembly'   }
 sub is_service        { $_[0]->part_type eq 'service'    }
 sub is_assortment     { $_[0]->part_type eq 'assortment' }
-sub is_parent_varient { $_[0]->part_type eq 'parent_variant' }
-sub is_varient        { $_[0]->part_type eq 'variant' }
+sub is_parent_variant { $_[0]->part_type eq 'parent_variant' }
+sub is_variant        { $_[0]->part_type eq 'variant' }
 
 sub type { return $_[0]->part_type; }
 
