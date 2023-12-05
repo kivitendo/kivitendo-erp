@@ -19,4 +19,6 @@ __PACKAGE__->meta->add_relationships(
 
 __PACKAGE__->meta->initialize;
 
+sub value_translated {goto &value} # TODO
+
 1;

@@ -15,6 +15,11 @@ __PACKAGE__->meta->add_relationships(
     map_to    => 'part',
     type      => 'many to many',
   },
+  property_values => {
+    class => 'SL::DB::VariantPropertyValue',
+    column_map => { id => 'variant_property_id' },
+    type => 'one to many',
+  }
 );
 
 __PACKAGE__->meta->initialize;
@@ -29,5 +34,7 @@ sub validate {
   push @errors, $::locale->text('The abbreviation is missing')    unless $self->{abbreviation};
   return @errors;
 }
+
+sub name_translated {goto &name} # TODO
 
 1;
