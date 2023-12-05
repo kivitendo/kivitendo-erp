@@ -1,0 +1,29 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+[% USE date %]
+
+<div id="variant_properties">
+
+<div class="wrapper">
+<table class="tbl-list width-moderate">
+  <caption>[% 'Variant Properties' | $T8 %]</caption>
+  <thead>
+    <tr>
+      <th>[% 'Name'         | $T8 %]</th>
+      <th>[% 'Unique Name'  | $T8 %]</th>
+      <th>[% 'Abbreviation' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH row = SELF.VARIANTPROPERTIES %]
+      <tr>
+        <td>[% row.name         | html %]</td>
+        <td>[% row.unique_name  | html %]</td>
+        <td>[% row.abbraviation | html %]</td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>
+
