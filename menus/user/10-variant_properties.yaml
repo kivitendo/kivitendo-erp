@@ -1,0 +1,7 @@
+---
+- parent: system
+  id: variant_properties
+  name: Variant Properties
+  order: 1110
+  params:
+    action: VariantProperty/list_properties
