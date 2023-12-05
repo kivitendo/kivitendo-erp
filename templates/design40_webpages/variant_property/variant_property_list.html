@@ -17,11 +17,11 @@
     </tr>
   </thead>
   <tbody>
-    [% FOREACH row = SELF.VARIANTPROPERTIES %]
+    [% FOREACH row = VARIANTPROPERTIES %]
       <tr>
         <td>[% row.name         | html %]</td>
         <td>[% row.unique_name  | html %]</td>
-        <td>[% row.abbraviation | html %]</td>
+        <td>[% row.abbreviation | html %]</td>
       </tr>
     [% END %]
   </tbody>
