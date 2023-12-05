@@ -19,4 +19,15 @@ __PACKAGE__->meta->add_relationships(
 
 __PACKAGE__->meta->initialize;
 
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+  # critical checks
+  push @errors, $::locale->text('The name is missing.') unless $self->{name};
+  push @errors, $::locale->text('The unique name is missing.')        unless $self->{unique_name};
+  push @errors, $::locale->text('The abbreviation is missing')    unless $self->{abbreviation};
+  return @errors;
+}
+
 1;
