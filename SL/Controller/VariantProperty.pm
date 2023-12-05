@@ -23,7 +23,7 @@ sub action_list_properties {
   my ($self) = @_;
 
   $self->_setup_list_action_bar;
-  $self->render('variant_property/list',
+  $self->render('variant_property/variant_property_list',
                 title             => t8('Variant Property'),
                 VARIANTPROPERTIES => SL::DB::Manager::VariantProperty->get_all_sorted,
                );
@@ -34,13 +34,13 @@ sub action_edit_property {
 
   my $is_new = !$self->variant_property->id;
   $self->_setup_form_action_bar;
-  $self->render('variant_property/variant_propertie_form', title => ($is_new ? t8('Add Variant Property') : t8('Edit Variant Property')));
+  $self->render('variant_property/variant_property_form', title => ($is_new ? t8('Add Variant Property') : t8('Edit Variant Property')));
 }
 
 sub action_save_property {
   my ($self) = @_;
 
-  $self->create_or_update;
+  $self->create_or_update_property;
 }
 
 sub action_delete_property {
@@ -51,7 +51,7 @@ sub action_delete_property {
   } else {
     flash_later('error', $::locale->text('The shop is in use and cannot be deleted.'));
   };
-  $self->redirect_to(action => 'list');
+  $self->redirect_to(action => 'list_properties');
 }
 
 sub action_reorder_properties {
@@ -66,7 +66,7 @@ sub action_reorder_properties {
 #
 
 sub init_variant_property {
-  SL::DB::Manager::VariantProperty::find_by_or_create(id => $::form->{id} || 0)->assign_attributes(%{ $::form->{variant_property} });
+  SL::DB::Manager::VariantProperty->find_by_or_create(id => $::form->{id} || 0)->assign_attributes(%{ $::form->{variant_property} });
 }
 
 #
@@ -81,14 +81,14 @@ sub create_or_update_property {
   my @errors = $self->variant_property->validate;
   if (@errors) {
     flash('error', @errors);
-    $self->action_edit();
+    $self->action_edit_property();
     return;
   }
 
   $self->variant_property->save;
 
   flash_later('info', $is_new ? t8('The Variant Property has been created.') : t8('The Variant Property has been saved.'));
-  $self->redirect_to(action => 'list_property');
+  $self->redirect_to(action => 'list_properties');
 }
 
 sub _setup_form_action_bar {
