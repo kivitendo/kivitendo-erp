@@ -1,0 +1,67 @@
+[% USE HTML %][% USE T8 %][% USE L %][% USE LxERP %][%- USE P -%]
+<h1>[% FORM.title %]</h1>
+
+ 
+<form method="post" action="controller.pl" id="form">
+  [%- INCLUDE 'common/flash.html' %] 
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <caption> [% LxERP.t8("Variant Property") %] </caption>
+  <colgroup><col class="wi-mediumsmall"><col></colgroup>
+  <tbody>
+    <tr>
+      <td> [%- 'Name' | $T8 %] </td>
+      <td> [% P.input_tag("variant_property.name", SELF.variant_property.name, "data-validate"="required", "data-title"=LxERP.t8("Name")) %] </td>
+    </tr>
+     <tr>
+      <td> [%- 'Unique Name' | $T8 %] </td>
+      <td> [% P.input_tag("variant_property.unique_name", SELF.variant_property.unique_name , "data-validate"="required", "data-title"=LxERP.t8("Unique Name ")) %] </td>
+    </tr>
+      <tr>
+      <td> [%- 'Abbreviation' | $T8 %] </td>
+      <td> [% P.input_tag("variant_property.abbreviation", SELF.variant_property.abbreviation, "data-validate"="required", "data-title"=LxERP.t8("Abbreviation")) %] </td>
+    </tr>
+    [% IF SELF.variant_property.id %] 
+    [% END %] 
+  </tbody>
+</table>
+
+   
+<table class="tbl-horizontal">
+  <caption> [%- 'Translation' | $T8 %] </caption>
+  <tbody>
+    [%- FOREACH language = SELF.languages %] 
+    <tr><th class="caption" colspan="2">[%- HTML.escape(language.description) %] ([%- LxERP.t8('Translation') %])</th></tr>
+    <tr>
+      <td> [%- 'Name' | $T8 %] </td>
+      <td> [% P.input_tag("variant_property.name", SELF.variant_property.name, "data-validate"="required", "data-title"=LxERP.t8("Name")) %] </td>
+    </tr>
+     <tr>
+      <td> [%- 'Unique Name' | $T8 %] </td>
+      <td> [% P.input_tag("variant_property.description", SELF.variant_property.description, "data-validate"="required", "data-title"=LxERP.t8("Description")) %] </td>
+    </tr>
+      <tr>
+      <td> [%- 'Abbreviation' | $T8 %] </td>
+      <td> [% P.input_tag("variant_property.description", SELF.variant_property.description, "data-validate"="required", "data-title"=LxERP.t8("Description")) %] </td>
+    </tr>
+    <tr>
+      <th> [% LxERP.t8("Texts for quotations & orders") %] </th>
+      <td> 
+      <input type="text" name="translation_[% language.id %]" value="[%- HTML.escape(SELF.variant_property.translated_attribute('description_long', language, 1)) %]" size="60">
+      </td>
+      </tr>
+      <tr>
+      <th> [% LxERP.t8("Texts for invoices") %] </th>
+      <td> 
+      <input type="text" name="translation_invoice_[% language.id %]" value="[%- HTML.escape(SELF.variant_property.translated_attribute('description_long_invoice', language, 1)) %]" size="60">
+      </td>
+    </tr>
+    [%- END %] 
+  </tbody>
+</table>
+[% P.hidden_tag("id", SELF.variant_property.id) %] 
+    
+</div>
+
+</form>
