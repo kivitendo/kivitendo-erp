@@ -14,6 +14,7 @@ __PACKAGE__->meta->columns(
   itime        => { type => 'timestamp', default => 'now()' },
   mtime        => { type => 'timestamp' },
   name         => { type => 'text', not_null => 1 },
+  sortkey      => { type => 'integer' },
   unique_name  => { type => 'text', not_null => 1 },
 );
 
