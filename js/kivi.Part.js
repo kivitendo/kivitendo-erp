@@ -331,6 +331,12 @@ namespace('kivi.Part', function(ns) {
     $.post("controller.pl", { action: 'Part/warehouse_changed', warehouse_id: function(){ return $('#part_warehouse_id').val(); } },   kivi.eval_json_result);
   };
 
+  ns.create_variants = function() {
+    var data = $('#ic').serializeArray();
+    data.push({ name: 'action', value: 'Part/create_variants' });
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   var KEY = {
     TAB:       9,
     ENTER:     13,

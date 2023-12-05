@@ -80,6 +80,13 @@
   params:
     action: Part/add_assortment
 - parent: master_data
+  id: master_data_add_parent_variant
+  name: Add Parent Variant
+  order: 575
+  access: part_service_assembly_edit
+  params:
+    action: Part/add_parent_variant
+- parent: master_data
   id: master_data_add_project
   name: Add Project
   icon: project_add

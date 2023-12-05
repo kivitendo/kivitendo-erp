@@ -242,11 +242,6 @@ sub new_parent_variant {
   $class->new(%params, part_type => 'parent_variant');
 }
 
-sub new_variant {
-  my ($class, %params) = @_;
-  $class->new(%params, part_type => 'variant');
-}
-
 sub last_modification {
   my ($self) = @_;
   return $self->mtime // $self->itime;
@@ -501,6 +496,33 @@ SQL
   my @sorted = map { $transactions{$_} } @sorted_trans_ids;
 
   return \@sorted;
+}
+
+sub create_new_variant {
+  my ($self, $variant_property_values) = @_;
+  die "only callable on parts of type parent_variant" unless $self->is_parent_variant;
+  die "only callable on saved objects"                unless $self->id;
+
+  my @selected_variant_property_ids = sort map {$_->variant_property_id} @$variant_property_values;
+  my @variant_property_ids = sort map {$_->id} @{$self->variant_properties};
+  if (@variant_property_ids != @selected_variant_property_ids) {
+    die "Given variant_property_values dosn't match the variant_properties of parent_variant part";
+  }
+
+  my $new_variant = $self->clone_and_reset;
+  # TODO set partnumber
+  $new_variant->part_type('variant');
+  $new_variant->save;
+  SL::DB::VariantPropertyValuePart->new(
+    part_id                   => $new_variant->id,
+    variant_property_value_id => $_->id,
+  )->save for @$variant_property_values;
+  SL::DB::PartParentVariantPartVariant->new(
+    variant_id        => $new_variant->id,
+    parent_variant_id => $self->id,
+  )->save;
+
+  return $new_variant;
 }
 
 sub clone_and_reset_deep {
