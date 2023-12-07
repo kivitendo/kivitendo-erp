@@ -1644,7 +1644,7 @@ sub prepare_report {
 
   my $report         =  SL::ReportGenerator->new(\%::myconfig, $::form);
   $report->{title}   =  t8('Sales Reclamations');
-  if ($self->type eq purchase_reclamation_type()){
+  if ($self->type eq PURCHASE_RECLAMATION_TYPE()){
     $report->{title} = t8('Purchase Reclamations');
   }
 
