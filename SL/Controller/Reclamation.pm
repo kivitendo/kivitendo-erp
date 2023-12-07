@@ -25,7 +25,7 @@ use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::ValidityToken;
-use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
+use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
 
@@ -1534,7 +1534,7 @@ sub get_unalterable_data {
 sub save {
   my ($self) = @_;
 
-  set_record_link_conversions($self->order,
+  set_record_link_conversions($self->reclamation,
     delete $::form->{RECORD_TYPE_REF()}
       => delete $::form->{RECORD_ID()},
     delete $::form->{RECORD_ITEM_TYPE_REF()}
