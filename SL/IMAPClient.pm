@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
+use Carp;
 use IO::Socket::INET;
 use IO::Socket::SSL;
 use Mail::IMAPClient;
@@ -184,8 +185,12 @@ sub _create_email_journal {
     }
   }
 
-  my @email_parts = $email->parts; # get parts or self
-  my $text_part = $email_parts[0];
+  my $text_part;
+  my %text_parts;
+  _find_text_parts(\%text_parts, $email->parts);
+  my @accepted_text_content_types = ('text/html', 'text/plain', '');
+  $text_part ||= $text_parts{$_} for @accepted_text_content_types;
+  confess "can't find body text in email" unless $text_part;
   my $body_text = $text_part->body_str;
 
   my %header_map = map { $_ => $email->header_str($_) } $email->header_names;
@@ -205,8 +210,7 @@ sub _create_email_journal {
     my ($part) = @_;
     my $filename = $part->filename;
     if ($filename) {
-      my $mime_type = $part->content_type;
-      $mime_type =~ s/;.*//; # clean up mime_type
+      my $mime_type = _cleanup_content_type($part->content_type);
       my $content = $part->body;
       my $attachment = SL::DB::EmailJournalAttachment->new(
         name      => $filename,
@@ -236,6 +240,25 @@ sub _create_email_journal {
 
   return $email_journal;
 }
+
+sub _cleanup_content_type {
+  my ($content_type) = @_;
+  $content_type =~ s/\A\s+//; # Remove whitespaces at begin
+  $content_type =~ s/\s+\z//; # Remove whitespaces at end
+  $content_type =~ s/;.+//;   # For S/MIME, etc.
+  return $content_type;
+};
+
+sub _find_text_parts {
+  my ($text_parts, @parts) = @_;
+  for my $part (@parts) {
+    my $content_type = _cleanup_content_type($part->content_type);
+    if ($content_type =~ m!^text/! or $content_type eq '') {
+      $text_parts->{$content_type} ||= $part;
+    }
+    _find_text_parts($text_parts, $part->subparts);
+  }
+};
 
 sub _parse_date {
   my ($self, $date) = @_;
