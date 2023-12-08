@@ -30,11 +30,18 @@
 
 \begin{document}
 
-\begin{letter}{
-<%name%>\ifhmode\\\fi
-<%street%>\ifhmode\\\fi
-<%zipcode%> <%city%>\ifhmode\\\fi
-<%country%>%
+\begin{letter}{%
+<%if billing_address_id%>%
+	<%billing_address_name%> \strut\\%
+	<%billing_address_street%>\strut\\%
+	<%billing_address_zipcode%> <%billing_address_city%> \strut\\%
+	<%billing_address_country%>\strut\\%
+<%else%>%
+	<%name%>\strut\\%
+	<%street%>\strut\\%
+	<%zipcode%> <%city%>\strut\\%
+	<%country%>\strut%
+<%end if%>%
 }
 
 \opening{<%company%>}
