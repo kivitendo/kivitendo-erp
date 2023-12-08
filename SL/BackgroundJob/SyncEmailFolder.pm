@@ -13,6 +13,7 @@ sub sync_email_folder {
   my $folder = $self->{job_obj}->data_as_hash->{folder};
 
   my $imap_client = SL::IMAPClient->new();
+  die "Email client is disabled" unless $imap_client;
 
   my $email_import = $imap_client->update_emails_from_folder($folder);
   return unless $email_import;
