@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{kiviletter}[2022/04/23 Letter Layouts for Kivitendo]
+\ProvidesPackage{kiviletter}[2023/12/08 Letter Layouts for Kivitendo]
 
 \RequirePackage{l3keys2e}
 
@@ -181,9 +181,11 @@
 
 
 \cs_new:Nn \__kivi_calc_desc_column: {
-  \bool_if:NTF \g__kivi_Tabular_rowcolor_bool
-  {\dim_set:Nn \l_kivi_tab_desc_leftskip_dim {2\g_kivi_tabcolsep_dim}}
-  {\dim_zero:N \l_kivi_tab_desc_leftskip_dim}
+  \bool_if:NTF \g__kivi_Tabular_rowcolor_bool {
+    \dim_set:Nn \l_kivi_tab_desc_leftskip_dim {2\g_kivi_tabcolsep_dim}
+  }{
+    \dim_zero:N \l_kivi_tab_desc_leftskip_dim
+  }
   \dim_zero:N \l_kivi_tab_desc_dim
   \bool_set_false:N \l_tmpa_bool
   \tl_gclear:N \g_kivi_Pricing_colspec_tl
@@ -313,7 +315,7 @@
   \setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
   \seq_map_inline:Nn \l_kivi_PricingTable_seq {
     \if_mode_horizontal: \par \fi
-    \bool_if:NT \g__kivi_Tabular_rowcolor_bool {
+    \bool_if:NT \g__kivi_Tabular_content_rowcolor_bool {
       \int_gincr:N \g__kivi_PricingTable_rowcolor_int
       \int_if_odd:nTF {\g__kivi_PricingTable_rowcolor_int}
       {\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_odd_tl}}
@@ -336,7 +338,7 @@
         \seq_if_empty:NTF \g_kivi_extraDescription_seq
         {\par}
         {\par\nopagebreak
-            \bool_if:NT \g__kivi_Tabular_rowcolor_bool {
+            \bool_if:NT \g__kivi_Tabular_content_rowcolor_bool {
               \int_if_odd:nTF {\g__kivi_PricingTable_rowcolor_int}
               {\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_odd_tl}}
               {\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_even_tl}}
@@ -401,9 +403,12 @@
       \endtabular
     }
   }
+  \bool_if:nT {\g__kivi_Tabular_rowcolor_bool  && ! \g__kivi_Tabular_content_rowcolor_bool } {
+	\box_gset_dp:Nn \g_kivi_LT@head_box  {\box_dp:N \g_kivi_LT@head_box + \l__kivi_fboxsep_dim}
+  }
   \hbox_gset:Nn \g_kivi_LT@foot_box {
     \begin{tabular*}{\textwidth}[t]{@{\extracolsep{\fill}}r@{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}}
-      \bool_if:NTF \g__kivi_Tabular_rowcolor_bool
+      \bool_if:NTF \g__kivi_Tabular_content_rowcolor_bool
       {\hline\noalign{\vskip1pt}}
       \midrule
       \strut\weiteraufnaechsterseite
@@ -412,7 +417,7 @@
   \hbox_gset:Nn \g_kivi_LT@lastfoot_box {
     \raisebox{\dimexpr\depth+\baselineskip}[0pt][0pt]{
       \begin{tabular*}{\textwidth}{@{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}\extracolsep{\fill}}r@{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}}
-        \bool_if:NF \g__kivi_Tabular_rowcolor_bool \bottomrule
+      \bool_if:NF \g__kivi_Tabular_rowcolor_bool \bottomrule
       \end{tabular*}
     }
   }
@@ -423,7 +428,7 @@
 \NewDocumentEnvironment{PricingTotal}{+b}{
   \par\nointerlineskip
 }{
-  \bool_if:NT \g__kivi_Tabular_rowcolor_bool   {\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_PricingTotal_tl}}
+  \bool_if:NT \g__kivi_Tabular_rowcolor_bool {\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_PricingTotal_tl}}
   {
     \tabular[t]{
       @{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}
@@ -479,7 +484,7 @@
     }
   }
   \\
-    \noalign{\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_body_currency:}
+  \noalign{\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_body_currency:}
   \bool_if:NF \g__kivi_Tabular_rowcolor_bool \midrule
 }
 
@@ -492,10 +497,23 @@
   headline .initial:n = {\usekomafont{tablehead}\position & \usekomafont{tablehead}\menge & \usekomafont{tablehead}\bezeichnung},
 }
 
+\bool_new:N \g__kivi_Tabular_rowcolor_bool
+\bool_new:N \g__kivi_Tabular_content_rowcolor_bool
+
 \keys_define:nn {kivi/Tabular} {
-  color-rows .bool_gset:N =  \g__kivi_Tabular_rowcolor_bool ,
+  color-rows .code:n = {
+		\bool_gset_eq:Nc \g__kivi_Tabular_rowcolor_bool {c_#1_bool}
+		\bool_gset_eq:Nc \g__kivi_Tabular_content_rowcolor_bool {c_#1_bool}
+	},
   color-rows .initial:n = false,
   color-rows .default:n = true,
+  color-only-structure .code:n  = {
+		\bool_gset_eq:Nc \g__kivi_Tabular_rowcolor_bool {c_#1_bool}
+		\bool_gset_eq:Nc \g__kivi_Tabular_content_rowcolor_bool {c_#1_bool}
+		\bool_gset_inverse:N \g__kivi_Tabular_content_rowcolor_bool
+	},
+  color-only-structure .initial:n = false,
+  color-only-structure .default:n = true,
   rowcolor-odd .tl_gset:N = \g__kivi_Tabular_rowcolor_odd_tl,
   rowcolor-odd .initial:n = black!10,
   rowcolor-even .tl_gset:N = \g__kivi_Tabular_rowcolor_even_tl,
