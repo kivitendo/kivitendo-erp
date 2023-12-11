@@ -20,7 +20,10 @@
   <ul class="ui-tabs">
     <li><a href="#basic_data">[% 'Basic Data' | $T8 %]</a></li>
     [% IF SELF.part.is_parent_variant && SELF.part.id %]
-      <li><a href="#variants_tab">[% 'Variants' | $T8 %]</a></li>
+      <li><a href="#parent_variant_tab">[% 'Variants' | $T8 %]</a></li>
+    [% END %]
+    [% IF SELF.part.is_variant && SELF.part.id %]
+      <li><a href="#variant_tab">[% 'Variant Properties' | $T8 %]</a></li>
     [% END %]
     [% IF SELF.part.is_assortment %]
       <li><a href="#assortment_tab">[% 'Assortment items' | $T8 %]</a></li>
@@ -59,8 +62,13 @@
   </div>
 
   [% IF SELF.part.is_parent_variant && SELF.part.id %]
-    <div id="variants_tab" class="ui-tabs-panel">
-      [% PROCESS 'part/_variants.html' id=part.id %]
+    <div id="parent_variant_tab" class="ui-tabs-panel">
+      [% PROCESS 'part/_parent_variant.html' %]
+    </div>
+  [% END %]
+  [% IF SELF.part.is_variant && SELF.part.id %]
+    <div id="variant_tab" class="ui-tabs-panel">
+      [% PROCESS 'part/_variant.html' %]
     </div>
   [% END %]
 
