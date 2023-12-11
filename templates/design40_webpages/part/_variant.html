@@ -1,0 +1,32 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<div class="wrapper input-panel">
+  <h3> [% "Parent Variant" | $T8 %]:
+    [% SELF.part.parent_variant.presenter.part %]
+    [% SELF.part.parent_variant.description %]
+  </h3>
+  <table class="tbl-list">
+    <caption>
+      [% LxERP.t8("Variant Property Values") %]
+    </caption>
+    <thead>
+      <th>[% "Transled Value" | $T8 %]</th>
+      <th>[% "Value" | $T8 %]</th>
+      <th>[% "Abbreviation" | $T8 %]</th>
+    </thead>
+    <tbody class="row_entry listrow">
+    [% FOREACH variant_property_value = SELF.part.variant_property_values %]
+      <tr>
+      [% # L.dump(variant_property_value) %]
+        <td>[% variant_property_value.value_translated | html %]</td>
+        <td>[% variant_property_value.value | html %]</td>
+        <td>[% variant_property_value.abbreviation | html %]</td>
+      </tr>
+    [% END %]
+    </tbody>
+  </table>
+</div>
