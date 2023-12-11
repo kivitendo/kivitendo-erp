@@ -98,7 +98,7 @@ __PACKAGE__->meta->add_relationships(
     map_to    => 'variant_property',
     type      => 'many to many',
   },
-  variant_porperty_values => {
+  variant_property_values => {
     map_class => 'SL::DB::VariantPropertyValuePart',
     map_from  => 'part',
     map_to    => 'variant_property_value',
