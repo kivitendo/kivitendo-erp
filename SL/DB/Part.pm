@@ -637,9 +637,9 @@ sub set_lastcost_assemblies_and_assortiments {
 sub variant_values {
   my ($self) = @_;
   return unless $self->is_variant;
-  return join(" ",
-    map {"[" . $_->variant_property->abbreviation . ":" . $_->abbreviation . "]"}
-    $self->variant_property_values);
+  return "[" .join("|",
+    map {$_->variant_property->abbreviation . ":" . $_->abbreviation}
+    $self->variant_property_values)  . "]";
 }
 
 sub init_onhandqty {
