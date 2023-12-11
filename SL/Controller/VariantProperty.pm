@@ -57,10 +57,28 @@ sub action_delete_property {
 sub action_reorder_properties {
   my ($self) = @_;
 
-  SL::DB::Shop->reorder_list(@{ $::form->{shop_id} || [] });
+  SL::DB::VariantProperty->reorder_list(@{ $::form->{variant_property_id} || [] });
   $self->render(\'', { type => 'json' }); # ' emacs happy again
 }
 
+#sub action_list_property_values_list {
+#  my ($self) = @_;
+#
+#  $self->_setup_list_action_bar;
+#  $self->render('variant_property/variant_property_list',
+#                title             => t8('Variant Property'),
+#                VARIANTPROPERTIES => SL::DB::Manager::VariantProperty->get_all_sorted,
+#               );
+#}
+
+#sub action_reorder {
+#  my ($self) = @_;
+#
+#  SL::DB::DeliveryTerm->reorder_list(@{ $::form->{delivery_term_id} || [] });
+#
+#  $self->render(\'', { type => 'json' });     # ' make Emacs happy
+#}
+#
 #
 #inits
 #
