@@ -20,10 +20,10 @@ __PACKAGE__->add_filter_specs(
     my ($key, $value, $prefix) = @_;
     return __PACKAGE__->type_filter($value, $prefix);
   },
-  all => sub {
-    my ($key, $value, $prefix) = @_;
-    return or => [ map { $prefix . $_ => $value } qw(partnumber description ean) ]
-  },
+  # all => sub {
+  #   my ($key, $value, $prefix) = @_;
+  #   return or => [ map { $prefix . $_ => $value } qw(partnumber description ean) ]
+  # },
   all_with_makemodel => sub {
     my ($key, $value, $prefix) = @_;
     return or => [ map { $prefix . $_ => $value } qw(partnumber description ean makemodels.model) ],
@@ -34,6 +34,68 @@ __PACKAGE__->add_filter_specs(
     return or => [ map { $prefix . $_ => $value } qw(partnumber description ean customerprices.customer_partnumber) ],
       $prefix . 'customerprices';
   },
+  # all_with_variants => sub {
+  all => sub {
+    my ($key, $value, $prefix) = @_;
+    if ($value =~ m/\[/ || $value->{ilike} =~ m/\[/) { #variant_filter
+      my $ilike = 0;
+      if ($value->{ilike}) {
+        $ilike = 1;
+        $value = $value->{ilike};
+        $value =~ s/^%//;
+        $value =~ s/%$//;
+      }
+      #clean
+      $value =~ s/^\s+//;
+      $value =~ s/\s+$//;
+      $value =~ s/^.*\[//;
+      $value =~ s/].*$//;
+      # search for part_id with all variant_property_values
+      my @wheres;
+      my @values;
+      foreach my $variant_search (split(/\|/, $value)) {
+        next unless $variant_search;
+        my $comp = '=';
+        my $or_and = 'and';
+        my ($variant_name, $variant_value) = split(/:/, $variant_search);
+        unless ($variant_name && $variant_value) {
+          $variant_search =~ s/://;
+          $variant_name = $variant_value = $variant_search;
+          $or_and = 'or';
+        }
+        if ($ilike) {
+          $comp = 'ilike';
+          $variant_name  = "%$variant_name%";
+          $variant_value = "%$variant_value%";
+        }
+        push @wheres, "(prop.abbreviation $comp ? $or_and val.abbreviation $comp ?)";
+        push @values, $variant_name, $variant_value;
+      }
+      return unless @wheres;
+      my $where = join(' or ', @wheres) || '1=1';
+      push @values, scalar @wheres; # count_hits
+      my $query = <<SQL;
+        SELECT part_id from (
+          SELECT
+            t3.part_id, COUNT(*) as count_hits
+          FROM
+            variant_property_values val
+            JOIN variant_properties prop ON (val.variant_property_id = prop.id)
+            JOIN variant_property_values_parts t3 ON (t3.variant_property_value_id = val.id)
+          WHERE
+           $where
+          GROUP BY t3.part_id
+        ) as tmp
+        WHERE count_hits >= ?;
+SQL
+      my @part_ids =
+        map {$_->{part_id}}
+        selectall_hashref_query($::form, $::form->get_standard_dbh, $query, @values);
+
+      return id => scalar @part_ids ? \@part_ids : (-1); # empty list not allowed
+    }
+    return or => [ map { $prefix . $_ => $value } qw(partnumber description ean) ]
+  }
 );
 
 sub type_filter {
