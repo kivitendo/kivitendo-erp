@@ -64,11 +64,16 @@ sub picker { goto &part_picker }
 sub type_abbreviation {
   my ($part_type) = @_;
 
-  return ''                                               if !$part_type;
-  return $::locale->text('Assembly (typeabbreviation)')   if $part_type eq 'assembly';
-  return $::locale->text('Part (typeabbreviation)')       if $part_type eq 'part';
-  return $::locale->text('Assortment (typeabbreviation)') if $part_type eq 'assortment';
-  return $::locale->text('Service (typeabbreviation)');
+  my %part_type_abbr = (
+    part           => t8('Part (typeabbreviation)'),
+    assembly       => t8('Assembly (typeabbreviation)'),
+    assortment     => t8('Assortment (typeabbreviation)'),
+    service        => t8('Service (typeabbreviation)'),
+    parent_variant => t8('Parent Variant (typeabbreviation)'),
+    variant        => t8('Variant (typeabbreviation)'),
+  );
+
+  return $part_type_abbr{$part_type} || '';
 }
 
 #

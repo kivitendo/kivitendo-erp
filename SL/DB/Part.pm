@@ -21,10 +21,13 @@ use SL::DB::Helper::CustomVariables (
 );
 use SL::DB::Helper::DisplayableNamePreferences (
   title   => t8('Article'),
-  options => [ {name => 'partnumber',  title => t8('Part Number')     },
-               {name => 'description', title => t8('Description')    },
-               {name => 'notes',       title => t8('Notes')},
-               {name => 'ean',         title => t8('EAN')            }, ],
+  options => [
+    {name => 'partnumber',     title => t8('Part Number')},
+    {name => 'description',    title => t8('Description')},
+    {name => 'variant_values', title => t8('Varaint Values')},
+    {name => 'notes',          title => t8('Notes')},
+    {name => 'ean',            title => t8('EAN')},
+  ],
 );
 
 
@@ -631,13 +634,21 @@ sub set_lastcost_assemblies_and_assortiments {
   return 1;
 }
 
-sub init_onhandqty{
+sub variant_values {
+  my ($self) = @_;
+  return unless $self->is_variant;
+  return join(" ",
+    map {"[" . $_->variant_property->abbreviation . ":" . $_->abbreviation . "]"}
+    $self->variant_property_values);
+}
+
+sub init_onhandqty {
   my ($self) = @_;
   my $qty = SL::Helper::Inventory::get_onhand(part => $self->id) || 0;
   return $qty;
 }
 
-sub init_stockqty{
+sub init_stockqty {
   my ($self) = @_;
   my $qty = SL::Helper::Inventory::get_stock(part => $self->id) || 0;
   return $qty;
