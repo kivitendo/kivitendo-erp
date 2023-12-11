@@ -2,28 +2,42 @@
 [% USE HTML %]
 [% USE L %]
 [% USE LxERP %]
-[% USE date %]
 
-<div id="variant_properties">
+
+[%- INCLUDE 'common/flash.html' %]
+
+<h1>[% title %]</h1>
 
 <div class="wrapper">
-<table class="tbl-list width-moderate">
-  <caption>[% 'Variant Properties' | $T8 %]</caption>
-  <thead>
-    <tr>
-      <th>[% 'Name'         | $T8 %]</th>
-      <th>[% 'Unique Name'  | $T8 %]</th>
-      <th>[% 'Abbreviation' | $T8 %]</th>
-    </tr>
-  </thead>
-  <tbody>
-    [% FOREACH row = VARIANTPROPERTIES %]
-      <tr>
-        <td>[% row.name         | html %]</td>
-        <td>[% row.unique_name  | html %]</td>
-        <td>[% row.abbreviation | html %]</td>
+  [% IF !VARIANTPROPERTIES.size %] 
+  <p>
+    [%- 'No Variantproperty has been created yet.' | $T8 %] 
+  </p>
+  [%- ELSE %] 
+  <table id="variant_properties" class="tbl-list width-moderate">
+    <caption>[% 'Variant Properties' | $T8 %]</caption>
+    <thead>
+        <th><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]"></th>
+        <th>[% 'Name'         | $T8 %]</th>
+        <th>[% 'Unique Name'  | $T8 %]</th>
+        <th>[% 'Abbreviation' | $T8 %]</th>
       </tr>
-    [% END %]
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      [% FOREACH variant_property = VARIANTPROPERTIES %]
+      <tr id="variant_property_id_[% variant_property.id %]">
+        <td class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+        <td>[% L.link(SELF.url_for(action="edit_property",
+          id=variant_property.id), variant_property.name) %]</td>
+        <td>[% variant_property.unique_name  | html %]</td>
+        <td>[% variant_property.abbreviation | html %]</td>
+        </tr>
+      [% END %]
+    </tbody>
+  </table>
+  [%- END %] 
+</div>
+
+[% L.sortable_element('#variant_properties tbody', url =>
+SELF.url_for(action='reorder_properties'), with => 'variant_property_id') %]
 
