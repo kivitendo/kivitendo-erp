@@ -4,34 +4,49 @@
 [% USE L %]
 [% USE P %]
 
-<div class="wrapper input-panel">
-  <h3> [% LxERP.t8("Create new Variants") %] </h3>
-  <div class="wrapper">
-  [% FOREACH variant_property = SELF.part.variant_properties %]
-    <div class="col input-panel" style="min-width:fit-content;">
-      <h4>[% variant_property.name_translated | html %]</h4>
-      [% L.select_tag("variant_properties." _ variant_property.id _ ".selected_property_values[]",
-        variant_property.property_values,
-        title_key='value_translated', value_key='id',
-        id="selected_property_values_" _ variant_property.id,
-        multiple=1,
-      ) %]
-      [% L.multiselect2side(
-        "selected_property_values_" _ variant_property.id,
-        labelsx=LxERP.t8("All Property Values"),
-        labeldx=LxERP.t8("Selected Property Values")
-      ) %]
+<div class="wrapper">
+  <div class="wrapper input-panel">
+    <h3> [% LxERP.t8("Create new Variants") %] </h3>
+    <div class="wrapper">
+    [% FOREACH variant_property = SELF.part.variant_properties %]
+      <div class="col input-panel" style="min-width:fit-content;">
+        <h4>[% variant_property.name_translated | html %]</h4>
+        [% L.select_tag("variant_properties." _ variant_property.id _ ".selected_property_values[]",
+          variant_property.property_values,
+          title_key='value_translated', value_key='id',
+          id="selected_property_values_" _ variant_property.id,
+          multiple=1,
+        ) %]
+        [% L.multiselect2side(
+          "selected_property_values_" _ variant_property.id,
+          labelsx=LxERP.t8("All Property Values"),
+          labeldx=LxERP.t8("Selected Property Values")
+        ) %]
+      </div>
+    [% END %]
     </div>
-  [% END %]
+    [% L.button_tag('kivi.Part.create_variants();', LxERP.t8("Create Variants with selected Values")) %]
   </div>
-  [% L.button_tag('kivi.Part.create_variants();', LxERP.t8("Create Variants with selected Values")) %]
+
+  <table class="tbl-list">
+    <caption>
+      [% LxERP.t8("Variants") %]
+    </caption>
+    <thead>
+      <th>[% "Partnumber" | $T8 %]</th>
+      <th>[% "Description" | $T8 %]</th>
+      <th>[% "Property Values" | $T8 %]</th>
+    </thead>
+    <tbody class="row_entry listrow">
+      [% FOREACH variant = SELF.part.variants %]
+        <tr>
+          <td>[% variant.presenter.part %]</td>
+          <td>[% variant.description | html %]</td>
+          <td>[% variant.variant_values | html %]</td>
+        </tr>
+      [% END %]
+    </tbody>
+  </table>
 </div>
-
-<br>
-
-variants:
-[% FOREACH variant = SELF.part.variants %]
-  [% variant.partnumber %]:[% variant.description %]
-[% END %]
 
 
