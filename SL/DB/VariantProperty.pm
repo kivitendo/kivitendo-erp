@@ -24,6 +24,14 @@ __PACKAGE__->meta->add_relationships(
   }
 );
 
+__PACKAGE__->meta->add_relationships(
+  property_values => {
+    type         => 'one to many',
+    class        => 'SL::DB::VariantPropertyValue',
+    column_map   => { id => 'variant_property_id' },
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 sub validate {
