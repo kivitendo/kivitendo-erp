@@ -1,59 +1,53 @@
 [% USE HTML %][% USE T8 %][% USE L %][% USE LxERP %][%- USE P -%]
+[% USE Dumper %]
 <h1>[% FORM.title %]</h1>
+[%- INCLUDE 'common/flash.html' %] 
 
- 
-<form method="post" action="controller.pl" id="form">
-  [%- INCLUDE 'common/flash.html' %] 
-<div class="wrapper">
+<form id="variant_property_value_form">
+    [% P.hidden_tag("variant_property_id", SELF.variant_property.id) %] 
+    [% P.input_tag("h_variant_property_id", SELF.variant_property.id) %] 
+    Name:[% SELF.variant_property.name %]
+  <div class="wrapper">
+    <table class="tbl-horizontal">
+      <caption> [% LxERP.t8("Value") %] </caption>
+      <colgroup><col class="wi-mediumsmall"><col></colgroup>
+      <tbody>
+        <tr>
+          <td> [%- 'Value' | $T8 %] </td>
+          <td> [% P.input_tag("variant_property_value.value", SELF.variant_property_value.value, "data-validate"="required", "data-title"=LxERP.t8("Value")) %] </td>
+        </tr>
+          <tr>
+          <td> [%- 'Abbreviation' | $T8 %] </td>
+          <td> [% P.input_tag("variant_property_value.abbreviation", SELF.variant_property_value.abbreviation, "data-validate"="required", "data-title"=LxERP.t8("Abbreviation")) %] </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<table class="tbl-horizontal">
-  <caption> [% LxERP.t8("Value") %] </caption>
-  <colgroup><col class="wi-mediumsmall"><col></colgroup>
-  <tbody>
-    <tr>
-      <td> [%- 'Value' | $T8 %] </td>
-      <td> [% P.input_tag("variant_property_value.value", SELF.variant_property_value.value, "data-validate"="required", "data-title"=LxERP.t8("Value")) %] </td>
-    </tr>
-      <tr>
-      <td> [%- 'Abbreviation' | $T8 %] </td>
-      <td> [% P.input_tag("variant_property_value.abbreviation", SELF.variant_property_value.abbreviation, "data-validate"="required", "data-title"=LxERP.t8("Abbreviation")) %] </td>
-    </tr>
-    [% IF SELF.variant_property_value.id %] 
-    [% END %] 
-  </tbody>
-</table>
+  <div class="wrapper">
+    <table class="tbl-horizontal">
+      <caption> [%- 'Translation' | $T8 %] </caption>
+      <tbody>
+        [%- FOREACH language = SELF.languages %] 
+        <tr><th class="caption" colspan="2">[%- HTML.escape(language.description) %] ([%- LxERP.t8('Translation') %])</th></tr>
+        <tr>
+          <td> [%- 'Value' | $T8 %] </td>
+          <input type="text" name="translation_[% language.id %]" value="[%- HTML.escape(SELF.variant_property_value.translated_attribute('description_long', language, 1)) %]" size="60">
+          <td> [% P.input_tag("variant_property_value.value", SELF.variant_property_value.value, "data-validate"="required", "data-title"=LxERP.t8("value")) %] </td>
+        </tr>
+          <tr>
+          <td> [%- 'Abbreviation' | $T8 %] </td>
+          <input type="text" name="translation_invoice_[% language.id %]" value="[%- HTML.escape(SELF.variant_property_value.translated_attribute('description_long_invoice', language, 1)) %]" size="60">
+          <td> [% P.input_tag("variant_property_value.description", SELF.variant_property_value.description, "data-validate"="required", "data-title"=LxERP.t8("Description")) %] </td>
+        </tr>
+        [%- END %] 
+      </tbody>
+    </table>
+    [% P.hidden_tag("variant_property_value_id", SELF.variant_property_value.id) %] 
+  </div>
+</form>
 
-   
-<table class="tbl-horizontal">
-  <caption> [%- 'Translation' | $T8 %] </caption>
-  <tbody>
-    [%- FOREACH language = SELF.languages %] 
-    <tr><th class="caption" colspan="2">[%- HTML.escape(language.description) %] ([%- LxERP.t8('Translation') %])</th></tr>
-    <tr>
-      <td> [%- 'Value' | $T8 %] </td>
-      <td> [% P.input_tag("variant_property_value.value", SELF.variant_property_value.value, "data-validate"="required", "data-title"=LxERP.t8("value")) %] </td>
-    </tr>
-      <tr>
-      <td> [%- 'Abbreviation' | $T8 %] </td>
-      <td> [% P.input_tag("variant_property_value.description", SELF.variant_property_value.description, "data-validate"="required", "data-title"=LxERP.t8("Description")) %] </td>
-    </tr>
-    <tr>
-      <th> [% LxERP.t8("Texts for quotations & orders") %] </th>
-      <td> 
-      <input type="text" name="translation_[% language.id %]" value="[%- HTML.escape(SELF.variant_property_value.translated_attribute('description_long', language, 1)) %]" size="60">
-      </td>
-      </tr>
-      <tr>
-      <th> [% LxERP.t8("Texts for invoices") %] </th>
-      <td> 
-      <input type="text" name="translation_invoice_[% language.id %]" value="[%- HTML.escape(SELF.variant_property_value.translated_attribute('description_long_invoice', language, 1)) %]" size="60">
-      </td>
-    </tr>
-    [%- END %] 
-  </tbody>
-</table>
-[% P.hidden_tag("id", SELF.variant_property_value.id) %] 
-    
+<div class="buttons">
+    [% L.button_tag("kivi.VariantProperty.save_variant_value()", LxERP.t8("Save"))  %]
 </div>
 
-</form>

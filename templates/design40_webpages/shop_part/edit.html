@@ -3,9 +3,11 @@
 [% USE L %]
 [% USE P %]
 [% USE LxERP %]
+[% USE Dumper %]
 
 <form action="controller.pl" method="post">
 
+[% Dumper.dump_html(SELF) %]
 <div class="wrapper">
 
 <p>

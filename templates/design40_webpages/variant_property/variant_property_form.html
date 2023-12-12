@@ -1,10 +1,11 @@
 [% USE HTML %][% USE T8 %][% USE L %][% USE LxERP %][%- USE P -%]
+[% USE Dumper %]
 <h1>[% FORM.title %]</h1>
 
- 
+[% #Dumper.dump_html(SELF.variant_property.property_values) %] 
+<div class="wrapper">
 <form method="post" action="controller.pl" id="form">
   [%- INCLUDE 'common/flash.html' %] 
-<div class="wrapper">
 
 <table class="tbl-horizontal">
   <caption> [% LxERP.t8("Variant Property") %] </caption>
@@ -62,6 +63,16 @@
 </table>
 [% P.hidden_tag("id", SELF.variant_property.id) %] 
     
-</div>
 
 </form>
+
+  [% IF !SELF.variant_property.property_values.size %] 
+  <p>
+    [%- 'No Variantpropertyvalues has been created yet.' | $T8 %] 
+  </p>
+  [%- ELSE %] 
+    [% PROCESS "variant_property/variant_property_value_list.html" %]
+  [% END %]
+
+  [% L.button_tag('kivi.VariantProperty.add_or_edit_variant_value(' _ SELF.variant_property.id _ ')', LxERP.t8("Add"))  %]
+</div>
