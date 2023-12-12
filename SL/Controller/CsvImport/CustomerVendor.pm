@@ -82,7 +82,7 @@ sub check_objects {
     $self->check_taxzone($entry,  take_default => 1);
     $self->check_currency($entry, take_default => 1);
     $self->check_salesman($entry);
-    $self->check_pricegroup($entry);
+    $self->check_pricegroup($entry) if 'customer' eq $self->table;
 
     next if @{ $entry->{errors} };
 
