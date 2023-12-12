@@ -314,11 +314,13 @@ sub all_parts {
 
   # special case smart search
   if ($form->{all}) {
-    $form->{"l_$_"}       = 1 for qw(partnumber description unit sellprice lastcost linetotal);
-    $form->{l_service}    = 1 if $form->{searchitems} eq 'service'    || $form->{searchitems} eq '';
-    $form->{l_assembly}   = 1 if $form->{searchitems} eq 'assembly'   || $form->{searchitems} eq '';
-    $form->{l_part}       = 1 if $form->{searchitems} eq 'part'       || $form->{searchitems} eq '';
-    $form->{l_assortment} = 1 if $form->{searchitems} eq 'assortment' || $form->{searchitems} eq '';
+    $form->{"l_$_"}           = 1 for qw(partnumber description unit sellprice lastcost linetotal);
+    $form->{l_service}        = 1 if $form->{searchitems} eq 'service'        || $form->{searchitems} eq '';
+    $form->{l_assembly}       = 1 if $form->{searchitems} eq 'assembly'       || $form->{searchitems} eq '';
+    $form->{l_part}           = 1 if $form->{searchitems} eq 'part'           || $form->{searchitems} eq '';
+    $form->{l_assortment}     = 1 if $form->{searchitems} eq 'assortment'     || $form->{searchitems} eq '';
+    $form->{l_parent_variant} = 1 if $form->{searchitems} eq 'parent_variant' || $form->{searchitems} eq '';
+    $form->{l_variant}        = 1 if $form->{searchitems} eq 'variant'        || $form->{searchitems} eq '';
     push @where_tokens, "p.partnumber ILIKE ? OR p.description ILIKE ?";
     push @bind_vars,    (like($form->{all})) x 2;
   }
@@ -368,13 +370,18 @@ sub all_parts {
   }
 
   # Oder Bedingungen fuer Ware Dienstleistung Erzeugnis:
-  if ($form->{l_part} || $form->{l_assembly} || $form->{l_service} || $form->{l_assortment}) {
-      my @or_tokens = ();
-      push @or_tokens, "p.part_type = 'service'"    if $form->{l_service};
-      push @or_tokens, "p.part_type = 'assembly'"   if $form->{l_assembly};
-      push @or_tokens, "p.part_type = 'part'"       if $form->{l_part};
-      push @or_tokens, "p.part_type = 'assortment'" if $form->{l_assortment};
-      push @where_tokens, join ' OR ', map { "($_)" } @or_tokens;
+  if (   $form->{l_part}           || $form->{l_assembly}
+      || $form->{l_service}        || $form->{l_assortment}
+      || $form->{l_parent_variant} || $form->{l_variant}
+    ) {
+    my @or_tokens = ();
+    push @or_tokens, "p.part_type = 'service'"        if $form->{l_service};
+    push @or_tokens, "p.part_type = 'assembly'"       if $form->{l_assembly};
+    push @or_tokens, "p.part_type = 'part'"           if $form->{l_part};
+    push @or_tokens, "p.part_type = 'assortment'"     if $form->{l_assortment};
+    push @or_tokens, "p.part_type = 'parent_variant'" if $form->{l_parent_variant};
+    push @or_tokens, "p.part_type = 'variant'"        if $form->{l_variant};
+    push @where_tokens, join ' OR ', map { "($_)" } @or_tokens;
   }
   else {
       # gar keine Teile
