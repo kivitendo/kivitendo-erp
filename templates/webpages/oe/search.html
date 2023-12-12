@@ -128,7 +128,7 @@
     </tr>
     [%- END %]
     <tr>
-     <th align="right">[% IF is_order %][% 'Order Date' | $T8 %][% ELSE %][% 'Quotation Date' | $T8 %][% END %] [% 'From' | $T8 %]</th>
+     <th align="right">[% IF type == 'purchase_order_confirmation' %][% 'Confirmation Date' | $T8 %][% ELSIF is_order %][% 'Order Date' | $T8 %][% ELSE %][% 'Quotation Date' | $T8 %][% END %] [% 'From' | $T8 %]</th>
      <td>
        [% L.date_tag('transdatefrom') %]
        [% 'Bis' | $T8 %]
