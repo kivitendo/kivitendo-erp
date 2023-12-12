@@ -2,26 +2,30 @@
 [% USE HTML %]
 [% USE L %]
 [% USE LxERP %]
-[% USE date %]
 
-<div id="variant_property_value">
 
 <div class="wrapper">
 
-<table class="tbl-list width-moderate">
-  <caption>[% 'Value' | $T8 %]</caption>
-  <thead>
-    <tr>
-      <th>[% 'Value'        | $T8 %]</th>
-      <th>[% 'Abbreviation' | $T8 %]</th>
-    </tr>
-  </thead>
-  <tbody>
-     [% FOREACH row = SELF.VARIANTPROPERTYVALUES %]
+  <table class="tbl-list width-moderate" id="variant_property_values">
+    <caption>[% 'Value' | $T8 %]</caption>
+    <thead>
       <tr>
-        <td>[% row.value        | html %]</td>
-        <td>[% row.abbreviation | html %]</td>
+        <th><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]"></th>
+        <th>[% 'Value'        | $T8 %]</th>
+        <th>[% 'Abbreviation' | $T8 %]</th>
       </tr>
-    [% END %]
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+       [% FOREACH value = SELF.variant_property.property_values %]
+        <tr id="variant_property_value_id_[% variant_property_value.id %]">
+          <td class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+          <td><a href="#" onclick="kivi.VariantProperty.add_or_edit_variant_value('[% value.id %]');">[% value.value        | html %]</a></td>
+          <td>[% value.abbreviation | html %]</td>
+        </tr>
+      [% END %]
+    </tbody>
+  </table>
+</div>
+
+[% L.sortable_element('#variant_property_values tbody', url =>
+SELF.url_for(action='reorder_variant_property_values'), with => 'variant_property_value_id') %]
