@@ -697,6 +697,14 @@ sub ap_transactions {
     $where .= " AND a.datepaid <= ?";
     push(@values, trim($form->{datepaidto}));
   }
+  if ($form->{insertdatefrom}) {
+    $where .= " AND a.itime >= ?";
+    push(@values, trim($form->{insertdatefrom}));
+  }
+  if ($form->{insertdateto}) {
+    $where .= " AND a.itime <= ?";
+    push(@values, trim($form->{insertdateto}));
+  }
   if ($form->{open} || $form->{closed}) {
     unless ($form->{open} && $form->{closed}) {
       $where .= " AND a.amount <> a.paid" if ($form->{open});

@@ -1161,7 +1161,7 @@ sub ap_transactions {
   push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id
                                            transdatefrom transdateto duedatefrom duedateto datepaidfrom datepaidto
                                            parts_partnumber parts_description department_id taxzone_id payment_id
-                                           fulltext);
+                                           fulltext insertdatefrom insertdateto);
 
   my $href = build_std_url('action=ap_transactions', grep { $form->{$_} } @hidden_variables);
 
@@ -1196,7 +1196,7 @@ sub ap_transactions {
     'items'                   => { 'text' => $locale->text('Positions'), },
   );
 
-  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description direct_debit department taxzone)) {
+  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description direct_debit department taxzone insertdate)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }

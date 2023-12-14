@@ -63,6 +63,10 @@
       <td><span class="wi-date">[% L.date_tag('datepaidfrom') %] [% 'Bis' | $T8 %] [% L.date_tag('datepaidto') %]</span></td>
     </tr>
     <tr>
+      <th>[% 'Insert Date' | $T8 %]</th>
+      <td><span class="wi-date">[% L.date_tag('insertdatefrom') %] [% 'Bis' | $T8 %] [% L.date_tag('insertdateto') %] </span></td>
+    </tr>
+    <tr>
       <th>[% 'Invoice Number' | $T8 %]</th>
       <td>[% L.input_tag("invnumber", "", class="wi-normal") %]</td>
     </tr>
