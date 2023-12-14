@@ -14,10 +14,10 @@
       <th align=right>[% 'Vendor' | $T8 %]</th>
       <td>[% L.input_tag("vendor", vendor, style=style, class="initial_focus") %]</td>
      </tr>
-    <tr>
-     <th align="right" nowrap>[% 'Contact Person' | $T8 %]</th>
-     <td>[% L.input_tag("cp_name", '', style=style) %]</td>
-    </tr>
+     <tr>
+      <th align="right" nowrap>[% 'Contact Person' | $T8 %]</th>
+      <td>[% L.input_tag("cp_name", '', style=style) %]</td>
+     </tr>
      <tr>
       <th align=right nowrap>[% 'Department' | $T8 %]</th>
       <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, title_key = 'description', with_empty = 1, style=style) %]</td>
@@ -63,24 +63,24 @@
        [% L.date_tag('transdatefrom') %]
        [% 'Bis' | $T8 %]
        [% L.date_tag('transdateto') %]
-     </td>
-    </tr>
+      </td>
+     </tr>
      <tr>
       <th align=right nowrap>[% 'Due Date' | $T8 %]</th>
       <td>
        [% L.date_tag('duedatefrom') %]
        [% 'Bis' | $T8 %]
        [% L.date_tag('duedateto') %]
-     </td>
-    </tr>
+      </td>
+     </tr>
      <tr>
       <th align=right nowrap>[% 'Date Paid' | $T8 %]</th>
       <td>
        [% L.date_tag('datepaidfrom') %]
        [% 'Bis' | $T8 %]
        [% L.date_tag('datepaidto') %]
-     </td>
-    </tr>
+      </td>
+     </tr>
    </table>
     </td>
     </tr>
