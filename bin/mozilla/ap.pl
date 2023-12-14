@@ -1236,6 +1236,8 @@ sub ap_transactions {
   push @options, $locale->text('Due Date') . " " . $locale->text('to')   . " " . $locale->date(\%myconfig,  $form->{duedateto},   1)      if ($form->{duedateto});
   push @options, $locale->text('Date Paid') . " " . $locale->text('from') . " " . $locale->date(\%myconfig, $form->{datepaidfrom}, 1)     if ($form->{datepaidfrom});
   push @options, $locale->text('Date Paid') . " " . $locale->text('to')   . " " . $locale->date(\%myconfig, $form->{datepaidto},   1)     if ($form->{datepaidto});
+  push @options, $locale->text('Insert Date') . " " . $locale->text('from') . " " . $locale->date(\%myconfig,  $form->{insertdatefrom}, 1) if ($form->{insertdatefrom});
+  push @options, $locale->text('Insert Date') . " " . $locale->text('to')   . " " . $locale->date(\%myconfig,  $form->{insertdateto},   1) if ($form->{insertdateto});
   push @options, $locale->text('Open')                                                                   if ($form->{open});
   push @options, $locale->text('Closed')                                                                 if ($form->{closed});
   if ($form->{payment_id}) {
