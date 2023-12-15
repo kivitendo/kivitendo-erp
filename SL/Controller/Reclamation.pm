@@ -2147,6 +2147,10 @@ sub generate_pdf {
   if ($print_form->{format} =~ /(opendocument|oasis)/i) {
     $template_ext  = 'odt';
     $template_type = 'OpenDocument';
+
+    # add variables for printing with the built-in parser
+    $reclamation->flatten_to_form($print_form, format_amounts => 1);
+    $reclamation->add_legacy_template_arrays($print_form);
   }
 
   # search for the template
