@@ -3206,6 +3206,8 @@ sub prepare_for_printing {
     DO->order_details(\%::myconfig, $self);
   } elsif ($self->{type} =~ /sales_order|sales_quotation|request_quotation|purchase_order|purchase_quotation_intake/) {
     OE->order_details(\%::myconfig, $self);
+  } elsif ($self->{type} =~ /reclamation/) {
+    # skip reclamation here, legacy template arrays are added in the reclamation controller
   } else {
     IS->invoice_details(\%::myconfig, $self, $::locale);
   }
