@@ -643,6 +643,18 @@ sub variant_values {
     $self->variant_property_values)  . "]";
 }
 
+sub variant_value {
+  my ($self, $variant_property) = @_;
+
+  my %property_id_to_values =
+    map {$_->variant_property_id => $_}
+    @{$self->variant_property_values};
+
+  my $property_value = $property_id_to_values{$variant_property->id};
+
+  return $property_value && $property_value->displayable_name();
+}
+
 sub init_onhandqty {
   my ($self) = @_;
   my $qty = SL::Helper::Inventory::get_onhand(part => $self->id) || 0;

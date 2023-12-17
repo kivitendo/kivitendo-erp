@@ -21,4 +21,9 @@ __PACKAGE__->meta->initialize;
 
 sub value_translated {goto &value} # TODO
 
+sub displayable_name {
+  my ($self) = @_;
+  return $self->value . "(" . $self->abbreviation . ")";
+}
+
 1;
