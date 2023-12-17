@@ -24,6 +24,9 @@ use SL::DB::PartsGroup;
 use SL::DB::PriceRuleItem;
 use SL::DB::PurchaseBasketItem;
 use SL::DB::Shop;
+use SL::DB::VariantProperty;
+use SL::DB::VariantPropertyPart;
+use SL::DB::VariantPropertyValuePart;
 use SL::Helper::Flash;
 use SL::Helper::PrintOptions;
 use SL::JSON;
@@ -221,6 +224,71 @@ sub action_abort {
   }
 }
 
+sub action_update_variant_property_value_options {
+  my ($self) = @_;
+
+  my %select_tag_options = (
+    title_key => 'displayable_name',
+    value_key => 'id',
+  );
+
+  my @options;
+  my $variant_property_id = $::form->{add_variant_property};
+  if ($variant_property_id) {
+    my $variant_property = SL::DB::VariantProperty->new(id => $variant_property_id)->load;
+    @options = $variant_property->property_values;
+  }
+
+  unless (scalar @options) {
+    $select_tag_options{with_empty}  = 1;
+    $select_tag_options{empty_title} = t8("Select Variant Property First");
+  }
+
+  foreach my $variant (@{$self->part->variants}) {
+    my $select_tag_name = "add_variant_property_value_" . $variant->id;
+    my $new_select_tag = select_tag(
+      $select_tag_name, \@options,
+      %select_tag_options
+    );
+    $self->js->replaceWith("#$select_tag_name", $new_select_tag);
+  }
+
+  $self->js->render();
+}
+
+sub action_add_variant_property {
+  my ($self) = @_;
+
+  my $variant_property_id = $::form->{add_variant_property};
+  die t8("Please select a variant property") unless ($variant_property_id);
+  foreach my $variant (@{$self->part->variants}) {
+    die t8("Please select a new variant property value for all variants")
+      unless $::form->{"add_variant_property_value_" . $variant->id};
+  }
+
+  SL::DB->client->with_transaction(sub {
+    SL::DB::VariantPropertyPart->new(
+      part_id             => $self->part->id,
+      variant_property_id => $variant_property_id,
+    )->save;
+    foreach my $variant (@{$self->part->variants}) {
+      SL::DB::VariantPropertyValuePart->new(
+        part_id                   => $variant->id,
+        variant_property_value_id => $::form->{"add_variant_property_value_" . $variant->id},
+      )->save;
+    }
+    1;
+  }) or do {
+    return $self->js->error(t8('Error while adding variant property: ' . @_))->render();
+  };
+
+  $self->redirect_to(
+    controller => 'Part',
+    action     => 'edit',
+    'part.id'  => $self->part->id
+  );
+}
+
 sub action_create_variants {
   my ($self) = @_;
   my @variant_property_ids = sort keys %{$::form->{variant_properties}};
@@ -233,7 +301,7 @@ sub action_create_variants {
     return $self->js->error(
       t8('No property value selected for variant properties: #1.',
         join(", ",
-          map {$_->name_translated}
+          map {$_->displayable_name}
           grep {!defined $::form->{variant_properties}->{$_->id}->{selected_property_values}}
           @$variant_properties
         )
@@ -359,9 +427,10 @@ sub render_form {
   $self->_set_javascript;
   $self->_setup_form_action_bar;
 
-  my (%assortment_vars, %assembly_vars);
-  %assortment_vars = %{ $self->prepare_assortment_render_vars } if $self->part->is_assortment;
-  %assembly_vars   = %{ $self->prepare_assembly_render_vars   } if $self->part->is_assembly;
+  my (%assortment_vars, %assembly_vars, %parent_variant_vars, %variant_vars);
+  %assortment_vars     = %{ $self->prepare_assortment_render_vars }     if $self->part->is_assortment;
+  %assembly_vars       = %{ $self->prepare_assembly_render_vars   }     if $self->part->is_assembly;
+  %parent_variant_vars = %{ $self->prepare_parent_variant_render_vars } if $self->part->is_parent_variant;
 
   $params{CUSTOM_VARIABLES}  = $params{use_as_new} && $::form->{old_id}
                             ?  CVar->get_custom_variables(module => 'IC', trans_id => $::form->{old_id})
@@ -390,6 +459,7 @@ sub render_form {
     title             => $title_hash{$self->part->part_type},
     %assortment_vars,
     %assembly_vars,
+    %parent_variant_vars,
     translations_map  => { map { ($_->language_id   => $_) } @{$self->part->translations} },
     prices_map        => { map { ($_->pricegroup_id => $_) } @{$self->part->prices      } },
     oldpartnumber     => $::form->{oldpartnumber},
@@ -1012,6 +1082,22 @@ sub prepare_assembly_render_vars {
                assembly_html       => $self->render_assembly_items_to_html( \@{ $self->part->items } ),
              );
   $vars{items_sum_diff} = $vars{items_sellprice_sum} - $vars{items_lastcost_sum};
+
+  return \%vars;
+}
+
+sub prepare_parent_variant_render_vars {
+  my ($self) = @_;
+
+  my %has_variant_property =
+    map { $_->id => 1}
+    @{$self->part->variant_properties};
+  my @available_variant_properis =
+    grep {!$has_variant_property{$_->id}}
+    @{SL::DB::Manager::VariantProperty->get_all()};
+  my %vars = (
+    AVAILABLE_VARIANT_PROPERIES => \@available_variant_properis,
+  );
 
   return \%vars;
 }

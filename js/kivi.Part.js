@@ -337,6 +337,18 @@ namespace('kivi.Part', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.update_variant_property_value_options = function() {
+    var data = $('#ic').serializeArray();
+    data.push({ name: 'action', value: 'Part/update_variant_property_value_options' });
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.add_variant_property = function() {
+    var data = $('#ic').serializeArray();
+    data.push({ name: 'action', value: 'Part/add_variant_property' });
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   var KEY = {
     TAB:       9,
     ENTER:     13,
