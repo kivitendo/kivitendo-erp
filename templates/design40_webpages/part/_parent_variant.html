@@ -6,6 +6,49 @@
 
 <div class="wrapper">
   <div class="wrapper input-panel">
+    <h3> [% LxERP.t8("Variant Properties") %] </h3>
+    <table class="tbl-list">
+      <caption>
+        [% LxERP.t8("Variants") %]
+      </caption>
+      <thead>
+        <th>[% "Partnumber" | $T8 %]</th>
+        <th>[% "Description" | $T8 %]</th>
+        <th>[% "Property Values (Abbreviation)" | $T8 %]</th>
+        [% FOREACH variant_property = SELF.part.variant_properties %]
+        <th> [% variant_property.displayable_name %] </th>
+        [% END %]
+        <th>
+          [% L.select_tag("add_variant_property", AVAILABLE_VARIANT_PROPERIES
+            title_key='displayable_name', value_key='id',
+            with_empty=1, empty_title=LxERP.t8("Variant Property"),
+            onchange='kivi.Part.update_variant_property_value_options();',
+          )%]
+          [% L.button_tag('kivi.Part.add_variant_property();', LxERP.t8("Insert new")) %]
+        </th>
+      </thead>
+      <tbody class="row_entry listrow">
+        [% FOREACH variant = SELF.part.variants %]
+          <tr>
+            <td>[% variant.presenter.part %]</td>
+            <td>[% variant.description | html %]</td>
+            <td>[% variant.variant_values | html %]</td>
+            [% FOREACH variant_property = SELF.part.variant_properties %]
+            <td> [% variant.variant_value(variant_property) %] </td>
+            [% END %]
+            <td>
+              [% L.select_tag("add_variant_property_value_" _ variant.id, []
+                title_key='displayable_name', value_key='id',
+                with_empty=1, empty_title=LxERP.t8("Select Variant Property First"),
+              ) %]
+            </td>
+          </tr>
+        [% END %]
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrapper input-panel">
     <h3> [% LxERP.t8("Create new Variants") %] </h3>
     <div class="wrapper">
     [% FOREACH variant_property = SELF.part.variant_properties %]
@@ -13,7 +56,7 @@
         <h4>[% variant_property.name_translated | html %]</h4>
         [% L.select_tag("variant_properties." _ variant_property.id _ ".selected_property_values[]",
           variant_property.property_values,
-          title_key='value_translated', value_key='id',
+          title_key='displayable_name', value_key='id',
           id="selected_property_values_" _ variant_property.id,
           multiple=1,
         ) %]
@@ -27,26 +70,6 @@
     </div>
     [% L.button_tag('kivi.Part.create_variants();', LxERP.t8("Create Variants with selected Values")) %]
   </div>
-
-  <table class="tbl-list">
-    <caption>
-      [% LxERP.t8("Variants") %]
-    </caption>
-    <thead>
-      <th>[% "Partnumber" | $T8 %]</th>
-      <th>[% "Description" | $T8 %]</th>
-      <th>[% "Property Values" | $T8 %]</th>
-    </thead>
-    <tbody class="row_entry listrow">
-      [% FOREACH variant = SELF.part.variants %]
-        <tr>
-          <td>[% variant.presenter.part %]</td>
-          <td>[% variant.description | html %]</td>
-          <td>[% variant.variant_values | html %]</td>
-        </tr>
-      [% END %]
-    </tbody>
-  </table>
 </div>
 
 

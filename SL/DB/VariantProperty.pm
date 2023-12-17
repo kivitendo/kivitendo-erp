@@ -39,4 +39,9 @@ sub validate {
 
 sub name_translated {goto &name} # TODO
 
+sub displayable_name {
+  my ($self) = @_;
+  return $self->name . "(" . $self->abbreviation . ")";
+}
+
 1;
