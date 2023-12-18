@@ -155,6 +155,10 @@
         </td>
       </tr>
     [% END %]
+    <tr>
+      <th>[% 'Transaction description' | $T8 %]</th>
+      <td class="wi-wide">[% L.input_tag("transaction_description", transaction_description, "data-validate"=INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : '') %]</td>
+    </tr>
   </tbody>
   </table>
 
