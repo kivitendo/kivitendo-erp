@@ -29,59 +29,59 @@
 \begin{document}
 
 \begin{letter}{%
-<%if billing_address_id%>%
-	<%billing_address_name%> \strut\\%
-	<%if department_1%><%billing_address_department_1%>\\<%end if%>%
-	<%if department_2%><%billing_address_department_2%>\\<%end if%>%
-	<%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%
-	<%billing_address_street%>\strut\\%
-	<%billing_address_zipcode%> <%billing_address_city%> \strut\\%
-	<%billing_address_country%>\strut\\%
-<%else%>%
-	<%name%>\strut\\%
-	<%if department_1%><%department_1%>\\<%end if%>%
-	<%if department_2%><%department_2%>\\<%end if%>%
-	<%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%
-	<%street%>\strut\\%
-	<%zipcode%> <%city%>\strut\\%
-	<%country%>\strut%
-<%end if%>%
-}
+  <%if billing_address_id%>%
+    <%billing_address_name%> \strut\\%
+    <%if department_1%><%billing_address_department_1%>\\<%end if%>%
+    <%if department_2%><%billing_address_department_2%>\\<%end if%>%
+    <%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%
+    <%billing_address_street%>\strut\\%
+    <%billing_address_zipcode%> <%billing_address_city%> \strut\\%
+    <%billing_address_country%>\strut\\%
+  <%else%>%
+    <%name%>\strut\\%
+    <%if department_1%><%department_1%>\\<%end if%>%
+    <%if department_2%><%department_2%>\\<%end if%>%
+    <%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%
+    <%street%>\strut\\%
+    <%zipcode%> <%city%>\strut\\%
+    <%country%>\strut%
+  <%end billing_address_id%>%
+  }
 
-% Bei Kontaktperson Anrede nach Geschlecht unterscheiden.
-% Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
-\opening{
-\Ifstr{<%cp_name%>}{}
-{<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede<%end if%>}
-  {
-    \Ifstr{<%cp_gender%>}{f}
-        {\anredefrau}
-        {\anredeherr}
+  % Bei Kontaktperson Anrede nach Geschlecht unterscheiden.
+  % Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
+  \opening{
+    \Ifstr{<%cp_name%>}{}
+    {<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede}<%end if%>
+    {
+      \Ifstr{<%cp_gender%>}{f}
+      {\anredefrau}
+      {\anredeherr}
       <%cp_title%> <%cp_name%>,
     }
   }
-\thispagestyle{kivitendo.letter.first}
+  \thispagestyle{kivitendo.letter.first}
 
-\sammelrechnungsformel
+  \sammelrechnungsformel
 
-\begin{SimpleTabular}[
-    colspec=l*6X,
-    headline={\bfseries\rechnung~\nr & \bfseries\datum & \bfseries\faellig &
-        \bfseries\aktuell & \bfseries\asDreissig & \bfseries\asSechzig & \bfseries\asNeunzig}
-  ]
-  % eigentliche Tabelle
-  <%foreach invnumber%>%
-  <%invnumber%> & <%invdate%> & <%duedate%> &
-  <%c0%> & <%c30%> & <%c60%> & <%c90%> \\
-  <%end invnumber%>%
-  % Tabellenende letzte Seite
-  \midrule[\heavyrulewidth]
-  \multicolumn{3}{@{}l}{\bfseries\zwischensumme} & \bfseries<%c0total%> & \bfseries<%c30total%> & \bfseries<%c60total%> & \bfseries<%c90total%>\\*
-  \midrule
-  \multicolumn{3}{@{}l}{\bfseries\schlussbetrag} & &&&\bfseries<%total%> \\
-\end{SimpleTabular}
+  \begin{SimpleTabular}[
+      colspec=l*6X,
+      headline={\bfseries\rechnung~\nr & \bfseries\datum & \bfseries\faellig &
+          \bfseries\aktuell & \bfseries\asDreissig & \bfseries\asSechzig & \bfseries\asNeunzig}
+    ]
+    % eigentliche Tabelle
+    <%foreach invnumber%>%
+      <%invnumber%> & <%invdate%> & <%duedate%> &
+      <%c0%> & <%c30%> & <%c60%> & <%c90%> \\
+    <%end invnumber%>%
+    % Tabellenende letzte Seite
+    \midrule[\heavyrulewidth]
+    \multicolumn{3}{@{}l}{\bfseries\zwischensumme} & \bfseries<%c0total%> & \bfseries<%c30total%> & \bfseries<%c60total%> & \bfseries<%c90total%>\\*
+    \midrule
+    \multicolumn{3}{@{}l}{\bfseries\schlussbetrag} & &&&\bfseries<%total%> \\
+  \end{SimpleTabular}
 
-\closing{\gruesse}
+  \closing{\gruesse}
 
 \end{letter}
 

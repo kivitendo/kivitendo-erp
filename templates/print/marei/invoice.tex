@@ -7,7 +7,7 @@
   }]{foreground}
   \AddLayersToPageStyle{kivitendo.letter.first}{foreground}%Hintergrund für die erste Seite aktivieren
   \AddLayersToPageStyle{kivitendo.letter}{foreground}%Hintergrund für die erste Seite aktivieren
-<%end if%>
+<%end template_meta.formname == "invoice_copy"%>
 
 
 
@@ -23,11 +23,11 @@
 
 <%if template_meta.formname == "invoice_for_advance_payment"%>
   \renewcommand{\rechnung}{\anzahlungsrechnung}
-<%end if%>
+<%end template_meta.formname == "invoice_for_advance_payment"%>
 
 <%if template_meta.formname == "final_invoice"%>
   \renewcommand{\rechnung}{\schlussrechnung}
-<%end if%>
+<%end template_meta.formname == "final_invoice"%>
 
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\rechnung}{<%invnumber%>}{<%invdate%>}
@@ -44,22 +44,22 @@
 <%if ordnumber%>%
   \setkomavar*{myref}{\auftragsnummer}
   \setkomavar{myref}{<%ordnumber%>}
-<%end if%>%
+<%end ordnumber%>%
 <%if tax_point%>%
   \setkomavar*{taxpoint}{\leistungsdatum}
   \setkomavar{taxpoint}{<%tax_point%>}
-<%end if%>%
+<%end tax_point%>%
 <%if cusordnumber%>%
   \setkomavar*{yourref}{\ihreBestellnummer}
   \setkomavar{yourref}{<%cusordnumber%>}
-<%end if%>%
+<%end cusordnumber%>%
 <%if donumber%>%
   \setkomavar{delivery}{<%donumber%>}
-<%end if%>%
+<%end donumber%>%
 
 <%if quonumber%>%
 \setkomavar{quote}{<%quonumber%>}
-<%end if%>%
+<%end quonumber%>%
 
 \setkomavar{transaction}{<%transaction_description%>}
 <%if shiptoname%>%
@@ -82,94 +82,94 @@
   }
 \end{lrbox}
 \makeatother
-<%end if%>%
+<%end shiptoname%>%
 
 \begin{document}
 
 \begin{letter}{%
-<%if billing_address_id%>%
-	<%billing_address_name%> \strut\\%
-	<%if department_1%><%billing_address_department_1%>\\<%end if%>%
-	<%if department_2%><%billing_address_department_2%>\\<%end if%>%
-	<%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%me%>\strut\\%me%>\strut\\%me%>\strut\\%
-	<%billing_address_street%>\strut\\%
-	<%billing_address_zipcode%> <%billing_address_city%> \strut\\%
-	<%billing_address_country%>\strut\\%
-<%else%>%
-	<%name%>\strut\\%
-	<%if department_1%><%department_1%>\\<%end if%>%
-	<%if department_2%><%department_2%>\\<%end if%>%
-	<%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%
-	<%street%>\strut\\%
-	<%zipcode%> <%city%>\strut\\%
-	<%country%>\strut%
-<%end if%>%
-}
+  <%if billing_address_id%>%
+    <%billing_address_name%> \strut\\%
+    <%if department_1%><%billing_address_department_1%>\\<%end if%>%
+    <%if department_2%><%billing_address_department_2%>\\<%end if%>%
+    <%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%me%>\strut\\%me%>\strut\\%me%>\strut\\%
+    <%billing_address_street%>\strut\\%
+    <%billing_address_zipcode%> <%billing_address_city%> \strut\\%
+    <%billing_address_country%>\strut\\%
+  <%else%>%
+    <%name%>\strut\\%
+    <%if department_1%><%department_1%>\\<%end if%>%
+    <%if department_2%><%department_2%>\\<%end if%>%
+    <%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%
+    <%street%>\strut\\%
+    <%zipcode%> <%city%>\strut\\%
+    <%country%>\strut%
+  <%end billing_address_id%>%
+  }
 
-% Bei Kontaktperson Anrede nach Geschlecht unterscheiden.
-% Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
-\opening{
-\Ifstr{<%cp_name%>}{}
-{<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede<%end if%>}
-  {
-    \Ifstr{<%cp_gender%>}{f}
-        {\anredefrau}
-        {\anredeherr}
+  % Bei Kontaktperson Anrede nach Geschlecht unterscheiden.
+  % Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
+  \opening{
+    \Ifstr{<%cp_name%>}{}
+    {<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede}<%end if%>
+    {
+      \Ifstr{<%cp_gender%>}{f}
+      {\anredefrau}
+      {\anredeherr}
       <%cp_title%> <%cp_name%>,
     }
   }
-\thispagestyle{kivitendo.letter.first}
+  \thispagestyle{kivitendo.letter.first}
 
-<%if notes%>%
-<%notes%>%
-\vspace{0.5cm}
-<%end if%>%
+  <%if notes%>%
+    <%notes%>%
+    \vspace{0.5cm}
+  <%end notes%>%
 
 
-%PricingTabular* kann automatisch spalten ignorieren
-% \begin{PricingTabular*}[id=false]
-% deaktiviert damit die Spalte der Produktnummer
-% analog ist dies für pos, amount, price, pricetotal möglich.
-% Die Spalte der Bezeichnung ist nicht deaktivierbar
-%
-% Darüber hinaus kann die Reihenfolge verändert werden, die Voreinstellung entspricht:
-% \begin{PricingTabular*[columns={pos, id, desc, amount, price, pricetotal}]
-% Auf diese Art ist auch möglich mehrSpalten anzulegen als definiert sind. Für jede Spalte kann die Breite über weitere Optionen angepasst werden, die Einträge der columns-Liste entspricht den Spaltennamen.
-%
-% id = false, % deaktiviert die Spalte der Artikelnummer
-% amount = 1cm, % Setzt die Breite der Mengenspalte auf 1cm
-% desc/header = Artikelbeschreibung, %Ändert die Überschrift der Bezeichnunsspalte in „Artikelbeschreibung”
-\begin{PricingTabular*}%
-  % eigentliche Tabelle
-  \FakeTable{%
-  <%foreach number%>%
-  <%runningnumber%> &%
-  <%number%> &%
-  \textbf{<%description%>}%
-  <%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
-  <%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
-  <%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
-  <%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
-  &%
-  <%qty%> <%unit%> &%
-  <%sellprice%>&%
-  \Ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
-    <%linetotal%>\tabularnewline%
+  %PricingTabular* kann automatisch spalten ignorieren
+  % \begin{PricingTabular*}[id=false]
+  % deaktiviert damit die Spalte der Produktnummer
+  % analog ist dies für pos, amount, price, pricetotal möglich.
+  % Die Spalte der Bezeichnung ist nicht deaktivierbar
+  %
+  % Darüber hinaus kann die Reihenfolge verändert werden, die Voreinstellung entspricht:
+  % \begin{PricingTabular*[columns={pos, id, desc, amount, price, pricetotal}]
+  % Auf diese Art ist auch möglich mehrSpalten anzulegen als definiert sind. Für jede Spalte kann die Breite über weitere Optionen angepasst werden, die Einträge der columns-Liste entspricht den Spaltennamen.
+  %
+  % id = false, % deaktiviert die Spalte der Artikelnummer
+  % amount = 1cm, % Setzt die Breite der Mengenspalte auf 1cm
+  % desc/header = Artikelbeschreibung, %Ändert die Überschrift der Bezeichnunsspalte in „Artikelbeschreibung”
+  \begin{PricingTabular*}%
+    % eigentliche Tabelle
+    \FakeTable{%
+    <%foreach number%>%
+      <%runningnumber%> &%
+      <%number%> &%
+      \textbf{<%description%>}%
+      <%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
+      <%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
+      <%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
+      <%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
+      &%
+      <%qty%> <%unit%> &%
+      <%sellprice%>&%
+      \Ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
+      <%linetotal%>\tabularnewline%
     <%end number%>%
-  }%
-  \begin{PricingTotal}%
-    % Tabellenende letzte Seite
-    \nettobetrag & <%subtotal%>\\%
-    <%foreach tax%>%
-    <%taxdescription%> & <%tax%>\\%
-    <%end tax%>%
-    \bfseries\schlussbetrag &  \bfseries <%invtotal%>\\%
-  \end{PricingTotal}%
-\end{PricingTabular*}
+    }%
+    \begin{PricingTotal}%
+      % Tabellenende letzte Seite
+      \nettobetrag & <%subtotal%>\\%
+      <%foreach tax%>%
+        <%taxdescription%> & <%tax%>\\%
+      <%end tax%>%
+      \bfseries\schlussbetrag &  \bfseries <%invtotal%>\\%
+    \end{PricingTotal}%
+  \end{PricingTabular*}
 
-\vspace{0.2cm}
+  \vspace{0.2cm}
 
-<%if template_meta.formname == "final_invoice"%>
+  <%if template_meta.formname == "final_invoice"%>
   <%if iap_existing%>
     \abzueglichAnzahlungsrechnungen:\\
     \begin{SimpleTabular}[colspec=llr<{\tabcurrency}r<{\tabcurrency},headline={\bfseries\nr& \bfseries\date& \bfseries\betrag & \bfseries\ust}]%
@@ -177,35 +177,35 @@
         <%iap_invnumber%> & <%iap_transdate_as_date%> & <%iap_amount%> & <%iap_taxamount%>\\%
       <%end iap_invnumber%>%
     \end{SimpleTabular}%
-      \bfseries\rechnungsbetrag: <%iap_final_amount%> \currency\\%
+    \bfseries\rechnungsbetrag: <%iap_final_amount%> \currency\\%
   <%end iap_existing%>
-<%end%>%
+  <%end%>%
 
-\Ifstr{<%deliverydate%>}{}{%
-  \leistungsdatumGleichRechnungsdatum%
-}{
-  \lieferungErfolgtAm ~<%deliverydate%>.
-}\\
+  \Ifstr{<%deliverydate%>}{}{%
+    \leistungsdatumGleichRechnungsdatum%
+  }{
+    \lieferungErfolgtAm ~<%deliverydate%>.
+  }\\
 
-<%if payment_terms%>%
-\zahlung ~<%payment_terms%>\\
-<%end payment_terms%>%
+  <%if payment_terms%>%
+    \zahlung ~<%payment_terms%>\\
+  <%end payment_terms%>%
 
-<%if delivery_term%>%
-\lieferung ~<%delivery_term.description_long%>\\
-<%end delivery_term%>%
+  <%if delivery_term%>%
+    \lieferung ~<%delivery_term.description_long%>\\
+  <%end delivery_term%>%
 
-<%if ustid%>\ihreustid ~<%ustid%>.\\<%end if%>%
+  <%if ustid%>\ihreustid ~<%ustid%>.\\<%end if%>%
 
-\ifnum<%taxzone_id%>=1
-\steuerfreiEU\\  % EU mit USt-ID Nummer
-\else
-\ifnum<%taxzone_id%>=3
-\steuerfreiAUS\\  % Außerhalb EU
-\fi
-\fi
+  \ifnum<%taxzone_id%>=1
+    \steuerfreiEU\\  % EU mit USt-ID Nummer
+  \else
+    \ifnum<%taxzone_id%>=3
+      \steuerfreiAUS\\  % Außerhalb EU
+    \fi
+  \fi
 
-\closing{\gruesse}
+  \closing{\gruesse}
 
 \end{letter}
 

@@ -15,7 +15,7 @@
 \setkomavar{firsthead}{
   \normalsize
   \noindent\begin{tabular}[t]{@{}l@{}}
-    <%company%>\strut\\
+    <%company%>\strut \\
     <%address%>
   \end{tabular}
   \hfill
@@ -43,43 +43,43 @@
 \makeatother
 
 \begin{letter}{
-<%name%>\ifhmode\\\fi
-<%street%>\ifhmode\\\fi
-<%zipcode%> <%city%>\ifhmode\\\fi
-<%country%>
-}
+    <%name%>\ifhmode\\\fi
+    <%street%>\ifhmode\\\fi
+    <%zipcode%> <%city%>\ifhmode\\\fi
+    <%country%>
+  }
 
-\opening{}
+  \opening{}
 
-\begin{SimpleTabular}[colspec=*6X,headline={\bfseries\bestellnummer&\bfseries\datum&\bfseries\kontakt
-        <%if warehouse%>%
-        &\bfseries\lager%
-        <%end warehouse%>%
-        &\bfseries\lagerplatz&\bfseries\lieferungMit}]
+  \begin{SimpleTabular}[colspec=*6X,headline={\bfseries\bestellnummer&\bfseries\datum&\bfseries\kontakt
+    <%if warehouse%>%
+      &\bfseries\lager%
+    <%end warehouse%>%
+    &\bfseries\lagerplatz&\bfseries\lieferungMit}]
 
-  <%ordnumber%>%
-  &%
-  <%if shippingdate%>%
-  <%shippingdate%>%
-  <%end shippingdate%>%
-  <%if not shippingdate%>%
-  <%orddate%>%
-  <%end shippingdate%>%
-  & <%employee%>%
-  <%if warehouse%>%
-  & <%warehouse%>%
-  <%end warehouse%>%
-  & <%shippingpoint%> & <%shipvia%> \\
-\end{SimpleTabular}
+    <%ordnumber%>%
+    &%
+    <%if shippingdate%>%
+      <%shippingdate%>%
+    <%end shippingdate%>%
+    <%if not shippingdate%>%
+    <%orddate%>%
+    <%end shippingdate%>%
+    & <%employee%>%
+    <%if warehouse%>%
+      & <%warehouse%>%
+    <%end warehouse%>%
+    & <%shippingpoint%> & <%shipvia%> \\
+  \end{SimpleTabular}
 
-\bigskip
+  \bigskip
 
-\begin{SimpleTabular}[colspec=rlXllrrll,headline={\bfseries\position&\bfseries\nummer&\bfseries\beschreibung&\bfseries\seriennummer & &\bfseries\menge&\bfseries\erh&&\bfseries\lagerplatz}]
-  <%foreach number%>%
-  <%runningnumber%> & <%number%> & <%description%> & <%serialnumber%> &
-  <%deliverydate%> & <%qty%> & <%ship%> & <%unit%> & <%bin%> \\
-  <%end number%>%
-\end{SimpleTabular}
+  \begin{SimpleTabular}[colspec=rlXllrrll,headline={\bfseries\position&\bfseries\nummer&\bfseries\beschreibung&\bfseries\seriennummer & &\bfseries\menge&\bfseries\erh&&\bfseries\lagerplatz}]
+    <%foreach number%>%
+      <%runningnumber%> & <%number%> & <%description%> & <%serialnumber%> &
+      <%deliverydate%> & <%qty%> & <%ship%> & <%unit%> & <%bin%> \\
+    <%end number%>%
+  \end{SimpleTabular}
 
 \end{letter}
 
