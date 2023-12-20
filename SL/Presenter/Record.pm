@@ -41,9 +41,9 @@ my @ORDERED_TYPES = qw(
   letter
   email_journal
   dunning
-  gl_transaction_template
   ar_transaction_template
   ap_transaction_template
+  gl_transaction_template
   );
 
 my %TYPE_TO_PARAMS = (
