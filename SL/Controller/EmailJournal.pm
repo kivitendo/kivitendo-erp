@@ -265,9 +265,9 @@ sub action_show {
   $cv_type_found = 'vendor' if $self->entry->record_type eq 'ap_transaction';
   $self->render(
     'email_journal/show',
-    title    => $::locale->text('View email'),
-    CUSTOMER_VENDOR => , $customer_vendor,
-    CV_TYPE_FOUND => $cv_type_found,
+    title                  => $::locale->text('View email'),
+    CUSTOMER_VENDOR        => $customer_vendor,
+    CV_TYPE_FOUND          => $cv_type_found,
     RECORD_TYPES_WITH_INFO => \@record_types_with_info,
     RECORD_TYPES_TO_TEXT   => \%record_types_to_text,
     back_to  => $back_to,
@@ -399,13 +399,14 @@ sub action_apply_record_action {
 
 sub action_zugferd_import_with_attachment {
   my ($self) = @_;
-
-  my $email_journal_id   = $::form->{email_journal_id};
-  my $attachment_id      = $::form->{attachment_id};
-
+  my $email_journal_id = $::form->{email_journal_id};
+  my $attachment_id    = $::form->{attachment_id};
   die "no 'email_journal_id' was given" unless $email_journal_id;
-  die "no 'attachment_id' was given"    unless $attachment_id;
+  die t8("No attachment is selected")   unless $attachment_id;
 
+  my $record_id   = $::form->{"record_id"};
+  my $record_type = $::form->{"record_type"};
+  die "ZUGFeRD-Import only implemented for ap transaction templates" unless $record_type == 'ap_transaction';
   my $attachment = SL::DB::EmailJournalAttachment->new(id => $attachment_id)->load();
 
   my $content = $attachment->content; # scalar ref
@@ -423,7 +424,13 @@ sub action_zugferd_import_with_attachment {
     die(t8("Could not extract Factur-X/ZUGFeRD data, data and error message:") . " $res{'message'}");
   }
 
-  my $form_defaults = SL::Controller::ZUGFeRD->build_ap_transaction_form_defaults(\%res);
+  my $vendor;
+  if ($record_id) {
+    my $ap_template = SL::DB::RecordTemplate->new(id => $record_id)->load();
+    $vendor = $ap_template->vendor;
+  }
+
+  my $form_defaults = SL::Controller::ZUGFeRD->build_ap_transaction_form_defaults(\%res, vendor => $vendor);
   $form_defaults->{email_journal_id}    = $email_journal_id;
   $form_defaults->{email_attachment_id} = $attachment_id;
   $form_defaults->{callback}            = $::form->{back_to};
@@ -431,9 +438,10 @@ sub action_zugferd_import_with_attachment {
   flash_later('info',
     t8("The ZUGFeRD/Factur-X invoice '#1' has been loaded.", $attachment->name));
   $self->redirect_to(
-    controller    => 'ap.pl',
-    action        => 'load_zugferd',
-    form_defaults => $form_defaults,
+    controller         => 'ap.pl',
+    action             => 'load_zugferd',
+    record_template_id => $record_id,
+    form_defaults      => $form_defaults,
   );
 }
 
@@ -446,20 +454,6 @@ sub action_update_attachment_preview {
   $attachment = SL::DB::EmailJournalAttachment->new(
     id => $attachment_id,
   )->load if $attachment_id;
-
-  $self->js->hide('#zugferd_import_div');
-  if ($attachment && $attachment->content =~ m/^%PDF|<\?xml/) {
-    my $content = $attachment->content;
-    my %res;
-    if ( $content =~ m/^%PDF/ ) {
-      %res = %{SL::ZUGFeRD->extract_from_pdf($content)};
-    } else {
-      %res = %{SL::ZUGFeRD->extract_from_xml($content)};
-    }
-    if ($res{'result'} == SL::ZUGFeRD::RES_OK()) {
-      $self->js->show('#zugferd_import_div');
-    }
-  }
 
   $self->js
     ->replaceWith('#attachment_preview',

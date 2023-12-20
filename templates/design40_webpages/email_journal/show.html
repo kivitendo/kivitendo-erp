@@ -173,15 +173,6 @@
       </div>
       [% END %]
 
-      <div id="zugferd_import_div" style="display:none">
-        <!-- get shown if the attachment is valid zugferd -->
-        [% L.button_tag('kivi.EmailJournal.zugferd_import_with_attachment();',
-          LxERP.t8('Factur-X/ZUGFeRD import'),
-          style="margin-top:5px"
-          )
-        %]
-      </div>
-
     </div></div> <!-- action_div -->
 
     <div id="record_selection_div">
@@ -241,7 +232,7 @@
             [% LxERP.t8('Hide Records') %]
           </a>
           <div class="toggle_panel_block">
-            <div id="record_list">LxERP.t8("Loading...")</div>
+            <div id="record_list">[% LxERP.t8("Loading...") %]</div>
           </div>
         </div><!-- /.record_toggle -->
       </div><!-- record_div -->

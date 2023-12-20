@@ -56,9 +56,12 @@ namespace('kivi.EmailJournal', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   }
 
-  ns.zugferd_import_with_attachment = function() {
+  ns.zugferd_import_with_attachment = function(record_id, record_type) {
     let data = $('#record_action_form').serializeArray();
     data.push({ name: 'action', value: 'EmailJournal/zugferd_import_with_attachment' });
+    data.push({ name: 'record_id', value: record_id });
+    data.push({ name: 'record_type', value: record_type });
+
     $.post("controller.pl", data, kivi.eval_json_result);
   }
 

@@ -161,7 +161,8 @@ sub action_import_zugferd {
 }
 
 sub build_ap_transaction_form_defaults {
-  my ($self, $data) = @_;
+  my ($self, $data, %params) = @_;
+  my $vendor = $params{vendor};
 
   my $parser = $data->{'invoice_xml'};
 
@@ -172,18 +173,29 @@ sub build_ap_transaction_form_defaults {
   my $iban = $metadata{'iban'};
   my $invnumber = $metadata{'invnumber'};
 
-  if ( ! ($metadata{'ustid'} or $metadata{'taxnumber'}) ) {
-    die t8("Cannot process this invoice: neither VAT ID nor tax ID present.");
+  if ($vendor) {
+    if ($metadata{'ustid'} && $vendor->ustid && ($metadata{'ustid'} ne $vendor->ustid)) {
+      $intnotes .= "\n" . t8('USt-IdNr.') . ': '
+      . t8("Record VAT ID #1 doesn't match vendor VAT ID #2", $metadata{'ustid'}, $vendor->ustid);
+    }
+    if ($metadata{'taxnumber'} && $vendor->taxnumber && ($metadata{'taxnumber'} ne $vendor->taxnumber)) {
+      $intnotes .= "\n" . t8("Tax Number") . ': '
+      . t8("Record tax ID #1 doesn't match vendor tax ID #2", $metadata{'taxnumber'}, $vendor->taxnumber);
+    }
+  } else {
+    if ( ! ($metadata{'ustid'} or $metadata{'taxnumber'}) ) {
+      die t8("Cannot process this invoice: neither VAT ID nor tax ID present.");
+    }
+
+    $vendor = find_vendor($metadata{'ustid'}, $metadata{'taxnumber'});
+
+    die t8("Vendor with VAT ID (#1) and/or tax ID (#2) not found. Please check if the vendor " .
+            "#3 exists and whether it has the correct tax ID/VAT ID." ,
+             $metadata{'ustid'},
+             $metadata{'taxnumber'},
+             $metadata{'vendor_name'},
+    ) unless $vendor;
   }
-
-  my $vendor = find_vendor($metadata{'ustid'}, $metadata{'taxnumber'});
-
-  die t8("Vendor with VAT ID (#1) and/or tax ID (#2) not found. Please check if the vendor " .
-          "#3 exists and whether it has the correct tax ID/VAT ID." ,
-           $metadata{'ustid'},
-           $metadata{'taxnumber'},
-           $metadata{'vendor_name'},
-  ) unless $vendor;
 
 
   # Check IBAN specified on bill matches the one we've got in

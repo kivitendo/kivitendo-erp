@@ -120,7 +120,11 @@ sub load_zugferd {
         "The ZUGFeRD/Factur-X invoice '#1' has been loaded.", $file_name));
   }
 
-  my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $::form->{form_defaults}->{vendor_id}]);
+  my $template_ap;
+  $template_ap ||= SL::DB::RecordTemplate->new(id => $::form->{record_template_id})->load()
+    if $::form->{record_template_id};
+  $template_ap ||= SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $::form->{form_defaults}->{vendor_id}])
+    if $::form->{form_defaults}->{vendor_id};
   if ($template_ap) {
     $::form->{id} = $template_ap->id;
     # set default values for items

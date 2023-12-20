@@ -651,11 +651,27 @@ sub record_list {
       data  => sub {
         my $id = $_[0]->id;
         my $record_type = $_[0]->record_type;
-        is_escaped(button_tag(
-            "kivi.EmailJournal.apply_action_with_attachment(
-            '$id', '$record_type');",
-            $::locale->text('Select'),
-          ))
+        if ($record_type eq 'ap_transaction' && ref $_[0] eq 'SL::DB::RecordTemplate') {
+          return is_escaped(
+            button_tag(
+              "kivi.EmailJournal.apply_action_with_attachment(
+              '$id', '$record_type');",
+              $::locale->text('Select'),
+            )
+            . " " .
+            button_tag(
+              "kivi.EmailJournal.zugferd_import_with_attachment(
+              '$id', '$record_type');",
+              $::locale->text('Factur-X/ZUGFeRD import'),
+            )
+          );
+        } else {
+          return is_escaped(button_tag(
+              "kivi.EmailJournal.apply_action_with_attachment(
+              '$id', '$record_type');",
+              $::locale->text('Select'),
+            ));
+        }
       },
     };
   }
