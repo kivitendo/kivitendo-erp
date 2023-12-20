@@ -181,10 +181,10 @@ sub action_edit {
   if ($::form->{id}) {
     $self->load_order;
 
-    if ($self->order->is_sales) {
-      my $imap_client = SL::IMAPClient->new();
+    if ($self->order->is_sales && $::lx_office_conf{imap_client}->{enabled}) {
+      my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{imap_client}});
       if ($imap_client) {
-        $imap_client->update_email_files_for_record($self->order);
+        $imap_client->update_email_files_for_record(record => $self->order);
       }
     }
 
@@ -2158,10 +2158,10 @@ sub save {
     );
   }
 
-  if ($is_new && $self->order->is_sales) {
-    my $imap_client = SL::IMAPClient->new();
+  if ($is_new && $self->order->is_sales && $::lx_office_conf{imap_client}->{enabled}) {
+    my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{imap_client}});
     if ($imap_client) {
-      $imap_client->create_folder_for_record($self->order);
+      $imap_client->create_folder_for_record(record => $self->order);
     }
   }
 

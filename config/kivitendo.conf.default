@@ -206,8 +206,8 @@ base_folder = INBOX
 # If SSL is to be used, then set port to 993 or leave empty
 ssl = 1
 # Further possible values
-# emails_import_ids_to_delete = []
-# process_imported_emaails = [zugferd]
+# email_import_ids_to_delete = []
+# process_imported_emails = [zugferd]
 # processed_imap_flag = $Label3
 # not_processed_imap_flag = $Label4
 # record_type = ap_transaction # set in BJ to get a specific config

@@ -27,6 +27,11 @@ sub process_attachments {
   return $processed_count;
 }
 
+sub can_function {
+  my ($self, $function_name) = @_;
+  $self->can("process_attachments_$function_name")
+}
+
 sub process_attachments_zugferd {
   my ($self, $email_journal, $attachment, %params) = @_;
 
