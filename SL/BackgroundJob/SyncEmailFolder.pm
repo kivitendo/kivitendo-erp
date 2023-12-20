@@ -5,6 +5,8 @@ use warnings;
 
 use parent qw(SL::BackgroundJob::Base);
 
+use Params::Validate qw(:all);
+
 use SL::IMAPClient;
 use SL::DB::Manager::EmailImport;
 
@@ -12,10 +14,11 @@ sub sync_email_folder {
   my ($self) = @_;
   my $folder = $self->{job_obj}->data_as_hash->{folder};
 
-  my $imap_client = SL::IMAPClient->new();
-  die "Email client is disabled" unless $imap_client;
+  my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{imap_client}});
 
-  my $email_import = $imap_client->update_emails_from_folder($folder);
+  my $email_import = $imap_client->update_emails_from_folder(
+    folder => $folder
+  );
   return unless $email_import;
 
   return "Created email import: " . $email_import->id;
@@ -43,6 +46,21 @@ sub delete_email_imports {
 sub run {
   my ($self, $job_obj) = @_;
   $self->{job_obj} = $job_obj;
+  my @bj_data = $job_obj->data_as_hash;
+  validate_with(
+    params => \@bj_data,
+    spec   => {
+      folder => {
+        type =>
+        SCALAR, optional => 1
+      },
+      email_import_ids_to_delete => {
+        type => ARRAYREF,
+        optional => 1,
+      }
+    },
+    called => "data filed in Background Job",
+  );
 
   my @results;
   push @results, $self->delete_email_imports();

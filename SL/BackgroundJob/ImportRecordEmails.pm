@@ -11,21 +11,25 @@ use SL::DB::Manager::EmailImport;
 use SL::Helper::EmailProcessing;
 use SL::Presenter::Tag qw(link_tag);
 
+use Params::Validate qw(:all);
 use List::MoreUtils qw(any);
 
 sub sync_record_email_folder {
   my ($self, $config) = @_;
 
-  my $imap_client = SL::IMAPClient->new(%$config);
-  return "IMAP client is disabled." unless $imap_client;
+  my %imap_config;
+  foreach my $key (qw(enabled hostname port ssl username password base_folder)) {
+    if (defined $config->{$key}) {
+      $imap_config{$key} = $config->{$key};
+    }
+  }
+
+  my $imap_client = SL::IMAPClient->new(%imap_config);
 
   my $email_import = $imap_client->update_emails_from_folder(
-    $config->{folder},
-    {
-      email_journal => {
-        status => 'imported',
-        record_type => $config->{record_type},
-      },
+    folder => $config->{folder},
+    email_journal_params => {
+      record_type => $config->{record_type},
     }
   );
   return "No emails to import." unless $email_import;
@@ -57,12 +61,16 @@ sub sync_record_email_folder {
           $result .= "Error while processing email journal $email_journal_id attachments with $function_name: $@";
         };
       }
-      if ($created_records) {
+      if ($created_records  && $config->{processed_imap_flag}) {
         $imap_client->set_flag_for_email(
-          $email_journal, $config->{processed_imap_flag});
-      } else {
+          email_journal => $email_journal,
+          flag          => $config->{processed_imap_flag},
+        );
+      } elsif ($config->{not_processed_imap_flag}) {
         $imap_client->set_flag_for_email(
-          $email_journal, $config->{not_processed_imap_flag});
+          email_journal => $email_journal,
+          flag          => $config->{not_processed_imap_flag},
+        );
       }
     }
     $result .= "Processed attachments with "
@@ -105,32 +113,85 @@ sub run {
   my ($self, $job_obj) = @_;
   $self->{job_obj} = $job_obj;
 
-  my $data = $job_obj->data_as_hash;
+  my %spec = (
+      folder => {
+        type => SCALAR,
+        optional => 1,
+      },
+      record_type => {
+        optional => 1,
+        default  => 'catch_all',
+        callbacks => {
+          'valid record type' => sub {
+            my $valid_record_types = SL::DB::EmailJournal->meta->{columns}->{record_type}->{check_in};
+            unless (any {$_[0] eq $_} @$valid_record_types) {
+              die "record_type '$_[0]' is not valid. Possible values:\n- " . join("\n- ", @$valid_record_types);
+            }
+          },
+        },
+      },
+      process_imported_emails => {
+        type => SCALAR | ARRAYREF,
+        optional => 1,
+        callbacks => {
+          'function is implemented' => sub {
+            foreach my $function_name (ref $_[0] eq 'ARRAY' ? @{$_[0]} : ($_[0])) {
+              !!SL::Helper::EmailProcessing->can_function($function_name) or
+                die "Function '$function_name' not implemented in SL::Helper::EmailProcessing";
+            }
+            1;
+          }
+        }
+      },
+      processed_imap_flag => {
+        type => SCALAR,
+        optional => 1,
+      },
+      not_processed_imap_flag => {
+        type => SCALAR,
+        optional => 1,
+      },
+      email_import_ids_to_delete => {
+        type => ARRAYREF,
+        optional => 1,
+      },
+      # email config
+      enabled     => { type => BOOLEAN, optional => 1, },
+      hostname    => { type => SCALAR,  optional => 1, },
+      port        => { type => SCALAR,  optional => 1, },
+      ssl         => { type => BOOLEAN, optional => 1, },
+      username    => { type => SCALAR,  optional => 1, },
+      password    => { type => SCALAR,  optional => 1, },
+      base_folder => { type => SCALAR,  optional => 1, },
+  );
 
-  my $email_import_ids_to_delete = $data->{email_import_ids_to_delete} || [];
+  my @bj_data = $job_obj->data_as_hash;
+  my %data = validate_with(
+    params => \@bj_data,
+    spec   => \%spec,
+    called => "data filed in Background Job",
+  );
 
-  my $record_type = $data->{record_type};
-  my $config = $::lx_office_conf{"record_emails_imap/record_type/$record_type"}
+  my $record_type = $data{record_type};
+  my $loaded_config = $::lx_office_conf{"record_emails_imap/record_type/$record_type"}
     || $::lx_office_conf{record_emails_imap}
     || {};
-  # overwrite with background job data
-  $config->{$_} = $data->{$_} for keys %$data;
-  $config->{record_type} ||= 'catch_all';
 
-  $record_type = $config->{record_type};
-  if ($record_type) {
-    my $valid_record_types = SL::DB::EmailJournal->meta->{columns}->{record_type}->{check_in};
-    unless (any {$record_type eq $_} @$valid_record_types) {
-      die "record_type '$record_type' is not valid. Possible values:\n- " . join("\n- ", @$valid_record_types);
-    }
-  }
+  my @loaded_config = %$loaded_config;
+  my %config = validate_with(
+    params => \@loaded_config,
+    spec   => \%spec,
+    called => "kivitendo.conf in [record_emails_imap] with type $record_type",
+  );
+  # overwrite with background job data
+  $config{$_} = $data{$_} for keys %data;
 
   my @results;
-  if (scalar $email_import_ids_to_delete) {
-    push @results, $self->delete_email_imports($email_import_ids_to_delete);
+  if (scalar $config{email_import_ids_to_delete}) {
+    push @results, $self->delete_email_imports($config{email_import_ids_to_delete});
   }
 
-  push @results, $self->sync_record_email_folder($config);
+  push @results, $self->sync_record_email_folder(\%config);
 
   return join("\n", grep { $_ ne ''} @results);
 }
