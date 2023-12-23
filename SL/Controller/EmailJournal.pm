@@ -397,46 +397,46 @@ sub action_apply_record_action {
   );
 }
 
-sub action_zugferd_import_with_attachment {
+sub action_ap_transaction_template_with_zugferd_import {
   my ($self) = @_;
   my $email_journal_id = $::form->{email_journal_id};
-  my $attachment_id    = $::form->{attachment_id};
   die "no 'email_journal_id' was given" unless $email_journal_id;
-  die t8("No attachment is selected")   unless $attachment_id;
 
   my $record_id   = $::form->{"record_id"};
   my $record_type = $::form->{"record_type"};
   die "ZUGFeRD-Import only implemented for ap transaction templates" unless $record_type == 'ap_transaction';
-  my $attachment = SL::DB::EmailJournalAttachment->new(id => $attachment_id)->load();
 
-  my $content = $attachment->content; # scalar ref
+  my $attachment_id    = $::form->{attachment_id};
 
-  die t8("can only parse a pdf or xml file") unless $content =~ m/^%PDF|<\?xml/;
+  my $form_defaults;
+  if ($attachment_id) {
+    my $attachment = SL::DB::EmailJournalAttachment->new(id => $attachment_id)->load();
+    my $content = $attachment->content; # scalar ref
 
-  my %res;
-  if ( $content =~ m/^%PDF/ ) {
-    %res = %{SL::ZUGFeRD->extract_from_pdf($content)};
-  } else {
-    %res = %{SL::ZUGFeRD->extract_from_xml($content)};
+    if ($content =~ m/^%PDF|<\?xml/) {
+
+      my %res;
+      if ( $content =~ m/^%PDF/ ) {
+        %res = %{SL::ZUGFeRD->extract_from_pdf($content)};
+      } else {
+        %res = %{SL::ZUGFeRD->extract_from_xml($content)};
+      }
+
+      if ($res{'result'} == SL::ZUGFeRD::RES_OK()) {
+        my $ap_template = SL::DB::RecordTemplate->new(id => $record_id)->load();
+        my $vendor = $ap_template->vendor;
+
+        $form_defaults = SL::Controller::ZUGFeRD->build_ap_transaction_form_defaults(\%res, vendor => $vendor);
+        flash_later('info',
+          t8("The ZUGFeRD/Factur-X invoice '#1' has been loaded.", $attachment->name));
+      }
+    }
   }
 
-  unless ($res{'result'} == SL::ZUGFeRD::RES_OK()) {
-    die(t8("Could not extract Factur-X/ZUGFeRD data, data and error message:") . " $res{'message'}");
-  }
-
-  my $vendor;
-  if ($record_id) {
-    my $ap_template = SL::DB::RecordTemplate->new(id => $record_id)->load();
-    $vendor = $ap_template->vendor;
-  }
-
-  my $form_defaults = SL::Controller::ZUGFeRD->build_ap_transaction_form_defaults(\%res, vendor => $vendor);
   $form_defaults->{email_journal_id}    = $email_journal_id;
   $form_defaults->{email_attachment_id} = $attachment_id;
   $form_defaults->{callback}            = $::form->{back_to};
 
-  flash_later('info',
-    t8("The ZUGFeRD/Factur-X invoice '#1' has been loaded.", $attachment->name));
   $self->redirect_to(
     controller         => 'ap.pl',
     action             => 'load_zugferd',

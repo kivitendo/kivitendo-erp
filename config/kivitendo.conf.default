@@ -195,7 +195,6 @@ ssl = 1
 # More configuration is possible in the data field of the BJ, for more see
 # SL::BackgroundJob::ImportRecordEmails
 [record_emails_imap]
-enabled = 0
 hostname = localhost
 username =
 password =

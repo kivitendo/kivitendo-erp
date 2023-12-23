@@ -654,15 +654,9 @@ sub record_list {
         if ($record_type eq 'ap_transaction' && ref $_[0] eq 'SL::DB::RecordTemplate') {
           return is_escaped(
             button_tag(
-              "kivi.EmailJournal.apply_action_with_attachment(
+              "kivi.EmailJournal.ap_transaction_template_with_zugferd_import(
               '$id', '$record_type');",
-              $::locale->text('Select'),
-            )
-            . " " .
-            button_tag(
-              "kivi.EmailJournal.zugferd_import_with_attachment(
-              '$id', '$record_type');",
-              $::locale->text('Factur-X/ZUGFeRD import'),
+              $::locale->text('Select (with Factur-X/ZUGFeRD import)'),
             )
           );
         } else {
