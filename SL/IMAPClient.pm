@@ -29,8 +29,9 @@ sub new {
   my $class = shift;
   my %params = validate(@_, {
     enabled     => {
-      type => BOOLEAN,
-      callbacks => {'is enabled' => sub { !!shift }}
+      type      => BOOLEAN,
+      callbacks => {'is enabled' => sub { !!shift }},
+      optional  => 1,
     },
     hostname    => { type => SCALAR,  },
     port        => { type => SCALAR,  optional => 1, },

@@ -113,14 +113,27 @@ sub run {
   my ($self, $job_obj) = @_;
   $self->{job_obj} = $job_obj;
 
-  my %spec = (
+  my $data = $job_obj->data_as_hash;
+
+  my $record_type = $data->{record_type};
+  my $loaded_config = $::lx_office_conf{"record_emails_imap/record_type/$record_type"}
+    || $::lx_office_conf{record_emails_imap}
+    || {};
+
+  # overwrite with background job data
+  $loaded_config->{$_} = $data->{$_} for keys %{$data};
+  my @config_params = %{$loaded_config};
+
+  my %config = validate_with(
+    params => \@config_params,
+    spec   => {
       folder => {
-        type => SCALAR,
+        type     => SCALAR,
         optional => 1,
       },
       record_type => {
-        optional => 1,
-        default  => 'catch_all',
+        optional  => 1,
+        default   => 'catch_all',
         callbacks => {
           'valid record type' => sub {
             my $valid_record_types = SL::DB::EmailJournal->meta->{columns}->{record_type}->{check_in};
@@ -131,8 +144,8 @@ sub run {
         },
       },
       process_imported_emails => {
-        type => SCALAR | ARRAYREF,
-        optional => 1,
+        type      => SCALAR | ARRAYREF,
+        optional  => 1,
         callbacks => {
           'function is implemented' => sub {
             foreach my $function_name (ref $_[0] eq 'ARRAY' ? @{$_[0]} : ($_[0])) {
@@ -143,48 +156,19 @@ sub run {
           }
         }
       },
-      processed_imap_flag => {
-        type => SCALAR,
-        optional => 1,
-      },
-      not_processed_imap_flag => {
-        type => SCALAR,
-        optional => 1,
-      },
-      email_import_ids_to_delete => {
-        type => ARRAYREF,
-        optional => 1,
-      },
+      processed_imap_flag        => { type => SCALAR,   optional => 1, },
+      not_processed_imap_flag    => { type => SCALAR,   optional => 1, },
+      email_import_ids_to_delete => { type => ARRAYREF, optional => 1, },
       # email config
-      enabled     => { type => BOOLEAN, optional => 1, },
-      hostname    => { type => SCALAR,  optional => 1, },
-      port        => { type => SCALAR,  optional => 1, },
-      ssl         => { type => BOOLEAN, optional => 1, },
-      username    => { type => SCALAR,  optional => 1, },
-      password    => { type => SCALAR,  optional => 1, },
-      base_folder => { type => SCALAR,  optional => 1, },
+      hostname    => { type => SCALAR,  },
+      port        => { type => SCALAR,  optional => 1},
+      ssl         => { type => BOOLEAN, },
+      username    => { type => SCALAR,  },
+      password    => { type => SCALAR,  },
+      base_folder => { type => SCALAR,  optional => 1},
+    },
+    called => "data filed in Background Job or kivitendo.conf in [record_emails_imap] with type $record_type",
   );
-
-  my @bj_data = $job_obj->data_as_hash;
-  my %data = validate_with(
-    params => \@bj_data,
-    spec   => \%spec,
-    called => "data filed in Background Job",
-  );
-
-  my $record_type = $data{record_type};
-  my $loaded_config = $::lx_office_conf{"record_emails_imap/record_type/$record_type"}
-    || $::lx_office_conf{record_emails_imap}
-    || {};
-
-  my @loaded_config = %$loaded_config;
-  my %config = validate_with(
-    params => \@loaded_config,
-    spec   => \%spec,
-    called => "kivitendo.conf in [record_emails_imap] with type $record_type",
-  );
-  # overwrite with background job data
-  $config{$_} = $data{$_} for keys %data;
 
   my @results;
   if (scalar $config{email_import_ids_to_delete}) {
