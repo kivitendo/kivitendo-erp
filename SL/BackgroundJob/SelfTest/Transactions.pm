@@ -165,7 +165,7 @@ sub check_verwaiste_invoice_eintraege {
 sub check_netamount_laut_invoice_ar {
   my ($self) = @_;
   my $query = qq|
-    select sum(round(cast(i.qty*(i.fxsellprice * (1-i.discount)) / COALESCE(price_factor, 1) as numeric), 2))
+    select sum(round(cast(i.qty* i.sellprice / COALESCE(price_factor, 1) as numeric), 2))
     from invoice i
     left join ar a on (a.id = i.trans_id)
     where a.transdate >= ? and a.transdate <= ?;|;
