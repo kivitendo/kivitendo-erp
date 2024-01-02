@@ -76,11 +76,20 @@ sub type_abbreviation {
     assembly       => t8('Assembly (typeabbreviation)'),
     assortment     => t8('Assortment (typeabbreviation)'),
     service        => t8('Service (typeabbreviation)'),
+  );
+
+  return $part_type_abbr{$part_type} || '';
+}
+
+sub variant_type_abbreviation {
+  my ($variant_type) = @_;
+
+  my %variant_type_abbr = (
     parent_variant => t8('Parent Variant (typeabbreviation)'),
     variant        => t8('Variant (typeabbreviation)'),
   );
 
-  return $part_type_abbr{$part_type} || '';
+  return $variant_type_abbr{$variant_type} || '';
 }
 
 #

@@ -84,8 +84,27 @@
   name: Add Parent Variant
   order: 575
   access: part_service_assembly_edit
+- parent: master_data_add_parent_variant
+  id: master_data_add_parent_variant_part
+  name: Add Parent Variant Part
+  order: 100
   params:
     action: Part/add_parent_variant
+    part_type: part
+- parent: master_data_add_parent_variant
+  id: master_data_add_parent_variant_service
+  name: Add Parent Variant Service
+  order: 200
+  params:
+    action: Part/add_parent_variant
+    part_type: service
+- parent: master_data_add_parent_variant
+  id: master_data_add_parent_variant_assembly
+  name: Add Parent Variant Assembly
+  order: 300
+  params:
+    action: Part/add_parent_variant
+    part_type: assembly
 - parent: master_data
   id: master_data_add_project
   name: Add Project
