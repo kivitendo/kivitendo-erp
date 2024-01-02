@@ -13,7 +13,7 @@ __PACKAGE__->meta->columns(
   id                  => { type => 'serial', not_null => 1 },
   itime               => { type => 'timestamp', default => 'now()' },
   mtime               => { type => 'timestamp' },
-  sortkey             => { type => 'integer', not_null => 1 },
+  sortkey             => { type => 'integer' },
   value               => { type => 'text', not_null => 1 },
   variant_property_id => { type => 'integer', not_null => 1 },
 );

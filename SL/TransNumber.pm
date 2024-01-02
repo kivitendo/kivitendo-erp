@@ -92,13 +92,11 @@ sub _get_filters {
     $filters{table}         = "oe";
     $filters{where}         = 'COALESCE(quotation, FALSE) AND (vendor_id IS NOT NULL)';
 
-  } elsif ($type =~ /^(part|service|assembly|assortment|parent_variant|variant)$/) {
+  } elsif ($type =~ /^(part|service|assembly|assortment)$/) {
     $filters{trans_number}  = "partnumber";
     my %numberfield_hash = ( service        => 'servicenumber',
                              assembly       => 'assemblynumber',
                              assortment     => 'assortmentnumber',
-                             parent_variant => 'parent_variant_number',
-                             variant        => 'variant_number',
                              part           => 'articlenumber'
                            );
     $filters{numberfield}   = $numberfield_hash{$type};

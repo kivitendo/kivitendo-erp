@@ -3,11 +3,8 @@
 -- @depends: release_3_8_0
 -- @ignore: 0
 
-ALTER TYPE part_type_enum ADD VALUE 'parent_variant';
-ALTER TYPE part_type_enum ADD VALUE 'variant';
-
-ALTER TABLE defaults ADD parent_variant_number TEXT;
-ALTER TABLE defaults ADD variant_number TEXT;
+CREATE TYPE part_variant_type AS ENUM ('single', 'parent_variant', 'variant');
+ALTER TABLE parts ADD COLUMN variant_type part_variant_type DEFAULT 'single' NOT NULL;
 
 CREATE TABLE parts_parent_variant_id_parts_variant_id (
   parent_variant_id INTEGER NOT NULL        REFERENCES parts(id),
@@ -20,6 +17,7 @@ CREATE TABLE variant_properties (
   name         TEXT       NOT NULL,
   unique_name  TEXT       NOT NULL UNIQUE,
   abbreviation VARCHAR(4) NOT NULL,
+  sortkey      INTEGER,
   itime        TIMESTAMP DEFAULT now(),
   mtime        TIMESTAMP
 );
@@ -50,7 +48,7 @@ CREATE TABLE variant_property_values (
   variant_property_id INTEGER NOT NULL REFERENCES variant_properties(id),
   value               TEXT    NOT NULL,
   abbreviation        VARCHAR(4) NOT NULL,
-  sortkey             INTEGER NOT NULL,
+  sortkey             INTEGER,
   itime               TIMESTAMP DEFAULT now(),
   mtime               TIMESTAMP
 );
