@@ -4,7 +4,7 @@ use strict;
 
 use Carp;
 use List::MoreUtils qw(any uniq);
-use List::Util qw(sum);
+use List::Util qw(sum max);
 use Rose::DB::Object::Helpers qw(as_tree);
 
 use SL::Locale::String qw(t8);
@@ -215,8 +215,9 @@ sub is_part           { $_[0]->part_type eq 'part'       }
 sub is_assembly       { $_[0]->part_type eq 'assembly'   }
 sub is_service        { $_[0]->part_type eq 'service'    }
 sub is_assortment     { $_[0]->part_type eq 'assortment' }
-sub is_parent_variant { $_[0]->part_type eq 'parent_variant' }
-sub is_variant        { $_[0]->part_type eq 'variant' }
+
+sub is_parent_variant { $_[0]->variant_type eq 'parent_variant' }
+sub is_variant        { $_[0]->variant_type eq 'variant' }
 
 sub type { return $_[0]->part_type; }
 
@@ -242,7 +243,7 @@ sub new_assortment {
 
 sub new_parent_variant {
   my ($class, %params) = @_;
-  $class->new(%params, part_type => 'parent_variant');
+  $class->new(%params, variant_type => 'parent_variant');
 }
 
 sub last_modification {
@@ -512,19 +513,25 @@ sub create_new_variant {
     die "Given variant_property_values dosn't match the variant_properties of parent_variant part";
   }
 
-  my $new_variant = $self->clone_and_reset;
-  # TODO set partnumber
-  $new_variant->part_type('variant');
-  $new_variant->save;
-  SL::DB::VariantPropertyValuePart->new(
-    part_id                   => $new_variant->id,
-    variant_property_value_id => $_->id,
-  )->save for @$variant_property_values;
-  SL::DB::PartParentVariantPartVariant->new(
-    variant_id        => $new_variant->id,
-    parent_variant_id => $self->id,
-  )->save;
+  my $separator = '.'; # TODO: make configurable
 
+  my $last_variant_number =
+    max
+    map {
+      my $partnumber = $_->partnumber;
+      $partnumber =~ s/.*\Q$separator\E([0-9]*)/$1/; # escape chars between \Q \E
+      $partnumber;
+    }
+    $self->variants;
+
+  my $new_variant = $self->clone_and_reset;
+  $new_variant->partnumber($self->partnumber . $separator . ($last_variant_number + 1));
+  $new_variant->variant_type('variant');
+  $new_variant->add_assemblies(map {$_->clone_and_reset} $self->assemblies) if ($self->is_assembly);
+  $new_variant->add_variant_property_values(@$variant_property_values);
+
+  $self->add_variants($new_variant);
+  $self->save;
   return $new_variant;
 }
 
@@ -644,6 +651,8 @@ sub variant_values {
 
 sub variant_value {
   my ($self, $variant_property) = @_;
+  die "only callable on parts of type parent_variant"     unless $self->is_variant;
+  die "only callable with SL::DB::VariantProperty object" unless ref $variant_property eq 'SL::DB::VariantProperty';
 
   my %property_id_to_values =
     map {$_->variant_property_id => $_}

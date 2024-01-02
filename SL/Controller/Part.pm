@@ -93,6 +93,7 @@ sub action_add_parent_variant {
   my ($self, %params) = @_;
 
   $self->part( SL::DB::Part->new_parent_variant );
+  $self->part->part_type($::form->{part_type});
   $self->add;
 }
 
@@ -117,8 +118,6 @@ sub action_add {
   $self->action_add_service        if $::form->{part_type} eq 'service';
   $self->action_add_assembly       if $::form->{part_type} eq 'assembly';
   $self->action_add_assortment     if $::form->{part_type} eq 'assortment';
-  $self->action_add_parent_variant if $::form->{part_type} eq 'parent_variant';
-  $self->action_add_variant        if $::form->{part_type} eq 'variant';
 };
 
 sub action_save {
@@ -337,7 +336,7 @@ sub action_create_variants {
       for @variant_property_values_lists;
     1;
   }) or do {
-    return $self->js->error(t8('Error while creating variants: ' . @_))->render();
+    die t8('Error while creating variants: '), $@;
   };
 
   $self->redirect_to(
@@ -447,16 +446,18 @@ sub render_form {
                      assembly       => t8('Edit Assembly'),
                      service        => t8('Edit Service'),
                      assortment     => t8('Edit Assortment'),
-                     parent_variant => t8('Edit Parent Variant'),
-                     variant        => t8('Edit Variant'),
                    );
+  my $title = $title_hash{$self->part->part_type};
+  $title .=
+    ' (' . SL::Presenter::Part::variant_type_abbreviation($self->part->variant_type) . ')'
+    if $self->part->variant_type;
 
   $self->part->prices([])       unless $self->part->prices;
   $self->part->translations([]) unless $self->part->translations;
 
   $self->render(
     'part/form',
-    title             => $title_hash{$self->part->part_type},
+    title             => $title,
     %assortment_vars,
     %assembly_vars,
     %parent_variant_vars,
@@ -1114,13 +1115,15 @@ sub add {
                      assembly       => t8('Add Assembly'),
                      service        => t8('Add Service'),
                      assortment     => t8('Add Assortment'),
-                     parent_variant => t8('Add Parent Variant'),
-                     variant        => t8('Add Variant'),
                    );
+  my $title = $title_hash{$self->part->part_type};
+  $title .=
+    ' (' . SL::Presenter::Part::variant_type_abbreviation($self->part->variant_type) . ')'
+    if $self->part->variant_type;
 
   $self->render(
     'part/form',
-    title => $title_hash{$self->part->part_type},
+    title => $title,
   );
 }
 
@@ -1742,7 +1745,7 @@ sub check_form {
 }
 
 sub check_has_valid_part_type {
-  die "invalid part_type" unless $_[0] =~ /^(part|service|assembly|assortment|parent_variant|variant)$/;
+  Carp::confess "invalid part_type" unless $_[0] =~ /^(part|service|assembly|assortment)$/;
 }
 
 
