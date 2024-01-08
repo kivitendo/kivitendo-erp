@@ -337,6 +337,12 @@ namespace('kivi.Part', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.convert_part_to_variant = function() {
+    var data = $('#ic').serializeArray();
+    data.push({ name: 'action', value: 'Part/convert_part_to_variant' });
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   ns.update_variant_property_value_options = function() {
     var data = $('#ic').serializeArray();
     data.push({ name: 'action', value: 'Part/update_variant_property_value_options' });
@@ -402,6 +408,9 @@ namespace('kivi.Part', function(ns) {
 
       if (this.o.part_type)
         data['filter.part_type'] = this.o.part_type.split(',');
+
+      if (this.o.variant_type)
+        data['filter.variant_type'] = this.o.variant_type.split(',');
 
       if (this.o.status) {
         if (this.o.status == 'active')   data['filter.obsolete'] = 0;
