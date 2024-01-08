@@ -772,7 +772,7 @@ sub bank_transfer_download_sepa_xml {
           $transaction_data->{has_creditor_address} = 1;
 
           $transaction_data->{creditor_street_name} = get_street_name_from_address_line($item->{vc_street});
-          $transaction_data->{creditor_building_number} = get_building_number_from_address_line($item->{vc_building_number});
+          $transaction_data->{creditor_building_number} = get_building_number_from_address_line($item->{vc_street});
 
           $transaction_data->{creditor_postal_code} = $item->{vc_zipcode};
           $transaction_data->{creditor_town_name} = $item->{vc_city};
