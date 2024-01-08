@@ -3,7 +3,7 @@ package SL::DB::Part;
 use strict;
 
 use Carp;
-use List::MoreUtils qw(any uniq);
+use List::MoreUtils qw(any uniq pairwise);
 use List::Util qw(sum max);
 use Rose::DB::Object::Helpers qw(as_tree);
 
@@ -133,6 +133,7 @@ __PACKAGE__->attr_sorted('businessmodels');
 
 __PACKAGE__->before_save('_before_save_set_partnumber');
 __PACKAGE__->before_save('_before_save_set_assembly_weight');
+__PACKAGE__->before_save('_before_check_variant_property_values');
 
 sub _before_save_set_partnumber {
   my ($self) = @_;
@@ -147,6 +148,26 @@ sub _before_save_set_assembly_weight {
   if ( $self->part_type eq 'assembly' ) {
     my $weight_sum = $self->items_weight_sum;
     $self->weight($self->items_weight_sum) if $weight_sum;
+  }
+  return 1;
+}
+
+sub _before_check_variant_property_values {
+  my ($self) = @_;
+  if ($self->is_variant) {
+    my @property_value_ids = sort map {$_->id} $self->variant_property_values;
+    my ($parent_variant) = $self->parent_variant;
+    my $other_variants = $parent_variant->variants;
+    foreach my $variant (@$other_variants) {
+      next if $variant->id == $self->id;
+      my @other_property_value_ids = sort map {$_->id} $variant->variant_property_values;
+      if (@other_property_value_ids == @property_value_ids
+        && not any {$_} pairwise {$a != $b} @other_property_value_ids, @property_value_ids
+      ) {
+        die t8("There is already a variant with the property values: "),
+          join(' ,', map {$_->displayable_name} $self->variant_property_values);
+      }
+    }
   }
   return 1;
 }
@@ -514,8 +535,23 @@ sub create_new_variant {
     die "Given variant_property_values dosn't match the variant_properties of parent_variant part";
   }
 
-  my $separator = '.'; # TODO: make configurable
+  my $new_variant = $self->clone_and_reset;
+  $new_variant->partnumber($self->_next_variant_partnumber);
+  $new_variant->variant_type('variant');
+  $new_variant->add_assemblies(map {$_->clone_and_reset} $self->assemblies) if ($self->is_assembly);
+  $new_variant->add_variant_property_values(@$variant_property_values);
+  $new_variant->parent_variant($self);
+  $new_variant->save;
 
+  $self->add_variants($new_variant);
+  return $new_variant;
+}
+
+sub _next_variant_partnumber {
+  my ($self) = @_;
+  die "only callable on parts of type parent_variant" unless $self->is_parent_variant;
+
+  my $separator = '.'; # TODO: make configurable
   my $last_variant_number =
     max
     map {
@@ -525,15 +561,7 @@ sub create_new_variant {
     }
     $self->variants;
 
-  my $new_variant = $self->clone_and_reset;
-  $new_variant->partnumber($self->partnumber . $separator . ($last_variant_number + 1));
-  $new_variant->variant_type('variant');
-  $new_variant->add_assemblies(map {$_->clone_and_reset} $self->assemblies) if ($self->is_assembly);
-  $new_variant->add_variant_property_values(@$variant_property_values);
-
-  $self->add_variants($new_variant);
-  $self->save;
-  return $new_variant;
+  return $self->partnumber . $separator . ($last_variant_number + 1);
 }
 
 sub clone_and_reset_deep {

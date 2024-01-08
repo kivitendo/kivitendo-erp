@@ -10,6 +10,7 @@ use DateTime;
 use File::Temp;
 use List::Util qw(sum);
 use List::UtilsBy qw(extract_by);
+use List::MoreUtils qw(any pairwise);
 use POSIX qw(strftime);
 use Text::CSV_XS;
 
@@ -294,14 +295,16 @@ sub action_create_variants {
 
   my $part = $self->part;
   my $variant_properties = $part->variant_properties();
-  my @needed_variant_property_ids = sort map {$_->id} @$variant_properties;
 
-  if (@variant_property_ids != @needed_variant_property_ids) {
+  if (any {$_} grep {
+      !defined $::form->{variant_properties}->{$_->id}->{selected_property_value_ids}
+    } @$variant_properties
+    ) {
     return $self->js->error(
       t8('No property value selected for variant properties: #1.',
         join(", ",
           map {$_->displayable_name}
-          grep {!defined $::form->{variant_properties}->{$_->id}->{selected_property_values}}
+          grep {!defined $::form->{variant_properties}->{$_->id}->{selected_property_value_ids}}
           @$variant_properties
         )
       )
@@ -311,32 +314,80 @@ sub action_create_variants {
   my @grouped_variant_property_values = ();
   push @grouped_variant_property_values,
     SL::DB::Manager::VariantPropertyValue->get_all(
-      where => [ id => $::form->{variant_properties}->{$_}->{selected_property_values} ]
+      where => [ id => $::form->{variant_properties}->{$_}->{selected_property_value_ids} ]
     )
     for @variant_property_ids;
 
 
-  my @variant_property_values_lists = ();
+  my @variant_property_value_lists = ();
   foreach my $variant_property_values (@grouped_variant_property_values) {
     my @new_lists = ();
     foreach my $variant_property_value (@$variant_property_values) {
-      unless (scalar @variant_property_values_lists) {
+      unless (scalar @variant_property_value_lists) {
         push @new_lists, [$variant_property_value];
       }
-      foreach my $variant_property_values_list (@variant_property_values_lists) {
+      foreach my $variant_property_values_list (@variant_property_value_lists) {
         push @new_lists, [@$variant_property_values_list, $variant_property_value];
       }
     }
-    @variant_property_values_lists = @new_lists;
+    @variant_property_value_lists = @new_lists;
   }
 
-  my @new_variants = ();
+  _check_variant_property_values_not_taken($part, \@variant_property_value_lists);
   SL::DB->client->with_transaction(sub {
-    push @new_variants, $part->create_new_variant($_)
-      for @variant_property_values_lists;
+    $part->create_new_variant($_) for @variant_property_value_lists;
     1;
   }) or do {
-    die t8('Error while creating variants: '), $@;
+    die t8('Error while creating variants: '), SL::DB->client->error;
+  };
+
+  $self->redirect_to(
+    controller => 'Part',
+    action     => 'edit',
+    'part.id'  => $self->part->id
+  );
+}
+
+sub action_convert_part_to_variant {
+  my ($self) = @_;
+
+  my $convert_part_id = $::form->{convert_part}->{id};
+  die t8("Please select a part to convert.") unless $convert_part_id;
+
+  my @variant_property_ids = sort keys %{$::form->{convert_part}->{variant_properties}};
+
+  my $part = $self->part;
+  my $variant_properties = $part->variant_properties();
+  my @needed_variant_property_ids = sort map {$_->id} @$variant_properties;
+
+  if (@variant_property_ids != @needed_variant_property_ids) {
+    return $self->js->error(
+      t8('No property value selected for variant properties: #1.',
+        join(", ",
+          map {$_->displayable_name}
+          grep {!defined $::form->{convert_part}->{variant_properties}->{$_->id}->{selected_property_value_id}}
+          @$variant_properties
+        )
+      )
+    )->render();
+  }
+
+  my @variant_property_values = map {
+      SL::DB::VariantPropertyValue->new(
+        id => $::form->{convert_part}->{variant_properties}->{$_}->{selected_property_value_id}
+      )->load()
+    } @variant_property_ids;
+
+  _check_variant_property_values_not_taken($part, [\@variant_property_values]);
+  SL::DB->client->with_transaction(sub {
+    my $part_to_convert = SL::DB::Part->new(id => $convert_part_id)->load;
+    $part_to_convert->variant_type('variant');
+    $part_to_convert->variant_property_values(\@variant_property_values);
+    $part_to_convert->parent_variant($part);
+    $part_to_convert->save;
+    1;
+  }) or do {
+    die t8('Error while converting part to variant: '), SL::DB->Client->error;
   };
 
   $self->redirect_to(
@@ -1748,6 +1799,27 @@ sub check_has_valid_part_type {
   Carp::confess "invalid part_type" unless $_[0] =~ /^(part|service|assembly|assortment)$/;
 }
 
+sub _check_variant_property_values_not_taken {
+  my ($parent_variant, $variant_property_value_lists) = @_;
+
+  my @double_lists;
+  my $variants = $parent_variant->variants;
+  foreach my $variant (@$variants) {
+    my @property_value_ids = sort map {$_->id} $variant->variant_property_values;
+    foreach my $test_property_values (@$variant_property_value_lists) {
+      my @test_property_value_ids = sort map {$_->id} @$test_property_values;
+      if (@test_property_value_ids == @property_value_ids
+        && not any {$_} pairwise {$a != $b} @test_property_value_ids, @property_value_ids
+      ) {
+        push @double_lists, join(', ', map {$_->displayable_name} @$test_property_values);
+      }
+    }
+  }
+
+  if (@double_lists) {
+    die t8("There is already a variant with the property values: #1.", join("; ", @double_lists));
+  }
+}
 
 sub normalize_text_blocks {
   my ($self) = @_;
