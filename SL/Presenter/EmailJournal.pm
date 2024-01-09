@@ -3,12 +3,17 @@ package SL::Presenter::EmailJournal;
 use strict;
 
 use SL::Presenter::EscapedText qw(escape is_escaped);
-use SL::Presenter::Tag         qw(link_tag);
+use SL::Presenter::Tag         qw(link_tag html_tag div_tag);
+use SL::Locale::String qw(t8);
+use SL::SessionFile::Random;
+use SL::DB::EmailJournalAttachment;
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(email_journal);
+our @EXPORT_OK = qw(show email_journal entry_status attachment_preview);
 
 use Carp;
+
+sub show {goto &email_journal};
 
 sub email_journal {
   my ($email_journal_entry, %params) = @_;
@@ -25,6 +30,48 @@ sub email_journal {
   }
 
   is_escaped($text);
+}
+
+sub entry_status {
+  my ($email_journal_entry, %params) = @_;
+
+  my %status_to_text = (
+    sent            => t8('sent'),
+    send_failed     => t8('send failed'),
+    imported        => t8('imported'),
+  );
+
+  my $status = $email_journal_entry->status;
+  my $text   = $status_to_text{$status} || $status;
+
+  return $text;
+}
+
+sub attachment_preview {
+  my ($attachment_or_id, %params) = @_;
+
+  if (! $attachment_or_id) {
+    return is_escaped(div_tag('', id => 'attachment_preview'));
+  }
+  my $attachment_id = ref $attachment_or_id ? $attachment_or_id->id
+     : $attachment_or_id;
+
+  require SL::Controller::EmailJournal;
+  my $src_url = SL::Controller::EmailJournal->new->url_for(
+      action => 'show_attachment',
+      attachment_id => $attachment_id
+  );
+
+  $params{style} .= "; display:flex; resize:both; overflow:hidden; padding-bottom:5px";
+  my $attachment_preview = div_tag(
+    html_tag('iframe', '', src => $src_url,
+      width => "100%", height => '100%',
+      "flex-grow" => '1',
+      ),
+    id => 'attachment_preview',
+    %params
+  );
+  return is_escaped($attachment_preview);
 }
 
 1;
@@ -45,6 +92,8 @@ SL::Presenter::EmailJournal - Presenter module for mail entries in email_journal
 
   my $journal_entry = SL::DB::Manager::EmailJournal->get_first();
   my $html   = SL::Presenter::EmailJournal::email_journal($journal_entry, display => 'inline');
+  # or
+  my $html   = $journal_entry->presenter->show();
 
   # pp $html
   # <a href="controller.pl?action=EmailJournal/show&amp;id=1">IDEV Daten fuer webdav/idev/2017-KW-26.csv erzeugt</a>
@@ -52,6 +101,10 @@ SL::Presenter::EmailJournal - Presenter module for mail entries in email_journal
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<show $object %params>
+
+Alias for C<email_journal $object %params>.
 
 =item C<email_journal $object, %params>
 

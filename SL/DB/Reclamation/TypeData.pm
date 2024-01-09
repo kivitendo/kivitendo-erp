@@ -23,6 +23,7 @@ my %type_data = (
       list       => t8("Sales Reclamations"),
       add        => t8("Add Sales Reclamation"),
       edit       => t8("Edit Sales Reclamation"),
+      type       => t8("Sales Reclamation"),
     },
     show_menu => {
       save_and_sales_reclamation       => 0,
@@ -36,6 +37,7 @@ my %type_data = (
       customervendor => "customer",
       is_customer    => 1,
       nr_key         => "record_number",
+      worflow_needed => 0,
     },
     defaults => {
       reqdate => sub { return; },
@@ -56,6 +58,7 @@ my %type_data = (
       list       => t8("Purchase Reclamations"),
       add        => t8("Add Purchase Reclamation"),
       edit       => t8("Edit Purchase Reclamation"),
+      type       => t8("Purchase Reclamation"),
     },
     show_menu => {
       save_and_sales_reclamation       => 1,
@@ -69,6 +72,7 @@ my %type_data = (
       customervendor => "vendor",
       is_customer    => 0,
       nr_key         => "record_number",
+      worflow_needed => 0,
     },
     defaults => {
       reqdate => sub { return; },

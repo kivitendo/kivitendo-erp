@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use utf8;
 
+use Carp;
+use Params::Validate qw(:all);
+use List::MoreUtils qw(any);
 use IO::Socket::INET;
 use IO::Socket::SSL;
 use Mail::IMAPClient;
@@ -18,31 +21,41 @@ use SL::Locale::String qw(t8);
 use SL::DB::EmailImport;
 use SL::DB::EmailJournal;
 use SL::DB::EmailJournalAttachment;
+use SL::DB::Order::TypeData;
 
 use SL::DB::Order;
 
 sub new {
-  my ($class, %params) = @_;
-  my $config = $::lx_office_conf{imap_client} || {};
+  my $class = shift;
+  my %params = validate(@_, {
+    enabled     => {
+      type      => BOOLEAN,
+      callbacks => {'is enabled' => sub { !!shift }},
+      optional  => 1,
+    },
+    hostname    => { type => SCALAR,  },
+    port        => { type => SCALAR,  optional => 1, },
+    ssl         => { type => BOOLEAN, },
+    username    => { type => SCALAR,  },
+    password    => { type => SCALAR,  },
+    base_folder => { type => SCALAR, default => 'INBOX', },
+  });
+
+  # get translation at runtime
+  my $client_locale = $::locale;
   my $server_locale = Locale->new($::lx_office_conf{server}->{language});
-  my %record_type_to_folder = (
-    sales_quotation => $server_locale->text('Sales Quotations'),
-    sales_order     => $server_locale->text('Sales Orders'),
-  );
+  $::locale = $server_locale;
+  my %record_type_to_folder =
+    map { $_ => SL::DB::Order::TypeData->can('get3')->($_, 'text', 'list') }
+    @{SL::DB::Order::TypeData->valid_types()};
+  $::locale = $client_locale;
   my %record_folder_to_type = reverse %record_type_to_folder;
+
   my $self = bless {
-    enabled     => $config->{enabled},
-    hostname    => $config->{hostname},
-    port        => $config->{port},
-    ssl         => $config->{ssl},
-    username    => $config->{username},
-    password    => $config->{password},
-    base_folder => $config->{base_folder} || 'INBOX',
+    %params,
     record_type_to_folder => \%record_type_to_folder,
     record_folder_to_type => \%record_folder_to_type,
-    %params,
   }, $class;
-  return unless $self->{enabled};
   $self->_create_imap_client();
   return $self;
 }
@@ -55,49 +68,121 @@ sub DESTROY {
 }
 
 sub store_email_in_email_folder {
-  my ($self, $email_string, $folder_path) = @_;
-  $folder_path ||= $self->{base_folder};
+  my $self = shift;
+  my %params = validate(@_, {
+    email_as_string => {
+      type => SCALAR,
+      callbacks => {'is not empty' => sub {shift ne ''}},
+    },
+    folder          => {
+      type => SCALAR,
+      callbacks => {'is not empty' => sub {shift ne ''}},
+    },
+  });
 
-  my $folder_string = $self->get_folder_string_from_path($folder_path);
-  $self->{imap_client}->append_string($folder_string, $email_string)
+  my $folder_string = $self->get_folder_string_from_path(folder_path => $params{folder});
+  $self->{imap_client}->append_string($folder_string, $params{email_as_string})
     or die "Could not store email in folder '$folder_string': "
            . $self->{imap_client}->LastError() . "\n";
 }
 
-sub update_emails_from_folder {
-  my ($self, $folder_path) = @_;
-  $folder_path ||= $self->{base_folder};
+sub set_flag_for_email {
+  my $self = shift;
+  my %params = validate(@_, {
+    email_journal => { isa => 'SL::DB::EmailJournal', },
+    flag          => { type => SCALAR, },
+  });
+  my $email_journal = $params{email_journal};
+  my $flag          = $params{flag};
 
-  my $folder_string = $self->get_folder_string_from_path($folder_path);
+  my $folder_string = $email_journal->folder;
+
+  $self->{imap_client}->select($folder_string)
+    or die "Could not select IMAP folder '$folder_string': $@\n";
+
+  my $folder_uidvalidity = $self->{imap_client}->uidvalidity($folder_string)
+    or die "Could not get UIDVALIDITY for folder '$folder_string': $@\n";
+
+  if ($folder_uidvalidity != $email_journal->folder_uidvalidity) {
+    die "Folder has changed: $folder_string\n"
+  }
+
+  my $uid = $email_journal->uid;
+  $self->{imap_client}->set_flag($flag, [$uid])
+    or die "Could not add flag '$flag' to message '$uid': "
+           . $self->{imap_client}->LastError() . "\n";
+}
+
+sub update_emails_from_folder {
+  my $self = shift;
+  my %params = validate(@_, {
+    folder               => {
+      type     => SCALAR | UNDEF,
+      optional => 1,
+    },
+    email_journal_params => {
+      type     => HASHREF | UNDEF,
+      optional => 1,
+    },
+  });
+  my $folder_path = $params{folder} || $self->{base_folder};
+
+  my $folder_string = $self->get_folder_string_from_path(folder_path => $folder_path);
   my $email_import =
-    _update_emails_from_folder_strings($self, $folder_path, [$folder_string]);
+    $self->_update_emails_from_folder_strings(
+      base_folder_path     => $folder_path,
+      folder_strings       => [$folder_string],
+      email_journal_params => $params{email_journal_params},
+    );
 
   return $email_import;
 }
 
 sub update_emails_from_subfolders {
-  my ($self, $base_folder_path) = @_;
-  $base_folder_path ||= $self->{base_folder};
-  my $base_folder_string = $self->get_folder_string_from_path($base_folder_path);
+  my $self = shift;
+  my %params = validate(@_, {
+    base_folder           => {
+      type     => SCALAR,
+      optional => 1,
+    },
+    email_journal_params => {
+      type     => HASHREF | UNDEF,
+      optional => 1,
+    },
+  });
+  my $base_folder_path = $params{base_folder} || $self->{base_folder};
 
+  my $base_folder_string = $self->get_folder_string_from_path(folder_path => $base_folder_path);
   my @subfolder_strings = $self->{imap_client}->folders($base_folder_string)
     or die "Could not get subfolders via IMAP: $@\n";
   @subfolder_strings = grep { $_ ne $base_folder_string } @subfolder_strings;
 
   my $email_import =
-    _update_emails_from_folder_strings($self, $base_folder_path, \@subfolder_strings);
+    $self->_update_emails_from_folder_strings(
+      base_folder_path     => $base_folder_path,
+      folder_strings       => \@subfolder_strings,
+      email_journal_params => $params{email_journal_params},
+    );
 
   return $email_import;
 }
 
 sub _update_emails_from_folder_strings {
-  my ($self, $base_folder_path, $folder_strings) = @_;
+  my $self = shift;
+  my %params = validate(@_, {
+    base_folder_path => { type => SCALAR,   },
+    folder_strings   => { type => ARRAYREF, },
+    email_journal_params => {
+      type     => HASHREF | UNDEF,
+      optional => 1,
+    },
+  });
 
   my $dbh = SL::DB->client->dbh;
 
   my $email_import;
   SL::DB->client->with_transaction(sub {
-    foreach my $folder_string (@$folder_strings) {
+    foreach my $folder_string (@{$params{folder_strings}}) {
       $self->{imap_client}->select($folder_string)
         or die "Could not select IMAP folder '$folder_string': $@\n";
 
@@ -125,13 +210,18 @@ SQL
 
       next unless @new_msg_uids;
 
-      $email_import ||= $self->_create_email_import($base_folder_path)->save();
+      $email_import ||= $self->_create_email_import(folder_path => $params{base_folder_path})->save();
 
       foreach my $new_uid (@new_msg_uids) {
         my $new_email_string = $self->{imap_client}->message_string($new_uid);
         my $email = Email::MIME->new($new_email_string);
         my $email_journal = $self->_create_email_journal(
-          $email, $email_import, $new_uid, $folder_string, $folder_uidvalidity
+          email                => $email,
+          email_import         => $email_import,
+          uid                  => $new_uid,
+          folder_string        => $folder_string,
+          folder_uidvalidity   => $folder_uidvalidity,
+          email_journal_params => $params{email_journal_params},
         );
         $email_journal->save();
       }
@@ -142,81 +232,164 @@ SQL
 }
 
 sub _create_email_import {
-  my ($self, $folder_path) = @_;
+  my $self = shift;
+  my %params = validate(@_, {
+    folder_path => { type => SCALAR, },
+  });
   my $email_import = SL::DB::EmailImport->new(
     host_name => $self->{hostname},
     user_name => $self->{username},
-    folder    => $folder_path,
+    folder    => $params{folder_path},
   );
   return $email_import;
 }
 
 sub _create_email_journal {
-  my ($self, $email, $email_import, $uid, $folder_string, $folder_uidvalidity) = @_;
+  my $self = shift;
+  my %params = validate(@_, {
+    email                => { isa => 'Email::MIME', },
+    email_import         => { isa => 'SL::DB::EmailImport', },
+    uid                  => { type => SCALAR, },
+    folder_string        => { type => SCALAR, },
+    folder_uidvalidity   => { type => SCALAR, },
+    email_journal_params => { type => HASHREF | UNDEF, optional => 1},
+  });
 
-  my @email_parts = $email->parts; # get parts or self
-  my $text_part = $email_parts[0];
-  my $body = $text_part->body;
+  my $email = $params{email};
+  if ($email->content_type) { # decode header
+    my $charset = $email->content_type =~ /charset="(.+)"/ ? $1 : undef;
+    if ($charset) {
+      map { $email->header_str_set($_ => decode($charset, $email->header($_))) }
+        $email->header_names;
+    }
+  }
 
+  my $text_part;
+  my %text_parts;
+  my @parts = $email->parts;
+  _find_text_parts(
+    text_parts => \%text_parts,
+    parts      => \@parts,
+  );
+  my @accepted_text_content_types = ('text/html', 'text/plain', '');
+  $text_part ||= $text_parts{$_} for @accepted_text_content_types;
+  confess "can't find body text in email" unless $text_part;
+  my $body_text = $text_part->body_str;
+
+  my %header_map = map { $_ => $email->header_str($_) } $email->header_names;
+  # We need to store the Content-Type header for the text part
+  $header_map{'Content-Type'} = $text_part->content_type;
   my $header_string = join "\r\n",
-    (map { $_ . ': ' . $email->header($_) } $email->header_names);
+    (map { $_ . ': ' . $header_map{$_} } keys %header_map);
 
-  my $date = $self->_parse_date($email->header('Date'));
+  my $date = _parse_date($email->header_str('Date'));
 
-  my $recipients = $email->header('To');
-  $recipients .= ', ' . $email->header('Cc') if ($email->header('Cc'));
-  $recipients .= ', ' . $email->header('Bcc') if ($email->header('Bcc'));
+  my $recipients = $email->header_str('To');
+  $recipients .= ', ' . $email->header_str('Cc')  if ($email->header_str('Cc'));
+  $recipients .= ', ' . $email->header_str('Bcc') if ($email->header_str('Bcc'));
 
   my @attachments = ();
   $email->walk_parts(sub {
     my ($part) = @_;
     my $filename = $part->filename;
     if ($filename) {
-      my $content_type = $part->content_type;
+      my $mime_type = _cleanup_content_type($part->content_type);
       my $content = $part->body;
       my $attachment = SL::DB::EmailJournalAttachment->new(
         name      => $filename,
         content   => $content,
-        mime_type => $content_type,
+        mime_type => $mime_type,
       );
       push @attachments, $attachment;
     }
   });
 
   my $email_journal = SL::DB::EmailJournal->new(
-    email_import_id    => $email_import->id,
-    folder             => $folder_string,
-    folder_uidvalidity => $folder_uidvalidity,
-    uid                => $uid,
+    email_import_id    => $params{email_import}->id,
+    folder             => $params{folder_string},
+    folder_uidvalidity => $params{folder_uidvalidity},
+    uid                => $params{uid},
     status             => 'imported',
     extended_status    => '',
-    from               => $email->header('From') || '',
+    from               => $email->header_str('From') || '',
     recipients         => $recipients,
     sent_on            => $date,
-    subject            => $email->header('Subject') || '',
-    body               => $body,
+    subject            => $email->header_str('Subject') || '',
+    body               => $body_text,
     headers            => $header_string,
     attachments        => \@attachments,
+    %{$params{email_journal_params}},
   );
 
   return $email_journal;
 }
 
+sub _find_text_parts {
+  my %params = validate(@_,{
+    text_parts => {type => HASHREF,},
+    parts      => {
+      type => ARRAYREF,
+      callbacks => {
+        "contains only 'Email::MIME'" => sub {
+          !scalar grep {ref $_ ne 'Email::MIME'} @{$_[0]}
+        },
+      },
+    },
+  });
+  for my $part (@{$params{parts}}) {
+    my $content_type = _cleanup_content_type($part->content_type);
+    if ($content_type =~ m!^text/! or $content_type eq '') {
+      $params{text_parts}->{$content_type} ||= $part;
+    }
+    my @subparts = $part->subparts;
+    if (scalar @subparts) {
+      _find_text_parts(
+        text_parts => $params{text_parts},
+        parts      => \@subparts,
+      );
+    }
+  }
+};
+
+sub _cleanup_content_type {
+  my ($content_type) = @_;
+  $content_type =~ s/\A\s+//; # Remove whitespaces at begin
+  $content_type =~ s/\s+\z//; # Remove whitespaces at end
+  $content_type =~ s/;.+//;   # For S/MIME, etc.
+  return $content_type;
+};
+
 sub _parse_date {
-  my ($self, $date) = @_;
+  my ($date) = @_;
   return '' unless $date;
+  my $parse_date = $date;
+  # replace whitespaces with single space
+  $parse_date =~ s/\s+/ /g;
+  # remove leading and trailing whitespaces
+  $parse_date =~ s/^\s+|\s+$//g;
+  # remove day-name
+  $parse_date =~ s/^[A-Z][a-z][a-z], //;
+  # add missing seconds
+  $parse_date =~ s/( \d\d:\d\d) /$1:00 /;
   my $strp = DateTime::Format::Strptime->new(
-    pattern   => '%a, %d %b %Y %H:%M:%S %z',
+    pattern   => '%d %b %Y %H:%M:%S %z',
     time_zone => 'UTC',
   );
-  my $dt = $strp->parse_datetime($date);
+  my $dt = $strp->parse_datetime($parse_date)
+    or die "Could not parse date: $date\n";
   return $dt->strftime('%Y-%m-%d %H:%M:%S');
 }
 
 sub update_email_files_for_record {
-  my ($self, $record) = @_;
-
-  my $folder_string = $self->_get_folder_string_for_record($record);
+  my $self = shift;
+  my %params = validate(@_,{
+    record => {
+      isa => [qw(SL::DB::Order)],
+      can => ['id', 'type'],
+    },
+  });
+  my $record = $params{record};
+  my $folder_string = $self->_get_folder_string_for_record(record => $record);
   return unless $self->{imap_client}->exists($folder_string);
   $self->{imap_client}->select($folder_string)
     or die "Could not select IMAP folder '$folder_string': $@\n";
@@ -265,7 +438,7 @@ SQL
 sub update_email_subfolders_and_files_for_records {
   my ($self) = @_;
   my $base_folder_path = $self->{base_folder};
-  my $base_folder_string = $self->get_folder_string_from_path($base_folder_path);
+  my $base_folder_string = $self->get_folder_string_from_path(folder_path => $base_folder_path);
 
   my $folder_strings = $self->{imap_client}->folders($base_folder_string)
     or die "Could not get folders via IMAP: $@\n";
@@ -273,7 +446,7 @@ sub update_email_subfolders_and_files_for_records {
 
   # Store the emails to the records
   foreach my $subfolder_string (@subfolder_strings) {
-    my $ilike_folder_path = $self->get_ilike_folder_path_from_string($subfolder_string);
+    my $ilike_folder_path = $self->get_ilike_folder_path_from_string(folder_string => $subfolder_string);
     my (
       $ilike_record_folder_path, # is greedily matched
       $ilike_customer_number, # no spaces allowed
@@ -285,36 +458,42 @@ sub update_email_subfolders_and_files_for_records {
     my $record_type = $self->{record_folder_to_type}->{$record_folder};
     next unless $record_type;
 
-    # TODO make it generic for all records
-    my $is_quotation = $record_type eq 'sales_quotation' ? 1 : 0;
-    my $number_field = $is_quotation ? 'quonumber' : 'ordnumber';
+    my $number_field = SL::DB::Order::TypeData->can('get3')->(
+      $record_type, 'properties', 'nr_key');
     my $record = SL::DB::Manager::Order->get_first(
       query => [
         and => [
-          vendor_id => undef,
-          quotation => $is_quotation,
+          record_type => $record_type,
           $number_field => { ilike => $ilike_record_number },
         ],
     ]);
     next unless $record;
-    $self->update_email_files_for_record($record);
+    $self->update_email_files_for_record(record => $record);
   }
 
   return \@subfolder_strings;
 }
 
 sub create_folder {
-  my ($self, $folder_name) = @_;
-  return if $self->{imap_client}->exists($folder_name);
-  $self->{imap_client}->create($folder_name)
-    or die "Could not create IMAP folder '$folder_name': $@\n";
-  $self->{imap_client}->subscribe($folder_name)
-    or die "Could not subscribe to IMAP folder '$folder_name': $@\n";
+  my $self = shift;
+  my %params = validate(@_, {
+    folder_string => {type => SCALAR},
+  });
+  my $folder_string = $params{folder_string};
+  return if $self->{imap_client}->exists($folder_string);
+  $self->{imap_client}->create($folder_string)
+    or die "Could not create IMAP folder '$folder_string': $@\n";
+  $self->{imap_client}->subscribe($folder_string)
+    or die "Could not subscribe to IMAP folder '$folder_string': $@\n";
   return;
 }
 
 sub get_folder_string_from_path {
-  my ($self, $folder_path) = @_;
+  my $self = shift;
+  my %params = validate(@_, {
+    folder_path => {type => SCALAR},
+  });
+  my $folder_path = $params{folder_path};
   my $separator = $self->{imap_client}->separator();
   if ($separator ne '/') {
     my $replace_sep = $separator ne '_' ? '_' : '-';
@@ -326,7 +505,11 @@ sub get_folder_string_from_path {
 }
 
 sub get_ilike_folder_path_from_string {
-  my ($self, $folder_string) = @_;
+  my $self = shift;
+  my %params = validate(@_, {
+    folder_string => {type => SCALAR},
+  });
+  my $folder_string = $params{folder_string};
   my $separator = $self->{imap_client}->separator();
   my $folder_path = decode('IMAP-UTF-7', $folder_string);
   $folder_path =~ s|\Q${separator}|/|g; # \Q -> escape special chars
@@ -335,19 +518,81 @@ sub get_ilike_folder_path_from_string {
 }
 
 sub create_folder_for_record {
-  my ($self, $record) = @_;
-  my $folder_string = $self->_get_folder_string_for_record($record);
-  $self->create_folder($folder_string);
+  my $self = shift;
+  my %params = validate(@_,{
+    record => {
+      isa => [qw(SL::DB::Order)],
+    },
+  });
+  my $record = $params{record};
+  my $folder_string = $self->_get_folder_string_for_record(record => $record);
+  $self->create_folder(folder_string => $folder_string);
   return;
 }
 
-sub clean_up_subfolders {
-  my ($self, $active_records) = @_;
+sub clean_up_imported_emails_from_folder {
+  my $self = shift;
+  my %params = validate(@_, {
+    folder_path => {type => SCALAR},
+  });
+  my $folder_path = $params{folder_path};
+  my $folder_string = $self->get_folder_string_from_path(folder_path => $folder_path);
+  $self->_clean_up_imported_emails_from_folder_strings([$folder_string]);
+}
+
+
+sub _clean_up_imported_emails_from_folder_strings {
+  my $self = shift;
+  my %params = validate(@_, {
+    folder_strings => {type => ARRAYREF},
+  });
+  my $folder_strings = $params{folder_strings};
+  my $dbh = SL::DB->client->dbh;
+
+  foreach my $folder_string (@$folder_strings) {
+    $self->{imap_client}->select($folder_string)
+      or die "Could not select IMAP folder '$folder_string': $@\n";
+
+    my $folder_uidvalidity = $self->{imap_client}->uidvalidity($folder_string)
+      or die "Could not get UIDVALIDITY for folder '$folder_string': $@\n";
+
+    my $msg_uids = $self->{imap_client}->messages
+      or die "Could not get messages via IMAP: $@\n";
+
+    my $query = <<SQL;
+      SELECT uid
+      FROM email_imports ei
+      LEFT JOIN email_journal ej
+        ON ej.email_import_id = ei.id
+      WHERE ei.host_name = ?
+        AND ei.user_name = ?
+        AND ej.folder = ?
+        AND ej.folder_uidvalidity = ?
+SQL
+
+    my $existing_uids = $dbh->selectall_hashref($query, 'uid', undef,
+      $self->{hostname}, $self->{username}, $folder_string, $folder_uidvalidity);
+
+    my @imported_msg_uids = grep { $existing_uids->{$_} } @$msg_uids;
+
+    next unless scalar @imported_msg_uids;
+
+    $self->{imap_client}->delete_message(\@imported_msg_uids)
+      or die "Could not delete messages via IMAP: $@\n";
+  }
+}
+
+sub clean_up_record_subfolders {
+  my $self = shift;
+  my %params = validate(@_, {
+    active_records => {type => ARRAYREF},
+  });
+  my $active_records = $params{active_records};
 
   my $subfolder_strings =
     $self->update_email_subfolders_and_files_for_records();
 
-  my @active_folder_strings = map { $self->_get_folder_string_for_record($_) }
+  my @active_folder_strings = map { $self->_get_folder_string_for_record(record => $_) }
     @$active_records;
 
   my %keep_folder = map { $_ => 1 } @active_folder_strings;
@@ -360,7 +605,14 @@ sub clean_up_subfolders {
 }
 
 sub _get_folder_string_for_record {
-  my ($self, $record) = @_;
+  my $self = shift;
+  my %params = validate(@_, {
+    record => {
+      isa => [qw(SL::DB::Order)],
+      can => ['record_type', 'customervendor', 'number'],
+    },
+  });
+  my $record = $params{record};
 
   my $customer_vendor = $record->customervendor;
 
@@ -376,9 +628,9 @@ sub _get_folder_string_for_record {
   my $record_folder_path =
     $self->{base_folder} . '/' .
     $string_parts{cv_number} . ' ' . $string_parts{cv_name} . '/' .
-    $self->{record_type_to_folder}->{$record->type} . '/' .
+    $self->{record_type_to_folder}->{$record->record_type} . '/' .
     $string_parts{record_number};
-  my $folder_string = $self->get_folder_string_from_path($record_folder_path);
+  my $folder_string = $self->get_folder_string_from_path(folder_path => $record_folder_path);
   return $folder_string;
 }
 
@@ -439,9 +691,9 @@ SL::IMAPClient - Base class for interacting with email server from kivitendo
   use SL::IMAPClient;
 
   # uses the config in config/kivitendo.conf
-  my $imap_client = SL::IMAPClient->new();
+  my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{imap_client}});
 
-  # can also be used with a custom config, overriding the global config
+  # can also be used with a custom config
   my %config = (
     enabled     => 1,
     hostname    => 'imap.example.com',
@@ -460,7 +712,7 @@ SL::IMAPClient - Base class for interacting with email server from kivitendo
 
   # update emails for record
   # fetches all emails from the IMAP server and saves them as attachments
-  $imap_client->update_email_files_for_record($record);
+  $imap_client->update_email_files_for_record(record => $record);
 
 =head1 OVERVIEW
 
@@ -489,9 +741,7 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
 
 =item C<new>
 
-  Creates a new SL::IMAPClient object. If no config is passed, the config
-  from config/kivitendo.conf is used. If a config is passed, the global
-  config is overridden.
+  Creates a new SL::IMAPClient object with the given config.
 
 =item C<DESTROY>
 
@@ -540,8 +790,8 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
   on unix filesystem. The folder string is the path on the IMAP server.
   The folder string is encoded in IMAP-UTF-7. It can happend that
   C<get_folder_string_from_path> and C<get_ilike_folder_path_from_string>
-  don't cancel each other out. This is because the IMAP server can has a
-  different Ieparator than the unix filesystem. The changes are made so that a
+  don't cancel each other out. This is because the IMAP server can have a
+  different separator than the unix filesystem. The changes are made so that a
   ILIKE query on the database works.
 
 =item C<create_folder_for_record>
@@ -551,7 +801,7 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
   e.g. INBOX/1234 Testkunde/Angebot/123
   If the folder already exists, nothing happens.
 
-=item C<clean_up_subfolders>
+=item C<clean_up_record_subfolders>
 
   Gets a list of acitve records. Syncs all subfolders and add email files to
   the records. Then deletes all subfolders which are not corresponding to an

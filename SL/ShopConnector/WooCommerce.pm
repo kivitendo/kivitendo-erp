@@ -539,7 +539,6 @@ sub send_request {
       message => "Error: $status_line",
     );
   }
-  #$main::lxdebug->dump(0, "TST: WooCommerce send_request return ", \%return);
   return \%return;
 
 }

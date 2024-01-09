@@ -4,14 +4,12 @@ use strict;
 
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::MetaSetup::GLTransaction;
+use SL::DB::Manager::GLTransaction;
 use SL::Locale::String qw(t8);
 use List::Util qw(sum);
 use SL::DATEV;
 use Carp;
 use Data::Dumper;
-
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
 
 __PACKAGE__->meta->add_relationship(
   transactions   => {
@@ -26,6 +24,10 @@ __PACKAGE__->meta->add_relationship(
 );
 
 __PACKAGE__->meta->initialize;
+
+sub record_type {return 'gl_transaction';}
+sub record_number {goto &id;}
+sub displayable_name {goto &oneline_summary;}
 
 sub abbreviation {
   my $self = shift;

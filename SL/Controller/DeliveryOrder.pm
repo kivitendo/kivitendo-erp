@@ -32,6 +32,7 @@ use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::TransferType;
 use SL::DB::ValidityToken;
+use SL::DB::EmailJournal;
 use SL::DB::Warehouse;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
@@ -145,6 +146,23 @@ sub action_add_from_record {
   $self->action_add;
 }
 
+sub action_add_from_email_journal {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+
+  $self->action_add();
+}
+
+sub action_edit_with_email_journal_workflow {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
+  $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+  $::form->{workflow_email_callback}      = delete $::form->{callback};
+
+  $self->action_edit();
+}
+
 # edit an existing order
 sub action_edit {
   my ($self) = @_;
@@ -203,11 +221,19 @@ sub action_save {
 
   flash_later('info', $self->type_data->text("saved"));
 
-  my @redirect_params = (
-    action => 'edit',
-    type   => $self->type,
-    id     => $self->order->id,
-  );
+  my @redirect_params;
+  if ($::form->{back_to_caller}) {
+    @redirect_params = $::form->{callback} ? ($::form->{callback})
+                                           : (controller => 'LoginScreen', action => 'user_login');
+
+  } else {
+    @redirect_params = (
+      action   => 'edit',
+      type     => $self->type,
+      id       => $self->order->id,
+      callback => $::form->{callback},
+    );
+  }
 
   $self->redirect_to(@redirect_params);
 }
@@ -282,8 +308,6 @@ sub action_print {
   $form->{language}         =
     '_' . $self->order->language->template_code if $self->order->language;
   my $pdf_filename          = $form->generate_attachment_filename();
-  $main::lxdebug->dump(0, 'WH: FoRM ', $form);
-  $main::lxdebug->dump(0, 'WH: PDF ', $pdf_filename);
   my $pdf;
   my @errors = generate_pdf($self->order, \$pdf, {
       format     => $format,
@@ -550,6 +574,9 @@ sub action_workflow_new_record {
     type       => $to_type,
     from_id    => $self->order->id,
     from_type  => $self->order->type,
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
     %additional_params,
   );
 }
@@ -563,6 +590,9 @@ sub action_workflow_invoice {
     controller => 'do.pl',
     action     => 'invoice_from_delivery_order_controller',
     from_id    => $self->order->id,
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 
@@ -1123,6 +1153,8 @@ sub action_transfer_stock {
   $self->js
     ->flash("info", t8("Stock transfered"))
     ->run('kivi.ActionBar.setDisabled', '#save_action',
+          t8('This record has already been delivered.'))
+    ->run('kivi.ActionBar.setDisabled', '#save_and_close',
           t8('This record has already been delivered.'))
     ->run('kivi.ActionBar.setDisabled', '#transfer_out_action',
           t8('The parts for this order have already been transferred'))
@@ -1790,6 +1822,16 @@ sub save {
     items_to_delete            => $items_to_delete,
   );
 
+  if ($::form->{email_journal_id}) {
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $::form->{email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment(
+      $self->order,
+      delete $::form->{email_attachment_id}
+    );
+  }
+
   delete $::form->{form_validity_token};
 }
 
@@ -1921,6 +1963,21 @@ sub setup_edit_action_bar {
               action             => 'save',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+            }],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : $self->order->delivered ? t8('This record has already been delivered.')
+                    :                        undef,
+        ],
+        action => [
+          t8('Save and Close'),
+          id       => 'save_and_close',
+          call     => [ 'kivi.DeliveryOrder.save', {
+              action             => 'save',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+              form_params        => [
+                { name => 'back_to_caller', value => 1 },
+              ],
             }],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : $self->order->delivered ? t8('This record has already been delivered.')

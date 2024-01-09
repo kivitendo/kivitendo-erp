@@ -145,7 +145,7 @@ sub _before_save_set_custom_shipto_module {
 sub _after_save_link_records {
   my ($self) = @_;
 
-  my @allowed_record_sources = qw(SL::DB::Reclamation SL::DB::Order);
+  my @allowed_record_sources = qw(SL::DB::Reclamation SL::DB::Order SL::DB::EmailJournal);
   my @allowed_item_sources = qw(SL::DB::ReclamationItem SL::DB::OrderItem);
 
   SL::DB::Helper::RecordLink::link_records(
@@ -249,8 +249,7 @@ sub effective_tax_point {
 
 sub displayable_type {
   my ($self) = @_;
-
-  return $self->type_data->text('list');
+  return $self->type_data->text('type');
 }
 
 sub displayable_name {

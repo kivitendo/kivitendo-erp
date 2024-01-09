@@ -7,6 +7,7 @@ use SL::Presenter::CustomerVendor;
 use SL::Presenter::DatePeriod;
 use SL::Presenter::DeliveryOrder;
 use SL::Presenter::Dunning;
+use SL::Presenter::EmailJournal;
 use SL::Presenter::EscapedText;
 use SL::Presenter::FileObject;
 use SL::Presenter::Invoice;
@@ -20,10 +21,12 @@ use SL::Presenter::RequirementSpec;
 use SL::Presenter::RequirementSpecItem;
 use SL::Presenter::RequirementSpecTextBlock;
 use SL::Presenter::SepaExport;
+use SL::Presenter::SepaExportItem;
 use SL::Presenter::ShopOrder;
 use SL::Presenter::Text;
 use SL::Presenter::Tag;
 use SL::Presenter::BankAccount;
+use SL::Presenter::BankTransaction;
 use SL::Presenter::MaterialComponents;
 
 our %presenters = (
@@ -32,6 +35,7 @@ our %presenters = (
   date_period                 => 'SL::Presenter::DatePeriod',
   delivery_order              => 'SL::Presenter::DeliveryOrder',
   dunning                     => 'SL::Presenter::Dunning',
+  email_journal               => 'SL::Presenter::EmailJournal',
   escaped_text                => 'SL::Presenter::EscapedText',
   file_object                 => 'SL::Presenter::FileObject',
   invoice                     => 'SL::Presenter::Invoice',
@@ -45,10 +49,12 @@ our %presenters = (
   requirement_spec_item       => 'SL::Presenter::RequirementSpecItem',
   requirement_spec_text_block => 'SL::Presenter::RequirementSpecTextBlock',
   sepa_export                 => 'SL::Presenter::SepaExport',
+  sepa_exprot_item            => 'SL::Presenter::SepaExportItem',
   shop_order                  => 'SL::Presenter::ShopOrder',
   text                        => 'SL::Presenter::Text',
   tag                         => 'SL::Presenter::Tag',
   bank_account                => 'SL::Presenter::BankAccount',
+  bank_transaction            => 'SL::Presenter::BankTransaction',
   M                           => 'SL::Presenter::MaterialComponents',
 );
 

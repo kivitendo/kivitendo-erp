@@ -11,3 +11,12 @@
 .email_journal_details tbody td {
   vertical-align: top;
 }
+
+input.record_button {
+  color: var(--color-dark);
+  background-color: var(--color-lighter);
+  width: 300px;
+  padding: 5px;
+  margin: 5px;
+  float: left;
+}

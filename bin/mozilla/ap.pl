@@ -53,6 +53,7 @@ use SL::DB::PaymentTerm;
 use SL::DB::PurchaseInvoice;
 use SL::DB::RecordTemplate;
 use SL::DB::Tax;
+use SL::DB::EmailJournal;
 use SL::DB::ValidityToken;
 use SL::Presenter::ItemsList;
 use SL::Webdav;
@@ -114,10 +115,16 @@ sub load_zugferd {
   $::auth->assert('ap_transactions');
 
   my $file_name = $::form->{form_defaults}->{zugferd_session_file};
-  flash('info', $::locale->text(
-      "The ZUGFeRD/Factur-X invoice '#1' has been loaded.", $file_name));
+  if ($file_name) {
+    flash('info', $::locale->text(
+        "The ZUGFeRD/Factur-X invoice '#1' has been loaded.", $file_name));
+  }
 
-  my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $::form->{form_defaults}->{vendor_id}]);
+  my $template_ap;
+  $template_ap ||= SL::DB::RecordTemplate->new(id => $::form->{record_template_id})->load()
+    if $::form->{record_template_id};
+  $template_ap ||= SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $::form->{form_defaults}->{vendor_id}])
+    if $::form->{form_defaults}->{vendor_id};
   if ($template_ap) {
     $::form->{id} = $template_ap->id;
     # set default values for items
@@ -296,8 +303,10 @@ sub add {
 
   AP->get_transdate(\%myconfig, $form);
   $form->{initial_transdate} = $form->{transdate};
+  $form->{initial_vendor_id} = $form->{vendor_id};
   create_links(dont_save => 1);
   $form->{transdate} = $form->{initial_transdate};
+  $form->{vendor_id} = $form->{initial_vendor_id} if $form->{initial_vendor_id};
 
   if ($form->{vendor_id}) {
     my $vendor = SL::DB::Vendor->load_cached($form->{vendor_id});
@@ -1001,6 +1010,14 @@ sub post {
       }
     }
 
+    if ($form->{email_journal_id}) {
+      my $ap_transaction = SL::DB::PurchaseInvoice->new(id => $form->{id})->load;
+      my $email_journal = SL::DB::EmailJournal->new(
+        id => delete $form->{email_journal_id}
+      )->load;
+      $email_journal->link_to_record_with_attachment($ap_transaction, delete $::form->{email_attachment_id});
+    }
+
     if (!$inline) {
       my $msg = $locale->text("AP transaction '#1' posted (ID: #2)", $form->{invnumber}, $form->{id});
       if ($form->{callback} =~ /BankTransaction/) {
@@ -1027,7 +1044,12 @@ sub post {
         SL::Helper::Flash::flash_later('info', $msg);
         print $form->redirect_header($add_doc_url);
         $::dispatcher->end_request;
-
+      } elsif ('callback' eq $form->{after_action}) {
+        my $callback = $form->{callback}
+          || "controller.pl?action=LoginScreen/user_login";
+        SL::Helper::Flash::flash_later('info', $msg);
+        print $form->redirect_header($callback);
+        $::dispatcher->end_request;
       } else {
         $form->redirect($msg);
       }
@@ -1047,6 +1069,10 @@ sub use_as_new {
   my %myconfig = %main::myconfig;
 
   $main::auth->assert('ap_transactions');
+
+  $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
+  $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+  $form->{callback}            = delete $form->{workflow_email_callback};
 
   map { delete $form->{$_} } qw(printed emailed queued invnumber deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno convert_from_oe_id);
   $form->{paidaccounts} = 1;
@@ -1438,6 +1464,26 @@ sub add_from_purchase_order {
   );
 }
 
+sub add_from_email_journal {
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  &add;
+}
+
+sub load_record_template_from_email_journal {
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  &load_record_template;
+}
+
+sub edit_with_email_journal_workflow {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
+  $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+  $::form->{workflow_email_callback}      = delete $::form->{callback};
+
+  &edit;
+}
+
 sub setup_ap_search_action_bar {
   my %params = @_;
 
@@ -1550,6 +1596,7 @@ sub setup_ap_display_form_action_bar {
   } else {
     @post_entries = ( $create_post_action->(t8('Post')) );
   }
+  push @post_entries, $create_post_action->(t8('Post and Close'), 'callback');
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(

@@ -44,6 +44,7 @@ use SL::DB::ReconciliationLink;
 use SL::DB::BankTransactionAccTrans;
 use SL::DB::Tax;
 use SL::DB::ValidityToken;
+use SL::DB::GLTransaction;
 use SL::FU;
 use SL::GL;
 use SL::Helper::Flash qw(flash flash_later);
@@ -250,6 +251,26 @@ sub add {
   &display_form(1);
   $main::lxdebug->leave_sub();
 
+}
+
+sub add_from_email_journal {
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  &add;
+}
+
+sub load_record_template_from_email_journal {
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  &load_record_template;
+}
+
+sub edit_with_email_journal_workflow {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
+  $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+  $::form->{workflow_email_callback}      = delete $::form->{callback};
+
+  &edit;
 }
 
 sub prepare_transaction {
@@ -1026,6 +1047,7 @@ sub setup_gl_action_bar {
   } else {
     %post_entry = $create_post_action->(t8('Post'));
   }
+  push @{$post_entry{combobox}}, $create_post_action->(t8('Post and Close'), 'callback');
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -1472,6 +1494,14 @@ sub post {
                    )->webdav_path;
   }
 
+  if ($form->{email_journal_id} && $form->{id} ne "") {
+    my $ar_transaction = SL::DB::GLTransaction->new(id => $form->{id})->load;
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $form->{email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment($ar_transaction, delete $::form->{email_attachment_id});
+  }
+
   my $msg = $::locale->text("General ledger transaction '#1' posted (ID: #2)", $form->{reference}, $form->{id});
   if ($form->{callback} =~ /BankTransaction/ && $form->{bt_id}) {
     SL::Helper::Flash::flash_later('info', $msg) if $msg;
@@ -1485,7 +1515,12 @@ sub post {
     SL::Helper::Flash::flash_later('info', $msg);
     print $form->redirect_header($add_doc_url);
     $::dispatcher->end_request;
-
+  } elsif ('callback' eq $form->{after_action}) {
+    my $callback = $form->{callback}
+      || "controller.pl?action=LoginScreen/user_login";
+    SL::Helper::Flash::flash_later('info', $msg);
+    print $form->redirect_header($callback);
+    $::dispatcher->end_request;
   } else {
     $form->{callback} = build_std_url("action=add", "show_details");
     $form->redirect($msg);

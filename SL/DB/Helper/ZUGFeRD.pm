@@ -4,17 +4,29 @@ use strict;
 use utf8;
 
 use parent qw(Exporter);
-our @EXPORT = qw(create_zugferd_data create_zugferd_xmp_data);
+our @EXPORT_CREATE = qw(create_zugferd_data create_zugferd_xmp_data);
+our @EXPORT_IMPORT = qw(import_zugferd_data);
+our @EXPORT_OK = (@EXPORT_CREATE, @EXPORT_IMPORT);
+our %EXPORT_TAGS     = (
+  ALL => (@EXPORT_CREATE, @EXPORT_IMPORT),
+  CREATE => \@EXPORT_CREATE,
+  IMPORT => \@EXPORT_IMPORT,
+);
 
 use SL::DB::BankAccount;
 use SL::DB::GenericTranslation;
+use SL::DB::Chart;
 use SL::DB::Tax;
 use SL::DB::TaxKey;
+use SL::DB::RecordTemplate;
 use SL::Helper::ISO3166;
 use SL::Helper::ISO4217;
 use SL::Helper::UNECERecommendation20;
 use SL::VATIDNr;
 use SL::ZUGFeRD qw(:PROFILES);
+use SL::Locale::String qw(t8);
+
+use SL::Controller::ZUGFeRD;
 
 use Carp;
 use Encode qw(encode);
@@ -698,6 +710,158 @@ sub create_zugferd_xmp_data {
     document_type      => 'INVOICE',
     version            => '1.0',
   };
+}
+
+sub import_zugferd_data {
+  my ($self, $zugferd_data) = @_;
+
+  my $parser = $zugferd_data->{'invoice_xml'};
+
+  my %metadata = %{$parser->metadata};
+  my @items = @{$parser->items};
+
+  my $intnotes = t8("ZUGFeRD Import. Type: #1", $metadata{'type'})->translated;
+  my $iban = $metadata{'iban'};
+  my $invnumber = $metadata{'invnumber'};
+
+  if ( ! ($metadata{'ustid'} or $metadata{'taxnumber'}) ) {
+    die t8("Cannot process this invoice: neither VAT ID nor tax ID present.");
+  }
+
+  my $vendor = SL::Controller::ZUGFeRD::find_vendor($metadata{'ustid'}, $metadata{'taxnumber'});
+
+  die t8("Vendor with VAT ID (#1) and/or tax ID (#2) not found. Please check if the vendor " .
+          "#3 exists and whether it has the correct tax ID/VAT ID." ,
+           $metadata{'ustid'},
+           $metadata{'taxnumber'},
+           $metadata{'vendor_name'},
+  ) unless $vendor;
+
+
+  # Check IBAN specified on bill matches the one we've got in
+  # the database for this vendor.
+  if ($iban) {
+    $intnotes .= "\nIBAN: ";
+    $intnotes .= $iban ne $vendor->iban ?
+    t8("Record IBAN #1 doesn't match vendor IBAN #2", $iban, $vendor->iban)
+    : $iban
+  }
+
+  # Use invoice creation date as due date if there's no due date
+  $metadata{'duedate'} = $metadata{'transdate'} unless defined $metadata{'duedate'};
+
+  # parse dates to kivi if set/valid
+  foreach my $key ( qw(transdate duedate) ) {
+    next unless defined $metadata{$key};
+    $metadata{$key} =~ s/^\s+|\s+$//g;
+
+    if ($metadata{$key} =~ /^([0-9]{4})-?([0-9]{2})-?([0-9]{2})$/) {
+    $metadata{$key} = DateTime->new(year  => $1,
+                                    month => $2,
+                                    day   => $3)->to_kivitendo;
+    }
+  }
+
+  # Try to fill in AP account to book against
+  my $ap_chart_id = $::instance_conf->get_ap_chart_id;
+  my $ap_chart = SL::DB::Manager::Chart->find_by(id => $ap_chart_id);
+
+  unless ( defined $ap_chart ) {
+    # If no default account is configured, just use the first AP account found.
+    my $ap_charts = SL::DB::Manager::Chart->get_all(
+      where   => [ link => 'AP' ],
+      sort_by => [ 'accno' ],
+    );
+    $ap_chart = ${$ap_charts}[0];
+  }
+
+  my $currency = SL::DB::Manager::Currency->find_by(
+    name => $metadata{'currency'},
+    );
+
+  my $default_ap_amount_chart = SL::DB::Manager::Chart->find_by(
+    id => $::instance_conf->get_expense_accno_id
+  );
+  # Fallback if there's no default AP amount chart configured
+  $default_ap_amount_chart ||= SL::DB::Manager::Chart->find_by(charttype => 'A');
+
+  my $active_taxkey = $default_ap_amount_chart->get_active_taxkey;
+  my $taxes = SL::DB::Manager::Tax->get_all(
+    where   => [ chart_categories => {
+        like => '%' . $default_ap_amount_chart->category . '%'
+      }],
+    sort_by => 'taxkey, rate',
+  );
+  die t8(
+    "No tax found for chart #1", $default_ap_amount_chart->displayable_name
+  ) unless scalar @{$taxes};
+
+  my %template_params;
+  my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $vendor->id]);
+  if ($template_ap) {
+    $template_params{globalproject_id}        = $template_ap->globalproject_id;
+    $template_params{payment_id}              = $template_ap->payment_id;
+    $template_params{department_id}           = $template_ap->department_id;
+    $template_params{ordnumber}               = $template_ap->ordnumber;
+    $template_params{transaction_description} = $template_ap->transaction_description;
+  }
+
+  my $today = DateTime->today_local;
+  my %params = (
+    invoice      => 0,
+    vendor_id    => $vendor->id,
+    taxzone_id   => $vendor->taxzone_id,
+    currency_id  => $currency->id,
+    direct_debit => $metadata{'direct_debit'},
+    invnumber   => $invnumber,
+    transdate   => $metadata{transdate} || $today->to_kivitendo,
+    duedate     => $metadata{duedate}   || $today->to_kivitendo,
+    taxincluded => 0,
+    intnotes    => $intnotes,
+    transactions => [],
+    %template_params,
+  );
+
+  $self->assign_attributes(%params);
+
+  # parse items
+  foreach my $i (@items) {
+    my %item = %{$i};
+
+    my $net_total = $item{'subtotal'};
+
+    # set default values for items
+    my ($tax, $chart, $project_id);
+    if ($template_ap) {
+      my $template_item = $template_ap->items->[0];
+      $tax = SL::DB::Tax->new(id => $template_item->tax_id)->load();
+      $chart = SL::DB::Chart->new(id => $template_item->chart_id)->load();
+      $project_id = $template_item->project_id;
+    } else {
+
+      my $tax_rate = $item{'tax_rate'};
+      $tax_rate /= 100 if $tax_rate > 1; # XML data is usually in percent
+
+      $tax   = first { $tax_rate              == $_->rate } @{ $taxes };
+      $tax    //= first { $active_taxkey->tax_id == $_->id }   @{ $taxes };
+      $tax    //= $taxes->[0];
+
+      $chart = $default_ap_amount_chart;
+    }
+
+    my %line_params = (
+      amount => $net_total,
+      tax_id => $tax->id,
+      chart  => $chart,
+    );
+
+    $self->add_ap_amount_row(%line_params);
+  }
+  $self->recalculate_amounts();
+
+  $self->create_ap_row(chart => $ap_chart);
+
+  return $self;
 }
 
 1;

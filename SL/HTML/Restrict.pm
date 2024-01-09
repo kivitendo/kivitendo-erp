@@ -7,7 +7,7 @@ use HTML::Restrict ();
 
 sub create {
   my ($class, %params)    = @_;
-  $params{allowed_tags} //= { map { ($_ => ['/']) } qw(b strong i em u ul ol li sub sup s strike br p div) };
+  $params{allowed_tags} //= { map { ($_ => ['/']) } qw(b strong i em u ul ol li sub sup s strike br p div table caption thead tbody tr th td) };
 
   return HTML::Restrict->new(rules => $params{allowed_tags});
 }

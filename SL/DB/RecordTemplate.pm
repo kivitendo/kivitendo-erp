@@ -19,6 +19,16 @@ __PACKAGE__->meta->add_relationship(
 __PACKAGE__->meta->initialize;
 
 sub items { goto &record_template_items; }
+sub record_type { goto &template_type; }
+
+sub date {
+  goto &mtime;
+}
+
+sub displayable_name {
+  my ($self) = @_;
+  return join ' ', $self->template_name_to_use, $self->mtime->to_kivitendo;
+}
 
 sub _replace_variables {
   my ($self, %params) = @_;

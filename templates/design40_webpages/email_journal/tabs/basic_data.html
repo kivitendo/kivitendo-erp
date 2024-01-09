@@ -1,0 +1,73 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<div id="ui-tabs-basic-data">
+
+<div class="wrapper">
+[% INCLUDE 'generic/toggle_wrapper.html' %]
+
+<table id="email_journal_details" class="tbl-horizontal">
+  <caption>[% 'Email Details' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% 'From' | $T8 %]</th>
+      <td>[% L.input_tag('from',  SELF.entry.from, style="color:black", class="wi-verywide", disabled=1) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Recipients' | $T8 %]</th>
+      <td>[% L.input_tag('recipients', SELF.entry.recipients, style="color:black", class="wi-verywide", disabled=1) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Subject' | $T8 %]</th>
+      <td>[% L.input_tag('subject', SELF.entry.subject, style="color:black", class="wi-verywide", disabled=1) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Sent on' | $T8 %]</th>
+      <td>[% L.input_tag('sent_on', SELF.entry.sent_on.to_lxoffice("precision" => "second"), style="color:black", class="wi-verywide", disabled=1) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Status' | $T8 %]</th>
+      <td>[% L.input_tag('status', P.email_journal.entry_status(SELF.entry), style="color:black", class="wi-verywide", disabled=1) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Extended status' | $T8 %]</th>
+      <td>
+        [% L.textarea_tag('extended_status', SELF.entry.extended_status, wrap="soft", style="color:black; height:25px", class="wi-verywide", disabled=1) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'For Record Type' | $T8 %]</th>
+      <td>[% L.input_tag('record_type', RECORD_TYPES_TO_TEXT.${SELF.entry.record_type}, style="color:black", class="wi-verywide", disabled=1) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Headers' | $T8 %]</th>
+      <td>
+        [% L.textarea_tag('headers', HTML.escape(SELF.entry.headers), wrap="soft", style="color:black; height:25px", class="wi-verywide", disabled=1) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Body' | $T8 %]</th>
+      <td>
+        <div style="border:1px solid black; resize: both; overflow: auto; min-height:50px">
+          [% IF SELF.entry.headers.match('(?i)content-type:.*text/html') %]
+            [% P.restricted_html(SELF.entry.body) %]
+          [% ELSE %]
+            <pre>[% SELF.entry.body | html %]</pre>
+          [% END %]
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Obsolete' | $T8 %]</th>
+      <td>
+        [% L.input_tag('obsolete', SELF.entry.obsolete_as_bool_yn, style="color:black", class="wi-verysmall", disabled=1) %]
+        [% L.button_tag("kivi.EmailJournal.toggle_obsolete( $SELF.entry.id );", 'Toggle', class="wi-verysmall") %]
+      </td>
+  </tbody>
+</table>
+</div><!-- /.wrapper -->
+
+</div><!-- /#ui-tabs-basic-data -->

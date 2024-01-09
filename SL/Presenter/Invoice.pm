@@ -6,9 +6,11 @@ use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Tag         qw(link_tag);
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(invoice sales_invoice ar_transaction purchase_invoice ap_transaction);
+our @EXPORT_OK = qw(show invoice sales_invoice ar_transaction purchase_invoice ap_transaction);
 
 use Carp;
+
+sub show {goto &invoice};
 
 sub invoice {
   my ($invoice, %params) = @_;
@@ -102,10 +104,15 @@ transaction, purchase invoice and AP transaction Rose::DB objects
 
   # use with any of the above ar/ap/is/ir types:
   my $html   = SL::Presenter::Invoice::invoice($object, display => 'inline');
+  my $html   = $object->presenter->show();
 
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<show $object>
+
+Alias for C<invoice $object %params>.
 
 =item C<invoice $object, %params>
 

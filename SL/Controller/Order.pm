@@ -32,6 +32,7 @@ use SL::DB::Reclamation;
 use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
+use SL::DB::EmailJournal;
 use SL::DB::ValidityToken;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
@@ -156,6 +157,23 @@ sub action_add_from_purchase_basket {
   $self->action_edit();
 }
 
+sub action_add_from_email_journal {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+
+  $self->action_add();
+}
+
+sub action_edit_with_email_journal_workflow {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
+  $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+  $::form->{workflow_email_callback}      = delete $::form->{callback};
+
+  $self->action_edit();
+}
+
 # edit an existing order
 sub action_edit {
   my ($self) = @_;
@@ -163,10 +181,10 @@ sub action_edit {
   if ($::form->{id}) {
     $self->load_order;
 
-    if ($self->order->is_sales) {
-      my $imap_client = SL::IMAPClient->new();
+    if ($self->order->is_sales && $::lx_office_conf{imap_client}->{enabled}) {
+      my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{imap_client}});
       if ($imap_client) {
-        $imap_client->update_email_files_for_record($self->order);
+        $imap_client->update_email_files_for_record(record => $self->order);
       }
     }
 
@@ -811,6 +829,9 @@ sub action_save_and_new_record {
     type       => $to_type,
     from_id    => $self->order->id,
     from_type  => $self->order->type,
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
     %additional_params,
   );
 }
@@ -823,6 +844,9 @@ sub action_save_and_invoice {
   $self->save_and_redirect_to(
     controller => 'oe.pl',
     action     => 'oe_invoice_from_order',
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 
@@ -833,6 +857,9 @@ sub action_save_and_invoice_for_advance_payment {
     controller       => 'oe.pl',
     action           => 'oe_invoice_from_order',
     new_invoice_type => 'invoice_for_advance_payment',
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 
@@ -843,6 +870,9 @@ sub action_save_and_final_invoice {
     controller       => 'oe.pl',
     action           => 'oe_invoice_from_order',
     new_invoice_type => 'final_invoice',
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 
@@ -853,6 +883,9 @@ sub action_save_and_order_workflow {
     type       => $_[0]->type,
     to_type    => $::form->{to_type},
     use_shipto => $::form->{use_shipto},
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 
@@ -863,6 +896,9 @@ sub action_save_and_ap_transaction {
   $self->save_and_redirect_to(
     controller => 'ap.pl',
     action     => 'add_from_purchase_order',
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 
@@ -2112,10 +2148,20 @@ sub save {
                           set_project_in_linked_requirement_specs                => 1,
   );
 
-  if ($is_new && $self->order->is_sales) {
-    my $imap_client = SL::IMAPClient->new();
+  if ($::form->{email_journal_id}) {
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $::form->{email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment(
+      $self->order,
+      delete $::form->{email_attachment_id}
+    );
+  }
+
+  if ($is_new && $self->order->is_sales && $::lx_office_conf{imap_client}->{enabled}) {
+    my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{imap_client}});
     if ($imap_client) {
-      $imap_client->create_folder_for_record($self->order);
+      $imap_client->create_folder_for_record(record => $self->order);
     }
   }
 

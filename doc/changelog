@@ -119,9 +119,9 @@ Kleinere neue Features und Detailverbesserungen:
       Ordner im Email-Server angelegt werden
     - Bei der Bearbeitung von VK-Angebote und VK-Aufträgen können die Emails aus
       den angelegten Ordner im Email-Server automatisch importiert werden
-    - Hintergrung-Job zum Aufräumen der erstellten Email-Unterordner, nur
+    - Hintergrund-Job zum Aufräumen der erstellten Email-Unterordner, nur
       Unterordner für offene Belege werden behalten
-    - Hintergrung-Job zum Synchronisieren von Email-Ordner. Emails werden in das
+    - Hintergrund-Job zum Synchronisieren von Email-Ordner. Emails werden in das
       E-Mail-Journal importiert, wenn sie nicht schon vorhanden sind
   - Belege ("neue" Controller, sprich Angebot/Auftrag/Beistelllieferschein/RMA/
     Reklamation) können nicht mehr ohne Positionen gespeichert werden. Ausnahmen

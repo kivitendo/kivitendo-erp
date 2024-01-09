@@ -42,6 +42,8 @@ use SL::DB::Draft;
 use SL::IO;
 use SL::MoreCommon;
 use SL::DB::Default;
+use SL::DB::Invoice;
+use SL::DB::EmailJournal;
 use SL::DB::ValidityToken;
 use SL::TransNumber;
 use SL::Util qw(trim);
@@ -980,6 +982,19 @@ sub _storno {
 
   map { IO->set_datepaid(table => 'ar', id => $_, dbh => $dbh) } ($id, $new_id);
 
+  if ($form->{workflow_email_journal_id}) {
+    my $ar_transaction_storno = SL::DB::Invoice->new(id => $new_id)->load;
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $form->{workflow_email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment(
+      $ar_transaction_storno,
+      delete $form->{workflow_email_attachment_id}
+    );
+    $form->{callback} = delete $form->{workflow_email_callback};
+  }
+
+  $form->{storno_id} = $id;
   return 1;
 }
 

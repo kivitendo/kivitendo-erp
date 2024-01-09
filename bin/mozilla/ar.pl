@@ -53,6 +53,7 @@ use SL::DB::Manager::Invoice;
 use SL::DB::InvoiceItem;
 use SL::DB::RecordTemplate;
 use SL::DB::Tax;
+use SL::DB::EmailJournal;
 use SL::DB::ValidityToken;
 use SL::Helper::Flash qw(flash flash_later);
 use SL::Locale::String qw(t8);
@@ -263,8 +264,10 @@ sub add {
 
   AR->get_transdate(\%myconfig, $form);
   $form->{initial_transdate} = $form->{transdate};
+  $form->{initial_customer_id} = $form->{customer_id};
   create_links(dont_save => 1);
   $form->{transdate} = $form->{initial_transdate};
+  $form->{customer_id} = $form->{initial_customer_id} if $form->{initial_customer_id};
 
   if ($form->{customer_id}) {
     my $last_used_ar_chart = SL::DB::Customer->load_cached($form->{customer_id})->last_used_ar_chart;
@@ -277,6 +280,26 @@ sub add {
 
   &display_form;
   $main::lxdebug->leave_sub();
+}
+
+sub add_from_email_journal {
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  &add;
+}
+
+sub load_record_template_from_email_journal {
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  &load_record_template;
+}
+
+sub edit_with_email_journal_workflow {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
+  $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+  $::form->{workflow_email_callback}      = delete $::form->{callback};
+
+  &edit;
 }
 
 sub edit {
@@ -862,6 +885,14 @@ sub post {
   }
   # /saving the history
 
+  if ($form->{email_journal_id} && $form->{id} ne "") {
+    my $ar_transaction = SL::DB::Invoice->new(id => $form->{id})->load;
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $form->{email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment($ar_transaction, delete $::form->{email_attachment_id});
+  }
+
   if (!$inline) {
     my $msg = $locale->text("AR transaction '#1' posted (ID: #2)", $form->{invnumber}, $form->{id});
     if ($::instance_conf->get_ar_add_doc && $::instance_conf->get_doc_storage) {
@@ -878,6 +909,25 @@ sub post {
   $main::lxdebug->leave_sub();
 }
 
+sub post_and_close {
+  $main::lxdebug->enter_sub();
+  $main::auth->assert('ar_transactions');
+  my $locale = $main::locale;
+  my $form   = $::form;
+
+  # inline post
+  post(1);
+
+  my $callback = $form->{callback}
+    || "controller.pl?action=LoginScreen/user_login";
+    my $msg = $locale->text("AR transaction '#1' posted (ID: #2)", $form->{invnumber}, $form->{id});
+  SL::Helper::Flash::flash_later('info', $msg);
+  print $form->redirect_header($callback);
+  $::dispatcher->end_request;
+
+  $main::lxdebug->leave_sub();
+}
+
 sub use_as_new {
   $main::lxdebug->enter_sub();
 
@@ -885,6 +935,10 @@ sub use_as_new {
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
+
+  $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
+  $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+  $form->{callback}            = delete $form->{workflow_email_callback};
 
   map { delete $form->{$_} } qw(printed emailed queued invnumber deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
@@ -1480,6 +1534,18 @@ sub setup_ar_form_header_action_bar {
         action => [
           t8('Post'),
           submit   => [ '#form', { action => "post" } ],
+          checks   => [ 'kivi.validate_form', 'kivi.AR.check_fields_before_posting' ],
+          disabled => !$may_edit_create                           ? t8('You must not change this AR transaction.')
+                    : $is_closed                                  ? t8('The billing period has already been locked.')
+                    : $is_storno                                  ? t8('A canceled invoice cannot be posted.')
+                    : ($::form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
+                    : ($::form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction                 ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                                               undef,
+        ],
+        action => [
+          t8('Post and Close'),
+          submit   => [ '#form', { action => "post_and_close" } ],
           checks   => [ 'kivi.validate_form', 'kivi.AR.check_fields_before_posting' ],
           disabled => !$may_edit_create                           ? t8('You must not change this AR transaction.')
                     : $is_closed                                  ? t8('The billing period has already been locked.')

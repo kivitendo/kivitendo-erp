@@ -4,6 +4,9 @@
 [%- USE HTML %]
 [% # L.dump( SELF.reclamation.items_sorted ) %]
 
+[% IF FORM.workflow_email_journal_id %]
+  [% SET FORM.title = LxERP.t8("Email Journal Workflow") _ " - " _ FORM.title %]
+[% END %]
 <h1>[% FORM.title %] <span id='nr_in_title'>[%- SELF.reclamation.record_number -%]</span></h1>
 
 <div id="print_options" style="display:none">
@@ -22,7 +25,12 @@
   [% L.hidden_tag('type',                 FORM.type) %]
   [% L.hidden_tag('id',                   SELF.reclamation.id) %]
   [% L.hidden_tag('converted_from_record_type_ref', SELF.reclamation.converted_from_record_type_ref) %]
-  [% L.hidden_tag('converted_from_record_id',  SELF.reclamation.converted_from_record_id) %]
+  [% L.hidden_tag('converted_from_record_id',       SELF.reclamation.converted_from_record_id) %]
+  [% L.hidden_tag('email_journal_id',               FORM.email_journal_id) %]
+  [% L.hidden_tag('email_attachment_id',            FORM.email_attachment_id) %]
+  [% L.hidden_tag('workflow_email_journal_id',      FORM.workflow_email_journal_id) %]
+  [% L.hidden_tag('workflow_email_attachment_id',   FORM.workflow_email_attachment_id) %]
+  [% L.hidden_tag('workflow_email_callback',        FORM.workflow_email_callback) %]
 
   [% IF !SELF.reclamation.id %]
   [%   L.hidden_tag('form_validity_token', FORM.form_validity_token) %]
@@ -33,6 +41,9 @@
   <div class="tabwidget" id="reclamation_tabs">
     <ul>
       <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
+[% IF FORM.email_attachment_id || FORM.workflow_email_attachment_id %]
+      <li><a href="controller.pl?action=EmailJournal/attachment_preview&attachment_id=[% HTML.url(FORM.email_attachment_id || FORM.workflow_email_attachment_id) %]">[% 'Email Attachment Preview' | $T8 %]</a></li>
+[% END %]
 [%- IF INSTANCE_CONF.get_webdav %]
       <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
 [%- END %]

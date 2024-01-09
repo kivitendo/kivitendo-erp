@@ -7,9 +7,9 @@ use parent qw(SL::BackgroundJob::Base);
 
 use SL::IMAPClient;
 
-sub clean_up_subfolders {
+sub clean_up_record_subfolders {
   my ($self) = @_;
-  my $imap_client = SL::IMAPClient->new();
+  my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{imap_client}});
 
   my $open_sales_orders = SL::DB::Manager::Order->get_all(
     query => [
@@ -18,14 +18,14 @@ sub clean_up_subfolders {
     ],
   );
 
-  $imap_client->clean_up_subfolders($open_sales_orders);
+  $imap_client->clean_up_record_subfolders(active_records => $open_sales_orders);
 }
 
 sub run {
   my ($self, $job_obj) = @_;
   $self->{job_obj} = $job_obj;
 
-  $self->clean_up_subfolders();
+  $self->clean_up_record_subfolders();
 
   return;
 }

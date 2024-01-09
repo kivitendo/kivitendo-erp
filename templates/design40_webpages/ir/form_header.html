@@ -4,7 +4,10 @@
 [% USE L %]
 [% USE P %]
 
-<h1>[% title %]</h1>
+<h1>
+  [% IF workflow_email_journal_id; LxERP.t8("Email Journal Workflow") _ " - "; END; %]
+  [% title %]
+</h1>
 
 [% SET follow_up_trans_info = invnumber _ ' (' _ vendor_obj.name _ ')' %]
 <script type="text/javascript" src="js/common.js"></script>
@@ -26,6 +29,11 @@
 [% IF !id %]
 [%   L.hidden_tag('form_validity_token', form_validity_token) %]
 [% END %]
+[% L.hidden_tag('email_journal_id',             email_journal_id) %]
+[% L.hidden_tag('email_attachment_id',          email_attachment_id) %]
+[% L.hidden_tag('workflow_email_journal_id',    workflow_email_journal_id) %]
+[% L.hidden_tag('workflow_email_attachment_id', workflow_email_attachment_id) %]
+[% L.hidden_tag('workflow_email_callback',      workflow_email_callback) %]
 
 [% INCLUDE 'common/flash.html' %]
 [% INCLUDE 'generic/set_longdescription.html' %]
@@ -34,6 +42,9 @@
 
 <ul>
   <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
+  [% IF email_attachment_id || workflow_email_attachment_id %]
+    <li><a href="controller.pl?action=EmailJournal/attachment_preview&attachment_id=[% HTML.url(email_attachment_id || workflow_email_attachment_id) %]">[% 'Email Attachment Preview' | $T8 %]</a></li>
+  [% END %]
   [% IF INSTANCE_CONF.get_webdav %]
     <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
   [% END %]
@@ -54,6 +65,24 @@
 [%- END %]
 
 <div id="ui-tabs-basic-data">
+
+[% IF email_attachment_id || workflow_email_attachment_id%]
+  <div class="wrapper" id="email_attachment_wrapper">
+    [%
+      BLOCK panel_1;
+        P.email_journal.attachment_preview(
+             email_attachment_id || workflow_email_attachment_id,
+             style="height:600px"
+             );
+      END;
+      INCLUDE 'common/toggle_panel.html'
+        block_name='panel_1'
+        button_closed  = LxERP.t8('Show Attachment')
+        button_open    = LxERP.t8('Hide Attachment')
+        ;
+    %]
+  </div>
+[% END %]
 
 <div class="wrapper" id="wrapper-1">
   [% INCLUDE 'generic/toggle_wrapper.html' %]
@@ -273,8 +302,8 @@
   $('document').ready(function(){
   [% IF creditwarning != '' %]
     alert('[% 'Credit Limit exceeded!!!' | $T8 %]');
-  [% ELSE %]
   [% END %]
+    kivi.File.doc_tab_init('ir_tabs', 'ui-tabs-docs', $('#id').val(), 'purchase_invoice');
      });
 //--></script>
 

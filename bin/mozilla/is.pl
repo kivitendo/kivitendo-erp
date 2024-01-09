@@ -54,6 +54,7 @@ use SL::DB::Department;
 use SL::DB::Invoice;
 use SL::DB::PaymentTerm;
 use SL::DB::Reclamation;
+use SL::DB::EmailJournal;
 use SL::DB::ValidityToken;
 use SL::Helper::QrBillFunctions qw(get_ref_number_formatted);
 
@@ -120,6 +121,21 @@ sub add {
   &display_form;
 
   $main::lxdebug->leave_sub();
+}
+
+sub add_from_email_journal {
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  &add;
+}
+
+sub edit_with_email_journal_workflow {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
+  $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+  $::form->{workflow_email_callback}      = delete $::form->{callback};
+
+  &edit;
 }
 
 sub edit {
@@ -413,6 +429,19 @@ sub setup_is_action_bar {
                     :                                             undef,
         ],
         action => [
+          t8('Post and Close'),
+          submit   => [ '#form', { action => "post_and_close" } ],
+          checks   => [ 'kivi.validate_form' ],
+          confirm  => t8('The invoice is not linked with a sales delivery order. Post anyway?') x !!$warn_unlinked_delivery_order,
+          disabled => !$may_edit_create                         ? t8('You must not change this invoice.')
+                    : $form->{locked}                           ? t8('The billing period has already been locked.')
+                    : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
+                    : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
+                    : ($form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                                             undef,
+        ],
+        action => [
           t8('Post Payment'),
           submit   => [ '#form', { action => "post_payment" } ],
           checks   => [ 'kivi.validate_form' ],
@@ -514,7 +543,7 @@ sub setup_is_action_bar {
           t8('Reclamation'),
           submit   => ['#form', { action => "sales_reclamation" }], # can't call Reclamation directly
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-          only_if   => ($::form->{type} eq 'invoice')
+          only_if   => ($::form->{type} eq 'invoice' && !$::form->{storno}),
         ],
       ], # end of combobox "Workflow"
 
@@ -1212,12 +1241,38 @@ sub post {
     $form->save_history;
   }
 
+  if ($form->{email_journal_id} && $form->{id} ne "") {
+    my $invoice = SL::DB::Invoice->new(id => $form->{id})->load;
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $form->{email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment($invoice, delete $::form->{email_attachment_id});
+  }
+
   if (!$form->{no_redirect_after_post}) {
     $form->{action} = 'edit';
     $form->{script} = 'is.pl';
     $form->{callback} = build_std_url(qw(action edit id callback saved_message));
     $form->redirect($form->{label} . " $form->{invnumber} " . $locale->text('posted!'));
   }
+
+  $main::lxdebug->leave_sub();
+}
+
+sub post_and_close {
+  $main::lxdebug->enter_sub();
+  my $locale   = $main::locale;
+  my $form = $::form;
+
+  $form->{no_redirect_after_post} = 1;
+  &post();
+
+  my $callback = $form->{callback}
+    || "controller.pl?action=LoginScreen/user_login";
+  my $msg = $form->{label} . " $form->{invnumber} " . $locale->text('posted!');
+  SL::Helper::Flash::flash_later('info', $msg);
+  print $form->redirect_header($callback);
+  $::dispatcher->end_request;
 
   $main::lxdebug->leave_sub();
 }
@@ -1247,6 +1302,10 @@ sub use_as_new {
 
   $main::auth->assert('invoice_edit');
 
+  $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
+  $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+  $form->{callback}            = delete $form->{workflow_email_callback};
+
   delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked qr_unstructured_message)};
   $form->{rowcount}--;
   $form->{paidaccounts} = 1;
@@ -1272,6 +1331,10 @@ sub further_invoice_for_advance_payment {
 
   $main::auth->assert('invoice_edit');
 
+  $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
+  $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+  $form->{callback}            = delete $form->{workflow_email_callback};
+
   delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked)};
   $form->{convert_from_ar_ids} = $form->{id};
   $form->{id}                  = '';
@@ -1295,6 +1358,10 @@ sub final_invoice {
   my %myconfig = %main::myconfig;
 
   $main::auth->assert('invoice_edit');
+
+  $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
+  $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+  $form->{callback}            = delete $form->{workflow_email_callback};
 
   my $related_invoices = IS->_get_invoices_for_advance_payment($form->{id});
 
@@ -1368,7 +1435,14 @@ sub storno {
   $form->{addition}  = "STORNO";
   $form->save_history;
 
+  my $email_journal_id    = delete $form->{workflow_email_journal_id};
+  my $email_attachment_id = delete $form->{workflow_email_attachment_id};
+  my $callback            = delete $form->{workflow_email_callback};
   map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password type))); } keys(%{ $form }));
+
+  $form->{email_journal_id}    = $email_journal_id;
+  $form->{email_attachment_id} = $email_attachment_id;
+  $form->{callback}            = $callback;
 
   invoice_links();
   prepare_invoice();
@@ -1394,7 +1468,11 @@ sub storno {
   # post expects the field as user input
   $form->{exchangerate} = $form->format_amount(\%myconfig, $form->{exchangerate});
   $form->{script}       = 'is.pl';
-  post();
+  if ($form->{callback}) {
+    post_and_close();
+  } else {
+    post();
+  }
   $main::lxdebug->leave_sub();
 }
 
@@ -1422,6 +1500,10 @@ sub credit_note {
   my $locale   = $main::locale;
 
   $main::auth->assert('invoice_edit');
+
+  $form->{email_journal_id}    = delete $form->{workflow_email_journal_id};
+  $form->{email_attachment_id} = delete $form->{workflow_email_attachment_id};
+  $form->{callback}            = delete $form->{workflow_email_callback};
 
   $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
 

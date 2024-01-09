@@ -30,6 +30,7 @@ my %type_data = (
       add    => t8("Add Sales Order"),
       edit   => t8("Edit Sales Order"),
       list   => t8("Sales Orders"),
+      type   => t8("Sales Order"),
       attachment => t8("sales_order_list"),
     },
     show_menu => {
@@ -56,6 +57,7 @@ my %type_data = (
       customervendor => "customer",
       is_customer    => 1,
       nr_key         => "ordnumber",
+      worflow_needed => 0,
     },
     defaults => {
       reqdate => sub {
@@ -85,6 +87,7 @@ my %type_data = (
       add    => t8("Add Purchase Order"),
       edit   => t8("Edit Purchase Order"),
       list   => t8("Purchase Orders"),
+      type   => t8("Purchase Order"),
       attachment => t8("purchase_order_list"),
     },
     show_menu => {
@@ -111,6 +114,7 @@ my %type_data = (
       customervendor => "vendor",
       is_customer    => 0,
       nr_key         => "ordnumber",
+      worflow_needed => 0,
     },
     defaults => {
       reqdate => sub { return; },
@@ -133,6 +137,7 @@ my %type_data = (
       add    => t8("Add Quotation"),
       edit   => t8("Edit Quotation"),
       list   => t8("Quotations"),
+      type   => t8("Quotation"),
       attachment => t8("quotation_list"),
     },
     show_menu => {
@@ -159,6 +164,7 @@ my %type_data = (
       customervendor => "customer",
       is_customer    => 1,
       nr_key         => "quonumber",
+      worflow_needed => 0,
     },
     defaults => {
       reqdate => sub {
@@ -188,6 +194,7 @@ my %type_data = (
       add    => t8("Add Request for Quotation"),
       edit   => t8("Edit Request for Quotation"),
       list   => t8("Request for Quotations"),
+      type   => t8("Request for Quotation"),
       attachment => t8("rfq_list"),
     },
     show_menu => {
@@ -214,6 +221,7 @@ my %type_data = (
       customervendor => "vendor",
       is_customer    => 0,
       nr_key         => "quonumber",
+      worflow_needed => 0,
     },
     defaults => {
       reqdate => sub { return; },
@@ -236,6 +244,7 @@ my %type_data = (
       add        => t8('Add Purchase Quotation Intake'),
       edit       => t8('Edit Purchase Quotation Intake'),
       list       => t8('Purchase Quotation Intakes'),
+      type       => t8('Purchase Quotation Intake'),
       attachment => t8('purchase_quotation_intake_list'),
     },
     show_menu => {
@@ -262,6 +271,7 @@ my %type_data = (
       customervendor => "vendor",
       is_customer    => 0,
       nr_key         => "quonumber",
+      worflow_needed => 0,
     },
     defaults => {
       reqdate => sub { return; },
@@ -284,6 +294,7 @@ my %type_data = (
       add    => t8("Add Sales Order Intake"),
       edit   => t8("Edit Sales Order Intake"),
       list   => t8("Sales Order Intakes"),
+      type   => t8("Sales Order Intake"),
       attachment => t8("sales_order_intake_list"),
     },
     show_menu => {
@@ -310,6 +321,7 @@ my %type_data = (
       customervendor => "customer",
       is_customer    => 1,
       nr_key         => "ordnumber",
+      worflow_needed => 0,
     },
     defaults => {
       reqdate => sub {
@@ -339,6 +351,7 @@ my %type_data = (
       add    => t8("Add Purchase Order Confirmation"),
       edit   => t8("Edit Purchase Order Confirmation"),
       list   => t8("Purchase Order Confirmations"),
+      type   => t8("Purchase Order Confirmation"),
       attachment => t8("purchase_order_confirmation_list"),
     },
     show_menu => {
@@ -365,6 +378,7 @@ my %type_data = (
       customervendor => "vendor",
       is_customer    => 0,
       nr_key         => "ordnumber",
+      worflow_needed => 0,
     },
     defaults => {
       reqdate => sub { return; },
@@ -383,12 +397,12 @@ my %type_data = (
 );
 
 my @valid_types = (
-  SALES_ORDER_TYPE,
-  PURCHASE_ORDER_TYPE,
   SALES_QUOTATION_TYPE,
   REQUEST_QUOTATION_TYPE,
-  PURCHASE_QUOTATION_INTAKE_TYPE,
   SALES_ORDER_INTAKE_TYPE,
+  PURCHASE_QUOTATION_INTAKE_TYPE,
+  SALES_ORDER_TYPE,
+  PURCHASE_ORDER_TYPE,
   PURCHASE_ORDER_CONFIRMATION_TYPE,
 );
 

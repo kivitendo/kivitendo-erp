@@ -25,6 +25,7 @@ use SL::DB::RecordLink;
 use SL::DB::Shipto;
 use SL::DB::Translation;
 use SL::DB::ValidityToken;
+use SL::DB::EmailJournal;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
@@ -149,6 +150,23 @@ sub action_add_from_record {
   );
 }
 
+sub action_add_from_email_journal {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+
+  $self->action_add();
+}
+
+sub action_edit_with_email_journal_workflow {
+  my ($self) = @_;
+  die "No 'email_journal_id' was given." unless ($::form->{email_journal_id});
+  $::form->{workflow_email_journal_id}    = delete $::form->{email_journal_id};
+  $::form->{workflow_email_attachment_id} = delete $::form->{email_attachment_id};
+  $::form->{workflow_email_callback}      = delete $::form->{callback};
+
+  $self->action_edit();
+}
+
 # edit an existing reclamation
 sub action_edit {
   my ($self) = @_;
@@ -194,11 +212,19 @@ sub action_save {
 
   flash_later('info', t8('The reclamation has been saved'));
 
-  my @redirect_params = (
-    action => 'edit',
-    type   => $self->type,
-    id     => $self->reclamation->id,
-  );
+  my @redirect_params;
+  if ($::form->{back_to_caller}) {
+    @redirect_params = $::form->{callback} ? ($::form->{callback})
+                                           : (controller => 'LoginScreen', action => 'user_login');
+  } else {
+    @redirect_params = (
+      action => 'edit',
+      type   => $self->type,
+      id     => $self->reclamation->id,
+      callback => $::form->{callback},
+    );
+  }
+
   $self->redirect_to(@redirect_params);
 }
 
@@ -511,7 +537,7 @@ sub action_save_and_new_record {
   my %additional_params = ();
   if ($::form->{only_selected_item_positions}) { # ids can be unset before save
     my $item_positions = $::form->{selected_item_positions} || [];
-    my @from_item_ids = map { $self->order->items_sorted->[$_]->id } @$item_positions;
+    my @from_item_ids = map { $self->reclamation->items_sorted->[$_]->id } @$item_positions;
     $additional_params{from_item_ids} = \@from_item_ids;
   }
 
@@ -521,6 +547,9 @@ sub action_save_and_new_record {
     type       => $to_type,
     from_id    => $self->reclamation->id,
     from_type  => $self->reclamation->type,
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
     %additional_params,
   );
 }
@@ -543,6 +572,9 @@ sub action_save_and_credit_note {
     controller => 'is.pl',
     action     => 'credit_note_from_reclamation',
     from_id    => $self->reclamation->id,
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
   );
 }
 
@@ -1551,6 +1583,16 @@ sub save {
                           items_to_delete      => $items_to_delete,
   );
 
+  if ($::form->{email_journal_id}) {
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $::form->{email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment(
+      $self->reclamation,
+      delete $::form->{email_attachment_id}
+    );
+  }
+
   delete $::form->{form_validity_token};
 }
 
@@ -1928,6 +1970,20 @@ sub _setup_edit_action_bar {
               action             => 'save',
               warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
               warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+            }],
+          checks    => [
+            ['kivi.validate_form','#reclamation_form'],
+          ],
+        ],
+        action => [
+          t8('Save and Close'),
+          call      => [ 'kivi.Reclamation.save', {
+              action             => 'save',
+              warn_on_duplicates => $::instance_conf->get_reclamation_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_reclamation_warn_no_reqdate,
+              form_params        => [
+                { name => 'back_to_caller', value => 1 },
+              ],
             }],
           checks    => [
             ['kivi.validate_form','#reclamation_form'],

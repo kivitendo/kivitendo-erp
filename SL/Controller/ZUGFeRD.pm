@@ -127,9 +127,7 @@ sub action_import_zugferd {
   my $file = $::form->{file};
   my $file_name = $::form->{file_name};
 
-  my %res;          # result data structure returned by SL::ZUGFeRD->extract_from_{pdf,xml}()
-  my $parser;       # SL::XMLInvoice object created by SL::ZUGFeRD->extract_from_{pdf,xml}()
-  my $vendor;       # SL::DB::Vendor object
+  my %res; # result data structure returned by SL::ZUGFeRD->extract_from_{pdf,xml}()
 
   die t8("missing file for action import")   unless $file;
   die t8("can only parse a pdf or xml file") unless $file =~ m/^%PDF|<\?xml/;
@@ -145,7 +143,28 @@ sub action_import_zugferd {
     die(t8("Could not extract Factur-X/ZUGFeRD data, data and error message:") . " $res{'message'}");
   }
 
-  $parser = $res{'invoice_xml'};
+  my $form_defaults = $self->build_ap_transaction_form_defaults(\%res);
+
+  # save the zugferd file to session file for reuse in ap.pl
+  my $session_file = SL::SessionFile->new($file_name, mode => 'w');
+  $session_file->fh->print($file);
+  $session_file->fh->close;
+  $form_defaults->{zugferd_session_file} = $file_name;
+
+  $form_defaults->{callback} = $self->url_for(action => 'upload_zugferd');
+
+  $self->redirect_to(
+    controller    => 'ap.pl',
+    action        => 'load_zugferd',
+    form_defaults => $form_defaults,
+  );
+}
+
+sub build_ap_transaction_form_defaults {
+  my ($self, $data, %params) = @_;
+  my $vendor = $params{vendor};
+
+  my $parser = $data->{'invoice_xml'};
 
   my %metadata = %{$parser->metadata};
   my @items = @{$parser->items};
@@ -154,33 +173,39 @@ sub action_import_zugferd {
   my $iban = $metadata{'iban'};
   my $invnumber = $metadata{'invnumber'};
 
-  if ( ! ($metadata{'ustid'} or $metadata{'taxnumber'}) ) {
-    die t8("Cannot process this invoice: neither VAT ID nor tax ID present.");
+  if ($vendor) {
+    if ($metadata{'ustid'} && $vendor->ustid && ($metadata{'ustid'} ne $vendor->ustid)) {
+      $intnotes .= "\n" . t8('USt-IdNr.') . ': '
+      . t8("Record VAT ID #1 doesn't match vendor VAT ID #2", $metadata{'ustid'}, $vendor->ustid);
+    }
+    if ($metadata{'taxnumber'} && $vendor->taxnumber && ($metadata{'taxnumber'} ne $vendor->taxnumber)) {
+      $intnotes .= "\n" . t8("Tax Number") . ': '
+      . t8("Record tax ID #1 doesn't match vendor tax ID #2", $metadata{'taxnumber'}, $vendor->taxnumber);
+    }
+  } else {
+    if ( ! ($metadata{'ustid'} or $metadata{'taxnumber'}) ) {
+      die t8("Cannot process this invoice: neither VAT ID nor tax ID present.");
+    }
+
+    $vendor = find_vendor($metadata{'ustid'}, $metadata{'taxnumber'});
+
+    die t8("Vendor with VAT ID (#1) and/or tax ID (#2) not found. Please check if the vendor " .
+            "#3 exists and whether it has the correct tax ID/VAT ID." ,
+             $metadata{'ustid'},
+             $metadata{'taxnumber'},
+             $metadata{'vendor_name'},
+    ) unless $vendor;
   }
-
-  $vendor = find_vendor($metadata{'ustid'}, $metadata{'taxnumber'});
-
-  die t8("Vendor with VAT ID (#1) and/or tax ID (#2) not found. Please check if the vendor " .
-          "#3 exists and whether it has the correct tax ID/VAT ID." ,
-           $metadata{'ustid'},
-           $metadata{'taxnumber'},
-           $metadata{'vendor_name'},
-  ) unless $vendor;
 
 
   # Check IBAN specified on bill matches the one we've got in
   # the database for this vendor.
- if ($iban) {
-   $intnotes .= "\nIBAN: ";
-   $intnotes .= $iban ne $vendor->iban ?
-         t8("Record IBAN #1 doesn't match vendor IBAN #2", $iban, $vendor->iban)
-       : $iban
- }
-
-  # save the zugferd file to session file for reuse in ap.pl
-  my $session_file = SL::SessionFile->new($file_name, mode => 'w');
-  $session_file->fh->print($file);
-  $session_file->fh->close;
+  if ($iban) {
+    $intnotes .= "\nIBAN: ";
+    $intnotes .= $iban ne $vendor->iban ?
+          t8("Record IBAN #1 doesn't match vendor IBAN #2", $iban, $vendor->iban)
+        : $iban
+  }
 
   # Use invoice creation date as due date if there's no due date
   $metadata{'duedate'} = $metadata{'transdate'} unless defined $metadata{'duedate'};
@@ -254,28 +279,21 @@ sub action_import_zugferd {
   }
   $item_form{rowcount} = $row;
 
-  $self->redirect_to(
-    controller           => 'ap.pl',
-    action               => 'load_zugferd',
-    form_defaults => {
-      zugferd_session_file => $file_name,
-      callback             => $self->url_for(action => 'upload_zugferd'),
-      vendor_id            => $vendor->id,
-      vendor               => $vendor->name,
-      invnumber            => $invnumber,
-      transdate            => $metadata{'transdate'},
-      duedate              => $metadata{'duedate'},
-      no_payment_bookings  => 0,
-      intnotes             => $intnotes,
-      taxincluded          => 0,
-      direct_debit         => $metadata{'direct_debit'},
-      currency             => $currency->name,
-      AP_chart_id          => $ap_chart_id,
-      paid_1_suggestion    => $::form->format_amount(\%::myconfig, $metadata{'total'}, 2),
-      %item_form,
-    },
-  );
-
+  return {
+    vendor_id            => $vendor->id,
+    vendor               => $vendor->name,
+    invnumber            => $invnumber,
+    transdate            => $metadata{'transdate'},
+    duedate              => $metadata{'duedate'},
+    no_payment_bookings  => 0,
+    intnotes             => $intnotes,
+    taxincluded          => 0,
+    direct_debit         => $metadata{'direct_debit'},
+    currency             => $currency->name,
+    AP_chart_id          => $ap_chart_id,
+    paid_1_suggestion    => $::form->format_amount(\%::myconfig, $metadata{'total'}, 2),
+    %item_form,
+  },
 }
 
 sub check_auth {

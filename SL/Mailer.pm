@@ -343,18 +343,18 @@ sub _store_in_imap_sent_folder {
 
   my $from_email = $self->{from};
   my $user_email = $::myconfig{email};
-  my $config =
+  my $imap_config =
        $::lx_office_conf{"sent_emails_in_imap/email/$from_email"}
     || $::lx_office_conf{"sent_emails_in_imap/email/$user_email"}
     || $::lx_office_conf{sent_emails_in_imap}
     || {};
-  return unless ($config->{enabled});
+  return unless ($imap_config->{enabled});
 
-  my $imap_client = SL::IMAPClient->new(%$config);
-
+  my $folder = delete $imap_config->{folder};
+  my $imap_client = SL::IMAPClient->new(%$imap_config);
   $imap_client->store_email_in_email_folder(
-    $email_as_string,
-    $config->{folder} ||'Sent/Kivitendo'
+    email_as_string => $email_as_string,
+    folder => $folder ||'Sent/Kivitendo',
   );
 
   return 1;
