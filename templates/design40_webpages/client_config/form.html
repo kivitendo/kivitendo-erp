@@ -11,7 +11,7 @@
    [% USE warehouses_it = Iterator(SELF.all_warehouses) %][% FOREACH warehouse = warehouses_it %]
     { id:   [% warehouse.id %],
       bins: [
-       [% USE bins_it = Iterator(warehouse.bins_sorted) %][% FOREACH bin = bins_it %]
+       [% USE bins_it = Iterator(warehouse.bins_sorted_naturally) %][% FOREACH bin = bins_it %]
         { id: [% bin.id %], description: "[% JavaScript.escape(bin.description) %]" }[% UNLESS bins_it.last %],[% END %]
        [% END %]
      ] }[% UNLESS warehouses_it.last %],[% END %]
@@ -77,7 +77,7 @@
   })
 
 --></script>
-    
+
 <h1>[% title | html %]</h1>
 
 [% INCLUDE 'common/flash.html' %]

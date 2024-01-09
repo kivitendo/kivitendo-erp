@@ -20,7 +20,7 @@
    <th align="right" nowrap>[% 'Destination warehouse' | $T8 %]</th>
    <td>[% L.select_tag('warehouse_id', SELF.warehouses, default=SELF.warehouse.id, title_key='description') %]
      [% IF SELF.warehouse.id %]
-       [% L.select_tag('bin_id', SELF.warehouse.bins, default=SELF.bin.id, title_key='description') %]
+       [% L.select_tag('bin_id', SELF.warehouse.bins_sorted_naturally, default=SELF.bin.id, title_key='description') %]
       [%- ELSE %]
        <span id='bin_id'></span>
       [% END %]

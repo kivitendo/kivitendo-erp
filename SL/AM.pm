@@ -1405,7 +1405,8 @@ sub get_warehouse {
        UNION
        SELECT DISTINCT bin_id, TRUE AS in_use FROM parts
      ) use ON use.bin_id = b.id
-     WHERE b.warehouse_id = ?;
+     WHERE b.warehouse_id = ?
+     ORDER by description;
 SQL
 
   $form->{BINS} = selectall_hashref_query($form, $dbh, $query, conv_i($form->{id}));

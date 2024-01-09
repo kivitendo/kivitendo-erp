@@ -24,7 +24,7 @@
         <td class="wi-wide below">
           [% L.select_tag('warehouse_id', SELF.warehouses, default=SELF.warehouse.id, title_key='description', class='wi-wide') %]
           [% IF SELF.warehouse.id %]
-            [% L.select_tag('bin_id', SELF.warehouse.bins, default=SELF.bin.id, title_key='description', class='wi-wide below') %]
+            [% L.select_tag('bin_id', SELF.warehouse.bins_sorted_naturally, default=SELF.bin.id, title_key='description', class='wi-wide below') %]
           [% ELSE %]
             <span id="bin_id" class="data wi-wide"></span>
           [% END %]

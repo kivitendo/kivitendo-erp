@@ -460,6 +460,45 @@ is(SL::Helper::Inventory::get_stock(
 }
 
 
+# test DB backend function bins, bins_sorted and bins_sorted_naturally
+
+reset_db();
+create_standard_stock();
+
+$wh_moon->add_bins(SL::DB::Bin->new(description => "1A"));
+$wh_moon->add_bins(SL::DB::Bin->new(description => "HomeOffice"));
+$wh_moon->add_bins(SL::DB::Bin->new(description => "A2"));
+$wh_moon->add_bins(SL::DB::Bin->new(description => "Z3"));
+$wh_moon->add_bins(SL::DB::Bin->new(description => "a apple1"));
+$wh_moon->save();
+
+$wh_moon->load();
+
+my @bins                   = map  { $_->description } @{ $wh_moon->bins };        # id
+my @bins_sorted            = map  { $_->description } @{ $wh_moon->bins_sorted }; # id
+my @bins_sorted_naturally  = map  { $_->description } @{ $wh_moon->bins_sorted_naturally }; # description
+
+#diag explain @bins;
+#diag explain @bins_sorted;
+#diag explain @bins_sorted_naturally;
+cmp_deeply(\@bins,
+           ["Lunar crater 1", "Lunar crater 2", "Lunar crater 3", "Lunar crater 4",
+            "Lunar crater 5", "1A", "HomeOffice", "A2", "Z3", "a apple1"],
+           "Bins for warehouse moon sorted by default (default (id))"
+          );
+
+cmp_deeply(\@bins_sorted,
+           ["Lunar crater 1", "Lunar crater 2", "Lunar crater 3", "Lunar crater 4",
+            "Lunar crater 5", "1A", "HomeOffice", "A2", "Z3", "a apple1"],
+           "Bins for warehouse moon sorted by id"
+          );
+
+cmp_deeply(\@bins_sorted_naturally,
+           ["1A", "a apple1", "A2", "HomeOffice", "Lunar crater 1", "Lunar crater 2", "Lunar crater 3", "Lunar crater 4",
+            "Lunar crater 5", "Z3"],
+           "Bins for warehouse moon sorted naturally"
+          );
+
 sub reset_db {
   SL::DB::Manager::Order->delete_all(all => 1);
   SL::DB::Manager::Inventory->delete_all(all => 1);
