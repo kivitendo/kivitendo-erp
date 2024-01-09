@@ -30,11 +30,11 @@
 }
 <%if ordnumber%>
 	\setkomavar{orderID}{<%ordnumber%>}
-<%end if%>%
+<%end template_meta.formname == "rma_delivery_order"%>%
 <%if cusordnumber%>%
 	\setkomavar*{yourref}{\unsereBestellnummer}
 	\setkomavar{yourref}{<%cusordnumber%>}
-<%end if%>%
+<%end cusordnumber%>%
 \setkomavar{transaction}{<%transaction_description%>}
 
 <%if globalprojectnumber%>%
@@ -42,7 +42,6 @@
 <%end globalprojectnumber%>%
 
 \setkomavar{transaction}{<%transaction_description%>}
-\setkomafont{extraDescription}{\scriptsize}
 
 <%if shiptoname%>%
 \makeatletter
@@ -64,59 +63,59 @@
 	}
 \end{lrbox}
 \makeatother
-<%end if%>%
+<%end shiptoname%>%
 
 
 \begin{document}
 
 
 \begin{letter}{
-	<%name%>\strut\\
-	<%if department_1%><%department_1%>\\<%end if%>%
-	<%if department_2%><%department_2%>\\<%end if%>%
-	<%cp_givenname%> <%cp_name%>\strut\\
-	<%street%>\strut\\
-	<%zipcode%> <%city%>\strut\\
-	<%country%> \strut
-}
+    <%name%>\strut\\
+    <%if department_1%><%department_1%>\\<%end if%>%
+    <%if department_2%><%department_2%>\\<%end if%>%
+    <%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\
+    <%street%>\strut\\
+    <%zipcode%> <%city%>\strut\\
+    <%country%> \strut
+  }
 
 
-\opening{}
-\thispagestyle{kivitendo.letter.first}
+  \opening{}
+  \thispagestyle{kivitendo.letter.first}
 
-\begin{PricingTabular*}[columns={pos,amount,desc}]
-% eigentliche Tabelle
-\FakeTable{
-<%foreach number%>%
-	<%runningnumber%> &
-	<%qty%> <%unit%> &
-	\textbf{<%description%>}
-		<%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
-		<%if reqdate%>\ExtraDescription{\lieferdatum: <%reqdate%>}<%end reqdate%>%
-		<%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
-		<%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
-		<%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
-		<%foreach si_number%>%
-			\ExtraDescription{<%if si_chargenumber%>\charge: <%si_chargenumber%>
-      <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end si_bestbefore%>~--~<%si_qty%>~<%si_unit%>
+  \begin{PricingTabular*}[columns={pos,amount,desc}]
+    % eigentliche Tabelle
+    \FakeTable{
+    <%foreach number%>%
+      <%runningnumber%> &
+      <%qty%> <%unit%> &
+      \textbf{<%description%>}
+      <%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
+      <%if reqdate%>\ExtraDescription{\lieferdatum: <%reqdate%>}<%end reqdate%>%
+      <%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
+      <%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
+      <%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
+      <%foreach si_number%>%
+      \ExtraDescription{<%if si_chargenumber%>\charge: <%si_chargenumber%>
+        <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end si_bestbefore%>~--~<%si_qty%>~<%si_unit%>
         <%end si_chargenumber%>%%
       }%
-		<%end si_number%>%
-	\tabularnewline
-<%end number%>%
-}
-\end{PricingTabular*}
+      <%end si_number%>%
+      \tabularnewline
+    <%end number%>%
+    }
+  \end{PricingTabular*}
 
-\medskip
+  \medskip
 
-<%if notes%>%
-<%notes%>%
-\medskip
-<%end if%>%
+  <%if notes%>%
+    <%notes%>%
+    \medskip
+  <%end notes%>%
 
-<%if delivery_term%>%
-  \lieferung ~<%delivery_term.description_long%>\\
-<%end delivery_term%>%
+  <%if delivery_term%>%
+    \lieferung ~<%delivery_term.description_long%>\\
+  <%end delivery_term%>%
 
 \end{letter}
 

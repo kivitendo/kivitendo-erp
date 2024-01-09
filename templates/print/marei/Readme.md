@@ -174,6 +174,8 @@ Die Optionen für die `PricingTabular` Umgebung können wie folgt konfiguriert w
 ```
 Die Angabe hinter dem Kommentarzeichen entspricht der Voreinstellung.
 
+Ab Dezember 2023 gibt es zudem die Option `color-only-structure=<true/false>`. Somit wird sichergestellt. dass wenn lediglich die Kopf-/oder Fußzeile eingefärbt werden sollen, alle Inhalte ohne zusäzlichen Aufwand umbrechbar bleiben. In diesem fall ist diese Option anstat `color-rows` zu aktivieren.
+
 #### Trennlinien zwischen den Einträgen
 Die Umgebung `PricingTabular` hat die möglichkeit horizontale Linien zwischen den Einträgen der `\FakeTable` einzuziehen.
 Die einfachste Möglichkeit hierfür ist die Option hrule, sie setzt automatisch eine Linie der Dicke `\lightrulewidth`.

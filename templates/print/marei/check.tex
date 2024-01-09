@@ -30,23 +30,30 @@
 
 \begin{document}
 
-\begin{letter}{
-<%name%>\ifhmode\\\fi
-<%street%>\ifhmode\\\fi
-<%zipcode%> <%city%>\ifhmode\\\fi
-<%country%>%
-}
+\begin{letter}{%
+  <%if billing_address_id%>%
+    <%billing_address_name%> \strut\\%
+    <%billing_address_street%>\strut\\%
+    <%billing_address_zipcode%> <%billing_address_city%> \strut\\%
+    <%billing_address_country%>\strut\\%
+  <%else%>%
+    <%name%>\strut\\%
+    <%street%>\strut\\%
+    <%zipcode%> <%city%>\strut\\%
+    <%country%>\strut%
+  <%end billing_address_id%>%
+  }
 
-\opening{<%company%>}
-\pagestyle{empty}
+  \opening{<%company%>}
+  \pagestyle{empty}
 
-<%name%> \hfill <%datepaid%> \hfill <%source%>%
+  <%name%> \hfill <%datepaid%> \hfill <%source%>%
 
-\begin{SimpleTabular}[colspec=lXrr,headline={\bfseries\rechnung&\bfseries\ausgestellt&\bfseries\faellig&\bfseries\verrechnet}]
-  <%foreach invnumber%>%
-  <%invnumber%> & <%invdate%> & <%due%> & <%paid%> \\
-  <%end invnumber%>%
-\end{SimpleTabular}
+  \begin{SimpleTabular}[colspec=lXrr,headline={\bfseries\rechnung&\bfseries\ausgestellt&\bfseries\faellig&\bfseries\verrechnet}]
+    <%foreach invnumber%>%
+      <%invnumber%> & <%invdate%> & <%due%> & <%paid%> \\
+    <%end invnumber%>%
+  \end{SimpleTabular}
 
 \end{letter}
 
