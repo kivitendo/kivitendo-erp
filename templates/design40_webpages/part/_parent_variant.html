@@ -4,19 +4,36 @@
 [% USE L %]
 [% USE P %]
 
-<div class="wrapper">
+<div id="parent_variant" class="wrapper">
   <div class="wrapper input-panel">
     <h3> [% LxERP.t8("Variant Properties") %] </h3>
-    <table class="tbl-list">
+    <table id="parent_variant_table" class="tbl-list">
       <caption>
         [% LxERP.t8("Variants") %]
       </caption>
       <thead>
-        <th>[% "Partnumber" | $T8 %]</th>
-        <th>[% "Description" | $T8 %]</th>
-        <th>[% "Property Values (Abbreviation)" | $T8 %]</th>
+        <th></th>
+        <th id="variant_partnumber_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants("partnumber")'>
+            [% 'Partnumber' | $T8 %]
+          </a>
+        </th>
+        <th id="variant_description_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants("description")'>
+            [% "Description" | $T8 %]
+          </a>
+        </th>
+        <th id="variant_variant_values_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants("variant_values")'>
+            [% "Property Values (Abbreviation)" | $T8 %]
+          </a>
+        </th>
         [% FOREACH variant_property = SELF.part.variant_properties %]
-        <th> [% variant_property.displayable_name %] </th>
+        <th id="variant_variant_property_[% variant_property.unique_name %]_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants("variant_property_[% variant_property.unique_name %]")'>
+            [% variant_property.displayable_name %]
+          </a>
+        </th>
         [% END %]
         <th>
           [% L.select_tag("add_variant_property", AVAILABLE_VARIANT_PROPERIES
@@ -27,9 +44,13 @@
           [% L.button_tag('kivi.Part.add_variant_property();', LxERP.t8("Insert new")) %]
         </th>
       </thead>
-      <tbody class="row_entry listrow">
+      <tbody class="listrow">
         [% FOREACH variant = SELF.part.variants %]
-          <tr>
+          <tr class="variant_row_entry">
+            <td>
+              [% L.hidden_tag("variants[+].id", variant.id) %]
+              [% L.hidden_tag("variants[].position", loop.count) %]
+            </td>
             <td>[% variant.presenter.part %]</td>
             <td>[% variant.description | html %]</td>
             <td>[% variant.variant_values | html %]</td>
