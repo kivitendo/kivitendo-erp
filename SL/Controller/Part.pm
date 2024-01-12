@@ -864,6 +864,51 @@ sub action_reorder_items {
   $self->js->run('kivi.Part.redisplay_items', \@to_sort)->render;
 }
 
+sub action_reorder_variants {
+  my ($self) = @_;
+
+  my $part= $self->part;
+
+  my %sort_keys = (
+    partnumber       => sub { $_[0]->partnumber },
+    description      => sub { $_[0]->description },
+    sellprice        => sub { $_[0]->sellprice },
+    lastcost         => sub { $_[0]->lastcost },
+    variant_values   => sub { $_[0]->variant_values },
+  );
+  foreach my $variant_property (@{$part->variant_properties}) {
+    my $key = 'variant_property_' . $variant_property->unique_name;
+    $sort_keys{$key} = sub {
+      $_[0]->get_variant_property_value_by_unique_name($variant_property->unique_name)->value;
+    }
+  }
+
+  my $method = $sort_keys{$::form->{order_by}};
+
+  my @items = $part->variants;
+
+  my %variant_id_to_position =
+    map {$_->{id} => $_->{position}}
+    @{$::form->{variants}};
+
+  my @to_sort = map { { old_pos => $variant_id_to_position{$_->id}, order_by => $method->($_) } } @items;
+  if ($::form->{order_by} =~ /^(sellprice|lastcost)$/) {
+    if ($::form->{sort_dir}) {
+      @to_sort = sort { $a->{order_by} <=> $b->{order_by} } @to_sort;
+    } else {
+      @to_sort = sort { $b->{order_by} <=> $a->{order_by} } @to_sort;
+    }
+  } else {
+    if ($::form->{sort_dir}) {
+      @to_sort = sort { $a->{order_by} cmp $b->{order_by} } @to_sort;
+    } else {
+      @to_sort = sort { $b->{order_by} cmp $a->{order_by} } @to_sort;
+    }
+  };
+
+  $self->js->run('kivi.Part.redisplay_variants', \@to_sort)->render;
+}
+
 sub action_warehouse_changed {
   my ($self) = @_;
 

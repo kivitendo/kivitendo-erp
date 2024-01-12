@@ -340,6 +340,18 @@ sub buchungsgruppe {
   shift->buchungsgruppen(@_);
 }
 
+sub get_variant_property_value_by_unique_name {
+  my ($self, $variant_property_unique_name) = @_;
+
+  my %unique_name_to_variant_property_value =
+    map { $_->variant_property->unique_name => $_ }
+    $self->variant_property_values;
+
+  my $variant_property_value = $unique_name_to_variant_property_value{$variant_property_unique_name}
+    or confess "Part is not associated with a matching SL::DB::VariantPropertyValue";
+  return $variant_property_value;
+}
+
 sub get_taxkey {
   my ($self, %params) = @_;
 
