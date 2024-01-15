@@ -47,7 +47,7 @@
   <tbody>
     [% FOREACH rownum = SELF.display_rows %]
       [% SET to_pad = max_col - SELF.report_rows.${rownum}.size %]
-      [% IF rownum > SELF.report_numheaders %]
+      [% IF rownum >= SELF.report_numheaders %]
         [% csv_import_report_errors = SELF.report_status.${rownum}.errors %]
         <tr class="listrow[% IF csv_import_report_errors && csv_import_report_errors.size %]_error[% END %][% (loop.count + SELF.report_numheaders) % 2 %]">
           [% FOREACH value = SELF.report_rows.${rownum} %]
