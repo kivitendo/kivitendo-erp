@@ -101,7 +101,10 @@
         <%end si_chargenumber%>%%
       }%
       <%end si_number%>%
-      \tabularnewline
+      <%foreach make%>%
+        \Ifstr{<%make%>}{<%name%>}{\ExtraDescription{\artikelnummer: <%model%>}}{}
+      <%end foreach%>%
+	   \tabularnewline
     <%end number%>%
     }
   \end{PricingTabular*}
