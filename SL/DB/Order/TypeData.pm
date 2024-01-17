@@ -70,6 +70,7 @@ my %type_data = (
       },
     },
     part_classification_query => [ "used_for_sale" => 1 ],
+    no_order_locked_parts     => 0,
     rights => {
       edit => "sales_order_edit",
       view => "sales_order_edit | sales_order_view",
@@ -120,6 +121,7 @@ my %type_data = (
       reqdate => sub { return; },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
+    no_order_locked_parts     => 1,
     rights => {
       edit => "purchase_order_edit",
       view => "purchase_order_edit | purchase_order_view",
@@ -177,6 +179,7 @@ my %type_data = (
       },
     },
     part_classification_query => [ "used_for_sale" => 1 ],
+    no_order_locked_parts     => 0,
     rights => {
       edit => "sales_quotation_edit",
       view => "sales_quotation_edit | sales_quotation_view",
@@ -227,6 +230,7 @@ my %type_data = (
       reqdate => sub { return; },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
+    no_order_locked_parts     => 1,
     rights => {
       edit => "request_quotation_edit",
       view => "request_quotation_edit | request_quotation_view",
@@ -277,6 +281,7 @@ my %type_data = (
       reqdate => sub { return; },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
+    no_order_locked_parts     => 0,
     rights => {
       edit => "request_quotation_edit",
       view => "request_quotation_edit | request_quotation_view",
@@ -334,6 +339,7 @@ my %type_data = (
       },
     },
     part_classification_query => [ "used_for_sale" => 1 ],
+    no_order_locked_parts     => 0,
     rights => {
       edit => "sales_order_edit",
       view => "sales_order_edit | sales_order_view",
@@ -384,6 +390,7 @@ my %type_data = (
       reqdate => sub { return; },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
+    no_order_locked_parts     => 0,
     rights => {
       edit => "purchase_order_edit",
       view => "purchase_order_edit | sales_order_view",

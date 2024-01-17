@@ -47,6 +47,10 @@ sub part_classification_query {
   _via("get", [ "part_classification_query" ], @_);
 }
 
+sub no_order_locked_parts {
+  _via("get", [ "no_order_locked_parts" ], @_);
+}
+
 sub _via {
   my $method = shift;
   my $additional_args = shift;

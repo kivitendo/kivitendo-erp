@@ -1,6 +1,6 @@
 [%- USE T8 %][%- USE HTML %][%- USE LxERP %][%- USE L %][%- USE P %]
 
- <div>
+<div>
   <table id="input_row_table_id">
     <thead>
       <tr class="listheading">
@@ -32,6 +32,7 @@
                             multiple_pos_input=1,
                             action={set_multi_items='kivi.Order.add_multi_items'},
                             classification_id=SELF.part_picker_classification_ids.as_list.join(','),
+                            not_order_locked=SELF.type_data.no_order_locked_parts,
                             $PARAM_KEY=PARAM_VAL) %]</td>
         <td>[% L.input_tag('add_item.description', SELF.created_part.description, class="add_item_input") %]</td>
         <td>
