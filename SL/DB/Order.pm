@@ -628,7 +628,7 @@ sub new_from {
                                                           marge_percent marge_price_factor marge_total
                                                           ordnumber parts_id price_factor price_factor_id pricegroup_id
                                                           project_id qty reqdate sellprice serialnumber ship subtotal transdate unit
-                                                          optional recurring_billing_mode
+                                                          optional recurring_billing_mode position
                                                        )),
                                                    custom_variables => \@custom_variables,
       );
@@ -638,7 +638,7 @@ sub new_from {
           active_discount_source active_price_source base_qty description
           discount lastcost longdescription parts_id price_factor
           price_factor_id pricegroup_id project_id qty reqdate sellprice
-          serialnumber unit
+          serialnumber unit position
         )),
         custom_variables => \@custom_variables,
       );
