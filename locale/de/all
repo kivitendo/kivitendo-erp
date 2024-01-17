@@ -1272,6 +1272,7 @@ $self->{texts} = {
   'Do not leave booking form?'  => 'Buchungsmaske nicht verlassen?',
   'Do not link to a project.'   => 'Nicht mit einem Projekt verknüpfen.',
   'Do not modify this position' => 'Diese Position nicht verändern',
+  'Do not order anymore'        => 'Nicht mehr bestellen',
   'Do not run the task server for this client' => 'Task-Server nicht für diesen Mandanten ausführen',
   'Do not save any datasets on errors' => 'Bei Fehlern überhaupt keine Datensätze speichern',
   'Do not set default booking group' => 'Nie Standardbuchungsgruppe setzen',
