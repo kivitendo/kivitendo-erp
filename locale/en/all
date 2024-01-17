@@ -1272,6 +1272,7 @@ $self->{texts} = {
   'Do not leave booking form?'  => '',
   'Do not link to a project.'   => '',
   'Do not modify this position' => '',
+  'Do not order anymore'        => '',
   'Do not run the task server for this client' => '',
   'Do not save any datasets on errors' => '',
   'Do not set default booking group' => '',

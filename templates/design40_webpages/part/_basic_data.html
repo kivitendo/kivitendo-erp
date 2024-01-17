@@ -67,7 +67,12 @@
         <th>[% 'Payment Terms' | $T8 %]</th>
         <td>[% L.select_tag('part.payment_id', SELF.all_payment_terms, default=SELF.part.payment_id, title_key='description', value_key='id', with_empty=1, class='wi-wide') %]</td>
       </tr>
-      [% END %] [% IF SELF.part.id %]
+      [% END %]
+      <tr>
+        <th> <label for="order_locked">[% 'Do not order anymore' | $T8 %]</label> </th>
+        <td>[% L.checkbox_tag('part.order_locked', checked = SELF.part.order_locked, for_submit=1) %]</td>
+      </tr>
+      [% IF SELF.part.id %]
       <tr>
         <th> <label for="part_obsolete">[% 'Obsolete' | $T8 %]</label> </th>
         <td>[% L.checkbox_tag('part.obsolete', checked = SELF.part.obsolete, for_submit=1) %]</td>
