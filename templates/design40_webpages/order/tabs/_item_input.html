@@ -23,6 +23,7 @@
              multiple_pos_input=1,
              action={set_multi_items='kivi.Order.add_multi_items'},
              classification_id=SELF.part_picker_classification_ids.as_list.join(','),
+             not_order_locked=SELF.type_data.no_order_locked_parts,
              $PARAM_KEY=PARAM_VAL) %]
         </td>
         <td>
