@@ -4411,6 +4411,7 @@ $self->{texts} = {
   'This option controls the posting and calculation behavior for the accounting method.' => '',
   'This order has already a final invoice.' => '',
   'This part has already been added.' => '',
+  'This part should not be ordered any more.' => '',
   'This part was already counted for this bin:' => '',
   'This price has since gone down' => '',
   'This price has since gone up' => '',

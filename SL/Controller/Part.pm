@@ -1723,6 +1723,7 @@ sub _setup_form_action_bar {
           disabled => !$self->part->id                                    ? t8('The object has not been saved yet.')
                     : !$may_edit                                          ? t8('You do not have the permissions to access this function.')
                     : !$::auth->assert('purchase_order_edit', 'may fail') ? t8('You do not have the permissions to access this function.')
+                    : $self->part->order_locked                           ? t8('This part should not be ordered any more.')
                     :                                                       undef,
           only_if  => !$::form->{inline_create},
         ],
