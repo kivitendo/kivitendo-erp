@@ -32,6 +32,10 @@ Artikel-Status: Ungültig<br>
 [% P.part.picker('part_id17', undef, status="obsolete") %]<br>
 Artikel-Status: Alle<br>
 [% P.part.picker('part_id18', undef, status="all") %]<br>
+Nicht bestellbare Artikel:<br>
+[% P.part.picker('part_id19', undef, order_locked=1) %]<br>
+Bestellbare Artikel:<br>
+[% P.part.picker('part_id19', undef, not_order_locked=1) %]<br>
 <br>
 Pre-filled:<br>
 [% P.part.picker('part_id6', pre_filled_part) %]<br>

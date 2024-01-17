@@ -400,6 +400,11 @@ namespace('kivi.Part', function(ns) {
       if (this.o.convertible_unit)
         data['filter.unit_obj.convertible_to'] = this.o.convertible_unit;
 
+      if (this.o.order_locked)
+        data['filter.order_locked'] = 1;
+      if (this.o.not_order_locked)
+        data['filter.order_locked'] = 0;
+
       var filter_name = 'all';
       if (this.o.with_makemodel) {
         filter_name = 'all_with_makemodel';
