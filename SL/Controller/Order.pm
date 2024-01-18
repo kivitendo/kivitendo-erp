@@ -332,6 +332,12 @@ sub action_save_as_new {
   my @obsolete_positions = map { $_->position } grep { $_->part->obsolete } @{ $self->order->items_sorted };
   flash_later('warning', t8('This record containts obsolete items at position #1', join ', ', @obsolete_positions)) if @obsolete_positions;
 
+  # Warn on order locked items if they are not wanted for this record type
+  if ($self->type_data->no_order_locked_parts) {
+    my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
+    flash_later('warning', t8('This record containts not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
+  }
+
   if (!$::form->{form_validity_token}) {
     $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
   }
