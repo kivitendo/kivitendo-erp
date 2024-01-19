@@ -550,6 +550,8 @@ sub create_new_variant {
   $new_variant->partnumber($self->_next_variant_partnumber);
   $new_variant->variant_type('variant');
   $new_variant->add_assemblies(map {$_->clone_and_reset} $self->assemblies) if ($self->is_assembly);
+  $new_variant->add_makemodels(map {$_->clone_and_reset} $self->makemodels);
+  $new_variant->add_customerprices(map {$_->clone_and_reset} $self->customerprices);
   $new_variant->add_variant_property_values(@$variant_property_values);
   $new_variant->parent_variant($self);
   $new_variant->save;
