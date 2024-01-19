@@ -2,6 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
+<<<<<<< HEAD
 xxxx-xx-xx - Release 3.9.1
 
 Größere Features und Komponentenupdates:
@@ -17,15 +18,21 @@ Kleinere neue Features und Detailverbesserungen:
     beim Klick in das Picker-Eingabefeld selektiert. Damit wird der Inhalt
     dann beim Lostippen gelöscht und es kann direkt nach einem neuen
     Objekt gesucht werden.
-  - Bei aktiviertem DMS wird bei SEPA-Überweisungen zusätzlich eine PDF zum Download
-    angeboten, die alle bie den Buchungen hinterlegten PDF-Belege in einem PDF bündelt.
-    Somit kann der Überweisende an dieser Stelle nochmal die Überweisungsliste anhand der
-    hinterlegten PDF-Rechnungen vor der Überweisung kontrollieren
 
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -
 
+=======
+2024-XX-XX - Release 3.9.1
+
+Kleinere neue Features und Detailverbesserungen:
+
+  - Bei aktiviertem DMS wird bei SEPA-Überweisungen zusätzlich eine PDF zum Download
+    angeboten, die alle bie den Buchungen hinterlegten PDF-Belege in einem PDF bündelt.
+    Somit kann der Überweisende an dieser Stelle nochmal die Überweisungsliste anhand der
+    hinterlegten PDF-Rechnungen vor der Überweisung kontrollieren
+>>>>>>> 43e54a65a7 (changelog für SEPA-Sammelpdfs)
 
 2024-04-10 - Release 3.9.0
 
