@@ -649,6 +649,7 @@ $self->{texts} = {
   'Cannot Post AP transaction with tax included!' => '',
   'Cannot add Booking, reason: #1 DB: #2 ' => '',
   'Cannot allocate parts.'      => '',
+  'Cannot calculate Amount and Tax for this booking correctly, please check chart settings' => '',
   'Cannot change transaction in a closed period!' => '',
   'Cannot check correct WebDAV folder' => '',
   'Cannot convert date.'        => '',
