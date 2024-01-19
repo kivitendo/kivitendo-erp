@@ -36,7 +36,7 @@ sub get_hierarchy {
       $pg->{level} = $pg->get_level;
       $pg->{partscount} = $pg->parts_count // 0; # probably better to call this separately. Also it doesn't need to be calculated each time for dropdown
       # $pg->{padded_partsgroup} = '  ' x $pg->{level} . $pg->partsgroup; # this is probably redundant now, using css
-			$pg->printable if $params{print};
+      $pg->printable if $params{print};
       # $pg->print_report_charts if $params{charts};
       # code $pg->printable if $params{tail};
     };
