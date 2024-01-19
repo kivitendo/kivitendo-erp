@@ -598,6 +598,7 @@ sub _skonto_charts_and_tax_correction {
   my (@skonto_charts, $inv_calc, $total_skonto_rounded);
 
   $inv_calc = $self->get_tax_and_amount_by_tax_chart_id();
+  die t8('Cannot calculate Amount and Tax for this booking correctly, please check chart settings') unless $inv_calc;
 
   # foreach tax.chart_id || $entry->{ta..id}
   while (my ($tax_chart_id, $entry) = each %{ $inv_calc } ) {
