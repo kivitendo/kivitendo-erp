@@ -649,6 +649,7 @@ $self->{texts} = {
   'Cannot Post AP transaction with tax included!' => 'Kann diesen kreditorischen Beleg nicht mit "Steuer im Preis inbegriffen" verbuchen!',
   'Cannot add Booking, reason: #1 DB: #2 ' => 'Kann die Buchung nicht hinzufügen, Grund: #1 DB: #2',
   'Cannot allocate parts.'      => 'Es sind nicht genügend Artikel vorhanden',
+  'Cannot calculate Amount and Tax for this booking correctly, please check chart settings' => 'Kann nicht den Skonto-Betrag Brutto und netto kalkulieren. Bitte prüfen Sie die entsprechenden Kontenkonfigurationen für diesen Beleg',
   'Cannot change transaction in a closed period!' => 'In einem bereits abgeschlossenen Zeitraum kann keine Buchung verändert werden!',
   'Cannot check correct WebDAV folder' => 'Kann nicht den richtigen WebDAV Pfad überprüfen',
   'Cannot convert date.'        => 'Kann das Datum nicht verarbeiten',
