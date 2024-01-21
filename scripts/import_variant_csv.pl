@@ -30,6 +30,7 @@ use SL::Helper::Csv;
 use SL::DB::Part;
 use SL::DB::PartsGroup;
 use SL::DB::VariantProperty;
+use SL::DB::VariantPropertyValue;
 use SL::DB::Warehouse;
 use SL::DB::Inventory;
 
@@ -37,15 +38,15 @@ use feature "say";
 
 chdir($FindBin::Bin . '/..');
 
-my ($opt_user, $opt_client, $opt_part_csv_file);
+my ($opt_user, $opt_client, $opt_part_csv_file, $opt_groessen_staffeln_csv_file);
 our (%myconfig, $form, $user, $employee, $auth, $locale);
 
 $opt_client = "variant";
 $opt_user   = "test_user";
 
-# $opt_part_csv_file = "Artikel_Auswahl.csv";
-$opt_part_csv_file = "Artikel_small.csv";
-# $opt_part_csv_file = "Artikel_komplett.csv";
+$opt_part_csv_file = "Artikel_komplett.csv";
+
+$opt_groessen_staffeln_csv_file = "Größenstaffeln.csv";
 
 
 $locale = Locale->new;
@@ -138,36 +139,37 @@ my $part_csv = SL::Helper::Csv->new(
   file        => $opt_part_csv_file,
   encoding    => 'utf-8', # undef means utf8
   sep_char    => ';',     # default ';'
-  quote_char  => '"',    # default '"'
+  quote_char  => '"',     # default '"'
   escape_char => '"',     # default '"'
 );
-
 $part_csv->parse or die "Could not parse csv";
-my $hrefs   = $part_csv->get_data;
+my $part_hrefs = $part_csv->get_data;
 
 my %parent_variants_to_variants;
-foreach my $part_row (@$hrefs) {
+foreach my $part_row (@$part_hrefs) {
   my %part =
     map {$parts_mapping{$_} => $part_row->{$_}}
     grep {$part_row->{$_}}
     keys %parts_mapping;
 
   if ($part{varianten_farbnummer} || $part{varianten_farbname}) {
+    $part{varianten_farbnummer} ||= '';
+    $part{varianten_farbname} ||= '';
     $part{varianten_farbe} = (delete $part{varianten_farbnummer}) . '-' . (delete $part{varianten_farbname});
   }
 
   push @{$parent_variants_to_variants{$part_row->{LIEFERANT}}->{$part_row->{ARTIKELNR}}}, \%part;
 }
 
-my %variant_property_groups;
-my @parent_variants;
-my @variants;
-
-my %partsgroup_name_to_partsgroup = map {$_->partsgroup => $_} @{SL::DB::Manager::PartsGroup->get_all()};
-my %vendor_name_to_vendor = map {$_->name => $_} @{SL::DB::Manager::Vendor->get_all()};
-my %warehouse_description_to_warehouse = map {$_->description => $_} @{SL::DB::Manager::Warehouse->get_all()};
-
-my @all_variant_properties = @{SL::DB::Manager::VariantProperty->get_all()};
+my $groessen_staffel_csv = SL::Helper::Csv->new(
+  file        => $opt_groessen_staffeln_csv_file,
+  encoding    => 'utf-8', # undef means utf8
+  sep_char    => ';',     # default ';'
+  quote_char  => '"',     # default '"'
+  escape_char => '"',     # default '"'
+);
+$groessen_staffel_csv->parse or die "Could not parse csv";
+my $groessen_staffel_hrefs = $groessen_staffel_csv->get_data;
 
 my $transfer_type = SL::DB::Manager::TransferType->find_by(
   direction => 'in',
@@ -175,115 +177,146 @@ my $transfer_type = SL::DB::Manager::TransferType->find_by(
 ) or die "Could no find transfer_type";
 
 SL::DB->client->with_transaction(sub {
-foreach my $vendor (keys %parent_variants_to_variants) {
-  foreach my $partnumber (keys %{$parent_variants_to_variants{$vendor}}) {
-    my $grouped_variant_values = $parent_variants_to_variants{$vendor}->{$partnumber};
 
-    #get data for parent_variant
-    my $first_part = $grouped_variant_values->[0];
-    my $description = $first_part->{description};
-    my $partsgroup_name = $first_part->{warengruppe};
-    my $warehouse_description = $first_part->{warehouse_description};
-    my $vendor_name = $first_part->{vendor_name};
-    my $makemodel_model = $first_part->{makemodel_model};
-    my $best_sellprice = first {$_} sort map {$_->{sellprice}} @$grouped_variant_values;
-    my $partsgroup = $partsgroup_name_to_partsgroup{$partsgroup_name} or die
-      die "Could not find partsgroup '$partsgroup_name' for part '$makemodel_model $description'";
-    my $vendor = $vendor_name_to_vendor{$vendor_name} or
-      die "Could not find vendor: '$vendor_name' for part '$makemodel_model $description'";
-    my $warehouse = $warehouse_description_to_warehouse{$warehouse_description} or
-      die "Could not find warehouse '$warehouse_description' for part '$makemodel_model $description'";
-    my $parent_variant = SL::DB::Part->new_parent_variant(
-      description => $description,
-      sellprice   => $best_sellprice,
-      partsgroup  => $partsgroup,
-      warehouse   => $warehouse,
-      bin         => $warehouse->bins->[0],
-      part_type   => 'part',
-      unit        => 'Stck',
-    );
+  # create groessen staffeln
+  foreach my $groessen_staffel_row (@$groessen_staffel_hrefs) {
+    my $name = delete $groessen_staffel_row->{BEZEICHNUNG};
+    my $variant_property = SL::DB::VariantProperty->new(
+      name         => $name,
+      unique_name  => $name,
+      abbreviation => "gr",
+    )->save;
 
-    # add makemodel
-    my $makemodel = SL::DB::MakeModel->new(
-      make             => $vendor->id,
-      model            => $makemodel_model,
-      part_description => $description,
-    );
-    $parent_variant->add_makemodels($makemodel);
+    my $pos = 1;
+    SL::DB::VariantPropertyValue->new(
+      variant_property => $variant_property,
+      value            => $_,
+      abbreviation     => $_,
+      sortkey => $pos++,
+    )->save for
+      map {$groessen_staffel_row->{$_}}
+      sort
+      grep {defined $groessen_staffel_row->{$_}}
+      keys %$groessen_staffel_row;
+  }
 
-    # get active variant_properties
-    my %group_variant_property_vales;
-    foreach my $variant_values (@$grouped_variant_values) {
-      $group_variant_property_vales{$_}->{$variant_values->{$_}} = 1 for
-        grep { $_ =~ m/^variant/ }
-        keys %$variant_values;
-    }
-    foreach my $variant_property (keys %group_variant_property_vales) {
-      $group_variant_property_vales{$variant_property} = [sort keys %{$group_variant_property_vales{$variant_property}}];
-    }
+  die "end";
 
-    # find variant_properties
-    my %property_name_to_variant_property;
-    foreach my $property_name (keys %group_variant_property_vales) {
-      # TODO find valid properties for partsgroup
-      my $needed_property_values = $group_variant_property_vales{$property_name};
-      my ($best_match) =
-        sort {scalar @{$a->{missing}} <=> scalar @{$b->{missing}}}
-        map {
-          my @property_values = map {$_->value} @{$_->property_values};
-          my @missing;
-          foreach my $needed_property_value (@$needed_property_values) {
-            push @missing, $needed_property_value unless scalar grep {$needed_property_value eq $_} @property_values;
-          }
-          {property => $_, missing => \@missing};
-        }
-        @all_variant_properties;
+  my %partsgroup_name_to_partsgroup = map {$_->partsgroup => $_} @{SL::DB::Manager::PartsGroup->get_all()};
+  my %vendor_name_to_vendor = map {$_->name => $_} @{SL::DB::Manager::Vendor->get_all()};
+  my %warehouse_description_to_warehouse = map {$_->description => $_} @{SL::DB::Manager::Warehouse->get_all()};
 
-      if (scalar @{$best_match->{missing}}) {
-        die "Could not find variant property with values '@{$needed_property_values}'.\n" .
-        "Best match is ${\$best_match->{property}->name} with missing values '@{$best_match->{missing}}'";
-      }
-      $property_name_to_variant_property{$property_name} = $best_match->{property};
-    }
-    my @variant_properties = values %property_name_to_variant_property;
-    $parent_variant->variant_properties(@variant_properties);
+  my @all_variant_properties = @{SL::DB::Manager::VariantProperty->get_all()};
+  # create parts
+  foreach my $vendor (keys %parent_variants_to_variants) {
+    foreach my $partnumber (keys %{$parent_variants_to_variants{$vendor}}) {
+      my $grouped_variant_values = $parent_variants_to_variants{$vendor}->{$partnumber};
 
-    $parent_variant->save();
-
-    foreach my $variant_values (@$grouped_variant_values) {
-      my @property_values =
-        map {
-          my $value = $variant_values->{$_};
-          first {$_->value eq $value} @{$property_name_to_variant_property{$_}->property_values}}
-        grep { $_ =~ m/^variant/ }
-        keys %$variant_values;
-
-      my $variant = $parent_variant->create_new_variant(\@property_values);
-
-      $variant->update_attributes(
-        ean => $variant_values->{ean},
-        description => $variant_values->{description},
-        sellprice => $variant_values->{sellprice},
+      #get data for parent_variant
+      my $first_part = $grouped_variant_values->[0];
+      my $description = $first_part->{description};
+      my $partsgroup_name = $first_part->{warengruppe};
+      my $warehouse_description = $first_part->{warehouse_description};
+      my $vendor_name = $first_part->{vendor_name};
+      my $makemodel_model = $first_part->{makemodel_model};
+      my $best_sellprice = first {$_} sort map {$_->{sellprice}} @$grouped_variant_values;
+      my $partsgroup = $partsgroup_name_to_partsgroup{$partsgroup_name} or die
+        die "Could not find partsgroup '$partsgroup_name' for part '$makemodel_model $description'";
+      my $vendor = $vendor_name_to_vendor{$vendor_name} or
+        die "Could not find vendor: '$vendor_name' for part '$makemodel_model $description'";
+      my $warehouse = $warehouse_description_to_warehouse{$warehouse_description} or
+        die "Could not find warehouse '$warehouse_description' for part '$makemodel_model $description'";
+      my $parent_variant = SL::DB::Part->new_parent_variant(
+        description => $description,
+        sellprice   => $best_sellprice,
+        partsgroup  => $partsgroup,
+        warehouse   => $warehouse,
+        bin         => $warehouse->bins->[0],
+        part_type   => 'part',
+        unit        => 'Stck',
       );
 
-      # set stock
-      my ($trans_id) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT nextval('id')|);
-      SL::DB::Inventory->new(
-        part         => $variant,
-        trans_id     => $trans_id,
-        trans_type   => $transfer_type,
-        shippingdate => 'now()',
-        comment      => 'initialer Bestand',
-        warehouse    => $variant->warehouse,
-        bin          => $variant->bin,
-        qty          => $variant_values->{part_qty},
-        employee     => $employee,
-      )->save;
+      # add makemodel
+      my $makemodel = SL::DB::MakeModel->new(
+        make             => $vendor->id,
+        model            => $makemodel_model,
+        part_description => $description,
+      );
+      $parent_variant->add_makemodels($makemodel);
 
+      # get active variant_properties
+      my %group_variant_property_vales;
+      foreach my $variant_values (@$grouped_variant_values) {
+        $group_variant_property_vales{$_}->{$variant_values->{$_}} = 1 for
+          grep { $_ =~ m/^variant/ }
+          keys %$variant_values;
+      }
+      foreach my $variant_property (keys %group_variant_property_vales) {
+        $group_variant_property_vales{$variant_property} = [sort keys %{$group_variant_property_vales{$variant_property}}];
+      }
+
+      # find variant_properties
+      my %property_name_to_variant_property;
+      foreach my $property_name (keys %group_variant_property_vales) {
+        # TODO find valid properties for partsgroup
+        my $needed_property_values = $group_variant_property_vales{$property_name};
+        my ($best_match) =
+          sort {scalar @{$a->{missing}} <=> scalar @{$b->{missing}}}
+          map {
+            my @property_values = map {$_->value} @{$_->property_values};
+            my @missing;
+            foreach my $needed_property_value (@$needed_property_values) {
+              push @missing, $needed_property_value unless scalar grep {$needed_property_value eq $_} @property_values;
+            }
+            {property => $_, missing => \@missing};
+          }
+          @all_variant_properties;
+
+        if (scalar @{$best_match->{missing}}) {
+          die "Could not find variant property with values '@{$needed_property_values}'.\n" .
+          "Best match is ${\$best_match->{property}->name} with missing values '@{$best_match->{missing}}'";
+        }
+        $property_name_to_variant_property{$property_name} = $best_match->{property};
+      }
+      my @variant_properties = values %property_name_to_variant_property;
+      $parent_variant->variant_properties(@variant_properties);
+
+      $parent_variant->save();
+
+      foreach my $variant_values (@$grouped_variant_values) {
+        my @property_values =
+          map {
+            my $value = $variant_values->{$_};
+            first {$_->value eq $value} @{$property_name_to_variant_property{$_}->property_values}}
+          grep { $_ =~ m/^variant/ }
+          keys %$variant_values;
+
+        my $variant = $parent_variant->create_new_variant(\@property_values);
+
+        $variant->update_attributes(
+          ean => $variant_values->{ean},
+          description => $variant_values->{description},
+          sellprice => $variant_values->{sellprice},
+        );
+
+        # set stock
+        my ($trans_id) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT nextval('id')|);
+        SL::DB::Inventory->new(
+          part         => $variant,
+          trans_id     => $trans_id,
+          trans_type   => $transfer_type,
+          shippingdate => 'now()',
+          comment      => 'initialer Bestand',
+          warehouse    => $variant->warehouse,
+          bin          => $variant->bin,
+          qty          => $variant_values->{part_qty},
+          employee     => $employee,
+        )->save;
+
+      }
     }
   }
-}
-1;
+  1;
 }) or do {
   die t8('Error while creating variants: '), SL::DB->client->error;
 };
