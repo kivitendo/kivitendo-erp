@@ -9,7 +9,7 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('variant_property_values');
 
 __PACKAGE__->meta->columns(
-  abbreviation        => { type => 'varchar', length => 4, not_null => 1 },
+  abbreviation        => { type => 'text', not_null => 1 },
   id                  => { type => 'serial', not_null => 1 },
   itime               => { type => 'timestamp', default => 'now()' },
   mtime               => { type => 'timestamp' },
