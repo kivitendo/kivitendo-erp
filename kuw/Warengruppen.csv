@@ -1,0 +1,183 @@
+﻿Bereich;Hauptabteilung;Abteilung;Hauptwarengruppe;Warengruppe;Größenstaffeln
+1 Bekleidung;11 Herren;110 HAKA;1100 Anzüge;110010 Anzüge 2-teilig;Konfektion Herren
+;;;;110020 Anzüge mehrteilig;Konfektion Herren
+;;;;110021 Baukasten-Sakko;Konfektion Herren
+;;;;110022 Baukasten-Weste;Konfektion Herren
+;;;;110023 Baukasten-Hose;Konfektion Herren
+;;;;110030 Smoking;Konfektion Herren
+;;;1101 Mäntel;110110 H-Mäntel Pop;Konfektion Herren
+;;;;110115 H-Mäntel Wolle;Konfektion Herren
+;;;1102 Sakkos;110210 Sakkos;Konfektion Herren
+;;;;110220 H-Blazer;Konfektion Herren
+;;;;110225 H-Westen;Konfektion Herren, US-Größen
+;;;1103 Jacken;110310 H-Jacken;Konfektion Herren, US-Größen
+;;;;110320 H-Blousons;Konfektion Herren, US-Größen
+;;;;110325 H-Sportswear-Westen;Konfektion Herren, US-Größen
+;;;1104 Leder;110410 H-Le-Mäntel;Konfektion Herren, US-Größen
+;;;;110415 H-Le-Jacken;Konfektion Herren, US-Größen
+;;;;110440 H-Le-Westen;Konfektion Herren, US-Größen
+;;;1105 Hosen;110510 H-Kombihosen;Konfektion Herren, US-Größen, Jeansweiten
+;;;;110515 H-Freizeithosen;Konfektion Herren, US-Größen
+;;;;110520 H-Jeans;Jeansweiten, Konfektion Herren
+;;;;110525 H-Bermuda/Shorts;Jeansweiten, Konfektion Herren
+;;111 Herren-Artikel;1110 Strickwaren;111010 H-Pullover 1/1 Arm;Konfektion Herren, US-Größen
+;;;;111020 H-Pullunder;Konfektion Herren, US-Größen
+;;;;111022 H-Strickshirt;Konfektion Herren, US-Größen
+;;;;111025 H-Strickjacken;Konfektion Herren, US-Größen
+;;;;111030 H-Westen o. Arm;Konfektion Herren, US-Größen
+;;;1111 Wirkwaren;111110 H-Sweatshirts;Konfektion Herren, US-Größen
+;;;;111115 H-Polos 1/1 Arm;Konfektion Herren, US-Größen
+;;;;111120 H-Polos 1/2 Arm;Konfektion Herren, US-Größen
+;;;;111125 H-T-Shirt 1/1 Arm;Konfektion Herren, US-Größen
+;;;;111130 H-T-Shirt 1/2 Arm;Konfektion Herren, US-Größen
+;;;;111155 H-Rolli;Konfektion Herren, US-Größen
+;;;;111160 Trainingsanzug;Konfektion Herren, US-Größen
+;;;;111165 Trainingsjacke;Konfektion Herren, US-Größen
+;;;;111170 Trainingshose;Konfektion Herren, US-Größen
+;;;1112 Hemden;111210 Cityhemden 1/1 Arm;Hemden, US-Größen
+;;;;111215 Cityhemden 1/2 Arm;Hemden, US-Größen
+;;;;111230 Freizeithemden 1/1 Arm;Hemden, US-Größen
+;;;;111235 Freizeithemden 1/2 Arm;Hemden, US-Größen
+;;;;111240 Festliche Hemden;Hemden, US-Größen
+;;;1113 Krawatten;111310 Krawatten;ohne
+;;;;111315 Fliege/Schleifen /K-Schals;ohne
+;;114 Herren-Accessoires;1140 Hüte/Mützen;114010 H-Hüte;Hutgrößen, ohne
+;;;;114015 H-Mützen;Hutgrößen, ohne
+;;;;114020 H-Stirnbänder;Hutgrößen, ohne
+;;;;114025 H-Kappen;Hutgrößen, ohne
+;;;1141 Schals/Tücher;114110 H-Schals;ohne
+;;;;114115 H-Taschentücher;ohne
+;;;1142 Handschuhe;114210 H-Handschuhe;Handschuhe
+;;;1143 Gürtel;114310 Gürtel;Gürtellängen
+;;;1144 Nadel/Spangen/Hosenträger;114410 Nadel/Spangen/M-Knöpfe;ohne
+;;;;114415 Hosenträger;ohne
+;12 Damen;120 DOB I;1200 Kleider;120010 Kleider 1-tlg. lang;Konfektion Damen, US-Größen
+;;;;120015 Kleider 1-tlg. kurz;Konfektion Damen, US-Größen
+;;;;120020 Kleider mehrtlg. lang;Konfektion Damen, US-Größen
+;;;;120025 Kleider mehrtlg. kurz;Konfektion Damen, US-Größen
+;;;;120030 Kleiderjacken;Konfektion Damen, US-Größen
+;;;1201 Kostüme;120110 Kostüme;Konfektion Damen, US-Größen
+;;;1202 Hosenanzüge;120210 Hosenanzüge;Konfektion Damen, US-Größen
+;;;1203 Mäntel;120310 D-Mäntel Pop;Konfektion Damen, US-Größen
+;;;;120315 D-Mäntel Wolle;Konfektion Damen, US-Größen
+;;;1204 Blazer;120410 D-Blazer;Konfektion Damen, US-Größen
+;;;;120415 D-Westen;Konfektion Damen, US-Größen
+;;;1205 Jacken;120510 D-Jacken Pop;Konfektion Damen, US-Größen
+;;;;120515 D-Jacken Wolle;Konfektion Damen, US-Größen
+;;;;120520 D-Blouson;Konfektion Damen, US-Größen
+;;;;120525 D-Sportswear-Westen;Konfektion Damen, US-Größen
+;;;1206 Leder;120615 D-Le-Jacken;Konfektion Damen, US-Größen
+;;121 DOB II Chosen;1210 Strickwaren;121010 D-Pullover lang Arm;Konfektion Damen, US-Größen
+;;;;121015 D-Pullover kurz Arm;Konfektion Damen, US-Größen
+;;;;121020 D-Pullunder ;Konfektion Damen, US-Größen
+;;;;121022 D-Strickshirt;Konfektion Damen, US-Größen
+;;;;121025 D-Strickjacken;Konfektion Damen, US-Größen
+;;;;121027 D-Poncho;Konfektion Damen, US-Größen
+;;;;121030 D-Westen o. Arm;Konfektion Damen, US-Größen
+;;;;121035 Röcke;Konfektion Damen, US-Größen
+;;;;121040 D-Hosen/Leggings;Konfektion Damen, US-Größen
+;;;;121045 D-Unterzieh-Pullis;Konfektion Damen, US-Größen
+;;;;121050 Kleider Strick;Konfektion Damen, US-Größen
+;;;;121055 Twinset Strick;Konfektion Damen, US-Größen
+;;;1211 Wirkwaren;121110 D-Sweatshirt;Konfektion Damen, US-Größen
+;;;;121115 D-Polos 1/1 Arm;Konfektion Damen, US-Größen
+;;;;121120 D-Polos 1/2 Arm;Konfektion Damen, US-Größen
+;;;;121125 D-T-Shirt 1/1 Arm;Konfektion Damen, US-Größen
+;;;;121130 D-T-Shirts 1/2 Arm;Konfektion Damen, US-Größen
+;;;;121135 D-Shirt o. Arm;Konfektion Damen, US-Größen
+;;;;121140 Top;Konfektion Damen, US-Größen
+;;;;121150 D-Rollis;Konfektion Damen, US-Größen
+;;;;121165 D-Hosen/Leggings;Konfektion Damen, US-Größen
+;;;1212 Blusen;121220 Blusen 1/1 Arm;Konfektion Damen, US-Größen
+;;;;121225 Blusen 1/2 Arm;Konfektion Damen, US-Größen
+;;;;121230 Blusen o. Arm;Konfektion Damen, US-Größen
+;;;;121235 Tops;Konfektion Damen, US-Größen
+;;;;121240 Blusen - Blazer;Konfektion Damen, US-Größen
+;;;;121245 D-Westen;Konfektion Damen, US-Größen
+;;;1213 Röcke;121310 Röcke kurz;Konfektion Damen, US-Größen
+;;;;121320 Röcke lang;Konfektion Damen, US-Größen
+;;;1214 Hosen;121410 D-Kombi-Hosen;Konfektion Damen, US-Größen
+;;;;121415 D-Freizeithosen;Konfektion Damen, US-Größen
+;;;;121420 D-Jeans;Konfektion Damen, US-Größen, Jeansweiten
+;;;;121425 D-Bermudas/Shorts;Konfektion Damen, US-Größen, Jeansweiten
+;;124 Damen-Accessoires;1240 Hüte/Mützen;124010 D-Hüte;Hutgrößen, ohne
+;;;;124015 D-Mützen;Hutgrößen, ohne
+;;;;124020 D-Stirnbänder;Hutgrößen, ohne
+;;;;124025 D-Kappen/Brillen;Hutgrößen, ohne
+;;;;124030 D-Set (Mütze+Schal+...);Hutgrößen, ohne
+;;;1241 Schals/Tücher;124110 D-Schals;Hutgrößen, ohne
+;;;;124115 D-Tücher;Hutgrößen, ohne
+;;;;124117 D-Taschentücher;ohne
+;;;;124120 D-Sets (Schal+Handschuh);ohne
+;;;1242 Handschuhe;124210 D-Handschuhe;Handschuhe
+;;;1243 Gürtel;124310 D-Gürtel;Gürtellängen
+;14 Wäsche;140 Herren-Wäsche;1400 Tageswäsche;140010 H-Slips/Schlüpfer;Unterwäsche, US-Größen
+;;;;140015 lange H-Unterhosen incl. 3/4;Unterwäsche, US-Größen
+;;;;140020 H-Boxer weite Form;Unterwäsche, US-Größen
+;;;;140025 H-Pants enge Form;Unterwäsche, US-Größen
+;;;;140030 H-Bodies;Unterwäsche, US-Größen
+;;;;140035 H-Unterhemden;Unterwäsche, US-Größen
+;;;;140040 H-T-Shirt Wäsche;Unterwäsche, US-Größen
+;;;1401 Nachtwäsche;140110 H-Schlafanzüge lang;US-Größen, Konfektion Herren
+;;;;140115 H-Shorties;US-Größen, Konfektion Herren
+;;;;140120 H-Nachthemden/Sleepshirts;US-Größen, Konfektion Herren
+;;;;140125 H-Bademäntel;US-Größen, Konfektion Herren
+;;;;140130 H-Morgenmäntel/Wellness;US-Größen, Konfektion Herren
+;;;;140150 H-Nachtwäsche Oberteil;US-Größen, Konfektion Herren
+;;;;140155 H-Nachtwäsche Unterteil;US-Größen, Konfektion Herren
+;;;1402 Bademoden;140210 H-Badehosen;Unterwäsche, US-Größen
+;;;;140215 H-Badeshorts;Unterwäsche, US-Größen
+;;141 Damenwäsche;1410 Tageswäsche;141010 D-Sets;Unterwäsche, US-Größen
+;;;;141015 D-Bodies Wäsche;Unterwäsche, US-Größen
+;;;;141020 Bustiers;Unterwäsche, US-Größen
+;;;;141025 D-Hemden Wäsche;Unterwäsche, US-Größen
+;;;;141030 D-Slips;Unterwäsche, US-Größen
+;;;;141035 D-Schlüpfer;Unterwäsche, US-Größen
+;;;;141045 D-Unterhosen lang;Unterwäsche, US-Größen
+;;;1411 Nachtwäsche;141110 D-Nachthemden 1/1 Arm;Unterwäsche, US-Größen
+;;;;141115 D-Nachthemden 1/2 Arm;Unterwäsche, US-Größen
+;;;;141120 D-Schlafanzüge;Unterwäsche, US-Größen
+;;;;141125 D-Shorties;Unterwäsche, US-Größen
+;;;;141130 D-Morgenmäntel/Wellness;Unterwäsche, US-Größen
+;;;;141135 D-Bademäntel;Unterwäsche, US-Größen
+;;;;141150 D-Nachtwäsche Oberteil;Unterwäsche, US-Größen
+;;;;141155 D-Nachtwäsche Unterteil;Unterwäsche, US-Größen
+;;;1412 Miederwaren / Dessous;141210 BH's;Unterwäsche, US-Größen, BH-Größen
+;;;;141212 BH-Hemd/Büstier;Unterwäsche, US-Größen, BH-Größen
+;15 Strümpfe;150 Herren-Strümpfe;1500 Socken/Strümpfe;150010 H-Socken kurz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;150015 H-Socken lang;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;150020 H-Noppensocken/Walkies;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;150025 H-Kniestrümpfe ohne Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;150026 H-Kniestrümpfe Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;150030 H-Strumpfhosen;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;150035 Füßlinge/Sneaker;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;151 Damen-Strümpfe;1510 Strumpfhosen;151010 Feinstrumpfhosen;Strumpfhosen Damen
+;;;;151015 Stützstrumpfhosen;Stützstrümpfe Damen
+;;;;151020 Wollstrumpfhosen;Strumpfhosen Damen
+;;;1511 Strümpfe/Socken;151110 D-Strümpfe;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;151115 D-Kniestrümpfe fein ohne Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;151116 D-Kniestrümpfe fein Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;151117 D-Oberschenkelstrümpfe Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;151120 D-Kniestrümpfe Strick;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;151125 D-Socken fein;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;151130 D-Socken Strick/Sneakersocken;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;151135 D-Noppensocken/Walkies;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;151140 D-Füßlinge;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;151145 Overknees;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;151150 Stulpen;ohne
+;18 Dienstleistungen;180 Schneiderei;1800 Herren-Änderungen;180000 Herren-Änderungen;ohne
+;;;1801 Damen-Änderungen;180100 Damen-Änderungen;ohne
+;;181 Sonstige  Dienstleistungen;1810 Sonstige  Dienstleistungen;181000 Sonstige Dienstleistungen;ohne
+;;182 Gutscheine;1820 Gutscheine;182000 Gutscheine;ohne
+7 Lederwaren;70 Schuhe;701 Herren-Schuhe;7013 Schnürhalbschuhe;701332 glatter Boden;Schuhgrößen, US Schuhgrößen
+;;;7014 Slipper;701442 glatter Boden;Schuhgrößen, US Schuhgrößen
+;;;7018 Sandalen;701881 glatter Boden;Schuhgrößen, US Schuhgrößen
+;;702 Damen-Schuhe;7023 Schnürhalbschuhe;702332 bis 25 mm glatter Boden- Absatz/Keil;Schuhgrößen, US Schuhgrößen
+;;705 Hausschuhe;7051 Herren-Hausschuh;705111 Haus-Pantolette Kaltfutter;Schuhgrößen, US Schuhgrößen
+;;;7052 Damen-Hausschuh;705221 Haus-Pantolette Kaltfutter;Schuhgrößen, US Schuhgrößen
+;;706 Zubehör;7060 Pflege;706010 Schuhpflege/Bürsten usw.;ohne
+;;;;706015 Lederpflege/Cremes, Sprays usw.;ohne
+;;;7061 Ersatzartikel, Sohlen;706120 Ersatzartikel;ohne
+;;;;706140 Schuhspanner;Schuhgrößen, US Schuhgrößen
+9 Sonstiges;99 Sonstiges;999 Sonstiges;9999 Sonstiges;999990 Ersatzbuchung;ohne
+;;;;999999 Sonstiges;ohne
