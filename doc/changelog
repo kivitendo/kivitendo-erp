@@ -21,6 +21,8 @@ Kleinere neue Features und Detailverbesserungen:
     angeboten, die alle bie den Buchungen hinterlegten PDF-Belege in einem PDF bündelt.
     Somit kann der Überweisende an dieser Stelle nochmal die Überweisungsliste anhand der
     hinterlegten PDF-Rechnungen vor der Überweisung kontrollieren
+  - Beim Einlagern die Liste der letzten Einlagerungen von 10 auf 20 erhöht und auch
+    das entsprechende Dokument anzeigen
 
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
@@ -305,7 +307,6 @@ Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 12  Erzeugnisse deren Einzelteile unterschiedliche Einheiten verwenden werden falsch berechnet.
 6   2437 Falsche Marge bei Verwendung von Preisfaktor
 5   1991 SelfTests: Undefiniertes Verhalten bei NOTESTS
-
 
 2023-04-05 - Release 3.8.0
 
