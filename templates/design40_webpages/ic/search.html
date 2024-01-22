@@ -47,6 +47,10 @@
         <td>[% L.input_tag("description", "", class='initial_focus wi-lightwide') %]</td>
       </tr>
       <tr>
+        <th>[% 'Notes' | $T8 %]</th>
+        <td>[% L.input_tag("notes", "", class='wi-lightwide') %]</td>
+      </tr>
+      <tr>
         <th>[% 'Part Classification' | $T8 %]</th>
         <td>[% P.part.select_classification('classification_id', class='wi-lightwide', with_empty=1, empty_title='') %]</td>
       </tr>
