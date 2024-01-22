@@ -163,6 +163,8 @@ Kleinere neue Features und Detailverbesserungen:
     angeboten, die alle bie den Buchungen hinterlegten PDF-Belege in einem PDF bündelt.
     Somit kann der Überweisende an dieser Stelle nochmal die Überweisungsliste anhand der
     hinterlegten PDF-Rechnungen vor der Überweisung kontrollieren
+  - Beim Einlagern die Liste der letzten Einlagerungen von 10 auf 20 erhöht und auch
+    das entsprechende Dokument anzeigen
 
 2023-04-05 - Release 3.8.0
 
