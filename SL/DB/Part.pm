@@ -161,10 +161,8 @@ sub _before_check_variant_property_values {
     foreach my $variant (@$other_variants) {
       next if $variant->id == $self->id;
       my @other_property_value_ids = sort map {$_->id} $variant->variant_property_values;
-      if (@other_property_value_ids == @property_value_ids
-        && not any {$_} pairwise {$a != $b} @other_property_value_ids, @property_value_ids
-      ) {
-        die t8("There is already a variant with the property values: "),
+      if ("@other_property_value_ids" eq "@property_value_ids") {
+        die t8("There is already a variant of '#1' with the property values: ", $parent_variant->displayable_name),
           join(' ,', map {$_->displayable_name} $self->variant_property_values);
       }
     }
@@ -543,8 +541,8 @@ sub create_new_variant {
 
   my @selected_variant_property_ids = sort map {$_->variant_property_id} @$variant_property_values;
   my @variant_property_ids = sort map {$_->id} @{$self->variant_properties};
-  if (@variant_property_ids != @selected_variant_property_ids) {
-    die "Given variant_property_values dosn't match the variant_properties of parent_variant part";
+  if ("@variant_property_ids" ne "@selected_variant_property_ids") {
+    die "Given variant_property_values doesn't match the variant_properties of parent_variant part: " . $self->displayable_name;
   }
 
   my $new_variant = $self->clone_and_reset;
