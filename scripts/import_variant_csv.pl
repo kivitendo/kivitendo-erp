@@ -13,6 +13,7 @@ BEGIN {
 
 use Data::Dumper;
 use List::Util qw(first);
+use File::Basename;
 
 use SL::DBUtils;
 use SL::LXDebug;
@@ -38,15 +39,20 @@ use feature "say";
 
 chdir($FindBin::Bin . '/..');
 
-my ($opt_user, $opt_client, $opt_part_csv_file, $opt_groessen_staffeln_csv_file);
+my (
+  $opt_user, $opt_client,
+  $opt_warengruppen_csv_file, $opt_farben_folder,
+  $opt_part_csv_file, $opt_groessen_staffeln_csv_file
+);
 our (%myconfig, $form, $user, $employee, $auth, $locale);
 
 $opt_client = "variant";
 $opt_user   = "test_user";
 
-$opt_part_csv_file = "Artikel_komplett.csv";
-
-$opt_groessen_staffeln_csv_file = "Größenstaffeln.csv";
+$opt_warengruppen_csv_file = "kuw/Warengruppen.csv";
+$opt_groessen_staffeln_csv_file = "kuw/Größenstaffeln.csv";
+$opt_farben_folder = "kuw/Farben";
+$opt_part_csv_file = "kuw/Export_bearbeitet.csv";
 
 
 $locale = Locale->new;
@@ -86,8 +92,8 @@ if ($opt_user) {
 my %parts_mapping = (
   VK                      => 'sellprice',
   EANNR                   => 'ean',
-  WAR_KURZBEZEICHNUNG     => 'description',
-  WARENGRUPPENBEZEICHNUNG => 'warengruppe',
+  EIGENEARTIKELNR         => 'description',
+  WAR_KURZBEZEICHNUNG     => 'warengruppe',
   GROESSE                 => 'varianten_groesse',
   LAENGE                  => 'varianten_laenge',
   FARBNR                  => 'varianten_farbnummer',
@@ -171,12 +177,83 @@ my $groessen_staffel_csv = SL::Helper::Csv->new(
 $groessen_staffel_csv->parse or die "Could not parse csv";
 my $groessen_staffel_hrefs = $groessen_staffel_csv->get_data;
 
+my $warengruppen_csv = SL::Helper::Csv->new(
+  file        => $opt_warengruppen_csv_file,
+  encoding    => 'utf-8', # undef means utf8
+  sep_char    => ';',     # default ';'
+  quote_char  => '"',     # default '"'
+  escape_char => '"',     # default '"'
+);
+$warengruppen_csv->parse or die "Could not parse csv";
+my $warengruppen_hrefs = $warengruppen_csv->get_data;
+
 my $transfer_type = SL::DB::Manager::TransferType->find_by(
   direction => 'in',
   description => 'stock',
 ) or die "Could no find transfer_type";
 
 SL::DB->client->with_transaction(sub {
+
+  # create farben listen
+  foreach my $farb_csv_file (glob( $opt_farben_folder . '/*' )) {
+    my $farb_csv = SL::Helper::Csv->new(
+      file        => $farb_csv_file,
+      encoding    => 'utf-8', # undef means utf8
+      sep_char    => ';',     # default ';'
+      quote_char  => '"',     # default '"'
+      escape_char => '"',     # default '"'
+    );
+    $farb_csv->parse or die "Could not parse csv";
+    my $farb_hrefs = $farb_csv->get_data;
+
+    my $vendor_name = basename($farb_csv_file);
+    $vendor_name =~ s/\.csv//;
+
+    my $variant_property = SL::DB::VariantProperty->new(
+      name         => "Farbliste $vendor_name",
+      unique_name  => "Farbliste $vendor_name",
+      abbreviation => "fa",
+    )->save;
+
+    my $pos = 1;
+    SL::DB::VariantPropertyValue->new(
+      variant_property => $variant_property,
+      value            => $_,
+      abbreviation     => $_,
+      sortkey => $pos++,
+    )->save for
+      map {$_->{Joined}}
+      @$farb_hrefs;
+  }
+
+  # create partsgroups
+  my @hierachy_descrioptions = qw(
+    Bereich Hauptabteilung Abteilung Hauptwarengruppe Warengruppe
+  );
+  my %current_partsgroup_hierachy;
+  foreach my $partsgroup_row (@$warengruppen_hrefs) {
+    # TODO: store valid groessen staffeln
+    my $valid_groessen_staffen = delete $partsgroup_row->{Größenstaffeln};
+    my $last_hierachy_key;
+    foreach my $hierachy_key (@hierachy_descrioptions) {
+      if ($partsgroup_row->{$hierachy_key}) {
+        my ($number, @rest) = split(' ', $partsgroup_row->{$hierachy_key});
+        my $name = join(' ', @rest);
+        unless ($number && $name) {
+          die "Could not find number and name for $hierachy_key partsgroup '".$partsgroup_row->{$hierachy_key}."' in the row:'\n".
+          join(';', map {$partsgroup_row->{$_}} @hierachy_descrioptions);
+        }
+        my $partsgroup = SL::DB::PartsGroup->new(
+          partsgroup  => $name,
+          sortkey     => $number,
+          description => "$number $name",
+          parent_id   => $last_hierachy_key ? $current_partsgroup_hierachy{$last_hierachy_key}->id : undef,
+        )->save;
+        $current_partsgroup_hierachy{$hierachy_key} = $partsgroup;
+      }
+      my $last_hierachy_key = $hierachy_key;
+    }
+  }
 
   # create groessen staffeln
   foreach my $groessen_staffel_row (@$groessen_staffel_hrefs) {
@@ -200,11 +277,9 @@ SL::DB->client->with_transaction(sub {
       keys %$groessen_staffel_row;
   }
 
-  die "end";
-
-  my %partsgroup_name_to_partsgroup = map {$_->partsgroup => $_} @{SL::DB::Manager::PartsGroup->get_all()};
-  my %vendor_name_to_vendor = map {$_->name => $_} @{SL::DB::Manager::Vendor->get_all()};
-  my %warehouse_description_to_warehouse = map {$_->description => $_} @{SL::DB::Manager::Warehouse->get_all()};
+  my %partsgroup_name_to_partsgroup = map {lc($_->partsgroup) => $_} @{SL::DB::Manager::PartsGroup->get_all()};
+  my %vendor_name_to_vendor = map {lc($_->name) => $_} @{SL::DB::Manager::Vendor->get_all()};
+  my %warehouse_description_to_warehouse = map {lc($_->description) => $_} @{SL::DB::Manager::Warehouse->get_all()};
 
   my @all_variant_properties = @{SL::DB::Manager::VariantProperty->get_all()};
   # create parts
@@ -220,11 +295,12 @@ SL::DB->client->with_transaction(sub {
       my $vendor_name = $first_part->{vendor_name};
       my $makemodel_model = $first_part->{makemodel_model};
       my $best_sellprice = first {$_} sort map {$_->{sellprice}} @$grouped_variant_values;
-      my $partsgroup = $partsgroup_name_to_partsgroup{$partsgroup_name} or die
+      $best_sellprice =~ s/,/./;
+      my $partsgroup = $partsgroup_name_to_partsgroup{lc($partsgroup_name)} or die
         die "Could not find partsgroup '$partsgroup_name' for part '$makemodel_model $description'";
-      my $vendor = $vendor_name_to_vendor{$vendor_name} or
+      my $vendor = $vendor_name_to_vendor{lc($vendor_name)} or
         die "Could not find vendor: '$vendor_name' for part '$makemodel_model $description'";
-      my $warehouse = $warehouse_description_to_warehouse{$warehouse_description} or
+      my $warehouse = $warehouse_description_to_warehouse{lc($warehouse_description)} or
         die "Could not find warehouse '$warehouse_description' for part '$makemodel_model $description'";
       my $parent_variant = SL::DB::Part->new_parent_variant(
         description => $description,
@@ -273,7 +349,7 @@ SL::DB->client->with_transaction(sub {
           @all_variant_properties;
 
         if (scalar @{$best_match->{missing}}) {
-          die "Could not find variant property with values '@{$needed_property_values}'.\n" .
+          die "Could not find variant property with values for $property_name '@{$needed_property_values}' of part '$makemodel_model $description'.\n" .
           "Best match is ${\$best_match->{property}->name} with missing values '@{$best_match->{missing}}'";
         }
         $property_name_to_variant_property{$property_name} = $best_match->{property};
@@ -293,10 +369,12 @@ SL::DB->client->with_transaction(sub {
 
         my $variant = $parent_variant->create_new_variant(\@property_values);
 
+        my $sellprice = $variant_values->{sellprice};
+        $sellprice =~ s/,/./;
         $variant->update_attributes(
           ean => $variant_values->{ean},
           description => $variant_values->{description},
-          sellprice => $variant_values->{sellprice},
+          sellprice => $sellprice,
         );
 
         # set stock
