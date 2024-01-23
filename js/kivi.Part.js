@@ -137,6 +137,34 @@ namespace('kivi.Part', function(ns) {
     $(new_rows).appendTo($('#parent_variant_table'));
   };
 
+  ns.get_selected_variants = function() {
+    let selected_rows = [];
+    $('[name^="variant_multi_id_"]').each( function() {
+      if (this.checked) {
+        selected_rows.push($(this).parents("tr").first());
+      }
+    });
+    return selected_rows;
+  }
+
+  ns.variant_rows_toggle_selected = function() {
+    $('[name^="variant_multi_id_"]').each( function() {
+      this.checked = !this.checked;
+    });
+  }
+
+  ns.set_selected_variants_to_value = function(value_name) {
+    let value = $('[name="' + value_name + '_for_selected_variants"]').val();
+    let selected_rows = ns.get_selected_variants();
+    selected_rows.forEach(function(row) {
+      $(row).find(
+        '[name="variants[].' + value_name  + '"]'
+      ).val(
+        value
+      );
+    });
+  };
+
   ns.assortment_recalc = function() {
     var data = $('#assortment :input').serializeArray();
     data.push(
@@ -914,6 +942,13 @@ namespace('kivi.Part', function(ns) {
     });
 
     $('#part_warehouse_id').change(kivi.Part.reload_bin_selection);
+
+    $('#variant_select_all').click( function() {
+      var checked = this.checked;
+      $('[name^="variant_multi_id_"]').each(function() {
+        this.checked =  checked;
+      });
+    });
 
     ns.init();
   });
