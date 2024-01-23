@@ -244,14 +244,17 @@ sub action_update_variant_property_value_options {
     $select_tag_options{empty_title} = t8("Select Variant Property First");
   }
 
-  foreach my $variant (@{$self->part->variants}) {
-    my $select_tag_name = "add_variant_property_value_" . $variant->id;
-    my $new_select_tag = select_tag(
-      $select_tag_name, \@options,
-      %select_tag_options
-    );
-    $self->js->replaceWith("#$select_tag_name", $new_select_tag);
-  }
+  my $new_select_tag = select_tag(
+    "variants[].add_variant_property_value", \@options,
+    %select_tag_options
+  );
+  $self->js->replaceWith('[name^="variants[].add_variant_property_value"]', $new_select_tag);
+
+  my $new_select_tag_multible = select_tag(
+    "add_variant_property_value_for_selected_variants", \@options,
+    %select_tag_options
+  );
+  $self->js->replaceWith("#add_variant_property_value_for_selected_variants", $new_select_tag_multible);
 
   $self->js->render();
 }
@@ -261,9 +264,10 @@ sub action_add_variant_property {
 
   my $variant_property_id = $::form->{add_variant_property};
   die t8("Please select a variant property") unless ($variant_property_id);
+  my %variant_id_to_values = map {$_->{id} => $_} @{$::form->{variants}};
   foreach my $variant (@{$self->part->variants}) {
     die t8("Please select a new variant property value for all variants")
-      unless $::form->{"add_variant_property_value_" . $variant->id};
+      unless $variant_id_to_values{$variant->id}->{"add_variant_property_value"};
   }
 
   SL::DB->client->with_transaction(sub {
@@ -274,7 +278,7 @@ sub action_add_variant_property {
     foreach my $variant (@{$self->part->variants}) {
       SL::DB::VariantPropertyValuePart->new(
         part_id                   => $variant->id,
-        variant_property_value_id => $::form->{"add_variant_property_value_" . $variant->id},
+        variant_property_value_id => $variant_id_to_values{$variant->id}->{"add_variant_property_value"},
       )->save;
     }
     1;
