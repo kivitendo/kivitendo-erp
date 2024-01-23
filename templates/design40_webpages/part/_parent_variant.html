@@ -12,7 +12,13 @@
         [% LxERP.t8("Variants") %]
       </caption>
       <thead>
-        <th></th>
+      <tr>
+        <th>
+          [% L.checkbox_tag("varaint_select_all_multi_id",
+              checked=0, id='variant_select_all'
+              alt=LxERP.t8('Select/Deselect all'), title=LxERP.t8('Select/Deselect all'),
+            ) %]
+        </th>
         <th id="variant_partnumber_header_id">
           <a href='#' onClick='javascript:kivi.Part.reorder_variants("partnumber")'>
             [% 'Partnumber' | $T8 %]
@@ -43,22 +49,59 @@
           )%]
           [% L.button_tag('kivi.Part.add_variant_property();', LxERP.t8("Insert new")) %]
         </th>
+      </tr>
+      <tr>
+        <th class="center">
+          [%- L.button_tag('kivi.Part.variant_rows_toggle_selected();', "🔄",
+                           title=LxERP.t8("Toggle selection"),
+                           alt=LxERP.t8("Toggle selection"),
+                           ) %]
+        </th>
+        <th></th>
+        <th>
+          [% L.input_tag("description_for_selected_variants", SELF.part.description,
+                          class="wi-medium",
+                          ) %]
+          [%- L.button_tag(
+                'kivi.Part.set_selected_variants_to_value("description")',
+                "↓",
+                alt=LxERP.t8('Apply to selected rows'),
+                title=LxERP.t8('Apply to selected rows'),
+          ) %]
+        </th>
+        <th colspan="[% SELF.part.variant_properties.size + 1 %]"></th>
+        <th>
+          [% L.select_tag("add_variant_property_value_for_selected_variants", []
+                title_key='displayable_name', value_key='id',
+                with_empty=1, empty_title=LxERP.t8("Select Variant Property First"),
+              ) %]
+          [%- L.button_tag(
+                'kivi.Part.set_selected_variants_to_value("add_variant_property_value")',
+                "↓",
+                alt=LxERP.t8('Apply to selected rows'),
+                title=LxERP.t8('Apply to selected rows'),
+          ) %]
+        </th>
+      </tr>
       </thead>
       <tbody class="listrow">
         [% FOREACH variant = SELF.part.variants %]
           <tr class="variant_row_entry">
+            [% L.hidden_tag("variants[+].id", variant.id, id='variant_' _ variant.id) %]
+            [% L.hidden_tag("variants[].position", loop.count) %]
             <td>
-              [% L.hidden_tag("variants[+].id", variant.id) %]
-              [% L.hidden_tag("variants[].position", loop.count) %]
+              [% L.checkbox_tag('variant_multi_id_' _ loop.count, value=variant.id, checked=0) %]
             </td>
             <td>[% variant.presenter.part %]</td>
-            <td>[% variant.description | html %]</td>
+            <td>
+              [% L.input_tag("variants[].description", variant.description, class="wi-medium") %]
+            </td>
             <td>[% variant.variant_values | html %]</td>
             [% FOREACH variant_property = SELF.part.variant_properties %]
             <td> [% variant.variant_value(variant_property) %] </td>
             [% END %]
             <td>
-              [% L.select_tag("add_variant_property_value_" _ variant.id, []
+              [% L.select_tag("variants[].add_variant_property_value", []
                 title_key='displayable_name', value_key='id',
                 with_empty=1, empty_title=LxERP.t8("Select Variant Property First"),
               ) %]
