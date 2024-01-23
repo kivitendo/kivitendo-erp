@@ -306,7 +306,7 @@ SL::DB->client->with_transaction(sub {
     )->save for
       map {$groessen_staffel_row->{$_}}
       sort
-      grep {defined $groessen_staffel_row->{$_}}
+      grep {$groessen_staffel_row->{$_} ne ''}
       keys %$groessen_staffel_row;
   }
 
