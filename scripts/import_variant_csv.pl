@@ -15,6 +15,7 @@ use Data::Dumper;
 use List::Util qw(first);
 use List::MoreUtils qw(any);
 use File::Basename;
+use Encode;
 
 use SL::DBUtils;
 use SL::LXDebug;
@@ -248,6 +249,7 @@ SL::DB->client->with_transaction(sub {
 
   # create farben listen
   foreach my $farb_csv_file (glob( $opt_farben_folder . '/*' )) {
+    $farb_csv_file = Encode::decode('utf-8', $farb_csv_file);
     my $farb_csv = SL::Helper::Csv->new(
       file        => $farb_csv_file,
       encoding    => 'utf-8', # undef means utf8
