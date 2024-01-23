@@ -171,6 +171,13 @@ foreach my $part_row (@$part_hrefs) {
 
   if ($part{warengruppe_nummer} eq '114310' || $part{warengruppe_nummer} eq '124310') {
     # gürtel
+  } elsif ($part{warengruppe_nummer} eq '151010') {
+    # Feinstrumpfhosen
+    if ($part{varianten_groesse}) {
+      $part{varianten_groesse} =~ s/^([IV]*) EW$/$1 ew/;
+      $part{varianten_groesse} =~ s/^([IV]*) E$/$1 ew/;
+      $part{varianten_groesse} =~ s/^([IV]*) e$/$1 ew/;
+    }
   } elsif ($part{warengruppe_nummer} eq '114415') {
     # Hosenträger haben keine Größe
     delete $part{varianten_groesse};
@@ -413,7 +420,7 @@ SL::DB->client->with_transaction(sub {
         if ($property_name eq 'varianten_groesse') {
           @valid_variant_properties = @{$partsgroup_id_to_groessen_staffeln{$partsgroup->id}};
           unless (scalar @valid_variant_properties) {
-            push @errors, "NO variant property for key '$property_name' and partsgroup '${\$partsgroup->partsgroup}'. values '@$needed_property_values' in part '$makemodel_model $description' in row " . $first_part->{csv_row};
+            push @errors, "NO variant property for key '$property_name' and partsgroup '${\$partsgroup->description}'. values '@$needed_property_values' in part '$makemodel_model $description' in row " . $first_part->{csv_row};
             next;
           }
         } elsif ($property_name eq 'varianten_farbe') {
@@ -455,7 +462,7 @@ SL::DB->client->with_transaction(sub {
         if (scalar @{$best_match->{missing}}) {
           push @errors, "Could not find variant property with values for $property_name '@{$needed_property_values}' of part '$makemodel_model $description' in row " . $first_part->{csv_row} . "\n" .
           "Best match is '${\$best_match->{property}->name}' with missing values '@{$best_match->{missing}}'.\n" .
-          "Valid properties are: " . join(', ', map {$_->name} @valid_variant_properties) . "\n"
+          "Valid properties for partsgroup '${\$partsgroup->description}' are: " . join(', ', map {$_->name} @valid_variant_properties) . "\n"
           ;
           next;
         }
