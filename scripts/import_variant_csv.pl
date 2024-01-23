@@ -168,37 +168,47 @@ foreach my $part_row (@$part_hrefs) {
     $part{varianten_farbe} = (delete $part{varianten_farbnummer}) . '-' . (delete $part{varianten_farbname});
   }
 
-  if ($part{varianten_groesse}) {
-    # map to valid sizes
-    unless ($part{warengruppe_nummer} eq '114310' || $part{warengruppe_nummer} eq '124310') { # nicht für gürtel
+  if ($part{warengruppe_nummer} eq '114310' || $part{warengruppe_nummer} eq '124310') {
+    # gürtel
+  } elsif ($part{warengruppe_nummer} eq '114415') {
+    # Hosenträger haben keine Größe
+    delete $part{varianten_groesse};
+  } elsif ($part{warengruppe_nummer} eq '114210' || $part{warengruppe_nummer} eq '124210') {
+    # Handschuhe
+    if ($part{varianten_groesse}) {
+      $part{varianten_groesse} =~ s/^([0-9]*)\.5$/$1 ½/;
+    }
+  } else {
+    if ($part{varianten_groesse}) {
+      # map to valid sizes
       $part{varianten_groesse} =~ s/^([0-9][0-9])5$/$1,5/; # 345 -> 34,5
-    }
-    $part{varianten_groesse} =~ s/^([0-9][0-9])\.5$/$1,5/; # 34.5 -> 34,5
-    $part{varianten_groesse} =~ s/^2XL$/XXL/;
-    $part{varianten_groesse} =~ s/^XXXL$/3XL/;
-    $part{varianten_groesse} =~ s/^([0-9]*)½$/$1 ½/;
-    $part{varianten_groesse} =~ s/^([0-9]*)\/½$/$1 ½/;
-    $part{varianten_groesse} =~ s/^([0-9]*) 1\/2$/$1 ½/;
-    $part{varianten_groesse} =~ s/\/U//; # 34/U -> 34
-    $part{varianten_groesse} =~ s/\/I//; # 34/I -> 34
-    $part{varianten_groesse} =~ s/\/M//; # 34/M -> 34
-    $part{varianten_groesse} =~ s/\/L//; # 34/L -> 34
-    $part{varianten_groesse} =~ s/\/XL//; # 34/XL -> 34
-    $part{varianten_groesse} =~ s/\/XX//; # 34/XX -> 34
+      $part{varianten_groesse} =~ s/^([0-9][0-9])\.5$/$1,5/; # 34.5 -> 34,5
+      $part{varianten_groesse} =~ s/^2XL$/XXL/;
+      $part{varianten_groesse} =~ s/^XXXL$/3XL/;
+      $part{varianten_groesse} =~ s/^([0-9]*)½$/$1 ½/;
+      $part{varianten_groesse} =~ s/^([0-9]*)\/½$/$1 ½/;
+      $part{varianten_groesse} =~ s/^([0-9]*) 1\/2$/$1 ½/;
+      $part{varianten_groesse} =~ s/\/U//; # 34/U -> 34
+      $part{varianten_groesse} =~ s/\/I//; # 34/I -> 34
+      $part{varianten_groesse} =~ s/\/M//; # 34/M -> 34
+      $part{varianten_groesse} =~ s/\/L//; # 34/L -> 34
+      $part{varianten_groesse} =~ s/\/XL//; # 34/XL -> 34
+      $part{varianten_groesse} =~ s/\/XX//; # 34/XX -> 34
 
-    if (any {$part{varianten_groesse} eq $_} ('.', '_', 'ONE', 'ONE S', 'ONES', 'OSFA', 'ONESI', 'O/S', 'OSO')) {
-      delete $part{varianten_groesse};
-    }
-    if ($part{warengruppe_nummer} eq '114415') { # Hosenträger haben keine Größe
-      delete $part{varianten_groesse};
+      if ($part{varianten_groesse} =~ m/^([0-9][0-9])([0-9][0-9])$/) { # 3432 -> weite 34 laenge 32
+        my $weite = $1;
+        my $laenge = $2;
+        $part{varianten_groesse} = $weite;
+        $part{varianten_laenge} = $laenge;
+      }
+
+      if (any {$part{varianten_groesse} eq $_} ('.', '-', '_', 'ONE', 'ONE S', 'ONES', 'OSFA', 'ONESI', 'O/S', 'OSO')) {
+        delete $part{varianten_groesse};
+      }
+
     }
   }
-  if ($part{varianten_groesse} && $part{varianten_groesse} =~ m/^([0-9][0-9])([0-9][0-9])$/) {
-    my $weite = $1;
-    my $laenge = $2;
-    $part{varianten_groesse} = $weite;
-    $part{varianten_laenge} = $laenge;
-  }
+
   if ($part{varianten_laenge}) {
     if (any {$part{varianten_laenge} eq $_} ('.', 'U')) {
       delete $part{varianten_laenge};
@@ -452,6 +462,7 @@ SL::DB->client->with_transaction(sub {
       my @variant_properties = values %property_name_to_variant_property;
       $parent_variant->variant_properties(@variant_properties);
 
+      next; # TODO: remove after testing
       next if $count_errors_at_start != scalar @errors;
       $parent_variant->save();
 
@@ -510,6 +521,7 @@ SL::DB->client->with_transaction(sub {
     say join("\n", @errors);
     die join("\n", @errors);
   } else {
+    die "Keine Fehler"; # TODO: remove after testing
     return 1;
   }
 }) or do {
