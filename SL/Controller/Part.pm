@@ -870,7 +870,7 @@ sub action_reorder_variants {
     variant_values   => sub { $_[0]->variant_values },
   );
   foreach my $variant_property (@{$part->variant_properties}) {
-    my $key = 'variant_property_' . $variant_property->unique_name;
+    my $key = 'variant_property_' . $variant_property->id;
     $sort_keys{$key} = sub {
       $_[0]->get_variant_property_value_by_unique_name($variant_property->unique_name)->value;
     }
