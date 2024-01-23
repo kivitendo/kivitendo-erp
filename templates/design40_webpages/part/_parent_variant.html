@@ -29,8 +29,8 @@
           </a>
         </th>
         [% FOREACH variant_property = SELF.part.variant_properties %]
-        <th id="variant_variant_property_[% variant_property.unique_name %]_header_id">
-          <a href='#' onClick='javascript:kivi.Part.reorder_variants("variant_property_[% variant_property.unique_name %]")'>
+        <th id="variant_variant_property_[% variant_property.id %]_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants("variant_property_[% variant_property.id %]")'>
             [% variant_property.displayable_name %]
           </a>
         </th>
