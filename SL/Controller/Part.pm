@@ -259,27 +259,40 @@ sub action_update_variant_property_value_options {
   $self->js->render();
 }
 
-sub action_add_variant_property {
+sub action_update_variants {
   my ($self) = @_;
 
-  my $variant_property_id = $::form->{add_variant_property};
-  die t8("Please select a variant property") unless ($variant_property_id);
   my %variant_id_to_values = map {$_->{id} => $_} @{$::form->{variants}};
-  foreach my $variant (@{$self->part->variants}) {
-    die t8("Please select a new variant property value for all variants")
-      unless $variant_id_to_values{$variant->id}->{"add_variant_property_value"};
+
+  my $variant_property_id = $::form->{add_variant_property};
+  if ($variant_property_id) {
+    foreach my $variant (@{$self->part->variants}) {
+      die t8("Please select a new variant property value for all variants")
+        unless $variant_id_to_values{$variant->id}->{"add_variant_property_value"};
+    }
   }
 
   SL::DB->client->with_transaction(sub {
-    SL::DB::VariantPropertyPart->new(
-      part_id             => $self->part->id,
-      variant_property_id => $variant_property_id,
-    )->save;
     foreach my $variant (@{$self->part->variants}) {
-      SL::DB::VariantPropertyValuePart->new(
-        part_id                   => $variant->id,
-        variant_property_value_id => $variant_id_to_values{$variant->id}->{"add_variant_property_value"},
+      $variant->update_attributes(
+        description         => $variant_id_to_values{$variant->id}->{description},
+        listprice_as_number => $variant_id_to_values{$variant->id}->{listprice_as_number},
+        sellprice_as_number => $variant_id_to_values{$variant->id}->{sellprice_as_number},
+        lastcost_as_number  => $variant_id_to_values{$variant->id}->{lastcost_as_number},
+        rop_as_number       => $variant_id_to_values{$variant->id}->{rop_as_number},
+      );
+    }
+    if ($variant_property_id) {
+      SL::DB::VariantPropertyPart->new(
+        part_id             => $self->part->id,
+        variant_property_id => $variant_property_id,
       )->save;
+      foreach my $variant (@{$self->part->variants}) {
+        SL::DB::VariantPropertyValuePart->new(
+          part_id                   => $variant->id,
+          variant_property_value_id => $variant_id_to_values{$variant->id}->{"add_variant_property_value"},
+        )->save;
+      }
     }
     1;
   }) or do {
