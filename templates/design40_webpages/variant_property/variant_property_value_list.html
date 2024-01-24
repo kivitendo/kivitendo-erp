@@ -3,11 +3,11 @@
 [% USE L %]
 [% USE LxERP %]
 
-
 <div class="wrapper">
-
+<form id="variant_property_value_list_form">
+  [% L.hidden_tag("id", SELF.variant_property.id) %]
   <table class="tbl-list width-moderate" id="variant_property_values">
-    <caption>[% 'Value' | $T8 %]</caption>
+    <caption>[% 'Values' | $T8 %]</caption>
     <thead>
       <tr>
         <th><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]"></th>
@@ -16,16 +16,42 @@
       </tr>
     </thead>
     <tbody>
-       [% FOREACH value = SELF.variant_property.property_values %]
-        <tr id="variant_property_value_id_[% variant_property_value.id %]">
-          <td class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
-          <td><a href="#" onclick="kivi.VariantProperty.add_or_edit_variant_value('[% value.id %]');">[% value.value        | html %]</a></td>
-          <td>[% value.abbreviation | html %]</td>
-        </tr>
+      [% FOREACH value = SELF.variant_property.property_values_sorted %]
+      <tr id="variant_property_value_id_[% value.id %]">
+        <td class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+        <td><a href="#" onclick="kivi.VariantProperty.edit_variant_property_value('[% value.id %]');">[% value.value | html %]</a></td>
+        <td>[% value.abbreviation | html %]</td>
+       </tr>
       [% END %]
     </tbody>
+    <tfoot>
+      <tr>
+        <td>
+          [% L.button_tag(
+                'kivi.VariantProperty.add_variant_property_value()',
+                LxERP.t8("Add counted")
+          ) %]
+        </td>
+        <td>
+          [% L.input_tag(
+              "new_variant_property_value.value",
+              '',
+              class="wi-small",
+          ) %]
+        </td>
+        <td>
+          [% L.input_tag(
+              "new_variant_property_value.abbreviation",
+              '',
+              class="wi-small",
+          ) %]
+        </td>
+      </tr>
+    </tfoot>
   </table>
+</form>
 </div>
 
 [% L.sortable_element('#variant_property_values tbody', url =>
 SELF.url_for(action='reorder_variant_property_values'), with => 'variant_property_value_id') %]
+

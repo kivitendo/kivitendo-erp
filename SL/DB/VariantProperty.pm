@@ -9,6 +9,7 @@ use SL::DB::MetaSetup::VariantProperty;
 use SL::DB::Manager::VariantProperty;
 use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::TranslatedAttributes;
+use SL::DB::Helper::AttrSorted;
 
 __PACKAGE__->meta->add_relationships(
   parent_variants => {
@@ -23,6 +24,8 @@ __PACKAGE__->meta->add_relationships(
     type => 'one to many',
   }
 );
+
+__PACKAGE__->attr_sorted({ unsorted => 'property_values', position => 'sortkey'});
 
 __PACKAGE__->meta->initialize;
 
