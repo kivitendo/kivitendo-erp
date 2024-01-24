@@ -41,13 +41,16 @@
           </a>
         </th>
         [% END %]
+        <th>[% 'List Price' | $T8 %]</th>
+        <th>[% 'Sell Price' | $T8 %]</th>
+        <th>[% 'Last Cost' | $T8 %]</th>
+        <th>[% 'ROP' | $T8 %]</th>
         <th>
           [% L.select_tag("add_variant_property", AVAILABLE_VARIANT_PROPERIES
             title_key='displayable_name', value_key='id',
-            with_empty=1, empty_title=LxERP.t8("Variant Property"),
+            with_empty=1, empty_title=LxERP.t8("Add Variant Property"),
             onchange='kivi.Part.update_variant_property_value_options();',
           )%]
-          [% L.button_tag('kivi.Part.add_variant_property();', LxERP.t8("Insert new")) %]
         </th>
       </tr>
       <tr>
@@ -70,6 +73,58 @@
           ) %]
         </th>
         <th colspan="[% SELF.part.variant_properties.size + 1 %]"></th>
+        <th>
+          [% L.input_tag(
+                "listprice_as_number_for_selected_variants",
+                SELF.part.listprice_as_number,
+                class="reformat_number numeric wi-small",
+          ) %]
+          [%- L.button_tag(
+                'kivi.Part.set_selected_variants_to_value("listprice_as_number")',
+                "↓",
+                alt=LxERP.t8('Apply to selected rows'),
+                title=LxERP.t8('Apply to selected rows'),
+          ) %]
+        </th>
+        <th>
+          [% L.input_tag(
+                "sellprice_as_number_for_selected_variants",
+                SELF.part.sellprice_as_number,
+                class="reformat_number numeric wi-small",
+          ) %]
+          [%- L.button_tag(
+                'kivi.Part.set_selected_variants_to_value("sellprice_as_number")',
+                "↓",
+                alt=LxERP.t8('Apply to selected rows'),
+                title=LxERP.t8('Apply to selected rows'),
+          ) %]
+        </th>
+        <th>
+          [% L.input_tag(
+                "lastcost_as_number_for_selected_variants",
+                SELF.part.lastcost_as_number,
+                class="reformat_number numeric wi-small",
+          ) %]
+          [%- L.button_tag(
+                'kivi.Part.set_selected_variants_to_value("lastcost_as_number")',
+                "↓",
+                alt=LxERP.t8('Apply to selected rows'),
+                title=LxERP.t8('Apply to selected rows'),
+          ) %]
+        </th>
+        <th>
+          [% L.input_tag(
+                "rop_as_number_for_selected_variants",
+                SELF.part.rop_as_number,
+                class="reformat_number numeric wi-small",
+          ) %]
+          [%- L.button_tag(
+                'kivi.Part.set_selected_variants_to_value("rop_as_number")',
+                "↓",
+                alt=LxERP.t8('Apply to selected rows'),
+                title=LxERP.t8('Apply to selected rows'),
+          ) %]
+        </th>
         <th>
           [% L.select_tag("add_variant_property_value_for_selected_variants", []
                 title_key='displayable_name', value_key='id',
@@ -101,6 +156,34 @@
             <td> [% variant.variant_value(variant_property) %] </td>
             [% END %]
             <td>
+              [% L.input_tag(
+                    "variants[].listprice_as_number",
+                    variant.listprice_as_number,
+                    class='reformat_number numeric wi-small',
+              ) %]
+            </td>
+            <td>
+              [% L.input_tag(
+                    "variants[].sellprice_as_number",
+                    variant.sellprice_as_number,
+                    class='reformat_number numeric wi-small',
+              ) %]
+            </td>
+            <td>
+              [% L.input_tag(
+                    "variants[].lastcost_as_number",
+                    variant.lastcost_as_number,
+                    class='reformat_number numeric wi-small',
+              ) %]
+            </td>
+            <td>
+              [% L.input_tag(
+                    "variants[].rop_as_number",
+                    variant.rop_as_number,
+                    class='reformat_number numeric wi-small',
+              ) %]
+            </td>
+            <td>
               [% L.select_tag("variants[].add_variant_property_value", []
                 title_key='displayable_name', value_key='id',
                 with_empty=1, empty_title=LxERP.t8("Select Variant Property First"),
@@ -110,6 +193,7 @@
         [% END %]
       </tbody>
     </table>
+    [% L.button_tag('kivi.Part.update_variants();', LxERP.t8("Update Variants")) %]
   </div>
 
   <div class="wrapper input-panel">
