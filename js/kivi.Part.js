@@ -411,9 +411,9 @@ namespace('kivi.Part', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.add_variant_property = function() {
+  ns.update_variants = function() {
     var data = $('#ic').serializeArray();
-    data.push({ name: 'action', value: 'Part/add_variant_property' });
+    data.push({ name: 'action', value: 'Part/update_variants' });
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
