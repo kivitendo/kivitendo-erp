@@ -9,14 +9,15 @@
 <h1>[% title %]</h1>
 
 <div class="wrapper">
-  [% IF !VARIANTPROPERTIES.size %] 
+  [% IF !VARIANTPROPERTIES.size %]
   <p>
-    [%- 'No Variantproperty has been created yet.' | $T8 %] 
+    [%- 'No Variantproperty has been created yet.' | $T8 %]
   </p>
-  [%- ELSE %] 
+  [%- ELSE %]
   <table id="variant_properties" class="tbl-list width-moderate">
     <caption>[% 'Variant Properties' | $T8 %]</caption>
     <thead>
+      <tr>
         <th><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]"></th>
         <th>[% 'Name'         | $T8 %]</th>
         <th>[% 'Unique Name'  | $T8 %]</th>
@@ -27,17 +28,16 @@
       [% FOREACH variant_property = VARIANTPROPERTIES %]
       <tr id="variant_property_id_[% variant_property.id %]">
         <td class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
-        <td>[% L.link(SELF.url_for(action="edit_property",
+        <td>[% L.link(SELF.url_for(action="edit_variant_property",
           id=variant_property.id), variant_property.name) %]</td>
         <td>[% variant_property.unique_name  | html %]</td>
         <td>[% variant_property.abbreviation | html %]</td>
-        </tr>
+      </tr>
       [% END %]
     </tbody>
   </table>
-  [%- END %] 
+  [%- END %]
 </div>
 
 [% L.sortable_element('#variant_properties tbody', url =>
-SELF.url_for(action='reorder_properties'), with => 'variant_property_id') %]
-
+SELF.url_for(action='reorder_variant_properties'), with => 'variant_property_id') %]
