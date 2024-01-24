@@ -7,6 +7,7 @@ use strict;
 
 use SL::DB::MetaSetup::VariantPropertyValue;
 use SL::DB::Manager::VariantPropertyValue;
+use SL::DB::Helper::ActsAsList;
 
 __PACKAGE__->meta->add_relationships(
   parent_variants => {

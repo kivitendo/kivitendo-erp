@@ -4,4 +4,4 @@
   name: Variant Properties
   order: 1110
   params:
-    action: VariantProperty/list_properties
+    action: VariantProperty/list_variant_properties

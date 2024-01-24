@@ -1,14 +1,14 @@
 namespace('kivi.VariantProperty', function(ns) {
   var $dialog;
 
-  ns.variant_dialog = function(title, html) {
-    var id            = 'jqueryui_popup_dialog';
+  ns.variant_property_value_dialog = function(title, html) {
+    var id = 'jqueryui_popup_dialog';
     var dialog_params = {
       id:     id,
       width:  800,
       height: 500,
       modal:  true,
-      close: function(event, ui) { $dialog.remove(); },
+      close: function(_event, _ui) { $dialog.remove(); },
     };
 
     $('#' + id).remove();
@@ -23,22 +23,23 @@ namespace('kivi.VariantProperty', function(ns) {
     return true;
   };
 
-
-  ns.save_variant_value = function() {
-    var form = $('#variant_property_value_form').serializeArray();
-    console.log("my", form)
-    form.push( { name: 'action', value: 'VariantProperty/save_property_value' }
-    );
-
-    $.post('controller.pl', form, function(data) {
-      kivi.eval_json_result(data);
-    });
+  ns.save_variant_property_value = function() {
+    var data = $('#variant_property_value_form').serializeArray();
+    data.push({ name: 'action', value: 'VariantProperty/save_variant_property_value' });
+    $.post('controller.pl', data, kivi.eval_json_result);
   };
 
-  ns.add_or_edit_variant_value = function(id) {
-    $.post('controller.pl', { action: 'VariantProperty/edit_property_value', id: id }, function(data) {
-      kivi.eval_json_result(data);
-    });
+  ns.add_variant_property_value = function() {
+    var data = $('#variant_property_value_list_form').serializeArray();
+    data.push({ name: 'action', value: 'VariantProperty/add_variant_property_value' });
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+
+  ns.edit_variant_property_value = function(variant_property_value_id) {
+    $.post('controller.pl', {
+      action: 'VariantProperty/edit_variant_property_value',
+      variant_property_value_id: variant_property_value_id
+    }, kivi.eval_json_result);
   };
 
 });
