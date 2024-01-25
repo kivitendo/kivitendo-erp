@@ -889,7 +889,7 @@ sub action_reorder_variants {
   foreach my $variant_property (@{$part->variant_properties}) {
     my $key = 'variant_property_' . $variant_property->id;
     $sort_keys{$key} = sub {
-      $_[0]->get_variant_property_value_by_unique_name($variant_property->unique_name)->value;
+      $_[0]->get_variant_property_value_by_unique_name($variant_property->unique_name)->sortkey;
     }
   }
 
@@ -902,7 +902,8 @@ sub action_reorder_variants {
     @{$::form->{variants}};
 
   my @to_sort = map { { old_pos => $variant_id_to_position{$_->id}, order_by => $method->($_) } } @items;
-  if ($::form->{order_by} =~ /^(sellprice|lastcost)$/) {
+  if ($::form->{order_by} =~ /^(sellprice|lastcost)$/ ||
+      $::form->{order_by} =~ /^variant_property_/) {
     if ($::form->{sort_dir}) {
       @to_sort = sort { $a->{order_by} <=> $b->{order_by} } @to_sort;
     } else {
