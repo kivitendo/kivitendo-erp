@@ -223,7 +223,7 @@
         <td class="wi-lightwide">
           <span id="bin" class="condensed">
             [% IF SELF.part.warehouse.id %]
-            [% L.select_tag('part.bin_id', SELF.part.warehouse.bins, default=SELF.part.bin.id, title_key='description', with_empty=0, class='wi-lightwide') %]
+            [% L.select_tag('part.bin_id', SELF.part.warehouse.bins_sorted_naturally, default=SELF.part.bin.id, title_key='description', with_empty=0, class='wi-lightwide') %]
             [% END %]
           </span>
         </td>
