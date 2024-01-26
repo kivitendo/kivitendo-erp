@@ -947,10 +947,11 @@ sub action_stock_in_out_dialog {
 
   $self->merge_stock_data($stock_info, \@contents, $part, $unit);
 
+  my $delivered = $self->order->delivered;
   $self->render("delivery_order/stock_dialog", { layout => 0 },
     WHCONTENTS => \@contents,
     STOCK_INFO => $stock_info,
-    WAREHOUSES => SL::DB::Manager::Warehouse->get_all(with_objects=> ["bins",]),
+    WAREHOUSES => !$delivered ? SL::DB::Manager::Warehouse->get_all(query => [ or => [ invalid => 0, invalid => undef ]], with_objects=> ["bins",]) : undef,
     part       => $part,
     do_qty     => $qty,
     do_unit    => $unit->unit,
