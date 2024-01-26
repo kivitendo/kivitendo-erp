@@ -149,21 +149,21 @@
 ;;;;150020 H-Noppensocken/Walkies;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
 ;;;;150025 H-Kniestrümpfe ohne Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
 ;;;;150026 H-Kniestrümpfe Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
-;;;;150030 H-Strumpfhosen;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;;;150030 H-Strumpfhosen;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+, US-Größen
 ;;;;150035 Füßlinge/Sneaker;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
-;;151 Damen-Strümpfe;1510 Strumpfhosen;151010 Feinstrumpfhosen;Strumpfhosen Damen
-;;;;151015 Stützstrumpfhosen;Stützstrümpfe Damen
-;;;;151020 Wollstrumpfhosen;Strumpfhosen Damen
-;;;1511 Strümpfe/Socken;151110 D-Strümpfe;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
-;;;;151115 D-Kniestrümpfe fein ohne Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
-;;;;151116 D-Kniestrümpfe fein Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
-;;;;151117 D-Oberschenkelstrümpfe Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
-;;;;151120 D-Kniestrümpfe Strick;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
-;;;;151125 D-Socken fein;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
-;;;;151130 D-Socken Strick/Sneakersocken;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
-;;;;151135 D-Noppensocken/Walkies;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
-;;;;151140 D-Füßlinge;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
-;;;;151145 Overknees;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+
+;;151 Damen-Strümpfe;1510 Strumpfhosen;151010 Feinstrumpfhosen;Strumpfhosen Damen, US-Größen
+;;;;151015 Stützstrumpfhosen;Stützstrümpfe Damen, US-Größen
+;;;;151020 Wollstrumpfhosen;Strumpfhosen Damen, US-Größen
+;;;1511 Strümpfe/Socken;151110 D-Strümpfe;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+, US-Größen
+;;;;151115 D-Kniestrümpfe fein ohne Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+, US-Größen
+;;;;151116 D-Kniestrümpfe fein Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+, US-Größen
+;;;;151117 D-Oberschenkelstrümpfe Stütz;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+, US-Größen
+;;;;151120 D-Kniestrümpfe Strick;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+, US-Größen
+;;;;151125 D-Socken fein;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+, US-Größen
+;;;;151130 D-Socken Strick/Sneakersocken;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+, US-Größen
+;;;;151135 D-Noppensocken/Walkies;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+, US-Größen
+;;;;151140 D-Füßlinge;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+, US-Größen
+;;;;151145 Overknees;Schuhgrößen, Socken 2er, Socken 3er, Socken 4+, US-Größen
 ;;;;151150 Stulpen;ohne
 ;18 Dienstleistungen;180 Schneiderei;1800 Herren-Änderungen;180000 Herren-Änderungen;ohne
 ;;;1801 Damen-Änderungen;180100 Damen-Änderungen;ohne
