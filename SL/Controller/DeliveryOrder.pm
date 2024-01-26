@@ -951,7 +951,7 @@ sub action_stock_in_out_dialog {
   $self->render("delivery_order/stock_dialog", { layout => 0 },
     WHCONTENTS => \@contents,
     STOCK_INFO => $stock_info,
-    WAREHOUSES => !$delivered ? SL::DB::Manager::Warehouse->get_all(query => [ or => [ invalid => 0, invalid => undef ]], with_objects=> ["bins",]) : undef,
+    WAREHOUSES => !$delivered ? SL::DB::Manager::Warehouse->get_all(query => [ or => [ invalid => 0, invalid => undef ]], with_objects=> ["bins",]) : [],
     part       => $part,
     do_qty     => $qty,
     do_unit    => $unit->unit,
