@@ -124,7 +124,7 @@ sub action_add_from_record {
   # Warn on order locked items if they are not wanted for this record type
   if ($self->type_data->no_order_locked_parts) {
     my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
-    flash('warning', t8('This record containts not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
+    flash('warning', t8('This record contains not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
   }
 
   $self->recalc();
@@ -336,12 +336,12 @@ sub action_save_as_new {
 
   # Warn on obsolete items
   my @obsolete_positions = map { $_->position } grep { $_->part->obsolete } @{ $self->order->items_sorted };
-  flash_later('warning', t8('This record containts obsolete items at position #1', join ', ', @obsolete_positions)) if @obsolete_positions;
+  flash_later('warning', t8('This record contains obsolete items at position #1', join ', ', @obsolete_positions)) if @obsolete_positions;
 
   # Warn on order locked items if they are not wanted for this record type
   if ($self->type_data->no_order_locked_parts) {
     my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
-    flash_later('warning', t8('This record containts not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
+    flash_later('warning', t8('This record contains not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
   }
 
   if (!$::form->{form_validity_token}) {
@@ -970,7 +970,7 @@ sub action_order_workflow {
   # Warn on order locked items if they are not wanted for this record type
   if ($self->type_data->no_order_locked_parts) {
     my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
-    flash('warning', t8('This record containts not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
+    flash('warning', t8('This record contains not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
   }
 
   $self->recalc();
@@ -2111,7 +2111,7 @@ sub save {
   # Test for order locked items if they are not wanted for this record type.
   if ($self->type_data->no_order_locked_parts) {
     my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
-    die t8('This record containts not orderable items at position #1', join ', ', @order_locked_positions) if @order_locked_positions;
+    die t8('This record contains not orderable items at position #1', join ', ', @order_locked_positions) if @order_locked_positions;
   }
 
   # create first version if none exists
