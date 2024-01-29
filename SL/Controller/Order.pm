@@ -3,7 +3,7 @@ package SL::Controller::Order;
 use strict;
 use parent qw(SL::Controller::Base);
 
-use SL::Helper::Flash qw(flash_later);
+use SL::Helper::Flash qw(flash flash_later);
 use SL::HTML::Util;
 use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
 use SL::Locale::String qw(t8);
@@ -120,6 +120,12 @@ sub action_add_from_record {
   my $record = SL::Model::Record->get_record($from_type, $from_id);
   my $order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->order($order);
+
+  # Warn on order locked items if they are not wanted for this record type
+  if ($self->type_data->no_order_locked_parts) {
+    my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
+    flash('warning', t8('This record containts not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
+  }
 
   $self->recalc();
   $self->pre_render();
@@ -884,9 +890,11 @@ sub action_save_and_final_invoice {
 
 # workflows to all types of this controller
 sub action_save_and_order_workflow {
-  $_[0]->save_and_redirect_to(
+  my ($self) = @_;
+
+  $self->save_and_redirect_to(
     action     => 'order_workflow',
-    type       => $_[0]->type,
+    type       => $self->type,
     to_type    => $::form->{to_type},
     use_shipto => $::form->{use_shipto},
     email_journal_id    => $::form->{workflow_email_journal_id},
@@ -958,6 +966,12 @@ sub action_order_workflow {
   $self->type_data($self->init_type_data);
   $self->cv  ($self->init_cv);
   $self->check_auth;
+
+  # Warn on order locked items if they are not wanted for this record type
+  if ($self->type_data->no_order_locked_parts) {
+    my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
+    flash('warning', t8('This record containts not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
+  }
 
   $self->recalc();
   $self->get_unalterable_data();
