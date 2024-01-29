@@ -131,7 +131,7 @@ sub assembly_item {
 #   l_warehouse  l_bin
 #
 # exclusives:
-#   itemstatus  = active | onhand | short | obsolete | orphaned
+#   itemstatus  = active | onhand | short | order_locked | obsolete | orphaned
 #   searchitems = part | assembly | service
 #
 # joining filters:
@@ -396,6 +396,7 @@ sub all_parts {
     push @where_tokens, '    p.obsolete',              if /obsolete/;
     push @where_tokens, 'p.onhand > 0',                if /onhand/;
     push @where_tokens, 'p.onhand < p.rop',            if /short/;
+    push @where_tokens, 'p.order_locked',              if /order_locked/;
   }
 
   my $q_assembly_lastcost =

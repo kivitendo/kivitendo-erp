@@ -94,10 +94,11 @@
     <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
     <tbody>
       <tr>
-        <td>
+        <td colspan="2">
           [% L.radio_button_tag('itemstatus', value='active', id='itemstatus_active', label=LxERP.t8('Active'), checked=1) %]<br>
           [% L.radio_button_tag('itemstatus', value='onhand', id='itemstatus_onhand', label=LxERP.t8('On Hand')) %]<br>
           [% L.radio_button_tag('itemstatus', value='short', id='itemstatus_short', label=LxERP.t8('Short')) %]<br>
+          [% L.radio_button_tag('itemstatus', value='order_locked', id='itemstatus_order_locked', label=LxERP.t8('Do not order anymore')) %]<br>
           [% L.radio_button_tag('itemstatus', value='obsolete', id='itemstatus_obsolete', label=LxERP.t8('Obsolete')) %]<br>
           [% L.radio_button_tag('itemstatus', value='orphaned', id='itemstatus_orphaned', label=LxERP.t8('Orphaned')) %]<br>
           [% L.radio_button_tag('itemstatus', value='', id='itemstatus_all', label=LxERP.t8('All')) %]

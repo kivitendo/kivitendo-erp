@@ -144,7 +144,7 @@ sub top100 {
 # transdatefrom transdateto
 #
 # radio:
-#  itemstatus = active | onhand | short | obsolete | orphaned
+#  itemstatus = active | onhand | short | order_locked | obsolete | orphaned
 #  action     = continue | top100
 #
 # checkboxes:
@@ -268,6 +268,7 @@ sub generate_report {
   my %optiontexts = (
     active        => $locale->text('Active'),
     obsolete      => $locale->text('Obsolete'),
+    order_locked  => $locale->text('Do not order anymore'),
     orphaned      => $locale->text('Orphaned'),
     onhand        => $locale->text('On Hand'),
     assembly_qty  => $locale->text('Assembly Item Qty'),
@@ -300,7 +301,7 @@ sub generate_report {
     l_part        => $locale->text('Parts'),
   );
 
-  my @itemstatus_keys = qw(active obsolete orphaned onhand short);
+  my @itemstatus_keys = qw(active order_locked obsolete orphaned onhand short);
   my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup partsgroup_id serialnumber description make model
                            drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto insertdatefrom insertdateto ean shop all
                            l_service l_assembly l_part);
