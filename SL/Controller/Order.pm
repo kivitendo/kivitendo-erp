@@ -2094,6 +2094,12 @@ sub save {
 
   $self->parse_phone_note if $::form->{phone_note}->{subject} || $::form->{phone_note}->{body};
 
+  # Test for order locked items if they are not wanted for this record type.
+  if ($self->type_data->no_order_locked_parts) {
+    my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
+    die t8('This record containts not orderable items at position #1', join ', ', @order_locked_positions) if @order_locked_positions;
+  }
+
   # create first version if none exists
   $self->order->add_order_version(SL::DB::OrderVersion->new(version => 1)) if !$self->order->order_version;
 
