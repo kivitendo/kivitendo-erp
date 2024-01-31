@@ -361,7 +361,7 @@ sub action_apply_record_action {
   die "no 'customer_vendor_selection' was given" unless $customer_vendor;
   die "no 'action_selection' was given"          unless $action;
 
-  if ($action eq 'linking') {
+  if ($action eq 'linking_record') {
     return $self->link_and_add_attachment_to_record({
         email_journal_id => $email_journal_id,
         attachment_id    => $attachment_id,
