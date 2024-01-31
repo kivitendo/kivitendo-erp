@@ -12,7 +12,7 @@ BEGIN {
 }
 
 use Data::Dumper;
-use List::Util qw(first);
+use List::Util qw(first sum0);
 use List::MoreUtils qw(any);
 use File::Basename;
 use Encode;
@@ -45,7 +45,7 @@ my (
   $opt_user, $opt_client,
   $opt_warengruppen_csv_file, $opt_farben_folder,
   $opt_part_csv_file, $opt_groessen_staffeln_csv_file,
-  $opt_test_run,
+  $opt_test_run, $opt_force
 );
 our (%myconfig, $form, $user, $employee, $auth, $locale);
 
@@ -58,6 +58,12 @@ $opt_farben_folder = "kuw/Farben";
 $opt_part_csv_file = "kuw/Export_bearbeitet.csv";
 
 $opt_test_run = 1;
+$opt_force = 0; # Writes all valid entries to DB
+
+if ($opt_test_run && $opt_force) {
+  die "Can't do test run and force the write to the db.\n".
+  "Change \$opt_test_run or \$opt_force."
+}
 
 $locale = Locale->new;
 $form   = Form->new;
@@ -275,17 +281,25 @@ SL::DB->client->with_transaction(sub {
     my $vendor_name = basename($farb_csv_file);
     $vendor_name =~ s/\.csv//;
 
-    my $variant_property = SL::DB::VariantProperty->new(
+    my %variant_property_att = (
       name         => "Farbliste $vendor_name",
       unique_name  => "Farbliste $vendor_name",
       abbreviation => "fa",
-    )->save;
+    );
+    my $variant_property = SL::DB::Manager::VariantProperty->find_by(
+      %variant_property_att
+    );
+    $variant_property ||= SL::DB::VariantProperty->new(
+      %variant_property_att
+    );
+    $variant_property->save;
 
     my $pos = 1;
     SL::DB::VariantPropertyValue->new(
       variant_property => $variant_property,
       value            => $_->{Joined},
       abbreviation     => $_->{Joined},
+    )->update_attributes(
       sortkey => $pos++,
     )->save for @$farb_hrefs;
   }
@@ -293,17 +307,25 @@ SL::DB->client->with_transaction(sub {
   # create groessen staffeln
   foreach my $groessen_staffel_row (@$groessen_staffel_hrefs) {
     my $name = delete $groessen_staffel_row->{BEZEICHNUNG};
-    my $variant_property = SL::DB::VariantProperty->new(
+    my %variant_property_att = (
       name         => $name,
       unique_name  => $name,
       abbreviation => "gr",
-    )->save;
+    );
+    my $variant_property = SL::DB::Manager::VariantProperty->find_by(
+      %variant_property_att
+    );
+    $variant_property ||= SL::DB::VariantProperty->new(
+      %variant_property_att
+    );
+    $variant_property->save;
 
     my $pos = 1;
     SL::DB::VariantPropertyValue->new(
       variant_property => $variant_property,
       value            => $_,
       abbreviation     => $_,
+    )->update_attributes(
       sortkey => $pos++,
     )->save for
       map {$groessen_staffel_row->{$_}}
@@ -330,12 +352,19 @@ SL::DB->client->with_transaction(sub {
             join(';', map {$partsgroup_row->{$_}} @hierachy_descrioptions);
           next;
         }
-        my $partsgroup = SL::DB::PartsGroup->new(
+        my %partsgroup_att = (
           partsgroup  => $name,
           sortkey     => $number,
           description => "$number $name",
           parent_id   => $last_hierachy_key ? $current_partsgroup_hierachy{$last_hierachy_key}->id : undef,
-        )->save;
+        );
+        my $partsgroup = SL::DB::Manager::PartsGroup->find_by(
+          %partsgroup_att
+        );
+        $partsgroup ||= SL::DB::PartsGroup->new(
+          %partsgroup_att
+        );
+        $partsgroup->save();
         $current_partsgroup_hierachy{$hierachy_key} = $partsgroup;
       }
       $last_hierachy_key = $hierachy_key;
@@ -361,11 +390,19 @@ SL::DB->client->with_transaction(sub {
   foreach my $vendor_kurz_name (keys %parent_variants_to_variants) {
     foreach my $partnumber (keys %{$parent_variants_to_variants{$vendor_kurz_name}}) {
       my $count_errors_at_start = scalar @errors;
-      # TODO: logic for
-      # bestand anpasen
-      # stammartikel da neue variante
-      # alles neu
       my $grouped_variant_values = $parent_variants_to_variants{$vendor_kurz_name}->{$partnumber};
+      # check for variants the same variant_values
+      my %variant_values_to_variant;
+      foreach my $variant_values (@$grouped_variant_values) {
+        my $key =
+          join ';',
+          map {$variant_values->{$_}}
+          sort
+          grep { $_ =~ m/^variant/ }
+          keys %$variant_values;
+
+        push @{$variant_values_to_variant{$key}}, $variant_values
+      }
 
       #get data for parent_variant
       my $first_part = $grouped_variant_values->[0];
@@ -383,24 +420,35 @@ SL::DB->client->with_transaction(sub {
       my $warehouse = $warehouse_description_to_warehouse{lc($warehouse_description)} or
         push @errors, "Could not find warehouse '$warehouse_description' for part '$makemodel_model $description' in row " . $first_part->{csv_row};
       next if $count_errors_at_start != scalar @errors;
-      my $parent_variant = SL::DB::Part->new_parent_variant(
-        partnumber  => $vendor_number . '-' . $makemodel_model,
+      my %parent_variant_fix_att = (
+        partnumber   => $vendor_number . '-' . $makemodel_model,
+        variant_type => 'parent_variant',
+        part_type    => 'part',
+      );
+      my $parent_variant = SL::DB::Manager::Part->find_by(
+        %parent_variant_fix_att
+      );
+      $parent_variant ||= SL::DB::Part->new(
+        %parent_variant_fix_att
+      );
+      $parent_variant->update_attributes(
         description => $description,
         sellprice   => $best_sellprice,
         partsgroup  => $partsgroup,
         warehouse   => $warehouse,
         bin         => $warehouse->bins->[0],
-        part_type   => 'part',
         unit        => 'Stck',
       );
 
-      # add makemodel
-      my $makemodel = SL::DB::MakeModel->new(
-        make             => $vendor->id,
-        model            => $makemodel_model,
-        part_description => $description,
-      );
-      $parent_variant->add_makemodels($makemodel);
+      unless (scalar $parent_variant->makemodels) {
+        # add makemodel
+        my $makemodel = SL::DB::MakeModel->new(
+          make             => $vendor->id,
+          model            => $makemodel_model,
+          part_description => $description,
+        );
+        $parent_variant->add_makemodels($makemodel);
+      }
 
       # get active variant_properties
       my %group_variant_property_vales;
@@ -471,14 +519,24 @@ SL::DB->client->with_transaction(sub {
         $property_name_to_variant_property{$property_name} = $best_match->{property};
       }
       my @variant_properties = values %property_name_to_variant_property;
-      $parent_variant->variant_properties(@variant_properties);
+      if (scalar @{$parent_variant->variant_properties}) {
+        my @current_variant_property_ids = sort map {$_->id} $parent_variant->variant_properties;
+        my @new_variant_property_ids = sort map {$_->id} @variant_properties;
+        if ("@current_variant_property_ids" ne "@new_variant_property_ids") {
+          push @errors, "The variant properties changed for part '$makemodel_model $description' in row " . $first_part->{csv_row} . "\n" .
+          "Please change them manually before import.\n";
+        }
+      } else {
+        $parent_variant->variant_properties(@variant_properties);
+      }
 
       next if ($opt_test_run);
 
       next if $count_errors_at_start != scalar @errors;
       $parent_variant->save();
 
-      foreach my $variant_values (@$grouped_variant_values) {
+      foreach my $variant_values_list (values %variant_values_to_variant) {
+        my $variant_values = $variant_values_list->[0];
         my @property_values =
           map {
             my $value = $variant_values->{$_};
@@ -493,12 +551,30 @@ SL::DB->client->with_transaction(sub {
 
         my $variant = first {join(' ', sort map {$_->id} @property_values) eq join(' ', sort map {$_->id} $_->variant_property_values)}
           $parent_variant->variants;
+        my $variant_is_new = !$variant;
         $variant ||= $parent_variant->create_new_variant(\@property_values);
 
-        my $warehouse_description = $variant_values->{warehouse_description};
-        my $warehouse = $warehouse_description_to_warehouse{lc($warehouse_description)};
-        unless ($warehouse) {
-          push @errors, "Could not find warehouse '$warehouse_description' for part '$makemodel_model $description' in row " . $variant_values->{csv_row};
+        my @stocks;
+        foreach my $variant_values_with_stock_info (@$variant_values_list) {
+          my $warehouse_description = $variant_values_with_stock_info->{warehouse_description};
+          my $warehouse = $warehouse_description_to_warehouse{lc($warehouse_description)};
+          unless ($warehouse) {
+            push @errors, "Could not find warehouse '$warehouse_description' for part '$makemodel_model $description' in row " . $variant_values_with_stock_info->{csv_row};
+            next;
+          }
+          push @stocks, {
+            part_qty  => $variant_values_with_stock_info->{part_qty} || 0,
+            warehouse => $warehouse,
+          };
+        }
+        my $main_warehouse =
+          first {$_}
+          map {$_->{warehouse}}
+          sort {$b->{part_qty} <=> $a->{part_qty}} # descending
+          @stocks;
+
+        unless ($main_warehouse) {
+          push @errors, "Could not find warehouse for part '$makemodel_model $description'";
           next;
         }
 
@@ -508,33 +584,67 @@ SL::DB->client->with_transaction(sub {
           ean         => $variant_values->{ean},
           description => $variant_values->{description},
           sellprice   => $sellprice,
-          warehouse   => $warehouse,
-          bin         => $warehouse->bins->[0],
+          warehouse   => $main_warehouse,
+          bin         => $main_warehouse->bins->[0],
         );
 
         # set stock
-        my ($trans_id) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT nextval('id')|);
-        SL::DB::Inventory->new(
-          part         => $variant,
-          trans_id     => $trans_id,
-          trans_type   => $transfer_type,
-          shippingdate => 'now()',
-          comment      => 'initialer Bestand',
-          warehouse    => $variant->warehouse,
-          bin          => $variant->bin,
-          qty          => $variant_values->{part_qty},
-          employee     => $employee,
-        )->save;
+        if ($variant_is_new) {
+          foreach my $stock (@stocks) {
+            next unless $stock->{part_qty} > 0;
+            my ($trans_id) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT nextval('id')|);
+            SL::DB::Inventory->new(
+              part         => $variant,
+              trans_id     => $trans_id,
+              trans_type   => $transfer_type,
+              shippingdate => 'now()',
+              comment      => 'initialer Bestand',
+              warehouse    => $stock->{warehouse},
+              bin          => $stock->{warehouse}->bins->[0],
+              qty          => $stock->{part_qty},
+              employee     => $employee,
+            )->save;
+          }
+        } else {
+          foreach my $stock (@stocks) {
+            my $current_part_qty =
+              sum0
+              map {$_->qty}
+              @{SL::DB::Manager::Inventory->get_all(
+                part         => $variant,
+                warehouse    => $stock->{warehouse},
+                bin          => $stock->{warehouse}->bins->[0],
+              )};
+            next if $current_part_qty == $stock->{part_qty};
+
+            my $transfer_type_correction = SL::DB::Manager::TransferType->find_by(
+              direction   => $current_part_qty > $stock->{part_qty} ? 'out' : 'in',
+              description => 'correction',
+            ) or die "Could no find transfer_type correction";
+            my ($trans_id) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT nextval('id')|);
+            SL::DB::Inventory->new(
+              part         => $variant,
+              trans_id     => $trans_id,
+              trans_type   => $transfer_type_correction,
+              shippingdate => 'now()',
+              comment      => 'Korrektur bei Import',
+              warehouse    => $stock->{warehouse},
+              bin          => $stock->{warehouse}->bins->[0],
+              qty          => $stock->{part_qty} - $current_part_qty,
+              employee     => $employee,
+            )->save;
+          }
+        }
 
       }
     }
   }
   if (scalar @errors) {
     say join("\n", @errors);
-    die join("\n", @errors);
+    die join("\n", @errors) unless $opt_force;
   }
   if ($opt_test_run) {
-    die "Test Durchlauf Erfolgereich: Keine Fehler in den Daten";
+    die "Test run successfull: no erros in the data.";
   }
 }) or do {
   if (SL::DB->client->error) {
