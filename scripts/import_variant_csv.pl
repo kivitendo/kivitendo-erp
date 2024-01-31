@@ -607,14 +607,12 @@ SL::DB->client->with_transaction(sub {
           }
         } else {
           foreach my $stock (@stocks) {
-            my $current_part_qty =
-              sum0
-              map {$_->qty}
-              @{SL::DB::Manager::Inventory->get_all(
-                part         => $variant,
-                warehouse    => $stock->{warehouse},
-                bin          => $stock->{warehouse}->bins->[0],
-              )};
+            my $current_part_qty = get_stock(
+              part => $variant,
+              warehouse => $stock->{warehouse},
+              bin => $stock->{warehouse}->bins->[0]
+            ) || 0;
+
             next if $current_part_qty == $stock->{part_qty};
 
             my $transfer_type_correction = SL::DB::Manager::TransferType->find_by(
