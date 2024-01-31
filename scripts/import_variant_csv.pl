@@ -44,7 +44,8 @@ chdir($FindBin::Bin . '/..');
 my (
   $opt_user, $opt_client,
   $opt_warengruppen_csv_file, $opt_farben_folder,
-  $opt_part_csv_file, $opt_groessen_staffeln_csv_file
+  $opt_part_csv_file, $opt_groessen_staffeln_csv_file,
+  $opt_test_run,
 );
 our (%myconfig, $form, $user, $employee, $auth, $locale);
 
@@ -56,6 +57,7 @@ $opt_groessen_staffeln_csv_file = "kuw/Größenstaffeln.csv";
 $opt_farben_folder = "kuw/Farben";
 $opt_part_csv_file = "kuw/Export_bearbeitet.csv";
 
+$opt_test_run = 1;
 
 $locale = Locale->new;
 $form   = Form->new;
@@ -471,7 +473,8 @@ SL::DB->client->with_transaction(sub {
       my @variant_properties = values %property_name_to_variant_property;
       $parent_variant->variant_properties(@variant_properties);
 
-      next; # TODO: remove after testing
+      next if ($opt_test_run);
+
       next if $count_errors_at_start != scalar @errors;
       $parent_variant->save();
 
@@ -529,9 +532,9 @@ SL::DB->client->with_transaction(sub {
   if (scalar @errors) {
     say join("\n", @errors);
     die join("\n", @errors);
-  } else {
-    die "Keine Fehler"; # TODO: remove after testing
-    return 1;
+  }
+  if ($opt_test_run) {
+    die "Test Durchlauf Erfolgereich: Keine Fehler in den Daten";
   }
 }) or do {
   if (SL::DB->client->error) {
