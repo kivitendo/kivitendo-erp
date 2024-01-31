@@ -33,7 +33,7 @@
 #######################################################################
 
 use Carp;
-use List::Util qw(first);
+use List::Util qw(any first none);
 use POSIX qw(strftime);
 use Scalar::Util qw(blessed);
 
@@ -43,11 +43,12 @@ use SL::User;
 use SL::AM;
 use SL::CVar;
 use SL::CT;
-use SL::Helper::Flash qw(flash_later);
+use SL::Helper::Flash qw(flash flash_later);
 use SL::IC;
 use SL::WH;
 use SL::OE;
-use SL::Helper::Inventory qw(produce_assembly);
+use SL::Helper::Inventory qw(get_stock produce_assembly allocate_for_assembly check_allocations_for_assembly);
+use SL::Helper::Inventory::Allocation;
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 use SL::Presenter::Tag qw(checkbox_tag);
@@ -398,11 +399,109 @@ sub create_assembly {
     $form->{bestbefore} = '';
   }
 
+  # Check if there are more than one chargenumber for one part of an assembly.
+  # In this case let the user select the wanted chargenumbers.
+  my $stocked_wh_id = $::instance_conf->get_produce_assembly_same_warehouse ? $form->{warehouse_id} : undef;
+  my @stocked_by    = qw(part warehouse bin chargenumber); # Or 'for_allocate'? That would include 'bestbefore'.
+  my $stocked_parts = get_stock(part         => [ map { $_->part } @{$assembly->assemblies} ],
+                                warehouse    => $stocked_wh_id,
+                                by           => \@stocked_by,
+                                with_objects => [qw(part warehouse bin)]);
+
+  # Remove entries with no stock.
+  $stocked_parts = [ grep { $_->{qty} != 0 } @$stocked_parts];
+
+  my %stocked_by_parts_id = map { my $p_id = $_->{parts_id }; $p_id => [grep { $_->{parts_id} == $p_id } @$stocked_parts] } @$stocked_parts;
+
+  my $is_stock_ambiguous = any { scalar(@{$_ || []}) > 1 } values %stocked_by_parts_id;
+  my $allocation_check_failed;
+  my $stock_check_failed;
+
+  my @allocations;
+  if ($is_stock_ambiguous) {
+    if (!scalar @{$form->{allocations} || []}) {
+      # User has not selected something / first_time.
+      # Pre-fill allocations for selection form.
+      eval {
+        @allocations = allocate_for_assembly(part             => $assembly,
+                                             qty              => $form->{qty},
+                                             warehouse        => ($form->{warehouse_id} ? SL::DB::Warehouse->new(id => $form->{warehouse_id})->load : undef),
+                                             chargenumber     => $form->{chargenumber},);
+        1;
+      } or do  {
+        my $ex = $@;
+        die $ex unless blessed($ex) && $ex->isa('SL::X::Inventory::Allocation::Multi');
+
+        $form->{title} = $locale->text('Allocate for Assembly');
+        $form->header;
+        print $form->parse_html_template(
+          'wh/produce_assembly_error',
+          {
+            missing_qty_exceptions => [ grep {  $_->isa('SL::X::Inventory::Allocation::MissingQty') } @{ $ex->errors } ],
+            other_exceptions       => [ grep { !$_->isa('SL::X::Inventory::Allocation::MissingQty') } @{ $ex->errors } ],
+          });
+
+        return $::lxdebug->leave_sub();
+      };
+
+    } else {
+      # User has selected something / selection form was sent.
+      # Check allocations.
+
+      # Create allocation helper objects from form.
+      @allocations = map {
+        SL::Helper::Inventory::Allocation->new(
+          parts_id      => $_->{parts_id},
+          qty           => $form->parse_amount(\%myconfig, $_->{qty}),
+          bin_id        => $_->{bin_id},
+          warehouse_id  => $_->{warehouse_id},
+          chargenumber  => $_->{chargenumber},
+          bestbefore    => $_->{bestbefore},
+          comment       => $_->{comment},
+          for_object_id => undef,
+        )
+      } grep { $form->parse_amount(\%myconfig, $_->{qty}) != 0 } @{$form->{allocations}};
+
+      $allocation_check_failed = !check_allocations_for_assembly(part                 => $assembly,
+                                                                 qty                  => $form->{qty},
+                                                                 allocations          => \@allocations,
+                                                                 check_overfulfilment => 1);
+
+      if (!$allocation_check_failed) {
+        # Check, if all allocations are stocked.
+        foreach my $allocation (@allocations) {
+          $stock_check_failed = none {
+            $_->{parts_id}     == $allocation->parts_id     &&
+            $_->{warehouse_id} == $allocation->warehouse_id &&
+            $_->{bin_id}       == $allocation->bin_id       &&
+            $_->{chargenumber} eq $allocation->chargenumber &&
+            $_->{qty}          >= $allocation->qty
+          } @$stocked_parts;
+
+          last if $stock_check_failed;
+        }
+      }
+    }
+
+    # Show selection form if requested or check was not ok. Continue to production otherwise.
+    if ($form->{show_allocations} || $allocation_check_failed || $stock_check_failed) {
+      flash('warning', t8("Allocations are not sufficient or overfulfilled")) if ($allocation_check_failed);
+      flash('warning', t8("Not enough on stock for one or more allocations")) if ($stock_check_failed);
+
+      my %allocations_by_parts_id = map { my $p_id = $_->{parts_id}; $p_id => [grep { $_->{parts_id} == $p_id } @allocations] } @allocations;
+
+      my %needed_by_parts_id = map { $_->{parts_id} => $_->qty * $form->{qty} } @{$assembly->assemblies};
+      return create_assembly_chargenumbers($form, \%stocked_by_parts_id, \%needed_by_parts_id, \%allocations_by_parts_id);
+    }
+
+  }
+
   eval {
     produce_assembly(
               part           => $assembly,               # target assembly
               qty            => $form->{qty},            # qty
-              auto_allocate  => 1,
+              allocations    => ($is_stock_ambiguous ? \@allocations : undef),
+              auto_allocate  => !$is_stock_ambiguous,
               bin            => $bin,                    # needed unless a global standard target is configured
               chargenumber   => $form->{chargenumber},   # optional
               bestbefore     => $form->{bestbefore},
@@ -434,6 +533,27 @@ sub create_assembly {
   transfer_warehouse_selection();
 
   $main::lxdebug->leave_sub();
+}
+
+sub create_assembly_chargenumbers {
+  my ($form, $stocked_by_parts_id, $needed_by_parts_id, $allocated_by_parts_id) = @_;
+
+  setup_wh_create_assembly_chargenumbers_action_bar();
+
+  my $hidden_vars = { map { $_ => $form->{$_} } qw(parts_id warehouse_id bin_id chargenumber qty unit comment) };
+
+  $form->{title} = $::locale->text('Select Chargenumbers');
+  $form->header;
+
+  print $form->parse_html_template(
+    'wh/create_assembly_chargenumbers',
+    {
+      hidden_vars           => $hidden_vars,
+      stocked_by_parts_id   => $stocked_by_parts_id,
+      needed_by_parts_id    => $needed_by_parts_id,
+      allocated_by_parts_id => $allocated_by_parts_id,
+    }
+  );
 }
 
 # --------------------------------------------------------------------
@@ -1198,6 +1318,25 @@ sub setup_wh_transfer_warehouse_selection_assembly_action_bar {
       action => [
         t8('Update'),
         submit    => [ '#form', { action => 'transfer_assembly_update_part' } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Produce'),
+        submit   => [ '#form', { action => 'create_assembly', show_allocations => 1 } ],
+        disabled => $::form->{parts_id} ? undef : $::locale->text('No assembly has been selected yet.'),
+      ],
+    );
+  }
+}
+
+sub setup_wh_create_assembly_chargenumbers_action_bar {
+  my ($action) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#form', { action => 'create_assembly', show_allocations => 1 } ],
         accesskey => 'enter',
       ],
       action => [
