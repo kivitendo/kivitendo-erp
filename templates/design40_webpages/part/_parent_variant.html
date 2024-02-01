@@ -259,7 +259,7 @@
   </div>
 
   <div class="wrapper input-panel">
-    <h3> [% LxERP.t8("Convert part to Variant") %] </h3>
+    <h3> [% LxERP.t8("Convert Part to Variant") %] </h3>
     <table class="tbl-list">
       <caption>
         [% 'Variant Properties' | $T8 %]
@@ -284,7 +284,7 @@
         [% END %]
       </tbody>
     </table>
-    <label for="convert_part.id">[% 'Part to convert:' | $T8 %]</label>
+    <label for="convert_part.id">[% 'Part for conversion:' | $T8 %]</label>
     [% P.part.picker('convert_part.id', undef,
       part_type=SELF.part.part_type, variant_type='single',
       placeholder=(LxERP.t8('Type:') _ ' ' _ LxERP.t8(SELF.part.part_type)),
