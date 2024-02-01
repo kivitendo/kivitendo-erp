@@ -273,30 +273,28 @@ sub action_update_variants {
   }
 
   SL::DB->client->with_transaction(sub {
-    foreach my $variant (@{$self->part->variants}) {
-      $variant->update_attributes(
-        description         => $variant_id_to_values{$variant->id}->{description},
-        listprice_as_number => $variant_id_to_values{$variant->id}->{listprice_as_number},
-        sellprice_as_number => $variant_id_to_values{$variant->id}->{sellprice_as_number},
-        lastcost_as_number  => $variant_id_to_values{$variant->id}->{lastcost_as_number},
-        rop_as_number       => $variant_id_to_values{$variant->id}->{rop_as_number},
-      );
-    }
+    my $new_variant_property;
     if ($variant_property_id) {
-      SL::DB::VariantPropertyPart->new(
+      $new_variant_property = SL::DB::VariantPropertyPart->new(
         part_id             => $self->part->id,
         variant_property_id => $variant_property_id,
       )->save;
-      foreach my $variant (@{$self->part->variants}) {
+    }
+    foreach my $variant (@{$self->part->variants}) {
+      my $variant_attributes = $variant_id_to_values{$variant->id};
+      my $variant_property_value_id = delete $variant_attributes->{add_variant_property_value};
+      delete $variant_attributes->{$_} for qw(id position);
+      $variant->update_attributes(%$variant_attributes);
+      if ($new_variant_property) {
         SL::DB::VariantPropertyValuePart->new(
           part_id                   => $variant->id,
-          variant_property_value_id => $variant_id_to_values{$variant->id}->{"add_variant_property_value"},
+          variant_property_value_id => $variant_property_value_id,
         )->save;
       }
     }
     1;
   }) or do {
-    return $self->js->error(t8('Error while adding variant property: ' . @_))->render();
+    return $self->js->error(t8('Error while adding variant property: #1', SL::DB->client->error))->render();
   };
 
   $self->redirect_to(
@@ -882,8 +880,12 @@ sub action_reorder_variants {
   my %sort_keys = (
     partnumber       => sub { $_[0]->partnumber },
     description      => sub { $_[0]->description },
+    ean              => sub { $_[0]->ean },
+    listprice        => sub { $_[0]->listprice },
     sellprice        => sub { $_[0]->sellprice },
     lastcost         => sub { $_[0]->lastcost },
+    onhand           => sub { $_[0]->onhand },
+    rop              => sub { $_[0]->rop },
     variant_values   => sub { $_[0]->variant_values },
   );
   foreach my $variant_property (@{$part->variant_properties}) {
@@ -902,7 +904,7 @@ sub action_reorder_variants {
     @{$::form->{variants}};
 
   my @to_sort = map { { old_pos => $variant_id_to_position{$_->id}, order_by => $method->($_) } } @items;
-  if ($::form->{order_by} =~ /^(sellprice|lastcost)$/ ||
+  if ($::form->{order_by} =~ /^(listpirce|sellprice|lastcost|onhand|rop)$/ ||
       $::form->{order_by} =~ /^variant_property_/) {
     if ($::form->{sort_dir}) {
       @to_sort = sort { $a->{order_by} <=> $b->{order_by} } @to_sort;
