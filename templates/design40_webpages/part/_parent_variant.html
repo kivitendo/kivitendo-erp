@@ -24,6 +24,11 @@
             [% 'Partnumber' | $T8 %]
           </a>
         </th>
+        <th id="variant_ean_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants("ean")'>
+            [% "EAN" | $T8 %]
+          </a>
+        </th>
         <th id="variant_description_header_id">
           <a href='#' onClick='javascript:kivi.Part.reorder_variants("description")'>
             [% "Description" | $T8 %]
@@ -41,10 +46,31 @@
           </a>
         </th>
         [% END %]
-        <th>[% 'List Price' | $T8 %]</th>
-        <th>[% 'Sell Price' | $T8 %]</th>
-        <th>[% 'Last Cost' | $T8 %]</th>
-        <th>[% 'ROP' | $T8 %]</th>
+        <th id="variant_listprice_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants("listprice")'>
+            [% "List Price" | $T8 %]
+          </a>
+        </th>
+        <th id="variant_sellprice_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants("sellprice")'>
+            [% "Sell Price" | $T8 %]
+          </a>
+        </th>
+        <th id="variant_lastcost_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants("lastcost")'>
+            [% "Last Cost" | $T8 %]
+          </a>
+        </th>
+        <th id="variant_onhand_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants("onhand")'>
+            [% "On Hand" | $T8 %]
+          </a>
+        </th>
+        <th id="variant_rop_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants("rop")'>
+            [% "ROP" | $T8 %]
+          </a>
+        </th>
         <th>
           [% L.select_tag("add_variant_property", AVAILABLE_VARIANT_PROPERIES
             title_key='displayable_name', value_key='id',
@@ -54,13 +80,14 @@
         </th>
       </tr>
       <tr>
-        <th class="center">
+        <th>
           [%- L.button_tag('kivi.Part.variant_rows_toggle_selected();', "🔄",
                            title=LxERP.t8("Toggle selection"),
                            alt=LxERP.t8("Toggle selection"),
                            ) %]
         </th>
-        <th></th>
+        <th><!-- partnumber --></th>
+        <th><!-- ean --></th>
         <th>
           [% L.input_tag("description_for_selected_variants", SELF.part.description,
                           class="wi-medium",
@@ -72,7 +99,10 @@
                 title=LxERP.t8('Apply to selected rows'),
           ) %]
         </th>
-        <th colspan="[% SELF.part.variant_properties.size + 1 %]"></th>
+        <th><!-- variant_values --></th>
+        [% FOREACH property = SELF.part.variant_properties %]
+        <th></th>
+        [% END %]
         <th>
           [% L.input_tag(
                 "listprice_as_number_for_selected_variants",
@@ -112,6 +142,7 @@
                 title=LxERP.t8('Apply to selected rows'),
           ) %]
         </th>
+        <th><!-- onhand --></th>
         <th>
           [% L.input_tag(
                 "rop_as_number_for_selected_variants",
@@ -149,11 +180,14 @@
             </td>
             <td>[% variant.presenter.part %]</td>
             <td>
+              [% L.input_tag("variants[].ean", variant.ean, class="wi-medium") %]
+            </td>
+            <td>
               [% L.input_tag("variants[].description", variant.description, class="wi-medium") %]
             </td>
             <td>[% variant.variant_values | html %]</td>
             [% FOREACH variant_property = SELF.part.variant_properties %]
-            <td> [% variant.variant_value(variant_property) %] </td>
+            <td> [% variant.variant_value(variant_property).displayable_name %] </td>
             [% END %]
             <td>
               [% L.input_tag(
@@ -175,6 +209,11 @@
                     variant.lastcost_as_number,
                     class='reformat_number numeric wi-small',
               ) %]
+            </td>
+            <td>
+              <span class="data wi-small numeric">
+                [% LxERP.format_amount(variant.onhand) %] [% variant.unit | html %]
+              </span>
             </td>
             <td>
               [% L.input_tag(
