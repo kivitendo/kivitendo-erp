@@ -30,6 +30,8 @@ use SL::Form;
 use SL::Locale;
 
 use SL::Helper::Csv;
+use SL::Helper::Inventory qw(get_stock);
+
 use SL::DB::Part;
 use SL::DB::PartsGroup;
 use SL::DB::VariantProperty;
@@ -440,7 +442,7 @@ SL::DB->client->with_transaction(sub {
         unit        => 'Stck',
       );
 
-      unless (scalar $parent_variant->makemodels) {
+      unless (scalar @{$parent_variant->makemodels}) {
         # add makemodel
         my $makemodel = SL::DB::MakeModel->new(
           make             => $vendor->id,
