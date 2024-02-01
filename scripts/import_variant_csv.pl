@@ -38,6 +38,7 @@ use SL::DB::VariantProperty;
 use SL::DB::VariantPropertyValue;
 use SL::DB::Warehouse;
 use SL::DB::Inventory;
+use SL::DB::Buchungsgruppe;
 
 use feature "say";
 
@@ -259,7 +260,11 @@ my $warengruppen_hrefs = $warengruppen_csv->get_data;
 my $transfer_type = SL::DB::Manager::TransferType->find_by(
   direction => 'in',
   description => 'stock',
-) or die "Could no find transfer_type";
+) or die "Could not find transfer_type";
+
+my $buchungsgruppe = SL::DB::Manager::Buchungsgruppe->find_by(
+  description => 'Standard 19%',
+) or die "Could not find buchungsgruppe";
 
 SL::DB->client->with_transaction(sub {
   my @errors;
@@ -434,12 +439,13 @@ SL::DB->client->with_transaction(sub {
         %parent_variant_fix_att
       );
       $parent_variant->update_attributes(
-        description => $description,
-        sellprice   => $best_sellprice,
-        partsgroup  => $partsgroup,
-        warehouse   => $warehouse,
-        bin         => $warehouse->bins->[0],
-        unit        => 'Stck',
+        description        => $description,
+        sellprice          => $best_sellprice,
+        partsgroup         => $partsgroup,
+        warehouse          => $warehouse,
+        bin                => $warehouse->bins->[0],
+        unit               => 'Stck',
+        buchungsgruppen_id => $buchungsgruppe->id,
       );
 
       unless (scalar @{$parent_variant->makemodels}) {
