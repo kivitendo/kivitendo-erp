@@ -24,7 +24,7 @@ use SL::DB::Helper::DisplayableNamePreferences (
   options => [
     {name => 'partnumber',     title => t8('Part Number')},
     {name => 'description',    title => t8('Description')},
-    {name => 'variant_values', title => t8('Varaint Values')},
+    {name => 'variant_values', title => t8('Variant Property Values')},
     {name => 'notes',          title => t8('Notes')},
     {name => 'ean',            title => t8('EAN')},
   ],
@@ -163,8 +163,11 @@ sub _before_check_variant_property_values {
       next if $variant->id == $self->id;
       my @other_property_value_ids = sort map {$_->id} $variant->variant_property_values;
       if ("@other_property_value_ids" eq "@property_value_ids") {
-        die t8("There is already a variant of '#1' with the property values: ", $parent_variant->displayable_name),
-          join(' ,', map {$_->displayable_name} $self->variant_property_values);
+        die t8(
+          "There is already a variant of '#1' with the property values: #2",
+          $parent_variant->displayable_name,
+          join(', ', map {$_->displayable_name} $self->variant_property_values)
+        );
       }
     }
   }

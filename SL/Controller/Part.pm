@@ -1916,7 +1916,11 @@ sub _check_variant_property_values_not_taken {
   }
 
   if (@double_lists) {
-    die t8("There is already a variant with the property values: #1.", join("; ", @double_lists));
+    die t8(
+      "There is already a variant of '#1' with the property values: #2",
+      $parent_variant->displayable_name,
+      join("; ", @double_lists)
+    );
   }
 }
 
