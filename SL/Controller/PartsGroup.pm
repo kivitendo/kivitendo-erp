@@ -203,7 +203,7 @@ sub action_update_partsgroup_for_parts{
       $self->js->flash('info', t8("Moved #1 parts.", $parts_updated_count));
     }
   } else {
-    $self->js->flash('error', t8("No parts selected"));
+    $self->js->flash('error', t8("No parts selected."));
   }
 
   $self->_render_parts_table_body; # needs $::form->{current_partsgroup_id}

@@ -45,7 +45,7 @@
         <tr>
           <td> [%- 'Value' | $T8 %] </td>
           <input type="text" name="translation_[% language.id %]" value="[%- HTML.escape(variant_property_value.translated_attribute('description_long', language, 1)) %]" size="60">
-          <td> [% P.input_tag("variant_property_value.value", variant_property_value.value, "data-validate"="required", "data-title"=LxERP.t8("value")) %] </td>
+          <td> [% P.input_tag("variant_property_value.value", variant_property_value.value, "data-validate"="required", "data-title"=LxERP.t8("Value")) %] </td>
         </tr>
           <tr>
           <td> [%- 'Abbreviation' | $T8 %] </td>
