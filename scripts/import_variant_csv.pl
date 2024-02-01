@@ -302,13 +302,22 @@ SL::DB->client->with_transaction(sub {
     $variant_property->save;
 
     my $pos = 1;
-    SL::DB::VariantPropertyValue->new(
-      variant_property => $variant_property,
-      value            => $_->{Joined},
-      abbreviation     => $_->{Joined},
-    )->update_attributes(
-      sortkey => $pos++,
-    )->save for @$farb_hrefs;
+    foreach my $farb_row (@$farb_hrefs) {
+      my %farb_attr = (
+        variant_property_id => $variant_property->id,
+        value               => $farb_row->{Joined},
+        abbreviation        => $farb_row->{Joined},
+      );
+      my $farbe = SL::DB::Manager::VariantPropertyValue->find_by(
+        %farb_attr
+      );
+      $farbe ||= SL::DB::VariantPropertyValue->new(
+        %farb_attr
+      )->save;
+      $farbe->update_attributes(
+        sortkey => $pos++,
+      );
+    }
   }
 
   # create groessen staffeln
@@ -327,18 +336,28 @@ SL::DB->client->with_transaction(sub {
     );
     $variant_property->save;
 
-    my $pos = 1;
-    SL::DB::VariantPropertyValue->new(
-      variant_property => $variant_property,
-      value            => $_,
-      abbreviation     => $_,
-    )->update_attributes(
-      sortkey => $pos++,
-    )->save for
+    my @values =
       map {$groessen_staffel_row->{$_}}
       sort
       grep {$groessen_staffel_row->{$_} ne ''}
       keys %$groessen_staffel_row;
+    my $pos = 1;
+    foreach my $value (@values) {
+      my %größe_attr = (
+        variant_property_id => $variant_property->id,
+        value               => $value,
+        abbreviation        => $value,
+      );
+      my $größe = SL::DB::Manager::VariantPropertyValue->find_by(
+        %größe_attr
+      );
+      $größe ||= SL::DB::VariantPropertyValue->new(
+        %größe_attr
+      )->save;
+      $größe->update_attributes(
+        sortkey => $pos++,
+      );
+    }
   }
 
   # create partsgroups
