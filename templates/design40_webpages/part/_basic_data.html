@@ -4,19 +4,22 @@
 [% USE L %]
 [% USE P %]
 
-[% IF SELF.part.image || SELF.part.description %]
-  [% IF SELF.part.image && INSTANCE_CONF.get_parts_show_image %]
-    <div class="image col">
-      <a href="[% SELF.part.image | html %]" target="_blank">
-        <img style="[% INSTANCE_CONF.get_parts_image_css %]" src="[% SELF.part.image | html %]"/>
-      </a>
-    </div>
-  [% END %]
-  [% IF SELF.part.description %]
-    <h2 class="record-title col">
-      [% SELF.part.description %] [% IF SELF.part.partnumber %]<small>([%  SELF.part.partnumber %])</small>[% END %]
-    </h2>
-  [% END %]
+[% IF SELF.part.image && INSTANCE_CONF.get_parts_show_image %]
+  <div class="image col">
+    <a href="[% SELF.part.image | html %]" target="_blank">
+      <img style="[% INSTANCE_CONF.get_parts_image_css %]" src="[% SELF.part.image | html %]"/>
+    </a>
+  </div>
+[% END %]
+
+[% IF SELF.part.description %]
+  <h2 class="record-title col">
+    [% SELF.part.description %]
+    [% IF SELF.part.partnumber %]<small>([%  SELF.part.partnumber %])</small>[% END %]
+    [% IF SELF.part.is_variant %]
+    <br><small>[% 'Parent Variant' | $T8 %]: [%  SELF.part.parent_variant.presenter.part %]</small>
+    [% END %]
+  </h2>
 [% END %]
 
 <div class="wrapper" id="wrapper-1">

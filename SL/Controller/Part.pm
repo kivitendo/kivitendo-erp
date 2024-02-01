@@ -1244,7 +1244,7 @@ sub add {
   my $title = $title_hash{$self->part->part_type};
   $title .=
     ' (' . SL::Presenter::Part::variant_type_abbreviation($self->part->variant_type) . ')'
-    if $self->part->variant_type;
+    if $self->part->is_variant || $self->part->is_parent_variant;
 
   $self->render(
     'part/form',
