@@ -50,8 +50,11 @@
     [% IF CUSTOM_VARIABLES.size %]
       <li><a href="#custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
     [% END %]
-    [%- IF (AUTH.assert('warehouse_contents', 1) AND SELF.part.id AND NOT SELF.part.is_service) %]
+    [%- IF (AUTH.assert('warehouse_contents', 1) AND SELF.part.id AND NOT SELF.part.is_service AND NOT SELF.part.is_parent_variant) %]
       <li><a href="#inventory">[% 'Inventories' | $T8 %]</a></li>
+    [%- END %]
+    [%- IF (AUTH.assert('warehouse_contents', 1) AND SELF.part.id AND SELF.part.is_parent_variant) %]
+      <li><a href="#partent_variant_inventory">[% 'Variants Inventories' | $T8 %]</a></li>
     [%- END %]
     [% IF AUTH.assert('shop_part_edit', 1) && SELF.part.id && SELF.part.shop %]
       <li><a href="#shop_variables">[% 'Shop variables' | $T8 %]</a></li>
@@ -101,9 +104,14 @@
     </div>
   [% END %]
 
-  [% IF AUTH.assert('warehouse_contents', 1) AND SELF.part.id AND NOT SELF.part.is_service %]
+  [% IF AUTH.assert('warehouse_contents', 1) AND SELF.part.id AND NOT SELF.part.is_service AND NOT SELF.part.is_parent_variant %]
     <div id="inventory">
       [% PROCESS 'part/_inventory.html' %]
+    </div>
+  [% END %]
+  [% IF AUTH.assert('warehouse_contents', 1) AND SELF.part.id AND SELF.part.is_parent_variant %]
+    <div id="partent_variant_inventory">
+      [% PROCESS 'part/_parent_variant_inventory.html' %]
     </div>
   [% END %]
 

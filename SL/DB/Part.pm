@@ -489,6 +489,48 @@ SQL
   return $stock_info;
 }
 
+sub get_simple_stock_parent_variant_sql {
+  my ($self, %params) = @_;
+
+  return {} unless $self->id;
+
+  my $query = <<SQL;
+SELECT
+  p.partnumber                          AS partnumber,
+  w.description                         AS warehouse_description,
+  b.description                         AS bin_description,
+  SUM(i.qty)                            AS qty,
+  SUM(i.qty * p.lastcost)               AS stock_value,
+  p.unit                                AS unit,
+  LEAD(w.description)           OVER pt AS wh_lead,            -- to detect warehouse changes for subtotals in template
+  SUM( SUM(i.qty) )             OVER pt AS run_qty,            -- running total of part qty
+  SUM( SUM(i.qty) )             OVER wh AS wh_run_qty,         -- running total of part warehouse qty
+  SUM( SUM(i.qty) )             OVER () AS total_qty,          -- running total of all qty
+  SUM( SUM(i.qty * p.lastcost)) OVER pt AS run_stock_value,    -- running total of part stock_value
+  SUM( SUM(i.qty * p.lastcost)) OVER wh AS wh_run_stock_value, -- running total of part warehouse stock_value
+  SUM( SUM(i.qty * p.lastcost)) OVER () AS total_stock_value   -- running total of all stock_value
+FROM parts_parent_variant_id_parts_variant_id pvv
+  LEFT JOIN inventory i ON (pvv.variant_id = i.parts_id)
+  LEFT JOIN parts p     ON (i.parts_id     = p.id)
+  LEFT JOIN warehouse w ON (i.warehouse_id = w.id)
+  LEFT JOIN bin b       ON (i.bin_id       = b.id)
+WHERE parent_variant_id = ?
+GROUP BY p.partnumber, w.description, w.sortkey, b.description, p.unit, i.parts_id
+  HAVING SUM(qty) != 0
+  WINDOW pt AS (PARTITION BY i.parts_id                ORDER BY w.sortkey, b.description, p.unit),
+         wh AS (PARTITION by i.parts_id, w.description ORDER BY w.sortkey, b.description, p.unit)
+ORDER BY w.sortkey, b.description, p.unit;
+SQL
+
+  my $stock_info = selectall_hashref_query($::form, $self->db->dbh, $query, $self->id);
+
+  my %variant_partnumber_to_stock_info;
+  for (@$stock_info) {
+    push @{$variant_partnumber_to_stock_info{$_->{partnumber}}}, $_;
+  }
+  return \%variant_partnumber_to_stock_info;
+}
+
 sub get_mini_journal {
   my ($self) = @_;
 

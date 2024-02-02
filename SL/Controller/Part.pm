@@ -561,6 +561,14 @@ sub action_inventory {
   $_[0]->render('part/_inventory_data', { layout => 0 });
 };
 
+sub action_parent_variant_inventory {
+  my ($self) = @_;
+
+  $::auth->assert('warehouse_contents');
+
+  $self->render('part/_parent_variant_inventory_data', { layout => 0 });
+}
+
 sub action_update_item_totals {
   my ($self) = @_;
 
