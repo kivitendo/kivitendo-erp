@@ -119,6 +119,9 @@ __PACKAGE__->meta->add_relationships(
     map_from  => 'parent_variant',
     map_to    => 'variant',
     type      => 'many to many', #should be 'one to many' but has no map_class
+    manager_args => {
+      sort_by => "SUBSTRING(variant.partnumber FROM '([0-9]+)\$')::BIGINT ASC, variant.partnumber ASC"
+    }
   }
 );
 
@@ -343,7 +346,9 @@ sub buchungsgruppe {
 }
 
 sub parent_variant {
-  my ($parent_variant) = shift->parent_variants(@_);
+  my $parent_variant;
+  # returns a list, but we only care about the first element
+  ($parent_variant) = shift->parent_variants(@_);
   return $parent_variant;
 }
 
