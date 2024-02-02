@@ -374,7 +374,7 @@
                 [% temp_forex = "forex_"_ i %]
                 [% SET defaultcurrency_paid = 'defaultcurrency_paid_' _ i %]
                 [% SET record_forex = 'record_forex_' _ i %]
-
+                [% SET fx_transaction = 'fx_transaction_' _ i %]
 
                 [% IF( $temp_forex || !changeable ) %]
                   [% $temp | html %] = [% LxERP.format_amount($defaultcurrency_paid,2) %] [% defaultcurrency %] </br>
@@ -385,6 +385,7 @@
                   <input name="[% temp %]" size="11" value="[% $temp | html %]">
                 [% END %]
                 <input type=hidden name="[% temp_forex %]" value="[% $temp_forex | html %]">
+                <input type="hidden" name="[% fx_transaction %]" value="1">
               </td>
             [% END %]
 
