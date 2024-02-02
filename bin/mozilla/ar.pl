@@ -532,7 +532,12 @@ sub form_header {
           $form->{"record_forex_$i"} = 1;
         }
       }
-      $form->{"defaultcurrency_paid_$i"} = $form->{"paid_$i"} * $form->{"exchangerate_$i"};
+      if (!$form->{"fx_transaction_$i"}) {
+        # this is a banktransaction that was paid in internal currency. revert paid/defaultcurrency_paid
+        $form->{"defaultcurrency_paid_$i"} = $form->{"paid_$i"};
+        $form->{"paid_$i"} /= $form->{"exchangerate_$i"};
+      }
+      $form->{"defaultcurrency_paid_$i"} //= $form->{"paid_$i"} * $form->{"exchangerate_$i"};
       $form->{"defaultcurrency_totalpaid"} += $form->{"defaultcurrency_paid_$i"};
     } # end hook defaultcurrency_paid
 

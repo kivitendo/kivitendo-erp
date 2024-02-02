@@ -308,6 +308,7 @@
          </td>
 [%- IF show_exch %]
          <td align=center>
+          <input type="hidden" name="fx_transaction_[% loop.count %]" value="1">
     [%- IF row.forex || !row.changeable%]
           <input type=hidden name="exchangerate_[% loop.count %]" value="[%- LxERP.format_amount(row.exchangerate, 5, 1) -%]">
       [%- LxERP.format_amount(row.exchangerate, 5, 0) -%] = [% LxERP.format_amount(row.defaultcurrency_paid, 2) %] [% defaultcurrency %]</br>
