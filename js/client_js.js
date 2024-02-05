@@ -5,45 +5,14 @@
 // SL/ClientJS.pm for instructions.
 
 namespace("kivi", function(ns) {
-ns.display_flash = function(type, message, noscroll) {
-  $('#flash_' + type + '_content').text(message);
-  $('#flash_' + type).show();
-  if (!noscroll && $('#frame-header')[0]) {
-    $('#frame-header')[0].scrollIntoView();
-  }
-};
-
-ns.display_flash_detail = function(type, message) {
-  $('#flash_' + type + '_detail').html(message);
-  $('#flash_' + type + '_disp').show();
-};
-
-ns.clear_flash = function(category , timeout) {
-  window.setTimeout(function(){
-    $('#flash_' + category).hide();
-    $('#flash_detail_' + category).hide();
-    $('#flash_' + category + '_disp').hide();
-    $('#flash_' + category + '_content').empty();
-    $('#flash_' + category + '_detail').empty();
-  }, timeout);
-};
 
 ns.eval_json_result = function(data) {
   if (!data)
     return;
 
-  if (data.error)
-    return ns.display_flash('error', data.error);
+  if (data.error && ns.Flash)
+    return ns.Flash.display_flash('error', data.error);
 
-  if (!data.no_flash_clear) {
-    $(['info', 'warning', 'error']).each(function(idx, category) {
-      $('#flash_' + category).hide();
-      $('#flash_detail_' + category).hide();
-      $('#flash_' + category + '_disp').hide();
-      $('#flash_' + category + '_content').empty();
-      $('#flash_' + category + '_detail').empty();
-    });
-  }
   if ((data.js || '') !== '')
     // jshint -W061
     eval(data.js);
@@ -152,9 +121,12 @@ ns.eval_json_result = function(data) {
       // ## other stuff ##
       else if (action[0] == 'redirect_to')          window.location.href = action[1];
       else if (action[0] == 'save_file')            kivi.save_file(action[1], action[2], action[3], action[4]);
-      else if (action[0] == 'flash')                kivi.display_flash(action[1], action[2]);
-      else if (action[0] == 'flash_detail')         kivi.display_flash_detail(action[1], action[2]);
-      else if (action[0] == 'clear_flash')          kivi.clear_flash(action[1], action[2]);
+
+      // flash
+      else if (action[0] == 'flash')                kivi.Flash.display_flash.apply({}, action.slice(1, action.length));
+      else if (action[0] == 'clear_flash')          kivi.Flash.clear_flash();
+      else if (action[0] == 'show_flash')           kivi.Flash.show();
+      else if (action[0] == 'hide_flash')           kivi.Flash.hide();
       else if (action[0] == 'reinit_widgets')       kivi.reinit_widgets();
       else if (action[0] == 'run')                  kivi.run(action[1], action.slice(2, action.length));
       else if (action[0] == 'run_once_for')         kivi.run_once_for(action[1], action[2], action[3]);
