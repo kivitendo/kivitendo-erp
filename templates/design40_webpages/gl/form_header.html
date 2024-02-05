@@ -23,8 +23,6 @@
 
 <form method="post" name="gl" action="gl.pl" id="form">
 
-[%- INCLUDE 'common/flash.html' %]
-
 [% FOREACH name IN [ 'id', 'closedto', 'locked', 'storno', 'storno_id', 'previous_id', 'previous_gldate' ] %]
   [% L.hidden_tag(name, $name) %]
 [% END %]

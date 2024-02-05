@@ -5,8 +5,6 @@
 
 <h1>[% HTML.escape(title) %]</h1>
 
-[%- INCLUDE "common/flash.html" %]
-
 <form action="controller.pl" method="post" id="form">
 
  [%- L.hidden_tag("type", SELF.type) %]

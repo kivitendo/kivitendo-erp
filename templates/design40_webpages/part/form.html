@@ -8,8 +8,6 @@
 
 <form method="post" id="ic" name="ic" action="controller.pl">
 
-[% INCLUDE 'common/flash.html' %]
-
 [% L.hidden_tag('part.part_type'   , SELF.part.part_type) %]
 [% L.hidden_tag('part.id'          , SELF.part.id) %]
 [% L.hidden_tag('last_modification', SELF.part.last_modification) %]

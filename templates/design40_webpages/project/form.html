@@ -5,8 +5,6 @@
 [% USE LxERP %]
 <h1>[% title | html %]</h1>
 
-[% INCLUDE 'common/flash.html' %]
-
  <form method="post" action="controller.pl" id="form">
   [% L.hidden_tag("callback", callback) %]
   [% L.hidden_tag("id", SELF.project.id) %]
