@@ -5,45 +5,14 @@
 // SL/ClientJS.pm for instructions.
 
 namespace("kivi", function(ns) {
-ns.display_flash = function(type, message, noscroll) {
-  $('#flash_' + type + '_content').text(message);
-  $('#flash_' + type).show();
-  if (!noscroll) {
-    $('#frame-header')[0].scrollIntoView();
-  }
-};
-
-ns.display_flash_detail = function(type, message) {
-  $('#flash_' + type + '_detail').html(message);
-  $('#flash_' + type + '_disp').show();
-};
-
-ns.clear_flash = function(category , timeout) {
-  window.setTimeout(function(){
-    $('#flash_' + category).hide();
-    $('#flash_detail_' + category).hide();
-    $('#flash_' + category + '_disp').hide();
-    $('#flash_' + category + '_content').empty();
-    $('#flash_' + category + '_detail').empty();
-  }, timeout);
-};
 
 ns.eval_json_result = function(data) {
   if (!data)
     return;
 
   if (data.error)
-    return ns.display_flash('error', data.error);
+    return ns.Flash.display_flash('error', data.error);
 
-  if (!data.no_flash_clear) {
-    $(['info', 'warning', 'error']).each(function(idx, category) {
-      $('#flash_' + category).hide();
-      $('#flash_detail_' + category).hide();
-      $('#flash_' + category + '_disp').hide();
-      $('#flash_' + category + '_content').empty();
-      $('#flash_' + category + '_detail').empty();
-    });
-  }
   if ((data.js || '') !== '')
     // jshint -W061
     eval(data.js);
