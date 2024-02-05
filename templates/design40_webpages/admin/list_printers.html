@@ -6,7 +6,6 @@
 
 <div class="wrapper">
 [% IF !SELF.all_clients.size %] 
-  [% INCLUDE 'common/flash.html' %] 
   <div class="error">
     [% LxERP.t8("Error") %]: [% LxERP.t8("No clients have been created yet.") %] 
   </div>
