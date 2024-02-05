@@ -10,8 +10,6 @@
 <h1>[% HTML.escape(title) %]</h1>
 <form id="form" action="controller.pl" method="post">
 
-[% INCLUDE 'common/flash.html' %]
-
 [% L.hidden_tag("id", SELF.shop.id) %]
 
 <div class="wrapper">

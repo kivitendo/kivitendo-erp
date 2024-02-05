@@ -4,7 +4,6 @@
 [% USE T8 %]
 
 [% L.stylesheet_tag('webshop') %]
-[% INCLUDE 'common/flash.html' %]
 <h1>[% title %] &nbsp; <small>[% 'Number of data sets' | $T8 %]: [% SHOPORDERS.size %]</small></h1>
 
 [% PROCESS 'shop_order/_filter.html' filter=SELF.models.filtered.laundered %]

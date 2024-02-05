@@ -3,8 +3,6 @@
 
 <h1>[% 'Your TODO list' | $T8 %]</h1>
 
-[%- INCLUDE 'common/flash.html' %]
-
 [% IF !todo_list %]
   <p>[% 'There are no items on your TODO list at the moment.' | $T8 %]</p>
 [% ELSE %]
