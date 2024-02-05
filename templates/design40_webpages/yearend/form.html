@@ -5,8 +5,6 @@
 
 <h1>[% title | html %]</h1>
 
-[%- INCLUDE 'common/flash.html' %]
-
 <div class="wrapper">
 
 [% IF carry_over_chart AND profit_chart AND (loss_chart OR SELF.defaults.yearend_method == 'simple') %] [% THEN %]

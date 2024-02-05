@@ -14,8 +14,6 @@
   [% L.hidden_tag('callback', FORM.callback) %]
   [% L.hidden_tag('cv.id', SELF.cv.id) %]
 
-  [% INCLUDE 'common/flash.html' %]
-
   [%- SET show_deliveries = ( SELF.cv.id && ((SELF.is_customer && AUTH.assert('sales_all_edit', 1)) || (SELF.is_vendor && AUTH.assert('purchase_all_edit', 1))) ) -%]
   <div class="tabwidget" id="customer_vendor_tabs">
     <ul class="ui-tabs">
