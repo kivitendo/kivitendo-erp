@@ -65,9 +65,9 @@ sub save {
 sub get_version_count {
   my ($self, %params) = @_;
   die "no dbfile" unless $params{dbfile};
-  ## TODO
-  # Webdav doesn't have versions by now. And delete checks for version, so return 0 for now
-  return 0;
+  # TODO: Webdav doesn't have versions by now.
+  my ($path, undef, undef) = $self->webdav_path($params{dbfile});
+  return (-f $path || 0) * 1; # return 1 if file is found otherwise 0
 }
 
 sub get_mtime {
