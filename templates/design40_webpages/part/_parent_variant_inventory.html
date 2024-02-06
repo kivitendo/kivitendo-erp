@@ -1,0 +1,20 @@
+[%- USE HTML %][%- USE L -%][%- USE P -%][%- USE LxERP -%][%- USE T8 -%]
+
+<div id="parent_vairant_inventory_data">
+</div>
+
+<script type='text/javascript'>
+$(function() {
+  $('.tabwidget').on('tabsbeforeactivate', function(event, ui){
+    if (ui.newPanel.attr('id') == 'partent_variant_inventory') {
+      $.ajax({
+        url: 'controller.pl?action=Part/parent_variant_inventory&id=[% SELF.part.id %]',
+        success: function (html) {
+          $("#parent_vairant_inventory_data").html(html);
+        },
+      });
+    }
+    return 1;
+   });
+});
+</script>
