@@ -354,7 +354,12 @@ sub produce_assembly {
 
   # check whether allocations are sane
   if (!$params{no_check_allocations} && !$params{auto_allocate}) {
-    my %allocations_by_part = map { $_->parts_id  => $_->qty } @$allocations;
+    my %allocations_by_part;
+    for (@$allocations) {
+      $allocations_by_part{$_->parts_id} //= 0;
+      $allocations_by_part{$_->parts_id}  += $_->qty;
+    }
+
     for my $assembly ($part->assemblies) {
       next if $assembly->part->type eq 'service' && !$consume_service;
       $allocations_by_part{ $assembly->parts_id } -= $assembly->qty * $qty;
