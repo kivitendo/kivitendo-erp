@@ -328,6 +328,8 @@ sub produce_assembly {
 
   my $allocations = $params{allocations};
   my $strict_wh = $::instance_conf->get_produce_assembly_same_warehouse ? $bin->warehouse : undef;
+  my $consume_service = $::instance_conf->get_produce_assembly_transfer_service;
+
   if ($params{auto_allocate}) {
     Carp::croak("produce_assembly: can't have both allocations and auto_allocate") if $params{allocations};
     $allocations = [ allocate_for_assembly(part => $part, qty => $qty, warehouse => $strict_wh, chargenumber => $params{chargenumber}) ];
@@ -354,6 +356,7 @@ sub produce_assembly {
   if (!$params{no_check_allocations} && !$params{auto_allocate}) {
     my %allocations_by_part = map { $_->parts_id  => $_->qty } @$allocations;
     for my $assembly ($part->assemblies) {
+      next if $assembly->part->type eq 'service' && !$consume_service;
       $allocations_by_part{ $assembly->parts_id } -= $assembly->qty * $qty;
     }
 
