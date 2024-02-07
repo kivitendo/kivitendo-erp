@@ -4,6 +4,7 @@ use strict;
 
 use parent qw(SL::File::Backend);
 use SL::DB::File;
+use SL::DB::FileVersion;
 
 use SL::System::Process;
 use File::Copy;
@@ -12,6 +13,7 @@ use File::Basename;
 use File::Path qw(make_path);
 use File::MimeInfo::Magic;
 use File::stat;
+use UUID::Tiny ':std';
 
 #
 # public methods
@@ -59,6 +61,20 @@ sub save {
     print OUT $params{file_contents};
     close(OUT);
   }
+
+  # save file version
+  my $doc_path = $self->get_rootdir();
+  my $rel_file = $tofile;
+  $rel_file    =~ s/$doc_path//;
+  my $fv = SL::DB::FileVersion->new(
+    file_id       => $params{dbfile}->id,
+    version       => 1, # Webdav doesn't have versions by now.
+    file_location => $rel_file,
+    doc_path      => $doc_path,
+    backend       => 'Webdav',
+    guid          => create_uuid_as_string(UUID_V4),
+  )->save;
+
   return 1;
 }
 
