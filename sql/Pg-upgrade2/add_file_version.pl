@@ -7,6 +7,7 @@ use strict;
 use utf8;
 
 use SL::DB::File;
+use SL::File::Backend::Webdav;
 
 use SL::System::Process;
 
@@ -26,7 +27,7 @@ sub run {
 
       my $doc_path;
       if ($backend eq 'Webdav') {
-        $doc_path = SL::System::Process::exe_dir() . '/webdav';
+        $doc_path = SL::File::Backend::Webdav::get_rootdir();
       } elsif ($backend eq 'Filesystem') {
         $doc_path = $::lx_office_conf{paths}->{document_path};
       } else {
