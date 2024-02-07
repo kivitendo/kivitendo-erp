@@ -9,7 +9,7 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('files');
 
 __PACKAGE__->meta->columns(
-  backend       => { type => 'text' },
+  backend       => { type => 'enum', check_in => [ 'Filesystem', 'Webdav' ], db_type => 'files_backends', not_null => 1 },
   backend_data  => { type => 'text' },
   description   => { type => 'text' },
   file_name     => { type => 'text', not_null => 1 },
