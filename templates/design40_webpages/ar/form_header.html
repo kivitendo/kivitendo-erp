@@ -331,7 +331,7 @@
         <td class="numeric">
           [% IF row.forex || !row.changeable%]
             <input type="hidden" name="exchangerate_[% loop.count %]" value="[% LxERP.format_amount(row.exchangerate, 5, 1) %]">
-            [%- LxERP.format_amount(row.exchangerate, 5, 0) -%] = [% LxERP.format_amount(row.fx_paid, 2) %] [% currency %]</br>
+            [%- LxERP.format_amount(row.exchangerate, 5, 0) -%] = [% LxERP.format_amount(row.defaultcurrency_paid, 2) %] [% defaultcurrency %]</br>
             [% IF $record_forex %][% 'bank transaction exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
           [% ELSE %]
             <input type="text" name="exchangerate_[% loop.count %]" size="10" value="[% LxERP.format_amount(row.exchangerate, 5, 1) %]">
@@ -364,11 +364,11 @@
       <td></td>
       <td></td>
       <th class="right">[% 'Total' | $T8 %]</th>
-      <td class="numeric">[% LxERP.format_amount(totalpaid, 2) | html %] [% defaultcurrency %]</td>
+      <td align="numeric">[% LxERP.format_amount(totalpaid, 2) | html %]  [% currency %] </td>
       <td></td>
       [% IF show_exch %]
-        <td class="numeric">[% LxERP.format_amount(fx_totalpaid, 2) | html %] [% currency %]</td>
-        <input type="hidden" name="fx_totalpaid" value="[% fx_totalpaid %]">
+        <td align="numeric">[% LxERP.format_amount(defaultcurrency_totalpaid, 2) | html %] [% defaultcurrency %]</td>
+        <input type="hidden" name="defaultcurrency_totalpaid" value="[% defaultcurrency_totalpaid %]">
         <input type="hidden" name="is_linked_bank_transaction" value="[% is_linked_bank_transaction %]">
       [% END %]
       <td></td>
@@ -379,7 +379,7 @@
       <td></td>
       <th class="right">[% 'Missing amount' | $T8 %]</th>
       <td class="numeric">
-        [% LxERP.format_amount(paid_missing, 2) | html %]
+        [% LxERP.format_amount(paid_missing, 2) | html %] [% currency %]
         <input type="hidden" name="paidaccounts" value="[% paidaccounts %]">
       </td>
       <td></td>

@@ -343,11 +343,11 @@
           <td>
             [% temp = "exchangerate_"_ i %]
             [% temp_forex = "forex_"_ i %]
-            [% SET fx_paid      = 'fx_paid_'      _ i %]
+            [% SET defaultcurrency_paid = 'defaultcurrency_paid_' _ i %]
             [% SET record_forex = 'record_forex_' _ i %]
 
             [% IF( $temp_forex || !changeable ) %]
-              [% $temp | html %] = [% LxERP.format_amount($fx_paid,2) %] [% currency %] </br>
+              [% $temp | html %] = [% LxERP.format_amount($defaultcurrency_paid,2) %] [% defaultcurrency %] </br>
               [% IF $record_forex %][% 'bank transaction exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
               <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
             [% ELSE %]
@@ -376,11 +376,11 @@
       <td></td>
       <td></td>
       <th class="right">[% 'Total' | $T8 %]</th>
-      <td class="numeric">[% LxERP.format_amount(totalpaid, 2) | html %] [% defaultcurrency %]</td>
+      <td class="numeric">[% LxERP.format_amount(totalpaid, 2) | html %] [% currency %]</td>
       <td></td>
       [% IF ( !defaultcurrency || (currency != defaultcurrency) ) %]
-        <td class="numeric">[% LxERP.format_amount(fx_totalpaid, 2) | html %] [% currency %]</td>
-        <input type="hidden" name="fx_totalpaid" value="[% fx_totalpaid %]">
+        <td align="numeric">[% LxERP.format_amount(defaultcurrency_totalpaid, 2) | html %] [% defaultcurrency %]</td>
+        <input type="hidden" name="defaultcurrency_totalpaid" value="[% defaultcurrency_totalpaid %]">
         <input type="hidden" name="is_linked_bank_transaction" value="[% is_linked_bank_transaction %]">
       [% END %]
       <td></td>
@@ -390,7 +390,7 @@
       <td></td>
       <td></td>
       <th class="right">[% 'Missing amount' | $T8 %]</th>
-      <td class="numeric">[% LxERP.format_amount(paid_missing, 2) | html %] [% defaultcurrency %]</td>
+      <td class="numeric">[% LxERP.format_amount(paid_missing, 2) | html %] [% currency %]</td>
       <td></td>
       [% IF ( !defaultcurrency || (currency != defaultcurrency) ) %]
         <td></td>
