@@ -232,7 +232,7 @@ sub validate {
 sub is_type {
   my $self = shift;
   my $type  = lc(shift || '');
-  die 'invalid type' unless $type =~ /^(?:part|service|assembly|assortment|parent_variant|variant)$/;
+  die 'invalid type' unless $type =~ /^(?:part|service|assembly|assortment)$/;
 
   return $self->type eq $type ? 1 : 0;
 }
