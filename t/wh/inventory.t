@@ -508,6 +508,56 @@ cmp_deeply(\@contents,
           "Comments for assembly with service productions are ok"
 );
 
+# check own allocations with more than one allocation per part
+reset_db();
+create_standard_stock();
+
+set_stock(
+  part => $part1,
+  qty => 5,
+  bin => $bin1,
+  # no chargenumber
+);
+set_stock(
+  part => $part1,
+  qty => 5,
+  bin => $bin1,
+  chargenumber => 'CH1',
+);
+set_stock(
+  part => $part1,
+  qty => 2,
+  bin => $bin1,
+  chargenumber => 'CH2',
+);
+set_stock(
+  part => $part2,
+  qty => 6.34,
+  bin => $bin1,
+);
+
+my @alloc1_1 = SL::Helper::Inventory::allocate(part => $part1, qty => 5);
+my @alloc1_2 = SL::Helper::Inventory::allocate(part => $part1, qty => 5, chargenumber => 'CH1');
+my @alloc1_3 = SL::Helper::Inventory::allocate(part => $part1, qty => 2, chargenumber => 'CH2');
+@alloc2      = SL::Helper::Inventory::allocate(part => $part2, qty => 6.34);
+
+local $::instance_conf->data->{produce_assembly_transfer_service} = 0;
+
+lives_ok {
+  SL::Helper::Inventory::produce_assembly(
+    part          => $assembly_service,
+    qty           => 1,
+    allocations => [ @alloc1_1, @alloc1_2, @alloc1_3, @alloc2 ],
+
+    # where to put it
+    bin          => $bin1,
+  );
+} 'no exception on produce_assembly with more than one own allocation per part';
+
+is(SL::Helper::Inventory::get_stock(part => $assembly_service), "1.00000", 'produce with own allocations works');
+is(SL::Helper::Inventory::get_stock(part => $part1), "0.00000", 'and consumes...');
+is(SL::Helper::Inventory::get_stock(part => $part2), "0.00000", '..the materials');
+
 
 
 # bestbefore tests
