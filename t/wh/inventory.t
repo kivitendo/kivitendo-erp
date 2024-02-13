@@ -294,6 +294,36 @@ is(SL::Helper::Inventory::get_stock(part => $assembly_service), "1.00000", 'prod
 is(SL::Helper::Inventory::get_stock(part => $part1), "0.00000", 'and consumes...');
 is(SL::Helper::Inventory::get_stock(part => $part2), "0.00000", '..the materials');
 
+
+# check with own allocations
+set_stock(
+  part => $part1,
+  qty => 12,
+  bin => $bin2,
+);
+set_stock(
+  part => $part2,
+  qty => 6.34,
+  bin => $bin2,
+);
+@alloc1 = SL::Helper::Inventory::allocate(part => $part1, qty => 12);
+@alloc2 = SL::Helper::Inventory::allocate(part => $part2, qty => 6.34);
+
+lives_ok {
+  SL::Helper::Inventory::produce_assembly(
+    part          => $assembly_service,
+    qty           => 1,
+    allocations => [ @alloc1, @alloc2 ],
+
+    # where to put it
+    bin          => $bin1,
+  );
+} 'no exception on produce_assembly with own allocations (no service)';
+
+is(SL::Helper::Inventory::get_stock(part => $assembly_service), "2.00000", 'produce with own allocations works');
+is(SL::Helper::Inventory::get_stock(part => $part1), "0.00000", 'and consumes...');
+is(SL::Helper::Inventory::get_stock(part => $part2), "0.00000", '..the materials');
+
 # check comments and warehouses
 $::form->{l_comment}        = 'Y';
 $::form->{l_warehouse_from} = 'Y';
@@ -304,6 +334,19 @@ local $::instance_conf->data->{produce_assembly_same_warehouse} = 1;
 
 cmp_deeply(\@contents,
            [ ignore(), ignore(),
+              superhashof({
+                'comment'        => 'Used for assembly '. $assembly_service->partnumber .' Ein Erzeugnis mit Dienstleistungen',
+                'warehouse_from' => 'Warehouse'
+              }),
+              superhashof({
+                'comment'        => 'Used for assembly '. $assembly_service->partnumber .' Ein Erzeugnis mit Dienstleistungen',
+                'warehouse_from' => 'Warehouse'
+              }),
+              superhashof({
+                'part_type'    => 'assembly',
+                'warehouse_to' => 'Warehouse'
+              }),
+             ignore(), ignore(),
               superhashof({
                 'comment'        => 'Used for assembly '. $assembly_service->partnumber .' Ein Erzeugnis mit Dienstleistungen',
                 'warehouse_from' => 'Warehouse'
@@ -349,7 +392,7 @@ like $e, qr/multiple errors during allocation/, "producing assembly with service
 like $e->errors->[0]->message, qr/can not allocate 1,2 units of service number 1 We really need this service, missing 1,2 units/,
   "producing assembly with services and unstocked service throws correct error message";
 
-is(SL::Helper::Inventory::get_stock(part => $assembly_service), "1.00000", 'produce without service does not work');
+is(SL::Helper::Inventory::get_stock(part => $assembly_service), "2.00000", 'produce without service does not work');
 is(SL::Helper::Inventory::get_stock(part => $part1), "12.00000", 'and does not consume...');
 is(SL::Helper::Inventory::get_stock(part => $part2), "6.34000", '..the materials');
 
@@ -370,7 +413,45 @@ SL::Helper::Inventory::produce_assembly(
   bin          => $bin1,
 );
 
-is(SL::Helper::Inventory::get_stock(part => $assembly_service), "2.00000", 'produce with service does work if services is needed and stocked');
+is(SL::Helper::Inventory::get_stock(part => $assembly_service), "3.00000", 'produce with service does work if services is needed and stocked');
+is(SL::Helper::Inventory::get_stock(part => $part1), "0.00000", 'and does consume...');
+is(SL::Helper::Inventory::get_stock(part => $part2), "0.00000", '..the materials');
+is(SL::Helper::Inventory::get_stock(part => $service1), "0.00000", '..and service');
+
+# check with own allocations
+set_stock(
+  part => $part1,
+  qty => 12,
+  bin => $bin2,
+);
+set_stock(
+  part => $part2,
+  qty => 6.34,
+  bin => $bin2,
+);
+is('SL::DB::Part', ref $service1);
+set_stock(
+  part => $service1,
+  qty => 1.2,
+  bin => $bin2,
+);
+
+@alloc1    = SL::Helper::Inventory::allocate(part => $part1,    qty => 12);
+@alloc2    = SL::Helper::Inventory::allocate(part => $part2,    qty => 6.34);
+my @alloc3 = SL::Helper::Inventory::allocate(part => $service1, qty => 1.2);
+
+lives_ok {
+  SL::Helper::Inventory::produce_assembly(
+    part          => $assembly_service,
+    qty           => 1,
+    allocations => [ @alloc1, @alloc2, @alloc3 ],
+
+    # where to put it
+    bin          => $bin1,
+  );
+} 'no exception on produce_assembly with own allocations (with service)';
+
+is(SL::Helper::Inventory::get_stock(part => $assembly_service), "4.00000", 'produce with own allocations and service does work if services is needed and stocked');
 is(SL::Helper::Inventory::get_stock(part => $part1), "0.00000", 'and does consume...');
 is(SL::Helper::Inventory::get_stock(part => $part2), "0.00000", '..the materials');
 is(SL::Helper::Inventory::get_stock(part => $service1), "0.00000", '..and service');
@@ -385,8 +466,27 @@ local $::instance_conf->data->{produce_assembly_same_warehouse} = 1;
 #use Data::Dumper;
 #diag("hier" . Dumper(@contents));
 cmp_deeply(\@contents,
-         [ ignore(), ignore(), ignore(), ignore(), ignore(), ignore(), ignore(), ignore(),
+           [ ignore(), ignore(), ignore(), ignore(), ignore(), ignore(), ignore(), ignore(), ignore(), ignore(), ignore(), ignore(), ignore(),
               superhashof({
+                'comment'        => 'Used for assembly '. $assembly_service->partnumber .' Ein Erzeugnis mit Dienstleistungen',
+                'warehouse_from' => 'Warehouse'
+              }),
+              superhashof({
+                'comment'        => 'Used for assembly '. $assembly_service->partnumber .' Ein Erzeugnis mit Dienstleistungen',
+                'warehouse_from' => 'Warehouse'
+              }),
+              superhashof({
+                'comment'        => 'Used for assembly '. $assembly_service->partnumber .' Ein Erzeugnis mit Dienstleistungen',
+                'warehouse_from' => 'Warehouse',
+                'part_type'      => 'service',
+                'qty'            => '1.20000',
+              }),
+              superhashof({
+                'part_type'    => 'assembly',
+                'warehouse_to' => 'Warehouse'
+              }),
+             ignore(), ignore(), ignore(),
+             superhashof({
                 'comment'        => 'Used for assembly '. $assembly_service->partnumber .' Ein Erzeugnis mit Dienstleistungen',
                 'warehouse_from' => 'Warehouse'
               }),
