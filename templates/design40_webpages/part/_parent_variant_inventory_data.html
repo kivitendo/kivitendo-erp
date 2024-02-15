@@ -11,7 +11,7 @@
   <table class="tbl-list wi-moderate">
     <thead>
       <tr>
-        <th>[% 'Partnumber'  | $T8 %]</th>
+        <th>[% 'Partnumber'  | $T8 %] [[% 'Variant Property Values' | $T8 %]]</th>
         <th>[% 'Warehouse'   | $T8 %]</th>
         <th>[% 'Bin'         | $T8 %]</th>
         <th>[% 'Qty'         | $T8 %]</th>
@@ -24,7 +24,7 @@
         [% SET partnumber = variant.partnumber %]
         [% FOREACH stock = variant_partnumber_to_stock_info.$partnumber %]
           <tr>
-            <td>[% IF loop.first %][% variant.presenter.part %][% END %]</td>
+            <td>[% IF loop.first %][% variant.presenter.part %] [% variant.variant_values %][% END %]</td>
             <td>[% HTML.escape(stock.warehouse_description) %]</td>
             <td>[% IF stock.order_link %]<a target="_blank" href="[% stock.order_link %]">[% END %]
                 [% HTML.escape(stock.bin_description)        %]
@@ -80,7 +80,7 @@
   <table class="tbl-list">
     <thead>
       <tr>
-        <th>[% 'Partnumber'     | $T8 %]</th>
+        <th>[% 'Partnumber'     | $T8 %] [[% 'Variant Property Values' | $T8 %]]</th>
         <th>[% 'Date'           | $T8 %]</th>
         <th>[% 'Trans Type'     | $T8 %]</th>
         <th>[% 'Warehouse From' | $T8 %]</th>
@@ -97,7 +97,7 @@
         [% IF journal.size %]
           [% FOREACH row = journal %]
           <tr>
-            <td>[% IF loop.first %][% variant.presenter.part %][% END %]</td>
+            <td>[% IF loop.first %][% variant.presenter.part %] [% variant.variant_values %][% END %]</td>
             <td>[% row.base.itime_as_date  %]</td>
             <td>[% row.base.trans_type.description | $T8 %]</td>
             <td>[% row.out ? row.out.bin.full_description : '-' | html %]</td>
