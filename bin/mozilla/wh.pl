@@ -33,7 +33,7 @@
 #######################################################################
 
 use Carp;
-use List::Util qw(min max first);
+use List::Util qw(first);
 use POSIX qw(strftime);
 use Scalar::Util qw(blessed);
 
