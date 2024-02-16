@@ -467,12 +467,13 @@ SL::WH - Warehouse and Inventory API
 
   # create allocation manually, bypassing checks. all of these need to be passed, even undefs
   my $allocation = SL::Helper::Inventory::Allocation->new(
-    part_id           => $part->id,
+    parts_id          => $part->id,
     qty               => 15,
     bin_id            => $bin_obj->id,
     warehouse_id      => $bin_obj->warehouse_id,
     chargenumber      => '1823772365',
     bestbefore        => undef,
+    comment           => undef,
     for_object_id     => $order->id,
   );
 
@@ -735,6 +736,8 @@ each of the following attributes to be set at creation time:
 =item * chargenumber
 
 =item * bestbefore
+
+=item * comment
 
 =item * for_object_id
 
