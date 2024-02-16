@@ -406,9 +406,10 @@ sub check_allocations_for_assembly {
   my $part = $params{part} or Carp::croak('check_allocations_for_assembly needs a part');
   my $qty  = $params{qty}  or Carp::croak('check_allocations_for_assembly needs a qty');
 
-  my $consume_service = $::instance_conf->get_produce_assembly_transfer_service;
+  my $check_overfulfilment = !!$params{check_overfulfilment};
+  my $allocations          = $params{allocations};
 
-  my $allocations = $params{allocations};
+  my $consume_service      = $::instance_conf->get_produce_assembly_transfer_service;
 
   my %allocations_by_part;
   for (@{ $allocations || []}) {
@@ -421,7 +422,7 @@ sub check_allocations_for_assembly {
     $allocations_by_part{ $assembly->parts_id } -= $assembly->qty * $qty;
   }
 
-  return none { $_ < 0 } values %allocations_by_part;
+  return (none { $_ < 0 } values %allocations_by_part) && (!$check_overfulfilment || (none { $_ > 0 } values %allocations_by_part));
 }
 
 sub default_show_bestbefore {
@@ -677,7 +678,8 @@ compute the required amount for each assembly part and allocate all of them.
 =item * check_allocations_for_assembly PARAMS
 
 Checks if enough quantity is allocated for production. Returns a trueish
-value if there is enough allocated, a falsish one otherwise.
+value if there is enough allocated, a falsish one otherwise (but see the
+parameter C<check_overfulfilment>).
 
 Accepted parameters:
 
@@ -694,6 +696,11 @@ The quantity of the part to be assembled. Mandatory.
 =item * allocations
 
 An array ref of the allocations.
+
+=item * check_overfulfilment
+
+Whether or not overfulfilment should be checked. If more quantity is allocated
+than needed for production a falsish value is returned. Optional.
 
 =back
 
