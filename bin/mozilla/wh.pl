@@ -432,15 +432,8 @@ sub create_assembly {
         my $ex = $@;
         die $ex unless blessed($ex) && $ex->isa('SL::X::Inventory::Allocation::Multi');
 
-        $form->{title} = $locale->text('Allocate for Assembly');
-        $form->header;
-        print $form->parse_html_template(
-          'wh/produce_assembly_error',
-          {
-            missing_qty_exceptions => [ grep {  $_->isa('SL::X::Inventory::Allocation::MissingQty') } @{ $ex->errors } ],
-            other_exceptions       => [ grep { !$_->isa('SL::X::Inventory::Allocation::MissingQty') } @{ $ex->errors } ],
-          });
-
+        render_produce_assembly_error(title  => $locale->text('Allocate for Assembly'),
+                                      errors => $ex->errors);
         return $::lxdebug->leave_sub();
       };
 
@@ -513,15 +506,8 @@ sub create_assembly {
     my $ex = $@;
     die $ex unless blessed($ex) && $ex->isa('SL::X::Inventory::Allocation::Multi');
 
-    $form->{title} = $locale->text('Produce Assembly');
-    $form->header;
-    print $form->parse_html_template(
-      'wh/produce_assembly_error',
-      {
-        missing_qty_exceptions => [ grep {  $_->isa('SL::X::Inventory::Allocation::MissingQty') } @{ $ex->errors } ],
-        other_exceptions       => [ grep { !$_->isa('SL::X::Inventory::Allocation::MissingQty') } @{ $ex->errors } ],
-      });
-
+    render_produce_assembly_error(title  => $locale->text('Produce Assembly'),
+                                  errors => $ex->errors);
     return $::lxdebug->leave_sub();
   };
 
@@ -533,6 +519,21 @@ sub create_assembly {
   transfer_warehouse_selection();
 
   $main::lxdebug->leave_sub();
+}
+
+sub render_produce_assembly_error {
+  my (%params) = @_;
+
+  my @errors       = @{$params{errors} || []};
+  $::form->{title} = $params{title};
+
+  $::form->header;
+  print $::form->parse_html_template(
+    'wh/produce_assembly_error',
+    {
+      missing_qty_exceptions => [ grep {  $_->isa('SL::X::Inventory::Allocation::MissingQty') } @errors ],
+      other_exceptions       => [ grep { !$_->isa('SL::X::Inventory::Allocation::MissingQty') } @errors ],
+    });
 }
 
 sub create_assembly_chargenumbers {
