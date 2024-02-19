@@ -484,7 +484,8 @@ sub create_assembly {
       my %allocations_by_parts_id = map { my $p_id = $_->{parts_id}; $p_id => [grep { $_->{parts_id} == $p_id } @allocations] } @allocations;
 
       my %needed_by_parts_id = map { $_->{parts_id} => $_->qty * $form->{qty} } @{$assembly->assemblies};
-      return create_assembly_chargenumbers($form, \%stocked_by_parts_id, \%needed_by_parts_id, \%allocations_by_parts_id);
+      create_assembly_chargenumbers($form, \%stocked_by_parts_id, \%needed_by_parts_id, \%allocations_by_parts_id);
+      return $::lxdebug->leave_sub();
     }
 
   }
