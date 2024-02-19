@@ -59,7 +59,14 @@
             <td>[% part.warehouse.description | html                 %]</td>
             <td>[% part.bin.description       | html                 %]</td>
             <td class="numeric">[% LxERP.format_amount(part.qty, -2) %]</td>
-            <td>[% P.input_number_tag('allocations[].qty', alloc_qty, precision => -2, size => 8) %]</td>
+            <td>
+              [% SET readonly = 0 -%]
+              [% IF stocked_by_parts_id.$part_id.size == 1 -%]
+                [% SET readonly = 1 -%]
+                [% P.hidden_tag('allocations[].qty', LxERP.format_amount(alloc_qty, -2)) %]
+              [% END -%]
+              [% P.input_number_tag('allocations[].qty', alloc_qty, precision => -2, size => 8, disabled => readonly) %]
+            </td>
             <td>[% part.part.unit             | html                 %]</td>
           </tr>
         [% END %]
