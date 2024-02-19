@@ -18,7 +18,8 @@
     END
   %]
 
-  <table>
+ <div class="wrapper">
+  <table class="tbl-list">
     <thead>
       <tr class="listheading">
         <th>[% 'Partnumber'   | $T8%]</th>
@@ -64,16 +65,17 @@
               [% IF stocked_by_parts_id.$part_id.size == 1 -%]
                 [% SET readonly = 1 -%]
                 [% P.hidden_tag('allocations[].qty', LxERP.format_amount(alloc_qty, -2)) %]
+                <span class="wi-verysmall numeric data">[% LxERP.format_amount(alloc_qty, -2) %]</span>
+              [% ELSE -%]
+                [% P.input_number_tag('allocations[].qty', alloc_qty, precision => -2, class="wi-verysmall") %]
               [% END -%]
-              [% P.input_number_tag('allocations[].qty', alloc_qty, precision => -2, size => 8, disabled => readonly) %]
             </td>
             <td>[% part.part.unit             | html                 %]</td>
           </tr>
         [% END %]
-        <tr></tr>
-        <tr></tr>
+        <tr><td colspan="8"></td></tr>
       [% END %]
     </tbody>
   </table>
-
+ </div>
 </form>
