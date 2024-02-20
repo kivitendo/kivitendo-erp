@@ -21,10 +21,8 @@ jobs:
           sudo apt-get install postgresql postgresql-contrib libtest-deep-perl libtest-exception-perl libtest-output-perl libwww-perl liburi-find-perl libsys-cpu-perl libthread-pool-simple-perl libdbi-perl liblist-moreutils-perl libyaml-perl libregexp-ipv6-perl libpbkdf2-tiny-perl librose-object-perl librose-db-perl librose-db-object-perl libdigest-perl-md5-perl liblist-utilsby-perl libalgorithm-checkdigits-perl libhtml-restrict-perl libfile-slurp-perl libsort-naturally-perl libmath-round-perl libtext-csv-xs-perl libtemplate-perl libcam-pdf-perl libxml-libxml-perl libxml-writer-perl libemail-address-perl libemail-mime-perl libarchive-zip-perl libimager-perl libimager-qrcode-perl libstring-shellquote-perl libgd-gd2-perl libimage-info-perl libconfig-std-perl libdbd-pg-perl libdatetime-event-cron-perl libfile-copy-recursive-perl librest-client-perl libipc-run-perl libfile-mimeinfo-perl libencode-imaputf7-perl libmail-imapclient-perl libhttp-dav-perl libpdf-api2-perl cpanminus
       - name: install cpan modules that don't have deb packages
         run: |
-          cpanm -L ${{ vars.GITHUB_WORKSPACE }}/cpan HTML::Query
+          cpanm -L ${{ github.workspace }}/cpan HTML::Query
       - name: Configurieren
-        env:
-          PERL5LIB: ${{ vars.GITHUB_WORKSPACE }}/cpan
         run: |
           cp config/kivitendo.conf.default config/kivitendo.conf
           sed -i '/db[ ]*=/ s/$/ testdb/; /host/ s/localhost/127\.0\.0\.1/' config/kivitendo.conf
@@ -33,3 +31,5 @@ jobs:
         run: sudo service postgresql start
       - name: Starten der Tests...
         run: t/test.pl
+        env:
+          PERL5LIB: ${{ github.workspace }}/cpan/lib/perl5
