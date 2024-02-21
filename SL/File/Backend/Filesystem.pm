@@ -6,6 +6,9 @@ use parent qw(SL::File::Backend);
 use SL::DB::File;
 use SL::DB::FileVersion;
 
+use Carp;
+use List::Util qw(first);
+
 use File::Copy;
 use File::Slurp;
 use File::stat;
@@ -19,50 +22,29 @@ use UUID::Tiny ':std';
 sub delete {
   my ($self, %params) = @_;
   die "no dbfile in backend delete" unless $params{dbfile};
-  my $last_version  = $params{dbfile}->backend_data;
-  my $first_version = 1;
-  $last_version     = 0                               if $params{last};
-  $last_version     = $params{dbfile}->backend_data-1 if $params{all_but_notlast};
-  $last_version     = $params{version}                if $params{version};
-  $first_version    = $params{version}                if $params{version};
+  my @versions = @{$params{dbfile}->file_versions_sorted};
 
-  if ($last_version > 0 ) {
-    for my $version ( $first_version..$last_version) {
-      my $file_path = $self->_filesystem_path($params{dbfile},$version);
-      unlink($file_path);
-    }
-    if ($params{version}) {
-      for my $version ( $last_version+1 .. $params{dbfile}->backend_data) {
-        my $from = $self->_filesystem_path($params{dbfile},$version);
-        my $to   = $self->_filesystem_path($params{dbfile},$version - 1);
-        die "file not exists in backend delete" unless -f $from;
-        rename($from,$to);
-      }
-      $params{dbfile}->backend_data($params{dbfile}->backend_data-1);
-    }
-    elsif ($params{all_but_notlast}) {
-      my $from = $self->_filesystem_path($params{dbfile},$params{dbfile}->backend_data);
-      my $to   = $self->_filesystem_path($params{dbfile},1);
-      die "file not exists in backend delete" unless -f $from;
-      rename($from,$to);
-      $params{dbfile}->backend_data(1);
-    } else {
-      $params{dbfile}->backend_data(0);
-    }
-    unless ($params{dbfile}->backend_data) {
-      my $dir_path = $self->_filesystem_path($params{dbfile});
-      rmdir($dir_path);
-    }
+  my @versions_to_delete;
+  if ($params{last}) {
+    my $last = pop @versions;
+    @versions_to_delete = ($last);
+  } elsif ($params{all_but_notlast}) {
+    pop @versions; # remove last
+    @versions_to_delete = @versions;
+  } elsif ($params{version}) {
+    my $version = first {$_->version == $params{version}} @versions
+      or confess "Version not found.";
+    @versions_to_delete = ($version);
   } else {
-    my $file_path = $self->_filesystem_path($params{dbfile},$params{dbfile}->backend_data);
-    die "file not exists in backend delete" unless -f $file_path;
-    unlink($file_path);
-    $params{dbfile}->backend_data($params{dbfile}->backend_data-1);
+    @versions_to_delete = @versions;
   }
-  return 1;
-}
 
-sub rename {
+  foreach my $version (@versions_to_delete) {
+    unlink($version->get_system_location());
+    $version->delete;
+  }
+
+  return 1;
 }
 
 sub save {
@@ -81,11 +63,10 @@ sub save {
     return 1 if $last_file_size == $new_file_size;
   }
 
-  $dbfile->backend_data(0) unless $dbfile->backend_data;
-  $dbfile->backend_data($dbfile->backend_data*1+1);
-  $dbfile->save->load;
+  my @versions = @{$dbfile->file_versions_sorted};
+  my $new_version_number = scalar @versions ? $versions[-1]->version + 1 : 1;
 
-  my $tofile = $self->_filesystem_path($dbfile);
+  my $tofile = $self->_filesystem_path($dbfile, $new_version_number);
   if ($params{file_path} && -f $params{file_path}) {
     File::Copy::copy($params{file_path}, $tofile);
   } elsif ($params{file_contents}) {
@@ -100,7 +81,7 @@ sub save {
   $rel_file    =~ s/$doc_path//;
   my $fv = SL::DB::FileVersion->new(
     file_id       => $dbfile->id,
-    version       => $dbfile->backend_data,
+    version       => $new_version_number,
     file_location => $rel_file,
     doc_path      => $doc_path,
     backend       => 'Filesystem',
@@ -116,17 +97,14 @@ sub save {
 sub get_version_count {
   my ($self, %params) = @_;
   die "no dbfile" unless $params{dbfile};
-  return $params{dbfile}->backend_data//0 * 1;
+  my $file_id = $params{dbfile}->id;
+  return 0 unless defined $file_id;
+  return SL::DB::Manager::FileVersion->get_all_count(where => [file_id => $file_id]);
 }
 
 sub get_mtime {
   my ($self, %params) = @_;
-  die "no dbfile" unless $params{dbfile};
-  die "unknown version" if $params{version} &&
-                          ($params{version} < 0 || $params{version} > $params{dbfile}->backend_data);
-  my $path = $self->_filesystem_path($params{dbfile}, $params{version});
-
-  die "No file found at $path. Expected: $params{dbfile}{file_name}, file.id: $params{dbfile}{id}" if !-f $path;
+  my $path = $self->get_filepath(%params);
 
   my $dt = DateTime->from_epoch(epoch => stat($path)->mtime, time_zone => $::locale->get_local_time_zone()->name, locale => $::lx_office_conf{system}->{language})->clone();
   return $dt;
@@ -158,32 +136,7 @@ sub enabled {
 }
 
 sub sync_from_backend {
-  my ($self, %params) = @_;
-  my @query = (file_type => $params{file_type});
-  push @query, (file_name => $params{file_name}) if $params{file_name};
-  push @query, (mime_type => $params{mime_type}) if $params{mime_type};
-  push @query, (source    => $params{source})    if $params{source};
-
-  my $sortby = $params{sort_by} || 'itime DESC,file_name ASC';
-
-  my @files = @{ SL::DB::Manager::File->get_all(query => [@query], sort_by => $sortby) };
-  for (@files) {
-    $main::lxdebug->message(LXDebug->DEBUG2(), "file id=" . $_->id." version=".$_->backend_data);
-    my $newversion = $_->backend_data;
-    for my $version ( reverse 1 .. $_->backend_data ) {
-      my $path = $self->_filesystem_path($_, $version);
-      $main::lxdebug->message(LXDebug->DEBUG2(), "path=".$path." exists=".( -f $path?1:0));
-      last if -f $path;
-      $newversion = $version - 1;
-    }
-    $main::lxdebug->message(LXDebug->DEBUG2(), "newversion=".$newversion." version=".$_->backend_data);
-    if ( $newversion < $_->backend_data ) {
-      $_->backend_data($newversion);
-      $_->save   if $newversion >  0;
-      $_->delete if $newversion <= 0;
-    }
-  }
-
+  die "Not implemented";
 }
 
 #
@@ -196,13 +149,13 @@ sub _filesystem_path {
   die "No files backend enabled" unless $::instance_conf->get_doc_files || $::lx_office_conf{paths}->{document_path};
 
   # use filesystem with depth 3
-  $version    = $dbfile->backend_data if !$version || $version < 1 || $version > $dbfile->backend_data;
+  $version  ||= $dbfile->file_versions_sorted->[-1]->version;
+  confess "Version is required." unless $version;
   my $iddir   = sprintf("%04d", $dbfile->id % 1000);
   my $path    = File::Spec->catdir($::lx_office_conf{paths}->{document_path}, $::auth->client->{id}, $iddir, $dbfile->id);
   if (!-d $path) {
     File::Path::make_path($path, { chmod => 0770 });
   }
-  return $path if !$version;
   return File::Spec->catdir($path, $dbfile->id . '_' . $version);
 }
 

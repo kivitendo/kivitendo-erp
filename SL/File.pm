@@ -72,22 +72,15 @@ sub get_all_versions {
     @fileobjs = $self->get_all(%params);
   }
   foreach my $fileobj (@fileobjs) {
-    $main::lxdebug->message(LXDebug->DEBUG2(), "obj=" . $fileobj . " id=" . $fileobj->id." versions=".$fileobj->version_count);
-    my $maxversion = $fileobj->version_count;
-    $fileobj->version($maxversion);
+    my @file_versions = reverse @{$fileobj->loaded_db_file->file_versions_sorted};
+    my $latest_file_version = shift @file_versions;
+    $fileobj->version($latest_file_version->version);
     push @versionobjs, $fileobj;
-    if ($maxversion > 1) {
-      for my $version (2..$maxversion) {
-        $main::lxdebug->message(LXDebug->DEBUG2(), "clone for version=".($maxversion-$version+1));
-        eval {
-          my $clone = $fileobj->clone;
-          $clone->version($maxversion-$version+1);
-          $clone->newest(0);
-          $main::lxdebug->message(LXDebug->DEBUG2(), "clone version=".$clone->version." mtime=". $clone->mtime);
-          push @versionobjs, $clone;
-          1;
-        } or do {$::lxdebug->message(LXDebug::WARN(), "clone for version=".($maxversion-$version+1) . "failed: " . $@)};
-      }
+    foreach my $file_version (@file_versions) {
+      my $clone = $fileobj->clone;
+      $clone->version($file_version->version);
+      $clone->newest(0);
+      push @versionobjs, $clone;
     }
   }
   return @versionobjs;

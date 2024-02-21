@@ -32,7 +32,7 @@
         </th>
         <th>[% source.chkall_title %]</th>
       [% END %]
-      <th>[%  LxERP.t8('Version') %]</th>
+      <th>[%  LxERP.t8('Version') _ ' (' _ LxERP.t8('Count') _ ')' %]</th>
       <th>[%  LxERP.t8('Date') %]</th>
       <th>[%  source.file_title %]</th>
       [% IF file_type == 'image' %]
@@ -59,7 +59,7 @@
         [% END %]
           <td class="right[%- IF file.version_count > 1 && !is_other_version %] cursor-pointer" onclick="kivi.File.toggle_versions('[% file.id %]')"[%- ELSE -%]"[%- END %]>[%#"%]
             [%- IF file.version_count > 1 && !is_other_version %]<span id="[% 'version_toggle_' _ file.id %]">⏷ </span>[% END %]
-            [% file.version _ '/' _ file.version_count %]
+            [% file.version _ ' (' _ file.version_count _ ')' %]
             [% L.hidden_tag("version[]", file.version) %]
           </td>
         <td>[% file.mtime_as_timestamp_s %]</td>

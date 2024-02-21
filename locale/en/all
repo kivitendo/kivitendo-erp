@@ -868,6 +868,7 @@ $self->{texts} = {
   'Could not spawn ghostscript.' => '',
   'Could not spawn the printer command.' => '',
   'Could not update prices!'    => '',
+  'Count'                       => '',
   'Country'                     => '',
   'Country (Shipping)'          => '',
   'Create'                      => '',
