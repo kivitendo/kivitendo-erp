@@ -372,12 +372,12 @@
               <td align="center">
                 [% temp = "exchangerate_"_ i %]
                 [% temp_forex = "forex_"_ i %]
-                [% SET fx_paid      = 'fx_paid_'      _ i %]
+                [% SET defaultcurrency_paid = 'defaultcurrency_paid_' _ i %]
                 [% SET record_forex = 'record_forex_' _ i %]
-
+                [% SET fx_transaction = 'fx_transaction_' _ i %]
 
                 [% IF( $temp_forex || !changeable ) %]
-                  [% $temp | html %] = [% LxERP.format_amount($fx_paid,2) %] [% currency %] </br>
+                  [% $temp | html %] = [% LxERP.format_amount($defaultcurrency_paid,2) %] [% defaultcurrency %] </br>
                 [% IF $record_forex %][% 'bank transaction exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
 
                   <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
@@ -385,6 +385,7 @@
                   <input name="[% temp %]" size="11" value="[% $temp | html %]">
                 [% END %]
                 <input type=hidden name="[% temp_forex %]" value="[% $temp_forex | html %]">
+                <input type="hidden" name="[% fx_transaction %]" value="1">
               </td>
             [% END %]
 
@@ -416,11 +417,11 @@
           <td></td>
           <td></td>
           <td align="center">[% 'Total' | $T8 %]</td>
-          <td align="right">[% LxERP.format_amount(totalpaid, 2) | html %] [% defaultcurrency %]</td>
+          <td align="right">[% LxERP.format_amount(totalpaid, 2) | html %] [% currency %]</td>
         [% IF ( !defaultcurrency || (currency != defaultcurrency) ) %]
             <td></td>
-            <td align="center">[% LxERP.format_amount(fx_totalpaid, 2) | html %] [% currency %]</td>
-            <input type="hidden" name="fx_totalpaid" value="[% fx_totalpaid %]">
+            <td align="center">[% LxERP.format_amount(defaultcurrency_totalpaid, 2) | html %] [% defaultcurrency %]</td>
+            <input type="hidden" name="defaultcurrency_totalpaid" value="[% defaultcurrency_totalpaid %]">
             <input type="hidden" name="is_linked_bank_transaction" value="[% is_linked_bank_transaction %]">
         [% END %]
 
@@ -429,7 +430,7 @@
           <td></td>
           <td></td>
           <td align="center">[% 'Missing amount' | $T8 %]</td>
-          <td align="right">[% LxERP.format_amount(paid_missing, 2) | html %] [% defaultcurrency %]</td>
+          <td align="right">[% LxERP.format_amount(paid_missing, 2) | html %] [% currency %]</td>
         </tr>
       </table>
       [% END %]

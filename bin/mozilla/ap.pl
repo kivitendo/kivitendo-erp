@@ -594,9 +594,13 @@ sub form_header {
   # default account for current assets (i.e. 1801 - SKR04)
   $form->{accno_arap} = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
 
+  # reset form value of defaultcurrency_totalpaid, as it is currently a hidden and otherwise it gets accumulated after each update
+  # is only used if there are exchange rates
+  $form->{"defaultcurrency_totalpaid"} = 0;
+
   for my $i (1 .. $form->{paidaccounts}) {
-    # hook for calc of of fx_paid and check if banktransaction has a record exchangerate
-    if ($form->{"exchangerate_$i"}) {
+    # hook for calc of of defaultcurrency_paid and check if banktransaction has a record exchangerate
+    if ($form->{"exchangerate_$i"} && $form->{"acc_trans_id_$i"}) {
       my $bt_acc_trans = SL::DB::Manager::BankTransactionAccTrans->find_by(acc_trans_id => $form->{"acc_trans_id_$i"});
       if ($bt_acc_trans) {
         if ($bt_acc_trans->bank_transaction->exchangerate > 0) {
@@ -605,9 +609,14 @@ sub form_header {
           $form->{"record_forex_$i"} = 1;
         }
       }
-      $form->{"fx_paid_$i"} = $form->{"paid_$i"} / $form->{"exchangerate_$i"};
-      $form->{"fx_totalpaid"} +=  $form->{"fx_paid_$i"};
-    } # end hook fx_paid
+      if (!$form->{"fx_transaction_$i"}) {
+        # this is a banktransaction that was paid in internal currency. revert paid/defaultcurrency_paid
+        $form->{"defaultcurrency_paid_$i"} = $form->{"paid_$i"};
+        $form->{"paid_$i"} /= $form->{"exchangerate_$i"};
+      }
+      $form->{"defaultcurrency_paid_$i"} //= $form->{"paid_$i"} * $form->{"exchangerate_$i"};
+      $form->{"defaultcurrency_totalpaid"} +=  $form->{"defaultcurrency_paid_$i"};
+    } # end hook defaultcurrency_paid
     # format amounts
     if ($form->{"paid_$i"}) {
       $form->{"paid_$i"} = $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
