@@ -30,6 +30,7 @@ use SL::DB::PurchaseInvoice::TypeData;
 use SL::DB::Manager::Customer;
 use SL::DB::Manager::Vendor;
 
+use List::Util qw(first);
 use List::MoreUtils qw(any);
 
 use Rose::Object::MakeMethods::Generic
@@ -256,8 +257,10 @@ sub action_show {
 
   my $customer = $self->find_customer_vendor_from_email('customer', $self->entry);
   my $vendor   = $self->find_customer_vendor_from_email('vendor'  , $self->entry);
-  my $cv_type_found;
-  $cv_type_found   = 'vendor' if $self->entry->record_type eq 'ap_transaction';
+  my ($cv_type_found) =
+    map {$_->{customervendor}}
+    first {$_->{record_type} eq $self->entry->record_type}
+    @record_types_with_info;
   $cv_type_found ||= 'vendor' if defined $vendor;
   $cv_type_found ||= 'customer';
 
