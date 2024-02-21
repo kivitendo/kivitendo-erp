@@ -19,6 +19,7 @@ sub run {
   my ($self) = @_;
 
   SL::DB->client->with_transaction(sub {
+    my @errors;
     my $all_dbfiles = SL::DB::Manager::File->get_all;
     foreach my $dbfile (@$all_dbfiles) {
       my $file_id = $dbfile->id;
@@ -36,7 +37,17 @@ sub run {
 
       my @versions = SL::File->get_all_versions(dbfile => $dbfile);
       foreach my $version (@versions) {
-        my $tofile = $version->get_file();
+        my $tofile;
+        eval {
+          $tofile = $version->get_file();
+        } or do {
+          my @values;
+          push @values, $@; # error message
+          push @values, $version->file_name;
+          push @values, $version->id;
+          push @errors, '<td>' . join('</td><td>', @values) . '</td>';;
+          next;
+        };
         my $rel_file = $tofile;
         $rel_file    =~ s/$doc_path//;
 
@@ -49,6 +60,19 @@ sub run {
                               guid          => create_uuid_as_string(UUID_V4),
                             )->save;
       }
+    }
+    if (scalar @errors) {
+      my $error_message = 'Please resolve the errors by removing invalid database entries or by adding the corresponding files under the expected paths:
+      <table class="tbl-list" border="1" style="border-collapse: collapse">
+        <thead><tr>
+          <th>error message</th>
+          <th>file_name</th>
+          <th>file_id</th>
+        </tr></thead>
+      ';
+      $error_message .= '<tr>' . join('</tr><tr>', @errors) . '</tr>';
+      $error_message .= '</table>';
+      die $error_message;
     }
     1;
   }) or do { die SL::DB->client->error };
