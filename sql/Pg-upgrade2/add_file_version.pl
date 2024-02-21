@@ -15,6 +15,24 @@ use UUID::Tiny ':std';
 
 use parent qw(SL::DBUpgrade2::Base);
 
+sub get_all_versions {
+  my ($fileobj) = @_;
+
+  my @versionobjs;
+
+  my $maxversion = $fileobj->version_count;
+  $fileobj->version($maxversion);
+  push @versionobjs, $fileobj;
+  if ($maxversion > 1) {
+    for my $version (2..$maxversion) {
+      my $clone = $fileobj->clone;
+      $clone->version($maxversion-$version+1);
+      $clone->newest(0);
+      push @versionobjs, $clone;
+    }
+  }
+}
+
 sub run {
   my ($self) = @_;
 
@@ -35,7 +53,7 @@ sub run {
         die "Unknown backend '$backend' for file with ID '$file_id'.";
       }
 
-      my @versions = SL::File->get_all_versions(dbfile => $dbfile);
+      my @versions = get_all_versions($dbfile);
       foreach my $version (@versions) {
         my $tofile;
         eval {
@@ -53,7 +71,7 @@ sub run {
 
         my $fv = SL::DB::FileVersion->new(
                               file_id       => $dbfile->id,
-                              version       => $version->version,
+                              version       => $version->version || 1,
                               file_location => $rel_file,
                               doc_path      => $doc_path,
                               backend       => $dbfile->backend,
