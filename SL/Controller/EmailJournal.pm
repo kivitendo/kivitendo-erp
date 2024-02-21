@@ -254,19 +254,23 @@ sub action_show {
   my @record_types_with_info = $self->get_record_types_with_info();
   my %record_types_to_text   = $self->get_record_types_to_text();
 
-  my $customer_vendor = $self->find_customer_vendor_from_email($self->entry);
-  my $cv_type = $customer_vendor && $customer_vendor->is_vendor ? 'vendor' : 'customer';
+  my $customer = $self->find_customer_vendor_from_email('customer', $self->entry);
+  my $vendor   = $self->find_customer_vendor_from_email('vendor'  , $self->entry);
+  my $cv_type_found;
+  $cv_type_found   = 'vendor' if $self->entry->record_type eq 'ap_transaction';
+  $cv_type_found ||= 'vendor' if defined $vendor;
+  $cv_type_found ||= 'customer';
 
-  my $record_types = $self->record_types_for_customer_vendor_type_and_action($cv_type, 'workflow_record');
+  my $record_types = $self->record_types_for_customer_vendor_type_and_action(
+    $cv_type_found, 'workflow_record'
+  );
 
   $self->setup_show_action_bar;
-  my $cv_type_found = $customer_vendor && $customer_vendor->is_vendor ? 'vendor' : 'customer';
-  # overwrite on record_type
-  $cv_type_found = 'vendor' if $self->entry->record_type eq 'ap_transaction';
   $self->render(
     'email_journal/show',
     title                  => $::locale->text('View email'),
-    CUSTOMER_VENDOR        => $customer_vendor,
+    CUSTOMER               => $customer,
+    VENDOR                 => $vendor,
     CV_TYPE_FOUND          => $cv_type_found,
     RECORD_TYPES_WITH_INFO => \@record_types_with_info,
     RECORD_TYPES_TO_TEXT   => \%record_types_to_text,
@@ -607,49 +611,52 @@ sub link_and_add_attachment_to_record {
 }
 
 sub find_customer_vendor_from_email {
-  my ($self, $email_journal, $cv_type) = @_;
+  my ($self, $cv_type, $email_journal) = @_;
+
+  my $manager = $cv_type eq 'customer' ? 'SL::DB::Manager::Customer'
+              : $cv_type eq 'vendor'   ? 'SL::DB::Manager::Vendor'
+              : die "No valid customer vendor option: $cv_type";
+
   my $email_address = $email_journal->from;
   $email_address =~ s/.*<(.*)>/$1/; # address can look like "name surname <email_address>"
 
   # Separate query otherwise cv without contacts and shipto is not found
   my $customer_vendor;
-  foreach my $manager (qw(SL::DB::Manager::Customer SL::DB::Manager::Vendor)) {
+  $customer_vendor ||= $manager->get_first(
+    where => [
+      or => [
+        email => $email_address,
+        cc    => $email_address,
+        bcc   => $email_address,
+      ],
+    ],
+  );
+  $customer_vendor ||= $manager->get_first(
+    where => [
+      or => [
+        'contacts.cp_email' => $email_address,
+        'contacts.cp_privatemail' => $email_address,
+      ],
+    ],
+    with_objects => [ 'contacts'],
+  );
+  $customer_vendor ||= $manager->get_first(
+    where => [
+      or => [
+        'shipto.shiptoemail' => $email_address,
+      ],
+    ],
+    with_objects => [ 'shipto' ],
+  );
+  if ($manager eq 'SL::DB::Manager::Customer') {
     $customer_vendor ||= $manager->get_first(
       where => [
         or => [
-          email => $email_address,
-          cc    => $email_address,
-          bcc   => $email_address,
+          'additional_billing_addresses.email' => $email_address,
         ],
       ],
+      with_objects => [ 'additional_billing_addresses' ],
     );
-    $customer_vendor ||= $manager->get_first(
-      where => [
-        or => [
-          'contacts.cp_email' => $email_address,
-          'contacts.cp_privatemail' => $email_address,
-        ],
-      ],
-      with_objects => [ 'contacts'],
-    );
-    $customer_vendor ||= $manager->get_first(
-      where => [
-        or => [
-          'shipto.shiptoemail' => $email_address,
-        ],
-      ],
-      with_objects => [ 'shipto' ],
-    );
-    if ($manager eq 'SL::DB::Manager::Customer') {
-      $customer_vendor ||= $manager->get_first(
-        where => [
-          or => [
-            'additional_billing_addresses.email' => $email_address,
-          ],
-        ],
-        with_objects => [ 'additional_billing_addresses' ],
-      );
-    }
   }
 
   # if no exact match is found search for domain and match only on one hit
@@ -657,60 +664,57 @@ sub find_customer_vendor_from_email {
     my $email_domain = $email_address;
     $email_domain =~ s/.*@(.*)/$1/;
     my @domain_hits_cusotmer_vendor = ();
-    foreach my $manager (qw(SL::DB::Manager::Customer SL::DB::Manager::Vendor)) {
-      my @domain_hits = ();
+    my @domain_hits = ();
+    push @domain_hits, @{$manager->get_all(
+      where => [
+        or => [
+          email => {ilike => "%$email_domain"},
+          cc    => {ilike => "%$email_domain"},
+          bcc   => {ilike => "%$email_domain"},
+        ],
+      ],
+    )};
+    push @domain_hits, @{$manager->get_all(
+      where => [
+        or => [
+          'contacts.cp_email'       => {ilike => "%$email_domain"},
+          'contacts.cp_privatemail' => {ilike => "%$email_domain"},
+        ],
+      ],
+      with_objects => [ 'contacts'],
+    )};
+    push @domain_hits, @{$manager->get_all(
+      where => [
+        or => [
+          'shipto.shiptoemail' => {ilike => "%$email_domain"},
+        ],
+      ],
+      with_objects => [ 'shipto' ],
+    )};
+    push @domain_hits, @{$manager->get_all(
+      where => [
+        or => [
+          'shipto.shiptoemail' => {ilike => "%$email_domain"},
+        ],
+      ],
+      with_objects => [ 'shipto' ],
+    )};
+    if ($manager eq 'SL::DB::Manager::Customer') {
       push @domain_hits, @{$manager->get_all(
         where => [
           or => [
-            email => {ilike => "%$email_domain"},
-            cc    => {ilike => "%$email_domain"},
-            bcc   => {ilike => "%$email_domain"},
+            'additional_billing_addresses.email' => {ilike => "%$email_domain"},
           ],
         ],
+        with_objects => [ 'additional_billing_addresses' ],
       )};
-      push @domain_hits, @{$manager->get_all(
-        where => [
-          or => [
-            'contacts.cp_email'       => {ilike => "%$email_domain"},
-            'contacts.cp_privatemail' => {ilike => "%$email_domain"},
-          ],
-        ],
-        with_objects => [ 'contacts'],
-      )};
-      push @domain_hits, @{$manager->get_all(
-        where => [
-          or => [
-            'shipto.shiptoemail' => {ilike => "%$email_domain"},
-          ],
-        ],
-        with_objects => [ 'shipto' ],
-      )};
-      push @domain_hits, @{$manager->get_all(
-        where => [
-          or => [
-            'shipto.shiptoemail' => {ilike => "%$email_domain"},
-          ],
-        ],
-        with_objects => [ 'shipto' ],
-      )};
-      if ($manager eq 'SL::DB::Manager::Customer') {
-        push @domain_hits, @{$manager->get_all(
-          where => [
-            or => [
-              'additional_billing_addresses.email' => {ilike => "%$email_domain"},
-            ],
-          ],
-          with_objects => [ 'additional_billing_addresses' ],
-        )};
-      }
-      # get every customer_vendor only once
-      my %id_to_customer_vendor = ();
-      $id_to_customer_vendor{$_->id} = $_ for @domain_hits;
-      push @domain_hits_cusotmer_vendor, $id_to_customer_vendor{$_} for keys %id_to_customer_vendor;
     }
-
-    if (scalar @domain_hits_cusotmer_vendor == 1) {
-      $customer_vendor = $domain_hits_cusotmer_vendor[0];
+    # update on only one unique customer_vendor
+    if (scalar @domain_hits) {
+      my $first_customer_vendor = $domain_hits[0];
+      unless (any {$_->id != $first_customer_vendor->id} @domain_hits) {
+        $customer_vendor = $first_customer_vendor;
+      }
     }
   }
 

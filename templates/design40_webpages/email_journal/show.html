@@ -178,19 +178,18 @@
     <div id="record_selection_div">
       <div id="filter_div"><div class="input-panel" style="margin:0">
         [% FOREACH cv_option = [
-             ['customer', 'Customer', 1],
-             ['vendor',   'Vendor',   0],
+             ['customer', 'Customer'],
+             ['vendor',   'Vendor'  ],
              ] %]
         [% SET cv_type        = cv_option.0 %]
         [% SET cv_name        = cv_option.1 %]
-        [% SET cv_is_cusotmer = cv_option.2 %]
         <div
           id="[% cv_type _ "_div" %]" class="col"
           style=[% IF cv_type == CV_TYPE_FOUND %] "display:block" [% ELSE %] "display:none" [% END %]
           >
           [% P.customer_vendor.picker(
                cv_type _ "_id",
-               CUSTOMER_VENDOR.is_customer == cv_is_cusotmer ? CUSTOMER_VENDOR : undef,
+               cv_type == 'customer' ? CUSTOMER : VENDOR,
                type=cv_type, class="wi-normal", placeholder=LxERP.t8(cv_name)
                onchange='kivi.EmailJournal.update_record_list();'
                ) %]
