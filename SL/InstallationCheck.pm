@@ -100,6 +100,7 @@ BEGIN {
   { name => "URI::Find",                           url => "http://search.cpan.org/~mschwern/",  debian => 'liburi-find-perl' },
   { name => "GD",              version => '2.00',  url => "http://search.cpan.org/~lds/",       debian => 'libgd-perl' },
   { name => "Rose::DB::Object", version => 0.809,  url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-object-perl' },
+  { name => "PPI",                                 url => "ttps://metacpan.org/pod/PPI",        debian => 'libppi-perl' },
 
   # first available in debian trixie and ubuntu 23.10
   { name => "HTML::Query",                         url => "http://search.cpan.org/~kamelkev/",  debian => 'libhtml-query-perl' },
