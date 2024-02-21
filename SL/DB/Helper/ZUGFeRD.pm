@@ -764,15 +764,15 @@ sub import_zugferd_data {
 
   # Try to fill in AP account to book against
   my $ap_chart_id = $::instance_conf->get_ap_chart_id;
-  my $ap_chart = SL::DB::Manager::Chart->find_by(id => $ap_chart_id);
-
-  unless ( defined $ap_chart ) {
+  my $ap_chart;
+  unless ( defined $ap_chart_id ) {
     # If no default account is configured, just use the first AP account found.
-    my $ap_charts = SL::DB::Manager::Chart->get_all(
+    ($ap_chart) = @{SL::DB::Manager::Chart->get_all(
       where   => [ link => 'AP' ],
       sort_by => [ 'accno' ],
-    );
-    $ap_chart = ${$ap_charts}[0];
+    )};
+  } else {
+    $ap_chart = SL::DB::Manager::Chart->find_by(id => $ap_chart_id);
   }
 
   my $currency = SL::DB::Manager::Currency->find_by(
@@ -799,7 +799,7 @@ sub import_zugferd_data {
   my %template_params;
   my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $vendor->id]);
   if ($template_ap) {
-    $template_params{globalproject_id}        = $template_ap->globalproject_id;
+    $template_params{globalproject_id}        = $template_ap->project_id;
     $template_params{payment_id}              = $template_ap->payment_id;
     $template_params{department_id}           = $template_ap->department_id;
     $template_params{ordnumber}               = $template_ap->ordnumber;
@@ -813,11 +813,11 @@ sub import_zugferd_data {
     taxzone_id   => $vendor->taxzone_id,
     currency_id  => $currency->id,
     direct_debit => $metadata{'direct_debit'},
-    invnumber   => $invnumber,
-    transdate   => $metadata{transdate} || $today->to_kivitendo,
-    duedate     => $metadata{duedate}   || $today->to_kivitendo,
-    taxincluded => 0,
-    intnotes    => $intnotes,
+    invnumber    => $invnumber,
+    transdate    => $metadata{transdate} || $today->to_kivitendo,
+    duedate      => $metadata{duedate}   || $today->to_kivitendo,
+    taxincluded  => 0,
+    intnotes     => $intnotes,
     transactions => [],
     %template_params,
   );
@@ -825,35 +825,31 @@ sub import_zugferd_data {
   $self->assign_attributes(%params);
 
   # parse items
+  my $template_item;
+  if ($template_ap && scalar @{$template_ap->items}) {
+    my $template_item = $template_ap->items->[0];
+  }
   foreach my $i (@items) {
     my %item = %{$i};
 
     my $net_total = $item{'subtotal'};
 
     # set default values for items
-    my ($tax, $chart, $project_id);
-    if ($template_ap) {
-      my $template_item = $template_ap->items->[0];
-      $tax = SL::DB::Tax->new(id => $template_item->tax_id)->load();
-      $chart = SL::DB::Chart->new(id => $template_item->chart_id)->load();
-      $project_id = $template_item->project_id;
+    my %line_params;
+    $line_params{amount} = $net_total;
+    if ($template_item) {
+      $line_params{tax_id}     = $template_item->tax->id;
+      $line_params{chart}      = $template_item->chart;
+      $line_params{project_id} = $template_item->project_id;
     } else {
-
-      my $tax_rate = $item{'tax_rate'};
-      $tax_rate /= 100 if $tax_rate > 1; # XML data is usually in percent
-
-      $tax   = first { $tax_rate              == $_->rate } @{ $taxes };
-      $tax    //= first { $active_taxkey->tax_id == $_->id }   @{ $taxes };
-      $tax    //= $taxes->[0];
-
-      $chart = $default_ap_amount_chart;
+      my $tax_rate  = $item{'tax_rate'};
+         $tax_rate /= 100 if $tax_rate > 1; # XML data is usually in percent
+      my $tax   = first { $tax_rate              == $_->rate } @{ $taxes };
+         $tax //= first { $active_taxkey->tax_id == $_->id }   @{ $taxes };
+         $tax //= $taxes->[0];
+      $line_params{tax_id}  = $tax->id;
+      $line_params{chart}   = $default_ap_amount_chart;
     }
-
-    my %line_params = (
-      amount => $net_total,
-      tax_id => $tax->id,
-      chart  => $chart,
-    );
 
     $self->add_ap_amount_row(%line_params);
   }

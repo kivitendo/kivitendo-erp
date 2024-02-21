@@ -8,23 +8,46 @@ use Carp;
 use XML::LibXML;
 
 use SL::ZUGFeRD;
+use SL::Locale::String qw(t8);
 
 use SL::DB::PurchaseInvoice;
 
 sub process_attachments {
   my ($self, $function_name, $email_journal, %params) = @_;
 
-  unless ($self->can("process_attachments_$function_name")) {
+  my $full_function_name = "process_attachments_$function_name";
+  unless ($self->can($full_function_name)) {
     croak "Function not implemented for: $function_name";
   }
-  $function_name = "process_attachments_$function_name";
 
-  my $processed_count = 0;
+  my @processed_files;
+  my @errors;
   foreach my $attachment (@{$email_journal->attachments_sorted}) {
-    my $processed = $self->$function_name($email_journal, $attachment, %params);
-    $processed_count += $processed;
+    my $attachment_name = $attachment->name;
+    my $error = $self->$full_function_name($email_journal, $attachment, %params);
+    if ($error) {
+      push @errors, "$attachment_name: $error.";
+    } else {
+      push @processed_files, $attachment_name;
+    }
   }
-  return $processed_count;
+  my $extended_status = t8("Processed attachments with function '#1':", $function_name);
+  if (scalar @processed_files) {
+    $extended_status .= "\n" . t8("Processed successfully: ")
+      . join(', ', @processed_files);
+  }
+  if (scalar @errors) {
+    $extended_status .= "\n" . t8("Errors while processing: ")
+      . "\n" . join("\n", @errors);
+  }
+  unless (scalar @processed_files || scalar @errors) {
+    $extended_status .= "\n" . t8("No attachments.");
+  }
+  $email_journal->extended_status(
+    join "\n", $email_journal->extended_status, $extended_status
+  );
+  $email_journal->save;
+  return scalar @processed_files;
 }
 
 sub can_function {
@@ -36,9 +59,8 @@ sub process_attachments_zugferd {
   my ($self, $email_journal, $attachment, %params) = @_;
 
   my $content = $attachment->content; # scalar ref
-  my $name = $attachment->name;
 
-  return 0 unless $content =~ m/^%PDF|<\?xml/;
+  return t8("Not a PDF or XML file") unless $content =~ m/^%PDF|<\?xml/;
 
   my %res;
   if ( $content =~ m/^%PDF/ ) {
@@ -48,12 +70,9 @@ sub process_attachments_zugferd {
   }
 
   unless ($res{'result'} == SL::ZUGFeRD::RES_OK()) {
-    my $error = $res{'message'};
-    $email_journal->extended_status(
-      join "\n", $email_journal->extended_status,
-      "Error processing ZUGFeRD attachment $name: $error"
-    )->save;
-    return 0;
+    # my $error = $res{'message'}; # technical error
+    my $error = t8('No vaild Factur-X/ZUGFeRD file');
+    return $error;
   }
 
   my $purchase_invoice;
@@ -62,17 +81,12 @@ sub process_attachments_zugferd {
     1;
   } or do {
     my $error = $@;
-    $email_journal->update_attributes(
-      extended_status =>
-        join "\n", $email_journal->extended_status,
-        "Error processing ZUGFeRD attachment $name: $error"
-    );
-    return 0;
+    return $error;
   };
 
   $self->_add_attachment_to_record($email_journal, $attachment, $purchase_invoice);
 
-  return 1;
+  return 0;
 }
 
 sub _add_attachment_to_record {
