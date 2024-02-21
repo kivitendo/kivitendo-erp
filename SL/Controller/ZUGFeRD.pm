@@ -227,11 +227,11 @@ sub build_ap_transaction_form_defaults {
 
   unless ( defined $ap_chart_id ) {
     # If no default account is configured, just use the first AP account found.
-    my $ap_chart = SL::DB::Manager::Chart->get_all(
+    my ($ap_chart) = @{SL::DB::Manager::Chart->get_all(
       where   => [ link => 'AP' ],
       sort_by => [ 'accno' ],
-    );
-    $ap_chart_id = ${$ap_chart}[0]->id;
+    )};
+    $ap_chart_id = $ap_chart->id;
   }
 
   my $currency = SL::DB::Manager::Currency->find_by(

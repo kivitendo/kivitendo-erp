@@ -406,7 +406,7 @@ sub action_ap_transaction_template_with_zugferd_import {
   my $record_type = $::form->{"record_type"};
   die "ZUGFeRD-Import only implemented for ap transaction templates" unless $record_type == 'ap_transaction';
 
-  my $attachment_id    = $::form->{attachment_id};
+  my $attachment_id = $::form->{attachment_id};
 
   my $form_defaults;
   if ($attachment_id) {
