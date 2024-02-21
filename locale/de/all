@@ -869,6 +869,7 @@ $self->{texts} = {
   'Could not spawn ghostscript.' => 'Die Anwendung "ghostscript" konnte nicht gestartet werden.',
   'Could not spawn the printer command.' => 'Die Druckanwendung konnte nicht gestartet werden.',
   'Could not update prices!'    => 'Preise konnten nicht aktualisiert werden!',
+  'Count'                       => 'Anzahl',
   'Country'                     => 'Land',
   'Country (Shipping)'          => 'Land (Lieferung)',
   'Create'                      => 'Anlegen',

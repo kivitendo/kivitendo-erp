@@ -29,7 +29,7 @@
       <th class="listheading" width="3%">[% L.checkbox_tag(checkname _ '_checkall') %]</th>
       <th class="listheading" width="7%">[% source.chkall_title %]</th>
      [%- END %]
-     <th class="listheading" width="2%"><b>[%  LxERP.t8('Version') %]</b></th>
+     <th class="listheading" width="2%"><b>[%  LxERP.t8('Version') _ ' (' _ LxERP.t8('Count') _ ')' %]</b></th>
      <th class="listheading" width="15%"><b>[%  LxERP.t8('Date') %]</b></th>
      <th class="listheading" width="20%"><b>[%  source.file_title %]</b></th>
      [%- IF file_type == 'image' %]
@@ -60,7 +60,7 @@
       [%- END %]
       <td align="right" [%- IF file.version_count > 1 && !is_other_version %] class="cursor-pointer" onclick="kivi.File.toggle_versions('[% file.id %]')"[%- END %]>
        [%- IF file.version_count > 1 && !is_other_version %]<span id="[% 'version_toggle_' _ file.id %]">⏷ </span>[% END %]
-       [% file.version _ '/' _ file.version_count %]
+       [% file.version _ ' (' _ file.version_count _ ')' %]
        [% L.hidden_tag("version[]", file.version) %]
       </td>
       <td>[% file.mtime_as_timestamp_s %]</td>
