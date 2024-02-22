@@ -150,9 +150,15 @@ sub _filesystem_path {
 
   die "No files backend enabled" unless $::instance_conf->get_doc_files || $::lx_office_conf{paths}->{document_path};
 
+  unless ($version) {
+    my $file_version = SL::DB::Manager::FileVersion->get_first(
+      where   => [file_id => $dbfile->id],
+      sort_by => 'version DESC'
+    ) or die "Could not find a file version for file with id " . $dbfile->id;
+    $version = $file_version->version;
+  }
+
   # use filesystem with depth 3
-  $version  ||= $dbfile->file_versions_sorted->[-1]->version;
-  confess "Version is required." unless $version;
   my $iddir   = sprintf("%04d", $dbfile->id % 1000);
   my $path    = File::Spec->catdir($::lx_office_conf{paths}->{document_path}, $::auth->client->{id}, $iddir, $dbfile->id);
   if (!-d $path) {
