@@ -393,16 +393,10 @@ sub _delete_all {
   my ($self, $do_unimport, $infotext) = @_;
   my $files = '';
   my $ids = $::form->{ids};
-  foreach my $id_version (@{ $::form->{$ids} || [] }) {
-    my ($id, $version) = split /_/, $id_version;
-    my $dbfile = SL::File->get(id => $id);
-    if ( $dbfile ) {
-      if ( $version ) {
-        $dbfile->version($version);
-        $files .= ' ' . $dbfile->file_name if $dbfile->delete_version;
-      } else {
-        $files .= ' ' . $dbfile->file_name if $dbfile->delete;
-      }
+  foreach my $version_guid (@{ $::form->{$ids} || [] }) {
+    my $dbfile = SL::File->get(guid => $version_guid);
+    if ($dbfile) {
+      $files .= ' ' . $dbfile->file_name if $dbfile->delete_file_version;
     }
   }
   $self->js->flash('info', $infotext . $files) if $files;

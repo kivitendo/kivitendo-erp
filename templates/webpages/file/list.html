@@ -55,7 +55,7 @@
       <tr class="[% 'version_row_' _ file.id %] listrow[% row_cnt % 2 %] hidden">
      [%- END %]
       [%- IF edit_attachments %]
-       <td>[%- L.checkbox_tag(checkname _ '[]', 'value'=file.id _ '_' _ file.version, 'class'=checkname) %]</td>
+       <td>[%- L.checkbox_tag(checkname _ '[]', 'value'=file.file_version.guid, 'class'=checkname) %]</td>
        <td></td>
       [%- END %]
       <td align="right" [%- IF file.version_count > 1 && !is_other_version %] class="cursor-pointer" onclick="kivi.File.toggle_versions('[% file.id %]')"[%- END %]>
