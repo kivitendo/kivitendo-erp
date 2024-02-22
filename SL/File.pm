@@ -4,12 +4,14 @@ use strict;
 
 use parent qw(Rose::Object);
 
+use Carp;
 use SL::File::Backend;
 use SL::File::Object;
 use SL::DB;
 use SL::DB::History;
 use SL::DB::ShopImage;
 use SL::DB::File;
+use SL::DB::FileVersion;
 use SL::Helper::UserPreferences;
 use SL::Controller::Helper::ThumbnailCreator qw(file_probe_type);
 use SL::JSON;
@@ -22,11 +24,39 @@ use constant RENAME_NEW_VERSION => 4;
 
 sub get {
   my ($self, %params) = @_;
-  die "no id or dbfile" unless $params{id} || $params{dbfile};
-  $params{dbfile} = SL::DB::Manager::File->get_first(query => [id => $params{id}]) if !$params{dbfile};
-  die 'not found' unless $params{dbfile};
-  $main::lxdebug->message(LXDebug->DEBUG2(), "object_id=".$params{dbfile}->object_id." object_type=".$params{dbfile}->object_type." dbfile=".$params{dbfile});
-  SL::File::Object->new(db_file => $params{dbfile}, id => $params{dbfile}->id, loaded => 1);
+  croak "no id or dbfile or guid" unless $params{id} || $params{dbfile} || $params{guid};
+  croak "dbfile has to be of type SL::DB::File"
+    if defined $params{dbfile} && ref $params{dbfile} ne 'SL::DB::File';
+
+  my $dbfile;
+  my $file_version;
+  if (defined $params{guid}) {
+    $file_version = SL::DB::Manager::FileVersion->get_first(where => [guid => $params{guid}]);
+    die 'file version with guid not found: ' . $params{guid} unless $file_version;
+    $dbfile = $file_version->file;
+    if (defined $params{dbfile}) {
+      croak "dbfile doesn't match guid" if $dbfile->id != $params{dbfile}->id;
+    }
+    if (defined $params{id}) {
+      croak "id doesn't match guid" if $dbfile->id != $params{id};
+    }
+  } elsif (defined $params{dbfile}) {
+    $dbfile = $params{dbfile};
+    if (defined $params{id}) {
+      croak "id doesn't match dbfile id" if $dbfile->_id != $params{id};
+    }
+  } elsif (defined $params{id}) {
+    $dbfile = SL::DB::Manager::File->get_first(query => [id => $params{id}]);
+    die 'file with id not found: ' . $params{id} unless $dbfile;
+  }
+
+  my %object_params = (
+    db_file => $dbfile,
+    id => $dbfile->id,
+    loaded => 1,
+  );
+  $object_params{file_version} = $file_version if $file_version;
+  SL::File::Object->new(%object_params);
 }
 
 sub get_version_count {
@@ -75,10 +105,12 @@ sub get_all_versions {
     my @file_versions = reverse @{$fileobj->loaded_db_file->file_versions_sorted};
     my $latest_file_version = shift @file_versions;
     $fileobj->version($latest_file_version->version);
+    $fileobj->file_version($latest_file_version);
     push @versionobjs, $fileobj;
     foreach my $file_version (@file_versions) {
       my $clone = $fileobj->clone;
       $clone->version($file_version->version);
+      $clone->file_version($file_version);
       $clone->newest(0);
       push @versionobjs, $clone;
     }
@@ -160,7 +192,7 @@ sub _delete {
   }
   if ($backend->delete(%params)) {
     my $do_delete = 0;
-    if ( $params{last} || $params{version} || $params{all_but_notlast} ) {
+    if ( $params{last} || $params{file_version} || $params{all_but_notlast} ) {
       if ( $backend->get_version_count(%params) > 0 ) {
         $params{dbfile}->mtime(DateTime->now_local);
         $params{dbfile}->save;

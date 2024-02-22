@@ -22,21 +22,23 @@ use UUID::Tiny ':std';
 sub delete {
   my ($self, %params) = @_;
   die "no dbfile in backend delete" unless $params{dbfile};
-  my @versions = @{$params{dbfile}->file_versions_sorted};
 
   my @versions_to_delete;
-  if ($params{last}) {
-    my $last = pop @versions;
-    @versions_to_delete = ($last);
-  } elsif ($params{all_but_notlast}) {
-    pop @versions; # remove last
-    @versions_to_delete = @versions;
-  } elsif ($params{version}) {
-    my $version = first {$_->version == $params{version}} @versions
-      or confess "Version not found.";
-    @versions_to_delete = ($version);
+  if ($params{file_version}) {
+    croak "file_version has to be of type SL::DB::FileVersion"
+      unless ref $params{file_version} eq 'SL::DB::FileVersion';
+    @versions_to_delete = ($params{file_version});
   } else {
-    @versions_to_delete = @versions;
+    my @versions = @{$params{dbfile}->file_versions_sorted};
+    if ($params{last}) {
+      my $last = pop @versions;
+      @versions_to_delete = ($last);
+    } elsif ($params{all_but_notlast}) {
+      pop @versions; # remove last
+      @versions_to_delete = @versions;
+    } else {
+      @versions_to_delete = @versions;
+    }
   }
 
   foreach my $version (@versions_to_delete) {
