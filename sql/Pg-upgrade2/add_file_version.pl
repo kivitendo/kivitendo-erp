@@ -1,6 +1,6 @@
 # @tag: add_file_version
 # @description: Versionen für files in extra Tabelle erzeugen
-# @depends: release_3_6_0 file_version
+# @depends: release_3_8_0 file_version files_add_uid
 package SL::DBUpgrade2::add_file_version;
 
 use strict;
