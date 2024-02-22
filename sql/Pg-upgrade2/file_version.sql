@@ -1,6 +1,6 @@
 -- @tag: file_version
 -- @description: Tabelle für Dokumentenversion
--- @depends: release_3_6_0
+-- @depends: release_3_8_0
 
 CREATE TABLE IF NOT EXISTS file_versions (
    guid          TEXT,
