@@ -21,3 +21,7 @@ namespace('kivi.AR', function(ns){
     return false;
   };
 });
+
+$(function() {
+  console.log(kivi.File.doc_tab_init('ar_tabs', 'ui-tabs-docs', $('#id').val(), 'invoice'));
+});
