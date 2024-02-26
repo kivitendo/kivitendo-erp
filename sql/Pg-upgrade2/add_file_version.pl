@@ -80,14 +80,16 @@ sub run {
       }
     }
     if (scalar @errors) {
-      my $error_message = 'Please resolve the errors by removing invalid database entries or by adding the corresponding files under the expected paths:
-      <table class="tbl-list" border="1" style="border-collapse: collapse">
-        <thead><tr>
-          <th>error message</th>
-          <th>file_name</th>
-          <th>file_id</th>
-        </tr></thead>
-      ';
+      my $error_message = <<MESSAGE;
+Please resolve the errors by deleting the invalid database entries or by adding the corresponding files to the expected paths.
+To delete the invalid database entries, run the 'RemoveInvalidFileEntries' background job. Before running the background job, ensure that these files are no longer required.
+<table class="tbl-list" border="1" style="border-collapse: collapse">
+  <thead><tr>
+    <th>error message</th>
+    <th>file_name</th>
+    <th>file_id</th>
+  </tr></thead>
+MESSAGE
       $error_message .= '<tr>' . join('</tr><tr>', @errors) . '</tr>';
       $error_message .= '</table>';
       die $error_message;
