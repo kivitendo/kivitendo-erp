@@ -77,7 +77,7 @@ sub process_attachments_zugferd {
 
   my $purchase_invoice;
   eval {
-    $purchase_invoice = SL::DB::PurchaseInvoice->create_from_zugferd_data(\%res)->save();
+    $purchase_invoice = SL::DB::PurchaseInvoice->create_from_zugferd_data($res{invoice_xml})->save();
     1;
   } or do {
     my $error = $@;
