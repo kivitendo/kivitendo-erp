@@ -1231,7 +1231,7 @@ sub ap_transactions {
     'items'                   => { 'text' => $locale->text('Positions'), },
   );
 
-  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description direct_debit department taxzone insertdate)) {
+  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shipvia transaction_description direct_debit department taxzone insertdate)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
