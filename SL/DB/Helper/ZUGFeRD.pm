@@ -762,19 +762,6 @@ sub import_zugferd_data {
     }
   }
 
-  # Try to fill in AP account to book against
-  my $ap_chart_id = $::instance_conf->get_ap_chart_id;
-  my $ap_chart;
-  unless ( defined $ap_chart_id ) {
-    # If no default account is configured, just use the first AP account found.
-    ($ap_chart) = @{SL::DB::Manager::Chart->get_all(
-      where   => [ link => 'AP' ],
-      sort_by => [ 'accno' ],
-    )};
-  } else {
-    $ap_chart = SL::DB::Manager::Chart->find_by(id => $ap_chart_id);
-  }
-
   my $currency = SL::DB::Manager::Currency->find_by(
     name => $metadata{'currency'},
     );
@@ -804,9 +791,31 @@ sub import_zugferd_data {
     $template_params{department_id}           = $template_ap->department_id;
     $template_params{ordnumber}               = $template_ap->ordnumber;
     $template_params{transaction_description} = $template_ap->transaction_description;
+    $template_params{notes}                   = $template_ap->notes;
+  }
+
+  # Try to fill in AP account to book against
+  my $ap_chart_id = $template_ap ? $template_ap->ar_ap_chart_id
+                  : $::instance_conf->get_ap_chart_id;
+  my $ap_chart;
+  if ( $ap_chart_id ne '' ) {
+    $ap_chart = SL::DB::Manager::Chart->find_by(id => $ap_chart_id);
+  } else {
+    # If no default account is configured, just use the first AP account found.
+    ($ap_chart) = @{SL::DB::Manager::Chart->get_all(
+      where   => [ link => 'AP' ],
+      sort_by => [ 'accno' ],
+    )};
   }
 
   my $today = DateTime->today_local;
+  my $duedate =
+      $metadata{duedate} ?
+        $metadata{duedate}
+    : $vendor->payment ?
+        $vendor->payment->calc_date(reference_date => $today)->to_kivitendo
+    : $today->to_kivitendo;
+
   my %params = (
     invoice      => 0,
     vendor_id    => $vendor->id,
@@ -827,7 +836,7 @@ sub import_zugferd_data {
   # parse items
   my $template_item;
   if ($template_ap && scalar @{$template_ap->items}) {
-    my $template_item = $template_ap->items->[0];
+    $template_item = $template_ap->items->[0];
   }
   foreach my $i (@items) {
     my %item = %{$i};
