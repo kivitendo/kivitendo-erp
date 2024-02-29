@@ -71,7 +71,7 @@ sub action_list {
   $self->report->generate_with_headers;
 }
 
-sub action_csv_options_export_all_charts {
+sub action_export_options_all_charts {
   my ($self) = @_;
 
   $self->set_dates;
@@ -97,15 +97,25 @@ sub action_csv_options_export_all_charts {
     { key => $_, value => $self->defaults->{$_} }
   } keys %{ $self->defaults };
 
-  $self->setup_csv_options_action_bar;
-  $self->render('report_generator/csv_export_options',
-    title => t8('CSV export -- options'),
-    HIDDEN => \@hidden,
-  );
+  if ($::form->{output_format} eq 'PDF') {
+    $self->setup_export_options_action_bar(output_format => 'PDF');
+    $self->render('report_generator/pdf_export_options',
+      title => t8('PDF export -- options'),
+      HIDDEN => \@hidden,
+    );
+  } else {
+    $self->setup_export_options_action_bar(output_format => 'CSV');
+    $self->render('report_generator/csv_export_options',
+      title => t8('CSV export -- options'),
+      HIDDEN => \@hidden,
+    );
+  }
 }
 
 sub action_export_all_charts {
   my ($self) = @_;
+
+  my $output_format = $::form->{output_format} // 'CSV';
 
   my $zip = Archive::Zip->new();
 
@@ -117,16 +127,21 @@ sub action_export_all_charts {
     my $sfile = SL::SessionFile::Random->new(mode => "w");
 
     $self->set_title;
-    $self->report_type('CSV');
+    $self->report_type($output_format);
 
     $self->prepare_report;
     $self->set_report_data;
-    $self->report->_generate_csv_content($sfile->fh);
+    if  ($output_format eq 'PDF') {
+      my $output = $self->report->generate_pdf_content(want_binary_pdf => 1);
+      $sfile->fh->print($output);
+    } else {
+      $self->report->_generate_csv_content($sfile->fh);
+    }
     $sfile->fh->close;
 
     $zip->addFile(
       $sfile->{file_name},
-      t8('list_of_transactions') . "_" . t8('account') . "_" . $account->{accno} . ".csv"
+      t8('list_of_transactions') . "_" . t8('account') . "_" . $account->{accno} . ($output_format eq 'PDF' ? '.pdf' : '.csv')
     );
   }
 
@@ -411,20 +426,33 @@ sub setup_report_settings_action_bar {
         ],
         action => [
           t8('Export all accounts to CSV (ZIP file)'),
-          submit => [ '#report_settings', { action => 'ListTransactions/csv_options_export_all_charts' } ],
+          submit => [ '#report_settings', {
+            action => 'ListTransactions/export_options_all_charts',
+            output_format => 'CSV',
+          } ],
+        ],
+        action => [
+          t8('Export all accounts to PDF (ZIP file)'),
+          submit => [ '#report_settings', {
+            action => 'ListTransactions/export_options_all_charts',
+            output_format => 'PDF',
+          } ],
         ],
       ], # end of combobox "Export"
     );
   }
 }
 
-sub setup_csv_options_action_bar {
+sub setup_export_options_action_bar {
   my ($self, %params) = @_;
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
         t8('Export'),
-        submit    => [ '#report_generator_form', { action => 'ListTransactions/export_all_charts' } ],
+        submit    => [ '#report_generator_form', {
+          action => 'ListTransactions/export_all_charts',
+          output_format => $params{output_format},
+        } ],
         accesskey => 'enter',
       ],
       action => [
@@ -459,7 +487,7 @@ sub get_top_info_text {
   if ($::form->{projectnumber}) {
     push @text, $::locale->text('Project Number') . " : $::form->{projectnumber}<br>";
   }
-  push @text, join " ", t8('Period:'), $self->from_date, "-", $self->to_date;
+  push @text, join " ", t8('Period:'), $::form->{fromdate}, t8('to'), $::form->{todate};
   push @text, join " ", t8('Report date:'), $::locale->format_date_object(DateTime->now_local);
   push @text, join " ", t8('Company:'), $::instance_conf->get_company;
   join "\n", @text;
@@ -509,7 +537,7 @@ A form is shown to select the accounts and the date period, as well as
 options and the sorting of the report.
 
 At this point, exporting all accounts is possible via Export -> Export all
-accounts to CSV (ZIP file).
+accounts to CSV / PDF (ZIP file).
 
 This will export all accounts for the selected time period and options,
 and offer the resulting file for download.
@@ -527,8 +555,6 @@ Database queries are still from SL::CA.
 
 The database queries in SL::CA are quite sophisticated, therefore i'm still using
 these for now.
-
-TODO: Exporting all accounts to PDF (ZIP file) should be added.
 
 =head1 BUGS
 

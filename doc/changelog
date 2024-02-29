@@ -95,6 +95,8 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+  - Beim Export aller Kontenblätter (Berichte -> Buchungsliste) können nun auch PDFs
+    erzeugt werden
   - Schweizer QR-Rechnungen: Bei der Erzeugung via OpenDocument, innerhalb des QR-Code
     Adresstyp S anstatt K verwenden
   - Bei den Bankkonten Auswahlmöglichkeit hinzugefügt, ob das Konto für den Bankimport
