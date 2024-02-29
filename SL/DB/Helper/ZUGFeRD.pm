@@ -34,6 +34,7 @@ use List::MoreUtils qw(any pairwise);
 use List::Util qw(first sum);
 use Template;
 use XML::Writer;
+use Params::Validate qw(:all);
 
 my @line_names = qw(LineOne LineTwo LineThree);
 
@@ -713,12 +714,19 @@ sub create_zugferd_xmp_data {
 }
 
 sub import_zugferd_data {
-  my ($self, $zugferd_data) = @_;
+  my ($self, $zugferd_parser) = @_;
+  validate_pos(@_,
+    {
+      isa => 'SL::DB::PurchaseInvoice',
+    },
+    {
+      # document class of SL::XMLInvoice
+      can => qw(metadata items)
+    }
+  );
 
-  my $parser = $zugferd_data->{'invoice_xml'};
-
-  my %metadata = %{$parser->metadata};
-  my @items = @{$parser->items};
+  my %metadata = %{$zugferd_parser->metadata};
+  my @items = @{$zugferd_parser->items};
 
   my $intnotes = t8("ZUGFeRD Import. Type: #1", $metadata{'type'})->translated;
   my $iban = $metadata{'iban'};
