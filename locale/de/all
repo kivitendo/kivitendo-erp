@@ -1720,6 +1720,7 @@ $self->{texts} = {
   'Export'                      => 'Export',
   'Export Number'               => 'Exportnummer',
   'Export all accounts to CSV (ZIP file)' => 'Alle Konten als CSV exportieren (ZIP-Datei)',
+  'Export all accounts to PDF (ZIP file)' => 'Alle Konten als PDF exportieren (ZIP-Datei)',
   'Export as CSV'               => 'Als CSV exportieren',
   'Export as PDF'               => 'Als PDF exportieren',
   'Export date'                 => 'Exportdatum',
