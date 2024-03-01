@@ -194,8 +194,8 @@ emails from a folder for records.
 
 =head1 SYNOPSIS
 
-This background job syncs emails from a folder for records. The emails are
-imported as email journals and can be processed with functions from
+This background job imports emails from an imap folder for records. The emails are
+imported into the email journal and can be processed with functions from
 SL::Helper::EmailProcessing.
 
 =head1 CONFIGURATION
@@ -203,14 +203,14 @@ SL::Helper::EmailProcessing.
 In kivitendo.conf the settings for the IMAP server can be specified. The
 default config is under [record_emails_imap]. The config for a specific record
 type is under [record_emails_imap/record_type/<record_type>]. The config for a
-specific record type overwrites the default config. The data fields can
-overwrite single configration values.
+specific record type overwrites the default config. The data fields in the backgroundjob config can
+overwrite single or all configration values.
 
 =over 4
 
 =item record_type
 
-The record type to set for each imported email journal. This is used to get
+The record type to set for each imported email in the email journal. This is used to get
 a specific config under [record_emails_imap/record_type/<record_type>]. The
 default value is C<catch_all>
 
