@@ -13,12 +13,11 @@ BEGIN {
 
 use strict;
 use Getopt::Long;
-use List::MoreUtils qw(uniq);
 use Pod::Usage;
 use Term::ANSIColor;
 use Text::Wrap;
 
-my $exit = 0;
+my $exit_code = 0;
 unless (eval { require Config::Std; 1 }){
   print STDERR <<EOL ;
 +------------------------------------------------------------------------------+
@@ -36,7 +35,7 @@ unless (eval { require Config::Std; 1 }){
 +------------------------------------------------------------------------------+
 EOL
 
-  $exit = 1;
+  $exit_code = 72;
 }
 
 
@@ -55,10 +54,10 @@ unless (eval { require List::MoreUtils; 1 }){
 +------------------------------------------------------------------------------+
 EOL
 
-  $exit = 1;
+  $exit_code = 72;
 }
 
-exit 72 if $exit;
+exit $exit_code if $exit_code;
 
 use SL::InstallationCheck;
 use SL::LxOfficeConf;
