@@ -98,3 +98,31 @@ sub _add_attachment_to_record {
 }
 
 1;
+
+
+=encoding utf8
+
+=head1 NAME
+
+SL::Helper::EmailProcessing - Helper functions for processing email attachments
+
+=head1 SYNOPSIS
+
+This module provides helper functions for processing email attachments.
+
+=head1 METHODS
+
+=head2 process_attachments($function_name, $email_journal, %params)
+
+Processes the attachments of an email journal. The function to be used for processing is determined by the first argument.
+
+=head2 process_attachments_zugpferd($function_name, $email_journal, %params)
+
+Processes the attachments of an email journal. If it is a Zugpferd Invoiue it creates the PurchaseInvoice and links it to the email_journal.
+
+=head1 AUTHOR
+
+Tamino Steinert E<lt>tamino.steinert@tamino.stE<gt>
+
+=cut
+
