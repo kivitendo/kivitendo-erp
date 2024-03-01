@@ -257,12 +257,13 @@ sub action_show {
 
   my $customer = $self->find_customer_vendor_from_email('customer', $self->entry);
   my $vendor   = $self->find_customer_vendor_from_email('vendor'  , $self->entry);
-  my ($cv_type_found) =
-    map {$_->{customervendor}}
+
+  my $record_type_info =
     first {$_->{record_type} eq $self->entry->record_type}
     @record_types_with_info;
-  $cv_type_found ||= 'vendor' if defined $vendor;
-  $cv_type_found ||= 'customer';
+  my $cv_type_found = $record_type_info ? $record_type_info->{customervendor}
+                    : defined $vendor   ? 'vendor'
+                    : 'customer';
 
   my $record_types = $self->record_types_for_customer_vendor_type_and_action(
     $cv_type_found, 'workflow_record'
