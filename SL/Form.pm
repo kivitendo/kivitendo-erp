@@ -2563,13 +2563,13 @@ sub create_links {
            c.accno, c.description,
            a.acc_trans_id, a.source, a.amount, a.memo, a.transdate, a.gldate, a.cleared, a.project_id, a.taxkey, a.chart_id,
            p.projectnumber,
-           t.rate, t.id
+           t.rate, t.id,
+           a.fx_transaction
          FROM acc_trans a
          LEFT JOIN chart c ON (c.id = a.chart_id)
          LEFT JOIN project p ON (p.id = a.project_id)
          LEFT JOIN tax t ON (t.id= a.tax_id)
          WHERE a.trans_id = ?
-         AND a.fx_transaction = '0'
          ORDER BY a.acc_trans_id, a.transdate|;
     $sth = $dbh->prepare($query);
     do_statement($self, $sth, $query, $self->{id});
@@ -2579,11 +2579,22 @@ sub create_links {
                                                                                $self->{id}, $arap);
 
     my $index = 0;
+    my @fx_transaction_entries;
 
     # store amounts in {acc_trans}{$key} for multiple accounts
     while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+      # skip fx_transaction entries and add them for post processing
+      if ($ref->{fx_transaction}) {
+        die "first entry in a record transaction should not be fx_transaction" unless @fx_transaction_entries;
+        push @{ $fx_transaction_entries[-1] }, $ref;
+        next;
+      } else {
+        push @fx_transaction_entries, [ $ref ];
+      }
+
+
       # credit and debit bookings calc fx rate for positions
-      # also used as exchangerate_$i for payments
+      # also used as exchangerate_$i for payments - exchangerate here can come from frontend or from bank transactions
       $ref->{exchangerate} =
         $self->check_exchangerate($myconfig, $self->{currency}, $ref->{transdate}, $fld);
       if (!($xkeyref{ $ref->{accno} } =~ /tax/)) {
@@ -2595,6 +2606,36 @@ sub create_links {
       $ref->{index} = $index;
 
       push @{ $self->{acc_trans}{ $xkeyref{ $ref->{accno} } } }, $ref;
+    }
+
+    # post process fx_transactions.
+    # old bin/mozilla code first posts the intended foreign currency amount and then the correction for exchange flagged as fx_transaction
+    # for example: when posting 20 USD on a system in EUR with an exchangerate of 1.1, the resulting acc_trans will say:
+    #   +20 no fx (intended: 20 USD)
+    #    +2    fx (but it's actually 22 EUR)
+    #
+    # for payments this is followed by the fxgain/loss. when paying the above invoice with 20 USD at 1.3 exchange:
+    #   -20 no fx (intended: 20 USD)
+    #    -6    fx (but it's actually 26 EUR)
+    #    +4    fx (but 4 of them go to fxgain)
+    #
+    # bin/mozilla/ controllers will display the intended amount as is, but would have to guess at the actual book value
+    # without the extra fields
+    #
+    # bank transactions however will convert directly into internal currency, so a foreign currency invoice might end up
+    # having non-fxtransactions. to make sure that these are roundtrip safe, flag the fx-transaction payments as fx and give the
+    # intendended internal amount
+    #
+    # this still operates on the cached entries of form->{acc_trans}
+    for my $fx_block (@fx_transaction_entries) {
+      my ($ref, @fx_entries) = @$fx_block;
+      for my $fx_ref (@fx_entries) {
+        if ($fx_ref->{chart_id} == $ref->{chart_id}) {
+          $ref->{defaultcurrency_paid} //= $ref->{amount};
+          $ref->{defaultcurrency_paid} += $fx_ref->{amount};
+          $ref->{fx_transaction} = 1;
+        }
+      }
     }
 
     $sth->finish;

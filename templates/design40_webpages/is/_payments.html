@@ -84,11 +84,11 @@
           <td class="numeric">
            [% SET forex        = 'forex_'        _ i %]
            [% SET exchangerate = 'exchangerate_' _ i %]
-           [% SET fx_paid      = 'fx_paid_'      _ i %]
+           [% SET defaultcurrency_paid = 'defaultcurrency_paid_' _ i %]
            [% SET record_forex = 'record_forex_' _ i %]
            [% IF $forex %]
              <input type="hidden" name="exchangerate_[% i %]" value="[% LxERP.format_amount($exchangerate, 5) %]">
-             [% LxERP.format_amount($forex, 5) %] = [% LxERP.format_amount($fx_paid, 5) %] [% currency %] </br>
+             [% LxERP.format_amount($forex, 5) %] = [% LxERP.format_amount($defaultcurrency_paid, 5) %] [% defaultcurrency %] </br>
              [% IF $record_forex %][% 'bank transaction exchange rate' | $T8 %][%- ELSE %][% 'default exchange rate' | $T8 %][%- END %]
            [% ELSE %]
              [% IF $changeable %]
@@ -115,23 +115,21 @@
     <tr>
       <td colspan="2"></td>
       <td class="right">[% 'Total' | $T8 %]</td>
-      <td class="numeric">[% LxERP.format_amount(totalpaid, 2) | html %] [% defaultcurrency %]</td>
+      <td align="numeric">[% LxERP.format_amount(totalpaid, 2) | html %] [% currency %]</td>
       <td></td>
       [% IF show_exchangerate %]
-        <td class="numeric ">[% LxERP.format_amount(fx_totalpaid, 2) | html %] [% currency %]</td>
+        <td align="numeric">[% LxERP.format_amount(defaultcurrency_totalpaid, 2) | html %] [% defaultcurrency %]</td>
       [% ELSE %]
       [% END %]
         <td></td>
     </tr>
-[% UNLESS show_exchangerate %]
     <tr>
       <td colspan="2"></td>
       <td class="right">[% 'Missing amount' | $T8 %]</td>
-      <td class="numeric">[% LxERP.format_amount(paid_missing, 2) | html %]</td>
+      <td align="numeric">[% LxERP.format_amount(paid_missing, 2) | html %] [% currency %]</td>
       <td colspan="2">
       </td>
    </tr>
-[% END %]
   </tfoot>
 </table>
 <input type="hidden" name="paidaccounts" value="[% paidaccounts %]">

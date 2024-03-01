@@ -143,7 +143,7 @@ sub items_checksum {
   # changed when saving
 
   return join(' ', sort map { $_->part->id } @{$self->items});
-};
+}
 
 sub validate {
   my ($self) = @_;
@@ -162,7 +162,7 @@ sub validate {
 
   unless ( $self->id ) {
     push @errors, $::locale->text('The partnumber already exists.') if SL::DB::Manager::Part->get_all_count(where => [ partnumber => $self->partnumber ]);
-  };
+  }
 
   if ($self->is_assortment && $self->orphaned && scalar @{$self->assortment_items} == 0) {
     # when assortment isn't orphaned form doesn't contain any items
@@ -226,7 +226,7 @@ sub new_assortment {
 sub last_modification {
   my ($self) = @_;
   return $self->mtime // $self->itime;
-};
+}
 
 sub used_in_record {
   my ($self) = @_;
@@ -246,6 +246,7 @@ sub used_in_record {
   }
   return 0;
 }
+
 sub orphaned {
   my ($self) = @_;
   die 'not an accessor' if @_ > 1;
@@ -371,7 +372,7 @@ sub get_stock {
   my ($stock) = selectrow_query($::form, $self->db->dbh, $query, @values);
 
   return $stock || 0; # never return undef
-};
+}
 
 
 # this is designed to ignore chargenumbers, expiration dates and just give a list of how much <-> where
@@ -458,7 +459,7 @@ select unnest(ids)
 SQL
 
   my $objs  = SL::DB::Manager::Inventory->get_all(
-    query        => [ id => [ \"$query" ] ],                           # make emacs happy "
+    query        => [ id => [ \"$query" ] ],                           # make emacs happy "]]
     with_objects => [ 'parts', 'trans_type', 'bin', 'bin.warehouse' ], # prevent lazy loading in template
     sort_by      => 'itime DESC',
   );
@@ -490,11 +491,11 @@ sub clone_and_reset_deep {
     # use clone rather than reset_and_clone because the unique constraint would also remove parts_id
     $clone->assortment_items( map { $_->clone } @{$self->assortment_items} );
     $_->assortment_id(undef) foreach @{ $clone->assortment_items }
-  };
+  }
 
   if ( $self->is_assembly ) {
     $clone->assemblies( map { $_->clone_and_reset } @{$self->assemblies});
-  };
+  }
 
   if ( $self->prices ) {
     $clone->prices( map { $_->clone } @{$self->prices}); # pricegroup_id gets reset here because it is part of a unique contraint
@@ -502,9 +503,9 @@ sub clone_and_reset_deep {
       foreach my $price ( @{$clone->prices} ) {
         $price->id(undef);
         $price->parts_id(undef);
-      };
-    };
-  };
+      }
+    }
+  }
 
   return $clone;
 }
@@ -529,7 +530,7 @@ sub item_diffs {
   @removals  = grep { !exists( $comparison{$_} ) } @self_part_ids       if @self_part_ids;
 
   return \@additions, \@removals;
-};
+}
 
 sub items_sellprice_sum {
   my ($self, %params) = @_;
@@ -550,7 +551,7 @@ sub items_lastcost_sum {
   return unless $self->is_assortment or $self->is_assembly;
   return unless $self->items;
   sum map { $_->linetotal_lastcost } @{$self->items};
-};
+}
 
 sub items_weight_sum {
   my ($self) = @_;
@@ -558,7 +559,7 @@ sub items_weight_sum {
   return unless $self->is_assembly;
   return unless $self->items;
   sum map { $_->linetotal_weight} @{$self->items};
-};
+}
 
 sub set_lastcost_assemblies_and_assortiments {
   my ($self) = @_;

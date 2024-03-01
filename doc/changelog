@@ -87,6 +87,11 @@ Mittelgroße neue Features:
   - Scan Funktion für Schweizer QR-Rechnungen in mobilen templates. Die QR-Rechnung kann
     mittels eingebauter Kamera Funktion eingescannt werden. Anschließend wird die Rechnung
     einem Lieferanten zugeordnet und als Kreditorbuchung gespeichert.
+  - Beim fertigen eines Erzeugnisses können nun die Bestandteile genau bestimmt
+    werden, sofern diese nicht eingeutig sind. Gibt es also z.B. Bestandteile in
+    verschiedenen Lagerplätzen oder mit verschiedenen Chargen, so können diese
+    gewählt ausgewählt werden. Das Mindeshaltbarkeitsdatum wird dabei (noch
+    nicht) berücksichtigt.
 
 Kleinere neue Features und Detailverbesserungen:
 

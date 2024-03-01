@@ -515,20 +515,32 @@ sub form_header {
   my $now = $form->current_date(\%myconfig);
 
   my @payments;
+
+  # reset form value of defaultcurrency_totalpaid, as it is currently a hidden and otherwise it gets accumulated after each update
+  # is only used if there are exchange rates
+  $form->{"defaultcurrency_totalpaid"} = 0;
+
   for my $i (1 .. $form->{paidaccounts}) {
-    # hook for calc of of fx_paid and check if banktransaction has a record exchangerate
-    if ($form->{"exchangerate_$i"}) {
+    # hook for calc of of defaultcurrency_paid and check if banktransaction has a record exchangerate
+    if ($form->{"exchangerate_$i"} && $form->{"acc_trans_id_$i"}) {
+      # only check for bank transactions for payments that have already been saved
       my $bt_acc_trans = SL::DB::Manager::BankTransactionAccTrans->find_by(acc_trans_id => $form->{"acc_trans_id_$i"});
-        if ($bt_acc_trans) {
-          if ($bt_acc_trans->bank_transaction->exchangerate > 0) {
-            $form->{"exchangerate_$i"} = $bt_acc_trans->bank_transaction->exchangerate;
-            $form->{"forex_$i"}        = $form->{"exchangerate_$i"};
-            $form->{"record_forex_$i"} = 1;
-          }
+      if ($bt_acc_trans) {
+        if ($bt_acc_trans->bank_transaction->exchangerate > 0) {
+          $form->{"exchangerate_$i"} = $bt_acc_trans->bank_transaction->exchangerate;
+          $form->{"forex_$i"}        = $form->{"exchangerate_$i"};
+          $form->{"record_forex_$i"} = 1;
         }
-      $form->{"fx_paid_$i"} = $form->{"paid_$i"} / $form->{"exchangerate_$i"};
-      $form->{"fx_totalpaid"} +=  $form->{"fx_paid_$i"};
-    } # end hook fx_paid
+      }
+      if (!$form->{"fx_transaction_$i"}) {
+        # this is a banktransaction that was paid in internal currency. revert paid/defaultcurrency_paid
+        $form->{"defaultcurrency_paid_$i"} = $form->{"paid_$i"};
+        $form->{"paid_$i"} /= $form->{"exchangerate_$i"};
+      }
+      $form->{"defaultcurrency_paid_$i"} //= $form->{"paid_$i"} * $form->{"exchangerate_$i"};
+      $form->{"defaultcurrency_totalpaid"} += $form->{"defaultcurrency_paid_$i"};
+    } # end hook defaultcurrency_paid
+
     my $payment = {
       paid             => $form->{"paid_$i"},
       exchangerate     => $form->{"exchangerate_$i"} || '',
@@ -542,8 +554,9 @@ sub form_header {
       datepaid         => $form->{"datepaid_$i"},
       paid_project_id  => $form->{"paid_project_id_$i"},
       gldate           => $form->{"gldate_$i"},
-      fx_paid          => $form->{"fx_paid_$i"},
-      fx_totalpaid     => $form->{"fx_totalpaid_$i"},
+      # only used if we have an fx currency
+      defaultcurrency_paid      => $form->{"defaultcurrency_paid_$i"},
+      defaultcurrency_totalpaid => $form->{"defaultcurrency_totalpaid_$i"},
     };
 
     # default account for current assets (i.e. 1801 - SKR04) if no account is selected

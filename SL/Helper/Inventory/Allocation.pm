@@ -48,12 +48,13 @@ SL::Helper::Inventory::Allocation - Inventory API allocation data structure
 
   # all of these need to be present
   my $allocation = SL::Helper::Inventory::Allocation->new(
-    part_id           => $part->id,
+    parts_id          => $part->id,
     qty               => 15,
     bin_id            => $bin_obj->id,
     warehouse_id      => $bin_obj->warehouse_id,
     chargenumber      => '1823772365',           # can be undef
     bestbefore        => undef,                  # can be undef
+    comment           => undef,                  # can be undef
     for_object_id     => $order->id,             # can be undef
   );
 

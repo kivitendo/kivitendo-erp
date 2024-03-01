@@ -6,7 +6,7 @@ use DateTime;
 use Exporter qw(import);
 use List::Util qw(min sum);
 use List::UtilsBy qw(sort_by);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any none);
 use POSIX qw(ceil);
 use Scalar::Util qw(blessed);
 
@@ -18,7 +18,7 @@ use SL::Helper::Number qw(_format_number _round_number);
 use SL::Helper::Inventory::Allocation;
 use SL::X;
 
-our @EXPORT_OK = qw(get_stock get_onhand allocate allocate_for_assembly produce_assembly check_constraints);
+our @EXPORT_OK = qw(get_stock get_onhand allocate allocate_for_assembly produce_assembly check_constraints check_allocations_for_assembly);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 sub _get_stock_onhand {
@@ -328,6 +328,8 @@ sub produce_assembly {
 
   my $allocations = $params{allocations};
   my $strict_wh = $::instance_conf->get_produce_assembly_same_warehouse ? $bin->warehouse : undef;
+  my $consume_service = $::instance_conf->get_produce_assembly_transfer_service;
+
   if ($params{auto_allocate}) {
     Carp::croak("produce_assembly: can't have both allocations and auto_allocate") if $params{allocations};
     $allocations = [ allocate_for_assembly(part => $part, qty => $qty, warehouse => $strict_wh, chargenumber => $params{chargenumber}) ];
@@ -352,15 +354,10 @@ sub produce_assembly {
 
   # check whether allocations are sane
   if (!$params{no_check_allocations} && !$params{auto_allocate}) {
-    my %allocations_by_part = map { $_->parts_id  => $_->qty } @$allocations;
-    for my $assembly ($part->assemblies) {
-      $allocations_by_part{ $assembly->parts_id } -= $assembly->qty * $qty;
-    }
-
     die SL::X::Inventory::Allocation->new(
       code    => "allocations are insufficient for production",
       message => t8('can not allocate enough resources for production'),
-    ) if any { $_ < 0 } values %allocations_by_part;
+    ) if !check_allocations_for_assembly(part => $part, qty => $qty, allocations => $allocations);
   }
 
   my @transfers;
@@ -401,6 +398,31 @@ sub produce_assembly {
   };
 
   @transfers;
+}
+
+sub check_allocations_for_assembly {
+  my (%params) = @_;
+
+  my $part = $params{part} or Carp::croak('check_allocations_for_assembly needs a part');
+  my $qty  = $params{qty}  or Carp::croak('check_allocations_for_assembly needs a qty');
+
+  my $check_overfulfilment = !!$params{check_overfulfilment};
+  my $allocations          = $params{allocations};
+
+  my $consume_service      = $::instance_conf->get_produce_assembly_transfer_service;
+
+  my %allocations_by_part;
+  for (@{ $allocations || []}) {
+    $allocations_by_part{$_->parts_id} //= 0;
+    $allocations_by_part{$_->parts_id}  += $_->qty;
+  }
+
+  for my $assembly ($part->assemblies) {
+    next if $assembly->part->type eq 'service' && !$consume_service;
+    $allocations_by_part{ $assembly->parts_id } -= $assembly->qty * $qty;
+  }
+
+  return (none { $_ < 0 } values %allocations_by_part) && (!$check_overfulfilment || (none { $_ > 0 } values %allocations_by_part));
 }
 
 sub default_show_bestbefore {
@@ -459,12 +481,13 @@ SL::WH - Warehouse and Inventory API
 
   # create allocation manually, bypassing checks. all of these need to be passed, even undefs
   my $allocation = SL::Helper::Inventory::Allocation->new(
-    part_id           => $part->id,
+    parts_id          => $part->id,
     qty               => 15,
     bin_id            => $bin_obj->id,
     warehouse_id      => $bin_obj->warehouse_id,
     chargenumber      => '1823772365',
     bestbefore        => undef,
+    comment           => undef,
     for_object_id     => $order->id,
   );
 
@@ -652,6 +675,34 @@ compute the required amount for each assembly part and allocate all of them.
 
 =item * produce_assembly
 
+=item * check_allocations_for_assembly PARAMS
+
+Checks if enough quantity is allocated for production. Returns a trueish
+value if there is enough allocated, a falsish one otherwise (but see the
+parameter C<check_overfulfilment>).
+
+Accepted parameters:
+
+=over 4
+
+=item * part
+
+The part object to be assembled. Mandatory.
+
+=item * qty
+
+The quantity of the part to be assembled. Mandatory.
+
+=item * allocations
+
+An array ref of the allocations.
+
+=item * check_overfulfilment
+
+Whether or not overfulfilment should be checked. If more quantity is allocated
+than needed for production a falsish value is returned. Optional.
+
+=back
 
 =back
 
@@ -727,6 +778,8 @@ each of the following attributes to be set at creation time:
 =item * chargenumber
 
 =item * bestbefore
+
+=item * comment
 
 =item * for_object_id
 

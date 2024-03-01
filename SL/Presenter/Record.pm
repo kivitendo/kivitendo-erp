@@ -436,11 +436,13 @@ my %TYPE_TO_PARAMS = (
   },
   sepa_transfer => sub {
     my (%params) = @_;
-    _get_type_params('sepa_export', %params, type => 'sepa_transfer');
+    my %type_params = _get_type_params('sepa_export', %params, type => 'sepa_transfer');
+    return \%type_params;
   },
   sepa_collection => sub {
     my (%params) = @_;
-    _get_type_params('sepa_export', %params, type => 'sepa_collection');
+    my %type_params = _get_type_params('sepa_export', %params, type => 'sepa_collection');
+    return \%type_params;
   },
   letter => sub {
     my (%params) = @_;

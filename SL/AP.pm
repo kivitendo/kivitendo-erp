@@ -773,7 +773,7 @@ SQL
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 
-  if (grep({ $_ eq $form->{sort} } qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee transaction_description direct_debit department taxzone))) {
+  if (grep({ $_ eq $form->{sort} } qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee transaction_description direct_debit department taxzone insertdate))) {
     $sortorder = $form->{sort} . " $sortdir";
   }
 
@@ -986,6 +986,8 @@ sub setup_form {
         $form->{"forex_$j"}           = $form->{"exchangerate_$i"};
         $form->{"AP_paid_$j"}         = $form->{acc_trans}{$key}->[$i-1]->{accno};
         $form->{"paid_project_id_$j"} = $form->{acc_trans}{$key}->[$i - 1]->{project_id};
+        $form->{"defaultcurrency_paid_$j"} = $form->{acc_trans}{$key}->[$i - 1]->{defaultcurrency_paid};
+        $form->{"fx_transaction_$j"} = $form->{acc_trans}{$key}->[$i - 1]->{fx_transaction};
         $form->{paidaccounts}++;
 
       } else {

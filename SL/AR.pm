@@ -852,6 +852,8 @@ sub setup_form {
         $form->{"forex_$j"}           = $form->{acc_trans}{$key}->[$i - 1]->{exchangerate};
         $form->{"exchangerate_$i"}    = $form->{"forex_$j"};
         $form->{"paid_project_id_$j"} = $form->{acc_trans}{$key}->[$i - 1]->{project_id};
+        $form->{"defaultcurrency_paid_$j"} = $form->{acc_trans}{$key}->[$i - 1]->{defaultcurrency_paid};
+        $form->{"fx_transaction_$j"}  = $form->{acc_trans}{$key}->[$i - 1]->{fx_transaction};
         $form->{paidaccounts}++;
 
       } else { # e.g. AR_amount, AR, AR_tax

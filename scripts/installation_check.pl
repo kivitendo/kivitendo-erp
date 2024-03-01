@@ -13,11 +13,11 @@ BEGIN {
 
 use strict;
 use Getopt::Long;
-use List::MoreUtils qw(uniq);
 use Pod::Usage;
 use Term::ANSIColor;
 use Text::Wrap;
 
+my $exit_code = 0;
 unless (eval { require Config::Std; 1 }){
   print STDERR <<EOL ;
 +------------------------------------------------------------------------------+
@@ -35,8 +35,29 @@ unless (eval { require Config::Std; 1 }){
 +------------------------------------------------------------------------------+
 EOL
 
-  exit 72;
+  $exit_code = 72;
 }
+
+
+unless (eval { require List::MoreUtils; 1 }){
+  print STDERR <<EOL ;
++------------------------------------------------------------------------------+
+  Perl Modul List::MoreUtils could not be loaded.
+
+  Debian: you may install the needed *.deb package with:
+    apt install liblist-moreutils-perl
+
+  Red Hat/Fedora/CentOS: you may install the needed *.rpm package with:
+    dnf install perl-List-MoreUtils
+
+
++------------------------------------------------------------------------------+
+EOL
+
+  $exit_code = 72;
+}
+
+exit $exit_code if $exit_code;
 
 use SL::InstallationCheck;
 use SL::LxOfficeConf;

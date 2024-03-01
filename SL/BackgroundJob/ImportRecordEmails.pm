@@ -10,6 +10,7 @@ use SL::DB::EmailJournal;
 use SL::DB::Manager::EmailImport;
 use SL::Helper::EmailProcessing;
 use SL::Presenter::Tag qw(link_tag);
+use SL::Locale::String qw(t8);
 
 use Params::Validate qw(:all);
 use List::MoreUtils qw(any);
@@ -58,7 +59,7 @@ sub sync_record_email_folder {
           #   , $email_journal->id
           # );
           my $email_journal_id = $email_journal->id;
-          $result .= "Error while processing email journal $email_journal_id attachments with $function_name: $@";
+          $result .= t8("Error while processing email journal ('#1') attachments with '#2': ", $email_journal_id, $function_name) . $@ . ".";
         };
       }
       if ($created_records  && $config->{processed_imap_flag}) {
@@ -98,11 +99,11 @@ sub delete_email_imports {
 
   my $result = "";
 
-  $result .= "Deleted email import(s): "
+  $result .= t8("Deleted email import(s): ")
     . join(', ', @deleted_email_import_ids) . "."
     if scalar @deleted_email_import_ids;
 
-  $result .= "Could not find email import(s): "
+  $result .= t8("Could not find email import(s): ")
     . join(', ', @not_found_email_import_ids) . " for deletion."
     if scalar @not_found_email_import_ids;
 
