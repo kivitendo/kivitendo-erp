@@ -106,7 +106,7 @@
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</para>
 
-        <para>Mitte 2020 (ab Version 3.5.6) empfehlen wir:</para>
+        <para>Anfang 2024 (ab Version 3.5.6) empfehlen wir:</para>
 
         <itemizedlist>
           <listitem>
@@ -119,12 +119,22 @@
               <listitem>
                 <para>11.0 "Bullseye"</para>
               </listitem>
+              <listitem>
+                <para>12.0 "Bookworm"</para>
+              </listitem>
             </itemizedlist>
           </listitem>
 
           <listitem>
-            <para>20.04 "Focal Fossa" LTS
-          </para>
+            <para>Ubuntu</para>
+            <itemizedlist>
+             <listitem>
+              <para>20.04 "Focal Fossa" LTS</para>
+             </listitem>
+             <listitem>
+              <para>22.04 "Jammy Jellyfish" LTS</para>
+             </listitem>
+            </itemizedlist>
           </listitem>
 
           <listitem>
@@ -152,6 +162,9 @@
 
         <programlisting>./scripts/installation_check.pl</programlisting>
 
+      <note id="List-Moreutils">
+        <para>Das Paket <literal>List::MoreUtils</literal> wird benötigt um das Script ausführen zu können!</para>
+      </note>
         <para>Die vollständige Liste der benötigten Perl-Module lautet:</para>
 
         <itemizedlist>
@@ -442,21 +455,19 @@
         <literal>XML::Writer</literal> sind notwendig. Ohne startet kivitendo
         nicht.</para>
 
+        <para>Gegenüber Version 2.6.3 ist <literal>JSON</literal> neu
+        hinzugekommen.</para>
+
+        <para><literal>Email::Address</literal> und
+        <literal>List::MoreUtils</literal> wurden aus dem Lieferumfang entfernt. Es wird
+        empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
+        installieren.</para>
+
         <para>Gegenüber Version 2.6.1 sind <literal>parent</literal>,
         <literal>DateTime</literal>, <literal>Rose::Object</literal>,
         <literal>Rose::DB</literal> und <literal>Rose::DB::Object</literal>
         neu hinzugekommen. <literal>IO::Wrap</literal> wurde entfernt.</para>
 
-        <para>Gegenüber Version 2.6.3 ist <literal>JSON</literal> neu
-        hinzugekommen.</para>
-
-        <para><literal>Email::Address</literal> und
-        <literal>List::MoreUtils</literal> sind schon länger feste
-        Abhängigkeiten, wurden aber bisher mit kivitendo mitgeliefert. Beide
-        sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
-        zukünftigen Version aber aus dem Paket entfernt werden. Es wird
-        empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
-        installieren.</para>
 
         <sect3>
           <title>Debian und Ubuntu</title>
@@ -574,7 +585,7 @@
       </sect2>
     </sect1>
     <sect1 id="Installation mittels Ansible"
-	   xreflabel="Inatallation mittels Ansible">
+           xreflabel="Inatallation mittels Ansible">
       <title>Installation mittels Ansible auf Ubuntu 22.04</title>
       <para>
         Ansible ist ein Open-Source-Automatisierungstool, das verwendet
@@ -1606,8 +1617,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
         so startet dieser nach Beendigung automatisch erneut.</para>
 
       </sect2>
-      <sect2 id="Tasks-konfigurieren"
-             xreflabel="Tasks-konfigurieren">
+      <sect2 id="Tasks-konfigurieren">
         <title>Exemplarische Konfiguration eines Hintergrund-Jobs, der die Jahreszahl in allen Nummernkreisen zum Jahreswechsel erhöht</title>
 
         <para>Hintergrund-Jobs werden über System -> Hintergrund-Jobs und Task-Server -> Aktuelle Hintergrund-Jobs anzeigen -> Aktions-Knopf 'erfassen' angelegt. </para>
@@ -6288,21 +6298,7 @@ digits_year: 4</programlisting>
             </varlistentry>
 
           </variablelist>
-        </sect3>
 
-        <sect3 id="dokumentenvorlagen-und-variablen.invoice-posten-cvars">
-          <title>Benutzerdefinierte Variablen für jeden Posten auf der Rechnung</title>
-          <para>
-            Für jeden Posten stehen auch die benutzerdefinierten Variablen zum
-            Artikel zur Verfügung. Ihre Namen bestehen aus dem Präfix
-            <varname>ic_cvar_</varname> und dem vom Benutzer festgelegten
-            Variablennamen.
-          </para>
-          <para>
-            Ebenso stehen die benutzerdefinierten Variablen zum positionsbezogenen
-            Projekt unter dem Namen mit dem Präfix <varname>project_cvar_</varname>
-            und dem vom Benutzer festgelegten Variablennamen zur Verfügung.
-          </para>
         </sect3>
 
         <sect3 id="dokumentenvorlagen-und-variablen.invoice-zahlungen">
@@ -6373,10 +6369,6 @@ digits_year: 4</programlisting>
           <para>Analog stehen die benutzerdefinierten Variablen für
           Ansprechpersonen mit dem Namenspräfix <varname>cp_cvar_</varname>
           zur Verfügung.</para>
-
-          <para>Auch für das globale Projekt des Belegs stehen die
-          benutzerdefinierten Variablen mit dem Namenspräfix
-          <varname>project_cvar_</varname> zur Verfügung.</para>
         </sect3>
       </sect2>
 
@@ -8253,308 +8245,6 @@ document_path = /var/local/kivi_documents
         Artikel des Lieferanten an, somit ist es möglich diese Artikel auszuwählen und gleich mitzubestellen</para>
       </sect2>
     </sect1>
-
-    <sect1 id="features.timerecording">
-      <title>Zeiterfassung</title>
-      <para>
-        Seit der Version 3.5.7 enthält kivitendo ein Modul zur Zeiterfassung.
-        Damit ist es möglich, auftrags-, kunden- oder projektbezogen,
-        Arbeitszeiten zu erfassen. Die erfassten Zeiten können über einen
-        Hintergrund-Job in Lieferscheine umgewandelt werden.
-      </para>
-      <sect2 id="features.timerecording.config">
-        <title>Konfiguration</title>
-        <para>
-          Die Zeiterfasssung funktioniert auch ohne Konfiguration, sofern der Benutzer
-          die entsprechenden Rechte besitzt. Allerdings ist
-          es möglich, Artikel für die Zeiterfassung zu konfigurieren, die im Bericht
-          ausgewertet und bei der Umwandlung zum Lieferschein verwendet werden
-          können.
-          Zudem kann auf benutzerebene eingestellt werden, ob Zeiten mit Start- und
-          End-Zeit oder mit Datum und Dauer erfasst werden sollen.
-        </para>
-        <sect3 id="features.timerecording.config.rights">
-          <title>Zugriffsrechte</title>
-          <para>
-            In der Rechteverwaltung im Admin-Bereich können im Zusammenhang mit
-            der Zeiterfassung drei verschiedene Rechte vergeben werden:
-
-            <itemizedlist>
-              <listitem>
-                <para><emphasis>Zeiterfassungen erfassen, bearbeiten und ansehen</emphasis></para>
-                <para>Diese Recht steuert, ob eine Gruppe den Menüpunkt zur
-                Zeiterfassung überhaupt sehen und diese verwenden kann.</para>
-              </listitem>
-
-              <listitem>
-                <para><emphasis>Zeiterfassungseinträge aller Mitarbeiter anzeigen</emphasis></para>
-                <para>Ohne dieses Recht darf ein Benutzer einer Benutzergruppe,
-                die die Zeiterfassung verwenden darf, nur Zeiteinträge im Bericht
-                sehen, bei denen dieser als Mitarbeiter eingetragen ist.</para>
-              </listitem>
-
-              <listitem>
-                <para><emphasis>Zeiterfassungseinträge aller Mitarbeiter bearbeiten</emphasis></para>
-                <para>Ohne dieses Recht darf ein Benutzer einer Benutzergruppe,
-                die die Zeiterfassung verwenden darf, nur Zeiteinträge anlegen
-                und bearbeiten, bei denen dieser als Mitarbeiter eingetragen ist.</para>
-              </listitem>
-          </itemizedlist>
-            
-          </para>
-        </sect3>
-        <sect3 id="features.timerecording.config.part">
-          <title>Artikel für Zeiterfassung</title>
-          <para>
-            Unter <emphasis><guimenu>System</guimenu>
-            → <guisubmenu>Artikel für Zeiterfassung</guisubmenu></emphasis>
-            können Artikel zur Nutzung mit der Zeiterfassung erfasst werden. Diese Artikel
-            müssen eine zeitbasierte Einheit haben.
-          </para>
-        </sect3>
-        <sect3 id="features.timerecording.config.time_or_duration">
-          <title>Benutzereinstellungen</title>
-          <para>
-            Unter <emphasis><guimenu>Programm</guimenu>
-            → <guisubmenu>Benutzereinstellungen</guisubmenu></emphasis>
-            im Reiter <emphasis>Persönliche Einstellungen</emphasis> bei
-            <emphasis>Datum und Dauer für Zeiterfassung verwenden</emphasis>
-            kann der Benutzer angeben, ob Zeiten mit Start- und End-Zeit oder mit
-            Datum und Dauer erfasst werden sollen.
-          </para>
-        </sect3>
-      </sect2>
-      <sect2 id="features.timerecording.add">
-        <title>Erfassen</title>
-        <para>
-          Über den Menüpunkt <emphasis><guimenu>Produktivität</guimenu>
-          → <guisubmenu>Zeiterfassung</guisubmenu></emphasis>
-          gelangt man zur Erfassungsmaske der Zeiterfassung. Je nach Einstellung
-          muss ein Datum oder Datum und Start-Zeit angegeben werden. Ebenso sind
-          die Felder <emphasis>Kunde</emphasis> und
-          <emphasis>Beschreibung</emphasis>
-          Pflichtfelder.
-        </para>
-        <para>
-          Wird ein Auftrag oder ein Projekt, dem ein Kunde zugeordnet ist,
-          ausgewählt, so wird das Feld <emphasis>Kunde</emphasis>
-          automatisch mit dem zugehörigen Kunden gefüllt und für die
-          manuelle Bearbeitung gesperrt.
-        </para>
-        <para>
-          Die End-Zeit bzw. die Dauer ist kein Pflichtfeld, damit
-          man einen Eintrag z.B. beim Start der Arbeit anlegen und
-          später am Ende dann die End-Zeit bzw. Dauer erfassen kann.
-          Bei Eingabe über Start- und End-Zeit dürfen sich die Zeiten für
-          ein und denselben Mitarbeiter nicht überlappen.
-        </para>
-        <para>
-          Falls der Bearbeiter das Recht
-          <emphasis>Zeiterfassungseinträge aller Mitarbeiter
-          bearbeiten</emphasis> besitzt, kann auch der Mitarbeiter für
-          diesen Zeiteintrag ausgewählt werden.
-        </para>
-      </sect2>
-      <sect2 id="features.timerecording.report">
-        <title>Bericht</title>
-        <para>
-          Ein Bericht über die erfassten Zeiten lässt sich über
-          <emphasis><guimenu>Produktivität</guimenu> → <guisubmenu>Berichte</guisubmenu>
-          → <guisubmenu>Zeiterfassung</guisubmenu></emphasis> ausgeben.
-          Hier lassen sich die Zeiten auch filtern, sortieren und exportieren.
-        </para>           
-        <para>
-          Ausgewählte Zeiteinträge können über <emphasis><guimenu>Aktionen</guimenu>
-          → <guisubmenu>Als gebucht markieren</guisubmenu></emphasis> als schon gebucht
-          markiert werden. Dies geschieht normalerweise bei der Konvertierung
-          zum Lieferschein und kann hier händisch durchgeführt werden, wenn diese
-          Zeitbuchungen bei der Konvertierung nicht mehr berücksichtigt werden sollen.
-        </para>
-      </sect2>
-      <sect2 id="features.timerecording.conversion">
-        <title>Konvertierung zu Lieferscheinen</title>
-        <para>
-          Über den Hintergrund-Job
-          <emphasis>ConvertTimeRecordings</emphasis> können
-          Zeiteinträge in Lieferscheine umgewandelt werden. Hierbei
-          werden alle noch nicht gebuchten Zeiteinträge eines
-          bestimmten Zeitraums für bestimmte Kunden gesammelt und
-          in Lieferscheine umgewandelt.
-          Pro Kunde wird ein Lieferschein generiert und
-          pro Artikel wird eine Positionszeile erzeugt. Dabei werden
-          Einträge mit gleichen Beschreibungen zusammengefasst. Die
-          Details landen im Langtext der Position.
-        </para>
-        <para>
-          Ohne übergebene Parameter im Feld <emphasis>Daten</emphasis> werden alle
-          Zeiteinträge des letzten Monats für alle Kunden umgewandelt. Dabei
-          werden die Zeiten auf volle Viertelstunden aufgerundet (siehe auch
-          <xref linkend="features.timerecording.configuration"/>).
-        </para>
-        <sect3 id="features.timerecording.configuration" xreflabel="Konfigurations-Optionen der Zeiterfassung">
-          <title>Konfigurations-Optionen</title>
-          <para>
-            Zur generellen Konfiguration von Hintergrund-Jobs und zur Übergabe
-            von Parametern als Daten an diese, siehe <xref linkend="config.task-server"/>
-            bzw. <xref linkend="Tasks-konfigurieren"/>).
-          </para>
-          <para>
-            Folgende Parameter können als <emphasis>Daten</emphasis> an den
-            Hintergrund-Job zur Konvertierung übergeben werden:
-            <itemizedlist>
-              <listitem>
-                <para>
-                  <emphasis>from_date</emphasis>
-                </para>
-                <para>
-                  Das Startdatum, von welchen an die Zeiteinträge berücksicht werden.
-                  Voreinstellung ist der erste Tag des vorherigen Montats.
-                </para>
-                <para>
-                  Beispiel (das Zeitformat hängt von der persönlichen Einstellungen ab):
-                  <programlisting>from_date: 01.12.2020</programlisting>
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  <emphasis>to_date</emphasis>
-                </para>
-                <para>
-                  Das Datum, bis zu welchem die Zeiteinträge zur Konvertierung gesammelt
-                  werden. Voreinstellung ist der letzte Tag des vorherigen Montas.
-                </para>
-                <para>
-                  Beispiel (das Zeitformat hängt von der persönlichen Einstellungen ab):
-                  <programlisting>to_date: 15.12.2020</programlisting>
-                </para>
-              </listitem>
-
-              <listitem>
-                <para>
-                  <emphasis>customernumbers</emphasis>
-                </para>
-                <para>
-                  Eine Liste mit Kundennummern, für die Zeiteinträge gesammelt werden
-                  sollen. Wird diese Liste nicht angegeben, werden Einträge für
-                  alle Kunden berücksichtig.
-                </para>
-                <para>
-                  <programlisting>customernumbers: [c1,22332,334343]</programlisting>
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  <emphasis>override_part_id</emphasis>
-                </para>
-                <para>
-                  Die Datenbank-Id einer zeitbasierten Dienstleistung, die verwendet
-                  werden soll, um die Zeiteinträge zu buchen. Dieser Wert überschreibt
-                  den Eintrag des Artikels des Zeiteintrags.
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  <emphasis>default_part_id</emphasis>
-                </para>
-                <para>
-                  Die Datenbank-Id einer zeitbasierten Dienstleistung, die verwendet
-                  werden soll, um die Zeiteinträge zu buchen, falls im Zeiteintrag
-                  kein Artikel gespeichert ist.
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  <emphasis>rounding</emphasis>
-                </para>
-                <para>
-                  Ist dieser Wert <literal>0</literal>, so werden die Zeiten nicht gerundet.
-                  Ist der Wert <literal>1</literal> (oder "wahr" in Perl"), so werden die Zeiten auf volle Viertelstunden aufgerundet, also z.B. 0.25h, 0.5h, 0.75h,
-                  1.25h ...
-                </para>
-                <para>
-                  Voreinstellung ist <literal>1</literal> ("wahr").
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  <emphasis>link_order</emphasis>
-                </para>
-                <para>
-                  Ist der Wert <literal>1</literal> (oder "wahr" in Perl"), so verknüpft
-                  der Hintergrund-Job den erzeugten Lieferschein mit dem im Zeiteintrag
-                  angegebenen Auftrag.
-                  Ist kein Auftrag angegeben, wird versucht, einen Auftrag für den
-                  angegebenen Kunden und die angegebene Projektnummer zu finden.
-                </para>
-                <para>
-                  Folgende Kriterien werden zum Finden eines Vorgängerauftrags angwendet:
-                  <itemizedlist>
-                    <listitem><para>
-                      Auftrag ist im Zeiteintrag angegeben <emphasis>oder</emphasis>
-                    </para></listitem>
-                    <listitem><para>
-                      Datenbank-Id des Projekts des Auftrags ist gleich
-                      der Datenbank-Id des Zeiteintrags <emphasis>oder</emphasis> der in den Daten
-                      übergebenen Projekt-Id
-                    </para></listitem>
-                    <listitem><para>
-                      Kunde des Auftrags ist gleich Kunde des Zeiteintrags
-                    </para></listitem>
-                    <listitem><para>
-                      der Auftrag muss mindestens eine zugehörige zeitbasierte Position haben
-                    </para></listitem>
-                    <listitem><para>
-                      das Projekt muss gültig und aktiv sein
-                    </para></listitem>
-                  </itemizedlist>
-                </para>
-                <para>
-                  Voreinstellung ist aus. Wenn dieser Parameter gesetzt ist, läuft der
-                  Hintergrund-Job auf einen Fehler, falls kein geeigneter Vorgängerauftrag
-                  gefunden werden kann.
-                </para>
-                <para>
-                  Der Job beachtet nicht, ob der Auftrag schon geliefert oder geschlossen
-                  ist.
-                  Wenn der Kundenauftrag überliefert wird, muss dies organisatorisch
-                  geklärt werden. Der Kundenauftrag kann auch bereits geschlossen sein,
-                  d.h. der Betrag ist vollständig fakturiert, aber die Leistungen sind
-                  noch nicht vollständig geliefert (einfacher Fall: "Vorauskasse").
-                </para>
-                <para>
-                  siehe auch den Hintergrund-Job
-                  <literal>CloseProjectsBelongingToClosedSalesOrder</literal>
-                  für eine weitergehende Automatisierung der Abläufe.
-                </para>
-                </listitem>
-                <listitem>
-                  <para>
-                    <emphasis>override_project_id</emphasis>
-                  </para>
-                  <para>
-                    Verwende diese Datenbank-Id für das Projekt an Stelle des
-                    im Zeiteintrag angegebenen Projekts, um den zugehörigen Auftrag
-                    zu finden. Dieser Parameter wird nur berücksichtig, wenn
-                    <emphasis>link_order</emphasis> wahr ist.
-                  </para>
-                </listitem>
-                <listitem>
-                  <para>
-                    <emphasis>default_project_id</emphasis>
-                  </para>
-                  <para>
-                    Verwende diese Datenbank-Id für das Projekt, falls
-                    im Zeiteintrag kein Projekt angegeben ist, um den
-                    zugehörigen Auftrag zu finden.
-                    Dieser Parameter wird nur berücksichtig, wenn
-                  </para>
-                </listitem>
-            </itemizedlist>
-          </para>
-        </sect3>
-      </sect2>
-    </sect1>
-    
   </chapter>
 
   <chapter>
