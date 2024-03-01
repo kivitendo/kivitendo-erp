@@ -116,9 +116,9 @@ This module provides helper functions for processing email attachments.
 
 Processes the attachments of an email journal. The function to be used for processing is determined by the first argument.
 
-=head2 process_attachments_zugpferd($function_name, $email_journal, %params)
+=head2 process_attachments_zugferd($function_name, $email_journal, %params)
 
-Processes the attachments of an email journal. If it is a Zugpferd Invoiue it creates the PurchaseInvoice and links it to the email_journal.
+Processes the attachments of an email journal. If it is a ZUGFeRD Invoiue it creates the PurchaseInvoice and links it to the email_journal.
 
 =head1 AUTHOR
 
