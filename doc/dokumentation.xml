@@ -1614,11 +1614,12 @@ systemctl enable kivitendo-task-server.service</programlisting>
         so startet dieser nach Beendigung automatisch erneut.</para>
 
       </sect2>
-      <sect2 id="Tasks-konfigurieren" xreflabel="Tasks-konfigurieren">
-        <title>Exemplarische Konfiguration eines Hintergrund-Jobs, der die Jahreszahl in allen Nummernkreisen zum Jahreswechsel erhöht</title>
+    </sect1>
+      <sect1 id="Hintergrund-Job konfigurieren">
+        <title>Konfiguration der Hintergrund-Jobs</title>
 
         <para>Hintergrund-Jobs werden über System -> Hintergrund-Jobs und Task-Server -> Aktuelle Hintergrund-Jobs anzeigen -> Aktions-Knopf 'erfassen' angelegt. </para>
-        <para>Nachdem wir über das Menü dort angelangt sind, legen wir unseren exemplarischen Hintergrund-Jobs "Erhöhung der Nummernkreise" mit folgenden Werten an:</para>
+        <para>Nachdem wir über das Menü dort angelangt sind, legen wir hier unseren Hintergrund-Jobs an:</para>
         <itemizedlist>
           <listitem>
             <para><literal>Aktiv:</literal> Hier ein 'Ja' auswählen</para>
@@ -1627,7 +1628,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
             <para><literal>Ausführungsart:</literal> 'wiederholte Ausführung' auswählen</para>
           </listitem>
           <listitem>
-            <para><literal>Paketname:</literal> 'SetNumberRange' auswählen</para>
+            <para><literal>Paketname:</literal> Hintergrundjob auswählen</para>
           </listitem>
           <listitem>
             <para><literal>Ausführungszeitplan:</literal> Hier entsprechend Werte wie in der crontab eingeben.</para><para>Syntax:</para>
@@ -1649,12 +1650,17 @@ systemctl enable kivitendo-task-server.service</programlisting>
 4 = Monat (1-12)
 5 = Wochentag (0-7, Sonntag ist 0 oder 7)
 </programlisting>
-<para>Um die Ausführung auf eine Minute vor Sylvester zu setzen, müssen die folgenden Werte eingetragen werden:</para>
+<para>Um die Ausführung auf eine Minute vor den Jahreswechsel zu setzen, müssen die folgenden Werte eingetragen werden:</para>
 <programlisting>59 23 31 12 *</programlisting>
           </listitem>
           <listitem>
-            <para><literal>Daten:</literal>In diesem Feld können optionale Parameter für den Hintergrund im JSON-Format gesetzt werden. Der Hintergrund-Job <literal>SetNumberRange</literal> akzeptiert zwei Variable nämlich <literal>digit_year</literal> sowieso <literal>multiplier</literal>.</para><para> <literal>digit_year</literal> kann zwei Werte haben entweder 2 oder 4, darüber wird gesteuert ob die Jahreszahl zwei oder vierstellig kodiert wird (für 2019, dann entweder 19 oder 2019). Der Standardwert ist vierstellig.</para><para> <literal>multiplier</literal> ist ein Vielfaches von 10, darüber wird die erste Nummer im Nummernkreis (die Anzahl der Stellen) wie folgt bestimmt:</para>
-<programlisting>
+            <para><literal>Daten:</literal>In diesem Feld können optionale Parameter für den Hintergrund im YAML-Format gesetzt werden.</para>
+            </listitem>
+        </itemizedlist>
+<sect2 id="Hintergrund-Job SetNumberRange">
+  <title>SetNumberRange</title>
+  <para> Der Hintergrund-Job <literal>SetNumberRange</literal> akzeptiert im Feld <literal>Daten</literal> zwei Variablen nämlich <literal>digit_year</literal> sowieso <literal>multiplier</literal>.</para><para> <literal>digit_year</literal> kann zwei Werte haben entweder 2 oder 4, darüber wird gesteuert ob die Jahreszahl zwei oder vierstellig kodiert wird (für 2019, dann entweder 19 oder 2019). Der Standardwert ist vierstellig.</para><para> <literal>multiplier</literal> ist ein Vielfaches von 10, darüber wird die erste Nummer im Nummernkreis (die Anzahl der Stellen) wie folgt bestimmt:</para>
+  <programlisting>
 multiplier     Nummernkreis 2020
 10        ->   20200
 100       ->   202000
@@ -1663,10 +1669,57 @@ multiplier     Nummernkreis 2020
 <para>Wir gehen jetzt beispielhaft von einer letzten Rechnungsnummer von RE2019456 aus. Demnach sollte ab Januar 2020 die erste Nummer RE2020001 sein. Da der Task auch Präfixe berücksichtigt, kann dies mit folgenden JSON-kodierten Werten umgesetzt werden:</para>
 <para><literal>Daten:</literal></para><programlisting>multiplier: 100
 digits_year: 4</programlisting>
+
+        </sect2>
+        <sect2 id="Hintergrund-Job ImportRecordEmails">
+  <title>ImportRecordEmails</title>
+<para> Der Hintergrund-Job <literal>ImportRecordEmails</literal> kann vollständig über das Feld Daten konfiguriert werden. Er benötigt folgende Variablen:</para>
+  <itemizedlist>
+          <listitem>
+            <para><literal>hostname:</literal> Hier wird der Emailserver eingetragen</para>
+          </listitem>
+          <listitem>
+            <para><literal>username:</literal> Benutzername, mit dem sich am Emailserver angemeldet wird. (Häufig die Emailadresse)</para>
+          </listitem>
+          <listitem>
+            <para><literal>password:</literal> Passwort des Benutzers</para>
+          </listitem>
+          <listitem>
+            <para><literal>base_folder:</literal> Hier wird der Ordner eingetragen, aus dem die Emails importert werden sollen. (bspw. INBOX)</para>
+          </listitem>
+          <listitem>
+            <para><literal>port:</literal> Port am Emailserver. Default ist 993</para>
+          </listitem>
+          <listitem>
+            <para><literal>ssl:</literal> Gibt an ob SSL verwendet werden soll. Default: 1</para>
           </listitem>
         </itemizedlist>
-     </sect2>
-    </sect1>
+
+    <para> Optional können außerdem folgende Variablen verwendet werden:</para>
+
+    <itemizedlist>
+          <listitem>
+            <para><literal>email_import_ids_to_delete:</literal> Hier können IDs von Importen eingetragen werden, deren Emails aus dem Emailjournal gelöscht werden sollen.</para>
+          </listitem>
+          <listitem>
+            <para><literal>process_imported_emails:</literal> Wenn nach dem Import noch weitere Verarbeitung der angehangenen Dokument erfolgen soll, müssen hier die jeweiligen Schritte eingetragen werden. Aktuell ist es möglich, dass angehangene Zugpferd-Rechnung direkt verbucht und mit der Email verknüpft werden. Dazu muss hier '[zugpferd]' eingetragen werden.</para>
+          </listitem>
+          <listitem>
+            <para><literal>processed_imap_flag:</literal> Das hier eingetragenen Flag wird nach dem Verarbeiten an der Email gesetzt.</para>
+          </listitem>
+          <listitem>
+            <para><literal>not_processed_imap_flag:</literal> Dieses Flag wird gesetzt, wenn die Email nicht verarbeitet werden konnte.</para>
+          </listitem>
+          <listitem>
+            <para><literal>record_type:</literal> Einträge im Email-Journal können direkt einem Belegtypen zugrorndet werden. Wenn alle Emails, die mit einem Hintergrundjob importiert werden, den gleichen Belegtypen haben, kann man diesen hier festlegen und alle Einträge im Emailjournal werden entsprechend zugrordnet. Für Eingangsrechnungen muss man hier 'ap_transaction' setzen.</para>
+          </listitem>
+        </itemizedlist>
+
+          <para>Alternativ ist auch eine Konfiguration über die kivi.conf möglich. Ein entsprechendes Beispiel findet sich in der kivi.conv.default</para>
+
+        </sect2>
+     </sect1>
+
     <sect1 id="Benutzerauthentifizierung-und-Administratorpasswort">
       <title>Benutzerauthentifizierung und Administratorpasswort</title>
 
