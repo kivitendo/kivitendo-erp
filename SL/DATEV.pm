@@ -472,7 +472,8 @@ sub generate_datev_data {
          ar.department_id,
          ar.notes,
          project.projectnumber as projectnumber, project.description as projectdescription,
-         department.description as departmentdescription
+         department.description as departmentdescription,
+         iv.description as ivdescription, iv.qty as ivqty
        FROM acc_trans ac
        LEFT JOIN ar          ON (ac.trans_id    = ar.id)
        LEFT JOIN customer ct ON (ar.customer_id = ct.id)
@@ -481,6 +482,7 @@ sub generate_datev_data {
        LEFT JOIN chart tc    ON (t.chart_id     = tc.id)
        LEFT JOIN department  ON (department.id  = ar.department_id)
        LEFT JOIN project     ON (project.id     = ar.globalproject_id)
+       LEFT JOIN invoice iv  ON (iv.acc_trans_id = ac.acc_trans_id)
        WHERE (ar.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -501,7 +503,8 @@ sub generate_datev_data {
          ap.department_id,
          ap.notes,
          project.projectnumber as projectnumber, project.description as projectdescription,
-         department.description as departmentdescription
+         department.description as departmentdescription,
+         iv.description, iv.qty
        FROM acc_trans ac
        LEFT JOIN ap        ON (ac.trans_id  = ap.id)
        LEFT JOIN vendor ct ON (ap.vendor_id = ct.id)
@@ -510,6 +513,7 @@ sub generate_datev_data {
        LEFT JOIN chart tc    ON (t.chart_id     = tc.id)
        LEFT JOIN department  ON (department.id  = ap.department_id)
        LEFT JOIN project     ON (project.id     = ap.globalproject_id)
+       LEFT JOIN invoice iv  ON (iv.acc_trans_id  = ac.acc_trans_id)
        WHERE (ap.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -530,13 +534,15 @@ sub generate_datev_data {
          gl.department_id,
          gl.notes,
          '' as projectnumber, '' as projectdescription,
-         department.description as departmentdescription
+         department.description as departmentdescription,
+         iv.description, iv.qty
        FROM acc_trans ac
        LEFT JOIN gl      ON (ac.trans_id  = gl.id)
        LEFT JOIN chart c ON (ac.chart_id  = c.id)
        LEFT JOIN tax t   ON (ac.tax_id    = t.id)
        LEFT JOIN chart tc    ON (t.chart_id     = tc.id)
        LEFT JOIN department  ON (department.id  = gl.department_id)
+       LEFT JOIN invoice iv ON (iv.acc_trans_id  = ac.acc_trans_id)
        WHERE (gl.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -845,6 +851,12 @@ sub generate_datev_lines {
         $haben = $i;
       } else {
         $soll = $i;
+      }
+      if ($transaction->[$i]->{'ivdescription'}) {
+        $datev_data{description} = $transaction->[$i]->{'ivdescription'};
+      }
+      if ($transaction->[$i]->{'ivqty'}) {
+        $datev_data{quantity} = $transaction->[$i]->{'ivqty'};
       }
     }
 
