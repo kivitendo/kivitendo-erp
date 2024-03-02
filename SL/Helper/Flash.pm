@@ -21,6 +21,11 @@ sub flash {
 }
 
 sub flash_later {
+  # message and details are at index 1 and 2: make sure they are stored as strings,
+  # as LoadBlessed is deactivated, and YAML::XS does not provide Stringify
+  for my $i (1, 2) {
+    $_[$i] .=  '' if defined $_[$i];
+  }
   $::auth->set_session_value({ key => "FLASH", value => _store_flash($::auth->get_session_value('FLASH'), @_), auto_restore => 1 });
 }
 
