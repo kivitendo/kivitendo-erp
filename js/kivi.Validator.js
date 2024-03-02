@@ -104,9 +104,18 @@ namespace("kivi.Validator", function(ns) {
         return false;
       } else
       {
+        let input_decimal_places = parsed_number.toString().split('.')[1];
+        let count_input_decimal_places = 0;
+        if(input_decimal_places){
+          count_input_decimal_places = input_decimal_places.length;
+        }
         var formatted_number = kivi.format_amount(parsed_number);
-        if (formatted_number != number_string)
+        if (formatted_number != number_string) {
           ns.val($e, formatted_number);
+          if(count_input_decimal_places > decimal_places) {
+            kivi.display_flash('warning',kivi.t8('Input was rounded'));
+          }
+        }
         ns.annotate($e_annotate);
         return true;
       }
