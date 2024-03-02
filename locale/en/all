@@ -2095,6 +2095,7 @@ $self->{texts} = {
   'Initial version.'            => '',
   'Input from string: #1'       => '',
   'Input to string: #1'         => '',
+  'Input was rounded'           => '',
   'Insert'                      => '',
   'Insert Date'                 => '',
   'Insert new'                  => '',
