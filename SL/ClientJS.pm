@@ -200,10 +200,16 @@ sub to_array {
   return $self->_actions;
 }
 
+sub transfer_flash {
+  my ($self) = @_;
+  $self->flash(@$_) for SL::Helper::Flash->flash_contents;
+}
+
 sub render {
   my ($self, $controller) = @_;
   $controller ||= $self->controller;
   $self->reinit_widgets if $::request->presenter->need_reinit_widgets;
+  $self->transfer_flash;
   return $controller->render(\$self->to_json, { type => 'json' });
 }
 
