@@ -1685,7 +1685,7 @@ digits_year: 4</programlisting>
             <para><literal>password:</literal> Passwort des Benutzers</para>
           </listitem>
           <listitem>
-            <para><literal>base_folder:</literal> Hier wird der Ordner eingetragen, aus dem die Emails importert werden sollen. (bspw. INBOX)</para>
+            <para><literal>folder:</literal> Hier wird der Ordner eingetragen, aus dem die Emails importert werden sollen. (bspw. INBOX)</para>
           </listitem>
           <listitem>
             <para><literal>port:</literal> Port am Emailserver. Default ist 993</para>
@@ -1714,6 +1714,12 @@ digits_year: 4</programlisting>
             <para><literal>record_type:</literal> Einträge im Email-Journal können direkt einem Belegtypen zugrorndet werden. Wenn alle Emails, die mit einem Hintergrundjob importiert werden, den gleichen Belegtypen haben, kann man diesen hier festlegen und alle Einträge im Emailjournal werden entsprechend zugrordnet. Für Eingangsrechnungen muss man hier 'ap_transaction' setzen.</para>
           </listitem>
         </itemizedlist>
+
+    <para>Wie die Imap Flags von den jeweiligen Clients angezeigt und eingerichtet werden, ist aktuell om Thunderbird (Version 115.8.0) und SoGo (Version 5.9.1) getestet:</para>
+
+          <para>In Thunderbird heißen die Flags Schlagwörter. Sie werden durchnummeriert mit dem Prefix "$label". Über die Einstellungen kann man Schlagwort und Farbe für den jeweiligen Tag setzen und berabeiten. Um die vordefenierten Tags in Thunderbird zu netzen kann man $label1 - $label5 nutzen. Eigene Label werden dann von thunderbird automatisch hochgezählt.Um das korrekte Tag für ein Label zu finden oder auch selbst ein Tag mit einer selbst gewählten Zahl zu defnieren kann man in den Einstellunge gan am Ende über den Button <literal>Konfiguration berabeiten...</literal> die Werte in der Kofiguration einsehen, ändern und berabeiten. Hier muss man nach <literal>mailnews.tags</literal> suchen.</para>
+
+          <para>In SoGo kann man unter Einstellungen -> Mail -> Labels beliebige Label mit $ als Prefix anlegen und Namen und Farbe zuweisen.</para>
 
         </sect2>
      </sect1>
