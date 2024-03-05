@@ -79,6 +79,7 @@ sub _post_transaction {
   my ($query, $sth, $null, $taxrate, $amount, $tax);
   my $exchangerate = 0;
   my $i;
+  $form->{script}      = 'ar.pl' unless $form->{script};
 
   my @values;
 
