@@ -16,6 +16,7 @@ use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
 use SL::SessionFile::Random;
 use SL::Helper::Flash qw(flash);
+use SL::Presenter::EscapedText qw(escape);
 
 use SL::Presenter::DatePeriod qw(get_dialog_defaults_from_report_generator
                                   populate_hidden_variables);
@@ -188,7 +189,7 @@ sub set_defaults {
 sub set_title {
   my ($self) = @_;
   my $account = first { $_->{accno} eq $::form->{accno} } @{ $self->accounts_list };
-  $self->title(join(" ", t8('List Transactions'), t8('Account'), $account->{text}));
+  $self->title(escape(join(" ", t8('List Transactions'), t8('Account'), $account->{text})));
 }
 
 sub set_dates {
