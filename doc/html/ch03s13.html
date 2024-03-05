@@ -1,0 +1,236 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>3.13. Zeiterfassung</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.8.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch03.html" title="Kapitel 3. Features und Funktionen"><link rel="prev" href="ch03s12.html" title="3.12. Dispositionsmanager/Einkaufshelfer"><link rel="next" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.13. Zeiterfassung</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03s12.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 3. Features und Funktionen</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="3.13. Zeiterfassung"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="features.timerecording"></a>3.13. Zeiterfassung</h2></div></div></div><p>
+        Seit der Version 3.5.7 enthält kivitendo ein Modul zur Zeiterfassung.
+        Damit ist es möglich, auftrags-, kunden- oder projektbezogen,
+        Arbeitszeiten zu erfassen. Die erfassten Zeiten können über einen
+        Hintergrund-Job in Lieferscheine umgewandelt werden.
+      </p><div class="sect2" title="3.13.1. Konfiguration"><div class="titlepage"><div><div><h3 class="title"><a name="features.timerecording.config"></a>3.13.1. Konfiguration</h3></div></div></div><p>
+          Die Zeiterfasssung funktioniert auch ohne Konfiguration, sofern der Benutzer
+          die entsprechenden Rechte besitzt. Allerdings ist
+          es möglich, Artikel für die Zeiterfassung zu konfigurieren, die im Bericht
+          ausgewertet und bei der Umwandlung zum Lieferschein verwendet werden
+          können.
+          Zudem kann auf benutzerebene eingestellt werden, ob Zeiten mit Start- und
+          End-Zeit oder mit Datum und Dauer erfasst werden sollen.
+        </p><div class="sect3" title="3.13.1.1. Zugriffsrechte"><div class="titlepage"><div><div><h4 class="title"><a name="features.timerecording.config.rights"></a>3.13.1.1. Zugriffsrechte</h4></div></div></div><p>
+            In der Rechteverwaltung im Admin-Bereich können im Zusammenhang mit
+            der Zeiterfassung drei verschiedene Rechte vergeben werden:
+
+            </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                           <span class="emphasis"><em>Zeiterfassungen erfassen, bearbeiten und ansehen</em></span>
+                        </p><p>Diese Recht steuert, ob eine Gruppe den Menüpunkt zur
+                Zeiterfassung überhaupt sehen und diese verwenden kann.</p></li><li class="listitem"><p>
+                           <span class="emphasis"><em>Zeiterfassungseinträge aller Mitarbeiter anzeigen</em></span>
+                        </p><p>Ohne dieses Recht darf ein Benutzer einer Benutzergruppe,
+                die die Zeiterfassung verwenden darf, nur Zeiteinträge im Bericht
+                sehen, bei denen dieser als Mitarbeiter eingetragen ist.</p></li><li class="listitem"><p>
+                           <span class="emphasis"><em>Zeiterfassungseinträge aller Mitarbeiter bearbeiten</em></span>
+                        </p><p>Ohne dieses Recht darf ein Benutzer einer Benutzergruppe,
+                die die Zeiterfassung verwenden darf, nur Zeiteinträge anlegen
+                und bearbeiten, bei denen dieser als Mitarbeiter eingetragen ist.</p></li></ul></div><p>
+
+          
+               </p></div><div class="sect3" title="3.13.1.2. Artikel für Zeiterfassung"><div class="titlepage"><div><div><h4 class="title"><a name="features.timerecording.config.part"></a>3.13.1.2. Artikel für Zeiterfassung</h4></div></div></div><p>
+            Unter <span class="emphasis"><em>
+                     <span class="guimenu">System</span>
+            → <span class="guisubmenu">Artikel für Zeiterfassung</span>
+                  </em></span>
+            können Artikel zur Nutzung mit der Zeiterfassung erfasst werden. Diese Artikel
+            müssen eine zeitbasierte Einheit haben.
+          </p></div><div class="sect3" title="3.13.1.3. Benutzereinstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="features.timerecording.config.time_or_duration"></a>3.13.1.3. Benutzereinstellungen</h4></div></div></div><p>
+            Unter <span class="emphasis"><em>
+                     <span class="guimenu">Programm</span>
+            → <span class="guisubmenu">Benutzereinstellungen</span>
+                  </em></span>
+            im Reiter <span class="emphasis"><em>Persönliche Einstellungen</em></span> bei
+            <span class="emphasis"><em>Datum und Dauer für Zeiterfassung verwenden</em></span>
+            kann der Benutzer angeben, ob Zeiten mit Start- und End-Zeit oder mit
+            Datum und Dauer erfasst werden sollen.
+          </p></div></div><div class="sect2" title="3.13.2. Erfassen"><div class="titlepage"><div><div><h3 class="title"><a name="features.timerecording.add"></a>3.13.2. Erfassen</h3></div></div></div><p>
+          Über den Menüpunkt <span class="emphasis"><em>
+                  <span class="guimenu">Produktivität</span>
+          → <span class="guisubmenu">Zeiterfassung</span>
+               </em></span>
+          gelangt man zur Erfassungsmaske der Zeiterfassung. Je nach Einstellung
+          muss ein Datum oder Datum und Start-Zeit angegeben werden. Ebenso sind
+          die Felder <span class="emphasis"><em>Kunde</em></span> und
+          <span class="emphasis"><em>Beschreibung</em></span>
+          Pflichtfelder.
+        </p><p>
+          Wird ein Auftrag oder ein Projekt, dem ein Kunde zugeordnet ist,
+          ausgewählt, so wird das Feld <span class="emphasis"><em>Kunde</em></span>
+          automatisch mit dem zugehörigen Kunden gefüllt und für die
+          manuelle Bearbeitung gesperrt.
+        </p><p>
+          Die End-Zeit bzw. die Dauer ist kein Pflichtfeld, damit
+          man einen Eintrag z.B. beim Start der Arbeit anlegen und
+          später am Ende dann die End-Zeit bzw. Dauer erfassen kann.
+          Bei Eingabe über Start- und End-Zeit dürfen sich die Zeiten für
+          ein und denselben Mitarbeiter nicht überlappen.
+        </p><p>
+          Falls der Bearbeiter das Recht
+          <span class="emphasis"><em>Zeiterfassungseinträge aller Mitarbeiter
+          bearbeiten</em></span> besitzt, kann auch der Mitarbeiter für
+          diesen Zeiteintrag ausgewählt werden.
+        </p></div><div class="sect2" title="3.13.3. Bericht"><div class="titlepage"><div><div><h3 class="title"><a name="features.timerecording.report"></a>3.13.3. Bericht</h3></div></div></div><p>
+          Ein Bericht über die erfassten Zeiten lässt sich über
+          <span class="emphasis"><em>
+                  <span class="guimenu">Produktivität</span> → <span class="guisubmenu">Berichte</span>
+          → <span class="guisubmenu">Zeiterfassung</span>
+               </em></span> ausgeben.
+          Hier lassen sich die Zeiten auch filtern, sortieren und exportieren.
+        </p><p>
+          Ausgewählte Zeiteinträge können über <span class="emphasis"><em>
+                  <span class="guimenu">Aktionen</span>
+          → <span class="guisubmenu">Als gebucht markieren</span>
+               </em></span> als schon gebucht
+          markiert werden. Dies geschieht normalerweise bei der Konvertierung
+          zum Lieferschein und kann hier händisch durchgeführt werden, wenn diese
+          Zeitbuchungen bei der Konvertierung nicht mehr berücksichtigt werden sollen.
+        </p></div><div class="sect2" title="3.13.4. Konvertierung zu Lieferscheinen"><div class="titlepage"><div><div><h3 class="title"><a name="features.timerecording.conversion"></a>3.13.4. Konvertierung zu Lieferscheinen</h3></div></div></div><p>
+          Über den Hintergrund-Job
+          <span class="emphasis"><em>ConvertTimeRecordings</em></span> können
+          Zeiteinträge in Lieferscheine umgewandelt werden. Hierbei
+          werden alle noch nicht gebuchten Zeiteinträge eines
+          bestimmten Zeitraums für bestimmte Kunden gesammelt und
+          in Lieferscheine umgewandelt.
+          Pro Kunde wird ein Lieferschein generiert und
+          pro Artikel wird eine Positionszeile erzeugt. Dabei werden
+          Einträge mit gleichen Beschreibungen zusammengefasst. Die
+          Details landen im Langtext der Position.
+        </p><p>
+          Ohne übergebene Parameter im Feld <span class="emphasis"><em>Daten</em></span> werden alle
+          Zeiteinträge des letzten Monats für alle Kunden umgewandelt. Dabei
+          werden die Zeiten auf volle Viertelstunden aufgerundet (siehe auch
+          <a class="xref" href="ch03s13.html#features.timerecording.configuration" title="3.13.4.1. Konfigurations-Optionen">Konfigurations-Optionen der Zeiterfassung</a>).
+        </p><div class="sect3" title="3.13.4.1. Konfigurations-Optionen"><div class="titlepage"><div><div><h4 class="title"><a name="features.timerecording.configuration"></a>3.13.4.1. Konfigurations-Optionen</h4></div></div></div><p>
+            Zur generellen Konfiguration von Hintergrund-Jobs und zur Übergabe
+            von Parametern als Daten an diese, siehe <a class="xref" href="ch02s08.html" title="2.8. Der Task-Server">Abschnitt&nbsp;2.8, „Der Task-Server“</a>
+            bzw. <a class="xref" href="ch02s08.html#Tasks-konfigurieren" title="2.8.5. Exemplarische Konfiguration eines Hintergrund-Jobs, der die Jahreszahl in allen Nummernkreisen zum Jahreswechsel erhöht">Tasks-konfigurieren</a>).
+          </p><p>
+            Folgende Parameter können als <span class="emphasis"><em>Daten</em></span> an den
+            Hintergrund-Job zur Konvertierung übergeben werden:
+            </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                  
+                           <span class="emphasis"><em>from_date</em></span>
+                
+                        </p><p>
+                  Das Startdatum, von welchen an die Zeiteinträge berücksicht werden.
+                  Voreinstellung ist der erste Tag des vorherigen Montats.
+                </p><p>
+                  Beispiel (das Zeitformat hängt von der persönlichen Einstellungen ab):
+                  </p><pre class="programlisting">from_date: 01.12.2020</pre><p>
+                
+                        </p></li><li class="listitem"><p>
+                  
+                           <span class="emphasis"><em>to_date</em></span>
+                
+                        </p><p>
+                  Das Datum, bis zu welchem die Zeiteinträge zur Konvertierung gesammelt
+                  werden. Voreinstellung ist der letzte Tag des vorherigen Montas.
+                </p><p>
+                  Beispiel (das Zeitformat hängt von der persönlichen Einstellungen ab):
+                  </p><pre class="programlisting">to_date: 15.12.2020</pre><p>
+                
+                        </p></li><li class="listitem"><p>
+                  
+                           <span class="emphasis"><em>customernumbers</em></span>
+                
+                        </p><p>
+                  Eine Liste mit Kundennummern, für die Zeiteinträge gesammelt werden
+                  sollen. Wird diese Liste nicht angegeben, werden Einträge für
+                  alle Kunden berücksichtig.
+                </p><p>
+                  
+                           </p><pre class="programlisting">customernumbers: [c1,22332,334343]</pre><p>
+                
+                        </p></li><li class="listitem"><p>
+                  
+                           <span class="emphasis"><em>override_part_id</em></span>
+                
+                        </p><p>
+                  Die Datenbank-Id einer zeitbasierten Dienstleistung, die verwendet
+                  werden soll, um die Zeiteinträge zu buchen. Dieser Wert überschreibt
+                  den Eintrag des Artikels des Zeiteintrags.
+                </p></li><li class="listitem"><p>
+                  
+                           <span class="emphasis"><em>default_part_id</em></span>
+                
+                        </p><p>
+                  Die Datenbank-Id einer zeitbasierten Dienstleistung, die verwendet
+                  werden soll, um die Zeiteinträge zu buchen, falls im Zeiteintrag
+                  kein Artikel gespeichert ist.
+                </p></li><li class="listitem"><p>
+                  
+                           <span class="emphasis"><em>rounding</em></span>
+                
+                        </p><p>
+                  Ist dieser Wert <code class="literal">0</code>, so werden die Zeiten nicht gerundet.
+                  Ist der Wert <code class="literal">1</code> (oder "wahr" in Perl"), so werden die Zeiten auf volle Viertelstunden aufgerundet, also z.B. 0.25h, 0.5h, 0.75h,
+                  1.25h ...
+                </p><p>
+                  Voreinstellung ist <code class="literal">1</code> ("wahr").
+                </p></li><li class="listitem"><p>
+                  
+                           <span class="emphasis"><em>link_order</em></span>
+                
+                        </p><p>
+                  Ist der Wert <code class="literal">1</code> (oder "wahr" in Perl"), so verknüpft
+                  der Hintergrund-Job den erzeugten Lieferschein mit dem im Zeiteintrag
+                  angegebenen Auftrag.
+                  Ist kein Auftrag angegeben, wird versucht, einen Auftrag für den
+                  angegebenen Kunden und die angegebene Projektnummer zu finden.
+                </p><p>
+                  Folgende Kriterien werden zum Finden eines Vorgängerauftrags angwendet:
+                  </p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>
+                      Auftrag ist im Zeiteintrag angegeben <span class="emphasis"><em>oder</em></span>
+                    
+                                 </p></li><li class="listitem"><p>
+                      Datenbank-Id des Projekts des Auftrags ist gleich
+                      der Datenbank-Id des Zeiteintrags <span class="emphasis"><em>oder</em></span> der in den Daten
+                      übergebenen Projekt-Id
+                    </p></li><li class="listitem"><p>
+                      Kunde des Auftrags ist gleich Kunde des Zeiteintrags
+                    </p></li><li class="listitem"><p>
+                      der Auftrag muss mindestens eine zugehörige zeitbasierte Position haben
+                    </p></li><li class="listitem"><p>
+                      das Projekt muss gültig und aktiv sein
+                    </p></li></ul></div><p>
+                
+                        </p><p>
+                  Voreinstellung ist aus. Wenn dieser Parameter gesetzt ist, läuft der
+                  Hintergrund-Job auf einen Fehler, falls kein geeigneter Vorgängerauftrag
+                  gefunden werden kann.
+                </p><p>
+                  Der Job beachtet nicht, ob der Auftrag schon geliefert oder geschlossen
+                  ist.
+                  Wenn der Kundenauftrag überliefert wird, muss dies organisatorisch
+                  geklärt werden. Der Kundenauftrag kann auch bereits geschlossen sein,
+                  d.h. der Betrag ist vollständig fakturiert, aber die Leistungen sind
+                  noch nicht vollständig geliefert (einfacher Fall: "Vorauskasse").
+                </p><p>
+                  siehe auch den Hintergrund-Job
+                  <code class="literal">CloseProjectsBelongingToClosedSalesOrder</code>
+                  für eine weitergehende Automatisierung der Abläufe.
+                </p></li><li class="listitem"><p>
+                    
+                           <span class="emphasis"><em>override_project_id</em></span>
+                  
+                        </p><p>
+                    Verwende diese Datenbank-Id für das Projekt an Stelle des
+                    im Zeiteintrag angegebenen Projekts, um den zugehörigen Auftrag
+                    zu finden. Dieser Parameter wird nur berücksichtig, wenn
+                    <span class="emphasis"><em>link_order</em></span> wahr ist.
+                  </p></li><li class="listitem"><p>
+                    
+                           <span class="emphasis"><em>default_project_id</em></span>
+                  
+                        </p><p>
+                    Verwende diese Datenbank-Id für das Projekt, falls
+                    im Zeiteintrag kein Projekt angegeben ist, um den
+                    zugehörigen Auftrag zu finden.
+                    Dieser Parameter wird nur berücksichtig, wenn
+                  </p></li></ul></div><p>
+          
+               </p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch03s12.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch03.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">3.12. Dispositionsmanager/Einkaufshelfer&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;Kapitel 4. Entwicklerdokumentation</td></tr></table></div></body></html>
