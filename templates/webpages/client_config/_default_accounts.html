@@ -68,6 +68,16 @@
   <tr>
     <th align="right">[% LxERP.t8("Year-end closing") %]</th>
   </tr>
+  [% IF SELF.defaults.yearend_method == 'simple' %] [% THEN %]
+  <tr>
+    <td>[% LxERP.t8("Year-end closing account") %]</td>
+    <td>[% P.chart.picker('defaults.carry_over_account_chart_id', SELF.defaults.carry_over_account_chart_id, choose=1, style=style) %]</td>
+  </tr>
+  <tr>
+    <td>[% LxERP.t8("Profit or loss carried forward account") %]</td>
+    <td>[% P.chart.picker('defaults.profit_carried_forward_chart_id', SELF.defaults.profit_carried_forward_chart_id, choose=1, style=style) %]</td>
+  </tr>
+  [% ELSE %]
   <tr>
    <td align="right">[% LxERP.t8("Carry over account for year-end closing") %]</td>
    <td>[% P.chart.picker('defaults.carry_over_account_chart_id', SELF.defaults.carry_over_account_chart_id, category='A', choose=1, style=style) %]<td>
@@ -82,6 +92,7 @@
    <td align="right">[% LxERP.t8("Loss carried forward account") %]</td>
    <td>[% P.chart.picker('defaults.loss_carried_forward_chart_id', SELF.defaults.loss_carried_forward_chart_id, category='A', choose=1, style=style) %]<td>
   </tr>
+  [% END %]
   <tr>
    <td align="right">[% LxERP.t8("Transit Items account") %]</td>
    <td>[% P.chart.picker('defaults.transit_items_chart_id', SELF.defaults.transit_items_chart_id , category='A', choose=1, style=style) %]<td>
