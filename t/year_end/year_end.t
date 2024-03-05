@@ -191,7 +191,8 @@ my $start_date = DateTime->new(year => $year, month => 1,  day => 1);
 my $cb_date    = DateTime->new(year => $year, month => 12, day => 31);
 my $ob_date    = $cb_date->clone->add(days => 1);
 
-SL::Controller::YearEndTransactions::_year_end_bookings( start_date => $start_date,
+my $controller = SL::Controller::YearEndTransactions->new();
+$controller->_year_end_bookings( start_date => $start_date,
                                                          cb_date    => $cb_date,
                                                        );
 
