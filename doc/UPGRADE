@@ -14,11 +14,7 @@ immer das Skript 'scripts/installation_check.pl -v'.
   * Mail::IMAPClient
 
 
-Bei Verwendung von PostgreSQL kleiner Version 12, muss das Datenbank-Upgrade-
-Skript "oe_purchase_order_confirmation_order_types" deaktiviert und das
-enthaltene SQL-Kommando händisch ausgeführt werden. Der Grund dafür ist, dass
-die Upgrade-Skripte in einer Transaktion ablaufen und Typ-Werte erst ab
-PostgreSQL Version 12 innerhalb einer Transaktion hinzugefügt werden können.
+Diese Version benötigt zwingend PostgreSQL Version 12 oder neuer.
 
 Shell-Befehl zum Deaktivieren des Skripts:
   sed -i 's/ignore: 0/ignore: 1/' sql/Pg-upgrade2/oe_purchase_order_confirmation_order_types.sql
