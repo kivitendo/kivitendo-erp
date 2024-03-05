@@ -1617,7 +1617,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
         so startet dieser nach Beendigung automatisch erneut.</para>
 
       </sect2>
-      <sect2 id="Tasks-konfigurieren">
+      <sect2 id="Tasks-konfigurieren" xreflabel="Tasks-konfigurieren">
         <title>Exemplarische Konfiguration eines Hintergrund-Jobs, der die Jahreszahl in allen Nummernkreisen zum Jahreswechsel erhöht</title>
 
         <para>Hintergrund-Jobs werden über System -> Hintergrund-Jobs und Task-Server -> Aktuelle Hintergrund-Jobs anzeigen -> Aktions-Knopf 'erfassen' angelegt. </para>
