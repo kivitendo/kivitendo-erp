@@ -1698,9 +1698,7 @@ sub test_error_codes_within_skonto {
   is($invoice2->within_skonto_period(transdate => DateTime->now()->add(days => 1)), 1, "one day after invdate is skontoable");
   is($invoice2->within_skonto_period(transdate => DateTime->now()->add(days => 4)), 1, "four days after invdate is skontoable");
 
-  throws_ok{
-    $invoice2->within_skonto_period(transdate => DateTime->now()->add(days => 6));
-  } qr /The 'transdate' parameter .* to SL::DB::Helper::Payment::within_skonto_period did not pass the 'is within skonto period' callback/, "One day after skonto date throws correct error message";
+  is($invoice2->within_skonto_period(transdate => DateTime->now()->add(days => 6)), ''); # not within skonto period
 
 }
 
