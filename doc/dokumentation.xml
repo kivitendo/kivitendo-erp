@@ -6295,8 +6295,7 @@ digits_year: 4</programlisting>
             </varlistentry>
 
           </variablelist>
-
-          </sect3>
+        </sect3>
 
         <sect3 id="dokumentenvorlagen-und-variablen.invoice-posten-cvars">
           <title>Benutzerdefinierte Variablen für jeden Posten auf der Rechnung</title>
@@ -6311,7 +6310,6 @@ digits_year: 4</programlisting>
             Projekt unter dem Namen mit dem Präfix <varname>project_cvar_</varname>
             und dem vom Benutzer festgelegten Variablennamen zur Verfügung.
           </para>
-
         </sect3>
 
         <sect3 id="dokumentenvorlagen-und-variablen.invoice-zahlungen">
