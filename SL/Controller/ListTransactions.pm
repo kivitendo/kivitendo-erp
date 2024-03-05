@@ -140,9 +140,13 @@ sub action_export_all_charts {
     }
     $sfile->fh->close;
 
+    # we need to sanitize the account number before using it in the filename
+    # to prevent unexpected outcomes due to slashes etc.
+    my $sanitized_accno = $account->{accno} =~ s/[^A-Za-z0-9\-\.\_\ ]/_/gr;
+
     $zip->addFile(
       $sfile->{file_name},
-      t8('list_of_transactions') . "_" . t8('account') . "_" . $account->{accno} . ($output_format eq 'PDF' ? '.pdf' : '.csv')
+      t8('list_of_transactions') . "_" . t8('account') . "_" . $sanitized_accno . ($output_format eq 'PDF' ? '.pdf' : '.csv')
     );
   }
 
