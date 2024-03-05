@@ -5,8 +5,10 @@ use warnings;
 use utf8;
 
 use PDF::API2;
-use Data::Dumper;
+use File::Temp;
+use File::Slurp qw(slurp);
 use List::Util qw(first);
+use Poppler;
 use XML::LibXML;
 
 use SL::Locale::String qw(t8);
@@ -44,82 +46,54 @@ sub convert_customer_setting {
 }
 
 sub _extract_zugferd_invoice_xml {
-  my $doc        = shift;
-  my %res_fail;
+  my $file        = shift;
+  my (%res_fail, @res, @attachments);
 
-  # unfortunately PDF::API2 has no public facing api to access the actual pdf name dictionaries
-  # so we need to use the internal data, just like with PDF::CAM before
-  #
-  # PDF::API2 will internally read $doc->{pdf}{Root}{Names} for us, but after that every entry
-  # in the tree may be an indirect object (Objind) before realising it.
-  #
-  # The actual embedded files will be located at $doc->{pdf}{Root}{Names}{EmbeddedFiles}
-  #
+  my $userspath       = SL::System::Process::exe_dir() . "/" . $::lx_office_conf{paths}->{userspath};
 
-  my $node = $doc->{pdf};
-  for (qw(Root Names EmbeddedFiles)) {
-    $node = $node->{$_};
-    if (!ref $node) {
-      return {
-        result  => RES_ERR_NO_ATTACHMENT(),
-        message => "unexpected unbless node while trying to access $_ node",
-      }
-    }
-    if ('PDF::API2::Basic::PDF::Objind' eq ref $node) {
-      $node->realise;
-    }
-    # after realising it should be a Dict
-    if ('PDF::API2::Basic::PDF::Dict' ne ref $node) {
-      return {
-        result  => RES_ERR_NO_ATTACHMENT(),
-        message => "unexpected node type [@{[ref($node)]}] after realising $_ node",
-      }
-    }
+  my $pdf = eval { Poppler::Document->new_from_file($file) };
+
+  unless ( $pdf ) { return {
+      'result'  => RES_ERR_NO_ATTACHMENT(),
+      'message' => "Cannot open PDF file: $!",
+    };
   }
 
-  # now we have an array of possible attachments
-  my @agenda     = $node;
+  my $tmpfile = File::Temp->new(
+    'zugferd-import-XXXXXXXX',
+    DIR    => $userspath,
+    UNLINK => 1,
+  );
 
-  my $parser;  # SL::XMLInvoice object used as return value
-  my @res;     # Temporary storage for error messages encountered during
-               # attempts to process attachments.
+  @attachments = eval { $pdf->get_attachments };
 
-  # Hardly ever more than single leaf, but...
-
-  while (@agenda) {
-    my $item = shift @agenda;
-
-    if ($item->{Kids}) {
-      my @kids = $item->{Kids}->realise->elements;
-      push @agenda, @kids;
-
-    } else {
-      my @names = $item->{Names}->realise->elements;
-
-      TRY_NEXT:
-      while (@names) {
-        my ($k, $v)  = splice @names, 0, 2;
-        my $fnode    = $v->realise->{EF}->realise->{F}->realise;
-
-        $fnode->read_stream(1);
-
-        my $content  = $fnode->{' stream'};
-
-        $parser = SL::XMLInvoice->new($content);
-
-        # Caveat: this will only ever catch the first attachment looking like
-        #         an XML invoice.
-        if ( $parser->{status} == SL::XMLInvoice::RES_OK ){
-          return $parser;
-        } else {
-          push @res, t8(
-            "Could not parse PDF embedded attachment #1: #2",
-            $k,
-            $parser->{result}
-          );
-        }
-      }
+  if ( scalar @attachments == 0 ) {
+        return {
+        'result'  => RES_ERR_NO_ATTACHMENT(),
+        'message' => "PDF file does not have any attachments.",
+      };
     }
+
+  my $i = 0;
+
+  foreach my $attachment ( @attachments ) {
+    my $retval = eval { Poppler::Attachment::save($attachment, $tmpfile->filename) };
+    unless ( $retval ) {
+      $i++;
+      next;
+    }
+    my $xml = slurp($tmpfile->filename);
+    my $parser = SL::XMLInvoice->new($xml);
+    if ( $parser->{result} == SL::XMLInvoice::RES_OK ){
+      return $parser;
+    } else {
+      push @res, t8(
+        "Could not parse PDF embedded attachment #1: #2",
+        $i,
+        $parser->{result}
+        );
+    }
+    $i++;
   }
 
   # There's going to be at least one attachment that failed to parse as XML by
@@ -198,7 +172,7 @@ sub extract_from_pdf {
     }
   }
 
-  my $invoice_xml = _extract_zugferd_invoice_xml($pdf_doc);
+  my $invoice_xml = _extract_zugferd_invoice_xml($file_name);
 
   my %res;
 
