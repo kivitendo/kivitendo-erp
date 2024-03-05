@@ -200,33 +200,70 @@ SL::Helper::EmailProcessing.
 
 =head1 CONFIGURATION
 
-The data field in the backgroundjob config contains all configration values:
+The data field in the backgroundjob config contains all configuration values:
 
 =over 4
 
 =item hostname
 
+required, hostname of IMAP server
+
 =item username
+
+required, login for IMAP server
 
 =item password
 
+required, password for login of IMAP server
+
 =item port
+
+optional Parameter IMAP port
 
 =item folder
 
-The folder to sync emails from. Sub folders are separated by a forward slash,
+required, The IMAP folder to import emails from. Sub folders are separated by a forward slash,
 e.g. 'INBOX/Archive'. Subfolders are not synced. Default is 'INBOX'.
 
 =item record_type
 
-The record type to set for each imported email in the email journal.
+optional, The record type to set for each imported email in the email journal.
+Default is catch-all. Valid types are the well-known types of kivitendo records, ie ar_transaction, ap_transaction
+
+=item process_imported_emails
+
+optional, more processing can be automatically done in the job.
+Valid actions are defined in SL::Helper::EmailProcessing.pm
+
+Take a look at currently supported actions with
+
+ perldoc SL/Helper/EmailProcessing.pm
+
 
 =item processed_imap_flag
 
+Optional, requires a valid value in process_imported_emails
+
+If process_imported_emails is set and the process is successfully
+executed this custom IMAP Flag is added to the processed email.
+
 =item not_processed_imap_flag
 
+Optional, requires a valid value in process_imported_emails
 
+If process_imported_emails is set and the process is NOT
+successfully executed this custom IMAP Flag is added
+to the processed email.
 
+=head1 YAML Configuration example with ZUGFeRD Processing
+    hostname: meinedomain.de
+    username: eingangsrechnung@meinedomain.de
+    password: secret
+    folder: INBOX/vollimport
+    record_type: ap_transaction
+    process_imported_emails: zugferd
+    processed_imap_flag: $Label8
+    not_processed_imap_flag: $Label1
 
 =back
 
