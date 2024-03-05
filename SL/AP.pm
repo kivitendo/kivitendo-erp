@@ -84,6 +84,7 @@ sub _post_transaction {
 
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
   $form->{taxincluded} = 0 unless $form->{taxincluded};
+  $form->{script}      = 'ap.pl' unless $form->{script};
 
   # make sure to have a id
   my ($query, $sth, @values);
@@ -412,7 +413,6 @@ sub _post_transaction {
 
       # update exchange rate record
       if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
-        $form->{script} = 'ap.pl';
         $form->update_exchangerate($dbh, $form->{currency},
                                    $form->{"datepaid_$i"},
                                    0, $form->{"exchangerate_$i"});
