@@ -229,6 +229,7 @@ sub prepare_report {
     title                 => $self->title,
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
+    allow_chart_export    => 0,
     attachment_basename   => t8('list_of_transactions') . strftime('_%Y%m%d', localtime time),
     top_info_text         => $self->get_top_info_text,
   );
