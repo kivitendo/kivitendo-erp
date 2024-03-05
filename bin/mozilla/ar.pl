@@ -36,6 +36,7 @@ use POSIX qw(strftime);
 use List::Util qw(sum first max);
 use List::UtilsBy qw(sort_by);
 use Archive::Zip;
+use Params::Validate qw(:all);
 
 use SL::AR;
 use SL::Controller::Base;
@@ -1028,19 +1029,19 @@ sub setup_ar_transactions_action_bar {
                   :                      undef,
       ],
       combobox => [
-        action => [ $::locale->text('Record-Export') ],
+        action => [ $::locale->text('PDF-Export') ],
         action => [
           t8('WebDAV'),
           submit   => [ '#report_form', { action => 'webdav_pdf_export' } ],
           checks   => [ ['kivi.check_if_entries_selected', '[name="id[]"]'] ],
-          disabled => !$webdav_enabled ? t8('No webdav backend enabled.')
+          disabled => !$webdav_enabled ? t8('WebDAV is not enabled.')
                                        : undef,
         ],
         action => [
-          t8('Files'),
+          t8('Documents'),
           submit   => [ '#report_form', { action => 'files_pdf_export' } ],
           checks   => [ ['kivi.check_if_entries_selected', '[name="id[]"]'] ],
-          disabled => !$files_enabled ? t8('No files backend enabled.')
+          disabled => !$files_enabled ? t8('No File Management enabled.')
                                       : undef,
         ],
       ],
@@ -1686,27 +1687,34 @@ sub webdav_pdf_export {
 
   my $invoices = SL::DB::Manager::Invoice->get_all(where => [ id => $ids ]);
 
-  my %file_name_to_path = ();
-  my $no_files = "";
+  my @file_names_and_file_paths;
+  my @errors;
   foreach my $invoice (@{$invoices}) {
-    if ($invoice->type eq '') {
-      $no_files .= $invoice->displayable_name() . "\n";
-      next;
-    }
+    my $record_type = $invoice->record_type;
+    $record_type = 'general_ledger' if $record_type eq 'ar_transaction';
+    $record_type = 'invoice'        if $record_type eq 'invoice_storno';
     my $webdav = SL::Webdav->new(
-      type     => $invoice->type,
+      type     => $record_type,
       number   => $invoice->record_number,
     );
     my @latest_object = $webdav->get_all_latest();
-    if (scalar @latest_object) {
-      my $file_name = $latest_object[0]->basename . "." . $latest_object[0]->extension;
-      $file_name_to_path{$file_name} = $latest_object[0]->full_filedescriptor();
-    } else {
-      $no_files .= $invoice->displayable_name() . "\n";
+    unless (scalar @latest_object) {
+      push @errors, t8(
+        "No Dokument found for record '#1'. Please deselect it or create a document it.",
+        $invoice->displayable_name()
+      );
+      next;
+    }
+    push @file_names_and_file_paths, {
+      file_name => $latest_object[0]->basename . "." . $latest_object[0]->extension,
+      file_path => $latest_object[0]->full_filedescriptor(),
     }
   }
 
-  _create_and_send_zip(\%file_name_to_path, $no_files);
+  if (scalar @errors) {
+    die join("\n", @errors);
+  }
+  _create_and_send_zip(\@file_names_and_file_paths);
 
   $main::lxdebug->leave_sub();
 }
@@ -1721,44 +1729,72 @@ sub files_pdf_export {
 
   my $invoices = SL::DB::Manager::Invoice->get_all(where => [ id => $ids ]);
 
-  my %file_name_to_path = ();
-  my $no_files = "";
+  my @file_names_and_file_paths;
+  my @errors;
   foreach my $invoice (@{$invoices}) {
-    my $file_entry = SL::DB::Manager::File->get_first(
-      query => [
-        object_type => $invoice->type,
+    my $record_type = $invoice->record_type;
+    $record_type = 'invoice' if $record_type eq 'ar_transaction';
+    $record_type = 'invoice' if $record_type eq 'invoice_storno';
+    my @file_entries = @{SL::DB::Manager::File->get_all(
+      where => [
+        object_type => $record_type,
         object_id   => $invoice->id,
+        file_type   => 'document',
+        source      => 'created',
       ],
-    );
-    if ($file_entry) {
+    )};
+
+    unless (scalar @file_entries) {
+      push @errors, t8(
+        "No Dokument found for record '#1'. Please deselect it or create a document it.",
+        $invoice->displayable_name()
+      );
+      next;
+    }
+    foreach my $file_entry (@file_entries) {
       my $file = SL::File::Object->new(
         db_file => $file_entry,
         id => $file_entry->id,
         loaded => 1,
       );
-      $file_name_to_path{$file->file_name()} = $file->get_file();
-    } else {
-      $no_files .= $invoice->displayable_name() . "\n";
+      eval {
+        push @file_names_and_file_paths, {
+          file_name => $file->file_name,
+          file_path => $file->get_file(),
+        };
+      } or do {
+        push @errors, $@,
+      };
     }
   }
 
-
-  _create_and_send_zip(\%file_name_to_path, $no_files);
+  if (scalar @errors) {
+    die join("\n", @errors);
+  }
+  _create_and_send_zip(\@file_names_and_file_paths);
 
   $main::lxdebug->leave_sub();
 }
 
 sub _create_and_send_zip {
-  my ($file_name_to_path, $no_files) = @_;
   $main::lxdebug->enter_sub();
+  my ($file_names_and_file_paths) = validate_pos(@_, {
+      type => ARRAYREF,
+      callbacks => {
+        "has 'file_name' and 'file_path'" => sub {
+          foreach my $file_entry (@{$_[0]}) {
+            return 0 unless defined $file_entry->{file_name}
+                         && defined $file_entry->{file_path};
+          }
+          return 1;
+        }
+      }
+    });
 
   my ($fh, $zipfile) = File::Temp::tempfile();
   my $zip = Archive::Zip->new();
-  foreach my $name (keys %{$file_name_to_path}) {
-    $zip->addFile($file_name_to_path->{$name}, $name);
-  }
-  if ($no_files ne '') {
-    $zip->addString($no_files, t8('no_file_found.txt'));
+  foreach my $file (@{$file_names_and_file_paths}) {
+    $zip->addFile($file->{file_path}, $file->{file_name});
   }
   $zip->writeToFileHandle($fh) == Archive::Zip::AZ_OK() or die 'error writing zip file';
   close($fh);
