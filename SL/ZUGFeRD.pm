@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use utf8;
 
-use PDF::API2;
 use File::Temp;
 use File::Slurp qw(slurp);
 use List::Util qw(first);
@@ -108,69 +107,9 @@ sub _extract_zugferd_invoice_xml {
   return \%res_fail;
 }
 
-sub _get_xmp_metadata {
-  my ($doc) = @_;
-
-  $doc->xmpMetadata;
-}
-
 sub extract_from_pdf {
   my ($self, $file_name) = @_;
   my @warnings;
-
-  my $pdf_doc = PDF::API2->openScalar($file_name);
-
-  if (!$pdf_doc) {
-    return {
-      result  => RES_ERR_FILE_OPEN,
-      message => $::locale->text('The file \'#1\' could not be opened for reading.', $file_name),
-    };
-  }
-
-  my $xmp = _get_xmp_metadata($pdf_doc);
-
-  if (!defined $xmp) {
-      push @warnings, $::locale->text('The file \'#1\' does not contain the required XMP meta data.', $file_name);
-  } else {
-    my $dom = eval { XML::LibXML->load_xml(string => $xmp) };
-
-    push @warnings, $::locale->text('Parsing the XMP metadata failed.'), if !$dom;
-
-    my $xpc = XML::LibXML::XPathContext->new($dom);
-    $xpc->registerNs('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#');
-
-    my $zugferd_version;
-
-    my $test = $xpc->findnodes('/x:xmpmeta/rdf:RDF/rdf:Description');
-
-    foreach my $node ($xpc->findnodes('/x:xmpmeta/rdf:RDF/rdf:Description')) {
-      my $ns = first { ref($_) eq 'XML::LibXML::Namespace' } $node->attributes;
-      next unless $ns;
-
-      if ($ns->getData =~ m{urn:zugferd:pdfa:CrossIndustryDocument:invoice:2p0}) {
-        $zugferd_version = 'zugferd:2p0';
-        last;
-      }
-
-      if ($ns->getData =~ m{urn:factur-x:pdfa:CrossIndustryDocument:invoice:1p0}) {
-        $zugferd_version = 'factur-x:1p0';
-        last;
-      }
-
-      if ($ns->getData =~ m{zugferd|factur-x}i) {
-        $zugferd_version = 'unsupported';
-        last;
-      }
-    }
-
-    if (!$zugferd_version) {
-        push @warnings, $::locale->text('The XMP metadata does not declare the Factur-X/ZUGFeRD data.'),
-    }
-
-    if ($zugferd_version eq 'unsupported') {
-        push @warnings, $::locale->text('The Factur-X/ZUGFeRD version used is not supported.'),
-    }
-  }
 
   my $invoice_xml = _extract_zugferd_invoice_xml($file_name);
 
@@ -179,7 +118,6 @@ sub extract_from_pdf {
   %res = (
     result       => $invoice_xml->{result},
     message      => $invoice_xml->{message},
-    metadata_xmp => $xmp,
     invoice_xml  => $invoice_xml,
     warnings     => \@warnings,
   );
@@ -197,7 +135,6 @@ sub extract_from_xml {
   %res = (
     result       => $invoice_xml->{result},
     message      => $invoice_xml->{message},
-    metadata_xmp => undef,
     invoice_xml  => $invoice_xml,
     warnings     => (),
   );
@@ -271,8 +208,6 @@ Other than that, the hash ref contains the following keys:
 
 =item C<message> - An error message detailing the problem upon nonzero C<result>, undef otherwise.
 
-=item C<metadata_xmp> - The XMP metadata extracted from the Factur-X/ZUGFeRD invoice (if present)
-
 =item C<invoice_xml> - An SL::XMLInvoice object holding the data extracted from the parsed XML invoice.
 
 =item C<warnings> - Warnings encountered upon extracting/parsing XML files (if any)
@@ -304,8 +239,6 @@ Other than that, the hash ref contains the following keys:
 =over 4
 
 =item C<message> - An error message detailing the problem upon nonzero C<result>, undef otherwise.
-
-=item C<metadata_xmp> - Always undef and only present to let downstream code expecting its presence fail gracefully.
 
 =item C<invoice_xml> - An SL::XMLInvoice object holding the data extracted from the parsed XML invoice.
 
