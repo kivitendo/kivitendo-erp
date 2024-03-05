@@ -1615,7 +1615,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
       </sect2>
     </sect1>
-      <sect1 id="Hintergrund-Job konfigurieren">
+      <sect1 id="Hintergrund-Jobs konfigurieren">
         <title>Konfiguration der Hintergrund-Jobs</title>
 
         <para>Hintergrund-Jobs werden über System -> Hintergrund-Jobs und Task-Server -> Aktuelle Hintergrund-Jobs anzeigen -> Aktions-Knopf 'erfassen' angelegt. </para>
@@ -8454,7 +8454,7 @@ document_path = /var/local/kivi_documents
           <para>
             Zur generellen Konfiguration von Hintergrund-Jobs und zur Übergabe
             von Parametern als Daten an diese, siehe <xref linkend="config.task-server"/>
-            bzw. <xref linkend="Tasks-konfigurieren"/>).
+            bzw. <xref linkend="Hintergrund-Jobs konfigurieren"/>).
           </para>
           <para>
             Folgende Parameter können als <emphasis>Daten</emphasis> an den
