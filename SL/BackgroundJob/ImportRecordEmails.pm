@@ -255,6 +255,8 @@ If process_imported_emails is set and the process is NOT
 successfully executed this custom IMAP Flag is added
 to the processed email.
 
+=back
+
 =head1 YAML Configuration example with ZUGFeRD Processing
     hostname: meinedomain.de
     username: eingangsrechnung@meinedomain.de
@@ -265,7 +267,6 @@ to the processed email.
     processed_imap_flag: $Label8
     not_processed_imap_flag: $Label1
 
-=back
 
 =head1 BUGS
 
