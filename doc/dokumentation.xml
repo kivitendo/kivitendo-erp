@@ -1715,8 +1715,6 @@ digits_year: 4</programlisting>
           </listitem>
         </itemizedlist>
 
-          <para>Alternativ ist auch eine Konfiguration über die kivi.conf möglich. Ein entsprechendes Beispiel findet sich in der kivi.conv.default</para>
-
         </sect2>
      </sect1>
 

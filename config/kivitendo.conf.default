@@ -190,27 +190,6 @@ folder = Sent/Kivitendo
 # If SSL is used, default port is 993
 ssl = 1
 
-# Import emails for records with BackgroundJob ImportRecordEmails
-# Config can specified per type with [record_emails_imap/record_type/<record_type>]
-# More configuration is possible in the data field of the BackgroundJob, for more see
-# SL::BackgroundJob::ImportRecordEmails
-[record_emails_imap]
-hostname = localhost
-username =
-password =
-# Use / for subfolders. Subfolders are not imported.
-base_folder = INBOX
-# Port only needs to be changed if it is not the default port.
-# port = 993
-# If SSL is to be used, then set port to 993 or leave empty
-ssl = 1
-# Further possible values
-# email_import_ids_to_delete = []
-# process_imported_emails = [zugferd]
-# processed_imap_flag = $Label3
-# not_processed_imap_flag = $Label4
-# record_type = ap_transaction # set in BackgroundJob to get a specific config
-
 [applications]
 # Location of OpenOffice.org/LibreOffice writer
 openofficeorg_writer = lowriter
