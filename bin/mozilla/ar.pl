@@ -35,8 +35,6 @@
 use POSIX qw(strftime);
 use List::Util qw(sum first max);
 use List::UtilsBy qw(sort_by);
-use Archive::Zip;
-use Params::Validate qw(:all);
 
 use SL::AR;
 use SL::Controller::Base;
@@ -49,7 +47,6 @@ use SL::DB::Chart;
 use SL::DB::Currency;
 use SL::DB::Default;
 use SL::DB::Employee;
-use SL::DB::Invoice;
 use SL::DB::Manager::Invoice;
 use SL::DB::InvoiceItem;
 use SL::DB::RecordTemplate;
@@ -62,11 +59,6 @@ use SL::Presenter::Tag;
 use SL::Presenter::Chart;
 use SL::Presenter::ItemsList;
 use SL::ReportGenerator;
-use SL::File::Object;
-use SL::DB::Manager::File;
-use SL::File::Backend::Filesystem;
-use SL::Webdav;
-use SL::File::Backend::Webdav;
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -1032,14 +1024,14 @@ sub setup_ar_transactions_action_bar {
         action => [ $::locale->text('PDF-Export') ],
         action => [
           t8('WebDAV'),
-          submit   => [ '#report_form', { action => 'webdav_pdf_export' } ],
+          submit   => [ '#report_form', { action => 'Invoice/webdav_pdf_export' } ],
           checks   => [ ['kivi.check_if_entries_selected', '[name="id[]"]'] ],
           disabled => !$webdav_enabled ? t8('WebDAV is not enabled.')
                                        : undef,
         ],
         action => [
           t8('Documents'),
-          submit   => [ '#report_form', { action => 'files_pdf_export' } ],
+          submit   => [ '#report_form', { action => 'Invoice/files_pdf_export' } ],
           checks   => [ ['kivi.check_if_entries_selected', '[name="id[]"]'] ],
           disabled => !$files_enabled ? t8('No File Management enabled.')
                                       : undef,
@@ -1655,160 +1647,5 @@ sub setup_ar_form_header_action_bar {
   }
   $::request->layout->add_javascripts('kivi.Validator.js');
 }
-
-sub _check_access_right_for_ids {
-  my ($ids) = @_;
-  $main::lxdebug->enter_sub();
-
-  my $form = Form->new;
-  AR->ar_transactions(\%::myconfig, \%$form);
-  my %allowed_ids = ();
-
-  my @allowed_ar_ids = map {$_->{id}} @{$form->{AR}};
-  foreach my $ar_id (@allowed_ar_ids) {
-    $allowed_ids{$ar_id} = 1 ;
-  }
-  foreach my $id (@$ids) {
-    unless ($allowed_ids{$id}) {
-      $::auth->deny_access();
-    }
-  }
-
-  $main::lxdebug->leave_sub();
-}
-
-sub webdav_pdf_export {
-  $main::lxdebug->enter_sub();
-
-  my $form = $main::form;
-  my $ids  = $form->{id};
-
-  _check_access_right_for_ids($ids);
-
-  my $invoices = SL::DB::Manager::Invoice->get_all(where => [ id => $ids ]);
-
-  my @file_names_and_file_paths;
-  my @errors;
-  foreach my $invoice (@{$invoices}) {
-    my $record_type = $invoice->record_type;
-    $record_type = 'general_ledger' if $record_type eq 'ar_transaction';
-    $record_type = 'invoice'        if $record_type eq 'invoice_storno';
-    my $webdav = SL::Webdav->new(
-      type     => $record_type,
-      number   => $invoice->record_number,
-    );
-    my @latest_object = $webdav->get_all_latest();
-    unless (scalar @latest_object) {
-      push @errors, t8(
-        "No Dokument found for record '#1'. Please deselect it or create a document it.",
-        $invoice->displayable_name()
-      );
-      next;
-    }
-    push @file_names_and_file_paths, {
-      file_name => $latest_object[0]->basename . "." . $latest_object[0]->extension,
-      file_path => $latest_object[0]->full_filedescriptor(),
-    }
-  }
-
-  if (scalar @errors) {
-    die join("\n", @errors);
-  }
-  _create_and_send_zip(\@file_names_and_file_paths);
-
-  $main::lxdebug->leave_sub();
-}
-
-sub files_pdf_export {
-  $main::lxdebug->enter_sub();
-
-  my $form = $main::form;
-  my $ids  = $form->{id};
-
-  _check_access_right_for_ids($ids);
-
-  my $invoices = SL::DB::Manager::Invoice->get_all(where => [ id => $ids ]);
-
-  my @file_names_and_file_paths;
-  my @errors;
-  foreach my $invoice (@{$invoices}) {
-    my $record_type = $invoice->record_type;
-    $record_type = 'invoice' if $record_type eq 'ar_transaction';
-    $record_type = 'invoice' if $record_type eq 'invoice_storno';
-    my @file_entries = @{SL::DB::Manager::File->get_all(
-      where => [
-        object_type => $record_type,
-        object_id   => $invoice->id,
-        file_type   => 'document',
-        source      => 'created',
-      ],
-    )};
-
-    unless (scalar @file_entries) {
-      push @errors, t8(
-        "No Dokument found for record '#1'. Please deselect it or create a document it.",
-        $invoice->displayable_name()
-      );
-      next;
-    }
-    foreach my $file_entry (@file_entries) {
-      my $file = SL::File::Object->new(
-        db_file => $file_entry,
-        id => $file_entry->id,
-        loaded => 1,
-      );
-      eval {
-        push @file_names_and_file_paths, {
-          file_name => $file->file_name,
-          file_path => $file->get_file(),
-        };
-      } or do {
-        push @errors, $@,
-      };
-    }
-  }
-
-  if (scalar @errors) {
-    die join("\n", @errors);
-  }
-  _create_and_send_zip(\@file_names_and_file_paths);
-
-  $main::lxdebug->leave_sub();
-}
-
-sub _create_and_send_zip {
-  $main::lxdebug->enter_sub();
-  my ($file_names_and_file_paths) = validate_pos(@_, {
-      type => ARRAYREF,
-      callbacks => {
-        "has 'file_name' and 'file_path'" => sub {
-          foreach my $file_entry (@{$_[0]}) {
-            return 0 unless defined $file_entry->{file_name}
-                         && defined $file_entry->{file_path};
-          }
-          return 1;
-        }
-      }
-    });
-
-  my ($fh, $zipfile) = File::Temp::tempfile();
-  my $zip = Archive::Zip->new();
-  foreach my $file (@{$file_names_and_file_paths}) {
-    $zip->addFile($file->{file_path}, $file->{file_name});
-  }
-  $zip->writeToFileHandle($fh) == Archive::Zip::AZ_OK() or die 'error writing zip file';
-  close($fh);
-
-  my $controller = SL::Controller::Base->new;
-
-  $controller->send_file(
-    $zipfile,
-    name => t8('pdf_records.zip'), unlink => 1,
-    type => 'application/zip',
-  );
-
-  $main::lxdebug->leave_sub();
-}
-
 
 1;
