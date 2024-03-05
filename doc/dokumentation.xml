@@ -6384,7 +6384,6 @@ digits_year: 4</programlisting>
           <para>Auch für das globale Projekt des Belegs stehen die
           benutzerdefinierten Variablen mit dem Namenspräfix
           <varname>project_cvar_</varname> zur Verfügung.</para>
-
         </sect3>
       </sect2>
 
