@@ -12,14 +12,15 @@ use SL::Helper::EmailProcessing;
 use SL::Presenter::Tag qw(link_tag);
 use SL::Locale::String qw(t8);
 
-use Params::Validate qw(:all);
 use List::MoreUtils qw(any);
+use Params::Validate qw(:all);
+use Try::Tiny;
 
 sub sync_record_email_folder {
   my ($self, $config) = @_;
 
   my %imap_config;
-  foreach my $key (qw(enabled hostname port ssl username password base_folder)) {
+  foreach my $key (qw(enabled hostname port ssl username password)) {
     if (defined $config->{$key}) {
       $imap_config{$key} = $config->{$key};
     }
@@ -114,16 +115,13 @@ sub run {
   my ($self, $job_obj) = @_;
   $self->{job_obj} = $job_obj;
 
-  my $data = $job_obj->data_as_hash;
+  my $data;
 
-  my $record_type = $data->{record_type};
-  my $loaded_config = $::lx_office_conf{"record_emails_imap/record_type/$record_type"}
-    || $::lx_office_conf{record_emails_imap}
-    || {};
+  try {
+    $data = $job_obj->data_as_hash;
+  } catch { die t8("Invalid YAML Configuration for this job. Reason: malformed YAML Data: #1. Please consult: Program -> Documentation -> HTML -> Configuration of Background-Jobs.", $_ ); };
 
-  # overwrite with background job data
-  $loaded_config->{$_} = $data->{$_} for keys %{$data};
-  my @config_params = %{$loaded_config};
+  my @config_params = %{$data};
 
   my %config = validate_with(
     params => \@config_params,
@@ -167,8 +165,9 @@ sub run {
       username    => { type => SCALAR,  },
       password    => { type => SCALAR,  },
       base_folder => { type => SCALAR,  optional => 1},
+
     },
-    called => "data filed in Background Job or kivitendo.conf in [record_emails_imap] with type $record_type",
+    called => "YAML Configuration for this Background Job invalid. Please consult: Program -> Documentation -> HTML -> Configuration of Background-Jobs.",
   );
 
   my @results;
