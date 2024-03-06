@@ -406,9 +406,7 @@
         </itemizedlist>
 
         <para>In der Version v3.9.0 sind die folgenden Pakete hinzugekommen:
-          <literal>Mail::IMAPClient</literal>, <literal>Encode::IMAPUTF7</literal>
-        </para>
-        <para>
+          <literal>Mail::IMAPClient</literal>, <literal>Encode::IMAPUTF7</literal>.
           Nicht mehr benötigt wird <literal>CAM::PDF</literal>.
         </para>
 
