@@ -885,15 +885,13 @@ SQL
 
   $form->{exchangerate} = $exchangerate || $exchangerate_from_form;
 
-  my $quotation = $form->{type} =~ /_order$/ ? 'f' : 't';
-
   # save OE record
   $query =
     qq|UPDATE oe SET
          ordnumber = ?, quonumber = ?, cusordnumber = ?, transdate = ?, vendor_id = ?,
          customer_id = ?, amount = ?, netamount = ?, reqdate = ?, tax_point = ?, taxincluded = ?,
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, currency_id = (SELECT id FROM currencies WHERE name=?), closed = ?,
-         delivered = ?, proforma = ?, quotation = ?, department_id = ?, language_id = ?,
+         delivered = ?, proforma = ?, record_type = ?, department_id = ?, language_id = ?,
          taxzone_id = ?, shipto_id = ?, billing_address_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,delivery_term_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?, marge_total = ?, marge_percent = ?
          , order_probability = ?, expected_billing_date = ?
@@ -907,7 +905,7 @@ SQL
              $form->{shipvia}, $restricter->process($form->{notes}), $form->{intnotes},
              $form->{currency}, $form->{closed} ? 't' : 'f',
              $form->{delivered} ? "t" : "f", $form->{proforma} ? 't' : 'f',
-             $quotation, conv_i($form->{department_id}),
+             $form->{type}, conv_i($form->{department_id}),
              conv_i($form->{language_id}), conv_i($form->{taxzone_id}),
              conv_i($form->{shipto_id}), conv_i($form->{billing_address_id}), conv_i($form->{payment_id}),
              conv_i($form->{delivery_vendor_id}),
