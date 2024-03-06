@@ -445,15 +445,15 @@ Die durchaus optionalen «<code>COLGROUP > COL</code>»-Angaben können nur in B
 .listrow_error
 .listrow_info
 .listrow_warning
-.listrow_error0
-.listrow_error1
 </code></pre>
 
 <p>Die Farben entsprechen dabei den standard Farben, welche auch z.B. bei den Flash Messages verwendet werden.
 Siehe dazu auch: <a href="farben.html" title="Details zum Einsatz von Farben in Kivitendo">Einsatz von Farben</a></p>
 
+<p>Die Reihen werden dabei automatisch alterniert (hell/dunkel).</p>
+
 <table class="tbl-list">
-  <caption>Listen-Tabelle mit Farben</caption>
+  <caption>Listen-Tabelle mit Farben automatisch alterniert</caption>
   <colgroup>
     <col class="wi-small"><col class="wi-small"><col class="wi-small"><col class="wi-small"><col class="wi-small">
   </colgroup>
@@ -468,42 +468,284 @@ Siehe dazu auch: <a href="farben.html" title="Details zum Einsatz von Farben in 
   </thead>
   <tbody>
   <tr class="listrow_ok">
-    <th>Row 1</th>
+    <th>.listrow_ok</th>
+    <td>R1C1</td>
+    <td>R1C2R1C2R1C2R1C2</td>
+    <td>R1C3</td>
+    <td>R1C4</td>
+  </tr>
+  <tr class="listrow_ok">
+    <th>.listrow_ok</th>
+    <td>R1C1</td>
+    <td>R1C2R1C2R1C2R1C2</td>
+    <td>R1C3</td>
+    <td>R1C4</td>
+  </tr>
+  <tr class="listrow_ok">
+    <th>.listrow_ok</th>
+    <td>R1C1</td>
+    <td>R1C2R1C2R1C2R1C2</td>
+    <td>R1C3</td>
+    <td>R1C4</td>
+  </tr>
+  <tr class="listrow_ok">
+    <th>.listrow_ok</th>
     <td>R1C1</td>
     <td>R1C2R1C2R1C2R1C2</td>
     <td>R1C3</td>
     <td>R1C4</td>
   </tr>
   <tr class="listrow_error">
-    <th>Row 2</th>
+    <th>.listrow_error</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_error">
+    <th>.listrow_error</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_error">
+    <th>.listrow_error</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_error">
+    <th>.listrow_error</th>
     <td>R2C1</td>
     <td>R2C2</td>
     <td>R2C3</td>
     <td>R2C4R2C4R2C4R2C4R2C4</td>
   </tr>
   <tr class="listrow_info">
-    <th>Row 3</th>
+    <th>.listrow_info</th>
+    <td>R3C1</td>
+    <td>R3C2</td>
+    <td>R3C3</td>
+    <td>R3C4</td>
+  </tr>
+  <tr class="listrow_info">
+    <th>.listrow_info</th>
+    <td>R3C1</td>
+    <td>R3C2</td>
+    <td>R3C3</td>
+    <td>R3C4</td>
+  </tr>
+  <tr class="listrow_info">
+    <th>.listrow_info</th>
+    <td>R3C1</td>
+    <td>R3C2</td>
+    <td>R3C3</td>
+    <td>R3C4</td>
+  </tr>
+  <tr class="listrow_info">
+    <th>.listrow_info</th>
     <td>R3C1</td>
     <td>R3C2</td>
     <td>R3C3</td>
     <td>R3C4</td>
   </tr>
   <tr class="listrow_warning">
-    <th>Row 4</th>
+    <th>.listrow_warning</th>
     <td>R4C1</td>
     <td>R4C2</td>
     <td>R4C3</td>
     <td>R4C4</td>
   </tr>
+  <tr class="listrow_warning">
+    <th>.listrow_warning</th>
+    <td>R4C1</td>
+    <td>R4C2</td>
+    <td>R4C3</td>
+    <td>R4C4</td>
+  </tr>
+  <tr class="listrow_warning">
+    <th>.listrow_warning</th>
+    <td>R4C1</td>
+    <td>R4C2</td>
+    <td>R4C3</td>
+    <td>R4C4</td>
+  </tr>
+  <tr class="listrow_warning">
+    <th>.listrow_warning</th>
+    <td>R4C1</td>
+    <td>R4C2</td>
+    <td>R4C3</td>
+    <td>R4C4</td>
+  </tr>
+  </tbody>
+</table>
+
+<p>Falls die Alternierung manuell gesetzt werden soll, kann dies mit den folgenden Klassen gemacht werden:</p>
+
+<pre><code>.listrow0
+.listrow1
+.listrow_ok0
+.listrow_ok1
+.listrow_error0
+.listrow_error1
+.listrow_info0
+.listrow_info1
+.listrow_warning0
+.listrow_warning1
+</code></pre>
+
+<table class="tbl-list">
+  <caption>Listen-Tabelle mit Farben manuell alterniert</caption>
+  <colgroup>
+    <col class="wi-small"><col class="wi-small"><col class="wi-small"><col class="wi-small"><col class="wi-small">
+  </colgroup>
+  <thead>
+  <tr>
+    <th></th>
+    <th>Column 1</th>
+    <th>Column 2</th>
+    <th>Column 3</th>
+    <th>Column 4</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="listrow0">
+    <th>.listrow0</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow0">
+    <th>.listrow0</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow1">
+    <th>.listrow1</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow1">
+    <th>.listrow1</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_ok0">
+    <th>.listrow_ok0</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_ok0">
+    <th>.listrow_ok0</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_ok1">
+    <th>.listrow_ok1</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_ok1">
+    <th>.listrow_ok1</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
   <tr class="listrow_error0">
-    <th>Row 2</th>
+    <th>.listrow_error0</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_error0">
+    <th>.listrow_error0</th>
     <td>R2C1</td>
     <td>R2C2</td>
     <td>R2C3</td>
     <td>R2C4R2C4R2C4R2C4R2C4</td>
   </tr>
   <tr class="listrow_error1">
-    <th>Row 2</th>
+    <th>.listrow_error1</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_error1">
+    <th>.listrow_error1</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_info0">
+    <th>.listrow_info0</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_info0">
+    <th>.listrow_info0</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_info1">
+    <th>.listrow_info1</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_info1">
+    <th>.listrow_info1</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_warning0">
+    <th>.listrow_warning0</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_warning0">
+    <th>.listrow_warning0</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_warning1">
+    <th>.listrow_warning1</th>
+    <td>R2C1</td>
+    <td>R2C2</td>
+    <td>R2C3</td>
+    <td>R2C4R2C4R2C4R2C4R2C4</td>
+  </tr>
+  <tr class="listrow_warning1">
+    <th>.listrow_warning1</th>
     <td>R2C1</td>
     <td>R2C2</td>
     <td>R2C3</td>
