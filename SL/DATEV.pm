@@ -825,6 +825,7 @@ sub generate_datev_lines {
     my $datevautomatik = 0;
     my $taxkey         = 0;
     my $charttax       = 0;
+    my $shortname      = "";
     my $ustid          ="";
     my ($haben, $soll);
     for (my $i = 0; $i < $trans_lines; $i++) {
@@ -858,6 +859,17 @@ sub generate_datev_lines {
       if ($transaction->[$i]->{'ivqty'}) {
         $datev_data{quantity} = $transaction->[$i]->{'ivqty'};
       }
+      if ($transaction->[$i]->{'vendor_id'}) {
+        my $res = SL::DB::Manager::Vendor->get_first(
+          where => [id => $transaction->[$i]->{'vendor_id'}]
+        );
+        $shortname = ref $res eq 'SL::DB::Vendor' ? $res->shortname : "";
+      } elsif ($transaction->[$i]->{'customer_id'}) {
+          my $res = SL::DB::Manager::Customer->get_first(
+            where => [id => $transaction->[$i]->{'customer_id'}]
+          );
+        $shortname = ref $res eq 'SL::DB::Customer' ? $res->shortname : "";
+      }
     }
 
     if ($trans_lines >= 2) {
@@ -873,24 +885,28 @@ sub generate_datev_lines {
       $datev_data{kost1} = $transaction->[$haben]->{'departmentdescription'};
       $datev_data{kost2} = $transaction->[$haben]->{'projectdescription'};
 
-      if ($transaction->[$haben]->{'name'} ne "") {
+      if ( ($transaction->[$haben]->{'name'} ne "") or ($shortname ne "") ) {
+        $buchungstext = $shortname ? $shortname : $transaction->[$haben]->{'name'};
+        $buchungstext =~ s/\s*$//g;
+
         if ( $datev_data{'description'} ) {
           my $len = 60;
 
-          $buchungstext = substr($transaction->[$haben]->{'name'}, 0, 18);
+          # Enforce length constraint on vendor/customer name
+          $buchungstext = (length($buchungstext) > 20) ? substr($buchungstext, 0, 19) : $buchungstext;
 
+          $buchungstext .= "|" ;
           if ( $datev_data{quantity} and $datev_data{quantity} != 1 ) {
-            $buchungstext .= sprintf("%gx ", $datev_data{quantity});
+            $buchungstext .= sprintf("%g", $datev_data{quantity});
           }
-          $buchungstext .= ";" ;
+          $buchungstext .= "|" ;
           $len = $len - length($buchungstext);
           $buchungstext .= substr($datev_data{description}, 0, $len-1);
-          $datev_data{buchungstext} = $buchungstext;
-        } else {
-          $datev_data{buchungstext} = $transaction->[$haben]->{'name'};
         }
 
+        $datev_data{buchungstext} = $buchungstext;
       }
+
       if (($transaction->[$haben]->{'ustid'} // '') ne "") {
         $datev_data{ustid} = SL::VATIDNr->normalize($transaction->[$haben]->{'ustid'});
       }
