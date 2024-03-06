@@ -29,7 +29,7 @@ Größere Features und Komponentenupdates
         - Einen komplett neuen Workflow/Beleg starten
 
       Falls der E-Mail-Anhang ein PDF vom Typ 'E-Rechnung' im Format ZUGFeRD/Factur-X ist,
-      wird bei der Erstellung einer Kreditorenbuchung probiert sinnvolle Daten dort automatisch
+      wird bei der Erstellung einer Kreditorenbuchung probiert, sinnvolle Daten dort automatisch
       vorzubelegen.
       Diese Verfahren kann auch vollautomatisch direkt beim Import der E-Mail mit einer
       entsprechend konfigurierten Kreditorenbelegvorlage durchgeführt werden.
