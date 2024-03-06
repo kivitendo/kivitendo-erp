@@ -405,8 +405,11 @@
           </listitem>
         </itemizedlist>
 
-        <para>Seit Version größer v3.9.0 sind die folgenden Pakete hinzugekommen:
+        <para>In der Version v3.9.0 sind die folgenden Pakete hinzugekommen:
           <literal>Mail::IMAPClient</literal>, <literal>Encode::IMAPUTF7</literal>
+        </para>
+        <para>
+          Nicht mehr benötigt wird <literal>CAM::PDF</literal>.
         </para>
 
         <para>In der Version v3.8.0 sind keine neuen Pakete hinzugekommen.</para>
@@ -487,7 +490,7 @@
   libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl \
   libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl \
   libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
-  libdatetime-event-cron-perl libexception-class-perl libcam-pdf-perl \
+  libdatetime-event-cron-perl libexception-class-perl \
   libxml-libxml-perl libtry-tiny-perl libmath-round-perl \
   libimager-perl libimager-qrcode-perl librest-client-perl libipc-run-perl
           </programlisting>
