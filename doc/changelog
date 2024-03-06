@@ -92,6 +92,9 @@ Mittelgroße neue Features:
     verschiedenen Lagerplätzen oder mit verschiedenen Chargen, so können diese
     gewählt ausgewählt werden. Das Mindeshaltbarkeitsdatum wird dabei (noch
     nicht) berücksichtigt.
+  - Beim Jahresabschluss besteht neu die Möglichkeit, zwischen den Methoden Einfach und Standard
+    zu wählen. Die Methode Einfach berücksichtigt nur die Bestandskonten und verwendet das
+    gleiche Konto für die Verbuchung von Gewinn oder Verlust.
 
 Kleinere neue Features und Detailverbesserungen:
 
