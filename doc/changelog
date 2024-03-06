@@ -172,6 +172,81 @@ Kleinere neue Features und Detailverbesserungen:
   - Artikel können auf "nicht mehr bestellen" gesetzt werden. Dann sind diese
     in neuen Preisanfragen und Lieferantenaufträgen nicht mehr auswählbar.
 
+
+Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+658 DMS -> Backend WebDAV verknüpfte Belege
+657 Schnellsuche Fibu findet Rechnungnummer nicht
+654 Aufzählungsliste ist im ckeditor 5 nicht mehr gut einsehbar einsehbar/editierbar
+653 Auftragscontroller: Als neu speichern: Hinweis auf ungültige Artikel zeigt Position nicht mehr an
+651 Design4.0: CSV-Import: Report zeigt erste Datenzeile nicht an
+649 CSV-Import Lieferanten 3.9 alpha geht nicht mehr
+648 Einkaufs- und Verkaufsreklamationen funktionieren nicht mehr
+646 Design4.0: Vorgangsbezeichnung: Feld in EK-Rechnung fehlt.
+643 Design4.0: Konten ungültig machen: checkobx fehlt im Template
+640 DBUpgrade fehler bei sql/Pg-upgrade2/oe_purchase_order_confirmation_order_types.sql
+637 load_zugferd fehlerhaft bei Ermitteln der tax
+636 ZuGFeRD Import defekt
+634 Verkauf -> Berichte -> Rechnungen -> Drucken kaputt
+633 Alte Berechnungsautomatiken von Auftrag nach Lieferschein defekt
+632 Verkaufslieferschein lässt sich nicht mehr Auslagern
+631 Lager -> Lagerbuchungen wirft einen DB-Fehler: "sales_invoice" ist kein gültiges enjm
+630 design40: Bei Lagereingang im Lieferschein-Popup wird Information abgeschnitten
+625 Speichern und Lieferschein (E) mit Artikelauswahl -> Fehler:
+624 Einkaufslieferschein lässt sich nicht zrücklagern
+622 Kein CKEditor bei Rechnung erfassen/bearbeiten
+621 Das Menü Links verschwindet / leer bei Rechnung erfassen, Anzahlungsrechnung erfassen, Gutschrift erfassen
+620 Mahnstatus wird in Rechung nicht richtig angezeigt
+617 Design4.0: Kunden/Lieferantenmaske Reiter "Belege"
+615 Reverse Charge $13 für UStVA richtig konfigurieren
+610 Lieferscheine an Lieferanten
+609 Nach Update von Debian11 auf Denian12 Fehler beim Ausdrucken von Rechnungen wenn ZugFerD eingeschaltert.
+608 DBUpgrade fehler bei sql/Pg-upgrade2/record_links_remove_to_quotation.pl
+607 Design4.0 Reportgenerator erzeugt sehr viele Leerzeilen
+605 Kontoauszug verbuchen rückgängig machen, setzt datepaid im Nebenbuch nicht null zurück, wenn keine Zahlungen mehr zum Beleg vorhanden sind
+603 Mailversand liefert immer einen Fehler / Mails über IMAP ablegen
+594 Design4.0: Mandantenkonfiguration
+593 Design40: Dialogbuchen
+592 Design40: CSV-Importe: Hilfe zu Spaltennamen nicht ganz lesbar bei Multiplex-Importen
+591 Design40: CSV-Importe: große leere Stelle bei Multiplex-Importen
+590 Design40: CSV-Importe: Einstellungen: Texteingabefelder zu weit rechts
+589 neue Buchungsliste saldiert falsch.
+584 SL/Controller/Reclamation.pm merge marker in POD
+578 Admin-Oberfläche: Fehler beim Anlegen eines Benutzers
+569 Design4.0 Kunden/Lieferantenmaske Reiter "Belege" überlagert andere tabs
+564 div. Belege/Dialogbuchen Beim Löschen eines Dokuments wird der DB Eintrag nicht gelöscht
+551 Design4.0: Bei Wiedervorlagen fehlt die Auswahlliste der Benutzer (für den die WV erstellt wird)
+541 ! LaTeX Error: There's no line here to end
+533 Design 4.0: Speichern der Mandantenkonfiguration: Can't locate object method "shipped_qty_fill_up" via package "SL::DB::Default" at /usr/share/perl5/Rose/DB/Object.pm line 1657.
+525 Design4.0 Kreditoren/Debitorenbuchungen
+524 Design4.0 Dialogbuchen
+523 Design4.0 Benutzereinstellungen
+522 Design4.0 Fehlende Option Benutzerdefinierte Variablen
+513 Beistellieferschein PDF wird nicht im DMS abgelegt
+474 Artikeldaten aktualisieren wenn Spache geändert
+473 SQL-Fehler bei "Suche nach in Erzeugnissen verbauten Artikeln"
+440 Im neuen Auftragscontroller kein Workflow "Angebot"
+374 Benutzerdefinierte Variablen lassen sich nicht leeren
+363 Standardbuchungskonto ("Buchen auf") wird in Rechnungen EK/VK nicht vorbelegt.
+313 unstable: Kontoauszug verbuchen - Verkaufsrechnungen werden SEPA-Sammelüberweisungen zugeordnet
+298 Artikel "Als neu verwenden" übernimmt die BDVs nicht.
+216 Kunden als csv exportieren2
+189 Sortierung in den Listen aus der Schnellsuche verwirft den Suchbegriff
+129 Erfolgsrechnung für nicht Schweizer-Anwender
+118 item in record_links für auftrag zu rechnung hinzufügen
+114 Wird ein Artikel gelöscht, zu dem eine Preisregel definiert ist, so bleibt die Preisregel bestehen und erzeugt Fehlermeldung beim Aufruf von Preisregeln
+112 Zeilenumbruch falsch konvertiert von 3.1 nach 3.3
+95  Händischer CSV-Import wirft (unter bestimmten Umständen) Fehler, bzw. sperrt die gesamte kivi
+93  Workflow Auftrag -> Lieferschein -> Rechnung "Steuer im Preis inbegriffen" wird nicht aus dem Auftrag mit in die Rechnung übernommen
+89  Berichte -> Projektbuchungen | zwei direkte SQL-Fehler
+88  Export der SuSa vergisst Projekt- oder Abteilungsfilter
+63  Standard-Druckvorlagen - parsen LaTeX-Bedingung nicht korrekt
+14  Lieferplan zeigt nicht alle Positionen / Liefertermine an.
+12  Erzeugnisse deren Einzelteile unterschiedliche Einheiten verwenden werden falsch berechnet.
+6   2437 Falsche Marge bei Verwendung von Preisfaktor
+5   1991 SelfTests: Undefiniertes Verhalten bei NOTESTS
+
+
+
 2023-04-05 - Release 3.8.0
 
 Größere neue Features:
