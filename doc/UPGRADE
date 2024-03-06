@@ -13,8 +13,26 @@ immer das Skript 'scripts/installation_check.pl -v'.
   * Encode::IMAPUTF7
   * Mail::IMAPClient
 
+Wichtige Hinweise:
 
-Diese Version benötigt zwingend PostgreSQL Version 12 oder neuer.
+- manuelle Zahlungen von Belegen mit Fremdwährungen verbuchen ist leider seit der Version 3.8 buggy!
+  Diese Version flickt das Verhalten notdürftig und das Problem liegt auf Wiedervorlage, wenn die
+  Rechnungsbelege prinzipiell modernisiert werden (aktuell sind die Belegtypen Aufträge und
+  Lieferschein mit modernen Code implementiert).
+
+  Es gibt drei + x Möglichkeiten:
+  - Zahlungen über das Format MT940 oder CSV importieren und dann über den Menüpunkt 'Kontoauszug
+    verbuchen' alle Zahlungen verbuchen.
+  - Zahlungsverkehr -> Zahlungseingang / Zahlungsausgang für die manuelle Zahlungsverbuchung verwenden
+  - Doch manuell über die Belege die Zahlungen verbuchen, dann aber zwingend die Änderbarkeit von
+    Zahlungen auf 'niemals' setzen
+  - Den kivitendo-Dienstleister seiner Wahl für weitere Optionen (Downgrade, Entwicklungsunterstützung
+    für schnellere Rechnungsüberarbeitung) kontaktieren und beauftragen
+  Weitere Details, https://kivitendo.de/redmine/issues/563
+
+- Diese Version benötigt zwingend PostgreSQL Version 12 oder höher!
+
+Wer es dennoch zwingend in einer älteren Version benötigt, kann diese beiden Skripte deaktivieren:
 
 Shell-Befehl zum Deaktivieren des Skripts:
   sed -i 's/ignore: 0/ignore: 1/' sql/Pg-upgrade2/oe_purchase_order_confirmation_order_types.sql
