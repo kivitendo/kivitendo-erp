@@ -874,7 +874,22 @@ sub generate_datev_lines {
       $datev_data{kost2} = $transaction->[$haben]->{'projectdescription'};
 
       if ($transaction->[$haben]->{'name'} ne "") {
-        $datev_data{buchungstext} = $transaction->[$haben]->{'name'};
+        if ( $datev_data{'description'} ) {
+          my $len = 60;
+
+          $buchungstext = substr($transaction->[$haben]->{'name'}, 0, 18);
+
+          if ( $datev_data{quantity} and $datev_data{quantity} != 1 ) {
+            $buchungstext .= sprintf("%gx ", $datev_data{quantity});
+          }
+          $buchungstext .= ";" ;
+          $len = $len - length($buchungstext);
+          $buchungstext .= substr($datev_data{description}, 0, $len-1);
+          $datev_data{buchungstext} = $buchungstext;
+        } else {
+          $datev_data{buchungstext} = $transaction->[$haben]->{'name'};
+        }
+
       }
       if (($transaction->[$haben]->{'ustid'} // '') ne "") {
         $datev_data{ustid} = SL::VATIDNr->normalize($transaction->[$haben]->{'ustid'});
