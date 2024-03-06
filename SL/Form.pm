@@ -2698,11 +2698,11 @@ sub lastname_used {
 
   } elsif ($self->{type} =~ /_order/) {
     $arap  = 'oe';
-    $where = "quotation = '0'";
+    $where = "record_type in ('sales_order', 'purchase_order')";
 
   } elsif ($self->{type} =~ /_quotation/) {
     $arap  = 'oe';
-    $where = "quotation = '1'";
+    $where = "record_type in ('sales_quotation', 'request_quotation')";
 
   } elsif ($table eq 'customer') {
     $arap  = 'ar';
