@@ -8,13 +8,13 @@ Größere Features und Komponentenupdates
 
   - Bestell- oder Einkaufshelfer
       Über einen Bericht "Meldebestand" können Artikel, die den Mindestbestand
-			unterschritten haben, in einen Warenkorb gelegt werden. Der Warenkorb
-			kann gefiltert nach Lieferant dann Einkaufsbestellungen auslösen.
-			Zusätzlich zu den Meldebestandwaren können weitere Artikel des
-			Lieferanten gleich mitbestellt werden. Artikel die in offenen und nicht
-			gelieferten Einkaufsbestellungen sind, werden nicht im Meldebestand
-			angezeigt. Artikel können auch direkt aus der Stammdatenmaske in den
-			Einkaufswarenkorb gelegt werden.
+      unterschritten haben, in einen Warenkorb gelegt werden. Der Warenkorb
+      kann gefiltert nach Lieferant dann Einkaufsbestellungen auslösen.
+      Zusätzlich zu den Meldebestandwaren können weitere Artikel des
+      Lieferanten gleich mitbestellt werden. Artikel die in offenen und nicht
+      gelieferten Einkaufsbestellungen sind, werden nicht im Meldebestand
+      angezeigt. Artikel können auch direkt aus der Stammdatenmaske in den
+      Einkaufswarenkorb gelegt werden.
 
   - Eingehender E-Mail-Import im E-Mail-Journal
       E-Mails können von beliebigen IMAP-Ordnern importiert werden und sind
