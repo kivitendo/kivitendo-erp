@@ -3872,6 +3872,62 @@ digits_year: 4</programlisting>
       Erfolgsrechnung.</para>
     </sect1>
 
+    <sect1 id="config.jahresabschluss">
+      <title>Jahresabschluss</title>
+
+      <para>Beim Jahresabschluss stehen 2 Methoden zur Verfügung, die in der
+      Buchungskonfiguration der Mandantenkonfiguration eingestellt werden
+      können.</para>
+      <itemizedlist>
+        <listitem>
+          <para><emphasis role="bold">Standard-Methode</emphasis>.</para>
+          <itemizedlist>
+            <listitem>
+              <para>Sowohl Bestandskonten wie auch Erfolgskonten werden
+              abgeschlossen</para>
+            </listitem>
+            <listitem>
+              <para>Es wird ein Konto für das Verbuchen eines Jahresgewinns
+              verwendet und ein zweites Konto für das Verbuchen eines
+              Jahresverlusts.</para>
+            </listitem>
+            <listitem>
+              <para>Bei den Konten für den Jahresabschluss können bei den
+              Standardkonten in der Mandantenkonfiguration nur Aktiva-Konten
+              ausgewählt werden.</para>
+            </listitem>
+            <listitem>
+              <para>Der Jahresgewinn oder -verlust wird sowohl bei den
+              Jahresabschlussbuchungen wie auch bei den Eröffnungsbuchungen
+              verbucht.</para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Einfach-Methode</emphasis>.</para>
+          <itemizedlist>
+            <listitem>
+              <para>Nur Bestandskonten werden abgeschlossen</para>
+            </listitem>
+            <listitem>
+              <para>Für das Verbuchen eines Jahresgewinns oder -verlusts wird
+              das gleiche Konto verwendet.</para>
+            </listitem>
+            <listitem>
+              <para>Bei den Konten für den Jahresabschluss können bei den
+              Standardkonten in der Mandantenkonfiguration alle Konten
+              ausgewählt werden.</para>
+            </listitem>
+            <listitem>
+              <para>Der Jahresgewinn oder -verlust wird nur bei den
+              Eröffnungsbuchungen verbucht.</para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+      </itemizedlist>
+    </sect1>
+
     <sect1 id="config.erfolgsrechnung">
       <title>Erfolgsrechnung</title>
 
@@ -4470,7 +4526,9 @@ digits_year: 4</programlisting>
         im Wiki und soll von dort später hierhin übernommen werden:</para>
 
         <para><ulink
-        url="http://redmine.kivitendo-premium.de/projects/forum/wiki/Bankerweiterung">http://redmine.kivitendo-premium.de/projects/forum/wiki/Bankerweiterung</ulink></para>
+        url="https://www.kivitendo.de/redmine/projects/forum/wiki/Bankerweiterung">
+        https://www.kivitendo.de/redmine/projects/forum/wiki/Bankerweiterung
+        </ulink></para>
       </sect2>
     </sect1>
 
