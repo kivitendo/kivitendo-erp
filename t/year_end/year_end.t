@@ -191,9 +191,10 @@ my $start_date = DateTime->new(year => $year, month => 1,  day => 1);
 my $cb_date    = DateTime->new(year => $year, month => 12, day => 31);
 my $ob_date    = $cb_date->clone->add(days => 1);
 
-SL::Controller::YearEndTransactions::_year_end_bookings( start_date => $start_date,
-                                                         cb_date    => $cb_date,
-                                                       );
+my $controller = SL::Controller::YearEndTransactions->new();
+$controller->_year_end_bookings( start_date => $start_date,
+                                 cb_date    => $cb_date,
+                               );
 
 is(SL::DB::Manager::AccTransaction->get_all_count(where => [ cb_transaction => 1 ]), 14, 'acc_trans cb_transactions created ok');
 is(SL::DB::Manager::AccTransaction->get_all_count(where => [ ob_transaction => 1 ]), 10, 'acc_trans ob_transactions created ok');
@@ -317,9 +318,9 @@ my $final_account_balances = [
 # second and third run should be no-ops, at least while no further bookings where
 # made
 
-SL::Controller::YearEndTransactions::_year_end_bookings( start_date => $start_date,
-                                                         cb_date    => $cb_date,
-                                                       );
+$controller->_year_end_bookings( start_date => $start_date,
+                                 cb_date    => $cb_date,
+                               );
 
 is(SL::DB::Manager::AccTransaction->get_all_count(where => [ cb_transaction => 1 ]), 14, 'acc_trans cb_transactions created ok');
 is(SL::DB::Manager::AccTransaction->get_all_count(where => [ ob_transaction => 1 ]), 10, 'acc_trans ob_transactions created ok');
@@ -400,9 +401,9 @@ is_deeply( &get_final_balances,
 gl_booking(10, $booking_date, 'foo', 'bar', $cash, $bank, 0, 0);
 gl_booking(5,  $booking_date, 'foo', 'bar', $betriebsbedarf, $cash, 0, 0);
 
-SL::Controller::YearEndTransactions::_year_end_bookings( start_date => $start_date,
-                                                         cb_date    => $cb_date,
-                                                       );
+$controller->_year_end_bookings( start_date => $start_date,
+                                 cb_date    => $cb_date,
+                               );
 
 is(SL::DB::Manager::AccTransaction->get_all_count(where => [ cb_transaction => 1 ]), 23, 'acc_trans cb_transactions created ok');
 is(SL::DB::Manager::AccTransaction->get_all_count(where => [ ob_transaction => 1 ]), 16, 'acc_trans ob_transactions created ok');
