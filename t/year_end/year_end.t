@@ -401,9 +401,9 @@ is_deeply( &get_final_balances,
 gl_booking(10, $booking_date, 'foo', 'bar', $cash, $bank, 0, 0);
 gl_booking(5,  $booking_date, 'foo', 'bar', $betriebsbedarf, $cash, 0, 0);
 
-SL::Controller::YearEndTransactions::_year_end_bookings( start_date => $start_date,
-                                                         cb_date    => $cb_date,
-                                                       );
+$controller->_year_end_bookings( start_date => $start_date,
+                                 cb_date    => $cb_date,
+                               );
 
 is(SL::DB::Manager::AccTransaction->get_all_count(where => [ cb_transaction => 1 ]), 23, 'acc_trans cb_transactions created ok');
 is(SL::DB::Manager::AccTransaction->get_all_count(where => [ ob_transaction => 1 ]), 16, 'acc_trans ob_transactions created ok');
