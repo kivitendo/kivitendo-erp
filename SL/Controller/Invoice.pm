@@ -55,8 +55,8 @@ sub action_webdav_pdf_export {
   my @errors;
   foreach my $invoice (@{$invoices}) {
     my $record_type = $invoice->record_type;
-    $record_type = 'general_ledger' if $record_type eq 'ar_transaction';
-    $record_type = 'invoice'        if $record_type eq 'invoice_storno';
+    $record_type = 'invoice' if $record_type eq 'ar_transaction';
+    $record_type = 'invoice' if $record_type eq 'invoice_storno';
     my $webdav = SL::Webdav->new(
       type     => $record_type,
       number   => $invoice->record_number,
