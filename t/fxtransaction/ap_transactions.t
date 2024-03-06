@@ -25,6 +25,7 @@ use SL::InstanceConfiguration;
 
 use HTML::Query;
 use Support::TestSetup;
+use Support::Integration;
 
 my $part;
 my $vendor;
@@ -69,77 +70,10 @@ sub init_db {
 
 }
 
-package MockDispatcher {
-  sub end_request { die "END_OF_REQUEST" }
-};
-$::dispatcher = bless { }, "MockDispatcher";
-
-# make a pseudo request to an old bin/mozilla style entry point
-# captures STDOUT, STDERR and the return values of the called action
-#
-# the given form should be set up like it would be in Dispatcher after read_cgi_input
-sub make_request {
-  my ($script, $form, $action) = @_;
-
-  my ($out, $err, @ret);
-
-  package main {
-    local $SIG{__WARN__} = sub {
-      # ignore spurious warnings, TAP::Harness calls this warnings enabled
-    };
-
-    require "bin/mozilla/$script.pl";
-
-    open(my $out_fh, '>', \$out) or die;
-    open(my $err_fh, '>', \$err) or die;
-
-    local *STDOUT = $out_fh;
-    local *STDERR = $err_fh;
-
-    local $::form = Form->new;
-    $::form->{$_} = $form->{$_} for keys %$form;
-    $::form->{script} = $script.'.pl'; # usually set by dispatcher, needed for checks in update_exchangerate
-    local $ENV{REQUEST_URI} = "http://localhost/$script.pl"; # needed for Form::redirect_header
-
-    no strict "refs";
-    eval {
-      no warnings;
-      @ret = &{ "::$action" }();
-      1;
-    } or do { my $err = $@;
-      die unless $err =~ /^END_OF_REQUEST/;
-      @ret = (1);
-    }
-  }
-  return ($out, $err, @ret);
-}
-
-sub form_from_html {
-  my ($html) = @_;
-  my $q = HTML::Query->new(text => $html);
-
-  my %form;
-  for my $input ($q->query('#form input')->get_elements()) {
-    next if !$input->attr('name') || $input->attr('disabled');
-    $form{ $input->attr('name') } = $input->attr('value') // "";
-  }
-  for my $select ($q->query('#form select')->get_elements()) {
-    my $name = $select->attr('name');
-    my ($selected_option) = (
-      grep({ $_->tag eq 'option' && $_->attr('selected') } $select->content_list),
-      grep({ $_->tag eq 'option' } $select->content_list)
-    );
-
-    $form{ $name } = $selected_option->attr('value') // $selected_option->as_text
-      if $selected_option;
-  }
-
-  %form;
-}
-
 ######## main test code #######
 
 Support::TestSetup::login();
+Support::Integration::setup();
 init_db();
 
 {
@@ -153,7 +87,7 @@ init_db();
   my %form;
 
   # make new invoice
-  my ($out, $err, @ret) = make_request('ir', { type => 'invoice' }, 'add');
+  my ($out, $err, @ret) = make_request('ir', 'add', type => 'invoice');
   is $ret[0], 1, "new purchase invoice";
   %form = form_from_html($out);
 
@@ -162,7 +96,7 @@ init_db();
   $form{currency}     = $currency;
 
   # update
-  ($out, $err, @ret) = make_request('ir', \%form, 'update');
+  ($out, $err, @ret) = make_request('ir', 'update', %form);
   is $ret[0], 1, "update purchase invoice with currency";
   %form = form_from_html($out);
 
@@ -171,7 +105,7 @@ init_db();
   $form{partnumber_1} = $part->partnumber;
 
   # update
-  ($out, $err, @ret) = make_request('ir', \%form, 'update');
+  ($out, $err, @ret) = make_request('ir', 'update', %form);
   is $ret[0], 1, "update purchase invoice with part and exchangerate";
   %form = form_from_html($out);
 
@@ -179,13 +113,13 @@ init_db();
   $form{paid_1}           = _format_number($part->lastcost / $exchangerate, -2);  # lastcost = 5€ = 2$
   $form{exchangerate_1}   = _format_number($payment_exchangerate, -2);
 
-  ($out, $err, @ret) = make_request('ir', \%form, 'post');
+  ($out, $err, @ret) = make_request('ir', 'post', %form);
   is $ret[0], 1, "posting '$description' does not generate error";
   warn $err if $err;
   ok $out =~ /ir\.pl\?action=edit&id=(\d+)/, "posting '$description' returns redirect to id";
   my $id = $1;
 
-  ($out, $err, @ret) = make_request('ir', { id => $id }, 'edit');
+  ($out, $err, @ret) = make_request('ir', 'edit', id => $id );
   is $ret[0], 1, "'$description' did not cause an error";
   warn $err if $err;
 
@@ -209,7 +143,7 @@ init_db();
   my %form;
 
   # make new ap transaction
-  my ($out, $err, @ret) = make_request('ap', { }, 'add');
+  my ($out, $err, @ret) = make_request('ap', 'add');
   is $ret[0], 1, "new ap transaction";
   %form = form_from_html($out);
 
@@ -220,7 +154,7 @@ init_db();
   $form{invnumber} = $description;
 
   # make new ap transaction
-  ($out, $err, @ret) = make_request('ap', \%form, 'update');
+  ($out, $err, @ret) = make_request('ap', 'update', %form);
   is $ret[0], 1, "update ap transaction with currency";
   %form = form_from_html($out);
 
@@ -229,13 +163,13 @@ init_db();
   $form{exchangerate}    = _format_number($exchangerate, -2);
   $form{exchangerate_1}   = _format_number($payment_exchangerate, -2);
 
-  ($out, $err, @ret) = make_request('ap', \%form, 'post');
+  ($out, $err, @ret) = make_request('ap', 'post', %form);
   is $ret[0], 1, "posting '$description' did not cause an error";
 
   my $invoice = SL::DB::Manager::PurchaseInvoice->find_by(invnumber => $description);
   ok $invoice, "posting '$description' can be found in the database";
 
-  ($out, $err, @ret) = make_request('ap', { id => $invoice->id }, 'edit');
+  ($out, $err, @ret) = make_request('ap', 'edit', id => $invoice->id);
   is $ret[0], 1, "loading '$description' did not cause an error";
   warn $err if $err;
 
@@ -331,7 +265,7 @@ init_db();
   $invoice = SL::DB::Manager::PurchaseInvoice->find_by(invnumber => $testname);
 
   # now load with old code
-  my ($out, $err, @ret) = make_request('ap', { id => $invoice->id }, 'edit');
+  my ($out, $err, @ret) = make_request('ap', 'edit', id => $invoice->id);
   is $ret[0], 1, "loading '$testname' did not cause an error";
   warn $err if $err;
 
