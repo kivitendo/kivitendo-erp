@@ -720,8 +720,22 @@ table {
       display:              table-row-group;
 
       // zebra effect
-      tr:nth-child(odd) {   background-color:   @t-row-zebra-bg-odd  ; }
-      tr:nth-child(even){   background-color:   @t-row-zebra-bg-even ; }
+      tr:nth-child(odd)                  { background-color:   @t-row-zebra-bg-odd      ; }
+      tr:nth-child(even)                 { background-color:   @t-row-zebra-bg-even     ; }
+
+      tr:nth-child(odd).listrow_ok       { background-color:   @base-ok-bg              ; }
+      tr:nth-child(even).listrow_ok      { background-color:   @base-ok-bg-lighter      ; }
+
+      tr:nth-child(odd).listrow_error    { background-color:   @base-error-bg           ; }
+      tr:nth-child(even).listrow_error   { background-color:   @base-error-bg-lighter   ; }
+
+      // using a darker color variant here because the light one is almost invisible
+      tr:nth-child(odd).listrow_info     { background-color:   @base-info-bg-darker     ; }
+      tr:nth-child(even).listrow_info    { background-color:   @base-info-bg-dark       ; }
+
+      tr:nth-child(odd).listrow_warning  { background-color:   @base-warning-bg         ; }
+      tr:nth-child(even).listrow_warning { background-color:   @base-warning-bg-lighter ; }
+
       // pendent: funktioniert nicht
       & > tr:last-child > td {
         border-bottom:      1px @table-border-color solid !important ;
@@ -729,12 +743,18 @@ table {
       }
       tr:hover {            background-color:   @t-row-zebra-bg-hover ; }
 
-      tr.listrow_ok       { background-color:   @base-ok-bg      !important ; }
-      tr.listrow_error    { background-color:   @base-error-bg   !important ; }
-      tr.listrow_info     { background-color:   @base-info-bg    !important ; }
-      tr.listrow_warning  { background-color:   @base-warning-bg !important ; }
-      tr.listrow_error0   { background-color:   @base-error-bg   !important ; }
-      tr.listrow_error1   { background-color:   @msg-error-light !important ; }
+      // zebra effect using manually set classes (overrides automatic from above)
+      tr.listrow0         { background-color:   @t-row-zebra-bg-odd      !important ; }
+      tr.listrow1         { background-color:   @t-row-zebra-bg-even     !important ; }
+      tr.listrow_ok0      { background-color:   @base-ok-bg              !important ; }
+      tr.listrow_ok1      { background-color:   @base-ok-bg-lighter      !important ; }
+      tr.listrow_error0   { background-color:   @base-error-bg           !important ; }
+      tr.listrow_error1   { background-color:   @base-error-bg-lighter   !important ; }
+      // using a darker color variant here because the light one is almost invisible
+      tr.listrow_info0    { background-color:   @base-info-bg-darker     !important ; }
+      tr.listrow_info1    { background-color:   @base-info-bg-dark       !important ; }
+      tr.listrow_warning0 { background-color:   @base-warning-bg         !important ; }
+      tr.listrow_warning1 { background-color:   @base-warning-bg-lighter !important ; }
 
       td, th {
         color:              @table-list-zebra-text-color ;
