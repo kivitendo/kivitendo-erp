@@ -161,7 +161,7 @@ sub run {
       # email config
       hostname    => { type => SCALAR,  },
       port        => { type => SCALAR,  optional => 1},
-      ssl         => { type => BOOLEAN, },
+      ssl         => { type => BOOLEAN, default  => 1},
       username    => { type => SCALAR,  },
       password    => { type => SCALAR,  },
       base_folder => { type => SCALAR,  optional => 1},
