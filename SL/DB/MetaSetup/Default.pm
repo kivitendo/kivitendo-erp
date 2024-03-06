@@ -237,6 +237,7 @@ __PACKAGE__->meta->columns(
   webdav_sync_extern_url                    => { type => 'text' },
   weightunit                                => { type => 'varchar', length => 5 },
   workflow_po_ap_chart_id                   => { type => 'integer' },
+  yearend_method                            => { type => 'text', default => 'default', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

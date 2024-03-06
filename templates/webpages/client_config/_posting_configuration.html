@@ -114,6 +114,11 @@
    <td>[% LxERP.t8('This option controls the method used for determining the startdate for the balance report.') %]</td>
   </tr>
   <tr>
+    <td align="right">[% LxERP.t8('Year-end method') %]</td>
+    <td>[% L.select_tag('defaults.yearend_method', SELF.yearend_options, value_key = 'value', title_key = 'title', default = SELF.defaults.yearend_method, class='wi-morewide') %]</td>
+    <td>[% LxERP.t8('This option controls the method used for the automated year-end bookings.') %]</td>
+  </tr>
+  <tr>
    <td align="right">[% LxERP.t8('Set valid until date for Sales Quotation') %]</td>
    <td>[% L.yes_no_tag('defaults.reqdate_on', SELF.defaults.reqdate_on) %]</td>
    <td>[% LxERP.t8("If set to no the 'valid until' field for sales quotation won't be set at all.") %]</td>

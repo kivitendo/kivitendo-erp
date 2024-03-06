@@ -9,7 +9,7 @@
 
 <div class="wrapper">
 
-[% IF carry_over_chart AND profit_chart AND loss_chart %] [% THEN %]
+[% IF carry_over_chart AND profit_chart AND (loss_chart OR SELF.defaults.yearend_method == 'simple') %] [% THEN %]
 <form id="filter" name="filter" method="post" action="controller.pl">
 <table class="tbl-horizontal">
   <tr>
@@ -24,6 +24,16 @@
     <td>[% 'Start date' | $T8 %]</td>
     <td>[% L.date_tag('cb_startdate', '', readonly=1) %]</td>
   </tr>
+  [% IF SELF.defaults.yearend_method == 'simple' %] [% THEN %]
+  <tr>
+    <td>[% 'Year-end closing account' | $T8 %]</td>
+    <td>[% carry_over_chart.displayable_name | html %]</td>
+  </tr>
+  <tr>
+    <td>[% 'Profit or loss carried forward account' | $T8 %]</td>
+    <td>[% profit_chart.displayable_name | html %]</td>
+  </tr>
+  [% ELSE %]
   <tr>
     <td>[% 'Carry over account for year-end closing' | $T8 %]</td>
     <td>[% carry_over_chart.displayable_name | html %]</td>
@@ -36,8 +46,11 @@
     <td>[% 'Loss carried forward account' | $T8 %]</td>
     <td>[% loss_chart.displayable_name | html %]</td>
   </tr>
+  [% END %]
 </table>
 </form>
+[% ELSIF SELF.defaults.yearend_method == 'simple' %]
+  [% 'Please configure the year-end closing and the profit or loss carried forward accounts for year-end closing in the client configuration!' | $T8 %]
 [% ELSE %]
   [% 'Please configure the carry over and profit and loss accounts for year-end closing in the client configuration!' | $T8 %]
 [% END %]
