@@ -1084,7 +1084,7 @@ sub action_add_item {
 
   return unless $form_attr->{parts_id};
 
-  my $item = new_item($self->order, $form_attr);
+  my $item = $self->new_item($self->order, $form_attr);
 
   $self->order->add_items($item);
 
@@ -1115,7 +1115,7 @@ sub action_add_item {
                    unit     => $assortment_item->unit,
                    description => $assortment_item->part->description,
                  };
-      my $item = new_item($self->order, $attr);
+      my $item = $self->new_item($self->order, $attr);
 
       # set discount to 100% if item isn't supposed to be charged, overwriting any customer discount
       $item->discount(1) unless $assortment_item->charge;
@@ -1163,7 +1163,7 @@ sub action_add_multi_items {
 
   my @items;
   foreach my $attr (@form_attr) {
-    my $item = new_item($self->order, $attr);
+    my $item = $self->new_item($self->order, $attr);
     push @items, $item;
     if ( $item->part->is_assortment ) {
       foreach my $assortment_item ( @{$item->part->assortment_items} ) {
@@ -1172,7 +1172,7 @@ sub action_add_multi_items {
                      unit     => $assortment_item->unit,
                      description => $assortment_item->part->description,
                    };
-        my $item = new_item($self->order, $attr);
+        my $item = $self->new_item($self->order, $attr);
 
         # set discount to 100% if item isn't supposed to be charged, overwriting any customer discount
         $item->discount(1) unless $assortment_item->charge;
@@ -1369,7 +1369,7 @@ sub action_update_row_from_master_data {
   foreach my $item_id (@{ $::form->{item_ids} }) {
     my $idx   = first_index { $_ eq $item_id } @{ $::form->{orderitem_ids} };
     my $item  = $self->order->items_sorted->[$idx];
-    my $texts = get_part_texts($item->part, $self->order->language_id);
+    my $texts = $self->get_part_texts($item->part, $self->order->language_id);
 
     $item->description($texts->{description});
     $item->longdescription($texts->{longdescription});
@@ -1870,7 +1870,7 @@ sub load_order {
 #
 # This is used to add one item
 sub new_item {
-  my ($record, $attr) = @_;
+  my ($self, $record, $attr) = @_;
 
   my $item = SL::DB::OrderItem->new;
 
@@ -1904,7 +1904,7 @@ sub new_item {
   # saved. Adding empty custom_variables to new orderitem here solves this problem.
   $new_attr{custom_variables} = [];
 
-  my $texts = get_part_texts($item->part, $record->language_id, description => $new_attr{description}, longdescription => $new_attr{longdescription});
+  my $texts = $self->get_part_texts($item->part, $record->language_id, description => $new_attr{description}, longdescription => $new_attr{longdescription});
 
   $item->assign_attributes(%new_attr, %{ $texts });
 
@@ -2664,7 +2664,7 @@ sub get_item_cvpartnumber {
 }
 
 sub get_part_texts {
-  my ($part_or_id, $language_or_id, %defaults) = @_;
+  my ($self, $part_or_id, $language_or_id, %defaults) = @_;
 
   my $part        = ref($part_or_id)     ? $part_or_id         : SL::DB::Part->load_cached($part_or_id);
   my $language_id = ref($language_or_id) ? $language_or_id->id : $language_or_id;

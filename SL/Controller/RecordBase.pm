@@ -81,7 +81,7 @@ sub init_record {
   my @items;
   my $pos = 1;
   foreach my $form_attr (@{$form_items}) {
-    my $item = make_item($record, $form_attr);
+    my $item = $self->make_item($record, $form_attr);
     $item->position($pos);
     push @items, $item;
     $pos++;
@@ -96,7 +96,7 @@ sub init_record {
 # Make item objects from form values. For items already existing read from db.
 # Create a new item else. And assign attributes.
 sub make_item {
-  my ($record, $attr) = @_;
+  my ($self, $record, $attr) = @_;
 
   my $item;
   $item = first { $_->id == $attr->{id} } @{$record->items} if $attr->{id};
@@ -111,7 +111,7 @@ sub make_item {
   $item->assign_attributes(%$attr);
 
   if ($is_new) {
-    my $texts = get_part_texts($item->part, $record->language_id);
+    my $texts = $self->get_part_texts($item->part, $record->language_id);
     $item->longdescription($texts->{longdescription})              if !defined $attr->{longdescription};
     $item->project_id($record->globalproject_id)                   if !defined $attr->{project_id};
     $item->lastcost($record->is_sales ? $item->part->lastcost : 0) if !defined $attr->{lastcost_as_number};
