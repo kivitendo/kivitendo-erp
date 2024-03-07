@@ -16,7 +16,9 @@ use SL::DB::ValidityToken;
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
-use SL::DB::Helper::Record qw(get_class_from_type);
+use SL::DB::Helper::Record qw(
+  get_class_from_type get_type_data_proxy_from_type
+);
 
 use SL::Util qw(trim);
 use SL::Locale::String qw(t8);
@@ -63,7 +65,11 @@ sub update_after_customer_vendor_change {
 sub get_record {
   my ($class, $type, $id) = @_;
   my $record_class = get_class_from_type($type);
-  return $record_class->new(id => $id)->load;
+  my $type_data_proxy = get_type_data_proxy_from_type($type);
+  my $items_key = $type_data_proxy->properties('items_key');
+  return $record_class->new(id => $id)->load(
+    with => [ $items_key, "$items_key.part" ]
+  );
 }
 
 sub new_from_workflow {
