@@ -8,6 +8,8 @@ use List::MoreUtils qw(none);
 
 use SL::Helper::Flash qw(flash flash_later);
 
+use SL::DB::ValidityToken;
+
 use Rose::Object::MakeMethods::Generic(
  scalar => [ qw(
    item_ids_to_delete is_custom_shipto_to_delete
@@ -24,7 +26,7 @@ sub action_add {
   $self->pre_render();
 
   if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token; # TODO remove scope
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECORD_SAVE())->token;
   }
 
   $self->render(

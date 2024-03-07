@@ -112,7 +112,7 @@ sub action_add_from_record {
   $self->pre_render();
 
   if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECORD_SAVE())->token;
   }
 
   $self->render(
@@ -188,7 +188,7 @@ sub action_edit {
     $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
 
     if (!$::form->{form_validity_token}) {
-      $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
+      $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECORD_SAVE())->token;
     }
   }
 
@@ -326,7 +326,7 @@ sub action_save_as_new {
   }
 
   if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECORD_SAVE())->token;
   }
 
   # save
@@ -964,7 +964,7 @@ sub action_order_workflow {
   $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
 
   if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECORD_SAVE())->token;
   }
 
   $self->render(
@@ -1330,7 +1330,7 @@ sub action_return_from_create_part {
   $_->{render_longdescription} = 1 for @{ $self->order->items_sorted };
 
   if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
+    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECORD_SAVE())->token;
   }
 
   $self->render(
@@ -2079,7 +2079,7 @@ sub save {
                        : undef;
 
   SL::Model::Record->save($self->order,
-                          with_validity_token  => { scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(), token => $::form->{form_validity_token} },
+                          with_validity_token  => { scope => SL::DB::ValidityToken::SCOPE_RECORD_SAVE(), token => $::form->{form_validity_token} },
                           delete_custom_shipto => $self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty,
                           items_to_delete      => $items_to_delete,
                           objects_to_close     => $objects_to_close,
