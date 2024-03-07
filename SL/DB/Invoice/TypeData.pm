@@ -46,11 +46,16 @@ my %type_data = (
       worflow_needed => 0,
     },
     defaults => {
-      # TODO
+      # aka: duedate
+      reqdate => sub {
+        #$invoice->payment_terms ? $invoice->payment_terms->calc_date(reference_date => $::form->{invdate})->to_kivitendo : $invoice->transdate;
+        DateTime->today
+      },
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
-      # TODO
+      edit => "invoice_edit",
+      view => "invoice_edit | sales_invoice_view",
     },
     features => {
       price_tax   => 1,
@@ -84,7 +89,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },
@@ -120,7 +125,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },
@@ -156,7 +161,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },
@@ -192,7 +197,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },
@@ -228,7 +233,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },
@@ -264,7 +269,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },

@@ -27,8 +27,10 @@ sub update_after_new {
 
   $new_record->transdate(DateTime->now_local());
 
-  my $default_reqdate = $new_record->type_data->defaults('reqdate');
-  $new_record->reqdate($default_reqdate);
+  if ($new_record->can('reqdate')) {
+    my $default_reqdate = $new_record->type_data->defaults('reqdate');
+    $new_record->reqdate($default_reqdate);
+  }
 
   return $new_record;
 }

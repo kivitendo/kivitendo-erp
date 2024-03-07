@@ -19,6 +19,7 @@ use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::SalesPurchaseInvoice;
 use SL::DB::Helper::TransNumberGenerator;
+use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::ZUGFeRD qw(:CREATE);
 use SL::Locale::String qw(t8);
 
@@ -79,6 +80,10 @@ __PACKAGE__->attr_sorted('items');
 __PACKAGE__->before_save('_before_save_set_invnumber');
 __PACKAGE__->after_save('_after_save_link_records');
 
+use Rose::Object::MakeMethods::Generic (
+  'scalar --get_set_init' => [ qw(record_type) ],
+);
+
 # hooks
 
 sub _before_save_set_invnumber {
@@ -108,7 +113,7 @@ sub _after_save_link_records {
 sub items { goto &invoiceitems; }
 sub add_items { goto &add_invoiceitems; }
 sub record_number { goto &invnumber; };
-sub record_type { goto &invoice_type; };
+#sub record_type { goto &invoice_type; };
 
 sub is_sales {
   # For compatibility with Order, DeliveryOrder
@@ -576,6 +581,10 @@ sub _post_update_allocated {
   }
 }
 
+sub init_record_type {
+  goto &invoice_type;
+}
+
 sub invoice_type {
   my ($self) = @_;
 
@@ -645,6 +654,17 @@ sub customervendor {
   goto &customer;
 }
 
+sub is_type {
+  return shift->record_type eq shift;
+}
+
+sub number {
+  my $self = shift;
+
+  my $nr_key = $self->type_data->properties('nr_key');
+  return $self->$nr_key(@_);
+}
+
 sub link {
   my ($self) = @_;
 
@@ -671,6 +691,10 @@ sub netamount_base_currency {
   my ($self) = @_;
 
   return $self->netamount; # already matches base currency
+}
+
+sub type_data {
+  SL::DB::Helper::TypeDataProxy->new(ref $_[0], $_[0]->record_type);
 }
 
 1;
