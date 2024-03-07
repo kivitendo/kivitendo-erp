@@ -4,9 +4,12 @@ use strict;
 use warnings;
 use Carp;
 use Exporter qw(import);
+
 use SL::DB::Order::TypeData;
 use SL::DB::DeliveryOrder::TypeData;
 use SL::DB::Reclamation::TypeData;
+use SL::DB::Invoice::TypeData;
+use SL::DB::PurchaseInvoice::TypeData;
 
 my @export_subs = qw(get_object_name_from_type get_class_from_type);
 
@@ -14,15 +17,11 @@ our @EXPORT_OK = (@export_subs);
 our %EXPORT_TAGS = (subs => \@export_subs);
 
 my %type_to_object_name = ();
-$type_to_object_name{$_} = 'Order'         for (@{(SL::DB::Order::TypeData::valid_types)});
-$type_to_object_name{$_} = 'DeliveryOrder' for (@{(SL::DB::DeliveryOrder::TypeData::valid_types)});
-$type_to_object_name{$_} = 'Reclamation'   for (@{(SL::DB::Reclamation::TypeData::valid_types)});
-# TODO: rewrite when invoice type data is available
-$type_to_object_name{invoice}                     = 'Invoice';
-$type_to_object_name{invoice_for_advance_payment} = 'Invoice';
-$type_to_object_name{final_invoice}               = 'Invoice';
-$type_to_object_name{credit_note}                 = 'Invoice';
-$type_to_object_name{purchase_invoice}            = 'PurchaseInvoice';
+$type_to_object_name{$_} = 'Order'           for (@{(SL::DB::Order::TypeData::valid_types)});
+$type_to_object_name{$_} = 'DeliveryOrder'   for (@{(SL::DB::DeliveryOrder::TypeData::valid_types)});
+$type_to_object_name{$_} = 'Reclamation'     for (@{(SL::DB::Reclamation::TypeData::valid_types)});
+$type_to_object_name{$_} = 'Invoice'         for (@{(SL::DB::Invoice::TypeData::valid_types)});
+$type_to_object_name{$_} = 'PurchaseInvoice' for (@{(SL::DB::Invoice::TypeData::valid_types)});
 
 sub get_object_name_from_type {
   my ($type) = @_;
