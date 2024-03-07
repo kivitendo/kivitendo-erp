@@ -16,11 +16,13 @@
         <th class="caption" colspan="3">[% category.name %]</th>
       </tr>
       [% FOREACH row = category.accounts %]
+        [% IF row.total != '0.00' %]
         <tr>
           <td>[% row.accno %]</td>
           <td>[% row.description %]</td>
           <td class="numeric">[% row.total %]</td>
         </tr>
+        [% END %]
       [% END %]
       <tr>
         <th colspan="2">TOTAL</th>
