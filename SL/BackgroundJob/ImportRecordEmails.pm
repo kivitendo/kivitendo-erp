@@ -12,14 +12,15 @@ use SL::Helper::EmailProcessing;
 use SL::Presenter::Tag qw(link_tag);
 use SL::Locale::String qw(t8);
 
-use Params::Validate qw(:all);
 use List::MoreUtils qw(any);
+use Params::Validate qw(:all);
+use Try::Tiny;
 
 sub sync_record_email_folder {
   my ($self, $config) = @_;
 
   my %imap_config;
-  foreach my $key (qw(enabled hostname port ssl username password base_folder)) {
+  foreach my $key (qw(enabled hostname port ssl username password)) {
     if (defined $config->{$key}) {
       $imap_config{$key} = $config->{$key};
     }
@@ -34,8 +35,15 @@ sub sync_record_email_folder {
     }
   );
   return "No emails to import." unless $email_import;
-
-  my $result = "Created email import with id " . $email_import->id . ".";
+  if ($config->{imported_imap_flag}) {
+    foreach my $email_journal (@{$email_import->email_journals}) {
+      $imap_client->set_flag_for_email(
+            email_journal => $email_journal,
+            flag          => $config->{imported_imap_flag},
+      );
+    }
+  }
+  my $result = "Created email import with id " . $email_import->id . " for ". scalar @{ $email_import->email_journals } . " emails.";
 
   if ($config->{process_imported_emails}) {
     my @function_names =
@@ -114,16 +122,13 @@ sub run {
   my ($self, $job_obj) = @_;
   $self->{job_obj} = $job_obj;
 
-  my $data = $job_obj->data_as_hash;
+  my $data;
 
-  my $record_type = $data->{record_type};
-  my $loaded_config = $::lx_office_conf{"record_emails_imap/record_type/$record_type"}
-    || $::lx_office_conf{record_emails_imap}
-    || {};
+  try {
+    $data = $job_obj->data_as_hash;
+  } catch { die t8("Invalid YAML Configuration for this job. Reason: malformed YAML Data: #1. Please consult: Program -> Documentation -> HTML -> Configuration of Background-Jobs.", $_ ); };
 
-  # overwrite with background job data
-  $loaded_config->{$_} = $data->{$_} for keys %{$data};
-  my @config_params = %{$loaded_config};
+  my @config_params = %{$data};
 
   my %config = validate_with(
     params => \@config_params,
@@ -160,15 +165,17 @@ sub run {
       processed_imap_flag        => { type => SCALAR,   optional => 1, },
       not_processed_imap_flag    => { type => SCALAR,   optional => 1, },
       email_import_ids_to_delete => { type => ARRAYREF, optional => 1, },
+      imported_imap_flag         => { type => SCALAR,   optional => 1, },
       # email config
       hostname    => { type => SCALAR,  },
       port        => { type => SCALAR,  optional => 1},
-      ssl         => { type => BOOLEAN, },
+      ssl         => { type => BOOLEAN, default  => 1},
       username    => { type => SCALAR,  },
       password    => { type => SCALAR,  },
       base_folder => { type => SCALAR,  optional => 1},
+
     },
-    called => "data filed in Background Job or kivitendo.conf in [record_emails_imap] with type $record_type",
+    called => "YAML Configuration for this Background Job invalid. Please consult: Program -> Documentation -> HTML -> Configuration of Background-Jobs.",
   );
 
   my @results;
