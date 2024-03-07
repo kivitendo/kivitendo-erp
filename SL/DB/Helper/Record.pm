@@ -11,7 +11,12 @@ use SL::DB::Reclamation::TypeData;
 use SL::DB::Invoice::TypeData;
 use SL::DB::PurchaseInvoice::TypeData;
 
-my @export_subs = qw(get_object_name_from_type get_class_from_type);
+use SL::DB::Helper::TypeDataProxy;
+
+my @export_subs = qw(
+  get_object_name_from_type get_class_from_type get_items_class_from_type
+  get_type_data_proxy_from_type
+);
 
 our @EXPORT_OK = (@export_subs);
 our %EXPORT_TAGS = (subs => \@export_subs);
@@ -31,6 +36,18 @@ sub get_object_name_from_type {
 sub get_class_from_type {
   my ($type) = @_;
   return 'SL::DB::' . get_object_name_from_type($type);
+}
+
+sub get_items_class_from_type {
+  my ($type) = @_;
+  return 'SL::DB::' . get_object_name_from_type($type) . 'Item';
+}
+
+sub get_type_data_proxy_from_type {
+  my ($type) = @_;
+  return SL::DB::Helper::TypeDataProxy->new(
+    get_class_from_type($type), $type
+  );
 }
 
 1;
