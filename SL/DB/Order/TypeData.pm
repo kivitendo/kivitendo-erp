@@ -58,6 +58,8 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "ordnumber",
       worflow_needed => 0,
+      items_key      => "orderitems",
+      object_key     => "order",
     },
     defaults => {
       reqdate => sub {
@@ -116,6 +118,8 @@ my %type_data = (
       is_customer    => 0,
       nr_key         => "ordnumber",
       worflow_needed => 0,
+      items_key      => "orderitems",
+      object_key     => "order",
     },
     defaults => {
       reqdate => sub { return; },
@@ -167,6 +171,8 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "quonumber",
       worflow_needed => 0,
+      items_key      => "orderitems",
+      object_key     => "order",
     },
     defaults => {
       reqdate => sub {
@@ -225,6 +231,8 @@ my %type_data = (
       is_customer    => 0,
       nr_key         => "quonumber",
       worflow_needed => 0,
+      items_key      => "orderitems",
+      object_key     => "order",
     },
     defaults => {
       reqdate => sub { return; },
@@ -276,6 +284,8 @@ my %type_data = (
       is_customer    => 0,
       nr_key         => "quonumber",
       worflow_needed => 0,
+      items_key      => "orderitems",
+      object_key     => "order",
     },
     defaults => {
       reqdate => sub { return; },
@@ -327,6 +337,8 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "ordnumber",
       worflow_needed => 0,
+      items_key      => "orderitems",
+      object_key     => "order",
     },
     defaults => {
       reqdate => sub {
@@ -385,6 +397,8 @@ my %type_data = (
       is_customer    => 0,
       nr_key         => "ordnumber",
       worflow_needed => 0,
+      items_key      => "orderitems",
+      object_key     => "order",
     },
     defaults => {
       reqdate => sub { return; },
