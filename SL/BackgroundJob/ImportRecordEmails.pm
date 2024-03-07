@@ -262,6 +262,14 @@ If process_imported_emails is set and the process is NOT
 successfully executed this custom IMAP Flag is added
 to the processed email.
 
+=item imported_imap_flag
+
+Optional
+
+If the import is successfully executed this custom IMAP Flag
+is added to the imported email.
+
+
 =back
 
 =head1 YAML Configuration example with ZUGFeRD Processing
