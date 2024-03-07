@@ -13,9 +13,18 @@ use SL::DB::History;
 use SL::DB::Invoice;
 use SL::DB::Status;
 use SL::DB::ValidityToken;
+
+use SL::DB::Order;
 use SL::DB::Order::TypeData qw(:types);
+use SL::DB::DeliveryOrder;
 use SL::DB::DeliveryOrder::TypeData qw(:types);
+use SL::DB::Reclamation;
 use SL::DB::Reclamation::TypeData qw(:types);
+use SL::DB::Invoice;
+use SL::DB::Invoice::TypeData qw(:types);
+use SL::DB::PurchaseInvoice;
+use SL::DB::PurchaseInvoice::TypeData qw(:types);
+
 use SL::DB::Helper::Record qw(
   get_class_from_type get_items_class_from_type get_type_data_proxy_from_type
 );
