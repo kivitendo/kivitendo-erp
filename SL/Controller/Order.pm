@@ -1,7 +1,7 @@
 package SL::Controller::Order;
 
 use strict;
-use parent qw(SL::Controller::Base);
+use parent qw(SL::Controller::RecordBase);
 
 use SL::Helper::Flash qw(flash flash_later);
 use SL::HTML::Util;
@@ -62,7 +62,7 @@ use Sort::Naturally;
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(item_ids_to_delete is_custom_shipto_to_delete) ],
- 'scalar --get_set_init' => [ qw(order valid_types type cv p all_price_factors
+ 'scalar --get_set_init' => [ qw(valid_types type cv p all_price_factors
                               search_cvpartnumber show_update_button
                               part_picker_classification_ids
                               is_final_version type_data) ],
@@ -80,25 +80,6 @@ __PACKAGE__->run_before('get_basket_info_from_from');
 #
 # actions
 #
-
-# add a new order
-sub action_add {
-  my ($self) = @_;
-
-  $self->order(SL::Model::Record->update_after_new($self->order));
-
-  $self->pre_render();
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
-  }
-
-  $self->render(
-    'order/form',
-    title => $self->type_data->text('add'),
-    %{$self->{template_args}}
-  );
-}
 
 sub action_add_from_record {
   my ($self) = @_;
@@ -1657,6 +1638,30 @@ sub js_reset_order_and_item_ids_after_save {
 # helpers
 #
 
+sub base_template_folder {'order'}
+
+sub order { # instead of init_order -> init_record
+  my $self = shift;
+  $self->record(@_);
+}
+
+sub init_record {
+  my ($self) = @_;
+
+  my $form_periodic_invoices_config = delete $::form->{order}->{periodic_invoices_config};
+
+  my $record = $self->SUPER::init_record();
+
+  if ($record->is_type(SALES_ORDER_TYPE())) {
+    if (my $periodic_invoices_config_attrs = $form_periodic_invoices_config ? SL::YAML::Load($form_periodic_invoices_config) : undef) {
+      my $periodic_invoices_config = $record->periodic_invoices_config || $record->periodic_invoices_config(SL::DB::PeriodicInvoicesConfig->new);
+      $periodic_invoices_config->assign_attributes(%$periodic_invoices_config_attrs);
+    }
+  }
+
+  return $record;
+}
+
 sub init_valid_types {
   $_[0]->type_data->valid_types;
 }
@@ -1697,10 +1702,6 @@ sub init_show_update_button {
 
 sub init_p {
   SL::Presenter->get;
-}
-
-sub init_order {
-  $_[0]->make_order;
 }
 
 sub init_all_price_factors {
@@ -1863,94 +1864,6 @@ sub load_order {
   $self->order->custom_shipto(SL::DB::Shipto->new(module => 'OE', custom_variables => [])) if !$self->order->custom_shipto;
 
   return $self->order;
-}
-
-# load or create a new order object
-#
-# And assign changes from the form to this object.
-# If the order is loaded from db, check if items are deleted in the form,
-# remove them form the object and collect them for removing from db on saving.
-# Then create/update items from form (via make_item) and add them.
-sub make_order {
-  my ($self) = @_;
-
-  # add_items adds items to an order with no items for saving, but they cannot
-  # be retrieved via items until the order is saved. Adding empty items to new
-  # order here solves this problem.
-  my $order;
-  $order   = SL::DB::Order->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
-  $order ||= SL::DB::Order->new(orderitems  => [],
-                                record_type => $::form->{type},
-                                currency_id => $::instance_conf->get_currency_id(),);
-
-  my $cv_id_method = $order->type_data->properties('customervendor'). '_id';
-  if (!$::form->{id} && $::form->{$cv_id_method}) {
-    $order->$cv_id_method($::form->{$cv_id_method});
-    $order = SL::Model::Record->update_after_customer_vendor_change($order);
-  }
-
-  my $form_orderitems                  = delete $::form->{order}->{orderitems};
-  my $form_periodic_invoices_config    = delete $::form->{order}->{periodic_invoices_config};
-
-  $order->assign_attributes(%{$::form->{order}});
-
-  $self->setup_custom_shipto_from_form($order, $::form);
-
-  if (my $periodic_invoices_config_attrs = $form_periodic_invoices_config ? SL::YAML::Load($form_periodic_invoices_config) : undef) {
-    my $periodic_invoices_config = $order->periodic_invoices_config || $order->periodic_invoices_config(SL::DB::PeriodicInvoicesConfig->new);
-    $periodic_invoices_config->assign_attributes(%$periodic_invoices_config_attrs);
-  }
-
-  # remove deleted items
-  $self->item_ids_to_delete([]);
-  foreach my $idx (reverse 0..$#{$order->orderitems}) {
-    my $item = $order->orderitems->[$idx];
-    if (none { $item->id == $_->{id} } @{$form_orderitems}) {
-      splice @{$order->orderitems}, $idx, 1;
-      push @{$self->item_ids_to_delete}, $item->id;
-    }
-  }
-
-  my @items;
-  my $pos = 1;
-  foreach my $form_attr (@{$form_orderitems}) {
-    my $item = make_item($order, $form_attr);
-    $item->position($pos);
-    push @items, $item;
-    $pos++;
-  }
-  $order->add_items(grep {!$_->id} @items);
-
-  return $order;
-}
-
-# create or update items from form
-#
-# Make item objects from form values. For items already existing read from db.
-# Create a new item else. And assign attributes.
-sub make_item {
-  my ($record, $attr) = @_;
-
-  my $item;
-  $item = first { $_->id == $attr->{id} } @{$record->items} if $attr->{id};
-
-  my $is_new = !$item;
-
-  # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
-  # they cannot be retrieved via custom_variables until the order/orderitem is
-  # saved. Adding empty custom_variables to new orderitem here solves this problem.
-  $item ||= SL::DB::OrderItem->new(custom_variables => []);
-
-  $item->assign_attributes(%$attr);
-
-  if ($is_new) {
-    my $texts = get_part_texts($item->part, $record->language_id);
-    $item->longdescription($texts->{longdescription})              if !defined $attr->{longdescription};
-    $item->project_id($record->globalproject_id)                   if !defined $attr->{project_id};
-    $item->lastcost($record->is_sales ? $item->part->lastcost : 0) if !defined $attr->{lastcost_as_number};
-  }
-
-  return $item;
 }
 
 # create a new item
