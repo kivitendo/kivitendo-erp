@@ -35,8 +35,15 @@ sub sync_record_email_folder {
     }
   );
   return "No emails to import." unless $email_import;
-
-  my $result = "Created email import with id " . $email_import->id . ".";
+  if ($config->{imported_imap_flag}) {
+    foreach my $email_journal (@{$email_import->email_journals}) {
+      $imap_client->set_flag_for_email(
+            email_journal => $email_journal,
+            flag          => $config->{imported_imap_flag},
+      );
+    }
+  }
+  my $result = "Created email import with id " . $email_import->id . " for ". scalar @{ $email_import->email_journals } . " emails.";
 
   if ($config->{process_imported_emails}) {
     my @function_names =
@@ -158,6 +165,7 @@ sub run {
       processed_imap_flag        => { type => SCALAR,   optional => 1, },
       not_processed_imap_flag    => { type => SCALAR,   optional => 1, },
       email_import_ids_to_delete => { type => ARRAYREF, optional => 1, },
+      imported_imap_flag         => { type => SCALAR,   optional => 1, },
       # email config
       hostname    => { type => SCALAR,  },
       port        => { type => SCALAR,  optional => 1},
