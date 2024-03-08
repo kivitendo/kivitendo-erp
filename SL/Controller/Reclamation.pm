@@ -954,21 +954,7 @@ sub action_update_row_from_master_data {
     $item->description($texts->{description});
     $item->longdescription($texts->{longdescription});
 
-    my $price_source = SL::PriceSource->new(record_item => $item, record => $self->reclamation);
-
-    my $price_src;
-    if ($item->part->is_assortment) {
-    # add assortment items with price 0, as the components carry the price
-      $price_src = $price_source->price_from_source("");
-      $price_src->price(0);
-    } else {
-      $price_src = $price_source->best_price
-                 ? $price_source->best_price
-                 : $price_source->price_from_source("");
-      $price_src->price($::form->round_amount($price_src->price / $self->reclamation->exchangerate, 5)) if $self->reclamation->exchangerate;
-      $price_src->price(0) if !$price_source->best_price;
-    }
-
+    my ($price_src, undef) = SL::Model::Record->get_best_price_and_discount_source($self->reclamation, $item, ignore_given => 1);
     $item->sellprice($price_src->price);
     $item->active_price_source($price_src);
 
@@ -1442,38 +1428,11 @@ sub new_item {
 
   $item->assign_attributes(%$attr);
 
-  my $part         = SL::DB::Part->new(id => $attr->{parts_id})->load;
-  my $price_source = SL::PriceSource->new(record_item => $item, record => $record);
+  my $part = SL::DB::Part->new(id => $attr->{parts_id})->load;
+  $item->qty(1.0)          if !$item->qty;
   $item->unit($part->unit) if !$item->unit;
 
-  my $price_src;
-  if ( $part->is_assortment ) {
-    # add assortment items with price 0, as the components carry the price
-    $price_src = $price_source->price_from_source("");
-    $price_src->price(0);
-  } elsif (defined $item->sellprice) {
-    $price_src = $price_source->price_from_source("");
-    $price_src->price($item->sellprice);
-  } else {
-    $price_src = $price_source->best_price
-               ? $price_source->best_price
-               : $price_source->price_from_source("");
-    if ($record->exchangerate) {
-      $price_src->price($::form->round_amount($price_src->price / $record->exchangerate, 5));
-    }
-    $price_src->price(0) if !$price_source->best_price;
-  }
-
-  my $discount_src;
-  if (defined $item->discount) {
-    $discount_src = $price_source->discount_from_source("");
-    $discount_src->discount($item->discount);
-  } else {
-    $discount_src = $price_source->best_discount
-                  ? $price_source->best_discount
-                  : $price_source->discount_from_source("");
-    $discount_src->discount(0) if !$price_source->best_discount;
-  }
+  my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($record, $item, ignore_given => 0);
 
   my %new_attr;
   $new_attr{part}                   = $part;

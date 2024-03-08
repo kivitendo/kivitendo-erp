@@ -1079,7 +1079,7 @@ sub action_update_item_input_row {
   $item->qty(1) if !$item->qty;
   $item->unit($item->part->unit);
 
-  my ($price_src, $discount_src) = get_best_price_and_discount_source($record, $item, 0);
+  my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($record, $item, ignore_given => 0);
 
   $self->js
     ->val     ('#add_item_unit',                $item->unit)
@@ -1393,8 +1393,7 @@ sub action_update_row_from_master_data {
     $item->description($texts->{description});
     $item->longdescription($texts->{longdescription});
 
-    my ($price_src, $discount_src) = get_best_price_and_discount_source($self->order, $item, 1);
-
+    my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($self->order, $item, ignore_given => 1);
     $item->sellprice($price_src->price);
     $item->active_price_source($price_src);
     $item->discount($discount_src->discount);
@@ -1972,7 +1971,7 @@ sub new_item {
   $item->qty(1.0)                   if !$item->qty;
   $item->unit($item->part->unit)    if !$item->unit;
 
-  my ($price_src, $discount_src) = get_best_price_and_discount_source($record, $item, 0);
+  my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($record, $item, ignore_given => 0);
 
   my %new_attr;
   $new_attr{description}            = $item->part->description     if ! $item->description;
@@ -2772,41 +2771,6 @@ sub get_part_texts {
   $texts->{longdescription} = $translation->longdescription if $translation && $translation->longdescription;
 
   return $texts;
-}
-
-sub get_best_price_and_discount_source {
-  my ($record, $item, $ignore_given) = @_;
-
-  my $price_source = SL::PriceSource->new(record_item => $item, record => $record);
-
-  my $price_src;
-  if ( $item->part->is_assortment ) {
-    # add assortment items with price 0, as the components carry the price
-    $price_src = $price_source->price_from_source("");
-    $price_src->price(0);
-  } elsif (!$ignore_given && defined $item->sellprice) {
-    $price_src = $price_source->price_from_source("");
-    $price_src->price($item->sellprice);
-  } else {
-    $price_src = $price_source->best_price
-               ? $price_source->best_price
-               : $price_source->price_from_source("");
-    $price_src->price($::form->round_amount($price_src->price / $record->exchangerate, 5)) if $record->exchangerate;
-    $price_src->price(0) if !$price_source->best_price;
-  }
-
-  my $discount_src;
-  if (!$ignore_given && defined $item->discount) {
-    $discount_src = $price_source->discount_from_source("");
-    $discount_src->discount($item->discount);
-  } else {
-    $discount_src = $price_source->best_discount
-                  ? $price_source->best_discount
-                  : $price_source->discount_from_source("");
-    $discount_src->discount(0) if !$price_source->best_discount;
-  }
-
-  return ($price_src, $discount_src);
 }
 
 sub nr_key {
