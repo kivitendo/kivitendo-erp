@@ -41,6 +41,8 @@ my %type_data = (
       transfer       => 'out',
       transnumber    => 'sdonumber',
       worflow_needed => 0,
+      items_key      => "orderitems",
+      object_key     => "order",
     },
     defaults => {
       reqdate => sub {
@@ -80,6 +82,8 @@ my %type_data = (
       transfer       => 'in',
       transnumber    => 'pdonumber',
       worflow_needed => 0,
+      items_key      => "orderitems",
+      object_key     => "order",
     },
     defaults => {
       reqdate => sub {
@@ -119,6 +123,8 @@ my %type_data = (
       transfer       => 'out',
       transnumber    => 'sudonumber',
       worflow_needed => 1,
+      items_key      => "orderitems",
+      object_key     => "order",
     },
     defaults => {
       reqdate => sub {
@@ -158,6 +164,8 @@ my %type_data = (
       transfer       => 'in',
       transnumber    => 'rdonumber',
       worflow_needed => 1,
+      items_key      => "orderitems",
+      object_key     => "order",
     },
     defaults => {
       reqdate => sub {
