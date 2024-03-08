@@ -32,6 +32,37 @@ use SL::DB::Helper::Record qw(
 use SL::Util qw(trim);
 use SL::Locale::String qw(t8);
 
+sub get_record {
+  my ($class, $type, $id) = @_;
+  my $record_class = get_class_from_type($type);
+  my $type_data_proxy = get_type_data_proxy_from_type($type);
+  my $items_key = $type_data_proxy->properties('items_key');
+  return $record_class->new(id => $id)->load(
+    with => [ $items_key, "$items_key.part" ]
+  );
+}
+
+sub create_new_record {
+  my ($class, $type) = @_;
+  my $record_class = get_class_from_type($type);
+  # add_items adds items to an record with no items for saving, but they cannot
+  # be retrieved via items until the record is saved. Adding empty items to new
+  # record here solves this problem.
+  return $record_class->new(
+    items        => [],
+    record_type  => $type,
+    currency_id  => $::instance_conf->get_currency_id(),
+  );
+}
+
+sub create_new_record_item {
+  my ($class, $record_type) = @_;
+  my $items_class = get_items_class_from_type($record_type);
+  # add_custom_variables adds cvars to an item with no cvars for saving, but
+  # they cannot be retrieved via custom_variables until the record/record_item is
+  # saved. Adding empty custom_variables to new item here solves this problem.
+  return $items_class->new(custom_variables => []);
+}
 
 sub update_after_new {
   my ($class, $new_record, %flags) = @_;
@@ -69,38 +100,6 @@ sub update_after_customer_vendor_change {
   }
 
   return $record;
-}
-
-sub get_record {
-  my ($class, $type, $id) = @_;
-  my $record_class = get_class_from_type($type);
-  my $type_data_proxy = get_type_data_proxy_from_type($type);
-  my $items_key = $type_data_proxy->properties('items_key');
-  return $record_class->new(id => $id)->load(
-    with => [ $items_key, "$items_key.part" ]
-  );
-}
-
-sub create_new_record {
-  my ($class, $type) = @_;
-  my $record_class = get_class_from_type($type);
-  # add_items adds items to an record with no items for saving, but they cannot
-  # be retrieved via items until the record is saved. Adding empty items to new
-  # record here solves this problem.
-  return $record_class->new(
-    items        => [],
-    record_type  => $type,
-    currency_id  => $::instance_conf->get_currency_id(),
-  );
-}
-
-sub create_new_record_item {
-  my ($class, $record_type) = @_;
-  my $items_class = get_items_class_from_type($record_type);
-  # add_custom_variables adds cvars to an item with no cvars for saving, but
-  # they cannot be retrieved via custom_variables until the record/record_item is
-  # saved. Adding empty custom_variables to new item here solves this problem.
-  return $items_class->new(custom_variables => []);
 }
 
 sub new_from_workflow {
