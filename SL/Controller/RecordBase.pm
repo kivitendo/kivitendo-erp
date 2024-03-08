@@ -144,6 +144,26 @@ SL::Controller::RecordBase - base controller for records
 
 =head1 SYNOPSIS
 
+In a record controller:
+
+  # RecordBase as parent class
+  use parent qw(SL::Controller::RecordBase);
+
+  # overwrite function 'foo_fun' of parent RecordBase
+  sub foo_func {
+    my ($self) = @_;
+
+    # do stuff ...
+
+    my $foo = $self->SUPER::foo_func()
+
+    # do more stuff ...
+
+    return $foo;
+  }
+
+=head1 DESCRIPTION
+
 This is a base implementation of the functionality of a controller for handling
 records with items.
 
