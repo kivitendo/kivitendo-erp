@@ -341,11 +341,13 @@ Currently the following classes and types are supported:
 
 =item * C<sales_quotation>
 
-=item * C<purchase_quotation>
+=item * C<request_quotation>
 
 =item * C<purchase_quotation_intake>
 
 =item * C<sales_order_intake>
+
+=item * C<purchase_order_confirmation>
 
 =back
 
@@ -399,6 +401,19 @@ must be implemented in the new DeliveryOrder Controller
 =head1 METHODS
 
 =over 4
+
+=item C<get_record>
+
+Loads a the corresponding record_object of type and id. Preloads the items and
+parts of them.
+
+=item C<create_new_record>
+
+Creates a record_object of the type and sets standard default values.
+
+=item C<create_new_record_item>
+
+Creates a item for the record_object of the type and sets standard default values.
 
 =item C<update_after_new>
 
