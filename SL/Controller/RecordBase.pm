@@ -132,5 +132,46 @@ sub setup_custom_shipto_from_form {...}
 
 sub get_part_texts {...}
 
-
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Controller::RecordBase - base controller for records
+
+=head1 SYNOPSIS
+
+This is a base implementation of the functionality of a controller for handling
+records with items.
+
+The aim is to provide a reusable implementation of the core functions for
+handling the form and templates. It uses the functions of C<SL::Model::Record>
+to handle the record objects of different record types correctly.
+
+=head1 BUGS
+
+Nothing here yet :)
+
+=head1 FURTHER WORK
+
+=over 4
+
+=item *
+
+Create all standard functions for CRUD.
+
+=item *
+
+Move all duplicated functions from C<SL::Controller::Order>,
+C<SL::Controller::DeliveryOrder> and C<SL::Controller::Reclamation>.
+
+=back
+
+=head1 AUTHOR
+
+Tamino Steinert E<lt>tamino.steinert@tamino.stE<gt>
+
+=cut
