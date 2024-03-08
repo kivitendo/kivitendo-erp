@@ -188,6 +188,14 @@ Create all standard functions for CRUD.
 Move all duplicated functions from C<SL::Controller::Order>,
 C<SL::Controller::DeliveryOrder> and C<SL::Controller::Reclamation>.
 
+=item *
+
+Document implemented functions.
+
+=item *
+
+Document virtual functions which has to be implemented in child class.
+
 =back
 
 =head1 AUTHOR
