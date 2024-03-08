@@ -20,6 +20,7 @@ use SL::DB::Helper::Record qw(get_class_from_type);
 
 use SL::Util qw(trim);
 use SL::Locale::String qw(t8);
+use SL::PriceSource;
 
 
 sub update_after_new {
@@ -99,6 +100,43 @@ sub increment_subversion {
   }
 
   return;
+}
+
+sub get_best_price_and_discount_source {
+  my ($class, $record, $item, %flags) = @_;
+
+  my $ignore_given = !!$flags{ignore_given};
+
+  my $price_source = SL::PriceSource->new(record_item => $item, record => $record);
+
+  my $price_src;
+  if ( $item->part->is_assortment ) {
+    # add assortment items with price 0, as the components carry the price
+    $price_src = $price_source->price_from_source("");
+    $price_src->price(0);
+  } elsif (!$ignore_given && defined $item->sellprice) {
+    $price_src = $price_source->price_from_source("");
+    $price_src->price($item->sellprice);
+  } else {
+    $price_src = $price_source->best_price
+               ? $price_source->best_price
+               : $price_source->price_from_source("");
+    $price_src->price($::form->round_amount($price_src->price / $record->exchangerate, 5)) if $record->exchangerate;
+    $price_src->price(0) if !$price_source->best_price;
+  }
+
+  my $discount_src;
+  if (!$ignore_given && defined $item->discount) {
+    $discount_src = $price_source->discount_from_source("");
+    $discount_src->discount($item->discount);
+  } else {
+    $discount_src = $price_source->best_discount
+                  ? $price_source->best_discount
+                  : $price_source->discount_from_source("");
+    $discount_src->discount(0) if !$price_source->best_discount;
+  }
+
+  return ($price_src, $discount_src);
 }
 
 sub delete {
@@ -402,6 +440,26 @@ Returns the new record object.
 Only for orders.
 
 Increments the record's subversion number.
+
+=item C<get_best_price_and_discount_source>
+
+Get the best price and discount source for an item. You have
+to pass the record and the item.
+
+If the flag C<ignore_given> is not set and a price or discount already exists
+for this item, these will be used. This means, that the price source and
+discount source are set to empty and price of the price source is set to
+the existing price and/or the discount of the discount source is set to
+the existing discount.
+
+If the flag C<ignore_given> is set, the best price and discount source
+is determined via C<SL::PriceSource> and a given price or discount in the
+item will be ignored. This can be used to get an default price/discount
+that can be displayed to the user even if a price/discount is already
+entered.
+
+Returns an reference to an array where the first element is the best
+price source and the second element is the best discount source.
 
 =item C<delete>
 

@@ -152,6 +152,34 @@ my $combined_order = SL::Model::Record->new_from_workflow_multi(\@sales_orders, 
 SL::Model::Record->save($combined_order);
 cmp_ok($combined_order->netamount, '==', 3*710, "netamount of combined order ok");
 
+
+note "testing get price and discount sources";
+reset_state();
+reset_basic_sales_records();
+reset_basic_purchase_records();
+
+$purchase_quotation1->items_sorted->[0]->part->sellprice(500);
+$purchase_quotation1->items_sorted->[0]->part->lastcost(300);
+$purchase_quotation1->vendor->discount(5.0);
+
+my ($price_source, $discount_source) = SL::Model::Record->get_best_price_and_discount_source($purchase_quotation1,
+                                                                                             $purchase_quotation1->items_sorted->[0],
+                                                                                             ignore_given => 1);
+is($price_source->source_description, 'Master Data', 'get price source right with ignore_given');
+is($price_source->price, 300, 'get price source purchase price right with ignore_given');
+is($discount_source->source_description, 'Vendor Discount', 'get discount source right with ignore_given');
+is($discount_source->discount, 5, 'get discount source purchase discount right with ignore_given');
+
+$purchase_quotation1->items_sorted->[0]->discount(3);
+
+($price_source, $discount_source)    = SL::Model::Record->get_best_price_and_discount_source($purchase_quotation1,
+                                                                                             $purchase_quotation1->items_sorted->[0],
+                                                                                             ignore_given => 0);
+is($price_source->source_description, 'None (PriceSource)', 'get price source right with given price');
+is($price_source->price, 70, 'get price source purchase price right with given price');
+is($discount_source->source_description, 'None (PriceSource Discount)', 'get price source right with given price');
+is($discount_source->discount, 3, 'get discount source purchase discount right with given price');
+
 clear_up();
 done_testing;
 
