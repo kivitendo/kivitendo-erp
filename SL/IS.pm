@@ -1178,6 +1178,8 @@ SQL
           }
           # no tax, no prob
           if ($tax and $tax->rate != 0) {
+            die "Need a valid chart id for table defaults column advance_payment_taxable_7"  if $tax->taxkey == 2 && ! $::instance_conf->get_advance_payment_taxable_7_id;
+            die "Need a valid chart id for table defaults column advance_payment_taxable_19" if $tax->taxkey == 3 && ! $::instance_conf->get_advance_payment_taxable_19_id;
             my $transfer_chart = $tax->taxkey == 2 ? SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_taxable_7_id)->load
                               :  $tax->taxkey == 3 ? SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_taxable_19_id)->load
                               :  undef;
