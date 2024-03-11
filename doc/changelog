@@ -68,9 +68,9 @@ Größere Features und Komponentenupdates
       - disabled
       - style: height
     - clientjs fokus funktioniert
-    
+
     Wichtige Änderungen:
-    
+
     - die funktion kivi.selectall_ckeditor wurde nicht mehr verwendet und
       wurde entfernt.
     - Der neue Editor ist jetzt wieder Classic und NICHT Inline. Der Grund
@@ -568,6 +568,12 @@ Größere neue Features:
   Die Standard-Druckvorlage marei, enthält exemplarisch zwei neue Druckvarianten die
   diesen Fall abbilden und somit als Orientierung für eigene Vorlagen-Anpassungen
   dienen können.
+  Wichtig: Für nicht DATEV-Kontenrahmen ist die Funktionalität nicht implementiert, kann aber
+  konfiguriert werden, falls man zusätzlich das Verrechnungskonto unter Mandanten-Konfig
+  Standard-Konten und die Anzahlungskonten nach Steuersatz (bspw. 1718 (SKR03) / 3272 (SKR04))
+  in der Tabelle defaults definiert.
+  Die Spalten für die Konto-ID der Anzahlungskonten lauten advance_payment_taxable_7 (verm. Steuersatz)
+  und advance_payment_taxable_19 (normaler Steuersatz).
 
 
 Mittelgroße neue Features:
