@@ -61,6 +61,7 @@ __PACKAGE__->meta->columns(
   postal_invoice            => { type => 'boolean', default => 'false' },
   pricegroup_id             => { type => 'integer' },
   salesman_id               => { type => 'integer' },
+  shortname                 => { type => 'character', length => 20 },
   street                    => { type => 'text' },
   taxincluded               => { type => 'boolean' },
   taxincluded_checked       => { type => 'boolean' },

@@ -160,17 +160,36 @@ my @kivitendo_to_datev = (
                                                       # "8DB85C02-4CC3-FF3E-06D7-7F87EEECCF3A".
                             }, # pos 20
                             {
-                              kivi_datev_name => 'not yet implemented',
+                              kivi_datev_name => 'beleginfo_art_1',
+                              csv_header_name => 'Beleginfo - Art 1',
+                              max_length      => 20,
+                              type            => 'Text',
+                              default         => 'Artikelbeschreibung',
+                              formatter       => sub { return 'Artikelbeschreibung'; }, # make sure nobody ever changes this field through code
                             },
                             {
-                              kivi_datev_name => 'not yet implemented',
+                              kivi_datev_name => 'description',
+                              csv_header_name => 'Beleginfo - Inhalt 1',
+                              max_length      => 210,
+                              type            => 'Text',
+                              default         => '',
                             },
                             {
-                              kivi_datev_name => 'not yet implemented',
+                              kivi_datev_name => 'beleginfo_art_2',
+                              csv_header_name => 'Beleginfo - Art 2',
+                              max_length      => 20,
+                              type            => 'Text',
+                              default         => 'Menge',
+                              formatter       => sub { return 'Menge'; }, # make sure nobody ever changes this field through code
                             },
                             {
-                              kivi_datev_name => 'not yet implemented',
-                            },
+                              kivi_datev_name => 'quantity',
+                              csv_header_name => 'Beleginfo - Inhalt 2',
+                              max_length      => 210,
+                              type            => 'Value',
+                              formatter       => \&_format_amount,
+                              default         => '',
+                            }, # pos 24
                             {
                               kivi_datev_name => 'not yet implemented',
                             },

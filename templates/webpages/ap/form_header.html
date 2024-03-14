@@ -219,7 +219,10 @@
     <td>
       <table width=100%>
         <tr class=listheading>
-          <th class=listheading style="width:15%">[% 'Account' | $T8 %]</th>
+          <th class=listheading style="width:25%">[% 'Account' | $T8 %]</th>
+          <th class=listheading style="width:30%">[% 'Description' | $T8 %]</th>
+          <th class=listheading style="width:5%">[% 'Quantity' | $T8 %]</th>
+          <th class=listheading style="width:10%">[% 'Part Number' | $T8 %]</th>
           <th class=listheading style="width:10%">[% 'Amount' | $T8 %]</th>
           <th class=listheading style="width:10%">[% 'Tax' | $T8 %]</th>
           <th class=listheading style="width:10%">[% 'Taxkey' | $T8 %]</th>
@@ -227,12 +230,32 @@
         </tr>
 
         [% FOREACH i IN [1..rowcount] %]
-          <tr>
+          <tr style="vertical-align: baseline">
             <td>
               [% SET selected_chart_id = "AP_amount_chart_id_"_ i %]
-              [% P.chart.picker("AP_amount_chart_id_" _ i, $selected_chart_id, style="width: 400px", type="AP_amount", invalid=0, disabled=readonly, class=(initial_focus == 'row_' _ i ? "initial_focus" : "")) %]
+              [% P.chart.picker("AP_amount_chart_id_" _ i, $selected_chart_id, style="width: 200px", type="AP_amount", invalid=0, disabled=readonly, class=(initial_focus == 'row_' _ i ? "initial_focus" : "")) %]
               [% L.hidden_tag("previous_AP_amount_chart_id_" _ i, $selected_chart_id) %]
               <input type="hidden" name="tax_[% i %]" value="[% temp = "tax"_ i %][% $temp | html %]">
+            </td>
+            <td>
+            <!-- description -->
+              <input name="description_[% i %]" size="60" value="[% temp = "description_"_ i %][% $temp | html %]">
+            </td>
+            <td>
+            <!-- quantity/unit -->
+              <input name="quantity_[% i %]" size="6" value="[% temp = "quantity_"_ i %][% $temp | html %]">
+            </td>
+            <td>
+            <!-- part number -->
+              <input name="vendor_partno_[% i %]" size="12" value="[% temp = "vendor_partno_"_ i %][% $temp | html %]"> Lieferant<br/>
+              [% tmp_no = "partno_"_ i %]
+              [% tmp_id = "parts_id_"_ i %]
+              <!-- partno: [% $tmp_no %] parts_id: [% $tmp_id %] -->
+              [% IF $tmp_id %]
+              <a href="controller.pl?action=Part/edit&part.id=[% $tmp_id %]" target="_blank" title="[% LxERP.t8('Open in new window') %]">[% $tmp_no %]</a>
+              [% ELSE %]
+              <input readonly=true name="partno_[% i %]" size="12" value="[% temp = "partno_"_ i %][% $temp | html %]"> intern
+              [% END %]
             </td>
             <td>
               <input name="amount_[% i %]" size="10" [% readonly ? 'readonly' : '' %] value="[% temp = "amount_"_ i %][% $temp | html %]">
@@ -250,7 +273,7 @@
             <td>
               [% temp = 'selected_taxchart_'_ i %]
               [% taxcharts = 'taxcharts_' _ i %]
-              [% L.select_tag('taxchart_'_ i, $taxcharts, value_title_sub = \taxchart_value_title_sub, default = $temp, style="width: 250px") %]
+              [% L.select_tag('taxchart_'_ i, $taxcharts, value_title_sub = \taxchart_value_title_sub, default = $temp, style="width: 90%") %]
             </td>
             <td>
               [% temp = "project_id_"_ i %]
@@ -266,7 +289,7 @@
         </tr>
         <tr>
           <td>
-            [% P.chart.picker('AP_chart_id', AP_chart_id, style="width: 400px", type="AP") %]
+            [% P.chart.picker('AP_chart_id', AP_chart_id, style="width: 200px", type="AP") %]
           </td>
           <th align="left">[% invtotal | html %]</th>
           <td colspan="4"></td>
