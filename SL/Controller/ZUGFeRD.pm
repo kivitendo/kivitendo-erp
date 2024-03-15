@@ -132,25 +132,26 @@ sub action_import_zugferd {
   die t8("missing file for action import")   unless $file;
   die t8("can only parse a pdf or xml file") unless $file =~ m/^%PDF|<\?xml/;
 
+  # save the zugferd file to session file for reuse in ap.pl
+  my $session_file = SL::SessionFile->new($file_name, mode => 'w');
+  $session_file->fh->print($file);
+  $session_file->fh->close;
+
   if ( $::form->{file} =~ m/^%PDF/ ) {
-    %res = %{SL::ZUGFeRD->extract_from_pdf($file)};
+    %res = %{SL::ZUGFeRD->extract_from_pdf($session_file->file_name)};
   } else {
     %res = %{SL::ZUGFeRD->extract_from_xml($file)};
   }
 
   if ($res{'result'} != SL::ZUGFeRD::RES_OK()) {
     # An error occurred; log message from parser:
+    unlink($session_file->file_name);
     die(t8("Could not extract Factur-X/ZUGFeRD data, data and error message:") . " $res{'message'}");
   }
 
   my $form_defaults = $self->build_ap_transaction_form_defaults(\%res);
 
-  # save the zugferd file to session file for reuse in ap.pl
-  my $session_file = SL::SessionFile->new($file_name, mode => 'w');
-  $session_file->fh->print($file);
-  $session_file->fh->close;
   $form_defaults->{zugferd_session_file} = $file_name;
-
   $form_defaults->{callback} = $self->url_for(action => 'upload_zugferd');
 
   $self->redirect_to(
