@@ -316,10 +316,12 @@
         [% END %]
       </td>
       <td class="numeric">
+        [% temp = "paid_"_ row %]
         [% IF row.changeable %]
-          <input name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]" size="11" type="text" data-validate="number" class="numeric">
+          <input name="[% temp %]" value="[% $temp | html %]" id="[%- 'payment_' _ temp -%]" size="11" type="text" data-validate="number" class="numeric">
         [% ELSE %]
-          [% row.paid | html %]<input type="hidden" name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]"> [% defaultcurrency %]
+          [% $temp | html %] [% defaultcurrency %]
+	  <input type="hidden" name="[% temp %]" value="[% 'Set to paid missing' | $T8 %]">
         [% END %]
       </td>
       <td>
@@ -398,5 +400,5 @@
 </div><!-- ./tabwidget -->
 
 <script type="text/javascript">
- $('#ar_set_to_paid_missing').click(function(){ $('input[name^="paid_"]:last').val("[% LxERP.format_amount(paid_missing, 2) %]") });
+ $('#ar_set_to_paid_missing').click(function(){ $('input[id^="payment_paid_"]:last').val("[% LxERP.format_amount(paid_missing, 2) %]") });
 </script>
