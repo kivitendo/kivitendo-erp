@@ -1547,7 +1547,7 @@ sub load_order {
 
   # Add an empty custom shipto to the order, so that the dialog can render the cvar inputs.
   # You need a custom shipto object to call cvars_by_config to get the cvars.
-  $self->order->custom_shipto(SL::DB::Shipto->new(module => 'OE', custom_variables => [])) if !$self->order->custom_shipto;
+  $self->order->custom_shipto(SL::DB::Shipto->new(module => 'DO', custom_variables => [])) if !$self->order->custom_shipto;
 
   $self->order->prepare_stock_info($_) for $self->order->items;
 
@@ -1761,7 +1761,7 @@ sub setup_custom_shipto_from_form {
     my $custom_shipto = $order->custom_shipto ?
         $order->custom_shipto
       : $order->custom_shipto(
-          SL::DB::Shipto->new(module => 'OE', custom_variables => [])
+          SL::DB::Shipto->new(module => 'DO', custom_variables => [])
         );
 
     my $shipto_cvars  = {
