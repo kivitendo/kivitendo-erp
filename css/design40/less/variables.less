@@ -86,15 +86,21 @@
 // color definitions in variables_color_[*-9].less
 @base-ok:              @color-green-strong;
 @base-ok-bg:           @color-green-light;
+@base-ok-bg-lighter:   @color-green-lighter;
 
-@base-error:           @color-red-strong;
-@base-error-bg:        @color-red-light;
+@base-error:               @color-red-strong;
+@base-error-bg:            @color-red-light;
+@base-error-bg-lighter:    @color-red-lighter;
 
-@base-info:            @color-blue-strong;
-@base-info-bg:         @color-blue-light;
+@base-info:                @color-blue-strong;
+@base-info-bg:             @color-blue-light;
+// darker variant for table row alternation
+@base-info-bg-dark:        @color-blue-dark;
+@base-info-bg-darker:      @color-blue-darker;
 
-@base-warning:         @color-orange-strong;
-@base-warning-bg:      @color-orange-light;
+@base-warning:             @color-orange-strong;
+@base-warning-bg:          @color-orange-light;
+@base-warning-bg-lighter:  @color-orange-lighter;
 
 // Positive & negative colors
 @base-positive:        @color-green-strong;
@@ -636,8 +642,6 @@
 @t-row-zebra-bg-even:            @_t-row-zebra-bg-even;
 
 @t-row-zebra-bg-hover:           @_t-row-zebra-bg-hover;
-
-@t-row-zebra-bg-error:           @msg-error-light;
 
 @table-list-zebra-text-color:     @_table-list-zebra-text-color ;
 @table-list-zebra-link-color:     @_table-list-zebra-link-color ;
