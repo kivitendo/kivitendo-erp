@@ -759,6 +759,7 @@ sub order_details {
     push @{ $form->{TEMPLATE_ARRAYS}{qty_nofmt} },       $form->{"qty_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{unit} },            $form->{"unit_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{partnotes} },       $form->{"partnotes_$i"};
+    push @{ $form->{TEMPLATE_ARRAYS}{partsgroup} },       $form->{"partsgroup_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{serialnumber} },    $form->{"serialnumber_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{reqdate} },         $form->{"reqdate_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{projectnumber} },   $project->projectnumber;
