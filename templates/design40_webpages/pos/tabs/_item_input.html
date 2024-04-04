@@ -1,0 +1,34 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<div class="input-panel control-panel">
+  <table id="input_row_table_id" class="tbl-plain condensed">
+    <caption>[% 'Add Parts here!' | $T8 %]</caption>
+    <tbody>
+      <tr>
+        <td>
+          <span class="label above">[% 'Qty' | $T8 %]</span>
+          [% L.input_tag('add_item.qty_as_number', '', placeholder="1", class="add_item_input numeric wi-verysmall") %]
+        </td>
+        <td>
+          <span class="label above">[% 'Part' | $T8 %] </span>
+          [%- SET PARAM_KEY = SELF.cv == "customer" ? 'with_customer_partnumber' : 'with_makemodel' -%]
+          [%- SET PARAM_VAL = SELF.search_cvpartnumber -%]
+          [% P.part.picker(
+            'add_item.parts_id',
+            '',
+            class="add_item_input wi-normal",
+            fat_set_item=1,
+            classification_id=SELF.part_picker_classification_ids.as_list.join(','),
+            not_order_locked=SELF.type_data.no_order_locked_parts,
+            $PARAM_KEY=PARAM_VAL
+          ) %]
+        </td>
+        <td style="vertical-align:bottom;">[% L.button_tag('kivi.Order.add_item()', LxERP.t8('Add part'), style='margin:0;') %]</td>
+      </tr>
+    </tbody>
+  </table>
+</div><!-- /.entry-panel -->

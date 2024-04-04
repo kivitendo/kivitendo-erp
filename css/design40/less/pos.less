@@ -1,0 +1,56 @@
+/* ------------------------------------------------------------- */
+/* POS (pos.less)                      */
+/* ------------------------------------------------------------- */
+
+
+
+//  ------------------------------------------------------------
+//  General page layout
+//  ------------------------------------------------------------
+
+.pos_wrapper{
+  border: solid blue;
+  position: relative;
+  height: 85vh;
+}
+
+// pos_content
+
+.pos_content{
+  margin-right: 600px;
+  border: thin solid red;
+}
+
+// left_content
+
+.left_input{
+  float:left;
+  padding-right: 3em;
+}
+
+// buttons
+
+.pos_buttons{
+  position: absolute;
+  right: 0px;
+  top: 0px;
+
+  width: 600px;
+  border: thin solid green;
+}
+
+.container_pos_left{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 10px;
+  row-gap: 15px;
+}
+
+.pos_button{
+  height: 50px;
+  border: solid green !important;
+  text-align: center;
+  line-height: 50px;
+  padding: 0 !important;
+  display: inline-block;
+}

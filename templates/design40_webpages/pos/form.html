@@ -1,0 +1,353 @@
+[% USE T8 %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+[% USE HTML %]
+
+<h1>[% FORM.title %]</h1>
+
+<form method="post" action="controller.pl" id="order_form">
+  [% L.hidden_tag('id',                   SELF.order.id) %]
+  [% L.hidden_tag('type',                 SELF.order.type) %]
+  [% L.hidden_tag('point_of_sale',        1) %]
+
+  [% IF !SELF.order.id %]
+  [%   L.hidden_tag('form_validity_token', FORM.form_validity_token) %]
+  [% END %]
+
+  [% INCLUDE 'common/flash.html' %]
+  <div class="wrapper">
+    <div class="pos_wrapper">
+      <div class="pos_content" style="height:100%">
+        <div class="wrapper" style="max-height:30px">
+          <div class="left_input">
+            <table>
+              <tr>
+                <th>[% 'Customer' | $T8 %]</th>
+                <td class="wi-lightwide">
+                  [% P.customer_vendor.picker(
+                    "order.customer_id",
+                    SELF.order.customer_id,
+                    type="customer",
+                    show_details=0,
+                    label=LxERP.t8('Customer')
+                  ) %]
+                </td>
+                <td>[% L.button_tag("cash_customer", LxERP.t8('Cash customer') ) %]</td>
+                <td>[% L.button_tag("cash_customer", LxERP.t8('Create new customer'), class="neutral" ) %]</td>
+              </tr>
+            </table>
+          </div>
+          <div class="left_input control-panel small">[% "Salesman" | $T8 %]
+            [% L.select_tag(
+              'order.salesman_id',
+              SELF.order_controller.all_salesmen,
+              default=(SELF.order.salesman_id ? SELF.order.salesman_id : SELF.order_controller.current_employee_id),
+              class='wi-lightwide',
+              title_key='safe_name'
+            ) %]
+          </div>
+        </div>
+        <div class="wrapper left_input toggle_panel control-panel toggle_order_info" style="max-height:10px">
+          <a href="#"
+            onClick='javascript:$(".toggle_panel_block").toggle()'
+            class="button toggle off neutral"
+            >
+            [% 'Order informations' | $T8 %]
+          </a>
+        </div>
+        <div class="toggle_panel_block" style="display:none;">
+          <div id="tables_left" style="float:left;">
+            <table style="width:40%">
+              <caption>[% 'Customer & Order Information' | $T8 %]</caption>
+              <colgroup><col class="wi-mediumsmall"><col class="wi-lightwide"></colgroup>
+              <tbody>
+                <tr id='cp_row' [% IF !SELF.order.customer.contacts.size %]style='display:none'[% END %]>
+                  <th>[% 'Contact Person' | $T8 %]</th>
+                  <td>
+                    [% L.select_tag(
+                      'order.cp_id',
+                      SELF.order.customer.contacts,
+                      default=SELF.order.cp_id,
+                      title_key='full_name_dep',
+                      value_key='cp_id',
+                      with_empty=1,
+                      class='wi-lightwide'
+                      ) %]
+                  </td>
+                </tr>
+                <tr>
+                  <th>[% 'Shipping Address' | $T8 %]</th>
+                  <td>
+                    <span id='shipto_selection' [% IF !SELF.order.customer.shipto.size %]style='display:none'[% END %]>
+                      [%
+                        shiptos = [
+                          { shipto_id => "", displayable_id => LxERP.t8("No/individual shipping address") }
+                        ];
+                        FOREACH s = SELF.order.customer.shipto;
+                          shiptos.push(s);
+                        END;
+
+                        L.select_tag(
+                          'order.shipto_id',
+                          shiptos,
+                          default=SELF.order.shipto_id,
+                          title_key='displayable_id',
+                          value_key='shipto_id',
+                          with_empty=0,
+                          class='wi-lightwide'
+                        )
+                      %]
+                    </span>
+                    [% L.button_tag("kivi.Order.edit_custom_shipto()",
+                    LxERP.t8("Custom shipto"),
+                    class='button neutral below wi-lightwide') %]
+                  </td>
+                </tr>
+                <tr id='billing_address_row' [% IF !SELF.order.customer.additional_billing_addresses.as_list.size %]style="display:none"[% END %]>
+                  <th>[% 'Custom Billing Address' | $T8 %]</th>
+                  <td>
+                    [% L.select_tag(
+                      'order.billing_address_id',
+                      SELF.order.customer.additional_billing_addresses,
+                      default=SELF.order.billing_address_id,
+                      title_key='displayable_id',
+                      value_key='id',
+                      with_empty=1,
+                      class='wi-lightwide'
+                    ) %]
+                  </td>
+                </tr>
+                [% PROCESS order/tabs/_business_info_row.html SELF=SELF %]
+                <tr>
+                  <th>[% 'Steuersatz' | $T8 %]</th>
+                  <td>
+                    [% L.select_tag(
+                      'order.taxzone_id',
+                      SELF.order_controller.all_taxzones,
+                      default=SELF.order.taxzone_id,
+                      title_key='description',
+                      class='recalc wi-lightwide'
+                    ) %]
+                  </td>
+                </tr>
+                <!-- CURRENCY und EXCAHANGERATE rausgenommen -->
+                [% IF SELF.order_controller.all_languages.size %]
+                <tr>
+                  <th>[% 'Language' | $T8 %]</th>
+                  <td>
+                    [% L.select_tag(
+                      'order.language_id',
+                      SELF.order_controller.all_languages,
+                      default=SELF.order.language_id,
+                      title_key='description',
+                      with_empty=1,
+                      class='wi-lightwide'
+                    ) %]
+                  </td>
+                </tr>
+                [% END %]
+                [% IF SELF.order_controller.all_departments.size %]
+                <tr>
+                  <th>[% 'Department' | $T8 %]</th>
+                  <td>
+                    [% L.select_tag(
+                      'order.department_id',
+                      SELF.order_controller.all_departments,
+                      default=SELF.order.department_id,
+                      title_key='description',
+                      with_empty=1,
+                      class='wi-lightwide'
+                    ) %]
+                  </td>
+                </tr>
+                [% END %]
+                <tr>
+                  <th>[% 'Shipping Point' | $T8 %]</th>
+                  <td>[% L.input_tag('order.shippingpoint', SELF.order.shippingpoint, class='wi-lightwide') %]</td>
+                </tr>
+                <tr>
+                  <th>[% 'Ship via' | $T8 %]</th>
+                  <td>[% L.input_tag('order.shipvia', SELF.order.shipvia, class='wi-lightwide') %]</td>
+                </tr>
+                <tr>
+                  <th>[% 'Transaction description' | $T8 %]</th>
+                  <td>
+                    [% L.input_tag(
+                      'order.transaction_description',
+                      SELF.order.transaction_description,
+                      'data-validate'=(INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : ''),
+                      class='wi-lightwide'
+                    ) %]
+                  </td>
+                </tr>
+                <tr>
+                  <th>[% 'Project Number' | $T8 %]</th>
+                  <td>
+                    [% P.project.picker(
+                      'order.globalproject_id',
+                      SELF.order.globalproject_id,
+                      class='wi-lightwide'
+                    ) %]
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="tbl-horizontal col">
+              <caption>[% 'Terms' | $T8 %]</caption>
+              <colgroup><col class="wi-mediumsmall"><col class="wi-lightwide"></colgroup>
+              <tbody>
+                <tr>
+                  <td colspan="2">
+                    <span class="label above">[% 'Payment Terms' | $T8 %]</span>
+                    [% L.select_tag('order.payment_id',
+                      SELF.order_controller.all_payment_terms,
+                      default = SELF.order.payment_id,
+                      with_empty = 1,
+                      title_key = 'description',
+                      class = 'wi-mediumsmall-lightwide'
+                    ) %]
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2">
+                    <span class="label above">[% 'Delivery Terms' | $T8 %]</span>
+                    [% L.select_tag(
+                      'order.delivery_term_id',
+                      SELF.order_controller.all_delivery_terms,
+                      default = SELF.order.delivery_term_id,
+                      with_empty = 1,
+                      title_key = 'description',
+                      class = 'wi-mediumsmall-lightwide'
+                    ) %]
+                  </td>
+                </tr>
+                <tr id="taxincluded_row_id">
+                  [% IF !SELF.order_controller.taxes.size %]
+                  <th>
+                    <label for="order.taxincluded">
+                      [% 'Tax Included' | $T8 %]
+                    </label>
+                  </th>
+                  <td>
+                    [% L.yes_no_tag(
+                      'order.taxincluded',
+                      SELF.order.taxincluded,
+                      class='recalc'
+                    ) %]
+                  </td>
+                  [% END %]
+                </tr>
+              </tbody>
+            </table>
+          </div> <!-- end table_left -->
+          <div id="tables_right" style="float:left;">
+            <table class="tbl-horizontal col">
+              <caption>[% 'Notes' | $T8 %]</caption>
+              <colgroup><col class="wi-wide"><col class="wi-wide"></colgroup>
+              <tbody>
+                <tr>
+                  <td class="wi-wide">
+                    [% L.textarea_tag(
+                      'order.notes',
+                      SELF.order.notes,
+                      wrap="soft",
+                      rows=7,
+                      class="texteditor wi-wide"
+                    ) %]
+                  </td>
+                  <td>
+                    <span class="label above">
+                      [% 'Internal Notes' | $T8 %]
+                    </span>
+                    [% L.textarea_tag(
+                      'order.intnotes',
+                      SELF.order.intnotes,
+                      wrap="soft",
+                      style="height: 150px",
+                      class="wi-wide"
+                    ) %]
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div> <!-- end table_left -->
+        </div><!-- /.filter_toggle -->
+        <div class="wrapper" style="max-height:110px">
+          [% PROCESS pos/tabs/_item_input.html SELF=SELF %]
+          <div class="input-panel control-panel short">
+            <table>
+
+              [% SET n_col = 12 %]
+              [% IF SELF.order_controller.search_cvpartnumber %]
+                [% SET n_col = n_col + 1 %]
+              [% END %]
+
+              <tr id="subtotal_row_id">
+
+                [% IF !SELF.order.taxincluded %]
+                <td colspan="[%- n_col %]"></td>
+                <th colspan="3">
+                  [% 'Subtotal' | $T8 %]
+                </th>
+                <td class="numeric">
+                  [% L.div_tag(SELF.order.netamount_as_number, id='netamount_id') %]
+                </td>
+                [% END %]
+              </tr>
+              [% FOREACH tax = SELF.taxes %]
+                [% PROCESS order/tabs/_tax_row.html TAX=tax TAXINCLUDED=SELF.order.taxincluded QUOTATION=SELF.order.quotation %]
+              [% END %]
+              <tr id="amount_row_id">
+                <td colspan="[%- n_col %]"></td>
+                <th colspan="3">
+                  [% 'Total' | $T8 %]
+                </th>
+                <td class="numeric">
+                  [% L.div_tag(SELF.order.amount_as_number, id='amount_id') %]
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="input-panel pos_button control-panel" onclick="kivi.POS">
+            Nachlass gewähren
+          </div>
+        </div>
+        <div id="row_table_scroll_id" class="horizontal-scroll-wrapper" style="max-height:calc(100% - 200px)">
+          <table id="row_table_id" class="tbl-list" style="position:relative">
+            <caption>[% 'Part' | $T8 %]</caption>
+            <thead style="position:sticky;top:0">
+              <tr>
+                <th>[% 'position'     | $T8 %] </th>
+                <th id="partnumber_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("partnumber")'>  [% 'Partnumber'  | $T8 %]</a></th>
+                <th id="description_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("description")'>[% 'Description' | $T8 %]</a></th>
+                <th id="qty_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("qty")'>                [% 'Qty'         | $T8 %]</a></th>
+                <th id="sellprice_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("sellprice")'>    [% 'Price'       | $T8 %]</a></th>
+                <th id="discount_header_id" ><a href='#' onClick='javascript:kivi.Order.reorder_items("discount")'>     [% 'Discount'    | $T8 %]</a></th>
+                <th>[% 'Extended'     | $T8 %]</th>
+                <th>[% 'Edit' | $T8 %]</th>
+              </tr>
+            </thead>
+            [% FOREACH item = SELF.order.items_sorted %]
+              [% PROCESS pos/tabs/_row.html ITEM=item ID=(item.id||item.new_fake_id) %]
+            [% END %]
+          </table>
+        </div>
+      </div>
+
+      <div class="pos_buttons">
+        <div class="container_pos_left">
+          <div class="pos_button control-panel">Auswahl bezahlen/zurücknehmen</div>
+          <div class="pos_button control-panel">Nachdruck Quittung</div>
+          <div class="pos_button control-panel">Auf Rechnung</div>
+          <div class="pos_button control-panel">Entnahme erfassen</div>
+          <div class="pos_button control-panel">Auf Lieferschein</div>
+          <div class="pos_button control-panel">Quittung parken</div>
+          <div class="pos_button control-panel">geparkte Quittung</div>
+          <div class="pos_button control-panel">Bezahlen</div>
+          <div class="pos_button control-panel">Abbrechen</div>
+        </div>
+      </div>
+    </div>
+  </div>

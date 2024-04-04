@@ -1,0 +1,46 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<tbody class="row_entry listrow">
+  <tr>
+    <td class="center">
+      [% L.div_tag(ITEM.position, name="position") %]
+      [% L.hidden_tag("orderitem_ids[+]", ID) %]
+      [% L.hidden_tag("order.orderitems[+].id", ITEM.id, id='item_' _ ID) %]
+    </td>
+    <td>
+      [% L.div_tag(ITEM.partnumber, name="partnumber") %]
+      [% L.hidden_tag('order.orderitems[].parts_id', ITEM.parts_id) %]
+    </td>
+    <td>
+      [% L.div_tag(ITEM.description, name="description") %]
+      [% L.hidden_tag('order.orderitems[].description', ITEM.description) %]
+    </td>
+    <td>
+      [% L.div_tag(ITEM.ITEM.qty_as_number, name="qty", class="numeric") %]
+      [% L.hidden_tag('order.orderitems[].qty', ITEM.qty) %]
+      [% L.div_tag(ITEM.unit, name="unit") %]
+      [% L.hidden_tag('order.orderitems[].unit', ITEM.unit) %]
+    </td>
+    <td>
+      [% L.div_tag(ITEM.sellprice_as_number, name="sellprice", class="numeric") %]
+      [% L.hidden_tag('order.orderitems[].sellprice', ITEM.sellprice) %]
+    </td>
+    <td>
+      [% L.div_tag(ITEM.discount_as_percent, name="discount_as_percent", class="numeric") %]
+      [% L.hidden_tag('order.orderitems[].discount_as_percent', ITEM.discount_as_percent) %]
+    </td>
+    <td>
+      [% L.hidden_tag("order.orderitems[].active_price_source", ITEM.active_price_source.source) %]
+      [% L.hidden_tag("order.orderitems[].active_discount_source", ITEM.active_discount_source.source) %]
+
+      [% L.div_tag(LxERP.format_amount(ITEM.linetotal, 2, 0), name="linetotal", class="numeric") %]
+    </td>
+    <td>
+      [% L.button_tag('kivi.POS.edit_order_item_row_point_of_sales("' _ ID _ '")', LxERP.t8('Edit')) %]
+    </td>
+  </tr>
+</tbody>

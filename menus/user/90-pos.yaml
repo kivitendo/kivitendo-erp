@@ -1,0 +1,7 @@
+---
+- parent: ar
+  id: pos_form
+  name: POS for kivi
+  order: 2370
+  params:
+    action: POS/add
