@@ -1,0 +1,37 @@
+[% USE T8 %]
+[% USE L %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<form method="post" id="item_row_pos_form" action="controller.pl">
+  <table>
+    <caption>
+      [% ITEM.part.displayable_name | html %]
+    </caption>
+    <tbody>
+      <tr>
+        <th>
+          [% 'Discount' | $T8 %]
+        </th>
+        <td>
+          [% L.input_tag('item.discount_as_percent', ITEM.discount_as_percent, class="reformat_number numeric") %]
+        </td>
+      </tr>
+      <tr>
+        <th>
+          TODO:
+          [% 'Salesman' | $T8 %]
+        </th>
+        <td>
+          [% L.select_tag('', ITEM.salesman) %]
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+ <p>
+  [% L.button_tag(popup_js_delete_row_function, LxERP.t8('Delete row')) %]
+  [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel')) %]
+  [% L.button_tag(popup_js_assign_function, LxERP.t8('Apply')) %]
+ </p>
+</form>

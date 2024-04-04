@@ -1039,6 +1039,9 @@ sub action_update_item_input_row {
 # add an item row for a new item entered in the input row
 sub action_add_item {
   my ($self) = @_;
+  my $template_name = $::form->{point_of_sale} ?
+                      'pos/tabs/_row'
+                    : 'order/tabs/_row';
 
   delete $::form->{add_item}->{create_part_type};
 
@@ -1055,10 +1058,12 @@ sub action_add_item {
   $self->get_item_cvpartnumber($item);
 
   my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-  my $row_as_html = $self->p->render('order/tabs/_row',
-                                     ITEM => $item,
-                                     ID   => $item_id,
-                                     SELF => $self,
+
+  my $row_as_html = $self->p->render(
+    $template_name,
+    ITEM => $item,
+    ID   => $item_id,
+    SELF => $self,
   );
 
   if ($::form->{insert_before_item_id}) {
@@ -1070,13 +1075,13 @@ sub action_add_item {
   }
 
   if ( $item->part->is_assortment ) {
-    $form_attr->{qty_as_number} = 1 unless $form_attr->{qty_as_number};
     foreach my $assortment_item ( @{$item->part->assortment_items} ) {
-      my $attr = { parts_id => $assortment_item->parts_id,
-                   qty      => $assortment_item->qty * $::form->parse_amount(\%::myconfig, $form_attr->{qty_as_number}), # TODO $form_attr->{unit}
-                   unit     => $assortment_item->unit,
-                   description => $assortment_item->part->description,
-                 };
+      my $attr = {
+        parts_id    => $assortment_item->parts_id,
+        qty         => $assortment_item->qty * ($item->qty || 1), # TODO $item->unit
+        unit        => $assortment_item->unit,
+        description => $assortment_item->part->description,
+      };
       my $item = new_item($self->order, $attr);
 
       # set discount to 100% if item isn't supposed to be charged, overwriting any customer discount
@@ -1086,10 +1091,11 @@ sub action_add_item {
       $self->recalc();
       $self->get_item_cvpartnumber($item);
       my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-      my $row_as_html = $self->p->render('order/tabs/_row',
-                                         ITEM => $item,
-                                         ID   => $item_id,
-                                         SELF => $self,
+      my $row_as_html = $self->p->render(
+        $template_name,
+        ITEM => $item,
+        ID   => $item_id,
+        SELF => $self,
       );
       if ($::form->{insert_before_item_id}) {
         $self->js
