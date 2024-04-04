@@ -971,8 +971,7 @@ sub orders {
       'valign'   => 'center',
       'align'    => 'center',
     };
-
-    $row->{donumber}->{link}  = SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id});
+    $row->{donumber}->{link}  = SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id}, type => $dord->{record_type});
     $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
 
     foreach my $order_confirmation (@{ $dord->{order_confirmation_numbers} }) {
