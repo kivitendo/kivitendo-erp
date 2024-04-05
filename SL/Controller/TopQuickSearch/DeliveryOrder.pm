@@ -74,6 +74,7 @@ sub redirect_to_object {
     controller => 'controller.pl',
     action     => 'DeliveryOrder/edit',
     id         => $_[1],
+    type       => $_[0]->type,
   );
 }
 
