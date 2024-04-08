@@ -48,7 +48,7 @@
   % Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
   \opening{
     \Ifstr{<%cp_name%>}{}
-    {<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede}<%end if%>
+    {<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede<%end if%>}
     {
       \Ifstr{<%cp_gender%>}{f}
       {\anredefrau}
