@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2024-03-06 - Release 3.9.0 beta
+2024-04-10 - Release 3.9.0
 
 Größere Features und Komponentenupdates
 
@@ -203,6 +203,13 @@ Kleinere neue Features und Detailverbesserungen:
 
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+676 Druckvorlagen (marai): Fehler bei natürlicher Person
+675 Die Inhalte der Reiter Dokumente/Anhänge werden bei Lieferscheinen EK/VK nicht gerendet, wenn ein Lieferscheine über einen Link aufgerufen wird
+673 Design 4.0 Dialogbuchungsmaske hat keinen Reiter Verknüpfungen
+672 Schlussrechnung beim Schweizer Kontenrahmen 2024 mit MWST wirft Fehler.
+668 Design 4.0: Flash beim Anlegen einer neuen Datenbank wird versteckt
+666 Design4.0: Der wrapper für horizontales scrollen ist zu breit, wenn menü links verwendet wird
+665 Individuelle Lieferadresse wird nicht übernommen im Workflow Autftrag -> Lieferschein
 658 DMS -> Backend WebDAV verknüpfte Belege
 657 Schnellsuche Fibu findet Rechnungnummer nicht
 654 Aufzählungsliste ist im ckeditor 5 nicht mehr gut einsehbar einsehbar/editierbar
