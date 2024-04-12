@@ -273,6 +273,7 @@ is added to the imported email.
 =back
 
 =head1 YAML Configuration example with ZUGFeRD Processing
+
     hostname: meinedomain.de
     username: eingangsrechnung@meinedomain.de
     password: secret
@@ -281,6 +282,7 @@ is added to the imported email.
     process_imported_emails: zugferd
     processed_imap_flag: $Label8
     not_processed_imap_flag: $Label1
+
 =head1 BUGS
 
 Nothing here yet.
