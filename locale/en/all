@@ -2096,6 +2096,7 @@ $self->{texts} = {
   'Introduction of clients'     => '',
   'Inv. Duedate'                => '',
   'Invalid'                     => '',
+  'Invalid YAML Configuration for this job. Reason: malformed YAML Data: #1. Please consult: Program -> Documentation -> HTML -> Configuration of Background-Jobs.' => '',
   'Invalid assembly'            => '',
   'Invalid bin'                 => '',
   'Invalid charge number: #1'   => '',
