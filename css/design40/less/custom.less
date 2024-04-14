@@ -23,6 +23,30 @@
 // **********************************
 // MY SPECIAL CLASS
 // **********************************
+.container_pos_left{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(23%, 100%), 1fr));
+  grid-template-rows: repeat(6, fr);
+  grid-gap: 10px;
+  height: calc(50vh - 10px);
+justify-self: center;
+align-self: center;
+}
+
+.pos_button{
+  //border: green 1px solid;
+//font-size: calc(4vw + 4vh + 2vmin);
+font-size: 1vi;
+font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pos_button:hover{
+  cursor:pointer;
+
+}
 
 //.my-class-padding: 0.2em ; // just an example
 

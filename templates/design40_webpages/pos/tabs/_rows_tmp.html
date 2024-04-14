@@ -1,0 +1,1652 @@
+<div id="row_table_scroll_id" class="wrapper horizontal-scroll-wrapper" style="overflow-y: auto; height:100%;">
+
+<table id="row_table_id" class="tbl-list">
+  <caption>Artikel</caption>
+  <thead>
+    <tr>
+      <th class="center">
+        
+          <img id="expand_all" alt="Alle Details anzeigen" src="image/expand.svg" title="Alle Details anzeigen">
+        
+      </th>
+      <th style='text-align:center'><img src="image/updown.png" alt="Eintrag umsortieren"></th>
+      <th style='text-align:center'><img src="image/close.png" alt="Position löschen"></th>
+      <th id="partnumber_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("partnumber")'> Artikelnummer</a></th>
+      <th id="description_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("description")'>Beschreibung</a></th>
+      <th id="qty_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("qty")'>        Menge</a></th>
+      <th >Preisfaktor</th>
+      <th >Einheit</th>
+      <th id="sellprice_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("sellprice")'> Preis</a></th>
+      <th id="discount_header_id" ><a href='#' onClick='javascript:kivi.Order.reorder_items("discount")'>  Rabatt</a></th>
+      <th>Gesamt</th>
+    </tr>
+  </thead>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+<tbody class="row_entry listrow" data-position="1">
+  <tr>
+    <td>
+        <img class="expand" src="image/expand.svg" title="Details anzeigen" alt="Details anzeigen">
+      <input value="16" id="orderitem_ids5227448" name="orderitem_ids[+]" type="hidden">
+      <input value="" id="converted_from_record_item_type_ref5227449" name="converted_from_record_item_type_ref[+]" type="hidden">
+      <input type="hidden" id="converted_from_record_item_id5227450" name="converted_from_record_item_id[+]" value="">
+      <input type="hidden" name="order.orderitems[+].id" id="item_16" value="16">
+      <input value="1130" type="hidden" name="order.orderitems[].parts_id" id="order_orderitems5227451_parts_id">
+      <input type="hidden" id="basket_item_ids5227452" name="basket_item_ids[+]" value="">
+    </td>
+    <td><img src="image/updown.png" alt="Eintrag umsortieren" class="dragdrop"></td>
+    <td>
+      <input tag="input" value="X" onclick="if (!confirm(&quot;Sind Sie sicher?&quot;)) return false; kivi.Order.delete_order_item_row(this)" type="button">
+    </td>
+    <td>
+      <div name="partnumber"><a title="In neuem Fenster öffnen." target="_blank" href="controller.pl?action=Part%2fedit&amp;part.id=1130">R1</a>      </div>
+    </td>
+    <td>
+      <span class="area-input"><input name="order.orderitems[].description" id="id_8380663" type="text" size="40" value="Breitreifen 17“" class="wi-lightwide"><span class="switch-to-textarea" onclick="kivi.switch_areainput_to_textarea('id_8380663')"></span></span>
+      <input name="order.orderitems[].longdescription" id="order_orderitems5227453_longdescription" type="hidden" value="für HS225, HS800, HS Kombi">
+      <input type="button" value="T" onclick="kivi.Order.show_longdescription_dialog(this)" class="wi-tiny neutral" tag="input">
+    </td>
+    <td>
+      <input name="order.orderitems[].qty_as_number" id="order_orderitems5227454_qty_as_number" type="text" size="5" value="1,00" class="recalc reformat_number numeric wi-verysmall">
+    </td>
+    <td>
+      <select class="recalc wi-mediumsmall" name="order.orderitems[].price_factor_id" id="order_orderitems5227455_price_factor_id"><option value=""></option><option value="876">pro 10</option><option value="877">pro 100</option><option value="878">pro 1.000</option></select>
+    </td>
+    <td>
+      <select class="unitselect wi-mediumsmall" name="order.orderitems[].unit" id="order_orderitems5227456_unit"><option value="Stck" selected>Stck</option></select>
+    </td>
+    <td>
+      <input value="master_data/sellprice" type="hidden" name="order.orderitems[].active_price_source" id="order_orderitems5227457_active_price_source">
+      <div name="editable_price" style="display:none" class="numeric">
+        <input type="text" size="10" name="order.orderitems[].sellprice_as_number" id="order_orderitems5227458_sellprice_as_number" disabled class="recalc reformat_number numeric wi-verysmall" value="800,00">
+      </div>
+      <div name="not_editable_price" >
+        <div name="sellprice_text" class="numeric plain-data">800,00</div>  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        <input value="800,00" id="order_orderitems5227459_sellprice_as_number" name="order.orderitems[].sellprice_as_number" type="hidden">
+      </div>
+    </td>
+    <td>
+      <input value="" id="order_orderitems5227460_active_discount_source" name="order.orderitems[].active_discount_source" type="hidden">
+      <div name="editable_discount"  class="numeric">
+        <input value="0,00" class="recalc reformat_number numeric" id="order_orderitems5227461_discount_as_percent" name="order.orderitems[].discount_as_percent" size="5" type="text">
+      </div>
+      <div name="not_editable_discount" style="display:none">
+        <div class="numeric" name="discount_text">0,00</div>
+        <input disabled value="0,00" type="hidden" name="order.orderitems[].discount_as_percent" id="order_orderitems5227462_discount_as_percent">
+      </div>
+    </td>
+    <td><div name="linetotal" class="numeric">800,00</div></td>
+  </tr>
+  <tr style="display:none">
+    <td colspan="100%">
+        <div name="second_row" id="second_row_16">
+          Wird geladen...
+        </div>
+    </td>
+  </tr>
+</tbody>
+  <tfoot>
+    <tr id="subtotal_row_id">
+      <td colspan="6"></td>      <td></td>      <th colspan="3">Zwischensumme</th>
+      <td class="numeric"><div id="netamount_id">20.800,00</div></td>
+    </tr>
+<tr class="tax_row">
+  <td colspan="6"></td>  <td></td>  <th colspan="3">Umsatzsteuer 19,00%</th>
+  <td class="numeric">3952,00</td>
+</tr>
+    <tr id="amount_row_id">
+      <td colspan="6"></td><td></td>
+      <th colspan="3">Summe</th>
+      <td class="numeric"><div id="amount_id">24.752,00</div></td>
+    </tr>
+  </tfoot>
+</table>
+</div><!-- /#row_table_scroll_id /.wrapper -->

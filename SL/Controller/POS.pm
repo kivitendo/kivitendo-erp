@@ -28,7 +28,6 @@ use Sort::Naturally;
 # show form pos
 sub action_show_form {
   my ($self) = @_;
-$main::lxdebug->dump(0, "TST:POS ", $self);
   $self->render(
     'pos/form',
     title => t8('POS'),
