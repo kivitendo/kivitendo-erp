@@ -554,12 +554,11 @@ sub ap_transactions {
   my $query =
     qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .
     qq|  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes, | .
-    qq|  a.globalproject_id, a.storno, a.storno_id, a.direct_debit, | .
+    qq|  a.intnotes, a.globalproject_id, a.storno, a.storno_id, a.direct_debit, | .
     qq|  a.transaction_description, a.itime::DATE AS insertdate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, | .
     qq|  v.vendornumber, v.country, v.ustid, | .
-    qq|  v.notes AS intnotes, | .
     qq|  tz.description AS taxzone, | .
     qq|  pt.description AS payment_terms, | .
     qq|  department.description AS department, | .
