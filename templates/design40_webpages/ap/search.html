@@ -35,6 +35,11 @@
       <td>[% L.input_tag("notes", "", class="wi-normal") %]</td>
     </tr>
     <tr>
+    <tr>
+      <th>[% 'Internal Notes' | $T8 %]</th>
+      <td>[% L.input_tag("intnotes", "", class="wi-normal") %]</td>
+    </tr>
+    <tr>
       <th>[% 'Transaction description' | $T8 %]</th>
       <td>[% L.input_tag("transaction_description", "", class="wi-normal") %]</td>
     </tr>
@@ -177,6 +182,9 @@
     </div>
     <div>
       <input name="l_notes" id="l_notes" type="checkbox" value="Y"><label for="l_notes">[% 'Notes' | $T8 %]</label>
+    </div>
+    <div>
+      <input name="l_intnotes" id="l_intnotes" type="checkbox" value="Y"><label for="l_intnotes">[% 'Internal Notes' | $T8 %]</label>
     </div>
   </div>
 
