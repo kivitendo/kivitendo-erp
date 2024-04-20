@@ -866,7 +866,7 @@ namespace('kivi.Part', function(ns) {
       $('#multi_items_all_qty').change(function(event){
         $('.multi_items_qty').val($(event.target).val());
       });
-      $('.multi_items_qty').click(function(){ self.set_qty_to_one(this); });
+      $('.multi_items_qty').focus(function(){ self.set_qty_to_one(this); });
     },
     result_timer: function() {
     },
