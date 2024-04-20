@@ -1,0 +1,26 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+[% USE P %]
+
+<table id="variant_parent_properties">
+  <colgroup>
+    <col class="wi-wide">
+    <col class="wi-wide">
+  </colgroup>
+  <tbody>
+  [% FOREACH property = PROPERTIES %]
+    <tr>
+      <th>[% property.displayable_name | html %]</th>
+      <td>[% L.select_tag("multi_items.filter.has_variant_property_value_id[+]",
+        property.property_values,
+        value_key="id", title_key="displayable_name",
+        with_empty=1, default='',
+        onchange='$("#multi_items_filter_button").click();',
+        class='wi-wide',
+      ) %]</td>
+    </tr>
+  [% END %]
+  </tbody>
+</table>

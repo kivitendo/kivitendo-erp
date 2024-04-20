@@ -34,6 +34,7 @@ use SL::Helper::UserPreferences::PartPickerSearch;
 use SL::JSON;
 use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(save_form);
+use SL::Presenter;
 use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Part;
 use SL::Presenter::Tag qw(select_tag);
@@ -737,6 +738,56 @@ sub action_multi_items_update_result {
     $_[0]->render('part/_multi_items_result', { layout => 0 },
                   multi_items => $multi_items);
   }
+}
+
+sub action_show_multi_variants_dialog {
+  my ($self) = @_;
+
+  $self->render('part/_multi_variants_dialog', { layout => 0 });
+}
+
+sub action_multi_variants_update_result {
+  my ($self) = @_;
+  my $max_count = $::form->{limit};
+
+  my $parent_variant_id = $::form->{multi_items}->{filter}->{parent_variant_id};
+  my $parent_variant;
+  $parent_variant = SL::DB::Manager::Part->find_by(
+    id => $parent_variant_id
+  ) if $parent_variant_id ne '';
+  return $self->js->flash('error', t8('No parent variant selected.'))->render
+    unless $parent_variant;
+
+
+  if ($::form->{old_parent_variant_id} ne $parent_variant_id) {
+    # update parent_variant properties
+    my $properties_table = SL::Presenter->get->render(
+      'part/_multi_variants_parent_properties_table',
+      PROPERTIES => \@{$parent_variant->variant_properties}
+    );
+    $::form->{multi_items}->{filter}->{'has_variant_property_value_id'} = [];
+    $self->js->html('#multi_variants_parent_variant_properties', $properties_table);
+    $self->js->val('#old_parent_variant_id', $parent_variant_id);
+  }
+
+  my $count = $self->multi_items_models->count;
+
+  my $result;
+  if ($count == 0) {
+    my $text = escape($::locale->text('No results.'));
+    $result = $text;
+  } elsif ($max_count && $count > $max_count) {
+    my $text = escape($::locale->text('Too many results (#1 from #2).', $count, $max_count));
+    $result = $text;
+  } else {
+    my $multi_variants = SL::DB::Manager::Part->sort_variants(
+      $self->multi_items_models->get
+    );
+    $result = SL::Presenter->get->render('part/_multi_variants_result', multi_variants => $multi_variants);
+  }
+
+  $self->js->html('#multi_items_result', $result)->render;
+  return;
 }
 
 sub action_add_makemodel_row {
@@ -1766,7 +1817,7 @@ sub init_multi_items_models {
   SL::Controller::Helper::GetModels->new(
     controller     => $_[0],
     model          => 'Part',
-    with_objects   => [ qw(unit_obj partsgroup classification) ],
+    with_objects   => [ qw(unit_obj partsgroup classification parent_variants variant_property_values variant_property_values.variant_property) ],
     disable_plugin => 'paginated',
     source         => $::form->{multi_items},
     sorted         => {

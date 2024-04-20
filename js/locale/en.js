@@ -4,6 +4,7 @@ namespace("kivi").setupLocale({
 "Add function block":"",
 "Add linked record":"",
 "Add multiple items":"",
+"Add multiple variants":"",
 "Add note":"",
 "Add picture":"",
 "Add picture to text block":"",

@@ -34,6 +34,36 @@ __PACKAGE__->add_filter_specs(
     return or => [ map { $prefix . $_ => $value } qw(partnumber description ean customerprices.customer_partnumber) ],
       $prefix . 'customerprices';
   },
+  has_variant_property_value_id => sub {
+    my ($key, $value, $prefix) = @_;
+
+    my @values = grep {$_}
+      ref $value eq 'ARRAY' ? @{$value} : split(/\s+/, $value);
+    return unless scalar @values;
+
+    my $where = join(' or ', ("val.id = ?") x @values) || '1=1';
+    my $query = <<SQL;
+      SELECT part_id from (
+        SELECT
+          t1.part_id, COUNT(*) as count_hits
+        FROM
+          variant_property_values val
+          JOIN variant_property_values_parts t1 ON (t1.variant_property_value_id = val.id)
+        WHERE
+         $where
+        GROUP BY t1.part_id
+      ) as tmp
+      WHERE count_hits >= ?;
+SQL
+
+    push @values, scalar @values; # count_hits
+
+    my @part_ids =
+      map {$_->{part_id}}
+      selectall_hashref_query($::form, $::form->get_standard_dbh, $query, @values);
+
+    return id => scalar @part_ids ? \@part_ids : (-1); # empty list not allowed
+  },
   # all_with_variants => sub {
   all => sub {
     my ($key, $value, $prefix) = @_;
@@ -219,6 +249,24 @@ SQL
 
   $open_qty ||= 0;
   return $open_qty
+}
+
+sub sort_variants {
+  my ($self, $variants) = @_;
+
+  my @sorted_variants =
+    map { $_->{variant} }
+    sort { $a->{sortkey} cmp $b->{sortkey} }
+    map { {
+      variant => $_,
+      sortkey => join('', map {
+          (10000 + $_->variant_property->sortkey ) . (10000 + $_->sortkey)
+        } @{$_->variant_property_values}
+      ),
+
+    } }
+    @$variants;
+  return \@sorted_variants;
 }
 
 sub _sort_spec {

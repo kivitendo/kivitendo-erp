@@ -4,6 +4,7 @@ namespace("kivi").setupLocale({
 "Add function block":"Funktionsblock hinzufügen",
 "Add linked record":"Verknüpften Beleg hinzufügen",
 "Add multiple items":"Mehrere Artikel hinzufügen",
+"Add multiple variants":"Mehrere Varianten hinzufügen",
 "Add note":"Notiz erfassen",
 "Add picture":"Bild hinzufügen",
 "Add picture to text block":"Bild dem Textblock hinzufügen",
