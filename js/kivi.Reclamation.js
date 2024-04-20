@@ -512,6 +512,14 @@ namespace('kivi.Reclamation', function(ns) {
     pp.open_dialog();
   };
 
+  ns.open_multi_variants_dialog = function() {
+    if (!ns.check_cv()) return;
+
+    var pp = $("#add_item_parts_id").data("part_picker");
+    pp.o.variants_list=1;
+    pp.open_dialog();
+  };
+
   ns.add_multi_items = function(data) {
     var insert_before_item_id = ns.get_insert_before_item_id($('#multi_items_position').val());
     data = data.concat($('#reclamation_form').serializeArray());
