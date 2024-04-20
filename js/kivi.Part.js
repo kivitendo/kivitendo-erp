@@ -453,7 +453,9 @@ namespace('kivi.Part', function(ns) {
     this.last_dummy         = this.$dummy.val();
     this.timer              = undefined;
     this.dialog             = undefined;
+    // for different popups on same page
     this.multiple_default   = this.o.multiple;
+    this.variants_list_default = this.o.variants_list;
 
     this.init();
   };
@@ -625,7 +627,10 @@ namespace('kivi.Part', function(ns) {
       }
     },
     open_dialog: function() {
-      if (this.o.multiple) {
+      if (this.o.variants_list) {
+        this.o.variants_list = this.variants_list_default;
+        this.dialog = new ns.PickerMultiVariantPopup(this);
+      } else if (this.o.multiple) {
         this.o.multiple = this.multiple_default;
         this.dialog = new ns.PickerMultiPopup(this);
       } else {
@@ -872,6 +877,133 @@ namespace('kivi.Part', function(ns) {
     },
     close_dialog: function() {
       $('#jq_multi_items_dialog').dialog('close');
+    },
+    disable_continue: function() {
+      $('#multi_items_result input, #multi_items_position').off("keydown");
+      $('#continue_button').prop('disabled', true);
+    },
+    enable_continue: function() {
+      var self = this;
+      $('#multi_items_result input, #multi_items_position').keydown(function(event) {
+        if(event.keyCode == KEY.ENTER) {
+          event.preventDefault();
+          self.add_multi_items();
+          return false;
+        }
+      });
+      $('#continue_button').prop('disabled', false);
+    },
+    add_multi_items: function() {
+      // rows at all
+      var n_rows = $('.multi_items_qty').length;
+      if ( n_rows === 0) { return; }
+
+      // filled rows
+      n_rows = $('.multi_items_qty').filter(function() {
+        return $(this).val().length > 0;
+      }).length;
+      if (n_rows === 0) { return; }
+
+      this.disable_continue();
+
+      var data = $('#multi_items_form').serializeArray();
+      this.pp.set_multi_items(data);
+    }
+  };
+
+  ns.PickerMultiVariantPopup = function(pp) {
+    this.pp = pp;
+    this.open_dialog();
+  };
+
+  ns.PickerMultiVariantPopup.prototype = {
+    open_dialog: function() {
+      var self = this;
+      $('#row_table_id thead a img').remove();
+
+      kivi.popup_dialog({
+        url: 'controller.pl?action=Part/show_multi_variants_dialog',
+        data: $.extend({
+          real_id: self.pp.real_id,
+          show_pos_input: self.pp.o.multiple_pos_input,
+        }, self.pp.ajax_data(this.pp.$dummy.val())),
+        id: 'jq_multi_variants_dialog',
+        dialog: {
+          title: kivi.t8('Add multiple variants'),
+          width:  800,
+          height: 800
+        },
+        load: function() {
+          self.init_search();
+        }
+      });
+      return true;
+    },
+    init_search: function() {
+
+      var self = this;
+      $('#multi_items_filter_table select').keydown(function(event) {
+        if(event.which == KEY.ENTER) {
+          event.preventDefault();
+          self.update_results();
+          return false;
+        }
+      });
+
+      // reset picker for parent_variant
+      kivi.run_once_for('input.part_autocomplete', 'part_picker', function(elt) {
+        if (!$(elt).data('part_picker'))
+          $(elt).data('part_picker', new kivi.Part.Picker($(elt)));
+      });
+      $('#multi_items_filter_parent_variant_id_name').focus();
+      $('#multi_items_filter_button').click(function(){ self.update_results(); });
+      $('#multi_items_filter_reset').click(function(){
+        $("#multi_items_form").resetForm();
+        $("#multi_variants_parent_variant_properties").html('');
+        $("#old_parent_variant_id").val('');
+        $("#multi_items_result").html('');
+      });
+      $('#continue_button').click(function(){ self.add_multi_items(); });
+    },
+    update_results: function() {
+      var self = this;
+      var data = $('#multi_items_form').serializeArray();
+      data.push({ name: 'action',  value: 'Part/multi_variants_update_result' });
+      data.push({ name: 'type',  value: self.pp.type });
+      data.push({ name: 'limit', value: self.pp.o.multiple_limit });
+      var ppdata = self.pp.ajax_data(function(){
+        var val = $('#multi_items_filter').val();
+        return val === undefined ? '' : val;
+      });
+      $.each(Object.keys(ppdata), function() {data.push({ name: 'multi_items.' + this, value: ppdata[this]});});
+
+      $.post(
+        "controller.pl",
+        data,
+        function(data){
+          kivi.eval_json_result(data);
+          self.init_results();
+          self.enable_continue();
+        }
+      );
+    },
+    set_qty_to_one: function(clicked) {
+      if ($(clicked).val() === '') {
+        $(clicked).val(kivi.format_amount(1.00, -2));
+      }
+      $(clicked).select();
+    },
+    init_results: function() {
+      var self = this;
+      $('#multi_items_all_qty').change(function(event){
+        $('.multi_items_qty').val($(event.target).val());
+      });
+      $('.multi_items_qty').focus(function(){ self.set_qty_to_one(this); });
+    },
+    result_timer: function() {
+    },
+    close_dialog: function() {
+      $('#jq_multi_variants_dialog').dialog('close');
     },
     disable_continue: function() {
       $('#multi_items_result input, #multi_items_position').off("keydown");
