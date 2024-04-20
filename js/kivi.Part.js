@@ -472,7 +472,7 @@ namespace('kivi.Part', function(ns) {
         data['filter.part_type'] = this.o.part_type.split(',');
 
       if (this.o.variant_type)
-        data['filter.variant_type'] = this.o.variant_type.split(',');
+        data['filter.variant_type:any'] = this.o.variant_type.replaceAll(',', ' ');
 
       if (this.o.status) {
         if (this.o.status == 'active')   data['filter.obsolete'] = 0;
