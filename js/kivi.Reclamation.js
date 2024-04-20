@@ -278,7 +278,7 @@ namespace('kivi.Reclamation', function(ns) {
 
   ns.unit_change = function(event) {
     var row           = $(event.target).parents("tbody").first();
-    var item_id_dom   = $(row).find('[name="reclamation_item_ids[+]"]');
+    var item_id_dom   = $(row).find('[name="reclamation_items_ids[+]"]');
     var sellprice_dom = $(row).find('[name="reclamation.reclamation_items[].sellprice_as_number"]');
     var select_elt    = $(row).find('[name="reclamation.reclamation_items[].unit"]');
 
@@ -303,7 +303,7 @@ namespace('kivi.Reclamation', function(ns) {
   };
 
   ns.load_second_row = function(row) {
-    var item_id_dom = $(row).find('[name="reclamation_item_ids[+]"]');
+    var item_id_dom = $(row).find('[name="reclamation_items_ids[+]"]');
     var div_elt     = $(row).find('[name="second_row"]');
 
     if ($(div_elt).data('loaded') == 1) {
@@ -322,7 +322,7 @@ namespace('kivi.Reclamation', function(ns) {
     });
 
     var item_ids = $.map(rows, function(elt) {
-      var item_id = $(elt).find('[name="reclamation_item_ids[+]"]').val();
+      var item_id = $(elt).find('[name="reclamation_items_ids[+]"]').val();
       return { name: 'item_ids[]', value: item_id };
     });
 
@@ -481,7 +481,7 @@ namespace('kivi.Reclamation', function(ns) {
     // var elt = $('.row_entry [data-position="' + wanted_pos + '"]');
     $('.row_entry').each(function(idx, elt) {
       if ($(elt).data("position") == wanted_pos) {
-        insert_before_item_id = $(elt).find('[name="reclamation_item_ids[+]"]').val();
+        insert_before_item_id = $(elt).find('[name="reclamation_items_ids[+]"]').val();
         return false;
       }
     });
@@ -636,7 +636,7 @@ namespace('kivi.Reclamation', function(ns) {
 
   ns.update_row_from_master_data = function(clicked) {
     var row = $(clicked).parents("tbody").first();
-    var item_id_dom = $(row).find('[name="reclamation_item_ids[+]"]');
+    var item_id_dom = $(row).find('[name="reclamation_items_ids[+]"]');
 
     var data = $('#reclamation_form').serializeArray();
     data.push({ name: 'action', value: 'Reclamation/update_row_from_master_data' });
@@ -647,7 +647,7 @@ namespace('kivi.Reclamation', function(ns) {
 
   ns.update_all_rows_from_master_data = function() {
     var item_ids = $.map($('.row_entry'), function(elt) {
-      var item_id = $(elt).find('[name="reclamation_item_ids[+]"]').val();
+      var item_id = $(elt).find('[name="reclamation_items_ids[+]"]').val();
       return { name: 'item_ids[]', value: item_id };
     });
 
