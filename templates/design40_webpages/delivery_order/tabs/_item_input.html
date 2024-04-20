@@ -16,6 +16,7 @@
             [%- SET PARAM_VAL = SELF.search_cvpartnumber -%]
             [% P.part.picker('add_item.parts_id', SELF.created_part,
                               class="add_item_input wi-normal",
+                              variant_type="single,variant",
                               fat_set_item=1,
                               multiple_pos_input=1,
                               action={set_multi_items='kivi.DeliveryOrder.add_multi_items'},

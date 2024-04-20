@@ -1276,8 +1276,8 @@ sub retrieve_item {
 
   my $i = $form->{rowcount};
 
-  # don't include assemblies or obsolete parts
-  my $where = "NOT p.part_type = 'assembly' AND NOT p.obsolete = '1'";
+  # don't include parent_variants or assemblies or obsolete parts
+  my $where = "NOT p.variant_type = 'parent_variant' and NOT p.part_type = 'assembly' AND NOT p.obsolete = '1'";
   my @values;
 
   foreach my $table_column (qw(p.partnumber p.description pg.partsgroup)) {

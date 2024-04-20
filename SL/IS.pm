@@ -2600,7 +2600,8 @@ sub retrieve_item {
 
   my $i = $form->{rowcount};
 
-  my $where = qq|NOT p.obsolete = '1'|;
+  # don't include parent_variants or obsolete parts
+  my $where = qq|NOT p.variant_type = 'parent_variant' and NOT p.obsolete = '1'|;
   my @values;
 
   foreach my $column (qw(p.partnumber p.description pgpartsgroup )) {
