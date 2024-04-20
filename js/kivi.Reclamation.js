@@ -732,9 +732,6 @@ namespace('kivi.Reclamation', function(ns) {
       const warn_on_reqdate    = save_params.warn_on_reqdate;
       const form_params        = save_params.form_params;
 
-
-      console.log(form_params)
-      console.log(Array.isArray(form_params))
       if (action)
         save_params_string += `'action':'${action}',`;
       if (warn_on_duplicates)
@@ -752,8 +749,6 @@ namespace('kivi.Reclamation', function(ns) {
       }
     }
     save_params_string += '}';
-
-    console.log(save_params_string);
 
     var text1 = kivi.t8('You have entered or selected the following shipping address for this customer:');
     var text2 = kivi.t8('Do you want to carry this shipping address over to the new purchase reclamation so that the vendor can deliver the goods directly to your customer?');
