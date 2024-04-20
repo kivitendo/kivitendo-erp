@@ -29,7 +29,7 @@
         [% L.input_tag("add_items[].qty_as_number", '', size=5, class = 'multi_items_qty numeric wi-verysmall') %]
       </td>
       <td>[% HTML.escape(item.unit) %]</td>
-      <td>[% item.presenter.part %] [% HTML.escape(item.description) %]</td>
+      <td>[% item.presenter.part %] [% HTML.escape(item.description) %] [% HTML.escape(item.variant_values) %]</td>
       <td class="numeric">[% HTML.escape(item.sellprice_as_number) %]</td>
       <td class="numeric">[% HTML.escape(item.partsgroup.partsgroup) %]</td>
     </tr>
