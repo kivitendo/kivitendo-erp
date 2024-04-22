@@ -7,16 +7,17 @@
 <h1>[% FORM.title %]</h1>
 
 
-<div id="pos_content" class="wrapper" width="100%" >
-  <div id="pos_left" style="float:left;width:50%">
-    <table>
-      <tr>
-        <th>[% 'Customer' | $T8 %]</th>
-        <td> [% P.customer_vendor.picker("customer_id",'',type="customer", show_details="1", label=LxERP.t8('Customer')) %]</td>
-        <td>[% L.button_tag("input_delete", LxERP.t8('Input delete') ) %]</td>
-      </tr>
-    </table>
-
+<div id="pos_content" class="pos_content">
+  <div class="container_pos_left">
+    <div>
+      <table>
+        <tr>
+          <th>[% 'Customer' | $T8 %]</th>
+          <td> [% P.customer_vendor.picker("customer_id",'',type="customer", show_details="1", label=LxERP.t8('Customer')) %]</td>
+          <td>[% L.button_tag("input_delete", LxERP.t8('Input delete') ) %]</td>
+        </tr>
+      </table>
+    </div>
     
     <div class="toggle_panel control-panel toggle_order_info %]">
       <a href="#" onClick='javascript:$(".toggle_panel_block").toggle()' class="button toggle off neutral">Auftragsdaten</a>
@@ -159,45 +160,36 @@
         </table>
       </div> <!-- end table_left -->
     </div><!-- /.filter_toggle -->
-    
-[% PROCESS pos/tabs/_item_input.html SELF=SELF %]
-[% PROCESS pos/tabs/_rows_tmp.html %]
-  </div> <!-- Ende pos_left -->
-  <div id="pos_right" style="float:left;width:50% ">
-    <div class="container_pos_left">
-      <div class="empty"></div>
-      <div class="pos_button control-panel" onclick="alert('Funktion')">Funktion*</div>
-      <div class="pos_button control-panel">Funktion</div>
-      <div class="pos_button control-panel">[% "Salesman" | $T8 %]<br>
-        [% L.select_tag('order.salesman_id',
-              SELF.all_salesmen,
-              #[{id=1,name=werner},{id=2,name=Max}],
-              default=(SELF.order.salesman_id ? SELF.order.salesman_id : SELF.current_employee_id),
-              class='wi-normal',
-              title_key='safe_name') %]
-      </div>
-      <div class="empty"></div>
-      <div class="pos_button control-panel">Auswahl bezahlen/zurücknehmen</div>
-      <div class="pos_button control-panel">Nachlass gewähren</div>
-      <div class="empty"></div>
-      <div class="empty"></div>
-      <div class="pos_button control-panel">Nachdruck Quittung</div>
-      <div class="pos_button control-panel">Auf Rechnung</div>
-      <div class="empty"></div>
-      <div class="empty"></div>
-      <div class="pos_button control-panel">Entnahme erfassen</div>
-      <div class="pos_button control-panel">Auf Lieferschein</div>
-      <div class="empty"></div>
-      <div class="empty"></div>
-      <div class="pos_button control-panel">Quittung parken</div>
-      <div class="pos_button control-panel">geparkte Quittung</div>
-      <div class="empty"></div>
-      <div class="empty"></div>
-      <div class="pos_button control-panel">Bezahlen</div>
-      <div class="pos_button control-panel">Abbrechen</div>
-      <div class="empty"></div>
+    <div>    
+      [% PROCESS pos/tabs/_item_input.html SELF=SELF %]
     </div>
+    <div>
+      [% PROCESS pos/tabs/_rows_tmp.html %]
+    </div>
+  </div> <!-- Ende pos_left -->
+  <div class="container_pos_right">
+    <div class="pos_button control-panel" onclick="alert('Funktion')">Funktion*</div>
+    <div class="pos_button control-panel">Funktion</div>
+    <div class="pos_button control-panel">[% "Salesman" | $T8 %]<br>
+      [% L.select_tag('order.salesman_id',
+            SELF.all_salesmen,
+            #[{id=1,name=werner},{id=2,name=Max}],
+            default=(SELF.order.salesman_id ? SELF.order.salesman_id : SELF.current_employee_id),
+            class='wi-normal',
+            title_key='safe_name') %]
+    </div>
+    <div class="pos_button control-panel">Auswahl bezahlen/zurücknehmen</div>
+    <div class="pos_button control-panel">Nachlass gewähren</div>
+    <div class="pos_button control-panel">Nachdruck Quittung</div>
+    <div class="pos_button control-panel">Auf Rechnung</div>
+    <div class="pos_button control-panel">Entnahme erfassen</div>
+    <div class="pos_button control-panel">Auf Lieferschein</div>
+    <div class="pos_button control-panel">Quittung parken</div>
+    <div class="pos_button control-panel">geparkte Quittung</div>
+    <div class="pos_button control-panel">Bezahlen</div>
+    <div class="pos_button control-panel">Abbrechen</div>
   </div> <!-- Ende pos_right -->
+</div>
 
 
 

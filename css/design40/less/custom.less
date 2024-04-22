@@ -23,9 +23,30 @@
 // **********************************
 // MY SPECIAL CLASS
 // **********************************
+.pos_content{
+  display: grid;
+  grid-column: repeat(12, 1fr);
+  grid-template-rows: repeat(12,fr);
+  grid-gap: 20px;
+}
+
+.container_pos_right{
+  display: grid;
+  grid-column: 3 / 6;
+  grid-row: 1 /5;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(6, fr);
+  grid-gap: 10px;
+  height: calc(50vh - 10px);
+justify-self: center;
+align-self: center;
+}
+
 .container_pos_left{
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(23%, 100%), 1fr));
+  grid-column: 1 / 9;
+  grid-row: 1 /1;
+  grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(6, fr);
   grid-gap: 10px;
   height: calc(50vh - 10px);
