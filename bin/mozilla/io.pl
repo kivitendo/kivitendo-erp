@@ -2170,7 +2170,7 @@ sub setup_sales_purchase_print_options {
   my $print_form = Form->new('');
   $print_form->{printers}  = SL::DB::Manager::Printer->get_all_sorted;
 
-  $print_form->{$_} = $::form->{$_} for qw(type media printer_id storno formname groupitems);
+  $print_form->{$_} = $::form->{$_} for qw(type media printer_id storno storno_id formname groupitems);
 
   return SL::Helper::PrintOptions->get_print_options(
     form    => $print_form,
