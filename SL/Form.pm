@@ -2964,6 +2964,7 @@ sub save_status {
 # $main::locale->text('invoice_for_advance_payment')
 # $main::locale->text('final_invoice')
 # $main::locale->text('proforma')
+# $main::locale->text('storno_invoice')
 # $main::locale->text('sales_order_intake')
 # $main::locale->text('sales_order')
 # $main::locale->text('pick_list')
