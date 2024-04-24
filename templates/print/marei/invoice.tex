@@ -29,6 +29,10 @@
   \renewcommand{\rechnung}{\schlussrechnung}
 <%end template_meta.formname == "final_invoice"%>
 
+<%if template_meta.formname == "storno_invoice"%>
+  \renewcommand{\rechnung}{}
+<%end template_meta.formname == "storno_invoice"%>
+
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\rechnung}{<%invnumber%>}{<%invdate%>}
 
@@ -38,9 +42,17 @@
 \setkomavar{fromname}{<%employee_name%>}
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
+
+<%if template_meta.formname == "storno_invoice"%>%
+\setkomavar{title}{%
+  ~<%invnumber%>%
+}
+<%else%>%
 \setkomavar{title}{%
   \rechnung~ \nr ~<%invnumber%>%
 }
+<%end template_meta.formname == "storno_invoice"%>%
+
 <%if ordnumber%>%
   \setkomavar*{myref}{\auftragsnummer}
   \setkomavar{myref}{<%ordnumber%>}
@@ -187,13 +199,15 @@
     \lieferungErfolgtAm ~<%deliverydate%>.
   }\\
 
-  <%if payment_terms%>%
-    \zahlung ~<%payment_terms%>\\
-  <%end payment_terms%>%
+  <%if template_meta.formname != "storno_invoice"%>%
+    <%if payment_terms%>%
+      \zahlung ~<%payment_terms%>\\
+    <%end payment_terms%>%
 
-  <%if delivery_term%>%
-    \lieferung ~<%delivery_term.description_long%>\\
-  <%end delivery_term%>%
+    <%if delivery_term%>%
+      \lieferung ~<%delivery_term.description_long%>\\
+    <%end delivery_term%>%
+  <%end template_meta.formname != "storno_invoice"%>%
 
   <%if ustid%>\ihreustid ~<%ustid%>.\\<%end if%>%
 

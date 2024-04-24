@@ -5220,6 +5220,7 @@ $self->{texts} = {
   'stock'                       => '',
   'stock_br'                    => 'stock',
   'stocktaking'                 => '',
+  'storno_invoice'              => '',
   'succeeded'                   => '',
   'sum'                         => '',
   'supplier_delivery_order_list' => '',
