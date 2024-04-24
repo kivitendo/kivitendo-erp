@@ -257,7 +257,7 @@ sub _create_email_journal {
 
   my $email = $params{email};
   if ($email->content_type) { # decode header
-    my $charset = $email->content_type =~ /charset="(.+)"/ ? $1 : undef;
+    my $charset = $email->content_type =~ /charset="([A-Z0-9!#$%&'+-^_`{}~]+)"/i ? $1 : undef;
     if ($charset) {
       map { $email->header_str_set($_ => decode($charset, $email->header($_))) }
         $email->header_names;
