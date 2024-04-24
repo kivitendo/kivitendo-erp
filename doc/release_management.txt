@@ -163,14 +163,6 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
   $ scripts/locales.pl en
   $ scripts/locales.pl de
 
-* SL::DB::Helper::ALL auf Vollständigkeit prüfen
-
-  (TODO: Mag da einer ein Script für schreiben?
-     find SL/DB -type f | grep -v MetaSetup | grep -v Helper | grep -v Manager | sort
-   hilft, kriegt aber die Sortierung durcheinander)
-
-* SL::DB::Helper::ALLAuth auf Vollständigkeit prüfen
-
 * VERSION updaten
 
   Zu den Versionierungen ab 3.0.0:
