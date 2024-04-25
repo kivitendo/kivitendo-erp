@@ -121,7 +121,8 @@ sub get_best_price_and_discount_source {
     $price_src = $price_source->best_price
                ? $price_source->best_price
                : $price_source->price_from_source("");
-    $price_src->price($::form->round_amount($price_src->price / $record->exchangerate, 5)) if $record->exchangerate;
+
+    $price_src->price($::form->round_amount($price_src->price / $record->exchangerate, 5)) if $record->can('exchangerate') && $record->exchangerate;
     $price_src->price(0) if !$price_source->best_price;
   }
 
