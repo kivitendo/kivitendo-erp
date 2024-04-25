@@ -326,9 +326,7 @@
                         alt=LxERP.t8('Update from master data'),
                         title= LxERP.t8('Update from master data'),
                         onclick="if (!confirm('" _ LxERP.t8("Are you sure to update all positions from master data?") _ "')) return false; kivi.Reclamation.update_all_rows_from_master_data();",
-                        id='update_from_master',
-                        class='expand',
-                        ) %]
+                        id='update_from_master') %]
         </th>
         [%- END %]
         <th id="partnumber_header_id"><a href='#' onClick='javascript:kivi.Reclamation.reorder_items("partnumber")'> [%- 'Partnumber'  | $T8 %]</a></th>
