@@ -101,8 +101,8 @@ my %TYPE_TO_PARAMS = (
       title   => $::locale->text('Request Quotations'),
       type    => 'request_quotation',
       columns => [
-        [ $::locale->text('Quotation Date'),          'transdate'                                                                ],
-        [ $::locale->text('Quotation Number'),        sub { $_[0]->presenter->request_quotation(display => 'table-cell') }       ],
+        [ $::locale->text('RFQ Date'),                'transdate'                                                                ],
+        [ $::locale->text('RFQ Number'),              sub { $_[0]->presenter->request_quotation(display => 'table-cell') }       ],
         [ $::locale->text('Vendor'),                  'vendor'                                                                   ],
         [ $::locale->text('Net amount'),              'netamount'                                                                ],
         [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
