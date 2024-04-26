@@ -309,9 +309,9 @@
       <tr>
         <th class="center">
           [%- IF MYCONFIG.show_form_details %]
-            [%- L.img_tag(src="image/collapse.svg", alt=LxERP.t8('Hide all details'), title=LxERP.t8('Hide all details'), id='expand_all', "data-expanded"="1") %]
+            [%- L.img_tag(src="image/collapse.svg", alt=LxERP.t8('Hide all details'), title=LxERP.t8('Hide all details'), id='expand_all', class='row-icon', "data-expanded"="1") %]
           [%- ELSE %]
-            [%- L.img_tag(src="image/expand.svg", alt=LxERP.t8('Show all details'), title=LxERP.t8('Show all details'), id='expand_all') %]
+            [%- L.img_tag(src="image/expand.svg", alt=LxERP.t8('Show all details'), title=LxERP.t8('Show all details'), id='expand_all', class='row-icon') %]
           [%- END %]
         </th>
           <th>
@@ -326,7 +326,8 @@
                         alt=LxERP.t8('Update from master data'),
                         title= LxERP.t8('Update from master data'),
                         onclick="if (!confirm('" _ LxERP.t8("Are you sure to update all positions from master data?") _ "')) return false; kivi.Reclamation.update_all_rows_from_master_data();",
-                        id='update_from_master') %]
+                        id='update_from_master',
+                        class='row-icon') %]
         </th>
         [%- END %]
         <th id="partnumber_header_id"><a href='#' onClick='javascript:kivi.Reclamation.reorder_items("partnumber")'> [%- 'Partnumber'  | $T8 %]</a></th>
