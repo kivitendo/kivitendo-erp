@@ -173,7 +173,8 @@ my %TYPE_TO_PARAMS = (
       columns => [
         [ $::locale->text('Order Date'),              'transdate'                                                                ],
         [ $::locale->text('Order Number'),            sub { $_[0]->presenter->purchase_order(display => 'table-cell') }          ],
-        [ $::locale->text('Request for Quotation'),   'quonumber' ],
+        [ $::locale->text('Purchase Quotation Intake'), sub { my $order = $_[0]; join ', ', map { $_->quonumber } @{$order->preceding_purchase_quotation_intakes()} } ],
+        [ $::locale->text('Request for Quotation'),     sub { my $order = $_[0]; join ', ', map { $_->quonumber } @{$order->preceding_request_quotations()} } ],
         [ $::locale->text('Vendor'),                  'vendor'                                                                 ],
         [ $::locale->text('Net amount'),              'netamount'                                                                ],
         [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
