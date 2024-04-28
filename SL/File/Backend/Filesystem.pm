@@ -49,6 +49,9 @@ sub delete {
   return 1;
 }
 
+sub rename {
+}
+
 sub save {
   my ($self, %params) = @_;
 
