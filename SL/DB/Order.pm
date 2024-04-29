@@ -869,7 +869,12 @@ sub preceding_purchase_quotation_intakes {
   } else {
     if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
       my $order = SL::DB::Order->load_cached($self->{RECORD_ID()});
-      push @lrs, $order if $order->record_type eq PURCHASE_QUOTATION_INTAKE_TYPE();
+      if ($order->record_type eq PURCHASE_QUOTATION_INTAKE_TYPE()) {
+        push @lrs, $order;
+
+      } elsif ($order->record_type eq PURCHASE_ORDER_TYPE()) {
+        @lrs = @{ $order->preceding_purchase_quotation_intakes() || [] };
+      }
     }
   }
 
@@ -885,7 +890,12 @@ sub preceding_request_quotations {
   } else {
     if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
       my $order = SL::DB::Order->load_cached($self->{RECORD_ID()});
-      push @lrs, $order if $order->record_type eq REQUEST_QUOTATION_TYPE();
+      if ($order->record_type eq REQUEST_QUOTATION_TYPE()) {
+        push @lrs, $order
+
+      } elsif (any { $order->record_type eq $_ } (PURCHASE_ORDER_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())) {
+        @lrs = @{ $order->preceding_request_quotations() || [] };
+      }
     }
   }
 
