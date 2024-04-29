@@ -118,8 +118,17 @@
           </tr>
 
           <tr>
-            <th align="right">[% 'Transaction description' | $T8 %]</th>
-            <td>[% L.input_tag('order.transaction_description', SELF.order.transaction_description, 'data-validate'=INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : '', style='width: 300px') %]</td>
+            [% IF INSTANCE_CONF.get_kix18 %]
+              <th>[% 'Ticket Number' | $T8 %]</th>
+            [% ELSE %]
+              <th>[% 'Transaction description' | $T8 %]</th>
+            [% END %]
+            <td>[% L.input_tag('order.transaction_description', SELF.order.transaction_description, 'data-validate'=INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : '', class='wi-lightwide') %]
+                [% IF INSTANCE_CONF.get_kix18 &&  SELF.order.ticket_id %]
+                  [% kix18_url = LXCONFIG.kix18.kix_ticket_id_url %]
+                  <a href="[% kix18_url.replace('<%ticket_id%>', SELF.order.ticket_id) %]" target="_blank" title="[% 'Ticket' | $T8 %] ,[% 'Open in new window' | $T8 %]">Ticket</a>
+                [% END %]
+            </td>
           </tr>
 
           <tr>
