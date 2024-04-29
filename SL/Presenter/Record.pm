@@ -174,7 +174,7 @@ my %TYPE_TO_PARAMS = (
       columns => [
         [ $::locale->text('Order Date'),                'transdate'                                                                                                   ],
         [ $::locale->text('Order Number'),              sub { $_[0]->presenter->purchase_order(display => 'table-cell') }                                             ],
-        [ $::locale->text('Purchase Quotation Intake'), sub { my $order = $_[0]; join ', ', map { $_->quonumber } @{$order->preceding_purchase_quotation_intakes()} } ],
+        [ $::locale->text('Purchase Quotation Intake'), 'quonumber'                                                                                                   ],
         [ $::locale->text('Request for Quotation'),     sub { my $order = $_[0]; join ', ', map { $_->quonumber } @{$order->preceding_request_quotations()} }         ],
         [ $::locale->text('Vendor'),                    'vendor'                                                                                                      ],
         [ $::locale->text('Net amount'),                'netamount'                                                                                                   ],
@@ -194,7 +194,7 @@ my %TYPE_TO_PARAMS = (
         [ $::locale->text('Confirmation Date'),       'transdate'                                                                    ],
         [ $::locale->text('Confirmation Number'),     sub { $_[0]->presenter->purchase_order_confirmation(display => 'table-cell') } ],
         [ $::locale->text('Purchase Order'),          sub { my $order = $_[0]; join ', ', map { $_->ordnumber } @{$order->preceding_purchase_orders()} } ],
-        [ $::locale->text('Purchase Quotation Intake'), sub { my $order = $_[0]; join ', ', map { $_->quonumber } @{$order->preceding_purchase_quotation_intakes()} } ],
+        [ $::locale->text('Purchase Quotation Intake'), 'quonumber'                                                                  ],
         [ $::locale->text('Vendor'),                  'vendor'                                                                       ],
         [ $::locale->text('Net amount'),              'netamount'                                                                    ],
         [ $::locale->text('Transaction description'), 'transaction_description'                                                      ],
