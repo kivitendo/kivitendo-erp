@@ -828,6 +828,22 @@ sub netamount_base_currency {
   }
 }
 
+sub preceding_sales_order_intakes {
+  my ($self) = @_;
+
+  my @lrs = ();
+  if ($self->id) {
+    @lrs = grep { $_->record_type eq SALES_ORDER_INTAKE_TYPE() } @{$self->linked_records(from => 'SL::DB::Order')};
+  } else {
+    if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
+      my $order = SL::DB::Order->load_cached($self->{RECORD_ID()});
+      push @lrs, $order if $order->record_type eq SALES_ORDER_INTAKE_TYPE();
+    }
+  }
+
+  return \@lrs;
+}
+
 sub preceding_purchase_orders {
   my ($self) = @_;
 
@@ -838,6 +854,38 @@ sub preceding_purchase_orders {
     if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
       my $order = SL::DB::Order->load_cached($self->{RECORD_ID()});
       push @lrs, $order if $order->record_type eq PURCHASE_ORDER_TYPE();
+    }
+  }
+
+  return \@lrs;
+}
+
+sub preceding_purchase_quotation_intakes {
+  my ($self) = @_;
+
+  my @lrs = ();
+  if ($self->id) {
+    @lrs = grep { $_->record_type eq PURCHASE_QUOTATION_INTAKE_TYPE() } @{$self->linked_records(from => 'SL::DB::Order', recursive => 1)};
+  } else {
+    if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
+      my $order = SL::DB::Order->load_cached($self->{RECORD_ID()});
+      push @lrs, $order if $order->record_type eq PURCHASE_QUOTATION_INTAKE_TYPE();
+    }
+  }
+
+  return \@lrs;
+}
+
+sub preceding_request_quotations {
+  my ($self) = @_;
+
+  my @lrs = ();
+  if ($self->id) {
+    @lrs = grep { $_->record_type eq REQUEST_QUOTATION_TYPE() } @{$self->linked_records(from => 'SL::DB::Order', recursive => 1)};
+  } else {
+    if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
+      my $order = SL::DB::Order->load_cached($self->{RECORD_ID()});
+      push @lrs, $order if $order->record_type eq REQUEST_QUOTATION_TYPE();
     }
   }
 
