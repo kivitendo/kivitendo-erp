@@ -245,7 +245,7 @@ foreach (qw(
   id
   ordnumber salesman_id
   transaction_description
-  itime mtime
+  itime mtime ticket_id
   )) {
   $sales_order_tmp->$_(undef);
   $purchase_order_tmp->$_(undef);
@@ -285,7 +285,7 @@ my @different_record_values = qw(
   cusordnumber cv_record_number
   ordnumber record_number
   intake
-  vendor_confirmation_number
+  vendor_confirmation_number ticket_id
 );
 my @different_record_item_values = qw(
   id trans_id reclamation_id itime mtime
