@@ -269,6 +269,19 @@
       </tr>
     [% END %]
 
+    [% IF SELF.type == "sales_order" %]
+      <tr>
+        <th>[% 'Order Number' | $T8 %]</th>
+        [%-
+          numbers = [];
+          FOREACH p = SELF.order.preceding_sales_order_intakes();
+            numbers.push(HTML.escape(p.ordnumber));
+          END;
+        %]
+        <td><span class="data wi-normal">[% numbers.join(', ') %]</span></td>
+      </tr>
+    [% END %]
+
     [% IF SELF.type == "purchase_order_confirmation" %]
       <tr>
         <th>[% 'Order Number' | $T8 %]</th>
