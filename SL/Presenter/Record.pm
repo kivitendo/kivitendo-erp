@@ -153,8 +153,8 @@ my %TYPE_TO_PARAMS = (
       title   => $::locale->text('Sales Order Confirmations'),
       type    => 'sales_order',
       columns => [
-        [ $::locale->text('Order Date'),              'transdate'                                                                ],
-        [ $::locale->text('Order Number'),            sub { $_[0]->presenter->sales_order(display => 'table-cell') }             ],
+        [ $::locale->text('Confirmation Date'),       'transdate'                                                                ],
+        [ $::locale->text('Confirmation Number'),     sub { $_[0]->presenter->sales_order(display => 'table-cell') }             ],
         [ $::locale->text('Quotation'),               'quonumber' ],
         [ $::locale->text('Customer'),                'customer'                                                                 ],
         [ $::locale->text('Net amount'),              'netamount'                                                                ],
