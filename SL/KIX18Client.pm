@@ -19,7 +19,7 @@ use Rose::Object::MakeMethods::Generic (
 
 
 sub create_ticket_with_article {
-  my ($self) = shift;
+  my $self = shift;
   validate(
     @_, {
           ticket  => { type => HASHREF },
@@ -34,7 +34,7 @@ sub create_ticket_with_article {
 }
 
 sub get_ticket {
-  my ($self) = shift;
+  my $self = shift;
   die "Invalid connection state" unless $self->connector->can('GET');
 
   validate(
@@ -50,7 +50,7 @@ sub get_ticket {
 }
 
 sub create_ticket {
-  my ($self) = shift;
+  my $self = shift;
   die "Invalid connection state" unless $self->connector->can('POST');
 
   validate(
@@ -71,7 +71,7 @@ sub create_ticket {
 }
 
 sub create_article {
-  my ($self) = shift;
+  my $self = shift;
   die "Invalid connection state" unless $self->connector->can('POST');
 
   validate(
