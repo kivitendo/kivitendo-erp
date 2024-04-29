@@ -603,7 +603,7 @@ sub new_from {
   if ( $is_abbr_any->(qw(soiso pocpoc pocpo popoc)) ) {
     $args{ordnumber} = undef;
   }
-  if ( $is_abbr_any->(qw(rqpqi pqisq)) ) {
+  if ( $is_abbr_any->(qw(rqpqi pqisq rqpo)) ) {
     $args{quonumber} = undef;
   }
 
