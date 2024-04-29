@@ -155,6 +155,7 @@ my %TYPE_TO_PARAMS = (
       columns => [
         [ $::locale->text('Confirmation Date'),       'transdate'                                                                ],
         [ $::locale->text('Confirmation Number'),     sub { $_[0]->presenter->sales_order(display => 'table-cell') }             ],
+        [ $::locale->text('Order Number'),            sub { my $order = $_[0]; join ', ', map { $_->ordnumber } @{$order->preceding_sales_order_intakes()} } ],
         [ $::locale->text('Quotation'),               'quonumber' ],
         [ $::locale->text('Customer'),                'customer'                                                                 ],
         [ $::locale->text('Net amount'),              'netamount'                                                                ],
