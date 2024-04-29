@@ -459,3 +459,21 @@ external_prefix = 0
 international_dialing_prefix = 00
 # Our own country code
 our_country_code = 49
+
+[kix18]
+
+# mandantory auth
+kix_api_user=
+kix_api_user_pw=
+kix_api_url=
+
+# set proxy and protocol if needed
+proxy =
+protocol= # if url has no http(s) set https or http here
+
+# optional for clickable links
+# needs variable <%order_id%> as placeholder
+kivi_order_url=  # https://kivi.de/controller.pl?action=Order/edit&type=sales_order&id=<%order_id%>
+# needs variable <%ticket_id%> as placeholder
+kix_ticket_id_url= # https://kix.de/tickets/<%ticket_id%>
+
