@@ -150,7 +150,7 @@ my %TYPE_TO_PARAMS = (
   sales_order => sub {
     my (%params) = @_;
     {
-      title   => $::locale->text('Sales Orders'),
+      title   => $::locale->text('Sales Order Confirmations'),
       type    => 'sales_order',
       columns => [
         [ $::locale->text('Order Date'),              'transdate'                                                                ],
