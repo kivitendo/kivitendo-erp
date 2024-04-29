@@ -131,6 +131,7 @@ __PACKAGE__->meta->columns(
   is_show_mark_as_paid                      => { type => 'boolean', default => 'true' },
   is_transfer_out                           => { type => 'boolean', default => 'false', not_null => 1 },
   itime                                     => { type => 'timestamp', default => 'now()' },
+  kix18                                     => { type => 'boolean', default => 'false' },
   language_id                               => { type => 'integer' },
   layout_style                              => { type => 'text' },
   letternumber                              => { type => 'integer' },

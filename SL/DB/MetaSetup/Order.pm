@@ -49,6 +49,7 @@ __PACKAGE__->meta->columns(
   tax_point                  => { type => 'date' },
   taxincluded                => { type => 'boolean' },
   taxzone_id                 => { type => 'integer', not_null => 1 },
+  ticket_id                  => { type => 'integer' },
   transaction_description    => { type => 'text' },
   transdate                  => { type => 'date', default => 'now' },
   vendor_confirmation_number => { type => 'text' },
