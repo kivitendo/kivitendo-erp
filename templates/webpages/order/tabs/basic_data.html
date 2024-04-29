@@ -258,6 +258,9 @@
               %]
             <td>[% numbers.join(', ') %]</td>
           </tr>
+          [%- END %]
+
+          [% IF (SELF.type == "purchase_quotation_intake" || SELF.type == "purchase_order" || SELF.type == "purchase_order_confirmation") %]
           <tr>
             <th width="70%" align="right" nowrap>[% 'RFQ Number' | $T8 %]</th>
             [%-
