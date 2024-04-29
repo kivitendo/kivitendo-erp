@@ -33,6 +33,22 @@ sub create_ticket_with_article {
   return $params{article}{TicketID};
 }
 
+sub get_ticket {
+  my ($self) = shift;
+  die "Invalid connection state" unless $self->connector->can('GET');
+
+  validate(
+    @_, {
+          ticket_id => 1,
+        }
+  );
+  my %params = @_;
+
+  my $ret = _decode_and_status_code($self->connector->GET("tickets/$params{ticket_id}"));
+
+  return $ret;
+}
+
 sub create_ticket {
   my ($self) = shift;
   die "Invalid connection state" unless $self->connector->can('POST');
@@ -64,8 +80,8 @@ sub create_article {
           Body    => 1,
           Channel     => { type => SCALAR, default => 'note'                      },
           Charset     => { type => SCALAR, default => 'utf-8'                     },
-          MimeType    => { type => SCALAR, default => 'text/plain',               },
-          ContentType => { type => SCALAR, default => 'text/plain; charset=utf-8' },
+          MimeType    => { type => SCALAR, default => 'text/html',               },
+          ContentType => { type => SCALAR, default => 'text/html; charset=utf-8' },
 
           TicketID => { callbacks => {
                          'is an integer' => sub {
@@ -82,8 +98,8 @@ sub create_article {
   # therefore the defaults need to be defined again:
   $params{Channel}     //= 'note';
   $params{Charset}     //= 'utf-8';
-  $params{MimeType}    //= 'text/plain';
-  $params{ContentType} //= 'text/plain; charset=utf-8';
+  $params{MimeType}    //= 'text/html';
+  $params{ContentType} //= 'text/html; charset=utf-8';
 
   my %a_params = ();
   foreach (keys %params) {
@@ -137,7 +153,7 @@ sub _decode_and_status_code {
   my ($ret) = @_;
 
   die t8("Unsuccessful HTTP return code: #1 Details: #2", $ret->responseCode(), $ret->responseContent())
-    unless $ret->responseCode() == 201;
+    unless $ret->responseCode() == 201 || $ret->responseCode() == 200;
 
   try {
    return decode_json($ret->responseContent());
@@ -184,6 +200,11 @@ https://github.com/kix-service-software/kix-backend/blob/master/doc/API/V1/KIX.h
 =head1 AVAILABLE METHODS
 
 =over 4
+
+=item C<get_ticket $ticket_id>
+
+Gets the specific ticket with $ticket_id and returns all standard ticket data
+as a nested hash structure.
 
 =item C<create_ticket $Title>
 
