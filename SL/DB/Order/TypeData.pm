@@ -27,11 +27,11 @@ my %type_data = (
     text => {
       delete => t8('The order confirmation has been deleted'),
       saved  => t8('The order confirmation has been saved'),
-      add    => t8("Add Sales Order"),
-      edit   => t8("Edit Sales Order"),
-      list   => t8("Sales Orders"),
-      type   => t8("Sales Order"),
-      attachment => t8("sales_order_list"),
+      add    => t8("Add Sales Order Confirmation"),
+      edit   => t8("Edit Sales Order Confirmation"),
+      list   => t8("Sales Order Confirmations"),
+      type   => t8("Sales Order Confirmation"),
+      attachment => t8("sales_order_confirmation_list"),
     },
     show_menu => {
       save_and_quotation                   => 1,
