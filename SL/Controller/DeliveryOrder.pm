@@ -34,6 +34,7 @@ use SL::DB::TransferType;
 use SL::DB::ValidityToken;
 use SL::DB::EmailJournal;
 use SL::DB::Warehouse;
+use SL::DB::Bin;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
@@ -1220,6 +1221,7 @@ sub action_transfer_stock_default {
       my $max_qty = sum0(map {$_->{qty}} @grouped_qty);
       if ($max_qty < $parts_qty{$part_id}) {
         $parts_errors{$part_id}{missing_qty} = $parts_qty{$part_id} - $max_qty;
+        $parts_errors{$part_id}{bin_id}      = $bin_id;
       }
 
       next if $parts_errors{$part_id};
@@ -1259,9 +1261,12 @@ sub action_transfer_stock_default {
         $self->js->error(t8('No standard bin set for #1.', $part->displayable_name));
       }
       if ($parts_errors{$part_id}{missing_qty}) {
+        my $bin = SL::DB::Manager::Bin->find_by(
+          id => $parts_errors{$part_id}{bin_id}
+        );
         $self->js->error(
-          t8('There are #1 of "#2" missing from the standard bin #3 for transfer.',
-            $parts_errors{$part_id}{missing_qty}, $part->displayable_name, $part->bin->full_description));
+          t8('There are #1 of "#2" missing from the bin #3 for transfer.',
+            $parts_errors{$part_id}{missing_qty}, $part->displayable_name, $bin->full_description));
       }
       if ($parts_errors{$part_id}{multiple_options}){
         push @multiple_options, $part;
