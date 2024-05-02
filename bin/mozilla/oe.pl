@@ -332,7 +332,7 @@ sub search {
     $form->{vc}        = 'customer';
     $form->{ordnrname} = 'ordnumber';
     $form->{title}     = $locale->text('Sales Order Confirmations');
-    $form->{ordlabel}  = $locale->text('Order Number');
+    $form->{ordlabel}  = $locale->text('Order Confirmation Number');
 
   } elsif ($form->{type} eq 'sales_quotation') {
     $form->{vc}        = 'customer';
@@ -515,7 +515,7 @@ sub orders {
     'transdate'               => { 'text' => $locale->text('Date'), },
     'reqdate'                 => { 'text' => $form->{type} =~ /_order/ ? $locale->text('Required by') : $locale->text('Valid until') },
     'id'                      => { 'text' => $locale->text('ID'), },
-    'ordnumber'               => { 'text' => $form->{type} eq "purchase_order_confirmation" ? $locale->text('Confirmation'): $locale->text('Order'), },
+    'ordnumber'               => { 'text' => (any {$form->{type} eq $_} qw(sales_order purchase_order_confirmation)) ? $locale->text('Confirmation'): $locale->text('Order'), },
     'quonumber'               => { 'text' => $form->{type} eq "request_quotation" ? $locale->text('RFQ') : $locale->text('Quotation'), },
     'cusordnumber'            => { 'text' => $locale->text('Customer Order Number'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
