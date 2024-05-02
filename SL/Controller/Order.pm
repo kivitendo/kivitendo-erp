@@ -5,7 +5,6 @@ use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash flash_later);
 use SL::HTML::Util;
-use SL::KIX18Client;
 use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
@@ -2115,8 +2114,9 @@ sub save {
     my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
     die t8('This record contains not orderable items at position #1', join ', ', @order_locked_positions) if @order_locked_positions;
   }
-  $self->create_kix18_ticket if (   $::instance_conf->get_kix18 && $self->type eq SALES_ORDER_TYPE()
-                                 && $is_new && !$::form->{transaction_description}                   );
+
+  SL::Helper::KIX18->create_kix18_ticket('foo', order => $self->order) if (   $::instance_conf->get_kix18 && $self->type eq SALES_ORDER_TYPE()
+                                                                           && $is_new && !$::form->{transaction_description}                   );
 
   # create first version if none exists
   $self->order->add_order_version(SL::DB::OrderVersion->new(version => 1)) if !$self->order->order_version;
@@ -2177,8 +2177,8 @@ sub save {
                           link_requirement_specs_linking_to_created_from_objects => \@converted_from_oe_ids,
                           set_project_in_linked_requirement_specs                => 1,
   );
-  $self->create_kix18_article if (   $::instance_conf->get_kix18 && $self->type eq SALES_ORDER_TYPE()
-                                  && $is_new && $self->order->ticket_id                               );
+  SL::Helper::KIX18->create_kix18_article('foo', order => $self->order) if (   $::instance_conf->get_kix18 && $self->type eq SALES_ORDER_TYPE()
+                                                                && $is_new && $self->order->ticket_id                               );
 
 
   if ($::form->{email_journal_id}) {
@@ -2890,49 +2890,6 @@ sub store_doc_to_webdav_and_filemanagement {
   }
 
   return @errors;
-}
-
-sub create_kix18_ticket {
-  my ($self) = @_;
-
-  try {
-    # create new ticket
-    my $customer_name = $self->order->customer->name;
-    my $title = t8("Order for #1", $customer_name);
-    $self->{kix18_client} //= SL::KIX18Client->new();
-    my $id     = $self->{kix18_client}->create_ticket(Title => $title);
-    my $ticket = $self->{kix18_client}->get_ticket(ticket_id => $id);
-    die "Invalid ticket number" unless $ticket->{Ticket}{TicketNumber};
-
-    $self->order->transaction_description($ticket->{Ticket}{TicketNumber});
-    $self->order->ticket_id($id);
-    $self->order->order_status_id(SL::DB::Manager::OrderStatus->find_by(name => 'Ticket offen')->id);
-
-    flash_later('info', t8("Ticket with ID #1 created.", $ticket->{Ticket}{TicketNumber}));
-
-  } catch { die t8("Communication error KIX18: #1", $_ ) };
-}
-
-sub create_kix18_article {
-  my ($self) = @_;
-  my $customer_name = $self->order->customer->name;
-  my $title = t8("Order for #1", $customer_name);
-  my $note  = '<b>' . t8("Details:") . '</b>' . "<br>";
-  foreach my $item (@{ $self->order->items }) {
-    $title .= " " . $item->description;
-    $note  .= $item->qty . " " . $item->unit . " " . $item->description . "<br>";
-  }
-  if ($::lx_office_conf{kix18}->{kivi_order_url}) {
-    my $id = $self->order->id;
-    my $link = $::lx_office_conf{kix18}->{kivi_order_url} =~ s/<%order_id%>/$id/r;
-    $note .= t8('kivitendo Sales Order') . ': <a href="' . $link . '">' . $self->order->ordnumber . '</a>';
-  }
-  try {
-    # create article for Ticket
-    #$self->{kix18_client} //= SL::KIX18Client->new();
-    $self->{kix18_client}->create_article(Subject => $title, Body => $note, TicketID => $self->order->ticket_id);
-
-  } catch { die t8("Communication error KIX18: #1", $_ ) };
 }
 
 sub init_type_data {

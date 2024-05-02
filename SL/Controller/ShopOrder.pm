@@ -152,8 +152,14 @@ sub action_transfer {
     $self->redirect_to(controller => "ShopOrder", action => 'show', id => $self->shop_order->id);
   }else{
     $order->db->with_transaction( sub {
+
+      SL::Helper::KIX18->create_kix18_ticket('foo', order => $order)  if ($::instance_conf->get_kix18);
+
       $order->calculate_prices_and_taxes;
       $order->save;
+
+      SL::Helper::KIX18->create_kix18_article('foo', order => $order) if ($::instance_conf->get_kix18);
+
       SL::DB::OrderVersion->new(oe_id => $order->id, version => 1)->save;
 
       my $snumbers = "ordernumber_" . $order->ordnumber;
