@@ -37,7 +37,11 @@
     </tr>
 
     <tr>
-     <th align="right">[% 'Order Number' | $T8 %]</th>
+     [%- IF type == "sales_delivery_order" %]
+      <th align="right">[% 'Order Confirmation Number' | $T8 %]</th>
+     [%- ELSE %]
+      <th align="right">[% 'Order Number' | $T8 %]</th>
+     [%- END %]
      <td colspan="3"><input name="ordnumber" class="fixed_width"></td>
     </tr>
 
@@ -186,7 +190,11 @@
        <tr>
         <td>
          <input name="l_ordnumber" id="l_ordnumber" class="checkbox" type="checkbox" value="Y" checked>
-         <label for="l_ordnumber">[% 'Order Number' | $T8 %]</label>
+         [%- IF type == "sales_delivery_order" %]
+           <label for="l_ordnumber">[% 'Order Confirmation Number' | $T8 %]</label>
+          [%- ELSE %]
+           <label for="l_ordnumber">[% 'Order Number' | $T8 %]</label>
+          [%- END %]
         </td>
 
         [%- IF type == "purchase_delivery_order" %]
