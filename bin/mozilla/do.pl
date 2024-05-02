@@ -190,7 +190,7 @@ sub orders {
     'reqdate'                 => { 'text' => $locale->text('Reqdate'), },
     'id'                      => { 'text' => $locale->text('ID'), },
     'donumber'                => { 'text' => $locale->text('Delivery Order'), },
-    'ordnumber'               => { 'text' => $locale->text('Order'), },
+    'ordnumber'               => { 'text' => $form->{type} eq 'sales_delivery_order' ? $locale->text('Confirmation') : $locale->text('Order') },
     'customernumber'          => { 'text' => $locale->text('Customer Number'), },
     'cusordnumber'            => { 'text' => $locale->text('Customer Order Number'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
