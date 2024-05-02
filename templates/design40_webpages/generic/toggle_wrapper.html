@@ -12,7 +12,7 @@
   <script type="text/javascript">
     var toggles_id = "#toggles" ; // surrounding container of the toggle buttons
     var wrapper = new Object() ;
-    $(document).ready(function(){
+    $( window ).on( "load", function() {
       if( $(toggles_id).parent().attr('class') == "wrapper" ) {
         wrapper = $(toggles_id).parent() ; // closest surrounding wrapper to toggle, must have the class .wrapper
         $(wrapper).addClass("toggled") ; // change the wrapper into a inline-block instead of a 100%-width-block
