@@ -1332,7 +1332,8 @@ sub order_details {
   $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
 
   $form->{order}     = SL::DB::Manager::Order->find_by(id => $form->{id}) if $form->{id};
-  $form->{rfqnumber} = join( ', ',  map { $_->quonumber } @{$form->{order}->preceding_request_quotations()}) if $form->{order};
+  $form->{rfqnumber} = join( ', ',  map { $_->quonumber } @{$form->{order}->preceding_request_quotations()})  if $form->{order};
+  $form->{soinumber} = join( ', ',  map { $_->ordnumber } @{$form->{order}->preceding_sales_order_intakes()}) if $form->{order};
 
   $form->{$_} = $form->format_amount($myconfig, $form->{$_}, 2) for @separate_totals;
 
