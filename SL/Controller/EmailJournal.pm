@@ -327,20 +327,33 @@ sub action_show_attachment {
     $::form->error(t8('You do not have permission to access this entry.'));
   }
 
+  my $name = $attachment->name;
+  my $content = \$attachment->content;
   my $mime_type = $attachment->mime_type;
+
+  # try to guess the mime_type
   if ($mime_type eq 'application/octet-stream') {
-    # try to guess the mime_type
     if ($attachment->content =~ m/^%PDF/) {
       $mime_type = 'application/pdf';
     } else {
       $mime_type = File::MimeInfo::Magic::mimetype($attachment->name);
-      $mime_type = 'text/plain' if $mime_type eq 'application/octet-stream';
+      $mime_type ||= 'text/plain';
     }
   }
 
+  # only show standard types
+  if (!any {$mime_type eq $_} qw(
+    text/plain text/xml image/png image/jpeg
+    application/pdf application/json application/xml
+    )) {
+    $content = \t8("Can't display file")->translated;
+    $name = '';
+    $mime_type = 'text/plain';
+  }
+
   return $self->send_file(
-    \$attachment->content,
-    name => $attachment->name,
+    $content,
+    name => $name,
     type => $mime_type,
     content_disposition => 'inline',
   );
