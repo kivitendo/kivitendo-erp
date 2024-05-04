@@ -32,6 +32,7 @@ use SL::DB::Manager::Vendor;
 
 use List::Util qw(first);
 use List::MoreUtils qw(any);
+use File::MimeInfo::Magic;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -326,10 +327,21 @@ sub action_show_attachment {
     $::form->error(t8('You do not have permission to access this entry.'));
   }
 
+  my $mime_type = $attachment->mime_type;
+  if ($mime_type eq 'application/octet-stream') {
+    # try to guess the mime_type
+    if ($attachment->content =~ m/^%PDF/) {
+      $mime_type = 'application/pdf';
+    } else {
+      $mime_type = File::MimeInfo::Magic::mimetype($attachment->name);
+      $mime_type = 'text/plain' if $mime_type eq 'application/octet-stream';
+    }
+  }
+
   return $self->send_file(
     \$attachment->content,
     name => $attachment->name,
-    type => $attachment->mime_type,
+    type => $mime_type,
     content_disposition => 'inline',
   );
 }
