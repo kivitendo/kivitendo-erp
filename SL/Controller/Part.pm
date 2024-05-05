@@ -952,7 +952,7 @@ sub action_reorder_variants {
     lastcost         => sub { $_[0]->lastcost },
     onhand           => sub { $_[0]->onhand },
     rop              => sub { $_[0]->rop },
-    variant_values   => sub { $_[0]->variant_values },
+    variant_values   => sub { $_[0]->variant_values_sortkey },
   );
   foreach my $variant_property (@{$part->variant_properties}) {
     my $key = 'variant_property_' . $variant_property->id;

@@ -748,6 +748,15 @@ sub variant_values {
   )  . "]";
 }
 
+sub variant_values_sortkey {
+  my ($self) = @_;
+  join('',
+    map { (10000 + $_->variant_property->sortkey ) . (10000 + $_->sortkey) }
+    sort { $a->variant_property->sortkey <=> $b->variant_property->sortkey }
+    @{$self->variant_property_values}
+  )
+};
+
 sub variant_value {
   my ($self, $variant_property) = @_;
   die "only callable on parts of type parent_variant"     unless $self->is_variant;

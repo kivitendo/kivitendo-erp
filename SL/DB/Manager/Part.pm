@@ -259,11 +259,7 @@ sub sort_variants {
     sort { $a->{sortkey} cmp $b->{sortkey} }
     map { {
       variant => $_,
-      sortkey => join('', map {
-          (10000 + $_->variant_property->sortkey ) . (10000 + $_->sortkey)
-        } @{$_->variant_property_values}
-      ),
-
+      sortkey => $_->variant_values_sortkey,
     } }
     @$variants;
   return \@sorted_variants;
