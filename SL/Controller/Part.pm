@@ -861,6 +861,15 @@ sub action_print_label {
 sub action_export_assembly_assortment_components {
   my ($self) = @_;
 
+  my $recursively = !! delete $::form->{recursively};
+  my $items;
+  if ($recursively) {
+    die "export_assembly_assortment_components: recursively only works for assemblies by now" if !$self->part->is_assembly;
+    $items = $self->part->assembly_items_recursively;
+  } else {
+    $items = $self->part->items;
+  }
+
   my $bom_or_charge = $self->part->is_assembly ? 'bom' : 'charge';
 
   my @rows = ([
@@ -877,7 +886,9 @@ sub action_export_assembly_assortment_components {
     $::locale->text('Partsgroup'),
   ]);
 
-  foreach my $item (@{ $self->part->items }) {
+  unshift @{$rows[0]}, $::locale->text('Level') if $recursively;
+
+  foreach my $item (@$items) {
     my $part = $item->part;
 
     my @row = (
@@ -893,6 +904,8 @@ sub action_export_assembly_assortment_components {
       $part->lastcost_as_number,
       $part->partsgroup ? $part->partsgroup->partsgroup : '',
     );
+
+    unshift @row, $item->{level} if $recursively;
 
     push @rows, \@row;
   }
@@ -912,10 +925,11 @@ sub action_export_assembly_assortment_components {
   $file_handle->close;
 
   my $type_prefix     = $self->part->is_assembly ? 'assembly' : 'assortment';
+  my $recursively_txt = $recursively ? '_recursivley' : '';
   my $part_number     = $self->part->partnumber;
   $part_number        =~ s{[^[:word:]]+}{_}g;
   my $timestamp       = strftime('_%Y-%m-%d_%H-%M-%S', localtime());
-  my $attachment_name = sprintf('%s_components_%s_%s.csv', $type_prefix, $part_number, $timestamp);
+  my $attachment_name = sprintf('%s_components%s_%s_%s.csv', $type_prefix, $recursively_txt, $part_number, $timestamp);
 
   $self->send_file(
     $file_name,
@@ -1777,6 +1791,16 @@ sub _setup_form_action_bar {
                     : !$::auth->assert('purchase_order_edit', 'may fail') ? t8('You do not have the permissions to access this function.')
                     :                                                       undef,
           only_if  => $self->part->is_assembly || $self->part->is_assortment,
+        ],
+        action => [
+          t8('Assembly items recursively'),
+          submit   => [ '#ic', { action => "Part/export_assembly_assortment_components", recursively => 1 } ],
+          checks   => ['kivi.validate_form'],
+          disabled => !$self->part->id                                    ? t8('The object has not been saved yet.')
+                    : !$may_edit                                          ? t8('You do not have the permissions to access this function.')
+                    : !$::auth->assert('purchase_order_edit', 'may fail') ? t8('You do not have the permissions to access this function.')
+                    :                                                       undef,
+          only_if  => $self->part->is_assembly,
         ],
       ],
 
