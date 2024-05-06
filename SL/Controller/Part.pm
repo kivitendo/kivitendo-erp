@@ -939,6 +939,14 @@ sub action_export_assembly_assortment_components {
 
 }
 
+sub action_export_assembly_components_recursively {
+  my ($self) = @_;
+
+  $::form->{recursively} = 1;
+  $self->action_export_assembly_assortment_components;
+}
+
+
 # helper functions
 sub validate_add_items {
   scalar @{$::form->{add_items}};
@@ -1794,7 +1802,7 @@ sub _setup_form_action_bar {
         ],
         action => [
           t8('Assembly items recursively'),
-          submit   => [ '#ic', { action => "Part/export_assembly_assortment_components", recursively => 1 } ],
+          submit   => [ '#ic', { action => "Part/export_assembly_components_recursively" } ],
           checks   => ['kivi.validate_form'],
           disabled => !$self->part->id                                    ? t8('The object has not been saved yet.')
                     : !$may_edit                                          ? t8('You do not have the permissions to access this function.')
