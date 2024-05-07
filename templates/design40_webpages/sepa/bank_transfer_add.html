@@ -59,6 +59,7 @@
           <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(invoice.amount_less_skonto, 2) %]">
           <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.open_amount - invoice.transfer_amount, 2) %]">
           <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.skonto_amount, 2) %]">
+          [% L.hidden_tag('bank_transfers[].type', invoice.type) %]
           [% IF invoice.vc_bank_info_ok && !invoice.is_sepa_blocked %]
             [% L.checkbox_tag("ids[]", value=invoice.id, checked=invoice.checked) %]
           [% END %]
@@ -124,7 +125,11 @@
   <p><sup>(1)</sup>
     [% IF is_vendor %]
       [% 'No bank information has been entered in this vendor\'s master data entry. You cannot create bank transfers unless you enter bank information.' | $T8 %]
-      [% "The required information consists of the IBAN and the BIC." | $T8 %]
+      [% IF !INSTANCE_CONF.get_sepa_swiss_xml_export %]
+        [% "The required information consists of the IBAN and the BIC." | $T8 %]
+      [% ELSE %]
+        [% "The required information consists of the IBAN for domestic payments. And IBAN and the BIC for SEPA payments." | $T8 %]
+      [% END %]
     [% ELSE %]
       [% 'No bank information has been entered in this customer\'s master data entry. You cannot create bank collections unless you enter bank information.' | $T8 %]
       [% "The required information consists of the IBAN, the BIC, the mandator ID and the mandate's date of signature." | $T8 %]
