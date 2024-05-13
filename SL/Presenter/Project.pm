@@ -46,6 +46,13 @@ sub project_picker {
 
   my %data_params = map { $_ => delete $params{$_}  } grep { defined $params{$_} } qw(customer_id active valid description_style);
 
+  # If there is no 'onClick' parameter, set it to 'this.select()',
+  # so that the user can type directly in the input field
+  # to search another project.
+  if (!grep { m{onclick}i } keys %params) {
+    $params{onClick} = 'this.select()';
+  }
+
   my $ret =
     input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
               'data-project-picker-data' => JSON::to_json(\%data_params),

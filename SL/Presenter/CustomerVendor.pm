@@ -66,6 +66,13 @@ sub customer_vendor_picker {
 
   my $show_details = delete $params{show_details} // 0;
 
+  # If there is no 'onClick' parameter, set it to 'this.select()',
+  # so that the user can type directly in the input field
+  # to search another customer/vendor.
+  if (!grep { m{onclick}i } keys %params) {
+    $params{onClick} = 'this.select()';
+  }
+
   my $ret =
     input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
       'data-customer-vendor-picker-data' => JSON::to_json(\%params),
