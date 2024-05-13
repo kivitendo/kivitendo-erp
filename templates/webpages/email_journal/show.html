@@ -23,6 +23,7 @@
      <th>[% LxERP.t8("Attachment name") %]</th>
      <th>[% LxERP.t8("MIME type") %]</th>
      <th>[% LxERP.t8("Size") %]</th>
+     <th>[% LxERP.t8("Processed") %]</th>
     </tr>
    </thead>
 
@@ -32,6 +33,7 @@
       <td>[% L.link(SELF.url_for(action="download_attachment", id=attachment.id), attachment.name) %]</td>
       <td>[% HTML.escape(attachment.mime_type) %]</td>
       <td>[% HTML.escape(LxERP.format_amount(attachment.content.length, 0)) %]</td>
+      <td>[% HTML.escape(attachment.processed_as_bool_yn) %]</td>
      </tr>
     [% END %]
    </tbody>
