@@ -552,6 +552,34 @@ sub action_toggle_obsolete {
   return;
 }
 
+sub action_toggle_attachment_processed {
+  my ($self) = @_;
+
+  $::auth->assert('email_journal');
+
+  my $attachment = SL::DB::EmailJournalAttachment->new(
+    id => $::form->{attachment_id}
+  )->load();
+  $self->entry($attachment->email_journal);
+
+  if (!$self->can_view_all && ($self->entry->sender_id != SL::DB::Manager::Employee->current->id)) {
+    $::form->error(t8('You do not have permission to access this entry.'));
+  }
+
+  $attachment->processed(!$attachment->processed);
+  $attachment->save;
+
+  $self->js
+  ->html('#processed_' . $attachment->id, $attachment->processed_as_bool_yn)
+  ->flash('info',
+    $attachment->processed ?
+      t8('Attachment \'#1\' set to processed.', $attachment->name)
+    : t8('Attachment \'#1\' set to unprocessed.', $attachment->name)
+  )->render();
+
+  return;
+}
+
 #
 # filters
 #
