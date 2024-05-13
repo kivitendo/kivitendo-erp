@@ -137,7 +137,7 @@ sub action_add_from_record {
     my @items_with_not_delivered_qty =
       grep {$_->qty > 0}
       map {$_->qty($_->qty - $_->shipped_qty); $_}
-      @{$record->items};
+      @{$record->items_sorted};
     $flags{items} = \@items_with_not_delivered_qty;
   }
   my $delivery_order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
