@@ -91,6 +91,7 @@ sub new_from {
       longdescription
       marge_price_factor
       parts_id
+      position
       price_factor
       price_factor_id
       project_id
