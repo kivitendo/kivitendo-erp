@@ -66,6 +66,14 @@
             ) %]
       </td>
     </tr>
+    <tr>
+      <th>[% LxERP.t8("Has unprocessed attachments") %]</th>
+      <td>[% L.yes_no_tag("filter.has_unprocessed_attachments:eq_ignore_empty",
+            filter.has_unprocessed_attachments, with_empty=1,
+            default=filter.has_unprocessed_attachments_eq_ignore_empty
+            ) %]
+      </td>
+    </tr>
   </table>
 
   [% L.hidden_tag("sort_by", FORM.sort_by) %]

@@ -27,6 +27,7 @@
     <th>[% L.sortable_table_header("record_type") %]</th>
     <th>[% L.sortable_table_header("obsolete") %]</th>
     <th>[% L.sortable_table_header("linked_to") %]</th>
+    <th>[% L.sortable_table_header("has_unprocessed_attachments") %]</th>
    </tr>
   </thead>
 
@@ -57,6 +58,7 @@
    <td>
      [% P.record.simple_grouped_record_list(entry.linked_records) %]
    </td>
+    <td>[% HTML.escape(entry.has_unprocessed_attachments) %]</td>
   </tr>
   [%- END %]
   </tbody>

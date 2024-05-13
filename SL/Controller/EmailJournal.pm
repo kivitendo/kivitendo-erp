@@ -780,6 +780,7 @@ sub init_models {
       record_type     => t8('Record Type'),
       obsolete        => t8('Obsolete'),
       linked_to       => t8('Linked to'),
+      has_unprocessed_attachments => t8('Has unprocessed attachments'),
     },
   );
 }
@@ -815,6 +816,8 @@ sub init_filter_summary {
 
   push @filter_strings, $::locale->text('Linked')       if $filter->{'linked_to:eq_ignore_empty'} eq '1';
   push @filter_strings, $::locale->text('Not linked')   if $filter->{'linked_to:eq_ignore_empty'} eq '0';
+  push @filter_strings, $::locale->text('Unprocessed')  if $filter->{'has_unprocessed_attachments:eq_ignore_empty'} eq '1';
+  push @filter_strings, $::locale->text('Processed')    if $filter->{'has_unprocessed_attachments:eq_ignore_empty'} eq '0';
 
   return join ', ', @filter_strings;
 }

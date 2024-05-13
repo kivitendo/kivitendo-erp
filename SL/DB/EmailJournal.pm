@@ -57,6 +57,12 @@ sub linked {
   return !!scalar @{$self->linked_records};
 }
 
+sub has_unprocessed_attachments {
+  my ($self) = @_;
+
+  return scalar grep{$_->processed == 0} @{$self->attachments};
+}
+
 1;
 
 __END__
