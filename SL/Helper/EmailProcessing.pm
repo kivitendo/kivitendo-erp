@@ -6,6 +6,8 @@ use warnings;
 use Carp;
 
 use XML::LibXML;
+use Archive::Zip;
+use File::MimeInfo::Magic;
 
 use SL::ZUGFeRD;
 use SL::Locale::String qw(t8);
@@ -88,6 +90,43 @@ sub process_attachments_zugferd {
 
   return 0;
 }
+
+sub process_attachments_extract_zip_file {
+  my ($self, $email_journal, $attachment, %params) = @_;
+
+  my $mime_type = $attachment->mime_type;
+  if($mime_type eq 'application/octet-stream') {
+    $mime_type = File::MimeInfo::Magic::mimetype($attachment->name);
+  }
+  return unless $mime_type eq 'application/zip';
+
+  my $zip = Archive::Zip->new;
+  open my $fh, "+<", \$attachment->content;
+  $zip->readFromFileHandle($fh);
+  use Data::Dumper;
+  use Archive::Zip::MemberRead;
+
+  my @new_attachments;
+  foreach my $member ($zip->members) {
+    my $member_fh = Archive::Zip::MemberRead->new($zip, $member);
+    my $member_content = '';
+    while (defined(my $line = $member_fh->getline())) {
+      $member_content .= $line . "\n";
+    }
+    my $new_attachment = SL::DB::EmailJournalAttachment->new(
+      name    => $member->fileName,
+      content => $member_content,
+      mime_type => File::MimeInfo::Magic::mimetype($member->fileName) || 'text/plain',
+      email_journal_id => $email_journal->id,
+    )->save;
+    $email_journal->add_attachments($new_attachment);
+    push @new_attachments, $new_attachment;
+  }
+  $attachment->update_attributes(processed => 1);
+
+  return 0;
+}
+
 
 sub _add_attachment_to_record {
   my ($self, $email_journal, $attachment, $record) = @_;
