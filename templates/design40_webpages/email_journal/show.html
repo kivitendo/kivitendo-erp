@@ -34,6 +34,7 @@
         <th>[% 'MIME type' | $T8 %]</th>
         <th>[% 'Size' | $T8 %]</th>
         <th>[% 'Processed' | $T8 %]</th>
+        <th>[% 'Action' | $T8 %]</th>
       </tr>
     </thead>
     <tbody>
@@ -42,7 +43,14 @@
         <td>[% L.link(SELF.url_for(action="download_attachment", id=attachment.id), attachment.name) %]</td>
         <td>[% HTML.escape(attachment.mime_type) %]</td>
         <td>[% HTML.escape(LxERP.format_amount(attachment.content.length, 0)) %]</td>
-        <td>[% HTML.escape(attachment.processed_as_bool_yn) %]</td>
+        <td id="[% "processed_" _ attachment.id %]">
+          [% HTML.escape(attachment.processed_as_bool_yn) %]
+        </td>
+        <td> [% L.button_tag(
+            "kivi.EmailJournal.toggle_attachment_processed(" _ attachment.id _ ")",
+            LxERP.t8("Toggle processed")
+            ) %]
+        </td>
       </tr>
       [% END %]
     </tbody>
