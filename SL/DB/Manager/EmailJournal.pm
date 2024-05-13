@@ -33,6 +33,22 @@ __PACKAGE__->add_filter_specs(
           )
         )} => \'TRUE';
   },
+  has_unprocessed_attachments => sub {
+    my ($key, $value, $prefix) = @_;
+
+    # if $value is truish, we want at least one link otherwise we want none
+    my $comp = !!$value ? '>' : '=';
+
+    # table emial_journal is aliased as t1
+    return
+      \qq{(
+        SELECT CASE WHEN count(*) $comp 0 THEN TRUE ELSE FALSE END
+        FROM email_journal_attachments
+        WHERE
+          email_journal_attachments.email_journal_id = t1.id
+            AND email_journal_attachments.processed = FALSE
+        )} => \'TRUE';
+  },
 );
 
 sub _sort_spec {
@@ -51,7 +67,14 @@ sub _sort_spec {
             record_links.to_table = 'email_journal'::varchar(50)
             AND record_links.to_id = email_journal.id
           )
-      )}
+      )},
+      has_unprocessed_attachments => qq{(
+        SELECT count(*)
+        FROM email_journal_attachments
+        WHERE
+          email_journal_attachments.email_journal_id = email_journal.id
+            AND email_journal_attachments.processed = FALSE
+      )},
     },
   );
 }
