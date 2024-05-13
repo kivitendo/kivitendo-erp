@@ -130,16 +130,22 @@ sub action_add_from_record {
   }
 
   my $record = SL::Model::Record->get_record($from_type, $from_id);
+
+  # If we are coming from an order workflow, only consider not delivered
+  # quantities.
   if (ref $record eq 'SL::DB::Order') {
     # Calculate shipped qtys here to prevent calling calculate for every item
     # via the items method.
     SL::Helper::ShippedQty->new->calculate($record)->write_to(\@{$record->items});
+
     my @items_with_not_delivered_qty =
       grep {$_->qty > 0}
-      map {$_->qty($_->qty - $_->shipped_qty); $_}
+      map  {$_->qty($_->qty - $_->shipped_qty); $_}
       @{$record->items_sorted};
+
     $flags{items} = \@items_with_not_delivered_qty;
   }
+
   my $delivery_order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->order($delivery_order);
 
