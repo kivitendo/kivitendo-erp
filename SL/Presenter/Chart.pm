@@ -37,6 +37,13 @@ sub chart_picker {
   push @classes, 'chart_autocomplete';
   push @classes, 'chartpicker_fat_set_item' if $fat_set_item;
 
+  # If there is no 'onClick' parameter, set it to 'this.select()',
+  # so that the user can type directly in the input field
+  # to search another chart.
+  if (!grep { m{onclick}i } keys %params) {
+    $params{onClick} = 'this.select()';
+  }
+
   my $ret =
     input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
     join('', map { $params{$_} ? input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(type category choose booked status)) .
