@@ -3065,6 +3065,7 @@ $self->{texts} = {
   'Private E-mail'              => '',
   'Private Phone'               => '',
   'Problem'                     => '',
+  'Processed'                   => '',
   'Processed attachments with function \'#1\':' => '',
   'Processed successfully: '    => '',
   'Produce'                     => '',
