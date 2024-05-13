@@ -61,6 +61,7 @@ sub add_file_to_record {
       die 'Storing the attachment file to the file management failed: ' . $@;
     };
   }
+  $self->processed(1)->save;
 
 }
 
