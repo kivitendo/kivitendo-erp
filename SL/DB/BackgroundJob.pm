@@ -47,6 +47,7 @@ sub run {
 
     $history = SL::DB::BackgroundJobHistory
       ->new(package_name => $self->package_name,
+            description  => $self->description,
             run_at       => $run_at,
             status       => SL::DB::BackgroundJobHistory::SUCCESS(),
             result       => $result,
