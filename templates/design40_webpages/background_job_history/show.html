@@ -13,6 +13,10 @@
       <td>[% HTML.escape(SELF.history.package_name) %]</td>
     </tr>
     <tr>
+      <th>[% LxERP.t8('Description') %]</th>
+      <td>[% HTML.escape(SELF.history.description) %]</td>
+    </tr>
+    <tr>
       <th>[% LxERP.t8('Run at') %]</th>
       <td>[% HTML.escape(SELF.history.run_at.to_lxoffice('precision' => 'second')) %]</td>
     </tr>
