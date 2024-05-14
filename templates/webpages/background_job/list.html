@@ -14,6 +14,7 @@
     <thead>
      <tr class="listheading">
       <th>[% L.sortable_table_header('package_name') %]</th>
+      <th>[% L.sortable_table_header('description') %]</th>
       <th>[% L.sortable_table_header('type') %]</th>
       <th>[% L.sortable_table_header('active') %]</th>
       <th>[% L.sortable_table_header('cron_spec') %]</th>
@@ -30,6 +31,7 @@
        [%- HTML.escape(background_job.package_name) %]
       </a>
      </td>
+     <td>[%- HTML.escape(background_job.description) %]</td>
      <td>
       [%- IF background_job.type == 'once' %]
        [%- LxERP.t8('one-time execution') %]

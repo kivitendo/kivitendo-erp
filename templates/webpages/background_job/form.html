@@ -31,6 +31,11 @@
    </tr>
 
    <tr>
+    <th align="right">[%- LxERP.t8('Description') %]</th>
+    <td>[% L.input_tag("background_job.description", SELF.background_job.description, 'size' => 40) %]</td>
+   </tr>
+
+   <tr>
     <th align="right">[%- LxERP.t8('Execution schedule') %]</th>
     <td>[% L.input_tag("background_job.cron_spec", SELF.background_job.cron_spec, 'size' => 40) %]</td>
    </tr>
