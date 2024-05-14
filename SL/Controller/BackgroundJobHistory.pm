@@ -105,6 +105,7 @@ sub init_models {
     controller => $self,
     sorted => {
       package_name => t8('Package name'),
+      description  => t8('Description'),
       run_at       => t8('Run at'),
       status       => t8('Execution status'),
       result       => t8('Result'),
