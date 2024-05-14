@@ -16,6 +16,7 @@
   <thead>
    <tr class="listheading">
     <th>[% L.sortable_table_header('package_name') %]</th>
+    <th>[% L.sortable_table_header('description') %]</th>
     <th>[% L.sortable_table_header('run_at') %]</th>
     <th>[% L.sortable_table_header('status') %]</th>
     <th>[% L.sortable_table_header('result') %]</th>
@@ -31,6 +32,7 @@
      [%- HTML.escape(entry.package_name) %]
     </a>
    </td>
+   <td>[%- HTML.escape(entry.description) %]</td>
    <td>[%- HTML.escape(entry.run_at.to_lxoffice('precision' => 'second')) %]</td>
    <td>
     [%- IF entry.status == 'success' %]
