@@ -12,6 +12,7 @@ __PACKAGE__->meta->columns(
   active       => { type => 'boolean' },
   cron_spec    => { type => 'varchar', length => 255 },
   data         => { type => 'text' },
+  description  => { type => 'text' },
   id           => { type => 'serial', not_null => 1 },
   last_run_at  => { type => 'timestamp' },
   next_run_at  => { type => 'timestamp' },
