@@ -1099,6 +1099,7 @@ sub check_all_bookings_have_documents {
   left join files on files.object_id=trans_id
   where $fromto
   and object_id is null
+  and trans_id not in (select id from gl)
   LIMIT 1|;
 
   my ($booking_has_no_document)  = selectrow_query($::form, SL::DB->client->dbh, $query);
@@ -1339,9 +1340,9 @@ Returns 1 if DMS feature is enabled and Backend is Filesystem
 
 =item check_all_bookings_have_documents
 
-Returns 1 if all transactions for this period have a document entry in files.
-Therefore all transactions may be exported (type is not checked and DATEV
-only accepts PDF).
+Returns 1 if all ar and ap transactions for this period have a document entry in files.
+Therefore all ar and ap transactions may be exported.
+Note: DATEV accepts only PDF and for some gl bookings a document makes no sense
 
 
 =back
