@@ -1082,19 +1082,32 @@ sub check_document_export {
 
   return 1;
 
-  # TODO maybe needed
+}
+
+sub check_all_bookings_have_documents {
+  my ($self) = shift;
+  my %params = @_;
+
+  die "Need from date" unless $params{from};
+  die "Need to date"   unless $params{to};
+
+  $self->from($params{from});
+  $self->to($params{to});
+
+  my $fromto = $self->fromto;
   # not all last month ar ap gl booking have an entry -> rent ?
-  my $query = <<"SQL";
+  my $query = qq|
   select distinct trans_id,object_id from acc_trans
   left join files on files.object_id=trans_id
-  where date_trunc('month', transdate) = date_trunc('month', current_date - interval '1 month')
+  where $fromto
   and object_id is null
-  LIMIT 1
-SQL
+  LIMIT 1|;
+
   my ($booking_has_no_document)  = selectrow_query($::form, SL::DB->client->dbh, $query);
   return defined $booking_has_no_document ? 0 : 1;
 
 }
+
 
 
 sub _u8 {
@@ -1321,6 +1334,17 @@ Returns 1 if all currently booked accounts have only one common number length do
 Will throw an error if more than one distinct size is detected.
 The error message gives a short hint with the value of the (at least)
 two mismatching number length domains.
+
+=item check_document_export
+
+Returns 1 if DMS feature is enabled and Backend is Filesystem
+
+=item check_all_bookings_have_documents
+
+Returns 1 if all transactions for this period have a document entry in files.
+Therefore all transactions may be exported (type is not checked and DATEV
+only accepts PDF).
+
 
 =back
 
