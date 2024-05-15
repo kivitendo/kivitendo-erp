@@ -991,10 +991,7 @@ sub generate_datev_lines {
     # set lock for each transaction
     $datev_data{locked} = $self->locked;
     # add guids if datev export with documents is requested
-    # no records for bank transactions with ar or ap
-    # die Dumper($transaction->[$haben]->{link}) if $transaction->[$haben]->{link} =~ m/paid/;
-    if (   $self->documents && ($transaction->[$haben]->{table} eq 'gl'
-        || ($datev_data{konto} !~ m/(1810|1370)/ && $datev_data{gegenkonto} !~ m/(1810|1370)/ )) ) {
+    if ($self->documents) {
       # add all document links for the latest created/uploaded document
       my $latest_document = SL::DB::Manager::File->get_first(query =>
                                 [
@@ -1025,8 +1022,6 @@ sub generate_datev_lines {
         # }
       }
     }
-    # keine kommerzbank daten exportieren
-    next if ($datev_data{konto} eq '1800' || $datev_data{gegenkonto} eq '1800');
 
     push(@datev_lines, \%datev_data) if $datev_data{umsatz};
   }
