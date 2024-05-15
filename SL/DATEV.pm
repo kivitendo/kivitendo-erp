@@ -191,6 +191,7 @@ sub from {
  my $self = shift;
 
  if (@_) {
+   die "Invalid type, need DateTime Object" unless ref $_[0] eq 'DateTime';
    $self->{from} = $_[0];
  }
 
@@ -201,6 +202,7 @@ sub to {
  my $self = shift;
 
  if (@_) {
+   die "Invalid type, need DateTime Object" unless ref $_[0] eq 'DateTime';
    $self->{to} = $_[0];
  }
 
