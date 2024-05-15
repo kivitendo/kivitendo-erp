@@ -1,6 +1,6 @@
 -- @tag: file_object_type_as_enum
 -- @description: Objekttype von Dateien in Enum ändern
--- @depends: release_3_6_0
+-- @depends: file_storage_purchase_quotation_intake
 
 CREATE TYPE file_object_types AS ENUM (
   -- order
