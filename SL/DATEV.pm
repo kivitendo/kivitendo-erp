@@ -401,6 +401,7 @@ sub locked {
  }
  return $self->{locked};
 }
+
 sub imported {
  my $self = shift;
 
@@ -409,6 +410,7 @@ sub imported {
  }
  return $self->{imported};
 }
+
 sub documents {
  my $self = shift;
 
@@ -417,6 +419,7 @@ sub documents {
  }
  return $self->{documents};
 }
+
 sub _create_xml_and_documents {
   my $self = shift;
 
