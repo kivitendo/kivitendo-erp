@@ -104,6 +104,9 @@ sub export3 {
   $data{imported}  = $::form->{imported};
   $data{documents} = $::form->{documents};
 
+  if ($data{documents} && !SL::DATEV->new->check_all_bookings_have_documents(from => $data{from}, to => $data{to})) {
+    $::form->error(t8("Cannot export with documents because some transactions don't have a PDF document attached."));
+  }
   my $datev = SL::DATEV->new(%data);
 
   $datev->clean_temporary_directories;

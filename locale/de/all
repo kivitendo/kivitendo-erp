@@ -663,6 +663,7 @@ $self->{texts} = {
   'Cannot delete quotation!'    => 'Angebot kann nicht gelöscht werden!',
   'Cannot delete transaction!'  => 'Buchung kann nicht gelöscht werden!',
   'Cannot delete vendor!'       => 'Lieferant kann nicht gelöscht werden!',
+  'Cannot export with documents because some transactions don\'t have a PDF document attached.' => 'Einige Buchungen haben kein Dokument hinterlegt. Kann den Export nicht vollständid durchführen.',
   'Cannot find a single customer. Maybe there is no customer yet?' => 'Kann keinen einzigen Kunden finden. Vielleicht gibt es noch gar keine?',
   'Cannot find a single vendor. Maybe there is no vendor yet?' => 'Kann keinen einzigen Lieferanten finden. Vielleicht gibt es noch keine Lieferanten?',
   'Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.' => 'Konnte keine passende Vorlage für diesen Druckauftrag finden. Bitte benachrichtigen Sie Ihren Vorlagenadministrator. Die folgenden Pfade wurden durchsucht: #1 ',
