@@ -165,7 +165,7 @@ sub _create_export {
     $h_item_id->execute() || $::form->dberror($q_item_id);
     my ($item_id)      = $h_item_id->fetchrow_array();
 
-    my $end_to_end_id  = strftime "LXO%Y%m%d%H%M%S", localtime;
+    my $end_to_end_id  = strftime "KIVITENDO%Y%m%d%H%M%S", localtime;
     my $item_id_len    = length "$item_id";
     my $num_zeroes     = 35 - $item_id_len - length $end_to_end_id;
     $end_to_end_id    .= '0' x $num_zeroes if (0 < $num_zeroes);
