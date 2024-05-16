@@ -137,7 +137,7 @@ sub import_transactions {
       next if $transaction->{error} || $transaction->{duplicate};
 
       SL::DB::BankTransaction->new(
-        map { ($_ => $transaction->{$_}) } qw(amount currency_id local_bank_account_id purpose remote_account_number remote_bank_code remote_name transaction_code transdate valutadate)
+        map { ($_ => $transaction->{$_}) } qw(amount currency_id local_bank_account_id purpose remote_account_number remote_bank_code remote_name transaction_code transdate valutadate end_to_end_id)
       )->save;
 
       $imported++;

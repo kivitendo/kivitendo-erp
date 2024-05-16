@@ -1557,6 +1557,7 @@ $self->{texts} = {
   'Enabled modules'             => '',
   'End'                         => '',
   'End date'                    => '',
+  'End to end ID'               => '',
   'Enter longdescription'       => '',
   'Enter the requested execution date or leave empty for the quickest possible execution:' => '',
   'Entries for which automatic conversion failed:' => '',
