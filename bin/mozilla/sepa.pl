@@ -609,9 +609,9 @@ sub bank_transfer_download_sepa_xml {
 sub bank_transfer_download_sepa_docs {
   $main::lxdebug->enter_sub();
 
-  my $form     =  $main::form;
+  my $form     = $main::form;
   my $defaults = SL::DB::Default->get;
-  my $locale   =  $main::locale;
+  my $locale   = $main::locale;
   my $vc       = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   if (!$defaults->doc_storage) {
