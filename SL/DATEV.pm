@@ -1083,7 +1083,7 @@ sub check_document_export {
 }
 
 sub check_all_bookings_have_documents {
-  my ($self) = shift;
+  my $self   = shift;
   my %params = @_;
 
   die "Need from date" unless $params{from};
