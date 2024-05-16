@@ -1698,7 +1698,7 @@ sub test_error_codes_within_skonto {
   is($invoice2->within_skonto_period(transdate => DateTime->now()->add(days => 1)), 1, "one day after invdate is skontoable");
   is($invoice2->within_skonto_period(transdate => DateTime->now()->add(days => 4)), 1, "four days after invdate is skontoable");
 
-  is($invoice2->within_skonto_period(transdate => DateTime->now()->add(days => 6)), ''); # not within skonto period
+  is($invoice2->within_skonto_period(transdate => DateTime->now()->add(days => 6)), '', 'not within skonto period');
 
 }
 
