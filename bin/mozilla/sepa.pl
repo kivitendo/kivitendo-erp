@@ -358,7 +358,7 @@ sub bank_transfer_edit {
   my $export;
 
   foreach my $id (@ids) {
-    my $curr_export = SL::SEPA->retrieve_export('id' => $id, 'details' => 1, 'vc' => $vc);
+    my $curr_export = SL::SEPA->retrieve_export(id => $id, details => 1, vc => $vc);
 
     foreach my $item (@{ $curr_export->{items} }) {
       map { $item->{"export_${_}"} = $curr_export->{$_} } grep { !ref $curr_export->{$_} } keys %{ $curr_export };
