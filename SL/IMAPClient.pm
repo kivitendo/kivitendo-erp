@@ -273,12 +273,11 @@ sub _create_email_journal {
   );
   my @accepted_text_content_types = ('text/html', 'text/plain', '');
   $text_part ||= $text_parts{$_} for @accepted_text_content_types;
-  confess "can't find body text in email" unless $text_part;
-  my $body_text = $text_part->body_str;
+  my $body_text = $text_part ? $text_part->body_str : '';
 
   my %header_map = map { $_ => $email->header_str($_) } $email->header_names;
   # We need to store the Content-Type header for the text part
-  $header_map{'Content-Type'} = $text_part->content_type;
+  $header_map{'Content-Type'} = $text_part ? $text_part->content_type : 'text/plain';
   my $header_string = join "\r\n",
     (map { $_ . ': ' . $header_map{$_} } keys %header_map);
 
