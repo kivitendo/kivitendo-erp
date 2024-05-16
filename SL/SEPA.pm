@@ -247,7 +247,8 @@ sub retrieve_export {
                   $columns
                 FROM sepa_export_items sei
                 $joins
-                WHERE sei.sepa_export_id = ?|;
+                WHERE sei.sepa_export_id = ?
+                ORDER BY sei.id|;
 
     $export->{items} = selectall_hashref_query($form, $dbh, $query, conv_i($params{id}));
 
