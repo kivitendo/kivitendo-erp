@@ -134,7 +134,7 @@ sub to_xml {
   my $xml    = XML::Writer->new(OUTPUT      => \$output,
                                 DATA_MODE   => 1,
                                 DATA_INDENT => 2,
-                                ENCODING    => 'utf-8');
+                                ENCODING    => 'UTF-8');
 
   my @now       = localtime;
   my $time_zone = strftime "%z", @now;
@@ -143,7 +143,7 @@ sub to_xml {
   my $is_coll   = $self->{collection};
   my $cd_src    = $is_coll ? 'Cdtr'              : 'Dbtr';
   my $cd_dst    = $is_coll ? 'Dbtr'              : 'Cdtr';
-  my $pain_id   = $is_coll ? 'pain.008.001.02'   : 'pain.001.001.03';
+  my $pain_id   = $is_coll ? 'pain.008.001.08'   : 'pain.001.001.09';
   my $pain_elmt = $is_coll ? 'CstmrDrctDbtInitn' : 'CstmrCdtTrfInitn';
   my @pii_base  = (strftime('PII%Y%m%d%H%M%S', @now), rand(1000000000));
 
@@ -194,7 +194,14 @@ sub to_xml {
     }
     $xml->endTag('PmtTpInf');
 
-    $xml->dataElement($is_coll ? 'ReqdColltnDt' : 'ReqdExctnDt', $master_transaction->get('execution_date'));
+    if ($is_coll) {
+      $xml->dataElement('ReqdColltnDt', $master_transaction->get('execution_date'));
+    } else {
+      $xml->startTag('ReqdExctnDt');
+      $xml->dataElement('Dt', $master_transaction->get('execution_date'));
+      $xml->endTag('ReqdExctnDt');
+    }
+
     $xml->startTag($cd_src);
     $xml->dataElement('Nm', encode('UTF-8', substr($self->{company}, 0, 70)));
     $xml->endTag($cd_src);
@@ -207,11 +214,26 @@ sub to_xml {
 
     $xml->startTag($cd_src . 'Agt');
     $xml->startTag('FinInstnId');
-    $xml->dataElement('BIC', $master_transaction->get('src_bic', 20));
+    $xml->dataElement('BICFI', $master_transaction->get('src_bic', 20));
     $xml->endTag('FinInstnId');
     $xml->endTag($cd_src . 'Agt');
 
     $xml->dataElement('ChrgBr', 'SLEV');
+
+    if ($is_coll) {
+      $xml->startTag('CdtrSchmeId');
+      $xml->startTag('Id');
+      $xml->startTag('PrvtId');
+      $xml->startTag('Othr');
+      $xml->dataElement('Id', encode('UTF-8', substr($self->{creditor_id}, 0, 35)));
+      $xml->startTag('SchmeNm');
+      $xml->dataElement('Prtry', 'SEPA');
+      $xml->endTag('SchmeNm');
+      $xml->endTag('Othr');
+      $xml->endTag('PrvtId');
+      $xml->endTag('Id');
+      $xml->endTag('CdtrSchmeId');
+    }
 
     foreach my $transaction (@{ $transaction_group->{transactions} }) {
       $xml->startTag($is_coll ? 'DrctDbtTxInf' : 'CdtTrfTxInf');
@@ -230,20 +252,8 @@ sub to_xml {
         $xml->startTag('MndtRltdInf');
         $xml->dataElement('MndtId', $self->_restricted_identification_sepa2($transaction->get('mandator_id')));
         $xml->dataElement('DtOfSgntr', $self->_restricted_identification_sepa2($transaction->get('date_of_signature')));
-        $xml->endTag('MndtRltdInf');
 
-        $xml->startTag('CdtrSchmeId');
-        $xml->startTag('Id');
-        $xml->startTag('PrvtId');
-        $xml->startTag('Othr');
-        $xml->dataElement('Id', encode('UTF-8', substr($self->{creditor_id}, 0, 35)));
-        $xml->startTag('SchmeNm');
-        $xml->dataElement('Prtry', 'SEPA');
-        $xml->endTag('SchmeNm');
-        $xml->endTag('Othr');
-        $xml->endTag('PrvtId');
-        $xml->endTag('Id');
-        $xml->endTag('CdtrSchmeId');
+        $xml->endTag('MndtRltdInf');
 
         $xml->endTag('DrctDbtTx');
 
@@ -257,7 +267,7 @@ sub to_xml {
 
       $xml->startTag("${cd_dst}Agt");
       $xml->startTag('FinInstnId');
-      $xml->dataElement('BIC', $transaction->get('dst_bic', 20));
+      $xml->dataElement('BICFI', $transaction->get('dst_bic', 20));
       $xml->endTag('FinInstnId');
       $xml->endTag("${cd_dst}Agt");
 
