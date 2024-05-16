@@ -1557,6 +1557,7 @@ $self->{texts} = {
   'Enabled modules'             => 'Aktivierte Module',
   'End'                         => 'Ende',
   'End date'                    => 'Enddatum',
+  'End to end ID'               => 'Ende-zu-Ende-ID',
   'Enter longdescription'       => 'Langtext eingeben',
   'Enter the requested execution date or leave empty for the quickest possible execution:' => 'Geben Sie das jeweils gewünschte Ausführungsdatum an, oder lassen Sie das Feld leer für die schnellstmögliche Ausführung:',
   'Entries for which automatic conversion failed:' => 'Einträge, für die die automatische Umstellung fehlschlug:',
