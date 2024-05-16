@@ -353,7 +353,7 @@ sub csv_export {
     $csv_file->close;
     $self->{warnings} = $datev_csv->warnings;
 
-    $self->_create_xml_and_documents if $self->{documents} && %{ $self->{guids} || {} };
+    $self->_create_xml_and_documents if $self->{documents} && $self->{guids} && %{ $self->{guids} };
 
     # convert utf-8 to cp1252//translit if set
     if ($::instance_conf->get_datev_export_format eq 'cp1252-translit') {
