@@ -662,6 +662,7 @@ $self->{texts} = {
   'Cannot delete quotation!'    => '',
   'Cannot delete transaction!'  => '',
   'Cannot delete vendor!'       => '',
+  'Cannot export with documents because some transactions don\'t have a PDF document attached.' => '',
   'Cannot find a single customer. Maybe there is no customer yet?' => '',
   'Cannot find a single vendor. Maybe there is no vendor yet?' => '',
   'Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.' => '',
