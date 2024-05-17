@@ -534,6 +534,33 @@ sub save_objects {
   return unless $data->[0];
   return unless $data->[0]{object};
 
+  # If we store into tables which get numbers from the TransNumberGenerator
+  # we have to lock all tables referenced by the storage table (or by
+  # tables stored alongside with the storage table) that are handled by
+  # the TransNumberGenerator, too.
+  # Otherwise we can run into a deadlock if someone saves a document via
+  # the user interface. The exact behavoir depends on timing.
+  # E.g. we are importing orders and a user want to
+  # book an invoice:
+  # web: locks ar (via before-save hook and TNG (or SL::TransNumber))
+  # importer: locks oe (via before-save hook and TNG) (*)
+  # importer: locks defaults (via before-save hook and TNG)
+  # web: wants to lock defaults (via before-save hook and TNG (or SL::TransNumber)) -> is waiting
+  # importer: wants to save oe and wants to lock referenced tables (here ar) -> is waiting
+  # --> deadlock
+  #
+  # (*) if the importer locks ar here, too, everything is fine, because it will wait here
+  # before locking the defaults table.
+  #
+  # List of referenced tables:
+  # (Locking is done in the transaction below)
+  my %referenced_tables_by_type = (
+    orders          => [qw(ar customer vendor)],
+    delivery_orders => [qw(customer vendor)   ],
+    ar_transactions => [qw(customer)          ],
+    ap_transactions => [qw(vendor)            ],
+  );
+
   $self->controller->track_progress(phase => 'saving data', progress => 0); # scale from 45..95%;
 
   my $last_index = $#$data;
@@ -542,6 +569,11 @@ sub save_objects {
   for my $chunk (0 .. $last_index / $chunk_size) {
     $self->controller->track_progress(progress => ($chunk_size * $chunk)/scalar(@$data) * 100); # scale from 45..95%;
     SL::DB->client->with_transaction(sub {
+
+      foreach my $refs (@{ $referenced_tables_by_type{$self->controller->{type}} || [] }) {
+        SL::DB->client->dbh->do("LOCK " . $refs) || die SL::DB->client->dbh->errstr;
+      }
+
       foreach my $entry_index ($chunk_size * $chunk .. min( $last_index, $chunk_size * ($chunk + 1) - 1 )) {
         my $entry = $data->[$entry_index];
 
