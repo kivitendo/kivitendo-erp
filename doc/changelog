@@ -50,6 +50,7 @@ Kleinere neue Features und Detailverbesserungen:
     in der Mandantenkonfigurtion einstellen. Das gilt zur Zeit für
     Auftragseingang, Angebotseingang und Lieferantenauftragsbestätigung,
     sowie für Anzahlungs- bzw. Schluss-Rechnung.
+  - Möglichkeit einer Datenbank-Verklemmung bei CSV-Importen verringert.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -
