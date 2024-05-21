@@ -17,7 +17,7 @@ Kleinere neue Features und Detailverbesserungen:
     beim Klick in das Picker-Eingabefeld selektiert. Damit wird der Inhalt
     dann beim Lostippen gelöscht und es kann direkt nach einem neuen
     Objekt gesucht werden.
-
+  - Möglichkeit einer Datenbank-Verklemmung bei CSV-Importen verringert.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -
