@@ -23,6 +23,8 @@ Kleinere neue Features und Detailverbesserungen:
     hinterlegten PDF-Rechnungen vor der Überweisung kontrollieren
   - Beim Einlagern die Liste der letzten Einlagerungen von 10 auf 20 erhöht und auch
     das entsprechende Dokument anzeigen
+  - Neues Feld Beschreibung bei den Backgroundjob. Dient zur besseren
+    Unterscheidung.
 
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
