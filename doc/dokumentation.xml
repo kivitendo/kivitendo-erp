@@ -153,7 +153,8 @@
         benötigt.</para>
 
         <para>Zusätzlich benötigt kivitendo einige Perl-Pakete, die nicht
-        Bestandteil einer Standard-Perl-Installation sind. Um zu überprüfen,
+        Bestandteil einer Standard-Perl-Installation sind. Um nach der
+	Installation von Kivitendo zu überprüfen,
         ob die erforderlichen Pakete installiert und aktuell genug sind, wird
         ein Script mitgeliefert, das wie folgt aufgerufen wird:</para>
 
@@ -643,56 +644,9 @@ vim inventory</programlisting>
            xreflabel="Manuelle Installation des Programmpaketes">
       <title>Manuelle Installation des Programmpaketes</title>
 
-      <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github
-      gehostet und kann <ulink
-      url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink>
-      heruntergeladen werden.</para>
+      <sect2 id="Installation-mit-git">
+	<title>Installation mit git</title>
 
-      <para>Das aktuelleste kivitendo ERP-Archiv
-      (<filename>kivitendo-erp-*.tgz</filename>) wird dann im
-      Dokumentenverzeichnis des Webservers (z.B.
-      <filename>/var/www/html/</filename>,
-      <filename>/srv/www/htdocs</filename> oder
-      <filename>/var/www/</filename>) entpackt:</para>
-
-      <programlisting>cd /var/www
-tar xvzf kivitendo-erp-*.tgz</programlisting>
-
-      <para>Wechseln Sie in das entpackte Verzeichnis:</para>
-
-      <programlisting>cd kivitendo-erp</programlisting>
-
-      <para>Alternativ können Sie auch einen Alias in der
-      Webserverkonfiguration benutzen, um auf das tatsächliche
-      Installationsverzeichnis zu verweisen.</para>
-
-      <para>Bei einer Neuinstallation von Version 3.1.0 oder später muß das
-      WebDAV Verzeichnis derzeit manuell angelegt werden:</para>
-
-      <programlisting>mkdir webdav</programlisting>
-
-      <para>Die Verzeichnisse <filename>users</filename>,
-      <filename>spool</filename> und <filename>webdav</filename> müssen für
-      den Benutzer beschreibbar sein, unter dem der Webserver läuft. Die
-      restlichen Dateien müssen für diesen Benutzer lesbar sein. Die Benutzer-
-      und Gruppennamen sind bei verschiedenen Distributionen unterschiedlich
-      (z.B. bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora
-      <constant>apache</constant> oder bei openSUSE
-      <constant>wwwrun</constant>).</para>
-
-      <para>Der folgende Befehl ändert den Besitzer für die oben genannten
-      Verzeichnisse auf einem Debian/Ubuntu-System:</para>
-
-      <programlisting>chown -R www-data users spool webdav</programlisting>
-
-      <para>Weiterhin muss der Webserver-Benutzer in den Verzeichnissen
-      <filename>templates</filename> und <filename>users</filename>
-      Unterverzeichnisse für jeden neuen Benutzer anlegen dürfen, der in
-      kivitendo angelegt wird:</para>
-
-      <programlisting>chown www-data templates users</programlisting>
-
-      <note>
         <para>Wir empfehlen eine Installation mittels des Versionsmanager
         git. Hierfür muss ein git-Client installiert sein. Damit ist man sehr
         viel flexibler für zukünftige Upgrades. Installations-Anleitung (bitte
@@ -739,7 +693,73 @@ darauf neu anzuwenden ...
 Wende an: juhu tolle änderungen
 $ service apache2 restart                   # webserver starten!
 </programlisting></para>
-      </note>
+      </sect2>
+
+      <sect2 id="Installation_mit_Github">
+        <title>Installation über die Github Website</title>
+
+        <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github
+        gehostet und kann <ulink
+        url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink>
+        heruntergeladen werden.</para>
+
+
+        <para>Das aktuelleste kivitendo ERP-Archiv
+	(<filename>kivitendo-erp-*.tgz</filename>) wird dann im
+	Dokumentenverzeichnis des Webservers (z.B.
+	<filename>/var/www/html/</filename>,
+	<filename>/srv/www/htdocs</filename> oder
+	<filename>/var/www/</filename>) entpackt:</para>
+
+        <programlisting>cd /var/www
+tar xvzf kivitendo-erp-*.tgz</programlisting>
+
+        <para>Wechseln Sie in das entpackte Verzeichnis:</para>
+
+        <programlisting>cd kivitendo-erp</programlisting>
+
+        <para>Alternativ können Sie auch einen Alias in der
+        Webserverkonfiguration benutzen, um auf das tatsächliche
+        Installationsverzeichnis zu verweisen.</para>
+      </sect2>
+
+      <sect2 id="restliche-Verzeichnisse-erstellen-und-Besitzer-ändern">
+	<title>Restliche Verzeichnisse ändern und bearbeiten</title>
+
+        <para>Die folgenden Schritte müssen nach der Installation mittels git
+	oder der Github Website angewendet werden.</para>
+
+        <para>Bei einer Neuinstallation von Version 3.1.0 oder später muss das
+	WebDAV Verzeichnis derzeit manuell angelegt werden:</para>
+
+        <programlisting>mkdir webdav</programlisting>
+
+        <para>Die Verzeichnisse <filename>users</filename>,
+        <filename>spool</filename> und <filename>webdav</filename> müssen für
+        den Benutzer beschreibbar sein, unter dem der Webserver läuft. Die
+        restlichen Dateien müssen für diesen Benutzer lesbar sein. Die Benutzer-
+        und Gruppennamen sind bei verschiedenen Distributionen unterschiedlich
+        (z.B. bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora
+        <constant>apache</constant> oder bei openSUSE
+        <constant>wwwrun</constant>).</para>
+
+        <para>Der folgende Befehl ändert den Besitzer für die oben genannten
+        Verzeichnisse auf einem Debian/Ubuntu-System:</para>
+
+        <programlisting>chown -R www-data users spool webdav</programlisting>
+
+        <para>Weiterhin muss der Webserver-Benutzer in den Verzeichnissen
+        <filename>templates</filename> und <filename>users</filename>
+        Unterverzeichnisse für jeden neuen Benutzer anlegen dürfen, der in
+        kivitendo angelegt wird:</para>
+
+        <programlisting>chown www-data templates</programlisting>
+      </sect2>
+
+
+
+
+
     </sect1>
 
     <sect1 id="config.config-file">
@@ -1027,7 +1047,7 @@ exit </programlisting>
         Datenbank zum Beispiel:</para>
 
         <programlisting>local all kivitendo password
-host all kivitendo 127.0.0.1 255.255.255.255 password</programlisting>
+host all kivitendo 127.0.0.1 255.255.255.255 scram-sha-256</programlisting>
       </sect2>
 
       <sect2 id="Erweiterung-für-servergespeicherte-Prozeduren">
@@ -1118,7 +1138,7 @@ exit</programlisting>
         </note>
 
         <para>Der Zugriff auf das Programmverzeichnis muss in der Apache
-        Webserverkonfigurationsdatei <literal>httpd.conf</literal> eingestellt
+        Webserverkonfigurationsdatei <literal>000-default.conf</literal> eingestellt
         werden. Fügen Sie den folgenden Abschnitt dieser Datei oder einer
         anderen Datei hinzu, die beim Starten des Webservers eingelesen
         wird:</para>
