@@ -10558,15 +10558,22 @@ $some_hash{42}    = 54;</programlisting>
         sind auf allen gängigen Plattformen verfügbar. Beispiel für
         Debian/Ubuntu:</para>
 
-        <programlisting>apt-get install ant openjdk-7-jre</programlisting>
+        <programlisting>apt-get install ant default-jre</programlisting>
 
         <para>Nach dem Download von Dobudish muss Dobudish im Unterverzeichnis
-        <filename>doc/build</filename> entpackt werden. Beispiel unter der
+        <filename>kivitendo-erp/doc/build</filename> entpackt werden. Beispiel unter der
         Annahme, das <productname>Dobudish</productname> in
         <filename>$HOME/Downloads</filename> heruntergeladen wurde:</para>
 
-        <programlisting>cd doc/build
+        <programlisting>cd kivitendo-erp/doc/build
 unzip $HOME/Downloads/dobudish-nojre-1.1.4.zip</programlisting>
+
+        <para>Damit auf Dobudish zugegriffen werden kann, muss ein Link mit dem Namen
+        <filename>dobudish</filename> erstellt werden, der auf den Ordner
+        <filename>dobudish-nojre-1.1.4</filename> zeigt.</para>
+
+        <programlisting>cd kivitendo-erp/doc/build
+ln -sf dobudish-1.1.4 dobudish</programlisting>
       </sect2>
 
       <sect2 id="devel.build-doc.build">
