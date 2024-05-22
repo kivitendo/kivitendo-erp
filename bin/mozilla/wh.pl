@@ -486,7 +486,7 @@ sub create_assembly {
       my %allocations_by_parts_id = map { my $p_id = $_->{parts_id}; $p_id => [grep { $_->{parts_id} == $p_id } @allocations] } @allocations;
 
       my %needed_by_parts_id = map { $_->{parts_id} => $_->qty * $form->{qty} } @{$assembly->assemblies};
-      create_assembly_chargenumbers($form, \%stocked_by_parts_id, \%needed_by_parts_id, \%allocations_by_parts_id);
+      create_assembly_chargenumbers($form, \%stocked_by_parts_id, \%needed_by_parts_id, \%allocations_by_parts_id, $assembly);
       return $::lxdebug->leave_sub();
     }
 
@@ -540,14 +540,14 @@ sub render_produce_assembly_error {
 }
 
 sub create_assembly_chargenumbers {
-  my ($form, $stocked_by_parts_id, $needed_by_parts_id, $allocated_by_parts_id) = @_;
+  my ($form, $stocked_by_parts_id, $needed_by_parts_id, $allocated_by_parts_id, $assembly) = @_;
 
   setup_wh_create_assembly_chargenumbers_action_bar();
 
   my $hidden_vars = { map { $_ => $form->{$_} } qw(parts_id warehouse_id bin_id bestbefore chargenumber unit comment) };
   $hidden_vars->{$_} = $form->format_amount(\%main::myconfig, $form->{$_}) for qw(qty);
 
-  $form->{title} = $::locale->text('Select Chargenumbers');
+  $form->{title} = $::locale->text('Select Chargenumbers to produce quantity #1 of #2 #3', $form->{qty}, $assembly->partnumber, $assembly->description);
   $form->header;
 
   print $form->parse_html_template(
