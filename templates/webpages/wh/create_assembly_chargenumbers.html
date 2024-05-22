@@ -21,21 +21,24 @@
   <table>
     <thead>
       <tr class="listheading">
-        <th>[% 'Partnumber'   | $T8%]</th>
-        <th>[% 'Description'  | $T8%]</th>
-        <th>[% 'Chargenumber' | $T8%]</th>
-        <th>[% 'Warehouse'    | $T8%]</th>
-        <th>[% 'Bin'          | $T8%]</th>
-        <th>[% 'Onhand'       | $T8%]</th>
-        <th>[% 'Qty'          | $T8%]</th>
-        <th>[% 'Unit'         | $T8%]</th>
+        <th class="listheading">[% 'Partnumber'   | $T8%]</th>
+        <th class="listheading">[% 'Description'  | $T8%]</th>
+        <th class="listheading">[% 'Chargenumber' | $T8%]</th>
+        [% IF INSTANCE_CONF.get_show_bestbefore %]
+        <th class="listheading">[% 'Best Before' | $T8 %]</th>
+        [% END %]
+        <th class="listheading">[% 'Warehouse'    | $T8%]</th>
+        <th class="listheading">[% 'Bin'          | $T8%]</th>
+        <th class="listheading">[% 'Onhand'       | $T8%]</th>
+        <th class="listheading">[% 'Qty'          | $T8%]</th>
+        <th class="listheading">[% 'Unit'         | $T8%]</th>
       </tr>
     </thead>
     <tbody>
       [% FOREACH part_id = stocked_by_parts_id.keys.sort -%]
         [% NEXT UNLESS stocked_by_parts_id.$part_id.size > 1 %]
         <tr class="listheading">
-          <td colspan="6">[% 'needed qty' | $T8 %]</td>
+          <td colspan="7">[% 'needed qty' | $T8 %]</td>
           <td class="numeric">[% LxERP.format_amount(needed_by_parts_id.$part_id, -2) %]</td>
           <td>[% stocked_by_parts_id.$part_id.0.part.unit | html %]</td>
         </tr>
@@ -53,10 +56,14 @@
               [% P.hidden_tag('allocations[].chargenumber', part.chargenumber )%]
               [% P.hidden_tag('allocations[].warehouse_id', part.warehouse_id )%]
               [% P.hidden_tag('allocations[].bin_id', part.bin_id )%]
+              [% P.hidden_tag('allocations[].bestbefore', part.bestbefore) %]
               [% part.part.partnumber | html %]
             </td>
             <td>[% part.part.description      | html                 %]</td>
             <td>[% part.chargenumber          | html                 %]</td>
+            [% IF INSTANCE_CONF.get_show_bestbefore %]
+            <td>[% part.bestbefore %]</td>
+            [% END %]
             <td>[% part.warehouse.description | html                 %]</td>
             <td>[% part.bin.description       | html                 %]</td>
             <td class="numeric">[% LxERP.format_amount(part.qty, -2) %]</td>
@@ -77,14 +84,17 @@
   <table>
     <thead>
       <tr class="listheading">
-        <th>[% 'Partnumber'   | $T8%]</th>
-        <th>[% 'Description'  | $T8%]</th>
-        <th>[% 'Chargenumber' | $T8%]</th>
-        <th>[% 'Warehouse'    | $T8%]</th>
-        <th>[% 'Bin'          | $T8%]</th>
-        <th>[% 'Onhand'       | $T8%]</th>
-        <th>[% 'Qty'          | $T8%]</th>
-        <th>[% 'Unit'         | $T8%]</th>
+        <th class="listheading">[% 'Partnumber'   | $T8%]</th>
+        <th class="listheading">[% 'Description'  | $T8%]</th>
+        <th class="listheading">[% 'Chargenumber' | $T8%]</th>
+        [% IF INSTANCE_CONF.get_show_bestbefore %]
+        <th class="listheading">[% 'Best Before' | $T8 %]</th>
+        [% END %]
+        <th class="listheading">[% 'Warehouse'    | $T8%]</th>
+        <th class="listheading">[% 'Bin'          | $T8%]</th>
+        <th class="listheading">[% 'Onhand'       | $T8%]</th>
+        <th class="listheading">[% 'Qty'          | $T8%]</th>
+        <th class="listheading">[% 'Unit'         | $T8%]</th>
       </tr>
     </thead>
     <tbody>
@@ -104,10 +114,14 @@
               [% P.hidden_tag('allocations[].chargenumber', part.chargenumber )%]
               [% P.hidden_tag('allocations[].warehouse_id', part.warehouse_id )%]
               [% P.hidden_tag('allocations[].bin_id', part.bin_id )%]
+              [% P.hidden_tag('allocations[].bestbefore', part.bestbefore) %]
               [% part.part.partnumber | html %]
             </td>
             <td>[% part.part.description      | html                 %]</td>
             <td>[% part.chargenumber          | html                 %]</td>
+            [% IF INSTANCE_CONF.get_show_bestbefore %]
+            <td>[% part.bestbefore %]</td>
+            [% END %]
             <td>[% part.warehouse.description | html                 %]</td>
             <td>[% part.bin.description       | html                 %]</td>
             <td class="numeric">[% LxERP.format_amount(part.qty, -2) %]</td>
