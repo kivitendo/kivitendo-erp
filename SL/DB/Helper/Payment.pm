@@ -718,8 +718,6 @@ sub within_skonto_period {
                       },
        }
     );
-  # then return true
-
   # return 1 if requested date (or today) is inside skonto period
   # this will also return 1 if date is before the invoice date
   my (%params) = @_;
