@@ -5,13 +5,43 @@ use utf8;
 
 use Carp;
 use Encode;
-use List::Util qw(first sum);
 use List::MoreUtils qw(any);
+use List::Util qw(first sum);
 use POSIX qw(strftime);
 use XML::Writer;
 
 use SL::Iconv;
 use SL::SEPA::XML::Transaction;
+
+use constant V3_0_0 => 3_000_000;
+use constant V3_8_0 => 3_800_000;
+
+sub get_supported_versions {
+  return (
+    versions => [
+      { id => V3_0_0(), description => "v3.0.0" },
+      { id => V3_8_0(), description => "v3.8.0" },
+    ],
+    default => get_default_version(),
+  );
+}
+
+sub get_default_version {
+  my $today          = DateTime->today_local;
+  my $cutoff_v3_8_0  = DateTime->new_local(year => 2025, month => 10, day => 1);
+
+  return V3_8_0() if $today >= $cutoff_v3_8_0;
+  return V3_0_0();
+}
+
+sub is_version_valid {
+  shift while @_ && ref($_[0]);
+
+  my $id       = $_[0];
+  my %versions = get_supported_versions();
+
+  return any { $_->{id} == $id } @{ $versions{versions} };
+}
 
 sub new {
   my $class = shift;
@@ -31,14 +61,16 @@ sub _init {
   $self->{transactions} = [];
   $self->{src_charset}  = 'UTF-8';
   $self->{grouped}      = 0;
+  $self->{version}      = get_default_version();
 
-  map { $self->{$_} = $params{$_} if (exists $params{$_}) } qw(src_charset company creditor_id message_id grouped collection);
+  map { $self->{$_} = $params{$_} if (exists $params{$_}) } qw(src_charset company creditor_id message_id grouped collection version);
 
   $self->{iconv} = SL::Iconv->new($self->{src_charset}, "UTF-8") || croak "Unsupported source charset $self->{src_charset}.";
 
   my $missing_parameter = first { !$self->{$_} } qw(company message_id);
   croak "Missing parameter: $missing_parameter" if ($missing_parameter);
   croak "Missing parameter: creditor_id"        if !$self->{creditor_id} && $self->{collection};
+  croak "Invalid parameter: version"            if !is_version_valid($self->{version});
 
   map { $self->{$_} = $self->_replace_special_chars($self->{iconv}->convert($self->{$_})) } qw(company message_id creditor_id);
 }
@@ -124,6 +156,23 @@ sub _restricted_identification_sepa2 {
   return substr $string, 0, 35;
 }
 
+sub _emit_cdtr_scheme_id {
+  my ($self, $xml) = @_;
+
+  $xml->startTag('CdtrSchmeId');
+  $xml->startTag('Id');
+  $xml->startTag('PrvtId');
+  $xml->startTag('Othr');
+  $xml->dataElement('Id', encode('UTF-8', substr($self->{creditor_id}, 0, 35)));
+  $xml->startTag('SchmeNm');
+  $xml->dataElement('Prtry', 'SEPA');
+  $xml->endTag('SchmeNm');
+  $xml->endTag('Othr');
+  $xml->endTag('PrvtId');
+  $xml->endTag('Id');
+  $xml->endTag('CdtrSchmeId');
+}
+
 sub to_xml {
   my $self = shift;
 
@@ -143,9 +192,16 @@ sub to_xml {
   my $is_coll   = $self->{collection};
   my $cd_src    = $is_coll ? 'Cdtr'              : 'Dbtr';
   my $cd_dst    = $is_coll ? 'Dbtr'              : 'Cdtr';
-  my $pain_id   = $is_coll ? 'pain.008.001.08'   : 'pain.001.001.09';
   my $pain_elmt = $is_coll ? 'CstmrDrctDbtInitn' : 'CstmrCdtTrfInitn';
   my @pii_base  = (strftime('PII%Y%m%d%H%M%S', @now), rand(1000000000));
+  my $pain_id   = $is_coll && ($self->{version}  == V3_0_0()) ? 'pain.008.001.02'
+                : $is_coll && ($self->{version}  == V3_8_0()) ? 'pain.008.001.08'
+                : !$is_coll && ($self->{version} == V3_0_0()) ? 'pain.001.001.03'
+                : !$is_coll && ($self->{version} == V3_8_0()) ? 'pain.001.001.09'
+                :                                               die("programming error: version not handled for pain ID");
+  my $bic_elt   = $self->{version} == V3_0_0() ? 'BIC'
+                : $self->{version} == V3_8_0() ? 'BICFI'
+                :                                die("programming error: version not handled for BIC element name");
 
   my $grouped_transactions = $self->_group_transactions();
 
@@ -194,12 +250,20 @@ sub to_xml {
     }
     $xml->endTag('PmtTpInf');
 
-    if ($is_coll) {
-      $xml->dataElement('ReqdColltnDt', $master_transaction->get('execution_date'));
+    if ($self->{version} == V3_0_0()) {
+      $xml->dataElement($is_coll ? 'ReqdColltnDt' : 'ReqdExctnDt', $master_transaction->get('execution_date'));
+
+    } elsif ($self->{version} == V3_8_0()) {
+      if ($is_coll) {
+        $xml->dataElement('ReqdColltnDt', $master_transaction->get('execution_date'));
+      } else {
+        $xml->startTag('ReqdExctnDt');
+        $xml->dataElement('Dt', $master_transaction->get('execution_date'));
+        $xml->endTag('ReqdExctnDt');
+      }
+
     } else {
-      $xml->startTag('ReqdExctnDt');
-      $xml->dataElement('Dt', $master_transaction->get('execution_date'));
-      $xml->endTag('ReqdExctnDt');
+      die("programming error: version not handled for ReqdColl/ExctnDt");
     }
 
     $xml->startTag($cd_src);
@@ -214,25 +278,14 @@ sub to_xml {
 
     $xml->startTag($cd_src . 'Agt');
     $xml->startTag('FinInstnId');
-    $xml->dataElement('BICFI', $master_transaction->get('src_bic', 20));
+    $xml->dataElement($bic_elt, $master_transaction->get('src_bic', 20));
     $xml->endTag('FinInstnId');
     $xml->endTag($cd_src . 'Agt');
 
     $xml->dataElement('ChrgBr', 'SLEV');
 
-    if ($is_coll) {
-      $xml->startTag('CdtrSchmeId');
-      $xml->startTag('Id');
-      $xml->startTag('PrvtId');
-      $xml->startTag('Othr');
-      $xml->dataElement('Id', encode('UTF-8', substr($self->{creditor_id}, 0, 35)));
-      $xml->startTag('SchmeNm');
-      $xml->dataElement('Prtry', 'SEPA');
-      $xml->endTag('SchmeNm');
-      $xml->endTag('Othr');
-      $xml->endTag('PrvtId');
-      $xml->endTag('Id');
-      $xml->endTag('CdtrSchmeId');
+    if ($is_coll && ($self->{version}  == V3_8_0())) {
+      $self->_emit_cdtr_scheme_id($xml);
     }
 
     foreach my $transaction (@{ $transaction_group->{transactions} }) {
@@ -253,6 +306,10 @@ sub to_xml {
         $xml->dataElement('MndtId', $self->_restricted_identification_sepa2($transaction->get('mandator_id')));
         $xml->dataElement('DtOfSgntr', $self->_restricted_identification_sepa2($transaction->get('date_of_signature')));
 
+        if ($self->{version}  == V3_0_0()) {
+          $self->_emit_cdtr_scheme_id($xml);
+        }
+
         $xml->endTag('MndtRltdInf');
 
         $xml->endTag('DrctDbtTx');
@@ -267,7 +324,7 @@ sub to_xml {
 
       $xml->startTag("${cd_dst}Agt");
       $xml->startTag('FinInstnId');
-      $xml->dataElement('BICFI', $transaction->get('dst_bic', 20));
+      $xml->dataElement($bic_elt, $transaction->get('dst_bic', 20));
       $xml->endTag('FinInstnId');
       $xml->endTag("${cd_dst}Agt");
 

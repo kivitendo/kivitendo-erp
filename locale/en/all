@@ -3372,6 +3372,7 @@ $self->{texts} = {
   'SEPA Transfer Amount'        => '',
   'SEPA XML Docs for Exports '  => '',
   'SEPA XML download'           => '',
+  'SEPA XML version'            => '',
   'SEPA creditor ID'            => '',
   'SEPA exports'                => '',
   'SEPA message ID'             => '',

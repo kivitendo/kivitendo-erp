@@ -198,7 +198,8 @@ sub bank_transfer_create {
                                      'vc'             => $vc);
 
     $form->header();
-    print $form->parse_html_template('sepa/bank_transfer_created', { 'id' => $id, 'vc' => $vc });
+    my %sepa_versions = SL::SEPA::XML->get_supported_versions;
+    print $form->parse_html_template('sepa/bank_transfer_created', { 'id' => $id, 'vc' => $vc, sepa_versions => \%sepa_versions });
   }
 
   $main::lxdebug->leave_sub();
@@ -296,8 +297,10 @@ sub bank_transfer_list {
   push @options, $form->{l_executed} ? $locale->text('executed') : $locale->text('not yet executed')               if ($form->{l_executed} != $form->{l_not_executed});
   push @options, $form->{l_closed}   ? $locale->text('closed')   : $locale->text('open')                           if ($form->{l_open}     != $form->{l_closed});
 
+  my %sepa_versions = SL::SEPA::XML->get_supported_versions;
+
   $report->set_options('top_info_text'         => join("\n", @options),
-                       'raw_top_info_text'     => $form->parse_html_template('sepa/bank_transfer_list_top'),
+                       'raw_top_info_text'     => $form->parse_html_template('sepa/bank_transfer_list_top',    { 'show_buttons' => $open_available, sepa_versions => \%sepa_versions, }),
                        'raw_bottom_info_text'  => $form->parse_html_template('sepa/bank_transfer_list_bottom', { 'show_buttons' => $open_available, vc => $vc }),
                        'std_column_visibility' => 1,
                        'output_format'         => 'HTML',
@@ -553,6 +556,7 @@ sub bank_transfer_download_sepa_xml {
                                       'message_id'  => $message_id,
                                       'grouped'     => 1,
                                       'collection'  => $vc eq 'customer',
+                                      'version'     => $form->{sepa_xml_version},
     );
 
   foreach my $item (@items) {

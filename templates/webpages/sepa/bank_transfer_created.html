@@ -1,26 +1,38 @@
 [%- USE T8 %]
-[% USE HTML %]
+[% USE HTML %][%- USE LxERP -%][%- USE L -%]
 <h1>[% title %]</h1>
 
- <p>
+<p>
   [% 'The SEPA export has been created.' | $T8 %]
- </p>
+</p>
 
- <p>
-  <ul>
-   <li>
-    <a href="sepa.pl?action=bank_transfer_download_sepa_xml&id=[% HTML.url(id) %]&vc=[% HTML.url(vc) %]">
-     [% 'Download SEPA XML export file' | $T8 %]
-    </a>
-   </li>
-  [%- IF INSTANCE_CONF.get_doc_storage %]
-    <li><a href="sepa.pl?action=bank_transfer_download_sepa_docs&id=[% HTML.url(id) %]&vc=[% HTML.url(vc) %]"> [% 'Download Documents for exported bookings' | $T8 %] </a></li>
-  [% END %]
-   <li>
-    <a href="sepa.pl?action=bank_transfer_list&l_open=1&l_not_executed=1&vc=[% HTML.url(vc) %]">
-     [% 'List open SEPA exports' | $T8 %]
-    </a>
-   </li>
-  </ul>
- </p>
+<h2>[% LxERP.t8('Download SEPA XML export file') %]</h2>
 
+<form method="post" action="sepa.pl">
+  <p>
+    [% LxERP.t8("SEPA XML version") %]:
+    [% L.select_tag('sepa_xml_version', sepa_versions.versions, title_key='description', selected=sepa_versions.default) %]
+  </p>
+
+  <p>
+    [% L.hidden_tag('action', 'bank_transfer_download_sepa_xml') %]
+    [% L.hidden_tag('id', id) %]
+    [% L.hidden_tag('vc', vc) %]
+
+    [% L.submit_tag('dummy', LxERP.t8('Download')) %]
+  </p>
+</form>
+[%- IF INSTANCE_CONF.get_doc_storage %]
+
+<h2>[% LxERP.t8('Download Documents for exported bookings') %]</h2>
+
+<p>
+  <a href="sepa.pl?action=bank_transfer_download_sepa_docs&id=[% HTML.url(id) %]&vc=[% HTML.url(vc) %]"> [% 'Download Documents for exported bookings' | $T8 %]</a>
+</p>
+[% END %]
+
+<h2>[% LxERP.t8('List open SEPA exports') %]</h2>
+
+<p>
+  <a href="sepa.pl?action=bank_transfer_list&l_open=1&l_not_executed=1&vc=[% HTML.url(vc) %]">[% 'List open SEPA exports' | $T8 %]</a>
+</p>
