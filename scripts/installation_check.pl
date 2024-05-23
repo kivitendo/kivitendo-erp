@@ -197,7 +197,7 @@ sub check_template_dir {
   print_header("Checking LaTeX Dependencies for Master Templates '$dir'");
   kpsewhich($path, 'cls', $_) for SL::InstallationCheck::classes_from_latex($path, '\documentclass');
 
-  my @sty = sort { $a cmp $b } uniq (
+  my @sty = sort { $a cmp $b } List::MoreUtils::uniq (
     SL::InstallationCheck::classes_from_latex($path, '\usepackage'),
     qw(textcomp ulem embedfile)
   );
