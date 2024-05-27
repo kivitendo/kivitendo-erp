@@ -124,7 +124,7 @@
             <span class="data wi-mediumsmall numeric">[% SELF.part.sellprice_as_number %]</span>
           [% END %]
           [% IF (SELF.part.is_assortment or SELF.part.is_assembly) %]
-            <span id="items_sellprice_sum_basic" class="data below wi-mediumsmall numeric">([% LxERP.format_amount(SELF.part.items_sellprice_sum, 2) %])</span>
+            <span class="data below wi-mediumsmall numeric">(<span id="items_sellprice_sum_basic">[% LxERP.format_amount(SELF.part.items_sellprice_sum, 2) %])</span></span>
           [% END %]
         </td>
       </tr>
@@ -139,7 +139,7 @@
             [% END %]
           [% END %]
           [% IF SELF.part.is_assortment || SELF.part.is_assembly %]
-            <span id="items_lastcost_sum_basic" class="data below wi-mediumsmall numeric">([% LxERP.format_amount(SELF.part.items_lastcost_sum, 2) %])</span>
+            <span class="data below wi-mediumsmall numeric">(<span id="items_lastcost_sum_basic">[% LxERP.format_amount(SELF.part.items_lastcost_sum, 2) %])</span></span>
           [% END %]
         </td>
       </tr>
