@@ -1063,6 +1063,12 @@ sub parse_form {
     $self->part->add_assemblies( @{ $self->assembly_items } );
   };
 
+  # Update lastcost for assemblies
+  if ($self->part->is_assembly) {
+    my $lastcost_sum = $self->recalc_item_totals(part_type => $self->part->part_type, price_type => 'lastcost');
+    $self->part->lastcost($lastcost_sum);
+  }
+
   $self->part->translations([]) unless $params{use_as_new};
   $self->parse_form_translations;
 
