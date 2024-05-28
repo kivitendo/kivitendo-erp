@@ -5141,6 +5141,7 @@ $self->{texts} = {
   'no shipping address'         => '',
   'no skonto_chart configured for taxkey #1 : #2 : #3' => '',
   'no tax_id in acc_trans'      => '',
+  'no undelivered items'        => '',
   'not a valid DTVF file, expected field header start with \'Umsatz; (..) ;Konto;Gegenkonto\'' => '',
   'not a valid DTVF file, expected first field in A1 \'DTVF\'' => '',
   'not configured'              => '',

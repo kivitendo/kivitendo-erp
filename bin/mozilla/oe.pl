@@ -46,6 +46,7 @@ use SL::IR;
 use SL::IS;
 use SL::Helper::Flash qw(flash_later);
 use SL::Helper::UserPreferences::DisplayPreferences;
+use SL::Helper::ShippedQty;
 use SL::MoreCommon qw(ary_diff restore_form save_form);
 use SL::Presenter::ItemsList;
 use SL::ReportGenerator;
@@ -272,9 +273,18 @@ sub convert_to_delivery_orders {
   my @do_ids;
   my @failed;
   foreach my $order (@orders) {
+    # Only consider not delivered quantities.
+    SL::Helper::ShippedQty->new->calculate($order)->write_to(\@{$order->items});
+
+    my @items_with_not_delivered_qty =
+      grep {$_->qty > 0}
+      map  {$_->qty($_->qty - $_->shipped_qty); $_}
+      @{$order->items_sorted};
+
     my $delivery_order;
     try {
-      $delivery_order = $order->convert_to_delivery_order();
+      die t8('no undelivered items') if !@items_with_not_delivered_qty;
+      $delivery_order = $order->convert_to_delivery_order(items => \@items_with_not_delivered_qty);
     } catch {
       push @failed, {ordnumber => $order->ordnumber, error => $_};
     };
