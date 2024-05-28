@@ -520,16 +520,20 @@ sub setup_oe_orders_action_bar {
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
-      action => [
-        t8('New sales order'),
-        submit    => [ '#form', { action => 'edit' } ],
-        checks    => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
-        accesskey => 'enter',
-      ],
-      action => [
-        t8('Convert to delivery orders'),
-        submit => [ '#form', { action => 'convert_to_delivery_orders' } ],
-        checks => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
+      combobox => [
+        action => [
+          t8('Actions'),
+        ],
+        action => [
+          t8('New sales order'),
+          submit    => [ '#form', { action => 'edit' } ],
+          checks    => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
+        ],
+        action => [
+          t8('Convert to delivery orders'),
+          submit => [ '#form', { action => 'convert_to_delivery_orders' } ],
+          checks => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
+        ],
       ],
     );
   }
