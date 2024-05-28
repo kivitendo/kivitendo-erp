@@ -43,6 +43,7 @@ use SL::FU;
 use SL::OE;
 use SL::IR;
 use SL::IS;
+use SL::Helper::Flash qw(flash_later);
 use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::MoreCommon qw(ary_diff restore_form save_form);
 use SL::Presenter::ItemsList;
@@ -257,6 +258,30 @@ sub edit {
   &display_form;
 
   $main::lxdebug->leave_sub();
+}
+
+sub convert_to_delivery_orders {
+  # collect order ids
+  my @multi_ids = map {
+    $_ =~ m{^multi_id_(\d+)$} && $::form->{'multi_id_' . $1} && $::form->{'trans_id_' . $1}
+  } grep { $_ =~ m{^multi_id_\d+$} } keys %$::form;
+
+  # make new delivery orders from given orders
+  my @orders          = map { SL::DB::Order->new(id => $_)->load } @multi_ids;
+  my @delivery_orders = map { $_->convert_to_delivery_order() }    @orders;
+
+  my @do_ids = map { $_->id } @delivery_orders;
+
+  require "bin/mozilla/do.pl";
+  $::form->{script}        = 'do.pl';
+  $::form->{type}          = 'sales_delivery_order';
+  $::form->{ids}           = \@do_ids;
+  $::form->{"l_$_"}        = 'Y' for qw(donumber ordnumber cusordnumber transdate reqdate name employee);
+  $::form->{top_info_text} = $::locale->text('Converted delivery orders');
+
+  flash('info', t8('#1 salses orders were converted to #2 delivery orders', scalar @orders, scalar @delivery_orders));
+
+  orders();
 }
 
 sub order_links {
@@ -500,6 +525,11 @@ sub setup_oe_orders_action_bar {
         submit    => [ '#form', { action => 'edit' } ],
         checks    => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
         accesskey => 'enter',
+      ],
+      action => [
+        t8('Convert to delivery orders'),
+        submit => [ '#form', { action => 'convert_to_delivery_orders' } ],
+        checks => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
       ],
     );
   }
