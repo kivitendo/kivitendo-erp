@@ -35,6 +35,7 @@
 
 use Carp;
 use POSIX qw(strftime);
+use Try::Tiny;
 
 use SL::DB::Order;
 use SL::DB::OrderItem;
@@ -267,10 +268,18 @@ sub convert_to_delivery_orders {
   } grep { $_ =~ m{^multi_id_\d+$} } keys %$::form;
 
   # make new delivery orders from given orders
-  my @orders          = map { SL::DB::Order->new(id => $_)->load } @multi_ids;
-  my @delivery_orders = map { $_->convert_to_delivery_order() }    @orders;
-
-  my @do_ids = map { $_->id } @delivery_orders;
+  my @orders = map { SL::DB::Order->new(id => $_)->load } @multi_ids;
+  my @do_ids;
+  my @failed;
+  foreach my $order (@orders) {
+    my $delivery_order;
+    try {
+      $delivery_order = $order->convert_to_delivery_order();
+    } catch {
+      push @failed, {ordnumber => $order->ordnumber, error => $_};
+    };
+    push @do_ids, $delivery_order->id if $delivery_order;
+  }
 
   require "bin/mozilla/do.pl";
   $::form->{script}        = 'do.pl';
@@ -279,7 +288,11 @@ sub convert_to_delivery_orders {
   $::form->{"l_$_"}        = 'Y' for qw(donumber ordnumber cusordnumber transdate reqdate name employee);
   $::form->{top_info_text} = $::locale->text('Converted delivery orders');
 
-  flash('info', t8('#1 salses orders were converted to #2 delivery orders', scalar @orders, scalar @delivery_orders));
+  flash('info', t8('#1 salses orders were converted to #2 delivery orders', scalar @orders, scalar @do_ids));
+  if (@failed) {
+    flash('error', t8('The following orders could not be converted to delivery orders:'));
+    flash('error', $_->{ordnumber} . ': ' . $_->{error}) for @failed;
+  }
 
   orders();
 }

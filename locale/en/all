@@ -4127,6 +4127,7 @@ $self->{texts} = {
   'The following is only a preview.' => '',
   'The following list has been generated automatically from existing users collapsing users with identical settings into a single entry.' => '',
   'The following old files whose settings have to be merged manually into the new configuration file "config/kivitendo.conf" still exist:' => '',
+  'The following orders could not be converted to delivery orders:' => '',
   'The following parts could not be allocated:' => '',
   'The following transaction contains wrong taxes:' => '',
   'The following transaction contains wrong taxkeys:' => '',
