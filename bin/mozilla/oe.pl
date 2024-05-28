@@ -1158,7 +1158,7 @@ sub orders {
   my $href = $params{want_binary_pdf} ? '' : build_std_url('action=orders', @keys_for_url);
 
   my %column_defs = (
-    'ids'                     => { 'text' => '', },
+    'ids'                     => { raw_header_data => SL::Presenter::Tag::checkbox_tag("", id => "multi_all", checkall => "[data-checkall=1]"), align => 'center' },
     'transdate'               => { 'text' => $locale->text('Date'), },
     'reqdate'                 => { 'text' => $form->{type} =~ /_order/ ? $locale->text('Required by') : $locale->text('Valid until') },
     'id'                      => { 'text' => $locale->text('ID'), },
@@ -1378,7 +1378,7 @@ sub orders {
 
     $row->{ids} = {
       'raw_data' =>   $cgi->hidden('-name' => "trans_id_${idx}", '-value' => $oe->{id})
-                    . $cgi->checkbox('-name' => "multi_id_${idx}", '-value' => 1, '-label' => ''),
+                    . $cgi->checkbox('-name' => "multi_id_${idx}", '-value' => 1, 'data-checkall' => 1, '-label' => ''),
       'valign'   => 'center',
       'align'    => 'center',
     };
