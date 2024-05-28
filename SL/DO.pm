@@ -279,6 +279,13 @@ SQL
     push @values, like($form->{chargenumber});
   }
 
+  if ($form->{ids}) {
+    unshift @{$form->{ids}}, 0; # no error and no results if no ids are given
+    my $placeholders = join(', ', ('?') x scalar(@{$form->{ids}}));
+    push @where, "dord.id IN ($placeholders)";
+    push @values, @{$form->{ids}};
+  }
+
   if ($form->{all}) {
     my @tokens = parse_line('\s+', 0, $form->{all});
     # ordnumber quonumber customer.name vendor.name transaction_description
