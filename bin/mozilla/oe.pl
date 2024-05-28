@@ -1088,7 +1088,7 @@ sub orders {
   );
 
   # only show checkboxes if gotten here via sales_order form.
-  my $allow_multiple_orders = $form->{type} eq 'sales_order_intake' || $form->{type} eq 'sales_order';
+  my $allow_multiple_orders = $form->{type} eq 'sales_order';
   if ($allow_multiple_orders) {
     unshift @columns, "ids";
   }
