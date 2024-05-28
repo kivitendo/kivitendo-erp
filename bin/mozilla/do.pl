@@ -802,7 +802,7 @@ sub orders {
                                           transaction_description transdatefrom transdateto reqdatefrom reqdateto
                                           type vc employee_id salesman_id project_id parts_partnumber parts_description
                                           insertdatefrom insertdateto business_id all department_id chargenumber full_text
-                                          vendor_confirmation_number order_confirmation_number);
+                                          vendor_confirmation_number order_confirmation_number ids);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
