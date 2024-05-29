@@ -44,7 +44,7 @@
           <td class="numeric">[%- LxERP.format_amount(row.amount, 2) %]</td>
           <td>[% row.duedate.to_kivitendo | html %]</td>
           <td class="numeric">[%- LxERP.format_amount(row.paid, 2) %]</td>
-          <td class="numeric">[%- LxERP.format_amount(row.amount - row.paid,2) %]
+          <td class="numeric">[%- LxERP.format_amount(row.amount - row.paid,2) %]</td>
           [% IF FORM.db == 'customer' %]
             <td>
             [%- IF row.dunning_config_id != '' %]
