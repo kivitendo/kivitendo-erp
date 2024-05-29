@@ -16,7 +16,7 @@
     <li><a href="#mails" onclick="kivi.CustomerVendorTurnover.get_mails();">[% 'Mails' | $T8 %]</a></li>
     <li><a href="#letters" onclick="kivi.CustomerVendorTurnover.get_letters();">[% 'Letters' | $T8 %]</a></li>
   </ul>
-  <div id="dun_stat">[% PROCESS "customer_vendor_turnover/dun_statistic.html" %]</div>
+  [% IF FORM.db == "customer" %]<div id="dun_stat">[% PROCESS "customer_vendor_turnover/dun_statistic.html" %]</div>[% END %]
   <div id="quotations"></div>
   <div id="orders"></div>
   <div id="invoices"></div>
