@@ -27,7 +27,7 @@ sub _extract_end_to_end_id {
   my ($parts) = @_;
 
   foreach my $value (values %{ $parts }) {
-    if ($value =~ m{^(?:endtoend:|eref\+) *(.+)}i) {
+    if ($value =~ m{^(?:end\W?to\W?end:|eref\+) *(.+)}i) {
       my $id = $1;
       return $id =~ m{notprovided}i ? undef : $id;
     }
