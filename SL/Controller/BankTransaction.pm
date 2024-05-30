@@ -965,7 +965,7 @@ sub prepare_report {
   $report->{title} = t8('Bank transactions');
   $self->{report}  = $report;
 
-  my @columns      = qw(ids local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount invoice_amount invoices currency purpose local_account_number local_bank_code id);
+  my @columns      = qw(ids local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount invoice_amount invoices currency purpose end_to_end_id local_account_number local_bank_code id);
   my @sortable     = qw(local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount                                  purpose local_account_number local_bank_code);
 
   my %column_defs  = (
@@ -1003,6 +1003,7 @@ sub prepare_report {
     local_account_number  => { sub   => sub { $_[0]->local_bank_account->account_number } },
     local_bank_code       => { sub   => sub { $_[0]->local_bank_account->bank_code } },
     local_bank_name       => { sub   => sub { $_[0]->local_bank_account->name } },
+    end_to_end_id         => { sub   => sub { $_[0]->end_to_end_id }, text => $::locale->text('End to end ID') },
     id                    => {},
   );
 
