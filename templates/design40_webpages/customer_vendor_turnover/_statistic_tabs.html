@@ -7,7 +7,7 @@
     $ ( "#statistic_tabs" ).tabs();
   });
 </script>
-<div class="tabwidget" id="statistic_tabs" class="wrapper">
+<div class="tabwidget wrapper" id="statistic_tabs">
   <ul>
     [% IF FORM.db == "customer" %]<li><a href="#dun_stat">[% 'Dunningstatistic' | $T8 %]</a></li>[% END %]
     <li><a href="#quotations">[% IF FORM.db == "customer" %][% 'Sales Quotations' | $T8 %][% ELSE %][% 'Request Quotations' | $T8 %][% END %]</a></li>
