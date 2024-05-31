@@ -459,3 +459,9 @@ external_prefix = 0
 international_dialing_prefix = 00
 # Our own country code
 our_country_code = 49
+
+[radicale]
+# Root directory for Radicale CardDAV server (the ExportContactsRadicale
+# background job will export contacts to this directory). Must be writeable by
+# the user Kivitendo runs as.
+radicale_dir = radicale/
