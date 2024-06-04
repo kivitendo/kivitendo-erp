@@ -23,6 +23,7 @@ use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::Payment qw(forex);
 use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
+use SL::Helper::KIX18 qw(:all);
 use SL::Locale::String qw(t8);
 use SL::RecordLinks;
 use Rose::DB::Object::Helpers qw(as_tree strip);
