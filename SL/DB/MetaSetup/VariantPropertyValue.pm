@@ -20,6 +20,8 @@ __PACKAGE__->meta->columns(
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
+__PACKAGE__->meta->unique_keys([ 'variant_property_id', 'value' ]);
+
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
