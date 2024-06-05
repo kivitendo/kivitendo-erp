@@ -136,6 +136,7 @@ __PACKAGE__->attr_sorted({ unsorted => 'customerprices', position => 'sortorder'
 __PACKAGE__->attr_sorted('businessmodels');
 
 __PACKAGE__->before_save('_before_save_set_partnumber');
+__PACKAGE__->before_save('_before_save_remove_empty_ean');
 __PACKAGE__->before_save('_before_save_set_assembly_weight');
 __PACKAGE__->before_save('_before_check_variant_property_values');
 
@@ -145,6 +146,14 @@ sub _before_save_set_partnumber {
   $self->create_trans_number if !$self->partnumber;
   return 1;
 }
+
+sub _before_save_remove_empty_ean {
+  my ($self) = @_;
+
+  $self->ean(undef) if defined $self->ean && $self->ean eq '';
+  return 1;
+}
+
 
 sub _before_save_set_assembly_weight {
   my ($self) = @_;
@@ -216,6 +225,12 @@ sub validate {
   unless ( $self->id ) {
     push @errors, $::locale->text('The partnumber already exists.') if SL::DB::Manager::Part->get_all_count(where => [ partnumber => $self->partnumber ]);
   }
+  push @errors, $::locale->text('The ean already exists.') if $self->ean ne '' && SL::DB::Manager::Part->get_all_count(
+    where => [
+      ean   => $self->ean,
+      '!id' => $self->id,
+    ]
+  );
 
   if ($self->is_assortment && $self->orphaned && scalar @{$self->assortment_items} == 0) {
     # when assortment isn't orphaned form doesn't contain any items
