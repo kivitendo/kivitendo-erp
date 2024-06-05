@@ -53,7 +53,10 @@ __PACKAGE__->meta->columns(
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
-__PACKAGE__->meta->unique_keys([ 'partnumber' ]);
+__PACKAGE__->meta->unique_keys(
+  [ 'ean' ],
+  [ 'partnumber' ],
+);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
 
