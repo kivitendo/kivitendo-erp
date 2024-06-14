@@ -4,9 +4,10 @@ use strict;
 use warnings;
 use utf8;
 
-use PDF::API2;
-use Data::Dumper;
+use File::Temp;
+use File::Slurp qw(slurp);
 use List::Util qw(first);
+use Poppler;
 use XML::LibXML;
 
 use SL::Locale::String qw(t8);
@@ -44,82 +45,54 @@ sub convert_customer_setting {
 }
 
 sub _extract_zugferd_invoice_xml {
-  my $doc        = shift;
-  my %res_fail;
+  my $file        = shift;
+  my (%res_fail, @res, @attachments);
 
-  # unfortunately PDF::API2 has no public facing api to access the actual pdf name dictionaries
-  # so we need to use the internal data, just like with PDF::CAM before
-  #
-  # PDF::API2 will internally read $doc->{pdf}{Root}{Names} for us, but after that every entry
-  # in the tree may be an indirect object (Objind) before realising it.
-  #
-  # The actual embedded files will be located at $doc->{pdf}{Root}{Names}{EmbeddedFiles}
-  #
+  my $userspath       = SL::System::Process::exe_dir() . "/" . $::lx_office_conf{paths}->{userspath};
 
-  my $node = $doc->{pdf};
-  for (qw(Root Names EmbeddedFiles)) {
-    $node = $node->{$_};
-    if (!ref $node) {
-      return {
-        result  => RES_ERR_NO_ATTACHMENT(),
-        message => "unexpected unbless node while trying to access $_ node",
-      }
-    }
-    if ('PDF::API2::Basic::PDF::Objind' eq ref $node) {
-      $node->realise;
-    }
-    # after realising it should be a Dict
-    if ('PDF::API2::Basic::PDF::Dict' ne ref $node) {
-      return {
-        result  => RES_ERR_NO_ATTACHMENT(),
-        message => "unexpected node type [@{[ref($node)]}] after realising $_ node",
-      }
-    }
+  my $pdf = eval { Poppler::Document->new_from_file($file) };
+
+  unless ( $pdf ) { return {
+      'result'  => RES_ERR_NO_ATTACHMENT(),
+      'message' => "Cannot open PDF file: $!",
+    };
   }
 
-  # now we have an array of possible attachments
-  my @agenda     = $node;
+  my $tmpfile = File::Temp->new(
+    'zugferd-import-XXXXXXXX',
+    DIR    => $userspath,
+    UNLINK => 1,
+  );
 
-  my $parser;  # SL::XMLInvoice object used as return value
-  my @res;     # Temporary storage for error messages encountered during
-               # attempts to process attachments.
+  @attachments = eval { $pdf->get_attachments };
 
-  # Hardly ever more than single leaf, but...
-
-  while (@agenda) {
-    my $item = shift @agenda;
-
-    if ($item->{Kids}) {
-      my @kids = $item->{Kids}->realise->elements;
-      push @agenda, @kids;
-
-    } else {
-      my @names = $item->{Names}->realise->elements;
-
-      TRY_NEXT:
-      while (@names) {
-        my ($k, $v)  = splice @names, 0, 2;
-        my $fnode    = $v->realise->{EF}->realise->{F}->realise;
-
-        $fnode->read_stream(1);
-
-        my $content  = $fnode->{' stream'};
-
-        $parser = SL::XMLInvoice->new($content);
-
-        # Caveat: this will only ever catch the first attachment looking like
-        #         an XML invoice.
-        if ( $parser->{status} == SL::XMLInvoice::RES_OK ){
-          return $parser;
-        } else {
-          push @res, t8(
-            "Could not parse PDF embedded attachment #1: #2",
-            $k,
-            $parser->{result}
-          );
-        }
-      }
+  if ( scalar @attachments == 0 ) {
+        return {
+        'result'  => RES_ERR_NO_ATTACHMENT(),
+        'message' => "PDF file does not have any attachments.",
+      };
     }
+
+  my $i = 0;
+
+  foreach my $attachment ( @attachments ) {
+    my $retval = eval { Poppler::Attachment::save($attachment, $tmpfile->filename) };
+    unless ( $retval ) {
+      $i++;
+      next;
+    }
+    my $xml = slurp($tmpfile->filename);
+    my $parser = SL::XMLInvoice->new($xml);
+    if ( $parser->{result} == SL::XMLInvoice::RES_OK ){
+      return $parser;
+    } else {
+      push @res, t8(
+        "Could not parse PDF embedded attachment #1: #2",
+        $i,
+        $parser->{result}
+        );
+    }
+    $i++;
   }
 
   # There's going to be at least one attachment that failed to parse as XML by
@@ -134,78 +107,17 @@ sub _extract_zugferd_invoice_xml {
   return \%res_fail;
 }
 
-sub _get_xmp_metadata {
-  my ($doc) = @_;
-
-  $doc->xmpMetadata;
-}
-
 sub extract_from_pdf {
   my ($self, $file_name) = @_;
   my @warnings;
 
-  my $pdf_doc = PDF::API2->openScalar($file_name);
-
-  if (!$pdf_doc) {
-    return {
-      result  => RES_ERR_FILE_OPEN,
-      message => $::locale->text('The file \'#1\' could not be opened for reading.', $file_name),
-    };
-  }
-
-  my $xmp = _get_xmp_metadata($pdf_doc);
-
-  if (!defined $xmp) {
-      push @warnings, $::locale->text('The file \'#1\' does not contain the required XMP meta data.', $file_name);
-  } else {
-    my $dom = eval { XML::LibXML->load_xml(string => $xmp) };
-
-    push @warnings, $::locale->text('Parsing the XMP metadata failed.'), if !$dom;
-
-    my $xpc = XML::LibXML::XPathContext->new($dom);
-    $xpc->registerNs('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#');
-
-    my $zugferd_version;
-
-    my $test = $xpc->findnodes('/x:xmpmeta/rdf:RDF/rdf:Description');
-
-    foreach my $node ($xpc->findnodes('/x:xmpmeta/rdf:RDF/rdf:Description')) {
-      my $ns = first { ref($_) eq 'XML::LibXML::Namespace' } $node->attributes;
-      next unless $ns;
-
-      if ($ns->getData =~ m{urn:zugferd:pdfa:CrossIndustryDocument:invoice:2p0}) {
-        $zugferd_version = 'zugferd:2p0';
-        last;
-      }
-
-      if ($ns->getData =~ m{urn:factur-x:pdfa:CrossIndustryDocument:invoice:1p0}) {
-        $zugferd_version = 'factur-x:1p0';
-        last;
-      }
-
-      if ($ns->getData =~ m{zugferd|factur-x}i) {
-        $zugferd_version = 'unsupported';
-        last;
-      }
-    }
-
-    if (!$zugferd_version) {
-        push @warnings, $::locale->text('The XMP metadata does not declare the Factur-X/ZUGFeRD data.'),
-    }
-
-    if ($zugferd_version eq 'unsupported') {
-        push @warnings, $::locale->text('The Factur-X/ZUGFeRD version used is not supported.'),
-    }
-  }
-
-  my $invoice_xml = _extract_zugferd_invoice_xml($pdf_doc);
+  my $invoice_xml = _extract_zugferd_invoice_xml($file_name);
 
   my %res;
 
   %res = (
     result       => $invoice_xml->{result},
     message      => $invoice_xml->{message},
-    metadata_xmp => $xmp,
     invoice_xml  => $invoice_xml,
     warnings     => \@warnings,
   );
@@ -223,7 +135,6 @@ sub extract_from_xml {
   %res = (
     result       => $invoice_xml->{result},
     message      => $invoice_xml->{message},
-    metadata_xmp => undef,
     invoice_xml  => $invoice_xml,
     warnings     => (),
   );
@@ -297,8 +208,6 @@ Other than that, the hash ref contains the following keys:
 
 =item C<message> - An error message detailing the problem upon nonzero C<result>, undef otherwise.
 
-=item C<metadata_xmp> - The XMP metadata extracted from the Factur-X/ZUGFeRD invoice (if present)
-
 =item C<invoice_xml> - An SL::XMLInvoice object holding the data extracted from the parsed XML invoice.
 
 =item C<warnings> - Warnings encountered upon extracting/parsing XML files (if any)
@@ -330,8 +239,6 @@ Other than that, the hash ref contains the following keys:
 =over 4
 
 =item C<message> - An error message detailing the problem upon nonzero C<result>, undef otherwise.
-
-=item C<metadata_xmp> - Always undef and only present to let downstream code expecting its presence fail gracefully.
 
 =item C<invoice_xml> - An SL::XMLInvoice object holding the data extracted from the parsed XML invoice.
 
