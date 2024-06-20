@@ -1085,6 +1085,17 @@ sub setup_gl_action_bar {
       ], # end of combobox "Storno"
 
       combobox => [
+        action => [ t8('Workflow') ],
+        action => [
+          t8('Use As New'),
+          submit   => [ '#form', { action => "use_as_new" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$form->{id} ? t8('This general ledger transaction has not been posted yet.')
+                    : undef,
+        ],
+      ], # end of combobox "Workflow"
+
+      combobox => [
         action => [ t8('more') ],
         action => [
           t8('History'),
@@ -1558,6 +1569,23 @@ sub storno {
   $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id});
 
   $main::lxdebug->leave_sub();
+}
+
+sub use_as_new {
+  $::auth->assert('gl_transactions');
+
+  $::form->{email_journal_id}    = delete $::form->{workflow_email_journal_id};
+  $::form->{email_attachment_id} = delete $::form->{workflow_email_attachment_id};
+  $::form->{callback}            = delete $::form->{workflow_email_callback};
+
+  delete $::form->{$_} for qw(id gldate tax_point deliverydate storno);
+
+  $::form->{title}     = "Add";
+  $::form->{transdate} = DateTime->today_local->to_kivitendo;
+
+  $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_GL_TRANSACTION_POST())->token;
+
+  update();
 }
 
 sub continue {
