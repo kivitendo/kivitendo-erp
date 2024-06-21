@@ -2530,7 +2530,7 @@ password: supipass8
 
             <listitem>
               <para>
-                Wahl ob eine Verschlüsselung bei der Verbindung mit dem Server
+                Wahl, ob eine Verschlüsselung bei der Verbindung mit dem Server
                 verwendendet wird. Standardwert ist '<literal>1</literal>',
                 wodurch eine SSL-Verschlüsselung verwendet wird. Mit
                 '<literal>0</literal>' wird keine Verschlüsselung genutzt.
@@ -2557,8 +2557,8 @@ password: supipass8
 
             <listitem>
               <para>
-                Wahl des Ordners, den kivitendo als Basis für das erstellen von
-                Unterordnern und das abholen von E-Mails verwendet. Standardwert
+                Wahl des Ordners, den kivitendo als Basis für das Erstellen von
+                Unterordnern und das Abholen von E-Mails verwendet. Standardwert
                 ist '<literal>INBOX</literal>'. Ordnerhierarchien können mit
                 einem Slash ('<literal>/</literal>') getrennt werden. Beispiel:
                 '<literal>INBOX/kivitendo</literal>'. In diesem Ordner dürfen
@@ -2576,8 +2576,8 @@ password: supipass8
           zu halten, kann der Hintergrund-Job
           '<literal>CleanUpEmailSubfolders</literal>' genutzt werden. Dieser
           importiert alle E-Mails und löscht alle Unterordnern, die nicht zu
-          einem Offenen Beleg gehören. Importierte E-Mails werden werden nicht
-          gelöscht, erst beim Löschen des Unterordners werden sie gelöscht.
+          einem offenen Beleg gehören. Importierte E-Mails werden nicht
+          gelöscht; erst beim Löschen des Unterordners werden sie gelöscht.
         </para>
 
         <para>
@@ -2591,8 +2591,8 @@ password: supipass8
         </para>
 
         <para>
-          Beim Umzug des E-Mail-Servers kann kivitendo die E-Mails schon
-          importierten E-Mails nicht mehr erkennen. Dies führt dazu, dass alle
+          Beim Umzug des E-Mail-Servers kann kivitendo schon
+          importierte E-Mails nicht mehr erkennen. Dies führt dazu, dass alle
           E-Mails erneut importiert werden.
         </para>
 
