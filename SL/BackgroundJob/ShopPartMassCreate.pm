@@ -51,6 +51,12 @@ sub get_shop_categories {
   return \@shop_categories;
 }
 
+sub sanitize_filename {
+    my ($filename) = @_;
+    $filename =~ s/\W/_/g;
+    return $filename;
+}
+
 sub _warn {
   my ($messages, $message) = @_;
   $main::lxdebug->message(LXDebug::WARN(), $message);
@@ -164,7 +170,7 @@ sub run {
         source           => 'uploaded',
         file_type        => 'image',
         file_name        => $image_name,
-        title            => substr($part->description, 0, 45),
+        title            => sanitize_filename(substr($part->description, 0, 45)),
         description      => '',
         file_contents    => $file_data,
         file_path        => $image_path,
