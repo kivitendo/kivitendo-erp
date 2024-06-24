@@ -25,6 +25,7 @@ Kleinere neue Features und Detailverbesserungen:
     das entsprechende Dokument anzeigen
   - Neues Feld Beschreibung bei den Backgroundjob. Dient zur besseren
     Unterscheidung.
+  - Dialogbuchungen als "als neu verwenden" können.
 
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
