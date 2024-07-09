@@ -1440,7 +1440,9 @@ sub orders {
       'align'    => 'center',
     };
 
-    $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}" unless $params{want_binary_pdf};
+    if (!$form->{hide_links}) {
+      $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}" unless $params{want_binary_pdf};
+    }
 
     if ($form->{l_items}) {
       my $items = SL::DB::Manager::OrderItem->get_all_sorted(where => [id => $oe->{item_ids}]);
