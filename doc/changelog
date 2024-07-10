@@ -33,7 +33,8 @@ Kleinere neue Features und Detailverbesserungen:
   - Neues Feld Beschreibung bei den Backgroundjob. Dient zur besseren
     Unterscheidung.
   - Dialogbuchungen als "als neu verwenden" können.
-
+  - eigene Zugriffsrechte für die Verkaufs-Berichte "Auftragsartikelsuche",
+    "Finanz-Controlling" und "Verkaufsbericht".
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -
