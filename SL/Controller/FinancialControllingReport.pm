@@ -16,7 +16,7 @@ use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(project_types models) ],
 );
 
-__PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
+__PACKAGE__->run_before(sub { $::auth->assert('sales_financial_controlling'); });
 
 my %sort_columns = (
   ordnumber               => t8('Order'),

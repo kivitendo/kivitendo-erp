@@ -84,7 +84,7 @@ sub init_model {
 }
 
 sub check_auth {
-  $::auth->assert('sales_order_edit');
+  $::auth->assert('sales_order_item_search');
 }
 
 1;
