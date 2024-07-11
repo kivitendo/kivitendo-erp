@@ -284,6 +284,12 @@ sub action_print {
     $self->js_reset_order_and_item_ids_after_save;
   }
 
+  my $redirect_url = $self->url_for(
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
+
   my $format      = $::form->{print_options}->{format};
   my $media       = $::form->{print_options}->{media};
   my $formname    = $::form->{print_options}->{formname};
@@ -358,9 +364,7 @@ sub action_print {
 
   $self->save_history('PRINTED');
 
-  $self->js
-    ->run('kivi.ActionBar.setEnabled', '#save_and_email_action')
-    ->render;
+  $self->js->redirect_to($redirect_url)->render;
 }
 sub action_preview_pdf {
   my ($self) = @_;
