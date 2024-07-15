@@ -1440,7 +1440,7 @@ sub orders {
       'align'    => 'center',
     };
 
-    if (!$form->{hide_links}) {
+    if (!$form->{hide_links} || $oe->{is_own}) {
       $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}" unless $params{want_binary_pdf};
     }
 
