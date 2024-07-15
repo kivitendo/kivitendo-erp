@@ -13,7 +13,7 @@ Mittelgroße neue Features:
   - Neues Recht zum Anzeigen der Beträge in Auftragsberichten. Wer dieses
     Recht nicht hat, sieht keine Beträge in den Berichten und die Links
     zum Auftrag erscheinen nicht (nur der Text der Auftragsnummer).
-    Als Standardeinstellung bekommen alle Gruppen mir Rechten, Aufträge
+    Als Standardeinstellung bekommen alle Gruppen mit Rechten, Aufträge
     einzusehen bzw. zu bearbeiten, das Recht, Beträge im Bericht zu sehen.
     Das Recht lässt sich getrennt nach Ein- und Verkauf einstellen.
 
