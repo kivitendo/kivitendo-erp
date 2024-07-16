@@ -299,16 +299,14 @@ sub action_print {
 
   # only pdf and opendocument by now
   if (none { $format eq $_ } qw(pdf opendocument opendocument_pdf)) {
-    return $self->js->flash('error',
-      t8('Format \'#1\' is not supported yet/anymore.', $format)
-    )->render;
+    flash_later('error', t8('Format \'#1\' is not supported yet/anymore.', $format));
+    return $self->js->redirect_to($redirect_url)->render;
   }
 
   # only screen or printer by now
   if (none { $media eq $_ } qw(screen printer)) {
-    return $self->js->flash('error',
-      t8('Media \'#1\' is not supported yet/anymore.', $media)
-    )->render;
+    flash_later('error', t8('Media \'#1\' is not supported yet/anymore.', $media));
+    return $self->js->redirect_to($redirect_url)->render;
   }
 
   # create a form for generate_attachment_filename
@@ -329,14 +327,13 @@ sub action_print {
       groupitems => $groupitems
     });
   if (scalar @errors) {
-    return $self->js->flash('error',
-      t8('Conversion to PDF failed: #1', $errors[0])
-    )->render;
+    flash_later('error', t8('Generating the document failed: #1', $errors[0]));
+    return $self->js->redirect_to($redirect_url)->render;
   }
 
   if ($media eq 'screen') {
     # screen/download
-    $self->js->flash('info', t8('The PDF has been created'));
+    flash_later('info', t8('The document has been created.'));
     $self->send_file(
       \$pdf,
       type         => SL::MIME->mime_type_from_ext($pdf_filename),
@@ -352,20 +349,21 @@ sub action_print {
       content => $pdf,
     );
 
-    $self->js->flash('info', t8('The PDF has been printed'));
+    flash_later('info', t8('The document has been printed.'));
   }
 
   my @warnings = store_pdf_to_webdav_and_filemanagement(
     $self->order, $pdf, $pdf_filename
   );
   if (scalar @warnings) {
-    $self->js->flash('warning', $_) for @warnings;
+    flash_later('warning', $_) for @warnings;
   }
 
   $self->save_history('PRINTED');
 
   $self->js->redirect_to($redirect_url)->render;
 }
+
 sub action_preview_pdf {
   my ($self) = @_;
 
