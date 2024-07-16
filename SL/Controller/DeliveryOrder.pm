@@ -372,6 +372,12 @@ sub action_preview_pdf {
     $self->js_reset_order_and_item_ids_after_save;
   }
 
+  my $redirect_url = $self->url_for(
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
+
   my $format      = 'pdf';
   my $media       = 'screen';
   my $formname    = $self->type;
@@ -394,19 +400,19 @@ sub action_preview_pdf {
       language   => $self->order->language,
     });
   if (scalar @errors) {
-    return $self->js->flash('error',
-      t8('Conversion to PDF failed: #1', $errors[0])
-    )->render;
+    flash_later('error', t8('Conversion to PDF failed: #1', $errors[0]));
+    return $self->js->redirect_to($redirect_url)->render;
   }
   $self->save_history('PREVIEWED');
-  $self->js->flash('info', t8('The PDF has been previewed'));
+  flash_later('info', t8('The PDF has been previewed'));
   # screen/download
   $self->send_file(
     \$pdf,
     type         => SL::MIME->mime_type_from_ext($pdf_filename),
     name         => $pdf_filename,
-    js_no_render => 0,
+    js_no_render => 1,
   );
+  $self->js->redirect_to($redirect_url)->render;
 }
 
 # open the email dialog
