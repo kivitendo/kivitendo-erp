@@ -3,13 +3,11 @@ package SL::DB::PeriodicInvoicesConfig;
 use strict;
 
 use SL::DB::MetaSetup::PeriodicInvoicesConfig;
+use SL::DB::Manager::PeriodicInvoicesConfig;
 
 use List::Util qw(max min);
 
 __PACKAGE__->meta->initialize;
-
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
 
 our %PERIOD_LENGTHS             = ( o => 0, m => 1, q => 3, b => 6, y => 12 );
 our %ORDER_VALUE_PERIOD_LENGTHS = ( %PERIOD_LENGTHS, 2 => 24, 3 => 36, 4 => 48, 5 => 60 );
