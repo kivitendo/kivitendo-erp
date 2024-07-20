@@ -7,6 +7,7 @@ use SL::DB::Manager::PeriodicInvoicesConfig;
 
 use Params::Validate qw(:all);
 use List::Util qw(max min);
+use Rose::DB::Object::Helpers qw(clone);
 
 use SL::Helper::DateTime;
 
@@ -16,6 +17,95 @@ our %PERIOD_LENGTHS             = ( o => 0, m => 1, q => 3, b => 6, y => 12 );
 our %ORDER_VALUE_PERIOD_LENGTHS = ( %PERIOD_LENGTHS, 2 => 24, 3 => 36, 4 => 48, 5 => 60 );
 our @PERIODICITIES              = keys %PERIOD_LENGTHS;
 our @ORDER_VALUE_PERIODICITIES  = keys %ORDER_VALUE_PERIOD_LENGTHS;
+
+sub get_open_orders_for_period {
+  my $self = shift;
+
+  my %params = validate(@_, {
+    start_date => {
+      callbacks => { is_date => \&_is_date, },
+      default   => $self->start_date,
+    },
+    end_date   => {
+      callbacks => { is_date => \&_is_date, },
+      default   => DateTime->today_local,
+    },
+  });
+  return [] unless $self->active;
+
+  my @start_dates = $self->calculate_invoice_dates(%params);
+  return [] unless scalar @start_dates;
+
+  my $orig_order = $self->order;
+
+  my $next_period_start_date = $self->get_next_period_start_date;
+
+  my @orders;
+  foreach my $period_start_date (@start_dates) {
+    my $new_order = clone($orig_order);
+    $new_order->reqdate($period_start_date);
+    $new_order->tax_point(
+      add_months(
+        $period_start_date, $self->get_billing_period_length
+      )->add(days => -1)
+    );
+    my @items;
+    for my $item ($orig_order->items) {
+      next if $item->recurring_billing_mode eq 'never';
+      next if $item->recurring_billing_mode eq 'once' && (
+          $item->recurring_billing_invoice_id
+          || $period_start_date != $next_period_start_date
+        );
+
+      my $new_item = clone($item);
+
+      $new_item = $self->_adjust_sellprices_for_period(
+          order_item => $new_item,
+          period_start_date => $period_start_date,
+      );
+
+      push @items, $new_item;
+    }
+    if (scalar @items) { # don't return empty orders
+      $new_order->items(@items);
+      $new_order->calculate_prices_and_taxes;
+      push @orders, $new_order;
+    }
+  }
+  return \@orders;
+}
+
+sub _adjust_sellprices_for_period {
+  my $self = shift;
+
+  my %params = validate(@_, {
+    period_start_date => { callbacks => { is_date => \&_is_date, } },
+    order_item => { isa => 'SL::DB::OrderItem' },
+  });
+  my $item = $params{order_item};
+
+  my $config = $self;
+
+  my $billing_len     = $config->get_billing_period_length;
+  my $order_value_len = $config->get_order_value_period_length;
+
+  return $item if $billing_len == $order_value_len;
+  return $item if $billing_len == 0;
+
+  my $is_last_invoice_in_cycle = $config->is_last_bill_date_in_order_value_cycle(date => $params{period_start_date});
+
+  my $multiplier_per_invoice = $billing_len / $order_value_len;
+  my $sellprice_one_invoice = $::form->round_amount($item->sellprice * $multiplier_per_invoice, 2);
+  if ($multiplier_per_invoice < 1 && $is_last_invoice_in_cycle) {
+    # add rounding difference on last cycle
+    my $num_invoices_in_cycle = $order_value_len / $billing_len;
+    $item->sellprice($item->sellprice - ($num_invoices_in_cycle - 1) * $sellprice_one_invoice);
+  } else {
+    $item->sellprice($sellprice_one_invoice);
+  }
+
+  return $item;
+}
 
 sub calculate_invoice_dates {
   my $self = shift;
@@ -82,6 +172,20 @@ sub calculate_invoice_dates {
   }
 
   return @start_dates;
+}
+
+sub get_next_period_start_date {
+  my $self = shift;
+
+  my $last_created_on_date = $self->get_previous_billed_period_start_date;
+
+  return $self->first_billing_date || $self->start_date unless $last_created_on_date;
+
+  my @dates = $self->calculate_invoice_dates(
+    end_date => add_months($last_created_on_date, $self->get_billing_period_length)
+  );
+
+  return scalar @dates ? $dates[0] : undef;
 }
 
 sub get_billing_period_length {
