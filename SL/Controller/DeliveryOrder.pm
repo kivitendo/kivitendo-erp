@@ -1127,7 +1127,7 @@ sub action_transfer_stock {
 
   SL::DB->client->with_transaction(sub {
     $_->save for @transfer_requests;
-    $self->order->update_attributes(delivered => 1, closed => 1);
+    $self->order->update_attributes(delivered => 1);
   });
   # update qty and stock info
   foreach my $item (@{$self->order->items}) {
