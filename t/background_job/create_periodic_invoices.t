@@ -14,7 +14,7 @@ sub today_local {
 
 package main;
 
-use Test::More tests => 56;
+use Test::More tests => 58;
 
 use lib 't';
 use strict;
@@ -113,6 +113,9 @@ are_invoices 'p=m ovp=y',[ '01.01.2013', 27.78 ], [ '01.02.2013', 27.78 ], [ '01
 
 create_invoices(periodic_invoices_config => { periodicity => 'q', order_value_periodicity => 'y', start_date => DateTime->from_kivitendo('01.01.2013') });
 are_invoices 'p=q ovp=y',[ '01.01.2013', 83.33 ], [ '01.04.2013', 83.33 ], [ '01.07.2013', 83.33 ], [ '01.10.2013', 83.34 ], [ '01.01.2014', 83.33 ];
+
+create_invoices(periodic_invoices_config => { periodicity => 'q', order_value_periodicity => 'y', start_date => DateTime->from_kivitendo('31.01.2013') });
+are_invoices 'p=q ovp=y',[ '31.01.2013', 83.33 ], [ '30.04.2013', 83.33 ], [ '31.07.2013', 83.33 ], [ '31.10.2013', 83.34 ], [ '31.01.2014', 83.33 ];
 
 create_invoices(periodic_invoices_config => { periodicity => 'b', order_value_periodicity => 'y', start_date => DateTime->from_kivitendo('01.01.2013') });
 are_invoices 'p=b ovp=y',[ '01.01.2013', 166.67 ], [ '01.07.2013', 166.66 ], [ '01.01.2014', 166.67 ];
