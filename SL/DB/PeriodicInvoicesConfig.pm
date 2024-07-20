@@ -5,7 +5,10 @@ use strict;
 use SL::DB::MetaSetup::PeriodicInvoicesConfig;
 use SL::DB::Manager::PeriodicInvoicesConfig;
 
+use Params::Validate qw(:all);
 use List::Util qw(max min);
+
+use SL::Helper::DateTime;
 
 __PACKAGE__->meta->initialize;
 
@@ -13,6 +16,73 @@ our %PERIOD_LENGTHS             = ( o => 0, m => 1, q => 3, b => 6, y => 12 );
 our %ORDER_VALUE_PERIOD_LENGTHS = ( %PERIOD_LENGTHS, 2 => 24, 3 => 36, 4 => 48, 5 => 60 );
 our @PERIODICITIES              = keys %PERIOD_LENGTHS;
 our @ORDER_VALUE_PERIODICITIES  = keys %ORDER_VALUE_PERIOD_LENGTHS;
+
+sub calculate_invoice_dates {
+  my $self = shift;
+
+  my %params = validate(@_, {
+    start_date => {
+      callbacks => { is_date => \&_is_date, },
+      default   => $self->start_date,
+    },
+    end_date   => {
+      callbacks => { is_date => \&_is_date, },
+      default   => DateTime->today_local,
+    },
+  });
+
+  my $start_date = DateTime->from_ymd($params{start_date});
+  my $end_date   = DateTime->from_ymd($params{end_date});
+
+  if ($self->end_date
+      && ($self->terminated || !$self->extend_automatically_by) ) {
+    $end_date = min($end_date, $self->end_date);
+  }
+
+  my $last_created_on_date = $self->get_previous_billed_period_start_date;
+
+  my @start_dates;
+  my $first_period_start_date = $self->first_billing_date || $self->start_date;
+  if ($self->periodicity ne 'o') {
+    my $billing_period_length = $self->get_billing_period_length;
+    my $months_first_period =
+      $first_period_start_date->year * 12 + $first_period_start_date->month;
+
+    my $month_to_start = $start_date->year * 12 + $start_date->month - $months_first_period;
+    $month_to_start += 1
+      if add_months($first_period_start_date, $month_to_start) < $start_date;
+
+    my $month_after_last_created = 0;
+    if ($last_created_on_date) {
+      $month_after_last_created =
+        $last_created_on_date->year * 12 + $last_created_on_date->month - $months_first_period;
+      $month_after_last_created += 1
+        if add_months($first_period_start_date, $month_after_last_created) <= $last_created_on_date;
+    }
+
+    my $months_from_period_start = max(
+      $month_to_start,
+      $month_after_last_created,
+      0);
+
+    my $period_count = int($months_from_period_start / $billing_period_length); # floor
+    $period_count += $months_from_period_start % $billing_period_length != 0 ? 1 : 0; # ceil
+
+    my $next_period_start_date = add_months($first_period_start_date, $period_count * $billing_period_length);
+    while ($next_period_start_date <= $end_date) {
+      push @start_dates, $next_period_start_date;
+      $period_count++;
+      $next_period_start_date = add_months($first_period_start_date, $period_count * $billing_period_length);
+    }
+  } else { # single
+    push @start_dates, $first_period_start_date
+      unless $last_created_on_date
+          || $first_period_start_date < $start_date
+          || $first_period_start_date > $end_date;
+  }
+
+  return @start_dates;
+}
 
 sub get_billing_period_length {
   my $self = shift;
@@ -23,6 +93,30 @@ sub get_order_value_period_length {
   my $self = shift;
   return $self->get_billing_period_length if $self->order_value_periodicity eq 'p';
   return $ORDER_VALUE_PERIOD_LENGTHS{ $self->order_value_periodicity } || 1;
+}
+
+sub add_months {
+  my ($date, $months) = @_;
+
+  my $start_months_of_date = $date->month;
+  $date = $date->clone();
+  my $new_date = $date->clone();
+  $new_date->add(months => $months);
+  # stay in month: 31.01 + 1 month should be 28.02 or 29.02 (not 03.03. or 02.03)
+  while (($start_months_of_date + $months) % 12 != $new_date->month % 12) {
+    $new_date->add(days => -1);
+  }
+
+  # if date was at end of month -> move new date also to end of month
+  if ($date->is_last_day_of_month()) {
+    return DateTime->last_day_of_month(year => $new_date->year, month => $new_date->month)
+  }
+
+  return $new_date
+};
+
+sub _is_date {
+   return !!DateTime->from_ymd($_[0]); # can also be a DateTime object
 }
 
 sub _log_msg {
@@ -57,7 +151,7 @@ sub handle_automatic_extension {
 
   # Add the automatic extension period to the new end date as long as
   # the new end date is in the past. Then save it and get out.
-  $end_date->add(months => $self->extend_automatically_by) while $today > $end_date;
+  $end_date = add_months($end_date, $self->extend_automatically_by) while $today > $end_date;
   _log_msg("new end date $end_date\n");
 
   $self->end_date($end_date);
@@ -81,53 +175,23 @@ SQL
   return ref $date ? $date : $self->db->parse_date($date);
 }
 
-sub calculate_invoice_dates {
-  my ($self, %params) = @_;
-
-  my $period_len = $self->get_billing_period_length;
-  my $cur_date   = ($self->first_billing_date || $self->start_date)->clone;
-  my $end_date   = $self->terminated || !$self->extend_automatically_by ? $self->end_date : undef;
-  $end_date    //= DateTime->today_local->add(years => 100);
-  my $start_date = $params{past_dates} ? undef                              : $self->get_previous_billed_period_start_date;
-  $start_date    = $start_date         ? $start_date->clone->add(days => 1) : $cur_date->clone;
-
-  $start_date    = max($start_date, $params{start_date}) if $params{start_date};
-  $end_date      = min($end_date,   $params{end_date})   if $params{end_date};
-
-  if ($self->periodicity eq 'o') {
-    return ($cur_date >= $start_date) && ($cur_date <= $end_date) ? ($cur_date) : ();
-  }
-
-  my @dates;
-
-  while ($cur_date <= $end_date) {
-    push @dates, $cur_date->clone if $cur_date >= $start_date;
-
-    $cur_date->add(months => $period_len);
-  }
-
-  return @dates;
-}
-
 sub is_last_bill_date_in_order_value_cycle {
-  my ($self, %params)    = @_;
+  my $self    = shift;
+
+  my %params = validate(@_, {
+    date => { callbacks => { is_date => \&_is_date, } },
+  });
 
   my $months_billing     = $self->get_billing_period_length;
   my $months_order_value = $self->get_order_value_period_length;
 
   return 1 if $months_billing >= $months_order_value;
 
-  my $next_billing_date = $params{date}->clone->add(months => $months_billing);
-  my $date_itr          = max($self->start_date, $self->first_billing_date || $self->start_date)->clone;
+  my $billing_date = DateTime->from_ymd($params{date});
+  my $first_date   = $self->first_billing_date || $self->start_date;
 
-  _log_msg("is_last_billing_date_in_order_value_cycle start: id " . $self->id . " date_itr $date_itr start " . $self->start_date);
-
-  $date_itr->add(months => $months_order_value) while $date_itr < $next_billing_date;
-
-  _log_msg("is_last_billing_date_in_order_value_cycle end: refdate $params{date} next_billing_date $next_billing_date date_itr $date_itr months_billing $months_billing months_order_value $months_order_value result "
-           . ($date_itr == $next_billing_date));
-
-  return $date_itr == $next_billing_date;
+  return (12 * ($billing_date->year - $first_date->year) + $billing_date->month + $months_billing) % $months_order_value
+    == $first_date->month % $months_order_value;
 }
 
 sub disable_one_time_config {
