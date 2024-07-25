@@ -8,6 +8,7 @@ use Config::Std;
 use DateTime::Format::Strptime;
 use English qw(-no_match_vars);
 use List::MoreUtils qw(uniq);
+use Params::Validate qw(:all);
 
 use SL::Common;
 use SL::DB::AuthUser;
@@ -47,23 +48,17 @@ sub run {
     _log_msg("Number of configs: " . scalar(@{ $configs}));
 
     foreach my $config (@{ $configs }) {
-      # A configuration can be set to inactive by
-      # $config->handle_automatic_extension. Therefore the check in
-      # ...->get_all() does not suffice.
-      _log_msg("Config " . $config->id . " active " . $config->active);
-      next unless $config->active;
+      my $open_orders = $config->get_open_orders_for_period();
+      _log_msg("Dates: " . join(' ', map { $_->reqdate->to_lxoffice } @$open_orders));
 
-      my @dates = _calculate_dates($config);
+      foreach my $order (@$open_orders) {
+        my $data = $self->_create_periodic_invoice(order => $order);
+        my $invoice = $data->{invoice};
+        next unless $invoice;
 
-      _log_msg("Dates: " . join(' ', map { $_->to_lxoffice } @dates));
+        _log_msg("Invoice " . $invoice->invnumber . " posted for config ID " . $config->id . ", period start date " . $::locale->format_date(\%::myconfig, $invoice->deliverydate) . "\n");
 
-      foreach my $date (@dates) {
-        my $data = $self->_create_periodic_invoice($config, $date);
-        next unless $data;
-
-        _log_msg("Invoice " . $data->{invoice}->invnumber . " posted for config ID " . $config->id . ", period start date " . $::locale->format_date(\%::myconfig, $date) . "\n");
-
-        push @{ $self->{posted_invoices} }, $data->{invoice};
+        push @{ $self->{posted_invoices} }, $invoice;
         push @invoices_to_print, $data if $config->print;
         push @invoices_to_email, $data if $config->send_email;
 
@@ -77,8 +72,8 @@ sub run {
       }
     }
 
-    foreach my $inv ( @invoices_to_print ) { $self->_print_invoice($inv); }
-    foreach my $inv ( @invoices_to_email ) { $self->_email_invoice($inv); }
+    foreach my $inv_data ( @invoices_to_print ) { $self->_print_invoice($inv_data); }
+    foreach my $inv_data ( @invoices_to_email ) { $self->_email_invoice($inv_data); }
 
     $self->_send_summary_email;
 
@@ -179,81 +174,38 @@ sub _replace_vars {
   $params{object}->$sub($str);
 }
 
-sub _adjust_sellprices_for_period_lengths {
-  my (%params) = @_;
-
-  return if $params{config}->periodicity eq 'o';
-
-  my $billing_len     = $params{config}->get_billing_period_length;
-  my $order_value_len = $params{config}->get_order_value_period_length;
-
-  return if $billing_len == $order_value_len;
-
-  my $is_last_invoice_in_cycle = $params{config}->is_last_bill_date_in_order_value_cycle(date => $params{period_start_date});
-
-  _log_msg("_adjust_sellprices_for_period_lengths: period_start_date $params{period_start_date} is_last_invoice_in_cycle $is_last_invoice_in_cycle billing_len $billing_len order_value_len $order_value_len");
-
-  if ($order_value_len < $billing_len) {
-    my $num_orders_per_invoice = $billing_len / $order_value_len;
-
-    $_->sellprice($_->sellprice * $num_orders_per_invoice) for @{ $params{invoice}->items };
-
-    return;
-  }
-
-  my $num_invoices_in_cycle = $order_value_len / $billing_len;
-
-  foreach my $item (@{ $params{invoice}->items }) {
-    my $sellprice_one_invoice = $::form->round_amount($item->sellprice * $billing_len / $order_value_len, 2);
-
-    if ($is_last_invoice_in_cycle) {
-      $item->sellprice($item->sellprice - ($num_invoices_in_cycle - 1) * $sellprice_one_invoice);
-
-    } else {
-      $item->sellprice($sellprice_one_invoice);
-    }
-  }
-}
-
 sub _create_periodic_invoice {
-  my $self              = shift;
-  my $config            = shift;
-  my $period_start_date = shift;
+  my $self  = shift;
 
+  my %params = validate(@_, {
+    order => { isa => 'SL::DB::Order' },
+  });
+  my $order = $params{order};
+
+  my $period_start_date = $order->reqdate;
+  my $config            = $order->periodic_invoices_config;
   my $time_period_vars  = _generate_time_period_variables($config, $period_start_date);
 
-  my $invdate           = DateTime->today_local;
-
-  my $order   = $config->order;
   my $invoice;
   if (!$self->{db_obj}->db->with_transaction(sub {
     1;                          # make Emacs happy
 
     $invoice = SL::DB::Invoice->new_from($order, honor_recurring_billing_mode => 1);
 
-    my $tax_point = ($invoice->tax_point // $time_period_vars->{period_end_date}->[0])->clone;
-
-    while ($tax_point < $period_start_date) {
-      $tax_point->add(months => $config->get_billing_period_length);
-    }
-
     my $intnotes  = $invoice->intnotes ? $invoice->intnotes . "\n\n" : '';
-    $intnotes    .= "Automatisch am " . $invdate->to_lxoffice . " erzeugte Rechnung";
+    $intnotes    .= "Automatisch am " . DateTime->today_local->to_lxoffice . " erzeugte Rechnung";
 
-    $invoice->assign_attributes(deliverydate => $period_start_date,
-                                tax_point    => $tax_point,
-                                intnotes     => $intnotes,
-                                employee     => $order->employee, # new_from sets employee to import user
-                                direct_debit => $config->direct_debit,
-                               );
+    $invoice->assign_attributes(
+      intnotes     => $intnotes,
+      employee     => $order->employee, # new_from sets employee to import user
+      direct_debit => $config->direct_debit,
+    );
 
     _replace_vars(object => $invoice, vars => $time_period_vars, attribute => $_, attribute_format => ($_ eq 'notes' ? 'html' : 'text')) for qw(notes intnotes transaction_description);
 
     foreach my $item (@{ $invoice->items }) {
       _replace_vars(object => $item, vars => $time_period_vars, attribute => $_, attribute_format => ($_ eq 'longdescription' ? 'html' : 'text')) for qw(description longdescription);
     }
-
-    _adjust_sellprices_for_period_lengths(invoice => $invoice, config => $config, period_start_date => $period_start_date);
 
     $invoice->post(ar_id => $config->ar_chart_id) || die;
 
@@ -278,15 +230,9 @@ sub _create_periodic_invoice {
 
   return {
     config            => $config,
-    period_start_date => $period_start_date,
     invoice           => $invoice,
     time_period_vars  => $time_period_vars,
   };
-}
-
-sub _calculate_dates {
-  my ($config) = @_;
-  return $config->calculate_invoice_dates(end_date => DateTime->today_local);
 }
 
 sub _send_summary_email {
@@ -376,10 +322,19 @@ sub _store_pdf_in_filemanagement {
 }
 
 sub _print_invoice {
-  my ($self, $data) = @_;
+  my $self = shift;
 
-  my $invoice       = $data->{invoice};
-  my $config        = $data->{config};
+    my %params = validate_with(
+    params => \@_,
+    spec   => {
+      invoice => { isa => 'SL::DB::Invoice' },
+      config  => { isa => 'SL::DB::PeriodicInvoicesConfig' },
+    },
+    allow_extra => 1,
+  );
+
+  my $invoice = $params{invoice};
+  my $config  = $params{config};
 
   return unless $config->print && $config->printer_id && $config->printer->printer_command;
 
@@ -412,30 +367,40 @@ sub _print_invoice {
 }
 
 sub _email_invoice {
-  my ($self, $data) = @_;
+  my $self = shift;
 
-  $data->{config}->load;
+  my %params = validate_with(
+    params => \@_,
+    spec   => {
+      invoice => { isa => 'SL::DB::Invoice' },
+      config  => { isa => 'SL::DB::PeriodicInvoicesConfig' },
+      time_period_vars => { type => HASHREF },
+    },
+    allow_extra => 1,
+  );
 
-  return unless $data->{config}->send_email;
+  my $invoice = $params{invoice};
+  my $config  = $params{config};
+  my $time_period_vars = $params{time_period_vars};
 
   my @recipients =
     uniq
     map  { lc       }
     grep { $_       }
     map  { trim($_) }
-    (split(m{,}, $data->{config}->email_recipient_address),
-     $data->{config}->email_recipient_contact   ? ($data->{config}->email_recipient_contact->cp_email) : (),
-     $data->{invoice}->{customer}->invoice_mail ? ($data->{invoice}->{customer}->invoice_mail) : ()
+    (split(m{,}, $config->email_recipient_address),
+     $config->email_recipient_contact   ? ($config->email_recipient_contact->cp_email) : (),
+     $invoice->{customer}->invoice_mail ? ($invoice->{customer}->invoice_mail) : ()
     );
 
   return unless @recipients;
 
-  my $language      = $data->{invoice}->language ? $data->{invoice}->language->template_code : undef;
+  my $language      = $invoice->language ? $invoice->language->template_code : undef;
   my %create_params = (
     template               => scalar($self->find_template(name => 'invoice', language => $language)),
     variables              => Form->new(''),
     return                 => 'file_name',
-    record                 => $data->{invoice},
+    record                 => $invoice,
     variable_content_types => {
       longdescription => 'html',
       partnotes       => 'html',
@@ -444,7 +409,7 @@ sub _email_invoice {
     },
   );
 
-  $data->{invoice}->flatten_to_form($create_params{variables}, format_amounts => 1);
+  $invoice->flatten_to_form($create_params{variables}, format_amounts => 1);
   $create_params{variables}->prepare_for_printing;
 
   my $pdf_file_name;
@@ -453,14 +418,14 @@ sub _email_invoice {
   eval {
     $pdf_file_name = $self->create_pdf(%create_params);
 
-    $self->_store_pdf_in_webdav        ($pdf_file_name, $data->{invoice});
-    $self->_store_pdf_in_filemanagement($pdf_file_name, $data->{invoice});
+    $self->_store_pdf_in_webdav        ($pdf_file_name, $invoice);
+    $self->_store_pdf_in_filemanagement($pdf_file_name, $invoice);
 
     for (qw(email_subject email_body)) {
       _replace_vars(
-        object           => $data->{config},
-        invoice          => $data->{invoice},
-        vars             => $data->{time_period_vars},
+        object           => $config,
+        invoice          => $invoice,
+        vars             => $time_period_vars,
         attribute        => $_,
         attribute_format => ($_ eq 'email_body' ? 'html' : 'text')
       );
@@ -471,36 +436,36 @@ sub _email_invoice {
 
     for my $recipient (@recipients) {
       my $mail             = Mailer->new;
-      $mail->{record_id}   = $data->{invoice}->id,
+      $mail->{record_id}   = $invoice->id,
       $mail->{record_type} = 'invoice',
-      $mail->{from}        = $data->{config}->email_sender || $::lx_office_conf{periodic_invoices}->{email_from};
+      $mail->{from}        = $config->email_sender || $::lx_office_conf{periodic_invoices}->{email_from};
       $mail->{to}          = $recipient;
       $mail->{bcc}         = $global_bcc;
-      $mail->{subject}     = $data->{config}->email_subject;
-      $mail->{message}     = $data->{config}->email_body;
+      $mail->{subject}     = $config->email_subject;
+      $mail->{message}     = $config->email_body;
       $mail->{message}    .= SL::DB::Default->get->signature;
       $mail->{content_type} = 'text/html';
       $mail->{attachments} = [{
         path     => $pdf_file_name,
-        name     => sprintf('%s %s.pdf', $label, $data->{invoice}->invnumber),
+        name     => sprintf('%s %s.pdf', $label, $invoice->invnumber),
       }];
 
       my $error        = $mail->send;
 
       if ($error) {
         push @{ $self->{job_errors} }, $error;
-        push @{ $self->{emailed_failed} }, [ $data->{invoice}, $error ];
+        push @{ $self->{emailed_failed} }, [ $invoice, $error ];
         $overall_error = 1;
       }
     }
 
-    push @{ $self->{emailed_invoices} }, $data->{invoice} unless $overall_error;
+    push @{ $self->{emailed_invoices} }, $invoice unless $overall_error;
 
     1;
 
   } or do {
     push @{ $self->{job_errors} }, $EVAL_ERROR;
-    push @{ $self->{emailed_failed} }, [ $data->{invoice}, $EVAL_ERROR ];
+    push @{ $self->{emailed_failed} }, [ $invoice, $EVAL_ERROR ];
   };
 
   unlink $pdf_file_name if $pdf_file_name;
@@ -521,10 +486,8 @@ invoices for orders
 
 =head1 SYNOPSIS
 
-Iterate over all periodic invoice configurations, extend them if
-applicable, calculate the dates for which invoices have to be posted
-and post those invoices by converting the order into an invoice for
-each date.
+Iterate over all periodic invoice configurations, extend the end date if
+applicable, get all open orders from the
 
 =head1 TOTO
 
