@@ -353,7 +353,7 @@ sub action_print {
   }
 
   my @warnings = store_pdf_to_webdav_and_filemanagement(
-    $self->order, $pdf, $pdf_filename
+    $self->order, $pdf, $pdf_filename, $formname
   );
   if (scalar @warnings) {
     flash_later('warning', $_) for @warnings;
@@ -517,7 +517,7 @@ sub action_send_email {
     }
 
     my @warnings = store_pdf_to_webdav_and_filemanagement(
-      $self->order, $pdf, $::form->{attachment_filename}
+      $self->order, $pdf, $::form->{attachment_filename}, $::form->{formname}
     );
     if (scalar @warnings) {
       flash_later('warning', $_) for @warnings;
@@ -2313,7 +2313,7 @@ sub save_history {
 }
 
 sub store_pdf_to_webdav_and_filemanagement {
-  my($order, $content, $filename) = @_;
+  my($order, $content, $filename, $variant) = @_;
 
   my @errors;
 
@@ -2342,7 +2342,8 @@ sub store_pdf_to_webdav_and_filemanagement {
                      source        => 'created',
                      file_type     => 'document',
                      file_name     => $filename,
-                     file_contents => $content);
+                     file_contents => $content,
+                     print_variant => $variant);
       1;
     } or do {
       push @errors, t8('Storing PDF in storage backend failed: #1', $@);
