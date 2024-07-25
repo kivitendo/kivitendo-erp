@@ -500,7 +500,18 @@ sub action_send_email {
   $::form->{$_}     = $::form->{print_options}->{$_} for keys %{ $::form->{print_options} };
   $::form->{media}  = 'email';
 
-  if (($::form->{attachment_policy} // '') !~ m{^(?:old_file|no_file)$}) {
+  $::form->{attachment_policy} //= '';
+
+  # Is an old file version available?
+  my $attfile;
+  if ($::form->{attachment_policy} eq 'old_file') {
+    $attfile = SL::File->get_all(object_id   => $self->order->id,
+                                 object_type => $::form->{formname},
+                                 file_type   => 'document',
+                                 print_variant => $::form->{formname});
+  }
+
+  if ($::form->{attachment_policy} ne 'no_file' && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
     my $pdf;
     my @errors = generate_pdf($self->order, \$pdf, {
         media      => $::form->{media},
