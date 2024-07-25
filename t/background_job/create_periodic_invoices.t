@@ -14,7 +14,7 @@ sub today_local {
 
 package main;
 
-use Test::More tests => 58;
+use Test::More tests => 64;
 
 use lib 't';
 use strict;
@@ -103,6 +103,27 @@ sub are_invoices {
 }
 
 init_common_state();
+
+create_invoices(periodic_invoices_config => {
+    periodicity => 'm',
+    order_value_periodicity => 'p',
+    start_date => DateTime->from_kivitendo('01.01.2014'),
+    end_date => DateTime->from_kivitendo('31.01.2014'),
+    extend_automatically_by => 1,
+  });
+are_invoices 'p=m ovp=p extend',[ '01.01.2014', 333.33 ], [ '01.02.2014', 333.33 ], [ '01.03.2014', 333.33 ];
+is '2014-03-31T00:00:00', SL::DB::Manager::PeriodicInvoicesConfig->get_all(query => [ active => 1 ])->[0]->end_date, 'check automatically extended end date';
+
+create_invoices(periodic_invoices_config => {
+    periodicity => 'm',
+    order_value_periodicity => 'p',
+    start_date => DateTime->from_kivitendo('01.01.2014'),
+    end_date => DateTime->from_kivitendo('31.01.2014'),
+    extend_automatically_by => 1,
+    terminated => 1,
+  });
+are_invoices 'p=m ovp=p not extend',[ '01.01.2014', 333.33 ];
+is '2014-01-31T00:00:00', SL::DB::Manager::PeriodicInvoicesConfig->get_all(query => [ active => 1 ])->[0]->end_date, 'check automatically extended end date';
 
 # order_value_periodicity=y
 create_invoices(periodic_invoices_config => { periodicity => 'm', order_value_periodicity => 'y', start_date => DateTime->from_kivitendo('01.01.2013') });
