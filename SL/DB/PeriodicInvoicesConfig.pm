@@ -51,11 +51,13 @@ sub get_open_orders_for_period {
     );
     my @items;
     for my $item ($orig_order->items) {
-      next if $item->recurring_billing_mode eq 'never';
-      next if $item->recurring_billing_mode eq 'once' && (
-          $item->recurring_billing_invoice_id
+      if ($item->periodic_invoice_items_config) {
+        next if $item->periodic_invoice_items_config->periodicity eq 'n';
+        next if $item->periodic_invoice_items_config->periodicity eq 'o' && (
+          $item->periodic_invoice_items_config->once_invoice_id
           || $period_start_date != $next_period_start_date
         );
+      }
 
       my $new_item = clone($item);
 

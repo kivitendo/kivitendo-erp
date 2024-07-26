@@ -210,8 +210,13 @@ sub _create_periodic_invoice {
 
     $invoice->post(ar_id => $config->ar_chart_id) || die;
 
-    foreach my $item (grep { ($_->recurring_billing_mode eq 'once') && !$_->recurring_billing_invoice_id } @{ $order->orderitems }) {
-      $item->update_attributes(recurring_billing_invoice_id => $invoice->id);
+    foreach my $item (
+      grep { $_->periodic_invoice_items_config
+        && ($_->periodic_invoice_items_config->periodicity eq 'o')
+        && !$_->periodic_invoice_items_config->once_invoice_id }
+      @{ $order->orderitems }
+    ) {
+      $item->periodic_invoice_items_config->update_attributes(once_invoice_id => $invoice->id);
     }
 
     SL::DB::PeriodicInvoice->new(config_id         => $config->id,

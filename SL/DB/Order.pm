@@ -628,10 +628,15 @@ sub new_from {
                                                           marge_percent marge_price_factor marge_total
                                                           ordnumber parts_id price_factor price_factor_id pricegroup_id
                                                           project_id qty reqdate sellprice serialnumber ship subtotal transdate unit
-                                                          optional recurring_billing_mode position
+                                                          optional position
                                                        )),
                                                    custom_variables => \@custom_variables,
       );
+      if ( $is_abbr_any->(qw(soso)) && $source_item->periodic_invoice_items_config ) {
+        $current_oe_item->periodic_invoice_items_config(
+          $source_item->periodic_invoice_items_config->clone_and_reset
+        );
+      }
     } elsif (ref($source) eq 'SL::DB::Reclamation') {
       $current_oe_item = SL::DB::OrderItem->new(
         map({ ( $_ => $source_item->$_ ) } qw(
