@@ -245,15 +245,6 @@ sub new_from {
   my $items   = delete($params{items}) || $source->items_sorted;
   my %item_parents;
 
-  if ($params{honor_recurring_billing_mode}) {
-    $items = [
-      grep {    !$_->can('recurring_billing_mode')
-             || ($_->recurring_billing_mode eq 'always')
-             || (($_->recurring_billing_mode eq 'once') && !$_->recurring_billing_invoice_id)
-      } @{ $items }
-    ];
-  }
-
   my @items = map {
     my $source_item      = $_;
     my $source_item_id   = $_->$item_parent_id_column;

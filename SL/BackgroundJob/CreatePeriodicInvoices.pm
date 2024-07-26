@@ -191,7 +191,7 @@ sub _create_periodic_invoice {
   if (!$self->{db_obj}->db->with_transaction(sub {
     1;                          # make Emacs happy
 
-    $invoice = SL::DB::Invoice->new_from($order, honor_recurring_billing_mode => 1);
+    $invoice = SL::DB::Invoice->new_from($order);
 
     my $intnotes  = $invoice->intnotes ? $invoice->intnotes . "\n\n" : '';
     $intnotes    .= t8("Automatic created invoice on #1.", DateTime->today_local->to_lxoffice);
