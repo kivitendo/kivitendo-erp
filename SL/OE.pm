@@ -163,7 +163,8 @@ SQL
     qq|  order_statuses.name AS order_status | .
     $periodic_invoices_columns .
     $phone_notes_columns .
-    qq|  , o.order_probability, o.expected_billing_date | .
+    qq|  , o.order_probability, o.expected_billing_date, | .
+    qq|  (employee_id = (SELECT id FROM employee WHERE login = ?)) AS is_own  | .
     qq|FROM oe o | .
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
     qq|LEFT JOIN contacts cp ON (o.cp_id = cp.cp_id) | .
@@ -183,6 +184,9 @@ SQL
     qq|$periodic_invoices_joins | .
     $phone_notes_join .
     qq|WHERE (o.record_type = ?) |;
+
+
+  push @values, $::myconfig{login};
   push(@values, $record_type);
 
   if ($form->{department_id}) {
