@@ -31,8 +31,8 @@
       [% L.hidden_tag("order.orderitems[].price_factor", ITEM.price_factor) %]
       [% L.hidden_tag("order.orderitems[].marge_price_factor", ITEM.marge_price_factor) %]
       [% L.hidden_tag("order.orderitems[].pricegroup_id", ITEM.pricegroup_id) %]
-      [% L.hidden_tag("order.orderitems[].active_price_source", ITEM.active_price_source) %]
-      [% L.hidden_tag("order.orderitems[].active_discount_source", ITEM.active_discount_source) %]
+      [% L.hidden_tag("order.orderitems[].active_price_source", ITEM.active_price_source.source) %]
+      [% L.hidden_tag("order.orderitems[].active_discount_source", ITEM.active_discount_source.source) %]
     </td>
     <td>
       <div name="position" class="numeric">
