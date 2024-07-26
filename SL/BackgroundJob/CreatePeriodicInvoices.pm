@@ -103,7 +103,7 @@ sub _generate_time_period_variables {
   my $config            = shift;
   my $period_start_date = shift;
 
-  my $period_length   = $config->periodicity eq 'o' ? $config->get_order_value_period_length : $config->get_billing_period_length;
+  my $period_length   = $config->get_order_value_period_length || $config->get_billing_period_length || 1;
   my $period_end_date = $period_start_date->clone->add(months => $period_length)->subtract(days => 1);
 
   my @month_names       = ('',

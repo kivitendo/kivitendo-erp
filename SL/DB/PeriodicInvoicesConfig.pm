@@ -46,7 +46,7 @@ sub get_open_orders_for_period {
     $new_order->reqdate($period_start_date);
     $new_order->tax_point(
       add_months(
-        $period_start_date, $self->get_billing_period_length
+        $period_start_date, $self->get_billing_period_length || $self->get_order_value_period_length || 1
       )->add(days => -1)
     );
     my @items;
@@ -192,13 +192,13 @@ sub get_next_period_start_date {
 
 sub get_billing_period_length {
   my $self = shift;
-  return $PERIOD_LENGTHS{ $self->periodicity } || 1;
+  return $PERIOD_LENGTHS{ $self->periodicity };
 }
 
 sub get_order_value_period_length {
   my $self = shift;
   return $self->get_billing_period_length if $self->order_value_periodicity eq 'p';
-  return $ORDER_VALUE_PERIOD_LENGTHS{ $self->order_value_periodicity } || 1;
+  return $ORDER_VALUE_PERIOD_LENGTHS{ $self->order_value_periodicity };
 }
 
 sub add_months {
