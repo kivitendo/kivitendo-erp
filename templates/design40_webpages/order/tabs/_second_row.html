@@ -16,8 +16,19 @@
       [% END %]
       <b>[% 'Subtotal' | $T8 %]</b> [% L.yes_no_tag("order.orderitems[].subtotal", ITEM.subtotal) %]
       [% IF TYPE == "sales_order" %]
-        <b>[% 'Recurring billing' | $T8 %]</b>
-        [% L.select_tag("order.orderitems[].recurring_billing_mode", [[ 'always', LxERP.t8('always') ], [ 'once',   LxERP.t8('once')   ], [ 'never',  LxERP.t8('never')  ]], default=ITEM.recurring_billing_mode) %]
+        <b>
+          [% FOREACH value_key = [
+            'periodicity', 'terminated', 'start_date_as_date', 'end_date_as_date',
+            'extend_automatically_by', 'order_item_id'
+            ] %]
+            [%L.hidden_tag('order.orderitems[].periodic_invoice_items_config.' _ value_key, ITEM.periodic_invoice_items_config.$value_key) %]
+          [% END %]
+          [% L.button_tag('kivi.Order.show_periodic_invoice_items_config_dialog(this)',
+            SELF.get_button_text_for_periodic_invoice_items_config(ITEM.periodic_invoice_items_config),
+            id = 'periodic_invoice_items_config_button_' _ ID,
+            class = 'neutral',
+          )
+          %]<b>
       [% END %]
       [% IF (TYPE == "sales_order_intake" || TYPE == "sales_order" || TYPE == "sales_quotation") %]
         <b>[% 'Ertrag' | $T8 %]</b>

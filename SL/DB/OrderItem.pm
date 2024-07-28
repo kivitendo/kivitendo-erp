@@ -32,6 +32,21 @@ __PACKAGE__->meta->initialize;
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(trans_id)]);
 
+__PACKAGE__->before_save('_before_save_remove_empty_periodic_invoice_items_config');
+
+sub _before_save_remove_empty_periodic_invoice_items_config {
+  my ($self) = @_;
+
+  if ($self->periodic_invoice_items_config
+    && $self->periodic_invoice_items_config->periodicity eq '') {
+    $self->periodic_invoice_items_config->delete if $self->periodic_invoice_items_config->order_item_id;
+    $self->periodic_invoice_items_config(undef);
+  }
+
+  return 1;
+}
+
+
 sub is_price_update_available {
   my $self = shift;
   return $self->origprice > $self->part->sellprice;

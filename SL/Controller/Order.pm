@@ -41,6 +41,7 @@ use SL::Model::Record;
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
+use SL::DB::PeriodicInvoiceItemsConfig;
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
@@ -820,6 +821,65 @@ sub action_get_has_active_periodic_invoices {
   $_[0]->render(\ !!$has_active_periodic_invoices, { type => 'text' });
 }
 
+sub action_show_periodic_invoice_items_config_dialog {
+  my ($self) = @_;
+
+  my $config = SL::DB::PeriodicInvoiceItemsConfig->new(
+    %{$::form->{periodic_invoice_items_config}}
+  );
+
+  $self->render(
+    'order/tabs/_edit_periodic_invoice_items_config', { layout => 0 },
+    CONFIG => $config,
+    ITEM_ID => $::form->{item_id},
+  );
+}
+
+sub action_update_periodic_invoice_items_config_button {
+  my ($self) = @_;
+
+  my $config = SL::DB::PeriodicInvoiceItemsConfig->new(
+    %{$::form->{periodic_invoice_items_config}}
+  );
+  my $item_id = $::form->{item_id} or die "No item id given";
+  my $button_text = $self->get_button_text_for_periodic_invoice_items_config($config);
+
+  $self->js->val("#periodic_invoice_items_config_button_$item_id", $button_text)->render();
+}
+
+sub get_button_text_for_periodic_invoice_items_config {
+  my ($self, $config) = @_;
+
+  my $button_text = t8('Periodic Invoices') . ': ';
+
+  if ($config && $config->periodicity) {
+    my %peridoicity_to_text = (
+      p => t8("same as periodicity"),
+      n => t8("never"),
+      o => t8("one time"),
+      m => t8("monthly"),
+      q => t8("every third month"),
+      b => t8("semiannually"),
+      y => t8("yearly")
+    );
+    $button_text .= $peridoicity_to_text{$config->periodicity};
+    $button_text .= " | ";
+    $button_text .= $config->start_date_as_date || "_";
+    $button_text .= " " . t8("to") . " ";
+    $button_text .= $config->end_date_as_date || "_";
+    if ($config->terminated) {
+      $button_text .= " X";
+    } elsif ($config->extend_automatically_by) {
+      $button_text .= " +" . $config->extend_automatically_by;
+    }
+
+  } else {
+    $button_text .= t8('standard');
+  }
+
+  return $button_text;
+}
+
 sub action_save_and_new_record {
   my ($self) = @_;
   my $to_type = $::form->{to_type};
@@ -1549,7 +1609,13 @@ sub js_load_second_row {
     $item->parse_custom_variable_values;
   }
 
-  my $row_as_html = $self->p->render('order/tabs/_second_row', ITEM => $item, TYPE => $self->type);
+  my $row_as_html = $self->p->render(
+    'order/tabs/_second_row',
+    SELF => $self,
+    ITEM => $item,
+    ID   => $item_id,
+    TYPE => $self->type
+  );
 
   $self->js
     ->html('#second_row_' . $item_id, $row_as_html)

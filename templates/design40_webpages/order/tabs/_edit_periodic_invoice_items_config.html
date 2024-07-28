@@ -1,0 +1,67 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+
+<h1>[% title %]</h1>
+
+<form id="periodic_invoice_items_config_from">
+
+<div class="buttons">
+  [% L.button_tag('
+      kivi.Order.assign_periodic_invoice_items_config("' _  ITEM_ID _ '")',
+      LxERP.t8('Assign'))
+      %]
+  [% L.button_tag(
+    'kivi.Order.delete_periodic_invoice_items_config("' _  ITEM_ID _ '")',
+    LxERP.t8('Delete'), class='neutral')
+    %]
+</div>
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <caption>[% title %]</caption>
+  <colgroup> <col class="wi-normal"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    <tr>
+     <th>[% LxERP.t8('Terminated') %]</th>
+     <td>
+       [% L.yes_no_tag('periodic_invoice_items_config.terminated', CONFIG.terminated) %]
+     </td>
+    </tr>
+    <tr>
+     <th>[% LxERP.t8('Periodicity') %]</th>
+     <td>
+       [% L.select_tag("periodic_invoice_items_config.periodicity", [
+           [ "p", LxERP.t8("same as periodicity") ],
+           [ "n", LxERP.t8("never") ],
+           [ "o", LxERP.t8("one time") ],
+           [ "m", LxERP.t8("monthly") ],
+           [ "q", LxERP.t8("every third month") ],
+           [ "b", LxERP.t8("semiannually") ],
+           [ "y", LxERP.t8("yearly") ]
+         ],
+         default=CONFIG.periodicity || 'p',
+         ) %]
+     </td>
+    </tr>
+    <tr>
+     <th>[% LxERP.t8('Start date') %]</th>
+     <td>[% L.date_tag("periodic_invoice_items_config.start_date_as_date", CONFIG.start_date_as_date) %]</td>
+    </tr>
+    <tr>
+     <th>[% LxERP.t8('End date') %]</th>
+     <td>[% L.date_tag("periodic_invoice_items_config.end_date_as_date", CONFIG.end_date_as_date) %]</td>
+    </tr>
+    <tr>
+     <th>[% LxERP.t8('Extend automatically by n months') %]</th>
+     <td>
+      [% L.input_tag("periodic_invoice_items_config.extend_automatically_by", CONFIG.extend_automatically_by, type='number') %]
+     </td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+
+</form>

@@ -682,6 +682,87 @@ namespace('kivi.Order', function(ns) {
     return true;
   };
 
+  ns.show_periodic_invoice_items_config_dialog = function(clicked) {
+    if ($('#type').val() !== 'sales_order') return;
+
+    let second_row = $(clicked).parents("tbody").first();
+    let first_row = $(second_row).parents("tbody").first();
+
+    let data = {
+      type: $('#type').val(),
+      id:   $('#id').val(),
+      item_id: $(first_row).find('[name="orderitem_ids[+]"]').val(),
+    };
+    for (const value_key of [
+        'periodicity', 'terminated', 'start_date_as_date', 'end_date_as_date',
+        'extend_automatically_by'
+    ]) {
+      data[`periodic_invoice_items_config.${value_key}`] =
+        $(second_row).find(`[name="order.orderitems[].periodic_invoice_items_config.${value_key}"]`).first().val();
+    }
+
+    kivi.popup_dialog({
+      url:    'controller.pl?action=Order/show_periodic_invoice_items_config_dialog',
+      data:   data,
+      id:     'periodic_invoice_items_config_dialog',
+      load:   kivi.reinit_widgets,
+      dialog: {
+        title:  kivi.t8('Edit the configuration for periodic invoice item'),
+        width:  800,
+        height: 650
+      }
+    });
+    return true;
+  };
+
+  ns.assign_periodic_invoice_items_config = function(item_id) {
+    let row = $(`#item_${item_id}`).parents("tbody").first();
+    let dialog = $('#periodic_invoice_items_config_dialog');
+
+    for (const value_key of [
+        'periodicity', 'terminated', 'start_date_as_date', 'end_date_as_date',
+        'extend_automatically_by'
+    ]) {
+      $(row).find(`[name="order.orderitems[].periodic_invoice_items_config.${value_key}"]`).first().val(
+        $(dialog).find(`#periodic_invoice_items_config_${value_key}`).val()
+      );
+    }
+
+    kivi.submit_ajax_form("controller.pl", '#periodic_invoice_items_config_from',
+      {
+        action: 'Order/update_periodic_invoice_items_config_button',
+        type:    $('#type').val(),
+        id:      $('#id').val(),
+        item_id: item_id,
+      }
+    );
+
+    dialog.dialog('close');
+    return 1;
+  }
+
+  ns.delete_periodic_invoice_items_config = function(item_id) {
+    let row = $(`#item_${item_id}`).parents("tbody").first();
+    let dialog = $('#periodic_invoice_items_config_dialog');
+
+    for (const value_key of [
+        'periodicity', 'terminated', 'start_date_as_date', 'end_date_as_date',
+        'extend_automatically_by'
+    ]) {
+      $(row).find(`[name="order.orderitems[].periodic_invoice_items_config.${value_key}"]`).first().val(null);
+    }
+
+    let data = [];
+    data.push({name: 'action', value: 'Order/update_periodic_invoice_items_config_button'});
+    data.push({name: 'type', value: $('#type').val()});
+    data.push({name: 'id', value: $('#id').val()});
+    data.push({name: 'item_id', value: item_id});
+    $.post("controller.pl", data, kivi.eval_json_result);
+
+    dialog.dialog('close');
+    return 1;
+  }
+
   ns.close_periodic_invoices_config_dialog = function() {
     $('#jq_periodic_invoices_config_dialog').dialog('close');
   };
