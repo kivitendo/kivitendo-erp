@@ -460,6 +460,7 @@ $self->{texts} = {
   'Auto Send?'                  => 'Auto. Versand?',
   'Automatic'                   => 'automatisch',
   'Automatic Foreign Exchange Bank Fees' => 'Automatische Bankgebühren für Auslandsüberweisungen',
+  'Automatic created invoice on #1.' => 'Automatisch am #1 erzeugte Rechnung',
   'Automatic date calculation'  => 'Automatische Datumsberechnung',
   'Automatic deletion of leading, trailing and excessive (repetitive) spaces in customer or vendor names' => 'Automatisches Löschen von voran-/nachgestellten und aufeinanderfolgenden Leerzeichen im Kunden- oder Lieferantennamen',
   'Automatic deletion of leading, trailing and excessive (repetitive) spaces in part description and part notes. Affects the CSV import as well.' => 'Automatisches Löschen von voran-/nachgestellten und aufeinanderfolgenden Leerzeichen in Artikelbeschreibungen und -bemerkungen. Betrifft auch den CSV-Import.',

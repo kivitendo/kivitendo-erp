@@ -460,6 +460,7 @@ $self->{texts} = {
   'Auto Send?'                  => '',
   'Automatic'                   => '',
   'Automatic Foreign Exchange Bank Fees' => '',
+  'Automatic created invoice on #1.' => '',
   'Automatic date calculation'  => '',
   'Automatic deletion of leading, trailing and excessive (repetitive) spaces in customer or vendor names' => '',
   'Automatic deletion of leading, trailing and excessive (repetitive) spaces in part description and part notes. Affects the CSV import as well.' => '',

@@ -22,6 +22,7 @@ use SL::Helper::CreatePDF qw(create_pdf find_template);
 use SL::Mailer;
 use SL::Util qw(trim);
 use SL::System::Process;
+use SL::Locale::String qw(t8);
 
 sub create_job {
   $_[0]->create_standard_job('0 3 1 * *'); # first day of month at 3:00 am
@@ -193,7 +194,7 @@ sub _create_periodic_invoice {
     $invoice = SL::DB::Invoice->new_from($order, honor_recurring_billing_mode => 1);
 
     my $intnotes  = $invoice->intnotes ? $invoice->intnotes . "\n\n" : '';
-    $intnotes    .= "Automatisch am " . DateTime->today_local->to_lxoffice . " erzeugte Rechnung";
+    $intnotes    .= t8("Automatic created invoice on #1.", DateTime->today_local->to_lxoffice);
 
     $invoice->assign_attributes(
       intnotes     => $intnotes,
@@ -488,16 +489,6 @@ invoices for orders
 
 Iterate over all periodic invoice configurations, extend the end date if
 applicable, get all open orders from the
-
-=head1 TOTO
-
-=over 4
-
-=item *
-
-Strings like month names are hardcoded to German in this file.
-
-=back
 
 =head1 AUTHOR
 
