@@ -123,7 +123,7 @@ create_invoices(periodic_invoices_config => {
     terminated => 1,
   });
 are_invoices 'p=m ovp=p not extend',[ '01.01.2014', 333.33 ];
-is '2014-01-31T00:00:00', SL::DB::Manager::PeriodicInvoicesConfig->get_all(query => [ active => 1 ])->[0]->end_date, 'check automatically extended end date';
+is '2014-01-31T00:00:00', SL::DB::Manager::PeriodicInvoicesConfig->get_all(query => [ active => 0 ])->[0]->end_date, 'check automatically extended end date';
 
 # order_value_periodicity=y
 create_invoices(periodic_invoices_config => { periodicity => 'm', order_value_periodicity => 'y', start_date => DateTime->from_kivitendo('01.01.2013') });

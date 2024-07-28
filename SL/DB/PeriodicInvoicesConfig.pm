@@ -31,14 +31,11 @@ sub get_open_orders_for_period {
       default   => DateTime->today_local,
     },
   });
-  return [] unless $self->active;
 
   my @start_dates = $self->calculate_invoice_dates(%params);
   return [] unless scalar @start_dates;
 
   my $orig_order = $self->order;
-
-  my $next_period_start_date = $self->get_next_period_start_date;
 
   my @orders;
   foreach my $period_start_date (@start_dates) {
@@ -51,22 +48,13 @@ sub get_open_orders_for_period {
     );
     my @items;
     for my $item ($orig_order->items) {
-      if ($item->periodic_invoice_items_config) {
-        next if $item->periodic_invoice_items_config->periodicity eq 'n';
-        next if $item->periodic_invoice_items_config->periodicity eq 'o' && (
-          $item->periodic_invoice_items_config->once_invoice_id
-          || $period_start_date != $next_period_start_date
-        );
-      }
 
-      my $new_item = clone($item);
-
-      $new_item = $self->_adjust_sellprices_for_period(
-          order_item => $new_item,
-          period_start_date => $period_start_date,
+      my $new_item = $self->_create_item_for_period(
+        order_item => $item,
+        period_start_date => $period_start_date,
       );
 
-      push @items, $new_item;
+      push @items, $new_item if $new_item;
     }
     if (scalar @items) { # don't return empty orders
       $new_order->items(@items);
@@ -75,6 +63,58 @@ sub get_open_orders_for_period {
     }
   }
   return \@orders;
+}
+
+sub _create_item_for_period {
+  my $self = shift;
+
+  my %params = validate(@_, {
+    period_start_date => { callbacks => { is_date => \&_is_date, } },
+    order_item => { isa => 'SL::DB::OrderItem' },
+  });
+
+  my $item = $params{order_item};
+  my $period_start_date = $params{period_start_date};
+
+  my $new_item = clone($item);
+
+  my $item_config = $item->periodic_invoice_items_config;
+  if ($item_config) {
+    return if $item_config->periodicity eq 'n';
+    if ($item_config->periodicity eq 'o') {
+      return if $item->periodic_invoice_items_config->once_invoice_id;
+      my $next_period_start_date = $self->get_next_period_start_date(order_item => $item);
+      my $period = $self->get_billing_period_length || 1;
+      return if $period_start_date < $next_period_start_date
+        || $period_start_date > add_months($next_period_start_date, $period);
+    }
+    return if $item_config->start_date && $item_config->start_date > $period_start_date;
+    if ($item_config->terminated || !$item_config->extend_automatically_by) {
+      return if $item_config->end_date   && $item_config->end_date   < $period_start_date;
+    }
+
+    my $i_period = $item_config->get_item_period_length;
+    my $b_period = $self->get_billing_period_length;
+    return $new_item unless $i_period && $b_period;
+
+    if ($i_period > $b_period) {
+      my $start_date = $item_config->start_date
+        || $self->first_billing_date || $self->start_date;
+      my $months_from_start_date =
+          ($period_start_date->year  - $start_date->year) * 12
+        + ($period_start_date->month - $start_date->month);
+      my $first_in_sub_period = $months_from_start_date % ($i_period / $b_period) == 0 ? 1 : 0;
+      return if !$first_in_sub_period;
+    } elsif ($i_period < $b_period) {
+      $new_item->qty($new_item->qty * $b_period / $i_period);
+    }
+  }
+
+  $new_item = $self->_adjust_sellprices_for_period(
+      order_item => $new_item,
+      period_start_date => $period_start_date,
+  );
+  return $new_item
 }
 
 sub _adjust_sellprices_for_period {
@@ -179,12 +219,28 @@ sub calculate_invoice_dates {
 sub get_next_period_start_date {
   my $self = shift;
 
+  my %params = validate(@_, {
+    order_item => { isa => 'SL::DB::OrderItem' },
+  });
+
+  my $item = $params{order_item};
+
   my $last_created_on_date = $self->get_previous_billed_period_start_date;
 
-  return $self->first_billing_date || $self->start_date unless $last_created_on_date;
+  return (
+      $item->periodic_invoice_items_config ?
+        $item->periodic_invoice_items_config->start_date
+      : undef
+    )
+    || $self->first_billing_date || $self->start_date unless $last_created_on_date;
+
+  my $billing_len = $item->periodic_invoice_items_config ?
+      $item->periodic_invoice_items_config->get_item_period_length
+    : $self->get_billing_period_length;
+
 
   my @dates = $self->calculate_invoice_dates(
-    end_date => add_months($last_created_on_date, $self->get_billing_period_length)
+    end_date => add_months($last_created_on_date, $billing_len)
   );
 
   return scalar @dates ? $dates[0] : undef;
@@ -232,38 +288,45 @@ sub _log_msg {
 sub handle_automatic_extension {
   my $self = shift;
 
-  _log_msg("HAE for " . $self->id . "\n");
-  # Don't extend configs that have been terminated. There's nothing to
-  # extend if there's no end date.
-  return if $self->terminated || !$self->end_date;
+  my $today = DateTime->now_local;
+  my $active = 0; # inactivate if end date is reached (for self and all positions)
 
-  my $today    = DateTime->now_local;
-  my $end_date = $self->end_date;
+  if ($self->end_date && $self->end_date < $today) {
+    if (!$self->terminated && $self->extend_automatically_by) {
+      $active = 1;
 
-  _log_msg("today $today end_date $end_date\n");
-
-  # The end date has not been reached yet, therefore no extension is
-  # needed.
-  return if $today <= $end_date;
-
-  # The end date has been reached. If no automatic extension has been
-  # set then terminate the config and return.
-  if (!$self->extend_automatically_by) {
-    _log_msg("setting inactive\n");
-    $self->active(0);
-    $self->save;
-    return;
+      my $end_date = $self->end_date;
+      $end_date = add_months($end_date, $self->extend_automatically_by) while $today > $end_date;
+      _log_msg("HAE for " . $self->id . " from " . $self->end_date . " to " . $end_date . " on " . $today . "\n");
+      $self->update_attributes(end_date => $end_date);
+    }
+  } else {
+    $active = 1;
   }
 
-  # Add the automatic extension period to the new end date as long as
-  # the new end date is in the past. Then save it and get out.
-  $end_date = add_months($end_date, $self->extend_automatically_by) while $today > $end_date;
-  _log_msg("new end date $end_date\n");
+  # check for positions with separate config
+  for my $item ($self->order->items()) {
+    my $item_config = $item->periodic_invoice_items_config;
+    next unless $item_config;
+    if ($item_config->end_date && $item_config->end_date < $today) {
+      if (!$item_config->terminated && $item_config->extend_automatically_by) {
+        $active = 1;
 
-  $self->end_date($end_date);
-  $self->save;
+        my $end_date = $item_config->end_date;
+        $end_date = add_months($end_date, $item_config->extend_automatically_by) while $today > $end_date;
+        _log_msg("HAE for item " . $item->id . " from " . $item_config->end_date . " to " . $end_date . " on " . $today . "\n");
+        $item_config->update_attributes(end_date => $end_date);
+      }
+    } else {
+      $active = 1;
+    }
+  }
 
-  return $end_date;
+  unless ($active) {
+    $self->update_attributes(active => 0)
+  }
+
+  return;
 }
 
 sub get_previous_billed_period_start_date {
@@ -333,9 +396,47 @@ __END__
 
 SL::DB::PeriodicInvoicesConfig - DB model for the configuration for periodic invoices
 
+=head1 SYNOPSIS
+
+  $open_orders = $config->get_open_orders_for_period(
+    start_date => $config->start_date,
+    end_date   => DateTime->today_local,
+  );
+
+  # Same as:
+  $open_orders = $config->get_open_orders_for_period();
+
+  # create invoices
+  SL::DB::Invoice->new_from($_)->post() for @{$open_orders}
+  # TODO: update configs with periodicity once
+
+  # sum netamount
+  my $netamount = 0;
+  $netamount += $_->netamount for @{$open_orders};
+
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<get_open_orders_for_period %params>
+
+Creates a list of copies of the order associated with this configuration for
+each date a invoice would be created in the given period. Each copie has the
+correct dates and items set to be converted to a invoice or used in a report.
+The period can be specified using the parameters C<start_date> and C<end_date>.
+
+Parameters:
+
+=over 2
+
+=item * C<start_date> specifies the start of the period. It can be a L<DateTime>
+object or a string in the fromat C<YYYY-MM-DD>. It defaults to the C<start_date>
+of the configuration.
+
+=item * C<end_date> specifies the end of the period. It has the same type as
+C<start_date>. It defaults to the current local time.
+
+=back
 
 =item C<calculate_invoice_dates %params>
 
@@ -390,22 +491,12 @@ invoice has been created from this configuration.
 
 =item C<handle_automatic_extension>
 
-Configurations which haven't been terminated and which have an end
-date set may be eligible for automatic extension by a certain number
-of months. This what the function implements.
-
-If the configuration is not eligible or if the C<end_date> hasn't been
-reached yet then nothing is done and C<undef> is returned. Otherwise
-its behavior is determined by the C<extend_automatically_by> property.
-
-If the property C<extend_automatically_by> is not 0 then the
-C<end_date> will be extended by C<extend_automatically_by> months, and
-the configuration will be saved. In this case the new end date will be
-returned.
-
-Otherwise (if C<extend_automatically_by> is 0) the property C<active>
-will be set to 1, and the configuration will be saved. In this case
-C<undef> will be returned.
+Updates the C<end_date>s according to C<terminated> and
+C<extend_automatically_by> of this configuration and the corresponding item
+configuration if the C<end_date> is after the current date. If at the end all
+configurations are after the corresponding C<end_date>, e.g. C<end_date> is
+reached and C<terminated> is set to true or C<extend_automatically_by> is set to
+0, this configuration is set to inactive.
 
 =item C<is_last_billing_date_in_order_value_cycle %params>
 

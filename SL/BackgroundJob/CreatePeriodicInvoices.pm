@@ -40,8 +40,7 @@ sub run {
     my $configs = SL::DB::Manager::PeriodicInvoicesConfig->get_all(query => [ active => 1 ]);
 
     foreach my $config (@{ $configs }) {
-      my $new_end_date = $config->handle_automatic_extension;
-      _log_msg("Periodic invoice configuration ID " . $config->id . " extended through " . $new_end_date->strftime('%d.%m.%Y') . "\n") if $new_end_date;
+      $config->handle_automatic_extension();
     }
 
     my (@invoices_to_print, @invoices_to_email);
