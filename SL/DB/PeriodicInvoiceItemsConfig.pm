@@ -5,11 +5,9 @@ use strict;
 use SL::DB::MetaSetup::PeriodicInvoiceItemsConfig;
 use SL::DB::Manager::PeriodicInvoiceItemsConfig;
 
-use SL::DB::PeriodicInvoicesConfig;
-
 __PACKAGE__->meta->initialize;
 
-our %ITEM_PERIOD_LENGTHS = ( %SL::DB::PeriodicInvoicesConfig::PERIOD_LENGTHS, n => -1 );
+our %ITEM_PERIOD_LENGTHS = (  o => 0, m => 1, q => 3, b => 6, y => 12 , n => -1 );
 
 sub get_item_period_length {
   my ($self) = @_;
