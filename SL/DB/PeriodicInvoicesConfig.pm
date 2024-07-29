@@ -86,18 +86,18 @@ sub _create_item_for_period {
       my $next_period_start_date = $self->get_next_period_start_date(order_item => $item);
       my $period = $self->get_billing_period_length || 1;
       return if $period_start_date < $next_period_start_date
-        || $period_start_date > add_months($next_period_start_date, $period);
+        || $period_start_date >= add_months($next_period_start_date, $period);
     }
-    return if $item_config->start_date && $item_config->start_date > $period_start_date;
     if ($item_config->terminated || !$item_config->extend_automatically_by) {
-      return if $item_config->end_date   && $item_config->end_date   < $period_start_date;
+      return if $item_config->end_date && $item_config->end_date < $period_start_date;
     }
 
     my $i_period = $item_config->get_item_period_length;
     my $b_period = $self->get_billing_period_length;
-    return $new_item unless $i_period && $b_period;
+    return $new_item if $i_period == 0 || $b_period == 0;
 
     if ($i_period > $b_period) {
+      return if $item_config->start_date && $item_config->start_date > $period_start_date;
       my $start_date = $item_config->start_date
         || $self->first_billing_date || $self->start_date;
       my $months_from_start_date =
@@ -106,7 +106,25 @@ sub _create_item_for_period {
       my $first_in_sub_period = $months_from_start_date % ($i_period / $b_period) == 0 ? 1 : 0;
       return if !$first_in_sub_period;
     } elsif ($i_period < $b_period) {
-      $new_item->qty($new_item->qty * $b_period / $i_period);
+      my $periods = 0;
+      my $max_periods = $b_period / $i_period;
+      my $periods_from_start = 0;
+      my $i_start_date = $period_start_date;
+      if ($item_config->start_date) {
+        while ($i_start_date < $item_config->start_date) {
+          $periods_from_start++;
+          $i_start_date = add_months($period_start_date, $periods_from_start);
+        }
+      }
+      if ($item_config->end_date
+        && ($item_config->terminated || !$item_config->extend_automatically_by)) {
+        $periods++ while $periods < ($max_periods - $periods_from_start)
+          && add_months($i_start_date, $periods * $i_period) <= $item_config->end_date;
+        return if $periods == 0;
+      } else {
+        $periods = $max_periods - $periods_from_start;
+      }
+      $new_item->qty($new_item->qty * $periods);
     }
   }
 
