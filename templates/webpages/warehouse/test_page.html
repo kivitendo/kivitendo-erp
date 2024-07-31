@@ -1,0 +1,10 @@
+[% USE T8 %]
+[% USE P %]
+
+<h1>[% 'Warehouse/Bin Testpage' | $T8 %]</h1>
+
+<div>
+  [% P.warehouse.wh_bin_select('wh') %]
+
+  with_empty: [% P.warehouse.wh_bin_select('wh2', with_empty=1) %]
+</div>
