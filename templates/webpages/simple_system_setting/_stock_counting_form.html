@@ -1,0 +1,41 @@
+[% USE T8 %]
+[% USE LxERP %]
+[% USE P %]
+
+[% P.hidden_tag('object.employee_id', SELF.current_employee_id, type='vendor') %]
+<table>
+  <tbody>
+    <tr>
+      <th>[% 'Name' | $T8 %]</th>
+      <td>[% P.input_tag('object.name', SELF.object.name, size=30) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Description' | $T8 %]</th>
+      <td>[% P.input_tag('object.description', SELF.object.description, size=30) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Warehouse' | $T8 %]</th>
+      <td>
+        [% P.warehouse.wh_bin_select('dummy_wh', bin_default=SELF.object.bin_id, bin_name='object.bin_id', with_empty=1) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Part' | $T8 %]</th>
+      <td>
+        [% P.part.picker('object.part_id', SELF.object.part, with_makemodel=1) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Partsgroup' | $T8 %]</th>
+      <td>
+        [% P.select_tag('object.partsgroup_id', SELF.all_partsgroups, default=SELF.object.partsgroup_id, title_key='partsgroup', with_empty=1) %]
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'Vendor' | $T8 %]</th>
+      <td>
+        [% P.customer_vendor.picker('object.vendor_id', SELF.object.vendor_id, type='vendor') %]
+      </td>
+    </tr>
+  </tbody>
+</table>

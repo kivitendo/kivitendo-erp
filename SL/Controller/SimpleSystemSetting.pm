@@ -8,6 +8,8 @@ use parent qw(SL::Controller::Base);
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::DB::Default;
+use SL::DB::PartsGroup;
+use SL::DB::Warehouse;
 use SL::System::Process;
 
 use Rose::Object::MakeMethods::Generic (
@@ -301,6 +303,22 @@ my %supported_types = (
     ],
   },
 
+  stock_counting => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_stock_counting_form")
+    class  => 'StockCounting',
+    auth   => 'config',
+    titles => {
+      list => t8('Stock Countings'),
+      add  => t8('Add stock counting'),
+      edit => t8('Edit stock counting'),
+    },
+    list_attributes => [
+      { title => t8('Name'),        method => 'name',       },
+      { title => t8('Description'), method => 'description' },
+      { title => t8('Employee'),    formatter => sub { $_[0]->employee->safe_name } },
+    ],
+  },
+
 );
 
 my @default_list_attributes = (
@@ -364,7 +382,7 @@ sub action_reorder {
   my ($self) = @_;
 
   $self->class->reorder_list(@{ $::form->{object_id} || [] });
-  $self->render(\'', { type => 'json' });
+  $self->render(\'', { type => 'json' }); # make emacs happy ')
 }
 
 #
@@ -473,6 +491,15 @@ sub setup_language {
 
   $self->{numberformats} = [ '1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00" ];
   $self->{dateformats}   = [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd) ];
+}
+
+sub setup_stock_counting {
+  my ($self) = @_;
+
+  $self->{current_employee_id} = SL::DB::Manager::Employee->current->id;
+
+  my %pg_additional_condition = ($::form->{id} && $self->object->partsgroup_id) ? (id => $self->object->partsgroup_id) : undef;
+  $self->{all_partsgroups} = SL::DB::Manager::PartsGroup->get_all_sorted(where => [or => [obsolete => undef, obsolete => 0, %pg_additional_condition]]);
 }
 
 #

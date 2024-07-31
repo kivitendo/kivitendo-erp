@@ -1393,6 +1393,13 @@
   params:
     action: list_warehouses
 - parent: system
+  id: system_stock_countings
+  name: Stock Countings
+  order: 2320
+  params:
+    action: SimpleSystemSetting/list
+    type: stock_counting
+- parent: system
   id: system_shops
   name: Web shops
   order: 2350
