@@ -252,6 +252,26 @@ sub action_save_as_new {
   $self->action_save();
 }
 
+# close a already saved order (potentially already delivered)
+sub action_close_order {
+  my ($self) = @_;
+
+  $self->order->update_attributes(
+    closed => 1
+  );
+
+  $self->js
+    ->flash("info", t8("The record has been closed."))
+    ->run('kivi.ActionBar.setDisabled', '#save_action',
+          t8('This record has already been closed.'))
+    ->run('kivi.ActionBar.setDisabled', '#save_and_close',
+          t8('This record has already been closed.'))
+    ->run('kivi.ActionBar.setDisabled', '#close_order',
+          t8('This record has already been closed.'))
+    ->html('#data-status-line', delivery_order_status_line($self->order))
+    ->render
+}
+
 # print the order
 #
 # This is called if "print" is pressed in the print dialog.
@@ -1940,9 +1960,10 @@ sub setup_edit_action_bar {
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
             }],
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+          disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
                     : $self->order->delivered ? t8('This record has already been delivered.')
-                    :                        undef,
+                    : $self->order->closed    ? t8('This record has already been closed.')
+                    :                           undef,
         ],
         action => [
           t8('Save and Close'),
@@ -1955,8 +1976,19 @@ sub setup_edit_action_bar {
                 { name => 'back_to_caller', value => 1 },
               ],
             }],
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+          disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
                     : $self->order->delivered ? t8('This record has already been delivered.')
+                    : $self->order->closed    ? t8('This record has already been closed.')
+                    :                           undef,
+        ],
+        action => [
+          t8('Mark as closed'),
+          id       => 'close_order',
+          call     => [ 'kivi.DeliveryOrder.close_order' ],
+          confirm  => t8('This will remove the delivery order from showing as open even if contents are not delivered. Proceed?'),
+          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id    ? t8('This object has not been saved yet.')
+                    : $self->order->closed ? t8('This record has already been closed.')
                     :                        undef,
         ],
         action => [
