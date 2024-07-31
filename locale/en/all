@@ -4265,6 +4265,7 @@ $self->{texts} = {
   'The reclamation reason has been deleted.' => '',
   'The reclamation reason has been saved.' => '',
   'The reclamation reason is in use and cannot be deleted.' => '',
+  'The record has been closed.' => '',
   'The record template \'#1\' has been loaded.' => '',
   'The record template \'#1\' has been saved.' => '',
   'The report doesn\'t contain entries.' => '',

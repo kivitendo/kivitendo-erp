@@ -79,6 +79,20 @@ namespace('kivi.DeliveryOrder', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.close_order = function() {
+    let data = [];
+    let id = $("#id").val();
+
+    if (!id) {
+      alert(kivi.t8('This object has not been saved yet.'));
+      return;
+    }
+
+    data.push({ name: 'id', value: id });
+    data.push({ name: 'action', value: 'DeliveryOrder/close_order' });
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+
   ns.show_print_options = function(params) {
     if (!ns.check_cv()) return;
 
