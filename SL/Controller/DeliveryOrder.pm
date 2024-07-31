@@ -230,7 +230,14 @@ sub action_save {
   my @redirect_params;
   if ($::form->{back_to_caller}) {
     @redirect_params = $::form->{callback} ? ($::form->{callback})
-                                           : (controller => 'LoginScreen', action => 'user_login');
+                     : $::form->{close_form} ? (controller => 'LoginScreen', action => 'user_login')
+                     : (
+                                              action   => 'edit',
+                                              type     => $self->type,
+                                              id       => $self->order->id,
+                                              callback => $::form->{callback},
+                                            );
+
 
   } else {
     @redirect_params = (
@@ -1795,6 +1802,8 @@ sub save {
                        ? SL::DB::Manager::DeliveryOrderItem->get_all(where => [id => $self->item_ids_to_delete])
                        : undef;
 
+  $self->order->closed('T') if $::form->{close_delivery_order};
+
   SL::Model::Record->save($self->order,
     with_validity_token        => {
       scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE(),
@@ -1948,6 +1957,7 @@ sub setup_edit_action_bar {
             }],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : $self->order->delivered ? t8('This record has already been delivered.')
+                    : $self->order->closed ? t8('This record has already been closed.')
                     :                        undef,
         ],
         action => [
@@ -1959,10 +1969,29 @@ sub setup_edit_action_bar {
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
               form_params        => [
                 { name => 'back_to_caller', value => 1 },
+                { name => 'close_form', value => 1 },
               ],
             }],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : $self->order->delivered ? t8('This record has already been delivered.')
+                    : $self->order->closed ? t8('This record has already been closed.')
+                    :                        undef,
+        ],
+        action => [
+          t8('Mark as closed'),
+          id       => 'save',
+          call     => [ 'kivi.DeliveryOrder.save', {
+              action             => 'save',
+              warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
+              form_params        => [
+                { name => 'back_to_caller', value => 1 },
+                { name => 'close_delivery_order', value => 1 },
+              ],
+            }],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : $self->order->delivered ? t8('This record has already been delivered.')
+                    : $self->order->closed ? t8('This record has already been closed.')
                     :                        undef,
         ],
         action => [
