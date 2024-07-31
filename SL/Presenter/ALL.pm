@@ -29,6 +29,7 @@ use SL::Presenter::Tag;
 use SL::Presenter::BankAccount;
 use SL::Presenter::BankTransaction;
 use SL::Presenter::MaterialComponents;
+use SL::Presenter::Warehouse;
 
 our %presenters = (
   chart                       => 'SL::Presenter::Chart',
@@ -58,6 +59,7 @@ our %presenters = (
   bank_account                => 'SL::Presenter::BankAccount',
   bank_transaction            => 'SL::Presenter::BankTransaction',
   M                           => 'SL::Presenter::MaterialComponents',
+  warehouse                   => 'SL::Presenter::Warehouse',
 );
 
 sub wrap {
