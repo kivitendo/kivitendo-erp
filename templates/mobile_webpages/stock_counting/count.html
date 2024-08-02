@@ -1,0 +1,34 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE P %]
+
+
+<div class="section">
+  <div class="container">
+    <div class="z-depth-1 grey lighten-4 row" style="padding: 32px 48px 0px 48px; border: 1px solid #EEE;">
+      <div class="row">[% SELF.stock_counting_item.counting.name %]</div>
+      <div class="row">[% SELF.stock_counting_item.counting.description %]</div>
+      <div class="row">[% SELF.stock_counting_item.counting.part.displayable_name %]</div>
+      <div class="row">[% SELF.stock_counting_item.counting.partsgroup.displayable_name %]</div>
+      <div class="row">[% SELF.stock_counting_item.counting.vendor.displayable_name %]</div>
+      <form method="post" name="count_form" id="count_form" action="controller.pl" target="_top" class="col s12">
+        [% P.hidden_tag('stock_counting_item.counting_id', SELF.stock_counting_item.counting_id) %]
+        [% IF SELF.stock_counting_item.counting.bin_id %]
+          <div class="row">[% SELF.stock_counting_item.counting.bin.full_description %]</div>
+          [% P.hidden_tag('stock_counting_item.bin_id', SELF.stock_counting_item.counting.bin_id) %]
+        [% ELSE %]
+          <div class="row">
+            [% P.M.wh_bin_select('dummy_wh', bin_name='stock_counting_item.bin_id', with_empty=1, 'data-validate'='required', label=LxERP.t8('Bin'), class='col s12') %]
+          </div>
+        [% END %]
+        <div class="row">
+          [% P.M.input_tag('ean', '', placeholder=last_ean || LxERP.t8('EAN'), 'data-validate'='required', label=LxERP.t8('Part to count'), class='col s12') %]
+        </div>
+        <div class="row">
+          [% P.hidden_tag("action", "StockCounting/count") %]
+          [% P.M.submit_tag("btn_count", LxERP.t8("Do count"), class="col s12", large=1) %]
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
