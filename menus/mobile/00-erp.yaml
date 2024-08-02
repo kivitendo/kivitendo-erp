@@ -16,6 +16,12 @@
   access: ap_transactions
   params:
     action: ScanQRBill/scan_view
+- id: stock_counting
+  name: Stock Counting
+  order: 250
+  access: warehouse_management
+  params:
+    action: StockCounting/select_counting
 - id: component_test
   name: Component Test
   order: 300
