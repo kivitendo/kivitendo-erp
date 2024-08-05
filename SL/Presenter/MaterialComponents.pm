@@ -19,6 +19,7 @@ our @EXPORT_OK = qw(
   icon
   select_tag
   checkbox_tag
+  wh_bin_select
 );
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
@@ -331,6 +332,23 @@ sub checkbox_tag {
   );
 }
 
+sub wh_bin_select {
+  my ($name, %attributes) = @_;
+
+  my @size_classes = _extract_classes(\%attributes, "size");
+
+  my $icon  = $attributes{icon}
+    ? icon(delete $attributes{icon}, class => 'prefix')
+    : '';
+
+  my $wh_bin_select_html = SL::Presenter::Warehouse::wh_bin_select($name, %attributes,
+                                                                   class => 'browser-default');
+
+  html_tag('div',
+    $icon . $wh_bin_select_html,
+    class => [ INPUT_FIELD, @size_classes ],
+  );
+}
 
 1;
 __END__
