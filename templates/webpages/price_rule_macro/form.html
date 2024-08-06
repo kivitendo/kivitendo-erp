@@ -1,0 +1,46 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE P %]
+[%- USE L %]
+
+<h1>[% 'Price Rules Macro' | $T8 %]</h1>
+
+[% PROCESS 'common/flash.html' %]
+[% PROCESS 'price_rule_macro/input_blocks.html' %]
+
+<form action='controller.pl' method='post'>
+  <div id='price_rule'>
+    <table>
+      <tr>
+        <td>[% 'Name' | $T8 %]</td>
+        <td>[% L.input_tag('price_rule_macro.name', SELF.price_rule_macro.name) %]
+      </tr>
+      <tr>
+        <td>[% 'Type' | $T8 %]</td>
+        <td>[% L.select_tag('price_rule_macro.type', [[ 'customer', LxERP.t8('Customer') ],[ 'vendor', LxERP.t8('Vendor')] ]  default=SELF.price_rule_macro.type) %]</td>
+
+      </tr>
+      <tr>
+        <td>[% 'Priority' | $T8 %]</td>
+        <td>[% L.input_tag('price_rule_macro.priority', SELF.price_rule_macro.priority, "data-validate"="numeric,0") %]</td>
+
+      </tr>
+      <tr>
+        <td>[% 'Obsolete' | $T8 %]</td>
+        <td>[% L.checkbox_tag('price_rule_macro.obsolete', checked=SELF.price_rule_macro.obsolete, for_submit=1) %]</td>
+
+      </tr>
+      <tr>
+        <td>[% 'Conditions' | $T8 %]</td>
+        <td>[% PROCESS condition_input item=SELF.price_rule_macro.definition.condition prefix='price_rule_macro.conditions.' %]</td>
+      </tr>
+      <tr>
+        <td>[% 'Actions' | $T8 %]</td>
+        <td>[% PROCESS action_input item=SELF.price_rule_macro.definition.action prefix='price_rule_macro.actions.' %]
+      </tr>
+    </table>
+  </div>
+</form>
+
+[%# L.dump(SELF.price_rule_macro.definition.condition) %]

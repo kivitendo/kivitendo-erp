@@ -9,7 +9,7 @@ use SL::Presenter;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw() ],
-  'scalar --get_set_init' => [ qw(price_rule_macro) ],
+  'scalar --get_set_init' => [ qw(price_rule_macro meta all_price_types) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -22,7 +22,7 @@ sub action_load {
   if ($::request->type eq 'json') {
     return $self->render(\$self->price_rule_macro->json_definition, { process => 0, type => 'json'});
   } else {
-    die "request type not supported";
+    return $self->render('price_rule_macro/form', price_rule_macro => $self->price_rule_macro);
   }
 }
 
@@ -125,6 +125,25 @@ sub action_render_picker {
 
 ### internal
 
+# todo: make this clean and in model
+sub allowed_elements_for {
+  my ($self, $element) = @_;
+
+  die unless my $meta = $self->meta->{$element->{type}};
+
+  my @elements;
+
+  for (keys %{ $meta->{has_elements} }) {
+    if ($self->meta->{$_}{abstract}) {
+      push @elements, @{ $self->meta->{$_}{can_be} };
+    } else {
+      push @elements, $_;
+    }
+  }
+
+  [ map [ $_, $self->meta->{$_}{name} ], @elements ]
+}
+
 sub reconcile_generated_price_sources {
   my ($self, $old_macro, $new_macro) = @_;
 
@@ -150,6 +169,14 @@ sub init_price_rule_macro {
   my ($self) = @_;
 
   my $price_rule_macro = SL::DB::Manager::PriceRuleMacro->find_by_or_create(id => $::form->{price_rule_macro}{id});
+}
+
+sub init_meta {
+  SL::DB::PriceRuleMacro->create_definition_meta
+}
+
+sub init_all_price_types {
+  SL::DB::Manager::PriceRule->all_price_types;
 }
 
 sub from_json_definition {
