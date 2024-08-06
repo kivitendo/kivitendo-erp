@@ -22,7 +22,6 @@ my %ops = (
   'date' => { eq => '=', lt => '<', gt => '>' },
 );
 
-<<<<<<< HEAD
 my @types = (
   { type => 'customer',   description => t8('Customer'),           customer => 1, vendor => 0, data_type => 'int',  data => sub { $_[0]->customer->id }, },
   { type => 'vendor',     description => t8('Vendor'),             customer => 0, vendor => 1, data_type => 'int',  data => sub { $_[0]->vendor->id }, },
