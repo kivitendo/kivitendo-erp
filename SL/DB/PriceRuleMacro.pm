@@ -307,7 +307,6 @@ package SL::PriceRuleMacro::Condition::ContainerAnd {
     qw(condition)
   }
 
-
   sub type {
     'container_and'
   }

@@ -1,0 +1,144 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE P %]
+[%- USE L %]
+
+[% SET num_compare_ops = [
+  [ 'eq', LxERP.t8('is equal to') ],
+  [ 'le', LxERP.t8('is lower than or equal') ],
+  [ 'ge', LxERP.t8('is greater than or equal') ],
+] %]
+[% SET date_compare_ops = [
+  [ 'eq', LxERP.t8('is equal to') ],
+  [ 'gt', LxERP.t8('is after') ],
+  [ 'lt', LxERP.t8('is before') ],
+] %]
+
+[%- BLOCK condition_input %]
+  [%- SWITCH item.type %]
+    [%- CASE 'container_and' %][% PROCESS condition_container_and_input %]
+    [%- CASE 'container_or' %][% PROCESS condition_container_or_input %]
+    [%- CASE 'customer' %][% PROCESS condition_customer_input %]
+    [%- CASE 'vendor' %][% PROCESS condition_vendor_input %]
+    [%- CASE 'business' %][% PROCESS condition_business_input %]
+    [%- CASE 'part' %][% PROCESS condition_part_input %]
+    [%- CASE 'partsgroup' %][% PROCESS condition_partsgroup_input %]
+    [%- CASE 'pricegroup' %][% PROCESS condition_pricegroup_input %]
+    [%- CASE 've' %][% PROCESS condition_ve_input %]
+    [%- CASE 'qty' %][% PROCESS condition_qty_input %]
+    [%- CASE 'qty_range' %][% PROCESS condition_qty_range_input %]
+    [%- CASE 'transdate' %][% PROCESS condition_transdate_input %]
+    [%- CASE 'reqdate' %][% PROCESS condition_reqdate_input %]
+  [% END %]
+[%- END %]
+
+[%- BLOCK condition_container_and_input %]
+  <fieldset class='price_rule_container'>
+    <legend>[%- PROCESS remove_control %] [% 'And' | $T8 %]:</legend>
+    <div>
+      [% FOREACH row IN item.condition %]
+        <div>[% INCLUDE condition_input item=row %]</div>
+      [% END %]
+    </div>
+    [%- PROCESS add_element_control %]
+  </fieldset>
+[%- END %]
+
+[%- BLOCK condition_container_or_input %]
+  <fieldset class='price_rule_container'>
+    <legend>[%- PROCESS remove_control %] [% 'Or' | $T8 %]:</legend>
+    <div>
+      [% FOREACH row IN item.condition %]
+        <div>[% INCLUDE condition_input item=row %]</div>
+      [% END %]
+    </div>
+    [%- PROCESS add_element_control %]
+  </fieldset>
+[%- END %]
+
+[%- BLOCK condition_customer_input %]
+  [%- PROCESS remove_control %] [% 'Customer' | $T8 %] [% 'is' | $T8 %] [% P.customer_vendor.picker(prefix _ 'value_int', item.customer, type='customer') %]
+[%- END %]
+
+[%- BLOCK condition_vendor_input %]
+  [%- PROCESS remove_control %] [% 'Vendor' | $T8 %] [% 'is' | $T8 %] [% P.customer_vendor.picker(prefix _ 'price_rule.items[].value_int', item.vendor, type='vendor') %]
+[%- END %]
+
+[%- BLOCK condition_business_input %]
+  [%- PROCESS remove_control %] [% 'Type of Business' | $T8 %] [% 'is' | $T8 %] [% L.select_tag(prefix _ 'value_int', SELF.businesses, title_key='description', default=item.value_int) %]
+[%- END %]
+
+[%- BLOCK condition_part_input %]
+ [%- PROCESS remove_control %] [% 'Part' | $T8 %] [% 'is' | $T8 %] [% P.part.picker('price_rule.items[].value_int', item.part) %]
+[%- END %]
+
+[%- BLOCK condition_partsgroup_input %]
+  [%- PROCESS remove_control %] [% 'Partsgroup' | $T8 %] [% 'is' | $T8 %] [% L.select_tag(prefix _ 'value_int', SELF.partsgroups, title_key='partsgroup', default=item.value_int) %]
+[%- END %]
+
+[%- BLOCK condition_pricegroup_input %]
+  [%- PROCESS remove_control %] [% 'Pricegroup' | $T8 %] [% 'is' | $T8 %] [% L.select_tag(prefix _ 'value_int', SELF.pricegroups, title_key='pricegroup', default=item.value_int) %]
+[%- END %]
+
+[%- BLOCK condition_ve_input %]
+  [%- PROCESS remove_control %] [% 'Ve' | $T8 %] [% L.select_tag(prefix _ 'op', num_compare_ops, default=item.op) %] [% L.input_tag(prefix _ 'value_num_as_number', item.value_num_as_number) %]
+[%- END %]
+
+[%- BLOCK condition_qty_input %]
+  [%- PROCESS remove_control %] [% 'Quantity' | $T8 %] [% L.select_tag(prefix _ 'op', num_compare_ops, default=item.op) %] [% L.input_tag(prefix _ 'value_num_as_number', item.value_num_as_number) %]
+[%- END %]
+
+[%- BLOCK condition_qty_range_input %]
+  [%- PROCESS remove_control %]
+  [% 'Quantity Range' | $T8 %]
+  [% L.input_tag(prefix _ 'min_as_number', item.min_as_number) %]
+  [% 'To (range)' | $T8 %]
+  [% L.input_tag(prefix _ 'max_as_number', item.max_as_number) %]
+[%- END %]
+
+[%- BLOCK condition_reqdate_input %]
+  [%- PROCESS remove_control %] [% 'Reqdate' | $T8 %] [% L.select_tag(prefix _ 'op', date_compare_ops, default=item.op) %] [% L.date_tag(prefix _ 'value_date', item.value_date) %]
+[%- END %]
+
+[%- BLOCK condition_transdate_input %]
+  [%- PROCESS remove_control %] [% 'Transdate Record' | $T8 %] [% L.select_tag(prefix _ 'op', date_compare_ops, default=item.op) %] [% L.date_tag(prefix _ 'value_date', item.value_date) %]
+[%- END %]
+
+
+
+[%- BLOCK action_input %]
+  [%- SWITCH item.type %]
+    [%- CASE 'conditional_action' %][% PROCESS condition_action_input_input %]
+    [%- CASE 'simple_action' %][% PROCESS simple_action_input %]
+    [%- CASE 'price_scale_action_input' %][% PROCESS price_scale_action_input %]
+  [% END %]
+[%- END %]
+
+[%- BLOCK action_conditional_action_input %]
+[%- END %]
+
+[%- BLOCK simple_action_input %]
+<div>
+  [% 'Set (set to)' | $T8 %]
+  [%# L.select_tag('price_rule.price_type', SELF.all_price_types, default=SELF.price_rule.price_type) %]
+  [% 'to (set to)' | $T8 %]
+  [%# L.input_tag('price_rule.price_or_discount_as_number', SELF.price_rule.price_or_discount_as_number) %]
+  <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
+</div>
+[%- END %]
+
+[%- BLOCK action_price_scale_input %]
+[%- END %]
+
+
+[%- BLOCK add_element_control %]
+  [% L.select_tag('', SELF.allowed_elements_for(item)) %] [% P.link_tag('', LxERP.t8('Add element'), class='price_rule_macro_add_element') %]
+[%- END %]
+
+[%- BLOCK remove_control %]
+  <a class='price_rule_macro_remove_line interact cursor-pointer'>✘</a>
+[%- END %]
+
+[%- BLOCK add_value %]
+[%- END %]
