@@ -32,3 +32,33 @@
     </div>
   </div>
 </div>
+
+[% P.hidden_tag("successfully_counted", successfully_counted) %]
+<div id="successfully_counted_modal" class="modal">
+  <div class="modal-content">
+    <h4>[% 'Part successfully counted' | $T8 %]</h4>
+  </div>
+  <div class="modal-footer">
+    [% P.M.button_tag("", LxERP.t8("Ok"), class="modal-close") %]
+  </div>
+</div>
+
+[% P.hidden_tag("errors", errors.size() || '0') %]
+<div id="error_modal" class="modal">
+  <div class="modal-content">
+    <h4>[% 'Error' | $T8 %]</h4>
+    [% FOREACH e = errors %]
+    <p>[% e %]<p>
+    [% END %]
+  </div>
+  <div class="modal-footer">
+    [% P.M.button_tag("", LxERP.t8("Ok"), class="modal-close") %]
+  </div>
+</div>
+
+<script>
+  // using $(document).ready didn't work here
+  window.onload = () => {
+    kivi.StockCounting.count_window_onload();
+  };
+</script>
