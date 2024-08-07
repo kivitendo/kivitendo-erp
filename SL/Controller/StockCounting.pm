@@ -47,17 +47,19 @@ sub action_count {
   push @errors, t8 ('Part not found')    if scalar(@$parts) == 0;
   push @errors, t8 ('Part is ambiguous') if scalar(@$parts) >  1;
 
-  $self->stock_counting_item->part($parts->[0]) if !@errors;
+  return $self->render('stock_counting/count', errors => \@errors) if @errors;
+
+  $self->stock_counting_item->part($parts->[0]);
 
   my @validation_errors = $self->stock_counting_item->validate;
   push @errors, @validation_errors if @validation_errors;
 
-  $::form->error(join "\n", @errors) if @errors;
+  return $self->render('stock_counting/count', errors => \@errors) if @errors;
 
   $self->stock_counting_item->qty(1);
   $self->stock_counting_item->save;
 
-  $self->render('stock_counting/count',);
+  $self->render('stock_counting/count', successfully_counted => 1);
 }
 
 sub init_is_developer {
