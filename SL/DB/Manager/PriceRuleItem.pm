@@ -14,6 +14,7 @@ __PACKAGE__->make_manager_methods;
 
 use SL::Locale::String qw(t8);
 use List::Util qw(first);
+use SL::DBUtils qw();
 
 use SL::DB::CustomVariableConfig;
 
@@ -196,6 +197,13 @@ sub get_all_types {
   $vc
   ? [ map { [ $_->{type}, $_->{description} ] } grep { $_->{$vc} } @types ]
   : [ map { [ $_->{type}, $_->{description} ] } @types ]
+}
+
+sub get_all_used_types {
+  my ($self) = @_;
+
+  my $query = 'SELECT DISTINCT type, array_agg(DISTINCT op) AS op FROM price_rule_items GROUP BY type';
+  SL::DBUtils::selectall_hashref_query($::form, SL::DB->client->dbh, $query);
 }
 
 sub get_type {
