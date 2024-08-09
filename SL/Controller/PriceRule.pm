@@ -173,8 +173,11 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(name type priority price reduction discount items);
-  my @sortable    = qw(name type priority price reduction discount      );
+
+  my @type_columns = map { $_->{type} } SL::DB::Manager::PriceRuleItem->get_all_used_types;
+
+  my @columns     = (qw(name type priority), @type_columns, qw(price reduction discount)); # items, obsolete
+  my @sortable    = qw(name type priority price reduction discount);
 
   my %column_defs = (
     name          => { obj_link => sub { $self->url_for(action => 'edit', 'price_rule.id' => $_[0]->id, callback => $callback) } },
@@ -182,8 +185,12 @@ sub prepare_report {
     price         => { sub  => sub { $_[0]->price_as_number } },
     reduction     => { sub  => sub { $_[0]->reduction_as_number } },
     discount      => { sub  => sub { $_[0]->discount_as_number } },
-    obsolete      => { sub  => sub { $_[0]->obsolete_as_bool_yn } },
-    items         => { sub  => sub { $_[0]->item_summary } },
+    obsolete      => { sub  => sub { $_[0]->obsolete_as_bool_yn }, visible => 0 },
+    items         => { sub  => sub { $_[0]->item_summary }, visible => 0 },
+    (map {
+      my $type = $_;
+      $type->[0]     => { sub  => sub { $_[0]->presenter->type_summary($type->[0]) }, text => $type->[1] },
+    } @{ SL::DB::Manager::PriceRuleItem->get_all_types }),
   );
 
   map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
