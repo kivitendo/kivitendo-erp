@@ -591,6 +591,13 @@
   params:
     action: Inventory/stocktaking
 - parent: warehouse
+  id: warehouse_stock_counting_reconciliation
+  name: Stock Counting Reconciliations
+  order: 480
+  access: warehouse_management
+  params:
+    action: StockCountingReconciliation/list
+- parent: warehouse
   id: warehouse_reports
   name: Reports
   order: 500
