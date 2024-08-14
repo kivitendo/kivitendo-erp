@@ -25,11 +25,11 @@ use constant RES_ERR_FILE_OPEN => -1;
 use constant RES_ERR_NO_ATTACHMENT => -2;
 
 our @customer_settings = (
-  [ 0,                                  t8('Do not create Factur-X/ZUGFeRD invoices')                                    ],
-  [ PROFILE_FACTURX_EXTENDED() * 2 + 1, t8('Create with profile \'Factur-X 1.0.05/ZUGFeRD 2.1.1 extended\'')             ],
-  [ PROFILE_FACTURX_EXTENDED() * 2 + 2, t8('Create with profile \'Factur-X 1.0.05/ZUGFeRD 2.1.1 extended\' (test mode)') ],
-  [ PROFILE_XRECHNUNG()        * 2 + 1, t8('Create with profile \'XRechnung 2.0.0\'')                                    ],
-  [ PROFILE_XRECHNUNG()        * 2 + 2, t8('Create with profile \'XRechnung 2.0.0\' (test mode)')                        ],
+  [ 0,                                  t8('Do not create Factur-X/ZUGFeRD invoices')                                   ],
+  [ PROFILE_FACTURX_EXTENDED() * 2 + 1, t8('Create with profile \'Factur-X 1.01.06/ZUGFeRD 2.2 extended\'')             ],
+  [ PROFILE_FACTURX_EXTENDED() * 2 + 2, t8('Create with profile \'Factur-X 1.01.06/ZUGFeRD 2.2 extended\' (test mode)') ],
+  [ PROFILE_XRECHNUNG()        * 2 + 1, t8('Create with profile \'XRechnung 2.0.0\'')                                   ],
+  [ PROFILE_XRECHNUNG()        * 2 + 2, t8('Create with profile \'XRechnung 2.0.0\' (test mode)')                       ],
 );
 
 sub convert_customer_setting {
