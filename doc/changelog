@@ -18,6 +18,8 @@ Mittelgroße neue Features:
     Das Recht lässt sich getrennt nach Ein- und Verkauf einstellen.
 
 Kleinere neue Features und Detailverbesserungen:
+  - Neuer Backgroundjob zum Massen-generieren von Shop Artikeln aus Artikeln.
+    Dokumentation siehe POD in SL/BackgroundJob/ShopPartMassCreate.pm.
   - Möglichkeit nach internen Bemerkungen zu suchen und zu filtern im
     Bericht Einkaufsrechnungen/Kreditorenbuchungen.
   - Der Inhalt der Picker (Artikel/Kunde/Lieferant/Projekt/Konto) wird
