@@ -24,8 +24,8 @@
  [% END %]
 
 <div class="rs-form">
-<table class="tbl-horizontal" class="wi-verywide">
-  <colgroup> <col class="wi-small"><col class="wi-verywide"> </colgroup> 
+<table class="tbl-horizontal wi-verywide">
+  <colgroup> <col class="wi-small"><col class="wi-verywide"> </colgroup>
   <caption>
     [% IF SELF.item.id %]
       [% LxERP.t8("Description of #1", SELF.item.fb_number) %]
@@ -37,7 +37,7 @@
   </caption>
   <tbody>
     <tr>
-      <th class="wi-small-verywide" colspan="2">[% L.textarea_tag(id_base _ '.description_as_restricted_html', SELF.item.description_as_restricted_html, id=id_base _ '_description', rows=8, cols=20, class='wi-wide', class='texteditor') %]</th>
+      <th class="wi-small-verywide" colspan="2">[% L.textarea_tag(id_base _ '.description_as_restricted_html', SELF.item.description_as_restricted_html, id=id_base _ '_description', rows=8, cols=20, class='texteditor wi-wide') %]</th>
     </tr>
     <tr>
       <th>[% LxERP.t8("Complexity") %]</th>
