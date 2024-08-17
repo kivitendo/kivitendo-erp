@@ -19,7 +19,7 @@
     </tr>
     <tr>
       <th>[% 'Variable Name' | $T8 %]<sup>(1)</sup></th>
-      <td>[% L.input_tag("config.name", SELF.config.name, class='initial_focus', class='wi-wide') %]</td>
+      <td>[% L.input_tag("config.name", SELF.config.name, class='initial_focus wi-wide') %]</td>
     </tr>
     <tr>
       <th>[% 'Variable Description' | $T8 %]<sup>(2)</sup></th>
@@ -112,7 +112,7 @@
 </table>
 
 <div class="col" style="width:51.0em;">
-	<!--<h3 class="caption">[% 'Annotations' | $T8 %]</h3>-->
+   <!--<h3 class="caption">[% 'Annotations' | $T8 %]</h3>-->
 <h3><caption>[% 'Annotations' | $T8 %]</caption></h3>
 <div class="long-description">
 
@@ -137,7 +137,7 @@
     </ul>
   [% 'Other values are ignored.' | $T8 %]</li>
 <div data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
-	<li><sup>(6)</sup> [% 'A variable marked as \'editable\' can be changed in each quotation, order, invoice etc.' | $T8 %] [% 'Otherwise the variable is only available for printing.' | $T8 %]</li>
+  <li><sup>(6)</sup> [% 'A variable marked as \'editable\' can be changed in each quotation, order, invoice etc.' | $T8 %] [% 'Otherwise the variable is only available for printing.' | $T8 %]</li>
 </div>
 <div data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
   <li><sup>(7)</sup> [% 'A variable marked as \'Deactivate by default\' isn\'t automatically added to all articles, and has to be explicitly added for each desired article in its master data tab. Only then can the variable be used for that article in the records.' | $T8 %]</li>
