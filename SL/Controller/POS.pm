@@ -30,7 +30,10 @@ sub action_show_form {
   my ($self) = @_;
   $self->render(
     'pos/form',
-    title => t8('POS'),
+    title => t8('POSO'),
+    {header => 0,
+    output => 0,
+    layout => 0},
   );
 }
 

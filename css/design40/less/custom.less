@@ -25,49 +25,197 @@
 // **********************************
 .pos_content{
   display: grid;
-  grid-column: repeat(12, 1fr);
-  grid-template-rows: repeat(12,fr);
-  grid-gap: 20px;
+  grid-template-columns: repeat(16, 1fr);
+  grid-template-rows: auto;
+  grid-gap: 2px;
 }
 
-.container_pos_right{
-  display: grid;
-  grid-column: 3 / 6;
-  grid-row: 1 /5;
-  grid-template-columns: repeat(9, 1fr);
-  grid-template-rows: repeat(6, fr);
-  grid-gap: 10px;
-  height: calc(50vh - 10px);
-justify-self: center;
-align-self: center;
+//.container_pos_right{
+//  display: grid;
+//  grid-column: 7/12;
+//  grid-template-columns: repeat(2, 1fr);
+//  grid-template-rows: repeat(6, 1fr);
+//  grid-gap: 1px;
+//  height: calc(50vh - 10px);
+//justify-self: center;
+//align-self: center;
+//padding-left:1em;
+//}
+
+.input_cv{
+  grid-column:2/4;
+  grid-row: 2/3;
 }
 
-.container_pos_left{
-  display: grid;
-  grid-column: 1 / 9;
-  grid-row: 1 /1;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(6, fr);
-  grid-gap: 10px;
-  height: calc(50vh - 10px);
-justify-self: center;
-align-self: center;
+.salesman{
+  grid-column:4/6;
+  grid-row: 2/3;
 }
 
-.pos_button{
-  //border: green 1px solid;
-//font-size: calc(4vw + 4vh + 2vmin);
-font-size: 1vi;
-font-weight: bold;
+
+.order{
+  grid-column:2/4;
+  grid-row: 3/4;
+}
+
+.item_input{
+  grid-column:2/8;
+  grid-row: 4/5;
+}
+
+.show_rows{
+  grid-column:1/8;
+  grid-row: 5/12;
+}
+//.container_pos_left{
+//  display: grid;
+//  grid-column: 1 / 6;
+//  grid-row: 1 /6;
+//  grid-template-columns: repeat(3, 1fr);
+//  grid-template-rows: repeat(12, 1fr);
+//  grid-gap: 1px;
+//  height: calc(50vh - 10px);
+//justify-self: center;
+//align-self: center;
+//padding: 3em;
+//}
+
+.pos_button1{
+  grid-column: 9/11;
+  grid-row: 2/3;
+  font-size: 1vi;
+  font-weight: bold;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.pos_button:hover{
   cursor:pointer;
-
 }
+
+.pos_button2{
+  grid-column: 11/13;
+  grid-row: 2/3;
+  font-size: 1vi;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor:pointer;
+}
+
+.pos_button3{
+  grid-column: 9/11;
+  grid-row: 3/4;
+  font-size: 1vi;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor:pointer;
+}
+
+.pos_button4{
+  grid-column: 11/13;
+  grid-row: 3/4;
+  font-size: 1vi;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor:pointer;
+}
+
+.pos_button5{
+  grid-column: 9/11;
+  grid-row: 4/5;
+  font-size: 1vi;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor:pointer;
+}
+
+.pos_button6{
+  grid-column: 11/13;
+  grid-row: 4/5;
+  font-size: 1vi;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor:pointer;
+}
+
+.pos_button7{
+  grid-column: 9/11;
+  grid-row: 5/6;
+  font-size: 1vi;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor:pointer;
+}
+
+.pos_button8{
+  grid-column: 11/13;
+  grid-row: 5/6;
+  font-size: 1vi;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor:pointer;
+}
+
+.pos_button9{
+  grid-column: 9/11;
+  grid-row: 6/7;
+  font-size: 1vi;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor:pointer;
+}
+
+.pos_button10{
+  grid-column: 11/13;
+  grid-row: 6/7;
+  font-size: 1vi;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor:pointer;
+}
+
+.pos_button11{
+  grid-column: 11/13;
+  grid-row: 8/9;
+  font-size: 1vi;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor:pointer;
+}
+
+.pos_button12{
+  grid-column: 11/13;
+  grid-row: 8/9;
+  font-size: 1vi;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor:pointer;
+}
+
+//.pos_button:hover{
+//  cursor:pointer;
+//
+//}
 
 //.my-class-padding: 0.2em ; // just an example
 
