@@ -574,7 +574,7 @@ sub action_save_stocktaking {
         stocktaking_cutoff_date => $::form->{cutoff_date_as_date},
       });
       1;
-    } or do { $transfer_error = $EVAL_ERROR->error; }
+    } or do { $transfer_error = ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR; }
   });
 
   return $self->js->flash('error', $transfer_error)->render()
