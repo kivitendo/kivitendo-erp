@@ -3356,9 +3356,7 @@ sub calculate_arap {
     my $tax_id = $self->{"tax_id_$i"};
 
     my $selected_tax = SL::DB::Manager::Tax->find_by(id => "$tax_id");
-
-    if ( $selected_tax && $selected_tax->taxkey ne '94') {
-
+    if ( $selected_tax && !$selected_tax->reverse_charge_chart_id) {
       if ( $buysell eq 'sell' ) {
         $self->{AR_amounts}{"tax_$i"} = $selected_tax->chart->accno if defined $selected_tax->chart;
       } else {
@@ -3369,7 +3367,7 @@ sub calculate_arap {
       $self->{"taxrate_$i"} = $selected_tax->rate;
     };
 
-    $self->{"taxkey_$i"} = $selected_tax->taxkey if $selected_tax->taxkey eq '94';
+    $self->{"taxkey_$i"} = $selected_tax->taxkey if ($selected_tax && $selected_tax->reverse_charge_chart_id);
 
     ($self->{"amount_$i"}, $self->{"tax_$i"}) = $self->calculate_tax($self->{"amount_$i"},$self->{"taxrate_$i"},$taxincluded,$roundplaces);
 
