@@ -625,6 +625,13 @@
   access: warehouse_contents | warehouse_management
   params:
     action: Inventory/stocktaking_journal
+- parent: warehouse_reports
+  id: warehouse_stock_counting_items
+  name: Stock Counting Items
+  order: 500
+  access: warehouse_management
+  params:
+    action: StockCounting/list
 - id: general_ledger
   name: General Ledger
   icon: gl
