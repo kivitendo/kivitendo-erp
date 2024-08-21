@@ -327,10 +327,6 @@ namespace('kivi.Part', function(ns) {
   };
 
 
-  ns.reload_bin_selection = function() {
-    $.post("controller.pl", { action: 'Part/warehouse_changed', warehouse_id: function(){ return $('#part_warehouse_id').val(); } },   kivi.eval_json_result);
-  };
-
   var KEY = {
     TAB:       9,
     ENTER:     13,
@@ -851,8 +847,6 @@ namespace('kivi.Part', function(ns) {
     $('#ic').on('focusout', '.reformat_number', function(event) {
       ns.reformat_number(event);
     });
-
-    $('#part_warehouse_id').change(kivi.Part.reload_bin_selection);
 
     ns.init();
   });
