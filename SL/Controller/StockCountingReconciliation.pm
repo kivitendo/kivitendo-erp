@@ -28,6 +28,8 @@ use Rose::Object::MakeMethods::Generic(
 # check permissions
 __PACKAGE__->run_before(sub { $::auth->assert('warehouse_management'); });
 
+# load js
+__PACKAGE__->run_before(sub { $::request->layout->add_javascripts('kivi.Validator.js'); });
 
 my %sort_columns = (
   counting   => t8('Stock Counting'),
@@ -42,32 +44,36 @@ my %sort_columns = (
 sub action_list {
   my ($self, %params) = @_;
 
+  # we need a counting selected
+  if (!$::form->{filter}->{counting_id}) {
+    $::form->{filter}->{counting_id} = 0;
+  }
+
   $self->make_filter_summary;
   $self->prepare_report;
 
   my $objects = $self->models->get;
 
-  if ($::form->{group_counting_items}) {
-    my $grouped_objects_by;
-    my @grouped_objects;
-    foreach my $object (@$objects) {
-      my $group_object;
-      if (!$grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}) {
-        $group_object = SL::DB::StockCountingItem->new(
-          counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0);
-        push @grouped_objects, $group_object;
-        $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id} = $group_object;
+  # group always
+  my $grouped_objects_by;
+  my @grouped_objects;
+  foreach my $object (@$objects) {
+    my $group_object;
+    if (!$grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}) {
+      $group_object = SL::DB::StockCountingItem->new(
+        counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0);
+      push @grouped_objects, $group_object;
+      $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id} = $group_object;
 
-      } else {
-        $group_object = $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}
-      }
-
-      $group_object->id($group_object->id ? ($group_object->id . ',' . $object->id) : $object->id);
-      $group_object->qty($group_object->qty + $object->qty);
+    } else {
+      $group_object = $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}
     }
 
-    $objects = \@grouped_objects;
+    $group_object->id($group_object->id ? ($group_object->id . ',' . $object->id) : $object->id);
+    $group_object->qty($group_object->qty + $object->qty);
   }
+
+  $objects = \@grouped_objects;
 
   $self->get_stocked($objects);
 
@@ -136,7 +142,10 @@ sub init_models {
 }
 
 sub init_countings {
-  SL::DB::Manager::StockCounting->get_all_sorted;
+  my $countings = SL::DB::Manager::StockCounting->get_all_sorted;
+  $countings    = [ grep { !$_->is_reconciliated } @$countings ];
+
+  return $countings;
 }
 
 
@@ -146,8 +155,7 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns = $::form->{group_counting_items} ? qw(ids counting part bin qty stocked)
-              : qw(ids counting counted_at part bin qty stocked employee);
+  my @columns = qw(ids counting part bin qty stocked);
 
   my %column_defs = (
     ids        => { raw_header_data => checkbox_tag("", id => "check_all", checkall  => "[data-checkall=1]"),
@@ -181,11 +189,11 @@ sub prepare_report {
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_export_options(qw(list filter group_counting_items));
+  $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
 
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
-  $self->models->add_additional_url_params(filter => $::form->{filter}, group_counting_items => $::form->{group_counting_items});
+  $self->models->add_additional_url_params(filter => $::form->{filter});
   $self->models->finalize;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => [keys %sort_columns]);
 
@@ -200,8 +208,6 @@ sub make_filter_summary {
   my ($self) = @_;
 
   my @filter_strings;
-
-  push @filter_strings, t8('Group Counting Items') if $::form->{group_counting_items};
 
   my $filter = $::form->{filter} || {};
 
@@ -232,6 +238,7 @@ sub setup_list_action_bar {
       action => [
         t8('Update'),
         submit    => [ '#filter_form', { action => 'StockCountingReconciliation/list' } ],
+        checks    => [ ['kivi.validate_form', '#filter_form'] ],
         accesskey => 'enter',
       ],
       combobox => [
@@ -241,7 +248,7 @@ sub setup_list_action_bar {
         action => [
           t8('Reconcile'),
           submit  => [ '#form', { action => 'StockCountingReconciliation/reconcile', callback => $self->models->get_callback } ],
-          checks  => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+          checks  => [ ['kivi.validate_form', '#filter_form'], [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
           confirm => t8('Do you really want the selected entries to be reconciled?'),
         ],
       ],
