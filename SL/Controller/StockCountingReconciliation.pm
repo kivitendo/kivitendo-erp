@@ -14,9 +14,7 @@ use SL::DB::StockCounting;
 use SL::DB::StockCountingItem;
 use SL::Helper::Flash qw(flash_later);
 use SL::Helper::Number qw(_format_total);
-use SL::JSON;
 use SL::Locale::String qw(t8);
-use SL::Presenter::Tag qw(checkbox_tag);
 use SL::ReportGenerator;
 use SL::WH;
 
@@ -84,44 +82,37 @@ sub action_list {
 sub action_reconcile {
   my ($self) = @_;
 
-  my @transfer_errors;
+  my $counting_id    = $::form->{filter}->{counting_id};
+  my $counting_items = SL::DB::Manager::StockCountingItem->get_all(query => [counting_id => $counting_id]);
 
-  foreach my $selection (@{$::form->{ids}}) {
-    my $ids               = SL::JSON::from_json($selection);
-    my @counting_item_ids = split ',', $ids;
-    my $counting_items    = SL::DB::Manager::StockCountingItem->get_all(query => [id => \@counting_item_ids]);
+  my $counted_qty    = sum0 map { $_->qty } @$counting_items;
+  my $stocked_qty    = $counting_items->[0]->part->get_stock(bin_id => $counting_items->[0]->bin_id);
 
-    my $counted_qty       = sum0 map { $_->qty } @$counting_items;
-    my $stocked_qty       = $counting_items->[0]->part->get_stock(bin_id => $counting_items->[0]->bin_id);
+  my $comment        = t8('correction from stock counting (counting "#1")', $counting_items->[0]->counting->name);
 
-    my $comment           = t8('correction from stock counting (counting "#1")', $counting_items->[0]->counting->name);
+  my $transfer_qty   = $counted_qty - $stocked_qty;
+  my $src_or_dst     = $transfer_qty < 0? 'src' : 'dst';
+  $transfer_qty      = abs($transfer_qty);
 
-    my $transfer_qty      = $counted_qty - $stocked_qty;
-    my $src_or_dst        = $transfer_qty < 0? 'src' : 'dst';
-    $transfer_qty         = abs($transfer_qty);
+  my $transfer_error;
+  # do stock
+  $::form->throw_on_error(sub {
+    eval {
+      WH->transfer({
+        parts                   => $counting_items->[0]->part,
+        $src_or_dst.'_bin'      => $counting_items->[0]->bin,
+        $src_or_dst.'_wh'       => $counting_items->[0]->bin->warehouse,
+        qty                     => $transfer_qty,
+        unit                    => $counting_items->[0]->part->unit,
+        transfer_type           => 'correction',
+        comment                 => $comment,
+      });
+      1;
+    } or do { $transfer_error = ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR; }
+  });
 
-    my $transfer_error;
-    # do stock
-    $::form->throw_on_error(sub {
-      eval {
-        WH->transfer({
-          parts                   => $counting_items->[0]->part,
-          $src_or_dst.'_bin'      => $counting_items->[0]->bin,
-          $src_or_dst.'_wh'       => $counting_items->[0]->bin->warehouse,
-          qty                     => $transfer_qty,
-          unit                    => $counting_items->[0]->part->unit,
-          transfer_type           => 'correction',
-          comment                 => $comment,
-        });
-        1;
-      } or do { $transfer_error = ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR; }
-    });
-
-    push @transfer_errors, $transfer_error if $transfer_error;
-  }
-
-  if (@transfer_errors) {
-    flash_later('error', @transfer_errors);
+  if ($transfer_error) {
+    flash_later('error', $transfer_error);
   } else {
     flash_later('info', t8('successfully reconciled'));
   }
@@ -158,9 +149,6 @@ sub prepare_report {
   my @columns = qw(ids counting part bin qty stocked);
 
   my %column_defs = (
-    ids        => { raw_header_data => checkbox_tag("", id => "check_all", checkall  => "[data-checkall=1]"),
-                    align    => 'center',
-                    raw_data => sub { $_[0]->correction_inventory_id ? '' : checkbox_tag("ids[]", value => SL::JSON::to_json($_[0]->id), "data-checkall" => 1) }   },
     counting   => { text => t8('Stock Counting'), sub => sub { $_[0]->counting->name }, },
     counted_at => { text => t8('Counted At'),     sub => sub { $_[0]->counted_at_as_timestamp }, },
     qty        => { text => t8('Qty'),            sub => sub { $_[0]->qty_as_number }, align => 'right' },
