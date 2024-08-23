@@ -1,3 +1,4 @@
 [%- USE L %]
  [% L.paginate_controls(models=SELF.models) %]
+ [% L.hidden_tag('counting_id', counting_id) %]
 </form>
