@@ -5,7 +5,7 @@ package SL::DB::StockCounting;
 
 use strict;
 
-use List::Util qw(none);
+use List::Util qw(any min none);
 
 use SL::DB::MetaSetup::StockCounting;
 use SL::DB::Manager::StockCounting;
@@ -41,6 +41,14 @@ sub validate {
   }
 
   return @errors;
+}
+
+sub is_reconciliated {
+  any { !!$_->correction_inventory_id } @{$_[0]->items};
+}
+
+sub start_time_of_counting {
+  min map { $_->counted_at } @{$_[0]->items};
 }
 
 1;
