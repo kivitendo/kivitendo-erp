@@ -12,17 +12,12 @@
       <th align="right">[% 'Stock Counting' | $T8 %]</th>
       <td>
        [% L.select_tag('filter.counting_id', SELF.countings,
-                       default    => filter.counting_id,
-                       title_key  => 'name',
-                       value_key  => 'id',
-                       with_empty => 1,
-                       class      => 'wi-lightwide') %]
-      </td>
-     </tr>
-     <tr>
-      <th align="right">[% 'Group Counting Items' | $T8 %]</th>
-      <td>
-       [% L.checkbox_tag('group_counting_items', checked = FORM.group_counting_items, for_submit = 1) %]
+                       default         => filter.counting_id,
+                       title_key       => 'name',
+                       value_key       => 'id',
+                       with_empty      => 1,
+                       class           => 'wi-lightwide',
+                       'data-validate' => 'required') %]
       </td>
      </tr>
     </body>
@@ -37,7 +32,7 @@
    </div>
 
    [% END # /BLOCK filter_toggle_panel %]
-
+   [% SET display_status = 'open' %]
    [% INCLUDE 'common/toggle_panel.html' %]
 
  </div>
