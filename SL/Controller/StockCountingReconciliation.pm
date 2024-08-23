@@ -241,18 +241,12 @@ sub setup_list_action_bar {
         checks    => [ ['kivi.validate_form', '#filter_form'] ],
         accesskey => 'enter',
       ],
-      combobox => [
-        action => [
-          t8('Actions'),
-        ],
-        action => [
-          t8('Reconcile'),
-          submit  => [ '#form', { action => 'StockCountingReconciliation/reconcile', callback => $self->models->get_callback } ],
-          checks  => [ ['kivi.validate_form', '#filter_form'], [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
-          confirm => t8('Do you really want the selected entries to be reconciled?'),
-        ],
+      action => [
+        t8('Reconcile'),
+        submit  => [ '#form', { action => 'StockCountingReconciliation/reconcile', callback => $self->models->get_callback } ],
+        checks  => [ ['kivi.validate_form', '#filter_form'] ],
+        confirm => t8('Do you really want the selected entries to be reconciled?'),
       ],
-
     );
   }
 }
