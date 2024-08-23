@@ -15,8 +15,12 @@ sub map_keys_to_arrays {
       $template_arrays->{$k1} = [ map { { $k2 => $_->{$k1}->{$k2} } } @$items ];
     } else {
       $template_arrays->{$key} = [ map {
-        $_->can($key) ? $_->$key
-                      : $_->{$key}
+        if (ref $_ eq 'HASH') {
+          $_->{$key}
+        } else {
+          $_->can($key) ? $_->$key
+                        : $_->{$key}
+        }
       } @$items ];
     }
   }
