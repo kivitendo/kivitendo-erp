@@ -21,7 +21,8 @@
                      value_key       => 'id',
                      with_empty      => 1,
                      style           => 'width: 200px',
-                     'data-validate' => 'required') %]
+                     'data-validate' => 'required',
+                     onchange        =>'kivi.validate_form("#filter_form") && kivi.submit_form_with_action($("#filter_form"), "StockCountingReconciliation/list")') %]
     </td>
    </tr>
   </table>
