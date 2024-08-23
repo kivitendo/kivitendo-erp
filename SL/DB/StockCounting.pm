@@ -12,7 +12,18 @@ use SL::DB::Manager::StockCounting;
 
 use SL::Locale::String qw(t8);
 
+__PACKAGE__->meta->add_relationship(
+  stock_counting_items => {
+    type         => 'one to many',
+    class        => 'SL::DB::StockCountingItem',
+    column_map   => { id => 'counting_id' },
+  },
+);
+
 __PACKAGE__->meta->initialize;
+
+sub items     { goto &stock_counting_items; }
+sub add_items { goto &add_stock_counting_items; }
 
 sub validate {
   my ($self) = @_;
