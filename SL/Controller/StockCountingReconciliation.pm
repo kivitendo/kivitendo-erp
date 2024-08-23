@@ -4,12 +4,13 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use English qw(-no_match_vars);
-use List::Util qw(sum0);
+use List::Util qw(sum sum0);
 use POSIX qw(strftime);
 
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::DB::Employee;
+use SL::DB::Inventory;
 use SL::DB::StockCounting;
 use SL::DB::StockCountingItem;
 use SL::Helper::Flash qw(flash_later);
@@ -17,6 +18,9 @@ use SL::Helper::Number qw(_format_total);
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 use SL::WH;
+
+
+            use Data::Dumper;
 
 use Rose::Object::MakeMethods::Generic(
   #scalar => [ qw() ],
@@ -74,6 +78,7 @@ sub action_list {
   $objects = \@grouped_objects;
 
   $self->get_stocked($objects);
+  $self->get_inbetweens($objects);
 
   $self->setup_list_action_bar;
   $self->report_generator_list_objects(report => $self->{report}, objects => $objects);
@@ -82,34 +87,81 @@ sub action_list {
 sub action_reconcile {
   my ($self) = @_;
 
-  my $counting_id    = $::form->{filter}->{counting_id};
-  my $counting_items = SL::DB::Manager::StockCountingItem->get_all(query => [counting_id => $counting_id]);
+  my $counting = SL::DB::StockCounting->new(id => $::form->{counting_id})->load;
+  # todo: sanity checks
+  # return if $counting->is_reconciliated;
+  # return if scalar(@{$counting->items}) == 0;
 
-  my $counted_qty    = sum0 map { $_->qty } @$counting_items;
-  my $stocked_qty    = $counting_items->[0]->part->get_stock(bin_id => $counting_items->[0]->bin_id);
+  my $counting_items = $counting->items;
 
-  my $comment        = t8('correction from stock counting (counting "#1")', $counting_items->[0]->counting->name);
+  $self->get_stocked($counting_items);
+  $self->get_inbetweens($counting_items);
 
-  my $transfer_qty   = $counted_qty - $stocked_qty;
-  my $src_or_dst     = $transfer_qty < 0? 'src' : 'dst';
-  $transfer_qty      = abs($transfer_qty);
+  my $counted_by_part_and_bin;
+  my $stocked_by_part_and_bin;
+  my $inbetweens_by_part_and_bin;
+  my $item_ids_by_part_and_bin;
+  foreach my $item (@$counting_items) {
+    $counted_by_part_and_bin   ->{$item->part_id}->{$item->bin_id}  += $item->qty;
+    $stocked_by_part_and_bin   ->{$item->part_id}->{$item->bin_id} ||= $item->{stocked};
+    $inbetweens_by_part_and_bin->{$item->part_id}->{$item->bin_id} ||= $item->{inbetweens};
+    push @{$item_ids_by_part_and_bin->{$item->part_id}->{$item->bin_id}}, $item->id;
+  }
+
+  my $comment = t8('correction from stock counting (counting "#1")', $counting->name);
 
   my $transfer_error;
-  # do stock
   $::form->throw_on_error(sub {
     eval {
-      WH->transfer({
-        parts                   => $counting_items->[0]->part,
-        $src_or_dst.'_bin'      => $counting_items->[0]->bin,
-        $src_or_dst.'_wh'       => $counting_items->[0]->bin->warehouse,
-        qty                     => $transfer_qty,
-        unit                    => $counting_items->[0]->part->unit,
-        transfer_type           => 'correction',
-        comment                 => $comment,
-      });
+      SL::DB->client->with_transaction(sub {
+        foreach my $part_id (keys %$counted_by_part_and_bin) {
+          foreach my $bin_id (keys %{$counted_by_part_and_bin->{$part_id}}) {
+            my $counted_qty   = $counted_by_part_and_bin   ->{$part_id}->{$bin_id};
+            my $stocked_qty   = $stocked_by_part_and_bin   ->{$part_id}->{$bin_id};
+            my $inbetween_qty = $inbetweens_by_part_and_bin->{$part_id}->{$bin_id};
+
+            my $transfer_qty  = $counted_qty - $stocked_qty + $inbetween_qty;
+
+            my $src_or_dst = $transfer_qty < 0? 'src' : 'dst';
+            $transfer_qty  = abs($transfer_qty);
+
+            # Do stock.
+            # todo: run in transaction and record the inventory id in the counting items
+            my %transfer_params = (
+              parts_id              => $part_id,
+              $src_or_dst.'_bin_id' => $bin_id,
+              qty                   => $transfer_qty,
+              transfer_type         => 'correction',
+              comment               => $comment,
+            );
+
+            my @trans_ids = WH->transfer(\%transfer_params);
+
+            if (scalar(@trans_ids) != 1) {
+              die "Program logic error: no error, but no transfer" if scalar(@trans_ids) == 0;
+              die "Program logic error: too many transfers"        if scalar(@trans_ids) >  1;
+            }
+
+            # Get inventory entries via trans_ids-
+            my $inventories = SL::DB::Manager::Inventory->get_all(where => [trans_id => $trans_ids[0]]);
+            if (scalar(@$inventories) != 1) {
+              die "Program logic error: no error, but no inventory entry" if scalar(@$inventories) == 0;
+              die "Program logic error: too many inventory entries"       if scalar(@$inventories) >  1;
+            }
+
+
+            SL::DB::Manager::StockCountingItem->update_all(set   => {correction_inventory_id => $inventories->[0]->id},
+                                                           where => [id => $item_ids_by_part_and_bin->{$part_id}->{$bin_id}]);
+          }
+        }
+
+        1;
+      }) or do { die SL::DB->client->error; }; # end of with_transaction
+
       1;
-    } or do { $transfer_error = ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR; }
-  });
+    } or do { $transfer_error = ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR; }; # end of eval
+
+  });                           # end of throw_on_error
 
   if ($transfer_error) {
     flash_later('error', $transfer_error);
@@ -146,7 +198,7 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns = qw(ids counting part bin qty stocked);
+  my @columns = qw(counting part bin qty stocked inbetweens);
 
   my %column_defs = (
     counting   => { text => t8('Stock Counting'), sub => sub { $_[0]->counting->name }, },
@@ -156,6 +208,7 @@ sub prepare_report {
     bin        => { text => t8('Bin'),            sub => sub { $_[0]->bin->full_description } },
     employee   => { text => t8('Employee'),       sub => sub { $_[0]->employee ? $_[0]->employee->safe_name : '---'} },
     stocked    => { text => t8('Stocked Qty'),    sub => sub { _format_total($_[0]->{stocked}) }, align => 'right'},
+    inbetweens => { text => t8('Inbetweens Qty'), sub => sub { _format_total($_[0]->{inbetweens}) }, align => 'right'},
   );
 
   # remove columns from defs which are not in @columns
@@ -187,7 +240,7 @@ sub prepare_report {
 
   $report->set_options(
     raw_top_info_text    => $self->render('stock_counting_reconciliation/report_top',    { output => 0 }),
-    raw_bottom_info_text => $self->render('stock_counting_reconciliation/report_bottom', { output => 0 }, models => $self->models),
+    raw_bottom_info_text => $self->render('stock_counting_reconciliation/report_bottom', { output => 0 }, models => $self->models, counting_id => $::form->{filter}->{counting_id}),
     attachment_basename  => t8('stock_countings') . strftime('_%Y%m%d', localtime time),
   );
 }
@@ -216,6 +269,29 @@ sub get_stocked {
   my ($self, $objects) = @_;
 
   $_->{stocked} = $_->part->get_stock(bin_id => $_->bin_id) for @$objects;
+}
+
+sub get_inbetweens {
+  my ($self, $objects) = @_;
+
+  # Get changes in stock while a counting was active.
+  # (i.e. from start of counting till now).
+  # Use itime, because shippingdate has no time component.
+  # Ignore stock counting corrections.
+  # Todo: warn if itime::date != shippingdate?
+
+  my $correction_inventory_ids = SL::DB::Manager::StockCountingItem->get_all(where    => ['!correction_inventory_id' => undef],
+                                                                             select   => ['correction_inventory_id'],
+                                                                             distcint => 1);
+  foreach my $object (@$objects) {
+    my $start      = $object->counting->start_time_of_counting;
+    my $inbetweens = SL::DB::Manager::Inventory->get_all(where  => [itime    => { ge => $start },
+                                                                    parts_id => $object->part_id,
+                                                                    bin_id   => $object->bin_id,
+                                                                    '!id'    => [map { $_->correction_inventory_id } @$correction_inventory_ids]],
+                                                         select => ['qty']);
+    $object->{inbetweens} = sum map { $_->qty } @$inbetweens;
+  }
 }
 
 sub setup_list_action_bar {
