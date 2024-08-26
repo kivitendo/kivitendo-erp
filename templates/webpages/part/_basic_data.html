@@ -169,17 +169,19 @@
            <th align="right" nowrap="true">[% 'Order Size' | $T8 %]</th>
            <td>[% L.input_tag("part.order_qty_as_number", SELF.part.order_qty_as_number, size=10, class="numeric") %]</td>
           </tr>
-          <tr>
-           <th align="right" nowrap="true">[% 'Default Warehouse / Bin' | $T8 %]</th>
-           <td>
-            [% P.warehouse.wh_bin_select('warehouse',
-                                         wh_name='part.warehouse_id',
-                                         wh_default=SELF.part.warehouse.id,
-                                         bin_name='part.bin_id',
-                                         bin_default=SELF.part.bin.id,
-                                         with_empty=1) %]
-           </td>
-          </tr>
+          [% SET wh_bin_select_html = P.warehouse.wh_bin_select('warehouse',
+                                       wh_name='part.warehouse_id',
+                                       wh_default=SELF.part.warehouse.id,
+                                       bin_name='part.bin_id',
+                                       bin_default=SELF.part.bin.id,
+                                       with_empty=1,
+                                      ) %]
+          [% IF wh_bin_select_html %]
+           <tr>
+            <th align="right" nowrap="true">[% 'Default Bin' | $T8 %]</th>
+            <td>[% wh_bin_select_html %]</td>
+           </tr>
+          [%- END %]
         [%- END %]
           <tr>
            <th align="right" nowrap="true">[% 'Verrechnungseinheit' | $T8 %]</th>
