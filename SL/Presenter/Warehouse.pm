@@ -161,7 +161,7 @@ An id of a bin object to be preselected.
 
 =item * with_empty
 
-Over an empty selection for the warehouse if this is truish.
+Show an empty selection for the warehouse if this is truish.
 
 =back
 
