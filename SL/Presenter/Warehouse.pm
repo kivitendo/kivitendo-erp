@@ -111,13 +111,20 @@ In template code use:
 
 Returns a rendered version of select tags surrounded by a div tag for selecting
 a warehouse and a bin. The surrounding div tag gets the name C<$name>.
+The tags get the class attributes C<wh-bin-select-presenter-div>,
+C<wh-bin-select-presenter-wh> and C<wh-bin-select-presenter-bin>.
+
+By default, the two select tags are separated by a linebreak, but see the
+parameter C<one_row>.
 
 The presenter takes care of updating the bin selection (via js) when the
 warehose selection is changed (see also
 L<SL::Controller::Warehouse::action_wh_bin_select_update_bins> and
 L<js/kivi.Warehouse.js>).
 
-All valid warehouses are presented for selection.
+All valid warehouses are presented for selection. If no valid warehouses
+are present, nothing is rendered (undef is returned). But see the paramerter
+C<show_if_empty>.
 
 Remaining C<%attributes> not listed here are passed to the
 div and select tag presenters.
@@ -162,6 +169,14 @@ An id of a bin object to be preselected.
 =item * with_empty
 
 Show an empty selection for the warehouse if this is truish.
+
+=item * show_if_empty
+
+Show the warehouse selection even if there are no warehouses are present.
+
+=item * one_row
+
+Do not render a linebreak between the select tags of warehouses and bins.
 
 =back
 
