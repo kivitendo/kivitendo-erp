@@ -17,4 +17,10 @@ namespace('kivi.Warehouse', function(ns) {
     });
   };
 
+  $(function(){
+    $('.wh-bin-select-presenter-wh').each(function(idx, elt) {
+      ns.wh_changed(elt);
+    });
+  });
+
 });
