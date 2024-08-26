@@ -40,9 +40,15 @@ sub wh_bin_select {
 
   return if (!@$all_warehouses && !$show_if_empty);
 
+  my $class     = delete $attributes{class};
+  my $div_class = $class ? $class . ' ' . 'wh-bin-select-presenter-div' : 'wh-bin-select-presenter-div';
+  my $wh_class  = $class ? $class . ' ' . 'wh-bin-select-presenter-wh'  : 'wh-bin-select-presenter-wh';
+  my $bin_class = $class ? $class . ' ' . 'wh-bin-select-presenter-bin' : 'wh-bin-select-presenter-bin';
+
   my %div_attributes = (
-    name => $div_name,
-    id   => $div_id,
+    name  => $div_name,
+    id    => $div_id,
+    class => $div_class,
     %attributes
   );
 
@@ -53,6 +59,7 @@ sub wh_bin_select {
     title_key           => 'description',
     onchange            => 'kivi.Warehouse.wh_changed(this);',
     'data-bin-dom-id'   => $bin_id,
+    class               => $wh_class,
     %attributes
   );
 
@@ -60,6 +67,7 @@ sub wh_bin_select {
     id        => $bin_id,
     default   => $bin_default,
     title_key => 'description',
+    class     => $bin_class,
     %attributes
   );
 
