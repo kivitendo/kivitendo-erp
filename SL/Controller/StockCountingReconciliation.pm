@@ -4,7 +4,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use English qw(-no_match_vars);
-use List::Util qw(sum sum0);
+use List::Util qw(any sum sum0);
 use POSIX qw(strftime);
 
 use SL::Controller::Helper::GetModels;
@@ -57,26 +57,7 @@ sub action_list {
   my $objects = $self->models->get;
 
   # group always
-  my $grouped_objects_by;
-  my @grouped_objects;
-  foreach my $object (@$objects) {
-    my $group_object;
-    if (!$grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}) {
-      $group_object = SL::DB::StockCountingItem->new(
-        counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0);
-      push @grouped_objects, $group_object;
-      $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id} = $group_object;
-
-    } else {
-      $group_object = $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}
-    }
-
-    $group_object->id($group_object->id ? ($group_object->id . ',' . $object->id) : $object->id);
-    $group_object->qty($group_object->qty + $object->qty);
-  }
-
-  $objects = \@grouped_objects;
-
+  $objects = $self->group_items_by_part_and_bin($objects);
   $self->get_stocked($objects);
   $self->get_inbetweens($objects);
 
@@ -92,21 +73,10 @@ sub action_reconcile {
   # return if $counting->is_reconciliated;
   # return if scalar(@{$counting->items}) == 0;
 
-  my $counting_items = $counting->items;
-
-  $self->get_stocked($counting_items);
-  $self->get_inbetweens($counting_items);
-
-  my $counted_by_part_and_bin;
-  my $stocked_by_part_and_bin;
-  my $inbetweens_by_part_and_bin;
-  my $item_ids_by_part_and_bin;
-  foreach my $item (@$counting_items) {
-    $counted_by_part_and_bin   ->{$item->part_id}->{$item->bin_id}  += $item->qty;
-    $stocked_by_part_and_bin   ->{$item->part_id}->{$item->bin_id} ||= $item->{stocked};
-    $inbetweens_by_part_and_bin->{$item->part_id}->{$item->bin_id} ||= $item->{inbetweens};
-    push @{$item_ids_by_part_and_bin->{$item->part_id}->{$item->bin_id}}, $item->id;
-  }
+#  my $counting_items = $counting->items;
+  my $grouped_counting_items = $self->group_items_by_part_and_bin(\@{$counting->items});
+  $self->get_stocked($grouped_counting_items);
+  $self->get_inbetweens($grouped_counting_items);
 
   my $comment = t8('correction from stock counting (counting "#1")', $counting->name);
 
@@ -114,45 +84,43 @@ sub action_reconcile {
   $::form->throw_on_error(sub {
     eval {
       SL::DB->client->with_transaction(sub {
-        foreach my $part_id (keys %$counted_by_part_and_bin) {
-          foreach my $bin_id (keys %{$counted_by_part_and_bin->{$part_id}}) {
-            my $counted_qty   = $counted_by_part_and_bin   ->{$part_id}->{$bin_id};
-            my $stocked_qty   = $stocked_by_part_and_bin   ->{$part_id}->{$bin_id};
-            my $inbetween_qty = $inbetweens_by_part_and_bin->{$part_id}->{$bin_id};
+        foreach my $group_item (@$grouped_counting_items) {
+          my $counted_qty   = $group_item->qty;
+          my $stocked_qty   = $group_item->{stocked};
+          my $inbetween_qty = $group_item->{inbetweens};
 
-            my $transfer_qty  = $counted_qty - $stocked_qty + $inbetween_qty;
+          my $transfer_qty  = $counted_qty - $stocked_qty + $inbetween_qty;
 
-            my $src_or_dst = $transfer_qty < 0? 'src' : 'dst';
-            $transfer_qty  = abs($transfer_qty);
+          my $src_or_dst = $transfer_qty < 0? 'src' : 'dst';
+          $transfer_qty  = abs($transfer_qty);
 
-            # Do stock.
-            # todo: run in transaction and record the inventory id in the counting items
-            my %transfer_params = (
-              parts_id              => $part_id,
-              $src_or_dst.'_bin_id' => $bin_id,
-              qty                   => $transfer_qty,
-              transfer_type         => 'correction',
-              comment               => $comment,
-            );
+          # Do stock.
+          # todo: run in transaction and record the inventory id in the counting items
+          my %transfer_params = (
+            parts_id              => $group_item->part_id,
+            $src_or_dst.'_bin_id' => $group_item->bin_id,
+            qty                   => $transfer_qty,
+            transfer_type         => 'correction',
+            comment               => $comment,
+          );
 
-            my @trans_ids = WH->transfer(\%transfer_params);
+          my @trans_ids = WH->transfer(\%transfer_params);
 
-            if (scalar(@trans_ids) != 1) {
-              die "Program logic error: no error, but no transfer" if scalar(@trans_ids) == 0;
-              die "Program logic error: too many transfers"        if scalar(@trans_ids) >  1;
-            }
-
-            # Get inventory entries via trans_ids-
-            my $inventories = SL::DB::Manager::Inventory->get_all(where => [trans_id => $trans_ids[0]]);
-            if (scalar(@$inventories) != 1) {
-              die "Program logic error: no error, but no inventory entry" if scalar(@$inventories) == 0;
-              die "Program logic error: too many inventory entries"       if scalar(@$inventories) >  1;
-            }
-
-
-            SL::DB::Manager::StockCountingItem->update_all(set   => {correction_inventory_id => $inventories->[0]->id},
-                                                           where => [id => $item_ids_by_part_and_bin->{$part_id}->{$bin_id}]);
+          if (scalar(@trans_ids) != 1) {
+            die "Program logic error: no error, but no transfer" if scalar(@trans_ids) == 0;
+            die "Program logic error: too many transfers"        if scalar(@trans_ids) >  1;
           }
+
+          # Get inventory entries via trans_ids-
+          my $inventories = SL::DB::Manager::Inventory->get_all(where => [trans_id => $trans_ids[0]]);
+          if (scalar(@$inventories) != 1) {
+            die "Program logic error: no error, but no inventory entry" if scalar(@$inventories) == 0;
+            die "Program logic error: too many inventory entries"       if scalar(@$inventories) >  1;
+          }
+
+
+          SL::DB::Manager::StockCountingItem->update_all(set   => {correction_inventory_id => $inventories->[0]->id},
+                                                         where => [id => $group_item->{ids}]);
         }
 
         1;
@@ -263,6 +231,36 @@ sub make_filter_summary {
   }
 
   $self->{filter_summary} = join ', ', @filter_strings;
+}
+
+sub group_items_by_part_and_bin {
+  my ($self, $objects) = @_;
+
+  return [] if scalar @{$objects || []} == 0;
+
+  if (any { $_->counting_id != $objects->[0]->counting_id } @$objects) {
+    die 'can only group stock counting items if they belong too the same counting';
+  }
+
+  my $grouped_objects_by;
+  my @grouped_objects;
+  foreach my $object (@$objects) {
+    my $group_object;
+    if (!$grouped_objects_by->{$object->part_id}->{$object->bin_id}) {
+      $group_object = SL::DB::StockCountingItem->new(
+        counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0);
+      push @grouped_objects, $group_object;
+      $grouped_objects_by->{$object->part_id}->{$object->bin_id} = $group_object;
+
+    } else {
+      $group_object = $grouped_objects_by->{$object->part_id}->{$object->bin_id}
+    }
+
+    push @{$group_object->{ids}}, $object->id;
+    $group_object->qty($group_object->qty + $object->qty);
+  }
+
+  return \@grouped_objects;
 }
 
 sub get_stocked {
