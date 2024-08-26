@@ -6,7 +6,7 @@ use SL::DB::Bin;
 use SL::DB::Warehouse;
 use SL::Locale::String qw(t8);
 use SL::Presenter::EscapedText qw(escape is_escaped);
-use SL::Presenter::Tag qw(name_to_id div_tag select_tag);
+use SL::Presenter::Tag qw(name_to_id div_tag select_tag html_tag);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(
@@ -36,6 +36,7 @@ sub wh_bin_select {
                      : $all_warehouses->[0]->bins_sorted_naturally;
 
   my $show_if_empty = delete $attributes{show_if_empty};
+  my $one_row       = delete $attributes{one_row};
 
   return if (!@$all_warehouses && !$show_if_empty);
 
@@ -65,7 +66,9 @@ sub wh_bin_select {
 
   $::request->layout->add_javascripts('kivi.Warehouse.js');
 
+  my $linebreak = $one_row ? '' : html_tag('br');
   div_tag(select_tag($wh_name, $all_warehouses, %wh_attributes) .
+          $linebreak .
           select_tag($bin_name,    $all_bins,       %bin_attributes),
           %div_attributes);
 }
