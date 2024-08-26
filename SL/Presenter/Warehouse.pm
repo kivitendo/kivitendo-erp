@@ -42,7 +42,6 @@ sub wh_bin_select {
   );
 
   my %wh_attributes = (
-    name                => $wh_name,
     id                  => $wh_id,
     default             => $wh_default,
     with_empty          => $with_empty,
@@ -54,7 +53,6 @@ sub wh_bin_select {
   );
 
   my %bin_attributes = (
-    name      => $bin_name,
     id        => $bin_id,
     default   => $bin_default,
     title_key => 'description',
@@ -63,7 +61,7 @@ sub wh_bin_select {
 
   $::request->layout->add_javascripts('kivi.Warehouse.js');
 
-  div_tag(select_tag("${name}_wh", $all_warehouses, %wh_attributes) .
+  div_tag(select_tag($wh_name, $all_warehouses, %wh_attributes) .
           select_tag($bin_name,    $all_bins,       %bin_attributes),
           %div_attributes);
 }
