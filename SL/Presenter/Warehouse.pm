@@ -35,6 +35,10 @@ sub wh_bin_select {
                      : $with_empty ? undef
                      : $all_warehouses->[0]->bins_sorted_naturally;
 
+  my $show_if_empty = delete $attributes{show_if_empty};
+
+  return if (!@$all_warehouses && !$show_if_empty);
+
   my %div_attributes = (
     name => $div_name,
     id   => $div_id,
