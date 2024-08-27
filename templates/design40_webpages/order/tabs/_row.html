@@ -5,7 +5,7 @@
 [% USE P %]
 
 <tbody class="row_entry listrow" data-position="[%- HTML.escape(ITEM.position) -%]"[%- IF MYCONFIG.show_form_details -%] data-expanded="1"[%- END -%]>
-  <tr>
+  <tr [% IF ITEM.periodic_invoice_items_config && !ITEM.periodic_invoice_items_config.active %] class="listrow_warning" [% END %]>
     <td>
       [% IF MYCONFIG.show_form_details %]
         [% L.img_tag(src="image/collapse.svg",
