@@ -184,11 +184,8 @@ sub calculate_invoice_dates {
 
   my $start_date = DateTime->from_ymd($params{start_date});
   my $end_date   = DateTime->from_ymd($params{end_date});
-
-  if ($self->end_date
-      && ($self->terminated || !$self->extend_automatically_by) ) {
-    $end_date = min($end_date, $self->end_date);
-  }
+  my $last_end_date = $self->last_end_date;
+  $end_date = min($end_date, $last_end_date) if $last_end_date;
 
   my $last_created_on_date = $self->get_previous_billed_period_start_date;
 
@@ -233,6 +230,36 @@ sub calculate_invoice_dates {
   }
 
   return @start_dates;
+}
+
+sub last_end_date {
+  my ($self) = @_;
+  my $end_date = $self->end_date or
+    return undef; # don't have a end_date
+  if ($self->extend_automatically_by && !$self->terminated) {
+    return undef;
+  }
+  for my $item (@{$self->order->items()}) {
+    my $item_config = $item->periodic_invoice_items_config
+      or next;
+    next if $item_config->periodicity eq 'n';
+    if ($item_config->periodicity eq 'o') {
+      if (!$item_config->once_invoice_id) {
+        return undef; # allways create for once positions
+      } else {
+        next;
+      }
+    } else {
+      if ($item_config->end_date) {
+        if ($item_config->extend_automatically_by && !$item_config->terminated) {
+          return undef; # active end_date
+        } else {
+          $end_date = max($end_date, $item_config->end_date);
+        }
+      }
+    }
+  }
+  return $end_date;
 }
 
 sub get_billing_period_length {
