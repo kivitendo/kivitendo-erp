@@ -80,50 +80,51 @@ sub _create_item_for_period {
 
   my $item_config = $item->periodic_invoice_items_config;
   if ($item_config) {
-    return if $item_config->periodicity eq 'n';
-    if ($item_config->periodicity eq 'o') {
-      return if $item->periodic_invoice_items_config->once_invoice_id;
-      my $next_period_start_date = $self->get_next_period_start_date(order_item => $item);
-      my $period = $self->get_billing_period_length || 1;
-      return if $period_start_date < $next_period_start_date
-        || $period_start_date >= add_months($next_period_start_date, $period);
-    }
-    if ($item_config->terminated || !$item_config->extend_automatically_by) {
-      return if $item_config->end_date && $item_config->end_date < $period_start_date;
-    }
+
+    return if $item_config->start_date && $item_config->start_date > $period_start_date;
 
     my $i_period = $item_config->get_item_period_length;
     my $b_period = $self->get_billing_period_length;
-    return $new_item if $i_period == 0 || $b_period == 0;
 
-    if ($i_period > $b_period) {
-      return if $item_config->start_date && $item_config->start_date > $period_start_date;
+    return if $item_config->periodicity eq 'n';
+    if ($item_config->periodicity eq 'o') {
+      return if $item_config->once_invoice_id;
+      my $start_date = $item_config->start_date
+        || $self->get_previous_billed_period_start_date
+        || $self->first_billing_date || $self->start_date;
+      my @dates = $self->calculate_invoice_dates(
+        start_date => $start_date,
+        end_date => add_months($start_date, $b_period),
+      );
+      my $once_date = scalar @dates ? $dates[0] : undef;
+      return if $period_start_date != $once_date;
+      return $new_item;
+    } elsif ($i_period > $b_period) {
+      if ($item_config->terminated || !$item_config->extend_automatically_by) {
+        return if $item_config->end_date && $item_config->end_date < $period_start_date;
+      }
       my $start_date = $item_config->start_date
         || $self->first_billing_date || $self->start_date;
       my $months_from_start_date =
           ($period_start_date->year  - $start_date->year) * 12
         + ($period_start_date->month - $start_date->month);
+      $months_from_start_date-- if $start_date->day > $period_start_date->day;
       my $first_in_sub_period = $months_from_start_date % ($i_period / $b_period) == 0 ? 1 : 0;
       return if !$first_in_sub_period;
-    } elsif ($i_period < $b_period) {
-      my $periods = 0;
+    } elsif ($i_period < $b_period) { # calc items period in last billing period
       my $max_periods = $b_period / $i_period;
-      my $periods_from_start = 0;
-      my $i_start_date = $period_start_date;
+      my $periods = $max_periods;
       if ($item_config->start_date) {
-        while ($i_start_date < $item_config->start_date) {
-          $periods_from_start++;
-          $i_start_date = add_months($period_start_date, $periods_from_start);
-        }
+        $periods-- while $periods > 0
+          && add_months($period_start_date, -1 * ($periods - 1) * $i_period) < $item_config->start_date;
       }
-      if ($item_config->end_date
-        && ($item_config->terminated || !$item_config->extend_automatically_by)) {
-        $periods++ while $periods < ($max_periods - $periods_from_start)
-          && add_months($i_start_date, $periods * $i_period) <= $item_config->end_date;
-        return if $periods == 0;
-      } else {
-        $periods = $max_periods - $periods_from_start;
+      if ($item_config->end_date) {
+        my $periods_from_end = 0;
+        $periods_from_end++ while $periods_from_end < $periods
+          && add_months($period_start_date, -1 * ($periods_from_end)) > $item_config->end_date;
+        $periods -= $periods_from_end;
       }
+      return if $periods == 0;
       $new_item->qty($new_item->qty * $periods);
     }
   }
@@ -232,36 +233,6 @@ sub calculate_invoice_dates {
   }
 
   return @start_dates;
-}
-
-sub get_next_period_start_date {
-  my $self = shift;
-
-  my %params = validate(@_, {
-    order_item => { isa => 'SL::DB::OrderItem' },
-  });
-
-  my $item = $params{order_item};
-
-  my $last_created_on_date = $self->get_previous_billed_period_start_date;
-
-  return (
-      $item->periodic_invoice_items_config ?
-        $item->periodic_invoice_items_config->start_date
-      : undef
-    )
-    || $self->first_billing_date || $self->start_date unless $last_created_on_date;
-
-  my $billing_len = $item->periodic_invoice_items_config ?
-      $item->periodic_invoice_items_config->get_item_period_length
-    : $self->get_billing_period_length;
-
-
-  my @dates = $self->calculate_invoice_dates(
-    end_date => add_months($last_created_on_date, $billing_len)
-  );
-
-  return scalar @dates ? $dates[0] : undef;
 }
 
 sub get_billing_period_length {
