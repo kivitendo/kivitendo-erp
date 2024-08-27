@@ -14,7 +14,7 @@ sub today_local {
 
 package main;
 
-use Test::More tests => 78;
+use Test::More tests => 80;
 
 use lib 't';
 use strict;
@@ -299,7 +299,7 @@ create_invoices(
     }
   }
 );
-are_invoices 'p=y ovp=p i_p=m i_start_date', [ '01.01.2012', 3333.30 ], [ '01.01.2013', 3999.96 ], [ '01.01.2014', 3999.96];
+are_invoices 'p=y ovp=p i_p=m i_start_date', [ '01.01.2013', 3666.63 ], [ '01.01.2014', 3999.96];
 
 create_invoices(
   periodic_invoices_config => {
@@ -317,25 +317,7 @@ create_invoices(
     }
   }
 );
-are_invoices 'p=y ovp=p i_p=m i_start_date i_end_date',[ '01.01.2012', 3333.30 ], [ '01.01.2013', 3333.30];
-
-create_invoices(
-  periodic_invoices_config => {
-    periodicity => 'y',
-    order_value_periodicity => 'p',
-    start_date => DateTime->from_kivitendo('01.01.2012'),
-    end_date => DateTime->from_kivitendo('31.12.2012'),
-    extend_automatically_by => 12,
-  },
-  orderitem => {
-    periodic_invoice_items_config => {
-      periodicity => 'm',
-      start_date  => DateTime->from_kivitendo('01.03.2012'),
-      end_date    => DateTime->from_kivitendo('01.02.2012'),
-    }
-  }
-);
-are_invoices 'p=y ovp=p i_p=m i_start_date after i_end_date';
+are_invoices 'p=y ovp=p i_p=m i_start_date i_end_date',[ '01.01.2013', 3666.63 ], [ '01.01.2014', 2999.97];
 
 create_invoices(
   periodic_invoices_config => {
@@ -369,6 +351,39 @@ create_invoices(
   }
 );
 are_invoices 'p=m ovp=p i_p=o i_start_date', [ '01.03.2013', 333.33 ];
+
+create_invoices(
+  periodic_invoices_config => {
+    periodicity => 'm',
+    order_value_periodicity => 'p',
+    start_date => DateTime->from_kivitendo('01.01.2013'),
+    end_date => DateTime->from_kivitendo('31.01.2013'),
+  },
+  orderitem => {
+    periodic_invoice_items_config => {
+      periodicity => 'm',
+      start_date => DateTime->from_kivitendo('01.02.2013'),
+      end_date => DateTime->from_kivitendo('28.02.2013'),
+    }
+  }
+);
+are_invoices 'p=m ovp=p i_p=m i_start_date i_end_date after', [ '01.02.2013', 333.33 ];
+
+create_invoices(
+  periodic_invoices_config => {
+    periodicity => 'm',
+    order_value_periodicity => 'p',
+    start_date => DateTime->from_kivitendo('01.01.2013'),
+    end_date => DateTime->from_kivitendo('31.01.2013'),
+  },
+  orderitem => {
+    periodic_invoice_items_config => {
+      periodicity => 'o',
+      start_date => DateTime->from_kivitendo('01.03.2013'),
+    }
+  }
+);
+are_invoices 'p=m ovp=p i_p=o i_start_date after', [ '01.03.2013', 333.33 ];
 
 clear_up();
 
