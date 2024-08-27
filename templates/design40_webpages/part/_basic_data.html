@@ -255,7 +255,7 @@
       <colgroup> <col class="wi-small-mediumsmall"> </colgroup>
     <tbody>
       <tr>
-        <td> <textarea id="part.formel" name="part.formel" rows="[% IF notes_rows %][% HTML.escape(notes_rows) %][% ELSE %]3[% END %]" cols="10" wrap="soft" class="tooltipster-html wi-small-mediumsmall" title="[% 'The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>' | $T8 %]">[% HTML.escape(SELF.part.formel) %]</textarea>
+        <td> <textarea id="part.formel" name="part.formel" rows="[% IF notes_rows %][% HTML.escape(notes_rows) %][% ELSE %]3[% END %]" cols="10" class="tooltipster-html wi-small-mediumsmall" title="[% 'The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>' | $T8 %]">[% HTML.escape(SELF.part.formel) %]</textarea>
         </td>
       </tr>
     </tbody>
