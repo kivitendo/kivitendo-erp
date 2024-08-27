@@ -44,7 +44,7 @@ sub get_open_orders_for_period {
     $new_order->tax_point(
       $self->add_months(
         $period_start_date, $self->get_billing_period_length || $self->get_order_value_period_length || 1
-      )->add(days => -1)
+      )->subtract(days => 1)
     );
     my @items;
     for my $item ($orig_order->items) {
@@ -255,7 +255,7 @@ sub add_months {
   $new_date->add(months => $months);
   # stay in month: 31.01 + 1 month should be 28.02 or 29.02 (not 03.03. or 02.03)
   while (($start_months_of_date + $months) % 12 != $new_date->month % 12) {
-    $new_date->add(days => -1);
+    $new_date->subtract(days => 1);
   }
 
   # if date was at end of month -> move new date also to end of month
