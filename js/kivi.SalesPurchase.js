@@ -32,7 +32,7 @@ namespace('kivi.SalesPurchase', function(ns) {
     }
 
     var $container = $('#popup_edit_longdescription_input_container');
-    var $edit      = $('<textarea id="popup_edit_longdescription_input" class="texteditor-in-dialog texteditor-space-for-toolbar" wrap="soft" style="width: ' + textarea_width + 'px; height: ' + textarea_height + 'px;"></textarea>');
+    var $edit      = $('<textarea id="popup_edit_longdescription_input" class="texteditor-in-dialog texteditor-space-for-toolbar" style="width: ' + textarea_width + 'px; height: ' + textarea_height + 'px;"></textarea>');
 
     $container.children().remove();
     $container.append($edit);

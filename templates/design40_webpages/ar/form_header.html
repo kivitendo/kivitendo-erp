@@ -183,13 +183,13 @@
     <tbody>
       <tr>
         <td>
-          [% L.textarea_tag("notes", HTML.escape(notes), wrap="soft", rows=rows, class="wi-wide") %]
+          [% L.textarea_tag("notes", HTML.escape(notes), rows=rows, class="wi-wide") %]
         </td>
       </tr>
       <tr>
         <td>
           <span class="label above">[% 'Notes for customer' | $T8 %]</span>
-          [% L.textarea_tag("intnotes", HTML.escape(intnotes), wrap="soft", rows=rows, readonly=readonly, class="wi-wide") %]
+          [% L.textarea_tag("intnotes", HTML.escape(intnotes), rows=rows, readonly=readonly, class="wi-wide") %]
         </td>
       </tr>
     </tbody>

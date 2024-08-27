@@ -249,14 +249,14 @@ END ; %]
           [% L.hidden_tag("notes", notes) %]
           <div class="fake-textarea fake-wi-wide">[% P.restricted_html(notes) %]</div>
         [% ELSE %]
-          [% L.textarea_tag("notes", notes, wrap="soft", rows=3, cols=10, class="texteditor wi-wide") %]
+          [% L.textarea_tag("notes", notes, rows=3, cols=10, class="texteditor wi-wide") %]
         [% END %]
       </td>
     </tr>
     <tr>
       <td colspan="2">
         <span class="label above">[% 'Internal Notes' | $T8 %]</span>
-        [% L.textarea_tag("intnotes", intnotes, wrap="soft", class="wi-wide") %]
+        [% L.textarea_tag("intnotes", intnotes, class="wi-wide") %]
       </td>
     </tr>
   </tbody>
