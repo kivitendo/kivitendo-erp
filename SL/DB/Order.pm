@@ -81,6 +81,7 @@ __PACKAGE__->attr_sorted('items');
 
 __PACKAGE__->before_save('_before_save_set_ord_quo_number');
 __PACKAGE__->before_save('_before_save_create_new_project');
+__PACKAGE__->before_save('_valid_periodic_invoice_config');
 __PACKAGE__->before_save('_before_save_remove_empty_custom_shipto');
 __PACKAGE__->before_save('_before_save_set_custom_shipto_module');
 __PACKAGE__->after_save('_after_save_link_records');
@@ -125,6 +126,44 @@ sub _before_save_create_new_project {
   return 1;
 }
 
+sub _valid_periodic_invoice_config {
+  my ($self) = @_;
+
+  if ($self->periodic_invoices_config) {
+    if ($self->periodic_invoices_config->periodicity eq 'o') {
+      my @error_pos;
+      foreach my $item (@{$self->items_sorted()}) {
+        push @error_pos, $item->position if $item->periodic_invoice_items_config;
+      }
+      die t8("Periodic invoice config of order set to once. Can not have periodic invoice config for item(s) at position #1.",
+        join(', ', @error_pos)
+      ) if scalar @error_pos;
+    } else {
+      my $error_string;
+      foreach my $item (@{$self->items_sorted()}) {
+        my $item_config = $item->periodic_invoice_items_config
+          or next;
+        $error_string .= t8("Start date before order start date at position #1.", $item->position) . "\n"
+          if $item_config->start_date
+           && $item_config->start_date < $self->periodic_invoices_config->start_date;
+        $error_string .= t8("Start date after end date at position #1.", $item->position) . "\n"
+           if $item_config->start_date && $item_config->end_date
+           && $item_config->start_date >  $item_config->end_date;
+      }
+      die $error_string if $error_string;
+    }
+  } else {
+    my @error_pos;
+    foreach my $item (@{$self->items_sorted()}) {
+      push @error_pos, $item->position if $item->periodic_invoice_items_config;
+    }
+    die t8("Periodic invoice config for item(s) at position #1, but no for order.",
+      join(', ', @error_pos)
+    ) if scalar @error_pos;
+  }
+
+  return 1;
+}
 
 sub _before_save_remove_empty_custom_shipto {
   my ($self) = @_;
