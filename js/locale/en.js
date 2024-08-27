@@ -69,6 +69,7 @@ namespace("kivi").setupLocale({
 "Edit picture":"",
 "Edit project link":"",
 "Edit text block":"",
+"Edit the configuration for periodic invoice item":"",
 "Edit the configuration for periodic invoices":"",
 "Enter longdescription":"",
 "Error: #1":"",

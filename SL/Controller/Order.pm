@@ -874,7 +874,7 @@ sub get_button_text_for_periodic_invoice_items_config {
     }
 
   } else {
-    $button_text .= t8('standard');
+    $button_text .= t8('default');
   }
 
   return $button_text;
