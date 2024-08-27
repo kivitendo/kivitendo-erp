@@ -42,7 +42,7 @@ sub get_open_orders_for_period {
     my $new_order = clone($orig_order);
     $new_order->reqdate($period_start_date);
     $new_order->tax_point(
-      add_months(
+      $self->add_months(
         $period_start_date, $self->get_billing_period_length || $self->get_order_value_period_length || 1
       )->add(days => -1)
     );
@@ -94,7 +94,7 @@ sub _create_item_for_period {
         || $self->first_billing_date || $self->start_date;
       my @dates = $self->calculate_invoice_dates(
         start_date => $start_date,
-        end_date => add_months($start_date, $b_period),
+        end_date => $self->add_months($start_date, $b_period),
       );
       my $once_date = scalar @dates ? $dates[0] : undef;
       return if $period_start_date != $once_date;
@@ -116,12 +116,12 @@ sub _create_item_for_period {
       my $periods = $max_periods;
       if ($item_config->start_date) {
         $periods-- while $periods > 0
-          && add_months($period_start_date, -1 * ($periods - 1) * $i_period) < $item_config->start_date;
+          && $self->add_months($period_start_date, -1 * ($periods - 1) * $i_period) < $item_config->start_date;
       }
       if ($item_config->end_date) {
         my $periods_from_end = 0;
         $periods_from_end++ while $periods_from_end < $periods
-          && add_months($period_start_date, -1 * ($periods_from_end)) > $item_config->end_date;
+          && $self->add_months($period_start_date, -1 * ($periods_from_end)) > $item_config->end_date;
         $periods -= $periods_from_end;
       }
       return if $periods == 0;
@@ -201,14 +201,14 @@ sub calculate_invoice_dates {
 
     my $month_to_start = $start_date->year * 12 + $start_date->month - $months_first_period;
     $month_to_start += 1
-      if add_months($first_period_start_date, $month_to_start) < $start_date;
+      if $self->add_months($first_period_start_date, $month_to_start) < $start_date;
 
     my $month_after_last_created = 0;
     if ($last_created_on_date) {
       $month_after_last_created =
         $last_created_on_date->year * 12 + $last_created_on_date->month - $months_first_period;
       $month_after_last_created += 1
-        if add_months($first_period_start_date, $month_after_last_created) <= $last_created_on_date;
+        if $self->add_months($first_period_start_date, $month_after_last_created) <= $last_created_on_date;
     }
 
     my $months_from_period_start = max(
@@ -219,11 +219,11 @@ sub calculate_invoice_dates {
     my $period_count = int($months_from_period_start / $billing_period_length); # floor
     $period_count += $months_from_period_start % $billing_period_length != 0 ? 1 : 0; # ceil
 
-    my $next_period_start_date = add_months($first_period_start_date, $period_count * $billing_period_length);
+    my $next_period_start_date = $self->add_months($first_period_start_date, $period_count * $billing_period_length);
     while ($next_period_start_date <= $end_date) {
       push @start_dates, $next_period_start_date;
       $period_count++;
-      $next_period_start_date = add_months($first_period_start_date, $period_count * $billing_period_length);
+      $next_period_start_date = $self->add_months($first_period_start_date, $period_count * $billing_period_length);
     }
   } else { # single
     push @start_dates, $first_period_start_date
@@ -247,7 +247,7 @@ sub get_order_value_period_length {
 }
 
 sub add_months {
-  my ($date, $months) = @_;
+  my ($self, $date, $months) = @_;
 
   my $start_months_of_date = $date->month;
   $date = $date->clone();
@@ -285,7 +285,7 @@ sub handle_automatic_extension {
       $active = 1;
 
       my $end_date = $self->end_date;
-      $end_date = add_months($end_date, $self->extend_automatically_by) while $today > $end_date;
+      $end_date = $self->add_months($end_date, $self->extend_automatically_by) while $today > $end_date;
       _log_msg("HAE for " . $self->id . " from " . $self->end_date . " to " . $end_date . " on " . $today . "\n");
       $self->update_attributes(end_date => $end_date);
     }
@@ -302,7 +302,7 @@ sub handle_automatic_extension {
         $active = 1;
 
         my $end_date = $item_config->end_date;
-        $end_date = add_months($end_date, $item_config->extend_automatically_by) while $today > $end_date;
+        $end_date = $self->add_months($end_date, $item_config->extend_automatically_by) while $today > $end_date;
         _log_msg("HAE for item " . $item->id . " from " . $item_config->end_date . " to " . $end_date . " on " . $today . "\n");
         $item_config->update_attributes(end_date => $end_date);
       }
