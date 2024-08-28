@@ -603,8 +603,15 @@ sub bank_transfer_download_sepa_xml {
 
   my $xml = $sepa_xml->to_xml();
 
+  my $file_extension   =  $::instance_conf->get_sepa_export_xml ? '.xml'
+                        : $vc eq 'customer'                     ? '.cdd'
+                        : $vc eq 'vendor'                       ? '.cct'
+                        : undef;
+
+  die "invalid state for vendor/customer suffix" unless $file_extension;
+
   print $cgi->header('-type'                => 'application/octet-stream',
-                     '-content-disposition' => 'attachment; filename="SEPA_' . $message_id . ($vc eq 'customer' ? '.cdd' : '.cct') . '"',
+                     '-content-disposition' => 'attachment; filename="SEPA_' . $message_id . $file_extension . '"',
                      '-content-length'      => length $xml);
   print $xml;
 

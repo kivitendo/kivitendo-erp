@@ -250,13 +250,17 @@ sub action_list {
     sort_dir     => $::form->{sort_dir},
   );
 
+  my $ui_tab =   $::instance_conf->get_no_bank_proposals ? 0
+               : scalar(@{ $proposals }) > 0             ? 1
+               : 0;
+
   $::request->layout->add_javascripts("kivi.BankTransaction.js");
   $self->render('bank_transactions/list',
                 title             => t8('Bank transactions MT940'),
                 BANK_TRANSACTIONS => $bank_transactions,
                 PROPOSALS         => $proposals,
                 bank_account      => $bank_account,
-                ui_tab            => scalar(@{ $proposals }) > 0 ? 1 : 0,
+                ui_tab            => $ui_tab,
               );
 }
 
