@@ -646,6 +646,7 @@
   access: warehouse_management
   params:
     action: StockCounting/list
+    group_counting_items: 1
 - id: general_ledger
   name: General Ledger
   icon: gl
