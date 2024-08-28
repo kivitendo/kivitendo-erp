@@ -12,6 +12,7 @@ use SL::DB::Employee;
 use SL::DB::StockCounting;
 use SL::DB::StockCountingItem;
 
+use SL::Helper::Flash qw(flash);
 use SL::Helper::Number qw(_format_total);
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
@@ -44,11 +45,19 @@ my %sort_columns = (
 sub action_select_counting {
   my ($self) = @_;
 
+  if (!$::request->is_mobile) {
+    $self->setup_select_counting_action_bar;
+  }
+
   $self->render('stock_counting/select_counting');
 }
 
 sub action_start_counting {
   my ($self) = @_;
+
+  if (!$::request->is_mobile) {
+    $self->setup_count_action_bar;
+  }
 
   $self->render('stock_counting/count');
 }
@@ -56,29 +65,38 @@ sub action_start_counting {
 sub action_count {
   my ($self) = @_;
 
+  if (!$::request->is_mobile) {
+    $self->setup_count_action_bar;
+  }
+
   my @errors;
   push @errors, t8('EAN is missing')    if !$::form->{ean};
 
-  return $self->render('stock_counting/count', errors => \@errors) if @errors;
+  return $self->render_count_error(\@errors) if @errors;
 
   my $parts = SL::DB::Manager::Part->get_all(where => [ean => $::form->{ean},
                                                        or  => [obsolete => 0, obsolete => undef]]);
   push @errors, t8 ('Part not found')    if scalar(@$parts) == 0;
   push @errors, t8 ('Part is ambiguous') if scalar(@$parts) >  1;
 
-  return $self->render('stock_counting/count', errors => \@errors) if @errors;
+  return $self->render_count_error(\@errors) if @errors;
 
   $self->stock_counting_item->part($parts->[0]);
 
   my @validation_errors = $self->stock_counting_item->validate;
   push @errors, @validation_errors if @validation_errors;
 
-  return $self->render('stock_counting/count', errors => \@errors) if @errors;
+  return $self->render_count_error(\@errors) if @errors;
 
   $self->stock_counting_item->qty(1);
   $self->stock_counting_item->save;
 
-  $self->render('stock_counting/count', successfully_counted => 1);
+  if ($::request->is_mobile) {
+    $self->render('stock_counting/count', successfully_counted => 1);
+  } else {
+    flash('info', t8('Part successfully counted'));
+    $self->render('stock_counting/count');
+  }
 }
 
 sub action_list {
@@ -235,6 +253,45 @@ sub get_stocked {
   my ($self, $objects) = @_;
 
   $_->{stocked} = $_->part->get_stock(bin_id => $_->bin_id) for @$objects;
+}
+
+sub render_count_error {
+  my ($self, $errors) = @_;
+
+  if ($::request->is_mobile) {
+    $self->render('stock_counting/count', errors => $errors);
+  } else {
+    flash('error', @{$errors || [] });
+    $self->render('stock_counting/count');
+  }
+}
+
+sub setup_select_counting_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Start Counting'),
+        submit    => [ '#count_form', { action => 'StockCounting/start_counting' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_count_action_bar {
+  my ($self) = @_;
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Do count'),
+        checks    => [ ['kivi.validate_form', '#count_form'] ],
+        submit    => [ '#count_form', { action => 'StockCounting/count' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
 }
 
 1;

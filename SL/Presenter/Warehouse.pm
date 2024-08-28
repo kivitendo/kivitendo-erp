@@ -35,6 +35,7 @@ sub wh_bin_select {
                      : $with_empty ? undef
                      : $all_warehouses->[0]->bins_sorted_naturally;
 
+  my $data_validate  = delete $attributes{'data-validate'};
   my %div_attributes = (
     name => $div_name,
     id   => $div_id,
@@ -50,14 +51,16 @@ sub wh_bin_select {
     onchange            => 'kivi.Warehouse.wh_changed(this);',
     'data-bin-dom-name' => $bin_name,
     'data-bin-dom-id'   => $bin_id,
+    ('data-validate'    => $data_validate)x!!$data_validate,
     %attributes
   );
 
   my %bin_attributes = (
-    name      => $bin_name,
-    id        => $bin_id,
-    default   => $bin_default,
-    title_key => 'description',
+    name             => $bin_name,
+    id               => $bin_id,
+    default          => $bin_default,
+    title_key        => 'description',
+    ('data-validate' => $data_validate)x!!$data_validate,
     %attributes
   );
 

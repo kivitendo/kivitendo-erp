@@ -1,0 +1,54 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE P %]
+
+[%- INCLUDE 'common/flash.html' %]
+
+<h1>[% 'Stock Counting' | $T8 %]</h1>
+
+<table>
+  <tbody>
+    <tr>
+      <th align="right">[% 'Stock Counting' | $T8 %]</th>
+      <td>[% SELF.stock_counting_item.counting.name %]</td>
+    </tr>
+    <tr>
+      <th align="right">[% 'Description' | $T8 %]</th>
+      <td>[% SELF.stock_counting_item.counting.description %]</td>
+    </tr>
+    <tr>
+      <th align="right">[% 'Part' | $T8 %]</th>
+      <td>[% SELF.stock_counting_item.counting.part.displayable_name %]</td>
+    </tr>
+    <tr>
+      <th align="right">[% 'Partsgroup' | $T8 %]</th>
+      <td>[% SELF.stock_counting_item.counting.partsgroup.displayable_name %]</td>
+    </tr>
+    <tr>
+      <th align="right">[% 'Vendor' | $T8 %]</th>
+      <td>[% SELF.stock_counting_item.counting.vendor.displayable_name %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<form method="post" name="count_form" id="count_form" action="controller.pl">
+  [% P.hidden_tag('stock_counting_item.counting_id', SELF.stock_counting_item.counting_id) %]
+  <table>
+    <tbody>
+      <tr>
+        <th align="right">[% 'Bin' | $T8 %]</th>
+        <td>
+          [% IF SELF.stock_counting_item.counting.bin_id %]
+            [% SELF.stock_counting_item.counting.bin.full_description %]
+            [% P.hidden_tag('stock_counting_item.bin_id', SELF.stock_counting_item.counting.bin_id) %]
+          [% ELSE %]
+            [% P.warehouse.wh_bin_select('dummy_wh', bin_name='stock_counting_item.bin_id', with_empty=1, 'data-validate'='required') %]
+          [% END %]
+        </td>
+      </tr>
+      <tr>
+        <th align="right">[% 'EAN' | $T8 %]</th>
+        <td>[% P.input_tag('ean', '', placeholder=last_ean || LxERP.t8('EAN'), 'data-validate'='required') %]</td>
+      </tr>
+  </table>
+</form>
