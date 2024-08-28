@@ -37,7 +37,10 @@ Kleinere neue Features und Detailverbesserungen:
   - Neues Feld Beschreibung bei den Backgroundjob. Dient zur besseren
     Unterscheidung.
   - Dialogbuchungen als "als neu verwenden" können.
-
+  - Die Dateiendung für den SEPA-Export wurde auf .xml geändert, konfigurierbar auf
+    den vorherigen Wert (.cct oder .cdd) über die Mandantenkonfiguration
+  - Kontoauszug verbuchen, der Reiter "Alle Buchungen" kann per Konfiguration immer
+    als erstes angezeigt werden (Vorschläge werden generiert, aber nicht direkt geöffnet)
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -

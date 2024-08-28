@@ -3,6 +3,11 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v3.9.1
+
+Die Dateieendung für SEPA-XML wurde auf .xml geändert, die vorherigen Werte
+können aber über die Mandantenkonfiguration wieder aktiviert werden.
+
 Upgrade auf v3.9.0
 
 Einige neue Perl-Module sind hinzugekommen, Hilfe zum Installieren bietet wie
