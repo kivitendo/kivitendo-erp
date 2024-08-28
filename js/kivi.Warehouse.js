@@ -2,7 +2,6 @@ namespace('kivi.Warehouse', function(ns) {
 
   ns.wh_changed = function(target) {
     const wh_id        = $(target).val();
-    const bin_dom_name = $(target).data('bin-dom-name');
     const bin_dom_id   = $(target).data('bin-dom-id');
     $.post("controller.pl", { action:       'Warehouse/wh_bin_select_update_bins',
                               wh_id:        wh_id,

@@ -58,7 +58,6 @@ sub wh_bin_select {
     with_empty          => $with_empty,
     title_key           => 'description',
     onchange            => 'kivi.Warehouse.wh_changed(this);',
-    'data-bin-dom-name' => $bin_name,
     'data-bin-dom-id'   => $bin_id,
     class               => $wh_class,
     %attributes
