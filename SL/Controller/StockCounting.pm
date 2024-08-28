@@ -115,6 +115,7 @@ sub action_list {
       if (!$grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}) {
         $group_object = SL::DB::StockCountingItem->new(
           counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0);
+        $group_object->{reconciliated} = 1;
         push @grouped_objects, $group_object;
         $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id} = $group_object;
 
@@ -124,9 +125,13 @@ sub action_list {
 
       $group_object->id($group_object->id ? ($group_object->id . ',' . $object->id) : $object->id);
       $group_object->qty($group_object->qty + $object->qty);
+      $group_object->{reconciliated} &&= !!$object->correction_inventory_id;
     }
 
     $objects = \@grouped_objects;
+
+  } else {
+    $_->{reconciliated} = !!$_->correction_inventory_id for @$objects;
   }
 
   $self->get_stocked($objects);
@@ -166,8 +171,8 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns = $::form->{group_counting_items} ? qw(counting part bin qty stocked)
-              : qw(counting counted_at part bin qty stocked employee);
+  my @columns = $::form->{group_counting_items} ? qw(counting part bin qty stocked reconciliated)
+              : qw(counting counted_at part bin qty stocked employee reconciliated);
 
   my %column_defs = (
     counting   => { text => t8('Stock Counting'), sub => sub { $_[0]->counting->name }, },
@@ -177,6 +182,7 @@ sub prepare_report {
     bin        => { text => t8('Bin'),            sub => sub { $_[0]->bin->full_description } },
     employee   => { text => t8('Employee'),       sub => sub { $_[0]->employee ? $_[0]->employee->safe_name : '---'} },
     stocked    => { text => t8('Stocked Qty'),    sub => sub { _format_total($_[0]->{stocked}) }, align => 'right'},
+    reconciliated => { text => t8('Reconciliated'), sub => sub { $_[0]->{reconciliated} ? t8('Yes') : t8('No') }, align => 'right'},
   );
 
   # remove columns from defs which are not in @columns
