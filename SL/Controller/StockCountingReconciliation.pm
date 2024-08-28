@@ -281,12 +281,14 @@ sub get_inbetweens {
   my $correction_inventory_ids = SL::DB::Manager::StockCountingItem->get_all(where    => ['!correction_inventory_id' => undef],
                                                                              select   => ['correction_inventory_id'],
                                                                              distcint => 1);
+  my %filter_corrections = @$correction_inventory_ids ? ('!id' => [map { $_->correction_inventory_id } @$correction_inventory_ids])
+                                                      : undef;
   foreach my $object (@$objects) {
     my $start      = $object->counting->start_time_of_counting;
     my $inbetweens = SL::DB::Manager::Inventory->get_all(where  => [itime    => { ge => $start },
                                                                     parts_id => $object->part_id,
                                                                     bin_id   => $object->bin_id,
-                                                                    '!id'    => [map { $_->correction_inventory_id } @$correction_inventory_ids]],
+                                                                    %filter_corrections],
                                                          select => ['qty']);
     $object->{inbetweens} = sum map { $_->qty } @$inbetweens;
   }
