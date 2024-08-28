@@ -46,6 +46,7 @@ sub wh_bin_select {
   my $wh_class  = $class ? $class . ' ' . 'wh-bin-select-presenter-wh'  : 'wh-bin-select-presenter-wh';
   my $bin_class = $class ? $class . ' ' . 'wh-bin-select-presenter-bin' : 'wh-bin-select-presenter-bin';
 
+  my $data_validate  = delete $attributes{'data-validate'};
   my %div_attributes = (
     name  => $div_name,
     id    => $div_id,
@@ -61,6 +62,7 @@ sub wh_bin_select {
     onchange            => 'kivi.Warehouse.wh_changed(this);',
     'data-bin-dom-id'   => $bin_id,
     class               => $wh_class,
+    ('data-validate'    => $data_validate)x!!$data_validate,
     %attributes
   );
 
@@ -69,6 +71,7 @@ sub wh_bin_select {
     default   => $bin_default,
     title_key => 'description',
     class     => $bin_class,
+    ('data-validate' => $data_validate)x!!$data_validate,
     %attributes
   );
 
