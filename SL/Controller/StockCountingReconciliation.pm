@@ -69,11 +69,17 @@ sub action_reconcile {
   my ($self) = @_;
 
   my $counting = SL::DB::StockCounting->new(id => $::form->{counting_id})->load;
-  # todo: sanity checks
-  # return if $counting->is_reconciliated;
-  # return if scalar(@{$counting->items}) == 0;
 
-#  my $counting_items = $counting->items;
+  # Sanity checks.
+  if ($counting->is_reconciliated) {
+    flash_later('error', t8('Stock counting is already reconciliated'));
+    return $self->redirect_to($::form->{callback});
+  }
+    if (scalar(@{$counting->items}) == 0) {
+    flash_later('error', t8('Stock counting does not contain any counted items'));
+    return $self->redirect_to($::form->{callback});
+  }
+
   my $grouped_counting_items = $self->group_items_by_part_and_bin(\@{$counting->items});
   $self->get_stocked($grouped_counting_items);
   $self->get_inbetweens($grouped_counting_items);
