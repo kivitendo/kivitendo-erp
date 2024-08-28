@@ -45,6 +45,8 @@ my %sort_columns = (
 sub action_select_counting {
   my ($self) = @_;
 
+  $self->countings([ grep { !$_->is_reconciliated } @{$self->countings} ]);
+
   if (!$::request->is_mobile) {
     $self->setup_select_counting_action_bar;
   }
