@@ -175,14 +175,14 @@ sub prepare_report {
               : qw(counting counted_at part bin qty stocked employee reconciliated);
 
   my %column_defs = (
-    counting   => { text => t8('Stock Counting'), sub => sub { $_[0]->counting->name }, },
-    counted_at => { text => t8('Counted At'),     sub => sub { $_[0]->counted_at_as_timestamp }, },
-    qty        => { text => t8('Qty'),            sub => sub { $_[0]->qty_as_number }, align => 'right' },
-    part       => { text => t8('Article'),        sub => sub { $_[0]->part && $_[0]->part->displayable_name } },
-    bin        => { text => t8('Bin'),            sub => sub { $_[0]->bin->full_description } },
-    employee   => { text => t8('Employee'),       sub => sub { $_[0]->employee ? $_[0]->employee->safe_name : '---'} },
-    stocked    => { text => t8('Stocked Qty'),    sub => sub { _format_total($_[0]->{stocked}) }, align => 'right'},
-    reconciliated => { text => t8('Reconciliated'), sub => sub { $_[0]->{reconciliated} ? t8('Yes') : t8('No') }, align => 'right'},
+    counting      => { text => t8('Stock Counting'), sub => sub { $_[0]->counting->name }, },
+    counted_at    => { text => t8('Counted At'),     sub => sub { $_[0]->counted_at_as_timestamp }, },
+    qty           => { text => t8('Qty'),            sub => sub { $_[0]->qty_as_number }, align => 'right' },
+    part          => { text => t8('Article'),        sub => sub { $_[0]->part && $_[0]->part->displayable_name } },
+    bin           => { text => t8('Bin'),            sub => sub { $_[0]->bin->full_description } },
+    employee      => { text => t8('Employee'),       sub => sub { $_[0]->employee ? $_[0]->employee->safe_name : '---'} },
+    stocked       => { text => t8('Stocked Qty'),    sub => sub { _format_total($_[0]->{stocked}) }, align => 'right'},
+    reconciliated => { text => t8('Reconciliated'),  sub => sub { $_[0]->{reconciliated} ? t8('Yes') : t8('No') }, align => 'right'},
   );
 
   # remove columns from defs which are not in @columns
