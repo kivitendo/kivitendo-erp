@@ -645,6 +645,12 @@ sub form_header {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
+  if( $form->{customer_id} && !$form->{taxincluded_changed_by_user} ) {
+    my $customer = SL::DB::Customer->load_cached($form->{customer_id});
+    $form->{taxincluded} = defined($customer->taxincluded_checked) ? $customer->taxincluded_checked : $myconfig{taxincluded_checked};
+  }
+  $TMPL_VAR{taxincluded} = $form->{taxincluded};
+
   $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "currencies"    => "ALL_CURRENCIES",
                    "price_factors" => "ALL_PRICE_FACTORS");
@@ -784,11 +790,6 @@ sub form_footer {
   my ($tax, $subtotal);
   $form->{taxaccounts_array} = [ split(/ /, $form->{taxaccounts}) ];
 
-  if( $form->{customer_id} && !$form->{taxincluded_changed_by_user} ) {
-    my $customer = SL::DB::Customer->load_cached($form->{customer_id});
-    $form->{taxincluded} = defined($customer->taxincluded_checked) ? $customer->taxincluded_checked : $myconfig{taxincluded_checked};
-  }
-
   foreach my $item (@{ $form->{taxaccounts_array} }) {
     if ($form->{"${item}_base"}) {
       if ($form->{taxincluded}) {
@@ -915,7 +916,6 @@ sub update {
   my ($recursive_call) = @_;
 
   $form->{print_and_post} = 0         if $form->{second_run};
-  my $taxincluded         = $form->{taxincluded} ? "checked" : '';
   $form->{update} = 1;
 
   if (($form->{previous_customer_id} || $form->{customer_id}) != $form->{customer_id}) {
@@ -924,8 +924,6 @@ sub update {
     IS->get_customer(\%myconfig, $form);
     $::form->{billing_address_id} = $::form->{default_billing_address_id};
   }
-
-  $form->{taxincluded} ||= $taxincluded;
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   if ($form->{defaultcurrency} ne $form->{currency}) {
