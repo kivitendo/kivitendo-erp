@@ -41,6 +41,9 @@ Kleinere neue Features und Detailverbesserungen:
     den vorherigen Wert (.cct oder .cdd) über die Mandantenkonfiguration
   - Kontoauszug verbuchen, der Reiter "Alle Buchungen" kann per Konfiguration immer
     als erstes angezeigt werden (Vorschläge werden generiert, aber nicht direkt geöffnet)
+  - Neuer Hintergrund-Job der IBAN und BIC in den Stammdaten setzt, insofern diese
+    sich über verbuchte Bank-Transaktion ableiten lassen, s.a.
+    perldoc SL/BackgroundJob/SetBankAccountsMasterData.pm
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -
