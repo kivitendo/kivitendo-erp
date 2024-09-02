@@ -1,0 +1,10 @@
+[% USE P %]
+
+[%- INCLUDE 'common/flash.html' %]
+
+<h1>[% 'Sample Plot' %]</h1>
+
+[% P.hidden_tag('id', FORM.id) %]
+[% P.hidden_tag('recursively', FORM.recursively) %]
+
+<div id="svg">loading ...</div>
