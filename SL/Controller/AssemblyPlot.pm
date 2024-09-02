@@ -42,28 +42,35 @@ sub action_get_objects {
   # Parent of one item is the nearest predecessor with level = item.level - 1.
   # The following is not efficient!.
   # Root/first parent is the part itself.
+
+  $self->part->{unique_id} = 1;
+
   foreach my $idx (0..$#{$items}) {
     my $item = $items->[$idx];
     my $current_level = $item->{level};
 
+    $item->{unique_id} = $idx + 2;
+
     if ($current_level-1 == -1) {
-      $item->{parent} = $self->part;
+      $item->{parent_id} = $self->part->{unique_id};
     } else {
 
       my @rfront = reverse head $idx, @$items;
       my $parent_assembly = first { $_->{level} == $current_level-1  && $_->part->is_assembly } @rfront;
-      $item->{parent} = $parent_assembly->part;
+      $item->{parent_id} = $parent_assembly->{unique_id};
     }
   }
 
   my $objects;
   foreach my $item (@$items) {
-    push @$objects, {parentId => $item->{parent}->id,
+    push @$objects, {parentId => $item->{parent_id},
+                     id       => $item->{unique_id},
                      qty      => $item->qty,
-                     map { ($_ => $item->part->$_) } qw(id partnumber description part_type)};
+                     map { ($_ => $item->part->$_) } qw(partnumber description part_type)};
   }
   push @$objects, {parentId => undef,
-                   map { ($_ => $self->part->$_) } qw(id partnumber description part_type)};
+                   id       => $self->part->{unique_id},
+                   map { ($_ => $self->part->$_) } qw(partnumber description part_type)};
 
   $::lxdebug->dump(0, "bb: objects", $objects);
 
