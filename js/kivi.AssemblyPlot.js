@@ -43,7 +43,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
     const root = data; //d3.hierarchy(data);
 
     const dx = 30;
-    const dy = width / (root.height +1);
+    const dy = width / (root.height +1) - 1;
 
     // Create a tree layout.
     const tree = d3.tree().nodeSize([dx, dy]);
@@ -79,7 +79,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
           .selectAll()
           .data(root.links())
           .join("path")
-          .attr("d", d3.linkHorizontal()
+          .attr("d", d3.link(d3.curveLinear)
                 .x(d => d.y)
                 .y(d => d.x));
 
@@ -91,14 +91,19 @@ namespace('kivi.AssemblyPlot', function(ns) {
           .join("g")
           .attr("transform", d => `translate(${d.y},${d.x})`);
 
-    node.append("circle")
+    const text_f = 0.6;
+    node.append("rect")
       .attr("fill", d => d.children ? "#555" : "#999")
-      .attr("r", 2.5);
+      .attr("width", d => (text_f * d.data.description.length) + "em")
+      .attr("height", "2em")
+      .attr("x", 0)
+      .attr("y", "-1em")
+      .attr("opacity", 0.5)
+    ;
 
     node.append("text")
       .attr("dy", "0.31em")
-      .attr("x", d => d.children ? -6 : 6)
-      .attr("text-anchor", d => d.children ? "end" : "start")
+      .attr("x", 6)
       .text(d => d.data.description)
       .attr("stroke", "white")
       .attr("paint-order", "stroke");
