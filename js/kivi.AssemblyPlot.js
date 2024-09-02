@@ -94,8 +94,8 @@ namespace('kivi.AssemblyPlot', function(ns) {
     const text_f = 0.6;
     node.append("rect")
       .attr("fill", d => d.children ? "#555" : "#999")
-      .attr("width", d => (text_f * d.data.description.length) + "em")
-      .attr("height", "2em")
+      .attr("width", d => (text_f * ((d.data.qty ? d.data.qty + "x " : "") +  d.data.description + "  " + d.data.partnumber) .length) + "em")
+      .attr("height", "4em")
       .attr("x", 0)
       .attr("y", "-1em")
       .attr("opacity", 0.5)
@@ -104,7 +104,14 @@ namespace('kivi.AssemblyPlot', function(ns) {
     node.append("text")
       .attr("dy", "0.31em")
       .attr("x", 6)
-      .text(d => d.data.description)
+      .text(d => (d.data.qty ? d.data.qty + "x " : "") +  d.data.description + "  " + d.data.partnumber)
+      .attr("stroke", "white")
+      .attr("paint-order", "stroke");
+
+    node.append("text")
+      .attr("dy", "2em")
+      .attr("x", 6)
+      .text(d => d.data.partnumber)
       .attr("stroke", "white")
       .attr("paint-order", "stroke");
 

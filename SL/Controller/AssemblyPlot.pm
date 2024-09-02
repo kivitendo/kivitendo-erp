@@ -60,10 +60,10 @@ sub action_get_objects {
   foreach my $item (@$items) {
     push @$objects, {parentId => $item->{parent}->id,
                      qty      => $item->qty,
-                     map { ($_ => $item->part->$_) } qw(id partnumber description)};
+                     map { ($_ => $item->part->$_) } qw(id partnumber description part_type)};
   }
   push @$objects, {parentId => undef,
-                   map { ($_ => $self->part->$_) } qw(id partnumber description)};
+                   map { ($_ => $self->part->$_) } qw(id partnumber description part_type)};
 
   $::lxdebug->dump(0, "bb: objects", $objects);
 
