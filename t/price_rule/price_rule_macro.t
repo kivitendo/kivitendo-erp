@@ -690,7 +690,7 @@ sub throws_t8x_ok(&$$$) {
   my ( $coderef, $class, $regex, $description ) = @_;
   my $exception = Test::Exception::_try_as_caller( $coderef );
   my $ok_class  = $exception->isa($class);
-  my $ok_text   = eval { $exception->getProperty('msg')->untranslated =~ m/$regex/ };
+  my $ok_text   = eval { $exception->msg->untranslated =~ m/$regex/ };
   my $ok        = $ok_class && $ok_text;
 
   my $Tester = Test::Builder->new;
@@ -698,7 +698,7 @@ sub throws_t8x_ok(&$$$) {
   $Tester->ok( $ok, $description );
   unless ( $ok ) {
       $Tester->diag( "expecting t8x exception with text: $regex" );
-      $Tester->diag( "found: ", eval { $exception->getProperty('msg')->untranslated });
+      $Tester->diag( "found: ", eval { $exception->msg->untranslated });
   };
   return $ok;
 }
