@@ -60,11 +60,17 @@ sub run {
 
       # Swiss
       { taxkey => 2,  rate => 0.08,  taxdescription => qr{mwst}i,                                categories => 'I' },
+      { taxkey => 2,  rate => 0.081, taxdescription => qr{mwst}i,                                categories => 'I' },
       { taxkey => 3,  rate => 0.025, taxdescription => qr{mwst}i,                                categories => 'I' },
+      { taxkey => 3,  rate => 0.026, taxdescription => qr{mwst}i,                                categories => 'I' },
       { taxkey => 4,  rate => 0.08,  taxdescription => qr{mwst}i,                                categories => 'E' },
+      { taxkey => 4,  rate => 0.081, taxdescription => qr{mwst}i,                                categories => 'E' },
       { taxkey => 5,  rate => 0.025, taxdescription => qr{mwst}i,                                categories => 'E' },
+      { taxkey => 5,  rate => 0.026, taxdescription => qr{mwst}i,                                categories => 'E' },
       { taxkey => 6,  rate => 0.08,  taxdescription => qr{mwst}i,                                categories => 'E' },
+      { taxkey => 6,  rate => 0.081, taxdescription => qr{mwst}i,                                categories => 'E' },
       { taxkey => 7,  rate => 0.025, taxdescription => qr{mwst}i,                                categories => 'E' },
+      { taxkey => 7,  rate => 0.026, taxdescription => qr{mwst}i,                                categories => 'E' },
   );
 
   $query = qq|SELECT taxkey, taxdescription, rate, id AS tax_id FROM tax order by taxkey, rate;|;
