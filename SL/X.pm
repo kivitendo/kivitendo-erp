@@ -62,7 +62,7 @@ sub user_message {
   my ($exception) = @_;
 
   return if !ref $exception || !blessed($exception);
-  return $exception->getProperty('msg') if $exception->isa('SL::X');
+  return $exception->msg if $exception->isa('SL::X');
   return $exception->translated if $exception->isa('SL::Locale::String');
   return "$exception";
 }
