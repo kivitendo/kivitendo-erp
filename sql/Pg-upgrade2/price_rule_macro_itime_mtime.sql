@@ -1,6 +1,6 @@
 -- @tag: price_rule_macro_itime_mtime
 -- @description: Preisregeln mtime/itime Trigger
--- @depends: release_19_04 price_rules_macros
+-- @depends: release_3_9_0 price_rules_macros price_rule_macro_notes
 
 ALTER TABLE price_rules ALTER COLUMN itime SET DEFAULT now();
 ALTER TABLE price_rule_macros ALTER COLUMN itime SET DEFAULT now();

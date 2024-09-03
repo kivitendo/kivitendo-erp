@@ -1,6 +1,6 @@
 -- @tag: price_rules_macros
 -- @description:  Struktur für Preisregel Makros
--- @depends: release_18_09 price_rules
+-- @depends: release_3_9_0 price_rules
 
 CREATE TABLE price_rule_macros (
   id               SERIAL PRIMARY KEY,

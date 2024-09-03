@@ -1,6 +1,6 @@
 -- @tag: price_rules_macros_migration
 -- @description: Preisregeln auf die neue Macrostruktur migrieren
--- @depends: release_18_09 price_rules_macros
+-- @depends: release_3_9_0 price_rules_macros
 
 -- temp column to remember which price_rule made which macro
 ALTER TABLE price_rule_macros ADD COLUMN price_rules_id INTEGER;
