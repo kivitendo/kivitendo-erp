@@ -211,15 +211,13 @@ sub get_all_types {
 }
 
 sub ordered_types {
-  List::MoreUtils::uniq(grep({ $types{$_} } @{ $::instance_conf->get_price_rule_type_order // [] }), @types);
+  my %types = map { $_->{type} => $_ } @types;
+
+  List::MoreUtils::uniq(grep({ $types{$_} } @{ $::instance_conf->get_price_rule_type_order // [] }), (map { $_->{type} } @types));
 }
 
 sub get_types {
   @types;
-}
-
-sub get_type_definitions {
-  \%types;
 }
 
 sub get_type {
