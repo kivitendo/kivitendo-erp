@@ -138,11 +138,10 @@ sub run {
 
       my $fileobj;
       if (exists $images_by_names{$image_name}) {
-        # I tried updating the file, but it didn't work right away
-        # so instead I delete the file and create a new one
-        # (this is also the way it is done in the UI, there's only a delete button,
-        #  no update button)
-        $images_by_names{$image_name}->delete;
+        # I tried updating or deleting the file, but that didn't work
+        # so for now we'll just skip the image if an image with the same name already exists
+        # (atm there doesn't seem to be a mechanism in place to update or delete the files properly)
+        next;
       }
 
       my $image_path = $images_import_path . $image_name;
