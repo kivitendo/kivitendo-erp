@@ -62,7 +62,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
       if (d.x < x0) x0 = d.x;
     });
 
-    const text_f = 0.6;
+    const text_f = 0.65;
 
     // Compute the adjusted height of the tree.
     const height = x1 - x0 + dx * 2;
@@ -88,9 +88,12 @@ namespace('kivi.AssemblyPlot', function(ns) {
     const node = svg.append("g")
           .attr("stroke-linejoin", "round")
           .attr("stroke-width", 3)
-          .selectAll()
+          .selectAll("a")
           .data(root.descendants())
-          .join("g")
+          .join("a")
+          .attr("xlink:href", d => d.data.link)
+          .attr("target", "_blank")
+          .attr("style", "text-decoration: none;")
           .attr("transform", d => `translate(${d.y},${d.x})`);
 
     node.append("rect")

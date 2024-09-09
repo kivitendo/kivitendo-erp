@@ -66,10 +66,17 @@ sub action_get_objects {
     push @$objects, {parentId => $item->{parent_id},
                      id       => $item->{unique_id},
                      qty      => $item->qty,
-                     map { ($_ => $item->part->$_) } qw(partnumber description part_type)};
+                     link     => $self->url_for(controller => 'Part',
+                                                action     => 'edit',
+                                                'part.id' => $item->part->id),
+                     map { ($_ => $item->part->$_) } qw(partnumber description part_type),
+    };
   }
   push @$objects, {parentId => undef,
                    id       => $self->part->{unique_id},
+                   link     => $self->url_for(controller => 'Part',
+                                              action     => 'edit',
+                                              'part.id'  => $self->part->id),
                    map { ($_ => $self->part->$_) } qw(partnumber description part_type)};
 
   $::lxdebug->dump(0, "bb: objects", $objects);
