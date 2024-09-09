@@ -42,8 +42,8 @@ namespace('kivi.AssemblyPlot', function(ns) {
     // SVG to scale according to the breadth (width) of the tree layout.
     const root = data; //d3.hierarchy(data);
 
-    const dx = 30;
-    const dy = width / (root.height +1) - 1;
+    const dx = 50;
+    const dy = width / (root.height +1);
 
     // Create a tree layout.
     const tree = d3.tree().nodeSize([dx, dy]);
@@ -62,6 +62,8 @@ namespace('kivi.AssemblyPlot', function(ns) {
       if (d.x < x0) x0 = d.x;
     });
 
+    const text_f = 0.6;
+
     // Compute the adjusted height of the tree.
     const height = x1 - x0 + dx * 2;
 
@@ -79,7 +81,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
           .selectAll()
           .data(root.links())
           .join("path")
-          .attr("d", d3.link(d3.curveLinear)
+          .attr("d", d3.linkHorizontal()
                 .x(d => d.y)
                 .y(d => d.x));
 
@@ -91,7 +93,6 @@ namespace('kivi.AssemblyPlot', function(ns) {
           .join("g")
           .attr("transform", d => `translate(${d.y},${d.x})`);
 
-    const text_f = 0.6;
     node.append("rect")
       .attr("fill", d => d.children ? "#555" : "#999")
       .attr("width", d => (text_f * ((d.data.qty ? d.data.qty + "x " : "") +  d.data.description + "  " + d.data.partnumber) .length) + "em")
