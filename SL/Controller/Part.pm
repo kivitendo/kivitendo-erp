@@ -1830,6 +1830,26 @@ sub _setup_form_action_bar {
                     :                                                       undef,
           only_if  => $self->part->is_assembly,
         ],
+        action => [
+          $self->part->is_assembly ? t8('Plot Assembly items (alt.)') : t8('Plot Assortment items (alt.)'),
+          call     => [ 'kivi.Part.open_plot_tab', { id_selector => '#part_id', recursively => 0, alternative => 1 } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$self->part->id                                    ? t8('The object has not been saved yet.')
+                    : !$may_edit                                          ? t8('You do not have the permissions to access this function.')
+                    : !$::auth->assert('purchase_order_edit', 'may fail') ? t8('You do not have the permissions to access this function.')
+                    :                                                       undef,
+          only_if  => $self->part->is_assembly || $self->part->is_assortment,
+        ],
+        action => [
+          t8('Plot Assembly items recursively (alt.)'),
+          call     => [ 'kivi.Part.open_plot_tab', { id_selector => '#part_id', recursively => 1, alternative => 1} ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$self->part->id                                    ? t8('The object has not been saved yet.')
+                    : !$may_edit                                          ? t8('You do not have the permissions to access this function.')
+                    : !$::auth->assert('purchase_order_edit', 'may fail') ? t8('You do not have the permissions to access this function.')
+                    :                                                       undef,
+          only_if  => $self->part->is_assembly,
+        ],
       ],
 
       action => [

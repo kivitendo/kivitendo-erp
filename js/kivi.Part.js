@@ -849,8 +849,13 @@ namespace('kivi.Part', function(ns) {
   ns.open_plot_tab = function(params) {
     const id_selector = params.id_selector;
     const recursively = params.recursively;
+    const alternative = params.alternative;
     console.log("bb: ns.open_plot_tab"); console.log(id_selector);
-    window.open("controller.pl?action=AssemblyPlot/show&id=" + encodeURIComponent($(id_selector).val()) + "&recursively=" + encodeURIComponent(recursively), '_blank');
+    window.open("controller.pl?action=AssemblyPlot/show&id=" +
+                encodeURIComponent($(id_selector).val()) +
+                "&recursively=" + encodeURIComponent(recursively) +
+                "&alternative=" + encodeURIComponent(alternative),
+                '_blank');
   };
 
   ns.reinit_widgets = function() {
