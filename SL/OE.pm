@@ -196,7 +196,7 @@ SQL
 
   if ($form->{"project_id"}) {
     $query .=
-      qq|AND ((globalproject_id = ?) OR EXISTS | .
+      qq| AND ((globalproject_id = ?) OR EXISTS | .
       qq|  (SELECT * FROM orderitems oi | .
       qq|   WHERE oi.project_id = ? AND oi.trans_id = o.id))|;
     push(@values, conv_i($form->{"project_id"}), conv_i($form->{"project_id"}));
