@@ -168,6 +168,25 @@ sub _customer_postal_trade_address {
   #       </ram:PostalTradeAddress>
 }
 
+sub _buyer_communication {
+  my (%params) = @_;
+  my $customer = $params{customer};
+
+  my $buyer_electronic_address = first {$_} (
+    $customer->invoice_mail,
+    $customer->email,
+  );
+  if ($buyer_electronic_address) {
+    $params{xml}->startTag("ram:URIUniversalCommunication");
+    $params{xml}->dataElement("ram:URIID", _u8($buyer_electronic_address), schemeID => 'EM');
+    $params{xml}->endTag;
+  } elsif ($customer->gln) {
+    $params{xml}->startTag("ram:URIUniversalCommunication");
+    $params{xml}->dataElement("ram:URIID", _u8($customer->gln), schemeID => '0088');
+    $params{xml}->endTag;
+  }
+}
+
 sub _tax_rate_and_code {
   my ($taxzone, $tax) = @_;
 
@@ -563,6 +582,7 @@ sub _buyer_trade_party {
 
   _buyer_contact_information($self, %params, contact => $self->contact) if ($self->cp_id);
   _customer_postal_trade_address(%params, customer => $self->customer);
+  _buyer_communication(%params, customer => $self->customer);
   _specified_tax_registration($self->customer->ustid, %params) if $self->customer->ustid;
 
   $params{xml}->endTag;
