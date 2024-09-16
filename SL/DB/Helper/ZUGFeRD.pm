@@ -106,6 +106,52 @@ sub _parse_our_address {
   return @result;
 }
 
+sub _buyer_contact_information {
+  my ($self, %params) = @_;
+
+  my $contact = $params{contact};
+
+  #       <ram:DefinedTradeContact>
+  $params{xml}->startTag("ram:DefinedTradeContact");
+
+  $params{xml}->dataElement("ram:PersonName", _u8(join(" ", $contact->cp_givenname, $contact->cp_name)));
+  $params{xml}->dataElement("ram:DepartmentName", _u8($contact->cp_abteilung));
+
+  my $phone_number = first {$_} (
+    $contact->cp_phone1,
+    $contact->cp_phone2,
+    $contact->cp_mobile1,
+    $contact->cp_mobile2,
+    $contact->cp_satphone,
+  );
+  if ($phone_number) {
+    $params{xml}->startTag("ram:TelephoneUniversalCommunication");
+    $params{xml}->dataElement("ram:CompleteNumber", _u8($phone_number));
+    $params{xml}->endTag;
+  }
+
+  if (_is_profile($self, PROFILE_FACTURX_EXTENDED())) {
+    my $fax_number = first {$_} (
+      $contact->cp_fax,
+      $contact->cp_satfax,
+    );
+    if ($fax_number) {
+      $params{xml}->startTag("ram:FaxUniversalCommunication");
+      $params{xml}->dataElement("ram:CompleteNumber", _u8($fax_number));
+      $params{xml}->endTag;
+    }
+  }
+
+  if ($contact->cp_email) {
+    $params{xml}->startTag("ram:EmailURIUniversalCommunication");
+    $params{xml}->dataElement("ram:URIID", _u8($contact->cp_email));
+    $params{xml}->endTag;
+  }
+
+  $params{xml}->endTag;
+  #       </ram:DefinedTradeContact>
+}
+
 sub _customer_postal_trade_address {
   my (%params) = @_;
 
@@ -515,6 +561,7 @@ sub _buyer_trade_party {
   $params{xml}->dataElement("ram:ID",   _u8($self->customer->customernumber));
   $params{xml}->dataElement("ram:Name", _u8($self->customer->name));
 
+  _buyer_contact_information($self, %params, contact => $self->contact) if ($self->cp_id);
   _customer_postal_trade_address(%params, customer => $self->customer);
   _specified_tax_registration($self->customer->ustid, %params) if $self->customer->ustid;
 
