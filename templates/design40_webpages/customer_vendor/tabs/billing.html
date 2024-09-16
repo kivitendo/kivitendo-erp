@@ -149,6 +149,12 @@
         <td>[% L.select_tag('cv.business_id', SELF.all_business, default = SELF.cv.business_id, value_key = 'id', title_key = 'description', with_empty=1, class='wi-lightwide') %]</td>
       </tr>
     [% END %]
+    [% IF ( SELF.is_customer() && !INSTANCE_CONF.get_vertreter ) %]
+      <th>[% 'Salesman' | $T8 %]</th>
+      <td>
+        [% L.select_tag('cv.salesman_id', SELF.all_salesmen, default = SELF.cv.salesman_id, value_key = 'id', title_key = 'safe_name', with_empty = 1) %]
+      </td>
+    [%- END %]
     <tr>
       <th>[% 'Language' | $T8 %]</th>
       <td>[% L.select_tag('cv.language_id', SELF.all_languages, default = SELF.cv.language_id, value_key = 'id', title_key='description', with_empty=1, class='wi-lightwide') %]</td>
