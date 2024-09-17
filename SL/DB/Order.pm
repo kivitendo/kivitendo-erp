@@ -81,7 +81,7 @@ __PACKAGE__->attr_sorted('items');
 
 __PACKAGE__->before_save('_before_save_set_ord_quo_number');
 __PACKAGE__->before_save('_before_save_create_new_project');
-__PACKAGE__->before_save('_valid_periodic_invoice_config');
+__PACKAGE__->before_save('_before_save_validate_periodic_invoice_config');
 __PACKAGE__->before_save('_before_save_remove_empty_custom_shipto');
 __PACKAGE__->before_save('_before_save_set_custom_shipto_module');
 __PACKAGE__->after_save('_after_save_link_records');
@@ -126,7 +126,7 @@ sub _before_save_create_new_project {
   return 1;
 }
 
-sub _valid_periodic_invoice_config {
+sub _before_save_validate_periodic_invoice_config {
   my ($self) = @_;
 
   if ($self->periodic_invoices_config) {
@@ -150,7 +150,7 @@ sub _valid_periodic_invoice_config {
            if $item_config->start_date && $item_config->end_date
            && $item_config->start_date >  $item_config->end_date;
       }
-      die $error_string if $error_string;
+      die t8("#1", $error_string) if $error_string;
     }
   } else {
     my @error_pos;
