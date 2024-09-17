@@ -80,7 +80,7 @@ __PACKAGE__->run_before('check_auth',
 __PACKAGE__->run_before('check_auth_for_edit',
   except => [ qw(
     update_stock_information edit
-    price_popup stock_in_out_dialog load_second_rows
+    stock_in_out_dialog load_second_rows
     ) ]);
 
 __PACKAGE__->run_before('get_unalterable_data',
