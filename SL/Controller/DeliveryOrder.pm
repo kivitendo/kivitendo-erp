@@ -1197,7 +1197,7 @@ sub action_transfer_stock {
           t8('The parts for this order have already been transferred'))
     ->run('kivi.ActionBar.setEnabled', '#undo_transfer_action',
           t8('The parts for this order have already been transferred'))
-    ->replaceWith('#data-status-line', delivery_order_status_line($self->order))
+    ->html('#data-status-line', delivery_order_status_line($self->order))
     ->render;
 }
 
