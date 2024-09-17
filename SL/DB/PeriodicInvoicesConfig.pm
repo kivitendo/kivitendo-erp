@@ -118,7 +118,7 @@ sub _create_item_for_period {
         $periods-- while $periods > 0
           && $self->add_months($period_start_date, -1 * ($periods - 1) * $i_period) < $item_config->start_date;
       }
-      if ($item_config->end_date) {
+      if ($item_config->end_date && ($item_config->terminated || !$item_config->extend_automatically_by)) {
         my $periods_from_end = 0;
         $periods_from_end++ while $periods_from_end < $periods
           && $self->add_months($period_start_date, -1 * ($periods_from_end)) > $item_config->end_date;
@@ -126,6 +126,11 @@ sub _create_item_for_period {
       }
       return if $periods == 0;
       $new_item->qty($new_item->qty * $periods);
+    } elsif ($i_period == $b_period) {
+      return if $item_config->start_date && $item_config->start_date > $period_start_date;
+      if ($item_config->terminated || !$item_config->extend_automatically_by) {
+        return if $item_config->end_date && $item_config->end_date < $period_start_date;
+      }
     }
   }
 
