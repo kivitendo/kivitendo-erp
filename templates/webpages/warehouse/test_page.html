@@ -3,8 +3,23 @@
 
 <h1>[% 'Warehouse/Bin Testpage' | $T8 %]</h1>
 
-<div>
-  [% P.warehouse.wh_bin_select('wh') %]
+<form method="post" action="controller.pl" id="test_form">
+  [% P.hidden_tag(action = 'Warehouse/test_result') %]
 
-  with_empty: [% P.warehouse.wh_bin_select('wh2', with_empty=1) %]
-</div>
+  <table>
+    <tbody>
+      <tr>
+        <td>wh<td>
+        <td>[% P.warehouse.wh_bin_select('wh') %]</td>
+      </tr>
+      <tr>
+        <td>wh2 (with_empty)<td>
+        <td>[% P.warehouse.wh_bin_select('wh2', with_empty=1) %]</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div>
+    [% P.submit_tag('', 'go') %]
+  </div>
+</form>
