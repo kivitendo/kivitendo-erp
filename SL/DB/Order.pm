@@ -153,10 +153,10 @@ sub _before_save_validate_periodic_invoice_config {
           or next;
         $error_string .= t8("Start date before order start date at position #1.", $item->position) . "\n"
           if $item_config->start_date
-           && $item_config->start_date < $self->periodic_invoices_config->start_date;
+             && $item_config->start_date < $self->periodic_invoices_config->start_date;
         $error_string .= t8("Start date after end date at position #1.", $item->position) . "\n"
-           if $item_config->start_date && $item_config->end_date
-           && $item_config->start_date >  $item_config->end_date;
+          if $item_config->start_date && $item_config->end_date
+             && $item_config->start_date > $item_config->end_date;
       }
       die t8("#1", $error_string) if $error_string;
     }
