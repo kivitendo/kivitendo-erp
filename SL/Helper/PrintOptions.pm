@@ -137,7 +137,7 @@ sub get_print_options {
 
   push @LANGUAGE_ID,
     map { opthash($_->{id}, ($_->{id} eq $form->{language_id} ? 'selected' : ''), $_->{description}) } +{}, @{ $form->{languages} }
-      if (ref $form->{languages} eq 'ARRAY');
+      if ((ref $form->{languages} eq 'ARRAY') && scalar @{$form->{languages}});
 
   push @PRINTER_ID,
     map { opthash($_->{id}, ($_->{id} eq $form->{printer_id} ? 'selected' : ''), $_->{printer_description}) } +{}, @{ $form->{printers} }
