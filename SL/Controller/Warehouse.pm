@@ -4,19 +4,35 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use SL::DB::Bin;
 use SL::DB::Warehouse;
 use SL::Presenter::Tag qw(select_tag);
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before(sub { $::auth->assert('developer') },
-                        only => [ qw(test_page) ]);
+                        only => [ qw(test_page test_result) ]);
 
 #
 # actions
 #
 
 sub action_test_page {
-  $_[0]->render('warehouse/test_page');
+  my $pre_filled_wh  = SL::DB::Manager::Warehouse->get_all()->[-1];
+  my $pre_filled_bin = SL::DB::Manager::Bin->get_all()->[-1];
+  $_[0]->render('warehouse/test_page',
+                pre_filled_wh  => $pre_filled_wh,
+                pre_filled_bin => $pre_filled_bin);
+}
+
+sub action_test_result {
+  my @results;
+
+  foreach (1..4) {
+    my $wh = 'wh' . $_;
+    push @results, $wh . ' : ' . SL::DB::Manager::Bin->find_by_or_create(id => $::form->{$wh . '_bin'}||0)->full_description;
+  }
+
+  $::form->show_generic_information(join("<br>", @results), 'Results');
 }
 
 sub action_reorder {
