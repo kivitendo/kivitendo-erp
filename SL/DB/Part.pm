@@ -225,7 +225,12 @@ sub validate {
   unless ( $self->id ) {
     push @errors, $::locale->text('The partnumber already exists.') if SL::DB::Manager::Part->get_all_count(where => [ partnumber => $self->partnumber ]);
   }
-  push @errors, $::locale->text('The ean already exists.') if $self->ean ne '' && SL::DB::Manager::Part->get_all_count(where => [ ean => $self->ean ]);
+  push @errors, $::locale->text('The ean already exists.') if $self->ean ne '' && SL::DB::Manager::Part->get_all_count(
+    where => [
+      ean   => $self->ean,
+      '!id' => $self->id,
+    ]
+  );
 
   if ($self->is_assortment && $self->orphaned && scalar @{$self->assortment_items} == 0) {
     # when assortment isn't orphaned form doesn't contain any items
