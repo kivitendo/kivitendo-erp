@@ -129,6 +129,14 @@ sub _before_save_create_new_project {
 sub _before_save_validate_periodic_invoice_config {
   my ($self) = @_;
 
+  # remove empty item configs
+  foreach my $item (@{$self->items_sorted()}) {
+    if ($item->periodic_invoice_items_config
+        && $item->periodic_invoice_items_config->periodicity eq '') {
+      $item->periodic_invoice_items_config(undef);
+    }
+  }
+
   if ($self->periodic_invoices_config) {
     if ($self->periodic_invoices_config->periodicity eq 'o') {
       my @error_pos;
