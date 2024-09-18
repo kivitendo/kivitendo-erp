@@ -133,8 +133,8 @@ sub action_save_and_print {
   my ($self) = @_;
 
   $self->save_with_render_error() or return;
-  flash_later('info', t8('The item has been saved.'));
   $self->js_reset_part_after_save();
+  $self->js->flash('info', t8('The item has been saved.'));
 
   my $formname    = $::form->{print_options}->{formname};
   my $language    = $::form->{print_options}->{language};
@@ -183,7 +183,7 @@ sub action_save_and_print {
         file_name => $result{file_name},
       );
 
-      flash_later('info', t8('The document has been sent to the printer \'#1\'.', $printer->printer_description));
+      $self->js->flash('info', t8('The document has been sent to the printer \'#1\'.', $printer->printer_description));
       unlink $result{file_name} if $result{file_name};
     } else {
       die t8('Media \'#1\' is not supported yet/anymore.', $media);
@@ -192,15 +192,12 @@ sub action_save_and_print {
     1;
   } or do {
     unlink $result{file_name} if $result{file_name};
-    flash_later('error', t8("Creating the PDF failed!"));
-    flash_later('error', $@);
+    $self->js
+      ->flash('error', t8("Creating the PDF failed!"))
+      ->flash('error', $@);
   };
 
-  my $redirect_url = $self->url_for(
-    'action'  => 'edit',
-    'part.id' => $self->part->id,
-  );
-  $self->js->redirect_to($redirect_url)->render;
+  $self->js->render();
 }
 
 sub action_save_and_purchase_order {
@@ -1239,13 +1236,6 @@ sub save {
       return [t8('The document has been changed by another user. Please reopen it in another window and copy the changes to the new window')];
   }
 
-  if (    $is_new
-       && $::form->{part}{partnumber}
-       && SL::DB::Manager::Part->find_by(partnumber => $::form->{part}{partnumber})
-     ) {
-    return $self->js->error(t8('The partnumber is already being used'))->render;
-  }
-
   $self->parse_form;
 
   @errors = $self->part->validate;
@@ -1870,6 +1860,7 @@ sub _setup_form_action_bar {
           call     => [ 'kivi.Part.show_print_options' ],
           disabled => !$may_edit ? t8('You do not have the permissions to access this function.') : undef,
           checks   => [ 'kivi.validate_form' ],
+          only_if  => !$::form->{inline_create},
         ],
         action => [
           $self->part->is_assembly ? t8('Assembly items') : t8('Assortment items'),
