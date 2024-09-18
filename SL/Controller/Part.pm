@@ -28,6 +28,7 @@ use SL::Helper::Flash;
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
 use SL::JSON;
+use SL::MIME;
 use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(save_form);
 use SL::Presenter::EscapedText qw(escape is_escaped);
@@ -137,42 +138,79 @@ sub action_save_and_print {
   $self->js->flash('info', t8('The item has been saved.'));
 
   my $formname    = $::form->{print_options}->{formname};
-  my $language    = $::form->{print_options}->{language};
   my $format      = $::form->{print_options}->{format};
   my $media       = $::form->{print_options}->{media};
   my $printer_id  = $::form->{print_options}->{printer_id};
   my $copies      = $::form->{print_options}->{copies};
+  my $language;
+  if ($::form->{print_options}->{language_id}) {
+    $language = SL::DB::Manager::Language->find_by(
+      id => $::form->{print_options}->{language_id}
+    );
+  }
 
   my %result;
   eval {
-    %result = SL::Template::LaTeX->parse_and_create_pdf(
-       $formname . ".tex",
-       SELF        => $self,
-       part        => $self->part,
-       template_meta => {
-          formname   => 'part',
-          language   => $language,
-          extension  => 'pdf',
-          format     => $format,
-          media      => $media,
-          today      => DateTime->today,
-          lxconfig   => \%::lx_office_conf,
-        },
-      );
-    if ($result{error}) {
-      die t8('Conversion to PDF failed: #1', $result{error});
+
+    my $template_ext;
+    my $template_type;
+    if ($format =~ /(opendocument|oasis)/i) {
+      $template_ext  = 'odt';
+      $template_type = 'OpenDocument';
+    } elsif ($format =~ m{html}i) {
+      $template_ext  = 'html';
+      $template_type = 'HTML';
     }
 
-    my $pdf = $result{file_name};
+    # search for the template
+    my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
+      name        => $formname,
+      extension   => $template_ext,
+      language    => $language,
+      printer_id  => $printer_id,
+    );
+    if (!defined $template_file) {
+      die t8('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files);
+    }
+
+    my $print_form = Form->new('');
+    $print_form->{part}       = $self->part;
+
+    # for doc_filename
+    $print_form->{type}       = 'part';
+    $print_form->{formname}   = $formname;
+    $print_form->{format}     = $format;
+    $print_form->{partnumber} = $self->part->partnumber;
+    $print_form->{language}   = $language && ("_" .
+                                ($language->template_code || $language->description)
+                              );
+
+    # for tempalte variables
+    $print_form->{template_meta}->{language} = $language;
+    $print_form->{media} = $media;
+    $print_form->{media} = 'file' if $print_form->{media} eq 'screen';
+    my $default = SL::DB::Default->get;
+    $print_form->{employee_company} = $default->company;
+    $print_form->{currency}         = $default->currency->name;
+
+    my $document = SL::Helper::CreatePDF->create_pdf(
+      format        => $format,
+      template_type => $template_type,
+      template      => $template_file,
+      variables     => $print_form,
+      variable_content_types => {
+        notes => 'html',
+        # TODO: html cvars
+      },
+    );
 
     if ($media eq 'screen') {
-      my $file_name =  $formname . '.pdf';
-      $file_name    =~ s{[^\w\.]+}{_}g;
+      my $doc_filename = $print_form->generate_attachment_filename();
 
       $self->send_file(
-        $pdf,
-        type => 'application/pdf',
-        name => $file_name,
+        \$document,
+        type => SL::MIME->mime_type_from_ext($doc_filename),
+        name => $doc_filename,
         js_no_render => 1,
       );
       unlink $result{file_name};
