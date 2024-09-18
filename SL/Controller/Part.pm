@@ -1306,11 +1306,12 @@ sub save_with_render_error {
 sub js_reset_part_after_save {
   my ($self) = @_;
 
+  $self->part->load();
   $self->js
     ->val('#part_id',               $self->part->id)
     ->val('#part_partnumber',       $self->part->partnumber)
     ->val('#part_weight_as_number', $self->part->weight_as_number)
-    ->val('#last_modification',    "$self->part->last_modification");
+    ->val('#last_modification',     $self->part->last_modification . "");
 }
 
 # get_set_inits for partpicker
