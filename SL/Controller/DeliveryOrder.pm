@@ -290,10 +290,6 @@ sub action_close_order {
 
   $self->js
     ->flash("info", t8("The record has been closed."))
-    ->run('kivi.ActionBar.setDisabled', '#save_action',
-          t8('This record has already been closed.'))
-    ->run('kivi.ActionBar.setDisabled', '#save_and_close',
-          t8('This record has already been closed.'))
     ->html('#data-status-line', delivery_order_status_line($self->order))
     ->render
 }
@@ -1975,7 +1971,6 @@ sub setup_edit_action_bar {
             }],
           disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
                     : $self->order->delivered ? t8('This record has already been delivered.')
-                    : $self->order->closed    ? t8('This record has already been closed.')
                     :                           undef,
         ],
         action => [
@@ -1991,7 +1986,6 @@ sub setup_edit_action_bar {
             }],
           disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
                     : $self->order->delivered ? t8('This record has already been delivered.')
-                    : $self->order->closed    ? t8('This record has already been closed.')
                     :                           undef,
         ],
         action => [
