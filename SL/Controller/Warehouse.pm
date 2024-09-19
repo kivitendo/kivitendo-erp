@@ -47,12 +47,16 @@ sub action_wh_bin_select_update_bins {
   my ($self) = @_;
 
   my $wh_id      = $::form->{wh_id};
+  my $bin_id     = $::form->{bin_id};
   my $bin_dom_id = $::form->{bin_dom_id} || 'bin';
 
   my $bins = $wh_id ? SL::DB::Warehouse->new(id => $wh_id)->load->bins_sorted_naturally
            : [{id => '', description => ''}];
 
-  $self->js->run('kivi.Warehouse.wh_bin_select_update_bins', $bin_dom_id, [map { {key => $_->{id}, value => $_->{description}} } @$bins])
+  $self->js->run('kivi.Warehouse.wh_bin_select_update_bins',
+                 $bin_dom_id,
+                 [map { {key => $_->{id}, value => $_->{description}} } @$bins],
+                 $bin_id)
            ->render;
 }
 
