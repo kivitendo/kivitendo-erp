@@ -31,7 +31,7 @@ my %type_data = (
     },
     show_menu => {
       workflow_invoice     => 1,
-      workflow_reclamation => 1,
+      workflow_reclamation => sub { $::instance_conf->get_show_sales_reclamation },
       delete => sub { $::instance_conf->get_sales_delivery_order_show_delete },
     },
     properties => {
@@ -70,7 +70,7 @@ my %type_data = (
     },
     show_menu => {
       workflow_invoice     => 1,
-      workflow_reclamation => 1,
+      workflow_reclamation => sub { $::instance_conf->get_show_purchase_reclamation },
       delete => sub { $::instance_conf->get_sales_delivery_order_show_delete },
     },
     properties => {
