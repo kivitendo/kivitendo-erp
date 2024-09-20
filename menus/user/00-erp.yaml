@@ -212,7 +212,7 @@
   name: Add Sales Reclamation
     #icon: reclamation_add TODO(Tamino): add icons
   order: 450
-  access: sales_reclamation_edit
+  access: sales_reclamation_edit & client/show_sales_reclamation
   params:
     action: Reclamation/add
     type: sales_reclamation
@@ -313,7 +313,7 @@
   name: Sales Reclamation
     #icon: reclamation_add TODO(Tamino): add icons
   order: 450
-  access: sales_reclamation_edit
+  access: sales_reclamation_edit & client/show_sales_reclamation
   params:
     action: Reclamation/list
     type: sales_reclamation
@@ -440,7 +440,7 @@
   name: Add Purchase Reclamation
     #icon: reclamation_add TODO(Tamino): add icons
   order: 350
-  access: purchase_reclamation_edit
+  access: purchase_reclamation_edit & client/show_purchase_reclamation
   params:
     action: Reclamation/add
     type: purchase_reclamation
@@ -509,7 +509,7 @@
   name: Purchase Reclamation
     #icon: reclamation_add TODO(Tamino): add icons
   order: 370
-  access: purchase_reclamation_edit
+  access: purchase_reclamation_edit & client/show_purchase_reclamation
   params:
     action: Reclamation/list
     type: purchase_reclamation
@@ -1223,6 +1223,7 @@
   id: system_reclamation_reasons
   name: Reclamation Reasons
   order: 1220
+  access: client/show_sales_reclamation | client/show_purchase_reclamation
   params:
     action: ReclamationReason/list
     type: reclamation_reason
