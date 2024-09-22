@@ -1351,9 +1351,13 @@ sub make_reclamation {
     $reclamation = SL::Model::Record->update_after_customer_vendor_change($reclamation);
   }
 
+  # don't assign hashes as objects
   my $form_reclamation_items = delete $::form->{reclamation}->{reclamation_items};
 
   $reclamation->assign_attributes(%{$::form->{reclamation}});
+
+  # restore form values
+  $::form->{reclamation}->{reclamation_items} = $form_reclamation_items;
 
   $self->setup_custom_shipto_from_form($reclamation, $::form);
 
