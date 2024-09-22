@@ -1614,9 +1614,13 @@ sub make_order {
     $order = SL::Model::Record->update_after_customer_vendor_change($order);
   }
 
+  # don't assign hashes as objects
   my $form_orderitems = delete $::form->{order}->{orderitems};
 
   $order->assign_attributes(%{$::form->{order}});
+
+  # restore form values
+  $::form->{order}->{orderitems} = $form_orderitems;
 
   $self->setup_custom_shipto_from_form($order, $::form);
 
