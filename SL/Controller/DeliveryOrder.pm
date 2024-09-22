@@ -426,7 +426,8 @@ sub action_save_and_show_email_dialog {
 
   my $cv_method = $self->cv;
 
-  if (!$self->order->$cv_method) {
+  my $cv = $self->order->customervendor;
+  if (!$cv) {
     return $self->js->flash('error',
       $self->cv eq 'customer' ?
            t8('Cannot send E-mail without customer given')
@@ -435,10 +436,12 @@ sub action_save_and_show_email_dialog {
   }
 
   my $email_form;
-  $email_form->{to}   = $self->order->contact->cp_email if $self->order->contact;
-  $email_form->{to} ||= $self->order->$cv_method->email;
-  $email_form->{cc}   = $self->order->$cv_method->cc;
-  $email_form->{bcc}  = join ', ', grep $_, $self->order->$cv_method->bcc;
+  $email_form->{to} =
+       ($self->order->contact ? $self->order->contact->cp_email : undef)
+    || ($cv->is_customer ? $cv->delivery_order_mail : undef)
+    ||  $cv->email;
+  $email_form->{cc}   = $cv->cc;
+  $email_form->{bcc}  = join ', ', grep $_, $cv->bcc;
   # Todo: get addresses from shipto, if any
 
   my $form = Form->new;
