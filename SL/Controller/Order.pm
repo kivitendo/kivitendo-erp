@@ -1844,16 +1844,29 @@ sub make_order {
     $order = SL::Model::Record->update_after_customer_vendor_change($order);
   }
 
-  my $form_orderitems                  = delete $::form->{order}->{orderitems};
-  my $form_periodic_invoices_config    = delete $::form->{order}->{periodic_invoices_config};
+  # don't assign hashes as objects
+  my $form_orderitems               = delete $::form->{order}->{orderitems};
+  my $form_periodic_invoices_config = delete $::form->{order}->{periodic_invoices_config};
 
   $order->assign_attributes(%{$::form->{order}});
 
+  # restore form values
+  $::form->{order}->{orderitems}               = $form_orderitems;
+  $::form->{order}->{periodic_invoices_config} = $form_periodic_invoices_config;
+
   $self->setup_custom_shipto_from_form($order, $::form);
 
-  if (my $periodic_invoices_config_attrs = $form_periodic_invoices_config ? SL::YAML::Load($form_periodic_invoices_config) : undef) {
-    my $periodic_invoices_config = $order->periodic_invoices_config || $order->periodic_invoices_config(SL::DB::PeriodicInvoicesConfig->new);
-    $periodic_invoices_config->assign_attributes(%$periodic_invoices_config_attrs);
+  if (
+    my $periodic_invoices_config_attrs = $form_periodic_invoices_config ?
+        SL::YAML::Load($form_periodic_invoices_config)
+      : undef
+  ) {
+    my $periodic_invoices_config =
+         $order->periodic_invoices_config
+      || $order->periodic_invoices_config(SL::DB::PeriodicInvoicesConfig->new);
+    $periodic_invoices_config->assign_attributes(
+      %$periodic_invoices_config_attrs
+    );
   }
 
   # remove deleted items
