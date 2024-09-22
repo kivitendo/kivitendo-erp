@@ -500,23 +500,15 @@ sub action_save_and_show_email_dialog {
 
   if (!$self->is_final_version) {
     $self->save();
-
     $self->js_reset_order_and_item_ids_after_save;
   }
 
-  my $cv_method = $self->cv;
-
-  if (!$self->order->$cv_method) {
-    return $self->js->flash('error', $self->cv eq 'customer' ? t8('Cannot send E-mail without customer given') : t8('Cannot send E-mail without vendor given'))
-                    ->render($self);
-  }
-
-  my $email_form;
-  $email_form->{to}   = $self->order->contact->cp_email if $self->order->contact;
-  $email_form->{to} ||= $self->order->$cv_method->email;
-  $email_form->{cc}   = $self->order->$cv_method->cc;
-  $email_form->{bcc}  = join ', ', grep $_, $self->order->$cv_method->bcc;
-  # Todo: get addresses from shipto, if any
+  my $cv = $self->order->customervendor
+    or return $self->js->flash('error',
+      $self->type_data->properties('is_customer') ?
+          t8('Cannot send E-mail without customer given')
+        : t8('Cannot send E-mail without vendor given')
+    )->render($self);
 
   my $form = Form->new;
   $form->{$self->nr_key()}  = $self->order->number;
@@ -528,6 +520,13 @@ sub action_save_and_show_email_dialog {
   $form->{format}           = 'pdf';
   $form->{cp_id}            = $self->order->contact->cp_id if $self->order->contact;
 
+  my $email_form;
+  $email_form->{to} =
+       ($self->order->contact ? $self->order->contact->cp_email : undef)
+    ||  $cv->email;
+  $email_form->{cc}  = $cv->cc;
+  $email_form->{bcc} = join ', ', grep $_, $cv->bcc;
+  # Todo: get addresses from shipto, if any
   $email_form->{subject}             = $form->generate_email_subject();
   $email_form->{attachment_filename} = $form->generate_attachment_filename();
   $email_form->{message}             = $form->generate_email_body();
@@ -540,23 +539,21 @@ sub action_save_and_show_email_dialog {
     $user && !!trim($user->get_config_value('email'));
   } @{ SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]) };
 
-
-  my $all_partner_email_addresses = $self->order->customervendor->get_all_email_addresses();
-
-  my $dialog_html = $self->render('common/_send_email_dialog', { output => 0 },
-                                  email_form    => $email_form,
-                                  show_bcc      => $::auth->assert('email_bcc', 'may fail'),
-                                  FILES         => \%files,
-                                  is_customer   => $self->type_data->properties('is_customer'),
-                                  ALL_EMPLOYEES => \@employees_with_email,
-                                  ALL_PARTNER_EMAIL_ADDRESSES => $all_partner_email_addresses,
-                                  is_final_version => $self->is_final_version,
+  my $dialog_html = $self->render(
+    'common/_send_email_dialog', { output => 0 },
+    email_form    => $email_form,
+    show_bcc      => $::auth->assert('email_bcc', 'may fail'),
+    FILES         => \%files,
+    is_customer   => $self->type_data->properties('is_customer'),
+    ALL_EMPLOYEES => \@employees_with_email,
+    ALL_PARTNER_EMAIL_ADDRESSES => $cv->get_all_email_addresses(),
+    is_final_version => $self->is_final_version,
   );
 
   $self->js
-      ->run('kivi.Order.show_email_dialog', $dialog_html)
-      ->reinit_widgets
-      ->render($self);
+    ->run('kivi.Order.show_email_dialog', $dialog_html)
+    ->reinit_widgets
+    ->render($self);
 }
 
 # send email
@@ -571,8 +568,6 @@ sub action_send_email {
       $self->js->run('kivi.Order.close_email_dialog');
       die $EVAL_ERROR;
     };
-
-    $self->js_reset_order_and_item_ids_after_save;
   }
 
   my @redirect_params = (
@@ -593,6 +588,7 @@ sub action_send_email {
       $::dispatcher->end_request;
   };
 
+  # move $::form->{email_form} to $::form
   my $email_form  = delete $::form->{email_form};
 
   if ($email_form->{additional_to}) {
@@ -601,7 +597,6 @@ sub action_send_email {
   }
 
   my %field_names = (to => 'email');
-
   $::form->{ $field_names{$_} // $_ } = $email_form->{$_} for keys %{ $email_form };
 
   # for Form::cleanup which may be called in Form::send_email
@@ -616,29 +611,37 @@ sub action_send_email {
   # Is an old file version available?
   my $attfile;
   if ($::form->{attachment_policy} eq 'old_file') {
-    $attfile = SL::File->get_all(object_id     => $self->order->id,
-                                 object_type   => $self->type,
-                                 file_type     => 'document',
-                                 print_variant => $::form->{formname});
+    $attfile = SL::File->get_all(
+      object_id     => $self->order->id,
+      object_type   => $self->type,
+      print_variant => $::form->{formname},
+    );
   }
 
   if ($self->is_final_version && $::form->{attachment_policy} eq 'old_file' && !$attfile) {
     $::form->error(t8('Re-sending a final version was requested, but the latest version of the document could not be found'));
   }
 
-  if (!$self->is_final_version && $::form->{attachment_policy} ne 'no_file' && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
+  if ( !$self->is_final_version
+    &&   $::form->{attachment_policy} ne 'no_file'
+    && !($::form->{attachment_policy} eq 'old_file' && $attfile)
+  ) {
     my $doc;
-    my @errors = $self->generate_doc(\$doc, {media      => $::form->{media},
-                                             format     => $::form->{print_options}->{format},
-                                             formname   => $::form->{print_options}->{formname},
-                                             language   => $self->order->language,
-                                             printer_id => $::form->{print_options}->{printer_id},
-                                             groupitems => $::form->{print_options}->{groupitems}});
+    my @errors = $self->generate_doc(\$doc, {
+        media      => $::form->{media},
+        format     => $::form->{print_options}->{format},
+        formname   => $::form->{print_options}->{formname},
+        language   => $self->order->language,
+        printer_id => $::form->{print_options}->{printer_id},
+        groupitems => $::form->{print_options}->{groupitems},
+      });
     if (scalar @errors) {
       $::form->error(t8('Generating the document failed: #1', $errors[0]));
     }
 
-    my @warnings = $self->store_doc_to_webdav_and_filemanagement($doc, $::form->{attachment_filename}, $::form->{formname});
+    my @warnings = $self->store_doc_to_webdav_and_filemanagement(
+      $doc, $::form->{attachment_filename}, $::form->{formname}
+    );
     if (scalar @warnings) {
       flash_later('warning', $_) for @warnings;
     }
@@ -648,24 +651,29 @@ sub action_send_email {
     $sfile->fh->close;
 
     $::form->{tmpfile} = $sfile->file_name;
-    $::form->{tmpdir}  = $sfile->get_path; # for Form::cleanup which may be called in Form::send_email
+    $::form->{tmpdir}  = $sfile->get_path; # for Form::cleanup which may be
+                                           # called in Form::send_email
   }
 
-  $::form->{id} = $self->order->id; # this is used in SL::Mailer to create a linked record to the mail
+  $::form->{id} = $self->order->id; # this is used in SL::Mailer to create a
+                                    # linked record to the mail
   $::form->send_email(\%::myconfig, $::form->{print_options}->{format});
 
   flash_later('info', t8('The email has been sent.'));
+  $self->save_history('MAILED');
 
   # internal notes unless no email journal
   unless ($::instance_conf->get_email_journal) {
     my $intnotes = $self->order->intnotes;
     $intnotes   .= "\n\n" if $self->order->intnotes;
-    $intnotes   .= t8('[email]')                                                                                        . "\n";
-    $intnotes   .= t8('Date')       . ": " . $::locale->format_date_object(DateTime->now_local, precision => 'seconds') . "\n";
-    $intnotes   .= t8('To (email)') . ": " . $::form->{email}                                                           . "\n";
-    $intnotes   .= t8('Cc')         . ": " . $::form->{cc}                                                              . "\n"    if $::form->{cc};
-    $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}                                                             . "\n"    if $::form->{bcc};
-    $intnotes   .= t8('Subject')    . ": " . $::form->{subject}                                                         . "\n\n";
+    $intnotes   .= t8('[email]')                                       . "\n";
+    $intnotes   .= t8('Date')       . ": " . $::locale->format_date_object(
+                                               DateTime->now_local,
+                                               precision => 'seconds') . "\n";
+    $intnotes   .= t8('To (email)') . ": " . $::form->{email}          . "\n";
+    $intnotes   .= t8('Cc')         . ": " . $::form->{cc}             . "\n"    if $::form->{cc};
+    $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}            . "\n"    if $::form->{bcc};
+    $intnotes   .= t8('Subject')    . ": " . $::form->{subject}        . "\n\n";
     $intnotes   .= t8('Message')    . ": " . SL::HTML::Util->strip($::form->{message});
 
     $self->order->update_attributes(intnotes => $intnotes);

@@ -420,29 +420,17 @@ sub action_preview_pdf {
 sub action_save_and_show_email_dialog {
   my ($self) = @_;
 
-  if ( !$self->order->delivered ) {
+  if (!$self->order->delivered) {
     $self->save();
+    $self->js_reset_order_and_item_ids_after_save;
   }
 
-  my $cv_method = $self->cv;
-
-  my $cv = $self->order->customervendor;
-  if (!$cv) {
-    return $self->js->flash('error',
+  my $cv = $self->order->customervendor
+    or return $self->js->flash('error',
       $self->cv eq 'customer' ?
            t8('Cannot send E-mail without customer given')
          : t8('Cannot send E-mail without vendor given')
     )->render($self);
-  }
-
-  my $email_form;
-  $email_form->{to} =
-       ($self->order->contact ? $self->order->contact->cp_email : undef)
-    || ($cv->is_customer ? $cv->delivery_order_mail : undef)
-    ||  $cv->email;
-  $email_form->{cc}   = $cv->cc;
-  $email_form->{bcc}  = join ', ', grep $_, $cv->bcc;
-  # Todo: get addresses from shipto, if any
 
   my $form = Form->new;
   $form->{$self->nr_key()}  = $self->order->number;
@@ -457,44 +445,83 @@ sub action_save_and_show_email_dialog {
   $form->{cp_id}            =
     $self->order->contact->cp_id if $self->order->contact;
 
+  my $email_form;
+  $email_form->{to} =
+       ($self->order->contact ? $self->order->contact->cp_email : undef)
+    || ($cv->is_customer ? $cv->delivery_order_mail : undef)
+    ||  $cv->email;
+  $email_form->{cc}  = $cv->cc;
+  $email_form->{bcc} = join ', ', grep $_, $cv->bcc;
+  # Todo: get addresses from shipto, if any
   $email_form->{subject}             = $form->generate_email_subject();
   $email_form->{attachment_filename} = $form->generate_attachment_filename();
   $email_form->{message}             = $form->generate_email_body();
   $email_form->{js_send_function}    = 'kivi.DeliveryOrder.send_email()';
 
   my %files = $self->get_files_for_email_dialog();
-  $self->{all_employees} = SL::DB::Manager::Employee->get_all(
-    query => [ deleted => 0 ]
-  );
+
+  my @employees_with_email = grep {
+    my $user = SL::DB::Manager::AuthUser->find_by(login => $_->login);
+    $user && !!trim($user->get_config_value('email'));
+  } @{ SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]) };
+
   my $dialog_html = $self->render(
     'common/_send_email_dialog', { output => 0 },
     email_form  => $email_form,
     show_bcc    => $::auth->assert('email_bcc', 'may fail'),
     FILES       => \%files,
     is_customer => $self->type_data->properties("is_customer"),
-    ALL_EMPLOYEES => $self->{all_employees},
+    ALL_EMPLOYEES => \@employees_with_email,
+    ALL_PARTNER_EMAIL_ADDRESSES => $cv->get_all_email_addresses(),
   );
 
   $self->js
-      ->run('kivi.DeliveryOrder.show_email_dialog', $dialog_html)
-      ->reinit_widgets
-      ->render($self);
+    ->run('kivi.DeliveryOrder.show_email_dialog', $dialog_html)
+    ->reinit_widgets
+    ->render($self);
 }
 
 # send email
-#
-# Todo: handling error messages: flash is not displayed in dialog, but in the main form
 sub action_send_email {
   my ($self) = @_;
 
   if ( !$self->order->delivered ) {
-    $self->save();
-    $self->js_reset_order_and_item_ids_after_save;
+    eval {
+      $self->save();
+      1;
+    } or do {
+      $self->js->run('kivi.Order.close_email_dialog');
+      die $EVAL_ERROR;
+    };
   }
 
-  my $email_form  = delete $::form->{email_form};
-  my %field_names = (to => 'email');
+  my @redirect_params = (
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
 
+  # Set the error handler to reload the document and display errors later,
+  # because the document is already saved and saving can have some side effects
+  # such as generating a document number, project number or record links,
+  # which will be up to date when the document is reloaded.
+  # Hint: Do not use "die" here and try to catch exceptions in subroutine
+  # calls. You should use "$::form->error" which respects the error handler.
+  local $::form->{__ERROR_HANDLER} = sub {
+      flash_later('error', $_[0]);
+      $self->redirect_to(@redirect_params);
+      $::dispatcher->end_request;
+  };
+
+  # move $::form->{email_form} to $::form
+  my $email_form  = delete $::form->{email_form};
+
+  if ($email_form->{additional_to}) {
+    $email_form->{to} = join ', ', grep { $_ } $email_form->{to}, @{$email_form->{additional_to}};
+    delete $email_form->{additional_to};
+  }
+
+  my %field_names = (to => 'email');
   $::form->{ $field_names{$_} // $_ } = $email_form->{$_} for keys %{ $email_form };
 
   # for Form::cleanup which may be called in Form::send_email
@@ -509,13 +536,16 @@ sub action_send_email {
   # Is an old file version available?
   my $attfile;
   if ($::form->{attachment_policy} eq 'old_file') {
-    $attfile = SL::File->get_all(object_id   => $self->order->id,
-                                 object_type => $::form->{formname},
-                                 file_type   => 'document',
-                                 print_variant => $::form->{formname});
+    $attfile = SL::File->get_all(
+      object_id   => $self->order->id,
+      object_type => $::form->{formname},
+      file_type   => 'document',
+      print_variant => $::form->{formname},
+    );
   }
 
-  if ($::form->{attachment_policy} ne 'no_file' && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
+  if (   $::form->{attachment_policy} ne 'no_file'
+    && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
     my $pdf;
     my @errors = generate_pdf($self->order, \$pdf, {
         media      => $::form->{media},
@@ -526,9 +556,7 @@ sub action_send_email {
         groupitems => $::form->{print_options}->{groupitems}},
     );
     if (scalar @errors) {
-      return $self->js->flash('error',
-        t8('Conversion to PDF failed: #1', $errors[0])
-      )->render($self);
+      $::form->error(t8('Generating the document failed: #1', $errors[0]));
     }
 
     my @warnings = store_pdf_to_webdav_and_filemanagement(
@@ -551,9 +579,11 @@ sub action_send_email {
                                     # linked record to the mail
   $::form->send_email(\%::myconfig, 'pdf');
 
+  $self->save_history('MAILED');
+  flash_later('info', t8('The email has been sent.'));
+
   # internal notes unless no email journal
   unless ($::instance_conf->get_email_journal) {
-
     my $intnotes = $self->order->intnotes;
     $intnotes   .= "\n\n" if $self->order->intnotes;
     $intnotes   .= t8('[email]')                                . "\n";
@@ -565,20 +595,10 @@ sub action_send_email {
     $intnotes   .= t8('Cc')         . ": " . $::form->{cc}      . "\n"    if $::form->{cc};
     $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}     . "\n"    if $::form->{bcc};
     $intnotes   .= t8('Subject')    . ": " . $::form->{subject} . "\n\n";
-    $intnotes   .= t8('Message')    . ": " . $::form->{message};
+    $intnotes   .= t8('Message')    . ": " . SL::HTML::Util->strip($::form->{message});
 
     $self->order->update_attributes(intnotes => $intnotes);
   }
-
-  $self->save_history('MAILED');
-
-  flash_later('info', t8('The email has been sent.'));
-
-  my @redirect_params = (
-    action => 'edit',
-    type   => $self->type,
-    id     => $self->order->id,
-  );
 
   $self->redirect_to(@redirect_params);
 }
