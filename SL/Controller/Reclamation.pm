@@ -91,8 +91,6 @@ __PACKAGE__->run_before('get_unalterable_data',
 sub action_add {
   my ($self) = @_;
 
-  $self->reclamation(SL::Model::Record->update_after_new($self->reclamation));
-
   $self->pre_render();
 
   if (!$::form->{form_validity_token}) {
@@ -126,6 +124,7 @@ sub action_add_from_record {
   my $record = SL::Model::Record->get_record($from_type, $from_id);
   my $reclamation = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->reclamation($reclamation);
+  $self->reinit_after_new_reclamation();
 
   if ($record->type eq SALES_RECLAMATION_TYPE()) { # check for direct delivery
     # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
@@ -138,17 +137,7 @@ sub action_add_from_record {
     }
   }
 
-  $self->reinit_after_new_reclamation();
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
-  }
-
-  $self->render(
-    'reclamation/form',
-    title => $self->type_data->text('add'),
-    %{$self->{template_args}},
-  );
+  $self->action_add;
 }
 
 sub action_add_from_email_journal {
@@ -171,17 +160,11 @@ sub action_edit_with_email_journal_workflow {
 # edit an existing reclamation
 sub action_edit {
   my ($self) = @_;
+  die "No 'id' was given." unless $::form->{id};
 
-  unless ($::form->{id}) {
-    $self->js->flash('error', t8("Can't edit unsaved reclamation. No 'id' was given."));
-    return $self->js->render();
-  }
+  $self->load_reclamation();
 
-  $self->load_reclamation;
-
-  $self->recalc();
   $self->pre_render();
-
   $self->render(
     'reclamation/form',
     title => $self->type_data->text('edit'),
@@ -934,30 +917,19 @@ sub action_create_part {
 sub action_return_from_create_part {
   my ($self) = @_;
 
-  $self->{created_part} = SL::DB::Part->new(id => delete $::form->{new_parts_id})->load if $::form->{new_parts_id};
+  $self->{created_part} = SL::DB::Part->new(
+    id => delete $::form->{new_parts_id}
+  )->load if $::form->{new_parts_id};
 
   $::auth->restore_form_from_session(delete $::form->{previousform});
+  $self->reclamation($self->init_reclamation);
+  $self->reinit_after_new_reclamation();
 
-  # set item ids to new fake id, to identify them as new items
-  foreach my $item (@{$self->reclamation->items_sorted}) {
-    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  if ($self->reclamation->id) {
+    $self->action_edit;
+  } else {
+    $self->action_add;
   }
-
-  $self->recalc();
-  $self->get_unalterable_data();
-  $self->pre_render();
-
-  # trigger rendering values for second row/longdescription as hidden, because
-  # they are loaded only on demand. So we need to keep the values from the
-  # source.
-  $_->{render_second_row}      = 1 for @{ $self->reclamation->items_sorted };
-  $_->{render_longdescription} = 1 for @{ $self->reclamation->items_sorted };
-
-  $self->render(
-    'reclamation/form',
-    title => $self->type_data->text('edit'),
-    %{$self->{template_args}}
-  );
 }
 
 # load the second row for one or more items
@@ -1349,23 +1321,6 @@ sub render_price_dialog {
   $self->js->render;
 }
 
-sub load_reclamation {
-  my ($self) = @_;
-
-  return if !$::form->{id};
-
-  $self->reclamation(SL::DB::Reclamation->new(id => $::form->{id})->load);
-
-  # Add an empty custom shipto to the reclamation, so that the dialog can render
-  # the cvar inputs. You need a custom shipto object to call cvars_by_config to
-  # get the cvars.
-  if (!$self->reclamation->custom_shipto) {
-    $self->reclamation->custom_shipto(SL::DB::Shipto->new(module => 'RC', custom_variables => []));
-  }
-
-  return $self->reclamation;
-}
-
 # load or create a new reclamation object
 #
 # And assign changes from the form to this object.
@@ -1387,6 +1342,7 @@ sub make_reclamation {
                      reclamation_items  => [],
                      currency_id => $::instance_conf->get_currency_id(),
                    );
+    $reclamation = SL::Model::Record->update_after_new($reclamation)
   }
 
   my $cv_id_method = $reclamation->type_data->properties('customervendor'). '_id';
@@ -1452,6 +1408,18 @@ sub make_item {
   }
 
   return $item;
+}
+
+sub load_reclamation {
+  my ($self) = @_;
+
+  return if !$::form->{id};
+
+  $self->reclamation(SL::DB::Reclamation->new(id => $::form->{id})->load);
+
+  $self->reinit_after_new_reclamation();
+
+  return $self->reclamation;
 }
 
 # create a new item
@@ -1602,19 +1570,26 @@ sub reinit_after_new_reclamation {
   my ($self) = @_;
 
   # change form type
-  $::form->{type} = $self->reclamation->type if $self->reclamation->type;
+  $::form->{type} = $self->reclamation->type;
   $self->type($self->init_type);
-  $self->cv  ($self->init_cv);
+  $self->type_data($self->init_type_data);
+  $self->cv($self->init_cv);
   $self->check_auth;
 
-  $self->recalc();
-  $self->get_unalterable_data();
-  $self->pre_render();
+  $self->setup_custom_shipto_from_form($self->reclamation, $::form);
 
-  # trigger rendering values for second row as hidden, because they
-  # are loaded only on demand. So we need to keep the values from the
-  # source.
-  $_->{render_second_row} = 1 for @{ $self->reclamation->items_sorted };
+  foreach my $item (@{$self->reclamation->items_sorted}) {
+    # set item ids to new fake id, to identify them as new items
+    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+
+    # trigger rendering values for second row as hidden, because they
+    # are loaded only on demand. So we need to keep the values from the
+    # source.
+    $item->{render_second_row} = 1;
+  }
+
+  $self->get_unalterable_data();
+  $self->recalc();
 }
 
 sub pre_render {
