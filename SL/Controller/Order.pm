@@ -85,8 +85,6 @@ __PACKAGE__->run_before('get_basket_info_from_from');
 sub action_add {
   my ($self) = @_;
 
-  $self->order(SL::Model::Record->update_after_new($self->order));
-
   $self->pre_render();
 
   if (!$::form->{form_validity_token}) {
@@ -121,24 +119,9 @@ sub action_add_from_record {
   my $order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->order($order);
 
-  # Warn on order locked items if they are not wanted for this record type
-  if ($self->type_data->no_order_locked_parts) {
-    my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
-    flash('warning', t8('This record contains not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
-  }
+  $self->reinit_after_new_order();
 
-  $self->recalc();
-  $self->pre_render();
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
-  }
-
-  $self->render(
-    'order/form',
-    title => $self->type_data->text('add'),
-    %{$self->{template_args}}
-  );
+  $self->action_add();
 }
 
 sub action_add_from_purchase_basket {
@@ -954,11 +937,6 @@ sub action_order_workflow {
     $_   ->{converted_from_orderitems_id} = $_          ->{ RECORD_ITEM_ID() } for @{ $self->order->items_sorted };
   }
 
-  # set item ids to new fake id, to identify them as new items
-  foreach my $item (@{$self->order->items_sorted}) {
-    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-  }
-
   if ($from_side eq 'sales' && $to_side eq 'purchase') {
     if ($::form->{use_shipto}) {
       $self->order->custom_shipto($custom_shipto) if $custom_shipto;
@@ -968,37 +946,9 @@ sub action_order_workflow {
     }
   }
 
-  # change form type
-  $::form->{type} = $destination_type;
-  $self->type($self->init_type);
-  $self->type_data($self->init_type_data);
-  $self->cv  ($self->init_cv);
-  $self->check_auth;
+  $self->reinit_after_new_order();
 
-  # Warn on order locked items if they are not wanted for this record type
-  if ($self->type_data->no_order_locked_parts) {
-    my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
-    flash('warning', t8('This record contains not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
-  }
-
-  $self->recalc();
-  $self->get_unalterable_data();
-  $self->pre_render();
-
-  # trigger rendering values for second row as hidden, because they
-  # are loaded only on demand. So we need to keep the values from the
-  # source.
-  $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
-  }
-
-  $self->render(
-    'order/form',
-    title => $self->type_data->text('edit'),
-    %{$self->{template_args}}
-  );
+  $self->action_add;
 }
 
 # set form elements in respect to a changed customer or vendor
@@ -1337,35 +1287,20 @@ sub action_create_part {
 sub action_return_from_create_part {
   my ($self) = @_;
 
-  $self->{created_part} = SL::DB::Part->new(id => delete $::form->{new_parts_id})->load if $::form->{new_parts_id};
+  $self->{created_part} = SL::DB::Part->new(
+    id => delete $::form->{new_parts_id}
+  )->load if $::form->{new_parts_id};
 
   $::auth->restore_form_from_session(delete $::form->{previousform});
 
-  # set item ids to new fake id, to identify them as new items
-  foreach my $item (@{$self->order->items_sorted}) {
-    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  $self->order($self->init_order);
+  $self->reinit_after_new_order();
+
+  if ($self->order->id) {
+    $self->action_edit;
+  } else {
+    $self->action_add;
   }
-
-  $self->recalc();
-  $self->get_unalterable_data();
-  $self->pre_render();
-
-  # trigger rendering values for second row/longdescription as hidden,
-  # because they are loaded only on demand. So we need to keep the values
-  # from the source.
-  $_->{render_second_row}      = 1 for @{ $self->order->items_sorted };
-  $_->{render_longdescription} = 1 for @{ $self->order->items_sorted };
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
-  }
-
-  $self->render(
-    'order/form',
-    title => $self->type_data->text('edit'),
-    %{$self->{template_args}}
-  );
-
 }
 
 # load the second row for one or more items
@@ -1885,10 +1820,23 @@ sub make_order {
   # be retrieved via items until the order is saved. Adding empty items to new
   # order here solves this problem.
   my $order;
-  $order   = SL::DB::Order->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
-  $order ||= SL::DB::Order->new(orderitems  => [],
-                                record_type => $::form->{type},
-                                currency_id => $::instance_conf->get_currency_id(),);
+  if ($::form->{id}) {
+    $order   = SL::DB::Order->new(
+      id => $::form->{id}
+    )->load(
+      with => [
+        'orderitems',
+        'orderitems.part',
+      ]
+    );
+  } else {
+    $order = SL::DB::Order->new(
+      orderitems  => [],
+      record_type => $::form->{type},
+      currency_id => $::instance_conf->get_currency_id(),
+    );
+    $order = SL::Model::Record->update_after_new($order)
+  }
 
   my $cv_id_method = $order->type_data->properties('customervendor'). '_id';
   if (!$::form->{id} && $::form->{$cv_id_method}) {
@@ -2199,6 +2147,42 @@ sub save {
   }
 
   delete $::form->{form_validity_token};
+}
+
+sub reinit_after_new_order {
+  my ($self) = @_;
+
+  # change form type
+  $::form->{type} = $self->order->type;
+  $self->type($self->init_type);
+  $self->type_data($self->init_type_data);
+  $self->cv  ($self->init_cv);
+  $self->check_auth;
+
+  foreach my $item (@{$self->order->items_sorted}) {
+    # set item ids to new fake id, to identify them as new items
+    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+
+    # trigger rendering values for second row as hidden, because they
+    # are loaded only on demand. So we need to keep the values from the
+    # source.
+    $item->{render_second_row} = 1;
+  }
+
+  # Warn on order locked items if they are not wanted for this record type
+  if ($self->type_data->no_order_locked_parts) {
+    my @order_locked_positions =
+      map { $_->position }
+      grep { $_->part->order_locked }
+      @{ $self->order->items_sorted };
+    flash('warning', t8(
+        'This record contains not orderable items at position #1',
+        join ', ', @order_locked_positions)
+    ) if @order_locked_positions;
+  }
+
+  $self->get_unalterable_data();
+  $self->recalc();
 }
 
 sub pre_render {
