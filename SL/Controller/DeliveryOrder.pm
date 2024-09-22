@@ -96,8 +96,6 @@ __PACKAGE__->run_before('get_unalterable_data',
 sub action_add {
   my ($self) = @_;
 
-  $self->order(SL::Model::Record->update_after_new($self->order));
-
   $self->pre_render();
 
   if (!$::form->{form_validity_token}) {
@@ -149,6 +147,7 @@ sub action_add_from_record {
 
   my $delivery_order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->order($delivery_order);
+  $self->reinit_after_new_order();
 
   $self->action_add;
 }
@@ -942,35 +941,21 @@ sub action_create_part {
 sub action_return_from_create_part {
   my ($self) = @_;
 
-  $self->{created_part} =
-    SL::DB::Part->new(id => delete $::form->{new_parts_id})->load
-    if $::form->{new_parts_id};
+  $self->{created_part} = SL::DB::Part->new(
+    id => delete $::form->{new_parts_id}
+  )->load if $::form->{new_parts_id};
 
   $::auth->restore_form_from_session(delete $::form->{previousform});
 
-  # set item ids to new fake id, to identify them as new items
-  foreach my $item (@{$self->order->items_sorted}) {
-    $item->{new_fake_id} = join('_',
-      'new',
-      Time::HiRes::gettimeofday(),
-      int rand 1000000000000
-    );
+  $self->order($self->init_order);
+  $self->reinit_after_new_order();
+
+  if ($self->order->id) {
+    $self->action_edit;
+  } else {
+    $self->action_add;
   }
 
-  $self->get_unalterable_data();
-  $self->pre_render();
-
-  # trigger rendering values for second row/longdescription as hidden,
-  # because they are loaded only on demand. So we need to keep the values
-  # from the source.
-  $_->{render_second_row}      = 1 for @{ $self->order->items_sorted };
-  $_->{render_longdescription} = 1 for @{ $self->order->items_sorted };
-
-  $self->render(
-    'delivery_order/form',
-    title => $self->get_title_for('edit'),
-    %{$self->{template_args}}
-  );
 }
 
 sub action_stock_in_out_dialog {
@@ -1608,13 +1593,19 @@ sub make_order {
   if ($::form->{id}) {
     $order = SL::DB::DeliveryOrder->new(
       id => $::form->{id}
-    )->load(with => [ 'orderitems', 'orderitems.part' ]);
+    )->load(
+      with => [
+        'orderitems',
+        'orderitems.part',
+      ]
+    );
   } else {
     $order = SL::DB::DeliveryOrder->new(
       orderitems  => [],
       currency_id => $::instance_conf->get_currency_id(),
       record_type => $::form->{type}
     );
+    $order = SL::Model::Record->update_after_new($order);
   }
 
   my $cv_id_method = $order->type_data->properties('customervendor'). '_id';
@@ -1857,28 +1848,7 @@ sub workflow_sales_or_request_for_quotation {
   $self->order($delivery_order);
   $self->{converted_from_oe_id} = delete $::form->{id};
 
-  # set item ids to new fake id, to identify them as new items
-  foreach my $item (@{$self->order->items_sorted}) {
-    $item->{new_fake_id} = join('_',
-      'new',
-      Time::HiRes::gettimeofday(),
-      int rand 1000000000000
-    );
-  }
-
-  # change form type
-  $::form->{type} = $destination_type;
-  $self->type($self->init_type);
-  $self->cv  ($self->init_cv);
-  $self->check_auth;
-
-  $self->get_unalterable_data();
-  $self->pre_render();
-
-  # trigger rendering values for second row as hidden, because they
-  # are loaded only on demand. So we need to keep the values from the
-  # source.
-  $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
+  $self->reinit_after_new_order();
 
   $self->render(
     'delivery_order/form',
@@ -1886,6 +1856,29 @@ sub workflow_sales_or_request_for_quotation {
     %{$self->{template_args}}
   );
 }
+
+sub reinit_after_new_order {
+  my ($self) = @_;
+
+  # change form type
+  $::form->{type} = $self->order->type;
+  $self->type($self->init_type);
+  $self->cv  ($self->init_cv);
+  $self->check_auth;
+
+  foreach my $item (@{$self->order->items_sorted}) {
+    # set item ids to new fake id, to identify them as new items
+    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+
+    # trigger rendering values for second row as hidden, because they
+    # are loaded only on demand. So we need to keep the values from the
+    # source.
+    $item->{render_second_row} = 1;
+  }
+
+  $self->get_unalterable_data();
+}
+
 
 sub pre_render {
   my ($self) = @_;
