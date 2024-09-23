@@ -26,6 +26,7 @@ use SL::DB::PurchaseBasketItem;
 use SL::DB::Shop;
 use SL::Helper::Flash;
 use SL::Helper::PrintOptions;
+use SL::Helper::UserPreferences::PartPickerSearch;
 use SL::JSON;
 use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(save_form);
@@ -742,7 +743,9 @@ sub action_part_picker_search {
   $search_term  ||= $self->models->filtered->laundered->{all_with_makemodel_substr_multi__ilike};
   $search_term  ||= $self->models->filtered->laundered->{all_with_customer_partnumber_substr_multi__ilike};
 
-  $_[0]->render('part/part_picker_search', { layout => 0 }, search_term => $search_term);
+  my $all_as_list = SL::Helper::UserPreferences::PartPickerSearch->new()->get_all_as_list_default;
+
+  $_[0]->render('part/part_picker_search', { layout => 0 }, search_term => $search_term, all_as_list => $all_as_list);
 }
 
 sub action_part_picker_result {

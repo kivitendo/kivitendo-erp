@@ -6,7 +6,7 @@
 <div class="select-item control-panel">
   [% L.hidden_tag('part_picker_real_id', FORM.real_id) %]
   [% LxERP.t8("Filter") %]: [% L.input_tag('part_picker_filter', search_term, class='part_picker_filter') %]
-  [% L.checkbox_tag('no_paginate', checked=FORM.no_paginate, id='no_paginate', for_submit=1, label=LxERP.t8('All as list')) %]
+  [% L.checkbox_tag('no_paginate', checked=FORM.no_paginate, id='no_paginate', checked=all_as_list, for_submit=1, label=LxERP.t8('All as list')) %]
 </div>
 
 <div id="part_picker_result"></div>
