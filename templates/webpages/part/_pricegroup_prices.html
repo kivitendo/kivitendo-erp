@@ -16,7 +16,13 @@
           <td style='display:none'>[% L.hidden_tag('prices[+].pricegroup_id', pricegroup.id) %]
           [% L.hidden_tag('prices[].price_id', price.id) # id not used? %]</td>
           <td width=50%>[% L.hidden_tag('prices[].pricegroup', pricegroup.pricegroup) %][% HTML.escape(pricegroup.pricegroup) %]</td>
-          <td width=50%>[% L.input_tag('prices[].price', price.price_as_number, size=11, class='numeric reformat_number') %]</td>
+          <td width=50%>
+           [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+            [% L.input_tag('prices[].price', price.price_as_number, size=11, class='numeric reformat_number') %]
+           [% ELSE %]
+            <span class="numeric">[% price.price_as_number %]</span>
+           [% END %]
+          </td>
         </tr>
         [%- END %]
       </table>
