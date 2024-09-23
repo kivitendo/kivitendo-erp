@@ -1043,7 +1043,7 @@ sub parse_form {
     # No right to set or change prices, so delete prices from params.
     delete $params->{$_} for qw(sellprice_as_number lastcost_as_number listprice_as_number);
 
-    # Todo: pricegroup prices, makemodel prices, customer prices?
+    # Todo: makemodel prices, customer prices?
   }
 
   delete $params->{id};
@@ -1068,8 +1068,10 @@ sub parse_form {
   $self->part->translations([]) unless $params{use_as_new};
   $self->parse_form_translations;
 
-  $self->part->prices([]);
-  $self->parse_form_prices;
+  if ($::auth->assert('part_service_assembly_edit_prices', 'may_fail')) {
+    $self->part->prices([]);
+    $self->parse_form_prices;
+  }
 
   $self->parse_form_customerprices;
   $self->parse_form_makemodels;
