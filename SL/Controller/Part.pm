@@ -1039,8 +1039,6 @@ sub parse_form {
   if (!$::auth->assert('part_service_assembly_edit_prices', 'may_fail')) {
     # No right to set or change prices, so delete prices from params.
     delete $params->{$_} for qw(sellprice_as_number lastcost_as_number listprice_as_number);
-
-    # Todo: makemodel prices, customer prices?
   }
 
   delete $params->{id};
@@ -1128,6 +1126,12 @@ sub parse_form_makemodels {
                                      lastcost             => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number}),
                                      sortorder            => $position,
                                    );
+
+    if (!$::auth->assert('part_service_assembly_edit_prices', 'may_fail')) {
+      # No right to edit prices -> restore old lastcost.
+      $mm->lastcost($makemodels_map->{$id} ? $makemodels_map->{$id}->lastcost : undef);
+    }
+
     if ($makemodels_map->{$mm->id} && !$makemodels_map->{$mm->id}->lastupdate && $makemodels_map->{$mm->id}->lastcost == 0 && $mm->lastcost == 0) {
       # lastupdate isn't set, original lastcost is 0 and new lastcost is 0
       # don't change lastupdate
@@ -1201,6 +1205,12 @@ sub parse_form_customerprices {
                                      price                => $::form->parse_amount(\%::myconfig, $customerprice->{price_as_number}),
                                      sortorder            => $position,
                                    );
+
+    if (!$::auth->assert('part_service_assembly_edit_prices', 'may_fail')) {
+      # No right to edit prices -> restore old price.
+      $cu->price($customerprices_map->{$id} ? $customerprices_map->{$id}->price : undef);
+    }
+
     if ($customerprices_map->{$cu->id} && !$customerprices_map->{$cu->id}->lastupdate && $customerprices_map->{$cu->id}->price == 0 && $cu->price == 0) {
       # lastupdate isn't set, original price is 0 and new lastcost is 0
       # don't change lastupdate
