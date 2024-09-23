@@ -20,6 +20,12 @@
          <td>[% L.input_tag('customerprices[].customer_partnumber'     , customerprice.customer_partnumber , size=30 ) %]</td>
          <td>[% L.input_tag('customerprices[].part_description'        , customerprice.part_description    , size=30 ) %]</td>
          <td>[% L.areainput_tag('customerprices[].part_longdescription', customerprice.part_longdescription, size=30 ) %]</td>
-         <td>[% L.input_tag('customerprices[].price_as_number'         , customerprice.price_as_number     , size=15 , class="reformat_number numeric") %]</td>
+         <td>
+          [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+           [% L.input_tag('customerprices[].price_as_number'           , customerprice.price_as_number     , size=15 , class="reformat_number numeric") %]
+          [% ELSE %]
+           <span class="numeric">[% customerprice.price_as_number %]</span>
+          [% END %]
+         </td>
          <td>[% L.hidden_tag('customerprices[].lastupdate'             , customerprice.lastupdate.to_kivitendo) %][% customerprice.lastupdate.to_kivitendo | html %]</td>
         </tr>
