@@ -1487,6 +1487,7 @@ $self->{texts} = {
   'Edit price rule'             => '',
   'Edit pricegroup'             => '',
   'Edit prices and discount (if not used, textfield is ONLY set readonly)' => '',
+  'Edit prices for parts, services, assemblies' => '',
   'Edit project'                => '',
   'Edit project #1'             => '',
   'Edit project link'           => '',

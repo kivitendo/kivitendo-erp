@@ -1487,6 +1487,7 @@ $self->{texts} = {
   'Edit price rule'             => 'Preisregel bearbeiten',
   'Edit pricegroup'             => 'Preisgruppe bearbeiten',
   'Edit prices and discount (if not used, textfield is ONLY set readonly)' => 'Preise und Rabatt in Formularen frei anpassen (falls deaktiviert, wird allerdings NUR das textfield auf READONLY gesetzt / kann je nach Browserversion und technischen Fähigkeiten des Anwenders noch umgangen werden)',
+  'Edit prices for parts, services, assemblies' => 'Preise von Artikel, Dienstleistungen, Erzeugnisse bearbeiten',
   'Edit project'                => 'Projekt bearbeiten',
   'Edit project #1'             => 'Projekt #1 bearbeiten',
   'Edit project link'           => 'Projektverknüpfung bearbeiten',
