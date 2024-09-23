@@ -107,12 +107,22 @@
       </tr>
       <tr>
         <th>[% 'List Price' | $T8 %]</th>
-        <td>[% L.input_tag("part.listprice_as_number", SELF.part.listprice_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]</td>
+        <td>
+          [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+            [% L.input_tag("part.listprice_as_number", SELF.part.listprice_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]
+          [% ELSE %]
+            <span class="data wi-mediumsmall numeric">[% SELF.part.listprice_as_number %]</span>
+          [% END %]
+        </td>
       </tr>
       <tr>
         <th>[% 'Sell Price' | $T8 %]</th>
         <td>
-          [% L.input_tag("part.sellprice_as_number", SELF.part.sellprice_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]
+          [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+            [% L.input_tag("part.sellprice_as_number", SELF.part.sellprice_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]
+          [% ELSE %]
+            <span class="data wi-mediumsmall numeric">[% SELF.part.sellprice_as_number %]</span>
+          [% END %]
           [% IF (SELF.part.is_assortment or SELF.part.is_assembly) %]
             <span id="items_sellprice_sum_basic" class="data below wi-mediumsmall numeric">([% LxERP.format_amount(SELF.part.items_sellprice_sum, 2) %])</span>
           [% END %]
@@ -122,7 +132,11 @@
         <th>[% 'Last Cost' | $T8 %]</th>
         <td>
           [%- UNLESS SELF.part.is_assembly %]
-            [% L.input_tag("part.lastcost_as_number", SELF.part.lastcost_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]
+            [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+              [% L.input_tag("part.lastcost_as_number", SELF.part.lastcost_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]
+            [% ELSE %]
+              <span class="data wi-mediumsmall numeric">[% SELF.part.lastcost_as_number %]</span>
+            [% END %]
           [% END %]
           [% IF SELF.part.is_assortment || SELF.part.is_assembly %]
             <span id="items_lastcost_sum_basic" class="data below wi-mediumsmall numeric">([% LxERP.format_amount(SELF.part.items_lastcost_sum, 2) %])</span>
