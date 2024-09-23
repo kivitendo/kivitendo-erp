@@ -253,6 +253,12 @@ sub action_use_as_new {
   $self->part($oldpart->clone_and_reset_deep);
   $self->parse_form(use_as_new => 1);
   $self->part->partnumber(undef);
+
+  if (!$::auth->assert('part_service_assembly_edit_prices', 'may_fail')) {
+    # No right to edit prices -> remove prices for new part.
+    $self->part->$_(undef) for qw(sellprice lastcost listprice);
+  }
+
   $self->render_form(use_as_new => 1);
 }
 
@@ -1029,6 +1035,13 @@ sub parse_form {
   my $is_new = !$self->part->id;
 
   my $params = delete($::form->{part}) || { };
+
+  if (!$::auth->assert('part_service_assembly_edit_prices', 'may_fail')) {
+    # No right to set or change prices, so delete prices from params.
+    delete $params->{$_} for qw(sellprice_as_number lastcost_as_number listprice_as_number);
+
+    # Todo: pricegroup prices, makemodel prices, customer prices?
+  }
 
   delete $params->{id};
   $self->part->assign_attributes(%{ $params});

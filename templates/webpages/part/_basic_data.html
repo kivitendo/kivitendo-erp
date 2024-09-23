@@ -108,18 +108,34 @@
 
           <tr>
            <th align="right" nowrap="true">[% 'List Price' | $T8 %]</th>
-           <td>[% L.input_tag("part.listprice_as_number", SELF.part.listprice_as_number, size=11 class='reformat_number numeric') %]</td>
+           <td>
+            [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+             [% L.input_tag("part.listprice_as_number", SELF.part.listprice_as_number, size=11 class='reformat_number numeric') %]</td>
+            [% ELSE %]
+             <span class="numeric">[% SELF.part.listprice_as_number %]</span>
+            [% END %]
           </tr>
 
           <tr  >
            <th align="right" nowrap="true">[% 'Sell Price' | $T8 %]</th>
-           <td>[% L.input_tag("part.sellprice_as_number", SELF.part.sellprice_as_number, size=11, class='reformat_number numeric') %] [% IF (SELF.part.is_assortment or SELF.part.is_assembly) %] (<span id="items_sellprice_sum_basic">[% LxERP.format_amount(SELF.part.items_sellprice_sum, 2) %]</span>) [% END %]</td>
+           <td>
+            [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+             [% L.input_tag("part.sellprice_as_number", SELF.part.sellprice_as_number, size=11, class='reformat_number numeric') %]
+             [% IF (SELF.part.is_assortment or SELF.part.is_assembly) %] (<span id="items_sellprice_sum_basic">[% LxERP.format_amount(SELF.part.items_sellprice_sum, 2) %]</span>) [% END %]
+            [% ELSE %]
+             <span class="numeric">[% SELF.part.sellprice_as_number %]</span>
+            [% END %]
+           </td>
           </tr>
           <tr>
            <th align="right" nowrap="true">[% 'Last Cost' | $T8 %]</th>
            <td>
             [%- UNLESS SELF.part.is_assembly %]
-             [% L.input_tag("part.lastcost_as_number", SELF.part.lastcost_as_number, size=11 class='reformat_number numeric') %]
+             [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+              [% L.input_tag("part.lastcost_as_number", SELF.part.lastcost_as_number, size=11 class='reformat_number numeric') %]
+             [% ELSE %]
+              <span class="numeric">[% SELF.part.lastcost_as_number %]</span>
+            [% END %]
             [%- END %]
             [% IF SELF.part.is_assortment || SELF.part.is_assembly %] (<span id="items_lastcost_sum_basic">[% LxERP.format_amount(SELF.part.items_lastcost_sum, 2) %]</span>) [% END %]
            </td>
