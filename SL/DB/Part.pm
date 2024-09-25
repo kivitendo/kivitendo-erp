@@ -314,6 +314,15 @@ sub orphaned {
     eval "require $class";
     return 0 if $class->_get_manager_class->get_all_count(query => [ parts_id => $self->id ]);
   }
+
+  if ($self->is_parent_variant) {
+    use SL::DB::PartParentVariantPartVariant;
+    return 0 if SL::DB::Manager::PartParentVariantPartVariant->get_all_count(
+      query => [
+        parent_variant_id => $self->id
+      ]);
+  }
+
   return 1;
 }
 
