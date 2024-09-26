@@ -194,23 +194,27 @@ sub calculate_invoice_dates {
 
   my $last_created_on_date = $self->get_previous_billed_period_start_date;
 
-  my @start_dates;
-  my $first_period_start_date = $self->first_billing_date || $self->start_date;
+  my $first_invoice_date = $self->first_billing_date || $self->start_date;
+  $first_invoice_date = $self->add_months(
+    $first_invoice_date, $self->get_billing_period_length || 1
+  ) while $first_invoice_date < $self->start_date;
+
+  my @invoice_dates;
   if ($self->periodicity ne 'o') {
     my $billing_period_length = $self->get_billing_period_length;
-    my $months_first_period =
-      $first_period_start_date->year * 12 + $first_period_start_date->month;
+    my $months_first_invoice_date =
+      $first_invoice_date->year * 12 + $first_invoice_date->month;
 
-    my $month_to_start = $start_date->year * 12 + $start_date->month - $months_first_period;
-    $month_to_start += 1
-      if $self->add_months($first_period_start_date, $month_to_start) < $start_date;
+    my $month_to_start = $start_date->year * 12 + $start_date->month - $months_first_invoice_date;
+    $month_to_start++
+      if $self->add_months($first_invoice_date, $month_to_start) < $start_date;
 
     my $month_after_last_created = 0;
     if ($last_created_on_date) {
       $month_after_last_created =
-        $last_created_on_date->year * 12 + $last_created_on_date->month - $months_first_period;
+        $last_created_on_date->year * 12 + $last_created_on_date->month - $months_first_invoice_date;
       $month_after_last_created += 1
-        if $self->add_months($first_period_start_date, $month_after_last_created) <= $last_created_on_date;
+        if $self->add_months($first_invoice_date, $month_after_last_created) <= $last_created_on_date;
     }
 
     my $months_from_period_start = max(
@@ -221,20 +225,20 @@ sub calculate_invoice_dates {
     my $period_count = int($months_from_period_start / $billing_period_length); # floor
     $period_count += $months_from_period_start % $billing_period_length != 0 ? 1 : 0; # ceil
 
-    my $next_period_start_date = $self->add_months($first_period_start_date, $period_count * $billing_period_length);
+    my $next_period_start_date = $self->add_months($first_invoice_date, $period_count * $billing_period_length);
     while ($next_period_start_date <= $end_date) {
-      push @start_dates, $next_period_start_date;
+      push @invoice_dates, $next_period_start_date;
       $period_count++;
-      $next_period_start_date = $self->add_months($first_period_start_date, $period_count * $billing_period_length);
+      $next_period_start_date = $self->add_months($first_invoice_date, $period_count * $billing_period_length);
     }
   } else { # single
-    push @start_dates, $first_period_start_date
+    push @invoice_dates, $first_invoice_date
       unless $last_created_on_date
-          || $first_period_start_date < $start_date
-          || $first_period_start_date > $end_date;
+          || $first_invoice_date < $start_date
+          || $first_invoice_date > $end_date;
   }
 
-  return @start_dates;
+  return @invoice_dates;
 }
 
 sub last_end_date {
@@ -461,8 +465,9 @@ C<start_date>. It defaults to the current local time.
 
 =item C<calculate_invoice_dates %params>
 
-Calculates dates for which invoices will have to be created. Returns a
-list of L<DateTime> objects.
+Calculates dates for which invoices will have to be created in the period given
+by the parameters C<start_date> and C<end_date>. Returns a list of L<DateTime>
+objects.
 
 This function looks at the configuration settings and at the list of
 invoices that have already been created for this configuration. The
@@ -472,21 +477,15 @@ values:
 =over 2
 
 =item * The properties C<first_billing_date> and C<start_date>
-determine the start date.
+determine the first invoice date.
 
-=item * The properties C<end_date> and C<terminated> determine the end
-date.
+=item * The properties C<end_date>, C<terminated> and C<extend_automatically_by>
+determine the end date.
 
-=item * The optional parameter C<past_dates> determines whether or not
-dates for which invoices have already been created will be included in
-the list. The default is not to include them.
+=item * The parameter C<start_date> of the period defaults to the start date
+from the configuration.
 
-=item * The optional parameters C<start_date> and C<end_date> override
-the start and end dates from the configuration.
-
-=item * If no end date is set or implied via the configuration and no
-C<end_date> parameter is given then the function will use 100 years
-in the future as the end date.
+=item * The parameter C<end_date> defaults to current date.
 
 =back
 
