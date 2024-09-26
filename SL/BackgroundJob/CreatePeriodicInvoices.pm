@@ -23,6 +23,7 @@ use SL::Mailer;
 use SL::Util qw(trim);
 use SL::System::Process;
 use SL::Locale::String qw(t8);
+use SL::DB::Helper::RecordLink qw(RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 
 sub create_job {
   $_[0]->create_standard_job('0 3 1 * *'); # first day of month at 3:00 am
@@ -99,11 +100,13 @@ sub _log_msg {
 }
 
 sub _generate_time_period_variables {
-  my $config            = shift;
-  my $period_start_date = shift;
+  my %params = validate(@_, {
+      period_start_date => { isa => 'DateTime' },
+      period_end_date => { type => HASHREF|UNDEF }, # 'DateTime or UNDEF
+    });
 
-  my $period_length   = $config->get_order_value_period_length || $config->get_billing_period_length || 1;
-  my $period_end_date = $period_start_date->clone->add(months => $period_length)->subtract(days => 1);
+  my $period_start_date = $params{period_start_date};
+  my $period_end_date = $params{period_end_date};
 
   my @month_names       = ('',
                            $::locale->text('January'), $::locale->text('February'), $::locale->text('March'),     $::locale->text('April'),   $::locale->text('May'),      $::locale->text('June'),
@@ -184,8 +187,12 @@ sub _create_periodic_invoice {
 
   my $period_start_date = $order->reqdate;
   my $config            = $order->periodic_invoices_config;
-  my $time_period_vars  = _generate_time_period_variables($config, $period_start_date);
-
+  my $time_period_vars  = _generate_time_period_variables(
+    period_start_date => $order->reqdate,
+    period_end_date   => $config->add_months(
+      $order->reqdate, $config->get_billing_period_length || 1
+    )->subtract(days => 1),
+  );
   my $invoice;
   if (!$self->{db_obj}->db->with_transaction(sub {
     1;                          # make Emacs happy
@@ -201,10 +208,33 @@ sub _create_periodic_invoice {
       direct_debit => $config->direct_debit,
     );
 
-    _replace_vars(object => $invoice, vars => $time_period_vars, attribute => $_, attribute_format => ($_ eq 'notes' ? 'html' : 'text')) for qw(notes intnotes transaction_description);
+    _replace_vars(
+      object => $invoice,
+      vars => $time_period_vars,
+      attribute => $_,
+      attribute_format => ($_ eq 'notes' ? 'html' : 'text')
+    ) for qw(notes intnotes transaction_description);
 
     foreach my $item (@{ $invoice->items }) {
-      _replace_vars(object => $item, vars => $time_period_vars, attribute => $_, attribute_format => ($_ eq 'longdescription' ? 'html' : 'text')) for qw(description longdescription);
+
+      die "Not created of an order item" if $item->{RECORD_ITEM_TYPE_REF()} ne 'SL::DB::OrderItem';
+      my $order_item_id = $item->{RECORD_ITEM_ID()};
+      my $order_item = SL::DB::Manager::OrderItem->find_by(
+        id => $order_item_id,
+      ) or die "order item not found with id: $order_item_id";
+      my $item_count_and_dates = $config->item_count_and_dates_in_period(
+        invoice_date => $invoice->deliverydate,
+        item         => $order_item,
+      );
+      _replace_vars(
+        object => $item,
+        vars => _generate_time_period_variables(
+          period_start_date => $item_count_and_dates->{start_date},
+          period_end_date   => $item_count_and_dates->{end_date},
+        ),
+        attribute => $_,
+        attribute_format => ($_ eq 'longdescription' ? 'html' : 'text')
+      ) for qw(description longdescription);
     }
 
     $invoice->post(ar_id => $config->ar_chart_id) || die;
