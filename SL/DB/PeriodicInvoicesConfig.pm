@@ -42,9 +42,11 @@ sub get_open_orders_for_period {
     my $new_order = clone($orig_order);
     $new_order->reqdate($invoice_date);
     $new_order->tax_point(
-      $self->add_months($invoice_date,
-        $self->get_billing_period_length || $self->get_order_value_period_length || 1
-      )->subtract(days => 1)
+      $self->get_order_value_period_length || $self->get_order_value_period_length ?
+          $self->add_months($invoice_date,
+            $self->get_billing_period_length || $self->get_order_value_period_length
+          )->subtract(days => 1)
+        : $invoice_date
     );
     my @items;
     for my $item ($orig_order->items) {
