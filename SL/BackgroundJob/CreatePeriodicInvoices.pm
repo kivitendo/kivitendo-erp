@@ -189,9 +189,7 @@ sub _create_periodic_invoice {
   my $config            = $order->periodic_invoices_config;
   my $time_period_vars  = _generate_time_period_variables(
     period_start_date => $order->reqdate,
-    period_end_date   => $config->add_months(
-      $order->reqdate, $config->get_billing_period_length || 1
-    )->subtract(days => 1),
+    period_end_date   => $order->tax_point,
   );
   my $invoice;
   if (!$self->{db_obj}->db->with_transaction(sub {
