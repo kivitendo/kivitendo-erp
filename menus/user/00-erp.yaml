@@ -330,7 +330,7 @@
   id: ar_reports_sales_report
   name: Sales Report
   order: 600
-  access: invoice_edit
+  access: sales_report
   module: vk.pl
   params:
     action: search_invoice
@@ -348,7 +348,7 @@
   id: ar_order_item_search
   name: Order item search
   order: 750
-  access: sales_order_edit
+  access: sales_order_item_search
   params:
     action: OrderItem/search
 - parent: ar_reports
@@ -371,7 +371,7 @@
   id: ar_reports_financial_controlling
   name: Financial Controlling
   order: 1000
-  access: sales_order_edit
+  access: sales_financial_controlling
   params:
     action: FinancialControllingReport/list
 - parent: ar_reports
