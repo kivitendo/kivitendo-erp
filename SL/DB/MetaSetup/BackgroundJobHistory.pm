@@ -10,6 +10,7 @@ __PACKAGE__->meta->table('background_job_histories');
 
 __PACKAGE__->meta->columns(
   data         => { type => 'text' },
+  description  => { type => 'text' },
   error        => { type => 'text', alias => 'error_col' },
   id           => { type => 'serial', not_null => 1 },
   package_name => { type => 'varchar', length => 255 },

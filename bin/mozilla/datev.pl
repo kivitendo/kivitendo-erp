@@ -74,8 +74,9 @@ sub export_bewegungsdaten {
   setup_datev_export2_action_bar();
 
   $::form->header;
-  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
-  $::form->{show_pk_option}  = SL::DATEV->new->check_vcnumbers_are_valid_pk_numbers;
+  $::form->{ALL_DEPARTMENTS}        = SL::DB::Manager::Department->get_all_sorted;
+  $::form->{show_pk_option}         = SL::DATEV->new->check_vcnumbers_are_valid_pk_numbers;
+  $::form->{show_documents_option}  = SL::DATEV->new->check_document_export;
 
   # check if we have mismatching number length domains
   SL::DATEV->new->check_valid_length_of_accounts;
@@ -98,10 +99,14 @@ sub export3 {
     $::form->{zeitraum}, $::form->{monat}, $::form->{quartal},
     $::form->{transdatefrom}, $::form->{transdateto},
   );
-  $data{use_pk} = $::form->{use_pk};
-  $data{locked} = $::form->{locked};
-  $data{imported} = $::form->{imported};
+  $data{use_pk}    = $::form->{use_pk};
+  $data{locked}    = $::form->{locked};
+  $data{imported}  = $::form->{imported};
+  $data{documents} = $::form->{documents};
 
+  if ($data{documents} && !SL::DATEV->new->check_all_bookings_have_documents(from => $data{from}, to => $data{to})) {
+    $::form->error(t8("Cannot export with documents because some transactions don't have a PDF document attached."));
+  }
   my $datev = SL::DATEV->new(%data);
 
   $datev->clean_temporary_directories;

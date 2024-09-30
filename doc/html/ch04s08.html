@@ -25,11 +25,14 @@
             <code class="filename">dobudish-nojre-1.1.4.zip</code>, aus auf <a class="ulink" href="https://code.google.com/archive/p/dobudish/downloads" target="_top">code.google.com</a>
             bereitsteht.</p></li></ul></div><p>Apache Ant sowie ein dazu passendes Java Runtime Environment
         sind auf allen gängigen Plattformen verfügbar. Beispiel für
-        Debian/Ubuntu:</p><pre class="programlisting">apt-get install ant openjdk-7-jre</pre><p>Nach dem Download von Dobudish muss Dobudish im Unterverzeichnis
-        <code class="filename">doc/build</code> entpackt werden. Beispiel unter der
+        Debian/Ubuntu:</p><pre class="programlisting">apt-get install ant default-jre</pre><p>Nach dem Download von Dobudish muss Dobudish im Unterverzeichnis
+        <code class="filename">kivitendo-erp/doc/build</code> entpackt werden. Beispiel unter der
         Annahme, das <span class="productname">Dobudish</span>™ in
-        <code class="filename">$HOME/Downloads</code> heruntergeladen wurde:</p><pre class="programlisting">cd doc/build
-unzip $HOME/Downloads/dobudish-nojre-1.1.4.zip</pre></div><div class="sect2" title="4.8.3. PDFs und HTML-Seiten erstellen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.build-doc.build"></a>4.8.3. PDFs und HTML-Seiten erstellen</h3></div></div></div><p>Die eigentliche Konvertierung erfolgt nach Installation der
+        <code class="filename">$HOME/Downloads</code> heruntergeladen wurde:</p><pre class="programlisting">cd kivitendo-erp/doc/build
+unzip $HOME/Downloads/dobudish-nojre-1.1.4.zip</pre><p>Damit auf Dobudish zugegriffen werden kann, muss ein Link mit dem Namen
+        <code class="filename">dobudish</code> erstellt werden, der auf den Ordner
+        <code class="filename">dobudish-nojre-1.1.4</code> zeigt.</p><pre class="programlisting">cd kivitendo-erp/doc/build
+ln -sf dobudish-1.1.4 dobudish</pre></div><div class="sect2" title="4.8.3. PDFs und HTML-Seiten erstellen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.build-doc.build"></a>4.8.3. PDFs und HTML-Seiten erstellen</h3></div></div></div><p>Die eigentliche Konvertierung erfolgt nach Installation der
         benötigten Software mit einem einfachen Aufruf direkt aus dem
         kivitendo-Installationsverzeichnis heraus:</p><pre class="programlisting">./scripts/build_doc.sh</pre></div><div class="sect2" title="4.8.4. Einchecken in das Git-Repository"><div class="titlepage"><div><div><h3 class="title"><a name="devel.build-doc.repository"></a>4.8.4. Einchecken in das Git-Repository</h3></div></div></div><p>Sowohl die XML-Datei als auch die erzeugten PDF- und
         HTML-Dateien sind Bestandteil des Git-Repositories. Daraus folgt, dass

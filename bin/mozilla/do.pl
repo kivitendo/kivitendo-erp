@@ -802,7 +802,7 @@ sub orders {
                                           transaction_description transdatefrom transdateto reqdatefrom reqdateto
                                           type vc employee_id salesman_id project_id parts_partnumber parts_description
                                           insertdatefrom insertdateto business_id all department_id chargenumber full_text
-                                          vendor_confirmation_number order_confirmation_number);
+                                          vendor_confirmation_number order_confirmation_number ids top_info_text);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
@@ -935,7 +935,7 @@ sub orders {
     },
   );
 
-  $report->set_options('top_info_text'        => join("\n", @options),
+  $report->set_options('top_info_text'        => $::form->{top_info_text} || join("\n", @options),
                        'raw_top_info_text'    => $form->parse_html_template('do/orders_top'),
                        'raw_bottom_info_text' => $form->parse_html_template('do/orders_bottom', { print_options => $print_options }),
                        'output_format'        => 'HTML',
@@ -971,7 +971,7 @@ sub orders {
       'valign'   => 'center',
       'align'    => 'center',
     };
-    $row->{donumber}->{link}  = SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id}, type => $dord->{record_type});
+    $row->{donumber}->{link}  = SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id}, type => $dord->{record_type}, callback => $form->{callback});
     $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
 
     foreach my $order_confirmation (@{ $dord->{order_confirmation_numbers} }) {

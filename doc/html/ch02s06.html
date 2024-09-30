@@ -33,7 +33,7 @@ exit </pre><p>Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
         werden. Hier gibt es mehrere Möglichkeiten. Sinnvoll ist es nur die
         nötigen Verbindungen immer zuzulassen, für eine lokal laufende
         Datenbank zum Beispiel:</p><pre class="programlisting">local all kivitendo password
-host all kivitendo 127.0.0.1 255.255.255.255 password</pre></div><div class="sect2" title="2.6.3. Erweiterung für servergespeicherte Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-servergespeicherte-Prozeduren"></a>2.6.3. Erweiterung für servergespeicherte Prozeduren</h3></div></div></div><p>In der Datenbank <code class="literal">template1</code> muss die
+host all kivitendo 127.0.0.1 255.255.255.255 scram-sha-256</pre></div><div class="sect2" title="2.6.3. Erweiterung für servergespeicherte Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-servergespeicherte-Prozeduren"></a>2.6.3. Erweiterung für servergespeicherte Prozeduren</h3></div></div></div><p>In der Datenbank <code class="literal">template1</code> muss die
         Unterstützung für servergespeicherte Prozeduren eingerichet werden.
         Melden Sie sich dafür als Benutzer “postgres” an der Datenbank an:
         </p><pre class="programlisting">su - postgres

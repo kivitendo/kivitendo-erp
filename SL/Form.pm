@@ -1504,10 +1504,10 @@ sub check_exchangerate {
                  { isa  => 'Form'},
                  { type => HASHREF, callbacks => { has_yy_in_dateformat => sub { $_[0]->{dateformat} =~ m/yy/ } } },
                  { type => SCALAR, callbacks  => { is_fx_currency       => sub { shift ne $_[1]->[0]->{defaultcurrency} } } }, # should be ISO three letter codes for currency identification (ISO 4217)
-                 { type => SCALAR | HASHREF, callbacks  => { is_valid_kivi_date   => sub { shift =~ m/\d+\d+\d+/ } } }, # we have three numbers. Either DateTime or form scalar
-                 { type => SCALAR, callbacks  => { is_buy_or_sell_rate  => sub { shift =~ m/^buy|sell$/ } } },
-                 { type => SCALAR, callbacks  => { is_current_form_id   => sub { $_[0] == $_[1]->[0]->{id} } },              optional => 1 },
-                 { type => SCALAR, callbacks  => { is_valid_fx_table    => sub { shift =~ m/(ar|ap)/  } }, optional => 1 }
+                 { type => SCALAR | HASHREF, callbacks  => { is_valid_kivi_date   => sub { shift =~ m/\d+.\d+.\d+/ } } }, # we have three numbers. Either DateTime or form scalar
+                 { type => SCALAR, callbacks  => { is_buy_or_sell_rate  => sub { shift =~ m/^(buy|sell)$/ } } },
+                 { type => SCALAR | UNDEF,   callbacks  => { is_current_form_id   => sub { $_[0] == $_[1]->[0]->{id} } },              optional => 1 },
+                 { type => SCALAR, callbacks  => { is_valid_fx_table    => sub { shift =~ m/^(ar|ap)$/  } }, optional => 1 }
               );
   my ($self, $myconfig, $currency, $transdate, $fld, $id, $record_table) = @_;
 
@@ -3206,6 +3206,8 @@ sub prepare_for_printing {
     DO->order_details(\%::myconfig, $self);
   } elsif ($self->{type} =~ /sales_order|sales_quotation|request_quotation|purchase_order|purchase_quotation_intake/) {
     OE->order_details(\%::myconfig, $self);
+  } elsif ($self->{type} =~ /reclamation/) {
+    # skip reclamation here, legacy template arrays are added in the reclamation controller
   } else {
     IS->invoice_details(\%::myconfig, $self, $::locale);
   }
@@ -3356,9 +3358,7 @@ sub calculate_arap {
     my $tax_id = $self->{"tax_id_$i"};
 
     my $selected_tax = SL::DB::Manager::Tax->find_by(id => "$tax_id");
-
-    if ( $selected_tax && $selected_tax->taxkey ne '94') {
-
+    if ( $selected_tax && !$selected_tax->reverse_charge_chart_id) {
       if ( $buysell eq 'sell' ) {
         $self->{AR_amounts}{"tax_$i"} = $selected_tax->chart->accno if defined $selected_tax->chart;
       } else {
@@ -3369,7 +3369,7 @@ sub calculate_arap {
       $self->{"taxrate_$i"} = $selected_tax->rate;
     };
 
-    $self->{"taxkey_$i"} = $selected_tax->taxkey if $selected_tax->taxkey eq '94';
+    $self->{"taxkey_$i"} = $selected_tax->taxkey if ($selected_tax && $selected_tax->reverse_charge_chart_id);
 
     ($self->{"amount_$i"}, $self->{"tax_$i"}) = $self->calculate_tax($self->{"amount_$i"},$self->{"taxrate_$i"},$taxincluded,$roundplaces);
 

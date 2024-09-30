@@ -244,3 +244,7 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
 
 * Nach einem Major Release alle Bugs, die den Milestone hatten und nicht gefixt
   wurden, zurücksetzen
+
+* Im Ansible Script die Verionsnummer aktualisieren und
+  neu hinzugekommene Pakete hinzufügen.
+  https://github.com/kivitendo/kivitendo-ansible

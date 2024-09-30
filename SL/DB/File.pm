@@ -7,6 +7,7 @@ use strict;
 
 use SL::DB::MetaSetup::File;
 use SL::DB::Manager::File;
+use SL::DB::Helper::AttrSorted;
 
 __PACKAGE__->meta->add_relationship(
   full_text            => {
@@ -16,8 +17,18 @@ __PACKAGE__->meta->add_relationship(
   },
 );
 
+__PACKAGE__->meta->add_relationship(
+  file_versions        => {
+    type               => 'one to many',
+    class              => 'SL::DB::FileVersion',
+    column_map         => { id => 'file_id' },
+  },
+);
+
+
 __PACKAGE__->meta->initialize;
 
+__PACKAGE__->attr_sorted({unsorted => 'file_versions', position => 'version'});
 
 1;
 __END__

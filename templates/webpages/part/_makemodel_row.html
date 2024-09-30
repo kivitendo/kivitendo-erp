@@ -20,6 +20,12 @@
          <td>[% L.input_tag('makemodels[].model'                   , makemodel.model               , size=30 ) %]</td>
          <td>[% L.input_tag('makemodels[].part_description'        , makemodel.part_description    , size=30 ) %]</td>
          <td>[% L.areainput_tag('makemodels[].part_longdescription', makemodel.part_longdescription, size=30 ) %]</td>
-         <td>[% L.input_tag('makemodels[].lastcost_as_number'      , makemodel.lastcost_as_number  , size=15 , class="reformat_number numeric") %]</td>
+         <td>
+          [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+           [% L.input_tag('makemodels[].lastcost_as_number'        , makemodel.lastcost_as_number  , size=15 , class="reformat_number numeric") %]
+          [% ELSE %]
+           <span class="numeric">[% makemodel.lastcost_as_number %]</span>
+          [% END %]
+         </td>
          <td>[% L.hidden_tag('makemodels[].lastupdate'             , makemodel.lastupdate.to_kivitendo) %][% makemodel.lastupdate.to_kivitendo | html %]</td>
         </tr>

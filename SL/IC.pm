@@ -178,7 +178,7 @@ sub all_parts {
   $form->{parts}     = +{ };
   $form->{soldtotal} = undef if $form->{l_soldtotal}; # security fix. top100 insists on putting strings in there...
 
-  my @simple_filters       = qw(partnumber ean description partsgroup microfiche drawing onhand);
+  my @simple_filters       = qw(partnumber ean description partsgroup microfiche drawing onhand notes);
   my @project_filters      = qw(projectnumber projectdescription);
   my @makemodel_filters    = qw(make model);
   my @invoice_oi_filters   = qw(serialnumber soldtotal);

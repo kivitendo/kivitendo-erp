@@ -4,6 +4,7 @@ use strict;
 
 use parent qw(SL::File::Backend);
 use SL::DB::File;
+use SL::DB::FileVersion;
 
 use SL::System::Process;
 use File::Copy;
@@ -12,6 +13,7 @@ use File::Basename;
 use File::Path qw(make_path);
 use File::MimeInfo::Magic;
 use File::stat;
+use UUID::Tiny ':std';
 
 #
 # public methods
@@ -59,15 +61,29 @@ sub save {
     print OUT $params{file_contents};
     close(OUT);
   }
+
+  # save file version
+  my $doc_path = $self->get_rootdir();
+  my $rel_file = $tofile;
+  $rel_file    =~ s/$doc_path//;
+  my $fv = SL::DB::FileVersion->new(
+    file_id       => $params{dbfile}->id,
+    version       => 1, # Webdav doesn't have versions by now.
+    file_location => $rel_file,
+    doc_path      => $doc_path,
+    backend       => 'Webdav',
+    guid          => create_uuid_as_string(UUID_V4),
+  )->save;
+
   return 1;
 }
 
 sub get_version_count {
   my ($self, %params) = @_;
   die "no dbfile" unless $params{dbfile};
-  ## TODO
-  # Webdav doesn't have versions by now. And delete checks for version, so return 0 for now
-  return 0;
+  # TODO: Webdav doesn't have versions by now.
+  my ($path, undef, undef) = $self->webdav_path($params{dbfile});
+  return (-f $path || 0) * 1; # return 1 if file is found otherwise 0
 }
 
 sub get_mtime {

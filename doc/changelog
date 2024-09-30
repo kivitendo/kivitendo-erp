@@ -8,9 +8,27 @@ Größere Features und Komponentenupdates:
   -
 
 Mittelgroße neue Features:
-  -
+  - Umwandeln mehrerer Aufträge in jeweils einen Lieferschein aus
+    dem Auftragsbericht.
+  - Neues Recht zum Anzeigen der Beträge in Auftragsberichten. Wer dieses
+    Recht nicht hat, sieht keine Beträge in den Berichten und die Links
+    zu nicht eigenen Aufträgen erscheinen nicht (nur die Auftragsnummer
+    als Text).
+    Als Standardeinstellung bekommen alle Gruppen mit Rechten, Aufträge
+    einzusehen bzw. zu bearbeiten, das Recht, Beträge im Bericht zu sehen.
+    Das Recht lässt sich getrennt nach Ein- und Verkauf einstellen.
+  - Neues Recht zum Ändern von Preisen in Artikelstammdaten.
+    Das Recht ist nach dem Update standardmäßig an, wenn man das Recht zum
+    Anlegen und Bearbeiten von Artikeln hat.
+    Fehlt einem dieses Recht, so lassen sich die Preise sehen, aber nicht
+    bearbeiten. Das betrifft Listen-, Einkaufs-, Verkaufs, Preisgruppen-,
+    Lieferanten- und Kundenpreise.
 
 Kleinere neue Features und Detailverbesserungen:
+  - Verkaufsreklamationen: Support für Drucken via odt-Vorlagen sowie eine
+    Beispiel odt-Vorlage hinzugefügt
+  - Neuer Backgroundjob zum Massen-generieren von Shop Artikeln aus Artikeln.
+    Dokumentation siehe POD in SL/BackgroundJob/ShopPartMassCreate.pm.
   - Möglichkeit nach internen Bemerkungen zu suchen und zu filtern im
     Bericht Einkaufsrechnungen/Kreditorenbuchungen.
   - Der Inhalt der Picker (Artikel/Kunde/Lieferant/Projekt/Konto) wird
@@ -18,6 +36,17 @@ Kleinere neue Features und Detailverbesserungen:
     dann beim Lostippen gelöscht und es kann direkt nach einem neuen
     Objekt gesucht werden.
   - Möglichkeit einer Datenbank-Verklemmung bei CSV-Importen verringert.
+  - Bei aktiviertem DMS wird bei SEPA-Überweisungen zusätzlich eine PDF zum Download
+    angeboten, die alle bei den Buchungen hinterlegten PDF-Belege in einem PDF bündelt.
+    Somit kann der Überweisende an dieser Stelle nochmal die Überweisungsliste anhand der
+    hinterlegten PDF-Rechnungen vor der Überweisung kontrollieren
+  - Beim Einlagern die Liste der letzten Einlagerungen von 10 auf 20 erhöht und auch
+    das entsprechende Dokument anzeigen
+  - Neues Feld Beschreibung bei den Backgroundjob. Dient zur besseren
+    Unterscheidung.
+  - Dialogbuchungen als "als neu verwenden" können.
+  - eigene Zugriffsrechte für die Verkaufs-Berichte "Auftragsartikelsuche",
+    "Finanz-Controlling" und "Verkaufsbericht".
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -
@@ -301,8 +330,6 @@ Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 12  Erzeugnisse deren Einzelteile unterschiedliche Einheiten verwenden werden falsch berechnet.
 6   2437 Falsche Marge bei Verwendung von Preisfaktor
 5   1991 SelfTests: Undefiniertes Verhalten bei NOTESTS
-
-
 
 2023-04-05 - Release 3.8.0
 

@@ -565,6 +565,10 @@ sub layout_style {
   SL::Helper::UserPreferences::DisplayPreferences->new()->get_layout_style();
 }
 
+sub part_picker_search_all_as_list_default {
+  SL::Helper::UserPreferences::PartPickerSearch->new()->get_all_as_list_default();
+}
+
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
@@ -610,6 +614,9 @@ sub save_preferences {
   }
   if (exists $form->{layout_style}) {
     SL::Helper::UserPreferences::DisplayPreferences->new()->store_layout_style($form->{layout_style})
+  }
+  if (exists $form->{part_picker_search_all_as_list_default}) {
+    SL::Helper::UserPreferences::PartPickerSearch->new()->store_all_as_list_default($form->{part_picker_search_all_as_list_default})
   }
 
   $main::lxdebug->leave_sub();

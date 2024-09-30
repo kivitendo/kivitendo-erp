@@ -2144,9 +2144,20 @@ sub generate_pdf {
 
   my $template_ext;
   my $template_type;
+  my $variable_content_types;
   if ($print_form->{format} =~ /(opendocument|oasis)/i) {
     $template_ext  = 'odt';
     $template_type = 'OpenDocument';
+
+    # add variables for printing with the built-in parser
+    $reclamation->flatten_to_form($print_form, format_amounts => 1);
+    $reclamation->add_legacy_template_arrays($print_form);
+
+    $variable_content_types = {
+      longdescription => 'html',
+      notes           => 'html',
+      $::form->get_variable_content_types_for_cvars,
+    }
   }
 
   # search for the template
@@ -2177,6 +2188,7 @@ sub generate_pdf {
         template_type => $template_type,
         template      => $template_file,
         variables     => $print_form,
+        variable_content_types => $variable_content_types,
       );
       1;
     } || push @errors, ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR;

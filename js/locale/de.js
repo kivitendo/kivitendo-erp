@@ -175,7 +175,7 @@ namespace("kivi").setupLocale({
 "The name must only consist of letters, numbers and underscores and start with a letter.":"Der Name darf nur aus Buchstaben (keine Umlaute), Ziffern und Unterstrichen bestehen und muss mit einem Buchstaben beginnen.",
 "The option field is empty.":"Das Optionsfeld ist leer.",
 "The port is missing.":"Port fehlt",
-"The recipient, subject or body is missing.":"Der Empfäger, der Betreff oder der Text ist leer.",
+"The recipient, subject or body is missing.":"Der Empfänger, der Betreff oder der Text ist leer.",
 "The selected database is still configured for client \"#1\". If you delete the database that client will stop working until you re-configure it. Do you still want to delete the database?":"Die auswählte Datenbank ist noch für Mandant \"#1\" konfiguriert. Wenn Sie die Datenbank löschen, wird der Mandanten nicht mehr funktionieren, bis er anders konfiguriert wurde. Möchten Sie die Datenbank trotzdem löschen?",
 "The transfer has been canceled by the user.":"Der Vorgang wurde durch den Benutzer abgebrochen.",
 "The transport cost article '#1' is missing. Do you want to continue anyway?":"Der Transportkostenartikel »#1« fehlt. Möchten Sie trotzdem fortfahren?",

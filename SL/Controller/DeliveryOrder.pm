@@ -34,6 +34,7 @@ use SL::DB::TransferType;
 use SL::DB::ValidityToken;
 use SL::DB::EmailJournal;
 use SL::DB::Warehouse;
+use SL::DB::Bin;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
@@ -284,6 +285,12 @@ sub action_print {
     $self->js_reset_order_and_item_ids_after_save;
   }
 
+  my $redirect_url = $self->url_for(
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
+
   my $format      = $::form->{print_options}->{format};
   my $media       = $::form->{print_options}->{media};
   my $formname    = $::form->{print_options}->{formname};
@@ -293,16 +300,14 @@ sub action_print {
 
   # only pdf and opendocument by now
   if (none { $format eq $_ } qw(pdf opendocument opendocument_pdf)) {
-    return $self->js->flash('error',
-      t8('Format \'#1\' is not supported yet/anymore.', $format)
-    )->render;
+    flash_later('error', t8('Format \'#1\' is not supported yet/anymore.', $format));
+    return $self->js->redirect_to($redirect_url)->render;
   }
 
   # only screen or printer by now
   if (none { $media eq $_ } qw(screen printer)) {
-    return $self->js->flash('error',
-      t8('Media \'#1\' is not supported yet/anymore.', $media)
-    )->render;
+    flash_later('error', t8('Media \'#1\' is not supported yet/anymore.', $media));
+    return $self->js->redirect_to($redirect_url)->render;
   }
 
   # create a form for generate_attachment_filename
@@ -323,14 +328,13 @@ sub action_print {
       groupitems => $groupitems
     });
   if (scalar @errors) {
-    return $self->js->flash('error',
-      t8('Conversion to PDF failed: #1', $errors[0])
-    )->render;
+    flash_later('error', t8('Generating the document failed: #1', $errors[0]));
+    return $self->js->redirect_to($redirect_url)->render;
   }
 
   if ($media eq 'screen') {
     # screen/download
-    $self->js->flash('info', t8('The PDF has been created'));
+    flash_later('info', t8('The document has been created.'));
     $self->send_file(
       \$pdf,
       type         => SL::MIME->mime_type_from_ext($pdf_filename),
@@ -346,22 +350,21 @@ sub action_print {
       content => $pdf,
     );
 
-    $self->js->flash('info', t8('The PDF has been printed'));
+    flash_later('info', t8('The document has been printed.'));
   }
 
   my @warnings = store_pdf_to_webdav_and_filemanagement(
-    $self->order, $pdf, $pdf_filename
+    $self->order, $pdf, $pdf_filename, $formname
   );
   if (scalar @warnings) {
-    $self->js->flash('warning', $_) for @warnings;
+    flash_later('warning', $_) for @warnings;
   }
 
   $self->save_history('PRINTED');
 
-  $self->js
-    ->run('kivi.ActionBar.setEnabled', '#save_and_email_action')
-    ->render;
+  $self->js->redirect_to($redirect_url)->render;
 }
+
 sub action_preview_pdf {
   my ($self) = @_;
 
@@ -369,6 +372,12 @@ sub action_preview_pdf {
     $self->save();
     $self->js_reset_order_and_item_ids_after_save;
   }
+
+  my $redirect_url = $self->url_for(
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
 
   my $format      = 'pdf';
   my $media       = 'screen';
@@ -392,19 +401,19 @@ sub action_preview_pdf {
       language   => $self->order->language,
     });
   if (scalar @errors) {
-    return $self->js->flash('error',
-      t8('Conversion to PDF failed: #1', $errors[0])
-    )->render;
+    flash_later('error', t8('Conversion to PDF failed: #1', $errors[0]));
+    return $self->js->redirect_to($redirect_url)->render;
   }
   $self->save_history('PREVIEWED');
-  $self->js->flash('info', t8('The PDF has been previewed'));
+  flash_later('info', t8('The PDF has been previewed'));
   # screen/download
   $self->send_file(
     \$pdf,
     type         => SL::MIME->mime_type_from_ext($pdf_filename),
     name         => $pdf_filename,
-    js_no_render => 0,
+    js_no_render => 1,
   );
+  $self->js->redirect_to($redirect_url)->render;
 }
 
 # open the email dialog
@@ -492,7 +501,18 @@ sub action_send_email {
   $::form->{$_}     = $::form->{print_options}->{$_} for keys %{ $::form->{print_options} };
   $::form->{media}  = 'email';
 
-  if (($::form->{attachment_policy} // '') !~ m{^(?:old_file|no_file)$}) {
+  $::form->{attachment_policy} //= '';
+
+  # Is an old file version available?
+  my $attfile;
+  if ($::form->{attachment_policy} eq 'old_file') {
+    $attfile = SL::File->get_all(object_id   => $self->order->id,
+                                 object_type => $::form->{formname},
+                                 file_type   => 'document',
+                                 print_variant => $::form->{formname});
+  }
+
+  if ($::form->{attachment_policy} ne 'no_file' && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
     my $pdf;
     my @errors = generate_pdf($self->order, \$pdf, {
         media      => $::form->{media},
@@ -509,7 +529,7 @@ sub action_send_email {
     }
 
     my @warnings = store_pdf_to_webdav_and_filemanagement(
-      $self->order, $pdf, $::form->{attachment_filename}
+      $self->order, $pdf, $::form->{attachment_filename}, $::form->{formname}
     );
     if (scalar @warnings) {
       flash_later('warning', $_) for @warnings;
@@ -947,10 +967,11 @@ sub action_stock_in_out_dialog {
 
   $self->merge_stock_data($stock_info, \@contents, $part, $unit);
 
+  my $delivered = $self->order->delivered;
   $self->render("delivery_order/stock_dialog", { layout => 0 },
     WHCONTENTS => \@contents,
     STOCK_INFO => $stock_info,
-    WAREHOUSES => SL::DB::Manager::Warehouse->get_all(with_objects=> ["bins",]),
+    WAREHOUSES => !$delivered ? SL::DB::Manager::Warehouse->get_all(query => [ or => [ invalid => 0, invalid => undef ]], with_objects=> ["bins",]) : [],
     part       => $part,
     do_qty     => $qty,
     do_unit    => $unit->unit,
@@ -1126,7 +1147,7 @@ sub action_transfer_stock {
 
   SL::DB->client->with_transaction(sub {
     $_->save for @transfer_requests;
-    $self->order->update_attributes(delivered => 1, closed => 1);
+    $self->order->update_attributes(delivered => 1);
   });
   # update qty and stock info
   foreach my $item (@{$self->order->items}) {
@@ -1226,6 +1247,7 @@ sub action_transfer_stock_default {
       my $max_qty = sum0(map {$_->{qty}} @grouped_qty);
       if ($max_qty < $parts_qty{$part_id}) {
         $parts_errors{$part_id}{missing_qty} = $parts_qty{$part_id} - $max_qty;
+        $parts_errors{$part_id}{bin_id}      = $bin_id;
       }
 
       next if $parts_errors{$part_id};
@@ -1265,9 +1287,12 @@ sub action_transfer_stock_default {
         $self->js->error(t8('No standard bin set for #1.', $part->displayable_name));
       }
       if ($parts_errors{$part_id}{missing_qty}) {
+        my $bin = SL::DB::Manager::Bin->find_by(
+          id => $parts_errors{$part_id}{bin_id}
+        );
         $self->js->error(
-          t8('There are #1 of "#2" missing from the standard bin #3 for transfer.',
-            $parts_errors{$part_id}{missing_qty}, $part->displayable_name, $part->bin->full_description));
+          t8('There are #1 of "#2" missing from the bin #3 for transfer.',
+            $parts_errors{$part_id}{missing_qty}, $part->displayable_name, $bin->full_description));
       }
       if ($parts_errors{$part_id}{multiple_options}){
         push @multiple_options, $part;
@@ -2304,7 +2329,7 @@ sub save_history {
 }
 
 sub store_pdf_to_webdav_and_filemanagement {
-  my($order, $content, $filename) = @_;
+  my($order, $content, $filename, $variant) = @_;
 
   my @errors;
 
@@ -2333,7 +2358,8 @@ sub store_pdf_to_webdav_and_filemanagement {
                      source        => 'created',
                      file_type     => 'document',
                      file_name     => $filename,
-                     file_contents => $content);
+                     file_contents => $content,
+                     print_variant => $variant);
       1;
     } or do {
       push @errors, t8('Storing PDF in storage backend failed: #1', $@);

@@ -100,7 +100,7 @@
   name: Update Prices
   icon: prices_update
   order: 800
-  access: part_service_assembly_edit
+  access: part_service_assembly_edit & part_service_assembly_edit_prices
   params:
     action: PartsPriceUpdate/search_update_prices
 - parent: master_data
@@ -212,7 +212,7 @@
   name: Add Sales Reclamation
     #icon: reclamation_add TODO(Tamino): add icons
   order: 450
-  access: sales_reclamation_edit
+  access: sales_reclamation_edit & client/show_sales_reclamation
   params:
     action: Reclamation/add
     type: sales_reclamation
@@ -313,7 +313,7 @@
   name: Sales Reclamation
     #icon: reclamation_add TODO(Tamino): add icons
   order: 450
-  access: sales_reclamation_edit
+  access: sales_reclamation_edit & client/show_sales_reclamation
   params:
     action: Reclamation/list
     type: sales_reclamation
@@ -330,7 +330,7 @@
   id: ar_reports_sales_report
   name: Sales Report
   order: 600
-  access: invoice_edit
+  access: sales_report
   module: vk.pl
   params:
     action: search_invoice
@@ -348,7 +348,7 @@
   id: ar_order_item_search
   name: Order item search
   order: 750
-  access: sales_order_edit
+  access: sales_order_item_search
   params:
     action: OrderItem/search
 - parent: ar_reports
@@ -371,7 +371,7 @@
   id: ar_reports_financial_controlling
   name: Financial Controlling
   order: 1000
-  access: sales_order_edit
+  access: sales_financial_controlling
   params:
     action: FinancialControllingReport/list
 - parent: ar_reports
@@ -440,7 +440,7 @@
   name: Add Purchase Reclamation
     #icon: reclamation_add TODO(Tamino): add icons
   order: 350
-  access: purchase_reclamation_edit
+  access: purchase_reclamation_edit & client/show_purchase_reclamation
   params:
     action: Reclamation/add
     type: purchase_reclamation
@@ -509,7 +509,7 @@
   name: Purchase Reclamation
     #icon: reclamation_add TODO(Tamino): add icons
   order: 370
-  access: purchase_reclamation_edit
+  access: purchase_reclamation_edit & client/show_purchase_reclamation
   params:
     action: Reclamation/list
     type: purchase_reclamation
@@ -1223,6 +1223,7 @@
   id: system_reclamation_reasons
   name: Reclamation Reasons
   order: 1220
+  access: client/show_sales_reclamation | client/show_purchase_reclamation
   params:
     action: ReclamationReason/list
     type: reclamation_reason

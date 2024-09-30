@@ -26,6 +26,7 @@ use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF);
 use SL::Locale::String qw(t8);
 use SL::RecordLinks;
 use Rose::DB::Object::Helpers qw(as_tree strip);
+use SL::DB::Helper::LegacyPrinting qw(map_keys_to_arrays format_as_number);
 
 __PACKAGE__->meta->add_relationship(
 
@@ -231,6 +232,24 @@ sub convert_to_delivery_order {
   }
 
   return $delivery_order;
+}
+
+sub add_legacy_template_arrays {
+  my ($self, $print_form) = @_;
+
+  # for now using the keys that are used in the latex template: template/print/marei/sales_reclamation.tex
+  # (nested keys: part.partnumber, reason.description)
+  my @keys = qw( position part.partnumber description longdescription reqdate serialnumber projectnumber reason.description
+    reason_description_ext qty_as_number unit sellprice_as_number discount_as_number discount_as_percent linetotal );
+
+  my @tax_keys = qw( tax.taxdescription amount );
+
+  my %template_arrays;
+  map_keys_to_arrays($self->items_sorted, \@keys, \%template_arrays);
+  map_keys_to_arrays($self->taxes, \@tax_keys, \%template_arrays);
+
+  format_as_number([ qw(linetotal) ], \%template_arrays);
+  $print_form->{TEMPLATE_ARRAYS} = \%template_arrays;
 }
 
 #TODO(Werner): überprüfen ob alle Felder richtig gestetzt werden
@@ -570,6 +589,14 @@ failure. The whole process is run inside a transaction. On failure
 nothing is created or changed in the database.
 
 At the moment only sales quotations and sales reclamations can be converted.
+
+=head2 C<add_legacy_template_arrays $print_form>
+
+For printing OpenDocument documents we need to extract loop variables (items and
+taxes) from the Rose DB object and add them to the form, in the format that the
+built-in template parser expects.
+
+<$print_form> Print form used in the controller.
 
 =head2 C<new_from $source, %params>
 

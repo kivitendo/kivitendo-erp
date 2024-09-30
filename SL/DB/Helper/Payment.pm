@@ -439,7 +439,7 @@ sub open_amount {
 sub open_amount_fx {
   validate_pos(
     @_,
-      {  can       => [ qw(forex get_exchangerate) ],
+      {  can       => [ qw(forex get_exchangerate open_amount) ],
          callbacks => { 'has forex'        => sub { return $_[0]->forex },
                         'has exchangerate' => sub { return $_[0]->get_exchangerate > 0 } } },
       {  callbacks => {
@@ -598,6 +598,7 @@ sub _skonto_charts_and_tax_correction {
   my (@skonto_charts, $inv_calc, $total_skonto_rounded);
 
   $inv_calc = $self->get_tax_and_amount_by_tax_chart_id();
+  die t8('Cannot calculate Amount and Tax for this booking correctly, please check chart settings') unless $inv_calc;
 
   # foreach tax.chart_id || $entry->{ta..id}
   while (my ($tax_chart_id, $entry) = each %{ $inv_calc } ) {
@@ -713,13 +714,14 @@ sub within_skonto_period {
                         isa => 'DateTime',
                         callbacks => {
                           'self has a skonto date'  => sub { ref $self->skonto_date eq 'DateTime' },
-                          'is within skonto period' => sub { return shift() <= $self->skonto_date },
                         },
                       },
        }
     );
-  # then return true
-  return 1;
+  # return 1 if requested date (or today) is inside skonto period
+  # this will also return 1 if date is before the invoice date
+  my (%params) = @_;
+  return $params{transdate} <= $self->skonto_date;
 }
 
 sub valid_skonto_amount {
@@ -757,7 +759,7 @@ sub get_payment_select_options_for_bank_transaction {
   my $bt = SL::DB::BankTransaction->new(id => $bt_id)->load;
   croak "No Bank Transaction with ID $bt_id found" unless ref $bt eq 'SL::DB::BankTransaction';
 
-  if (eval { $self->within_skonto_period(transdate => $bt->transdate); 1; } ) {
+  if (ref $self->skonto_date eq 'DateTime' &&  $self->within_skonto_period(transdate => $bt->transdate)) {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
     push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });
     push(@options, { payment_type => 'with_fuzzy_skonto_pt', display => t8('with fuzzy skonto acc. to pt')});
@@ -1016,14 +1018,24 @@ to 0.
 
 =item C<within_skonto_period [transdate =E<gt> DateTime]>
 
-Returns 1 if skonto_date is in a skontoable period.
-Needs the mandatory named param 'transdate' as a 'DateTime', usually a bank
-transaction date for imported bank data.
+Returns 1 if skonto_date is in a skontoable period otherwise undef.
 
-Checks if the invoice has skontoable payment terms configured and whether the date
-is within the skonto max date.
 
-If one of the condition fails, a hopefully helpful error message is returned.
+Expects transdate to be set and to be a DateTime object.
+Expects calling object to be a Invoice object with a skonto_date set.
+
+Throws a error if any of the two mandantory conditions are not met.
+
+If the conditions are met the routine simply checks if the param transdate
+is within the max allowed date of the invoices skonto date.
+
+Example usage:
+
+ my $inv = SL::DB::Invoice->new;
+ my $bt  = SL::DB::BankTransaction->new;
+
+ my $payment_date_is_skontoable =
+   (ref $inv->skonto_date eq 'DateTime' && $inv->within_skonto_period(transdate => $bt->transdate));
 
 =item C<valid_skonto_amount>
 

@@ -26,7 +26,13 @@
         [% L.hidden_tag('prices[].price_id', price.id) # id not used? %]
         [% L.hidden_tag('prices[].pricegroup', pricegroup.pricegroup) %][% HTML.escape(pricegroup.pricegroup) %]
       </th>
-      <td> [% L.input_tag('prices[].price', price.price_as_number, size=11, class='wi-mediumsmall numeric reformat_number') %] </td>
+      <td>
+        [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+          [% L.input_tag('prices[].price', price.price_as_number, size=11, class='wi-mediumsmall numeric reformat_number') %]
+        [% ELSE %]
+            <span class="data wi-mediumsmall numeric">[% price.price_as_number %]</span>
+        [% END %]
+      </td>
     </tr>
   [% END %]
   [% # followed by Storage-Table %]

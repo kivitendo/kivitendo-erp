@@ -57,6 +57,7 @@
       <th>[% LxERP.t8("Amount") %]</th>
       <th>[% LxERP.t8("Remote account") %]</th>
       <th>[% LxERP.t8("Local account") %]</th>
+      <th>[% LxERP.t8("End to end ID") %]</th>
       <th>[% LxERP.t8("Information") %]</th>
     </tr>
   </thead>
@@ -75,6 +76,7 @@
           [% END %]
         </td>
         <td>[% HTML.escape(transaction.bank_account.name) %]</td>
+        <td>[% HTML.escape(transaction.end_to_end_id) %]</td>
         <td>
           [% IF transaction.error %]
             [% HTML.escape(transaction.error) %]

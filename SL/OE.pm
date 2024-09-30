@@ -89,9 +89,19 @@ sub transactions {
 
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
 
+  if ($form->{type} !~ /_quotation/) {
+    $form->{hide_amounts} = !(   ($vc eq 'customer' && $::auth->assert('sales_order_reports_amounts',    1))
+                              || ($vc eq 'vendor'   && $::auth->assert('purchase_order_reports_amounts', 1)) );
+    $form->{hide_links}   = $form->{hide_amounts};
+  }
+
+  if ($form->{hide_amounts}) {
+    $form->{"l_$_"} = '' for qw(remaining_amount remaining_netamount amount netamount marge_total marge_percent expected_netamount tax);
+  }
+
   my %billed_amount;
   my %billed_netamount;
-  if ($form->{l_remaining_amount} || $form->{l_remaining_netamount}) {
+  if (!$form->{hide_amounts} && ($form->{l_remaining_amount} || $form->{l_remaining_netamount})) {
     my $arap = $form->{vc} eq "customer" ? "ar" : "ap";
 
     $query = <<"SQL";
@@ -127,12 +137,16 @@ SQL
     $phone_notes_join    = qq| JOIN notes phone_notes ON (o.id = phone_notes.trans_id AND phone_notes.trans_module LIKE 'oe') |;
   }
 
+  my $amount_columns = $form->{hide_amounts}
+                     ? ''
+                     : qq| , o.amount, o.netamount, o.marge_total, o.marge_percent, (o.netamount * o.order_probability / 100) AS expected_netamount |;
+
   $query =
-    qq|SELECT o.id, o.ordnumber, o.transdate, o.reqdate, | .
-    qq|  o.amount, ct.${vc}number, ct.name, o.netamount, o.${vc}_id, o.globalproject_id, | .
+    qq|SELECT o.id, o.ordnumber, o.transdate, o.reqdate | .
+    $amount_columns .
+    qq|  , ct.${vc}number, ct.name, o.${vc}_id, o.globalproject_id, | .
     qq|  o.closed, o.delivered, o.quonumber, o.cusordnumber, o.shippingpoint, o.shipvia, | .
     qq|  o.transaction_description, | .
-    qq|  o.marge_total, o.marge_percent, | .
     qq|  o.exchangerate, | .
     qq|  o.itime::DATE AS insertdate, | .
     qq|  o.intnotes,| .
@@ -149,7 +163,8 @@ SQL
     qq|  order_statuses.name AS order_status | .
     $periodic_invoices_columns .
     $phone_notes_columns .
-    qq|  , o.order_probability, o.expected_billing_date, (o.netamount * o.order_probability / 100) AS expected_netamount | .
+    qq|  , o.order_probability, o.expected_billing_date, | .
+    qq|  (employee_id = (SELECT id FROM employee WHERE login = ?)) AS is_own  | .
     qq|FROM oe o | .
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
     qq|LEFT JOIN contacts cp ON (o.cp_id = cp.cp_id) | .
@@ -169,6 +184,9 @@ SQL
     qq|$periodic_invoices_joins | .
     $phone_notes_join .
     qq|WHERE (o.record_type = ?) |;
+
+
+  push @values, $::myconfig{login};
   push(@values, $record_type);
 
   if ($form->{department_id}) {
@@ -178,7 +196,7 @@ SQL
 
   if ($form->{"project_id"}) {
     $query .=
-      qq|AND ((globalproject_id = ?) OR EXISTS | .
+      qq| AND ((globalproject_id = ?) OR EXISTS | .
       qq|  (SELECT * FROM orderitems oi | .
       qq|   WHERE oi.project_id = ? AND oi.trans_id = o.id))|;
     push(@values, conv_i($form->{"project_id"}), conv_i($form->{"project_id"}));
@@ -497,17 +515,21 @@ SQL
   my %id = ();
   $form->{OE} = [];
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    $ref->{billed_amount}    = $billed_amount{$ref->{id}};
-    $ref->{billed_netamount} = $billed_netamount{$ref->{id}};
-    if ($ref->{billed_amount} < 0) { # case: credit note(s) higher than invoices
-      $ref->{remaining_amount} = $ref->{amount} + $ref->{billed_amount};
-      $ref->{remaining_netamount} = $ref->{netamount} + $ref->{billed_netamount};
-    } else {
-      $ref->{remaining_amount} = $ref->{amount} - $ref->{billed_amount};
-      $ref->{remaining_netamount} = $ref->{netamount} - $ref->{billed_netamount};
+    if (!$form->{hide_amounts}) {
+      $ref->{billed_amount}    = $billed_amount{$ref->{id}};
+      $ref->{billed_netamount} = $billed_netamount{$ref->{id}};
+      if ($ref->{billed_amount} < 0) { # case: credit note(s) higher than invoices
+        $ref->{remaining_amount} = $ref->{amount} + $ref->{billed_amount};
+        $ref->{remaining_netamount} = $ref->{netamount} + $ref->{billed_netamount};
+      } else {
+        $ref->{remaining_amount} = $ref->{amount} - $ref->{billed_amount};
+        $ref->{remaining_netamount} = $ref->{netamount} - $ref->{billed_netamount};
+      }
     }
+
     $ref->{exchangerate} ||= $ref->{daily_exchangerate};
     $ref->{exchangerate} ||= 1;
+
     push @{ $form->{OE} }, $ref if $ref->{id} != $id{ $ref->{id} };
     $id{ $ref->{id} } = $ref->{id};
   }

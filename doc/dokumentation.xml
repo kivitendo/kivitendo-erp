@@ -153,7 +153,8 @@
         benötigt.</para>
 
         <para>Zusätzlich benötigt kivitendo einige Perl-Pakete, die nicht
-        Bestandteil einer Standard-Perl-Installation sind. Um zu überprüfen,
+        Bestandteil einer Standard-Perl-Installation sind. Um nach der
+	Installation von Kivitendo zu überprüfen,
         ob die erforderlichen Pakete installiert und aktuell genug sind, wird
         ein Script mitgeliefert, das wie folgt aufgerufen wird:</para>
 
@@ -403,6 +404,9 @@
           <listitem>
             <para><literal>YAML::XS</literal> oder <literal>YAML</literal></para>
           </listitem>
+          <listitem>
+            <para><literal>UUID::Tiny</literal></para>
+          </listitem>
         </itemizedlist>
 
         <para>In der Version v3.9.0 sind die folgenden Pakete hinzugekommen:
@@ -491,7 +495,7 @@
   libdatetime-event-cron-perl libexception-class-perl \
   libxml-libxml-perl libtry-tiny-perl libmath-round-perl \
   libimager-perl libimager-qrcode-perl librest-client-perl libipc-run-perl \
-  libencode-imaputf7-perl libmail-imapclient-perl
+  libencode-imaputf7-perl libmail-imapclient-perl libuuid-tiny-perl
           </programlisting>
 
           <para>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</para>
@@ -643,56 +647,9 @@ vim inventory</programlisting>
            xreflabel="Manuelle Installation des Programmpaketes">
       <title>Manuelle Installation des Programmpaketes</title>
 
-      <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github
-      gehostet und kann <ulink
-      url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink>
-      heruntergeladen werden.</para>
+      <sect2 id="Installation-mit-git">
+	<title>Installation mit git</title>
 
-      <para>Das aktuelleste kivitendo ERP-Archiv
-      (<filename>kivitendo-erp-*.tgz</filename>) wird dann im
-      Dokumentenverzeichnis des Webservers (z.B.
-      <filename>/var/www/html/</filename>,
-      <filename>/srv/www/htdocs</filename> oder
-      <filename>/var/www/</filename>) entpackt:</para>
-
-      <programlisting>cd /var/www
-tar xvzf kivitendo-erp-*.tgz</programlisting>
-
-      <para>Wechseln Sie in das entpackte Verzeichnis:</para>
-
-      <programlisting>cd kivitendo-erp</programlisting>
-
-      <para>Alternativ können Sie auch einen Alias in der
-      Webserverkonfiguration benutzen, um auf das tatsächliche
-      Installationsverzeichnis zu verweisen.</para>
-
-      <para>Bei einer Neuinstallation von Version 3.1.0 oder später muß das
-      WebDAV Verzeichnis derzeit manuell angelegt werden:</para>
-
-      <programlisting>mkdir webdav</programlisting>
-
-      <para>Die Verzeichnisse <filename>users</filename>,
-      <filename>spool</filename> und <filename>webdav</filename> müssen für
-      den Benutzer beschreibbar sein, unter dem der Webserver läuft. Die
-      restlichen Dateien müssen für diesen Benutzer lesbar sein. Die Benutzer-
-      und Gruppennamen sind bei verschiedenen Distributionen unterschiedlich
-      (z.B. bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora
-      <constant>apache</constant> oder bei openSUSE
-      <constant>wwwrun</constant>).</para>
-
-      <para>Der folgende Befehl ändert den Besitzer für die oben genannten
-      Verzeichnisse auf einem Debian/Ubuntu-System:</para>
-
-      <programlisting>chown -R www-data users spool webdav</programlisting>
-
-      <para>Weiterhin muss der Webserver-Benutzer in den Verzeichnissen
-      <filename>templates</filename> und <filename>users</filename>
-      Unterverzeichnisse für jeden neuen Benutzer anlegen dürfen, der in
-      kivitendo angelegt wird:</para>
-
-      <programlisting>chown www-data templates users</programlisting>
-
-      <note>
         <para>Wir empfehlen eine Installation mittels des Versionsmanager
         git. Hierfür muss ein git-Client installiert sein. Damit ist man sehr
         viel flexibler für zukünftige Upgrades. Installations-Anleitung (bitte
@@ -739,7 +696,73 @@ darauf neu anzuwenden ...
 Wende an: juhu tolle änderungen
 $ service apache2 restart                   # webserver starten!
 </programlisting></para>
-      </note>
+      </sect2>
+
+      <sect2 id="Installation_mit_Github">
+        <title>Installation über die Github Website</title>
+
+        <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github
+        gehostet und kann <ulink
+        url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink>
+        heruntergeladen werden.</para>
+
+
+        <para>Das aktuelleste kivitendo ERP-Archiv
+	(<filename>kivitendo-erp-*.tgz</filename>) wird dann im
+	Dokumentenverzeichnis des Webservers (z.B.
+	<filename>/var/www/html/</filename>,
+	<filename>/srv/www/htdocs</filename> oder
+	<filename>/var/www/</filename>) entpackt:</para>
+
+        <programlisting>cd /var/www
+tar xvzf kivitendo-erp-*.tgz</programlisting>
+
+        <para>Wechseln Sie in das entpackte Verzeichnis:</para>
+
+        <programlisting>cd kivitendo-erp</programlisting>
+
+        <para>Alternativ können Sie auch einen Alias in der
+        Webserverkonfiguration benutzen, um auf das tatsächliche
+        Installationsverzeichnis zu verweisen.</para>
+      </sect2>
+
+      <sect2 id="restliche-Verzeichnisse-erstellen-und-Besitzer-ändern">
+	<title>Restliche Verzeichnisse ändern und bearbeiten</title>
+
+        <para>Die folgenden Schritte müssen nach der Installation mittels git
+	oder der Github Website angewendet werden.</para>
+
+        <para>Bei einer Neuinstallation von Version 3.1.0 oder später muss das
+	WebDAV Verzeichnis derzeit manuell angelegt werden:</para>
+
+        <programlisting>mkdir webdav</programlisting>
+
+        <para>Die Verzeichnisse <filename>users</filename>,
+        <filename>spool</filename> und <filename>webdav</filename> müssen für
+        den Benutzer beschreibbar sein, unter dem der Webserver läuft. Die
+        restlichen Dateien müssen für diesen Benutzer lesbar sein. Die Benutzer-
+        und Gruppennamen sind bei verschiedenen Distributionen unterschiedlich
+        (z.B. bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora
+        <constant>apache</constant> oder bei openSUSE
+        <constant>wwwrun</constant>).</para>
+
+        <para>Der folgende Befehl ändert den Besitzer für die oben genannten
+        Verzeichnisse auf einem Debian/Ubuntu-System:</para>
+
+        <programlisting>chown -R www-data users spool webdav</programlisting>
+
+        <para>Weiterhin muss der Webserver-Benutzer in den Verzeichnissen
+        <filename>templates</filename> und <filename>users</filename>
+        Unterverzeichnisse für jeden neuen Benutzer anlegen dürfen, der in
+        kivitendo angelegt wird:</para>
+
+        <programlisting>chown www-data templates</programlisting>
+      </sect2>
+
+
+
+
+
     </sect1>
 
     <sect1 id="config.config-file">
@@ -1027,7 +1050,7 @@ exit </programlisting>
         Datenbank zum Beispiel:</para>
 
         <programlisting>local all kivitendo password
-host all kivitendo 127.0.0.1 255.255.255.255 password</programlisting>
+host all kivitendo 127.0.0.1 255.255.255.255 scram-sha-256</programlisting>
       </sect2>
 
       <sect2 id="Erweiterung-für-servergespeicherte-Prozeduren">
@@ -1118,7 +1141,7 @@ exit</programlisting>
         </note>
 
         <para>Der Zugriff auf das Programmverzeichnis muss in der Apache
-        Webserverkonfigurationsdatei <literal>httpd.conf</literal> eingestellt
+        Webserverkonfigurationsdatei <literal>000-default.conf</literal> eingestellt
         werden. Fügen Sie den folgenden Abschnitt dieser Datei oder einer
         anderen Datei hinzu, die beim Starten des Webservers eingelesen
         wird:</para>
@@ -2507,7 +2530,7 @@ password: supipass8
 
             <listitem>
               <para>
-                Wahl ob eine Verschlüsselung bei der Verbindung mit dem Server
+                Wahl, ob eine Verschlüsselung bei der Verbindung mit dem Server
                 verwendendet wird. Standardwert ist '<literal>1</literal>',
                 wodurch eine SSL-Verschlüsselung verwendet wird. Mit
                 '<literal>0</literal>' wird keine Verschlüsselung genutzt.
@@ -2534,8 +2557,8 @@ password: supipass8
 
             <listitem>
               <para>
-                Wahl des Ordners, den kivitendo als Basis für das erstellen von
-                Unterordnern und das abholen von E-Mails verwendet. Standardwert
+                Wahl des Ordners, den kivitendo als Basis für das Erstellen von
+                Unterordnern und das Abholen von E-Mails verwendet. Standardwert
                 ist '<literal>INBOX</literal>'. Ordnerhierarchien können mit
                 einem Slash ('<literal>/</literal>') getrennt werden. Beispiel:
                 '<literal>INBOX/kivitendo</literal>'. In diesem Ordner dürfen
@@ -2553,8 +2576,8 @@ password: supipass8
           zu halten, kann der Hintergrund-Job
           '<literal>CleanUpEmailSubfolders</literal>' genutzt werden. Dieser
           importiert alle E-Mails und löscht alle Unterordnern, die nicht zu
-          einem Offenen Beleg gehören. Importierte E-Mails werden werden nicht
-          gelöscht, erst beim Löschen des Unterordners werden sie gelöscht.
+          einem offenen Beleg gehören. Importierte E-Mails werden nicht
+          gelöscht; erst beim Löschen des Unterordners werden sie gelöscht.
         </para>
 
         <para>
@@ -2568,8 +2591,8 @@ password: supipass8
         </para>
 
         <para>
-          Beim Umzug des E-Mail-Servers kann kivitendo die E-Mails schon
-          importierten E-Mails nicht mehr erkennen. Dies führt dazu, dass alle
+          Beim Umzug des E-Mail-Servers kann kivitendo schon
+          importierte E-Mails nicht mehr erkennen. Dies führt dazu, dass alle
           E-Mails erneut importiert werden.
         </para>
 
@@ -10558,15 +10581,22 @@ $some_hash{42}    = 54;</programlisting>
         sind auf allen gängigen Plattformen verfügbar. Beispiel für
         Debian/Ubuntu:</para>
 
-        <programlisting>apt-get install ant openjdk-7-jre</programlisting>
+        <programlisting>apt-get install ant default-jre</programlisting>
 
         <para>Nach dem Download von Dobudish muss Dobudish im Unterverzeichnis
-        <filename>doc/build</filename> entpackt werden. Beispiel unter der
+        <filename>kivitendo-erp/doc/build</filename> entpackt werden. Beispiel unter der
         Annahme, das <productname>Dobudish</productname> in
         <filename>$HOME/Downloads</filename> heruntergeladen wurde:</para>
 
-        <programlisting>cd doc/build
+        <programlisting>cd kivitendo-erp/doc/build
 unzip $HOME/Downloads/dobudish-nojre-1.1.4.zip</programlisting>
+
+        <para>Damit auf Dobudish zugegriffen werden kann, muss ein Link mit dem Namen
+        <filename>dobudish</filename> erstellt werden, der auf den Ordner
+        <filename>dobudish-nojre-1.1.4</filename> zeigt.</para>
+
+        <programlisting>cd kivitendo-erp/doc/build
+ln -sf dobudish-1.1.4 dobudish</programlisting>
       </sect2>
 
       <sect2 id="devel.build-doc.build">

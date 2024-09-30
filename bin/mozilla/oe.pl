@@ -35,6 +35,7 @@
 
 use Carp;
 use POSIX qw(strftime);
+use Try::Tiny;
 
 use SL::DB::Order;
 use SL::DB::OrderItem;
@@ -43,7 +44,9 @@ use SL::FU;
 use SL::OE;
 use SL::IR;
 use SL::IS;
+use SL::Helper::Flash qw(flash_later);
 use SL::Helper::UserPreferences::DisplayPreferences;
+use SL::Helper::ShippedQty;
 use SL::MoreCommon qw(ary_diff restore_form save_form);
 use SL::Presenter::ItemsList;
 use SL::ReportGenerator;
@@ -257,6 +260,51 @@ sub edit {
   &display_form;
 
   $main::lxdebug->leave_sub();
+}
+
+sub convert_to_delivery_orders {
+  # collect order ids
+  my @multi_ids = map {
+    $_ =~ m{^multi_id_(\d+)$} && $::form->{'multi_id_' . $1} && $::form->{'trans_id_' . $1}
+  } grep { $_ =~ m{^multi_id_\d+$} } keys %$::form;
+
+  # make new delivery orders from given orders
+  my @orders = map { SL::DB::Order->new(id => $_)->load } @multi_ids;
+  my @do_ids;
+  my @failed;
+  foreach my $order (@orders) {
+    # Only consider not delivered quantities.
+    SL::Helper::ShippedQty->new->calculate($order)->write_to(\@{$order->items});
+
+    my @items_with_not_delivered_qty =
+      grep {$_->qty > 0}
+      map  {$_->qty($_->qty - $_->shipped_qty); $_}
+      @{$order->items_sorted};
+
+    my $delivery_order;
+    try {
+      die t8('no undelivered items') if !@items_with_not_delivered_qty;
+      $delivery_order = $order->convert_to_delivery_order(items => \@items_with_not_delivered_qty);
+    } catch {
+      push @failed, {ordnumber => $order->ordnumber, error => $_};
+    };
+    push @do_ids, $delivery_order->id if $delivery_order;
+  }
+
+  require "bin/mozilla/do.pl";
+  $::form->{script}        = 'do.pl';
+  $::form->{type}          = 'sales_delivery_order';
+  $::form->{ids}           = \@do_ids;
+  $::form->{"l_$_"}        = 'Y' for qw(donumber ordnumber cusordnumber transdate reqdate name employee);
+  $::form->{top_info_text} = $::locale->text('Converted delivery orders');
+
+  flash('info', t8('#1 salses orders were converted to #2 delivery orders', scalar @orders, scalar @do_ids));
+  if (@failed) {
+    flash('error', t8('The following orders could not be converted to delivery orders:'));
+    flash('error', $_->{ordnumber} . ': ' . $_->{error}) for @failed;
+  }
+
+  orders();
 }
 
 sub order_links {
@@ -495,11 +543,20 @@ sub setup_oe_orders_action_bar {
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
-      action => [
-        t8('New sales order'),
-        submit    => [ '#form', { action => 'edit' } ],
-        checks    => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
-        accesskey => 'enter',
+      combobox => [
+        action => [
+          t8('Actions'),
+        ],
+        action => [
+          t8('New sales order'),
+          submit    => [ '#form', { action => 'edit' } ],
+          checks    => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
+        ],
+        action => [
+          t8('Convert to delivery orders'),
+          submit => [ '#form', { action => 'convert_to_delivery_orders' } ],
+          checks => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
+        ],
       ],
     );
   }
@@ -1088,7 +1145,7 @@ sub orders {
   );
 
   # only show checkboxes if gotten here via sales_order form.
-  my $allow_multiple_orders = $form->{type} eq 'sales_order_intake' || $form->{type} eq 'sales_order';
+  my $allow_multiple_orders = $form->{type} eq 'sales_order';
   if ($allow_multiple_orders) {
     unshift @columns, "ids";
   }
@@ -1158,7 +1215,7 @@ sub orders {
   my $href = $params{want_binary_pdf} ? '' : build_std_url('action=orders', @keys_for_url);
 
   my %column_defs = (
-    'ids'                     => { 'text' => '', },
+    'ids'                     => { raw_header_data => SL::Presenter::Tag::checkbox_tag("", id => "multi_all", checkall => "[data-checkall=1]"), align => 'center' },
     'transdate'               => { 'text' => $locale->text('Date'), },
     'reqdate'                 => { 'text' => $form->{type} =~ /_order/ ? $locale->text('Required by') : $locale->text('Valid until') },
     'id'                      => { 'text' => $locale->text('ID'), },
@@ -1378,12 +1435,14 @@ sub orders {
 
     $row->{ids} = {
       'raw_data' =>   $cgi->hidden('-name' => "trans_id_${idx}", '-value' => $oe->{id})
-                    . $cgi->checkbox('-name' => "multi_id_${idx}", '-value' => 1, '-label' => ''),
+                    . $cgi->checkbox('-name' => "multi_id_${idx}", '-value' => 1, 'data-checkall' => 1, '-label' => ''),
       'valign'   => 'center',
       'align'    => 'center',
     };
 
-    $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}" unless $params{want_binary_pdf};
+    if (!$form->{hide_links} || $oe->{is_own}) {
+      $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}" unless $params{want_binary_pdf};
+    }
 
     if ($form->{l_items}) {
       my $items = SL::DB::Manager::OrderItem->get_all_sorted(where => [id => $oe->{item_ids}]);

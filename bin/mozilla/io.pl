@@ -2391,7 +2391,7 @@ sub download_factur_x_xml {
     $::form->error($e->message);
   }
 
-  my $attachment_filename = $::form->generate_attachment_filename;
+  my $attachment_filename = "factur-x_" . $::form->generate_attachment_filename;
   $attachment_filename    =~ s{\.[^.]+$}{.xml};
   my %headers             = (
     '-type'           => 'application/xml',

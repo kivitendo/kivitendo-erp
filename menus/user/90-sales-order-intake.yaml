@@ -3,7 +3,7 @@
   name: Add Sales Order Intake
   icon: sales_order_add
   order: 290
-  access: sales_order_edit & client/feature_experimental_order
+  access: sales_order_edit & client/feature_experimental_order & client/show_sales_order_intake
   params:
     action: Order/add
     type: sales_order_intake
@@ -15,7 +15,7 @@
   name: Sales Order Intakes
   icon: report_sales_orders
   order: 280
-  access: sales_order_edit | sales_order_view
+  access: (sales_order_edit | sales_order_view) & client/show_sales_order_intake
   module: oe.pl
   params:
     action: search

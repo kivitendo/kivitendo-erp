@@ -163,7 +163,7 @@ sub invoice_transactions {
   }
   if ($form->{project_id}) {
     $where .=
-      qq|AND ((ar.globalproject_id = ?) OR EXISTS | .
+      qq| AND ((ar.globalproject_id = ?) OR EXISTS | .
       qq|  (SELECT * FROM invoice i | .
       qq|   WHERE i.project_id = ? AND i.trans_id = ar.id))|;
     push(@values, $form->{"project_id"}, $form->{"project_id"});
@@ -202,4 +202,3 @@ sub invoice_transactions {
 }
 
 1;
-
