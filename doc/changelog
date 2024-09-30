@@ -18,7 +18,7 @@ Mittelgroße neue Features:
     einzusehen bzw. zu bearbeiten, das Recht, Beträge im Bericht zu sehen.
     Das Recht lässt sich getrennt nach Ein- und Verkauf einstellen.
   - Neues Recht zum Ändern von Preisen in Artikelstammdaten.
-    Das Recht ist nach dem Update standarmäßig an, wenn man das Recht zum
+    Das Recht ist nach dem Update standardmäßig an, wenn man das Recht zum
     Anlegen und Bearbeiten von Artikeln hat.
     Fehlt einem dieses Recht, so lassen sich die Preise sehen, aber nicht
     bearbeiten. Das betrifft Listen-, Einkaufs-, Verkaufs, Preisgruppen-,
