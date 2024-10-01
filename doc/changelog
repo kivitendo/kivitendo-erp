@@ -46,6 +46,10 @@ Kleinere neue Features und Detailverbesserungen:
   - Dialogbuchungen als "als neu verwenden" können.
   - eigene Zugriffsrechte für die Verkaufs-Berichte "Auftragsartikelsuche",
     "Finanz-Controlling" und "Verkaufsbericht".
+  - Ob einige Belege in den Menüs bzw. Workflows verfügbar sind, lässt sich nun
+    in der Mandantenkonfigurtion einstellen. Das gilt zur Zeit für
+    Auftragseingang, Angebotseingang und Lieferantenauftragsbestätigung,
+    sowie für Anzahlungs- bzw. Schluss-Rechnung.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -
