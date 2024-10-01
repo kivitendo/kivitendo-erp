@@ -201,6 +201,7 @@ __PACKAGE__->meta->columns(
   servicenumber                             => { type => 'text' },
   shipped_qty_require_stock_out             => { type => 'boolean', default => 'false', not_null => 1 },
   show_bestbefore                           => { type => 'boolean', default => 'false' },
+  show_invoice_for_advance_payment          => { type => 'boolean', default => 'true', not_null => 1 },
   show_longdescription_select_item          => { type => 'boolean', default => 'false' },
   show_purchase_order_confirmation          => { type => 'boolean', default => 'true', not_null => 1 },
   show_purchase_quotation_intake            => { type => 'boolean', default => 'true', not_null => 1 },
