@@ -42,6 +42,7 @@ __PACKAGE__->meta->columns(
   bin_id_ignore_onhand                      => { type => 'integer' },
   businessnumber                            => { type => 'text' },
   carry_over_account_chart_id               => { type => 'integer' },
+  check_bt_duplicates_endtoend              => { type => 'boolean', default => 'false' },
   closedto                                  => { type => 'date' },
   cnnumber                                  => { type => 'text' },
   co_ustid                                  => { type => 'text' },
