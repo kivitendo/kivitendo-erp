@@ -374,6 +374,11 @@
     <td>[% L.yes_no_tag("defaults.show_purchase_reclamation", SELF.defaults.show_purchase_reclamation) %]</td>
     <td>[% 'When disabled, purchase reclamations do not show up in the menu and in the workflow actions.' | $T8 %]</td>
   </tr>
+  <tr>
+    <th align="right">[% 'Show invoice for payment in advance and final invoice' | $T8 %]</th>
+    <td>[% L.yes_no_tag("defaults.show_invoice_for_advance_payment", SELF.defaults.show_invoice_for_advance_payment) %]</td>
+    <td>[% 'When disabled, invoices for payment in advance and final invoices do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+  </tr>
 
   <tr><td class="listheading" colspan="4">[% LxERP.t8("E-mail") %]</td></tr>
 
