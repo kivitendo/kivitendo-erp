@@ -3,7 +3,7 @@
   name: Add Invoice for Advance Payment
   icon: sales_invoice_add
   order: 550
-  access: invoice_edit
+  access: invoice_edit & client/show_invoice_for_advance_payment
   module: is.pl
   params:
     action: add
