@@ -514,7 +514,7 @@ sub setup_is_action_bar {
                     : $has_final_invoice                         ? t8('This invoice has already a final invoice.')
                     : $is_invoice_for_advance_payment_from_order ? t8('This invoice was added from an order. See there.')
                     :                                              undef,
-          only_if  => $form->{type} eq "invoice_for_advance_payment",
+          only_if  => ($form->{type} eq "invoice_for_advance_payment" && $::instance_conf->get_show_invoice_for_advance_payment),
         ],
         action => [
           t8('Final Invoice'),
@@ -526,7 +526,7 @@ sub setup_is_action_bar {
                     : $has_final_invoice                         ? t8('This invoice has already a final invoice.')
                     : $is_invoice_for_advance_payment_from_order ? t8('This invoice was added from an order. See there.')
                     :                                              undef,
-          only_if  => $form->{type} eq "invoice_for_advance_payment",
+          only_if  => ($form->{type} eq "invoice_for_advance_payment" && $::instance_conf->get_show_invoice_for_advance_payment),
         ],
         action => [
           t8('Credit Note'),
