@@ -2383,6 +2383,7 @@ $self->{texts} = {
   'May'                         => '',
   'May '                        => '',
   'May set the BCC field when sending emails' => '',
+  'May use Custom Data Report at all' => '',
   'Meaning'                     => '',
   'Media \'#1\' is not supported yet/anymore.' => '',
   'Medium Number'               => '',
