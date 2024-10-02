@@ -81,7 +81,7 @@ sub check_existing {
 
     my @conditions;
 
-    if ($object->end_to_end_id) {
+    if ($object->end_to_end_id && $::instance_conf->get_check_bt_duplicates_endtoend) {
       push @conditions, ( end_to_end_id => $object->end_to_end_id );
     } else {
       push @conditions, ( purpose => $object->purpose );
