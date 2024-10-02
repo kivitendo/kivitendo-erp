@@ -56,6 +56,10 @@ Kleinere neue Features und Detailverbesserungen:
     der kivi Admin kann selber entscheiden ab wann genügend END-TO-END IDs im
     Datenbestand vorhanden sind. Die Einstellung befindet sich in der
     Mandantenkonfiguration unter Buchungseinstellungen.
+  - Neues Recht, um benutzedefinierte Berichte überhaupt nutzen zu können. Wenn
+    dieses Recht nicht gesetzt ist, taucht auch der Menüpunkt für die
+    benutzerdefinierten Berichte nicht auf und die Oberfläche ist etwas
+    übersichtlicher.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -
