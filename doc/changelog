@@ -51,6 +51,11 @@ Kleinere neue Features und Detailverbesserungen:
     Auftragseingang, Angebotseingang und Lieferantenauftragsbestätigung,
     sowie für Anzahlungs- bzw. Schluss-Rechnung.
   - Möglichkeit einer Datenbank-Verklemmung bei CSV-Importen verringert.
+  - Die SEPA END-TO-END wird extrahiert und kann zur Duplikatserkennung beim
+    Bank-Import verwendet werden. Die Einstellung ist erstmal abgeschaltet und
+    der kivi Admin kann selber entscheiden ab wann genügend END-TO-END IDs im
+    Datenbestand vorhanden sind. Die Einstellung befindet sich in der
+    Mandantenkonfiguration unter Buchungseinstellungen.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -
