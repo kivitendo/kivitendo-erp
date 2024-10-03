@@ -607,7 +607,14 @@ sub create_new_variant {
   my @selected_variant_property_ids = sort map {$_->variant_property_id} @$variant_property_values;
   my @variant_property_ids = sort map {$_->id} @{$self->variant_properties};
   if ("@variant_property_ids" ne "@selected_variant_property_ids") {
-    die "Given variant_property_values doesn't match the variant_properties of parent_variant part: " . $self->displayable_name;
+    die t8("Given variant property values doesn't match the variant"
+      . " properties of parent variant '#1'."
+      . " The parent vairant has the variant properties #2 and the"
+      . " variant has the variant properties #3.",
+      $self->displayable_name,
+      join(', ', sort map {$_->displayable_name} @{$self->variant_properties}),
+      join(', ', sort map {$_->variant_property->displayable_name} @{$variant_property_values})
+    );
   }
 
   my $new_variant = $self->clone_and_reset;

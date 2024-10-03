@@ -1903,6 +1903,7 @@ $self->{texts} = {
   'Get shoporders'              => 'Get and process orders from a web shop',
   'Git revision: #1, #2 #3'     => '',
   'Given Name'                  => '',
+  'Given variant property values doesn\'t match the variant properties of parent variant \'#1\'. The parent vairant has the variant properties #2 and the variant has the variant properties #3.' => '',
   'Gldate'                      => 'Entry Date',
   'Global Attachments'          => '',
   'Global Record BCC'           => '',
