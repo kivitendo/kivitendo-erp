@@ -228,6 +228,8 @@ sub _line_item {
   $params{xml}->startTag("ram:SpecifiedTradeProduct");
   $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->partnumber));
   $params{xml}->dataElement("ram:Name",             _u8($params{item}->description));
+  $params{xml}->dataElement("ram:Description",      _u8($params{item}->longdescription_as_stripped_html))
+    if $params{item}->longdescription_as_stripped_html;
   $params{xml}->endTag;
 
   $params{xml}->startTag("ram:SpecifiedLineTradeAgreement");
