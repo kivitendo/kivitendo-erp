@@ -322,6 +322,7 @@
   name: Invoices, Credit Notes & AR Transactions
   icon: invoices_report
   order: 500
+  access: invoice_edit | sales_invoice_view | sales_all_edit | state/has_employee_project_invoices
   module: ar.pl
   params:
     action: search
@@ -517,6 +518,7 @@
   id: ap_reports_vendor_invoices_ap_transactions
   name: Vendor Invoices & AP Transactions
   order: 400
+  access: vendor_invoice_edit | purchase_invoice_view | purchase_all_edit | state/has_employee_project_invoices
   module: ap.pl
   params:
     action: search
