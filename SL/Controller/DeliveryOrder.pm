@@ -951,7 +951,12 @@ sub action_return_from_create_part {
   $self->reinit_after_new_order();
 
   if ($self->order->id) {
-    $self->action_edit;
+    $self->pre_render();
+    $self->render(
+      'delivery_order/form',
+      title => $self->get_title_for('edit'),
+      %{$self->{template_args}}
+    );
   } else {
     $self->action_add;
   }
