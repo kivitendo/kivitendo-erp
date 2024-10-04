@@ -926,7 +926,12 @@ sub action_return_from_create_part {
   $self->reinit_after_new_reclamation();
 
   if ($self->reclamation->id) {
-    $self->action_edit;
+    $self->pre_render();
+    $self->render(
+      'reclamation/form',
+      title => $self->type_data->text('edit'),
+      %{$self->{template_args}},
+    );
   } else {
     $self->action_add;
   }

@@ -1297,7 +1297,12 @@ sub action_return_from_create_part {
   $self->reinit_after_new_order();
 
   if ($self->order->id) {
-    $self->action_edit;
+    $self->pre_render();
+    $self->render(
+      'order/form',
+      title => $self->type_data->text('edit'),
+      %{$self->{template_args}}
+    );
   } else {
     $self->action_add;
   }
