@@ -143,7 +143,9 @@ sub action_add_from_purchase_basket {
 
   $self->order($order);
 
-  $self->action_edit();
+  $self->reinit_after_new_order();
+
+  $self->action_add();
 }
 
 sub action_add_from_email_journal {
@@ -166,35 +168,17 @@ sub action_edit_with_email_journal_workflow {
 # edit an existing order
 sub action_edit {
   my ($self) = @_;
+  die "No 'id' was given." unless $::form->{id};
 
-  if ($::form->{id}) {
-    $self->load_order;
+  $self->load_order;
 
-    if ($self->order->is_sales && $::lx_office_conf{imap_client}->{enabled}) {
-      my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{imap_client}});
-      if ($imap_client) {
-        $imap_client->update_email_files_for_record(record => $self->order);
-      }
-    }
-
-  } else {
-    # this is to edit an order from an unsaved order object
-
-    # set item ids to new fake id, to identify them as new items
-    foreach my $item (@{$self->order->items_sorted}) {
-      $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-    }
-    # trigger rendering values for second row as hidden, because they
-    # are loaded only on demand. So we need to keep the values from
-    # the source.
-    $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
-
-    if (!$::form->{form_validity_token}) {
-      $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
+  if ($self->order->is_sales && $::lx_office_conf{imap_client}->{enabled}) {
+    my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{imap_client}});
+    if ($imap_client) {
+      $imap_client->update_email_files_for_record(record => $self->order);
     }
   }
 
-  $self->recalc();
   $self->pre_render();
   $self->render(
     'order/form',
@@ -230,8 +214,9 @@ sub action_edit_collective {
   my $target_type = SALES_ORDER_TYPE();
   my $order = SL::Model::Record->new_from_workflow_multi(\@multi_orders, $target_type, sort_sources_by => 'transdate');
   $self->order($order);
+  $self->reinit_after_new_order();
 
-  $self->action_edit();
+  $self->action_add();
 }
 
 # delete the order
@@ -1805,9 +1790,7 @@ sub load_order {
 
   $self->order(SL::DB::Order->new(id => $::form->{id})->load);
 
-  # Add an empty custom shipto to the order, so that the dialog can render the cvar inputs.
-  # You need a custom shipto object to call cvars_by_config to get the cvars.
-  $self->order->custom_shipto(SL::DB::Shipto->new(module => 'OE', custom_variables => [])) if !$self->order->custom_shipto;
+  $self->reinit_after_new_order();
 
   return $self->order;
 }
@@ -1998,7 +1981,11 @@ sub setup_custom_shipto_from_form {
   if ($order->shipto) {
     $self->is_custom_shipto_to_delete(1);
   } else {
-    my $custom_shipto = $order->custom_shipto || $order->custom_shipto(SL::DB::Shipto->new(module => 'OE', custom_variables => []));
+    my $custom_shipto =
+       $order->custom_shipto
+    || $order->custom_shipto(
+         SL::DB::Shipto->new(module => 'OE', custom_variables => [])
+       );
 
     my $shipto_cvars  = {map { my ($key) = m{^shiptocvar_(.+)}; $key => delete $form->{$_}} grep { m{^shiptocvar_} } keys %$form};
     my $shipto_attrs  = {map {                                  $_   => delete $form->{$_}} grep { m{^shipto}      } keys %$form};
@@ -2174,8 +2161,10 @@ sub reinit_after_new_order {
   $::form->{type} = $self->order->type;
   $self->type($self->init_type);
   $self->type_data($self->init_type_data);
-  $self->cv  ($self->init_cv);
+  $self->cv($self->init_cv);
   $self->check_auth;
+
+  $self->setup_custom_shipto_from_form($self->order, $::form);
 
   foreach my $item (@{$self->order->items_sorted}) {
     # set item ids to new fake id, to identify them as new items

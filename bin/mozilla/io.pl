@@ -1058,8 +1058,8 @@ sub order {
 
     require SL::Controller::Order;
     my $c = SL::Controller::Order->new(order => $order);
-    $c->setup_custom_shipto_from_form($order, $::form);
-    $c->action_edit();
+    $c->reinit_after_new_order();
+    $c->action_add();
 
     $main::lxdebug->leave_sub();
     $::dispatcher->end_request;

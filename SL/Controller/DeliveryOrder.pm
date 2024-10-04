@@ -172,29 +172,9 @@ sub action_edit_with_email_journal_workflow {
 # edit an existing order
 sub action_edit {
   my ($self) = @_;
+  die "No 'id' was given." unless $::form->{id};
 
-  if ($::form->{id}) {
-    $self->load_order;
-
-  } else {
-    # this is to edit an order from an unsaved order object
-
-    # set item ids to new fake id, to identify them as new items
-    foreach my $item (@{$self->order->items_sorted}) {
-      $item->{new_fake_id} =
-        join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-    }
-    # trigger rendering values for second row as hidden, because they
-    # are loaded only on demand. So we need to keep the values from
-    # the source.
-    $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
-
-    if (!$::form->{form_validity_token}) {
-      $::form->{form_validity_token} = SL::DB::ValidityToken->create(
-        scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE()
-      )->token;
-    }
-  }
+  $self->load_order;
 
   $self->pre_render();
   $self->render(
@@ -1573,11 +1553,7 @@ sub load_order {
 
   $self->order(SL::DB::DeliveryOrder->new(id => $::form->{id})->load);
 
-  # Add an empty custom shipto to the order, so that the dialog can render the cvar inputs.
-  # You need a custom shipto object to call cvars_by_config to get the cvars.
-  $self->order->custom_shipto(SL::DB::Shipto->new(module => 'DO', custom_variables => [])) if !$self->order->custom_shipto;
-
-  $self->order->prepare_stock_info($_) for $self->order->items;
+  $self->reinit_after_new_order();
 
   return $self->order;
 }
@@ -1768,11 +1744,11 @@ sub setup_custom_shipto_from_form {
   if ($order->shipto) {
     $self->is_custom_shipto_to_delete(1);
   } else {
-    my $custom_shipto = $order->custom_shipto ?
-        $order->custom_shipto
-      : $order->custom_shipto(
-          SL::DB::Shipto->new(module => 'DO', custom_variables => [])
-        );
+    my $custom_shipto =
+         $order->custom_shipto
+      || $order->custom_shipto(
+           SL::DB::Shipto->new(module => 'DO', custom_variables => [])
+         );
 
     my $shipto_cvars  = {
       map { my ($key) = m{^shiptocvar_(.+)}; $key => delete $form->{$_}}
@@ -1845,35 +1821,17 @@ sub save {
   delete $::form->{form_validity_token};
 }
 
-sub workflow_sales_or_request_for_quotation {
-  my ($self, $destination_type) = @_;
-
-  # always save
-  $self->save();
-
-  my $delivery_order = SL::Model::Record->new_from_workflow(
-    $self->order, $destination_type
-  );
-  $self->order($delivery_order);
-  $self->{converted_from_oe_id} = delete $::form->{id};
-
-  $self->reinit_after_new_order();
-
-  $self->render(
-    'delivery_order/form',
-    title => $self->get_title_for('edit'),
-    %{$self->{template_args}}
-  );
-}
-
 sub reinit_after_new_order {
   my ($self) = @_;
 
   # change form type
   $::form->{type} = $self->order->type;
   $self->type($self->init_type);
-  $self->cv  ($self->init_cv);
+  $self->type_data($self->init_type_data);
+  $self->cv($self->init_cv);
   $self->check_auth;
+
+  $self->setup_custom_shipto_from_form($self->order, $::form);
 
   foreach my $item (@{$self->order->items_sorted}) {
     # set item ids to new fake id, to identify them as new items
@@ -1885,6 +1843,7 @@ sub reinit_after_new_order {
     $item->{render_second_row} = 1;
   }
 
+  $self->order->prepare_stock_info($_) for $self->order->items;
   $self->get_unalterable_data();
 }
 
