@@ -388,7 +388,22 @@ sub _format_payment_terms_description {
 sub _payment_terms {
   my ($self, %params) = @_;
 
-  return unless $self->payment_terms;
+  return if !$self->payment_terms && !$self->duedate;
+
+  if (!$self->payment_terms) { # only duedate
+    #     <ram:SpecifiedTradePaymentTerms>
+    $params{xml}->startTag("ram:SpecifiedTradePaymentTerms");
+
+    #       <ram:DueDateDateTime>
+    $params{xml}->startTag("ram:DueDateDateTime");
+    $params{xml}->dataElement("udt:DateTimeString", $self->duedate->strftime('%Y%m%d'), format => "102");
+    $params{xml}->endTag;
+    #       </ram:DueDateDateTime>
+
+    $params{xml}->endTag;
+    #     </ram:SpecifiedTradePaymentTerms>
+    return;
+  }
 
   my %payment_terms_vars = _calculate_payment_terms_values($self);
 
@@ -719,6 +734,12 @@ sub _validate_data {
 
     if (!$result{bank_account}) {
       SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('No bank account flagged for Factur-X/ZUGFeRD usage was found.'));
+    }
+  }
+
+  if ($self->amount - $self->paid > 0) {
+    if (!$self->duedate && !$self->payment_terms) {
+      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('In case the amount due is positive, either due date or payment term must be set.'));
     }
   }
 
