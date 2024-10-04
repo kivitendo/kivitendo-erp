@@ -2055,6 +2055,7 @@ $self->{texts} = {
   'Imported Pay Postings'       => '',
   'Imported entries'            => '',
   'In addition to the above date functions, subtract the following amount of days from the calculated date as a buffer.' => '',
+  'In case the amount due is positive, either due date or payment term must be set.' => '',
   'In order to do that hit the button "Delete transaction".' => '',
   'In order to migrate the old folder structure into the new structure you have to chose which client the old structure will be assigned to.' => '',
   'In order to use kivitendo you have to create at least a client, a user and a group.' => '',
