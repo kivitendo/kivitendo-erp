@@ -8,7 +8,7 @@ use parent qw(Rose::Object);
 
 
 sub has_employee_project_invoices {
-  !!@{SL::DB::Manager::Employee->current->project_invoice_permissions};
+  SL::DB::Manager::Employee->current && @{SL::DB::Manager::Employee->current->project_invoice_permissions};
 }
 
 
