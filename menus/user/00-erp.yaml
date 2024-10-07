@@ -121,6 +121,7 @@
   name: Customers
   icon: customer_report
   order: 100
+  access: customer_report_view
   params:
     action: CustomerVendor/search
     db: customer
@@ -129,6 +130,7 @@
   name: Vendors
   icon: vendor_report
   order: 200
+  access: vendor_report_view
   params:
     action: CustomerVendor/search
     db: vendor
