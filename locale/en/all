@@ -4813,6 +4813,7 @@ $self->{texts} = {
   'View RFQs'                   => '',
   'View SEPA export'            => '',
   'View background job execution result' => '',
+  'View contact person report'  => '',
   'View customer report'        => '',
   'View email'                  => '',
   'View purchase delivery orders' => '',
