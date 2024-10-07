@@ -64,6 +64,7 @@ Kleinere neue Features und Detailverbesserungen:
     Diese Recht beschränkt im Moment nur den Menüpunkt und den Bericht
     unter Stammdaten, nicht aber den generellen Zugriff auf die Kunden- bzw.
     Lieferanten-Maske.
+  - Neues Recht, um Liste der Ansprechpersonen (Stammdaten) aufrufen zu können.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -
