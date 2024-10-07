@@ -113,6 +113,8 @@ sub search {
 sub search_contact {
   $::lxdebug->enter_sub;
 
+  $::auth->assert('contact_person_report_view');
+
   $::form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'Contacts');
   ($::form->{CUSTOM_VARIABLES_FILTER_CODE},
    $::form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'    => $::form->{CUSTOM_VARIABLES},

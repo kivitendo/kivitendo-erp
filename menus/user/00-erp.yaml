@@ -138,6 +138,7 @@
   id: master_data_reports_contacts
   name: Contacts
   order: 300
+  access: contact_person_report_view
   params:
     action: CustomerVendor/search_contact
     db: customer
