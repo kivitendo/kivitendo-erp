@@ -60,6 +60,10 @@ Kleinere neue Features und Detailverbesserungen:
     dieses Recht nicht gesetzt ist, taucht auch der Menüpunkt für die
     benutzerdefinierten Berichte nicht auf und die Oberfläche ist etwas
     übersichtlicher.
+  - Neues Recht, um Kunden-/Lieferanten-Liste (Stammdaten) aufrufen zu können.
+    Diese Recht beschränkt im Moment nur den Menüpunkt und den Bericht
+    unter Stammdaten, nicht aber den generellen Zugriff auf die Kunden- bzw.
+    Lieferanten-Maske.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -
