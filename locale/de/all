@@ -642,7 +642,6 @@ $self->{texts} = {
   'Can\'t change price of a linked item' => 'Preise von verlinkten Artikeln sind unveränderbar.',
   'Can\'t connect to shop. #1'  => 'Kann keine Verbindung zu Shop #1 herstellen.',
   'Can\'t convert Purchase Reclamation to Credit Note' => 'Einkaufsreklamation ist nicht in eine Gutschrift umwandelbar.',
-  'Can\'t edit unsaved reclamation. No \'id\' was given.' => 'Bearbeitung von ungespeicherten Reklamationen nicht möglich. Es wurde keine gülitge \'id\' übermittelt',
   'Can\'t load item without a valid part.id' => 'Kann Artikel ohne gültige part.id nicht laden',
   'Cancel'                      => 'Abbrechen',
   'Cancel Accounts Payables Transaction' => 'Kreditorenbuchung stornieren',

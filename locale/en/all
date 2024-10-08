@@ -642,7 +642,6 @@ $self->{texts} = {
   'Can\'t change price of a linked item' => '',
   'Can\'t connect to shop. #1'  => '',
   'Can\'t convert Purchase Reclamation to Credit Note' => '',
-  'Can\'t edit unsaved reclamation. No \'id\' was given.' => '',
   'Can\'t load item without a valid part.id' => '',
   'Cancel'                      => '',
   'Cancel Accounts Payables Transaction' => '',
