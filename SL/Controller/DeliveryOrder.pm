@@ -13,6 +13,7 @@ use SL::PriceSource;
 use SL::Webdav;
 use SL::File;
 use SL::MIME;
+use SL::Util qw(trim);
 use SL::YAML;
 use SL::DBUtils qw(selectall_hashref_query);
 use SL::DB::History;
