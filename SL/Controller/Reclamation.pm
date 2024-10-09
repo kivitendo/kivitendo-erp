@@ -15,6 +15,7 @@ use SL::Controller::Helper::ReportGenerator;
 use SL::Webdav;
 use SL::File;
 use SL::MIME;
+use SL::Util qw(trim);
 use SL::YAML;
 use SL::DB::History;
 use SL::DB::Reclamation;
