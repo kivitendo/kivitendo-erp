@@ -948,6 +948,10 @@ sub orders {
   # add sort and escape callback, this one we use for the add sub
   $form->{callback} = $href .= "&sort=$form->{sort}";
 
+  # hide links to oe if no right
+  $form->{hide_oe_links} = !(   ($form->{vc} eq 'customer' && $::auth->assert('sales_order_reports_amounts',    1))
+                             || ($form->{vc} eq 'vendor'   && $::auth->assert('purchase_order_reports_amounts', 1)) );
+
   # escape callback for href
   my $callback = $form->escape($href);
 
@@ -972,7 +976,10 @@ sub orders {
       'align'    => 'center',
     };
     $row->{donumber}->{link}  = SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id}, type => $dord->{record_type}, callback => $form->{callback});
-    $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
+
+    if (!$form->{hide_oe_links}) {
+      $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
+    }
 
     foreach my $order_confirmation (@{ $dord->{order_confirmation_numbers} }) {
       if (lc($report->{options}->{output_format}) eq 'html') {
