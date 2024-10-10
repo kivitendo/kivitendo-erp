@@ -4126,17 +4126,26 @@ password: supipass8
         wiederzufinden sind.</para>
       </sect2>
 
-      <sect2 id="features.periodic-invoices.configuration"
+      <sect2 id="features.periodic-invoices.global-configuration"
              xreflabel="Konfiguration von wiederkehrenden Rechnungen">
-        <title>Konfiguration</title>
+        <title>Konfiguration auf Belegebene</title>
 
         <para>Um einen Auftrag für wiederkehrende Rechnung zu konfigurieren,
-        findet sich beim Bearbeiten des Auftrags ein neuer Knopf
+        findet sich beim Bearbeiten des Auftrags ein Knopf
         "Konfigurieren", der ein neues Fenster öffnet, in dem man die nötigen
-        Parameter einstellen kann. Hinter dem Knopf wird außerdem noch
+        Parameter einstellen kann. Zusätzlich zu dem Knopf wird noch
         angezeigt, ob der Auftrag als wiederkehrende Rechnung konfiguriert ist
-        oder nicht.</para>
+        oder nicht(aktiv/inaktiv).</para>
 
+        <screenshot>
+          <screeninfo>Übersicht Konfigurationeinstellung</screeninfo>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata contentwidth="600" fileref="images/WR_Global_Config.png"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
         <para>Folgende Parameter kann man konfigurieren:</para>
 
         <variablelist>
@@ -4221,6 +4230,14 @@ password: supipass8
               Rechnungen auch gleich ausdrucken lassen.</para>
             </listitem>
           </varlistentry>
+
+          <varlistentry>
+            <term>Email verschicken</term>
+
+            <listitem>
+              <para>Ist zumindest eine Emailadresse beim Kunden hinterlegt, kann die zu erstellende Rechnung als Anhang einer Mail verschickt werden.</para>
+            </listitem>
+          </varlistentry>
         </variablelist>
 
         <para>Nach Erstellung der Rechnungen kann eine E-Mail mit
@@ -4229,6 +4246,148 @@ password: supipass8
         linkend="config.config-file.sections-parameters">Konfigurationsdatei</link>
         <filename>config/kivitendo.conf</filename> im Abschnitt
         <varname>[periodic_invoices]</varname>.</para>
+      </sect2>
+
+      <sect2 id="features.periodic-invoices.position-configuration"
+             xreflabel="Konfiguration von wiederkehrenden Rechnungen">
+        <title>Konfiguration auf Positionsebene</title>
+
+        <para>Es ist möglich auf Positionsebene individuelle wiederkehrende Konfigurationen
+        zu haben. Diese werden nur auf die Rechnung genommen, sofern die Periodizität
+        zum Rechnungslauf gültig ist. So ist es mögich pro Kunde nur einen Auftrag für
+        wiederkehrende Rechnung zu haben. Es wird immer die jeweils gültigen Positionen
+        in die Rechnung übernommen.</para>
+
+        <para>Startdatum wird wenn nicht eingetragen ist aus der global Konfigurationen
+        des Beleges genommen.</para>
+
+        <screenshot>
+          <screeninfo>Übersicht Konfigurationeinstellung</screeninfo>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata contentwidth="600" fileref="images/WR_Position_Config.png"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+        <para>Folgende Parameter kann man konfigurieren:</para>
+        <variablelist>
+          <varlistentry>
+            <term>gekündigt</term>
+
+            <listitem>
+              <para>Bei nicht gekündigten Positionen wird automatisch eine Rechnung
+              erstellt, wenn die Periodizität erreicht ist (z.B. am Anfang
+              eines neuen Monats).</para>
+
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Periodizität</term>
+
+            <listitem>
+              <para>Ob monatlich, quartalsweise oder jährlich auf neue
+              Rechnungen überprüft werden soll. Für jede Periode seit dem
+              Startdatum wird überprüft, ob für die Periode (beginnend immer
+              mit dem ersten Tag der Periode) schon eine Rechnung erstellt
+              wurde. Unter Umständen können bei einem Startdatum in der
+              Vergangenheit aber größer als das globale Startdatum
+              gleich mehrere Rechnungen erstellt werden.</para>
+            </listitem>
+
+          </varlistentry>
+
+        </variablelist>
+        <variablelist>
+            <itemizedlist>
+              <listitem>
+                <para>Stimmt mit der Abrechnungsperiodizität überein:
+                Die globalen Daten des Beleges werden übernommen.</para>
+              </listitem>
+
+              <listitem>
+                <para>niemals: 
+                wird nie auf eine Rechnung übernommen, kann als Positions für die 
+                Auftragsbestätigung betrachtet werden oder für eigene Hinweise.</para>
+              </listitem>
+
+              <listitem>
+                <para>einmalig: Mit dem Startdatum wird die Position einmalig auf einer 
+                Rechnung ausgewiesen</para>
+              </listitem>
+
+              <listitem>
+                <para>monatlich: Mit dem Startdatum wird die Position entspechend der 
+                Periodizität auf einer Rechnung ausgewiesen</para>
+              </listitem>
+
+              <listitem>
+                <para>vierteljährlich: Mit dem Startdatum wird die Position entspechend der 
+                Periodizität auf einer Rechnung ausgewiesen</para>
+              </listitem>
+
+              <listitem>
+                <para>halbjährlich: Mit dem Startdatum wird die Position entspechend der 
+                Periodizität auf einer Rechnung ausgewiesen</para>
+              </listitem>
+
+              <listitem>
+                <para>jährlich: Mit dem Startdatum wird die Position entspechend der 
+                Periodizität auf einer Rechnung ausgewiesen</para>
+              </listitem>
+            </itemizedlist>
+          <varlistentry>
+            <term>Startdatum</term>
+
+            <listitem>
+              <para>ab welchem Datum auf Rechnungserstellung geprüft werden
+              soll</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Enddatum</term>
+
+            <listitem>
+              <para>ab wann keine Rechnungen mehr erstellt werden
+              sollen</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Automatische Verlängerung um x Monate</term>
+
+            <listitem>
+              <para>Sollen die wiederkehrenden Rechnungen bei Erreichen des
+              eingetragenen Enddatums weiterhin erstellt werden, so kann man
+              hier die Anzahl der Monate eingeben, um die das Enddatum
+              automatisch nach hinten geschoben wird.</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+
+        <para>Ist ein Auftrag nicht aktiv, so werden für ihn auch keine
+        wiederkehrenden Rechnungen erzeugt. Stellt man nach längerer
+        nicht-aktiver Zeit einen Auftrag wieder auf aktiv, wird beim
+        nächsten Periodenwechsel für alle Perioden, seit der letzten
+        aktiven Periode, jeweils eine Rechnung erstellt. Möchte man dies
+        verhindern, muss man vorher das Startdatum, sowohl in der Beleg- als auch in der 
+        Positionskonfiguration, neu setzen.</para>
+
+        <para>Nicht mehr gültige und berechnete Positionen werden gelb hinterlegt und 
+        nicht nochmal in Rechnung gestellt</para>
+
+        <screenshot>
+          <screeninfo>Schon in Rechnung gestellte und nicht mehr gültige Positionen
+          werden gelb markiert</screeninfo>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata contentwidth="600" fileref="images/WR_Yellow_Positions.png"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
       </sect2>
 
       <sect2 id="features.periodic-invoices.variables">

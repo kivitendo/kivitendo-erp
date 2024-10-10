@@ -118,7 +118,7 @@ is_deeply($ctrl->data->{$_}, { months => [ (0) x 12 ], quarters => [ 0, 0, 0, 0 
   for qw(purchase_invoices purchase_orders requests_for_quotation sales_invoices sales_quotations);
 
 is_deeply($ctrl->data->{sales_orders},
-          { months => [ 0, 0, 0, 0, 27.7775, 27.7775, 27.7775, 27.7775, 27.7775, 27.7775, 27.7775, 27.7775 ], quarters => [ 0, 55.555, 83.3325, 83.3325 ], year => 222.22 },
+          { months => [ 0, 0, 0, 0, 27.78, 27.78, 27.78, 27.78, 27.78, 27.78, 27.78, 27.78 ], quarters => [ 0, 55.56, 83.34, 83.34 ], year => 222.24 },
           "periodic conf p=m ovp=y, no invoices, data for sales_orders");
 is_deeply($ctrl->data->{sales_orders_per_inv},
           { months => [ 0, 0, 333.33, 0, 0, 0, 0, 0, 0, 0, 0, 0 ], quarters => [ 333.33, 0, 0, 0 ], year => 333.33 },
@@ -140,7 +140,7 @@ is_deeply($ctrl->data->{$_}, { months => [ (0) x 12 ], quarters => [ 0, 0, 0, 0 
   for qw(purchase_invoices purchase_orders requests_for_quotation sales_invoices sales_quotations);
 
 is_deeply($ctrl->data->{sales_orders},
-          { months => [ 0, 83.3325, 0, 0, 83.3325, 0, 0, 83.3325, 0, 0, 83.3325, 0 ], quarters => [ 83.3325, 83.3325, 83.3325, 83.3325 ], year => 333.33 },
+          { months => [ 0, 83.34, 0, 0, 83.33, 0, 0, 83.33, 0, 0, 83.33, 0 ], quarters => [ 83.34, 83.33, 83.33, 83.33 ], year => 333.33 },
           "periodic conf p=q ovp=y, no invoices, starting previous year, data for sales_orders");
 is_deeply($ctrl->data->{sales_orders_per_inv},
           { months => [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ], quarters => [ 0, 0, 0, 0 ], year => 0 },
@@ -164,7 +164,7 @@ is_deeply($ctrl->data->{$_}, { months => [ (0) x 12 ], quarters => [ 0, 0, 0, 0 
   for qw(purchase_invoices purchase_orders requests_for_quotation sales_invoices sales_quotations);
 
 is_deeply($ctrl->data->{sales_orders},
-          { months => [ 0, 83.3325, 0, 0, 83.3325, 0, 0, 83.3325, 0, 0, 0, 0 ], quarters => [ 83.3325, 83.3325, 83.3325, 0 ], year => 249.9975 },
+          { months => [ 0, 83.34, 0, 0, 83.33, 0, 0, 83.33, 0, 0, 0, 0 ], quarters => [ 83.34, 83.33, 83.33, 0 ], year => 250 },
           "periodic conf p=q ovp=y, no invoices, starting previous year, ending middle of year, data for sales_orders");
 is_deeply($ctrl->data->{sales_orders_per_inv},
           { months => [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ], quarters => [ 0, 0, 0, 0 ], year => 0 },

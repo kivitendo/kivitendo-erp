@@ -1595,13 +1595,13 @@ SQL
     do_query($form, $dbh, $query, "Rechnung storniert am $form->{invdate} ", conv_i($form->{"storno_id"}));
     do_query($form, $dbh, qq|UPDATE ar SET paid = amount WHERE id = ?|, conv_i($form->{"id"}));
 
-    $query = <<SQL;
-      UPDATE orderitems
-      SET recurring_billing_invoice_id = NULL
-      WHERE recurring_billing_invoice_id = ?
-SQL
-
-    do_query($form, $dbh, $query, conv_i($form->{"storno_id"}));
+    ### Don't reset position of once periodic_invoice_items_configs on storno
+    # $query = <<SQL;
+    #   UPDATE periodic_invoice_items_configs
+    #   SET once_invoice_id = NULL
+    #   WHERE once_invoice_id = ?
+    # SQL
+    # do_query($form, $dbh, $query, conv_i($form->{"storno_id"}));
   }
 
   # maybe we are in a larger transaction and the current

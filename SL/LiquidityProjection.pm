@@ -5,6 +5,7 @@ use strict;
 use List::MoreUtils qw(uniq);
 
 use SL::DBUtils;
+use SL::Helper::DateTime;
 use SL::DB::PeriodicInvoicesConfig;
 
 sub new {
@@ -109,85 +110,31 @@ sub create {
 
   $params{months} ||= 6;
 
-  # 1. Auslesen aller erzeugten periodischen Rechnungen im
-  # Betrachtungszeitraum
-  my $q_min_date = $dbh->quote($self->{min_date} . '-01');
-  $query         = <<SQL;
-    SELECT pi.config_id, to_char(pi.period_start_date, 'YYYY-MM') AS period_start_date
-    FROM periodic_invoices pi
-    LEFT JOIN periodic_invoices_configs pcfg ON (pi.config_id = pcfg.id)
-    WHERE pcfg.active
-      AND NOT pcfg.periodicity = 'o'
-      AND (pi.period_start_date >= to_date($q_min_date, 'YYYY-MM-DD'))
-SQL
-
-  my %periodic_invoices;
-  $sth = prepare_execute_query($::form, $dbh, $query);
-  while ($ref = $sth->fetchrow_hashref) {
-    $periodic_invoices{ $ref->{config_id} }                                ||= { };
-    $periodic_invoices{ $ref->{config_id} }->{ $ref->{period_start_date} }   = 1;
-  }
-  $sth->finish;
-
-  # 2. Auslesen aktiver Wartungsvertragskonfigurationen
-  $query = <<SQL;
-    SELECT (oi.qty * (1 - oi.discount) * oi.sellprice) AS linetotal, oi.recurring_billing_mode,
-      bg.description AS buchungsgruppe,
-      pg.partsgroup AS parts_group,
-      CASE WHEN COALESCE(e.name, '') = '' THEN e.login ELSE e.name END AS salesman,
-      pcfg.periodicity, pcfg.order_value_periodicity, pcfg.id AS config_id,
-      EXTRACT(year FROM pcfg.start_date) AS start_year, EXTRACT(month FROM pcfg.start_date) AS start_month
-    FROM orderitems oi
-    LEFT JOIN oe                             ON (oi.trans_id                              = oe.id)
-    LEFT JOIN periodic_invoices_configs pcfg ON (oi.trans_id                              = pcfg.oe_id)
-    LEFT JOIN parts p                        ON (oi.parts_id                              = p.id)
-    LEFT JOIN buchungsgruppen bg             ON (p.buchungsgruppen_id                     = bg.id)
-    LEFT JOIN partsgroup pg                  ON (p.partsgroup_id                          = pg.id)
-    LEFT JOIN employee e                     ON (COALESCE(oe.salesman_id, oe.employee_id) = e.id)
-    WHERE pcfg.active
-      AND (pcfg.periodicity <> 'o')
-      AND (   (oi.recurring_billing_mode = 'always')
-           OR (    (oi.recurring_billing_mode = 'once')
-               AND (oi.recurring_billing_invoice_id IS NULL)))
-SQL
-
-  # 3. Iterieren über Saldierungsintervalle, vormerken
   my @scentries;
-  $sth = prepare_execute_query($::form, $dbh, $query);
-  while ($ref = $sth->fetchrow_hashref) {
-    my ($year, $month) = ($ref->{start_year}, $ref->{start_month});
-    my $date;
 
-    while (($date = _the_date($year, $month)) le $self->{max_date}) {
-      my $billing_len = $SL::DB::PeriodicInvoicesConfig::PERIOD_LENGTHS{ $ref->{periodicity} } || 1;
-
-      if (($date ge $self->{min_date}) && (!$periodic_invoices{ $ref->{config_id} } || !$periodic_invoices{ $ref->{config_id} }->{$date})) {
-        if ($ref->{recurring_billing_mode} eq 'once') {
-          push @scentries, { buchungsgruppe => $ref->{buchungsgruppe},
-                             salesman       => $ref->{salesman},
-                             linetotal      => $ref->{linetotal},
-                             date           => $date,
-                           };
-          last;
-        }
-
-        my $order_value_periodicity = $ref->{order_value_periodicity} eq 'p' ? $ref->{periodicity} : $ref->{order_value_periodicity};
-        my $order_value_len         = $SL::DB::PeriodicInvoicesConfig::ORDER_VALUE_PERIOD_LENGTHS{$order_value_periodicity} || 1;
-
-        push @scentries, { buchungsgruppe => $ref->{buchungsgruppe},
-                           salesman       => $ref->{salesman},
-                           linetotal      => $ref->{linetotal} * $billing_len / $order_value_len,
-                           date           => $date,
-                           parts_group    => $ref->{parts_group},
-                         };
+  # 1. Auslesen aller erzeugten periodischen Rechnungen im Betrachtungszeitraum
+  my $configs = SL::DB::Manager::PeriodicInvoicesConfig->get_all(query => [ active => 1 ]);
+  foreach my $config (@{ $configs }) {
+    my $open_orders = $config->get_open_orders_for_period(
+      end_date => DateTime->from_ymd(
+        $self->{max_date} . '-01'
+      )->add(months => 1, days => -1)
+    );
+    foreach my $order (@$open_orders) {
+      my $month_date = _the_date($order->reqdate->year, $order->reqdate->month);
+      foreach my $order_item ($order->items()) {
+        push @scentries, {
+          buchungsgruppe => $order_item->part->buchungsgruppe->description,
+          salesman       => $order->salesman ? $order->salesman->name : $order->employee->name,
+          linetotal      => $order_item->qty * (1 - $order_item->discount) * $order_item->sellprice,
+          date           => $month_date,
+          parts_group    => $order_item->part->partsgroup,
+        };
       }
-
-      ($year, $month) = _fix_date($year, $month + $billing_len);
     }
   }
-  $sth->finish;
 
-  # 4. Auslesen offener Aufträge
+  # 2. Auslesen offener Aufträge
   $query = <<SQL;
     SELECT (oi.qty * (1 - oi.discount) * oi.sellprice) AS linetotal,
       bg.description AS buchungsgruppe,
@@ -202,10 +149,10 @@ SQL
     LEFT JOIN employee e         ON (COALESCE(oe.salesman_id, oe.employee_id) = e.id)
     WHERE oe.record_type = 'sales_order'
       AND NOT COALESCE(oe.closed,    FALSE)
-      AND (oe.id NOT IN (SELECT oe_id FROM periodic_invoices_configs WHERE periodicity <> 'o'))
+      AND (oe.id NOT IN (SELECT oe_id FROM periodic_invoices_configs))
 SQL
 
-  # 5. Initialisierung der Datenstrukturen zum Speichern der
+  # 3. Initialisierung der Datenstrukturen zum Speichern der
   # Ergebnisse
   my @entries               = selectall_hashref_query($::form, $dbh, $query);
   my @salesmen              = uniq map { $_->{salesman}       } (@entries, @scentries);
@@ -232,7 +179,7 @@ SQL
                                           },
                       };
 
-  # 6. Aufsummieren der Auftragspositionen
+  # 4. Aufsummieren der Auftragspositionen
   foreach $ref (@entries) {
     my $date = $self->_date_for($ref);
 
@@ -243,7 +190,7 @@ SQL
     $projection->{parts_group}->{ $ref->{parts_group} }->{$date}       += $ref->{linetotal};
   }
 
-  # 7. Aufsummieren der Wartungsvertragspositionen
+  # 5. Aufsummieren der Wartungsvertragspositionen
   foreach $ref (@scentries) {
     my $date = $ref->{date};
 
@@ -346,13 +293,13 @@ sub orders_for_time_period {
   $calc_params{end_date} //= $calc_params{start_date}->clone->add(years => 1);
 
   foreach my $config (@{ $configs }) {
-    my @dates = $config->calculate_invoice_dates(%calc_params);
-    next unless @dates;
 
-    my $order = SL::DB::Order->new(id => $config->oe_id)->load(with_objects => [ qw(customer employee) ]);
-    $order->{is_recurring} = 1;
+    my $rec_orders = $config->get_open_orders_for_period(%calc_params);
+    next unless scalar $rec_orders;
 
-    push @recurring_orders, $order;
+    $_->{is_recurring} = 1 for @$rec_orders;
+
+    push @recurring_orders, @$rec_orders;
   }
 
   my @where = (
