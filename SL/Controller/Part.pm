@@ -522,9 +522,10 @@ sub render_form {
                      assortment     => t8('Edit Assortment'),
                    );
   my $title = $title_hash{$self->part->part_type};
-  $title .=
-    ' (' . SL::Presenter::Part::variant_type_abbreviation($self->part->variant_type) . ')'
-    if $self->part->variant_type;
+
+  my $variant_abbr = SL::Presenter::Part::variant_type_abbreviation(
+    $self->part->variant_type);
+  $title .= ' (' . $variant_abbr . ')' if $variant_abbr;
 
   $self->part->prices([])       unless $self->part->prices;
   $self->part->translations([]) unless $self->part->translations;
