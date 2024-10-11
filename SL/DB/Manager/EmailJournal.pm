@@ -68,6 +68,16 @@ sub _sort_spec {
             AND record_links.to_id = email_journal.id
           )
       )},
+      attachment => qq{(
+        SELECT STRING_AGG(
+          email_journal_attachments.name,
+          ', '
+          ORDER BY email_journal_attachments.position ASC
+       )
+        FROM email_journal_attachments
+        WHERE
+          email_journal_attachments.email_journal_id = email_journal.id
+      )},
       has_unprocessed_attachments => qq{(
         SELECT count(*)
         FROM email_journal_attachments
