@@ -802,6 +802,7 @@ sub init_models {
       from            => t8('From'),
       recipients      => t8('Recipients'),
       subject         => t8('Subject'),
+      attachments     => t8('Attachments'),
       sent_on         => t8('Sent on'),
       status          => t8('Status'),
       extended_status => t8('Extended status'),
