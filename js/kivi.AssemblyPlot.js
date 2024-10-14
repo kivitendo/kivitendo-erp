@@ -211,10 +211,6 @@ namespace('kivi.AssemblyPlot', function(ns) {
             .attr("transform", d => `translate(${source.y0},${source.x0})`)
             .attr("fill-opacity", 0)
             .attr("stroke-opacity", 0)
-            .on("click", (event, d) => {
-              d.children = d.children ? null : d._children;
-              update(event, d);
-            });
 
       nodeEnter.append("circle")
         .attr("r", 2.5)
@@ -230,11 +226,28 @@ namespace('kivi.AssemblyPlot', function(ns) {
         .attr("opacity", 0.5)
       ;
 
-      nodeEnter.append("text")
+      nodeEnter.append("a")
+        .attr("xlink:href", d => d.data.link)
+        .attr("target", "_blank")
+        .attr("style", "text-decoration: none; font-weight: normal;")
+        .append("text")
         .attr("x", d => 6)
         .attr("text-anchor", d => "start")
         .text(d => d.data.descr_text)
         .attr("style", "white-space: pre;")
+      ;
+
+      nodeEnter.append("rect")
+        .attr("fill", d => d.children ? "#000" : "#999")
+        .attr("width", d => 10)
+        .attr("height", "4em")
+        .attr("x", d => maxTextLength + "em")
+        .attr("y", "-1em")
+        .attr("opacity", 0.5)
+        .on("click", (event, d) => {
+          d.children = d.children ? null : d._children;
+          update(event, d);
+        })
       ;
 
       // Transition nodes to their new position.
