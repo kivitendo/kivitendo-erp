@@ -140,17 +140,19 @@ namespace('kivi.AssemblyPlot', function(ns) {
     const text_f = 0.65;
 
     function generate_text(data) {
-      const text
-            = (data.qty ? data.qty + "x " : "") + data.description + "\n"
-            + data.partnumber + "\n"
-            + data.ean;
-      return text;
+      const textLines = [(data.qty ? data.qty + "x " : "") + data.description,
+                         data.partnumber,
+                         data.ean];
+      let maxLength = 0;
+      textLines.forEach((e) => {if (maxLength < e.length) maxLength = e.length});
+      return {text: textLines.join("\n"), maxLength: maxLength};
     }
 
     let maxTextLength = 0;
     root.eachBefore(d => {
-      const t = d.data.descr_text   = generate_text(d.data);
-      const l = d.data.descr_length = text_f * t.length;
+      const g = generate_text(d.data);
+      const t = d.data.descr_text   = g.text;
+      const l = d.data.descr_length = text_f * g.maxLength;
       if (maxTextLength < l) maxTextLength = l;
     });
 
