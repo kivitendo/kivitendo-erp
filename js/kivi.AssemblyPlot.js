@@ -212,11 +212,6 @@ namespace('kivi.AssemblyPlot', function(ns) {
             .attr("fill-opacity", 0)
             .attr("stroke-opacity", 0)
 
-      nodeEnter.append("circle")
-        .attr("r", 2.5)
-        .attr("fill", d => d._children ? "#555" : "#999")
-        .attr("stroke-width", 10);
-
       nodeEnter.append("rect")
         .attr("fill", d => d.children ? "#555" : "#999")
         .attr("width", maxTextLength + "em")
