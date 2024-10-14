@@ -177,7 +177,6 @@ namespace('kivi.AssemblyPlot', function(ns) {
           .attr("stroke-width", 1.5);
 
     const gNode = svg.append("g")
-          .attr("cursor", "pointer")
           .attr("pointer-events", "all");
 
     function update(event, source) {
@@ -213,12 +212,11 @@ namespace('kivi.AssemblyPlot', function(ns) {
             .attr("stroke-opacity", 0)
 
       nodeEnter.append("rect")
-        .attr("fill", d => (d.children || d._children) ? "#555" : "#999")
+        .attr("fill", "#9999")
         .attr("width", maxTextLength + "em")
         .attr("height", "4em")
         .attr("x", 0)
         .attr("y", "-2em")
-        .attr("opacity", 0.5)
       ;
 
       nodeEnter.append("a")
@@ -234,12 +232,13 @@ namespace('kivi.AssemblyPlot', function(ns) {
       ;
 
       nodeEnter.append("rect")
-        .attr("fill", d => (d.children || d._children) ? "#100" : "#999")
-        .attr("width", 10)
+        .attr("fill", "#100")
+        .attr("width", "2em")
         .attr("height", "4em")
-        .attr("x", maxTextLength + "em")
+        .attr("x", maxTextLength - 2 + "em")
         .attr("y", "-2em")
-        .attr("opacity", 0.5)
+        .attr("opacity", d => (d.children || d._children) ? 0.5 : 0.0)
+        .attr("cursor", d => (d.children || d._children) ? "pointer" : "")
         .on("click", (event, d) => {
           d.children = d.children ? null : d._children;
           update(event, d);
