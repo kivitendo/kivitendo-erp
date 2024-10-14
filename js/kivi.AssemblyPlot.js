@@ -213,7 +213,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
             .attr("stroke-opacity", 0)
 
       nodeEnter.append("rect")
-        .attr("fill", d => d.children ? "#555" : "#999")
+        .attr("fill", d => (d.children || d._children) ? "#555" : "#999")
         .attr("width", maxTextLength + "em")
         .attr("height", "4em")
         .attr("x", 0)
@@ -234,7 +234,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
       ;
 
       nodeEnter.append("rect")
-        .attr("fill", d => d.children ? "#000" : "#999")
+        .attr("fill", d => (d.children || d._children) ? "#100" : "#999")
         .attr("width", 10)
         .attr("height", "4em")
         .attr("x", maxTextLength + "em")
