@@ -222,7 +222,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
         .attr("width", d => maxTextLength + "em")
         .attr("height", "4em")
         .attr("x", 0)
-        .attr("y", "-1em")
+        .attr("y", "-2em")
         .attr("opacity", 0.5)
       ;
 
@@ -242,7 +242,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
         .attr("width", d => 10)
         .attr("height", "4em")
         .attr("x", d => maxTextLength + "em")
-        .attr("y", "-1em")
+        .attr("y", "-2em")
         .attr("opacity", 0.5)
         .on("click", (event, d) => {
           d.children = d.children ? null : d._children;
