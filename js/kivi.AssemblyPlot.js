@@ -126,7 +126,6 @@ namespace('kivi.AssemblyPlot', function(ns) {
   ns.collapsableChart = (data) => {
 
     // Specify the charts’ dimensions. The height is variable, depending on the layout.
-    const width = 1800;
     const marginTop = 10;
     const marginRight = 10;
     const marginBottom = 10;
@@ -137,8 +136,23 @@ namespace('kivi.AssemblyPlot', function(ns) {
     // “bottom”, in the data domain. The width of a column is based on the tree’s height.
     //const root = d3.hierarchy(data);
     const root = data;
-    const dx = 10;
-    const dy = (width - marginRight - marginLeft) / (1 + root.height);
+    const dx = 50;
+    const text_f = 0.65;
+
+    function generate_text(data) {
+      const text = (data.qty ? data.qty + "x " : "") +  data.description + "  " + data.partnumber;
+      return text;
+    }
+
+    let maxTextLength = 0;
+    root.eachBefore(d => {
+      const t = d.data.descr_text   = generate_text(d.data);
+      const l = d.data.descr_length = text_f * t.length;
+      if (maxTextLength < l) maxTextLength = l;
+    });
+
+    const dy = 10*maxTextLength + 30;
+    const width = dy * (1 + root.height) + marginLeft + marginRight;
 
     // Define the tree layout and the shape for links.
     const tree = d3.tree().nodeSize([dx, dy]);
@@ -177,7 +191,6 @@ namespace('kivi.AssemblyPlot', function(ns) {
       });
 
       const height = right.x - left.x + marginTop + marginBottom;
-
       const transition = svg.transition()
             .duration(duration)
             .attr("height", height)
@@ -203,11 +216,20 @@ namespace('kivi.AssemblyPlot', function(ns) {
         .attr("fill", d => d._children ? "#555" : "#999")
         .attr("stroke-width", 10);
 
+      nodeEnter.append("rect")
+        .attr("fill", d => d.children ? "#555" : "#999")
+        .attr("width", d => maxTextLength + "em")
+        .attr("height", "4em")
+        .attr("x", 0)
+        .attr("y", "-1em")
+        .attr("opacity", 0.5)
+      ;
+
       nodeEnter.append("text")
         .attr("dy", "0.31em")
-        .attr("x", d => d._children ? -6 : 6)
-        .attr("text-anchor", d => d._children ? "end" : "start")
-        .text(d => d.data.description)
+        .attr("x", d => 6)
+        .attr("text-anchor", d => "start")
+        .text(d => d.data.descr_text)
         .attr("stroke-linejoin", "round")
         .attr("stroke-width", 3)
         .attr("stroke", "white")
@@ -238,7 +260,13 @@ namespace('kivi.AssemblyPlot', function(ns) {
 
       // Transition links to their new position.
       link.merge(linkEnter).transition(transition)
-        .attr("d", diagonal);
+        .attr("d", d => {
+          const dy = 10*maxTextLength; // + "em";
+          const so = {x: d.source.x, y: d.source.y + dy};
+          const to = {x: d.target.x, y: d.target.y};
+          return diagonal(
+            {source: so, target: to});
+        });
 
       // Transition exiting nodes to the parent's new position.
       link.exit().transition(transition).remove()
