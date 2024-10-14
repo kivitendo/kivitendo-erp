@@ -128,7 +128,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
     // Specify the charts’ dimensions. The height is variable, depending on the layout.
     const marginTop = 10;
     const marginRight = 10;
-    const marginBottom = 10;
+    const marginBottom = 30;
     const marginLeft = 40;
 
     // Rows are separated by dx pixels, columns by dy pixels. These names can be counter-intuitive
