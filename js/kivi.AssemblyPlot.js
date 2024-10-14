@@ -208,7 +208,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
 
       // Enter any new nodes at the parent's previous position.
       const nodeEnter = node.enter().append("g")
-            .attr("transform", d => `translate(${source.y0},${source.x0})`)
+            .attr("transform", `translate(${source.y0},${source.x0})`)
             .attr("fill-opacity", 0)
             .attr("stroke-opacity", 0)
 
@@ -219,7 +219,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
 
       nodeEnter.append("rect")
         .attr("fill", d => d.children ? "#555" : "#999")
-        .attr("width", d => maxTextLength + "em")
+        .attr("width", maxTextLength + "em")
         .attr("height", "4em")
         .attr("x", 0)
         .attr("y", "-2em")
@@ -231,17 +231,18 @@ namespace('kivi.AssemblyPlot', function(ns) {
         .attr("target", "_blank")
         .attr("style", "text-decoration: none; font-weight: normal;")
         .append("text")
-        .attr("x", d => 6)
-        .attr("text-anchor", d => "start")
+        .attr("x", 6)
+        .attr("y", "-1em")
+        .attr("text-anchor", "start")
         .text(d => d.data.descr_text)
         .attr("style", "white-space: pre;")
       ;
 
       nodeEnter.append("rect")
         .attr("fill", d => d.children ? "#000" : "#999")
-        .attr("width", d => 10)
+        .attr("width", 10)
         .attr("height", "4em")
-        .attr("x", d => maxTextLength + "em")
+        .attr("x", maxTextLength + "em")
         .attr("y", "-2em")
         .attr("opacity", 0.5)
         .on("click", (event, d) => {
@@ -258,7 +259,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
 
       // Transition exiting nodes to the parent's new position.
       const nodeExit = node.exit().transition(transition).remove()
-            .attr("transform", d => `translate(${source.y},${source.x})`)
+            .attr("transform", `translate(${source.y},${source.x})`)
             .attr("fill-opacity", 0)
             .attr("stroke-opacity", 0);
 
@@ -268,7 +269,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
 
       // Enter any new links at the parent's previous position.
       const linkEnter = link.enter().append("path")
-            .attr("d", d => {
+            .attr("d", () => {
               const o = {x: source.x0, y: source.y0};
               return diagonal({source: o, target: o});
             });
@@ -283,9 +284,9 @@ namespace('kivi.AssemblyPlot', function(ns) {
             {source: so, target: to});
         });
 
-      // Transition exiting nodes to the parent's new position.
+      // Transition exiting links to the parent's new position.
       link.exit().transition(transition).remove()
-        .attr("d", d => {
+        .attr("d", () => {
           const o = {x: source.x, y: source.y};
           return diagonal({source: o, target: o});
         });
