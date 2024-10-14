@@ -154,7 +154,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
       if (maxTextLength < l) maxTextLength = l;
     });
 
-    const dy = 10*maxTextLength + 30;
+    const dy = 12*maxTextLength + 30;
     const width = dy * (1 + root.height) + marginLeft + marginRight;
 
     // Define the tree layout and the shape for links.
@@ -166,7 +166,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
           .attr("width", width)
           .attr("height", dx)
           .attr("viewBox", [-marginLeft, -marginTop, width, dx])
-          .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif; user-select: none;");
+          .attr("style", "max-width: 100%; height: auto; font: 12px sans-serif; user-select: none;");
 
     const gLink = svg.append("g")
           .attr("fill", "none")
@@ -229,15 +229,11 @@ namespace('kivi.AssemblyPlot', function(ns) {
       ;
 
       nodeEnter.append("text")
-        .attr("dy", "0.31em")
         .attr("x", d => 6)
         .attr("text-anchor", d => "start")
         .text(d => d.data.descr_text)
         .attr("style", "white-space: pre;")
-        .attr("stroke-linejoin", "round")
-        .attr("stroke-width", 3)
-        .attr("stroke", "white")
-        .attr("paint-order", "stroke");
+      ;
 
       // Transition nodes to their new position.
       const nodeUpdate = node.merge(nodeEnter).transition(transition)
@@ -265,7 +261,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
       // Transition links to their new position.
       link.merge(linkEnter).transition(transition)
         .attr("d", d => {
-          const dy = 10*maxTextLength; // + "em";
+          const dy = 12*maxTextLength; // + "em";
           const so = {x: d.source.x, y: d.source.y + dy};
           const to = {x: d.target.x, y: d.target.y};
           return diagonal(
