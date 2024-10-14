@@ -69,7 +69,7 @@ sub action_get_objects {
                      link     => $self->url_for(controller => 'Part',
                                                 action     => 'edit',
                                                 'part.id' => $item->part->id),
-                     map { ($_ => $item->part->$_) } qw(partnumber description part_type),
+                     map { ($_ => $item->part->$_) } qw(partnumber description ean part_type),
     };
   }
   push @$objects, {parentId => undef,
@@ -77,7 +77,7 @@ sub action_get_objects {
                    link     => $self->url_for(controller => 'Part',
                                               action     => 'edit',
                                               'part.id'  => $self->part->id),
-                   map { ($_ => $self->part->$_) } qw(partnumber description part_type)};
+                   map { ($_ => $self->part->$_) } qw(partnumber description ean part_type)};
 
   $::lxdebug->dump(0, "bb: objects", $objects);
 

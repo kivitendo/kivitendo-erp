@@ -140,7 +140,10 @@ namespace('kivi.AssemblyPlot', function(ns) {
     const text_f = 0.65;
 
     function generate_text(data) {
-      const text = (data.qty ? data.qty + "x " : "") +  data.description + "  " + data.partnumber;
+      const text
+            = (data.qty ? data.qty + "x " : "") + data.description + "\n"
+            + data.partnumber + "\n"
+            + data.ean;
       return text;
     }
 
@@ -230,6 +233,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
         .attr("x", d => 6)
         .attr("text-anchor", d => "start")
         .text(d => d.data.descr_text)
+        .attr("style", "white-space: pre;")
         .attr("stroke-linejoin", "round")
         .attr("stroke-width", 3)
         .attr("stroke", "white")
