@@ -126,7 +126,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
   ns.collapsableChart = (data) => {
 
     // Specify the charts’ dimensions. The height is variable, depending on the layout.
-    const marginTop = 10;
+    const marginTop = 30;
     const marginRight = 10;
     const marginBottom = 30;
     const marginLeft = 40;
