@@ -168,6 +168,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
           .attr("width", width)
           .attr("height", dx)
           .attr("viewBox", [-marginLeft, -marginTop, width, dx])
+          .attr("class", "bg-content")
           .attr("style", `width: ${width}; height: auto; font: 12px sans-serif; user-select: none;`);
 
     const gLink = svg.append("g")
@@ -313,7 +314,6 @@ namespace('kivi.AssemblyPlot', function(ns) {
     let svg;
     if ($('#alternative').val() == 1) {
       $('#content').css({overflow:'initial'});
-      $('#svg-wrapper').css({overflow:'initial'});
       svg = ns.collapsableChart(root);
     } else {
       svg = ns.chart(root);
