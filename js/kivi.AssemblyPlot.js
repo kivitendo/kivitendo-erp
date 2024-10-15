@@ -144,7 +144,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
                          data.partnumber,
                          data.ean];
       let maxLength = 0;
-      textLines.forEach((e) => {if (maxLength < e.length) maxLength = e.length});
+      textLines.forEach((e) => {if (e && maxLength < e.length) maxLength = e.length});
       return {text: textLines.join("\n"), maxLength: maxLength};
     }
 
