@@ -82,6 +82,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
     const zoom = d3.zoom().on('zoom', handleZoom);
     svg.call(zoom);
 
+    let maxHeight = 0;
     function update(event, source) {
       const duration = event?.altKey ? 2500 : 250; // hold the alt key to slow down the transition
       const nodes = root.descendants().reverse();
@@ -98,11 +99,11 @@ namespace('kivi.AssemblyPlot', function(ns) {
       });
 
       const height = right.x - left.x + marginTop + marginBottom;
+      maxHeight = (maxHeight < height) ? height : maxHeight;
 
       const transition = svg.transition()
             .duration(duration)
-            .attr("height", height)
-            .attr("viewBox", [-marginLeft, left.x - marginTop, width, height])
+            .attr("height", maxHeight)
             .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
 
       // Update the nodes…
