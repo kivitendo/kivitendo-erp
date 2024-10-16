@@ -179,6 +179,13 @@ namespace('kivi.AssemblyPlot', function(ns) {
     const gNode = svg.append("g")
           .attr("pointer-events", "all");
 
+    const handleZoom = (e) => {
+      gLink.attr('transform', e.transform);
+      gNode.attr('transform', e.transform);
+    };
+    const zoom = d3.zoom().on('zoom', handleZoom);
+    svg.call(zoom);
+
     function update(event, source) {
       const duration = event?.altKey ? 2500 : 250; // hold the alt key to slow down the transition
       const nodes = root.descendants().reverse();
@@ -195,6 +202,7 @@ namespace('kivi.AssemblyPlot', function(ns) {
       });
 
       const height = right.x - left.x + marginTop + marginBottom;
+
       const transition = svg.transition()
             .duration(duration)
             .attr("height", height)
