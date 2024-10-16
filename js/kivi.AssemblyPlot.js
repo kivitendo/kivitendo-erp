@@ -145,13 +145,13 @@ namespace('kivi.AssemblyPlot', function(ns) {
                          data.ean];
       let maxLength = 0;
       textLines.forEach((e) => {if (e && maxLength < e.length) maxLength = e.length});
-      return {text: textLines.join("\n"), maxLength: maxLength};
+      return {textLines: textLines, maxLength: maxLength};
     }
 
     let maxTextLength = 0;
     root.eachBefore(d => {
       const g = generate_text(d.data);
-      const t = d.data.descr_text   = g.text;
+      d.data.descr_textLines = g.textLines;
       const l = d.data.descr_length = text_f * g.maxLength;
       if (maxTextLength < l) maxTextLength = l;
     });
@@ -227,17 +227,37 @@ namespace('kivi.AssemblyPlot', function(ns) {
         .attr("y", "-2em")
       ;
 
-      nodeEnter.append("a")
+      const a = nodeEnter.append("a")
         .attr("xlink:href", d => d.data.link)
         .attr("target", "_blank")
         .attr("style", "text-decoration: none; font-weight: normal;")
-        .append("text")
-        .attr("x", 6)
-        .attr("y", "-1em")
-        .attr("text-anchor", "start")
-        .text(d => d.data.descr_text)
-        .attr("style", "white-space: pre;")
       ;
+
+      const lh = 1.3;
+      let i = 0;
+      a.append("text")
+        .attr("x", 6)
+        .attr("y", `${-1+i*lh}em`)
+        .attr("text-anchor", "start")
+        .text(d => d.data.descr_textLines[0])
+      ;
+      i++;
+
+      a.append("text")
+        .attr("x", 6)
+        .attr("y", `${-1+i*lh}em`)
+        .attr("text-anchor", "start")
+        .text(d => d.data.descr_textLines[1])
+      ;
+      i++;
+
+      a.append("text")
+        .attr("x", 6)
+        .attr("y", `${-1+i*lh}em`)
+        .attr("text-anchor", "start")
+        .text(d => d.data.descr_textLines[2])
+      ;
+      i++;
 
       nodeEnter.append("rect")
         .attr("fill", "#100")
