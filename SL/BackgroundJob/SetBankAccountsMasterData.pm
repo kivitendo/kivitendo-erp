@@ -51,8 +51,11 @@ sub run {
 sub _get_bank_data_vc {
   my (%params) = @_;
 
-  die "Need valid vc param, got:"     . $params{vc}     unless $params{vc}     && $params{vc}     =~ /^(customer|vendor)$/;
-  die "Need valid months param, got:" . $params{months} unless $params{months} && $params{months} =~ /^[1-9][0-9]*$/;
+  die "Need a defined value for params(vc)"     unless $params{vc};
+  die "Need a defined value for params(months)" unless $params{months};
+
+  die "Need valid vc param, got:"     . $params{vc}     unless $params{vc}     =~ /^(customer|vendor)$/;
+  die "Need valid months param, got:" . $params{months} unless $params{months} =~ /^[1-9][0-9]*$/;
 
   my $vc_id = $params{vc} . '_id';
 
