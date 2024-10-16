@@ -13,7 +13,7 @@ sub run {
 
   die "No valid integer for months"  if $data->{months}    && $data->{months}     !~ /^[1-9][0-9]*$/;
   die "No valid value for overwrite" if $data->{overwrite} && $data->{overwrite}  !~ /^(0|1)$/;
-  die "No valid value for overwrite" if $data->{dry_run}   && $data->{dry_run}    !~ /^(0|1)$/;
+  die "No valid value for dry_run"   if $data->{dry_run}   && $data->{dry_run}    !~ /^(0|1)$/;
 
   $self->{dry_run}   = $data->{dry_run}    ? 1               : 0;
   $self->{overwrite} = $data->{overwrite}  ? 1               : 0;
@@ -51,24 +51,24 @@ sub run {
 sub _get_bank_data_vc {
   my (%params) = @_;
 
-  die "Need valid vc param, got"     . $params{vc}     unless $params{vc}     && $params{vc}     =~ /^(customer|vendor)$/;
-  die "Need valid months param, got" . $params{months} unless $params{months} && $params{months} =~ /^[1-9][0-9]*$/;
+  die "Need valid vc param, got:"     . $params{vc}     unless $params{vc}     && $params{vc}     =~ /^(customer|vendor)$/;
+  die "Need valid months param, got:" . $params{months} unless $params{months} && $params{months} =~ /^[1-9][0-9]*$/;
 
   my $vc_id = $params{vc} . '_id';
+
   my $arap  =   $params{vc} eq 'customer' ? 'ar'
               : $params{vc} eq 'vendor'   ? 'ap'
               : undef;
 
-  die "Invalid state" unless $arap;
 
   my $dbh = SL::DB->client->dbh;
   my $query = <<SQL;
   SELECT bt.remote_bank_code, bt.remote_account_number, $vc_id
   FROM $arap
-  LEFT JOIN bank_transaction_acc_trans bta on id = bta.${arap}_id
-  LEFT JOIN bank_transactions bt on bt.id = bta.bank_transaction_id
-  WHERE $vc_id in (select distinct $vc_id from $arap where transdate > now() - interval '$params{months} month' AND paid = amount)
-  AND bta.${arap}_id is not NULL
+  LEFT JOIN bank_transaction_acc_trans bta ON id = bta.${arap}_id
+  LEFT JOIN bank_transactions bt ON bt.id = bta.bank_transaction_id
+  WHERE $vc_id IN (SELECT DISTINCT $vc_id FROM $arap WHERE transdate > now() - interval '$params{months} month' AND paid = amount)
+  AND bta.${arap}_id IS NOT NULL
   GROUP BY bt.remote_account_number,bt.remote_bank_code, $vc_id
   ORDER BY $vc_id
 SQL
