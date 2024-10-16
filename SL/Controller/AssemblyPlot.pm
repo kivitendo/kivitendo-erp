@@ -29,14 +29,8 @@ sub action_show {
 sub action_get_objects {
   my ($self) = @_;
 
-  my $recursively = !! delete $::form->{recursively};
-  my $items;
-  if ($recursively) {
-    die "export_assembly_assortment_components: recursively only works for assemblies by now" if !$self->part->is_assembly;
-    $items = $self->part->assembly_items_recursively;
-  } else {
-    $items = $self->part->items;
-  }
+  die "export_assembly_assortment_components: recursively only works for assemblies by now" if !$self->part->is_assembly;
+  my $items = $self->part->assembly_items_recursively;
 
   # Get parents for items.
   # Parent of one item is the nearest predecessor with level = item.level - 1.
@@ -78,8 +72,6 @@ sub action_get_objects {
                                               action     => 'edit',
                                               'part.id'  => $self->part->id),
                    map { ($_ => $self->part->$_) } qw(partnumber description ean part_type)};
-
-  $::lxdebug->dump(0, "bb: objects", $objects);
 
   $self->render(\SL::JSON::to_json($objects), { type => 'json', process => 0 });
 }
