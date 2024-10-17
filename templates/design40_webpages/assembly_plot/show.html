@@ -1,8 +1,9 @@
+[% USE HTML%]
 [% USE P %]
 
 [%- INCLUDE 'common/flash.html' %]
 
-<h1>[% 'Sample Plot' %]</h1>
+<h1>[% title | html %]</h1>
 
 [% P.hidden_tag('id', FORM.id) %]
 <div class="wrapper">

@@ -23,6 +23,7 @@ sub action_show {
 
   $self->render(
     'assembly_plot/show',
+    title => SL::DB::Part->new(id => $::form->{id})->load->displayable_name,
   );
 }
 
