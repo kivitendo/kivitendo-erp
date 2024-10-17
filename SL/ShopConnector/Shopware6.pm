@@ -679,7 +679,7 @@ sub get_version {
   #  2. request version number
 
   $ret = $self->connector;
-  if (200 != $ret->responseCode()) {
+  if (!defined $ret || 200 != $ret->responseCode()) {
     $return->{success}         = 0;
     $return->{data}->{version} = $self->{errors}; # whatever init puts in errors
     return $return;
