@@ -27,8 +27,6 @@ Mittelgroße neue Features:
 Kleinere neue Features und Detailverbesserungen:
   - Verkaufsreklamationen: Support für Drucken via odt-Vorlagen sowie eine
     Beispiel odt-Vorlage hinzugefügt
-  - Neuer Backgroundjob zum Massen-generieren von Shop Artikeln aus Artikeln.
-    Dokumentation siehe POD in SL/BackgroundJob/ShopPartMassCreate.pm.
   - Möglichkeit nach internen Bemerkungen zu suchen und zu filtern im
     Bericht Einkaufsrechnungen/Kreditorenbuchungen.
   - Der Inhalt der Picker (Artikel/Kunde/Lieferant/Projekt/Konto) wird
@@ -65,6 +63,13 @@ Kleinere neue Features und Detailverbesserungen:
     unter Stammdaten, nicht aber den generellen Zugriff auf die Kunden- bzw.
     Lieferanten-Maske.
   - Neues Recht, um Liste der Ansprechpersonen (Stammdaten) aufrufen zu können.
+  - Die Dateiendung für den SEPA-Export wurde auf .xml geändert, konfigurierbar auf
+    den vorherigen Wert (.cct oder .cdd) über die Mandantenkonfiguration
+  - Kontoauszug verbuchen, der Reiter "Alle Buchungen" kann per Konfiguration immer
+    als erstes angezeigt werden (Vorschläge werden generiert, aber nicht direkt geöffnet)
+  - Neuer Hintergrund-Job der IBAN und BIC in den Stammdaten setzt, insofern diese
+    sich über verbuchte Bank-Transaktion ableiten lassen, s.a.
+    perldoc SL/BackgroundJob/SetBankAccountsMasterData.pm
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -

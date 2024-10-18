@@ -85,35 +85,37 @@
 <form action='controller.pl' method='POST' id='form'>
  <div class="tabwidget">
   <ul>
-    <li><a href="#miscellaneous">[% LxERP.t8('Miscellaneous') %]</a></li>
-    <li><a href="#ranges_of_numbers">[% LxERP.t8('Ranges of numbers') %]</a></li>
-    <li><a href="#default_accounts">[% LxERP.t8('Default Accounts') %]</a></li>
-    <li><a href="#posting_configuration">[% LxERP.t8('Posting Configuration') %]</a></li>
-    [% IF FORM.feature_datev %]
-      <li><a href="#datev_check_configuration">[% LxERP.t8('DATEV configuration') %]</a></li>
-    [% END %]
-    <li><a href="#orders_deleteable">[% LxERP.t8('Orders / Delivery Orders deleteable') %]</a></li>
-    [% IF INSTANCE_CONF.get_doc_storage %]
-      <li><a href="#attachments">[% LxERP.t8('Global Attachments') %]</a></li>
-    [% END %]
-    <li><a href="#warehouse">[% LxERP.t8('Warehouse') %]</a></li>
-    <li><a href="#features">[% LxERP.t8('Features') %]</a></li>
-    <li><a href="#stocktaking">[% LxERP.t8('Stocktaking') %]</a></li>
-    <li><a href="#record_links">[% LxERP.t8('Linked Records') %]</a></li>
+   <li><a href="#miscellaneous">[% LxERP.t8('Miscellaneous') %]</a></li>
+   <li><a href="#ranges_of_numbers">[% LxERP.t8('Ranges of numbers') %]</a></li>
+   <li><a href="#default_accounts">[% LxERP.t8('Default Accounts') %]</a></li>
+   <li><a href="#posting_configuration">[% LxERP.t8('Posting Configuration') %]</a></li>
+   [% IF FORM.feature_datev %]
+     <li><a href="#datev_check_configuration">[% LxERP.t8('DATEV configuration') %]</a></li>
+   [% END %]
+   <li><a href="#orders_deleteable">[% LxERP.t8('Orders / Delivery Orders deleteable') %]</a></li>
+[%- IF INSTANCE_CONF.get_doc_storage %]
+   <li><a href="#attachments">[% LxERP.t8('Global Attachments') %]</a></li>
+[%- END %]
+   <li><a href="#warehouse">[% LxERP.t8('Warehouse') %]</a></li>
+   <li><a href="#features">[% LxERP.t8('Features') %]</a></li>
+   <li><a href="#stocktaking">[% LxERP.t8('Stocktaking') %]</a></li>
+   <li><a href="#record_links">[% LxERP.t8('Linked Records') %]</a></li>
+   <li><a href="#bank">[% LxERP.t8('SEPA/Bank') %]</a></li>
   </ul>
 
-  [% PROCESS 'client_config/_ranges_of_numbers.html' %]
-  [% PROCESS 'client_config/_default_accounts.html' %]
-  [% PROCESS 'client_config/_posting_configuration.html' %]
-  [% PROCESS 'client_config/_datev_check_configuration.html' %]
-  [% PROCESS 'client_config/_orders_deleteable.html' %]
-  [% IF INSTANCE_CONF.get_doc_storage %]
-    [% PROCESS 'client_config/_attachments.html' %]
-  [% END %]
-  [% PROCESS 'client_config/_warehouse.html' %]
-  [% PROCESS 'client_config/_features.html' %]
-  [% PROCESS 'client_config/_stocktaking.html' %]
-  [% PROCESS 'client_config/_record_links.html' %]
-  [% PROCESS 'client_config/_miscellaneous.html' %]
+[% PROCESS 'client_config/_ranges_of_numbers.html' %]
+[% PROCESS 'client_config/_default_accounts.html' %]
+[% PROCESS 'client_config/_posting_configuration.html' %]
+[% PROCESS 'client_config/_datev_check_configuration.html' %]
+[% PROCESS 'client_config/_orders_deleteable.html' %]
+[%- IF INSTANCE_CONF.get_doc_storage %]
+  [% PROCESS 'client_config/_attachments.html' %]
+[%- END %]
+[% PROCESS 'client_config/_warehouse.html' %]
+[% PROCESS 'client_config/_features.html' %]
+[% PROCESS 'client_config/_stocktaking.html' %]
+[% PROCESS 'client_config/_record_links.html' %]
+[% PROCESS 'client_config/_bank.html' %]
+[% PROCESS 'client_config/_miscellaneous.html' %]
  </div>
 </form>
