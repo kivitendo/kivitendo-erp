@@ -27,6 +27,8 @@ Mittelgroße neue Features:
 Kleinere neue Features und Detailverbesserungen:
   - Verkaufsreklamationen: Support für Drucken via odt-Vorlagen sowie eine
     Beispiel odt-Vorlage hinzugefügt
+  - Neuer Backgroundjob zum Massen-generieren von Shop Artikeln aus Artikeln.
+    Dokumentation siehe POD in SL/BackgroundJob/ShopPartMassCreate.pm.
   - Möglichkeit nach internen Bemerkungen zu suchen und zu filtern im
     Bericht Einkaufsrechnungen/Kreditorenbuchungen.
   - Der Inhalt der Picker (Artikel/Kunde/Lieferant/Projekt/Konto) wird
