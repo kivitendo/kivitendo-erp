@@ -374,8 +374,17 @@ sub sync_all_images {
 
     # 2.1 no image with this title, create metadata for media and upload image
     if (!$current_image_id) {
+      # get media folder id
+      $ret = $self->connector->GET('api/media-folder');
+      $response_code = $ret->responseCode();
+      die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code == 200;
+      my $media_folder_id;
+      try {
+        $media_folder_id = from_json($ret->responseContent())->{data}->[0]->{id};
+      } catch { die "Malformed JSON Data: $_ " . $ret->responseContent();  };
+
       # not yet uploaded, create media entry
-      $ret = $self->connector->POST("/api/media?_response=true");
+      $ret = $self->connector->POST("/api/media?_response=true", to_json({"mediaFolderId" => $media_folder_id}));
       $response_code = $ret->responseCode();
       die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code == 200;
       try {
