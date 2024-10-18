@@ -44,6 +44,13 @@ Kleinere neue Features und Detailverbesserungen:
   - Neues Feld Beschreibung bei den Backgroundjob. Dient zur besseren
     Unterscheidung.
   - Dialogbuchungen als "als neu verwenden" können.
+  - Die Dateiendung für den SEPA-Export wurde auf .xml geändert, konfigurierbar auf
+    den vorherigen Wert (.cct oder .cdd) über die Mandantenkonfiguration
+  - Kontoauszug verbuchen, der Reiter "Alle Buchungen" kann per Konfiguration immer
+    als erstes angezeigt werden (Vorschläge werden generiert, aber nicht direkt geöffnet)
+  - Neuer Hintergrund-Job der IBAN und BIC in den Stammdaten setzt, insofern diese
+    sich über verbuchte Bank-Transaktion ableiten lassen, s.a.
+    perldoc SL/BackgroundJob/SetBankAccountsMasterData.pm
   - eigene Zugriffsrechte für die Verkaufs-Berichte "Auftragsartikelsuche",
     "Finanz-Controlling" und "Verkaufsbericht".
   - Ob einige Belege in den Menüs bzw. Workflows verfügbar sind, lässt sich nun
