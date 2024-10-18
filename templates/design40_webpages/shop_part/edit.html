@@ -27,9 +27,9 @@
       <th>[% LxERP.t8("Description") %]</th>
      <td colspan="3">
        [% IF SELF.shop_part.shop.use_part_longdescription %]
-         [% L.textarea_tag('notes', SELF.shop_part.part.notes, wrap="soft", readonly="readonly", style="width: 350px; height: 150px", class="texteditor") %]
+         [% L.textarea_tag('notes', SELF.shop_part.part.notes, readonly="readonly", style="width: 350px; height: 150px", class="texteditor") %]
        [% ELSE %]
-         [% L.textarea_tag('shop_part.shop_description', SELF.shop_part.shop_description, wrap="soft", style="width: 350px; height: 150px", class="texteditor") %]
+         [% L.textarea_tag('shop_part.shop_description', SELF.shop_part.shop_description, style="width: 350px; height: 150px", class="texteditor") %]
        [% END %]
      </td>
     </tr>

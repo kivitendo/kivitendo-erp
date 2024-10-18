@@ -440,6 +440,39 @@
         </td>
       </tr>
       <tr>
+        <th class="caption" colspan="3">[% 'Show certain sales and purchase documents' | $T8 %]</th>
+      </tr>
+      <tr>
+        <th>[% 'Show sales order intake' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.show_sales_order_intake", SELF.defaults.show_sales_order_intake) %]</td>
+        <td class="long-desc">[% 'When disabled, sales order intakes do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Show purchase quotation intake' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.show_purchase_quotation_intake", SELF.defaults.show_purchase_quotation_intake) %]</td>
+        <td class="long-desc">[% 'When disabled, purchase quotation intakes do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Show purchase order confirmation' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.show_purchase_order_confirmation", SELF.defaults.show_purchase_order_confirmation) %]</td>
+        <td class="long-desc">[% 'When disabled, purchase order confirmations do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Show sales reclamation' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.show_sales_reclamation", SELF.defaults.show_sales_reclamation) %]</td>
+        <td class="long-desc">[% 'When disabled, sales reclamations do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Show purchase reclamation' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.show_purchase_reclamation", SELF.defaults.show_purchase_reclamation) %]</td>
+        <td class="long-desc">[% 'When disabled, purchase reclamations do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Show invoice for payment in advance and final invoice' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.show_invoice_for_advance_payment", SELF.defaults.show_invoice_for_advance_payment) %]</td>
+        <td class="long-desc">[% 'When disabled, invoices for payment in advance and final invoices do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+      </tr>
+      <tr>
         <th class="caption" colspan="3">[% LxERP.t8('Transport and service costs reminder') %]</th>
       </tr>
       <tr>

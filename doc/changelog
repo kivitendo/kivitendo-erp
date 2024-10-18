@@ -12,10 +12,17 @@ Mittelgroße neue Features:
     dem Auftragsbericht.
   - Neues Recht zum Anzeigen der Beträge in Auftragsberichten. Wer dieses
     Recht nicht hat, sieht keine Beträge in den Berichten und die Links
-    zum Auftrag erscheinen nicht (nur der Text der Auftragsnummer).
-    Als Standardeinstellung bekommen alle Gruppen mir Rechten, Aufträge
+    zu nicht eigenen Aufträgen erscheinen nicht (nur die Auftragsnummer
+    als Text).
+    Als Standardeinstellung bekommen alle Gruppen mit Rechten, Aufträge
     einzusehen bzw. zu bearbeiten, das Recht, Beträge im Bericht zu sehen.
     Das Recht lässt sich getrennt nach Ein- und Verkauf einstellen.
+  - Neues Recht zum Ändern von Preisen in Artikelstammdaten.
+    Das Recht ist nach dem Update standardmäßig an, wenn man das Recht zum
+    Anlegen und Bearbeiten von Artikeln hat.
+    Fehlt einem dieses Recht, so lassen sich die Preise sehen, aber nicht
+    bearbeiten. Das betrifft Listen-, Einkaufs-, Verkaufs, Preisgruppen-,
+    Lieferanten- und Kundenpreise.
 
 Kleinere neue Features und Detailverbesserungen:
   - Verkaufsreklamationen: Support für Drucken via odt-Vorlagen sowie eine
@@ -44,6 +51,27 @@ Kleinere neue Features und Detailverbesserungen:
   - Neuer Hintergrund-Job der IBAN und BIC in den Stammdaten setzt, insofern diese
     sich über verbuchte Bank-Transaktion ableiten lassen, s.a.
     perldoc SL/BackgroundJob/SetBankAccountsMasterData.pm
+  - eigene Zugriffsrechte für die Verkaufs-Berichte "Auftragsartikelsuche",
+    "Finanz-Controlling" und "Verkaufsbericht".
+  - Ob einige Belege in den Menüs bzw. Workflows verfügbar sind, lässt sich nun
+    in der Mandantenkonfigurtion einstellen. Das gilt zur Zeit für
+    Auftragseingang, Angebotseingang und Lieferantenauftragsbestätigung,
+    sowie für Anzahlungs- bzw. Schluss-Rechnung.
+  - Möglichkeit einer Datenbank-Verklemmung bei CSV-Importen verringert.
+  - Die SEPA END-TO-END wird extrahiert und kann zur Duplikatserkennung beim
+    Bank-Import verwendet werden. Die Einstellung ist erstmal abgeschaltet und
+    der kivi Admin kann selber entscheiden ab wann genügend END-TO-END IDs im
+    Datenbestand vorhanden sind. Die Einstellung befindet sich in der
+    Mandantenkonfiguration unter Buchungseinstellungen.
+  - Neues Recht, um benutzedefinierte Berichte überhaupt nutzen zu können. Wenn
+    dieses Recht nicht gesetzt ist, taucht auch der Menüpunkt für die
+    benutzerdefinierten Berichte nicht auf und die Oberfläche ist etwas
+    übersichtlicher.
+  - Neues Recht, um Kunden-/Lieferanten-Liste (Stammdaten) aufrufen zu können.
+    Diese Recht beschränkt im Moment nur den Menüpunkt und den Bericht
+    unter Stammdaten, nicht aber den generellen Zugriff auf die Kunden- bzw.
+    Lieferanten-Maske.
+  - Neues Recht, um Liste der Ansprechpersonen (Stammdaten) aufrufen zu können.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
   -

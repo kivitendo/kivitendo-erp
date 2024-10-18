@@ -348,6 +348,38 @@
     </td>
   </tr>
 
+  <tr><td class="listheading" colspan="4">[% 'Show certain sales and purchase documents' | $T8 %]</td></tr>
+  <tr>
+    <td align="right">[% 'Show sales order intake' | $T8 %]</td>
+    <td>[% L.yes_no_tag("defaults.show_sales_order_intake", SELF.defaults.show_sales_order_intake) %]</td>
+    <td>[% 'When disabled, sales order intakes do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+  </tr>
+  <tr>
+    <td align="right">[% 'Show purchase quotation intake' | $T8 %]</td>
+    <td>[% L.yes_no_tag("defaults.show_purchase_quotation_intake", SELF.defaults.show_purchase_quotation_intake) %]</td>
+    <td>[% 'When disabled, purchase quotation intakes do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+  </tr>
+  <tr>
+    <td align="right">[% 'Show purchase order confirmation' | $T8 %]</td>
+    <td>[% L.yes_no_tag("defaults.show_purchase_order_confirmation", SELF.defaults.show_purchase_order_confirmation) %]</td>
+    <td>[% 'When disabled, purchase order confirmations do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+  </tr>
+  <tr>
+    <td align="right">[% 'Show sales reclamation' | $T8 %]</td>
+    <td>[% L.yes_no_tag("defaults.show_sales_reclamation", SELF.defaults.show_sales_reclamation) %]</td>
+    <td>[% 'When disabled, sales reclamations do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+  </tr>
+  <tr>
+    <td align="right">[% 'Show purchase reclamation' | $T8 %]</td>
+    <td>[% L.yes_no_tag("defaults.show_purchase_reclamation", SELF.defaults.show_purchase_reclamation) %]</td>
+    <td>[% 'When disabled, purchase reclamations do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+  </tr>
+  <tr>
+    <th align="right">[% 'Show invoice for payment in advance and final invoice' | $T8 %]</th>
+    <td>[% L.yes_no_tag("defaults.show_invoice_for_advance_payment", SELF.defaults.show_invoice_for_advance_payment) %]</td>
+    <td>[% 'When disabled, invoices for payment in advance and final invoices do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+  </tr>
+
   <tr><td class="listheading" colspan="4">[% LxERP.t8("E-mail") %]</td></tr>
 
   <tr>

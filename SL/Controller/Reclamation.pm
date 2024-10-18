@@ -4,6 +4,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash_later);
+use SL::HTML::Util;
 use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
 use SL::Presenter::ReclamationFilter qw(filter);
 use SL::Locale::String qw(t8);
@@ -14,6 +15,7 @@ use SL::Controller::Helper::ReportGenerator;
 use SL::Webdav;
 use SL::File;
 use SL::MIME;
+use SL::Util qw(trim);
 use SL::YAML;
 use SL::DB::History;
 use SL::DB::Reclamation;
@@ -90,8 +92,6 @@ __PACKAGE__->run_before('get_unalterable_data',
 sub action_add {
   my ($self) = @_;
 
-  $self->reclamation(SL::Model::Record->update_after_new($self->reclamation));
-
   $self->pre_render();
 
   if (!$::form->{form_validity_token}) {
@@ -125,6 +125,7 @@ sub action_add_from_record {
   my $record = SL::Model::Record->get_record($from_type, $from_id);
   my $reclamation = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->reclamation($reclamation);
+  $self->reinit_after_new_reclamation();
 
   if ($record->type eq SALES_RECLAMATION_TYPE()) { # check for direct delivery
     # copy shipto in custom shipto (custom shipto will be copied by new_from() in case)
@@ -137,17 +138,7 @@ sub action_add_from_record {
     }
   }
 
-  $self->reinit_after_new_reclamation();
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
-  }
-
-  $self->render(
-    'reclamation/form',
-    title => $self->type_data->text('add'),
-    %{$self->{template_args}},
-  );
+  $self->action_add;
 }
 
 sub action_add_from_email_journal {
@@ -170,17 +161,11 @@ sub action_edit_with_email_journal_workflow {
 # edit an existing reclamation
 sub action_edit {
   my ($self) = @_;
+  die "No 'id' was given." unless $::form->{id};
 
-  unless ($::form->{id}) {
-    $self->js->flash('error', t8("Can't edit unsaved reclamation. No 'id' was given."));
-    return $self->js->render();
-  }
+  $self->load_reclamation();
 
-  $self->load_reclamation;
-
-  $self->recalc();
   $self->pre_render();
-
   $self->render(
     'reclamation/form',
     title => $self->type_data->text('edit'),
@@ -394,14 +379,14 @@ sub action_save_and_show_email_dialog {
   my ($self) = @_;
 
   $self->save();
+  $self->js_reset_reclamation_and_item_ids_after_save;
 
-  unless ($self->reclamation->customervendor) {
-    return $self->js->flash('error',
+  my $cv = $self->reclamation->customervendor
+    or return $self->js->flash('error',
       $self->type_data->properties('is_customer') ?
           t8('Cannot send E-mail without customer given')
-        : t8('Cannot send E-mail without vendor given'))
-      ->render($self);
-  }
+        : t8('Cannot send E-mail without vendor given')
+    )->render($self);
 
   my $form = Form->new;
   $form->{record_number}    = $self->reclamation->record_number;
@@ -414,10 +399,11 @@ sub action_save_and_show_email_dialog {
   $form->{cp_id}            = $self->reclamation->contact->cp_id if $self->reclamation->contact;
 
   my $email_form;
-  $email_form->{to}   = $self->reclamation->contact->cp_email if $self->reclamation->contact;
-  $email_form->{to} ||= $self->reclamation->customervendor->email;
-  $email_form->{cc}   = $self->reclamation->customervendor->cc;
-  $email_form->{bcc}  = join ', ', grep $_, $self->reclamation->customervendor->bcc;
+  $email_form->{to} =
+       ($self->reclamation->contact ? $self->reclamation->contact->cp_email : undef)
+    ||  $cv->email;
+  $email_form->{cc}  = $cv->cc;
+  $email_form->{bcc} = join ', ', grep $_, $cv->bcc;
   # TODO: get addresses from shipto, if any
   $email_form->{subject}             = $form->generate_email_subject();
   $email_form->{attachment_filename} = $form->generate_attachment_filename();
@@ -425,24 +411,29 @@ sub action_save_and_show_email_dialog {
   $email_form->{js_send_function}    = 'kivi.Reclamation.send_email()';
 
   my %files = $self->get_files_for_email_dialog();
-  $self->{all_employees} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
-  my $dialog_html = $self->render('common/_send_email_dialog', { output => 0 },
-                                  email_form  => $email_form,
-                                  show_bcc    => $::auth->assert('email_bcc', 'may fail'),
-                                  FILES       => \%files,
-                                  is_customer => $self->type_data->properties('is_customer'),
-                                  ALL_EMPLOYEES => $self->{all_employees},
+
+  my @employees_with_email = grep {
+    my $user = SL::DB::Manager::AuthUser->find_by(login => $_->login);
+    $user && !!trim($user->get_config_value('email'));
+  } @{ SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]) };
+
+  my $dialog_html = $self->render(
+    'common/_send_email_dialog', { output => 0 },
+    email_form  => $email_form,
+    show_bcc    => $::auth->assert('email_bcc', 'may fail'),
+    FILES       => \%files,
+    is_customer => $self->type_data->properties('is_customer'),
+    ALL_EMPLOYEES => \@employees_with_email,
+    ALL_PARTNER_EMAIL_ADDRESSES => $cv->get_all_email_addresses(),
   );
 
   $self->js
-      ->run('kivi.Reclamation.show_email_dialog', $dialog_html)
-      ->reinit_widgets
-      ->render($self);
+    ->run('kivi.Reclamation.show_email_dialog', $dialog_html)
+    ->reinit_widgets
+    ->render($self);
 }
 
 # send email
-#
-# TODO: handling error messages: flash is not displayed in dialog, but in the main form
 sub action_send_email {
   my ($self) = @_;
 
@@ -454,10 +445,32 @@ sub action_send_email {
     die $EVAL_ERROR;
   };
 
-  $self->js_reset_reclamation_and_item_ids_after_save;
+  my @redirect_params = (
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->reclamation->id,
+  );
+
+  # Set the error handler to reload the document and display errors later,
+  # because the document is already saved and saving can have some side effects
+  # such as generating a document number, project number or record links,
+  # which will be up to date when the document is reloaded.
+  # Hint: Do not use "die" here and try to catch exceptions in subroutine
+  # calls. You should use "$::form->error" which respects the error handler.
+  local $::form->{__ERROR_HANDLER} = sub {
+      flash_later('error', $_[0]);
+      $self->redirect_to(@redirect_params);
+      $::dispatcher->end_request;
+  };
 
   # move $::form->{email_form} to $::form
   my $email_form  = delete $::form->{email_form};
+
+  if ($email_form->{additional_to}) {
+    $email_form->{to} = join ', ', grep { $_ } $email_form->{to}, @{$email_form->{additional_to}};
+    delete $email_form->{additional_to};
+  }
+
   my %field_names = (to => 'email');
   $::form->{ $field_names{$_} // $_ } = $email_form->{$_} for keys %{ $email_form };
 
@@ -468,21 +481,38 @@ sub action_send_email {
   $::form->{$_}     = $::form->{print_options}->{$_} for keys %{$::form->{print_options}};
   $::form->{media}  = 'email';
 
-  if (($::form->{attachment_policy} // '') !~ m{^(?:old_file|no_file)$}) {
+  $::form->{attachment_policy} //= '';
+
+  # Is an old file version available?
+  my $attfile;
+  if ($::form->{attachment_policy} eq 'old_file') {
+    $attfile = SL::File->get_all(
+      object_id     => $self->reclamaiton->id,
+      object_type   => $self->type,
+      print_variant => $::form->{formname},
+    );
+  }
+
+  if (   $::form->{attachment_policy} ne 'no_file'
+    && !($::form->{attachment_policy} eq 'old_file' && $attfile)
+  ) {
     my $pdf;
-    my @errors = generate_pdf($self->reclamation, \$pdf, {
-                               media      => $::form->{media},
-                               format     => $::form->{print_options}->{format},
-                               formname   => $::form->{print_options}->{formname},
-                               language   => $self->reclamation->language,
-                               printer_id => $::form->{print_options}->{printer_id},
-                               groupitems => $::form->{print_options}->{groupitems}
-                             });
+    my @errors = generate_pdf(
+      $self->reclamation, \$pdf, {
+        media      => $::form->{media},
+        format     => $::form->{print_options}->{format},
+        formname   => $::form->{print_options}->{formname},
+        language   => $self->reclamation->language,
+        printer_id => $::form->{print_options}->{printer_id},
+        groupitems => $::form->{print_options}->{groupitems},
+      });
     if (scalar @errors) {
-      return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render($self);
+      $::form->error(t8('Generating the document failed: #1', $errors[0]));
     }
 
-    my @warnings = store_pdf_to_webdav_and_filemanagement($self->reclamation, $pdf, $::form->{attachment_filename});
+    my @warnings = store_pdf_to_webdav_and_filemanagement(
+      $self->reclamation, $pdf, $::form->{attachment_filename}
+    );
     if (scalar @warnings) {
       flash_later('warning', $_) for @warnings;
     }
@@ -492,36 +522,33 @@ sub action_send_email {
     $sfile->fh->close;
 
     $::form->{tmpfile} = $sfile->file_name;
-    $::form->{tmpdir}  = $sfile->get_path; # for Form::cleanup which may be called in Form::send_email
+    $::form->{tmpdir}  = $sfile->get_path; # for Form::cleanup which may be
+                                           # called in Form::send_email
   }
 
-  $::form->{id} = $self->reclamation->id; # this is used in SL::Mailer to create a linked record to the mail
+  $::form->{id} = $self->reclamation->id; # this is used in SL::Mailer to
+                                          # create a linked record to the mail
   $::form->send_email(\%::myconfig, 'pdf');
 
-  # internal notes
-  my $intnotes = $self->reclamation->intnotes;
-  $intnotes   .= "\n\n" if $self->reclamation->intnotes;
-  $intnotes   .= t8('[email]')                                       . "\n";
-  $intnotes   .= t8('Date')       . ": " . $::locale->format_date_object(
-                                             DateTime->now_local,
-                                             precision => 'seconds') . "\n";
-  $intnotes   .= t8('To (email)') . ": " . $::form->{email}          . "\n";
-  $intnotes   .= t8('Cc')         . ": " . $::form->{cc}             . "\n"    if $::form->{cc};
-  $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}            . "\n"    if $::form->{bcc};
-  $intnotes   .= t8('Subject')    . ": " . $::form->{subject}        . "\n\n";
-  $intnotes   .= t8('Message')    . ": " . $::form->{message};
-
-  $self->reclamation->update_attributes(intnotes => $intnotes);
-
+  flash_later('info', t8('The email has been sent.'));
   $self->save_history('MAILED');
 
-  flash_later('info', t8('The email has been sent.'));
+  # internal notes unless no email journal
+  unless ($::instance_conf->get_email_journal) {
+    my $intnotes = $self->reclamation->intnotes;
+    $intnotes   .= "\n\n" if $self->reclamation->intnotes;
+    $intnotes   .= t8('[email]')                                       . "\n";
+    $intnotes   .= t8('Date')       . ": " . $::locale->format_date_object(
+                                               DateTime->now_local,
+                                               precision => 'seconds') . "\n";
+    $intnotes   .= t8('To (email)') . ": " . $::form->{email}          . "\n";
+    $intnotes   .= t8('Cc')         . ": " . $::form->{cc}             . "\n"    if $::form->{cc};
+    $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}            . "\n"    if $::form->{bcc};
+    $intnotes   .= t8('Subject')    . ": " . $::form->{subject}        . "\n\n";
+    $intnotes   .= t8('Message')    . ": " . SL::HTML::Util->strip($::form->{message});
 
-  my @redirect_params = (
-    action => 'edit',
-    type   => $self->type,
-    id     => $self->reclamation->id,
-  );
+    $self->reclamation->update_attributes(intnotes => $intnotes);
+  }
 
   $self->redirect_to(@redirect_params);
 }
@@ -891,30 +918,24 @@ sub action_create_part {
 sub action_return_from_create_part {
   my ($self) = @_;
 
-  $self->{created_part} = SL::DB::Part->new(id => delete $::form->{new_parts_id})->load if $::form->{new_parts_id};
+  $self->{created_part} = SL::DB::Part->new(
+    id => delete $::form->{new_parts_id}
+  )->load if $::form->{new_parts_id};
 
   $::auth->restore_form_from_session(delete $::form->{previousform});
+  $self->reclamation($self->init_reclamation);
+  $self->reinit_after_new_reclamation();
 
-  # set item ids to new fake id, to identify them as new items
-  foreach my $item (@{$self->reclamation->items_sorted}) {
-    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  if ($self->reclamation->id) {
+    $self->pre_render();
+    $self->render(
+      'reclamation/form',
+      title => $self->type_data->text('edit'),
+      %{$self->{template_args}},
+    );
+  } else {
+    $self->action_add;
   }
-
-  $self->recalc();
-  $self->get_unalterable_data();
-  $self->pre_render();
-
-  # trigger rendering values for second row/longdescription as hidden, because
-  # they are loaded only on demand. So we need to keep the values from the
-  # source.
-  $_->{render_second_row}      = 1 for @{ $self->reclamation->items_sorted };
-  $_->{render_longdescription} = 1 for @{ $self->reclamation->items_sorted };
-
-  $self->render(
-    'reclamation/form',
-    title => $self->type_data->text('edit'),
-    %{$self->{template_args}}
-  );
 }
 
 # load the second row for one or more items
@@ -1306,23 +1327,6 @@ sub render_price_dialog {
   $self->js->render;
 }
 
-sub load_reclamation {
-  my ($self) = @_;
-
-  return if !$::form->{id};
-
-  $self->reclamation(SL::DB::Reclamation->new(id => $::form->{id})->load);
-
-  # Add an empty custom shipto to the reclamation, so that the dialog can render
-  # the cvar inputs. You need a custom shipto object to call cvars_by_config to
-  # get the cvars.
-  if (!$self->reclamation->custom_shipto) {
-    $self->reclamation->custom_shipto(SL::DB::Shipto->new(module => 'RC', custom_variables => []));
-  }
-
-  return $self->reclamation;
-}
-
 # load or create a new reclamation object
 #
 # And assign changes from the form to this object.
@@ -1344,6 +1348,7 @@ sub make_reclamation {
                      reclamation_items  => [],
                      currency_id => $::instance_conf->get_currency_id(),
                    );
+    $reclamation = SL::Model::Record->update_after_new($reclamation)
   }
 
   my $cv_id_method = $reclamation->type_data->properties('customervendor'). '_id';
@@ -1352,9 +1357,13 @@ sub make_reclamation {
     $reclamation = SL::Model::Record->update_after_customer_vendor_change($reclamation);
   }
 
+  # don't assign hashes as objects
   my $form_reclamation_items = delete $::form->{reclamation}->{reclamation_items};
 
   $reclamation->assign_attributes(%{$::form->{reclamation}});
+
+  # restore form values
+  $::form->{reclamation}->{reclamation_items} = $form_reclamation_items;
 
   $self->setup_custom_shipto_from_form($reclamation, $::form);
 
@@ -1409,6 +1418,18 @@ sub make_item {
   }
 
   return $item;
+}
+
+sub load_reclamation {
+  my ($self) = @_;
+
+  return if !$::form->{id};
+
+  $self->reclamation(SL::DB::Reclamation->new(id => $::form->{id})->load);
+
+  $self->reinit_after_new_reclamation();
+
+  return $self->reclamation;
 }
 
 # create a new item
@@ -1559,19 +1580,26 @@ sub reinit_after_new_reclamation {
   my ($self) = @_;
 
   # change form type
-  $::form->{type} = $self->reclamation->type if $self->reclamation->type;
+  $::form->{type} = $self->reclamation->type;
   $self->type($self->init_type);
-  $self->cv  ($self->init_cv);
+  $self->type_data($self->init_type_data);
+  $self->cv($self->init_cv);
   $self->check_auth;
 
-  $self->recalc();
-  $self->get_unalterable_data();
-  $self->pre_render();
+  $self->setup_custom_shipto_from_form($self->reclamation, $::form);
 
-  # trigger rendering values for second row as hidden, because they
-  # are loaded only on demand. So we need to keep the values from the
-  # source.
-  $_->{render_second_row} = 1 for @{ $self->reclamation->items_sorted };
+  foreach my $item (@{$self->reclamation->items_sorted}) {
+    # set item ids to new fake id, to identify them as new items
+    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+
+    # trigger rendering values for second row as hidden, because they
+    # are loaded only on demand. So we need to keep the values from the
+    # source.
+    $item->{render_second_row} = 1;
+  }
+
+  $self->get_unalterable_data();
+  $self->recalc();
 }
 
 sub pre_render {

@@ -95,6 +95,12 @@ form {
     resize: vertical;
   }
 
+  // set default height for internal notes in record views
+  textarea#intnotes,
+  textarea#order_intnotes,
+  textarea#reclamation_intnotes {
+    height: 150px;
+  }
 
 
 
@@ -372,8 +378,8 @@ form {
 
   th,
   td {
-    &.wi-lightwide { textarea, input[type="text"], div.cke_editable, input#order_vendor_id_name { width: @textarea-wi-lightwide; } }
-    &.wi-wide      { textarea, input[type="text"], div.cke_editable, input#order_vendor_id_name { width: @textarea-wi-wide;      } }
+    &.wi-lightwide { textarea, input[type="text"], div.ck-editor, input#order_vendor_id_name { width: @textarea-wi-lightwide; } }
+    &.wi-wide      { textarea, input[type="text"], div.ck-editor, input#order_vendor_id_name { width: @textarea-wi-wide;      } }
 
   }
 
@@ -381,58 +387,58 @@ form {
   span {
 
     // Standard-Dimensions
-    &.wi-smallest                { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal      ; } } // no smallest, just normal
-    &.wi-verysmall               { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal      ; } } // no verysmall, just normal
-    &.wi-small                   { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal      ; } } // no small, just normal
-    &.wi-mediumsmall             { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal      ; } } // no mediumsmall, just normal
-    &.wi-normal                  { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal      ; } }
-    &.wi-lightwide               { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide   ; } }
-    &.wi-wide                    { padding: 0 ; textarea, & > div.cke_editable { width:     @textarea-wi-wide  !important        ; } }
+    &.wi-smallest                { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-normal      ; } } // no smallest, just normal
+    &.wi-verysmall               { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-normal      ; } } // no verysmall, just normal
+    &.wi-small                   { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-normal      ; } } // no small, just normal
+    &.wi-mediumsmall             { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-normal      ; } } // no mediumsmall, just normal
+    &.wi-normal                  { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-normal      ; } }
+    &.wi-lightwide               { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-lightwide   ; } }
+    &.wi-wide                    { padding: 0 ; textarea, & > div.ck-editor { width:     @textarea-wi-wide  !important        ; } }
     &.wi-wide.strict             {                              max-width: @textarea-wi-wide !important  ; }
-    &.wi-wider                   { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wider       ; } }
-    &.wi-verywide                { padding: 0 ; textarea, div.cke_editable { min-width: @textarea-wi-verywide    ; } }
-    &.wi-full                    { padding: 0 ; textarea, div.cke_editable { width:     100%                     ; } }
+    &.wi-wider                   { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-wider       ; } }
+    &.wi-verywide                { padding: 0 ; textarea, div.ck-editor { min-width: @textarea-wi-verywide    ; } }
+    &.wi-full                    { padding: 0 ; textarea, div.ck-editor { width:     100%                     ; } }
 
 
-    &.wi-small-small             { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-small       ; } }
-    &.wi-small-mediumsmall       { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-mediumsmall ; margin: 0 30px 0 0 ; } }
-    &.wi-small-normal            { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-normal      ; } }
-    &.wi-small-lightwide         { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-lightwide   ; } }
-    &.wi-small-wide              { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-wide        ; } }
-    &.wi-small-wider             { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-wider       ; } }
-    &.wi-small-verywide          { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-small-verywide    ; } }
+    &.wi-small-small             { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-small-small       ; } }
+    &.wi-small-mediumsmall       { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-small-mediumsmall ; margin: 0 30px 0 0 ; } }
+    &.wi-small-normal            { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-small-normal      ; } }
+    &.wi-small-lightwide         { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-small-lightwide   ; } }
+    &.wi-small-wide              { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-small-wide        ; } }
+    &.wi-small-wider             { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-small-wider       ; } }
+    &.wi-small-verywide          { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-small-verywide    ; } }
 
-    &.wi-mediumsmall-small       { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-mediumsmall-small       ; } }
-    &.wi-mediumsmall-mediumsmall { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-mediumsmall-mediumsmall ; } }
-    &.wi-mediumsmall-normal      { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-mediumsmall-normal      ; } }
-    &.wi-mediumsmall-lightwide   { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-mediumsmall-lightwide   ; } }
-    &.wi-mediumsmall-wide        { padding: 0 ; textarea, &.wi-mediumsmall-wide > div.cke_editable { width: @textarea-wi-mediumsmall-wide !important ; } }
-    &.wi-mediumsmall-wider       { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-mediumsmall-wider       ; } }
-    &.wi-mediumsmall-verywide    { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-mediumsmall-verywide    ; } }
+    &.wi-mediumsmall-small       { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-mediumsmall-small       ; } }
+    &.wi-mediumsmall-mediumsmall { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-mediumsmall-mediumsmall ; } }
+    &.wi-mediumsmall-normal      { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-mediumsmall-normal      ; } }
+    &.wi-mediumsmall-lightwide   { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-mediumsmall-lightwide   ; } }
+    &.wi-mediumsmall-wide        { padding: 0 ; textarea, &.wi-mediumsmall-wide > div.ck-editor { width: @textarea-wi-mediumsmall-wide !important ; } }
+    &.wi-mediumsmall-wider       { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-mediumsmall-wider       ; } }
+    &.wi-mediumsmall-verywide    { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-mediumsmall-verywide    ; } }
 
-    &.wi-normal-small            { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-small       ; } }
-    &.wi-normal-mediumsmall      { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-mediumsmall ; } }
-    &.wi-normal-normal           { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-normal      ; } }
-    &.wi-normal-lightwide        { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-lightwide   ; } }
-    &.wi-normal-wide             { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-wide        ; } }
-    &.wi-normal-wider            { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-wider       ; } }
-    &.wi-normal-verywide         { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-normal-verywide    ; } }
+    &.wi-normal-small            { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-normal-small       ; } }
+    &.wi-normal-mediumsmall      { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-normal-mediumsmall ; } }
+    &.wi-normal-normal           { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-normal-normal      ; } }
+    &.wi-normal-lightwide        { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-normal-lightwide   ; } }
+    &.wi-normal-wide             { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-normal-wide        ; } }
+    &.wi-normal-wider            { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-normal-wider       ; } }
+    &.wi-normal-verywide         { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-normal-verywide    ; } }
 
-    &.wi-lightwide-small         { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-small       ; } }
-    &.wi-lightwide-mediumsmall   { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-mediumsmall ; } }
-    &.wi-lightwide-normal        { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-normal      ; } }
-    &.wi-lightwide-lightwide     { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-lightwide   ; } }
-    &.wi-lightwide-wide          { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-wide        ; } }
-    &.wi-lightwide-wider         { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-wider       ; } }
-    &.wi-lightwide-verywide      { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-lightwide-verywide    ; } }
+    &.wi-lightwide-small         { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-lightwide-small       ; } }
+    &.wi-lightwide-mediumsmall   { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-lightwide-mediumsmall ; } }
+    &.wi-lightwide-normal        { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-lightwide-normal      ; } }
+    &.wi-lightwide-lightwide     { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-lightwide-lightwide   ; } }
+    &.wi-lightwide-wide          { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-lightwide-wide        ; } }
+    &.wi-lightwide-wider         { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-lightwide-wider       ; } }
+    &.wi-lightwide-verywide      { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-lightwide-verywide    ; } }
 
-    &.wi-wide-small              { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-small       ; } }
-    &.wi-wide-mediumsmall        { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-mediumsmall ; } }
-    &.wi-wide-normal             { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-normal      ; } }
-    &.wi-wide-lightwide          { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-wide        ; } }
-    &.wi-wide-wide               { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-wide        ; } }
-    &.wi-wide-wider              { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-wider       ; } }
-    &.wi-wide-verywide           { padding: 0 ; textarea, div.cke_editable { width:     @textarea-wi-wide-verywide    ; } }
+    &.wi-wide-small              { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-wide-small       ; } }
+    &.wi-wide-mediumsmall        { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-wide-mediumsmall ; } }
+    &.wi-wide-normal             { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-wide-normal      ; } }
+    &.wi-wide-lightwide          { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-wide-wide        ; } }
+    &.wi-wide-wide               { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-wide-wide        ; } }
+    &.wi-wide-wider              { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-wide-wider       ; } }
+    &.wi-wide-verywide           { padding: 0 ; textarea, div.ck-editor { width:     @textarea-wi-wide-verywide    ; } }
 
   } // /DIMENSION textarea
 
@@ -447,19 +453,19 @@ td {
   &.wi-verysmall     { input[type="text"], select           { width:     @input-wi-verysmall        ; } }
   &.wi-small         { input[type="text"], select           { width:     @input-wi-small            ; } }
   &.wi-mediumsmall   { input[type="text"], select           { width:     @input-wi-mediumsmall      ; } }
-  &.wi-normal        { input[type="text"], select, textarea, div.cke_editable { width:     @input-wi-normal           ; } }
-  &.wi-lightwide     { input[type="text"], select, textarea, div.cke_editable { width:     @input-wi-lightwide        ; } }
-  &.wi-wide          { input[type="text"], select, textarea, div.cke_editable { width:     @input-wi-wide !important  ; } }
-  &.wi-wide.strict   { input[type="text"], select, textarea, div.cke_editable { max-width: @input-wi-wide !important  ; } }
-  &.wi-wider         { input[type="text"], select, textarea, div.cke_editable { width:     @input-wi-wider !important ; } }
-  &.wi-verywide      { input[type="text"], select, textarea, div.cke_editable { min-width: @input-wi-verywide         ; } }
-  &.wi-full          { input[type="text"], select, textarea, div.cke_editable { width:     100% ; } }
+  &.wi-normal        { input[type="text"], select, textarea, div.ck-editor { width:     @input-wi-normal           ; } }
+  &.wi-lightwide     { input[type="text"], select, textarea, div.ck-editor { width:     @input-wi-lightwide        ; } }
+  &.wi-wide          { input[type="text"], select, textarea, div.ck-editor { width:     @input-wi-wide !important  ; } }
+  &.wi-wide.strict   { input[type="text"], select, textarea, div.ck-editor { max-width: @input-wi-wide !important  ; } }
+  &.wi-wider         { input[type="text"], select, textarea, div.ck-editor { width:     @input-wi-wider !important ; } }
+  &.wi-verywide      { input[type="text"], select, textarea, div.ck-editor { min-width: @input-wi-verywide         ; } }
+  &.wi-full          { input[type="text"], select, textarea, div.ck-editor { width:     100% ; } }
   // Combinations
-  &.wi-mediumsmall-wide       { input[type="text"], select, textarea, div.cke_editable { width: @textarea-wi-mediumsmall-wide  ; } }
-  &.wi-small-mediumsmall      { input[type="text"], select, textarea, div.cke_editable { width: @textarea-wi-small-mediumsmall ; } }
-  &.wi-mediumsmall-lightwide  { input[type="text"], select, textarea, div.cke_editable { width: @textarea-wi-mediumsmall-lightwide ; } }
+  &.wi-mediumsmall-wide       { input[type="text"], select, textarea, div.ck-editor { width: @textarea-wi-mediumsmall-wide  ; } }
+  &.wi-small-mediumsmall      { input[type="text"], select, textarea, div.ck-editor { width: @textarea-wi-small-mediumsmall ; } }
+  &.wi-mediumsmall-lightwide  { input[type="text"], select, textarea, div.ck-editor { width: @textarea-wi-mediumsmall-lightwide ; } }
 
-  &.below       { input[type="text"], select, textarea, div.cke_editable { clear: both; margin-top: 0.4em  ; } }
+  &.below       { input[type="text"], select, textarea, div.ck-editor { clear: both; margin-top: 0.4em  ; } }
 
 }
 // TEMPORAER: PENDENT: sollte behoben sein, weshalb dieses Konstrukt nicht mehr noetig sein sollte

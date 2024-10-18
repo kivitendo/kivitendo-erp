@@ -85,8 +85,6 @@ __PACKAGE__->run_before('get_basket_info_from_from');
 sub action_add {
   my ($self) = @_;
 
-  $self->order(SL::Model::Record->update_after_new($self->order));
-
   $self->pre_render();
 
   if (!$::form->{form_validity_token}) {
@@ -121,24 +119,9 @@ sub action_add_from_record {
   my $order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->order($order);
 
-  # Warn on order locked items if they are not wanted for this record type
-  if ($self->type_data->no_order_locked_parts) {
-    my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
-    flash('warning', t8('This record contains not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
-  }
+  $self->reinit_after_new_order();
 
-  $self->recalc();
-  $self->pre_render();
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
-  }
-
-  $self->render(
-    'order/form',
-    title => $self->type_data->text('add'),
-    %{$self->{template_args}}
-  );
+  $self->action_add();
 }
 
 sub action_add_from_purchase_basket {
@@ -160,7 +143,9 @@ sub action_add_from_purchase_basket {
 
   $self->order($order);
 
-  $self->action_edit();
+  $self->reinit_after_new_order();
+
+  $self->action_add();
 }
 
 sub action_add_from_email_journal {
@@ -183,35 +168,17 @@ sub action_edit_with_email_journal_workflow {
 # edit an existing order
 sub action_edit {
   my ($self) = @_;
+  die "No 'id' was given." unless $::form->{id};
 
-  if ($::form->{id}) {
-    $self->load_order;
+  $self->load_order;
 
-    if ($self->order->is_sales && $::lx_office_conf{imap_client}->{enabled}) {
-      my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{imap_client}});
-      if ($imap_client) {
-        $imap_client->update_email_files_for_record(record => $self->order);
-      }
-    }
-
-  } else {
-    # this is to edit an order from an unsaved order object
-
-    # set item ids to new fake id, to identify them as new items
-    foreach my $item (@{$self->order->items_sorted}) {
-      $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-    }
-    # trigger rendering values for second row as hidden, because they
-    # are loaded only on demand. So we need to keep the values from
-    # the source.
-    $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
-
-    if (!$::form->{form_validity_token}) {
-      $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
+  if ($self->order->is_sales && $::lx_office_conf{imap_client}->{enabled}) {
+    my $imap_client = SL::IMAPClient->new(%{$::lx_office_conf{imap_client}});
+    if ($imap_client) {
+      $imap_client->update_email_files_for_record(record => $self->order);
     }
   }
 
-  $self->recalc();
   $self->pre_render();
   $self->render(
     'order/form',
@@ -247,8 +214,9 @@ sub action_edit_collective {
   my $target_type = SALES_ORDER_TYPE();
   my $order = SL::Model::Record->new_from_workflow_multi(\@multi_orders, $target_type, sort_sources_by => 'transdate');
   $self->order($order);
+  $self->reinit_after_new_order();
 
-  $self->action_edit();
+  $self->action_add();
 }
 
 # delete the order
@@ -500,23 +468,15 @@ sub action_save_and_show_email_dialog {
 
   if (!$self->is_final_version) {
     $self->save();
-
     $self->js_reset_order_and_item_ids_after_save;
   }
 
-  my $cv_method = $self->cv;
-
-  if (!$self->order->$cv_method) {
-    return $self->js->flash('error', $self->cv eq 'customer' ? t8('Cannot send E-mail without customer given') : t8('Cannot send E-mail without vendor given'))
-                    ->render($self);
-  }
-
-  my $email_form;
-  $email_form->{to}   = $self->order->contact->cp_email if $self->order->contact;
-  $email_form->{to} ||= $self->order->$cv_method->email;
-  $email_form->{cc}   = $self->order->$cv_method->cc;
-  $email_form->{bcc}  = join ', ', grep $_, $self->order->$cv_method->bcc;
-  # Todo: get addresses from shipto, if any
+  my $cv = $self->order->customervendor
+    or return $self->js->flash('error',
+      $self->type_data->properties('is_customer') ?
+          t8('Cannot send E-mail without customer given')
+        : t8('Cannot send E-mail without vendor given')
+    )->render($self);
 
   my $form = Form->new;
   $form->{$self->nr_key()}  = $self->order->number;
@@ -528,6 +488,13 @@ sub action_save_and_show_email_dialog {
   $form->{format}           = 'pdf';
   $form->{cp_id}            = $self->order->contact->cp_id if $self->order->contact;
 
+  my $email_form;
+  $email_form->{to} =
+       ($self->order->contact ? $self->order->contact->cp_email : undef)
+    ||  $cv->email;
+  $email_form->{cc}  = $cv->cc;
+  $email_form->{bcc} = join ', ', grep $_, $cv->bcc;
+  # Todo: get addresses from shipto, if any
   $email_form->{subject}             = $form->generate_email_subject();
   $email_form->{attachment_filename} = $form->generate_attachment_filename();
   $email_form->{message}             = $form->generate_email_body();
@@ -540,23 +507,21 @@ sub action_save_and_show_email_dialog {
     $user && !!trim($user->get_config_value('email'));
   } @{ SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]) };
 
-
-  my $all_partner_email_addresses = $self->order->customervendor->get_all_email_addresses();
-
-  my $dialog_html = $self->render('common/_send_email_dialog', { output => 0 },
-                                  email_form    => $email_form,
-                                  show_bcc      => $::auth->assert('email_bcc', 'may fail'),
-                                  FILES         => \%files,
-                                  is_customer   => $self->type_data->properties('is_customer'),
-                                  ALL_EMPLOYEES => \@employees_with_email,
-                                  ALL_PARTNER_EMAIL_ADDRESSES => $all_partner_email_addresses,
-                                  is_final_version => $self->is_final_version,
+  my $dialog_html = $self->render(
+    'common/_send_email_dialog', { output => 0 },
+    email_form    => $email_form,
+    show_bcc      => $::auth->assert('email_bcc', 'may fail'),
+    FILES         => \%files,
+    is_customer   => $self->type_data->properties('is_customer'),
+    ALL_EMPLOYEES => \@employees_with_email,
+    ALL_PARTNER_EMAIL_ADDRESSES => $cv->get_all_email_addresses(),
+    is_final_version => $self->is_final_version,
   );
 
   $self->js
-      ->run('kivi.Order.show_email_dialog', $dialog_html)
-      ->reinit_widgets
-      ->render($self);
+    ->run('kivi.Order.show_email_dialog', $dialog_html)
+    ->reinit_widgets
+    ->render($self);
 }
 
 # send email
@@ -571,8 +536,6 @@ sub action_send_email {
       $self->js->run('kivi.Order.close_email_dialog');
       die $EVAL_ERROR;
     };
-
-    $self->js_reset_order_and_item_ids_after_save;
   }
 
   my @redirect_params = (
@@ -593,6 +556,7 @@ sub action_send_email {
       $::dispatcher->end_request;
   };
 
+  # move $::form->{email_form} to $::form
   my $email_form  = delete $::form->{email_form};
 
   if ($email_form->{additional_to}) {
@@ -601,7 +565,6 @@ sub action_send_email {
   }
 
   my %field_names = (to => 'email');
-
   $::form->{ $field_names{$_} // $_ } = $email_form->{$_} for keys %{ $email_form };
 
   # for Form::cleanup which may be called in Form::send_email
@@ -616,29 +579,37 @@ sub action_send_email {
   # Is an old file version available?
   my $attfile;
   if ($::form->{attachment_policy} eq 'old_file') {
-    $attfile = SL::File->get_all(object_id     => $self->order->id,
-                                 object_type   => $self->type,
-                                 file_type     => 'document',
-                                 print_variant => $::form->{formname});
+    $attfile = SL::File->get_all(
+      object_id     => $self->order->id,
+      object_type   => $self->type,
+      print_variant => $::form->{formname},
+    );
   }
 
   if ($self->is_final_version && $::form->{attachment_policy} eq 'old_file' && !$attfile) {
     $::form->error(t8('Re-sending a final version was requested, but the latest version of the document could not be found'));
   }
 
-  if (!$self->is_final_version && $::form->{attachment_policy} ne 'no_file' && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
+  if ( !$self->is_final_version
+    &&   $::form->{attachment_policy} ne 'no_file'
+    && !($::form->{attachment_policy} eq 'old_file' && $attfile)
+  ) {
     my $doc;
-    my @errors = $self->generate_doc(\$doc, {media      => $::form->{media},
-                                             format     => $::form->{print_options}->{format},
-                                             formname   => $::form->{print_options}->{formname},
-                                             language   => $self->order->language,
-                                             printer_id => $::form->{print_options}->{printer_id},
-                                             groupitems => $::form->{print_options}->{groupitems}});
+    my @errors = $self->generate_doc(\$doc, {
+        media      => $::form->{media},
+        format     => $::form->{print_options}->{format},
+        formname   => $::form->{print_options}->{formname},
+        language   => $self->order->language,
+        printer_id => $::form->{print_options}->{printer_id},
+        groupitems => $::form->{print_options}->{groupitems},
+      });
     if (scalar @errors) {
       $::form->error(t8('Generating the document failed: #1', $errors[0]));
     }
 
-    my @warnings = $self->store_doc_to_webdav_and_filemanagement($doc, $::form->{attachment_filename}, $::form->{formname});
+    my @warnings = $self->store_doc_to_webdav_and_filemanagement(
+      $doc, $::form->{attachment_filename}, $::form->{formname}
+    );
     if (scalar @warnings) {
       flash_later('warning', $_) for @warnings;
     }
@@ -648,24 +619,29 @@ sub action_send_email {
     $sfile->fh->close;
 
     $::form->{tmpfile} = $sfile->file_name;
-    $::form->{tmpdir}  = $sfile->get_path; # for Form::cleanup which may be called in Form::send_email
+    $::form->{tmpdir}  = $sfile->get_path; # for Form::cleanup which may be
+                                           # called in Form::send_email
   }
 
-  $::form->{id} = $self->order->id; # this is used in SL::Mailer to create a linked record to the mail
+  $::form->{id} = $self->order->id; # this is used in SL::Mailer to create a
+                                    # linked record to the mail
   $::form->send_email(\%::myconfig, $::form->{print_options}->{format});
 
   flash_later('info', t8('The email has been sent.'));
+  $self->save_history('MAILED');
 
   # internal notes unless no email journal
   unless ($::instance_conf->get_email_journal) {
     my $intnotes = $self->order->intnotes;
     $intnotes   .= "\n\n" if $self->order->intnotes;
-    $intnotes   .= t8('[email]')                                                                                        . "\n";
-    $intnotes   .= t8('Date')       . ": " . $::locale->format_date_object(DateTime->now_local, precision => 'seconds') . "\n";
-    $intnotes   .= t8('To (email)') . ": " . $::form->{email}                                                           . "\n";
-    $intnotes   .= t8('Cc')         . ": " . $::form->{cc}                                                              . "\n"    if $::form->{cc};
-    $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}                                                             . "\n"    if $::form->{bcc};
-    $intnotes   .= t8('Subject')    . ": " . $::form->{subject}                                                         . "\n\n";
+    $intnotes   .= t8('[email]')                                       . "\n";
+    $intnotes   .= t8('Date')       . ": " . $::locale->format_date_object(
+                                               DateTime->now_local,
+                                               precision => 'seconds') . "\n";
+    $intnotes   .= t8('To (email)') . ": " . $::form->{email}          . "\n";
+    $intnotes   .= t8('Cc')         . ": " . $::form->{cc}             . "\n"    if $::form->{cc};
+    $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}            . "\n"    if $::form->{bcc};
+    $intnotes   .= t8('Subject')    . ": " . $::form->{subject}        . "\n\n";
     $intnotes   .= t8('Message')    . ": " . SL::HTML::Util->strip($::form->{message});
 
     $self->order->update_attributes(intnotes => $intnotes);
@@ -946,11 +922,6 @@ sub action_order_workflow {
     $_   ->{converted_from_orderitems_id} = $_          ->{ RECORD_ITEM_ID() } for @{ $self->order->items_sorted };
   }
 
-  # set item ids to new fake id, to identify them as new items
-  foreach my $item (@{$self->order->items_sorted}) {
-    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-  }
-
   if ($from_side eq 'sales' && $to_side eq 'purchase') {
     if ($::form->{use_shipto}) {
       $self->order->custom_shipto($custom_shipto) if $custom_shipto;
@@ -960,37 +931,9 @@ sub action_order_workflow {
     }
   }
 
-  # change form type
-  $::form->{type} = $destination_type;
-  $self->type($self->init_type);
-  $self->type_data($self->init_type_data);
-  $self->cv  ($self->init_cv);
-  $self->check_auth;
+  $self->reinit_after_new_order();
 
-  # Warn on order locked items if they are not wanted for this record type
-  if ($self->type_data->no_order_locked_parts) {
-    my @order_locked_positions = map { $_->position } grep { $_->part->order_locked } @{ $self->order->items_sorted };
-    flash('warning', t8('This record contains not orderable items at position #1', join ', ', @order_locked_positions)) if @order_locked_positions;
-  }
-
-  $self->recalc();
-  $self->get_unalterable_data();
-  $self->pre_render();
-
-  # trigger rendering values for second row as hidden, because they
-  # are loaded only on demand. So we need to keep the values from the
-  # source.
-  $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
-  }
-
-  $self->render(
-    'order/form',
-    title => $self->type_data->text('edit'),
-    %{$self->{template_args}}
-  );
+  $self->action_add;
 }
 
 # set form elements in respect to a changed customer or vendor
@@ -1329,35 +1272,25 @@ sub action_create_part {
 sub action_return_from_create_part {
   my ($self) = @_;
 
-  $self->{created_part} = SL::DB::Part->new(id => delete $::form->{new_parts_id})->load if $::form->{new_parts_id};
+  $self->{created_part} = SL::DB::Part->new(
+    id => delete $::form->{new_parts_id}
+  )->load if $::form->{new_parts_id};
 
   $::auth->restore_form_from_session(delete $::form->{previousform});
 
-  # set item ids to new fake id, to identify them as new items
-  foreach my $item (@{$self->order->items_sorted}) {
-    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  $self->order($self->init_order);
+  $self->reinit_after_new_order();
+
+  if ($self->order->id) {
+    $self->pre_render();
+    $self->render(
+      'order/form',
+      title => $self->type_data->text('edit'),
+      %{$self->{template_args}}
+    );
+  } else {
+    $self->action_add;
   }
-
-  $self->recalc();
-  $self->get_unalterable_data();
-  $self->pre_render();
-
-  # trigger rendering values for second row/longdescription as hidden,
-  # because they are loaded only on demand. So we need to keep the values
-  # from the source.
-  $_->{render_second_row}      = 1 for @{ $self->order->items_sorted };
-  $_->{render_longdescription} = 1 for @{ $self->order->items_sorted };
-
-  if (!$::form->{form_validity_token}) {
-    $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE())->token;
-  }
-
-  $self->render(
-    'order/form',
-    title => $self->type_data->text('edit'),
-    %{$self->{template_args}}
-  );
-
 }
 
 # load the second row for one or more items
@@ -1857,9 +1790,7 @@ sub load_order {
 
   $self->order(SL::DB::Order->new(id => $::form->{id})->load);
 
-  # Add an empty custom shipto to the order, so that the dialog can render the cvar inputs.
-  # You need a custom shipto object to call cvars_by_config to get the cvars.
-  $self->order->custom_shipto(SL::DB::Shipto->new(module => 'OE', custom_variables => [])) if !$self->order->custom_shipto;
+  $self->reinit_after_new_order();
 
   return $self->order;
 }
@@ -1877,10 +1808,23 @@ sub make_order {
   # be retrieved via items until the order is saved. Adding empty items to new
   # order here solves this problem.
   my $order;
-  $order   = SL::DB::Order->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
-  $order ||= SL::DB::Order->new(orderitems  => [],
-                                record_type => $::form->{type},
-                                currency_id => $::instance_conf->get_currency_id(),);
+  if ($::form->{id}) {
+    $order   = SL::DB::Order->new(
+      id => $::form->{id}
+    )->load(
+      with => [
+        'orderitems',
+        'orderitems.part',
+      ]
+    );
+  } else {
+    $order = SL::DB::Order->new(
+      orderitems  => [],
+      record_type => $::form->{type},
+      currency_id => $::instance_conf->get_currency_id(),
+    );
+    $order = SL::Model::Record->update_after_new($order)
+  }
 
   my $cv_id_method = $order->type_data->properties('customervendor'). '_id';
   if (!$::form->{id} && $::form->{$cv_id_method}) {
@@ -1888,16 +1832,29 @@ sub make_order {
     $order = SL::Model::Record->update_after_customer_vendor_change($order);
   }
 
-  my $form_orderitems                  = delete $::form->{order}->{orderitems};
-  my $form_periodic_invoices_config    = delete $::form->{order}->{periodic_invoices_config};
+  # don't assign hashes as objects
+  my $form_orderitems               = delete $::form->{order}->{orderitems};
+  my $form_periodic_invoices_config = delete $::form->{order}->{periodic_invoices_config};
 
   $order->assign_attributes(%{$::form->{order}});
 
+  # restore form values
+  $::form->{order}->{orderitems}               = $form_orderitems;
+  $::form->{order}->{periodic_invoices_config} = $form_periodic_invoices_config;
+
   $self->setup_custom_shipto_from_form($order, $::form);
 
-  if (my $periodic_invoices_config_attrs = $form_periodic_invoices_config ? SL::YAML::Load($form_periodic_invoices_config) : undef) {
-    my $periodic_invoices_config = $order->periodic_invoices_config || $order->periodic_invoices_config(SL::DB::PeriodicInvoicesConfig->new);
-    $periodic_invoices_config->assign_attributes(%$periodic_invoices_config_attrs);
+  if (
+    my $periodic_invoices_config_attrs = $form_periodic_invoices_config ?
+        SL::YAML::Load($form_periodic_invoices_config)
+      : undef
+  ) {
+    my $periodic_invoices_config =
+         $order->periodic_invoices_config
+      || $order->periodic_invoices_config(SL::DB::PeriodicInvoicesConfig->new);
+    $periodic_invoices_config->assign_attributes(
+      %$periodic_invoices_config_attrs
+    );
   }
 
   # remove deleted items
@@ -2024,7 +1981,11 @@ sub setup_custom_shipto_from_form {
   if ($order->shipto) {
     $self->is_custom_shipto_to_delete(1);
   } else {
-    my $custom_shipto = $order->custom_shipto || $order->custom_shipto(SL::DB::Shipto->new(module => 'OE', custom_variables => []));
+    my $custom_shipto =
+       $order->custom_shipto
+    || $order->custom_shipto(
+         SL::DB::Shipto->new(module => 'OE', custom_variables => [])
+       );
 
     my $shipto_cvars  = {map { my ($key) = m{^shiptocvar_(.+)}; $key => delete $form->{$_}} grep { m{^shiptocvar_} } keys %$form};
     my $shipto_attrs  = {map {                                  $_   => delete $form->{$_}} grep { m{^shipto}      } keys %$form};
@@ -2191,6 +2152,44 @@ sub save {
   }
 
   delete $::form->{form_validity_token};
+}
+
+sub reinit_after_new_order {
+  my ($self) = @_;
+
+  # change form type
+  $::form->{type} = $self->order->type;
+  $self->type($self->init_type);
+  $self->type_data($self->init_type_data);
+  $self->cv($self->init_cv);
+  $self->check_auth;
+
+  $self->setup_custom_shipto_from_form($self->order, $::form);
+
+  foreach my $item (@{$self->order->items_sorted}) {
+    # set item ids to new fake id, to identify them as new items
+    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+
+    # trigger rendering values for second row as hidden, because they
+    # are loaded only on demand. So we need to keep the values from the
+    # source.
+    $item->{render_second_row} = 1;
+  }
+
+  # Warn on order locked items if they are not wanted for this record type
+  if ($self->type_data->no_order_locked_parts) {
+    my @order_locked_positions =
+      map { $_->position }
+      grep { $_->part->order_locked }
+      @{ $self->order->items_sorted };
+    flash('warning', t8(
+        'This record contains not orderable items at position #1',
+        join ', ', @order_locked_positions)
+    ) if @order_locked_positions;
+  }
+
+  $self->get_unalterable_data();
+  $self->recalc();
 }
 
 sub pre_render {
@@ -2372,14 +2371,12 @@ sub setup_edit_action_bar {
         action => [
           t8('Save and Purchase Quotation Intake'),
           call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => PURCHASE_QUOTATION_INTAKE_TYPE()), '#order_form' ],
-          only_if  => (any { $self->type eq $_ } (REQUEST_QUOTATION_TYPE())),
           only_if  => $self->type_data->show_menu('save_and_purchase_quotation_intake'),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           t8('Save and Sales Order Intake'),
           call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => SALES_ORDER_INTAKE_TYPE()), '#order_form' ],
-          only_if  => (any { $self->type eq $_ } (SALES_QUOTATION_TYPE())),
           only_if  => $self->type_data->show_menu('save_and_sales_order_intake'),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],

@@ -100,7 +100,7 @@
   name: Update Prices
   icon: prices_update
   order: 800
-  access: part_service_assembly_edit
+  access: part_service_assembly_edit & part_service_assembly_edit_prices
   params:
     action: PartsPriceUpdate/search_update_prices
 - parent: master_data
@@ -121,6 +121,7 @@
   name: Customers
   icon: customer_report
   order: 100
+  access: customer_report_view
   params:
     action: CustomerVendor/search
     db: customer
@@ -129,6 +130,7 @@
   name: Vendors
   icon: vendor_report
   order: 200
+  access: vendor_report_view
   params:
     action: CustomerVendor/search
     db: vendor
@@ -136,6 +138,7 @@
   id: master_data_reports_contacts
   name: Contacts
   order: 300
+  access: contact_person_report_view
   params:
     action: CustomerVendor/search_contact
     db: customer
@@ -212,7 +215,7 @@
   name: Add Sales Reclamation
     #icon: reclamation_add TODO(Tamino): add icons
   order: 450
-  access: sales_reclamation_edit
+  access: sales_reclamation_edit & client/show_sales_reclamation
   params:
     action: Reclamation/add
     type: sales_reclamation
@@ -313,7 +316,7 @@
   name: Sales Reclamation
     #icon: reclamation_add TODO(Tamino): add icons
   order: 450
-  access: sales_reclamation_edit
+  access: sales_reclamation_edit & client/show_sales_reclamation
   params:
     action: Reclamation/list
     type: sales_reclamation
@@ -322,6 +325,7 @@
   name: Invoices, Credit Notes & AR Transactions
   icon: invoices_report
   order: 500
+  access: invoice_edit | sales_invoice_view | sales_all_edit | state/has_employee_project_invoices
   module: ar.pl
   params:
     action: search
@@ -330,7 +334,7 @@
   id: ar_reports_sales_report
   name: Sales Report
   order: 600
-  access: invoice_edit
+  access: sales_report
   module: vk.pl
   params:
     action: search_invoice
@@ -348,7 +352,7 @@
   id: ar_order_item_search
   name: Order item search
   order: 750
-  access: sales_order_edit
+  access: sales_order_item_search
   params:
     action: OrderItem/search
 - parent: ar_reports
@@ -371,7 +375,7 @@
   id: ar_reports_financial_controlling
   name: Financial Controlling
   order: 1000
-  access: sales_order_edit
+  access: sales_financial_controlling
   params:
     action: FinancialControllingReport/list
 - parent: ar_reports
@@ -440,7 +444,7 @@
   name: Add Purchase Reclamation
     #icon: reclamation_add TODO(Tamino): add icons
   order: 350
-  access: purchase_reclamation_edit
+  access: purchase_reclamation_edit & client/show_purchase_reclamation
   params:
     action: Reclamation/add
     type: purchase_reclamation
@@ -509,7 +513,7 @@
   name: Purchase Reclamation
     #icon: reclamation_add TODO(Tamino): add icons
   order: 370
-  access: purchase_reclamation_edit
+  access: purchase_reclamation_edit & client/show_purchase_reclamation
   params:
     action: Reclamation/list
     type: purchase_reclamation
@@ -517,6 +521,7 @@
   id: ap_reports_vendor_invoices_ap_transactions
   name: Vendor Invoices & AP Transactions
   order: 400
+  access: vendor_invoice_edit | purchase_invoice_view | purchase_all_edit | state/has_employee_project_invoices
   module: ap.pl
   params:
     action: search
@@ -1223,6 +1228,7 @@
   id: system_reclamation_reasons
   name: Reclamation Reasons
   order: 1220
+  access: client/show_sales_reclamation | client/show_purchase_reclamation
   params:
     action: ReclamationReason/list
     type: reclamation_reason
@@ -1580,22 +1586,6 @@
   params:
     action: company_logo
     no_todo_list: 1
-- parent: program
-  id: program_kivitendo_modul
-  name: kivitendo modules
-  order: 350
-- parent: program_kivitendo_modul
-  id: program_kivitendo_modul_overview
-  name: Overview kivitendo modules
-  order: 100
-  href: http://www.kivitendo-premium.de/module.shtml
-  target: _blank
-- parent: program_kivitendo_modul
-  id: program_kivitendo_modul_activate
-  name: Activate kivitendo module
-  order: 200
-  href: http://www.kivitendo-premium.de/modul-aktivieren.shtml
-  target: _blank
 - parent: program
   id: program_administration_area
   name: Administration area

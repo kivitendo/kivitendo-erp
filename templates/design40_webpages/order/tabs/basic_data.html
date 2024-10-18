@@ -169,9 +169,9 @@
                             class = 'wi-mediumsmall-lightwide') %]
         </td>
       </tr>
-      <tr id="taxincluded_row_id">
-        <th>[% IF !SELF.taxes.size %]<label for="order.taxincluded">[% 'Tax Included' | $T8 %]</label> [% END %]</th>
-        <td>[% IF !SELF.taxes.size %][% L.yes_no_tag('order.taxincluded', SELF.order.taxincluded, class='recalc') %][% END %]</td>
+      <tr id="taxincluded_row_id" [% IF !SELF.taxes.size %]class="hidden"[% END %]>
+        <th><label for="order.taxincluded">[% 'Tax Included' | $T8 %]</label></th>
+        <td>[% L.yes_no_tag('order.taxincluded', SELF.order.taxincluded, class='recalc') %]</td>
       </tr>
       [% IF SELF.type == "sales_order" %]
         <tr>
@@ -195,10 +195,10 @@
   <colgroup><col class="wi-wide"></colgroup>
   <tbody>
     <tr>
-      <td class="wi-wide">[% L.textarea_tag('order.notes', SELF.order.notes, wrap="soft",rows=7, class="texteditor wi-wide") %]</td>
+      <td class="wi-wide">[% L.textarea_tag('order.notes', SELF.order.notes, rows=7, class="texteditor wi-wide") %]</td>
     </tr>
     <tr>
-      <td><span class="label above">[% 'Internal Notes' | $T8 %]</span>[% L.textarea_tag('order.intnotes', SELF.order.intnotes, wrap="soft", style="height: 150px", class="wi-wide") %]</td>
+      <td><span class="label above">[% 'Internal Notes' | $T8 %]</span>[% L.textarea_tag('order.intnotes', SELF.order.intnotes, class="wi-wide") %]</td>
     </tr>
   </tbody>
 </table>

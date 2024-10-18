@@ -107,14 +107,24 @@
       </tr>
       <tr>
         <th>[% 'List Price' | $T8 %]</th>
-        <td>[% L.input_tag("part.listprice_as_number", SELF.part.listprice_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]</td>
+        <td>
+          [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+            [% L.input_tag("part.listprice_as_number", SELF.part.listprice_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]
+          [% ELSE %]
+            <span class="data wi-mediumsmall numeric">[% SELF.part.listprice_as_number %]</span>
+          [% END %]
+        </td>
       </tr>
       <tr>
         <th>[% 'Sell Price' | $T8 %]</th>
         <td>
-          [% L.input_tag("part.sellprice_as_number", SELF.part.sellprice_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]
+          [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+            [% L.input_tag("part.sellprice_as_number", SELF.part.sellprice_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]
+          [% ELSE %]
+            <span class="data wi-mediumsmall numeric">[% SELF.part.sellprice_as_number %]</span>
+          [% END %]
           [% IF (SELF.part.is_assortment or SELF.part.is_assembly) %]
-            <span id="items_sellprice_sum_basic" class="data below wi-mediumsmall numeric">([% LxERP.format_amount(SELF.part.items_sellprice_sum, 2) %])</span>
+            <span class="data below wi-mediumsmall numeric">(<span id="items_sellprice_sum_basic">[% LxERP.format_amount(SELF.part.items_sellprice_sum, 2) %])</span></span>
           [% END %]
         </td>
       </tr>
@@ -122,10 +132,14 @@
         <th>[% 'Last Cost' | $T8 %]</th>
         <td>
           [%- UNLESS SELF.part.is_assembly %]
-            [% L.input_tag("part.lastcost_as_number", SELF.part.lastcost_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]
+            [% IF (AUTH.assert('part_service_assembly_edit_prices', 'may_fail')) %]
+              [% L.input_tag("part.lastcost_as_number", SELF.part.lastcost_as_number, class='reformat_number numeric wi-mediumsmall', size=10) %]
+            [% ELSE %]
+              <span class="data wi-mediumsmall numeric">[% SELF.part.lastcost_as_number %]</span>
+            [% END %]
           [% END %]
           [% IF SELF.part.is_assortment || SELF.part.is_assembly %]
-            <span id="items_lastcost_sum_basic" class="data below wi-mediumsmall numeric">([% LxERP.format_amount(SELF.part.items_lastcost_sum, 2) %])</span>
+            <span class="data below wi-mediumsmall numeric">(<span id="items_lastcost_sum_basic">[% LxERP.format_amount(SELF.part.items_lastcost_sum, 2) %])</span></span>
           [% END %]
         </td>
       </tr>
@@ -241,7 +255,7 @@
       <colgroup> <col class="wi-small-mediumsmall"> </colgroup>
     <tbody>
       <tr>
-        <td> <textarea id="part.formel" name="part.formel" rows="[% IF notes_rows %][% HTML.escape(notes_rows) %][% ELSE %]3[% END %]" cols="10" wrap="soft" class="tooltipster-html wi-small-mediumsmall" title="[% 'The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>' | $T8 %]">[% HTML.escape(SELF.part.formel) %]</textarea>
+        <td> <textarea id="part.formel" name="part.formel" rows="[% IF notes_rows %][% HTML.escape(notes_rows) %][% ELSE %]3[% END %]" cols="10" class="tooltipster-html wi-small-mediumsmall" title="[% 'The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>' | $T8 %]">[% HTML.escape(SELF.part.formel) %]</textarea>
         </td>
       </tr>
     </tbody>

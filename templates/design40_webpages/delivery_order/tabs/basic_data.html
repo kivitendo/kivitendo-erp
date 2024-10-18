@@ -157,13 +157,13 @@
   <tbody>
     <tr>
       <td class="wi-wide">
-        [% L.textarea_tag('order.notes', SELF.order.notes, wrap="soft", rows=7, class="texteditor wi-wide") %]
+        [% L.textarea_tag('order.notes', SELF.order.notes, rows=7, class="texteditor wi-wide") %]
       </td>
     </tr>
     <tr>
       <td>
         <span class="label above">[% 'Internal Notes' | $T8 %]</span>
-        [% L.textarea_tag('order.intnotes', SELF.order.intnotes, wrap="soft", style="height: 150px", class="wi-wide") %]
+        [% L.textarea_tag('order.intnotes', SELF.order.intnotes, class="wi-wide") %]
       </td>
     </tr>
   </tbody>
@@ -315,7 +315,9 @@
 
 </div><!-- /#row_table_scroll_id /.wrapper -->
 
+[% L.hidden_tag('order.currency_id', SELF.order.currency_id) %]
 [% L.hidden_tag('order.taxzone_id', SELF.order.taxzone_id) %]
+[% L.hidden_tag('order.taxincluded', SELF.order.taxincluded) %]
 
 </div><!-- /#ui-tabs-basic-data -->
 

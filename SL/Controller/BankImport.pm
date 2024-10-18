@@ -170,16 +170,18 @@ sub make_transaction_idx {
   my ($transaction) = @_;
 
   if (ref($transaction) eq 'SL::DB::BankTransaction') {
-    $transaction = { map { ($_ => $transaction->$_) } qw(local_bank_account_id transdate valutadate amount purpose) };
+    $transaction = { map { ($_ => $transaction->$_) } qw(local_bank_account_id remote_account_number transdate valutadate amount purpose end_to_end_id) };
   }
 
+  my @other_fields =  $transaction->{end_to_end_id} && $::instance_conf->get_check_bt_duplicates_endtoend
+                   ? qw(end_to_end_id remote_account_number) : qw(purpose);
   return normalize_text(join '/',
                         map { $_ // '' }
                         ($transaction->{local_bank_account_id},
                          $transaction->{transdate}->ymd,
                          $transaction->{valutadate}->ymd,
                          (apply { s{0+$}{} } $transaction->{amount} * 1),
-                         $transaction->{purpose}));
+                         map { $transaction->{$_} } @other_fields));
 }
 
 sub init_bank_accounts {

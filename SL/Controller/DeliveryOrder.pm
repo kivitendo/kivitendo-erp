@@ -13,6 +13,7 @@ use SL::PriceSource;
 use SL::Webdav;
 use SL::File;
 use SL::MIME;
+use SL::Util qw(trim);
 use SL::YAML;
 use SL::DBUtils qw(selectall_hashref_query);
 use SL::DB::History;
@@ -34,6 +35,7 @@ use SL::DB::TransferType;
 use SL::DB::ValidityToken;
 use SL::DB::EmailJournal;
 use SL::DB::Warehouse;
+use SL::DB::Bin;
 use SL::DB::Helper::RecordLink qw(set_record_link_conversions RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
@@ -95,8 +97,6 @@ __PACKAGE__->run_before('get_unalterable_data',
 sub action_add {
   my ($self) = @_;
 
-  $self->order(SL::Model::Record->update_after_new($self->order));
-
   $self->pre_render();
 
   if (!$::form->{form_validity_token}) {
@@ -148,6 +148,7 @@ sub action_add_from_record {
 
   my $delivery_order = SL::Model::Record->new_from_workflow($record, $self->type, %flags);
   $self->order($delivery_order);
+  $self->reinit_after_new_order();
 
   $self->action_add;
 }
@@ -172,29 +173,9 @@ sub action_edit_with_email_journal_workflow {
 # edit an existing order
 sub action_edit {
   my ($self) = @_;
+  die "No 'id' was given." unless $::form->{id};
 
-  if ($::form->{id}) {
-    $self->load_order;
-
-  } else {
-    # this is to edit an order from an unsaved order object
-
-    # set item ids to new fake id, to identify them as new items
-    foreach my $item (@{$self->order->items_sorted}) {
-      $item->{new_fake_id} =
-        join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-    }
-    # trigger rendering values for second row as hidden, because they
-    # are loaded only on demand. So we need to keep the values from
-    # the source.
-    $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
-
-    if (!$::form->{form_validity_token}) {
-      $::form->{form_validity_token} = SL::DB::ValidityToken->create(
-        scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE()
-      )->token;
-    }
-  }
+  $self->load_order;
 
   $self->pre_render();
   $self->render(
@@ -419,26 +400,17 @@ sub action_preview_pdf {
 sub action_save_and_show_email_dialog {
   my ($self) = @_;
 
-  if ( !$self->order->delivered ) {
+  if (!$self->order->delivered) {
     $self->save();
+    $self->js_reset_order_and_item_ids_after_save;
   }
 
-  my $cv_method = $self->cv;
-
-  if (!$self->order->$cv_method) {
-    return $self->js->flash('error',
+  my $cv = $self->order->customervendor
+    or return $self->js->flash('error',
       $self->cv eq 'customer' ?
            t8('Cannot send E-mail without customer given')
          : t8('Cannot send E-mail without vendor given')
     )->render($self);
-  }
-
-  my $email_form;
-  $email_form->{to}   = $self->order->contact->cp_email if $self->order->contact;
-  $email_form->{to} ||= $self->order->$cv_method->email;
-  $email_form->{cc}   = $self->order->$cv_method->cc;
-  $email_form->{bcc}  = join ', ', grep $_, $self->order->$cv_method->bcc;
-  # Todo: get addresses from shipto, if any
 
   my $form = Form->new;
   $form->{$self->nr_key()}  = $self->order->number;
@@ -453,44 +425,83 @@ sub action_save_and_show_email_dialog {
   $form->{cp_id}            =
     $self->order->contact->cp_id if $self->order->contact;
 
+  my $email_form;
+  $email_form->{to} =
+       ($self->order->contact ? $self->order->contact->cp_email : undef)
+    || ($cv->is_customer ? $cv->delivery_order_mail : undef)
+    ||  $cv->email;
+  $email_form->{cc}  = $cv->cc;
+  $email_form->{bcc} = join ', ', grep $_, $cv->bcc;
+  # Todo: get addresses from shipto, if any
   $email_form->{subject}             = $form->generate_email_subject();
   $email_form->{attachment_filename} = $form->generate_attachment_filename();
   $email_form->{message}             = $form->generate_email_body();
   $email_form->{js_send_function}    = 'kivi.DeliveryOrder.send_email()';
 
   my %files = $self->get_files_for_email_dialog();
-  $self->{all_employees} = SL::DB::Manager::Employee->get_all(
-    query => [ deleted => 0 ]
-  );
+
+  my @employees_with_email = grep {
+    my $user = SL::DB::Manager::AuthUser->find_by(login => $_->login);
+    $user && !!trim($user->get_config_value('email'));
+  } @{ SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]) };
+
   my $dialog_html = $self->render(
     'common/_send_email_dialog', { output => 0 },
     email_form  => $email_form,
     show_bcc    => $::auth->assert('email_bcc', 'may fail'),
     FILES       => \%files,
     is_customer => $self->type_data->properties("is_customer"),
-    ALL_EMPLOYEES => $self->{all_employees},
+    ALL_EMPLOYEES => \@employees_with_email,
+    ALL_PARTNER_EMAIL_ADDRESSES => $cv->get_all_email_addresses(),
   );
 
   $self->js
-      ->run('kivi.DeliveryOrder.show_email_dialog', $dialog_html)
-      ->reinit_widgets
-      ->render($self);
+    ->run('kivi.DeliveryOrder.show_email_dialog', $dialog_html)
+    ->reinit_widgets
+    ->render($self);
 }
 
 # send email
-#
-# Todo: handling error messages: flash is not displayed in dialog, but in the main form
 sub action_send_email {
   my ($self) = @_;
 
   if ( !$self->order->delivered ) {
-    $self->save();
-    $self->js_reset_order_and_item_ids_after_save;
+    eval {
+      $self->save();
+      1;
+    } or do {
+      $self->js->run('kivi.Order.close_email_dialog');
+      die $EVAL_ERROR;
+    };
   }
 
-  my $email_form  = delete $::form->{email_form};
-  my %field_names = (to => 'email');
+  my @redirect_params = (
+    action => 'edit',
+    type   => $self->type,
+    id     => $self->order->id,
+  );
 
+  # Set the error handler to reload the document and display errors later,
+  # because the document is already saved and saving can have some side effects
+  # such as generating a document number, project number or record links,
+  # which will be up to date when the document is reloaded.
+  # Hint: Do not use "die" here and try to catch exceptions in subroutine
+  # calls. You should use "$::form->error" which respects the error handler.
+  local $::form->{__ERROR_HANDLER} = sub {
+      flash_later('error', $_[0]);
+      $self->redirect_to(@redirect_params);
+      $::dispatcher->end_request;
+  };
+
+  # move $::form->{email_form} to $::form
+  my $email_form  = delete $::form->{email_form};
+
+  if ($email_form->{additional_to}) {
+    $email_form->{to} = join ', ', grep { $_ } $email_form->{to}, @{$email_form->{additional_to}};
+    delete $email_form->{additional_to};
+  }
+
+  my %field_names = (to => 'email');
   $::form->{ $field_names{$_} // $_ } = $email_form->{$_} for keys %{ $email_form };
 
   # for Form::cleanup which may be called in Form::send_email
@@ -505,13 +516,16 @@ sub action_send_email {
   # Is an old file version available?
   my $attfile;
   if ($::form->{attachment_policy} eq 'old_file') {
-    $attfile = SL::File->get_all(object_id   => $self->order->id,
-                                 object_type => $::form->{formname},
-                                 file_type   => 'document',
-                                 print_variant => $::form->{formname});
+    $attfile = SL::File->get_all(
+      object_id   => $self->order->id,
+      object_type => $::form->{formname},
+      file_type   => 'document',
+      print_variant => $::form->{formname},
+    );
   }
 
-  if ($::form->{attachment_policy} ne 'no_file' && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
+  if (   $::form->{attachment_policy} ne 'no_file'
+    && !($::form->{attachment_policy} eq 'old_file' && $attfile)) {
     my $pdf;
     my @errors = generate_pdf($self->order, \$pdf, {
         media      => $::form->{media},
@@ -522,9 +536,7 @@ sub action_send_email {
         groupitems => $::form->{print_options}->{groupitems}},
     );
     if (scalar @errors) {
-      return $self->js->flash('error',
-        t8('Conversion to PDF failed: #1', $errors[0])
-      )->render($self);
+      $::form->error(t8('Generating the document failed: #1', $errors[0]));
     }
 
     my @warnings = store_pdf_to_webdav_and_filemanagement(
@@ -547,9 +559,11 @@ sub action_send_email {
                                     # linked record to the mail
   $::form->send_email(\%::myconfig, 'pdf');
 
+  $self->save_history('MAILED');
+  flash_later('info', t8('The email has been sent.'));
+
   # internal notes unless no email journal
   unless ($::instance_conf->get_email_journal) {
-
     my $intnotes = $self->order->intnotes;
     $intnotes   .= "\n\n" if $self->order->intnotes;
     $intnotes   .= t8('[email]')                                . "\n";
@@ -561,20 +575,10 @@ sub action_send_email {
     $intnotes   .= t8('Cc')         . ": " . $::form->{cc}      . "\n"    if $::form->{cc};
     $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}     . "\n"    if $::form->{bcc};
     $intnotes   .= t8('Subject')    . ": " . $::form->{subject} . "\n\n";
-    $intnotes   .= t8('Message')    . ": " . $::form->{message};
+    $intnotes   .= t8('Message')    . ": " . SL::HTML::Util->strip($::form->{message});
 
     $self->order->update_attributes(intnotes => $intnotes);
   }
-
-  $self->save_history('MAILED');
-
-  flash_later('info', t8('The email has been sent.'));
-
-  my @redirect_params = (
-    action => 'edit',
-    type   => $self->type,
-    id     => $self->order->id,
-  );
 
   $self->redirect_to(@redirect_params);
 }
@@ -918,35 +922,26 @@ sub action_create_part {
 sub action_return_from_create_part {
   my ($self) = @_;
 
-  $self->{created_part} =
-    SL::DB::Part->new(id => delete $::form->{new_parts_id})->load
-    if $::form->{new_parts_id};
+  $self->{created_part} = SL::DB::Part->new(
+    id => delete $::form->{new_parts_id}
+  )->load if $::form->{new_parts_id};
 
   $::auth->restore_form_from_session(delete $::form->{previousform});
 
-  # set item ids to new fake id, to identify them as new items
-  foreach my $item (@{$self->order->items_sorted}) {
-    $item->{new_fake_id} = join('_',
-      'new',
-      Time::HiRes::gettimeofday(),
-      int rand 1000000000000
+  $self->order($self->init_order);
+  $self->reinit_after_new_order();
+
+  if ($self->order->id) {
+    $self->pre_render();
+    $self->render(
+      'delivery_order/form',
+      title => $self->get_title_for('edit'),
+      %{$self->{template_args}}
     );
+  } else {
+    $self->action_add;
   }
 
-  $self->get_unalterable_data();
-  $self->pre_render();
-
-  # trigger rendering values for second row/longdescription as hidden,
-  # because they are loaded only on demand. So we need to keep the values
-  # from the source.
-  $_->{render_second_row}      = 1 for @{ $self->order->items_sorted };
-  $_->{render_longdescription} = 1 for @{ $self->order->items_sorted };
-
-  $self->render(
-    'delivery_order/form',
-    title => $self->get_title_for('edit'),
-    %{$self->{template_args}}
-  );
 }
 
 sub action_stock_in_out_dialog {
@@ -1246,6 +1241,7 @@ sub action_transfer_stock_default {
       my $max_qty = sum0(map {$_->{qty}} @grouped_qty);
       if ($max_qty < $parts_qty{$part_id}) {
         $parts_errors{$part_id}{missing_qty} = $parts_qty{$part_id} - $max_qty;
+        $parts_errors{$part_id}{bin_id}      = $bin_id;
       }
 
       next if $parts_errors{$part_id};
@@ -1285,9 +1281,12 @@ sub action_transfer_stock_default {
         $self->js->error(t8('No standard bin set for #1.', $part->displayable_name));
       }
       if ($parts_errors{$part_id}{missing_qty}) {
+        my $bin = SL::DB::Manager::Bin->find_by(
+          id => $parts_errors{$part_id}{bin_id}
+        );
         $self->js->error(
-          t8('There are #1 of "#2" missing from the standard bin #3 for transfer.',
-            $parts_errors{$part_id}{missing_qty}, $part->displayable_name, $part->bin->full_description));
+          t8('There are #1 of "#2" missing from the bin #3 for transfer.',
+            $parts_errors{$part_id}{missing_qty}, $part->displayable_name, $bin->full_description));
       }
       if ($parts_errors{$part_id}{multiple_options}){
         push @multiple_options, $part;
@@ -1555,11 +1554,7 @@ sub load_order {
 
   $self->order(SL::DB::DeliveryOrder->new(id => $::form->{id})->load);
 
-  # Add an empty custom shipto to the order, so that the dialog can render the cvar inputs.
-  # You need a custom shipto object to call cvars_by_config to get the cvars.
-  $self->order->custom_shipto(SL::DB::Shipto->new(module => 'DO', custom_variables => [])) if !$self->order->custom_shipto;
-
-  $self->order->prepare_stock_info($_) for $self->order->items;
+  $self->reinit_after_new_order();
 
   return $self->order;
 }
@@ -1580,13 +1575,19 @@ sub make_order {
   if ($::form->{id}) {
     $order = SL::DB::DeliveryOrder->new(
       id => $::form->{id}
-    )->load(with => [ 'orderitems', 'orderitems.part' ]);
+    )->load(
+      with => [
+        'orderitems',
+        'orderitems.part',
+      ]
+    );
   } else {
     $order = SL::DB::DeliveryOrder->new(
       orderitems  => [],
       currency_id => $::instance_conf->get_currency_id(),
       record_type => $::form->{type}
     );
+    $order = SL::Model::Record->update_after_new($order);
   }
 
   my $cv_id_method = $order->type_data->properties('customervendor'). '_id';
@@ -1595,9 +1596,13 @@ sub make_order {
     $order = SL::Model::Record->update_after_customer_vendor_change($order);
   }
 
+  # don't assign hashes as objects
   my $form_orderitems = delete $::form->{order}->{orderitems};
 
   $order->assign_attributes(%{$::form->{order}});
+
+  # restore form values
+  $::form->{order}->{orderitems} = $form_orderitems;
 
   $self->setup_custom_shipto_from_form($order, $::form);
 
@@ -1740,11 +1745,11 @@ sub setup_custom_shipto_from_form {
   if ($order->shipto) {
     $self->is_custom_shipto_to_delete(1);
   } else {
-    my $custom_shipto = $order->custom_shipto ?
-        $order->custom_shipto
-      : $order->custom_shipto(
-          SL::DB::Shipto->new(module => 'DO', custom_variables => [])
-        );
+    my $custom_shipto =
+         $order->custom_shipto
+      || $order->custom_shipto(
+           SL::DB::Shipto->new(module => 'DO', custom_variables => [])
+         );
 
     my $shipto_cvars  = {
       map { my ($key) = m{^shiptocvar_(.+)}; $key => delete $form->{$_}}
@@ -1817,47 +1822,32 @@ sub save {
   delete $::form->{form_validity_token};
 }
 
-sub workflow_sales_or_request_for_quotation {
-  my ($self, $destination_type) = @_;
-
-  # always save
-  $self->save();
-
-  my $delivery_order = SL::Model::Record->new_from_workflow(
-    $self->order, $destination_type
-  );
-  $self->order($delivery_order);
-  $self->{converted_from_oe_id} = delete $::form->{id};
-
-  # set item ids to new fake id, to identify them as new items
-  foreach my $item (@{$self->order->items_sorted}) {
-    $item->{new_fake_id} = join('_',
-      'new',
-      Time::HiRes::gettimeofday(),
-      int rand 1000000000000
-    );
-  }
+sub reinit_after_new_order {
+  my ($self) = @_;
 
   # change form type
-  $::form->{type} = $destination_type;
+  $::form->{type} = $self->order->type;
   $self->type($self->init_type);
-  $self->cv  ($self->init_cv);
+  $self->type_data($self->init_type_data);
+  $self->cv($self->init_cv);
   $self->check_auth;
 
+  $self->setup_custom_shipto_from_form($self->order, $::form);
+
+  foreach my $item (@{$self->order->items_sorted}) {
+    # set item ids to new fake id, to identify them as new items
+    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+
+    # trigger rendering values for second row as hidden, because they
+    # are loaded only on demand. So we need to keep the values from the
+    # source.
+    $item->{render_second_row} = 1;
+  }
+
+  $self->order->prepare_stock_info($_) for $self->order->items;
   $self->get_unalterable_data();
-  $self->pre_render();
-
-  # trigger rendering values for second row as hidden, because they
-  # are loaded only on demand. So we need to keep the values from the
-  # source.
-  $_->{render_second_row} = 1 for @{ $self->order->items_sorted };
-
-  $self->render(
-    'delivery_order/form',
-    title => $self->get_title_for('edit'),
-    %{$self->{template_args}}
-  );
 }
+
 
 sub pre_render {
   my ($self) = @_;

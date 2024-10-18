@@ -166,6 +166,11 @@
       <td>[% L.input_tag('defaults.fuzzy_skonto_percentage_as_number', SELF.defaults.fuzzy_skonto_percentage_as_number, size=5, class="numeric") %]%</td>
       <td>[% LxERP.t8("The allowed Skonto Percentage Deivation defaults to 0.5% of the invoice amount") %]</td>
     </tr>
+    <tr>
+      <th>[% LxERP.t8('Use END-TO-END-ID to detect duplicates in bank import transactions') %]</th>
+      <td>[% L.yes_no_tag('defaults.check_bt_duplicates_endtoend', SELF.defaults.check_bt_duplicates_endtoend) %]</td>
+      <td>[% LxERP.t8("If set to yes and an end-to-end id can be extracted from the transaction this will be used to detect duplicates instead of the transaction purpose.") %]</td>
+    </tr>
   </tbody>
 </table>
 

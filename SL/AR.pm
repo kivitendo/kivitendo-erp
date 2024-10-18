@@ -626,7 +626,7 @@ sub ar_transactions {
   }
   if ($form->{"project_id"}) {
     $where .=
-      qq|AND ((a.globalproject_id = ?) OR EXISTS | .
+      qq| AND ((a.globalproject_id = ?) OR EXISTS | .
       qq|  (SELECT * FROM invoice i | .
       qq|   WHERE i.project_id = ? AND i.trans_id = a.id) | .
       qq| OR EXISTS | .
