@@ -170,24 +170,9 @@ sub check_latex {
   # no pdfx -> no zugferd possible
   my $ret = kpsewhich('template/print/', 'sty', 'pdfx');
   die "Cannot use pdfx. Please install this package first (debian: apt install texlive-latex-extra)"  if $ret;
-  # check version 2018
-  my $latex = $::lx_office_conf{applications}->{latex} || 'pdflatex';
-  my $pdfx = (system ${latex} . ' --interaction=batchmode "\documentclass{minimal} \RequirePackage{pdfx} \csname @ifpackagelater\endcsname{pdfx}{2018/12/22}{}{\show\relax} \begin{document} \end{document}"');
-
-  print_result ("Looking for pdfx version 2018 or higher", !$pdfx);
-  push @missing_modules, \(name => 'pdfx') if $pdfx;
-
   if ($res) {
     check_template_dir($_) for SL::InstallationCheck::template_dirs($master_templates);
   }
-  print STDERR <<EOL if $pdfx;
-+------------------------------------------------------------------------------+
-  Your pdfx version is too old. You cannot use ZuGFeRD or modern (2018+)
-  templates. Please consider using a more recent LaTeX environment.
-  Verify with:
-  pdflatex --interaction=batchmode "\\RequirePackage{pdfx}[2018/12/22]"
-+------------------------------------------------------------------------------+
-EOL
 }
 
 sub check_template_dir {
