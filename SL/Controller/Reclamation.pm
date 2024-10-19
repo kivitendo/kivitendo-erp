@@ -6,7 +6,7 @@ use parent qw(SL::Controller::Base);
 use SL::Helper::Flash qw(flash_later);
 use SL::HTML::Util;
 use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
-use SL::Presenter::ReclamationFilter qw(filter);
+use SL::Presenter::Filter::Reclamation;
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
 use SL::PriceSource;
@@ -216,10 +216,12 @@ sub action_save {
 sub action_list {
   my ($self) = @_;
 
+  $::form->{filter} ||= {};
+
   $self->_setup_search_action_bar;
-  $self->prepare_report;
+  my $report = $self->prepare_report;
   $self->report_generator_list_objects(
-    report => $self->{report},
+    report => $report,
     objects => $self->models->get,
     options => {
       action_bar_additional_submit_values => {
@@ -1186,7 +1188,7 @@ sub init_models {
       closed                  => t8('Closed'),
     },
     query => [
-      SL::DB::Manager::Reclamation->type_filter($self->type),
+      (record_type => $self->type),
       (salesman_id => SL::DB::Manager::Employee->current->id) x ($self->reclamation->is_sales  && !$::auth->assert('sales_all_edit', 1)),
       (employee_id => SL::DB::Manager::Employee->current->id) x ($self->reclamation->is_sales  && !$::auth->assert('sales_all_edit', 1)),
       (employee_id => SL::DB::Manager::Employee->current->id) x (!$self->reclamation->is_sales && !$::auth->assert('purchase_all_edit', 1)),
@@ -1672,18 +1674,12 @@ sub prepare_report {
   my ($self)         = @_;
 
   my $report         =  SL::ReportGenerator->new(\%::myconfig, $::form);
-  $report->{title}   =  t8('Sales Reclamations');
-  if ($self->type eq PURCHASE_RECLAMATION_TYPE()){
-    $report->{title} = t8('Purchase Reclamations');
-  }
 
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->add_additional_url_params(type => $self->type);
   $self->models->finalize; # for filter laundering
 
   my $callback    = $self->models->get_callback;
-
-  $self->{report} = $report;
 
   # TODO: shipto_id is not linked to custom_shipto
   my @columns_order = qw(
@@ -1892,10 +1888,13 @@ sub prepare_report {
   unless ($::form->{active_in_report}) {
     $::form->{active_in_report}->{$_} = 1 foreach @default_columns;
   }
+
   $self->models->add_additional_url_params(
-    active_in_report => $::form->{active_in_report});
-  map { $column_defs{$_}->{visible} = $::form->{active_in_report}->{"$_"} }
-    keys %column_defs;
+    active_in_report => $::form->{active_in_report}
+  );
+
+  $column_defs{$_}->{visible} = $::form->{active_in_report}->{"$_"} || 0
+    foreach keys %column_defs;
 
   ## add cvars TODO: Add own cvars
   #my %cvar_column_defs = map {
@@ -1915,7 +1914,7 @@ sub prepare_report {
   # make all sortable
   my @sortable = keys %column_defs;
 
-  my $filter_html = SL::Presenter::ReclamationFilter::filter(
+  my $filter_html = SL::Presenter::Filter::Reclamation::filter(
     $::form->{filter}, $self->type, active_in_report => $::form->{active_in_report}
   );
 
@@ -1940,9 +1939,11 @@ sub prepare_report {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns_order);
   #$report->set_export_options(qw(list filter), @cvar_column_form_names); TODO: for cvars
-  $report->set_export_options(qw(list filter active_in_report));
+  $report->set_export_options('list', qw(filter active_in_report));
   $report->set_options_from_form;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
+
+  return $report;
 }
 
 sub _setup_edit_action_bar {
@@ -2139,7 +2140,7 @@ sub _setup_search_action_bar {
     $bar->add(
       action => [
         t8('Update'),
-        submit    => [ '#search_form', { action => 'Reclamation/list', type => $self->type } ],
+        submit    => [ '#filter_form', { action => 'Reclamation/list', type => $self->type } ],
         accesskey => 'enter',
       ],
       link => [
