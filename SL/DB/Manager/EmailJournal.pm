@@ -33,6 +33,16 @@ __PACKAGE__->add_filter_specs(
           )
         )} => \'TRUE';
   },
+  unprocessed_attachment_names => sub {
+    my ($key, $value, $prefix) = @_;
+    return (
+      and => [
+        'attachments.name' => $value,
+        'attachments.processed' => 0,
+      ],
+      'attachments'
+    )
+  },
   has_unprocessed_attachments => sub {
     my ($key, $value, $prefix) = @_;
 
@@ -68,7 +78,7 @@ sub _sort_spec {
             AND record_links.to_id = email_journal.id
           )
       )},
-      attachment => qq{(
+      attachment_names => qq{(
         SELECT STRING_AGG(
           email_journal_attachments.name,
           ', '
@@ -77,6 +87,17 @@ sub _sort_spec {
         FROM email_journal_attachments
         WHERE
           email_journal_attachments.email_journal_id = email_journal.id
+      )},
+      unprocessed_attachment_names => qq{(
+        SELECT STRING_AGG(
+          email_journal_attachments.name,
+          ', '
+          ORDER BY email_journal_attachments.position ASC
+       )
+        FROM email_journal_attachments
+        WHERE
+          email_journal_attachments.email_journal_id = email_journal.id
+            AND email_journal_attachments.processed = FALSE
       )},
       has_unprocessed_attachments => qq{(
         SELECT count(*)
