@@ -7,6 +7,15 @@
 
 [% INCLUDE 'common/flash.html' %]
 
+<div id="print_options" style="display:none">
+  <form method="post" action="controller.pl" id="print_options_form">
+    [% SELF.print_options %]
+    <br>
+    [% L.button_tag('kivi.Part.save_and_print()', LxERP.t8('Save and print')) %]
+    <a href="#" onclick="$('#print_options').dialog('close');">[% LxERP.t8("Cancel") %]</a>
+  </form>
+</div>
+
  <form method="post" id="ic" name="ic" action="controller.pl">
 
   [% L.hidden_tag('part.part_type'   , SELF.part.part_type) %]
