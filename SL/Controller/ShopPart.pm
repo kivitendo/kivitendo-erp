@@ -288,6 +288,15 @@ sub create_or_update {
 
   my $is_new = !$self->shop_part->id;
   my $params = delete($::form->{shop_part}) || { };
+
+  my $shop = SL::DB::Manager::Shop->find_by(id => $params->{shop_id});
+  if ($shop && $shop->connector eq 'shopware6') {
+    die t8("Part Metatag Title is too long for this Shopware version. It should have lower than 255 characters.")
+      if length $params->{metatag_title} > 255;
+    die t8("Part Metatag Description is too long for this Shopware version. It should have lower than 255 characters.")
+      if length $params->{metatag_description} > 255;
+  }
+
   $self->shop_part->assign_attributes(%{ $params });
   $self->shop_part->save;
 
