@@ -5,6 +5,8 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 Upgrade auf v3.9.1
 
+Es sind keine neuen Perl-Abhängigkeiten hinzugekommen.
+
 Die Dateieendung für SEPA-XML wurde auf .xml geändert, die vorherigen Werte
 können aber über die Mandantenkonfiguration wieder aktiviert werden.
 
