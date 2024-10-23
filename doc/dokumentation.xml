@@ -409,6 +409,8 @@
           </listitem>
         </itemizedlist>
 
+        <para>In der Version v3.9.1 sind keine neuen Pakete hinzugekommen.</para>
+
         <para>In der Version v3.9.0 sind die folgenden Pakete hinzugekommen:
           <literal>Mail::IMAPClient</literal>, <literal>Encode::IMAPUTF7</literal>.
           Nicht mehr benötigt wird <literal>CAM::PDF</literal>.
