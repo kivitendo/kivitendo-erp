@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-xxxx-xx-xx - Release 3.9.1
+2024-10-23 - Release 3.9.1
 
 Größere Features und Komponentenupdates:
   -
@@ -74,7 +74,20 @@ Kleinere neue Features und Detailverbesserungen:
     perldoc SL/BackgroundJob/SetBankAccountsMasterData.pm
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
-  -
+718 Shopconnector shopware6: Check API Zeigt Fehlermeldung nicht an
+708 Design40 Feld salesman/Verkäufer beim Kunden fehlt
+705 design40: Sortieren (reorder) von Listen im SimpleSystemSettings-Controller kaputt
+704 Lieferschein email an "Email Lieferadresse" defekt
+700 Email Lieferschein ohne Anhang
+697 Lieferschein: Formular-Details /zweite Zeile) lässt sich nicht ausklappen nach Workflow aus Auftrag
+696 Workflow Auftrag -> Lieferschein: Positionsdetails gehen verloren
+694 neuer Lieferschein-Controller: Speichern und Schließen defekt
+688 Design4.0: Toggle Wrapper in Belegen, beim Aufklappen werden ein teil der Felder nicht mehr angezeigt
+680 Design 4.0: "neue" Controller: Update-Symbol falsch nach Anzeigen/Verstecken der 2. Zeile (Details)
+678 Link vom Lagerbewegungsbericht zum Lieferschein
+679 Lieferschein "als neu speichern" liefert Fehler
+671 Admin Bereich: Beim Anlegen einer Datenbank mit schweizer Kontenrahmen kommt eine Ansicht ohne CSS
+647 Kunde editieren: Belege: XML Parsing Error: not well-formed
 
 
 2024-04-10 - Release 3.9.0
