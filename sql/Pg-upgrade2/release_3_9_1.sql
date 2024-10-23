@@ -1,0 +1,3 @@
+-- @tag: release_3_9_1
+-- @description: Leeres Script, das alle Upgradescripte bis zum Release 3.9.1 voraussetzt, um ein fest definiertes Schema zu definieren.
+-- @depends: release_3_9_0 add_description_to_backgroundjob_and_backgroundjobhistory remove_trigger_assembly_purchase_price defaults_set_ARAP bank_transactions_add_end_to_end_id defaults_endtoend change_file_backend_to_enum defaults_bank_config defaults_show_new_docs file_object_type_as_enum file_versions_guid_as_primary_key shop_images_dont_skip_position defaults_show_invoice_for_advance_payment add_file_version
