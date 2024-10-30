@@ -45,4 +45,15 @@ sub get_hierarchy {
   return \@list;
 }
 
+sub data_partsgroup_dropdown {
+  my ($name, %params);
+  my $partsgroup = get_hierarchy;
+  my $partsgroup_hierarchie;
+  foreach my $pg (@{$partsgroup}) {
+    next if $pg->{obsolete};
+    $pg->{partsgroup} = "| " x $pg->{level} . $pg->{partsgroup};
+    push @{$partsgroup_hierarchie}, $pg;
+  }
+  return $partsgroup_hierarchie;
+}
 1;
