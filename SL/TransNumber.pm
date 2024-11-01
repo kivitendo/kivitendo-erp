@@ -62,15 +62,15 @@ sub _get_filters {
     $filters{trans_number}  = "ordnumber";
     $filters{numberfield}   = $type eq 'sales_order' ? "sonumber" : "ponumber";
     $filters{table}         = "oe";
-    $filters{where}         = 'NOT COALESCE(quotation, FALSE)';
-    $filters{where}        .= $type =~ /^sales/ ? ' AND (customer_id IS NOT NULL)' : ' AND (vendor_id IS NOT NULL)';
+    $filters{where}         = "record_type = ?";
+    $filters{values}        = [ $::form->{type} ];
 
   } elsif ($type =~ /^sales_order_intake$/) {
     $filters{trans_number}  = "ordnumber";
     $filters{numberfield}   = "soinumber";
     $filters{table}         = "oe";
-    $filters{where}         = 'NOT COALESCE(quotation, FALSE)';
-    $filters{where}        .= $type =~ /^sales/ ? ' AND (customer_id IS NOT NULL)' : ' AND (vendor_id IS NOT NULL)';
+    $filters{where}         = "record_type = ?";
+    $filters{values}        = $type;
 
   } elsif ($type =~ /^purchase_order_confirmation$/) {
     $filters{trans_number}  = "ordnumber";
@@ -83,14 +83,15 @@ sub _get_filters {
     $filters{trans_number}  = "quonumber";
     $filters{numberfield}   = $type eq 'sales_quotation' ? "sqnumber" : "rfqnumber";
     $filters{table}         = "oe";
-    $filters{where}         = 'COALESCE(quotation, FALSE)';
-    $filters{where}        .= $type =~ /^sales/ ? ' AND (customer_id IS NOT NULL)' : ' AND (vendor_id IS NOT NULL)';
+    $filters{where}         = "record_type = ?";
+    $filters{values}        = $type;
 
   } elsif ($type =~ /^purchase_quotation_intake$/) {
     $filters{trans_number}  = "quonumber";
     $filters{numberfield}   = "pqinumber";
     $filters{table}         = "oe";
-    $filters{where}         = 'COALESCE(quotation, FALSE) AND (vendor_id IS NOT NULL)';
+    $filters{where}         = "record_type = ?";
+    $filters{values}        = $type;
 
   } elsif ($type =~ /^(part|service|assembly|assortment)$/) {
     $filters{trans_number}  = "partnumber";

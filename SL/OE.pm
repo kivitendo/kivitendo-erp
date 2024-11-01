@@ -658,8 +658,8 @@ sub _save {
     $query = qq|SELECT nextval('id')|;
     ($form->{id}) = selectrow_query($form, $dbh, $query);
 
-    $query = qq|INSERT INTO oe (id, ordnumber, employee_id, currency_id, taxzone_id) VALUES (?, '', ?, (SELECT currency_id FROM defaults), ?)|;
-    do_query($form, $dbh, $query, $form->{id}, $form->{employee_id}, $form->{taxzone_id});
+    $query = qq|INSERT INTO oe (id, ordnumber, employee_id, currency_id, taxzone_id, record_type) VALUES (?, '', ?, (SELECT currency_id FROM defaults), ?, ?)|;
+    do_query($form, $dbh, $query, $form->{id}, $form->{employee_id}, $form->{taxzone_id}, $form->{type});
   }
 
   my $amount    = 0;
