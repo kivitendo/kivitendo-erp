@@ -70,28 +70,28 @@ sub _get_filters {
     $filters{numberfield}   = "soinumber";
     $filters{table}         = "oe";
     $filters{where}         = "record_type = ?";
-    $filters{values}        = $type;
+    $filters{values}        = [ $::form->{type} ];
 
   } elsif ($type =~ /^purchase_order_confirmation$/) {
     $filters{trans_number}  = "ordnumber";
     $filters{numberfield}   = "pocnumber";
     $filters{table}         = "oe";
     $filters{where}         = 'record_type = ?';
-    $filters{values}        = $type;
+    $filters{values}        = [ $::form->{type} ];
 
   } elsif ($type =~ /_quotation$/) {
     $filters{trans_number}  = "quonumber";
     $filters{numberfield}   = $type eq 'sales_quotation' ? "sqnumber" : "rfqnumber";
     $filters{table}         = "oe";
     $filters{where}         = "record_type = ?";
-    $filters{values}        = $type;
+    $filters{values}        = [ $::form->{type} ];
 
   } elsif ($type =~ /^purchase_quotation_intake$/) {
     $filters{trans_number}  = "quonumber";
     $filters{numberfield}   = "pqinumber";
     $filters{table}         = "oe";
     $filters{where}         = "record_type = ?";
-    $filters{values}        = $type;
+    $filters{values}        = [ $::form->{type} ];
 
   } elsif ($type =~ /^(part|service|assembly|assortment)$/) {
     $filters{trans_number}  = "partnumber";
