@@ -29,6 +29,12 @@ namespace('kivi.VariantProperty', function(ns) {
     $.post('controller.pl', data, kivi.eval_json_result);
   };
 
+  ns.delete_variant_property_value = function() {
+    var data = $('#variant_property_value_form').serializeArray();
+    data.push({ name: 'action', value: 'VariantProperty/delete_variant_property_value' });
+    $.post('controller.pl', data, kivi.eval_json_result);
+  };
+
   ns.add_variant_property_value = function() {
     var data = $('#variant_property_value_list_form').serializeArray();
     data.push({ name: 'action', value: 'VariantProperty/add_variant_property_value' });

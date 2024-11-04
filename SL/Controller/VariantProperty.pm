@@ -114,6 +114,38 @@ sub action_save_variant_property_value {
   );
 }
 
+sub action_delete_variant_property_value {
+  my ($self) = @_;
+
+  die "'variant_property_value.id' is needed" unless $::form->{variant_property_value}->{id};
+
+  my $variant_property_value = SL::DB::Manager::VariantPropertyValue->find_by(
+    id => $::form->{variant_property_value}->{id}
+  ) or die t8("Could not find Variant Property Value");
+
+  SL::DB->client->with_transaction(sub {
+      $variant_property_value->delete;
+      flash_later('info',
+        t8(
+          'The Variant Property Value \'#1\' has been deleted.',
+          $variant_property_value->displayable_name
+        )
+      );
+      1;
+    }
+  ) or flash_later('error',
+    t8(
+      'The Variant Property Value \'#1\' is in use and cannot be deleted.',
+      $variant_property_value->displayable_name
+    )
+  );
+
+  $self->redirect_to(
+    action => 'edit_variant_property',
+    id     => $variant_property_value->variant_property_id,
+  );
+}
+
 sub action_add_variant_property_value {
   my ($self) = @_;
 
