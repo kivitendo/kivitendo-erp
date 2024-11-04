@@ -806,9 +806,6 @@ sub init_connector {
 sub import_data_to_shop_order {
   my ($self, $import) = @_;
 
-  # failsafe checks for not yet implemented
-  die t8('Shipping cost article not implemented') if $self->config->shipping_costs_parts_id;
-
   # no mapping unless we also have at least one shop order item ...
   my $order_pos = delete $import->{lineItems};
   croak t8("No Order items fetched") unless ref $order_pos eq 'ARRAY';
@@ -861,19 +858,20 @@ sub import_data_to_shop_order {
     $shop_order->positions($position);
 
     if ( $self->config->shipping_costs_parts_id ) {
-      die t8("Not yet implemented");
-      # TODO NOT YET Implemented nor tested, this is shopware5 code:
-      my $shipping_part = SL::DB::Part->find_by( id => $self->config->shipping_costs_parts_id);
-      my %shipping_pos = ( description    => $import->{data}->{dispatch}->{name},
-                           partnumber     => $shipping_part->partnumber,
-                           price          => $import->{data}->{invoiceShipping},
-                           quantity       => 1,
-                           position       => $position,
-                           shop_trans_id  => 0,
-                           shop_order_id  => $id,
-                         );
-      my $shipping_pos_insert = SL::DB::ShopOrderItem->new(%shipping_pos);
-      $shipping_pos_insert->save;
+      foreach my $shipping (@{$import->{deliveries}}) {
+
+        my $shipping_part = SL::DB::Manager::Part->find_by( id => $self->config->shipping_costs_parts_id);
+        my %shipping_pos = (description    => t8('Shipping') . ': ' . $shipping->{shippingMethod}->{name},     
+                            partnumber     => $shipping_part->partnumber,
+                            price          => $shipping->{shippingCosts}->{unitPrice},
+                            quantity       => $shipping->{shippingCosts}->{quantity},
+                            position       => $position,
+                            shop_trans_id  => 0,
+                            shop_order_id  => $id,
+                          );
+        my $shipping_pos_insert = SL::DB::ShopOrderItem->new(%shipping_pos);
+        $shipping_pos_insert->save;
+      }
     }
 
     my $customer = $shop_order->get_customer;

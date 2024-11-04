@@ -3604,6 +3604,7 @@ $self->{texts} = {
   'Ship to (database ID)'       => '',
   'Ship via'                    => '',
   'Shipped Quantity Algorithm'  => '',
+  'Shipping'                    => 'Shipping',
   'Shipping Address'            => '',
   'Shipping Point'              => '',
   'Shipping address (name)'     => '',
