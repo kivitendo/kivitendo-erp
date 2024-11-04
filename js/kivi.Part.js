@@ -103,9 +103,9 @@ namespace('kivi.Part', function(ns) {
     ns.renumber_positions();
   };
 
-  ns.reorder_variants = function(order_by) {
-    var dir = $('#variant_' + order_by + '_header_id a img').attr("data-sort-dir");
-    $('#parent_variant_table thead a img').remove();
+  ns.reorder_variants_values = function(order_by) {
+    var dir = $('#variant_value_' + order_by + '_header_id a img').attr("data-sort-dir");
+    $('#variant_value_table thead a img').remove();
 
     var src;
     if (dir == "1") {
@@ -116,28 +116,29 @@ namespace('kivi.Part', function(ns) {
       src = "image/down.png";
     }
 
-    $('#variant_' + order_by + '_header_id a').append('<img border=0 data-sort-dir=' + dir + ' src=' + src + ' alt="' + kivi.t8('sort items') + '">');
+    $('#variant_value_' + order_by + '_header_id a').append('<img border=0 data-sort-dir=' + dir + ' src=' + src + ' alt="' + kivi.t8('sort items') + '">');
 
     var data = $('#ic').serializeArray();
-    data.push({ name: 'action',   value: 'Part/reorder_variants' },
+    data.push({ name: 'action',   value: 'Part/reorder_variants_values' },
               { name: 'order_by', value: order_by              },
               { name: 'sort_dir', value: dir                   });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.redisplay_variants = function(data) {
-    var old_rows = $('.variant_row_entry').detach();
+  ns.redisplay_variants_values = function(data) {
+    console.log("data", data);
+    var old_rows = $('.variant_value_row_entry').detach();
     var new_rows = [];
     $(data).each(function(idx, elt) {
       let new_row = old_rows[elt.old_pos - 1];
-      $(new_row).find('[name="variants[].position"]').val( idx+1);
+      $(new_row).find('[name="variants_values[].position"]').val( idx+1);
       new_rows.push(new_row);
     });
-    $(new_rows).appendTo($('#parent_variant_table'));
+    $(new_rows).appendTo($('#variant_value_table'));
   };
 
-  ns.get_selected_variants = function() {
+  ns.get_selected_variants_values = function() {
     let selected_rows = [];
     $('[name^="variant_multi_id_"]').each( function() {
       if (this.checked) {
@@ -147,22 +148,95 @@ namespace('kivi.Part', function(ns) {
     return selected_rows;
   }
 
-  ns.variant_rows_toggle_selected = function() {
+  ns.variant_value_rows_toggle_selected = function() {
     $('[name^="variant_multi_id_"]').each( function() {
       this.checked = !this.checked;
     });
   }
 
   ns.set_selected_variants_to_value = function(value_name) {
-    let value = $('[name="' + value_name + '_for_selected_variants"]').val();
-    let selected_rows = ns.get_selected_variants();
+    let value = $('[name="' + value_name + '_for_selected_variants_values"]').val();
+    let selected_rows = ns.get_selected_variants_values();
     selected_rows.forEach(function(row) {
       $(row).find(
-        '[name="variants[].' + value_name  + '"]'
+        '[name="variants_values[].' + value_name  + '"]'
       ).val(
         value
       );
     });
+  };
+
+  ns.reorder_variants_properties = function(order_by) {
+    var dir = $('#variant_property_' + order_by + '_header_id a img').attr("data-sort-dir");
+    $('#variant_property_table thead a img').remove();
+
+    var src;
+    if (dir == "1") {
+      dir = "0";
+      src = "image/up.png";
+    } else {
+      dir = "1";
+      src = "image/down.png";
+    }
+
+    $('#variant_property_' + order_by + '_header_id a').append('<img border=0 data-sort-dir=' + dir + ' src=' + src + ' alt="' + kivi.t8('sort items') + '">');
+
+    var data = $('#ic').serializeArray();
+    data.push({ name: 'action',   value: 'Part/reorder_variants_properties' },
+              { name: 'order_by', value: order_by              },
+              { name: 'sort_dir', value: dir                   });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.redisplay_variants_properties = function(data) {
+    var old_rows = $('.variant_property_row_entry').detach();
+    var new_rows = [];
+    $(data).each(function(idx, elt) {
+      let new_row = old_rows[elt.old_pos - 1];
+      $(new_row).find('[name="variants_properties[].position"]').val( idx+1);
+      new_rows.push(new_row);
+    });
+    $(new_rows).appendTo($('#variant_property_table'));
+  };
+
+
+  ns.get_selected_variants_properties = function() {
+    let selected_rows = [];
+    $('[name^="variant_property_multi_id_"]').each( function() {
+      if (this.checked) {
+        selected_rows.push($(this).parents("tr").first());
+      }
+    });
+    return selected_rows;
+  }
+
+  ns.variant_property_rows_toggle_selected = function() {
+    $('[name^="variant_property_multi_id_"]').each( function() {
+      this.checked = !this.checked;
+    });
+  }
+
+  ns.set_selected_variants_to_property = function(value_name) {
+    let value = $('[name="' + value_name + '_for_selected_variants_properties"]').val();
+    let selected_rows = ns.get_selected_variants_properties();
+    selected_rows.forEach(function(row) {
+      $(row).find(
+        '[name="variants_properties[].' + value_name  + '"]'
+      ).val(
+        value
+      );
+    });
+  };
+
+  ns.remove_variant_property = function(button) {
+    if (!confirm(kivi.t8("Do you really want to delete the property?"))) return;
+    let column_head_th = $(button).parents("th").first()[0];
+    let index = column_head_th.cellIndex;
+    let table = $('#variant_property_table')[0];
+    for(const row of table.rows) {
+      row.deleteCell(index);
+    };
   };
 
   ns.assortment_recalc = function() {
@@ -411,9 +485,15 @@ namespace('kivi.Part', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.update_variants = function() {
+  ns.update_variants_values = function() {
     var data = $('#ic').serializeArray();
-    data.push({ name: 'action', value: 'Part/update_variants' });
+    data.push({ name: 'action', value: 'Part/update_variants_values' });
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.update_variants_properties = function() {
+    var data = $('#ic').serializeArray();
+    data.push({ name: 'action', value: 'Part/update_variants_properties' });
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
@@ -1075,9 +1155,16 @@ namespace('kivi.Part', function(ns) {
 
     $('#part_warehouse_id').change(kivi.Part.reload_bin_selection);
 
-    $('#variant_select_all').click( function() {
+    $('#variant_value_select_all').click( function() {
       var checked = this.checked;
-      $('[name^="variant_multi_id_"]').each(function() {
+      $('[name^="variant_value_multi_id_"]').each(function() {
+        this.checked =  checked;
+      });
+    });
+
+    $('#variant_property_select_all').click( function() {
+      var checked = this.checked;
+      $('[name^="variant_property_multi_id_"]').each(function() {
         this.checked =  checked;
       });
     });

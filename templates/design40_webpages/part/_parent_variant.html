@@ -6,77 +6,69 @@
 
 <div id="parent_variant" class="wrapper">
   <div class="input-panel">
-    <h3> [% LxERP.t8("Variant Properties") %] </h3>
-    <table id="parent_variant_table" class="tbl-list">
+    <table id="variant_value_table" class="tbl-list">
       <caption>
         [% LxERP.t8("Variants") %]
       </caption>
       <thead>
       <tr>
         <th>
-          [% L.checkbox_tag("varaint_select_all_multi_id",
-              checked=0, id='variant_select_all'
+          [% L.checkbox_tag("varaint_value_select_all_multi_id",
+              checked=0, id='variant_value_select_all'
               alt=LxERP.t8('Select/Deselect all'), title=LxERP.t8('Select/Deselect all'),
             ) %]
         </th>
-        <th id="variant_partnumber_header_id">
-          <a href='#' onClick='javascript:kivi.Part.reorder_variants("partnumber")'>
+        <th id="variant_value_partnumber_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_values("partnumber")'>
             [% 'Partnumber' | $T8 %]
           </a>
         </th>
-        <th id="variant_ean_header_id">
-          <a href='#' onClick='javascript:kivi.Part.reorder_variants("ean")'>
+        <th id="variant_value_ean_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_values("ean")'>
             [% "EAN" | $T8 %]
           </a>
         </th>
-        <th id="variant_description_header_id">
-          <a href='#' onClick='javascript:kivi.Part.reorder_variants("description")'>
+        <th id="variant_value_description_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_values("description")'>
             [% "Description" | $T8 %]
           </a>
         </th>
-        <th id="variant_variant_values_header_id">
-          <a href='#' onClick='javascript:kivi.Part.reorder_variants("variant_values")'>
+        <th id="variant_value_variant_values_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_values("variant_values")'>
             [% "Property Values (Abbreviation)" | $T8 %]
           </a>
         </th>
         [% FOREACH variant_property = SELF.part.variant_properties %]
-        <th id="variant_variant_property_[% variant_property.id %]_header_id">
-          <a href='#' onClick='javascript:kivi.Part.reorder_variants("variant_property_[% variant_property.id %]")'>
+        <th id="variant_value_variant_property_[% variant_property.id %]_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_values("variant_property_[% variant_property.id %]")'>
             [% variant_property.displayable_name %]
           </a>
         </th>
         [% END %]
-        <th id="variant_listprice_header_id">
-          <a href='#' onClick='javascript:kivi.Part.reorder_variants("listprice")'>
+        <th id="variant_value_listprice_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_values("listprice")'>
             [% "List Price" | $T8 %]
           </a>
         </th>
-        <th id="variant_sellprice_header_id">
-          <a href='#' onClick='javascript:kivi.Part.reorder_variants("sellprice")'>
+        <th id="variant_value_sellprice_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_values("sellprice")'>
             [% "Sell Price" | $T8 %]
           </a>
         </th>
-        <th id="variant_lastcost_header_id">
-          <a href='#' onClick='javascript:kivi.Part.reorder_variants("lastcost")'>
+        <th id="variant_value_lastcost_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_values("lastcost")'>
             [% "Last Cost" | $T8 %]
           </a>
         </th>
-        <th id="variant_onhand_header_id">
-          <a href='#' onClick='javascript:kivi.Part.reorder_variants("onhand")'>
+        <th id="variant_value_onhand_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_values("onhand")'>
             [% "On Hand" | $T8 %]
           </a>
         </th>
-        <th id="variant_rop_header_id">
-          <a href='#' onClick='javascript:kivi.Part.reorder_variants("rop")'>
+        <th id="variant_value_rop_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_values("rop")'>
             [% "ROP" | $T8 %]
           </a>
-        </th>
-        <th>
-          [% L.select_tag("add_variant_property", AVAILABLE_VARIANT_PROPERIES
-            title_key='displayable_name', value_key='id',
-            with_empty=1, empty_title=LxERP.t8("Add Variant Property"),
-            onchange='kivi.Part.update_variant_property_value_options();',
-          )%]
         </th>
       </tr>
       <tr>
@@ -89,7 +81,7 @@
         <th><!-- partnumber --></th>
         <th><!-- ean --></th>
         <th>
-          [% L.input_tag("description_for_selected_variants", SELF.part.description,
+          [% L.input_tag("description_for_selected_variants_values", SELF.part.description,
                           class="wi-medium",
                           ) %]
           [%- L.button_tag(
@@ -105,7 +97,7 @@
         [% END %]
         <th>
           [% L.input_tag(
-                "listprice_as_number_for_selected_variants",
+                "listprice_as_number_for_selected_variants_values",
                 SELF.part.listprice_as_number,
                 class="reformat_number numeric wi-small",
           ) %]
@@ -118,7 +110,7 @@
         </th>
         <th>
           [% L.input_tag(
-                "sellprice_as_number_for_selected_variants",
+                "sellprice_as_number_for_selected_variants_values",
                 SELF.part.sellprice_as_number,
                 class="reformat_number numeric wi-small",
           ) %]
@@ -131,7 +123,7 @@
         </th>
         <th>
           [% L.input_tag(
-                "lastcost_as_number_for_selected_variants",
+                "lastcost_as_number_for_selected_variants_values",
                 SELF.part.lastcost_as_number,
                 class="reformat_number numeric wi-small",
           ) %]
@@ -145,7 +137,7 @@
         <th><!-- onhand --></th>
         <th>
           [% L.input_tag(
-                "rop_as_number_for_selected_variants",
+                "rop_as_number_for_selected_variants_values",
                 SELF.part.rop_as_number,
                 class="reformat_number numeric wi-small",
           ) %]
@@ -156,34 +148,22 @@
                 title=LxERP.t8('Apply to selected rows'),
           ) %]
         </th>
-        <th>
-          [% L.select_tag("add_variant_property_value_for_selected_variants", []
-                title_key='displayable_name', value_key='id',
-                with_empty=1, empty_title=LxERP.t8("Select Variant Property First"),
-              ) %]
-          [%- L.button_tag(
-                'kivi.Part.set_selected_variants_to_value("add_variant_property_value")',
-                "↓",
-                alt=LxERP.t8('Apply to selected rows'),
-                title=LxERP.t8('Apply to selected rows'),
-          ) %]
-        </th>
       </tr>
       </thead>
       <tbody class="listrow">
         [% FOREACH variant = SELF.part.variants %]
-          <tr class="variant_row_entry">
-            [% L.hidden_tag("variants[+].id", variant.id, id='variant_' _ variant.id) %]
-            [% L.hidden_tag("variants[].position", loop.count) %]
+          <tr class="variant_value_row_entry">
+            [% L.hidden_tag("variants_values[+].id", variant.id, id='variant_' _ variant.id) %]
+            [% L.hidden_tag("variants_values[].position", loop.count) %]
             <td>
-              [% L.checkbox_tag('variant_multi_id_' _ loop.count, value=variant.id, checked=0) %]
+              [% L.checkbox_tag('variant_value_multi_id_' _ loop.count, value=variant.id, checked=0) %]
             </td>
             <td>[% variant.presenter.part %]</td>
             <td>
-              [% L.input_tag("variants[].ean", variant.ean, class="wi-medium") %]
+              [% L.input_tag("variants_values[].ean", variant.ean, class="wi-medium") %]
             </td>
             <td>
-              [% L.input_tag("variants[].description", variant.description, class="wi-medium") %]
+              [% L.input_tag("variants_values[].description", variant.description, class="wi-medium") %]
             </td>
             <td>[% variant.variant_values | html %]</td>
             [% FOREACH variant_property = SELF.part.variant_properties %]
@@ -191,21 +171,21 @@
             [% END %]
             <td>
               [% L.input_tag(
-                    "variants[].listprice_as_number",
+                    "variants_values[].listprice_as_number",
                     variant.listprice_as_number,
                     class='reformat_number numeric wi-small',
               ) %]
             </td>
             <td>
               [% L.input_tag(
-                    "variants[].sellprice_as_number",
+                    "variants_values[].sellprice_as_number",
                     variant.sellprice_as_number,
                     class='reformat_number numeric wi-small',
               ) %]
             </td>
             <td>
               [% L.input_tag(
-                    "variants[].lastcost_as_number",
+                    "variants_values[].lastcost_as_number",
                     variant.lastcost_as_number,
                     class='reformat_number numeric wi-small',
               ) %]
@@ -217,22 +197,16 @@
             </td>
             <td>
               [% L.input_tag(
-                    "variants[].rop_as_number",
+                    "variants_values[].rop_as_number",
                     variant.rop_as_number,
                     class='reformat_number numeric wi-small',
-              ) %]
-            </td>
-            <td>
-              [% L.select_tag("variants[].add_variant_property_value", []
-                title_key='displayable_name', value_key='id',
-                with_empty=1, empty_title=LxERP.t8("Select Variant Property First"),
               ) %]
             </td>
           </tr>
         [% END %]
       </tbody>
     </table>
-    [% L.button_tag('kivi.Part.update_variants();', LxERP.t8("Update Variants")) %]
+    [% L.button_tag('kivi.Part.update_variants_values();', LxERP.t8("Update Variants")) %]
   </div>
 
   [% BLOCK panel_1 %]
@@ -317,6 +291,150 @@
     button_open=LxERP.t8('Hide Convert Part to Variant')
   %]
   </div>
+
+  <div class="wrapper">
+  [%
+    INCLUDE 'common/toggle_panel.html'
+    block_name='panel_3'
+    toggle_class='panel_3'
+    display_status='open'
+    button_closed=LxERP.t8('Show Edit Properties')
+    button_open=LxERP.t8('Hide Edit Properties')
+  %]
+  </div>
+
+  [% BLOCK panel_3 %]
+    <h3> [% LxERP.t8("Edit Properties") %] </h3>
+    <table id="variant_property_table" class="tbl-list">
+      <caption>
+        [% LxERP.t8("Variants") %]
+      </caption>
+      <thead>
+      <tr>
+        <th>
+          [% L.checkbox_tag("varaint_property_select_all_multi_id",
+              checked=0, id='variant_property_select_all'
+              alt=LxERP.t8('Select/Deselect all'), title=LxERP.t8('Select/Deselect all'),
+            ) %]
+        </th>
+        <th id="variant_property_partnumber_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_properties("partnumber")'>
+            [% 'Partnumber' | $T8 %]
+          </a>
+        </th>
+        <th id="variant_property_ean_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_properties("ean")'>
+            [% "EAN" | $T8 %]
+          </a>
+        </th>
+        <th id="variant_property_description_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_properties("description")'>
+            [% "Description" | $T8 %]
+          </a>
+        </th>
+        <th id="variant_property_variant_values_header_id">
+          <a href='#' onClick='javascript:kivi.Part.reorder_variants_properties("variant_values")'>
+            [% "Property Values (Abbreviation)" | $T8 %]
+          </a>
+        </th>
+        [% FOREACH variant_property = SELF.part.variant_properties %]
+        <th id="variant_property_variant_property_[% variant_property.id %]_header_id">
+          <span>
+          <a style="color:#e0e0d6"
+            href='#' onClick='javascript:kivi.Part.reorder_variants_properties("variant_property_[% variant_property.id %]")'>
+            [% variant_property.displayable_name | html %]
+          </a>
+          [% L.button_tag('kivi.Part.remove_variant_property(this)', 'X'
+            title=LxERP.t8('Delete Property'),
+            alt=LxERP.t8('Delete Property'),
+          )%]
+          </span>
+        </th>
+        [% END %]
+        <th>
+          [% L.select_tag("add_variant_property", AVAILABLE_VARIANT_PROPERIES
+            title_key='displayable_name', value_key='id',
+            with_empty=1, empty_title=LxERP.t8("Add Variant Property"),
+            onchange='kivi.Part.update_variant_property_value_options();',
+          )%]
+        </th>
+      </tr>
+      <tr>
+        <th>
+          [%- L.button_tag('kivi.Part.variant_property_rows_toggle_selected();', "🔄",
+                           title=LxERP.t8("Toggle selection"),
+                           alt=LxERP.t8("Toggle selection"),
+                           ) %]
+        </th>
+        <th><!-- partnumber --></th>
+        <th><!-- ean --></th>
+        <th><!-- description --></th>
+        <th><!-- variant_values --></th>
+        [% FOREACH variant_property = SELF.part.variant_properties %]
+        <th>
+          [% L.select_tag("variant_property_" _ variant_property.id _ "_for_selected_variants_properties",
+                variant_property.property_values_sorted
+                title_key='displayable_name', value_key='id'
+              ) %]
+          [%- L.button_tag(
+                'kivi.Part.set_selected_variants_to_property("variant_property_' _ variant_property.id _ '")',
+                "↓",
+                alt=LxERP.t8('Apply to selected rows'),
+                title=LxERP.t8('Apply to selected rows'),
+          ) %]
+        </th>
+        [% END %]
+        <th>
+          [% L.select_tag("add_variant_property_value_for_selected_variants_properties", []
+                title_key='displayable_name', value_key='id',
+                with_empty=1, empty_title=LxERP.t8("Select Variant Property First"),
+              ) %]
+          [%- L.button_tag(
+                'kivi.Part.set_selected_variants_to_property("add_variant_property_value")',
+                "↓",
+                alt=LxERP.t8('Apply to selected rows'),
+                title=LxERP.t8('Apply to selected rows'),
+          ) %]
+        </th>
+      </tr>
+      </thead>
+      <tbody class="listrow">
+        [% FOREACH variant = SELF.part.variants %]
+          <tr class="variant_property_row_entry">
+            [% L.hidden_tag("variants_properties[+].id", variant.id, id='variant_' _ variant.id) %]
+            [% L.hidden_tag("variants_properties[].position", loop.count) %]
+            <td>
+              [% L.checkbox_tag('variant_property_multi_id_' _ loop.count, value=variant.id, checked=0) %]
+            </td>
+            <td>[% variant.presenter.part %]</td>
+            <td><span class="data wi-medium">
+              [% variant.ean | html %]
+            </span></td>
+            <td><span class="data wi-normal">
+              [% variant.description | html %]
+            </span></td>
+            <td>[% variant.variant_values | html %]</td>
+            [% FOREACH variant_property = SELF.part.variant_properties %]
+            <td>
+              [% L.select_tag("variants_properties[].variant_property_" _ variant_property.id,
+                variant_property.property_values_sorted
+                title_key='displayable_name', value_key='id',
+                default=variant.variant_value(variant_property).id
+              ) %]
+            </td>
+            [% END %]
+            <td>
+              [% L.select_tag("variants_properties[].add_variant_property_value", []
+                title_key='displayable_name', value_key='id',
+                with_empty=1, empty_title=LxERP.t8("Select Variant Property First"),
+              ) %]
+            </td>
+          </tr>
+        [% END %]
+      </tbody>
+    </table>
+    [% L.button_tag('kivi.Part.update_variants_properties();', LxERP.t8("Update Variants")) %]
+  [% END %]
 
 </div>
 
