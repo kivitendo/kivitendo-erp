@@ -50,17 +50,13 @@ sub action_save_variant_property {
 sub action_delete_variant_property {
   my ($self) = @_;
 
-  if ( eval {
-      SL::DB->client->with_transaction(sub {
-        $_->delete for $self->variant_property->property_values;
-        $self->variant_property->delete;
-      });
+  SL::DB->client->with_transaction(sub {
+      $_->delete for $self->variant_property->property_values;
+      $self->variant_property->delete;
+      flash_later('info',  t8('The Variant Property has been deleted.'));
       1;
-    } ) {
-    flash_later('info',  t8('The Variant Property has been deleted.'));
-  } else {
-    flash_later('error', t8('The Variant Property is in use and cannot be deleted.'));
-  };
+    }
+  ) or flash_later('error', t8('The Variant Property is in use and cannot be deleted.'));
   $self->redirect_to(action => 'list_variant_properties');
 }
 
@@ -183,6 +179,7 @@ sub _setup_form_action_bar {
          action => [
           t8('Delete'),
           submit => [ '#form', { action => "VariantProperty/delete_variant_property" } ],
+          only_if => $self->variant_property->id,
         ],
       ],
       action => [
