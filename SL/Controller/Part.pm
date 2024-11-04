@@ -247,56 +247,124 @@ sub action_update_variant_property_value_options {
   }
 
   my $new_select_tag = select_tag(
-    "variants[].add_variant_property_value", \@options,
+    "variants_properties[].add_variant_property_value", \@options,
+    with_empty => 1,
     %select_tag_options
   );
-  $self->js->replaceWith('[name^="variants[].add_variant_property_value"]', $new_select_tag);
+  $self->js->replaceWith('[name^="variants_properties[].add_variant_property_value"]', $new_select_tag);
 
   my $new_select_tag_multible = select_tag(
-    "add_variant_property_value_for_selected_variants", \@options,
+    "add_variant_property_value_for_selected_variants_properties", \@options,
     %select_tag_options
   );
-  $self->js->replaceWith("#add_variant_property_value_for_selected_variants", $new_select_tag_multible);
+  $self->js->replaceWith("#add_variant_property_value_for_selected_variants_properties", $new_select_tag_multible);
 
   $self->js->render();
 }
 
-sub action_update_variants {
+sub action_update_variants_values {
   my ($self) = @_;
 
-  my %variant_id_to_values = map {$_->{id} => $_} @{$::form->{variants}};
+  my %variant_id_to_values = map {$_->{id} => $_} @{$::form->{variants_values}};
 
-  my $variant_property_id = $::form->{add_variant_property};
+  SL::DB->client->with_transaction(sub {
+    my $new_variant_property;
+    foreach my $variant (@{$self->part->variants}) {
+      my $variant_attributes = $variant_id_to_values{$variant->id};
+      delete $variant_attributes->{$_} for qw(id position);
+      $variant->update_attributes(%$variant_attributes);
+    }
+    1;
+  }) or do {
+    return $self->js->error(t8('Error while updating values of variants: #1', SL::DB->client->error))->render();
+  };
+
+  $self->redirect_to(
+    controller => 'Part',
+    action     => 'edit',
+    'part.id'  => $self->part->id
+  );
+}
+
+sub action_update_variants_properties {
+  my ($self) = @_;
+
+  my %variant_id_to_values = map {$_->{id} => $_} @{$::form->{variants_properties}};
+
+  my $variant_property_id = delete $::form->{add_variant_property};
   if ($variant_property_id) {
     foreach my $variant (@{$self->part->variants}) {
-      die t8("Please select a new variant property value for all variants")
-        unless $variant_id_to_values{$variant->id}->{"add_variant_property_value"};
+      my $variant_values = $variant_id_to_values{$variant->id};
+      $variant_values->{"variant_property_$variant_property_id"} =
+        delete $variant_values->{"add_variant_property_value"}
+        or die t8("Please select a new variant property value for all variants");
+    }
+  }
+
+  my ($one_variant_id) = keys %variant_id_to_values;
+  my %variant_property_ids =
+    map { $_ => 1 }
+    grep {$_ =~ m/^variant_property_/}
+    keys %{$variant_id_to_values{$one_variant_id}};
+  my $variant_property_id_string = join " ", sort keys %variant_property_ids;
+
+  my %variant_property_values_to_variant;
+  foreach my $variant (@{$self->part->variants}) {
+    my %variant_values = %{$variant_id_to_values{$variant->id}};
+
+    my $current_variant_property_id_string =
+      join " ",
+      sort
+      grep {$_ =~ m/^variant_property_/}
+      keys %variant_values;
+
+    die "property ids doesn't match"
+      . $current_variant_property_id_string . ";" .$variant_property_id_string
+      if $current_variant_property_id_string ne $variant_property_id_string;
+
+    my $variant_property_values =
+      join " ",
+      sort
+      map {$variant_values{$_}}
+      keys %variant_property_ids;
+
+    if (defined $variant_property_values_to_variant{$variant_property_values}) {
+      my $matching_variant = $variant_property_values_to_variant{$variant_property_values};
+      die t8("The variants '#1' and '#2' would have the same variant property values.",
+        $variant->displayable_name, $matching_variant->displayable_name
+      );
+    } else {
+      $variant_property_values_to_variant{$variant_property_values} = $variant;
     }
   }
 
   SL::DB->client->with_transaction(sub {
-    my $new_variant_property;
-    if ($variant_property_id) {
-      $new_variant_property = SL::DB::VariantPropertyPart->new(
-        part_id             => $self->part->id,
-        variant_property_id => $variant_property_id,
-      )->save;
-    }
+
+    my @variant_properties =
+      map {SL::DB::Manager::VariantProperty->find_by(id => $_)}
+      map {$_ =~ s/^variant_property_//; $_}
+      keys %variant_property_ids;
+
+    $self->part->variant_properties(\@variant_properties);
+    $self->part->save;
+
     foreach my $variant (@{$self->part->variants}) {
-      my $variant_attributes = $variant_id_to_values{$variant->id};
-      my $variant_property_value_id = delete $variant_attributes->{add_variant_property_value};
-      delete $variant_attributes->{$_} for qw(id position);
-      $variant->update_attributes(%$variant_attributes);
-      if ($new_variant_property) {
-        SL::DB::VariantPropertyValuePart->new(
-          part_id                   => $variant->id,
-          variant_property_value_id => $variant_property_value_id,
-        )->save;
-      }
+      my %variant_values = %{$variant_id_to_values{$variant->id}};
+
+      my @variant_property_values =
+        map {
+          SL::DB::Manager::VariantPropertyValue->find_by(
+            id => $variant_values{"variant_property_" . $_->id}
+          );
+        }
+        @variant_properties;
+
+      $variant->variant_property_values(\@variant_property_values);
+      $variant->save;
     }
     1;
   }) or do {
-    return $self->js->error(t8('Error while adding variant property: #1', SL::DB->client->error))->render();
+    return $self->js->error(t8('Error while updating variant properties: #1', SL::DB->client->error))->render();
   };
 
   $self->redirect_to(
@@ -939,7 +1007,7 @@ sub action_reorder_items {
   $self->js->run('kivi.Part.redisplay_items', \@to_sort)->render;
 }
 
-sub action_reorder_variants {
+sub action_reorder_variants_values {
   my ($self) = @_;
 
   my $part= $self->part;
@@ -968,7 +1036,7 @@ sub action_reorder_variants {
 
   my %variant_id_to_position =
     map {$_->{id} => $_->{position}}
-    @{$::form->{variants}};
+    @{$::form->{variants_values}};
 
   my @to_sort = map { { old_pos => $variant_id_to_position{$_->id}, order_by => $method->($_) } } @items;
   if ($::form->{order_by} =~ /^(listprice|sellprice|lastcost|onhand|rop)$/ ||
@@ -986,7 +1054,51 @@ sub action_reorder_variants {
     }
   };
 
-  $self->js->run('kivi.Part.redisplay_variants', \@to_sort)->render;
+  $self->js->run('kivi.Part.redisplay_variants_values', \@to_sort)->render;
+}
+
+sub action_reorder_variants_properties {
+  my ($self) = @_;
+
+  my $part= $self->part;
+
+  my %sort_keys = (
+    partnumber       => sub { $_[0]->partnumber },
+    description      => sub { $_[0]->description },
+    ean              => sub { $_[0]->ean },
+    variant_values   => sub { $_[0]->variant_values },
+  );
+  foreach my $variant_property (@{$part->variant_properties}) {
+    my $key = 'variant_property_' . $variant_property->id;
+    $sort_keys{$key} = sub {
+      $_[0]->get_variant_property_value_by_unique_name($variant_property->unique_name)->sortkey;
+    }
+  }
+
+  my $method = $sort_keys{$::form->{order_by}};
+
+  my @items = $part->variants;
+
+  my %variant_id_to_position =
+    map {$_->{id} => $_->{position}}
+    @{$::form->{variants_properties}};
+
+  my @to_sort = map { { old_pos => $variant_id_to_position{$_->id}, order_by => $method->($_) } } @items;
+  if ($::form->{order_by} =~ /^variant_property_/) {
+    if ($::form->{sort_dir}) {
+      @to_sort = sort { $a->{order_by} <=> $b->{order_by} } @to_sort;
+    } else {
+      @to_sort = sort { $b->{order_by} <=> $a->{order_by} } @to_sort;
+    }
+  } else {
+    if ($::form->{sort_dir}) {
+      @to_sort = sort { $a->{order_by} cmp $b->{order_by} } @to_sort;
+    } else {
+      @to_sort = sort { $b->{order_by} cmp $a->{order_by} } @to_sort;
+    }
+  };
+
+  $self->js->run('kivi.Part.redisplay_variants_properties', \@to_sort)->render;
 }
 
 sub action_warehouse_changed {

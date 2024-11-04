@@ -51,6 +51,7 @@ namespace("kivi").setupLocale({
 "Details of article number \"#1\"":"Details von Artikel \"#1\"",
 "Do you really want to cancel?":"Möchten Sie wirklich abbrechen?",
 "Do you really want to continue?":"Möchten Sie wirklich fortfahren?",
+"Do you really want to delete the property?":"Möchten Sie wirklich die Eigenschaft entfernen?",
 "Do you really want to delete the selected documents?":"Möchten Sie wirklich diese Dateien löschen?",
 "Do you really want to delete this draft?":"Möchten Sie diesen Entwurf wirklich löschen?",
 "Do you really want to delete this record template?":"Möchten Sie diese Belegvorlage wirklich löschen?",

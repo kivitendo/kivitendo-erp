@@ -51,6 +51,7 @@ namespace("kivi").setupLocale({
 "Details of article number \"#1\"":"",
 "Do you really want to cancel?":"",
 "Do you really want to continue?":"",
+"Do you really want to delete the property?":"",
 "Do you really want to delete the selected documents?":"",
 "Do you really want to delete this draft?":"",
 "Do you really want to delete this record template?":"",
