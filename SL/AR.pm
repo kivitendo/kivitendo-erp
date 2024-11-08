@@ -721,6 +721,19 @@ SQL
     push @values, like($form->{parts_description});
   }
 
+  if ($form->{parts_serialnumber}) {
+    $where .= <<SQL;
+ AND EXISTS (
+        SELECT invoice.trans_id
+        FROM invoice
+        WHERE (invoice.trans_id = a.id)
+          AND (invoice.serialnumber ILIKE ?)
+        LIMIT 1
+      )
+SQL
+    push @values, like($form->{parts_serialnumber});
+  }
+
   if ($form->{show_not_mailed}) {
     $where .= <<SQL;
       AND NOT EXISTS (
