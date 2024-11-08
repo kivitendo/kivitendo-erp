@@ -76,7 +76,7 @@ sub html_tag {
   my ($tag, $content, %params) = @_;
   my $attributes = stringify_attributes(%params);
 
-  return "<${tag}${attributes}>" if !defined($content) && $_singleton_tags{$tag};
+  return "<${tag}${attributes}/>" if !defined($content) && $_singleton_tags{$tag};
   return "<${tag}${attributes}>${content}</${tag}>";
 }
 
