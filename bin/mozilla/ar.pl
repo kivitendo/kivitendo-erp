@@ -1154,7 +1154,7 @@ sub ar_transactions {
     business_id parts_partnumber parts_description department_id
     show_marked_as_closed show_not_mailed shippingpoint shipvia taxzone_id
     payment_id shiptoname shiptodepartment_1 shiptodepartment_2 shiptostreet
-    shiptozipcode shiptocity shiptocountry fulltext
+    shiptozipcode shiptocity shiptocountry fulltext parts_serialnumber
   );
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
@@ -1333,6 +1333,9 @@ sub ar_transactions {
   }
   if ($form->{fulltext}) {
     push @options, $locale->text('Full Text') . " : $form->{fulltext}";
+  }
+  if ($form->{parts_serialnumber}) {
+    push @options, $locale->text('Serial Number') . " : $form->{parts_serialnumber}";
   }
 
   $form->{ALL_PRINTERS} = SL::DB::Manager::Printer->get_all_sorted;
