@@ -1271,7 +1271,7 @@ foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid empl
   push @options, $locale->text('Part Description')        . " : $form->{parts_description}"              if $form->{parts_description};
   push @options, $locale->text('Part Number')             . " : $form->{parts_partnumber}"               if $form->{parts_partnumber};
   push @options, $locale->text('Full Text')               . " : $form->{fulltext}"                       if ($form->{fulltext});
-  push @options, $locale->text('Serial Number')               . " : $form->{parts_serialnumber}"                       if ($form->{parts_serialnumber});
+  push @options, $locale->text('Serial Number')           . " : $form->{parts_serialnumber}"             if ($form->{parts_serialnumber});
   push @options, $locale->text('From')                                      . " " . $locale->date(\%myconfig, $form->{transdatefrom},  1) if ($form->{transdatefrom});
   push @options, $locale->text('Bis')                                       . " " . $locale->date(\%myconfig, $form->{transdateto},    1) if ($form->{transdateto});
   push @options, $locale->text('Due Date')    . " " . $locale->text('from') . " " . $locale->date(\%myconfig, $form->{duedatefrom},    1) if ($form->{duedatefrom});
