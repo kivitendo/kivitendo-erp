@@ -767,6 +767,19 @@ SQL
     push @values, like($form->{parts_description});
   }
 
+  if ($form->{parts_serialnumber}) {
+    $where .= <<SQL;
+ AND EXISTS (
+        SELECT invoice.trans_id
+        FROM invoice
+        WHERE (invoice.trans_id = a.id)
+          AND (invoice.serialnumber ILIKE ?)
+        LIMIT 1
+      )
+SQL
+    push @values, like($form->{parts_serialnumber});
+  }
+
   if ($where) {
     $where  =~ s{\s*AND\s*}{ WHERE };
     $query .= $where;
