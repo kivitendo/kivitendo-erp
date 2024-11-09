@@ -164,7 +164,10 @@ sub get_print_options {
   my %template_vars = (
     name_prefix          => $prefix || '',
     show_headers         => $options->{show_headers},
-    display_copies       => scalar @{ $form->{printers} || [] } && $::lx_office_conf{print_templates}->{latex} && $form->{media} ne 'email',
+    display_copies       => !$options->{no_display_copies}
+                         && scalar @{ $form->{printers} || [] }
+                         && $::lx_office_conf{print_templates}->{latex}
+                         && $form->{media} ne 'email',
     display_remove_draft => (!$form->{id} && $form->{draft_id}),
     display_groupitems   => !$dont_display_groupitems{$form->{type}},
     display_bothsided    => $options->{show_bothsided},

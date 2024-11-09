@@ -26,10 +26,10 @@ namespace('kivi.Part', function(ns) {
     var data = $('#print_options_form').serializeArray();
     data.push({ name: 'action', value: 'Part/print_label' });
     data.push({ name: 'part.id', value: part_id });
-  $.download("controller.pl", data);
+    $.download("controller.pl", data);
   };
 
- ns.show_print_options = function() {
+  ns.show_print_options = function() {
     kivi.popup_dialog({
       id: 'print_options',
       dialog: {
@@ -45,6 +45,27 @@ namespace('kivi.Part', function(ns) {
 
     var data = $('#ic').serializeArray();
     data = data.concat($('#print_options_form').serializeArray());
+    data.push({ name: 'action', value: 'Part/save_and_print' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.show_part_labels_for_stock_print_options = function() {
+    kivi.popup_dialog({
+      id: 'print_part_labels_for_stock_print_options',
+      dialog: {
+        title:  kivi.t8('Part Labels for Stock Print options'),
+        width:  800,
+        height: 300
+      }
+    });
+  }
+
+  ns.save_and_print_part_labels_for_stock = function() {
+    $('#print_part_labels_for_stock_print_options').dialog('close');
+
+    var data = $('#ic').serializeArray();
+    data = data.concat($('#print_part_labels_for_stock_print_options_form').serializeArray());
     data.push({ name: 'action', value: 'Part/save_and_print' });
 
     $.post("controller.pl", data, kivi.eval_json_result);

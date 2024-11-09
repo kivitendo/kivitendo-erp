@@ -42,7 +42,7 @@ use Rose::Object::MakeMethods::Generic (
                                   customerprices
                                   orphaned
                                   assortment assortment_items assembly assembly_items
-                                  print_options
+                                  print_options part_labels_for_stock_print_options
                                   all_pricegroups all_translations all_partsgroups all_units
                                   all_buchungsgruppen all_payment_terms all_warehouses
                                   parts_classification_filter
@@ -142,12 +142,16 @@ sub action_save_and_print {
   my $format      = $::form->{print_options}->{format};
   my $media       = $::form->{print_options}->{media};
   my $printer_id  = $::form->{print_options}->{printer_id};
-  my $copies      = $::form->{print_options}->{copies};
   my $language;
   if ($::form->{print_options}->{language_id}) {
     $language = SL::DB::Manager::Language->find_by(
       id => $::form->{print_options}->{language_id}
     );
+  my $copies;
+  if ($::form->{print_options}->{part_labels_for_stock}) {
+    $copies = $self->part->stockqty;
+  } else {
+    $copies = $::form->{print_options}->{copies};
   }
 
   eval {
@@ -1661,6 +1665,27 @@ sub init_print_options {
     );
 }
 
+sub init_part_labels_for_stock_print_options {
+
+  my $print_form = Form->new('');
+  $print_form->{type}      = 'part';
+  $print_form->{printers}  = SL::DB::Manager::Printer->get_all_sorted;
+  $print_form->{languages} = SL::DB::Manager::Language->get_all_sorted;
+
+  return SL::Helper::PrintOptions->get_print_options(
+      form => $print_form,
+      options => {
+        dialog_name_prefix => 'print_options.',
+        show_headers       => 1,
+        no_queue           => 1,
+        no_postscript      => 1,
+        no_opendocument    => 1,
+        no_html            => 1,
+        no_display_copies  => 1,
+      },
+    );
+}
+
 # simple checks to run on $::form before saving
 
 sub form_check_part_description_exists {
@@ -1930,6 +1955,14 @@ sub _setup_form_action_bar {
           disabled => !$may_edit ? t8('You do not have the permissions to access this function.') : undef,
           checks   => [ 'kivi.validate_form' ],
           only_if  => !$::form->{inline_create},
+        ],
+        action => [
+          t8('Save and Print Labels for Stock'),
+          call     => [ 'kivi.Part.show_part_labels_for_stock_print_options' ],
+          disabled => !$self->part->id       ? t8('The object has not been saved yet.')
+                    : !$self->part->stockqty ? t8('The part has no stock.')
+                    : !$may_edit             ? t8('You do not have the permissions to access this function.') : undef,
+          checks   => [ 'kivi.validate_form' ],
         ],
         action => [
           $self->part->is_assembly ? t8('Assembly items') : t8('Assortment items'),
