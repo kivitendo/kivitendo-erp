@@ -1572,7 +1572,7 @@ sub display_stock_in_form {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $form->{title} = $locale->text('Stock');
+  $form->{title} = $locale->text('Store');
 
   my $part_info  = IC->get_basic_part_info('id' => $form->{parts_id});
 

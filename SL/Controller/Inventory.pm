@@ -43,7 +43,7 @@ __PACKAGE__->run_before('set_layout');
 sub action_stock_in {
   my ($self) = @_;
 
-  $::form->{title}   = t8('Stock');
+  $::form->{title}   = t8('Store');
 
   # Sometimes we want to open stock_in with a part already selected, but only
   # the parts_id is passed in the url (and not also warehouse, bin and unit).
@@ -972,7 +972,7 @@ sub setup_stock_in_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Stock'),
+        t8('Store'),
         submit    => [ '#form', { action => 'Inventory/stock' } ],
         checks    => [ 'check_part_selection_before_stocking' ],
         accesskey => 'enter',

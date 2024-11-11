@@ -555,7 +555,7 @@
   order: 400
 - parent: warehouse
   id: warehouse_stock
-  name: Stock
+  name: Store
   order: 100
   access: warehouse_management
   params:
