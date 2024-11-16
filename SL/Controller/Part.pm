@@ -22,6 +22,7 @@ use SL::DB::History;
 use SL::DB::Part;
 use SL::DB::PartsGroup;
 use SL::DB::PriceRuleItem;
+use SL::DB::PartLabelPrint;
 use SL::DB::PurchaseBasketItem;
 use SL::DB::Shop;
 use SL::Helper::Flash;
@@ -34,7 +35,9 @@ use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(save_form);
 use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Part;
-use SL::Presenter::Tag qw(select_tag);
+use SL::Presenter::Tag qw(select_tag checkbox_tag);
+use SL::ReportGenerator;
+use SL::Controller::Helper::ReportGenerator;
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(parts models part p warehouses multi_items_models
@@ -138,6 +141,25 @@ sub action_save_and_print {
   $self->js_reset_part_after_save();
   $self->js->flash('info', t8('The item has been saved.'));
 
+  $self->print_part($self->part);
+
+  $self->js->render();
+}
+
+sub action_print_multi {
+  my ($self) = @_;
+
+  my $parts = SL::DB::Manager::Part->get_all(where => [id => $::form->{ids}]);
+  foreach my $part(@{$parts}) {
+    $self->print_part($part);
+  }
+
+  $self->js->render();
+}
+
+sub print_part {
+  my ($self, $part) = @_;
+
   my $formname    = $::form->{print_options}->{formname};
   my $format      = $::form->{print_options}->{format};
   my $media       = $::form->{print_options}->{media};
@@ -147,9 +169,10 @@ sub action_save_and_print {
     $language = SL::DB::Manager::Language->find_by(
       id => $::form->{print_options}->{language_id}
     );
+  }
   my $copies;
   if ($::form->{print_options}->{part_labels_for_stock}) {
-    $copies = $self->part->stockqty;
+    $copies = $part->stockqty;
   } else {
     $copies = $::form->{print_options}->{copies};
   }
@@ -178,13 +201,13 @@ sub action_save_and_print {
     }
 
     my $print_form = Form->new('');
-    $print_form->{part}       = $self->part;
+    $print_form->{part}       = $part;
 
     # for doc_filename
     $print_form->{type}       = 'part';
     $print_form->{formname}   = $formname;
     $print_form->{format}     = $format;
-    $print_form->{partnumber} = $self->part->partnumber;
+    $print_form->{partnumber} = $part->partnumber;
     $print_form->{language}   = $language && ("_" .
                                 ($language->template_code || $language->description)
                               );
@@ -244,8 +267,6 @@ sub action_save_and_print {
       ->flash('error', t8("Creating the PDF failed!"))
       ->flash('error', $@);
   };
-
-  $self->js->render();
 }
 
 sub action_save_and_purchase_order {
@@ -915,6 +936,137 @@ sub action_showdetails {
   $self->render(\$output, { layout => 0, process => 0 });
 }
 
+sub action_search_print_part_labels_of_changed_prices {
+  my ($self) = @_;
+  $self->_setup_search_print_part_labels_of_changed_prices_action_bar();
+
+  $::form->{filter} ||= {};
+
+  $::form->{filter}->{price_change_printed} ||= {
+    template   => 'part_label',
+    print_type => 'stock',
+    printed    => 0
+  };
+
+  my $price_change_printed =$::form->{filter}->{price_change_printed};
+  $::form->{filter}->{price_change_printed} = \$price_change_printed;
+
+  my $report =  SL::ReportGenerator->new(\%::myconfig, $::form);
+
+  $self->models->finalize; # for filter laundering
+
+  $::form->{filter}->{price_change_printed} = ${$::form->{filter}->{price_change_printed}};
+
+  my $callback = $self->models->get_callback;
+
+  $self->{report} = $report;
+
+  my @columns_order = qw(
+    id_check_box
+    partnumber
+    ean
+    description
+    notes
+    partsgroup
+  );
+
+  my @default_columns = qw(
+    id_check_box
+    partnumber
+    ean
+    description
+    partsgroup
+  );
+
+  my %column_defs = (
+    id_check_box => {
+      raw_data => sub {
+        checkbox_tag("ids[]", value => $_[0]->id, "data-checkall" => 1, checked => 1);
+      },
+      raw_header_data => checkbox_tag("", id => "check_all", checkall => "[data-checkall=2]", checked => 1),
+      text => ' ',
+    },
+    partnumber => {
+      obj_link => sub {$self->url_for(action => 'edit', 'part.id' => $_[0]->id, callback => $callback)},
+      sub      => sub { $_[0]->partnumber },
+    },
+    ean => {
+      obj_link => sub {$self->url_for(action => 'edit', 'part.id' => $_[0]->id, callback => $callback)},
+      sub      => sub { $_[0]->ean },
+    },
+    description => {
+      sub      => sub {$_[0]->description },
+    },
+    notes => {
+      sub      => sub {$_[0]->notes },
+    },
+    partsgroup => {
+      sub      => sub {t8($_[0]->partsgroup ? $_[0]->partsgroup->partsgroup : '') },
+    },
+  );
+
+  $column_defs{$_}->{text} ||= t8( $self->models->get_sort_spec->{$_}->{title} || $_ )
+    for keys %column_defs;
+
+  unless ($::form->{active_in_report}) {
+    $::form->{active_in_report}->{$_} = 1 foreach @default_columns;
+  }
+
+  $self->models->add_additional_url_params(
+    active_in_report => $::form->{active_in_report});
+  map { $column_defs{$_}->{visible} = $::form->{active_in_report}->{"$_"} || 0 }
+    grep {$_ ne 'id_check_box'}
+    keys %column_defs;
+
+  # make all sortable
+  my @sortable =
+    grep {$_ ne 'id_check_box'}
+    keys %column_defs;
+
+  use SL::Presenter::Filter::Part;
+  my $filter_html = SL::Presenter::Filter::Part::filter(
+    $::form->{filter},
+    show_price_change_printed_filter => 1,
+    active_in_report => $::form->{active_in_report}
+  );
+
+  $report->set_options(
+    std_column_visibility => 1,
+    controller_class      => 'Part',
+    output_format         => 'HTML',
+    raw_top_info_text     => $self->render(
+     'part/_print_part_labels_of_changed_prices_report_top',
+     { output => 0 },
+     FILTER_HTML => $filter_html,
+    ),
+    raw_bottom_info_text  => $self->render(
+     'part/_print_part_labels_of_changed_prices_report_bottom',
+     { output => 0 },
+     models => $self->models
+    ),
+    title                 => t8('Parts with Changed Prices'),
+    allow_pdf_export      => 1,
+    allow_csv_export      => 1,
+  );
+
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns_order);
+  $report->set_export_options(
+    'search_print_part_labels_of_changed_prices',
+    qw(filter active_in_report)
+  );
+  $report->set_options_from_form;
+  $self->models->set_report_generator_sort_options(
+    report => $report,
+    sortable_columns => \@sortable
+  );
+
+  $self->report_generator_list_objects(
+    report => $report,
+    objects => $self->models->get,
+  );
+}
+
 sub action_print_label {
   my ($self) = @_;
   # TODO: implement
@@ -1437,7 +1589,10 @@ sub init_models {
         dir  => 1,
       },
       partnumber  => t8('Partnumber'),
-      description  => t8('Description'),
+      description => t8('Description'),
+      ean         => t8('EAN'),
+      notes       => t8('Notes'),
+      partsgroup  => t8('Partsgroup'),
     },
     with_objects => [ qw(unit_obj classification) ],
   );
@@ -2020,6 +2175,37 @@ sub _setup_form_action_bar {
         disabled => !$self->part->id ? t8('This object has not been saved yet.')
                   : !$may_edit       ? t8('You do not have the permissions to access this function.')
                   :                    undef,
+      ],
+    );
+  }
+}
+
+sub _setup_search_print_part_labels_of_changed_prices_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [
+          '#filter_form', {
+            action => 'Part/search_print_part_labels_of_changed_prices',
+          }
+        ],
+        accesskey => 'enter',
+      ],
+      combobox => [
+        action => [
+          t8('Print'),
+        ],
+        action => [
+          t8('Print one Label'),
+          call     => [ 'kivi.Part.show_print_options' ],
+        ],
+        action => [
+          t8('Print Labels for Stock'),
+          call     => [ 'kivi.Part.show_part_labels_for_stock_print_options' ],
+        ],
       ],
     );
   }

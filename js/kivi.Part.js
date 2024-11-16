@@ -50,16 +50,26 @@ namespace('kivi.Part', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.print_multi = function() {
+    $('#print_options').dialog('close');
+
+    var data = $('#report_form').serializeArray();
+    data = data.concat($('#print_options_form').serializeArray());
+    data.push({ name: 'action', value: 'Part/print_multi' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   ns.show_part_labels_for_stock_print_options = function() {
     kivi.popup_dialog({
       id: 'print_part_labels_for_stock_print_options',
       dialog: {
-        title:  kivi.t8('Part Labels for Stock Print options'),
+        title:  kivi.t8('Print options for Stock Print'),
         width:  800,
         height: 300
       }
     });
-  }
+  };
 
   ns.save_and_print_part_labels_for_stock = function() {
     $('#print_part_labels_for_stock_print_options').dialog('close');
@@ -67,6 +77,16 @@ namespace('kivi.Part', function(ns) {
     var data = $('#ic').serializeArray();
     data = data.concat($('#print_part_labels_for_stock_print_options_form').serializeArray());
     data.push({ name: 'action', value: 'Part/save_and_print' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.print_multi_part_labels_for_stock = function() {
+    $('#print_part_labels_for_stock_print_options').dialog('close');
+
+    var data = $('#report_form').serializeArray();
+    data = data.concat($('#print_part_labels_for_stock_print_options_form').serializeArray());
+    data.push({ name: 'action', value: 'Part/print_multi' });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
