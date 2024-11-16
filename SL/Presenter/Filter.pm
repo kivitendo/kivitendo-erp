@@ -74,11 +74,37 @@ sub _create_input_element {
     allow_extra => 1,
   );
 
-  my $element_th =  html_tag('th', $element_param->{text}, align => 'right');
+  my $element_th;
+
+  if($element_param->{input_type} eq 'input_group') {
+    $element_th = html_tag('th', $element_param->{text},
+      align => 'right',
+      colspan => 2,
+      class => "caption",
+    );
+  } else {
+    $element_th = html_tag('th', $element_param->{text}, align => 'right');
+  }
 
   my $element_input = '';
 
-  if($element_param->{input_type} eq 'input_tag') {
+  if($element_param->{input_type} eq 'input_group') {
+
+    my @filter_element_params =
+      sort { $a->{position} <=> $b->{position} }
+      grep { $_->{active} }
+      values %{$element_param->{input_values}};
+
+
+    my @filter_elements;
+    for my $filter_element_param (@filter_element_params) {
+      my $filter_element = _create_input_element($filter_element_param, %params);
+      push @filter_elements, $filter_element;
+    }
+
+    $element_input = join('', map{html_tag('tr',$_)} @filter_elements);
+    $element_input .= html_tag('tr');
+  } elsif($element_param->{input_type} eq 'input_tag') {
 
     $element_input = input_tag($element_param->{input_name}, $element_param->{input_default});
 
