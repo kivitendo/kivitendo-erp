@@ -167,19 +167,24 @@ sub _create_input_div {
     allow_extra => 1,
   );
   my @elements = @{$ref_elements};
+  my $count_elements = scalar(@elements);
+  my $count_columns = min($count_elements, $params{count_columns});
 
   my $div_columns = "";
-
-  my $elements_per_column = (int((scalar(@{$ref_elements}) - 1) / $params{count_columns}) + 1);
-  for my $i (0 .. (min(scalar @elements, $params{count_columns}) - 1)) {
+  my $start_index = 0;
+  my $min_elements_per_column = int(($count_elements) / $count_columns);
+  for my $i (0 .. ($count_columns - 1)) {
+    my $elements_in_cloumn = $min_elements_per_column
+      + (($count_elements % $count_columns) > $i ? 1 : 0);
 
     my $rows = "";
-    for my $j (0 .. ($elements_per_column - 1) ) {
-      my $idx = $elements_per_column * $i + $j;
+    for my $j (0 .. ($elements_in_cloumn - 1) ) {
+      my $idx = $start_index + $j;
       my $element = $elements[$idx];
       $rows .= html_tag('tr', $element);
 
     }
+    $start_index += $elements_in_cloumn;
     $div_columns .= html_tag('div',
       html_tag('table',
         html_tag('tr',
