@@ -224,6 +224,15 @@ sub action_save_and_print {
         content => $document,
       );
 
+      my %part_label_print_values = (
+        price_history_id => $part->last_price_update->id,
+        print_type       => $::form->{print_options}->{part_labels_for_stock} ?
+                            'stock' : 'single',
+        template         => $formname,
+      );
+      SL::DB::Manager::PartLabelPrint->find_by(%part_label_print_values)
+        or SL::DB::PartLabelPrint->new(%part_label_print_values)->save();
+
       $self->js->flash('info', t8('The document has been sent to the printer \'#1\'.', $printer->printer_description));
     } else {
       die t8('Media \'#1\' is not supported yet/anymore.', $media);
