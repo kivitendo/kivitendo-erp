@@ -144,6 +144,7 @@ __PACKAGE__->meta->columns(
   normalize_part_descriptions               => { type => 'boolean', default => 'true' },
   normalize_vc_names                        => { type => 'boolean', default => 'true' },
   order_always_project                      => { type => 'boolean', default => 'false' },
+  order_item_input_position                 => { type => 'integer', default => '0', not_null => 1 },
   order_warn_duplicate_parts                => { type => 'boolean', default => 'true' },
   order_warn_no_cusordnumber                => { type => 'boolean', default => 'false' },
   order_warn_no_deliverydate                => { type => 'boolean', default => 'true' },
