@@ -2610,7 +2610,7 @@ password: supipass8
       debianoiden Betriebssystemen installiert man die Pakete mit:</para>
 
       <para><programlisting>apt install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
-  texlive-latex-extra texlive-lang-german ghostscript</programlisting></para>
+  texlive-latex-extra texlive-lang-german ghostscript latexmk</programlisting></para>
 
       <para>Für Fedora benötigen Sie die folgenden Pakete:</para>
 
