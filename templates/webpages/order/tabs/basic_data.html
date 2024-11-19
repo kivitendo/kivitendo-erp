@@ -293,7 +293,7 @@
     </tr>
   </table>
 
-  [%- IF INSTANCE_CONF.get_order_item_input_position == 0 -%]
+  [%- IF order_item_input_position == 0 -%]
   [%- PROCESS order/tabs/_item_input.html SELF=SELF %]
 
   [% L.button_tag('kivi.Order.open_multi_items_dialog()', LxERP.t8('Add multiple items')) %]
@@ -361,7 +361,7 @@
 
     <tr>
       <td>
-        [% IF INSTANCE_CONF.get_order_item_input_position == 1 %]
+        [% IF order_item_input_position == 1 %]
         [%- PROCESS order/tabs/_item_input.html SELF=SELF %]
 
         [% L.button_tag('kivi.Order.open_multi_items_dialog()', LxERP.t8('Add multiple items')) %]
