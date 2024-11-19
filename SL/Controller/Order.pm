@@ -2258,6 +2258,8 @@ sub pre_render {
     $self->{template_args}->{transport_cost_reminder_article} = SL::DB::Part->new(id => $::instance_conf->get_transport_cost_reminder_article_number_id)->load;
   }
   $self->{template_args}->{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
+  $self->{template_args}->{order_item_input_position} = SL::Helper::UserPreferences::ItemInputPosition->new()->get_order_item_input_position
+                                                      // $::instance_conf->get_order_item_input_position;
 
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 
