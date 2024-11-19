@@ -549,6 +549,23 @@ namespace('kivi.Order', function(ns) {
     $('#row_table_scroll_id').scrollTop($('#row_table_scroll_id')[0].scrollHeight);
   };
 
+  ns.scroll_page_after_row_insert = function(id) {
+    // find row height and border spacing
+    const $id_input = $('input[name="orderitem_ids[+]"][value="'+id+'"]');
+    const $row = $id_input.closest('tbody');
+    const table = $row.closest('table')[0];
+    const style = getComputedStyle(table);
+
+    const height = $row[0].offsetHeight + parseFloat(style.borderSpacing) || 0;
+
+    // if site is scrollable and scrolling can put it where it was before: do scroll
+    const max_scroll = document.documentElement.scrollHeight - window.innerHeight;
+
+    if (window.scrollY + height <= max_scroll) {
+      window.scrollBy(0, height)
+    }
+  }
+
   ns.show_longdescription_dialog = function(clicked) {
     var row                 = $(clicked).parents("tbody").first();
     var position            = $(row).find('[name="position"]').html();
