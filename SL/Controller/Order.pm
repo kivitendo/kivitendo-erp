@@ -48,6 +48,7 @@ use SL::Helper::ShippedQty;
 use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::UpdatePositions;
+use SL::Helper::UserPreferences::ItemInputPosition;
 
 use SL::Controller::Helper::GetModels;
 
@@ -1112,6 +1113,12 @@ sub action_add_item {
     ->focus('#add_item_parts_id_name');
 
   $self->js->run('kivi.Order.row_table_scroll_down') if !$::form->{insert_before_item_id};
+
+  # alternate scroll behaviour if item input below positions and unlimited scroll height
+  $self->js->run('kivi.Order.scroll_page_after_row_insert', $item_id)
+    if 0 == SL::Helper::UserPreferences::PositionsScrollbar->new()->get_height
+    && SL::Helper::UserPreferences::ItemInputPosition->new()->get_order_item_input_position
+       // $::instance_conf->get_order_item_input_position;
 
   $self->js_redisplay_amounts_and_taxes;
   $self->js->render();
