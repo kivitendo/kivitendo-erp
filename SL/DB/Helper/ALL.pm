@@ -92,6 +92,7 @@ use SL::DB::OrderVersion;
 use SL::DB::Part;
 use SL::DB::PartClassification;
 use SL::DB::PartCustomerPrice;
+use SL::DB::PartLabelPrint;
 use SL::DB::PartsGroup;
 use SL::DB::PartsPriceHistory;
 use SL::DB::PaymentTerm;

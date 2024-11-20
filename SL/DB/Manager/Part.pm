@@ -34,6 +34,75 @@ __PACKAGE__->add_filter_specs(
     return or => [ map { $prefix . $_ => $value } qw(partnumber description ean customerprices.customer_partnumber) ],
       $prefix . 'customerprices';
   },
+  price_change_printed => sub {
+    my ($key, $value, $prefix) = @_;
+    die "value must be a scalar ref to a hash ref"
+      unless ref $value eq 'REF' && ref ($$value) eq 'HASH';
+
+    my %value = %$$value;
+
+    my $template   = $value{template};
+    my $print_type = $value{print_type};
+    my $printed    = $value{printed};
+
+    my $comp = !!$printed  ? '>' : '<=';
+
+    # table part_table is aliased as t1
+    return
+      [\qq{(
+        SELECT DISTINCT CASE WHEN count(*) $comp 1 THEN FALSE ELSE TRUE END
+        FROM (
+          (
+            -- last printed or first price
+            SELECT t2_sellprice
+            FROM (
+              (
+                SELECT
+                  parts_price_history.sellprice AS t2_sellprice,
+                  parts_price_history.valid_from AS t2_valid_from,
+                  parts_price_history.id as t2_id
+                FROM parts_price_history
+                JOIN part_label_prints
+                  ON (parts_price_history.id = part_label_prints.price_history_id)
+                WHERE parts_price_history.part_id = t1.id AND (
+                    ('' = ? OR part_label_prints.template = ?) AND
+                    ('' = ? OR part_label_prints.print_type = ?)
+                  )
+                ORDER by
+                  parts_price_history.valid_from DESC,
+                  parts_price_history.id DESC
+                LIMIT 1
+              ) UNION (
+                SELECT
+                  parts_price_history.sellprice AS t2_sellprice,
+                  parts_price_history.valid_from AS t2_valid_from,
+                  parts_price_history.id as t2_id
+                FROM parts_price_history
+                WHERE part_id = t1.id
+                ORDER BY
+                  parts_price_history.valid_from ASC,
+                  parts_price_history.id ASC
+                LIMIT 1
+              )
+            )
+            ORDER by
+              t2_valid_from DESC,
+              t2_id DESC
+            LIMIT 1
+          ) UNION (
+            -- current price
+            SELECT parts_price_history.sellprice AS t2_sellprice
+            FROM parts_price_history
+            WHERE part_id = t1.id
+            ORDER BY
+              parts_price_history.valid_from DESC,
+              parts_price_history.id
+            DESC LIMIT 1
+          )
+        )
+        )} => ($template, $template, $print_type, $print_type || 'stock')
+      ] => \'TRUE';
+  },
 );
 
 sub type_filter {

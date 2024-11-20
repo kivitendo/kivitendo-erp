@@ -133,6 +133,7 @@ namespace("kivi").setupLocale({
 "Previous month":"vorheriger Monat",
 "Price Types":"Preistypen",
 "Print options":"Druckoptionen",
+"Print options for Stock Print":"Druckoptionen für Bestand-Druck",
 "Print record":"Beleg drucken",
 "Project link actions":"Projektverknüpfungs-Aktionen",
 "Project picker":"Projektauswahl",
