@@ -4,7 +4,6 @@
 [% USE L %]
 [% USE P %]
 
-<div class="wrapper panel-wrapper">
 <div class="input-panel control-panel">
   <table id="input_row_table_id" class="tbl-plain condensed">
     <caption>[% 'Add Parts here!' | $T8 %]</caption>
@@ -20,12 +19,12 @@
           [%- SET PARAM_KEY = SELF.cv == "customer" ? 'with_customer_partnumber' : 'with_makemodel' -%]
           [%- SET PARAM_VAL = SELF.search_cvpartnumber -%]
           [% P.part.picker('add_item.parts_id', SELF.created_part, class="add_item_input wi-normal",
-             fat_set_item=1,
-             multiple_pos_input=1,
-             action={set_multi_items='kivi.Order.add_multi_items'},
-             classification_id=SELF.part_picker_classification_ids.as_list.join(','),
-             not_order_locked=SELF.type_data.no_order_locked_parts,
-             $PARAM_KEY=PARAM_VAL) %]
+          fat_set_item=1,
+          multiple_pos_input=1,
+          action={set_multi_items='kivi.Order.add_multi_items'},
+          classification_id=SELF.part_picker_classification_ids.as_list.join(','),
+          not_order_locked=SELF.type_data.no_order_locked_parts,
+          $PARAM_KEY=PARAM_VAL) %]
         </td>
         <td>
           <span class="label above">[% 'Description' | $T8 %] </span>
@@ -42,10 +41,10 @@
       <td colspan="6"></td>      <td></td>      <th colspan="3">Zwischensumme</th>
       <td class="numeric"><div id="netamount_id">20.800,00</div></td>
     </tr>
-<tr class="tax_row">
-  <td colspan="6"></td>  <td></td>  <th colspan="3">Umsatzsteuer 19,00%</th>
-  <td class="numeric">3952,00</td>
-</tr>
+    <tr class="tax_row">
+      <td colspan="6"></td>  <td></td>  <th colspan="3">Umsatzsteuer 19,00%</th>
+      <td class="numeric">3952,00</td>
+    </tr>
     <tr id="amount_row_id">
       <td colspan="6"></td><td></td>
       <th colspan="3">Summe</th>
@@ -53,8 +52,3 @@
     </tr>
   </table>
 </div><!-- /.entry-panel -->
-
-</div><!-- /.wrapper -->
-<div id="row_table_scroll_id" class="wrapper horizontal-scroll-wrapper" style="overflow-y: auto; height:100%;">
-
-<table id="row_table_id" class="tbl-list">
