@@ -156,6 +156,8 @@ sub display_template_form {
         credit_note             => $locale->text('Credit Note'),
         income_statement        => { translation => $locale->text('Income Statement'),          html => 1 },
         invoice                 => $locale->text('Invoice'),
+        part_info               => { translation => $locale->text('Part info'),                 tex => 1 },
+        part_label              => { translation => $locale->text('Part label'),                tex => 1 },
         pick_list               => $locale->text('Pick List'),
         proforma                => $locale->text('Proforma Invoice'),
         purchase_delivery_order => { translation => $::locale->text('Purchase delivery order'), tex => 1 },
