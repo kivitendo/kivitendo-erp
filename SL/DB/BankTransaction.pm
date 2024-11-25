@@ -276,14 +276,14 @@ sub get_agreement_with_invoice {
     if (scalar @$seis == 1) {
       my $sei = $seis->[0];
       # test for end to end id
-      if ($self->end_to_end_id eq $sei->end_to_end_id && $invoice->id == $sei->arap_id) {
+      if ($self->end_to_end_id eq $sei->end_to_end_id) {
         $agreement    += $points{end_to_end_id};
         $rule_matches .= 'end_to_end_id(' . $points{'end_to_end_id'} . ') ';
       }
 
       # test for amount and id matching only, sepa transfer date and bank
       # transaction date needn't match
-      if (abs($self->amount) == ($sei->amount) && $invoice->id == $sei->arap_id) {
+      if (abs($self->amount) == ($sei->amount)) {
         $agreement    += $points{sepa_export_item};
         $rule_matches .= 'sepa_export_item(' . $points{'sepa_export_item'} . ') ';
       }
