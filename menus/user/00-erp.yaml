@@ -1102,10 +1102,10 @@
   module: fu.pl
   params:
     action: search
-- parent: productivity_reports
+- parent: productivity
   id: productivity_reports_email_journal
   name: Email journal
-  order: 200
+  order: 90
   access: email_journal
   module: controller.pl
   icon: mail_journal
