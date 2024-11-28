@@ -1263,7 +1263,10 @@ sub action_transfer_stock_default {
       # falls chargenumber, bestbefore oder anzahl nicht stimmt, auf automatischen
       # lagerplatz wegbuchen!
       foreach (@transfer_requests) {
-        if ($_->{delivery_order_item}->parts_id eq $part_id){
+        my $delivery_order_item = SL::DB::Manager::DeliveryOrderItem->find_by(
+          id => $_->{delivery_order_item_id}
+        );
+        if ($delivery_order_item->parts_id eq $part_id){
           $_->{bin_id}        = $default_bin_id_ignore_onhand;
           $_->{warehouse_id}  = $default_warehouse_id_ignore_onhand;
         }
