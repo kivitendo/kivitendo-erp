@@ -1696,6 +1696,9 @@ multiplier     Nummernkreis 2020
 <para>Wir gehen jetzt beispielhaft von einer letzten Rechnungsnummer von RE2019456 aus. Demnach sollte ab Januar 2020 die erste Nummer RE2020001 sein. Da der Task auch Präfixe berücksichtigt, kann dies mit folgenden JSON-kodierten Werten umgesetzt werden:</para>
 <para><literal>Daten:</literal></para><programlisting>multiplier: 100
 digits_year: 4</programlisting>
+  <note>
+    <para>Der Hintergrundjob nimmt das aktuelle Jahr +1. Daher sollte der Hintergrundjob am 31.12. vor Mitternacht ausgeführt werden, damit im neuen Jahr die Nummernkreise korrekt sind.</para>
+  </note>
 
         </sect2>
         <sect2 id="Hintergrund-Job ImportRecordEmails">
