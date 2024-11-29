@@ -210,100 +210,6 @@
   </div>
 
   [% BLOCK panel_1 %]
-    <h3> [% LxERP.t8("Create new Variants") %] </h3>
-    <div class="wrapper">
-    [% FOREACH variant_property = SELF.part.variant_properties %]
-      <div class="col input-panel" style="min-width:fit-content;">
-        <h4>[% variant_property.displayable_name | html %]</h4>
-        [% L.select_tag("variant_properties." _ variant_property.id _ ".selected_property_value_ids[]",
-          variant_property.property_values,
-          title_key='displayable_name', value_key='id',
-          id="selected_property_value_ids_" _ variant_property.id,
-          multiple=1,
-        ) %]
-        [% L.multiselect2side(
-          "selected_property_value_ids_" _ variant_property.id,
-          labelsx=LxERP.t8("All Property Values"),
-          labeldx=LxERP.t8("Selected Property Values")
-        ) %]
-      </div>
-    [% END %]
-    </div>
-    [% L.button_tag('kivi.Part.create_variants();', LxERP.t8("Create Variants with selected Values")) %]
-  [% END %]
-
-  <div class="wrapper">
-  [%
-    INCLUDE 'common/toggle_panel.html'
-    block_name='panel_1'
-    toggle_class='panel_1'
-    display_status='closed'
-    button_closed=LxERP.t8('Show Create new Variants')
-    button_open=LxERP.t8('Hide Create new Variants')
-  %]
-  </div>
-
-  [% BLOCK panel_2 %]
-    <h3> [% LxERP.t8("Convert Part to Variant") %] </h3>
-    <table class="tbl-list">
-      <caption>
-        [% 'Variant Properties' | $T8 %]
-      </caption>
-      <thead>
-        <tr>
-          [% FOREACH variant_property = SELF.part.variant_properties %]
-          <th>[% variant_property.displayable_name | html %]</th>
-          [% END %]
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          [% FOREACH variant_property = SELF.part.variant_properties %]
-          <td style="vertical-align:top">
-            [% L.select_tag("convert_part.variant_properties." _ variant_property.id _ ".selected_property_value_id",
-              variant_property.property_values,
-              title_key='displayable_name', value_key='id',
-              size=variant_property.property_values.size,
-            ) %]
-          </td>
-          [% END %]
-        </tr>
-      </tbody>
-    </table>
-    <label for="convert_part.id">[% 'Part for conversion:' | $T8 %]</label>
-    [% P.part.picker('convert_part.id', undef,
-      part_type=SELF.part.part_type, variant_type='single',
-      placeholder=(LxERP.t8('Type:') _ ' ' _ LxERP.t8(SELF.part.part_type)),
-      class="wi-wide"
-    ) %]
-    <br>
-    <br>
-    [% L.button_tag('kivi.Part.convert_part_to_variant();', LxERP.t8("Convert")) %]
-  [% END %]
-
-  <div class="wrapper">
-  [%
-    INCLUDE 'common/toggle_panel.html'
-    block_name='panel_2'
-    toggle_class='panel_2'
-    display_status='closed'
-    button_closed=LxERP.t8('Show Convert Part to Variant')
-    button_open=LxERP.t8('Hide Convert Part to Variant')
-  %]
-  </div>
-
-  <div class="wrapper">
-  [%
-    INCLUDE 'common/toggle_panel.html'
-    block_name='panel_3'
-    toggle_class='panel_3'
-    display_status='open'
-    button_closed=LxERP.t8('Show Edit Properties')
-    button_open=LxERP.t8('Hide Edit Properties')
-  %]
-  </div>
-
-  [% BLOCK panel_3 %]
     <h3> [% LxERP.t8("Edit Properties") %] </h3>
     <table id="variant_property_table" class="tbl-list">
       <caption>
@@ -436,6 +342,100 @@
     </table>
     [% L.button_tag('kivi.Part.update_variants_properties();', LxERP.t8("Update Variants")) %]
   [% END %]
+
+  <div class="wrapper">
+  [%
+    INCLUDE 'common/toggle_panel.html'
+    block_name='panel_1'
+    toggle_class='panel_1'
+    display_status='closed'
+    button_closed=LxERP.t8('Show Edit Properties')
+    button_open=LxERP.t8('Hide Edit Properties')
+  %]
+  </div>
+
+  [% BLOCK panel_2 %]
+    <h3> [% LxERP.t8("Create new Variants") %] </h3>
+    <div class="wrapper">
+    [% FOREACH variant_property = SELF.part.variant_properties %]
+      <div class="col input-panel" style="min-width:fit-content;">
+        <h4>[% variant_property.displayable_name | html %]</h4>
+        [% L.select_tag("variant_properties." _ variant_property.id _ ".selected_property_value_ids[]",
+          variant_property.property_values,
+          title_key='displayable_name', value_key='id',
+          id="selected_property_value_ids_" _ variant_property.id,
+          multiple=1,
+        ) %]
+        [% L.multiselect2side(
+          "selected_property_value_ids_" _ variant_property.id,
+          labelsx=LxERP.t8("All Property Values"),
+          labeldx=LxERP.t8("Selected Property Values")
+        ) %]
+      </div>
+    [% END %]
+    </div>
+    [% L.button_tag('kivi.Part.create_variants();', LxERP.t8("Create Variants with selected Values")) %]
+  [% END %]
+
+  <div class="wrapper">
+  [%
+    INCLUDE 'common/toggle_panel.html'
+    block_name='panel_2'
+    toggle_class='panel_2'
+    display_status='closed'
+    button_closed=LxERP.t8('Show Create new Variants')
+    button_open=LxERP.t8('Hide Create new Variants')
+  %]
+  </div>
+
+  [% BLOCK panel_3 %]
+    <h3> [% LxERP.t8("Convert Part to Variant") %] </h3>
+    <table class="tbl-list">
+      <caption>
+        [% 'Variant Properties' | $T8 %]
+      </caption>
+      <thead>
+        <tr>
+          [% FOREACH variant_property = SELF.part.variant_properties %]
+          <th>[% variant_property.displayable_name | html %]</th>
+          [% END %]
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          [% FOREACH variant_property = SELF.part.variant_properties %]
+          <td style="vertical-align:top">
+            [% L.select_tag("convert_part.variant_properties." _ variant_property.id _ ".selected_property_value_id",
+              variant_property.property_values,
+              title_key='displayable_name', value_key='id',
+              size=variant_property.property_values.size,
+            ) %]
+          </td>
+          [% END %]
+        </tr>
+      </tbody>
+    </table>
+    <label for="convert_part.id">[% 'Part for conversion:' | $T8 %]</label>
+    [% P.part.picker('convert_part.id', undef,
+      part_type=SELF.part.part_type, variant_type='single',
+      placeholder=(LxERP.t8('Type:') _ ' ' _ LxERP.t8(SELF.part.part_type)),
+      class="wi-wide"
+    ) %]
+    <br>
+    <br>
+    [% L.button_tag('kivi.Part.convert_part_to_variant();', LxERP.t8("Convert")) %]
+  [% END %]
+
+  <div class="wrapper">
+  [%
+    INCLUDE 'common/toggle_panel.html'
+    block_name='panel_3'
+    toggle_class='panel_3'
+    display_status='closed'
+    button_closed=LxERP.t8('Show Convert Part to Variant')
+    button_open=LxERP.t8('Hide Convert Part to Variant')
+  %]
+  </div>
 
 </div>
 
