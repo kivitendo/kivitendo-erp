@@ -2950,6 +2950,7 @@ $self->{texts} = {
   'Pictures for search parts'   => '',
   'Please Check the bank information for each customer:' => '',
   'Please Check the bank information for each vendor:' => '',
+  'Please add variant properties first.' => '',
   'Please ask your administrator to create warehouses and bins.' => '',
   'Please change the partnumber of the following parts and run the update again:' => '',
   'Please choose a part.'       => '',

@@ -357,6 +357,9 @@
   [% BLOCK panel_2 %]
     <h3> [% LxERP.t8("Create new Variants") %] </h3>
     <div class="wrapper">
+    [% IF !SELF.part.variant_properties %]
+      <h4>[% 'Please add variant properties first.' | $T8 %]</h4>
+    [% END %]
     [% FOREACH variant_property = SELF.part.variant_properties %]
       <div class="col input-panel" style="min-width:fit-content;">
         <h4>[% variant_property.displayable_name | html %]</h4>
