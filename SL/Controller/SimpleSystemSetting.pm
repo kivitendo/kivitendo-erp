@@ -32,6 +32,7 @@ my %supported_types = (
     list_attributes => [
       { method => 'name',                                      title => t8('Name'), },
       { method => 'iban',                                      title => t8('IBAN'), },
+      { method => 'qr_iban',                                   title => t8('QR-IBAN (Swiss)'), },
       { method => 'bank',                                      title => t8('Bank'), },
       { method => 'bank_code',                                 title => t8('Bank code'), },
       { method => 'bank_account_id',                           title => t8('Bank Account Id Number (Swiss)'), },
