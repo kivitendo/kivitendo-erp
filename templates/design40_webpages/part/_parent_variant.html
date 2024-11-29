@@ -339,6 +339,7 @@
         </th>
         [% FOREACH variant_property = SELF.part.variant_properties %]
         <th id="variant_property_variant_property_[% variant_property.id %]_header_id">
+          [% L.hidden_tag('variant_property_ids[]', variant_property.id) %]
           <span>
           <a style="color:#e0e0d6"
             href='#' onClick='javascript:kivi.Part.reorder_variants_properties("variant_property_[% variant_property.id %]")'>

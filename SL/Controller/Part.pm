@@ -290,22 +290,20 @@ sub action_update_variants_properties {
 
   my %variant_id_to_values = map {$_->{id} => $_} @{$::form->{variants_properties}};
 
-  my $variant_property_id = delete $::form->{add_variant_property};
-  if ($variant_property_id) {
+  my @variant_property_ids = @{$::form->{variant_property_ids} || []};
+
+  my $new_variant_property_id = delete $::form->{add_variant_property};
+  if ($new_variant_property_id) {
+    push @variant_property_ids, $new_variant_property_id;
     foreach my $variant (@{$self->part->variants}) {
       my $variant_values = $variant_id_to_values{$variant->id};
-      $variant_values->{"variant_property_$variant_property_id"} =
+      $variant_values->{"variant_property_$new_variant_property_id"} =
         delete $variant_values->{"add_variant_property_value"}
         or die t8("Please select a new variant property value for all variants");
     }
   }
 
-  my ($one_variant_id) = keys %variant_id_to_values;
-  my %variant_property_ids =
-    map { $_ => 1 }
-    grep {$_ =~ m/^variant_property_/}
-    keys %{$variant_id_to_values{$one_variant_id}};
-  my $variant_property_id_string = join " ", sort keys %variant_property_ids;
+  my $variant_property_id_string = join " ", sort @variant_property_ids;
 
   my %variant_property_values_to_variant;
   foreach my $variant (@{$self->part->variants}) {
@@ -314,6 +312,7 @@ sub action_update_variants_properties {
     my $current_variant_property_id_string =
       join " ",
       sort
+      map {$_ =~ s/^variant_property_//; $_}
       grep {$_ =~ m/^variant_property_/}
       keys %variant_values;
 
@@ -324,8 +323,8 @@ sub action_update_variants_properties {
     my $variant_property_values =
       join " ",
       sort
-      map {$variant_values{$_}}
-      keys %variant_property_ids;
+      map {$variant_values{"variant_property_$_"}}
+      @variant_property_ids;
 
     if (defined $variant_property_values_to_variant{$variant_property_values}) {
       my $matching_variant = $variant_property_values_to_variant{$variant_property_values};
@@ -341,8 +340,7 @@ sub action_update_variants_properties {
 
     my @variant_properties =
       map {SL::DB::Manager::VariantProperty->find_by(id => $_)}
-      map {$_ =~ s/^variant_property_//; $_}
-      keys %variant_property_ids;
+      @variant_property_ids;
 
     $self->part->variant_properties(\@variant_properties);
     $self->part->save;
