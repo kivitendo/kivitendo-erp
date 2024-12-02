@@ -9,6 +9,7 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('invoice');
 
 __PACKAGE__->meta->columns(
+  acc_trans_id           => { type => 'integer' },
   active_discount_source => { type => 'text', default => '', not_null => 1 },
   active_price_source    => { type => 'text', default => '', not_null => 1 },
   allocated              => { type => 'float', precision => 4, scale => 4 },
@@ -46,13 +47,22 @@ __PACKAGE__->meta->columns(
   trans_id               => { type => 'integer' },
   transdate              => { type => 'text' },
   unit                   => { type => 'varchar', length => 20 },
+  vendor_partno          => { type => 'text' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
+__PACKAGE__->meta->unique_keys([ 'acc_trans_id' ]);
+
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
+  acc_transaction => {
+    class       => 'SL::DB::AccTransaction',
+    key_columns => { acc_trans_id => 'acc_trans_id' },
+    rel_type    => 'one to one',
+  },
+
   expense_chart => {
     class       => 'SL::DB::Chart',
     key_columns => { expense_chart_id => 'id' },

@@ -45,6 +45,7 @@ __PACKAGE__->meta->columns(
   payment_id       => { type => 'integer' },
   phone            => { type => 'text' },
   salesman_id      => { type => 'integer' },
+  shortname        => { type => 'character', length => 20 },
   street           => { type => 'text' },
   taxincluded      => { type => 'boolean' },
   taxnumber        => { type => 'text' },
