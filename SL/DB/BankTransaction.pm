@@ -276,7 +276,7 @@ sub get_agreement_with_invoice {
     if (scalar @$seis == 1) {
       my $sei = $seis->[0];
       # test for end to end id
-      if ($self->end_to_end_id eq $sei->end_to_end_id) {
+      if ($self->end_to_end_id && $self->end_to_end_id eq $sei->end_to_end_id) {
         $agreement    += $points{end_to_end_id};
         $rule_matches .= 'end_to_end_id(' . $points{'end_to_end_id'} . ') ';
       }
