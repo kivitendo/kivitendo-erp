@@ -1,4 +1,4 @@
-use Test::More tests => 433;
+use Test::More tests => 449;
 
 use strict;
 
@@ -119,6 +119,8 @@ test_two_banktransactions();
 test_closedto();
 test_fuzzy_skonto_pt();
 test_fuzzy_skonto_pt_not_in_range();
+reset_state();
+test_sepa_export_endtoend();
 # remove all created data at end of test
 clear_up();
 
@@ -1230,6 +1232,57 @@ sub test_sepa_export {
      "remote_account_number(3) exact_amount(4) own_invoice_in_purpose(5) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) sepa_export_item(5) ",
      "$testname: rule_matches ok");
 };
+sub test_sepa_export_endtoend {
+
+  my $testname = 'test_sepa_export_endtoend';
+
+  $ar_transaction = test_ar_transaction(invnumber => 'sepa1', transdate => $dt);
+
+  my $bt  = create_bank_transaction(record => $ar_transaction, transdate => $dt,
+                                    end_to_end_id => "KIVITENDO202412101212"     )
+    or die "Couldn't create bank_transaction";
+
+  my $se  = create_sepa_export();
+  my $sei = create_sepa_export_item(
+    chart_id       => $bank->id,
+    ar_id          => $ar_transaction->id,
+    sepa_export_id => $se->id,
+    end_to_end_id  => "KIVITENDO202412101212",
+    vc_iban        => $customer->iban,
+    vc_bic         => $customer->bic,
+    vc_mandator_id => $customer->mandator_id,
+    vc_depositor   => $customer->depositor,
+    amount         => $ar_transaction->amount,
+  );
+  require SL::SEPA::XML;
+  my $sepa_xml   = SL::SEPA::XML->new('company'     => $customer->name,
+                                      'creditor_id' => "id",
+                                      'src_charset' => 'UTF-8',
+                                      'message_id'  => "test",
+                                      'grouped'     => 1,
+                                      'collection'  => 1,
+                                     );
+  is($sepa_xml->{company}    , 'Test Customer OLE S.L. Ardbaerg AB');
+
+  $ar_transaction->load;
+  $bt->load;
+  $sei->load;
+  is($ar_transaction->paid   , '0.00000' , "$testname: sepa1 not paid");
+  is($bt->invoice_amount     , '0.00000' , "$testname: bt invoice amount was not assigned");
+  is($bt->amount             , '119.00000' , "$testname: bt amount ok");
+  is($sei->amount            , '119.00000' , "$testname: sepa export amount ok");
+
+  my $bt_controller = SL::Controller::BankTransaction->new;
+  my ( $bt_transactions, $proposals ) = $bt_controller->gather_bank_transactions_and_proposals(bank_account => $bank_account);
+
+  is(scalar(@$bt_transactions)         , 1  , "$testname: one bank_transaction");
+  is($bt_transactions->[0]->{agreement}, 33 , "$testname: agreement == 33");
+  my $match = join ( ' ',@{$bt_transactions->[0]->{rule_matches}});
+  is($match,
+     "remote_account_number(3) exact_amount(4) own_invoice_in_purpose(5) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) end_to_end_id(8) sepa_export_item(5) ",
+     "$testname: rule_matches ok");
+}
+
 
 sub test_two_banktransactions {
 
