@@ -1143,100 +1143,66 @@ exit</programlisting>
              xreflabel="Konfiguration für FastCGI/FCGI">
         <title>Konfiguration für FastCGI/FCGI</title>
 
-        <sect3 id="Apache-Konfiguration.FCGI.WasIstEs">
-          <title>Was ist FastCGI?</title>
+        <para>Mit FastCGI wird der kivitendo-Programmcode beim Start des
+        Webservers einmal geladen und danach wird nur die eigentliche
+        Programmlogik ausgeführt.</para>
 
-          <para>Direkt aus <ulink
-          url="http://de.wikipedia.org/wiki/FastCGI">Wikipedia</ulink>
-          kopiert:</para>
+        <para>Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann
+        unter Debian/Ubuntu z.B. mit folgendem Befehl geschehen:</para>
 
-          <para><citation> FastCGI ist ein Standard für die Einbindung
-          externer Software zur Generierung dynamischer Webseiten in einem
-          Webserver. FastCGI ist vergleichbar zum Common Gateway Interface
-          (CGI), wurde jedoch entwickelt, um dessen Performance-Probleme zu
-          umgehen. </citation></para>
-        </sect3>
+        <programlisting>a2enmod fcgid</programlisting>
 
-        <sect3 id="Apache-Konfiguration.FCGI.Warum">
-          <title>Warum FastCGI?</title>
+        <para>Die Konfiguration für die Verwendung von kivitendo mit FastCGI
+        erfolgt durch Einfügen von <function>Alias</function>-
+        und <function>Directory</function>-Direktiven. Dabei wird zwischen
+        dem Installationspfad von kivitendo im Dateisystem
+        ("<filename>/path/to/kivitendo-erp</filename>") und der URL
+        unterschieden, unter der kivitendo im Webbrowser erreichbar ist
+        ("<filename>/url/for/kivitendo-erp</filename>").</para>
 
-          <para>Perl Programme (wie kivitendo eines ist) werden nicht statisch
-          kompiliert. Stattdessen werden die Quelldateien bei jedem Start
-          übersetzt, was bei kurzen Laufzeiten einen Großteil der Laufzeit
-          ausmacht. Während SQL Ledger einen Großteil der Funktionalität in
-          einzelne Module kapselt, um immer nur einen kleinen Teil laden zu
-          müssen, ist die Funktionalität von kivitendo soweit gewachsen, dass
-          immer mehr Module auf den Rest des Programms zugreifen. Zusätzlich
-          benutzen wir umfangreiche Bibliotheken um Funktionaltät nicht selber
-          entwickeln zu müssen, die zusätzliche Ladezeit kosten. All dies
-          führt dazu dass ein kivitendo Aufruf der Kernmasken mittlerweile
-          deutlich länger dauert als früher, und dass davon 90% für das Laden
-          der Module verwendet wird.</para>
+        <para>Folgender Konfigurationsschnipsel funktioniert mit
+        mod_fastcgi:</para>
 
-          <para>Mit FastCGI werden nun die Module einmal geladen, und danach
-          wird nur die eigentliche Programmlogik ausgeführt.</para>
-        </sect3>
-
-        <sect3 id="Apache-Konfiguration.FCGI.Konfiguration">
-          <title>Konfiguration des Webservers</title>
-
-          <para>Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann
-          unter Debian/Ubuntu z.B. mit folgendem Befehl geschehen:</para>
-
-          <programlisting>a2enmod fcgid</programlisting>
-
-          <para>Die Konfiguration für die Verwendung von kivitendo mit FastCGI
-          erfolgt durch Anpassung der vorhandenen <function>Alias</function>-
-          und <function>Directory</function>-Direktiven. Dabei wird zwischen
-          dem Installationspfad von kivitendo im Dateisystem
-          ("<filename>/path/to/kivitendo-erp</filename>") und der URL
-          unterschieden, unter der kivitendo im Webbrowser erreichbar ist
-          ("<filename>/url/for/kivitendo-erp</filename>").</para>
-
-          <para>Folgender Konfigurationsschnipsel funktioniert mit
-          mod_fastcgi:</para>
-
-          <programlisting>AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fcgi
+        <programlisting>AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fcgi
 Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 
 &lt;Directory /path/to/kivitendo-erp&gt;
-  AllowOverride All
-  Options ExecCGI Includes FollowSymlinks
-  Require all granted
+AllowOverride All
+Options ExecCGI Includes FollowSymlinks
+Require all granted
 &lt;/Directory&gt;
 
 &lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
 Require all denied
 &lt;/DirectoryMatch&gt;</programlisting>
 
-          <para>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
-          die maximale Größe eines Requests. Diese sollte wie folgt
-          hochgesetzt werden:</para>
+        <para>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
+        die maximale Größe eines Requests. Diese sollte wie folgt
+        hochgesetzt werden:</para>
 
-          <programlisting>FcgidMaxRequestLen 10485760</programlisting>
+        <programlisting>FcgidMaxRequestLen 10485760</programlisting>
 
-          <para>Das Ganze sollte dann so aussehen:</para>
+        <para>Das Ganze sollte dann so aussehen:</para>
 
-          <programlisting>AddHandler fcgid-script .fpl
+        <programlisting>AddHandler fcgid-script .fpl
 AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fpl
 Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 FcgidMaxRequestLen 10485760
 
 &lt;Directory /path/to/kivitendo-erp&gt;
-  AllowOverride All
-  Options ExecCGI Includes FollowSymlinks
-  Require all granted
+AllowOverride All
+Options ExecCGI Includes FollowSymlinks
+Require all granted
 &lt;/Directory&gt;
 
 &lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
 Require all denied
 &lt;/DirectoryMatch&gt;</programlisting>
 
-          <para>Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle
-          Zugriffe auf die einzelnen Scripte werden auf diesen umgeleitet.
-          Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
-          gibt es hier kleine Performance-Einbußen.</para>
-        </sect3>
+        <para>Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle
+        Zugriffe auf die einzelnen Scripte werden auf diesen umgeleitet.
+        Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
+        gibt es hier kleine Performance-Einbußen.</para>
       </sect2>
 
       <sect2>
