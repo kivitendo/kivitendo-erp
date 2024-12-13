@@ -48,6 +48,8 @@ use SL::Model::Record;
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
 use SL::Helper::ShippedQty;
+use SL::Helper::Inventory;
+use SL::Helper::DateTime;
 use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::UpdatePositions;
@@ -1139,7 +1141,60 @@ sub action_transfer_stock {
     return $self->js->flash("error", t8("No stock to transfer"))->render;
   }
 
+  if ($inout eq 'out') { # check stock for enough qty
+    my @missing_qtys = SL::Helper::Inventory::check_stock_out_transfer_requests(
+      transfer_requests => \@transfer_requests,
+      default_transfer  => $default_transfer,
+    );
+
+    if (scalar @missing_qtys) {
+      my $error = t8('The stock is to low: #1.',
+        join(". ", map {
+              $_->{chargenumber} && $_->{bestbefore}
+            ? t8(
+                "For #1, #2 #3 are missing of batch with chargenumber #4 and bestbefore date of #5 in bin #6",
+                $_->{part}->displayable_name,
+                $::form->format_amount(\%::myconfig, $_->{missing_qty}),
+                $_->{part}->unit,
+                $_->{chargenumber},
+                DateTime->from_ymdhms($_->{bestbefore})->to_kivitendo,
+                $_->{bin}->full_description,
+              )
+            : $_->{chargenumber}
+            ? t8(
+                "For #1, #2 #3 are missing of batch with chargenumber #4 in bin #5",
+                $_->{part}->displayable_name,
+                $::form->format_amount(\%::myconfig, $_->{missing_qty}),
+                $_->{part}->unit,
+                $_->{chargenumber},
+                $_->{bin}->full_description,
+              )
+            : $_->{bestbefore}
+            ? t8(
+                "For #1, #2 #3 are missing with a bestbefore date of #4 in bin #5",
+                $_->{part}->displayable_name,
+                $::form->format_amount(\%::myconfig, $_->{missing_qty}),
+                $_->{part}->unit,
+                DateTime->from_ymdhms($_->{bestbefore})->to_kivitendo,
+                $_->{bin}->full_description,
+              )
+            : t8(
+                "For #1, #2 #3 are missing in bin #4",
+                $_->{part}->displayable_name,
+                $::form->format_amount(\%::myconfig, $_->{missing_qty}),
+                $_->{part}->unit,
+                $_->{bin}->full_description,
+              )
+            ;
+          } @missing_qtys
+        )
+      );
+      return $self->js->flash("error", $error)->render;
+    }
+  }
+
   SL::DB->client->with_transaction(sub {
+
     $_->save for @transfer_requests;
     $self->order->update_attributes(delivered => 1);
   });
