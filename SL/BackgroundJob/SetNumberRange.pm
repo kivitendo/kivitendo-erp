@@ -23,15 +23,19 @@ sub run {
   if ($data->{multiplier}  && !($data->{multiplier} % 10 == 0)) {
     die "No valid input for multiplier should be 10, 100, .., 1000000";
   }
-  my $next_year  = DateTime->today_local->truncate(to => 'year')->add(years => 1)->year();
-  $next_year     = ($data->{digits_year} == 2) ? substr($next_year, 2, 2) : $next_year;
+
+  my $running_year  =  $data->{current_year} ? DateTime->today_local->truncate(to => 'year')
+                     : DateTime->today_local->truncate(to => 'year')->add(years => 1)->year();
+
+  $running_year     = ($data->{digits_year} == 2) ? substr($running_year, 2, 2) : $running_year;
+
   my $multiplier = $data->{multiplier} || 100;
 
   my $defaults   = SL::DB::Default->get;
 
   foreach (qw(invnumber cnnumber soinumber pqinumber sonumber ponumber pocnumber sqnumber rfqnumber sdonumber pdonumber)) {
     my $current_number = SL::PrefixedNumber->new(number => $defaults->{$_});
-    $current_number->set_to($next_year * $multiplier);
+    $current_number->set_to($running_year * $multiplier);
     $defaults->{$_} = $current_number->get_current;
   }
   $defaults->save() || die "Could not change number ranges";
