@@ -33,7 +33,10 @@ sub run {
 
   my $defaults   = SL::DB::Default->get;
 
-  foreach (qw(invnumber cnnumber soinumber pqinumber sonumber ponumber pocnumber sqnumber rfqnumber sdonumber pdonumber)) {
+  foreach (qw(invnumber cnnumber soinumber pqinumber sonumber ponumber pocnumber
+              sqnumber rfqnumber sdonumber pdonumber sudonumber rdonumber
+              s_reclamation_record_number p_reclamation_record_number           )) {
+
     my $current_number = SL::PrefixedNumber->new(number => $defaults->{$_});
     $current_number->set_to($running_year * $multiplier);
     $defaults->{$_} = $current_number->get_current;
