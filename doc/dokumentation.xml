@@ -1133,51 +1133,13 @@ exit</programlisting>
     <sect1 id="Apache-Konfiguration">
       <title>Webserver-Konfiguration</title>
 
-      <sect2>
-        <title>Grundkonfiguration mittels CGI</title>
+      <para>In diesem Abschnitt wird die Konfiguration des Apache-Webservers
+      beschrieben. kivitendo wird mittels FastCGI/FCGI ausgeführt.</para>
 
-        <note>
-          <para>Für einen deutlichen Performanceschub sorgt die Ausführung
-          mittels FastCGI/FCGI. Die Einrichtung wird ausführlich im Abschnitt
-          <xref linkend="Apache-Konfiguration.FCGI"/> beschrieben.</para>
-        </note>
-
-        <para>Der Zugriff auf das Programmverzeichnis muss in der Apache
-        Webserverkonfigurationsdatei <literal>000-default.conf</literal> eingestellt
-        werden. Fügen Sie den folgenden Abschnitt dieser Datei oder einer
-        anderen Datei hinzu, die beim Starten des Webservers eingelesen
-        wird:</para>
-
-        <programlisting>AliasMatch ^/kivitendo-erp/[^/]+\.pl /var/www/kivitendo-erp/dispatcher.pl
-Alias /kivitendo-erp/ /var/www/kivitendo-erp/
-
-&lt;Directory /var/www/kivitendo-erp&gt;
- AddHandler cgi-script .pl
- Options ExecCGI Includes FollowSymlinks
-&lt;/Directory&gt;
-
-&lt;Directory /var/www/kivitendo-erp/users&gt;
- Require all granted
-&lt;/Directory&gt;</programlisting>
-
-        <para>Ersetzen Sie dabei die Pfade durch diejenigen, in die Sie vorher
-        das kivitendo-Archiv entpacket haben.</para>
-
-        <note>
-          <para>Vor den einzelnen Optionen muss bei einigen Distributionen ein
-          Plus ‘<literal>+</literal>’ gesetzt werden.</para>
-
-          <para>Bei einigen Distribution (Ubuntu ab 14.04, Debian ab 8.2) muss
-          noch explizit das cgi-Modul mittels <programlisting>a2enmod cgi</programlisting>
-          aktiviert werden.</para>
-        </note>
-
-        <para>Auf einigen Webservern werden manchmal die Grafiken und
-        Style-Sheets nicht ausgeliefert. In solchen Fällen hat es oft
-        geholfen, die folgende Option in die Konfiguration aufzunehmen:</para>
-
-        <programlisting>EnableSendfile Off</programlisting>
-      </sect2>
+      <para>Der Zugriff auf den Installationspfad von kivitendo im Dateisystem
+      muss in der Apache Webserverkonfigurationsdatei eingestellt werden,
+      welche beim Starten des Webservers eingelesen wird. Oftmals ist dies die
+      Datei <literal>000-default.conf</literal>.</para>
 
       <sect2 id="Apache-Konfiguration.FCGI"
              xreflabel="Konfiguration für FastCGI/FCGI">
@@ -1257,12 +1219,6 @@ Alias /kivitendo-erp/ /var/www/kivitendo-erp/
 
         <sect3 id="Apache-Konfiguration.FCGI.Konfiguration">
           <title>Konfiguration des Webservers</title>
-
-          <para>Bevor Sie versuchen, eine kivitendo Installation unter FCGI
-          laufen zu lassen, empfiehlt es sich die Installation ersteinmal
-          unter CGI aufzusetzen. FCGI macht es nicht einfach Fehler zu
-          debuggen die beim ersten aufsetzen auftreten können. Sollte die
-          Installation schon funktionieren, lesen Sie weiter.</para>
 
           <para>Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann
           unter Debian/Ubuntu z.B. mit folgendem Befehl geschehen:</para>
@@ -1344,22 +1300,6 @@ Require all denied
           Zugriffe auf die einzelnen Scripte werden auf diesen umgeleitet.
           Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
           gibt es hier kleine Performance-Einbußen.</para>
-
-          <para>Es ist möglich, die gleiche kivitendo Version parallel unter
-          CGI und FastCGI zu betreiben. Dafür bleiben die Directorydirektiven
-          wie oben beschrieben, die URLs werden aber umgeleitet:</para>
-
-          <programlisting># Zugriff über CGI
-Alias       /url/for/kivitendo-erp                /path/to/kivitendo-erp
-
-# Zugriff mit mod_fcgid:
-AliasMatch ^/url/for/kivitendo-erp-fcgid/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fpl
-Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</programlisting>
-
-          <para>Dann ist unter <filename>/url/for/kivitendo-erp/</filename>
-          die normale Version erreichbar, und unter
-          <constant>/url/for/kivitendo-erp-fcgid/</constant> die
-          FastCGI-Version.</para>
         </sect3>
       </sect2>
 
