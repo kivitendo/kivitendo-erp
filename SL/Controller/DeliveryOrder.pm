@@ -48,6 +48,8 @@ use SL::Model::Record;
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
 use SL::Helper::ShippedQty;
+use SL::Helper::Inventory;
+use SL::Helper::DateTime;
 use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::UpdatePositions;
@@ -1140,6 +1142,78 @@ sub action_transfer_stock {
   }
 
   SL::DB->client->with_transaction(sub {
+    if ($inout eq 'out') { # check stock for enough qty
+      # part_id -> bin_id -> chargenumber -> bestbefore -> qty;
+      my $grouped_qtys;
+      foreach my $request (@transfer_requests) {
+        $grouped_qtys
+          ->{$request->parts_id}
+          ->{$request->bin_id}
+          ->{$request->chargenumber}
+          ->{$request->bestbefore} += -$request->qty # qty is negative
+      }
+
+      my @missing_qtys;
+      foreach my $p_id (keys %{$grouped_qtys}) {
+        foreach my $b_id (keys %{$grouped_qtys->{$p_id}}) {
+          next if $default_transfer
+               && $::instance_conf->get_transfer_default_ignore_onhand
+               && $::instance_conf->get_bin_id_ignore_onhand eq $b_id;
+          foreach my $cn (keys %{$grouped_qtys->{$p_id}->{$b_id}}) {
+            foreach my $bb (keys %{$grouped_qtys->{$p_id}->{$b_id}->{$cn}}) {
+              my $stock = SL::Helper::Inventory::get_stock(
+                part         => $p_id,
+                bin          => $b_id,
+                chargenumber => $cn,
+                bestbefore   => DateTime->from_ymdhms($bb) || undef,
+              );
+              if ($stock < $grouped_qtys->{$p_id}->{$b_id}->{$cn}->{$bb}) {
+                my $part = SL::DB::Manager::Part->find_by(id => $p_id);
+                my $bin  = SL::DB::Manager::Bin->find_by(id => $b_id);
+                push @missing_qtys, {
+                  missing_qty  => $grouped_qtys->{$p_id}->{$b_id}->{$cn}->{$bb} - $stock,
+                  part         => $part,
+                  bin          => $bin,
+                  chargenumber => $cn,
+                  bestbefore   => $bb
+                }
+              }
+            }
+          }
+        }
+      }
+      if (scalar @missing_qtys) {
+        die t8('The stock is to low: #1.',
+          join(". ", map {
+              t8(
+                "For #1, #2 #3 are missing",
+                $_->{part}->displayable_name,
+                $::form->format_amount(\%::myconfig, $_->{missing_qty}),
+                $_->{part}->unit,
+              ) . (
+                $_->{chargenumber} ?
+                  " " . t8("of batch with chargenumber #1", $_->{chargenumber})
+                : ''
+              ) . (
+                $_->{chargenumber} && $_->{bestbefore} ?
+                  " " . t8("and")
+                : ''
+              ) . (
+                $_->{bestbefore} ?
+                " " . t8(
+                        "with a bestbefore date of #1",
+                        DateTime->from_ymdhms($_->{bestbefore})->to_kivitendo
+                      )
+                : ''
+              ) . " " . t8(
+                "in bin #1", $_->{bin}->full_description
+              )
+            } @missing_qtys
+          )
+        );
+      }
+    }
+
     $_->save for @transfer_requests;
     $self->order->update_attributes(delivered => 1);
   });
