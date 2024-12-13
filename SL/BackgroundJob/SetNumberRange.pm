@@ -44,3 +44,34 @@ sub run {
 }
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 NAME
+
+SL::BackgroundJob::SetNumberRange —
+Background job for setting all kivitendo number ranges for a new year
+
+=head1 SYNOPSIS
+
+The backgroud accepts the following optional json encoded parameters in the data field:
+
+C<multiplier>: Multiplier to set the number range (defaults to 100)
+
+C<digits_year>: Handles the encoding of the year (can be 2 or 4, ie 24 or 2024). Defaults to 4
+
+C<current_year>: If set to 1 the current year will be used and not the next year.
+
+
+The latter option is useful if the jobs runs on the 1st of the new year.
+
+The job is deactivated by default. Administrators of installations
+where such a feature is wanted have to create a job entry manually.
+
+=head1 AUTHOR
+
+Jan Büren E<lt>jan@kivitendo.deE<gt>
+
+=cut
