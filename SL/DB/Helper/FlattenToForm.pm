@@ -135,6 +135,7 @@ sub prepare_stock_info {
       bin_id                        => $_->bin_id,
       chargenumber                  => $_->chargenumber,
       unit                          => $_->unit,
+      bestbefore                    => $_->bestbefore_as_date,
     }, $item->delivery_order_stock_entries
   ]);
 }
