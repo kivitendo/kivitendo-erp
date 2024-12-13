@@ -235,9 +235,7 @@
           </listitem>
 
           <listitem>
-            <para><literal>FCGI</literal> (nicht Versionen 0.68 bis 0.71
-            inklusive; siehe <xref
-            linkend="Apache-Konfiguration.FCGI.WebserverUndPlugin"/>)</para>
+            <para><literal>FCGI</literal></para>
           </listitem>
 
           <listitem>
@@ -1179,44 +1177,6 @@ exit</programlisting>
           wird nur die eigentliche Programmlogik ausgeführt.</para>
         </sect3>
 
-        <sect3 id="Apache-Konfiguration.FCGI.WebserverUndPlugin">
-          <title>Getestete Kombinationen aus Webservern und Plugin</title>
-
-          <para>Folgende Kombinationen sind getestet:</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>Apache 2.4.7 (Ubuntu 14.04.2 LTS) und mod_fcgid.</para>
-            </listitem>
-            <listitem>
-              <para>Apache 2.4.18 (Ubuntu 16.04 LTS) und mod_fcgid</para>
-            </listitem>
-            <listitem>
-              <para>Apache 2.4.29 (Ubuntu 18.04 LTS) und mod_fcgid</para>
-            </listitem>
-             <listitem>
-              <para>Apache 2.4.41 (Ubuntu 20.04 LTS) und mod_fcgid</para>
-            </listitem>
-
-          </itemizedlist>
-
-          <para>Als Perl Backend wird das Modul <filename>FCGI.pm</filename>
-          verwendet.</para>
-
-          <warning>
-            <para>FCGI-Versionen ab 0.69 und bis zu 0.71 inklusive sind extrem
-            strict in der Behandlung von Unicode, und verweigern bestimmte
-            Eingaben von kivitendo. Falls es Probleme mit Umlauten in Ihrer
-            Installation gibt, muss zwingend Version 0.68 oder aber Version
-            0.72 und neuer eingesetzt werden.</para>
-
-            <para>Mit <ulink url="http://www.cpan.org">CPAN</ulink> lässt sie
-            sich die Vorgängerversion wie folgt installieren:</para>
-
-            <programlisting>force install M/MS/MSTROUT/FCGI-0.68.tar.gz</programlisting>
-          </warning>
-        </sect3>
-
         <sect3 id="Apache-Konfiguration.FCGI.Konfiguration">
           <title>Konfiguration des Webservers</title>
 
@@ -1248,30 +1208,6 @@ Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 &lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
 Require all denied
 &lt;/DirectoryMatch&gt;</programlisting>
-
-          <warning>
-            <para>Wer einen älteren Apache als Version 2.4 im Einsatz hat,
-            muss entsprechend die Syntax der Directorydirektiven verändert.
-            Statt</para>
-
-            <programlisting>Require all granted</programlisting>
-
-            <para>muß man Folgendes einstellen:</para>
-
-            <programlisting>
-  Order Allow,Deny
-  Allow from All </programlisting>
-
-            <para>und statt</para>
-
-            <programlisting>Require all denied</programlisting>
-
-            <para>muss stehen:</para>
-
-            <programlisting>
-  Order Deny,Allow
-  Deny from All </programlisting>
-          </warning>
 
           <para>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
           die maximale Größe eines Requests. Diese sollte wie folgt
