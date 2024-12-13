@@ -705,7 +705,7 @@ $ service apache2 restart                   # webserver starten!
 
         <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github
         gehostet und kann <ulink
-        url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink>
+        url="https://github.com/kivitendo/kivitendo-erp/tags">hier</ulink>
         heruntergeladen werden.</para>
 
 
