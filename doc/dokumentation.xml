@@ -1161,48 +1161,32 @@ exit</programlisting>
         ("<filename>/url/for/kivitendo-erp</filename>").</para>
 
         <para>Folgender Konfigurationsschnipsel funktioniert mit
-        mod_fastcgi:</para>
+        mod_fcgid:</para>
 
         <programlisting>AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fcgi
-Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
-
-&lt;Directory /path/to/kivitendo-erp&gt;
-AllowOverride All
-Options ExecCGI Includes FollowSymlinks
-Require all granted
-&lt;/Directory&gt;
-
-&lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
-Require all denied
-&lt;/DirectoryMatch&gt;</programlisting>
-
-        <para>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
-        die maximale Größe eines Requests. Diese sollte wie folgt
-        hochgesetzt werden:</para>
-
-        <programlisting>FcgidMaxRequestLen 10485760</programlisting>
-
-        <para>Das Ganze sollte dann so aussehen:</para>
-
-        <programlisting>AddHandler fcgid-script .fpl
-AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fpl
 Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 FcgidMaxRequestLen 10485760
 
 &lt;Directory /path/to/kivitendo-erp&gt;
-AllowOverride All
-Options ExecCGI Includes FollowSymlinks
-Require all granted
+  AllowOverride All
+  Options ExecCGI Includes FollowSymlinks
+  Require all granted
 &lt;/Directory&gt;
 
 &lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
-Require all denied
+  Require all denied
 &lt;/DirectoryMatch&gt;</programlisting>
 
         <para>Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle
         Zugriffe auf die einzelnen Scripte werden auf diesen umgeleitet.
         Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
         gibt es hier kleine Performance-Einbußen.</para>
+
+        <para>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
+        die maximale Größe eines Requests. Mit folgender Zeile wird diese
+        Grenze hochgesetzt:</para>
+
+        <programlisting>FcgidMaxRequestLen 10485760</programlisting>
       </sect2>
 
       <sect2>
