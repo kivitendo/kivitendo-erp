@@ -185,6 +185,7 @@ namespace("kivi").setupLocale({
 "There are still transfers not matching the qty of the delivery order. Stock operations can not be changed later. Do you really want to proceed?":"",
 "There is one or more sections for which no part has been assigned yet; therefore creating the new record is not possible yet.":"",
 "This field must not be empty.":"",
+"This object has not been saved yet.":"",
 "This sales order has an active configuration for periodic invoices. If you save then all subsequently created invoices will contain those changes as well, but not those that have already been created. Do you want to continue?":"",
 "This vendor has already a booking with this invoice number, do you really want to add the same invoice number again?":"",
 "Thu":"",
