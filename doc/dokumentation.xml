@@ -8915,8 +8915,8 @@ document_path = /var/local/kivi_documents
           brauchbares Tracing gebaut ist, "<function>log_time</function>", mit
           der man die Wallclockzeit seit Requeststart loggen kann, sowie
           "<function>message</function>" und "<function>dump</function>" mit
-          denen man flott Informationen ins Log (tmp/kivitendo-debug.log)
-          packen kann.</para>
+          denen man flott Informationen ins Log (users/kivitendo-debug.log
+          relativ zum kivitendo-Installationsverzeichnis) packen kann.</para>
 
           <para>Beispielsweise so:</para>
 
@@ -8986,7 +8986,7 @@ $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{
           verfügbar:</para>
 
           <programlisting>[debug]
-file_name = /tmp/kivitendo-debug.log</programlisting>
+file_name = users/kivitendo-debug.log</programlisting>
 
           <para>ist der Key <varname>file</varname> im Programm als
           <varname>$::lx_office_conf-&gt;{debug}{file}</varname>
