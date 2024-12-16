@@ -1134,10 +1134,28 @@ exit</programlisting>
       <para>In diesem Abschnitt wird die Konfiguration des Apache-Webservers
       beschrieben. kivitendo wird mittels FastCGI/FCGI ausgeführt.</para>
 
+      <para>Es ist empfehlenswert, SSL einzusetzen, um die Daten per HTTPS
+      verschlüsselt zwischen Browser und Webserver über das Netzwerk zu
+      übertragen. Eine Möglichkeit dazu ist das Erstellen eines self-signed
+      SSL Zertifikates, was unter Debian/Ubuntu durch Installieren des Pakets
+      <literal>ssl-cert</literal> geschehen kann.</para>
+
       <para>Der Zugriff auf den Installationspfad von kivitendo im Dateisystem
       muss in der Apache Webserverkonfigurationsdatei eingestellt werden,
-      welche beim Starten des Webservers eingelesen wird. Oftmals ist dies die
-      Datei <literal>000-default.conf</literal>.</para>
+      welche beim Starten des Webservers eingelesen wird. Wird SSL/HTTPS
+      eingesetzt, so ist dies die Datei <literal>default-ssl.conf</literal>,
+      für unverschlüsseltes HTTP ist es die Datei
+      <literal>000-default.conf</literal>.</para>
+
+      <para>Bitte konsultieren Sie die Dokumentation des Apache-Webservers und
+      Ihres Betriebssystems. Es kann erforderlich sein, das SSL-Modul und die
+      Webserverkonfigurationsdatei zu aktivieren:</para>
+
+      <programlisting>a2enmod ssl
+a2ensite default-ssl</programlisting>
+
+      <para>Unter Fedora und openSUSE müssen weiterhin in der Firewall die
+      Ports 80 (HTTP) bzw. 443 (HTTPS) geöffnet werden.</para>
 
       <sect2 id="Apache-Konfiguration.FCGI"
              xreflabel="Konfiguration für FastCGI/FCGI">
@@ -1231,7 +1249,7 @@ FcgidMaxRequestLen 10485760
         weiteren Zusatzmassnahmen, wie beispielsweise Basic Authenticate. Die
         Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser
         Anleitung, hier ein Hinweis auf einen entsprechenden <ulink
-        url="http://redmine.kivitendo-premium.de/boards/1/topics/142">Foreneintrag
+        url="https://www.kivitendo.de/redmine/boards/1/topics/142">Foreneintrag
         (Stand Sept. 2015)</ulink> und einen aktuellen (Stand Mai 2017) <ulink
         url="https://mozilla.github.io/server-side-tls/ssl-config-generator/">
         SSL-Konfigurations-Generator</ulink>.</para>
