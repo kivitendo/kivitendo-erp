@@ -96,17 +96,28 @@
     action: RequirementSpec/new
     is_template: 1
 - parent: master_data
-  id: master_data_update_prices
+  id: master_data_prices
+  name: Prices
+  order: 800
+- parent: master_data_prices
+  id: master_data_prices_update_prices
   name: Update Prices
   icon: prices_update
-  order: 800
+  order: 100
   access: part_service_assembly_edit & part_service_assembly_edit_prices
   params:
     action: PartsPriceUpdate/search_update_prices
-- parent: master_data
-  id: master_data_price_rules
+- parent: master_data_prices
+  id: master_data_prices_printing_part_labels
+  name: Print Part Labels of Changed Prices
+  order: 200
+  access: part_service_assembly_details
+  params:
+    action: Part/search_print_part_labels_of_changed_prices
+- parent: master_data_prices
+  id: master_data_prices_price_rules
   name: Price Rules
-  order: 900
+  order: 300
   access: part_service_assembly_edit
   params:
     action: PriceRule/list
@@ -555,7 +566,7 @@
   order: 400
 - parent: warehouse
   id: warehouse_stock
-  name: Stock
+  name: Store
   order: 100
   access: warehouse_management
   params:

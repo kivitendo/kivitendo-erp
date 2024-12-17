@@ -6,6 +6,25 @@
 
 <h1>[% FORM.title %] [% IF SELF.part.id %]: [% HTML.escape(SELF.part.displayable_name) %][% END %]</h1>
 
+<div id="print_options" style="display:none">
+  <form method="post" action="controller.pl" id="print_options_form">
+    [% SELF.print_options %]
+    <br>
+    [% L.button_tag('kivi.Part.save_and_print()', LxERP.t8('Print')) %]
+    <a href="#" onclick="$('#print_options').dialog('close');" class="button neutral">[% LxERP.t8("Cancel") %]</a>
+  </form>
+</div>
+
+<div id="print_part_labels_for_stock_print_options" style="display:none">
+  <form method="post" action="controller.pl" id="print_part_labels_for_stock_print_options_form">
+    [% SELF.part_labels_for_stock_print_options %]
+    [% L.hidden_tag('print_options.part_labels_for_stock', 1) %]
+    <br>
+    [% L.button_tag('kivi.Part.save_and_print_part_labels_for_stock()', LxERP.t8('Print')) %]
+    <a href="#" onclick="$('#print_part_labels_for_stock_print_options').dialog('close');" class="button neutral">[% LxERP.t8("Cancel") %]</a>
+  </form>
+</div>
+
 <form method="post" id="ic" name="ic" action="controller.pl">
 
 [% INCLUDE 'common/flash.html' %]

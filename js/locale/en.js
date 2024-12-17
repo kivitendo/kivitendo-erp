@@ -133,6 +133,7 @@ namespace("kivi").setupLocale({
 "Previous month":"",
 "Price Types":"",
 "Print options":"",
+"Print options for Stock Print":"",
 "Print record":"",
 "Project link actions":"",
 "Project picker":"",

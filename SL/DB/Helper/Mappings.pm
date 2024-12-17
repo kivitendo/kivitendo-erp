@@ -173,6 +173,7 @@ my %kivitendo_package_names = (
   part_classifications           => 'PartClassification',
   part_customer_prices           => 'PartCustomerPrice',
   parts_price_history            => 'PartsPriceHistory',
+  part_label_prints              => 'PartLabelPrint',
   payment_terms                  => 'payment_term',
   periodic_invoices              => 'periodic_invoice',
   periodic_invoices_configs      => 'periodic_invoices_config',
