@@ -72,4 +72,12 @@ namespace('kivi.EmailJournal', function(ns) {
 
     $.post("controller.pl", data, kivi.eval_json_result);
   }
+
+  ns.toggle_attachment_processed = function(attachment_id) {
+    let data = $('#record_action_form').serializeArray();
+    data.push({ name: 'action', value: 'EmailJournal/toggle_attachment_processed' });
+    data.push({ name: 'attachment_id', value: attachment_id });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
 });
