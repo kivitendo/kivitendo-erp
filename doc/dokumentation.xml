@@ -3352,7 +3352,7 @@ password: supipass8
 
             <tip>
               <para>Für die Variante <emphasis role="bold">QR-IBAN mit
-              QR-Referenz</emphasis> muss dieses Konto unter IBAN eine gültige
+              QR-Referenz</emphasis> muss dieses Konto unter QR-IBAN (Schweiz) eine gültige
               <emphasis role="bold">QR-IBAN Nummer</emphasis> enthalten. Diese
               unterscheidet sich von der regulären IBAN.</para>
 
