@@ -3,6 +3,16 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v..
+
+* Änderung bei Schweizer QR-Rechnung mit QR-IBAN/QR-Referenz
+
+  Bisher wurde für die QR-IBAN eine zusätzliche Zeile bei den Bankkonten
+  erfasst. Die QR-IBAN wird aber jeweils als zusätzliche IBAN für ein
+  existierendes Bankkonto vergeben. Daher wird diese neu als zusätzliche Spalte
+  beim entsprechenden Bankkonto eingetragen. Dies muss nach dem Upgrade unter
+  System -> Bankkonten angepasst werden.
+
 Upgrade auf v3.9.1
 
 Es sind keine neuen Perl-Abhängigkeiten hinzugekommen.
