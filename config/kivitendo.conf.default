@@ -231,7 +231,7 @@ openofficeorg_daemon = 0
 openofficeorg_daemon_port = 2002
 
 [task_server]
-# Set to 1 for debug messages in /tmp/kivitendo-debug.log
+# Set to 1 for debug messages in users/kivitendo-debug.log
 debug = 0
 # Chose a system user the daemon should run under when started as root.
 run_as =
@@ -333,9 +333,9 @@ login =
 # location of history file for permanent history
 history_file = users/console_history
 
-# location of a separate log file for the console. everything normally written
-# to the kivitendo log will be put here if triggered from the console
-log_file = /tmp/kivitendo_console_debug.log
+# Location of a separate log file for the console. Everything normally written
+# to the kivitendo log will be put here if triggered from the console.
+log_file = users/kivitendo_console_debug.log
 
 [testing]
 
@@ -422,7 +422,7 @@ keep_temp_files = 0
 restart_fcgi_process_on_changes = 0
 
 # The file name where the debug messages are written to.
-file_name = /tmp/kivitendo-debug.log
+file_name = users/kivitendo-debug.log
 
 # If set to 1 then the installation will be kept unlocked even if a
 # database upgrade fails.

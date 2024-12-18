@@ -235,9 +235,7 @@
           </listitem>
 
           <listitem>
-            <para><literal>FCGI</literal> (nicht Versionen 0.68 bis 0.71
-            inklusive; siehe <xref
-            linkend="Apache-Konfiguration.FCGI.WebserverUndPlugin"/>)</para>
+            <para><literal>FCGI</literal></para>
           </listitem>
 
           <listitem>
@@ -705,7 +703,7 @@ $ service apache2 restart                   # webserver starten!
 
         <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github
         gehostet und kann <ulink
-        url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink>
+        url="https://github.com/kivitendo/kivitendo-erp/tags">hier</ulink>
         heruntergeladen werden.</para>
 
 
@@ -1133,200 +1131,57 @@ exit</programlisting>
     <sect1 id="Apache-Konfiguration">
       <title>Webserver-Konfiguration</title>
 
-      <sect2>
-        <title>Grundkonfiguration mittels CGI</title>
+      <para>In diesem Abschnitt wird die Konfiguration des Apache-Webservers
+      beschrieben. kivitendo wird mittels FastCGI/FCGI ausgeführt.</para>
 
-        <note>
-          <para>Für einen deutlichen Performanceschub sorgt die Ausführung
-          mittels FastCGI/FCGI. Die Einrichtung wird ausführlich im Abschnitt
-          <xref linkend="Apache-Konfiguration.FCGI"/> beschrieben.</para>
-        </note>
+      <para>Es ist empfehlenswert, SSL einzusetzen, um die Daten per HTTPS
+      verschlüsselt zwischen Browser und Webserver über das Netzwerk zu
+      übertragen. Eine Möglichkeit dazu ist das Erstellen eines self-signed
+      SSL Zertifikates, was unter Debian/Ubuntu durch Installieren des Pakets
+      <literal>ssl-cert</literal> geschehen kann.</para>
 
-        <para>Der Zugriff auf das Programmverzeichnis muss in der Apache
-        Webserverkonfigurationsdatei <literal>000-default.conf</literal> eingestellt
-        werden. Fügen Sie den folgenden Abschnitt dieser Datei oder einer
-        anderen Datei hinzu, die beim Starten des Webservers eingelesen
-        wird:</para>
+      <para>Der Zugriff auf den Installationspfad von kivitendo im Dateisystem
+      muss in der Apache Webserverkonfigurationsdatei eingestellt werden,
+      welche beim Starten des Webservers eingelesen wird. Wird SSL/HTTPS
+      eingesetzt, so ist dies die Datei <literal>default-ssl.conf</literal>,
+      für unverschlüsseltes HTTP ist es die Datei
+      <literal>000-default.conf</literal>.</para>
 
-        <programlisting>AliasMatch ^/kivitendo-erp/[^/]+\.pl /var/www/kivitendo-erp/dispatcher.pl
-Alias /kivitendo-erp/ /var/www/kivitendo-erp/
+      <para>Bitte konsultieren Sie die Dokumentation des Apache-Webservers und
+      Ihres Betriebssystems. Es kann erforderlich sein, das SSL-Modul und die
+      Webserverkonfigurationsdatei zu aktivieren:</para>
 
-&lt;Directory /var/www/kivitendo-erp&gt;
- AddHandler cgi-script .pl
- Options ExecCGI Includes FollowSymlinks
-&lt;/Directory&gt;
+      <programlisting>a2enmod ssl
+a2ensite default-ssl</programlisting>
 
-&lt;Directory /var/www/kivitendo-erp/users&gt;
- Require all granted
-&lt;/Directory&gt;</programlisting>
-
-        <para>Ersetzen Sie dabei die Pfade durch diejenigen, in die Sie vorher
-        das kivitendo-Archiv entpacket haben.</para>
-
-        <note>
-          <para>Vor den einzelnen Optionen muss bei einigen Distributionen ein
-          Plus ‘<literal>+</literal>’ gesetzt werden.</para>
-
-          <para>Bei einigen Distribution (Ubuntu ab 14.04, Debian ab 8.2) muss
-          noch explizit das cgi-Modul mittels <programlisting>a2enmod cgi</programlisting>
-          aktiviert werden.</para>
-        </note>
-
-        <para>Auf einigen Webservern werden manchmal die Grafiken und
-        Style-Sheets nicht ausgeliefert. In solchen Fällen hat es oft
-        geholfen, die folgende Option in die Konfiguration aufzunehmen:</para>
-
-        <programlisting>EnableSendfile Off</programlisting>
-      </sect2>
+      <para>Unter Fedora und openSUSE müssen weiterhin in der Firewall die
+      Ports 80 (HTTP) bzw. 443 (HTTPS) geöffnet werden.</para>
 
       <sect2 id="Apache-Konfiguration.FCGI"
              xreflabel="Konfiguration für FastCGI/FCGI">
         <title>Konfiguration für FastCGI/FCGI</title>
 
-        <sect3 id="Apache-Konfiguration.FCGI.WasIstEs">
-          <title>Was ist FastCGI?</title>
+        <para>Mit FastCGI wird der kivitendo-Programmcode beim Start des
+        Webservers einmal geladen und danach wird nur die eigentliche
+        Programmlogik ausgeführt.</para>
 
-          <para>Direkt aus <ulink
-          url="http://de.wikipedia.org/wiki/FastCGI">Wikipedia</ulink>
-          kopiert:</para>
+        <para>Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann
+        unter Debian/Ubuntu z.B. mit folgendem Befehl geschehen:</para>
 
-          <para><citation> FastCGI ist ein Standard für die Einbindung
-          externer Software zur Generierung dynamischer Webseiten in einem
-          Webserver. FastCGI ist vergleichbar zum Common Gateway Interface
-          (CGI), wurde jedoch entwickelt, um dessen Performance-Probleme zu
-          umgehen. </citation></para>
-        </sect3>
+        <programlisting>a2enmod fcgid</programlisting>
 
-        <sect3 id="Apache-Konfiguration.FCGI.Warum">
-          <title>Warum FastCGI?</title>
+        <para>Die Konfiguration für die Verwendung von kivitendo mit FastCGI
+        erfolgt durch Einfügen von <function>Alias</function>-
+        und <function>Directory</function>-Direktiven. Dabei wird zwischen
+        dem Installationspfad von kivitendo im Dateisystem
+        ("<filename>/path/to/kivitendo-erp</filename>") und der URL
+        unterschieden, unter der kivitendo im Webbrowser erreichbar ist
+        ("<filename>/url/for/kivitendo-erp</filename>").</para>
 
-          <para>Perl Programme (wie kivitendo eines ist) werden nicht statisch
-          kompiliert. Stattdessen werden die Quelldateien bei jedem Start
-          übersetzt, was bei kurzen Laufzeiten einen Großteil der Laufzeit
-          ausmacht. Während SQL Ledger einen Großteil der Funktionalität in
-          einzelne Module kapselt, um immer nur einen kleinen Teil laden zu
-          müssen, ist die Funktionalität von kivitendo soweit gewachsen, dass
-          immer mehr Module auf den Rest des Programms zugreifen. Zusätzlich
-          benutzen wir umfangreiche Bibliotheken um Funktionaltät nicht selber
-          entwickeln zu müssen, die zusätzliche Ladezeit kosten. All dies
-          führt dazu dass ein kivitendo Aufruf der Kernmasken mittlerweile
-          deutlich länger dauert als früher, und dass davon 90% für das Laden
-          der Module verwendet wird.</para>
+        <para>Folgender Konfigurationsschnipsel funktioniert mit
+        mod_fcgid:</para>
 
-          <para>Mit FastCGI werden nun die Module einmal geladen, und danach
-          wird nur die eigentliche Programmlogik ausgeführt.</para>
-        </sect3>
-
-        <sect3 id="Apache-Konfiguration.FCGI.WebserverUndPlugin">
-          <title>Getestete Kombinationen aus Webservern und Plugin</title>
-
-          <para>Folgende Kombinationen sind getestet:</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>Apache 2.4.7 (Ubuntu 14.04.2 LTS) und mod_fcgid.</para>
-            </listitem>
-            <listitem>
-              <para>Apache 2.4.18 (Ubuntu 16.04 LTS) und mod_fcgid</para>
-            </listitem>
-            <listitem>
-              <para>Apache 2.4.29 (Ubuntu 18.04 LTS) und mod_fcgid</para>
-            </listitem>
-             <listitem>
-              <para>Apache 2.4.41 (Ubuntu 20.04 LTS) und mod_fcgid</para>
-            </listitem>
-
-          </itemizedlist>
-
-          <para>Als Perl Backend wird das Modul <filename>FCGI.pm</filename>
-          verwendet.</para>
-
-          <warning>
-            <para>FCGI-Versionen ab 0.69 und bis zu 0.71 inklusive sind extrem
-            strict in der Behandlung von Unicode, und verweigern bestimmte
-            Eingaben von kivitendo. Falls es Probleme mit Umlauten in Ihrer
-            Installation gibt, muss zwingend Version 0.68 oder aber Version
-            0.72 und neuer eingesetzt werden.</para>
-
-            <para>Mit <ulink url="http://www.cpan.org">CPAN</ulink> lässt sie
-            sich die Vorgängerversion wie folgt installieren:</para>
-
-            <programlisting>force install M/MS/MSTROUT/FCGI-0.68.tar.gz</programlisting>
-          </warning>
-        </sect3>
-
-        <sect3 id="Apache-Konfiguration.FCGI.Konfiguration">
-          <title>Konfiguration des Webservers</title>
-
-          <para>Bevor Sie versuchen, eine kivitendo Installation unter FCGI
-          laufen zu lassen, empfiehlt es sich die Installation ersteinmal
-          unter CGI aufzusetzen. FCGI macht es nicht einfach Fehler zu
-          debuggen die beim ersten aufsetzen auftreten können. Sollte die
-          Installation schon funktionieren, lesen Sie weiter.</para>
-
-          <para>Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann
-          unter Debian/Ubuntu z.B. mit folgendem Befehl geschehen:</para>
-
-          <programlisting>a2enmod fcgid</programlisting>
-
-          <para>Die Konfiguration für die Verwendung von kivitendo mit FastCGI
-          erfolgt durch Anpassung der vorhandenen <function>Alias</function>-
-          und <function>Directory</function>-Direktiven. Dabei wird zwischen
-          dem Installationspfad von kivitendo im Dateisystem
-          ("<filename>/path/to/kivitendo-erp</filename>") und der URL
-          unterschieden, unter der kivitendo im Webbrowser erreichbar ist
-          ("<filename>/url/for/kivitendo-erp</filename>").</para>
-
-          <para>Folgender Konfigurationsschnipsel funktioniert mit
-          mod_fastcgi:</para>
-
-          <programlisting>AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fcgi
-Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
-
-&lt;Directory /path/to/kivitendo-erp&gt;
-  AllowOverride All
-  Options ExecCGI Includes FollowSymlinks
-  Require all granted
-&lt;/Directory&gt;
-
-&lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
-Require all denied
-&lt;/DirectoryMatch&gt;</programlisting>
-
-          <warning>
-            <para>Wer einen älteren Apache als Version 2.4 im Einsatz hat,
-            muss entsprechend die Syntax der Directorydirektiven verändert.
-            Statt</para>
-
-            <programlisting>Require all granted</programlisting>
-
-            <para>muß man Folgendes einstellen:</para>
-
-            <programlisting>
-  Order Allow,Deny
-  Allow from All </programlisting>
-
-            <para>und statt</para>
-
-            <programlisting>Require all denied</programlisting>
-
-            <para>muss stehen:</para>
-
-            <programlisting>
-  Order Deny,Allow
-  Deny from All </programlisting>
-          </warning>
-
-          <para>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
-          die maximale Größe eines Requests. Diese sollte wie folgt
-          hochgesetzt werden:</para>
-
-          <programlisting>FcgidMaxRequestLen 10485760</programlisting>
-
-          <para>Das Ganze sollte dann so aussehen:</para>
-
-          <programlisting>AddHandler fcgid-script .fpl
-AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fpl
+        <programlisting>AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fcgi
 Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 FcgidMaxRequestLen 10485760
 
@@ -1337,30 +1192,19 @@ FcgidMaxRequestLen 10485760
 &lt;/Directory&gt;
 
 &lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
-Require all denied
+  Require all denied
 &lt;/DirectoryMatch&gt;</programlisting>
 
-          <para>Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle
-          Zugriffe auf die einzelnen Scripte werden auf diesen umgeleitet.
-          Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
-          gibt es hier kleine Performance-Einbußen.</para>
+        <para>Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle
+        Zugriffe auf die einzelnen Scripte werden auf diesen umgeleitet.
+        Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
+        gibt es hier kleine Performance-Einbußen.</para>
 
-          <para>Es ist möglich, die gleiche kivitendo Version parallel unter
-          CGI und FastCGI zu betreiben. Dafür bleiben die Directorydirektiven
-          wie oben beschrieben, die URLs werden aber umgeleitet:</para>
+        <para>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
+        die maximale Größe eines Requests. Mit folgender Zeile wird diese
+        Grenze hochgesetzt:</para>
 
-          <programlisting># Zugriff über CGI
-Alias       /url/for/kivitendo-erp                /path/to/kivitendo-erp
-
-# Zugriff mit mod_fcgid:
-AliasMatch ^/url/for/kivitendo-erp-fcgid/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fpl
-Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</programlisting>
-
-          <para>Dann ist unter <filename>/url/for/kivitendo-erp/</filename>
-          die normale Version erreichbar, und unter
-          <constant>/url/for/kivitendo-erp-fcgid/</constant> die
-          FastCGI-Version.</para>
-        </sect3>
+        <programlisting>FcgidMaxRequestLen 10485760</programlisting>
       </sect2>
 
       <sect2>
@@ -1405,7 +1249,7 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
         weiteren Zusatzmassnahmen, wie beispielsweise Basic Authenticate. Die
         Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser
         Anleitung, hier ein Hinweis auf einen entsprechenden <ulink
-        url="http://redmine.kivitendo-premium.de/boards/1/topics/142">Foreneintrag
+        url="https://www.kivitendo.de/redmine/boards/1/topics/142">Foreneintrag
         (Stand Sept. 2015)</ulink> und einen aktuellen (Stand Mai 2017) <ulink
         url="https://mozilla.github.io/server-side-tls/ssl-config-generator/">
         SSL-Konfigurations-Generator</ulink>.</para>
@@ -9071,8 +8915,8 @@ document_path = /var/local/kivi_documents
           brauchbares Tracing gebaut ist, "<function>log_time</function>", mit
           der man die Wallclockzeit seit Requeststart loggen kann, sowie
           "<function>message</function>" und "<function>dump</function>" mit
-          denen man flott Informationen ins Log (tmp/kivitendo-debug.log)
-          packen kann.</para>
+          denen man flott Informationen ins Log (users/kivitendo-debug.log
+          relativ zum kivitendo-Installationsverzeichnis) packen kann.</para>
 
           <para>Beispielsweise so:</para>
 
@@ -9142,7 +8986,7 @@ $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{
           verfügbar:</para>
 
           <programlisting>[debug]
-file_name = /tmp/kivitendo-debug.log</programlisting>
+file_name = users/kivitendo-debug.log</programlisting>
 
           <para>ist der Key <varname>file</varname> im Programm als
           <varname>$::lx_office_conf-&gt;{debug}{file}</varname>
