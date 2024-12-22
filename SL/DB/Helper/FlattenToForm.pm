@@ -30,6 +30,7 @@ sub flatten_to_form {
   if (_has($self, 'transdate')) {
     my $transdate_idx = ref($self) eq 'SL::DB::Order'   ? ($self->quotation ? 'quodate' : 'orddate')
                       : ref($self) eq 'SL::DB::Invoice' ? 'invdate'
+                      : ref($self) eq 'SL::DB::DeliveryOrder' ? 'dodate'
                       :                                   'transdate';
     $form->{$transdate_idx} = $self->transdate->to_lxoffice;
   }
