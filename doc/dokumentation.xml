@@ -4394,7 +4394,7 @@ password: supipass8
         <para>Will man im laufenden Monat eine monatlich wiederkehrende
         Rechnung inkl. des laufenden Monats starten, stellt man das Startdatum
         auf den Monatsanfang und wartet ein paar Minuten, bis der Task-Server
-        den neu konfigurieren Auftrag erkennt und daraus eine Rechnung
+        den neu konfigurierten Auftrag erkennt und daraus eine Rechnung
         generiert hat. Alternativ setzt man das Startdatum auf den
         Monatsersten des Folgemonats und erstellt die erste Rechnung direkt
         manuell über den Workflow.</para>
