@@ -2262,7 +2262,7 @@ password: supipass8
             <listitem>
               <para>
                 Portnummer. Der Standardwert hängt von der verwendeten
-                Verschlüsselungsmethode ab. Gilt '<literal>ssl = 0</literal>',
+                Verschlüsselungsmethode ab. Gilt '<literal>ssl = 1</literal>',
                 so ist 993 die Standardportnummer. Für
                 '<literal>ssl = 0</literal>' ist 143 die Portnummer. Muss
                 normalerweise nicht geändert werden.
@@ -2366,7 +2366,7 @@ password: supipass8
             <listitem>
               <para>
                 Portnummer. Der Standardwert hängt von der verwendeten
-                Verschlüsselungsmethode ab. Gilt '<literal>ssl = 0</literal>',
+                Verschlüsselungsmethode ab. Gilt '<literal>ssl = 1</literal>',
                 so ist 993 die Standardportnummer. Für
                 '<literal>ssl = 0</literal>' ist 143 die Portnummer. Muss
                 normalerweise nicht geändert werden.
