@@ -1525,8 +1525,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
         </itemizedlist>
 <sect2 id="Hintergrund-Job SetNumberRange">
   <title>SetNumberRange</title>
-  <para>Der Hintergrund-Job <literal>SetNumberRange</literal> kodiert die nächste Jahreszahl in alle Nummernkreise und initialisiert diese von Beginn, bpsw. 202500001. Zusätzlich bleiben Präfixe in den Nummernkreis erhalten und es gibt drei konfigurierbare Parameter.</para>
-  <para> Dieser Hintergrund-Job akzeptiert im Feld <literal>Daten</literal> drei optionale Parameter, nämlich <literal>digit_year</literal>, <literal>multiplier</literal> so wie <literal>current_year</literal>.</para><para> <literal>digit_year</literal> kann zwei Werte haben entweder 2 oder 4, darüber wird gesteuert ob die Jahreszahl zwei oder vierstellig kodiert wird (für 2019, dann entweder 19 oder 2019). Der Standardwert ist vierstellig.</para><para> <literal>multiplier</literal> ist ein Vielfaches von 10, darüber wird die erste Nummer im Nummernkreis (die Anzahl der Stellen) wie folgt bestimmt:</para>
+  <para>Der Hintergrund-Job <literal>SetNumberRange</literal> kann entweder jährlich oder monatlich/täglich den Nummernkreis verändern. Der Standardmodus 'jährlich' kodiert die nächste Jahreszahl in alle Nummernkreise und initialisiert diese von Beginn, bpsw. 202500001. Zusätzlich bleiben Präfixe in den Nummernkreis erhalten und es gibt drei konfigurierbare Parameter in diesem Modus:</para>
+  <para>Der jährliche Modus (default) akzeptiert im Feld <literal>Daten</literal> drei optionale Parameter, nämlich <literal>digit_year</literal>, <literal>multiplier</literal> so wie <literal>current_year</literal>.</para><para> <literal>digit_year</literal> kann zwei Werte haben entweder 2 oder 4, darüber wird gesteuert ob die Jahreszahl zwei oder vierstellig kodiert wird (für 2019, dann entweder 19 oder 2019). Der Standardwert ist vierstellig.</para><para> <literal>multiplier</literal> ist ein Vielfaches von 10, darüber wird die erste Nummer im Nummernkreis (die Anzahl der Stellen) wie folgt bestimmt:</para>
   <programlisting>
 multiplier     Nummernkreis 2020
 10        ->   20200
@@ -1535,7 +1535,7 @@ multiplier     Nummernkreis 2020
 </programlisting>
 <para>Falls der Parameter <literal>current_year</literal> bspw. so gesetzt ist:
 <programlisting>current_year: 1</programlisting>
-, wird der Nummernkreis nicht um eins hochgezählt. Das ist sinnvoll wenn vom 31.12. auf den 01.01. sowieso keine Rechnungsläufe stattfinden und man die Nummernkreise dann am 01.01. des neuen Jahres automatisch hochsetzen möchte. </para>
+ wird der Nummernkreis nicht um eins hochgezählt. Das ist sinnvoll wenn vom 31.12. auf den 01.01. sowieso keine Rechnungsläufe stattfinden und man die Nummernkreise dann am 01.01. des neuen Jahres automatisch hochsetzen möchte. </para>
 
 <para>Wir gehen jetzt beispielhaft von einer letzten Rechnungsnummer von RE2019456 aus. Demnach sollte ab Januar 2020 die erste Nummer RE2020001 sein. Da der Task auch Präfixe berücksichtigt, kann dies mit folgenden JSON-kodierten Werten umgesetzt werden:</para>
 <para><literal>Daten:</literal></para><programlisting>multiplier: 100
@@ -1545,7 +1545,15 @@ digits_year: 4</programlisting>
 digits_year: 4
 current_year: 1</programlisting>
 <para>Mit dieser Einstellung kann der Job auf 00:01h des 01.01. gesetzt werden.</para>
-
+<para>Der (wahrscheinliche) monatliche Modus wird über den Parameter <literal>monthly</literal> gesteuert und erzeugt standardmäßig folgende Nummernkreise JJ-MM-000, bspw. am 01.04.2025 25-04-000. Dieser Modus akzeptiert die zwei optionalen Parameter <literal>monthly_postfix</literal> für die Überlagerung am Ende der Zeichenkette und <literal>monthly_strftime</literal> für die beliebige Formatierung der strftime C-Methode, s.a. <ulink url='https://metacpan.org/pod/DateTime#strftime-Patterns'>strftime-Patterns</ulink>.
+Folgende Parameter erzeugen am 01.04.2025 folgenden Nummernkreis: 2025-04-01-A0001.
+<para><literal>Daten:</literal></para>
+<programlisting>
+monthly: 1
+monthly_postfix: '-A0001'
+monthly_strftime: '%Y-%m-%d'
+</programlisting>
+</para>
 
         </sect2>
         <sect2 id="Hintergrund-Job ImportRecordEmails">
