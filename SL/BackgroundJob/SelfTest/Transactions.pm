@@ -249,7 +249,7 @@ sub check_ar_paid {
     from ar
     where
           (select sum(amount) from acc_trans a left join chart c on (c.id = a.chart_id) where trans_id = ar.id and c.link like '%AR_paid%') is not null
-            AND storno is false
+            AND storno is false AND type <> 'final_invoice'
       AND ar.id in (SELECT id from ar where transdate >= ? and transdate <= ?)
     order by diff |;
 
@@ -398,7 +398,7 @@ sub check_overpayments {
       WHERE chart_link ilike '%paid%' AND acc_trans.trans_id=ar.id),0) as "paid via acc_trans"
     FROM ar left join customer c on (c.id = ar.customer_id)
     WHERE
-     ar.storno IS FALSE
+     ar.storno IS FALSE and ar.type <> 'final_invoice'
      AND ar.id in (SELECT trans_id from acc_trans where transdate >= ? AND transdate <= ? AND chart_link ilike '%paid%')|;
 
   my $invoices = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
@@ -572,6 +572,7 @@ sub check_ar_paid_acc_trans {
           from acc_trans ac left join ar on (ac.trans_id = ar.id)
           WHERE (ac.chart_link like '%AR_paid%' OR ac.fx_transaction)
           AND ac.trans_id in (SELECT trans_id from acc_trans ac where ac.transdate >= ? AND ac.transdate <= ?)
+          AND ar.type <> 'final_invoice'
           group by invnumber, paid having sum(ac.amount) <> ar.paid*-1|;
 
   my $ar_amount_not_ac_amount = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
