@@ -5214,6 +5214,10 @@ span.upload_drop_zone {
   margin-right: 600px;
   border: thin solid red;
 }
+.left_input {
+  float: left;
+  padding-right: 3em;
+}
 .buttons {
   position: absolute;
   right: 0px;

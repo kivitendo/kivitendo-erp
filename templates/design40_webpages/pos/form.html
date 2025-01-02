@@ -14,15 +14,8 @@
 <div class="wrapper">
   <div class="pos_wrapper">
     <div class="pos_content">
-      <div class="left_input control-panel small">[% "Salesman" | $T8 %]
-        [% L.select_tag('order.salesman_id',
-        SELF.all_salesmen,
-        #[{id=1,name=werner},{id=2,name=Max}],
-        default=(SELF.order.salesman_id ? SELF.order.salesman_id : SELF.current_employee_id),
-        class='wi-lightwide',
-        title_key='safe_name') %]
-      </div>
-      <div>
+<div class="wrapper">
+      <div class="left_input">
         <table>
           <tr>
             <th>[% 'Customer' | $T8 %]</th>
@@ -31,9 +24,18 @@
           </tr>
         </table>
       </div>
-      <div class="toggle_panel control-panel toggle_order_info %]">
+      <div class="left_input toggle_panel control-panel toggle_order_info %]">
         <a href="#" onClick='javascript:$(".toggle_panel_block").toggle()' class="button toggle off neutral">Auftragsdaten</a>
       </div>
+      <div class="left_input control-panel small">[% "Salesman" | $T8 %]
+        [% L.select_tag('order.salesman_id',
+        SELF.all_salesmen,
+        #[{id=1,name=werner},{id=2,name=Max}],
+        default=(SELF.order.salesman_id ? SELF.order.salesman_id : SELF.current_employee_id),
+        class='wi-lightwide',
+        title_key='safe_name') %]
+      </div>
+</div>
       <div class="toggle_panel_block" style="display:none;">
         <div id="tables_left" style="float:left;">
           <table style="width:40%">
