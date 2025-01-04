@@ -537,6 +537,17 @@ namespace('kivi.Order', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.add_discount_item = function() {
+    if (!ns.check_cv()) return;
+
+    $('#row_table_id thead a img').remove();
+
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'Order/add_discount_item' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   ns.delete_order_item_row = function(clicked) {
     var row = $(clicked).parents("tbody").first();
     $(row).remove();
