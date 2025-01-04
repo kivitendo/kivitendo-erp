@@ -37,6 +37,7 @@ sub update_after_new {
 sub update_after_customer_vendor_change {
   my ($class, $record) = @_;
   my $new_customervendor = $record->customervendor;
+  return unless $new_customervendor;
 
   $record->$_($new_customervendor->$_) for (qw(
     taxzone_id payment_id delivery_term_id currency_id language_id
