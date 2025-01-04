@@ -71,5 +71,23 @@
       </tr>
     </tbody>
   </table>
-</div><!-- /.entry-panel -->
+</div><!-- new part -->
+
+[%- IF INSTANCE_CONF.get_discount_part_id %]
+<div class="input-panel control-panel short">
+  <table id="input_row_table_id" class="tbl-plain condensed">
+    <caption>[% 'Add discount' | $T8 %]!</caption>
+    <tbody>
+      <tr>
+        <td class="tooltipster-html" title="[%- 'Add discount' | $T8 -%]">
+          <span class="label above">[% 'Discount' | $T8 %] </span>
+          [% L.input_tag('discount.value', 0, class='reformat_number numeric wi-small') %]
+          [% L.select_tag('discount.type', [['percent', LxERP.t8('Percent')], ['absolute', LxERP.t8('Absolute')]]) %]
+          [% L.button_tag('kivi.Order.add_discount_item()', LxERP.t8('+')) %]
+      </tr>
+    </tbody>
+  </table>
+</div><!-- discount part -->
+[%- END %]
+
 </div><!-- /.wrapper -->

@@ -1184,6 +1184,54 @@ sub action_add_multi_items {
   $self->js->render();
 }
 
+sub action_add_discount_item {
+  my ($self) = @_;
+  $self->recalc();
+
+  my $discount_part_id = $::instance_conf->get_discount_part_id
+    or die "no discount part set in client config";
+  my $discount_part = SL::DB::Part->load_cached($discount_part_id);
+
+  my $discount_type = $::form->{discount}->{type}
+    or die "discount.type needed";
+  my $discount_value_as_number = $::form->{discount}->{value};
+  my $discount_value = $::form->parse_amount(\%::myconfig, $discount_value_as_number);
+  $discount_value *= -1 if $discount_value > 0;
+
+  $::form->{add_item}->{parts_id} = $discount_part_id;
+  $::form->{add_item}->{qty_as_number} = 1;
+  $::form->{add_item}->{unit} = $discount_part->unit;
+  $::form->{add_item}->{discount_as_percent} = 0;
+
+  my $sellprice_as_number;
+  my $texts = get_part_texts($discount_part, $self->order->language_id);
+  my $description = $texts->{description};
+
+  if ($discount_type eq 'absolute') {
+    $sellprice_as_number = $::form->format_amount(\%::myconfig, $discount_value, 2, 0);
+    my $price_as_text = $::form->format_amount(\%::myconfig, -1 * $discount_value, 2, 0);
+
+    my $currency = $self->order->currency->name;
+    $description =~ s/<%discount_value%>/$price_as_text $currency/;
+  } elsif ($discount_type eq 'percent') {
+    $sellprice_as_number = $::form->format_amount(
+      \%::myconfig,
+      $self->order->amount * $::form->parse_amount(\%::myconfig, $discount_value) / 100,
+      2, 0
+    );
+    my $procent_as_text = $::form->format_amount(\%::myconfig, -1 * $discount_value);
+
+    $description =~ s/<%discount_value%>/$procent_as_text%/;
+  } else {
+    die "unknown discount.type $discount_type";
+  }
+
+  $::form->{add_item}->{sellprice_as_number} = $sellprice_as_number;
+  $::form->{add_item}->{description} = $description;
+
+  $self->action_add_item();
+}
+
 # recalculate all linetotals, amounts and taxes and redisplay them
 sub action_recalc_amounts_and_taxes {
   my ($self) = @_;

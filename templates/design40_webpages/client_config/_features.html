@@ -142,6 +142,13 @@
         <th class="caption" colspan="3"> [% 'E-mail' | $T8 %] </th>
       </tr>
       <tr>
+        <th>[% LxERP.t8('Invoice email settings') %]</th>
+        <td>
+          [% L.select_tag('defaults.invoice_mail_settings', [ [ 'cp', LxERP.t8('Contact Person') ],[ 'invoice_mail', LxERP.t8('Invoice email') ],[ 'invoice_mail_cc_cp', LxERP.t8('Invoice email and Contact Person') ]  ], default=SELF.defaults.invoice_mail_settings) %]
+        </td>
+        <td class="long-desc">[% 'The invoice recipient can either be a selected contact person (default) or the email adress set in the master data of the customer. Additionally a contact persons mail and the company\'s invoicing mail can be combined.' | $T8 %]</td>
+      </tr>
+      <tr>
         <th>[% LxERP.t8('Global Record BCC') %]</th>
         <td colspan="2"> [% L.input_tag('defaults.global_bcc', SELF.defaults.global_bcc, class='wi-wide') %] <div class="description">[% 'Manually sent E-Mails will have their BCC field appended with this address. Will not trigger for employees without the right to send bcc, and will not apply to mails sent by automated jobs.' | $T8 %]</div></td>
 
@@ -481,11 +488,12 @@
         <td class="long-desc">[% LxERP.t8('Before saving a sales order, this article will be checked and a warning is generated.') %]</td>
       </tr>
       <tr>
-        <th>[% LxERP.t8('Invoice email settings') %]</th>
-        <td>
-          [% L.select_tag('defaults.invoice_mail_settings', [ [ 'cp', LxERP.t8('Contact Person') ],[ 'invoice_mail', LxERP.t8('Invoice email') ],[ 'invoice_mail_cc_cp', LxERP.t8('Invoice email and Contact Person') ]  ], default=SELF.defaults.invoice_mail_settings) %]
-        </td>
-        <td class="long-desc">[% 'The invoice recipient can either be a selected contact person (default) or the email adress set in the master data of the customer. Additionally a contact persons mail and the company\'s invoicing mail can be combined.' | $T8 %]</td>
+        <th class="caption" colspan="3">[% LxERP.t8('Discount part') %]</th>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8('Default discount part') %]</th>
+        <td>[% P.part.picker('defaults.discount_part_id', SELF.defaults.discount_part_id, class='wi-mediumsmall') %]</td>
+        <td class="long-desc">[% LxERP.t8('If a part is set, a quick entry for this article is displayed in quotations, order intakes and order confirmations. An absolute amount or a percentage amount of the current items can be selected and this item will be added to the record. The amount or percentage can be included in the item description using the <%discount_value%> placeholder. It is recommended that the discount is added at the end as the percentage is calculated at the point of addition.') %]</td>
       </tr>
       <tr>
         <th class="caption" colspan="3">[% LxERP.t8("Requirement Specs") %]</th>

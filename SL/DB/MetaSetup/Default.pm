@@ -67,6 +67,7 @@ __PACKAGE__->meta->columns(
   delivery_date_interval                    => { type => 'integer', default => '0' },
   deliverydate_on                           => { type => 'boolean', default => 'true' },
   disabled_price_sources                    => { type => 'array' },
+  discount_part_id                          => { type => 'integer' },
   doc_delete_printfiles                     => { type => 'boolean', default => 'false' },
   doc_files                                 => { type => 'boolean', default => 'false' },
   doc_files_rootpath                        => { type => 'text', default => './documents' },
@@ -282,6 +283,11 @@ __PACKAGE__->meta->foreign_keys(
   currency => {
     class       => 'SL::DB::Currency',
     key_columns => { currency_id => 'id' },
+  },
+
+  discount_part => {
+    class       => 'SL::DB::Part',
+    key_columns => { discount_part_id => 'id' },
   },
 
   loss_carried_forward_chart => {
