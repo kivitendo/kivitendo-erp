@@ -258,6 +258,16 @@ sub get_warehouse_journal {
     $joins .= "";
   }
 
+  if ($filter{trans_id}) {
+    push @filter_ary, "i1.trans_id = ?";
+    push @filter_vars, $filter{trans_id};
+  }
+
+  if ($filter{id}) {
+    push @filter_ary, "i1.id = ?";
+    push @filter_vars, $filter{id};
+  }
+
   # prepare qty comparison for later filtering
   my ($f_qty_op, $f_qty, $f_qty_base_unit);
   if ($filter{qty_op} && defined($filter{qty}) && $filter{qty_unit} && $all_units->{$filter{qty_unit}}) {
