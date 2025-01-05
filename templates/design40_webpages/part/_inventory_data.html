@@ -60,12 +60,13 @@
 [% IF AUTH.assert('warehouse_management', 1) %]
 <div class="wrapper">
 <h3>[% 'Journal of Last 10 Transfers' | $T8 %]</h3>
-<a href="wh.pl?action=journal&partnumber=[% HTML.escape(SELF.part.partnumber) %]">[% 'WHJournal' | $T8 %]</a>:
+<a href="wh.pl?action=journal&partnumber=[% HTML.escape(SELF.part.partnumber) %]">[% 'WHJournal' | $T8 %]</a>
 [%- IF SELF.journal.size %]
 <table class="tbl-list">
   <thead>
     <tr>
       <th>[% 'Date'           | $T8 %]</th>
+      <th>[% 'Transfer Details' | $T8 %]</th>
       <th>[% 'Trans Type'     | $T8 %]</th>
       <th>[% 'Warehouse From' | $T8 %]</th>
       <th>[% 'Qty'            | $T8 %]</th>
@@ -79,6 +80,7 @@
     [% FOREACH row = SELF.journal %]
     <tr>
       <td>[% row.base.itime_as_date  %]</td>
+      <td><a href="wh.pl?action=journal&trans_id=[% HTML.escape(row.base.trans_id) %]">[% HTML.escape(row.base.trans_id) | $T8 %]</a> </td>
       <td>[% row.base.trans_type.description | $T8 %]</td>
       <td>[% row.out ? row.out.bin.full_description : '-' | html %]</td>
       <td class='numeric'>[% row.in ? row.in.qty_as_number : LxERP.format_amount(-1 * row.out.qty, 2) %]</td>

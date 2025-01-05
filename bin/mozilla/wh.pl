@@ -750,7 +750,11 @@ sub generate_journal {
   my @columns = qw(ids trans_id date warehouse_from bin_from warehouse_to bin_to partnumber type_and_classific partdescription chargenumber bestbefore trans_type comment qty unit partunit employee oe_id projectnumber);
 
   # filter stuff
-  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore transtype_id transtype_ids comment projectnumber);
+  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore transtype_id transtype_ids comment projectnumber trans_id id);
+
+  # ids are directly to db
+  $form->show_generic_error($locale->text("ID needs to be a number.")) if    ($filter{trans_id} && $filter{trans_id} !~ /^[0-9]*$/)
+                                                                          || ($filter{id}       && $filter{id}       !~ /^[0-9]*$/);
 
   $filter{qty_op} = WH->convert_qty_op($form->{qty_op});
   if ($filter{qty_op}) {
@@ -797,7 +801,7 @@ sub generate_journal {
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber bestbefore qty_op qty qty_unit unit partunit fromdate todate transtype_ids comment projectnumber);
-  push @hidden_variables, qw(classification_id);
+  push @hidden_variables, qw(classification_id trans_id id);
   push @hidden_variables, map({'cvar_'. $_->{name}}                                         @searchable_custom_variables);
   push @hidden_variables, map({'cvar_'. $_->{name} .'_from'}  grep({$_->{type} eq  'date'}  @searchable_custom_variables));
   push @hidden_variables, map({'cvar_'. $_->{name} .'_to'}    grep({$_->{type} eq  'date'}  @searchable_custom_variables));
