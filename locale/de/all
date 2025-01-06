@@ -1563,6 +1563,7 @@ $self->{texts} = {
   'Error message from the webshop api:' => 'Fehlermeldung der Webshop Api',
   'Error when saving: #1'       => 'Fehler beim Speichern: #1',
   'Error while applying year-end bookings!' => 'Fehler beim Durchführen der Abschlußbuchungen!',
+  'Error while attempting to parse email.\nUID: #1\n#2\nError reported: #3' => 'Fehler beim Parsen folgender E-Mail.\nUID: #1\n#2\nFehlermeldung: #3',
   'Error while creating project with project number of new order number, project number #1 already exists!' => 'Fehler beim Erstellen eines Projekts mit der Projektnummer der neuen Auftragsnummer, Projektnummer #1 existiert bereits!',
   'Error while processing email journal (\'#1\') attachments with \'#2\': ' => 'Fehler beim Verarbeiten der E-Mail-Journals (\'#1\') Anhänge mit \'#2\': ',
   'Error while saving shop order #1. DB Error #2. Generic exception #3.' => 'Fehler beim Speichern der Shop-Bestellung #1. DB Fehler #2. Genereller Fehler #3.',
