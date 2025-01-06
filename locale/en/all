@@ -1580,6 +1580,7 @@ $self->{texts} = {
   'Error message from the webshop api:' => '',
   'Error when saving: #1'       => '',
   'Error while applying year-end bookings!' => '',
+  'Error while attempting to parse email.\nUID: #1\n#2\nError reported: #3' => '',
   'Error while creating project with project number of new order number, project number #1 already exists!' => '',
   'Error while processing email journal (\'#1\') attachments with \'#2\': ' => '',
   'Error while saving shop order #1. DB Error #2. Generic exception #3.' => '',
