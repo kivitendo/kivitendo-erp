@@ -225,8 +225,7 @@ SQL
             folder_uidvalidity   => $folder_uidvalidity,
             email_journal_params => $params{email_journal_params},
           );
-        $email_journal->save();
-
+          $email_journal->save();
         } catch {
 	  my ($headers, $body) = split /\n\n/, $new_email_string;
 	  my @subjects = grep {/^subject: +/i} (split /\n/, $headers);
