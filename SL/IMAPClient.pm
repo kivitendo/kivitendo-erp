@@ -15,6 +15,7 @@ use File::MimeInfo::Magic;
 use Encode qw(encode decode);
 use Encode::IMAPUTF7;
 use SL::Locale;
+use Try::Tiny;
 
 use SL::SessionFile;
 use SL::Locale::String qw(t8);
@@ -211,19 +212,27 @@ SQL
       next unless @new_msg_uids;
 
       $email_import ||= $self->_create_email_import(folder_path => $params{base_folder_path})->save();
-
       foreach my $new_uid (@new_msg_uids) {
         my $new_email_string = $self->{imap_client}->message_string($new_uid);
-        my $email = Email::MIME->new($new_email_string);
-        my $email_journal = $self->_create_email_journal(
-          email                => $email,
-          email_import         => $email_import,
-          uid                  => $new_uid,
-          folder_string        => $folder_string,
-          folder_uidvalidity   => $folder_uidvalidity,
-          email_journal_params => $params{email_journal_params},
-        );
+	my $email;
+	try {
+	  $email = Email::MIME->new($new_email_string);
+	  my $email_journal = $self->_create_email_journal(
+            email                => $email,
+            email_import         => $email_import,
+            uid                  => $new_uid,
+            folder_string        => $folder_string,
+            folder_uidvalidity   => $folder_uidvalidity,
+            email_journal_params => $params{email_journal_params},
+          );
         $email_journal->save();
+
+        } catch {
+	  my ($headers, $body) = split /\n\n/, $new_email_string;
+	  my @subjects = grep {/^subject: +/i} (split /\n/, $headers);
+	  die t8("Error while attempting to parse email.\nUID: #1\n#2\nError reported: #3", $new_uid, @subjects[0], $_)
+	    unless $params{skip_broken_mime_mails};
+        }
       }
     }
   });
