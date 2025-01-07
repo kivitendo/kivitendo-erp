@@ -257,7 +257,7 @@ SQL
           my ($headers, $body) = split /\n\n/, $new_email_string;
           my @subjects = grep {/^subject: +/i} (split /\n/, $headers);
 
-          die t8("Error while attempting to parse email.\nUID: '#1'\n'#2'\nError reported: '#3'", $new_uid, @subjects[0], $_)
+          die t8("Error while attempting to parse email.\nUID: '#1'\n'#2'\nError reported: '#3'", $new_uid, $subjects[0], $_)
             unless $params{skip_broken_mime_mails};
         }
       }
