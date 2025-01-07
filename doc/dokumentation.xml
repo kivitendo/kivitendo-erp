@@ -1544,7 +1544,8 @@ monthly_strftime: '%Y-%m-%d'
         </sect2>
         <sect2 id="Hintergrund-Job ImportRecordEmails">
   <title>ImportRecordEmails</title>
-<para> Der Hintergrund-Job <literal>ImportRecordEmails</literal> kann vollständig über das Feld Daten konfiguriert werden. Er benötigt folgende Variablen:</para>
+<para>Die prinzipielle Idee des Hintergrund-Jobs <literal>ImportRecordEmails</literal> ist es auf einen spezifischen IMAP-Ordner zuzugreifen und unterhalb diesen Ordners alle E-Mails in kivitendo zu importieren. Der Job ist transaktionssicher, d.h. entweder können alle E-Mails zum Zeitpunkt des Jobs importiert werden oder es wird überhaupt keine importiert.</para><para>Die eindeutige Kennzeichnung um Duplikate beim Import zu vermeiden ist die UID der E-Mail auf dem IMAP-Server, dies ist solange stabil, solange der Provider nicht gewechselt wird, bzw. die E-Mails nicht auf einen anderen IMAP-Server migrieren.</para><para>Zu guter Letzt kann der Job auch noch automatisch Verarbeitungen mit dem Anhängen der E-Mail direkt beim Import durchführen, bspw. ZUGFeRD konforme PDFs automatisch verbuchen.</para>
+ <para>Die prinzipiellen IMAP-Zugangsdaten können vollständig über das Feld Daten konfiguriert werden und sind wie folgt definiert:</para>
   <itemizedlist>
           <listitem>
             <para><literal>hostname:</literal> Hier wird der E-Mail-Server (IMAP) eingetragen</para>
@@ -1565,9 +1566,7 @@ monthly_strftime: '%Y-%m-%d'
             <para><literal>ssl:</literal> Gibt an ob SSL verwendet werden soll. Default: 1</para>
 	    </listitem>
   </itemizedlist>
-
-    <para> Optional können außerdem folgende Variablen verwendet werden:</para>
-
+    <para>Um das ganze Verfahren komfortabler zu optimieren oder Fehlimporte wieder zu löschen stehen folgende optionale Parameter zu Verfügung:</para>
     <itemizedlist>
           <listitem>
             <para><literal>email_import_ids_to_delete:</literal> Hier können IDs von Importen eingetragen werden, deren E-Mails aus dem E-Mail-Journal gelöscht werden sollen.</para>
@@ -1576,16 +1575,22 @@ monthly_strftime: '%Y-%m-%d'
             <para><literal>process_imported_emails:</literal> Wenn nach dem Import noch weitere Verarbeitung der angehangenen Dokumente erfolgen soll, müssen hier die jeweiligen Schritte eingetragen werden. Aktuell ist es möglich, dass angehangene ZUGFeRD-Rechnung direkt verbucht und mit der E-Mail verknüpft werden. Dazu muss hier 'zugferd' eingetragen werden.</para>
           </listitem>
           <listitem>
-            <para><literal>processed_imap_flag:</literal> Das hier eingetragenen Flag wird nach dem Verarbeiten in der E-Mail auf den IMAP-Server gesetzt.</para>
+            <para><literal>imported_imap_flag:</literal> Das hier eingetragenen Flag wird nach dem Verarbeiten in der E-Mail auf den IMAP-Server gesetzt.</para>
           </listitem>
           <listitem>
-            <para><literal>not_processed_imap_flag:</literal> Dieses Flag wird gesetzt, wenn die E-Mail nicht verarbeitet werden konnte.</para>
+            <para><literal>not_imported_imap_flag:</literal> Das hier eingetragenen Flag wird bei erfolglosen Importieren auf dem IMAP-Server gesetzt und ist hilfreich um die Fehlerfälle bei großem Datenimporten schneller einzugrenzen.</para>
+          </listitem>
+          <listitem>
+            <para><literal>processed_imap_flag:</literal> Das hier eingetragenen Flag wird nach dem erfolgreichen Verarbeiten an der E-Mail gesetzt.</para>
+          </listitem>
+          <listitem>
+            <para><literal>not_processed_imap_flag:</literal> Dieses Flag wird gesetzt, falls die E-Mail nicht erfolgreich verarbeitet werden konnte (Verarbeitungsprozeß ist in <literal>process_imported_emails</literal> definiert.</para>
           </listitem>
           <listitem>
             <para><literal>record_type:</literal> Einträge im E-Mail-Journal können direkt einem Belegtypen zugeordnet werden. Wenn alle E-Mails, die mit einem Hintergrundjob importiert werden, den gleichen Belegtypen haben, kann man diesen hier festlegen und alle Einträge im E-Mail-Journal werden entsprechend zugeordnet. Für Eingangsrechnungen kann man hier bspw. 'ap_transaction' setzen.</para>
 	    </listitem>
 	    <listitem>
-            <para><literal>skip_broken_mime_mails:</literal>Bricht den Import-Lauf NICHT ab, falls einige Mails nicht MIME-konform "zerlegt" werden können. Default: 0</para>
+            <para><literal>skip_broken_mime_mails:</literal> Bricht den Import-Lauf NICHT ab, falls einige Mails nicht MIME-konform "zerlegt" werden können. Default: 0</para>
           </listitem>
         </itemizedlist>
 
@@ -1595,18 +1600,50 @@ monthly_strftime: '%Y-%m-%d'
 <para>Thunderbird 115.8.0:  Sie werden durchnummeriert mit dem Prefix "$label". Über die Einstellungen kann man Schlagwort und Farbe für den jeweiligen Tag setzen und berabeiten. Um die vordefenierten Tags in Thunderbird zu nutzen kann man $label1 - $label5 nutzen. Eigene Labels werden dann von thunderbird automatisch hochgezählt. Um das korrekte Tag für ein Label zu finden oder auch selbst ein Tag mit einer selbst gewählten Zahl zu definieren kann man in den Einstellunge ganz am Ende über den Button <literal>Konfiguration berabeiten...</literal> die Werte in der Kofiguration einsehen, ändern und berabeiten. Hier muss man nach <literal>mailnews.tags</literal> suchen.</para>
 <para>Thunderbird 115.8.1: Einstellungen -> Schlagwörter -> hinzufügen. Das Schlagwort wird mit dem 'Label' 'name_mit_unterstrichen' zu Verfügung gestellt. Was wirklich passiert kann man dann ganz unten in den Einstellungen unter 'Konfiguration bearbeiten' und einer darauf folgenden Filtersuche nach 'mailnews.tag' erkennen.</para>
           <para>In SoGo kann man unter Einstellungen -> Mail -> Labels beliebige Label mit $ als Prefix anlegen und Namen und Farbe zuweisen.</para>
-          <para>Eine beispielhafte Konfiguration im YAML-Format für das Feld 'Daten' im Hintergrund-Job könnte bspw. so aussehen:
+  <note>Hilfreich ist dieses Skript was die Flags beispielhaft für einen IMAP-Ordner 'Eingangsrechung' ausliest. Entsprechend die <literal>$GROSSBUCHSTABEN</literal> mit eigenen Werten ersetzen: <programlisting>
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Mail::IMAPClient;
+my $imap = Mail::IMAPClient->new(
+  Server   => '$SERVER',
+  User     => '$USER',
+  Password => '$PASS',
+  Ssl      => 1,
+  Uid      => 1,
+);
+
+$imap->select("INBOX.Eingangsrechnung")
+  or die "Select  error: ", $imap->LastError, "\n";
+
+# get the flags for every message in my 'Eingangsrechner' folder
+my $flaghash = $imap->flags( scalar( $imap->search("ALL") ) );
+
+# pump through sorted hash keys to print results:
+for my $k (keys %$flaghash) {
+    # print: Message 1: \Flag1, \Flag2, \Flag3
+    print "Message $k:\t", join( ", ", @{$flaghash->{$k}} ), "\n";
+}
+</programlisting></note>
+<note>
+Eine beispielhafte Konfiguration im YAML-Format für das Feld 'Daten' im Hintergrund-Job könnte bspw. so aussehen.
+Enthalten sind alle aktuell bekannten Parameter mit entsprechenden sinnvollen Standardwerten, bis auf die Werte der IMAP-Flags (s.a. vorherige Notiz), sodass die Konfiguration als einfachen Start zum Experimentieren direkt kopiert werden kann:
             <programlisting>
 record_type: ap_transaction
 folder: INBOX/Eingangsrechnung
+imported_imap_flag: in_kivitendo_importiert
+not_imported_imap_flag: nicht_importiert
+process_imported_emails: zugferd
 processed_imap_flag: zugferd_verarbeitet
 not_processed_imap_flag: zugferd_geht_net
-process_imported_emails: zugferd
+skip_broken_mime_mails: 0
 hostname:  www.meine-domaene.de
 username: alpha39@meine-domaene.de
 password: supipass8
             </programlisting>
-        </para>
+        </note>
         </sect2>
         <sect2 id="Hintergrund-Job InventoryClearAll">
           <title>InventoryClearAll</title>
