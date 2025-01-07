@@ -1577,8 +1577,8 @@ monthly_strftime: '%Y-%m-%d'
           </listitem>
           <listitem>
             <para><literal>ssl:</literal> Gibt an ob SSL verwendet werden soll. Default: 1</para>
-          </listitem>
-        </itemizedlist>
+	    </listitem>
+  </itemizedlist>
 
     <para> Optional können außerdem folgende Variablen verwendet werden:</para>
 
@@ -1597,6 +1597,9 @@ monthly_strftime: '%Y-%m-%d'
           </listitem>
           <listitem>
             <para><literal>record_type:</literal> Einträge im E-Mail-Journal können direkt einem Belegtypen zugeordnet werden. Wenn alle E-Mails, die mit einem Hintergrundjob importiert werden, den gleichen Belegtypen haben, kann man diesen hier festlegen und alle Einträge im E-Mail-Journal werden entsprechend zugeordnet. Für Eingangsrechnungen kann man hier bspw. 'ap_transaction' setzen.</para>
+	    </listitem>
+	    <listitem>
+            <para><literal>skip_broken_mime_mails:</literal>Bricht den Import-Lauf NICHT ab, falls einige Mails nicht MIME-konform "zerlegt" werden können. Default: 0</para>
           </listitem>
         </itemizedlist>
 
