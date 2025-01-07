@@ -227,10 +227,10 @@ SQL
       $email_import ||= $self->_create_email_import(folder_path => $params{base_folder_path})->save();
       foreach my $new_uid (@new_msg_uids) {
         my $new_email_string = $self->{imap_client}->message_string($new_uid);
-	my $email;
-	try {
-	  $email = Email::MIME->new($new_email_string);
-	  my $email_journal = $self->_create_email_journal(
+        my $email;
+        try {
+          $email = Email::MIME->new($new_email_string);
+          my $email_journal = $self->_create_email_journal(
             email                => $email,
             email_import         => $email_import,
             uid                  => $new_uid,
