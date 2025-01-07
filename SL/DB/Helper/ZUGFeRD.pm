@@ -804,7 +804,8 @@ sub create_zugferd_xmp_data {
     version            => '1.0',
   };
 }
-
+# TODO simplify and less incorrect magic. This is only used for automatic imports.
+# => if no template is found die and don't guess values which the user will never verify visually!
 sub import_zugferd_data {
   my ($self, $zugferd_parser) = @_;
   validate_pos(@_,
@@ -840,6 +841,7 @@ sub import_zugferd_data {
 
   # Check IBAN specified on bill matches the one we've got in
   # the database for this vendor.
+  # TODO normalize
   if ($iban) {
     $intnotes .= "\nIBAN: ";
     $intnotes .= $iban ne $vendor->iban ?
@@ -848,6 +850,7 @@ sub import_zugferd_data {
   }
 
   # Use invoice creation date as due date if there's no due date
+  # NO, check payment settings in template
   $metadata{'duedate'} = $metadata{'transdate'} unless defined $metadata{'duedate'};
 
   # parse dates to kivi if set/valid
@@ -861,15 +864,16 @@ sub import_zugferd_data {
                                     day   => $3)->to_kivitendo;
     }
   }
-
+  # indention?
   my $currency = SL::DB::Manager::Currency->find_by(
     name => $metadata{'currency'},
     );
-
+  # no pls use template settings
   my $default_ap_amount_chart = SL::DB::Manager::Chart->find_by(
     id => $::instance_conf->get_expense_accno_id
   );
   # Fallback if there's no default AP amount chart configured
+  # evil fallback will be executed fully automatic. pls don't do this at home
   $default_ap_amount_chart ||= SL::DB::Manager::Chart->find_by(charttype => 'A');
 
   my $active_taxkey = $default_ap_amount_chart->get_active_taxkey;
@@ -882,7 +886,7 @@ sub import_zugferd_data {
   die t8(
     "No tax found for chart #1", $default_ap_amount_chart->displayable_name
   ) unless scalar @{$taxes};
-
+  # before wrongly guessing stuff, just load template or die .. move upwards!
   my %template_params;
   my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $vendor->id]);
   if ($template_ap) {
@@ -909,6 +913,7 @@ sub import_zugferd_data {
   }
 
   my $today = DateTime->today_local;
+  # good idea, but duedate will always be metadata{duedate} see above
   my $duedate =
       $metadata{duedate} ?
         $metadata{duedate}
