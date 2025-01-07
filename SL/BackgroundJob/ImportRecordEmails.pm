@@ -32,7 +32,8 @@ sub sync_record_email_folder {
     folder => $config->{folder},
     email_journal_params => {
       record_type => $config->{record_type},
-    }
+    },
+    skip_broken_mime_mails => $config->{skip_broken_mime_mails},
   );
   return "No emails to import." unless $email_import;
   if ($config->{imported_imap_flag}) {
@@ -166,6 +167,7 @@ sub run {
       not_processed_imap_flag    => { type => SCALAR,   optional => 1, },
       email_import_ids_to_delete => { type => ARRAYREF, optional => 1, },
       imported_imap_flag         => { type => SCALAR,   optional => 1, },
+      skip_broken_mime_mails     => { type => SCALAR,   optional => 1, },
       # email config
       hostname    => { type => SCALAR,  },
       port        => { type => SCALAR,  optional => 1},
