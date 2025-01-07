@@ -129,6 +129,10 @@ sub update_emails_from_folder {
       type     => SCALAR | UNDEF,
       optional => 1,
     },
+    not_imported_imap_flag => {
+      type     => SCALAR | UNDEF,
+      optional => 1,
+    },
   });
   my $folder_path = $params{folder} || $self->{base_folder};
 
@@ -139,6 +143,7 @@ sub update_emails_from_folder {
       folder_strings       => [$folder_string],
       email_journal_params => $params{email_journal_params},
       skip_broken_mime_mails => $params{skip_broken_mime_mails},
+      not_imported_imap_flag => $params{not_imported_imap_flag},
     );
 
   return $email_import;
@@ -191,6 +196,11 @@ sub _update_emails_from_folder_strings {
       type     => SCALAR | UNDEF,
       optional => 1,
     },
+    not_imported_imap_flag => {
+      type     => SCALAR | UNDEF,
+      optional => 1,
+    },
+
   });
   my $dbh = SL::DB->client->dbh;
 
@@ -240,10 +250,15 @@ SQL
           );
           $email_journal->save();
         } catch {
-	  my ($headers, $body) = split /\n\n/, $new_email_string;
-	  my @subjects = grep {/^subject: +/i} (split /\n/, $headers);
-	  die t8("Error while attempting to parse email.\nUID: #1\n#2\nError reported: #3", $new_uid, @subjects[0], $_)
-	    unless $params{skip_broken_mime_mails};
+
+          $self->{imap_client}->set_flag($params{not_imported_imap_flag}, [$new_uid])
+            if $params{not_imported_imap_flag};
+
+          my ($headers, $body) = split /\n\n/, $new_email_string;
+          my @subjects = grep {/^subject: +/i} (split /\n/, $headers);
+
+          die t8("Error while attempting to parse email.\nUID: '#1'\n'#2'\nError reported: '#3'", $new_uid, @subjects[0], $_)
+            unless $params{skip_broken_mime_mails};
         }
       }
     }
