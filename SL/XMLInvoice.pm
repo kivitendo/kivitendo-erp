@@ -64,7 +64,7 @@ sub new {
     return $self;
   }
 
-  # Determine parser class to use
+  # Determine parser class and namespaces to use
   my $type = first {
     $_->check_signature($self->{dom})
   } @document_modules;
@@ -79,8 +79,11 @@ sub new {
                         );
     return $self;
   }
-
   bless $self, $type;
+
+  my $namespaces = $self->namespaces($self->{dom});
+
+  $self->{namespaces} =  $namespaces;
 
   # Implementation sanity check for child classes: make sure they are aware of
   # the keys the hash returned by their metadata() method must contain.
