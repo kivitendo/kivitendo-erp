@@ -1,0 +1,221 @@
+% config: use-template-toolkit=1
+% config: tag-style=$( )$
+$( USE KiviLatex )$
+$( USE P )$
+$( USE Dumper )$
+$( USE LxERP )$
+\input{inheaders.tex}
+\usepackage{graphicx}
+
+$( KiviLatex.required_packages_for_html )$
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {$(template_meta.language.template_code)$}
+\newcommand{\lxmedia} {$(media)$}
+\newcommand{\lxcurrency} {$(currency)$}
+\newcommand{\kivicompany} {$(employee_company)$}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+
+% Sprachüberprüfung
+\ifthenelse{\equal{\lxlangcode}{EN}}{\input{english.tex}}{
+  \ifthenelse{\equal{\lxlangcode}{DE}}{\input{deutsch.tex}}{\input{deutsch.tex}}
+} % Ende EN
+
+
+% Mandanten-/Firmenabhängigkeiten
+
+% Pfad zu firmenspez. Angaben
+% Hat man mehrere Mandanten muß man statt "Firma1" den Datenbanknamen seines
+% Mandanten eingeben.
+
+\IfSubStringInString{Firma1}{\kivicompany}{\newcommand{\identpath}{firma1}}{
+  \IfSubStringInString{Firma2}{\kivicompany}{\newcommand{\identpath}{firma2}}
+    {\newcommand{\identpath}{firma}} % sonst
+} % Ende Firma1
+
+% Identität
+\input{\identpath/ident.tex}
+
+% Währungen/Konten
+\IfSubStringInString{USD}{\lxcurrency}{\input{\identpath/usd_account.tex}}{
+  \IfSubStringInString{CHF}{\lxcurrency}{\input{\identpath/chf_account.tex}}{
+    \IfSubStringInString{EUR}{\lxcurrency}{\input{\identpath/euro_account.tex}}{\input{\identpath/euro_account.tex}}
+  } % Ende CHF
+} % Ende USD
+
+% Briefkopf, Logo oder Briefpapier
+%% \IfSubStringInString{mail}{\lxmedia}{    % nur bei Mail
+  % Grafik als Briefkopf
+  %%\setlength{\wpYoffset}{380pt} % Verschiebung von der Mitte nach oben
+  %%\setlength{\wpYoffset}{130mm} % Verschiebung von der Mitte nach oben
+  %%\CenterWallPaper{0.885}{\identpath/briefkopf.png} % mit Skalierung
+
+  % oder nur ein Logo oben rechts
+  %% \setlength{\wpXoffset}{180pt} % Verschiebung von der Mitte nach rechts
+  %% \setlength{\wpYoffset}{380pt} % Verschiebung von der Mitte nach oben
+  %% \CenterWallPaper{0.1}{\identpath/logo.png} % mit Skalierung
+
+  % oder ganzer Briefbogen als Hintergrund
+   % \CenterWallPaper{1}{\identpath/Briefpapier.pdf}
+%% }
+
+
+% keine Absätze nach rechts einrücken
+\setlength\parindent{0pt}
+
+% Papierformat, Ränder, usw.
+\geometry{
+        a4paper,      % DINA4
+        %% left=19mm,    % Linker Rand
+        width=182mm,  % Textbreite
+        top=35mm,     % Abstand Textanfang von oben
+        head=44mm,     % Höhe des Kopfes
+        headsep=4mm, % Abstand Kopf zu Textanfang
+        bottom=30mm,  % Abstand von unten
+        % showframe,    % Rahmen zum Debuggen anzeigen
+}
+
+
+% Befehl f. normale Schriftart und -größe
+%\setmainfont{cmunrm.otf}
+\newcommand{\ourfont}{\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont}
+%\newcommand{\ourfont}{\setmainfont
+%                      [ BoldFont={cmunsx.otf},
+%                        ItalicFont={cmunsi.otf},
+%                        BoldItalicFont={cmunso.otf}]{cmunss.otf}}
+
+% Einstellungen f. Kopf und Fuss
+\pagestyle{scrheadings}
+\clearscrheadfoot
+%\setheadwidth[20mm]{page} % Kopfzeile nach rechts verschieben
+%\setfootwidth[-39mm]{page} % Fusszeile verschieben
+
+% Befehl f. laufende Kopfzeile:
+% 1. Text f. Kunden- oder Lieferantennummer (oder leer, wenn diese nicht ausgegeben werden soll)
+% 2. Kunden- oder Lieferantennummer (oder leer)
+% 3. Belegname {oder leer}
+% 4. Belegnummer {oder leer}
+% 5. Belegdatum {oder leer}
+% Beispiel: \ourhead{\kundennummer}{<%customernumber%>}{\angebot}{<%quonumber%>}{<%quodate%>}
+\newcommand{\ourhead}[5] {
+\chead{
+  \ifthenelse{\equal{\thepage}{1}}
+    {}% then
+    {\normalfont\fontfamily{cmss}\scriptsize
+      \ifthenelse{\equal{#1}{}}{}{#1: #2 \hspace{0.7cm}}{}
+      #3
+      \ifthenelse{\equal{#4}{}}{}{~\nr: #4}
+      \ifthenelse{\equal{#5}{}}{}{\vom ~ #5}
+      \hspace{0.7cm} - \seite ~ \thepage/\pageref{LastPage} ~- }
+}%ende chead
+}
+
+% Firmenfuss
+%\cfoot{
+%  {\normalfont\fontfamily{cmss} \tiny
+%     \begin{tabular}{p{5cm}p{4.5cm}lr}
+%        \firma                 & \email              & \textKontonummer & \kontonummer \\
+%        \strasse               & \homepage           & \textBank        & \bank \\
+%        \ort                   & \textUstid\ \ustid  & \textIban        & \iban \\
+%        \textTelefon~\telefon  & \finanzamt          & \textBic         & \bic \\
+%        \ifthenelse{\equal{\fax}{}}{}{\textFax~\fax} & &\textBankleitzahl	& \bankleitzahl \\
+%     \end{tabular}
+%  }
+%}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} %Linksbündig mit eigener Breite
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}} % zentriert mit Breitenangabe
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}} % rechtsbündig mit Breitenangabe
+\begin{document}
+\ourfont
+$(# Dumper.dump_html(part.assemblies) )$
+\large \textbf{Artikeldaten}\hfill \today
+\vspace*{0.3cm}
+\normalsize
+\begin{tabular}{L{5cm}L{12cm}}
+  Art.Nr.: & $( KiviLatex.filter(part.partnumber) )$ \\
+  Artikelbeschreibung: & $( KiviLatex.filter(part.description) )$ \\
+  Langtext: & $( KiviLatex.filter_html(part.notes) )$ \\
+  Gruppe: & $( KiviLatex.filter(part.partsgroup.partsgroup) )$ \\
+  Lager - Lagerplatz: & $( KiviLatex.filter(part.warehouse.description) )$ - $( KiviLatex.filter(part.bin.description) )$ \\
+  Aktuelle Bestandsmenge: & $( KiviLatex.filter(part.onhand_as_number) )$ $( KiviLatex.filter(part.unit) )$\\
+  Buchungsgruppe: & $( KiviLatex.filter(part.buchungsgruppen.description) )$ \\
+  %$(IF part.part_type )$
+  Artikeltyp: & $( KiviLatex.filter(LxERP.t8(part.part_type)) )$ \\
+  %$(END)$
+  %$(IF part.classification )$
+  Artikelklassifizierung: & $( KiviLatex.filter(LxERP.t8(part.classification.description)) )$ \\
+  %$(END)$
+  %$(IF part.customm_tariff_number )$
+  Zolltarifnummer: & $( KiviLatex.filter(LxERP.t8(part.customm_tariff_number)) )$ \\
+  %$(END)$
+  %$(IF part.ean )$
+  EAN: & $( KiviLatex.filter(LxERP.t8(part.ean)) )$ \\
+  %$(END)$
+  %$(IF part.microfiche )$
+  Microfilm: & $( KiviLatex.filter(LxERP.t8(part.microfiche)) )$ \\
+  %$(END)$
+  %$(IF part.drawing )$
+  Zeichnung: & $( KiviLatex.filter(LxERP.t8(part.drawing)) )$ \\
+  %$(END)$
+  %$(IF part.weight )$
+  Gewicht: & $( KiviLatex.filter(LxERP.t8(part.weight)) )$ \\
+  %$(END)$
+\end{tabular}
+
+  $(IF KiviLatex.filter(part.image))$
+    \begin{minipage}{2cm}
+      %          \begin{pspicture}(-5cm,2em)(1.5in,0.5in)
+            \includegraphics[width=7cm ]{$( part.image )$}
+      %    \end{pspicture}
+    \end{minipage}
+  $(END)$
+
+\begin{tabular}{L{6cm}R{2cm}}
+  \rowcolor{gray}Preisart & Preis \\
+  Listenpreis: & $( KiviLatex.filter(part.listprice_as_number) )$ € \\
+  Einkaufspreis: & $( KiviLatex.filter(part.lastcost_as_number) )$ € \\
+  Verkaufspreis: & $( KiviLatex.filter(part.sellprice_as_number) )$ €\\
+  %$( IF part.prices.size )$
+    \rowcolor{gray}\multicolumn{2}{c}{Preisgruppen(nur Verkauf)} \\
+    %$( FOREACH price = part.prices )$
+      $( KiviLatex.filter(price.pricegroup.pricegroup) )$ & $( KiviLatex.filter(price.price_as_number) )$ €\\
+    %$(END)$
+  %$(END)$
+  %$( IF prules_sell.size )$
+    \rowcolor{gray}\multicolumn{2}{c}{Preisregel Verkauf} \\
+    %$( FOREACH pricerule_s = prules_sell )$
+      $( KiviLatex.filter(pricerule_s.price_rules.name) )$ & $( KiviLatex.filter(pricerule_s.price_rules.price_as_number) )$ €\\
+    %$(END)$
+  %$(END)$
+  %$( IF prules_buy.size )$
+    \rowcolor{gray}\multicolumn{2}{c}{Preisregel Einkauf} \\
+    %$( FOREACH pricerule_b = prules_buy )$
+      $( KiviLatex.filter(pricerule_b.price_rules.name) )$ & $( KiviLatex.filter(pricerule_b.price_rules.price_as_number) )$ €\\
+    %$(END)$
+  %$(END)$
+\end{tabular}
+
+%$( IF part.makemodels.size )$
+\begin{tabularx}{\textwidth}{L{6cm}L{3cm}XR{2cm}}
+  \rowcolor{gray}Lieferant & Art.Nr. & Artikelbeschreibung & Preis \\
+    %$( FOREACH vendor = part.makemodels )$
+      $( KiviLatex.filter(vendor.maker.name) )$ & $( KiviLatex.filter(vendor.model) )$ & $( KiviLatex.filter(vendor.model_description) )$ & $( KiviLatex.filter(vendor.lastcost_as_number) )$ € \\
+    %$( END )$
+  \end{tabularx}
+%$(END)$
+
+%$(IF part.is_assembly)$
+  \textbf{Bestandteile}
+
+%\begin{longtable}{\textwidth}{L{3cm}XR{2cm}}
+\setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
+\setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
+  \begin{longtable}{@{}p{3cm}p{9.5cm}rp{2cm}@{}}
+  \rowcolor{gray}Typ - Art.Nr &  Artikelbeschreibung & Menge & Lagerplatz \\
+    %$( FOREACH assembly = part.assemblies )$
+     $( KiviLatex.filter(assembly.part.presenter.typeclass_abbreviation) )$ $( KiviLatex.filter(assembly.part.partnumber) )$ & $( KiviLatex.filter(assembly.part.description) )$ & $( KiviLatex.filter(assembly.qty) )$ $( KiviLatex.filter(assembly.part.unit) )$ & $( KiviLatex.filter(assembly.part.bin.description) )$\\
+    %$( END )$
+  \end{longtable}
+%$( END )$
+\end{document}
