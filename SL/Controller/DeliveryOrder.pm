@@ -953,6 +953,8 @@ sub action_stock_in_out_dialog {
   my $row     = $::form->{row};
   my $item_id = $::form->{item_id};
   my $qty     = _parse_number($::form->{qty_as_number});
+  my $row_ui_id = $::form->{row_ui_id};
+  my $next_button = $::form->{next_button} eq 'true';
 
   my $inout = $self->type_data->properties("transfer");
 
@@ -973,6 +975,8 @@ sub action_stock_in_out_dialog {
     row        => $row,
     item_id    => $item_id,
     in_out     => $inout,
+    row_ui_id  => $row_ui_id,
+    next_button => $next_button,
   );
 }
 
