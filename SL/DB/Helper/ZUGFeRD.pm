@@ -233,6 +233,9 @@ sub _line_item {
   $params{xml}->endTag;
 
   $params{xml}->startTag("ram:SpecifiedLineTradeAgreement");
+  $params{xml}->startTag("ram:GrossPriceProductTradePrice");
+  $params{xml}->dataElement("ram:ChargeAmount", _r2($item_ptc->{sellprice}));
+  $params{xml}->endTag;
   $params{xml}->startTag("ram:NetPriceProductTradePrice");
   $params{xml}->dataElement("ram:ChargeAmount", _r2($item_ptc->{sellprice}));
   $params{xml}->endTag;
