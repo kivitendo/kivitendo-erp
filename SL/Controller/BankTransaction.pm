@@ -181,9 +181,9 @@ sub gather_bank_transactions_and_proposals {
     # score is stored in $bt->{agreement}
 
     foreach my $open_invoice (@all_open_invoices) {
-      ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice,
-      #  sepa_export_items => $all_open_sepa_export_items,
-      );
+
+      ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice);
+
       $open_invoice->{realamount} = $::form->format_amount(\%::myconfig,
                                       $open_invoice->amount * ($open_invoice->{is_ar} ? 1 : -1), 2);
     }
