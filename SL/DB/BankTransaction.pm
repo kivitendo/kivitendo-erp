@@ -54,7 +54,7 @@ sub is_batch_transaction {
 
 
 sub get_agreement_with_invoice {
-  my ($self, $invoice, %params) = @_;
+  my ($self, $invoice) = @_;
 
   carp "get_agreement_with_invoice needs an invoice object as its first argument"
     unless ref($invoice) eq 'SL::DB::Invoice' or ref($invoice) eq 'SL::DB::PurchaseInvoice';
