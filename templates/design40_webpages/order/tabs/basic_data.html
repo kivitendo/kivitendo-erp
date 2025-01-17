@@ -355,7 +355,9 @@
 
 </div><!-- /.wrapper -->
 
-[% PROCESS order/tabs/_item_input.html SELF=SELF %]
+[%- IF order_item_input_position == 0 -%]
+  [% PROCESS order/tabs/_item_input.html SELF=SELF %]
+[%- END -%]
 
 [%- IF SELF.positions_scrollbar_height -%]
   [%- SET scroll_style = 'style="overflow-y: auto; height:' _ SELF.positions_scrollbar_height _ 'vh;"' -%]
@@ -449,6 +451,10 @@
 </table>
 
 </div><!-- /#row_table_scroll_id /.wrapper -->
+
+[%- IF order_item_input_position == 1 -%]
+  [% PROCESS order/tabs/_item_input.html SELF=SELF %]
+[%- END -%]
 
 </div><!-- /#ui-tabs-basic-data -->
 
