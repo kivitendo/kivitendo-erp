@@ -85,7 +85,7 @@ sub transaction_type {
   $self->{transaction_type} = $_[0] if @_;
 
   die "Invalid DATEV Transaction Type"
-    unless $self->{transaction_type} =~ m/^(ar|ap|all)$/;
+    if $self->{transaction_type} && $self->{transaction_type} !~ m/^(ar|ap|all)$/;
 
   return $self->{transaction_type};
 }
@@ -540,8 +540,8 @@ sub generate_datev_data {
 
   my $filter   = '';            # Useful for debugging purposes
 
-  $filter .= ' AND ac.trans_id in (SELECT id from ar) ' if $self->transaction_type eq 'ar';
-  $filter .= ' AND ac.trans_id in (SELECT id from ap) ' if $self->transaction_type eq 'ap';
+  $filter .= ' AND ac.trans_id in (SELECT id from ar) ' if $self->transaction_type // '' eq 'ar';
+  $filter .= ' AND ac.trans_id in (SELECT id from ap) ' if $self->transaction_type // '' eq 'ap';
 
   my %all_taxchart_ids = selectall_as_map($form, $self->dbh, qq|SELECT DISTINCT chart_id, TRUE AS is_set FROM tax|, 'chart_id', 'is_set');
 
