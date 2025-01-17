@@ -1,0 +1,33 @@
+[%- USE L %]
+[%- USE LxERP %]
+
+[% BLOCK filter_toggle_panel %]
+[%- FILTER_HTML %]
+[% END %]
+
+<div class="wrapper">
+  [% SET display_status = 'open' %]
+  [% INCLUDE 'common/toggle_panel.html' %]
+</div><!-- /.wrapper -->
+
+<div id="print_options" style="display:none">
+  <form method="post" action="controller.pl" id="print_options_form">
+    [% SELF.print_options %]
+    <br>
+    [% L.button_tag('kivi.Part.print_multi()', LxERP.t8('Print')) %]
+    <a href="#" onclick="$('#print_options').dialog('close');" class="button neutral">[% LxERP.t8("Cancel") %]</a>
+  </form>
+</div>
+
+<div id="print_part_labels_for_stock_print_options" style="display:none">
+  <form method="post" action="controller.pl" id="print_part_labels_for_stock_print_options_form">
+    [% SELF.part_labels_for_stock_print_options %]
+    [% L.hidden_tag('print_options.part_labels_for_stock', 1) %]
+    <br>
+    [% L.button_tag('kivi.Part.print_multi_part_labels_for_stock()', LxERP.t8('Print')) %]
+    <a href="#" onclick="$('#print_part_labels_for_stock_print_options').dialog('close');" class="button neutral">[% LxERP.t8("Cancel") %]</a>
+  </form>
+</div>
+
+<div class="wrapper"><!-- div report -->
+  <form id="report_form">

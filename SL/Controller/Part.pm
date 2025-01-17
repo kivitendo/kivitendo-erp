@@ -22,17 +22,22 @@ use SL::DB::History;
 use SL::DB::Part;
 use SL::DB::PartsGroup;
 use SL::DB::PriceRuleItem;
+use SL::DB::PartLabelPrint;
 use SL::DB::PurchaseBasketItem;
 use SL::DB::Shop;
 use SL::Helper::Flash;
+use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
 use SL::Helper::UserPreferences::PartPickerSearch;
 use SL::JSON;
+use SL::MIME;
 use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(save_form);
 use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Part;
-use SL::Presenter::Tag qw(select_tag);
+use SL::Presenter::Tag qw(select_tag checkbox_tag);
+use SL::ReportGenerator;
+use SL::Controller::Helper::ReportGenerator;
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(parts models part p warehouses multi_items_models
@@ -40,6 +45,7 @@ use Rose::Object::MakeMethods::Generic (
                                   customerprices
                                   orphaned
                                   assortment assortment_items assembly assembly_items
+                                  print_options part_labels_for_stock_print_options
                                   all_pricegroups all_translations all_partsgroups all_units
                                   all_buchungsgruppen all_payment_terms all_warehouses
                                   parts_classification_filter
@@ -113,66 +119,9 @@ sub action_add {
 sub action_save {
   my ($self, %params) = @_;
 
-  # checks that depend only on submitted $::form
-  $self->check_form or return $self->js->render;
+  my $is_new = !$self->part->id;
 
-  my $is_new = !$self->part->id; # $ part gets loaded here
-
-  # check that the part hasn't been modified
-  unless ( $is_new ) {
-    $self->check_part_not_modified or
-      return $self->js->error(t8('The document has been changed by another user. Please reopen it in another window and copy the changes to the new window'))->render;
-  }
-
-  if (    $is_new
-       && $::form->{part}{partnumber}
-       && SL::DB::Manager::Part->find_by(partnumber => $::form->{part}{partnumber})
-     ) {
-    return $self->js->error(t8('The partnumber is already being used'))->render;
-  }
-
-  $self->parse_form;
-
-  my @errors = $self->part->validate;
-  return $self->js->error(@errors)->render if @errors;
-
-  if ($is_new) {
-    # Ensure CVars that should be enabled by default actually are when
-    # creating new parts.
-    my @default_valid_configs =
-      grep { ! $_->{flag_defaults_to_invalid} }
-      grep { $_->{module} eq 'IC' }
-      @{ CVar->get_configs() };
-
-    $::form->{"cvar_" . $_->{name} . "_valid"} = 1 for @default_valid_configs;
-  } else {
-    $self->{lastcost_modified} = $self->check_lastcost_modified;
-  }
-
-  # $self->part has been loaded, parsed and validated without errors and is ready to be saved
-  $self->part->db->with_transaction(sub {
-
-    $self->part->save(cascade => 1);
-    $self->part->set_lastcost_assemblies_and_assortiments if $self->{lastcost_modified};
-
-    SL::DB::History->new(
-      trans_id    => $self->part->id,
-      snumbers    => 'partnumber_' . $self->part->partnumber,
-      employee_id => SL::DB::Manager::Employee->current->id,
-      what_done   => 'part',
-      addition    => 'SAVED',
-    )->save();
-
-    CVar->save_custom_variables(
-      dbh           => $self->part->db->dbh,
-      module        => 'IC',
-      trans_id      => $self->part->id,
-      variables     => $::form, # $::form->{cvar} would be nicer
-      save_validity => 1,
-    );
-
-    1;
-  }) or return $self->js->error(t8('The item couldn\'t be saved!') . " " . $self->part->db->error )->render;
+  $self->save_with_render_error() or return;
 
   flash_later('info', $is_new ? t8('The item has been created.') . " " . $self->part->displayable_name : t8('The item has been saved.'));
 
@@ -183,6 +132,141 @@ sub action_save {
     # default behaviour after save: reload item, this also resets last_modification!
     $self->redirect_to(controller => 'Part', action => 'edit', 'part.id' => $self->part->id);
   }
+}
+
+sub action_save_and_print {
+  my ($self) = @_;
+
+  $self->save_with_render_error() or return;
+  $self->js_reset_part_after_save();
+  $self->js->flash('info', t8('The item has been saved.'));
+
+  $self->print_part($self->part);
+
+  $self->js->render();
+}
+
+sub action_print_multi {
+  my ($self) = @_;
+
+  my $parts = SL::DB::Manager::Part->get_all(where => [id => $::form->{ids}]);
+  foreach my $part(@{$parts}) {
+    $self->print_part($part);
+  }
+
+  $self->js->render();
+}
+
+sub print_part {
+  my ($self, $part) = @_;
+
+  my $formname    = $::form->{print_options}->{formname};
+  my $format      = $::form->{print_options}->{format};
+  my $media       = $::form->{print_options}->{media};
+  my $printer_id  = $::form->{print_options}->{printer_id};
+  my $language;
+  if ($::form->{print_options}->{language_id}) {
+    $language = SL::DB::Manager::Language->find_by(
+      id => $::form->{print_options}->{language_id}
+    );
+  }
+  my $copies;
+  if ($::form->{print_options}->{part_labels_for_stock}) {
+    $copies = $part->stockqty;
+  } else {
+    $copies = $::form->{print_options}->{copies};
+  }
+
+  eval {
+
+    my $template_ext;
+    my $template_type;
+    if ($format =~ /(opendocument|oasis)/i) {
+      $template_ext  = 'odt';
+      $template_type = 'OpenDocument';
+    } elsif ($format =~ m{html}i) {
+      $template_ext  = 'html';
+      $template_type = 'HTML';
+    }
+
+    # search for the template
+    my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
+      name        => $formname,
+      extension   => $template_ext,
+      language    => $language,
+      printer_id  => $printer_id,
+    );
+    if (!defined $template_file) {
+      die t8('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files);
+    }
+
+    my $print_form = Form->new('');
+    $print_form->{part}       = $part;
+
+    # for doc_filename
+    $print_form->{type}       = 'part';
+    $print_form->{formname}   = $formname;
+    $print_form->{format}     = $format;
+    $print_form->{partnumber} = $part->partnumber;
+    $print_form->{language}   = $language && ("_" .
+                                ($language->template_code || $language->description)
+                              );
+
+    # for tempalte variables
+    $print_form->{template_meta}->{language} = $language;
+    $print_form->{media} = $media;
+    $print_form->{media} = 'file' if $print_form->{media} eq 'screen';
+    my $default = SL::DB::Default->get;
+    $print_form->{employee_company} = $default->company;
+    $print_form->{currency}         = $default->currency->name;
+
+    my $document = SL::Helper::CreatePDF->create_pdf(
+      format        => $format,
+      template_type => $template_type,
+      template      => $template_file,
+      variables     => $print_form,
+      variable_content_types => {
+        notes => 'html',
+        # TODO: html cvars
+      },
+    );
+
+    if ($media eq 'screen') {
+      my $doc_filename = $print_form->generate_attachment_filename();
+
+      $self->send_file(
+        \$document,
+        type => SL::MIME->mime_type_from_ext($doc_filename),
+        name => $doc_filename,
+        js_no_render => 1,
+      );
+    } elsif ($media eq 'printer') {
+      my $printer = SL::DB::Printer->new(id => $printer_id)->load;
+      $printer->print_document(
+        copies  => $copies,
+        content => $document,
+      );
+
+      my %part_label_print_values = (
+        price_history_id => $part->last_price_update->id,
+        print_type       => $::form->{print_options}->{part_labels_for_stock} ?
+                            'stock' : 'single',
+        template         => $formname,
+      );
+      SL::DB::Manager::PartLabelPrint->find_by(%part_label_print_values)
+        or SL::DB::PartLabelPrint->new(%part_label_print_values)->save();
+
+      $self->js->flash('info', t8('The document has been sent to the printer \'#1\'.', $printer->printer_description));
+    } else {
+      die t8('Media \'#1\' is not supported yet/anymore.', $media);
+    }
+
+    1;
+  } or do {
+    $self->js
+      ->flash('error', t8("Creating the PDF failed!"))
+      ->flash('error', $@);
+  };
 }
 
 sub action_save_and_purchase_order {
@@ -852,6 +936,137 @@ sub action_showdetails {
   $self->render(\$output, { layout => 0, process => 0 });
 }
 
+sub action_search_print_part_labels_of_changed_prices {
+  my ($self) = @_;
+  $self->_setup_search_print_part_labels_of_changed_prices_action_bar();
+
+  $::form->{filter} ||= {};
+
+  $::form->{filter}->{price_change_printed} ||= {
+    template   => 'part_label',
+    print_type => 'stock',
+    printed    => 0
+  };
+
+  my $price_change_printed =$::form->{filter}->{price_change_printed};
+  $::form->{filter}->{price_change_printed} = \$price_change_printed;
+
+  my $report =  SL::ReportGenerator->new(\%::myconfig, $::form);
+
+  $self->models->finalize; # for filter laundering
+
+  $::form->{filter}->{price_change_printed} = ${$::form->{filter}->{price_change_printed}};
+
+  my $callback = $self->models->get_callback;
+
+  $self->{report} = $report;
+
+  my @columns_order = qw(
+    id_check_box
+    partnumber
+    ean
+    description
+    notes
+    partsgroup
+  );
+
+  my @default_columns = qw(
+    id_check_box
+    partnumber
+    ean
+    description
+    partsgroup
+  );
+
+  my %column_defs = (
+    id_check_box => {
+      raw_data => sub {
+        checkbox_tag("ids[]", value => $_[0]->id, "data-checkall" => 1, checked => 1);
+      },
+      raw_header_data => checkbox_tag("", id => "check_all", checkall => "[data-checkall=2]", checked => 1),
+      text => ' ',
+    },
+    partnumber => {
+      obj_link => sub {$self->url_for(action => 'edit', 'part.id' => $_[0]->id, callback => $callback)},
+      sub      => sub { $_[0]->partnumber },
+    },
+    ean => {
+      obj_link => sub {$self->url_for(action => 'edit', 'part.id' => $_[0]->id, callback => $callback)},
+      sub      => sub { $_[0]->ean },
+    },
+    description => {
+      sub      => sub {$_[0]->description },
+    },
+    notes => {
+      sub      => sub {$_[0]->notes },
+    },
+    partsgroup => {
+      sub      => sub {t8($_[0]->partsgroup ? $_[0]->partsgroup->partsgroup : '') },
+    },
+  );
+
+  $column_defs{$_}->{text} ||= t8( $self->models->get_sort_spec->{$_}->{title} || $_ )
+    for keys %column_defs;
+
+  unless ($::form->{active_in_report}) {
+    $::form->{active_in_report}->{$_} = 1 foreach @default_columns;
+  }
+
+  $self->models->add_additional_url_params(
+    active_in_report => $::form->{active_in_report});
+  map { $column_defs{$_}->{visible} = $::form->{active_in_report}->{"$_"} || 0 }
+    grep {$_ ne 'id_check_box'}
+    keys %column_defs;
+
+  # make all sortable
+  my @sortable =
+    grep {$_ ne 'id_check_box'}
+    keys %column_defs;
+
+  use SL::Presenter::Filter::Part;
+  my $filter_html = SL::Presenter::Filter::Part::filter(
+    $::form->{filter},
+    show_price_change_printed_filter => 1,
+    active_in_report => $::form->{active_in_report}
+  );
+
+  $report->set_options(
+    std_column_visibility => 1,
+    controller_class      => 'Part',
+    output_format         => 'HTML',
+    raw_top_info_text     => $self->render(
+     'part/_print_part_labels_of_changed_prices_report_top',
+     { output => 0 },
+     FILTER_HTML => $filter_html,
+    ),
+    raw_bottom_info_text  => $self->render(
+     'part/_print_part_labels_of_changed_prices_report_bottom',
+     { output => 0 },
+     models => $self->models
+    ),
+    title                 => t8('Parts with Changed Prices'),
+    allow_pdf_export      => 1,
+    allow_csv_export      => 1,
+  );
+
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns_order);
+  $report->set_export_options(
+    'search_print_part_labels_of_changed_prices',
+    qw(filter active_in_report)
+  );
+  $report->set_options_from_form;
+  $self->models->set_report_generator_sort_options(
+    report => $report,
+    sortable_columns => \@sortable
+  );
+
+  $self->report_generator_list_objects(
+    report => $report,
+    objects => $self->models->get,
+  );
+}
+
 sub action_print_label {
   my ($self) = @_;
   # TODO: implement
@@ -1242,6 +1457,95 @@ sub build_bin_select {
   );
 }
 
+sub save {
+  my ($self) = @_;
+  my @errors = ();
+
+  my $is_new = !$self->part->id;
+
+  # check that the part hasn't been modified
+  unless ( $is_new ) {
+    $self->check_part_not_modified or
+      return [t8('The document has been changed by another user. Please reopen it in another window and copy the changes to the new window')];
+  }
+
+  $self->parse_form;
+
+  @errors = $self->part->validate;
+  return \@errors if @errors;
+
+  if ($is_new) {
+    # Ensure CVars that should be enabled by default actually are when
+    # creating new parts.
+    my @default_valid_configs =
+      grep { ! $_->{flag_defaults_to_invalid} }
+      grep { $_->{module} eq 'IC' }
+      @{ CVar->get_configs() };
+
+    $::form->{"cvar_" . $_->{name} . "_valid"} = 1 for @default_valid_configs;
+  } else {
+    $self->{lastcost_modified} = $self->check_lastcost_modified;
+  }
+
+  # $self->part has been loaded, parsed and validated without errors and is ready to be saved
+  $self->part->db->with_transaction(sub {
+
+    $self->part->save(cascade => 1);
+    $self->part->set_lastcost_assemblies_and_assortiments if $self->{lastcost_modified};
+
+    SL::DB::History->new(
+      trans_id    => $self->part->id,
+      snumbers    => 'partnumber_' . $self->part->partnumber,
+      employee_id => SL::DB::Manager::Employee->current->id,
+      what_done   => 'part',
+      addition    => 'SAVED',
+    )->save();
+
+    CVar->save_custom_variables(
+      dbh           => $self->part->db->dbh,
+      module        => 'IC',
+      trans_id      => $self->part->id,
+      variables     => $::form, # $::form->{cvar} would be nicer
+      save_validity => 1,
+    );
+
+    1;
+  }) || push(@errors, $self->part->db->error);
+
+  return \@errors;
+}
+
+sub save_with_render_error {
+  my ($self) = @_;
+
+  # checks that depend only on submitted $::form
+  if (!$self->check_form) {
+    $self->js->render();
+    return 0;
+  }
+
+  my $errors = $self->save();
+
+  if (scalar @{ $errors }) {
+    $self->js->error(t8('The item couldn\'t be saved!'));
+    $self->js->error(@{ $errors });
+    $self->js->render();
+    return 0;
+  }
+
+  return 1;
+}
+
+sub js_reset_part_after_save {
+  my ($self) = @_;
+
+  $self->part->load();
+  $self->js
+    ->val('#part_id',               $self->part->id)
+    ->val('#part_partnumber',       $self->part->partnumber)
+    ->val('#part_weight_as_number', $self->part->weight_as_number)
+    ->val('#last_modification',     $self->part->last_modification . "");
+}
 
 # get_set_inits for partpicker
 
@@ -1285,7 +1589,10 @@ sub init_models {
         dir  => 1,
       },
       partnumber  => t8('Partnumber'),
-      description  => t8('Description'),
+      description => t8('Description'),
+      ean         => t8('EAN'),
+      notes       => t8('Notes'),
+      partsgroup  => t8('Partsgroup'),
     },
     with_objects => [ qw(unit_obj classification) ],
   );
@@ -1502,6 +1809,45 @@ sub init_parts_classification_filter {
   return [ used_for_purchase => 't' ] if $::form->{parts_classification_type} eq 'purchases';
 
   die "no query rules for parts_classification_type " . $::form->{parts_classification_type};
+}
+
+sub init_print_options {
+
+  my $print_form = Form->new('');
+  $print_form->{type}      = 'part';
+  $print_form->{printers}  = SL::DB::Manager::Printer->get_all_sorted;
+  $print_form->{languages} = SL::DB::Manager::Language->get_all_sorted;
+
+  return SL::Helper::PrintOptions->get_print_options(
+      form => $print_form,
+      options => {dialog_name_prefix => 'print_options.',
+                  show_headers       => 1,
+                  no_queue           => 1,
+                  no_postscript      => 1,
+                  no_opendocument    => 1,
+                  no_html            => 1},
+    );
+}
+
+sub init_part_labels_for_stock_print_options {
+
+  my $print_form = Form->new('');
+  $print_form->{type}      = 'part';
+  $print_form->{printers}  = SL::DB::Manager::Printer->get_all_sorted;
+  $print_form->{languages} = SL::DB::Manager::Language->get_all_sorted;
+
+  return SL::Helper::PrintOptions->get_print_options(
+      form => $print_form,
+      options => {
+        dialog_name_prefix => 'print_options.',
+        show_headers       => 1,
+        no_queue           => 1,
+        no_postscript      => 1,
+        no_opendocument    => 1,
+        no_html            => 1,
+        no_display_copies  => 1,
+      },
+    );
 }
 
 # simple checks to run on $::form before saving
@@ -1766,7 +2112,21 @@ sub _setup_form_action_bar {
       combobox => [
         action => [
           t8('Export'),
-          only_if => $self->part->is_assembly || $self->part->is_assortment,
+        ],
+        action => [
+          t8('Save and print'),
+          call     => [ 'kivi.Part.show_print_options' ],
+          disabled => !$may_edit ? t8('You do not have the permissions to access this function.') : undef,
+          checks   => [ 'kivi.validate_form' ],
+          only_if  => !$::form->{inline_create},
+        ],
+        action => [
+          t8('Save and Print Labels for Stock'),
+          call     => [ 'kivi.Part.show_part_labels_for_stock_print_options' ],
+          disabled => !$self->part->id       ? t8('The object has not been saved yet.')
+                    : !$self->part->stockqty ? t8('The part has no stock.')
+                    : !$may_edit             ? t8('You do not have the permissions to access this function.') : undef,
+          checks   => [ 'kivi.validate_form' ],
         ],
         action => [
           $self->part->is_assembly ? t8('Assembly items') : t8('Assortment items'),
@@ -1815,6 +2175,37 @@ sub _setup_form_action_bar {
         disabled => !$self->part->id ? t8('This object has not been saved yet.')
                   : !$may_edit       ? t8('You do not have the permissions to access this function.')
                   :                    undef,
+      ],
+    );
+  }
+}
+
+sub _setup_search_print_part_labels_of_changed_prices_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [
+          '#filter_form', {
+            action => 'Part/search_print_part_labels_of_changed_prices',
+          }
+        ],
+        accesskey => 'enter',
+      ],
+      combobox => [
+        action => [
+          t8('Print'),
+        ],
+        action => [
+          t8('Print one Label'),
+          call     => [ 'kivi.Part.show_print_options' ],
+        ],
+        action => [
+          t8('Print Labels for Stock'),
+          call     => [ 'kivi.Part.show_part_labels_for_stock_print_options' ],
+        ],
       ],
     );
   }
@@ -1933,6 +2324,11 @@ template.
 =item C<action_save>
 
 Saves the current part and then reloads the edit page for the part.
+
+=item C<action_save_and_print>
+
+Saves the current part, prints the selected template and then reloads the edit
+page for the part.
 
 =item C<action_use_as_new>
 
@@ -2132,6 +2528,26 @@ Takes two params:
 Depending on the price_type the lastcost sum or sellprice sum is returned.
 
 Doesn't work for recursive items.
+
+=item C<save>
+
+Helper function for saving the part object in $self->part. Returns a error list
+on failure.
+
+=item C<save_with_render_error>
+
+Helper function for checking the form, saving the part object and error
+rendering. Returns 1 on success and 0 when a error is rendered.
+
+It can be called like this:
+
+  $self->save_with_render_error() or return;
+
+=item C<js_reset_part_after_save>
+
+Helper function for updating changed values after save in the form via js. It
+chances 'part_id', 'part_partnumber', 'part_weight_as_number' and
+'last_modification'.
 
 =back
 
