@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[% USE LxERP %]
 [%- USE L %]
 <h1>[% 'DATEV - Export Assistent' | $T8 %]</h1>
 
@@ -65,6 +66,17 @@
            <td align=left></td>
            <td>[% L.date_tag('gldatefrom') %]</td>
          </tr>
+        <tr>
+          <td>[% 'Transaction Type' | $T8 %]</td>
+          <td align=left></td>
+          <td>[% L.select_tag("transaction_type", [
+                [ "all", LxERP.t8("All") ],
+                [ "ar",  LxERP.t8("AR Transactions") ],
+                [ "ap",  LxERP.t8("AP Transactions") ],
+              ],
+              default=all,
+              style=style) %]</td>
+        </tr>
         </table>
      </td>
    </tr>

@@ -4562,6 +4562,7 @@ $self->{texts} = {
   'Transaction Date missing!'   => '',
   'Transaction Details'         => '',
   'Transaction ID missing.'     => '',
+  'Transaction Type'            => '',
   'Transaction Value'           => '',
   'Transaction Value Currency Code' => '',
   'Transaction date'            => '',

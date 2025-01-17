@@ -1,4 +1,5 @@
 [% USE T8 %]
+[% USE LxERP %]
 [% USE L %]
 
 <h1>[% 'DATEV - Export Assistent' | $T8 %]</h1>
@@ -60,7 +61,21 @@
       </tr>
     </tbody>
   </table>
-
+  <table class="tbl-horizontal">
+    <caption>[% 'Transaction Type' | $T8 %]</caption>
+    <tbody>
+      <tr>
+        <td>[% 'Type' | $T8 %]</td>
+        <td>[% L.select_tag("transaction_type", [
+                [ "all", LxERP.t8("All") ],
+                [ "ar",  LxERP.t8("AR Transactions") ],
+                [ "ap",  LxERP.t8("AP Transactions") ],
+              ],
+              default=all,
+              style=style) %]</td>
+      </tr>
+    </tbody>
+  </table>
   [% IF ALL_DEPARTMENTS.as_list.size %]
     <table class="tbl-horizontal">
       <caption>[% 'Department' | $T8 %]</caption>
