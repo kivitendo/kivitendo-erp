@@ -10,6 +10,8 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+- DATEV-Export filtert nach Debitoren- oder Kreditoren-
+  buchungen
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
