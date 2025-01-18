@@ -12,7 +12,7 @@
       [% L.hidden_tag("order.orderitems[+].id", ITEM.id, id='item_' _ ID) %]
     </td>
     <td>
-      [% L.div_tag(ITEM.partnumber, name="partnumber") %]
+      [% L.div_tag(ITEM.part.partnumber, name="partnumber") %]
       [% L.hidden_tag('order.orderitems[].parts_id', ITEM.parts_id) %]
     </td>
     <td>
@@ -20,10 +20,13 @@
       [% L.hidden_tag('order.orderitems[].description', ITEM.description) %]
     </td>
     <td>
-      [% L.div_tag(ITEM.ITEM.qty_as_number, name="qty", class="numeric") %]
+      <div style="display:flex">
+      [% L.div_tag(ITEM.qty_as_number, name="qty", class="numeric") %]
       [% L.hidden_tag('order.orderitems[].qty', ITEM.qty) %]
+      &nbsp;
       [% L.div_tag(ITEM.unit, name="unit") %]
       [% L.hidden_tag('order.orderitems[].unit', ITEM.unit) %]
+      </div>
     </td>
     <td>
       [% L.div_tag(ITEM.sellprice_as_number, name="sellprice", class="numeric") %]
