@@ -404,17 +404,18 @@ sub get_simple_stock_sql {
      SELECT w.description                         AS warehouse_description,
             b.description                         AS bin_description,
             SUM(i.qty)                            AS qty,
-            SUM(i.qty * p.lastcost)               AS stock_value,
+            SUM(i.qty * p.lastcost / COALESCE(pfac.factor, 1))               AS stock_value,
             p.unit                                AS unit,
             LEAD(w.description)           OVER pt AS wh_lead,            -- to detect warehouse changes for subtotals in template
             SUM( SUM(i.qty) )             OVER pt AS run_qty,            -- running total of total qty
             SUM( SUM(i.qty) )             OVER wh AS wh_run_qty,         -- running total of warehouse qty
-            SUM( SUM(i.qty * p.lastcost)) OVER pt AS run_stock_value,    -- running total of total stock_value
-            SUM( SUM(i.qty * p.lastcost)) OVER wh AS wh_run_stock_value  -- running total of warehouse stock_value
+            SUM( SUM(i.qty * p.lastcost / COALESCE(pfac.factor, 1))) OVER pt AS run_stock_value,    -- running total of total stock_value
+            SUM( SUM(i.qty * p.lastcost / COALESCE(pfac.factor, 1))) OVER wh AS wh_run_stock_value  -- running total of warehouse stock_value
        FROM inventory i
             LEFT JOIN parts p     ON (p.id           = i.parts_id)
             LEFT JOIN warehouse w ON (i.warehouse_id = w.id)
             LEFT JOIN bin b       ON (i.bin_id       = b.id)
+            LEFT JOIN price_factors pfac ON (p.price_factor_id = pfac.id)
       WHERE parts_id = ?
    GROUP BY w.description, w.sortkey, b.description, p.unit, i.parts_id
      HAVING SUM(qty) != 0
