@@ -40,7 +40,7 @@ sub action_add {
   );
 }
 
-sub action_edit_order_item_row_point_of_sales_dialog {
+sub action_edit_order_item_row_dialog {
   my ($self) = @_;
 
   my $item;
@@ -54,15 +54,36 @@ sub action_edit_order_item_row_point_of_sales_dialog {
   die "cound not find item with item with id $temp_item_id" unless $item;
 
   $self->render(
-    'pos/_edit_order_item_row_point_of_sales_dialog', { layout => 0 },
+    'pos/_edit_order_item_row_dialog', { layout => 0 },
     popup_dialog                 => 1,
     popup_js_delete_row_function => "kivi.POS.delete_order_item_row_point_of_sales('$temp_item_id')",
-    popup_js_close_function      => '$("#edit_order_item_row_point_of_sales_dialog").dialog("close")',
+    popup_js_close_function      => '$("#edit_order_item_row_dialog").dialog("close")',
     popup_js_assign_function     => "kivi.POS.assign_edit_order_item_row_point_of_sales('$temp_item_id')",
     ITEM                         => $item
   );
 }
 
+sub action_add_discount_item_dialog {
+  my ($self) = @_;
+
+  my $type = $::form->{discount}->{type};
+  my $type_name;
+  if ($type eq 'percent') {
+    $type_name = t8('Percent');
+  } elsif ($type eq 'absolute') {
+    $type_name = t8('Absolute');
+  } else {
+    die "unknown value for discount.type '$type'";
+  }
+
+  $self->render(
+    'pos/_add_discount_item_dialog', { layout => 0 },
+    popup_dialog            => 1,
+    popup_js_close_function => '$("#add_discount_item_dialog").dialog("close")',
+    TYPE_NAME               => $type_name,
+
+  );
+}
 #
 # helpers
 #

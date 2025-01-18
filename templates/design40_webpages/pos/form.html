@@ -274,7 +274,7 @@
             </table>
           </div> <!-- end table_left -->
         </div><!-- /.filter_toggle -->
-        <div class="wrapper" style="max-height:110px">
+        <div class="wrapper" style="max-height:120px">
           [% PROCESS pos/tabs/_item_input.html SELF=SELF %]
           <div class="input-panel control-panel short">
             <table>
@@ -310,11 +310,31 @@
               </tr>
             </table>
           </div>
-          <div class="input-panel pos_button control-panel" onclick="kivi.POS">
-            Nachlass gewähren
+          <div class="input-panel control-panel short">
+            [% L.hidden_tag('discount.type', '') %]
+            [% L.hidden_tag('discount.value', '') %]
+            <table class="tbl-plain condensed">
+              <caption>
+                [% 'Apply discount' | $T8 %]!
+              </caption>
+              <body>
+                <tr>
+                  <td>
+                    <div class="pos_button control-panel" onclick="kivi.POS.open_discount_item_dialog('percent')">
+                      %
+                    </div>
+                  </td>
+                  <td>
+                    <div class="pos_button control-panel" onclick="kivi.POS.open_discount_item_dialog('absolute')">
+                      [% 'NUM' | $T8 %]
+                    </div>
+                  </td>
+                </tr>
+              </body>
+            </table>
           </div>
         </div>
-        <div id="row_table_scroll_id" class="horizontal-scroll-wrapper" style="max-height:calc(100% - 200px)">
+        <div id="row_table_scroll_id" class="horizontal-scroll-wrapper" style="max-height:calc(100% - 120px - 100px)">
           <table id="row_table_id" class="tbl-list" style="position:relative">
             <caption>[% 'Part' | $T8 %]</caption>
             <thead style="position:sticky;top:0">

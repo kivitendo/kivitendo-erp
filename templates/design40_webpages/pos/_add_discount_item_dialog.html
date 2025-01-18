@@ -1,0 +1,33 @@
+[% USE T8 %]
+[% USE L %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<form method="post" id="item_row_pos_form" onsubmit="kivi.POS.apply_dicount_item_value()">
+  <table class="tbl-horizontal">
+    <caption>
+      [% TYPE_NAME | html %]
+    </caption>
+    <tbody>
+      <tr>
+        <th>
+          [% 'Discount Value' | $T8 %]
+        </th>
+        <td>
+          [% L.input_tag(
+            'discount.value_input',
+            '',
+            class='reformat_number numeric wi-small',
+            ) %]
+        </td>
+        <td>
+          [% L.submit_tag('apply_dicount_item_value', LxERP.t8('Apply')) %]
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+ <p>
+  [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel')) %]
+ </p>
+</form>
