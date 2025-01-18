@@ -28,6 +28,7 @@ my %sort_columns = (
   qty               => t8('Qty'),
   shipped_qty       => t8('shipped'),
   not_shipped_qty   => t8('not shipped'),
+  status            => t8('Status'),
   ordnumber         => t8('Order'),
   customer          => t8('Customer'),
   vendor            => t8('Vendor'),
@@ -77,6 +78,7 @@ sub prepare_report {
     customer          => {      sub => sub { $_[0]->order->customer->name                                                    },
                             visible => $vc eq 'customer',
                            obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
+    status            => {      sub => sub { ref $_[0]->order->order_status ? $_[0]->order->order_status->name : ''          } },
     transaction_description => { sub => sub { $_[0]->order->transaction_description                                          } },
   );
 
