@@ -747,7 +747,7 @@ sub generate_journal {
   $form->{report_generator_output_format} = 'HTML' if !$form->{report_generator_output_format};
 
   my %filter;
-  my @columns = qw(ids trans_id date warehouse_from bin_from warehouse_to bin_to partnumber type_and_classific partdescription chargenumber bestbefore comment direction qty partunit trans_type employee oe_id projectnumber);
+  my @columns = qw(ids trans_id date warehouse_from bin_from warehouse_to bin_to partnumber type_and_classific partdescription chargenumber bestbefore comment used_for direction qty partunit trans_type employee oe_id projectnumber);
 
   # filter stuff
   map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore transtype_id transtype_ids comment projectnumber trans_id id);
@@ -813,6 +813,7 @@ sub generate_journal {
     'trans_id'        => { 'text' => $locale->text('Trans Id'), },
     'trans_type'      => { 'text' => $locale->text('Trans Type'), },
     'comment'         => { 'text' => $locale->text('Comment'), },
+    'used_for'        => { 'text' => $locale->text('Used for Assembly'), },
     'warehouse_from'  => { 'text' => $locale->text('Warehouse From'), },
     'warehouse_to'    => { 'text' => $locale->text('Warehouse To'), },
     'bin_from'        => { 'text' => $locale->text('Bin From'), },
@@ -929,6 +930,15 @@ sub generate_journal {
       if ($info && $info->{id} && $info->{type} && $doc_types{$info->{type}}) {
         $row->{oe_id} = { data => $doc_types{ $info->{type} }->{title} . ' ' . $info->{number},
                           link => build_std_url('script=' . $doc_types{ $info->{type} }->{script} . '.pl', 'action=' . $doc_types{ $info->{type} }->{action}, 'id=' . $info->{id}, 'type=' . $info->{type}) };
+      }
+    }
+    if ($form->{l_used_for} && $entry->{used_for}) {
+      $row->{used_for}->{data} = '';
+      my $info = $entry->{used_for};
+      if ($info->{parts_id} && $info->{description}) {
+        $row->{used_for} = { data => $info->{description},
+                             link => build_std_url("script=controller.pl", 'action=Part/edit', 'part.id=' . E($info->{parts_id}), 'callbackd', $href)
+                           };
       }
     }
 

@@ -382,11 +382,11 @@ sub get_warehouse_journal {
   # take all the requested ones from the first hash and overwrite them from the out/in hashes if present.
   for my $i ('trans', 'out', 'in') {
     $select{$i} = join ', ', map { +/^l_/; ($select_tokens{$i}{"$'"} || $select_tokens{'trans'}{"$'"}) . " AS r_$'" }
-          ( grep( { !/qty$/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_qty l_partunit l_shippingdate) );
+          ( grep( { !/used_for$/ and !/qty$/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_qty l_partunit l_shippingdate) );
   }
 
   my $group_clause = join ", ", map { +/^l_/; "r_$'" }
-        ( grep( { !/qty$/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_partunit l_shippingdate l_itime) );
+        ( grep( { !/used_for$/ and !/qty$/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_partunit l_shippingdate l_itime) );
 
   $where_clause = defined($where_clause) ? $where_clause : '';
 
@@ -479,7 +479,20 @@ SQL
     $h_oe_id = prepare_query($form, $dbh, $q_oe_id);
   }
 
+  my ($h_used_for, $q_used_for);
+  if ($form->{l_used_for}) {
+    $q_used_for = <<SQL;
+      SELECT parts_id, p.description FROM inventory
+      LEFT JOIN parts p ON (p.id=parts_id)
+      WHERE  trans_id= ?
+      AND    trans_type_id = (SELECT id FROM transfer_type WHERE description='assembled')
+SQL
+    $h_used_for = prepare_query($form, $dbh, $q_used_for);
+  }
+
   my @contents = ();
+  my %trans_id_to_assembly_id;
+
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     map { /^r_/; $ref->{"$'"} = $ref->{$_} } keys %$ref;
     my $qty = $ref->{"qty"} * 1;
@@ -500,11 +513,20 @@ SQL
       $ref->{oe_id_info} = $h_oe_id->fetchrow_hashref() || {};
     }
 
+    if ($form->{l_used_for} && $ref->{trans_type} eq 'used') {
+      if (! $trans_id_to_assembly_id{$ref->{trans_id}}) {
+        do_statement($form, $h_used_for, $q_used_for, $ref->{trans_id});
+        $trans_id_to_assembly_id{$ref->{trans_id}} = $h_used_for->fetchrow_hashref() || {};
+      }
+      $ref->{used_for} = $trans_id_to_assembly_id{$ref->{trans_id}};
+    }
+
     push @contents, $ref;
   }
 
   $sth->finish();
   $h_oe_id->finish() if $h_oe_id;
+  $h_used_for->finish() if $h_used_for;
 
   $main::lxdebug->leave_sub();
 
