@@ -16,4 +16,12 @@ sub description_t8 {
   return $::locale->text(shift()->description);
 }
 
+sub direction_symbol {
+  my $direction = shift()->direction;
+  return    $direction eq 'in'       ? '+'
+          : $direction eq 'out'      ? '-'
+          : $direction eq 'transfer' ? '='
+          : die "Invalid direction entry";
+}
+
 1;
