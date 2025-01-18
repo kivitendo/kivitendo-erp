@@ -903,6 +903,9 @@ sub generate_journal {
         'data'  => $entry->{$column},
         'align' => $column_alignment{$column},
       };
+      if ($column eq 'partnumber') {
+        $row->{$column}->{link}  = build_std_url("script=controller.pl", 'action=Part/edit', 'part.id=' . E($entry->{parts_id}), 'callback', $href);
+      }
     }
 
     if ($entry->{assembled}) {
