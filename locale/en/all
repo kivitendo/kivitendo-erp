@@ -3053,6 +3053,7 @@ $self->{texts} = {
   'Produce'                     => '',
   'Produce Assembly'            => '',
   'Produce Assembly Configuration' => '',
+  'Produce assembly allows empty assembly items' => '',
   'Produce assembly consumes services if assigned as a assembly item' => '',
   'Produce assembly only if all parts are in the same warehouse' => '',
   'Production'                  => 'Production',
