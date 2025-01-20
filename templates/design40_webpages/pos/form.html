@@ -362,7 +362,12 @@
           <div class="pos_button control-panel">Nachdruck Quittung</div>
           <div class="pos_button control-panel">Auf Rechnung</div>
           <div class="pos_button control-panel">Entnahme erfassen</div>
-          <div class="pos_button control-panel">Auf Lieferschein</div>
+          <div
+            class="pos_button control-panel"
+            onclick="kivi.POS.submit({action: 'to_delivery_order'})"
+            >
+            [% "on Delivery Order" | $T8 %]
+          </div>
           <div class="pos_button control-panel">Quittung parken</div>
           <div class="pos_button control-panel">geparkte Quittung</div>
           <div class="pos_button control-panel">Bezahlen</div>

@@ -8,6 +8,7 @@ use SL::Controller::Order;
 use SL::Model::Record;
 use SL::DB::ValidityToken;
 use SL::DB::Order::TypeData qw(:types);
+use SL::DB::DeliveryOrder::TypeData qw(:types);
 
 use SL::Locale::String qw(t8);
 
@@ -84,6 +85,24 @@ sub action_add_discount_item_dialog {
 
   );
 }
+
+sub action_to_delivery_order {
+  my ($self) = @_;
+  my $order = $self->order;
+
+  my $delivery_order = SL::Model::Record->new_from_workflow(
+    $order,
+    SALES_DELIVERY_ORDER_TYPE(),
+    {
+      no_linked_records => 1, # order is not saved
+    }
+  );
+
+  # $main::lxdebug->dump(0, "TST: ", $delivery_order);
+  # $main::lxdebug->dump(0, "TST: ", $delivery_order->items());
+
+}
+
 #
 # helpers
 #

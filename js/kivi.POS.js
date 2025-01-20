@@ -1,4 +1,14 @@
 namespace('kivi.POS', function(ns) {
+  ns.check_items = function() {
+
+    if ($('.row_entry').length == 0) {
+      alert(kivi.t8('Please add items first.'));
+      return false;
+    }
+
+    return true;
+  };
+
   ns.delete_order_item_row_point_of_sales = function(item_id) {
     var row = $('#item_' + item_id).parents("tbody").first();
     $(row).remove();
@@ -76,6 +86,18 @@ namespace('kivi.POS', function(ns) {
       kivi.Order.add_discount_item();
     }
     $("#add_discount_item_dialog").dialog("close");
+  }
+
+  ns.submit = function(params) {
+    if (!kivi.Order.check_cv()) return;
+    if (!ns.check_items()) return;
+
+    const action = params.action;
+
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'POS/' + action });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
   }
 
 });
