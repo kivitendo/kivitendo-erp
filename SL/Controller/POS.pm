@@ -19,7 +19,7 @@ use Rose::Object::MakeMethods::Generic
    ) ]
 );
 
-# add a new point of sales order
+# add a new point of sale order
 # it's a sales order with a diffrent form
 sub action_add {
   my ($self) = @_;
@@ -36,7 +36,7 @@ sub action_add {
 
   $self->render(
     'pos/form',
-    title => t8('Point of Sales'),
+    title => t8('Point Of Sale'),
     %{$self->{template_args}}
   );
 }
@@ -57,9 +57,9 @@ sub action_edit_order_item_row_dialog {
   $self->render(
     'pos/_edit_order_item_row_dialog', { layout => 0 },
     popup_dialog                 => 1,
-    popup_js_delete_row_function => "kivi.POS.delete_order_item_row_point_of_sales('$temp_item_id')",
+    popup_js_delete_row_function => "kivi.POS.delete_order_item_row_point_of_sale('$temp_item_id')",
     popup_js_close_function      => '$("#edit_order_item_row_dialog").dialog("close")',
-    popup_js_assign_function     => "kivi.POS.assign_edit_order_item_row_point_of_sales('$temp_item_id')",
+    popup_js_assign_function     => "kivi.POS.assign_edit_order_item_row_point_of_sale('$temp_item_id')",
     ITEM                         => $item
   );
 }

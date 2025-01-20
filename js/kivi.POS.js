@@ -9,7 +9,7 @@ namespace('kivi.POS', function(ns) {
     return true;
   };
 
-  ns.delete_order_item_row_point_of_sales = function(item_id) {
+  ns.delete_order_item_row_point_of_sale = function(item_id) {
     var row = $('#item_' + item_id).parents("tbody").first();
     $(row).remove();
 
@@ -19,7 +19,7 @@ namespace('kivi.POS', function(ns) {
   };
 
 
-  ns.edit_order_item_row_point_of_sales = function(item_id) {
+  ns.edit_order_item_row_point_of_sale = function(item_id) {
 
     var data = $('#order_form').serializeArray();
     data.push({ name: 'item_id', value: item_id });
@@ -37,7 +37,7 @@ namespace('kivi.POS', function(ns) {
     });
   };
 
-  ns.assign_edit_order_item_row_point_of_sales = function(item_id) {
+  ns.assign_edit_order_item_row_point_of_sale = function(item_id) {
     var row = $('#item_' + item_id).parents("tbody").first();
 
     var discount = $('#item_discount_as_percent').val();
