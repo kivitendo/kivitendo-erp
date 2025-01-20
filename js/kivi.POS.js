@@ -142,4 +142,18 @@ namespace('kivi.POS', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   }
 
+  ns.open_receipt_load_dialog = function() {
+    kivi.popup_dialog({
+      url:    'controller.pl?action=POS/open_receipt_load_dialog',
+      id:     'receipt_load_dialog',
+      load:   function() {
+        kivi.reinit_widgets();
+      },
+      dialog: {
+        title:  kivi.t8('Open stored receipts'),
+        width:  800,
+        height: 600
+      }
+    });
+  }
 });

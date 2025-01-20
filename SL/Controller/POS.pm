@@ -12,6 +12,7 @@ use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::TaxZone;
 use SL::DB::Currency;
 
+use SL::DBUtils qw(do_query);
 use SL::Locale::String qw(t8);
 
 use Rose::Object::MakeMethods::Generic
@@ -26,6 +27,10 @@ use Rose::Object::MakeMethods::Generic
 sub action_add {
   my ($self) = @_;
   $::form->{type} = SALES_ORDER_TYPE();
+
+  if ($::form->{id}) {
+    $self->load_receipt(delete $::form->{id});
+  }
 
   $self->order(SL::Model::Record->update_after_new($self->order));
 
@@ -143,6 +148,47 @@ sub action_add_discount_item_dialog {
   );
 }
 
+sub action_parking_receipt {
+  my ($self) = @_;
+  my $order = $self->order;
+
+  SL::DB->client->with_transaction( sub {
+    $order->save();
+    my $query = <<SQL;
+SQL
+    do_query(
+      $::form,
+      SL::DB->client->dbh,
+      q| UPDATE oe SET record_type = ? WHERE id = ? |,
+      SALES_RECEIPT_ORDER_TYPE(), $order->id
+    );
+    $self->order(undef);
+    1;
+  });
+
+  $self->redirect_to(
+    action => 'add',
+  );
+}
+
+sub action_open_receipt_load_dialog {
+  my ($self) = @_;
+
+  my $orders = SL::DB::Manager::Order->get_all(
+    where => [
+      record_type => SALES_RECEIPT_ORDER_TYPE(),
+    ],
+    sort_by => 'itime',
+  );
+
+  $self->render(
+    'pos/_receipt_load_dialog', { layout => 0 },
+    popup_dialog                 => 1,
+    popup_js_close_function      => '$("#receipt_load_dialog").dialog("close")',
+    ORDERS                       => $orders,
+  );
+}
+
 sub action_to_delivery_order {
   my ($self) = @_;
   my $order = $self->order;
@@ -181,6 +227,29 @@ sub order {
   my $self = shift @_;
   $self->order_controller->order(@_);
 }
+
+sub load_receipt {
+  my ($self, $order_id) = @_;
+
+  my $order_to_delete = SL::DB::Manager::Order->find_by(
+    id          => $order_id,
+    record_type => SALES_RECEIPT_ORDER_TYPE,
+  );
+
+  return unless $order_to_delete;
+
+  $order_to_delete->record_type(SALES_ORDER_TYPE());
+
+  my $new_order = SL::Model::Record->new_from_workflow(
+    $order_to_delete,
+    SALES_ORDER_TYPE(),
+    no_linked_records => 1
+  );
+  $order_to_delete->delete;
+
+  return $self->order($new_order);
+}
+
 
 #
 # intits

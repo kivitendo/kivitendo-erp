@@ -40,7 +40,7 @@ __PACKAGE__->meta->columns(
   payment_id                 => { type => 'integer' },
   proforma                   => { type => 'boolean', default => 'false' },
   quonumber                  => { type => 'text' },
-  record_type                => { type => 'enum', check_in => [ 'request_quotation', 'sales_quotation', 'purchase_quotation_intake', 'purchase_order', 'sales_order_intake', 'sales_order', 'purchase_order_confirmation' ], db_type => 'order_types', not_null => 1 },
+  record_type                => { type => 'enum', check_in => [ 'request_quotation', 'sales_quotation', 'purchase_quotation_intake', 'purchase_order', 'sales_order_intake', 'sales_order', 'purchase_order_confirmation', 'sales_receipt' ], db_type => 'order_types', not_null => 1 },
   reqdate                    => { type => 'date' },
   salesman_id                => { type => 'integer' },
   shippingpoint              => { type => 'text' },
