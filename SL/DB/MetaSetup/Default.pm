@@ -156,6 +156,7 @@ __PACKAGE__->meta->columns(
   pdonumber                                 => { type => 'text' },
   pocnumber                                 => { type => 'text' },
   ponumber                                  => { type => 'text' },
+  pos_cash_customer_id                      => { type => 'integer' },
   pqinumber                                 => { type => 'text' },
   precision                                 => { type => 'numeric', default => '0.01', not_null => 1, precision => 15, scale => 5 },
   print_interpolate_variables_in_positions  => { type => 'boolean', default => 'true', not_null => 1 },
@@ -293,6 +294,11 @@ __PACKAGE__->meta->foreign_keys(
   loss_carried_forward_chart => {
     class       => 'SL::DB::Chart',
     key_columns => { loss_carried_forward_chart_id => 'id' },
+  },
+
+  pos_cash_customer => {
+    class       => 'SL::DB::Customer',
+    key_columns => { pos_cash_customer_id => 'id' },
   },
 
   profit_carried_forward_chart => {

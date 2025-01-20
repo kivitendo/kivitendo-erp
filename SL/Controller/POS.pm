@@ -64,6 +64,22 @@ sub action_edit_order_item_row_dialog {
   );
 }
 
+sub action_set_cash_customer {
+  my ($self) = @_;
+
+  my $cash_customer_id = $::instance_conf->get_pos_cash_customer_id or
+    die "No cash customer set in client config\n";
+  my $cash_customer = SL::DB::Manager::Customer->find_by( id => $cash_customer_id );
+
+  return $self->js
+    ->val('#order_customer_id', $cash_customer->id)
+    ->val(        '#order_customer_id_name', $cash_customer->displayable_name)
+    ->removeClass('#order_customer_id_name', 'customer-vendor-picker-undefined')
+    ->addClass(   '#order_customer_id_name', 'customer-vendor-picker-picked')
+    ->run('kivi.Order.reload_cv_dependent_selections')
+    ->render();
+}
+
 sub action_add_discount_item_dialog {
   my ($self) = @_;
 

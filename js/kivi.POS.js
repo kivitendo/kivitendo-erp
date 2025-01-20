@@ -88,6 +88,13 @@ namespace('kivi.POS', function(ns) {
     $("#add_discount_item_dialog").dialog("close");
   }
 
+  ns.set_cash_customer = function() {
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'POS/set_cash_customer' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+
   ns.submit = function(params) {
     if (!kivi.Order.check_cv()) return;
     if (!ns.check_items()) return;

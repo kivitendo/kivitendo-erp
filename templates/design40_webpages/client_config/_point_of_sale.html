@@ -1,0 +1,31 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+
+<div id="point_of_sale">
+<div class="wrapper" id="wrapper-3">
+
+<table class="tbl-horizontal expanded">
+  <caption>[% 'Default Point of Sale' | $T8 %]</caption>
+  <colgroup> <col class="wi-normal"><col class="wi-mediumsmall"><col class="wi-verywide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8('Cash customer') %]</th>
+      <td>
+        [% P.customer_vendor.picker(
+          "defaults.pos_cash_customer_id",
+          SELF.defaults.pos_cash_customer_id,
+          type="customer",
+          show_details=0,
+          label=LxERP.t8('Customer')
+        ) %]
+      </td>
+      <td class="long-desc"> [% LxERP.t8('Customer for cash transactions without additional information.') %]<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /.wrapper -->
+</div><!-- /#warehouse -->
