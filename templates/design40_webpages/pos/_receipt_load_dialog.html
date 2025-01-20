@@ -1,0 +1,38 @@
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<div>
+  <div>
+    [% FOREACH order = ORDERS %]
+      <div
+        class="pos_button_div control-panel"
+        onclick='document.forms["receipt_form_[% order.id %]"].submit()'
+        >
+        <form method="post" id="receipt_form_[% order.id %]" action="controller.pl">
+          [% L.hidden_tag("action", "POS/add") %]
+          [% L.hidden_tag("id", order.id) %]
+        </form>
+        <table class="tbl-list">
+          <caption>
+            [% order.customer.displayable_name %]
+          </caption>
+          <body>
+            [% FOREACH item = order.items_sorted %]
+            <tr>
+              <td>
+                [% item.part.displayable_name | html %]
+              </td>
+            </tr>
+            [% END %]
+          </body>
+        </table>
+      </div>
+    [% END %]
+  </div>
+  <p>
+  [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel'), class="neutral") %]
+  </p>
+</div>

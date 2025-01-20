@@ -13,10 +13,13 @@ use constant {
   PURCHASE_QUOTATION_INTAKE_TYPE   => 'purchase_quotation_intake',
   SALES_ORDER_INTAKE_TYPE          => 'sales_order_intake',
   PURCHASE_ORDER_CONFIRMATION_TYPE => 'purchase_order_confirmation',
+  SALES_RECEIPT_ORDER_TYPE         => 'sales_receipt',
 };
 
 my @export_types = qw(SALES_ORDER_TYPE PURCHASE_ORDER_TYPE REQUEST_QUOTATION_TYPE SALES_QUOTATION_TYPE
-                      PURCHASE_QUOTATION_INTAKE_TYPE SALES_ORDER_INTAKE_TYPE PURCHASE_ORDER_CONFIRMATION_TYPE);
+                      PURCHASE_QUOTATION_INTAKE_TYPE SALES_ORDER_INTAKE_TYPE PURCHASE_ORDER_CONFIRMATION_TYPE
+                      SALES_RECEIPT_ORDER_TYPE
+                      );
 my @export_subs = qw(valid_types validate_type is_valid_type get get3);
 
 our @EXPORT_OK = (@export_types, @export_subs);

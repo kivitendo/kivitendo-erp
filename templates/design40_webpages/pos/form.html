@@ -6,6 +6,8 @@
 
 <h1>[% FORM.title %]</h1>
 
+[% SELF = SELF.order_controller %]
+
 <form method="post" action="controller.pl" id="order_form">
   [% L.hidden_tag('id',                   SELF.order.id) %]
   [% L.hidden_tag('type',                 SELF.order.type) %]
@@ -50,8 +52,8 @@
           <div class="left_input control-panel small">[% "Salesman" | $T8 %]
             [% L.select_tag(
               'order.salesman_id',
-              SELF.order_controller.all_salesmen,
-              default=(SELF.order.salesman_id ? SELF.order.salesman_id : SELF.order_controller.current_employee_id),
+              SELF.all_salesmen,
+              default=(SELF.order.salesman_id ? SELF.order.salesman_id : SELF.current_employee_id),
               class='wi-lightwide',
               title_key='safe_name'
             ) %]
@@ -133,7 +135,7 @@
                   <td>
                     [% L.select_tag(
                       'order.taxzone_id',
-                      SELF.order_controller.all_taxzones,
+                      SELF.all_taxzones,
                       default=SELF.order.taxzone_id,
                       title_key='description',
                       class='recalc wi-lightwide'
@@ -141,13 +143,13 @@
                   </td>
                 </tr>
                 <!-- CURRENCY und EXCAHANGERATE rausgenommen -->
-                [% IF SELF.order_controller.all_languages.size %]
+                [% IF SELF.all_languages.size %]
                 <tr>
                   <th>[% 'Language' | $T8 %]</th>
                   <td>
                     [% L.select_tag(
                       'order.language_id',
-                      SELF.order_controller.all_languages,
+                      SELF.all_languages,
                       default=SELF.order.language_id,
                       title_key='description',
                       with_empty=1,
@@ -156,13 +158,13 @@
                   </td>
                 </tr>
                 [% END %]
-                [% IF SELF.order_controller.all_departments.size %]
+                [% IF SELF.all_departments.size %]
                 <tr>
                   <th>[% 'Department' | $T8 %]</th>
                   <td>
                     [% L.select_tag(
                       'order.department_id',
-                      SELF.order_controller.all_departments,
+                      SELF.all_departments,
                       default=SELF.order.department_id,
                       title_key='description',
                       with_empty=1,
@@ -211,7 +213,7 @@
                   <td colspan="2">
                     <span class="label above">[% 'Payment Terms' | $T8 %]</span>
                     [% L.select_tag('order.payment_id',
-                      SELF.order_controller.all_payment_terms,
+                      SELF.all_payment_terms,
                       default = SELF.order.payment_id,
                       with_empty = 1,
                       title_key = 'description',
@@ -224,7 +226,7 @@
                     <span class="label above">[% 'Delivery Terms' | $T8 %]</span>
                     [% L.select_tag(
                       'order.delivery_term_id',
-                      SELF.order_controller.all_delivery_terms,
+                      SELF.all_delivery_terms,
                       default = SELF.order.delivery_term_id,
                       with_empty = 1,
                       title_key = 'description',
@@ -233,7 +235,7 @@
                   </td>
                 </tr>
                 <tr id="taxincluded_row_id">
-                  [% IF !SELF.order_controller.taxes.size %]
+                  [% IF !SELF.taxes.size %]
                   <th>
                     <label for="order.taxincluded">
                       [% 'Tax Included' | $T8 %]
@@ -289,7 +291,7 @@
             <table>
 
               [% SET n_col = 12 %]
-              [% IF SELF.order_controller.search_cvpartnumber %]
+              [% IF SELF.search_cvpartnumber %]
                 [% SET n_col = n_col + 1 %]
               [% END %]
 
@@ -377,8 +379,18 @@
             >
             [% "on Delivery Order" | $T8 %]
           </div>
-          <div class="pos_button control-panel">Quittung parken</div>
-          <div class="pos_button control-panel">geparkte Quittung</div>
+          <div
+            class="pos_button control-panel"
+            onclick="kivi.POS.submit({action: 'parking_receipt'})"
+            >
+            [% "Parking Receipt" | $T8 %]
+          </div>
+          <div
+            class="pos_button control-panel"
+            onclick="kivi.POS.open_receipt_load_dialog()"
+            >
+            [% "Parked Receipts" | $T8 %]
+          </div>
           <div class="pos_button control-panel">Bezahlen</div>
           <div class="pos_button control-panel">Abbrechen</div>
         </div>
