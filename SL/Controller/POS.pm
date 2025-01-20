@@ -9,6 +9,8 @@ use SL::Model::Record;
 use SL::DB::ValidityToken;
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder::TypeData qw(:types);
+use SL::DB::TaxZone;
+use SL::DB::Currency;
 
 use SL::Locale::String qw(t8);
 
@@ -68,16 +70,56 @@ sub action_set_cash_customer {
   my ($self) = @_;
 
   my $cash_customer_id = $::instance_conf->get_pos_cash_customer_id or
-    die "No cash customer set in client config\n";
+    die "No cash customer set in client config.";
   my $cash_customer = SL::DB::Manager::Customer->find_by( id => $cash_customer_id );
 
+  $self->change_customer($cash_customer);
+}
+
+sub action_create_new_customer {
+  my ($self) = @_;
+  die "id can't be given" if defined $::form->{new_customer}->{id};
+  my $name = delete $::form->{new_customer}->{name}
+    or die "name is needed.";
+
+  my $taxzone_id = SL::DB::Manager::TaxZone->get_all_sorted(
+    query => [ obsolete => 0 ]
+  )->[0]->id;
+  my $currency_id = SL::DB::Default->get->currency_id;
+
+  my $new_customer = SL::DB::Customer->new(
+    name => $name,
+    taxzone_id  => $taxzone_id,
+    currency_id => $currency_id,
+    %{$::form->{new_customer}}
+  );
+  $new_customer->save();
+
+  $self->change_customer($new_customer);
+}
+
+sub change_customer {
+  my ($self, $customer) = @_;
+
+  die "Need customer object." unless ref $customer eq 'SL::DB::Customer';
+
   return $self->js
-    ->val('#order_customer_id', $cash_customer->id)
-    ->val(        '#order_customer_id_name', $cash_customer->displayable_name)
+    ->val(        '#order_customer_id',      $customer->id)
+    ->val(        '#order_customer_id_name', $customer->displayable_name)
     ->removeClass('#order_customer_id_name', 'customer-vendor-picker-undefined')
     ->addClass(   '#order_customer_id_name', 'customer-vendor-picker-picked')
     ->run('kivi.Order.reload_cv_dependent_selections')
     ->render();
+}
+
+sub action_open_new_customer_dialog {
+  my ($self) = @_;
+
+  $self->render(
+    'pos/_new_customer_dialog', { layout => 0 },
+    popup_dialog            => 1,
+    popup_js_close_function => '$("#new_customer_dialog").dialog("close")',
+  );
 }
 
 sub action_add_discount_item_dialog {
@@ -98,7 +140,6 @@ sub action_add_discount_item_dialog {
     popup_dialog            => 1,
     popup_js_close_function => '$("#add_discount_item_dialog").dialog("close")',
     TYPE_NAME               => $type_name,
-
   );
 }
 

@@ -39,7 +39,11 @@
                     LxERP.t8('Cash customer')
                     ) %]</td>
                 [% END %]
-                <td>[% L.button_tag("cash_customer", LxERP.t8('Create new customer'), class="neutral" ) %]</td>
+                <td>[% L.button_tag(
+                    "kivi.POS.open_new_customer_dialog()",
+                    LxERP.t8('Create new customer'),
+                    class="neutral"
+                    ) %]</td>
               </tr>
             </table>
           </div>

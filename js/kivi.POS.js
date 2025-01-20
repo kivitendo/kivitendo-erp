@@ -95,6 +95,41 @@ namespace('kivi.POS', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   }
 
+  ns.set_cash_customer = function() {
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'POS/set_cash_customer' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+
+  ns.open_new_customer_dialog = function() {
+    kivi.popup_dialog({
+      url:    'controller.pl?action=POS/open_new_customer_dialog',
+      id:     'new_customer_dialog',
+      load:   function() {
+        kivi.reinit_widgets();
+        document.getElementById("new_customer_name").focus();
+      },
+      dialog: {
+        title:  kivi.t8('New Customer'),
+        width:  400,
+        height: 300
+      }
+    });
+  }
+
+  ns.create_new_customer = function() {
+    if (!kivi.Validator.validate_all('#new_customer_form')) return;
+
+    var order_data = $('#order_form').serializeArray();
+    var new_customer_data = $('#new_customer_form').serializeArray();
+    var data = order_data.concat(new_customer_data);
+    data.push({ name: 'action', value: 'POS/create_new_customer' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+    $("#new_customer_dialog").dialog("close")
+  }
+
   ns.submit = function(params) {
     if (!kivi.Order.check_cv()) return;
     if (!ns.check_items()) return;

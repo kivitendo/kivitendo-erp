@@ -3,7 +3,7 @@
 [% USE LxERP %]
 [% USE HTML %]
 
-<form method="post" id="item_row_pos_form" onsubmit="kivi.POS.apply_dicount_item_value()">
+<form method="post" id="discount_item_form" action="javascript:kivi.POS.apply_dicount_item_value()">
   <table class="tbl-horizontal">
     <caption>
       [% TYPE_NAME | html %]
@@ -28,6 +28,6 @@
   </table>
 
  <p>
-  [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel')) %]
+  [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel'), class="neutral") %]
  </p>
 </form>

@@ -1,0 +1,79 @@
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<form method="post" id="new_customer_form" action="javascript:kivi.POS.create_new_customer()">
+  <table class="tbl-horizontal">
+    <caption>
+      [% 'Customer' | $T8 %]
+    </caption>
+    <tbody>
+      <tr>
+        <th>[% 'Customer Name' | $T8 %]</th>
+        <td>
+          [% L.input_tag_trim(
+            'new_customer.name',
+            '',
+            class='wi-lightwide',
+            'data-validate'='required',
+            ) %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Street' | $T8 %]</th>
+        <td>
+          [% L.input_tag_trim(
+            'new_customer.street',
+            '',
+            class='wi-lightwide',
+            ) %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
+        <td>
+          [%
+            L.input_tag_trim('new_customer.zipcode',
+              '',
+              class='wi-verysmall',
+              )
+          %][%
+            L.input_tag_trim('new_customer.city',
+              '',
+              class='wi-lightwide--verysmall',
+              )
+          %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Country' | $T8 %]</th>
+        <td>
+          [% L.input_tag_trim('new_customer.country',
+            '',
+            class='wi-lightwide'
+            ) %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'E-mail' | $T8 %]</th>
+        <td>[%
+          P.input_tag_trim('new_customer.email',
+          '',
+          class='wi-lightwide'
+          ) %]
+        </td>
+      </tr>
+      <tr>
+        <td>
+          [% L.submit_tag('create_new_customer', LxERP.t8('Apply')) %]
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+ <p>
+  [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel'), class="neutral") %]
+ </p>
+</form>
