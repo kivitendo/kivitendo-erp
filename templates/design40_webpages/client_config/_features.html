@@ -440,6 +440,11 @@
         </td>
       </tr>
       <tr>
+        <th>[% LxERP.t8("Item input position for quotations and orders") %]</th>
+        <td>[% L.select_tag("defaults.order_item_input_position", [ [ 0, LxERP.t8('above the positions'), ], [ 1, LxERP.t8('below the positions') ] ], default=SELF.defaults.order_item_input_position) %]</td>
+        <td>[% LxERP.t8("Controls whether the default item input is above (default) or below the positions list in orders and quotations. Can be overridden by user preferences.") %]</td>
+      </tr>
+      <tr>
         <th class="caption" colspan="3">[% 'Show certain sales and purchase documents' | $T8 %]</th>
       </tr>
       <tr>

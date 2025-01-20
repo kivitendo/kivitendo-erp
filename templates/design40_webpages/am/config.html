@@ -248,6 +248,12 @@
         [% L.yes_no_tag('part_picker_search_all_as_list_default', part_picker_search_all_as_list_default) %]
       </td>
     </tr>
+     <tr>
+       <th>[% 'Item input position for quotations and orders' | $T8 %]</th>
+       <td>
+        [% L.select_tag('order_item_input_position', [ [ 'default', LxERP.t8('Use settings from client configuration') ], [ 0, LxERP.t8('above the positions') ], [ 1, LxERP.t8('below the positions') ] ], default=order_item_input_position) %]
+      </td>
+    </tr>
     </tbody>
     </table>
   </div><!-- /.wrapper -->
