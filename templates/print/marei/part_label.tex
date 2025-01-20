@@ -1,0 +1,84 @@
+% config: use-template-toolkit=1
+% config: tag-style=$( )$
+$( USE KiviLatex )$
+$( USE P )$
+
+\documentclass[parskip]{scrartcl}
+\usepackage{scrlayer-scrpage}
+\usepackage{geometry}
+\usepackage{pst-barcode}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{fontspec}
+\geometry{
+        paperwidth=101mm,
+        paperheight=54mm,
+        margin=6mm,
+        %showframe,    % Rahmen zum Debuggen anzeigen
+}
+
+$(IF KiviLatex.filter(part.image))$
+  \DeclareNewLayer[
+    background,hoffset=7cm,voffset=1.7cm,
+    contents={\resizebox{2cm}{3cm}
+    {
+        \includegraphics[width=2cm ]{../$( part.image )$}
+    }
+    }
+  ]{bild}
+$( ELSE )$
+  \DeclareNewLayer[
+    background,
+    contents={
+    {
+    }
+    }
+  ]{bild}
+$( END )$
+
+\DeclareNewLayer[
+  background,hoffset=4mm,voffset=3.7cm,
+  contents={%\resizebox{1.5in}{0.5in}
+  {
+  \begin{pspicture}(0,2em)(1.5in,0.5in)
+    \psbarcode{$(KiviLatex.filter(part.partnumber))$}{width=1.5 height=0.5}{code128}
+  \end{pspicture}
+  }
+  }
+]{barcode}
+
+% Befehl f. normale Schriftart und -größe
+\setmainfont{cmunrm.otf}
+\newcommand{\ourfont}{\setmainfont
+                      [ BoldFont={cmunsx.otf},
+                        ItalicFont={cmunsi.otf},
+                        BoldItalicFont={cmunso.otf}
+                      ]{cmunss.otf}
+                      }
+
+\DeclarePageStyleByLayers{label}{bild,barcode}
+
+\pagestyle{label}
+
+\begin{document}
+\setlength{\parskip}{0pt} % 1ex plus 0.5ex minus 0.2ex}
+\setlength{\parindent}{0pt}
+  \ourfont
+
+\Huge \textbf{Artnr.:~ $(KiviLatex.filter(part.partnumber))$ }
+
+  \large\textbf{$(KiviLatex.filter(part.description))$}
+  \normalsize
+
+  $( IF part.bin.description )$
+  Lagerplatz: $(KiviLatex.filter(part.bin.description))$
+  $( END )$
+
+  $( IF part.drawing )$
+  Zeichnungsnr: $(KiviLatex.filter(part.drawing))$
+  $( END )$
+
+%  $( # IF part.cvar_by_name('dbwin_gruppe').value() )$
+%  Verwendungszweck: $( # KiviLatex.filter(part.cvar_by_name('dbwin_gruppe').value()) )$
+%  $( # END )$
+\end{document}

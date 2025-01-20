@@ -122,9 +122,13 @@ sub action_show_price_n_pricesource {
   }elsif( $price_src_str eq 'lastcost'){
     $price_src_str = t8('Lastcost');
   }
-  $self->js->html('#price_' . $self->shop_part->id, $::form->format_amount(\%::myconfig,$price,2))
-           ->html('#active_price_source_' . $self->shop_part->id, $price_src_str)
-           ->render;
+
+  my $data = {
+    active_price_source => $price_src_str,
+    price               => $::form->format_amount(\%::myconfig,$price,2),
+  };
+
+  $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }
 
 sub action_show_stock {
@@ -137,14 +141,18 @@ sub action_show_stock {
   if($self->shop_part->last_update) {
     my $shop_article = $shop->connector->get_article($self->shop_part->part->partnumber);
     $stock_onlineshop = $shop_article->{data}->{mainDetail}->{inStock};
-    $active_online = $shop_article->{data}->{active};
+    $active_online = lc($shop_article->{data}->{active}) eq 'true';
   }
 
   $stock_local = $self->shop_part->part->onhand;
 
-  $self->js->html('#stock_' . $self->shop_part->id, $::form->format_amount(\%::myconfig,$stock_local,0)."/".$::form->format_amount(\%::myconfig,$stock_onlineshop,0))
-           ->html('#toogle_' . $self->shop_part->id,$active_online)
-           ->render;
+  my $data = {
+    stock_local   => $::form->format_amount(\%::myconfig,$stock_local,0),
+    stock_shop    => $::form->format_amount(\%::myconfig,$stock_onlineshop,0),
+    active_online => !!$active_online,
+  };
+
+  $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }
 
 sub action_get_n_write_categories {

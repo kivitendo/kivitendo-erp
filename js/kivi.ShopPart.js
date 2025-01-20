@@ -95,14 +95,39 @@ namespace('kivi.ShopPart', function(ns) {
   }
 
   ns.update_price_n_price_source = function(shop_part_id,price_source) {
-    $.post('controller.pl', { action: 'ShopPart/show_price_n_pricesource', shop_part_id: shop_part_id, pricesource: price_source }, function(data) {
-      kivi.eval_json_result(data);
+    data = [
+      {name: 'action',       value: 'ShopPart/show_price_n_pricesource'},
+      {name: 'shop_part_id', value: shop_part_id},
+      {name: 'pricesource',  value: price_source},
+    ];
+
+    $.ajax({
+      url: 'controller.pl',
+      data: data,
+      method: 'POST',
+      dataType: 'json',
+      success: function(data){
+        $("#active_price_source_" + shop_part_id).html(data.active_price_source);
+        $("#price_" + shop_part_id).html(data.price);
+      }
     });
   }
 
   ns.update_stock = function(shop_part_id) {
-    $.post('controller.pl', { action: 'ShopPart/show_stock', shop_part_id: shop_part_id }, function(data) {
-      kivi.eval_json_result(data);
+    data = [
+      {name: 'action',       value: 'ShopPart/show_stock'},
+      {name: 'shop_part_id', value: shop_part_id},
+    ];
+
+    $.ajax({
+      url: 'controller.pl',
+      data: data,
+      method: 'POST',
+      dataType: 'json',
+      success: function(data){
+        $("#stock_" + shop_part_id).html(data.stock_local + ' / ' + data.stock_shop);
+        // $("#toogle_" + shop_part_id).html(data.active_online + '');
+      }
     });
   }
 
