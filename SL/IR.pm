@@ -52,6 +52,7 @@ use SL::MoreCommon;
 use SL::DB::Default;
 use SL::DB::TaxZone;
 use SL::DB::MakeModel;
+use SL::DB::PartsPriceHistory;
 use SL::DB::ValidityToken;
 use SL::DB;
 use SL::Presenter::Part qw(type_abbreviation classification_abbreviation);
@@ -95,7 +96,7 @@ sub _post_invoice {
   my $ic_cvar_configs = CVar->get_configs(module => 'IC',
                                           dbh    => $dbh);
 
-  my ($query, $sth, @values, $project_id);
+  my ($query, $sth, @values, $project_id, $ph);
   my ($allocated, $taxrate, $taxamount, $taxdiff, $item);
   my ($amount, $linetotal, $last_inventory_accno_tax_id_key, $last_expense_accno_tax_id_key);
   my ($netamount, $invoicediff, $expensediff) = (0, 0, 0);
@@ -266,6 +267,10 @@ sub _post_invoice {
       if ( abs($a->lastcost - $new_lastcost) >= 0.009 ) {
         $a->update_attributes(lastcost => $new_lastcost);
         $a->set_lastcost_assemblies_and_assortiments;
+
+        # new entry is created by trigger on the fly. CAVEAT: db behaviour might change
+        $ph = SL::DB::Manager::PartsPriceHistory->get_first(where => [ part_id => $a->id ], sort_by => 'id DESC');
+        $ph->update_attributes(vendor_id => $form->{vendor_id}, ap_id => $form->{id});
       }
 
       # check if we sold the item already and
@@ -429,6 +434,10 @@ sub _post_invoice {
       if ( abs($a->lastcost - $new_lastcost) >= 0.009 ) {
         $a->update_attributes(lastcost => $new_lastcost);
         $a->set_lastcost_assemblies_and_assortiments;
+
+        # new entry is created by trigger on the fly. CAVEAT: db behaviour might change
+        $ph = SL::DB::Manager::PartsPriceHistory->get_first(where => [ part_id => $a->id ], sort_by => 'id DESC');
+        $ph->update_attributes(vendor_id => $form->{vendor_id}, ap_id => $form->{id});
       }
     }
 
