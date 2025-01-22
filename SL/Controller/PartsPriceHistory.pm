@@ -75,6 +75,14 @@ sub column_defs {
     listprice    => { text => $::locale->text('List Price'),   sub => sub { $_[0]->listprice_as_number }},
     sellprice    => { text => $::locale->text('Sell Price'),   sub => sub { $_[0]->sellprice_as_number }},
     price_factor => { text => $::locale->text('Price Factor'), sub => sub { $_[0]->price_factor_as_number }},
+
+    vendor_id    => { text => $::locale->text('Vendor'),
+                           sub => sub { $_[0]->vendor_id ? SL::DB::Manager::Vendor->find_by(id => $_[0]->vendor_id)->name                   : undef },
+                      obj_link => sub { my $id = $_[0]->vendor_id; return $id ? "controller.pl?action=CustomerVendor/edit&id=$id&db=vendor" : undef }}
+
+    ap_id        => { text => $::locale->text('Purchase Invoice'),
+                           sub => sub { $_[0]->ap_id ? SL::DB::Manager::PurchaseInvoice->find_by(id => $_[0]->ap_id)->invnumber : undef },
+                      obj_link => sub { my $id = $_[0]->ap_id; return $id ? "ir.pl?action=edit&id=$id"                          : undef }},
   };
 }
 
@@ -87,7 +95,7 @@ sub prepare_report {
 
   my $title       = $::locale->text('Price history for master data');
 
-  my @columns     = qw(valid_from lastcost listprice sellprice price_factor);
+  my @columns     = qw(valid_from lastcost listprice sellprice price_factor vendor_id ap_id customer_id ar_id);
 
   my $column_defs = $self->column_defs;
 
