@@ -947,13 +947,13 @@ sub action_return_from_create_part {
 sub action_stock_in_out_dialog {
   my ($self) = @_;
 
-  my $part    = SL::DB::Part->load_cached($::form->{parts_id}) or die "need parts_id";
-  my $unit    = SL::DB::Unit->load_cached($::form->{unit}) or die "need unit";
-  my $stock   = $::form->{stock};
-  my $row     = $::form->{row};
-  my $item_id = $::form->{item_id};
-  my $qty     = _parse_number($::form->{qty_as_number});
-  my $row_ui_id = $::form->{row_ui_id};
+  my $part        = SL::DB::Part->load_cached($::form->{parts_id}) or die "need parts_id";
+  my $unit        = SL::DB::Unit->load_cached($::form->{unit}) or die "need unit";
+  my $stock       = $::form->{stock};
+  my $row         = $::form->{row};
+  my $item_id     = $::form->{item_id};
+  my $qty         = _parse_number($::form->{qty_as_number});
+  my $row_ui_id   = $::form->{row_ui_id};
   my $next_button = $::form->{next_button} eq 'true';
 
   my $inout = $self->type_data->properties("transfer");
@@ -965,17 +965,17 @@ sub action_stock_in_out_dialog {
 
   my $delivered = $self->order->delivered;
   $self->render("delivery_order/stock_dialog", { layout => 0 },
-    WHCONTENTS => \@contents,
-    STOCK_INFO => $stock_info,
-    WAREHOUSES => !$delivered ? SL::DB::Manager::Warehouse->get_all(query => [ or => [ invalid => 0, invalid => undef ]], with_objects=> ["bins",]) : [],
-    part       => $part,
-    do_qty     => $qty,
-    do_unit    => $unit->name,
-    delivered  => $self->order->delivered,
-    row        => $row,
-    item_id    => $item_id,
-    in_out     => $inout,
-    row_ui_id  => $row_ui_id,
+    WHCONTENTS  => \@contents,
+    STOCK_INFO  => $stock_info,
+    WAREHOUSES  => !$delivered ? SL::DB::Manager::Warehouse->get_all(query => [ or => [ invalid => 0, invalid => undef ]], with_objects=> ["bins",]) : [],
+    part        => $part,
+    do_qty      => $qty,
+    do_unit     => $unit->name,
+    delivered   => $self->order->delivered,
+    row         => $row,
+    item_id     => $item_id,
+    in_out      => $inout,
+    row_ui_id   => $row_ui_id,
     next_button => $next_button,
   );
 }
