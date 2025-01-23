@@ -271,7 +271,6 @@ sub _post_invoice {
         #    SL::DB::Manager::SomeClass->get_all(where => [ … ], limit => 1)
         my $ph = SL::DB::Manager::PartsPriceHistory->get_all(where => [ part_id => $a->id ], sort_by => 'id DESC', limit => 1)->[0];
         $ph->update_attributes(vendor_id => $form->{vendor_id}, ap_id => $form->{id});
-        die;
       }
 
       # check if we sold the item already and
