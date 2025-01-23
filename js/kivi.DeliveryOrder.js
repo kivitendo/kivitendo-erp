@@ -145,7 +145,7 @@ namespace('kivi.DeliveryOrder', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.save_updated_stock = function() {
+  ns.save_updated_stock = function(close_dialog) {
     // stock information is saved in DOM as a yaml dump.
     // we don't want to do this in javascript so we do a tiny roundtrip to the backend
 
@@ -178,7 +178,9 @@ namespace('kivi.DeliveryOrder', function(ns) {
       (data) => {
         $("#" + row + " .data-stock-info").val(data.stock_info);
         $("#" + row + " .data-stock-qty").text(data.stock_qty)
-        $("#stock_in_out_dialog").dialog("close");
+        if (close_dialog) {
+          $("#stock_in_out_dialog").dialog("close");
+        }
       }
     );
   };
