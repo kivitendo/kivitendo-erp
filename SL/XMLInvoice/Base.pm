@@ -55,6 +55,7 @@ to discover the metadata keys guaranteed to be present.
 =cut
 
 sub data_keys {
+  my $self = shift;
   my @keys = (
     'currency',      # The bill's currency, such as "EUR"
     'direct_debit',  # Boolean: whether the bill will get paid by direct debit (1) or not (0)
@@ -85,6 +86,7 @@ to discover the metadata keys guaranteed to be present.
 =cut
 
 sub item_keys  {
+  my $self = shift;
   my @keys = (
     'currency',
     'description',
@@ -142,6 +144,17 @@ child classes must implement this method.
 sub check_signature {
   my $self = shift;
   die "Children of $self must implement a check_signature() method returning 1 for supported XML, 0 for unsupported XML.";
+}
+
+=item namespaces($dom)
+
+This static method takes a DOM object and returns an ArrayofHashes[ data => localname ]. C<SL::XMLInvoice> uses this method to determine which ns is valid for wich data. All child classes must implement this method.
+
+=cut
+
+sub namespaces {
+  my $self = shift;
+  die "Children of $self must implement a namespaces() method returning an aoh with the namespaces";
 }
 
 =item supported()
@@ -227,6 +240,7 @@ C<item_keys>. Omitting this method from a child class will cause an exception.
 =head1 AUTHOR
 
   Johannes Grassler <info@computer-grassler.de>
+  Werner Hahn <wh@futureworldsearch.net>
 
 =cut
 
