@@ -10,12 +10,14 @@ use DateTime;
 use SL::DBUtils qw(selectrow_query);
 use SL::DB::MetaSetup::Inventory;
 use SL::DB::Manager::Inventory;
+use SL::Locale::String qw(t8);
 
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->before_save(\&_before_save_create_trans_id);
 __PACKAGE__->before_save(\&_before_save_set_shippingdate);
 __PACKAGE__->before_save(\&_before_save_set_employee);
+__PACKAGE__->before_save(\&_before_save_check_valid_qty);
 
 # part accessor is badly named
 sub part {
@@ -81,4 +83,20 @@ sub _before_save_set_employee {
 
   return 1;
 }
+
+sub _before_save_check_valid_qty {
+  my ($self) = @_;
+
+  return 1 if $self->trans_type->direction eq 'in'; # also catches produce assembly
+  return 1 if $::instance_conf->get_transfer_default_ignore_onhand;
+
+  my $qty = SL::Helper::Inventory->get_stock($self, bin => $self->bin_id, part => $self->parts_id);
+
+  die t8("Cannot transfer #1 qty for #2 from warehouse #3 at bin #4",
+    $self->qty, $self->part->partnumber, $self->warehouse->description, $self->bin->description)
+    if $qty + $self->qty < 0;
+
+  return 1;
+}
+
 1;
