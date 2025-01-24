@@ -87,10 +87,10 @@ sub _before_save_set_employee {
 sub _before_save_check_valid_qty {
   my ($self) = @_;
 
-  return 1 if $self->trans_type->direction eq 'in'; # also catches produce assembly
+  return 1 unless $self->trans_type->direction eq 'out'; # also catches produce assembly
   return 1 if $::instance_conf->get_transfer_default_ignore_onhand;
 
-  my $qty = SL::Helper::Inventory->get_stock($self, bin => $self->bin_id, part => $self->parts_id);
+  my $qty = SL::Helper::Inventory->get_stock($self, bin => $self->bin_id, part => $self->parts_id) // 0;
 
   die t8("Cannot transfer #1 qty for #2 from warehouse #3 at bin #4",
     $self->qty, $self->part->partnumber, $self->warehouse->description, $self->bin->description)
