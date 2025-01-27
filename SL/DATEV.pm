@@ -1105,6 +1105,10 @@ sub check_all_bookings_have_documents {
   $self->from($params{from});
   $self->to($params{to});
 
+  my $filter_type;
+  $filter_type .= ' AND trans_id in (SELECT id from ar) ' if $params{transaction_type} eq 'ar';
+  $filter_type .= ' AND trans_id in (SELECT id from ap) ' if $params{transaction_type} eq 'ap';
+
   my $fromto = $self->fromto;
   # not all last month ar ap gl booking have an entry -> rent ?
   my $query = qq|
@@ -1112,6 +1116,7 @@ sub check_all_bookings_have_documents {
   left join files on files.object_id=trans_id
   where $fromto
   and object_id is null
+  $filter_type
   and trans_id not in (select id from gl)
   LIMIT 1|;
 

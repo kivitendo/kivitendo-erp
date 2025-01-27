@@ -105,7 +105,8 @@ sub export3 {
   $data{documents} = $::form->{documents};
   $data{transaction_type} = $::form->{transaction_type};
 
-  if ($data{documents} && !SL::DATEV->new->check_all_bookings_have_documents(from => $data{from}, to => $data{to})) {
+  if ($data{documents} && !SL::DATEV->new->check_all_bookings_have_documents(from => $data{from}, to => $data{to},
+                                                                             transaction_type => $data{transaction_type})) {
     $::form->error(t8("Cannot export with documents because some transactions don't have a PDF document attached."));
   }
   my $datev = SL::DATEV->new(%data);
