@@ -207,13 +207,11 @@ sub edit {
 
   # editing without stuff to edit? try adding it first
   if ($form->{rowcount} && !$form->{print_and_save}) {
-    if ($::instance_conf->get_feature_experimental_order) {
-      my $c = SL::Controller::Order->new;
-      $c->action_edit_collective();
+    my $c = SL::Controller::Order->new;
+    $c->action_edit_collective();
 
-      $main::lxdebug->leave_sub();
-      $::dispatcher->end_request;
-    }
+    $main::lxdebug->leave_sub();
+    $::dispatcher->end_request;
 
     my $id;
     map { $id++ if $form->{"multi_id_$_"} } (1 .. $form->{rowcount});
@@ -1401,9 +1399,7 @@ sub orders {
 
   my $edit_url = $params{want_binary_pdf}
                ? ''
-               : ($::instance_conf->get_feature_experimental_order)
-               ? build_std_url('script=controller.pl', 'action=Order/edit', 'type')
-               : build_std_url('action=edit', 'type', 'vc');
+               : build_std_url('script=controller.pl', 'action=Order/edit', 'type');
   foreach my $oe (@{ $form->{OE} }) {
     map { $oe->{$_} *= $oe->{exchangerate} } @subtotal_columns;
 
@@ -2323,9 +2319,7 @@ sub report_for_todo_list {
 
   if (@{ $quotations }) {
     my $callback = build_std_url('action');
-    my $edit_url = ($::instance_conf->get_feature_experimental_order)
-                 ? build_std_url('script=controller.pl', 'action=Order/edit', 'callback=' . E($callback))
-                 : build_std_url('script=oe.pl', 'action=edit', 'callback=' . E($callback));
+    my $edit_url = build_std_url('script=controller.pl', 'action=Order/edit', 'callback=' . E($callback));
 
     $content     = $form->parse_html_template('oe/report_for_todo_list', { 'QUOTATIONS' => $quotations,
                                                                            'edit_url'   => $edit_url,
