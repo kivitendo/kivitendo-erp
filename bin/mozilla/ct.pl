@@ -338,10 +338,8 @@ sub list_names {
     }
 
     my $base_url              = build_std_url("script=$ref->{module}.pl", 'action=edit', 'id=' . E($ref->{invid}), 'callback', @hidden_nondefault);
-    if ($::instance_conf->get_feature_experimental_order) {
-      if ('oe' eq $ref->{module}) {
-        $base_url             = build_std_url("script=controller.pl", 'action=Order/edit', 'id=' . E($ref->{invid}), 'callback', @hidden_nondefault);
-      }
+    if ('oe' eq $ref->{module}) {
+      $base_url               = build_std_url("script=controller.pl", 'action=Order/edit', 'id=' . E($ref->{invid}), 'callback', @hidden_nondefault);
     }
 
     $row->{invnumber}->{link} = $base_url;

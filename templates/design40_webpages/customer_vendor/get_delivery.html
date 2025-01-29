@@ -34,11 +34,7 @@
           [% IF row.id %]</a>[% END %]
         </td>
         <td>[% IF row.oe_id %]
-              [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
-                <a href='controller.pl?action=Order/edit&type=[% IF SELF.is_customer %]sales_order[% ELSE %]purchase_order[% END %]&id=[% HTML.escape(row.oe_id) %]'>
-              [%- ELSE -%]
-                <a href='oe.pl?action=edit&type=[% IF SELF.is_customer %]sales_order[% ELSE %]purchase_order[% END %]&vc=customer&id=[% HTML.escape(row.oe_id) %]'>
-              [%- END -%]
+              <a href='controller.pl?action=Order/edit&type=[% IF SELF.is_customer %]sales_order[% ELSE %]purchase_order[% END %]&id=[% HTML.escape(row.oe_id) %]'>
             [% END %]
           [% HTML.escape(row.ordnumber)   || '&nbsp;' %]
           [% IF row.oe_id %]</a>[% END %]

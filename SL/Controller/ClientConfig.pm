@@ -241,8 +241,6 @@ sub init_displayable_name_specs_by_module {
 }
 
 sub init_available_documents_with_no_positions {
-  return [] if !$::instance_conf->get_feature_experimental_order;
-
   my @docs = ( @{SL::DB::Order::TypeData::valid_types()},
                @{SL::DB::DeliveryOrder::TypeData::valid_types()},
                @{SL::DB::Reclamation::TypeData::valid_types()} );

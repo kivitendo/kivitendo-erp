@@ -571,10 +571,6 @@
    <td>[% L.input_tag('defaults.sepa_set_skonto_date_buffer_in_days_as_number', SELF.defaults.sepa_set_skonto_date_buffer_in_days_as_number, style=style) %]</td>
   </tr>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Experimental Features") %]</td></tr>
-  <tr>
-   <td align="right">[% LxERP.t8('new order controller') %]</td>
-   <td>[% L.yes_no_tag('defaults.feature_experimental_order', SELF.defaults.feature_experimental_order) %]</td>
-  </tr>
  <tr><td class="listheading" colspan="4">[% 'Displayable Name Preferences' | $T8 %]</td></tr>
  [% FOREACH module=SELF.displayable_name_specs_by_module.keys.sort %]
  [%- SET spec=SELF.displayable_name_specs_by_module.$module -%]
