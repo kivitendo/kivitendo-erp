@@ -585,7 +585,7 @@ SQL
 
   foreach my $login (@logins) {
     my %recipient  = $main::auth->read_user(
-      login => conv_i($login),
+      login => $login,
     );
 
     if (!$recipient{follow_up_notify_by_email} || !$recipient{email}) {
