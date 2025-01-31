@@ -149,7 +149,6 @@ sub action_save_user {
     ->config_values({ %{ $self->user->config_values }, %{ $props } });
 
   my @errors = $self->user->validate;
-
   if (@errors) {
     $self->js->flash('error', $_) foreach @errors;
     return $self->js->render();
@@ -172,6 +171,16 @@ sub action_save_user {
       next if !$dbh;
       $dbh->do(qq|UPDATE employee SET login = ? WHERE login = ?;|,undef,
                $params->{'login'} . $timestamp, $params->{'login'});
+      $dbh->disconnect;
+    }
+  } elsif ($assign_documents) {
+    my $clients = SL::DB::Manager::AuthClient->get_all_sorted;
+    for my $client (@$clients) {
+
+      my $dbh = $client->dbconnect(AutoCommit => 1);
+      $dbh->do(qq|UPDATE employee SET deleted = FALSE, name = ?, deleted_email = ?,
+                  deleted_tel = ?, deleted_fax = ?, deleted_signature = ? WHERE login = ?|,undef,
+	          $self->user->get_config_value('name'), undef, undef, undef, undef, $params->{'login'});
       $dbh->disconnect;
     }
   }
