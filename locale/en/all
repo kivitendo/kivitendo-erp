@@ -700,6 +700,7 @@ $self->{texts} = {
   'Cannot stock without amount' => '',
   'Cannot storno invoice for a closed period!' => '',
   'Cannot storno storno invoice!' => '',
+  'Cannot transfer #1 qty for #2 from warehouse #3 at bin #4' => '',
   'Cannot transfer #1 qty with #2 serial number(s)' => '',
   'Cannot transfer negative entries.' => '',
   'Cannot transfer negative quantities.' => '',
