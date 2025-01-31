@@ -198,31 +198,13 @@ sub action_save_user {
 sub action_delete_user {
   my ($self) = @_;
 
-  my @clients = @{ $self->user->clients || [] };
-
-  # backup user metadata (email, name, etc)
-  my $user_config_values_ref = $self->user->config_values();
   my $login =$self->user->login;
 
-  if (!$self->user->delete) {
+  if (!SL::Auth->delete_user($login)) {
     flash('error', t8('The user could not be deleted.'));
     $self->edit_user_form(title => t8('Edit User'));
     return;
   }
-
-  # Flag corresponding entries in 'employee' as deleted.
-  # and restore the most important user data in employee
-  # TODO try and catch the whole transaction {user->delete; update employee} {exception}
-  foreach my $client (@clients) {
-    my $dbh = $client->dbconnect(AutoCommit => 1) || next;
-    $dbh->do(qq|UPDATE employee SET deleted = TRUE, name = ?, deleted_email = ?,
-                deleted_tel = ?, deleted_fax = ?, deleted_signature = ? WHERE login = ?|,undef,
-              $user_config_values_ref->{name}, $user_config_values_ref->{email},
-              $user_config_values_ref->{tel}, $user_config_values_ref->{fax},
-              $user_config_values_ref->{signature}, $self->user->login);
-    $dbh->disconnect;
-  }
-
   flash_later('info', t8('The user has been deleted.'));
   $self->redirect_to(action => 'show');
 }
@@ -536,7 +518,7 @@ sub init_all_groups        { SL::DB::Manager::AuthGroup ->get_all_sorted        
 sub init_all_printers      { SL::DB::Manager::Printer   ->get_all_sorted                                                     }
 sub init_all_dateformats   { [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd)      ]                                              }
 sub init_all_numberformats { [ '1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00" ]                                    }
-sub init_all_stylesheets   { [ qw(lx-office-erp.css Mobile.css kivitendo.css design40.css) ]                                 }
+sub init_all_stylesheets   { [ qw(design40.css) ]                                 }
 sub init_all_dbsources             { [ sort User->dbsources($::form)                               ] }
 sub init_all_used_dbsources        { { map { (join(':', $_->dbhost || 'localhost', $_->dbport || 5432, $_->dbname) => $_->name) } @{ $_[0]->all_clients }  } }
 sub init_all_accounting_methods    { [ { id => 'accrual',   name => t8('Accrual accounting')  }, { id => 'cash',     name => t8('Cash accounting')       } ] }
