@@ -1061,10 +1061,6 @@ sub order {
 
   $main::lxdebug->leave_sub();
   $::dispatcher->end_request;
-
-  &display_form;
-
-  $main::lxdebug->leave_sub();
 }
 
 sub _order {
