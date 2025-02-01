@@ -77,7 +77,7 @@ that an entry for them exists in the table C<employee>. The matching
 is done via the login name which must be the same in both tables.
 
 The only other properties that will be copied from the authentication
-table into the C<employee> row are C<name> and C<workphone>. In
+table into the C<employee> row are C<name>. In
 addition C<deleted> is always set to 0.
 
 The intention is that this function is called automatically during the
