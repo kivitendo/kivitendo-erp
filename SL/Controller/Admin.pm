@@ -180,7 +180,7 @@ sub action_save_user {
       my $dbh = $client->dbconnect(AutoCommit => 1);
       $dbh->do(qq|UPDATE employee SET deleted = FALSE, name = ?, deleted_email = ?,
                   deleted_tel = ?, deleted_fax = ?, deleted_signature = ? WHERE login = ?|,undef,
-	          $self->user->get_config_value('name'), undef, undef, undef, undef, $params->{'login'});
+               $self->user->get_config_value('name'), undef, undef, undef, undef, $params->{'login'});
       $dbh->disconnect;
     }
   }
