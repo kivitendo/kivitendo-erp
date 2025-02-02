@@ -96,6 +96,7 @@ sub action_create_new_customer {
     name => $name,
     taxzone_id  => $taxzone_id,
     currency_id => $currency_id,
+    salesman_id => SL::DB::Manager::Employee->current->id,
     %{$::form->{new_customer}}
   );
   $new_customer->save();
