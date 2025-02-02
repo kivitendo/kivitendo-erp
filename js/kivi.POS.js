@@ -156,4 +156,16 @@ namespace('kivi.POS', function(ns) {
       }
     });
   }
+
+  ns.open_order_informations_dialog = function() {
+
+    kivi.popup_dialog({
+      id: 'order_informations',
+      dialog: {
+        title: kivi.t8('Order informations'),
+        width:  1200,
+        height: 800
+      }
+    });
+  }
 });
