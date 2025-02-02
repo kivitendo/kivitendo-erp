@@ -20,13 +20,27 @@
             [% order.customer.displayable_name %]
           </caption>
           <body>
-            [% FOREACH item = order.items_sorted %]
-            <tr>
-              <td>
-                [% item.part.displayable_name | html %]
-              </td>
-            </tr>
+            [% FOREACH idx = [0 .. 8] %]
+              [% item = order.items_sorted.$idx %]
+              <tr>
+                <td>
+                [% IF (item) %]
+                  [% item.description | html %]
+                [% ELSE %]
+                  &nbsp;
+                [% END %]
+                </td>
+              </tr>
             [% END %]
+              <tr>
+                <td>
+                [% IF order.items_sorted.size > 9 %]
+                  ...
+                [% ELSE %]
+                  &nbsp;
+                [% END %]
+                </td>
+              </tr>
           </body>
         </table>
       </div>
