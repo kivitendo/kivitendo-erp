@@ -3,7 +3,7 @@
 [% USE LxERP %]
 [% USE HTML %]
 
-<form method="post" id="item_row_pos_form" action="controller.pl">
+<form method="post" id="item_row_pos_form" action="javascript:[% popup_js_assign_function %]">
   <table>
     <caption>
       [% ITEM.part.displayable_name | html %]

@@ -53,6 +53,7 @@ sub action_edit_order_item_row_dialog {
 
   my $item;
   my $temp_item_id = $::form->{item_id};
+  die "need 'item_id'" unless $temp_item_id;
   foreach my $idx (0 .. (scalar @{$::form->{orderitem_ids}} - 1)) {
     if ($::form->{orderitem_ids}->[$idx] eq $temp_item_id) {
       $item = $self->order->items->[$idx];
@@ -248,7 +249,9 @@ sub load_receipt {
   );
   $order_to_delete->delete;
 
-  return $self->order($new_order);
+  $self->order($new_order);
+  $self->order_controller->reinit_after_new_order();
+  return $new_order;
 }
 
 
