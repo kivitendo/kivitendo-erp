@@ -79,3 +79,66 @@ sub _parse_http_headers_auth {
 }
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::Dispatcher::AuthHandler::Base - Base class for different modules
+handling user authentication
+
+=head1 OVERVIEW
+
+This module acts as a base class for the modules in the
+C<SL::Dispatcher::AuthHandler> namespace. It contains a couple of
+shared helper functions.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<_env_var_for_header $header_name>
+
+Static method returning the name of an environment variable that holds
+the value of the HTTP request header named C<$header_name> according
+to the CGI specifications.
+
+=item C<_parse_http_headers_auth>
+
+When HTTP headers authentication is enabled in the configuration file,
+this function parses the content of the configured HTTP request
+headers. First, it ensures that the configuration is complete; if not,
+an exception is thrown.
+
+Next, it ensures that the shared secret was sent and equals the
+expected value.
+
+Lastly it fetches the name of the logged in user & the client ID sent
+by the upstream servers & returns both as a two-element list.
+
+This function returns an empty list if either the authentication
+module is not C<HTTPHeaders> or if the configuration option
+C<authentication/http_headers.enabled> is not true.
+
+=item C<_parse_http_basic_auth>
+
+When HTTP Basic Authentication is enabled in the configuration file,
+this function parses the content of the C<Authorization> HTTP request
+header via the corresponding environment variable according to the CGI
+spec. It extracts the user name & password from the header & returns
+both as a two-element list.
+
+This function returns an empty list if either the authentication
+module is not C<HTTPHeaders> or if the configuration option
+C<authentication/http_basic.enabled> is not true.
+
+=back
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet.deE<gt>
+
+=cut

@@ -1,10 +1,5 @@
 package SL::BackgroundJob::UpdateEmployeeBaseData;
 
-# When authentication via HTTP headers is active the regular login
-# routine is skipped. That routine would normally copy values from the
-# auth database to the employee table. This job can be run regularly
-# to copy the same values.
-
 use strict;
 use utf8;
 
@@ -22,3 +17,28 @@ sub run {
 }
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::BackgroundJob::UpdateEmployeeBaseData - Background job for copying
+user data from the auth database to the "employee" table
+
+=head1 OVERVIEW
+
+When authentication via HTTP headers is active the regular login
+routine is skipped. That routine would normally copy values from the
+auth database to the employee table. This job can be run regularly to
+copy the same values.
+
+The job is enabled & set to run every five minutes by default.
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet.deE<gt>
+
+=cut
