@@ -15,7 +15,12 @@ use constant {
   CREDIT_NOTE_STORNO_TYPE                 =>  'credit_note_storno',
 };
 
-my @export_types = qw(PURCHASE_INVOICE_TYPE PURCHASE_CREDIT_NOTE_TYPE);
+my @export_types = qw(
+  INVOICE_TYPE INVOICE_FOR_ADVANCE_PAYMENT_TYPE
+  INVOICE_FOR_ADVANCE_PAYMENT_STORNO_TYPE FINAL_INVOICE_TYPE
+  INVOICE_STORNO_TYPE CREDIT_NOTE_TYPE CREDIT_NOTE_STORNO_TYPE
+);
+
 my @export_subs = qw(valid_types validate_type is_valid_type get get3);
 
 our @EXPORT_OK = (@export_types, @export_subs);
