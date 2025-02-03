@@ -4,6 +4,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Controller::Order;
+use SL::Controller::DeliveryOrder;
 
 use SL::Model::Record;
 use SL::DB::ValidityToken;
@@ -14,6 +15,7 @@ use SL::DB::Currency;
 
 use SL::DBUtils qw(do_query);
 use SL::Locale::String qw(t8);
+use SL::Helper::Flash qw(flash_later);
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -155,7 +157,13 @@ sub action_parking_receipt {
   my $order = $self->order;
 
   SL::DB->client->with_transaction( sub {
-    $order->save();
+    SL::Model::Record->save($order,
+      with_validity_token        => {
+        scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE(),
+        token => delete $::form->{form_validity_token}
+      },
+    );
+
     my $query = <<SQL;
 SQL
     do_query(
@@ -203,9 +211,34 @@ sub action_to_delivery_order {
     }
   );
 
-  # $main::lxdebug->dump(0, "TST: ", $delivery_order);
-  # $main::lxdebug->dump(0, "TST: ", $delivery_order->items());
+  SL::DB->client->with_transaction(sub {
+    SL::Model::Record->save(
+      $delivery_order,
+      with_validity_token        => {
+        scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
+        token => delete $::form->{form_validity_token}
+      },
+    );
 
+    $delivery_order = SL::Controller::DeliveryOrder::_add_default_transfer_to_delivery_order(
+      $delivery_order
+    );
+
+    # save created delivery_order_stock_entries
+    # they will be used in _do_stock_transfer
+    $delivery_order->save(cascade => 1);
+
+    $delivery_order = SL::Controller::DeliveryOrder::_do_stock_transfer(
+      $delivery_order, 'out', 1
+    );
+
+  });
+
+  flash_later("info", t8("Delivery Order created and transfered."));
+
+  $self->redirect_to(
+    action => 'add',
+  );
 }
 
 #

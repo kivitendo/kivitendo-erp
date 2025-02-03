@@ -1110,39 +1110,8 @@ sub action_transfer_stock {
 
   $self->save;
 
-  my $order = $self->order;
+  _do_stock_transfer($self->order, $inout, $default_transfer);
 
-  # TODO move to type data
-  my $trans_type = $inout eq 'in'
-    ? SL::DB::Manager::TransferType->find_by(
-        direction => "in", description => "stock")
-    : SL::DB::Manager::TransferType->find_by(
-        direction => "out", description => "shipped");
-
-
-  my @transfer_requests;
-
-  for my $item (@{ $order->items_sorted }) {
-    for my $stock (@{ $item->delivery_order_stock_entries }) {
-      my $transfer = SL::DB::Inventory->new_from($stock);
-      $transfer->trans_type($trans_type);
-      $transfer->oe_id($order->id);
-      $transfer->qty($transfer->qty * -1) if $inout eq 'out';
-      $transfer->qty($transfer->qty * 1) if $inout eq 'in';
-      $transfer->comment(t8("Default transfer delivery order")) if $default_transfer;
-
-      push @transfer_requests, $transfer if defined $transfer->qty && $transfer->qty != 0;
-    };
-  }
-
-  if (!@transfer_requests) {
-    return $self->js->flash("error", t8("No stock to transfer"))->render;
-  }
-
-  SL::DB->client->with_transaction(sub {
-    $_->save for @transfer_requests;
-    $self->order->update_attributes(delivered => 1);
-  });
   # update qty and stock info
   foreach my $item (@{$self->order->items}) {
     $self->order->prepare_stock_info($item);
@@ -1177,9 +1146,56 @@ sub action_transfer_stock {
     ->render;
 }
 
+sub _do_stock_transfer {
+  my ($order, $inout, $default_transfer) = @_;
+
+  # TODO move to type data
+  my $trans_type = $inout eq 'in'
+    ? SL::DB::Manager::TransferType->find_by(
+        direction => "in", description => "stock")
+    : SL::DB::Manager::TransferType->find_by(
+        direction => "out", description => "shipped");
+
+  my @transfer_requests;
+
+  for my $item (@{ $order->items_sorted }) {
+    for my $stock (@{ $item->delivery_order_stock_entries }) {
+      my $transfer = SL::DB::Inventory->new_from($stock);
+      $transfer->trans_type($trans_type);
+      $transfer->oe_id($order->id);
+      $transfer->qty($transfer->qty * -1) if $inout eq 'out';
+      $transfer->qty($transfer->qty * 1) if $inout eq 'in';
+      $transfer->comment(t8("Default transfer delivery order")) if $default_transfer;
+
+      push @transfer_requests, $transfer if defined $transfer->qty && $transfer->qty != 0;
+    };
+  }
+
+  if (!@transfer_requests) {
+    die t8("No stock to transfer");
+  }
+
+  SL::DB->client->with_transaction(sub {
+    $_->save for @transfer_requests;
+    $order->update_attributes(delivered => 1);
+  });
+
+  return $order;
+}
+
 sub action_transfer_stock_default {
   my ($self) = @_;
-  my $delivery_order = $self->order;
+
+  $self->order(
+    _add_default_transfer_to_delivery_order($self->order)
+  );
+
+  my $default_transfer = 1;
+  $self->action_transfer_stock($default_transfer);
+}
+
+sub _add_default_transfer_to_delivery_order {
+  my ($delivery_order) = @_;
   my @items = @{$delivery_order->items_sorted};
 
   # get default bin if set in config
@@ -1197,7 +1213,7 @@ sub action_transfer_stock_default {
     my $base_unit_factor = $units_by_name{$part->unit}->factor || 1;
     my $item_unit_factor = $units_by_name{$item->unit}->factor || 1;
     my $qty = $item->qty * $item_unit_factor / $base_unit_factor;
-    return $self->js->flash('error', t8('Cannot transfer negative entries.'))->render() if $qty < 0;
+    die t8('Cannot transfer negative entries.') if $qty < 0;
     $qty = 0 if (!$::instance_conf->get_transfer_default_services && $part->is_service);
 
     $parts_qty{$part->id} += $qty if $qty;
@@ -1221,7 +1237,7 @@ sub action_transfer_stock_default {
     WHERE parts_id = ? AND bin_id = ?
     GROUP BY chargenumber, bestbefore
   |;
-  my $dbh = $self->order->dbh;
+  my $dbh = SL::DB->client->dbh;
   my $in_out_direction = $delivery_order->type_data->properties('transfer');
   for my $idx (0 .. scalar @transfer_requests - 1) {
     my $transfer_request = $transfer_requests[$idx];
@@ -1263,9 +1279,12 @@ sub action_transfer_stock_default {
       # falls chargenumber, bestbefore oder anzahl nicht stimmt, auf automatischen
       # lagerplatz wegbuchen!
       foreach (@transfer_requests) {
-        if ($_->{delivery_order_item}->parts_id eq $part_id){
-          $_->{bin_id}        = $default_bin_id_ignore_onhand;
-          $_->{warehouse_id}  = $default_warehouse_id_ignore_onhand;
+        my $delivery_order_item = SL::DB::Manager::DeliveryOrderItem->find_by(
+          id => $_->{delivery_order_item_id}
+        );
+        if ($delivery_order_item->parts_id eq $part_id){
+          $_->{bin_id}       = $default_bin_id_ignore_onhand;
+          $_->{warehouse_id} = $default_warehouse_id_ignore_onhand;
         }
       }
       delete %parts_errors{$part_id};
@@ -1275,30 +1294,32 @@ sub action_transfer_stock_default {
   # render errors
   if (scalar keys %parts_errors) {
     my @multiple_options = ();
+    my @error_strings;
     foreach my $part_id (keys %parts_errors) {
       my $part = SL::DB::Part->new(id => $part_id)->load();
       if ($parts_errors{$part_id}{missing_bin}){
-        $self->js->error(t8('No standard bin set for #1.', $part->displayable_name));
+        push @error_strings, t8('No standard bin set for #1.', $part->displayable_name);
       }
       if ($parts_errors{$part_id}{missing_qty}) {
         my $bin = SL::DB::Manager::Bin->find_by(
           id => $parts_errors{$part_id}{bin_id}
         );
-        $self->js->error(
+        push @error_strings,
           t8('There are #1 of "#2" missing from the bin #3 for transfer.',
-            $parts_errors{$part_id}{missing_qty}, $part->displayable_name, $bin->full_description));
+            $parts_errors{$part_id}{missing_qty}, $part->displayable_name, $bin->full_description);
       }
       if ($parts_errors{$part_id}{multiple_options}){
         push @multiple_options, $part;
       }
     }
     if (scalar @multiple_options) {
-        $self->js->error(t8(
+      push @error_strings,
+        t8(
             "There are parts with multiple chargenumbers or bestbefore dates set. This can't be decided automatically. Pleas transfer this delivery order manually. Can't decided for #1.",
-            join ", ", map {$_->displayable_name} @multiple_options)
+            join ", ", map {$_->displayable_name} @multiple_options
         );
     }
-    return $self->js->render();
+    die join("\n", @error_strings) . "\n";
   }
 
   # assign each delivery_order_item it's stock
@@ -1311,8 +1332,7 @@ sub action_transfer_stock_default {
     $item->delivery_order_stock_entries(@stocks);
   }
 
-  my $default_transfer = 1;
-  $self->action_transfer_stock($default_transfer);
+  return $delivery_order;
 }
 
 sub action_undo_transfers {
@@ -2371,7 +2391,7 @@ sub calculate_stock_in_out_from_stock_info {
 }
 
 sub calculate_stock_in_out {
-  my ($self, $item, $stock_info) = @_;
+  my ($self, $item) = @_;
 
   return "" if !$item->part || !$item->part->unit || !$item->unit;
 
