@@ -673,6 +673,10 @@ sub netamount_base_currency {
   return $self->netamount; # already matches base currency
 }
 
+sub type_data {
+  SL::DB::Helper::TypeDataProxy->new(ref $_[0], $_[0]->type);
+}
+
 1;
 
 __END__
