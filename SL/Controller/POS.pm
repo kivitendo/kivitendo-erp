@@ -10,6 +10,7 @@ use SL::Model::Record;
 use SL::DB::ValidityToken;
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder::TypeData qw(:types);
+use SL::DB::Invoice::TypeData qw(:types);
 use SL::DB::TaxZone;
 use SL::DB::Currency;
 
@@ -232,9 +233,63 @@ sub action_to_delivery_order {
       $delivery_order, 'out', 1
     );
 
-  });
+  }) || do {
+    die t8("Creating delivery order failed: #1", SL::DB->client->error);
+  };
+  flash_later("info", t8("Delivery Order created."));
 
-  flash_later("info", t8("Delivery Order created and transfered."));
+  # TODO: print
+
+  $self->redirect_to(
+    action => 'add',
+  );
+}
+
+sub action_to_invoice {
+  my ($self) = @_;
+  my $order = $self->order;
+
+  my $delivery_order = SL::Model::Record->new_from_workflow(
+    $order,
+    SALES_DELIVERY_ORDER_TYPE(),
+    {
+      no_linked_records => 1, # order is not saved
+    }
+  );
+
+  SL::DB->client->with_transaction(sub {
+    SL::Model::Record->save(
+      $delivery_order,
+      with_validity_token        => {
+        scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
+        token => delete $::form->{form_validity_token}
+      },
+    );
+
+    $delivery_order = SL::Controller::DeliveryOrder::_add_default_transfer_to_delivery_order(
+      $delivery_order
+    );
+
+    # save created delivery_order_stock_entries
+    # they will be used in _do_stock_transfer
+    $delivery_order->save(cascade => 1);
+
+    $delivery_order = SL::Controller::DeliveryOrder::_do_stock_transfer(
+      $delivery_order, 'out', 1
+    );
+
+    my $invoice = SL::Model::Record->new_from_workflow(
+      $delivery_order,
+      INVOICE_TYPE()
+    );
+
+    $invoice->post();
+  }) || do {
+    die t8("Creating invoice failed: #1", SL::DB->client->error);
+  };
+  flash_later("info", t8("Invoice created."));
+
+  # TODO: print
 
   $self->redirect_to(
     action => 'add',

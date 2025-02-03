@@ -366,7 +366,12 @@
         <div class="pos_container">
           <div class="pos_button control-panel">Auswahl bezahlen/zurücknehmen</div>
           <div class="pos_button control-panel">Nachdruck Quittung</div>
-          <div class="pos_button control-panel">Auf Rechnung</div>
+          <div
+            class="pos_button control-panel"
+            onclick="kivi.POS.submit({action: 'to_invoice'})"
+            >
+            [% "on Invoice" | $T8 %]
+          </div>
           <div class="pos_button control-panel">Entnahme erfassen</div>
           <div
             class="pos_button control-panel"
